@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/02/09 13:37:56 $
- * $Revision: 1.39 $
+ * $Date: 2006/03/05 09:50:41 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -193,9 +193,9 @@ void EBCosmicClient::subscribe(void){
   if ( verbose_ ) cout << "EBCosmicClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM*");
-  mui_->subscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM*");
-  mui_->subscribe("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM*");
+  mui_->subscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM*");
+  mui_->subscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM*");
+  mui_->subscribe("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM*");
 
   if ( collateSources_ ) {
 
@@ -205,19 +205,19 @@ void EBCosmicClient::subscribe(void){
 
     for ( int ism = 1; ism <= 36; ism++ ) {
 
-      sprintf(histo, "EBCT amplitude sel SM%02d", ism);
+      sprintf(histo, "EBCT energy sel SM%02d", ism);
       me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Sel");
-      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM%02d", ism);
+      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
       mui_->add(me_h01_[ism-1], histo);
 
-      sprintf(histo, "EBCT amplitude cut SM%02d", ism);
+      sprintf(histo, "EBCT energy cut SM%02d", ism);
       me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Cut");
-      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM%02d", ism);
+      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
       mui_->add(me_h02_[ism-1], histo);
 
-      sprintf(histo, "EBCT amplitude spectrum SM%02d", ism);
+      sprintf(histo, "EBCT energy spectrum SM%02d", ism);
       me_h03_[ism-1] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum");
-      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
+      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
       mui_->add(me_h03_[ism-1], histo);
 
     }
@@ -229,9 +229,9 @@ void EBCosmicClient::subscribe(void){
 void EBCosmicClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM*");
 
 }
 
@@ -258,9 +258,9 @@ void EBCosmicClient::unsubscribe(void){
   }
 
   // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM*");
 
 }
 
@@ -280,9 +280,9 @@ void EBCosmicClient::analyze(void){
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Sel/EBCT amplitude sel SM%02d", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM%02d", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -291,7 +291,7 @@ void EBCosmicClient::analyze(void){
       if ( ob ) {
         if ( cloneME_ ) {
           if ( h01_[ism-1] ) delete h01_[ism-1];
-          sprintf(histo, "ME EBCT amplitude sel SM%02d", ism);
+          sprintf(histo, "ME EBCT energy sel SM%02d", ism);
           h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
         } else {
           h01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
@@ -300,9 +300,9 @@ void EBCosmicClient::analyze(void){
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Cut/EBCT amplitude cut SM%02d", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM%02d", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -311,7 +311,7 @@ void EBCosmicClient::analyze(void){
       if ( ob ) {
         if ( cloneME_ ) {
           if ( h02_[ism-1] ) delete h02_[ism-1];
-          sprintf(histo, "ME EBCT amplitude cut SM%02d", ism);
+          sprintf(histo, "ME EBCT energy cut SM%02d", ism);
           h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
         } else {
           h02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
@@ -320,9 +320,9 @@ void EBCosmicClient::analyze(void){
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -331,7 +331,7 @@ void EBCosmicClient::analyze(void){
       if ( ob ) {
         if ( cloneME_ ) {
           if ( h03_[ism-1] ) delete h03_[ism-1];
-          sprintf(histo, "ME EBCT amplitude spectrum SM%02d", ism);
+          sprintf(histo, "ME EBCT energy spectrum SM%02d", ism);
           h03_[ism-1] = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
         } else {
           h03_[ism-1] = dynamic_cast<TH1F*> (ob->operator->());
