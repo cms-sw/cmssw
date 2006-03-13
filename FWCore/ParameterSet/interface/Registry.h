@@ -2,7 +2,7 @@
 #define ParameterSet_Registry_h
 
 // ----------------------------------------------------------------------
-// $Id: Registry.h,v 1.4 2006/03/07 18:03:39 paterno Exp $
+// $Id: Registry.h,v 1.5 2006/03/08 22:14:52 wmtan Exp $
 //
 // Declaration for pset::Registry. This is an implementation detail of
 // the ParameterSet library.
@@ -13,6 +13,7 @@
 // ----------------------------------------------------------------------
 
 #include <map>
+#include <ostream>
 
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -58,6 +59,9 @@ namespace edm
       const_iterator begin() const;
       const_iterator end() const;
 
+      /// Print the contents of this Registry to the given ostream.
+      void print(std::ostream& os) const;
+
     private:
       Registry();
       Registry(Registry const&); // not implemented
@@ -70,7 +74,14 @@ namespace edm
     };
 
     // Free functions associated with Registry.
+
+    /// Print the contents of the given Registry to the given ostream.
+    std::ostream&
+    operator<< (std::ostream& os, Registry const& reg);
+
     void loadAllNestedParameterSets(edm::ParameterSet const& main);
+
+
 
   }  // namespace pset
 

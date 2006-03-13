@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Registry.cc,v 1.4 2006/03/07 18:03:40 paterno Exp $
+// $Id: Registry.cc,v 1.5 2006/03/08 22:14:52 wmtan Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -24,20 +24,20 @@ namespace edm
     Registry::instance()
     {
       if (instance_ == 0)
-      {
-	boost::mutex::scoped_lock lock(registry_mutex);
-	if (instance_ == 0)
 	{
-	    static Registry me;
-	    instance_ = &me;
+	  boost::mutex::scoped_lock lock(registry_mutex);
+	  if (instance_ == 0)
+	    {
+	      static Registry me;
+	      instance_ = &me;
+	    }
 	}
-      }
       return instance_;
     }
 
     bool
     Registry::getParameterSet(ParameterSetID const& id,
-			    ParameterSet & result) const
+			      ParameterSet & result) const
     {
       bool found;
       const_iterator i;
@@ -65,14 +65,14 @@ namespace edm
       const_iterator i = psets_.find(id);
 
       if (i != psets_.end()) // we already have it!
-      {
-	newly_added = false;
-      }
+	{
+	  newly_added = false;
+	}
       else
-      {
-	psets_[p.id()] = tracked_part;
-	newly_added = true;
-      }
+	{
+	  psets_[p.id()] = tracked_part;
+	  newly_added = true;
+	}
       return newly_added;
     }
 
@@ -95,21 +95,40 @@ namespace edm
       return psets_.end();
     }
 
+    void
+    Registry::print(std::ostream& os) const
+    {
+      const_iterator i = begin();
+      const_iterator e = end();
+      os << "ParameterSet registry with " << size() << " entries\n";
+      for ( ; i != e; ++i )
+	{
+	  os << i->first << "   " << i->second.toString() << '\n';
+	}
+    }
+
     // Private member functions
     Registry::Registry() : psets_() { }
 
     Registry::~Registry() { }
 
     // Associated functions
-      void loadAllNestedParameterSets(ParameterSet const& main)
-      {
-        Registry* reg = Registry::instance();
-        std::vector<ParameterSet> all_main_psets;
-        explode(main, all_main_psets);
-        std::vector<ParameterSet>::const_iterator i = all_main_psets.begin();
-        std::vector<ParameterSet>::const_iterator e = all_main_psets.end();
-        for (; i != e; ++i) reg->insertParameterSet(*i);
-      }
+    std::ostream&
+    operator<< (std::ostream& os, Registry const& reg)
+    {
+      reg.print(os);
+      return os;
+    }
+    
+    void loadAllNestedParameterSets(ParameterSet const& main)
+    {
+      Registry* reg = Registry::instance();
+      std::vector<ParameterSet> all_main_psets;
+      explode(main, all_main_psets);
+      std::vector<ParameterSet>::const_iterator i = all_main_psets.begin();
+      std::vector<ParameterSet>::const_iterator e = all_main_psets.end();
+      for (; i != e; ++i) reg->insertParameterSet(*i);
+    }
 
   } // namespace pset
 } // namespace edm
