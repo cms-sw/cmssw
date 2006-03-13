@@ -19,7 +19,7 @@ AbsOffsetRadialStripTopology::AbsOffsetRadialStripTopology(
   theSinOff = sin(rotate_by);
 
   //  if ( debugV ) {
-  //    std::cout << "CSCSimAlgo::AORST(): fractional strip offset = " << stripOffset <<
+  //    std::cout << "CSCGeometry::AORST(): fractional strip offset = " << stripOffset <<
   //      "\n angle = " << rotate_by << 
   //      " cos = " << theCosOff << " sin = " << theSinOff << std::endl;
   //  }

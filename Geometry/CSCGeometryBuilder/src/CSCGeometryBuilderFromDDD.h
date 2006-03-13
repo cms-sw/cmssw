@@ -1,5 +1,5 @@
-#ifndef CSCSimAlgo_CSCGeometryBuilderFromDDD_h
-#define CSCSimAlgo_CSCGeometryBuilderFromDDD_h
+#ifndef CSCGeometryBuilder_CSCGeometryBuilderFromDDD_h
+#define CSCGeometryBuilder_CSCGeometryBuilderFromDDD_h
 
 /** \class CSCGeometryBuilderFromDDD
  *

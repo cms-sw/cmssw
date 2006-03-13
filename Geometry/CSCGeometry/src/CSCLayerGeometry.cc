@@ -4,8 +4,6 @@
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/CSCGeometry/src/OffsetRadialStripTopology.h"
 #include "Geometry/CSCGeometry/src/ORedOffsetRST.h"
-//#include "Geometry/CSCSimAlgo/src/OffsetTrapezoidalStripTopology.h"
-//#include "Geometry/CSCSimAlgo/src/ORedOffsetTST.h"
 #include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
 

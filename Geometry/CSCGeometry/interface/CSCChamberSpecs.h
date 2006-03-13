@@ -292,4 +292,4 @@ public:
 
 };
 
-#endif // Geometry_CSCSimAlgo_CSCChamberSpecs_H
+#endif // Geometry_CSCGeometry_CSCChamberSpecs_H

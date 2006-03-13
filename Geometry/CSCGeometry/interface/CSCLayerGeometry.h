@@ -280,4 +280,4 @@ private:
   static const std::string myName;
 
 };
-#endif // Geometry_CSCSimAlgo_CSCLayerGeometry_H
+#endif // Geometry_CSCGeometry_CSCLayerGeometry_H

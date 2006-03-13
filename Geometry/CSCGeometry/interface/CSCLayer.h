@@ -69,4 +69,4 @@ private:
   const CSCLayerGeometry* theGeometry; // must have topology()
 };
 
-#endif // Geometry_CSCSimAlgo_CSCLayer_H
+#endif // Geometry_CSCGeometry_CSCLayer_H

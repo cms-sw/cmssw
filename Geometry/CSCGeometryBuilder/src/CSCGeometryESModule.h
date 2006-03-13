@@ -1,5 +1,5 @@
-#ifndef CSCSimAlgo_CSCGeometryESModule_h
-#define CSCSimAlgo_CSCGeometryESModule_h
+#ifndef CSCGeometryBuilder_CSCGeometryESModule_h
+#define CSCGeometryBuilder_CSCGeometryESModule_h
 
 /** \class CSCGeometryESModule
  * 

@@ -14,13 +14,8 @@
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
-//#include <Geometry/CSCSimAlgo/interface/CSCLayer.h> //@@ cyclic w. CSCChamber!
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
 
-//@@ Seems saner to define this where it's used, in CSCLayer.
-//#include <boost/shared_ptr.hpp>
-//class CSCChamber;
-//typedef boost::shared_ptr<CSCChamber> Pointer2Chamber;
 
 class CSCChamber : public GeomDet {
 
@@ -49,4 +44,4 @@ private:
   std::vector< const GeomDet* > theComponents; // the 6 CSCLayers comprising a CSCChamber
 };
 
-#endif // Geometry_CSCSimAlgo_CSCChamber_H
+#endif // Geometry_CSCGeometry_CSCChamber_H
