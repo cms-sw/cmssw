@@ -1,0 +1,28 @@
+This package uses the geometry information of the subdetectors and the
+simulated output from OscarProducer to find simulated hits of the full
+CMS detector in global coordinates (i.e. a port of ExSimHitStatistics
+to CMSSW). It puts into the event a PGlobalSimHit object as defined in
+SimDataFormats/GlobalValidation.
+
+It is possible to use two .cfg files to run the package:
+
+EvtGen+DetSim+Global.cfg runs the full chain of event generation, detector
+	simulation and global translation
+GlobalValProducer.cfg uses as input a root file created in the 
+        SimG4Core/Application/test directory for quick processing
+
+via cmsRun -p *.cfg
+
+Also included is a MakeHistograms.C macro that processes the output root file
+ 	from GlobalProducer creating a .ps file with formatted histograms as 
+	well as a root file holding the same histograms. This macro makes
+	use of the PGlobalSimHit accessor methods, so a .rootrc and rootlogon.C
+	file is provided to load the FWLite package to provide this
+	functionality.
+
+Currently, RPC Muon information is not included pending release of the
+	appropriate geometry, although the necessary code is waiting in the
+	GlobalProducer.cc file.
+
+Future revisions will include macros to perform the actual validation based
+	on the PGlobalSimHit information.

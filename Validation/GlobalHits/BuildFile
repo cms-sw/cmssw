@@ -1,0 +1,39 @@
+<use name=Foundation/PluginManager>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=Geometry/CaloEventSetup>
+<use name=SimDataFormats/GlobalValidation>
+<use name=SimDataFormats/HepMCProduct>
+<use name=DataFormats/DetId>
+<use name=Geometry/CommonDetUnit>
+<use name=DataFormats/MuonDetId>
+<use name=Geometry/CSCGeometry>
+<use name=Geometry/DTGeometry>
+<use name=Geometry/RPCSimAlgo>
+<use name=root>
+<use name=clhep>
+
+<flags SEAL_PLUGIN_NAME="ValidationGlobalHits">
+
+<export>
+ <lib name=ValidationGlobalHits>
+ <use name=Foundation/PluginManager>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/MessageLogger>
+ <use name=Geometry/CaloEventSetup>
+ <use name=SimDataFormats/GlobalValidation>
+ <use name=SimDataFormats/HepMCProduct>
+ <use name=DataFormats/DetId>
+ <use name=Geometry/CommonDetUnit>
+ <use name=DataFormats/MuonDetId>
+ <use name=Geometry/CSCGeometry>
+ <use name=Geometry/DTGeometry>
+ <use name=Geometry/RPCSimAlgo>
+ <use name=root>
+ <use name=clhep>
+</export>
+
+
+
