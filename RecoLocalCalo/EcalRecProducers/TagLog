@@ -1,3 +1,6 @@
+** V00-01-03  [Mon Mar 13 11:56:10 2006]
+reduced verbosity
+
 ** V00-01-02  [Mon Mar 13 10:09:16 2006]
 fixed  config files for uncalib rechit producers.
 Now the weight method producer uses the latest cond DB objects 
