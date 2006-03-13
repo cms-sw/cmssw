@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/03/13 10:11:21 $
- * $Revision: 1.39 $
+ * $Date: 2006/03/13 12:53:37 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -47,19 +47,19 @@ void EBCosmicTask::setup(void){
 
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBCT amplitude cut SM%02d", i+1);
+      sprintf(histo, "EBCT energy cut SM%02d", i+1);
       meCutMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBCT amplitude sel SM%02d", i+1);
+      sprintf(histo, "EBCT energy sel SM%02d", i+1);
       meSelMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBCT amplitude spectrum SM%02d", i+1);
+      sprintf(histo, "EBCT energy spectrum SM%02d", i+1);
       meSpectrumMap_[i] = dbe->book1D(histo, histo, 100, 0., 1000.);
     }
 
@@ -121,9 +121,9 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
     LogDebug("EBCosmicTask") << " det id = " << id;
     LogDebug("EBCosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
-    float xval = hit.amplitude();
+    float xval = hit.energy();
 
-    LogDebug("EBCosmicTask") << " hit amplitude " << xval;
+    LogDebug("EBCosmicTask") << " hit energy " << xval;
 
     const float lowThreshold = 5.;
     const float highThreshold = 10.;
