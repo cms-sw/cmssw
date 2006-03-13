@@ -28,8 +28,8 @@ class EcalWeightUncalibRecHitProducer : public edm::EDProducer {
     HepMatrix makeMatrixFromVectors(const std::vector< std::vector<EcalWeight> >& vecvec);
 
     int nMaxPrintout_; // max # of printouts
-    int nEvt_; // internal counter of events
+    int counter_; // internal verbosity counter
 
-    bool counterExceeded() const { return ( (nEvt_>nMaxPrintout_) || (nMaxPrintout_<0) ) ; }
+    bool counterExceeded() const { return ( (counter_>nMaxPrintout_) || (counter_<0) ) ; }
 };
 #endif
