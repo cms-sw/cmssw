@@ -87,10 +87,10 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer) {
 					 << " Output " << output;
 	  
           result.push_back(
-			   CSCComparatorDigi(strip1, output, tbin)
+			   CSCComparatorDigi(16*cfeb+strip1, output, tbin)
 			   );
 	  result.push_back(
-			   CSCComparatorDigi(strip2, output, tbin)
+			   CSCComparatorDigi(16*cfeb+strip2, output, tbin)
 			   );
           tbin += 2;
 
