@@ -1,12 +1,12 @@
 #include "Utilities/Configuration/interface/Architecture.h"
 
-#include "RecoVertex/TrimmedKalmanVertexFinder/interface/DefaultTrimmedVertexFinder.h"
+#include "RecoVertex/TrimmedKalmanVertexFinder/interface/KalmanTrimmedVertexFinder.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
 
 
-DefaultTrimmedVertexFinder::DefaultTrimmedVertexFinder() 
+KalmanTrimmedVertexFinder::KalmanTrimmedVertexFinder() 
 {
   KalmanVertexFitter vf(false);
   KalmanVertexUpdator vu;
@@ -16,14 +16,14 @@ DefaultTrimmedVertexFinder::DefaultTrimmedVertexFinder()
 }
 
 
-DefaultTrimmedVertexFinder::~DefaultTrimmedVertexFinder() 
+KalmanTrimmedVertexFinder::~KalmanTrimmedVertexFinder() 
 {
   delete theFinder;
 }
 
 
-DefaultTrimmedVertexFinder::DefaultTrimmedVertexFinder(
-  const DefaultTrimmedVertexFinder & other)
+KalmanTrimmedVertexFinder::KalmanTrimmedVertexFinder(
+  const KalmanTrimmedVertexFinder & other)
 {
   theFinder = other.theFinder->clone();
 }

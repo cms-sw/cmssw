@@ -1,29 +1,29 @@
-#ifndef _DefaultTrimmedVertexFinder_H_
-#define _DefaultTrimmedVertexFinder_H_
+#ifndef _KalmanTrimmedVertexFinder_H_
+#define _KalmanTrimmedVertexFinder_H_
 
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/ConfigurableTrimmedVertexFinder.h"
 
-/** User-friendly wrapper around TrimmedVertexFinder. <BR>
+/** User-friendly wrapper around ConfigurableTrimmedVertexFinder. <BR>
  *  Chooses the KalmanVertexFit classes as vertex fitting classes 
  *  used by the TrimmedVertexFinder. <BR>
- *  DefaultTrimmedVertexFinder is configurable 
- *  using the same set() methods as TrimmedVertexFinder. 
+ *  KalmanTrimmedVertexFinder is configurable 
+ *  using the same set() methods as ConfigurableTrimmedVertexFinder. 
  */
 
-class DefaultTrimmedVertexFinder 
+class KalmanTrimmedVertexFinder 
   : public VertexReconstructor {
 
 public:
 
-  DefaultTrimmedVertexFinder();
-  DefaultTrimmedVertexFinder(
-    const DefaultTrimmedVertexFinder & other);
-  virtual ~DefaultTrimmedVertexFinder();
+  KalmanTrimmedVertexFinder();
+  KalmanTrimmedVertexFinder(
+    const KalmanTrimmedVertexFinder & other);
+  virtual ~KalmanTrimmedVertexFinder();
 
   /** Clone method
    */
-  virtual DefaultTrimmedVertexFinder * clone() const {
-    return new DefaultTrimmedVertexFinder(*this);
+  virtual KalmanTrimmedVertexFinder * clone() const {
+    return new KalmanTrimmedVertexFinder(*this);
   }
 
   virtual inline vector<TransientVertex> 
