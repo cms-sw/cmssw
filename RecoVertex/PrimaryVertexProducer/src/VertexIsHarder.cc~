@@ -1,0 +1,23 @@
+#include "Utilities/Configuration/interface/Architecture.h"
+
+#include "Vertex/PrincipalVertexReco/interface/RecVertexLargerSumPtSquared.h"
+
+
+bool 
+RecVertexLargerSumPtSquared::operator() ( const ConcreteRecVertex & v1, 
+					  const ConcreteRecVertex & v2) const
+{
+  return sumPtSquared(v1.originalTracks()) > sumPtSquared(v2.originalTracks());
+}
+
+
+double 
+RecVertexLargerSumPtSquared::sumPtSquared(const vector<RecTrack> & tks) const 
+{
+  double sum = 0.;
+  for (vector<RecTrack>::const_iterator it = tks.begin(); 
+       it != tks.end(); it++) {
+    sum += pow((*it).momentumAtVertex().transverse(), 2);
+  }
+  return sum;
+}

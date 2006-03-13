@@ -1,0 +1,21 @@
+#ifndef RecVertexLargerSumPtSquared_H
+#define RecVertexLargerSumPtSquared_H
+
+#include "CommonReco/CommonVertex/interface/ConcreteRecVertex.h"
+
+/** \class RecVertexLargerSumPtSquared
+ * operator for sorting ConcreteRecVertex objects
+ * in decreasing order of the sum of the squared track pT's
+ */
+struct RecVertexLargerSumPtSquared {
+
+  bool operator() ( const ConcreteRecVertex & v1, 
+		    const ConcreteRecVertex & v2) const;
+
+
+private:
+
+  double sumPtSquared(const vector<RecTrack> & tks) const;
+};
+
+#endif

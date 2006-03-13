@@ -3,6 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
+<flags SEAL_PLUGIN_NAME="RecoVertexDummyPrimaryVertexProducer">
 <flags SEAL_PLUGIN_NAME="RecoVertexPrimaryVertexProducer">
 <export>
    <lib name=RecoVertexPrimaryVertexProducer>
