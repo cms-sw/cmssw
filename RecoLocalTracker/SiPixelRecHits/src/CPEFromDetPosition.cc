@@ -132,7 +132,6 @@ CPEFromDetPosition::measurementError( const SiPixelCluster& cluster, const GeomD
 LocalError  
 CPEFromDetPosition::localError( const SiPixelCluster& cluster, const GeomDetUnit & det)
 {
-  std::cout << "In localError()" << std::endl;
   setTheDet( det );
   int sizex = cluster.sizeX();
   int sizey = cluster.sizeY();
@@ -165,16 +164,12 @@ CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster, const Ge
 LocalPoint
 CPEFromDetPosition::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) 
 {
-  std::cout << "In localPosition()" << std::endl;
   //return theTopol->localPosition(measurementPosition(cluster, det)); 
 
-  std::cout <<" PIPPO "<<&det<<" " <<theTopol<<" "<< &cluster  <<std::endl;
   MeasurementPoint ssss = measurementPosition(cluster, det);
 
-  std::cout <<" PIPPOwww "<<ssss.x() <<std::endl;
 
   LocalPoint cdfsfs = theTopol->localPosition(ssss);
-  std::cout <<" PIPPOwww2 "<<std::endl;
   return cdfsfs;
 }
 

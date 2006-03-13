@@ -175,11 +175,13 @@ namespace cms
       // &&& We really should preallocate the size of this container since
       // &&& we *know* how many PixelClusters there are on this det unit!
 
-      
+       //
+       // modification by tom e vincenzo .... please do something
+       //      
 
+       if (dynamic_cast<CPEFromDetPosition*>(cpe_))
+	 (dynamic_cast<CPEFromDetPosition*>(cpe_))->setTheDet( *pixDet );  // &&& not in the base class,
 
-      //cpe_->setTheDet( *pixDet );  // &&& not in the base class, verdamt!
-      
       for ( ; clustIt != endClustIt; ++clustIt ) {
 	std::pair<LocalPoint,LocalError> lv = 
 	  cpe_->localParameters( *clustIt, *genericDet );
