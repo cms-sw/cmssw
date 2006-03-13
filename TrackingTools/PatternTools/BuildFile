@@ -8,6 +8,6 @@
 <use name=CLHEP>
 <use name=boost>
 #no more necessary after committing GeomPropagators
-<use name=TrackingTools/TrajectoryState>
-<use name=TrackingTools/AnalyticalJacobians>
-<use name=FWCore/Utilities>
+#<use name=TrackingTools/TrajectoryState>
+#<use name=TrackingTools/AnalyticalJacobians>
+#<use name=FWCore/Utilities>

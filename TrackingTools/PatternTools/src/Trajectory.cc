@@ -88,19 +88,17 @@ void Trajectory::check() const {
 bool Trajectory::lost( const TransientTrackingRecHit& hit)
 {
   // FIXME
-  return false;
-
-//   if ( hit.isValid()) return false;
-//   else {
-//     // A DetLayer is always inactive in this logic.
-//     // The DetLayer is the Det of an invalid RecHit only if no DetUnit 
-//     // is compatible with the predicted state, so we don't really expect
-//     // a hit in this case.
-//     if ( dynamic_cast<const DetLayer*>( &hit.det()) != 0) return false;
-//     else {
-//       if (inactive(hit.det())) return false;
-//       else return true;
-//     }
-//   }
+  if ( hit.isValid()) return false;
+  //  else {
+  //     // A DetLayer is always inactive in this logic.
+  //     // The DetLayer is the Det of an invalid RecHit only if no DetUnit 
+  //     // is compatible with the predicted state, so we don't really expect
+  //     // a hit in this case.
+  //     if ( dynamic_cast<const DetLayer*>( &hit.det()) != 0) return false;
+  //     else {
+  //       if (inactive(hit.det())) return false;
+  else return true;
+  //     }
+  //  }
 }
 

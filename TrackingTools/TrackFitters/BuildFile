@@ -2,7 +2,7 @@
 <use name=CLHEP>
 
 <export>
- <lib name=TrackFitters>
+ <lib name=TrackingToolsTrackFitters>
  <use name=TrackingTools/KalmanUpdators>
  <use name=TrackingTools/GeomPropagators>
  <use name=TrackingTools/MaterialEffects>
