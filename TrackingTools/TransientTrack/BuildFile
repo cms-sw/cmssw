@@ -3,7 +3,7 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=TrackingTools/TrajectoryParametrization>
-<use name=TrackingTools/TrajectoryStates>
+<use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/PatternTools>
 <use name=FWCore/Utilities>
 <use name=DataFormats/TrackReco>
