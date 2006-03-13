@@ -53,13 +53,13 @@
        <PartSelector path="//MB4BigChimRPC.*/MB.*RPC.*Gas.*"/>
        <PartSelector path="//MB4Small.*/MB4RPC.*/MB.*RPC.*Gas.*"/>
        <PartSelector path="//MB4FeetRPC.*/MB.*RPC.*Gas.*"/>
-       <PartSelector path="//MB4Small.*/MB4SmallRPC.*/MB4SmallRPCBiggerGas.*"/>
+       <PartSelector path="//MB4Small.*/MB4SmallRPC.*/MB4SmallRPC_BiggerGas.*"/>
     </SpecPar>
 
     <SpecPar name="nStrips36" eval="true">
        <PartSelector path="//MB4TopRPC.*/MB.*RPC.*Gas.*"/>
        <PartSelector path="//MB4TopChimRPC.*/MB.*RPC.*Gas.*"/>
-       <PartSelector path="//MB4Small.*/MB4SmallRPC.*/MB4SmallRPCSmallerGas.*"/>
+       <PartSelector path="//MB4Small.*/MB4SmallRPC.*/MB4SmallRPC_SmallerGas.*"/>
       <Parameter name="nStrips" value="36"/>
     </SpecPar>
 
