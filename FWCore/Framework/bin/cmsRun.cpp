@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.11 2006/02/16 19:07:20 wmtan Exp $
+$Id: cmsRun.cpp,v 1.12 2006/03/05 21:41:53 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -24,7 +24,6 @@ $Id: cmsRun.cpp,v 1.11 2006/02/16 19:07:20 wmtan Exp $
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/PresenceFactory.h"
 
-using namespace std;
 static const char* const kParameterSetOpt = "parameter-set";
 static const char* const kParameterSetCommandOpt = "parameter-set,p";
 static const char* const kHelpOpt = "help";
@@ -45,8 +44,8 @@ int main(int argc, char* argv[])
   try {
     theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
         makePresence("MessageServicePresence").release());
-  }catch(seal::Error& e) {
-    std::cerr <<e.explainSelf()<<std::endl;
+  } catch(seal::Error& e) {
+    std::cerr << e.explainSelf() << std::endl;
     return 1;
   }
 
@@ -69,17 +68,17 @@ int main(int argc, char* argv[])
     store(command_line_parser(argc,argv).options(desc).positional(p).run(),vm);
     notify(vm);
   } catch(const error& iException) {
-    edm::LogError(kProgramName) << "Exception from command line processing: " << iException.what();
+    edm::LogError("Parsing") << "Exception from command line processing: " << iException.what();
     return 1;
   }
     
-  if(vm.count(kHelpOpt)){
+  if(vm.count(kHelpOpt)) {
     std::cout << desc <<std::endl;
     return 0;
   }
   
-  if(!vm.count(kParameterSetOpt)){
-    edm::LogError(kProgramName) << "No configuration file given \n"
+  if(!vm.count(kParameterSetOpt)) {
+    edm::LogError("Configuration") << "No configuration file given \n"
 			      <<" please do '"
 			      << argv[0]
 			      <<  " --"
@@ -88,9 +87,9 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  ifstream configFile(vm[kParameterSetOpt].as<std::string>().c_str());
+  std::ifstream configFile(vm[kParameterSetOpt].as<std::string>().c_str());
   if(!configFile) {
-    edm::LogError(kProgramName) << "Unable to open configuration file "
+    edm::LogError("Configuration") << "Unable to open configuration file "
 			      << vm[kParameterSetOpt].as<std::string>();
     return 1;
   }
@@ -98,8 +97,8 @@ int main(int argc, char* argv[])
 
   // Create the several parameter sets that will be used to configure
   // the program.
-  string configstring;
-  string line;
+  std::string configstring;
+  std::string line;
 
   while(std::getline(configFile,line)) { configstring+=line; configstring+="\n"; }
   
@@ -108,8 +107,7 @@ int main(int argc, char* argv[])
 
 
   int rc = -1; // we should never return this value!
-  try
-    {
+  try {
       edm::EventProcessor proc(configstring);
       proc.beginJob();
       proc.run();
@@ -118,29 +116,27 @@ int main(int argc, char* argv[])
       } else {
         rc = 1;
       }
-    }
-  catch (seal::Error& e)
-    {
-      edm::LogError(kProgramName) << "Exception caught in " 
-				<< kProgramName 
+  }
+  catch (seal::Error& e) {
+      edm::LogError("seal::Error") << "Exception caught in " 
+				<< kProgramName
 				<< "\n"
 				<< e.explainSelf();
       rc = 1;
-    }
-  catch (std::exception& e)
-    {
-      edm::LogError(kProgramName) << "Standard library exception caught in " 
-				<< kProgramName 
+  }
+  catch (std::exception& e) {
+      edm::LogError("std::exception") << "Standard library exception caught in " 
+				<< kProgramName
 				<< "\n"
 				<< e.what();
       rc = 1;
-    }
-  catch (...)
-    {
-      edm::LogError(kProgramName) << "Unknown exception caught in " 
-				  << kProgramName;
+  }
+  catch (...) {
+      edm::LogError("Unknown Exception") << "Unknown exception caught in "
+				<< kProgramName
+				<< "\n";
       rc = 2;
-    }
+  }
   
   return rc;
 }
