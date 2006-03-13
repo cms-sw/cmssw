@@ -11,5 +11,5 @@ TrimmedTrackFilter::TrimmedTrackFilter()
 bool 
 TrimmedTrackFilter::operator() (const TransientTrack& aTk) const 
 {
-  return aTk.momentumAtVertex().transverse() > thePtCut;
+  return aTk.impactPointState().globalMomentum().transverse() > thePtCut;
 }
