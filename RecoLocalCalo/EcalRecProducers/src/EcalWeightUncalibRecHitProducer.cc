@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.7 2006/02/02 17:02:34 rahatlou Exp $
-  *  $Date: 2006/02/02 17:02:34 $
-  *  $Revision: 1.7 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.8 2006/03/13 09:06:31 rahatlou Exp $
+  *  $Date: 2006/03/13 09:06:31 $
+  *  $Revision: 1.8 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -85,11 +85,11 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
    //const EcalGainRatios* gr = pRatio.product();
 
    // fetch TB weights
-   std::cout <<"Fetching EcalTBWeights from DB " << std::endl;
+   if(!counterExceeded()) std::cout <<"Fetching EcalTBWeights from DB " << std::endl;
    edm::ESHandle<EcalTBWeights> pWgts;
    es.get<EcalTBWeightsRcd>().get(pWgts);
    const EcalTBWeights* wgts = pWgts.product();
-   std::cout << "EcalTBWeightMap.size(): " << std::setprecision(3) << wgts->getMap().size() << std::endl;
+   if(!counterExceeded()) std::cout << "EcalTBWeightMap.size(): " << std::setprecision(3) << wgts->getMap().size() << std::endl;
 
 
    // fetch the pedestals from the cond DB via EventSetup
@@ -116,7 +116,10 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
      if( pedIter != pedMap.end() ) {
         aped = pedIter->second;
      } else {
-        std::cout << "error!! could not find pedestals for channel: " << itdg->id() << std::endl;
+        std::cout << "error!! could not find pedestals for channel: " << itdg->id() 
+                  << "\n  no uncalib rechit will be made for this digi!"
+                  << std::endl;
+         continue;
      }
      std::vector<double> pedVec;
      pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
@@ -125,11 +128,12 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
      EcalWeightXtalGroups::EcalXtalGroupsMap::const_iterator git = grp->getMap().find( itdg->id().rawId() );
      EcalXtalGroupId gid;
      if( git != grp->getMap().end() ) {
-       //std::cout << "XtalGroupId.id() = " << std::setprecision(3) << git->second.id() << std:: endl;
        gid = git->second;
      } else {
        std::cout << "No group id found for this crystal. something wrong with EcalWeightXtalGroups in your DB?"
+                  << "\n  no uncalib rechit will be made for digi with id: " << itdg->id()
                  << std::endl;
+       continue;
     }
 
     // use a fake TDC iD for now until it become available in raw data
