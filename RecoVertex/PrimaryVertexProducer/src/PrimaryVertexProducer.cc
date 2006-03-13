@@ -2,9 +2,16 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "RecoVertex/TrimmedKalmanVertexFinder/interface/KalmanTrimmedVertexFinder.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 
 //
 // constants, enums and typedefs
@@ -20,15 +27,15 @@
 PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& iConfig)
 {
   using namespace reco;
-   //register your products
-  //#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  //   produces<VertexCollection>();
 
-   //if do put with a label
-   produces<VertexCollection>("PrimaryVertex");
-   //#endif
+  produces<VertexCollection>("PrimaryVertex");
+  
+  // initialization of vertex finder algorithm
+  theFinder = new KalmanTrimmedVertexFinder();
 
-   //now do what ever other initialization is needed
+  // FIXME introduce nested configurable parameters
+
+  // FIXME introduce track selection and beam compatibility check
 
 }
 
@@ -36,9 +43,9 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& iConfig)
 PrimaryVertexProducer::~PrimaryVertexProducer()
 {
  
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
+  delete theFinder;
 }
 
 
@@ -50,29 +57,42 @@ PrimaryVertexProducer::~PrimaryVertexProducer()
 void
 PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
+  using namespace edm;
+  
+  // get RECO tracks from the event
+  reco::TrackCollection tks();
 
-   //Read 'ExampleData' from the Event
-   //   Handle<ExampleData> pIn;
-   //   iEvent.getByLabel("example",pIn);
+  // interface RECO tracks to vertex reconstruction
+  vector<TransientTrack> t_tks;
+  for (reco::TrackCollection::const_iterator it = tks.begin();
+       it != tks.end(); it++) {
+    t_tks.push_back(*it);
+  }
 
-   reco::Vertex::Point pos(-1, -1, -1);
-   double e[6]; reco::Vertex::Error err(e);
-   double chi2 = -1; double ndof = 1; double ntks = 0;
+  //  reco::Vertex::Point pos(-1, -1, -1);
+  //  double e[6]; reco::Vertex::Error err(e);
+  //  double chi2 = -1; double ndof = 1; double ntks = 0;
+  
+  std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection); // empty vertex collection,on the heap ??
+  // here call vertex reconstruction
+  vector<TransientVertex> t_vts = (*theFinder).vertices(t_tks);
 
-   
-   std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection); // empty vertex collection,on the heap ??
-   reco::VertexCollection tmpVColl;
-   reco::Vertex v(pos, err, chi2, ndof, ntks);
-   tmpVColl.push_back(v);
-   *result = tmpVColl;
-   iEvent.put(result, "PrimaryVertex");
+  reco::VertexCollection vColl;
+  for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
+       iv != t_vts.end(); iv++) {
+    Vertex v(Vertex::Point((*iv).position()), 
+	     RecoVertex::convertError((*iv).positionError()), 
+	     (*iv).totalChiSquared(), 
+	     (*iv).degreesOfFreedom() , 
+	     (*iv).originalTracks().size());
+    vColl.push_back(v);
+  }
 
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   //Read SetupData from the SetupRecord in the EventSetup
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
+  //  reco::Vertex v(pos, err, chi2, ndof, ntks);
+  //  tmpVColl.push_back(v);
+  *result = vColl;
+  iEvent.put(result, "PrimaryVertex");
+  
 }
 
 //define this as a plug-in

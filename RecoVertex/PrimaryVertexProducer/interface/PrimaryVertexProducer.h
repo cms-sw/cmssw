@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id$
+// $Id: PrimaryVertexProducer.h,v 1.1 2006/02/28 11:45:39 vanlaer Exp $
 //
 //
 
@@ -30,18 +30,25 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "RecoVertex/VertexPrimitives/interface/VertexReconstructor.h"
+
 //
 // class decleration
 //
 
 class PrimaryVertexProducer : public edm::EDProducer {
-   public:
-      explicit PrimaryVertexProducer(const edm::ParameterSet&);
-      ~PrimaryVertexProducer();
+public:
+  explicit PrimaryVertexProducer(const edm::ParameterSet&);
+  ~PrimaryVertexProducer();
+  
+  
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  
+private:
+  // ----------member data ---------------------------
+  // vtx finding algorithm
+  VertexReconstructor* theFinder;
 
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
 };
 
