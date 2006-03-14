@@ -1,7 +1,7 @@
 #ifndef DetLayers_PeriodicBinFinderInZ_H
 #define DetLayers_PeriodicBinFinderInZ_H
 
-#include "TrackingTools/DetLayers/interface/BaseBinFinder.h"
+#include "Utilities/General/interface/BaseBinFinder.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <cmath>
 
