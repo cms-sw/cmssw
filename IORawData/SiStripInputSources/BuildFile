@@ -1,0 +1,19 @@
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/EDProduct>
+<use name=DataFormats/FEDRawData>
+<use name=PluginManager>
+<use name=root>
+<use name=xdaq>
+<flags SEAL_PLUGIN_NAME="IORawDataSiStripInputSources">
+
+<export>
+ <lib name=IORawDataSiStripInputSources>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/EDProduct>
+ <use name=DataFormats/FEDRawData>
+ <use name=PluginManager>
+ <use name=root>
+ <use name=xdaq>
+</export>
