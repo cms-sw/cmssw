@@ -1,6 +1,6 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <iostream>
+//#include <iostream>
 const int EEDetId::QuadColLimits[EEDetId::nCols+1] = { 0, 8,17,27,36,45,54,62,70,76,79 };
 const int EEDetId::iYoffset[EEDetId::nCols+1]      = { 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -41,9 +41,9 @@ EEDetId::EEDetId(int index1, int index2, int iz, int mode) : DetId(Ecal,EcalEndc
   if (crystal_ix < IX_MIN ||  crystal_ix > IX_MAX ||
       crystal_iy < IY_MIN || crystal_iy > IY_MAX || abs(iz) != 1 ) 
     {
-      std::cout << "EEDetId:: ERROR in constructor" << std::endl;  
-      std::cout << "Construction Mode " << mode << " index1 " << index1 << " index2 " << index2 << " iz " << iz << std::endl;
-      std::cout << "crystal_x " << crystal_ix << " crystal_iy " << crystal_iy << std::endl;
+//       std::cout << "EEDetId:: ERROR in constructor" << std::endl;  
+//       std::cout << "Construction Mode " << mode << " index1 " << index1 << " index2 " << index2 << " iz " << iz << std::endl;
+//       std::cout << "crystal_x " << crystal_ix << " crystal_iy " << crystal_iy << std::endl;
       throw(std::runtime_error("EEDetId:  Cannot create object.  Indexes out of bounds."));
     }
 
@@ -72,9 +72,9 @@ EEDetId::EEDetId(int index1, int index2, int iz, int mode) : DetId(Ecal,EcalEndc
        ( crystal_ix >= 46 && crystal_ix <= 55 && crystal_iy >= 40 && crystal_iy <= 61 ) 
        )
     {
-      std::cout << "EEDetId:: ERROR in constructor" << std::endl;  
-      std::cout << "Construction Mode " << mode << " index1 " << index1 << " index2 " << index2 << " iz " << iz << std::endl;
-      std::cout << "crystal_x " << crystal_ix << " crystal_iy " << crystal_iy << std::endl;
+//       std::cout << "EEDetId:: ERROR in constructor" << std::endl;  
+//       std::cout << "Construction Mode " << mode << " index1 " << index1 << " index2 " << index2 << " iz " << iz << std::endl;
+//       std::cout << "crystal_x " << crystal_ix << " crystal_iy " << crystal_iy << std::endl;
       throw(std::runtime_error("EEDetId:  Cannot create object.  Indexes out of bounds."));
     }
 

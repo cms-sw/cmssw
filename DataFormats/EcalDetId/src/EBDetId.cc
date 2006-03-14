@@ -1,7 +1,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include <stdexcept>
-#include <iostream>
+//#include <iostream>
 
 EBDetId::EBDetId() : DetId() {
 }
@@ -35,7 +35,7 @@ EBDetId::EBDetId(int index1, int index2, int mode)  throw(std::runtime_error)
 
   if (crystal_ieta < -MAX_IETA || crystal_ieta == 0 || crystal_ieta > MAX_IETA ||
       crystal_iphi < MIN_IPHI || crystal_iphi > MAX_IPHI) {
-    std::cout << "crystal_eta " << crystal_ieta << "crystal_phi " << crystal_iphi << std::endl;
+    //    std::cout << "crystal_eta " << crystal_ieta << "crystal_phi " << crystal_iphi << std::endl;
     throw(std::runtime_error("EBDetId:  Cannot create object.  Indexes out of bounds."));
   }
   id_|=((crystal_ieta>0)?(0x10000|(crystal_ieta<<9)):((-crystal_ieta)<<9))|(crystal_iphi&0x1FF);

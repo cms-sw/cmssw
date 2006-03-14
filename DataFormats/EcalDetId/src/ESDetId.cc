@@ -1,5 +1,5 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-
+#include <stdexcept>
 
 ESDetId::ESDetId() : DetId() {
 }
@@ -8,6 +8,11 @@ ESDetId::ESDetId(uint32_t rawid) : DetId(rawid) {
 }
   
 ESDetId::ESDetId(int strip, int ixs, int iys, int plane, int iz) : DetId(Ecal,EcalPreshower) {
+  if ((strip<ISTRIP_MIN) || (strip > ISTRIP_MAX) ||
+      (ixs<IX_MIN) || (ixs > IX_MAX) ||
+      (iys<IY_MIN) || (iys > IY_MAX) ||
+      (plane != 1 && plane != 2)) 
+    throw(std::runtime_error("ESDetId:  Cannot create object.  Indexes out of bounds."));
   id_ |=
     (strip&0x3F) |
     ((ixs&0x3F)<<6) |

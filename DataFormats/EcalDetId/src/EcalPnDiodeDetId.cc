@@ -10,13 +10,17 @@ EcalPnDiodeDetId::EcalPnDiodeDetId(uint32_t rawid) : DetId(rawid) {
 }
   
 EcalPnDiodeDetId::EcalPnDiodeDetId(int EcalSubDetectorId, int DCCId, int PnId) : DetId(Ecal,EcalLaserPnDiode) {
-  id_|= ((((EcalSubDetectorId==EcalBarrel)?(0):(1))<<10) | 
-	((DCCId&0x3F)<<4) |
+  if ( (DCCId < MIN_DCCID) || (DCCId > MAX_DCCID) ||  
+       (PnId < MIN_PNID) || (PnId > MAX_PNID) ||  
+       (EcalSubDetectorId != EcalBarrel && EcalSubDetectorId != EcalEndcap))
+    throw(std::runtime_error("EcalPnDiodeDetId:  Cannot create object.  Indexes out of bounds."));
+  id_|= ((((EcalSubDetectorId==EcalBarrel)?(0):(1))<<11) | 
+	((DCCId&0x7F)<<4) |
 	(PnId&0xF));
 }
   
 EcalPnDiodeDetId::EcalPnDiodeDetId(const DetId& gen) {
-  if (gen.det()!=Ecal || gen.subdetId()!=EcalTriggerTower) {
+  if (gen.det()!=Ecal || gen.subdetId()!=EcalLaserPnDiode) {
     throw new std::exception();
   }
   id_=gen.rawId();
