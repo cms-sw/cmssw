@@ -2,6 +2,8 @@
 <use name=DataFormats/DTRecHit>
 <use name=Geometry/Records>
 <use name=Geometry/DTGeometry>
+<use name=MagneticField/Records>
+<use name=MagneticField/Engine>
 
 <flags SEAL_PLUGIN_NAME="RecoLocalMuonDTRecHit">
 
@@ -11,4 +13,6 @@
  <use name=DataFormats/DTRecHit>
  <use name=Geometry/Records>
  <use name=Geometry/DTGeometry>
+ <use name=MagneticField/Records>
+ <use name=MagneticField/Engine>
 </export>

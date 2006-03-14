@@ -1,0 +1,6 @@
+#ifndef RecoLocalMuon_DTDriftTimeParameters_H
+#define RecoLocalMuon_DTDriftTimeParameters_H
+
+#include "SimMuon/DTDigitizer/src/DTDriftTimeParameters.icc"
+
+#endif
