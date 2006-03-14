@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/02/28 18:01:41 $
-// $Revision: 1.6 $
+// $Author: stevew $
+// $Date: 2006/03/09 14:53:49 $
+// $Revision: 1.7 $
 //
 
 #include <vector>
@@ -202,7 +202,6 @@ void RoadSearchCloudMakerAlgorithm::run(const TrackingSeedCollection* input,
       
       // continue if valid extrapolation parameters have been found
       if ( (phi0 != -99.) && (k0 != -99999999.99) ) {
-
 	const Roads::RoadMapConstRange roadSets = roads->getRoadSet(roadSeed);
 
 	for ( Roads::const_iterator roadMapEntry = roadSets.first; roadMapEntry != roadSets.second; ++roadMapEntry ) {
@@ -220,7 +219,13 @@ void RoadSearchCloudMakerAlgorithm::run(const TrackingSeedCollection* input,
 	    // calculate phi-range for lookup of DetId's in Rings of RoadSet
 	    // calculate phi at radius of Ring using extrapolation, Ring radius average of Ring.rmin() and Ring.rmax()
 	    double ringRadius = ring->getrmin() + (ring->getrmax()-ring->getrmin())/2;
-	    double ringPhi = phiFromExtrapolation(phi0,k0,ringRadius,roadType);
+	    double ringZ      = ring->getzmin() + (ring->getzmax()-ring->getzmin())/2;
+	    double ringPhi = 0.0;
+	    if ( roadType == Roads::RPhi ) {
+	      ringPhi = phiFromExtrapolation(phi0,k0,ringRadius,roadType);
+	    } else {
+	      ringPhi = phiFromExtrapolation(phi0,k0,ringZ,roadType);
+	    }
 
 	    // calculate range in phi around ringPhi
 	    double ringHalfPhiExtension = conf_.getParameter<double>("MinimumHalfRoad");
@@ -272,6 +277,20 @@ void RoadSearchCloudMakerAlgorithm::run(const TrackingSeedCollection* input,
 	       checkMaximalNumberOfMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) && 
 	       checkMaximalNumberOfConsecutiveMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) ) {
 	    output.push_back(cloud);
+	    if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {
+	      if ( roadType == Roads::RPhi ){ 
+		std::cout<<"This r-phi seed yields ";
+	      } else { std::cout<<"This z-phi seed yields ";
+	      }
+	      std::cout<<"a cloud with "<<cloud.size() <<" hits"<<std::endl;
+	    }
+	  } else {
+	    if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {
+	      if ( roadType == Roads::RPhi ){ 
+		std::cout<<"This r-phi seed yields no clouds"<<std::endl;
+	      } else { std::cout<<"This z-phi seed yields no clouds"<<std::endl;
+	      }
+	    }
 	  }
 	}
       }
@@ -385,7 +404,7 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	  double lowerBoundaryRadius = tracker->idToDet(id)->surface().toGlobal(lowerLocalBoundary).z();
 	  double upperBoundaryPhi = phiFromExtrapolation(phi0,k0,upperBoundaryRadius,roadType);
 	  double lowerBoundaryPhi = phiFromExtrapolation(phi0,k0,lowerBoundaryRadius,roadType);
-	  
+
 	  if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
 //
 //  This is where the barrel (???) rphiRecHits end up for Roads::ZPhi
@@ -420,7 +439,7 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	  double lowerBoundaryRadius = tracker->idToDet(id)->surface().toGlobal(lowerLocalBoundary).z();
 	  double upperBoundaryPhi = phiFromExtrapolation(phi0,k0,upperBoundaryRadius,roadType);
 	  double lowerBoundaryPhi = phiFromExtrapolation(phi0,k0,lowerBoundaryRadius,roadType);
-	  
+
 	  if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
 //
 //  This is where the disk rphiRecHits end up for Roads::ZPhi
@@ -459,9 +478,7 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	  }
 	}
       }
-    }
-
-    
+    }    
   }
 
 }
@@ -618,7 +635,8 @@ bool RoadSearchCloudMakerAlgorithm::checkMinimalNumberOfUsedLayers(std::vector<b
   if ( numberOfUsedLayers >= (unsigned int)conf_.getParameter<int>("MinimalNumberOfUsedLayersPerRoad") ) {
     result = true;
   }
-
+  if (!result && conf_.getUntrackedParameter<int>("VerbosityLevel") > 1) 
+    std::cout<<" Cloud only has "<<numberOfUsedLayers<<" hits"<<endl;
   return result;
 
 }
