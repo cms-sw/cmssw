@@ -19,6 +19,7 @@ class TrajectorySeed : public BasicTrajectorySeed {
   range recHits() {
     return std::make_pair(hits_.begin(), hits_.end());
   }
+  unsigned int nHits() const {return hits_.size();}
   PropagationDirection direction() const {return  dir_;}
   PTrajectoryStateOnDet startingState() const {return tsos_;}
 
