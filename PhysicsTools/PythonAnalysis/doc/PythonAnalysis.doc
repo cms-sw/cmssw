@@ -1,0 +1,37 @@
+/*!
+
+\page PhysicsTools_PythonAnalysis Package PhysicsTools/PhysicsAnalysis
+<center>
+<small>
+<a 
+href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/PythonAnalysis/?cvsroot=CMSSW>CVS 
+head for this package</a> - 
+<a 
+href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/PythonAnalysis/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative 
+privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+Examples of using CMSSW in Python.
+
+\subsection interface Public interface
+None.
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+- trackerHits.py: Reads sim event information and creates the files histo.root 
+and tofhits.jpg.
+- howto.txt: short explanation
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Prototype.
+
+<hr>
+Last updated: 14-MAR-2006 B. Hegner
+*/
+
