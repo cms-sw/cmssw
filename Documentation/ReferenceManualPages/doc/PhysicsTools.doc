@@ -15,6 +15,7 @@ Generic particle candidates. Those packages are also listed under the  \ref Reco
 Common utilities to manipulate and analyze particle candidates
  - \ref PhysicsTools_CandUtils "CandUtils": candidate common utilities.<br>
  - \ref PhysicsTools_FWLite "FWLite": automatic library loading for data types on file.<br>
+ - \ref PhysicsTools_PythonAnalysis "PythonAnalysis": interactive python analysis tools.<br>
 
 - <b>Framework module packages</b><br>
 Framework module for common particle candidate manupulation
