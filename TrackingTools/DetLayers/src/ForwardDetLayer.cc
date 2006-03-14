@@ -11,12 +11,6 @@
 ForwardDetLayer::~ForwardDetLayer() {}
 
 
-//--- GeometricSearchDet interface
-const BoundSurface& ForwardDetLayer::surface() const { 
-  return *theDisk;
-}
-
-
 //--- Extension of the interface
 void ForwardDetLayer::setSurface( BoundDisk* cp) { 
   theDisk = cp;
@@ -42,8 +36,8 @@ BoundDisk* ForwardDetLayer::computeSurface() {
 
   // Find extension in R
   // float tolerance = 1.; // cm
-  theRmin = (**ifirst).position().perp(); theRmax = theRmin;
-  theZmin = (**ifirst).position().z(); theZmax = theZmin;
+  float theRmin = (**ifirst).position().perp(); float theRmax = theRmin;
+  float theZmin = (**ifirst).position().z(); float theZmax = theZmin;
   for ( vector<const GeometricSearchDet*>::const_iterator deti = ifirst;
 	deti != ilast; deti++) {
     vector<GlobalPoint> corners = 

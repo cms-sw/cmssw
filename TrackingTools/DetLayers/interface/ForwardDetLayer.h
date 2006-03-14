@@ -27,7 +27,7 @@ public:
 
   virtual ~ForwardDetLayer();
 
-  virtual const BoundSurface&  surface() const;
+  virtual const BoundSurface&  surface() const { return *theDisk;}
 
 
   // DetLayer interface

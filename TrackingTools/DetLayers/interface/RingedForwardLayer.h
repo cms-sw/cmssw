@@ -24,12 +24,6 @@ public:
 
   virtual ~RingedForwardLayer();
 
-  /*
-  virtual vector<DetWithState> 
-  compatibleDets( const FreeTrajectoryState& fts,
-  		  const Propagator& prop, 
-  		  const MeasurementEstimator& est) const =0;
-  */
 
   //--- GeometricSearchDet interface
   virtual vector<const GeometricSearchDet*> components() const {return theDets;}
