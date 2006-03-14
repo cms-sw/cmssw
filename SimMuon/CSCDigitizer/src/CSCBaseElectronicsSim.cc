@@ -16,13 +16,8 @@
 #include<list>
 #include<algorithm>
 
-CSCBaseElectronicsSim::CSCBaseElectronicsSim(float samplingTime, bool doNoise)
-: theBunchSpacing(25.),
-  theSignalStartTime(-250.),
-  theSignalStopTime(500.),
-  theSamplingTime(samplingTime),
-  theNumberOfSamples( (int)((theSignalStopTime-theSignalStartTime)/theSamplingTime) ),
-  doNoise_(doNoise)
+CSCBaseElectronicsSim::CSCBaseElectronicsSim()
+: theBunchSpacing(25.)
 {
 }
 

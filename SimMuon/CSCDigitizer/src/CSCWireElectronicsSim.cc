@@ -11,19 +11,36 @@
 #include "CLHEP/Random/RandGaussQ.h"
 #include <iostream>
 
-const float samplingTime = 2.0;
 
-CSCWireElectronicsSim::CSCWireElectronicsSim(float timingError, bool doNoise) 
- : CSCBaseElectronicsSim(samplingTime, doNoise),
-   theFraction(0.5),
-   theTimingCalibrationError(timingError)
+CSCWireElectronicsSim::CSCWireElectronicsSim(const edm::ParameterSet & p) 
+ : CSCBaseElectronicsSim()
 {
+  theSignalStartTime = p.getParameter<double>("wireSignalStartTime");
+  theSignalStopTime = p.getParameter<double>("wireSignalStopTime");
+  theSamplingTime = p.getParameter<double>("wireSamplingTime");
+  theTimingCalibrationError = p.getParameter<double>("wireTimingError");
+  init();
+}
+
+
+CSCWireElectronicsSim::CSCWireElectronicsSim()
+ : CSCBaseElectronicsSim()
+{
+  theSignalStartTime = -250.;
+  theSignalStopTime = 500.;
+  theSamplingTime = 2.0;
+  theTimingCalibrationError = 0.;
+  init();
+}
+
+
+void CSCWireElectronicsSim::init() {
+  theFraction = 0.5;
   theShapingTime = 30;
   theAmpGainVariance = 0.;
   thePeakTimeVariance = 0.;
   theTailShaping = RADICAL;
 
-  fillAmpResponse();
   theBunchTimingOffsets.resize(11);
   theBunchTimingOffsets[1] = 33.8;
   theBunchTimingOffsets[2] = 34.8;
@@ -35,6 +52,8 @@ CSCWireElectronicsSim::CSCWireElectronicsSim(float timingError, bool doNoise)
   theBunchTimingOffsets[8] = 41.5;
   theBunchTimingOffsets[9] = 43.6;
   theBunchTimingOffsets[10] = 41.5;
+  theNumberOfSamples = (int)((theSignalStopTime-theSignalStartTime)/theSamplingTime);
+  fillAmpResponse();
 }
 
 

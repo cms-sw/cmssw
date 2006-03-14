@@ -17,19 +17,45 @@
 
 // This is CSCStripElectronicsSim.cc
 
-CSCStripElectronicsSim::CSCStripElectronicsSim(int nScaBins, bool doNoise, bool doCrosstalk)
-  : CSCBaseElectronicsSim(25., doNoise_),
-    theComparatorNoise(0.),
-    theComparatorRMSOffset(2.),
-    theComparatorSaturation(1057.),
-    nScaBins_(nScaBins),
-    doCrosstalk_(doCrosstalk),
-    COMPARATOR_CLOCK_JUMP(2),
-    sca_time_bin_size(50.),
-    sca_peak_bin(4),
-    theComparatorTimeBinOffset(5)
+CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
+  : CSCBaseElectronicsSim()
 {
-  // TODO make these configurable
+  nScaBins_ = p.getParameter<int>("nScaBins");
+  doNoise_ = p.getParameter<bool>("doNoise");
+  doCrosstalk_ = p.getParameter<bool>("doCrosstalk");
+  theSignalStartTime = p.getParameter<double>("stripSignalStartTime");
+  theSignalStopTime = p.getParameter<double>("stripSignalStopTime");
+  theSamplingTime = p.getParameter<double>("stripSamplingTime");
+  sca_peak_bin = p.getParameter<int>("scaPeakBin");
+
+  init();
+}
+
+
+CSCStripElectronicsSim::CSCStripElectronicsSim()
+  : CSCBaseElectronicsSim(),
+  nScaBins_(8),
+  sca_peak_bin(4)
+{
+  doNoise_ = true;
+  doCrosstalk_ = true;
+  theSignalStartTime = -250.;
+  theSignalStopTime = 500.;
+  theSamplingTime =25.;
+
+  init();
+}
+
+
+void CSCStripElectronicsSim::init() {
+  theNumberOfSamples = (int)((theSignalStopTime-theSignalStartTime)/theSamplingTime);
+  theComparatorNoise=0.;
+  theComparatorRMSOffset=2.;
+  theComparatorSaturation=1057.;
+  theComparatorClockJump=2;
+  sca_time_bin_size=50.;
+  theComparatorTimeBinOffset = 5;
+
   theComparatorWait = 50.;
   theComparatorDeadTime = 100.;
   theDaqDeadTime = 200.;
@@ -45,7 +71,7 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(int nScaBins, bool doNoise, bool 
   theShapingTime = 100;
   theTailShaping = RADICAL;
   theAmpGainVariance = 0.03;
-  thePeakTimeVariance = 3.; 
+  thePeakTimeVariance = 3.;
   fillAmpResponse();
   theBunchTimingOffsets.resize(11);
   theBunchTimingOffsets[1] = 74.6;
@@ -59,7 +85,6 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(int nScaBins, bool doNoise, bool 
   theBunchTimingOffsets[9] = 72.7;
   theBunchTimingOffsets[10] = 72.8;
 }
-
 
 
 CSCStripElectronicsSim::~CSCStripElectronicsSim() {

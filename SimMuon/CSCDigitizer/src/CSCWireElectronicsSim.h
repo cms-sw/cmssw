@@ -12,6 +12,7 @@
  *
  */
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 
@@ -25,7 +26,11 @@ class CSCAnalogSignal;
 class CSCWireElectronicsSim : public CSCBaseElectronicsSim
 {
 public:
-  CSCWireElectronicsSim(float timingError, bool doNoise);
+  /// configurable parameters
+  CSCWireElectronicsSim(const edm::ParameterSet &p);
+
+  /// hardcoed default parameters
+  CSCWireElectronicsSim();
 
   void setFraction(float newFraction)  {theFraction = newFraction;};
 
@@ -33,6 +38,8 @@ public:
 
 private:
   // helper functions
+  void init();
+  /// initialization for each layer
   virtual void initParameters();
 
   // will return wire group, given wire.

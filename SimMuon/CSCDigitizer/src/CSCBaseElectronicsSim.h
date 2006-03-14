@@ -46,7 +46,7 @@ public:
 
 protected:
   // constructor protected, so this class must be a base class
-  CSCBaseElectronicsSim(float samplingTime, bool doNoise);
+  CSCBaseElectronicsSim();
 
   // initialize things that change from layer to layer
   virtual void initParameters() = 0;

@@ -10,6 +10,7 @@
  *
  */
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
@@ -30,7 +31,11 @@ class CSCNeutronFactory;
 class CSCDigitizer 
 {
 public:
+  /// configurable parameters
+  explicit CSCDigitizer(const edm::ParameterSet & p);
+  /// default values for parameters
   CSCDigitizer();
+  
   ~CSCDigitizer();
 
   /**  digitize

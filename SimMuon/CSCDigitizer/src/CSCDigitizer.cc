@@ -12,15 +12,21 @@
 #include <iostream>
 
 
-// default constructor allocates default wire and strip digitizers
-CSCDigitizer::CSCDigitizer() {
-
+CSCDigitizer::CSCDigitizer(const edm::ParameterSet & p) {
   theDriftSim = new CSCDriftSim();
   theWireHitSim          = new CSCWireHitSim(theDriftSim);
   theStripHitSim         = new CSCStripHitSim();
-  theWireElectronicsSim  = new CSCWireElectronicsSim(0., true);
-  theStripElectronicsSim = new CSCStripElectronicsSim(8, true, true);
+  theWireElectronicsSim  = new CSCWireElectronicsSim(p);
+  theStripElectronicsSim = new CSCStripElectronicsSim(p);
+}
 
+
+CSCDigitizer::CSCDigitizer() {
+  theDriftSim = new CSCDriftSim();
+  theWireHitSim          = new CSCWireHitSim(theDriftSim);
+  theStripHitSim         = new CSCStripHitSim();
+  theWireElectronicsSim  = new CSCWireElectronicsSim();
+  theStripElectronicsSim = new CSCStripElectronicsSim();
 }
 
 

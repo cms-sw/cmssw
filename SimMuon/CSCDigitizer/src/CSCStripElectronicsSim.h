@@ -21,6 +21,7 @@
  *
  */
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
@@ -33,7 +34,11 @@ class CSCScaNoiseGenerator;
 class CSCStripElectronicsSim : public CSCBaseElectronicsSim
 {
 public:
-  CSCStripElectronicsSim(int nScaBins, bool doNoise, bool doCrosstalk);
+  /// configurable parameters
+  explicit CSCStripElectronicsSim(const edm::ParameterSet & p);
+  /// default parameters
+  CSCStripElectronicsSim();
+
   virtual ~CSCStripElectronicsSim();
 
   // sets the RMS fluctuation of each SCA bin, in fC
@@ -46,6 +51,8 @@ public:
 
 private:
   // helper functions
+  void init();
+  /// initialization for each layer
   void initParameters();
 
   virtual int readoutElement(int strip) const;
@@ -87,7 +94,7 @@ private:
   CSCCrosstalkGenerator * theCrosstalkGenerator;
   CSCScaNoiseGenerator  * theScaNoiseGenerator;
 
-  const int   COMPARATOR_CLOCK_JUMP;
+  int theComparatorClockJump;
   // the length of each SCA time bin, in ns.  50 by default
   float sca_time_bin_size;
   float sca_noise;
