@@ -24,7 +24,7 @@ for overlaps, and avoiding double-counting.
 None.
 
 \subsection tests Unit tests and examples
-- testThrust: test Thrust utility.
+- <b>testThrust</b>: test Thrust utility.
 
 \section status Status and planned development
 To be reviewed.
