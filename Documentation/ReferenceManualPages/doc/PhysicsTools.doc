@@ -26,6 +26,8 @@ Framework module for common particle candidate manupulation
 - <b>Example packages</b><br>
  - \ref PhysicsTools_CandExamples "CandExamples": common analysis examples based on particle candidates.<br>
  - \ref PhysicsTools_RecoExamples "RecoExamples": common analysis examples based on \ref RecoPackages "Reco objects".<br>
+ - \ref PhysicsTools_RecoQA "RecoQA": utilities and script to perform "standard" quality evaluation, including
+   object count and event size.<br>
 
 \section contact Contact persons
 - Luca Lista
