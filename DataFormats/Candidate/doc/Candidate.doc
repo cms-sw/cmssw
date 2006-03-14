@@ -38,9 +38,9 @@ Recursively scans a decay chain, if necessary.
 None.
 
 \subsection tests Unit tests and examples
-- <b>testParticle.cc</b>: test reco::Particle class
-- <b>testCompositeCandidate.cc</b>: test reco::CompositeCandidate class
-- <b>testSetup.cc</b>: test reco::Setup mechanism
+- <b>testParticle</b>: test reco::Particle class
+- <b>testCompositeCandidate</b>: test reco::CompositeCandidate class
+- <b>testSetup</b>: test reco::Setup mechanism
 
 \section status Status and planned development
 Complete.
