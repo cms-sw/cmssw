@@ -33,4 +33,19 @@ DetLayer::nextLayers( PropagationDirection timeDirection) const {
     : vector<const DetLayer*>();
 }
 
+vector<const DetLayer*> 
+DetLayer::compatibleLayers( const FreeTrajectoryState& fts, 
+			    PropagationDirection timeDirection) const {
+  return theNavigableLayer
+    ? theNavigableLayer->compatibleLayers( fts, timeDirection)
+    : vector<const DetLayer*>();
+}
+
+vector<const DetLayer*> 
+DetLayer::compatibleLayers( PropagationDirection timeDirection) const {
+  return theNavigableLayer
+    ? theNavigableLayer->compatibleLayers( timeDirection)
+    : vector<const DetLayer*>();
+}
+
 

@@ -46,6 +46,14 @@ class DetLayer : public GeometricSearchDet {
   nextLayers( PropagationDirection timeDirection) const;
 
 
+  vector<const DetLayer*> 
+  compatibleLayers( PropagationDirection timeDirection ) const;
+
+
+  vector<const DetLayer*> 
+  compatibleLayers(const FreeTrajectoryState& fts, 
+		   PropagationDirection timeDirection) const;
+
   
  private:
   NavigableLayer* theNavigableLayer;
