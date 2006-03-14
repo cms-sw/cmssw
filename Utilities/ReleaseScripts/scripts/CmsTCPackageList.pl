@@ -58,11 +58,20 @@ if ( @ignoredPacks ) {
 }
 
 
+#figure out what version of wget we have
+# --no-check-certificate needed for 1.10 and above
+my $wgetVers=`/usr/bin/wget --version`;
+my @splitOutput=split(' ',$wgetVers,9);
+my @splitVers=split('\.',$splitOutput[2],9);
+my $wgetVersion=1000*$splitVers[0]+$splitVers[1];
+
+my $options="";
+$options="--no-check-certificate" if ( $wgetVersion>1009);
+
 my $user="cmstcreader";
 my $pass="CmsTC";
 
-#open(CMSTCQUERY,"/usr/bin/wget --no-check-certificate -nv -o /dev/null -O- 'http://${user}:${pass}\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=${rel}' |");
-open(CMSTCQUERY,"/usr/bin/wget  -nv -o /dev/null -O- 'http://${user}:${pass}\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=${rel}' |");
+open(CMSTCQUERY,"/usr/bin/wget ${options}  -nv -o /dev/null -O- 'http://${user}:${pass}\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=${rel}' |");
 
 my %tags;
 while ( <CMSTCQUERY> ) {
