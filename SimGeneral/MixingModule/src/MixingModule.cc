@@ -5,10 +5,13 @@
 //--------------------------------------------
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimGeneral/MixingModule/interface/MixingModule.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "SimGeneral/MixingModule/interface/MixingModule.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/Selector.h"
+#include "FWCore/Framework/interface/Provenance.h"
 
 using namespace std;
 
@@ -29,22 +32,20 @@ namespace edm
       edm::BranchDescription desc = it->second;
       if (!desc.productInstanceName_.compare(0,8,"EcalHits") || !desc.productInstanceName_.compare(0,8,"HcalHits" )) {
 	caloSubdetectors_.push_back(desc.productInstanceName_);
+	LogInfo("Constructor") <<"Adding detector "<<desc.productInstanceName_ <<" for pileup treatment";
       }
       else if (!desc.productInstanceName_.compare(0,4,"Muon")) {
 	muonSubdetectors_.push_back(desc.productInstanceName_);
+	LogInfo("Constructor") <<"Adding detector "<<desc.productInstanceName_ <<" for pileup treatment";
      }
-      // add only the subdetector name, one for high and low together
       else if (!desc.productInstanceName_.compare(0,11,"TrackerHits")) {
-       int slow=(desc.productInstanceName_).find("LowTof");
-       int iend=(desc.productInstanceName_).size();
-       if (slow>0)  
-	 trackerSubdetectors_.push_back(desc.productInstanceName_.substr(0,iend-6));
-     }
+	 trackerSubdetectors_.push_back(desc.productInstanceName_);
+	 LogInfo("Constructor") <<"Adding detector "<<desc.productInstanceName_ <<" for pileup treatment";
+      }
     }
 
     produces<CrossingFrame> ();
-     
-  }
+}
 
   void MixingModule::createnewEDProduct() {
     simcf_=new CrossingFrame(minBunch(),maxBunch(),bunchSpace_,muonSubdetectors_,trackerSubdetectors_,caloSubdetectors_);
@@ -55,106 +56,153 @@ namespace edm
 
   void MixingModule::addSignals(const edm::Event &e) { 
     // fill in signal part of CrossingFrame
+
     // first add eventID
     simcf_->setEventID(e.id());
-    LogDebug("addSignals")<<"adding signals for event "<<e.id();
+    LogDebug("add")<<"===============> adding signals for "<<e.id();
 
-    // muon hits for all subdetectors
-    for(std::vector<std::string >::const_iterator it = muonSubdetectors_.begin(); it != muonSubdetectors_.end(); ++it) {  
-      edm::Handle<std::vector<PSimHit> > simHits;
-      e.getByLabel("SimG4Object",(*it),simHits);
-      simcf_->addSignalSimHits((*it),simHits.product());
-      LogDebug("addSignals") <<"Subdet "<<(*it)<<" got "<<(simHits.product())->size()<<" simhits";
+    // SimHits
+    std::vector<edm::Handle<std::vector<PSimHit> > > resultsim;
+    e.getManyByType(resultsim);
+    int ss=resultsim.size();
+    for (int ii=0;ii<ss;ii++) {
+      edm::BranchDescription desc = resultsim[ii].provenance()->product;
+      //      cout <<"=============================> Provenance "<<*(resultsim[ii].provenance())<<endl;
+      LogDebug("addSignals") <<"For "<<desc.productInstanceName_<<resultsim[ii].product()->size()<<" Simhits added";
+      simcf_->addSignalSimHits(desc.productInstanceName_,resultsim[ii].product());
     }
-     // tracker hits for all subdetectors
-    for(std::vector<std::string >::const_iterator it = trackerSubdetectors_.begin(); it != trackerSubdetectors_.end(); ++it) {  
-      edm::Handle<std::vector<PSimHit> > simHits;
-      std::string subdet=(*it)+"HighTof";
-      e.getByLabel("SimG4Object",subdet,simHits);
-      simcf_->addSignalSimHits(subdet,simHits.product());
-      LogDebug("addSignals") <<"Subdet "<<subdet<<" got "<<(simHits.product())->size()<<" simhits";
-      subdet=(*it)+"LowTof";
-      e.getByLabel("SimG4Object",subdet,simHits);
-      simcf_->addSignalSimHits(subdet,simHits.product());
-      LogDebug("addSignals")  <<"Subdet "<<subdet<<" got "<<(simHits.product())->size()<<" simhits";
-    }
+
+
     // calo hits for all subdetectors
-    for(std::vector<std::string >::const_iterator it = caloSubdetectors_.begin(); it != caloSubdetectors_.end(); ++it) {  
-      edm::Handle<std::vector<PCaloHit> > caloHits;
-      e.getByLabel("SimG4Object",(*it),caloHits);
-      simcf_->addSignalCaloHits((*it),caloHits.product());
-      LogDebug("addSignals")  <<"Got "<<(caloHits.product())->size()<<" calohits for subdet "<<(*it);
+    std::vector<edm::Handle<std::vector<PCaloHit> > > resultcalo;
+    e.getManyByType(resultcalo);
+    int sc=resultcalo.size();
+    for (int ii=0;ii<sc;ii++) {
+      edm::BranchDescription desc = resultcalo[ii].provenance()->product;
+      LogDebug("addSignals") <<"For "<<desc.productInstanceName_<<resultcalo[ii].product()->size()<<" Calohits added";
+      simcf_->addSignalCaloHits(desc.productInstanceName_,resultcalo[ii].product());
     }
-    edm::Handle<std::vector<EmbdSimTrack> > simtracks;
-    e.getByLabel("SimG4Object",simtracks);
-    if (simtracks.isValid()) simcf_->addSignalTracks(simtracks.product());
-    else  LogWarning("InvalidData") <<"Invalid simtracks in signal";
-    LogDebug("addSignals") <<"Got "<<(simtracks.product())->size()<<" simtracks";
-    edm::Handle<std::vector<EmbdSimVertex> > simvertices;
-    e.getByLabel("SimG4Object",simvertices);
-    if (simvertices.isValid())     simcf_->addSignalVertices(simvertices.product());
-    else LogWarning("InvalidData") <<"Invalid simvertices in signal";
-    LogDebug("addSignals")  <<"Got "<<(simvertices.product())->size()<<" simvertices";
+  
+
+//     //tracks and vertices
+    std::vector<edm::Handle<std::vector<EmbdSimTrack> > > result_t;
+    e.getManyByType(result_t);
+    int str=result_t.size();
+    for (int ii=0;ii<str;ii++) {
+      edm::BranchDescription desc =result_t[ii].provenance()->product;
+      LogDebug("addSignals") <<result_t[ii].product()->size()<<" Simtracks added";
+      if (result_t[ii].isValid()) simcf_->addSignalTracks(result_t[ii].product());
+      else  LogWarning("InvalidData") <<"Invalid simtracks in signal";
+    }
+
+    std::vector<edm::Handle<std::vector<EmbdSimVertex> > > result_v;
+    e.getManyByType(result_v);
+    int sv=result_v.size();
+    for (int ii=0;ii<sv;ii++) {
+      edm::BranchDescription desc = result_v[ii].provenance()->product;
+      LogDebug("addSignals") <<result_v[ii].product()->size()<<" Simvertices added";
+      if (result_v[ii].isValid()) simcf_->addSignalVertices(result_v[ii].product());
+      else  LogWarning("InvalidData") <<"Invalid simvertices in signal";
+    }
   }
 
   void MixingModule::addPileups(const int bcr, Event *e) {
 
-    LogDebug("addPileups") <<"adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+    LogDebug("addPileups") <<"===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
-    // Muons
-    for(std::vector<std::string >::iterator itstr = muonSubdetectors_.begin(); itstr != muonSubdetectors_.end(); ++itstr) {
-      edm::Handle<std::vector<PSimHit> >  simHits;  //Event Pointer to minbias Hits
-
-      e->getByLabel("SimG4Object",(*itstr),simHits);
-      simcf_->addPileupSimHits(bcr,(*itstr),simHits.product(),trackoffset,false);
+    // SimHits
+    std::vector<edm::Handle<std::vector<PSimHit> > > resultsim;
+    e->getManyByType(resultsim);
+    int ss=resultsim.size();
+    for (int ii=0;ii<ss;ii++) {
+      edm::BranchDescription desc = resultsim[ii].provenance()->product;
+      printf(" Adding Pileup productInstanceName_ %s, %d hits\n",desc.productInstanceName_.c_str(),resultsim[ii].product()->size());fflush(stdout);
+      LogDebug("addPileups") <<"For "<<desc.productInstanceName_<<resultsim[ii].product()->size()<<" Simhits added";
+      simcf_->addPileupSimHits(bcr,desc.productInstanceName_,resultsim[ii].product(),trackoffset,false);
     }
 
-    // Tracker
-    float tof = bcr*simcf_->getBunchSpace();
-    for(std::vector<std::string >::iterator itstr = trackerSubdetectors_.begin(); itstr != trackerSubdetectors_.end(); ++itstr) {
-      edm::Handle<std::vector<PSimHit> >  simHits;  //Event Pointer to minbias Hits
+//     // Tracker
+//     float tof = bcr*simcf_->getBunchSpace();
+//     for(std::vector<std::string >::iterator itstr = trackerSubdetectors_.begin(); itstr != trackerSubdetectors_.end(); ++itstr) {
+//       std::string subdethigh=(*itstr)+"HighTof";
+//       std::string subdetlow=(*itstr)+"LowTof";
 
-      // do not read branches if clearly outside of tof bounds (and verification is asked for, default)
-      std::string subdethigh=(*itstr)+"HighTof";
-      std::string subdetlow=(*itstr)+"LowTof";
-      // add HighTof pileup to high and low signals
-      if ( !checktof_ || ((CrossingFrame::limHighLowTof +tof ) <= CrossingFrame::highTrackTof)) { 
-	e->getByLabel("SimG4Object",subdethigh,simHits);
-	simcf_->addPileupSimHits(bcr,subdethigh,simHits.product(),trackoffset,checktof_);
-	simcf_->addPileupSimHits(bcr,subdetlow,simHits.product(),trackoffset,checktof_);
-      }
+//       // do not read branches if clearly outside of tof bounds (and verification is asked for, default)
+//       // add HighTof pileup to high and low signals
+//       if ( !checktof_ || ((CrossingFrame::limHighLowTof +tof ) <= CrossingFrame::highTrackTof)) { 
+// 	const edm::ProcessNameSelector sel(subdethigh+"_r");
+// 	std::vector<edm::Handle<std::vector<PSimHit> > > result;
+// 	e->getMany(sel, result);
+// 	//	e->getByLabel("r",subdethigh,simHits);
+// 	if (result.size()>0) {
+// 	  printf("Processname %s, size %d\n",(*itstr).c_str(),result.size());fflush(stdout);
+// 	  if (result.size()>1) {
+// 	    LogWarning("addPileups") <<"Got more than one EDProduct corresponding to "<<subdethigh+"_r";
+// 	  } else {
+// 	    edm::Handle<std::vector<PSimHit> > simHits=result[0];
+// 	    simcf_->addPileupSimHits(bcr,subdethigh,simHits.product(),trackoffset,checktof_);
+// 	    simcf_->addPileupSimHits(bcr,subdetlow,simHits.product(),trackoffset,checktof_);
+// 	  }
+// 	}
+//       }
 
-      // add LowTof pileup to high and low signals
-      if (  !checktof_ || ((tof+CrossingFrame::limHighLowTof) >= CrossingFrame::lowTrackTof && tof <= CrossingFrame::highTrackTof)) {     
-	e->getByLabel("SimG4Object",subdetlow,simHits);
-	simcf_->addPileupSimHits(bcr,subdethigh,simHits.product(),trackoffset,checktof_);
-	simcf_->addPileupSimHits(bcr,subdetlow,simHits.product(),trackoffset,checktof_);
-      }
+//       // add LowTof pileup to high and low signals
+//       if (  !checktof_ || ((tof+CrossingFrame::limHighLowTof) >= CrossingFrame::lowTrackTof && tof <= CrossingFrame::highTrackTof)) {     
+// 	const edm::ProcessNameSelector sel(subdetlow+"_r");
+// 	std::vector<edm::Handle<std::vector<PSimHit> > > result;
+// 	e->getMany(sel, result);
+// 	//	e->getByLabel("r",subdetlow,simHits);
+// 	if (result.size()>0) {
+// 	  printf("Processname %s, size %d\n",(*itstr).c_str(),result.size());fflush(stdout);
+// 	  if (result.size()>1) {
+// 	    LogWarning("addPileups") <<"Got more than one EDProduct corresponding to "<<subdethigh+"_r";
+// 	  } else {
+// 	    edm::Handle<std::vector<PSimHit> > simHits=result[0];
+// 	    simcf_->addPileupSimHits(bcr,subdethigh,simHits.product(),trackoffset,checktof_);
+// 	    simcf_->addPileupSimHits(bcr,subdetlow,simHits.product(),trackoffset,checktof_);
+// 	  }
+// 	}
+//       }
+//     }
+
+
+    // calo hits for all subdetectors
+    std::vector<edm::Handle<std::vector<PCaloHit> > > resultcalo;
+    e->getManyByType(resultcalo);
+    int sc=resultcalo.size();
+    for (int ii=0;ii<sc;ii++) {
+      edm::BranchDescription desc = resultcalo[ii].provenance()->product;
+      LogDebug("addPileups") <<"For "<<desc.productInstanceName_<<resultcalo[ii].product()->size()<<" Calohits added";
+      simcf_->addPileupCaloHits(bcr,desc.productInstanceName_,resultcalo[ii].product(),trackoffset);
     }
-
-    // Calohits
-    for(std::vector<std::string >::const_iterator itstr = caloSubdetectors_.begin(); itstr != caloSubdetectors_.end(); ++itstr) {
-
-      edm::Handle<std::vector<PCaloHit> >  caloHits;  //Event Pointer to minbias Hits
-      e->getByLabel("SimG4Object",(*itstr),caloHits);
-      simcf_->addPileupCaloHits(bcr,(*itstr),caloHits.product(),trackoffset);
+ 
+//     //tracks and vertices
+    std::vector<edm::Handle<std::vector<EmbdSimTrack> > > result_t;
+    e->getManyByType(result_t);
+    int str=result_t.size();
+    if (str>1) LogWarning("InvalidData") <<"Too many SimTrack containers, should be only one!";
+    for (int ii=0;ii<str;ii++) {
+      edm::BranchDescription desc =result_t[ii].provenance()->product;
+      LogDebug("addPileups") <<result_t[ii].product()->size()<<" Simtracks added";
+      if (result_t[ii].isValid()) simcf_->addPileupTracks(bcr,result_t[ii].product(),vertexoffset);
+      else  LogWarning("InvalidData") <<"Invalid simtracks in signal";
     }
+  
 
-    //then simtracks
-    edm::Handle<std::vector<EmbdSimTrack> > simtracks;
-    e->getByLabel("SimG4Object",simtracks);
-    if (simtracks.isValid()) simcf_->addPileupTracks(bcr, simtracks.product(),vertexoffset);
-    else LogWarning("InvalidData") <<"Invalid simtracks in pileup";
-
-    //then simvertices
-    edm::Handle<std::vector<EmbdSimVertex> > simvertices;
-    e->getByLabel("SimG4Object",simvertices);
-    if (simvertices.isValid())  simcf_->addPileupVertices(bcr,simvertices.product(),trackoffset);
-    else  LogWarning("InvalidData") <<"Invalid simvertices in pileup";
-
+    std::vector<edm::Handle<std::vector<EmbdSimVertex> > > result_v;
+    e->getManyByType(result_v);
+    int sv=result_v.size();
+    if (sv>1) LogWarning("InvalidData") <<"Too many SimVertex containers, should be only one!";
+    for (int ii=0;ii<sv;ii++) {
+      edm::BranchDescription desc = result_v[ii].provenance()->product;
+      LogDebug("addPileups") <<result_v[ii].product()->size()<<" Simvertices added";
+      if (result_v[ii].isValid()) simcf_->addPileupVertices(bcr,result_v[ii].product(),trackoffset);
+      else  LogWarning("InvalidData") <<"Invalid simvertices in signal";
+    }
+ 
     // increment offsets
-    vertexoffset+=simvertices.product()->size();
-    trackoffset+=simtracks.product()->size();
+    vertexoffset+=result_v[0].product()->size();
+    trackoffset+=result_t[0].product()->size();
   }
  
   void MixingModule::put(edm::Event &e) {
