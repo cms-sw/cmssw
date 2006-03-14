@@ -15,7 +15,7 @@ Generic particle candidates. Those packages are also listed under the  \ref Reco
 Common utilities to manipulate and analyze particle candidates
  - \ref PhysicsTools_CandUtils "CandUtils": candidate common utilities.<br>
 
-- <b>Framework modules</b><br>
+- <b>Framework module packages</b><br>
 Framework module for common particle candidate manupulation
  - \ref PhysicsTools_UtilAlgos "UtilAlgos": genericl framework modules.<br>
  - \ref PhysicsTools_CandAlgos "CandAlgos": common framework modules for \ref PhysicsTools_Candidate "particle candidates".<br>
