@@ -42,7 +42,6 @@ CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges,
 CompositeTECPetal::~CompositeTECPetal(){
   vector<const TECWedge*>::const_iterator i;
   for (i=theWedges.begin(); i!=theWedges.end(); i++) {
-    // cout << " Deleting rings " << i-theWedges.begin() << endl;
     delete *i;
   }
 } 

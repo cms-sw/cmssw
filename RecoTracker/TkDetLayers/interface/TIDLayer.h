@@ -72,7 +72,6 @@ class TIDLayer : public RingedForwardLayer{
 
  protected:
   vector<const TIDRing*> theRings;  
-  ReferenceCountingPointer<BoundDisk>  theLayerDisk;
 
   
 };

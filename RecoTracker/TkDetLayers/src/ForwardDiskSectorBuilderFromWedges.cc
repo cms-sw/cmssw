@@ -88,7 +88,7 @@ ForwardDiskSectorBuilderFromWedges::computeBounds( const vector<const TECWedge*>
 
 Surface::RotationType 
 ForwardDiskSectorBuilderFromWedges::computeRotation( const vector<const TECWedge*>& wedges,
-						  Surface::PositionType pos) const {
+						     Surface::PositionType pos) const {
   
   GlobalVector yAxis = ( GlobalVector( pos.x(), pos.y(), 0.)).unit();
 

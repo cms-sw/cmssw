@@ -91,7 +91,6 @@ class TECLayer : public ForwardDetLayer{
   vector<const TECPetal*> theFrontPetals;
   vector<const TECPetal*> theBackPetals;
 
-  ReferenceCountingPointer<BoundDisk>  theLayerDisk;
   ReferenceCountingPointer<BoundDisk>  theFrontDisk;
   ReferenceCountingPointer<BoundDisk>  theBackDisk;
 

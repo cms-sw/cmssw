@@ -29,7 +29,7 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
   //sort(theBackPetals.begin(), theBackPetals.end(), PetalLessPhi());
 
   // building disk for front and back petals
-  theLayerDisk = computeDisk( thePetals );
+  setSurface( computeDisk( thePetals ) );
   theFrontDisk = computeDisk( theFrontPetals);
   theBackDisk  = computeDisk( theBackPetals);
 

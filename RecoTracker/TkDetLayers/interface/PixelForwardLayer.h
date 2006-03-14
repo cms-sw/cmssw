@@ -3,6 +3,7 @@
 
 
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "RecoTracker/TkDetLayers/interface/PixelBlade.h"
 
 
 /** A concrete implementation for PixelForward layer 
@@ -11,12 +12,14 @@
 
 class PixelForwardLayer : public ForwardDetLayer{
  public:
-  PixelForwardLayer();
+  PixelForwardLayer(vector<const PixelBlade*>& blades);
   ~PixelForwardLayer();
   
   // GeometricSearchDet interface
   
   virtual vector<const GeomDet*> basicComponents() const;
+
+  virtual vector<const GeometricSearchDet*> components() const {return theComps;}
   
   virtual pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
@@ -33,9 +36,17 @@ class PixelForwardLayer : public ForwardDetLayer{
 			 const MeasurementEstimator& est) const;
 
 
-  virtual bool hasGroups() const {return true;;};  
+  virtual bool hasGroups() const {return true;}  
 
+  // DetLayer interface
+  virtual Module   module()   const { return pixel;}
+  
 
+ private:
+  virtual BoundDisk* computeDisk(const vector<const PixelBlade*>& blades) const;    
+
+  vector<const PixelBlade*> theBlades;
+  vector<const GeometricSearchDet*> theComps;
   
 };
 

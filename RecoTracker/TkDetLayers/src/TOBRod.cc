@@ -49,7 +49,7 @@ TOBRod::components() const{
   
 pair<bool, TrajectoryStateOnSurface>
 TOBRod::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-		  const MeasurementEstimator&) const{
+		    const MeasurementEstimator&) const{
   cout << "temporary dummy implementation of TOBRod::compatible()!!" << endl;
   return pair<bool,TrajectoryStateOnSurface>();
 }
@@ -57,9 +57,9 @@ TOBRod::compatible( const TrajectoryStateOnSurface& ts, const Propagator&,
 
 vector<DetWithState> 
 TOBRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
-		      const Propagator& prop, 
-		      const MeasurementEstimator& est) const{
-
+			const Propagator& prop, 
+			const MeasurementEstimator& est) const{
+  
   // standard implementation of compatibleDets() for class which have 
   // groupedCompatibleDets implemented.
   // This code should be moved in a common place intead of being 
