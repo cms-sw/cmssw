@@ -6,8 +6,8 @@
  *  is specified with the parameter "recAlgo" and must be configured with the
  *  "recAlgoConfig" parameter set.
  *
- *  $Date: 2005/12/06 15:30:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/02/15 13:57:52 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara
  */
 
@@ -35,9 +35,12 @@ public:
 private:
   // Switch on verbosity
   static bool debug;
+  // The label to be used to retrieve DT digis from the event
+  std::string theDTDigiLabel;
   // The reconstruction algorithm
   DTRecHitBaseAlgo *theAlgo;
 //   static string theAlgoName;
+
 };
 #endif
 

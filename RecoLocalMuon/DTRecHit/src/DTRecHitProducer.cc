@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/22 13:52:56 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/03 11:29:42 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara
  */
 
@@ -39,8 +39,9 @@ DTRecHitProducer::DTRecHitProducer(const ParameterSet& config){
   if(debug)
     cout << "[DTRecHitProducer] Constructor called" << endl;
   
-  produces<DTRecHitCollection>();
+  produces<DTRecHitCollection>("DT1DRecHits");
 
+  theDTDigiLabel = config.getParameter<string>("dtDigiLabel");
   
   // Get the concrete reconstruction algo from the factory
   string theAlgoName = config.getParameter<string>("recAlgo");
@@ -63,7 +64,10 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
   // Get the digis from the event
   Handle<DTDigiCollection> digis; 
-  event.getByLabel("dtdigitizer", digis);
+  event.getByLabel(theDTDigiLabel, digis);
+
+  // Pass the EventSetup to the algo
+  theAlgo->setES(setup);
 
   // Create the pointer to the collection which will store the rechits
   auto_ptr<DTRecHitCollection> recHitCollection(new DTRecHitCollection());
@@ -91,7 +95,7 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
       recHitCollection->put(layerId, recHits.begin(), recHits.end());
   }
 
-  event.put(recHitCollection);
+  event.put(recHitCollection, "DT1DRecHits");
 }
 
 
