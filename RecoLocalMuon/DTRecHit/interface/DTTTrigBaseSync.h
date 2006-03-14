@@ -4,8 +4,8 @@
 /** \class DTTTrigBaseSync
  *  Base class to define the offsets for 1D DT RecHit building
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/02/15 13:54:45 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -14,7 +14,9 @@
 class DTLayer;
 class DTWireId;
 
-
+namespace edm {
+  class EventSetup;
+}
 
 
 class DTTTrigBaseSync {
@@ -26,6 +28,10 @@ public:
   virtual ~DTTTrigBaseSync();
 
   // Operations
+
+  /// Pass the Event Setup to the synchronization module at each event
+  virtual void setES(const edm::EventSetup& setup) = 0;
+
 
 
   /// Time (ns) to be subtracted to the digi time.

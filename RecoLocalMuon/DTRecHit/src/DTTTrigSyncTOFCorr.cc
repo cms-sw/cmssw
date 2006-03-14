@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/15 13:54:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/02/22 13:52:56 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -44,7 +44,7 @@ double DTTTrigSyncTOFCorr::offset(const DTLayer* layer,
   //FIXME: This should be considered only if the Digi is constructed from a float....
 
 
- // The tTrig is taken from a parameter
+  // The tTrig is taken from a parameter
   tTrig = theTTrig - f2i_convCorr;
 
   //Compute the time spent in signal propagation along wire.
@@ -69,10 +69,10 @@ double DTTTrigSyncTOFCorr::offset(const DTLayer* layer,
     break;
   }
   case 1: {
-//     // Correction for TOF from the center of the chamber to hit position
-//     DTChamber chamber; //FIXME: Fake, how to get the chamber from the layer?
-//     double flightToChamber = chamber.surface().position().mag();
-//     tofCorr = (flightToChamber-flightToHit)/cSpeed;
+    // Correction for TOF from the center of the chamber to hit position
+    const DTChamber * chamber = layer->chamber();
+    double flightToChamber = chamber->surface().position().mag();
+    tofCorr = (flightToChamber-flightToHit)/cSpeed;
     break;
   }
   case 2: {
@@ -92,14 +92,13 @@ double DTTTrigSyncTOFCorr::offset(const DTLayer* layer,
   }
 
   if(debug) {
-    cout << "[DTTTrigSyncTOFCorr] Offset: " << tTrig + wirePropCorr - tofCorr << endl
+    cout << "[DTTTrigSyncTOFCorr] Offset (ns): " << tTrig + wirePropCorr - tofCorr << endl
 	 << "      various contributions are: " << endl
-	 << "      tTrig:   " << tTrig << endl
-	 << "      Popagation along wire delay: " <<  wirePropCorr << endl
-	 << "      TOF: " << tofCorr << endl
+	 << "      tTrig (ns):   " << tTrig << endl
+	 << "      Propagation along wire delay (ns): " <<  wirePropCorr << endl
+	 << "      TOF correction (ns): " << tofCorr << endl
 	 << endl;
   }
-
   //The global offset is the sum of various contributions
   return tTrig + wirePropCorr - tofCorr;
 }

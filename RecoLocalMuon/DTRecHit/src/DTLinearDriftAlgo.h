@@ -6,8 +6,8 @@
  *  Compute drift distance using constant drift velocity
  *  as defined in driftVelocity parameter.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/02/15 13:54:45 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -25,6 +25,10 @@ class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
 
   // Operations
 
+  /// Pass the Event Setup to the algo at each event
+  virtual void setES(const edm::EventSetup& setup);
+
+
   /// Whether the algorithm can update hits once the 2D segment is
   /// known (i.e. compute() is implemented for the 2nd step)
   virtual bool canUpdate2D() { //FIXME: Is it really needed?
@@ -39,7 +43,7 @@ class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
   }
     
   /// First step in computation of Left/Right hits from a Digi.  
-  /// The results are the local position (in MuBarLayer frame) of the
+  /// The results are the local position (in DTLayer frame) of the
   /// Left and Right hit, and the error (which is common). Returns
   /// false on failure. 
   virtual bool compute(const DTLayer* layer,
@@ -52,9 +56,8 @@ class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
   /// Second step in hit position computation, for algorithms which support it.
   /// The impact angle is given as input, and it's used to improve the hit
   /// position (and relative error). The angle is defined in radians, with
-  /// respect to the perpendicular to the layer plane, directed outward in CMS
-  /// (so toward -z in DTLayer reference frame). Given the local direction,
-  /// angle=atan(dir.x()/-dir.z()) . This can be used when a SL segment is
+  /// respect to the perpendicular to the layer plane. Given the local direction,
+  /// angle=atan(dir.x()/dir.z()) . This can be used when a SL segment is
   /// built, so the impact angle is known but the position along wire is not.
   virtual bool compute(const DTLayer* layer,
                        const DTDigi& digi,

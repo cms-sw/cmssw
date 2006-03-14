@@ -1,20 +1,22 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/15 13:54:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/02/22 13:52:56 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "RecoLocalMuon/DTRecHit/src/DTLinearDriftAlgo.h"
-#include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 using namespace std;
+using namespace edm;
 
-DTLinearDriftAlgo::DTLinearDriftAlgo(const edm::ParameterSet& config) :
+DTLinearDriftAlgo::DTLinearDriftAlgo(const ParameterSet& config) :
   DTRecHitBaseAlgo(config) {
     // Get the Drift Velocity from parameter set. 
     vDrift = config.getParameter<double>("driftVelocity"); // FIXME: Default was 0.00543 cm/ns
@@ -32,6 +34,12 @@ DTLinearDriftAlgo::DTLinearDriftAlgo(const edm::ParameterSet& config) :
 
 
 DTLinearDriftAlgo::~DTLinearDriftAlgo(){}
+
+
+
+void DTLinearDriftAlgo::setES(const EventSetup& setup) {
+  theSync->setES(setup);
+}
 
 
 

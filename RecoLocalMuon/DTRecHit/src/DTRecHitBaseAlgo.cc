@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/22 13:52:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/03 11:29:42 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane & G. Cerminara - INFN Torino
  */
 
@@ -36,7 +36,7 @@ OwnVector<DTRecHit1DPair> DTRecHitBaseAlgo::reconstruct(const DTLayer* layer,
   for (DTDigiCollection::const_iterator digi = digiRange.first;
        digi != digiRange.second;
        digi++) {
-    
+    // Get the wireId
     DTWireId wireId(layerId, (*digi).wire());
     
     LocalError tmpErr;
@@ -48,20 +48,11 @@ OwnVector<DTRecHit1DPair> DTRecHitBaseAlgo::reconstruct(const DTLayer* layer,
     // Build a new pair of 1D rechit    
     DTRecHit1DPair*  recHitPair = new DTRecHit1DPair(wireId, *digi);
 
-
-    // cout << "computeDriftAndError:  " << lpoint << " " << rpoint << " " <<
-    //   "(" << tmpErr.xx() << "," << tmpErr.xy() <<","<<tmpErr.yy()<<")"<< endl;
-
-//     const LocalError error(tmpErr);
-    //cout << "Error: " << angle << " " << reso << " " << tmp << " " << error <<
-    //  endl;
-
     // Set the position and the error of the 1D rechits
     recHitPair->setPositionAndError(DTEnums::Left, lpoint, tmpErr);
     recHitPair->setPositionAndError(DTEnums::Right, rpoint, tmpErr);        
 
     result.push_back(recHitPair);
-//     delete recHitPair;
   }
   return result;
 }

@@ -23,8 +23,8 @@
  *
  *
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/02/15 13:54:45 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -48,6 +48,10 @@ public:
   virtual ~DTTTrigSyncTOFCorr();
 
   // Operations
+
+  /// Pass the Event Setup to the algo at each event
+  virtual void setES(const edm::EventSetup& setup) {}
+
 
   /// Time (ns) to be subtracted to the digi time,
   /// Parameters are the layer and the wireId to which the

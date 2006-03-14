@@ -5,8 +5,8 @@
  *  Abstract algorithmic class to compute drift distance and error 
  *  form a DT digi
  *
- *  $Date: 2006/02/15 13:54:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/03 11:29:41 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane & G. Cerminara - INFN Torino
  */
 
@@ -24,6 +24,7 @@ class DTTTrigBaseSync;
 
 namespace edm {
   class ParameterSet;
+  class EventSetup;
 }
 
 
@@ -40,6 +41,10 @@ class DTRecHitBaseAlgo {
   /// Destructor
   virtual ~DTRecHitBaseAlgo();
   
+
+  /// Pass the Event Setup to the algo at each event
+  virtual void setES(const edm::EventSetup& setup) = 0;
+
 
   /// Build all hits in the range associated to the layerId, at the 1st step.
   virtual edm::OwnVector<DTRecHit1DPair> reconstruct(const DTLayer* layer,
@@ -71,9 +76,8 @@ class DTRecHitBaseAlgo {
   /// Second step in hit position computation, for algorithms which support it.
   /// The impact angle is given as input, and it's used to improve the hit
   /// position (and relative error). The angle is defined in radians, with
-  /// respect to the perpendicular to the layer plane, directed outward in CMS
-  /// (so toward -z in DTLayer reference frame). Given the local direction,
-  /// angle=atan(dir.x()/-dir.z()) . This can be used when a SL segment is
+  /// respect to the perpendicular to the layer plane. Given the local direction,
+  /// angle=atan(dir.x()/dir.z()) . This can be used when a SL segment is
   /// built, so the impact angle is known but the position along wire is not.
   virtual bool compute(const DTLayer* layer,
                        const DTDigi& digi,
