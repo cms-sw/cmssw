@@ -13,7 +13,10 @@ Getopt::Long::config('bundling_override');
  
 my %options;
 my @packs;
-GetOptions(\%options,'h','help','rel=s','pack=s'=>\@packs,'file=s');
+my @ignoredPacks;
+
+GetOptions(\%options,'h','help','rel=s','pack=s'=>\@packs,
+	   'file=s','listOnlyVersion','ignorepack=s'=>\@ignoredPacks);
 
 if ( !$options{'rel'} || $options{'h'} || $options{'help'} ) {
     print "CmsTCPackageList.pl usage:\n";
@@ -21,6 +24,9 @@ if ( !$options{'rel'} || $options{'h'} || $options{'help'} ) {
     print "Options:\n";
     print "  --pack <packages> Print only for specified package(s)\n";
     print "         (Either space separated in quotes or use multiple --pack options for multiple packages)\n";
+    print "  --ignorepack <packages> Ignore specified package(s)\n";
+    print "         (Either space separated in quotes or use multiple --ignorepack options for multiple packages)\n";
+    print "  --listOnlyVersion   Output only the version, not the corresponding package name\n";
     print "  --file <file>   Send output to file\n";
     print "\n";
     exit;
@@ -41,10 +47,22 @@ if ( @packs ) {
     }
 }
 
+my %ignorePackages;
+if ( @ignoredPacks ) {
+    foreach (@ignoredPacks )  {
+	my @spTmp=split(' ',$_,999);
+	foreach (@spTmp) {
+	    $ignorePackages{$_}=1;
+	}
+    }
+}
+
+
 my $user="cmstcreader";
 my $pass="CmsTC";
 
-open(CMSTCQUERY,"/usr/bin/wget -nv -o /dev/null -O- 'http://${user}:${pass}\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=${rel}' |");
+#open(CMSTCQUERY,"/usr/bin/wget --no-check-certificate -nv -o /dev/null -O- 'http://${user}:${pass}\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=${rel}' |");
+open(CMSTCQUERY,"/usr/bin/wget  -nv -o /dev/null -O- 'http://${user}:${pass}\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=${rel}' |");
 
 my %tags;
 while ( <CMSTCQUERY> ) {
@@ -73,7 +91,14 @@ foreach $key (keys %tags) {
     }
     $hasAPackage++;
     if ( ($onlySpecifiedPackages==0) || ($packages{$key}==1) ) {
-	print OUTFILE "$key $tags{$key} \n";
+	if ( !$ignorePackages{$key} ) {
+	    if ( $options{'listOnlyVersion'} ) {
+		print OUTFILE "$tags{$key} \n";
+	    }
+	    else{
+		print OUTFILE "$key $tags{$key} \n";
+	    }
+	}
     }
 }
 
