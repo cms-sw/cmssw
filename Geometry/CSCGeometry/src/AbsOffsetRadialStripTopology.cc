@@ -1,6 +1,9 @@
 // This is AbsOffsetRadialStripTopology.cc
 
-#include "Geometry/CSCGeometry/src/AbsOffsetRadialStripTopology.h"
+#include <Geometry/CSCGeometry/src/AbsOffsetRadialStripTopology.h>
+
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+
 #include <iostream>
 #include <cmath>
 
@@ -18,11 +21,9 @@ AbsOffsetRadialStripTopology::AbsOffsetRadialStripTopology(
   theCosOff = cos(rotate_by);
   theSinOff = sin(rotate_by);
 
-  //  if ( debugV ) {
-  //    std::cout << "CSCGeometry::AORST(): fractional strip offset = " << stripOffset <<
-  //      "\n angle = " << rotate_by << 
-  //      " cos = " << theCosOff << " sin = " << theSinOff << std::endl;
-  //  }
+  LogDebug("CSC") << "fractional strip offset = " << stripOffset <<
+    "\n angle = " << rotate_by << 
+    " cos = " << theCosOff << " sin = " << theSinOff << "\n";
 }
 
 LocalPoint AbsOffsetRadialStripTopology::localPosition(const MeasurementPoint & mp) const {

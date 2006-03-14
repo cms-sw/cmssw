@@ -19,10 +19,12 @@
 #include <Geometry/Surface/interface/TrapezoidalPlaneBounds.h>
 #include <Geometry/Vector/interface/Basic3DVector.h>
 
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+
 #include <iostream>
 #include <iomanip>
 
-CSCGeometryBuilderFromDDD::CSCGeometryBuilderFromDDD(){}
+CSCGeometryBuilderFromDDD::CSCGeometryBuilderFromDDD() : myName("CSCGeometryBuilderFromDDD"){}
 
 
 CSCGeometryBuilderFromDDD::~CSCGeometryBuilderFromDDD(){}
@@ -54,17 +56,17 @@ CSCGeometry* CSCGeometryBuilderFromDDD::build(const DDCompactView* cview){
   }
 
   catch (const DDException & e ) {
-    std::cerr << "DDD Exception: something went wrong during XML parsing!" << std::endl
+    edm::LogError("DDD") << "something went wrong during XML parsing!" << std::endl
 	      << "  Message: " << e << std::endl
 	      << "  Terminating execution ... " << std::endl;
     throw;	       
   }
   catch (const std::exception & e) {
-    std::cerr << "An unexpected exception occured: " << e.what() << std::endl;
+    edm::LogError("CSC") << "An unexpected exception occured: " << e.what() << std::endl;
     throw;
   }
   catch (...) {
-    std::cerr << "An unexpected exception occured!" << std::endl
+    edm::LogError("CSC") << "An unexpected unnamed exception occured!" << std::endl
 	      << "  Terminating execution ... " << std::endl;
     std::unexpected();	         
   }
@@ -119,19 +121,18 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv ){
     std::vector<float> fpar;
     std::vector<double> dpar = fv->logicalPart().solid().parameters();
     
-    if ( debugV ) {
-      std::cout << myName << ": fill fpar..." << std::endl;
-      std::cout << myName << ": dpars are... " << 
+    LogDebug("CSC") << ": fill fpar..." << "\n";
+    LogDebug("CSC") << ": dpars are... " << 
           dpar[4]/cm << ", " << dpar[8]/cm << ", " << 
-          dpar[3]/cm << ", " << dpar[0]/cm << std::endl;
-    }
+          dpar[3]/cm << ", " << dpar[0]/cm << "\n";
+
 
     fpar.push_back( static_cast<float>( dpar[4]/cm) );
     fpar.push_back( static_cast<float>( dpar[8]/cm ) ); 
     fpar.push_back( static_cast<float>( dpar[3]/cm ) ); 
     fpar.push_back( static_cast<float>( dpar[0]/cm ) ); 
 
-    if ( debugV ) std::cout << myName << ": fill gtran..." << std::endl;
+    LogDebug("CSC") << ": fill gtran..." << "\n";
 
     std::vector<float> gtran;
     DDTranslation tran = fv->translation();
@@ -139,7 +140,7 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv ){
       gtran.push_back( (float) 1.0 *  tran[i] / cm );
     }
 
-    if ( debugV ) std::cout << myName << ": fill grmat..." << std::endl;
+    LogDebug("CSC") << ": fill grmat..." << "\n";
 
     std::vector<float> grmat( 9 ); // set dim so can use [.] to fill
     size_t rotindex = 0;
@@ -153,7 +154,7 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv ){
       }
     }
 
-    if ( debugV ) std::cout << myName << ": fill fupar..." << std::endl;
+    LogDebug("CSC") << ": fill fupar..." << "\n";
 
     std::vector<float> fupar;
     for (size_t i = 0; i < uparvals.size(); i++)
@@ -161,43 +162,43 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv ){
 
     // MuonNumbering numbering wraps the subdetector hierarchy labelling
 
-    if ( debugV ) std::cout << myName << ": create numbering scheme..." << std::endl;
+    LogDebug("CSC") << ": create numbering scheme..." << "\n";
 
     MuonDDDNumbering mdn;
     MuonBaseNumber mbn = mdn.geoHistoryToBaseNumber(fv->geoHistory());
     CSCNumberingScheme mens;
 
-    if ( debugV ) std::cout << myName << ": find detid..." << std::endl;
+    LogDebug("CSC") << ": find detid..." << "\n";
 
     int detid = mens.baseNumberToUnitNumber( mbn ); //@@ FIXME perhaps should return CSCDetId itself?
 
-    if ( debugV ) {
-      std::cout << myName << ": detid for this layer is " << detid << 
-	", octal " << std::oct << detid << ", hex " << std::hex << detid << std::dec << std::endl;
-      std::cout << myName << ": looking for wire group info for layer " << std::endl;
-      std::cout << "E" << CSCDetId::endcap(detid) << 
+
+      LogDebug("CSC") << ": detid for this layer is " << detid << 
+	", octal " << std::oct << detid << ", hex " << std::hex << detid << std::dec << "\n";
+      LogDebug("CSC") << ": looking for wire group info for layer " << "\n";
+      LogDebug("CSC") << "E" << CSCDetId::endcap(detid) << 
              " S" << CSCDetId::station(detid) << 
 	     " R" << CSCDetId::ring(detid) <<
              " C" << CSCDetId::chamber(detid) <<
-             " L" << CSCDetId::layer(detid) << std::endl 
-	          << fv->geoHistory() << std::endl;
+  	     " L" << CSCDetId::layer(detid) << "\n";
+	//			   << fv->geoHistory() << "\n";
 	    
       if ( wg.numberOfGroups != 0 ) {
-	std::cout << "fv->geoHistory:      = " << fv->geoHistory() << std::endl;
-	std::cout << "TotNumWireGroups     = " << wg.numberOfGroups << std::endl;
-	std::cout << "WireSpacing          = " << wg.wireSpacing << std::endl;
-	std::cout << "CenterPinToFirstWire = " << wg.alignmentPinToFirstWire << std::endl;
-	std::cout << "wg.consecutiveGroups.size() = " << wg.consecutiveGroups.size() << std::endl;
-	std::cout << "wg.wiresInEachGroup.size() = " << wg.wiresInEachGroup.size() << std::endl;
-	std::cout << "NumGroups\tWiresInGroup" << std::endl;
+	LogDebug("CSC") << "fv->geoHistory:      = " << fv->geoHistory() << "\n";
+	LogDebug("CSC") << "TotNumWireGroups     = " << wg.numberOfGroups << "\n";
+	LogDebug("CSC") << "WireSpacing          = " << wg.wireSpacing << "\n";
+	LogDebug("CSC") << "CenterPinToFirstWire = " << wg.alignmentPinToFirstWire << "\n";
+	LogDebug("CSC") << "wg.consecutiveGroups.size() = " << wg.consecutiveGroups.size() << "\n";
+	LogDebug("CSC") << "wg.wiresInEachGroup.size() = " << wg.wiresInEachGroup.size() << "\n";
+	LogDebug("CSC") << "NumGroups\tWiresInGroup" << "\n";
 	for (size_t i = 0; i < wg.consecutiveGroups.size(); i++) {
-	  std::cout << wg.consecutiveGroups[i] << "\t\t" << wg.wiresInEachGroup[i] << std::endl;
+	  LogDebug("CSC") << wg.consecutiveGroups[i] << "\t\t" << wg.wiresInEachGroup[i] << "\n";
 	}
       } else {
-	std::cout << myName << ":DDD is MISSING SpecPars for wire groups" << std::endl;
+	LogDebug("CSC") << ":DDD is MISSING SpecPars for wire groups" << "\n";
       }
-      std::cout << myName << ": end of wire group info. " << std::endl;
-    }
+      LogDebug("CSC")<< ": end of wire group info. " << "\n";
+
 
     this->buildLayer (theGeometry, detid, fpar, fupar, gtran, grmat, wg );
 
@@ -217,7 +218,7 @@ void CSCGeometryBuilderFromDDD::buildLayer (
         const CSCWireGroupPackage& wg     // wire group info
 	) {
 
-  if ( debugV ) std::cout << "\n\n" << myName << ": entering buildLayer" << std::endl;
+  LogDebug("CSC") << ": entering buildLayer" << "\n";
   int jend   = CSCDetId::endcap( detid );
   int jstat  = CSCDetId::station( detid );
   int jring  = CSCDetId::ring( detid );
@@ -245,20 +246,19 @@ void CSCGeometryBuilderFromDDD::buildLayer (
   
   const size_t kNpar = 4;
   if ( fpar.size() != kNpar ) 
-    std::cerr << "mu_end_make_geom: Error, expected npar=" 
+    edm::LogError("CSC") << "Error, expected npar=" 
 	      << kNpar << ", found npar=" << fpar.size() << std::endl;
 
-  if ( debugV ) {
-    std::cout << myName << ":  E" << jend << " S" << jstat << " R" << jring <<
-      " C" << jch << " L" << jlay << std::endl;
-    std::cout << "npar=" << fpar.size() << " par[0]=" << fpar[0] 
-         << " par[1]=" << fpar[1] << " par[2]=" << fpar[2] << " par[3]=" << fpar[3] << std::endl;
-    std::cout << "gtran[0,1,2]=" << gtran[0] << " " << gtran[1] << " " << gtran[2] << std::endl;
-    std::cout << "grmat[0-8]=" << grmat[0] << " " << grmat[1] << " " << grmat[2] << " "
+  LogDebug("CSC") << ":  E" << jend << " S" << jstat << " R" << jring <<
+    " C" << jch << " L" << jlay << "\n";
+  LogDebug("CSC") << "npar=" << fpar.size() << " par[0]=" << fpar[0] 
+		  << " par[1]=" << fpar[1] << " par[2]=" << fpar[2] << " par[3]=" << fpar[3] << "\n";
+  LogDebug("CSC") << "gtran[0,1,2]=" << gtran[0] << " " << gtran[1] << " " << gtran[2] << "\n";
+  LogDebug("CSC") << "grmat[0-8]=" << grmat[0] << " " << grmat[1] << " " << grmat[2] << " "
          << grmat[3] << " " << grmat[4] << " " << grmat[5] << " "
-         << grmat[6] << " " << grmat[7] << " " << grmat[8] << std::endl;
-    std::cout << "nupar=" << fupar.size() << " upar[0]=" << fupar[0] << std::endl;
-  }
+		  << grmat[6] << " " << grmat[7] << " " << grmat[8] << "\n";
+  LogDebug("CSC") << "nupar=" << fupar.size() << " upar[0]=" << fupar[0] << "\n";
+
 
    // offset translates centre of Layer 1 to centre of Chamber
    // Since Layer 1 is nearest IP in station 1,2 but Layer 6 is
@@ -281,7 +281,7 @@ void CSCGeometryBuilderFromDDD::buildLayer (
   else { // this chamber not yet built/stored
   
    // Get or build ChamberSpecs for this chamber
-    if ( debugV ) std::cout << myName << ": CSCChamberSpecs::build requested." << std::endl;
+    LogDebug("CSC") << ": CSCChamberSpecs::build requested." << "\n";
     int chamberType = CSCChamberSpecs::whatChamberType( jstat, jring );
     CSCChamberSpecs* aSpecs = CSCChamberSpecs::lookUp( chamberType );
     if ( aSpecs == 0 ) aSpecs = CSCChamberSpecs::build( chamberType, fpar, fupar, wg );
@@ -333,11 +333,11 @@ void CSCGeometryBuilderFromDDD::buildLayer (
     theGeometry->addChamber( chamberId, aChamber ); 
     chamber = aChamber;
 
-    if ( debugV )  std::cout << myName << ": E" << jend << " S" << jstat 
-	           << " R" << jring << " C" << jch << " L" << jlay 
-                   << " gtran[2]=" << gtran[2]
-		   << " offset=" << offset << " par[2]=" << fpar[2]
-		   << " chamber adr=" << chamber << std::endl;
+    LogDebug("CSC") << ": E" << jend << " S" << jstat 
+	            << " R" << jring << " C" << jch << " L" << jlay 
+                    << " gtran[2]=" << gtran[2]
+		    << " offset=" << offset << " par[2]=" << fpar[2]
+		    << " chamber adr=" << chamber << "\n";
   }
    
   const CSCLayer* cLayer = dynamic_cast<const CSCLayer*> (theGeometry->idToDet( layerId ) );
@@ -375,16 +375,13 @@ void CSCGeometryBuilderFromDDD::buildLayer (
     theGeometry->addDetType( const_cast<GeomDetType*>( &(aLayer->type()) ) ); //@@ FIXME drop const_cast asap!
   }
   else {
-    std::cerr << myName << ": ERROR, layer " << jlay <<
+    edm::LogError("CSC") << ": ERROR, layer " << jlay <<
             " for chamber = " << ( chamber->cscId() ) <<
             " already exists: layer address=" << cLayer <<
-            " chamber address=" << chamber << std::endl;
-    //    if ( !logger().debugOut ) muEndDumpAddress( 1, emu, jend, jstat, jring, jch, jlay );
-
+      " chamber address=" << chamber << "\n";
   }         
-  //  if ( logger().debugOut ) muEndDumpAddress( 9, emu, jend, jstat, jring, jch, jlay );
+
 }
 
-const std::string CSCGeometryBuilderFromDDD::myName = "CSCGeometryBuilderFromDDD";
-bool CSCGeometryBuilderFromDDD::debugV = false;
+
 

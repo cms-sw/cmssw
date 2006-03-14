@@ -44,11 +44,7 @@ private:
         const CSCWireGroupPackage& wg    // wire group info
 	);
 
-  static const std::string myName;
-
-  // For want of anything better, output is flagged by this thing
-  // which is set at compile. Dark ages stuff.
-  static bool debugV;
+  const std::string myName;
 
 };
 #endif

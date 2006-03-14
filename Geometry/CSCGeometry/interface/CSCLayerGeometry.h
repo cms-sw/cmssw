@@ -277,7 +277,7 @@ private:
   float hTopEdge;
   float apothem;
 
-  static const std::string myName;
+  const std::string myName;
 
 };
-#endif // Geometry_CSCGeometry_CSCLayerGeometry_H
+#endif

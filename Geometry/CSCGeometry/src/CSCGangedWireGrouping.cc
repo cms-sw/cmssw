@@ -1,4 +1,6 @@
-#include "Geometry/CSCGeometry/src/CSCGangedWireGrouping.h"
+#include <Geometry/CSCGeometry/src/CSCGangedWireGrouping.h>
+
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <iostream>
 #include <iomanip>
@@ -38,24 +40,23 @@ CSCGangedWireGrouping::CSCGangedWireGrouping(
   theNumberOfWires = firstWire - 1; // at end of loop we're on 1st for next
 
   if ( countGroups != numberOfGroups ) {
-    std::cout << "CSCGangedWireGrouping: ERROR in parsing wire info from DDD..." << std::endl;
-    std::cout << "groups expected = " << numberOfGroups << 
-      " groups seen = " << countGroups << std::endl;
-    std::cout << "Please report this error to Tim.Cox@cern.ch" << std::endl;
+    edm::LogError("CSC") << "CSCGangedWireGrouping: ERROR in parsing wire info from DDD..." << "\n";
+    edm::LogError("CSC") << "groups expected = " << numberOfGroups << 
+      " groups seen = " << countGroups << "\n";
+    edm::LogError("CSC") << "Please report this error to Tim.Cox@cern.ch" << "\n";
   }
-  //  if ( CSCGeometryLogger::debugV ) {
-  if ( true ) { //@@ FIXME of course
-    std::cout << "CSCGangedWireGrouping constructor complete," <<
-       " wire group list follows... " << std::endl;
-    std::cout << "Size of group buffers = " << theFirstWireOfEachWireGroup.size() <<
-      " and " << theNumberOfWiresPerWireGroup.size() << std::endl;
-    std::cout << " wg#    1st wire  #wires" << std::endl;
-    for ( size_t i = 0; i != theFirstWireOfEachWireGroup.size(); ++i ) {
-       std::cout << std::setw(4) << i+1 << std::setw(12) << theFirstWireOfEachWireGroup[i] <<
-	 std::setw(8) << theNumberOfWiresPerWireGroup[i] << std::endl;
-    }
-    std::cout << "Total no. of wires = " << theNumberOfWires << std::endl;
+
+  LogDebug("CSC") << "CSCGangedWireGrouping constructor complete," <<
+    " wire group list follows... " << "\n";
+  LogDebug("CSC") << "Size of group buffers = " << theFirstWireOfEachWireGroup.size() <<
+    " and " << theNumberOfWiresPerWireGroup.size() << "\n";
+  LogDebug("CSC") << " wg#    1st wire  #wires" << "\n";
+  for ( size_t i = 0; i != theFirstWireOfEachWireGroup.size(); ++i ) {
+    LogDebug("CSC") << std::setw(4) << i+1 << std::setw(12) << theFirstWireOfEachWireGroup[i] <<
+	std::setw(8) << theNumberOfWiresPerWireGroup[i] << "\n";
   }
+  LogDebug("CSC") << "Total no. of wires = " << theNumberOfWires << "\n";
+
 }
 
 int CSCGangedWireGrouping::numberOfWiresPerGroup( int wireGroup ) const { 

@@ -1,6 +1,9 @@
 #include <Geometry/CSCGeometry/src/CSCSlantedWireGeometry.h>
 #include <Geometry/Vector/interface/LocalPoint.h>
 #include <Geometry/CSCGeometry/interface/nint.h>
+
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+
 #include <cmath>
 
 CSCSlantedWireGeometry::CSCSlantedWireGeometry( double wireSpacing,
@@ -9,12 +12,12 @@ CSCSlantedWireGeometry::CSCSlantedWireGeometry( double wireSpacing,
     cosWireAngle = cos( wireAngle );
     sinWireAngle = sin( wireAngle );
     theWireOffset = yOfFirstWire * cosWireAngle; 
-    //    std::cout <<
-    //       "CSCSlantedWireGeometry: constructed:\n" <<
-    //       " wireSpacing = " << wireSpacing << 
-    //       ", yOfFirstWire = " << yOfFirstWire << 
-    //       ", wireAngle = " << wireAngle << 
-    //       ", theWireOffset = " << theWireOffset << std::endl;
+    LogDebug("CSC") <<
+      "CSCSlantedWireGeometry: constructed:\n" <<
+      " wireSpacing = " << wireSpacing << 
+      ", yOfFirstWire = " << yOfFirstWire << 
+      ", wireAngle = " << wireAngle << 
+      ", theWireOffset = " << theWireOffset << "\n";
 }
 
 int CSCSlantedWireGeometry::nearestWire(const LocalPoint& lp) const {

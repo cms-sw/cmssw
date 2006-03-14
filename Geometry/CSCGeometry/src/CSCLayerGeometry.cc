@@ -1,13 +1,16 @@
 // This is CSCLayerGeometry.cc 
 
-#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
-#include "Geometry/CSCGeometry/src/OffsetRadialStripTopology.h"
-#include "Geometry/CSCGeometry/src/ORedOffsetRST.h"
-#include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
+#include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
+#include <Geometry/CSCGeometry/src/OffsetRadialStripTopology.h>
+#include <Geometry/CSCGeometry/src/ORedOffsetRST.h>
+#include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
+#include <Geometry/Vector/interface/LocalPoint.h>
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include <FWCore/Utilities/interface/Exception.h>
+
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 #include <cmath>
@@ -16,10 +19,10 @@ CSCLayerGeometry::CSCLayerGeometry( int iChamberType,
          const TrapezoidalPlaneBounds& bounds,
          int nstrips, float stripOffset, float stripPhiPitch,
 	 const CSCWireGroupPackage& wg, float wireAngleInDegrees )
-  :  TrapezoidalPlaneBounds( bounds ), theWireTopology( 0 ),
-     theStripTopology( 0 )
-{
-  std::cout << myName << ": being constructed, this=" << this << std::endl;
+  :   TrapezoidalPlaneBounds( bounds ), theWireTopology( 0 ),
+      theStripTopology( 0 ), myName( "CSCLayerGeometry" ) {
+
+  LogDebug("CSC") << ": being constructed, this=" << this << "\n";
 
   // The TPB doesn't provide direct access to the half-length values
   // we've always been coding against (since that is what GEANT3 used!)
@@ -149,9 +152,9 @@ CSCLayerGeometry& CSCLayerGeometry::operator=(const CSCLayerGeometry& melg)
 
 CSCLayerGeometry::~CSCLayerGeometry()
 {
-  // std:cout << myName << ": being destroyed, this=" << this << 
-  //   "\nDeleting theStripTopology=" << theStripTopology << 
-  //   " and theWireTopology=" << theWireTopology << std::endl;
+  LogDebug("CSC") << ": being destroyed, this=" << this << 
+    "\nDeleting theStripTopology=" << theStripTopology << 
+    " and theWireTopology=" << theWireTopology << "\n";
   delete theStripTopology;
   delete theWireTopology;
 }
@@ -261,11 +264,10 @@ std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
   float cw = yOfWire( wire );
 
 
-  //  if ( logger().debugOut ) {
-  //    std::cout << myName << ": wire=" << wire << 
-  //      ", wire angle = " << wangle << 
-  //      ", intercept on y axis=" << cw << std::endl;
-  //   }
+  LogDebug("CSC") << ": wire=" << wire << 
+    ", wire angle = " << wangle << 
+    ", intercept on y axis=" << cw << "\n";
+
 
   // slope & intercept of line defining one non-parallel side of chamber 
   float m1 = -2.*apothem/(hTopEdge-hBottomEdge);
@@ -286,11 +288,9 @@ std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
   float x2 = pw2.x();
   float y2 = pw2.y();
 
-  //  if ( logger().debugOut ) {
-  //    std::cout << myName << ": wire intersects sides at " << 
-  //               "\n  x1=" << x1 << " y1=" << y1 << 
-  //                  " x2=" << x2 << " y2=" << y2 << std::endl;
-  //   }
+  LogDebug("CSC") << ": wire intersects sides at " << 
+                 "\n  x1=" << x1 << " y1=" << y1 << 
+		   " x2=" << x2 << " y2=" << y2 << "\n";
 
   // WIRES ARE NOT TILTED?
 
@@ -299,10 +299,10 @@ std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
     buf[0] = 0.;
     buf[1] = cw;
     buf[2] = sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
-    //    if ( logger().debugOut ) {
-    //      std::cout << myName << ": wires are not tilted " << 
-    //       "\n  mid-point: x=0 y=" << cw << ", length=" << buf[2] << std::endl;
-    //    }
+
+    LogDebug("CSC") << ": wires are not tilted " << 
+      "\n  mid-point: x=0 y=" << cw << ", length=" << buf[2] << "\n";
+
     return buf;    
   }
 
@@ -316,12 +316,11 @@ std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
   float mb = 0;
   float cb = -apothem;
 
-  //  if ( logger().debugOut ) {
-  //    std::cout << myName << ": slopes & intercepts " <<
-  //    "\n  mt=" << mt << " ct=" << ct << " mb=" << mb << " cb=" << cb <<
-  //    "\n  m1=" << m1 << " c1=" << c1 << " m2=" << m2 << " c2=" << c2 << 
-  //    "\n  mw=" << mw << " cw=" << cw << std::endl; 
-  //   }
+  LogDebug("CSC") << ": slopes & intercepts " <<
+    "\n  mt=" << mt << " ct=" << ct << " mb=" << mb << " cb=" << cb <<
+    "\n  m1=" << m1 << " c1=" << c1 << " m2=" << m2 << " c2=" << c2 << 
+    "\n  mw=" << mw << " cw=" << cw << "\n";
+
   
   // wire intersects top side at
   LocalPoint pwt = intersection(mw, cw, mt, ct);
@@ -335,11 +334,9 @@ std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
   float xb = pwb.x();
   float yb = pwb.y();
 
-  // if ( logger().debugOut ) {
-  //    std::cout << myName << ": wire intersects top & bottom at " << 
-  //               "\n  xt=" << xt << " yt=" << yt << 
-  //                  " xb=" << xb << " yb=" << yb << std::endl;
-  //   }
+  LogDebug("CSC") << ": wire intersects top & bottom at " << 
+    "\n  xt=" << xt << " yt=" << yt << 
+    " xb=" << xb << " yb=" << yb << "\n";
 
   float xWireEnd[4], yWireEnd[4];
   int i = 0;
@@ -371,21 +368,16 @@ std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
   std::vector<float> buf(3);
 
   if ( i != 2 ) {
-    std::cout << myName << ": ***ERROR*** the wire has " << i <<
-      " ends!" << std::endl;
-    //    severe(myName+"::wireValues error - wrong number of ends");
-    //@@ FIXME Now what? Just return?
-    return buf;
+     throw cms::Exception("BadCSCGeometry") << "the wire has " << i <<
+       " ends!" << "\n";
+     //    return buf;
   }
   
-  //  if ( logger().debugOut ) {
-  //    std::cout << myName << ": wire ends " << std::endl;
-  //    for ( int j = 0; j<i; j++ ) {
-  //      std::cout << "  x = " << xWireEnd[j] << 
-  //                    " y = " << yWireEnd[j] << std::endl;
-  //    }
-  //  } 
-
+  LogDebug("CSC") << ": wire ends " << "\n";
+  for ( int j = 0; j<i; j++ ) {
+    LogDebug("CSC") << "  x = " << xWireEnd[j] << " y = " << yWireEnd[j] << "\n";
+   }
+ 
   float d2 = (xWireEnd[0]-xWireEnd[1]) * (xWireEnd[0]-xWireEnd[1]) +
              (yWireEnd[0]-yWireEnd[1]) * (yWireEnd[0]-yWireEnd[1]);
 
@@ -417,4 +409,3 @@ std::ostream & operator<<(std::ostream & stream, const CSCLayerGeometry & lg) {
     return stream;
 }
 
-const std::string CSCLayerGeometry::myName = "CSCLayerGeometry";

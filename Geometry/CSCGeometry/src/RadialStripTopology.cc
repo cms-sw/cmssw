@@ -1,4 +1,5 @@
-#include "Geometry/CSCGeometry/src/RadialStripTopology.h"
+#include <Geometry/CSCGeometry/src/RadialStripTopology.h>
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <iostream>
 #include <cmath>
@@ -11,13 +12,13 @@ RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r) :
   // zero for a strip lying along local y axis
   thePhiOfOneEdge = -(theNumberOfStrips/2.) * theAngularWidth;
   
-  // std::cout << "Constructing RadialStripTopology:"
-  //       << " strips = " << ns
-  //       << " of width = " << aw << " rad."
-  //       << " det height = " << dh
-  //       << " ctoi = " << r 
-  //       << "\n thePhiOfOneEdge = " << thePhiOfOneEdge << " rad."
-  //       << std::endl;
+  LogDebug("CSC") << "Constructing RadialStripTopology:"
+        << " strips = " << ns
+        << " of width = " << aw << " rad."
+        << " det height = " << dh
+        << " ctoi = " << r 
+        << "\n thePhiOfOneEdge = " << thePhiOfOneEdge << " rad."
+        << "\n";
 }    
 
 RadialStripTopology::~RadialStripTopology(){}

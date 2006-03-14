@@ -5,10 +5,11 @@
 #include "Geometry/CSCGeometry/src/CSCNonslantedWireGeometry.h"
 #include "Geometry/CSCGeometry/src/CSCSlantedWireGeometry.h"
 
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include <cmath>
-#include <iostream>
 
 CSCWireTopology::~CSCWireTopology() { 
   delete theWireGrouping;
@@ -71,15 +72,12 @@ CSCWireTopology::CSCWireTopology(
     else yOfFirstWire = offsetOrthogonalToWires; // all other chambers
   }
 
-
-  // CSCGeometryLogger::logger().debugOut <<
-  //@@ FIXME something sane
-  if ( 1 ) std::cout <<  
-       "CSCWireTopology: constructing WireGeometry with:\n" <<
+  LogDebug("CSC") <<  
+       "Constructing WireGeometry with:\n" <<
        " wireSpacing = " << wireSpacing*10. << " (mm) " <<
       ", yOfFirstWire = " << yOfFirstWire << " (cm) " <<
        ", wireAngle = " << wireAngleInDegrees << " (degrees) " <<
-                           wireAngleInRadians << " (radians)" << std::endl;
+    wireAngleInRadians << " (radians)" << "\n";
 
   if ( fabs(wireAngleInDegrees) > zeroprecision ) { 
     theWireGeometry = new CSCSlantedWireGeometry( wireSpacing, yOfFirstWire, 
@@ -118,25 +116,25 @@ CSCWireTopology& CSCWireTopology::operator=( const CSCWireTopology& mewt ) {
 }
 
 LocalPoint CSCWireTopology::localPosition( const MeasurementPoint& ) const {
-  std::cout << "CSCWireTopology: localPosition unimplemented. Don't use it." << std::endl;
+  edm::LogWarning("CSC") << "CSCWireTopology: localPosition unimplemented. Don't use it." << "\n";
   return LocalPoint();
 }
 
 LocalError CSCWireTopology::localError( const MeasurementPoint&, 
 					  const MeasurementError& ) const {
-  std::cout << "CSCWireTopology: localError unimplemented. Don't use it." << std::endl;
+  edm::LogWarning("CSC") << "CSCWireTopology: localError unimplemented. Don't use it." << "\n";
   return LocalError();
 }
 
 MeasurementPoint CSCWireTopology::measurementPosition( 
 				       const LocalPoint& ) const {
-  std::cout << "CSCWireTopology: measurementPosition unimplemented. Don't use it." << std::endl;
+  edm::LogWarning("CSC") << "CSCWireTopology: measurementPosition unimplemented. Don't use it." << "\n";
   return MeasurementPoint();
 }
 
 MeasurementError CSCWireTopology::measurementError( const LocalPoint&, 
 					   const LocalError& ) const {
-  std::cout << "CSCWireTopology: measurementError unimplemented. Don't use it." << std::endl;
+  edm::LogWarning("CSC") << "CSCWireTopology: measurementError unimplemented. Don't use it." << "\n";
   return MeasurementError();
 }
 

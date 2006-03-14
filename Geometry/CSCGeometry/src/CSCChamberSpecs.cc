@@ -4,6 +4,8 @@
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include <Geometry/Surface/interface/TrapezoidalPlaneBounds.h>
 
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+
 #include <iostream>
 
 CSCChamberSpecs::CSCChamberSpecs( int iChamberType,
@@ -12,9 +14,9 @@ CSCChamberSpecs::CSCChamberSpecs( int iChamberType,
       const CSCWireGroupPackage& wg )
   : GeomDetType( "CSC", CSC ), theChamberType( iChamberType ), theSpecsValues( fupar )
  {
-   if ( 1 ) std::cout <<  myName << ": under construction for chamber " << 
+   LogDebug("CSC") << "Constructing specs for chamber " << 
     theName[iChamberType - 1] << ", type=" << iChamberType << ", this =" << 
-     this << std::endl;
+     this << "\n";
 
    // Need to check settings for overall modelling, but only once
    if ( theFirstCall ) {
@@ -69,7 +71,7 @@ CSCChamberSpecs::CSCChamberSpecs( int iChamberType,
 
 CSCChamberSpecs::~CSCChamberSpecs()
 {
-  if ( 1 ) std::cout << myName << ": destroying this=" << this << std::endl;
+  LogDebug("CSC") << "destroying this=" << this << "\n";
 
   delete poszOddLayerGeometry;
   delete poszEvenLayerGeometry;
@@ -175,7 +177,7 @@ void CSCChamberSpecs::whatModelling() {
   // Static function to dump user-selected overall modelling parameters
   // This will be called just _once_ in a job!
 
-  std::cout << myName << ": setModelling entered... " << std::endl;
+  LogDebug("CSC") << "setModelling entered... " << "\n";
 
   std::string sm = " ";
   if ( useRadialStrips ) 
@@ -183,7 +185,7 @@ void CSCChamberSpecs::whatModelling() {
   else
     sm = "TRAPEZOIDAL";
 
-  std::cout << myName << ": strips are modelled as " << sm << std::endl;
+  edm::LogInfo("CSC") << myName << ": strips are modelled as " << sm << "\n";
 
   std::string gs = " ";
   if ( gangedstripsME1a ) 
@@ -191,7 +193,7 @@ void CSCChamberSpecs::whatModelling() {
   else
     gs = "UNGANGED";
 
-  std::cout << myName << ": in ME1a use " << gs << " strips" << std::endl;
+  edm::LogInfo("CSC") << myName << ": in ME1a use " << gs << " strips" << "\n";
 
   std::string wo = " ";
   if ( onlywiresME1a ) 
@@ -199,7 +201,7 @@ void CSCChamberSpecs::whatModelling() {
   else
     wo = "WIRES & STRIPS";
 
-  std::cout << myName << ": in ME1a use  " << wo << std::endl;
+  edm::LogInfo("CSC") << myName << ": in ME1a use  " << wo << "\n";
 
   std::string wg = " ";
   if ( useRealWireGeometry ) 
@@ -207,7 +209,7 @@ void CSCChamberSpecs::whatModelling() {
   else
     wg = "PSEUDO";
 
-  std::cout << myName << ": wires are modelled using " << wg << " wire geometry " << std::endl;
+  edm::LogInfo("CSC") << myName << ": wires are modelled using " << wg << " wire geometry " << "\n";
 
 }
 
@@ -226,7 +228,7 @@ const std::string CSCChamberSpecs::theName[] =
 // Define name of this class
 const std::string CSCChamberSpecs::myName = "CSCChamberSpecs";
  
-// Defin the static bools
+// Define the static bools
 bool CSCChamberSpecs::theFirstCall = true;
 bool CSCChamberSpecs::gangedstripsME1a = true;
 bool CSCChamberSpecs::onlywiresME1a = false;
