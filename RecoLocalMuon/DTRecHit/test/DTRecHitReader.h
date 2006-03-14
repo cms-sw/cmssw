@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing them with muon simhits
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/02/15 13:56:48 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -57,6 +57,9 @@ private:
   std::map<DTWireId,  std::vector<const PSimHit*> > 
   mapSimHitsPerWire(const edm::Handle<edm::PSimHitContainer >& simhits);
 
+  // Compute SimHit distance from wire
+  double findSimHitDist(const PSimHit * hit);
+
   // Histograms
   H1DRecHit *hRHitPhi;
   H1DRecHit *hRHitZ_W0;
@@ -70,6 +73,9 @@ private:
   bool debug;
   // Root file name
   std::string rootFileName;
+  std::string simHitLabel;
+  std::string recHitLabel;
+
 };
 
 

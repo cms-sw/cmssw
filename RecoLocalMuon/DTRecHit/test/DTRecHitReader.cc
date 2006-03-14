@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/03 11:29:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/06 17:33:44 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -33,6 +33,8 @@ DTRecHitReader::DTRecHitReader(const ParameterSet& pset){
   // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
   rootFileName = pset.getUntrackedParameter<string>("rootFileName");
+  simHitLabel = pset.getUntrackedParameter<string>("simHitLabel", "r");
+  recHitLabel = pset.getUntrackedParameter<string>("recHitLabel", "rechitbuilder");
 
   if(debug)
     cout << "[DTRecHitReader] Constructor called" << endl;
@@ -64,7 +66,6 @@ DTRecHitReader::~DTRecHitReader(){
   hRHitZ_W2->Write();
   hRHitZ_All->Write();
   theFile->Close();
-  //delete hRHitPhi; //FIXME: This one makes a mess
 }
 
 
@@ -75,12 +76,13 @@ void DTRecHitReader::analyze(const Event & event, const EventSetup& eventSetup){
        << " #Event: " << event.id().event() << endl;
 
   // Get the rechit collection from the event
-  Handle<DTRecHitCollection> dtTecHits;
-  event.getByLabel("rechitbuilder", dtTecHits);
+  Handle<DTRecHitCollection> dtRecHits;
+  event.getByLabel(recHitLabel, "DT1DRecHits", dtRecHits);
 
   // Get the SimHit collection from the event
   Handle<PSimHitContainer> simHits;
-  event.getByLabel("SimG4Object","MuonDTHits", simHits);
+
+  event.getByLabel(simHitLabel, "MuonDTHits", simHits);
   
   if(debug)
     cout << "   #SimHits: " << simHits->size() << endl;
@@ -91,13 +93,11 @@ void DTRecHitReader::analyze(const Event & event, const EventSetup& eventSetup){
 
   // Iterate over all detunits
   DTRecHitCollection::id_iterator detUnitIt;
-  for (detUnitIt = dtTecHits->id_begin();
-       detUnitIt != dtTecHits->id_end();
+  for (detUnitIt = dtRecHits->id_begin();
+       detUnitIt != dtRecHits->id_end();
        ++detUnitIt){
-    //     const DTLayerId& layerId = (*detUnitIt).first;
-//     const DTRecHitCollection::Range& range = (*detUnitIt).second;
-    
-    DTRecHitCollection::range  range = dtTecHits->get((*detUnitIt));
+    // Get the range for the corresponding LayerId
+    DTRecHitCollection::range  range = dtRecHits->get((*detUnitIt));
     // Loop over the rechits of this DetUnit
     for (DTRecHitCollection::const_iterator rechit = range.first;
 	 rechit!=range.second;
@@ -122,7 +122,7 @@ void DTRecHitReader::analyze(const Event & event, const EventSetup& eventSetup){
 	// Check that a mu simhit is found
 	if(muSimHit != 0) {
 	  // Compute the simhit distance from wire
-	  simHitDistFromWire = fabs(muSimHit->localPosition().x());
+	  simHitDistFromWire = findSimHitDist(muSimHit);
 	  // Fill the histos
 	  H1DRecHit *histo = 0;
 	  if(wireId.superlayer() == 1 || wireId.superlayer() == 3) {
@@ -181,8 +181,8 @@ DTRecHitReader::findBestMuSimHit(const vector<const PSimHit*>& simhits,
     // Select muons
     if(abs((*simhit)->particleType()) == 13) {
       // Get the mu simhit closest to the rechit
-      if(fabs((*simhit)->localPosition().x())-recHitDistFromWire < tmp_distDiff) {
-	tmp_distDiff = fabs((*simhit)->localPosition().x())-recHitDistFromWire;
+      if(findSimHitDist(*simhit)-recHitDistFromWire < tmp_distDiff) {
+	tmp_distDiff = findSimHitDist(*simhit)-recHitDistFromWire;
 	retSimHit = (*simhit);
       }
     }
@@ -190,6 +190,17 @@ DTRecHitReader::findBestMuSimHit(const vector<const PSimHit*>& simhits,
   return retSimHit;
 }
 
+
+
+// Compute SimHit distance from wire
+double DTRecHitReader::findSimHitDist(const PSimHit * hit) {
+//   LocalPoint hitPosition = hit->localPosition();
+  LocalPoint entryP = hit->entryPoint();
+  LocalPoint exitP = hit->exitPoint();
+  float xEntry = entryP.x();
+  float xExit  = exitP.x();
+  return fabs(xEntry - (entryP.z()*(xExit-xEntry))/(exitP.z()-entryP.z()));//FIXME: check...
+}
 
 
 DEFINE_FWK_MODULE(DTRecHitReader)
