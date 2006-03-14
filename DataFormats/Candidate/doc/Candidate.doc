@@ -17,13 +17,17 @@ contains a 4-vector, a vertex and an electric charge.
 - reco::Candidate: a model for a generic reconstructed candidates. Inherits
 from reco::Particle the kinematics information, and adds interface for navigation
 among constituents.
-- reco::LeadCandidate: a reco::Candidate with no component nor daughters. 
+- reco::LeafCandidate: a reco::Candidate with no component nor daughters. 
 Suitable to store just 4-vector, vertex and charge.
 - reco::CompositeCandidate: a reco::Candidate composed of daughters. The daughters
 are owned by the composite candidate.
 - reco::CompositeRefCandidate: a reco::Candidate composed of daughters. The daughters
 has persistent references (edm::RefVector <b><...></b>) to reco::Candidate stored in 
 a separate collection.
+- reco::Candidate::setup: base class for other helper classes that can modify
+  a Candidate kinematics (momentum, vertex, charge). An object of a reco::Candidate::setup subclass can be
+  passed to the Candidate method reco::Candidate::set( setup & ) to modify
+  that Candidate's kinematics.
 - OverlapChecker: helper class to check overlap between two candidates. 
 Recursively scans a decay chain, if necessary.
 
