@@ -1,0 +1,29 @@
+                                                             U.Berthon, 14/03/2006
+
+
+Validation test:
+----------------
+The validation test verifies that bunchcrossings are correctly filled by the 
+MM, and that values like the vertex pointers and ToF etc are 
+correctly shifted. For that it executes the MM for each bunchcrossing, 
+restricting the bunchrange to this crossing only, and adding exactly 1 event as a pileup, 
+which is the same as the signal event.
+   Rereading the output of the 
+MM with TestSuite, it produces a root-file 
+containing histograms ("histos.root"), which can be looked at interactively 
+with the root macro testsuite.C. There also is the possibility of comparing to a reference 
+version using oval, in this case the sigma of every histogram is printed and compared.
+
+To execute the testsuite:
+
+In the test-directory, type
+
+- 'chmod +x testsuite.sh'  to make the shell script executable
+
+- './testsuite.sh'         to execute it. Or if you want to use the oval verification:
+    ovalv1 p testsuite.sh
+
+  You should find    root-files     Cum_-5.root ,...,Cum_3.root
+
+- start a root-session and type '.x testsuite.C'
+  You should see a certain number of Canvasses containing histograms

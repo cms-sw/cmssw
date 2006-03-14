@@ -1,0 +1,8 @@
+<flags SEAL_PLUGIN_NAME="ValidationMixing">
+<use name=SimGeneral/MixingModule>
+<use name=Foundation/PluginManager>
+<export>
+<use name=root>
+<lib name=ValidationMixing>
+<use name=Foundation/PluginManager>
+</export>

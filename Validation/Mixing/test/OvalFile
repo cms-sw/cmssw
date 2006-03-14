@@ -1,0 +1,10 @@
+<!===== ==========================================================
+ ! environment for MixingModule validation
+ !===============================================================>
+
+<environment name=testsuite>
+
+<executable name=testsuite.sh>validation suite</executable>
+
+</environment>
+
