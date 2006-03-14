@@ -1,7 +1,7 @@
-// $Id: HepMCCandidateProducer.cc,v 1.2 2006/03/09 10:40:31 llista Exp $
+// $Id: HepMCCandidateProducer.cc,v 1.3 2006/03/13 18:40:00 llista Exp $
 #include "PhysicsTools/HepMCCandAlgos/src/HepMCCandidateProducer.h"
 //#include "PhysicsTools/HepPDTProducer/interface/PDTRecord.h"
-#include "PhysicsTools/HepPDTProducer/interface/ParticleDataTable.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Handle.h"
