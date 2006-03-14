@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.21 2006/02/08 00:44:28 wmtan Exp $
+$Id: PoolSource.cc,v 1.22 2006/03/10 23:27:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -11,6 +11,7 @@ $Id: PoolSource.cc,v 1.21 2006/02/08 00:44:28 wmtan Exp $
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 namespace edm {
   PoolRASource::PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc) :
@@ -28,7 +29,7 @@ namespace edm {
     ClassFiller();
     init(*fileIter_);
     if (mainInput_) {
-      updateRegistry();
+      updateProductRegistry();
     }
   }
 
@@ -44,13 +45,16 @@ namespace edm {
       catalog_.findFile(pfn, file);
       rootFile_ = RootFileSharedPtr(new RootFile(pfn));
       rootFiles_.insert(std::make_pair(file, rootFile_));
+      if (mainInput_) {
+        rootFile_->fillParameterSetRegistry(*pset::Registry::instance());
+      }
     } else {
       rootFile_ = it->second;
       rootFile_->setEntryNumber(-1);
     }
   }
 
-  void PoolRASource::updateRegistry() const {
+  void PoolRASource::updateProductRegistry() const {
     if (rootFile_->productRegistry().nextID() > productRegistry().nextID()) {
       productRegistry().setNextID(rootFile_->productRegistry().nextID());
     }

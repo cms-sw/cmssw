@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.4 2006/02/08 00:44:28 wmtan Exp $
+$Id: RootFile.cc,v 1.6 2006/03/10 23:27:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -13,7 +13,10 @@ $Id: RootFile.cc,v 1.4 2006/02/08 00:44:28 wmtan Exp $
 #include "DataFormats/Common/interface/EventProvenance.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Common/interface/ParameterSetBlob.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -60,8 +63,7 @@ namespace edm {
     std::string const wrapperEnd1(">");
     std::string const wrapperEnd2(" >");
 
-    ProductRegistry::ProductList const& prodList = productRegistry().productList();
-    for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
+    ProductRegistry::ProductList const& prodList = productRegistry().productList(); for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
         it != prodList.end(); ++it) {
       BranchDescription const& prod = it->second;
       prod.init();
@@ -76,6 +78,22 @@ namespace edm {
 
   RootFile::~RootFile() {
     filePtr_->Close();
+  }
+
+  void
+  RootFile::fillParameterSetRegistry(pset::Registry & psetRegistry) const {
+    ParameterSetID psetID;
+    ParameterSetBlob psetBlob;
+    ParameterSetID *psetIDptr = &psetID;
+    ParameterSetBlob *psetBlobptr = &psetBlob;
+    TTree *parameterSetTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::parameterSetTreeName().c_str()));
+    int nEntries = parameterSetTree->GetEntries();
+    parameterSetTree->SetBranchAddress(poolNames::parameterSetIDBranchName().c_str(), &psetIDptr);
+    parameterSetTree->SetBranchAddress(poolNames::parameterSetBranchName().c_str(), &psetBlobptr);
+    for (int i = 0; i < nEntries; ++i) {
+      parameterSetTree->GetEntry(i);
+      psetRegistry.insertParameterSet(ParameterSet(psetBlob.pset_));
+    }
   }
 
   RootFile::EntryNumber
