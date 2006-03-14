@@ -116,7 +116,6 @@ namespace edm
     int ss=resultsim.size();
     for (int ii=0;ii<ss;ii++) {
       edm::BranchDescription desc = resultsim[ii].provenance()->product;
-      printf(" Adding Pileup productInstanceName_ %s, %d hits\n",desc.productInstanceName_.c_str(),resultsim[ii].product()->size());fflush(stdout);
       LogDebug("addPileups") <<"For "<<desc.productInstanceName_<<resultsim[ii].product()->size()<<" Simhits added";
       simcf_->addPileupSimHits(bcr,desc.productInstanceName_,resultsim[ii].product(),trackoffset,false);
     }
