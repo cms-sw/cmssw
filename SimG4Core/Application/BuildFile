@@ -5,7 +5,6 @@
 <use name=SimG4Core/SensitiveDetector>
 <use name=Foundation/PluginManager>
 <use name=SimG4Core/Generators>
-# <use name=IOMC/EventVertexGenerators>
 <use name=SimG4Core/Geometry>
 <use name=SimG4Core/MagneticField>
 <use name=SimG4Core/Notification>
@@ -16,7 +15,7 @@
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/HepMCProduct>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <export>
@@ -25,7 +24,6 @@
 <use name=SimG4Core/Physics>
 <use name=SimG4Core/Packaging>
 <use name=SimG4Core/Generators>
-# <use name=IOMC/EventVertexGenerators>
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Watcher>
 <use name=SimG4Core/SensitiveDetector>               
@@ -36,7 +34,7 @@
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/HepMCProduct>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 </export>
