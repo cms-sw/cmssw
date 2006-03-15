@@ -35,7 +35,6 @@ class TECDetId : public DetId {
       (petal_fw_bw& petal_fw_bwMask_) << petal_fw_bwStartBit_ |
       (petal& petalMask_)             << petalStartBit_ |
       (ring& ringMask_)               << ringStartBit_ |
-      (module_fw_bw& module_fw_bwMask_)     << module_fw_bwStartBit_ |
       (module& moduleMask_)                 << moduleStartBit_ |
       (ster& sterMask_)               << sterStartBit_ ;
   }
@@ -71,16 +70,8 @@ class TECDetId : public DetId {
     { return ((id_>>ringStartBit_) & ringMask_) ;}
   
   /// det id
-  /**
-   * vector[0] = 0 -> bw det
-   * vector[0] = 1 -> fw det
-   * vector[1] -> det
-   */
-  std::vector<unsigned int> module() const
-    { std::vector<unsigned int> num;
-    num.push_back(((id_>>module_fw_bwStartBit_) & module_fw_bwMask_));
-    num.push_back(((id_>>moduleStartBit_) & moduleMask_));
-    return num ;}
+  unsigned int module() const
+    { return ((id_>>moduleStartBit_) & moduleMask_);}
   
     /// glued
   /**
@@ -135,7 +126,7 @@ class TECDetId : public DetId {
   static const unsigned int petal_fw_bwStartBit_=    15;
   static const unsigned int petalStartBit_=          8;
   static const unsigned int ringStartBit_=           5;
-  static const unsigned int module_fw_bwStartBit_=   4;
+  //  static const unsigned int module_fw_bwStartBit_=   4;
   static const unsigned int moduleStartBit_=         2;
   static const unsigned int sterStartBit_=           0;
   /// two bits would be enough, but  we could use the number "0" as a wildcard
@@ -144,8 +135,8 @@ class TECDetId : public DetId {
   static const unsigned int petal_fw_bwMask_=   0x1;
   static const unsigned int petalMask_=         0x7F;
   static const unsigned int ringMask_=          0x7;
-  static const unsigned int module_fw_bwMask_=  0x1;
-  static const unsigned int moduleMask_=        0x3;
+  //  static const unsigned int module_fw_bwMask_=  0x1;
+  static const unsigned int moduleMask_=        0x7;
   static const unsigned int sterMask_=          0x3;
 };
 

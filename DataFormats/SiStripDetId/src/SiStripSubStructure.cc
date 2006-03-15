@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Jan 25 07:19:38 CET 2006
-// $Id: SiStripSubStructure.cc,v 1.1 2006/02/09 18:53:21 gbruno Exp $
+// $Id: SiStripSubStructure.cc,v 1.2 2006/02/11 10:29:32 fambrogl Exp $
 //
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -119,7 +119,7 @@ void SiStripSubStructure::getTECDetectors(const std::vector<uint32_t> & inputDet
          && ( (potentialTEC.wheel()==requested_wheel) || requested_wheel==0 )
          && ( ((potentialTEC.petal()).at(1)==requested_petal) || requested_petal==0 )
          && ( (potentialTEC.ring()==requested_ring) || requested_ring==0 )
-         && ( ((potentialTEC.module()).at(1)==requested_mod_in_ring) || requested_mod_in_ring==0 )
+         && ( ((potentialTEC.module())==requested_mod_in_ring) || requested_mod_in_ring==0 )
          && ( (potentialTEC.stereo()==requested_ster) || requested_ster==0 )
          ){
         tecDetRawIds.push_back(therawid);       // add detector to list of selected TECdets
