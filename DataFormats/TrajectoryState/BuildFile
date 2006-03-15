@@ -1,9 +1,9 @@
 <use name=FWCore/EDProduct>
-<use name=DataFormats/Common>                                                                                                                                       
+<use name=DataFormats/Common>
+<use name=clhep>
 
 <export>
  <lib name=DataFormatsTrajectoryState>
  <use name=clhep>
 </export>
 
-<use name=clhep>
