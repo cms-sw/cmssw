@@ -1,0 +1,91 @@
+/*!
+\page DataFormats_Common_references Package DataFormats/Common: reference classes
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Commonly used persistent references.
+
+\subsection interface Public interface
+- edm::Ref: 
+- edm::RefVector:
+- edm::RefProd:
+- edm::RefVectorIterator:
+- edm::RefBase:
+- edm::RefVectorBase:
+- edm::RefCore:
+- edm::RefItem:
+
+- edm::Associated <b>&lt;C, T&gt;</b>: helper class to be used with an 
+  edm::ExtCollection <b>&lt;C, Ext&gt;</b>, whose <tt><b>Ext</b></tt> parametric 
+  type contains references (edm::RefProd &lt;T&gt;) to other "<i>associated</i>"
+  collections. The functionality is better understood with the following example:
+\htmlonly
+<ol>
+<li>We have two classes of objects, say <tt><b>AAA</b></tt> and <tt><b>BBB</b></tt> whose 
+collection are to be stored in the event as:
+<pre>
+  std::vector&lt;AAA&gt;;
+  std::vector&lt;BBB&gt;;
+</pre>
+<li>The two collections have the same number of events, and we would like
+to define a one-to-one mapping of the objects inside the collection. 
+In particular, we would like to have the collection of <tt><b>BBB</b></tt>
+to hold an associaction to objects in <tt><b>AAA</b></tt>.
+
+<li>The association is achieved defining an auxiliary new class holding a reference to 
+the collection <tt><b>std::vector&lt;AAA&gt;</b></tt> 
+(<tt><b>edm::RefProd&lt;std::vector&lt;AAA&gt; &gt;</b></tt>):
+<pre>
+  typedef std::vector&lt;AAA&gt; AAACollection;
+
+  class BBBRefProds {
+    const edm::RefProd&lt;AAACollection&gt; & aaa() const 
+    { return ref_; }
+    void setAaa( const edm::RefProd&lt;AAACollection&gt; ref ) 
+    { ref_ = ref; }
+  private:
+    edm::RefProd&lt;AAACollection&gt; ref_;
+  };
+</pre>
+
+<li>The collection of <tt><b>BBB</b></tt> will be now, instead of 
+<tt><b>std::vector&lt;BBB&gt;</b></tt>, the following:
+<pre>
+  typedef edm::ExtCollection&lt;std::vector&lt;BBB&gt;, BBBRefProds&gt; BBBCollection;
+</pre>
+
+The association will be stored as a single reference, as specified by 
+<tt><b>BBBRefProds</b></tt>, but
+logically, relying on the object ordering inside the collection, will implement a one-to-one
+mapping as in the following figure:<br><br>
+<center><img src="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsTools/reco/documentation/associated.gif"></center><br>
+
+<li>In order to access an object <tt><b>AAA</b></tt> from a reference to an 
+object <tt><b>BBB</b></tt>, the following code can be used:
+<pre>
+  const edm::Ref&lt;BBBCollection&gt; bbbRef = getMeFromSomewehere();
+  const AAA & aaa = 
+    Associated&lt;AAACollection&gt;::get( bbbRef, &amp; BBBRefProds::aaa );
+</pre>
+Notice that the (pointer to the) method <tt><b>aaa</b></tt> has be passed to the <tt><b>get</b></tt>
+function. This allows to define and use multiple references in <tt><b>BBBRefProds</b></tt>.
+</ol>
+\endhtmlonly
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+Completed, stable.
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/

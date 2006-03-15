@@ -1,0 +1,71 @@
+/*!
+\page DataFormats_Common_containers Package DataFormats/Common: container classes
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Common/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Commonly used persistent containers.
+
+\subsection interface Public interface
+- edm::DetSet:
+
+- edm::ExtCollection <b>&lt;C, Ext&gt;</b>: a collection providing 
+  internally as instance of a collection of type 
+  <tt><b>C</b></tt> plus an intsance of the type <tt><b>Ext</b></tt> 
+  specified as template parameter. The class provides the same interface of 
+  <tt>std::vector&lt;C&gt;</tt> plus the methods:
+\htmlonly
+<pre>
+  Ext & ext() { return ext_; }
+  const Ext & ext() const { return ext_; }
+</pre>
+\endhtmlonly
+that allow to access, and possibly modify, the instance <tt><b>ext_</b></tt> of the 
+type <tt><b>Ext</b></tt>.
+
+- edm::IDVectorMap:
+
+- edm::OwnVector <b>&lt;T, P = edm::ClonePolicy&lt;T&gt; &gt;</b>: container 
+  with interface very similar to <tt>std::vector&lt;T&gt;</tt>, but 
+  capable of storing polymorphic objects that are owned by the 
+  container to avoid memory leak. Has functionalities similar to 
+  <tt>boost::ptr_vector&lt;T&gt;</tt>, but also provides EDM persistent 
+  capabilities. 
+  <br><br>The first template argument <tt><b>T</b></tt> is the common base class of
+  polymorphic objects to be stored; the second parameter <tt><b>P</b></TT> specifies
+  the <a href="#IV">policy</a> required to allocate clones of the stored object. By default, it
+  is equal to the type <b>edm::ClonePolicy&lt;T&gt;</b>, which assumes that the 
+  type <tt>T</tt> is equipped with a virtual method <tt><b>clone()</b></tt> that returns a cloned
+  instance of the actual concrete object. Other user-provided policy implementations are possible.
+  <br><br>Due to the polymorphic nature of contained objects, the STL <tt><b>std::sort</b></tt>
+  functions do not work with edm::OwnVector. For this reason, functions to sort
+  the collection are provided as member functions.
+
+- edm::RangeMap <b>&lt;ID, C, P&gt;</b>: generic container of objects
+  organized in a collection of type <tt><b>C</b></tt> and sorted 
+  according to an identified of type <tt><b>ID</b></tt>. It is
+  possible to iterate over contained object, iterate over identifiers,
+  access only objects with a specified identifier, or whose identifier
+  match a specified criterion. The collection is sorted before being
+  inserted in the Event. The <a href="#IV">policy</a> to be used
+  to produce copies/clones of the objects during insertion and final
+  sorting phases can be specified as template parameter <tt><b>P</b></tt>.
+
+- edm::SortedCollection:
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+Completed, stable.
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/
