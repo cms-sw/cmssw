@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.15 2006/03/10 23:27:28 wmtan Exp $
+$Id: PoolSource.h,v 1.16 2006/03/14 23:33:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -53,8 +53,6 @@ namespace edm {
     int maxEvents_;
     int remainingEvents_;
     bool mainInput_;
-    bool backwardJump_;
-    bool forwardJump_;
   }; // class PoolRASource
 }
 #endif

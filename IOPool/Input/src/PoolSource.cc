@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.22 2006/03/10 23:27:28 wmtan Exp $
+$Id: PoolSource.cc,v 1.23 2006/03/14 23:33:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -23,9 +23,8 @@ namespace edm {
     rootFiles_(),
     maxEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
     remainingEvents_(maxEvents_),
-    mainInput_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")),
-    backwardJump_(false),
-    forwardJump_(false) {
+    mainInput_(pset.getParameter<std::string>("@module_label") == std::string("@main_input"))
+  {
     ClassFiller();
     init(*fileIter_);
     if (mainInput_) {
@@ -151,40 +150,9 @@ namespace edm {
     RootFile::EntryNumber entry = rootFile_->getEntryNumber(id);
     if (entry >= 0) {
       rootFile_->setEntryNumber(entry - 1);
-      forwardJump_ = backwardJump_ = false;
       return read();
     } else {
-      EventID current = rootFile_->eventID();
-      if (current > id) {
-	if (backwardJump_) {
-	  forwardJump_ = backwardJump_ = false;
-	  return std::auto_ptr<EventPrincipal>(0);
-	}
-	// Set the entry to the last entry in this file
-	rootFile_->setEntryNumber(rootFile_->entries() -1);
-
-	// Advance to the first entry of the next file, if there is a next file.
-	if(!next()) {
-	  forwardJump_ = backwardJump_ = false;
-	  return std::auto_ptr<EventPrincipal>(0);
-	}
-	forwardJump_ = true;
-      } else {
-	if (forwardJump_) {
-	  forwardJump_ = backwardJump_ = false;
-	  return std::auto_ptr<EventPrincipal>(0);
-	}
-	// Set the entry to the first entry in this file
-	rootFile_->setEntryNumber(0);
-
-	// Back up to the last entry of the previous file, if there is a previous file.
-	if(!previous()) {
-	  forwardJump_ = backwardJump_ = false;
-	  return std::auto_ptr<EventPrincipal>(0);
-	}
-	backwardJump_ = true;
-      }	
-      return read(id);
+      return std::auto_ptr<EventPrincipal>(0);
     }
   }
 
