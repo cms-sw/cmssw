@@ -4,7 +4,7 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/JetObjects>
-<use name=Dictionary/Reflex>
+<use name=rootrflx>
 <flags SEAL_PLUGIN_NAME="JetMETCorrectionsMCJet">
 <export>
    <lib name=JetMETCorrectionsMCJet>
@@ -13,6 +13,6 @@
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/JetObjects>
    <use name=FWCore/EDProduct>
-   <use name=Dictionary/Reflex>
+   <use name=rootrflx>
    <use name=clhep>
 </export>
