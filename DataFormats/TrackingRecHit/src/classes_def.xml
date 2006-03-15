@@ -2,4 +2,6 @@
   <class name="TrackingRecHit" />
   <class name="RecHit1D" />
   <class name="RecHit2DLocalPos" />
+  <class name="std::vector<TrackingRecHit*>" />
+  <class name="edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >" />
 </lcgdict>
