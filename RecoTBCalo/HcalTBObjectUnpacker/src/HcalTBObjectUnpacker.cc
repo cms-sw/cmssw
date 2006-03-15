@@ -6,7 +6,7 @@ using namespace std;
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBEventPosition.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTiming.h"
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBObjectUnpacker.h"
-#include "FWCore/EDProduct/interface/EDCollection.h"
+#include "DataFormats/Common/interface/EDCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include <iostream>

@@ -1,5 +1,5 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
   namespace {

@@ -1,7 +1,7 @@
 #include "SimDataFormats/Vertex/interface/CoreSimVertex.h"
 #include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
 #include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 #include <CLHEP/Vector/LorentzVector.h>
 

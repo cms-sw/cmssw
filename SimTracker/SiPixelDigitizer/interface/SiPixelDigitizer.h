@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "SimTracker/SiPixelDigitizer/interface/SiPixelDigitizerAlgorithm.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"

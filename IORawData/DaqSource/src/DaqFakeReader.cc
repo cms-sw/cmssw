@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/10/06 18:23:47 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/10/18 13:26:01 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -10,8 +10,8 @@
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
-#include <FWCore/EDProduct/interface/EventID.h>
-#include <FWCore/EDProduct/interface/Timestamp.h>
+#include <DataFormats/Common/interface/EventID.h>
+#include <DataFormats/Common/interface/Timestamp.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 

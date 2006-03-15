@@ -2,7 +2,7 @@
 #define DataFormats_PixelCluster_classes_h
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollection.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 
 namespace {

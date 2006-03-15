@@ -2,7 +2,7 @@
 #define CSCTFFileReader_h
 
 #include <IORawData/DaqSource/interface/DaqBaseReader.h>
-#include <FWCore/EDProduct/interface/EventID.h>
+#include <DataFormats/Common/interface/EventID.h>
 
 class CSCTFFileReader : public DaqBaseReader {
 private:

@@ -1,7 +1,7 @@
 #ifndef DETIDECAL_ECALDETIDCOLLECTIONS_H
 #define DETIDECAL_ECALDETIDCOLLECTIONS_H
 
-#include "FWCore/EDProduct/interface/EDCollection.h"
+#include "DataFormats/Common/interface/EDCollection.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"

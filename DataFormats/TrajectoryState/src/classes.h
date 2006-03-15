@@ -1,5 +1,5 @@
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
   namespace {

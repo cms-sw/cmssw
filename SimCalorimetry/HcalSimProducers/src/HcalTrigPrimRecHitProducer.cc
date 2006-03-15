@@ -1,6 +1,6 @@
 #include "SimCalorimetry/HcalSimProducers/src/HcalTrigPrimRecHitProducer.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

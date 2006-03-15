@@ -2,7 +2,7 @@
 #define RECOLOCALCALO_CALOTOWERSCREATOR_CALOTOWERSCREATOR_H 1
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 
@@ -15,8 +15,8 @@
 
 /** \class CaloTowersCreator
   *  
-  * $Date: 2006/01/17 17:42:37 $
-  * $Revision: 1.2 $
+  * $Date: 2006/02/27 23:09:56 $
+  * $Revision: 1.3 $
   * \author J. Mans - Minnesota
   */
 class CaloTowersCreator : public edm::EDProducer {

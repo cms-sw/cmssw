@@ -2,7 +2,7 @@ using namespace std;
 #include "RecoLocalCalo/HcalRecProducers/interface/HcalSimpleReconstructor.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "FWCore/EDProduct/interface/EDCollection.h"
+#include "DataFormats/Common/interface/EDCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/ESHandle.h"

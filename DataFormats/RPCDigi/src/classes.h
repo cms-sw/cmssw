@@ -1,6 +1,6 @@
 #include <DataFormats/RPCDigi/interface/RPCDigi.h>
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
-#include <FWCore/EDProduct/interface/Wrapper.h>
+#include <DataFormats/Common/interface/Wrapper.h>
 #include <vector>
 #include <map>
 

@@ -1,7 +1,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 #include <map>
 

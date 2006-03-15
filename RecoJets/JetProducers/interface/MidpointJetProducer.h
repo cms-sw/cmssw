@@ -10,12 +10,12 @@
  *
  * \version   1st Version Apr. 6, 2005  
  * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
- * $Id$
+ * $Id: MidpointJetProducer.h,v 1.4 2006/03/08 20:34:19 fedor Exp $
  *
  ************************************************************/
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 

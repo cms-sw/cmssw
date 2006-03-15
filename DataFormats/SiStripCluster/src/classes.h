@@ -2,7 +2,7 @@
 #define SISTRIPCLUSTER_CLASSES_H
 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 
 namespace {

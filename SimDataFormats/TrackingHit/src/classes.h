@@ -15,7 +15,7 @@ using namespace std;
 #include "Geometry/Vector/interface/Point3DBase.h"
 #include "Geometry/Vector/interface/Vector2DBase.h"
 #include "Geometry/Vector/interface/Vector3DBase.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
   namespace {

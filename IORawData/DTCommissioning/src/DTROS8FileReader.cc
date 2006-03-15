@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/02 18:40:21 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/03/07 10:39:26 $
+ *  $Revision: 1.7 $
  *  \author M. Zanetti
  */
 
@@ -12,8 +12,8 @@
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
-#include <FWCore/EDProduct/interface/EventID.h>
-#include <FWCore/EDProduct/interface/Timestamp.h>
+#include <DataFormats/Common/interface/EventID.h>
+#include <DataFormats/Common/interface/Timestamp.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 

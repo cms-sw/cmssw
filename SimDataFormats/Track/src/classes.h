@@ -1,7 +1,7 @@
 #include "SimDataFormats/Track/interface/CoreSimTrack.h"
 #include "SimDataFormats/Track/interface/EmbdSimTrack.h"
 #include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 #include <CLHEP/Vector/LorentzVector.h>
 

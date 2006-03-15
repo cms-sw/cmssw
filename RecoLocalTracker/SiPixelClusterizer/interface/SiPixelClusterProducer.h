@@ -34,7 +34,7 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollectionfwd.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollectionfwd.h"
 
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"

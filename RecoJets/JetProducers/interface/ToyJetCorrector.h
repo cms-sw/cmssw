@@ -4,11 +4,11 @@
 /** Template producer to correct jet
     F.Ratnikov (UMd)
     Mar 2, 2006
-    $Id$
+    $Id: ToyJetCorrector.h,v 1.2 2006/03/08 20:34:19 fedor Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "RecoJets/JetAlgorithms/interface/ToyJetCorrection.h"
 

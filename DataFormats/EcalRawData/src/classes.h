@@ -1,7 +1,7 @@
 #include <vector>
 #include <DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h>
 #include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
-#include <FWCore/EDProduct/interface/Wrapper.h>
+#include <DataFormats/Common/interface/Wrapper.h>
 
 namespace {
   namespace {

@@ -5,13 +5,13 @@
  *  Generates empty FEDRawData of random size for all FEDs
  *  Proper headers and trailers are included; but the payloads are all 0s
  *
- *  $Date: 2005/10/04 18:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/06 18:23:47 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
 #include <IORawData/DaqSource/interface/DaqBaseReader.h>
-#include <FWCore/EDProduct/interface/EventID.h>
+#include <DataFormats/Common/interface/EventID.h>
 #include <algorithm>
 
 class DaqFakeReader : public DaqBaseReader {

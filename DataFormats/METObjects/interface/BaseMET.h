@@ -12,7 +12,7 @@
  *
  ************************************************************/
 
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/METObjects/interface/CommonMETData.h"
 
 #include <vector>

@@ -6,7 +6,7 @@
 #include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
 
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
   namespace {

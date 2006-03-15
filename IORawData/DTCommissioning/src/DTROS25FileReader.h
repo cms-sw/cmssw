@@ -4,13 +4,13 @@
 /** \class DTROS25FileReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2005/11/22 16:47:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/02/14 16:22:54 $
+ *  $Revision: 1.1 $
  *  \author M. Zanetti - INFN Padova
  */
 
 #include <IORawData/DaqSource/interface/DaqBaseReader.h>
-#include <FWCore/EDProduct/interface/EventID.h>
+#include <DataFormats/Common/interface/EventID.h>
 
 #include <ostream>
 #include <fstream>

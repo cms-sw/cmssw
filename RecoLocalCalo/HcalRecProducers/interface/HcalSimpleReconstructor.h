@@ -2,7 +2,7 @@
 #define HCALSIMPLERECONSTRUCTOR_H 1
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 
@@ -14,8 +14,8 @@
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2005/10/07 03:52:06 $
-    $Revision: 1.3 $
+    $Date: 2006/02/27 22:03:06 $
+    $Revision: 1.4 $
     \author J. Mans - Minnesota
     */
     class HcalSimpleReconstructor : public edm::EDProducer {

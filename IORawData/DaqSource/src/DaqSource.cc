@@ -1,13 +1,13 @@
 /** \file 
  *
- *  $Date: 2005/11/02 16:21:03 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/01/20 11:45:10 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - S. Argiro'
  */
 
 #include "DaqSource.h"
-#include <FWCore/EDProduct/interface/EventID.h>
-#include <FWCore/EDProduct/interface/Timestamp.h>
+#include <DataFormats/Common/interface/EventID.h>
+#include <DataFormats/Common/interface/Timestamp.h>
 //#include <FWCore/Framework/interface/InputSourceDescription.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>

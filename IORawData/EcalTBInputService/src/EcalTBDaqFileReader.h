@@ -3,7 +3,7 @@
 
 #include "IORawData/EcalTBInputService/src/EcalTBDaqFileReader.h"
 
-#include <FWCore/EDProduct/interface/EventID.h>
+#include <DataFormats/Common/interface/EventID.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

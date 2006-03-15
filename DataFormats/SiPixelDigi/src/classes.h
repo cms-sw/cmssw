@@ -2,7 +2,7 @@
 #define SIPIXELDIGI_CLASSES_H
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 
 namespace {

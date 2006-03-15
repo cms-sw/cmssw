@@ -2,7 +2,7 @@
 #define JetReco_CaloJet_h
 
 /** \class CaloJet
- * $Id: CaloJet.h,v 1.6 2005/12/15 20:42:46 llista Exp $
+ * $Id: CaloJet.h,v 1.7 2006/01/10 09:07:53 llista Exp $
  *
  * Ported from original version in JetObjects package
  *
@@ -19,9 +19,9 @@
  *            with real CaloTowers. No energy fractions yet.
  ************************************************************/
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "FWCore/EDProduct/interface/Ref.h"
-#include "FWCore/EDProduct/interface/RefVector.h"
-#include "FWCore/EDProduct/interface/SortedCollection.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include <vector>
 class CaloTower;

@@ -11,7 +11,7 @@
 
 #include <vector>
 #include <algorithm>
-#include "FWCore/EDProduct/interface/SortedCollection.h"
+#include "DataFormats/Common/interface/SortedCollection.h"
 
 
 class CaloDigiCollectionSorter {
