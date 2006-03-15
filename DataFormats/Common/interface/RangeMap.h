@@ -6,7 +6,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 
-// $Id: RangeMap.h,v 1.16 2006/03/09 08:57:38 llista Exp $
+// $Id: RangeMap.h,v 1.17 2006/03/15 10:02:52 tboccali Exp $
 namespace edm {
   
   template<typename ID, typename C, typename P>
@@ -54,7 +54,7 @@ namespace edm {
       return  make_pair(begin,end);
     }
     template<typename CMP> 
-    range get(std::pair<ID, CMP> p) {
+    range get(std::pair<ID, CMP> p) const {
       return get(p.first, p.second ); 
     }
 
