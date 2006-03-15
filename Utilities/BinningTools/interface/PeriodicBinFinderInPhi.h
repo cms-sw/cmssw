@@ -13,7 +13,7 @@ template <class T>
 class PeriodicBinFinderInPhi : public BaseBinFinder<T> {
 public:
 
-  PeriodicBinFinderInPhi() : theNbins(0), thePhiOffset(0), thePhiStep(0) {}
+  PeriodicBinFinderInPhi() : theNbins(0), thePhiStep(0), thePhiOffset(0) {}
 
   PeriodicBinFinderInPhi( T firstPhi, int nbins) :
     theNbins( nbins), thePhiStep( twoPi() / nbins),
