@@ -4,7 +4,7 @@
 <export>
  <lib name=RecoJetsJetAlgorithms>
  <use name=DataFormats/JetObjects>
- <use name=DataFormars/RecoCandidate>
+ <use name=DataFormats/RecoCandidate>
  <use name=clhep>
 </export>
 
