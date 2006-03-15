@@ -6,7 +6,11 @@ This page lists all packages related to Reco data format within the <a href=http
 - <b>DataFormats</b><br>
 Definition of classes modelling Reco.
  - \ref DataFormats_Math "Math"<br>
- - \ref DataFormats_Common "Common"<br>
+ - \ref DataFormats_Common "Commonly used persistent classes"<br>
+    - \ref DataFormats_Common_edm "EDM related classes"
+    - \ref DataFormats_Common_containers "Common persistent containers"
+    - \ref DataFormats_Common_references "Common persistent references"
+    - \ref DataFormats_Common_helpers "Common helper classes"
 
 \section contact Contact persons
 - Luca Lista
