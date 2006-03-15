@@ -27,10 +27,14 @@ StripClusterParameterEstimator::LocalValues StripCPE::localParameters( const SiS
   result = topol.localPosition(cl.barycenter());
   eresult = topol.localError(cl.barycenter(),1/12.);
   
-  //Apply  lorentz drift
+  std::cout<<"Apply  lorentz drift <-----"<<std::endl;
   LocalVector drift = driftDirection(stripdet);
   float thickness=stripdet->specificSurface().bounds().thickness();
-  drift*=thickness;
+  std::cout<<"Before:"<<result.x()<<" "<<result.y()<<std::endl;
+  LocalPoint resulta;
+  drift*=(thickness/2);
+  resulta=result+drift;
+  std::cout<<"After:"<<resulta.x()<<" "<<resulta.y()<<std::endl;
   return std::make_pair(result+drift,eresult);
 }
 
@@ -38,7 +42,7 @@ LocalVector StripCPE::driftDirection(const StripGeomDetUnit* det){
   LocalVector lbfield=(det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
    float dir_x = -theTanLorentzAnglePerTesla * lbfield.y();
    float dir_y = theTanLorentzAnglePerTesla * lbfield.x();
-   float dir_z = 1.; // E field always in z direction
+   float dir_z = 0.; // E field always in z direction
    LocalVector drift = LocalVector(dir_x,dir_y,dir_z);
   return drift;
 
