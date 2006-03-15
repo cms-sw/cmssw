@@ -2,7 +2,7 @@
 #define ROADSEARCHCLOUD_CLASSES_H
 
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 
 namespace {
