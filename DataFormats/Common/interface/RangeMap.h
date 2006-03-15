@@ -6,7 +6,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 
-// $Id: RangeMap.h,v 1.15 2006/02/21 15:12:55 tboccali Exp $
+// $Id: RangeMap.h,v 1.16 2006/03/09 08:57:38 llista Exp $
 namespace edm {
   
   template<typename ID, typename C, typename P>
@@ -24,7 +24,7 @@ namespace edm {
     private:
     template<typename CMP> 
       struct comp {
-	comp( const CMP & c ) : cmp( c ) { }
+	comp( const CMP  c ) : cmp( c ) { }
 	bool operator()( ID id, const typename mapType::value_type & p ) {
 	  return cmp( id, p.first );
 	}
@@ -32,7 +32,8 @@ namespace edm {
 	  return cmp( p.first, id );
 	}
         private:
-	CMP cmp;
+	  CMP cmp;
+
       };
     public:
 
@@ -51,6 +52,10 @@ namespace edm {
 	end = collection_.begin() + (r.second)->second.first;
       }
       return  make_pair(begin,end);
+    }
+    template<typename CMP> 
+    range get(std::pair<ID, CMP> p) {
+      return get(p.first, p.second ); 
     }
 
     RangeMap() { }
