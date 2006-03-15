@@ -1,3 +1,5 @@
+<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>                                                                                                                                       
 
 <export>
  <lib name=DataFormatsTrajectoryState>
