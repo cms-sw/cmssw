@@ -9,7 +9,7 @@
 <use name=Utilities/Timing>
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/RPCDigi>
-<use name=DataFormats/DetId>
+<use name=DataFormats/MuonDetId>
 <use name=boost>
 <flags SEAL_PLUGIN_NAME="SimMuonRPCDigitizer">
 
@@ -27,7 +27,7 @@
   <use name=MagneticField/Records>
   <use name=MagneticField/Engine>
   <use name=DataFormats/RPCDigi>
-  <use name=DataFormats/DetId>
+  <use name=DataFormats/MuonDetId>
   <use name=boost>
 
 </export>
