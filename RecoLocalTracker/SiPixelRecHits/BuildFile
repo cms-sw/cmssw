@@ -1,5 +1,4 @@
 <flags SEAL_PLUGIN_NAME="RecoLocalTrackerSiPixelRecHits">
-<use name=RecoLocalTracker/ClusterParameterEstimator>
 <use name=FWCore/Framework>
 <use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
@@ -14,7 +13,6 @@
 <use name=Geometry/TrackerSimAlgo>
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/Surface>
-<use name=Geometry/Vector>
 <use name=Geometry/Records>
 <use name=MagneticField/Records>
 <use name=MagneticField/VolumeBasedEngine>
@@ -23,7 +21,6 @@
 <use name=clhep>
 <export>
 <lib name=RecoLocalTrackerSiPixelRecHits>
-<use name=RecoLocalTracker/ClusterParameterEstimator>
 <use name=FWCore/Framework>
 <use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
@@ -38,7 +35,6 @@
 <use name=Geometry/TrackerSimAlgo>
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/Surface>
-<use name=Geometry/Vector>
 <use name=Geometry/Records>
 <use name=MagneticField/Records>
 <use name=MagneticField/VolumeBasedEngine>
