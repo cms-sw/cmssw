@@ -40,8 +40,7 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     }
     
     det->deleteComponents();
-    det->addComponents(compfw);
-    det->addComponents(compbw);
+    det->addComponents(comp);
     
   }else{
     for(uint32_t i=0; i<comp.size();i++){

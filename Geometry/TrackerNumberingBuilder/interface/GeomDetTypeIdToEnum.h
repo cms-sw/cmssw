@@ -1,5 +1,5 @@
-#ifndef Geometry_TrackerSimAlgo_GeomDetTypeIdToEnum_H
-#define Geometry_TrackerSimAlgo_GeomDetTypeIdToEnum_H
+#ifndef Geometry_TrackerGeometryBuilder_GeomDetTypeIdToEnum_H
+#define Geometry_TrackerGeometryBuilder_GeomDetTypeIdToEnum_H
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include <map>

@@ -1,4 +1,4 @@
-#include "Geometry/TrackerSimAlgo/interface/GeomDetTypeIdToEnum.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GeomDetTypeIdToEnum.h"
 
 
 GeomDetTypeIdToEnum::GeomDetTypeIdToEnum(){
