@@ -3,7 +3,6 @@
  <lib name=IOMCEventVertexGenerators>
  <use name=Framework/SealKernel>
  <use name=FWCore/Framework>
- <use name=FWCore/EDProduct>
  <use name=FWCore/ParameterSet>
  <use name=SimDataFormats/HepMCProduct>
  <use name=Utilities/General>
@@ -13,7 +12,6 @@
 
 <use name=Framework/SealKernel>
 <use name=FWCore/Framework>
-<use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
 <use name=SimDataFormats/HepMCProduct>
 <use name=Utilities/General>
