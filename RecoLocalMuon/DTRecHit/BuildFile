@@ -4,6 +4,8 @@
 <use name=Geometry/DTGeometry>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
+<use name=CondFormats/DTObjects>
+<use name=CondFormats/DataRecord>
 
 <flags SEAL_PLUGIN_NAME="RecoLocalMuonDTRecHit">
 
@@ -15,4 +17,6 @@
  <use name=Geometry/DTGeometry>
  <use name=MagneticField/Records>
  <use name=MagneticField/Engine>
+ <use name=CondFormats/DTObjects>
+ <use name=CondFormats/DataRecord>
 </export>
