@@ -4,7 +4,7 @@
 
 #include "TrackingTools/DetLayers/interface/RodBarrelLayer.h"
 #include "RecoTracker/TkDetLayers/interface/TOBRod.h"
-#include "TrackingTools/DetLayers/interface/PeriodicBinFinderInPhi.h"
+#include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 #include "RecoTracker/TkDetLayers/interface/SubLayerCrossings.h"
 
 /** A concrete implementation for TOB layer 

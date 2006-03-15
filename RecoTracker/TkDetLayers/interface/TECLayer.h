@@ -4,7 +4,7 @@
 
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkDetLayers/interface/TECPetal.h"
-#include "TrackingTools/DetLayers/interface/PeriodicBinFinderInPhi.h"
+#include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 #include "RecoTracker/TkDetLayers/interface/SubLayerCrossings.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 

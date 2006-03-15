@@ -4,7 +4,7 @@
 
 #include "TrackingTools/DetLayers/interface/RodBarrelLayer.h"
 #include "RecoTracker/TkDetLayers/interface/PixelRod.h"
-#include "TrackingTools/DetLayers/interface/PeriodicBinFinderInPhi.h"
+#include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 #include "RecoTracker/TkDetLayers/interface/SubLayerCrossings.h"
 
 

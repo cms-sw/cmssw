@@ -4,7 +4,7 @@
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 #include "Geometry/Surface/interface/BoundCylinder.h"
-#include "TrackingTools/DetLayers/interface/PeriodicBinFinderInPhi.h"
+#include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 
 /** A concrete implementation for TIB rings 
  */

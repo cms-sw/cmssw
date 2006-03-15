@@ -5,7 +5,7 @@
  * A Z bin finder for a non-periodic group of detectors.
  */
 
-#include "Utilities/General/interface/BaseBinFinder.h"
+#include "Utilities/BinningTools/interface/BaseBinFinder.h"
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 #include <cmath>
 

@@ -3,7 +3,7 @@
 
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
-#include "TrackingTools/DetLayers/interface/PeriodicBinFinderInPhi.h"
+#include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 #include "RecoTracker/TkDetLayers/interface/SubLayerCrossings.h"
 #include "Geometry/Surface/interface/BoundDisk.h"
 
