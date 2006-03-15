@@ -21,18 +21,18 @@ Commonly used persistent references.
 - edm::RefItem:
 
 - edm::Associated <b>&lt;C, T&gt;</b>: helper class to be used with an 
-  edm::ExtCollection <b>&lt;C, Ext&gt;</b>, whose <tt><b>Ext</b></tt> parametric 
-  type contains references (edm::RefProd &lt;T&gt;) to other "<i>associated</i>"
+  edm::ExtCollection <b>&lt;C, Ext&gt;</b> whose <tt><b>Ext</b></tt> parametric 
+  type contains references (edm::RefProd <b>&lt;T&gt;</b>) to other <i>associated</i>
   collections. The functionality is better understood with the following example:
 \htmlonly
 <ol>
-<li>We have two classes of objects, say <tt><b>AAA</b></tt> and <tt><b>BBB</b></tt> whose 
+<li>Assume we have two classes of objects, say <tt><b>AAA</b></tt> and <tt><b>BBB</b></tt> whose 
 collection are to be stored in the event as:
 <pre>
   std::vector&lt;AAA&gt;;
   std::vector&lt;BBB&gt;;
 </pre>
-<li>The two collections have the same number of events, and we would like
+<li>The two collections contain the same number of objects, and we would like
 to define a one-to-one mapping of the objects inside the collection. 
 In particular, we would like to have the collection of <tt><b>BBB</b></tt>
 to hold an associaction to objects in <tt><b>AAA</b></tt>.
