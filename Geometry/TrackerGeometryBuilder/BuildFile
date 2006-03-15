@@ -1,0 +1,17 @@
+
+<export>
+<lib name=GeometryTrackerGeometryBuilder>
+<use name=Geometry/TrackerTopology>
+<use name=Geometry/CommonDetUnit>
+<use name=DetectorDescription/Core>
+<use name=clhep>
+</export>
+
+<use name=Geometry/TrackerTopology>
+<use name=Geometry/TrackerNumberingBuilder>
+<use name=Geometry/CommonDetUnit>
+<use name=DetectorDescription/Core>
+<use name=clhep>
+<use name=boost>
+
+<flags SEAL_PLUGIN_NAME="GeometryTrackerGeometryBuilder">
