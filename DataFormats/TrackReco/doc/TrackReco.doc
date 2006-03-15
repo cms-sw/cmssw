@@ -10,9 +10,47 @@
 \section desc Description
 Persistent classes for Track Reco data format.
 
-\subsection interface Public interface
-- reco::Track: reconstructed Track. Objects of this type are ment to be stored in the AOD
-- reco::TrackExtra: Track extension. Objects of this type are ment to be stored in the RECO
+\subsection interface Public interfaces
+- reco::Track: reconstructed Track. Objects of this type are ment to be stored in the AOD.
+   <br>Contains a reference to an object of type reco::TrackExtra.
+- reco::TrackExtra: Track extension. Objects of this type are ment to be stored in the RECO.
+
+A reco::Track object has two sets of methods:
+- inherited from the base class reco::TrackBase 
+- inherited from the base class reco::TrackExtension. 
+
+The methods inherited from  reco::TrackExtension are implemented dereferencing the 
+reference to reco::TrackExtra and retrieving
+the corresponding information. For instance, the following methods 
+will only access reco::TrackBase data members: 
+\htmlonly
+<pre>
+  reco::Track trk;
+  double pt = trk.pt();
+  double eta = trk.eta();
+</pre>
+\endhtmlonly
+The following instead access data members contained in reco::TrackExtra:
+\htmlonly
+<pre>
+  reco::Track trk;
+  double outerPt = trk.outerPt();
+  math::XYZPoint p = trk.outerPosition();
+</pre>
+\endhtmlonly
+and are equivalent to:
+\htmlonly
+<pre>
+  reco::Track trk;
+  const reco::TrackExtraRef & trkExtra = trk.extra();
+  double outerPt = trkExtra.outerPt();
+  math::XYZPoint p = trkExtra.outerPosition();
+</pre>
+\endhtmlonly
+<br>
+<b>Warning:</b> collections of those two data types are potentially stored in different data tiers. 
+So, if a reco::TrackExtra is not stored on disk dereferencing the reference contained in
+reco::Track may result in an exception.
 
 \subsection interface_base Auxiliary base classes
 - reco::TrackBase: common base class to reco::Track and reco::Muon
