@@ -262,6 +262,8 @@ namespace edm {
                      ServiceLegacy=kOverlapIsError);
 
     EventProcessor::StatusCode run(unsigned long numberToProcess);
+    EventProcessor::StatusCode run(const EventID& id);
+    EventProcessor::StatusCode skip(long numberToSkip);
     void                       beginJob();
     bool                       endJob();
 
@@ -400,8 +402,7 @@ namespace edm {
     //make sure this was called
     beginJob();
 
-    while(runforever || eventcount<numberToProcess)
-      {
+    while(runforever || eventcount < numberToProcess) {
 	++eventcount;
 	FDEBUG(1) << eventcount << std::endl;
 	auto_ptr<EventPrincipal> pep = input_->readEvent();
@@ -411,9 +412,43 @@ namespace edm {
 	EventSetup const& es = esp_->eventSetupForInstance(ts);
 
 	sched_->runOneEvent(*pep.get(),es);
-      }
+    }
 
     return 0;
+  }
+
+  EventProcessor::StatusCode
+  FwkImpl::run(const EventID& id)
+  {
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+
+    //make sure this was called
+    beginJob();
+
+    auto_ptr<EventPrincipal> pep = input_->readEvent(id);
+        
+    if(pep.get()==0) return -1;
+    IOVSyncValue ts(pep->id(), pep->time());
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
+
+    sched_->runOneEvent(*pep.get(),es);
+
+    return 0;
+  }
+
+  EventProcessor::StatusCode
+  FwkImpl::skip(long numberToSkip)
+  {
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+
+    //make sure this was called
+    beginJob();
+
+    input_->skipEvents(numberToSkip);
+
+    return run(1);
   }
 
   void
@@ -519,6 +554,18 @@ namespace edm {
   EventProcessor::run(unsigned long numberToProcess)
   {
     return impl_->run(numberToProcess);
+  }
+  
+  EventProcessor::StatusCode
+  EventProcessor::run(const EventID& id)
+  {
+    return impl_->run(id);
+  }
+  
+  EventProcessor::StatusCode
+  EventProcessor::skip(long numberToSkip)
+  {
+    return impl_->skip(numberToSkip);
   }
   
   void
