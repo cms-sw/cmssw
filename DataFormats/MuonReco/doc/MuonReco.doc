@@ -11,8 +11,8 @@
 Persistent classes for Muon Reco data format.
 
 \subsection interface Public interface
-- reco::Muon: reconstructed Muon, ment to be stored in the AOD
-- reco::MuonExtra: Muon extension ment to be stored in the RECO
+- reco::Muon: reconstructed Muon. Objects of this type are ment to be stored in the AOD
+- reco::MuonExtra: Muon extension. Objects of this type are ment to be stored in the RECO
 
 \subsection typedefs 
 - reco::MuonCollection: collection of reco::Muon objects

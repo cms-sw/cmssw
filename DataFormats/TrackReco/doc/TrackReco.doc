@@ -11,11 +11,13 @@
 Persistent classes for Track Reco data format.
 
 \subsection interface Public interface
+- reco::Track: reconstructed Track. Objects of this type are ment to be stored in the AOD
+- reco::TrackExtra: Track extension. Objects of this type are ment to be stored in the RECO
+
+\subsection interface_base Auxiliary base classes
 - reco::TrackBase: common base class to reco::Track and reco::Muon
 - reco::TrackExtension <b>&lt;ExtraRef&gt;</b>: extension of a reco::TrackBase 
   containing a persistent reference to an Extra object.
-- reco::Track: reconstructed Track, ment to be stored in the AOD
-- reco::TrackExtra: Track extension ment to be stored in the RECO
 
 \subsection typedefs 
 - reco::TrackCollection: collection of reco::Track objects
