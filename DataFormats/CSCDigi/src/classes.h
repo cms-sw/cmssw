@@ -12,7 +12,7 @@
 #include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
-#include <FWCore/EDProduct/interface/Wrapper.h>
+#include <DataFormats/Common/interface/Wrapper.h>
 #include <vector>
 #include <map>
 

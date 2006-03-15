@@ -1,6 +1,6 @@
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
-#include <FWCore/EDProduct/interface/Wrapper.h>
+#include <DataFormats/Common/interface/Wrapper.h>
 #include <vector>
 
 namespace{ 
