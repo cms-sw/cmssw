@@ -78,7 +78,7 @@ namespace edm {
     // Do the merging
     if ( input_ )
       {
-	if (input_->doPileup()) LogInfo("PileUp") <<"Adding pileup for event "<<e.id();
+	if (input_->doPileup()) LogDebug("PileUp") <<"Adding pileup for event "<<e.id();
 	int bunchCrossing = input_->minBunch();
 	for (std::vector<EventPrincipalVector>::const_iterator it = pileup.begin();
 	     it != pileup.end(); ++it, ++bunchCrossing) {
