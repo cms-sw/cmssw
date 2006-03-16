@@ -24,7 +24,9 @@
   <class name="std::map<DetId, std::pair<unsigned int, unsigned int> >"/>
 
 
-  <class name="SiPixelRecHit"/>
+  <class name="SiPixelRecHit">
+    <field name="cluster_" transient="true"/>
+  </class>
   <class name="std::vector<SiPixelRecHit*>"/>
   <class name="edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >"/>
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> >"/>
