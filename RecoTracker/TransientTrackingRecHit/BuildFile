@@ -1,0 +1,6 @@
+<use name=TrackingTools/TransientTrackingRecHit>
+<use name=clhep>
+<export>
+ <lib name=RecoTrackerTransientTrackingRecHit>
+<use name=TrackingTools/TransientTrackingRecHit>
+</export>
