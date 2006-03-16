@@ -6,7 +6,7 @@
  *  measured coordinate.
  */
 
-#include "Geometry/TrackerTopology/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 
   /**

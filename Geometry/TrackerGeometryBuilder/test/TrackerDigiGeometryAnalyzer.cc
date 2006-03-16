@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.7 2005/11/04 18:18:54 fambrogl Exp $
+// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.1 2006/03/15 16:38:45 fambrogl Exp $
 //
 //
 
@@ -35,8 +35,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/TrackerTopology/interface/PixelTopology.h"
-#include "Geometry/TrackerTopology/interface/StripTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 
