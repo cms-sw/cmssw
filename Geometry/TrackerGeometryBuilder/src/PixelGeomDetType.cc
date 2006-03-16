@@ -1,5 +1,5 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerTopology/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 PixelGeomDetType::PixelGeomDetType(TopologyType* t,std::string& name,SubDetector& det) : GeomDetType(name,det),
     theTopology(t){}

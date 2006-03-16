@@ -1,7 +1,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/StripTopologyBuilder.h"
-#include "Geometry/TrackerTopology/interface/RectangularStripTopology.h"
-#include "Geometry/TrackerTopology/interface/TrapezoidalStripTopology.h"
+#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
+#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/Surface/interface/Bounds.h"
 
 

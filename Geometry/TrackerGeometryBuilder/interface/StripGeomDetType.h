@@ -2,7 +2,7 @@
 #define Geometry_TrackerGeometryBuilder_StripGeomDetType_H
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/TrackerTopology/interface/StripTopology.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include <vector>
 
 /**

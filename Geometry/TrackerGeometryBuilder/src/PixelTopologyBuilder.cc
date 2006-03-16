@@ -2,7 +2,7 @@
 // 9/03 d.k.
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/RectangularPixelTopology.h"
 #include "Geometry/Surface/interface/Bounds.h"
 
 PixelTopologyBuilder::PixelTopologyBuilder(){}

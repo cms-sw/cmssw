@@ -1,5 +1,5 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "Geometry/TrackerTopology/interface/StripTopology.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 const Topology&      StripGeomDetType::topology()         const
 {

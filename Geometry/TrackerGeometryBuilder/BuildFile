@@ -1,13 +1,13 @@
 
 <export>
 <lib name=GeometryTrackerGeometryBuilder>
-<use name=Geometry/TrackerTopology>
+<use name=Geometry/CommonTopologies>
 <use name=Geometry/CommonDetUnit>
 <use name=DetectorDescription/Core>
 <use name=clhep>
 </export>
 
-<use name=Geometry/TrackerTopology>
+<use name=Geometry/CommonTopologies>
 <use name=Geometry/TrackerNumberingBuilder>
 <use name=Geometry/CommonDetUnit>
 <use name=DetectorDescription/Core>

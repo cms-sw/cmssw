@@ -3,7 +3,7 @@
 
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/TrackerTopology/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 /**
  * Generic DetType for the Pixels. Specialized in SiPixelGeomDetType.
