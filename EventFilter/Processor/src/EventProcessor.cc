@@ -95,7 +95,7 @@ void EventProcessor::init(std::string &config)
     {
       cerr << "Exception when trying to create service set " 
 	   << e.what() << endl;
-      exit(-1);
+      throw;
     }
 
   serviceToken_.connectTo(*activityRegistry_);
