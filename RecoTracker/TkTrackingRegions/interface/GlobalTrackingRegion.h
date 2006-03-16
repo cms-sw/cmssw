@@ -27,9 +27,11 @@ public:
       thePrecise(precise) { }
 
  
-  virtual HitRZCompatibility* checkRZ(
-				      const DetLayer* layer, SiPixelRecHit outerHit) const;
-
+/*   virtual HitRZCompatibility* checkRZ( */
+/* 				      const DetLayer* layer, SiPixelRecHit outerHit) const; */
+  virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
+				       const SiPixelRecHit*  outerHit,
+				       const edm::EventSetup& iSetup) const;
   virtual GlobalTrackingRegion* clone() const { 
     return new GlobalTrackingRegion(*this);
   }

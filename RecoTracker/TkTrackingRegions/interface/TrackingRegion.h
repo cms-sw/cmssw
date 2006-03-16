@@ -17,6 +17,7 @@ using namespace std;
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 //#include "CARF/Reco/interface/RecObj.h"
 
 //class TrackingRegion : public RecObj {
@@ -56,15 +57,17 @@ public:
 
 /*   /// utility to check eta/theta hit compatibility with region constraints */
 /*   /// and outer hit constraint  */
- virtual HitRZCompatibility * checkRZ(
-      const DetLayer* layer, SiPixelRecHit  outerHit) const = 0;
-
+/*  virtual HitRZCompatibility * checkRZ( */
+/*       const DetLayer* layer, SiPixelRecHit  outerHit) const = 0; */
+  virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
+				       const SiPixelRecHit*  outerHit,
+				       const edm::EventSetup& iSetup) const = 0;
   /// new region with updated vertex position 
   virtual TrackingRegion* restrictedRegion( const GlobalPoint &  originPos, 
       const float & originRBound, const float & originZBound) const = 0;
 
   /// clone region
-  virtual TrackingRegion* clone() const = 0;
+      virtual TrackingRegion* clone() const = 0;
 
   ///from RecObj
   static std::string const & name() 

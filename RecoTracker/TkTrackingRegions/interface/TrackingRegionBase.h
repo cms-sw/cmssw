@@ -9,6 +9,7 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 class BarrelDetLayer;
 class ForwardDetLayer; 
 
@@ -58,9 +59,12 @@ public:
 
   /// utility to check eta/theta hit compatibility with region constraints
   /// and outer hit constraint
-  virtual HitRZCompatibility * checkRZ(
-      const DetLayer* layer,  SiPixelRecHit  outerHit) const = 0;
+/*   virtual HitRZCompatibility * checkRZ( */
+/*       const DetLayer* layer,  SiPixelRecHit  outerHit) const = 0; */
 
+    virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
+					 const SiPixelRecHit*  outerHit,
+					 const edm::EventSetup& iSetup) const = 0;
   /// clone region with new vertex position
   virtual TrackingRegionBase* restrictedRegion( const GlobalPoint &  originPos,
       const float & originRBound, const float & originZBound) const {

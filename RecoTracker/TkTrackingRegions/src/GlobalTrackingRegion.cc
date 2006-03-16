@@ -9,22 +9,26 @@
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
-
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 template <class T> T sqr( T t) {return t*t;}
 
 
 
 HitRZCompatibility* GlobalTrackingRegion::
-    checkRZ(const DetLayer* layer, SiPixelRecHit outerHit) const
+checkRZ(const DetLayer* layer, 
+	const SiPixelRecHit* outerHit,
+	const edm::EventSetup& iSetup) const
 {
- 
+  edm::ESHandle<TrackingGeometry> tracker;
+  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   //MP
   //  bool isBarrel = (layer->part() == barrel);
   //  bool isBarrel = (layer->part() == "barrel");
   bool isBarrel =true;
   //MP
-  //  GlobalPoint ohit =  outerHit.globalPosition();
-  LocalPoint ohit=outerHit.localPosition();
+    GlobalPoint ohit =  tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
+  //  LocalPoint ohit=outerHit->localPosition();
   PixelRecoPointRZ outer(ohit.perp(), ohit.z());
   PixelRecoPointRZ vtxR = (outer.z() > origin().z()+originZBound()) ?
       PixelRecoPointRZ(-originRBound(), origin().z()+originZBound())
@@ -43,18 +47,18 @@ HitRZCompatibility* GlobalTrackingRegion::
   float errR = hitErrR(layer);
 
   PixelRecoPointRZ  outerL, outerR;
-  // if (outerHit.layer()->part() == barrel) {
-  //MP
-  if (outerHit.localPosition().x()>3){
-   outerL = PixelRecoPointRZ(outer.r(), outer.z()-errZ);
+  //MP valid only for barrel
+ //  if (outerHit->layer()->part() == barrel) {
+    
+    outerL = PixelRecoPointRZ(outer.r(), outer.z()-errZ);
     outerR = PixelRecoPointRZ(outer.r(), outer.z()+errZ);
-  } else if (outer.z() > 0) {
-    outerL = PixelRecoPointRZ(outer.r()+errR, outer.z());
-    outerR = PixelRecoPointRZ(outer.r()-errR, outer.z());
-  } else {
-    outerL = PixelRecoPointRZ(outer.r()-errR, outer.z());
-    outerR = PixelRecoPointRZ(outer.r()+errR, outer.z());
-  }
+//   } else if (outer.z() > 0) {
+//     outerL = PixelRecoPointRZ(outer.r()+errR, outer.z());
+//     outerR = PixelRecoPointRZ(outer.r()-errR, outer.z());
+//   } else {
+//     outerL = PixelRecoPointRZ(outer.r()-errR, outer.z());
+//     outerR = PixelRecoPointRZ(outer.r()+errR, outer.z());
+//   }
 
   //MP
   // MultipleScatteringParametrisation iSigma(layer);

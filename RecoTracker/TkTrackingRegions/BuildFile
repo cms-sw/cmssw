@@ -1,9 +1,14 @@
    <use name=clhep>
    <use name=boost>
    <use name=FWCore/ParameterSet>
+   <use name=FWCore/Framework>
+   <use name=Geometry/CommonDetUnit>
+   <use name=Geometry/Records>
 <export>
    <lib name=RecoTrackerTkTrackingRegions>
    <use name=clhep>
    <use name=boost>
    <use name=FWCore/ParameterSet>
+   <use name=Geometry/CommonDetUnit>
+   <use name=Geometry/Records>
  </export>
