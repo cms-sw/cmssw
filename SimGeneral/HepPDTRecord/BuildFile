@@ -1,7 +1,7 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=clhep> 
-<flags SEAL_PLUGIN_NAME="SimGemeralHepPDTRecord">
+
 <export>
   <lib name=SimGeneralHepPDTRecord>
   <use name=FWCore/Framework>
