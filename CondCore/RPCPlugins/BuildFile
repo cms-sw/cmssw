@@ -1,0 +1,15 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=CondCore/PluginSystem>
+<use name=CondFormats/RPCObjects>
+<use name=CondFormats/DataRecord>
+
+<flags SEAL_PLUGIN_NAME="CondCoreRPCPlugins">
+<export>
+   <lib name=CondCoreRPCPlugins>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=CondCore/PluginSystem>
+   <use name=CondFormats/RPCObjects>
+   <use name=CondFormats/DataRecord>
+</export>
