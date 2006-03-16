@@ -104,38 +104,35 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
 
   // run the algorithm
   theBarrelDigitizer->run(*barrelHits, *barrelResult);
-
-  edm::LogInfo("EcalDigiProducer") << "EB Digis: " << barrelResult->size();
+  edm::LogInfo("DigiInfo") << "EB Digis: " << barrelResult->size();
 
   theEndcapDigitizer->run(*endcapHits, *endcapResult);
+  edm::LogInfo("DigiInfo") << "EE Digis: " << endcapResult->size();
 
   theESDigitizer->run(*ESHits, *ESResult);
-  edm::LogInfo("EcalDigiProducer") << "ES Digis: " << ESResult->size();
+  edm::LogInfo("DigiInfo") << "ES Digis: " << ESResult->size();
 
-  /*
   CaloDigiCollectionSorter sorter(5);
   std::vector<EBDataFrame> sortedDigisEB = sorter.sortedVector(*barrelResult);
-  std::cout << "Top 10 EB digis" << std::endl;
+  LogDebug("DigiDump") << "Top 10 EB digis";
   for(int i = 0; i < std::min(10,(int) sortedDigisEB.size()); ++i) 
-   {
-    std::cout << sortedDigisEB[i];
-   }
+    {
+      LogDebug("DigiDump") << sortedDigisEB[i];
+    }
   std::vector<EEDataFrame> sortedDigisEE = sorter.sortedVector(*endcapResult);
-  std::cout << "Top 10 EE digis" << std::endl;
+  LogDebug("DigiDump")  << "Top 10 EE digis";
   for(int i = 0; i < std::min(10,(int) sortedDigisEE.size()); ++i) 
-   {
-    std::cout << sortedDigisEE[i];
-   }
-  */
-  /*
-  CaloDigiCollectionSorter sorter_es(7);
-  std::vector<ESDataFrame> sortedDigis_es = sorter_es.sortedVector(*ESResult);
-  std::cout << "List all ES digis" << std::endl;
-  for(int i = 0; i < sortedDigis_es.size(); ++i) 
-   {
-    std::cout << sortedDigis_es[i];
-   }
-  */
+    {
+      LogDebug("DigiDump") << sortedDigisEE[i];
+    }
+//   CaloDigiCollectionSorter sorter_es(7);
+//   std::vector<ESDataFrame> sortedDigis_es = sorter_es.sortedVector(*ESResult);
+//   LogDebug("DigiDump") << "List all ES digis";
+//   for(int i = 0; i < sortedDigis_es.size(); ++i) 
+//     {
+//       LogDebug("DigiDump") << sortedDigis_es[i];
+//     }
+  
   // Step D: Put outputs into event
   event.put(barrelResult);
   event.put(endcapResult);
@@ -178,12 +175,10 @@ void EcalDigiProducer::updateGeometry() {
   theEndcapDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
   theESDets     =  theGeometry->getValidDetIds(DetId::Ecal, EcalPreshower);
 
-  //PG FIXME
-  std::cout << "deb geometry: "
-            << "\t barrel: " << theBarrelDets.size ()
-            << "\t endcap: " << theEndcapDets.size ()
-	    << "\t preshower: " << theESDets.size()
-            << std::endl ;
+  LogInfo("DigiInput") << "deb geometry: " << "\n" 
+                       << "\t barrel: " << theBarrelDets.size () << "\n"
+                       << "\t endcap: " << theEndcapDets.size () << "\n"
+                       << "\t preshower: " << theESDets.size();
 
   theBarrelDigitizer->setDetIds(theBarrelDets);
   theEndcapDigitizer->setDetIds(theEndcapDets);
