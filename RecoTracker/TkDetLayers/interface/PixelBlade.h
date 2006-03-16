@@ -4,6 +4,10 @@
 #include "RecoTracker/TkDetLayers/interface/BoundDiskSector.h"
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
+#include "TrackingTools/DetLayers/interface/PeriodicBinFinderInZ.h"
+#include "RecoTracker/TkDetLayers/interface/SubLayerCrossings.h"
+
+
 /** A concrete implementation for PixelBlade
  */
 
@@ -44,6 +48,45 @@ class PixelBlade : public GeometricSearchDet{
   //Extension of the interface
   virtual const BoundDiskSector& specificSurface() const {return *theDiskSector;}
 
+ private:
+  // private methods for the implementation of groupedCompatibleDets()
+
+  SubLayerCrossings computeCrossings( const TrajectoryStateOnSurface& tsos,
+				      PropagationDirection propDir) const;
+  
+  bool addClosest( const TrajectoryStateOnSurface& tsos,
+		   const Propagator& prop,
+		   const MeasurementEstimator& est,
+		   const SubLayerCrossing& crossing,
+		   vector<DetGroup>& result) const;
+  
+  float computeWindowSize( const GeomDet* det, 
+			   const TrajectoryStateOnSurface& tsos, 
+			   const MeasurementEstimator& est) const;
+
+
+  void searchNeighbors( const TrajectoryStateOnSurface& tsos,
+			const Propagator& prop,
+			const MeasurementEstimator& est,
+			const SubLayerCrossing& crossing,
+			float window, 
+			vector<DetGroup>& result,
+			bool checkClosest) const;
+
+  bool overlap( const GlobalPoint& gpos, const GeomDet& det, float phiWin) const;
+
+  // This 2 find methods should be substituted with the use 
+  // of a GeneralBinFinderInR
+  
+  int findBin( float R,int layer) const;
+  
+  GlobalPoint findPosition(int index,int diskSectorIndex) const ;
+
+  const vector<const GeomDet*>& subBlade( int ind) const {
+    return (ind==0 ? theFrontDets : theBackDets);
+  }
+
+
 
  private:
   vector<const GeomDet*> theDets;
@@ -53,9 +96,6 @@ class PixelBlade : public GeometricSearchDet{
   ReferenceCountingPointer<BoundDiskSector> theDiskSector;
   ReferenceCountingPointer<BoundDiskSector> theFrontDiskSector;
   ReferenceCountingPointer<BoundDiskSector> theBackDiskSector;
-
-      
-  
 };
 
 

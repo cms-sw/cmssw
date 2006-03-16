@@ -4,6 +4,7 @@
 
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkDetLayers/interface/PixelBlade.h"
+#include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 
 
 /** A concrete implementation for PixelForward layer 
@@ -42,12 +43,43 @@ class PixelForwardLayer : public ForwardDetLayer{
   virtual Module   module()   const { return pixel;}
   
 
- private:
+ private:  
   virtual BoundDisk* computeDisk(const vector<const PixelBlade*>& blades) const;    
+  // methods for groupedCompatibleDets implementation
+  void computeHelicity();
+
+  struct SubTurbineCrossings {
+    SubTurbineCrossings(){};
+    SubTurbineCrossings( int ci, int ni, float nd) : 
+      closestIndex(ci), nextIndex(ni), nextDistance(nd) {}
+    
+    int   closestIndex;
+    int   nextIndex;
+    float nextDistance;
+  };
+  
+  void searchNeighbors( const TrajectoryStateOnSurface& tsos,
+			const Propagator& prop,
+			const MeasurementEstimator& est,
+			const SubTurbineCrossings& crossings,
+			float window, 
+			vector<DetGroup>& result) const;
+  
+  SubTurbineCrossings 
+    computeCrossings( const TrajectoryStateOnSurface& startingState,
+		      PropagationDirection propDir) const;
+
+  float computeWindowSize( const GeomDet* det, 
+			   const TrajectoryStateOnSurface& tsos, 
+			   const MeasurementEstimator& est) const;
+  
+ private:
+  typedef PeriodicBinFinderInPhi<double>   BinFinderType;
+  BinFinderType    theBinFinder;
 
   vector<const PixelBlade*> theBlades;
   vector<const GeometricSearchDet*> theComps;
-  
+  int              theHelicity;    
 };
 
 

@@ -61,7 +61,7 @@ class CompositeTECPetal : public TECPetal{
 
   int findBin( float R,int layer) const;
   
-  GlobalPoint findPosition(int index,int diskSectorType) const ;
+  GlobalPoint findPosition(int index,int diskSectorIndex) const ;
 
   const vector<const TECWedge*>& subLayer( int ind) const {
     return (ind==0 ? theFrontWedges : theBackWedges);
