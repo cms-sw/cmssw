@@ -13,7 +13,8 @@
 <!--some exterior structure-->
 <!--the constant is used to place TOBLayer0, TOBLayer4 and TOB_MTCCSupportBase -->
 <!--and any other future children of the root object, TOB-->
- <Constant name="globalZOffset"  value="0.0*cm"/>
+<!-- <Constant name="globalZOffset"  value="0.0*cm"/> -->
+ <Constant name="globalZOffset"  value="[tobrodpar:RodL]"/>
 
 <!--these constants are used to adjust the z offsets of the individual rods -->
 <!--they are referenced in the file tobrod0_a_MTCC.xml, and his seven brothers-->
