@@ -27,14 +27,14 @@ StripClusterParameterEstimator::LocalValues StripCPE::localParameters( const SiS
   result = topol.localPosition(cl.barycenter());
   eresult = topol.localError(cl.barycenter(),1/12.);
   
-  std::cout<<"Apply  lorentz drift <-----"<<std::endl;
+  //  std::cout<<"Apply  lorentz drift <-----"<<std::endl;
   LocalVector drift = driftDirection(stripdet);
   float thickness=stripdet->specificSurface().bounds().thickness();
-  std::cout<<"Before:"<<result.x()<<" "<<result.y()<<std::endl;
-  LocalPoint resulta;
+  //std::cout<<"Before:"<<result.x()<<" "<<result.y()<<std::endl;
+  //LocalPoint resulta;
   drift*=(thickness/2);
-  resulta=result+drift;
-  std::cout<<"After:"<<resulta.x()<<" "<<resulta.y()<<std::endl;
+  //resulta=result+drift;
+  //std::cout<<"After:"<<resulta.x()<<" "<<resulta.y()<<std::endl;
   return std::make_pair(result+drift,eresult);
 }
 
