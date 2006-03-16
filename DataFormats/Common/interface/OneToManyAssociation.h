@@ -98,10 +98,15 @@ namespace edm {
       typename map_type::iterator i;
       friend const_iterator::const_iterator( const iterator & );
     };
+    /// first iterator over the map (read only)
     const_iterator begin() const { return const_iterator( map_.begin() );  }
+    /// last iterator over the map (read only)
     const_iterator end() const { return const_iterator( map_.end() );  }
+    /// first iterator over the map
     iterator begin() { return iterator( map_.begin() );  }
+    /// last iterator over the map
     iterator end() { return iterator( map_.end() );  }
+    /// find an entry in the map
     const_iterator find( const KeyRef & k ) const {
       checkKey( k );
       typename map_type::const_iterator f = map_.find( k.index() );
