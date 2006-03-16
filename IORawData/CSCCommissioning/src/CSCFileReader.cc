@@ -1,5 +1,5 @@
 #include "CSCFileReader.h"
-#include "FileReaderDDU.h"
+
 #include <errno.h>
 #include <string>
 
@@ -22,7 +22,7 @@
 using namespace std;
 using namespace edm;
 
-FileReaderDDU ___ddu;
+
 
 CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 	// Following code is stolen from IORawData/DTCommissioning
