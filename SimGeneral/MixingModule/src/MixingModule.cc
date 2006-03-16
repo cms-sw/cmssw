@@ -30,25 +30,37 @@ namespace edm
       // See FWCore/Framework/interface/BranchDescription.h
       // BranchDescription contains all the information for the product.
       edm::BranchDescription desc = it->second;
-      if (!desc.productInstanceName_.compare(0,8,"EcalHits") || !desc.productInstanceName_.compare(0,8,"HcalHits" )) {
+      if (!desc.friendlyClassName_.compare(0,8,"PCaloHit")) {
 	caloSubdetectors_.push_back(desc.productInstanceName_);
-	LogInfo("Constructor") <<"Adding detector "<<desc.productInstanceName_ <<" for pileup treatment";
+	LogInfo("Constructor") <<"Adding calo container "<<desc.productInstanceName_ <<" for pileup treatment";
       }
-      else if (!desc.productInstanceName_.compare(0,4,"Muon")) {
-	muonSubdetectors_.push_back(desc.productInstanceName_);
-	LogInfo("Constructor") <<"Adding detector "<<desc.productInstanceName_ <<" for pileup treatment";
-     }
-      else if (!desc.productInstanceName_.compare(0,11,"TrackerHits")) {
-	 trackerSubdetectors_.push_back(desc.productInstanceName_);
-	 LogInfo("Constructor") <<"Adding detector "<<desc.productInstanceName_ <<" for pileup treatment";
+      else if (!desc.friendlyClassName_.compare(0,7,"PSimHit") && desc.productInstanceName_.compare(0,11,"TrackerHits")) {
+	simHitSubdetectors_.push_back(desc.productInstanceName_);
+	nonTrackerPids_[desc.productInstanceName_]=desc.productID_;
+        LogInfo("Constructor") <<"Adding simhit container "<<desc.productInstanceName_ <<",productID  "<<desc.productID_<<" for pileup treatment";
       }
+      else if (!desc.friendlyClassName_.compare(0,7,"PSimHit") && !desc.productInstanceName_.compare(0,11,"TrackerHits")) {
+	simHitSubdetectors_.push_back(desc.productInstanceName_);
+	// here we store the tracker subdetector name + ProductIDs for low and high part
+	int slow=(desc.productInstanceName_).find("LowTof");
+	int iend=(desc.productInstanceName_).size();
+	if (slow>0) {
+	  BranchKey keylow = it->first;
+	  const BranchKey keyhigh(keylow.friendlyClassName_,keylow.moduleLabel_,desc.productInstanceName_.substr(0,iend-6)+"HighTof",keylow.processName_);
+	  const std::pair<const edm::BranchKey, edm::BranchDescription> p=*((reg->productList()).find(keyhigh));
+	  ProductID pidhigh=p.second.productID_;
+	  trackerHighLowPids_.insert(map <string, pair<ProductID,ProductID> >::value_type(desc.productInstanceName_.substr(0,iend-6),pair<ProductID,ProductID> (desc.productID_,pidhigh)));
+	  LogInfo("Constructor") <<"Adding container "<<desc.productInstanceName_ <<",productID "<<desc.productID_<<" for pileup treatment";
+        }
+      }
+      //      else
+      //        cout<<"Strange detector "<<desc.productInstanceName_ <<",productID "<<desc.productID_<<" for pileup treatment????????"<<endl;
     }
-
     produces<CrossingFrame> ();
-}
+  }
 
   void MixingModule::createnewEDProduct() {
-    simcf_=new CrossingFrame(minBunch(),maxBunch(),bunchSpace_,muonSubdetectors_,trackerSubdetectors_,caloSubdetectors_);
+    simcf_=new CrossingFrame(minBunch(),maxBunch(),bunchSpace_,simHitSubdetectors_,caloSubdetectors_);
   }
 
   // Virtual destructor needed.
@@ -67,7 +79,6 @@ namespace edm
     int ss=resultsim.size();
     for (int ii=0;ii<ss;ii++) {
       edm::BranchDescription desc = resultsim[ii].provenance()->product;
-      //      cout <<"=============================> Provenance "<<*(resultsim[ii].provenance())<<endl;
       LogDebug("addSignals") <<"For "<<desc.productInstanceName_<<resultsim[ii].product()->size()<<" Simhits added";
       simcf_->addSignalSimHits(desc.productInstanceName_,resultsim[ii].product());
     }
@@ -111,58 +122,48 @@ namespace edm
     LogDebug("addPileups") <<"===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
     // SimHits
+    // we have to treat tracker/non tracker  containers separately, prepare a global map
+    // (all this due to the fact that we need to use getmany to avoid exceptions)
+    std::map<const ProductID,const std::vector<PSimHit>* > simproducts;
     std::vector<edm::Handle<std::vector<PSimHit> > > resultsim;
     e->getManyByType(resultsim);
     int ss=resultsim.size();
     for (int ii=0;ii<ss;ii++) {
       edm::BranchDescription desc = resultsim[ii].provenance()->product;
-      LogDebug("addPileups") <<"For "<<desc.productInstanceName_<<resultsim[ii].product()->size()<<" Simhits added";
-      simcf_->addPileupSimHits(bcr,desc.productInstanceName_,resultsim[ii].product(),trackoffset,false);
+      simproducts.insert(std::map<const ProductID,const std::vector<PSimHit>* >::value_type(desc.productID_, resultsim[ii].product()));
     }
 
-//     // Tracker
-//     float tof = bcr*simcf_->getBunchSpace();
-//     for(std::vector<std::string >::iterator itstr = trackerSubdetectors_.begin(); itstr != trackerSubdetectors_.end(); ++itstr) {
-//       std::string subdethigh=(*itstr)+"HighTof";
-//       std::string subdetlow=(*itstr)+"LowTof";
+    // Non-tracker treatment
+    for(std::map <std::string, ProductID >::iterator it = nonTrackerPids_.begin(); it != nonTrackerPids_.end(); ++it) {
+	const std::vector<PSimHit> * simhits = simproducts[(*it).second];
+	simcf_->addPileupSimHits(bcr,(*it).first,simhits,trackoffset,false);
+	LogDebug("addPileups") <<"For "<<(*it).first<<", "<<simhits->size()<<" Simhits added";
+    }
 
-//       // do not read branches if clearly outside of tof bounds (and verification is asked for, default)
-//       // add HighTof pileup to high and low signals
-//       if ( !checktof_ || ((CrossingFrame::limHighLowTof +tof ) <= CrossingFrame::highTrackTof)) { 
-// 	const edm::ProcessNameSelector sel(subdethigh+"_r");
-// 	std::vector<edm::Handle<std::vector<PSimHit> > > result;
-// 	e->getMany(sel, result);
-// 	//	e->getByLabel("r",subdethigh,simHits);
-// 	if (result.size()>0) {
-// 	  printf("Processname %s, size %d\n",(*itstr).c_str(),result.size());fflush(stdout);
-// 	  if (result.size()>1) {
-// 	    LogWarning("addPileups") <<"Got more than one EDProduct corresponding to "<<subdethigh+"_r";
-// 	  } else {
-// 	    edm::Handle<std::vector<PSimHit> > simHits=result[0];
-// 	    simcf_->addPileupSimHits(bcr,subdethigh,simHits.product(),trackoffset,checktof_);
-// 	    simcf_->addPileupSimHits(bcr,subdetlow,simHits.product(),trackoffset,checktof_);
-// 	  }
-// 	}
-//       }
+    // Tracker treatment
+    float tof = bcr*simcf_->getBunchSpace();
+    for(std::map <std::string, std::pair<ProductID,ProductID> >::iterator itstr = trackerHighLowPids_.begin(); itstr != trackerHighLowPids_.end(); ++itstr) {
 
-//       // add LowTof pileup to high and low signals
-//       if (  !checktof_ || ((tof+CrossingFrame::limHighLowTof) >= CrossingFrame::lowTrackTof && tof <= CrossingFrame::highTrackTof)) {     
-// 	const edm::ProcessNameSelector sel(subdetlow+"_r");
-// 	std::vector<edm::Handle<std::vector<PSimHit> > > result;
-// 	e->getMany(sel, result);
-// 	//	e->getByLabel("r",subdetlow,simHits);
-// 	if (result.size()>0) {
-// 	  printf("Processname %s, size %d\n",(*itstr).c_str(),result.size());fflush(stdout);
-// 	  if (result.size()>1) {
-// 	    LogWarning("addPileups") <<"Got more than one EDProduct corresponding to "<<subdethigh+"_r";
-// 	  } else {
-// 	    edm::Handle<std::vector<PSimHit> > simHits=result[0];
-// 	    simcf_->addPileupSimHits(bcr,subdethigh,simHits.product(),trackoffset,checktof_);
-// 	    simcf_->addPileupSimHits(bcr,subdetlow,simHits.product(),trackoffset,checktof_);
-// 	  }
-// 	}
-//       }
-//     }
+      std::string subdethigh=(*itstr).first+"HighTof";
+      std::string subdetlow=(*itstr).first+"LowTof";
+      // do not read branches if clearly outside of tof bounds (and verification is asked for, default)
+      // add HighTof pileup to high and low signals
+      if ( !checktof_ || ((CrossingFrame::limHighLowTof +tof ) <= CrossingFrame::highTrackTof)) { 
+
+	const std::vector<PSimHit> * simhitshigh = simproducts[(*itstr).second.first];
+	simcf_->addPileupSimHits(bcr,subdethigh,simhitshigh,trackoffset,checktof_);
+	simcf_->addPileupSimHits(bcr,subdetlow,simhitshigh,trackoffset,checktof_);
+	LogDebug("addPileups") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitshigh->size()<<" Simhits added";
+      }
+
+      // add LowTof pileup to high and low signals
+      if (  !checktof_ || ((tof+CrossingFrame::limHighLowTof) >= CrossingFrame::lowTrackTof && tof <= CrossingFrame::highTrackTof)) {     
+	const std::vector<PSimHit> * simhitslow = simproducts[(*itstr).second.second];
+	simcf_->addPileupSimHits(bcr,subdethigh,simhitslow,trackoffset,checktof_);
+	simcf_->addPileupSimHits(bcr,subdetlow,simhitslow,trackoffset,checktof_);
+	LogDebug("addPileups") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitslow->size()<<" Simhits added";
+      }
+    }
 
 
     // calo hits for all subdetectors
@@ -198,7 +199,7 @@ namespace edm
       if (result_v[ii].isValid()) simcf_->addPileupVertices(bcr,result_v[ii].product(),trackoffset);
       else  LogWarning("InvalidData") <<"Invalid simvertices in signal";
     }
- 
+
     // increment offsets
     vertexoffset+=result_v[0].product()->size();
     trackoffset+=result_t[0].product()->size();

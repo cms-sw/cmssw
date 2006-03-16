@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.7 2006/03/07 13:39:16 uberthon Exp $
+// $Id: TestSuite.cc,v 1.8 2006/03/14 13:38:47 uberthon Exp $
 //
 //
 
@@ -156,8 +156,8 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (cfiecal.getTrigger())    tofecalhist->Fill(cfiecal->time());
       else    tofecalhist_sig->Fill(cfiecal->time());
     }
-    std::cout <<"[OVAL] Mean of Ecal pileup histo (ToF) "<<tofecalhist->GetMean()<<std::endl;
-    std::cout <<"[OVAL] Mean of Ecal signal histo (ToF) "<<tofecalhist_sig->GetMean()<<std::endl;
+    std::cout <<"[OVAL] Mean of Ecal pileup histo (ToF) "<<tofecalhist->GetMean()<<", sigma: "<<tofecalhist->GetRMS()<<std::endl;
+    std::cout <<"[OVAL] Mean of Ecal signal histo (ToF) "<<tofecalhist_sig->GetMean()<<", sigma: "<<tofecalhist_sig->GetRMS()<<std::endl;
 
     // Hcal
     sprintf(tof,"HcalHit_Tof_bcr_%d",bunchcr_);
@@ -171,7 +171,7 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (cfihcal.getTrigger())  tofhcalhist->Fill(cfihcal->time());
       else  tofhcalhist_sig->Fill(cfihcal->time());
     }
-    std::cout <<"[OVAL] Mean of Hcal pileup histo (ToF) "<<tofhcalhist->GetMean()<<std::endl;
-    std::cout <<"[OVAL] Mean of Hcal signal histo (ToF) "<<tofhcalhist_sig->GetMean()<<std::endl;
+    std::cout <<"[OVAL] Mean of Hcal pileup histo (ToF) "<<tofhcalhist->GetMean()<<", sigma: "<<tofhcalhist->GetRMS()<<std::endl;
+    std::cout <<"[OVAL] Mean of Hcal signal histo (ToF) "<<tofhcalhist_sig->GetMean()<<", sigma: "<<tofhcalhist_sig->GetRMS()<<std::endl;
 }
 

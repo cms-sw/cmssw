@@ -20,6 +20,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Mixing/Base/interface/BMixingModule.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "DataFormats/Common/interface/ProductID.h"
 #include <vector>
 #include <string>
 
@@ -44,9 +45,10 @@ namespace edm
       virtual void addPileups(const int bcr, edm::Event*);
 
       // internally used information
-      std::vector<std::string> muonSubdetectors_;
-      std::vector<std::string> trackerSubdetectors_;
+      std::vector<std::string> simHitSubdetectors_;
       std::vector<std::string> caloSubdetectors_;
+      std::map <std::string, std::pair<ProductID,ProductID> > trackerHighLowPids_;
+      std::map <std::string, ProductID> nonTrackerPids_;
       CrossingFrame *simcf_;
 
     };
