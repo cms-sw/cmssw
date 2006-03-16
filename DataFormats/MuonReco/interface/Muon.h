@@ -8,14 +8,15 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.9 2006/03/01 13:08:08 llista Exp $
+ * \version $Id: Muon.h,v 1.10 2006/03/16 13:47:44 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/TrackReco/interface/RecHitFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuonExtraFwd.h"
+#include "DataFormats/MuonReco/interface/MuonExtra.h"
 
 namespace reco {
  
@@ -36,8 +37,15 @@ namespace reco {
     void setTrack( const TrackRef & ref ) { track_ = ref; }
     /// reference to Track reconstructed in the tracker only
     const TrackRef & track() const { return track_; }
+
     /// reference to Track reconstructed in the muon detector only
-    const TrackRef & standAloneMuon() const;
+    const TrackRef & standAloneMuon() const { return extra_->standAloneMuon(); }
+    /// first iterator to RecHits
+    recHit_iterator recHitsBegin() const { return extra_->recHitsBegin(); }
+    /// last iterator to RecHits
+    recHit_iterator recHitsEnd()   const { return extra_->recHitsEnd(); }
+    /// number of RecHits
+    size_t recHitsSize() const { return extra_->recHitsSize(); }
     /// set reference to "extra" object
     void setExtra( const MuonExtraRef & ref ) { extra_ = ref; }
     /// reference to "extra" object

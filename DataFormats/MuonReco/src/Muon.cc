@@ -14,9 +14,5 @@ Muon::Muon( float chi2, unsigned short ndof, int found, int invalid, int lost,
 	    const PosMomError & err ) :
   TrackBase( chi2, ndof, found, invalid, lost, q, v, p, err ) {
 }
- 
-const TrackRef & Muon::standAloneMuon() const {
-  return extra_->standAloneMuon();
-}
 
 
