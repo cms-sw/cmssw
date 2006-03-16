@@ -1,6 +1,8 @@
 #ifndef DDdebug_h
 #define DDdebug_h
 
+// Message logger.
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
  // If DDEBUG is defined, the debug macros DCOUT and DCOUT_V are active
  // Undefined DDEBUG redefines DCOUT and DCOUT_V to not to produce any code.
@@ -27,12 +29,12 @@
   #include <iostream>
   
       
-  #define DCOUT(M_v_Y,M_v_S) if (char* M_v_c = getenv("DDEBUG")){ std::string M_v_t(M_v_c); for(std::string::size_type M_v_i=0; M_v_i < M_v_t.size(); M_v_i++) if(M_v_t[M_v_i]==M_v_Y) std::cout << M_v_t[M_v_i] << " : " << M_v_S << std::endl; }   
-  #define DCOUT_V(M_v_Y,M_v_S) if (char* M_v_c = getenv("DDEBUG_V")){ std::string M_v_t(M_v_c); for(std::string::size_type M_v_i=0; M_v_i < M_v_t.size(); M_v_i++) if(M_v_t[M_v_i]==M_v_Y) std::cout << M_v_t[M_v_i] << "v: " << M_v_S << std::endl; }         
+  #define DCOUT(M_v_Y,M_v_S) if (char* M_v_c = getenv("DDEBUG")){ std::string M_v_t(M_v_c); for(std::string::size_type M_v_i=0; M_v_i < M_v_t.size(); M_v_i++) if(M_v_t[M_v_i]==M_v_Y) LogDebug("DDdebug") << M_v_t[M_v_i] << " : " << M_v_S << std::endl; }   
+  #define DCOUT_V(M_v_Y,M_v_S) if (char* M_v_c = getenv("DDEBUG_V")){ std::string M_v_t(M_v_c); for(std::string::size_type M_v_i=0; M_v_i < M_v_t.size(); M_v_i++) if(M_v_t[M_v_i]==M_v_Y) LogDebug("DDdebug") << M_v_t[M_v_i] << "v: " << M_v_S << std::endl; }         
   
   // backward compatiblility, don't use anymore! 
-  #define DEBUGOUT(s) if (getenv("DDEBUG")) { std::cout << s << std::endl; }
-  #define DEBUGOUT_V(s) if (getenv("DDEBUG_V")) { std::cout << s << std::endl; }
+  #define DEBUGOUT(s) if (getenv("DDEBUG")) { LogDebug("DDdebug") << s << std::endl; }
+  #define DEBUGOUT_V(s) if (getenv("DDEBUG_V")) { LogDebug("DDdebug") << s << std::endl; }
  
  #else
   

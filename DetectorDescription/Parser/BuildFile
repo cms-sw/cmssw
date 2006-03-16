@@ -4,7 +4,6 @@
 <use name=DetectorDescription/Algorithm>
 <use name=Framework/SealKernel>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/MessageLogger>
 
 <export>
  <lib name=DetectorDescriptionParser>
@@ -14,5 +13,4 @@
  <use name=DetectorDescription/Algorithm>
  <use name=Framework/SealKernel>
  <use name=FWCore/ParameterSet>
- <use name=FWCore/MessageLogger>
 </export>

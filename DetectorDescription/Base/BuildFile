@@ -1,10 +1,11 @@
 <use name=clhep>
-
 <use name=Foundation/SealUtil>
+<use name=FWCore/MessageLogger>
+
 <export>
  <lib name=DetectorDescriptionBase>
  <use name=clhep>
- 
  <use name=Foundation/SealUtil>
+ <use name=FWCore/MessageLogger>
 </export>
 
