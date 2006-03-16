@@ -11,8 +11,6 @@ namespace {
     edm::RefProd<std::vector<reco::MuonExtra> > rp2;
     edm::RefVector<std::vector<reco::MuonExtra> > rv2;
 
-    reco::TrackExtension<reco::MuonExtraRef> te1;
-
     std::vector<reco::Muon> v1;
     edm::Wrapper<std::vector<reco::Muon> > c1;
     edm::Ref<std::vector<reco::Muon> > r1;

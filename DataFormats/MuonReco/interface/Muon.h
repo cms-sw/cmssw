@@ -8,19 +8,18 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: Muon.h,v 1.9 2006/03/01 13:08:08 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
-#include"DataFormats/TrackReco/interface/TrackFwd.h"
-#include"DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include"DataFormats/TrackReco/interface/TrackExtension.h"
-#include"DataFormats/MuonReco/interface/MuonFwd.h"
-#include"DataFormats/MuonReco/interface/MuonExtraFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonExtraFwd.h"
 
 namespace reco {
  
-  class Muon : public TrackBase, public TrackExtension<MuonExtraRef> {
+  class Muon : public TrackBase {
   public:
     /// default constructor
     Muon() { }
@@ -39,6 +38,10 @@ namespace reco {
     const TrackRef & track() const { return track_; }
     /// reference to Track reconstructed in the muon detector only
     const TrackRef & standAloneMuon() const;
+    /// set reference to "extra" object
+    void setExtra( const MuonExtraRef & ref ) { extra_ = ref; }
+    /// reference to "extra" object
+    const MuonExtraRef & extra() const { return extra_; }
 
   private:
     /// reference to Track reconstructed in the tracker only

@@ -8,21 +8,19 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: MuonExtra.h,v 1.3 2006/03/01 13:08:08 llista Exp $
  *
  */
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackExtraBase.h"
 #include "DataFormats/MuonReco/interface/MuonExtraFwd.h"
 #include"DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
 
-  class MuonExtra : public TrackExtra {
+  class MuonExtra : public TrackExtraBase {
   public:
     /// default constructor
-    MuonExtra() { }
-    /// constructor from outermost position and momentum
-    MuonExtra( const Point & outerPosition, const Vector & outerMomentum, bool ok );
+    MuonExtra() : TrackExtraBase() { }
     /// set reference to Track reconstructed in the muon detector only
     void setStandAloneMuon( const TrackRef & ref ) { standAloneMuon_ = ref; }
     /// reference to Track reconstructed in the muon detector only
