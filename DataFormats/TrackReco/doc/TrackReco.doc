@@ -17,9 +17,9 @@ Persistent classes for Track Reco data format.
 
 A reco::Track object has two sets of methods:
 - inherited from the base class reco::TrackBase 
-- inherited from the base class reco::TrackExtension. 
+- specific to reco::Track only
 
-The methods inherited from  reco::TrackExtension are implemented dereferencing the 
+The specific methods are implemented dereferencing the 
 reference to reco::TrackExtra and retrieving
 the corresponding information. For instance, the following methods 
 will only access reco::TrackBase data members: 
@@ -54,8 +54,7 @@ reco::Track may result in an exception.
 
 \subsection interface_base Auxiliary base classes
 - reco::TrackBase: common base class to reco::Track and reco::Muon
-- reco::TrackExtension <b>&lt;ExtraRef&gt;</b>: extension of a reco::TrackBase 
-  containing a persistent reference to an Extra object.
+- reco::TrackExtraBase: common base class to reco::TrackExtra and reco::MuonExtra
 
 \subsection typedefs 
 - reco::TrackCollection: collection of reco::Track objects

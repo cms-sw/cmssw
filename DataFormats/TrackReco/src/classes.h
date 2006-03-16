@@ -7,9 +7,6 @@
 
 namespace {
   namespace {
-    
-    reco::TrackExtension<reco::TrackExtraRef> te1;
-
     reco::RecHitCollection v2;
     edm::Wrapper<reco::RecHitCollection> c2;
     edm::Ref<reco::RecHitCollection> r2;
