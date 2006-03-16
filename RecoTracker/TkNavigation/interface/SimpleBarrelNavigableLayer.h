@@ -24,6 +24,14 @@ public:
   nextLayers( const FreeTrajectoryState& fts, 
 	      PropagationDirection timeDirection) const;
 
+  virtual vector<const DetLayer*> 
+  compatibleLayers( PropagationDirection timeDirection) const;
+
+  virtual vector<const DetLayer*> 
+  compatibleLayers( const FreeTrajectoryState& fts, 
+		    PropagationDirection timeDirection) const;
+
+
   // extended interface
   BDLC nextBarrelLayers()  { return theOuterBarrelLayers;}
   //  FDLC nextForwardLayers() { return theOuterForwardLayers;}

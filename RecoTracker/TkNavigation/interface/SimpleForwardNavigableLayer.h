@@ -21,6 +21,14 @@ public:
   nextLayers( const FreeTrajectoryState& fts, 
 	      PropagationDirection timeDirection) const;
 
+  virtual vector<const DetLayer*> 
+  compatibleLayers( PropagationDirection timeDirection) const;
+
+  virtual vector<const DetLayer*> 
+  compatibleLayers( const FreeTrajectoryState& fts, 
+		    PropagationDirection timeDirection) const;
+
+
   virtual DetLayer* detLayer() const;
   virtual void   setDetLayer( DetLayer* dl);
 

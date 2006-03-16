@@ -2,6 +2,7 @@
 #define TkNavigation_SimpleNavigationSchool_H
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include <vector>
 
@@ -19,7 +20,8 @@ class MagneticField;
 class SimpleNavigationSchool : public NavigationSchool {
 public:
   
-  SimpleNavigationSchool(const MagneticField* field);
+  SimpleNavigationSchool(const GeometricSearchTracker* theTracker,
+			 const MagneticField* field);
   
   // from base class
   virtual StateType navigableLayers() const;
@@ -72,6 +74,7 @@ private:
   void linkNextLayerInGroup( FDLI fli, const FDLC& group, FDLC& reachableFL);
 
   const MagneticField* theField;
+  const GeometricSearchTracker* theTracker;
 };
 
 #endif // SimpleNavigationSchool_H

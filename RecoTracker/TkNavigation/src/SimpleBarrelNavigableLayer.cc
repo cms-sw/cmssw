@@ -125,6 +125,27 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   return result;
 }
 
+#include "Utilities/General/interface/CMSexception.h"
+
+vector<const DetLayer*> 
+SimpleBarrelNavigableLayer::compatibleLayers( PropagationDirection timeDirection) const
+{
+  cout << "ERROR: SimpleBarrelNavigableLayer::compatibleLayers() method is not implemented"
+       << endl;
+  throw(Genexception("ERROR: SimpleBarrelNavigableLayer::compatibleLayers() method is not implemented") );
+}
+
+vector<const DetLayer*> 
+SimpleBarrelNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts, 
+					      PropagationDirection timeDirection) const
+{
+  cout << "ERROR: SimpleBarrelNavigableLayer::compatibleLayers() method is not implemented"
+       << endl;
+  throw(Genexception("ERROR: SimpleBarrelNavigableLayer::compatibleLayers() method is not implemented") );
+}
+
+
+
 const SimpleBarrelNavigableLayer::BDLC&
 SimpleBarrelNavigableLayer::barrelLayers( const FreeTrajectoryState& fts,
 					  PropagationDirection dir) const

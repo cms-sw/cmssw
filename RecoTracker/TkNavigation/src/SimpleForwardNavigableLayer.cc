@@ -77,6 +77,26 @@ SimpleForwardNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   return result;
 }
 
+#include "Utilities/General/interface/CMSexception.h"
+ 
+vector<const DetLayer*> 
+SimpleForwardNavigableLayer::compatibleLayers( PropagationDirection timeDirection) const
+{
+  cout << "ERROR: SimpleForwardNavigableLayer::compatibleLayers() method is not implemented"
+       << endl;
+  throw(Genexception("ERROR: SimpleForwardNavigableLayer::compatibleLayers() method is not implemented") );
+}
+
+vector<const DetLayer*> 
+SimpleForwardNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts, 
+					       PropagationDirection timeDirection) const
+{
+  cout << "ERROR: SimpleForwardNavigableLayer::compatibleLayers() method is not implemented"
+       << endl;
+  throw(Genexception("ERROR: SimpleForwardNavigableLayer::compatibleLayers() method is not implemented") );
+}
+
+
 DetLayer* SimpleForwardNavigableLayer::detLayer() const { return theDetLayer; }
 
 void SimpleForwardNavigableLayer::setDetLayer( DetLayer* dl) {

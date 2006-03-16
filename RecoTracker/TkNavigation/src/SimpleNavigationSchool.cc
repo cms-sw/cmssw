@@ -2,8 +2,6 @@
 #include "RecoTracker/TkNavigation/interface/SimpleBarrelNavigableLayer.h"
 #include "RecoTracker/TkNavigation/interface/SimpleForwardNavigableLayer.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigableLayer.h"
-//#include "Tracker/TkLayout/interface/CmsTracker.h"
-//#include "Tracker/TkLayout/interface/FullTracker.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "Geometry/Surface/interface/BoundCylinder.h"
@@ -21,42 +19,22 @@
 #include <map>
 #include <cmath>
 
-
-//---- Temporary solution (CmsTrackerFromLayers class is needed)
-class CmsTracker {
-public:
-  CmsTracker(){}
-  vector<DetLayer*> barrelLayers(){return vector<DetLayer*>();}
-  vector<DetLayer*> forwardLayers(){return vector<DetLayer*>();}
-  vector<DetLayer*> allLayers(){return vector<DetLayer*>();}
-};
-//----
-
-SimpleNavigationSchool::SimpleNavigationSchool(const MagneticField* field) : 
-  theBarrelLength(0),theField(field)
+SimpleNavigationSchool::SimpleNavigationSchool(const GeometricSearchTracker* theInputTracker,
+					       const MagneticField* field) : 
+  theBarrelLength(0),theField(field), theTracker(theInputTracker)
 {
-  
   // Get barrel layers
-  //vector<DetLayer*> blc = FullTracker::instance()->barrelLayers();  //TO BE FIXED...
-  vector<DetLayer*> blc = CmsTracker().barrelLayers(); //TO BE FIXED...
-  for ( vector<DetLayer*>::iterator i = blc.begin(); i != blc.end(); i++) {
-    BarrelDetLayer* blp = dynamic_cast<BarrelDetLayer*>(*i);
-    //if ( blp == 0) throw DetLogicError("Bad BarrelDetLayer");  //TO BE FIXED...
-    if ( blp == 0) throw Genexception("Bad BarrelDetLayer");
-    theBarrelLayers.push_back( blp);
+  vector<BarrelDetLayer*> blc = theTracker->barrelLayers(); 
+  for ( vector<BarrelDetLayer*>::iterator i = blc.begin(); i != blc.end(); i++) {
+    theBarrelLayers.push_back( (*i) );
   }
 
   // get forward layers
-  //vector<DetLayer*> flc = FullTracker::instance()->forwardLayers();  //TO BE FIXED...
-  vector<DetLayer*> flc = CmsTracker().forwardLayers(); //TO BE FIXED...
-  {
-  for ( vector<DetLayer*>::iterator i = flc.begin(); i != flc.end(); i++) {
-    ForwardDetLayer* flp = dynamic_cast<ForwardDetLayer*>(*i);
-    //if ( flp == 0) throw DetLogicError("Bad ForwardDetLayer");  //TO BE FIXED...
-    if ( flp == 0) throw Genexception("Bad BarrelDetLayer");
-    theForwardLayers.push_back( flp);
+  vector<ForwardDetLayer*> flc = theTracker->forwardLayers(); 
+  for ( vector<ForwardDetLayer*>::iterator i = flc.begin(); i != flc.end(); i++) {
+    theForwardLayers.push_back( (*i) );
   }
-  }
+  
   FDLI middle = find_if( theForwardLayers.begin(), theForwardLayers.end(),
 			 not1(DetBelowZ(0)));
   theLeftLayers  = FDLC( theForwardLayers.begin(), middle);
@@ -388,13 +366,12 @@ void SimpleNavigationSchool::establishInverseRelations() {
     }
 
 
-    //vector<DetLayer*> lc = FullTracker::instance()->allLayers(); //TO BE FIXED...
-    vector<DetLayer*> lc = CmsTracker().allLayers();              //TO BE FIXED...
-  for ( vector<DetLayer*>::iterator i = lc.begin(); i != lc.end(); i++) {
-    SimpleNavigableLayer* navigableLayer =
-      dynamic_cast<SimpleNavigableLayer*>((**i).navigableLayer());
-    navigableLayer->setInwardLinks( reachedBarrelLayersMap[*i],reachedForwardLayersMap[*i] );
-  }
-
+    vector<DetLayer*> lc = theTracker->allLayers();
+    for ( vector<DetLayer*>::iterator i = lc.begin(); i != lc.end(); i++) {
+      SimpleNavigableLayer* navigableLayer =
+	dynamic_cast<SimpleNavigableLayer*>((**i).navigableLayer());
+      navigableLayer->setInwardLinks( reachedBarrelLayersMap[*i],reachedForwardLayersMap[*i] );
+    }
+    
 }
 
