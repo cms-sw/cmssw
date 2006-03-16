@@ -1,7 +1,7 @@
 <flags SEAL_PLUGIN_NAME="RecoTrackerTkSeedGenerator">
 <use name=root>
 <use name=FWCore/Framework>
-<use name=DataFormats/Common>
+<use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
@@ -19,9 +19,10 @@
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
 <use name=TrackingTools/KalmanUpdators>
+<use name=RecoTracker/TransientTrackingRecHit>
 <export>
  <lib name=RecoTrackerTkSeedGenerator>
- <use name=DataFormats/Common>
+ <use name=FWCore/EDProduct>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
  <use name=Geometry/Records>
@@ -41,4 +42,5 @@
  <use name=MagneticField/Records>
  <use name=MagneticField/Engine>
  <use name=TrackingTools/KalmanUpdators>
+ <use name=RecoTracker/TransientTrackingRecHit>
 </export>

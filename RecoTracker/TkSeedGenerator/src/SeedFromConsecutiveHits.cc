@@ -9,10 +9,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
+using namespace std;
 SeedFromConsecutiveHits::
-SeedFromConsecutiveHits( const TrackingRecHit& outerHit, 
-			 const TrackingRecHit& innerHit, 
+SeedFromConsecutiveHits( const TrackingRecHit* outerHit, 
+			 const TrackingRecHit* innerHit, 
 			 const GlobalPoint& vertexPos,
 			 const GlobalError& vertexErr,
 			 const edm::EventSetup& iSetup) 
@@ -22,8 +22,8 @@ SeedFromConsecutiveHits( const TrackingRecHit& outerHit,
 
 
 void SeedFromConsecutiveHits::
-construct( const TrackingRecHit& outerHit, 
-	   const TrackingRecHit& innerHit, 
+construct( const TrackingRecHit* outerHit, 
+	   const TrackingRecHit* innerHit, 
 	   const GlobalPoint& vertexPos,
 	   const GlobalError& vertexErr,
 	   const edm::EventSetup& iSetup) 
@@ -43,8 +43,8 @@ construct( const TrackingRecHit& outerHit,
   edm::ESHandle<TrackingGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
-  GlobalPoint inner = tracker->idToDet(innerHit.geographicalId())->surface().toGlobal(innerHit.localPosition());
-  GlobalPoint outer = tracker->idToDet(outerHit.geographicalId())->surface().toGlobal(outerHit.localPosition());
+  GlobalPoint inner = tracker->idToDet(innerHit->geographicalId())->surface().toGlobal(innerHit->localPosition());
+  GlobalPoint outer = tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
   //  DetId outerDet(outerHit.geographicalId());
   FastHelix helix(outer, inner, 
 		  GlobalPoint(0.,0.,0.),iSetup);
@@ -53,6 +53,7 @@ construct( const TrackingRecHit& outerHit,
     FreeTrajectoryState fts( helix.stateAtVertex().parameters(),
 			     initialError( outerHit, innerHit, 
 					   vertexPos, vertexErr));
+
 
 //     cout << "SeedFromConsecutiveHits: Initial fts:" << fts << endl;
 
@@ -76,7 +77,7 @@ construct( const TrackingRecHit& outerHit,
     KFUpdator     theUpdator;
 
     //   TSOS innerState = thePropagator.propagate(fts,tracker->idToDet(innerHit.geographicalId())->surface());
-    const TSOS innerState = thePropagator.propagate(fts,tracker->idToDet(innerHit.geographicalId())->surface());
+    const TSOS innerState = thePropagator.propagate(fts,tracker->idToDet(innerHit->geographicalId())->surface());
     if ( !innerState.isValid()) 
       edm::LogError("Propagation") << " SeedFromConsecutiveHits first propagation failed ";
 
@@ -84,21 +85,25 @@ construct( const TrackingRecHit& outerHit,
 
 
 
-    intrhit=TTRHBuilder.build(&(*tracker),innerHit.clone());
+    TkTransientTrackingRecHitBuilder TTTRHBuilder(tracker);
+    intrhit=TTTRHBuilder.build(innerHit->clone());
+
+    //   intrhit=TTRHBuilder.build(&(*tracker),innerHit->clone());
+
     const TSOS innerUpdated= theUpdator.update( innerState,*intrhit);			      
 
     TSOS outerState = 
       thePropagator.propagate( innerUpdated,
-			       tracker->idToDet(outerHit.geographicalId())->surface());
-
+			       tracker->idToDet(outerHit->geographicalId())->surface());
+ 
     if ( !outerState.isValid()) 
      edm::LogError("Propagation") << " SeedFromConsecutiveHits first propagation failed ";
   
-
-    outrhit=TTRHBuilder.build(&(*tracker),outerHit.clone());
+    outrhit=TTTRHBuilder.build(outerHit->clone());
+    //  outrhit=TTRHBuilder.build(&(*tracker),outerHit->clone());
 
     TSOS outerUpdated = theUpdator.update( outerState, *outrhit);
-
+ 
     //       cout << "SeedFromConsecutiveHits: after second update :"
     //   	 << outerUpdated << endl;
     //MP
@@ -108,16 +113,16 @@ construct( const TrackingRecHit& outerHit,
  
 
 
-    _hits.push_back(innerHit.clone());
-    _hits.push_back(outerHit.clone());
-     PTraj=  transformer.persistentState(outerUpdated, outerHit.geographicalId().rawId());
+    _hits.push_back(innerHit->clone());
+    _hits.push_back(outerHit->clone());
+     PTraj=  transformer.persistentState(outerUpdated, outerHit->geographicalId().rawId());
 }
 
 
 
 CurvilinearTrajectoryError SeedFromConsecutiveHits::
-initialError( const TrackingRecHit& outerHit,
-	      const TrackingRecHit& innerHit,
+initialError( const TrackingRecHit* outerHit,
+	      const TrackingRecHit* innerHit,
 	      const GlobalPoint& vertexPos,
 	      const GlobalError& vertexErr) 
 {

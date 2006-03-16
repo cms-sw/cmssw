@@ -39,16 +39,23 @@ void GlobalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
   
   // get Inputs
   edm::Handle<SiPixelRecHitCollection> pixelHits;
-  e.getByLabel("LocalMeasurementConverter","SiPixelRecHit" ,pixelHits);
+
+  edm::ESHandle<TrackingGeometry> tracker;
+  es.get<TrackerDigiGeometryRecord>().get(tracker);
+
+  e.getByType(pixelHits);
+
+
+
+
  
 
 
-  // create empty output collection
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   //
- 
+
   globalseed.init(*pixelHits,es);
- 
+
   // invoke the seed finding algorithm
   globalseed.run(*output,es);
 

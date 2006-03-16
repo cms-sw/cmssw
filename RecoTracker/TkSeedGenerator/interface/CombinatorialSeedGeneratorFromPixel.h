@@ -12,7 +12,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
-//#include "RecoTracker/TkHitPairs/interface/PixelSeedLayerPairs.h"
 class PixelSeedLayerPairs;
 
 class CombinatorialSeedGeneratorFromPixel : public SeedGeneratorFromLayerPairs {
@@ -20,12 +19,12 @@ class CombinatorialSeedGeneratorFromPixel : public SeedGeneratorFromLayerPairs {
   
   CombinatorialSeedGeneratorFromPixel(const edm::ParameterSet& conf);
 
-  void init(SiPixelRecHitCollection coll,const edm::EventSetup& c);
+  void init(const SiPixelRecHitCollection &coll,const edm::EventSetup& c);
 void  run(TrajectorySeedCollection &,const edm::EventSetup& c);
  private:
   edm::ParameterSet conf_;
   GlobalTrackingRegion region;
-  // PixelSeedLayerPairs pixellayers;
+ 
 };
 #endif
 

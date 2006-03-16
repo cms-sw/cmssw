@@ -13,13 +13,13 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 class DetLayer;
 class SeedFromConsecutiveHits{
  public:
-  
+  typedef edm::OwnVector<TrackingRecHit> recHitContainer;
   // constructor in case the RecHits contain layer pointers.
   /*   SeedFromConsecutiveHits( const SiPixelRecHit& outerHit, */
   /* 			   const SiPixelRecHit& innerHit, */
@@ -27,8 +27,8 @@ class SeedFromConsecutiveHits{
   /* 			   const GlobalError& vertexErr); */
   
   // constructor in case the RecHits do not contain layer pointers.
-  SeedFromConsecutiveHits( const TrackingRecHit& outerHit,
-			   const TrackingRecHit& innerHit,
+  SeedFromConsecutiveHits( const TrackingRecHit* outerHit,
+			   const TrackingRecHit* innerHit,
 			   const GlobalPoint& vertexPos,
 			   const GlobalError& vertexErr,
 			   const edm::EventSetup& iSetup);
@@ -40,25 +40,28 @@ class SeedFromConsecutiveHits{
     //as in ORCA
     return alongMomentum;};
   
-
-  edm::OwnVector<TrackingRecHit> hits(){
+  recHitContainer hits(){
     return _hits;
   };
+
+ /*  edm::OwnVector<TrackingRecHit> hits(){ */
+/*     return _hits; */
+/*   }; */
 
   PTrajectoryStateOnDet trajectoryState(){return *PTraj;};
   TrajectorySeed *TrajSeed(){return new TrajectorySeed(trajectoryState(),hits(),direction());};
  private:
   TrajectoryMeasurement theInnerMeas;
   TrajectoryMeasurement theOuterMeas;
-  TransientTrackingRecHitBuilder TTRHBuilder;
-  void construct( const TrackingRecHit& outerHit,
-		  const TrackingRecHit& innerHit,
+
+  void construct( const TrackingRecHit* outerHit,
+		  const TrackingRecHit* innerHit,
 		  const GlobalPoint& vertexPos,
 		  const GlobalError& vertexErr,
 		  const edm::EventSetup& iSetup);
 
-  CurvilinearTrajectoryError initialError( const TrackingRecHit& outerHit,
-					   const TrackingRecHit& innerHit,
+  CurvilinearTrajectoryError initialError( const TrackingRecHit* outerHit,
+					   const TrackingRecHit* innerHit,
 					   const GlobalPoint& vertexPos,
 					   const GlobalError& vertexErr);
 
@@ -67,7 +70,7 @@ class SeedFromConsecutiveHits{
   const TransientTrackingRecHit* intrhit;
   PropagationDirection _dir;
   PTrajectoryStateOnDet* PTraj;
-  edm::OwnVector<TrackingRecHit> _hits;
+  recHitContainer _hits;
 
 };
 
