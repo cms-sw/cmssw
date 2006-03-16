@@ -28,7 +28,7 @@ using namespace std;
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Provenance.h"
+#include "DataFormats/Common/interface/Provenance.h"
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloDigiCollectionSorter.h"
 
