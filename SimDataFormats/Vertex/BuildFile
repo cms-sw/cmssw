@@ -1,8 +1,8 @@
 <export>
  <lib name=SimDataFormatsVertex>
- <use name=FWCore/EDProduct>
+ <use name=DataFormats/Common>
  <use name=clhep>
 </export>
 
 <use name=clhep>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>

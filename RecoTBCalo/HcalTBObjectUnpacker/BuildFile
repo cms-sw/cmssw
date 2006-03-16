@@ -3,7 +3,7 @@
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/HcalRecHit>
 <use name=FWCore/Framework>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=boost>
 
 <export>
@@ -12,7 +12,7 @@
   <use name=DataFormats/FEDRawData>
   <use name=DataFormats/HcalRecHit>
   <use name=FWCore/Framework>
-  <use name=FWCore/EDProduct>
+  <use name=DataFormats/Common>
   <use name=boost>
 </export>
 

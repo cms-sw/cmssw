@@ -1,7 +1,7 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=SimDataFormats/TrackingHit>
 <use name=DataFormats/SiStripDigi>
 <use name=SimDataFormats/TrackerDigiSimLink>
@@ -20,7 +20,7 @@
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
-   <use name=FWCore/EDProduct>
+   <use name=DataFormats/Common>
    <use name=SimDataFormats/TrackingHit>
    <use name=DataFormats/SiStripDigi>
    <use name=SimDataFormats/TrackerDigiSimLink>

@@ -2,7 +2,7 @@
 <use name=CalibFormats/HcalObjects>
 <use name=RecoLocalCalo/HcalRecAlgos>
 <use name=FWCore/Framework>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=boost>
 
 <export>
@@ -10,7 +10,7 @@
   <use name=CalibFormats/HcalObjects>
   <use name=RecoLocalCalo/HcalRecAlgos>
   <use name=FWCore/Framework>
-  <use name=FWCore/EDProduct>
+  <use name=DataFormats/Common>
   <use name=boost>
 </export>
 

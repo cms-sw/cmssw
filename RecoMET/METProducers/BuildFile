@@ -2,11 +2,11 @@
 <use name=RecoMET/METAlgorithms>
 <use name=DataFormats/METObjects>
 <use name=FWCore/Framework>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <export>
  <lib name=RecoMETMETProducers>
  <use name=DataFormats/METObjects>
  <use name=RecoMET/METAlgorithms>
  <use name=FWCore/Framework>
- <use name=FWCore/EDProduct>
+ <use name=DataFormats/Common>
 </export>

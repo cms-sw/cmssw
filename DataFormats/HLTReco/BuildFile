@@ -1,6 +1,6 @@
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsHLTReco>
- <use name=FWCore/EDProduct>
+ <use name=DataFormats/Common>
 </export>

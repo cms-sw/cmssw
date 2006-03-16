@@ -1,10 +1,10 @@
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=boost>
 <use name=rootrflx>
 
 <export>
    <lib name=DataFormatsEcalRawData>
    <use name=rootrflx>
-   <use name=FWCore/EDProduct>
+   <use name=DataFormats/Common>
    <use name=boost>
 </export>

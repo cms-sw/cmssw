@@ -1,5 +1,5 @@
 <use name=clhep>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
@@ -12,7 +12,7 @@
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/JetObjects>
-   <use name=FWCore/EDProduct>
+   <use name=DataFormats/Common>
    <use name=rootrflx>
    <use name=clhep>
 </export>

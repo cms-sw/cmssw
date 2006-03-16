@@ -1,4 +1,4 @@
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=clhep>
 
 <use name=DataFormats/TrackingRecHit>
@@ -10,6 +10,6 @@
  <use name=DataFormats/TrajectoryState>
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/Common>                                                                                                                                       
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
  <use name=clhep>
 </export>

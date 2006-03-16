@@ -1,6 +1,6 @@
 <flags SEAL_PLUGIN_NAME="RecoLocalTrackerSiStripRecHitConverter">
 <use name=FWCore/Framework>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/SiStripCluster>
@@ -15,7 +15,7 @@
 <use name=MagneticField/GeomBuilder>
 <export>
 <lib name=RecoLocalTrackerSiStripRecHitConverter>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackerRecHit2D>

@@ -1,7 +1,7 @@
 <use name=clhep>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <export>
  <lib name=DataFormatsSiStripCluster>
- <use name=FWCore/EDProduct>
+ <use name=DataFormats/Common>
  <use name=clhep>
 </export>

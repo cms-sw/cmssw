@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=boost>
 <use name=root>
 <use name=FWCore/MessageLogger>
@@ -8,7 +8,7 @@
 
 <export>
  <lib name=IORawDataHcalTBInputService>
- <use name=FWCore/EDProduct>
+ <use name=DataFormats/Common>
  <use name=FWCore/Framework>
  <use name=FWCore/MessageLogger>
  <use name=boost> 

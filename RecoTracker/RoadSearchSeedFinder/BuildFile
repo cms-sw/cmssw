@@ -1,6 +1,6 @@
 <flags SEAL_PLUGIN_NAME="RecoTrackerRoadSearchSeedFinder">
 <use name=FWCore/Framework>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
@@ -14,7 +14,7 @@
 <use name=DataFormats/DetId>
 <export>
  <lib name=RecoTrackerRoadSearchSeedFinder>
- <use name=FWCore/EDProduct>
+ <use name=DataFormats/Common>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
  <use name=Geometry/Records>
