@@ -1,11 +1,20 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 
+const GeomDet * TransientTrackingRecHit::det() const 
+{
+  return _geom->idToDet(geographicalId());
+}
 const GeomDetUnit * TransientTrackingRecHit::detUnit() const 
 {
-//   if(theDet_) return(theDet_) ;
-//   if(_detMap[_id]) return(_detMap[_id]);
-//   setDet() ;
-//   return _detMap[_id] ;
-return _geom->idToDet(geographicalId());
+  return _geom->idToDetUnit(geographicalId());
 }
+
+ GlobalPoint TransientTrackingRecHit::globalPosition() const {
+  return  (_geom->idToDet(geographicalId()))->surface().toGlobal(localPosition());
+}
+ GlobalError TransientTrackingRecHit::globalPositionError() const {
+   return ErrorFrameTransformer().transform( localPositionError(), (_geom->idToDet(geographicalId()))->surface());
+}   
+
