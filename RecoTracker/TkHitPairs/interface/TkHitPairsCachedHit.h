@@ -5,29 +5,32 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 class TkHitPairsCachedHit {
 public:
-  TkHitPairsCachedHit( const SiPixelRecHit & hit) : theRecHit(hit) {
- 
-    //da cambiare 
-    //   GlobalPoint gp = hit.globalPosition();
-    LocalPoint gp = hit.localPosition();
+  TkHitPairsCachedHit(const SiPixelRecHit * hit ,  const edm::EventSetup& iSetup) : theRecHit(hit) {
+    edm::ESHandle<TrackingGeometry> tracker;
+    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+    GlobalPoint gp = tracker->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
     thePhi = gp.phi(); 
     theR = gp.perp();
     theZ = gp.z();
     //MP
-    //  theRZ  = (hit.layer()->part()==barrel) ? theZ : theR;
-    theRZ  = theZ ;
+   // theRZ  = (hit.layer()->part()==barrel) ? theZ : theR;
+   theRZ  = theZ ;
+
   }
   float phi() const {return thePhi;}
   float rOrZ() const { return theRZ; } 
   float r() const {return theR; }
   float z() const {return theZ; }
 
-  SiPixelRecHit  RecHit() const { return theRecHit;}
+  const SiPixelRecHit*  RecHit() const { return theRecHit;}
   //  operator RecHit() const { return theRecHit;}
 private:
-  SiPixelRecHit theRecHit;
+  const SiPixelRecHit *theRecHit;
   float thePhi;
   float theR, theZ;
   float theRZ;

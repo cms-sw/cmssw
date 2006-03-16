@@ -4,6 +4,7 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 class DetLayer;
 class TrackingRegion;
 class LayerWithHits;
@@ -17,7 +18,10 @@ public:
 
 
   HitPairGeneratorFromLayerPair( 
-      const LayerWithHits* inner, const LayerWithHits* outer, LayerCacheType* layerCache)
+				const LayerWithHits* inner, 
+				const LayerWithHits* outer, 
+				LayerCacheType* layerCache, 
+				const edm::EventSetup& iSetup)
     : theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner) { 
     //MP
     // innerlay= inner->layer();
@@ -25,10 +29,10 @@ public:
 
   virtual ~HitPairGeneratorFromLayerPair() { }
 
-  virtual OrderedHitPairs hitPairs( const TrackingRegion& region ) {
-    return HitPairGenerator::hitPairs(region);
+  virtual OrderedHitPairs hitPairs( const TrackingRegion& region,const edm::EventSetup& iSetup ) {
+    return HitPairGenerator::hitPairs(region, iSetup);
   }
-  virtual void hitPairs( const TrackingRegion& ar, OrderedHitPairs & ap);
+  virtual void hitPairs( const TrackingRegion& ar, OrderedHitPairs & ap,const edm::EventSetup& iSetup);
 
   virtual HitPairGeneratorFromLayerPair* clone() const {
     return new HitPairGeneratorFromLayerPair(*this);
@@ -45,6 +49,7 @@ private:
   const LayerWithHits* theInnerLayer; 
   const PixelBarrelLayer* innerlay;
   const PixelBarrelLayer* outerlay;
+
 };
 
 #endif

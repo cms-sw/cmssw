@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 class LayerHitMapLoop;
 
 class LayerHitMap {
@@ -19,8 +20,8 @@ public:
   LayerHitMap() : theCells(0) { }
   //  LayerHitMap(const vector<SiPixelRecHit>& hits);
   // LayerHitMap(SiPixelRecHitCollection ): theCells(0);
-  LayerHitMap(const LayerWithHits& );
-  LayerHitMap(const LayerHitMap & lhm); 
+  LayerHitMap(const LayerWithHits*  ,  const edm::EventSetup& iSetup);
+  LayerHitMap(const LayerHitMap & lhm,  const edm::EventSetup& iSetup); 
   ~LayerHitMap() { delete theCells; }
 
   LayerHitMapLoop loop() const;

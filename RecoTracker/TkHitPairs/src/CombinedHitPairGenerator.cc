@@ -10,13 +10,12 @@
 CombinedHitPairGenerator::CombinedHitPairGenerator(SeedLayerPairs& layers,
 						   const edm::EventSetup& iSetup)
 {
- 
   vector<SeedLayerPairs::LayerPair> layerPairs = layers();
   vector<SeedLayerPairs::LayerPair>::const_iterator it;
- 
   for (it = layerPairs.begin(); it != layerPairs.end(); it++) {
-    add( (*it).first, (*it).second);
+    add( (*it).first, (*it).second,iSetup);
   }
+
 }
 
 // CombinedHitPairGenerator::CombinedHitPairGenerator(
@@ -38,20 +37,24 @@ CombinedHitPairGenerator::~CombinedHitPairGenerator()
 // void CombinedHitPairGenerator::add(
 //     const DetLayer* inner, const DetLayer* outer) 
 void CombinedHitPairGenerator::add(
-     const LayerWithHits *inner, const LayerWithHits *outer) 
+				   const LayerWithHits *inner, const LayerWithHits *outer,
+				   const edm::EventSetup& iSetup) 
 { 
+
   theGenerators.push_back( 
-      new HitPairGeneratorFromLayerPair( inner, outer, &theLayerCache));
+			  new HitPairGeneratorFromLayerPair( inner, outer, &theLayerCache,iSetup));
 }
 
 void CombinedHitPairGenerator::hitPairs(
-    const TrackingRegion& region, OrderedHitPairs & pairs)
+					const TrackingRegion& region, 
+					OrderedHitPairs & pairs,
+					const edm::EventSetup& iSetup)
 {
  
   Container::const_iterator i;
   for (i=theGenerators.begin(); i!=theGenerators.end(); i++) {
  
-  (**i).hitPairs( region, pairs); 
+    (**i).hitPairs( region, pairs,iSetup); 
   }
  
   theLayerCache.clear();

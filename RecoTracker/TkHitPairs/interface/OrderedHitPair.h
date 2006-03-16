@@ -17,16 +17,17 @@ public:
   /// constructor from InnerHit and OuterHit
 /*   OrderedHitPair( const InnerHit & ih, const OuterHit & oh) */
 /*      : theInnerHit(ih), theOuterHit(oh)  { } */
-    OrderedHitPair( const InnerHit & ih, const OuterHit & oh)
+ 
+
+   OrderedHitPair( const InnerHit * ih, const OuterHit * oh)
      : theInnerHit(ih), theOuterHit(oh)  { }
-
-
-  const InnerHit & inner() const { return theInnerHit; }
-  const OuterHit & outer() const { return theOuterHit; } 
-
+  //  const InnerHit & inner() const { return theInnerHit; }
+  //  const OuterHit & outer() const { return theOuterHit; } 
+  const InnerHit * inner() const { return theInnerHit; }
+  const OuterHit * outer() const { return theOuterHit; } 
 private:
-  InnerHit theInnerHit;
-  OuterHit theOuterHit;
+  const  InnerHit* theInnerHit;
+ const   OuterHit* theOuterHit;
 };
 
 #endif

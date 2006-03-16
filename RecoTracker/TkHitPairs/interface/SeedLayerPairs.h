@@ -19,8 +19,8 @@ public:
 
   SeedLayerPairs() {};
   virtual ~SeedLayerPairs() {};
-
-  virtual vector<LayerPair> operator()()  = 0;
+    virtual vector<LayerPair> operator()()= 0;
+  
 
 };
 

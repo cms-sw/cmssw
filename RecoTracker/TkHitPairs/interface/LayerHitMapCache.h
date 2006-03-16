@@ -9,7 +9,7 @@
 #include "RecoTracker/TkHitPairs/interface/SimpleCache.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMap.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
 
 
 class LayerHitMapCache {
@@ -29,7 +29,7 @@ private:
   void clear() { theCache->clear(); }
 
   const LayerHitMap & operator()(
-      const LayerWithHits *layer, const TrackingRegion &region) {
+      const LayerWithHits *layer, const TrackingRegion &region, const edm::EventSetup& iSetup) {
 //  LayerRegionKey key(layer,&region);
        LayerRegionKey key(layer);
     const LayerHitMap * lhm = theCache->get(key);
@@ -37,7 +37,7 @@ private:
       //MP
       //     lhm = new LayerHitMap( region.hits(layer) );
       //      SiPixelRecHitCollection::Range temporary;
-      lhm=new LayerHitMap(*layer);
+      lhm=new LayerHitMap(layer,iSetup);
       theCache->add( key, lhm); 
     }
     return *lhm;

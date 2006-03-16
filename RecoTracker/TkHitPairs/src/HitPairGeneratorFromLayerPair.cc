@@ -18,21 +18,24 @@
 typedef PixelRecoRange<float> Range;
 
 void HitPairGeneratorFromLayerPair::hitPairs(
-  const TrackingRegion & region, OrderedHitPairs & result)
+  const TrackingRegion & region, OrderedHitPairs & result,
+  const edm::EventSetup& iSetup)
 {
 //  static int NSee = 0; static int Ntry = 0; static int Nacc = 0;
 
   typedef OrderedHitPair::InnerHit InnerHit;
   typedef OrderedHitPair::OuterHit OuterHit;
 
-  //MP
  
 
-
-  const LayerHitMap & innerHitsMap = theLayerCache(theInnerLayer, region);
+  const LayerHitMap & innerHitsMap = theLayerCache(theInnerLayer, region,iSetup);
   if (innerHitsMap.empty()) return;
-  const LayerHitMap & outerHitsMap = theLayerCache(theOuterLayer, region);
+ 
+  const LayerHitMap & outerHitsMap = theLayerCache(theOuterLayer, region,iSetup);
   if (outerHitsMap.empty()) return;
+
+  innerlay=theInnerLayer->layer();
+
 
   
 //   float outerHitErrorRPhi = (theOuterLayer->part() == barrel) ?
@@ -51,6 +54,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 			 zMinOrigin, zMaxOrigin);
 
   float rzLayer1, rzLayer2;
+
   //MP
   //  if (theInnerLayer->part() == barrel) {
     const BarrelDetLayer& bl = 
@@ -59,6 +63,8 @@ void HitPairGeneratorFromLayerPair::hitPairs(
     float radius = bl.specificSurface().radius();
     rzLayer1 = radius-halfThickness;
     rzLayer2 = radius+halfThickness;
+
+
 //   } else {
 //     float halfThickness  = theInnerLayer->surface().bounds().thickness()/2;
 //     float zLayer = theInnerLayer->position().z() ;
@@ -71,23 +77,26 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 //  static TimingReport::Item * theTimer1 =
 //        PixelRecoUtilities::initTiming("--- outerHitloop ",1);
 //  TimeMe tm1( *theTimer1, false);
-
+ 
   while ( (oh=outerHits.getHit()) ) {
+  
     float dphi = deltaPhi( (*oh).r(), (*oh).z(), outerHitErrorRPhi);
+  
     if (dphi < 0.) continue;
     PixelRecoRange<float> phiRange((*oh).phi()-dphi,(*oh).phi()+dphi);
-    const HitRZCompatibility *checkRZ = region.checkRZ(&(*innerlay), oh->RecHit());
+    const HitRZCompatibility *checkRZ = region.checkRZ(&(*innerlay), oh->RecHit(),iSetup);
     if(!checkRZ) continue;
-
+ 
     Range r1 = checkRZ->range(rzLayer1);
     Range r2 = checkRZ->range(rzLayer2);
     Range rzRangeMin = r1.intersection(r2);
     Range rzRangeMax = r1.sum(r2);
+ 
 
     if ( ! rzRangeMax.empty() ) { 
       LayerHitMapLoop innerHits = innerHitsMap.loop(phiRange, rzRangeMax );
       const TkHitPairsCachedHit * ih;
-
+ 
 //    static TimingReport::Item * theTimer4 =
 //      PixelRecoUtilities::initTiming("--- innerHitloop 4",1);
 //    TimeMe tm4( *theTimer4, false);

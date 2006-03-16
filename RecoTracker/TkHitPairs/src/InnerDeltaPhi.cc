@@ -17,9 +17,16 @@ InnerDeltaPhi::InnerDeltaPhi( const DetLayer& layer,
   theRCurvature = PixelRecoUtilities::bendingRadius(ptMin);
 
   sigma = new MultipleScatteringParametrisation(&layer);
+
   theVtxZ = (zMinOrigin + zMaxOrigin)/2.;
 
-  if (layer.part() == barrel) initBarrelLayer( layer);
+  if (layer.part() == barrel){
+
+
+    initBarrelLayer( layer);
+
+  }
+ 
   else initForwardLayer( layer, zMinOrigin, zMaxOrigin);
 }
 

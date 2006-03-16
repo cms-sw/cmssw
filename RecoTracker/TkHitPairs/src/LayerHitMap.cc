@@ -10,67 +10,67 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCellManager.h"
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCacheCell.h"
-
+#include "Geometry/Surface/interface/BoundCylinder.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
 //LayerHitMap::LayerHitMap(SiPixelRecHitCollection::Range hits) : theCells(0)
-LayerHitMap::LayerHitMap(const LayerWithHits& layerhits) : theCells(0)
+LayerHitMap::LayerHitMap(const LayerWithHits* layerhits,const edm::EventSetup&iSetup) : theCells(0)
 {
-  //  static int nRZ=SimpleConfigurable<int>( 5,"LayerHitMap:NbinsRZ").value(); 
-  // static int nPhi=SimpleConfigurable<int>(10,"LayerHitMap:NbinsPhi").value(); 
-  // static int nRZ=conf_.getParameter<int>("LayerHitMap:NbinsRZ");
-  // static int nPhi=conf_.getParameter<int>("LayerHitMap:NbinsPhi");
-  // SiPixelRecHitCollection::range hits=layerhits.Range();
 
-  static int nRZ=5;
-  static int nPhi=10;
+
+  SiPixelRecHitCollection::range range = layerhits->Range();
+
+  static int nRZ=5 ;
+    static int nPhi=10;
   theNbinsRZ = nRZ;
   theNbinsPhi = nPhi;
   //  if (hits.empty()) return;
   // else {
-    theLayerPhimin = -M_PI;
-    theCellDeltaPhi = 2*M_PI/theNbinsPhi;
+  theLayerPhimin = -M_PI;
+  theCellDeltaPhi = 2*M_PI/theNbinsPhi;
 
-    const DetLayer *layer =layerhits.layer();
+  //    const DetLayer *layer =layerhits.layer();
 
     //MP
       // = hits.front().layer();
     //    if (layer->part() == barrel) {
-      float z0 = layer->position().z();
+  //    float z0 = layer->position().z();
+ 
+      //mp
+  //      float z0=0;
+  float z0=layerhits->layer()->surface().position().z();
 
-      float length = layer->surface().bounds().length();
+  float length =layerhits->layer()->surface().bounds().length();
+
+     //     float length = layer->surface().bounds().length();
+     //mp
+  //  float length=30;
       theLayerRZmin = z0 - length/2.;
       theCellDeltaRZ = length/theNbinsRZ;
-    cout<<"z3"<<endl;
-     //  }
-      //     else {
-      //       const ForwardDetLayer& lf = dynamic_cast<const ForwardDetLayer&>(*layer);
-      //       theLayerRZmin = lf.specificSurface().innerRadius();
-      //       float theLayerRZmax = lf.specificSurface().outerRadius();
-      //       theCellDeltaRZ = (theLayerRZmax-theLayerRZmin)/theNbinsRZ;
-      //     }
-      //}
-      //MP
-      //  theHits.reserve(hits);
-      //  vector<RecHit>::const_iterator ih;
 
-   //         SiPixelRecHitCollection::ContainerIterator ih;
  
    SiPixelRecHitCollection::const_iterator ih;
   //    SiPixelRecHitCollection::ContainerIterator 
    //	hitRangeIteratorBegin = hits.first;
   SiPixelRecHitCollection::const_iterator
-    hitRangeIteratorBegin =layerhits.Range().first;
+    hitRangeIteratorBegin=layerhits->Range().first;
   SiPixelRecHitCollection::const_iterator
-    hitRangeIteratorEnd   =layerhits.Range().second;
+    hitRangeIteratorEnd=layerhits->Range().second;
 
+
+ 
       for (ih = hitRangeIteratorBegin; ih != hitRangeIteratorEnd; ih++) {
-	//MP
-	//	if(ih->isValid()) 
-	  theHits.push_back( TkHitPairsCachedHit(*ih));
+
+
+	theHits.push_back( TkHitPairsCachedHit(&(*ih),iSetup));
+
       }
+
+
+
 }
 
-LayerHitMap::LayerHitMap(const LayerHitMap & lhm)
+LayerHitMap::LayerHitMap(const LayerHitMap & lhm,const edm::EventSetup&iSetup)
     : theCells(0),
       theHits(lhm.theHits),
       theLayerRZmin(lhm.theLayerRZmin),

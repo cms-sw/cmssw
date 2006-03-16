@@ -31,25 +31,22 @@ private:
   SiPixelRecHitCollection::range map_range1;
   SiPixelRecHitCollection::range map_range2;
   SiPixelRecHitCollection::range map_range3;
-
-
-   TrackerLayerIdAccessor acc;
-   TrackerLayerIdAccessor::returnType lay1;
+  TrackerLayerIdAccessor::returnType lay1;
    TrackerLayerIdAccessor::returnType lay2;
    TrackerLayerIdAccessor::returnType lay3;
-   TrackerLayerIdAccessor::returnType dr1;
-   TrackerLayerIdAccessor::returnType dr2;
-   TrackerLayerIdAccessor::returnType dr3;
-    //  const SiPixelRecHitCollection::Range lay1range;
 
-  /*   LayerAccessor::BarrelLayerContainer  theBarrelPixel; */
-/*   LayerAccessor::ForwardLayerContainer theNegPixel; */
-/*   LayerAccessor::ForwardLayerContainer thePosPixel; */
+   TrackerLayerIdAccessor acc;
+
+   LayerWithHits *lh1;
+   LayerWithHits *lh2;
+
+
+
    vector<BarrelDetLayer*> bl;
 
  public:
  
-   void init(SiPixelRecHitCollection coll,const edm::EventSetup& iSetup);
+   void init(const SiPixelRecHitCollection &coll,const edm::EventSetup& iSetup);
  private:
   void addBarrelBarrelLayers( int mid, int outer, 
        vector<LayerPair>& result) const;
