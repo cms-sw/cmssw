@@ -37,6 +37,9 @@
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax/SAXException.hpp>
 
+// Message logger.
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <string>
 #include <iostream>
 #include <map>
@@ -94,7 +97,7 @@ DDLParser::DDLParser( )  : nFiles_(0) //, handler_(0) (seal::Context* )
   SAX2Parser_->setErrorHandler(errHandler_); 
   SAX2Parser_->setContentHandler(fileHandler_); 
 
-  //  std::cout << "created SAX2XMLReader at memory " << SAX2Parser_ << std::endl;
+  //  edm::LogInfo ("DDLParser") << "created SAX2XMLReader at memory " << SAX2Parser_ << std::endl;
   
   DCOUT_V('P', "DDLParser::DDLParser(): new (and only) DDLParser"); 
 }
@@ -162,7 +165,7 @@ bool DDLParser::parseOneFile(const std::string& filename, const std::string& url
     {
 
       int fIndex = foundFile;
-      //      std::cout << "fIndex= " << fIndex << std::endl;
+      //      edm::LogInfo ("DDLParser") << "fIndex= " << fIndex << std::endl;
       if (!foundFile) //parsed_[foundFile])
 	{
 	  seal::SealTimer tddlfname("DDLParser:"+filename.substr(filename.rfind('/')+1), false);
@@ -176,26 +179,26 @@ bool DDLParser::parseOneFile(const std::string& filename, const std::string& url
 	  fileNames_[fIndex] = pss;
 	  parsed_[fIndex] = false;
 	}
-      //      std::cout << "fIndex= " << fIndex << std::endl;
+      //      edm::LogInfo ("DDLParser") << "fIndex= " << fIndex << std::endl;
       currFileName_ = fileNames_[fIndex].second;
       try
 	{
 	  //myExpHandler = new DDLSAX2ExpressionHandler;
 	  SAX2Parser_->setContentHandler(expHandler_);
-	  std::cout << "Parsing: " << fileNames_[fIndex].second << std::endl;
+	  edm::LogInfo ("DDLParser") << "Parsing: " << fileNames_[fIndex].second << std::endl;
 	  parseFile ( fIndex );
 
 	  //	  delete myExpHandler;
 	}
       catch (const XMLException& toCatch) {
-	std::cout << "\nDDLParser::ParseOneFile, PASS1: XMLException while processing files... \n"
+	edm::LogError ("DDLParser") << "\nDDLParser::ParseOneFile, PASS1: XMLException while processing files... \n"
 	     << "Exception message is: \n"
 	     << StrX(toCatch.getMessage()) << "\n" ;
 	//	delete myExpHandler;
 	XMLPlatformUtils::Terminate();
 	throw (DDException("  See XMLException above. "));
       } catch (...) {
-	std::cout << "Some un-caught exception" << endl;
+	edm::LogError ("DDLParser") << "Some un-caught exception" << endl;
       }
     
       // PASS 2:
@@ -222,7 +225,7 @@ bool DDLParser::parseOneFile(const std::string& filename, const std::string& url
 	  //	  delete myFileHandler;
 	}
       catch (const XMLException& toCatch) {
-	std::cout << "\nDDLParser::ParseOneFile, PASS2: XMLException while processing files... \n"
+	edm::LogError ("DDLParser") << "\nDDLParser::ParseOneFile, PASS2: XMLException while processing files... \n"
 	     << "Exception message is: \n"
 	     << StrX(toCatch.getMessage()) << "\n" ;
 	//	 delete myFileHandler;
@@ -241,21 +244,23 @@ bool DDLParser::parseOneFile(const std::string& filename, const std::string& url
 
 std::vector < std::string >  DDLParser::getFileList(void) 
 {
-  //  std::cout << "start getFileList" << std::endl;
+  //  edm::LogInfo ("DDLParser") << "start getFileList" << std::endl;
   std::vector<std::string> flist;
   for (FileNameHolder::const_iterator fit = fileNames_.begin(); fit != fileNames_.end(); fit++)
     {
-      //      std::cout << "about to push_back " << std::endl;
-      //      std::cout << "fit->second.second = " << fit->second.second << std::endl;
-      //      std::cout << "fit->second.first = " << fit->second.first << std::endl;
+      //      edm::LogInfo ("DDLParser") << "about to push_back " << std::endl;
+      //      edm::LogInfo ("DDLParser") << "fit->second.second = " << fit->second.second << std::endl;
+      //      edm::LogInfo ("DDLParser") << "fit->second.first = " << fit->second.first << std::endl;
       flist.push_back(fit->second.first); // was .second (mec: 2003:02:19
     }
-  //  std::cout << "about to return the list" << std::endl;
+  //  edm::LogInfo ("DDLParser") << "about to return the list" << std::endl;
   return flist;
 }
 
 void DDLParser::dumpFileList(void) {
-  dumpFileList(std::cout);
+  edm::LogInfo ("DDLParser") << "File List:" << std::endl;
+  for (FileNameHolder::const_iterator it = fileNames_.begin(); it != fileNames_.end(); it++)
+    edm::LogInfo ("DDLParser") << it->second.second << std::endl;
 }
 
 void DDLParser::dumpFileList(ostream& co) {
@@ -267,12 +272,12 @@ void DDLParser::dumpFileList(ostream& co) {
 // FIX: CLEAN THIS UP!
 int DDLParser::parse(const DDLDocumentProvider& dp)
 {
-  //  std::cout << "Start Parsing.  Validation is set to " << dp.doValidation() << "." << std::endl;
-  std::cout << "Start Parsing.  Validation is set off for the time being." << std::endl;
+  //  edm::LogInfo ("DDLParser") << "Start Parsing.  Validation is set to " << dp.doValidation() << "." << std::endl;
+  edm::LogInfo ("DDLParser") << "Start Parsing.  Validation is set off for the time being." << std::endl;
   // prep for pass 1 through DDD XML
   //  DDLSAX2Handler* errHandler = new DDLSAX2Handler;
 
-  //  std::cout << "after setErrorHandler)" << std::endl;
+  //  edm::LogInfo ("DDLParser") << "after setErrorHandler)" << std::endl;
   if (dp.doValidation())
     { 
       //      seal::SealTimer t("DDLParser:Validation");
@@ -311,7 +316,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
       } else {
 	fullFileName.push_back( tf );
       }
-      //      std::cout << "full file name" << fullFileName[fileIndex] << std::endl;
+      //      edm::LogInfo ("DDLParser") << "full file name" << fullFileName[fileIndex] << std::endl;
     }
 
     seal::SealTimer * t = new seal::SealTimer("DDLParser1", false);
@@ -342,20 +347,20 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
   try
     {
       SAX2Parser_->setContentHandler(expHandler_);
-      //std::cout << "1st PASS: Parsing " << fileNames_.size() << " files." << std::endl;
+      //edm::LogInfo ("DDLParser") << "1st PASS: Parsing " << fileNames_.size() << " files." << std::endl;
       //std::vector<std::string>::const_iterator currFile = fileNames_.begin(); currFile != fileNames_.end(); currFile++)
       for (size_t i = 0; i < fileNames_.size(); i++)
 	{
 	  if (!parsed_[i])
 	    {
-	      //std::cout << "Parsing: " << fileNames_[i].second << std::endl;
+	      //edm::LogInfo ("DDLParser") << "Parsing: " << fileNames_[i].second << std::endl;
 	      parseFile(i);
 	    }
 	}
       expHandler_->dumpElementTypeCounter();
     }
   catch (const XMLException& toCatch) {
-    std::cout << "\nPASS1: XMLException while processing files... \n"
+    edm::LogInfo ("DDLParser") << "\nPASS1: XMLException while processing files... \n"
 	 << "Exception message is: \n"
 	 << StrX(toCatch.getMessage()) << "\n" ;
     //    delete myExpHandler;
@@ -364,8 +369,8 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
     return -1;
   }
   catch (DDException& e) {
-    std::cout << "unexpected: " << std::endl;
-    std::cout << e << std::endl;
+    edm::LogInfo ("DDLParser") << "unexpected: " << std::endl;
+    edm::LogInfo ("DDLParser") << e << std::endl;
     //    delete myExpHandler;
     // FIX use this after DEPRECATED stuff removed    throw(e);
     return 4;
@@ -392,14 +397,14 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 
 
       // Process files again.
-      //std::cout << "Parsing " << fileNames_.size() << " files." << std::endl;
+      //edm::LogInfo ("DDLParser") << "Parsing " << fileNames_.size() << " files." << std::endl;
       for (size_t i = 0; i < fileNames_.size(); i++)
 	//std::vector<std::string>::const_iterator currFile = fileNames_.begin(); currFile != fileNames_.end(); currFile++)
 	{
 	  parseFile(i);
 	  parsed_[i] = true;
 	  pair<std::string, std::string> namePair = fileNames_[i];
-	  std::cout << "Completed parsing file " << namePair.second << "." << std::endl;
+	  edm::LogInfo ("DDLParser") << "Completed parsing file " << namePair.second << std::endl;
 	}
       //myFileHandler->dumpElementTypeCounter();
 
@@ -408,12 +413,12 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
   catch (DDException& e) {
     std::string s(e.what());
     s+="\n\t see above:  DDLParser::parse  Exception " ;
-    std::cout << s << std::endl;
+    edm::LogError ("DDLParser") << s << std::endl;
     return -1;
     //    throw(e);
   }
   catch (const XMLException& toCatch) {
-    std::cout << "\nPASS2: XMLException while processing files... \n"
+    edm::LogError ("DDLParser") << "\nPASS2: XMLException while processing files... \n"
 	 << "Exception message is: \n"
 	 << StrX(toCatch.getMessage()) << "\n" ;
     XMLPlatformUtils::Terminate();
@@ -453,7 +458,7 @@ void DDLParser::parseFile(const int& numtoproc)
 	    + "Exception message is shown above.\n";
 	  throw(DDException(e));
 	} catch (...) {
-	  std::cout << "Another un-caught exception!" << endl;
+	  edm::LogError ("DDLParser") << "Another un-caught exception!" << endl;
 	}
     }
   else
