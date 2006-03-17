@@ -1,0 +1,68 @@
+#!/usr/bin/env python
+import sys, os, os.path, string
+from optparse import OptionParser
+
+class create_default_mapping:
+    def __init__(self): 
+       self.parser =  OptionParser()
+       self.objectname = 'Pedestals'      
+       self.dictname = 'CondFormatsCalibration'
+       self.outmapname = ''
+       self.mappingversion = 'cmsdefault'
+       self.templatename = 'mapping-template.xml'
+       self.dummyname = 'foo.db'
+       self.outdir = ''
+       self.parsecmdln()
+      
+    def buildnames(self):
+       self.outmapname = '-'.join([self.objectname,'mapping',self.mappingversion+'.xml'])
+
+    def parsecmdln(self):
+       usage = "usage: \%prog [-o|-v|-h] objectName dictionaryName"
+       self.parser = OptionParser(usage)
+       self.parser.add_option("-o","--outputdir",action='store',type="string", dest="outdir", default=os.getcwd(), help='output directory' )
+       self.parser.add_option("-v","--verbose", action='store_true', dest="verbose", help='verbose')
+       (options, args) = self.parser.parse_args()
+       if len(args) != 2:
+          self.parser.error("incorrect number of arguments") 
+       self.outdir=self.parser.values.outdir
+       self.objectname=args[0]
+       self.dictname=args[1]
+       self.buildnames()
+       if self.parser.values.verbose : print 'Object: ', self.objectname
+       if self.parser.values.verbose : print 'Dictionary: ', self.dictname
+       if self.parser.values.verbose : print 'OutputMapping: ', self.outmapname
+
+    def process(self):
+       self.buildtemplate()
+       self.dumpdefaultmapping()
+
+    def buildtemplate(self):
+       f=open(os.path.join(self.outdir,self.templatename), 'w')
+       f.write("<?xml version='1.0' encoding=\"UTF-8\"?>\n")
+       f.write("<!DOCTYPE Mapping SYSTEM \"InMemory\">\n")
+       myline='<Mapping version=\"' + self.mappingversion + '\" >'
+       f.write(myline+'\n')
+       myline='<Class name=\"'+self.objectname+'\" >'
+       f.write(myline)
+       f.write("</Class>\n")
+       f.write("</Mapping>")
+       f.close()
+
+    def dumpdefaultmapping(self):
+       os.putenv("CORAL_AUTH_USER", "me")
+       os.putenv("CORAL_AUTH_PASSWORD", "mypass") 
+       mycmd=' '.join(['pool_build_object_relational_mapping',' -f', os.path.join(self.outdir,self.templatename), '-o', os.path.join(self.outdir,self.outmapname), '-b', '-d', self.dictname ,'-c','sqlite_file:'+os.path.join(self.outdir,self.dummyname) ])
+       if self.parser.values.verbose : print mycmd
+       os.system(mycmd)
+
+    def cleanup(self):
+       if os.path.exists(os.path.join(self.outdir,self.dummyname)): 
+           os.remove(os.path.join(self.outdir,self.dummyname))
+       if os.path.exists(os.path.join(self.outdir,self.templatename)): 
+          os.remove(os.path.join(self.outdir,self.templatename))
+
+if __name__ == "__main__":
+    a = create_default_mapping()
+    a.process()
+    a.cleanup()

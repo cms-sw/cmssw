@@ -1,0 +1,107 @@
+#!/usr/bin/env python
+import sys, os, os.path, string
+from optparse import OptionParser
+## expat handler functions
+import xml.parsers.expat
+def start_element(name, attrs):
+    if name == 'Mapping':
+       global foundVersion
+       foundVersion=attrs.get('version')
+
+class setup_pool_database:
+    def __init__(self): 
+       self.parser =  OptionParser()
+       self.xmlparser = xml.parsers.expat.ParserCreate('UTF-8')
+       self.setupfilename = None
+       self.mappingversion = None
+       self.inputfile = None
+       self.username = None
+       self.password = None
+       self.objectname = None      
+       self.dictname = None
+       self.dbname = None
+       self.outdir = os.getcwd()
+       self.parsecmdln()
+
+    def parsecmdln(self):
+       usage = "usage: \%prog [-u|-p|-o|-h|-v] objectName dictionaryName dbName inputMappingFile\n"
+       usage += "\n"
+       usage +="arguments:\n"
+       usage +="  objectName: name of object to be processed, e.g. Pedestals\n"
+       usage +="  dictionaryName: name of dictionary containing the object, e.g. CondFormatsCalibration\n" 
+       usage +="  dbName: connection string to the database, format: technology[_protocol]://dbname[/schemaname], e.g. oracle://devdb10/MYSCHEMA; sqlite_file:my.db\n"
+       usage +="  inputMappingFile: input mapping file with path, format: [path]/[objectName]-mapping-[mappingversion].xml, e.g. Pedestals-mapping-1.0.xml\n"
+
+       self.parser = OptionParser(usage)  
+       #self.parser.add_option("-c","--catalog",action='store',type="string", dest="catalog", default='xmlcatalog_file://PoolFileCatalog.xml', help='Pool file catalog; [default] xmlcatalog_file://PoolFileCatalog.xml' )
+       self.parser.add_option("-u","--user",action='store',type="string", dest="username", default='', help='database user or account name' ) 
+       self.parser.add_option("-p","--password",action='store',type="string", dest="password", default='', help='database password' ) 
+       self.parser.add_option("-o","--outputdir",action='store',type="string", dest="outdir", default=os.getcwd(), help='directory for temporary output files. [defalt] currentdir' )
+       self.parser.add_option("-v","--verbose", action='store_true', dest="verbose", help='verbose mode')
+       
+       (options, args) = self.parser.parse_args()
+       if len(args) != 4:
+          self.parser.error("incorrect number of arguments, try -h for help") 
+       #self.catalog=self.parser.values.catalog
+       self.username=self.parser.values.username
+       self.password=self.parser.values.password
+       self.outdir=self.parser.values.outdir
+       self.objectname=args[0]
+       self.dictname=args[1]
+       self.dbname=args[2]
+       self.inputfile=args[3]
+       if self.parser.values.verbose : print 'object: ',self.objectname
+       if self.parser.values.verbose : print 'dictionary: ', self.dictname
+       if self.parser.values.verbose : print 'dbconnect: ', self.dbname
+       self.xmlparser.StartElementHandler = start_element
+       self.xmlparser.ParseFile(open(self.inputfile,'r'))
+       self.mappingversion=foundVersion
+       self.setupfilename = '-'.join([self.objectname,'setup',self.mappingversion+'.xml'])
+       if self.parser.values.verbose : print 'input file: ',self.inputfile
+       if self.parser.values.verbose : print 'mapping version: ',self.mappingversion
+    
+    def process(self):
+       self.buildsetup()
+       self.buildpoolmapping()
+       self.setupdb()
+ 
+    def buildsetup(self):       
+       f=open(os.path.join(self.outdir,self.setupfilename), 'w') 
+       f.write("<?xml version='1.0' encoding=\"UTF-8\"?>\n")
+       f.write("<!DOCTYPE Database SYSTEM \"InMemory\">\n")
+       f.write("<Database connectionString=\"notmatter\" >\n")
+       myline='<HomogeneousContainer name=\"'+self.objectname+'\" >\n'
+       f.write(myline)
+       myline='<Class name=\"'+self.objectname+'\" mappingVersion=\"'+self.mappingversion+'\"/>\n'
+       f.write(myline)
+       f.write("</HomogeneousContainer >\n")
+       f.write("</Database >")
+       f.close()
+
+    def buildpoolmapping(self):
+       if self.username and self.password:
+         mycmd=' '.join(['pool_build_object_relational_mapping',' -f', self.inputfile, '-d', self.dictname ,'-c', self.dbname, '-u', self.username, '-p', self.password])
+       else:
+         mycmd=' '.join(['pool_build_object_relational_mapping',' -f', self.inputfile, '-d', self.dictname ,'-c', self.dbname])
+
+       if self.parser.values.verbose : print mycmd
+       os.system(mycmd)
+
+    def setupdb(self):
+       if self.username and self.password:
+         os.putenv("CORAL_AUTH_USER", self.username)
+         os.putenv("CORAL_AUTH_PASSWORD", self.password)
+         mycmd=' '.join(['pool_setup_database',' -f', os.path.join(self.outdir,self.setupfilename), '-d', self.dictname ,'-c', self.dbname, '-u', self.username, '-p', self.password])
+       else:
+         mycmd=' '.join(['pool_setup_database',' -f', os.path.join(self.outdir,self.setupfilename), '-d', self.dictname ,'-c', self.dbname])
+       if self.parser.values.verbose : print mycmd
+       os.system(mycmd)
+
+    def cleanup(self):
+       if os.path.exists(os.path.join(self.outdir,self.setupfilename)): 
+           os.remove(os.path.join(self.outdir,self.setupfilename))
+
+if __name__ == "__main__":
+    a = setup_pool_database()
+    a.process()
+    a.cleanup()
