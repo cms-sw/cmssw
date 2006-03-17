@@ -2,7 +2,7 @@
 #include "Geometry/Surface/interface/BoundDisk.h"
 #include "Geometry/Surface/interface/SimpleDiskBounds.h"
 #include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
-#include "Geometry/CommonDetAlgo/interface/BoundingBox.h"
+#include "Geometry/Surface/interface/BoundingBox.h"
 
 //#include "CommonDet/BasicDet/interface/DetUnit.h"
 //#include "CommonDet/PatternPrimitives/interface/Propagator.h"

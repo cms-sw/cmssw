@@ -1,6 +1,6 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "Geometry/Surface/interface/SimpleCylinderBounds.h"
-#include "Geometry/CommonDetAlgo/interface/BoundingBox.h"
+#include "Geometry/Surface/interface/BoundingBox.h"
 #include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
 
 

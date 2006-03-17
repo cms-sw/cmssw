@@ -1,6 +1,6 @@
 #include "TrackingTools/DetLayers/interface/ForwardRingDiskBuilderFromDet.h"
 #include "Geometry/Surface/interface/SimpleDiskBounds.h"
-#include "Geometry/CommonDetAlgo/interface/BoundingBox.h"
+#include "Geometry/Surface/interface/BoundingBox.h"
 
 
 // Warning, remember to assign this pointer to a ReferenceCountingPointer!
