@@ -1,6 +1,6 @@
 #include "RecoTracker/TkDetLayers/interface/BladeShapeBuilderFromDet.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
-#include "Geometry/CommonDetAlgo/interface/BoundingBox.h"
+#include "Geometry/Surface/interface/BoundingBox.h"
 
 #include "Utilities/General/interface/CMSexception.h"
 #include <iomanip>

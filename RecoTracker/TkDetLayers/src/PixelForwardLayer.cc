@@ -1,5 +1,5 @@
 #include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
-#include "Geometry/CommonDetAlgo/interface/BoundingBox.h"
+#include "Geometry/Surface/interface/BoundingBox.h"
 #include "Geometry/Surface/interface/SimpleDiskBounds.h"
 
 #include "Utilities/General/interface/CMSexception.h"
