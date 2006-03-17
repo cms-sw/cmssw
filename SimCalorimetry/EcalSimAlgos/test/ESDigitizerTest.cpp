@@ -34,7 +34,7 @@ int main() {
   crossingFrame.addSignalCaloHits(ESName, &ESHits);
 
   EcalSimParameterMap parameterMap;
-  ESShape shape;
+  ESShape shape(1);
 
   CaloHitResponse ESResponse(&parameterMap, &shape);
 
