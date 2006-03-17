@@ -85,8 +85,8 @@ construct( const TrackingRecHit* outerHit,
 
 
 
-    TkTransientTrackingRecHitBuilder TTTRHBuilder(tracker);
-    intrhit=TTTRHBuilder.build(innerHit->clone());
+    TkTransientTrackingRecHitBuilder TTTRHBuilder((tracker.product()));
+    intrhit=TTTRHBuilder.build(innerHit);
 
     //   intrhit=TTRHBuilder.build(&(*tracker),innerHit->clone());
 
@@ -99,7 +99,7 @@ construct( const TrackingRecHit* outerHit,
     if ( !outerState.isValid()) 
      edm::LogError("Propagation") << " SeedFromConsecutiveHits first propagation failed ";
   
-    outrhit=TTTRHBuilder.build(outerHit->clone());
+    outrhit=TTTRHBuilder.build(outerHit);
     //  outrhit=TTRHBuilder.build(&(*tracker),outerHit->clone());
 
     TSOS outerUpdated = theUpdator.update( outerState, *outrhit);
