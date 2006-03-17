@@ -22,6 +22,7 @@
 <use name=DataFormats/Common>
 <use name=IOPool/Streamer>
 <use name=IOPool/StreamerData>
+<lib name=curl>
 <export>
  <lib name=EventFilterStorageManager>
  <use name=xdaq>
