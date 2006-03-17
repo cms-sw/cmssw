@@ -5,7 +5,7 @@
 #include <TFile.h>
 #include <TH1.h>
 #include <TSelector.h>
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 typedef reco::CandidateCollection JetCollection;
