@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2006/03/08 23:36:16 $
- *  \version $Id: RPCDetId.h,v 1.9 2006/03/08 23:36:16 mmaggi Exp $
- *  $Revision: 1.9 $
+ *  $Date: 2006/03/09 00:22:29 $
+ *  \version $Id: RPCDetId.h,v 1.10 2006/03/09 00:22:29 mmaggi Exp $
+ *  $Revision: 1.10 $
  *  \author Ilaria Segoni
  */
 
@@ -67,11 +67,9 @@ class RPCDetId :public DetId {
     	return int(ring_ + minRingForwardId);
 
 
+    } else { // if(ring_ >= RingBarrelOffSet) 
+      return int(ring_ - RingBarrelOffSet + minRingBarrelId);
     }
-        
-    if(ring_ >= RingBarrelOffSet) return int(ring_ - RingBarrelOffSet + minRingBarrelId);
-   
- 
   }
 
   /// Station id
