@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Classes for histograms handling.
  *
- *  $Date: 2005/05/02 16:20:03 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/09 17:02:57 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino
  */
 #include "TString.h"
@@ -259,7 +259,7 @@ class hHits{
 	    double entryPz, double exitPz,
 	    double path, double path_x,
 	    int hitType,float processType,
-	    double pAbs,double wire_length){
+	    double pAbs){//,double wire_length){
 
     hHitType->Fill(hitType);
     hZentry->Fill(entryPz);
@@ -287,8 +287,8 @@ class hHits{
       hAbsXExit->Fill(fabs(xExit));
     }
 
-    hAbsYEntry->Fill(wire_length/2.-fabs(entryPy)); 
-    hAbsYExit->Fill(wire_length/2.-fabs(exitPy)); 
+    //  hAbsYEntry->Fill(wire_length/2.-fabs(entryPy)); 
+    // hAbsYExit->Fill(wire_length/2.-fabs(exitPy)); 
 
     hPathVSType->Fill(hitType,path);
     hPathXVSType->Fill(hitType,path_x);
@@ -749,3 +749,4 @@ hDigis hDigis_W0("Wheel0");
 hDigis hDigis_W1("Wheel1");
 hDigis hDigis_W2("Wheel2");
 
+hHits hAllHits("AllHits");

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/22 13:12:04 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/03/06 17:27:51 $
+ *  $Revision: 1.15 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -141,7 +141,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
     
     // Create the id of the wire, the simHits in the DT known also the wireId
  
-    DTWireId wireId(simHit->detUnitId());
+    DTWireId wireId( (*simHit).detUnitId() );
     // Fill the map
     wireMap[wireId].push_back(&(*simHit));
   }
@@ -204,10 +204,6 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &
   LocalPoint exitP = hit->exitPoint();
   int partType = hit->particleType();
 
-  // Check if hits starts/ends on one of the cell's edges
-
-  //FIXME
-  //  const DTTopology &topo = dynamic_cast<DTTopology&>( layer->specificTopology() );
   const DTTopology &topo = layer->specificTopology();
 
   // Pay attention: in CMSSW the rf of the SimHit is the DTCell one, whereas in ORCA was the in the layer's rf
@@ -326,7 +322,7 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &
 
   // Signal propagation, TOF etc.
   if (driftTime.second) {
-    driftTime.first += externalDelays(topo,layer,wireId,hit);
+    driftTime.first += externalDelays(layer,wireId,hit);
   }
   return driftTime;
 } 
@@ -420,15 +416,14 @@ pair<float,bool> DTDigitizer::driftTimeFromTimeMap() const {
 
 //************ 5B ***************
 
-float DTDigitizer::externalDelays(const DTTopology &topo,
-				  const DTLayer* layer,
+float DTDigitizer::externalDelays(const DTLayer* layer,
 				  const DTWireId &wireId, 
 				  const PSimHit *hit) const {
   
   // Time of signal propagation along wire.
   
   float wireCoord = hit->localPosition().y();
-  float halfL     = (topo.cellLenght())/2.;
+  float halfL     = (layer->specificTopology().cellLenght())/2.;
   float propgL = halfL + wireCoord; // the FE is always located at the neg coord.
 
   float propDelay = propgL/vPropWire;

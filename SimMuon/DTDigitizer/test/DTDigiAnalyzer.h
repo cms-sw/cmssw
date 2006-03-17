@@ -4,8 +4,8 @@
 /** \class DTDigiAnalyzer
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2006/02/07 19:12:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/09 16:56:34 $
+ *  $Revision: 1.1 $
  *  \authors: R. Bellan
  */
 
@@ -13,10 +13,11 @@
 #include "PluginManager/ModuleDef.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 class TH1F;
 class TFile;
+class PSimHit;
 //class DTMCStatistics;
 //class DTMuonDigiStatistics;
 //class DTHitsAnalysis;
@@ -34,9 +35,11 @@ class DTDigiAnalyzer : public edm::EDAnalyzer{
   hDigis* WheelHistos(int wheel);
   
  private:
+  typedef std::map<DTWireId, std::vector<const PSimHit*> > DTWireIdMap; 
+
   TH1F *DigiTimeBox;
   TFile *file;
-
+  std::string label;
   //  DTMCStatistics        *MCStatistics;
   // DTMuonDigiStatistics  *MuonDigiStatistics;
   // DTHitsAnalysis        *HitsAnalysis;
