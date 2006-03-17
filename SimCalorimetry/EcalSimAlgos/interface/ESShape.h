@@ -5,14 +5,15 @@
 
 class ESShape : public CaloVShape 
 {
+ // Preshower pulse shape
+ // Gain = 0 : old shape used in ORCA
+ // Gain = 1 : shape for low gain for data taking
+ // Gain = 2 : shape for high gain for calibration
+ // Preshower three time samples happen at -5, 20 and 45 ns 
   
  public:
   
-  ESShape()
-    {
-      setTpeak(20.0);
-    }     
-  
+  ESShape(int Gain);
   ~ESShape(){}
   
   double operator () (double time_) const;
@@ -20,10 +21,13 @@ class ESShape : public CaloVShape
   double derivative (double time_) const;
   double getTpeak () const;      
 
-  static const double A = 6. ;
-  static const double Qcf = 4./350. ;
-  static const double omegac = 2./25. ;
-  static const double norm = 0.11136 ;
+ private:
+
+  int theGain;
+  double A;
+  double Qcf;
+  double omegac;
+  double norm;
 
 };
 
