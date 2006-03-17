@@ -1,4 +1,4 @@
-#include "EventFilter/SiStripRawToDigi/interface/TrivialSiStripDigiSource.h"
+#include "EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiSource.h"
 // edm 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,42 +23,46 @@
 #include <string>
 #include <vector>
 #include <ctime>
+#include <cmath>
 
 using namespace std;
 
 // -----------------------------------------------------------------------------
 /** */
-TrivialSiStripDigiSource::TrivialSiStripDigiSource( const edm::ParameterSet& pset ) :
+SiStripTrivialDigiSource::SiStripTrivialDigiSource( const edm::ParameterSet& pset ) :
   eventCounter_(0),
+  testDistr_( pset.getUntrackedParameter<bool>("TestDistribution",false) ),
   meanOcc_( pset.getUntrackedParameter<double>("MeanOccupancy",1.0) ),
-  rmsOcc_( pset.getUntrackedParameter<double>("RmsOccupancy",0.1) )
+  rmsOcc_( pset.getUntrackedParameter<double>("RmsOccupancy",0.1) ),
+  anal_("SiStripTrivialDigiSource")
 {
-  cout << "[TrivialSiStripDigiSource::TrivialSiStripDigiSource]"
+  cout << "[SiStripTrivialDigiSource::SiStripTrivialDigiSource]"
        << " Constructing object..." << endl;
-
+  
   //srand( time( NULL ) ); // seed for random number generator
   produces< edm::DetSetVector<SiStripDigi> >();
 }
 
 // -----------------------------------------------------------------------------
 /** */
-TrivialSiStripDigiSource::~TrivialSiStripDigiSource() {
-  cout << "[TrivialSiStripDigiSource::~TrivialSiStripDigiSource]"
+SiStripTrivialDigiSource::~SiStripTrivialDigiSource() {
+  cout << "[SiStripTrivialDigiSource::~SiStripTrivialDigiSource]"
        << " Destructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void TrivialSiStripDigiSource::produce( edm::Event& iEvent, 
+void SiStripTrivialDigiSource::produce( edm::Event& iEvent, 
 					const edm::EventSetup& iSetup ) {
   
   eventCounter_++; 
-  cout << "[TrivialSiStripDigiSource::produce] "
-       << "event number: " << eventCounter_ << endl;
+  cout << "[SiStripTrivialDigiSource::produce]"
+       << " Event: " << eventCounter_ << endl;
+  anal_.addEvent();
   
   edm::ESHandle<SiStripFedCabling> cabling;
   iSetup.get<SiStripFedCablingRcd>().get( cabling );
-
+  
   auto_ptr< edm::DetSetVector<SiStripDigi> > collection( new edm::DetSetVector<SiStripDigi> );
   
   uint32_t nchans = 0;
@@ -66,26 +70,43 @@ void TrivialSiStripDigiSource::produce( edm::Event& iEvent,
   const vector<uint16_t>& fed_ids = cabling->feds(); 
   vector<uint16_t>::const_iterator ifed;
   for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
+    anal_.addFed();
     for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
       const FedChannelConnection& conn = cabling->connection( *ifed, ichan );
       if ( conn.detId() ) {
-	nchans++;
+	anal_.addChan(); nchans++;
 	edm::DetSet<SiStripDigi>& digis = collection->find_or_insert( conn.detId() );
-	uint16_t ndigi = static_cast<uint16_t>( 2.56 * RandGauss::shoot( meanOcc_, rmsOcc_ ) );
-	vector<int> used_strips; used_strips.reserve(ndigi);
-	vector<int>::iterator iter;
-	unsigned int idigi = 0;
+	uint16_t ndigi;
+	if ( testDistr_ ) { ndigi = 1; }
+	else {
+	  float rdm = 2.56 * RandGauss::shoot( meanOcc_, rmsOcc_ );
+	  float tmp; bool extra = ( RandFlat::shoot() > modf(rdm,&tmp) );
+	  ndigi = static_cast<uint16_t>(rdm) + static_cast<uint16_t>(extra);
+	}
+	vector<uint16_t> used_strips; used_strips.reserve(ndigi);
+	vector<uint16_t>::iterator iter;
+	uint16_t idigi = 0;
 	while ( idigi < ndigi ) {
-	  int adc = static_cast<uint16_t>( 1024. * RandFlat::shoot() ) + 1;
-	  int str = static_cast<uint16_t>( 256. * RandFlat::shoot() );
+	  uint16_t str;
+	  uint16_t adc;
+	  if ( testDistr_ ) { str = idigi*8; adc = (idigi+1)*8-1 + conn.apvPairNumber()*256; }
+	  else {
+	    str = static_cast<uint16_t>( 256. * RandFlat::shoot() );
+	    adc = static_cast<uint16_t>( 1024. * RandFlat::shoot() );
+	  }
 	  iter = find( used_strips.begin(), used_strips.end(), str );
-	  if ( iter == used_strips.end() ) { 
-	    digis.data.push_back( SiStripDigi( str, adc ) );
+	  if ( iter == used_strips.end() && adc ) { // require non-zero adc!
+	    digis.data.push_back( SiStripDigi( str+conn.apvPairNumber()*256, adc ) );
 	    used_strips.push_back( str ); 
+	    anal_.zsDigi( str+conn.apvPairNumber()*256, adc );
 	    ndigis++;
 	    idigi++;
 	  }
 	}
+      } else {
+	cerr << "[SiStripTrivialDigiSource::produce]"
+	     << " Zero DetId returned for FED id " << *ifed
+	     << " and channel " << ichan << endl;
       }
     }
   }
@@ -93,7 +114,7 @@ void TrivialSiStripDigiSource::produce( edm::Event& iEvent,
   iEvent.put( collection );
   
   if ( nchans ) { 
-    cout << "[TrivialSiStripDigiSource::produce]"
+    cout << "[SiStripTrivialDigiSource::produce]"
 	 << " Generated " << ndigis 
 	 << " digis for " << nchans
 	 << " channels with a mean occupancy of " 

@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiAnalysis.h"
 #include "Fed9UUtils.hh"
 #include "boost/cstdint.hpp"
 #include <string>
@@ -42,11 +43,7 @@ class SiStripDigiToRaw {
   string readoutMode_;
   uint16_t nAppendedBytes_;
 
-  // some debug counters
-  vector<unsigned int> position_;
-  vector<unsigned int> landau_;
-  unsigned long nFeds_;
-  unsigned long nDigis_;
+  SiStripTrivialDigiAnalysis anal_;
 
 };
 

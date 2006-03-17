@@ -33,7 +33,7 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) 
   int16_t nbytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
   digiToRaw_ = new SiStripDigiToRaw( mode, nbytes );
   
-  produces<FEDRawDataCollection>("FromSimulation");
+  produces<FEDRawDataCollection>();
 
 }
 

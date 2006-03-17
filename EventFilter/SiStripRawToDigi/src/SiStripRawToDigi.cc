@@ -31,18 +31,10 @@ SiStripRawToDigi::SiStripRawToDigi( int16_t header_bytes,
   dumpFrequency_( dump_frequency ),
   useDetId_( use_det_id ),
   triggerFedId_( trigger_fed_id ),
-  nFeds_(0), 
-  nDets_(0), 
-  nDigis_(0),
-  position_(), 
-  landau_()
+  anal_("SiStripRawToDigi")
 {
   cout << "[SiStripRawToDigi::SiStripRawToDigi] " 
        << "Constructing object..." << endl;
-  
-  landau_.clear(); landau_.reserve(1024); landau_.resize(1024,0);
-  position_.clear(); position_.reserve(768); position_.resize(768,0);
-  
 }
 
 // -----------------------------------------------------------------------------
@@ -50,46 +42,8 @@ SiStripRawToDigi::SiStripRawToDigi( int16_t header_bytes,
 SiStripRawToDigi::~SiStripRawToDigi() {
   cout << "[SiStripRawToDigi::~SiStripRawToDigi] " 
        << "Destructing object..." << endl;
-
-  if ( 0 ) {
-    cout << "[SiStripRawToDigi::~SiStripRawToDigi]"
-	 << " Some cumulative counters:"
-	 << " Number of FEDs " << nFeds_ 
-	 << ", number of Dets " << nDets_ 
-	 << ", number of Digis " << nDigis_ << endl;
-    cout << "[SiStripRawToDigi::~SiStripRawToDigi]"
-	 << " Digi statistics (vs strip position): " << endl;
-    int tmp1 = 0;
-    for (unsigned int i=0; i<position_.size(); i++) {
-      if ( i<10 ) { cout << "Strip: " << i 
-			 << ",  Digis: " << position_[i] 
-			 << endl; }
-      tmp1 += position_[i];
-    }
-    cout << "Ndigis " << tmp1 << endl << endl;
-    cout << "[SiStripRawToDigi::~SiStripRawToDigi]"
-	 << " Landau statistics: " << endl;
-    int tmp2 = 0;
-    for (unsigned int i=0; i<landau_.size(); i++) {
-      if ( i<10 ) { cout << "ADC: " << i 
-			 << ",  Digis: " << landau_[i] 
-			 << endl; }
-      tmp2 += landau_[i];
-    }
-    cout << "Ndigis " << tmp2 << endl << endl;
-  }
-  position_.clear();
-  landau_.clear();
-  
-  if ( fedEvent_ ) { 
-    delete fedEvent_; 
-    fedEvent_ = 0; 
-  }
-  if ( fedDescription_ ) { 
-    delete fedDescription_; 
-    fedDescription_ = 0; 
-  }
-  
+  if ( fedEvent_ ) { delete fedEvent_; }
+  if ( fedDescription_ ) { delete fedDescription_; }
 }
 
 // -----------------------------------------------------------------------------
@@ -109,22 +63,28 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 				    auto_ptr< edm::DetSetVector<SiStripDigi> >& zero_suppr,
 				    auto_ptr< SiStripEventSummary >& summary ) {
   cout << "[SiStripRawToDigi::createDigis]" << endl; 
-  
-  triggerFed( buffers, summary ); // Extract Trigger FED information
+  anal_.addEvent();
+ 
+  vector<uint32_t> det_ids; //@@ TEMPORARY! (until we have DetCabling)
 
   // Retrieve FED ids from cabling map and iterate through 
   const vector<uint16_t>& fed_ids = cabling->feds(); 
   vector<uint16_t>::const_iterator ifed;
   for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
-    
+    anal_.addFed();
     cout << "[SiStripRawToDigi::createDigis]"
 	 << " extracting payload from FED id: " << *ifed << endl; 
-    nFeds_++;
 
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
     dumpRawData( *ifed, input );
 
+    // Extract Trigger FED information
+    if ( *ifed == triggerFedId_ ) { 
+      triggerFed( input, summary ); 
+      continue;
+    }
+    
     // Locate start of FED buffer within raw data
     FEDRawData output; 
     locateStartOfFedBuffer( *ifed, input, output );
@@ -132,11 +92,10 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
     Fed9U::u32  size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
     
     if ( fedEvent_ ) { delete fedEvent_; fedEvent_ = 0; }
-    fedEvent_ = new Fed9U::Fed9UEvent(); //@@ still necessary?
-
-    // Initialise FED9UEvent object
+    fedEvent_ = new Fed9U::Fed9UEvent(); //@@ because of bug in fed sw?
     try {
       fedEvent_->Init( data_u32, fedDescription_, size_u32 ); 
+      //fedEvent_->checkEvent();
     } 
     catch( ICUtils::ICException& e ) {
       stringstream ss;
@@ -177,25 +136,33 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
     for ( uint16_t iunit = 0; iunit < fedEvent_->feUnits(); iunit++ ) {
       for ( uint16_t ichan = 0; ichan < fedEvent_->feUnit(iunit).channels(); ichan++ ) {
 	uint16_t channel = iunit*12 + ichan;
+	anal_.addChan();
 	
 	// Retrieve cabling map information and define "FED key" for Digis
 	const FedChannelConnection& conn = cabling->connection( *ifed, channel );
 	uint32_t fed_key = ( (*ifed)<<16 & 0xFFFF0000 ) & ( channel & 0x0000FFFF );
-	uint16_t ipair = useDetId_ ? conn.pairId() : 0;
+	uint16_t ipair = useDetId_ ? conn.apvPairNumber() : 0;
 	
  	//@@ Check whether FED key already exists in DetSetVector?
 
 	// Retrieve Digi containers (or create them if they don't exist)
+	uint32_t det_key = useDetId_ ? fed_key : conn.detId();
 	edm::DetSet<SiStripRawDigi>& sm = scope_mode->find_or_insert( fed_key );
-	edm::DetSet<SiStripRawDigi>& vr = virgin_raw->find_or_insert( useDetId_ ? fed_key : conn.detId() );
-	edm::DetSet<SiStripRawDigi>& pr = proc_raw->find_or_insert( useDetId_ ? fed_key : conn.detId() );
-	edm::DetSet<SiStripDigi>&    zs = zero_suppr->find_or_insert( useDetId_ ? fed_key : conn.detId() );
-		
+	edm::DetSet<SiStripRawDigi>& vr = virgin_raw->find_or_insert( det_key );
+	edm::DetSet<SiStripRawDigi>& pr = proc_raw->find_or_insert( det_key ) ;
+	edm::DetSet<SiStripDigi>&    zs = zero_suppr->find_or_insert( det_key );
+
+	//@@ TEMPORARY! (until we have DetCabling)
+	vector<uint32_t>::iterator idet; 
+	idet = find( det_ids.begin(), det_ids.end(), det_key );
+	if ( idet == det_ids.end() ) { det_ids.push_back( det_key ); }
+
 	if ( ev_type == 1 ) { // SCOPE MODE
 	  vector<uint16_t> samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	  sm.data.reserve( samples.size() ); sm.data.clear();
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
 	    sm.data[i] = SiStripRawDigi( samples[i] ); 
+	    anal_.smDigi( i, samples[i] );
 	  }
 	} else if ( ev_type == 2 ) { // VIRGIN RAW
 	  vector<uint16_t> samples = fedEvent_->channel( iunit, ichan ).getSamples();
@@ -207,6 +174,7 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	    readoutOrder( physical, readout ); // convert from physical to readout order
 	    (i/128) ? readout=readout*2+1 : readout=readout*2; // multiplexed data
 	    vr.data[ipair*256+i] = SiStripRawDigi( samples[readout] ); 
+	    anal_.vrDigi( ipair*256+i, samples[readout] );
 	  }
 	} else if ( ev_type == 6 ) { // PROCESSED RAW
 	  vector<uint16_t> samples = fedEvent_->channel( iunit, ichan ).getSamples();
@@ -216,6 +184,7 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	    physical = i%128; 
 	    (i/128) ? physical=physical*2+1 : physical=physical*2; // multiplexed data
 	    pr.data[ipair*256+i] = SiStripRawDigi( samples[physical] ); 
+	    anal_.prDigi( ipair*256+i, samples[physical] );
 	  } 
 	} else if ( ev_type == 10 ) { // ZERO SUPPRESSED
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
@@ -225,6 +194,7 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	    for (uint16_t istr = 0; istr < width; istr++) {
 	      uint16_t strip = ipair*256 + first_strip + istr;
 	      zs.data.push_back( SiStripDigi( strip, static_cast<uint16_t>(*i) ) );
+	      anal_.zsDigi( strip, static_cast<uint16_t>(*i) );
 	      *i++; // Iterate to next sample
 	    }
 	  }
@@ -240,6 +210,7 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	  sm.data.reserve( samples.size() ); sm.data.clear();
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
 	    sm.data[i] = SiStripRawDigi( samples[i] ); 
+	    anal_.smDigi( i, samples[i] );
 	  }
 	}
 	
@@ -248,26 +219,28 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
     }
     
     if ( fedEvent_ ) { 
-      delete fedEvent_; //@@ <- still necessary???
+      delete fedEvent_; //@@ because of bug in fed sw
       fedEvent_=0; 
     }
     
   } 
+
+  digiInfo( det_ids, 
+	    scope_mode,
+	    virgin_raw,
+	    proc_raw,
+	    zero_suppr );
   
-  recordDebugInfo( scope_mode,
-		   virgin_raw,
-		   proc_raw,
-		   zero_suppr );
+  //@@ TEMPORARY
+  virgin_raw->post_insert(); //@@ IMPLEMENTATION FOR THIS METHOD IS COMMENTED OUT!!!
   
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripRawToDigi::triggerFed( edm::Handle<FEDRawDataCollection>& buffers,
+void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
 				   auto_ptr< SiStripEventSummary >& summary ) {
-  cout << "[SiStripRawToDigi::extractTriggerFedInfo]" << endl; 
-  
-  const FEDRawData& trigger_fed = buffers->FEDData( triggerFedId_ );
+  cout << "[SiStripRawToDigi::triggerFed]" << endl; 
   
   const unsigned char* data = trigger_fed.data();
   unsigned int size = trigger_fed.size();
@@ -277,7 +250,7 @@ void SiStripRawToDigi::triggerFed( edm::Handle<FEDRawDataCollection>& buffers,
     if ( !hdr.check() ) {
       cerr << "[SiStripRawToDigi::extractTriggerFedInfo]"
 	   << " Problem with DAQ header for Trigger FED!" << endl; 
-    }
+    } 
     //     int triggerType();
     //     int lvl1ID();
     //     int bxID();
@@ -392,44 +365,33 @@ void SiStripRawToDigi::locateStartOfFedBuffer( uint16_t fed_id,
 }
 
 // -----------------------------------------------------------------------------
-/** 
-    Iterate through DetIds within collection and their digis,
-    increment various counters and "histogram" positions and ADC
-    values of digis.
-*/
-void SiStripRawToDigi::recordDebugInfo( auto_ptr< edm::DetSetVector<SiStripRawDigi> >& scope_mode,
-					auto_ptr< edm::DetSetVector<SiStripRawDigi> >& virgin_raw,
-					auto_ptr< edm::DetSetVector<SiStripRawDigi> >& proc_raw,
-					auto_ptr< edm::DetSetVector<SiStripDigi> >& zero_suppr ) {
-  cout << "[SiStripRawToDigi::recordDebugInfo]" << endl;
-//   vector<unsigned int> dets; digis->detIDs( dets );
-//   unsigned long ndigis = 0; // Digi counter within event
-//   unsigned long ndets = 0; // Dets counter within event
-//   vector<unsigned int>::iterator idet;
-//   for( idet = dets.begin(); idet != dets.end(); idet++ ) {
-//     if ( !(*idet) ) { 
-//       throw string("[SiStripRawToDigi::recordDebugInfo] Null DetId in collection!");
-//       continue; 
-//     }
-//     ndets++; nDets_++; 
-//     vector<StripDigi> temp; digis->digis(*idet, temp);
-//     vector<StripDigi>::const_iterator idigi;
-//     for ( idigi = temp.begin(); idigi != temp.end(); idigi++ ) {
-//       ndigis++; nDigis_++;
-//       unsigned int strip = (*idigi).channel(); // starts from 0
-//       if ( strip >= position_.size() ) { position_.resize(strip+1,0); }
-//       position_[ strip ]++; 
-//       unsigned int value = (*idigi).adc(); // starts from 0
-//       if ( value >= landau_.size() ) { landau_.resize(value+1,0); }
-//       landau_[ value ]++; 
-//     }
-//   }
-//   if ( ndigis ) {
-//     cout << "[SiStripRawToDigi::recordDebugInfo] "
-// 	 << "Extracted " << ndigis
-// 	 << " digis from " << ndets
-// 	 << " detectors " << endl;	
-//   }
+/** */
+void SiStripRawToDigi::digiInfo( vector<uint32_t>& det_ids, //@@ TEMP!
+				 auto_ptr< edm::DetSetVector<SiStripRawDigi> >& scope_mode,
+				 auto_ptr< edm::DetSetVector<SiStripRawDigi> >& virgin_raw,
+				 auto_ptr< edm::DetSetVector<SiStripRawDigi> >& proc_raw,
+				 auto_ptr< edm::DetSetVector<SiStripDigi> >& zero_suppr ) {
+  cout << "[SiStripRawToDigi::digiInfo]" << endl;
+  
+  vector<uint32_t>::iterator idet;
+  for ( idet = det_ids.begin(); idet != det_ids.end(); idet++ ) {
+    // SM
+    vector< edm::DetSet<SiStripRawDigi> >::const_iterator sm = scope_mode->find( *idet );
+    if ( sm->data.empty() ) { cout << "[SiStripRawToDigi::digiInfo] No SM digis found!" << endl; }
+    for ( uint16_t ism = 0; ism < sm->data.size(); ism++ ) { anal_.smDigi( ism, sm->data[ism].adc() ); }
+    // VR
+    vector< edm::DetSet<SiStripRawDigi> >::const_iterator vr = virgin_raw->find( *idet );
+    if ( vr->data.empty() ) { cout << "[SiStripRawToDigi::digiInfo] No VR digis found!" << endl; }
+    for ( uint16_t ivr = 0; ivr < vr->data.size(); ivr++ ) { anal_.vrDigi( ivr, vr->data[ivr].adc() ); }
+    // PR
+    vector< edm::DetSet<SiStripRawDigi> >::const_iterator pr = proc_raw->find( *idet );
+    if ( pr->data.empty() ) { cout << "[SiStripRawToDigi::digiInfo] No PR digis found!" << endl; }
+    for ( uint16_t ipr = 0; ipr < pr->data.size(); ipr++ ) { anal_.prDigi( ipr, pr->data[ipr].adc() ); }
+    // ZS
+    vector< edm::DetSet<SiStripDigi> >::const_iterator zs = zero_suppr->find( *idet );
+    if ( zs->data.empty() ) { cout << "[SiStripRawToDigi::digiInfo] No ZS digis found!" << endl; }
+    for ( uint16_t izs = 0; izs < zs->data.size(); izs++ ) { anal_.zsDigi( zs->data[izs].strip(), zs->data[izs].adc() ); }
+  }
 }
 
 //------------------------------------------------------------------------------

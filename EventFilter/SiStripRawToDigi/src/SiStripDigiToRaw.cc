@@ -17,47 +17,17 @@
 SiStripDigiToRaw::SiStripDigiToRaw( string mode, int16_t nbytes ) : 
   readoutMode_(mode),
   nAppendedBytes_(nbytes),
-  position_(), 
-  landau_(),
-  nFeds_(0), 
-  nDigis_(0)
+  anal_("SiStripDigiToRaw")
 {
   cout << "[SiStripDigiToRaw::SiStripDigiToRaw]" 
        << " Constructing object..." << endl;
-  
-  landau_.clear(); landau_.reserve(1024); landau_.resize(1024,0);
-  position_.clear(); position_.reserve(768); position_.resize(768,0);
-
 }
 
 // -----------------------------------------------------------------------------
 /** */
 SiStripDigiToRaw::~SiStripDigiToRaw() {
   cout << "[SiStripDigiToRaw::~SiStripDigiToRaw]" 
-	    << " Destructing object..." << endl;
-
-  cout << "[SiStripDigiToRaw::~SiStripDigiToRaw]"
-       << " Some cumulative counters: nFeds_: " << nFeds_ 
-       << " nDigis_: " << nDigis_ << endl;
-  
-  cout << "[SiStripDigiToRaw::~SiStripDigiToRaw] "
-       << "Digi statistics (vs strip position): " << endl;
-  int tmp1 = 0;
-  for ( uint16_t i = 0; i < position_.size(); i++ ) {
-    if ( i<10 ) { cout << "Strip: " << i << ",  Digis: " << position_[i] << endl; }
-    tmp1 += position_[i];
-  }
-  cout << "nDigis: " << tmp1 << endl;
-
-  cout << "[SiStripDigiToRaw::~SiStripDigiToRaw]"
-       << " Landau statistics: " << endl;
-  int tmp2 = 0;
-  for ( uint16_t i = 0; i < landau_.size(); i++ ) {
-    if ( i<10 ) { cout << "ADC: " << i << ",  Digis: " << landau_[i] << endl; }
-    tmp2 += landau_[i];
-  }
-  cout << "nDigis: " << tmp2 << endl;
-
+       << " Destructing object..." << endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -73,6 +43,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
 					 edm::Handle< edm::DetSetVector<SiStripDigi> >& collection,
 					 auto_ptr<FEDRawDataCollection>& buffers ) {
   cout << "[SiStripDigiToRaw::createFedBuffers] " << endl;
+  anal_.addEvent();
 
   try {
     
@@ -83,14 +54,14 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
     const vector<uint16_t>& fed_ids = cabling->feds();
     vector<uint16_t>::const_iterator ifed;
     for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
-      
+      anal_.addFed();
       cout << "[SiStripDigiToRaw::createFedBuffers]"
 	   << " Processing FED id " << *ifed << endl;
-      nFeds_++; 
       
       raw_data.clear(); raw_data.resize( strips_per_fed, 0 );
 
       for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
+	anal_.addChan();
 	
 	const FedChannelConnection& conn = cabling->connection( *ifed, ichan );
 	//@@ Check DetId is non-zero?
@@ -100,9 +71,10 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
 	
 	edm::DetSet<SiStripDigi>::const_iterator idigi;
 	for ( idigi = digis->data.begin(); idigi != digis->data.end(); idigi++ ) {
-	  
-	  if ( (*idigi).strip() >= conn.pairId()*256 && 
-	       (*idigi).strip() < (conn.pairId()+1)*256 ) {
+	  if ( (*idigi).strip() < conn.apvPairNumber()*256 ||
+	       (*idigi).strip() > conn.apvPairNumber()*256+255 ) { continue; }
+//  	  if ( (*idigi).strip() >= conn.apvPairNumber()*256 && 
+//  	       (*idigi).strip() < (conn.apvPairNumber()+1)*256 ) {
 	    unsigned short strip = ichan*256 + (*idigi).strip()%256;
 	    if ( strip >= strips_per_fed ) {
 	      stringstream os;
@@ -110,38 +82,39 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
 		 << " strip >= strips_per_fed";
 	      throw string( os.str() );
 	    }
-	    // check if buffer has already been filled with digi ADC value. 
-	    // if not or if filled with different value, fill it.
-	    if ( raw_data[strip] ) { // if yes, cross-check values
-	      if ( raw_data[strip] != (*idigi).adc() ) {
+	    cout << "[SiStripDigiToRaw::createFedBuffers]"
+		 << " Retrieved digi!"
+		 << "  AdcValue: " << (*idigi).adc()
+		 << "  FedId/FedCh: " << *ifed << "/" << ichan
+		 << "  DetStrip: " << (*idigi).strip()
+		 << "  FedStrip: " << strip << endl;
+	    // check if value already exists
+	    if ( raw_data[strip] && raw_data[strip] != (*idigi).adc() ) {
 		stringstream os; 
-		os << "SiStripDigiToRaw::createFedBuffers(.): " 
-		   << "WARNING: Incompatible ADC values in buffer: "
-		   << "FED id: " << *ifed << ", FED channel: " << ichan
-		   << ", detector strip: " << (*idigi).strip() 
-		   << ", FED strip: " << strip
-		   << ", ADC value: " << (*idigi).adc()
-		   << ", raw_data["<<strip<<"]: " << raw_data[strip];
-		cout << os.str() << endl;
+		os << "[SiStripDigiToRaw::createFedBuffers]" 
+		   << " Incompatible ADC values in buffer!"
+		   << "  FedId/FedCh: " << *ifed << "/" << ichan
+		   << "  DetStrip: " << (*idigi).strip() 
+		   << "  FedStrip: " << strip
+		   << "  AdcValue: " << (*idigi).adc()
+		   << "  RawData[" << strip << "]: " << raw_data[strip];
+		cerr << os.str() << endl;
 	      }
-	    } else { // if no, update buffer with digi ADC value
-	      raw_data[strip] = (*idigi).adc(); 
-	      // debug: update counters
-	      position_[ (*idigi).strip() ]++;
-	      landau_[ (*idigi).adc()<100 ? (*idigi).adc() : 0 ]++;
-	      nDigis_++;
-	      cout << "Retrieved digi with ADC value " << (*idigi).adc()
-		   << " from FED id " << *ifed 
-		   << " and FED channel " << ichan
-		   << " at detector strip position " << (*idigi).strip()
-		   << " and FED strip position " << strip << endl;
+	    // Add digi to buffer
+	    raw_data[strip] = (*idigi).adc();
+	    if ( readoutMode_ == "SCOPE_MODE" ) { 
+	      anal_.smDigi( (*idigi).strip(), (*idigi).adc() ); 
+	    } else if ( readoutMode_ == "VIRGIN_RAW" ) {
+	      anal_.vrDigi( (*idigi).strip(), (*idigi).adc() ); 
+	    } else if ( readoutMode_ == "PROCESSED_RAW" ) {
+	      anal_.prDigi( (*idigi).strip(), (*idigi).adc() ); 
+	    } else if ( readoutMode_ == "ZERO_SUPPRESSED" ) {
+	      anal_.zsDigi( (*idigi).strip(), (*idigi).adc() ); 
 	    }
-	  }
 	}
-	// If strip greater than 
-	//if ((*idigi).strip() >= (conn.pairId()+1)*256) break;
+	// if ((*idigi).strip() >= (conn.apvPairNumber()+1)*256) break;
       }
-    
+      
       // instantiate appropriate buffer creator object depending on readout mode
       Fed9U::Fed9UBufferCreator* creator = 0;
       if ( readoutMode_ == "SCOPE_MODE" ) {
@@ -155,7 +128,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
       } else {
 	cout << "WARNING : UNKNOWN readout mode" << endl;
       }
-    
+      
       // generate FED buffer and pass to Daq
       Fed9U::Fed9UBufferGenerator generator( creator );
       generator.generateFed9UBuffer( raw_data );

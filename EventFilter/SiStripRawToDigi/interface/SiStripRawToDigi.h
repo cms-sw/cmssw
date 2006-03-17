@@ -4,6 +4,7 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Handle.h>
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiAnalysis.h"
 #include "Fed9UUtils.hh"
 #include "boost/cstdint.hpp"
 
@@ -34,6 +35,7 @@ class SiStripRawToDigi {
 		    uint16_t trigger_fed_id );
   ~SiStripRawToDigi();
   
+  //@@ pass-by-ref otherwise auto_ptr "sink"?! IMPROVE
   void createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 		    edm::Handle<FEDRawDataCollection>& buffers,
 		    auto_ptr< edm::DetSetVector<SiStripRawDigi> >& scope_mode,
@@ -47,14 +49,15 @@ class SiStripRawToDigi {
   inline void readoutOrder( uint16_t& physical_order, uint16_t& readout_order );
   inline void physicalOrder( uint16_t& readout_order, uint16_t& physical_order ); 
   
-  void triggerFed( edm::Handle<FEDRawDataCollection>& buffers,
+  void triggerFed( const FEDRawData& trigger_fed,
 		   auto_ptr< SiStripEventSummary >& summary );
   void locateStartOfFedBuffer( uint16_t fed_id, const FEDRawData& input, FEDRawData& output );
   void dumpRawData( uint16_t fed_id, const FEDRawData& buffer );
-  void recordDebugInfo( auto_ptr< edm::DetSetVector<SiStripRawDigi> >& scope_mode,
-			auto_ptr< edm::DetSetVector<SiStripRawDigi> >& virgin_raw,
-			auto_ptr< edm::DetSetVector<SiStripRawDigi> >& proc_raw,
-			auto_ptr< edm::DetSetVector<SiStripDigi> >& zero_suppr );
+  void digiInfo( vector<uint32_t>& det_ids, //@@ TEMPORARY!
+		 auto_ptr< edm::DetSetVector<SiStripRawDigi> >& scope_mode,
+		 auto_ptr< edm::DetSetVector<SiStripRawDigi> >& virgin_raw,
+		 auto_ptr< edm::DetSetVector<SiStripRawDigi> >& proc_raw,
+		 auto_ptr< edm::DetSetVector<SiStripDigi> >& zero_suppr );
   
  private: // ----- private data members -----
   
@@ -66,9 +69,8 @@ class SiStripRawToDigi {
   bool useDetId_;
   uint16_t triggerFedId_;
 
-  unsigned long nFeds_, nDets_, nDigis_;
-  vector<unsigned int> position_, landau_;
-
+  SiStripTrivialDigiAnalysis anal_;
+  
 };
 
 void SiStripRawToDigi::readoutOrder( uint16_t& physical_order, 
