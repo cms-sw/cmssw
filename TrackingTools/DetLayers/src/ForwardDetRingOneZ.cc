@@ -1,7 +1,9 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetRingOneZ.h"
-//#include "CommonDet/DetLayout/src/DetLessPhi.h"
 #include "TrackingTools/DetLayers/interface/ForwardRingDiskBuilderFromDet.h"
 //#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+
+// #include <Utilities/General/interface/precomputed_value_sort.h>
+// #include <Geometry/CommonDetUnit/interface/DetSorting.h>
 
 #include <algorithm>
 #include <cmath>
@@ -26,7 +28,7 @@ ForwardDetRingOneZ::ForwardDetRingOneZ( const vector<const GeomDet*>& dets)
 void ForwardDetRingOneZ::initialize()
 {
   // assume the dets ARE in a ring AND phi ordered
-  //sort( theDets.begin(), theDets.end(), DetLessPhi());
+  //precomputed_value_sort( theDets.begin(), theDets.end(), geomsort::DetPhi());
 
   setDisk( ForwardRingDiskBuilderFromDet()( theDets));
 
