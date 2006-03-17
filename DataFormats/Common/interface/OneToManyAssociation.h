@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id$
+ * $Id: OneToManyAssociation.h,v 1.2 2006/03/16 16:35:29 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -49,12 +49,11 @@ namespace edm {
       index ik = index( k.index() ), iv = index( v.index() );
       map_[ ik ].push_back( iv );
     }
-    class iterator;
+
     struct const_iterator {
       typedef ptrdiff_t difference_type;
       typedef typename map_type::const_iterator::iterator_category iterator_category;
       const_iterator() { }
-      const_iterator( const iterator & it ) : i( it.i ) { }
       const_iterator( typename map_type::const_iterator mi ) : i ( mi ) { }
       const_iterator & operator=( const const_iterator & it ) { i = it.i; return *this; }
       const_iterator& operator++() { ++i; return *this; }
@@ -74,38 +73,11 @@ namespace edm {
     private:
       typename map_type::const_iterator i;
     };
-    struct iterator {
-      typedef ptrdiff_t difference_type;
-      typedef typename map_type::iterator::iterator_category iterator_category;
-      iterator() { }
-      iterator( typename map_type::iterator mi ) : i ( mi ) { }
-      iterator & operator=( const iterator & it ) { i = it.i; return *this; }
-      iterator& operator++() { ++i; return *this; }
-      iterator operator++( int ) { iterator ci = *this; ++i; return ci; }
-      iterator& operator--() { --i; return *this; }
-      iterator operator--( int ) { iterator ci = *this; --i; return ci; }
-      bool operator==( const iterator& ci ) const { return i == ci.i; }
-      bool operator!=( const iterator& ci ) const { return i != ci.i; }
-      KeyRef key() const { return KeyRef( keyRef_, i->first ); }
-      ValRefVec values() const {
-	ValRefVec v( valRef_.id() );
-	const std::vector<index> & val = i->second;
-	for( typename std::vector<index>::iterator idx = val.begin(); idx != val.end(); ++ idx )
-	  v.push_back( ValRef( valRef_, * idx ) );
-	return v;
-      }
-    private:
-      typename map_type::iterator i;
-      friend const_iterator::const_iterator( const iterator & );
-    };
+
     /// first iterator over the map (read only)
     const_iterator begin() const { return const_iterator( map_.begin() );  }
     /// last iterator over the map (read only)
     const_iterator end() const { return const_iterator( map_.end() );  }
-    /// first iterator over the map
-    iterator begin() { return iterator( map_.begin() );  }
-    /// last iterator over the map
-    iterator end() { return iterator( map_.end() );  }
     /// find an entry in the map
     const_iterator find( const KeyRef & k ) const {
       checkKey( k );
