@@ -4,8 +4,8 @@
 /** \class GeomDet
  *  Base class for GeomDetUnit and for composite GeomDet s. 
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/03/01 18:16:03 $
+ *  $Revision: 1.4 $
  */
 
 
@@ -30,6 +30,9 @@ public:
   
   virtual const BoundPlane& surface() const {return *thePlane;}
   virtual const BoundPlane& specificSurface() const {return *thePlane;} // obsolete?
+ 
+  virtual const Surface::PositionType& position() const {return surface().position();} 
+  
 
   virtual DetId geographicalId() const = 0;
 
