@@ -2,10 +2,11 @@
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TSiStripRecHit2DLocalPos_H
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class TSiStripRecHit2DLocalPos : public TransientTrackingRecHit{
  public:
-   TSiStripRecHit2DLocalPos (edm::ESHandle<TrackingGeometry> geom, TrackingRecHit * rh) : TransientTrackingRecHit(geom, rh){}
+   TSiStripRecHit2DLocalPos (const TrackingGeometry * geom, const TrackingRecHit * rh) : TransientTrackingRecHit(geom, rh){}
 
   //
   // fake for the moment

@@ -2,10 +2,11 @@
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TSiPixelRecHit_H
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class TSiPixelRecHit : public TransientTrackingRecHit{
  public:
-  TSiPixelRecHit(edm::ESHandle<TrackingGeometry> geom, TrackingRecHit * rh) : TransientTrackingRecHit(geom, rh){}
+  TSiPixelRecHit(const TrackingGeometry * geom, const TrackingRecHit * rh) : TransientTrackingRecHit(geom, rh){}
     
   //
   // fake for the moment

@@ -6,15 +6,16 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DMatchedLocalPos.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 
-TkTransientTrackingRecHitBuilder::TkTransientTrackingRecHitBuilder(edm::ESHandle<TrackingGeometry> trackingGeometry):
+TkTransientTrackingRecHitBuilder::TkTransientTrackingRecHitBuilder(  const TrackingGeometry* trackingGeometry):
   tGeometry_(trackingGeometry){}
 
-TransientTrackingRecHit* TkTransientTrackingRecHitBuilder::build (TrackingRecHit * p) {
-  if (dynamic_cast<SiStripRecHit2DLocalPos*>(p)){ 
+TransientTrackingRecHit* TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) {
+  if (dynamic_cast<const SiStripRecHit2DLocalPos*>(p)){ 
     return ( new TSiStripRecHit2DLocalPos(tGeometry_, p ) ); 
-  } else if (dynamic_cast<SiStripRecHit2DMatchedLocalPos*>(p)) {
+  } else if (dynamic_cast<const SiStripRecHit2DMatchedLocalPos*>(p)) {
     return ( new TSiStripRecHit2DMatchedLocalPos(tGeometry_, p )); 
-  } else if (dynamic_cast<SiPixelRecHit*>(p)) {
+  } else if (dynamic_cast<const SiPixelRecHit*>(p)) {
     return ( new TSiPixelRecHit(tGeometry_, p ) ); 
   }
+  return 0;
 }

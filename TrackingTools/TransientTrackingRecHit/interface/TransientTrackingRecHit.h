@@ -13,7 +13,7 @@
 class TransientTrackingRecHit : public TrackingRecHit
 {
  public:
-  TransientTrackingRecHit(edm::ESHandle<TrackingGeometry> geom, TrackingRecHit * rh) {
+  TransientTrackingRecHit(const TrackingGeometry * geom, const TrackingRecHit * rh) {
     _geom = geom ;
     _trackingRecHit = rh->clone();
   }
@@ -65,7 +65,7 @@ class TransientTrackingRecHit : public TrackingRecHit
   }
 
   private:
-  edm::ESHandle<TrackingGeometry> _geom ;
+  const TrackingGeometry * _geom ;
   TrackingRecHit * _trackingRecHit;
 };
 

@@ -3,11 +3,12 @@
 
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 
 class TSiStripRecHit2DMatchedLocalPos : public TransientTrackingRecHit{
  public:
-  TSiStripRecHit2DMatchedLocalPos(edm::ESHandle<TrackingGeometry> geom, TrackingRecHit * rh) : TransientTrackingRecHit(geom, rh){}
+  TSiStripRecHit2DMatchedLocalPos(const TrackingGeometry * geom, const TrackingRecHit * rh) : TransientTrackingRecHit(geom, rh){}
 
   //
   // fake for the moment
@@ -20,7 +21,6 @@ class TSiStripRecHit2DMatchedLocalPos : public TransientTrackingRecHit{
   virtual TransientTrackingRecHit * clone() const {
     return new TSiStripRecHit2DMatchedLocalPos(*this);
   }
-  return 0;
 };
 
 

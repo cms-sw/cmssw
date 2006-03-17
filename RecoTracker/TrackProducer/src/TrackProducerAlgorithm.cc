@@ -11,14 +11,15 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
 void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
-				  const MagneticField * theMF,
-				  TrackCandidateCollection& theTCCollection,
-				  const KFTrajectoryFitter * theFitter,
-				  std::auto_ptr<reco::TrackCollection>& tcoll,
-				  std::auto_ptr<reco::TrackExtraCollection>& tecoll)
+				 const MagneticField * theMF,
+				 TrackCandidateCollection& theTCCollection,
+				 const KFTrajectoryFitter * theFitter,
+				 std::auto_ptr<reco::TrackCollection>& tcoll,
+				 std::auto_ptr<reco::TrackExtraCollection>& tecoll)
 {
   int cont = 0;
   for (TrackCandidateCollection::iterator i=theTCCollection.begin(); i!=theTCCollection.end();i++)
@@ -29,21 +30,29 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
       PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
       DetId * detId = new DetId(state.detId());
       TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
-								      &(theG->idToDet(*detId)->surface()), 
-								      theMF);
-       
+								     &(theG->idToDet(*detId)->surface()), 
+								     theMF);
+      
       //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
       //meanwhile computes the number of degrees of freedom
       edm::OwnVector<TransientTrackingRecHit> hits;
       TransientTrackingRecHitBuilder * builder;
+
+      //
+      // temporary!
+      //
+      builder = new TkTransientTrackingRecHitBuilder( theG);
+
       int ndof=0;
       
       for (edm::OwnVector<TrackingRecHit>::const_iterator i=theTC->recHits().first;
 	   i!=theTC->recHits().second; i++){
-	hits.push_back(builder->build( theG, i->clone() ));
+	hits.push_back(builder->build(&(*i) ));
 	ndof = ndof + int( (i->dimension())*(i->weight()) );
       }
       
+      delete builder;
+
       ndof = ndof - 5;
       
       //variable declarations

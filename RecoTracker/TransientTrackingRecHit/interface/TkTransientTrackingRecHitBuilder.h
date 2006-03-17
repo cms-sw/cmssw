@@ -8,7 +8,7 @@ class TkTransientTrackingRecHitBuilder : public TransientTrackingRecHitBuilder {
 
  public:
   TkTransientTrackingRecHitBuilder( const TrackingGeometry* trackingGeometry);
-  TransientTrackingRecHit * build (TrackingRecHit * p) ;
+  TransientTrackingRecHit * build (const TrackingRecHit * p) ;
  private:
   const TrackingGeometry* tGeometry_;
 };
