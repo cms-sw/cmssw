@@ -20,12 +20,12 @@ class SiStripFedCabling {
   virtual ~SiStripFedCabling();
 
   /** Active FEDs. */
-  const std::vector<unsigned short>& feds() const;
+  const std::vector<uint16_t>& feds() const;
   /** Connection info for FE devices connected to a given FED id and channel. */
-  const FedChannelConnection& connection( unsigned short fed_id,
-					  unsigned short fed_chan ) const; 
+  const FedChannelConnection& connection( uint16_t fed_id,
+					  uint16_t fed_chan ) const; 
   /** Connection info for FE devices connected to a given FED. */
-  const std::vector<FedChannelConnection>& connections( unsigned short fed_id ) const; 
+  const std::vector<FedChannelConnection>& connections( uint16_t fed_id ) const; 
   
  private:
   
@@ -33,7 +33,7 @@ class SiStripFedCabling {
   SiStripFedCabling() {;}
 
   /** "Active" FEDs that have connected FE devices. */
-  std::vector<unsigned short> feds_;
+  std::vector<uint16_t> feds_;
   /** 
       Channel-level connection information for FE devices that: 
       - have been detected (ie, have non-zero FEC-related fields),

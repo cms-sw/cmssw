@@ -1,4 +1,5 @@
 <lcgdict>
+
   <class name="StripDigi"/>
   <class name="std::vector<StripDigi>"/>
   <class name="std::pair<unsigned int, unsigned int>"/>
@@ -6,4 +7,11 @@
   <class name="std::map<unsigned int, std::vector<StripDigi> >"/>
   <class name="StripDigiCollection"/>
   <class name="edm::Wrapper<StripDigiCollection>" id="AD149B57-09AB-00FC-306B-DA571F26707F"/>
+
+  <class name="SiStripDigi"/>
+  <class name="edm::DetSetVector<SiStripDigi>"/>
+  <class name="SiStripRawDigi"/>
+  <class name="edm::DetSetVector<SiStripRawDigi>"/>
+  <class name="SiStripEventSummary"/>
+
 </lcgdict>

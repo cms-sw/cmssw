@@ -11,8 +11,8 @@ class SiStripRawDigi {
 
  public:
 
-  SiStripRawDigi( uint16_t adc ) : adc_(adc) {;}
   SiStripRawDigi() : adc_(0) {;}
+  SiStripRawDigi( uint16_t adc ) : adc_(adc) {;}
   ~SiStripRawDigi() {;}
 
   inline const uint16_t& adc()     const { return adc_; }

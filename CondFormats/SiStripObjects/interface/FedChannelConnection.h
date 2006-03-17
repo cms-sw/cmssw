@@ -5,8 +5,8 @@
 #include <vector>
 
 /** 
-    \class FedChannelConnection 
-    \brief Channel-level device and connection information.
+    @class FedChannelConnection 
+    @brief FED channel-level device and connection information.
 */
 class FedChannelConnection {
   
@@ -15,7 +15,7 @@ class FedChannelConnection {
   FedChannelConnection()
     : fecCrate_(0), fecSlot_(0), fecRing_(0), ccuAddr_(0), ccuChan_(0),
     apv0_(0), apv1_(0), 
-    dcuId_(0), detId_(0), nPairs_(0),
+    dcuId_(0), detId_(0), nApvPairs_(0),
     fedId_(0), fedCh_(0), length_(0),
     dcu0x00_(false), mux0x43_(false), pll0x44_(false), lld0x60_(false) {;}
   
@@ -40,38 +40,52 @@ class FedChannelConnection {
 			bool lld = false )
     : fecCrate_(fec_crate), fecSlot_(fec_slot), fecRing_(fec_ring), ccuAddr_(ccu_addr), ccuChan_(ccu_chan),
     apv0_(apv0), apv1_(apv1),
-    dcuId_(dcu_id), detId_(det_id), nPairs_(pairs), 
+    dcuId_(dcu_id), detId_(det_id), nApvPairs_(pairs), 
     fedId_(fed_id), fedCh_(fed_ch), length_(length),
     dcu0x00_(dcu), mux0x43_(mux), pll0x44_(pll), lld0x60_(lld) { dcu_id ? dcu0x00_=true : dcu0x00_=false; }
   
   ~FedChannelConnection() {;}
 
-  // Control   
-  const uint16_t& fecCrate() const { return fecCrate_; } 
-  const uint16_t& fecSlot()  const { return fecSlot_; } 
-  const uint16_t& fecRing()  const { return fecRing_; }
-  const uint16_t& ccuAddr()  const { return ccuAddr_; }
-  const uint16_t& ccuChan()  const { return ccuChan_; }
+  // ----- Control structure -----
 
-  // I2C addresses
+  const uint16_t& fecCrate() const { return fecCrate_; } 
+  const uint16_t& fecSlot() const { return fecSlot_; } 
+  const uint16_t& fecRing() const { return fecRing_; }
+  const uint16_t& ccuAddr() const { return ccuAddr_; }
+  const uint16_t& ccuChan() const { return ccuChan_; }
+
+  // ----- APV I2C addresses -----
   const uint16_t& i2cAddrApv0() const { return apv0_; }
   const uint16_t& i2cAddrApv1() const { return apv1_; }
+
+  // ----- Other hybrid devices -----
 
   const bool& dcu() const { return dcu0x00_; }
   const bool& mux() const { return mux0x43_; }
   const bool& pll() const { return pll0x44_; }
   const bool& lld() const { return lld0x60_; }
   
-  // Module / Detector
-  const uint32_t& dcuId()  const { return dcuId_; }
-  const uint32_t& detId()  const { return detId_; }
-  const uint16_t& nPairs() const { return nPairs_; }
-  uint16_t pairPos() const; // APV pair position on a hybrid (0->2)
-  uint16_t pairId()  const; // APV number (0->1 or 0->2)
+  // ----- Module / Detector -----
 
-  // FED
+  const uint32_t& dcuId() const { return dcuId_; }
+  const uint32_t& detId() const { return detId_; }
+  const uint16_t& nApvPairs() const { return nApvPairs_; }
+  /** Returns APV pair number for this connection (this can be either
+      0->1 or 0->2, depending on number of detector strips). */
+  uint16_t apvPairNumber() const;
+  /** Returns LLD channel on hybrid (0->2) for this connection. */
+  uint16_t lldChannel() const; 
+  
+  // ----- FED -----
+
   const uint16_t& fedId() const { return fedId_; }
   const uint16_t& fedCh() const { return fedCh_; }
+  void fedId( uint16_t& fed_id ) { fedId_ = fed_id; }
+  void fedCh( uint16_t& fed_ch ) { fedCh_ = fed_ch; }
+  
+  // ----- Misc -----
+
+  void print() const;
 
  private: 
 
@@ -89,7 +103,7 @@ class FedChannelConnection {
   // Module / Detector
   uint32_t dcuId_;
   uint32_t detId_;
-  uint16_t nPairs_;
+  uint16_t nApvPairs_;
 
   // FED
   uint16_t fedId_;

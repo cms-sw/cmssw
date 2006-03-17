@@ -1,10 +1,8 @@
-<use name=clhep>
-<use name=boost>
 <use name=DataFormats/Common>
+<use name=boost>
 
 <export>
    <lib name=DataFormatsSiStripDigi>
    <use name=DataFormats/Common>
-   <use name=clhep>
    <use name=boost>
 </export>

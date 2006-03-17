@@ -12,8 +12,8 @@ class SiStripDigi {
 
  public:
 
-  SiStripDigi( uint16_t strip, uint16_t adc ) : strip_(strip), adc_(adc) {;}
   SiStripDigi() : strip_(0), adc_(0) {;}
+  SiStripDigi( uint16_t strip, uint16_t adc ) : strip_(strip), adc_(adc) {;}
   ~SiStripDigi() {;}
 
   inline const uint16_t& strip()   const { return strip_; }
