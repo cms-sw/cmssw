@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.6 2006/03/10 23:27:28 wmtan Exp $
+$Id: RootFile.cc,v 1.7 2006/03/14 23:33:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -87,6 +87,9 @@ namespace edm {
     ParameterSetID *psetIDptr = &psetID;
     ParameterSetBlob *psetBlobptr = &psetBlob;
     TTree *parameterSetTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::parameterSetTreeName().c_str()));
+    if (!parameterSetTree) {
+      return;
+    }
     int nEntries = parameterSetTree->GetEntries();
     parameterSetTree->SetBranchAddress(poolNames::parameterSetIDBranchName().c_str(), &psetIDptr);
     parameterSetTree->SetBranchAddress(poolNames::parameterSetBranchName().c_str(), &psetBlobptr);
