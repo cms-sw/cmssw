@@ -11,7 +11,8 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   theParameterMap = new EcalSimParameterMap();
   theEcalShape = new EcalShape();
 
-  theESShape = new ESShape();
+  int ESGain = params.getUntrackedParameter<int>("ESGain", 1);
+  theESShape = new ESShape(ESGain);
 
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
   theESResponse = new CaloHitResponse(theParameterMap, theESShape);
