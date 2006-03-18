@@ -24,7 +24,7 @@ ESShape::ESShape(int Gain):
     A = 5.99912; 
     Qcf = 0.0114275;
     omegac = 0.086403;
-    norm = 0.152841;
+    norm = 0.111449;
   }
 }
 
