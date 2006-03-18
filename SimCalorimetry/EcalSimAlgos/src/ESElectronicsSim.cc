@@ -4,11 +4,19 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
+#include <iostream>
 using namespace std;
 
-ESElectronicsSim::ESElectronicsSim (bool addNoise, double sigma):
-  addNoise_(addNoise), sigma_ (sigma)
+ESElectronicsSim::ESElectronicsSim (bool addNoise, double sigma, int gain, int baseline, double MIPADC, double MIPkeV):
+  addNoise_(addNoise), sigma_ (sigma), gain_ (gain), baseline_(baseline), MIPADC_(MIPADC), MIPkeV_(MIPkeV)
 {
+  // Preshower Electronics Simulation
+  // The default pedestal baseline is 1000
+  // gain = 0 : old gain used in ORCA (1 ADC count = 1 keV in CMSSW)
+  //            In ORCA, preshower noise was 15 keV
+  // gain = 1 : low gain for data taking  (S =  9 ADC counts, N = 3 ADC counts)
+  // gain = 2 : high gain for calibration (S = 50 ADC counts, N = 7 ADC counts)
+  // For 300(310/320) um Si, the MIP is 78.47(81.08/83.7) keV
 }
 
 void ESElectronicsSim::setNoiseSigma (const double sigma)
@@ -17,7 +25,31 @@ void ESElectronicsSim::setNoiseSigma (const double sigma)
   return ;
 }
 
-void ESElectronicsSim::analogToDigital(CaloSamples& cs, ESDataFrame& df) const 
+void ESElectronicsSim::setGain (const int gain)
+{
+  gain_ = gain ;
+  return ;
+}
+
+void ESElectronicsSim::setBaseline (const int baseline)
+{
+  baseline_ = baseline ;
+  return ;
+}
+
+void ESElectronicsSim::setMIPADC (const double MIPADC) 
+{
+  MIPADC_ = MIPADC ;
+  return ;
+}
+
+void ESElectronicsSim::setMIPkeV (const double MIPkeV) 
+{
+  MIPkeV_ = MIPkeV ;
+  return ;
+}
+
+void ESElectronicsSim::analogToDigital(const CaloSamples& cs, ESDataFrame& df) const 
 {
 
   std::vector<ESSample> essamples = encode(cs);
@@ -29,27 +61,50 @@ void ESElectronicsSim::analogToDigital(CaloSamples& cs, ESDataFrame& df) const
 
 }
 
+void ESElectronicsSim::digitalToAnalog(const ESDataFrame& df, CaloSamples& cs) const 
+{
+
+  for(int i = 0; i < df.size(); i++) {
+    cs[i] = decode(df[i], df.id());
+  }
+
+}
+
 std::vector<ESSample>
 ESElectronicsSim::encode(const CaloSamples& timeframe) const
 {
 
   std::vector<ESSample> results;
 
-  int adc; 
+  int adc = 0; 
+  double ADCkeV = MIPADC_/MIPkeV_;
 
   for (int i=0; i<timeframe.size(); i++) {
-    // pedestal baseline is set to 1000
-    // fake 1 ADC = 1 eV for the moment
-    int pedestal = 1000;
+
     int noi = 0;
     if (addNoise_) noi = int(RandGauss::shoot(0., sigma_));
-    adc = int(timeframe[i]*1000000.) + noi + pedestal;
-    if (adc>4095) adc = 4095;
-    if (adc<0) adc = 0;
+
+    if (gain_ == 0)
+      adc = int(timeframe[i]*1000000.) + noi + baseline_;
+    else if (gain_ == 1)
+      adc = int(timeframe[i]*1000000.*ADCkeV) + noi + baseline_;
+    else if (gain_ == 2)
+      adc = int(timeframe[i]*1000000.*ADCkeV) + noi + baseline_;
+
+    std::cout<<timeframe[i]<<" "<<adc<<" "<<noi<<std::endl;
+
+    if (adc>MAXADC) adc = MAXADC;
+    if (adc<MINADC) adc = MINADC;
+
     results.push_back(ESSample(adc));
   }
 
   return results;
+}
+
+double ESElectronicsSim::decode(const ESSample & sample, const DetId & id) const
+{
+  return 0. ;
 }
 
 

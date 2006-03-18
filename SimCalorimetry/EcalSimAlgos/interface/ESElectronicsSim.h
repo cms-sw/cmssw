@@ -11,10 +11,19 @@ class ESElectronicsSim
 {
  public:
 
-  ESElectronicsSim (bool addNoise, double sigma);
+  enum {MAXADC = 4095};
+  enum {MINADC = 0};
 
-  void setNoiseSigma (const double sigma) ;
-  void analogToDigital(CaloSamples& clf, ESDataFrame& df) const;
+  ESElectronicsSim (bool addNoise, double sigma, int gain, int baseline, double MIPADC, double MIPkeV);
+
+  void setNoiseSigma (const double sigma);
+  void setGain (const int gain);
+  void setBaseline (const int baseline);
+  void setMIPADC (const double MIPADC);
+  void setMIPkeV (const double MIPkeV);
+
+  virtual void analogToDigital(const CaloSamples& cs, ESDataFrame& df) const;
+  virtual void digitalToAnalog(const ESDataFrame& df, CaloSamples& cs) const;
 
   ///  anything that needs to be done once per event
   void newEvent() {}
@@ -23,8 +32,14 @@ class ESElectronicsSim
 
     bool addNoise_;
     double sigma_;
+    int gain_;
+    int baseline_;
+    double MIPADC_;
+    double MIPkeV_;
 
     std::vector<ESSample> encode(const CaloSamples& timeframe) const;
+    double decode(const ESSample & sample, const DetId & detId) const;
+
 } ;
 
 
