@@ -22,8 +22,11 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder);
 
   bool addESNoise = params.getUntrackedParameter<bool>("doESNoise" , true);
-  double ESNoiseSigma = params.getUntrackedParameter<double>("ESNoiseSigma" , 15.); 
-  theESElectronicsSim = new ESElectronicsSim(addESNoise, ESNoiseSigma);
+  double ESNoiseSigma = params.getUntrackedParameter<double> ("ESNoiseSigma", 3.);
+  int ESBaseline = params.getUntrackedParameter<int>("ESBaseline", 1000);
+  double ESMIPADC = params.getUntrackedParameter<double>("ESMIPADC", 9.);
+  double ESMIPkeV = params.getUntrackedParameter<double>("ESMIPkeV", 78.47);
+  theESElectronicsSim = new ESElectronicsSim(addESNoise, ESNoiseSigma, ESGain, ESBaseline, ESMIPADC, ESMIPkeV);
 
   theBarrelDigitizer = new EBDigitizer(theEcalResponse, theElectronicsSim, addNoise);
   theEndcapDigitizer = new EEDigitizer(theEcalResponse, theElectronicsSim, addNoise);
