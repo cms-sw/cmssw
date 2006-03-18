@@ -4,7 +4,6 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-#include <iostream>
 using namespace std;
 
 ESElectronicsSim::ESElectronicsSim (bool addNoise, double sigma, int gain, int baseline, double MIPADC, double MIPkeV):
@@ -90,8 +89,6 @@ ESElectronicsSim::encode(const CaloSamples& timeframe) const
       adc = int(timeframe[i]*1000000.*ADCkeV) + noi + baseline_;
     else if (gain_ == 2)
       adc = int(timeframe[i]*1000000.*ADCkeV) + noi + baseline_;
-
-    std::cout<<timeframe[i]<<" "<<adc<<" "<<noi<<std::endl;
 
     if (adc>MAXADC) adc = MAXADC;
     if (adc<MINADC) adc = MINADC;
