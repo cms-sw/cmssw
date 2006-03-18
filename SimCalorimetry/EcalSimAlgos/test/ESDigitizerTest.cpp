@@ -38,7 +38,7 @@ int main() {
 
   CaloHitResponse ESResponse(&parameterMap, &shape);
 
-  ESElectronicsSim electronicsSim(true, 15);
+  ESElectronicsSim electronicsSim(true, 3, 1, 1000, 9, 78.47);
 
   bool addNoise = false;
   CaloTDigitizer<ESDigitizerTraits> ESDigitizer(&ESResponse, &electronicsSim, addNoise);
