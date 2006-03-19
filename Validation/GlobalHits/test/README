@@ -7,11 +7,15 @@ SimDataFormats/GlobalValidation.
 It is possible to use two .cfg files to run the package:
 
 EvtGen+DetSim+Global.cfg runs the full chain of event generation, detector
-	simulation and global translation
+	simulation and global translation making use of local .cfi files
+	in the data directory (and in some cases standard files when
+	available and appropriate). For instance, you can quickly change
+	between different generators by uncommenting the one you want and
+	commenting all others. Right now EGun and Pythia have .cfi files.
 GlobalValProducer.cfg uses as input a root file created in the 
         SimG4Core/Application/test directory for quick processing
 
-via cmsRun -p *.cfg
+To execute type cmsRun -p *.cfg
 
 Also included is a MakeHistograms.C macro that processes the output root file
  	from GlobalProducer creating a .ps file with formatted histograms as 
