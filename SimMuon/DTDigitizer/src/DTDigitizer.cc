@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/06 17:27:51 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/03/17 13:33:01 $
+ *  $Revision: 1.16 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -199,20 +199,26 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
 
 pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &wireId, 
 					  const PSimHit *hit, const LocalVector &BLoc){ 
-  
+ 
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
   int partType = hit->particleType();
 
   const DTTopology &topo = layer->specificTopology();
 
-  // Pay attention: in CMSSW the rf of the SimHit is the DTCell one, whereas in ORCA was the in the layer's rf
-  // float xwire = topo.wirePosition(wireId.wire()); 
- 
-  float xEntry = entryP.x();
-  float xExit  = exitP.x();
+  // Pay attention: in CMSSW the rf of the SimHit is in the layer's rf
+  
+  if(debug)  cout<<"Hit local entry point: "<<entryP<<endl
+		 <<"Hit local exit point: "<<exitP<<endl;
 
+  float xwire = topo.wirePosition(wireId.wire()); 
+  float xEntry = entryP.x() - xwire;
+  float xExit  = exitP.x() - xwire;
 
+  if(debug) cout<<"wire position: "<<xwire
+		<<" x entry in cell rf: "<<xEntry
+		<<" x exit in cell rf: "<<xExit<<endl;
+  
   DTTopology::Side entrySide = topo.onWhichBorder(xEntry,entryP.y(),entryP.z());
   DTTopology::Side exitSide  = topo.onWhichBorder(xExit,exitP.y(),exitP.z());
 
@@ -304,7 +310,7 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &
      
     if(fabs(pt.z()) < 0.002) { 
       // hit center within 20 um from z=0, no need to extrapolate.
-      x = pt.x();
+      x = pt.x() - xwire;
     } else {
       x = xEntry - (entryP.z()*(xExit-xEntry))/(exitP.z()-entryP.z());
     }
