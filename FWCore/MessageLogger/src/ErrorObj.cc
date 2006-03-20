@@ -18,6 +18,11 @@
 // 2/14/06  mf		Removed oerator<<(endmsg) which is not needed for
 //			MessageLogger for CMS
 //
+// 3/13/06  mf		Instrumented for automatic suppression of spaces.
+// 3/20/06  mf		Instrumented for universal suppression of spaces
+//			(that is, items no longer contain any space added
+//			by the MessageLogger stack)
+//
 // ErrorObj( const ELseverityLevel & sev, const ELstring & id )
 // ~ErrorObj()
 // set( const ELseverityLevel & sev, const ELstring & id )
@@ -244,17 +249,14 @@ ErrorObj::opltlt ( const char s[] ) {
   // Exactly equivalent to the general template. 
   // If this is not provided explicitly, then the template will
   // be instantiated once for each length of string ever used.
-  myOs.str(emptyString); // trying this to see about spacing issue 
+  myOs.str(emptyString); 
   myOs << s;
+#ifdef OLD_STYLE_AUTOMATIC_SPACES
   if ( ! myOs.str().empty() ) emit( myOs.str() + ' ' );
+#else
+  if ( ! myOs.str().empty() ) emit( myOs.str() );
+#endif
   return *this;
-    #ifdef FWCore_MessageLogger_ErrorObj_faster_but_flawed
-    // We could skip the ostringstream part by forming the string directly.
-    // But then manipulators would have no effect on char strings, as in
-    // LogWarning ( "category" )  << std::setfill('#') << std::setw(4) << "ab";
-    // which would emit as the "ab" item the string ab instead of ##ab.
-    return emit ( std::string(s)+' ' );
-    #endif 
 }
 
 ErrorObj & operator<<( ErrorObj & e, const char s[] ) {

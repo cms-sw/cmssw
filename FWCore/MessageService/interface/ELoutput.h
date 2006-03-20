@@ -120,6 +120,7 @@ protected:
   ,    wantFullContext
   ,    wantTimeSeparate
   ,    wantEpilogueSeparate
+  ,    preambleMode
   ;
 
   // --- Verboten method:
