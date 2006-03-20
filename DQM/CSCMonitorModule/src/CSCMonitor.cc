@@ -2,8 +2,8 @@
  * 
  *  implementation of CSCMonitor class
  *
- *  $Date: 2006/02/07 14:31:15 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/02/10 10:30:55 $
+ *  $Revision: 1.11 $
  *
  * \author Ilaria Segoni
  */
@@ -69,6 +69,10 @@ void CSCMonitor::process(CSCDCCEventData & dccData )
          this->MonitorDDU(dduData[ddu], ddu );
    
       }
+      
+      
+  if(nEvents % 1000 == 0)   dbe->save("CSCDQMPlots.root"); 
+   
   usleep(100000);
 }
 
