@@ -86,6 +86,9 @@ public Observer<const EndOfEvent*>
   void createHit(G4Step *);
   void updateHit(G4Step *);
   void saveHit();
+  
+  Local3DPoint InitialStepPositionVsParent(G4Step * currentStep);
+  Local3DPoint FinalStepPositionVsParent(G4Step * currentStep);
 
   G4VPhysicalVolume * thePV;
   UpdatablePSimHit* theHit;

@@ -209,8 +209,22 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
 
   G4Track * theTrack  = aStep->GetTrack(); 
 
-  Local3DPoint theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPosition(aStep,LocalCoordinates),aStep));  
-  Local3DPoint theExitPoint = toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
+  Local3DPoint theEntryPoint;
+  Local3DPoint theExitPoint;
+
+  if (detector->isBarrel()) {
+     theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPositionVsParent(aStep),aStep)); 
+  } else {
+     theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPosition(aStep,LocalCoordinates),aStep));
+  }
+
+  if (detector->isBarrel()) {
+     theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep),aStep)); 
+  } else {
+     theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
+  }
+  
+
   float thePabs             = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
   float theTof              = aStep->GetPreStepPoint()->GetGlobalTime()/nanosecond;
   float theEnergyLoss       = aStep->GetTotalEnergyDeposit()/GeV;
@@ -390,3 +404,39 @@ std::vector<std::string> MuonSensitiveDetector::getNames(){
   return temp;
 }
 
+Local3DPoint MuonSensitiveDetector::InitialStepPositionVsParent(G4Step * currentStep) {
+  
+  G4StepPoint * preStepPoint = currentStep->GetPreStepPoint();
+  G4ThreeVector globalCoordinates = preStepPoint->GetPosition();
+  
+  G4TouchableHistory * theTouchable=(G4TouchableHistory *)
+    (preStepPoint->GetTouchable());
+
+  //  G4ThreeVector localCoordinates = theTouchable->GetHistory()
+  // ->GetTransform().TransformPoint(globalCoordinates);
+
+  G4int depth = theTouchable->GetHistory()->GetDepth();
+  G4ThreeVector localCoordinates = theTouchable->GetHistory()
+    ->GetTransform(depth-1).TransformPoint(globalCoordinates);
+  
+  return ConvertToLocal3DPoint(localCoordinates); 
+}
+ 
+Local3DPoint MuonSensitiveDetector::FinalStepPositionVsParent(G4Step * currentStep) {
+  
+  G4StepPoint * postStepPoint = currentStep->GetPostStepPoint();
+  G4StepPoint * preStepPoint  = currentStep->GetPreStepPoint();
+  G4ThreeVector globalCoordinates = postStepPoint->GetPosition();
+    
+  G4TouchableHistory * theTouchable = (G4TouchableHistory *)
+    (preStepPoint->GetTouchable());
+
+  //  G4ThreeVector localCoordinates = theTouchable->GetHistory()
+  //    ->GetTransform().TransformPoint(globalCoordinates);
+
+  G4int depth = theTouchable->GetHistory()->GetDepth();
+  G4ThreeVector localCoordinates = theTouchable->GetHistory()
+    ->GetTransform(depth-1).TransformPoint(globalCoordinates);
+
+  return ConvertToLocal3DPoint(localCoordinates); 
+}
