@@ -3,9 +3,6 @@
 // Class:           GlobalPixelSeedGenerator
 // 
 
-
-
-
 #include <iostream>
 #include <memory>
 #include <string>
@@ -45,12 +42,6 @@ void GlobalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
 
   e.getByType(pixelHits);
 
-
-
-
- 
-
-
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   //
 
@@ -60,6 +51,8 @@ void GlobalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
   globalseed.run(*output,es);
 
   // write output to file
+
+  std::cout <<" writing "<< output->size()<<" seeds "<<std::endl;
 
   e.put(output);
 }
