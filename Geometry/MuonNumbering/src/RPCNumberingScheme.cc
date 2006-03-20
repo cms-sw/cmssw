@@ -182,10 +182,6 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
   int trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+
     roll_id;
   
-  // Build the actual numbering
-  RPCDetId id;
-  id.buildfromTrIndex(trIndex);
-
 #ifdef DEBUG
   if (barrel_muon) {
     std::cout << "RPCNumberingScheme (barrel): ";
@@ -201,6 +197,13 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
   std::cout << " sector " << sector_id;
   std::cout << " plane " << plane_id;
   std::cout << " eta " << eta_id;
+#endif
+
+  // Build the actual numbering
+  RPCDetId id;
+  id.buildfromTrIndex(trIndex);
+
+#ifdef DEBUG
   std::cout << " DetId " << id;  
   std::cout << std::endl;
 #endif
