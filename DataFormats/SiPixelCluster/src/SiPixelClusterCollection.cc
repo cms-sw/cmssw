@@ -5,6 +5,8 @@ void
 SiPixelClusterCollection::put(SiPixelClusterCollection::Range input, 
 			      unsigned int detID) 
 {
+
+  if (input.first == input.second) return ;
   // put in Clusters for a given detID
 
   // store size of vector before put
@@ -45,6 +47,9 @@ SiPixelClusterCollection::get(unsigned int detID) const
   // get RecHits of detID
 
   SiPixelClusterCollection::RegistryIterator returnIndex = map_.find(detID);
+  if (returnIndex== map_.end()){
+    return Range(container_.end(),container_.end());
+  }
   SiPixelClusterCollection::IndexRange returnIndexRange = returnIndex->second;
 
   SiPixelClusterCollection::Range returnRange;

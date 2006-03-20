@@ -21,6 +21,7 @@ class SiPixelClusterCollection {
   void put(Range input, unsigned int detID);
   const Range get(unsigned int detID) const;
   const std::vector<unsigned int> detIDs() const;
+unsigned int size() const {return container_.size();}
   
  private:
   mutable std::vector<SiPixelCluster> container_;
