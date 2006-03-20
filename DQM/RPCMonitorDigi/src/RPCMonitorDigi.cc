@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorDigi class
  *
- *  $Date: 2006/02/10 10:42:57 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/09 10:16:15 $
+ *  $Revision: 1.1 $
  *
  * \author Ilaria Segoni
  */
@@ -29,7 +29,6 @@
 
 RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
 
-  nameInLog = pset.getUntrackedParameter<std::string>("moduleLogName", "RPC_DQM");
   nameInLog = pset.getUntrackedParameter<std::string>("moduleLogName", "RPC_DQM");
 
   /// get hold of back-end interface
@@ -75,7 +74,6 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
  sprintf(layerLabel ,"layer%d_subsector%d_roll%d",detId.layer(),detId.subsector(),detId.roll());
 
  char meId [128];
- char meTitle [128];
 
  edm::LogInfo (nameInLog) <<"For DetId = "<<id<<" components: "<<(*collectionItr ).first;
  
@@ -87,7 +85,6 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
  	
  int roll = detId.roll();
  RPCClusterHandle clusterFinder(nameInLog);
- clusterFinder.reset();
  
  int numberOfDigi= 0;
  edm::LogInfo (nameInLog) <<"For roll = "<< roll;
@@ -102,50 +99,46 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 		clusterFinder.addStrip(strip);
 	        ++numberOfDigi;
 
-		sprintf(meId,"Oppupancy_%s",detUnitLabel);
-		sprintf(meTitle,"Occupancy_for_%s",layerLabel);
+		sprintf(meId,"Occupancy_%s",detUnitLabel);
 		meMap[meId]->Fill(strip);
 
 		sprintf(meId,"BXN_%s",detUnitLabel);
-		sprintf(meTitle,"BXN_for_%s",layerLabel);
 		meMap[meId]->Fill(bx);
 	
 	}/// loop on Digi
 
 	sprintf(meId,"NumberOfDigi_%s",detUnitLabel);
-	sprintf(meTitle,"NumberOfDigi_or_%s",layerLabel);
 	meMap[meId]->Fill(numberOfDigi);
 
 	/// CLUSTERS
  	std::vector<int> clusterMultiplicities = clusterFinder.findClustersFromStrip();
         
-	//edm::LogInfo (nameInLog) <<"Number Of Clusters :"<<clusterMultiplicities.size();
+	edm::LogInfo (nameInLog) <<"Number Of Clusters :"<<clusterMultiplicities.size();
 	sprintf(meId,"NumberOfClusters_%s",detUnitLabel);
-	sprintf(meTitle,"NumberOfClusters_or_%s",layerLabel);
 	meMap[meId]->Fill(clusterMultiplicities.size());
 
+	sprintf(meId,"ClusterSize_%s",detUnitLabel);
 	for(std::vector<int>::iterator mult = clusterMultiplicities.begin(); 
 	       mult != clusterMultiplicities.end(); ++mult ){
         	edm::LogInfo (nameInLog) <<"Cluster size:"<<*mult;
-			sprintf(meId,"ClusterSize_%s",detUnitLabel);
-			sprintf(meTitle,"BXN_for_%s",layerLabel);
 			if(*mult<=10) meMap[meId]->Fill(*mult);
 			if(*mult>10) meMap[meId]->Fill(11);
 	}
 	
-	//edm::LogInfo (nameInLog) <<"Number Of Digi :"<<numberOfDigi;
+	edm::LogInfo (nameInLog) <<"Number Of Digi :"<<numberOfDigi;
  
 
 
 
-	dbe->showDirStructure();
+  if(counter % 1000 == 0)   dbe->save("RPCDQMDigiPlots.root");
+  //dbe->showDirStructure();
 
  
  }/// loop on RPC Det Unit
 
       
   
- usleep(1000000);
+ usleep(10000000);
 
 
 }
