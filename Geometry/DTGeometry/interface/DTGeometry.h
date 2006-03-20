@@ -8,8 +8,8 @@
  *  The geometry owns the DTChamber s; these own their DTSuperLayer s which 
  *  in turn own their DTLayer s.
  *
- *  $Date: 2006/02/22 11:06:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/07 15:27:20 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -26,9 +26,8 @@ class GeomDetUnit;
 
 class DTGeometry : public TrackingGeometry {
 
-  typedef std::map<DetId, DTChamber*>     DTChamberMap ;
-  typedef std::map<DetId, DTSuperLayer*>  DTSuperLayerMap ;
-  typedef std::map<DetId, DTLayer*>       DTLayerMap ;
+  typedef std::map<DetId, GeomDet*>       DTDetMap ;
+
 
   public:
     /// Default constructor
@@ -74,13 +73,13 @@ class DTGeometry : public TrackingGeometry {
 
 
     /// Return a DTChamber given its id
-    const DTChamber* chamber(const DTChamberId& id) const;
+    const DTChamber* chamber(DTChamberId id) const;
 
     /// Return a DTSuperLayer given its id
-    const DTSuperLayer* superLayer(const DTSuperLayerId& id) const;
+    const DTSuperLayer* superLayer(DTSuperLayerId id) const;
 
     /// Return a layer given its id
-    const DTLayer* layer(const DTLayerId& id) const;
+    const DTLayer* layer(DTLayerId id) const;
 
     /// Add a DTChamber to Geometry
     void add(DTChamber* ch);
@@ -98,16 +97,18 @@ class DTGeometry : public TrackingGeometry {
 
     // All following pointers are redundant; they are used only for an
     // efficient implementation of the interface, and are NOT owned.
+
     std::vector<DTSuperLayer*> theSuperLayers; 
     std::vector<DTLayer*> theLayers;
-    DetTypeContainer  theDetTypes;       // the DetTypes
+
+    // Map for efficient lookup by DetId 
+    DTDetMap          theDetMap;
+
+    // These are used rarely; they could be computed at runtime 
+    // to save memory.
     DetUnitContainer  theDetUnits;       // all layers
     DetContainer      theDets;           // all chambers, SL, layers
-    DetIdContainer    theDetUnitIds;     // DetIds of layers
-    DetIdContainer    theDetIds;         // DetIds of all chambers, SL, layers
-    DTChamberMap      theChambersMap;    // chamber lookup by DetId
-    DTSuperLayerMap   theSuperLayersMap; // SL lookup by DetId
-    DTLayerMap        theLayersMap;      // layer lookup by DetId 
+
 
 };
 

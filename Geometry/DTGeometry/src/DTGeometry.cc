@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/22 11:06:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/07 15:27:21 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -22,28 +22,31 @@ DTGeometry::~DTGeometry(){
 }
 
 const DTGeometry::DetTypeContainer&  DTGeometry::detTypes() const{
-  // FIXME
-  static DetTypeContainer result;
-  return result;
+  static DetTypeContainer  theDetTypes;
+  // FIXME - fill it at runtime
+  return theDetTypes;
 }
 
 
 void DTGeometry::add(DTChamber* ch) {
+  theDets.push_back(ch);
   theChambers.push_back(ch);
-  theChambersMap.insert(std::pair<DetId,DTChamber*>(ch->geographicalId(),ch));
+  theDetMap.insert(std::pair<DetId,GeomDet*>(ch->geographicalId(),ch));
 }
 
 
 void DTGeometry::add(DTSuperLayer* sl) {
+  theDets.push_back(sl);
   theSuperLayers.push_back(sl);
-  theSuperLayersMap.insert(std::pair<DetId,DTSuperLayer*>(sl->geographicalId(),sl));
+  theDetMap.insert(std::pair<DetId,GeomDet*>(sl->geographicalId(),sl));
 }
 
 
 void DTGeometry::add(DTLayer* l) {
-  theLayers.push_back(l); 
-  theLayersMap.insert(std::pair<DetId,DTLayer*>(l->geographicalId(),l));
   theDetUnits.push_back(l);
+  theDets.push_back(l);
+  theLayers.push_back(l); 
+  theDetMap.insert(std::pair<DetId,GeomDet*>(l->geographicalId(),l));
 }
 
 
@@ -53,33 +56,33 @@ const DTGeometry::DetUnitContainer& DTGeometry::detUnits() const{
 
 
 const DTGeometry::DetContainer& DTGeometry::dets() const{
-  return theDets; // FIXME - empty!
+  return theDets; 
 }
 
 
 const DTGeometry::DetIdContainer& DTGeometry::detUnitIds() const{
-  // FIXME
-  static DetIdContainer result;
-  return result;
+  static DetIdContainer    theDetUnitIds;
+  // FIXME - fill it at runtime
+  return theDetUnitIds;
 }
 
 
 const DTGeometry::DetIdContainer& DTGeometry::detIds() const{
-  // FIXME
-  static DetIdContainer result;
-  return result;
+  static DetIdContainer theDetIds;
+  // FIXME - fill it at runtime
+  return theDetIds;
 }
 
 
 const GeomDetUnit* DTGeometry::idToDetUnit(DetId id) const{
-  return (theLayersMap.find(id) != theLayersMap.end()) ?
-    (theLayersMap.find(id))->second : 0 ;
+  return dynamic_cast<const GeomDetUnit*>(idToDet(id));
 }
 
 
 const GeomDet* DTGeometry::idToDet(DetId id) const{
-  // FIXME!!! should search in all GeomDet*!!!
-  return idToDetUnit(id);
+  DTDetMap::const_iterator i = theDetMap.find(id);
+  return (i != theDetMap.end()) ?
+    i->second : 0 ;
 }
 
 
@@ -98,19 +101,16 @@ const std::vector<DTLayer*>& DTGeometry::layers() const{
 }
 
 
-const DTChamber* DTGeometry::chamber(const DTChamberId& id) const {
-  return (theChambersMap.find(id) != theChambersMap.end()) ?
-    (theChambersMap.find(id))->second : 0 ;
+const DTChamber* DTGeometry::chamber(DTChamberId id) const {
+  return (const DTChamber*)(idToDet(id));
 }
 
 
-const DTSuperLayer* DTGeometry::superLayer(const DTSuperLayerId& id) const {
-  return (theSuperLayersMap.find(id) != theSuperLayersMap.end()) ?
-    (theSuperLayersMap.find(id))->second : 0 ;
+const DTSuperLayer* DTGeometry::superLayer(DTSuperLayerId id) const {
+  return (const DTSuperLayer*)(idToDet(id));
 }
 
 
-const DTLayer* DTGeometry::layer(const DTLayerId& id) const {
-  return (theLayersMap.find(id) != theLayersMap.end()) ?
-    (theLayersMap.find(id))->second : 0 ;
+const DTLayer* DTGeometry::layer(DTLayerId id) const {
+  return (const DTLayer*)(idToDet(id));
 }

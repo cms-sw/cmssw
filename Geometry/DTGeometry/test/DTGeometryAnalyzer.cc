@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/22 11:06:57 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/07 15:27:22 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -64,31 +64,34 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
 
   cout << " Geometry node for DTGeom is  " << &(*pDD) << endl;   
-  cout << " I have "<<pDD->detUnits().size() << " detUnits" << endl;
-  cout << " I have "<<pDD->detTypes().size() << " types" << endl;
-  cout << " I have "<<pDD->layers().size() << " layers" << endl;
+  cout << " I have "<<pDD->detTypes().size()    << " detTypes" << endl;
+  cout << " I have "<<pDD->detUnits().size()    << " detUnits" << endl;
+  cout << " I have "<<pDD->dets().size()        << " dets" << endl;
+  cout << " I have "<<pDD->layers().size()      << " layers" << endl;
   cout << " I have "<<pDD->superLayers().size() << " superlayers" << endl;
-  cout << " I have "<<pDD->chambers().size() << " chambers" << endl;
+  cout << " I have "<<pDD->chambers().size()    << " chambers" << endl;
 
   cout << myName() << ": Begin iteration over geometry..." << endl;
   cout << "iter " << dashedLine_ << endl;
 
-  // check dets
+  // check detUnits
   for(DTGeometry::DetUnitContainer::const_iterator det = pDD->detUnits().begin(); 
       det != pDD->detUnits().end(); ++det){
 
     DetId detId = (*det)->geographicalId();
     int id = detId(); // or detId.rawId()
+    const GeomDet* gdet_=pDD->idToDet(detId);
     const GeomDetUnit* gdet=pDD->idToDetUnit(detId);
     const DTLayer* lay=dynamic_cast<const DTLayer*>(gdet);
-    cout << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id
-      << " get back GDU from ID " << gdet << " " <<(*det==gdet) << " " << lay << endl;
-
-
+    cout << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id << endl;
+    assert(*det==gdet);
+    assert(gdet_==gdet);
+    assert(gdet_==lay);
   }
 
-  cout << "LAYERS " << dashedLine_ << endl;
+
   // check layers
+  cout << "LAYERS " << dashedLine_ << endl;
   for(vector<DTLayer*>::const_iterator det = pDD->layers().begin(); 
       det != pDD->layers().end(); ++det){
     const DTTopology& topo = (*det)->specificTopology();
@@ -104,6 +107,7 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
       << endl;
   }
 
+
   // check superlayers
   cout << "SUPERLAYERS " << dashedLine_ << endl;
   for(vector<DTSuperLayer*>::const_iterator det = pDD->superLayers().begin(); 
@@ -117,6 +121,7 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
       << surf.bounds().thickness() << "/" << surf.bounds().length()
       << endl;
   }
+
 
   // check chamber
   cout << "CHAMBERS " << dashedLine_ << endl;
@@ -133,56 +138,45 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
       << endl;
   }
   cout << "END " << dashedLine_ << endl;
+
+
+  // Check chamber(), layer(), superlayer(), idToDet()
   for (int w=-2; w<=2; ++w) {
     for (int st=1; st<=4; ++st) {
       for (int se=1; se <= ((st==4) ? 14 : 12) ; ++se) {
+
         DTChamberId id(w,st,se);
         const DTChamber* ch = pDD->chamber(id);
         if (!ch) cout << "ERROR ch not found " << id << endl;
         if (id!=ch->id()) cout << "ERROR: got wrong chamber: Cerco camera " << id << " e trovo " << ch->id() << endl;
+	// test idToDet for chamber
+	const GeomDet* gdetc=pDD->idToDet(id);
+	assert(((int)gdetc)==((int)ch));
+
         for (int sl=1; sl<= 3 ; ++sl) {
-          if (sl==2 && st==4) continue;
+	  if (sl==2 && st==4) continue;
           DTSuperLayerId slid(id,sl);
           const DTSuperLayer* sl = pDD->superLayer(slid);
           if (!sl) cout << "ERROR sl not found " << slid << endl;
           if (slid!=sl->id()) cout << "ERROR: got wrong sl! Cerco sl " << slid << " e trovo " << sl->id() << endl;
+	  // test idToDet for superLayer
+	  const GeomDet* gdets=pDD->idToDet(slid);
+	  assert(((int)gdets)==((int)sl));
+
           for (int l=1; l<=4; ++l) {
             DTLayerId lid(slid,l);
             const DTLayer* lay = pDD->layer(lid);
             if (!lay) cout << "ERROR lay not found " << lid << endl;
             if (lid!=lay->id()) cout << "ERROR: got wrong layer Cerco lay  " << lid << " e trovo " << lay->id() << endl;
+	    // test idToDet for layer
+	    const GeomDet* gdetl=pDD->idToDet(lid);
+	    assert(((int)gdetl)==((int)lay));
           }
         }
       }
     }
   }
   cout << "END " << dashedLine_ << endl;
-
-  for (int w=-2; w<=2; ++w) {
-    for (int st=1; st<=4; ++st) {
-      for (int se=1; se <= ((st==4) ? 14 : 12) ; ++se) {
-        DTChamberId id(w,st,se);
-        const DTChamber* ch = pDD->chamber(id);
-        if (!ch) cout << "ERROR ch not found " << id << endl;
-        if (id!=ch->id()) cout << "ERROR: got wrong chamber: Cerco camera " << id << " e trovo " << ch->id() << endl;
-        for (int sl=1; sl<= 3 ; ++sl) {
-          if (sl==2 && st==4) continue;
-          DTSuperLayerId slid(id,sl);
-          const DTSuperLayer* sl = pDD->superLayer(slid);
-          if (!sl) cout << "ERROR sl not found " << slid << endl;
-          if (slid!=sl->id()) cout << "ERROR: got wrong sl! Cerco sl " << slid << " e trovo " << sl->id() << endl;
-          for (int l=1; l<=4; ++l) {
-            DTLayerId lid(slid,l);
-            const DTLayer* lay = pDD->layer(lid);
-            if (!lay) cout << "ERROR lay not found " << lid << endl;
-            if (lid!=lay->id()) cout << "ERROR: got wrong layer Cerco lay  " << lid << " e trovo " << lay->id() << endl;
-          }
-        }
-      }
-    }
-  }
-  cout << "END " << dashedLine_ << endl;
-
 }
 
 //define this as a plug-in
