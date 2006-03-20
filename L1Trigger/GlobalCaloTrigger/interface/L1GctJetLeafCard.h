@@ -1,8 +1,8 @@
 #ifndef L1GCTJETLEAFCARD_H_
 #define L1GCTJETLEAFCARD_H_
 
-#include "L1GctJetFinder.h"
-#include "L1GctSourceCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinder.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
 #include <vector>
 
@@ -20,7 +20,7 @@ class L1GctJetLeafCard
 {
 public:
 	L1GctJetLeafCard();
-	virtual ~L1GctJetLeafCard();
+	~L1GctJetLeafCard();
 
 	void addSource(L1GctSourceCard* card);
 	

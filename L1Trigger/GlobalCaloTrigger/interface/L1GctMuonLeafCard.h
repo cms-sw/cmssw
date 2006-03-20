@@ -1,7 +1,7 @@
 #ifndef L1GCTMUONLEAFCARD_H_
 #define L1GCTMUONLEAFCARD_H_
 
-#include "L1GctSourceCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
 #include <vector>
 
@@ -19,7 +19,7 @@ class L1GctMuonLeafCard
 {
 public:
 	L1GctMuonLeafCard();
-	virtual ~L1GctMuonLeafCard();
+	~L1GctMuonLeafCard();
 
 	void addSource(L1GctSourceCard* card);
 		

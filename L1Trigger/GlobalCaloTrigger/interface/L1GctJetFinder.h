@@ -1,8 +1,8 @@
 #ifndef L1GCTJETFINDER_H_
 #define L1GCTJETFINDER_H_
 
-#include "L1GctJet.h"
-#include "L1GctRegion.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
 
 #include <vector>
 using namespace std;
@@ -19,7 +19,7 @@ class L1GctJetFinder
 {
 public:
 	L1GctJetFinder();
-	virtual ~L1GctJetFinder();
+	~L1GctJetFinder();
 
 	void setInputRegion(int i, L1GctRegion rgn) {};
 	void process() {};

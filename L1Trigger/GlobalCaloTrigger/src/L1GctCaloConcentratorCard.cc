@@ -1,4 +1,4 @@
-#include "../interface/L1GctCaloConcentratorCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctCaloConcentratorCard.h"
 
 L1GctCaloConcentratorCard::L1GctCaloConcentratorCard() {
 	isoElectronLeafCard = new L1GctElectronLeafCard();

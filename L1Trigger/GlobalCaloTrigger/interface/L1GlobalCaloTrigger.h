@@ -1,15 +1,15 @@
 #ifndef L1GLOBALCALOTRIGGER_H_
 #define L1GLOBALCALOTRIGGER_H_
 
-#include "L1GctCaloConcentratorCard.h"
-#include "L1GctMuonConcentratorCard.h"
-#include "L1GctWheelCard.h"
-#include "L1GctElectronLeafCard.h"
-#include "L1GctMuonLeafCard.h"
-#include "L1GctSourceCard.h"
-#include "L1GctEmCand.h"
-#include "L1GctJet.h"
-#include "L1GctEvent.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctCaloConcentratorCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctMuonConcentratorCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctMuonLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEvent.h"
 
 #include <vector>
 

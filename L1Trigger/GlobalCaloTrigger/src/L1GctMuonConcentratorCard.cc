@@ -1,4 +1,4 @@
-#include "../interface/L1GctMuonConcentratorCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctMuonConcentratorCard.h"
 
 L1GctMuonConcentratorCard::L1GctMuonConcentratorCard() {
 	muonLeafCard = new L1GctMuonLeafCard();

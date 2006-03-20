@@ -16,7 +16,7 @@ class L1GctGlobalEnergyAlgos
 {
 public:
 	L1GctGlobalEnergyAlgos();
-	virtual ~L1GctGlobalEnergyAlgos();
+	~L1GctGlobalEnergyAlgos();
 	
 	void setInput(); // need to know type of input data!
 	void process();

@@ -13,32 +13,33 @@ using namespace std;
  * 
  */
 
-//typedefs for ease of use
-typedef bitset<10> TenBit;
+
 typedef unsigned long int ULong;
 
 class L1GctRegion
 {
 public:
-    L1GctRegion();
-	L1GctRegion(ULong et, bool mip, bool quiet);
-	virtual ~L1GctRegion();
+
+	L1GctRegion(ULong et=0, bool mip=false, bool quiet=false);
+	~L1GctRegion();
 	
     // Getters
-	ULong getEt() const { return m_et.to_ulong(); }
-	bool getMip() const { return m_mip; }
-	bool getQuiet() const { return m_quiet; }
+	ULong getEt() const { return myEt.to_ulong(); }
+	bool getMip() const { return myMip; }
+	bool getQuiet() const { return myQuiet; }
     
     // Setters
-    void setEt(ULong et) { TenBit tempEt(et); m_et = tempEt; } 
-    void setMip(bool mip) { m_mip = mip; }
-    void setQuiet(bool quiet) { m_quiet = quiet; }
-	
+    void setEt(ULong et) { myEt = et; } 
+    void setMip(bool mip) { myMip = mip; }
+    void setQuiet(bool quiet) { myQuiet = quiet; }
+
+	ostream& operator << (ostream& os, const L1GctRegion& s);
+		
 private:
 
-	TenBit m_et;
-	bool m_mip;
-	bool m_quiet;
+	bitset<10> myEt;
+	bool myMip;
+	bool myQuiet;
 	
 };
 

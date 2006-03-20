@@ -1,4 +1,4 @@
-#include "../interface/L1GctMuonLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctMuonLeafCard.h"
 
 L1GctMuonLeafCard::L1GctMuonLeafCard()
 {

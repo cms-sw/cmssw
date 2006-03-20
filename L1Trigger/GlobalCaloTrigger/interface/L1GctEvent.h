@@ -8,9 +8,9 @@
  * 
  **/
 
-#include "L1GctEmCand.h"
-#include "L1GctRegion.h"
-#include "L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 
 #include <vector>
 #include <bitset>
@@ -21,7 +21,7 @@ class L1GctEvent
 {
 public:
 	L1GctEvent();
-	virtual ~L1GctEvent();
+	~L1GctEvent();
 	
 	// access to system input
 	vector<L1GctEmCand> getInputIsoElectrons();
@@ -36,6 +36,8 @@ public:
 	vector<L1GctJet> getOutputForwardJets();
 	vector<L1GctJet> getOutputTauJets();
 	
+	ostream& operator << (ostream& os, const L1GctEvent& s);
+		
 private:
 
 	// system input data

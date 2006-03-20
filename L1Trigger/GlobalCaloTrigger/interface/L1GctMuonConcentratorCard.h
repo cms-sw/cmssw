@@ -1,7 +1,7 @@
 #ifndef L1GCTMUONCONCENTRATORCARD_H_
 #define L1GCTMUONCONCENTRATORCARD_H_
 
-#include "L1GctMuonLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctMuonLeafCard.h"
 
 using namespace std;
 
@@ -17,7 +17,7 @@ class L1GctMuonConcentratorCard
 {
 public:
 	L1GctMuonConcentratorCard();
-	virtual ~L1GctMuonConcentratorCard();
+	~L1GctMuonConcentratorCard();
 	
 	void process();
 	

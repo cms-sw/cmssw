@@ -1,7 +1,7 @@
 #ifndef L1GCTJETFINALSTAGE_H_
 #define L1GCTJETFINALSTAGE_H_
 
-#include "L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 
 #include <vector>
 
@@ -18,7 +18,7 @@ class L1GctJetFinalStage
 {
 public:
 	L1GctJetFinalStage();
-	virtual ~L1GctJetFinalStage();
+	~L1GctJetFinalStage();
 	
 	void setInputJet(int i, L1GctJet jet);
 	void process();

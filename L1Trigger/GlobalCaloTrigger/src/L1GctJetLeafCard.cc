@@ -1,4 +1,4 @@
-#include "../interface/L1GctJetLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
 L1GctJetLeafCard::L1GctJetLeafCard()
 {

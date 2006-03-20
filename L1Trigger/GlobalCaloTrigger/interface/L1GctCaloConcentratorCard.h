@@ -1,13 +1,13 @@
 #ifndef L1GCTCALOCONCENTRATORCARD_H_
 #define L1GCTCALOCONCENTRATORCARD_H_
 
-#include "L1GctElectronLeafCard.h"
-#include "L1GctWheelCard.h"
-#include "L1GctJetFinalStage.h"
-#include "L1GctGlobalEnergyAlgos.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 
-#include "L1GctEmCand.h"
-#include "L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 
 #include <vector>
 
@@ -26,7 +26,7 @@ class L1GctCaloConcentratorCard
 public:
 
 	L1GctCaloConcentratorCard();
-	virtual ~L1GctCaloConcentratorCard();
+	~L1GctCaloConcentratorCard();
 	
 	inline L1GctElectronLeafCard* getIsoElectronleafCard() { return isoElectronLeafCard; }
 	inline L1GctElectronLeafCard* getNonIsoElectronleafCard() { return nonIsoElectronLeafCard; }

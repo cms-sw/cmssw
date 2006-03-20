@@ -1,8 +1,8 @@
 #ifndef L1GCTSOURCECARD_H_
 #define L1GCTSOURCECARD_H_
 
-#include "L1GctEmCand.h"
-#include "L1GctRegion.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
 
 #include <vector>
 #include <bitset>
@@ -22,7 +22,7 @@ class L1GctSourceCard
 {
 public:
 	L1GctSourceCard();
-	virtual ~L1GctSourceCard();
+	~L1GctSourceCard();
 
 	void setRctInputCrate(L1RctCrate* rc);
 

@@ -1,7 +1,7 @@
 #ifndef L1GCTWHEELCARD_H_
 #define L1GCTWHEELCARD_H_
 
-#include "L1GctJetLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
 
 #include <vector>
@@ -22,7 +22,7 @@ class L1GctWheelCard
 {
 public:
 	L1GctWheelCard();
-	virtual ~L1GctWheelCard();
+	~L1GctWheelCard();
 		
 	inline vector<L1GctJetLeafCard*> getJetLeafCards() { return jetLeafCards; }
 		

@@ -1,4 +1,4 @@
-#include "../interface/L1GctWheelCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelCard.h"
 
 L1GctWheelCard::L1GctWheelCard() {
 		

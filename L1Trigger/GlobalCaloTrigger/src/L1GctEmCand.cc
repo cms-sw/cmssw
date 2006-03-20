@@ -1,42 +1,43 @@
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 
 
-L1GctJet::L1GctJet(ULong rank, ULong eta, ULong phi) {
+L1GctEmCand::L1GctEmCand(ULong rank, ULong eta, ULong phi) {
 	this->setRank(rank);
 	this->setEta(eta);
 	this->setPhi(phi);
 }
 
-L1GctJet::L1GctJet(float et=0.; float eta=0.; float phi=0.) {
+L1GctEmCand::L1GctEmCand(float et=0.; float eta=0.; float phi=0.) {
 	this->setEt(et);
 	this->setEta(eta);
 	this->setPhi(phi);
 }
 
-L1GctJet::~L1GctJet()
+L1GctEmCand::~L1GctEmCand()
 {
 }
 
-L1GctJet::setEt(float et) {
+void L1GctEmCand::setEt(float et) {
 	setRank(L1GctScales::theScales->rankFromEt(et));
 }
 
-L1GctJet::setEta(float eta) {
+void L1GctEmCand::setEta(float eta) {
 	setEta(L1GctMap::theMap->etaFromFloat(eta));
 }
 
-L1GctJet::setPhi(float phi) {
+void L1GctEmCand::setPhi(float phi) {
 	setPhi(L1GctMap::theMap->phiFromFloat(phi));	
 }
 
-L1GctJet::getEt() {
+float L1GctEmCand::getEt() {
 	return L1GctScales::theScales->etFromRank(myRank));
 }
 
-L1GctJet::getEta() {
+float L1GctEmCand::getEta() {
 		return L1GctMap::theMap->etaFromUnsigned(myEta));
 }
 
-L1GctJet::getPhi() {
+float L1GctEmCand::getPhi() {
 		return L1GctMap::theMap->phiFromUnsigned(myPhi));
 }
+

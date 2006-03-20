@@ -1,8 +1,8 @@
 #ifndef L1GCTELECTRONLEAFCARD_H_
 #define L1GCTELECTRONLEAFCARD_H_
 
-#include "L1GctElectronSorter.h"
-#include "L1GctSourceCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
 #include <vector>
 
@@ -19,7 +19,7 @@ using namespace std;
 class L1GctElectronLeafCard {
 public:
 	L1GctElectronLeafCard();
-	virtual ~L1GctElectronLeafCard();
+	~L1GctElectronLeafCard();
 
 	void addSource(L1GctSourceCard* card);
 

@@ -1,4 +1,4 @@
-#include "../interface/L1GlobalCaloTrigger.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
 L1GlobalCaloTrigger* L1GlobalCaloTrigger::instance = 0;
 
