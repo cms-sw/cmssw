@@ -6,7 +6,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 
-// $Id: RangeMap.h,v 1.17 2006/03/15 10:02:52 tboccali Exp $
+// $Id: RangeMap.h,v 1.18 2006/03/15 18:10:33 tboccali Exp $
 namespace edm {
   
   template<typename ID, typename C, typename P>
@@ -83,7 +83,7 @@ namespace edm {
 	collection_.push_back( P::clone( * i ) );
       p.second = collection_.size();
     }
-    size_t size() { return collection_.size(); }
+    size_t size() const { return collection_.size(); }
     typename C::const_iterator begin() const { return collection_.begin(); }
     typename C::const_iterator end() const { return collection_.end(); }
     
