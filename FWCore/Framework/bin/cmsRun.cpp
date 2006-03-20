@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.13 2006/03/13 22:31:16 wmtan Exp $
+$Id: cmsRun.cpp,v 1.14 2006/03/14 21:14:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -113,8 +113,10 @@ int main(int argc, char* argv[])
       proc.run();
       if(proc.endJob()) {
         rc = 0;
+	// TODO: Put 'sucess' report to JobSummary here.
       } else {
         rc = 1;
+	// TODO: Put 'endJob failed' report to JobSummary here.
       }
   }
   catch (seal::Error& e) {
@@ -123,6 +125,7 @@ int main(int argc, char* argv[])
 				<< "\n"
 				<< e.explainSelf();
       rc = 1;
+      // TODO: Put 'job failure' report to JobSummary here
   }
   catch (std::exception& e) {
       edm::LogError("FwkJob") << "Standard library exception caught in " 
@@ -130,12 +133,14 @@ int main(int argc, char* argv[])
 				<< "\n"
 				<< e.what();
       rc = 1;
+      // TODO: Put 'job failure' report to JobSummary here
   }
   catch (...) {
       edm::LogError("FwkJob") << "Unknown exception caught in "
 				<< kProgramName
 				<< "\n";
       rc = 2;
+      // TODO: Put 'job failure' report to JobSummary here
   }
   
   return rc;
