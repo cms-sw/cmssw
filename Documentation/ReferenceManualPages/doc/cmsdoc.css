@@ -1,0 +1,27 @@
+tt {
+  color: #a030ff;
+  background-color: #ffffff;
+  font-family: "Courier New", courier, monospace;
+  font-size: 10pt;
+  font-weight: bold;
+}
+
+pre {
+  color: #000060;
+  font-family: "Courier New", courier, monospace;
+  font-size: 10pt;
+  font-weight: bold;
+  white-space: pre;
+  background-color: #ffffc0;
+  width: 600px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 15px;
+  padding-top: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 5px;
+  border-width: 1px;
+  border-style: dashed;
+  border-color: #a0a0f0;
+}
