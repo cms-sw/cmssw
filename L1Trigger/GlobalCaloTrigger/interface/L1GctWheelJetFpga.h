@@ -12,10 +12,10 @@ public:
 	// clear internal data
 	void reset();
 	
-	// perform processing and fill output array
+	// process the event
 	void process();
 
-	// set the i-th input jet
+	// set input data		
 	void setInputJet(int i, L1GctJet jet); 
 	
 	// get the input jets

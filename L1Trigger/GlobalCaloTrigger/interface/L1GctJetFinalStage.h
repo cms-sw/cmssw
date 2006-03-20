@@ -20,16 +20,26 @@ public:
 	L1GctJetFinalStage();
 	~L1GctJetFinalStage();
 	
-	void setInputJet(int i, L1GctJet jet);
-	void process();
+	// clear internal data
+	void reset();
 	
+	// process the event
+	void process();
+
+	// set input data		
+	void setInputJet(int i, L1GctJet jet);
+
+	// return input data
+	inline vector<L1GctJet> getInputJets() { return inputJets; }
+
+	// return output data
 	inline vector<L1GctJet> getCentralJets() { return centralJets; }
 	inline vector<L1GctJet> getForwardJets() { return forwardJets; }
 	inline vector<L1GctJet> getTauJets() { return tauJets; }
 
 private:
 
-	// input data
+	// input data - need to confirm number of jets!
 	vector<L1GctJet> inputJets;
 
 	// output data

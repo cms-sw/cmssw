@@ -20,11 +20,20 @@ public:
 	L1GctElectronSorter();
 	~L1GctElectronSorter();
 
-	void setInputEmCand(int i, L1GctEmCand cand);
-	void process();
+	// clear internal data
+	void reset();
 	
-	inline vector<L1GctEmCand> getInput() { return inputCands; }
-	inline vector<L1GctEmCand> getOutput() { return outputCands; }
+	// process the event
+	void process();
+
+	// set input data
+	void setInputEmCand(int i, L1GctEmCand cand);
+	
+	// return input data
+	inline vector<L1GctEmCand> getInputCands() { return inputCands; }
+
+	// return output data
+	inline vector<L1GctEmCand> getOutputCands() { return outputCands; }
 	
 private:
 	

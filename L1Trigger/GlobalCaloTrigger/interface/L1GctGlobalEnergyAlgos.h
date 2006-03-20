@@ -17,26 +17,37 @@ class L1GctGlobalEnergyAlgos
 public:
 	L1GctGlobalEnergyAlgos();
 	~L1GctGlobalEnergyAlgos();
+
+	// clear internal data
+	void reset();
 	
-	void setInput(); // need to know type of input data!
+	// process the event
 	void process();
-	
-	// need function(s) to return input data	
-	
-	inline unsigned long getEtMiss() { return etMiss.to_ulong(); }
-	inline unsigned long getEtMissPhi()  { return etMissPhi.to_ulong(); }
-	inline unsigned long getEtSum() { return etSum.to_ulong(); }
-	inline unsigned long getEtHad() { return etHad.to_ulong(); }
+
+	// set input data	
+	void setInputSums(unsigned ex, unsigned ey);
+
+	// return input data
+	inline unsigned long getInputEx() { return inputEx; }
+	inline unsigned long getInputEy() { return inputEy; }
+
+	// return output data	
+	inline unsigned long getEtMiss() { return outputEtMiss.to_ulong(); }
+	inline unsigned long getEtMissPhi()  { return outputEtMissPhi.to_ulong(); }
+	inline unsigned long getEtSum() { return outputEtSum.to_ulong(); }
+	inline unsigned long getEtHad() { return outputEtHad.to_ulong(); }
 	
 private:
 	
-	// input data - need to know type!
+	// input data - need to confirm number of bits!
+	bitset<12> inputEx;
+	bitset<12> inputEy;
 	
 	// output data
-	bitset<13> etMiss;
-	bitset<6> etMissPhi;
-	bitset<13> etSum;
-	bitset<13> etHad;
+	bitset<13> outputEtMiss;
+	bitset<6> outputEtMissPhi;
+	bitset<13> outputEtSum;
+	bitset<13> outputEtHad;
 
 };
 

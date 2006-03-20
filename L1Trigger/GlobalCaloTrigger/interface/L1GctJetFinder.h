@@ -21,24 +21,38 @@ public:
 	L1GctJetFinder();
 	~L1GctJetFinder();
 
+	// clear internal data
+	void reset();
+	
+	// process the event
+	void process();
+
+	// set input data		
 	void setInputRegion(int i, L1GctRegion rgn) {};
-	void process() {};
-	
+
+	// return input data	
 	inline vector<L1GctRegion> getInputRegions() { return inputRegions; }
+
+	// return output data
 	inline vector<L1GctJet> getJets() { return outputJets; }
+	inline unsigned getHt() { return outputHt; }
 	
-	// more member functions needed for other outputs
+	// need method(s) to return jet counts - need to decide type!
 		
 private:
 
 	// input data
 	vector<L1GctRegion> inputRegions;
 
-	// output data
+	// output jets
 	vector<L1GctJet> outputJets;
-	
-	// more data members needed for other outputs
 
+	// output Ht - need to confirm number of bits
+	bitset<12> outputHt;
+	
+	// jet count output - need to decide data type!
+	//vector<bitset<4>> outputJetCounts;
+	
 };
 
 #endif /*L1GCTJETFINDER_H_*/
