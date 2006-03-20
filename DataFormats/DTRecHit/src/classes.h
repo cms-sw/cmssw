@@ -3,7 +3,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 #include <map>
 
