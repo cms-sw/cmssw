@@ -1,8 +1,8 @@
 /** \file
  * 
  * implementation of CSCMonitor::MonitorCFEB(...) method
- *  $Date: 2006/02/07 14:30:27 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/02/10 10:30:55 $
+ *  $Revision: 1.3 $
  *
  * \author Ilaria Segoni
  */
@@ -15,7 +15,7 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -120,7 +120,7 @@ void CSCMonitor::MonitorCFEB(std::vector<CSCEventData>::iterator data, int Chamb
 	     			meName = Form("%dCFEB%d_SCA_Block_Occupancy", ChamberID, nCFEB);
              			me[meName]->Fill(SCA_BLK);
 	 
-//					if(debug) cout << "+++debug> nCFEB " << nCFEB << " nSample " << nSample << " nLayer " << nLayer << " TrigTime " << TrigTime << endl;
+//					if(debug)  edm::LogInfo ("CSC DQM:") <<"+++debug> nCFEB " << nCFEB << " nSample " << nSample << " nLayer " << nLayer << " TrigTime " << TrigTime ;
  					if(nSample == 0 && nLayer == 1) {
  						TrigTime = (int)(scaControllerWord[nCFEB][nSample][nLayer]).trig_time;
  						int k=1;
@@ -164,11 +164,11 @@ void CSCMonitor::MonitorCFEB(std::vector<CSCEventData>::iterator data, int Chamb
 						timeSample[nCFEB][nSample][nLayer][nStrip]=
 						  (data->cfebData(nCFEB)->timeSlice(nSample))->timeSample(nLayer,nStrip);
  						ADC = (int) ((timeSample[nCFEB][nSample][nLayer][nStrip]->adcCounts)&0xFFF);
-						//if(DebugCFEB) cout << " nStrip="<< dec << nStrip << " ADC=" << hex << ADC << endl;
+						//if(DebugCFEB) edm::LogInfo ("CSC DQM:") << " nStrip="<< dec << nStrip << " ADC=" << hex << ADC ;
  						OutOffRange = (int) ((timeSample[nCFEB][nSample][nLayer][nStrip]->adcOverflow)&0x1);
  						if(nSample == 0) { // nSample == 0
 							Pedestal[nCFEB][nLayer][nStrip] = ADC;
-							//if(DebugCFEB) cout << " nStrip="<< dec << nStrip << " Pedestal=" << hex << Pedestal[nCFEB][nLayer][nStrip] << endl;
+							//if(DebugCFEB) edm::LogInfo ("CSC DQM:") << " nStrip="<< dec << nStrip << " Pedestal=" << hex << Pedestal[nCFEB][nLayer][nStrip] ;
  							//meName = Form("%dCFEB_Pedestal(withEMV)_Sample_01_Ly%d", ChamberID, nLayer);
 							//me[meName]->Fill((int)(nCFEB*16+nStrip), Pedestal[nCFEB][nLayer][nStrip]);
 							//meName = Form("%dCFEB_Pedestal(withRMS)_Sample_01_Ly%d", ChamberID, nLayer);
@@ -264,7 +264,7 @@ void CSCMonitor::MonitorCFEB(std::vector<CSCEventData>::iterator data, int Chamb
 				meName = Form("%dCFEB_SCA_Cell_Peak_Ly_%d", ChamberID, nLayer);
 				int SCA = SCABlockData[iS][jT][nLayer-1];
 				int TmpTrigTime = TrigTimeData[iS][jT][nLayer-1];
-//				cout<<"TmpTrigTime(max)="<<TmpTrigTime<<" Layer="<<nLayer<<endl;
+//				edm::LogInfo ("CSC DQM:") <<"TmpTrigTime(max)="<<TmpTrigTime<<" Layer="<<nLayer;
 				if(TmpTrigTime>=0) {
 					NmbCell = (SCA-1)*NmbTimeSamples+TmpTrigTime+jT;
 					if(TmpTrigTime==0) NmbCell++;
@@ -304,7 +304,7 @@ void CSCMonitor::MonitorCFEB(std::vector<CSCEventData>::iterator data, int Chamb
 					int SCA = SCABlockData[Clus[u].ClusterPulseMapHeight[k].channel_][n][nLayer-1];
 					int TmpTrigTime = TrigTimeData[Clus[u].ClusterPulseMapHeight[k].channel_][n][nLayer-1];
 					if(TmpTrigTime>=0) {
-//						cout<<"TmpTrigTime(cluster)="<<TmpTrigTime<<" Layer="<<nLayer<<endl;
+//						edm::LogInfo ("CSC DQM:") <<"TmpTrigTime(cluster)="<<TmpTrigTime<<" Layer="<<nLayer;
 						NmbCell = (SCA-1)*NmbTimeSamples+TmpTrigTime+n;
 						if(TmpTrigTime==0) NmbCell++;
 						me[meName]->Fill(Clus[u].ClusterPulseMapHeight[k].channel_+1, NmbCell);

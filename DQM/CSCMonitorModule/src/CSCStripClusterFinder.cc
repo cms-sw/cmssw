@@ -1,5 +1,8 @@
 #include "DQM/CSCMonitorModule/interface/CSCStripClusterFinder.h"
 #include "DQM/CSCMonitorModule/interface/CSCStripClusterFitData.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //#include <vector>
 #include <iostream>
 #include <iomanip>
@@ -128,7 +131,7 @@ void CSCStripClusterFinder::SearchBorders(void)
   
   for(i=0;i<MEStripClusters.size();i++){
     if(!MEStripClusters[i].localMax.size()) {
-      std::cout<<"!!!Warning Cluster has'nt local Maxima"<<std::endl;
+      edm::LogInfo ("CSC DQM:")<<"!!!Warning Cluster has'nt local Maxima";
       continue;
     }
     iS=MEStripClusters[i].localMax[0].Strip;
@@ -302,16 +305,16 @@ void CSCStripClusterFinder::RefindMax(void)
     //fing Global Max
     GlobalMax=0;
     if(MEStripClusters[i].localMax.size()) {
-      //std::cout << "Cluster: " << i << " Number of local maximums before erase: " 
-      //		<< MEStripClusters[i].localMax.size() << std::endl; 
+      //edm::LogInfo ("CSC DQM:") << "Cluster: " << i << " Number of local maximums before erase: " 
+      //		<< MEStripClusters[i].localMax.size() ; 
       for(j=0;j<MEStripClusters[i].localMax.size();j++){
 	iS=MEStripClusters[i].localMax[j].Strip;
 	jT=MEStripClusters[i].localMax[j].Time;
 	/*
-	  std::cout << "Current Max:" 
+	  edm::LogInfo ("CSC DQM:") << "Current Max:" 
 	  << " " << iS
 	  << " " << jT
-	  << " " << thePulseHeightMap[iS].height_[jT] << std::endl;
+	  << " " << thePulseHeightMap[iS].height_[jT] ;
 	*/
 	if(thePulseHeightMap[iS].height_[jT]>GlobalMax)
 	  GlobalMax=thePulseHeightMap[iS].height_[jT];
@@ -332,15 +335,15 @@ void CSCStripClusterFinder::RefindMax(void)
       } while(Erased);
 
       //debug outs
-      //std::cout << "Cluster: " << i << " Number of local maximums: " 
-      //	<< MEStripClusters[i].localMax.size() << std::endl; 
+      //edm::LogInfo ("CSC DQM:") << "Cluster: " << i << " Number of local maximums: " 
+      //	<< MEStripClusters[i].localMax.size() ; 
       /*
       for(j=0;j<MEStripClusters[i].localMax.size();j++){
 	iS=MEStripClusters[i].localMax[j].Strip;
 	jT=MEStripClusters[i].localMax[j].Time;
-	std::cout << "Local Max: " << j << " Strip: " << iS << " Time: " << jT 
+	edm::LogInfo ("CSC DQM:") << "Local Max: " << j << " Strip: " << iS << " Time: " << jT 
 		  << " Height: " << thePulseHeightMap[iS].height_[jT] 
-		  << " Cut Value: " << GlobalMax << std::endl;
+		  << " Cut Value: " << GlobalMax ;
       }
       */
     }
@@ -350,36 +353,36 @@ void CSCStripClusterFinder::RefindMax(void)
 void CSCStripClusterFinder::printClusters(void)
 {
   int iS,jT;
-  std::cout << "====================================================================" << std::endl;	
-  std::cout << "debug information from CSCStripClusterFinder" << std::endl;	
+  edm::LogInfo ("CSC DQM:") << "====================================================================" ;	
+  edm::LogInfo ("CSC DQM:") << "debug information from CSCStripClusterFinder" ;	
   for(i=0;i<MEStripClusters.size();i++){
     if(!MEStripClusters[i].localMax.size()) continue;
-    std::cout << " Cluster: " << i+1 
-	      << " Number of local Maximums " <<  MEStripClusters[i].localMax.size() << std::endl;
+    edm::LogInfo ("CSC DQM:") << " Cluster: " << i+1 
+	      << " Number of local Maximums " <<  MEStripClusters[i].localMax.size() ;
     for(j=0;j<MEStripClusters[i].localMax.size();j++){
       iS=MEStripClusters[i].localMax[j].Strip;
       jT=MEStripClusters[i].localMax[j].Time;
 
-      //      std::std::cout << "Local Max: " << j << " Strip: " << iS << " Time: " << jT << std::endl;
+      //      edm::LogInfo ("CSC DQM:") << "Local Max: " << j << " Strip: " << iS << " Time: " << jT ;
       for(unsigned int k=0;k<MEStripClusters[i].ClusterPulseMapHeight.size();k++){
 	if(MEStripClusters[i].ClusterPulseMapHeight[k].channel_==iS)
-	  std::cout << "Local Max: " << j+1 << " Strip: " << iS+1 << " Time: " << jT+1 
-	       << " Height: " << MEStripClusters[i].ClusterPulseMapHeight[k].height_[jT] << std::endl;
+	  edm::LogInfo ("CSC DQM:") << "Local Max: " << j+1 << " Strip: " << iS+1 << " Time: " << jT+1 
+	       << " Height: " << MEStripClusters[i].ClusterPulseMapHeight[k].height_[jT] ;
       }
     }
     for(unsigned int k=0;k<MEStripClusters[i].ClusterPulseMapHeight.size();k++){
-      std::cout << "Strip: " << MEStripClusters[i].ClusterPulseMapHeight[k].channel_+1;
+      edm::LogInfo ("CSC DQM:") << "Strip: " << MEStripClusters[i].ClusterPulseMapHeight[k].channel_+1;
       for(int l=0;l<16;l++)
-	std::cout << " " << MEStripClusters[i].ClusterPulseMapHeight[k].height_[l];
-      std::cout << std::endl;
+	edm::LogInfo ("CSC DQM:") << " " << MEStripClusters[i].ClusterPulseMapHeight[k].height_[l];
+      edm::LogInfo ("CSC DQM:") ;
     }
 
-    std::cout << " Left  Top    corner strip: " << MEStripClusters[i].LFTBNDStrip+1 << " " 
-	 << " time: " << MEStripClusters[i].LFTBNDTime+1 << std::endl; 
-    std::cout << " Right Bottom corner strip: " << MEStripClusters[i].IRTBNDStrip+1 << " " 
-	 << " time: " << MEStripClusters[i].IRTBNDTime+1 << std::endl; 
+    edm::LogInfo ("CSC DQM:") << " Left  Top    corner strip: " << MEStripClusters[i].LFTBNDStrip+1 << " " 
+	 << " time: " << MEStripClusters[i].LFTBNDTime+1 ; 
+    edm::LogInfo ("CSC DQM:") << " Right Bottom corner strip: " << MEStripClusters[i].IRTBNDStrip+1 << " " 
+	 << " time: " << MEStripClusters[i].IRTBNDTime+1 ; 
   }
- std::cout << "======================================================================" << std::endl;	
+ edm::LogInfo ("CSC DQM:") << "======================================================================" ;	
    return;
 }
 bool  CSCStripClusterFinder::Sort::operator()(CSCStripClusterFitData a , CSCStripClusterFitData b) const

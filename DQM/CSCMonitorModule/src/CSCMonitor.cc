@@ -2,8 +2,8 @@
  * 
  *  implementation of CSCMonitor class
  *
- *  $Date: 2006/02/10 10:30:55 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/03/20 09:54:04 $
+ *  $Revision: 1.12 $
  *
  * \author Ilaria Segoni
  */
@@ -61,7 +61,7 @@ void CSCMonitor::process(CSCDCCEventData & dccData )
    const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
 
   //edm::LogInfo ("CSC DQM ") << "CSCMonitor::process #" << dec << nEvents 
-      //       << "> Number of DDU = " <<dduData.size()<<endl;
+      //       << "> Number of DDU = " <<dduData.size();
         
 
    for (int ddu=0; ddu<(int)dduData.size(); ++ddu) { 
