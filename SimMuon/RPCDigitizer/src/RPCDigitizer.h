@@ -12,7 +12,7 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/RPCSimAlgo/interface/RPCGeometry.h"
 //#include "MagneticField/Engine/interface/MagneticField.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
@@ -31,7 +31,7 @@ public:
 
 
   /// sets geometry
-  void setGeometry(const TrackingGeometry * geom) {theTrackingGeometry = geom;}
+  void setGeometry(const RPCGeometry * geom) {theGeometry = geom;}
 
   /// sets the magnetic field
   // void setMagneticField(const MagneticField * field);
@@ -40,7 +40,7 @@ public:
   const RPCRoll * findDet(int detId) const;
 
 private:
-  const TrackingGeometry * theTrackingGeometry;
+  const RPCGeometry * theGeometry;
   RPCSim* theRPCSim;
 };
 

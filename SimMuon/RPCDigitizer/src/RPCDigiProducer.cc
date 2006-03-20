@@ -37,9 +37,9 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   std::auto_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
 
   // find the geometry & conditions for this event
-  edm::ESHandle<TrackingGeometry> hGeom;
+  edm::ESHandle<RPCGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get( hGeom );
-  const TrackingGeometry *pGeom = &*hGeom;
+  const RPCGeometry *pGeom = &*hGeom;
   theDigitizer->setGeometry( pGeom );
 
 

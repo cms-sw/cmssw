@@ -8,7 +8,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 class RPCDigitizer;
-class TrackingGeometry;
+class RPCGeometry;
 
 class RPCDigiProducer : public edm::EDProducer
 {
