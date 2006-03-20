@@ -3,8 +3,6 @@
 
 #include "IORawData/EcalTBInputService/src/EcalTBDaqFileReader.h"
 
-#include <DataFormats/Common/interface/EventID.h>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iosfwd>
@@ -15,7 +13,6 @@
 
 using namespace std;
 
-namespace edm {class EventID; class Timestamp;}
 //namespace raw {class FEDRawDataCollection; }
 
 struct FedDataPair {
