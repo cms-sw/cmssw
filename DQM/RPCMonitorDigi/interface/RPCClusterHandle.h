@@ -9,8 +9,8 @@
  *
  * (cluster=set of adjacient strips with signal)
  *
- *  $Date: 2006/02/02 16:05:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/09 10:15:50 $
+ *  $Revision: 1.1 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -29,16 +29,12 @@ public:
    RPCClusterHandle(std::string nameForLogFile);
    ///Destructor
    ~RPCClusterHandle();
-   ///Add digi to Collection
-   void addDigi(RPCDigi myDigi);
    ///Add strip Id to colletion
    void addStrip(int strip);
    ///Set containers to zero
    void reset();
    ///Get cluster size
    int  size();
-   ///Get digis in the cluster 
-   std::vector<RPCDigi> getDigisInCluster();   
    ///Get strips in the cluster 
    std::vector<int> getStripsInCluster();
    
@@ -50,7 +46,6 @@ public:
    bool searchNext(int adjacentStrip);
    
 private:
-   std::vector<RPCDigi> digiInCluster;
    std::vector<int>     stripInCluster;
    
    std::string nameInLog;
