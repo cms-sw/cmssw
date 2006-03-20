@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/09 13:11:19 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/02/22 10:59:28 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN. 
  */
 
@@ -203,9 +203,9 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
   //   " thickness " << bound.thickness() << endl;
 
   // Ok this is the slayer position...
-  RCPPlane plane(plane(fv,bound));
+  RCPPlane surf(plane(fv,bound));
 
-  DTSuperLayer* slayer = new DTSuperLayer(slId, plane, chamber);
+  DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
 
   //LocalPoint lpos(10,20,30);
   //GlobalPoint gpos=slayer->toGlobal(lpos);
@@ -240,7 +240,7 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
   // define Bounds
   RectangularPlaneBounds bound(width, length, thickness);
 
-  RCPPlane plane(plane(fv,bound));
+  RCPPlane surf(plane(fv,bound));
 
   // Loop on wires
   bool doWire = fv.firstChild();
@@ -258,7 +258,7 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
 
   DTLayerType layerType;
 
-  DTLayer* layer = new DTLayer(layId, plane, topology, layerType, sl);
+  DTLayer* layer = new DTLayer(layId, surf, topology, layerType, sl);
 
   sl->add(layer);
   return layer;
