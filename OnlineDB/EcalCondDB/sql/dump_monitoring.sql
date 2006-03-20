@@ -11,7 +11,7 @@ col mon_ver format a15
 ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS';
 
 SELECT ri.run_num, mi.subrun_num, d.num_chan, ld.location, rt.gen_tag, rd.run_type, rd.config_tag, rd.config_ver, mvd.mon_ver,
-       ri.run_start, ri.run_end, mi.subrun_start, mi.subrun_end
+       ri.run_start, ri.run_end, mi.subrun_start, mi.subrun_end, mi.db_timestamp
 FROM 
 (SELECT iov_id, count(logic_id) num_chan FROM mon_pedestals_dat GROUP BY iov_id) d
 JOIN mon_run_iov mi ON d.iov_id = mi.iov_id
