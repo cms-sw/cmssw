@@ -12,11 +12,11 @@ namespace reco {
   /// persistent reference to a Vertex
   typedef edm::Ref<VertexCollection> VertexRef;
   /// persistent reference to a Vertex
-  typedef edm::RefProd<VertexCollection> VertexsRef;
+  typedef edm::RefProd<VertexCollection> VertexRefProd;
   /// vector of references to Vertex objects in the same collection
-  typedef edm::RefVector<VertexCollection> VertexRefs;
+  typedef edm::RefVector<VertexCollection> VertexRefVector;
   /// iterator over a vector of references to Vertex objects in the same collection
-  typedef VertexRefs::iterator vertex_iterator;
+  typedef VertexRefVector::iterator vertex_iterator;
 }
 
 #endif

@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.9 2006/03/09 18:02:30 vanlaer Exp $
+ * \version $Id: Vertex.h,v 1.10 2006/03/10 14:33:38 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -74,7 +74,7 @@ namespace reco {
     /// covariance matrix (3x3)
     Error error_;
     /// reference to tracks
-    TrackRefs tracks_;
+    TrackRefVector tracks_;
   };
   
 }

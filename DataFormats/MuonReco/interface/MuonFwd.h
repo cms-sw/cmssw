@@ -12,11 +12,11 @@ namespace reco {
   /// presistent reference to a Muon
   typedef edm::Ref<MuonCollection> MuonRef;
   /// references to Muon collection
-  typedef edm::RefProd<MuonCollection> MuonsRef;
+  typedef edm::RefProd<MuonCollection> MuonRefProd;
   /// vector of references to Muon objects all in the same collection
-  typedef edm::RefVector<MuonCollection> MuonRefs;
+  typedef edm::RefVector<MuonCollection> MuonRefVector;
   /// iterator over a vector of references to Muon objects all in the same collection
-  typedef MuonRefs::iterator muon_iterator;
+  typedef MuonRefVector::iterator muon_iterator;
 }
 
 #endif

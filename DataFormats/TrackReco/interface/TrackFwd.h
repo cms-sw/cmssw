@@ -12,11 +12,11 @@ namespace reco {
   /// persistent reference to a Track
   typedef edm::Ref<TrackCollection> TrackRef;
   /// persistent reference to a Track collection
-  typedef edm::RefProd<TrackCollection> TracksRef;
+  typedef edm::RefProd<TrackCollection> TrackRefProd;
   /// vector of reference to Track in the same collection
-  typedef edm::RefVector<TrackCollection> TrackRefs;
+  typedef edm::RefVector<TrackCollection> TrackRefVector;
   /// iterator over a vector of reference to Track in the same collection
-  typedef TrackRefs::iterator track_iterator;
+  typedef TrackRefVector::iterator track_iterator;
 }
 
 #endif
