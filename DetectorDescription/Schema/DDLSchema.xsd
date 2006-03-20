@@ -898,7 +898,7 @@
     <xsd:attribute name="rMin" use="required" type="lengthT"/>
     <xsd:attribute name="rMax" use="required" type="lengthT"/>
     <xsd:attribute name="zHalf" use="required" type="lengthT"/>
-    <!--xsd:attribute name="startPhi" use="required" type="angleT"/-->
+    <xsd:attribute name="startPhi" use="required" type="angleT"/>
     <xsd:attribute name="deltaPhi" use="required" type="angleT"/>
     <xsd:attribute name="cutAtStart" use="required" type="lengthT"/>
     <xsd:attribute name="cutAtDelta" use="required" type="lengthT"/>
