@@ -41,6 +41,29 @@ int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const{
     return 0;
   }
   
+
+//   // Meaningful ranges are enforced by DTWireId, (which
+//   // however allows for 0 in wire, layer, superlayer!!!)
+// 
+//   if ((wire_id < 1) || (wire_id > 100)) {
+//     std::cout << "DTNumberingScheme: ";
+//     std::cout << "wire id out of range: ";
+//     std::cout << wire_id <<std::endl;
+//   }
+    
+//   if ((layer_id < 1) || (layer_id > 4)) {
+//     std::cout << "DTNumberingScheme: ";
+//     std::cout << "layer id out of range: ";
+//     std::cout << layer_id <<std::endl;
+//   }
+    
+//   if ((superlayer_id < 1) || (superlayer_id > 3)) {
+//     std::cout << "DTNumberingScheme: ";
+//     std::cout << "super-layer id out of range: ";
+//     std::cout << superlayer_id <<std::endl;
+//   }
+
+
   return getDetId(num);
 }
 
@@ -61,26 +84,6 @@ int DTNumberingScheme::getDetId(const MuonBaseNumber& num) const {
          sector_id,
          station_id,
          wheel_id);
-
-  // Check validity (Meaningful ranges are enforced by DTWireId, which
-  // however allows for 0 in wire, layer, superlayer)
-  if ((wire_id < 1) || (wire_id > 100)) {
-    std::cout << "DTNumberingScheme: ";
-    std::cout << "wire id out of range: ";
-    std::cout << wire_id <<std::endl;
-  }
-    
-  if ((layer_id < 1) || (layer_id > 4)) {
-    std::cout << "DTNumberingScheme: ";
-    std::cout << "layer id out of range: ";
-    std::cout << layer_id <<std::endl;
-  }
-    
-  if ((superlayer_id < 1) || (superlayer_id > 3)) {
-    std::cout << "DTNumberingScheme: ";
-    std::cout << "super-layer id out of range: ";
-    std::cout << superlayer_id <<std::endl;
-  }
   
 // These ranges are enforced by DTWireId
 //   if ((sector_id < 1) || (sector_id > 14)) {
