@@ -1,11 +1,12 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/02/22 11:06:45 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan  - INFN Torino
  */
 
 #include "Geometry/DTGeometry/interface/DTTopology.h"
+#include <FWCore/Utilities/interface/Exception.h>
 
 #include <iostream>
 
@@ -45,7 +46,7 @@ const float DTTopology::sensibleHeight() const{
 }
 
 LocalPoint DTTopology::localPosition( const MeasurementPoint& mp) const{
-    return LocalPoint( (mp.x() - 0.5)*theWidth + theOffSet.x() , 
+    return LocalPoint( (mp.x() - theFirstChannel)*theWidth + theOffSet.x() , 
                        (1-mp.y())*theLength + theOffSet.y());
 }
 
@@ -55,7 +56,7 @@ LocalError DTTopology::localError( const MeasurementPoint& mp, const Measurement
 }
 
 MeasurementPoint DTTopology::measurementPosition( const LocalPoint& lp) const{
-  return MeasurementPoint( static_cast<int>( (lp.x()-theOffSet.x())/theWidth + 0.5),
+  return MeasurementPoint( static_cast<int>( (lp.x()-theOffSet.x())/theWidth + theFirstChannel),
                            1 - (lp.y()-theOffSet.y())/theLength);
 }
 
@@ -65,12 +66,19 @@ MeasurementError DTTopology::measurementError( const LocalPoint& lp, const Local
 }
 
 int DTTopology::channel( const LocalPoint& lp) const{
-  return static_cast<int>( (lp.x()-theOffSet.x())/theWidth + 0.5);
+  return static_cast<int>( (lp.x()-theOffSet.x())/theWidth + theFirstChannel);
 }
 
 // return the x wire position in the layer, starting from its wire number.
 float DTTopology::wirePosition(int wireNumber) const{
-  return  (wireNumber - 0.5)*theWidth + theOffSet.x();
+  if (wireNumber - (theFirstChannel-1) <= 0 || wireNumber > lastChannel() )
+    throw cms::Exception("InvalidWireNumber") << "DTTopology::wirePosition:" 
+					      << " Requested wire number: "<< wireNumber 
+					      << " ,but the first wire number is "<< theFirstChannel
+					      << " and the last wire number is "<< lastChannel()
+					      << std::endl;
+  else
+    return  (wireNumber - (theFirstChannel-1) - 0.5)*theWidth + theOffSet.x();
 }
 
 /*
