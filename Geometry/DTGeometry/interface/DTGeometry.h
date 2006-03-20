@@ -8,8 +8,8 @@
  *  The geometry owns the DTChamber s; these own their DTSuperLayer s which 
  *  in turn own their DTLayer s.
  *
- *  $Date: 2006/03/07 15:27:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/20 21:13:17 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -56,7 +56,7 @@ class DTGeometry : public TrackingGeometry {
     // Return the pointer to the GeomDetUnit corresponding to a given DetId
     virtual const GeomDetUnit* idToDetUnit(DetId) const;
 
-    // Return the pointer to the GeomDetUnit corresponding to a given DetId
+    // Return the pointer to the GeomDet corresponding to a given DetId
     virtual const GeomDet* idToDet(DetId) const;
 
 
