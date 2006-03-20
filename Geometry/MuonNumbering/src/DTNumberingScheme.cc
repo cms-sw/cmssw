@@ -25,7 +25,7 @@ DTNumberingScheme::DTNumberingScheme(){
  #endif
 }
 
-int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num){
+int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const{
   
 #ifdef DEBUGDEBUG
   std::cout << "DTNumbering "<<num.getLevels()<<std::endl;
