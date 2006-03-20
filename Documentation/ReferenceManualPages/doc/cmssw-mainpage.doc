@@ -2,7 +2,7 @@
 
 This is the CMSSW mainpage
 
-<br><br><br><br>
+<br><br><br>
 
 \section subdv SubDetector View
 
@@ -83,6 +83,12 @@ This is the CMSSW mainpage
 </TR>
 </TABLE>
 
+
 \endhtmlonly
+
+<br>
+\ref ReferenceManual "How to contribute to this Reference Manual"
+<br>
+
 
 */
