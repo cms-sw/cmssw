@@ -1,4 +1,4 @@
-// $Id: testRangeMap.cc,v 1.10 2006/02/17 13:52:45 tboccali Exp $
+// $Id: testRangeMap.cc,v 1.11 2006/02/21 09:59:10 tboccali Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
@@ -32,8 +32,8 @@ public:
     //
     // stupid, 3 and 2 are treated as the same thing
     //
-    if ((d1 == 2 && d2 ==3) ||
-	(d1 == 3 && d2 ==2)) return false;
+    if ((d1 == 4 && d2 ==3) ||
+	(d1 == 3 && d2 ==4)) return false;
     return d1 < d2;
   }
 };
@@ -116,17 +116,17 @@ void testRangeMap::checkAll() {
   //
   // try the get with comparator
   //
-  r = m.get(2,IntComparator());
+  r = m.get(3,IntComparator());
   CPPUNIT_ASSERT( r.second-r.first == 7 );
   i = r.first;
   
-  CPPUNIT_ASSERT( * i ++ == 5 );
-  CPPUNIT_ASSERT( * i ++ == 6 );
-  CPPUNIT_ASSERT( * i ++ == 7 );
   CPPUNIT_ASSERT( * i ++ == 1 );
   CPPUNIT_ASSERT( * i ++ == 2 );
   CPPUNIT_ASSERT( * i ++ == 3 );
   CPPUNIT_ASSERT( * i ++ == 4 );
+  CPPUNIT_ASSERT( * i ++ == 10 );
+  CPPUNIT_ASSERT( * i ++ == 11 );
+  CPPUNIT_ASSERT( * i ++ == 12 );
   CPPUNIT_ASSERT( i == r.second );
   
   
