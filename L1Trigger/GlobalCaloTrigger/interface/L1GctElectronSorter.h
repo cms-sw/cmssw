@@ -1,6 +1,6 @@
 #ifndef L1GCTELECTRONSORTER_H_
 #define L1GCTELECTRONSORTER_H_
-
+//NOTE, to be changed...
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 
 #include <vector>
@@ -18,22 +18,13 @@ class L1GctElectronSorter
 {
 public:
 	L1GctElectronSorter();
-	~L1GctElectronSorter();
+	virtual ~L1GctElectronSorter();
 
-	// clear internal data
-	void reset();
-	
-	// process the event
+	void setInputEmCand(L1GctEmCand cand);
 	void process();
-
-	// set input data
-	void setInputEmCand(int i, L1GctEmCand cand);
 	
-	// return input data
-	inline vector<L1GctEmCand> getInputCands() { return inputCands; }
-
-	// return output data
-	inline vector<L1GctEmCand> getOutputCands() { return outputCands; }
+	inline vector<L1GctEmCand> getInput() { return inputCands; }
+	inline vector<L1GctEmCand> getOutput() { return outputCands; }
 	
 private:
 	
