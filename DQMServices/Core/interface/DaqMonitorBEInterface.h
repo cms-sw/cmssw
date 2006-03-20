@@ -5,6 +5,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/StringUtil.h"
 #include "DQMServices/Core/interface/QCriterion.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
 
 #include <pthread.h>
 #include <semaphore.h>
@@ -56,9 +57,10 @@ class DaqMonitorBEInterface: public StringUtil
   // in a 2-D profile plot the number of channels in Z is disregarded
   virtual MonitorElement * bookProfile2D(const std::string name, 
 					 const std::string title, 
-					 int nchX, double lowX, double highX, 
+					 int nchX, double lowX, double highX,
 					 int nchY, double lowY,double highY,
-					 int nchZ, double lowZ,double highZ)=0;
+					 int nchZ, double lowZ,double highZ)
+    =0;
   // book float
   virtual MonitorElement * bookFloat(const std::string ) = 0;
   // book int
@@ -88,8 +90,12 @@ class DaqMonitorBEInterface: public StringUtil
   
   // show directory structure
   virtual void showDirStructure(void) const = 0;
-  // save structure with monitoring objects into root file
-  virtual void save(const std::string & filename) = 0;
+  // save directory with monitoring objects into root file <filename>;
+  // include quality test results with status >= minimum_status 
+  // (defined in Core/interface/QTestStatus.h);
+  // if directory="", save full monitoring structure
+  virtual void save(std::string filename, std::string directory="",
+		    int minimum_status=dqm::qstatus::STATUS_OK) const = 0;
   // cycle through all monitoring objects, draw one at time
   virtual void drawAll(void) = 0;
   // get list of subdirectories of current directory
@@ -99,7 +105,19 @@ class DaqMonitorBEInterface: public StringUtil
   // set verbose level (0 turns all non-error messages off)
   void setVerbose(unsigned level){DQM_VERBOSE = level;}
   // get verbose level
-  unsigned getVerbose(void) {return DQM_VERBOSE;}
+  unsigned getVerbose(void) const {return DQM_VERBOSE;}
+
+  // unpack QReport (with name, value) into ME_name, qtest_name, status, message;
+  // return success flag; Expected format of QReport is a TNamed variable with
+  // (a) name in the form: <ME_name>.<QTest_name>
+  // (b) title (value) in the form: st.<status>.<the message here>
+  // (where <status> is defined in Core/interface/QTestStatus.h)
+  bool unpackQReport(std::string name, std::string value, 
+		     std::string & ME_name, std::string & qtest_name,
+		     int & status, std::string & message) const
+  {return StringUtil::unpackQReport(name, value, ME_name, qtest_name,
+				    status, message);}
+  
   // -------------------- Deleting ----------------------------------
   
   // remove directory

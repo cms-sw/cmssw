@@ -72,6 +72,15 @@ class StringUtil
   std::vector<std::string> 
     unpackString(const char* in, const char* separator) const;
 
+  // unpack QReport (with name, value) into ME_name, qtest_name, status, message;
+  // return success flag; Expected format of QReport is a TNamed variable with
+  // (a) name in the form: <ME_name>.<QTest_name>
+  // (b) title (value) in the form: st.<status>.<the message here>
+  // (where <status> is defined in Core/interface/QTestStatus.h)
+  bool unpackQReport(std::string name, std::string value, 
+		     std::string & ME_name, std::string & qtest_name,
+		     int & status, std::string & message) const;
+  
 };
 
 #endif // define StringUtil_h

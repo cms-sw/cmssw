@@ -217,3 +217,53 @@ void StringUtil::nullError(const char * name)
   else
     cerr << " *** Error! Attempt to use null " << name << endl;
 }
+
+// unpack QReport (with name, value) into ME_name, qtest_name, status, message;
+// return success flag; Expected format of QReport is a TNamed variable with
+// (a) name in the form: <ME_name>.<QTest_name>
+// (b) title (value) in the form: st.<status>.<the message here>
+// (where <status> is defined in Core/interface/QTestStatus.h)
+bool StringUtil::unpackQReport(string name, string value, string & ME_name, 
+			       string & qtest_name, int & status, 
+			       string & message) const
+{
+  unsigned _begin = 0;
+  unsigned _middle = name.find(".");
+  unsigned _end = name.size();
+
+  // first unpack ME and quality test name
+  if(_begin != string::npos && _middle != string::npos 
+     &&_end != string::npos)
+    {  
+      ME_name = name.substr(_begin, _middle-_begin);
+      qtest_name = name.substr(_middle+1, _end -_middle-1);
+    }
+  else
+    {
+      cerr << " *** Unpacking of QReport name = " << name
+	   << " has failed " << endl;
+      return false;
+    }
+      
+  _begin = value.find("st.") + 3;
+  _middle = value.find(".", _begin);
+  _end = value.size();
+  // then unpack status value and message
+  if(_begin != string::npos && _middle != string::npos 
+     &&_end != string::npos)
+    {  
+      string status_string = value.substr(_begin, _middle-_begin);
+      status = atoi(status_string.c_str());
+      message = value.substr(_middle+1, _end -_middle-1);
+    }
+  else
+    {
+      cerr << " *** Unpacking of QReport value = " << value
+	   << " has failed " << endl;
+      return false;
+    }
+
+  // if here, everything is good
+  return true;
+
+}

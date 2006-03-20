@@ -142,10 +142,14 @@ void MonitorUserInterface::finishSubscription(const vector<string> & monit,
   }
 }
 
-// save structure with monitoring objects into root file
-void MonitorUserInterface::save(const string & filename)
+// save directory with monitoring objects into root file <filename>;
+// include quality test results with status >= minimum_status 
+// (defined in Core/interface/QTestStatus.h);
+// if directory="", save full monitoring structure
+void MonitorUserInterface::save(string filename, string directory,
+				int minimum_status) const
 {
-  bei->save(filename);
+  bei->save(filename, directory, minimum_status);
 }
 
 // draw all monitoring objects
