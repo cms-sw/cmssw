@@ -7,8 +7,8 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *  
- * $Date: 22/02/2006 15:52:43 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/02/23 10:32:04 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -17,6 +17,8 @@
 #include "DataFormats/TrackingRecHit/interface/RecSegment2D.h"
 
 /* Collaborating Class Declarations */
+#include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
+class DTSegmentUpdator;
 
 /* C++ Headers */
 #include <iosfwd>
@@ -30,13 +32,24 @@ class DTRecSegment2D : public RecSegment2D {
   public:
 
 /// Constructor
-    DTRecSegment2D() ;
+    /// empty c'tor needed by POOL (I guess)
+    DTRecSegment2D() {}
+
+    /// c'tor with no hits
+    DTRecSegment2D(const DetId& id) ;
+
+    /// c'tor from hits
+    DTRecSegment2D(const DetId& id, const std::vector<DTRecHit1D>& hits) ;
 
 /// Destructor
     virtual ~DTRecSegment2D() ;
 
 /* Operations */ 
+    virtual DTRecSegment2D* clone() const { return new DTRecSegment2D(*this);}
     /// local position in SL frame
+
+    virtual DetId geographicalId() const { return theDetId; }
+
     virtual LocalPoint localPosition() const {return thePosition; }
 
     /// local position error in SL frame
@@ -54,11 +67,30 @@ class DTRecSegment2D : public RecSegment2D {
     /// return the DOF of the segment 
     virtual int degreesOfFreedom() const ;
 
+    /// Access to component RecHits (if any)
+    virtual std::vector<const TrackingRecHit*> recHits() const ;
+
+    /// Non-const access to component RecHits (if any)
+    virtual std::vector<TrackingRecHit*> recHits() ;
+
+    /// Access to specific components
+    std::vector<DTRecHit1D> specificRecHits() const ;
+
   private:
+    friend class DTSegmentUpdator;
+    void setPosition(const LocalPoint& pos);
+    void setDirection(const LocalVector& dir);
+    void setCovMatrix(const AlgebraicSymMatrix& cov);
+    void setChi2(const double& chi2);
+    void setT0(const double& t0);
+
+  private:
+    DetId theDetId;           // Id of the det this seg belongs
     LocalPoint  thePosition;  // in SL frame
     LocalVector theDirection; // in SL frame
     double theChi2;           // chi2 of the fit
-    //vector<RecHit> theHits; // the hits with defined R/L
+    double theT0;             // T0 as coming from the fit
+    std::vector<DTRecHit1D> theHits; // the hits with defined R/L
 
     /// mat[0][0]=sigma (dx/dz)
     /// mat[1][1]=sigma (x)

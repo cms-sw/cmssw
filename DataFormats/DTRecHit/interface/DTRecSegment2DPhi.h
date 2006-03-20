@@ -11,8 +11,8 @@
  * A DTRecSegment4D has one of these objects, and so can access the full
  * information of the two projections.
  *
- * $Date: 22/02/2006 16:08:03 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/02/23 10:32:04 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -33,7 +33,7 @@ class DTRecSegment2DPhi : public DTRecSegment2D {
   public:
 
 /// Constructor
-    DTRecSegment2DPhi() ;
+    DTRecSegment2DPhi(const DetId& id) ;
 
 /// Destructor
     virtual ~DTRecSegment2DPhi() ;
