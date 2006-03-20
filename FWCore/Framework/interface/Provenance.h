@@ -1,1 +1,1 @@
-#include "DataFormats/Common/interface/Provenance.h"
+#error: Header moved. Use #include "DataFormats/Common/interface/Provenance.h"

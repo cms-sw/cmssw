@@ -1,1 +1,1 @@
-#include "DataFormats/Common/interface/BranchEntryDescription.h"
+#error: Header moved. Use #include "DataFormats/Common/interface/BranchEntryDescription.h"

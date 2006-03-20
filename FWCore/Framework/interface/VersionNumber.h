@@ -1,1 +1,1 @@
-#include "DataFormats/Common/interface/VersionNumber.h"
+#error: Header moved. Use #include "DataFormats/Common/interface/VersionNumber.h"
