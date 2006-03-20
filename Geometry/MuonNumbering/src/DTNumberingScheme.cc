@@ -25,7 +25,7 @@ DTNumberingScheme::DTNumberingScheme(){
  #endif
 }
 
-int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
+int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num){
   
 #ifdef DEBUGDEBUG
   std::cout << "DTNumbering "<<num.getLevels()<<std::endl;
@@ -41,7 +41,11 @@ int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
     return 0;
   }
   
+  return getDetId(num);
+}
 
+int DTNumberingScheme::getDetId(const MuonBaseNumber& num) const {
+  
   int wire_id=0;
   int layer_id=0;
   int superlayer_id=0;
@@ -58,7 +62,8 @@ int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
          station_id,
          wheel_id);
 
-  // check validity
+  // Check validity (Meaningful ranges are enforced by DTWireId, which
+  // however allows for 0 in wire, layer, superlayer)
   if ((wire_id < 1) || (wire_id > 100)) {
     std::cout << "DTNumberingScheme: ";
     std::cout << "wire id out of range: ";
@@ -76,103 +81,33 @@ int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
     std::cout << "super-layer id out of range: ";
     std::cout << superlayer_id <<std::endl;
   }
-    
-  if ((sector_id < 1) || (sector_id > 14)) {
-    std::cout << "DTNumberingScheme: ";
-    std::cout << "sector id out of range: ";
-    std::cout << sector_id <<std::endl;
-  }
-    
-  if ((station_id < 1) || (station_id > 4)) {
-    std::cout << "DTNumberingScheme: ";
-    std::cout << "station id out of range: ";
-    std::cout << station_id <<std::endl;
-  }
-    
-  if ((wheel_id < -2) || (wheel_id > 2)) {
-    std::cout << "DTNumberingScheme: ";
-    std::cout << "wheel id out of range: ";
-    std::cout << wheel_id <<std::endl;
-  }
   
-
-  DTWireId id(wheel_id,station_id,sector_id,superlayer_id,layer_id,wire_id);
-  int intIndex = id.rawId();
-  
-#ifdef DEBUG
-  std::cout << "DTNumbering pack "
-       << wire_id <<" "<< layer_id <<" "<< superlayer_id <<" "
-       << sector_id <<" "<< station_id <<" "<< wheel_id <<std::endl;    
-#endif
-
-#ifdef DEBUG
-  std::cout << "DTNumberingScheme: ";
-  std::cout << " wire " << pack.wire(intIndex);
-  std::cout << " layer " << pack.layer(intIndex);
-  std::cout << " slayer " << pack.slayer(intIndex);
-  std::cout << " sector " << pack.sector(intIndex);
-  std::cout << " stat " << pack.stat(intIndex);
-  std::cout << " wheel " << pack.wheel(intIndex);
-  std::cout << std::endl;
-#endif
-  
-  return intIndex;
-}
-
-int DTNumberingScheme::getDetId(const MuonBaseNumber num) const {
-  
-  int wire_id=0;
-  int layer_id=0;
-  int superlayer_id=0;
-  int sector_id=0;
-  int station_id=0;
-  int wheel_id=0;
-
-  //decode significant barrel levels
-
-  decode(num,
-         wire_id,
-         layer_id,
-         superlayer_id,
-         sector_id,
-         station_id,
-         wheel_id);
-
-        
-  // check validity
-  if ((sector_id < 1) || (sector_id > 14)) {
-    std::cout << "DTNumberingScheme: ";
-    std::cout << "sector id out of range: ";
-    std::cout << sector_id <<std::endl;
-  }
+// These ranges are enforced by DTWireId
+//   if ((sector_id < 1) || (sector_id > 14)) {
+//     std::cout << "DTNumberingScheme: ";
+//     std::cout << "sector id out of range: ";
+//     std::cout << sector_id <<std::endl;
+//   }
     
-  if ((station_id < 1) || (station_id > 4)) {
-    std::cout << "DTNumberingScheme: ";
-    std::cout << "station id out of range: ";
-    std::cout << station_id <<std::endl;
-  }
+//   if ((station_id < 1) || (station_id > 4)) {
+//     std::cout << "DTNumberingScheme: ";
+//     std::cout << "station id out of range: ";
+//     std::cout << station_id <<std::endl;
+//   }
     
-  if ((wheel_id < -2) || (wheel_id > 2)) {
-    std::cout << "DTNumberingScheme: ";
-    std::cout << "wheel id out of range: ";
-    std::cout << wheel_id <<std::endl;
-  }
+//   if ((wheel_id < -2) || (wheel_id > 2)) {
+//     std::cout << "DTNumberingScheme: ";
+//     std::cout << "wheel id out of range: ";
+//     std::cout << wheel_id <<std::endl;
+//   }
     
   DTWireId id(wheel_id,station_id,sector_id,superlayer_id,layer_id,wire_id);
-  int intIndex = id.rawId();
-                                                                                              
+  
 #ifdef DEBUG
-  std::cout << "DTNumberingScheme : ";
-  std::cout << " wire " << pack.wire(intIndex);
-  std::cout << " layer " << pack.layer(intIndex);
-  std::cout << " slayer " << pack.slayer(intIndex);
-  std::cout << " sector " << pack.sector(intIndex);
-  std::cout << " stat " << pack.stat(intIndex);
-  std::cout << " wheel " << pack.wheel(intIndex);
-  std::cout << std::endl;
+  std::cout << "DTNumberingScheme: " << id << std::endl;
 #endif
-
-  return intIndex;
+  
+  return id.rawId();
 }
 
 void DTNumberingScheme::decode(const MuonBaseNumber& num,
