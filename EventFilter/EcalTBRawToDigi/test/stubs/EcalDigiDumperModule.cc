@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2005/11/23 18:49:51 $
- * $Revision: 1.4 $
+ * $Date: 2006/01/19 20:02:37 $
+ * $Revision: 1.5 $
  * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
@@ -14,6 +14,7 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
 #include <iostream>
 #include <vector>
 
@@ -34,6 +35,7 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
   int verbosity;
 
   void analyze( const edm::Event & e, const  edm::EventSetup& c){
+
     
     // retrieving crystal data from Event
     edm::Handle<EBDigiCollection>  digis;
@@ -42,6 +44,43 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
     // retrieving crystal PN diodes from Event
     edm::Handle<EcalPnDiodeDigiCollection>  PNs;
     e.getByLabel("ecalEBunpacker", PNs);
+
+    // retrieve collection of errors in the mem gain data
+    edm::Handle<EcalElectronicsIdCollection> gainMem;
+    e.getByLabel("ecalEBunpacker", "EcalIntegrityMemChIdErrors", gainMem);
+    
+    // retrieve collection of errors in the mem gain data
+    edm::Handle<EcalElectronicsIdCollection> MemId;
+    e.getByLabel("ecalEBunpacker", "EcalIntegrityMemTtIdErrors", MemId);
+
+
+
+
+    if(gainMem->size()) {  
+      cout << "\n\n ^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  Size of collection of mem gain errors is: " << gainMem->size() << endl;
+      cout << "                                  [EcalDigiDumperModule]  dumping the bit gain errors\n"  << endl;
+      for (EcalElectronicsIdCollection::const_iterator errItr= gainMem->begin();
+	   errItr  != gainMem->end(); 
+	   ++errItr ) {
+	EcalElectronicsId  id = (*errItr);
+	cout << "channel: dccNum= " << id.dccId() << "\t tower= " << id.towerId() << "\t channelNum= " << id.channelId()
+	     << " has problems in the gain bits" << endl;
+      }// end of loop on gain errors in the mem
+    }// end if
+    
+
+        
+    if(MemId->size()) {  
+      cout << "\n\n ^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  Size of collection of mem tt_block_id errors is: " << MemId->size() << endl;
+      cout << "                                  [EcalDigiDumperModule]  dumping the mem tt_block_idb errors\n"  << endl;
+      for (EcalElectronicsIdCollection::const_iterator errItr= MemId->begin();
+	   errItr  != MemId->end(); 
+	   ++errItr ) {
+	EcalElectronicsId  id = (*errItr);
+	cout << "tower_block: dccNum= " << id.dccId() << "\t tower= " << id.towerId() << " has ID problems " << endl;
+      }// end of loop tower_block_id errors in the mem
+    }// end if
+    
 
     
     cout << "\n\n ^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  digi cry collection size " << digis->size() << endl;
@@ -98,6 +137,3 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 };// class EcalDigiDumperModule
 
 DEFINE_FWK_MODULE(EcalDigiDumperModule)
-  
-
-

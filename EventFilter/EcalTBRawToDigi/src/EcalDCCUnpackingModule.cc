@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2006/01/19 20:01:43 $
- *  $Revision: 1.22 $
+ *  $Date: 2006/02/17 15:44:11 $
+ *  $Revision: 1.23 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -31,10 +31,12 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
 
   formatter = new EcalTBDaqFormatter();
 
+  // digis
   produces<EBDigiCollection>();
   produces<EcalPnDiodeDigiCollection>();
   produces<EcalRawDataCollection>();
 
+  // crystals' integrity
   produces<EBDetIdCollection>("EcalIntegrityDCCSizeErrors");
   produces<EcalTrigTowerDetIdCollection>("EcalIntegrityTTIdErrors");
   produces<EcalTrigTowerDetIdCollection>("EcalIntegrityBlockSizeErrors");
@@ -42,10 +44,14 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
   produces<EBDetIdCollection>("EcalIntegrityGainErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainSwitchStayErrors");
+  produces<EBDetIdCollection>("EcalIntegrityGainSwitchStayErrors");
 
-
+  // mem channels' integrity
+  produces<EcalElectronicsIdCollection>("EcalIntegrityMemTtIdErrors");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityMemBlockSize");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityMemChIdErrors");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityMemGainErrors");
 }
-
 
 
 EcalDCCUnpackingModule::~EcalDCCUnpackingModule(){
@@ -67,6 +73,7 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   Handle<FEDRawDataCollection> rawdata;
   e.getByType(rawdata);
   
+
   // create the collection of Ecal Digis
   auto_ptr<EBDigiCollection> productEb(new EBDigiCollection);
 
@@ -75,6 +82,7 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   
   //create the collection of Ecal DCC Header
   auto_ptr<EcalRawDataCollection> productDCCHeader(new EcalRawDataCollection);
+
 
   // create the collection of Ecal Integrity DCC Size
   auto_ptr<EBDetIdCollection> productDCCSize(new EBDetIdCollection);
@@ -97,6 +105,22 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   // create the collection of Ecal Integrity Gain Switch Stay
   auto_ptr<EBDetIdCollection> productGainSwitchStay(new EBDetIdCollection);
 
+
+  // create the collection of Ecal Integrity Mem towerBlock_id errors
+  auto_ptr<EcalElectronicsIdCollection> productMemTtId(new EcalElectronicsIdCollection);
+  
+  // create the collection of Ecal Integrity Mem gain errors
+  auto_ptr< EcalElectronicsIdCollection> productMemBlockSize(new EcalElectronicsIdCollection);
+
+  // create the collection of Ecal Integrity Mem gain errors
+  auto_ptr< EcalElectronicsIdCollection> productMemGain(new EcalElectronicsIdCollection);
+
+  // create the collection of Ecal Integrity Mem ch_id errors
+  auto_ptr<EcalElectronicsIdCollection> productMemChIdErrors(new EcalElectronicsIdCollection);
+  
+
+
+
   try {
 
   for (int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
@@ -108,7 +132,13 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
     if (data.size()){
       
       // do the data unpacking and fill the collections
-      formatter->interpretRawData(data,  *productEb, *productPN, *productDCCHeader, *productDCCSize, *productTTId, *productBlockSize, *productChId, *productGain, *productGainSwitch, *productGainSwitchStay);
+      formatter->interpretRawData(data,  *productEb, *productPN, 
+				  *productDCCHeader, 
+				  *productDCCSize, 
+				  *productTTId, *productBlockSize, 
+				  *productChId, *productGain, *productGainSwitch, *productGainSwitchStay, 
+				  *productMemTtId,  *productMemBlockSize,
+				  *productMemGain,  *productMemChIdErrors);
       
     }// endif 
   }//endfor
@@ -127,12 +157,18 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(productGainSwitch,"EcalIntegrityGainSwitchErrors");
   e.put(productGainSwitchStay,"EcalIntegrityGainSwitchStayErrors");
 
+  e.put(productMemTtId,"EcalIntegrityMemTtIdErrors");
+  e.put(productMemBlockSize,"EcalIntegrityMemBlockSize");
+  e.put(productMemChIdErrors,"EcalIntegrityMemChIdErrors");
+  e.put(productMemGain,"EcalIntegrityMemGainErrors");
+
+
   } catch (ECALParserException &e) {
-    cout << e.what() << endl;
+    cout << "[EcalDCCUnpackingModule] " << e.what() << endl;
   } catch (ECALParserBlockException &e) {
-    cout << e.what() << endl;
+    cout << "[EcalDCCUnpackingModule] " << e.what() << endl;
   } catch (...) {
-    cout << "Unknown exception ..." << endl;
+    cout << "[EcalDCCUnpackingModule] Unknown exception ..." << endl;
   }
 
 }
