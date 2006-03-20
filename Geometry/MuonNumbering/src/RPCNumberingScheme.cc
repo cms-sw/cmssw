@@ -1,6 +1,7 @@
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include <iostream>
 
@@ -29,7 +30,7 @@ RPCNumberingScheme::RPCNumberingScheme(){
 #endif
 }
 
-int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
+int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
 
 #ifdef DEBUG
   std::cout << "RPCNumbering "<<num.getLevels()<<std::endl;
@@ -178,9 +179,13 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
 
   // collect all info
   
-  int intIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+
+  int trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+
     roll_id;
   
+  // Build the actual numbering
+  RPCDetId id;
+  id.buildfromTrIndex(trIndex);
+
 #ifdef DEBUG
   if (barrel_muon) {
     std::cout << "RPCNumberingScheme (barrel): ";
@@ -196,10 +201,11 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
   std::cout << " sector " << sector_id;
   std::cout << " plane " << plane_id;
   std::cout << " eta " << eta_id;
+  std::cout << " DetId " << id;  
   std::cout << std::endl;
 #endif
       
-  return intIndex;
+  return id.rawId();
 }
 
 
