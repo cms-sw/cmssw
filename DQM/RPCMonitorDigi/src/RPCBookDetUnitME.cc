@@ -42,10 +42,8 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
  char meId [128];
  char meTitle [128];
   
-
-
-
- sprintf(meId,"Oppupancy_%s",detUnitLabel);
+ /// BEgin booking
+ sprintf(meId,"Occupancy_%s",detUnitLabel);
  sprintf(meTitle,"Occupancy_for_%s",layerLabel);
  meMap[meId] = dbe->book1D(meId, meTitle, 100, 0, 100);
 
