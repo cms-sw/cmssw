@@ -1,0 +1,34 @@
+/*!
+\page PhysicsTools_ParallelAnalysis Package PhysicsTools/CandExample
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/ParallelAnalysis/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/ParallelAnalysis/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Analysis examples using <a href="http://root.cern.ch">ROOT</a> TSelector for PROOF parallel processing
+accessing EDM data.
+More details about TSelector can be found in <a href="ftp://root.cern.ch/root/doc/chapter12.pdf">Chapter 12</a> of ROOT user's manual.
+PROOF, ROOT's parallel processing system, is described in <a href="ftp://root.cern.ch/root/doc/chapter25.pdf">Chapter 25</a> of ROOT user's maual.
+
+\subsection interface Public interface
+- JetTSelector: simple analysis example based on TSelector. Just 
+  produces <i>E<sub>t</sub></i> and <i>eta</i> spectra for a 
+  collection of jets (reco::Candidate). Uses the output of
+  the package \ref PhysicsTools_JetExamples JetExamples.
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+- <b>jetexample.C</b>: macro to load the required libraries and
+  perform interactive analysis using JetTSelector.
+
+\section status Status and planned development
+Prototypal.
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/
