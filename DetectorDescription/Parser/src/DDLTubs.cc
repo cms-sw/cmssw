@@ -79,7 +79,7 @@ void DDLTubs::processElement (const std::string& name, const std::string& nmspac
 	      , ev.eval(nmspace, atts.find("zHalf")->second)	
               , ev.eval(nmspace, atts.find("rMin")->second)
 	      , ev.eval(nmspace, atts.find("rMax")->second)
-	      , 0. // startPhi
+	      , ev.eval(nmspace, atts.find("startPhi")->second)  //0. // startPhi
 	      , ev.eval(nmspace, atts.find("deltaPhi")->second)
 	      , ev.eval(nmspace, atts.find("cutAtStart")->second)
 	      , ev.eval(nmspace, atts.find("cutAtDelta")->second)
