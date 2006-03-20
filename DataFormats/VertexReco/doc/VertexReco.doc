@@ -16,8 +16,8 @@ Persistent classes for Vertex Reco data format.
 \subsection typedefs 
 - reco::VertexCollection: collection of reco::Vertex objects
 - reco::VertexRef: persistent reference to a reco::Vertex object
-- reco::VertexsRef: reference to a reco::Vertex collection
-- reco::VertexRefs: vector of references to reco::Vertex objects in the same collection
+- reco::VertexRefProd: reference to a reco::Vertex collection
+- reco::VertexRefVector: vector of references to reco::Vertex objects in the same collection
 - reco::vertex_iterator: iterator over a vector of references to reco::Vertex objects in the same collection
 
 \subsection modules Modules

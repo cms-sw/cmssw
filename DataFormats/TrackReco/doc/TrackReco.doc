@@ -59,14 +59,14 @@ reco::Track may result in an exception.
 \subsection typedefs 
 - reco::TrackCollection: collection of reco::Track objects
 - reco::TrackRef: persistent reference to a reco::Track object
-- reco::TracksRef: reference to a reco::Track collection
-- reco::TrackRefs: vector of references to reco::Track objects in the same collection
+- reco::TrackRefProd: reference to a reco::Track collection
+- reco::TrackRefVector: vector of references to reco::Track objects in the same collection
 - reco::track_iterator: iterator over a vector of references to reco::Track objects in the same collection
 
 - reco::TrackExtraCollection: collection of reco::TrackExtra objects
 - reco::TrackExtraRef: persistent reference to a reco::TrackExtra object
-- reco::TrackExtrasRef: reference to a reco::TrackExtra collection
-- reco::TrackExtraRefs: vector of references to reco::TrackExtra objects in the same collection
+- reco::TrackExtraRefProd: reference to a reco::TrackExtra collection
+- reco::TrackExtraRefVector: vector of references to reco::TrackExtra objects in the same collection
 - reco::trackExtra_iterator: iterator over a vector of references to reco::TrackExtra objects in the same collection
 
 \subsection modules Modules

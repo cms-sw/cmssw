@@ -2,14 +2,13 @@
 #define TrackReco_TrackBase_h
 /** \class reco::TrackBase
  *
- * TrackBase is a common base class to all
- * track types, including Muon.
+ * Common base class to all track types, including Muon.
  * It provides fit parameters, chi-square and n.d.o.f,
  * and summary information of the hit patterm
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackBase.h,v 1.2 2006/03/01 09:28:47 llista Exp $
+ * \version $Id: TrackBase.h,v 1.3 2006/03/01 12:23:40 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
