@@ -3,7 +3,7 @@
 #include "Geometry/Surface/interface/RectangularPlaneBounds.h"
 #include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
 #include "Geometry/Surface/interface/Surface.h"
-#include "Geometry/CommonDetAlgo/interface/BoundingBox.h"
+#include "Geometry/Surface/interface/BoundingBox.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <algorithm>
