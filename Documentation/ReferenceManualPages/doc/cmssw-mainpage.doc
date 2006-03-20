@@ -8,28 +8,28 @@ This is the CMSSW mainpage
 
 \htmlonly
 
-<TABLE BORDER CELLSPACING=3 CELLPADDING=4 WIDTH="100%" NOSAVE >
-<CAPTION>
-</CAPTION>
-<TR VALIGN=TOP><TH WIDTH="200">Domain</TH><TH WIDTH="493">Purpose</TH><TH WIDTH="200">Contact</TH></TR>
-<TR>
-  <TD>
+<table class="doctable">
+<caption>
+</caption>
+<tr valign=top><th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th></tr>
+<tr>
+  <td>
   \endhtmlonly \ref MuonPackages "Muon"   \htmlonly
-  </TD>
-  <TD>Muon related simulation and reconstruction</TD>
-  <TD> <A HREF="mailto:">Nicola Amapane</A>,
-       <A HREF="mailto:">Tim Cox</A>,   
-</TR>
-<TR VALIGN=TOP NOSAVE>
-  <TD WIDTH="237">
+  </td>
+  <td>Muon related simulation and reconstruction</td>
+  <td class="contact"><a href="mailto:">Nicola Amapane</a>,
+       <a href="mailto:">Tim Cox</a>
+</tr>
+<tr>
+  <td>
   \endhtmlonly \ref CaloPackages "Calorimetry" \htmlonly
-  </TD>
-  <TD WIDTH="493" NOSAVE>Software for the calorimeters: ECAL, HCAL</TD>
-  <TD> <A HREF="mailto:Paolo.Meridiani@cern.ch">Paolo Meridiani</A>,
-   <A HREF="mailto:Jeremy.Mans@cern.ch">Jeremiah Mans</A>
-  </TD>
-</TR>
-</TABLE>
+  </td>
+  <td>Software for the calorimeters: ECAL, HCAL</td>
+  <td class="contact"><a href="mailto:Paolo.Meridiani@cern.ch">Paolo Meridiani</a>,
+   <a href="mailto:Jeremy.Mans@cern.ch">Jeremiah Mans</a>
+  </td>
+</tr>
+</table>
 
 \endhtmlonly
 
@@ -37,51 +37,53 @@ This is the CMSSW mainpage
 
 \htmlonly
 
-<TABLE BORDER CELLSPACING=3 CELLPADDING=4 WIDTH="100%" NOSAVE >
-<CAPTION>
-</CAPTION>
-<TR VALIGN=TOP><TH WIDTH="200">Domain</TH><TH WIDTH="493">Purpose</TH><TH WIDTH="200">Contact</TH></TR>
-<TR>
-  <TD>
+<table class="doctable">
+<caption>
+</caption>
+<tr valign=top><th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th></tr>
+<tr>
+  <td>
   \endhtmlonly \ref CommonData "Common data formats"   \htmlonly
-  </TD>
-  <TD>Definition of commonly used persistent data types</TD>
-  <TD> <A HREF="mailto:">Luca Lista</A>,
-       <A HREF="mailto:">William Tanenbaum</A>,   
-</TR>
-<TR>
-  <TD>
+  </td>
+  <td>Definition of commonly used persistent data types</td>
+  <td class="contact"> 
+    <a href="mailto:">Luca Lista</a>,
+    <a href="mailto:">William Tanenbaum</a>
+</tr>
+<tr>
+  <td>
   \endhtmlonly \ref RecoPackages "Reco data format"   \htmlonly
-  </TD>
-  <TD>Definition of data types for reconstruction output for various systems</TD>
-  <TD> <A HREF="mailto:">Luca Lista</A>,
-       <A HREF="mailto:">Tommaso Boccali</A>,   
-</TR>
-<TR>
-  <TD>
+  </td>
+  <td>Definition of data types for reconstruction output</td>
+  <td class="contact"><a href="mailto:">Luca Lista</a>,
+       <a href="mailto:">Tommaso Boccali</a>
+</tr>
+<tr>
+  <td>
   \endhtmlonly \ref Reconstruction "Reconstruction"   \htmlonly
-  </TD>
-  <TD>CMS reconstruction sofware</TD>
-  <TD> <A HREF="mailto:">Tommaso Boccali</A> 
-</TR>
-<TR VALIGN=TOP NOSAVE>
-  <TD WIDTH="237">
+  </td>
+  <td>CMS reconstruction sofware</td>
+  <td class="contact"><a href="mailto:">Tommaso Boccali</a>
+</tr>
+<tr>
+  <td>
   \endhtmlonly \ref Simulation "Simulation Software" \htmlonly
-  </TD>
-  <TD WIDTH="493" NOSAVE>CMS Simulation Software</TD>
-  <TD> <A HREF="mailto:">Daniel Elvira</A>,
-       <A HREF="mailto:">Maya Stavrianakou</A>
-  </TD>
-</TR>
-<TR VALIGN=TOP NOSAVE>
-  <TD WIDTH="237">
+  </td>
+  <td>CMS Simulation Software</td>
+  <td class="contact">
+    <a href="mailto:">Daniel Elvira</a>,
+    <a href="mailto:">Maya Stavrianakou</a>
+  </td>
+</tr>
+<tr>
+  <td>
   \endhtmlonly \ref PhysicsTools "Physics Tools" \htmlonly
-  </TD>
-  <TD WIDTH="493" NOSAVE>Physics Analysis Softare Tools</TD>
-  <TD> <A HREF="mailto:">Luca Lista</A>
-  </TD>
-</TR>
-</TABLE>
+  </td>
+  <td>Physics Analysis Softare Tools</td>
+  <td class="contact"><a href="mailto:">Luca Lista</a>
+  </td>
+</tr>
+</table>
 
 
 \endhtmlonly

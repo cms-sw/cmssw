@@ -25,3 +25,31 @@ pre {
   border-style: dashed;
   border-color: #a0a0f0;
 }
+
+.doctable {
+  font-size: 12pt;
+  width: 800px;
+  vertical-align: top;
+}
+
+.doctable TD {
+  background-color: #fafafa;
+  vertical-align: top;
+}
+
+.doctable TH {
+  background-color: #e8ecf5; 
+  text-align: center; 
+  font-weight: bold;
+  vertical-align: top;
+}
+
+.contact {
+  font-size: 10pt;
+  font-style: italic;
+  width: 200px;
+}
+
+.domain {
+  width: 180px;
+}
