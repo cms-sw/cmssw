@@ -63,7 +63,7 @@ The association will be stored as a single reference, as specified by
 <tt><b>BBBRefProds</b></tt>, but
 logically, relying on the object ordering inside the collection, will implement a one-to-one
 mapping as in the following figure:<br><br>
-<center><img src="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsTools/reco/documentation/associated.gif"></center><br>
+<center><img src="../../src/DataFormats/Common/doc/associated.gif"></center><br>
 
 <li>In order to access an object <tt><b>AAA</b></tt> from a reference to an 
 object <tt><b>BBB</b></tt>, the following code can be used:
