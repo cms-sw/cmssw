@@ -3,6 +3,10 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 
+#include <vector>
+
+using std::vector;
+
 class L1GctWheelJetFpga
 {
 public:

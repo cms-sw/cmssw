@@ -33,7 +33,7 @@ public:
     void setMip(bool mip) { myMip = mip; }
     void setQuiet(bool quiet) { myQuiet = quiet; }
 
-	ostream& operator << (ostream& os, const L1GctRegion& s);
+    //	ostream& operator << (ostream& os, const L1GctRegion& s);
 		
 private:
 

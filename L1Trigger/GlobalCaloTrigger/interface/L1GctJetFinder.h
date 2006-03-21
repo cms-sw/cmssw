@@ -35,7 +35,7 @@ public:
 
 	// return output data
 	inline vector<L1GctJet> getJets() { return outputJets; }
-	inline unsigned getHt() { return outputHt; }
+	inline unsigned long getHt() { return outputHt.to_ulong(); }
 	
 	// need method(s) to return jet counts - need to decide type!
 		

@@ -15,7 +15,7 @@
 #include <vector>
 #include <bitset>
 
-using namespace std;
+using std::bitset;
 
 class L1GctEvent
 {
@@ -36,7 +36,7 @@ public:
 	vector<L1GctJet> getOutputForwardJets();
 	vector<L1GctJet> getOutputTauJets();
 	
-	ostream& operator << (ostream& os, const L1GctEvent& s);
+	//ostream& operator << (ostream& os, const L1GctEvent& s);
 		
 private:
 

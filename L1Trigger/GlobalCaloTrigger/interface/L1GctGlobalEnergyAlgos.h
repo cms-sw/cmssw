@@ -28,8 +28,8 @@ public:
 	void setInputSums(unsigned ex, unsigned ey);
 
 	// return input data
-	inline unsigned long getInputEx() { return inputEx; }
-	inline unsigned long getInputEy() { return inputEy; }
+	inline unsigned long getInputEx() { return inputEx.to_ulong();; }
+	inline unsigned long getInputEy() { return inputEy.to_ulong();; }
 
 	// return output data	
 	inline unsigned long getEtMiss() { return outputEtMiss.to_ulong(); }

@@ -5,7 +5,7 @@
 
 #include <vector>
 
-using namespace std;
+using std::vector;
 
 /*
  * Represents a GCT Electron Sort algorithm

@@ -8,7 +8,7 @@
  * \date March 2006
  */
 //Below paths must be changed when scramming is possible
-#include "L1Trigger/GlobalCaloTrigger/src/1GctElectronSorter.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include<iostream>
 

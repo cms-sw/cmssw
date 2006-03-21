@@ -1,6 +1,10 @@
 #ifndef L1GCTWHEELENERGYFPGA_H_
 #define L1GCTWHEELENERGYFPGA_H_
 
+#include <bitset>
+
+using std::bitset;
+
 class L1GctWheelEnergyFpga
 {
 public:
@@ -17,13 +21,13 @@ public:
 	void setInputSums(unsigned ex, unsigned ey);
 	
 	// get input data
-	inline unsigned long getInputEx() { return inputEx; }
-	inline unsigned long getInputEy() { return inputEy; }
+	inline unsigned long getInputEx() { return inputEx.to_ulong(); }
+	inline unsigned long getInputEy() { return inputEy.to_ulong(); }
 	
 	// get output data
-	inline unsigned long getOutputEx() { return outputEx; }
-	inline unsigned long getOutputEy() { return outputEy; }
-	inline unsigned long getOutputHt() { return outputHt; }
+	inline unsigned long getOutputEx() { return outputEx.to_ulong(); }
+	inline unsigned long getOutputEy() { return outputEy.to_ulong(); }
+	inline unsigned long getOutputHt() { return outputHt.to_ulong(); }
 
 private:
 
@@ -34,7 +38,7 @@ private:
 	// output data
 	bitset<13> outputEx;
 	bitset<13> outputEy;
-	bitset<13> outputEtHad;
+	bitset<13> outputHt;
 	
 	
 };

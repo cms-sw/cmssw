@@ -5,6 +5,8 @@
 
 #include <vector>
 
+using std::vector;
+
 class L1GctElectronFinalSort
 {
 public:

@@ -3,7 +3,7 @@
 
 #include <bitset>
 
-using namespace std;
+using std::bitset;
 
 /*
  * A GCT jet candidate
@@ -29,19 +29,12 @@ public:
 	inline void setEta(ULong eta) { myEta = eta; }
 	inline void setPhi(ULong phi) { myPhi = phi; }
 
-	// set et and position, physically meaningful
-	void setEt(float et);
-	void setEta(float eta);
-	void setPhi(float phi);
-	
 	// get rank and position bits
 	inline ULong getRank() { return myRank.to_ulong(); }
 	inline ULong getEta() { return myEta.to_ulong(); }
 	inline ULong getPhi() { return myPhi.to_ulong(); }
 	
-	// get rank and position, physically meaningful 
-
-	ostream& operator << (ostream& os, const L1GctJet& s);
+	//ostream& operator << (ostream& os, const L1GctJet& s);
 
 private:
 

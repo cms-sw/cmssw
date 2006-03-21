@@ -3,7 +3,8 @@
 
 #include <bitset>
 
-using namespace std;
+using std::bitset;
+
 /*! \file L1GctElectronSorter.h
  * \Header file for the Gct electron 
  *  candidate sorter class
@@ -14,26 +15,29 @@ using namespace std;
  * \date: 15/03/2006
  */
 
+typedef unsigned long int ULong;
+
 class L1GctEmCand
 {
 public:
-	L1GctEmCand();
-	virtual ~L1GctEmCand();
+	L1GctEmCand(ULong rank=0, ULong eta=0, ULong phi=0);
+	~L1GctEmCand();
 	
-	//need these the access the private variables rank,eta and phi
-	
-	void setRank(unsigned long inRank) {rank = inRank; }
-	void setEta(unsigned long inEta) {eta = inEta; }
-	void setPhi(unsigned long inPhi) {phi = inPhi; }
-	inline unsigned long getRank() { return rank.to_ulong(); }
-	inline unsigned long getEta() { return eta.to_ulong(); }
-	inline unsigned long getPhi() { return phi.to_ulong(); }
+	// set internal data
+	void setRank(unsigned long rank) { myRank = rank; }
+	void setEta(unsigned long eta) { myEta = eta; }
+	void setPhi(unsigned long phi) { myPhi = phi; }
+
+	// get internal data
+	inline unsigned long getRank() { return myRank.to_ulong(); }
+	inline unsigned long getEta() { return myEta.to_ulong(); }
+	inline unsigned long getPhi() { return myPhi.to_ulong(); }
 
 private:
 
-	bitset<6> rank;
-	bitset<5> eta;
-	bitset<4> phi;
+	bitset<6> myRank;
+	bitset<5> myEta;
+	bitset<4> myPhi;
       
 };
 

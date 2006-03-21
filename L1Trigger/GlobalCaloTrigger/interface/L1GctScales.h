@@ -1,7 +1,7 @@
 #ifndef L1GCTSCALES_H_
 #define L1GCTSCALES_H_
 
-typdef unsigned long ULong;
+typedef unsigned long int ULong;
 
 class L1GctScales
 {
