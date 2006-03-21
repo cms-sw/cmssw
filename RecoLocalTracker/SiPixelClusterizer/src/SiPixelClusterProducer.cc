@@ -12,7 +12,8 @@
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
+//#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 // Data Formats
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
@@ -69,7 +70,8 @@ namespace cms
     e.getByLabel(digiProducer, pixDigis);
 
     // Step A.2: get event setup
-    edm::ESHandle<TrackingGeometry> geom;
+    //edm::ESHandle<TrackingGeometry> geom;
+    edm::ESHandle<TrackerGeometry> geom;
     es.get<TrackerDigiGeometryRecord>().get( geom );
 
 
@@ -113,7 +115,7 @@ namespace cms
   //---------------------------------------------------------------------------
   void SiPixelClusterProducer::run(const PixelDigiCollection* input, 
 				   SiPixelClusterCollection &output,
-				   edm::ESHandle<TrackingGeometry> & geom) {
+				   edm::ESHandle<TrackerGeometry> & geom) {
     if ( ! readyToCluster_ ) {
       std::cout << "[SiPixelClusterProducer]:"
 		<<" at least one clusterizer is not ready -- can't run!" 
@@ -149,7 +151,7 @@ namespace cms
 
       // convert detid (unsigned int) to DetId
       DetId detIdObject( detid );      
-      const GeomDetUnit * geoUnit = geom->idToDet( detIdObject );
+      const GeomDetUnit * geoUnit = geom->idToDetUnit( detIdObject );
       const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
       if (! pixDet) {
 	// Fatal error!  TO DO: throw an exception!

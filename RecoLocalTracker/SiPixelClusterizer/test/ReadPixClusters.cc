@@ -30,13 +30,13 @@ using namespace std;
 
 
 #include "DataFormats/DetId/interface/DetId.h"
-
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
-#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetType.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -187,10 +187,11 @@ void ReadPixClusters::analyze(const edm::Event& e,
     conf_.getParameter<std::string>("RecHitProducer"); 
 
   // Get event setup (to get global transformation)
-  edm::ESHandle<TrackingGeometry> geom;
-  //edm::ESHandle<TrackerGeom> geom;
+  //edm::ESHandle<TrackingGeometry> geom;
+  edm::ESHandle<TrackerGeometry> geom;
   es.get<TrackerDigiGeometryRecord>().get( geom );
-  const TrackingGeometry& theTracker(*geom);
+  //const TrackingGeometry& theTracker(*geom);
+  const TrackerGeometry& theTracker(*geom);
 
   // Clusters
   edm::Handle<SiPixelClusterCollection> clusters;

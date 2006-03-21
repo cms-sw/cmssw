@@ -24,7 +24,8 @@
 
 // Geometry
 //class GeometricDet;   // hack in 0.2.0pre5, should be OK for pre6
-#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
+//#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 //#include "Geometry/CommonTopologies/RectangularPixelTopology.h"
 
