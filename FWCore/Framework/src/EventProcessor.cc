@@ -78,7 +78,8 @@ namespace edm {
   shared_ptr<InputSource> 
   makeInput(ParameterSet const& params,
 	    const CommonParams& common,
-	    ProductRegistry& preg)
+	    ProductRegistry& preg,
+            ActivityRegistry& areg)
   {
     // find single source
     bool sourceSpecified = false;
@@ -102,9 +103,11 @@ namespace edm {
 
       sourceSpecified = true;
       InputSourceDescription isdesc(common.processName_,common.pass_,preg);
+      areg.preSourceConstructionSignal_(md);
       shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
       input->addToRegistry(md);
-    
+      areg.postSourceConstructionSignal_(md);
+      
       return input;
     } 
     catch(const edm::Exception& iException) 
@@ -379,7 +382,7 @@ namespace edm {
 			   getVersion(), // this is not written for real yet
 			   0); // Where does it come from?
      
-    input_= makeInput(*params_, common_, preg_);     
+    input_= makeInput(*params_, common_, preg_,*actReg_);     
     sched_ = std::auto_ptr<Schedule>(new Schedule(*params_,wreg_,
 						  preg_,act_table_,
 						  actReg_));

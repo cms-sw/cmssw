@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:53:09 EDT 2005
-// $Id: ActivityRegistry.h,v 1.4 2005/09/28 04:25:02 wmtan Exp $
+// $Id: ActivityRegistry.h,v 1.5 2006/03/05 21:47:17 chrjones Exp $
 //
 
 // system include files
@@ -108,7 +108,22 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_1(watchPostModule)
          
-      // ---------- member functions ---------------------------
+        /// signal is emitted before the source is constructed
+        typedef boost::signal<void (const ModuleDescription&)> PreSourceConstruction;
+      PreSourceConstruction preSourceConstructionSignal_;
+      void watchPreSourceConstruction(const PreSourceConstruction::slot_type& iSlot) {
+        preSourceConstructionSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_1(watchPreSourceConstruction)
+        
+        /// signal is emitted after the source was construction
+        typedef boost::signal<void (const ModuleDescription&)> PostSourceConstruction;
+      PostSourceConstruction postSourceConstructionSignal_;
+      void watchPostSourceConstruction(const PostSourceConstruction::slot_type& iSlot) {
+        postSourceConstructionSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_1(watchPostSourceConstruction)
+        // ---------- member functions ---------------------------
 
       ///forwards our signals to slots connected to iOther
       void connect(ActivityRegistry& iOther);
