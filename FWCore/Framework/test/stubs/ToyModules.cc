@@ -23,6 +23,22 @@ Toy EDProducers and EDProducts for testing purposes only.
 
 namespace edmtest {
   // Toy producers
+
+  class FailingProducer : public edm::EDProducer {
+  public:
+    explicit FailingProducer(edm::ParameterSet const& /*p*/) {  }
+    virtual ~FailingProducer() { }
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  };
+
+  void
+  FailingProducer::produce(edm::Event&, const edm::EventSetup&) {
+    // We throw a double because the EventProcessor is *never*
+    // configured to catch doubles.
+    double x = 2.5;
+    throw x;
+  }
+
   
   class IntProducer : public edm::EDProducer {
   public:
@@ -191,12 +207,14 @@ private:
   };
 }
 
+using edmtest::FailingProducer;
 using edmtest::IntProducer;
 using edmtest::DoubleProducer;
 using edmtest::SCSimpleProducer;
 using edmtest::IntTestAnalyzer;
 using edmtest::AddIntsProducer;
 DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_MODULE(FailingProducer)
 DEFINE_ANOTHER_FWK_MODULE(IntProducer)
 DEFINE_ANOTHER_FWK_MODULE(DoubleProducer)
 DEFINE_ANOTHER_FWK_MODULE(SCSimpleProducer)
