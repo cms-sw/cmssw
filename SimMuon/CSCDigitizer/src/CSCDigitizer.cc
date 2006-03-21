@@ -96,7 +96,7 @@ void CSCDigitizer::setMagneticField(const MagneticField * field) {
 
 const CSCLayer * CSCDigitizer::findLayer(int detId) const {
   assert(theCSCGeometry != 0);
-  const GeomDetUnit* detUnit = theCSCGeometry->idToDet(CSCDetId(detId));
+  const GeomDetUnit* detUnit = theCSCGeometry->idToDetUnit(CSCDetId(detId));
   return dynamic_cast<const CSCLayer *>(detUnit);
 }
 
