@@ -121,11 +121,11 @@ class MonitorUserInterface : public StringUtil
 
   // ---------------- Miscellaneous -----------------------------
   
-  // save directory with monitoring objects into root file <filename>;
+  // save dir_fullpath with monitoring objects into root file <filename>;
   // include quality test results with status >= minimum_status 
   // (defined in Core/interface/QTestStatus.h);
-  // if directory="", save full monitoring structure
-  void save(std::string filename, std::string directory="",
+  // if dir_fullpath="", save full monitoring structure
+  void save(std::string filename, std::string dir_fullpath="",
 	    int minimum_status=dqm::qstatus::STATUS_OK) const;
   // cycle through all monitoring objects, draw one at time
   void drawAll(void) const;
