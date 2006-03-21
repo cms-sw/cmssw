@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/14 17:08:16 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/02/21 19:15:55 $
+ *  $Revision: 1.8 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -118,7 +118,8 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
  	    // The TDC information
  	    else if (DTROSWordType(word).type() == DTROSWordType::TDCMeasurement) {
  	      DTTDCMeasurementWord tdcMeasurementWord(word);
-		  
+	      //      controlData.addTDCMeasurement(tdcMeasurementWord);
+
  	      int tdcID = tdcMeasurementWord.tdcID(); 
 	      cout<<"TDC ID "<<tdcID<<endl;
 
@@ -140,8 +141,8 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	  
  	  // Check ROB Trailer (condition already verified)
  	  if (DTROSWordType(word).type() == DTROSWordType::GroupTrailer) {
-
 	    DTROBTrailerWord robTrailerWord(word);
+	    controlData.addROBTrailer(robTrailerWord);
 	  }
  	}
 
