@@ -33,13 +33,12 @@ AnalyticalPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord
   std::string pdir = pset_.getParameter<std::string>("PropagationDirection");
 
   PropagationDirection dir = alongMomentum;
-
-  if (pdir == "oppositeToMomentum, alongMomentum, anyDirection")
-    if (pdir == "oppositeToMomentum") dir = oppositeToMomentum;
-    if (pdir == "alongMomentum") dir = alongMomentum;
-    if (pdir == "anyDirection") dir = anyDirection;
-
-    _propagator  = boost::shared_ptr<Propagator>(new AnalyticalPropagator(&(*magfield), dir));
+  
+  if (pdir == "oppositeToMomentum") dir = oppositeToMomentum;
+  if (pdir == "alongMomentum") dir = alongMomentum;
+  if (pdir == "anyDirection") dir = anyDirection;
+  
+  _propagator  = boost::shared_ptr<Propagator>(new AnalyticalPropagator(&(*magfield), dir));
   return _propagator;
 }
 
