@@ -1,8 +1,8 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 
-#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 //#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/CommonTopologies/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 
 //#include "CommonDet/BasicDet/interface/Topology.h"
 //#include "CommonDet/BasicDet/interface/Det.h"

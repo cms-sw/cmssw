@@ -5,8 +5,8 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 
 #include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 #include "Geometry/CommonDetAlgo/interface/MeasurementError.h"

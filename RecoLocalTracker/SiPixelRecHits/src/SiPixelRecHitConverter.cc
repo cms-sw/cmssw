@@ -14,7 +14,7 @@
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 class GeometricDet;   // hack in 0.2.0pre5, OK for pre6 -- still needed?
-#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 // Data Formats
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollection.h"
@@ -71,7 +71,7 @@ namespace cms
     e.getByLabel(clusterCollLabel, clusterColl);
 
     // Step A.2: get event setup
-    edm::ESHandle<TrackingGeometry> geom;
+    edm::ESHandle<TrackerGeometry> geom;
     es.get<TrackerDigiGeometryRecord>().get( geom );
 
 
@@ -118,7 +118,7 @@ namespace cms
   //---------------------------------------------------------------------------
   void SiPixelRecHitConverter::run(const SiPixelClusterCollection* input, 
 				   SiPixelRecHitCollection &output,
-				   edm::ESHandle<TrackingGeometry> & geom)
+				   edm::ESHandle<TrackerGeometry> & geom)
   {
     if ( ! ready_ ) {
       std::cout << "[SiPixelRecHitConverter]:"
@@ -161,7 +161,7 @@ namespace cms
       // convert detid (unsigned int) to DetId
       DetId detIdObject( detid );      
 
-      const GeomDetUnit * genericDet = geom->idToDet( detIdObject );
+      const GeomDetUnit * genericDet = geom->idToDetUnit( detIdObject );
 
       const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
       assert(pixDet);   // ensures that geoUnit != 0 too

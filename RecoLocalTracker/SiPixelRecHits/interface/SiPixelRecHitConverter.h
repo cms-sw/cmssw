@@ -33,7 +33,7 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 
 //--- Geometry + DataFormats
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollectionfwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
@@ -74,7 +74,7 @@ namespace cms
     //--- Execute the algorithm(s).
     void run(const SiPixelClusterCollection* input,
 	     SiPixelRecHitCollection & output,
-	     edm::ESHandle<TrackingGeometry> & geom);
+	     edm::ESHandle<TrackerGeometry> & geom);
 
   private:
     edm::ParameterSet conf_;
