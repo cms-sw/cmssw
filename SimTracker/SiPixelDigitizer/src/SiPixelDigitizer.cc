@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.13 2006/03/04 15:42:45 pioppi Exp $
+// $Id: SiPixelDigitizer.cc,v 1.14 2006/03/06 18:16:17 wmtan Exp $
 //
 //
 
@@ -37,9 +37,12 @@
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerSimAlgo/interface/PixelGeomDetType.h"
+
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -119,7 +122,7 @@ namespace cms
 
     std::auto_ptr<PixelDigiSimLinkCollection> outputlink(new PixelDigiSimLinkCollection);
  
-    edm::ESHandle<TrackingGeometry> pDD;
+    edm::ESHandle<TrackerGeometry> pDD;
     
     iSetup.get<TrackerDigiGeometryRecord> ().get(pDD);
  
@@ -139,7 +142,7 @@ namespace cms
     }
 
     // Step C: LOOP on PixelGeomDetUnit //
-    for(TrackingGeometry::DetContainer::const_iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
+    for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
        DetId idet=DetId((*iu)->geographicalId().rawId());
        unsigned int isub=idet.subdetId();
        
