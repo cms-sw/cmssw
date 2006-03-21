@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  7 09:43:43 EST 2006
-// $Id$
+// $Id: RandomNumberGeneratorService.h,v 1.1 2006/03/07 19:46:37 chrjones Exp $
 //
 
 // system include files
@@ -48,6 +48,9 @@ public:
       void preModuleConstruction(const ModuleDescription&);
       void postModuleConstruction(const ModuleDescription&);
 
+      void preSourceConstruction(const ModuleDescription&);
+      void postSourceConstruction(const ModuleDescription&);
+
       void postBeginJob();
       void postEndJob();
 
@@ -62,10 +65,15 @@ private:
       
       const RandomNumberGeneratorService& operator=(const RandomNumberGeneratorService&); // stop default
       
+      void push(const std::string&);
+      void pop();
+
       // ---------- member data --------------------------------
       typedef std::map<std::string,uint32_t> LabelToGenMap;
       LabelToGenMap labelToSeed_;
+      std::vector<LabelToGenMap::const_iterator> labelStack_;
       LabelToGenMap::const_iterator presentGen_;
+      std::vector<std::string> unknownLabelStack_;
       std::string unknownLabel_;
    };
       

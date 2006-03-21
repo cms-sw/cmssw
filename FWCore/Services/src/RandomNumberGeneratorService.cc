@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  7 09:43:46 EST 2006
-// $Id$
+// $Id: RandomNumberGeneratorService.cc,v 1.1 2006/03/07 19:46:37 chrjones Exp $
 //
 
 // system include files
@@ -61,11 +61,18 @@ presentGen_(labelToSeed_.end())
    iRegistry.watchPreModuleConstruction(this,&RandomNumberGeneratorService::preModuleConstruction);
    iRegistry.watchPostModuleConstruction(this,&RandomNumberGeneratorService::postModuleConstruction);
 
+   iRegistry.watchPreSourceConstruction(this,&RandomNumberGeneratorService::preSourceConstruction);
+   iRegistry.watchPostSourceConstruction(this,&RandomNumberGeneratorService::postSourceConstruction);
+
    iRegistry.watchPreProcessEvent(this,&RandomNumberGeneratorService::preEventProcessing);
    iRegistry.watchPostProcessEvent(this,&RandomNumberGeneratorService::postEventProcessing);
    
    iRegistry.watchPreModule(this,&RandomNumberGeneratorService::preModule);
    iRegistry.watchPostModule(this,&RandomNumberGeneratorService::postModule);
+
+   //the default for the stack is to point to the 'end' of our labels which is used to define not set
+   labelStack_.push_back(labelToSeed_.end());
+   unknownLabelStack_.push_back(std::string());
 }
 
 // RandomNumberGeneratorService::RandomNumberGeneratorService(const RandomNumberGeneratorService& rhs)
@@ -95,58 +102,81 @@ presentGen_(labelToSeed_.end())
 void 
 RandomNumberGeneratorService::preModuleConstruction(const ModuleDescription& iDesc)
 {
-   presentGen_ = labelToSeed_.find(iDesc.moduleLabel_);
-   unknownLabel_=iDesc.moduleLabel_;
+  push(iDesc.moduleLabel_);
 }
 void 
 RandomNumberGeneratorService::postModuleConstruction(const ModuleDescription&)
 {
-   presentGen_ = labelToSeed_.end();
-   unknownLabel_=std::string();
+  pop();
+}
+
+void 
+RandomNumberGeneratorService::preSourceConstruction(const ModuleDescription& iDesc)
+{
+  push(sourceLabel);
+}
+void 
+RandomNumberGeneratorService::postSourceConstruction(const ModuleDescription&)
+{
+  pop();
 }
 
 void 
 RandomNumberGeneratorService::postBeginJob()
 {
-   //finished begin run so waiting for first event and the source will be the first one called
-   presentGen_ = labelToSeed_.find(sourceLabel);
-   unknownLabel_=sourceLabel;
+  //finished begin run so waiting for first event and the source will be the first one called
+  push(sourceLabel);
 }
 void 
 RandomNumberGeneratorService::postEndJob()
 {
-   presentGen_ = labelToSeed_.end();
-   unknownLabel_=std::string();
+  if(unknownLabelStack_.size()!=1) {
+    pop();
+  }
 }
 
 void 
 RandomNumberGeneratorService::preEventProcessing(const edm::EventID&, const edm::Timestamp&)
 {
-   //finished with source and now waiting for a module
-   presentGen_ = labelToSeed_.end();
-   unknownLabel_=std::string();
+  //finished with source and now waiting for a module
+  pop();
 }
 void 
 RandomNumberGeneratorService::postEventProcessing(const Event&, const EventSetup&)
 {
    //finished processing the event so should start another one soon.  The first thing to be called will be the source
-   presentGen_ = labelToSeed_.find(sourceLabel);
-   unknownLabel_=sourceLabel;
+  push(sourceLabel);
 }
 
 void 
 RandomNumberGeneratorService::preModule(const ModuleDescription& iDesc)
 {
-   presentGen_ = labelToSeed_.find(iDesc.moduleLabel_);
-   unknownLabel_=iDesc.moduleLabel_;
+  push(iDesc.moduleLabel_);
 }
 void 
 RandomNumberGeneratorService::postModule(const ModuleDescription&)
 {
-   presentGen_ = labelToSeed_.end();
-   unknownLabel_=std::string();
+  pop();
 }
 
+void
+RandomNumberGeneratorService::push(const std::string& iLabel)
+{
+  presentGen_ = labelToSeed_.find(iLabel);
+  labelStack_.push_back(presentGen_);
+  
+  unknownLabelStack_.push_back(iLabel);
+  unknownLabel_=iLabel;
+}
+void
+RandomNumberGeneratorService::pop()
+{
+  labelStack_.pop_back();
+  //NOTE: algorithm is such that we always have at least one item in the stacks
+  presentGen_ = labelStack_.back();
+  unknownLabelStack_.pop_back();
+  unknownLabel_=unknownLabelStack_.back();
+}
 //
 // const member functions
 //
