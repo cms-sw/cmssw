@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.16 2006/03/05 00:44:34 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.17 2006/03/11 00:15:13 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -140,6 +140,7 @@ namespace edm {
     EventAux aux;
     aux.process_history_ = e.processHistory();
     aux.id_ = e.id();
+    aux.time_ = e.time();
 
     pool::Ref<const EventAux> ra(context(), &aux);
     ra.markWrite(auxiliaryPlacement_);	
