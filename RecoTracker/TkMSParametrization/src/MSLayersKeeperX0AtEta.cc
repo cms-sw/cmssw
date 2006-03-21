@@ -27,7 +27,7 @@ int MSLayersKeeperX0AtEta::idxBin(float eta) const
 }
 
 //------------------------------------------------------------------------------
-void MSLayersKeeperX0AtEta::init()
+void MSLayersKeeperX0AtEta::init(const edm::EventSetup &iSetup)
 {
   if (isInitialised) return;
   isInitialised = true;
@@ -41,13 +41,13 @@ void MSLayersKeeperX0AtEta::init()
   theDeltaEta = (theHalfNBins!=0) ? etaMax/theHalfNBins : BIG;
 
   theLayersData = vector<MSLayersAtAngle>(max(2*theHalfNBins, 1));
-  MultipleScatteringGeometry layout;
+  MultipleScatteringGeometry layout(iSetup);
   for (int idxbin = 0; idxbin < 2*theHalfNBins; idxbin++) {
     float etaValue = eta(idxbin);
     float cotTheta = sinh(etaValue);
 
-    vector<MSLayer> layers = layout.detLayers(etaValue);
-    vector<MSLayer> tmplay = layout.otherLayers(etaValue);
+    vector<MSLayer> layers = layout.detLayers(etaValue,0,iSetup);
+    vector<MSLayer> tmplay = layout.otherLayers(etaValue,iSetup);
     layers.insert(layers.end(),tmplay.begin(),tmplay.end()); 
     sort(layers.begin(), layers.end()); 
     setX0(layers, etaValue, msX0data);
@@ -71,7 +71,7 @@ void MSLayersKeeperX0AtEta::init()
     for (int isign=-1; isign <=1; isign+=2) {
       float z = isign*15.9;   //3 sigma from zero
       const MSLayersAtAngle & layersAtAngle = theLayersData[idxbin];
-      vector<MSLayer> candidates = layout.detLayers( etaValue, z);
+      vector<MSLayer> candidates = layout.detLayers( etaValue, z,iSetup);
       vector<MSLayer>::iterator it;
       for (it = candidates.begin(); it != candidates.end(); it++) {
         if (layersAtAngle.findLayer(*it)) continue;

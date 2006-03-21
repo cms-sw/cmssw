@@ -3,13 +3,13 @@
 #include <iostream>
 #include <string>
 
-// #include "TH2.h"
-// #include "TFile.h"
-// #include "TKey.h"
+#include "TH2F.h"
+#include "TFile.h"
+#include "TKey.h"
 
 
 MultipleScatteringX0Data::MultipleScatteringX0Data()
-// : theData(0)
+//: theData(0)
 {
   std::cout << "MultipleScatteringX0Data initialisation,";
   std::string filename = fileName(); 
@@ -31,60 +31,13 @@ MultipleScatteringX0Data::MultipleScatteringX0Data()
 MultipleScatteringX0Data::~MultipleScatteringX0Data()
 {} //delete theData; }
 
-/*
-MultipleScatteringX0Data::MultipleScatteringX0Data()
-{
-  string filename = fileName(); 
-  TFile * file = new TFile(filename.c_str(),"READ");
-  if (!file || !file->IsOpen()) {
-     cout << "** MultipleScatteringX0Data ** problem with data file: "
-           << filename <<endl; 
-     return;
-  } else {
-    cout << " ** MultipleScatteringX0Data ** file: "<<filename<<" opened"<<endl;
-  }
-  TH2 * data = dynamic_cast<TH2F*> (file->GetKey("h100")->ReadObj());
-  if (!data)  {
-    cout << " ** MultipleScatteringX0Data ** file: "
-         << filename 
-         <<" <-- no data found!!!"<<endl;
-  }
-  pi_aida::Histogram2D * theData = 
-      new pi_aida::Histogram2D("h100","x0 data (sum_x0 vs |eta|)", 
-          data->GetNbinsX(), 
-          data->GetXaxis()->GetXmin(), data->GetXaxis()->GetXmax(),
-          data->GetNbinsY(), 
-          data->GetYaxis()->GetXmin(), data->GetYaxis()->GetXmax());
-
-  for (int ix = 1; ix <= data->GetNbinsX(); ix++) {
-    double x = data->GetXaxis()->GetBinCenter(ix);
-    for (int iy = 1; iy <= data->GetNbinsY(); iy++) {
-      double y = data->GetYaxis()->GetBinCenter(iy);
-      double v = data->GetBinContent(ix,iy);
-      theData->fill(x,y,v);
-    }
-  } 
-  data->Delete();
-  file->Delete();
-  pi_aida::Proxy_Store store("MultipleScatteringX0Data.aida","XML",
-      pi_aida::RECREATE);
-  store.write(theData,"x0data");
-  cout << "objects: "<<endl;
-  std::vector<std::string> ss = store.listObjectNames();
-  std::vector<std::string>::const_iterator is;
-  for (is = ss.begin(); is != ss.end(); is++) cout << *is << endl;
-  cout << "types: "<<endl;
-  ss = store.listObjectTypes();
-  for (is = ss.begin(); is != ss.end(); is++) cout << *is << endl;
-  store.close();
-}
-*/
 
 
 std::string MultipleScatteringX0Data::fileName()
 {
-  //string defName="MultipleScatteringX0Data.root";
-//   string defName="MultipleScatteringX0Data.aida";
+  //MP
+  // ????
+  //string defName="MultipleScatteringX0Data.aida";
 //   string key="TrackerReco:TkMSParametrization:DataFile";
 //   envUtil eU("ORCA_DATA_PATH","");
 //   string path= eU.getEnv();
@@ -92,7 +45,7 @@ std::string MultipleScatteringX0Data::fileName()
 //   string defValue = mydata() ? mydata.name() : defName;
 //   SimpleConfigurable<string> name(defValue, key);
 //   return name.value();
-  return "pippo";
+  return "";
 } 
 
 int MultipleScatteringX0Data::nBinsEta() const
@@ -104,7 +57,7 @@ int MultipleScatteringX0Data::nBinsEta() const
 float MultipleScatteringX0Data::minEta() const
 {
   //  return theData ? theData->xAxis().lowerEdge() : 0.;
- return 0;
+  return 0;
 }
 
 float MultipleScatteringX0Data::maxEta() const

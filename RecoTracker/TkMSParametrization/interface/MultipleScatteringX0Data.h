@@ -5,10 +5,9 @@
  *
  */
 
-
+#include "TH2F.h"
 #include <string>
-//#include "AIDA_Proxy/AIDA_Proxy.h"
-//typedef pi_aida::Histogram2D HistoType;
+
 
 class SumX0AtEtaDataProvider{ 
 public: virtual float sumX0atEta(float eta, float r) const = 0; 
@@ -27,8 +26,9 @@ public:
 private:
   std::string fileName();
 
-private:
+  //private:
   //  HistoType * theData;
+   TH2F  * theData;
 };
 
 #endif

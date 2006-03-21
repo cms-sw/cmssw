@@ -2,19 +2,19 @@
 #include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0AtEta.h"
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringGeometry.h"
 
-void MSLayersKeeperX0Averaged::init()
+void MSLayersKeeperX0Averaged::init(const edm::EventSetup &iSetup)
 {
   if (isInitialised) return;
   isInitialised = true;
 //  cout << "HERE INITIALISATION! MSLayersKeeperX0Averaged"<<endl;
   MSLayersKeeperX0AtEta layersX0Eta;
-  layersX0Eta.init();
-  MultipleScatteringGeometry geom;
-  vector<MSLayer> allLayers = geom.detLayers();
+  layersX0Eta.init(iSetup);
+  MultipleScatteringGeometry geom(iSetup);
+  vector<MSLayer> allLayers = geom.detLayers(iSetup);
   vector<MSLayer>::iterator it;
   for (int i=-1;i<=1;i++) {
     float eta = i*(-1.8);
-    vector<MSLayer> tmpLayers = geom.otherLayers(eta);
+    vector<MSLayer> tmpLayers = geom.otherLayers(eta,iSetup);
     vector<MSLayer>::const_iterator ic;
     for (ic = tmpLayers.begin(); ic != tmpLayers.end(); ic++) {
       it = find(allLayers.begin(), allLayers.end(), *ic);  

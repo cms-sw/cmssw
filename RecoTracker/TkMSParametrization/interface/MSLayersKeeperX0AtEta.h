@@ -2,6 +2,7 @@
 #define MSLayersKeeperX0AtEta_H
 
 #include "RecoTracker/TkMSParametrization/src/MSLayersKeeper.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 class SumX0AtEtaDataProvider;
 class MSLayersKeeperX0Averaged;
 
@@ -9,7 +10,7 @@ class MSLayersKeeperX0AtEta : public MSLayersKeeper {
 public:
   MSLayersKeeperX0AtEta() : isInitialised(false) { }
   virtual ~MSLayersKeeperX0AtEta() { }
-  virtual void init();
+  virtual void init(const edm::EventSetup &iSetup);
   virtual const MSLayersAtAngle & layers(float cotTheta) const;
 
 private:

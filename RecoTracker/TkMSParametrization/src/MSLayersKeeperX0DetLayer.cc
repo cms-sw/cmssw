@@ -9,13 +9,15 @@
 
 #include <vector>
 
-void MSLayersKeeperX0DetLayer::init()
+void MSLayersKeeperX0DetLayer::init(const edm::EventSetup &iSetup)
 {
   if (isInitialised) return;
   isInitialised = true;
   cout << "HERE INITIALISATION! MSLayersKeeperX0DetLayer"<<endl;
-  vector<MSLayer> allLayers = MSLayersKeeperX0DetLayerGeom().detLayers();
-  theLayersData = MSLayersAtAngle(allLayers);
+  //  vector<MSLayer> allLayers = MSLayersKeeperX0DetLayerGeom().detLayers();
+  //MP
+  vector<MSLayer> allLayers;
+ theLayersData = MSLayersAtAngle(allLayers);
   
   vector<MSLayer>::iterator it;
   PixelRecoPointRZ zero(0.,0.); 
@@ -51,22 +53,24 @@ void MSLayersKeeperX0DetLayer::init()
   theLayersData.print();
 }
 
-vector<MSLayer>
-MSLayersKeeperX0DetLayer::MSLayersKeeperX0DetLayerGeom::detLayers() const
-{
-  vector<MSLayer> result;
-  vector<const DetLayer*>::const_iterator it;
-  for (it = theLayers.begin(); it != theLayers.end(); it++) {
+// vector<MSLayer>
+// MSLayersKeeperX0DetLayer::MSLayersKeeperX0DetLayerGeom::detLayers() const
+// {
 
-    //    const DetUnit * du = (*it)->detUnits().front();
-    const GeomDetUnit * du;
-    //MP how access the geomdetunit??
-   const MediumProperties * mp = du->surface().mediumProperties();
-    float x0 = (mp) ? mp->radLen() : 0.03; 
-    cout << "MediumProperties: "<<mp<<" x0="<<x0<<endl;
-    MSLayer layer(*it, DataX0(x0,0,0));
-    result.push_back( layer);
-  }
-  return result;
-} 
+//   vector<MSLayer> result;
+
+//   vector<const DetLayer*>::const_iterator it;
+//   for (it = theLayers.begin(); it != theLayers.end(); it++) {
+
+//     //    const DetUnit * du = (*it)->detUnits().front();
+//     const GeomDetUnit * du;
+//     //MP how access the geomdetunit??
+//    const MediumProperties * mp = du->surface().mediumProperties();
+//     float x0 = (mp) ? mp->radLen() : 0.03; 
+//     cout << "MediumProperties: "<<mp<<" x0="<<x0<<endl;
+//     MSLayer layer(*it, DataX0(x0,0,0));
+//     result.push_back( layer);
+//   }
+//   return result;
+// } 
 
