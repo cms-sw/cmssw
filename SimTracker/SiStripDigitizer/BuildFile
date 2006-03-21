@@ -5,7 +5,7 @@
 <use name=SimDataFormats/TrackingHit>
 <use name=DataFormats/SiStripDigi>
 <use name=SimDataFormats/TrackerDigiSimLink>
-<use name=Geometry/TrackerSimAlgo>
+<use name=Geometry/TrackerGeometryBuilder>
 <use name=SimTracker/Common>
 <use name=SimGeneral/NoiseGenerators>
 <use name=SimGeneral/HepPDT>
@@ -24,7 +24,7 @@
    <use name=SimDataFormats/TrackingHit>
    <use name=DataFormats/SiStripDigi>
    <use name=SimDataFormats/TrackerDigiSimLink>
-   <use name=Geometry/TrackerSimAlgo>
+   <use name=Geometry/TrackerGeometryBuilder>
    <use name=SimTracker/Common>
    <use name=SimGeneral/Generators>
    <use name=SimGeneral/HepPDT>

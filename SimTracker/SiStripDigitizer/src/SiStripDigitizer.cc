@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.11 2006/03/07 10:47:36 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.12 2006/03/13 15:25:36 azzi Exp $
 //
 //
 
@@ -44,7 +44,7 @@
 //needed for the geometry:
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
@@ -132,7 +132,7 @@ namespace cms
     //PseudoHitContainer pseudoHitContainer;// for some reason this class isn't recognized!!!
     
     
-    edm::ESHandle<TrackingGeometry> pDD;
+    edm::ESHandle<TrackerGeometry> pDD;
  
     iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
  
@@ -143,7 +143,7 @@ namespace cms
     // Step C: LOOP on StripGeomDetUnit //
     
     theAlgoMap.clear();
-    for(TrackingGeometry::DetContainer::const_iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
+    for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
       
       GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
       
