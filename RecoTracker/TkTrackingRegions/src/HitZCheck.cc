@@ -1,6 +1,6 @@
 
 #include <cmath>
-#include "RecoTracker/TkTrackingRegions/src/HitZCheck.h"
+#include "RecoTracker/TkTrackingRegions/interface/HitZCheck.h"
 
 HitZCheck::Range HitZCheck::range(const float & radius) const
 {

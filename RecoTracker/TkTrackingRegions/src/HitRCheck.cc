@@ -1,5 +1,5 @@
 #include <cmath>
-#include "RecoTracker/TkTrackingRegions/src/HitRCheck.h"
+#include "RecoTracker/TkTrackingRegions/interface/HitRCheck.h"
 
 HitRCheck::Range HitRCheck::range(const float & z) const
 {

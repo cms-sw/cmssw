@@ -8,9 +8,9 @@
     of two lines. */
 
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
-#include "RecoTracker/TkTrackingRegions/src/HitRZConstraint.h"
-#include "RecoTracker/TkTrackingRegions/src/HitRCheck.h"
-#include "RecoTracker/TkTrackingRegions/src/HitZCheck.h"
+#include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
+#include "RecoTracker/TkTrackingRegions/interface/HitRCheck.h"
+#include "RecoTracker/TkTrackingRegions/interface/HitZCheck.h"
 
 class HitEtaCheck : public HitRZCompatibility {
 public:

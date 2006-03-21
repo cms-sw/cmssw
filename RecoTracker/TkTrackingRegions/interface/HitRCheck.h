@@ -5,7 +5,7 @@
     at a given Z coordinate */
 
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
-#include "RecoTracker/TkTrackingRegions/src/HitRZConstraint.h"
+#include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
 
 class HitRCheck: public HitRZCompatibility {
 public:

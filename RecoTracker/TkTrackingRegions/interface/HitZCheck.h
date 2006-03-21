@@ -5,7 +5,7 @@
     at a given radius R */ 
 
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
-#include "RecoTracker/TkTrackingRegions/src/HitRZConstraint.h"
+#include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
 
 
 class HitZCheck : public HitRZCompatibility {
