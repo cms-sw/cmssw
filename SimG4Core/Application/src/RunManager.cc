@@ -99,7 +99,8 @@ RunManager * RunManager::instance()
 }
 
 RunManager::RunManager(edm::ParameterSet const & p) 
-  :   m_generator(0), m_primaryTransformer(0), m_engine(0), m_managerInitialized(false), 
+  :   m_generator(0), m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
+      m_primaryTransformer(0), m_engine(0), m_managerInitialized(false), 
       m_geometryInitialized(true), m_physicsInitialized(true),
       m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
@@ -125,6 +126,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
     m_engine= dynamic_cast<HepJamesRandom*>(HepRandom::getTheEngine());
     std::cout << " Run Manager constructed " << std::endl;
+    if (m_nonBeam) std::cout << " Run Manager: simulating non beam events!!! " << std::endl;
 
     //Look for an outside SimActivityRegistry
     // this is used by the visualization code
@@ -154,15 +156,15 @@ void RunManager::initG4(const edm::EventSetup & es)
 
     if (m_pUseMagneticField)
     {
-    // setup the magnetic field
-    edm::ESHandle<MagneticField> pMF;
-    es.get<IdealMagneticFieldRecord>().get(pMF);
-    const GlobalPoint g(0.,0.,0.);
-    std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;
+	// setup the magnetic field
+	edm::ESHandle<MagneticField> pMF;
+	es.get<IdealMagneticFieldRecord>().get(pMF);
+	const GlobalPoint g(0.,0.,0.);
+	std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;
 
-    m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
-    G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
-    m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
+	m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
+	G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
+	m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
     }
 
     // we need the track manager now
@@ -170,11 +172,11 @@ void RunManager::initG4(const edm::EventSetup & es)
 
     m_attach = new AttachSD;
     {
-      std::pair< std::vector<SensitiveTkDetector*>,
+	std::pair< std::vector<SensitiveTkDetector*>,
 	std::vector<SensitiveCaloDetector*> > sensDets = m_attach->create(*world,(*pDD),m_p,m_trackManager.get(),m_registry);
       
-      m_sensTkDets.swap(sensDets.first);
-      m_sensCaloDets.swap(sensDets.second);
+	m_sensTkDets.swap(sensDets.first);
+	m_sensCaloDets.swap(sensDets.second);
     }
 
     std::cout << " Sensitive Detector building finished; found " << m_sensTkDets.size()
@@ -186,10 +188,8 @@ void RunManager::initG4(const edm::EventSetup & es)
     
     std::auto_ptr<PhysicsListMakerBase> physicsMaker( 
       PhysicsListFactory::get()->create
-      (m_pPhysics.getParameter<std::string> ("type")) );
-    if(physicsMaker.get()==0) {
-      throw SimG4Exception("Unable to find the Physics list requested");
-    }
+      (m_pPhysics.getParameter<std::string> ("type")));
+    if(physicsMaker.get()==0) throw SimG4Exception("Unable to find the Physics list requested");
     m_physicsList = physicsMaker->make(m_pPhysics,m_registry);
     if (m_physicsList.get()==0) throw SimG4Exception("Physics list construction failed!");
     m_kernel->SetPhysics(m_physicsList.get());
@@ -226,12 +226,10 @@ void RunManager::produce(edm::Event& inpevt, const edm::EventSetup & es)
     static int i = 0;
     m_currentEvent = generateEvent(i,inpevt);
     i++;
-    
     m_simEvent = new G4SimEvent;
     m_simEvent->hepEvent(m_generator->genEvent());
     m_simEvent->weight(m_generator->eventWeight());
-//    m_simEvent->collisionPoint(HepLorentzVector(m_generator->genVertex().vect()/centimeter,
-//                                                m_generator->genVertex().t()/second));
+    if (m_generator->genVertex()!=0) 
     m_simEvent->collisionPoint(HepLorentzVector(m_generator->genVertex()->vect()/centimeter,
                                                 m_generator->genVertex()->t()/second));
  
@@ -251,7 +249,7 @@ void RunManager::produce(edm::Event& inpevt, const edm::EventSetup & es)
 
 }
  
-G4Event * RunManager::generateEvent(int i, edm::Event& inpevt)
+G4Event * RunManager::generateEvent(int i, edm::Event & inpevt)
 {                       
 
     if (m_currentEvent!=0) delete m_currentEvent;
@@ -260,59 +258,59 @@ G4Event * RunManager::generateEvent(int i, edm::Event& inpevt)
     m_simEvent = 0;
     G4Event * e = new G4Event(i);
    
-    if ( m_generator->genInputType() == "Internal" )
+    if (m_generator->genInputType() == "Internal")
     {
-       std::vector< edm::Handle<edm::HepMCProduct> > AllHepMCEvt ;
-       edm::Handle<edm::HepMCProduct> HepMCEvt ;
+       std::vector< edm::Handle<edm::HepMCProduct> > AllHepMCEvt;
+       edm::Handle<edm::HepMCProduct> HepMCEvt;
 
-       // inpevt.getByType( HepMCEvt ) ;       
-       inpevt.getManyByType( AllHepMCEvt ) ;
+       // inpevt.getByType(HepMCEvt);       
+       inpevt.getManyByType(AllHepMCEvt);
        
        unsigned int i=0; 
-       for ( ; i<AllHepMCEvt.size(); i++ )
+       for (; i<AllHepMCEvt.size(); i++)
        {
-          if ( !AllHepMCEvt[i].isValid() )
+          if (!AllHepMCEvt[i].isValid())
 	  {
-             throw SimG4Exception("Invalid Handle to HepMCProduct(HepMC::GenEvent) in edm::Event  ") ;
+             throw SimG4Exception("Invalid Handle to HepMCProduct(HepMC::GenEvent) in edm::Event  ");
 	  }
-	  if ( (AllHepMCEvt[i].provenance()->product).module.moduleLabel_ == "VtxSmeared" )
+	  if ((AllHepMCEvt[i].provenance()->product).module.moduleLabel_ == "VtxSmeared")
 	  {
 	     // std::cout << "I am picking up the VtxSmeared HepMCProduct !" << std::endl ;
-	     HepMCEvt = AllHepMCEvt[i] ;
-	     break ;
+	     HepMCEvt = AllHepMCEvt[i];
+	     break;
 	  }
        }
        
-       if ( i >= AllHepMCEvt.size() )
+       if (i >= AllHepMCEvt.size())
        {
           // no VtxSmeared HepMC::GenEvent; pick the first one (unsmeared)
 	  //std::cout << 
 	  //"There is no VtxSmeared HepMCProduct in edm::Event; I am picking up the 1st available"
 	  //<< std::endl ;
-	  HepMCEvt = AllHepMCEvt[0] ;
+	  HepMCEvt = AllHepMCEvt[0];
        }
        
        
        //std::cout << " HepMCProduct labeled : " << 
        //(HepMCEvt.provenance()->product).module.moduleLabel_ << std::endl;
               
-       if ( !HepMCEvt.isValid() )
+       if (!HepMCEvt.isValid())
        {
-          // std::cout << "Can NOT find HepMC Event " << std::endl;
-          throw SimG4Exception("Unable to find HepMCProduct(HepMC::GenEvent) in edm::Event  ") ;
+          throw SimG4Exception("Unable to find HepMCProduct(HepMC::GenEvent) in edm::Event  ");
        }
        else
        {
-          m_generator->setGenEvent( HepMCEvt->GetEvent() ) ;
-          m_generator->HepMC2G4( HepMCEvt->GetEvent(), e ) ;
+          m_generator->setGenEvent(HepMCEvt->GetEvent());
+          if (!m_nonBeam) m_generator->HepMC2G4(HepMCEvt->GetEvent(),e);
+	  else m_generator->nonBeamEvent2G4(HepMCEvt->GetEvent(),e);
        }
     }
     else
     {    
        const HepMC::GenEvent * g = m_generator->generateEvent();
-       m_generator->HepMC2G4(g,e);
+       if (!m_nonBeam) m_generator->HepMC2G4(g,e);
+       else m_generator->nonBeamEvent2G4(g,e);
     }
-    
     return e;
 }
 

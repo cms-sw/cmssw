@@ -76,6 +76,7 @@ private:
     explicit RunManager(edm::ParameterSet const & p);
     G4RunManagerKernel * m_kernel;
     Generator * m_generator;
+    bool m_nonBeam;
     // std::auto_ptr<BaseEventVertexGenerator> m_eventVertexGenerator;
     std::auto_ptr<PhysicsList> m_physicsList;
     PrimaryTransformer * m_primaryTransformer;
@@ -118,7 +119,6 @@ private:
     std::vector<boost::shared_ptr<SimProducer> > m_producers;
     
     std::auto_ptr<SimTrackManager> m_trackManager;
-
     std::auto_ptr<sim::FieldBuilder> m_fieldBuilder;
 };
 
