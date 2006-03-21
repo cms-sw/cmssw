@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
-<ConstantsSection>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<ConstantsSection label="mgnt.xml" eval="true">
  <Constant name="MGNT_rmin" value="2.97*m"/>
  <Constant name="MGNT_rmax1" value="3.77*m"/>
  <Constant name="MGNT_rmax2" value="3.80*m"/>
