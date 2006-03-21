@@ -12,7 +12,7 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-#include "Geometry/RPCSimAlgo/interface/RPCGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 //#include "MagneticField/Engine/interface/MagneticField.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 

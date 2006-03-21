@@ -3,7 +3,7 @@
 #include "SimMuon/RPCDigitizer/src/RPCSimFactory.h"
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "Geometry/RPCSimAlgo/interface/RPCRoll.h"
+#include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 

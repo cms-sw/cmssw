@@ -1,5 +1,5 @@
-#include "Geometry/RPCSimAlgo/interface/RPCRoll.h"
-#include "Geometry/RPCSimAlgo/interface/RPCRollSpecs.h"
+#include "Geometry/RPCGeometry/interface/RPCRoll.h"
+#include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSimple.h"
 
 //NCA
