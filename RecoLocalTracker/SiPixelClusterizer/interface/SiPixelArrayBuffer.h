@@ -73,8 +73,8 @@ void SiPixelArrayBuffer::setSize( int rows, int cols)
   nrows = rows;
   ncols = cols;
   pixel_vec.resize(rows*cols);
-  std::cout << " Resize the clusterize pixel buffer " << (rows*cols) 
-	    << std::endl;
+  //std::cout << " Resize the clusterize pixel buffer " << (rows*cols) 
+  //    << std::endl;
 
   // TO DO: check this now:
   // Some STL implementations have problems with default values 

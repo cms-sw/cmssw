@@ -6,14 +6,12 @@
  * -------------------------------------------- 
  */
 
-
 // Our own stuff
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterProducer.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/PixelThresholdClusterizer.h"
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-class GeometricDet;   // hack in 0.2.0pre5, OK for pre6 -- still needed?
 #include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
 
 // Data Formats
@@ -57,18 +55,18 @@ namespace cms
   SiPixelClusterProducer::~SiPixelClusterProducer() { }  
 
 
-
   //---------------------------------------------------------------------------
   //! The "Event" entrypoint: gets called by framework for every event
   //---------------------------------------------------------------------------
   void SiPixelClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
   {
     // retrieve producer name of input SiPixelDigiCollection
-    std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
+    std::string digiProducer = 
+      conf_.getUntrackedParameter<std::string>("DigiProducer","pixdigi");
 
     // Step A.1: get input data
-    edm::Handle<PixelDigiCollection> stripDigis;
-    e.getByLabel(digiProducer, stripDigis);
+    edm::Handle<PixelDigiCollection> pixDigis;
+    e.getByLabel(digiProducer, pixDigis);
 
     // Step A.2: get event setup
     edm::ESHandle<TrackingGeometry> geom;
@@ -76,27 +74,26 @@ namespace cms
 
 
     // Step B: create empty output collection
-    std::auto_ptr<SiPixelClusterCollection> output(new SiPixelClusterCollection);
+    std::auto_ptr<SiPixelClusterCollection> 
+      output(new SiPixelClusterCollection);
 
     // Step C: Iterate over DetIds and invoke the strip clusterizer algorithm
     // on each DetUnit
-    run( stripDigis.product(), *output, geom );
+    run(pixDigis.product(), *output, geom );
 
     // Step D: write output to file
     e.put(output);
 
   }
 
-
-
   //---------------------------------------------------------------------------
   //!  Set up the specific algorithm we are going to use.  
   //!  TO DO: in the future, we should allow for a different algorithm for 
   //!  each detector subset (e.g. barrel vs forward, per layer, etc).
   //---------------------------------------------------------------------------
-  void SiPixelClusterProducer::setupClusterizer() 
-  {
-    clusterMode_ = conf_.getParameter<std::string>("ClusterMode");
+  void SiPixelClusterProducer::setupClusterizer()  {
+    clusterMode_ = 
+      conf_.getUntrackedParameter<std::string>("ClusterMode","PixelThresholdClusterizer");
 
     if ( clusterMode_ == "PixelThresholdClusterizer" ) {
       clusterizer_ = new PixelThresholdClusterizer(conf_);
@@ -111,14 +108,12 @@ namespace cms
     }
   }
 
-
   //---------------------------------------------------------------------------
   //!  Iterate over DetUnits, and invoke the PixelClusterizer on each.
   //---------------------------------------------------------------------------
   void SiPixelClusterProducer::run(const PixelDigiCollection* input, 
 				   SiPixelClusterCollection &output,
-				   edm::ESHandle<TrackingGeometry> & geom)
-  {
+				   edm::ESHandle<TrackingGeometry> & geom) {
     if ( ! readyToCluster_ ) {
       std::cout << "[SiPixelClusterProducer]:"
 		<<" at least one clusterizer is not ready -- can't run!" 
@@ -133,12 +128,11 @@ namespace cms
     // get vector of detunit ids
     const std::vector<unsigned int> detIDs = input->detIDs();
     
-
     //--- Loop over detunits.
-    std::vector<unsigned int>::const_iterator 
-      detunit_it  = detIDs.begin(),
-      detunit_end = detIDs.end();
-    for ( ; detunit_it != detunit_end; ++detunit_it ) {
+    std::vector<unsigned int>::const_iterator detunit_it; 
+    for (detunit_it  = detIDs.begin(); detunit_it != detIDs.end(); 
+	 ++detunit_it ) {
+
       //
       unsigned int detid = *detunit_it;
       ++numberOfDetUnits;
@@ -148,9 +142,6 @@ namespace cms
       PixelDigiCollection::ContainerIterator 
 	digiRangeIteratorEnd   = digiRange.second;
 
-      // TO DO: if we were to allow concurrent clusterizers, we would
-      // be picking one from the map and running it.
-
       // geometry information for this DetUnit. TrackerGeom:DetContainer is
       // a vector<GeomDetUnit*>.  We need to call 
       //     const GeomDet&  TrackerGeom::idToDet(DetId) const;
@@ -158,7 +149,6 @@ namespace cms
 
       // convert detid (unsigned int) to DetId
       DetId detIdObject( detid );      
-
       const GeomDetUnit * geoUnit = geom->idToDet( detIdObject );
       const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
       if (! pixDet) {
@@ -167,9 +157,10 @@ namespace cms
       }
 
       // dummies, right now, all empty
-      std::vector<float> noiseVec(768,2);
+      std::vector<float> noiseVec(768,2);  // what is this for?
       std::vector<short> badChannels;
 
+      // Run the clusterizer for one detUnit
       std::vector<SiPixelCluster> clustersOnDetUnit = 
 	clusterizer_->clusterizeDetUnit(digiRangeIteratorBegin, 
 					digiRangeIteratorEnd,
@@ -178,11 +169,13 @@ namespace cms
 					noiseVec,
 					badChannels);
       
-      SiPixelClusterCollection::Range inputRange;
-      inputRange.first = clustersOnDetUnit.begin();
-      inputRange.second = clustersOnDetUnit.end();
-      output.put(inputRange, detid);
-      numberOfClusters += clustersOnDetUnit.size();
+      if(clustersOnDetUnit.size()>0) { //Do only for full dets  
+	SiPixelClusterCollection::Range inputRange;
+	inputRange.first = clustersOnDetUnit.begin();
+	inputRange.second = clustersOnDetUnit.end();
+	numberOfClusters += clustersOnDetUnit.size();
+	output.put(inputRange, detid);
+      }
 
     }
     // end of the loop over detunits
@@ -192,9 +185,5 @@ namespace cms
 	      << " SiPixelClusters in " << numberOfDetUnits << " DetUnits." 
 	      << std::endl; 
   }
-
-
-  
-
 
 }  // end of namespace cms

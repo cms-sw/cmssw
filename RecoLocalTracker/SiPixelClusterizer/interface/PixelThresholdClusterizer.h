@@ -37,7 +37,6 @@
 //! useCache has been set.
 //-----------------------------------------------------------------------
 
-
 // Base class, defines SiPixelDigi and SiPixelCluster.  The latter includes
 // Pixel, PixelPos and Shift as inner classes.
 //
@@ -56,9 +55,7 @@
 #include <vector>
 
 
-
-class PixelThresholdClusterizer : public PixelClusterizerBase 
-{
+class PixelThresholdClusterizer : public PixelClusterizerBase {
  public:
 
   PixelThresholdClusterizer(edm::ParameterSet const& conf);
@@ -89,9 +86,9 @@ class PixelThresholdClusterizer : public PixelClusterizerBase
   float theSeedThresholdInNoiseUnits;     // Pixel cluster seed in units of noise
   float theClusterThresholdInNoiseUnits;  // Cluster threshold in units of noise
 
-  int   thePixelThreshold;    // Pixel threshold in adc counts
-  int   theSeedThreshold;     // Seed threshold in units of adc counts 
-  float theClusterThreshold;  // Cluster threshold in units of adc counts
+  int   thePixelThreshold;  // Pixel threshold in electrons
+  int   theSeedThreshold;   // Seed threshold in electrons 
+  float theClusterThreshold;  // Cluster threshold in electrons
 
 
   //! Geometry-related information
@@ -104,6 +101,13 @@ class PixelThresholdClusterizer : public PixelClusterizerBase
   void copy_to_buffer( DigiIterator begin, DigiIterator end );   
   void clear_buffer( DigiIterator begin, DigiIterator end );   
   SiPixelCluster make_cluster( const SiPixelCluster::PixelPos& pix );
+  // Calibrate the ADC charge to electrons 
+  int calibrate(int adc, int col, int row) {
+    const float gain = 135.; // 1 ADC = 135 electrons
+    const float pedestal = 0.; //
+    int electrons = int(adc * gain + pedestal);
+    return electrons;
+  }
 
   void initTiming();
   TimingReport::Item * theSetupTimer;

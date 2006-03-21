@@ -12,6 +12,10 @@
 //! The search starts from seed pixels, i.e. pixels with sufficiently
 //! large amplitudes, found at the time of filling of the matrix
 //! and stored in a SiPixelArrayBuffer.
+//! 
+//! Translate the pixel charge to electrons, we are suppose to
+//! do the calibrations ADC->electrons here.
+//! Modify the thresholds to be in electrons, convert adc to electrons. d.k. 20/3/06
 //----------------------------------------------------------------------------
 
 // Our own includes
@@ -19,7 +23,7 @@
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelArrayBuffer.h"
 
 // Geometry
-class GeometricDet;   // hack in 0.2.0pre5, should be OK for pre6
+//class GeometricDet;   // hack in 0.2.0pre5, should be OK for pre6
 #include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 //#include "Geometry/CommonTopologies/RectangularPixelTopology.h"
@@ -30,45 +34,52 @@ class GeometricDet;   // hack in 0.2.0pre5, should be OK for pre6
 #include <iostream>
 using namespace std;
 
-
-
 //----------------------------------------------------------------------------
 //! Constructor: 
 //!  Initilize the buffer to hold pixels from a detector module.
 //!  This is a vector of 44k ints, stays valid all the time.  
 //----------------------------------------------------------------------------
-PixelThresholdClusterizer::PixelThresholdClusterizer(edm::ParameterSet const& conf)
-  :
-  conf_(conf),
-  bufferAlreadySet(false), 
-  theNumOfRows(0), theNumOfCols(0)
-{
-  // Set the thresholds -- NOTE: in units of noise!
-  thePixelThresholdInNoiseUnits   = 
-    conf_.getParameter<double>("ChannelThreshold");
-  theSeedThresholdInNoiseUnits    = 
-    conf_.getParameter<double>("SeedThreshold");
-  theClusterThresholdInNoiseUnits = 
-    conf_.getParameter<double>("ClusterThreshold");
+PixelThresholdClusterizer::PixelThresholdClusterizer
+  (edm::ParameterSet const& conf) :
+    conf_(conf), bufferAlreadySet(false), theNumOfRows(0), theNumOfCols(0) {
 
-  theBuffer.setSize( theNumOfRows, theNumOfCols );
-  initTiming();
+   // Get thresholds in electrons
+   thePixelThreshold   = 
+     conf_.getUntrackedParameter<int>("ChannelThreshold",2500);
+   theSeedThreshold    = 
+     conf_.getUntrackedParameter<int>("SeedThreshold",3000);
+   theClusterThreshold = 
+     conf_.getUntrackedParameter<double>("ClusterThreshold",5050.);
+   
+   // Set the thresholds in units of noise!
+   //   thePixelThresholdInNoiseUnits   = 
+   //     conf_.getUntrackedParameter<double>("ChannelThreshold",5.);
+   //   theSeedThresholdInNoiseUnits    = 
+   //     conf_.getUntrackedParameter<double>("SeedThreshold",6.);
+   //   theClusterThresholdInNoiseUnits = 
+   //     conf_.getUntrackedParameter<double>("ClusterThreshold",10.1);
+   // Get all noise/threshold parameters 
+   //  float noise = 2;  // Get noise in adc units. TO DO: add DB access.
+   // Convert thresholds to adc units.
+   // Single pixel thr. 
+   //  thePixelThreshold = int( noise * thePixelThresholdInNoiseUnits);  
+   // To start the cluster search
+   //theSeedThreshold  = int( noise * theSeedThresholdInNoiseUnits);    
+   // Full cluster thr.
+   //theClusterThreshold = noise * theClusterThresholdInNoiseUnits;    
+
+   theBuffer.setSize( theNumOfRows, theNumOfCols );
+   initTiming();
 }
-
-
-
-PixelThresholdClusterizer::~PixelThresholdClusterizer() 
-{
-}
-
+/////////////////////////////////////////////////////////////////////////////
+PixelThresholdClusterizer::~PixelThresholdClusterizer() {}
 
 //----------------------------------------------------------------------------
 //!  Prepare the Clusterizer to work on a particular DetUnit.  Re-init the
 //!  size of the panel/plaquette (so update nrows and ncols), 
 //----------------------------------------------------------------------------
 bool PixelThresholdClusterizer::setup( unsigned int detid,
-				       const PixelGeomDetUnit * pixDet )
-{
+				       const PixelGeomDetUnit * pixDet ) {
   // Cache the topology.
   const PixelTopology & topol = pixDet->specificTopology();
   
@@ -77,49 +88,18 @@ bool PixelThresholdClusterizer::setup( unsigned int detid,
   int ncols = topol.ncolumns();   // cols in y
 
   if( nrows != theNumOfRows || ncols != theNumOfCols ) {
-    cout << " PixelThresholdClusterizer: pixel buffer redefined to " 
-	 << nrows << " * " << ncols << endl;      
+    //cout << " PixelThresholdClusterizer: pixel buffer redefined to " 
+    // << nrows << " * " << ncols << endl;      
     theNumOfRows = nrows;  // Set new sizes
     theNumOfCols = ncols;
     // Resize the buffer
     theBuffer.setSize(nrows,ncols);  // Modify
     bufferAlreadySet = true;
-
-#if 0
-  // TO DO: need to convert to the new geometry
-    if (infoV) {
-      cout << "PixelThresholdClusterizer::setup" << endl;
-      cout << readout.specificTopology().pitch().first << " "; // pitch size in x
-      cout << readout.specificTopology().pitch().second << " "; // pitch size in y
-      cout << readout.specificTopology().nrows() << " " ; // rows in x
-      cout << readout.specificTopology().ncolumns() << endl;
-      cout << " Thresholds " << thePixelThresholdInNoiseUnits << " " 
-	   << theSeedThresholdInNoiseUnits << " " 
-	   << theClusterThresholdInNoiseUnits << endl;
-    }
-#endif
   }
-
-  
-  // Get all noise/threshold parameters 
-  float noise = 2;  // Get noise in adc units. TO DO: add DB access.
-
-  // TO DO: need to convert to the new geometry
-      
-  // Convert thresholds to adc units.
-  // Single pixel thr. 
-  thePixelThreshold = int( noise * thePixelThresholdInNoiseUnits);  
-  // To start the cluster search
-  theSeedThreshold  = int( noise * theSeedThresholdInNoiseUnits);    
-  // Full cluster thr.
-  theClusterThreshold = noise * theClusterThresholdInNoiseUnits;    
 
   return true;   
   // TO DO: is there really a scenario where we could fail? Why not return void?
 }
-
-
-
 //----------------------------------------------------------------------------
 //!  \brief Cluster pixels.
 //!  This method operates on a matrix of pixels
@@ -131,8 +111,7 @@ PixelThresholdClusterizer::clusterizeDetUnit( DigiIterator begin, DigiIterator e
 					      unsigned int detid,
 					      const PixelGeomDetUnit * pixDet,
 					      const std::vector<float>& noiseVec,
-					      const std::vector<short>& badChannels)
-{
+					      const std::vector<short>& badChannels) {
   TimeMe tm1( *theClustersTimer, false);
   theClusters.clear();
 
@@ -154,7 +133,7 @@ PixelThresholdClusterizer::clusterizeDetUnit( DigiIterator begin, DigiIterator e
   theClusters.reserve( theSeeds.size() );
     
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
-  for ( int i = 0; i < theSeeds.size(); i++) {
+  for (unsigned int i = 0; i < theSeeds.size(); i++) {
       
     if ( theBuffer(theSeeds[i]) != 0) {  // Is this seed still valid?
 	
@@ -176,8 +155,6 @@ PixelThresholdClusterizer::clusterizeDetUnit( DigiIterator begin, DigiIterator e
 
   return theClusters;
 }
-
-
 
 //----------------------------------------------------------------------------
 //!  \brief Clear the internal buffer array.
@@ -205,12 +182,11 @@ void PixelThresholdClusterizer::clear_buffer( DigiIterator begin, DigiIterator e
 void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator end )
 {
   TimeMe tm1( *theCopyTimer, false);
-  DigiIterator di = begin;
-  for( ; di != end; ++di ) {
-    int adc = di->adc();
+  for(DigiIterator di = begin; di != end; ++di) {
+    int row = di->row();
+    int col = di->column();
+    int adc = calibrate(di->adc(),col,row); // convert ADC -> electrons
     if ( adc >= thePixelThreshold) {
-      int row = di->row();
-      int col = di->column();
       theBuffer.set_adc( row, col, adc);
       if ( adc >= theSeedThreshold) { 
 	theSeeds.push_back( SiPixelCluster::PixelPos(row,col) );
@@ -218,8 +194,6 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
     }
   }
 }
-
-
 
 //----------------------------------------------------------------------------
 //!  \brief The actual clustering algorithm: group the neighboring pixels around the seed.
@@ -259,14 +233,10 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix)
 }
 
 
-
-
 //----------------------------------------------------------------------------
 //! \brief Initialize the timers.
 //----------------------------------------------------------------------------
-void 
-PixelThresholdClusterizer::initTiming() 
-{
+void PixelThresholdClusterizer::initTiming() {
   TimingReport& tr(*TimingReport::current());
 
   theSetupTimer =      &tr["PixelClusterizer setup+digi"];
@@ -280,7 +250,7 @@ PixelThresholdClusterizer::initTiming()
   theCachePutTimer =   &tr["PixelClusterizer cache fill"];
 
   static bool detailedTiming 
-    = conf_.getParameter<bool>("DetailedTiming");
+    = conf_.getUntrackedParameter<bool>("DetailedTiming",false);
 
   if (!detailedTiming) {
     tr.switchOn( "PixelClusterizer setup+digi",false);

@@ -1,0 +1,396 @@
+// File: ReadPixClusters.cc
+// Description: TO test the pixel clusters. 
+// Author: Danek Kotlinskiu 
+// Creation Date:  Initial version. 3/06
+//
+//--------------------------------------------
+#include <memory>
+#include <string>
+#include <iostream>
+
+using namespace std;
+
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+//#include "FWCore/Framework/interface/Handle.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "FWCore/EDProduct/interface/EDProduct.h"
+
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollection.h"
+
+
+#include "DataFormats/DetId/interface/DetId.h"
+
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
+#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetType.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+
+// For ROOT
+#include <TROOT.h>
+#include <TChain.h>
+#include <TFile.h>
+#include <TF1.h>
+#include <TH2F.h>
+#include <TH1F.h>
+
+class ReadPixClusters : public edm::EDAnalyzer {
+ public:
+  
+  explicit ReadPixClusters(const edm::ParameterSet& conf);  
+  virtual ~ReadPixClusters();
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  virtual void beginJob(const edm::EventSetup& iSetup);
+  virtual void endJob();
+  
+ private:
+  edm::ParameterSet conf_;
+  const static bool PRINT = true;
+  
+  TFile* hFile;
+  TH1F *hdetunit;
+  TH1F *hpixid,*hpixsubid,
+    *hlayerid,
+    *hladder1id,*hladder2id,*hladder3id,
+    *hz1id,*hz2id,*hz3id;
+
+  TH1F *hcharge1,*hcharge2, *hcharge3;
+  TH1F *hcols1,*hcols2,*hcols3,*hrows1,*hrows2,*hrows3;
+  TH1F *hsize1,*hsize2,*hsize3,
+    *hsizex1,*hsizex2,*hsizex3,
+    *hsizey1,*hsizey2,*hsizey3;
+
+  TH1F *hclusPerDet1,*hclusPerDet2,*hclusPerDet3;
+  TH1F *hclusPerLay1,*hclusPerLay2,*hclusPerLay3;
+  TH1F *hdetsPerLay1,*hdetsPerLay2,*hdetsPerLay3;
+
+  TH1F *hdetr, *hdetz;
+//   TH1F *hcolsB,  *hrowsB,  *hcolsF,  *hrowsF;
+//   TH2F *htest, *htest2;
+ 
+};
+/////////////////////////////////////////////////////////////////
+// Contructor, empty.
+ReadPixClusters::ReadPixClusters(edm::ParameterSet const& conf) 
+  : conf_(conf) { }
+// Virtual destructor needed.
+ReadPixClusters::~ReadPixClusters() { }  
+
+// ------------ method called at the begining   ------------
+void ReadPixClusters::beginJob(const edm::EventSetup& iSetup) {
+  cout << "Initialize PixelClusterTest " <<endl;
+ 
+  // put here whatever you want to do at the beginning of the job
+  hFile = new TFile ( "histo.root", "RECREATE" );
+
+  hdetunit = new TH1F( "hdetunit", "Det unit", 1000,
+                              302000000.,302300000.);
+  hpixid = new TH1F( "hpixid", "Pix det id", 10, 0., 10.);
+  hpixsubid = new TH1F( "hpixsubid", "Pix Barrel id", 10, 0., 10.);
+  hlayerid = new TH1F( "hlayerid", "Pix layer id", 10, 0., 10.);
+  hladder1id = new TH1F( "hladder1id", "Ladder L1 id", 50, 0., 50.);
+  hladder2id = new TH1F( "hladder2id", "Ladder L2 id", 50, 0., 50.);
+  hladder3id = new TH1F( "hladder3id", "Ladder L3 id", 50, 0., 50.);
+  hz1id = new TH1F( "hz1id", "Z-index id L1", 10, 0., 10.);
+  hz2id = new TH1F( "hz2id", "Z-index id L2", 10, 0., 10.);
+  hz3id = new TH1F( "hz3id", "Z-index id L3", 10, 0., 10.);
+  
+  hclusPerDet1 = new TH1F( "hclusPerDet1", "Clus per det l1",
+			    200, -0.5, 199.5);
+  hclusPerDet2 = new TH1F( "hclusPerDet2", "Clus per det l2",
+			    200, -0.5, 199.5);
+  hclusPerDet3 = new TH1F( "hclusPerDet3", "Clus per det l3",
+			    200, -0.5, 199.5);
+  hclusPerLay1 = new TH1F( "hclusPerLay1", "Clus per layer l1",
+			    2000, -0.5, 1999.5);
+  hclusPerLay2 = new TH1F( "hclusPerLay2", "Clus per layer l2",
+			    2000, -0.5, 1999.5);
+			    
+			    
+  hclusPerLay3 = new TH1F( "hclusPerLay3", "Clus per layer l3",
+			    2000, -0.5, 1999.5);
+  hdetsPerLay1 = new TH1F( "hdetsPerLay1", "Full dets per layer l1",
+			   161, -0.5, 160.5);
+  hdetsPerLay3 = new TH1F( "hdetsPerLay3", "Full dets per layer l3",
+			   353, -0.5, 352.5);
+  hdetsPerLay2 = new TH1F( "hdetsPerLay2", "Full dets per layer l2",
+			   257, -0.5, 256.5);
+ 
+  hcharge1 = new TH1F( "hcharge1", "Clu charge l1", 200, 0.,200.); //in ke
+  hcharge2 = new TH1F( "hcharge2", "Clu charge l2", 200, 0.,200.);
+  hcharge3 = new TH1F( "hcharge3", "Clu charge l3", 200, 0.,200.);
+ 
+  hcols1 = new TH1F( "hcols1", "Layer 1 cols", 500,-0.5,499.5);
+  hcols2 = new TH1F( "hcols2", "Layer 2 cols", 500,-0.5,499.5);
+  hcols3 = new TH1F( "hcols3", "Layer 3 cols", 500,-0.5,499.5);
+  
+  hrows1 = new TH1F( "hrows1", "Layer 1 rows", 200,-0.5,199.5);
+  hrows2 = new TH1F( "hrows2", "Layer 2 rows", 200,-0.5,199.5);
+  hrows3 = new TH1F( "hrows3", "layer 3 rows", 200,-0.5,199.5);
+
+  hsize1 = new TH1F( "hsize1", "layer 1 clu size",100,-0.5,99.5);
+  hsize2 = new TH1F( "hsize2", "layer 2 clu size",100,-0.5,99.5);
+  hsize3 = new TH1F( "hsize3", "layer 3 clu size",100,-0.5,99.5);
+  hsizex1 = new TH1F( "hsizex1", "lay1 clu size in x",
+		      10,-0.5,9.5);
+  hsizex2 = new TH1F( "hsizex2", "lay2 clu size in x",
+		      10,-0.5,9.5);
+  hsizex3 = new TH1F( "hsizex3", "lay3 clu size in x",
+		      10,-0.5,9.5);
+  hsizey1 = new TH1F( "hsizey1", "lay1 clu size in y",
+		      20,-0.5,19.5);
+  hsizey2 = new TH1F( "hsizey2", "lay2 clu size in y",
+		      20,-0.5,19.5);
+  hsizey3 = new TH1F( "hsizey3", "lay3 clu size in y",
+		      20,-0.5,19.5);
+  
+    hdetr = new TH1F("hdetr","det r",150,0.,15.);
+    hdetz = new TH1F("hdetz","det z",520,-26.,26.);
+
+//     hcolsB = new TH1F("hcolsB","cols per bar det",450,0.,450.);
+//     hrowsB = new TH1F("hrowsB","rows per bar det",200,0.,200.);
+ 
+//     htest = new TH2F("htest"," ",10,0.,10.,20,0.,20.);
+//     htest2 = new TH2F("htest2"," ",10,0.,10.,300,0.,300.);
+
+
+}
+// ------------ method called to at the end of the job  ------------
+void ReadPixClusters::endJob(){
+  cout << " End PixelClusTest " << endl;
+  hFile->Write();
+  hFile->Close();
+}
+//////////////////////////////////////////////////////////////////
+// Functions that gets called by framework every event
+void ReadPixClusters::analyze(const edm::Event& e, 
+			      const edm::EventSetup& es) {
+  using namespace edm;
+
+  // Get the parametrs 
+  std::string rechitProducer = 
+    conf_.getParameter<std::string>("RecHitProducer"); 
+
+  // Get event setup (to get global transformation)
+  edm::ESHandle<TrackingGeometry> geom;
+  //edm::ESHandle<TrackerGeom> geom;
+  es.get<TrackerDigiGeometryRecord>().get( geom );
+  const TrackingGeometry& theTracker(*geom);
+
+  // Clusters
+  edm::Handle<SiPixelClusterCollection> clusters;
+  //e.getByLabel("pixClustMaker", clusters);
+  e.getByLabel(rechitProducer, clusters);
+  
+  const SiPixelClusterCollection * input = clusters.product();
+  if(PRINT) std::cout<<"Clusters : "<<std::endl;
+  
+  int numberOfDetUnits = 0;
+  int numberOfClusters = 0;
+  int numberOfDetUnits1 = 0;
+  int numOfClustersPerDet1=0;        
+  int numOfClustersPerLay1=0;        
+  int numberOfDetUnits2 = 0;
+  int numOfClustersPerDet2=0;        
+  int numOfClustersPerLay2=0;        
+  int numberOfDetUnits3 = 0;
+  int numOfClustersPerDet3=0;        
+  int numOfClustersPerLay3=0;        
+  
+  // get vector of detunit ids
+  const std::vector<unsigned int> detIDs = input->detIDs();
+  
+  
+  //--- Loop over detunits.
+  std::vector<unsigned int>::const_iterator detunit_it;
+  for (detunit_it  = detIDs.begin(); detunit_it != detIDs.end(); 
+       ++detunit_it ) {
+    unsigned int detid = *detunit_it;  
+    // Det id
+    DetId detId = DetId(detid);       // Get the Detid object
+    unsigned int detType=detId.det(); // det type, pixel=1
+    unsigned int subid=detId.subdetId(); //subdetector type, barrel=1
+ 
+    if(PRINT)
+      cout<<"Det: "<<detId.rawId()<<" "<<detId.null()<<" "<<detType<<" "<<subid<<endl;
+    
+    hdetunit->Fill(float(detid));
+    hpixid->Fill(float(detType));
+    hpixsubid->Fill(float(subid));
+
+    if(detType!=1) continue; // look only at pixels
+  
+    //const GeomDetUnit * genericDet = geom->idToDet(detId);
+    //const PixelGeomDetUnit * pixDet = 
+    //dynamic_cast<const PixelGeomDetUnit*>(genericDet);
+
+    // Get the geom-detector
+    const PixelGeomDetUnit * theGeomDet =
+      dynamic_cast<const PixelGeomDetUnit*> (theTracker.idToDet(detId) );
+    double detZ = theGeomDet->surface().position().z();
+    double detR = theGeomDet->surface().position().perp();
+
+    const BoundPlane& plane = theGeomDet->surface(); //for transf.
+    
+    double detThick = theGeomDet->specificSurface().bounds().thickness();
+    int cols = theGeomDet->specificTopology().ncolumns();
+    int rows = theGeomDet->specificTopology().nrows();
+    
+    // Subdet it, pix barrel=1
+    if(subid != 1) {
+      if(subid==2) {
+	// test cols & rows
+	//cout<<" det z/r "<<detZ<<" "<<detR<<" "<<detThick<<" "
+	//  <<cols<<" "<<rows<<endl;
+	//hdetrF->Fill(detR);
+	//hdetzF->Fill(detZ);
+	//hcolsF->Fill(float(cols));
+	//hrowsF->Fill(float(rows));
+	if(PRINT) cout<<" forward hit "<<endl;
+      }
+      continue; // look only at barrel
+    }
+
+    ++numberOfDetUnits;
+    hdetr->Fill(detR);
+    hdetz->Fill(detZ);
+    //hcolsB->Fill(float(cols));
+    //hrowsB->Fill(float(rows));
+
+    PXBDetId pdetId = PXBDetId(detid);
+    unsigned int detTypeP=pdetId.det();
+    unsigned int subidP=pdetId.subdetId();
+    // Barell layer = 1,2,3
+    unsigned int layer=pdetId.layer();
+    // Barrel ladder id 1-20,32,44.
+    unsigned int ladder=pdetId.ladder();
+    // Barrel Z-index=1,8
+    unsigned int zindex=pdetId.module();
+    if(PRINT)
+      cout<<"     "<<detTypeP<<" "<<subidP<<" "<<layer<<" "<<ladder<<" "
+	  <<zindex<<" "<<pdetId.rawId()<<" "<<pdetId.null()<<endl;
+
+    hlayerid->Fill(float(layer));
+    if(layer==1) {
+      hladder1id->Fill(float(ladder));
+      hz1id->Fill(float(zindex));
+      ++numberOfDetUnits1;
+      numOfClustersPerDet1=0;        
+    } else if(layer==2) {
+      hladder2id->Fill(float(ladder));
+      hz2id->Fill(float(zindex));
+      ++numberOfDetUnits2;
+      numOfClustersPerDet2=0;
+    } else if(layer==3) {
+      hladder3id->Fill(float(ladder));
+      hz3id->Fill(float(zindex));
+      ++numberOfDetUnits3;
+      numOfClustersPerDet3=0;
+    }
+    
+    if(PRINT) cout<<"List clusters : "<<endl;
+    numberOfClusters = 0;
+    const SiPixelClusterCollection::Range clustRange = 
+      input->get(detid);
+    SiPixelClusterCollection::ContainerIterator clustIt; 
+    for (clustIt = clustRange.first; clustIt != clustRange.second; 
+	 ++clustIt ) {
+      numberOfClusters++;
+      float ch = (clustIt->charge())/1000.; // convert ke to electrons
+      int size = clustIt->size();
+      int sizeX = clustIt->sizeX();
+      int sizeY = clustIt->sizeY();
+      float x = clustIt->x();
+      float y = clustIt->y();
+      int maxPixelCol = clustIt->maxPixelCol();
+      int maxPixelRow = clustIt->maxPixelRow();
+      int minPixelCol = clustIt->minPixelCol();
+      int minPixelRow = clustIt->minPixelRow();
+      
+      unsigned int geoId = clustIt->geographicalId();
+      bool edgeHitX = clustIt->edgeHitX();
+      bool edgeHitY = clustIt->edgeHitY();
+      
+      //const vector<Pixel>  = clustIt->pixels();
+      
+      if(PRINT) cout<<numberOfClusters<<" "<<ch<<" "<<size<<" "<<sizeX<<" "<<sizeY<<" "
+		    <<x<<" "<<y<<" "<<geoId<<" "<<edgeHitX<<" "
+		    <<edgeHitY<<endl;
+      
+      if(layer==1) {
+	hcharge1->Fill(ch);
+        hcols1->Fill(y);
+	hrows1->Fill(x);
+	hsize1->Fill(float(size));
+	hsizex1->Fill(float(sizeX));
+	hsizey1->Fill(float(sizeY));
+	numOfClustersPerDet1++;
+	numOfClustersPerLay1++;
+	//htest2->Fill(float(zindex),float(adc));
+      } else if(layer==2) {
+	hcharge2->Fill(ch);
+	hcols2->Fill(y);
+	hrows2->Fill(x);
+	hsize2->Fill(float(size));
+	hsizex2->Fill(float(sizeX));
+	hsizey2->Fill(float(sizeY));
+	numOfClustersPerDet2++;
+	numOfClustersPerLay2++;
+      } else if(layer==3) {
+	hcharge3->Fill(ch);
+	hcols3->Fill(y);
+	hrows3->Fill(x);
+	hsize3->Fill(float(size));
+	hsizex3->Fill(float(sizeX));
+	hsizey3->Fill(float(sizeY));
+	numOfClustersPerDet3++;
+	numOfClustersPerLay3++;
+      } // end if layer
+
+    } // clusters 
+
+    if(layer==1) {
+      hclusPerDet1->Fill(float(numOfClustersPerDet1));
+      if(PRINT) cout<<"Lay1: number of clusters per det = "<<numOfClustersPerDet1<<endl;
+    } else if(layer==2) {
+      hclusPerDet2->Fill(float(numOfClustersPerDet2));
+      if(PRINT) cout<<"Lay2: number of clusters per det = "<<numOfClustersPerDet1<<endl;
+    } else if(layer==3) { 
+      hclusPerDet3->Fill(float(numOfClustersPerDet3));
+      if(PRINT) cout<<"Lay3: number of clusters per det = "<<numOfClustersPerDet1<<endl;
+    }
+  } // detunits
+  
+
+  if(PRINT) {
+    cout<<"Number of clusters per Lay1,2,3: "<<numOfClustersPerLay1<<" "
+	<<numOfClustersPerLay2<<" "<<numOfClustersPerLay3<<endl;
+    cout<<"Number of dets with clus in Lay1,2,3: "<<numberOfDetUnits1<<" "
+	<<numberOfDetUnits2<<" "<<numberOfDetUnits3<<endl;
+  }
+  hclusPerLay1->Fill(float(numOfClustersPerLay1));
+  hclusPerLay2->Fill(float(numOfClustersPerLay2));
+  hclusPerLay3->Fill(float(numOfClustersPerLay3));
+  hdetsPerLay1->Fill(float(numberOfDetUnits1));
+  hdetsPerLay2->Fill(float(numberOfDetUnits2));
+  hdetsPerLay3->Fill(float(numberOfDetUnits3));
+
+} // end 
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(ReadPixClusters)
