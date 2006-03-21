@@ -10,18 +10,11 @@
 
 #include "RecoLocalTracker/SiStripRecHitConverter/test/ReadRecHit.h"
 
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-
 
 namespace cms
 {

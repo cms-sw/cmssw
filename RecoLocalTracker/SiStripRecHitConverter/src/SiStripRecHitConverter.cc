@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -47,9 +47,9 @@ namespace cms
   void SiStripRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es)
   {
     using namespace edm;
-    edm::ESHandle<TrackingGeometry> pDD;
+    edm::ESHandle<TrackerGeometry> pDD;
     es.get<TrackerDigiGeometryRecord>().get( pDD );
-    const TrackingGeometry &tracker(*pDD);
+    const TrackerGeometry &tracker(*pDD);
     
     edm::ESHandle<MagneticField> pSetup;
     es.get<IdealMagneticFieldRecord>().get(pSetup);

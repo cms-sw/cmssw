@@ -2,7 +2,7 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 //typedef std::pair<LocalPoint,LocalError>  LocalValues;
 
-StripCPE::StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackingGeometry* geom){
+StripCPE::StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom){
   //--- Lorentz angle tangent per Tesla
   theTanLorentzAnglePerTesla =
     conf.getParameter<double>("TanLorentzAnglePerTesla");  
@@ -16,7 +16,7 @@ StripClusterParameterEstimator::LocalValues StripCPE::localParameters( const SiS
   // get the det from the geometry
   //
   DetId detId(cl.geographicalId());
-  const GeomDetUnit *  det = geom_->idToDet(detId);
+  const GeomDetUnit *  det = geom_->idToDetUnit(detId);
 
   LocalPoint result;
   LocalError eresult;

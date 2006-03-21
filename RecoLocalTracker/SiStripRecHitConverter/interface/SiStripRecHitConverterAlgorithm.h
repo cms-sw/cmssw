@@ -19,8 +19,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-#include "Geometry/TrackerSimAlgo/interface/StripGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 class SiStripRecHitConverterAlgorithm 
 {
@@ -32,8 +32,8 @@ class SiStripRecHitConverterAlgorithm
 
   /// Runs the algorithm
 
-    void run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackingGeometry& tracker,const MagneticField &BField);
-    void run(const SiStripClusterCollection* input, SiStripRecHit2DMatchedLocalPosCollection&  output, SiStripRecHit2DLocalPosCollection&  outrphi,SiStripRecHit2DLocalPosCollection&  outstereo,const TrackingGeometry & tracker,const MagneticField &BField,LocalVector trackdirection);
+    void run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const MagneticField &BField);
+    void run(const SiStripClusterCollection* input, SiStripRecHit2DMatchedLocalPosCollection&  output, SiStripRecHit2DLocalPosCollection&  outrphi,SiStripRecHit2DLocalPosCollection&  outstereo,const TrackerGeometry & tracker,const MagneticField &BField,LocalVector trackdirection);
  private:
 
   edm::ParameterSet conf_;

@@ -18,7 +18,6 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
-#include "Geometry/TrackerSimAlgo/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"

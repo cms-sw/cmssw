@@ -37,16 +37,16 @@ SiStripRecHitConverterAlgorithm::~SiStripRecHitConverterAlgorithm() {
     delete clustermatch_;
   }
 }
-void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackingGeometry& tracker,const MagneticField &BField)
+void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const MagneticField &BField)
 {
   run(input, outmatched,outrphi,outstereo,tracker,BField,LocalVector(0.,0.,0.));
 }
 
 
-void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackingGeometry& tracker,const MagneticField &BField,LocalVector trackdirection)
+void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const MagneticField &BField,LocalVector trackdirection)
 {
   const MagneticField *b=&BField;
-  const TrackingGeometry *geom=&tracker;
+  const TrackerGeometry *geom=&tracker;
   StripCPE parameterestimator(conf_,b,geom); 
   int nmono=0;
   int nstereo=0;
@@ -62,7 +62,7 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
     if(id!=999999999){ //if is valid detector
       DetId detId(id);
       //get geometry 
-      const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tracker.idToDet(detId);
+      const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tracker.idToDetUnit(detId);
       if(stripdet==0)std::cout<<"Detid="<<id<<" not found, trying next one"<<endl;
       else{
 	const SiStripClusterCollection::Range clusterRange = input->get(id);
@@ -119,9 +119,9 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
       std::vector<unsigned int>::const_iterator partnerdetiter=std::find(detIDs.begin(),detIDs.end(),id);
       if(partnerdetiter==detIDs.end()) id=0;	
       if (id>0){
-	DetId partnerdetId(id);
-	const GeomDetUnit * monostripdet=tracker.idToDet(*detunit_iterator);
-	const GeomDetUnit * stereostripdet=tracker.idToDet(DetId(id));
+	//	DetId partnerdetId(id);
+	const GeomDetUnit * monostripdet=tracker.idToDetUnit(*detunit_iterator);
+	const GeomDetUnit * stereostripdet=tracker.idToDetUnit(DetId(id));
 	
 	const SiStripRecHit2DLocalPosCollection::range rhpartnerRange = outstereo.get(DetId(id));
 	SiStripRecHit2DLocalPosCollection::const_iterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;

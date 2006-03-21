@@ -7,9 +7,9 @@
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/Common>
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/TrackerSimAlgo>
 <use name=Geometry/Surface>
 <use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Records>
 <use name=MagneticField/VolumeBasedEngine>
 <use name=MagneticField/GeomBuilder>
@@ -23,9 +23,9 @@
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/Common>
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/TrackerSimAlgo>
 <use name=Geometry/Surface>
 <use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Records>
 <use name=MagneticField/VolumeBasedEngine>
 <use name=MagneticField/GeomBuilder>
