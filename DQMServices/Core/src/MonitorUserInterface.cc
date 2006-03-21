@@ -142,11 +142,11 @@ void MonitorUserInterface::finishSubscription(const vector<string> & monit,
   }
 }
 
-// save directory with monitoring objects into root file <filename>;
+// save dir_fullpath with monitoring objects into root file <filename>;
 // include quality test results with status >= minimum_status 
 // (defined in Core/interface/QTestStatus.h);
-// if directory="", save full monitoring structure
-void MonitorUserInterface::save(string filename, string directory,
+// if dir_fullpath="", save full monitoring structure
+void MonitorUserInterface::save(string filename, string dir_fullpath,
 				int minimum_status) const
 {
   bei->save(filename, directory, minimum_status);
