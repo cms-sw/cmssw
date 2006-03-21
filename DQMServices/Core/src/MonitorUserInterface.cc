@@ -149,7 +149,7 @@ void MonitorUserInterface::finishSubscription(const vector<string> & monit,
 void MonitorUserInterface::save(string filename, string dir_fullpath,
 				int minimum_status) const
 {
-  bei->save(filename, directory, minimum_status);
+  bei->save(filename, dir_fullpath, minimum_status);
 }
 
 // draw all monitoring objects
