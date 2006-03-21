@@ -18,9 +18,7 @@ using namespace std;
 //class DetIdComparator : public binary_function<DetId, DetId, bool> {
 class DetIdComparator {
 public:
-  virtual bool operator()( DetId i1, DetId i2 ) const {
-    return i1<i2;
-  }
+  virtual bool operator()( DetId i1, DetId i2 ) const =0;
 };
 
 class DetIdTIBSameLayerComparator : public  DetIdComparator {
@@ -99,14 +97,14 @@ class TrackerLayerIdAccessor {
   //
   // returns a valid DetId + a valid comaprator for the RangeMap
   //
-  typedef std::pair<DetId,DetIdComparator> returnType;
+  typedef std::pair<DetId,DetIdComparator&> returnType;
   TrackerLayerIdAccessor();
-  returnType pixelBarrelLayer(int layer);
-  returnType pixelForwardDisk(int side,int disk);
-  returnType stripTIBLayer(int layer);
-  returnType stripTOBLayer(int layer);
-  returnType stripTECDisk(int side,int disk);
-  returnType stripTIDDisk(int side,int disk);
+  std::pair<DetId,DetIdPXBSameLayerComparator>  pixelBarrelLayer(int layer);
+  std::pair<DetId,DetIdPXFSameDiskComparator>  pixelForwardDisk(int side,int disk);
+  std::pair<DetId,DetIdTIBSameLayerComparator>  stripTIBLayer(int layer);
+  std::pair<DetId,DetIdTOBSameLayerComparator> stripTOBLayer(int layer);
+  std::pair<DetId,DetIdTECSameDiskComparator>  stripTECDisk(int side,int disk);
+  std::pair<DetId,DetIdTIDSameDiskComparator>  stripTIDDisk(int side,int disk);
   
  private:
   
@@ -114,28 +112,29 @@ class TrackerLayerIdAccessor {
 
 TrackerLayerIdAccessor::TrackerLayerIdAccessor(){}
 
-TrackerLayerIdAccessor::returnType TrackerLayerIdAccessor::pixelBarrelLayer(int layer ){
+ std::pair<DetId,DetIdPXBSameLayerComparator> TrackerLayerIdAccessor::pixelBarrelLayer(int layer ){
   PXBDetId id(layer,1,1);
   return make_pair(id,DetIdPXBSameLayerComparator());
 }
-TrackerLayerIdAccessor::returnType TrackerLayerIdAccessor::pixelForwardDisk(int side, int disk ){
+std::pair<DetId,DetIdPXFSameDiskComparator>  TrackerLayerIdAccessor::pixelForwardDisk(int side, int disk ){
   PXFDetId id(side,disk,1,1,1);
   return make_pair(id,DetIdPXFSameDiskComparator());
 }
-TrackerLayerIdAccessor::returnType TrackerLayerIdAccessor::stripTIBLayer(int layer ){
+std::pair<DetId,DetIdTIBSameLayerComparator> TrackerLayerIdAccessor::stripTIBLayer(int layer ){
   TIBDetId id(layer,1,1,1,1,1);
   return make_pair(id,DetIdTIBSameLayerComparator());
 }
-TrackerLayerIdAccessor::returnType TrackerLayerIdAccessor::stripTOBLayer(int layer ){
+std::pair<DetId,DetIdTOBSameLayerComparator> TrackerLayerIdAccessor::stripTOBLayer(int layer ){
   TOBDetId id(layer,1,1,1,1);
   return make_pair(id,DetIdTOBSameLayerComparator());
 }
-TrackerLayerIdAccessor::returnType TrackerLayerIdAccessor::stripTIDDisk(int side, int disk ){
+std::pair<DetId,DetIdTIDSameDiskComparator> TrackerLayerIdAccessor::stripTIDDisk(int side, int disk ){
   TIDDetId id(side,disk,1,1,1,1);
   return make_pair(id,DetIdTIDSameDiskComparator());
 }
-TrackerLayerIdAccessor::returnType TrackerLayerIdAccessor::stripTECDisk(int side, int disk ){
+std::pair<DetId,DetIdTECSameDiskComparator> TrackerLayerIdAccessor::stripTECDisk(int side, int disk ){
   TECDetId id(side,disk,1,1,1,1,1,1);
+  
   return make_pair(id,DetIdTECSameDiskComparator());
 }
 
