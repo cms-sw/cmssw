@@ -213,17 +213,12 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
   Local3DPoint theExitPoint;
 
   if (detector->isBarrel()) {
-     theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPositionVsParent(aStep),aStep)); 
+     theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPositionVsParent(aStep),aStep));
+     theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep),aStep));  
   } else {
      theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPosition(aStep,LocalCoordinates),aStep));
-  }
-
-  if (detector->isBarrel()) {
-     theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep),aStep)); 
-  } else {
      theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
   }
-  
 
   float thePabs             = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
   float theTof              = aStep->GetPreStepPoint()->GetGlobalTime()/nanosecond;
@@ -315,7 +310,16 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
 void MuonSensitiveDetector::updateHit(G4Step * aStep){
   //  float thePabs             = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
   //  Local3DPoint theEntryPoint= InitialStepPosition(aStep,LocalCoordinates);  
-  Local3DPoint theExitPoint = toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
+
+
+  Local3DPoint theExitPoint;
+
+  if (detector->isBarrel()) {
+    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep),aStep));  
+  } else {
+    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
+  }
+
   float theEnergyLoss = aStep->GetTotalEnergyDeposit()/GeV;  
 
   if( theHit == 0 ){ 
@@ -412,9 +416,6 @@ Local3DPoint MuonSensitiveDetector::InitialStepPositionVsParent(G4Step * current
   G4TouchableHistory * theTouchable=(G4TouchableHistory *)
     (preStepPoint->GetTouchable());
 
-  //  G4ThreeVector localCoordinates = theTouchable->GetHistory()
-  // ->GetTransform().TransformPoint(globalCoordinates);
-
   G4int depth = theTouchable->GetHistory()->GetDepth();
   G4ThreeVector localCoordinates = theTouchable->GetHistory()
     ->GetTransform(depth-1).TransformPoint(globalCoordinates);
@@ -430,9 +431,6 @@ Local3DPoint MuonSensitiveDetector::FinalStepPositionVsParent(G4Step * currentSt
     
   G4TouchableHistory * theTouchable = (G4TouchableHistory *)
     (preStepPoint->GetTouchable());
-
-  //  G4ThreeVector localCoordinates = theTouchable->GetHistory()
-  //    ->GetTransform().TransformPoint(globalCoordinates);
 
   G4int depth = theTouchable->GetHistory()->GetDepth();
   G4ThreeVector localCoordinates = theTouchable->GetHistory()
