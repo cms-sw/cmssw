@@ -1,4 +1,5 @@
 <use name=TrackingTools/TransientTrackingRecHit>
+<use name=TrackingTools/Records>
 <use name=clhep>
 <export>
  <lib name=RecoTrackerTransientTrackingRecHit>
