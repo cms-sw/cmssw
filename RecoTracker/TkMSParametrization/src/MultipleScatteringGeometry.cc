@@ -1,6 +1,6 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 
-#include "RecoTracker/TkMSParametrization/src/MultipleScatteringGeometry.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringGeometry.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 
@@ -95,8 +95,8 @@ vector<MSLayer> MultipleScatteringGeometry::otherLayers(float eta) const
   //  result.push_back(zero);
 
   // beampipe
-  //  MSLayer beampipe(barrel, beamPipeR, MSLayer::Range(-100,100));
-  MSLayer beampipe(beamPipeR, MSLayer::Range(-100,100));
+  MSLayer beampipe(barrel, beamPipeR, MSLayer::Range(-100,100));
+
   result.push_back(beampipe);
 
   // endflanges
@@ -109,7 +109,7 @@ vector<MSLayer> MultipleScatteringGeometry::otherLayers(float eta) const
 //   }
 
   // support
-  MSLayer support( supportR, MSLayer::Range(-280,280));
+  MSLayer support( barrel,supportR, MSLayer::Range(-280,280));
   result.push_back(support);
 
   return result;

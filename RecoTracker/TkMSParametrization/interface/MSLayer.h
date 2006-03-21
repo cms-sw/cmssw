@@ -30,16 +30,14 @@ public:
 public:
   MSLayer(const DetLayer* layer, DataX0 dataX0 = DataX0(0) );
   MSLayer() { }
-  //MP  
- /*  MSLayer(Part part, float position, Range range,  */
-/* 	  float halfThickness = 0.,  */
-/* 	  DataX0 dataX0 = DataX0(0) ); */
-  MSLayer(float position, Range range,  
-	  float halfThickness = 0., 
-	  DataX0 dataX0 = DataX0(0) );
+
+   MSLayer(Part part, float position, Range range, 
+	   float halfThickness = 0., 
+	   DataX0 dataX0 = DataX0(0) );
+
   const Range & range() const  { return theRange; }
-  //MP 
-  //    const Part & face() const  { return theFace; }
+ 
+  const Part & face() const  { return theFace; }
   float position() const { return thePosition; }
   float halfThickness() const { return theHalfThickness; }
 
@@ -53,8 +51,8 @@ public:
   float distance(const PixelRecoPointRZ & point) const;
 
 private:
-  //MP 
-  //Part theFace;
+
+  Part theFace;
   float thePosition;
   Range theRange;
   float theHalfThickness;

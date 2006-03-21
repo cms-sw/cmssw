@@ -1,5 +1,5 @@
 
-#include "RecoTracker/TkMSParametrization/src/MSLayersAtAngle.h"
+#include "RecoTracker/TkMSParametrization/interface/MSLayersAtAngle.h"
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 template <class T> T sqr( T t) {return t*t;}

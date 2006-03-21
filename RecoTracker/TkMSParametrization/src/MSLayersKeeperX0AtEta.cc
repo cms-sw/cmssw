@@ -1,6 +1,6 @@
-#include "RecoTracker/TkMSParametrization/src/MSLayersKeeperX0AtEta.h"
-#include "RecoTracker/TkMSParametrization/src/MultipleScatteringX0Data.h"
-#include "RecoTracker/TkMSParametrization/src/MultipleScatteringGeometry.h"
+#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0AtEta.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringX0Data.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringGeometry.h"
 #include <algorithm>
 
 template <class T> T sqr( T t) {return t*t;}
@@ -129,11 +129,11 @@ void MSLayersKeeperX0AtEta::setX0(
     float rN = (il+1 != layers.end()) ? (il+1)->crossing(line).first.r() : BIG;
     float rBound = (rL+rN)/2.;
     float sumX0atAngle = sumX0.sumX0atEta(eta,rBound);
-    //MP  
-  // float dX0 = (il->face() == barrel) ?
-    //    (sumX0atAngle - sumX0atAngleLast)*sinTheta
-    //  : (sumX0atAngle - sumX0atAngleLast)* fabs(cosTheta);
-    float dX0=  (sumX0atAngle - sumX0atAngleLast)*sinTheta;
+   
+    float dX0 = (il->face() == barrel) ?
+      (sumX0atAngle - sumX0atAngleLast)*sinTheta
+      : (sumX0atAngle - sumX0atAngleLast)* fabs(cosTheta);
+   
   setDataX0(*il,DataX0(dX0,0,cotTheta) );
     sumX0atAngleLast = sumX0atAngle;
   }
