@@ -1,7 +1,7 @@
 #ifndef CommonDet_Propagator_H
 #define CommonDet_Propagator_H
 
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include <utility>
 

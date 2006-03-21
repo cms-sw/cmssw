@@ -1,6 +1,6 @@
 #ifndef HELIXARBITRARYPLANECROSSING2ORDER_H_
 #define HELIXARBITRARYPLANECROSSING2ORDER_H_
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/HelixPlaneCrossing.h"
 
 /** Calculates intersections of a helix with planes of

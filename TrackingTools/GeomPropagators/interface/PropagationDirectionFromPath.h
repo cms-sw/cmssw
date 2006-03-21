@@ -1,7 +1,7 @@
 #ifndef _CR_PropagationDirectionFromPath
 #define _CR_PropagationDirectionFromPath
 
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 /** \class PropagationDirectionFromPath
  *  Converts sign of path to propagation direction.
  */

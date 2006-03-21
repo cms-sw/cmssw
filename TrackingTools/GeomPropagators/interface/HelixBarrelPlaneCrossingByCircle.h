@@ -2,7 +2,7 @@
 #define HelixBarrelPlaneCrossingByCircle_H
 
 #include "TrackingTools/GeomPropagators/interface/HelixPlaneCrossing.h"
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
 

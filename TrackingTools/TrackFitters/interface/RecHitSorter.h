@@ -2,7 +2,7 @@
 #define CD_RecHitSorter_H_
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 

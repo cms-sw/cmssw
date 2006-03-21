@@ -1,7 +1,7 @@
 #ifndef IterativeHelixExtrapolatorToLine_h_
 #define IterativeHelixExtrapolatorToLine_h_
 
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/HelixLineExtrapolation.h"
 #include "TrackingTools/GeomPropagators/interface/HelixExtrapolatorToLine2Order.h"
 

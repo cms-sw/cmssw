@@ -2,7 +2,7 @@
 #define StraightLinePlaneCrossing_H_
 
 #include "Geometry/Vector/interface/Basic3DVector.h"
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include <utility>
 

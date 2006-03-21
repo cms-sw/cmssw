@@ -1,6 +1,6 @@
 #ifndef HELIXARBITRARYPLANECROSSING_H_
 #define HELIXARBITRARYPLANECROSSING_H_
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/HelixPlaneCrossing.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing2Order.h"
 

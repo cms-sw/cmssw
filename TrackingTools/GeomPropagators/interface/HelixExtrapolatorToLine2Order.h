@@ -2,7 +2,7 @@
 #define HelixExtrapolatorToLine2Order_h_
 
 #include "TrackingTools/GeomPropagators/interface/HelixLineExtrapolation.h"
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 /** Calculates intersections of a helix with planes of
  *  any orientation using a parabolic approximation. */

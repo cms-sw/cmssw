@@ -2,7 +2,7 @@
 #define _CR_MATERIALEFFECTSUPDATOR_H_
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 /**
  * Interface for adding material effects during propagation.

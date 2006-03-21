@@ -1,7 +1,7 @@
 #ifndef CD_RecHitLessByDet_H_
 #define CD_RecHitLessByDet_H_
 
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 /** A comparison operator for RecHits.
