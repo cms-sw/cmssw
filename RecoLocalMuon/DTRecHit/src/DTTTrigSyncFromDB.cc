@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/14 13:02:42 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/15 12:44:52 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -62,8 +62,9 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
 				  double& tofCorr) {
   int t0 = 0; //FIXME: should become float
   float t0rms = 0;
-  cout << "DEBUG: WireId: " << wireId << endl;
-  tZeroMap->cellT0(2,
+  if(debug)
+    cout << " WireId: " << wireId << endl;
+  tZeroMap->cellT0(wireId.wheel(),
 		   wireId.station(),
 		   wireId.sector(),
 		   wireId.superlayer(),
@@ -71,15 +72,14 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
 		   wireId.wire(),
 		   t0,
 		   t0rms);
-  cout << "DEBUG: t0: " << t0 << endl;
 
   int tt = 0;
-  tTrigMap->slTtrig(2,
+  tTrigMap->slTtrig(wireId.wheel(),
 		    wireId.station(),
 		    wireId.sector(),
 		    wireId.superlayer(),
 		    tt);
-   cout << "DEBUG: tt: " << tt << endl;
+
   // Convert from tdc counts to ns
   tTrig = t0 * 25./32. + tt; //FIXME: move to ns
 
