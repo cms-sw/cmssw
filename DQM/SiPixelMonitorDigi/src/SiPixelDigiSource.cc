@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id$
+// $Id: SiPixelDigiSource.cc,v 1.1 2006/02/15 09:40:47 chiochia Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -26,9 +26,9 @@
 // DQM Framework
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 // Geometry
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 // DataFormats
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
@@ -106,14 +106,14 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
   // *not* from geometry
   //
   std::cout <<" *** SiPixelDigiSource::buildStructure" << std::endl;
-  edm::ESHandle<TrackingGeometry> pDD;
+  edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
                                                                                                                                                        
   std::cout <<" *** Geometry node for TrackerGeom is  "<<&(*pDD)<<std::endl;
   std::cout <<" *** I have " << pDD->dets().size() <<" detectors"<<std::endl;
   std::cout <<" *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
   
-  for(TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
     if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
       DetId detId = (*it)->geographicalId();
       
@@ -147,7 +147,7 @@ void SiPixelDigiSource::bookMEs(){
     if(DetId::DetId((*struct_iter).first).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
       int layer  = PXBDetId::PXBDetId((*struct_iter).first).layer();
       int ladder = PXBDetId::PXBDetId((*struct_iter).first).ladder();
-      int module = PXBDetId::PXBDetId((*struct_iter).first).det();
+      int module = PXBDetId::PXBDetId((*struct_iter).first).module();
       
       string ssubdet = "PixelBarrel"; 
       char slayer[80];  sprintf(slayer, "Layer_%i",layer);
@@ -163,14 +163,14 @@ void SiPixelDigiSource::bookMEs(){
       int side   =  PXFDetId::PXFDetId((*struct_iter).first).side();
       int disk   =  PXFDetId::PXFDetId((*struct_iter).first).disk();
       int blade  =  PXFDetId::PXFDetId((*struct_iter).first).blade();
-      //int panel  =  PXFDetId::PXFDetId((*struct_iter).first).panel();
-      int module =  PXFDetId::PXFDetId((*struct_iter).first).det();
+      int panel  =  PXFDetId::PXFDetId((*struct_iter).first).panel();
+      int module =  PXFDetId::PXFDetId((*struct_iter).first).module();
       char sside[80];  sprintf(sside, "Side_%i",side);
       char sdisk[80];  sprintf(sdisk, "Disk_%i",disk);
       char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
-      //char spanel[80]; sprintf(spanel, "Panel_%i",panel);
+      char spanel[80]; sprintf(spanel, "Panel_%i",panel);
       char smodule[80];sprintf(smodule,"Module_%i",module);
-      string sfolder = rootDir + "/" + ssubdet + "/" + sside + "/" + sdisk + "/" + sblade + "/" + smodule;
+      string sfolder = rootDir + "/" + ssubdet + "/" + sside + "/" + sdisk + "/" + sblade + "/" + spanel + "/" + smodule;
       theDMBE->setCurrentFolder(sfolder.c_str());
       (*struct_iter).second->book();
     }
