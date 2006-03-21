@@ -4,8 +4,8 @@
 /** \class GeomDet
  *  Base class for GeomDetUnit and for composite GeomDet s. 
  *
- *  $Date: 2006/03/01 18:16:03 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/17 15:02:26 $
+ *  $Revision: 1.5 $
  */
 
 
@@ -53,7 +53,7 @@ private:
   AlignmentPositionError*               theAlignmentPositionError;
 
   /// Alignment part of interface, available only to friend 
-  friend class AlignableDetUnit;
+  friend class DetPositioner;
 
   /// Relative displacement (with respect to current position).
   /// Does not move components (if any).
