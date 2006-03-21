@@ -4,8 +4,13 @@
  <use name=TrackingTools/TrajectoryState>
  <use name=TrackingTools/AnalyticalJacobians>
  <use name=FWCore/Utilities>
+ <use name=FWCore/Framework>
+ <use name=TrackingTools/Records>
 </export>
 
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/AnalyticalJacobians>
 <use name=FWCore/Utilities>
+<use name=FWCore/Framework>
+<use name=TrackingTools/Records>
+<use name=MagneticField/Engine>
