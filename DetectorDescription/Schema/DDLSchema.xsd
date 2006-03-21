@@ -715,30 +715,29 @@
     <xsd:complexContent>
       <xsd:extension base="SolidType">
         <xsd:choice>
-
           <xsd:sequence>
-            <xsd:element ref="rSolid" minOccurs="0" maxOccurs="2"/>
-            <xsd:group ref="RotationOptions"/>
-            <xsd:element ref="Translation" minOccurs="0"/>
+	    <xsd:choice>
+              <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
+            </xsd:choice>
+            <xsd:element ref="rSolid" minOccurs="2" maxOccurs="2"/>
+            <xsd:choice>
+              <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
+            </xsd:choice>
           </xsd:sequence>
-
           <xsd:sequence>
-            <xsd:group ref="RotationOptions"/>
-            <xsd:element ref="Translation" minOccurs="0" maxOccurs="1"/>
-            <xsd:element ref="rSolid" minOccurs="0" maxOccurs="2"/>
           </xsd:sequence>
-
-          <xsd:sequence>
-            <xsd:element ref="Translation" minOccurs="0" maxOccurs="1"/>
-            <xsd:group ref="RotationOptions"/>
-            <xsd:element ref="rSolid" minOccurs="0" maxOccurs="2"/>
-          </xsd:sequence>
-          
         </xsd:choice>
-        <xsd:attributeGroup ref="BooleanSolidAttributes"/>
+         <xsd:attributeGroup ref="BooleanSolidAttributes"/>
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
+
+  <xsd:group name="TROptions">
+    <xsd:choice>
+        <xsd:element ref="Translation" minOccurs="0"/>
+        <xsd:group ref="RotationOptions" minOccurs="0"/>
+    </xsd:choice>
+  </xsd:group>
 
   <xsd:complexType name="TrapezoidType">
     <xsd:complexContent>
