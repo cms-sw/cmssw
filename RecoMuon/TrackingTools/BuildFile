@@ -1,0 +1,12 @@
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=CLHEP>
+
+<export>
+   <lib name=RecoMuonTrackingTools>
+
+<use name=CLHEP>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+
+</export>
