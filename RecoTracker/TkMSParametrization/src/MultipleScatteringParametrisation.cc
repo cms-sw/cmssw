@@ -7,11 +7,11 @@
 
 template <class T> T sqr( T t) {return t*t;}
 
-#include "RecoTracker/TkMSParametrization/src/MSLayersKeeper.h"
-#include "RecoTracker/TkMSParametrization/src/MSLayersKeeperX0AtEta.h"
-#include "RecoTracker/TkMSParametrization/src/MSLayersKeeperX0Averaged.h"
-//#include "RecoTracker/TkMSParametrization/src/MSLayersKeeperX0DetLayer.h"
-#include "RecoTracker/TkMSParametrization/src/MSLayersAtAngle.h"
+#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeper.h"
+#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0AtEta.h"
+#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0Averaged.h"
+#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0DetLayer.h"
+#include "RecoTracker/TkMSParametrization/interface/MSLayersAtAngle.h"
 
 //#include "Utilities/Notification/interface/TimingReport.h"
 //#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
@@ -35,12 +35,12 @@ MultipleScatteringParametrisation::
     theLayerKeeper = &x0Averaged;
     break;
   }
-    //MP
-    //  case useDetLayer: {
-    // static MSLayersKeeperX0DetLayer x0DetLayer;
-    //  theLayerKeeper = &x0DetLayer;
-    //   break;
-    //  }
+
+  case useDetLayer: {
+    static MSLayersKeeperX0DetLayer x0DetLayer;
+    theLayerKeeper = &x0DetLayer;
+    break;
+  }
   default:
     cout << "** MultipleScatteringParametrisation ** wrong x0Source"<<endl;
     return;
