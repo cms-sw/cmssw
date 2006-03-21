@@ -27,8 +27,6 @@ Chi2MeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRe
 //     delete _updator;
 //     _updator = 0;
 //   }
-  ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
   double maxChi2 = pset_.getParameter<double>("MaxChi2");
   double nSigma = pset_.getParameter<double>("nSigma");
 
