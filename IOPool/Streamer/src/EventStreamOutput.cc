@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.12 2006/01/11 19:57:45 jbk Exp $
+// $Id: EventStreamOutput.cc,v 1.13 2006/02/08 00:44:31 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -16,7 +16,6 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 
 #include "PluginManager/PluginCapabilities.h"
-#include "SealBase/SharedLibrary.h"
 
 #include "StorageSvc/IOODatabaseFactory.h"
 #include "StorageSvc/IClassLoader.h"
