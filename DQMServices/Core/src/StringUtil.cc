@@ -123,10 +123,14 @@ bool StringUtil::isSubdirectory(const string & parentdir_fullpath,
   if( subdir_fullpath == parentdir_fullpath)
     return true;
 
-  if(subdir_fullpath.find(parentdir_fullpath + "/") != string::npos)
+  string look4this = parentdir_fullpath + "/";
+  if((subdir_fullpath.find(look4this) != string::npos)
+     && subdir_fullpath.find(look4this) == 0)
     return true;
-  // this ensures that we won't consider eg. c0/c1_1
-  // as a subdirectory of c0/c1
+  // first check ensures that we won't consider eg. c0/c1_1
+  // as a subdirectory of c0/c1;
+  // second check ensures that we won't consider eg. c0/c1/c2 
+  // as a subdirectory of c1
 
   return false;
 }
