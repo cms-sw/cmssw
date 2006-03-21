@@ -25,7 +25,7 @@ MultipleScatteringGeometry::MultipleScatteringGeometry(const edm::EventSetup &iS
 
   vector<BarrelDetLayer*> barrelLayers=track->barrelLayers();
   vector<BarrelDetLayer*>::const_iterator ib;
-  vector<ForwardDetLayer*> forwardPosLayers=track->negForwardLayers();
+  vector<ForwardDetLayer*> forwardPosLayers=track->posForwardLayers();
   vector<ForwardDetLayer*> forwardNegLayers=track->negForwardLayers();
   vector<ForwardDetLayer*>::const_iterator ie;
   // barrelLayers = accessor.barrelLayers();
