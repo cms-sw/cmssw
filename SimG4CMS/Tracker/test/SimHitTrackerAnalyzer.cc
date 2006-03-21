@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: SimHitTrackerAnalyzer.cc,v 1.3 2006/02/13 14:59:25 fambrogl Exp $
+// $Id: SimHitTrackerAnalyzer.cc,v 1.4 2006/03/06 18:04:48 wmtan Exp $
 //
 //
 
@@ -35,11 +35,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -80,9 +79,9 @@ class SimHitTrackerAnalyzer : public edm::EDAnalyzer {
 // constructors and destructor
 //
 SimHitTrackerAnalyzer::SimHitTrackerAnalyzer( const edm::ParameterSet& iConfig ):
-  HepMCLabel(iConfig.getUntrackedParameter("moduleLabelMC",std::string("PythiaSource"))),
-  SimTkLabel(iConfig.getUntrackedParameter("moduleLabelTk",std::string("EmbdSimTrack"))),
-  SimVtxLabel(iConfig.getUntrackedParameter("moduleLabelVtx",std::string("EmbdSimVertex")))
+  HepMCLabel(iConfig.getUntrackedParameter("moduleLabelMC",std::string("FlatRandomPtGunSource"))),
+  SimTkLabel(iConfig.getUntrackedParameter("moduleLabelTk",std::string("SimG4Object"))),
+  SimVtxLabel(iConfig.getUntrackedParameter("moduleLabelVtx",std::string("SimG4Object")))
 {
    //now do what ever initialization is needed
 
@@ -160,12 +159,6 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    theTrackerHits.insert(theTrackerHits.end(), TOBHitsHighTof->begin(), TOBHitsHighTof->end());
    theTrackerHits.insert(theTrackerHits.end(), TECHitsLowTof->begin(), TECHitsLowTof->end()); 
    theTrackerHits.insert(theTrackerHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
-
-
-   edm::ESHandle<TrackingGeometry> pDD;
-   
-   iSetup.get<TrackerDigiGeometryRecord> ().get(pDD);
-   
 
 
    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(MCEvt->GetEvent()));

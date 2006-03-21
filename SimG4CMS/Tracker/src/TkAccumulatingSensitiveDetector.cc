@@ -22,7 +22,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
