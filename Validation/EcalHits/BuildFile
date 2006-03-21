@@ -1,0 +1,24 @@
+<export>
+ <lib name=SimG4ValidationEcal>
+ <use name=DataFormats/Common>
+ <use name=root>
+ <use name=geant4>
+ <use name=boost>
+ <use name=FWCore/ParameterSet>
+ <use name=SimG4Core/Notification>
+ <use name=SimG4Core/Watcher>
+ <use name=SimG4CMS/Calo>
+ <use name=SimDataFormats/EcalValidation>
+</export>
+
+<use name=DataFormats/Common>
+<use name=root>
+<use name=geant4>
+<use name=boost>
+<use name=FWCore/ParameterSet>
+<use name=SimG4Core/Notification>
+<use name=SimG4Core/Watcher>
+<use name=SimG4CMS/Calo>
+<use name=SimDataFormats/EcalValidation>
+
+<Flags SEAL_PLUGIN_NAME="ValidationEcalHits">
