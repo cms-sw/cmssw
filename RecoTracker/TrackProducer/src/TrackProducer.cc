@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
@@ -38,7 +38,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   std::auto_ptr<reco::TrackExtraCollection> outputTEColl;
 
   //get geometry
-  edm::ESHandle<TrackingGeometry> theG;
+  edm::ESHandle<TrackerGeometry> theG;
   setup.get<TrackerDigiGeometryRecord>().get(theG);
 
   //get magnetic field

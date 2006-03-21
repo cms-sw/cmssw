@@ -1,7 +1,7 @@
 #ifndef MSLayersKeeperX0Averaged_H
 #define MSLayersKeeperX0Averaged_H
 
-#include "RecoTracker/TkMSParametrization/src/MSLayersKeeper.h"
+#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeper.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 class MSLayersKeeperX0Averaged : public MSLayersKeeper {
 public:

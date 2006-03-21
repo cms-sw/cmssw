@@ -1,7 +1,7 @@
 #ifndef MSLayersKeeperX0AtEta_H
 #define MSLayersKeeperX0AtEta_H
 
-#include "RecoTracker/TkMSParametrization/src/MSLayersKeeper.h"
+#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeper.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 class SumX0AtEtaDataProvider;
 class MSLayersKeeperX0Averaged;

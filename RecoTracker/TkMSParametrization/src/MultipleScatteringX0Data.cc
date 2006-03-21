@@ -1,4 +1,4 @@
-#include "RecoTracker/TkMSParametrization/src/MultipleScatteringX0Data.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringX0Data.h"
 
 #include <iostream>
 #include <string>

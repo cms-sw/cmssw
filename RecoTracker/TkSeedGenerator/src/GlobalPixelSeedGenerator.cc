@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 using namespace std;
 GlobalPixelSeedGenerator::GlobalPixelSeedGenerator(edm::ParameterSet const& conf) : 
@@ -37,7 +38,7 @@ void GlobalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
   // get Inputs
   edm::Handle<SiPixelRecHitCollection> pixelHits;
 
-  edm::ESHandle<TrackingGeometry> tracker;
+  edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
 
   e.getByType(pixelHits);

@@ -4,7 +4,7 @@
 class DetLayer;
 
 #include "RecoTracker/TkMSParametrization/interface/MSLayer.h"
-#include "RecoTracker/TkMSParametrization/src/MSLayersAtAngle.h"
+#include "RecoTracker/TkMSParametrization/interface/MSLayersAtAngle.h"
 
 class MSLayersKeeper {
 public:

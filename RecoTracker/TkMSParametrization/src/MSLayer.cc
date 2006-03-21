@@ -2,7 +2,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "RecoTracker/TkMSParametrization/src/MSLayersKeeper.h"
+#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeper.h"
 
 template <class T> T sqr( T t) {return t*t;}
 

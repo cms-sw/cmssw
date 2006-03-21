@@ -4,7 +4,7 @@
 /** \class PixelSeedLayerPairs
  * find all (resonable) pairs of pixel layers
  */
-#include "Geometry/TrackerSimAlgo/interface/TrackerLayerIdAccessor.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h"
 #include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/Common/interface/RangeMap.h"

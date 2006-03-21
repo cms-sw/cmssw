@@ -6,13 +6,13 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 class TkHitPairsCachedHit {
 public:
   TkHitPairsCachedHit(const SiPixelRecHit * hit ,  const edm::EventSetup& iSetup) : theRecHit(hit) {
-    edm::ESHandle<TrackingGeometry> tracker;
+    edm::ESHandle<TrackerGeometry> tracker;
     iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
     GlobalPoint gp = tracker->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
     thePhi = gp.phi(); 

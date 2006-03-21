@@ -1,7 +1,7 @@
 #ifndef rangeIntersection_H
 #define rangeIntersection_H
 
-#include "RecoTracker/TkMSParametrization/interface/rangesIntersect.h"
+#include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include <algorithm>
 
 /** Utility for computing efficiently the intersection of two 

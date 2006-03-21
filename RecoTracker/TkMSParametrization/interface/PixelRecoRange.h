@@ -7,7 +7,7 @@
 #include <utility>
 #include <algorithm>
 
-#include "RecoTracker/TkMSParametrization/interface/rangesIntersect.h"
+#include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "RecoTracker/TkMSParametrization/interface/rangeIntersection.h"
 using namespace std;
 template<class T> class PixelRecoRange : public pair<T,T> {

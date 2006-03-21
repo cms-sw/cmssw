@@ -1,8 +1,8 @@
 #ifndef MSLayersKeeperX0DetLayer_H
 #define MSLayersKeeperX0DetLayer_H
 
-#include "RecoTracker/TkMSParametrization/src/MSLayersKeeper.h"
-#include "RecoTracker/TkMSParametrization/src/MultipleScatteringGeometry.h"
+#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeper.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringGeometry.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 class MSLayersKeeperX0DetLayer : public MSLayersKeeper {
 public:

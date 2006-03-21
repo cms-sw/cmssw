@@ -4,7 +4,7 @@
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 //#include "RecoTracker/TkSeedGenerator/interface/TrivialVertex.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -40,7 +40,7 @@ construct( const TrackingRecHit* outerHit,
   // 		  GlobalPoint(0.,0.,0.));
 
   // get tracker geometry
-  edm::ESHandle<TrackingGeometry> tracker;
+  edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
   GlobalPoint inner = tracker->idToDet(innerHit->geographicalId())->surface().toGlobal(innerHit->localPosition());
