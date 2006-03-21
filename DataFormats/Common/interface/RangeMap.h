@@ -6,7 +6,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 
-// $Id: RangeMap.h,v 1.19 2006/03/20 13:35:21 llista Exp $
+// $Id: RangeMap.h,v 1.20 2006/03/20 17:35:23 tboccali Exp $
 namespace edm {
   
   template<typename ID, typename C, typename P>
@@ -47,6 +47,7 @@ namespace edm {
       
       if ((r.first) == map_.end()){
 	begin = end = collection_.end();
+	return  make_pair(begin,end);
       } else {
 	begin = collection_.begin() + (r.first)->second.first;
       }
