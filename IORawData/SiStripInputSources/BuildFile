@@ -5,6 +5,8 @@
 <use name=PluginManager>
 <use name=root>
 <use name=xdaq>
+<use name=Fed9UUtils>
+<use name=ICUtils>
 <flags SEAL_PLUGIN_NAME="IORawDataSiStripInputSources">
 
 <export>
@@ -16,4 +18,6 @@
  <use name=PluginManager>
  <use name=root>
  <use name=xdaq>
+ <use name=Fed9UUtils>
+ <use name=ICUtils>
 </export>

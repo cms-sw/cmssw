@@ -8,9 +8,12 @@
 
 #include "interface/evb/include/i2oEVBMsgs.h"
 #include "interface/shared/include/i2oXFunctionCodes.h"
-
+#include "Fed9UUtils.hh"
 #include <iostream>
+using namespace  Fed9U;
 
+#include "ICExDecl.hh"
+using namespace  ICUtils;
 ClassImp(TBRU);
 
 
@@ -19,7 +22,8 @@ using namespace std;
 
 TBRUInputSource::TBRUInputSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc) : 
   edm::ExternalInputSource(pset,desc),
-  m_quiet( pset.getUntrackedParameter<bool>("quiet",true))
+  m_quiet( pset.getUntrackedParameter<bool>("quiet",true)),
+  m_branches(-1)
 {
   m_tree=0;
   m_fileCounter=-1;
@@ -28,6 +32,8 @@ TBRUInputSource::TBRUInputSource(const edm::ParameterSet & pset, edm::InputSourc
   n_fed9ubufs=0;
   for (int i=0;i<MAX_FED9U_BUFFER;i++)
     m_fed9ubufs[i]=0;
+  if (pset.retrieveUntracked("branches")!=NULL)
+    m_branches= pset.getUntrackedParameter<int>("branches");
 
   produces<FEDRawDataCollection>();
 }
@@ -76,6 +82,7 @@ void TBRUInputSource::openFile(const std::string& filename) {
 
   TObjArray* lb=m_tree->GetListOfBranches();
   n_fed9ubufs=0;
+  m_branches= (m_branches<0)?lb->GetSize():m_branches;
   for (int i=0; i<lb->GetSize(); i++) {
     TBranch* b=(TBranch*)lb->At(i);
     if (b==0) continue;
@@ -88,14 +95,12 @@ void TBRUInputSource::openFile(const std::string& filename) {
     sprintf(arrayname,"RU_%x",i/2);
       
 
-    cout <<b->GetName()<< endl;
-    cout <<sizename<<" or " <<arrayname <<endl;
+    cout <<"Branch "<< b->GetName()<<" is found "<< endl;
     if (!strcmp(b->GetName(),sizename)) {
       if (m_fed9ubufs[n_fed9ubufs] ==  0)
       {
 	m_fed9ubufs[n_fed9ubufs]= new TBRU(i/2);
-	cout << "Creating TBRU " << n_fed9ubufs<< " Instance" << i/2 << endl;
-	cout << hex<<m_fed9ubufs[n_fed9ubufs]<< dec <<endl;
+	cout << "Creating TBRU " << n_fed9ubufs<< " for  Instance " << i/2 << endl;
 	}
        b->SetAddress(&(m_fed9ubufs[n_fed9ubufs]->fSize));
 
@@ -107,6 +112,7 @@ void TBRUInputSource::openFile(const std::string& filename) {
   }
   m_i=0;
   cout << "File " << filename << " is opened" <<endl;
+  n_fed9ubufs = m_branches/2;
 }
 
 void TBRUInputSource::setRunAndEventInfo() {
@@ -127,16 +133,13 @@ void TBRUInputSource::setRunAndEventInfo() {
   if (m_tree==0 || m_i==m_tree->GetEntries()) return; //nothing good
 
   m_tree->GetEntry(m_i);
-  if (!m_quiet)
-  	cout <<"Event " <<m_i<< "is read " << endl;
   m_i++;
   TBRU* r= m_fed9ubufs[0];
-  cout << "TBRU 0 is "<<hex <<r<<dec <<endl;
   int* rud =r->fBuffer;
 
   I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block = ( I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*) rud;
-
-cout << "Event number " << block->eventNumber << endl;
+   if ( (!m_quiet) || block->eventNumber%100 == 0) 
+    cout << "Event number " << n_run <<":"<< block->eventNumber <<" is read " << endl;
     setRunNumber(n_run);
     setEventNumber( block->eventNumber);
 
@@ -152,43 +155,52 @@ cout << "Event number " << block->eventNumber << endl;
 bool TBRUInputSource::produce(edm::Event& e) {
 
   if (m_tree==0) return false;
- 
+  Fed9U::Fed9UEvent fedEvent;
   std::auto_ptr<FEDRawDataCollection> bare_product(new  FEDRawDataCollection());
   for (int i=0; i<n_fed9ubufs; i++) 
     {
 	if (!m_quiet)
-	std::cout << "Reading bytes for FED " << i << std::endl;
+	std::cout << "Reading bytes for FED " << i << " At address " <<hex<< m_fed9ubufs[i] << dec <<std::endl;
       I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block = ( I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*) m_fed9ubufs[i]->fBuffer;
       size_t msgHeaderSize       = sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
       
-      // Fill in payload check markers for debugging
+      // Find FED id
       unsigned char* cbuf        = (unsigned char*) block + msgHeaderSize;
       int* ibuf = (int*) cbuf;
       int len = (ibuf[0]-8);
       int id=0;
-      if (i == 0)
+      if (i == 0) // TA RU
 	id =1023;
       else
-	{
-	  unsigned char* _buffer= (unsigned char*) &ibuf[1];
-	  id = ((_buffer[5]<<8) | _buffer[6]) ;
-	  // 	int* rudat = &ibuf[1];
-	  // 	int buf_len= ibuf[0]/sizeof(int)-2;
-	  // 	try
-	  // 	  {
-	  // 	    fedEvent.Init((u32*) rudat,0,(u32)buf_len);
-	  // 	    fedEvent.checkEvent();
+	{ // FED9U super fragment
+	  // unsigned char* _buffer= (unsigned char*) &ibuf[1];
+	  //  id = ((_buffer[5 ^ 3]<<8) | _buffer[6 ^ 3]) ;
+	 // id=50+i;
+	  int* rudat = &ibuf[1];
+	  int buf_len= ibuf[0]/sizeof(int)-2;
+	  try
+	    {
+	      fedEvent.Init((u32*) rudat,0,(u32)buf_len);
+	      fedEvent.checkEvent();
+              id = fedEvent.getSourceId();
+	      if (!m_quiet)
+	      	std::cout<<"Fed ID is "<<fedEvent.getSourceId()<<std::endl;
 
-	  // 	  } catch (ICUtils::ICException &e)
-	  // 	    {
-	  // 	      std::cout<<"Fed ID Might be "<<fedEvent.getSourceId()<<std::endl;
-	  // 	      continue;
+	    } catch (ICUtils::ICException &ex)
+	      {
+		std::cout<<"======================================================>  ERROR in ";
+		std::cout<< e.id().run() <<"::"<<e.id().event()<<"- Super fragment -" << i<< std::endl;
+		std::cout << ex.what() <<std::endl;
+	       std::cout<<"Cannot construct FED Event: Fed ID Might be "<<fedEvent.getSourceId()<<std::endl;
+		std::cout<<"======================================================>"<<std::endl;
+	       continue;
 
-	  // 	    }
+	     }
 
 	}
 
       const unsigned char* data=(const unsigned char*) &ibuf[1];
+
       FEDRawData& fed=bare_product->FEDData(id);
       int fulllen =(len%8)?len+8-len%8:len;
       fed.resize(fulllen);

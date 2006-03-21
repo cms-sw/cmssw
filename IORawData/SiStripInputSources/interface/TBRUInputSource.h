@@ -40,7 +40,7 @@ class TBRUInputSource : public edm::ExternalInputSource {
   TFile* m_file;
   int m_i, m_fileCounter;
   bool m_quiet;
-  int n_fed9ubufs,n_run;
+  int n_fed9ubufs,n_run,m_branches;
   static const int MAX_FED9U_BUFFER=144; // MAX Fed9ubufs
   TBRU* m_fed9ubufs[MAX_FED9U_BUFFER];
  
