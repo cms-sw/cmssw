@@ -1,8 +1,8 @@
 #ifndef GenericLinearizationPointFinder_H
 #define GenericLinearizationPointFinder_H
 
-#include "RecoRecoVertex/VertexTools/interface/LinearizationPointFinder.h"
-#include "RecoRecoVertex/VertexPrimitives/interface/VertexFitter.h"
+#include "RecoVertex/VertexTools/interface/LinearizationPointFinder.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexFitter.h"
 
   /** A generic linearization point finder, that uses the result of 
    *  a Fitter to be used as a lin.point

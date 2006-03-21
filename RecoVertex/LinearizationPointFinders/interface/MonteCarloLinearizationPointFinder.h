@@ -1,7 +1,7 @@
 #ifndef MonteCarloLinearizationPointFinder_H
 #define MonteCarloLinearizationPointFinder_H
 
-#include "RecoRecoVertex/VertexTools/interface/LinearizationPointFinder.h"
+#include "RecoVertex/VertexTools/interface/LinearizationPointFinder.h"
 
   /** 
    *  A linearization point finder that can be fed with the result.

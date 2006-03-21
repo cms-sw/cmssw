@@ -1,7 +1,7 @@
 #ifndef LMSLinearizationPointFinder_H
 #define LMSLinearizationPointFinder_H
 
-#include "RecoRecoVertex/LinearizationPointFinders/interface/CrossingPtBasedLinearizationPointFinder.h"
+#include "RecoVertex/LinearizationPointFinders/interface/CrossingPtBasedLinearizationPointFinder.h"
 
   /** A linearization point finder. It works the following way:
    *  1. Calculate in an optimal way 'n_pairs' different crossing points.

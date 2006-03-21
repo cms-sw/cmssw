@@ -1,7 +1,7 @@
 #ifndef ZeroLinearizationPointFinder_H
 #define ZeroLinearizationPointFinder_H
 
-#include "RecoRecoVertex/VertexTools/interface/LinearizationPointFinder.h"
+#include "RecoVertex/VertexTools/interface/LinearizationPointFinder.h"
 
   /** 
    *  A linearization point finder that always returns (0,0,0)

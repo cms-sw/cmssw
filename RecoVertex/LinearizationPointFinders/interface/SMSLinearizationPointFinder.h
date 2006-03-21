@@ -1,8 +1,8 @@
 #ifndef SMSLinearizationPointFinder_H
 #define SMSLinearizationPointFinder_H
 
-#include "RecoRecoVertex/LinearizationPointFinders/interface/CrossingPtBasedLinearizationPointFinder.h"
-#include "RecoRecoVertex/VertexTools/interface/SMS.h"
+#include "RecoVertex/LinearizationPointFinders/interface/CrossingPtBasedLinearizationPointFinder.h"
+#include "RecoVertex/VertexTools/interface/SMS.h"
 
   /** A linearization point finder. It works the following way:
    *  1. Calculate in an optimal way 'n_pairs' different crossing points.

@@ -1,8 +1,8 @@
 #ifndef FallbackLinearizationPointFinder_H
 #define FallbackLinearizationPointFinder_H
 
-#include "RecoRecoVertex/VertexTools/interface/LinearizationPointFinder.h"
-#include "RecoRecoVertex/VertexTools/interface/HsmModeFinder3d.h"
+#include "RecoVertex/VertexTools/interface/LinearizationPointFinder.h"
+#include "RecoVertex/VertexTools/interface/HsmModeFinder3d.h"
 
   /** 
    *  A fallback linearization point finder that is

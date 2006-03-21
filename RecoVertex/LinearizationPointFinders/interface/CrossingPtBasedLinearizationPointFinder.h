@@ -1,10 +1,10 @@
 #ifndef CrossingPtBasedLinearizationPointFinder_H
 #define CrossingPtBasedLinearizationPointFinder_H
 
-#include "RecoRecoVertex/VertexTools/interface/LinearizationPointFinder.h"
+#include "RecoVertex/VertexTools/interface/LinearizationPointFinder.h"
 #include "RecoVertex/VertexPrimitives/interface/DummyRecTrack.h"
-#include "RecoRecoVertex/VertexTools/interface/ModeFinder3d.h"
-#include "RecoRecoVertex/VertexTools/interface/RecTracksDistanceMatrix.h"
+#include "RecoVertex/VertexTools/interface/ModeFinder3d.h"
+#include "RecoVertex/VertexTools/interface/RecTracksDistanceMatrix.h"
 
   /** A linearization point finder. It works the following way:
    *  1. Calculate in an optimal way 'n_pairs' different crossing points.

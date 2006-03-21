@@ -1,7 +1,7 @@
 #ifndef DefaultLinearizationPointFinder_H
 #define DefaultLinearizationPointFinder_H
 
-#include "RecoRecoVertex/LinearizationPointFinders/interface/FsmwLinearizationPointFinder.h"
+#include "RecoVertex/LinearizationPointFinders/interface/FsmwLinearizationPointFinder.h"
 
   /** 
    *  The default linearization point finder.
