@@ -9,12 +9,13 @@
 InnerDeltaPhi::InnerDeltaPhi( const DetLayer& layer, 
 			      float ptMin,  float rOrigin,
 			      float zMinOrigin, float zMaxOrigin,
+			      const edm::EventSetup& iSetup,
                         bool precise) :
   theROrigin( rOrigin), theRLayer(0),theA(0), theB(0), 
   thePtMin(ptMin), sigma(0), thePrecise(precise)
 {
 
-  theRCurvature = PixelRecoUtilities::bendingRadius(ptMin);
+  theRCurvature = PixelRecoUtilities::bendingRadius(ptMin,iSetup);
 
   sigma = new MultipleScatteringParametrisation(&layer);
 

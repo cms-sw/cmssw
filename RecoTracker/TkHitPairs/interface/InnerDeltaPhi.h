@@ -5,6 +5,7 @@
    using namespace std;
 //   #include <stdio.h>
    #include <fstream>
+#include "FWCore/Framework/interface/EventSetup.h"
 //  #include <string>
    //  #include <stdlib.h>
 //#include "Utilities/Notification/interface/TimingReport.h"
@@ -16,7 +17,8 @@ public:
 
   InnerDeltaPhi( const DetLayer& layer, 
 		 float ptMin,  float rOrigin,
-		 float zMinOrigin, float zMaxOrigin, bool precise = true);
+		 float zMinOrigin, float zMaxOrigin,const edm::EventSetup& iSetup,
+		 bool precise = true);
 
    ~InnerDeltaPhi();
 

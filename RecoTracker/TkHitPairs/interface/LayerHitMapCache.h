@@ -34,9 +34,7 @@ private:
        LayerRegionKey key(layer);
     const LayerHitMap * lhm = theCache->get(key);
     if (lhm==0) {
-      //MP
-      //     lhm = new LayerHitMap( region.hits(layer) );
-      //      SiPixelRecHitCollection::Range temporary;
+
       lhm=new LayerHitMap(layer,iSetup);
       theCache->add( key, lhm); 
     }

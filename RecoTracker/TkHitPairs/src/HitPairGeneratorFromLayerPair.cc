@@ -35,28 +35,27 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   if (outerHitsMap.empty()) return;
 
   innerlay=theInnerLayer->layer();
-
+  outerlay=theOuterLayer->layer();
 
   
-//   float outerHitErrorRPhi = (theOuterLayer->part() == barrel) ?
-//       TrackingRegionBase::hitErrRPhi(
-//           dynamic_cast<const BarrelDetLayer*>(theOuterLayer) )
-//     : TrackingRegionBase::hitErrRPhi(
-//           dynamic_cast<const ForwardDetLayer*>(theOuterLayer) ) ;
+  float outerHitErrorRPhi = (outerlay->part() == barrel) ?
+      TrackingRegionBase::hitErrRPhi(
+          dynamic_cast<const BarrelDetLayer*>(outerlay) )
+    : TrackingRegionBase::hitErrRPhi(
+          dynamic_cast<const ForwardDetLayer*>(outerlay) ) ;
 
-  float outerHitErrorRPhi =  
-    TrackingRegionBase::hitErrRPhi(innerlay);
+
 
 
   float zMinOrigin = region.origin().z() - region.originZBound();
   float zMaxOrigin = region.origin().z() + region.originZBound();
   InnerDeltaPhi deltaPhi(*innerlay, region.ptMin(), region.originRBound(),
-			 zMinOrigin, zMaxOrigin);
+			 zMinOrigin, zMaxOrigin,iSetup);
 
   float rzLayer1, rzLayer2;
 
-  //MP
-  //  if (theInnerLayer->part() == barrel) {
+  
+  if (innerlay->part() == barrel) {
     const BarrelDetLayer& bl = 
         dynamic_cast<const BarrelDetLayer&>(*innerlay);
     float halfThickness  = bl.surface().bounds().thickness()/2;
@@ -65,12 +64,12 @@ void HitPairGeneratorFromLayerPair::hitPairs(
     rzLayer2 = radius+halfThickness;
 
 
-//   } else {
-//     float halfThickness  = theInnerLayer->surface().bounds().thickness()/2;
-//     float zLayer = theInnerLayer->position().z() ;
-//     rzLayer1 = zLayer-halfThickness;
-//     rzLayer2 = zLayer+halfThickness;
-//   }
+  } else {
+    float halfThickness  = innerlay->surface().bounds().thickness()/2;
+    float zLayer = innerlay->position().z() ;
+    rzLayer1 = zLayer-halfThickness;
+    rzLayer2 = zLayer+halfThickness;
+  }
 
   const TkHitPairsCachedHit * oh;
   LayerHitMapLoop outerHits = outerHitsMap.loop();

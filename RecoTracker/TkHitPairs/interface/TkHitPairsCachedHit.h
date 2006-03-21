@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 class TkHitPairsCachedHit {
 public:
   TkHitPairsCachedHit(const SiPixelRecHit * hit ,  const edm::EventSetup& iSetup) : theRecHit(hit) {
@@ -18,6 +19,8 @@ public:
     theR = gp.perp();
     theZ = gp.z();
     //MP
+    unsigned int subid=hit->geographicalId().subdetId();
+    theRZ= (subid==  PixelSubdetector::PixelBarrel) ? theZ : theR;
    // theRZ  = (hit.layer()->part()==barrel) ? theZ : theR;
    theRZ  = theZ ;
 

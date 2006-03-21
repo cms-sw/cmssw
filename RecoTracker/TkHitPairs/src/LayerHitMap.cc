@@ -17,43 +17,37 @@
 LayerHitMap::LayerHitMap(const LayerWithHits* layerhits,const edm::EventSetup&iSetup) : theCells(0)
 {
 
-
-  SiPixelRecHitCollection::range range = layerhits->Range();
-
   static int nRZ=5 ;
-    static int nPhi=10;
+  static int nPhi=10;
   theNbinsRZ = nRZ;
   theNbinsPhi = nPhi;
-  //  if (hits.empty()) return;
-  // else {
+
+  //MP Does it mean to have an empty range?
+  if (layerhits->Range().first==layerhits->Range().second) return;
+  else {
   theLayerPhimin = -M_PI;
   theCellDeltaPhi = 2*M_PI/theNbinsPhi;
-
-  //    const DetLayer *layer =layerhits.layer();
-
-    //MP
-      // = hits.front().layer();
-    //    if (layer->part() == barrel) {
-  //    float z0 = layer->position().z();
- 
-      //mp
-  //      float z0=0;
-  float z0=layerhits->layer()->surface().position().z();
-
-  float length =layerhits->layer()->surface().bounds().length();
-
-     //     float length = layer->surface().bounds().length();
-     //mp
-  //  float length=30;
-      theLayerRZmin = z0 - length/2.;
-      theCellDeltaRZ = length/theNbinsRZ;
+  if (layerhits->layer()->part() == barrel) {
+    float z0=layerhits->layer()->surface().position().z();
+    float length =layerhits->layer()->surface().bounds().length();
+    theLayerRZmin = z0 - length/2.;
+    theCellDeltaRZ = length/theNbinsRZ;
+  }
+  else {
+  
+    const ForwardDetLayer* lf = dynamic_cast<const ForwardDetLayer*>(layerhits->layer());
+    theLayerRZmin = lf->specificSurface().innerRadius();
+    float  theLayerRZmax = lf->specificSurface().outerRadius();
+    theCellDeltaRZ = (theLayerRZmax-theLayerRZmin)/theNbinsRZ;
+  }
+  
 
  
-   SiPixelRecHitCollection::const_iterator ih;
-  //    SiPixelRecHitCollection::ContainerIterator 
-   //	hitRangeIteratorBegin = hits.first;
+  SiPixelRecHitCollection::const_iterator ih;
+
   SiPixelRecHitCollection::const_iterator
     hitRangeIteratorBegin=layerhits->Range().first;
+
   SiPixelRecHitCollection::const_iterator
     hitRangeIteratorEnd=layerhits->Range().second;
 
@@ -65,8 +59,7 @@ LayerHitMap::LayerHitMap(const LayerWithHits* layerhits,const edm::EventSetup&iS
 	theHits.push_back( TkHitPairsCachedHit(&(*ih),iSetup));
 
       }
-
-
+  }
 
 }
 

@@ -23,8 +23,7 @@ public:
 				LayerCacheType* layerCache, 
 				const edm::EventSetup& iSetup)
     : theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner) { 
-    //MP
-    // innerlay= inner->layer();
+  
   }
 
   virtual ~HitPairGeneratorFromLayerPair() { }
@@ -47,8 +46,8 @@ private:
   LayerCacheType & theLayerCache;
   const LayerWithHits* theOuterLayer;  
   const LayerWithHits* theInnerLayer; 
-  const PixelBarrelLayer* innerlay;
-  const PixelBarrelLayer* outerlay;
+  const DetLayer* innerlay;
+  const DetLayer* outerlay;
 
 };
 
