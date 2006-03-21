@@ -18,13 +18,13 @@
 #include <Geometry/Vector/interface/GlobalPoint.h>
 #include <boost/shared_ptr.hpp>
 
-typedef boost::shared_ptr<CSCChamber> Pointer2Chamber;
+//typedef boost::shared_ptr<CSCChamber> Pointer2Chamber;
 
 class CSCLayer : public GeomDetUnit {
 
 public:
 
-  CSCLayer( BoundPlane* sp, CSCDetId id, Pointer2Chamber ch, const CSCLayerGeometry* geo ) : 
+  CSCLayer( BoundPlane* sp, CSCDetId id, const CSCChamber* ch, const CSCLayerGeometry* geo ) : 
   GeomDetUnit( sp ), theId( id ), theChamber( ch ), theGeometry( geo ) {}
 
   const GeomDetType& type() const { return chamber()->type(); }
@@ -41,7 +41,7 @@ public:
   /**
    * Access to parent chamber
    */
-  const CSCChamber* chamber() const { return theChamber.get(); }
+  const CSCChamber* chamber() const { return theChamber; }
   
   /**
    * Global point at center of the given strip,
@@ -59,8 +59,8 @@ private:
 
   CSCDetId theId;
 
-  //  CSCChamber* theChamber; 
-  Pointer2Chamber theChamber; // use a smart pointer instead
+  const CSCChamber* theChamber; // NOT owned
+  // Pointer2Chamber theChamber; // use a smart pointer instead
 
   // Local geometry is handled by the LayerGeometry
   // but only the Layer itself knows how to transform to the 

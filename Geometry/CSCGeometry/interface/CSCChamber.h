@@ -25,6 +25,8 @@ public:
   GeomDet( bp ), theId( id ), theChamberSpecs( specs ), 
   theComponents( std::vector< const GeomDet* >() ) {}
 
+  ~CSCChamber();
+
   const GeomDetType& type() const { return *(specs()); }
 
   DetId geographicalId() const { return theId; } //@@ Slices base
@@ -41,7 +43,7 @@ private:
 
   CSCDetId theId;
   CSCChamberSpecs* theChamberSpecs;
-  std::vector< const GeomDet* > theComponents; // the 6 CSCLayers comprising a CSCChamber
+  std::vector< const GeomDet* > theComponents; // the 6 CSCLayers comprising a CSCChamber; are owned by this class
 };
 
 #endif // Geometry_CSCGeometry_CSCChamber_H

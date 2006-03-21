@@ -13,6 +13,7 @@
 #include <Geometry/Vector/interface/GlobalPoint.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
+#include <Geometry/Vector/interface/Pi.h>
 
 #include <string>
 #include <cmath>
@@ -51,18 +52,21 @@ CSCGeometryAnalyzer::~CSCGeometryAnalyzer()
 void
  CSCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   const double dPi = 3.14159265358;
-   const double radToDeg = 180. / dPi; //@@ Where to get pi from?
+   const double dPi = Geom::pi();
+   const double radToDeg = 180. / dPi;
 
    std::cout << myName() << ": Analyzer..." << std::endl;
    std::cout << "start " << dashedLine_ << std::endl;
 
-   //   edm::ESHandle<TrackingGeometry> pDD;
    edm::ESHandle<CSCGeometry> pDD;
    iSetup.get<MuonGeometryRecord>().get( pDD );     
    std::cout << " Geometry node for CSCGeom is  " << &(*pDD) << std::endl;   
-   std::cout << " I have "<<pDD->dets().size() << " detectors" << std::endl;
-   std::cout << " I have "<<pDD->detTypes().size() << " types" << "\n" << std::endl;
+   std::cout << " I have "<<pDD->detTypes().size()    << " detTypes" << std::endl;
+   std::cout << " I have "<<pDD->detUnits().size()    << " detUnits" << std::endl;
+   std::cout << " I have "<<pDD->dets().size()        << " dets" << std::endl;
+   std::cout << " I have "<<pDD->layers().size()      << " layers" << std::endl;
+   std::cout << " I have "<<pDD->chambers().size()    << " chambers" << std::endl;
+
 
    std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
    std::cout << "iter " << dashedLine_ << std::endl;
@@ -74,15 +78,15 @@ void
 
    int icount = 0;
 
-   //   for( TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); ++it ){
-   for( CSCGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); ++it ){
+   // Check the DetUnits
+   for( CSCGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); ++it ){
 
 
      // Do we really have a CSC layer?
 
      CSCLayer* layer = dynamic_cast<CSCLayer*>( *it );
      
-      if( layer ){
+      if( layer ) {
         ++icount;
 
 	// What's its DetId?
@@ -260,12 +264,18 @@ void
 	// Reset the values we changed
 	std::cout << std::setprecision( ip ) << std::setw( iw );
   
+
+	// Check idToDetUnit
+	const GeomDetUnit * gdu = pDD->idToDetUnit(detId);
+	assert(gdu==layer);
+	// Check idToDet
+	const GeomDet * gd = pDD->idToDet(detId);
+	assert(gd==layer);
     }
     else {
       std::cout << "Could not dynamic_cast to a CSCLayer* " << std::endl;
     }
-  }	
-
+   }
    std::cout << dashedLine_ << " end" << std::endl;
 }
 

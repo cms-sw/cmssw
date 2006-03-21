@@ -275,7 +275,7 @@ void CSCGeometryBuilderFromDDD::buildLayer (
   //    float layerRMax = layerRMin + 2*par[3];
 
 
-  Pointer2Chamber chamber = theGeometry->getChamber( chamberId );
+  CSCChamber* chamber = const_cast<CSCChamber*>(theGeometry->chamber( chamberId ));
   if ( chamber ){
   }
   else { // this chamber not yet built/stored
@@ -329,8 +329,8 @@ void CSCGeometryBuilderFromDDD::buildLayer (
       // bounds has been passed to BoundPlane, which clones it, so we can delete it here
     delete bounds;
 
-    Pointer2Chamber aChamber( new CSCChamber( plane, chamberId, aSpecs ) );
-    theGeometry->addChamber( chamberId, aChamber ); 
+    CSCChamber*  aChamber = new CSCChamber( plane, chamberId, aSpecs );
+    theGeometry->addChamber( aChamber ); 
     chamber = aChamber;
 
     LogDebug("CSC") << ": E" << jend << " S" << jstat 
@@ -370,9 +370,7 @@ void CSCGeometryBuilderFromDDD::buildLayer (
 
     CSCLayer* aLayer = new CSCLayer( aPlane, layerId, chamber, aGeom );
     chamber->addComponent(jlay, aLayer); 
-    theGeometry->addDet( aLayer );
-    theGeometry->addDetId( aLayer->geographicalId() );
-    theGeometry->addDetType( const_cast<GeomDetType*>( &(aLayer->type()) ) ); //@@ FIXME drop const_cast asap!
+    theGeometry->addLayer( aLayer );
   }
   else {
     edm::LogError("CSC") << ": ERROR, layer " << jlay <<

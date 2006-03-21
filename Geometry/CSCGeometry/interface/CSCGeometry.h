@@ -19,11 +19,13 @@ class GeomDetType;
 class GeomDetUnit;
 class CSCChamber;
 
-typedef std::map<DetId, Pointer2Chamber> MapId2Chamber;
-typedef std::vector<CSCChamber*> ChamberContainer;
-typedef std::vector<CSCLayer*> LayerContainer;
 
 class CSCGeometry : public TrackingGeometry {
+
+  typedef std::map<DetId, GeomDet*> CSCDetMap;
+  typedef std::vector<CSCChamber*> ChamberContainer;
+  typedef std::vector<CSCLayer*> LayerContainer;
+
  public:
 
   /// Default constructor
@@ -32,48 +34,74 @@ class CSCGeometry : public TrackingGeometry {
   /// Destructor
   virtual ~CSCGeometry();
 
-  /// Return a vector of all det types
+  //---- Base class' interface
+
+  // Return a vector of all det types
   virtual const DetTypeContainer&  detTypes() const;
 
-  /// Returm a vector of all GeomDetUnit
+  // Returm a vector of all GeomDetUnit
+  virtual const DetUnitContainer& detUnits() const;
+
+  // Returm a vector of all GeomDet (including all GeomDetUnits)
   virtual const DetContainer& dets() const;
   
-  /// Returm a vector of all DetIds
+  // Returm a vector of all GeomDetUnit DetIds
+  virtual const DetIdContainer&    detUnitIds() const;
+
+  // Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
   virtual const DetIdContainer& detIds() const;
 
-  /// Return the pointer to the GeomDetUnit corresponding to a given DetId
-  virtual const GeomDetUnit* idToDet(DetId) const;
+  // Return the pointer to the GeomDetUnit corresponding to a given DetId
+  virtual const GeomDetUnit* idToDetUnit(DetId) const;
 
-  /// Add a DetUnit
-  void addDet(GeomDetUnit* p);
+  // Return the pointer to the GeomDet corresponding to a given DetId
+  virtual const GeomDet* idToDet(DetId) const;
 
-  /// Add a DetType
-  void addDetType( GeomDetType* );
+  //---- Extension of the interface
 
-  /// Add a DetId
-  void addDetId(DetId p);
+  /// Return the chamber corresponding to given DetId
+  const CSCChamber* chamber(CSCDetId id) const;
 
-  /// Add a chamber with given DetId
-  void addChamber( CSCDetId id, Pointer2Chamber chamber);
+  /// Return the orresponding to given DetId
+  const CSCLayer* layer(CSCDetId id) const;
 
-  /// Get the chamber corresponding to given DetId
-  Pointer2Chamber getChamber( CSCDetId ) const;
+  /// Return a vector of all chambers
+  const ChamberContainer chambers() const;
 
-  /// Vector of chambers
-    const ChamberContainer chambers() const;
-
-  /// Vector of layers
-    const LayerContainer layers() const;
+  /// Return a vector of all layers
+  const LayerContainer layers() const;
 
  private:
+  friend class CSCGeometryBuilderFromDDD;
+
+  /// Add a chamber with given DetId.
+  void addChamber(CSCChamber* ch);
   
+  /// Add a DetUnit
+  void addLayer(CSCLayer* l);
+
+  /// Add a DetType
+  void addDetType(GeomDetType* type);
+
+  /// Add a DetId
+  void addDetId(DetId id);
+
+  /// Add a GeomDet; not to be called by the builder.
+  void addDet(GeomDet* det);
+
+  // The chambers are owned by the geometry (which in turn own layers)
+  ChamberContainer  theChambers; 
+
+  // Map for efficient lookup by DetId 
+  CSCDetMap         theDetMap;
+
+  // These are used rarely; they could be computed at runtime 
+  // to save memory.
   DetTypeContainer  theDetTypes;
-  DetContainer      theDets;
+  DetContainer      theDets;       // all dets (chambers and layers)
+  DetUnitContainer  theDetUnits;   // all layers
   DetIdContainer    theDetIds;
-  mapIdToDet        theMap;
-
-  MapId2Chamber theSystemOfChambers; //@@ FIXME when GeomDet composite ready
-
+  DetIdContainer    theDetUnitIds;
 };
 
 #endif

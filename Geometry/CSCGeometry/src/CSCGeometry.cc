@@ -3,80 +3,98 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
+
 CSCGeometry::CSCGeometry(){}
 
 
 CSCGeometry::~CSCGeometry(){
-
+  // delete all the chambers (which will delete the SL which will delete the
+  // layers)
+  for (ChamberContainer::const_iterator ich=theChambers.begin();
+       ich!=theChambers.end(); ++ich) delete (*ich);
 }  
 
-void CSCGeometry::addChamber( CSCDetId id, Pointer2Chamber chamber ){
-  theSystemOfChambers.insert( MapId2Chamber::value_type( id, chamber ) );
+
+void CSCGeometry::addChamber(CSCChamber* ch){
+  theChambers.push_back(ch);
+  addDet(ch);
 }
 
-Pointer2Chamber CSCGeometry::getChamber( CSCDetId id ) const {
-  MapId2Chamber::const_iterator it = theSystemOfChambers.find( id );
-  if ( it != theSystemOfChambers.end() ) {
-    return (*it).second;
-  }
-  else {
-    return Pointer2Chamber();
-  }
+
+void CSCGeometry::addLayer(CSCLayer* l) {
+  theDetUnits.push_back(l);
+  theDetTypes.push_back(const_cast<GeomDetType*>(&(l->type()))); //@@ FIXME drop const_cast asap!
+  theDetUnitIds.push_back(l->geographicalId());
+  addDet(l);
 }
 
-void CSCGeometry::addDet(GeomDetUnit* p) {
-  theDets.push_back(p);  // add to vector
-  theMap.insert(std::pair<DetId,GeomDetUnit*>(p->geographicalId(),p));
+
+void CSCGeometry::addDetType(GeomDetType* type) {
+  theDetTypes.push_back(type);
 }
 
-void CSCGeometry::addDetType(GeomDetType* p) {
-  theDetTypes.push_back(p);  // add to vector
+
+void CSCGeometry::addDet(GeomDet* det){
+  theDets.push_back(det);  
+  theDetIds.push_back(det->geographicalId());
+  theDetMap.insert(CSCDetMap::value_type(det->geographicalId(),det));
 }
 
-void CSCGeometry::addDetId(DetId p){
-  theDetIds.push_back(p);
-}
-
-const CSCGeometry::DetContainer& CSCGeometry::dets() const
-{
-  return theDets;
-}
-
-const GeomDetUnit* CSCGeometry::idToDet(DetId s) const
-{
-  if (theMap.find(s) != theMap.end()) {
-    return (theMap.find(s))->second;
-  }
-  else {
-    return 0;
-  }
-}
 
 const CSCGeometry::DetTypeContainer& CSCGeometry::detTypes() const 
 {
   return theDetTypes;
 }
 
+
+const CSCGeometry::DetUnitContainer& CSCGeometry::detUnits() const
+{
+  return theDetUnits;
+}
+
+
+const CSCGeometry::DetContainer& CSCGeometry::dets() const
+{
+  return theDets;
+}
+
+
+const CSCGeometry::DetIdContainer& CSCGeometry::detUnitIds() const 
+{
+  return theDetUnitIds;
+}
+
+
 const CSCGeometry::DetIdContainer& CSCGeometry::detIds() const 
 {
   return theDetIds;
 }
 
-const ChamberContainer CSCGeometry::chambers() const
+
+const GeomDetUnit* CSCGeometry::idToDetUnit(DetId id) const
 {
-  ChamberContainer chc;
-  for( MapId2Chamber::const_iterator it = theSystemOfChambers.begin();
-       it != theSystemOfChambers.end(); ++it ) {
-    chc.push_back( (*it).second.get() );
-  }
-  return chc;
+  return dynamic_cast<const GeomDetUnit*>(idToDet(id));
 }
 
-const LayerContainer CSCGeometry::layers() const
+
+const GeomDet* CSCGeometry::idToDet(DetId id) const{
+  CSCDetMap::const_iterator i = theDetMap.find(id);
+  return (i != theDetMap.end()) ?
+    i->second : 0 ;
+}
+
+
+const CSCGeometry::ChamberContainer CSCGeometry::chambers() const
+{
+  return theChambers;
+}
+
+
+const CSCGeometry::LayerContainer CSCGeometry::layers() const
 {
   LayerContainer lc;
-  for( DetContainer::const_iterator it = theDets.begin();
-       it != theDets.end(); ++it ) {
+  for( DetUnitContainer::const_iterator it = theDetUnits.begin();
+       it != theDetUnits.end(); ++it ) {
     CSCLayer* layer = dynamic_cast<CSCLayer*>( *it );
     if ( layer ) lc.push_back( layer );
   }
@@ -84,3 +102,11 @@ const LayerContainer CSCGeometry::layers() const
 }
 
 
+const CSCChamber* CSCGeometry::chamber(CSCDetId id) const {
+  return dynamic_cast<const CSCChamber*>(idToDet(id));
+}
+
+
+const CSCLayer* CSCGeometry::layer(CSCDetId id) const {
+  return dynamic_cast<const CSCLayer*>(idToDetUnit(id));
+}
