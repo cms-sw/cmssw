@@ -9,17 +9,12 @@
 // //   thePosPixel = accessor.pixelPositiveForwardLayers();
 // }
 
+#define DEBUG
 
 
-
-//vector<SeedLayerPairs::LayerPair> PixelSeedLayerPairs::operator()() const
 vector<SeedLayerPairs::LayerPair> PixelSeedLayerPairs::operator()() 
 {
   vector<LayerPair> result;
- 
-
-  
-
 
   LayerPair tt=LayerPair(lh1,lh2);
   result.push_back( tt);
@@ -31,10 +26,6 @@ vector<SeedLayerPairs::LayerPair> PixelSeedLayerPairs::operator()()
 void PixelSeedLayerPairs::addBarrelBarrelLayers( int mid, int outer, 
 						 vector<LayerPair>& result) const
 {
-
-
-
-
 
   //MP
   //  result.push_back( LayerPair(LayerWithHits(bl[mid],lay1) , LayerWithHits(bl[outer],lay2)));
@@ -58,24 +49,14 @@ void PixelSeedLayerPairs::init(const SiPixelRecHitCollection& coll, const edm::E
   edm::ESHandle<TrackingGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
-
- 
   edm::ESHandle<GeometricSearchTracker> track;
   iSetup.get<TrackerRecoGeometryRecord>().get( track ); 
-  bl=track->barrelLayers();
- 
-  //map ranges
-//   map_range1=coll.get(acc.pixelBarrelLayer(1));
-//   map_range2=coll.get(acc.pixelBarrelLayer(2));
-//   map_range3=coll.get(acc.pixelBarrelLayer(3));
-  lay1=acc.pixelBarrelLayer(1);
-  lay2=acc.pixelBarrelLayer(2);
-  lay3=acc.pixelBarrelLayer(3);
-  map_range1=coll.get(lay1.first,DetIdPXBSameLayerComparator());
-  map_range2=coll.get(lay2.first,DetIdPXBSameLayerComparator());
-  map_range3=coll.get(lay3.first,DetIdPXBSameLayerComparator());
+  bl=track->barrelLayers(); 
 
- 
+  map_range1=coll.get(acc.pixelBarrelLayer(1));
+  map_range2=coll.get(acc.pixelBarrelLayer(2));
+  map_range3=coll.get(acc.pixelBarrelLayer(3));
+
   //BarrelLayers
   const PixelBarrelLayer*  bl1=dynamic_cast<PixelBarrelLayer*>(bl[0]);
   const PixelBarrelLayer*  bl2=dynamic_cast<PixelBarrelLayer*>(bl[1]);

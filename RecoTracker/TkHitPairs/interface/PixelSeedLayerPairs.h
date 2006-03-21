@@ -31,10 +31,6 @@ private:
   SiPixelRecHitCollection::range map_range1;
   SiPixelRecHitCollection::range map_range2;
   SiPixelRecHitCollection::range map_range3;
-  TrackerLayerIdAccessor::returnType lay1;
-   TrackerLayerIdAccessor::returnType lay2;
-   TrackerLayerIdAccessor::returnType lay3;
-
    TrackerLayerIdAccessor acc;
 
    LayerWithHits *lh1;
