@@ -2,7 +2,7 @@
 #include "RecoTracker/TkDetLayers/interface/TOBRodBuilder.h"
 
 TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
-				 const TrackingGeometry* theGeomDetGeometry){
+				 const TrackerGeometry* theGeomDetGeometry){
 
   vector<const GeometricDet*>  theGeometricDetRods = aTOBLayer->components();
   //cout << "theGeometricDetRods has size: " << theGeometricDetRods.size() << endl;  

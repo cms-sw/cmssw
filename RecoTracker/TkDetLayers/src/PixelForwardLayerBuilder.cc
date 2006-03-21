@@ -2,7 +2,7 @@
 #include "RecoTracker/TkDetLayers/interface/PixelBladeBuilder.h"
 
 PixelForwardLayer* PixelForwardLayerBuilder::build(const GeometricDet* aPixelForwardLayer,
-						   const TrackingGeometry* theGeomDetGeometry){
+						   const TrackerGeometry* theGeomDetGeometry){
   vector<const GeometricDet*>  theGeometricPanels = aPixelForwardLayer->components();
   int panelsSize = theGeometricPanels.size();
 

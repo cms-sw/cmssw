@@ -3,8 +3,8 @@
 
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 /** GeometricSearchTrackerBuilder implementation
  *  
@@ -17,7 +17,7 @@ class GeometricSearchTrackerBuilder {
   ~GeometricSearchTrackerBuilder() {}; 
   
   GeometricSearchTracker* build(const GeometricDet* theGeometricTracker,
-				const TrackingGeometry* theGeomDetGeometry);
+				const TrackerGeometry* theGeomDetGeometry);
 };
 
 

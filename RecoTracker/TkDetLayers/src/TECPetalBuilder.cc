@@ -3,7 +3,7 @@
 #include "RecoTracker/TkDetLayers/interface/CompositeTECPetal.h"
 
 TECPetal* TECPetalBuilder::build(const GeometricDet* aTECPetal,
-				 const TrackingGeometry* theGeomDetGeometry)
+				 const TrackerGeometry* theGeomDetGeometry)
 {
   vector<const GeometricDet*>  theGeometricWedges = aTECPetal->components();
   //cout << "theGeometricWedges.size(): " << theGeometricWedges.size() << endl;

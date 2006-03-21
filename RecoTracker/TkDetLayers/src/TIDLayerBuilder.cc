@@ -2,7 +2,7 @@
 #include "RecoTracker/TkDetLayers/interface/TIDRingBuilder.h"
 
 TIDLayer* TIDLayerBuilder::build(const GeometricDet* aTIDLayer,
-				 const TrackingGeometry* theGeomDetGeometry)
+				 const TrackerGeometry* theGeomDetGeometry)
 {
   vector<const GeometricDet*>  theGeometricRings = aTIDLayer->components();
   //cout << "theGeometricRings.size(): " << theGeometricRings.size() << endl;

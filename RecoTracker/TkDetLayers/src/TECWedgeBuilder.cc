@@ -3,7 +3,7 @@
 #include "RecoTracker/TkDetLayers/interface/SimpleTECWedge.h"
 
 TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge,
-				 const TrackingGeometry* theGeomDetGeometry)
+				 const TrackerGeometry* theGeomDetGeometry)
 {
   vector<const GeometricDet*>  theGeometricDets = aTECWedge->components();
   //cout << "theGeometricDets.size(): " << theGeometricDets.size() << endl;

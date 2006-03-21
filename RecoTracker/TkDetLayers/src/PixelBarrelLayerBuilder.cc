@@ -2,7 +2,7 @@
 #include "RecoTracker/TkDetLayers/interface/PixelRodBuilder.h"
 
 PixelBarrelLayer* PixelBarrelLayerBuilder::build(const GeometricDet* aPixelBarrelLayer,
-						 const TrackingGeometry* theGeomDetGeometry)
+						 const TrackerGeometry* theGeomDetGeometry)
 {
   // This builder is very similar to TOBLayer one. Most of the code should be put in a 
   // common place.

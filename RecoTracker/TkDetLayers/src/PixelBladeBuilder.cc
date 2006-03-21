@@ -3,7 +3,7 @@
                                      
 PixelBlade* PixelBladeBuilder:: build(const GeometricDet* geometricDetFrontPanel,
 				      const GeometricDet* geometricDetBackPanel,
-				      const TrackingGeometry* theGeomDetGeometry)
+				      const TrackerGeometry* theGeomDetGeometry)
 {
   vector<const GeometricDet*> frontGeometricDets = geometricDetFrontPanel->components();  
   vector<const GeometricDet*> backGeometricDets  = geometricDetBackPanel->components();  

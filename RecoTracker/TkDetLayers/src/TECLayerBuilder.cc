@@ -2,7 +2,7 @@
 #include "RecoTracker/TkDetLayers/interface/TECPetalBuilder.h"
 
 TECLayer* TECLayerBuilder::build(const GeometricDet* aTECLayer,
-				 const TrackingGeometry* theGeomDetGeometry)
+				 const TrackerGeometry* theGeomDetGeometry)
 {
   vector<const GeometricDet*>  theGeometricDetPetals = aTECLayer->components();
   vector<const TECPetal*> theInnerPetals;

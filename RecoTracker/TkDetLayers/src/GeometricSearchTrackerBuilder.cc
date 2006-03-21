@@ -9,7 +9,7 @@
 
 GeometricSearchTracker*
 GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
-				     const TrackingGeometry* theGeomDetGeometry)
+				     const TrackerGeometry* theGeomDetGeometry)
 {
   PixelBarrelLayerBuilder aPixelBarrelLayerBuilder;
   PixelForwardLayerBuilder aPixelForwardLayerBuilder;

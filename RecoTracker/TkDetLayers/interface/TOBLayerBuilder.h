@@ -5,8 +5,8 @@
 #include "RecoTracker/TkDetLayers/interface/TOBLayer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 /** A concrete builder for TOBLayer 
  */
@@ -17,7 +17,7 @@ class TOBLayerBuilder {
  public:
   TOBLayerBuilder(){};
   TOBLayer* build(const GeometricDet* aTOBLayer,
-		  const TrackingGeometry* theGeomDetGeometry);
+		  const TrackerGeometry* theGeomDetGeometry);
 
   
 };

@@ -5,8 +5,8 @@
 #include "RecoTracker/TkDetLayers/interface/PixelBlade.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 /** A concrete builder for PixelBlade 
  */
@@ -18,7 +18,7 @@ class PixelBladeBuilder {
   PixelBladeBuilder(){};
   PixelBlade* build(const GeometricDet* geometricDetFrontPanel,
 		    const GeometricDet* geometricDetBackPanel,
-		    const TrackingGeometry* theGeomDetGeometry);
+		    const TrackerGeometry* theGeomDetGeometry);
   
 };
 

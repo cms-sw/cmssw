@@ -5,8 +5,8 @@
 #include "RecoTracker/TkDetLayers/interface/PixelBarrelLayer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 /** A concrete builder for PixelBarrelLayer 
  */
@@ -17,7 +17,7 @@ class PixelBarrelLayerBuilder {
  public:
   PixelBarrelLayerBuilder(){};
   PixelBarrelLayer* build(const GeometricDet* aPixelBarrelLayer,
-			  const TrackingGeometry* theGeomDetGeometry);
+			  const TrackerGeometry* theGeomDetGeometry);
 
   
 };

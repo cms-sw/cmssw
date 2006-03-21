@@ -5,8 +5,8 @@
 #include "RecoTracker/TkDetLayers/interface/TOBRod.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 /** A concrete builder for TOBRod 
  */
@@ -18,7 +18,7 @@ class TOBRodBuilder {
   TOBRodBuilder(){};
   TOBRod* build(const GeometricDet* negTOBRod,
 		const GeometricDet* posTOBRod,
-		const TrackingGeometry* theGeomDetGeometry);
+		const TrackerGeometry* theGeomDetGeometry);
 
   
 };

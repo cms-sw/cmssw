@@ -1,7 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/PixelRodBuilder.h"
 
 PixelRod* PixelRodBuilder::build(const GeometricDet* aRod,
-				 const TrackingGeometry* theGeomDetGeometry)
+				 const TrackerGeometry* theGeomDetGeometry)
 {
   vector<const GeometricDet*> allGeometricDets = aRod->components();  
 

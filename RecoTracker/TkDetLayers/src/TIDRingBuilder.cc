@@ -1,7 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/TIDRingBuilder.h"
 
 TIDRing* TIDRingBuilder::build(const GeometricDet* aTIDRing,
-			 const TrackingGeometry* theGeomDetGeometry)
+			 const TrackerGeometry* theGeomDetGeometry)
 {
   vector<const GeometricDet*>  theGeometricDets = aTIDRing->components();
   //cout << "theGeometricDets.size(): " << theGeometricDets.size() << endl;

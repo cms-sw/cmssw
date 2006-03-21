@@ -5,8 +5,8 @@
 #include "RecoTracker/TkDetLayers/interface/TECLayer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 /** A concrete builder for TECLayer 
  */
@@ -17,7 +17,7 @@ class TECLayerBuilder {
  public:
   TECLayerBuilder(){};
   TECLayer* build(const GeometricDet* aTECLayer,
-		  const TrackingGeometry* theGeomDetGeometry);
+		  const TrackerGeometry* theGeomDetGeometry);
 
   
 };

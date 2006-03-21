@@ -2,7 +2,7 @@
 #include "RecoTracker/TkDetLayers/interface/TIBRingBuilder.h"
 
 TIBLayer* TIBLayerBuilder::build(const GeometricDet* aTIBLayer,
-				 const TrackingGeometry* theGeomDetGeometry)
+				 const TrackerGeometry* theGeomDetGeometry)
 {
   vector<const GeometricDet*> theGeometricRods = aTIBLayer->components();
   

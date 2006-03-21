@@ -5,8 +5,8 @@
 #include "RecoTracker/TkDetLayers/interface/TIBRing.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 /** A concrete builder for TIBRing 
  */
@@ -17,7 +17,7 @@ class TIBRingBuilder {
  public:
   TIBRingBuilder(){};
   TIBRing* build(const vector<const GeometricDet*>& detsInRing,
-		 const TrackingGeometry* theGeomDetGeometry);
+		 const TrackerGeometry* theGeomDetGeometry);
 
   
 };
