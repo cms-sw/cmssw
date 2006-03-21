@@ -1,5 +1,5 @@
-#ifndef MUON_ETA_RANGE_H
-#define MUON_ETA_RANGE_H
+#ifndef RecoMuon_MuonEtaRange_H
+#define RecoMuon_MuonEtaRange_H
 
 //Ported form ORCA 
 
