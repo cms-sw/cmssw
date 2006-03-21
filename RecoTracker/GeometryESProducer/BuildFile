@@ -1,12 +1,12 @@
 
 <export>
 <lib name=RecoTrackerGeometryESProducer>
-<use name=Geometry/TrackerSimAlgo>
-<use name=Geometry/TrackerBaseAlgo>
+<use name=Geometry/TrackerNumberingBuilder>
+<use name=Geometry/TrackerGeometryBuilder>
 </export>
 
-<use name=Geometry/TrackerSimAlgo>
-<use name=Geometry/TrackerBaseAlgo>
+<use name=Geometry/TrackerNumberingBuilder>
+<use name=Geometry/TrackerGeometryBuilder>
 <use name=RecoTracker/TkDetLayers>
 <use name=RecoTracker/Record>
 

@@ -1,6 +1,6 @@
 #include "RecoTracker/GeometryESProducer/interface/TrackerRecoGeometryESProducer.h"
-#include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTrackerBuilder.h"
@@ -28,7 +28,7 @@ TrackerRecoGeometryESProducer::produce(const TrackerRecoGeometryRecord & iRecord
   // get the DDCompactView first
   //
   edm::ESHandle<GeometricDet> gD;
-  edm::ESHandle<TrackingGeometry> tG;
+  edm::ESHandle<TrackerGeometry> tG;
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
   iRecord.getRecord<TrackerDigiGeometryRecord>().get(tG );
   GeometricSearchTrackerBuilder builder;
