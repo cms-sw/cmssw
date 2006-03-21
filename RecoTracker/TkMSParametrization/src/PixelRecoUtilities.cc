@@ -5,9 +5,9 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 double PixelRecoUtilities::
-  longitudinalBendingCorrection( double radius, double pt)
+longitudinalBendingCorrection( double radius, double pt,const edm::EventSetup& iSetup)
 {
-  double invCurv = bendingRadius(pt);
+  double invCurv = bendingRadius(pt,iSetup);
   if ( invCurv == 0. ) return 0.;
   return  radius/6. * radius*radius/(2.*invCurv * 2.*invCurv);
 }
@@ -18,12 +18,13 @@ double PixelRecoUtilities::
 //   iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
 //   // mgfieldininversegev=pSetup->inTesla(GlobalPoint(0,0,0))* 2.99792458e-3;
 // }
-float PixelRecoUtilities::fieldInInvGev() 
+float PixelRecoUtilities::fieldInInvGev(const edm::EventSetup& iSetup) 
 {  
- 
+  edm::ESHandle<MagneticField> pSetup;
+  iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
   //MP da capire come accedere al B 
   static float theInvField = 
-      1./fabs(  4*3e-3);
+    1./fabs(pSetup->inTesla(GlobalPoint(0,0,0)).z()  *2.99792458e-3);
   return theInvField;
 }
 
