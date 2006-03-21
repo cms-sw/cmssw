@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/07 15:27:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/20 21:13:18 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -31,14 +31,14 @@ const DTGeometry::DetTypeContainer&  DTGeometry::detTypes() const{
 void DTGeometry::add(DTChamber* ch) {
   theDets.push_back(ch);
   theChambers.push_back(ch);
-  theDetMap.insert(std::pair<DetId,GeomDet*>(ch->geographicalId(),ch));
+  theDetMap.insert(DTDetMap::value_type(ch->geographicalId(),ch));
 }
 
 
 void DTGeometry::add(DTSuperLayer* sl) {
   theDets.push_back(sl);
   theSuperLayers.push_back(sl);
-  theDetMap.insert(std::pair<DetId,GeomDet*>(sl->geographicalId(),sl));
+  theDetMap.insert(DTDetMap::value_type(sl->geographicalId(),sl));
 }
 
 
@@ -46,7 +46,7 @@ void DTGeometry::add(DTLayer* l) {
   theDetUnits.push_back(l);
   theDets.push_back(l);
   theLayers.push_back(l); 
-  theDetMap.insert(std::pair<DetId,GeomDet*>(l->geographicalId(),l));
+  theDetMap.insert(DTDetMap::value_type(l->geographicalId(),l));
 }
 
 

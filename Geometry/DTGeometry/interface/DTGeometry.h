@@ -8,8 +8,8 @@
  *  The geometry owns the DTChamber s; these own their DTSuperLayer s which 
  *  in turn own their DTLayer s.
  *
- *  $Date: 2006/03/20 21:13:17 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/20 22:44:08 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -26,8 +26,7 @@ class GeomDetUnit;
 
 class DTGeometry : public TrackingGeometry {
 
-  typedef std::map<DetId, GeomDet*>       DTDetMap ;
-
+  typedef std::map<DetId, GeomDet*> DTDetMap;
 
   public:
     /// Default constructor
@@ -81,16 +80,21 @@ class DTGeometry : public TrackingGeometry {
     /// Return a layer given its id
     const DTLayer* layer(DTLayerId id) const;
 
+
+  private:
+  
+    friend class DTGeometryBuilderFromDDD;
+
     /// Add a DTChamber to Geometry
     void add(DTChamber* ch);
 
     /// Add a DTSuperLayer to Geometry
-    void add(DTSuperLayer* ch);
+    void add(DTSuperLayer* sl);
 
     /// Add a DTLayer to Geometry
-    void add(DTLayer* ch);
+    void add(DTLayer* l);
 
-  private:
+
     // The chambers are owned by the geometry (and in turn own superlayers
     // and layers)
     std::vector<DTChamber*> theChambers; 
