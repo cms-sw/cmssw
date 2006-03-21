@@ -8,12 +8,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.13 2006/03/10 14:47:28 llista Exp $
+ * \version $Id: Track.h,v 1.14 2006/03/16 13:47:27 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackReco/interface/RecHitFwd.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
@@ -38,9 +38,9 @@ namespace reco {
     /// momentum vector at the outermost point
     const math::XYZVector & outerMomentum() const { return extra_->outerMomentum(); }
     /// first iterator to RecHits
-    recHit_iterator recHitsBegin() const { return extra_->recHitsBegin(); }
+    trackingRecHit_iterator recHitsBegin() const { return extra_->recHitsBegin(); }
     /// last iterator to RecHits
-    recHit_iterator recHitsEnd()   const { return extra_->recHitsEnd(); }
+    trackingRecHit_iterator recHitsEnd()   const { return extra_->recHitsEnd(); }
     /// number of RecHits
     size_t recHitsSize() const { return extra_->recHitsSize(); }
     /// x coordinate of momentum vector at the outermost point

@@ -54,7 +54,8 @@ reco::Track may result in an exception.
 
 \subsection interface_base Auxiliary base classes
 - reco::TrackBase: common base class to reco::Track and reco::Muon
-- reco::TrackExtraBase: common base class to reco::TrackExtra and reco::MuonExtra
+- reco::TrackExtraBase: common base class to reco::TrackExtra and reco::MuonExtra. 
+  Contains references to objects of type TrackingRecHit.
 
 \subsection typedefs 
 - reco::TrackCollection: collection of reco::Track objects

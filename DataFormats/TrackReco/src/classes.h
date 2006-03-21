@@ -1,18 +1,11 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/TrackReco/interface/HelixParameters.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/RecHit.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include <vector>
 
 namespace {
   namespace {
-    reco::RecHitCollection v2;
-    edm::Wrapper<reco::RecHitCollection> c2;
-    edm::Ref<reco::RecHitCollection> r2;
-    edm::RefProd<reco::RecHitCollection> rp2;
-    edm::RefVector<reco::RecHitCollection> rv2;
-
     reco::TrackExtraCollection v3;
     edm::Wrapper<reco::TrackExtraCollection> c3;
     edm::Ref<reco::TrackExtraCollection> r3;

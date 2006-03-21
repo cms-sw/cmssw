@@ -4,13 +4,6 @@
   <class name="reco::TrackBase" />
   <class name="reco::TrackExtraBase" />
 
-  <class name="reco::RecHit" />
-  <class name="std::vector<reco::RecHit>" />
-  <class name="edm::Wrapper<std::vector<reco::RecHit> >" />
-  <class name="edm::RefProd<std::vector<reco::RecHit> >" />
-  <class name="edm::Ref<std::vector<reco::RecHit>, reco::RecHit>" />
-  <class name="edm::RefVector<std::vector<reco::RecHit>, reco::RecHit>" />
-
   <class name="reco::TrackExtra" />
   <class name="std::vector<reco::TrackExtra>" />
   <class name="edm::Wrapper<std::vector<reco::TrackExtra> >" />
