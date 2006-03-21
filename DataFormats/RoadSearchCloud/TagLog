@@ -1,9 +1,0 @@
-** V00-00-02  [Tue Feb 28 18:59:48 2006]
-access function to add RecHits changed from pointer to const pointer
-
-** V00-00-01  [Tue Jan 31 00:18:50 2006]
-make seed pointer transient
-
-** V00-00-00  [Sun Jan 15 01:57:32 2006]
-Initial release of DataFormats/RoadSearchCloud.
-

@@ -1,9 +1,0 @@
-** V01-02-00  [Tue Mar  7 01:06:10 2006]
-fixed to work with VtxSmeared
-
-** V01-01-00  [Mon Mar  6 18:26:16 2006]
-Change module label 'r' to 'SimG4Object'
-
-** V01-00-00  [Wed Mar  1 00:16:41 2006]
-first version
-

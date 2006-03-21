@@ -1,9 +1,0 @@
-** V00-02-00  [Mon Dec 12 19:45:59 2005]
-Complete test
-
-** V00-01-00  [Thu Nov  3 19:54:26 2005]
-use MagneticField (and not concrete class) in interface
-
-** V00-00-00  [Wed Oct 26 18:08:17 2005]
-Base tag on CMSSW_0_2_0_pre5
-

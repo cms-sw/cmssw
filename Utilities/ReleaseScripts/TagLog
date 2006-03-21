@@ -1,9 +1,0 @@
-** V00-00-03  [Tue Mar  7 20:32:52 2006]
-better perl loc, more error checking on incorrect or empty releases
-
-** V00-00-01  [Fri Mar  3 18:57:22 2006]
-move location of tag collector to cmsdoc area
-
-** V00-00-00  [Sat Dec 31 18:48:40 2005]
-First relase for script to find tags in a release via CmsTC
-
