@@ -3,7 +3,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.cc,v 1.5 2006/02/08 20:25:55 fedor Exp $
+   $Id: HcalDbPool.cc,v 1.6 2006/03/01 07:27:40 fedor Exp $
 */
 
 // pool
@@ -211,7 +211,7 @@ bool HcalDbPool::putObject_ (T* fObject, const std::string& fClassName, const st
 
 HcalDbPool::HcalDbPool (const std::string& fConnect)
   : mConnect (fConnect) {
-  std::cout << "HcalDbPool::HcalDbPool started..." << std::endl;
+  //std::cout << "HcalDbPool::HcalDbPool started..." << std::endl;
   seal::PluginManager::get()->initialise();
   mContext.reset (new seal::Context);
   seal::Handle<seal::ComponentLoader> loader = new seal::ComponentLoader (&*mContext);
@@ -219,13 +219,13 @@ HcalDbPool::HcalDbPool (const std::string& fConnect)
   loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
   loader->load( "CORAL/Services/RelationalService");
   mTag.clear ();
-  std::cout << "HcalDbPool::HcalDbPool done..." << std::endl;
+  //std::cout << "HcalDbPool::HcalDbPool done..." << std::endl;
 }
 
 pool::IDataSvc* HcalDbPool::service ()
 {
   if (!mService.get ()) {
-    std::cout << "HcalDbPool::service () started..." << std::endl;
+    //std::cout << "HcalDbPool::service () started..." << std::endl;
     try {
       pool::URIParser parser;
       parser.parse();
@@ -251,7 +251,7 @@ pool::IDataSvc* HcalDbPool::service ()
     catch (...) {
       std::cerr << "HcalDbPool::service ()-> General error" << std::endl;
     }
-    std::cout << "HcalDbPool::service () done..." << std::endl;
+    //std::cout << "HcalDbPool::service () done..." << std::endl;
   }
   return mService.get ();
 }
@@ -259,7 +259,7 @@ pool::IDataSvc* HcalDbPool::service ()
 coral::ISession* HcalDbPool::session () {
   if (!mSession.get ()) {
     service ();
-    std::cout << "HcalDbPool::session () started..." << std::endl;
+    //std::cout << "HcalDbPool::session () started..." << std::endl;
     try {
       std::vector< seal::IHandle<coral::IRelationalService> > v_svc;
       mContext->query( v_svc );
@@ -278,7 +278,7 @@ coral::ISession* HcalDbPool::session () {
     catch (...) {
       std::cerr << "HcalDbPool::session ()-> General error" << std::endl;
     }
-    std::cout << "HcalDbPool::session () done..." << std::endl;
+    //std::cout << "HcalDbPool::session () done..." << std::endl;
   }
   return mSession.get ();
 }
@@ -296,12 +296,12 @@ const std::string& HcalDbPool::metadataGetToken (const std::string& fTag) {
     mToken.clear ();
     try {
       
+      //std::cout << "HcalDbPool::metadataGetToken->connecting..." << std::endl;
       session ()->connect ();
       session ()->startUserSession(); // What is that???
       session ()->transaction().start();
       if (session ()->nominalSchema().existsTable(METADATA_TABLE)) {
 	coral::ITable& mytable=session ()->nominalSchema().tableHandle (METADATA_TABLE);
-	std::string iovtoken;
 	std::auto_ptr< coral::IQuery > query(mytable.newQuery());
 	query->setRowCacheSize( 100 );
 	coral::AttributeList emptyBindVariableList;
@@ -311,28 +311,34 @@ const std::string& HcalDbPool::metadataGetToken (const std::string& fTag) {
 	coral::ICursor& cursor = query->execute();
 	while( cursor.next() ) {
 	  const coral::AttributeList& row = cursor.currentRow();
-	  iovtoken = row [METADATA_TOKEN_COLUMN].data<std::string>();
+	  mToken = row [METADATA_TOKEN_COLUMN].data<std::string>();
 	  break; // ignore other tokens
 	}
-	session ()->transaction().commit();
-	session ()->disconnect ();
       }
+      session ()->transaction().commit();
+      session ()->disconnect ();
+      //std::cout << "HcalDbPool::metadataGetToken->disconnecting..." << std::endl;
     }
     catch (const seal::Exception& e) {
+      session ()->transaction().rollback();
+      session ()->disconnect ();
       std::cerr<<"HcalDbPool::metadataGetToken-> POOL error: " << e << std::endl;
       mToken.clear ();
     }
     catch (...) {
+      session ()->transaction().rollback();
+      session ()->disconnect ();
       std::cerr << "HcalDbPool::metadataGetToken-> General error" << std::endl;
       mToken.clear ();
     }
     if (mToken.empty ()) mTag.clear ();
   }
-  // std::cout << "HcalDbPool::metadataGetToken-> " << fTag << '/' << mToken << std::endl;
+  //std::cout << "HcalDbPool::metadataGetToken-> " << fTag << '/' << mToken << std::endl;
   return mToken;
 }
 
 bool HcalDbPool::metadataSetTag (const std::string& fTag, const std::string& fToken) {
+  //std::cout << "HcalDbPool::metadataSetTag->begin..." << std::endl;
   bool result = false;
   try {
     session ()->connect ();
@@ -360,13 +366,18 @@ bool HcalDbPool::metadataSetTag (const std::string& fTag, const std::string& fTo
     dataEditor.insertRow( rowBuffer );
     session ()->transaction().commit() ;
     session ()->disconnect ();
+    //std::cout << "HcalDbPool::metadataSetTag->disconnect..." << std::endl;
    result = true;
   }
   catch (const seal::Exception& e) {
+    session ()->transaction().rollback();
+    session ()->disconnect ();
     std::cerr<<"HcalDbPool::metadataSetTag-> POOL error: " << e << std::endl;
     result = false;
   }
   catch (...) {
+    session ()->transaction().rollback();
+    session ()->disconnect ();
     std::cerr << "HcalDbPool::metadataSetTag-> General error" << std::endl;
     result = false;
   }
