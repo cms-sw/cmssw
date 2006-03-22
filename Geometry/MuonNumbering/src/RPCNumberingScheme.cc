@@ -30,7 +30,7 @@ RPCNumberingScheme::RPCNumberingScheme(){
 #endif
 }
 
-int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const {
+int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
 
 #ifdef DEBUG
   std::cout << "RPCNumbering "<<num.getLevels()<<std::endl;

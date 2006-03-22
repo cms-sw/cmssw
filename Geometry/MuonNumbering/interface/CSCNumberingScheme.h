@@ -20,7 +20,7 @@ class CSCNumberingScheme : public MuonNumberingScheme {
   CSCNumberingScheme();
   ~CSCNumberingScheme(){};
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber& num) const;
+  virtual int baseNumberToUnitNumber(const MuonBaseNumber);
   
  private:
 

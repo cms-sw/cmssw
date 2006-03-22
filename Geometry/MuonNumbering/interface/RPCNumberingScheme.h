@@ -22,7 +22,7 @@ class RPCNumberingScheme : public MuonNumberingScheme {
   RPCNumberingScheme();
   virtual ~RPCNumberingScheme(){};
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber&) const;
+  virtual int baseNumberToUnitNumber(const MuonBaseNumber);
   
  private:
   int theRegionLevel;

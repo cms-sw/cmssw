@@ -25,7 +25,7 @@ DTNumberingScheme::DTNumberingScheme(){
  #endif
 }
 
-int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const{
+int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) const{
   
 #ifdef DEBUGDEBUG
   std::cout << "DTNumbering "<<num.getLevels()<<std::endl;
@@ -67,7 +67,7 @@ int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const{
   return getDetId(num);
 }
 
-int DTNumberingScheme::getDetId(const MuonBaseNumber& num) const {
+int DTNumberingScheme::getDetId(const MuonBaseNumber num) const {
   
   int wire_id=0;
   int layer_id=0;

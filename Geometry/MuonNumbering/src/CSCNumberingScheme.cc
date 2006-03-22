@@ -26,7 +26,7 @@ CSCNumberingScheme::CSCNumberingScheme(){
 #endif
 }
 
-int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const{
+int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
 
 #ifdef DEBUG
   std::cout << "CSCNumbering "<<num.getLevels()<<std::endl;
