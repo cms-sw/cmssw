@@ -1,5 +1,5 @@
-#ifndef TrackingTools_ESProducers_KFUpdatorESProducer_h
-#define TrackingTools_ESProducers_KFUpdatorESProducer_h
+#ifndef TrackingTools_TrackFitters_KFTrajectoryFitterESProducer_h
+#define TrackingTools_TrackFitters_KFTrajectoryFitterESProducer_h
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
