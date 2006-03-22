@@ -288,14 +288,14 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
     eventout = "\nGathering info:";  
   
   // access the tracker geometry
-  edm::ESHandle<TrackingGeometry> theTrackerGeometry;
+  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
   iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
   if (!theTrackerGeometry.isValid()) {
     edm::LogWarning("GlobalValProducer::fillTrk")
       << "Unable to find TrackerDigiGeometryRecord in event!";
     return;
   }
-  const TrackingGeometry& theTracker(*theTrackerGeometry);
+  const TrackerGeometry& theTracker(*theTrackerGeometry);
     
   // iterator to access containers
   edm::PSimHitContainer::const_iterator itHit;
@@ -343,7 +343,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
     if ((detector == dTrk) && (subdetector == sdPxlBrl)) {
 
       // get the GeomDetUnit from the geometry using theDetUnitID
-      const GeomDetUnit *theDet = theTracker.idToDet(theDetUnitId);
+      const GeomDetUnit *theDet = theTracker.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
 	edm::LogWarning("GlobalValProducer::fillTrk")
@@ -421,7 +421,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
     if ((detector == dTrk) && (subdetector == sdPxlFwd)) {
 
       // get the GeomDetUnit from the geometry using theDetUnitID
-      const GeomDetUnit *theDet = theTracker.idToDet(theDetUnitId);
+      const GeomDetUnit *theDet = theTracker.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
 	edm::LogWarning("GlobalValProducer::fillTrk")
@@ -518,7 +518,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
 	 (subdetector == sdSiTOB))) {
 
       // get the GeomDetUnit from the geometry using theDetUnitID
-      const GeomDetUnit *theDet = theTracker.idToDet(theDetUnitId);
+      const GeomDetUnit *theDet = theTracker.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
 	edm::LogWarning("GlobalValProducer::fillTrk")
@@ -615,7 +615,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
 	 (subdetector == sdSiTEC))) {
       
       // get the GeomDetUnit from the geometry using theDetUnitID
-      const GeomDetUnit *theDet = theTracker.idToDet(theDetUnitId);
+      const GeomDetUnit *theDet = theTracker.idToDetUnit(theDetUnitId);
       
       if (!theDet) {
 	edm::LogWarning("GlobalValProducer::fillTrk")
@@ -731,6 +731,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
   // iterator to access containers
   edm::PSimHitContainer::const_iterator itHit;
 
+  //int i = 0, j = 0;
   ///////////////////////
   // access the CSC Muon
   ///////////////////////
@@ -770,7 +771,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
         (subdetector == sdMuonCSC)) {
 
       // get the GeomDetUnit from the geometry using theDetUnitID
-      const GeomDetUnit *theDet = theCSCMuon.idToDet(theDetUnitId);
+      const GeomDetUnit *theDet = theCSCMuon.idToDetUnit(theDetUnitId);
     
       if (!theDet) {
 	edm::LogWarning("GlobalValProducer::fillMuon")
@@ -804,6 +805,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
     eventout += j;
   }  
 
+  //i = 0, j = 0;
   /////////////////////
   // access the DT Muon
   /////////////////////
@@ -881,7 +883,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
     eventout += j;
   } 
 
-  i = 0; j = 0;
+  i = 0, j = 0;
   int RPCBrl = 0, RPCFwd = 0;
   /*
   ///////////////////////
@@ -914,22 +916,23 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
 
     ++i;
 
-    // RPC uses a triggerID specific to RPC rather than a detUnitId
-    int TriggerId = itHit->detUnitId();
-    RPCDetId RPCDetId;
-    RPCDetId.buildfromTrIndex(TriggerId);
-    int detector = RPCDetId.det();
-    int subdetector = RPCDetId.subdetId();  
+    // create a DetID from the detUnitId
+    DetId theDetUnitId(itHit->detUnitId());
+    int detector = theDetUnitId.det();
+    int subdetector = theDetUnitId.subdetId();
 
     // check that expected detector is returned
     if ((detector == dMuon) && 
         (subdetector == sdMuonRPC)) {
+      
+      // get an RPCDetID from the detUnitID
+      RPCDetId RPCId(itHit->detUnitId());      
 
       // find the region of the RPC hit
-      int region = RPCDetId.region();
+      int region = RPCId.region();
 
       // get the GeomDetUnit from the geometry using the RPCDetId
-      const GeomDetUnit *theDet = theRPCMuon.idToDet(RPCDetId);
+      const GeomDetUnit *theDet = theRPCMuon.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
 	edm::LogWarning("GlobalValProducer::fillMuon")

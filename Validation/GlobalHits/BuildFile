@@ -7,10 +7,11 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/DetId>
 <use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerGeometryBuilder>
 <use name=DataFormats/MuonDetId>
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/DTGeometry>
-<use name=Geometry/RPCSimAlgo>
+<use name=Geometry/RPCGeometry>
 <use name=root>
 <use name=clhep>
 
@@ -27,10 +28,11 @@
  <use name=SimDataFormats/HepMCProduct>
  <use name=DataFormats/DetId>
  <use name=Geometry/CommonDetUnit>
+ <use name=Geometry/TrackerGeometryBuilder>
  <use name=DataFormats/MuonDetId>
  <use name=Geometry/CSCGeometry>
  <use name=Geometry/DTGeometry>
- <use name=Geometry/RPCSimAlgo>
+ <use name=Geometry/RPCGeometry>
  <use name=root>
  <use name=clhep>
 </export>
