@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 class SiStripNoises;
-class TrackingGeometry;
+class TrackerGeometry;
 class ThreeThresholdStripClusterizer;
 
 class SiStripClusterizerAlgorithm 
@@ -35,7 +35,7 @@ class SiStripClusterizerAlgorithm
   void run(const StripDigiCollection* input,
 	   SiStripClusterCollection &output,
 	   const edm::ESHandle<SiStripNoises>& noise, 
-	   const edm::ESHandle<TrackingGeometry>& pDD);
+	   const edm::ESHandle<TrackerGeometry>& pDD);
 
  private:
   edm::ParameterSet conf_;

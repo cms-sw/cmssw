@@ -15,11 +15,11 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerSimAlgo/interface/StripGeomDetType.h"
-#include "Geometry/TrackerSimAlgo/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
@@ -58,7 +58,7 @@ SiStripClusterizerAlgorithm::~SiStripClusterizerAlgorithm() {
 }
 
 void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripClusterCollection &output,
-				      const edm::ESHandle<SiStripNoises>& sistripnoise, const edm::ESHandle<TrackingGeometry>& pDD)
+				      const edm::ESHandle<SiStripNoises>& sistripnoise, const edm::ESHandle<TrackerGeometry>& pDD)
 {
   if ( validClusterizer_ ) {
     int number_detunits          = 0;
@@ -82,7 +82,7 @@ void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripC
 	  //Case of SingleValueNoiseValue for all strips of a Detector
 	  //Noise is proportional to sensor depth
 	 	  
-	  const GeomDetUnit* it = pDD->idToDet(DetId(detID));
+	  const GeomDetUnit* it = pDD->idToDetUnit(DetId(detID));
 	
 	  if (dynamic_cast<const StripGeomDetUnit*>(it)==0){
 	    std::cout<< "WARNING: the detID " << detID << " doesn't seem to belong to Tracker" << std::endl; 

@@ -27,7 +27,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 
@@ -49,7 +49,7 @@ namespace cms
     SiStripClusterizerAlgorithm siStripClusterizerAlgorithm_;
     edm::ParameterSet conf_;
     edm::ESHandle<SiStripNoises> noise;
-    edm::ESHandle<TrackingGeometry> pDD;
+    edm::ESHandle<TrackerGeometry> pDD;
     bool UseNoiseBadStripFlagFromDB_;
     std::string userEnv_;  
     std::string passwdEnv_;

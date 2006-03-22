@@ -24,7 +24,7 @@ using namespace std;
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollection.h"
 

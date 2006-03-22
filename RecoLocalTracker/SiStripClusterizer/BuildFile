@@ -15,7 +15,7 @@
 <use name=CondCore/MetaDataService>
 
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/TrackerSimAlgo>	
+<use name=Geometry/TrackerGeometryBuilder>	
 
 <export>
 <lib name=RecoLocalTrackerSiStripClusterizer>

@@ -40,7 +40,7 @@ void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es)
   edm::Handle<SiPixelRecHitCollection> coll;
   e.getByType(coll);
   
-  std::cout <<" FOUND "<<const_cast<SiPixelRecHitCollection*>(coll.product())->size()<<" Pixel Hits"<<std::endl;
+  std::cout <<" FOUND "<<(coll.product())->size()<<" Pixel Hits"<<std::endl;
   
   
 }
