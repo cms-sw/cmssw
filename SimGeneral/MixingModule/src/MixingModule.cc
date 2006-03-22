@@ -11,7 +11,7 @@
 #include "SimGeneral/MixingModule/interface/MixingModule.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Selector.h"
-#include "FWCore/Framework/interface/Provenance.h"
+#include "DataFormats/Common/interface/BranchDescription.h"
 
 using namespace std;
 
