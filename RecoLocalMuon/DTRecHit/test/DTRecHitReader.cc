@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/06 17:33:44 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/14 13:09:12 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -11,11 +11,16 @@
 
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "TFile.h"
 
@@ -74,6 +79,9 @@ DTRecHitReader::~DTRecHitReader(){
 void DTRecHitReader::analyze(const Event & event, const EventSetup& eventSetup){
   cout << "--- [DTRecHitReader] Event analysed #Run: " << event.id().run()
        << " #Event: " << event.id().event() << endl;
+  // Get the DT Geometry
+  ESHandle<DTGeometry> dtGeom;
+  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
 
   // Get the rechit collection from the event
   Handle<DTRecHitCollection> dtRecHits;
@@ -96,6 +104,9 @@ void DTRecHitReader::analyze(const Event & event, const EventSetup& eventSetup){
   for (detUnitIt = dtRecHits->id_begin();
        detUnitIt != dtRecHits->id_end();
        ++detUnitIt){
+    // Get the GeomDet from the setup
+    const DTLayer* layer = dtGeom->layer(*detUnitIt);
+
     // Get the range for the corresponding LayerId
     DTRecHitCollection::range  range = dtRecHits->get((*detUnitIt));
     // Loop over the rechits of this DetUnit
@@ -104,6 +115,12 @@ void DTRecHitReader::analyze(const Event & event, const EventSetup& eventSetup){
 	   ++rechit){
       // Get the wireId of the rechit
       DTWireId wireId = (*rechit).wireId();
+
+      float xwire = layer->specificTopology().wirePosition(wireId.wire());
+      if(fabs(xwire - (*rechit).localPosition().x()) > 0.00001) {
+	cout << "  [DTRecHitReader]***Error in wire Position: xwire = " << xwire
+	     << " xRecHit = " << (*rechit).localPosition().x() << endl;
+      } 
 
       // Access to Right and left rechits
       pair<const DTRecHit1D*, const DTRecHit1D*> lrRecHits = (*rechit).componentRecHits();
@@ -118,11 +135,11 @@ void DTRecHitReader::analyze(const Event & event, const EventSetup& eventSetup){
       // Search the best mu simhit and compute its distance from the wire
       float simHitDistFromWire = 0;
       if(simHitMap.find(wireId) != simHitMap.end()) {
-	const PSimHit* muSimHit = findBestMuSimHit(simHitMap[wireId], distFromWire);
+	const PSimHit* muSimHit = findBestMuSimHit(layer, wireId, simHitMap[wireId], distFromWire);
 	// Check that a mu simhit is found
 	if(muSimHit != 0) {
 	  // Compute the simhit distance from wire
-	  simHitDistFromWire = findSimHitDist(muSimHit);
+	  simHitDistFromWire = findSimHitDist(layer, wireId, muSimHit);
 	  // Fill the histos
 	  H1DRecHit *histo = 0;
 	  if(wireId.superlayer() == 1 || wireId.superlayer() == 3) {
@@ -138,6 +155,17 @@ void DTRecHitReader::analyze(const Event & event, const EventSetup& eventSetup){
 	    }
 	  }
 	  histo->Fill(distFromWire, simHitDistFromWire);
+
+	  if(fabs(distFromWire - simHitDistFromWire) > 2.1) {
+	    cout << "Warning: " << endl
+		 << "  RecHit distance from wire is: " << distFromWire << endl
+		 << "  SimHit distance from wire is: " << simHitDistFromWire << endl
+		 << "  RecHit wire Id is: " << wireId << endl
+		 << "  SimHit wire Id is: " << DTWireId((*muSimHit).detUnitId()) << endl;
+	    cout << "  Wire x: = " << xwire << endl
+		 << "  RecHit x = " << (*rechit).localPosition().x() << endl
+		 << "  SimHit x = " << (*muSimHit).localPosition().x() << endl;
+	  }
 	  
 	  // Some printout
 	  if(debug) {
@@ -145,7 +173,7 @@ void DTRecHitReader::analyze(const Event & event, const EventSetup& eventSetup){
 		 << "         WireId: " << wireId << endl
 		 << "         1DRecHitPair local position (cm): " << (*rechit) << endl
 		 << "         RecHit distance from wire (cm): " << distFromWire << endl
-		 << "         Mu SimHit sidtance from wire (cm): " << simHitDistFromWire << endl;
+		 << "         Mu SimHit distance from wire (cm): " << simHitDistFromWire << endl;
 	  }
 	}
       }
@@ -171,7 +199,9 @@ DTRecHitReader::mapSimHitsPerWire(const Handle<PSimHitContainer>& simhits) {
 
 
 const PSimHit*
-DTRecHitReader::findBestMuSimHit(const vector<const PSimHit*>& simhits,
+DTRecHitReader::findBestMuSimHit(const DTLayer* layer,
+				 const DTWireId& wireId,
+				 const vector<const PSimHit*>& simhits,
 				 float recHitDistFromWire) {
   const PSimHit* retSimHit =0;
   float tmp_distDiff = 999999;
@@ -181,8 +211,8 @@ DTRecHitReader::findBestMuSimHit(const vector<const PSimHit*>& simhits,
     // Select muons
     if(abs((*simhit)->particleType()) == 13) {
       // Get the mu simhit closest to the rechit
-      if(findSimHitDist(*simhit)-recHitDistFromWire < tmp_distDiff) {
-	tmp_distDiff = findSimHitDist(*simhit)-recHitDistFromWire;
+      if(findSimHitDist(layer, wireId, *simhit)-recHitDistFromWire < tmp_distDiff) {
+	tmp_distDiff = findSimHitDist(layer, wireId, *simhit)-recHitDistFromWire;
 	retSimHit = (*simhit);
       }
     }
@@ -193,12 +223,16 @@ DTRecHitReader::findBestMuSimHit(const vector<const PSimHit*>& simhits,
 
 
 // Compute SimHit distance from wire
-double DTRecHitReader::findSimHitDist(const PSimHit * hit) {
-//   LocalPoint hitPosition = hit->localPosition();
+double DTRecHitReader::findSimHitDist(const DTLayer* layer,
+				      const DTWireId& wireId,
+				      const PSimHit * hit) {
+
+  float xwire = layer->specificTopology().wirePosition(wireId.wire());
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
-  float xEntry = entryP.x();
-  float xExit  = exitP.x();
+  float xEntry = entryP.x()-xwire;
+  float xExit  = exitP.x()-xwire;
+
   return fabs(xEntry - (entryP.z()*(xExit-xEntry))/(exitP.z()-entryP.z()));//FIXME: check...
 }
 

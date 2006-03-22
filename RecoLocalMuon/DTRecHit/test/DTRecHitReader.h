@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing them with muon simhits
  *
- *  $Date: 2006/02/15 13:56:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/14 13:09:12 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -31,6 +31,8 @@ namespace edm {
 
 class PSimHit;
 class TFile;
+class DTLayer;
+class DTWireId;
 
 class DTRecHitReader : public edm::EDAnalyzer {
 public:
@@ -50,7 +52,9 @@ protected:
 
 private: 
   // Select the mu simhit closest to the rechit
-  const PSimHit* findBestMuSimHit(const std::vector<const PSimHit*>& simhits,
+  const PSimHit* findBestMuSimHit(const DTLayer* layer,
+				  const DTWireId& wireId,
+				  const std::vector<const PSimHit*>& simhits,
 				  float recHitDistFromWire);
 
   // Map simhits per wireId
@@ -58,7 +62,9 @@ private:
   mapSimHitsPerWire(const edm::Handle<edm::PSimHitContainer >& simhits);
 
   // Compute SimHit distance from wire
-  double findSimHitDist(const PSimHit * hit);
+  double findSimHitDist(const DTLayer* layer,
+			const DTWireId& wireId,
+			const PSimHit * hit);
 
   // Histograms
   H1DRecHit *hRHitPhi;
