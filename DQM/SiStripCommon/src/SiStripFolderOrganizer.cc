@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
-// $Id$
+// $Id: SiStripFolderOrganizer.cc,v 1.1 2006/02/09 19:02:26 gbruno Exp $
 //
 
 #include <iostream>
@@ -61,7 +61,7 @@ void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid){
     rest<<sep<<"TOB"<<sep<<"layer_"<<tob1.layer()<<sep<<"rod_"<<(tob1.rod()).at(1)<<sep<<"module_in_rod_"<<tob1.module()<<sep<<"detector_"<<rawdetid;
   }else if( subdetid==6){
     TECDetId tec1 = TECDetId(rawdetid);
-    rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel()<<sep<<"petal_"<<(tec1.petal()).at(1)<<sep<<"ring_"<<tec1.ring()<<sep<<"module_in_ring_"<<(tec1.module()).at(1)<<sep<<"detector_"<<rawdetid;
+    rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel()<<sep<<"petal_"<<(tec1.petal()).at(1)<<sep<<"ring_"<<tec1.ring()<<sep<<"module_in_ring_"<<tec1.module()<<sep<<"detector_"<<rawdetid;
   }else{
     cout<<"SiStripFolderOrganizer::setDetectorFolder - no such subdetector type :"<<subdetid<<endl;
     cout<<"                           no folder set!"<<endl;
