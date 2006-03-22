@@ -18,7 +18,7 @@ public:
    */
   void setPoint ( const GlobalPoint & pos );
     
-  virtual GlobalPoint getLinearizationPoint(const vector<DummyRecTrack> & ) const;
+  virtual GlobalPoint getLinearizationPoint(const vector<reco::TransientTrack> & ) const;
   virtual GlobalPoint getLinearizationPoint(const vector<FreeTrajectoryState> & ) const;
 
   virtual MonteCarloLinearizationPointFinder * clone() const

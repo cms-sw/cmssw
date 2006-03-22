@@ -1,7 +1,7 @@
 #include "RecoVertex/LinearizationPointFinders/interface/CrossingPtBasedLinearizationPointFinder.h"
 #include "RecoVertex/LinearizationPointFinders/interface/LinPtException.h"
 #include "RecoVertex/VertexTools/interface/TwoTrackMinimumDistance.h"
-#include "RecoVertex/VertexPrimitives/interface/DummyRecTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexTools/interface/ModeFinder3d.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "RecoVertex/LinearizationPointFinders/interface/FallbackLinearizationPointFinder.h"
@@ -115,15 +115,15 @@ CrossingPtBasedLinearizationPointFinder::~CrossingPtBasedLinearizationPointFinde
   delete theAlgo;
 };
 
-vector <DummyRecTrack> CrossingPtBasedLinearizationPointFinder::getBestTracks (
-    const vector<DummyRecTrack> & tracks ) const
+vector <reco::TransientTrack> CrossingPtBasedLinearizationPointFinder::getBestTracks (
+    const vector<reco::TransientTrack> & tracks ) const
 {
-  int n_tracks = 2*theNPairs < tracks.size() ? 2*theNPairs : tracks.size();
+  unsigned int n_tracks = 2*theNPairs < tracks.size() ? 2*theNPairs : tracks.size();
 
-  vector <DummyRecTrack> newtracks( n_tracks );
+  vector <reco::TransientTrack> newtracks( n_tracks );
 
   partial_sort_copy ( tracks.begin(), tracks.end(), newtracks.begin(),
-      newtracks.begin() + n_tracks  , CompareTwoDummyRecTracks() ); 
+      newtracks.begin() + n_tracks  , CompareTworeco::TransientTracks() ); 
 
   return newtracks;
 };
@@ -131,16 +131,16 @@ vector <DummyRecTrack> CrossingPtBasedLinearizationPointFinder::getBestTracks (
 typedef pair < GlobalPoint , float > PointAndDistance;
 
 GlobalPoint CrossingPtBasedLinearizationPointFinder::useAllTracks(
-    const vector<DummyRecTrack> & tracks ) const
+    const vector<reco::TransientTrack> & tracks ) const
 {
   vector< PointAndDistance > vgp;
   // vgp.reserve ( ( tracks.size() * ( tracks.size()-1 ) ) / 2 - 1 );
   TwoTrackMinimumDistance ttmd;
-  vector<DummyRecTrack>::const_iterator end=tracks.end();
-  vector<DummyRecTrack>::const_iterator endm1=(end-1);
-  for ( vector<DummyRecTrack>::const_iterator x=tracks.begin();
+  vector<reco::TransientTrack>::const_iterator end=tracks.end();
+  vector<reco::TransientTrack>::const_iterator endm1=(end-1);
+  for ( vector<reco::TransientTrack>::const_iterator x=tracks.begin();
        x!=endm1 ; ++x ) {
-    for ( vector<DummyRecTrack>::const_iterator y=x+1;
+    for ( vector<reco::TransientTrack>::const_iterator y=x+1;
         y!=end; ++y ) {
       try {
         pair < GlobalPoint, GlobalPoint > pts = ttmd.points
@@ -160,15 +160,15 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useAllTracks(
 };
 
 GlobalPoint CrossingPtBasedLinearizationPointFinder::useFullMatrix(
-    const vector<DummyRecTrack> & tracks ) const
+    const vector<reco::TransientTrack> & tracks ) const
 {
   vector< PointAndDistance > vgp;
   vgp.reserve ( (int) ( tracks.size() * ( tracks.size() -1 ) / 2. - 1 ) );
-  vector<DummyRecTrack>::const_iterator end=tracks.end();
-  vector<DummyRecTrack>::const_iterator endm1=(end-1);
-  for ( vector<DummyRecTrack>::const_iterator x=tracks.begin();
+  vector<reco::TransientTrack>::const_iterator end=tracks.end();
+  vector<reco::TransientTrack>::const_iterator endm1=(end-1);
+  for ( vector<reco::TransientTrack>::const_iterator x=tracks.begin();
        x!=endm1 ; ++x ) {
-    for ( vector<DummyRecTrack>::const_iterator y=x+1;
+    for ( vector<reco::TransientTrack>::const_iterator y=x+1;
         y!=end; ++y ) {
       PointAndDistance v ( theMatrix->crossingPoint ( *x , *y ),
           theMatrix->distance ( *x, *y ) );
@@ -202,7 +202,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::find (
 };
 
 GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
-    const vector<DummyRecTrack> & tracks ) const
+    const vector<reco::TransientTrack> & tracks ) const
 {
   if ( tracks.size() < 2 ) throw LinPtException
      ("CrossingPtBasedLinPtFinder: too few tracks given.");
@@ -229,7 +229,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
       return useAllTracks ( tracks );
     };
 
-    vector <DummyRecTrack> goodtracks = getBestTracks ( tracks );
+    vector <reco::TransientTrack> goodtracks = getBestTracks ( tracks );
 
     // we sort according to momenta.
     if ( goodtracks.size() < 2 ) throw LinPtException (
@@ -252,8 +252,8 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
 
     while ( vgp.size() < theNPairs )
     {
-      DummyRecTrack rt1 = goodtracks [ t_first ];
-      DummyRecTrack rt2 = goodtracks [ t_first + t_interval ];
+      reco::TransientTrack rt1 = goodtracks [ t_first ];
+      reco::TransientTrack rt2 = goodtracks [ t_first + t_interval ];
       // cout << "Considering now: " << t_first << ", " << t_first+t_interval << endl;
       if ( useMatrix ) {
         PointAndDistance v ( theMatrix->crossingPoint ( rt1, rt2 ),

@@ -1,5 +1,5 @@
 #include "RecoVertex/LinearizationPointFinders/interface/FallbackLinearizationPointFinder.h"
-#include "RecoVertex/VertexPrimitives/interface/DummyRecTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "RecoVertex/VertexTools/interface/FsmwModeFinder3d.h"
 
@@ -13,7 +13,7 @@ GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
 };
 
 GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
-    const vector<DummyRecTrack> & tracks ) const
+    const vector<reco::TransientTrack> & tracks ) const
 {
   try {
     switch ( tracks.size() )
@@ -26,7 +26,7 @@ GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
       {
         vector < pair < GlobalPoint, float > > wtracks;
         wtracks.reserve ( tracks.size() - 1 );
-        for ( vector< DummyRecTrack >::const_iterator i=tracks.begin(); 
+        for ( vector< reco::TransientTrack >::const_iterator i=tracks.begin(); 
               i!=tracks.end() ; ++i )
         {
           try {

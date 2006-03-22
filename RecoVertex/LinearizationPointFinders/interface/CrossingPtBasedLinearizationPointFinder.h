@@ -2,7 +2,7 @@
 #define CrossingPtBasedLinearizationPointFinder_H
 
 #include "RecoVertex/VertexTools/interface/LinearizationPointFinder.h"
-#include "RecoVertex/VertexPrimitives/interface/DummyRecTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexTools/interface/ModeFinder3d.h"
 #include "RecoVertex/VertexTools/interface/RecTracksDistanceMatrix.h"
 
@@ -49,7 +49,7 @@ public:
 
 /** Method giving back the Initial Linearization Point.
  */
-  virtual GlobalPoint getLinearizationPoint(const vector<DummyRecTrack> & ) const;
+  virtual GlobalPoint getLinearizationPoint(const vector<reco::TransientTrack> & ) const;
   virtual GlobalPoint getLinearizationPoint(const vector<FreeTrajectoryState> & ) const;
 
   virtual CrossingPtBasedLinearizationPointFinder * clone() const {
@@ -69,15 +69,15 @@ private:
 
   /** Private struct to order tracks by momentum
    */
-  struct CompareTwoDummyRecTracks {
-    int operator() ( const DummyRecTrack & a, const DummyRecTrack & b ) {
+  struct CompareTworeco::TransientTracks {
+    int operator() ( const reco::TransientTrack & a, const reco::TransientTrack & b ) {
        return a.impactPointState().globalMomentum().mag() >
               b.impactPointState().globalMomentum().mag();
     };
   };
-  vector <DummyRecTrack> getBestTracks ( const vector<DummyRecTrack> & ) const;
-  GlobalPoint useFullMatrix ( const vector<DummyRecTrack> & ) const;
-  GlobalPoint useAllTracks  ( const vector<DummyRecTrack> & ) const;
+  vector <reco::TransientTrack> getBestTracks ( const vector<reco::TransientTrack> & ) const;
+  GlobalPoint useFullMatrix ( const vector<reco::TransientTrack> & ) const;
+  GlobalPoint useAllTracks  ( const vector<reco::TransientTrack> & ) const;
 };
 
 #endif

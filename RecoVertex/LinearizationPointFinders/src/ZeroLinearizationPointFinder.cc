@@ -1,5 +1,5 @@
 #include "RecoVertex/LinearizationPointFinders/interface/ZeroLinearizationPointFinder.h"
-#include "RecoVertex/VertexPrimitives/interface/DummyRecTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 
 GlobalPoint ZeroLinearizationPointFinder::getLinearizationPoint(
@@ -9,7 +9,7 @@ GlobalPoint ZeroLinearizationPointFinder::getLinearizationPoint(
 };
 
 GlobalPoint ZeroLinearizationPointFinder::getLinearizationPoint(
-    const vector<DummyRecTrack> & tracks ) const
+    const vector<reco::TransientTrack> & tracks ) const
 {
   return GlobalPoint(0.,0.,0.);
 }
