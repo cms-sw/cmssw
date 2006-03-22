@@ -53,3 +53,7 @@ pre {
 .domain {
   width: 180px;
 }
+
+A.anchor:hover {
+  background-color: #ffffff;  
+}
