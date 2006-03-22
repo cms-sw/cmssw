@@ -57,7 +57,7 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
       XCEPT_RAISE (toolbox::fsm::exception::Exception, 
 		   e.what());
     }
-  catch((edm::Exception &e)
+  catch(edm::Exception &e)
     {
       XCEPT_RAISE (toolbox::fsm::exception::Exception, 
 		   e.what());
