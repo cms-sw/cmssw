@@ -1,2 +1,3 @@
 <use name=boost>
-<use name=CLHEP>
+<use name=clhep>
+<use name=root>
