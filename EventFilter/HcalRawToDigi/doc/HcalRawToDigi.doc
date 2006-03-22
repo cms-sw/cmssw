@@ -29,8 +29,8 @@ is accessed from the HcalDbService in the HcalDbRecord.
 
 \subsection interface Public interface
 
- - HcalDCCHeader.h : Interpret the raw HCAL data from the HCAL FED (DCC)
- - HcalHTRData.h : Helper class for interpretation of sub-fragments from a single main FPGA on a HTR board
+ - HcalDCCHeader : Interpret the raw HCAL data from the HCAL FED (DCC)
+ - HcalHTRData : Helper class for interpretation of sub-fragments from a single main FPGA on a HTR board
 
 \subsection modules Modules
 
