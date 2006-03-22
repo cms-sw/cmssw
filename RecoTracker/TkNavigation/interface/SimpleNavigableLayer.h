@@ -2,7 +2,7 @@
 #define TkNavigation_SimpleNavigableLayer_H
 
 #include "TrackingTools/DetLayers/interface/NavigableLayer.h"
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"

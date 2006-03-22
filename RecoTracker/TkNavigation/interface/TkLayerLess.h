@@ -1,7 +1,7 @@
 #ifndef TkNavigation_TkLayerLess_H
 #define TkNavigation_TkLayerLess_H
 
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "Geometry/Surface/interface/BoundCylinder.h"
