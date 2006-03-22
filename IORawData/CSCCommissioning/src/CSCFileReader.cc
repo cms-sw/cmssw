@@ -14,28 +14,32 @@
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
+#include <vector>
 #include <string>
 #include <iosfwd>
 #include <iostream>
 #include <algorithm>
-   
-using namespace std;
-using namespace edm;
 
-
+#include "FileReaderDDU.h"
+namespace ___CSC {
+	FileReaderDDU ddu;
+};
 
 CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
-	// Following code is stolen from IORawData/DTCommissioning
-	const std::string & filename = pset.getParameter<std::string>("fileName");
-	try {
-		___ddu.open(filename.c_str());
-	} catch ( std::runtime_error err ){
-		throw cms::Exception("InputFileMissing")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
-	}
+	// Get list of input files from .cfg file
+	fileNames   = pset.getUntrackedParameter< std::vector<std::string> >("fileNames");
+	currentFile = fileNames.begin();
+	if( currentFile != fileNames.end() ){
+		try {
+			___CSC::ddu.open(currentFile->c_str());
+		} catch ( std::runtime_error err ){
+			throw cms::Exception("InputFileMissing ")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
+		}
+	} else  throw cms::Exception("NoFilesSpecified for CSCFileReader");
 	// Filter out possible corruptions
-	___ddu.reject(FileReaderDDU::DDUoversize|FileReaderDDU::FFFF|FileReaderDDU::Unknown);
+	___CSC::ddu.reject(FileReaderDDU::DDUoversize|FileReaderDDU::FFFF|FileReaderDDU::Unknown);
 	// Do not select anything in particular
-	___ddu.select(0);
+	___CSC::ddu.select(0);
 }
 
 bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection& data){
@@ -45,16 +49,24 @@ bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRa
 
 	try {
 		// Read DDU record
-		length = ___ddu.next(dduBuf);
+		length = ___CSC::ddu.next(dduBuf);
 	} catch ( std::runtime_error err ){
 		throw cms::Exception("EndOfStream")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
 	}
 
-	if(!length) return false;
+	if( length==0 ){ // end of file, try next one
+		if( ++currentFile != fileNames.end() ){
+			try {
+				___CSC::ddu.open(currentFile->c_str());
+			} catch ( std::runtime_error err ){
+				throw cms::Exception("InputFileMissing ")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
+			}
+		} else return false;
+	}
 
 	int runNumber   = 0; // Unknown at the level of EMu local DAQ
 	int eventNumber = dduBuf[2] | ((dduBuf[3]&0x00FF)<<16); // L1A Number
-	eID = EventID(runNumber,eventNumber);
+	eID = edm::EventID(runNumber,eventNumber);
 
 	// Now let's pretend that DDU data were wrapped with DCC Header (2 64-bit words) and Trailer (2 64-bit words):
 	unsigned short dccBuf[200000+4*4], *dccHeader=dccBuf, *dccTrailer=dccBuf+4*2+length;
@@ -69,8 +81,8 @@ bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRa
     FEDRawData& fedRawData = data.FEDData( FEDNumbering::getCSCFEDIds().first );
     fedRawData.resize(length*sizeof(unsigned short));
 
-	copy(reinterpret_cast<unsigned char*>(dccBuf),
-		 reinterpret_cast<unsigned char*>(dccBuf+length), fedRawData.data());
+	std::copy(reinterpret_cast<unsigned char*>(dccBuf),
+			  reinterpret_cast<unsigned char*>(dccBuf+length), fedRawData.data());
 
 	return true;
 }

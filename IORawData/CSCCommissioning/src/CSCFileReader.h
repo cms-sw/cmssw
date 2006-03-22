@@ -3,11 +3,15 @@
 
 #include <IORawData/DaqSource/interface/DaqBaseReader.h>
 #include <DataFormats/Common/interface/EventID.h>
-#include "FileReaderDDU.h"
+
+#include <vector>
+#include <string>
 
 class CSCFileReader : public DaqBaseReader {
 private:
-  FileReaderDDU ___ddu;
+	std::vector<std::string> fileNames;
+	std::vector<std::string>::const_iterator currentFile;
+
 public:
 	bool fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection& data);
 
