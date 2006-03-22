@@ -73,7 +73,7 @@ CSCScaNoiseReader::~CSCScaNoiseReader() {
 
 
 vector<int>
-CSCScaNoiseReader::getNoise() const {
+CSCScaNoiseReader::getNoise(const CSCDetId & layer, int element) const {
   std::vector<int> result(N_SCA_BINS);
   int iEvent = (int) (RandFlat::shoot() * nStripEvents);
   // just to be safe, in case random  # is 1.

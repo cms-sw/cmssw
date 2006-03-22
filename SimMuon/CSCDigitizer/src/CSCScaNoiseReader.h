@@ -18,7 +18,7 @@ class CSCScaNoiseReader : public CSCScaNoiseGenerator {
   CSCScaNoiseReader();
   virtual ~CSCScaNoiseReader();
 
-  virtual std::vector<int> getNoise() const;
+  virtual std::vector<int> getNoise(const CSCDetId & layer, int element) const;
 
  public:
   int nStripEvents;
