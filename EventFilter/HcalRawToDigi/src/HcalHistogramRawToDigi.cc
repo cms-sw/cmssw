@@ -15,10 +15,10 @@ HcalHistogramRawToDigi::HcalHistogramRawToDigi(edm::ParameterSet const& conf):
   fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs")),
   firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first))
 {
-  std::cout << "HcalHistogramRawToDigi will unpack FEDs ";
+  std::ostringstream ss;
   for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
-    std::cout << fedUnpackList_[i] << " ";
-  std::cout << std::endl;
+    ss << fedUnpackList_[i] << " ";
+  edm::LogInfo("HCAL") << "HcalHistogramRawToDigi will unpack FEDs ( " << ss.str() << ")";
     
   // products produced...
   produces<HcalHistogramDigiCollection>();
