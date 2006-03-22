@@ -11,7 +11,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Thu Mar  9 17:29:31 CET 2006
-// $Id$
+// $Id: TrackProducer.h,v 1.1 2006/03/16 13:26:34 tboccali Exp $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -37,10 +37,6 @@ public:
 
 private:
   TrackCandidateCollection theTCCollection;//temporary: to be retrieved from the event
-
-  Propagator * thePropagator;
-  TrajectoryStateUpdator * theUpdator;
-  MeasurementEstimator * theEstimator;
 
   TrackProducerAlgorithm theAlgo;
   edm::ParameterSet conf_;

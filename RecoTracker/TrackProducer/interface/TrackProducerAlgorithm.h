@@ -8,7 +8,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Thu Mar  9 17:29:31 CET 2006
-// $Id$
+// $Id: TrackProducerAlgorithm.h,v 1.1 2006/03/16 13:26:34 tboccali Exp $
 //
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -18,7 +18,8 @@
 
 class MagneticField;
 class TrackingGeometry;
-class KFTrajectoryFitter;
+class TrajectoryFitter;
+class Propagator;
 
 class TrackProducerAlgorithm {
   
@@ -32,7 +33,9 @@ class TrackProducerAlgorithm {
   void run(const TrackingGeometry *, 
 	    const MagneticField *, 
 	    TrackCandidateCollection&,
-	    const KFTrajectoryFitter *,
+	    const TrajectoryFitter *,
+	    const Propagator *,
+
 	    std::auto_ptr<reco::TrackCollection>&, 
 	    std::auto_ptr<reco::TrackExtraCollection>&);
   

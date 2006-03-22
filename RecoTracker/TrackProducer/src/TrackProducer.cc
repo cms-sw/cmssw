@@ -12,11 +12,10 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 // constructors and destructor
 TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
@@ -36,42 +35,30 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   // create empty output collections
   std::auto_ptr<reco::TrackCollection> outputTColl;
   std::auto_ptr<reco::TrackExtraCollection> outputTEColl;
-
   //get geometry
   edm::ESHandle<TrackerGeometry> theG;
   setup.get<TrackerDigiGeometryRecord>().get(theG);
-
   //get magnetic field
   edm::ESHandle<MagneticField> theMF;
-  setup.get<IdealMagneticFieldRecord>().get(theMF);
-  
+  setup.get<IdealMagneticFieldRecord>().get(theMF);  
   //
-  // temporary!!!
+  // get the fitter from the ES
   //
-
-  //construct Propagator, Updator and Estimator
-  thePropagator = new  AnalyticalPropagator( theMF.product(), alongMomentum);
-  theUpdator = new KFUpdator();
-  theEstimator = new Chi2MeasurementEstimator(1., 3.);//parameters should come from parameter set
-  
-  //build the fitter
-  const KFTrajectoryFitter * theFitter = new KFTrajectoryFitter(thePropagator,theUpdator,theEstimator);
-
+  std::string fitterName = conf_.getParameter<std::string>("Fitter");   
+  edm::ESHandle<TrajectoryFitter> theFitter;
+  setup.get<TrackingComponentsRecord>().get(fitterName,theFitter);
+  //
+  // get also the propagator
+  //
+  std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
+  edm::ESHandle<Propagator> thePropagator;
+  setup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
   //run the algorithm  
-  theAlgo.run(theG.product(), theMF.product(), theTCCollection, theFitter, outputTColl, outputTEColl);
+  theAlgo.run(theG.product(), theMF.product(), theTCCollection, theFitter.product(), thePropagator.product(), outputTColl, outputTEColl);
 
   //put the TrackCollection and TrackExtraCollection in the event
   theEvent.put(outputTColl);
   theEvent.put(outputTEColl);
-
-  //
-  // temporary!
-  //
-
-  delete thePropagator;
-  delete theUpdator;
-  delete theEstimator;
-
 }
 
 //define this as a plug-in

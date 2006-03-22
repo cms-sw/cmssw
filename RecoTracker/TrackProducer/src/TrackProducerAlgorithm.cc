@@ -8,7 +8,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
-#include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -18,7 +18,8 @@
 void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 				 const MagneticField * theMF,
 				 TrackCandidateCollection& theTCCollection,
-				 const KFTrajectoryFitter * theFitter,
+				 const TrajectoryFitter * theFitter,
+				 const Propagator * thePropagator,
 				 std::auto_ptr<reco::TrackCollection>& tcoll,
 				 std::auto_ptr<reco::TrackExtraCollection>& tecoll)
 {
@@ -70,7 +71,7 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
       
       if (trajVec.size() != 0){
 	
-	tipe = new TransverseImpactPointExtrapolator(*theFitter->propagator());
+	tipe = new TransverseImpactPointExtrapolator(*thePropagator);
 	
 	theTraj = &( trajVec.front() );
 	
