@@ -5,6 +5,17 @@
 //
 // 1/10/06      mf, de  Created
 //
+// Changes:
+//
+//   1 - 3/22/06  mf  - in configure_dest()	
+//	Repaired the fact that destination limits for categories
+//	were not being effective:
+//	a) use values from the destination specific default PSet
+//	   rather than the overall default PSet to set these
+//	b) when an explicit value has been set - either by overall default or 
+//	   by a destination specific default PSet - set that limit or
+//	   timespan for that dest_ctrl via a "*" msgId.
+//
 // ----------------------------------------------------------------------
 
 
@@ -215,8 +226,12 @@ bool ELfwkJobReport::log( const edm::ErrorObj & msg )  {
 
   xid = msg.xid();      // Save the xid.
 
-  // See if this message is to be acted upon, and add it to limits table
-  // if it was not already present:
+  // Change log 1:  React ONLY to category FwkJob
+  if (xid.id != "FwkJob") return false;
+  
+  // See if this message is to be acted upon
+  // (this is redundant if we are reacting only to FwkJob)
+  // and add it to limits table if it was not already present:
   //
   if ( msg.xid().severity < threshold  )  return false;
   
