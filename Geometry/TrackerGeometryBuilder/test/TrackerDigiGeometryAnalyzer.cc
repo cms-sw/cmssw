@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.1 2006/03/15 16:38:45 fambrogl Exp $
+// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.2 2006/03/16 11:41:42 fambrogl Exp $
 //
 //
 
@@ -104,7 +104,7 @@ TrackerDigiGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
    edm::ESHandle<TrackerGeometry> pDD;
    iSetup.get<TrackerDigiGeometryRecord>().get( pDD );     
    edm::LogInfo("TrackerDigiGeometryAnalyzer")<< " Geometry node for TrackerGeom is  "<<&(*pDD);   
-   edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" I have "<<pDD->dets().size() <<" detectors";
+   edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" I have "<<pDD->detUnits().size() <<" detectors";
    edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" I have "<<pDD->detTypes().size() <<" types";
 
    for(TrackingGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
