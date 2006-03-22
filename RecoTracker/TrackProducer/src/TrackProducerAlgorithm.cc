@@ -113,46 +113,48 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 				   mom,
 				   cov);
 	
-	//build the TrackExtra
-	v = outertsos.globalParameters().position();
-	p = outertsos.globalParameters().momentum();
-	math::XYZVector outmom( p.x(), p.y(), p.z() );
-	math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
-	theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
+// 	//build the TrackExtra
+// 	v = outertsos.globalParameters().position();
+// 	p = outertsos.globalParameters().momentum();
+// 	math::XYZVector outmom( p.x(), p.y(), p.z() );
+// 	math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
+// 	theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
 
 
-	//fill the TrackExtra with TrackingRecHitRef	
-	int cc = 0;	
-	const edm::ProductID pid(0);
-	TrackingRecHitCollection trhcoll;//needed by OrphanHandle
-	for (edm::OwnVector<TransientTrackingRecHit>::iterator i=theTraj->recHits().begin();
-	     i!=theTraj->recHits().end(); i++){
-	  trhcoll.push_back(&(*i));
-	}
-	edm::OrphanHandle<TrackingRecHitCollection> trhcollOH(&trhcoll,pid);//needed by TrackingRecHitRef
-	for (TrackingRecHitCollection::const_iterator i=trhcollOH.product()->begin();
-	     i!=trhcollOH.product()->end(); i++){
-	  theTrackExtra->add(TrackingRecHitRef(trhcollOH,cc));
-	  cc++;
-	}
+// 	//fill the TrackExtra with TrackingRecHitRef	
+// 	int cc = 0;	
+// 	const edm::ProductID pid(0);
+// 	TrackingRecHitCollection trhcoll;//needed by OrphanHandle
+// 	for (edm::OwnVector<TransientTrackingRecHit>::iterator i=theTraj->recHits().begin();
+// 	     i!=theTraj->recHits().end(); i++){
+// 	  trhcoll.push_back(&(*i));
+// 	}
+// 	edm::OrphanHandle<TrackingRecHitCollection> trhcollOH(&trhcoll,pid);//needed by TrackingRecHitRef
+// 	for (TrackingRecHitCollection::const_iterator i=trhcollOH.product()->begin();
+// 	     i!=trhcollOH.product()->end(); i++){
+// 	  theTrackExtra->add(TrackingRecHitRef(trhcollOH,cc));
+// 	  cc++;
+// 	}
 
 	
-	//fill the TrackExtraCollection
-	tecoll->push_back(*theTrackExtra);
+// 	//fill the TrackExtraCollection
+// 	tecoll->push_back(*theTrackExtra);
+// 	edm::OrphanHandle <reco::TrackExtraCollection> tecollOH(tecoll.get(),pid);
 
-	edm::OrphanHandle <reco::TrackExtraCollection> tecollOH(tecoll.get(),pid);
-
-	//create a TrackExtraRef
-	reco::TrackExtraRef  theTrackExtraRef(tecollOH,cont);
+// 	//create a TrackExtraRef
+// 	reco::TrackExtraRef  theTrackExtraRef(tecollOH,cont);
 	
-	//use the TrackExtraRef to assign the TrackExtra to the Track
-	theTrack->setExtra(theTrackExtraRef);
+// 	//use the TrackExtraRef to assign the TrackExtra to the Track
+// 	theTrack->setExtra(theTrackExtraRef);
 	
-	//fill the TrackExtraCollection
-	tcoll->push_back(*theTrack);
+// 	//fill the TrackCollection
+// 	tcoll->push_back(*theTrack);
 
 	cont++;
       }
     }
+
+  std::cout << "Number of Tracks found: " << cont << std::endl;
+
 }
 
