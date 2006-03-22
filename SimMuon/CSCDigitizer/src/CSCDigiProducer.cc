@@ -12,7 +12,7 @@
 
 
 CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) {
-  theDigitizer = new CSCDigitizer();
+  theDigitizer = new CSCDigitizer(ps);
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");
