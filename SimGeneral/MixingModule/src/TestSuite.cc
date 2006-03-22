@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.8 2006/03/14 13:38:47 uberthon Exp $
+// $Id: TestSuite.cc,v 1.9 2006/03/16 16:14:45 uberthon Exp $
 //
 //
 
@@ -134,7 +134,8 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     TH1I * tofhist = new TH1I(tof,"TrackerHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
     sprintf(tof,"SignalTrackerHit_Tof_bcr_%d",bunchcr_);
     TH1I * tofhist_sig = new TH1I(tof,"TrackerHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
-    std::string subdet("TrackerHitsTECLowTof");
+    //    std::string subdet("TrackerHitsTECLowTof");
+    std::string subdet("TrackerHitsTIBLowTof");
     std::auto_ptr<MixCollection<PSimHit> > colsh(new MixCollection<PSimHit>(cf.product(),std::string(subdet)));
     MixCollection<PSimHit>::iterator cfish;
     for (cfish=colsh->begin(); cfish!=colsh->end();cfish++) {
