@@ -4,19 +4,16 @@
 #include <memory>
 
 #include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorMakerBase.h"
-// #include "SimG4Core/Notification/interface/SimActivityRegistryEnroller.h"
 
 template<class T>
 class EventVertexGeneratorMaker : public EventVertexGeneratorMakerBase
 {
    public:
       EventVertexGeneratorMaker(){}
-      //virtual std::auto_ptr<BaseEventVertexGenerator> make(const edm::ParameterSet& p,
-      //                          SimActivityRegistry& reg) const
-      virtual std::auto_ptr<BaseEventVertexGenerator> make(const edm::ParameterSet& p)
+      virtual std::auto_ptr<BaseEventVertexGenerator> 
+         make(const edm::ParameterSet& p, const long& seed)
       {
-	std::auto_ptr<T> returnValue(new T(p));
-	// SimActivityRegistryEnroller::enroll(reg, returnValue.get());
+	std::auto_ptr<T> returnValue(new T(p,seed));
 	return std::auto_ptr<BaseEventVertexGenerator>(returnValue);
       }
 };

@@ -1,7 +1,15 @@
 #include "IOMC/EventVertexGenerators/interface/BaseEventVertexGenerator.h"
 
-BaseEventVertexGenerator::BaseEventVertexGenerator(const edm::ParameterSet & p) 
-    : m_pBaseEventVertexGenerator(p) {}
+BaseEventVertexGenerator::BaseEventVertexGenerator(const edm::ParameterSet & p,
+                                                   const long& seed) 
+    : m_pBaseEventVertexGenerator(p)
+{
+   m_Engine = new HepJamesRandom(seed) ;
+}
 
-BaseEventVertexGenerator::~BaseEventVertexGenerator() {}
+BaseEventVertexGenerator::~BaseEventVertexGenerator() 
+{
+   if ( m_Engine != NULL ) delete m_Engine ;
+   m_Engine = 0 ;
+}
 

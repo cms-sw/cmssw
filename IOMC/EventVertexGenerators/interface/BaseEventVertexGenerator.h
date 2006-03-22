@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CLHEP/Vector/ThreeVector.h"
+#include "CLHEP/Random/JamesRandom.h"
 
 /**
  * An abstract base class for classes creating event vertices. 
@@ -13,7 +14,7 @@ class BaseEventVertexGenerator
 {
 public:
   /// constructor
-  BaseEventVertexGenerator(const edm::ParameterSet & p);
+  BaseEventVertexGenerator(const edm::ParameterSet & p, const long& seed);
   /// virtual destructor
   virtual ~BaseEventVertexGenerator();
   /// return a new event vertex
@@ -22,7 +23,9 @@ public:
    *  If no vertex has been generated yet, a NULL pointer is returned. */
   virtual Hep3Vector * lastVertex() = 0;
 private:
-   edm::ParameterSet m_pBaseEventVertexGenerator; 
+   edm::ParameterSet        m_pBaseEventVertexGenerator; 
+protected:
+   CLHEP::HepRandomEngine*  m_Engine ;
 };
 
 #endif
