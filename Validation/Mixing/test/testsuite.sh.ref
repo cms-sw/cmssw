@@ -1,7 +1,7 @@
 
 [oval run] =================================================
 [oval run] USER : uberthon
-[oval run] HOST : lxplus014.cern.ch
+[oval run] HOST : lxplus018.cern.ch
 [oval run] run tool: scramv1
 [oval run] final instruction: testsuite.sh
 [oval run] =================================================
@@ -9,608 +9,1010 @@
 ===================> preparing for -5
 executing MixingModule -5....
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:54:44 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:54:45 CET 
+       22-Mar-2006 10:59:20 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 10:59:21 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:54:45 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:54:45 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:54:45 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 10:59:21 CET 
        pre-events
 file:data/simevent.root   Always Root file version:50800
 file:data/simevent.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:54:48 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 10:59:25 CET 
        pre-events
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:54:48 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:54:48 CET 
+       22-Mar-2006 10:59:26 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 10:59:26 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:54:48 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:54:48 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 10:59:26 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:54:48 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 10:59:26 CET 
        pre-events
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:54:48 CET 
-       pre-events
+%MSG-i Constructor: Adding calo container  CaloHitsTk  for pileup treatment  
+       22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorBU  for pileup treatment  
+       22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorFI  for pileup treatment  
+       22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorPL  for pileup treatment  
+       22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorTU  for pileup treatment  
+       22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEB  for pileup treatment  
+       22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEE  for pileup treatment  
+       22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsES  for pileup treatment  
+       22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding calo container  HcalHits  for pileup treatment  
+       22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonCSCHits ,productID   12 
+        for pileup treatment  22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonDTHits ,productID   13 
+        for pileup treatment  22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonRPCHits ,productID   14 
+        for pileup treatment  22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelBarrelLowTof ,productID  
+       16  for pileup treatment  22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelEndcapLowTof ,productID  
+       18  for pileup treatment  22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTECLowTof ,productID  20 
+        for pileup treatment  22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIBLowTof ,productID  22 
+        for pileup treatment  22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIDLowTof ,productID  24 
+        for pileup treatment  22-Mar-2006 10:59:26 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTOBLowTof ,productID  26 
+        for pileup treatment  22-Mar-2006 10:59:26 CET pre-events
 %MSG-i FwkJob: WRITE_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:54:48 CET pre-events
-%MSG-i FwkJob: Output file is about to be opened.  14-Mar-2006 10:54:49 CET 
+       22-Mar-2006 10:59:26 CET pre-events
+%MSG-i FwkJob: Output file is about to be opened.  22-Mar-2006 10:59:26 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:Cum_-5.root  14-Mar-2006 10:54:49 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_-5.root  22-Mar-2006 10:59:26 CET pre-events
 file:Cum_-5.root   Always Root file version:50800
-%MSG-i FwkJob: Output file opened successfully.  14-Mar-2006 10:54:49 CET 
+%MSG-i FwkJob: Output file opened successfully.  22-Mar-2006 10:59:26 CET 
        pre-events
-%MSG-i PileUp: Adding pileup for event  run: 1 event: 1  MixingModule:mix 
-       14-Mar-2006 10:54:49 CET 1/1
 creating histos -5 ...
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:54:55 CET pre-events
-%MSG-w FwkJob: LFN:  Cum_-5.root  not found  14-Mar-2006 10:54:56 CET pre-events
-%MSG-w FwkJob: PFN defaulted:  file:Cum_-5.root  14-Mar-2006 10:54:56 CET 
+       22-Mar-2006 10:59:32 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 10:59:34 CET 
        pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:54:56 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:Cum_-5.root  14-Mar-2006 10:54:56 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_-5.root  22-Mar-2006 10:59:34 CET pre-events
 file:Cum_-5.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:54:59 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 10:59:37 CET 
        pre-events
 Constructed testSuite , bunchcr -5 filename: histos.root
 [OVAL] Mean of track pileup histo (bcrossings) 0
 [OVAL] Mean of track signal histo (bcrossings) -5
-[OVAL] Mean of track pileup histo (vtx indices) 50
-[OVAL] Mean of track signal histo (vtx indices) 50
+[OVAL] Mean of track pileup histo (vtx indices) 49.5
+[OVAL] Mean of track signal histo (vtx indices) 49.5
 [OVAL] Mean of vertex pileup histo (bcrossings) 0
 [OVAL] Mean of vertex signal histo (bcrossings) -5
-[OVAL] Mean of vertex pileup histo (track indices) 41
-[OVAL] Mean of vertex signal histo (track indices) 41
-[OVAL] Mean of tracker pileup histo (ToF) 29.1149
+[OVAL] Mean of vertex pileup histo (track indices) 0
+[OVAL] Mean of vertex signal histo (track indices) 0
+[OVAL] Mean of tracker pileup histo (ToF) 11.0449
 [OVAL] Mean of tracker signal histo (ToF) 0
  No signal for subdetector EcalHitsEB
-[OVAL] Mean of Ecal pileup histo (ToF) 0
-[OVAL] Mean of Ecal signal histo (ToF) 0
-[OVAL] Mean of Hcal pileup histo (ToF) 37.5155
-[OVAL] Mean of Hcal signal histo (ToF) -87.4845
+[OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0
+[OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0
+[OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+[OVAL] Mean of Hcal signal histo (ToF) -87.6744, sigma: 0.524735
 
 ===================> preparing for -4
 executing MixingModule -4....
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:55:05 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:55:06 CET 
+       22-Mar-2006 10:59:45 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 10:59:46 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:55:06 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:55:06 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:55:06 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 10:59:46 CET 
        pre-events
 file:data/simevent.root   Always Root file version:50800
 file:data/simevent.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:55:09 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 10:59:49 CET 
        pre-events
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:55:11 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:55:11 CET 
+       22-Mar-2006 10:59:51 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 10:59:51 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:55:11 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:55:11 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 10:59:51 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:55:11 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 10:59:51 CET 
        pre-events
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:55:11 CET 
-       pre-events
+%MSG-i Constructor: Adding calo container  CaloHitsTk  for pileup treatment  
+       22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorBU  for pileup treatment  
+       22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorFI  for pileup treatment  
+       22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorPL  for pileup treatment  
+       22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorTU  for pileup treatment  
+       22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEB  for pileup treatment  
+       22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEE  for pileup treatment  
+       22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsES  for pileup treatment  
+       22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding calo container  HcalHits  for pileup treatment  
+       22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonCSCHits ,productID   12 
+        for pileup treatment  22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonDTHits ,productID   13 
+        for pileup treatment  22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonRPCHits ,productID   14 
+        for pileup treatment  22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelBarrelLowTof ,productID  
+       16  for pileup treatment  22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelEndcapLowTof ,productID  
+       18  for pileup treatment  22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTECLowTof ,productID  20 
+        for pileup treatment  22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIBLowTof ,productID  22 
+        for pileup treatment  22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIDLowTof ,productID  24 
+        for pileup treatment  22-Mar-2006 10:59:51 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTOBLowTof ,productID  26 
+        for pileup treatment  22-Mar-2006 10:59:51 CET pre-events
 %MSG-i FwkJob: WRITE_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:55:11 CET pre-events
-%MSG-i FwkJob: Output file is about to be opened.  14-Mar-2006 10:55:11 CET 
+       22-Mar-2006 10:59:51 CET pre-events
+%MSG-i FwkJob: Output file is about to be opened.  22-Mar-2006 10:59:51 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:Cum_-4.root  14-Mar-2006 10:55:11 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_-4.root  22-Mar-2006 10:59:51 CET pre-events
 file:Cum_-4.root   Always Root file version:50800
-%MSG-i FwkJob: Output file opened successfully.  14-Mar-2006 10:55:11 CET 
+%MSG-i FwkJob: Output file opened successfully.  22-Mar-2006 10:59:52 CET 
        pre-events
-%MSG-i PileUp: Adding pileup for event  run: 1 event: 1  MixingModule:mix 
-       14-Mar-2006 10:55:11 CET 1/1
 creating histos -4 ...
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:55:17 CET pre-events
-%MSG-w FwkJob: LFN:  Cum_-4.root  not found  14-Mar-2006 10:55:18 CET pre-events
-%MSG-w FwkJob: PFN defaulted:  file:Cum_-4.root  14-Mar-2006 10:55:18 CET 
+       22-Mar-2006 10:59:59 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:00:00 CET 
        pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:55:18 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:Cum_-4.root  14-Mar-2006 10:55:18 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_-4.root  22-Mar-2006 11:00:00 CET pre-events
 file:Cum_-4.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:55:21 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:00:03 CET 
        pre-events
 Constructed testSuite , bunchcr -4 filename: histos.root
 [OVAL] Mean of track pileup histo (bcrossings) 0
 [OVAL] Mean of track signal histo (bcrossings) -4
-[OVAL] Mean of track pileup histo (vtx indices) 50
-[OVAL] Mean of track signal histo (vtx indices) 50
+[OVAL] Mean of track pileup histo (vtx indices) 49.5
+[OVAL] Mean of track signal histo (vtx indices) 49.5
 [OVAL] Mean of vertex pileup histo (bcrossings) 0
 [OVAL] Mean of vertex signal histo (bcrossings) -4
-[OVAL] Mean of vertex pileup histo (track indices) 41
-[OVAL] Mean of vertex signal histo (track indices) 41
-[OVAL] Mean of tracker pileup histo (ToF) 29.1149
+[OVAL] Mean of vertex pileup histo (track indices) 0
+[OVAL] Mean of vertex signal histo (track indices) 0
+[OVAL] Mean of tracker pileup histo (ToF) 11.0449
 [OVAL] Mean of tracker signal histo (ToF) 0
  No signal for subdetector EcalHitsEB
-[OVAL] Mean of Ecal pileup histo (ToF) 0
-[OVAL] Mean of Ecal signal histo (ToF) 0
-[OVAL] Mean of Hcal pileup histo (ToF) 37.5155
-[OVAL] Mean of Hcal signal histo (ToF) -62.4845
+[OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0
+[OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0
+[OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+[OVAL] Mean of Hcal signal histo (ToF) -62.6744, sigma: 0.524735
 
 ===================> preparing for -3
 executing MixingModule -3....
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:55:27 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:55:29 CET 
+       22-Mar-2006 11:00:11 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:00:12 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:55:29 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:55:29 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:55:29 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:00:12 CET 
        pre-events
 file:data/simevent.root   Always Root file version:50800
 file:data/simevent.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:55:32 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:00:16 CET 
        pre-events
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:55:33 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:55:33 CET 
+       22-Mar-2006 11:00:18 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:00:18 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:55:33 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:55:33 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:00:18 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:55:33 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:00:18 CET 
        pre-events
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:55:33 CET 
-       pre-events
+%MSG-i Constructor: Adding calo container  CaloHitsTk  for pileup treatment  
+       22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorBU  for pileup treatment  
+       22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorFI  for pileup treatment  
+       22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorPL  for pileup treatment  
+       22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorTU  for pileup treatment  
+       22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEB  for pileup treatment  
+       22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEE  for pileup treatment  
+       22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsES  for pileup treatment  
+       22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding calo container  HcalHits  for pileup treatment  
+       22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonCSCHits ,productID   12 
+        for pileup treatment  22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonDTHits ,productID   13 
+        for pileup treatment  22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonRPCHits ,productID   14 
+        for pileup treatment  22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelBarrelLowTof ,productID  
+       16  for pileup treatment  22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelEndcapLowTof ,productID  
+       18  for pileup treatment  22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTECLowTof ,productID  20 
+        for pileup treatment  22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIBLowTof ,productID  22 
+        for pileup treatment  22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIDLowTof ,productID  24 
+        for pileup treatment  22-Mar-2006 11:00:18 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTOBLowTof ,productID  26 
+        for pileup treatment  22-Mar-2006 11:00:18 CET pre-events
 %MSG-i FwkJob: WRITE_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:55:33 CET pre-events
-%MSG-i FwkJob: Output file is about to be opened.  14-Mar-2006 10:55:33 CET 
+       22-Mar-2006 11:00:18 CET pre-events
+%MSG-i FwkJob: Output file is about to be opened.  22-Mar-2006 11:00:18 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:Cum_-3.root  14-Mar-2006 10:55:33 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_-3.root  22-Mar-2006 11:00:18 CET pre-events
 file:Cum_-3.root   Always Root file version:50800
-%MSG-i FwkJob: Output file opened successfully.  14-Mar-2006 10:55:33 CET 
+%MSG-i FwkJob: Output file opened successfully.  22-Mar-2006 11:00:18 CET 
        pre-events
-%MSG-i PileUp: Adding pileup for event  run: 1 event: 1  MixingModule:mix 
-       14-Mar-2006 10:55:34 CET 1/1
 creating histos -3 ...
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:55:39 CET pre-events
-%MSG-w FwkJob: LFN:  Cum_-3.root  not found  14-Mar-2006 10:55:41 CET pre-events
-%MSG-w FwkJob: PFN defaulted:  file:Cum_-3.root  14-Mar-2006 10:55:41 CET 
+       22-Mar-2006 11:00:25 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:00:26 CET 
        pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:55:41 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:Cum_-3.root  14-Mar-2006 10:55:41 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_-3.root  22-Mar-2006 11:00:26 CET pre-events
 file:Cum_-3.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:55:44 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:00:29 CET 
        pre-events
 Constructed testSuite , bunchcr -3 filename: histos.root
 [OVAL] Mean of track pileup histo (bcrossings) 0
 [OVAL] Mean of track signal histo (bcrossings) -3
-[OVAL] Mean of track pileup histo (vtx indices) 50
-[OVAL] Mean of track signal histo (vtx indices) 50
+[OVAL] Mean of track pileup histo (vtx indices) 49.5
+[OVAL] Mean of track signal histo (vtx indices) 49.5
 [OVAL] Mean of vertex pileup histo (bcrossings) 0
 [OVAL] Mean of vertex signal histo (bcrossings) -3
-[OVAL] Mean of vertex pileup histo (track indices) 41
-[OVAL] Mean of vertex signal histo (track indices) 41
-[OVAL] Mean of tracker pileup histo (ToF) 29.1149
+[OVAL] Mean of vertex pileup histo (track indices) 0
+[OVAL] Mean of vertex signal histo (track indices) 0
+[OVAL] Mean of tracker pileup histo (ToF) 11.0449
 [OVAL] Mean of tracker signal histo (ToF) 0
  No signal for subdetector EcalHitsEB
-[OVAL] Mean of Ecal pileup histo (ToF) 0
-[OVAL] Mean of Ecal signal histo (ToF) 0
-[OVAL] Mean of Hcal pileup histo (ToF) 37.5155
-[OVAL] Mean of Hcal signal histo (ToF) -37.4845
+[OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0
+[OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0
+[OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+[OVAL] Mean of Hcal signal histo (ToF) -37.6744, sigma: 0.524735
 
 ===================> preparing for -2
 executing MixingModule -2....
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:55:50 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:55:51 CET 
+       22-Mar-2006 11:00:37 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:00:38 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:55:51 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:55:51 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:55:51 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:00:38 CET 
        pre-events
 file:data/simevent.root   Always Root file version:50800
 file:data/simevent.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:55:54 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:00:42 CET 
        pre-events
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:55:56 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:55:56 CET 
+       22-Mar-2006 11:00:44 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:00:44 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:55:56 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:55:56 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:00:44 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:55:56 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:00:44 CET 
        pre-events
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:55:56 CET 
-       pre-events
+%MSG-i Constructor: Adding calo container  CaloHitsTk  for pileup treatment  
+       22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorBU  for pileup treatment  
+       22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorFI  for pileup treatment  
+       22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorPL  for pileup treatment  
+       22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorTU  for pileup treatment  
+       22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEB  for pileup treatment  
+       22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEE  for pileup treatment  
+       22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsES  for pileup treatment  
+       22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding calo container  HcalHits  for pileup treatment  
+       22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonCSCHits ,productID   12 
+        for pileup treatment  22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonDTHits ,productID   13 
+        for pileup treatment  22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonRPCHits ,productID   14 
+        for pileup treatment  22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelBarrelLowTof ,productID  
+       16  for pileup treatment  22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelEndcapLowTof ,productID  
+       18  for pileup treatment  22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTECLowTof ,productID  20 
+        for pileup treatment  22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIBLowTof ,productID  22 
+        for pileup treatment  22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIDLowTof ,productID  24 
+        for pileup treatment  22-Mar-2006 11:00:44 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTOBLowTof ,productID  26 
+        for pileup treatment  22-Mar-2006 11:00:44 CET pre-events
 %MSG-i FwkJob: WRITE_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:55:56 CET pre-events
-%MSG-i FwkJob: Output file is about to be opened.  14-Mar-2006 10:55:56 CET 
+       22-Mar-2006 11:00:44 CET pre-events
+%MSG-i FwkJob: Output file is about to be opened.  22-Mar-2006 11:00:44 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:Cum_-2.root  14-Mar-2006 10:55:56 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_-2.root  22-Mar-2006 11:00:44 CET pre-events
 file:Cum_-2.root   Always Root file version:50800
-%MSG-i FwkJob: Output file opened successfully.  14-Mar-2006 10:55:56 CET 
+%MSG-i FwkJob: Output file opened successfully.  22-Mar-2006 11:00:44 CET 
        pre-events
-%MSG-i PileUp: Adding pileup for event  run: 1 event: 1  MixingModule:mix 
-       14-Mar-2006 10:55:56 CET 1/1
 creating histos -2 ...
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:56:02 CET pre-events
-%MSG-w FwkJob: LFN:  Cum_-2.root  not found  14-Mar-2006 10:56:03 CET pre-events
-%MSG-w FwkJob: PFN defaulted:  file:Cum_-2.root  14-Mar-2006 10:56:03 CET 
+       22-Mar-2006 11:00:51 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:00:52 CET 
        pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:56:03 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:Cum_-2.root  14-Mar-2006 10:56:03 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_-2.root  22-Mar-2006 11:00:52 CET pre-events
 file:Cum_-2.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:56:06 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:00:55 CET 
        pre-events
 Constructed testSuite , bunchcr -2 filename: histos.root
 [OVAL] Mean of track pileup histo (bcrossings) 0
 [OVAL] Mean of track signal histo (bcrossings) -2
-[OVAL] Mean of track pileup histo (vtx indices) 50
-[OVAL] Mean of track signal histo (vtx indices) 50
+[OVAL] Mean of track pileup histo (vtx indices) 49.5
+[OVAL] Mean of track signal histo (vtx indices) 49.5
 [OVAL] Mean of vertex pileup histo (bcrossings) 0
 [OVAL] Mean of vertex signal histo (bcrossings) -2
-[OVAL] Mean of vertex pileup histo (track indices) 41
-[OVAL] Mean of vertex signal histo (track indices) 41
-[OVAL] Mean of tracker pileup histo (ToF) 29.1149
-[OVAL] Mean of tracker signal histo (ToF) -20.8851
+[OVAL] Mean of vertex pileup histo (track indices) 0
+[OVAL] Mean of vertex signal histo (track indices) 0
+[OVAL] Mean of tracker pileup histo (ToF) 11.0449
+[OVAL] Mean of tracker signal histo (ToF) 0
  No signal for subdetector EcalHitsEB
-[OVAL] Mean of Ecal pileup histo (ToF) 0
-[OVAL] Mean of Ecal signal histo (ToF) 0
-[OVAL] Mean of Hcal pileup histo (ToF) 37.5155
-[OVAL] Mean of Hcal signal histo (ToF) -12.4845
+[OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0
+[OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0
+[OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+[OVAL] Mean of Hcal signal histo (ToF) -12.6744, sigma: 0.524735
 
 ===================> preparing for -1
 executing MixingModule -1....
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:56:12 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:56:13 CET 
+       22-Mar-2006 11:01:03 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:01:04 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:56:13 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:56:13 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:56:13 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:01:04 CET 
        pre-events
 file:data/simevent.root   Always Root file version:50800
 file:data/simevent.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:56:16 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:01:09 CET 
        pre-events
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:56:18 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:56:18 CET 
+       22-Mar-2006 11:01:11 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:01:11 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:56:18 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:56:18 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:01:11 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:56:18 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:01:11 CET 
        pre-events
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:56:18 CET 
-       pre-events
+%MSG-i Constructor: Adding calo container  CaloHitsTk  for pileup treatment  
+       22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorBU  for pileup treatment  
+       22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorFI  for pileup treatment  
+       22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorPL  for pileup treatment  
+       22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorTU  for pileup treatment  
+       22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEB  for pileup treatment  
+       22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEE  for pileup treatment  
+       22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsES  for pileup treatment  
+       22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding calo container  HcalHits  for pileup treatment  
+       22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonCSCHits ,productID   12 
+        for pileup treatment  22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonDTHits ,productID   13 
+        for pileup treatment  22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonRPCHits ,productID   14 
+        for pileup treatment  22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelBarrelLowTof ,productID  
+       16  for pileup treatment  22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelEndcapLowTof ,productID  
+       18  for pileup treatment  22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTECLowTof ,productID  20 
+        for pileup treatment  22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIBLowTof ,productID  22 
+        for pileup treatment  22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIDLowTof ,productID  24 
+        for pileup treatment  22-Mar-2006 11:01:11 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTOBLowTof ,productID  26 
+        for pileup treatment  22-Mar-2006 11:01:11 CET pre-events
 %MSG-i FwkJob: WRITE_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:56:18 CET pre-events
-%MSG-i FwkJob: Output file is about to be opened.  14-Mar-2006 10:56:18 CET 
+       22-Mar-2006 11:01:11 CET pre-events
+%MSG-i FwkJob: Output file is about to be opened.  22-Mar-2006 11:01:11 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:Cum_-1.root  14-Mar-2006 10:56:18 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_-1.root  22-Mar-2006 11:01:11 CET pre-events
 file:Cum_-1.root   Always Root file version:50800
-%MSG-i FwkJob: Output file opened successfully.  14-Mar-2006 10:56:18 CET 
+%MSG-i FwkJob: Output file opened successfully.  22-Mar-2006 11:01:11 CET 
        pre-events
-%MSG-i PileUp: Adding pileup for event  run: 1 event: 1  MixingModule:mix 
-       14-Mar-2006 10:56:18 CET 1/1
 creating histos -1 ...
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:56:24 CET pre-events
-%MSG-w FwkJob: LFN:  Cum_-1.root  not found  14-Mar-2006 10:56:25 CET pre-events
-%MSG-w FwkJob: PFN defaulted:  file:Cum_-1.root  14-Mar-2006 10:56:25 CET 
+       22-Mar-2006 11:01:18 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:01:20 CET 
        pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:56:25 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:Cum_-1.root  14-Mar-2006 10:56:25 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_-1.root  22-Mar-2006 11:01:20 CET pre-events
 file:Cum_-1.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:56:28 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:01:23 CET 
        pre-events
 Constructed testSuite , bunchcr -1 filename: histos.root
 [OVAL] Mean of track pileup histo (bcrossings) 0
 [OVAL] Mean of track signal histo (bcrossings) -1
-[OVAL] Mean of track pileup histo (vtx indices) 50
-[OVAL] Mean of track signal histo (vtx indices) 50
+[OVAL] Mean of track pileup histo (vtx indices) 49.5
+[OVAL] Mean of track signal histo (vtx indices) 49.5
 [OVAL] Mean of vertex pileup histo (bcrossings) 0
 [OVAL] Mean of vertex signal histo (bcrossings) -1
-[OVAL] Mean of vertex pileup histo (track indices) 41
-[OVAL] Mean of vertex signal histo (track indices) 41
-[OVAL] Mean of tracker pileup histo (ToF) 29.1149
-[OVAL] Mean of tracker signal histo (ToF) 4.11491
+[OVAL] Mean of vertex pileup histo (track indices) 0
+[OVAL] Mean of vertex signal histo (track indices) 0
+[OVAL] Mean of tracker pileup histo (ToF) 11.0449
+[OVAL] Mean of tracker signal histo (ToF) -13.9551
  No signal for subdetector EcalHitsEB
-[OVAL] Mean of Ecal pileup histo (ToF) 0
-[OVAL] Mean of Ecal signal histo (ToF) 0
-[OVAL] Mean of Hcal pileup histo (ToF) 37.5155
-[OVAL] Mean of Hcal signal histo (ToF) 12.5155
+[OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0
+[OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0
+[OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+[OVAL] Mean of Hcal signal histo (ToF) 12.3256, sigma: 0.524735
 
 ===================> preparing for 0
 executing MixingModule 0....
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:56:35 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:56:36 CET 
+       22-Mar-2006 11:01:31 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:01:32 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:56:36 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:56:36 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:56:36 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:01:32 CET 
        pre-events
 file:data/simevent.root   Always Root file version:50800
 file:data/simevent.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:56:39 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:01:36 CET 
        pre-events
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:56:40 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:56:40 CET 
+       22-Mar-2006 11:01:38 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:01:38 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:56:40 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:56:40 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:01:38 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:56:40 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:01:38 CET 
        pre-events
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:56:40 CET 
-       pre-events
+%MSG-i Constructor: Adding calo container  CaloHitsTk  for pileup treatment  
+       22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorBU  for pileup treatment  
+       22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorFI  for pileup treatment  
+       22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorPL  for pileup treatment  
+       22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorTU  for pileup treatment  
+       22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEB  for pileup treatment  
+       22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEE  for pileup treatment  
+       22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsES  for pileup treatment  
+       22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding calo container  HcalHits  for pileup treatment  
+       22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonCSCHits ,productID   12 
+        for pileup treatment  22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonDTHits ,productID   13 
+        for pileup treatment  22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonRPCHits ,productID   14 
+        for pileup treatment  22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelBarrelLowTof ,productID  
+       16  for pileup treatment  22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelEndcapLowTof ,productID  
+       18  for pileup treatment  22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTECLowTof ,productID  20 
+        for pileup treatment  22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIBLowTof ,productID  22 
+        for pileup treatment  22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIDLowTof ,productID  24 
+        for pileup treatment  22-Mar-2006 11:01:38 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTOBLowTof ,productID  26 
+        for pileup treatment  22-Mar-2006 11:01:38 CET pre-events
 %MSG-i FwkJob: WRITE_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:56:40 CET pre-events
-%MSG-i FwkJob: Output file is about to be opened.  14-Mar-2006 10:56:40 CET 
+       22-Mar-2006 11:01:38 CET pre-events
+%MSG-i FwkJob: Output file is about to be opened.  22-Mar-2006 11:01:38 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:Cum_0.root  14-Mar-2006 10:56:40 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_0.root  22-Mar-2006 11:01:38 CET pre-events
 file:Cum_0.root   Always Root file version:50800
-%MSG-i FwkJob: Output file opened successfully.  14-Mar-2006 10:56:40 CET 
+%MSG-i FwkJob: Output file opened successfully.  22-Mar-2006 11:01:38 CET 
        pre-events
-%MSG-i PileUp: Adding pileup for event  run: 1 event: 1  MixingModule:mix 
-       14-Mar-2006 10:56:41 CET 1/1
 creating histos 0 ...
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:56:46 CET pre-events
-%MSG-w FwkJob: LFN:  Cum_0.root  not found  14-Mar-2006 10:56:48 CET pre-events
-%MSG-w FwkJob: PFN defaulted:  file:Cum_0.root  14-Mar-2006 10:56:48 CET 
+       22-Mar-2006 11:01:44 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:01:46 CET 
        pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:56:48 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:Cum_0.root  14-Mar-2006 10:56:48 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_0.root  22-Mar-2006 11:01:46 CET pre-events
 file:Cum_0.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:56:51 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:01:49 CET 
        pre-events
 Constructed testSuite , bunchcr 0 filename: histos.root
 [OVAL] Mean of track pileup histo (bcrossings) 0
 [OVAL] Mean of track signal histo (bcrossings) 0
-[OVAL] Mean of track pileup histo (vtx indices) 50
-[OVAL] Mean of track signal histo (vtx indices) 50
+[OVAL] Mean of track pileup histo (vtx indices) 49.5
+[OVAL] Mean of track signal histo (vtx indices) 49.5
 [OVAL] Mean of vertex pileup histo (bcrossings) 0
 [OVAL] Mean of vertex signal histo (bcrossings) 0
-[OVAL] Mean of vertex pileup histo (track indices) 41
-[OVAL] Mean of vertex signal histo (track indices) 41
-[OVAL] Mean of tracker pileup histo (ToF) 29.1149
-[OVAL] Mean of tracker signal histo (ToF) 29.1149
+[OVAL] Mean of vertex pileup histo (track indices) 0
+[OVAL] Mean of vertex signal histo (track indices) 0
+[OVAL] Mean of tracker pileup histo (ToF) 11.0449
+[OVAL] Mean of tracker signal histo (ToF) 11.0449
  No signal for subdetector EcalHitsEB
-[OVAL] Mean of Ecal pileup histo (ToF) 0
-[OVAL] Mean of Ecal signal histo (ToF) 0
-[OVAL] Mean of Hcal pileup histo (ToF) 37.5155
-[OVAL] Mean of Hcal signal histo (ToF) 37.5155
+[OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0
+[OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0
+[OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+[OVAL] Mean of Hcal signal histo (ToF) 37.3256, sigma: 0.524735
 
 ===================> preparing for 1
 executing MixingModule 1....
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:56:57 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:56:58 CET 
+       22-Mar-2006 11:01:57 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:01:58 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:56:58 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:56:58 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:56:58 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:01:58 CET 
        pre-events
 file:data/simevent.root   Always Root file version:50800
 file:data/simevent.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:57:02 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:02:01 CET 
        pre-events
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:57:03 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:57:03 CET 
+       22-Mar-2006 11:02:03 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:02:03 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:57:03 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:57:03 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:02:03 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:57:03 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:02:03 CET 
        pre-events
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:57:03 CET 
-       pre-events
+%MSG-i Constructor: Adding calo container  CaloHitsTk  for pileup treatment  
+       22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorBU  for pileup treatment  
+       22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorFI  for pileup treatment  
+       22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorPL  for pileup treatment  
+       22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorTU  for pileup treatment  
+       22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEB  for pileup treatment  
+       22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEE  for pileup treatment  
+       22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsES  for pileup treatment  
+       22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding calo container  HcalHits  for pileup treatment  
+       22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonCSCHits ,productID   12 
+        for pileup treatment  22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonDTHits ,productID   13 
+        for pileup treatment  22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonRPCHits ,productID   14 
+        for pileup treatment  22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelBarrelLowTof ,productID  
+       16  for pileup treatment  22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelEndcapLowTof ,productID  
+       18  for pileup treatment  22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTECLowTof ,productID  20 
+        for pileup treatment  22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIBLowTof ,productID  22 
+        for pileup treatment  22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIDLowTof ,productID  24 
+        for pileup treatment  22-Mar-2006 11:02:03 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTOBLowTof ,productID  26 
+        for pileup treatment  22-Mar-2006 11:02:03 CET pre-events
 %MSG-i FwkJob: WRITE_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:57:03 CET pre-events
-%MSG-i FwkJob: Output file is about to be opened.  14-Mar-2006 10:57:03 CET 
+       22-Mar-2006 11:02:04 CET pre-events
+%MSG-i FwkJob: Output file is about to be opened.  22-Mar-2006 11:02:04 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:Cum_1.root  14-Mar-2006 10:57:03 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_1.root  22-Mar-2006 11:02:04 CET pre-events
 file:Cum_1.root   Always Root file version:50800
-%MSG-i FwkJob: Output file opened successfully.  14-Mar-2006 10:57:03 CET 
+%MSG-i FwkJob: Output file opened successfully.  22-Mar-2006 11:02:04 CET 
        pre-events
-%MSG-i PileUp: Adding pileup for event  run: 1 event: 1  MixingModule:mix 
-       14-Mar-2006 10:57:03 CET 1/1
 creating histos 1 ...
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:57:09 CET pre-events
-%MSG-w FwkJob: LFN:  Cum_1.root  not found  14-Mar-2006 10:57:11 CET pre-events
-%MSG-w FwkJob: PFN defaulted:  file:Cum_1.root  14-Mar-2006 10:57:11 CET 
+       22-Mar-2006 11:02:10 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:02:12 CET 
        pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:57:11 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:Cum_1.root  14-Mar-2006 10:57:11 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_1.root  22-Mar-2006 11:02:12 CET pre-events
 file:Cum_1.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:57:14 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:02:15 CET 
        pre-events
 Constructed testSuite , bunchcr 1 filename: histos.root
 [OVAL] Mean of track pileup histo (bcrossings) 0
 [OVAL] Mean of track signal histo (bcrossings) 1
-[OVAL] Mean of track pileup histo (vtx indices) 50
-[OVAL] Mean of track signal histo (vtx indices) 50
+[OVAL] Mean of track pileup histo (vtx indices) 49.5
+[OVAL] Mean of track signal histo (vtx indices) 49.5
 [OVAL] Mean of vertex pileup histo (bcrossings) 0
 [OVAL] Mean of vertex signal histo (bcrossings) 1
-[OVAL] Mean of vertex pileup histo (track indices) 41
-[OVAL] Mean of vertex signal histo (track indices) 41
-[OVAL] Mean of tracker pileup histo (ToF) 29.1149
+[OVAL] Mean of vertex pileup histo (track indices) 0
+[OVAL] Mean of vertex signal histo (track indices) 0
+[OVAL] Mean of tracker pileup histo (ToF) 11.0449
 [OVAL] Mean of tracker signal histo (ToF) 0
  No signal for subdetector EcalHitsEB
-[OVAL] Mean of Ecal pileup histo (ToF) 0
-[OVAL] Mean of Ecal signal histo (ToF) 0
-[OVAL] Mean of Hcal pileup histo (ToF) 37.5155
-[OVAL] Mean of Hcal signal histo (ToF) 62.5155
+[OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0
+[OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0
+[OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+[OVAL] Mean of Hcal signal histo (ToF) 62.3256, sigma: 0.524735
 
 ===================> preparing for 2
 executing MixingModule 2....
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:57:20 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:57:22 CET 
+       22-Mar-2006 11:02:22 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:02:24 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:57:22 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:57:22 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:57:22 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:02:24 CET 
        pre-events
 file:data/simevent.root   Always Root file version:50800
 file:data/simevent.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:57:25 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:02:27 CET 
        pre-events
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:57:26 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:57:26 CET 
+       22-Mar-2006 11:02:29 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:02:29 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:57:26 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:57:26 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:02:29 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:57:26 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:02:29 CET 
        pre-events
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:57:26 CET 
-       pre-events
+%MSG-i Constructor: Adding calo container  CaloHitsTk  for pileup treatment  
+       22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorBU  for pileup treatment  
+       22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorFI  for pileup treatment  
+       22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorPL  for pileup treatment  
+       22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorTU  for pileup treatment  
+       22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEB  for pileup treatment  
+       22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEE  for pileup treatment  
+       22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsES  for pileup treatment  
+       22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding calo container  HcalHits  for pileup treatment  
+       22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonCSCHits ,productID   12 
+        for pileup treatment  22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonDTHits ,productID   13 
+        for pileup treatment  22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonRPCHits ,productID   14 
+        for pileup treatment  22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelBarrelLowTof ,productID  
+       16  for pileup treatment  22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelEndcapLowTof ,productID  
+       18  for pileup treatment  22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTECLowTof ,productID  20 
+        for pileup treatment  22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIBLowTof ,productID  22 
+        for pileup treatment  22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIDLowTof ,productID  24 
+        for pileup treatment  22-Mar-2006 11:02:29 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTOBLowTof ,productID  26 
+        for pileup treatment  22-Mar-2006 11:02:29 CET pre-events
 %MSG-i FwkJob: WRITE_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:57:26 CET pre-events
-%MSG-i FwkJob: Output file is about to be opened.  14-Mar-2006 10:57:27 CET 
+       22-Mar-2006 11:02:29 CET pre-events
+%MSG-i FwkJob: Output file is about to be opened.  22-Mar-2006 11:02:29 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:Cum_2.root  14-Mar-2006 10:57:27 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_2.root  22-Mar-2006 11:02:29 CET pre-events
 file:Cum_2.root   Always Root file version:50800
-%MSG-i FwkJob: Output file opened successfully.  14-Mar-2006 10:57:27 CET 
+%MSG-i FwkJob: Output file opened successfully.  22-Mar-2006 11:02:29 CET 
        pre-events
-%MSG-i PileUp: Adding pileup for event  run: 1 event: 1  MixingModule:mix 
-       14-Mar-2006 10:57:27 CET 1/1
 creating histos 2 ...
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:57:33 CET pre-events
-%MSG-w FwkJob: LFN:  Cum_2.root  not found  14-Mar-2006 10:57:34 CET pre-events
-%MSG-w FwkJob: PFN defaulted:  file:Cum_2.root  14-Mar-2006 10:57:34 CET 
+       22-Mar-2006 11:02:36 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:02:37 CET 
        pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:57:34 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:Cum_2.root  14-Mar-2006 10:57:34 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_2.root  22-Mar-2006 11:02:37 CET pre-events
 file:Cum_2.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:57:38 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:02:41 CET 
        pre-events
 Constructed testSuite , bunchcr 2 filename: histos.root
 [OVAL] Mean of track pileup histo (bcrossings) 0
 [OVAL] Mean of track signal histo (bcrossings) 2
-[OVAL] Mean of track pileup histo (vtx indices) 50
-[OVAL] Mean of track signal histo (vtx indices) 50
+[OVAL] Mean of track pileup histo (vtx indices) 49.5
+[OVAL] Mean of track signal histo (vtx indices) 49.5
 [OVAL] Mean of vertex pileup histo (bcrossings) 0
 [OVAL] Mean of vertex signal histo (bcrossings) 2
-[OVAL] Mean of vertex pileup histo (track indices) 41
-[OVAL] Mean of vertex signal histo (track indices) 41
-[OVAL] Mean of tracker pileup histo (ToF) 29.1149
+[OVAL] Mean of vertex pileup histo (track indices) 0
+[OVAL] Mean of vertex signal histo (track indices) 0
+[OVAL] Mean of tracker pileup histo (ToF) 11.0449
 [OVAL] Mean of tracker signal histo (ToF) 0
  No signal for subdetector EcalHitsEB
-[OVAL] Mean of Ecal pileup histo (ToF) 0
-[OVAL] Mean of Ecal signal histo (ToF) 0
-[OVAL] Mean of Hcal pileup histo (ToF) 37.5155
-[OVAL] Mean of Hcal signal histo (ToF) 87.5155
+[OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0
+[OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0
+[OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+[OVAL] Mean of Hcal signal histo (ToF) 87.3256, sigma: 0.524735
 
 ===================> preparing for 3
 executing MixingModule 3....
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:57:44 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:57:46 CET 
+       22-Mar-2006 11:02:49 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:02:51 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:57:46 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:57:46 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:57:46 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:02:51 CET 
        pre-events
 file:data/simevent.root   Always Root file version:50800
 file:data/simevent.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:57:49 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:02:54 CET 
        pre-events
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:57:50 CET pre-events
-%MSG-w FwkJob: LFN:  data/simevent.root  not found  14-Mar-2006 10:57:50 CET 
+       22-Mar-2006 11:02:56 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:02:56 CET 
        pre-events
-%MSG-w FwkJob: PFN defaulted:  file:data/simevent.root  
-       14-Mar-2006 10:57:50 CET pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:57:50 CET 
+%MSG-i FwkJob: PFN:  file:data/simevent.root  22-Mar-2006 11:02:56 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:data/simevent.root  14-Mar-2006 10:57:50 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:02:56 CET 
        pre-events
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:57:50 CET 
-       pre-events
+%MSG-i Constructor: Adding calo container  CaloHitsTk  for pileup treatment  
+       22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorBU  for pileup treatment  
+       22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorFI  for pileup treatment  
+       22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorPL  for pileup treatment  
+       22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding calo container  CastorTU  for pileup treatment  
+       22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEB  for pileup treatment  
+       22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsEE  for pileup treatment  
+       22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding calo container  EcalHitsES  for pileup treatment  
+       22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding calo container  HcalHits  for pileup treatment  
+       22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonCSCHits ,productID   12 
+        for pileup treatment  22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonDTHits ,productID   13 
+        for pileup treatment  22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding simhit container  MuonRPCHits ,productID   14 
+        for pileup treatment  22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelBarrelLowTof ,productID  
+       16  for pileup treatment  22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsPixelEndcapLowTof ,productID  
+       18  for pileup treatment  22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTECLowTof ,productID  20 
+        for pileup treatment  22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIBLowTof ,productID  22 
+        for pileup treatment  22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTIDLowTof ,productID  24 
+        for pileup treatment  22-Mar-2006 11:02:56 CET pre-events
+%MSG-i Constructor: Adding container  TrackerHitsTOBLowTof ,productID  26 
+        for pileup treatment  22-Mar-2006 11:02:56 CET pre-events
 %MSG-i FwkJob: WRITE_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:57:50 CET pre-events
-%MSG-i FwkJob: Output file is about to be opened.  14-Mar-2006 10:57:50 CET 
+       22-Mar-2006 11:02:56 CET pre-events
+%MSG-i FwkJob: Output file is about to be opened.  22-Mar-2006 11:02:56 CET 
        pre-events
-%MSG-i FwkJob: PFN:  file:Cum_3.root  14-Mar-2006 10:57:50 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_3.root  22-Mar-2006 11:02:56 CET pre-events
 file:Cum_3.root   Always Root file version:50800
-%MSG-i FwkJob: Output file opened successfully.  14-Mar-2006 10:57:50 CET 
+%MSG-i FwkJob: Output file opened successfully.  22-Mar-2006 11:02:57 CET 
        pre-events
-%MSG-i PileUp: Adding pileup for event  run: 1 event: 1  MixingModule:mix 
-       14-Mar-2006 10:57:50 CET 1/1
 creating histos 3 ...
 %MSG-i FwkJob: READ_CATALOG:  file:PoolFileCatalog.xml  
-       14-Mar-2006 10:57:56 CET pre-events
-%MSG-w FwkJob: LFN:  Cum_3.root  not found  14-Mar-2006 10:57:58 CET pre-events
-%MSG-w FwkJob: PFN defaulted:  file:Cum_3.root  14-Mar-2006 10:57:58 CET 
+       22-Mar-2006 11:03:03 CET pre-events
+%MSG-i FwkJob: Input file is about to be opened.  22-Mar-2006 11:03:05 CET 
        pre-events
-%MSG-i FwkJob: Input file is about to be opened.  14-Mar-2006 10:57:58 CET 
-       pre-events
-%MSG-i FwkJob: PFN:  file:Cum_3.root  14-Mar-2006 10:57:58 CET pre-events
+%MSG-i FwkJob: PFN:  file:Cum_3.root  22-Mar-2006 11:03:05 CET pre-events
 file:Cum_3.root   Always Root file version:50800
-%MSG-i FwkJob: Input file opened successfully.  14-Mar-2006 10:58:01 CET 
+%MSG-i FwkJob: Input file opened successfully.  22-Mar-2006 11:03:08 CET 
        pre-events
 Constructed testSuite , bunchcr 3 filename: histos.root
 [OVAL] Mean of track pileup histo (bcrossings) 0
 [OVAL] Mean of track signal histo (bcrossings) 3
-[OVAL] Mean of track pileup histo (vtx indices) 50
-[OVAL] Mean of track signal histo (vtx indices) 50
+[OVAL] Mean of track pileup histo (vtx indices) 49.5
+[OVAL] Mean of track signal histo (vtx indices) 49.5
 [OVAL] Mean of vertex pileup histo (bcrossings) 0
 [OVAL] Mean of vertex signal histo (bcrossings) 3
-[OVAL] Mean of vertex pileup histo (track indices) 41
-[OVAL] Mean of vertex signal histo (track indices) 41
-[OVAL] Mean of tracker pileup histo (ToF) 29.1149
+[OVAL] Mean of vertex pileup histo (track indices) 0
+[OVAL] Mean of vertex signal histo (track indices) 0
+[OVAL] Mean of tracker pileup histo (ToF) 11.0449
 [OVAL] Mean of tracker signal histo (ToF) 0
  No signal for subdetector EcalHitsEB
-[OVAL] Mean of Ecal pileup histo (ToF) 0
-[OVAL] Mean of Ecal signal histo (ToF) 0
-[OVAL] Mean of Hcal pileup histo (ToF) 37.5155
-[OVAL] Mean of Hcal signal histo (ToF) 112.516
-166.600u 13.920s 3:25.22 87.9%	0+0k 0+0io 142973pf+0w
+[OVAL] Mean of Ecal pileup histo (ToF) 0, sigma: 0
+[OVAL] Mean of Ecal signal histo (ToF) 0, sigma: 0
+[OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+[OVAL] Mean of Hcal signal histo (ToF) 112.326, sigma: 0.524735
+190.330u 13.390s 3:58.48 85.4%	0+0k 0+0io 149353pf+0w
 
 [oval run] ==========================================
 [oval run] result: OK
 [oval run] ==========================================
+
+[oval diff] ================================================
+[oval diff] diff line: /^\[OVAL\](.*)$/
+[oval diff] ================================================
+
+=== log #85 != ref #85
+log: [OVAL] Mean of track pileup histo (vtx indices) 49.5
+log: [OVAL] Mean of track signal histo (vtx indices) 49.5
+---
+ref: [OVAL] Mean of track pileup histo (vtx indices) 50
+ref: [OVAL] Mean of track signal histo (vtx indices) 50
+=== log #89 != ref #89
+log: [OVAL] Mean of vertex pileup histo (track indices) 0
+log: [OVAL] Mean of vertex signal histo (track indices) 0
+log: [OVAL] Mean of tracker pileup histo (ToF) 11.0449
+---
+ref: [OVAL] Mean of vertex pileup histo (track indices) 41
+ref: [OVAL] Mean of vertex signal histo (track indices) 41
+ref: [OVAL] Mean of tracker pileup histo (ToF) 29.1149
+=== log #96 != ref #96
+log: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+log: [OVAL] Mean of Hcal signal histo (ToF) -87.6744, sigma: 0.524735
+---
+ref: [OVAL] Mean of Hcal pileup histo (ToF) 37.5155, sigma: 1.39875
+ref: [OVAL] Mean of Hcal signal histo (ToF) -87.4845, sigma: 1.39875
+=== log #175 != ref #175
+log: [OVAL] Mean of track pileup histo (vtx indices) 49.5
+log: [OVAL] Mean of track signal histo (vtx indices) 49.5
+---
+ref: [OVAL] Mean of track pileup histo (vtx indices) 50
+ref: [OVAL] Mean of track signal histo (vtx indices) 50
+=== log #179 != ref #179
+log: [OVAL] Mean of vertex pileup histo (track indices) 0
+log: [OVAL] Mean of vertex signal histo (track indices) 0
+log: [OVAL] Mean of tracker pileup histo (ToF) 11.0449
+---
+ref: [OVAL] Mean of vertex pileup histo (track indices) 41
+ref: [OVAL] Mean of vertex signal histo (track indices) 41
+ref: [OVAL] Mean of tracker pileup histo (ToF) 29.1149
+=== log #186 != ref #186
+log: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+log: [OVAL] Mean of Hcal signal histo (ToF) -62.6744, sigma: 0.524735
+---
+ref: [OVAL] Mean of Hcal pileup histo (ToF) 37.5155, sigma: 1.39875
+ref: [OVAL] Mean of Hcal signal histo (ToF) -62.4845, sigma: 1.39875
+=== log #265 != ref #265
+log: [OVAL] Mean of track pileup histo (vtx indices) 49.5
+log: [OVAL] Mean of track signal histo (vtx indices) 49.5
+---
+ref: [OVAL] Mean of track pileup histo (vtx indices) 50
+ref: [OVAL] Mean of track signal histo (vtx indices) 50
+=== log #269 != ref #269
+log: [OVAL] Mean of vertex pileup histo (track indices) 0
+log: [OVAL] Mean of vertex signal histo (track indices) 0
+log: [OVAL] Mean of tracker pileup histo (ToF) 11.0449
+---
+ref: [OVAL] Mean of vertex pileup histo (track indices) 41
+ref: [OVAL] Mean of vertex signal histo (track indices) 41
+ref: [OVAL] Mean of tracker pileup histo (ToF) 29.1149
+=== log #276 != ref #276
+log: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+log: [OVAL] Mean of Hcal signal histo (ToF) -37.6744, sigma: 0.524735
+---
+ref: [OVAL] Mean of Hcal pileup histo (ToF) 37.5155, sigma: 1.39875
+ref: [OVAL] Mean of Hcal signal histo (ToF) -37.4845, sigma: 1.39875
+=== log #355 != ref #355
+log: [OVAL] Mean of track pileup histo (vtx indices) 49.5
+log: [OVAL] Mean of track signal histo (vtx indices) 49.5
+---
+ref: [OVAL] Mean of track pileup histo (vtx indices) 50
+ref: [OVAL] Mean of track signal histo (vtx indices) 50
+=== log #359 != ref #359
+log: [OVAL] Mean of vertex pileup histo (track indices) 0
+log: [OVAL] Mean of vertex signal histo (track indices) 0
+log: [OVAL] Mean of tracker pileup histo (ToF) 11.0449
+log: [OVAL] Mean of tracker signal histo (ToF) 0
+---
+ref: [OVAL] Mean of vertex pileup histo (track indices) 41
+ref: [OVAL] Mean of vertex signal histo (track indices) 41
+ref: [OVAL] Mean of tracker pileup histo (ToF) 29.1149
+ref: [OVAL] Mean of tracker signal histo (ToF) -20.8851
+=== log #366 != ref #366
+log: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+log: [OVAL] Mean of Hcal signal histo (ToF) -12.6744, sigma: 0.524735
+---
+ref: [OVAL] Mean of Hcal pileup histo (ToF) 37.5155, sigma: 1.39875
+ref: [OVAL] Mean of Hcal signal histo (ToF) -12.4845, sigma: 1.39875
+=== log #445 != ref #445
+log: [OVAL] Mean of track pileup histo (vtx indices) 49.5
+log: [OVAL] Mean of track signal histo (vtx indices) 49.5
+---
+ref: [OVAL] Mean of track pileup histo (vtx indices) 50
+ref: [OVAL] Mean of track signal histo (vtx indices) 50
+=== log #449 != ref #449
+log: [OVAL] Mean of vertex pileup histo (track indices) 0
+log: [OVAL] Mean of vertex signal histo (track indices) 0
+log: [OVAL] Mean of tracker pileup histo (ToF) 11.0449
+log: [OVAL] Mean of tracker signal histo (ToF) -13.9551
+---
+ref: [OVAL] Mean of vertex pileup histo (track indices) 41
+ref: [OVAL] Mean of vertex signal histo (track indices) 41
+ref: [OVAL] Mean of tracker pileup histo (ToF) 29.1149
+ref: [OVAL] Mean of tracker signal histo (ToF) 4.11491
+=== log #456 != ref #456
+log: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+log: [OVAL] Mean of Hcal signal histo (ToF) 12.3256, sigma: 0.524735
+---
+ref: [OVAL] Mean of Hcal pileup histo (ToF) 37.5155, sigma: 1.39875
+ref: [OVAL] Mean of Hcal signal histo (ToF) 12.5155, sigma: 1.39875
+=== log #535 != ref #535
+log: [OVAL] Mean of track pileup histo (vtx indices) 49.5
+log: [OVAL] Mean of track signal histo (vtx indices) 49.5
+---
+ref: [OVAL] Mean of track pileup histo (vtx indices) 50
+ref: [OVAL] Mean of track signal histo (vtx indices) 50
+=== log #539 != ref #539
+log: [OVAL] Mean of vertex pileup histo (track indices) 0
+log: [OVAL] Mean of vertex signal histo (track indices) 0
+log: [OVAL] Mean of tracker pileup histo (ToF) 11.0449
+log: [OVAL] Mean of tracker signal histo (ToF) 11.0449
+---
+ref: [OVAL] Mean of vertex pileup histo (track indices) 41
+ref: [OVAL] Mean of vertex signal histo (track indices) 41
+ref: [OVAL] Mean of tracker pileup histo (ToF) 29.1149
+ref: [OVAL] Mean of tracker signal histo (ToF) 29.1149
+=== log #546 != ref #546
+log: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+log: [OVAL] Mean of Hcal signal histo (ToF) 37.3256, sigma: 0.524735
+---
+ref: [OVAL] Mean of Hcal pileup histo (ToF) 37.5155, sigma: 1.39875
+ref: [OVAL] Mean of Hcal signal histo (ToF) 37.5155, sigma: 1.39875
+=== log #625 != ref #625
+log: [OVAL] Mean of track pileup histo (vtx indices) 49.5
+log: [OVAL] Mean of track signal histo (vtx indices) 49.5
+---
+ref: [OVAL] Mean of track pileup histo (vtx indices) 50
+ref: [OVAL] Mean of track signal histo (vtx indices) 50
+=== log #629 != ref #629
+log: [OVAL] Mean of vertex pileup histo (track indices) 0
+log: [OVAL] Mean of vertex signal histo (track indices) 0
+log: [OVAL] Mean of tracker pileup histo (ToF) 11.0449
+---
+ref: [OVAL] Mean of vertex pileup histo (track indices) 41
+ref: [OVAL] Mean of vertex signal histo (track indices) 41
+ref: [OVAL] Mean of tracker pileup histo (ToF) 29.1149
+=== log #636 != ref #636
+log: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+log: [OVAL] Mean of Hcal signal histo (ToF) 62.3256, sigma: 0.524735
+---
+ref: [OVAL] Mean of Hcal pileup histo (ToF) 37.5155, sigma: 1.39875
+ref: [OVAL] Mean of Hcal signal histo (ToF) 62.5155, sigma: 1.39875
+=== log #715 != ref #715
+log: [OVAL] Mean of track pileup histo (vtx indices) 49.5
+log: [OVAL] Mean of track signal histo (vtx indices) 49.5
+---
+ref: [OVAL] Mean of track pileup histo (vtx indices) 50
+ref: [OVAL] Mean of track signal histo (vtx indices) 50
+=== log #719 != ref #719
+log: [OVAL] Mean of vertex pileup histo (track indices) 0
+log: [OVAL] Mean of vertex signal histo (track indices) 0
+log: [OVAL] Mean of tracker pileup histo (ToF) 11.0449
+---
+ref: [OVAL] Mean of vertex pileup histo (track indices) 41
+ref: [OVAL] Mean of vertex signal histo (track indices) 41
+ref: [OVAL] Mean of tracker pileup histo (ToF) 29.1149
+=== log #726 != ref #726
+log: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+log: [OVAL] Mean of Hcal signal histo (ToF) 87.3256, sigma: 0.524735
+---
+ref: [OVAL] Mean of Hcal pileup histo (ToF) 37.5155, sigma: 1.39875
+ref: [OVAL] Mean of Hcal signal histo (ToF) 87.5155, sigma: 1.39875
+=== log #805 != ref #805
+log: [OVAL] Mean of track pileup histo (vtx indices) 49.5
+log: [OVAL] Mean of track signal histo (vtx indices) 49.5
+---
+ref: [OVAL] Mean of track pileup histo (vtx indices) 50
+ref: [OVAL] Mean of track signal histo (vtx indices) 50
+=== log #809 != ref #809
+log: [OVAL] Mean of vertex pileup histo (track indices) 0
+log: [OVAL] Mean of vertex signal histo (track indices) 0
+log: [OVAL] Mean of tracker pileup histo (ToF) 11.0449
+---
+ref: [OVAL] Mean of vertex pileup histo (track indices) 41
+ref: [OVAL] Mean of vertex signal histo (track indices) 41
+ref: [OVAL] Mean of tracker pileup histo (ToF) 29.1149
+=== log #816 != ref #816
+log: [OVAL] Mean of Hcal pileup histo (ToF) 37.3256, sigma: 0.524735
+log: [OVAL] Mean of Hcal signal histo (ToF) 112.326, sigma: 0.524735
+---
+ref: [OVAL] Mean of Hcal pileup histo (ToF) 37.5155, sigma: 1.39875
+ref: [OVAL] Mean of Hcal signal histo (ToF) 112.516, sigma: 1.39875
+
+[oval diff] =========================================
+[oval diff] result: DIFFS
+[oval diff] =========================================
 
