@@ -16,9 +16,9 @@
 #include "OpticalAlignment/CocoaModel/interface/Model.h"
 #include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
 #include "OpticalAlignment/CocoaModel/interface/Entry.h"
+#include "OpticalAlignment/CocoaModel/interface/Measurement.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "math.h"
 
 
 CocoaToDDLMgr* CocoaToDDLMgr::instance = 0;
@@ -88,17 +88,15 @@ void CocoaToDDLMgr::writeSolids()
 {
   newSectPre_so("");
   
-  std::vector< OpticalObject* > optolist = Model::OptOList();
-  std::vector< OpticalObject* >::const_iterator ite;
+  static std::vector< OpticalObject* > optolist = Model::OptOList();
+  static std::vector< OpticalObject* >::const_iterator ite;
   for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    //---- write only distinct OptO's = with different ShortName
-    if( !findInPreviousOptOs( ite ) ) so( *ite );
+    so( *ite );
   }
   
   newSectPost_so("");
 
 }
-
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::writeLogicalVolumes()
@@ -108,8 +106,8 @@ void CocoaToDDLMgr::writeLogicalVolumes()
   static std::vector< OpticalObject* > optolist = Model::OptOList();
   static std::vector< OpticalObject* >::const_iterator ite;
   for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    //---- write only distinct OptO's = with different ShortName
-    if( !findInPreviousOptOs( ite ) ) lv( *ite );
+    //each OpticalObject is a distinct logical volume. This is so because two OptO's of the same type may have different optical properties and this optical properties are SpecPart's. And to have different values of an SpecPart they have to be different logical volumes
+    lv( *ite );
   }
   
   newSectPost_lv("");
@@ -161,6 +159,10 @@ void CocoaToDDLMgr::writeSpecPars()
   }
   
   writeSpecParsCocoa();
+
+  //---- Write Measurements's
+  measurementsAsSpecPars();
+
 
   newSectPost_specPar("");
 
@@ -216,7 +218,7 @@ void CocoaToDDLMgr::ma(CocoaMaterialElementary* ma)
   cout << "  ma:" << ma->getName() << std::endl;
 #endif
   
-  ALIfloat density             = ma->getDensity();///g*cm3;
+  ALIfloat density       = ma->getDensity();///g*cm3;
   
   // start tag
   file_ << "  <ElementaryMaterial";
@@ -261,11 +263,11 @@ void CocoaToDDLMgr::newSectPre_so(std::string name)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::so(OpticalObject * opto) 
 {
-  std::string name = (opto->shortName());
+  std::string name = scrubString(opto->name());
 
   if( opto->type() == "system" ){
     //    file_ << " <Box name=\"" << name << "\"";
-    file_ << " <Box name=\"" << name << "\"";
+    file_ << " <Box name=\"" << opto->name() << "\"";
     file_ << " dx=\"0.*m" 
 	  << "\" dy=\"0.*m" 
 	  << "\" dz=\"0.*m" 
@@ -451,17 +453,17 @@ void CocoaToDDLMgr::newSectPre_lv(std::string name)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::lv(OpticalObject * opto)
 { 
-  std::string name = opto->shortName();
-  //  name = scrubString(name);
-  std::string rSolid = opto->shortName();
-  //  rSolid = scrubString(rSolid);
+  std::string name = opto->name();
+  name = scrubString(name);
+  std::string rSolid = opto->name();
+  rSolid = scrubString(rSolid);
   std::string sensitive = "unspecified";
 
   if( opto->type() == "system" ){
     file_ << " <LogicalPart name=\"" 
 	  <<  name << "\" category=\"" << sensitive << "\">" << std::endl
 	  << "  <rSolid name=\"" << rSolid << "\"/>" << std::endl
-	  << "  <rMaterial name=\"Hydrogen\"" 
+	  << "  <rMaterial name=\"NONE\"" 
 	  << "/>" << std::endl
 	  << " </LogicalPart>" << std::endl;			
     return;
@@ -501,25 +503,22 @@ void CocoaToDDLMgr::newSectPre_pv(std::string name)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::pv(OpticalObject * opto)
 {
-#ifdef gdebug_v
-  cout << "  pv:" << opto->name() 
-       << ':' << opto->parent()->name() << std::endl;
-#endif
+   #ifdef gdebug_v
+    cout << "  pv:" << opto->name() 
+	 << ':' << opto->parent()->name() << std::endl;
+   #endif
 
-  //  int copyNo = findCopyNo( opto ); 
-  int copyNo = 1; 
-   
     //   file_ << " <PosPart copyNumber=\"" << pv->GetCopyNo() << "\">" << std::endl; 
-   file_ << " <PosPart copyNumber=\"" << copyNo << "\">" << std::endl; 
+   file_ << " <PosPart copyNumber=\"" << "1" << "\">" << std::endl; 
    file_ << "   <rParent name=\"";
 
    //t   if (file!=filename_) file_ << file << ":";
    
-   file_ << ( opto->parent()->shortName()) << "\"/>" << std::endl;
+   file_ << scrubString( opto->parent()->name()) << "\"/>" << std::endl;
 
    file_ << "   <rChild name=\""; 
    //t  if (file_d != filename_)  file_<<  file_d << ":"; 	
-   file_ << (opto->shortName()) ;	
+   file_ << scrubString(opto->name()) ;	
    file_ << "\"/>" << std::endl;
    
    int rotNumber = buildRotationNumber( opto );
@@ -604,8 +603,8 @@ void CocoaToDDLMgr::newSectPre_specPar(std::string name)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::specPar(OpticalObject * opto)
 {
-  
-  file_ << " <SpecPar name=\"//" << opto->name() << "\">" << std::endl;
+  file_ << " <SpecPar name=\"" << opto->name() << "_EXTRA_ENTRIES\">" << std::endl;
+  file_ << "    <PartSelector path=\"//" << opto->name() << "\"/> " << std::endl;
   const std::vector< Entry* > coord = opto->CoordinateEntryList();
   for( int ii=0; ii<6; ii++ ){
     Entry* ent = coord[ii];
@@ -621,8 +620,9 @@ void CocoaToDDLMgr::specPar(OpticalObject * opto)
   
   const std::vector< Entry* > extraEnt = opto->ExtraEntryList();
   for( int ii=0; ii<extraEnt.size(); ii++ ){
-    Entry* ent = extraEnt[ii];    file_ << "   <Parameter name=\"OptiProp_name=" << ent->name() << "\" value=\"0.\" /> " << std::endl;
-    file_ << "   <Parameter name=\"OptiProp_" << ent->name() + std::string("_dimType=") + ent->type() << "\" value=\"0.\" /> " << std::endl;
+    Entry* ent = extraEnt[ii]; 
+    file_ << "   <Parameter name=\"OptiProp_name\"" << " value=\"" << ent->name() << "\"  eval=\"false\" /> " << std::endl;
+    file_ << "   <Parameter name=\"OptiProp_" << ent->name() + std::string("_dimType\"")  << " value=\"" << ent->type() << "\"  eval=\"false\" /> " << std::endl;
     file_ << "   <Parameter name=\"OptiProp_" << ent->name() + std::string("_value") << "\" value=\"";
     if( ent->type() == "nodim" ) {
       file_ << ent->value();
@@ -648,6 +648,29 @@ void CocoaToDDLMgr::specPar(OpticalObject * opto)
 
   file_ << " </SpecPar>" << std::endl;
   
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void CocoaToDDLMgr::measurementsAsSpecPars()
+{
+  
+  std::vector< Measurement* > measlist = Model::MeasurementList();
+  std::vector< Measurement* >::iterator mite;
+  std::vector<ALIstring>::iterator site;
+
+  for( mite = measlist.begin(); mite != measlist.end(); mite++ ) {
+    std::vector<ALIstring> namelist = (*mite)->OptONameList();
+    std::vector<OpticalObject*> optolist = (*mite)->OptOList();
+    OpticalObject* opto = optolist[optolist.size()-1];
+    file_ << " <SpecPar name=\"" << opto->name() << "_MEASUREMENT\">" << std::endl;
+    file_ << "   <PartSelector path=\"//" << opto->name() << "\"/> " << std::endl;
+    for( site = namelist.begin(); site != namelist.end(); site++ ){     
+      file_ << "   <Parameter name=\"" << std::string("meas_name") << "\" value=\"" << scrubString(*site) << "\"  eval=\"false\" /> " << std::endl;
+    }
+
+    file_ << " </SpecPar>" << std::endl;
+
+  }
 }
 
 
@@ -710,31 +733,12 @@ ALIbool CocoaToDDLMgr::materialIsRepeated( CocoaMaterialElementary* ma )
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-bool CocoaToDDLMgr::findInPreviousOptOs( std::vector< OpticalObject* >::const_iterator itePrev )
-{
-  bool bFound = false;
-
-  std::vector< OpticalObject* >::const_iterator ite;
-  std::vector< OpticalObject* > optolist = Model::OptOList();
-  for(ite = optolist.begin(); *ite != *itePrev; ite++ ){
-    if( (*ite)->shortName() == (*itePrev)->shortName() ){
-      std::cout << " CocoaToDDLMgr::findInPreviousOptOs true " << (*ite)->name() << " " << (*itePrev)->name() << std::endl;
-      bFound = true;
-      break;
-    }
-  }
-  
-  return bFound;
-}
-
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 std::string CocoaToDDLMgr::scrubString(const std::string& s)
 {
   std::string::const_iterator ampat;
   static const std::string amp = "_"; //"&amp;";
   std::string ret = "";
-  for (ampat = s.begin(); ampat != s.end(); ampat++)
+  for (ampat = s.begin(); ampat !=  s.end(); ampat++)
     {
      if (*ampat == '&')
        ret = ret + amp;
@@ -744,7 +748,6 @@ std::string CocoaToDDLMgr::scrubString(const std::string& s)
        ret = ret + '_';
      else
        ret = ret + *ampat;
-     std::cout << s << "scrubString adding " << ret << " " << *ampat << std::endl;
     }
   // this works when used alone.  when in this file it fails.  i don't know why.
   //for (ampat = s.begin(); ampat != s.end(); ampat++)
