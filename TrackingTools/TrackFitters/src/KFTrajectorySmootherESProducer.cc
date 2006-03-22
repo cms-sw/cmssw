@@ -40,9 +40,9 @@ KFTrajectorySmootherESProducer::produce(const TrackingComponentsRecord & iRecord
   edm::ESHandle<TrajectoryStateUpdator> upd;
   edm::ESHandle<Chi2MeasurementEstimatorBase> est;
 
-  iRecord.get( prop);
-  iRecord.get( upd);
-  iRecord.get( est);
+  iRecord.get(pname, prop);
+  iRecord.get(uname, upd);
+  iRecord.get(ename, est);
 
   _smoother  = boost::shared_ptr<TrajectorySmoother>(new KFTrajectorySmoother(prop.product(), upd.product(), est.product()));
   return _smoother;
