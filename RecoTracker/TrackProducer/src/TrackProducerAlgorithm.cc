@@ -6,6 +6,7 @@
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -117,11 +118,27 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 	math::XYZVector outmom( p.x(), p.y(), p.z() );
 	math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
 	theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
+
+
+	//fill the TrackExtra with TrackingRecHitRef	
+	int cc = 0;	
+	const edm::ProductID pid(0);
+	TrackingRecHitCollection trhcoll;//needed by OrphanHandle
+	for (edm::OwnVector<TransientTrackingRecHit>::iterator i=theTraj->recHits().begin();
+	     i!=theTraj->recHits().end(); i++){
+	  trhcoll.push_back(&(*i));
+	}
+	edm::OrphanHandle<TrackingRecHitCollection> trhcollOH(&trhcoll,pid);//needed by TrackingRecHitRef
+	for (TrackingRecHitCollection::const_iterator i=trhcollOH.product()->begin();
+	     i!=trhcollOH.product()->end(); i++){
+	  theTrackExtra->add(TrackingRecHitRef(trhcollOH,cc));
+	  cc++;
+	}
+
 	
 	//fill the TrackExtraCollection
 	tecoll->push_back(*theTrackExtra);
 
-	const edm::ProductID pid(0);
 	edm::OrphanHandle <reco::TrackExtraCollection> tecollOH(tecoll.get(),pid);
 
 	//create a TrackExtraRef
