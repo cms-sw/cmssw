@@ -21,7 +21,7 @@ const float MultipleScatteringParametrisation::x0ToSigma = 0.0136;
 //using namespace PixelRecoUtilities;
 //----------------------------------------------------------------------
 MultipleScatteringParametrisation::
-    MultipleScatteringParametrisation( const DetLayer* layer, X0Source x0Source)
+MultipleScatteringParametrisation( const DetLayer* layer,const edm::EventSetup &iSetup, X0Source x0Source)
  
 {
   switch (x0Source) {
@@ -45,7 +45,7 @@ MultipleScatteringParametrisation::
     cout << "** MultipleScatteringParametrisation ** wrong x0Source"<<endl;
     return;
   }
-  theLayerKeeper->init();
+  theLayerKeeper->init(iSetup);
   if (!layer) return;
   theLayer = theLayerKeeper->layer(layer);
 } 

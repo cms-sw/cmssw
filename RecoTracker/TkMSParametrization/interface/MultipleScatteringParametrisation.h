@@ -7,6 +7,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/MSLayer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 class MSLayersKeeper;
 class PixelRecoPointRZ;
@@ -22,6 +23,7 @@ public:
   enum Consecutive { notAssumeConsecutive, useConsecutive };
 
   MultipleScatteringParametrisation( const DetLayer* layer, 
+				     const edm::EventSetup &iSetup,
                                      X0Source x0source = useX0AtEta);
 
 
