@@ -17,7 +17,7 @@ InnerDeltaPhi::InnerDeltaPhi( const DetLayer& layer,
 
   theRCurvature = PixelRecoUtilities::bendingRadius(ptMin,iSetup);
 
-  sigma = new MultipleScatteringParametrisation(&layer);
+  sigma = new MultipleScatteringParametrisation(&layer,iSetup);
 
   theVtxZ = (zMinOrigin + zMaxOrigin)/2.;
 

@@ -26,7 +26,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   typedef OrderedHitPair::InnerHit InnerHit;
   typedef OrderedHitPair::OuterHit OuterHit;
 
- 
+  cout<<"d1"<<endl;
 
   const LayerHitMap & innerHitsMap = theLayerCache(theInnerLayer, region,iSetup);
   if (innerHitsMap.empty()) return;
@@ -36,7 +36,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 
   innerlay=theInnerLayer->layer();
   outerlay=theOuterLayer->layer();
-
+ cout<<"d2"<<endl;
   
   float outerHitErrorRPhi = (outerlay->part() == barrel) ?
       TrackingRegionBase::hitErrRPhi(
@@ -53,7 +53,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 			 zMinOrigin, zMaxOrigin,iSetup);
 
   float rzLayer1, rzLayer2;
-
+ cout<<"d3"<<endl;
   
   if (innerlay->part() == barrel) {
     const BarrelDetLayer& bl = 
@@ -70,20 +70,22 @@ void HitPairGeneratorFromLayerPair::hitPairs(
     rzLayer1 = zLayer-halfThickness;
     rzLayer2 = zLayer+halfThickness;
   }
-
+cout<<"d4"<<endl;
   const TkHitPairsCachedHit * oh;
   LayerHitMapLoop outerHits = outerHitsMap.loop();
 //  static TimingReport::Item * theTimer1 =
 //        PixelRecoUtilities::initTiming("--- outerHitloop ",1);
 //  TimeMe tm1( *theTimer1, false);
- 
+ cout<<"d5"<<endl;
   while ( (oh=outerHits.getHit()) ) {
-  
+   cout<<"q1"<<endl;
     float dphi = deltaPhi( (*oh).r(), (*oh).z(), outerHitErrorRPhi);
   
     if (dphi < 0.) continue;
     PixelRecoRange<float> phiRange((*oh).phi()-dphi,(*oh).phi()+dphi);
+  cout<<"q2"<<endl;
     const HitRZCompatibility *checkRZ = region.checkRZ(&(*innerlay), oh->RecHit(),iSetup);
+  cout<<"q3"<<endl;
     if(!checkRZ) continue;
  
     Range r1 = checkRZ->range(rzLayer1);
@@ -91,11 +93,11 @@ void HitPairGeneratorFromLayerPair::hitPairs(
     Range rzRangeMin = r1.intersection(r2);
     Range rzRangeMax = r1.sum(r2);
  
-
+ cout<<"d6"<<endl;
     if ( ! rzRangeMax.empty() ) { 
       LayerHitMapLoop innerHits = innerHitsMap.loop(phiRange, rzRangeMax );
       const TkHitPairsCachedHit * ih;
- 
+  cout<<"h1"<<endl;
 //    static TimingReport::Item * theTimer4 =
 //      PixelRecoUtilities::initTiming("--- innerHitloop 4",1);
 //    TimeMe tm4( *theTimer4, false);
@@ -107,9 +109,14 @@ void HitPairGeneratorFromLayerPair::hitPairs(
         }
       } 
       else {
+
         bool inSafeRange = true;
+	cout<<"h2"<<endl;
         innerHits.setSafeRzRange(rzRangeMin, &inSafeRange);
+	cout<<"h21"<<endl;
         while ( (ih=innerHits.getHit()) ) {
+	  cout<<"h3 "<<endl;
+	  cout<<inSafeRange<<" "<<(*checkRZ)( ih->r(), ih->z())<<endl;
           if (inSafeRange || (*checkRZ)( ih->r(), ih->z()) )  
 	    result.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
           inSafeRange = true;

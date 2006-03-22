@@ -79,7 +79,10 @@ LayerHitMapLoop LayerHitMap::loop() const
 
 LayerHitMapLoop LayerHitMap::loop(
     const Range & phiRange, const Range & rzRange) const
-  { if(!theCells) initCells(); return LayerHitMapLoop(*this,phiRange,rzRange); }
+{ std::cout<<"l1"<<std::endl;
+    if(!theCells) initCells();
+  std::cout<<"l2"<<std::endl;
+    return LayerHitMapLoop(*this,phiRange,rzRange); }
 
 void LayerHitMap::initCells() const
 {

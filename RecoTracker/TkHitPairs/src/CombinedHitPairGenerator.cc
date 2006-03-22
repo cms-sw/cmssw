@@ -10,6 +10,7 @@
 CombinedHitPairGenerator::CombinedHitPairGenerator(SeedLayerPairs& layers,
 						   const edm::EventSetup& iSetup)
 {
+ cout<<"f1"<<endl;
   vector<SeedLayerPairs::LayerPair> layerPairs = layers();
   vector<SeedLayerPairs::LayerPair>::const_iterator it;
   for (it = layerPairs.begin(); it != layerPairs.end(); it++) {
