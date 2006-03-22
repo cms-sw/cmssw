@@ -15,21 +15,21 @@
 vector<SeedLayerPairs::LayerPair> PixelSeedLayerPairs::operator()() 
 {
   vector<LayerPair> result;
-  cout<<"b5"<<endl;
+
   //seeds from the barrel
   result.push_back( LayerPair(lh1,lh2));
-//   result.push_back( LayerPair(lh1,lh3));
-//   result.push_back( LayerPair(lh2,lh3));
-//   //seeds from the forward
-//   result.push_back( LayerPair(pos1,pos2));
-//   result.push_back( LayerPair(neg1,neg2));
-//   //seeds from the forward-barrel
-//   result.push_back( LayerPair(lh1,pos1));
-//   result.push_back( LayerPair(lh1,neg1));
-//   result.push_back( LayerPair(lh1,pos2));
-//   result.push_back( LayerPair(lh1,neg2));
-//   result.push_back( LayerPair(lh2,pos2));
-//   result.push_back( LayerPair(lh2,neg2));
+  result.push_back( LayerPair(lh1,lh3));
+  result.push_back( LayerPair(lh2,lh3));
+  //seeds from the forward
+  result.push_back( LayerPair(pos1,pos2));
+  result.push_back( LayerPair(neg1,neg2));
+  //seeds from the forward-barrel
+  result.push_back( LayerPair(lh1,pos1));
+  result.push_back( LayerPair(lh1,neg1));
+  result.push_back( LayerPair(lh1,pos2));
+  result.push_back( LayerPair(lh1,neg2));
+  result.push_back( LayerPair(lh2,pos2));
+  result.push_back( LayerPair(lh2,neg2));
 
   return result;
 }
@@ -58,7 +58,7 @@ void PixelSeedLayerPairs::addBarrelBarrelLayers( int mid, int outer,
 
 void PixelSeedLayerPairs::init(const SiPixelRecHitCollection& coll, const edm::EventSetup& iSetup){
 
-  cout<<"b1"<<endl;
+
   edm::ESHandle<GeometricSearchTracker> track;
   iSetup.get<TrackerRecoGeometryRecord>().get( track ); 
   bl=track->barrelLayers(); 
@@ -74,23 +74,7 @@ void PixelSeedLayerPairs::init(const SiPixelRecHitCollection& coll, const edm::E
   map_diskneg2=coll.get(acc.pixelForwardDisk(1,2));
   map_diskpos1=coll.get(acc.pixelForwardDisk(2,1));
   map_diskpos2=coll.get(acc.pixelForwardDisk(2,2));
-  cout<<"b2"<<endl;	
-  SiPixelRecHitCollection::const_iterator ll;
-  int j=0;
-  for (ll=map_range1.first;ll!=map_range1.second;ll++){
-    j++;
-  }
-  cout<<"layer1 "<<j;
-  j=0;
- for (ll=map_range2.first;ll!=map_range2.second;ll++){
-    j++;
-  }
-  cout<<"layer2 "<<j;
-  j=0;
- for (ll=map_range3.first;ll!=map_range3.second;ll++){
-    j++;
-  }
-  cout<<"layer3 "<<j;
+
   //BarrelLayers
   const PixelBarrelLayer*  bl1=dynamic_cast<PixelBarrelLayer*>(bl[0]);
   const PixelBarrelLayer*  bl2=dynamic_cast<PixelBarrelLayer*>(bl[1]);
@@ -102,7 +86,7 @@ void PixelSeedLayerPairs::init(const SiPixelRecHitCollection& coll, const edm::E
   const PixelForwardLayer*  fneg2=dynamic_cast<PixelForwardLayer*>(fneg[1]);
 
   //LayersWithHits
-   cout<<"b3"<<endl;	
+
   lh1=new  LayerWithHits(bl1,map_range1);
   lh2=new  LayerWithHits(bl2,map_range2);
   lh3=new  LayerWithHits(bl3,map_range3);
@@ -111,5 +95,5 @@ void PixelSeedLayerPairs::init(const SiPixelRecHitCollection& coll, const edm::E
   pos2=new  LayerWithHits(fpos2,map_diskpos2);
   neg1=new  LayerWithHits(fneg1,map_diskneg1);
   neg2=new  LayerWithHits(fneg2,map_diskneg2);
- cout<<"b4"<<endl;	
+
 }

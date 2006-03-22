@@ -51,7 +51,7 @@ LayerHitMap::LayerHitMap(const LayerWithHits* layerhits,const edm::EventSetup&iS
   SiPixelRecHitCollection::const_iterator
     hitRangeIteratorEnd=layerhits->Range().second;
 
-
+ 
  
       for (ih = hitRangeIteratorBegin; ih != hitRangeIteratorEnd; ih++) {
 
@@ -59,6 +59,7 @@ LayerHitMap::LayerHitMap(const LayerWithHits* layerhits,const edm::EventSetup&iS
 	theHits.push_back( TkHitPairsCachedHit(&(*ih),iSetup));
 
       }
+    
   }
 
 }
@@ -79,9 +80,9 @@ LayerHitMapLoop LayerHitMap::loop() const
 
 LayerHitMapLoop LayerHitMap::loop(
     const Range & phiRange, const Range & rzRange) const
-{ std::cout<<"l1"<<std::endl;
+{
     if(!theCells) initCells();
-  std::cout<<"l2"<<std::endl;
+ 
     return LayerHitMapLoop(*this,phiRange,rzRange); }
 
 void LayerHitMap::initCells() const
