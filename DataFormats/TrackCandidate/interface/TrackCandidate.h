@@ -19,7 +19,7 @@ only the second is compulsory,the other two can be empty / not present
 class TrackCandidate{
  public:
   typedef BasicTrackCandidate::RecHitContainer RecHitContainer;
-  typedef BasicTrackCandidate::iterator iterator;
+  typedef BasicTrackCandidate::const_iterator const_iterator;
   typedef BasicTrackCandidate::range range;
   
   TrackCandidate(){}
@@ -33,7 +33,7 @@ class TrackCandidate{
   
   PTrajectoryStateOnDet& trajectoryStateOnDet() const { return *state_;}
 
-  range recHits() {return std::make_pair(rh_.begin(), rh_.end());}
+  range recHits() const {return std::make_pair(rh_.begin(), rh_.end());}
 
   TrajectorySeed& seed() const {return *seed_;}
 

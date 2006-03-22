@@ -17,8 +17,8 @@ only the second is compulsory,the other two can be empty / not present
 class BasicTrackCandidate{
  public:
   typedef edm::OwnVector<TrackingRecHit> RecHitContainer;
-  typedef RecHitContainer::iterator iterator;
-  typedef std::pair<iterator,iterator> range;
+  typedef RecHitContainer::const_iterator const_iterator;
+  typedef std::pair<const_iterator,const_iterator> range;
   
   BasicTrackCandidate(){}
 virtual ~BasicTrackCandidate(){}
