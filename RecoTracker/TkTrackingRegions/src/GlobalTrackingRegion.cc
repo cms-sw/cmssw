@@ -9,7 +9,7 @@
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 template <class T> T sqr( T t) {return t*t;}
 
@@ -20,7 +20,7 @@ checkRZ(const DetLayer* layer,
 	const SiPixelRecHit* outerHit,
 	const edm::EventSetup& iSetup) const
 {
-  edm::ESHandle<TrackingGeometry> tracker;
+  edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   //MP
   bool isBarrel = (layer->part() == barrel);
