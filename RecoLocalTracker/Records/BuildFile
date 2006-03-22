@@ -1,0 +1,13 @@
+<export>
+   <lib name=RecoLocalTrackerRecords>
+   <use name=FWCore/Framework>
+   <use name=Geometry/Records>
+   <use name=MagneticField/Records>
+</export>
+
+<use name=FWCore/Utilities>
+<use name=FWCore/Framework>
+<use name=Geometry/Records>
+<use name=MagneticField/Records>
+<use name=clhep>
+<use name=boost>
