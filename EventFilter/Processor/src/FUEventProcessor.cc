@@ -69,7 +69,7 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
     }
   if(!outPut_) proc_->toggleOutput();
   proc_->prescaleInput(inputPrescale_);
-  proc_->prescaleInput(outputPrescale_);
+  proc_->prescaleOutput(outputPrescale_);
   outprev_=outPut_;
 }
 
