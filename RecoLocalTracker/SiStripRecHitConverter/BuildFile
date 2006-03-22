@@ -11,6 +11,7 @@
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Records>
+<use name=RecoLocalTracker/Records>
 <use name=MagneticField/VolumeBasedEngine>
 <use name=MagneticField/GeomBuilder>
 <export>
@@ -28,5 +29,6 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Records>
 <use name=MagneticField/VolumeBasedEngine>
+<use name=RecoLocalTracker/Records>
 <use name=MagneticField/GeomBuilder>
 </export>
