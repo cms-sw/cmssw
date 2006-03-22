@@ -21,7 +21,7 @@ GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
       case 0:
         return GlobalPoint ( 0.,0.,0. );
       case 1:
-        return tracks.begin()->innermostState().globalPosition();
+        return tracks.begin()->impactPointState().globalPosition();
       default:
       {
         vector < pair < GlobalPoint, float > > wtracks;
@@ -31,7 +31,7 @@ GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
         {
           try {
             pair < GlobalPoint, float > tmp ( 
-                i->innermostState().globalPosition(), 1. );
+                i->impactPointState().globalPosition(), 1. );
             wtracks.push_back ( tmp );
           } catch (...) {};
         };

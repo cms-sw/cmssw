@@ -37,6 +37,7 @@ public:
    *  \param n_pairs: how many track pairs will be considered (maximum)
    *                  a value of -1 means full combinatorics.
    */
+
   CrossingPtBasedLinearizationPointFinder( 
       const RecTracksDistanceMatrix * m, const ModeFinder3d & algo,
       const signed int n_pairs = -1 );
@@ -70,8 +71,8 @@ private:
    */
   struct CompareTwoDummyRecTracks {
     int operator() ( const DummyRecTrack & a, const DummyRecTrack & b ) {
-       return a.innermostState().globalMomentum().mag() >
-              b.innermostState().globalMomentum().mag();
+       return a.impactPointState().globalMomentum().mag() >
+              b.impactPointState().globalMomentum().mag();
     };
   };
   vector <DummyRecTrack> getBestTracks ( const vector<DummyRecTrack> & ) const;

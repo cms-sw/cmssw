@@ -93,21 +93,22 @@ namespace {
 
 CrossingPtBasedLinearizationPointFinder::CrossingPtBasedLinearizationPointFinder(
      const ModeFinder3d & algo, const signed int n_pairs ) :
-  useMatrix ( false ) , theMatrix( 0 ), theNPairs ( n_pairs ),
+  useMatrix ( false ) , theNPairs ( n_pairs ), theMatrix ( 0 ),
   theAlgo ( algo.clone() )
 {};
 
 CrossingPtBasedLinearizationPointFinder::CrossingPtBasedLinearizationPointFinder(
     const RecTracksDistanceMatrix * m, const ModeFinder3d & algo,
     const signed int n_pairs ) :
-  useMatrix ( m->hasCrossingPoints() ) , theMatrix ( m ) ,
-  theNPairs ( n_pairs ), theAlgo ( algo.clone() ) 
+  useMatrix ( m->hasCrossingPoints() ) ,
+  theNPairs ( n_pairs ), theMatrix ( m ), theAlgo ( algo.clone() ) 
 {};
 
 CrossingPtBasedLinearizationPointFinder::CrossingPtBasedLinearizationPointFinder
     ( const CrossingPtBasedLinearizationPointFinder & o ) :
-  theAlgo ( o.theAlgo->clone() ), theMatrix ( o.theMatrix /* nope, we dont clone!! */ ),
-  useMatrix ( o.useMatrix ), theNPairs ( o.theNPairs ) {};
+  useMatrix ( o.useMatrix ), theNPairs ( o.theNPairs ),
+  theMatrix ( o.theMatrix /* nope, we dont clone!! */ ), 
+  theAlgo ( o.theAlgo->clone() ) {};
 
 CrossingPtBasedLinearizationPointFinder::~CrossingPtBasedLinearizationPointFinder()
 {
@@ -143,7 +144,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useAllTracks(
         y!=end; ++y ) {
       try {
         pair < GlobalPoint, GlobalPoint > pts = ttmd.points
-          ( (*x).innermostState(), (*y).innermostState() );
+          ( (*x).impactPointState(), (*y).impactPointState() );
         pair < GlobalPoint , float > v ( ( pts.second + pts.first ) / 2. ,
             ( pts.second - pts.first ).mag() );
         vgp.push_back( v );
@@ -262,7 +263,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
         TwoTrackMinimumDistance ttmd;
         try {
           pair < GlobalPoint, GlobalPoint > pts = ttmd.points
-            ( rt1.innermostState(), rt2.innermostState() );
+            ( rt1.impactPointState(), rt2.impactPointState() );
           PointAndDistance v ( ( pts.second + pts.first ) / 2. ,
                              ( pts.second - pts.first ).mag() );
           vgp.push_back( v );
