@@ -38,14 +38,17 @@ namespace {
     return GlobalPoint ( a.x() * b, a.y() * b, a.z() * b );
   };
 
-  inline int sum ( int nr )
+  inline unsigned int sum ( unsigned int nr )
   {
+    /*
     int ret=0;
     for ( int i=1; i<= nr ; i++ )
     {
       ret+=i;
     };
     return ret;
+    */
+    return ( nr * ( nr + 1 ) ) / 2;
   };
 
   #ifdef Use_GraphicsHarvester
@@ -120,7 +123,7 @@ vector <reco::TransientTrack> CrossingPtBasedLinearizationPointFinder::getBestTr
 {
   unsigned int n_tracks = (2*(unsigned int) (theNPairs)) < tracks.size() ? 2*theNPairs : tracks.size();
 
-  vector <reco::TransientTrack> newtracks( n_tracks );
+  vector <reco::TransientTrack> newtracks; // FIXME ( n_tracks );
 
   partial_sort_copy ( tracks.begin(), tracks.end(), newtracks.begin(),
       newtracks.begin() + n_tracks  , CompareTwoTracks() ); 
@@ -218,7 +221,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
       };
     };
 
-    if ( sum ( tracks.size() - 1 ) < (unsigned int) (theNPairs) )
+    if ( sum ( tracks.size() - 1 ) < ((unsigned int) (theNPairs)) )
     {
       /*
       cout << "[CrossingPtBasedLinearizationPointFinder] we exploit all track pairs"
@@ -235,9 +238,9 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
     if ( goodtracks.size() < 2 ) throw LinPtException (
         "CrossingPtBasedLinPtFinder: less than two tracks given");
     // vgp.reserve ( theNPairs - 1 );
-    int t_first = 0;
+    unsigned int t_first = 0;
     unsigned int t_interval = goodtracks.size() / 2;
-    int lim = goodtracks.size() - 1;
+    unsigned int lim = goodtracks.size() - 1;
 
     /*
     cout << "[CrossingPtBasedLinearizationPointFinder] we start: npairs=" << theNPairs
@@ -250,7 +253,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
     // true: intervals will shrink
     bool dir = false;
 
-    while ( vgp.size() < (unsigned int) (theNPairs) )
+    while ( vgp.size() < ((unsigned int) (theNPairs)) )
     {
       reco::TransientTrack rt1 = goodtracks [ t_first ];
       reco::TransientTrack rt2 = goodtracks [ t_first + t_interval ];
