@@ -123,7 +123,7 @@ vector <reco::TransientTrack> CrossingPtBasedLinearizationPointFinder::getBestTr
   vector <reco::TransientTrack> newtracks( n_tracks );
 
   partial_sort_copy ( tracks.begin(), tracks.end(), newtracks.begin(),
-      newtracks.begin() + n_tracks  , CompareTworeco::TransientTracks() ); 
+      newtracks.begin() + n_tracks  , CompareTwoTracks() ); 
 
   return newtracks;
 };

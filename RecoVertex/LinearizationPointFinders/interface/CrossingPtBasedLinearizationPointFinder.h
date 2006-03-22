@@ -69,7 +69,7 @@ private:
 
   /** Private struct to order tracks by momentum
    */
-  struct CompareTworeco::TransientTracks {
+  struct CompareTwoTracks {
     int operator() ( const reco::TransientTrack & a, const reco::TransientTrack & b ) {
        return a.impactPointState().globalMomentum().mag() >
               b.impactPointState().globalMomentum().mag();
