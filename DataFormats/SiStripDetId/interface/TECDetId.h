@@ -27,7 +27,6 @@ class TECDetId : public DetId {
 	   uint32_t petal_fw_bw,
 	   uint32_t petal,
 	   uint32_t ring,
-	   uint32_t module_fw_bw,
 	   uint32_t module,
 	   uint32_t ster) : DetId(DetId::Tracker,StripSubdetector::TEC){
     id_ |= (side& sideMask_)         << sideStartBit_ |
