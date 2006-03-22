@@ -6,6 +6,7 @@
 #include "SimMuon/CSCDigitizer/src/CSCCrosstalkGenerator.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "SimMuon/CSCDigitizer/src/CSCScaNoiseReader.h"
+#include "SimMuon/CSCDigitizer/src/CSCScaNoiseSimple.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
@@ -27,7 +28,7 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   theSignalStopTime = p.getParameter<double>("stripSignalStopTime");
   theSamplingTime = p.getParameter<double>("stripSamplingTime");
   sca_peak_bin = p.getParameter<int>("scaPeakBin");
-
+  scaNoiseMode_ = p.getParameter<std::string>("scaNoiseMode");
   init();
 }
 
@@ -42,7 +43,7 @@ CSCStripElectronicsSim::CSCStripElectronicsSim()
   theSignalStartTime = -250.;
   theSignalStopTime = 500.;
   theSamplingTime =25.;
-
+  scaNoiseMode_ = "simple";
   init();
 }
 
@@ -65,7 +66,18 @@ void CSCStripElectronicsSim::init() {
     theCrosstalkGenerator = new CSCCrosstalkGenerator();
   }
   if(doNoise_) {
-    theScaNoiseGenerator = new CSCScaNoiseReader();
+    if(scaNoiseMode_ == "file") {
+      theScaNoiseGenerator = new CSCScaNoiseReader();
+    }
+    else if(scaNoiseMode_ == "simple") {
+      // TODO make configurable
+      double pedestal = 600.;
+      double width = 2.7;
+      theScaNoiseGenerator = new CSCScaNoiseSimple(theNumberOfSamples, pedestal, width);
+    }
+    else {
+      edm::LogError("CSCStripElectronicsSim") << "Bad value for SCA noise mode";
+    }
   }
 
   theShapingTime = 100;
@@ -113,7 +125,7 @@ int CSCStripElectronicsSim::readoutElement(int strip) const {
 }
 
 CSCAnalogSignal CSCStripElectronicsSim::makeNoiseSignal(int element) {
-  std::vector<int> scaValues = theScaNoiseGenerator->getNoise();
+  std::vector<int> scaValues = theScaNoiseGenerator->getNoise(layerId(), element);
   // make sure we have enough time sampled to cover signal
   if(sca_time_bin_size*scaValues.size() < theNumberOfSamples*theSamplingTime) {
     edm::LogError("CSCStripElectronicsSim") << "CSC noise generation failed! Only got " 

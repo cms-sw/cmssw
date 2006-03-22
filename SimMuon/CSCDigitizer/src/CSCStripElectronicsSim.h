@@ -30,6 +30,7 @@ class CSCComparatorDigi;
 class CSCCrosstalkGenerator;
 class CSCScaNoiseGenerator;
 #include <vector>
+#include <string>
 
 class CSCStripElectronicsSim : public CSCBaseElectronicsSim
 {
@@ -103,6 +104,9 @@ private:
   int   sca_peak_bin;
   // which time bin the trigger crossing goes in
   int theComparatorTimeBinOffset;
+
+  // can be "simple" or "file"
+  std::string scaNoiseMode_;
 };
 
 #endif
