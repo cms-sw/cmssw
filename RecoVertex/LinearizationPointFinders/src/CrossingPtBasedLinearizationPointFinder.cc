@@ -118,7 +118,7 @@ CrossingPtBasedLinearizationPointFinder::~CrossingPtBasedLinearizationPointFinde
 vector <reco::TransientTrack> CrossingPtBasedLinearizationPointFinder::getBestTracks (
     const vector<reco::TransientTrack> & tracks ) const
 {
-  unsigned int n_tracks = 2*theNPairs < tracks.size() ? 2*theNPairs : tracks.size();
+  unsigned int n_tracks = (2*(unsigned int) (theNPairs)) < tracks.size() ? 2*theNPairs : tracks.size();
 
   vector <reco::TransientTrack> newtracks( n_tracks );
 
@@ -218,7 +218,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
       };
     };
 
-    if ( sum ( tracks.size() - 1 ) < theNPairs )
+    if ( sum ( tracks.size() - 1 ) < (unsigned int) (theNPairs) )
     {
       /*
       cout << "[CrossingPtBasedLinearizationPointFinder] we exploit all track pairs"
@@ -236,7 +236,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
         "CrossingPtBasedLinPtFinder: less than two tracks given");
     // vgp.reserve ( theNPairs - 1 );
     int t_first = 0;
-    int t_interval = goodtracks.size() / 2;
+    unsigned int t_interval = goodtracks.size() / 2;
     int lim = goodtracks.size() - 1;
 
     /*
@@ -250,7 +250,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
     // true: intervals will shrink
     bool dir = false;
 
-    while ( vgp.size() < theNPairs )
+    while ( vgp.size() < (unsigned int) (theNPairs) )
     {
       reco::TransientTrack rt1 = goodtracks [ t_first ];
       reco::TransientTrack rt2 = goodtracks [ t_first + t_interval ];
