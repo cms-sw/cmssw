@@ -13,7 +13,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.9 2006/02/15 04:32:36 wmtan Exp $
+// $Id: MessageLogger.h,v 1.10 2006/03/08 16:58:09 fischler Exp $
 //
 
 // system include files
@@ -117,7 +117,7 @@ class LogDebug_
 public:
   explicit LogDebug_( std::string const & id, std::string const & file, int line ) 
     : ap( new MessageSender(ELsuccess,id) )
-  { *this << onlyLowestDirectory(file) << ':' << line << ' '; }
+  { *this << onlyLowestDirectory(file) << ":" << line << "\n"; }
 
   template< class T >
     LogDebug_ & 
