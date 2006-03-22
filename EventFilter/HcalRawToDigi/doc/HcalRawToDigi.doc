@@ -24,6 +24,9 @@ http://cmsdoc.cern.ch/cms/HCAL/document/.  The information on the
 readout chain and electronics may be useful for understanding the
 unpacking code and functions.
 
+Both of the unpackers require access to the HcalElectronicsMap which
+is accessed from the HcalDbService in the HcalDbRecord.
+
 \subsection interface Public interface
 
  - HcalDCCHeader.h : Interpret the raw HCAL data from the HCAL FED (DCC)
