@@ -10,13 +10,18 @@
 
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
-Examples of using CMSSW in Python.
+Examples of using CMSSW in Python. 
+Some helper routines for startup, tab completion and shorter syntax.
+
 
 \subsection interface Public interface
-None.
+- <b>cmstools</>: public interface to all modules. Do <tt>export PYTHONPATH=$CMSSW_BASE/src/PhysicsTools/PythonAnalysis/python:$PYTHONPATH</tt> to 
+use it.
 
 \subsection modules Modules
-None.
+- <b>cmstools.py</b>: prepares environment and defines some commands
+- <b>cmscompleter.py</b>: class for tab completion
+- <b>namespaceDict.py</b>: builds the FWLite namespace (without loading libs)
 
 \subsection tests Unit tests and examples
 - <b>trackerHits.py</b>: Reads sim event information and creates the files <tt>histo.root</tt> 
@@ -28,6 +33,6 @@ and <tt>tofhits.jpg</tt>.
 Prototype.
 
 <hr>
-Last updated: 14-MAR-2006 B. Hegner
+Last updated: 22-MAR-2006 B. Hegner
 */
 
