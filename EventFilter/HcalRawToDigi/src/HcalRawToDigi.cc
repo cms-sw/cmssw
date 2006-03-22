@@ -13,9 +13,9 @@ using namespace std;
 HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   unpacker_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
   filter_(conf.getParameter<bool>("FilterDataQuality"),conf.getParameter<bool>("FilterDataQuality"),
-	  conf.getParameter<bool>("FilterAmplitude"),
-	  conf.getParameter<int>("FilterAmpBegin"),conf.getParameter<int>("FilterAmpEnd"),
-	  conf.getParameter<double>("FilterAmpLevel")),
+	  false,
+	  0, 0, 
+	  -1),
   fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>())),
   firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first)),
   unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false))
