@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.14 2006/03/06 18:16:17 wmtan Exp $
+// $Id: SiPixelDigitizer.cc,v 1.15 2006/03/21 13:47:13 pioppi Exp $
 //
 //
 
@@ -41,7 +41,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetType.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 // user include files
