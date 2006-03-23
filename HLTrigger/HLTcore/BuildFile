@@ -1,7 +1,7 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<flags SEAL_PLUGIN_NAME="MyTestJetFilter">
+<flags SEAL_PLUGIN_NAME="MyTestJetFilteree">
 <export>
    <lib name=MyTestJetFilter>
    <use name=FWCore/Framework>
