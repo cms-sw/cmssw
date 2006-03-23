@@ -27,10 +27,10 @@ int main() {
   ESHits.push_back(ESHit);
 
   string ESName = "EcalHitsES";
-  vector<string> caloDets, muonDets, trackingDets;
+  vector<string> caloDets, trackingDets;
   caloDets.push_back(ESName);
 
-  CrossingFrame crossingFrame(-5, 5, 25, muonDets, trackingDets, caloDets);
+  CrossingFrame crossingFrame(-5, 5, 25, trackingDets, caloDets);
   crossingFrame.addSignalCaloHits(ESName, &ESHits);
 
   EcalSimParameterMap parameterMap;
