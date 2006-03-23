@@ -3,8 +3,7 @@
 #include "CondFormats/OptAlignObjects/interface/XXXXMeasurements.h"
 #include "CondFormats/OptAlignObjects/interface/XXXXMeasurementInfo.h"
 #include "CondFormats/OptAlignObjects/interface/CSCZSensors.h"
-
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 #include <string>
 #include <vector>
