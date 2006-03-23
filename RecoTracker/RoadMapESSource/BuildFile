@@ -1,5 +1,4 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=RecoTracker/RoadMapRecord>
 <use name=Geometry/Records>
@@ -7,7 +6,6 @@
 <export>
    <lib name=RecoTrackerRoadMapESSource>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=RecoTracker/RoadMapRecord>
    <use name=Geometry/Records>
