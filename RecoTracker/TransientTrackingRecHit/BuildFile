@@ -5,3 +5,5 @@
  <lib name=RecoTrackerTransientTrackingRecHit>
 <use name=TrackingTools/TransientTrackingRecHit>
 </export>
+
+<flags SEAL_PLUGIN_NAME="RecoTrackerTransientTrackingRecHit">

@@ -18,3 +18,4 @@
 <use name=MagneticField/Engine>
 
 
+<flags SEAL_PLUGIN_NAME="TrackingToolsKalmanUpdators">
