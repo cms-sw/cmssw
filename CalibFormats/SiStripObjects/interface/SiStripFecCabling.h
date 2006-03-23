@@ -27,32 +27,73 @@ class SiStripModule {
     : ccuChan_( conn.ccuChan() ), 
     apv0x32_(0), apv0x33_(0), apv0x34_(0), apv0x35_(0), apv0x36_(0), apv0x37_(0), 
     dcu0x00_(0), mux0x43_(0), pll0x44_(0), lld0x60_(0),
-    dcuId_(0), detId_(0), nPairs_(0),
-    cabling_()  {;}
+    dcuId_(0), detId_(0), nApvPairs_(0),
+    cabling_(), length_(0) { addDevices( conn ); }
   
   ~SiStripModule() {;}
-  
+
+  /** Returns CCU channel for this module. */
   inline const uint16_t& ccuChan() const { return ccuChan_; }
+  /** Sets device info (addresses, DetID, etc) for this module. */
   void addDevices( const FedChannelConnection& conn );
   
-  // getters
+  // ----- APV addresses  -----
+
+  /** Returns I2C addresses of active ("found") APVs. */
+  vector<uint16_t> activeApvs() const;
+  /** Identifies whether APV of a given I2C address (32->37) or
+      footprint position on the hybrid (0->5) is active or
+      not. Returns actual address instead of boolean. */
+  const uint16_t& activeApv( const uint16_t& apv_address ) const;
+  /** Add APV to module using I2C address (32->37). */
+  void addApv( const uint16_t& apv_address );
+  
+  /** Identifies APV pairs that are active, for a given pair number
+      (0->1 or 0->2, depending on number of APVs). Returns actual
+      address instead of boolean. */
+  pair<uint16_t,uint16_t> activeApvPair( const uint16_t& apv_pair ) const;
+
+  // ----- Detector/module information -----
+  
+  /** Returns DCU id for this module. */
   inline const uint32_t& dcuId() const { return dcuId_; } 
+  /** Set DCU id for this module. */
+  inline void dcuId( const uint32_t& dcu_id ) { if ( dcu_id ) { dcuId_ = dcu_id; dcu0x00_ = true; } }
+  /** Returns unique (geometry-based) identifier for this module. */
   inline const uint32_t& detId() const { return detId_; } 
-  inline const uint16_t& nPairs() const { return nPairs_; }
+  /** Set DetId for this module. */
+  inline void detId( const uint32_t& det_id ) { if ( det_id ) { detId_ = det_id; } } 
+  /** Returns number of detector strips for this module (and so allows
+      to infer the number of APVs or APV pairs). */
+  inline const uint16_t& nApvPairs() const { return nApvPairs_; }
+  /** Set number of detector strips for this module. */
+  void nApvPairs( const uint16_t& npairs );
+  
+  // ----- FED information -----
+
+  /** Returns FED id/channel of a given APV pair (0->1 or 0->2). */
+  inline const map< uint16_t, pair<uint16_t,uint16_t> >& fedChannels() const { return cabling_; } 
+  /** Returns FED id/channel of a given APV pair (0->1 or 0->2). */
+  const pair<uint16_t,uint16_t>& fedCh( const uint16_t& apv_pair ) const;
+  /** Sets FED id/channel for given APV address (32->37). Returns true
+      if connection made, false otherwise. */
+  bool fedCh( const uint16_t& apv_address, const pair<uint16_t,uint16_t>& fed_ch );
+  /** Returns cable length. */
+  inline const uint16_t& length() const { return length_; } 
+  /** Sets cable length. */
+  inline void length( const uint16_t& length ) { length_ = length; } 
+  
+  // ----- Other hybrid devices -----
+  
+  /** Identifies whether the DCU device is active ("found") or not. */
   inline const uint16_t& dcu() const { return dcu0x00_; } 
+  /** Identifies whether the MUX device is active ("found") or not. */
   inline const uint16_t& mux() const { return mux0x43_; } 
+  /** Identifies whether the PLL device is active ("found") or not. */
   inline const uint16_t& pll() const { return pll0x44_; } 
+  /** Identifies whether the LLD device is active ("found") or not. */
   inline const uint16_t& lld() const { return lld0x60_; } 
-  vector<uint16_t> apvs();
-  uint16_t apv( uint16_t apv_id )  const;
-/*   pair<uint16_t,uint16_t> pair( uint16_t apv_pair ) const; */
-/*   pair<uint16_t,uint16_t> fedCh( uint16_t apv_pair ) const; */
-  
-  // setters
-  inline void dcuId( const uint32_t& dcu_id ) { if ( !dcuId_ && dcu_id ) { dcuId_ = dcu_id; dcu0x00_ = true; } }
-  inline void detId( const uint32_t& det_id ) { if ( !detId_ && det_id ) { detId_ = det_id; } } 
-  inline void nPairs( const uint16_t& npairs ) { if ( !nPairs_ && npairs ) { nPairs_ = npairs; } } 
-  
+
  private: 
   
   uint16_t ccuChan_;
@@ -74,10 +115,11 @@ class SiStripModule {
   // Detector
   uint32_t dcuId_;
   uint32_t detId_;
-  uint16_t nPairs_;
+  uint16_t nApvPairs_;
   
-  // FED cabling: KEY = APV I2C address, DATA = <FedId,FedCh>
+  // FED cabling: KEY = APV pair footprint position, DATA = FedId + FedCh
   map< uint16_t, pair<uint16_t,uint16_t> > cabling_;
+  uint16_t length_;
   
 };
 
@@ -86,7 +128,7 @@ class SiStripCcu {
   
  public: 
   
-  SiStripCcu( const FedChannelConnection& conn ) : ccuAddr_( conn.ccuAddr() ), modules_() {;}
+  SiStripCcu( const FedChannelConnection& conn ) : ccuAddr_( conn.ccuAddr() ), modules_() { addDevices( conn ); }
   ~SiStripCcu() {;}
   
   inline const vector<SiStripModule>& modules() const { return modules_; }
@@ -106,7 +148,7 @@ class SiStripRing {
 
  public: 
 
-  SiStripRing( const FedChannelConnection& conn ) : fecRing_( conn.fecRing() ), ccus_() {;}
+  SiStripRing( const FedChannelConnection& conn ) : fecRing_( conn.fecRing() ), ccus_() { addDevices( conn ); }
   ~SiStripRing() {;}
 
   inline const vector<SiStripCcu>& ccus() const { return ccus_; }
@@ -126,7 +168,7 @@ class SiStripFec {
 
  public: 
 
-  SiStripFec( const FedChannelConnection& conn ) : fecSlot_( conn.fecSlot() ), rings_() {;}
+  SiStripFec( const FedChannelConnection& conn ) : fecSlot_( conn.fecSlot() ), rings_() { addDevices( conn ); }
   ~SiStripFec() {;}
   
   inline const vector<SiStripRing>& rings() const { return rings_; }
@@ -162,42 +204,38 @@ class SiStripFecCabling {
   void addDevices( const FedChannelConnection& conn );
   inline void dcuId( const FedChannelConnection& conn );
   inline void detId( const FedChannelConnection& conn );
-  inline void fedCh( const FedChannelConnection& conn );
+  //inline void fedCh( const FedChannelConnection& conn ); //@@ needs to be implemented
+  inline void nApvPairs( const FedChannelConnection& conn );
 
   // misc
-  void countDevices( uint32_t& fecs,
-		     uint32_t& rings,
-		     uint32_t& ccus,
-		     uint32_t& modules,
-		     uint32_t& apvs,
-		     uint32_t& dcuids,
-		     uint32_t& detids,
-		     uint32_t& npairs,
-		     uint32_t& fedchans,
-		     uint32_t& dcus,
-		     uint32_t& muxes,
-		     uint32_t& plls,
-		     uint32_t& llds );
+  void countDevices();
+
+  const SiStripModule& module( const FedChannelConnection& conn ) const;
   
  private:
 
-  SiStripModule& module( const FedChannelConnection& conn );
   vector<SiStripFec> fecs_;
   
 };
 
+ 
+
 void SiStripFecCabling::dcuId( const FedChannelConnection& conn ) { 
-  module(conn).dcuId(conn.dcuId()); 
+  const_cast<SiStripModule&>(module(conn)).dcuId(conn.dcuId()); 
 }
 
 void SiStripFecCabling::detId( const FedChannelConnection& conn ) { 
-  module(conn).detId(conn.dcuId()); 
+  const_cast<SiStripModule&>(module(conn)).detId(conn.detId()); 
 }
 
-void SiStripFecCabling::fedCh( const FedChannelConnection& conn ) { 
-  module(conn).detId(conn.fedId()); 
-  module(conn).detId(conn.fedCh()); 
+void SiStripFecCabling::nApvPairs( const FedChannelConnection& conn ) { 
+  const_cast<SiStripModule&>(module(conn)).nApvPairs(conn.nApvPairs()); 
 }
+
+/* void SiStripFecCabling::fedCh( const FedChannelConnection& conn ) {  */
+/*   module(conn).detId(conn.fedId());  */
+/*   module(conn).detId(conn.fedCh());  */
+/* } */
 
 
 #endif // CalibTracker_SiStripObjects_SiStripFecCabling_H

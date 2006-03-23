@@ -1,5 +1,6 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <iostream>
+#include <iomanip>
 #include <string>
 
 // -----------------------------------------------------------------------------
@@ -43,9 +44,9 @@ uint16_t FedChannelConnection::apvPairNumber() const {
 		<< std::endl;
     }
   } else {
-    std::cerr << "[FedChannelConnection::apvPairNumber]"
-	      << " Unexpected number of APV pairs: " << nApvPairs_
-	      << std::endl;
+//     std::cerr << "[FedChannelConnection::apvPairNumber]"
+// 	      << " Unexpected number of APV pairs: " << nApvPairs_
+// 	      << std::endl;
   }
   return 0;
 }
@@ -68,9 +69,11 @@ void FedChannelConnection::print() const {
 	    << pll() << "/"
 	    << lld() 
 	    << "  DcuId/DetId/nPairs: "
-	    << dcuId() << "/"
-	    << detId() << "/"
-	    << nApvPairs() << "/"
+	    << std::hex
+	    << std::setfill('0') << std::setw(8) << dcuId() << "/"
+	    << std::setfill('0') << std::setw(8) << detId() << "/"
+	    << std::dec
+	    << nApvPairs() 
 	    << "  LldChan/PairNumber: "
 	    << lldChannel() << "/"
 	    << apvPairNumber() 

@@ -65,9 +65,14 @@ SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& i
 
   std::vector<uint16_t>::const_iterator ifed;
   for ( ifed = (*this).feds().begin(); ifed != (*this).feds().end(); ifed++ ) {
+    uint16_t connected = 0;
+    std::vector<FedChannelConnection>::const_iterator ichan;
+    for ( ichan = connections(*ifed).begin(); ichan != connections(*ifed).end(); ichan++ ) { 
+      if ( ichan->fedId() ) { ichan->print(); connected++; }
+    }
     std::cout << "[SiStripFedCabling::SiStripFedCabling]"
 	      << " Found FED with id " << *ifed
-	      << " that has " << (*this).connections( *ifed ).size()
+	      << " that has " << connected
 	      << " connected channels" << std::endl;
   }
   

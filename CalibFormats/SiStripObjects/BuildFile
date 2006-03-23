@@ -1,4 +1,5 @@
 <use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
 <use name=CondFormats/SiStripObjects>
 <use name=CondCore/SiStripPlugins>
 <use name=boost>
@@ -7,6 +8,7 @@
 <export>
    <lib name=CalibFormatsSiStripObjects>
    <use name=FWCore/Framework>
+   <use name=FWCore/MessageLogger>
    <use name=CondFormats/SiStripObjects>
    <use name=CondCore/SiStripPlugins>
    <use name=boost>
