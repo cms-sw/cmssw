@@ -21,20 +21,29 @@
 #include <iostream>
 
 using std::ifstream;
+using std::ofstream;
+
 using namespace std;
 
 //Typedefs and other definitions
 typedef vector<L1GctEmCand> EmCandidate;
 ifstream file;
+ofstream ofile;
 vector<L1GctEmCand> data;
 
 //  Function for reading in the dummy data
 void LoadFileData(const string &inputFile);
 
+//Function that outputs a txt file with the output
+void WriteFileData(EmCandidate outputs);
+
 int main()
 {
   EmCandidate inputs;
   EmCandidate outputs;
+  bool checkIn = false;
+  bool checkOut = false;
+  
 
   L1GctElectronSorter* testSort = new L1GctElectronSorter();
   LoadFileData("dummyData.txt");
@@ -50,12 +59,15 @@ int main()
   for(int i=0;i!=data.size();i++){
     if(data[i].getRank() != inputs[i].getRank()){
       cout << "Error in data: Discrepancy between Rank in file and input buffer!"<<endl;
+      checkIn = true;
     }
     if(data[i].getEta() != inputs[i].getEta()){
       cout << "Error in data:Discrepancy between Eta in file and input buffer!"<<endl;
+      checkIn = true;
     }
     if(data[i].getPhi() != inputs[i].getPhi()){
       cout << "Error in data:Discrepancy between Phi in file and input buffer!"<<endl;
+      checkIn = true;
     }
   }
 
@@ -72,22 +84,37 @@ int main()
        count = count + 1;
        if(n==0 && count > 1){
 	 cout <<"Error in getOutput method, highest ranking electron candidate isn't returned"<<endl;
+	 checkOut = true;
        }
        if(n==1 && count > 2){
 	 cout <<"Error in getOutput method, 2nd highest ranking electron candidate isn't returned"<<endl;
+      	 checkOut = true;
        }
        if(n==2 && count > 3){
 	 cout <<"Error in getOutput method, 3rd highest ranking electron candidate isn't returned"<<endl;
+  	 checkOut = true;
        }
        if(n==3 && count > 4){
 	 cout <<"Error in getOutput method, 4th highest ranking electron candidate isn't returned"<<endl;
+      	 checkOut = true;
        }
      }
     }
   }
+  if(checkIn){
+    cout <<"Error: Discrepancy between data read in and data stored as inputs!"<<endl;
+  }
+  if(checkIn){
+      cout <<"Error: Discrepancy between the sorted data and data outputted!"<<endl;
+  }
+  if(!checkIn&&!checkOut){
+     cout <<"No errors found in the electron sorter"<<endl;
+  }
+  WriteFileData(outputs);
   delete testSort;
   return 0;   
 }
+
 
 // Function definition of function that reads in dummy data and load it into inputCands vector
 void LoadFileData(const string &inputFile)
@@ -117,3 +144,19 @@ void LoadFileData(const string &inputFile)
   return;
 }
 
+//Function definition, that writes the output to a file
+void WriteFileData(EmCandidate outputs)
+{
+  EmCandidate writeThis;
+  writeThis = outputs;
+  ofile.open("sortOutput.txt",ios::out);
+  for(int i=0;i!=writeThis.size();i++){ 
+      ofile<<writeThis[i].getRank();
+      ofile<<" ";
+      ofile<<writeThis[i].getEta();
+      ofile<<" ";
+      ofile<<writeThis[i].getPhi();
+      ofile<<"\n";
+    }
+    return;
+}
