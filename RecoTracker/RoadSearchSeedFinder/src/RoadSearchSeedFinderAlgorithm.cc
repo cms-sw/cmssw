@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/02/13 19:33:34 $
-// $Revision: 1.4 $
+// $Author: gutsche $
+// $Date: 2006/02/28 18:01:41 $
+// $Revision: 1.5 $
 //
 
 #include <vector>
@@ -32,13 +32,16 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "Geometry/Vector/interface/GlobalPoint.h"
+
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "RecoTracker/RoadMapRecord/interface/Roads.h"
 
 RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
 }
@@ -64,7 +67,7 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
   es.get<TrackerDigiGeometryRecord>().get(roads);
 
   // get tracker geometry
-  edm::ESHandle<TrackingGeometry> tracker;
+  edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
 
   // calculate maximal possible delta phi for given delta r and parameter pTmin

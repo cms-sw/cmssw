@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/01/30 22:23:11 $
-// $Revision: 1.2 $
+// $Author: stevew $
+// $Date: 2006/02/08 02:06:48 $
+// $Revision: 1.3 $
 //
 
 #include <iostream>
@@ -26,9 +26,6 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoTracker/RoadMapRecord/interface/Roads.h"
 
 RoadSearchSeedFinder::RoadSearchSeedFinder(edm::ParameterSet const& conf) : 
   roadSearchSeedFinderAlgorithm_(conf) ,
