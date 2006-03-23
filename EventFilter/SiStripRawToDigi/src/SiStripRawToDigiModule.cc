@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 // data formats
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -26,14 +27,13 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
   rawToDigi_(0),
   eventCounter_(0)
 {
-  cout << "[SiStripRawToDigiModule::SiStripRawToDigiModule]"
-       << " Constructing object..." << endl;
-  int16_t bytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
-  int16_t freq  = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
-  bool    useid = pset.getUntrackedParameter<bool>("UseDetId",true);
-  int16_t fedid = pset.getUntrackedParameter<int>("TriggerFedId",1023);
-  rawToDigi_ = new SiStripRawToDigi( bytes, freq, useid, fedid );
-
+  edm::LogInfo("RawToDigi") << "[SiStripRawToDigiModule::SiStripRawToDigiModule] Constructing object...";
+  int16_t bytes  = pset.getUntrackedParameter<int>("AppendedBytes",0);
+  int16_t freq   = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
+  bool    fedkey = pset.getUntrackedParameter<bool>("UseFedKey",false);
+  int16_t fedid  = pset.getUntrackedParameter<int>("TriggerFedId",1023);
+  rawToDigi_ = new SiStripRawToDigi( bytes, freq, fedkey, fedid );
+  
   produces< edm::DetSetVector<SiStripRawDigi> >("ScopeMode");
   produces< edm::DetSetVector<SiStripRawDigi> >("VirginRaw");
   produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
@@ -45,8 +45,7 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
 // -----------------------------------------------------------------------------
 /** */
 SiStripRawToDigiModule::~SiStripRawToDigiModule() {
-  cout << "[SiStripRawToDigiModule::~SiStripRawToDigiModule]"
-       << " Destructing object..." << endl;
+  edm::LogInfo("RawToDigi") << "[SiStripRawToDigiModule::~SiStripRawToDigiModule] Destructing object...";
   if ( rawToDigi_ ) delete rawToDigi_;
 }
 
@@ -61,9 +60,8 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
 				      const edm::EventSetup& iSetup ) {
   
   eventCounter_++; 
-  cout << "[SiStripRawToDigiModule::produce]"
-       << " processing event number: " 
-       << eventCounter_ << endl;
+  edm::LogInfo("RawToDigi") << "[SiStripRawToDigiModule::produce]"
+			    << " Processing event number: " << eventCounter_;
   
   edm::ESHandle<SiStripFedCabling> cabling;
   iSetup.get<SiStripFedCablingRcd>().get( cabling );

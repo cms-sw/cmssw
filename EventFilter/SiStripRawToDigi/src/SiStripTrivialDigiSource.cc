@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 // data formats
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -36,8 +37,7 @@ SiStripTrivialDigiSource::SiStripTrivialDigiSource( const edm::ParameterSet& pse
   rmsOcc_( pset.getUntrackedParameter<double>("RmsOccupancy",0.1) ),
   anal_("SiStripTrivialDigiSource")
 {
-  cout << "[SiStripTrivialDigiSource::SiStripTrivialDigiSource]"
-       << " Constructing object..." << endl;
+  edm::LogInfo("TrivialDigiSource") << "[SiStripTrivialDigiSource::SiStripTrivialDigiSource] Constructing object...";
   
   //srand( time( NULL ) ); // seed for random number generator
   produces< edm::DetSetVector<SiStripDigi> >();
@@ -46,8 +46,7 @@ SiStripTrivialDigiSource::SiStripTrivialDigiSource( const edm::ParameterSet& pse
 // -----------------------------------------------------------------------------
 /** */
 SiStripTrivialDigiSource::~SiStripTrivialDigiSource() {
-  cout << "[SiStripTrivialDigiSource::~SiStripTrivialDigiSource]"
-       << " Destructing object..." << endl;
+  edm::LogInfo("TrivialDigiSource") << "[SiStripTrivialDigiSource::~SiStripTrivialDigiSource] Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
@@ -56,8 +55,7 @@ void SiStripTrivialDigiSource::produce( edm::Event& iEvent,
 					const edm::EventSetup& iSetup ) {
   
   eventCounter_++; 
-  cout << "[SiStripTrivialDigiSource::produce]"
-       << " Event: " << eventCounter_ << endl;
+  edm::LogInfo("TrivialDigiSource") << "[SiStripTrivialDigiSource::produce] Event: " << eventCounter_;
   anal_.addEvent();
   
   edm::ESHandle<SiStripFedCabling> cabling;
@@ -73,40 +71,41 @@ void SiStripTrivialDigiSource::produce( edm::Event& iEvent,
     anal_.addFed();
     for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
       const FedChannelConnection& conn = cabling->connection( *ifed, ichan );
-      if ( conn.detId() ) {
-	anal_.addChan(); nchans++;
-	edm::DetSet<SiStripDigi>& digis = collection->find_or_insert( conn.detId() );
-	uint16_t ndigi;
-	if ( testDistr_ ) { ndigi = 1; }
+      if ( !conn.detId() ) { // Check DetID is non-zero
+	edm::LogError("TrivialDigiSource") << "[SiStripTrivialDigiSource::produce]"
+					   << " Zero DetId returned for FED id " << *ifed
+					   << " and channel " << ichan;
+	continue; 
+      }
+      anal_.addChan(); nchans++;
+      edm::DetSet<SiStripDigi>& digis = collection->find_or_insert( conn.detId() );
+      uint16_t ngroups = 1;
+      uint16_t ndigi;
+      if ( testDistr_ ) { ndigi = 256 / ngroups; }
+      else {
+	float rdm = 2.56 * RandGauss::shoot( meanOcc_, rmsOcc_ );
+	float tmp; bool extra = ( RandFlat::shoot() > modf(rdm,&tmp) );
+	ndigi = static_cast<uint16_t>(rdm) + static_cast<uint16_t>(extra);
+      }
+      vector<uint16_t> used_strips; used_strips.reserve(ndigi);
+      vector<uint16_t>::iterator iter;
+      uint16_t idigi = 0;
+      while ( idigi < ndigi ) {
+	uint16_t str;
+	uint16_t adc;
+	if ( testDistr_ ) { str = idigi*ngroups; adc = (idigi+1)*ngroups-1; }
 	else {
-	  float rdm = 2.56 * RandGauss::shoot( meanOcc_, rmsOcc_ );
-	  float tmp; bool extra = ( RandFlat::shoot() > modf(rdm,&tmp) );
-	  ndigi = static_cast<uint16_t>(rdm) + static_cast<uint16_t>(extra);
+	  str = static_cast<uint16_t>( 256. * RandFlat::shoot() );
+	  adc = static_cast<uint16_t>( 256. * RandFlat::shoot() );
 	}
-	vector<uint16_t> used_strips; used_strips.reserve(ndigi);
-	vector<uint16_t>::iterator iter;
-	uint16_t idigi = 0;
-	while ( idigi < ndigi ) {
-	  uint16_t str;
-	  uint16_t adc;
-	  if ( testDistr_ ) { str = idigi*8; adc = (idigi+1)*8-1 + conn.apvPairNumber()*256; }
-	  else {
-	    str = static_cast<uint16_t>( 256. * RandFlat::shoot() );
-	    adc = static_cast<uint16_t>( 1024. * RandFlat::shoot() );
-	  }
-	  iter = find( used_strips.begin(), used_strips.end(), str );
-	  if ( iter == used_strips.end() && adc ) { // require non-zero adc!
-	    digis.data.push_back( SiStripDigi( str+conn.apvPairNumber()*256, adc ) );
-	    used_strips.push_back( str ); 
-	    anal_.zsDigi( str+conn.apvPairNumber()*256, adc );
-	    ndigis++;
-	    idigi++;
-	  }
+	iter = find( used_strips.begin(), used_strips.end(), str );
+	if ( iter == used_strips.end() && adc ) { // require non-zero adc!
+	  digis.data.push_back( SiStripDigi( str+conn.apvPairNumber()*256, adc ) );
+	  used_strips.push_back( str ); 
+	  anal_.zsDigi( str+conn.apvPairNumber()*256, adc );
+	  ndigis++;
+	  idigi++;
 	}
-      } else {
-	cerr << "[SiStripTrivialDigiSource::produce]"
-	     << " Zero DetId returned for FED id " << *ifed
-	     << " and channel " << ichan << endl;
       }
     }
   }
@@ -114,13 +113,14 @@ void SiStripTrivialDigiSource::produce( edm::Event& iEvent,
   iEvent.put( collection );
   
   if ( nchans ) { 
-    cout << "[SiStripTrivialDigiSource::produce]"
-	 << " Generated " << ndigis 
-	 << " digis for " << nchans
-	 << " channels with a mean occupancy of " 
-	 << dec << setprecision(2)
-	 << ( 1. / 2.56 ) * (float)ndigis / (float)nchans << " %"
-	 << endl;
+    stringstream ss;
+    ss << "[SiStripTrivialDigiSource::produce]"
+       << " Generated " << ndigis 
+       << " digis for " << nchans
+       << " channels with a mean occupancy of " 
+       << dec << setprecision(2)
+       << ( 1. / 2.56 ) * (float)ndigis / (float)nchans << " %";
+    LogDebug("TrivialDigiSource") << ss.str();
   }
   
 }

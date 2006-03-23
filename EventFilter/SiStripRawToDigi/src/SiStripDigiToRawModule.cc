@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 // data formats
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -25,8 +26,7 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) 
   digiToRaw_(0),
   eventCounter_(0)
 {
-  cout << "[SiStripDigiToRawModule::SiStripDigiToRawModule]"
-       << " Constructing object..." << endl;
+  edm::LogInfo("DigiToRaw") << "[SiStripDigiToRawModule::SiStripDigiToRawModule] Constructing object...";
   
   // Create instance of DigiToRaw formatter
   string mode    = pset.getUntrackedParameter<std::string>("FedReadoutMode","VIRGIN_RAW");
@@ -40,8 +40,7 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) 
 // -----------------------------------------------------------------------------
 /** */
 SiStripDigiToRawModule::~SiStripDigiToRawModule() {
-  cout << "[SiStripDigiToRawModule::~SiStripDigiToRawModule]"
-       << " Destructing object..." << endl;
+  edm::LogInfo("DigiToRaw") << "[SiStripDigiToRawModule::~SiStripDigiToRawModule] Destructing object...";
   if ( digiToRaw_ ) delete digiToRaw_;
 }
 
@@ -56,8 +55,7 @@ void SiStripDigiToRawModule::produce( edm::Event& iEvent,
 				      const edm::EventSetup& iSetup ) {
 
   eventCounter_++; 
-  cout << "[SiStripDigiToRawModule::produce] "
-       << "event number: " << eventCounter_ << endl;
+  edm::LogInfo("DigiToRaw") << "[SiStripDigiToRawModule::produce] Event number: " << eventCounter_;
   
   edm::ESHandle<SiStripFedCabling> cabling;
   iSetup.get<SiStripFedCablingRcd>().get( cabling );

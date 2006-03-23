@@ -66,7 +66,7 @@ class SiStripRawToDigi {
 
   int16_t headerBytes_;
   int16_t dumpFrequency_;
-  bool useDetId_;
+  bool useFedKey_;
   uint16_t triggerFedId_;
 
   SiStripTrivialDigiAnalysis anal_;

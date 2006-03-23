@@ -7,7 +7,7 @@
 using namespace std;
 
 /**  
-     @brief A simple container class for generic event-related info.
+     @brief A container class for generic event-related info.
 */
 class SiStripEventSummary {
 
@@ -15,6 +15,8 @@ class SiStripEventSummary {
 
   SiStripEventSummary() {;}
   ~SiStripEventSummary() {;}
+
+  
 
   // getters
   inline const string& task() const { return task_; }

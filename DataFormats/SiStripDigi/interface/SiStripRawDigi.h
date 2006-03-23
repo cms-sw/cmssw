@@ -17,7 +17,7 @@ class SiStripRawDigi {
 
   inline const uint16_t& adc()     const { return adc_; }
   
-  inline bool operator< ( const SiStripRawDigi& other ) const { return true; }
+  inline bool operator< ( const SiStripRawDigi& other ) const { return false; } //@@ if true, VERY slow!!!
   
  private:
   

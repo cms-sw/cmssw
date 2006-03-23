@@ -3,13 +3,15 @@
 
 #include "IORawData/SiStripInputSources/interface/TBRUInputSource.h"
 #include "TBRU.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "PluginManager/PluginCapabilities.h"
+//#include "PluginManager/PluginCapabilities.h"
 
 #include "interface/evb/include/i2oEVBMsgs.h"
 #include "interface/shared/include/i2oXFunctionCodes.h"
 #include "Fed9UUtils.hh"
 #include <iostream>
+#include <sstream>
 using namespace  Fed9U;
 
 #include "ICExDecl.hh"
@@ -50,7 +52,7 @@ void TBRUInputSource::openFile(const std::string& filename) {
   //  try {
   m_file=TFile::Open(filename.c_str());
   if (m_file==0) {
-    cout << "Unable to open " << filename << endl;
+    edm::LogError("TBRU") << "Unable to open " << filename;
     m_tree=0;
     return;
   } 
@@ -62,7 +64,7 @@ void TBRUInputSource::openFile(const std::string& filename) {
   string run;
   run.clear();
   run=filename.substr(ipass+2,ipath-ipass-2);
-  cout << run << " et " << run.c_str() <<endl;
+  LogDebug("TBRU") << run << " et " << run.c_str();
   sscanf(run.c_str(),"%d",&n_run);
   printf("%d\n",n_run);
   //
@@ -72,12 +74,12 @@ void TBRUInputSource::openFile(const std::string& filename) {
   if (m_tree==0) {
     m_file->Close();
     m_file=0;
-    cout << "Unable to find TBRU tree" << endl;
+    edm::LogError("TBRU") << "Unable to find TBRU tree";
     return;
   }
   
   if (!m_quiet) {
-    cout << "Opening '" << filename << "' with " << m_tree->GetEntries() << " events.\n";
+    LogDebug("TBRU") << "Opening '" << filename << "' with " << m_tree->GetEntries() << " events.";
   }
 
   TObjArray* lb=m_tree->GetListOfBranches();
@@ -95,12 +97,12 @@ void TBRUInputSource::openFile(const std::string& filename) {
     sprintf(arrayname,"RU_%x",i/2);
       
 
-    cout <<"Branch "<< b->GetName()<<" is found "<< endl;
+    LogDebug("TBRU") <<"Branch "<< b->GetName()<<" is found ";
     if (!strcmp(b->GetName(),sizename)) {
       if (m_fed9ubufs[n_fed9ubufs] ==  0)
       {
 	m_fed9ubufs[n_fed9ubufs]= new TBRU(i/2);
-	cout << "Creating TBRU " << n_fed9ubufs<< " for  Instance " << i/2 << endl;
+	LogDebug("TBRU") << "Creating TBRU " << n_fed9ubufs<< " for  Instance " << i/2;
 	}
        b->SetAddress(&(m_fed9ubufs[n_fed9ubufs]->fSize));
 
@@ -111,7 +113,7 @@ void TBRUInputSource::openFile(const std::string& filename) {
     }
   }
   m_i=0;
-  cout << "File " << filename << " is opened" <<endl;
+  LogDebug("TBRU") << "File " << filename << " is opened";
   n_fed9ubufs = m_branches/2;
 }
 
@@ -139,7 +141,7 @@ void TBRUInputSource::setRunAndEventInfo() {
 
   I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block = ( I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*) rud;
    if ( (!m_quiet) || block->eventNumber%100 == 0) 
-    cout << "Event number " << n_run <<":"<< block->eventNumber <<" is read " << endl;
+    LogDebug("TBRU") << "Event number " << n_run <<":"<< block->eventNumber <<" is read ";
     setRunNumber(n_run);
     setEventNumber( block->eventNumber);
 
@@ -149,7 +151,7 @@ void TBRUInputSource::setRunAndEventInfo() {
 
   setTime(present_time + time_between_events);
   if (!m_quiet)
-  	cout <<"Event & run end" << endl;
+  	LogDebug("TBRU") <<"Event & run end";
 }
 
 bool TBRUInputSource::produce(edm::Event& e) {
@@ -159,8 +161,11 @@ bool TBRUInputSource::produce(edm::Event& e) {
   std::auto_ptr<FEDRawDataCollection> bare_product(new  FEDRawDataCollection());
   for (int i=0; i<n_fed9ubufs; i++) 
     {
-	if (!m_quiet)
-	std::cout << "Reading bytes for FED " << i << " At address " <<hex<< m_fed9ubufs[i] << dec <<std::endl;
+      if (!m_quiet) {
+	stringstream ss;
+	ss << "Reading bytes for FED " << i << " At address " <<hex<< m_fed9ubufs[i] << dec;
+	LogDebug("TBRU") << ss.str();
+      }
       I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block = ( I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*) m_fed9ubufs[i]->fBuffer;
       size_t msgHeaderSize       = sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
       
@@ -184,21 +189,22 @@ bool TBRUInputSource::produce(edm::Event& e) {
 	      fedEvent.checkEvent();
               id = fedEvent.getSourceId();
 	      if (!m_quiet)
-	      	std::cout<<"Fed ID is "<<fedEvent.getSourceId()<<std::endl;
+	      	LogDebug("TBRU")<<"Fed ID is "<<fedEvent.getSourceId();
 
 	    } catch (ICUtils::ICException &ex)
 	      {
-		std::cout<<"======================================================>  ERROR in ";
-		std::cout<< e.id().run() <<"::"<<e.id().event()<<"- Super fragment -" << i<< std::endl;
-		std::cout << ex.what() <<std::endl;
-	       std::cout<<"Cannot construct FED Event: Fed ID Might be "<<fedEvent.getSourceId()<<std::endl;
-		std::cout<<"======================================================>"<<std::endl;
-	       continue;
-
-	     }
-
+		stringstream ss;
+		ss <<"======================================================>  ERROR in " << "\n"
+		   << e.id().run() <<"::"<<e.id().event()<<"- Super fragment -" << i<< "\n"
+		   << ex.what() << "\n"
+		   <<"Cannot construct FED Event: Fed ID Might be "<<fedEvent.getSourceId() << "\n" 
+		   <<"======================================================>" << "\n";
+		edm::LogError("TBRU") << ss.str();
+		continue;
+	      }
+	  
 	}
-
+      
       const unsigned char* data=(const unsigned char*) &ibuf[1];
 
       FEDRawData& fed=bare_product->FEDData(id);
@@ -207,7 +213,7 @@ bool TBRUInputSource::produce(edm::Event& e) {
       memcpy(fed.data(),data,len);
 
       if (!m_quiet)
-	std::cout << "Reading " << len << " bytes for FED " << id << std::endl;
+	LogDebug("TBRU") << "Reading " << len << " bytes for FED " << id;
     }
 
 

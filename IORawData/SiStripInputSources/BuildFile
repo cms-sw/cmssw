@@ -1,8 +1,9 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/EDProduct>
+<use name=FWCore/MessageLogger>
 <use name=DataFormats/FEDRawData>
-<use name=PluginManager>
+#<use name=PluginManager>
 <use name=root>
 <use name=xdaq>
 <use name=Fed9UUtils>
@@ -14,8 +15,9 @@
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/EDProduct>
+<use name=FWCore/MessageLogger>
  <use name=DataFormats/FEDRawData>
- <use name=PluginManager>
+# <use name=PluginManager>
  <use name=root>
  <use name=xdaq>
  <use name=Fed9UUtils>

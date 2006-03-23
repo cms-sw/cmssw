@@ -1,4 +1,5 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiAnalysis.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -17,8 +18,8 @@ SiStripTrivialDigiAnalysis::SiStripTrivialDigiAnalysis( string class_name ) :
   prDigis_(0),
   smDigis_(0)
 {
-  cout << "[SiStripTrivialDigiAnalysis::SiStripTrivialDigiAnalysis]" 
-       << " Constructing object (owned by class " << name_ << ")..." << endl;
+  edm::LogInfo("TrivialDigiAnalysis") << "[SiStripTrivialDigiAnalysis::SiStripTrivialDigiAnalysis]" 
+				      << " Constructing object (owned by class " << name_ << ")...";
   zsPos_.clear(); zsAdc_.clear(); 
   vrPos_.clear(); vrAdc_.clear(); 
   prPos_.clear(); prAdc_.clear(); 
@@ -32,8 +33,8 @@ SiStripTrivialDigiAnalysis::SiStripTrivialDigiAnalysis( string class_name ) :
 // -----------------------------------------------------------------------------
 /** */
 SiStripTrivialDigiAnalysis::~SiStripTrivialDigiAnalysis() {
-  cout << "[SiStripTrivialDigiAnalysis::~SiStripTrivialDigiAnalysis]" 
-       << " Destructing object..." << endl;
+  edm::LogInfo("TrivialDigiAnalysis") << "[SiStripTrivialDigiAnalysis::~SiStripTrivialDigiAnalysis]" 
+				      << " Destructing object...";
   print();
   zsPos_.clear(); zsAdc_.clear(); 
   vrPos_.clear(); vrAdc_.clear(); 
@@ -49,11 +50,10 @@ void SiStripTrivialDigiAnalysis::zsDigi( uint16_t strip, uint16_t adc ) {
     zsPos_[strip]++; 
     zsAdc_[adc]++; 
   } else {
-    cerr << "[SiStripTrivialDigiAnalysis::zsDigi]"
-	 << " Unexpected value!"
-	 << " Strip: " << strip
-	 << " ADC: " << adc
-	 << endl;
+    edm::LogError("TrivialDigiSource") << "[SiStripTrivialDigiAnalysis::zsDigi]"
+				       << " Unexpected value!"
+				       << " Strip: " << strip
+				       << " ADC: " << adc;
   }
 }
 
@@ -65,11 +65,11 @@ void SiStripTrivialDigiAnalysis::vrDigi( uint16_t strip, uint16_t adc ) {
     vrPos_[strip]++; 
     vrAdc_[adc]++; 
   } else {
-    cerr << "[SiStripTrivialDigiAnalysis::vrDigi]"
+    edm::LogError("TrivialDigiSource") << "[SiStripTrivialDigiAnalysis::vrDigi]"
 	 << " Unexpected value! "
 	 << " Strip: " << strip
 	 << " ADC: " << adc
-	 << endl;
+	;
   }
 }
 
@@ -81,11 +81,10 @@ void SiStripTrivialDigiAnalysis::prDigi( uint16_t strip, uint16_t adc ) {
     prPos_[strip]++; 
     prAdc_[adc]++; 
   } else {
-    cerr << "[SiStripTrivialDigiAnalysis::prDigi]"
-	 << " Unexpected value! "
-	 << " Strip: " << strip
-	 << " ADC: " << adc
-	 << endl;
+    edm::LogError("TrivialDigiSource") << "[SiStripTrivialDigiAnalysis::prDigi]"
+				       << " Unexpected value! "
+				       << " Strip: " << strip
+				       << " ADC: " << adc;
   }
 }
 
@@ -97,30 +96,29 @@ void SiStripTrivialDigiAnalysis::smDigi( uint16_t strip, uint16_t adc ) {
     smPos_[strip]++; 
     smAdc_[adc]++; 
   } else {
-    cerr << "[SiStripTrivialDigiAnalysis::smDigi]"
-	 << " Unexpected value! "
-	 << " Strip: " << strip
-	 << " ADC: " << adc
-	 << endl;
+    edm::LogError("TrivialDigiSource") << "[SiStripTrivialDigiAnalysis::smDigi]"
+				       << " Unexpected value! "
+				       << " Strip: " << strip
+				       << " ADC: " << adc;
   }
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void SiStripTrivialDigiAnalysis::print() {
-  cout << "[SiStripTrivialDigiAnalysis::print]"
-       << " class: " << name_ 
-       << "  nEvents_: " << nEvents_ 
-       << "  nFeds_: " << nFeds_ 
-       << "  nChans_: " << nChans_ 
-       << "  nDets_: " << nDets_ 
-       << "  zsDigis_: " << zsDigis_ 
-       << "  vrDigis_: " << vrDigis_ 
-       << "  prDigis_: " << prDigis_ 
-       << "  smDigis_: " << smDigis_ 
-       << endl;
+  edm::LogInfo("TrivialDigiAnalysis") << "[SiStripTrivialDigiAnalysis::print]"
+				      << " class: " << name_ 
+				      << "  nEvents_: " << nEvents_ 
+				      << "  nFeds_: " << nFeds_ 
+				      << "  nChans_: " << nChans_ 
+				      << "  nDets_: " << nDets_ 
+				      << "  zsDigis_: " << zsDigis_ 
+				      << "  vrDigis_: " << vrDigis_ 
+				      << "  prDigis_: " << prDigis_ 
+				      << "  smDigis_: " << smDigis_;
   
   stringstream ss;
+  uint16_t cntr;
   uint16_t tmp;
   uint16_t total;
   
@@ -131,110 +129,120 @@ void SiStripTrivialDigiAnalysis::print() {
   // ZS
   tmp = 0; ss.str("");
   ss << "[SiStripTrivialDigiAnalysis::print]"
-     << " ZS Digi position (strip = 0->9): ";
+     << " ZS Digi position (strip/freq): ";
   for ( uint16_t i = 0; i < zsPos_.size(); i++ ) {
-    if ( i<10 ) { ss << setw(5) << zsPos_[i] << ", "; }
+    if ( !(i%128) && zsPos_[i] ) { ss << i << "/" << zsPos_[i] << ", "; }
     tmp += zsPos_[i];
   }
   ss << " (total: " << tmp << ")";
-  cout << ss.str() << endl;
+  edm::LogInfo("TrivialDigiAnalysis") << ss.str();
   total += tmp;
-
+  
   // VR
   tmp = 0; ss.str("");
   ss << "[SiStripTrivialDigiAnalysis::print]"
-     << " VR Digi position (strip = 0->9): ";
+     << " VR Digi position (strip/freq): ";
   for ( uint16_t i = 0; i < vrPos_.size(); i++ ) {
-    if ( i<10 ) { ss << setw(5) << vrPos_[i] << ", "; }
+    if ( !(i%128) && vrPos_[i] ) { ss << i << "/" << vrPos_[i] << ", "; }
     tmp += vrPos_[i];
   }
   ss << " (total: " << tmp << ")";
-  cout << ss.str() << endl;
+  edm::LogInfo("TrivialDigiAnalysis") << ss.str();
   total += tmp;
 
   // PR
   tmp = 0; ss.str("");
   ss << "[SiStripTrivialDigiAnalysis::print]"
-     << " PR Digi position (strip = 0->9): ";
+     << " PR Digi position (strip/freq): ";
   for ( uint16_t i = 0; i < prPos_.size(); i++ ) {
-    if ( i<10 ) { ss << setw(5) << prPos_[i] << ", "; }
+    if ( !(i%128) && prPos_[i] ) { ss << i << "/" << prPos_[i] << ", "; }
     tmp += prPos_[i];
   }
   ss << " (total: " << tmp << ")";
-  cout << ss.str() << endl;
+  edm::LogInfo("TrivialDigiAnalysis") << ss.str();
   total += tmp;
   
   // SM
   tmp = 0; ss.str("");
   ss << "[SiStripTrivialDigiAnalysis::print]"
-     << " SM Digi position (strip = 0->9): ";
+     << " SM Digi position (strip/freq): ";
   for ( uint16_t i = 0; i < smPos_.size(); i++ ) {
-    if ( i<10 ) { ss << setw(5) << smPos_[i] << ", "; }
+    if ( !(i%128) && smPos_[i] ) { ss << i << "/" << smPos_[i] << ", "; }
     tmp += smPos_[i];
   }
   ss << " (total: " << tmp << ")";
-  cout << ss.str() << endl;
+  edm::LogInfo("TrivialDigiAnalysis") << ss.str();
   total += tmp;
   
-  cout << "[SiStripTrivialDigiAnalysis::print]"
-       << " Total number of digis (ZS+VR+PR+SM): "
-       << total << endl;
+  edm::LogInfo("TrivialDigiAnalysis") << "[SiStripTrivialDigiAnalysis::print]"
+				      << " Total number of digis (ZS+VR+PR+SM): " << total;
 
   // LANDAU
 
   total = 0; 
   
   // ZS
-  tmp = 0; ss.str("");
+  cntr = 0; tmp = 0; ss.str("");
   ss << "[SiStripTrivialDigiAnalysis::print]"
-     << " ZS Digi Landau (ADC val = 0->9): ";
+     << " ZS Digi Landau (ADC/freq): ";
   for ( uint16_t i = 0; i < zsAdc_.size(); i++ ) {
-    if ( i<10 ) { ss << setw(5) << zsAdc_[i] << ", "; }
+    if ( zsAdc_[i] ) {
+      if ( cntr<10 ) { ss << i << "/" << zsAdc_[i] << ", "; } 
+      cntr++;
+    }
     tmp += zsAdc_[i];
   }
   ss << " (total: " << tmp << ")";
-  cout << ss.str() << endl;
+  edm::LogInfo("TrivialDigiAnalysis") << ss.str();
   total += tmp;
 
   // VR
-  tmp = 0; ss.str("");
+  cntr = 0; tmp = 0; ss.str("");
   ss << "[SiStripTrivialDigiAnalysis::print]"
-     << " VR Digi Landau (ADC val = 0->9): ";
+     << " VR Digi Landau (ADC/freq): ";
   for ( uint16_t i = 0; i < vrAdc_.size(); i++ ) {
-    if ( i<10 ) { ss << setw(5) << vrAdc_[i] << ", "; }
+    if ( vrAdc_[i] ) {
+      if ( cntr<10 ) { ss << i << "/" << vrAdc_[i] << ", "; } 
+      cntr++;
+    }
     tmp += vrAdc_[i];
   }
   ss << " (total: " << tmp << ")";
-  cout << ss.str() << endl;
+  edm::LogInfo("TrivialDigiAnalysis") << ss.str();
   total += tmp;
 
   // PR
-  tmp = 0; ss.str("");
+  cntr = 0; tmp = 0; ss.str("");
   ss << "[SiStripTrivialDigiAnalysis::print]"
-     << " PR Digi Landau (ADC val = 0->9): ";
+     << " PR Digi Landau (ADC/freq): ";
   for ( uint16_t i = 0; i < prAdc_.size(); i++ ) {
-    if ( i<10 ) { ss << setw(5) << prAdc_[i] << ", "; }
+    if ( prAdc_[i] ) {
+      if ( cntr<10 ) { ss << i << "/" << prAdc_[i] << ", "; } 
+      cntr++;
+    }
     tmp += prAdc_[i];
   }
   ss << " (total: " << tmp << ")";
-  cout << ss.str() << endl;
+  edm::LogInfo("TrivialDigiAnalysis") << ss.str();
   total += tmp;
   
   // SM
-  tmp = 0; ss.str("");
+  cntr = 0; tmp = 0; ss.str("");
   ss << "[SiStripTrivialDigiAnalysis::print]"
-     << " SM Digi Landau (ADC val = 0->9): ";
+     << " SM Digi Landau (ADC/freq): ";
   for ( uint16_t i = 0; i < smAdc_.size(); i++ ) {
-    if ( i<10 ) { ss << setw(5) << smAdc_[i] << ", "; }
+    if ( smAdc_[i] ) {
+      if ( cntr<10 ) { ss << i << "/" << smAdc_[i] << ", "; } 
+      cntr++;
+    }
     tmp += smAdc_[i];
   }
   ss << " (total: " << tmp << ")";
-  cout << ss.str() << endl;
+  edm::LogInfo("TrivialDigiAnalysis") << ss.str();
   total += tmp;
   
-  cout << "[SiStripTrivialDigiAnalysis::print]"
-       << " Total number of digis (ZS+VR+PR+SM): "
-       << total << endl;
+  edm::LogInfo("TrivialDigiAnalysis") << "[SiStripTrivialDigiAnalysis::print]"
+				      << " Total number of digis (ZS+VR+PR+SM): " << total;
   
 }
 
