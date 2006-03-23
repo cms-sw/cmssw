@@ -5,11 +5,11 @@
 
 using std::bitset;
 
-/*! \file L1GctElectronSorter.h
+/*! \file L1GctEmCand.h
  * \Header file for the Gct electron 
- *  candidate sorter class
+ *  candidate
  * 
- * \author: Jim Brook
+ * \author: Jim Brooke
  *
  * Set methods added by Maria Hansen
  * \date: 15/03/2006
@@ -23,14 +23,24 @@ public:
 	L1GctEmCand(ULong rank=0, ULong eta=0, ULong phi=0);
 	~L1GctEmCand();
 	
-	// set internal data
+	///
+	/// set rank bits
 	void setRank(unsigned long rank) { myRank = rank; }
+	///
+	/// set eta bits
 	void setEta(unsigned long eta) { myEta = eta; }
+	///
+	/// set phi bits
 	void setPhi(unsigned long phi) { myPhi = phi; }
 
-	// get internal data
+	///
+	/// get rank bits
 	inline unsigned long getRank() { return myRank.to_ulong(); }
+	///
+	/// get eta bits
 	inline unsigned long getEta() { return myEta.to_ulong(); }
+	///
+	/// get phi bits
 	inline unsigned long getPhi() { return myPhi.to_ulong(); }
 
 private:

@@ -63,11 +63,24 @@ private:
 
 	// singleton private constructor
 	L1GlobalCaloTrigger();
+	
+	// move data around
+	void setupAlgoInputs();
 
 private:
 
 	// instance of the GCT
 	static L1GlobalCaloTrigger* instance;
+
+	// pointers to the algorithms
+	vector<L1GctJetFinder*> theJetFinders;
+	vector<L1GctElectronSorter*> theElectronSorters;
+	vector<L1GctWheelJetFpga*> theWheelJetFpgas;
+	vector<L1GctWheelEnergyFpga*> theWheelEnergyFpgas;
+	L1GctJetFinalStage* theJetFinalStage;
+	L1GctGlobalEnergyAlgos* theGlobalEnergyAlgos;
+	L1GctElectronFinalSort* theElectronFinalSort;
+
 
 	// pointers to the modules
 	L1GctCaloConcentratorCard* caloConcCard;

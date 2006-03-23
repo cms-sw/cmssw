@@ -18,7 +18,7 @@ public:
 	void process();
 
 	// set input data
-	void setInputSums(unsigned ex, unsigned ey);
+	void setInputEnergy(int i, unsigned ex, unsigned ey);
 	
 	// get input data
 	inline unsigned long getInputEx() { return inputEx.to_ulong(); }
