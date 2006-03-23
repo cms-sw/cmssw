@@ -3,11 +3,29 @@
 
 /** \class DTTTrigSyncFromDB
  *  Concrete implementation of a DTTTrigBaseSync.
- *  This plugin reads only the t0 from pulses from the DB.
+ *  This class define the offset for RecHit building
+ *  of data and simulation.
+ *  The offset is computes as: 
+ *  <br>
+ *  offset = t0 + tTrig + wirePropCorr - tofCorr 
+ *  <br>
+ *  where: <br>
+ *     - t0 from test pulses (taken from DB, it is assumed to be in TDC Counts)
+ *     - ttrig from the fit of time boxrising edge (taken from DB, it is assumed to be in ns)
+ *       (At the moment a single value is read for ttrig offset 
+ *       but this may change in the future)
+ *     - signal propagation along: it is assumed the ttrig accounts on average for
+ *       correction from the center of the wire to the frontend.
+ *       Here we just have to correct for the distance of the hit from the wire center.
+ *     - TOF correction (can be switched off for cosmics):
+ *       the ttrig already accounts for average TOF correction, 
+ *       depending on the granularity used for the ttrig computation we just have to correct for the
+ *       TOF from the center of the chamber, SL, layer or wire to the hit position.
+ *       NOTE: particles are assumed as coming from the IP.
  *
  *
- *  $Date: 2006/03/14 13:02:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/15 12:44:52 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -56,6 +74,11 @@ public:
   const DTTtrig *tTrigMap;
   // Set the verbosity level
   static bool debug;
+  // The velocity of signal propagation along the wire (cm/ns)
+  double theVPropWire;
+  // Switch on/off the TOF correction for particles from IP
+  bool doTOFCorrection;
+
 };
 #endif
 
