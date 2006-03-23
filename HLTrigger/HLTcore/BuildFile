@@ -1,9 +1,9 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<flags SEAL_PLUGIN_NAME="MyTestJetFilteree">
+<flags SEAL_PLUGIN_NAME="HLTSimpleJet">
 <export>
-   <lib name=MyTestJetFilter>
+   <lib name=HLTcoreHLTSimpleJet>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
