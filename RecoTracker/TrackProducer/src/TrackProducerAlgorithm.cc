@@ -20,8 +20,7 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 				 TrackCandidateCollection& theTCCollection,
 				 const TrajectoryFitter * theFitter,
 				 const Propagator * thePropagator,
-				 std::auto_ptr<reco::TrackCollection>& tcoll,
-				 std::auto_ptr<reco::TrackExtraCollection>& tecoll)
+				 AlgoProductCollection& algoResults)
 {
   int cont = 0;
   for (TrackCandidateCollection::iterator i=theTCCollection.begin(); i!=theTCCollection.end();i++)
@@ -60,14 +59,15 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
       //variable declarations
       std::vector<Trajectory> trajVec;
       reco::Track * theTrack;
-      reco::TrackExtra * theTrackExtra;
       Trajectory * theTraj; 
       
       //perform the fit: the result's size is 1 if it succeded, 0 if fails
       trajVec = theFitter->fit(theTC->seed(), hits, theTSOS);
       
       TransverseImpactPointExtrapolator * tipe;
-      TrajectoryStateOnSurface tsos, outertsos, innertsos;
+      TrajectoryStateOnSurface tsos;
+      TrajectoryStateOnSurface innertsos;
+
       
       if (trajVec.size() != 0){
 	
@@ -75,14 +75,12 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 	
 	theTraj = &( trajVec.front() );
 	
-	//sets the outermost and innermost TSOSs
 	if (theTraj->direction() == alongMomentum) {
-	  outertsos = theTraj->lastMeasurement().updatedState();
 	  innertsos = theTraj->firstMeasurement().updatedState();
 	} else { 
-	  outertsos = theTraj->firstMeasurement().updatedState();
 	  innertsos = theTraj->lastMeasurement().updatedState();
 	}
+
 	
 	//extrapolate the innermost state to the point of closest approach to the beamline
 	tsos = tipe->extrapolate(*(innertsos.freeState()), 
@@ -112,43 +110,9 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 				   vtx,
 				   mom,
 				   cov);
-	
-// 	//build the TrackExtra
-// 	v = outertsos.globalParameters().position();
-// 	p = outertsos.globalParameters().momentum();
-// 	math::XYZVector outmom( p.x(), p.y(), p.z() );
-// 	math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
-// 	theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
+	AlgoProduct aProduct(theTraj,theTrack);
+	algoResults.push_back(aProduct);
 
-
-// 	//fill the TrackExtra with TrackingRecHitRef	
-// 	int cc = 0;	
-// 	const edm::ProductID pid(0);
-// 	TrackingRecHitCollection trhcoll;//needed by OrphanHandle
-// 	for (edm::OwnVector<TransientTrackingRecHit>::iterator i=theTraj->recHits().begin();
-// 	     i!=theTraj->recHits().end(); i++){
-// 	  trhcoll.push_back(&(*i));
-// 	}
-// 	edm::OrphanHandle<TrackingRecHitCollection> trhcollOH(&trhcoll,pid);//needed by TrackingRecHitRef
-// 	for (TrackingRecHitCollection::const_iterator i=trhcollOH.product()->begin();
-// 	     i!=trhcollOH.product()->end(); i++){
-// 	  theTrackExtra->add(TrackingRecHitRef(trhcollOH,cc));
-// 	  cc++;
-// 	}
-
-	
-// 	//fill the TrackExtraCollection
-// 	tecoll->push_back(*theTrackExtra);
-// 	edm::OrphanHandle <reco::TrackExtraCollection> tecollOH(tecoll.get(),pid);
-
-// 	//create a TrackExtraRef
-// 	reco::TrackExtraRef  theTrackExtraRef(tecollOH,cont);
-	
-// 	//use the TrackExtraRef to assign the TrackExtra to the Track
-// 	theTrack->setExtra(theTrackExtraRef);
-	
-// 	//fill the TrackCollection
-// 	tcoll->push_back(*theTrack);
 
 	cont++;
       }

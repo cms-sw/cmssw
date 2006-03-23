@@ -21,9 +21,10 @@
 TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
   theAlgo(iConfig), conf_(iConfig)
 {
-   //register your products
-   produces<reco::TrackCollection>();
-   produces<reco::TrackExtraCollection>();
+  //register your products
+  produces<TrackingRecHitCollection>();
+  produces<reco::TrackCollection>();
+  produces<reco::TrackExtraCollection>();
 }
 
 TrackProducer::~TrackProducer(){ }
@@ -33,6 +34,7 @@ TrackProducer::~TrackProducer(){ }
 void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 {
   // create empty output collections
+  std::auto_ptr<TrackingRecHitCollection> outputRHColl;
   std::auto_ptr<reco::TrackCollection> outputTColl;
   std::auto_ptr<reco::TrackExtraCollection> outputTEColl;
   //get geometry
@@ -53,12 +55,102 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
   edm::ESHandle<Propagator> thePropagator;
   setup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
-  //run the algorithm  
-  theAlgo.run(theG.product(), theMF.product(), theTCCollection, theFitter.product(), thePropagator.product(), outputTColl, outputTEColl);
 
-  //put the TrackCollection and TrackExtraCollection in the event
+  //   edm::Handle<TrackCandidateCollection> theTCCollection;
+  //   theEvent.getByLabel( "minchipink", theTCCollection );
+
+  //run the algorithm  
+  AlgoProductCollection algoResults;
+  theAlgo.run(theG.product(), theMF.product(), theTCCollection, theFitter.product(), 
+	      thePropagator.product(), algoResults);
+
+  
+
+  //
+  //first loop: create the full collection of TrackingRecHit
+  //
+  for(AlgoProductCollection::iterator i=algoResults.begin();
+      i!=algoResults.end();i++){
+  
+    Trajectory * theTraj = (*i).first;
+    
+    const edm::OwnVector<TransientTrackingRecHit>& transHits = theTraj->recHits();
+    for(edm::OwnVector<TransientTrackingRecHit>::const_iterator j=transHits.begin();
+	j!=transHits.end(); j++){
+      outputRHColl->push_back( ( j->hit() ) );
+    }
+    
+  }
+  //put the collection of TrackingRecHit in the event
+  edm::OrphanHandle <TrackingRecHitCollection> ohRH = theEvent.put( outputRHColl );
+
+
+  //
+  //second loop: create the collection of TrackExtra
+  //
+  int cc = 0;	
+  for(AlgoProductCollection::iterator i=algoResults.begin();
+      i!=algoResults.end();i++){
+
+    Trajectory * theTraj = (*i).first;
+   
+    reco::TrackExtra * theTrackExtra;
+    //sets the outermost and innermost TSOSs
+    TrajectoryStateOnSurface outertsos;
+    TrajectoryStateOnSurface innertsos;
+    if (theTraj->direction() == alongMomentum) {
+      outertsos = theTraj->lastMeasurement().updatedState();
+      innertsos = theTraj->firstMeasurement().updatedState();
+    } else { 
+      outertsos = theTraj->firstMeasurement().updatedState();
+      innertsos = theTraj->lastMeasurement().updatedState();
+    }
+    //build the TrackExtra
+    GlobalPoint v = outertsos.globalParameters().position();
+    GlobalVector p = outertsos.globalParameters().momentum();
+    math::XYZVector outmom( p.x(), p.y(), p.z() );
+    math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
+    theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
+    
+    
+    //fill the TrackExtra with TrackingRecHitRef	
+    const edm::OwnVector<TransientTrackingRecHit>& transHits = theTraj->recHits();
+    for(edm::OwnVector<TransientTrackingRecHit>::const_iterator j=transHits.begin();
+	j!=transHits.end(); j++){
+      theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
+      cc++;
+    }
+    
+    //fill the TrackExtraCollection
+    outputTEColl->push_back(*theTrackExtra);
+  }
+  //put the collection of TrackExtra in the event
+  edm::OrphanHandle<reco::TrackExtraCollection> ohTE = theEvent.put(outputTEColl);
+
+
+  //
+  //third loop: create the collection of Tracks
+  //
+  cc = 0;
+  for(AlgoProductCollection::iterator i=algoResults.begin();
+      i!=algoResults.end();i++){
+
+    reco::Track * theTrack = (*i).second;
+    
+    //create a TrackExtraRef
+    reco::TrackExtraRef  theTrackExtraRef(ohTE,cc);
+    
+    //use the TrackExtraRef to assign the TrackExtra to the Track
+    theTrack->setExtra(theTrackExtraRef);
+    
+    //fill the TrackCollection
+    outputTColl->push_back(*theTrack);
+    
+    cc++;
+  }
+  //put the TrackCollection in the event
   theEvent.put(outputTColl);
-  theEvent.put(outputTEColl);
+
 }
 
 //define this as a plug-in
