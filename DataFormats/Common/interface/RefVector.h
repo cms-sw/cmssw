@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
+$Id: RefVector.h,v 1.2 2006/02/13 19:14:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,19 +19,22 @@ $Id: RefVector.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 
 namespace edm {
 
-  template <typename C, typename T = typename Ref<C>::value_type>
+  template <typename C, typename T = typename Ref<C>::value_type, typename F = typename Ref<C>::finder_type>
   class RefVector {
   public:
-    typedef RefVectorIterator<C, T> iterator;
+    typedef RefVectorIterator<C, T, F> iterator;
     typedef iterator const_iterator;
 
     typedef T value_type;
 
     // C is the type of the collection
     // T is the type of a member the collection
+    
+    typedef RefItem<typename Ref<C, T, F>::index_type> RefItemType;
 
     // size_type is the type of the index into the collection
-    typedef RefItem::size_type size_type;
+    typedef typename RefItemType::index_type size_type;
+    
 
     /// Default constructor needed for reading from persistent store. Not for direct use.
     RefVector() : refVector_() {}
@@ -44,26 +47,26 @@ namespace edm {
     ~RefVector() {}
 
     /// Add a Ref<C, T> to the RefVector
-    void push_back(Ref<C, T> const& ref) {refVector_.pushBack(ref.ref().product(), ref.ref().item());}
+    void push_back(Ref<C, T, F> const& ref) {refVector_.pushBack(ref.ref().product(), ref.ref().item());}
 
     /// Retrieve an element of the RefVector
-    Ref<C, T> const operator[](size_type idx) const {
-      RefItem const& item = refVector_.items()[idx];
+    Ref<C, T, F> const operator[](size_type idx) const {
+      RefItemType const& item = refVector_.items()[idx];
       RefCore const& product = refVector_.product();
-      getPtr<C, T>(product, item);
-      return Ref<C, T>(product, item);
+      getPtr<C, T, F>(product, item);
+      return Ref<C, T, F>(product, item);
     }
 
     /// Retrieve an element of the RefVector
-    Ref<C, T> const at(size_type idx) const {
-      RefItem const& item = refVector_.items().at(idx);
+    Ref<C, T, F> const at(size_type idx) const {
+      RefItemType const& item = refVector_.items().at(idx);
       RefCore const& product = refVector_.product();
-      getPtr<C, T>(product, item);
-      return Ref<C, T>(product, item);
+      getPtr<C, T, F>(product, item);
+      return Ref<C, T, F>(product, item);
     }
 
     /// Accessor for all data
-    RefVectorBase const& refVector() const {return refVector_;}
+    RefVectorBase<size_type> const& refVector() const {return refVector_;}
 
     /// Is the RefVector empty
     bool empty() const {return refVector_.empty();}
@@ -90,30 +93,30 @@ namespace edm {
     iterator erase(iterator const& pos);
 
   private:
-    RefVectorBase refVector_;
+    RefVectorBase<size_type> refVector_;
   };
 
-  template <typename C, typename T>
+  template <typename C, typename T, typename F>
   inline
   bool
-  operator==(RefVector<C, T> const& lhs, RefVector<C, T> const& rhs) {
+  operator==(RefVector<C, T, F> const& lhs, RefVector<C, T, F> const& rhs) {
     return lhs.refVector() == rhs.refVector();
   }
 
-  template <typename C, typename T>
+  template <typename C, typename T, typename F>
   inline
   bool
-  operator!=(RefVector<C, T> const& lhs, RefVector<C, T> const& rhs) {
+  operator!=(RefVector<C, T, F> const& lhs, RefVector<C, T, F> const& rhs) {
     return !(lhs == rhs);
   }
 
-  template <typename C, typename T>
+  template <typename C, typename T, typename F>
   inline
-  typename RefVector<C, T>::iterator RefVector<C, T>::erase(iterator const& pos) {
-    RefVectorBase::RefItems::size_type index = pos - begin();
-    RefVectorBase::RefItems::iterator newPos = refVector_.eraseAtIndex(index);
+  typename RefVector<C, T, F>::iterator RefVector<C, T, F>::erase(iterator const& pos) {
+    typename RefVectorBase<size_type>::RefItems::size_type index = pos - begin();
+    typename RefVectorBase<size_type>::RefItems::iterator newPos = refVector_.eraseAtIndex(index);
     RefCore const& product = refVector_.product();
-    return RefVector<C, T>::iterator(product, newPos);
+    return RefVector<C, T, F>::iterator(product, newPos);
 
   }
 

@@ -9,12 +9,12 @@
    <field name="prodGetter_" transient="true"/>
    <field name="prodPtr_" transient="true"/>
  </class>
- <class name="edm::RefItem">
+ <class name="edm::RefItem<unsigned int>">
    <field name="ptr_" transient="true"/>
  </class>
- <class name="edm::RefBase"/>
- <class name="edm::RefVectorBase"/>
- <class name="std::vector<edm::RefItem>"/>
+ <class name="edm::RefBase<unsigned int>"/>
+ <class name="edm::RefVectorBase<unsigned int>"/>
+ <class name="std::vector<edm::RefItem<unsigned int> >"/>
  <class name="std::basic_string<char>"/>
  <class name="std::vector<std::basic_string<char> >"/>
  <class name="std::vector<float>"/>

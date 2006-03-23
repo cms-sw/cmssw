@@ -45,4 +45,9 @@ namespace { namespace {
   edm::Wrapper<long double> dummyw11;
   edm::Wrapper<float> dummyw12;
   edm::Wrapper<edm::TriggerResults> dummyw17;
+
+  edm::RefItem<unsigned int> dummyRefItem;
+  edm::RefBase<std::vector<unsigned int>::size_type> dummRefBase;
+  edm::RefVectorBase<std::vector<unsigned int>::size_type> dummyRefVectorBase;
+
 }}

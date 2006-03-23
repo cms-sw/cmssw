@@ -2,7 +2,7 @@
 #define Common_DetSetVector_h
 
 /*----------------------------------------------------------------------
-  
+
 DetSetVector: A collection of homogeneous objects that can be used for
 an EDProduct. DetSetVector is *not* designed for use as a base class
 (it has no virtual functions).
@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
+$Id: DetSetVector.h,v 1.2 2006/03/03 17:10:39 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -46,14 +46,13 @@ namespace edm {
   // The following template partial specialization can be removed
   // when we move to GCC 3.4.x
   //------------------------------------------------------------
-  
+
   // Partial specialization of has_postinsert_trait template for any
   // DetSetVector<T>, regardless of T; all DetSetVector classes have
   // post_insert.
-  
+
   template <class T>
-  struct has_postinsert_trait<edm::DetSetVector<T> >
-  {
+  struct has_postinsert_trait<edm::DetSetVector<T> > {
     static bool const value = true;
   };
 
@@ -61,12 +60,10 @@ namespace edm {
   // Helper function, to regularize throwing of exceptions.
   //------------------------------------------------------------
 
-  namespace detail
-  {
+  namespace detail {
     // Throw an edm::Exception with an appropriate message
     inline
-    void _throw_range(det_id_type i)
-    {
+    void _throw_range(det_id_type i) {
       throw edm::Exception(errors::InvalidReference)
 	<< "DetSetVector::operator[] called with index not in collection;\n"
 	<< "index value: " << i;
@@ -77,8 +74,7 @@ namespace edm {
   //
 
   template <class T>
-  class DetSetVector 
-  {
+  class DetSetVector {
     /// DetSetVector requires that T objects can be compared with
     /// operator<.
     BOOST_CLASS_REQUIRE(T, boost, LessThanComparableConcept);
@@ -116,7 +112,7 @@ namespace edm {
     /// Find the DetSet with the given DetId, and return a reference
     /// to it. If there is none, create one with the right DetId, and
     /// an empty vector, and return a reference to the new one.
-    reference find_or_insert(det_id_type id);      
+    reference find_or_insert(det_id_type id);
 
     /// Return true if we contain no DetSets.
     bool empty() const;
@@ -162,16 +158,14 @@ namespace edm {
   template <class T>
   inline
   void
-  DetSetVector<T>::swap(DetSetVector<T>& other) 
-  {
+  DetSetVector<T>::swap(DetSetVector<T>& other) {
     _sets.swap(other._sets);
   }
 
   template <class T>
   inline
   void
-  DetSetVector<T>::insert(detset const& t) 
-  {
+  DetSetVector<T>::insert(detset const& t) {
     // It seems we have to sort on each insertion, because we may
     // perform lookups during construction.
     _sets.push_back(t);
@@ -182,14 +176,13 @@ namespace edm {
   template <class T>
   inline
   typename DetSetVector<T>::reference
-  DetSetVector<T>::find_or_insert(det_id_type id)
-  {
-    std::pair<iterator,iterator> p = 
+  DetSetVector<T>::find_or_insert(det_id_type id) {
+    std::pair<iterator,iterator> p =
       std::equal_range(_sets.begin(), _sets.end(), id);
 
     // If the range isn't empty, we already have the right thing;
     // return a reference to it...
-    if ( p.first != p.second ) return *p.first;
+    if (p.first != p.second) return *p.first;
 
     // Insert the right thing, in the right place, and return a
     // reference to the newly inserted thing.
@@ -199,34 +192,31 @@ namespace edm {
   template <class T>
   inline
   bool
-  DetSetVector<T>::empty() const 
-  {
+  DetSetVector<T>::empty() const {
     return _sets.empty();
   }
 
   template <class T>
   inline
   typename DetSetVector<T>::size_type
-  DetSetVector<T>::size() const
-  {
+  DetSetVector<T>::size() const {
     return _sets.size();
   }
 
   template <class T>
   inline
   typename DetSetVector<T>::iterator
-  DetSetVector<T>::find(det_id_type id)
-  {
-    std::pair<iterator,iterator> p = 
+  DetSetVector<T>::find(det_id_type id) {
+    std::pair<iterator,iterator> p =
       std::equal_range(_sets.begin(), _sets.end(), id);
-    if ( p.first == p.second ) return _sets.end();
+    if (p.first == p.second) return _sets.end();
 
     // The range indicated by [p.first, p.second) should be exactly of
     // length 1. It seems likely we don't want to take the time hit of
     // checking this, but here is the appropriate test... We can turn
     // it on if we need the debugging aid.
     #if 0
-    assert(std::distance(p.first, p.second) == 1 );
+    assert(std::distance(p.first, p.second) == 1);
     #endif
 
     return p.first;
@@ -235,93 +225,83 @@ namespace edm {
   template <class T>
   inline
   typename DetSetVector<T>::const_iterator
-  DetSetVector<T>::find(det_id_type id) const
-  {
-    std::pair<const_iterator,const_iterator> p = 
+  DetSetVector<T>::find(det_id_type id) const {
+    std::pair<const_iterator,const_iterator> p =
       std::equal_range(_sets.begin(), _sets.end(), id);
-    if ( p.first == p.second ) return _sets.end();
+    if (p.first == p.second) return _sets.end();
     // The range indicated by [p.first, p.second) should be exactly of
     // length 1.
-    assert( std::distance(p.first, p.second) == 1 );
+    assert(std::distance(p.first, p.second) == 1);
     return p.first;
   }
 
   template <class T>
   inline
   typename DetSetVector<T>::reference
-  DetSetVector<T>::operator[](det_id_type i) 
-  {
+  DetSetVector<T>::operator[](det_id_type i) {
     // Find the right DetSet, and return a reference to it.  Throw if
     // there is none.
     iterator it = this->find(i);
-    if ( it == this->end() ) detail::_throw_range(i);
+    if (it == this->end()) detail::_throw_range(i);
     return *it;
   }
 
   template <class T>
   inline
   typename DetSetVector<T>::const_reference
-  DetSetVector<T>::operator[](det_id_type i) const 
-  {
+  DetSetVector<T>::operator[](det_id_type i) const {
     // Find the right DetSet, and return a reference to it.  Throw if
     // there is none.
     const_iterator it = this->find(i);
-    if ( it == this->end() ) detail::_throw_range(i);
+    if (it == this->end()) detail::_throw_range(i);
     return *it;
   }
 
   template <class T>
   inline
   typename DetSetVector<T>::iterator
-  DetSetVector<T>::begin()
-  {
+  DetSetVector<T>::begin() {
     return _sets.begin();
   }
 
   template <class T>
   inline
   typename DetSetVector<T>::const_iterator
-  DetSetVector<T>::begin() const
-  {
+  DetSetVector<T>::begin() const {
     return _sets.begin();
   }
 
   template <class T>
   inline
   typename DetSetVector<T>::iterator
-  DetSetVector<T>::end()
-  {
+  DetSetVector<T>::end() {
     return _sets.end();
   }
 
   template <class T>
   inline
   typename DetSetVector<T>::const_iterator
-  DetSetVector<T>::end() const
-  {
+  DetSetVector<T>::end() const {
     return _sets.end();
   }
 
   template <class T>
   inline
   void
-  DetSetVector<T>::post_insert()
-  {
+  DetSetVector<T>::post_insert() {
     typename collection_type::iterator i = _sets.begin();
     typename collection_type::iterator e = _sets.end();
     // For each DetSet...
-    for ( ; i != e; ++i )
-      {
-	// sort the Detset pointed to by
-	std::sort(i->data.begin(), i->data.end());
-      }
+    for (; i != e; ++i) {
+      // sort the Detset pointed to by
+      std::sort(i->data.begin(), i->data.end());
+    }
   }
 
   template <class T>
   inline
   void
-  DetSetVector<T>::_sort()
-  {
+  DetSetVector<T>::_sort() {
     std::sort(_sets.begin(), _sets.end());
   }
 }
@@ -332,56 +312,50 @@ namespace edm {
 #include "DataFormats/Common/interface/Ref.h"
 namespace edm {
 
-   namespace refitem {
-      template<typename T>
-      struct GetPtrImpl<DetSetVector<T>,T> {
-         static T const* getPtr_(RefCore const& product, RefItem const& item) {
-            typedef DetSetVector<T> C;
-            C const* prod = getProduct<C>(product);
-            typename C::const_iterator it = prod->begin();
-            RefItem::size_type index = item.index(); 
-            for(; it != prod->end(); ++it) {
-               if( index < it->data.size() ) {
-                  T const* p = (it->data.begin()+index).operator->();
-                  return p;
-               }
-               index -= it->data.size();
-            }
-            throw edm::Exception(errors::InvalidReference)
-               << "edm::Ref<DetSetVector<...> > can not find referenced item;\n"
-               << "index value: " << item.index();        
-            return 0;
-         }
+  namespace refhelper {
+    template<typename T>
+    struct FindForDetSetVector : public std::binary_function<const DetSetVector<T>&, std::pair<det_id_type, typename DetSet<T>::collection_type::size_type>, const T*> {
+      typedef FindForDetSetVector<T> self;
+      typename self::result_type operator()(typename self::first_argument_type iContainer, typename self::second_argument_type iIndex) {
+        return &(*(iContainer.find(iIndex.first)->data.begin()+iIndex.second));
+      }
+    };
+
+    template<typename T>
+      struct FindTrait<DetSetVector<T>,T> {
+        typedef FindForDetSetVector<T> value;
       };
-   }
-   
+  }
+
    //helper function to make it easier to create a edm::Ref
-   
-   template<class HandleT>
-   Ref< typename HandleT::element_type, typename HandleT::element_type::value_type::value_type> 
-   makeRefTo(const HandleT& iHandle, 
+
+  template<class HandleT>
+  Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
+  makeRefTo(const HandleT& iHandle,
              det_id_type iDetID,
              typename HandleT::element_type::value_type::const_iterator itIter) {
-      typedef typename HandleT::element_type Vec;
-      typename Vec::value_type::collection_type::size_type index=0;
-      typename Vec::const_iterator itFound = iHandle->find(iDetID);
-      for(typename Vec::const_iterator it = iHandle->begin();
-          it != itFound;
-          ++it) {
-         index += it->data.size();
-      }
-      index += (itIter- itFound->data.begin());
-      return    Ref< typename HandleT::element_type, typename HandleT::element_type::value_type::value_type> (iHandle,index);
-   }
-   
-   template<class HandleT>
-   Ref< typename HandleT::element_type, typename HandleT::element_type::value_type::value_type> 
-   makeRefToDetSetVector(const HandleT& iHandle, 
+    typedef typename HandleT::element_type Vec;
+    typename Vec::value_type::collection_type::size_type index=0;
+    typename Vec::const_iterator itFound = iHandle->find(iDetID);
+    /*for(typename Vec::const_iterator it = iHandle->begin();
+       it != itFound;
+       ++it) {
+       index += it->data.size();
+    }*/
+    index += (itIter- itFound->data.begin());
+    return Ref<typename HandleT::element_type,
+	       typename HandleT::element_type::value_type::value_type>
+	      (iHandle,std::make_pair(iDetID,index));
+  }
+
+  template<class HandleT>
+  Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
+  makeRefToDetSetVector(const HandleT& iHandle,
              det_id_type iDetID,
              typename HandleT::element_type::value_type::iterator itIter) {
-      typedef typename HandleT::element_type Vec;
-      typename Vec::detset::const_iterator itIter2 = itIter;
-      return makeRefTo(iHandle,iDetID,itIter2);
-   }
-}  
+    typedef typename HandleT::element_type Vec;
+    typename Vec::detset::const_iterator itIter2 = itIter;
+    return makeRefTo(iHandle,iDetID,itIter2);
+  }
+}
 #endif
