@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/03/21 13:29:48 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -10,7 +10,8 @@
 #include "FWCore/Framework/interface/Handle.h"
 
 //FIXME??
-#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+//#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
 //FIXME
 #include "DataFormats/MuonReco/interface/RecoMuonCollection.h"
 
@@ -36,15 +37,18 @@ MuonTrackFinder::~MuonTrackFinder(){
 };
 
 /// Reconstruct tray
-auto_ptr<RecoMuonCollection> MuonTrackFinder::reconstruct(const edm::Handle<TrackingSeedCollection>& seeds, const edm::EventSetup& eSetup){
+auto_ptr<RecoMuonCollection> MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds, const edm::EventSetup& eSetup){
 
   // Traj container
   TrajectoryContainer muonTrajectories;
-
+  
   // reconstruct the traj
-  for(TrackingSeedCollection::const_iterator seed = seeds->begin();
+  for(TrajectorySeedCollection::const_iterator seed = seeds->begin();
       seed != seeds->end(); seed++){
-    muonTrajectories = theTrajBuilder->trajectories(*seed);
+    TrajectoryContainer muonTrajs_temp = theTrajBuilder->trajectories(*seed);
+    for(TrajectoryContainer::const_iterator it = muonTrajs_temp.begin(); 
+	it != muonTrajs_temp.end(); it++) 
+      muonTrajectories.push_back(*it); 
   }
 
   // clean the clone traj

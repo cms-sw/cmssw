@@ -6,34 +6,37 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date:  $
- *   $Revision:  $
+ *   $Date: 2006/03/21 13:24:10 $
+ *   $Revision: 1.1 $
  *
  *   \author  R.Bellan - INFN TO
  */
 
-
+// Framework
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/Framework/interface/Handle.h"
 
 #include "RecoMuon/StandAloneMuonProducer/interface/StandAloneMuonProducer.h"
 
+// TrackFinder and Specific STA Trajectory Builder
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
-
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
 
-//FIXME includes
+// Input and output collection
 
 //FIXME??
-#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
+//#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+
 //FIXME
 #include "DataFormats/MuonReco/interface/RecoMuonCollection.h"
 
+
+//FIXME check well the includes
 
 using namespace edm;
 
@@ -62,7 +65,7 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
   // ##### FIXME fancy-names  #####
 
   // Take the seeds container
-  Handle<TrackingSeedCollection> seeds; 
+  Handle<TrajectorySeedCollection> seeds; 
   event.getByLabel("MuonSeedsForStandAlone",seeds);
 
   // Reconstruct 

@@ -4,19 +4,17 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/03/21 13:27:22 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 
-class StandAloneMuonFTSRefiner;
+class TrajectorySeed;
+class StandAloneMuonRefitter;
 class StandAloneMuonBackwardFilter;
 class StandAloneMuonSmoother;
-
-//FIXME??
-#include "DataFormats/TrackingSeed/interface/TrackingSeed.h"
 
 
 namespace edm {class ParameterSet;}
@@ -34,15 +32,15 @@ public:
   /** Returns a vector of the reconstructed trajectories compatible with
    * the given seed.
    */   
-  TrajectoryContainer trajectories(const TrackingSeed&){ return TrajectoryContainer();}
+  TrajectoryContainer trajectories(const TrajectorySeed&){ return TrajectoryContainer();}
 
-  StandAloneMuonFTSRefiner* refiner() const {return theRefiner;}
+  StandAloneMuonRefitter* refitter() const {return theRefitter;}
   StandAloneMuonBackwardFilter* bwfilter() const {return theBWFilter;}
   StandAloneMuonSmoother* smoother() const {return theSmoother;}
   
  private:
   
-  StandAloneMuonFTSRefiner* theRefiner;
+  StandAloneMuonRefitter* theRefitter;
   StandAloneMuonBackwardFilter* theBWFilter;
   StandAloneMuonSmoother* theSmoother;
 
