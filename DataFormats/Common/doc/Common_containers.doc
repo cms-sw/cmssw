@@ -29,6 +29,12 @@ type <tt><b>Ext</b></tt>.
 
 - edm::IDVectorMap:
 
+- edm::OneToManyAssociation <b>&lt;CKey, CVal, index &gt;</b>: one-to-many
+  association based on edm::Ref, of objects in a <b>CKey</b> collection 
+  to many objects in a collection <b>CVal</b>. Stored indices are of type 
+  <b>index</b>, that is by default <b>unsigned long</b>, but could be
+  <b>unsigned short</b> for collections with less than 65535 objects.
+
 - edm::OwnVector <b>&lt;T, P = edm::ClonePolicy&lt;T&gt; &gt;</b>: container 
   with interface very similar to <tt>std::vector&lt;T&gt;</tt>, but 
   capable of storing polymorphic objects that are owned by the 
