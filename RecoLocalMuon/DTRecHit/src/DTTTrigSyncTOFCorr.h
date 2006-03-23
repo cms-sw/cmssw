@@ -6,25 +6,25 @@
  *  This class define the offsets for RecHit building
  *  coherently to the digitization realized with the
  *  DTDigiSyncTOFCorr module.
- *  The offset is computes as:
- *  offset = tTrig + wirePropCorr - tofCorr
- *  where:
- *      _ tTrig is a fixed offset defined in tTrig parameter
- *        (default 500 ns)
- *      _ wirePropCorr is the correction for the signal propagation along the wire
- *      _ tofCorr is the correction for the TOF of the particle set according to
- *        tofCorrType parameter:
- *        0: tofCorrType = TOF from IP to 3D Hit position (globPos)
+ *  The offset is computes as:<br>
+ *  offset = tTrig + wirePropCorr - tofCorr<br>
+ *  where:<br>
+ *      - tTrig is a fixed offset defined in tTrig parameter
+ *        (default 500 ns)<br>
+ *      - wirePropCorr is the correction for the signal propagation along the wire<br>
+ *      - tofCorr is the correction for the TOF of the particle set according to
+ *        tofCorrType parameter:<br>
+ *        0: tofCorrType = TOF from IP to 3D Hit position (globPos)<br>
  *        1: tofCorrType = TOF correction for distance difference
- *                         between 3D center of the chamber and hit position
+ *                         between 3D center of the chamber and hit position<br>
  *        2: tofCorrType = TOF correction for distance difference
  *                         between 3D center of the wire and hit position
- *                         (This mode in available for backward compatibility)
+ *                         (This mode in available for backward compatibility)<br>
  *
  *
  *
- *  $Date: 2006/02/15 13:54:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/14 13:02:42 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 

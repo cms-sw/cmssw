@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/22 13:52:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/14 13:02:42 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -58,7 +58,7 @@ double DTTTrigSyncTOFCorr::offset(const DTLayer* layer,
   // Compute TOF correction treating it accordingly to
   // the tofCorrType card
   float flightToHit = globPos.mag();
-  const float cSpeed = 29.9792458; // cm/ns
+  static const float cSpeed = 29.9792458; // cm/ns
   tofCorr = 0.;
   switch(theTOFCorrType) {
   case 0: {
