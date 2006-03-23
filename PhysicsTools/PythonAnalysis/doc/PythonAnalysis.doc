@@ -15,17 +15,78 @@ Some helper routines for startup, tab completion and shorter syntax.
 
 
 \subsection interface Public interface
-- <b>cmstools</>: public interface to all modules. Do <tt>export PYTHONPATH=$CMSSW_BASE/src/PhysicsTools/PythonAnalysis/python:$PYTHONPATH</tt> to 
-use it.
-
+- <b>cmstools</>: public interface to all modules.
+ 
 \subsection modules Modules
 - <b>cmstools.py</b>: prepares environment and defines some commands
 - <b>cmscompleter.py</b>: class for tab completion
 - <b>namespaceDict.py</b>: builds the FWLite namespace (without loading libs)
 
 \subsection tests Unit tests and examples
+- <b>interactive use</b>: all libraries are loaded automatically when needed. To start set the environment variable <tt>PYTHONPATH</tt>:
+\htmlonly
+<pre>
+export PYTHONPATH=$CMSSW_BASE/src/PhysicsTools/PythonAnalysis/python:$PYTHONPATH (bash)
+setenv PYTHONPATH $CMSSW_BASE/src/PhysicsTools/PythonAnalysis/python:$PYTHONPATH (csh)
+\endhtmlonly
+fire up the python interpreter
+\htmlonly
+<pre>
+python
+\endhtmlonly
+and import cmstools and ROOT:
+\htmlonly
+<pre>
+from cmstools import *
+from ROOT import *
+</pre>
+\endhtmlonly
+That's it. 
+
 - <b>trackerHits.py</b>: Reads sim event information and creates the files <tt>histo.root</tt> 
 and <tt>tofhits.jpg</tt>.
+\htmlonly
+<ol>
+<li>Prepare the environment and load the cms module:
+<pre>
+from cmstools import *
+from ROOT import *
+</pre>
+<li>Open ROOT file and access branch:
+<pre>
+file = TFile('simevent.root')
+events = file.Get('Events')
+branch = events.GetBranch('PSimHit_r_TrackerHitsTIBLowTof.obj')
+
+simHit = std.vector(PSimHit)()
+branch.SetAddress(simHit)
+</pre>
+<li>Prepare histogram and loop over all events to fill it
+<pre>
+histo = TH1F('tofhits', 'Tof of hits', 100, -0.5, 50)
+
+for ev in all(events):
+    branch.GetEntry(ev)
+    for hit in all(simHit):
+        histo.Fill(hit.timeOfFlight())
+</pre>
+<li>Save histogram in a file:
+<pre>
+hFile = TFile('histo.root', 'RECREATE')
+histo.Write()
+</pre>
+<li>Plot histogram as a jpg-file:
+<pre>
+gROOT.SetBatch()
+gROOT.SetStyle('Plain')
+
+c = TCanvas()
+histo.Draw()
+c.SaveAs('tofhits.jpg')
+</pre>
+</ol>
+\endhtmlonly
+
 - <b>howto.txt</b>: short explanation
 
 \section status Status and planned development
@@ -33,6 +94,6 @@ and <tt>tofhits.jpg</tt>.
 Prototype.
 
 <hr>
-Last updated: 22-MAR-2006 B. Hegner
+Last updated: 23-MAR-2006 B. Hegner
 */
 
