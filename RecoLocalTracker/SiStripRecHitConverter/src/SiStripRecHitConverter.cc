@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverter.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
@@ -20,12 +21,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-
+#include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
 
 namespace cms
 {
@@ -51,9 +47,14 @@ namespace cms
     es.get<TrackerDigiGeometryRecord>().get( pDD );
     const TrackerGeometry &tracker(*pDD);
     
-    edm::ESHandle<MagneticField> pSetup;
-    es.get<IdealMagneticFieldRecord>().get(pSetup);
-    const MagneticField &BField(*pSetup);
+    //    edm::ESHandle<MagneticField> pSetup;
+    //    es.get<IdealMagneticFieldRecord>().get(pSetup);
+    //const MagneticField &BField(*pSetup);
+
+    std::string cpe = conf_.getParameter<std::string>("StripCPE");
+    edm::ESHandle<StripClusterParameterEstimator> parameterestimator;
+    es.get<TrackerCPERecord>().get(cpe, parameterestimator); 
+    StripClusterParameterEstimator &stripcpe(*parameterestimator);
 
     std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
 
@@ -67,7 +68,7 @@ namespace cms
     std::auto_ptr<SiStripRecHit2DLocalPosCollection> outputstereo(new SiStripRecHit2DLocalPosCollection);
 
     // Step C: Invoke the seed finding algorithm
-    recHitConverterAlgorithm_.run(clusters.product(),*outputmatched,*outputrphi,*outputstereo,tracker,BField);
+    recHitConverterAlgorithm_.run(clusters.product(),*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe);
 
     // Step D: write output to file
     e.put(outputmatched,"matchedRecHit");

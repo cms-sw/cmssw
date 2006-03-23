@@ -15,7 +15,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
-
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
@@ -32,8 +32,8 @@ class SiStripRecHitConverterAlgorithm
 
   /// Runs the algorithm
 
-    void run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const MagneticField &BField);
-    void run(const SiStripClusterCollection* input, SiStripRecHit2DMatchedLocalPosCollection&  output, SiStripRecHit2DLocalPosCollection&  outrphi,SiStripRecHit2DLocalPosCollection&  outstereo,const TrackerGeometry & tracker,const MagneticField &BField,LocalVector trackdirection);
+    void run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,StripClusterParameterEstimator &stripcpe );
+    void run(const SiStripClusterCollection* input, SiStripRecHit2DMatchedLocalPosCollection&  output, SiStripRecHit2DLocalPosCollection&  outrphi,SiStripRecHit2DLocalPosCollection&  outstereo,const TrackerGeometry & tracker,StripClusterParameterEstimator &stripcpe ,LocalVector trackdirection);
  private:
 
   edm::ParameterSet conf_;

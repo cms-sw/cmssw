@@ -37,17 +37,17 @@ SiStripRecHitConverterAlgorithm::~SiStripRecHitConverterAlgorithm() {
     delete clustermatch_;
   }
 }
-void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const MagneticField &BField)
+void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,StripClusterParameterEstimator &parameterestimator)
 {
-  run(input, outmatched,outrphi,outstereo,tracker,BField,LocalVector(0.,0.,0.));
+  run(input, outmatched,outrphi,outstereo,tracker,parameterestimator,LocalVector(0.,0.,0.));
 }
 
 
-void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const MagneticField &BField,LocalVector trackdirection)
+void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,StripClusterParameterEstimator &parameterestimator,LocalVector trackdirection)
 {
-  const MagneticField *b=&BField;
-  const TrackerGeometry *geom=&tracker;
-  StripCPE parameterestimator(conf_,b,geom); 
+  //  const MagneticField *b=&BField;
+  //const TrackerGeometry *geom=&tracker;
+  //  StripCPE parameterestimator(conf_,b,geom); 
   int nmono=0;
   int nstereo=0;
   int nmatch=0;
@@ -71,12 +71,7 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 	SiStripClusterCollection::ContainerIterator iter;
 	StripSubdetector specDetId=(StripSubdetector)(*detunit_iterator);
 	for(iter=clusterRangeIteratorBegin;iter!=clusterRangeIteratorEnd;++iter){
-	  //	float thickness=stripdet->specificSurface().bounds().thickness();
-	  //GlobalVector gbfield=BField.inTesla(stripdet->surface().position());
-	  //LocalVector drift=this->DriftDirection(stripdet,gbfield);
-	  //drift*=thickness;
-	  //std::cout<<"drift= "<<drift.mag()<<std::endl;
-	  StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*iter);
+	  StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*iter,*stripdet);
 	  std::vector<const SiStripCluster*> clusters;
 	  clusters.push_back(&(*iter));
 	  if(!specDetId.stereo()){
