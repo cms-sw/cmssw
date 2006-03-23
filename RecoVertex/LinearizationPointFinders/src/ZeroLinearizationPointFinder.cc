@@ -3,13 +3,13 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 
 GlobalPoint ZeroLinearizationPointFinder::getLinearizationPoint(
-    const vector<FreeTrajectoryState> & tracks ) const
+    const std::vector<FreeTrajectoryState> & tracks ) const
 {
   return GlobalPoint(0.,0.,0.);
 };
 
 GlobalPoint ZeroLinearizationPointFinder::getLinearizationPoint(
-    const vector<reco::TransientTrack> & tracks ) const
+    const std::vector<reco::TransientTrack> & tracks ) const
 {
   return GlobalPoint(0.,0.,0.);
 }

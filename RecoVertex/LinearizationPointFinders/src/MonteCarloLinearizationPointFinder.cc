@@ -1,3 +1,5 @@
+#if 0
+
 #include "RecoVertex/LinearizationPointFinders/interface/MonteCarloLinearizationPointFinder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
@@ -11,14 +13,16 @@ void MonteCarloLinearizationPointFinder::setPoint ( const GlobalPoint & pos )
 };
 
 GlobalPoint MonteCarloLinearizationPointFinder::getLinearizationPoint(
-    const vector<FreeTrajectoryState> & tracks ) const
+    const std::vector<FreeTrajectoryState> & tracks ) const
 {
-  return getLinearizationPoint ( vector < reco::TransientTrack > () );
+  return getLinearizationPoint ( std::vector < reco::TransientTrack > () );
 };
 
 GlobalPoint MonteCarloLinearizationPointFinder::getLinearizationPoint(
-    const vector<reco::TransientTrack> & tracks ) const
+    const std::vector<reco::TransientTrack> & tracks ) const
 {
   // cout << "[MonteCarloLinearizationPointFinder] point " << thePt << endl;
   return thePt;
 }
+
+#endif

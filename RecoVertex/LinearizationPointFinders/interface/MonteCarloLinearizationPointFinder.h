@@ -2,6 +2,7 @@
 #define MonteCarloLinearizationPointFinder_H
 
 #include "RecoVertex/VertexTools/interface/LinearizationPointFinder.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
   /** 
    *  A linearization point finder that can be fed with the result.
@@ -18,8 +19,8 @@ public:
    */
   void setPoint ( const GlobalPoint & pos );
     
-  virtual GlobalPoint getLinearizationPoint(const vector<reco::TransientTrack> & ) const;
-  virtual GlobalPoint getLinearizationPoint(const vector<FreeTrajectoryState> & ) const;
+  virtual GlobalPoint getLinearizationPoint(const std::vector<reco::TransientTrack> & ) const;
+  virtual GlobalPoint getLinearizationPoint(const std::vector<FreeTrajectoryState> & ) const;
 
   virtual MonteCarloLinearizationPointFinder * clone() const
   {

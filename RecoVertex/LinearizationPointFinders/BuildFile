@@ -1,3 +1,5 @@
 <use name=boost>
 <use name=clhep>
 <use name=root>
+<lib name=TransientTrack>
+<lib name=Utilities>
