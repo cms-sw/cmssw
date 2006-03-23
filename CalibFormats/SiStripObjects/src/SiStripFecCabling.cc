@@ -6,8 +6,7 @@
 // -----------------------------------------------------------------------------
 //
 SiStripFecCabling::SiStripFecCabling( const SiStripFedCabling& cabling ) : fecs_() {
-  cout << "[SiStripFecCabling::SiStripFecCabling]" 
-       << " Constructing object..." << endl;
+  edm::LogInfo("FecCabling") << "[SiStripFecCabling::SiStripFecCabling] Constructing object...";
   const vector<uint16_t>& feds = cabling.feds();
   vector<uint16_t>::const_iterator ifed;
   for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
@@ -23,25 +22,23 @@ SiStripFecCabling::SiStripFecCabling( const SiStripFedCabling& cabling ) : fecs_
 // -----------------------------------------------------------------------------
 //
 void SiStripFecCabling::addDevices( const FedChannelConnection& conn ) {
-  cout //LogDebug ("FecCabling") 
-    << "[SiStripFecCabling::addDevices]" 
-    << " Adding new Device with following I2C addresses. " 
-    << " FEC slot: " << conn.fecSlot()
-    << " FEC ring: " << conn.fecRing()
-    << " CCU addr: " << conn.ccuAddr()
-    << " CCU chan: " << conn.ccuChan() << endl;
+  LogDebug("FecCabling") << "[SiStripFecCabling::addDevices]" 
+			 << " Adding new Device with following I2C addresses. " 
+			 << " FEC slot: " << conn.fecSlot()
+			 << " FEC ring: " << conn.fecRing()
+			 << " CCU addr: " << conn.ccuAddr()
+			 << " CCU chan: " << conn.ccuChan();
   vector<SiStripFec>::const_iterator ifec = fecs().begin();
   while ( ifec != fecs().end() && (*ifec).fecSlot() != conn.fecSlot() ) { ifec++; }
   if ( ifec == fecs().end() ) { 
-    cout // LogDebug ("FecCabling") 
-      << "[SiStripFecCabling::addDevices]" 
-      << " Adding new FEC with address " 
-      << conn.fecSlot() << endl;
+    LogDebug("FecCabling") << "[SiStripFecCabling::addDevices]" 
+			   << " Adding new FEC with address " 
+			   << conn.fecSlot();
     fecs_.push_back( SiStripFec( conn ) ); 
   } else { 
-    cout << "[SiStripFecCabling::addDevices]" 
-	 << " FEC already exists with address " 
-	 << ifec->fecSlot() << endl;
+    LogDebug("FecCabling") << "[SiStripFecCabling::addDevices]" 
+			   << " FEC already exists with address " 
+			   << ifec->fecSlot();
     const_cast<SiStripFec&>(*ifec).addDevices( conn ); 
   }
 }
@@ -65,10 +62,8 @@ void SiStripFecCabling::connections( vector<FedChannelConnection>& conns ) {
       }
     }
   }
-  cout //  edm::LogInfo ("FecCabling") 
-    << "[SiStripFecCabling::connections]" 
-    << " Found " << conns.size()
-    << " FED channel connection objects" << endl;
+  edm::LogInfo("FecCabling") << "[SiStripFecCabling::connections]" 
+			     << " Found " << conns.size() << " FED channel connection objects";
 }
 
 // -----------------------------------------------------------------------------
@@ -87,18 +82,18 @@ const SiStripModule& SiStripFecCabling::module( const FedChannelConnection& conn
 	while ( imod != (*iccu).modules().end() && (*imod).ccuChan() != conn.ccuChan() ) { imod++; }
 	if ( imod != (*iccu).modules().end() ) { 
 	  return *imod;
-	} else { cerr << "[SiStripFecCabling::module]"
-		      << " CCU channel " << conn.ccuChan() 
-		      << " not found!" << endl; }
-      } else { cerr << "[SiStripFecCabling::module]"
-		    << " CCU address " << conn.ccuAddr() 
-		    << " not found!" << endl; }
-    } else { cerr << "[SiStripFecCabling::module]"
-		  << " FEC ring " << conn.fecRing() 
-		  << " not found!" << endl; }
-  } else { cerr << "[SiStripFecCabling::module]"
-		<< " FEC slot " << conn.fecSlot() 
-		<< " not found!" << endl; }
+	} else { edm::LogError("FecCabling") << "[SiStripFecCabling::module]"
+					     << " CCU channel " << conn.ccuChan() 
+					     << " not found!"; }
+      } else { edm::LogError("FecCabling") << "[SiStripFecCabling::module]"
+					   << " CCU address " << conn.ccuAddr() 
+					   << " not found!"; }
+    } else { edm::LogError("FecCabling") << "[SiStripFecCabling::module]"
+					 << " FEC ring " << conn.fecRing() 
+					 << " not found!"; }
+  } else { edm::LogError("FecCabling") << "[SiStripFecCabling::module]"
+				       << " FEC slot " << conn.fecSlot() 
+				       << " not found!"; }
   static FedChannelConnection temp;
   static const SiStripModule module(temp);
   return module;
@@ -144,21 +139,21 @@ void SiStripFecCabling::countDevices() {
     }
     nfecs++;
   }
-  cout << "[SiStripFecCabling::countDevices]"
-       << " Number of devices found." 
-       << " FEC slots: " << nfecs
-       << " FEC rings: " << nrings
-       << " CCU addrs: " << nccus
-       << " CCU chans: " << nmodules
-       << " APVs: " << napvs
-       << " DCU ids: " << ndcuids
-       << " DET ids: " << ndetids
-       << " APV pairs: " << npairs
-       << " FED channels: " << nfedchans
-       << " DCUs: " << ndcus
-       << " MUXes: " << nmuxes
-       << " PLLs: " << nplls
-       << " LLDs: " << nllds << endl;
+  LogDebug("FecCabling") << "[SiStripFecCabling::countDevices]"
+			 << " Number of devices found." 
+			 << " FEC slots: " << nfecs
+			 << " FEC rings: " << nrings
+			 << " CCU addrs: " << nccus
+			 << " CCU chans: " << nmodules
+			 << " APVs: " << napvs
+			 << " DCU ids: " << ndcuids
+			 << " DET ids: " << ndetids
+			 << " APV pairs: " << npairs
+			 << " FED channels: " << nfedchans
+			 << " DCUs: " << ndcus
+			 << " MUXes: " << nmuxes
+			 << " PLLs: " << nplls
+			 << " LLDs: " << nllds;
 }
 
 // -----------------------------------------------------------------------------
@@ -167,14 +162,14 @@ void SiStripFec::addDevices( const FedChannelConnection& conn ) {
   vector<SiStripRing>::const_iterator iring = rings().begin();
   while ( iring != rings().end() && (*iring).fecRing() != conn.fecRing() ) { iring++; }
   if ( iring == rings().end() ) { 
-    cout << "[SiStripFec::addDevices]" 
-	 << " Adding new FEC ring with address " 
-	 << conn.fecRing() << endl;
+    LogDebug("FecCabling") << "[SiStripFec::addDevices]" 
+			   << " Adding new FEC ring with address " 
+			   << conn.fecRing();
     rings_.push_back( SiStripRing( conn ) ); 
   } else { 
-    cout << "[SiStripFec::addDevices]" 
-	 << " FEC ring already exists with address " 
-	 << iring->fecRing() << endl;
+    LogDebug("FecCabling") << "[SiStripFec::addDevices]" 
+			   << " FEC ring already exists with address " 
+			   << iring->fecRing();
     const_cast<SiStripRing&>(*iring).addDevices( conn ); 
   }
 }
@@ -185,14 +180,14 @@ void SiStripRing::addDevices( const FedChannelConnection& conn ) {
   vector<SiStripCcu>::const_iterator iccu = ccus().begin();
   while ( iccu != ccus().end() && (*iccu).ccuAddr() != conn.ccuAddr() ) { iccu++; }
   if ( iccu == ccus().end() ) { 
-    cout << "[SiStripRing::addDevices]" 
-	 << " Adding new CCU with address " 
-	 << conn.ccuAddr() << endl;
+    LogDebug("FecCabling") << "[SiStripRing::addDevices]" 
+			   << " Adding new CCU with address " 
+			   << conn.ccuAddr();
     ccus_.push_back( SiStripCcu( conn ) ); 
   } else { 
-    cout << "[SiStripRing::addDevices]" 
-	 << " CCU already exists with address " 
-	 << iccu->ccuAddr() << endl;
+    LogDebug("FecCabling") << "[SiStripRing::addDevices]" 
+			   << " CCU already exists with address " 
+			   << iccu->ccuAddr();
     const_cast<SiStripCcu&>(*iccu).addDevices( conn ); 
   }
 }
@@ -203,14 +198,14 @@ void SiStripCcu::addDevices( const FedChannelConnection& conn ) {
   vector<SiStripModule>::const_iterator imod = modules().begin();
   while ( imod != modules().end() && (*imod).ccuChan() != conn.ccuChan() ) { imod++; }
   if ( imod == modules().end() ) { 
-    cout << "[SiStripCcu::addDevices]" 
-	 << " Adding new module with address " 
-	 << conn.ccuChan() << endl;
+    LogDebug("FecCabling") << "[SiStripCcu::addDevices]" 
+			   << " Adding new module with address " 
+			   << conn.ccuChan();
     modules_.push_back( SiStripModule( conn ) ); 
   } else { 
-    cout << "[SiStripRing::addDevices]" 
-	 << " Module already exists with address " 
-	 << imod->ccuChan() << endl;
+    LogDebug("FecCabling") << "[SiStripRing::addDevices]" 
+			   << " Module already exists with address " 
+			   << imod->ccuChan();
     const_cast<SiStripModule&>(*imod).addDevices( conn ); 
   }
 }
@@ -263,9 +258,9 @@ vector<uint16_t> SiStripModule::activeApvs() const {
   else if ( apv_address == 4 || apv_address == 36 ) { return apv0x36_; }
   else if ( apv_address == 5 || apv_address == 37 ) { return apv0x37_; }
   else {
-    cerr << "[SiStripFecCabling::activeApv]" 
-	 << " Unexpected I2C address or number (" 
-	 << apv_address << ") for this module!" << endl;
+    edm::LogError("FecCabling") << "[SiStripFecCabling::activeApv]" 
+				<< " Unexpected I2C address or number (" 
+				<< apv_address << ") for this module!";
   }
   static const uint16_t address = 0;
   return address;
@@ -281,17 +276,16 @@ void SiStripModule::addApv( const uint16_t& apv_address ) {
   else if ( apv_address == 36 ) { apv0x36_ = 36; }
   else if ( apv_address == 37 ) { apv0x37_ = 37; }
   else {
-    cerr << "[SiStripFecCabling::addApv]" 
-	 << " Unexpected I2C address (" 
-	 << apv_address << ") for APV!" << endl;
+    edm::LogError("FecCabling") << "[SiStripFecCabling::addApv]" 
+				<< " Unexpected I2C address (" 
+				<< apv_address << ") for APV!";
   }
   stringstream ss;
-  ss << "[SiStripModule::addApv]"
-     << " Found following APV devices: ";
+  ss << "[SiStripModule::addApv] Found following APV devices: ";
   for ( uint16_t iapv = 32; iapv < 38; iapv++ ) {
     if ( activeApv(iapv) ) { ss << activeApv(iapv) << ", "; }
   }
-  cout << ss.str() << endl;
+  LogDebug("FecCabling") << ss.str();
 }
 
 // -----------------------------------------------------------------------------
@@ -304,8 +298,7 @@ void SiStripModule::nApvPairs( const uint16_t& npairs ) {
     if ( apv0x34_ || apv0x35_ ) { nApvPairs_++; }
     if ( apv0x36_ || apv0x37_ ) { nApvPairs_++; }
   } else { 
-//     cerr << "[SiStripModule::nApvPairs]"
-// 	 << " Unexpected number of APV pairs: " << npairs << endl;
+    edm::LogError("FecCabling") << "[SiStripModule::nApvPairs] Unexpected number of APV pairs: " << npairs;
   }
 } 
 
@@ -322,8 +315,7 @@ pair<uint16_t,uint16_t> SiStripModule::activeApvPair( const uint16_t& apv_pair_n
     else if ( apv_pair_number == 2 ) { return pair<uint16_t,uint16_t>(apv0x36_,apv0x37_); }
     else                             { return pair<uint16_t,uint16_t>(0,0); }
   } else {
-    cerr << "[SiStripFecCabling::pair]" 
-	 << " Unexpected number of pairs!" << endl;
+    edm::LogError("FecCabling") << "[SiStripFecCabling::pair] Unexpected number of pairs!";
   }
   return pair<uint16_t,uint16_t>(0,0);
 }
@@ -333,8 +325,7 @@ pair<uint16_t,uint16_t> SiStripModule::activeApvPair( const uint16_t& apv_pair_n
 const pair<uint16_t,uint16_t>& SiStripModule::fedCh( const uint16_t& apv_pair ) const {
   static const pair<uint16_t,uint16_t> fed_ch = pair<uint16_t,uint16_t>(0,0);
   if ( !nApvPairs() ) {
-    cerr << "[SiStripModule::fedCh]"
-	 << " No APV pairs exist!" << endl;
+    edm::LogError("FecCabling") << "[SiStripModule::fedCh] No APV pairs exist!";
     return fed_ch; 
   } else {
     uint16_t lld_ch;
@@ -342,23 +333,17 @@ const pair<uint16_t,uint16_t>& SiStripModule::fedCh( const uint16_t& apv_pair ) 
       if      ( apv_pair == 0 ) { lld_ch = 0; }
       else if ( apv_pair == 1 ) { lld_ch = 2; }
       else { 
-	cerr << "[SiStripModule::fedCh]"
-	     << " Unexpected pair number! " 
-	     << apv_pair << endl;
+	edm::LogError("FecCabling") << "[SiStripModule::fedCh] Unexpected pair number! " << apv_pair;
       }
     } else if ( nApvPairs() == 3 ) {
       if      ( apv_pair == 0 ) { lld_ch = 0; }
       else if ( apv_pair == 1 ) { lld_ch = 1; }
       else if ( apv_pair == 2 ) { lld_ch = 2; }
       else { 
-	cerr << "[SiStripModule::fedCh]"
-	     << " Unexpected pair number! " 
-	     << apv_pair << endl;
+	edm::LogError("FecCabling") << "[SiStripModule::fedCh] Unexpected pair number! " << apv_pair;
       }
     } else {
-      cerr << "[SiStripModule::fedCh]"
-	   << " Unexpected number of APV pairs: " 
-	   << nApvPairs() << endl;
+      edm::LogError("FecCabling") << "[SiStripModule::fedCh] Unexpected number of APV pairs: " << nApvPairs();
     }
     map< uint16_t, pair<uint16_t,uint16_t> >::const_iterator ipair = cabling_.find( lld_ch );
     if ( ipair != cabling_.end() ) { return (*ipair).second; }
@@ -376,9 +361,9 @@ bool SiStripModule::fedCh( const uint16_t& apv_address,
   else if ( apv_address == 34 || apv_address == 35 ) { lld_ch = 1; }
   else if ( apv_address == 36 || apv_address == 37 ) { lld_ch = 2; }
   else {
-    cerr << "[SiStripFecCabling::fedCh]" 
-	 << " Unexpected I2C address (" 
-	 << apv_address << ") for APV!" << endl;
+    edm::LogError("FecCabling") << "[SiStripFecCabling::fedCh]" 
+				<< " Unexpected I2C address (" 
+				<< apv_address << ") for APV!"; 
     return false;
   }
   // Search for entry in map

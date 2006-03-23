@@ -1,13 +1,13 @@
 <flags GENREFLEX_ARGS="--">
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
 <use name=rootrflx>
 <use name=boost>
-<use name=FWCore/Framework>
-#<use name=FWCore/MessageLogger>
 
 <export>
   <lib name=CondFormatsSiStripObjects>
-  <use name=boost>
-  <use name=rootrflx>
   <use name=FWCore/Framework>
-#  <use name=FWCore/MessageLogger>
+  <use name=FWCore/MessageLogger>
+  <use name=rootrflx>
+  <use name=boost>
 </export>

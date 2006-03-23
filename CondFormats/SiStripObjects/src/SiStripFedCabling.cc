@@ -1,5 +1,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <sstream>
 #include <string>
 
 // -----------------------------------------------------------------------------
@@ -10,13 +12,11 @@ SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& i
   detected_(),
   undetected_()
 {
-  std::cout << "[SiStripFedCabling::SiStripFedCabling]" 
-	    << " Constructing object..." << std::endl;
+  edm::LogInfo("FedCabling") << "[SiStripFedCabling::SiStripFedCabling] Constructing object...";
 
   // Check input
   if ( input.empty() ) {
-    std::cerr << "[SiStripFedCabling::SiStripFedCabling]"
-	      << " Input vector of zero size! " << std::endl; 
+    edm::LogError("FedCabling") << "[SiStripFedCabling::SiStripFedCabling] Input vector of zero size!"; 
   }
   
   static const uint16_t MaxFedId = 1024;
@@ -35,12 +35,10 @@ SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& i
 
     // Check on FED ids and channels
     if ( fed_id >= MaxFedId ) {
-      std::cerr << "[SiStripFedCabling::SiStripFedCabling]"
-		<< " Unexpected FED id! " << fed_id << std::endl; 
+      edm::LogError("FedCabling") << "[SiStripFedCabling::SiStripFedCabling] Unexpected FED id! " << fed_id; 
     } 
     if ( fed_ch >= MaxFedCh ) {
-      std::cerr << "[SiStripFedCabling::SiStripFedCabling]"
-		<< " Unexpected FED channel! " << fed_ch << std::endl;
+      edm::LogError("FedCabling") << "[SiStripFedCabling::SiStripFedCabling] Unexpected FED channel! " << fed_ch;
     } 
     
     // Resize container to accommodate all FED channels
@@ -70,10 +68,10 @@ SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& i
     for ( ichan = connections(*ifed).begin(); ichan != connections(*ifed).end(); ichan++ ) { 
       if ( ichan->fedId() ) { ichan->print(); connected++; }
     }
-    std::cout << "[SiStripFedCabling::SiStripFedCabling]"
-	      << " Found FED with id " << *ifed
-	      << " that has " << connected
-	      << " connected channels" << std::endl;
+    edm::LogInfo("FedCabling") << "[SiStripFedCabling::SiStripFedCabling]"
+			       << " Found FED with id " << *ifed
+			       << " that has " << connected
+			       << " connected channels";
   }
   
 }
@@ -81,8 +79,7 @@ SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& i
 // -----------------------------------------------------------------------------
 //
 SiStripFedCabling::~SiStripFedCabling() {
-  std::cout << "[SiStripFedCabling::~SiStripFedCabling]"
-	    << " Destructing object..." << std::endl;
+  edm::LogInfo("FedCabling") << "[SiStripFedCabling::~SiStripFedCabling] Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
@@ -101,25 +98,25 @@ const FedChannelConnection& SiStripFedCabling::connection( uint16_t fed_id,
 	if ( fed_chan < connected_[fed_id].size() ) {
 	  return connected_[fed_id][fed_chan];
 	} else {
-	  std::cerr << "[SiStripFedCabling::connection]" 
-		    << " FED channel (" << fed_chan
-		    << ") is greater than or equal to vector size (" 
-		    << connected_[fed_chan].size() << ")!" << std::endl;
+	  edm::LogError("FedCabling") << "[SiStripFedCabling::connection]" 
+				      << " FED channel (" << fed_chan
+				      << ") is greater than or equal to vector size (" 
+				      << connected_[fed_chan].size() << ")!";
 	}
       } else {
-	std::cerr << "[SiStripFedCabling::connection]" 
-		  << " Cabling map is empty for FED id "
-		  << fed_id << std::endl;
+	edm::LogError("FedCabling") << "[SiStripFedCabling::connection]" 
+				    << " Cabling map is empty for FED id "
+				    << fed_id;
       }
     } else {
-      std::cerr << "[SiStripFedCabling::connection]" 
-		<< " FED id (" << fed_id
-		<< ") is greater than or equal to vector size (" 
-		<< connected_.size() << ")!" << std::endl;
+      edm::LogError("FedCabling") << "[SiStripFedCabling::connection]" 
+				  << " FED id (" << fed_id
+				  << ") is greater than or equal to vector size (" 
+				  << connected_.size() << ")!";
     }
   } else {
-    std::cerr << "[SiStripFedCabling::connection]" 
-	      << " Cabling map is empty!" << std::endl;
+    edm::LogError("FedCabling") << "[SiStripFedCabling::connection]" 
+				<< " Cabling map is empty!";
   }
   
   static FedChannelConnection connection; 
@@ -136,19 +133,19 @@ const std::vector<FedChannelConnection>& SiStripFedCabling::connections( uint16_
       if ( !connected_[fed_id].empty() ) {
 	return connected_[fed_id];
       } else {
-	std::cerr << "[SiStripFedCabling::connections]" 
-		  << " Cabling map is empty for FED id "
-		  << fed_id << std::endl;
+	edm::LogError("FedCabling") << "[SiStripFedCabling::connections]" 
+				    << " Cabling map is empty for FED id "
+				    << fed_id;
       }
     } else {
-      std::cerr << "[SiStripFedCabling::connections]" 
-		<< " FED id (" << fed_id
-		<< ") is greater than or equal to vector size (" 
-		<< connected_.size() << ")!" << std::endl;
+      edm::LogError("FedCabling") << "[SiStripFedCabling::connections]" 
+				  << " FED id (" << fed_id
+				  << ") is greater than or equal to vector size (" 
+				  << connected_.size() << ")!";
     }
   } else {
-    std::cerr << "[SiStripFedCabling::connections]" 
-	      << " Cabling map is empty!" << std::endl;
+    edm::LogError("FedCabling") << "[SiStripFedCabling::connections]" 
+				<< " Cabling map is empty!";
   }
   
   static std::vector<FedChannelConnection> connections; 
