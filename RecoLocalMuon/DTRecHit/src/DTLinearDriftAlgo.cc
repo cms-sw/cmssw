@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/22 13:52:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/14 13:02:42 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -49,18 +49,58 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
 				LocalPoint& leftPoint,
 				LocalPoint& rightPoint,
 				LocalError& error) const {
+  // Get Wire position
+  LocalPoint locWirePos(layer->specificTopology().wirePosition(digi.wire()), 0, 0);
+  const GlobalPoint globWirePos = layer->surface().toGlobal(locWirePos);
+  
+  return compute(layer, digi, globWirePos, leftPoint, rightPoint, error, 1); 
+}
+
+
+// Second step: the same as 1st step
+bool DTLinearDriftAlgo::compute(const DTLayer* layer,
+				const DTDigi& digi,
+				const float& angle,
+				LocalPoint& leftPoint,
+				LocalPoint& rightPoint,
+				LocalError& error) const {
+  // Get Wire position
+  LocalPoint locWirePos(layer->specificTopology().wirePosition(digi.wire()), 0, 0);
+  const GlobalPoint globWirePos = layer->surface().toGlobal(locWirePos);
+  
+  return compute(layer, digi, globWirePos, leftPoint, rightPoint, error, 2); 
+}
+
+
+
+// Third step.
+bool DTLinearDriftAlgo::compute(const DTLayer* layer,
+				const DTDigi& digi,
+				const float& angle,
+				const GlobalPoint& globPos, 
+				LocalPoint& leftPoint,
+				LocalPoint& rightPoint,
+				LocalError& error) const {
+  return compute(layer, digi, globPos, leftPoint, rightPoint, error, 3); 
+}
+
+
+
+// Do the actual work.
+bool DTLinearDriftAlgo::compute(const DTLayer* layer,
+				const DTDigi& digi,
+				const GlobalPoint& globPos, 
+				LocalPoint& leftPoint,
+				LocalPoint& rightPoint,
+				LocalError& error,
+				int step) const {
   // Get the layerId
   DTLayerId layerId = layer->id();//FIXME: pass it instead of get it from layer
   const DTWireId wireId(layerId, digi.wire());
 
-  // Get Wire position
-  LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
-  const GlobalPoint globWirePos = layer->surface().toGlobal(locWirePos);
 
-
-  // Note that for TOF and delays for signal propagation along the wire
-  // the digis is assumed to be at the wire center
-  float driftTime = digi.time() - theSync->offset(layer, wireId, globWirePos); 
+  // Subtract the offset to the digi time accordingly to the DTTTrigBaseSync concrete instance
+  float driftTime = digi.time() - theSync->offset(layer, wireId, globPos); 
   
   // check for out-of-time
   if (driftTime < minTime || driftTime > maxTime) {
@@ -77,7 +117,8 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
   // Compute the drift distance
   float drift = driftTime * vDrift;
 
-
+  // Get Wire position
+  LocalPoint locWirePos(layer->specificTopology().wirePosition(digi.wire()), 0, 0);
   //Build the two possible points and the error on the position
   leftPoint  = LocalPoint(locWirePos.x()-drift,
                             locWirePos.y(),
@@ -90,6 +131,7 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
 
   if(debug) {
     cout << "[DTLinearDriftAlgo] Compute drift distance, for digi at wire: " << wireId << endl
+	 << "       Step:           " << step << endl
 	 << "       Digi time:      " << digi.time() << endl
 	 << "       Drift time:     " << driftTime << endl
 	 << "       Drift distance: " << drift << endl
@@ -100,32 +142,7 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
    }
   
   return true;
-}
-
-
-// Second step: the same as 1st step
-bool DTLinearDriftAlgo::compute(const DTLayer* layer,
-				const DTDigi& digi,
-				const float& angle,
-				LocalPoint& leftPoint,
-				LocalPoint& rightPoint,
-				LocalError& error) const {
-  // FIXME: What to do?
-  return compute(layer, digi, leftPoint, rightPoint, error);
-}
-
-
-
-// Third step: the same as 1st step
-bool DTLinearDriftAlgo::compute(const DTLayer* layer,
-				const DTDigi& digi,
-				const float& angle,
-				const GlobalPoint& globPos, 
-				LocalPoint& leftPoint,
-				LocalPoint& rightPoint,
-				LocalError& error) const {
-  // FIXME: What to do?
-  return compute(layer, digi, leftPoint, rightPoint, error);
+  
 }
 
 

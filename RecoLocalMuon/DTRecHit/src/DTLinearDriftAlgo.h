@@ -4,10 +4,10 @@
 /** \class DTLinearDriftAlgo
  *  Concrete implementation of DTRecHitBaseAlgo.
  *  Compute drift distance using constant drift velocity
- *  as defined in driftVelocity parameter.
+ *  as defined in the "driftVelocity" parameter.
  *
- *  $Date: 2006/02/15 13:54:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/14 13:02:42 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -45,7 +45,7 @@ class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
   /// First step in computation of Left/Right hits from a Digi.  
   /// The results are the local position (in DTLayer frame) of the
   /// Left and Right hit, and the error (which is common). Returns
-  /// false on failure. 
+  /// false on failure. The hit is assumed to be at the wire center.
   virtual bool compute(const DTLayer* layer,
                        const DTDigi& digi,
                        LocalPoint& leftPoint,
@@ -53,12 +53,8 @@ class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
                        LocalError& error) const;
 
 
-  /// Second step in hit position computation, for algorithms which support it.
-  /// The impact angle is given as input, and it's used to improve the hit
-  /// position (and relative error). The angle is defined in radians, with
-  /// respect to the perpendicular to the layer plane. Given the local direction,
-  /// angle=atan(dir.x()/dir.z()) . This can be used when a SL segment is
-  /// built, so the impact angle is known but the position along wire is not.
+  /// Second step in hit position computation.
+  /// It is the same as first step since the angular information is not used
   virtual bool compute(const DTLayer* layer,
                        const DTDigi& digi,
                        const float& angle,
@@ -67,12 +63,9 @@ class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
                        LocalError& error) const;
 
 
-  /// Third (and final) step in hits position computation, for
-  /// algorithms which support it.
-  /// In addition the the angle, also the global position of the hit is given
-  /// as input. This allows to get the magnetic field at the hit position (and
-  /// not only that at the center of the wire). Also the position along the
-  /// wire is available and can be used to correct the drift time for particle
+  /// Third (and final) step in hits position computation.
+  /// Also the hit position along the wire is available
+  /// and can be used to correct the drift time for particle
   /// TOF and propagation of signal along the wire. 
   virtual bool compute(const DTLayer* layer,
                        const DTDigi& digi,
@@ -84,6 +77,16 @@ class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
 
 
  private:
+
+  // Do the actual work.
+  virtual bool compute(const DTLayer* layer,
+		       const DTDigi& digi,
+		       const GlobalPoint& globPos, 
+		       LocalPoint& leftPoint,
+		       LocalPoint& rightPoint,
+		       LocalError& error,
+		       int step) const;
+
   // The Drift Velocity (cm/ns)
   static float vDrift;
 
