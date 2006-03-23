@@ -12,8 +12,6 @@ ${LOCAL_TEST_DIR}/inputExtSourceTest.sh || die 'Failed in inputExtSourceTest.sh'
 
 ${LOCAL_TEST_DIR}/eventSetupTest.sh || die 'Failed in eventSetupTest.sh' $?
 
-${LOCAL_TEST_DIR}/context_using_example.sh || die 'Failed in context_using_example.sh' $?
-
 ${LOCAL_TEST_DIR}/hierarchy_example.sh || die 'Failed in hierarchy_example.sh' $?
 
 ${LOCAL_TEST_DIR}/service_example.sh || die 'Failed in service_example.sh' $?
