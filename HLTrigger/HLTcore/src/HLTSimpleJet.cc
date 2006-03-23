@@ -13,7 +13,7 @@
 //
 // Original Author:  Martin GRUNEWALD
 //         Created:  Thu Mar 23 10:00:22 CET 2006
-// $Id$
+// $Id: HLTSimpleJet.cc,v 1.1 2006/03/23 15:11:09 gruen Exp $
 //
 //
 
@@ -97,7 +97,7 @@ HLTSimpleJet::filter(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   std::cout << "HLTSimpleJet::filter start:" << std::endl;
+   //   std::cout << "HLTSimpleJet::filter start:" << std::endl;
 
    Handle<CaloJetCollection> jets;
    iEvent.getByLabel (module_, jets);
@@ -106,10 +106,10 @@ HLTSimpleJet::filter(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    int n=0;
    for (; jet != jets->end (); jet++) {
-     std::cout << (*jet).getPt() << std::endl;
+     //     std::cout << (*jet).getPt() << std::endl;
      if ( (*jet).getPt() >= ptcut_) n++;
    }
-   std::cout << "HLTSimpleJet::filter stop: " << n << std::endl;
+   //   std::cout << "HLTSimpleJet::filter stop: " << n << std::endl;
 
    return (n>=njcut_);
 }
