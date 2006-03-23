@@ -11,7 +11,7 @@
 //
 // Original Author:  Oliver Gutsche
 //         Created:  Sun Nov 20 16:30:00 CEST 2005
-// $Id: RoadMapTest.cc,v 1.1.1.1 2005/11/29 21:14:59 gutsche Exp $
+// $Id: RoadMapTest.cc,v 1.1 2006/01/12 21:29:45 gutsche Exp $
 //
 //
 
@@ -85,7 +85,7 @@ RoadMapTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
   edm::ESHandle<Roads> roads;
   iSetup.get<TrackerDigiGeometryRecord>().get(roads);
-  roads->dump("output.dat");
+  roads->dump("roads.dat");
 
 }
 
