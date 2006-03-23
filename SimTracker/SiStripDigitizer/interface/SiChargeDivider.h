@@ -6,7 +6,7 @@
 //#include "Utilities/UI/interface/SimpleConfigurable.h"
 #include "SimTracker/SiStripDigitizer/interface/EnergyDepositUnit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "Geometry/TrackerSimAlgo/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 using namespace std;
 #include <vector>

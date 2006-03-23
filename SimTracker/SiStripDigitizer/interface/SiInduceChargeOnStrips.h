@@ -2,7 +2,7 @@
 #define Tracker_SiInduceChargeOnStrips_H
 
 #include "SimTracker/SiStripDigitizer/interface/SiChargeCollectionDrifter.h"
-#include "Geometry/TrackerSimAlgo/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 #include<map>
 

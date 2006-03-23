@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.12 2006/03/13 15:25:36 azzi Exp $
+// $Id: SiStripDigitizer.cc,v 1.13 2006/03/21 14:24:20 fambrogl Exp $
 //
 //
 
@@ -47,12 +47,10 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerSimAlgo/interface/StripGeomDetType.h"
-#include "Geometry/TrackerSimAlgo/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 //needed for the magnetic field:
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"

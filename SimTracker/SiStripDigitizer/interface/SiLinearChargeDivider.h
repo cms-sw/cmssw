@@ -7,7 +7,7 @@
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 //#include "GeneratorInterface/HepPDT/interface/HepPDTable.h"
-#include "Geometry/TrackerSimAlgo/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 /**
  * Concrete implementation of SiChargeDivider. 

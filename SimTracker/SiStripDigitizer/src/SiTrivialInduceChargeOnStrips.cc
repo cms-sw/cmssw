@@ -1,5 +1,5 @@
 #include "SimTracker/SiStripDigitizer/interface/SiTrivialInduceChargeOnStrips.h"
-#include "Geometry/TrackerSimAlgo/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include <gsl/gsl_sf_erf.h>
 #include<iostream>
