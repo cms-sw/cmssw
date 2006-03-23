@@ -9,8 +9,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/03 22:23:12 $
-// $Revision: 1.4 $
+// $Date: 2006/03/23 01:55:48 $
+// $Revision: 1.5 $
 //
 
 #include <iostream>
@@ -483,7 +483,7 @@ DetId Rings::constructTrackerTECDetId(unsigned int fw_bw,
 				      unsigned int module,
 				      unsigned int stereo) {
 
-  TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,0,module+1,stereo);
+  TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,module+1,stereo);
   
   if ( verbosity_ > 3 ) {
     std::cout << "[Rings] constructed TEC ring DetId for side: " << id.side() << " wheel: " << id.wheel() 
@@ -741,7 +741,7 @@ Ring* Rings::getTrackerTECRing(unsigned int fw_bw,
     std::cout << "[Rings] problem generation TEC DetId from side: " << fw_bw+1 << " wheel: " << wheel+1 << " ring: " << ring+1 << std::endl;
   }
 
-  TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,0,module+1,stereo);
+  TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,module+1,stereo);
 
   return getTrackerRing(DetId(id.rawId()));
 }
