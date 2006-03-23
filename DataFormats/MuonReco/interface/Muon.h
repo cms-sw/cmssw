@@ -8,13 +8,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.10 2006/03/16 13:47:44 llista Exp $
+ * \version $Id: Muon.h,v 1.11 2006/03/16 16:22:52 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "DataFormats/TrackReco/interface/RecHitFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonExtra.h"
 
@@ -41,9 +40,9 @@ namespace reco {
     /// reference to Track reconstructed in the muon detector only
     const TrackRef & standAloneMuon() const { return extra_->standAloneMuon(); }
     /// first iterator to RecHits
-    recHit_iterator recHitsBegin() const { return extra_->recHitsBegin(); }
+    trackingRecHit_iterator recHitsBegin() const { return extra_->recHitsBegin(); }
     /// last iterator to RecHits
-    recHit_iterator recHitsEnd()   const { return extra_->recHitsEnd(); }
+    trackingRecHit_iterator recHitsEnd()   const { return extra_->recHitsEnd(); }
     /// number of RecHits
     size_t recHitsSize() const { return extra_->recHitsSize(); }
     /// set reference to "extra" object
