@@ -5,8 +5,8 @@
 // -----------------------------------------------------------------------------
 //
 PhysicsTask::PhysicsTask( DaqMonitorBEInterface* dqm,
-			  const SiStripModule& module ) :
-  CommissioningTask( dqm, module ),
+			  const FedChannelConnection& conn ) :
+  CommissioningTask( dqm, conn ),
   landau_()
 {
   cout << "[PhysicsTask::PhysicsTask]" 
@@ -22,7 +22,7 @@ PhysicsTask::~PhysicsTask() {
 
 // -----------------------------------------------------------------------------
 //
-void PhysicsTask::book( const SiStripModule& module ) {
+void PhysicsTask::book( const FedChannelConnection& conn ) {
   cout << "[PhysicsTask::book]" << endl;
   
   unsigned short nbins = 1024;

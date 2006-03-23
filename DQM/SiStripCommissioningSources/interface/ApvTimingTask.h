@@ -10,17 +10,17 @@ class ApvTimingTask : public CommissioningTask {
 
  public:
   
-  ApvTimingTask( DaqMonitorBEInterface*, const SiStripModule& );
+  ApvTimingTask( DaqMonitorBEInterface*, const FedChannelConnection& );
   virtual ~ApvTimingTask();
   
  private:
 
-  virtual void book( const SiStripModule& );
+  virtual void book( const FedChannelConnection& );
   virtual void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
   
-  vector<HistoSet> timing_;
+  HistoSet timing_;
 
 };
 

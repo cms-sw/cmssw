@@ -4,7 +4,7 @@
 <use name=DQMServices/Core>
 <use name=DQM/SiStripCommon>
 <use name=CondCore/SiStripPlugins>
-<use name=CondFormats/DataRecords>
+<use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
 <use name=DataFormats/Common>
@@ -20,7 +20,7 @@
    <use name=DQMServices/Core>
    <use name=DQM/SiStripCommon>
    <use name=CondCore/SiStripPlugins>
-   <use name=CondFormats/DataRecords>
+   <use name=CondFormats/DataRecord>
    <use name=CondFormats/SiStripObjects>
    <use name=CalibFormats/SiStripObjects>
    <use name=DataFormats/Common>

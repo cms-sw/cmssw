@@ -5,8 +5,8 @@
 // -----------------------------------------------------------------------------
 //
 ApvTimingTask::ApvTimingTask( DaqMonitorBEInterface* dqm,
-			      const SiStripModule& module ) :
-  CommissioningTask( dqm, module ),
+			      const FedChannelConnection& conn ) :
+  CommissioningTask( dqm, conn ),
   timing_()
 {
   cout << "[ApvTimingTask::ApvTimingTask]" 
@@ -22,27 +22,22 @@ ApvTimingTask::~ApvTimingTask() {
 
 // -----------------------------------------------------------------------------
 //
-void ApvTimingTask::book( const SiStripModule& module ) {
+void ApvTimingTask::book( const FedChannelConnection& conn ) {
   cout << "[ApvTimingTask::book]" << endl;
   
   unsigned short nbins = 60; //@@ correct?
 
-  timing_.resize( module.nPairs(), HistoSet() );
-  for ( unsigned short ipair = 0; ipair < module.nPairs(); ipair++ ) {
-    //@@ need to reorder pairs here? 
-    stringstream ss;
-
-    ss.str(""); ss << "ApvTiming|ApvPair" << ipair << "|sumOfSquares";
-    timing_[ipair].meSumOfSquares_  = dqm_->book1D( ss.str(), ss.str(), nbins, 0., nbins*1. );
-    ss.str(""); ss << "ApvTiming|ApvPair" << ipair << "|sumOfContents";
-    timing_[ipair].meSumOfContents_ = dqm_->book1D( ss.str(), ss.str(), nbins, 0., nbins*1. );
-    ss.str(""); ss << "ApvTiming|ApvPair" << ipair << "|numOfEntries";
-    timing_[ipair].meNumOfEntries_  = dqm_->book1D( ss.str(), ss.str(), nbins, 0., nbins*1. );
-
-    timing_[ipair].vSumOfSquares_.resize(nbins,0);
-    timing_[ipair].vSumOfContents_.resize(nbins,0);
-    timing_[ipair].vNumOfEntries_.resize(nbins,0);
-  }
+  stringstream ss;
+  ss.str(""); ss << "ApvTiming|ApvPair" << conn.lldChannel() << "|sumOfSquares";
+  timing_.meSumOfSquares_  = dqm_->book1D( ss.str(), ss.str(), nbins, 0., nbins*1. );
+  ss.str(""); ss << "ApvTiming|ApvPair" << conn.lldChannel() << "|sumOfContents";
+  timing_.meSumOfContents_ = dqm_->book1D( ss.str(), ss.str(), nbins, 0., nbins*1. );
+  ss.str(""); ss << "ApvTiming|ApvPair" << conn.lldChannel() << "|numOfEntries";
+  timing_.meNumOfEntries_  = dqm_->book1D( ss.str(), ss.str(), nbins, 0., nbins*1. );
+  
+  timing_.vSumOfSquares_.resize(nbins,0);
+  timing_.vSumOfContents_.resize(nbins,0);
+  timing_.vNumOfEntries_.resize(nbins,0);
   
 }
 
@@ -55,18 +50,17 @@ void ApvTimingTask::fill( const SiStripEventSummary& summary,
   //@@ get bin number from SiStripEventInfo!
   unsigned short ibin = 0;
 
-  if ( digis.data.size() != 256*timing_.size() ) {
+  if ( digis.data.size() != 256 ) {
     cerr << "[ApvTimingTask::fill]" 
-	 << " Number of digis (" << digis.data.size() 
-	 << ") is not compatible with number of APV pairs ("
-	 << timing_.size() << ")!" << endl; 
+	 << " Unexpected number of digis! " << digis.data.size() 
+	 << endl; 
   }
-
+  
   // Fill vectors
   for ( unsigned short idigi = 0; idigi < digis.data.size(); idigi++ ) {
-    timing_[idigi/256].vSumOfSquares_[ibin] += digis.data[idigi].adc() * digis.data[idigi].adc();
-    timing_[idigi/256].vSumOfContents_[ibin] += digis.data[idigi].adc();
-    timing_[idigi/256].vNumOfEntries_[ibin]++;
+    timing_.vSumOfSquares_[ibin] += digis.data[idigi].adc() * digis.data[idigi].adc();
+    timing_.vSumOfContents_[ibin] += digis.data[idigi].adc();
+    timing_.vNumOfEntries_[ibin]++;
   }      
   
 }
@@ -76,14 +70,12 @@ void ApvTimingTask::fill( const SiStripEventSummary& summary,
 void ApvTimingTask::update() {
   cout << "[ApvTimingTask::update]" << endl;
 
-  for ( unsigned short ipair = 0; ipair < timing_.size(); ipair++ ) {
-    for ( unsigned short ibin = 0; ibin < timing_[ipair].vNumOfEntries_.size(); ibin++ ) {
-      timing_[ipair].meSumOfSquares_->setBinContent(  ibin+1, timing_[ipair].vSumOfSquares_[ibin]*1. );
-      timing_[ipair].meSumOfContents_->setBinContent( ibin+1, timing_[ipair].vSumOfContents_[ibin]*1. );
-      timing_[ipair].meNumOfEntries_->setBinContent(  ibin+1, timing_[ipair].vNumOfEntries_[ibin]*1. );
-    }
+  for ( unsigned short ibin = 0; ibin < timing_.vNumOfEntries_.size(); ibin++ ) {
+    timing_.meSumOfSquares_->setBinContent(  ibin+1, timing_.vSumOfSquares_[ibin]*1. );
+    timing_.meSumOfContents_->setBinContent( ibin+1, timing_.vSumOfContents_[ibin]*1. );
+    timing_.meNumOfEntries_->setBinContent(  ibin+1, timing_.vNumOfEntries_[ibin]*1. );
   }
-
+  
 }
 
 

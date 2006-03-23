@@ -9,6 +9,7 @@
 // dqm
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiStripCommon/interface/SiStripControlDirPath.h"
+#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 // conditions
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -46,7 +47,7 @@ CommissioningSource::~CommissioningSource() {
 }
 
 // -----------------------------------------------------------------------------
-// Retrieve DQM interface, control cabling and "control view" utlity
+// Retrieve DQM interface, control cabling and "control view" utility
 // class, create histogram directory structure and generate "reverse"
 // control cabling.
 void CommissioningSource::beginJob( const edm::EventSetup& setup ) {
@@ -60,22 +61,24 @@ void CommissioningSource::beginJob( const edm::EventSetup& setup ) {
   SiStripControlDirPath directory;
   
   SiStripFecCabling* fec_cabling = new SiStripFecCabling( *fed_cabling );
-  const vector<SiStripFec>& fecs = fec_cabling->fecs();
-  for ( vector<SiStripFec>::const_iterator ifec = fecs.begin(); ifec != fecs.end(); ifec++ ) {
-    const vector<SiStripRing>& rings = (*ifec).rings();
-    for ( vector<SiStripRing>::const_iterator iring = rings.begin(); iring != rings.end(); iring++ ) {
-      const vector<SiStripCcu>& ccus = (*iring).ccus();
-      for ( vector<SiStripCcu>::const_iterator iccu = ccus.begin(); iccu != ccus.end(); iccu++ ) {
-	const vector<SiStripModule>& modules = (*iccu).modules();
-	for ( vector<SiStripModule>::const_iterator imodule = modules.begin(); imodule != modules.end(); imodule++ ) {
+  for ( vector<SiStripFec>::const_iterator ifec = fec_cabling->fecs().begin(); ifec != fec_cabling->fecs().end(); ifec++ ) {
+    for ( vector<SiStripRing>::const_iterator iring = (*ifec).rings().begin(); iring != (*ifec).rings().end(); iring++ ) {
+      for ( vector<SiStripCcu>::const_iterator iccu = (*iring).ccus().begin(); iccu != (*iring).ccus().end(); iccu++ ) {
+	for ( vector<SiStripModule>::const_iterator imodule = (*iccu).modules().begin(); imodule != (*iccu).modules().end(); imodule++ ) {
 	  string dir = directory.path( (*ifec).fecSlot(),
 				       (*iring).fecRing(),
 				       (*iccu).ccuAddr(),
 				       (*imodule).ccuChan() );
 	  dqm_->setCurrentFolder( dir );
-	  CommissioningTask* task = createTask( *imodule );
-	  if ( task ) { task->updateFreq( updateFreq_ ); }
-	} 
+	  map< uint16_t, pair<uint16_t,uint16_t> >::const_iterator iconn;
+	  for ( iconn = imodule->fedChannels().begin(); iconn != imodule->fedChannels().end(); iconn++ ) {
+	    if ( !(iconn->second.first) ) { continue; } 
+	    FedChannelConnection conn = fed_cabling->connection( iconn->second.first,
+								 iconn->second.second );
+	    CommissioningTask* task = createTask( conn );
+	    if ( task ) { task->updateFreq( updateFreq_ ); }
+	  }
+	}
       }
     }
   }
@@ -84,33 +87,31 @@ void CommissioningSource::beginJob( const edm::EventSetup& setup ) {
 
 // -----------------------------------------------------------------------------
 //
-CommissioningTask* CommissioningSource::createTask( const SiStripModule& module ) {
+CommissioningTask* CommissioningSource::createTask( const FedChannelConnection& conn ) {
   cout << "[CommissioningSource::createTask]" << endl;
-
+  uint32_t fed_key = SiStripGenerateKey::fed( conn.fedId(), conn.fedCh() );
   if ( task_ == "PHYSICS" ) {
-    if ( tasks_.find( module.dcuId() ) == tasks_.end() ) { 
-      tasks_[module.dcuId()] = new PhysicsTask( dqm_, module );
+    if ( tasks_.find( fed_key ) == tasks_.end() ) { 
+      tasks_[fed_key] = new PhysicsTask( dqm_, conn );
     } else {
       cerr << "[CommissioningSource::createTask]"
-	   << " PhysicsTask already exists for DcuId "
-	   << module.dcuId() << endl;
+	   << " PhysicsTask already exists for FED id/channel "
+	   << fed_key << endl; //@@ extract FED id/ch
     }
   } else if ( task_ == "PEDESTALS" ) {
-    if ( tasks_.find( module.dcuId() ) == tasks_.end() ) { 
-      tasks_[module.dcuId()] = new PedestalsTask( dqm_, module );
+    if ( tasks_.find( fed_key ) == tasks_.end() ) { 
+      tasks_[fed_key] = new PedestalsTask( dqm_, conn );
     } else {
       cerr << "[CommissioningSource::createTask]"
-	   << " PedestalsTask already exists for DcuId "
-	   << module.dcuId() << endl;
+	   << " PedestalsTask already exists for FED id/channel "
+	   << fed_key << endl; //@@ extract FED id/ch
     }
   } else {
     cerr << "[CommissioningSource::createTask]"
 	 << " Unknown commissioning task! " << task_ << endl;
     return 0;
   }
-
-  return tasks_[module.dcuId()];
-
+  return tasks_[fed_key];
 }
 
 // -----------------------------------------------------------------------------
@@ -140,18 +141,16 @@ void CommissioningSource::analyze( const edm::Event& event,
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > collection;
   event.getByType( collection );
   
-  // NEEDS IMPLEMENTATION HERE!!! 
-
-  vector<unsigned int> ids;
-  //@@ (*collection).detIDs( ids ); //@@ method name incorrect! 
-  
-  for ( vector<unsigned int>::iterator id = ids.begin(); id != ids.end(); id++ ) {
-    unsigned short fed_id = ((*id)>>16) & 0xFFFFFFFF;
-    unsigned short fed_ch = (*id) & 0xFFFFFFFF;
-    unsigned int dcu_id = fed_cabling->connection( fed_id, fed_ch ).dcuId();
-    if ( tasks_.find(dcu_id) != tasks_.end() ) {
-      vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = (*collection).find( *id );
-      tasks_[dcu_id]->fillHistograms( *summary, *digis );
+  vector<uint16_t>::const_iterator ifed;
+  for ( ifed = fed_cabling->feds().begin(); ifed != fed_cabling->feds().end(); ifed++ ) {
+    for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
+      uint32_t fed_key = SiStripGenerateKey::fed( *ifed, ichan );
+      if ( fed_key ) {
+	if ( tasks_.find(fed_key) != tasks_.end() ) {
+	  vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = collection->find( fed_key );
+	  tasks_[fed_key]->fillHistograms( *summary, *digis );
+	}
+      }
     }
   }
   

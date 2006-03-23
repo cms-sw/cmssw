@@ -5,8 +5,8 @@
 // -----------------------------------------------------------------------------
 //
 PedestalsTask::PedestalsTask( DaqMonitorBEInterface* dqm,
-			      const SiStripModule& module ) :
-  CommissioningTask( dqm, module ),
+			      const FedChannelConnection& conn ) :
+  CommissioningTask( dqm, conn ),
   peds_()
 {
   cout << "[PedestalsTask::PedestalsTask]" 
@@ -22,10 +22,10 @@ PedestalsTask::~PedestalsTask() {
 
 // -----------------------------------------------------------------------------
 //
-void PedestalsTask::book( const SiStripModule& module ) {
+void PedestalsTask::book( const FedChannelConnection& conn ) {
   cout << "[PedestalsTask::book]" << endl;
   
-  unsigned short nbins = 256 * module.nPairs();
+  unsigned short nbins = 256;
 
   peds_.meSumOfSquares_  = dqm_->book1D( "RawPedestals|sumOfSquares",  "RawPedestals|sumOfSquares",  nbins, 0., nbins*1. );
   peds_.meSumOfContents_ = dqm_->book1D( "RawPedestals|sumOfContents", "RawPedestals|sumOfContents", nbins, 0., nbins*1. );

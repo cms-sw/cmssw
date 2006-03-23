@@ -9,14 +9,14 @@ using namespace std;
 // -----------------------------------------------------------------------------
 //
 CommissioningTask::CommissioningTask( DaqMonitorBEInterface* dqm,
-				      const SiStripModule& module ) :
+				      const FedChannelConnection& conn ) :
   dqm_(dqm),
   updateFreq_(0),
   fillCntr_(0)
 {
   cout << "[CommissioningTask::CommissioningTask]" 
        << " Constructing object..." << endl;
-  book( module );
+  book( conn );
 }
 
 // -----------------------------------------------------------------------------
@@ -28,7 +28,7 @@ CommissioningTask::~CommissioningTask() {
 
 // -----------------------------------------------------------------------------
 //
-void CommissioningTask::book( const SiStripModule& ) {
+void CommissioningTask::book( const FedChannelConnection& ) {
   cerr << "[CommissioningTask::book]"
        << " This virtual method should always be over-ridden!" << endl;
 }

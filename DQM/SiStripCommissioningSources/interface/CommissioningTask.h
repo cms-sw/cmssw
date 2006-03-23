@@ -6,7 +6,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 
 class DaqMonitorBEInterface;
-class SiStripModule;
+class FedChannelConnection;
 class MonitorElement;
 
 using namespace std;
@@ -27,7 +27,7 @@ class CommissioningTask {
     vector<unsigned int> vNumOfEntries_;
   };
   
-  CommissioningTask( DaqMonitorBEInterface*, const SiStripModule& );
+  CommissioningTask( DaqMonitorBEInterface*, const FedChannelConnection& );
   virtual ~CommissioningTask();
   
   virtual void fillHistograms( const SiStripEventSummary&,
@@ -44,7 +44,7 @@ class CommissioningTask {
   
   CommissioningTask() {;}
   
-  virtual void book( const SiStripModule& );
+  virtual void book( const FedChannelConnection& );
   virtual void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>& ) = 0;
   virtual void update() = 0;

@@ -10,12 +10,12 @@ class PedestalsTask : public CommissioningTask {
 
  public:
   
-  PedestalsTask( DaqMonitorBEInterface*, const SiStripModule& );
+  PedestalsTask( DaqMonitorBEInterface*, const FedChannelConnection& );
   virtual ~PedestalsTask();
   
  private:
 
-  virtual void book( const SiStripModule& );
+  virtual void book( const FedChannelConnection& );
   virtual void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();

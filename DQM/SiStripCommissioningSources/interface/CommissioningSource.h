@@ -7,7 +7,7 @@
 
 class DaqMonitorBEInterface;
 class CommissioningTask;
-class SiStripModule;
+class FedChannelConnection;
 
 using namespace std;
 
@@ -30,7 +30,7 @@ class CommissioningSource : public edm::EDAnalyzer {
   
  private: // ----- private methods -----
 
-  CommissioningTask* createTask( const SiStripModule& );
+  CommissioningTask* createTask( const FedChannelConnection& );
 
  private: // ----- data members -----
 

@@ -10,12 +10,12 @@ class PhysicsTask : public CommissioningTask {
   
  public:
   
-  PhysicsTask( DaqMonitorBEInterface*, const SiStripModule& );
+  PhysicsTask( DaqMonitorBEInterface*, const FedChannelConnection& );
   virtual ~PhysicsTask();
   
  private:
 
-  virtual void book( const SiStripModule& );
+  virtual void book( const FedChannelConnection& );
   virtual void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
