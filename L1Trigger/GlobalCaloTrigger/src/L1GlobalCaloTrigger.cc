@@ -75,11 +75,13 @@ void L1GlobalCaloTrigger::process() {
 		theWheelJetFpgas[i]->process();
 	}
 
-	for (int i=0; i<2; i++) {
-		for (int j=0; j<9; j++) {
-			theWheelEnergyFpgas[i]->setInputEx(theJetFinders[9*i+j]->getOutputEx());
-			theWheelEnergyFpgas[i]->setInputEy(theJetFinders[9*i+j]->getOutputEy());
-			theWheelEnergyFpgas[i]->setInputEt(theJetFinders[9*i+j]->getOutputEt());
+	for (int i=0; i<2; i++) { // Wheel Cards
+		for (int j=0; j<3; j++) {	 // Leaf Cards
+			for (int k=0; k<3; k++) { // Jet Finders
+				theWheelEnergyFpgas[i]->setInputEx(k, theJetFinders[9*i+3*j+k]->getOutputEx());
+				theWheelEnergyFpgas[i]->setInputEy(k, theJetFinders[9*i+3*j+k]->getOutputEy());
+				theWheelEnergyFpgas[i]->setInputEt(k, theJetFinders[9*i+3*j+k]->getOutputEt());
+			}
 		}
 		theWheelEnergyFpgas[i]->process();
 	}
