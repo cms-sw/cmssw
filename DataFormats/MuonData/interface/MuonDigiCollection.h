@@ -6,7 +6,7 @@
  * Declaration of class MuonDigiCollection
  *
  * \author Stefano ARGIRO
- * \version $Id: MuonDigiCollection.h,v 1.2 2005/11/01 17:19:52 namapane Exp $
+ * \version $Id: MuonDigiCollection.h,v 1.3 2005/12/02 09:27:32 argiro Exp $
  * \date 05 Aug 2005
  */
 
@@ -123,8 +123,12 @@ public:
  
   /// return the digis for a given DetUnit 
   Range get(const IndexType& index) const{
- 
     typename container::const_iterator it = data_.find(index);
+    if (it==data_.end()) {
+      // if data_ is empty there is no other way to get an empty range
+      static std::vector<DigiType> empty;
+      return std::make_pair(empty.end(),empty.end());
+    } 
     const std::vector<DigiType>& digis = (*it).second;
     return std::make_pair(digis.begin(),digis.end());
   }
