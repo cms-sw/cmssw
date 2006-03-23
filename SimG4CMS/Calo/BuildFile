@@ -11,6 +11,7 @@
 <use name=Geometry/EcalCommonData>
 <use name=DetectorDescription/Core>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
 <use name=boost>
 <use name=geant4>
 <use name=root>

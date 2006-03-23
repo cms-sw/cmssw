@@ -3,6 +3,8 @@
 
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <map>
 
 using namespace std;

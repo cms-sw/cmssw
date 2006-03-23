@@ -12,22 +12,19 @@ CaloMap* CaloMap::instance() {
 }
 
 CaloMap::~CaloMap() {
-  if (verbosity > 0) std::cout << "Deleting CaloMap" << std::endl;
+  edm::LogInfo("CaloSimInfo") << "Deleting CaloMap";
 }
 
 void CaloMap::clear(const int evtID) {
 
   tkMap.erase (tkMap.begin(), tkMap.end());
-  if (verbosity > 1) 
-    std::cout << "CaloMap: Erase TrackWithHistory map for event " << evtID
-	      << std::endl;
+  LogDebug("CaloSimInfo") << "CaloMap: Erase TrackWithHistory map for event " << evtID;
 }
 
 void CaloMap::setTrack(const int id, TrackWithHistory* tk) {
 
-  if (verbosity > 1) 
-    std::cout << "CaloMap: ID " << id << " Current trkHistory " << tkMap[id]
-	      << " New trkHistory " << tk << std::endl;
+  LogDebug("CaloSimInfo") << "CaloMap: ID " << id << " Current trkHistory " << tkMap[id]
+                          << " New trkHistory " << tk;
   tkMap[id] = tk;
 }
 
@@ -40,7 +37,7 @@ void CaloMap::setVerbosity(const int iv) {verbosity = iv;}
 
 CaloMap::CaloMap() : verbosity(0) {  
 
-  std::cout << "CaloMap: Initialised" << std::endl;
+  edm::LogInfo("CaloSimInfo") << "CaloMap: Initialised";
 }
 
 

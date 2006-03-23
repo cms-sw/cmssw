@@ -11,6 +11,8 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "G4String.hh"
 #include <map>
 

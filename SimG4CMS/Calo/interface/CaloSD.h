@@ -15,6 +15,8 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 #include "SimG4Core/Application/interface/SimTrackManager.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // To be replaced by something else 
 /* #include "Utilities/Notification/interface/TimerProxy.h" */
  
