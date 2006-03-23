@@ -1,7 +1,7 @@
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 
 CSCRecHit2D::CSCRecHit2D() :
-  theDetId( 0 ),
+  theDetId(),
   theLocalPosition(0.,0.), theLocalError(0.,0.,0.),
   theChaCo( ChannelContainer() ),     
   theChi2( -1. ), theProb( 0. )
