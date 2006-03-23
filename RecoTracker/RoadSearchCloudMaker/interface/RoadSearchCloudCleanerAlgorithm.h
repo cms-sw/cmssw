@@ -10,8 +10,8 @@
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2006/02/10 22:54:52 $
-// $Revision: 1.2 $
+// $Date: 2006/02/22 01:16:14 $
+// $Revision: 1.1 $
 //
 
 #include <string>
@@ -29,7 +29,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 class RoadSearchCloudCleanerAlgorithm 
 {

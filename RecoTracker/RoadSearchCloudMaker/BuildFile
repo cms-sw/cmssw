@@ -8,8 +8,7 @@
 <use name=DataFormats/TrackingSeed>
 <use name=DataFormats/RoadSearchCloud>
 <use name=DataFormats/TrackerRecHit2D>
-<use name=Foundation/PluginManager>
-<use name=Geometry/TrackerSimAlgo>
+<use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/Surface>
 <use name=DataFormats/DetId>
@@ -25,8 +24,7 @@
  <use name=DataFormats/TrackingSeed>
  <use name=DataFormats/RoadSearchCloud>
  <use name=DataFormats/TrackerRecHit2D>
- <use name=Foundation/PluginManager>
- <use name=Geometry/TrackerSimAlgo>
+ <use name=Geometry/TrackerGeometryBuilder>
  <use name=Geometry/CommonTopologies>
  <use name=Geometry/Surface>
  <use name=DataFormats/DetId>

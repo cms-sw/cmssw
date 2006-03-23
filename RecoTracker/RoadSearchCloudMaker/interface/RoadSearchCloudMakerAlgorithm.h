@@ -51,8 +51,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2006/02/10 22:54:52 $
-// $Revision: 1.2 $
+// $Date: 2006/03/09 14:53:49 $
+// $Revision: 1.3 $
 //
 
 #include <string>
@@ -70,7 +70,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 class RoadSearchCloudMakerAlgorithm 
 {
@@ -89,7 +89,7 @@ class RoadSearchCloudMakerAlgorithm
   void FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DLocalPosCollection* inputRecHits, 
 			    double phi0, double k0, Roads::type roadType, double ringPhi,
 			    const TrackingSeed* seed, std::vector<bool> &usedLayersArray, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
-			    const TrackingGeometry *tracker, RoadSearchCloud &cloud);
+			    const TrackerGeometry *tracker, RoadSearchCloud &cloud);
 
   bool isSingleLayer(DetId id);
 

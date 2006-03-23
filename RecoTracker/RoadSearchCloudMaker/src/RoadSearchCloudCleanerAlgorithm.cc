@@ -8,8 +8,8 @@
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2006/02/13 19:32:28 $
-// $Revision: 1.4 $
+// $Date: 2006/02/22 01:16:15 $
+// $Revision: 1.1 $
 //
 
 #include <vector>
@@ -72,7 +72,7 @@ void RoadSearchCloudCleanerAlgorithm::run(const RoadSearchCloudCollection* input
 //  es.get<TrackerDigiGeometryRecord>().get(roads);
 
   // get tracker geometry
-//  edm::ESHandle<TrackingGeometry> tracker;
+//  edm::ESHandle<TrackerGeometry> tracker;
 //  es.get<TrackerDigiGeometryRecord>().get(tracker);
 
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {

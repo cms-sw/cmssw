@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/03/09 14:53:49 $
-// $Revision: 1.7 $
+// $Author: burkett $
+// $Date: 2006/03/14 08:02:01 $
+// $Revision: 1.8 $
 //
 
 #include <vector>
@@ -130,7 +130,7 @@ void RoadSearchCloudMakerAlgorithm::run(const TrackingSeedCollection* input,
   std::vector<bool> usedLayersArray(totalNumberOfLayersPerSubdetector);
 
   // get tracker geometry
-  edm::ESHandle<TrackingGeometry> tracker;
+  edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
 
   // loop over seeds
@@ -169,14 +169,14 @@ void RoadSearchCloudMakerAlgorithm::run(const TrackingSeedCollection* input,
 	    std::cout << "[RoadSearchCloudMaker]: RPhi road: 'det' == 0, do not consider this seed." << std::endl;
 	  } else {
 
-	    double squaredGlobalRadiusInnerSeedHit = innerSeedHitGlobalPosition.x() * innerSeedHitGlobalPosition.x() +
-	      innerSeedHitGlobalPosition.y() * innerSeedHitGlobalPosition.y();
-	    double squaredGlobalRadiusOuterSeedHit = outerSeedHitGlobalPosition.x() * outerSeedHitGlobalPosition.x() +
-	      outerSeedHitGlobalPosition.y() * outerSeedHitGlobalPosition.y();
-	    double xc_det = squaredGlobalRadiusInnerSeedHit * outerSeedHitGlobalPosition.y() -
-	      squaredGlobalRadiusOuterSeedHit * innerSeedHitGlobalPosition.y();
-	    double yc_det = innerSeedHitGlobalPosition.x() * squaredGlobalRadiusOuterSeedHit -
-	      outerSeedHitGlobalPosition.x() * squaredGlobalRadiusInnerSeedHit;
+// 	    double squaredGlobalRadiusInnerSeedHit = innerSeedHitGlobalPosition.x() * innerSeedHitGlobalPosition.x() +
+// 	      innerSeedHitGlobalPosition.y() * innerSeedHitGlobalPosition.y();
+// 	    double squaredGlobalRadiusOuterSeedHit = outerSeedHitGlobalPosition.x() * outerSeedHitGlobalPosition.x() +
+// 	      outerSeedHitGlobalPosition.y() * outerSeedHitGlobalPosition.y();
+// 	    double xc_det = squaredGlobalRadiusInnerSeedHit * outerSeedHitGlobalPosition.y() -
+// 	      squaredGlobalRadiusOuterSeedHit * innerSeedHitGlobalPosition.y();
+// 	    double yc_det = innerSeedHitGlobalPosition.x() * squaredGlobalRadiusOuterSeedHit -
+// 	      outerSeedHitGlobalPosition.x() * squaredGlobalRadiusInnerSeedHit;
 
 //srw	    k0 = det / sqrt(xc_det*xc_det + yc_det*yc_det);
 //srw	    phi0 = map_phi(innerSeedHitGlobalPosition.phi() - std::asin(k0*innerSeedHitGlobalPosition.mag()));
@@ -306,7 +306,7 @@ void RoadSearchCloudMakerAlgorithm::run(const TrackingSeedCollection* input,
 void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DLocalPosCollection* inputRecHits, 
 					       double phi0, double k0, Roads::type roadType, double ringPhi,
 					       const TrackingSeed* seed, std::vector<bool> &usedLayersArray, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
-					       const TrackingGeometry *tracker, RoadSearchCloud &cloud) {
+					       const TrackerGeometry *tracker, RoadSearchCloud &cloud) {
   // retrieve vector<SiStripRecHit2DLocalPos> for id, loop over SiStripRecHit2DLocalPos, check if compatible with cloud, fill into cloud
 
   const SiStripRecHit2DLocalPosCollection::range recHitRange = inputRecHits->get(id);
@@ -338,13 +338,13 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	  }
 	} else {
 	  LocalPoint hit = recHit->localPosition();
-	  const TrapezoidalStripTopology *topology = dynamic_cast<const TrapezoidalStripTopology*>(&(tracker->idToDet(id)->topology()));
+	  const TrapezoidalStripTopology *topology = dynamic_cast<const TrapezoidalStripTopology*>(&(tracker->idToDetUnit(id)->topology()));
 	  double stripAngle = topology->stripAngle(topology->strip(hit));
 	  double stripLength = topology->localStripLength(hit);
 	  LocalPoint upperLocalBoundary(hit.x()-stripLength/2*std::sin(stripAngle),hit.y()+stripLength/2*std::cos(stripAngle),0);
 	  LocalPoint lowerLocalBoundary(hit.x()+stripLength/2*std::sin(stripAngle),hit.y()-stripLength/2*std::cos(stripAngle),0);
-	  double upperBoundaryRadius = tracker->idToDet(id)->surface().toGlobal(upperLocalBoundary).mag(); 
-	  double lowerBoundaryRadius = tracker->idToDet(id)->surface().toGlobal(lowerLocalBoundary).mag();
+	  double upperBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(upperLocalBoundary).mag(); 
+	  double lowerBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(lowerLocalBoundary).mag();
 	  double upperBoundaryPhi = phiFromExtrapolation(phi0,k0,upperBoundaryRadius,roadType);
 	  double lowerBoundaryPhi = phiFromExtrapolation(phi0,k0,lowerBoundaryRadius,roadType);
 
@@ -376,7 +376,7 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 //
 //  This is where the barrel stereoRecHits end up for Roads::RPhi
 //
-        GlobalPoint ghit = tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition());
+        GlobalPoint ghit = tracker->idToDetUnit(recHit->geographicalId())->surface().toGlobal(recHit->localPosition());
 	double hitRadius = sqrt(ghit.x()*ghit.x()+ghit.y()*ghit.y());
         double hitphi = map_phi(ghit.phi());
 	double phi = phiFromExtrapolation(phi0,k0,hitRadius,roadType);
@@ -396,12 +396,12 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
       if ( isSingleLayer(id) ) {
 	if ( isBarrelSensor(id) ) {
 	  LocalPoint hit = recHit->localPosition();
-	  const RectangularStripTopology *topology = dynamic_cast<const RectangularStripTopology*>(&(tracker->idToDet(id)->topology()));
+	  const RectangularStripTopology *topology = dynamic_cast<const RectangularStripTopology*>(&(tracker->idToDetUnit(id)->topology()));
 	  double stripLength = topology->stripLength();
 	  LocalPoint upperLocalBoundary(hit.x(),hit.y()+stripLength/2,0);
 	  LocalPoint lowerLocalBoundary(hit.x(),hit.y()-stripLength/2,0);
-	  double upperBoundaryRadius = tracker->idToDet(id)->surface().toGlobal(upperLocalBoundary).z(); 
-	  double lowerBoundaryRadius = tracker->idToDet(id)->surface().toGlobal(lowerLocalBoundary).z();
+	  double upperBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(upperLocalBoundary).z(); 
+	  double lowerBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(lowerLocalBoundary).z();
 	  double upperBoundaryPhi = phiFromExtrapolation(phi0,k0,upperBoundaryRadius,roadType);
 	  double lowerBoundaryPhi = phiFromExtrapolation(phi0,k0,lowerBoundaryRadius,roadType);
 
@@ -430,13 +430,13 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	  }
 	} else {
 	  LocalPoint hit = recHit->localPosition();
-	  const TrapezoidalStripTopology *topology = dynamic_cast<const TrapezoidalStripTopology*>(&(tracker->idToDet(id)->topology()));
+	  const TrapezoidalStripTopology *topology = dynamic_cast<const TrapezoidalStripTopology*>(&(tracker->idToDetUnit(id)->topology()));
 	  double stripAngle = topology->stripAngle(topology->strip(hit));
 	  double stripLength = topology->localStripLength(hit);
 	  LocalPoint upperLocalBoundary(hit.x()-stripLength/2*std::sin(stripAngle),hit.y()+stripLength/2*std::cos(stripAngle),0);
 	  LocalPoint lowerLocalBoundary(hit.x()+stripLength/2*std::sin(stripAngle),hit.y()-stripLength/2*std::cos(stripAngle),0);
-	  double upperBoundaryRadius = tracker->idToDet(id)->surface().toGlobal(upperLocalBoundary).z(); 
-	  double lowerBoundaryRadius = tracker->idToDet(id)->surface().toGlobal(lowerLocalBoundary).z();
+	  double upperBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(upperLocalBoundary).z(); 
+	  double lowerBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(lowerLocalBoundary).z();
 	  double upperBoundaryPhi = phiFromExtrapolation(phi0,k0,upperBoundaryRadius,roadType);
 	  double lowerBoundaryPhi = phiFromExtrapolation(phi0,k0,lowerBoundaryRadius,roadType);
 
@@ -465,7 +465,7 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	  }
 	}
       } else {
-	double hitRadius = tracker->idToDet(id)->surface().toGlobal(recHit->localPosition()).mag();
+	double hitRadius = tracker->idToDetUnit(id)->surface().toGlobal(recHit->localPosition()).mag();
 	double phi = phiFromExtrapolation(phi0,k0,hitRadius,roadType);
 //
 //  This is where the disk stereoRecHits end up for Roads::ZPhi
