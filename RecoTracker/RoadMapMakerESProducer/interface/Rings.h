@@ -12,13 +12,13 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 01:00:30 $
-// $Revision: 1.2 $
+// $Date: 2006/03/03 22:23:12 $
+// $Revision: 1.3 $
 //
 
 #include <vector>
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "RecoTracker/RoadMapRecord/interface/Ring.h"
 
@@ -31,20 +31,20 @@ class Rings {
   typedef std::vector<Ring>::iterator       iterator;
   typedef std::vector<Ring>::const_iterator const_iterator;
   
-  Rings(const TrackingGeometry &tracker, unsigned int verbosity = 0);
+  Rings(const TrackerGeometry &tracker, unsigned int verbosity = 0);
   
   ~Rings();
 
-  void constructTrackerRings(const TrackingGeometry &tracker);
+  void constructTrackerRings(const TrackerGeometry &tracker);
 
-  void constructTrackerTIBRings(const TrackingGeometry &tracker);
-  void constructTrackerTOBRings(const TrackingGeometry &tracker);
-  void constructTrackerTIDRings(const TrackingGeometry &tracker);
-  void constructTrackerTECRings(const TrackingGeometry &tracker);
-  void constructTrackerPXBRings(const TrackingGeometry &tracker);
-  void constructTrackerPXFRings(const TrackingGeometry &tracker);
+  void constructTrackerTIBRings(const TrackerGeometry &tracker);
+  void constructTrackerTOBRings(const TrackerGeometry &tracker);
+  void constructTrackerTIDRings(const TrackerGeometry &tracker);
+  void constructTrackerTECRings(const TrackerGeometry &tracker);
+  void constructTrackerPXBRings(const TrackerGeometry &tracker);
+  void constructTrackerPXFRings(const TrackerGeometry &tracker);
 
-  Ring constructTrackerTIBRing(const TrackingGeometry &tracker,
+  Ring constructTrackerTIBRing(const TrackerGeometry &tracker,
 			       unsigned int layer,
 			       unsigned int fw_bw,
 			       unsigned int ext_int,
@@ -57,7 +57,7 @@ class Rings {
 				 unsigned int detector,
 				 unsigned int stereo);
 
-  Ring constructTrackerTOBRing(const TrackingGeometry &tracker,
+  Ring constructTrackerTOBRing(const TrackerGeometry &tracker,
 			       unsigned int layer,
 			       unsigned int rod_fw_bw,
 			       unsigned int detector);
@@ -68,7 +68,7 @@ class Rings {
 				 unsigned int detector,
 				 unsigned int stereo);
 
-  Ring constructTrackerTIDRing(const TrackingGeometry &tracker,
+  Ring constructTrackerTIDRing(const TrackerGeometry &tracker,
 			       unsigned int fw_bw,
 			       unsigned int wheel,
 			       unsigned int ring);
@@ -80,7 +80,7 @@ class Rings {
 				 unsigned int detector,
 				 unsigned int stereo);
 
-  Ring constructTrackerTECRing(const TrackingGeometry &tracker,
+  Ring constructTrackerTECRing(const TrackerGeometry &tracker,
 			       unsigned int fw_bw,
 			       unsigned int wheel,
 			       unsigned int ring);
@@ -90,11 +90,10 @@ class Rings {
 				 unsigned int petal_fw_bw,
 				 unsigned int petal,
 				 unsigned int ring,
-				 unsigned int module_fw_bw,
 				 unsigned int module,
 				 unsigned int stereo);
 
-  Ring constructTrackerPXBRing(const TrackingGeometry &tracker,
+  Ring constructTrackerPXBRing(const TrackerGeometry &tracker,
 			       unsigned int layer,
 			       unsigned int detector);
 
@@ -102,7 +101,7 @@ class Rings {
 				 unsigned int ladder,
 				 unsigned int detector);
 
-  Ring constructTrackerPXFRing(const TrackingGeometry &tracker,
+  Ring constructTrackerPXFRing(const TrackerGeometry &tracker,
 			       unsigned int fw_bw,
 			       unsigned int disk,
 			       unsigned int detector);
@@ -144,7 +143,7 @@ class Rings {
 
   void setVerbosity(unsigned int input) { verbosity_ = input; }
 
-  double determineExtensions(const TrackingGeometry &tracker, 
+  double determineExtensions(const TrackerGeometry &tracker, 
 			     DetId id, 
 			     float &rmin, float &rmax, 
 			     float &zmin, float& zmax, Ring::type type);
@@ -160,7 +159,7 @@ class Rings {
   std::string dumpOldStylePXB(unsigned int &nLayer);
   std::string dumpOldStylePXF(unsigned int &nLayer);
 
-  void fillTECGeometryArray(const TrackingGeometry &tracker);
+  void fillTECGeometryArray(const TrackerGeometry &tracker);
 
  private:
   
@@ -168,7 +167,7 @@ class Rings {
 
   std::vector<Ring> rings_;
 
-  int tec_[2][9][2][8][7][2][3];
+  int tec_[2][9][2][8][7][20][3];
 
 };
 

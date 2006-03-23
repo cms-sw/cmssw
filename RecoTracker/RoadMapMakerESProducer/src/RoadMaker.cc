@@ -11,8 +11,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/02/03 09:49:27 $
-// $Revision: 1.3 $
+// $Date: 2006/03/03 22:23:12 $
+// $Revision: 1.4 $
 //
 
 #include <iostream>
@@ -33,7 +33,7 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
-RoadMaker::RoadMaker(const TrackingGeometry &tracker, unsigned int verbosity) : 
+RoadMaker::RoadMaker(const TrackerGeometry &tracker, unsigned int verbosity) : 
   verbosity_(verbosity) {
 
     rings_ = new Rings(tracker,verbosity), 
@@ -277,24 +277,31 @@ void RoadMaker::collectInnerTECSeedRings(std::vector<Ring*>& set) {
 
   unsigned int fw_bw_max       = 2;
   unsigned int wheel_max       = 6;
+  unsigned int ring_min[6];
   unsigned int ring_max[6];
 
   // TEC WHEEL 1
+  ring_min[0] = 0;
   ring_max[0] = 2;
   // TEC WHEEL 2
+  ring_min[1] = 0;
   ring_max[1] = 2;
   // TEC WHEEL 3
+  ring_min[2] = 0;
   ring_max[2] = 2;
   // TEC WHEEL 4
-  ring_max[3] = 1;
+  ring_min[3] = 1;
+  ring_max[3] = 2;
   // TEC WHEEL 5
-  ring_max[4] = 1;
+  ring_min[4] = 1;
+  ring_max[4] = 2;
   // TEC WHEEL 6
-  ring_max[5] = 1;
+  ring_min[5] = 1;
+  ring_max[5] = 2;
 
   for ( unsigned int fw_bw = 0; fw_bw < fw_bw_max; ++fw_bw ) {
     for ( unsigned int wheel = 0; wheel < wheel_max; ++wheel ) {
-      for ( unsigned int ring = 0; ring < ring_max[wheel]; ++ring ) {
+      for ( unsigned int ring = ring_min[wheel]; ring < ring_max[wheel]; ++ring ) {
 	Ring* temp_ring = rings_->getTrackerTECRing(fw_bw,wheel,ring);
 	if ( verbosity_ > 3 ) {
 	  std::cout << "[RoadMaker] collected TEC inner seed ring with index: " << temp_ring->getindex() << std::endl; 
@@ -394,41 +401,14 @@ void RoadMaker::collectOuterTECSeedRings(std::vector<Ring*>& set) {
 
   unsigned int fw_bw_max       = 2;
   unsigned int wheel_max       = 7;
-  unsigned int ring_start[7];
-  unsigned int ring_max[7];
-
-  // TEC WHEEL 1
-  ring_start[0] = 6;
-  ring_max[0] = 7;
-  // TEC WHEEL 2
-  ring_start[1] = 6;
-  ring_max[1] = 7;
-  // TEC WHEEL 3
-  ring_start[2] = 6;
-  ring_max[2] = 7;
-  // TEC WHEEL 4
-  ring_start[3] = 5;
-  ring_max[3] = 6;
-  // TEC WHEEL 5
-  ring_start[4] = 5;
-  ring_max[4] = 6;
-  // TEC WHEEL 6
-  ring_start[5] = 5;
-  ring_max[5] = 6;
-  // TEC WHEEL 7
-  ring_start[6] = 4;
-  ring_max[6] = 5;
-
   for ( unsigned int fw_bw = 0; fw_bw < fw_bw_max; ++fw_bw ) {
     for ( unsigned int wheel = 0; wheel < wheel_max; ++wheel ) {
-      for ( unsigned int ring = ring_start[wheel]; ring < ring_max[wheel]; ++ring ) {
-	Ring* temp_ring = rings_->getTrackerTECRing(fw_bw,wheel,ring);
-	if ( verbosity_ > 3 ) {
-	  std::cout << "[RoadMaker] collected TEC outer seed ring with index: " << temp_ring->getindex() << std::endl; 
-	}
-	set.push_back(temp_ring);
-	++counter;
-      }    
+      Ring* temp_ring = rings_->getTrackerTECRing(fw_bw,wheel,6);
+      if ( verbosity_ > 3 ) {
+	std::cout << "[RoadMaker] collected TEC outer seed ring with index: " << temp_ring->getindex() << std::endl; 
+      }
+      set.push_back(temp_ring);
+      ++counter;
     }
   }
 
@@ -436,30 +416,40 @@ void RoadMaker::collectOuterTECSeedRings(std::vector<Ring*>& set) {
   fw_bw_max       = 2;
   unsigned int wheel_start     = 7;
   wheel_max       = 9;
+  unsigned int second_ring_min[9];
   unsigned int second_ring_max[9];
 
   // TEC WHEEL 1
+  second_ring_min[0] = 0;
   second_ring_max[0] = 7;
   // TEC WHEEL 2
+  second_ring_min[1] = 0;
   second_ring_max[1] = 7;
   // TEC WHEEL 3
+  second_ring_min[2] = 0;
   second_ring_max[2] = 7;
   // TEC WHEEL 4
-  second_ring_max[3] = 6;
+  second_ring_min[3] = 1;
+  second_ring_max[3] = 7;
   // TEC WHEEL 5
-  second_ring_max[4] = 6;
+  second_ring_min[4] = 1;
+  second_ring_max[4] = 7;
   // TEC WHEEL 6
-  second_ring_max[5] = 6;
+  second_ring_min[5] = 1;
+  second_ring_max[5] = 7;
   // TEC WHEEL 7
-  second_ring_max[6] = 5;
+  second_ring_min[6] = 2;
+  second_ring_max[6] = 7;
   // TEC WHEEL 8
-  second_ring_max[7] = 5;
+  second_ring_min[7] = 2;
+  second_ring_max[7] = 7;
   // TEC WHEEL 9
-  second_ring_max[8] = 4;
+  second_ring_min[8] = 3;
+  second_ring_max[8] = 7;
 
   for ( unsigned int fw_bw = 0; fw_bw < fw_bw_max; ++fw_bw ) {
     for ( unsigned int wheel = wheel_start; wheel < wheel_max; ++wheel ) {
-      for ( unsigned int second_ring = 0; second_ring < second_ring_max[wheel]; ++second_ring ) {
+      for ( unsigned int second_ring = second_ring_min[wheel]; second_ring < second_ring_max[wheel]; ++second_ring ) {
 	Ring* temp_ring = rings_->getTrackerTECRing(fw_bw,wheel,second_ring);
 	if ( verbosity_ > 3 ) {
 	  std::cout << "[RoadMaker] collected TEC outer seed ring with index: " << temp_ring->getindex() << std::endl; 
@@ -476,11 +466,11 @@ void RoadMaker::collectOuterTECSeedRings(std::vector<Ring*>& set) {
 
 }
 
-std::string RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
+std::string RoadMaker::printTrackerDetUnits(const TrackerGeometry &tracker) {
 
   std::ostringstream output;
 
-  std::vector<DetId> detIds = tracker.detIds();
+  std::vector<DetId> detIds = tracker.detUnitIds();
   
   for ( std::vector<DetId>::iterator detiterator = detIds.begin(); detiterator != detIds.end(); ++detiterator ) {
     DetId id = *detiterator;
@@ -520,16 +510,22 @@ std::string RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
     } else if ( (unsigned int)id.subdetId() == StripSubdetector::TEC ) {
       TECDetId tecid(id.rawId()); 
       output << "[RoadMaker] DetUnit for TEC ring DetId: " << id.rawId() 
-		<< " side neg(1)/pos(2): " << tecid.side() 
-		<< " wheel: " << tecid.wheel()
-		<< " petal fw(0)/bw(1): " << tecid.petal()[0]
-		<< " petal: " << tecid.petal()[1] 
-		<< " ring: " << tecid.ring()
-		<< " detector fw(0)/bw(1): " << tecid.module()[0]
-		<< " detector: " << tecid.module()[1] 
-		<< " not stereo(0)/stereo(1): " << tecid.stereo() 
-		<< " not glued(0)/glued(1): " << tecid.glued() 
-		<< std::endl; 
+	     << " side neg(1)/pos(2): " << tecid.side() 
+	     << " wheel: " << tecid.wheel()
+	     << " petal fw(0)/bw(1): " << tecid.petal()[0]
+	     << " petal: " << tecid.petal()[1] 
+	     << " ring: " << tecid.ring()
+	     << " module: " << tecid.module();
+      if ( ((int)tecid.partnerDetId()-(int)id.rawId()) == 1 ) {
+	output << " stereo: 1";
+      } else if ( ((int)tecid.partnerDetId()-(int)id.rawId()) == -1 ) {
+	output << " stereo: 2";
+      } else if ( tecid.partnerDetId() == 0 ) {
+	output << " stereo: 0";
+      } else {
+	output << " stereo: problem";
+      }
+      output << std::endl; 
     } else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelBarrel ) {
       PXBDetId pxbid(id.rawId()); 
       output << "[RoadMaker] DetUnit for PXB ring DetId: " << id.rawId() 

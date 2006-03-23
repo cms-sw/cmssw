@@ -9,8 +9,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/02/03 09:49:27 $
-// $Revision: 1.3 $
+// $Date: 2006/03/03 22:23:12 $
+// $Revision: 1.4 $
 //
 
 #include <iostream>
@@ -34,7 +34,7 @@
 #include "Geometry/CommonTopologies/interface/Topology.h"
 #include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
 
-Rings::Rings(const TrackingGeometry &tracker, unsigned int verbosity) : verbosity_(verbosity) {
+Rings::Rings(const TrackerGeometry &tracker, unsigned int verbosity) : verbosity_(verbosity) {
 
   fillTECGeometryArray(tracker);
 
@@ -49,7 +49,7 @@ Rings::~Rings() {
 
 }  
 
-void Rings::constructTrackerRings(const TrackingGeometry &tracker) {
+void Rings::constructTrackerRings(const TrackerGeometry &tracker) {
 
   constructTrackerTIBRings(tracker);
   constructTrackerTOBRings(tracker);
@@ -64,7 +64,7 @@ void Rings::constructTrackerRings(const TrackingGeometry &tracker) {
 
 }
 
-void Rings::constructTrackerTIBRings(const TrackingGeometry &tracker) {
+void Rings::constructTrackerTIBRings(const TrackerGeometry &tracker) {
 
   unsigned int counter = 0;
   unsigned int index = 24;
@@ -96,7 +96,7 @@ void Rings::constructTrackerTIBRings(const TrackingGeometry &tracker) {
   
 }
 
-Ring Rings::constructTrackerTIBRing(const TrackingGeometry &tracker,
+Ring Rings::constructTrackerTIBRing(const TrackerGeometry &tracker,
 				    unsigned int layer,
 				    unsigned int fw_bw,
 				    unsigned int ext_int,
@@ -172,7 +172,7 @@ DetId Rings::constructTrackerTIBDetId(unsigned int layer,
 }
 
 
-void Rings::constructTrackerTOBRings(const TrackingGeometry &tracker) {
+void Rings::constructTrackerTOBRings(const TrackerGeometry &tracker) {
 
   unsigned int counter = 0;
   unsigned int index = 72;
@@ -201,7 +201,7 @@ void Rings::constructTrackerTOBRings(const TrackingGeometry &tracker) {
 
 }
 
-Ring Rings::constructTrackerTOBRing(const TrackingGeometry &tracker,
+Ring Rings::constructTrackerTOBRing(const TrackerGeometry &tracker,
 				    unsigned int layer,
 				    unsigned int rod_fw_bw,
 				    unsigned int detector) {
@@ -271,7 +271,7 @@ DetId Rings::constructTrackerTOBDetId(unsigned int layer,
   return DetId(id.rawId());
 }
 
-void Rings::constructTrackerTIDRings(const TrackingGeometry &tracker) {
+void Rings::constructTrackerTIDRings(const TrackerGeometry &tracker) {
 
   unsigned int counter = 0;
   unsigned int index = 197;
@@ -303,7 +303,7 @@ void Rings::constructTrackerTIDRings(const TrackingGeometry &tracker) {
 
 }
 
-Ring Rings::constructTrackerTIDRing(const TrackingGeometry &tracker,
+Ring Rings::constructTrackerTIDRing(const TrackerGeometry &tracker,
 				    unsigned int fw_bw,
 				    unsigned int wheel,
 				    unsigned int ring) {
@@ -366,44 +366,54 @@ DetId Rings::constructTrackerTIDDetId(unsigned int fw_bw,
 
   if ( verbosity_ > 3 ) {
     std::cout << "[Rings] constructed TID ring DetId for side: " << id.side() << " wheel: " << id.wheel() 
-	      << " ring: " << id.ring() << "module fw(0)/bw(1): " << id.module()[0] << " module: " << id.module()[1] 
+	      << " ring: " << id.ring() << " module_fw_bw: " << id.module()[0] << " module: " << id.module()[1] 
 	      << " stereo: " << id.stereo() << std::endl; 
   }
 	
   return DetId(id.rawId());
 }
 
-void Rings::constructTrackerTECRings(const TrackingGeometry &tracker) {
+void Rings::constructTrackerTECRings(const TrackerGeometry &tracker) {
 
   unsigned int counter = 0;
   unsigned int index = 144;
 
   unsigned int fw_bw_max       = 2;
   unsigned int wheel_max       = 9;
+  unsigned int ring_min[9];
   unsigned int ring_max[9];
 
   // TEC WHEEL 1
+  ring_min[0] = 0;
   ring_max[0] = 7;
   // TEC WHEEL 2
+  ring_min[1] = 0;
   ring_max[1] = 7;
   // TEC WHEEL 3
+  ring_min[2] = 0;
   ring_max[2] = 7;
   // TEC WHEEL 4
-  ring_max[3] = 6;
+  ring_min[3] = 1;
+  ring_max[3] = 7;
   // TEC WHEEL 5
-  ring_max[4] = 6;
+  ring_min[4] = 1;
+  ring_max[4] = 7;
   // TEC WHEEL 6
-  ring_max[5] = 6;
+  ring_min[5] = 1;
+  ring_max[5] = 7;
   // TEC WHEEL 7
-  ring_max[6] = 5;
+  ring_min[6] = 2;
+  ring_max[6] = 7;
   // TEC WHEEL 8
-  ring_max[7] = 5;
+  ring_min[7] = 2;
+  ring_max[7] = 7;
   // TEC WHEEL 9
-  ring_max[8] = 4;
+  ring_min[8] = 3;
+  ring_max[8] = 7;
 
   for ( unsigned int fw_bw = 0; fw_bw < fw_bw_max; ++fw_bw ) {
     for ( unsigned int wheel = 0; wheel < wheel_max; ++wheel ) {
-      for ( unsigned int ring = 0; ring < ring_max[wheel]; ++ring ) {
+      for ( unsigned int ring = ring_min[wheel]; ring < ring_max[wheel]; ++ring ) {
 	Ring tempring = constructTrackerTECRing(tracker,fw_bw,wheel,ring);
 	tempring.setindex(index++);
 	if ( index == 197 ) {
@@ -424,7 +434,7 @@ void Rings::constructTrackerTECRings(const TrackingGeometry &tracker) {
 
 }
 
-Ring Rings::constructTrackerTECRing(const TrackingGeometry &tracker,
+Ring Rings::constructTrackerTECRing(const TrackerGeometry &tracker,
 				    unsigned int fw_bw,
 				    unsigned int wheel,
 				    unsigned int ring) {
@@ -437,56 +447,19 @@ Ring Rings::constructTrackerTECRing(const TrackingGeometry &tracker,
 
   unsigned int petal_max       = 8;
   unsigned int petal_fw_bw_max = 2;
-  unsigned int module_fw_bw_max = 2;
-  unsigned int module_max = 3;
+  unsigned int module_max = 20;
+  unsigned int stereo_max = 3;
 
-  bool stereo = false;
-  if ( (wheel==0)||(wheel==1)||(wheel==2) ) {
-    if ( (ring==0) || (ring==1) || (ring==4) ) {
-      stereo = true;
-    } 
-  } else if ( (wheel==3)||(wheel==4)||(wheel==5) ) {
-    if ( (ring==0) || (ring==3) ) {
-      stereo = true;
-    } 
-  } else if ( (wheel==6)||(wheel==7) ) {
-    if ( (ring==2) ) {
-      stereo = true;
-    } 
-  } else if ( (wheel==8) ) {
-    if ( (ring==1) ) {
-      stereo = true;
-    } 
-  }
-  
   Ring tempring(Ring::TECRing);
 	
-  if ( stereo ) {
-    for ( unsigned int stereo = 1; stereo <= 2; ++stereo) {
-      for ( unsigned int petal = 0; petal < petal_max; ++petal ) {
-	for ( unsigned int petal_fw_bw = 0; petal_fw_bw < petal_fw_bw_max; ++petal_fw_bw ) {
-	  for ( unsigned int module_fw_bw = 0; module_fw_bw < module_fw_bw_max; ++module_fw_bw ) {
-	    for ( unsigned int module = 0; module < module_max; ++module ) {
-	      if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module_fw_bw][module] > 0 ) {
-		DetId id = constructTrackerTECDetId(fw_bw,wheel,petal_fw_bw,petal,ring,module_fw_bw,module,stereo);
-		double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TECRing);
-		tempring.addId(phi,id);
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  } else {
-    for ( unsigned int petal = 0; petal < petal_max; ++petal ) {
-      for ( unsigned int petal_fw_bw = 0; petal_fw_bw < petal_fw_bw_max; ++petal_fw_bw ) {
-	for ( unsigned int module_fw_bw = 0; module_fw_bw < module_fw_bw_max; ++module_fw_bw ) {
-	  for ( unsigned int module = 0; module < module_max; ++module ) {
-	    if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module_fw_bw][module] > 0 ) {
-	      DetId id = constructTrackerTECDetId(fw_bw,wheel,petal_fw_bw,petal,ring,module_fw_bw,module,0);
-	      double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TECRing);
-	      tempring.addId(phi,id);
-	    }
+  for ( unsigned int petal = 0; petal < petal_max; ++petal ) {
+    for ( unsigned int petal_fw_bw = 0; petal_fw_bw < petal_fw_bw_max; ++petal_fw_bw ) {
+      for ( unsigned int module = 0; module < module_max; ++module ) {
+	for ( unsigned int stereo = 0; stereo < stereo_max; ++stereo) {
+	  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] > 0 ) {
+	    DetId id = constructTrackerTECDetId(fw_bw,wheel,petal_fw_bw,petal,ring,module,stereo);
+	    double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TECRing);
+	    tempring.addId(phi,id);
 	  }
 	}
       }
@@ -507,22 +480,21 @@ DetId Rings::constructTrackerTECDetId(unsigned int fw_bw,
 				      unsigned int petal_fw_bw,
 				      unsigned int petal,
 				      unsigned int ring,
-				      unsigned int module_fw_bw,
 				      unsigned int module,
 				      unsigned int stereo) {
 
-  TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,module_fw_bw,module+1,stereo);
+  TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,0,module+1,stereo);
   
   if ( verbosity_ > 3 ) {
     std::cout << "[Rings] constructed TEC ring DetId for side: " << id.side() << " wheel: " << id.wheel() 
 	      << " ring: " << id.ring() << " petal fw(0)/bw(0): " << id.petal()[0] << " petal: " << id.petal()[1] 
-	      << "module fw(0)/bw(1): " << id.module()[0] << " module: " << id.module()[1] << " stereo: " << id.stereo() << std::endl; 
+	      << " module: " << id.module() << " stereo: " << id.stereo() << std::endl; 
   }
 
   return DetId(id.rawId());
 }
 
-void Rings::constructTrackerPXBRings(const TrackingGeometry &tracker) {
+void Rings::constructTrackerPXBRings(const TrackerGeometry &tracker) {
 
   unsigned int counter = 0;
   unsigned int index = 0;
@@ -548,7 +520,7 @@ void Rings::constructTrackerPXBRings(const TrackingGeometry &tracker) {
   
 }
 
-Ring Rings::constructTrackerPXBRing(const TrackingGeometry &tracker,
+Ring Rings::constructTrackerPXBRing(const TrackerGeometry &tracker,
 				    unsigned int layer,
 				    unsigned int detector) {
 
@@ -597,7 +569,7 @@ DetId Rings::constructTrackerPXBDetId(unsigned int layer,
   return DetId(id.rawId());
 }
 
-void Rings::constructTrackerPXFRings(const TrackingGeometry &tracker) {
+void Rings::constructTrackerPXFRings(const TrackerGeometry &tracker) {
 
   unsigned int counter = 0;
   unsigned int index = 206;
@@ -626,7 +598,7 @@ void Rings::constructTrackerPXFRings(const TrackingGeometry &tracker) {
   
 }
 
-Ring Rings::constructTrackerPXFRing(const TrackingGeometry &tracker,
+Ring Rings::constructTrackerPXFRing(const TrackerGeometry &tracker,
 				    unsigned int fw_bw,
 				    unsigned int disk,
 				    unsigned int detector) {
@@ -688,8 +660,7 @@ Ring* Rings::getTrackerRing(DetId id) {
 	    << " petal fw(0)/bw(1): " << tecid.petal()[0]
 	    << " petal: " << tecid.petal()[1] 
 	    << " ring: " << tecid.ring()
-	    << " detector fw(0)/bw(1): " << tecid.module()[0]
-	    << " detector: " << tecid.module()[1] 
+	    << " module: " << tecid.module()
 	    << " not stereo(0)/stereo(1): " << tecid.stereo() 
 	    << " not glued(0)/glued(1): " << tecid.glued() 
 	    << std::endl; 
@@ -735,59 +706,42 @@ Ring* Rings::getTrackerTECRing(unsigned int fw_bw,
 			       unsigned int wheel,
 			       unsigned int ring) {
 
-  // construct DetID from info using else the first of all entities and return Ring
-  bool stereo_flag = false;
-  if ( (wheel==0)||(wheel==1)||(wheel==2) ) {
-    if ( (ring==0) || (ring==1) || (ring==4) ) {
-      stereo_flag = true;
-    } 
-  } else if ( (wheel==3)||(wheel==4)||(wheel==5) ) {
-    if ( (ring==0) || (ring==3) ) {
-      stereo_flag = true;
-    } 
-  } else if ( (wheel==6)||(wheel==7) ) {
-    if ( (ring==2) ) {
-      stereo_flag = true;
-    } 
-  } else if ( (wheel==8) ) {
-    if ( (ring==1) ) {
-      stereo_flag = true;
-    } 
-  }
+  // try to construct first detid from fw_bw, wheel, ring
+  // set petal and module to 1 (zero in c-array terms)
+  // check for combination if petal_fw_bw is valid, otherwise set to 0 is valid
+  // if not, increase them to get a valid id
 
-  unsigned int stereo = 0;
-  if ( stereo_flag ) {
+  int petal_fw_bw = 0;
+  int petal = 0;
+  int module = 0;
+  int stereo = 0;
+
+  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
     stereo = 1;
   }
 
-  // try to construct first detid from fw_bw, wheel, ring
-  // set petal and module to 1 (zero in c-array terms)
-  // check for combination if petal_fw_bw and module_fw_bw set to 0 is valid
-  // if not, increase them to get a valid id
-
-  int petal = 0;
-  int module = 0;
-
-  int petal_fw_bw = 0;
-  int module_fw_bw = 0;
-
-  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module_fw_bw][module] == 0 ) {
-    module_fw_bw = 1;
+  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
+    stereo = 2;
   }
 
-  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module_fw_bw][module] == 0 ) {
+  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
     petal_fw_bw = 1;
+    stereo = 0;
   }
 
-  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module_fw_bw][module] == 0 ) {
-    module_fw_bw = 0;
+  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
+    stereo = 1;
   }
 
-  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module_fw_bw][module] == 0 ) {
+  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
+    stereo = 2;
+  }
+
+  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
     std::cout << "[Rings] problem generation TEC DetId from side: " << fw_bw+1 << " wheel: " << wheel+1 << " ring: " << ring+1 << std::endl;
   }
 
-  TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,module_fw_bw,module+1,stereo);
+  TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,0,module+1,stereo);
 
   return getTrackerRing(DetId(id.rawId()));
 }
@@ -1117,9 +1071,9 @@ void Rings::fixIndexNumberingScheme() {
 
 }
 
-double Rings::determineExtensions(const TrackingGeometry &tracker, DetId id, float &rmin, float &rmax, float &zmin, float& zmax, Ring::type type) {
+double Rings::determineExtensions(const TrackerGeometry &tracker, DetId id, float &rmin, float &rmax, float &zmin, float& zmax, Ring::type type) {
 
-  const GeomDetUnit *det = tracker.idToDet(id);
+  const GeomDetUnit *det = tracker.idToDetUnit(id);
 	
   double phi = 0.;
 
@@ -1226,8 +1180,7 @@ double Rings::determineExtensions(const TrackingGeometry &tracker, DetId id, flo
 		<< " petal fw(0)/bw(1): " << tecid.petal()[0]
 		<< " petal: " << tecid.petal()[1] 
 		<< " ring: " << tecid.ring()
-		<< " detector fw(0)/bw(1): " << tecid.module()[0]
-		<< " detector: " << tecid.module()[1] 
+		<< " module: " << tecid.module()
 		<< " not stereo(0)/stereo(1): " << tecid.stereo() 
 		<< " not glued(0)/glued(1): " << tecid.glued() 
 		<< std::endl; 
@@ -1422,33 +1375,43 @@ std::string Rings::dumpOldStyleTEC(unsigned int &nLayers) {
 
   unsigned int fw_bw_max       = 2;
   unsigned int wheel_max       = 9;
+  unsigned int ring_min[9];
   unsigned int ring_max[9];
 
   // TEC WHEEL 1
+  ring_min[0] = 0;
   ring_max[0] = 7;
   // TEC WHEEL 2
+  ring_min[1] = 0;
   ring_max[1] = 7;
   // TEC WHEEL 3
+  ring_min[2] = 0;
   ring_max[2] = 7;
   // TEC WHEEL 4
-  ring_max[3] = 6;
+  ring_min[3] = 1;
+  ring_max[3] = 7;
   // TEC WHEEL 5
-  ring_max[4] = 6;
+  ring_min[4] = 1;
+  ring_max[4] = 7;
   // TEC WHEEL 6
-  ring_max[5] = 6;
+  ring_min[5] = 1;
+  ring_max[5] = 7;
   // TEC WHEEL 7
-  ring_max[6] = 5;
+  ring_min[6] = 2;
+  ring_max[6] = 7;
   // TEC WHEEL 8
-  ring_max[7] = 5;
+  ring_min[7] = 2;
+  ring_max[7] = 7;
   // TEC WHEEL 9
-  ring_max[8] = 4;
+  ring_min[8] = 3;
+  ring_max[8] = 7;
 
   for ( unsigned int fw_bw = 0; fw_bw < fw_bw_max; ++fw_bw ) {
     for ( unsigned int wheel = 0; wheel < wheel_max; ++wheel ) {
       ++nLayers;
       std::ostringstream tempstream;
       unsigned int nRings = 0;
-      for ( unsigned int ring = 0; ring < ring_max[wheel]; ++ring ) {
+      for ( unsigned int ring = ring_min[wheel]; ring < ring_max[wheel]; ++ring ) {
 	++nRings;
 	Ring *tempring = getTrackerTECRing(fw_bw,wheel,ring);
 	tempstream << tempring->getrmin() << " "
@@ -1540,9 +1503,10 @@ std::string Rings::dumpOldStylePXF(unsigned int &nLayers) {
   
 }
 
-void Rings::fillTECGeometryArray(const TrackingGeometry &tracker) {
+void Rings::fillTECGeometryArray(const TrackerGeometry &tracker) {
   // fills hardcoded TEC geometry array
-  // tec[side][wheel][petal_fw_bw][petal][ring][module_fw_bw][module]
+  // tec[side][wheel][petal_fw_bw][petal][ring][module][stereo]
+  // where stereo gives the int of the last constructor parameter
   // the content inidicates if detector with combination exists (>0) or not (==0)
 
   for (int i = 0; i < 2; ++i ) {
@@ -1550,10 +1514,10 @@ void Rings::fillTECGeometryArray(const TrackingGeometry &tracker) {
       for (int k = 0; k < 2; ++k ) {
 	for (int l = 0; l < 8; ++l ) {
 	  for (int m = 0; m < 7; ++m ) {
-	    for (int n = 0; n < 2; ++n ) {
+	    for (int n = 0; n < 20; ++n ) {
 	      for (int o = 0; o < 3; ++o ) {
 		tec_[i][j][k][l][m][n][o] = 0;
-	      }	
+	      }
 	    }	
 	  }
 	}
@@ -1561,15 +1525,23 @@ void Rings::fillTECGeometryArray(const TrackingGeometry &tracker) {
     }
   }
 
-  std::vector<DetId> detIds = tracker.detIds();
+  std::vector<DetId> detIds = tracker.detUnitIds();
   
   for ( std::vector<DetId>::iterator detiterator = detIds.begin(); detiterator != detIds.end(); ++detiterator ) {
     DetId id = *detiterator;
 
     if ( (unsigned int)id.subdetId() == StripSubdetector::TEC ) {
-      TECDetId tecid(id.rawId()); 
+      TECDetId tecid(id.rawId());
 
-      tec_[tecid.side()-1][tecid.wheel()-1][tecid.petal()[0]][tecid.petal()[1]-1][tecid.ring()-1][tecid.module()[0]][tecid.module()[1]-1] += 1;
+      if ( ((int)tecid.partnerDetId()-(int)id.rawId()) == 1 ) {
+	tec_[tecid.side()-1][tecid.wheel()-1][tecid.petal()[0]][tecid.petal()[1]-1][tecid.ring()-1][tecid.module()-1][1] += 1;
+      } else if ( ((int)tecid.partnerDetId()-(int)id.rawId()) == -1 ) {
+	tec_[tecid.side()-1][tecid.wheel()-1][tecid.petal()[0]][tecid.petal()[1]-1][tecid.ring()-1][tecid.module()-1][2] += 1;
+      } else if ( tecid.partnerDetId() == 0 ) {
+	tec_[tecid.side()-1][tecid.wheel()-1][tecid.petal()[0]][tecid.petal()[1]-1][tecid.ring()-1][tecid.module()-1][0] += 1;
+      } else {
+	std::cout << "!!!!![Rings] stereo of TECId: " << id.rawId() << " could not be determined." << std::endl; 
+      }
 
     }
   }

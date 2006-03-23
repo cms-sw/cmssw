@@ -9,15 +9,15 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 01:00:30 $
-// $Revision: 1.2 $
+// $Date: 2006/03/03 22:23:12 $
+// $Revision: 1.3 $
 //
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/RoadMapMakerESProducer.h"
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/RoadMaker.h"
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 //
 // constructors and destructor
@@ -58,11 +58,16 @@ RoadMapMakerESProducer::produce(const TrackerDigiGeometryRecord& iRecord)
 {
 
   // get geometry
-  edm::ESHandle<TrackingGeometry> trackingGeometryHandle;
+  edm::ESHandle<TrackerGeometry> trackingGeometryHandle;
   iRecord.get(trackingGeometryHandle);
-  const TrackingGeometry& tracker(*trackingGeometryHandle);
+  const TrackerGeometry& tracker(*trackingGeometryHandle);
 
   RoadMaker maker(tracker,verbosity_);
+
+  if ( writeOutTrackerAsciiDump_ ) {
+    std::ofstream output(fileNameTrackerAsciiDump_.c_str());
+    output << maker.printTrackerDetUnits(tracker);
+  }
 
   Roads *roads = maker.getRoads();
   
@@ -74,11 +79,6 @@ RoadMapMakerESProducer::produce(const TrackerDigiGeometryRecord& iRecord)
 
   if ( writeOutOldStyle_ ) {
     maker.dumpOldStyle(fileNameOldStyle_);
-  }
-
-  if ( writeOutTrackerAsciiDump_ ) {
-    std::ofstream output(fileNameTrackerAsciiDump_.c_str());
-    output << maker.printTrackerDetUnits(tracker);
   }
 
   return pRoads ;

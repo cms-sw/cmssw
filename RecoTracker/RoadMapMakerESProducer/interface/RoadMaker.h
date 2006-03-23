@@ -14,8 +14,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 01:00:30 $
-// $Revision: 1.2 $
+// $Date: 2006/03/03 22:23:12 $
+// $Revision: 1.3 $
 //
 
 #include <vector>
@@ -23,7 +23,7 @@
 #include <map>
 #include <utility>
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"
 #include "RecoTracker/RoadMapMakerESProducer/interface/Rings.h"
@@ -32,7 +32,7 @@ class RoadMaker {
  
  public:
   
-  RoadMaker(const TrackingGeometry &tracker, unsigned int verbosity = 0);
+  RoadMaker(const TrackerGeometry &tracker, unsigned int verbosity = 0);
   
   ~RoadMaker();
 
@@ -47,7 +47,7 @@ class RoadMaker {
   void collectOuterTOBSeedRings(std::vector<Ring*>& set);
   void collectOuterTECSeedRings(std::vector<Ring*>& set);
 
-  std::string printTrackerDetUnits(const TrackingGeometry &tracker);
+  std::string printTrackerDetUnits(const TrackerGeometry &tracker);
 
   inline Roads* getRoads() { return roads_; }
 
