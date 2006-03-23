@@ -133,7 +133,7 @@ std::pair<DetId,DetIdTIDSameDiskComparator> TrackerLayerIdAccessor::stripTIDDisk
   return make_pair(id,DetIdTIDSameDiskComparator());
 }
 std::pair<DetId,DetIdTECSameDiskComparator> TrackerLayerIdAccessor::stripTECDisk(int side, int disk ){
-  TECDetId id(side,disk,1,1,1,1,1,1);
+  TECDetId id(side,disk,1,1,1,1,1);
   
   return make_pair(id,DetIdTECSameDiskComparator());
 }
