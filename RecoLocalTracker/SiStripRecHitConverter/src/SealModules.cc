@@ -14,7 +14,7 @@
 
 EVENTSETUP_DATA_REG(StripClusterParameterEstimator);
 DEFINE_SEAL_MODULE();
-//DEFINE_ANOTHER_FWK_MODULE(StripCPEESProducer)
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(StripCPEESProducer)
 using cms::SiStripRecHitConverter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripRecHitConverter)
 

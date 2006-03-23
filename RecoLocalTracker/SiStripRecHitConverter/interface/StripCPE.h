@@ -1,5 +1,6 @@
-#ifndef RecoLocalTracker_ESProducers_StripCPE_H
-#define RecoLocalTracker_ESProducers_StripCPE_H
+#ifndef RecoLocalTracker_SiStripRecHitConverter_StripCPE_H
+#define RecoLocalTracker_SiStripRecHitConverter_StripCPE_H
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
