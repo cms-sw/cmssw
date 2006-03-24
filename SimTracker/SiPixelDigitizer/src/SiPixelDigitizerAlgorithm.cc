@@ -36,28 +36,28 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // Be carefull, this parameter is also used in SiPixelDet.cc to 
   // calculate the noise in adc counts from noise in electrons.
   // Both defaults should be the same.
-  theElectronPerADC=conf_.getUntrackedParameter<double>("ElectronPerAdc",135.0);
+  theElectronPerADC=conf_.getParameter<double>("ElectronPerAdc");
 
   // ADC saturation value, 255=8bit adc.
   theAdcFullScale=conf_.getUntrackedParameter<int>("AdcFullScale",255);
 
   // Pixel threshold in units of noise.
-  thePixelThreshold=conf_.getUntrackedParameter<double>("ThresholdInNoiseUnits",5.);
+  thePixelThreshold=conf_.getParameter<double>("ThresholdInNoiseUnits");
 
   // Noise in electrons.
-  theNoiseInElectrons=conf_.getUntrackedParameter<double>("NoiseInElectrons",500.0);
+  theNoiseInElectrons=conf_.getParameter<double>("NoiseInElectrons");
 
   //theTofCut 12.5, cut in particle TOD +/- 12.5ns
   theTofCut=conf_.getUntrackedParameter<double>("TofCut",12.5);
 
   //Lorentz angle tangent per Tesla
-  tanLorentzAnglePerTesla=conf_.getUntrackedParameter<double>("TanLorentzAnglePerTesla",0.106);
+  tanLorentzAnglePerTesla=conf_.getParameter<double>("TanLorentzAnglePerTesla");
 
   // Add noise   
   addNoise=conf_.getUntrackedParameter<bool>("AddNoise",true);
 
   // Add noisy pixels 
-  addNoisyPixels=conf_.getUntrackedParameter<bool>("AddNoisyPixels",true);
+  addNoisyPixels=conf_.getParameter<bool>("AddNoisyPixels");
 
   // Fluctuate charge in track subsegments
   fluctuateCharge=conf_.getUntrackedParameter<bool>("FluctuateCharge",true);
@@ -66,11 +66,11 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   //tMax = 0.030; // In MeV.  
   tMax =conf_.getUntrackedParameter<double>("DeltaProductionCut",0.030);  
  
-  thePixelLuminosity=conf_.getUntrackedParameter<int>("AddPixelInefficiency",0);
+  thePixelLuminosity=conf_.getParameter<int>("AddPixelInefficiency");
   // Get the constants for the miss-calibration studies
-  doMissCalibrate=conf_.getUntrackedParameter<bool>("MissCalibrate",false); // Enable miss-calibration
-  theGainSmearing=conf_.getUntrackedParameter<double>("GainSmearing",0.0); // sigma of the gain smearing
-  theOffsetSmearing=conf_.getUntrackedParameter<double>("OffsetSmearing",0.0); //sigma of the offset smearing
+  doMissCalibrate=conf_.getParameter<bool>("MissCalibrate"); // Enable miss-calibration
+  theGainSmearing=conf_.getParameter<double>("GainSmearing"); // sigma of the gain smearing
+  theOffsetSmearing=conf_.getParameter<double>("OffsetSmearing"); //sigma of the offset smearing
 
 
 
