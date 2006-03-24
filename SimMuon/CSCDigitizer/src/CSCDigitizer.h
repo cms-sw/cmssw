@@ -33,8 +33,6 @@ class CSCDigitizer
 public:
   /// configurable parameters
   explicit CSCDigitizer(const edm::ParameterSet & p);
-  /// default values for parameters
-  CSCDigitizer();
   
   ~CSCDigitizer();
 

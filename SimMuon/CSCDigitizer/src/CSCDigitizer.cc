@@ -21,15 +21,6 @@ CSCDigitizer::CSCDigitizer(const edm::ParameterSet & p) {
 }
 
 
-CSCDigitizer::CSCDigitizer() {
-  theDriftSim = new CSCDriftSim();
-  theWireHitSim          = new CSCWireHitSim(theDriftSim);
-  theStripHitSim         = new CSCStripHitSim();
-  theWireElectronicsSim  = new CSCWireElectronicsSim();
-  theStripElectronicsSim = new CSCStripElectronicsSim();
-}
-
-
 CSCDigitizer::~CSCDigitizer() {
   delete theStripElectronicsSim;
   delete theWireElectronicsSim;
