@@ -6,7 +6,7 @@
 #include "SimMuon/CSCDigitizer/src/CSCCrosstalkGenerator.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "SimMuon/CSCDigitizer/src/CSCScaNoiseReader.h"
-#include "SimMuon/CSCDigitizer/src/CSCScaNoiseSimple.h"
+#include "SimMuon/CSCDigitizer/src/CSCScaNoiseGaussian.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
@@ -29,21 +29,9 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   theSamplingTime = p.getParameter<double>("stripSamplingTime");
   sca_peak_bin = p.getParameter<int>("scaPeakBin");
   scaNoiseMode_ = p.getParameter<std::string>("scaNoiseMode");
-  init();
-}
-
-
-CSCStripElectronicsSim::CSCStripElectronicsSim()
-  : CSCBaseElectronicsSim(),
-  nScaBins_(8),
-  sca_peak_bin(4)
-{
-  doNoise_ = true;
-  doCrosstalk_ = true;
-  theSignalStartTime = -250.;
-  theSignalStopTime = 500.;
-  theSamplingTime =25.;
-  scaNoiseMode_ = "simple";
+  theAnalogNoise = p.getParameter<double>("analogNoise");
+  thePedestal = p.getParameter<double>("pedestal");
+  thePedestalWidth = p.getParameter<double>("pedestalWidth");
   init();
 }
 
@@ -67,13 +55,10 @@ void CSCStripElectronicsSim::init() {
   }
   if(doNoise_) {
     if(scaNoiseMode_ == "file") {
-      theScaNoiseGenerator = new CSCScaNoiseReader();
+      theScaNoiseGenerator = new CSCScaNoiseReader(thePedestal, thePedestalWidth);
     }
     else if(scaNoiseMode_ == "simple") {
-      // TODO make configurable
-      double pedestal = 600.;
-      double width = 2.7;
-      theScaNoiseGenerator = new CSCScaNoiseSimple(theNumberOfSamples, pedestal, width);
+      theScaNoiseGenerator = new CSCScaNoiseGaussian(theAnalogNoise, thePedestal, thePedestalWidth);
     }
     else {
       edm::LogError("CSCStripElectronicsSim") << "Bad value for SCA noise mode";
@@ -125,20 +110,12 @@ int CSCStripElectronicsSim::readoutElement(int strip) const {
 }
 
 CSCAnalogSignal CSCStripElectronicsSim::makeNoiseSignal(int element) {
-  std::vector<int> scaValues = theScaNoiseGenerator->getNoise(layerId(), element);
-  // make sure we have enough time sampled to cover signal
-  if(sca_time_bin_size*scaValues.size() < theNumberOfSamples*theSamplingTime) {
-    edm::LogError("CSCStripElectronicsSim") << "CSC noise generation failed! Only got " 
-        <<sca_time_bin_size*scaValues.size() << " ns";
-  }
-  // make a CSCAnalogSignal out of it, just to help with interpolation
-  std::vector<float> noiseSignal( scaValues.size() );
-  // translate ints to floats first
-  for(size_t i = 0; i < scaValues.size(); ++i) {
-    noiseSignal[i] = scaValues[i] * theSpecs->chargePerCount();
-  }
-
-  CSCAnalogSignal tmpSignal(element, sca_time_bin_size, noiseSignal);
+  // assume the noise is measured every 50 ns
+  int nNoiseBins = (int)((theSignalStopTime-theSignalStartTime)/sca_time_bin_size);
+  std::vector<float> noiseBins(nNoiseBins);
+  CSCAnalogSignal tmpSignal(element, sca_time_bin_size, noiseBins);
+  theScaNoiseGenerator->noisify(layerId(), tmpSignal);
+  tmpSignal *= theSpecs->chargePerCount();
   // now rebin it
   std::vector<float> binValues(theNumberOfSamples);
   for(int ibin=0; ibin < theNumberOfSamples; ++ibin) {
@@ -426,6 +403,9 @@ CSCStripDigi CSCStripElectronicsSim::createDigi(int channel,
   }
   //int adcCounts = static_cast< int >( signal.getTotal() / theSpecs->chargePerCount() );
   CSCStripDigi newDigi(channel, scaCounts);
+  if(theScaNoiseGenerator != 0) {
+    theScaNoiseGenerator->addPedestal(layerId(), newDigi);
+  }
   addLinks(channelIndex(channel));
   //LogDebug("CSCStripElectronicsSim") << newDigi;
   //newDigi.print();

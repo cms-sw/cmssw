@@ -37,8 +37,6 @@ class CSCStripElectronicsSim : public CSCBaseElectronicsSim
 public:
   /// configurable parameters
   explicit CSCStripElectronicsSim(const edm::ParameterSet & p);
-  /// default parameters
-  CSCStripElectronicsSim();
 
   virtual ~CSCStripElectronicsSim();
 
@@ -99,6 +97,10 @@ private:
   // the length of each SCA time bin, in ns.  50 by default
   float sca_time_bin_size;
   float sca_noise;
+  // the following values are in ADC counts
+  float theAnalogNoise;
+  float thePedestal;
+  float thePedestalWidth;
   // the SCA bin which holds the peak signal.  4, by default.
   // that's really the 5th, since We start counting at 0
   int   sca_peak_bin;

@@ -16,12 +16,19 @@
 class CSCScaNoiseGaussian : public CSCScaNoiseGenerator
 {
 public:
-  explicit CSCScaNoiseGaussian(int nScaBins) : CSCScaNoiseGenerator(nScaBins) {}
+  CSCScaNoiseGaussian(double analogSignal, double pedestal,
+                      double pedestalWidth);
+  virtual void noisify(const CSCDetId & layer, CSCAnalogSignal & signal);
+  virtual void addPedestal(const CSCDetId & layer, CSCStripDigi & digi);
 
-  virtual CSCPedestals::Item pedestals(const CSCDetId & layer, int element) const = 0;
+protected:
+  /// default is to do nothing.  Children may read from DB
+  virtual void fill(const CSCDetId & layer, int element) {}
 
-  /** returns a list of SCA readings  */
-  virtual std::vector<int> getNoise(const CSCDetId & layer, int element) const;
+  /// all noises are in units of ADC counts
+  double analogNoise_;
+  double pedestal_;
+  double pedestalWidth_;
 };
 
 #endif

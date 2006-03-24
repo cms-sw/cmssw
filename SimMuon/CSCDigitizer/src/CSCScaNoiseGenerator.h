@@ -3,23 +3,20 @@
 
 /** \class CSCScaNoiseGenerator
  * Generate noise for the SCA samples
- *
+ * 
  * \author Rick Wilkinson
  *
  **/
 #include<vector>
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
+#include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
 
 class CSCScaNoiseGenerator
 {
 public:
-  explicit CSCScaNoiseGenerator(int nScaBins) : nScaBins_(nScaBins) {}
-
-  /** returns a list of SCA readings  */
-  virtual std::vector<int> getNoise(const CSCDetId & layer, int element) const = 0;
-
-protected:
-  int nScaBins_;
+  virtual void noisify(const CSCDetId & layer, CSCAnalogSignal & signal) = 0;
+  virtual void addPedestal(const CSCDetId & layer, CSCStripDigi & digi) = 0;
 };
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef MU_END_SCA_NOISE_READER_H
 #define MU_END_SCA_NOISE_READER_H  
 
-#include "SimMuon/CSCDigitizer/src/CSCScaNoiseGenerator.h"
+#include "SimMuon/CSCDigitizer/src/CSCScaNoiseGaussian.h"
 
 /**
  * \class CSCScaNoiseReader
@@ -13,14 +13,18 @@
  *
 */
 
-class CSCScaNoiseReader : public CSCScaNoiseGenerator {
- public:
-  CSCScaNoiseReader();
+class CSCScaNoiseReader : public CSCScaNoiseGaussian {
+public:
+  CSCScaNoiseReader(double pedestal, double pedestalWidth);
   virtual ~CSCScaNoiseReader();
 
-  virtual std::vector<int> getNoise(const CSCDetId & layer, int element) const;
+  /// reads the analog noise from a dark-current source
+  virtual void noisify(const CSCDetId & layer, CSCAnalogSignal & signal);
 
- public:
+protected: 
+  /// does nothing
+  virtual void fill(const CSCDetId & layer, int element) {}
+
   int nStripEvents;
   std::vector<int> theData;
 };

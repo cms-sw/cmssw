@@ -10,8 +10,8 @@ using namespace std;
 
 const int N_SCA_BINS = 16;
 
-CSCScaNoiseReader::CSCScaNoiseReader() : 
-  CSCScaNoiseGenerator(N_SCA_BINS)
+CSCScaNoiseReader::CSCScaNoiseReader(double pedestal, double pedestalWidth)
+: CSCScaNoiseGaussian(0., pedestal, pedestalWidth)
 {
 
   string path( getenv( "CMSSW_SEARCH_PATH" ) );
@@ -72,8 +72,9 @@ CSCScaNoiseReader::~CSCScaNoiseReader() {
 }
 
 
-vector<int>
-CSCScaNoiseReader::getNoise(const CSCDetId & layer, int element) const {
+void CSCScaNoiseReader::noisify(const CSCDetId & layer,
+                                CSCAnalogSignal & signal)
+{
   std::vector<int> result(N_SCA_BINS);
   int iEvent = (int) (RandFlat::shoot() * nStripEvents);
   // just to be safe, in case random  # is 1.
@@ -81,8 +82,8 @@ CSCScaNoiseReader::getNoise(const CSCDetId & layer, int element) const {
   // typically, test beam will have 16 SCA bins, real
   int startingBin = 0;
   for(int i = 0; i < N_SCA_BINS; ++i) {
-    result[i] = theData[iEvent*N_SCA_BINS + startingBin + i];
+    signal[i] = theData[iEvent*N_SCA_BINS + startingBin + i];
   }
-  return result;
 }
+
 

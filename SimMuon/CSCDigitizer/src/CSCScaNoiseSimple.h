@@ -15,24 +15,13 @@
 class CSCScaNoiseSimple : public CSCScaNoiseGaussian
 {
 public:
-  CSCScaNoiseSimple(int nScaBins, double pedestal, double width)
-  : CSCScaNoiseGaussian(nScaBins),
+  CSCScaNoiseSimple(double analogNoise, double pedestal, double pedestalWidth)
+  : analogNoise_(analogNoise),
     pedestal_(pedestal),
     width_(width)
   {
   }
  
-
-  virtual CSCPedestals::Item pedestals(const CSCDetId & layer, int element) const {
-    CSCPedestals::Item result;
-    result.ped = pedestal_;
-    result.rms = width_;
-    return result;
-  }
-
-private:
-  double pedestal_;
-  double width_;
 };
 
 #endif
