@@ -4,8 +4,8 @@
 /** \class DTROS25Data
  *  The collection containing DT ROS25 status data.
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -13,7 +13,10 @@
 
 #include <vector>
 
+
 using namespace std;
+
+typedef pair<int, DTTDCMeasurementWord> DTTDCData;
 
 class DTROS25Data {
 
@@ -34,15 +37,17 @@ public:
   inline void addROSDebug( const DTROSDebugWord & word)  { theROSDebugs.push_back(word); }
   inline void addROBTrailer( const DTROBTrailerWord & word)  { theROBTrailers.push_back(word); }
   inline void addTDCMeasurement( const DTTDCMeasurementWord & word)  { theTDCMeasurements.push_back(word); }
+  inline void addTDCData( const DTTDCData & tdcData)  { theTDCData.push_back(tdcData); }
 
   /// Getters
   inline int getROSID() const { return theROSId; }
 
-  inline vector<DTROSTrailerWord> getROSTrailers() const {return theROSTrailers;}
-  inline vector<DTROSErrorWord> getDTROSErrors() const {return theROSErrors;}
-  inline vector<DTROSDebugWord> getDTROSDebugs() const {return theROSDebugs;}
-  inline vector<DTROBTrailerWord> getDTROBTrailers() const {return theROBTrailers;}
-  inline vector<DTTDCMeasurementWord> getDTTDCMeasurements() const {return theTDCMeasurements;}
+  inline const vector<DTROSTrailerWord>& getROSTrailers() const {return theROSTrailers;}
+  inline const vector<DTROSErrorWord>& getROSErrors() const {return theROSErrors;}
+  inline const vector<DTROSDebugWord>& getROSDebugs() const {return theROSDebugs;}
+  inline const vector<DTROBTrailerWord>& getROBTrailers() const {return theROBTrailers;}
+  inline const vector<DTTDCMeasurementWord>& getTDCMeasurements() const {return theTDCMeasurements;}
+  inline const vector<DTTDCData>& getTDCData() const {return theTDCData;}
 
 private:
 
@@ -53,7 +58,8 @@ private:
   vector<DTROSDebugWord> theROSDebugs;
   vector<DTROBTrailerWord> theROBTrailers;
   vector<DTTDCMeasurementWord> theTDCMeasurements;
- 
+  vector<DTTDCData> theTDCData;
+
 };
 
 #endif
