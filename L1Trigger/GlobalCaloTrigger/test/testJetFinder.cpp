@@ -1,7 +1,7 @@
-/*! \file JetFinderTester.cpp
- * \brief Procedural skeleton unit-test code for the L1GctJetFinder class.
+/*! \file testJetFinder.cpp
+ * \brief Procedural unit-test code for the L1GctJetFinder class.
  *
- *  This is skeleton code that reads in data from a text file to feed into
+ *  This is code that reads in data from a text file to feed into
  *  the setInputRegions() method, runs the process() method, and then
  *  checks the data from the outputting methods getInputRegions() and
  *  getJets() against known results also stored in the text file.
@@ -9,10 +9,6 @@
  * \author Robert Frazier
  * \date March 2006
  */
-
-
-//NOTE all these includes need to be sorted with a proper build include path,
-//rather than a relative path, in order to comply with CMS style.
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinder.h"  //The class to be tested
 
