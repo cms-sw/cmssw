@@ -1,7 +1,7 @@
 
 /*
-*  $Date: 2006/02/28 06:56:26 $
-*  $Revision: 1.1 $
+*  $Date: 2006/03/22 22:51:28 $
+*  $Revision: 1.2 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/VertexGenerator.h"
@@ -19,8 +19,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-
-// #include "CLHEP/Random/RandFlat.h"
 
 using namespace edm;
 using namespace std;
@@ -44,7 +42,7 @@ VertexGenerator::VertexGenerator( const ParameterSet& pset )
    
    Service<RandomNumberGenerator> rng;
    long seed = (long)(rng->mySeed()) ;
-   cout << " seed= " << seed << endl ;
+   // cout << " seed= " << seed << endl ;
 
    if(VtxGenMaker.get()==0) 
    {
@@ -58,10 +56,6 @@ VertexGenerator::VertexGenerator( const ParameterSet& pset )
    
    produces<HepMCProduct>() ;
    
-   
-//   Service<RandomNumberGenerator> TestRND ;
-//   cout << TestRND->mySeed() << endl ;
-
 }
 
 VertexGenerator::~VertexGenerator() 
