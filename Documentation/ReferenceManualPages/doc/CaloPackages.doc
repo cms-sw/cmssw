@@ -49,6 +49,8 @@ This subsystem contains both the xml geometry files and the code to model the ge
  - \ref Geometry_CaloEventSetup "CaloEventSetup"<br>
  - \ref Geometry_CaloGeometry "CaloGeometry"<br>
  - \ref Geometry_CaloTopology "CaloTopology"<br>
+ - \ref Geometry_HcalEventSetup "HcalEventSetup"<br>
+ - \ref Geometry_HcalTowerAlgo "HcalTowerAlgo"<br>
 
 - <b>IORawData</b><br>
 Special input sources to read raw data files taken with local DAQ (commissioning, test beams, etc).
@@ -76,16 +78,16 @@ Special-purpose Testbeam data objects
 Geant simulation.
  - \ref SimG4CMS_Calo "Calo"<br>
 
-- <b>SimMuon</b><br>
+- <b>SimCalorimetry</b><br>
 Digitization.
- - \ref SimMuon_CSCDigitizer "CSCDigitizer"<br>
- - \ref SimMuon_DTDigitizer "DTDigitizer"<br>
- - \ref SimMuon_RPCDigitizer "RPCDigitizer"<br>
+ - \ref SimCalorimetry_CaloSimAlgos "CaloSimAlgos"<br>
+ - \ref SimCalorimetry_EcalSimAlgos "EcalSimAlgos"<br>
+ - \ref SimCalorimetry_EcalSimProducers "EcalSimProducers"<br>
+ - \ref SimCalorimetry_HcalSimAlgos "HcalSimAlgos"<br>
+ - \ref SimCalorimetry_HcalSimProducers "HcalSimProducers"<br>
 
 - <b>VisReco</b><br>
 Visualization.
-
-
 
 \section contact Contact persons
 - Simulation: 
@@ -94,5 +96,5 @@ Visualization.
 
 <hr>
 Last updated:
-27-FEB-2006 J. Mans
+@DATE@ J. Mans
 */
