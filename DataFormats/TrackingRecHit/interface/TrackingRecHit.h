@@ -36,6 +36,8 @@ public:
 
   virtual float weight() const {return 1.;}
 
+  virtual bool isValid() const {return true;}
+
 };
 
 #endif
