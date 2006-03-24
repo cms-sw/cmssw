@@ -1,0 +1,215 @@
+#include "TrackPropagation/NavGeometry/interface/NavVolume6Faces.h"
+#include "MagneticField/VolumeGeometry/interface/FourPointPlaneBounds.h"
+#include "TrackPropagation/NavGeometry/src/ThreePlaneCrossing.h"
+#include "Geometry/Surface/interface/Plane.h"
+#include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
+#include "Geometry/Surface/interface/GeneralNSurfaceDelimitedBounds.h"
+#include "TrackPropagation/NavGeometry/interface/NavSurface.h"
+#include "TrackPropagation/NavGeometry/interface/NavSurfaceBuilder.h"
+
+#include <map>
+
+NavVolume6Faces::NavVolume6Faces( const PositionType& pos,
+				  const RotationType& rot, 
+				  DDSolidShape shape,
+				  const std::vector<NavVolumeSide>& faces,
+				  const MagneticFieldProvider<float> * mfp) :
+  NavVolume(pos,rot,shape,mfp)
+{
+    computeBounds(faces);
+}
+
+NavVolume6Faces::NavVolume6Faces( const MagVolume& magvol) :
+  NavVolume( magvol.position(), magvol.rotation(), magvol.shapeType(), magvol.provider())
+{
+  std::vector<NavVolumeSide> navSides;
+  std::vector<VolumeSide> magSides( magvol.faces());
+  NavSurfaceBuilder navBuilder;
+
+  for (std::vector<VolumeSide>::const_iterator i=magSides.begin();
+       i != magSides.end(); i++) {
+    NavSurface* navSurface = navBuilder.build( i->surface());
+    navSides.push_back( NavVolumeSide( navSurface, i->globalFace(), i->surfaceSide()));
+  }
+  computeBounds(navSides);
+}
+
+
+void NavVolume6Faces::computeBounds(const std::vector<NavVolumeSide>& faces) 
+{
+    bool allPlanes = true;
+    // bool allPlanes = false; // for TESTS ONLY!!!
+    std::vector<const Plane*> planes;
+    for (std::vector<NavVolumeSide>::const_iterator iface=faces.begin(); iface!=faces.end(); iface++) {
+	const Plane* plane = dynamic_cast<const Plane*>(&(iface->surface()));
+	if (plane != 0) {
+	    planes.push_back(plane);
+	}
+	else allPlanes = false;
+    }
+    
+    for (int i=0; i<faces.size(); i++) {
+
+      // FIXME: who owns the new NavSurface? memory leak???
+
+	NavSurface& navSurf = faces[i].mutableSurface();
+	Bounds* myBounds = 0;
+	if (allPlanes) {	
+	    myBounds = computeBounds( i, planes);
+	}
+	else {
+	    myBounds = computeBounds( i, faces);
+	}
+	navSurf.addVolume( this, myBounds, faces[i].surfaceSide());
+	delete myBounds; // since navSurf now owns a copy
+
+// this is tricky: we want to avoid multiple copies of the Bounds; the NavSurface owns
+// a copy of Bounds for each touching Volume (instantiated in the call to addVolume).
+// We would like to keep a pointer to the same Bounds in the NavVolume, so we have to ASK
+// the NavSurface for the Bounds* of the Bounds we just gave it!
+	theNavSurfaces.push_back( SurfaceAndBounds(&navSurf, navSurf.bounds(this)));
+    }
+}
+
+Bounds* NavVolume6Faces::computeBounds( int index, 
+					const std::vector<const Plane*>& bpc)
+{
+  const Plane* plane( bpc[index]);
+
+  // find the 4 intersecting planes
+  int startIndex = 2*(1+index/2); // 2, 4, 6
+  std::vector<const Plane*> crossed; crossed.reserve(4);
+  for (int j = startIndex; j <  startIndex+4; j++) {
+    crossed.push_back(bpc[j%6]);
+  }
+
+  // compute intersection corners of the plane triplets
+  std::vector<GlobalPoint> corners; corners.reserve(4);
+  ThreePlaneCrossing crossing;
+  for ( int i=0; i<2; i++) {
+    for ( int j=2; j<4; j++) {
+      GlobalPoint corner( crossing.crossing( *plane, *crossed[i], *crossed[j]));
+      corners.push_back(corner);
+
+#ifdef DEBUG
+      cout << "Crossing of planes is " << corner << endl;
+      cout << "NormalVectors of the planes are " << plane->normalVector()
+	   << " " << crossed[i]->normalVector() << " " << crossed[j]->normalVector() << endl;
+      cout << "Positions of planes are " << plane->position()
+	   << " " << crossed[i]->position() << " " << crossed[j]->position() << endl;
+      if (plane->side( corner, 1.e-5) == SurfaceOrientation::onSurface &&
+	  crossed[i]->side( corner, 1.e-5) == SurfaceOrientation::onSurface &&
+	  crossed[j]->side( corner, 1.e-5) == SurfaceOrientation::onSurface) {
+	  cout << "Crossing is really on all three surfaces" << endl;
+      }
+      else {
+	  cout << "CROSSING IS NOT ON SURFACES!!!" << endl;
+	  cout << plane->localZ(corner) << endl;
+	  cout << crossed[i]->localZ(corner) << endl;
+	  cout << crossed[j]->localZ(corner) << endl;
+       }
+#endif
+
+    }
+  }
+
+  // put corners in cyclic sequence (2 and 3 swapped)
+  return new FourPointPlaneBounds( plane->toLocal( corners[0]), plane->toLocal( corners[1]),
+ 				   plane->toLocal( corners[3]), plane->toLocal( corners[2]));
+}
+
+Bounds* NavVolume6Faces::computeBounds( int index, const std::vector<NavVolumeSide>& faces)
+{
+    typedef GeneralNSurfaceDelimitedBounds::SurfaceAndSide         SurfaceAndSide;
+    typedef GeneralNSurfaceDelimitedBounds::SurfaceContainer       SurfaceContainer;
+
+  // find the 4 intersecting surfaces
+  int startIndex = 2*(1+index/2); // 2, 4, 6
+  SurfaceContainer crossed; crossed.reserve(4);
+  for (int j = startIndex; j <  startIndex+4; j++) {
+    const NavVolumeSide& face(faces[j%6]);
+    crossed.push_back( SurfaceAndSide(&(face.surface().surface()), face.surfaceSide()));
+  }
+  return new GeneralNSurfaceDelimitedBounds( &(faces[index].surface().surface()), crossed);
+}
+
+
+NavVolume::Container
+NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos, 
+			      const NavVolume::LocalVector& mom,
+			      double charge, PropagationDirection propDir) const
+{
+    typedef std::map<double,SurfaceAndBounds>   SortedContainer;
+
+    GlobalPoint  gpos( toGlobal(pos));
+    GlobalVector gmom( toGlobal(mom));
+    GlobalVector gdir = (propDir == alongMomentum ? gmom : -gmom);
+
+    SortedContainer sortedSurfaces;
+    Container       unreachableSurfaces;
+
+    for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
+	// pair<bool,double> dist = linearDistance( *(i->first), gpos, gdir);
+	std::pair<bool,double> dist = i->first->distanceAlongLine( gpos, gdir);
+	if (dist.first) sortedSurfaces[dist.second] = *i;
+	else unreachableSurfaces.push_back(*i);
+    }
+    NavVolume::Container result;
+    for (SortedContainer::const_iterator i=sortedSurfaces.begin(); i!=sortedSurfaces.end(); ++i) {
+	result.push_back(i->second);
+    }
+    result.insert( result.end(), unreachableSurfaces.begin(), unreachableSurfaces.end());
+    return result;
+}
+
+/*
+std::pair<bool,double>
+NavVolume6Faces::linearDistance( const NavSurface& surf, const NavVolume::LocalPoint& pos, 
+                                 const NavVolume::LocalVector& mom) const
+{
+    const Plane* plane = dynamic_cast<const Plane*>(&surf);
+    if (plane != 0) {
+	
+
+}
+*/
+
+/*
+NavVolume::Container
+NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos, 
+			      const NavVolume::LocalVector& mom,
+			      double charge, PropagationDirection propDir) const
+{
+    StraightLinePlaneCrossing pc( toGlobal(pos).basicVector(), toGlobal(mom).basicVector(), propDir);
+    Container approaching;
+    Container movingaway;
+    SurfaceAndBounds bestGuess;
+
+    for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
+	const Plane& plane = dynamic_cast<const Plane&>(*(i->first));
+	std::pair<bool,StraightLinePlaneCrossing::PositionType> crossed = pc.position( plane);
+	if (crossed.first) {
+
+#ifdef DEBUG
+	    cout << "Plane crossed at global point " << crossed.second
+		 << " local point " << plane.toLocal( Plane::GlobalPoint(crossed.second)) << endl;
+#endif
+
+	    if ( i->second->inside( plane.toLocal( Plane::GlobalPoint(crossed.second)))) {
+		bestGuess = SurfaceAndBounds( i->first, i->second);
+	    }
+	    else {
+		// momentm is pointing towards the plane
+		approaching.push_back( SurfaceAndBounds( i->first, i->second));
+	    }
+	}
+	else {
+	    movingaway.push_back( SurfaceAndBounds( i->first, i->second));
+	}
+    }
+    NavVolume::Container result(1,bestGuess); result.reserve(theNavSurfaces.size());
+    result.insert(result.end(), approaching.begin(), approaching.end());
+    result.insert(result.end(), movingaway.begin(), movingaway.end());
+    return result;
+}
+*/
