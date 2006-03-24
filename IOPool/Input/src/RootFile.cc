@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.7 2006/03/14 23:33:01 wmtan Exp $
+$Id: RootFile.cc,v 1.8 2006/03/18 22:38:15 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -18,7 +18,6 @@ $Id: RootFile.cc,v 1.7 2006/03/14 23:33:01 wmtan Exp $
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
-#include "TFile.h"
 #include "TTree.h"
 
 namespace edm {

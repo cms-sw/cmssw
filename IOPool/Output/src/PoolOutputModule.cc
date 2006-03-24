@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.17 2006/03/11 00:15:13 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.18 2006/03/21 23:24:26 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -21,6 +21,7 @@
 #include "StorageSvc/DbType.h"
 
 #include "TTree.h"
+#include "TFile.h"
 
 #include <vector>
 #include <string>
