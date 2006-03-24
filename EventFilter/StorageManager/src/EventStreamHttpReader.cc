@@ -72,17 +72,23 @@ namespace edmtestp
     if(han==0)
       {
         cerr << "could not create handle" << endl;
+        // this will end cmsRun 
         return std::auto_ptr<edm::EventPrincipal>();
       }
 
-    setopt(han,CURLOPT_URL,"http://lxplus014.cern.ch:1972/urn:xdaq-application:lid=29/geteventdata");
-    //setopt(han,CURLOPT_URL,eventurl_);
+    //setopt(han,CURLOPT_URL,"http://boulder.fnal.gov:1972/urn:xdaq-application:lid=29/geteventdata");
+    int stlen = eventurl_.length();
+    char url[256];
+    for (int i=0; i<stlen; i++) url[i]=eventurl_[i];
+    url[stlen] = '\0';
+    setopt(han,CURLOPT_URL,url);
     setopt(han,CURLOPT_WRITEFUNCTION,func);
     setopt(han,CURLOPT_WRITEDATA,&data);
 
     if(curl_easy_perform(han)!=0)
       {
         cerr << "curl perform failed for event" << endl;
+        // this will end cmsRun 
         return std::auto_ptr<edm::EventPrincipal>();
       }
     curl_easy_cleanup(han);
@@ -108,8 +114,12 @@ namespace edmtestp
         //return 0; //or use this?
       }
 
-    setopt(han,CURLOPT_URL,"http://lxplus014.cern.ch:1972/urn:xdaq-application:lid=29/getregdata");
-    //setopt(han,CURLOPT_URL,headerurl_);
+    //setopt(han,CURLOPT_URL,"http://boulder.fnal.gov:1972/urn:xdaq-application:lid=29/getregdata");
+    int stlen = headerurl_.length();
+    char url[256];
+    for (int i=0; i<stlen; i++) url[i]=headerurl_[i];
+    url[stlen] = '\0';
+    setopt(han,CURLOPT_URL,url);
     setopt(han,CURLOPT_WRITEFUNCTION,func);
     setopt(han,CURLOPT_WRITEDATA,&data);
 
@@ -124,9 +134,10 @@ namespace edmtestp
     JobHeaderDecoder hdecoder;
     std::vector<char> regdata(1000*1000);
 
+    // rely on http transfer string of correct length!
     int len = data.d_.length();
     regdata.resize(len);
-    for (int i=0; i<len ; i++) regdata[0] = data.d_[i];
+    for (int i=0; i<len ; i++) regdata[i] = data.d_[i];
     edm::InitMsg msg(&regdata[0],len);
     std::auto_ptr<SendJobHeader> p = hdecoder.decodeJobHeader(msg);
     return p;
