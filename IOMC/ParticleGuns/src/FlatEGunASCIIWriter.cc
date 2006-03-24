@@ -50,9 +50,11 @@ FlatEGunASCIIWriter::FlatEGunASCIIWriter( const ParameterSet& pset )
   fMaxE       = pgun_params.getParameter<double>("MaxE");
   
     
-  // hardcoded for now
-  fPDGTablePath = "/afs/cern.ch/sw/lcg/external/clhep/1.9.2.1/slc3_ia32_gcc323/data/HepPDT/" ;
-  fPDGTableName = "PDG_mass_width_2002.mc";
+  // 
+  // fPDGTablePath = "/afs/cern.ch/sw/lcg/external/clhep/1.9.2.1/slc3_ia32_gcc323/data/HepPDT/" ;
+  string HepPDTBase( getenv("HEPPDT_PARAM_PATH") ) ; 
+  fPDGTablePath = HepPDTBase + "/data/" ;
+  fPDGTableName = "PDG_mass_width_2004.mc";
 
 
   string TableFullName = fPDGTablePath + fPDGTableName ;

@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/03/05 22:56:33 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/03/05 23:21:41 $
+ *  $Revision: 1.9 $
  *  \author Julia Yarba
  */
 
@@ -12,14 +12,16 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 
-#include "CLHEP/Random/RandFlat.h"
-
 using namespace edm;
 using namespace std;
+using namespace CLHEP;
 
 BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
                                       const InputSourceDescription& desc ) : 
@@ -56,13 +58,24 @@ BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
   // the tb dtor fills fPDGTable
 
   fVerbosity = pset.getUntrackedParameter<int>( "Verbosity",0 ) ;
-  
+
+   Service<RandomNumberGenerator> rng;
+   long seed = (long)(rng->mySeed()) ;
+//   cout << " seed= " << seed << endl ;
+   fRandomEngine = new HepJamesRandom(seed) ;
+   fRandomGenerator = new RandFlat(fRandomEngine) ;
+ 
   cout << "Internal BaseFlatGunSource is initialzed" << endl ;
    
 }
 
 BaseFlatGunSource::~BaseFlatGunSource()
 {
+  
+  if ( fRandomGenerator != NULL ) delete fRandomGenerator;
+  // do I need to delete the Engine, too ?
+  
   if (fEvt != NULL) delete fEvt ; // double check
   delete fPDGTable;
+  
 }

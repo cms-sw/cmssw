@@ -1,22 +1,17 @@
 /*
- *  $Date: 2006/02/13 21:57:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/02/28 06:54:30 $
+ *  $Revision: 1.5 $
  *  \author Julia Yarba
  */
 
 #include <ostream>
 
 #include "IOMC/ParticleGuns/interface/FlatRandomEGunSource.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
-#include "CLHEP/Random/RandFlat.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-// #include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
-
-// #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace edm;
 using namespace std;
@@ -32,7 +27,6 @@ FlatRandomEGunSource::FlatRandomEGunSource(const ParameterSet& pset,
   fMinE = pgun_params.getParameter<double>("MinE");
   fMaxE = pgun_params.getParameter<double>("MaxE");
   
-  //
   produces<HepMCProduct>();
 
   cout << "Internal FlatRandomEGun is initialzed" << endl ;
@@ -70,21 +64,16 @@ bool FlatRandomEGunSource::produce(Event & e)
    //
    HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
    
-   //HepMC::GenVertex* Vtx = generateEvtVertex() ;      
-//   if ( fVerbosity > 0 )
-//   {
-//      cout << " Vtx = " << Vtx->position().x() << " " 
-//                        << Vtx->position().y() << " " 
-//		        << Vtx->position().z() << endl ;
-//   }
-
    // loop over particles
    //
    for (unsigned int ip=0; ip<fPartIDs.size(); ip++)
    {
-       double energy = RandFlat::shoot(fMinE, fMaxE) ;
-       double eta    = RandFlat::shoot(fMinEta, fMaxEta) ;
-       double phi    = RandFlat::shoot(fMinPhi, fMaxPhi) ;
+       //double energy = RandFlat::shoot(fMinE, fMaxE) ;
+       //double eta    = RandFlat::shoot(fMinEta, fMaxEta) ;
+       //double phi    = RandFlat::shoot(fMinPhi, fMaxPhi) ;
+       double energy = fRandomGenerator->fire(fMinE, fMaxE) ;
+       double eta    = fRandomGenerator->fire(fMinEta, fMaxEta) ;
+       double phi    = fRandomGenerator->fire(fMinPhi, fMaxPhi) ;
        DefaultConfig::ParticleData* 
           PData = fPDGTable->particle(HepPDT::ParticleID(abs(fPartIDs[ip]))) ;
        double mass   = PData->mass().value() ;

@@ -17,6 +17,9 @@
 
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 
+#include "CLHEP/Random/JamesRandom.h"
+#include "CLHEP/Random/RandFlat.h"
+
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
@@ -56,6 +59,9 @@ namespace edm
     DefaultConfig::ParticleDataTable* fPDGTable;
         	    	
     int              fVerbosity ;
+    
+    HepRandomEngine* fRandomEngine;
+    RandFlat*        fRandomGenerator; 
     
   };
 } 
