@@ -143,9 +143,9 @@ class MonitorElement
   // reset contents (does not erase contents permanently)
   // (makes copy of current contents; will be subtracted from future contents)
   virtual void softReset(void){}
-  // if true: will subtract contents copied at "soft-reset" from now on
-  // if false: will NO longer subtract contents (default)
-  virtual void enableSoftReset(bool flag){};
+
+  // reverts action of softReset
+  virtual void disableSoftReset(void){}
 
   // --- Operations on MEs that are normally reset at end of monitoring cycle ---
 
@@ -154,7 +154,7 @@ class MonitorElement
   void setAccumulate(bool flag);
 
   // whether soft-reset is enabled
-  bool softReset_on; // default: false
+  virtual bool isSoftResetEnabled(void) const = 0; // default: false
   // whether ME contents should be accumulated over multiple monitoring periods
   bool accumulate_on; // default: false
 

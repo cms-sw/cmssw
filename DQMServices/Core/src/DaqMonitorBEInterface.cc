@@ -161,14 +161,13 @@ void DaqMonitorBEInterface::softReset(MonitorElement * me)
   me->softReset();
 }
 
-// if true: will subtract contents copied at "soft-reset" from now on
-// if false: will NO longer subtract contents (default)
-void DaqMonitorBEInterface::enableSoftReset(MonitorElement * me, bool flag)
+// reverts action of softReset
+void DaqMonitorBEInterface::disableSoftReset(MonitorElement * me)
 {
   if(!checkElement(me))
     return;
 
-  me->enableSoftReset(flag);
+  me->disableSoftReset();
 }
 
 // if true, will accumulate ME contents (over many periods)

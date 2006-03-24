@@ -148,10 +148,8 @@ class MonitorUserInterface : public StringUtil
   // (makes copy of current contents; will be subtracted from future contents)
   void softReset(MonitorElement * me);
 
-  // if true: will subtract contents copied at "soft-reset" from now on
-  // if false: will NO longer subtract contents (default)
-  // Note: after enabling, users much call "softReset" to reset ME
-  void enableSoftReset(MonitorElement * me, bool flag);
+  // reverts action of softReset
+  void disableSoftReset(MonitorElement * me);
 
   // --- Operations on MEs that are normally reset at end of monitoring cycle ---
 

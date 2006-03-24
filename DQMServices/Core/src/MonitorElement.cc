@@ -10,13 +10,14 @@ using namespace dqm::qtests;
 
 MonitorElement::MonitorElement() 
 {
-  softReset_on = accumulate_on = false;
+  accumulate_on = false;
   qreports_.clear(); 
 }
 
 MonitorElement::MonitorElement(const char*name) 
 {
-  softReset_on = accumulate_on = false;
+  accumulate_on = false;
+  qreports_.clear(); 
 }
 
 MonitorElement::~MonitorElement() 

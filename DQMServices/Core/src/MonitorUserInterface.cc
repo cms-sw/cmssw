@@ -164,11 +164,10 @@ void MonitorUserInterface::softReset(MonitorElement * me)
   bei->softReset(me);
 }
 
-// if true: will subtract contents copied at "soft-reset" from now on
-// if false: will NO longer subtract contents (default)
-void MonitorUserInterface::enableSoftReset(MonitorElement * me, bool flag)
+// reverts action of softReset
+void MonitorUserInterface::disableSoftReset(MonitorElement * me)
 {
-  bei->enableSoftReset(me, flag);
+  bei->disableSoftReset(me);
 }
 
 // if true, will accumulate ME contents (over many periods)

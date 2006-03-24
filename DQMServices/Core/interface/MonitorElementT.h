@@ -123,7 +123,6 @@ class MonitorElementT : public MonitorElement
   virtual void setAxisRange(float xmin, float xmax, int axis = 1)
   {doNotUseMethod("setAxisRange");}
 
-
  private:
   
   std::string name_;
@@ -152,25 +151,26 @@ class MonitorElementT : public MonitorElement
     reference_ = 0;
   }
 
+  // adds reference_ back into val_ contents (ie. reverts action of softReset)
+  virtual void unresetContents(void){}
+
   // for description: see DQMServices/Core/interface/MonitorElement.h
-  void enableSoftReset(bool flag)
+  void disableSoftReset(void)
   {
-    softReset_on = flag;
+    if(isSoftResetEnabled())
+      {
+	std::cout << " \"soft-reset\" option has been disabled for " 
+		  << getName() << std::endl;
 
-    std::cout << " \"soft-reset\" option has been";
-    if(softReset_on)
-      std::cout << " en";
-    else
-      std::cout << " dis";
-    std::cout << "abled for " << getName() << std::endl;
-
-    if(softReset_on)
-	this->softReset();
-    else
-      if(reference_)deleteReference();
-    
+	unresetContents();
+	deleteReference();
+      }
   }
 
+
+  // whether soft-reset is enabled
+  bool isSoftResetEnabled(void) const{return reference_ != 0;}
+  
   // this is really bad; unfortunately, gcc 3.2.3 won't let me define 
   // template classes, so I have to find a workaround for now
   // error: "...is not a template type" - christos May26, 2005
