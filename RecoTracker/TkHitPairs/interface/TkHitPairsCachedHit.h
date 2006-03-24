@@ -22,7 +22,7 @@ public:
     unsigned int subid=hit->geographicalId().subdetId();
     theRZ= (subid==  PixelSubdetector::PixelBarrel) ? theZ : theR;
    // theRZ  = (hit.layer()->part()==barrel) ? theZ : theR;
-   theRZ  = theZ ;
+ 
 
   }
   float phi() const {return thePhi;}
