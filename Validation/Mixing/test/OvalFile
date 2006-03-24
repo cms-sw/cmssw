@@ -4,7 +4,7 @@
 
 <environment name=testsuite>
 
-<executable name=testsuite.sh>validation suite</executable>
+<executable name=testsuite.csh>validation suite</executable>
 
 </environment>
 
