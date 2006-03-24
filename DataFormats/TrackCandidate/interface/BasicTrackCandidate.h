@@ -24,7 +24,7 @@ class BasicTrackCandidate{
 virtual ~BasicTrackCandidate(){}
 
   virtual PTrajectoryStateOnDet& trajectoryStateOnDet() const = 0;
-  virtual range recHits()  = 0;
+  virtual range recHits()  const = 0;
   virtual TrajectorySeed& seed() const = 0;
 };
 #endif
