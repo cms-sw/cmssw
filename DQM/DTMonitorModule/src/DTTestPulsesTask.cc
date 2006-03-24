@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2006/02/21 19:04:14 $
- * $Revision: 1.3 $
+ * $Date: 2006/02/22 14:10:33 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -71,7 +71,7 @@ void DTTestPulsesTask::beginJob(const edm::EventSetup& context){
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
-  // Get the pedestals tTrig
+  // Get the pedestals tTrig (always get it, even if the tTrig_TP is taken from conf)
   context.get<DTTtrigRcd>().get(tTrig_TPMap);
 
 }
@@ -88,7 +88,7 @@ void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, strin
 
   cout<<"[DTTestPulseTask]: booking"<<endl;
 
-  dbe->setCurrentFolder("DT/DTTestPulseTask/Wheel" + wheel.str() +
+  dbe->setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str() + "/" + folder);
 
@@ -99,16 +99,19 @@ void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, strin
     + "_SL" + superLayer.str() 
     + "_L" + layer.str();
 
-  // To be un-commented once the pedestal DB will work
-//   if ( ! tTrigMap->slTtrig( dtLayer.wheel(),
-// 			    dtLayer.station(),
-// 			    dtLayer.sector(),
-// 			    dtLayer.superlayer(), tTrig)) 
-  tTrig_TP = parameters.getParameter<int>("defaultTtrig_TP");
+
+  if ( parameters.getUntrackedParameter<bool>("readDB", false) ) {
+    if ( ! tTrig_TPMap->slTtrig( dtLayer.wheel(),
+				 dtLayer.station(),
+				 dtLayer.sector(),
+				 dtLayer.superlayer(), tTrig_TP)) 
+      tTrig_TP = parameters.getParameter<int>("defaultTtrig_TP");
+  }
+  else tTrig_TP = parameters.getParameter<int>("defaultTtrig_TP");
   
-  if (!parameters.getUntrackedParameter<bool>("t0sMeanFromDB",true))
-    t0sPeakRange = make_pair( parameters.getUntrackedParameter<int>("t0sRangeLowerBound", -100) + tTrig_TP, 
-			      parameters.getUntrackedParameter<int>("t0sRangeUpperBound", 100) + tTrig_TP);
+  // keep the Range around the tTrig in order to keep track of it in the histos
+  t0sPeakRange = make_pair( parameters.getUntrackedParameter<int>("t0sRangeLowerBound", -100) + tTrig_TP, 
+			    parameters.getUntrackedParameter<int>("t0sRangeUpperBound", 100) + tTrig_TP);
   
   
   if ( folder == "TPOccupancies" ) {
@@ -119,23 +122,23 @@ void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, strin
 						 dtLayer.superlayer(),
 						 dtLayer.layer()))->specificTopology().channels();
     
-    
     testPulsesHistos[int(DTLayerId(dtLayer.wheel(),
 				   dtLayer.station(),
 				   dtLayer.sector(),
 				   dtLayer.superlayer(),
 				   dtLayer.layer()).rawId())] =
-      dbe->book2D(histoName,histoName,
-		  nWires, 0, nWires, 
-		  t0sPeakRange.first - t0sPeakRange.second, t0sPeakRange.first, t0sPeakRange.second);
+      dbe->bookProfile(histoName,histoName,
+		       nWires, 0, nWires, // Xaxis: channels
+		       t0sPeakRange.first - t0sPeakRange.second, t0sPeakRange.first, t0sPeakRange.second); // Yaxis: times
   }
   else if ( folder == "TPTimeBox" ) {
+    // Time Box per Chamber
     testPulsesTimeBoxes[int( DTLayerId(dtLayer.wheel(),
 				       dtLayer.station(),
 				       dtLayer.sector(),
 				       dtLayer.superlayer(),
 				       dtLayer.layer()).chamberId().rawId())] = 
-      dbe->book1D(histoName,histoName, 2*tTrig_TP, 0, 2*tTrig_TP);
+      dbe->book1D(histoName,histoName, 10000, 0, 10000); // Overview of the TP (and noise) times
   }
 }
 
