@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.14 2005/12/28 00:14:52 wmtan Exp $
+$Id: Handle.h,v 1.15 2006/02/07 07:51:41 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -44,6 +44,7 @@ namespace edm
   {
   public:
     // Default constructed handles are invalid.
+    typedef T element_type;
     Handle();
 
     Handle(const Handle<T>& h);

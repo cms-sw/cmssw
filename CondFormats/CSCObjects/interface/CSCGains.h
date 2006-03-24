@@ -2,7 +2,6 @@
 #define CSCGains_h
 
 #include <vector>
-#include <map>
 
 class CSCGains{
  public:
@@ -12,9 +11,8 @@ class CSCGains{
   struct Item{
     float gain_slope;
     float gain_intercept;
-    float gain_chi2;
   };
-  std::map< int,std::vector<Item> > gains;
+  std::vector<Item> gains;
 };
 
 #endif

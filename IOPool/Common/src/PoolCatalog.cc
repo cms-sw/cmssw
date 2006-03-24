@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolCatalog.cc,v 1.4 2006/01/11 22:33:25 wmtan Exp $
+// $Id: PoolCatalog.cc,v 1.5 2006/01/20 20:45:14 wmtan Exp $
 //
 // Author: Luca Lista
 // Co-Author: Bill Tanenbaum
@@ -8,12 +8,15 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "IOPool/Common/interface/PoolCatalog.h"
 #include "POOLCore/POOLContext.h"
 #include "FileCatalog/URIParser.h"
 #include "FileCatalog/IFCAction.h"
 #include "FileCatalog/IFCContainer.h"
+
+#include <fstream>
 
 namespace edm {
   PoolCatalog::PoolCatalog(unsigned int rw, std::string url) : catalog_() {
@@ -24,10 +27,28 @@ namespace edm {
     //  POOLContext::setMessageVerbosityLevel(seal::Msg::Info);
 
     if (url.empty()) {
-       std::string const defaultCatalog = "file:PoolFileCatalog.xml";
-       url = defaultCatalog;
+      url = "file:PoolFileCatalog.xml";
+/*
+      if (!write) {
+	// For reading make the trivial file catalog the default.
+	std::string const configDir = getenv("CMS_PATH");
+	if (!configDir.empty()) {
+          std::string const configFileName = configDir + "/site-local.cfg";
+	  std::ifstream configFile(configFileName.c_str());
+	  if (configFile) {
+	    char buffer[1024];
+	    configFile.get(buffer, 1024);
+	    if (configFile) {
+	      url = buffer;
+              std::cout << "CATALOG: " << url << std::endl;
+	    }
+	    configFile.close();
+	  }
+	}
+      }
+*/
     } else {
-       url = toPhysical(url);
+      url = toPhysical(url);
     }
     pool::URIParser parser(url);
     parser.parse();
@@ -71,9 +92,10 @@ namespace edm {
       pool::FileCatalog::FileID fid;
       action.lookupFileByLFN(lfn, fid);
       if (fid == pool::FileCatalog::FileID()) {
-        LogWarning("FwkJob") << "LFN: " << lfn << " not found";
-        pfn = "file:" + lfn;
-        LogWarning("FwkJob") << "PFN defaulted: " << pfn ;
+        throw cms::Exception("LogicalFileNameNotFound", "PoolCatalog::findFile()\n")
+          << "Logical file name " << lfn << " was not found in the file catalog.\n"
+	  << "If you wanted a local file, you forgot the 'file:' prefix\n"
+	  << "before the file name in your configuration file.\n";
       } else {
         LogInfo("FwkJob") << "LFN: " << lfn;
         std::string fileType;

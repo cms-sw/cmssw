@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.12 2005/12/08 21:59:44 paterno Exp $
+$Id: EventProcessor.h,v 1.13 2005/12/09 19:53:57 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -99,7 +99,18 @@ namespace edm {
     // given a non-zero number, processing continues until either (1)
     // this number of events has been processed, or (2) the input
     // sources are exhausted.
-    StatusCode run(unsigned long numberToProcess = 0);
+    StatusCode run(unsigned long numberToProcess);
+
+    // Process until the input source is exhausted.
+    StatusCode run();
+
+    // Process one event with the given EventID
+    StatusCode run(const EventID& id);
+
+    // Skip the specified number of events, and then process the next event.
+    // If numberToSkip is negative, we will back up.
+    // For example, skip(-1) processes the previous event.
+    StatusCode skip(long numberToSkip);
 
     InputSource& getInputSource();
 
@@ -123,6 +134,11 @@ namespace edm {
     FwkImpl* impl_;
   };
   
+  inline
+  EventProcessor::StatusCode
+  EventProcessor::run() {
+    return run(0);
+  }
 
   template <class T> T& EventProcessor::getSpecificInputSource()
   {

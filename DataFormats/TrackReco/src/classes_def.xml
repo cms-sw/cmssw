@@ -1,27 +1,27 @@
 <lcgdict>
-  <class name="reco::helix::Covariance" />
-  <class name="reco::helix::Parameters" />
+  <class name="reco::helix::Covariance"/>
+  <class name="reco::helix::Parameters"/>
 
-  <class name="reco::RecHit" />
-  <class name="std::vector<reco::RecHit>" />
-  <class name="edm::Wrapper<std::vector<reco::RecHit> >" />
-  <class name="edm::RefProd<std::vector<reco::RecHit> >" />
-  <class name="edm::Ref<std::vector<reco::RecHit>, reco::RecHit>" />
-  <class name="edm::RefVector<std::vector<reco::RecHit>, reco::RecHit>" />
+  <class name="reco::RecHit"/>
+  <class name="std::vector<reco::RecHit>"/>
+  <class name="edm::Wrapper<std::vector<reco::RecHit> >"/>
+  <class name="edm::RefProd<std::vector<reco::RecHit> >"/>
+  <class name="edm::Ref<std::vector<reco::RecHit>,reco::RecHit,edm::refhelper::FindUsingAdvance<std::vector<reco::RecHit>,reco::RecHit> >"/>
+  <class name="edm::RefVector<std::vector<reco::RecHit>,reco::RecHit,edm::refhelper::FindUsingAdvance<std::vector<reco::RecHit>,reco::RecHit> >"/>
 
-  <class name="reco::TrackExtra" />
-  <class name="std::vector<reco::TrackExtra>" />
-  <class name="edm::Wrapper<std::vector<reco::TrackExtra> >" />
-  <class name="edm::RefProd<std::vector<reco::TrackExtra> >" />
-  <class name="edm::Ref<std::vector<reco::TrackExtra>, reco::TrackExtra>" />
-  <class name="edm::RefVector<std::vector<reco::TrackExtra>, reco::TrackExtra>" />
+  <class name="reco::TrackExtra"/>
+  <class name="std::vector<reco::TrackExtra>"/>
+  <class name="edm::Wrapper<std::vector<reco::TrackExtra> >"/>
+  <class name="edm::RefProd<std::vector<reco::TrackExtra> >"/>
+  <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
+  <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::TrackBase" />
-  <class name="reco::TrackExtension<edm::Ref<std::vector<reco::TrackExtra>, reco::TrackExtra> >" />
-  <class name="reco::Track" />
-  <class name="std::vector<reco::Track>" />
-  <class name="edm::Wrapper<std::vector<reco::Track> >" />
-  <class name="edm::RefProd<std::vector<reco::Track> >" />
-  <class name="edm::Ref<std::vector<reco::Track>, reco::Track>" />
-  <class name="edm::RefVector<std::vector<reco::Track>, reco::Track>" />
+  <class name="reco::TrackBase"/>
+  <class name="reco::TrackExtension<edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> > >"/>
+  <class name="reco::Track"/>
+  <class name="std::vector<reco::Track>"/>
+  <class name="edm::Wrapper<std::vector<reco::Track> >"/>
+  <class name="edm::RefProd<std::vector<reco::Track> >"/>
+  <class name="edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >"/>
+  <class name="edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >"/>
 </lcgdict>

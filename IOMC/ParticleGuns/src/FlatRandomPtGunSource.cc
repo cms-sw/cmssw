@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/02/13 21:57:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/02/28 06:54:30 $
+ *  $Revision: 1.5 $
  *  \author Julia Yarba
  */
 
@@ -11,12 +11,11 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "FWCore/Framework/interface/Event.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
+// #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CLHEP/Random/RandFlat.h"
+// #include "CLHEP/Random/RandFlat.h"
 
 using namespace edm;
 using namespace std;
@@ -67,23 +66,17 @@ bool FlatRandomPtGunSource::produce(Event &e)
    //
    HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
 
-//   HepMC::GenVertex* Vtx = generateEvtVertex() ;
-      
-//   if ( fVerbosity > 0 )
-//   {
-//      cout << " Vtx = " << Vtx->position().x() << " " 
-//                        << Vtx->position().y() << " " 
-//		        << Vtx->position().z() << endl ;
-//   }
-
    // loop over particles
    //
    for (unsigned int ip=0; ip<fPartIDs.size(); ++ip)
    {
 
-       double pt     = RandFlat::shoot(fMinPt, fMaxPt) ;
-       double eta    = RandFlat::shoot(fMinEta, fMaxEta) ;
-       double phi    = RandFlat::shoot(fMinPhi, fMaxPhi) ;
+       //double pt     = RandFlat::shoot(fMinPt, fMaxPt) ;
+       //double eta    = RandFlat::shoot(fMinEta, fMaxEta) ;
+       //double phi    = RandFlat::shoot(fMinPhi, fMaxPhi) ;
+       double pt     = fRandomGenerator->fire(fMinPt, fMaxPt) ;
+       double eta    = fRandomGenerator->fire(fMinEta, fMaxEta) ;
+       double phi    = fRandomGenerator->fire(fMinPhi, fMaxPhi) ;
        DefaultConfig::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(fPartIDs[ip]))) ;
        double mass   = PData->mass().value() ;
        double theta  = 2.*atan(exp(-eta)) ;

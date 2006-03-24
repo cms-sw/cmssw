@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.8 2005/09/10 03:26:42 wmtan Exp $
+$Id: Group.cc,v 1.9 2005/10/11 21:32:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Group.h"
@@ -49,7 +49,11 @@ namespace edm
     std::swap(product_,other.product_);
     std::swap(provenance_,other.provenance_);
   }
-
+   void  
+   Group::swapProduct(Group& other) {
+      std::swap(product_,other.product_);
+   }
+   
   void
   Group::write(std::ostream& os) const {
     // This is grossly inadequate. It is also not critical for the

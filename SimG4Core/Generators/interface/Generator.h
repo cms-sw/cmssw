@@ -30,6 +30,7 @@ public:
     void setGenEvent( const HepMC::GenEvent* inpevt ) { evt_ = (HepMC::GenEvent*)inpevt; return ; }
     const HepMC::GenEvent * generateEvent() ;
     void HepMC2G4(const HepMC::GenEvent * g,G4Event * e);
+    void nonBeamEvent2G4(const HepMC::GenEvent * g,G4Event * e);
     // temp.method
     std::string genInputType() const { return inputFileName ; }
     virtual const HepMC::GenEvent*  genEvent() const { return evt_; }

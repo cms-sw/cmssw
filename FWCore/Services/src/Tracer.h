@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:35:45 EDT 2005
-// $Id: Tracer.h,v 1.1 2005/09/08 20:20:08 chrjones Exp $
+// $Id: Tracer.h,v 1.2 2005/09/08 20:37:18 chrjones Exp $
 //
 
 // system include files
@@ -45,6 +45,7 @@ public:
          void postModule(const ModuleDescription&);
 private:
          std::string indention_;
+         unsigned int depth_;
          
       };
    }

@@ -40,6 +40,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessPSetBuilder.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -77,7 +78,8 @@ namespace edm {
   shared_ptr<InputSource> 
   makeInput(ParameterSet const& params,
 	    const CommonParams& common,
-	    ProductRegistry& preg)
+	    ProductRegistry& preg,
+            ActivityRegistry& areg)
   {
     // find single source
     bool sourceSpecified = false;
@@ -101,9 +103,11 @@ namespace edm {
 
       sourceSpecified = true;
       InputSourceDescription isdesc(common.processName_,common.pass_,preg);
+      areg.preSourceConstructionSignal_(md);
       shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
       input->addToRegistry(md);
-    
+      areg.postSourceConstructionSignal_(md);
+      
       return input;
     } 
     catch(const edm::Exception& iException) 
@@ -261,6 +265,8 @@ namespace edm {
                      ServiceLegacy=kOverlapIsError);
 
     EventProcessor::StatusCode run(unsigned long numberToProcess);
+    EventProcessor::StatusCode run(const EventID& id);
+    EventProcessor::StatusCode skip(long numberToSkip);
     void                       beginJob();
     bool                       endJob();
 
@@ -312,6 +318,8 @@ namespace edm {
 	ParameterSet newpset;
 	newpset.addParameter<string>("@service_type","MessageLogger");
 	adjust.push_back(newpset);
+	// Record this new ParameterSet in the Registry!
+	pset::Registry::instance()->insertParameterSet(newpset);
       }
   }
 
@@ -374,7 +382,7 @@ namespace edm {
 			   getVersion(), // this is not written for real yet
 			   0); // Where does it come from?
      
-    input_= makeInput(*params_, common_, preg_);     
+    input_= makeInput(*params_, common_, preg_,*actReg_);     
     sched_ = std::auto_ptr<Schedule>(new Schedule(*params_,wreg_,
 						  preg_,act_table_,
 						  actReg_));
@@ -397,8 +405,7 @@ namespace edm {
     //make sure this was called
     beginJob();
 
-    while(runforever || eventcount<numberToProcess)
-      {
+    while(runforever || eventcount < numberToProcess) {
 	++eventcount;
 	FDEBUG(1) << eventcount << std::endl;
 	auto_ptr<EventPrincipal> pep = input_->readEvent();
@@ -408,9 +415,43 @@ namespace edm {
 	EventSetup const& es = esp_->eventSetupForInstance(ts);
 
 	sched_->runOneEvent(*pep.get(),es);
-      }
+    }
 
     return 0;
+  }
+
+  EventProcessor::StatusCode
+  FwkImpl::run(const EventID& id)
+  {
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+
+    //make sure this was called
+    beginJob();
+
+    auto_ptr<EventPrincipal> pep = input_->readEvent(id);
+        
+    if(pep.get()==0) return -1;
+    IOVSyncValue ts(pep->id(), pep->time());
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
+
+    sched_->runOneEvent(*pep.get(),es);
+
+    return 0;
+  }
+
+  EventProcessor::StatusCode
+  FwkImpl::skip(long numberToSkip)
+  {
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+
+    //make sure this was called
+    beginJob();
+
+    input_->skipEvents(numberToSkip);
+
+    return run(1);
   }
 
   void
@@ -516,6 +557,18 @@ namespace edm {
   EventProcessor::run(unsigned long numberToProcess)
   {
     return impl_->run(numberToProcess);
+  }
+  
+  EventProcessor::StatusCode
+  EventProcessor::run(const EventID& id)
+  {
+    return impl_->run(id);
+  }
+  
+  EventProcessor::StatusCode
+  EventProcessor::skip(long numberToSkip)
+  {
+    return impl_->skip(numberToSkip);
   }
   
   void

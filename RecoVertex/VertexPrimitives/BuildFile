@@ -1,6 +1,0 @@
-<export>
- <lib name=RecoVertexVertexPrimitives>
- <use name=TrackingTools/TrajectoryState>
-</export>
-
-<use name=TrackingTools/TrajectoryState>

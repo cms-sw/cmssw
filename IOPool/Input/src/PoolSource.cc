@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.20 2006/02/07 07:35:34 wmtan Exp $
+$Id: PoolSource.cc,v 1.23 2006/03/14 23:33:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -11,6 +11,7 @@ $Id: PoolSource.cc,v 1.20 2006/02/07 07:35:34 wmtan Exp $
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 namespace edm {
   PoolRASource::PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc) :
@@ -22,11 +23,12 @@ namespace edm {
     rootFiles_(),
     maxEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
     remainingEvents_(maxEvents_),
-    mainInput_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")) {
+    mainInput_(pset.getParameter<std::string>("@module_label") == std::string("@main_input"))
+  {
     ClassFiller();
     init(*fileIter_);
     if (mainInput_) {
-      updateRegistry();
+      updateProductRegistry();
     }
   }
 
@@ -42,19 +44,22 @@ namespace edm {
       catalog_.findFile(pfn, file);
       rootFile_ = RootFileSharedPtr(new RootFile(pfn));
       rootFiles_.insert(std::make_pair(file, rootFile_));
+      if (mainInput_) {
+        rootFile_->fillParameterSetRegistry(*pset::Registry::instance());
+      }
     } else {
       rootFile_ = it->second;
       rootFile_->setEntryNumber(-1);
     }
   }
 
-  void PoolRASource::updateRegistry() const {
+  void PoolRASource::updateProductRegistry() const {
     if (rootFile_->productRegistry().nextID() > productRegistry().nextID()) {
       productRegistry().setNextID(rootFile_->productRegistry().nextID());
     }
     ProductRegistry::ProductList const& prodList = rootFile_->productRegistry().productList();
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
-        it != prodList.end(); ++it) {
+	it != prodList.end(); ++it) {
       productRegistry().copyProduct(it->second);
     }
   }
@@ -64,9 +69,9 @@ namespace edm {
     ++fileIter_;
     if(fileIter_ == files_.end()) {
       if (mainInput_) {
-        return false;
+	return false;
       } else {
-        fileIter_ = files_.begin();
+	fileIter_ = files_.begin();
       }
     }
 
@@ -78,7 +83,7 @@ namespace edm {
     // make sure the new product registry is identical to the old one
     if (*pReg != rootFile_->productRegistry()) {
       throw cms::Exception("MismatchedInput","PoolSource::next()")
-        << "File " << *fileIter_ << "\nhas different product registry than previous files\n";
+	<< "File " << *fileIter_ << "\nhas different product registry than previous files\n";
     }
     return next();
   }
@@ -87,9 +92,9 @@ namespace edm {
     if(rootFile_->previous()) return true;
     if(fileIter_ == files_.begin()) {
       if (mainInput_) {
-        return false;
+	return false;
       } else {
-        fileIter_ = files_.end();
+	fileIter_ = files_.end();
       }
     }
     --fileIter_;
@@ -102,7 +107,7 @@ namespace edm {
     // make sure the new product registry is identical to the old one
     if (*pReg != rootFile_->productRegistry()) {
       throw cms::Exception("MismatchedInput","PoolSource::previous()")
-        << "File " << *fileIter_ << "\nhas different product registry than previous files\n";
+	<< "File " << *fileIter_ << "\nhas different product registry than previous files\n";
     }
     rootFile_->setEntryNumber(rootFile_->entries());
     return previous();
@@ -129,7 +134,7 @@ namespace edm {
     // If we're done, or out of range, return a null auto_ptr
     if (remainingEvents_ == 0) {
       if (!mainInput_) {
-        remainingEvents_ = maxEvents_;
+	remainingEvents_ = maxEvents_;
       }
       return std::auto_ptr<EventPrincipal>(0);
     }
@@ -142,12 +147,13 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   PoolRASource::read(EventID const& id) {
-    // For now, don't support multiple runs.
-    assert (id.run() == rootFile_->eventID().run());
-    // For now, assume EventID's are all there.
-    int offset = id.event() - rootFile_->eventID().event() -1;
-    skip(offset);
-    return read();
+    RootFile::EntryNumber entry = rootFile_->getEntryNumber(id);
+    if (entry >= 0) {
+      rootFile_->setEntryNumber(entry - 1);
+      return read();
+    } else {
+      return std::auto_ptr<EventPrincipal>(0);
+    }
   }
 
   // Advance "offset" events. Entry numbers begin at 0.
@@ -198,7 +204,7 @@ namespace edm {
     for (int i = 0; i < number; ++i) {
       std::auto_ptr<EventPrincipal> ev = read();
       if (ev.get() == 0) {
-        return;
+	return;
       }
       EventPrincipalVectorElement e(ev.release());
       result.push_back(e);

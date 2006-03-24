@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.5 2006/02/07 12:05:36 uberthon Exp $
+// $Id: TestSuite.cc,v 1.6 2006/02/10 13:44:55 uberthon Exp $
 //
 //
 
@@ -94,6 +94,10 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 trhistsig->Fill(cfi1.bunch());
        }
      }
+     std::cout <<"[OVAL] Sigma of track pileup histo (bcrossings) "<<trhist->GetRMS()<<std::endl;
+     std::cout <<"[OVAL] Sigma of track signal histo (bcrossings) "<<trhistsig->GetRMS()<<std::endl;
+     std::cout <<"[OVAL] Sigma of track pileup histo (vtx indices) "<<trindhist->GetRMS()<<std::endl;
+     std::cout <<"[OVAL] Sigma of track signal histo (vtx indices) "<<trindhistsig->GetRMS()<<std::endl;
 
 //vertex histo
     char histovertices[30], sighistovertices[30],histovertexindices[30],histovertexindicessig[30];
@@ -116,6 +120,10 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if (!cfi2->noParent()) 	vtxindhistsig->Fill(cfi2->parentIndex());
 	}
     }
+     std::cout <<"[OVAL] Sigma of vertex pileup histo (bcrossings) "<<vtxhist->GetRMS()<<std::endl;
+     std::cout <<"[OVAL] Sigma of vertex signal histo (bcrossings) "<<vtxhistsig->GetRMS()<<std::endl;
+     std::cout <<"[OVAL] Sigma of vertex pileup histo (vtx indices) "<<vtxindhist->GetRMS()<<std::endl;
+     std::cout <<"[OVAL] Sigma of vertex signal histo (vtx indices) "<<vtxindhistsig->GetRMS()<<std::endl;
 
 	
     int bsp=cf->getBunchSpace();
@@ -133,6 +141,8 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (cfish.getTrigger())  tofhist->Fill(cfish->timeOfFlight());
       else  tofhist_sig->Fill(cfish->timeOfFlight());
     }
+    std::cout <<"[OVAL] Sigma of tracker pileup histo (ToF) "<<tofhist->GetRMS()<<std::endl;
+    std::cout <<"[OVAL] Sigma of tracker signal histo (ToF) "<<tofhist_sig->GetRMS()<<std::endl;
 
     //Ecal
     sprintf(tof,"EcalEBHit_Tof_bcr_%d",bunchcr_);
@@ -146,6 +156,8 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (cfiecal.getTrigger())    tofecalhist->Fill(cfiecal->time());
       else    tofecalhist_sig->Fill(cfiecal->time());
     }
+    std::cout <<"[OVAL] Sigma of Ecal pileup histo (ToF) "<<tofecalhist->GetRMS()<<std::endl;
+    std::cout <<"[OVAL] Sigma of eEal signal histo (ToF) "<<tofecalhist_sig->GetRMS()<<std::endl;
 
     // Hcal
     sprintf(tof,"HcalHit_Tof_bcr_%d",bunchcr_);
@@ -159,5 +171,7 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (cfihcal.getTrigger())  tofhcalhist->Fill(cfihcal->time());
       else  tofhcalhist_sig->Fill(cfihcal->time());
     }
+    std::cout <<"[OVAL] Sigma of Hcal pileup histo (ToF) "<<tofhcalhist->GetRMS()<<std::endl;
+    std::cout <<"[OVAL] Sigma of Hcal signal histo (ToF) "<<tofhcalhist_sig->GetRMS()<<std::endl;
 }
 

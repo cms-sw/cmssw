@@ -1,9 +1,10 @@
 #include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.3 2006/01/11 22:54:06 wmtan Exp $
+$Id: BranchDescription.cc,v 1.1 2006/02/08 00:44:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,14 +15,14 @@ namespace edm {
     fullClassName_(),
     friendlyClassName_(),
     productInstanceName_(),
-    productPtr_(0)
+    productPtr_()
   { }
 
   BranchDescription::BranchDescription(ModuleDescription const& md,
 				       std::string const& name, 
 				       std::string const& fName, 
 				       std::string const& pin, 
-				       EDProduct const* edp) :
+				       boost::shared_ptr<EDProduct const> edp) :
     module(md),
     productID_(),
     fullClassName_(name),

@@ -2,20 +2,13 @@
 #define VertexReco_VertexFwd_h
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
   class Vertex;
-  /// collection of Vertex objects
   typedef std::vector<Vertex> VertexCollection;
-  /// persistent reference to a Vertex
   typedef edm::Ref<VertexCollection> VertexRef;
-  /// persistent reference to a Vertex
-  typedef edm::RefProd<VertexCollection> VertexsRef;
-  /// vector of references to Vertex objects in the same collection
   typedef edm::RefVector<VertexCollection> VertexRefs;
-  /// iterator over a vector of references to Vertex objects in the same collection
   typedef VertexRefs::iterator vertex_iterator;
 }
 

@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/01/15 01:06:52 $
-// $Revision: 1.1 $
+// $Author: stevew $
+// $Date: 2006/02/10 22:54:52 $
+// $Revision: 1.2 $
 //
 
 #include <string>
@@ -108,9 +108,14 @@ class RoadSearchCloudMakerAlgorithm
   bool checkMinimalNumberOfUsedLayers(std::vector<bool> &usedLayersArray);
   bool checkMaximalNumberOfMissedLayers(std::vector<bool> &usedLayersArray, const Roads::RoadSet &roadSet, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector);
   bool checkMaximalNumberOfConsecutiveMissedLayers(std::vector<bool> &usedLayersArray, const Roads::RoadSet &roadSet, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector);
+  void makecircle(double x1_cs, double y1_cs,double x2_cs, double y2_cs,
+                                             double x3_cs, double y3_cs);
 
  private:
   edm::ParameterSet conf_;
+  static double epsilon;
+  static double half_pi;
+  double d0h, phi0h, omegah;
 
 };
 

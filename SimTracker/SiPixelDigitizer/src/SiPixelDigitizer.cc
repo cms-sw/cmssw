@@ -85,7 +85,7 @@ namespace cms
 
   
   SiPixelDigitizer::~SiPixelDigitizer()
-  {  edm::LogInfo ("PixelDigitizer ") <<"Destruct the Pixel Digitizer";}
+  {}
 
 
   //
@@ -105,10 +105,10 @@ namespace cms
     edm::Handle<edm::PSimHitContainer> PixelEndcapHitsLowTof;
     edm::Handle<edm::PSimHitContainer> PixelEndcapHitsHighTof;
 
-    iEvent.getByLabel("r","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);
-    iEvent.getByLabel("r","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
-    iEvent.getByLabel("r","TrackerHitsPixelEndcapLowTof", PixelEndcapHitsLowTof);
-    iEvent.getByLabel("r","TrackerHitsPixelEndcapHighTof", PixelEndcapHitsHighTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapLowTof", PixelEndcapHitsLowTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapHighTof", PixelEndcapHitsHighTof);
 
     thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsLowTof->begin(), PixelBarrelHitsLowTof->end()); 
     thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsHighTof->begin(), PixelBarrelHitsHighTof->end());
@@ -143,8 +143,10 @@ namespace cms
   
       GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
 
-      LogDebug ("PixelDigitizer ") << "B-field(T) at "<<(*iu)->surface().position()<<"(cm): " 
-		                   << pSetup->inTesla((*iu)->surface().position());
+      if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {
+	LogDebug ("PixelDigitizer ") << "B-field(T) at "<<(*iu)->surface().position()<<"(cm): " 
+		  << pSetup->inTesla((*iu)->surface().position());
+      }
  
       if (dynamic_cast<PixelGeomDetUnit*>((*iu))!=0){
 

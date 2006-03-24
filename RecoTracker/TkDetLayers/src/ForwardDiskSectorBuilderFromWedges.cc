@@ -5,7 +5,6 @@
 BoundDiskSector* 
 ForwardDiskSectorBuilderFromWedges::operator()( const vector<const TECWedge*>& wedges) const
 {
-
   // check first that all wedges are about at the same phi and z !
   float phiStart = wedges.front()->position().phi();
   float zStart = wedges.front()->position().z();
@@ -40,8 +39,8 @@ ForwardDiskSectorBuilderFromWedges::operator()( const vector<const TECWedge*>& w
 pair<DiskSectorBounds, GlobalVector>
 ForwardDiskSectorBuilderFromWedges::computeBounds( const vector<const TECWedge*>& wedges) const
 {
+
   // compute maximum and minimum radius and phi 
-  
   float rmin((**(wedges.begin())).specificSurface().innerRadius());
   float rmax(rmin);
   float zmin((**(wedges.begin())).surface().position().z());

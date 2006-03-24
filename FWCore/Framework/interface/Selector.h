@@ -6,13 +6,13 @@
 Selector: Base class for all "selector" objects, used to select
 EDProducts based on information in the associated Provenance.
 
-$Id: Selector.h,v 1.7 2005/09/01 23:30:49 wmtan Exp $
+$Id: Selector.h,v 1.8 2006/02/08 00:44:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <string>
 
-#include "DataFormats/Common/interface/Provenance.h"
+#include "FWCore/Framework/interface/ProvenanceAccess.h"
 
 namespace edm {
 
@@ -20,9 +20,9 @@ namespace edm {
   class Selector {
   public:
     virtual ~Selector();
-    bool match(const Provenance& p) const;
+    bool match(const ProvenanceAccess& p) const;
   private:
-    virtual bool doMatch(const Provenance& p) const = 0;
+    virtual bool doMatch(const ProvenanceAccess& p) const = 0;
   };
 
 
@@ -31,8 +31,8 @@ namespace edm {
   public:
     ModuleDescriptionSelector(const ModuleDescription& md):md_(md) {}
     
-    virtual bool doMatch(const Provenance& p) const {
-      return p.product.module == md_;
+    virtual bool doMatch(const ProvenanceAccess& p) const {
+      return p.product().module == md_;
     }
 
   private:
@@ -45,8 +45,8 @@ namespace edm {
   public:
     ProcessNameSelector(const std::string& pn):pn_(pn) {}
     
-    virtual bool doMatch(const Provenance& p) const {
-      return p.product.module.processName_ == pn_;
+    virtual bool doMatch(const ProvenanceAccess& p) const {
+      return p.product().module.processName_ == pn_;
     }
 
   private:

@@ -1,10 +1,8 @@
 #include "EventFilter/CSCTFRawToDigi/interface/CSCTFUnpacker.h"
 
-
 //Framework stuff
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //FEDRawData 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -38,12 +36,11 @@
 
 CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet & pset)
 {
-  LogDebug("CSCTFUnpacker|ctor") << "starting CSCTFConstructor";   
 
   instantiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
   testBeam = pset.getUntrackedParameter<bool>("TestBeamData",false);
   std::string mapPath = "/" + pset.getUntrackedParameter<std::string>("MappingFile","");
-  if(testBeam)
+  if(testBeam) 
     {
       TBFEDid = pset.getUntrackedParameter<int>("TBFedId");
       TBendcap = pset.getUntrackedParameter<int>("TBEndcap");
@@ -59,17 +56,18 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet & pset)
   TFmapping = new CSCTriggerMappingFromFile(getenv("CMSSW_BASE")+mapPath);
 
   if(instantiateDQM){
+   
+   monitor = edm::Service<CSCTFMonitorInterface>().operator->(); 
+  
+  }  
 
-    monitor = edm::Service<CSCTFMonitorInterface>().operator->();
-
-  }
-
+  if(debug) std::cout << "starting CSCTFConstructor";   
   numOfEvents = 0;
 
   produces<CSCCorrelatedLCTDigiCollection>("MuonCSCTFCorrelatedLCTDigi");
   //produces<CSCTFL1TrackCollection>();
 
-  LogDebug("CSCTFUnpacker|ctor") << "... and finished";  
+  if(debug) std::cout <<"... and finished " << std::endl;  
 }
 
 CSCTFUnpacker::~CSCTFUnpacker(){
@@ -107,27 +105,25 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	  if(testBeam) 
 	    tbdata = new CSCTFTBEventData(reinterpret_cast<unsigned short*>(fedData.data()));
 	  else
-	    edm::LogWarning("CSCTFRawToDigi|produce")<< "New data format not implemented yet, waiting on hardware.";
-	  
-	  LogDebug("CSCTFUnpacker|produce") << (*tbdata);
+	    std::cout << "not implemented yet, waiting on hardware\n";
 	  
 	  ++numOfEvents;
 	  
 	  if(instantiateDQM)
 	    { 
 	      if(tbdata) monitor->process(*tbdata);
-	      // else not implemented yet.
+	      else std::cout<<"not implemented yet\n";
 	    }
 	  
 	  CSCTFTBFrontBlock aFB;
 	  CSCTFTBSPBlock aSPB;	
 	  CSCTFTBSPData aSPD;
-	for(int BX = 1; BX<= tbdata->eventHeader().numBX() ; ++BX)
+	for(int BX = 1; BX<=7 ; ++BX)
 	  {
 	    if(testBeam) aFB = tbdata->frontDatum(BX);
-	    for(int FPGA = 1; FPGA <= tbdata->eventHeader().numMPC() ; ++FPGA)
+	    for(int FPGA = 1; FPGA <=5 ; ++FPGA)
 	      {		
-		for(int MPClink = 1; MPClink <= tbdata->eventHeader().numLinks() ; ++MPClink)
+		for(int MPClink = 1; MPClink <= 3 ; ++MPClink)
 		  {		      
 		    if(testBeam)
 		      {		    
@@ -144,13 +140,13 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			    CSCDetId id = TFmapping->detId(TBendcap,station,TBsector,subsector,cscid,3);
 			    // corrlcts reside on the key layer which is layer 3.
 			    LCTProduct->insertDigi(id,aFB.frontDigiData(FPGA,MPClink));
-			    LogDebug("CSCUnpacker|produce") << "Unpacked digi: "<< aFB.frontDigiData(FPGA,MPClink);
+			    //std::cout << aFB.frontDigiData(FPGA,MPClink) << std::endl;
 			  }
 			
 		      }
 		    else 
 		      {
-			//not implemented yet
+			std::cout<<"not implemented yet\n";
 		      }
 		  }
 	      }

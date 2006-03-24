@@ -1,6 +1,0 @@
-** V00-00-02  [Mon Feb  6 23:46:42 2006]
-remove references to seal::reflex, POOL, and ROOT
-
-** V00-00-01  [Sun Dec 18 19:17:03 2005]
-Start porting HCal Test Beam code
-

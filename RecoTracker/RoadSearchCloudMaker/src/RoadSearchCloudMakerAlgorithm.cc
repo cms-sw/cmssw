@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/02/22 01:16:15 $
-// $Revision: 1.5 $
+// $Author: gutsche $
+// $Date: 2006/02/28 18:01:41 $
+// $Revision: 1.6 $
 //
 
 #include <vector>
@@ -87,6 +87,9 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 
 using namespace std;
+
+double RoadSearchCloudMakerAlgorithm::epsilon      =   0.000000001;
+double RoadSearchCloudMakerAlgorithm::half_pi      =   1.570796327;
 
 RoadSearchCloudMakerAlgorithm::RoadSearchCloudMakerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
 }
@@ -175,8 +178,14 @@ void RoadSearchCloudMakerAlgorithm::run(const TrackingSeedCollection* input,
 	    double yc_det = innerSeedHitGlobalPosition.x() * squaredGlobalRadiusOuterSeedHit -
 	      outerSeedHitGlobalPosition.x() * squaredGlobalRadiusInnerSeedHit;
 
-	    k0 = det / sqrt(xc_det*xc_det + yc_det*yc_det);
-	    phi0 = map_phi(innerSeedHitGlobalPosition.phi() - std::asin(k0*innerSeedHitGlobalPosition.mag()));
+//srw	    k0 = det / sqrt(xc_det*xc_det + yc_det*yc_det);
+//srw	    phi0 = map_phi(innerSeedHitGlobalPosition.phi() - std::asin(k0*innerSeedHitGlobalPosition.mag()));
+            makecircle(innerSeedHitGlobalPosition.x(),innerSeedHitGlobalPosition.y(),
+                       outerSeedHitGlobalPosition.x(),outerSeedHitGlobalPosition.y(),0.0,0.0);
+            phi0 = phi0h;
+            k0 = omegah;
+//            cout << "phi0, k0 " << phi0 << " " << k0 << endl;
+
 	  }
 	}
       } else {
@@ -294,10 +303,14 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 //
 //  This is where the barrel rphiRecHits end up for Roads::RPhi
 //
-	  double hitRadius = tracker->idToDet(id)->surface().toGlobal(recHit->localPosition()).mag();
+          GlobalPoint ghit = tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition());
+	  double hitRadius = sqrt(ghit.x()*ghit.x()+ghit.y()*ghit.y());
+          double hitphi = map_phi(ghit.phi());
+//          cout << "ghit.x() ghit.y() " << ghit.x() << " " << ghit.y() << endl;
 	  double phi = phiFromExtrapolation(phi0,k0,hitRadius,roadType);
 //	  if ( std::abs(map_phi(phi-ringPhi)) < phiMax(seed,phi0,k0) ) {
-	  if ( std::abs(phi-ringPhi) < phiMax(seed,phi0,k0) ) {
+//	  if ( std::abs(phi-ringPhi) < phiMax(seed,phi0,k0) ) {
+	  if ( std::abs(hitphi-phi) < phiMax(seed,phi0,k0) ) {
 	    if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
 	      cloud.addHit(recHit);
 //next line was missing - added stevew feb-9-2006
@@ -344,10 +357,13 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 //
 //  This is where the barrel stereoRecHits end up for Roads::RPhi
 //
-	double hitRadius = tracker->idToDet(id)->surface().toGlobal(recHit->localPosition()).mag();
+        GlobalPoint ghit = tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition());
+	double hitRadius = sqrt(ghit.x()*ghit.x()+ghit.y()*ghit.y());
+        double hitphi = map_phi(ghit.phi());
 	double phi = phiFromExtrapolation(phi0,k0,hitRadius,roadType);
 //	if ( std::abs(map_phi(phi-ringPhi)) < phiMax(seed,phi0,k0) ) {
-	if ( std::abs(phi-ringPhi) < phiMax(seed,phi0,k0) ) {
+//	if ( std::abs(phi-ringPhi) < phiMax(seed,phi0,k0) ) {
+        if ( std::abs(hitphi-phi) < 6.0*phiMax(seed,phi0,k0) ) {
 	  if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
 	    cloud.addHit(recHit);
 	    setLayerNumberArray(id,usedLayersArray,numberOfLayersPerSubdetector);
@@ -497,7 +513,22 @@ double RoadSearchCloudMakerAlgorithm::phiFromExtrapolation(double phi0, double k
 
   double ringPhi = -99.;
   if ( roadType == Roads::RPhi ) {
-    ringPhi = map_phi(phi0 + std::asin ( k0 * ringRadius ));
+//    ringPhi = map_phi(phi0 + std::asin ( k0 * ringRadius ));
+    double omega=k0, d0=0.0, rl=ringRadius;
+    double sp0=sin(phi0); double cp0=cos(phi0);  
+    double xc=-sp0*(d0+1.0/omega);    
+    double yc=cp0*(d0+1.0/omega);
+    double rh=fabs(1.0/omega);
+    double bbb=fabs(d0+1.0/omega);
+    double sss=0.5*(rl+rh+bbb);
+    double ddd=sqrt((sss-bbb)*(sss-rh)/(sss*(sss-rl)));
+    double phil1=2.0*atan(ddd);
+    double phit=phi0+phil1; if (omega<0.0)phit=phi0-phil1;
+    double xh=xc+sin(phit)/omega;
+    double yh=yc-cos(phit)/omega;
+    double phih=atan2(yh,xh);
+//    cout << "xh yh " << xh << " " << yh << endl;
+    ringPhi = map_phi(phih);
   } else {
     ringPhi = map_phi(phi0 + k0 * ringRadius);
   }
@@ -657,5 +688,36 @@ bool RoadSearchCloudMakerAlgorithm::checkMaximalNumberOfConsecutiveMissedLayers(
 
   return result;
 
+}
+
+void RoadSearchCloudMakerAlgorithm::makecircle(double x1, double y1, 
+                      double x2,double y2, double x3, double y3){
+//    cout << "x1 y1 " << x1 << " " << y1 << endl;
+//    cout << "x2 y2 " << x2 << " " << y2 << endl;
+//    cout << "x3 y3 " << x3 << " " << y3 << endl;
+ double x1t=x1-x3; double y1t=y1-y3; double r1s=x1t*x1t+y1t*y1t;
+ double x2t=x2-x3; double y2t=y2-y3; double r2s=x2t*x2t+y2t*y2t;
+ double rho=x1t*y2t-x2t*y1t;
+ double xc, yc, rc, fac;
+ if (fabs(rho)<RoadSearchCloudMakerAlgorithm::epsilon){
+  rc=1.0/(RoadSearchCloudMakerAlgorithm::epsilon);
+  fac=sqrt(x1t*x1t+y1t*y1t);
+  xc=x2+y1t*rc/fac;
+  yc=y2-x1t*rc/fac;
+ }else{
+  fac=0.5/rho;
+  xc=fac*(r1s*y2t-r2s*y1t);
+  yc=fac*(r2s*x1t-r1s*x2t); 
+  rc=sqrt(xc*xc+yc*yc); xc+=x3; yc+=y3;
+ }
+ double s3=0.0;
+ double f1=x1*yc-y1*xc; double f2=x2*yc-y2*xc; 
+ double f3=x3*yc-y3*xc;
+ if ((f1<0.0)&&(f2<0.0)&&(f3<=0.0))s3=1.0;
+ if ((f1>0.0)&&(f2>0.0)&&(f3>=0.0))s3=-1.0;
+ d0h=-s3*(sqrt(xc*xc+yc*yc)-rc);
+ phi0h=atan2(yc,xc)+s3*half_pi;
+ omegah=-s3/rc;
+// cout << "d0h phi0h omegah " << d0h << " " << phi0h << " " << omegah << endl;
 }
 

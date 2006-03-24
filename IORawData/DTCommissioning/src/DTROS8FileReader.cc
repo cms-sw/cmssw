@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/14 16:24:10 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/03/02 18:40:21 $
+ *  $Revision: 1.6 $
  *  \author M. Zanetti
  */
 
@@ -98,8 +98,10 @@ bool DTROS8FileReader::fillRawData(EventID& eID,
 
     // The ROS payload size
     int eventDataSize = *rosData * ros8WordLenght;
-    int adjustment = 0; 
-    if ( (eventDataSize/4)%2 ) adjustment = 4;
+    // It has to be a multiple of 8 bytes. if not, adjust the size of the FED payload
+    int adjustment = (eventDataSize/4)%2 == 1 ? 4 : 0;   
+    
+    //if ( (eventDataSize/4)%2 ) adjustment = 4;
 
 
     // The FED ID is always the first in the DT range

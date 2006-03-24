@@ -21,8 +21,6 @@
 #include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
 #include "DataFormats/SiStripDigi/interface/StripDigi.h"
 #include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLinkCollection.h"
 
 namespace cms
 {
@@ -47,7 +45,6 @@ namespace cms
     typedef simhit_map::iterator simhit_map_iterator;
     simhit_map SimHitMap;
     std::vector<StripDigi> collector;
-    std::vector<StripDigiSimLink> linkcollector;
     int numStrips;    // number of strips in the module
   };
 }

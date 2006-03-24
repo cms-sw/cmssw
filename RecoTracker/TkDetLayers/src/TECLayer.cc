@@ -19,23 +19,25 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
   thePetals.assign(theFrontPetals.begin(),theFrontPetals.end());
   thePetals.insert(thePetals.end(),theBackPetals.begin(),theBackPetals.end());
 
+  for(vector<const TECPetal*>::const_iterator it=thePetals.begin();it!=thePetals.end();it++){
+    theComponents.push_back(*it);
+  }
+
 
   //This should be no necessary. TO BE CHECKED
   //sort(theFrontPetals.begin(), theFrontPetals.end(), PetalLessPhi());
   //sort(theBackPetals.begin(), theBackPetals.end(), PetalLessPhi());
 
   // building disk for front and back petals
-  /* ---- TO BE CHANGED AS SOON AS  THE PROBLEM WITH GLUEDGEOMDET IS FIXED
   theLayerDisk = computeDisk( thePetals );
   theFrontDisk = computeDisk( theFrontPetals);
   theBackDisk  = computeDisk( theBackPetals);
 
   // set up the bin finders
   theFrontBinFinder = BinFinderPhi(theFrontPetals.front()->position().phi(),
-				   theFrontPetals.size());
+  				   theFrontPetals.size());
   theBackBinFinder  = BinFinderPhi(theBackPetals.front()->position().phi(),
-				   theBackPetals.size());  
-  ------ */
+  			   theBackPetals.size());  
 }
 
 
@@ -55,8 +57,7 @@ TECLayer::basicComponents() const{
 
 vector<const GeometricSearchDet*> 
 TECLayer::components() const{
-  cout << "temporary dummy implementation of TECLayer::components()!!" << endl;
-  return vector<const GeometricSearchDet*>();
+  return theComponents;
 }
   
 pair<bool, TrajectoryStateOnSurface>

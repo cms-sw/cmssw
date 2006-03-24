@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/21 19:15:55 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/02/14 17:09:18 $
+ *  $Revision: 1.8 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -41,7 +41,7 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
   for ( int i = 1; i < numberOfWords; i++ ) {
 
     // The word
-    uint32_t word = index[i];
+    int word = index[i];
 
     // The word type
     int type = ( word >> 28 ) & 0xF;

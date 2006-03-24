@@ -19,7 +19,7 @@ class SiStripRecHit2DMatchedLocalPos : public BaseSiStripRecHit2DLocalPos{
 
   
  private:
-  const SiStripRecHit2DLocalPos *componentStereo_,*componentMono_;
+  const SiStripRecHit2DLocalPos *componentMono_,*componentStereo_;
 };
 
 

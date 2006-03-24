@@ -11,8 +11,8 @@ int main(){
   loader->loadAuthenticationService(cond::Env);
   loader->loadMessageService(cond::Error);
   try{
-    //cond::MetaData metadata_svc("sqlite_file:pippo.db", *loader);
-    cond::MetaData metadata_svc("oracle://devdb10/cms_xiezhen_dev", *loader);
+    cond::MetaData metadata_svc("sqlite_file:pippo.db", *loader);
+    //cond::MetaData metadata_svc("oracle://devdb10/cms_xiezhen_dev", *loader);
     metadata_svc.connect();
     //metadata_svc.getToken("mytest2");
     std::string t1("token1");

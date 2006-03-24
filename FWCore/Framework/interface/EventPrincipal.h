@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.26 2006/02/20 01:51:57 wmtan Exp $
+$Id: EventPrincipal.h,v 1.27 2006/03/02 06:48:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -45,6 +45,7 @@ $Id: EventPrincipal.h,v 1.26 2006/02/20 01:51:57 wmtan Exp $
 namespace edm {
     
   class ProductRegistry;
+  class UnscheduledHandler;
   class EventPrincipal : public EDProductGetter {
   public:
     typedef std::vector<boost::shared_ptr<Group> > GroupVec;
@@ -140,10 +141,11 @@ namespace edm {
 
     virtual EDProduct const* getIt(ProductID const& oid) const;
 
+    void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>);
+    
     ProductRegistry const& productRegistry() const {return *preg_;}
 
     boost::shared_ptr<DelayedReader> store() const {return store_;}
-
   private:
     EventAux aux_;	// persistent
 
@@ -194,6 +196,8 @@ namespace edm {
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store.
     boost::shared_ptr<DelayedReader> store_;
+
+    boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;
 
   };
 }

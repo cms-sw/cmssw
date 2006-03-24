@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
-// $Id: Tracer.cc,v 1.4 2006/02/07 07:16:46 wmtan Exp $
+// $Id: Tracer.cc,v 1.5 2006/02/08 00:44:27 wmtan Exp $
 //
 
 // system include files
@@ -33,7 +33,8 @@ using namespace edm::service;
 // constructors and destructor
 //
 Tracer::Tracer(const ParameterSet& iPS, ActivityRegistry&iRegistry):
-indention_(iPS.getUntrackedParameter<std::string>("indention","++"))
+indention_(iPS.getUntrackedParameter<std::string>("indention","++")),
+depth_(0)
 {
    iRegistry.watchPostBeginJob(this,&Tracer::postBeginJob);
    iRegistry.watchPostEndJob(this,&Tracer::postEndJob);
@@ -83,6 +84,7 @@ Tracer::postEndJob()
 void 
 Tracer::preEventProcessing(const edm::EventID& iID, const edm::Timestamp& iTime)
 {
+   depth_=0;
    std::cout <<indention_<<indention_<<" processing event:"<< iID<<" time:"<<iTime.value()<< std::endl;
 }
 void 
@@ -94,13 +96,24 @@ Tracer::postEventProcessing(const Event&, const EventSetup&)
 void 
 Tracer::preModule(const ModuleDescription& iDescription)
 {
-   std::cout <<indention_<<indention_<<indention_<<" module:" <<iDescription.moduleLabel_<<std::endl;
+   ++depth_;
+   std::cout <<indention_<<indention_;
+   for(unsigned int depth = 0; depth !=depth_; ++depth) {
+      std::cout<<indention_;
+   }
+   std::cout<<" module:" <<iDescription.moduleLabel_<<std::endl;
 }
 
 void 
-Tracer::postModule(const ModuleDescription&)
+Tracer::postModule(const ModuleDescription& iDescription)
 {
-   std::cout <<indention_<<indention_<<indention_<<" finished"<<std::endl;
+   --depth_;
+   std::cout <<indention_<<indention_<<indention_;
+   for(unsigned int depth = 0; depth !=depth_; ++depth) {
+      std::cout<<indention_;
+   }
+   
+   std::cout<<" finished:"<<iDescription.moduleLabel_<<std::endl;
 }
 
 //

@@ -8,7 +8,6 @@
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
-#include "DataFormats/TrackReco/interface/HelixParameters.h"
 
 /**
  * Trajectory state defined at a given point on the helix, which is 
@@ -24,33 +23,16 @@ class TrajectoryStateClosestToPoint
 
 public:
 
-  TrajectoryStateClosestToPoint() {}
-
   /**
-   * Public constructor, which is used to convert perigee 
-   * parameters to a FreeTrajectoryState. For the case where
-   * no error is provided.
+   * returns the state defined at the point of closest approach to the
+   * reference point.
    */
 
-  TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters,
-    const GlobalPoint& referencePoint);
-
-  /**
-   * Public constructor, which is used to convert perigee 
-   * parameters to a FreeTrajectoryState. For the case where
-   * an error is provided.
-   */
-
-  TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters,
-    const PerigeeTrajectoryError& perigeeError, const GlobalPoint& referencePoint);
-
-
-  TrajectoryStateClosestToPoint(const reco::helix::Parameters & helixPar, 
-	const GlobalPoint& referencePoint);
-
-
-  TrajectoryStateClosestToPoint(const reco::helix::Parameters & helixPar, 
-	const reco::helix::Covariance & helixCov, const GlobalPoint& referencePoint);
+  const FreeTrajectoryState & theState() const {
+    if (!theFTSavailable) throw TrajectoryStateException(
+      "TrajectoryStateClosestToPoint: attempt to access FTS when none available");
+    return theFTS;
+  }
 
 
   /**
@@ -85,16 +67,6 @@ public:
     return thePerigeeError;
   }
 
-  /**
-   * returns the state defined at the point of closest approach to the
-   * reference point.
-   */
-
-  const FreeTrajectoryState & theState() const {
-    if (!theFTSavailable) calculateFTS();
-    return theFTS;
-  }
-
 
   /**
    * tells whether the error of the perigee parameters 
@@ -106,6 +78,29 @@ public:
   }
 
 
+public:
+
+  TrajectoryStateClosestToPoint() {}
+
+  /**
+   * Public constructor, which is used to convert perigee 
+   * parameters to a FreeTrajectoryState. For the case where
+   * no error is provided.
+   */
+
+  TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters,
+    const GlobalPoint& referencePoint, const MagneticField* magField);
+
+  /**
+   * Public constructor, which is used to convert perigee 
+   * parameters to a FreeTrajectoryState. For the case where
+   * an error is provided.
+   */
+
+  TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters,
+    const PerigeeTrajectoryError& perigeeError,
+    const GlobalPoint& referencePoint, const MagneticField* magField);
+
 private:
 
   friend class TrajectoryStateClosestToPointBuilder;
@@ -116,13 +111,21 @@ private:
    * get access to this constructor
    */
   
-  TrajectoryStateClosestToPoint(const FTS& originalFTS, const GlobalPoint& referencePoint);
+  TrajectoryStateClosestToPoint(const FTS& originalFTS, 
+    const GlobalPoint& referencePoint);
 
-  void calculateFTS() const;
+  /**
+   * Jacobians of tranformations between curvilinear frame at point of closest
+   * approach in transverse plane and perigee frame. The fts must therefore be
+   * given at exactly this point in order to yield the correct Jacobians.
+   */
+
+  AlgebraicMatrix jacobianCurvilinear2Perigee(const FreeTrajectoryState& fts) const;
+  AlgebraicMatrix jacobianPerigee2Curvilinear(const FreeTrajectoryState& fts) const;
 
 
-  mutable FTS theFTS;
-  mutable bool theFTSavailable;
+  FTS theFTS;
+  bool theFTSavailable;
   
   GlobalPoint theRefPoint;
   PerigeeTrajectoryParameters theParameters;

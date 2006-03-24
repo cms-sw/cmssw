@@ -4,6 +4,7 @@
 <use name=IOPool/Common>
 <use name=boost>
 <use name=rootcore>
+<lib name=TreePlayer>
 <export>
  <lib name=IOPoolInput>
  <use name=FWCore/Framework>

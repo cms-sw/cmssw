@@ -1,14 +1,12 @@
 
 /*
-*  $Date: $
-*  $Revision: $
+*  $Date: 2006/03/22 22:51:28 $
+*  $Revision: 1.2 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/VertexGenerator.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-// #include "FWCore/Framework/interface/EDProducer.h"
-// #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -16,9 +14,11 @@
 
 #include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 
-// #include "CLHEP/Random/RandFlat.h"
 
 using namespace edm;
 using namespace std;
@@ -40,18 +40,22 @@ VertexGenerator::VertexGenerator( const ParameterSet& pset )
       VtxGenMaker( EventVertexGeneratorFactory::get()->create
                    (pset.getParameter<std::string> ("type")) );
    
+   Service<RandomNumberGenerator> rng;
+   long seed = (long)(rng->mySeed()) ;
+   // cout << " seed= " << seed << endl ;
+
    if(VtxGenMaker.get()==0) 
    {
         throw Exception(errors::Configuration,
 	                "Unable to find the event vertex generator requested") ;
    }
-   fEventVertexGenerator = VtxGenMaker->make(pset) ;
+   fEventVertexGenerator = VtxGenMaker->make(pset,seed) ;
 
    if (fEventVertexGenerator.get()==0) 
       throw Exception(errors::Configuration,"EventVertexGenerator construction failed");
    
    produces<HepMCProduct>() ;
-
+   
 }
 
 VertexGenerator::~VertexGenerator() 

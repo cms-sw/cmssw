@@ -1,5 +1,4 @@
 <lcgdict>
-<class name="DTRecHit1D"/>
 <class name="DTRecHit1DPair"/>
 <class name="std::vector<DTRecHit1DPair>"/>
 <class name="std::map<DTLayerId,std::vector<DTRecHit1DPair> >"/>

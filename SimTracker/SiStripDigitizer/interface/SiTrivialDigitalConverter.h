@@ -8,7 +8,7 @@
 class SiTrivialDigitalConverter: public SiDigitalConverter{
  public:
 
-  SiTrivialDigitalConverter(float in);
+  SiTrivialDigitalConverter(float in,int fs);
   
   DigitalMapType convert(const signal_map_type&);
     

@@ -5,85 +5,67 @@
 
 #include <set>
 #include <exception>
+#include <string>
 #ifndef POOL_TRIVIALFILECATALOG_H
 #include "IOPool/TrivialFileCatalog/interface/TrivialFileCatalog.h"
 #endif
 #include "POOLCore/PoolMessageStream.h"
 #include "FileCatalog/FCException.h"
+
+
+#include <xercesc/dom/DOM.hpp>
+#include <xercesc/dom/DOMCharacterData.hpp>
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/framework/LocalFileFormatTarget.hpp>
+#include <xercesc/util/XMLUni.hpp>
+#include <xercesc/util/XMLURL.hpp>
+
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <SealBase/StringList.h>
 #include <SealBase/StringOps.h>
 #include <SealBase/DebugAids.h>
+#include <SealBase/Regexp.h>
+
+using namespace xercesc;
+
+int pool::TrivialFileCatalog::s_numberOfInstances = 0;
+
+inline std::string _toString(const XMLCh *toTranscode)
+{
+    std::string tmp(XMLString::transcode(toTranscode));
+    return tmp;
+}
+
+inline XMLCh*  _toDOMS( std::string temp ){
+    XMLCh* buff = XMLString::transcode(temp.c_str());    
+    return  buff;
+}
 
 pool::TrivialFileCatalog::TrivialFileCatalog ()
     : m_connectionStatus (false),
-      m_prefix ("/localscratch/data/"),
-      m_fileType ("ROOT_All"),
-      m_configFilename ("PoolCatalogConfig.txt")
-{
-    if (getenv ("POOL_CATALOG"))
-    {
-	m_configFilename = getenv ("POOL_CATALOG");
-	if (m_configFilename.find ("trivialcatalog_file:") != std::string::npos)
-	{
-	    m_configFilename = m_configFilename.erase (0, 
-						       m_configFilename.find ("/") + 1);	
-	}
-	else
-	{
-	    throw FCTransactionException
-		("TrivialFileCatalog::TrivialFileCatalog",
-		 "Malformed url for file catalog configuration"); 
-	}
-	
+      m_fileType ("ROOT_All")
+{  
+    PoolMessageStream trivialLog( "TrivialFileCatalog", seal::Msg::Nil );
+    try { 
+	trivialLog <<seal::Msg::Info << "Xerces-c initialization Number "
+	  << s_numberOfInstances <<seal::endmsg;
+	if (s_numberOfInstances==0) 
+	    XMLPlatformUtils::Initialize();  
     }
-
-    std::cerr << m_configFilename << std::endl;    
+    catch (const XMLException& e) {
+	trivialLog <<seal::Msg::Fatal << "Xerces-c error in initialization \n"
+	      << "Exception message is:  \n"
+	      << _toString(e.getMessage()) << seal::endmsg;
+	seal::Status s(seal::Status::ERROR,0,21);
+	throw( seal::Exception("Standard pool exception",
+			       "Fatal Error on pool::PoolXMLFileCatalog",
+			       s));
+    }
+    ++s_numberOfInstances;
     
-    std::ifstream configFile;
-    configFile.open (m_configFilename.c_str ());
-
-    
-    PoolMessageStream trivialLog ("TrivialFileCatalog", seal::Msg::Nil );
-    trivialLog << seal::Msg::Info
-	       << "Using catalog configuration " 
-	       << m_configFilename << seal::endmsg;
-
-    char buffer[4096];
-    ASSERT (configFile.good ());
-    ASSERT (configFile.is_open ());
-    
-    while (! configFile.eof ())
-    {
-	configFile.getline (buffer, 4096);
-	std::string line = buffer;
-	
-	if (line != "")
-	{
-	    seal::StringList tokens = seal::StringOps::split (line, "=");
-
-	    if (tokens.size () != 2)
-	    {
-		throw FCTransactionException
-		    ("TrivialFileCatalog::TrivialFileCatalog",
-		     "Wrong configuration file"); 
-	    }	
-	   
-	    std::string parameter = tokens[0];
-	    std::string value = tokens[1];
-	
-	    if (parameter == "prefix")
-	    {
-		m_prefix = value;
-	    }
-	    else if (parameter == "type")
-	    {
-		m_fileType = value;
-	    }
-	}
-    }    
 }
 
 pool::TrivialFileCatalog::~TrivialFileCatalog ()
@@ -97,14 +79,127 @@ pool::TrivialFileCatalog::connect ()
     try
     {
 	PoolMessageStream trivialLog( "TrivialFileCatalog", seal::Msg::Nil );
-	trivialLog << seal::Msg::Info<< "Connecting to the catalog"<<seal::endmsg;
+  	trivialLog << seal::Msg::Info << "Connecting to the catalog "
+		   << m_url << seal::endmsg;
+
+	if (m_url.find ("file:") != std::string::npos)
+	{
+	    m_url = m_url.erase (0, 
+				 m_url.find (":") + 1);	
+	}	
+	else
+	{
+	    throw FCTransactionException
+		("TrivialFileCatalog::connect",
+		 ": Malformed url for file catalog configuration"); 
+	}
+
+	std::ifstream configFile;
+	configFile.open (m_url.c_str ());
+
+    
+	trivialLog << seal::Msg::Info
+		   << "Using catalog configuration " 
+		   << m_url << seal::endmsg;
+
+	if (!configFile.good () || !configFile.is_open ())
+	{
+	    m_transactionsta = 0;
+            return;
+	}
+
+	configFile.close ();
+	
+	XercesDOMParser* parser = new XercesDOMParser;     
+	parser->setValidationScheme(XercesDOMParser::Val_Auto);
+	parser->setDoNamespaces(false);
+	parser->parse(m_url.c_str());	
+	DOMDocument* doc = parser->getDocument();
+	ASSERT (doc);
+	
+	/* trivialFileCatalog matches the following xml schema
+	   FIXME: write a proper DTD
+	    <trivialCatalog>
+	    <rule match="lfn/guid match regular expression">
+	    <prefix>/foo/bar</prefix>
+	    </rule>
+	    </trivialCatalog>
+	 */
+
+	unsigned int ruleTagsNum  = 
+	    doc->getElementsByTagName(_toDOMS("rule"))->getLength();
+	
+	// FIXME: we should probably use a DTD for checking validity 
+
+	for (unsigned int i=0; i<ruleTagsNum; i++){
+	    DOMNode* ruleNode = 
+		doc->getElementsByTagName(_toDOMS("rule"))->item(i);
+	    if (! ruleNode)
+	    {
+		throw FCTransactionException
+		    ("TrivialFileCatalog::connect",
+		     ":Malformed trivial catalog"); 		
+	    }
+	    
+	    DOMElement* ruleElement = static_cast<DOMElement *>(ruleNode);	    
+
+	    if (! ruleElement)
+	    {
+		throw FCTransactionException
+		    ("TrivialFileCatalog::connect",
+		     ":Malformed trivial catalog"); 		
+	    }
+	    
+	    std::string regExp = _toString (ruleElement->getAttribute (_toDOMS ("match")));
+	    
+	    DOMNodeList *prefixes 
+		= ruleElement->getElementsByTagName (_toDOMS ("prefix"));
+	    
+	    
+	    if (prefixes->getLength () != 1)
+	    {
+		throw FCTransactionException
+		    ("TrivialFileCatalog::connect",
+		     ":Malformed trivial catalog"); 		
+	    }
+
+	    DOMElement *prefixNode = dynamic_cast <DOMElement *> (prefixes->item (0));
+	    if (!prefixNode)
+	    {
+		throw FCTransactionException
+		    ("TrivialFileCatalog::connect",
+		     ":Malformed trivial catalog"); 		
+	    }
+
+	    
+	    DOMText *prefixText = dynamic_cast <DOMText *> (prefixNode->getFirstChild ());
+	    if (!prefixText)
+	    {
+		throw FCTransactionException
+		    ("TrivialFileCatalog::connect",
+		     ":Malformed trivial catalog"); 		
+	    }
+	  
+	    std::string prefix = _toString (prefixText->getData ());
+	    
+	    Rule rule;
+	    rule.first = new seal::Regexp (regExp);
+	    rule.first->compile ();
+	    rule.second = prefix;
+	    m_rules.push_back (rule);
+	}
+	
+    
+	m_transactionsta = 1;
     }
     catch (seal::Exception& e)
     {
+	m_transactionsta = 0;	
 	throw FCconnectionException("TrivialFileCatalog::connect",e.message());
     }
     catch( std::exception& er)
     {
+	m_transactionsta = 0;	
 	throw FCconnectionException("TrivialFileCatalog::connect",er.what());
     }
 }
@@ -112,6 +207,7 @@ pool::TrivialFileCatalog::connect ()
 void
 pool::TrivialFileCatalog::disconnect () const
 {
+	m_transactionsta = 0;	    
 }
 
 void
@@ -180,20 +276,37 @@ pool::TrivialFileCatalog::renamePFN (const std::string& /*pfn*/,
 }
 
 void
-pool::TrivialFileCatalog::lookupFileByPFN (const std::string& /*pfn*/, 
-					   FileCatalog::FileID& /*fid*/, 
-					   std::string& /*ftype*/) const
+pool::TrivialFileCatalog::lookupFileByPFN (const std::string & pfn, 
+					   FileCatalog::FileID & fid, 
+					   std::string& filetype) const
 {
-    throw FCTransactionException
-	("TrivialFileCatalog::lookupFileByPFN",
-	 "For the time being this is not implemented. If the mapping between"
-	 "GUID/LFN and PFN is invertible this ca be implemented as well.");    
+    filetype = m_fileType;    
+    
+    for (Rules::const_iterator i = m_rules.begin ();
+	 i != m_rules.end ();
+	 i++)
+    {
+	const std::string &prefix = i->second;
+	std::string prefixUsed = pfn.substr (0, prefix.size ());
+	ASSERT (prefixUsed.size () == prefix.size ());
+	if (prefixUsed == prefix)
+	{
+	    fid = pfn.substr (prefix.size ());	    
+	    return;	    
+	}	
+    }
 }
 
 void
 pool::TrivialFileCatalog::lookupFileByLFN (const std::string& lfn, 
 					   FileCatalog::FileID& fid) const
 {
+    // return NULL id if the catalog is not connected.
+    if (m_transactionsta == 0) {
+	fid = FileCatalog::FileID();
+	return;
+    }
+	
     // GUID (FileID) and lfn are the same under TrivialFileCatalog
     fid = lfn;    
 }
@@ -205,8 +318,23 @@ pool::TrivialFileCatalog::lookupBestPFN (const FileCatalog::FileID& fid,
 					 std::string& pfn,
 					 std::string& filetype) const
 {
+    if (m_transactionsta == 0)
+	throw FCconnectionException("TrivialFileCatalog::lookupBestPFN",
+				    "Catalog not connected");
     filetype = m_fileType;    
-    pfn = m_prefix + fid;    
+    for (Rules::const_iterator i = m_rules.begin ();
+	 i != m_rules.end ();
+	 i++)
+    {
+	if (i->first->exactMatch (fid))
+	{
+	    pfn = i->second + fid; 
+	    return;
+	}
+    }
+    throw FCTransactionException
+	("TrivialFileCatalog::lookupBestPFN",
+	 "No match found in the TrivialFileCatalog");    
 } 
 
 void
@@ -260,10 +388,11 @@ pool::TrivialFileCatalog::retrievePFN (const std::string& query,
 				       FCBuf<PFNEntry>& buf, 
 				       const size_t& /*start*/ )
 {
+    if (m_transactionsta == 0)
+	throw FCconnectionException("TrivialFileCatalog::lookupBestPFN",
+				    "Catalog not connected");
     // The only query supported is lfn='something' or pfn='something'
     // No spaces allowed in something.
-    std::cerr << "Query: " << query << std::endl;
-    
     seal::StringList tokens = seal::StringOps::split (query, "=");
     
     if (tokens.size () != 2)
@@ -285,11 +414,26 @@ pool::TrivialFileCatalog::retrievePFN (const std::string& query,
     
     std::string lfn = seal::StringOps::remove (tokens[1], "'");
     
+    std::string fidCandidate;
     
-    buf.push_back (PFNEntry(m_prefix + lfn, 
+    for (Rules::iterator i = m_rules.begin ();
+	 i != m_rules.end ();
+	 i++)
+    {
+	if (i->first->exactMatch (lfn))
+	{
+	    buf.push_back (PFNEntry(i->second + lfn, 
+				    lfn, 
+				    m_fileType));    
+	    return true;    
+	}	
+    }
+
+    buf.push_back (PFNEntry(lfn, 
 			    lfn, 
 			    m_fileType));    
-    return true;    
+    
+    return false;    
 }
 
 bool

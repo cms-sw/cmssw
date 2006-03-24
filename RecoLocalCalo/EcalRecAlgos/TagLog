@@ -1,8 +1,3 @@
-** V00-00-03  [Tue Jan 10 15:21:09 2006]
-implemented the analytic fit by Alessandro Palma.
-This fit is used to make uncalib rechits in the analysis of the
-HV scan data
-
 ** V00-00-02  [Mon Nov 28 17:46:32 2005]
 added new algorithm based on analytical fit to compute the pulse shape. currently this is a placeholder and the fit is not perfomed yet
 

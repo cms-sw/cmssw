@@ -1,6 +1,3 @@
-** V02-00-00  [Wed Dec 28 01:43:03 2005]
-Major redesign of Hcal Condition classes
-
 ** V01-01-01  [Mon Nov 21 21:45:37 2005]
 Move HCAL DB tools from CondCore/HcalPlugins to CondTools/Hcal
 

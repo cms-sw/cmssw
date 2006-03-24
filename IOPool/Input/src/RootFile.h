@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.1 2006/01/07 00:46:23 wmtan Exp $
+$Id: RootFile.h,v 1.3 2006/03/10 23:27:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -36,12 +36,14 @@ namespace edm {
     std::auto_ptr<EventPrincipal> read(ProductRegistry const& pReg);
     ProductRegistry const& productRegistry() const {return *productRegistry_;}
     boost::shared_ptr<ProductRegistry> productRegistrySharedPtr() const {return productRegistry_;}
+    void fillParameterSetRegistry(pset::Registry & psetRegistry) const;
     TBranch *auxBranch() {return auxBranch_;}
     TBranch *provBranch() {return provBranch_;}
     EventID & eventID() {return eventID_;}
-    EntryNumber const& entryNumber() {return entryNumber_;}
-    EntryNumber const& entries() {return entries_;}
+    EntryNumber const& entryNumber() const {return entryNumber_;}
+    EntryNumber const& entries() const {return entries_;}
     void setEntryNumber(EntryNumber entryNumber) {entryNumber_ = entryNumber;}
+    EntryNumber getEntryNumber(EventID const& eventID) const;
 
   private:
     RootFile(RootFile const&); // disable copy construction
@@ -56,6 +58,7 @@ namespace edm {
 // We use bare pointers for pointers to ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using shared pointers here will do no good.
+    TTree *eventTree_;
     TBranch *auxBranch_;
     TBranch *provBranch_;
     TFile *filePtr_;

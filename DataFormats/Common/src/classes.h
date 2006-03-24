@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/EventAux.h"
 #include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/EventProvenance.h"
+#include "DataFormats/Common/interface/ParameterSetBlob.h"
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
@@ -29,6 +30,7 @@ namespace { namespace {
   edm::Wrapper<std::vector<unsigned short> > dummy9;
   edm::Wrapper<std::vector<double> > dummy10;
   edm::Wrapper<std::vector<long double> > dummy11;
+  edm::Wrapper<std::vector<float> > dummy12;
 
   edm::Wrapper<unsigned long> dummyw1;
   edm::Wrapper<unsigned int> dummyw2;
@@ -41,5 +43,11 @@ namespace { namespace {
   edm::Wrapper<unsigned short> dummyw9;
   edm::Wrapper<double> dummyw10;
   edm::Wrapper<long double> dummyw11;
+  edm::Wrapper<float> dummyw12;
   edm::Wrapper<edm::TriggerResults> dummyw17;
+
+  edm::RefItem<unsigned int> dummyRefItem;
+  edm::RefBase<std::vector<unsigned int>::size_type> dummRefBase;
+  edm::RefVectorBase<std::vector<unsigned int>::size_type> dummyRefVectorBase;
+
 }}

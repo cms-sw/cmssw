@@ -70,6 +70,7 @@ class CompositeTECPetal : public TECPetal{
 
  private:
   vector<const TECWedge*> theWedges;
+  vector<const GeometricSearchDet*> theComponents;
   vector<const TECWedge*> theFrontWedges;
   vector<const TECWedge*> theBackWedges;
 

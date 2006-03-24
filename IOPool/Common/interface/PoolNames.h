@@ -2,7 +2,7 @@
 #define Common_PoolNames_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolNames.h,v 1.4 2005/10/04 03:54:09 wmtan Exp $
+// $Id: PoolNames.h,v 1.1 2005/11/01 22:42:45 wmtan Exp $
 //
 // Functions defining tree, branch, and container names.
 // Namespace rootNames. Defined names of ROOT trees and branches
@@ -38,6 +38,19 @@ namespace edm {
     inline
     std::string
     productDescriptionBranchName() { return "ProductRegistry"; }
+
+    inline
+    std::string
+    parameterSetTreeName() { return "ParameterSets"; }
+
+    inline
+    std::string
+    parameterSetIDBranchName() { return "ParameterSetID"; }
+
+    inline
+    std::string
+    parameterSetBranchName() { return "ParameterSet"; }
+
   }
 }
 #endif

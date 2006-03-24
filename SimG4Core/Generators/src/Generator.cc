@@ -45,7 +45,9 @@ Generator::Generator(const ParameterSet & p) :
        inputFile = new std::ifstream(inputFileName.c_str(),std::ios::in);
        if(!*inputFile) {
 	  delete inputFile;
-	  throw cms::Exception("FailedFileOpen")<<" Unable to open the generator file "<<inputFileName<<".\n  Please check to see if file name correct for parameter 'InputFileName'";
+	  throw cms::Exception("FailedFileOpen")
+	      <<" Unable to open the generator file "<<inputFileName
+	      <<".\n  Please check to see if file name correct for parameter 'InputFileName'";
        }
     }
     std::cout << " Generator constructed " << std::endl;
@@ -53,12 +55,12 @@ Generator::Generator(const ParameterSet & p) :
 
 Generator::~Generator() 
 { 
-   if ( inputFile != 0 ) delete inputFile; 
+   if (inputFile != 0) delete inputFile; 
 }
 
 const HepMC::GenEvent * Generator::generateEvent()
 {
-    if ( inputFile != 0 )
+    if (inputFile != 0)
     {
        evt_ = HepMC::readGenEvent(*inputFile);
     }
@@ -68,17 +70,16 @@ const HepMC::GenEvent * Generator::generateEvent()
 
 void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 {	
-
-    if ( vtx_ != NULL ) delete vtx_ ;
-    vtx_ = new HepLorentzVector( (*(evt->vertices_begin()))->position() ) ;
+    if (vtx_ != 0) delete vtx_;
+    vtx_ = new HepLorentzVector((*(evt->vertices_begin()))->position());
     
-    if ( verbose >  0 )
+    if (verbose > 0)
     {
-       evt->print() ;
-       cout << " " << endl ;
+       evt->print();
+       cout << " " << endl;
        cout << " Prim.Vtx : " << vtx_->x() << " " 
                               << vtx_->y() << " "
-			      << vtx_->z() << endl ;
+			      << vtx_->z() << endl;
     }
 
     int i = 0; 
@@ -94,7 +95,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 	    HepLorentzVector g_momentum  = g->momentum();
 	    int g_id = g->pdg_id();	    
 	    G4PrimaryParticle * g4p = 
-		new G4PrimaryParticle(g_id,g_momentum.x()*GeV,g_momentum.y()*GeV,g_momentum.z()*GeV);
+		new G4PrimaryParticle(g_id,g_momentum.x()*GeV,
+				      g_momentum.y()*GeV,g_momentum.z()*GeV);
 	    if (g4p->GetG4code() != 0) g4p->SetMass(g4p->GetG4code()->GetPDGMass());
 	    g4p->SetWeight(i*10000);
 	    setGenId(g4p,i);
@@ -130,7 +132,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
     // => they will not be passed to G4
     for (PMT it = pmap.begin();  it != pmap.end(); ++it)
     {
-        if ((*it).first->status() == 1 && !(particlePassesPrimaryCuts((*it).second->getTheParticle())))
+        if ((*it).first->status() == 1 && 
+	    !(particlePassesPrimaryCuts((*it).second->getTheParticle())))
             (*it).second->done();
         // we're done with that guy, remember this in hepmcparticle
     }
@@ -164,10 +167,10 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
     } // end PMT it = pmap.begin();
 	
     // create G4PrimaryVertex and associated G4PrimaryParticles
-    // G4PrimaryVertex * g4vtx = new G4PrimaryVertex(vtx_.x()*mm,vtx_.y()*mm,vtx_.z()*mm,vtx_.t()*mm/c_light);
-    G4PrimaryVertex* g4vtx = new G4PrimaryVertex(vtx_->x()*mm,vtx_->y()*mm,vtx_->z()*mm,vtx_->t()*mm/c_light);
+    G4PrimaryVertex* g4vtx = 
+       new G4PrimaryVertex(vtx_->x()*mm,vtx_->y()*mm,vtx_->z()*mm,vtx_->t()*mm/c_light);
     
-    if ( verbose > 0 )
+    if (verbose > 0)
     {
        cout << " G4PrimaryVertex : " << g4vtx->GetX0() << " "
                                      << g4vtx->GetY0() << " "
@@ -186,7 +189,6 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
     g4evt->AddPrimaryVertex(g4vtx);
 	
     pmap.clear();
-    
 }
 
 bool Generator::particlePassesPrimaryCuts(const G4PrimaryParticle * p) const
@@ -200,4 +202,36 @@ bool Generator::particlePassesPrimaryCuts(const G4PrimaryParticle * p) const
 	((fPhiCuts) && (phi < theMinPhiCut || phi > theMaxPhiCut)))
 	return false;
     else return true;
+}
+
+void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
+{
+    int i = 0; 
+    for(HepMC::GenEvent::particle_const_iterator it = evt->particles_begin(); 
+	it != evt->particles_end(); ++it )
+    {
+	i++;
+	HepMC::GenParticle * g = (*it);	
+	int g_status = g->status();
+	// storing only particle with status == 1 	
+	if (g_status == 1)
+	{
+	    HepLorentzVector mom  = g->momentum();
+	    int g_id = g->pdg_id();	    
+	    G4PrimaryParticle * g4p = 
+		new G4PrimaryParticle(g_id,mom.x()*GeV,mom.y()*GeV,mom.z()*GeV);
+	    if (g4p->GetG4code() != 0) 
+		g4p->SetMass(g4p->GetG4code()->GetPDGMass());
+	    g4p->SetWeight(i*10000);
+	    setGenId(g4p,i);
+            if (particlePassesPrimaryCuts(g4p))
+            {
+		HepLorentzVector vtx = g->production_vertex()->position();
+                G4PrimaryVertex * v = new 
+		     G4PrimaryVertex(vtx.x()*mm,vtx.y()*mm,vtx.z()*mm,vtx.t()*mm/c_light);
+                v->SetPrimary(g4p);
+                g4evt->AddPrimaryVertex(v);
+            }
+	}
+    } // end loop on HepMC particles
 }

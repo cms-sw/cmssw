@@ -27,7 +27,7 @@ EcalTBDaqFileReader * EcalTBDaqFileReader::instance(){
 
 EcalTBDaqFileReader::EcalTBDaqFileReader(): initialized_(false) { 
 
-  LogDebug("EcalTBInputService") << "@SUB=EcalTBDaqFileReader";
+  cout << "Constructing a new EcalTBDaqFileReader" << endl;
   if(instance_ == 0) instance_ = this;
 
 }
@@ -35,7 +35,7 @@ EcalTBDaqFileReader::EcalTBDaqFileReader(): initialized_(false) {
 
 EcalTBDaqFileReader::~EcalTBDaqFileReader(){ 
 
-  LogDebug("EcalTBInputService") << "@SUB=EcalTBDaqFileReader";
+  cout << "Destructing EcalTBDaqFileReader" << endl;
 
   if(inputFile) {
     inputFile.close();
@@ -72,19 +72,19 @@ void EcalTBDaqFileReader::initialize(const string & filename, bool isBinary){
   
   if ( isBinary_){
     // case of binary input data file
-    LogInfo("EcalTBInputService") << "@SUB=EcalTBDaqFileReader::initialize" << "Opening binary data file " << filename;
+    cout<<"[EcalTB DaqFileReader::initialize]   Opening binary data file "<<filename<<endl;
     inputFile.open(filename.c_str(), ios::binary );
     if( inputFile.fail() ) {
-      LogError("EcalTBInputService") << "@SUB=EcalTBDaqFileReader::initialize" << "the input file: " << filename << " is not present. Exiting program... " ;
+      cout<<"EcalTBDaqFileReader: the input file: "<<filename <<" is not present. Exiting program... "  << endl;
       exit(1);
     }
   }// end if binary
   
   else{
-    LogInfo("EcalTBInputService") << "@SUB=EcalTBDaqFileReader::initialize" << "Opening ASCII file " << filename;
+    cout<<"[EcalTB DaqFileReader::initialize]   Opening ASCII file "<<filename<<endl;
     inputFile.open(filename.c_str());
     if( inputFile.fail() ) {
-      LogError("EcalTBInputService") << "@SUB=EcalTBDaqFileReader::initialize" << "the input file: " << filename << " is not present. Exiting program... " ;
+      cout<<"EcalTBDaqFileReader: the input file: "<<filename <<" is not present. Exiting program... "  << endl;
       exit(1);
     }
   }// end if not binary
@@ -113,7 +113,7 @@ void EcalTBDaqFileReader::getEventTrailer() {
 //     cout << "[EcalTB DaqFileReader::getEventTrailer] event size masked  "<<  size 
 // 	 << " (max size in byte is " << maxEventSizeInBytes_ << ")"<< endl;
     if (size > maxEventSizeInBytes_){
-      LogWarning("EcalTBInputService") << "@SUB=EcalTBDaqFileReader::getEventTrailer" << "event size larger than allowed";
+      cout << "[EcalTB DaqFileReader::getEventTrailer] event size larger than allowed"<< endl;
     }
     
     inputFile.seekg(-2*4,ios::cur);
@@ -215,12 +215,12 @@ bool EcalTBDaqFileReader::fillDaqEventData() {
       
       if(fedInfo.first<0)
 	{
-	  LogError("EcalTBInputService") << "@SUB=EcalTBDaqFileReader::addFEDRawData" << "negative FED Id. Adding no data";
+	  cerr<<"DaqEvent::addFEDRawData - ERROR : negative FED Id. Adding no data"<<endl;
 	  throw 2;
 	} 
       else if (fedInfo.first>MAXFEDID)
 	{
-	  LogError("EcalTBInputService") << "@SUB=EcalTBDaqFileReader::addFEDRawData" << "FED Id(" << fedInfo.first << ") greater than maximum allowed (" << MAXFEDID << "). Adding no data";
+	  cerr<<"DaqEvent::addFEDRawData - ERROR : FED Id("<<fedInfo.first<<") greater than maximum allowed ("<<MAXFEDID<<"). Adding no data"<<endl;
 	  throw 3;
 	} 
       return true;
@@ -229,11 +229,11 @@ bool EcalTBDaqFileReader::fillDaqEventData() {
     {
       if (i==1)
 	{
-	  LogInfo("EcalTBInputService") << "@SUB=EcalTBDaqFileReader::fillDaqEventData" << "END OF FILE REACHED. No information read for the requested event";
+	  cout<<"END OF FILE REACHED. No information read for the requested event"<<endl;
 	} 
       else 
 	{
-	  LogError("EcalTBInputService") << "@SUB=EcalTBDaqFileReader::fillDaqEventData" << "unkown exception";
+	  cout<< "unkown exception in EcalTBDaqFileReader::fillDaqEventData()" << endl;
 	}
       return false;
     }

@@ -34,7 +34,9 @@ namespace edm {
     return &singleInstance_;
   }
 
-  std::auto_ptr<Worker> Factory::makeWorker(const WorkerParams& p) const
+  std::auto_ptr<Worker> Factory::makeWorker(const WorkerParams& p,
+                                            boost::signal<void (const ModuleDescription&)>& pre,
+                                            boost::signal<void (const ModuleDescription&)>& post) const
   {
     string modtype = p.pset_->getParameter<string>("@module_type");
     FDEBUG(1) << "Factory: module_type = " << modtype << endl;
@@ -66,7 +68,7 @@ namespace edm {
 	wm.release();
       }
 
-    std::auto_ptr<Worker> w(it->second->makeWorker(p));
+    std::auto_ptr<Worker> w(it->second->makeWorker(p,pre,post));
     return w;
   }
 

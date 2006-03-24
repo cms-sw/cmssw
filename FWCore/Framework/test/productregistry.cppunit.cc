@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.6 2005/12/28 00:51:28 wmtan Exp $
+   \version $Id: productregistry.cppunit.cc,v 1.7 2006/02/08 00:44:25 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -18,6 +18,9 @@
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/ProblemTracker.h"
 
+namespace edm {
+  class EDProduct;
+}
 
 class testProductRegistry: public CppUnit::TestFixture
 {
@@ -82,7 +85,7 @@ void  testProductRegistry:: testSignal(){
    reg.productAddedSignal_.connect(listening);
    
    ModuleDescription modDesc;
-   BranchDescription prod(modDesc, "int", "int", "int",0);
+   BranchDescription prod(modDesc, "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
    
    reg.addProduct(prod);
    CPPUNIT_ASSERT(1==hear);
@@ -101,9 +104,9 @@ void  testProductRegistry:: testWatch(){
    Responder one("one",constReg, reg);
                  
    ModuleDescription modDesc;
-   BranchDescription prod(modDesc, "int", "int", "int",0);
+   BranchDescription prod(modDesc, "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
    reg.addProduct(prod);
-   BranchDescription prod2(modDesc, "float", "float", "float",0);
+   BranchDescription prod2(modDesc, "float", "float", "float", boost::shared_ptr<edm::EDProduct const>());
    reg.addProduct(prod2);
    
    //Should be 4 products
@@ -128,7 +131,7 @@ void  testProductRegistry:: testCircular(){
    Responder two("two",constReg, reg);
    
    ModuleDescription modDesc;
-   BranchDescription prod(modDesc, "int", "int", "int",0);
+   BranchDescription prod(modDesc, "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
    
    reg.addProduct(prod);
    //Should be 5 products

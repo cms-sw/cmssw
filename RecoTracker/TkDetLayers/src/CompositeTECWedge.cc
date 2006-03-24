@@ -27,11 +27,9 @@ CompositeTECWedge::CompositeTECWedge(vector<const GeomDet*>& innerDets,
   //sort( theFrontDets.begin(), theFrontDets.end(), DetLessPhiWedge() );
   //sort( theBackDets.begin(),  theBackDets.end(),  DetLessPhiWedge() );
   
-  // TO BE CHANGED WHEN THE PROBLEM WITH GLUEDGEOMDET IS FIXED
-  //theFrontSector = ForwardDiskSectorBuilderFromDet()( theFrontDets );
-  //theBackSector  = ForwardDiskSectorBuilderFromDet()( theBackDets );
-  //theDiskSector = ForwardDiskSectorBuilderFromDet()( theDets );
-
+  theFrontSector = ForwardDiskSectorBuilderFromDet()( theFrontDets );
+  theBackSector  = ForwardDiskSectorBuilderFromDet()( theBackDets );
+  theDiskSector = ForwardDiskSectorBuilderFromDet()( theDets );
 }
 
 CompositeTECWedge::~CompositeTECWedge(){
@@ -40,8 +38,7 @@ CompositeTECWedge::~CompositeTECWedge(){
 
 vector<const GeomDet*> 
 CompositeTECWedge::basicComponents() const{
-  cout << "temporary dummy implementation of CompositeTECWedge::basicComponents()!!" << endl;
-  return vector<const GeomDet*>();
+  return theDets;
 }
 
 vector<const GeometricSearchDet*> 

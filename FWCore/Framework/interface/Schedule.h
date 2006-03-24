@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.3 2006/02/06 19:06:48 jbk Exp $
+  $Id: Schedule.h,v 1.4 2006/02/08 00:44:24 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -107,6 +107,7 @@
 
 namespace edm
 {
+  class UnscheduledCallProducer;
   class Schedule
   {
   public:
@@ -175,6 +176,9 @@ namespace edm
     bool makeTriggerResults_;
     int total_events_;
     int total_passed_;
+    boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
+    std::vector<boost::shared_ptr<Group> > demandGroups_;
+
   };
 }
 

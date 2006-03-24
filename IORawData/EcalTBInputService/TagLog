@@ -1,6 +1,3 @@
-** V02-00-01  [Wed Jan 25 03:59:30 2006]
-remove unneeded #includes
-
 ** V02-00-00  [Thu Jan 19 21:07:52 2006]
 Adapted for ExternalInputSource
 

@@ -22,11 +22,6 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -49,9 +44,8 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   edm::Handle<CSCComparatorDigiCollection> comparators;
   edm::Handle<CSCALCTDigiCollection> alcts;
   edm::Handle<CSCCLCTDigiCollection> clcts;
-  edm::Handle<CSCRPCDigiCollection> rpcs;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
-  
+
+   
   // Pass the handle to the method "getByType", which is used to retrieve
   // one and only one instance of the type in question out of event "e". If
   // zero or more than one instance exists in the event an exception is thrown.
@@ -61,9 +55,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   e.getByLabel("cscunpacker","MuonCSCComparatorDigi",comparators);
   e.getByLabel("cscunpacker","MuonCSCALCTDigi",alcts);
   e.getByLabel("cscunpacker","MuonCSCCLCTDigi",clcts);
-  e.getByLabel("cscunpacker","MuonCSCRPCDigi",rpcs);
-  e.getByLabel("cscunpacker","MuonCSCCorrelatedLCTDigi",correlatedlcts);
-   
+  
   
    
   // read digi collections and print digis
@@ -112,27 +104,6 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
  
     std::vector<CSCCLCTDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCCLCTDigi>::const_iterator last = (*j).second.second;
-    for( ; digiItr != last; ++digiItr) {
-      digiItr->print();
-    }
-  }
-
-
-
-  for (CSCRPCDigiCollection::DigiRangeIterator j=rpcs->begin(); j!=rpcs->end(); j++) {
- 
-    std::vector<CSCRPCDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCRPCDigi>::const_iterator last = (*j).second.second;
-    for( ; digiItr != last; ++digiItr) {
-      digiItr->print();
-    }
-  }
-
-
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j=correlatedlcts->begin(); j!=correlatedlcts->end(); j++) {
- 
-    std::vector<CSCCorrelatedLCTDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCCorrelatedLCTDigi>::const_iterator last = (*j).second.second;
     for( ; digiItr != last; ++digiItr) {
       digiItr->print();
     }

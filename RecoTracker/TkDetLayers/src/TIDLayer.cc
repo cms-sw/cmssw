@@ -32,7 +32,7 @@ TIDLayer::TIDLayer(vector<const TIDRing*>& rings):
   theLayerDisk = computeDisk( theRings );
 
   if ( theRings.size() != 3) throw Genexception("Number of rings in TID layer is not equal to 3 !!");
- 
+
 }
 
 

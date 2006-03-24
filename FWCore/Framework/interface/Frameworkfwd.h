@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.17 2006/02/07 07:51:41 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.19 2006/03/14 21:13:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -48,10 +48,13 @@ namespace edm {
   class VectorInputSource;
 
   template <typename T> class Handle;
+  namespace pset {
+    class Registry;
+  }
 }
 
 // The following are trivial enough so that the real headers can be included.
-#include "FWCore/Framework/interface/ConditionsID.h"
+#include "DataFormats/Common/interface/ConditionsID.h"
 #include "DataFormats/Common/interface/PassID.h"
 #include "DataFormats/Common/interface/VersionNumber.h"
 

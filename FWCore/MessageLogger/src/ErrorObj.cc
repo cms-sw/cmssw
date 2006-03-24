@@ -18,6 +18,11 @@
 // 2/14/06  mf		Removed oerator<<(endmsg) which is not needed for
 //			MessageLogger for CMS
 //
+// 3/13/06  mf		Instrumented for automatic suppression of spaces.
+// 3/20/06  mf		Instrumented for universal suppression of spaces
+//			(that is, items no longer contain any space added
+//			by the MessageLogger stack)
+//
 // ErrorObj( const ELseverityLevel & sev, const ELstring & id )
 // ~ErrorObj()
 // set( const ELseverityLevel & sev, const ELstring & id )
@@ -81,12 +86,14 @@ ErrorObj::ErrorObj( const ELseverityLevel & sev, const ELstring & id )  {
 
 
 ErrorObj::ErrorObj( const ErrorObj & orig )  :
-        mySerial        ( orig.mySerial ),
-        myXid           ( orig.myXid ),
-        myIdOverflow    ( orig.myIdOverflow ),
-        myTimestamp     ( orig.myTimestamp ),
-        myItems         ( orig.myItems ),
-        myReactedTo     ( orig.myReactedTo )
+          mySerial        ( orig.mySerial )
+        , myXid           ( orig.myXid )
+        , myIdOverflow    ( orig.myIdOverflow )
+        , myTimestamp     ( orig.myTimestamp )
+        , myItems         ( orig.myItems )
+        , myReactedTo     ( orig.myReactedTo )
+ 	, myOs            ( )
+	, emptyString     ( )
 {
 
   #ifdef ErrorObjCONSTRUCTOR_TRACE
@@ -237,15 +244,23 @@ void ErrorObj::clear()  {
 
 }  // clear()
 
-
-ErrorObj & operator<<( ErrorObj & e, const char s[] ) {
-  // Exactly equivalent to the general template.
+ErrorObj & 
+ErrorObj::opltlt ( const char s[] ) {
+  // Exactly equivalent to the general template. 
   // If this is not provided explicitly, then the template will
   // be instantiated once for each length of string ever used.
-  std::ostringstream  ost;
-  ost << s << ' ';
-  return  e.emit( ost.str() );
+  myOs.str(emptyString); 
+  myOs << s;
+#ifdef OLD_STYLE_AUTOMATIC_SPACES
+  if ( ! myOs.str().empty() ) emit( myOs.str() + ' ' );
+#else
+  if ( ! myOs.str().empty() ) emit( myOs.str() );
+#endif
+  return *this;
 }
 
+ErrorObj & operator<<( ErrorObj & e, const char s[] ) {
+  return e.opltlt(s);
+}
 
 } // end of namespace edm  */

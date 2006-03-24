@@ -11,14 +11,15 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 01:00:30 $
-// $Revision: 1.2 $
+// $Date: 2006/02/03 09:49:27 $
+// $Revision: 1.3 $
 //
 
 #include <iostream>
 #include <cmath>
 #include <fstream>
 #include <algorithm>
+#include <sstream>
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/RoadMaker.h"
 
@@ -475,7 +476,9 @@ void RoadMaker::collectOuterTECSeedRings(std::vector<Ring*>& set) {
 
 }
 
-void RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
+std::string RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
+
+  std::ostringstream output;
 
   std::vector<DetId> detIds = tracker.detIds();
   
@@ -484,7 +487,7 @@ void RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
 
     if ( (unsigned int)id.subdetId() == StripSubdetector::TIB ) {
       TIBDetId tibid(id.rawId()); 
-      std::cout << "[RoadMaker] DetUnit for TIB ring Detid: " << id.rawId() 
+      output << "[RoadMaker] DetUnit for TIB ring Detid: " << id.rawId() 
 		<< " layer: " << tibid.layer() 
 		<< " fw(0)/bw(1): " << tibid.string()[0]
 		<< " ext(0)/int(0): " << tibid.string()[1] 
@@ -495,7 +498,7 @@ void RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
 		<< std::endl; 
     } else if ( (unsigned int)id.subdetId() == StripSubdetector::TOB ) {
       TOBDetId tobid(id.rawId()); 
-      std::cout << "[RoadMaker] DetUnit for TOB ring Detid: " << id.rawId() 
+      output << "[RoadMaker] DetUnit for TOB ring Detid: " << id.rawId() 
 		<< " layer: " << tobid.layer() 
 		<< " fw(0)/bw(1): " << tobid.rod()[0]
 		<< " rod: " << tobid.rod()[1] 
@@ -505,7 +508,7 @@ void RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
 		<< std::endl; 
     } else if ( (unsigned int)id.subdetId() == StripSubdetector::TID ) {
       TIDDetId tidid(id.rawId()); 
-      std::cout << "[RoadMaker] DetUnit for TID ring Detid: " << id.rawId() 
+      output << "[RoadMaker] DetUnit for TID ring Detid: " << id.rawId() 
 		<< " side neg(1)/pos(2): " << tidid.side() 
 		<< " wheel: " << tidid.wheel()
 		<< " ring: " << tidid.ring()
@@ -516,7 +519,7 @@ void RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
 		<< std::endl; 
     } else if ( (unsigned int)id.subdetId() == StripSubdetector::TEC ) {
       TECDetId tecid(id.rawId()); 
-      std::cout << "[RoadMaker] DetUnit for TEC ring DetId: " << id.rawId() 
+      output << "[RoadMaker] DetUnit for TEC ring DetId: " << id.rawId() 
 		<< " side neg(1)/pos(2): " << tecid.side() 
 		<< " wheel: " << tecid.wheel()
 		<< " petal fw(0)/bw(1): " << tecid.petal()[0]
@@ -529,14 +532,14 @@ void RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
 		<< std::endl; 
     } else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelBarrel ) {
       PXBDetId pxbid(id.rawId()); 
-      std::cout << "[RoadMaker] DetUnit for PXB ring DetId: " << id.rawId() 
+      output << "[RoadMaker] DetUnit for PXB ring DetId: " << id.rawId() 
 		<< " layer: " << pxbid.layer()
 		<< " ladder: " << pxbid.ladder()
 		<< " detector: " << pxbid.module()
 		<< std::endl; 
     } else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelEndcap ) {
       PXFDetId pxfid(id.rawId()); 
-      std::cout << "[RoadMaker] DetUnit for PXF ring DetId: " << id.rawId() 
+      output << "[RoadMaker] DetUnit for PXF ring DetId: " << id.rawId() 
 		<< " side: " << pxfid.side()
 		<< " disk: " << pxfid.disk()
 		<< " blade: " << pxfid.blade()
@@ -546,5 +549,7 @@ void RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
 
 
   }
+
+  return output.str();
   
 }

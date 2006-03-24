@@ -62,7 +62,7 @@ namespace edm
     // muon hits for all subdetectors
     for(std::vector<std::string >::const_iterator it = muonSubdetectors_.begin(); it != muonSubdetectors_.end(); ++it) {  
       edm::Handle<std::vector<PSimHit> > simHits;
-      e.getByLabel("r",(*it),simHits);
+      e.getByLabel("SimG4Object",(*it),simHits);
       simcf_->addSignalSimHits((*it),simHits.product());
       LogDebug("addSignals") <<"Subdet "<<(*it)<<" got "<<(simHits.product())->size()<<" simhits";
     }
@@ -70,28 +70,28 @@ namespace edm
     for(std::vector<std::string >::const_iterator it = trackerSubdetectors_.begin(); it != trackerSubdetectors_.end(); ++it) {  
       edm::Handle<std::vector<PSimHit> > simHits;
       std::string subdet=(*it)+"HighTof";
-      e.getByLabel("r",subdet,simHits);
+      e.getByLabel("SimG4Object",subdet,simHits);
       simcf_->addSignalSimHits(subdet,simHits.product());
       LogDebug("addSignals") <<"Subdet "<<subdet<<" got "<<(simHits.product())->size()<<" simhits";
       subdet=(*it)+"LowTof";
-      e.getByLabel("r",subdet,simHits);
+      e.getByLabel("SimG4Object",subdet,simHits);
       simcf_->addSignalSimHits(subdet,simHits.product());
       LogDebug("addSignals")  <<"Subdet "<<subdet<<" got "<<(simHits.product())->size()<<" simhits";
     }
     // calo hits for all subdetectors
     for(std::vector<std::string >::const_iterator it = caloSubdetectors_.begin(); it != caloSubdetectors_.end(); ++it) {  
       edm::Handle<std::vector<PCaloHit> > caloHits;
-      e.getByLabel("r",(*it),caloHits);
+      e.getByLabel("SimG4Object",(*it),caloHits);
       simcf_->addSignalCaloHits((*it),caloHits.product());
       LogDebug("addSignals")  <<"Got "<<(caloHits.product())->size()<<" calohits for subdet "<<(*it);
     }
     edm::Handle<std::vector<EmbdSimTrack> > simtracks;
-    e.getByLabel("r",simtracks);
+    e.getByLabel("SimG4Object",simtracks);
     if (simtracks.isValid()) simcf_->addSignalTracks(simtracks.product());
     else  LogWarning("InvalidData") <<"Invalid simtracks in signal";
     LogDebug("addSignals") <<"Got "<<(simtracks.product())->size()<<" simtracks";
     edm::Handle<std::vector<EmbdSimVertex> > simvertices;
-    e.getByLabel("r",simvertices);
+    e.getByLabel("SimG4Object",simvertices);
     if (simvertices.isValid())     simcf_->addSignalVertices(simvertices.product());
     else LogWarning("InvalidData") <<"Invalid simvertices in signal";
     LogDebug("addSignals")  <<"Got "<<(simvertices.product())->size()<<" simvertices";
@@ -105,7 +105,7 @@ namespace edm
     for(std::vector<std::string >::iterator itstr = muonSubdetectors_.begin(); itstr != muonSubdetectors_.end(); ++itstr) {
       edm::Handle<std::vector<PSimHit> >  simHits;  //Event Pointer to minbias Hits
 
-      e->getByLabel("r",(*itstr),simHits);
+      e->getByLabel("SimG4Object",(*itstr),simHits);
       simcf_->addPileupSimHits(bcr,(*itstr),simHits.product(),trackoffset,false);
     }
 
@@ -119,14 +119,14 @@ namespace edm
       std::string subdetlow=(*itstr)+"LowTof";
       // add HighTof pileup to high and low signals
       if ( !checktof_ || ((CrossingFrame::limHighLowTof +tof ) <= CrossingFrame::highTrackTof)) { 
-	e->getByLabel("r",subdethigh,simHits);
+	e->getByLabel("SimG4Object",subdethigh,simHits);
 	simcf_->addPileupSimHits(bcr,subdethigh,simHits.product(),trackoffset,checktof_);
 	simcf_->addPileupSimHits(bcr,subdetlow,simHits.product(),trackoffset,checktof_);
       }
 
       // add LowTof pileup to high and low signals
       if (  !checktof_ || ((tof+CrossingFrame::limHighLowTof) >= CrossingFrame::lowTrackTof && tof <= CrossingFrame::highTrackTof)) {     
-	e->getByLabel("r",subdetlow,simHits);
+	e->getByLabel("SimG4Object",subdetlow,simHits);
 	simcf_->addPileupSimHits(bcr,subdethigh,simHits.product(),trackoffset,checktof_);
 	simcf_->addPileupSimHits(bcr,subdetlow,simHits.product(),trackoffset,checktof_);
       }
@@ -136,19 +136,19 @@ namespace edm
     for(std::vector<std::string >::const_iterator itstr = caloSubdetectors_.begin(); itstr != caloSubdetectors_.end(); ++itstr) {
 
       edm::Handle<std::vector<PCaloHit> >  caloHits;  //Event Pointer to minbias Hits
-      e->getByLabel("r",(*itstr),caloHits);
+      e->getByLabel("SimG4Object",(*itstr),caloHits);
       simcf_->addPileupCaloHits(bcr,(*itstr),caloHits.product(),trackoffset);
     }
 
     //then simtracks
     edm::Handle<std::vector<EmbdSimTrack> > simtracks;
-    e->getByLabel("r",simtracks);
+    e->getByLabel("SimG4Object",simtracks);
     if (simtracks.isValid()) simcf_->addPileupTracks(bcr, simtracks.product(),vertexoffset);
     else LogWarning("InvalidData") <<"Invalid simtracks in pileup";
 
     //then simvertices
     edm::Handle<std::vector<EmbdSimVertex> > simvertices;
-    e->getByLabel("r",simvertices);
+    e->getByLabel("SimG4Object",simvertices);
     if (simvertices.isValid())  simcf_->addPileupVertices(bcr,simvertices.product(),trackoffset);
     else  LogWarning("InvalidData") <<"Invalid simvertices in pileup";
 

@@ -1,5 +1,5 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
   namespace {

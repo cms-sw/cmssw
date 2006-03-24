@@ -6,49 +6,61 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 
-// $Id: RangeMap.h,v 1.14 2006/02/17 12:30:23 llista Exp $
+// $Id: RangeMap.h,v 1.20 2006/03/20 17:35:23 tboccali Exp $
 namespace edm {
   
   template<typename ID, typename C, typename P>
     class RangeMap {
     public:
     typedef typename C::value_type value_type;
+    typedef typename C::size_type size_type;
+    typedef typename C::reference reference;
+    typedef typename C::pointer pointer;
     typedef typename C::const_iterator const_iterator;
     typedef std::pair<typename C::size_type, typename C::size_type> pairType;
     typedef std::map<ID, pairType> mapType;
     typedef std::pair<const_iterator, const_iterator> range;
-          
 
     private:
-      template<typename CMP> 
-	struct comp {
-	  comp( const CMP & c ) : cmp( c ) { }
-	  bool operator()( ID id, const typename mapType::value_type & p ) {
-	    return cmp( id, p.first );
-	  }
-	  bool operator()( const typename mapType::value_type & p, ID id ) {
-	    return cmp( p.first, id );
-	  }
+    template<typename CMP> 
+      struct comp {
+	comp( const CMP  c ) : cmp( c ) { }
+	bool operator()( ID id, const typename mapType::value_type & p ) {
+	  return cmp( id, p.first );
+	}
+	bool operator()( const typename mapType::value_type & p, ID id ) {
+	  return cmp( p.first, id );
+	}
         private:
 	  CMP cmp;
-	};
+
+      };
     public:
 
     template<typename CMP> 
-    range get(ID id, CMP comparator){
+      range get(ID id, CMP comparator) const {
       using namespace __gnu_cxx;
       std::pair<typename mapType::const_iterator,
-                typename mapType::const_iterator> r =
+	typename mapType::const_iterator> r =
         std::equal_range( map_.begin(), map_.end(), id, comp<CMP>( comparator ) );
       const_iterator begin, end;
-
+      
       if ((r.first) == map_.end()){
 	begin = end = collection_.end();
-      }else{
+	return  make_pair(begin,end);
+      } else {
 	begin = collection_.begin() + (r.first)->second.first;
+      }
+      if ((r.second) == map_.end()){
+	end = collection_.end();
+      }else{
 	end = collection_.begin() + (r.second)->second.first;
       }
       return  make_pair(begin,end);
+    }
+    template<typename CMP> 
+    range get(std::pair<ID, CMP> p) const {
+      return get(p.first, p.second ); 
     }
 
     RangeMap() { }
@@ -76,7 +88,7 @@ namespace edm {
 	collection_.push_back( P::clone( * i ) );
       p.second = collection_.size();
     }
-    size_t size() { return collection_.size(); }
+    size_t size() const { return collection_.size(); }
     typename C::const_iterator begin() const { return collection_.begin(); }
     typename C::const_iterator end() const { return collection_.end(); }
     
@@ -101,7 +113,7 @@ namespace edm {
       const_iterator i;
     };
 
-    void post_insert(){
+    void post_insert() {
       // sorts the container via ID
       C tmp;
       for (typename mapType::iterator it = map_.begin(); it != map_.end(); it ++) {   
@@ -124,6 +136,7 @@ namespace edm {
       return temp;
     }
 
+    reference operator[]( size_type i ) { return collection_[ i ]; }
   private:
     C collection_;
     mapType map_;

@@ -23,7 +23,6 @@
 
 
 #include "SimTracker/SiStripDigitizer/interface/SiStripDigitizer.h"
-#include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -34,10 +33,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/SiStripDigi/interface/StripDigi.h"
 #include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLinkCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include <cstdlib> // I need it for random numbers
@@ -69,7 +65,6 @@ namespace cms
     //    numStrips=conf_.getParameter<int>("NumStrips"); // temporary!
 
     produces<StripDigiCollection>();
-    produces<StripDigiSimLinkCollection>();
   }
 
   // Virtual destructor needed.
@@ -89,14 +84,14 @@ namespace cms
     edm::Handle<edm::PSimHitContainer> TECHitsLowTof;
     edm::Handle<edm::PSimHitContainer> TECHitsHighTof;
 
-    iEvent.getByLabel("r","TrackerHitsTIBLowTof", TIBHitsLowTof);
-    iEvent.getByLabel("r","TrackerHitsTIBHighTof", TIBHitsHighTof);
-    iEvent.getByLabel("r","TrackerHitsTIDLowTof", TIDHitsLowTof);
-    iEvent.getByLabel("r","TrackerHitsTIDHighTof", TIDHitsHighTof);
-    iEvent.getByLabel("r","TrackerHitsTOBLowTof", TOBHitsLowTof);
-    iEvent.getByLabel("r","TrackerHitsTOBHighTof", TOBHitsHighTof);
-    iEvent.getByLabel("r","TrackerHitsTECLowTof", TECHitsLowTof);
-    iEvent.getByLabel("r","TrackerHitsTECHighTof", TECHitsHighTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTIBLowTof", TIBHitsLowTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTIBHighTof", TIBHitsHighTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTIDLowTof", TIDHitsLowTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTIDHighTof", TIDHitsHighTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTOBLowTof", TOBHitsLowTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTOBHighTof", TOBHitsHighTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTECLowTof", TECHitsLowTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTECHighTof", TECHitsHighTof);
     
     theStripHits.insert(theStripHits.end(), TIBHitsLowTof->begin(), TIBHitsLowTof->end()); 
     theStripHits.insert(theStripHits.end(), TIBHitsHighTof->begin(), TIBHitsHighTof->end());
@@ -109,10 +104,6 @@ namespace cms
 
     // Step B: create empty output collection
     std::auto_ptr<StripDigiCollection> output(new StripDigiCollection);
-
-    std::auto_ptr<StripDigiSimLinkCollection> outputlink(new StripDigiSimLinkCollection);
-   
-
 
     //Loop on PSimHit
     SimHitMap.clear();
@@ -132,6 +123,7 @@ namespace cms
 
     // Temporary: generate random collections of pseudo-hits:
     //PseudoHitContainer pseudoHitContainer;// for some reason this class isn't recognized!!!
+
  
     edm::ESHandle<TrackingGeometry> pDD;
  
@@ -145,42 +137,44 @@ namespace cms
     for(TrackingGeometry::DetContainer::const_iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
 
       GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
-      
+
       //   const GeomDetUnit& iu(**iu);
       if (dynamic_cast<StripGeomDetUnit*>((*iu))!=0){
 
 	collector.clear();
-	linkcollector.clear();
-
 	collector= stripDigitizer_.run(SimHitMap[(*iu)->geographicalId().rawId()],
 				       dynamic_cast<StripGeomDetUnit*>((*iu)),
 				       bfield);
 
 	if (collector.size()>0){
 	  StripDigiCollection::Range outputRange;
+	
 	  outputRange.first = collector.begin();
 	  outputRange.second = collector.end();
 	  output->put(outputRange,(*iu)->geographicalId().rawId());
-	  
-	  //digisimlink
-	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
-	    StripDigiSimLinkCollection::Range outputlinkRange;
-	    linkcollector= stripDigitizer_.make_link();
-	    outputlinkRange.first = linkcollector.begin();
-	    outputlinkRange.second = linkcollector.end();
-	    outputlink->put(outputlinkRange,(*iu)->geographicalId().rawId());
-	  } 
 	}
 	
+
+
+
       }
-    }    
+
+    }
+
+
     
+
     // Step D: write output to file
     iEvent.put(output);
-    iEvent.put(outputlink);
-    
-  }
+
+
   
+  }
+
+
+
+
+
 }
 //define this as a plug-in
 

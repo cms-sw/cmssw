@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.33 2006/02/18 00:02:19 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.34 2006/03/02 06:48:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -8,12 +8,33 @@ $Id: EventPrincipal.cc,v 1.33 2006/02/18 00:02:19 wmtan Exp $
 #include <algorithm>
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventProvenanceFiller.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Framework/interface/UnscheduledHandler.h"
 using namespace std;
 
 namespace edm {
 
+   class EPEventProvenanceFiller : public EventProvenanceFiller {
+public:
+      EPEventProvenanceFiller(boost::shared_ptr<UnscheduledHandler> handler, EventPrincipal* iEvent) : handler_(handler), event_(iEvent) {}
+      virtual bool fill(Provenance& prov) {
+         bool returnValue = false;
+         //try {
+            if(handler_){
+               handler_->tryToFill(prov, *event_);
+            }
+            returnValue = true;
+         //}catch(...) {
+         //}
+         return returnValue;
+      }
+private:
+      boost::shared_ptr<UnscheduledHandler> handler_;
+      EventPrincipal* event_;
+   };
+   
   EventPrincipal::EventPrincipal() :
     aux_(),
     groups_(),
@@ -70,16 +91,25 @@ namespace edm {
     //cerr << "addGroup DEBUG 2---> " << bk.friendlyClassName_ << endl;
     //cerr << "addGroup DEBUG 3---> " << bk << endl;
 
-    if (branchDict_.find(bk) != branchDict_.end()) {
-	// the products are lost at this point!
-	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
-	  << "addGroup: Problem found while adding product provanence, "
-	  << "product already exists for ("
-	  << bk.friendlyClassName_ << ","
-          << bk.moduleLabel_ << ","
-          << bk.productInstanceName_ << ","
-          << bk.processName_
-	  << ")\n";
+    BranchDict::iterator itFound = branchDict_.find(bk);
+    if (itFound != branchDict_.end()) {
+       if(!groups_[itFound->second]->product()) {
+          //is null, so this new one must be the one generated 'unscheduled'
+          groups_[itFound->second]->swapProduct( *g );
+          //NOTE: other API's of EventPrincipal give out the Provenance* so need to preserve the memory
+          groups_[itFound->second]->provenance() = g->provenance();
+          return;
+       } else {
+          // the products are lost at this point!
+          throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
+	    << "addGroup: Problem found while adding product provanence, "
+	    << "product already exists for ("
+	    << bk.friendlyClassName_ << ","
+            << bk.moduleLabel_ << ","
+            << bk.productInstanceName_ << ","
+            << bk.processName_
+	    << ")\n";
+       }
     }
 
     // a memory allocation failure in modifying the product
@@ -212,9 +242,12 @@ namespace edm {
 
     BasicHandle result;
 
+    //the cast is needed in order to update the EventPrincipal's 'cache' of data
+    EPEventProvenanceFiller filler(unscheduledHandler_, const_cast<EventPrincipal*>(this) );
     while(ib!=ie) {
 	SharedGroupPtr const& g = groups_[*ib];
-	if(sel.match(g->provenance())) {
+        ProvenanceAccess provAccess( (&g->provenance()), &filler);
+	if(sel.match(provAccess)) {
 	    ++found_count;
 	    if (found_count > 1) {
 		throw edm::Exception(edm::errors::ProductNotFound,
@@ -266,6 +299,7 @@ namespace edm {
             assert(unsigned(i->second) < groups_.size());
 	    SharedGroupPtr group = groups_[i->second];
 	    this->resolve_(*group);
+            group->product(); group->provenance();
 	    return BasicHandle(group->product(), &group->provenance());    
 	}
 	++iproc;
@@ -306,7 +340,9 @@ namespace edm {
     vector<int>::const_iterator ib(vint.begin()), ie(vint.end());
     while(ib != ie) {
 	SharedGroupPtr const& g = groups_[*ib];
-	if(sel.match(g->provenance())) {
+       EventProvenanceFiller* filler=0;
+       ProvenanceAccess provAccess( (&g->provenance()), filler);
+	if(sel.match(provAccess)) {
 	    this->resolve_(*g);
 	    results.push_back(BasicHandle(g->product(), &g->provenance()));
 	}
@@ -414,6 +450,14 @@ namespace edm {
 
     if (g.product()) return; // nothing to do.
     
+    if(unscheduledHandler_ && unscheduledHandler_->tryToFill(g.provenance(), *const_cast<EventPrincipal*>(this)) ) {
+       //see if actually here
+       if(!g.product()) {
+          throw edm::Exception(errors::ProductNotFound, "InaccessibleProduct")
+          <<"product not accessible\n"<<g.provenance();
+       }
+       return;
+    }
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.productDescription());
     auto_ptr<EDProduct> edp(store_->get(bk, this));
@@ -426,4 +470,9 @@ namespace edm {
   EventPrincipal::getIt(ProductID const& oid) const {
     return get(oid).wrapper();
   }
+   
+   void EventPrincipal::setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler) {
+      unscheduledHandler_ = iHandler;
+   }
+
 }

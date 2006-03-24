@@ -87,6 +87,7 @@ class TOBLayer : public RodBarrelLayer{
 
  private:
   vector<const TOBRod*> theRods;
+  vector<const GeometricSearchDet*> theComponents;
   vector<const TOBRod*> theInnerRods;
   vector<const TOBRod*> theOuterRods;
   

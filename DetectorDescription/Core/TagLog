@@ -1,6 +1,3 @@
-** V01-00-01  [Wed Nov 16 10:30:48 2005]
-Removed probably spurious include of DDLParserI
-
 ** V01-00-00  [Mon Nov 14 17:43:08 2005]
 Removed interface components DDLParserI and DDLDocumentProvider 
 moved them back to Parser

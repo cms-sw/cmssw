@@ -11,7 +11,7 @@ namespace edm
 					       BitMaskPtr mask):
     bits_(mask),
     pset_id_(pset.id()),
-    path_names_(pset.getParameter<Strings>("@trigger_paths"))
+    path_names_(pset.getUntrackedParameter<Strings>("@trigger_paths"))
   {
     produces<TriggerResults>();
     // calculate the number of bit used from the number of paths,

@@ -6,10 +6,11 @@
 BranchDescription: The full description of a product and how it came into
 existence.
 
-$Id: BranchDescription.h,v 1.1 2006/02/08 00:44:23 wmtan Exp $
+$Id: BranchDescription.h,v 1.2 2006/03/02 05:50:22 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
+#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
@@ -32,7 +33,7 @@ namespace edm {
 			       std::string const& name, 
 			       std::string const& fName, 
 			       std::string const& pin, 
-			       EDProduct const* edp);
+			       boost::shared_ptr<EDProduct const> edp);
 
     ~BranchDescription() {}
 
@@ -53,7 +54,7 @@ namespace edm {
     // A pointer to a default constructed Wrapper<T>, where T is the
     // product type.  If T is a user-defined class, the Wrapper
     // contains a null T*.
-    mutable EDProduct const * productPtr_;
+    mutable boost::shared_ptr<EDProduct const> productPtr_;
 
     // The branch name, which is currently derivable fron the other
     // attributes.

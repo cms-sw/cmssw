@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/01/24 09:41:17 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/01/19 20:03:55 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - S. Argiro'
  *  \author G. Franzoni
  */
@@ -12,10 +12,12 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
+
 #include <iostream>
 
 using namespace edm;
 using namespace std;
+
 
 DAQEcalTBInputService::DAQEcalTBInputService(const ParameterSet& pset, 
 					     const InputSourceDescription& desc) : 
@@ -23,9 +25,9 @@ DAQEcalTBInputService::DAQEcalTBInputService(const ParameterSet& pset,
 {    
   isBinary_= pset.getUntrackedParameter<bool>("isBinary",true);
   if ( isBinary_ ) {
-    LogInfo("EcalTBInputService") << "@SUB=DAQEcalTBInputService" << "BINARY input data file";
+    cout << "[DAQEcalTBInputService] BINARY input data file" << endl;
   } else {
-    LogInfo("EcalTBInputService") << "@SUB=DAQEcalTBInputService" << "ASCII input data file";
+    cout << "[DAQEcalTBInputService] ASCII input data file" << endl;
   }
   
   produces<FEDRawDataCollection>("EcalDaqRawData");
@@ -84,11 +86,12 @@ bool DAQEcalTBInputService::produce(edm::Event& e)
   eventfeddata.resize(reader_->getFedData().len);
   copy(reader_->getFedData().fedData, reader_->getFedData().fedData + reader_->getFedData().len , eventfeddata.data());
 
-  LogInfo("EcalTBInputService") << "@SUB=DAQEcalTBInputService::produce" << "read run " << reader_->getRunNumber() << " ev " << reader_->getEventNumber() << "\n";
+  cout << " DAQEcalTBInputService::read run " << reader_->getRunNumber() << " ev " << reader_->getEventNumber()<< endl;
   e.put(bare_product,"EcalDaqRawData");
 
   return true;
 }
+
 
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"

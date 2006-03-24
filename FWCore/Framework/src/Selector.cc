@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Selector.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+$Id: Selector.cc,v 1.2 2005/07/14 22:50:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/Selector.h"
@@ -10,7 +10,7 @@ namespace edm
   { }
 
   bool
-  Selector::match(const Provenance& p) const
+  Selector::match(const ProvenanceAccess& p) const
   {
     return doMatch(p);
   }

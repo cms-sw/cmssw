@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.4 2005/09/01 03:39:32 wmtan Exp $
+ * $Id: ps_t.cppunit.cc,v 1.5 2006/03/02 16:21:02 paterno Exp $
  */
 
 #include <algorithm>
@@ -300,10 +300,13 @@ test_for_name()
   CPPUNIT_ASSERT( std::binary_search(names.begin(), names.end(), "y") );
 
   names = ps.template getParameterNamesForType<T>();
-  CPPUNIT_ASSERT( names.size() == 2 );
-
+  CPPUNIT_ASSERT( names.size() == 1 );
   std::sort(names.begin(), names.end());
   CPPUNIT_ASSERT( std::binary_search(names.begin(), names.end(), "x") );
+
+  names = ps.template getParameterNamesForType<T>(false);
+  CPPUNIT_ASSERT( names.size() == 1 );
+  std::sort(names.begin(), names.end());
   CPPUNIT_ASSERT( std::binary_search(names.begin(), names.end(), "y") );
 }
 
@@ -333,7 +336,9 @@ void testps::nameAccessTest()
   {
     edm::ParameterSet p;
     p.addParameter<double>("a", 2.5);
-    std::vector<std::string> names = p.getParameterNamesForType<int>();
+    const bool tracked = true;
+    std::vector<std::string> names = 
+      p.getParameterNamesForType<int>(tracked);
     CPPUNIT_ASSERT( names.empty() ); 
   }
 

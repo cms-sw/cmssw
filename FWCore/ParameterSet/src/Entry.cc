@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.7 2006/01/05 14:26:44 wmtan Exp $
+// $Id: Entry.cc,v 1.8 2006/02/03 21:21:00 paterno Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -186,6 +186,7 @@ namespace edm {
         break;
       }
       default:  {
+	// We should never get here.
 	assert ("Invalid type code" == 0);
         //throw EntryError(std::string("invalid type code ") + type);
         break;
@@ -401,6 +402,53 @@ namespace edm {
   std::string
   Entry::toString() const {
     return std::string() + tracked + type + '(' + rep + ')';
+  }
+
+  std::string
+  Entry::toStringOfTracked() const {
+    std::string result;
+    result += tracked;
+    result += type;
+    result += '(';
+
+    switch (type)
+      {
+      case 'P': // ParameterSet
+	{
+	  // Make sure we get the representation of the contained
+	  // ParameterSet including *only* tracked parameters
+	  ParameterSet val = getPSet();
+	  result += val.toStringOfTracked();
+	  break;
+	}
+      case 'p': // vector<ParameterSet>
+	{
+	  // Make sure we get the representation of each contained
+	  // ParameterSet including *only* tracked parameters
+	 std::vector<ParameterSet> whole = getVPSet();
+	 std::vector<ParameterSet> onlytracked;
+	 onlytracked.reserve(whole.size());
+	 std::vector<ParameterSet>::const_iterator i = whole.begin();
+	 std::vector<ParameterSet>::const_iterator e = whole.end();
+	  for ( ; i != e; ++i )
+	    {
+	      ParameterSet tracked_part( i->toStringOfTracked() );
+	      onlytracked.push_back(tracked_part);
+	    }
+	  std::string tracked_rep;
+	  if(!encode(tracked_rep, onlytracked)) 
+	    throwEncodeError(onlytracked, "vector<ParameterSet>");	  
+	  result += tracked_rep;
+	  break;
+	}
+      default: // everything else
+	{
+	  result += rep;
+	  break;	  
+	}
+      }
+    result += ')';
+    return result;
   }
 
 // ----------------------------------------------------------------------

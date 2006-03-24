@@ -6,6 +6,13 @@
 #ifndef FCBUF_H
 #include "FileCatalog/FCBuf.h"
 #endif
+#include <list>
+#include <utility>
+
+namespace seal
+{
+    class Regexp;
+}
 
 namespace pool 
 {
@@ -22,6 +29,8 @@ namespace pool
  *		 - No replicas or aliases.
  *       @Author: Giulio Eulisse
  */
+
+    
 
 class TrivialFileCatalog : public FCImpl 
 {
@@ -171,10 +180,19 @@ private:
     /** For the time being the only allowed configuration item is a
      *  prefix to be added to the GUID/LFN.
      */ 
-    mutable bool	m_connectionStatus;
-    std::string 	m_prefix;
-    std::string		m_fileType;
-    std::string		m_configFilename;    
+    mutable bool 	m_connectionStatus;
+    static int		s_numberOfInstances;    
+    
+    /** Rules are a combination of a regular expression and a prefix.
+	When looking up for a pfn, the catalog tries to match all the
+	rules one after the other and if a match occurs, than the
+	prefix is preponed to the guid and returned as pfn. 
+    */
+    typedef std::pair <seal::Regexp *, std::string> Rule;
+    typedef std::list <Rule> Rules;
+        
+    Rules	 	m_rules;
+    std::string 	m_fileType;
 };    
     
 

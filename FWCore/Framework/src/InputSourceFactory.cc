@@ -41,8 +41,16 @@ namespace edm {
   {
     string modtype = conf.getParameter<string>("@module_type");
     FDEBUG(1) << "InputSourceFactory: module_type = " << modtype << endl;
-    auto_ptr<InputSource> wm(this->create(modtype,conf,desc));
-
+    auto_ptr<InputSource> wm;
+    try {
+      wm = auto_ptr<InputSource>(this->create(modtype,conf,desc));
+    } catch( cms::Exception& iException){
+      edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating source ");
+      toThrow<<modtype<<"\n";
+      toThrow.append(iException);
+      throw toThrow;
+    }
+    
     if(wm.get()==0)
       {
 	throw edm::Exception(errors::Configuration,"NoSourceModule")

@@ -21,15 +21,19 @@ CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges,
   theWedges.assign(theFrontWedges.begin(),theFrontWedges.end());
   theWedges.insert(theWedges.end(),theBackWedges.begin(),theBackWedges.end());
 
+  for(vector<const TECWedge*>::const_iterator it=theWedges.begin();it!=theWedges.end();it++){
+    theComponents.push_back(*it);
+  }
+
+
   //the Wedge are already R ordered
   //sort( theWedges.begin(), theWedges.end(), DetLessR());
   //sort( theFrontWedges.begin(), theFrontWedges.end(), DetLessR() );
   //sort( theBackWedges.begin(), theBackWedges.end(), DetLessR() );
 
-  // TO BE CHANGED WHEN THE PROBLEM WITH GLUEDGEOMDET IS FIXED
-  //theDiskSector  = ForwardDiskSectorBuilderFromWedges()( theWedges );
-  //theFrontSector = ForwardDiskSectorBuilderFromWedges()( theFrontWedges);
-  //theBackSector  = ForwardDiskSectorBuilderFromWedges()( theBackWedges);
+  theDiskSector  = ForwardDiskSectorBuilderFromWedges()( theWedges );
+  theFrontSector = ForwardDiskSectorBuilderFromWedges()( theFrontWedges);
+  theBackSector  = ForwardDiskSectorBuilderFromWedges()( theBackWedges);
 
 
 }
@@ -53,8 +57,7 @@ CompositeTECPetal::basicComponents() const{
 
 vector<const GeometricSearchDet*> 
 CompositeTECPetal::components() const{
-  cout << "temporary dummy implementation of CompositeTECPetal::components()!!" << endl;
-  return vector<const GeometricSearchDet*>();
+  return theComponents;
 }
 
   

@@ -38,7 +38,8 @@
 //
 // 12/xx/06     mf	Tailoring to CMS MessageLogger 
 // 1/11/06	mf      Eliminate time stamp from starting message 
-//
+// 3/20/06	mf	Major formatting change to do no formatting
+//			except the header and line separation.
 // ----------------------------------------------------------------------
 
 
@@ -313,6 +314,8 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
 
   // Output the prologue:
   //
+  preambleMode = true;
+
   emit( preamble );
   emit( xid.severity.getSymbol() );
   emit( " " );
@@ -331,7 +334,8 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
     emit( "[serial #" + s.str() + ELstring("] ") );
   }
 
-  // Output each item in the message:
+#ifdef OUTPUT_FORMATTED_ERROR_MESSAGES
+  // Output each item in the message (before the epilogue):
   //
   if ( wantText )  {
     ELlist_string::const_iterator it;
@@ -342,6 +346,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
       emit( *it );
     }
   }
+#endif
 
   // Provide further identification:
   //
@@ -422,8 +427,27 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
     std::cerr << "    =:=:=: Trace routine done: \n";
   #endif
 
-  // Done; message has been fully processed:
+#ifndef OUTPUT_FORMATTED_ERROR_MESSAGES
+  // Finally, output each item in the message:
   //
+  preambleMode = false;
+  if ( wantText )  {
+    ELlist_string::const_iterator it;
+    for ( it = msg.items().begin();  it != msg.items().end();  ++it )  {
+    #ifdef ELoutputTRACE_LOG
+      std::cerr << "      =:=:=: Item:  " << *it << '\n';
+    #endif
+      emit( *it );
+    }
+  }
+#endif
+
+  // Done; message has been fully processed; separate, flush, and leave
+  //
+
+  (*os) << newline;
+  flush(); 
+
 
   #ifdef ELoutputTRACE_LOG
     std::cerr << "  =:=:=: log(msg) done: \n";
@@ -466,44 +490,48 @@ void ELoutput::emit( const ELstring & s, bool nl )  {
          //checking -2 because the very last char is sometimes a ' ' inserted
          //by ErrorLog::operator<<
 
+  if (preambleMode) {
                //Accounts for newline @ the beginning of the ELstring     JV:2
-  if ( first == '\n'
-  || (charsOnLine + static_cast<int>(s.length())) > lineLength )  {
+    if ( first == '\n'
+    || (charsOnLine + static_cast<int>(s.length())) > lineLength )  {
+      #ifdef ELoutput_EMIT_TRACE
+	std::cerr << "[][][] in emit: about to << to *os \n";
+      #endif
+      (*os) << newline << indent;
+      charsOnLine = indent.length();
+      if (second != ' ')  {
+	(*os) << ' ';
+	charsOnLine++;
+      }
+      if ( first == '\n' )  {
+	(*os) << s.substr(1);
+      }
+      else  {
+	(*os) << s;
+      }
+    }
     #ifdef ELoutput_EMIT_TRACE
-      std::cerr << "[][][] in emit: about to << to *os \n";
+      std::cerr << "[][][] in emit: about to << s to *os: " << s << " \n";
     #endif
-    (*os) << newline << indent;
-    charsOnLine = indent.length();
-    if (second != ' ')  {
-      (*os) << ' ';
-      charsOnLine++;
-    }
-    if ( first == '\n' )  {
-      (*os) << s.substr(1);
-    }
     else  {
       (*os) << s;
     }
-  }
 
-  #ifdef ELoutput_EMIT_TRACE
-    std::cerr << "[][][] in emit: about to << s to *os: " << s << " \n";
-  #endif
+    if (last == '\n' || last2 == '\n')  {  //accounts for newline @ end    $$ JV:2
+      (*os) << indent;                    //of the ELstring
+      if (last != ' ')
+	(*os) << ' ';
+      charsOnLine = indent.length() + 1;
+    }
 
-  else  {
+    if ( nl )  { (*os) << newline << std::flush; charsOnLine = 0;           }
+    else       {                                 charsOnLine += s.length(); }
+}
+
+  if (!preambleMode) {
     (*os) << s;
   }
-
-  if (last == '\n' || last2 == '\n')  {  //accounts for newline @ end    $$ JV:2
-    (*os) << indent;                    //of the ELstring
-    if (last != ' ')
-      (*os) << ' ';
-    charsOnLine = indent.length() + 1;
-  }
-
-  if ( nl )  { (*os) << newline << std::flush; charsOnLine = 0;           }
-  else       {                                 charsOnLine += s.length(); }
-
+  
   #ifdef ELoutput_EMIT_TRACE
     std::cerr << "[][][] in emit: completed \n";
   #endif

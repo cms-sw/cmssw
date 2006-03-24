@@ -78,7 +78,7 @@ inline SingletonHelper<T>::SingletonHelper(Singleton<T> * it)  {
 template<class T>
 inline typename Singleton<T>::self * Singleton<T>::instance() {
   if (nakedInstance().get() == 0){
-    new self(); // instance now set in constructor of helper...
+    self * p = new self(); // instance now set in constructor of helper...
   }
   return nakedInstance().get();
 };

@@ -2,7 +2,27 @@
 //
 // MessageLoggerScribe.cc
 //
+// Changes:
+//
+//   1 - 3/22/06  mf  - in configure_dest()	
+//	Repaired the fact that destination limits for categories
+//	were not being effective:
+//	a) use values from the destination specific default PSet
+//	   rather than the overall default PSet to set these
+//	b) when an explicit value has been set - either by overall default or 
+//	   by a destination specific default PSet - set that limit or
+//	   timespan for that dest_ctrl via a "*" msgId.
+// 
+//   2 - 3/22/06  mf  - in configure_dest()	
+//	Enabled the use of -1 in the .cfg file to mean infinite limit
+//	or timespan.  This is done by:
+//	a) replacing the default value of -1 (by which we recognize 
+//	never-specified values) by NO_VALUE_SET = -45654
+//	b) checking for values of -1 and substituting a very large integer  
+//
 // ----------------------------------------------------------------------
+
+
 
 #include "FWCore/MessageService/interface/ELoutput.h"
 #include "FWCore/MessageService/interface/ELstatistics.h"
@@ -341,6 +361,8 @@ void
                                      , String const &  filename
 				     )
 {
+  static const int NO_VALUE_SET = -45654;		// change log 2
+
   vString  empty_vString;
   PSet     empty_PSet;
   String   empty_String;
@@ -372,10 +394,11 @@ void
   PSet  default_pset
      = getAparameter<PSet>(job_pset_p,"default", empty_PSet);
   int  default_limit
-    = getAparameter<int>(&default_pset,"limit", -1);
+    = getAparameter<int>(&default_pset,"limit", NO_VALUE_SET);
   int  default_timespan
-    = getAparameter<int>(&default_pset,"timespan", -1);
-
+    = getAparameter<int>(&default_pset,"timespan", NO_VALUE_SET);
+						// change log 2a
+					
   // grab all of this destination's parameters:
   PSet  dest_pset = getAparameter<PSet>(job_pset_p,filename,empty_PSet);
 
@@ -383,10 +406,19 @@ void
   PSet  dest_default_pset
      = getAparameter<PSet>(&dest_pset,"default", empty_PSet);
   int  dest_default_limit
-    = getAparameter<int>(&dest_pset,"limit", default_limit);
+    = getAparameter<int>(&dest_default_pset,"limit", default_limit);
   int  dest_default_timespan
-    = getAparameter<int>(&dest_pset,"timespan", default_timespan);
-
+    = getAparameter<int>(&dest_default_pset,"timespan", default_timespan);
+    						// change log 1a
+  if ( dest_default_limit != NO_VALUE_SET ) {
+    if ( dest_default_limit < 0 ) dest_default_limit = 2000000000;
+    dest_ctrl.setLimit("*", dest_default_limit );
+  } 						// change log 1b, 2a, 2b
+  if ( dest_default_timespan != NO_VALUE_SET ) {
+    if ( dest_default_timespan < 0 ) dest_default_timespan = 2000000000;
+    dest_ctrl.setTimespan("*", dest_default_timespan );
+  } 						// change log 1b, 2a, 2b
+    						  
   // establish this destination's threshold:
   String dest_threshold
      = getAparameter<String>(&dest_pset,"threshold", default_threshold);
@@ -406,8 +438,15 @@ void
       = getAparameter<int>(&category_pset,"limit", dest_default_limit);
     int  timespan
       = getAparameter<int>(&category_pset,"timespan", dest_default_timespan);
-    if( limit    >= 0 )  dest_ctrl.setLimit(msgID, limit   );
-    if( timespan >= 0 )  dest_ctrl.setTimespan(msgID, timespan);
+    if( limit     != NO_VALUE_SET )  {
+      if ( limit < 0 ) limit = 2000000000;  
+      dest_ctrl.setLimit(msgID, limit   );
+    }  						// change log 2a, 2b
+    if( timespan  != NO_VALUE_SET )  {
+      if ( timespan < 0 ) timespan = 2000000000;  
+      dest_ctrl.setTimespan(msgID, timespan);
+    }						// change log 2a, 2b
+						
   }  // for
 
   // establish this destination's limit for each severity:
@@ -419,10 +458,11 @@ void
     String  sevID = *sev_it;
     ELseverityLevel  severity(sevID);
     PSet  sev_pset = getAparameter<PSet>(&dest_pset,sevID, empty_PSet);
-    int  limit     = getAparameter<int>(&sev_pset,"limit", -1);
-    int  timespan  = getAparameter<int>(&sev_pset,"timespan", -1);
-    if( limit    >= 0 )  dest_ctrl.setLimit(severity, limit   );
-    if( timespan >= 0 )  dest_ctrl.setLimit(severity, timespan);
+    int  limit     = getAparameter<int>(&sev_pset,"limit",    NO_VALUE_SET);
+    int  timespan  = getAparameter<int>(&sev_pset,"timespan", NO_VALUE_SET);
+    if( limit    != NO_VALUE_SET )  dest_ctrl.setLimit(severity, limit   );
+    if( timespan != NO_VALUE_SET )  dest_ctrl.setLimit(severity, timespan);
+						// change log 2
   }  // for
 
   // establish this destination's linebreak policy:

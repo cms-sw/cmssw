@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
+$Id: Ref.h,v 1.2 2006/02/22 22:41:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,11 +17,11 @@ $Id: Ref.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 //  ProductID productID		is the product ID of the collection. (0 is invalid)
 //  size_type itemIndex		is the index of the object into the collection.
 //  C::value_type *itemPtr	is a C++ pointer to the object in memory.
-//  const Ref<C, T> & ref	is another Ref<C, T>
+//  Ref<C, T> const& ref	is another Ref<C, T>
 
 //  Constructors
     Ref(); // Default constructor
-    Ref(const Ref<C, T> & ref);	// Copy constructor  (default, not explicitly specified)
+    Ref(Ref<C, T> const& ref);	// Copy constructor  (default, not explicitly specified)
 
     Ref(Handle<C> const& handle, size_type itemIndex);
     Ref(ProductID pid, size_type itemIndex, EDProductGetter const* prodGetter);
@@ -30,11 +30,11 @@ $Id: Ref.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
     virtual ~Ref() {}
 
 // Operators and methods
-    Ref<C, T>& operator=(const Ref<C, T> &);		// assignment (default, not explicitly specified)
+    Ref<C, T>& operator=(Ref<C, T> const&);		// assignment (default, not explicitly specified)
     T const& operator*() const;			// dereference
     T const* const operator->() const;		// member dereference
-    bool operator==(const Ref<C, T>& ref) const; // equality
-    bool operator!=(const Ref<C, T>& ref) const; // inequality
+    bool operator==(Ref<C, T> const& ref) const; // equality
+    bool operator!=(Ref<C, T> const& ref) const; // inequality
     bool isNonnull() const;			// true if an object is referenced
     bool isNull() const;			// equivalent to !isNonnull()
     operator bool() const;			// equivalent to isNonnull()
@@ -44,27 +44,54 @@ $Id: Ref.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 #include <stdexcept>
 #include <iterator>
 #include <typeinfo>
+#include "boost/functional.hpp"
+#include "boost/call_traits.hpp"
+#include "boost/type_traits.hpp"
+
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/RefBase.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/ProductID.h"
 
 namespace edm {
-  template<typename C, typename T> class RefVector;
-  template<typename C, typename T> class RefVectorIterator;
-  template <typename C, typename T = typename C::value_type>
+  template<typename C, typename T, typename F> class RefVector;
+  template<typename C, typename T, typename F> class RefVectorIterator;
+  namespace refhelper {
+    template<typename C, typename T>
+    struct FindUsingAdvance : public std::binary_function<C const&, typename C::size_type, T const*> {
+      typedef FindUsingAdvance<C, T> self;
+      typename self::result_type operator()(typename self::first_argument_type iContainer,
+                                            typename self::second_argument_type iIndex) {
+        typename C::const_iterator it = iContainer.begin();
+        std::advance(it, iIndex);
+        T const* p = it.operator->();
+        return p;
+      }
+    };
+    
+    //Used in edm::Ref to set the default 'find' method to use based on the Container and 'contained' type
+    template<typename C, typename T> 
+      struct FindTrait {
+        typedef FindUsingAdvance<C, T> value;
+      };
+  }
+  
+  template <typename C, typename T = typename C::value_type, class F = typename refhelper::FindTrait<C, T>::value>
   class Ref {
   public:
-    friend class RefVector<C, T>;
-    friend class RefVectorIterator<C, T>;
+    friend class RefVector<C, T, F>;
+    friend class RefVectorIterator<C, T, F>;
 
     /// for export
-    typedef T value_type;
-    
+    typedef T value_type; 
+    typedef T const element_type; //used for generic programming
+    typedef F finder_type;
+    typedef typename boost::binary_traits<F>::second_argument_type argument_type;
+    typedef typename boost::remove_cv<typename boost::remove_reference<argument_type>::type>::type index_type;   
     /// C is the type of the collection
     /// T is the type of a member the collection
 
-    typedef RefItem::size_type size_type;
+    typedef typename RefItem<index_type>::index_type size_type;
 
     /// Default constructor needed for reading from persistent store. Not for direct use.
     Ref() : ref_() {}
@@ -75,10 +102,10 @@ namespace edm {
     // id(), returning a ProductID,
     // product(), returning a C*.
     template <typename HandleC>
-      Ref(HandleC const& handle, size_type itemIndex) :
+      Ref(HandleC const& handle, size_type itemIndex, bool setNow=true) :
       ref_(handle.id(), handle.product(), itemIndex) {
         assert(ref_.item().index() == itemIndex);
-        ref_.item().setPtr(getPtr_<C, T>(ref_.product(), ref_.item()));
+        if(setNow) {ref_.item().setPtr(getPtr_<C, T, F>(ref_.product(), ref_.item()));}
     }
 
     // Constructor for those users who do not have a product handle,
@@ -92,7 +119,7 @@ namespace edm {
     Ref(RefProd<C> const& refProd, size_type itemIndex) :
       ref_(refProd.id(), refProd.product().productPtr(), itemIndex, 0, refProd.product().productGetter()) {
         assert(ref_.item().index() == itemIndex);
-        ref_.item().setPtr(getPtr_<C, T>(ref_.product(), ref_.item()));
+        ref_.item().setPtr(getPtr_<C, T, F>(ref_.product(), ref_.item()));
     }
 
     /// Destructor
@@ -101,13 +128,13 @@ namespace edm {
     /// Dereference operator
     T const&
     operator*() const {
-      return *getPtr<C, T>(ref_.product(), ref_.item());
+      return *getPtr<C, T, F>(ref_.product(), ref_.item());
     }
 
     /// Member dereference operator
-    T const *
+    T const*
     operator->() const {
-      return getPtr<C, T>(ref_.product(), ref_.item());
+      return getPtr<C, T, F>(ref_.product(), ref_.item());
     }
 
     /// Checks for null
@@ -135,29 +162,29 @@ namespace edm {
     size_type index() const {return ref_.item().index();}
 
     /// Accessor for all data
-    RefBase const& ref() const {return ref_;}
+    RefBase<index_type> const& ref() const {return ref_;}
 
   private:
     // Constructor from member of RefVector
-    Ref(RefCore const& product, RefItem const& item) : 
+    Ref(RefCore const& product, RefItem<index_type> const& item) : 
       ref_(product, item) {
     }
 
   private:
-    RefBase ref_;
+    RefBase<index_type> ref_;
   };
 
-  template <typename C, typename T>
+  template <typename C, typename T, typename F>
   inline
   bool
-  operator==(Ref<C, T> const& lhs, Ref<C, T> const& rhs) {
+  operator==(Ref<C, T, F> const& lhs, Ref<C, T, F> const& rhs) {
     return lhs.ref() == rhs.ref();
   }
 
-  template <typename C, typename T>
+  template <typename C, typename T, typename F>
   inline
   bool
-  operator!=(Ref<C, T> const& lhs, Ref<C, T> const& rhs) {
+  operator!=(Ref<C, T, F> const& lhs, Ref<C, T, F> const& rhs) {
     return !(lhs == rhs);
   }
 

@@ -9,8 +9,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 01:00:30 $
-// $Revision: 1.2 $
+// $Date: 2006/02/03 09:49:27 $
+// $Revision: 1.3 $
 //
 
 #include <iostream>
@@ -35,6 +35,8 @@
 #include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
 
 Rings::Rings(const TrackingGeometry &tracker, unsigned int verbosity) : verbosity_(verbosity) {
+
+  fillTECGeometryArray(tracker);
 
   constructTrackerRings(tracker);
 
@@ -356,15 +358,15 @@ Ring Rings::constructTrackerTIDRing(const TrackingGeometry &tracker,
 DetId Rings::constructTrackerTIDDetId(unsigned int fw_bw,
 				      unsigned int wheel,
 				      unsigned int ring,
-				      unsigned int detector_fw_bw,
-				      unsigned int detector,
+				      unsigned int module_fw_bw,
+				      unsigned int module,
 				      unsigned int stereo) {
 
-  TIDDetId id(fw_bw+1,wheel+1,ring+1,detector_fw_bw,detector+1,stereo);
+  TIDDetId id(fw_bw+1,wheel+1,ring+1,module_fw_bw,module+1,stereo);
 
   if ( verbosity_ > 3 ) {
     std::cout << "[Rings] constructed TID ring DetId for side: " << id.side() << " wheel: " << id.wheel() 
-	      << " ring: " << id.ring() << "detector fw(0)/bw(1): " << id.module()[0] << " detector: " << id.module()[1] 
+	      << " ring: " << id.ring() << "module fw(0)/bw(1): " << id.module()[0] << " module: " << id.module()[1] 
 	      << " stereo: " << id.stereo() << std::endl; 
   }
 	
@@ -435,346 +437,8 @@ Ring Rings::constructTrackerTECRing(const TrackingGeometry &tracker,
 
   unsigned int petal_max       = 8;
   unsigned int petal_fw_bw_max = 2;
-  unsigned int detector_fw_bw_max = 2;
-  unsigned int detector_max[9][7][2][2];
-
-  // ========================================== //
-
-  // TEC Wheel 1 Ring 1
-  detector_max[0][0][0][0] = 1;
-  detector_max[0][0][0][1] = 1;
-  detector_max[0][0][1][0] = 0;
-  detector_max[0][0][1][1] = 1;
-
-  // TEC Wheel 1 Ring 2
-  detector_max[0][1][0][0] = 1;
-  detector_max[0][1][0][1] = 1;
-  detector_max[0][1][1][0] = 1;
-  detector_max[0][1][1][1] = 0;
-
-  // TEC Wheel 1 Ring 3
-  detector_max[0][2][0][0] = 2;
-  detector_max[0][2][0][1] = 1;
-  detector_max[0][2][1][0] = 1;
-  detector_max[0][2][1][1] = 1;
-
-  // TEC Wheel 1 Ring 4
-  detector_max[0][3][0][0] = 2;
-  detector_max[0][3][0][1] = 2;
-  detector_max[0][3][1][0] = 1;
-  detector_max[0][3][1][1] = 2;
-
-  // TEC Wheel 1 Ring 5
-  detector_max[0][4][0][0] = 1;
-  detector_max[0][4][0][1] = 1;
-  detector_max[0][4][1][0] = 2;
-  detector_max[0][4][1][1] = 1;
-
-  // TEC Wheel 1 Ring 6
-  detector_max[0][5][0][0] = 2;
-  detector_max[0][5][0][1] = 2;
-  detector_max[0][5][1][0] = 1;
-  detector_max[0][5][1][1] = 2;
-
-  // TEC Wheel 1 Ring 7
-  detector_max[0][6][0][0] = 2;
-  detector_max[0][6][0][1] = 3;
-  detector_max[0][6][1][0] = 2;
-  detector_max[0][6][1][1] = 3;
-
-  // ========================================== //
-
-  // TEC Wheel 2 Ring 1
-  detector_max[1][0][0][0] = 1;
-  detector_max[1][0][0][1] = 1;
-  detector_max[1][0][1][0] = 0;
-  detector_max[1][0][1][1] = 1;
-
-  // TEC Wheel 2 Ring 2
-  detector_max[1][1][0][0] = 1;
-  detector_max[1][1][0][1] = 1;
-  detector_max[1][1][1][0] = 1;
-  detector_max[1][1][1][1] = 0;
-
-  // TEC Wheel 2 Ring 3
-  detector_max[1][2][0][0] = 2;
-  detector_max[1][2][0][1] = 1;
-  detector_max[1][2][1][0] = 1;
-  detector_max[1][2][1][1] = 1;
-
-  // TEC Wheel 2 Ring 4
-  detector_max[1][3][0][0] = 2;
-  detector_max[1][3][0][1] = 2;
-  detector_max[1][3][1][0] = 1;
-  detector_max[1][3][1][1] = 2;
-
-  // TEC Wheel 2 Ring 5
-  detector_max[1][4][0][0] = 1;
-  detector_max[1][4][0][1] = 1;
-  detector_max[1][4][1][0] = 2;
-  detector_max[1][4][1][1] = 1;
-
-  // TEC Wheel 2 Ring 6
-  detector_max[1][5][0][0] = 2;
-  detector_max[1][5][0][1] = 2;
-  detector_max[1][5][1][0] = 1;
-  detector_max[1][5][1][1] = 2;
-
-  // TEC Wheel 2  Ring 7
-  detector_max[1][6][0][0] = 2;
-  detector_max[1][6][0][1] = 3;
-  detector_max[1][6][1][0] = 2;
-  detector_max[1][6][1][1] = 3;
-
-  // ========================================== //
-
-  // TEC Wheel 3 Ring 1
-  detector_max[2][0][0][0] = 1;
-  detector_max[2][0][0][1] = 1;
-  detector_max[2][0][1][0] = 0;
-  detector_max[2][0][1][1] = 1;
-
-  // TEC Wheel 3 Ring 2
-  detector_max[2][1][0][0] = 1;
-  detector_max[2][1][0][1] = 1;
-  detector_max[2][1][1][0] = 1;
-  detector_max[2][1][1][1] = 0;
-
-  // TEC Wheel 3 Ring 3
-  detector_max[2][2][0][0] = 2;
-  detector_max[2][2][0][1] = 1;
-  detector_max[2][2][1][0] = 1;
-  detector_max[2][2][1][1] = 1;
-
-  // TEC Wheel 3 Ring 4
-  detector_max[2][3][0][0] = 2;
-  detector_max[2][3][0][1] = 2;
-  detector_max[2][3][1][0] = 1;
-  detector_max[2][3][1][1] = 2;
-
-  // TEC Wheel 3 Ring 5
-  detector_max[2][4][0][0] = 1;
-  detector_max[2][4][0][1] = 1;
-  detector_max[2][4][1][0] = 2;
-  detector_max[2][4][1][1] = 1;
-
-  // TEC Wheel 3 Ring 6
-  detector_max[2][5][0][0] = 2;
-  detector_max[2][5][0][1] = 2;
-  detector_max[2][5][1][0] = 1;
-  detector_max[2][5][1][1] = 2;
-
-  // TEC Wheel 3  Ring 7
-  detector_max[2][6][0][0] = 2;
-  detector_max[2][6][0][1] = 3;
-  detector_max[2][6][1][0] = 2;
-  detector_max[2][6][1][1] = 3;
-
-  // ========================================== //
-
-  // TEC Wheel 4 Ring 2
-  detector_max[3][0][0][0] = 1;
-  detector_max[3][0][0][1] = 1;
-  detector_max[3][0][1][0] = 1;
-  detector_max[3][0][1][1] = 0;
-
-  // TEC Wheel 4 Ring 3
-  detector_max[3][1][0][0] = 2;
-  detector_max[3][1][0][1] = 1;
-  detector_max[3][1][1][0] = 1;
-  detector_max[3][1][1][1] = 1;
-
-  // TEC Wheel 4 Ring 4
-  detector_max[3][2][0][0] = 2;
-  detector_max[3][2][0][1] = 2;
-  detector_max[3][2][1][0] = 1;
-  detector_max[3][2][1][1] = 2;
-
-  // TEC Wheel 4 Ring 5
-  detector_max[3][3][0][0] = 1;
-  detector_max[3][3][0][1] = 1;
-  detector_max[3][3][1][0] = 2;
-  detector_max[3][3][1][1] = 1;
-
-  // TEC Wheel 4 Ring 6
-  detector_max[3][4][0][0] = 2;
-  detector_max[3][4][0][1] = 2;
-  detector_max[3][4][1][0] = 1;
-  detector_max[3][4][1][1] = 2;
-
-  // TEC Wheel 4 Ring 7
-  detector_max[3][5][0][0] = 2;
-  detector_max[3][5][0][1] = 3;
-  detector_max[3][5][1][0] = 2;
-  detector_max[3][5][1][1] = 3;
-
-  // ========================================== //
-
-  // TEC Wheel 5 Ring 2
-  detector_max[4][0][0][0] = 1;
-  detector_max[4][0][0][1] = 1;
-  detector_max[4][0][1][0] = 1;
-  detector_max[4][0][1][1] = 0;
-
-  // TEC Wheel 5 Ring 3
-  detector_max[4][1][0][0] = 2;
-  detector_max[4][1][0][1] = 1;
-  detector_max[4][1][1][0] = 1;
-  detector_max[4][1][1][1] = 1;
-
-  // TEC Wheel 5 Ring 4
-  detector_max[4][2][0][0] = 2;
-  detector_max[4][2][0][1] = 2;
-  detector_max[4][2][1][0] = 1;
-  detector_max[4][2][1][1] = 2;
-
-  // TEC Wheel 5 Ring 5
-  detector_max[4][3][0][0] = 1;
-  detector_max[4][3][0][1] = 1;
-  detector_max[4][3][1][0] = 2;
-  detector_max[4][3][1][1] = 1;
-
-  // TEC Wheel 5 Ring 6
-  detector_max[4][4][0][0] = 2;
-  detector_max[4][4][0][1] = 2;
-  detector_max[4][4][1][0] = 1;
-  detector_max[4][4][1][1] = 2;
-
-  // TEC Wheel 5 Ring 7
-  detector_max[4][5][0][0] = 2;
-  detector_max[4][5][0][1] = 3;
-  detector_max[4][5][1][0] = 2;
-  detector_max[4][5][1][1] = 3;
-
-  // ========================================== //
-
-  // TEC Wheel 6 Ring 2
-  detector_max[5][0][0][0] = 1;
-  detector_max[5][0][0][1] = 1;
-  detector_max[5][0][1][0] = 1;
-  detector_max[5][0][1][1] = 0;
-
-  // TEC Wheel 6 Ring 3
-  detector_max[5][1][0][0] = 2;
-  detector_max[5][1][0][1] = 1;
-  detector_max[5][1][1][0] = 1;
-  detector_max[5][1][1][1] = 1;
-
-  // TEC Wheel 6 Ring 4
-  detector_max[5][2][0][0] = 2;
-  detector_max[5][2][0][1] = 2;
-  detector_max[5][2][1][0] = 1;
-  detector_max[5][2][1][1] = 2;
-
-  // TEC Wheel 6 Ring 5
-  detector_max[5][3][0][0] = 1;
-  detector_max[5][3][0][1] = 1;
-  detector_max[5][3][1][0] = 2;
-  detector_max[5][3][1][1] = 1;
-
-  // TEC Wheel 6 Ring 6
-  detector_max[5][4][0][0] = 2;
-  detector_max[5][4][0][1] = 2;
-  detector_max[5][4][1][0] = 1;
-  detector_max[5][4][1][1] = 2;
-
-  // TEC Wheel 6 Ring 7
-  detector_max[5][5][0][0] = 2;
-  detector_max[5][5][0][1] = 3;
-  detector_max[5][5][1][0] = 2;
-  detector_max[5][5][1][1] = 3;
-
-  // ========================================== //
-
-  // TEC Wheel 7 Ring 3
-  detector_max[6][0][0][0] = 2;
-  detector_max[6][0][0][1] = 1;
-  detector_max[6][0][1][0] = 1;
-  detector_max[6][0][1][1] = 1;
-
-  // TEC Wheel 7 Ring 4
-  detector_max[6][1][0][0] = 2;
-  detector_max[6][1][0][1] = 2;
-  detector_max[6][1][1][0] = 1;
-  detector_max[6][1][1][1] = 2;
-
-  // TEC Wheel 7 Ring 5
-  detector_max[6][2][0][0] = 1;
-  detector_max[6][2][0][1] = 1;
-  detector_max[6][2][1][0] = 2;
-  detector_max[6][2][1][1] = 1;
-
-  // TEC Wheel 7 Ring 6
-  detector_max[6][3][0][0] = 2;
-  detector_max[6][3][0][1] = 2;
-  detector_max[6][3][1][0] = 1;
-  detector_max[6][3][1][1] = 2;
-
-  // TEC Wheel 7 Ring 7
-  detector_max[6][4][0][0] = 2;
-  detector_max[6][4][0][1] = 3;
-  detector_max[6][4][1][0] = 2;
-  detector_max[6][4][1][1] = 3;
-
-  // ========================================== //
-
-  // TEC Wheel 8 Ring 3
-  detector_max[7][0][0][0] = 2;
-  detector_max[7][0][0][1] = 1;
-  detector_max[7][0][1][0] = 1;
-  detector_max[7][0][1][1] = 1;
-
-  // TEC Wheel 8 Ring 4
-  detector_max[7][1][0][0] = 2;
-  detector_max[7][1][0][1] = 2;
-  detector_max[7][1][1][0] = 1;
-  detector_max[7][1][1][1] = 2;
-
-  // TEC Wheel 8 Ring 5
-  detector_max[7][2][0][0] = 1;
-  detector_max[7][2][0][1] = 1;
-  detector_max[7][2][1][0] = 2;
-  detector_max[7][2][1][1] = 1;
-
-  // TEC Wheel 8 Ring 6
-  detector_max[7][3][0][0] = 2;
-  detector_max[7][3][0][1] = 2;
-  detector_max[7][3][1][0] = 1;
-  detector_max[7][3][1][1] = 2;
-
-  // TEC Wheel 8 Ring 7
-  detector_max[7][4][0][0] = 2;
-  detector_max[7][4][0][1] = 3;
-  detector_max[7][4][1][0] = 2;
-  detector_max[7][4][1][1] = 3;
-
-  // ========================================== //
-
-  // TEC Wheel 9 Ring 4
-  detector_max[8][0][0][0] = 2;
-  detector_max[8][0][0][1] = 2;
-  detector_max[8][0][1][0] = 1;
-  detector_max[8][0][1][1] = 2;
-
-  // TEC Wheel 9 Ring 5
-  detector_max[8][1][0][0] = 1;
-  detector_max[8][1][0][1] = 1;
-  detector_max[8][1][1][0] = 2;
-  detector_max[8][1][1][1] = 1;
-
-  // TEC Wheel 9 Ring 6
-  detector_max[8][2][0][0] = 2;
-  detector_max[8][2][0][1] = 2;
-  detector_max[8][2][1][0] = 1;
-  detector_max[8][2][1][1] = 2;
-
-  // TEC Wheel 9 Ring 7
-  detector_max[8][3][0][0] = 2;
-  detector_max[8][3][0][1] = 3;
-  detector_max[8][3][1][0] = 2;
-  detector_max[8][3][1][1] = 3;
-
-  // ========================================== //
+  unsigned int module_fw_bw_max = 2;
+  unsigned int module_max = 3;
 
   bool stereo = false;
   if ( (wheel==0)||(wheel==1)||(wheel==2) ) {
@@ -801,11 +465,13 @@ Ring Rings::constructTrackerTECRing(const TrackingGeometry &tracker,
     for ( unsigned int stereo = 1; stereo <= 2; ++stereo) {
       for ( unsigned int petal = 0; petal < petal_max; ++petal ) {
 	for ( unsigned int petal_fw_bw = 0; petal_fw_bw < petal_fw_bw_max; ++petal_fw_bw ) {
-	  for ( unsigned int detector_fw_bw = 0; detector_fw_bw < detector_fw_bw_max; ++detector_fw_bw ) {
-	    for ( unsigned int detector = 0; detector < detector_max[wheel][ring][petal_fw_bw][detector_fw_bw]; ++detector ) {
-	      DetId id = constructTrackerTECDetId(fw_bw,wheel,petal_fw_bw,petal,ring,detector_fw_bw,detector,stereo);
-	      double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TECRing);
-	      tempring.addId(phi,id);
+	  for ( unsigned int module_fw_bw = 0; module_fw_bw < module_fw_bw_max; ++module_fw_bw ) {
+	    for ( unsigned int module = 0; module < module_max; ++module ) {
+	      if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module_fw_bw][module] > 0 ) {
+		DetId id = constructTrackerTECDetId(fw_bw,wheel,petal_fw_bw,petal,ring,module_fw_bw,module,stereo);
+		double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TECRing);
+		tempring.addId(phi,id);
+	      }
 	    }
 	  }
 	}
@@ -814,11 +480,13 @@ Ring Rings::constructTrackerTECRing(const TrackingGeometry &tracker,
   } else {
     for ( unsigned int petal = 0; petal < petal_max; ++petal ) {
       for ( unsigned int petal_fw_bw = 0; petal_fw_bw < petal_fw_bw_max; ++petal_fw_bw ) {
-	for ( unsigned int detector_fw_bw = 0; detector_fw_bw < detector_fw_bw_max; ++detector_fw_bw ) {
-	  for ( unsigned int detector = 0; detector < detector_max[wheel][ring][petal_fw_bw][detector_fw_bw]; ++detector ) {
-	    DetId id = constructTrackerTECDetId(fw_bw,wheel,petal_fw_bw,petal,ring,detector_fw_bw,detector,0);
-	    double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TECRing);
-	    tempring.addId(phi,id);
+	for ( unsigned int module_fw_bw = 0; module_fw_bw < module_fw_bw_max; ++module_fw_bw ) {
+	  for ( unsigned int module = 0; module < module_max; ++module ) {
+	    if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module_fw_bw][module] > 0 ) {
+	      DetId id = constructTrackerTECDetId(fw_bw,wheel,petal_fw_bw,petal,ring,module_fw_bw,module,0);
+	      double phi = determineExtensions(tracker,id,rmin,rmax,zmin,zmax,Ring::TECRing);
+	      tempring.addId(phi,id);
+	    }
 	  }
 	}
       }
@@ -839,16 +507,16 @@ DetId Rings::constructTrackerTECDetId(unsigned int fw_bw,
 				      unsigned int petal_fw_bw,
 				      unsigned int petal,
 				      unsigned int ring,
-				      unsigned int detector_fw_bw,
-				      unsigned int detector,
+				      unsigned int module_fw_bw,
+				      unsigned int module,
 				      unsigned int stereo) {
 
-  TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,detector_fw_bw,detector+1,stereo);
+  TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,module_fw_bw,module+1,stereo);
   
   if ( verbosity_ > 3 ) {
     std::cout << "[Rings] constructed TEC ring DetId for side: " << id.side() << " wheel: " << id.wheel() 
 	      << " ring: " << id.ring() << " petal fw(0)/bw(0): " << id.petal()[0] << " petal: " << id.petal()[1] 
-	      << "detector fw(0)/bw(1): " << id.module()[0] << " detector: " << id.module()[1] << " stereo: " << id.stereo() << std::endl; 
+	      << "module fw(0)/bw(1): " << id.module()[0] << " module: " << id.module()[1] << " stereo: " << id.stereo() << std::endl; 
   }
 
   return DetId(id.rawId());
@@ -1012,7 +680,20 @@ Ring* Rings::getTrackerRing(DetId id) {
     }
   }
   
-  std::cout << "[Rings] could not find Ring with DetId: " << id.rawId() << std::endl; 
+  std::cout << "[Rings] could not find Ring with DetId: " << id.rawId() << std::endl;
+  TECDetId tecid(id.rawId()); 
+  std::cout << "[Rings] problem resolving DetUnit for TEC ring DetId: " << id.rawId() 
+	    << " side neg(1)/pos(2): " << tecid.side() 
+	    << " wheel: " << tecid.wheel()
+	    << " petal fw(0)/bw(1): " << tecid.petal()[0]
+	    << " petal: " << tecid.petal()[1] 
+	    << " ring: " << tecid.ring()
+	    << " detector fw(0)/bw(1): " << tecid.module()[0]
+	    << " detector: " << tecid.module()[1] 
+	    << " not stereo(0)/stereo(1): " << tecid.stereo() 
+	    << " not glued(0)/glued(1): " << tecid.glued() 
+	    << std::endl; 
+ 
   
   return 0;
 }
@@ -1079,7 +760,34 @@ Ring* Rings::getTrackerTECRing(unsigned int fw_bw,
     stereo = 1;
   }
 
-  TECDetId id(fw_bw+1,wheel+1,0,1,ring+1,0,1,stereo);
+  // try to construct first detid from fw_bw, wheel, ring
+  // set petal and module to 1 (zero in c-array terms)
+  // check for combination if petal_fw_bw and module_fw_bw set to 0 is valid
+  // if not, increase them to get a valid id
+
+  int petal = 0;
+  int module = 0;
+
+  int petal_fw_bw = 0;
+  int module_fw_bw = 0;
+
+  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module_fw_bw][module] == 0 ) {
+    module_fw_bw = 1;
+  }
+
+  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module_fw_bw][module] == 0 ) {
+    petal_fw_bw = 1;
+  }
+
+  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module_fw_bw][module] == 0 ) {
+    module_fw_bw = 0;
+  }
+
+  if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module_fw_bw][module] == 0 ) {
+    std::cout << "[Rings] problem generation TEC DetId from side: " << fw_bw+1 << " wheel: " << wheel+1 << " ring: " << ring+1 << std::endl;
+  }
+
+  TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,module_fw_bw,module+1,stereo);
 
   return getTrackerRing(DetId(id.rawId()));
 }
@@ -1830,4 +1538,39 @@ std::string Rings::dumpOldStylePXF(unsigned int &nLayers) {
   
   return stream.str();
   
+}
+
+void Rings::fillTECGeometryArray(const TrackingGeometry &tracker) {
+  // fills hardcoded TEC geometry array
+  // tec[side][wheel][petal_fw_bw][petal][ring][module_fw_bw][module]
+  // the content inidicates if detector with combination exists (>0) or not (==0)
+
+  for (int i = 0; i < 2; ++i ) {
+    for (int j = 0; j < 9; ++j ) {
+      for (int k = 0; k < 2; ++k ) {
+	for (int l = 0; l < 8; ++l ) {
+	  for (int m = 0; m < 7; ++m ) {
+	    for (int n = 0; n < 2; ++n ) {
+	      for (int o = 0; o < 3; ++o ) {
+		tec_[i][j][k][l][m][n][o] = 0;
+	      }	
+	    }	
+	  }
+	}
+      }
+    }
+  }
+
+  std::vector<DetId> detIds = tracker.detIds();
+  
+  for ( std::vector<DetId>::iterator detiterator = detIds.begin(); detiterator != detIds.end(); ++detiterator ) {
+    DetId id = *detiterator;
+
+    if ( (unsigned int)id.subdetId() == StripSubdetector::TEC ) {
+      TECDetId tecid(id.rawId()); 
+
+      tec_[tecid.side()-1][tecid.wheel()-1][tecid.petal()[0]][tecid.petal()[1]-1][tecid.ring()-1][tecid.module()[0]][tecid.module()[1]-1] += 1;
+
+    }
+  }
 }

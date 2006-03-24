@@ -12,8 +12,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
-// $Revision: 1.1 $
+// $Date: 2006/01/15 01:00:30 $
+// $Revision: 1.2 $
 //
 
 // system include files
@@ -52,6 +52,8 @@ class RoadMapMakerESProducer : public edm::ESProducer {
   std::string fileName_;
   bool writeOutOldStyle_;
   std::string fileNameOldStyle_;
+  bool writeOutTrackerAsciiDump_;
+  std::string fileNameTrackerAsciiDump_;
 };
 
 #endif

@@ -87,6 +87,7 @@ class TECLayer : public ForwardDetLayer{
   virtual BoundDisk* computeDisk( vector<const TECPetal*>& petals) const;
 
   vector<const TECPetal*> thePetals;
+  vector<const GeometricSearchDet*> theComponents;
   vector<const TECPetal*> theFrontPetals;
   vector<const TECPetal*> theBackPetals;
 

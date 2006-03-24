@@ -9,6 +9,8 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/Framework/interface/UnscheduledHandler.h"
+
 // needed for type tests
 #include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/Framework/src/FilterWorker.h"
@@ -71,13 +73,12 @@ namespace edm
 		  const EventSetup* es):
 	a_(a),ep_(ep),es_(es)
       { a_->preProcessEventSignal_(ep_->id(),ep_->time()); }
-      ~CallPrePost()
-      { 
+      ~CallPrePost() { 
 	ModuleDescription dummy;
 	Event evt(*ep_,dummy);
 	const Event& eref(evt);
 	a_->postProcessEventSignal_(eref,*es_);
-      }
+    }
 
     private:
 	ActivityRegistry* a_;
@@ -85,7 +86,31 @@ namespace edm
 	const EventSetup* es_;
     };
 
+     
   }
+
+  class UnscheduledCallProducer : public UnscheduledHandler 
+  {
+  public:
+     UnscheduledCallProducer() {}
+     void addWorker(Worker* aWorker) {
+        assert(0 != aWorker);
+        labelToWorkers_[aWorker->description().moduleLabel_]=aWorker;
+     }
+ private: 
+     virtual bool tryToFillImpl(const Provenance& prov,
+                                EventPrincipal& event,
+                                const EventSetup& eventSetup) {
+        std::map<std::string, Worker*>::const_iterator itFound = 
+        labelToWorkers_.find(prov.product.module.moduleLabel_);
+        if(itFound != labelToWorkers_.end()) {
+           itFound->second->doWork(event,eventSetup);
+           return true;
+        }
+        return false;
+     }
+     std::map<std::string, Worker*> labelToWorkers_;
+  };
 
   // -----------------------------
 
@@ -114,8 +139,7 @@ namespace edm
     vstring allpaths = rc.getParameter<vstring>("@paths");
 
     // the value depends on options and value of listOfTriggers
-    try
-      {
+    try {
 	ParameterSet defopts;
         ParameterSet opts = 
 	  proc_pset.getUntrackedParameter<ParameterSet>("options", defopts);
@@ -124,29 +148,24 @@ namespace edm
 
 	// if makeTriggerResults is true, then listOfTriggers must be given
 
-	if(want_results)
-	  {
+	if(want_results) {
 	    vstring tmppaths = opts.getParameter<vstring>("listOfTriggers");
 
-	    // verify that all then names in allpaths are a subset of
+	    // verify that all the names in allpaths are a subset of
 	    // the names currently in allpaths (all the names)
 
-	    if(!tmppaths.empty() && tmppaths[0] == "*")
-	      {
+	    if(!tmppaths.empty() && tmppaths[0] == "*") {
 		// leave as full list
-	      }
-	    else
-	      {
+	    } else {
 		checkIfSubset(allpaths, tmppaths);
 		allpaths.swap(tmppaths);
-	      }
-	  }
-      }
-    catch(edm::Exception& e)
-      {
-      }
+	    }
+	}
+    }
+    catch(edm::Exception& e) {
+    }
 
-    rc.addParameter<vstring>("@trigger_paths",allpaths);
+    rc.addUntrackedParameter<vstring>("@trigger_paths",allpaths);
     return rc;
   }
 
@@ -167,7 +186,7 @@ namespace edm
     trig_pset_(getTrigPSet(proc_pset)),
     act_reg_(areg),
     state_(Ready),
-    trig_name_list_(trig_pset_.getParameter<vstring>("@trigger_paths")),
+    trig_name_list_(trig_pset_.getUntrackedParameter<vstring>("@trigger_paths")),
     path_name_list_(trig_pset_.getParameter<vstring>("@paths")),
     end_path_name_list_(trig_pset_.getParameter<vstring>("@end_paths")),
     trig_name_set_(trig_name_list_.begin(),trig_name_list_.end()),
@@ -186,7 +205,8 @@ namespace edm
     wantSummary_(false),
     makeTriggerResults_(false),
     total_events_(),
-    total_passed_()
+    total_passed_(),
+    unscheduled_(new UnscheduledCallProducer)
   {
     ParameterSet defopts;
     ParameterSet opts = 
@@ -202,37 +222,106 @@ namespace edm
     vstring::iterator ib(path_name_list_.begin()),ie(path_name_list_.end());
     int trig_bitpos=0, non_bitpos=0;
 
-    for(;ib!=ie;++ib)
-      {
-	if(trig_name_set_.find(*ib)!=trig_name_set_.end())
-	  {
+    for(;ib!=ie;++ib) {
+	if(trig_name_set_.find(*ib)!=trig_name_set_.end()) {
 	    hasFilter += fillTrigPath(trig_bitpos,*ib, results_);
 	    ++trig_bitpos;
-	  }
-	else
-	  {
+	} else {
 	    fillTrigPath(non_bitpos,*ib, nontrig_results_);
 	    ++non_bitpos;
-	  }
-      }
+	}
+    }
     
     // the results inserter stands alone
-    if(hasFilter || makeTriggerResults_)
-      {
+    if(hasFilter || makeTriggerResults_) {
 	results_inserter_=makeInserter(trig_pset_,proc_name_,
 				       preg,actions,results_);
 	all_workers_.insert(results_inserter_.get());
-      }
+    }
 
     handleWronglyPlacedModules();
 
     vstring::iterator eib(ends.begin()),eie(ends.end());
-    for(int bitpos=0;eib!=eie;++eib,++bitpos)
-      {
+    for(int bitpos=0;eib!=eie;++eib,++bitpos) {
 	fillEndPath(bitpos,*eib);
-      }
+    }
 
+    //See if all modules were used
+    std::set<std::string> usedWorkerLabels;
+    for(AllWorkers::iterator itWorker=all_workers_.begin();
+        itWorker != all_workers_.end();
+        ++itWorker) {
+       usedWorkerLabels.insert((*itWorker)->description().moduleLabel_);
+    }
+    std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string> >("@all_modules"));
+    std::set<std::string> modulesInConfigSet(modulesInConfig.begin(),modulesInConfig.end());
+    std::vector<std::string> unusedLabels;
+    std::set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
+                        usedWorkerLabels.begin(),usedWorkerLabels.end(),
+                        std::back_inserter(unusedLabels));
+    //does the configuration say we should allow on demand?
+    bool allowUnscheduled = opts.getUntrackedParameter<bool>("allowUnscheduled", false);
+    std::vector<Worker*> unscheduledWorkers;
+    std::set<std::string> unscheduledLabels;
+    if(!unusedLabels.empty()) {
+       //Need to
+       // 1) create worker
+       // 2) if they are ProducerWorkers, add them to our list
+       // 3) hand list to our delayed reader
+       std::vector<std::string>  shouldBeUsedLabels;
+       
+       for(std::vector<std::string>::iterator itLabel = unusedLabels.begin();
+            itLabel != unusedLabels.end();
+            ++itLabel) {
+          if(allowUnscheduled) {
+             const unsigned long version=1, pass=1;
+             unscheduledLabels.insert(*itLabel);
+             //Need to hold onto the parameters long enough to make the call to getWorker
+             ParameterSet workersParams(proc_pset.getParameter<ParameterSet>(*itLabel));
+             WorkerParams params(workersParams, 
+                                 *prod_reg_, *act_table_,
+                                 proc_name_, version, pass);
+             Worker* newWorker(wreg.getWorker(params));
+             if (dynamic_cast<ProducerWorker*>(newWorker)) {
+                unscheduledWorkers.push_back(newWorker);
+                unscheduled_->addWorker(newWorker);
+                //add to list so it gets reset each new event
+                all_workers_.insert(newWorker);
+             } else {
+                //not a producer so should be marked as not used
+                shouldBeUsedLabels.push_back(*itLabel);
+             }
+          } else {
+             //everthing is marked are unused so no 'on demand' allowed
+             shouldBeUsedLabels.push_back(*itLabel);
+          }
+       }
+       if(!shouldBeUsedLabels.empty()) {
+          std::ostringstream unusedStream;
+          unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
+          for(std::vector<std::string>::iterator itLabel = shouldBeUsedLabels.begin()+1;
+               itLabel != shouldBeUsedLabels.end();
+               ++itLabel) {
+             unusedStream <<",'" << *itLabel<<"'";
+          }
+          LogWarning("path")
+             << "The following module labels are not assigned to any path:\n" 
+             <<unusedStream.str()
+             <<"\n";
+       }
+    }
     prod_reg_->setProductIDs();
+    //Now that these have been set, we can create the list of Groups we need for the 'on demand'
+    const ProductRegistry::ProductList& prodsList = prod_reg_->productList();
+    for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin();
+        itProdInfo != prodsList.end();
+        ++itProdInfo) {
+       if(unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.module.moduleLabel_)) {
+          std::auto_ptr<Provenance> prov(new Provenance(itProdInfo->second));
+          boost::shared_ptr<Group> theGroup(new Group(prov));
+          demandGroups_.push_back(theGroup);
+       }
+    }
   }
 
   void Schedule::handleWronglyPlacedModules()
@@ -241,13 +330,12 @@ namespace edm
     // are already accounted for, but are not yet in paths.
     // Here we do that path assignment.
 
-    if(!tmp_wrongly_placed_.empty())
-      {
+    if(!tmp_wrongly_placed_.empty()) {
 	unsigned int pos = endpath_results_bit_count_-1;
 	Path p(pos,"WronglyPlaced",tmp_wrongly_placed_,
 	       endpath_results_,pset_,*act_table_,act_reg_);
-    end_paths_.push_back(p);
-      }
+	end_paths_.push_back(p);
+    }
   }
 
 
@@ -257,8 +345,7 @@ namespace edm
     vstring::iterator it(modnames.begin()),ie(modnames.end());
     PathWorkers tmpworkers;
 
-    for(;it!=ie;++it)
-      {
+    for(;it!=ie;++it) {
 	bool invert = (*it)[0]=='!';
 	string realname = invert?string(it->begin()+1,it->end()):*it;
 	WorkerInPath::State state =
@@ -270,7 +357,7 @@ namespace edm
                             proc_name_, version, pass);
 	WorkerInPath w(worker_reg_->getWorker(params),state);
 	tmpworkers.push_back(w);
-      }
+    }
 
     out.swap(tmpworkers);
   }
@@ -290,11 +377,9 @@ namespace edm
 
     // check for any OutputModules
     for(PathWorkers::iterator wi(tmpworkers.begin()),
-	  we(tmpworkers.end());wi!=we;++wi)
-      {
+	  we(tmpworkers.end());wi!=we;++wi) {
 	Worker* tworker = wi->getWorker();
-	if(dynamic_cast<OutputWorker*>(tworker)!=0)
-	  {
+	if(dynamic_cast<OutputWorker*>(tworker)!=0) {
 	    LogWarning("path")
 	      << "OutputModule " 
 	      << tworker->description().moduleLabel_
@@ -303,22 +388,22 @@ namespace edm
 	      << "This module has been moved to the endpath.\n";
 
 	    tmp_wrongly_placed_.push_back(*wi);
-	  }
-	else
+	} else {
 	  goodworkers.push_back(*wi);
+	}
 
-	if(dynamic_cast<FilterWorker*>(tworker)!=0)
+	if(dynamic_cast<FilterWorker*>(tworker)!=0) {
 	  hasFilter = true;
+	}
 
 	holder.push_back(tworker);
       }
 
     // an empty path will cause an extra bit that is not used
-    if(!goodworkers.empty())
-	{
+    if(!goodworkers.empty()) {
         Path p(bitpos,name,goodworkers,ptr,pset_,*act_table_,act_reg_);
         trig_paths_.push_back(p);
-	}
+    }
     all_workers_.insert(holder.begin(),holder.end());
 
     return hasFilter;
@@ -346,19 +431,28 @@ namespace edm
     state_ = Running;
     ++total_events_;
 
-    try
-      {
+    //now setup the on-demand system
+    // NOTE: who owns the productdescrption?  Just copied by value 
+    unscheduled_->setEventSetup(es);
+    ep.setUnscheduledHandler(unscheduled_);
+    for(std::vector<boost::shared_ptr<Group> >::iterator itGroup = demandGroups_.begin();
+        itGroup != demandGroups_.end();
+        ++itGroup) {
+       std::auto_ptr<Provenance> prov(new Provenance((*itGroup)->productDescription()));
+       std::auto_ptr<Group> theGroup(new Group(prov));
+       ep.addGroup(theGroup);
+    }
+    try {
 	CallPrePost cpp(act_reg_.get(),&ep,&es);
 
 	// go through triggering paths first
 	bool result = false;
 
 	TrigPaths::iterator ti(trig_paths_.begin()),te(trig_paths_.end());
-	for(int which_one=0;ti!=te;++ti,++which_one)
-	  {
+	for(int which_one=0;ti!=te;++ti,++which_one) {
 	    ti->runOneEvent(ep,es);
 	    result += (*results_)[which_one];
-	  }
+	}
 
 	if(result) ++total_passed_;
 	state_ = Latched;
@@ -367,49 +461,45 @@ namespace edm
 	
 	// go through end paths next
 	TrigPaths::iterator ei(end_paths_.begin()),ee(end_paths_.end());
-	for(;ei!=ee;++ei)
-	  {
+	for(;ei!=ee;++ei) {
 	    ei->runOneEvent(ep,es);
-	  }
-      }
-    catch(cms::Exception& e)
-      {
+	}
+    }
+    catch(cms::Exception& e) {
 	actions::ActionCodes code = act_table_->find(e.rootCause());
 
-	switch(code)
-	  {
+	switch(code) {
 	  case actions::IgnoreCompletely:
-	    {
+	  {
 	      LogWarning(e.category())
 		<< "exception being ignored for current event:\n"
 		<< e.what();
 	      break;
-	    }
+	  }
 	  case actions::SkipEvent:
-	    {
+	  {
 	      LogWarning(e.category())
 		<< "an exception occurred and event is being skipped: \n"
 		<< e.what();
 	      break;
-	    }
+	  }
 	  default:
-	    {
+	  {
 	      LogError(e.category())
 		<< "an exception ocurred during current event processing\n";
 	      state_ = Ready;
 	      throw edm::Exception(errors::EventProcessorFailure,
 				   "EventProcessingStopped",e)
 		<< "an exception ocurred during current event processing\n";
-	    }
 	  }
+	}
       }
-    catch(...)
-      {
+    catch(...) {
 	LogError("PassingThrough")
 	  << "an exception ocurred during current event processing\n";
 	state_ = Ready;
 	throw;
-      }
+    }
 
     // next thing probably is not needed, the product insertion code clears it
     state_ = Ready;
@@ -435,14 +525,13 @@ namespace edm
 	 << "Name" << "\n";
 
     TrigPaths::iterator pi(trig_paths_.begin()),pe(trig_paths_.end());
-    for(;pi!=pe;++pi)
-      {
+    for(;pi!=pe;++pi) {
 	cout << "trigreport "
 	     << right << setw(4)  << pi->bitPosition() << " "
 	     << right << setw(10) << pi->timesPassed() << " "
 	     << right << setw(10) << (pi->timesVisited() - pi->timesPassed()) << " "
 	     << pi->name() << "\n";
-      }
+    }
 
     cout << "trigreport " << "---------- Module Summary ----------\n";
     cout << "trigreport "
@@ -454,8 +543,7 @@ namespace edm
 	 << "Name" << "\n";
 
     AllWorkers::iterator ai(all_workers_.begin()),ae(all_workers_.end());
-    for(;ai!=ae;++ai)
-      {
+    for(;ai!=ae;++ai) {
 	cout << "trigreport "
 	     << right << setw(10) << (*ai)->timesPass() << " "
 	     << right << setw(10) << (*ai)->timesFailed() << " "
@@ -464,7 +552,7 @@ namespace edm
 	     << right << setw(10) << (*ai)->timesExcept() << " "
 	     << (*ai)->description().moduleLabel_ << "\n";
 	  
-      }
+    }
 
     cout << "trigreport " << "---------- Event Summary ------------\n";
     cout << "trigreport"

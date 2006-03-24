@@ -1,5 +1,4 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloValidationStatistics.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cmath>
 #include <iostream>
 
@@ -15,11 +14,6 @@ CaloValidationStatistics::CaloValidationStatistics(std::string name, float expec
 {
 }
 
-
-CaloValidationStatistics::~CaloValidationStatistics() 
-{
-  edm::LogInfo("CaloValidationStatistics") << *this;
-}
 
 void CaloValidationStatistics::addEntry(float value, float weight) {
   sum_ += value;

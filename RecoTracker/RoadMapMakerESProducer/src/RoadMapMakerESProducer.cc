@@ -9,8 +9,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
-// $Revision: 1.1 $
+// $Date: 2006/01/15 01:00:30 $
+// $Revision: 1.2 $
 //
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/RoadMapMakerESProducer.h"
@@ -29,11 +29,13 @@ RoadMapMakerESProducer::RoadMapMakerESProducer(const edm::ParameterSet& iConfig)
   setWhatProduced(this);
 
   //now do what ever other initialization is needed
-  verbosity_         = iConfig.getUntrackedParameter<int>("VerbosityLevel",0);
-  writeOut_          = iConfig.getUntrackedParameter<bool>("WriteOutRoadMapToAsciiFile",false);
-  fileName_          = iConfig.getUntrackedParameter<std::string>("RoadMapAsciiFile","");
-  writeOutOldStyle_  = iConfig.getUntrackedParameter<bool>("WriteOutRoadMapToAsciiFileOldStyle",false);
-  fileNameOldStyle_  = iConfig.getUntrackedParameter<std::string>("RoadMapAsciiFileOldStyle","");
+  verbosity_                 = iConfig.getUntrackedParameter<int>("VerbosityLevel",0);
+  writeOut_                  = iConfig.getUntrackedParameter<bool>("WriteOutRoadMapToAsciiFile",false);
+  fileName_                  = iConfig.getUntrackedParameter<std::string>("RoadMapAsciiFile","");
+  writeOutOldStyle_          = iConfig.getUntrackedParameter<bool>("WriteOutRoadMapToAsciiFileOldStyle",false);
+  fileNameOldStyle_          = iConfig.getUntrackedParameter<std::string>("RoadMapAsciiFileOldStyle","");
+  writeOutTrackerAsciiDump_  = iConfig.getUntrackedParameter<bool>("WriteOutTrackerAsciiDump",false);
+  fileNameTrackerAsciiDump_  = iConfig.getUntrackedParameter<std::string>("TrackerAsciiDumpFile","");  
 }
 
 
@@ -72,6 +74,11 @@ RoadMapMakerESProducer::produce(const TrackerDigiGeometryRecord& iRecord)
 
   if ( writeOutOldStyle_ ) {
     maker.dumpOldStyle(fileNameOldStyle_);
+  }
+
+  if ( writeOutTrackerAsciiDump_ ) {
+    std::ofstream output(fileNameTrackerAsciiDump_.c_str());
+    output << maker.printTrackerDetUnits(tracker);
   }
 
   return pRoads ;
