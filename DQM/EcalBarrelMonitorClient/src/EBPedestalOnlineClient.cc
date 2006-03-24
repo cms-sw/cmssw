@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/02/09 13:37:56 $
- * $Revision: 1.8 $
+ * $Date: 2006/03/05 09:50:41 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,6 +17,8 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps, MonitorUs
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     h03_[ism-1] = 0;
+
+    meh03_[ism-1] = 0;
 
   }
 
@@ -138,6 +140,8 @@ void EBPedestalOnlineClient::cleanup(void) {
 
     h03_[ism-1] = 0;
 
+    meh03_[ism-1] = 0;
+
   }
 
   for ( int ism = 1; ism <= 36; ism++ ) {
@@ -223,6 +227,8 @@ void EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
 
       }
     }
+
+    if ( meh03_[ism-1] ) mui_->softReset(meh03_[ism-1]);
 
   }
 
@@ -328,6 +334,10 @@ void EBPedestalOnlineClient::analyze(void){
         } else {
           h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
         }
+      }
+      if ( ! meh03_[ism-1] ) {
+        meh03_[ism-1] = me;
+        mui_->enableSoftReset(meh03_[ism-1], true);
       }
     }
 

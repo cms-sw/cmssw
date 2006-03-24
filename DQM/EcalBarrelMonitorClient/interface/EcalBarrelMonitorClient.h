@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/02/24 08:03:48 $
- * $Revision: 1.38 $
+ * $Date: 2006/03/03 09:02:42 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -139,6 +139,9 @@ MonRunIOV moniov_;
 
 bool enableSubRun_;
 int subrun_;
+
+time_t current_time_;
+time_t last_time_;
 
 string baseHtmlDir_;
 

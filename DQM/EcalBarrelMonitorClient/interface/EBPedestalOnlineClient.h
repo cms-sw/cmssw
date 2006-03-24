@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2006/03/03 09:02:42 $
- * $Revision: 1.5 $
+ * $Date: 2006/03/05 09:50:40 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -99,6 +99,8 @@ bool verbose_;
 MonitorUserInterface* mui_;
 
 CollateMonitorElement* me_h03_[36];
+
+MonitorElement* meh03_[36];
 
 TProfile2D* h03_[36];
 

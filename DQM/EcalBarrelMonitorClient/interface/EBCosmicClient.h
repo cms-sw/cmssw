@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2006/03/03 09:02:42 $
- * $Revision: 1.15 $
+ * $Date: 2006/03/05 09:50:40 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -101,6 +101,10 @@ MonitorUserInterface* mui_;
 CollateMonitorElement* me_h01_[36];
 CollateMonitorElement* me_h02_[36];
 CollateMonitorElement* me_h03_[36];
+
+MonitorElement* meh01_[36];
+MonitorElement* meh02_[36];
+MonitorElement* meh03_[36];
 
 TProfile2D* h01_[36];
 TProfile2D* h02_[36];
