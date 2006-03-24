@@ -75,8 +75,8 @@ using namespace std;
 /** \class DTROSWordType
  *  Enumeration of DT Read Out Sector (ROS) word types.
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSWordType {
@@ -193,8 +193,8 @@ private:
  *  DT ROS Header interpreter. 
  *  It interprets the TTC Event counter (24 bits).
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSHeaderWord {
@@ -202,6 +202,10 @@ class DTROSHeaderWord {
 public:
 
   /// Constructor
+  DTROSHeaderWord() {}
+
+  DTROSHeaderWord(const DTROSHeaderWord& obj) { *this = obj; }
+
   DTROSHeaderWord(const uint32_t index) : 
     word_(index) {} 
 
@@ -222,7 +226,7 @@ public:
 
 private:
 
-  const uint32_t word_;
+  uint32_t word_;
 
 };
 
@@ -237,8 +241,8 @@ private:
  *  - BCO: Bunch Counter FIFO occupancy (2 bits)
  *  - Event Word count (16 bits)
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSTrailerWord {
@@ -256,12 +260,12 @@ public:
   /// Destructor
   virtual ~DTROSTrailerWord() {}
 
-  int TFF() { return (word_ & TFF_MASK) >> TFF_SHIFT; }
-  int TPX() { return (word_ & TPX_MASK) >> TPX_SHIFT; }
-  int ECHO() { return (word_ & ECHO_MASK) >> ECHO_SHIFT; }
-  int ECLO() { return (word_ & ECLO_MASK) >> ECLO_SHIFT; }
-  int BCO() { return (word_ & BCO_MASK) >> BCO_SHIFT; }
-  int EventWordCount() { return word_ & EVENT_WORD_COUNT_MASK; }
+  int TFF() const { return (word_ & TFF_MASK) >> TFF_SHIFT; }
+  int TPX() const { return (word_ & TPX_MASK) >> TPX_SHIFT; }
+  int ECHO() const { return (word_ & ECHO_MASK) >> ECHO_SHIFT; }
+  int ECLO() const { return (word_ & ECLO_MASK) >> ECLO_SHIFT; }
+  int BCO() const { return (word_ & BCO_MASK) >> BCO_SHIFT; }
+  int EventWordCount() const { return word_ & EVENT_WORD_COUNT_MASK; }
 
   static void set(uint32_t &word,
 		  int tff,
@@ -294,8 +298,8 @@ private:
  *  DT ROS Error interpreter. 
  *  It interprets the Error type and the ROB_ID (2 bits) 
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSErrorWord {
@@ -313,8 +317,8 @@ public:
   /// Destructor
   virtual ~DTROSErrorWord() {}
 
-  int errorType() { return (word_ & ERROR_TYPE_MASK) >> ERROR_TYPE_SHIFT;} 
-  int robID() { return (word_ & ERROR_ROB_ID_MASK) >> ERROR_ROB_ID_SHIFT;} 
+  int errorType() const { return (word_ & ERROR_TYPE_MASK) >> ERROR_TYPE_SHIFT;} 
+  int robID() const { return (word_ & ERROR_ROB_ID_MASK) >> ERROR_ROB_ID_SHIFT;} 
 
   static void set(uint32_t &word,
 		  int error_type,
@@ -340,8 +344,8 @@ private:
  *  It interprets the Debug type (3 bits) and the debug message 
  *  (in the first 15 bits) 
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSDebugWord {
@@ -359,8 +363,8 @@ public:
   /// Destructor
   virtual ~DTROSDebugWord() {}
 
-  int debugType() { return (word_ & DEBUG_TYPE_MASK) >> DEBUG_TYPE_SHIFT;} 
-  int debugMessage() { return (word_ & DEBUG_MESSAGE_MASK) ;} 
+  int debugType() const { return (word_ & DEBUG_TYPE_MASK) >> DEBUG_TYPE_SHIFT;} 
+  int debugMessage() const { return (word_ & DEBUG_MESSAGE_MASK) ;} 
 
   static void set(uint32_t &word,
 		  int debug_type) {
@@ -384,8 +388,8 @@ private:
  *  It interprets the ROB_ID (5 bits), the Event ID (12 bits) 
  *  and the Bunch ID (12 bits).
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROBHeaderWord {
@@ -393,15 +397,19 @@ class DTROBHeaderWord {
 public:
 
   /// Constructor
+  DTROBHeaderWord() {}
+
+  DTROBHeaderWord(const DTROBHeaderWord& obj) { *this = obj; }
+
   DTROBHeaderWord(const uint32_t index) : 
     word_(index) {}
 
   /// Destructor
   virtual ~DTROBHeaderWord() {}
 
-  int robID() { return (word_ & ROB_ID_MASK) >> WORDTYPESHIFT;} 
-  int eventID() { return (word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;} 
-  int bunchID() { return (word_ & BUNCH_ID_MASK);} 
+  int robID() const { return (word_ & ROB_ID_MASK) >> WORDTYPESHIFT;} 
+  int eventID() const { return (word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;} 
+  int bunchID() const { return (word_ & BUNCH_ID_MASK);} 
 
 
   static void set(uint32_t &word,
@@ -419,7 +427,7 @@ public:
 
 private:
 
-  const uint32_t word_;
+  uint32_t word_;
 
 };
 
@@ -429,8 +437,8 @@ private:
  *  It interprets the ROB_ID (5 bits), the Event ID (12 bits) 
  *  and the Word ID (12 bits).
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROBTrailerWord {
@@ -448,9 +456,9 @@ public:
   /// Destructor
   virtual ~DTROBTrailerWord() {}
 
-  int robID() { return (word_ & ROB_ID_MASK) >> WORDTYPESHIFT;} 
-  int eventID() { return (word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;} 
-  int wordCount() { return (word_ & WORD_COUNT_MASK);} 
+  int robID() const { return (word_ & ROB_ID_MASK) >> WORDTYPESHIFT;} 
+  int eventID() const { return (word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;} 
+  int wordCount() const { return (word_ & WORD_COUNT_MASK);} 
 
   static void set(uint32_t &word,
 		  int rob_id,
@@ -478,8 +486,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the Event ID (12 bits) and the Bunch ID (12 bits).
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCHeaderWord {
@@ -487,18 +495,22 @@ class DTTDCHeaderWord {
 public:
 
   /// Constructor
+  DTTDCHeaderWord() {}
+
+  DTTDCHeaderWord(const DTTDCHeaderWord& obj) { *this = obj; }
+
   DTTDCHeaderWord(const uint32_t index) : 
     word_(index) {}
 
   /// Destructor
   virtual ~DTTDCHeaderWord() {}
 
-  int PC() { return (word_ & PC_MASK) >> PC_SHIFT;} 
-  int PAF() { return (word_ & PAF_MASK) >> PAF_SHIFT;} 
-  int HU() { return (word_ & PAF_MASK) >> PAF_SHIFT;} /// <== OBSOLETE!!
-  int tdcID() { return (word_ & TDC_ID_MASK) >> TDC_ID_SHIFT;} 
-  int eventID() { return (word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;} 
-  int bunchID() { return (word_ & BUNCH_ID_MASK);} 
+  int PC() const { return (word_ & PC_MASK) >> PC_SHIFT;} 
+  int PAF() const { return (word_ & PAF_MASK) >> PAF_SHIFT;} 
+  int HU() const { return (word_ & PAF_MASK) >> PAF_SHIFT;} /// <== OBSOLETE!!
+  int tdcID() const { return (word_ & TDC_ID_MASK) >> TDC_ID_SHIFT;} 
+  int eventID() const { return (word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;} 
+  int bunchID() const { return (word_ & BUNCH_ID_MASK);} 
 
   static void set(uint32_t &word,
 		  int pc,
@@ -521,7 +533,7 @@ public:
 
 private:
 
-  const uint32_t word_;
+  uint32_t word_;
 };
 
 
@@ -530,8 +542,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the Event ID (12 bits) and the Word ID (12 bits).
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCTrailerWord {
@@ -539,18 +551,22 @@ class DTTDCTrailerWord {
 public:
 
   /// Constructor
+  DTTDCTrailerWord() {}
+
+  DTTDCTrailerWord(const DTTDCTrailerWord& obj) { *this = obj; }
+
   DTTDCTrailerWord(const uint32_t index) : 
     word_(index) {}
 
   /// Destructor
   virtual ~DTTDCTrailerWord() {}
 
-  int PC() { return (word_ & PC_MASK) >> PC_SHIFT;} 
-  int PAF() { return (word_ & PAF_MASK) >> PAF_SHIFT;} 
-  int HU() { return (word_ & PAF_MASK) >> PAF_SHIFT;} /// <== OBSOLETE!!
-  int tdcID() { return (word_ & TDC_ID_MASK) >> TDC_ID_SHIFT;} 
-  int eventID() { return (word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;} 
-  int wordCount() { return (word_ & WORD_COUNT_MASK);} 
+  int PC() const { return (word_ & PC_MASK) >> PC_SHIFT;} 
+  int PAF() const { return (word_ & PAF_MASK) >> PAF_SHIFT;} 
+  int HU() const { return (word_ & PAF_MASK) >> PAF_SHIFT;} /// <== OBSOLETE!!
+  int tdcID() const { return (word_ & TDC_ID_MASK) >> TDC_ID_SHIFT;} 
+  int eventID() const { return (word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;} 
+  int wordCount() const { return (word_ & WORD_COUNT_MASK);} 
 
   static void set(uint32_t &word,
 		  int pc,
@@ -572,7 +588,7 @@ public:
 
 private:
 
-  const uint32_t word_;
+  uint32_t word_;
 };
 
 
@@ -581,8 +597,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the TDC channel (5 bits), and the TDC time (19 bits)
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCMeasurementWord {
@@ -600,12 +616,12 @@ public:
   /// Destructor
   virtual ~DTTDCMeasurementWord() {}
 
-  int PC() { return (word_ & PC_MASK) >> PC_SHIFT;} 
-  int PAF() { return (word_ & PAF_MASK) >> PAF_SHIFT;} 
-  int HU() { return (word_ & PAF_MASK) >> PAF_SHIFT;} /// <== OBSOLETE!!
-  int tdcID() { return (word_ & TDC_ID_MASK) >> TDC_ID_SHIFT;} 
-  int tdcChannel() { return (word_ & TDC_CHANNEL_MASK) >> TDC_CHANNEL_SHIFT;} 
-  int tdcTime() { return (word_ & TDC_TIME_MASK);} 
+  int PC() const { return (word_ & PC_MASK) >> PC_SHIFT;} 
+  int PAF() const { return (word_ & PAF_MASK) >> PAF_SHIFT;} 
+  int HU() const { return (word_ & PAF_MASK) >> PAF_SHIFT;} /// <== OBSOLETE!!
+  int tdcID() const { return (word_ & TDC_ID_MASK) >> TDC_ID_SHIFT;} 
+  int tdcChannel() const { return (word_ & TDC_CHANNEL_MASK) >> TDC_CHANNEL_SHIFT;} 
+  int tdcTime() const { return (word_ & TDC_TIME_MASK);} 
 
 
   static void set(uint32_t &word,
@@ -639,8 +655,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits) and the TDC error flag (15 bits)
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCErrorWord {
@@ -648,17 +664,21 @@ class DTTDCErrorWord {
 public:
 
   /// Constructor
+  DTTDCErrorWord() {}
+  
+  DTTDCErrorWord(const DTTDCErrorWord& obj) { *this = obj; }
+
   DTTDCErrorWord(const uint32_t index) : 
     word_(index) {}
 
   /// Destructor
   virtual ~DTTDCErrorWord() {}
 
-  int PC() { return (word_ & PC_MASK) >> PC_SHIFT;} 
-  int PAF() { return (word_ & PAF_MASK) >> PAF_SHIFT;} 
-  int HU() { return (word_ & PAF_MASK) >> PAF_SHIFT;} /// <== OBSOLETE!!
-  int tdcID() { return (word_ & TDC_ID_MASK) >> TDC_ID_SHIFT;} 
-  int tdcError() { return (word_ & TDC_ERROR_MASK);} 
+  int PC() const { return (word_ & PC_MASK) >> PC_SHIFT;} 
+  int PAF() const { return (word_ & PAF_MASK) >> PAF_SHIFT;} 
+  int HU() const { return (word_ & PAF_MASK) >> PAF_SHIFT;} /// <== OBSOLETE!!
+  int tdcID() const { return (word_ & TDC_ID_MASK) >> TDC_ID_SHIFT;} 
+  int tdcError() const { return (word_ & TDC_ERROR_MASK);} 
 
   static void set(uint32_t &word,
 		  int pc,
@@ -679,7 +699,7 @@ public:
 
 private:
 
-  const uint32_t word_;
+  uint32_t word_;
 };
 
 
@@ -687,8 +707,8 @@ private:
  *  DT Sector Collector header interpreter. 
  *  It interprets ROS event ID (12 bits) and the Sector Collector FIFO occupancy (8 bits)
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerHeaderWord {
@@ -696,14 +716,18 @@ class DTLocalTriggerHeaderWord {
 public:
 
   /// Constructor
+  DTLocalTriggerHeaderWord() {}
+  
+  DTLocalTriggerHeaderWord(const DTLocalTriggerHeaderWord& obj) { *this = obj; }
+
   DTLocalTriggerHeaderWord(const uint32_t index) : 
     word_(index) {}
 
   /// Destructor
   virtual ~DTLocalTriggerHeaderWord() {}
 
-  int EventID() { return (word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;}
-  int SCFO() { return (word_ & SCFO_MASK);}
+  int EventID() const { return (word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;}
+  int SCFO() const { return (word_ & SCFO_MASK);}
 
   
   static void set(uint32_t &word,
@@ -719,7 +743,7 @@ public:
 
 private:
 
-  const uint32_t word_;
+  uint32_t word_;
 };
 
 
@@ -727,8 +751,8 @@ private:
  *  DT Sector Collector trailer interpreter. 
  *  It interprets the word count (16 bits)
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerTrailerWord {
@@ -736,13 +760,17 @@ class DTLocalTriggerTrailerWord {
 public:
 
   /// Constructor
+  DTLocalTriggerTrailerWord() {}
+  
+  DTLocalTriggerTrailerWord(const DTLocalTriggerTrailerWord& obj) { *this = obj; }
+
   DTLocalTriggerTrailerWord(const uint32_t index) : 
     word_(index) {}
 
   /// Destructor
   virtual ~DTLocalTriggerTrailerWord() {}
 
-  int wordCount() { return (word_ & TRIGGER_WORD_COUNT_MASK);}
+  int wordCount() const { return (word_ & TRIGGER_WORD_COUNT_MASK);}
 
   static void set(uint32_t &word,
 		  int word_count) {
@@ -756,7 +784,7 @@ public:
 
 private:
 
-  const uint32_t word_;
+  uint32_t word_;
 };
 
 
@@ -764,8 +792,8 @@ private:
  *  DT Sector Collector data interpreter. 
  *  It interprets the Sector Collector data (16 bits)
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerDataWord {
@@ -773,13 +801,17 @@ class DTLocalTriggerDataWord {
 public:
 
   /// Constructor
+  DTLocalTriggerDataWord() {}
+  
+  DTLocalTriggerDataWord(const DTLocalTriggerDataWord& obj) { *this = obj; }
+ 
   DTLocalTriggerDataWord(const uint32_t index) : 
     word_(index) {}
 
   /// Destructor
   virtual ~DTLocalTriggerDataWord() {}
 
-  int SCData() { return (word_ & TRIGGER_DATA_MASK);}
+  int SCData() const { return (word_ & TRIGGER_DATA_MASK);}
 
   static void set(uint32_t &word,
 		  int sc_data) {
@@ -793,7 +825,7 @@ public:
 
 private:
 
-  const uint32_t word_;
+  uint32_t word_;
 };
 
 
@@ -801,8 +833,8 @@ private:
  *  DT DDU status 1 interpreter (8 bits word). 
  *  It interprets the error messages from each DDU channel
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTDDUFirstStatusWord {
@@ -810,25 +842,29 @@ class DTDDUFirstStatusWord {
 public:
 
   /// Constructor
+  DTDDUFirstStatusWord() {}
+
+  DTDDUFirstStatusWord(const DTDDUFirstStatusWord& obj) { *this = obj; }
+
   DTDDUFirstStatusWord(const uint32_t index) : 
     word_(index) {}
 
   /// Destructor
   virtual ~DTDDUFirstStatusWord() {}
 
-  int channelEnabled() { return (word_ & 0x1);}
-  int timeout() { return (word_ & 0x2) >> 1;}
-  int eventTrailerLost() { return (word_ & 0x4) >> 2;}
-  int opticalFiberSignalLost() { return (word_ & 0x8) >> 3;}
-  int tlkPropagationError() { return (word_ & 0x10) >> 4;}
-  int tlkPatternError() { return (word_ & 0x20) >> 5;}
-  int tlkSignalLost() { return (word_ & 0x40) >> 6;}
-  int errorFromROS() { return (word_ & 0x80) >> 7;}
+  int channelEnabled() const { return (word_ & 0x1);}
+  int timeout() const { return (word_ & 0x2) >> 1;}
+  int eventTrailerLost() const { return (word_ & 0x4) >> 2;}
+  int opticalFiberSignalLost() const { return (word_ & 0x8) >> 3;}
+  int tlkPropagationError() const { return (word_ & 0x10) >> 4;}
+  int tlkPatternError() const { return (word_ & 0x20) >> 5;}
+  int tlkSignalLost() const { return (word_ & 0x40) >> 6;}
+  int errorFromROS() const { return (word_ & 0x80) >> 7;}
 
 
 private:
 
-  const uint32_t word_;
+  uint32_t word_;
 };
 
 
@@ -837,8 +873,8 @@ private:
  *  It interprets the (16 bits)
  *  WARNING!! : It interprets the second part of a 64 bits word!
  *
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTDDUSecondStatusWord {
@@ -846,27 +882,31 @@ class DTDDUSecondStatusWord {
 public:
   
   /// Constructor
+  DTDDUSecondStatusWord() {}
+
+  DTDDUSecondStatusWord(const DTDDUSecondStatusWord& obj) { *this = obj; }
+
   DTDDUSecondStatusWord(const uint32_t index) : 
     word_(index) {}
   
   /// Destructor
   virtual ~DTDDUSecondStatusWord() {}
   
-  int l1AIDError() { return (word_ & 0x1); }
-  int bxIDError() { return (word_ & 0x2) >> 1; }
-  int fifoFull() { return (word_ & 0x1C ) >> 2; }
-  int inputFifoFull() { return (word_ & 0xE0) >> 5; }
-  int fifoAlmostFull() { return (word_ & 0x700) >> 8; }
-  int inputFifoAlmostFull() { return (word_ & 0x3800) >> 11; }
-  int fifoAlmostEmpty() { return (word_ & 0x1C000) >> 14; }
-  int inputFifoAlmostEmpty() { return (word_ & 0xE0000) >> 17; }
-  int outputFifoFull() { return (word_ & 0x100000) >> 20; }
-  int outputFifoAlmostFull() { return (word_ & 0x200000) >> 21; }
-  int outputFifoAlmostEmpty() { return (word_ & 0x400000) >> 22; }
+  int l1AIDError() const { return (word_ & 0x1); }
+  int bxIDError() const { return (word_ & 0x2) >> 1; }
+  int fifoFull() const { return (word_ & 0x1C ) >> 2; }
+  int inputFifoFull() const { return (word_ & 0xE0) >> 5; }
+  int fifoAlmostFull() const { return (word_ & 0x700) >> 8; }
+  int inputFifoAlmostFull() const { return (word_ & 0x3800) >> 11; }
+  int fifoAlmostEmpty() const { return (word_ & 0x1C000) >> 14; }
+  int inputFifoAlmostEmpty() const { return (word_ & 0xE0000) >> 17; }
+  int outputFifoFull() const { return (word_ & 0x100000) >> 20; }
+  int outputFifoAlmostFull() const { return (word_ & 0x200000) >> 21; }
+  int outputFifoAlmostEmpty() const { return (word_ & 0x400000) >> 22; }
 
 private:
   
-  const uint32_t word_;
+  uint32_t word_;
 };
 
 
