@@ -1,0 +1,114 @@
+///////////////////////////////////////////////////////////////////////////////
+// File: SimG4HcalValidation.h
+// Analysis and validation of simhits of HCal inside the CMSSW framework
+///////////////////////////////////////////////////////////////////////////////
+#ifndef SimG4HcalValidation_H
+#define SimG4HcalValidation_H
+
+#include "SimG4Core/Watcher/interface/SimProducer.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+
+#include "SimG4CMS/Calo/interface/CaloHit.h"
+#include "SimG4Validation/Hcal/interface/SimG4HcalHitCluster.h"
+#include "SimG4Validation/Hcal/interface/SimG4HcalHitJetFinder.h"
+#include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
+#include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
+
+#include "SimDataFormats/HcalValidation/interface/PHcalValidInfoLayer.h"
+#include "SimDataFormats/HcalValidation/interface/PHcalValidInfoNxN.h"
+#include "SimDataFormats/HcalValidation/interface/PHcalValidInfoJets.h"
+
+#include <iostream>
+#include <memory>
+#include <vector>
+#include <string>
+#include <CLHEP/Vector/LorentzVector.h>
+
+class G4Step;
+class BeginOfJob;
+class BeginOfRun;
+class BeginOfEvent;
+class EndOfEvent;
+
+class PHcalValidInfoLayer;
+class PHcalValidInfoNxN;
+class PHcalValidInfoJets;
+
+class SimG4HcalValidation : public SimProducer,
+			    public Observer<const BeginOfJob *>, 
+			    public Observer<const BeginOfRun *>, 
+			    public Observer<const BeginOfEvent *>, 
+			    public Observer<const EndOfEvent *>, 
+			    public Observer<const G4Step *> {
+
+public:
+  SimG4HcalValidation(const edm::ParameterSet &p);
+  virtual ~SimG4HcalValidation();
+
+  void produce(edm::Event&, const edm::EventSetup&);
+
+private:
+  SimG4HcalValidation(const SimG4HcalValidation&); // stop default
+  const SimG4HcalValidation& operator=(const SimG4HcalValidation&);
+
+  void  init();
+
+  // observer classes
+  void update(const BeginOfJob * job);
+  void update(const BeginOfRun * run);
+  void update(const BeginOfEvent * evt);
+  void update(const G4Step * step);
+  void update(const EndOfEvent * evt);
+
+  // jetfinding and analysis-related stuff
+  void   fill(const EndOfEvent * ev);
+  void   layerAnalysis(PHcalValidInfoLayer&);
+  void   nxNAnalysis(PHcalValidInfoNxN&);
+  void   jetAnalysis(PHcalValidInfoJets&);
+  void   fetchHits(PHcalValidInfoLayer&);
+  void   clear();
+  void   collectEnergyRdir(const double, const double); 
+  double getHcalScale(std::string, int) const; 
+
+
+private:
+  //Keep parameters to instantiate Jet finder later 
+  int                       verbosJetf, verbosHit;
+  SimG4HcalHitJetFinder *   jetf;
+
+  //Keep reference to instantiate HcalNumberingFromDDD later
+  int                       verbosDDD;
+  HcalNumberingFromDDD *    numberingFromDDD;
+
+  //Keep parameters to instantiate HcalTestNumberingScheme later
+  int                       verbosNumber;
+  HcalTestNumberingScheme * org;
+
+  // Hit cache for cluster analysis
+  std::vector<CaloHit>      hitcache;   // e, eta, phi, time, layer, calo type 
+
+  // scale factors :
+  std::vector<float>        scaleHB;
+  std::vector<float>        scaleHE;
+  std::vector<float>        scaleHF;
+  
+  // to read from parameter set
+  std::vector<std::string>  names;
+  double                    coneSize, ehitThreshold, hhitThreshold;
+  float                     timeLowlim, timeUplim, eta0, phi0, jetThreshold; 
+  bool                      applySampling, hcalOnly;
+  int                       verbosity, infolevel;
+
+  // eta and phi size of windows around eta0, phi0
+  std::vector<double>       dEta;
+  std::vector<double>       dPhi;
+
+  // some private members for ananlysis 
+  unsigned int              count;                  
+  double                    edepEB, edepEE, edepHB, edepHE, edepHO;
+  double                    edepd[5], edepl[20];
+  double                    een, hen, hoen; // Energy sum in ECAL, HCAL, HO 
+  double                    vhitec, vhithc, enEcal, enHcal;
+};
+
+#endif
