@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/21 19:15:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.9 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -29,6 +29,7 @@ using namespace edm;
 DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps): pset(ps) {
 
   if(pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)){
+    cout<<"[DTROS25Unpacker]: Enabling Data Integrity Checks"<<endl;
     dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
   }
 
@@ -61,8 +62,6 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
   // Loop on ROSs
   while (wordCounter < numberOfWords) {
 
-    cout<<"Word Type "<<DTROSWordType(word).type()<<endl;
-
     // ROS Header; 
     if (DTROSWordType(word).type() == DTROSWordType::ROSHeader) {
       DTROSHeaderWord rosHeaderWord(word);
@@ -93,13 +92,13 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	  
  	  DTROBHeaderWord robHeaderWord(word);
  	  int eventID = robHeaderWord.eventID(); // from the TDCs
-	  cout<<"ROB Event Id "<<eventID<<endl;
+	  //cout<<"ROB Event Id "<<eventID<<endl;
 
  	  int bunchID = robHeaderWord.bunchID(); // from the TDCs
-	  cout<<"ROB bunch ID "<<bunchID<<endl;
+	  //cout<<"ROB bunch ID "<<bunchID<<endl;
 
  	  int robID = robHeaderWord.robID(); // to be mapped
-	  cout<<"ROB ID "<<robID<<endl;
+	  //cout<<"ROB ID "<<robID<<endl;
 
  	  // Loop on TDCs data (headers and trailers are not there)
  	  do {
@@ -113,20 +112,25 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
  	    }  		
  	    // Eventual TDC Debug
  	    else if ( DTROSWordType(word).type() == DTROSWordType::TDCDebug) {
-	      cout<<"TDC Debugging"<<endl;
- 	    }  		
+	      //cout<<"TDC Debugging"<<endl;
+ 	    }
+
  	    // The TDC information
  	    else if (DTROSWordType(word).type() == DTROSWordType::TDCMeasurement) {
- 	      DTTDCMeasurementWord tdcMeasurementWord(word);
-	      //      controlData.addTDCMeasurement(tdcMeasurementWord);
 
+
+ 	      DTTDCMeasurementWord tdcMeasurementWord(word);
+	      controlData.addTDCMeasurement(tdcMeasurementWord);
+	      DTTDCData tdcData(robID,tdcMeasurementWord);
+	      controlData.addTDCData(tdcData);
+	      
  	      int tdcID = tdcMeasurementWord.tdcID(); 
-	      cout<<"TDC ID "<<tdcID<<endl;
+	      //cout<<"TDC ID "<<tdcID<<endl;
 
  	      int tdcChannel = tdcMeasurementWord.tdcChannel(); 
-	      cout<<"TDC Channel "<<tdcChannel<<endl;
+	      //cout<<"TDC Channel "<<tdcChannel<<endl;
 
-	      cout<<"TDC Time "<<tdcMeasurementWord.tdcTime()<<endl;
+	      //cout<<"TDC Time "<<tdcMeasurementWord.tdcTime()<<endl;
 
  	      // Map the RO channel to the DetId and wire
  	      DTLayerId layer; int wire = 0;
@@ -151,19 +155,17 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
       // check ROS Trailer (condition already verified)
       if (DTROSWordType(word).type() == DTROSWordType::ROSTrailer){
 	DTROSTrailerWord rosTrailerWord(word);
-	
 	controlData.addROSTrailer(rosTrailerWord);
-
       }
     }
 
-    // (needed only if there are more than 1 ROS
+    // (needed only if there are more than 1 ROS)
     wordCounter++; word = index[wordCounter];
   }  
   
   // Perform dqm if requested
-  if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) {
+  if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) 
     dataMonitor->process(controlData);
-  } 
-
+  
+  
 }
