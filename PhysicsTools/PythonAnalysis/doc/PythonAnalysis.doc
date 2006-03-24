@@ -15,7 +15,7 @@ Some helper routines for startup, tab completion and shorter syntax.
 
 
 \subsection interface Public interface
-- <b>cmstools</>: public interface to all modules.
+- <b>cmstools</b>: public interface to all modules.
  
 \subsection modules Modules
 - <b>cmstools.py</b>: prepares environment and defines some commands
@@ -28,11 +28,13 @@ Some helper routines for startup, tab completion and shorter syntax.
 <pre>
 export PYTHONPATH=$CMSSW_BASE/src/PhysicsTools/PythonAnalysis/python:$PYTHONPATH (bash)
 setenv PYTHONPATH $CMSSW_BASE/src/PhysicsTools/PythonAnalysis/python:$PYTHONPATH (csh)
+</pre>
 \endhtmlonly
 fire up the python interpreter
 \htmlonly
 <pre>
 python
+</pre>
 \endhtmlonly
 and import cmstools and ROOT:
 \htmlonly
