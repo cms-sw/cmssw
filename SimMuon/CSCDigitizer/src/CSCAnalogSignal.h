@@ -99,6 +99,11 @@ public:
 
   friend std::ostream & operator<<(std::ostream &, const CSCAnalogSignal &);
 
+  float & operator[](int i) {
+    assert(i>=0 && i < getSize());
+    return theBinValues[i];
+  }
+
 private:
   int theElement;
   float invBinSize;
