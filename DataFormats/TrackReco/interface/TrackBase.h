@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackBase.h,v 1.3 2006/03/01 12:23:40 llista Exp $
+ * \version $Id: TrackBase.h,v 1.4 2006/03/20 14:15:28 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -37,20 +37,20 @@ namespace reco {
     /// default constructor
     TrackBase() { }
     /// constructor from fit parameters and error matrix
-    TrackBase( float chi2, unsigned short ndof, 
+    TrackBase( double chi2, double ndof, 
 	       int found, int invalid, int lost,
 	       const Parameters &, const Covariance & );
     /// constructor from cartesian coordinates and covariance matrix.
     /// notice that the vertex passed must be 
     /// the point of closest approch to the beamline.
-    TrackBase( float chi2, unsigned short ndof, 
+    TrackBase( double chi2, double ndof, 
 	       int found, int invalid, int lost,
 	       int q, const Point & v, const Vector & p, 
 	       const PosMomError & err );
     /// chi-squared of the fit
     double chi2() const { return chi2_; }
     /// number of degrees of freedom of the fit
-    unsigned short ndof() const { return ndof_; }
+    double ndof() const { return ndof_; }
     /// chi-squared divided by n.d.o.f.
     double normalizedChi2() const { return chi2_ / ndof_; }
     /// helix fit parameters
@@ -112,7 +112,7 @@ namespace reco {
     /// chi-squared
     Double32_t chi2_;
     /// number of degrees of freedom
-    unsigned short ndof_;
+    Double32_t ndof_;
     /// number of hits found
     unsigned short found_;
     /// number of hits lost

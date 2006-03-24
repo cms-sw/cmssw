@@ -1,7 +1,7 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 using namespace reco;
 
-TrackBase::TrackBase( float chi2, unsigned short ndof,  
+TrackBase::TrackBase( double chi2, double ndof,  
 		      int found, int lost, int invalid, 
 		      const helix::Parameters & par, const helix::Covariance & cov  ) : 
   chi2_( chi2 ), ndof_( ndof ), 
@@ -9,7 +9,7 @@ TrackBase::TrackBase( float chi2, unsigned short ndof,
   par_( par ), cov_( cov ) {
 }
 
-TrackBase::TrackBase( float chi2, unsigned short ndof, int found, int invalid, int lost,
+TrackBase::TrackBase( double chi2, double ndof, int found, int invalid, int lost,
 	      int q, const Point & v, const Vector & p, 
 	      const PosMomError & err ) :
   chi2_( chi2 ), ndof_( ndof ), 
