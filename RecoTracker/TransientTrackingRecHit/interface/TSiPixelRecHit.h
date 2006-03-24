@@ -6,7 +6,7 @@
 
 class TSiPixelRecHit : public TransientTrackingRecHit{
  public:
-  TSiPixelRecHit(const TrackingGeometry * geom, const TrackingRecHit * rh) : TransientTrackingRecHit(geom, rh){}
+  TSiPixelRecHit(const GeomDet * geom, const TrackingRecHit * rh) : TransientTrackingRecHit(geom, rh){}
     
   //
   // fake for the moment

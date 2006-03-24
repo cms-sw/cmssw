@@ -4,17 +4,17 @@
 
 const GeomDet * TransientTrackingRecHit::det() const 
 {
-  return _geom->idToDet(geographicalId());
+  return _geom;
 }
 const GeomDetUnit * TransientTrackingRecHit::detUnit() const 
 {
-  return _geom->idToDetUnit(geographicalId());
+  return dynamic_cast<const GeomDetUnit*>(_geom);
 }
 
  GlobalPoint TransientTrackingRecHit::globalPosition() const {
-  return  (_geom->idToDet(geographicalId()))->surface().toGlobal(localPosition());
+   return  (_geom->surface().toGlobal(localPosition()));
 }
  GlobalError TransientTrackingRecHit::globalPositionError() const {
-   return ErrorFrameTransformer().transform( localPositionError(), (_geom->idToDet(geographicalId()))->surface());
+   return ErrorFrameTransformer().transform( localPositionError(), (_geom->surface()));
 }   
 

@@ -3,7 +3,7 @@
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include <Geometry/Vector/interface/GlobalPoint.h>
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h>
@@ -13,7 +13,7 @@
 class TransientTrackingRecHit : public TrackingRecHit
 {
  public:
-  TransientTrackingRecHit(const TrackingGeometry * geom, const TrackingRecHit * rh) {
+  TransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh) {
     _geom = geom ;
     _trackingRecHit = rh->clone();
   }
@@ -65,7 +65,7 @@ class TransientTrackingRecHit : public TrackingRecHit
   }
 
   private:
-  const TrackingGeometry * _geom ;
+  const GeomDet * _geom ;
   TrackingRecHit * _trackingRecHit;
 };
 

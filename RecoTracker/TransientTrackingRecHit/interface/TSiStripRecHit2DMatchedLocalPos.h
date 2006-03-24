@@ -8,7 +8,7 @@
 
 class TSiStripRecHit2DMatchedLocalPos : public TransientTrackingRecHit{
  public:
-  TSiStripRecHit2DMatchedLocalPos(const TrackingGeometry * geom, const TrackingRecHit * rh) : TransientTrackingRecHit(geom, rh){}
+  TSiStripRecHit2DMatchedLocalPos(const GeomDet * geom, const TrackingRecHit * rh) : TransientTrackingRecHit(geom, rh){}
 
   //
   // fake for the moment

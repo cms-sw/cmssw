@@ -11,11 +11,11 @@ TkTransientTrackingRecHitBuilder::TkTransientTrackingRecHitBuilder(  const Track
 
 TransientTrackingRecHit* TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) {
   if (dynamic_cast<const SiStripRecHit2DLocalPos*>(p)){ 
-    return ( new TSiStripRecHit2DLocalPos(tGeometry_, p ) ); 
+    return ( new TSiStripRecHit2DLocalPos(tGeometry_->idToDet(p->geographicalId()), p ) ); 
   } else if (dynamic_cast<const SiStripRecHit2DMatchedLocalPos*>(p)) {
-    return ( new TSiStripRecHit2DMatchedLocalPos(tGeometry_, p )); 
+    return ( new TSiStripRecHit2DMatchedLocalPos(tGeometry_->idToDet(p->geographicalId()), p )); 
   } else if (dynamic_cast<const SiPixelRecHit*>(p)) {
-    return ( new TSiPixelRecHit(tGeometry_, p ) ); 
+    return ( new TSiPixelRecHit(tGeometry_->idToDet(p->geographicalId()), p ) ); 
   }
   return 0;
 }
