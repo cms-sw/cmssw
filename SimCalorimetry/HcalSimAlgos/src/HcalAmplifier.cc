@@ -40,15 +40,13 @@ void HcalAmplifier::amplify(CaloSamples & frame) const {
 
   for(int tbin = 0; tbin < frame.size(); ++tbin) {
     int capId = (theStartingCapId + tbin)%4;
-    //LogDebug("HcalAmplifier") << "PEDS " << capId << " " << calibrations.pedestal(capId)
-    //    << " " << widths.pedestal(capId) << " " << calibrations.gain(capId) 
-    //    <<" " << widths.gain(capId);
+    LogDebug("HcalAmplifier") << "PEDS " << capId << " " << calibrations.pedestal(capId)
+        << " " << widths.pedestal(capId) << " " << calibrations.gain(capId) 
+        <<" " << widths.gain(capId);
     double pedestal = calibrations.pedestal(capId);
     double gain = calibrations.gain(capId);
     if(addNoise_) {
-      // pedestal width are returned in GeV, even though pedestals
-      // are in fC
-      pedestal += RandGauss::shoot(0. , widths.pedestal(capId)) / gain;
+      pedestal += RandGauss::shoot(0. , widths.pedestal(capId));
       gain += RandGauss::shoot(0., widths.gain(capId));
     }
     // since gain is (GeV/fC)
