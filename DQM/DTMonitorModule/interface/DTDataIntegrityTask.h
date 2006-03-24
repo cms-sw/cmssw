@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2006/01/18 11:18:56 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/02/21 19:03:11 $
+ *  $Revision: 1.1 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -38,7 +38,8 @@ public:
   
   virtual ~DTDataIntegrityTask();
    
- 
+  void bookHistos(string folder, int index = 0);
+
   void process(DTROS25Data & data);
  
 private:
@@ -48,6 +49,15 @@ private:
   // back-end interface
   DaqMonitorBEInterface * dbe;
   
+
+  // Monitor Elements
+  // <histoName, histo>    
+  map<string, MonitorElement*> rosHistos;
+  // <histoName, <robID, histo> >   
+  map<string, map<int, MonitorElement*> > robHistos;
+
+  int nevents;
+  string outputFile;
 
 };
 
