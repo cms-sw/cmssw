@@ -24,7 +24,34 @@ None.
 
 \subsection tests Unit tests and examples
 - <b>jetexample.C</b>: macro to load the required libraries and
-  perform interactive analysis using JetTSelector.
+  perform interactive analysis using JetTSelector. The following
+  steps are required from <a href="http://root.cern.ch">root</a> prompt:
+\htmlonly
+<ol>
+<li> Enable automatic library loading of datafiles
+     libraries:
+<pre>
+  gSystem->Load("libPhysicsToolsFWLite");
+  AutoLibraryLoader::enable();
+</pre>
+<li> Prepair the chain (just a single file in this example):
+<pre>
+  TChain jets("Events");
+  jets.Add("jets.root");
+</pre>
+<li> Load the this package's library containing the dictionary
+     for the <tt>TSelector</tt>, and create a <tt>TSelector</tt> instance:
+<pre>
+  gSystem->Load( "libPhysicsToolsParallelAnalysis );
+  JetTSelector * selector = new JetTSelector;
+</pre>
+<li> Process all events in the chain with the <tt>TSelector</tt>:
+<pre>
+   jets.Process( selector );
+</pre>
+</ol>
+This will create on output tho histograms.
+\endhtmlonly
 
 \section status Status and planned development
 Prototypal.
