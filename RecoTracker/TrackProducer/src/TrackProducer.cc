@@ -19,7 +19,7 @@
 
 // constructors and destructor
 TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
-  theAlgo(iConfig), conf_(iConfig)
+  theAlgo(iConfig), conf_(iConfig), src_( iConfig.getParameter<std::string>( "src" ))
 {
   //register your products
   produces<TrackingRecHitCollection>();
@@ -56,12 +56,13 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   edm::ESHandle<Propagator> thePropagator;
   setup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
 
-  //   edm::Handle<TrackCandidateCollection> theTCCollection;
+  edm::Handle<TrackCandidateCollection> theTCCollection;
   //   theEvent.getByLabel( "minchipink", theTCCollection );
+  theEvent.getByLabel( src_, theTCCollection );
 
   //run the algorithm  
   AlgoProductCollection algoResults;
-  theAlgo.run(theG.product(), theMF.product(), theTCCollection, theFitter.product(), 
+  theAlgo.run(theG.product(), theMF.product(), *theTCCollection, theFitter.product(), 
 	      thePropagator.product(), algoResults);
 
   

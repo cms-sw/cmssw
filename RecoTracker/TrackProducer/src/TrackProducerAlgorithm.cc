@@ -17,15 +17,15 @@
 
 void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 				 const MagneticField * theMF,
-				 TrackCandidateCollection& theTCCollection,
+				 const TrackCandidateCollection& theTCCollection,
 				 const TrajectoryFitter * theFitter,
 				 const Propagator * thePropagator,
 				 AlgoProductCollection& algoResults)
 {
   int cont = 0;
-  for (TrackCandidateCollection::iterator i=theTCCollection.begin(); i!=theTCCollection.end();i++)
+  for (TrackCandidateCollection::const_iterator i=theTCCollection.begin(); i!=theTCCollection.end();i++)
     {
-      TrackCandidate * theTC = &(*i);//maybe it is better to clone
+      const TrackCandidate * theTC = &(*i);
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
       TrajectoryStateTransform transformer;
       PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
@@ -44,12 +44,12 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
       //
       builder = new TkTransientTrackingRecHitBuilder( theG);
 
-      int ndof=0;
+      float ndof=0;
       
       for (edm::OwnVector<TrackingRecHit>::const_iterator i=theTC->recHits().first;
 	   i!=theTC->recHits().second; i++){
 	hits.push_back(builder->build(&(*i) ));
-	ndof = ndof + int( (i->dimension())*(i->weight()) );
+	ndof = ndof + (i->dimension())*(i->weight());
       }
       
       delete builder;
@@ -84,7 +84,7 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 	
 	//extrapolate the innermost state to the point of closest approach to the beamline
 	tsos = tipe->extrapolate(*(innertsos.freeState()), 
-				 GlobalPoint(0,0,0) );
+				 GlobalPoint(0,0,0) );//FIXME Correct?
 	
 	//compute parameters needed to build a Track from a Trajectory    
 	int charge = tsos.charge();
@@ -102,7 +102,7 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 	
 	//build the Track(chiSquared, ndof, found, invalid, lost, q, vertex, momentum, covariance)
 	theTrack = new reco::Track(theTraj->chiSquared(), 
-				   ndof,//FIXME fix weight() in TrackingRecHit
+				   int(ndof),//FIXME fix weight() in TrackingRecHit 
 				   theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
 				   0, //FIXME no corresponding method in trajectory.h
 				   theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
