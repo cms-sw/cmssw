@@ -11,7 +11,6 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=RecoTracker/TransientTrackingRecHit> 
 <use name=rootrflx>
-#<flags SEAL_PLUGIN_NAME="EDProdTestTest">
 <export>
    <lib name=RecoTrackerTrackProducer>
    <use name=FWCore/Framework>
@@ -25,3 +24,4 @@
    <use name=MagneticField/Records>
    <use name=rootrflx>
 </export>
+<flags SEAL_PLUGIN_NAME="RecoTrackerTrackProducer">
