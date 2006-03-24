@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.2 2006/02/08 21:18:47 fedor Exp $
+// $Id: HcalDbHardcode.cc,v 1.3 2006/02/22 19:51:38 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -27,11 +27,13 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalDetId fId, bool fSmear) {
 }
 
 HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalDetId fId) {
-  float value = 0.1;
+  HcalGain gain = HcalDbHardcode::makeGain (fId);
+  float value = fId.subdet () == HcalForward ? 0.14 : 0.1;
   HcalPedestalWidth result (fId.rawId ());
   for (int i = 1; i <= 4; i++) {
+    double width = value / gain.getValue (i);
     for (int j = 1; j <= i; j++) {
-      result.setSigma (i, j, i == j ? value * value : 0);
+      result.setSigma (i, j, i == j ? width * width : 0);
     }
   } 
   return result;
@@ -39,7 +41,7 @@ HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalDetId fId) {
 
 HcalGain HcalDbHardcode::makeGain (HcalDetId fId, bool fSmear) {
   HcalGainWidth width = makeGainWidth (fId);
-  float value0 = fId.subdet () == HcalForward ? 0.150 : 0.177; // GeV/fC
+  float value0 = fId.subdet () == HcalForward ? 0.058 : 0.177; // GeV/fC
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) for (int i = 0; i < 4; i++) value [i] = RandGauss::shoot (value0, width.getValue (i+1)); 
   HcalGain result (fId.rawId (), value[0], value[1], value[2], value[3]);
