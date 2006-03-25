@@ -21,7 +21,6 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Attribute.h"
-#include "SealKernel/Exception.h"
 cond::MetaData::MetaData(const std::string& connectionString, cond::ServiceLoader& loader):
   m_con(connectionString),m_loader(loader){
   if(!m_loader.hasMessageService()){
@@ -42,7 +41,7 @@ void cond::MetaData::connect(){
   try{
     m_session->connect();
     m_session->startUserSession();
-  }catch(seal::Exception& er){
+  }catch(std::exception& er){
     throw cond::Exception("MetaData::MetaData connect")<<er.what();
   }catch(...){
     throw cond::Exception( "MetaData::connect caught unknown exception" );
@@ -54,7 +53,7 @@ void cond::MetaData::disconnect(){
 bool cond::MetaData::addMapping(const std::string& name, const std::string& iovtoken){
   try{
     m_session->transaction().start();
-  }catch(seal::Exception& er){
+  }catch(std::exception& er){
     throw cond::Exception( std::string("MetaData::addMapping ")+ er.what());
   }catch(...){
     throw cond::Exception( "MetaData::addMapping cannot start transaction" );
@@ -73,7 +72,7 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
     m_session->transaction().commit() ;
   }catch( coral::DuplicateEntryInUniqueKeyException& er ){
     throw cond::MetaDataDuplicateEntryException("addMapping",name);
-  }catch(seal::Exception& er){
+  }catch(std::exception& er){
     throw cond::Exception(er.what());
   }catch(...){
     throw cond::Exception( "MetaData::addMapping Could not commit the transaction" );
@@ -83,7 +82,7 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
 bool cond::MetaData::replaceToken(const std::string& name, const std::string& newtoken){
   try{
     m_session->transaction().start();
-  }catch(seal::Exception& er){
+  }catch(std::exception& er){
     throw cond::Exception( std::string("MetaData::addMapping ")+ er.what());
   }catch(...){
     throw cond::Exception( "MetaData::addMapping cannot start transaction" );
@@ -107,7 +106,7 @@ bool cond::MetaData::replaceToken(const std::string& name, const std::string& ne
     m_session->transaction().commit() ;
   }catch( coral::DuplicateEntryInUniqueKeyException& er ){
     throw cond::MetaDataDuplicateEntryException("MetaData::replaceToken",name);
-  }catch(seal::Exception& er){
+  }catch(std::exception& er){
     throw cond::Exception(er.what());
   }catch(...){
     throw cond::Exception( "MetaData::replaceToken Could not commit the transaction" );
@@ -117,7 +116,7 @@ bool cond::MetaData::replaceToken(const std::string& name, const std::string& ne
 const std::string cond::MetaData::getToken( const std::string& name ){
   try{
     m_session->transaction().start();
-  }catch(const seal::Exception& er){
+  }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::getToken: Could not start a new transaction" )+er.what() );
   }catch(...){
     throw cond::Exception( "MetaData::getToken Could not start a new transaction" );
@@ -137,7 +136,7 @@ const std::string cond::MetaData::getToken( const std::string& name ){
   }
   try{
     m_session->transaction().commit();
-  }catch(const seal::Exception& er){
+  }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::getToken Could not commit a transaction")+er.what() );
   }catch(...){
     throw cond::Exception( "MetaData::getToken: Could not commit a transaction" );

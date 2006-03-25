@@ -2,7 +2,7 @@
 #include "CondCore/DBCommon/interface/ServiceLoader.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "SealKernel/Exception.h"
+//#include "SealKernel/Exception.h"
 #include <string>
 int main(){
   cond::ServiceLoader* loader=new cond::ServiceLoader;
@@ -28,7 +28,7 @@ int main(){
     std::string mytok2=metadata_svc.getToken("mytest2");
     std::cout<<"get back new tok2 "<<newtok2<<" "<<mytok2<<std::endl;
     metadata_svc.disconnect();
-  }catch(seal::Exception& er){
+  }catch(std::exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(cond::Exception& er){
     std::cout<<er.what()<<std::endl;
