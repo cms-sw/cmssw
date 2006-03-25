@@ -2,7 +2,7 @@
 #define COND_DBWRITER_H
 #include <string>
 #include "DataSvc/Ref.h"
-#include "SealKernel/Exception.h"
+#include "POOLCore/Exception.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 namespace cond{
   class DBSession;
@@ -18,8 +18,8 @@ namespace cond{
       pool::Ref<ObjType> myref(&(m_session.DataSvc()), obj);
       try{
 	myref.markWrite(*m_placement);
-      }catch( const seal::Exception& er){
-	throw cond::Exception( std::string("caught seal::Exception ")+ er.what() );
+      }catch( const pool::Exception& er){
+	throw cond::Exception( std::string("caught pool::Exception ")+ er.what() );
       }catch ( const std::exception& er ) {
 	throw cond::Exception( std::string("caught std::exception ")+ er.what() );
       }catch ( ... ) {
