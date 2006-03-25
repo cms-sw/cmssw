@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:40:27 EDT 2005
-// $Id: DataProxy.h,v 1.5 2005/11/17 18:35:34 xiezhen Exp $
+// $Id: DataProxy.h,v 1.6 2005/12/07 09:40:02 xiezhen Exp $
 //
 
 // system include files
@@ -59,8 +59,8 @@ namespace cond{
       }catch( const pool::RefException& er){
 	std::cerr<<"caught RefException "<<er.what()<<std::endl;
 	throw cms::Exception( er.what() );
-      }catch( const seal::Exception& er ){
-	std::cerr<<"caught seal Exception "<<er.what()<<std::endl;
+      }catch( const pool::Exception& er ){
+	std::cerr<<"caught pool Exception "<<er.what()<<std::endl;
 	throw cms::Exception( er.what() );
       }catch( ... ){
 	throw cms::Exception( "Funny error" );
