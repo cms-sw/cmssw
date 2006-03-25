@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/03/05 09:50:41 $
- * $Revision: 1.99 $
+ * $Date: 2006/03/24 10:16:06 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1149,7 +1149,7 @@ void EcalBarrelMonitorClient::analyze(void){
         }
 
         if ( enableSubRun_ ) {
-          time_t seconds = 10 * 60;
+          time_t seconds = 15 * 60;
           if ( (current_time_ - last_time_) > seconds ) {
             if ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) this->writeDb();
           }

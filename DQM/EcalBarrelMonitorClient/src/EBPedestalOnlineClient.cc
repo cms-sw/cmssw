@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/03/05 09:50:41 $
- * $Revision: 1.9 $
+ * $Date: 2006/03/24 10:16:06 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -337,7 +337,6 @@ void EBPedestalOnlineClient::analyze(void){
       }
       if ( ! meh03_[ism-1] ) {
         meh03_[ism-1] = me;
-        mui_->enableSoftReset(meh03_[ism-1], true);
       }
     }
 

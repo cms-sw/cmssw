@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/03/13 13:00:09 $
- * $Revision: 1.41 $
+ * $Date: 2006/03/24 10:16:06 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -311,7 +311,6 @@ void EBCosmicClient::analyze(void){
       }
       if ( ! meh01_[ism-1] ) {
         meh01_[ism-1] = me;
-        mui_->enableSoftReset(meh01_[ism-1], true);
       }
     }
 
@@ -335,7 +334,6 @@ void EBCosmicClient::analyze(void){
       }
       if ( ! meh02_[ism-1] ) {
         meh02_[ism-1] = me;
-        mui_->enableSoftReset(meh02_[ism-1], true);
       }
     }
 
@@ -359,7 +357,6 @@ void EBCosmicClient::analyze(void){
       }
       if ( ! meh03_[ism-1] ) {
         meh03_[ism-1] = me;
-        mui_->enableSoftReset(meh03_[ism-1], true);
       }
     }
 
