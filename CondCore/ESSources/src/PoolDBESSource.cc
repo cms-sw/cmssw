@@ -10,7 +10,7 @@
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 #include "CondCore/IOVService/interface/IOV.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "SealKernel/Exception.h"
+#include "POOLCore/Exception.h"
 #include <exception>
 #include <iostream>
 #include <sstream>
@@ -121,7 +121,7 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
     throw e;
   }catch(const cms::Exception&e ){
     throw e;
-  }catch(const seal::Exception&e ){
+  }catch(const pool::Exception&e ){
     throw cond::Exception( "PoolDBESSource::initIOV ")<<e.what();
   }catch(const std::exception& e){
     throw cond::Exception( "PoolDBESSource::initIOV ")<<e.what();
@@ -176,7 +176,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     throw e;
   }catch(const cms::Exception&e ){
     throw e;
-  }catch( const seal::Exception& e){
+  }catch( const pool::Exception& e){
     throw cond::Exception( "PoolDBESSource::PoolDBESSource ")<<e.what();
   }catch( const std::exception& e){
     throw cond::Exception( "PoolDBESSource::PoolDBESSource ")<<e.what();
