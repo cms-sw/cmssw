@@ -8,7 +8,7 @@
 #include "PersistencySvc/ITransaction.h"
 #include "DataSvc/DataSvcFactory.h"
 #include "DataSvc/IDataSvc.h"
-#include "SealKernel/Exception.h"
+#include "POOLCore/Exception.h"
 cond::DBSession::DBSession( const std::string& con ):m_con(con),m_cat(new pool::IFileCatalog),m_svc( pool::DataSvcFactory::instance(m_cat)), m_catalogcon(""){}
 cond::DBSession::DBSession( const std::string& con, 
 			    const std::string& catalogcon )
@@ -56,8 +56,8 @@ void cond::DBSession::disconnect(){
 void cond::DBSession::startUpdateTransaction(){
   try{
     m_svc->session().transaction().start(pool::ITransaction::UPDATE);
-  }catch(const seal::Exception& er){
-    throw cond::Exception(std::string("DBSession::startUpdate caught seal::Exception ")+er.what());
+  }catch(const pool::Exception& er){
+    throw cond::Exception(std::string("DBSession::startUpdate caught pool::Exception ")+er.what());
   }catch(...){
     throw cond::Exception(std::string("DBSession::startUpdate caught unknown exception in "));
   }
@@ -65,8 +65,8 @@ void cond::DBSession::startUpdateTransaction(){
 void cond::DBSession::startReadOnlyTransaction(){
   try{
     m_svc->session().transaction().start(pool::ITransaction::READ);
-  }catch(const seal::Exception& er){
-    throw cond::Exception(std::string("DBSession::startReadOnly caught seal::Exception ")+er.what());
+  }catch(const pool::Exception& er){
+    throw cond::Exception(std::string("DBSession::startReadOnly caught pool::Exception ")+er.what());
   }catch(...){
     throw cond::Exception(std::string("DBSession::startReadOnly caught unknown exception in "));
   }
@@ -77,8 +77,8 @@ void cond::DBSession::rollback(){
 void cond::DBSession::commit(){
   try{
     m_svc->session().transaction().commit();
-  }catch( const seal::Exception& er){
-    throw cond::Exception( std::string("DBWriter::commit caught seal::Exception ")+ er.what() );
+  }catch( const pool::Exception& er){
+    throw cond::Exception( std::string("DBWriter::commit caught pool::Exception ")+ er.what() );
   }catch( ... ){
     throw cond::Exception( std::string("DBWriter::commit caught unknown exception ") );
   }

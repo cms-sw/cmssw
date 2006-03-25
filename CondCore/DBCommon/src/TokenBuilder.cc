@@ -5,7 +5,8 @@
 #include "StorageSvc/DbReflex.h"
 #include "SealBase/SharedLibrary.h"
 #include "SealBase/SharedLibraryError.h"
-#include "SealKernel/Exception.h"
+//#include "SealKernel/Exception.h"
+#include "POOLCore/Exception.h"
 //#include <iostream>
 namespace cond{
   TokenBuilder::TokenBuilder(): m_token(new pool::Token){
@@ -23,7 +24,7 @@ namespace cond{
       seal::SharedLibrary::load( "lib" + dictLib + ".so" );
     }catch ( seal::SharedLibraryError *error){
       throw cond::Exception(std::string("TokenBuilder::set failed loading dictionary ")+error->explainSelf());
-    }catch (const seal::Exception &e){
+    }catch (const pool::Exception &e){
       throw cond::Exception(std::string("TokenBuilder::set failed loading dictionary")+e.what());
     }catch (...){
       throw cond::Exception(std::string("TokenBuilder::set failed loading dictionary"));
