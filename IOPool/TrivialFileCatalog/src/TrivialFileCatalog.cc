@@ -4,8 +4,8 @@
  */
 
 #include <set>
-#include <exception>
 #include <string>
+#include <stdexcept>
 #ifndef POOL_TRIVIALFILECATALOG_H
 #include "IOPool/TrivialFileCatalog/interface/TrivialFileCatalog.h"
 #endif
@@ -39,7 +39,7 @@ inline std::string _toString(const XMLCh *toTranscode)
     return tmp;
 }
 
-inline XMLCh*  _toDOMS( std::string temp ){
+inline XMLCh*  _toDOMS(std::string temp){
     XMLCh* buff = XMLString::transcode(temp.c_str());    
     return  buff;
 }
@@ -48,7 +48,7 @@ pool::TrivialFileCatalog::TrivialFileCatalog ()
     : m_connectionStatus (false),
       m_fileType ("ROOT_All")
 {  
-    PoolMessageStream trivialLog( "TrivialFileCatalog", seal::Msg::Nil );
+    PoolMessageStream trivialLog("TrivialFileCatalog", seal::Msg::Nil);
     try { 
 	trivialLog <<seal::Msg::Info << "Xerces-c initialization Number "
 	  << s_numberOfInstances <<seal::endmsg;
@@ -59,10 +59,7 @@ pool::TrivialFileCatalog::TrivialFileCatalog ()
 	trivialLog <<seal::Msg::Fatal << "Xerces-c error in initialization \n"
 	      << "Exception message is:  \n"
 	      << _toString(e.getMessage()) << seal::endmsg;
-	seal::Status s(seal::Status::ERROR,0,21);
-	throw( seal::Exception("Standard pool exception",
-			       "Fatal Error on pool::PoolXMLFileCatalog",
-			       s));
+        throw(std::runtime_error("Standard pool exception : Fatal Error on pool::TrivialFileCatalog"));
     }
     ++s_numberOfInstances;
     
@@ -78,7 +75,7 @@ pool::TrivialFileCatalog::connect ()
 {
     try
     {
-	PoolMessageStream trivialLog( "TrivialFileCatalog", seal::Msg::Nil );
+	PoolMessageStream trivialLog("TrivialFileCatalog", seal::Msg::Nil);
   	trivialLog << seal::Msg::Info << "Connecting to the catalog "
 		   << m_url << seal::endmsg;
 
@@ -197,7 +194,7 @@ pool::TrivialFileCatalog::connect ()
 	m_transactionsta = 0;	
 	throw FCconnectionException("TrivialFileCatalog::connect",e.message());
     }
-    catch( std::exception& er)
+    catch(std::exception& er)
     {
 	m_transactionsta = 0;	
 	throw FCconnectionException("TrivialFileCatalog::connect",er.what());
@@ -231,7 +228,7 @@ pool::TrivialFileCatalog::rollback () const
 void
 pool::TrivialFileCatalog::registerPFN (const std::string& /*pfn*/, 
 				       const std::string& /*filetype*/,
-				       FileCatalog::FileID& /*fid*/ ) const
+				       FileCatalog::FileID& /*fid*/) const
 {
     throw FCTransactionException
 	("TrivialFileCatalog::registerPFN",
@@ -386,7 +383,7 @@ pool::TrivialFileCatalog::isReadOnly () const
 bool
 pool::TrivialFileCatalog::retrievePFN (const std::string& query, 
 				       FCBuf<PFNEntry>& buf, 
-				       const size_t& /*start*/ )
+				       const size_t& /*start*/)
 {
     if (m_transactionsta == 0)
 	throw FCconnectionException("TrivialFileCatalog::lookupBestPFN",
