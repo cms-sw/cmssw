@@ -5,7 +5,7 @@
 class BlobNoises {
 public:
   BlobNoises();
-  BlobNoises(unsigned int id);
+  void fill(unsigned int id);
   virtual ~BlobNoises();
   struct DetRegistry{
     uint32_t detid;
@@ -33,6 +33,7 @@ public:
   bool operator!=(const BlobNoises& rhs) const {
     return !operator==(rhs);
   }
+  
   //std::vector<int16_t>  v_noises; //dictionary problem with this
   std::vector<short> v_noises;
   std::vector<DetRegistry> indexes;
