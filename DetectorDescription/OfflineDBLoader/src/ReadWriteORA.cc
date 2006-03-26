@@ -228,10 +228,6 @@ bool ReadWriteORA::writeDB ( ) {
     delete svc;
 
   }
-  catch ( seal::Exception& e ) {
-    std::cout << "ReadWriteORA::writeDB caught seal::Exception -> " << e.what() << std::endl;
-    return false;
-  }
   catch ( std::exception& e ) {
     std::cout << "ReadWriteORA::writeDB caught std::exception -> " << e.what() << std::endl;
     return false;
@@ -256,22 +252,22 @@ bool ReadWriteORA::writeDB ( ) {
 	std::cout<<"Mapping exists!  WARNING: Nothing done, map remains as it was." << std::endl;
 	std::cout<<"TABLE IOVMETA contains an un-named token.  You can copy the token down and fix the DB."<<std::endl;
       }
-    } catch ( seal::Exception& e ) {
-      std::cout << "ReadWriteORA::writeDB caught seal::Exception -> " << e.what() << std::endl;
-      std::cout << "ASSUMPTION: the error allows me to proceed... about to add a mapping..." << std::endl;
-      meta.addMapping(name_, token);
     } catch ( cond::Exception& e ) {
       std::cout << "ReadWriteORA::writeDB caught cond::Exception -> " << e.what() << std::endl;
       std::cout << "WILL ABORT!!!" << std::endl;
+    } catch ( std::exception& e ) {
+      std::cout << "ReadWriteORA::writeDB caught std::exception -> " << e.what() << std::endl;
+      std::cout << "ASSUMPTION: the error allows me to proceed... about to add a mapping..." << std::endl;
+      meta.addMapping(name_, token);
     }
     try {
       std::cout << meta.getToken(name_) << std::endl;
       meta.disconnect();
-    } catch ( seal::Exception& e ) {
-      std::cout << "ReadWriteORA::writeDB caught seal::Exception -> " << e.what() << std::endl;
     } catch ( cond::Exception& e ) {
       std::cout << "ReadWriteORA::writeDB caught cond::Exception -> " << e.what() << std::endl;
       std::cout << "WILL ABORT!!!" << std::endl;
+    } catch ( std::exception& e ) {
+      std::cout << "ReadWriteORA::writeDB caught std::exception -> " << e.what() << std::endl;
     }
     delete loader;
   return true;
@@ -316,10 +312,10 @@ bool ReadWriteORA::readFromDB ( ) {
 			dbConnectString_ );
     ddorar.readDB();
     return true;
-  } catch ( seal::Exception& e ) {
-      std::cout << "ReadWriteORA::writeDB caught seal::Exception -> " << e.what() << std::endl;
   } catch ( cond::Exception& e ) {
     std::cout << "ReadWriteORA::writeDB caught cond::Exception -> " << e.what() << std::endl;
+  } catch ( std::exception& e ) {
+      std::cout << "ReadWriteORA::writeDB caught std::exception -> " << e.what() << std::endl;
   }
   return false;
 }
