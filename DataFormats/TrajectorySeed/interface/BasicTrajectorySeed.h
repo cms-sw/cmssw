@@ -16,7 +16,7 @@ class BasicTrajectorySeed {
 public:
   typedef edm::OwnVector<TrackingRecHit> recHitContainer;
   typedef recHitContainer::const_iterator const_iterator;
-  typedef std::pair<iterator,iterator> range;
+  typedef std::pair<const_iterator,const_iterator> range;
   
   BasicTrajectorySeed() { }
   
