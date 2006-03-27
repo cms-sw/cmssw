@@ -15,14 +15,14 @@
 class BasicTrajectorySeed {
 public:
   typedef edm::OwnVector<TrackingRecHit> recHitContainer;
-  typedef recHitContainer::iterator iterator;
+  typedef recHitContainer::const_iterator const_iterator;
   typedef std::pair<iterator,iterator> range;
   
   BasicTrajectorySeed() { }
   
   // returns the recHits
   
-  virtual range recHits() = 0;
+  virtual range recHits() const = 0;
   virtual PropagationDirection direction() const = 0;
   virtual PTrajectoryStateOnDet startingState() const = 0;
 };
