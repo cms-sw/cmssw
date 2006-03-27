@@ -15,6 +15,9 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
 //#define DEBUG
 
+// MessageLogger
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iostream>
 using namespace std;
 
@@ -64,9 +67,8 @@ CPEFromDetPosition::setTheDet( const GeomDetUnit & det )
     // A forward!  A forward!
     break;
   default:
-    std::cout 
-      << "CPEFromDetPosition:: a non-pixel detector type in here? Yuck!" 
-      << std::endl;
+    LogDebug("CPEFromDetPosition") 
+      << "CPEFromDetPosition:: a non-pixel detector type in here? Yuck!" ;
     //  &&& Should throw an exception here!
     assert(0);
   }
@@ -111,13 +113,12 @@ CPEFromDetPosition::setTheDet( const GeomDetUnit & det )
   theLShift = lorentzShift();
 
   if (theVerboseLevel > 5) {
-    cout << "***** PIXEL LAYOUT *****" << endl;
-    cout << " theThickness = " << theThickness << endl;
-    cout << " thePitchX  = " << thePitchX << endl;
-    cout << " thePitchY  = " << thePitchY << endl;
-    cout << " theOffsetX = " << theOffsetX << endl;
-    cout << " theOffsetY = " << theOffsetY << endl;
-    cout << " theLShift  = " << theLShift  << endl;
+    LogDebug("CPEFromDetPosition") << "***** PIXEL LAYOUT *****" << " theThickness = " << theThickness
+    << " thePitchX  = " << thePitchX 
+    << " thePitchY  = " << thePitchY 
+    << " theOffsetX = " << theOffsetX 
+    << " theOffsetY = " << theOffsetY 
+    << " theLShift  = " << theLShift;
   }
 }
 
@@ -139,10 +140,11 @@ CPEFromDetPosition::localError( const SiPixelCluster& cluster, const GeomDetUnit
   bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol); 
   //&&& testing...
   if (theVerboseLevel > 5) {
-    cout << "sizex = " << sizex << endl;
-    cout << "sizey = " << sizey << endl;
-    cout << "edgex = " << edgex << endl;
-    cout << "edgey = " << edgey << endl;
+    LogDebug("CPEFromDetPosition") <<
+      "sizex = " << sizex << 
+      "sizey = " << sizey << 
+      "edgex = " << edgex << 
+      "edgey = " << edgey ;
   }
   if (sizex>0) return LocalError( sizex, 0, sizey );
 
@@ -153,9 +155,10 @@ MeasurementPoint
 CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster, const GeomDetUnit & det) 
 {
   if (theVerboseLevel > 15) {
-    cout << "xpos = " << xpos(cluster) << endl;
-    cout << "ypos = " << ypos(cluster) << endl;
-    cout << "lshf = " << theLShift     << endl;
+    LogDebug("CPEFromDetPosition") <<
+      "xpos = " << xpos(cluster) << 
+      "ypos = " << ypos(cluster) << 
+      "lshf = " << theLShift ;
   }
   return MeasurementPoint( xpos(cluster)-theLShift, 
   			   ypos(cluster));
@@ -443,11 +446,11 @@ CPEFromDetPosition::lorentzShift() const
   // express the shift in units of pitch, 
   // divide by 2 to get the average correction
   float lshift = xdrift / thePitchX / 2.; 
-#ifdef DEBUG
-  cout << "Lorentz Drift = " << xdrift << endl;
-  cout << "X Drift = " << dir.x() << endl;
-  cout << "Z Drift = " << dir.z() << endl;
-#endif 
+
+  //cout << "Lorentz Drift = " << xdrift << endl;
+  //cout << "X Drift = " << dir.x() << endl;
+  //cout << "Z Drift = " << dir.z() << endl;
+ 
   return lshift;  
 }
 
@@ -551,8 +554,8 @@ CPEFromDetPosition::driftDirection( GlobalVector bfield )
   LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
 
   if (theVerboseLevel > 0) {
-    cout << " The drift direction in local coordinate is " 
-  	 << theDriftDirection    << endl;
+    LogDebug("CPEFromDetPosition") << " The drift direction in local coordinate is " 
+  	 << theDriftDirection    ;
   }
 
   return theDriftDirection;
