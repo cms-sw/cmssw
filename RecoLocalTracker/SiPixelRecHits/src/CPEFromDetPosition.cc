@@ -29,7 +29,7 @@ const float degsPerRad = 57.29578;
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf) const 
+CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf) 
 {
   //--- Lorentz angle tangent per Tesla
   theTanLorentzAnglePerTesla =
@@ -165,7 +165,7 @@ CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster, const Ge
 }
 
 LocalPoint
-CPEFromDetPosition::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) 
+CPEFromDetPosition::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) const
 {
   //return theTopol->localPosition(measurementPosition(cluster, det)); 
 
