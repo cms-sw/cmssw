@@ -7,6 +7,11 @@
 
 namespace {
   namespace {
+    SiPixelClusterCollection a;
+    SiPixelCluster b;
+    SiPixelCluster::Pixel c;
+    SiPixelCluster::PixelPos d;
+    SiPixelCluster::Shift e;
     edm::Wrapper<SiPixelClusterCollection> siPixelClusterCollectionWrapper;
   }
 }

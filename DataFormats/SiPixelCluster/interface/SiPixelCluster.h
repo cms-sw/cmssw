@@ -23,6 +23,7 @@ class SiPixelCluster {
   
   class Pixel {
   public:
+    Pixel(){} // for root
     Pixel( float pix_x, float pix_y, float pix_adc) :
       x(pix_x), y(pix_y), adc(pix_adc) {}
     float x;
