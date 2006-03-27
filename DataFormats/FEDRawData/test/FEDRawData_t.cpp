@@ -3,16 +3,17 @@
    test file for FEDRawData library
 
    \author Stefano ARGIRO
-   \version $Id: FEDRawData_t.cc,v 1.4 2005/10/06 18:25:22 namapane Exp $
+   \version $Id: FEDRawData_t.cpp,v 1.1 2006/03/27 10:05:32 argiro Exp $
    \date 28 Jun 2005
 */
 
-static const char CVSId[] = "$Id: FEDRawData_t.cc,v 1.4 2005/10/06 18:25:22 namapane Exp $";
+static const char CVSId[] = "$Id: FEDRawData_t.cpp,v 1.1 2006/03/27 10:05:32 argiro Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 
 #include <iostream>
+
 class testFEDRawData: public CppUnit::TestFixture {
 
   CPPUNIT_TEST_SUITE(testFEDRawData);
