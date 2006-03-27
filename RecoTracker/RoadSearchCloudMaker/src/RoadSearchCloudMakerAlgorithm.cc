@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/03/14 08:02:01 $
-// $Revision: 1.8 $
+// $Author: gutsche $
+// $Date: 2006/03/23 01:59:41 $
+// $Revision: 1.9 $
 //
 
 #include <vector>
@@ -158,7 +158,7 @@ void RoadSearchCloudMakerAlgorithm::run(const TrackingSeedCollection* input,
 
       // calculate phi0 and k0 dependent on RoadType
       if ( roadType == Roads::RPhi ) {
-	double dr = outerSeedHitGlobalPosition.mag() - innerSeedHitGlobalPosition.mag();
+	double dr = outerSeedHitGlobalPosition.perp() - innerSeedHitGlobalPosition.perp();
 	const double dr_min = 1; // cm
 	if ( dr < dr_min ) {
 	  std::cout << "[RoadSearchCloudMaker]: RPhi road: seed Hits distance smaller than 1 cm, do not consider this seed." << std::endl;
@@ -343,17 +343,18 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	  double stripLength = topology->localStripLength(hit);
 	  LocalPoint upperLocalBoundary(hit.x()-stripLength/2*std::sin(stripAngle),hit.y()+stripLength/2*std::cos(stripAngle),0);
 	  LocalPoint lowerLocalBoundary(hit.x()+stripLength/2*std::sin(stripAngle),hit.y()-stripLength/2*std::cos(stripAngle),0);
-	  double upperBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(upperLocalBoundary).mag(); 
-	  double lowerBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(lowerLocalBoundary).mag();
+	  double upperBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(upperLocalBoundary).perp(); 
+	  double lowerBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(lowerLocalBoundary).perp();
 	  double upperBoundaryPhi = phiFromExtrapolation(phi0,k0,upperBoundaryRadius,roadType);
 	  double lowerBoundaryPhi = phiFromExtrapolation(phi0,k0,lowerBoundaryRadius,roadType);
+	  double hitPhi = map_phi(tracker->idToDetUnit(id)->surface().toGlobal(hit).phi());
 
 	  if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
 //
 //  This is where the disk (???) rphiRecHits end up for Roads::RPhi
 //
-	    if ( ((lowerBoundaryPhi - phiMax(seed,phi0,k0)) < ringPhi) &&
-		 ((upperBoundaryPhi + phiMax(seed,phi0,k0)) > ringPhi) ) {
+	    if ( ((lowerBoundaryPhi - phiMax(seed,phi0,k0)) < hitPhi) &&
+		 ((upperBoundaryPhi + phiMax(seed,phi0,k0)) > hitPhi) ) {
 	      if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
 		cloud.addHit(recHit);
 		setLayerNumberArray(id,usedLayersArray,numberOfLayersPerSubdetector);
@@ -363,8 +364,8 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 //
 //  some type of hit (see above) gets here
 //
-	    if ( ((upperBoundaryPhi - phiMax(seed,phi0,k0)) < ringPhi) &&
-		 ((lowerBoundaryPhi + phiMax(seed,phi0,k0)) > ringPhi) ) {
+	    if ( ((upperBoundaryPhi - phiMax(seed,phi0,k0)) < hitPhi) &&
+		 ((lowerBoundaryPhi + phiMax(seed,phi0,k0)) > hitPhi) ) {
 	      if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
 		cloud.addHit(recHit);
 		setLayerNumberArray(id,usedLayersArray,numberOfLayersPerSubdetector);
@@ -400,17 +401,18 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	  double stripLength = topology->stripLength();
 	  LocalPoint upperLocalBoundary(hit.x(),hit.y()+stripLength/2,0);
 	  LocalPoint lowerLocalBoundary(hit.x(),hit.y()-stripLength/2,0);
-	  double upperBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(upperLocalBoundary).z(); 
-	  double lowerBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(lowerLocalBoundary).z();
-	  double upperBoundaryPhi = phiFromExtrapolation(phi0,k0,upperBoundaryRadius,roadType);
-	  double lowerBoundaryPhi = phiFromExtrapolation(phi0,k0,lowerBoundaryRadius,roadType);
+	  double upperBoundaryZ = tracker->idToDetUnit(id)->surface().toGlobal(upperLocalBoundary).z(); 
+	  double lowerBoundaryZ = tracker->idToDetUnit(id)->surface().toGlobal(lowerLocalBoundary).z();
+	  double upperBoundaryPhi = phiFromExtrapolation(phi0,k0,upperBoundaryZ,roadType);
+	  double lowerBoundaryPhi = phiFromExtrapolation(phi0,k0,lowerBoundaryZ,roadType);
+	  double hitPhi = map_phi(tracker->idToDetUnit(id)->surface().toGlobal(recHit->localPosition()).phi());
 
 	  if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
 //
 //  This is where the barrel (???) rphiRecHits end up for Roads::ZPhi
 //
-	    if ( ((lowerBoundaryPhi - phiMax(seed,phi0,k0)) < ringPhi) &&
-		 ((upperBoundaryPhi + phiMax(seed,phi0,k0)) > ringPhi) ) {
+	    if ( ((lowerBoundaryPhi - phiMax(seed,phi0,k0)) < hitPhi) &&
+		 ((upperBoundaryPhi + phiMax(seed,phi0,k0)) > hitPhi) ) {
 	      if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
 		cloud.addHit(recHit);
 		setLayerNumberArray(id,usedLayersArray,numberOfLayersPerSubdetector);
@@ -420,8 +422,8 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 //
 //  This is where the barrel (???) rphiRecHits end up for Roads::ZPhi
 //
-	    if ( ((upperBoundaryPhi - phiMax(seed,phi0,k0)) < ringPhi) &&
-		 ((lowerBoundaryPhi + phiMax(seed,phi0,k0)) > ringPhi) ) {
+	    if ( ((upperBoundaryPhi - phiMax(seed,phi0,k0)) < hitPhi) &&
+		 ((lowerBoundaryPhi + phiMax(seed,phi0,k0)) > hitPhi) ) {
 	      if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
 		cloud.addHit(recHit);
 		setLayerNumberArray(id,usedLayersArray,numberOfLayersPerSubdetector);
@@ -435,10 +437,10 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	  double stripLength = topology->localStripLength(hit);
 	  LocalPoint upperLocalBoundary(hit.x()-stripLength/2*std::sin(stripAngle),hit.y()+stripLength/2*std::cos(stripAngle),0);
 	  LocalPoint lowerLocalBoundary(hit.x()+stripLength/2*std::sin(stripAngle),hit.y()-stripLength/2*std::cos(stripAngle),0);
-	  double upperBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(upperLocalBoundary).z(); 
-	  double lowerBoundaryRadius = tracker->idToDetUnit(id)->surface().toGlobal(lowerLocalBoundary).z();
-	  double upperBoundaryPhi = phiFromExtrapolation(phi0,k0,upperBoundaryRadius,roadType);
-	  double lowerBoundaryPhi = phiFromExtrapolation(phi0,k0,lowerBoundaryRadius,roadType);
+	  double upperBoundaryZ = tracker->idToDetUnit(id)->surface().toGlobal(upperLocalBoundary).z(); 
+	  double lowerBoundaryZ = tracker->idToDetUnit(id)->surface().toGlobal(lowerLocalBoundary).z();
+	  double upperBoundaryPhi = phiFromExtrapolation(phi0,k0,upperBoundaryZ,roadType);
+	  double lowerBoundaryPhi = phiFromExtrapolation(phi0,k0,lowerBoundaryZ,roadType);
 
 	  if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
 //
@@ -465,13 +467,16 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	  }
 	}
       } else {
-	double hitRadius = tracker->idToDetUnit(id)->surface().toGlobal(recHit->localPosition()).mag();
-	double phi = phiFromExtrapolation(phi0,k0,hitRadius,roadType);
+	double hitphi = map_phi(tracker->idToDetUnit(id)->surface().toGlobal(recHit->localPosition()).phi());
+	//double hitRadius = tracker->idToDetUnit(id)->surface().toGlobal(recHit->localPosition()).perp();
+	double hitZ = tracker->idToDetUnit(id)->surface().toGlobal(recHit->localPosition()).z();
+	double phi = phiFromExtrapolation(phi0,k0,hitZ,roadType);
 //
 //  This is where the disk stereoRecHits end up for Roads::ZPhi
 //
 //	if ( std::abs(map_phi(phi-ringPhi)) < phiMax(seed,phi0,k0) ) {
-	if ( std::abs(phi-ringPhi) < phiMax(seed,phi0,k0) ) {
+//	if ( std::abs(phi-ringPhi) < phiMax(seed,phi0,k0) ) {
+        if ( std::abs(hitphi-phi) < 6.0*phiMax(seed,phi0,k0) ) {
 	  if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
 	    cloud.addHit(recHit);
 	    setLayerNumberArray(id,usedLayersArray,numberOfLayersPerSubdetector);
