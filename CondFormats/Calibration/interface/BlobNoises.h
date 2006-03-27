@@ -6,7 +6,7 @@
 class BlobNoises {
 public:
   BlobNoises();
-  void fill(unsigned int id);
+  void fill(unsigned int id,short bsize);
   virtual ~BlobNoises();
   struct DetRegistry{
     uint32_t detid;
