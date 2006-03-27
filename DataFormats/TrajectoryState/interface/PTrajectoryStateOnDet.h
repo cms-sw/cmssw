@@ -2,7 +2,7 @@
 #define PTrajectoryStateOnDet_H
 
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
-
+#include<vector>
 class Det;
 
 /** Persistent version of a TrajectoryStateOnSurface.
@@ -12,21 +12,24 @@ class Det;
 class PTrajectoryStateOnDet {
 public:
 
-  PTrajectoryStateOnDet() {}
+  PTrajectoryStateOnDet() {theLocalErrors.resize(15);}
+  virtual ~PTrajectoryStateOnDet() {}
 
   PTrajectoryStateOnDet( const LocalTrajectoryParameters& param,
 			 float errmatrix[15], unsigned int id,
 			 int surfaceSide);
 
   const LocalTrajectoryParameters& parameters() const {return theLocalParameters;}
-  const float* errorMatrix() const {return theLocalErrors;}
+  const  std::vector<float> errorMatrix() const {return theLocalErrors;}
   const unsigned int detId() const {return theDetId;}
   const int surfaceSide() const    {return theSurfaceSide;}
+
+  virtual PTrajectoryStateOnDet * clone() const {return new PTrajectoryStateOnDet( * this); }
 
 private:
 
   LocalTrajectoryParameters theLocalParameters;
-  float theLocalErrors[15];
+  std::vector<float> theLocalErrors;
   unsigned int theDetId;
   int          theSurfaceSide;
 

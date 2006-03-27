@@ -7,6 +7,7 @@ PTrajectoryStateOnDet::PTrajectoryStateOnDet( const LocalTrajectoryParameters& p
   theDetId( id),
   theSurfaceSide( surfaceSide)
 {
+  theLocalErrors.resize(15);
   for (int i=0; i<15; i++) theLocalErrors[i] = errmatrix[i];
 }
 
