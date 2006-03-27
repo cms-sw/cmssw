@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.2 2006/03/22 10:43:11 uberthon Exp $
+// $Id: TestSuite.cc,v 1.3 2006/03/24 15:40:13 uberthon Exp $
 //
 //
 
@@ -30,8 +30,9 @@
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "SimGeneral/MixingModule/interface/TestSuite.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+
+#include "Validation/Mixing/interface/TestSuite.h"
 #include "TH1I.h"
 #include "TFile.h"
 
