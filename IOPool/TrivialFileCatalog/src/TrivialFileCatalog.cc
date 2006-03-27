@@ -189,11 +189,6 @@ pool::TrivialFileCatalog::connect ()
     
 	m_transactionsta = 1;
     }
-    catch (seal::Exception& e)
-    {
-	m_transactionsta = 0;	
-	throw FCconnectionException("TrivialFileCatalog::connect",e.message());
-    }
     catch(std::exception& er)
     {
 	m_transactionsta = 0;	
