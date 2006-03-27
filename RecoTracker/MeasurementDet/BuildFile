@@ -1,0 +1,29 @@
+
+<export>
+ <lib name=RecoTrackerMeasurementDet>
+ <use name=TrackingTools/MeasurementDet>
+ <use name=TrackingTools/TrajectoryState>
+ <use name=RecoTracker/TransientTrackingRecHit>
+ <use name=DataFormats/TrackerRecHit2D>
+<use name=FWCore/Framework>
+<use name=FWCore/EDProduct>
+<use name=FWCore/ParameterSet>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerSimAlgo>
+<use name=Geometry/Surface>
+<use name=Geometry/Records>
+</export>
+
+<use name=TrackingTools/MeasurementDet>
+<use name=TrackingTools/TrajectoryState>
+<use name=RecoTracker/TransientTrackingRecHit>
+<use name=DataFormats/TrackerRecHit2D>
+<use name=FWCore/Framework>
+<use name=FWCore/EDProduct>
+<use name=FWCore/ParameterSet>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerSimAlgo>
+<use name=Geometry/Surface>
+<use name=Geometry/Records>

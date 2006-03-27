@@ -1,0 +1,9 @@
+
+<export>
+ <lib name=TrackingToolsMeasurementDet>
+ <use name=TrackingTools/TrajectoryState>
+ <use name=TrackingTools/DetLayers>
+</export>
+
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/DetLayers>
