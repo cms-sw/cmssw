@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/21 19:55:35 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/03/24 16:15:02 $
+ *  $Revision: 1.10 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -37,9 +37,9 @@ DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps): pset(ps) {
 
 
 void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
-				       int dduID,
-				       edm::ESHandle<DTReadOutMapping>& mapping, 
-				       std::auto_ptr<DTDigiCollection>& product) {
+                                       int dduID,
+                                       edm::ESHandle<DTReadOutMapping>& mapping, 
+                                       std::auto_ptr<DTDigiCollection>& product) {
 
 
   const int wordLength = 4;
@@ -72,90 +72,90 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
       controlData.setROSId(rosID);
 
       // Loop on ROBs
-      do {	  
-	wordCounter++; word = index[wordCounter];
+      do {        
+        wordCounter++; word = index[wordCounter];
 
- 	// Eventual ROS Error: occurs when some errors are found in a ROB
- 	if (DTROSWordType(word).type() == DTROSWordType::ROSError) {
- 	  DTROSErrorWord dtROSErrorWord(word);
-	  controlData.addROSError(dtROSErrorWord);
- 	} 
+        // Eventual ROS Error: occurs when some errors are found in a ROB
+        if (DTROSWordType(word).type() == DTROSWordType::ROSError) {
+          DTROSErrorWord dtROSErrorWord(word);
+          controlData.addROSError(dtROSErrorWord);
+        } 
 
-	// Eventual ROS Debugging; 
-	else if (DTROSWordType(word).type() == DTROSWordType::ROSDebug) {
-	  DTROSDebugWord rosDebugWord(word);
-	  controlData.addROSDebug(rosDebugWord);
-	}
+        // Eventual ROS Debugging; 
+        else if (DTROSWordType(word).type() == DTROSWordType::ROSDebug) {
+          DTROSDebugWord rosDebugWord(word);
+          controlData.addROSDebug(rosDebugWord);
+        }
 
-	// Check ROB header	  
- 	else if (DTROSWordType(word).type() == DTROSWordType::GroupHeader) {
-	  
- 	  DTROBHeaderWord robHeaderWord(word);
- 	  int eventID = robHeaderWord.eventID(); // from the TDCs
-	  //cout<<"ROB Event Id "<<eventID<<endl;
+        // Check ROB header       
+        else if (DTROSWordType(word).type() == DTROSWordType::GroupHeader) {
+          
+          DTROBHeaderWord robHeaderWord(word);
+          // int eventID = robHeaderWord.eventID(); // from the TDCs
+          //cout<<"ROB Event Id "<<eventID<<endl;
 
- 	  int bunchID = robHeaderWord.bunchID(); // from the TDCs
-	  //cout<<"ROB bunch ID "<<bunchID<<endl;
+          // int bunchID = robHeaderWord.bunchID(); // from the TDCs
+          //cout<<"ROB bunch ID "<<bunchID<<endl;
 
- 	  int robID = robHeaderWord.robID(); // to be mapped
-	  //cout<<"ROB ID "<<robID<<endl;
+          int robID = robHeaderWord.robID(); // to be mapped
+          //cout<<"ROB ID "<<robID<<endl;
 
- 	  // Loop on TDCs data (headers and trailers are not there)
- 	  do {
-	    wordCounter++; word = index[wordCounter];
-		
- 	    // Eventual TDC Error 
- 	    if ( DTROSWordType(word).type() == DTROSWordType::TDCError) {
- 	      DTTDCErrorWord dtTDCErrorWord(word);
- 	      DTTDCErrorNotifier dtTDCError(dtTDCErrorWord);
- 	      dtTDCError.print();
- 	    }  		
- 	    // Eventual TDC Debug
- 	    else if ( DTROSWordType(word).type() == DTROSWordType::TDCDebug) {
-	      //cout<<"TDC Debugging"<<endl;
- 	    }
+          // Loop on TDCs data (headers and trailers are not there)
+          do {
+            wordCounter++; word = index[wordCounter];
+                
+            // Eventual TDC Error 
+            if ( DTROSWordType(word).type() == DTROSWordType::TDCError) {
+              DTTDCErrorWord dtTDCErrorWord(word);
+              DTTDCErrorNotifier dtTDCError(dtTDCErrorWord);
+              dtTDCError.print();
+            }           
+            // Eventual TDC Debug
+            else if ( DTROSWordType(word).type() == DTROSWordType::TDCDebug) {
+              //cout<<"TDC Debugging"<<endl;
+            }
 
- 	    // The TDC information
- 	    else if (DTROSWordType(word).type() == DTROSWordType::TDCMeasurement) {
+            // The TDC information
+            else if (DTROSWordType(word).type() == DTROSWordType::TDCMeasurement) {
 
 
- 	      DTTDCMeasurementWord tdcMeasurementWord(word);
-	      controlData.addTDCMeasurement(tdcMeasurementWord);
-	      DTTDCData tdcData(robID,tdcMeasurementWord);
-	      controlData.addTDCData(tdcData);
-	      
- 	      int tdcID = tdcMeasurementWord.tdcID(); 
-	      //cout<<"TDC ID "<<tdcID<<endl;
+              DTTDCMeasurementWord tdcMeasurementWord(word);
+              controlData.addTDCMeasurement(tdcMeasurementWord);
+              DTTDCData tdcData(robID,tdcMeasurementWord);
+              controlData.addTDCData(tdcData);
+              
+              // int tdcID = tdcMeasurementWord.tdcID(); 
+              //cout<<"TDC ID "<<tdcID<<endl;
 
- 	      int tdcChannel = tdcMeasurementWord.tdcChannel(); 
-	      //cout<<"TDC Channel "<<tdcChannel<<endl;
+              // int tdcChannel = tdcMeasurementWord.tdcChannel(); 
+              //cout<<"TDC Channel "<<tdcChannel<<endl;
 
-	      //cout<<"TDC Time "<<tdcMeasurementWord.tdcTime()<<endl;
+              //cout<<"TDC Time "<<tdcMeasurementWord.tdcTime()<<endl;
 
- 	      // Map the RO channel to the DetId and wire
- 	      DTLayerId layer; int wire = 0;
- 	      // mapping->getId(dduID, rosID, robID, tdcID, tdcChannel, layer, wire);
-		  
- 	      // Produce the digi
-	      // DTDigi digi( tdcMeasurementWord.tdcTime(), wire);
-	      // product->insertDigi(layer,digi);
- 	    }
-		
- 	  } while ( DTROSWordType(word).type() != DTROSWordType::GroupTrailer );
-	  
- 	  // Check ROB Trailer (condition already verified)
- 	  if (DTROSWordType(word).type() == DTROSWordType::GroupTrailer) {
-	    DTROBTrailerWord robTrailerWord(word);
-	    controlData.addROBTrailer(robTrailerWord);
-	  }
- 	}
+              // Map the RO channel to the DetId and wire
+              // DTLayerId layer; int wire = 0;
+              // mapping->getId(dduID, rosID, robID, tdcID, tdcChannel, layer, wire);
+                  
+              // Produce the digi
+              // DTDigi digi( tdcMeasurementWord.tdcTime(), wire);
+              // product->insertDigi(layer,digi);
+            }
+                
+          } while ( DTROSWordType(word).type() != DTROSWordType::GroupTrailer );
+          
+          // Check ROB Trailer (condition already verified)
+          if (DTROSWordType(word).type() == DTROSWordType::GroupTrailer) {
+            DTROBTrailerWord robTrailerWord(word);
+            controlData.addROBTrailer(robTrailerWord);
+          }
+        }
 
       } while ( DTROSWordType(word).type() != DTROSWordType::ROSTrailer );
 
       // check ROS Trailer (condition already verified)
       if (DTROSWordType(word).type() == DTROSWordType::ROSTrailer){
-	DTROSTrailerWord rosTrailerWord(word);
-	controlData.addROSTrailer(rosTrailerWord);
+        DTROSTrailerWord rosTrailerWord(word);
+        controlData.addROSTrailer(rosTrailerWord);
       }
     }
 
