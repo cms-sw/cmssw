@@ -1,6 +1,8 @@
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <cfloat>
 
 
@@ -17,8 +19,10 @@ Measurement1D VertexDistanceXY::distance(const VertexState & vtx1,
 Measurement1D 
 VertexDistanceXY::distance(const Vertex& vtx1, const Vertex & vtx2) const
 {
-  return distance(vtx1.position(), vtx1.error(),
-  		  vtx2.position(), vtx2.error());
+  return distance(RecoVertex::convertPos(vtx1.position()), 
+		  RecoVertex::convertError(vtx1.error()),
+  		  RecoVertex::convertPos(vtx2.position()), 
+		  RecoVertex::convertError(vtx2.error()));
 }
 
 
@@ -33,8 +37,10 @@ float VertexDistanceXY::compatibility(const VertexState & vtx1,
 float 
 VertexDistanceXY::compatibility(const Vertex& vtx1, const Vertex & vtx2) const
 {
-  return compatibility(vtx1.position(), vtx1.error(),
-		       vtx2.position(), vtx2.error());
+  return compatibility(RecoVertex::convertPos(vtx1.position()), 
+		       RecoVertex::convertError(vtx1.error()),
+		       RecoVertex::convertPos(vtx2.position()), 
+		       RecoVertex::convertError(vtx2.error()));
 }
 
 
@@ -87,7 +93,7 @@ VertexDistanceXY::compatibility(const GlobalPoint & vtx1Position,
   int ifail;
   error.invert(ifail);
   if (ifail != 0) {
-    throw LogicError("VertexDistanceXY::matrix inversion problem");
+    throw cms::Exception("VertexDistanceXY::matrix inversion problem");
   }
 
   return error.similarity(vDiff);

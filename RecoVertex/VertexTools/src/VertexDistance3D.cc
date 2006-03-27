@@ -1,12 +1,14 @@
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <cfloat>
 
 
 using namespace reco;
 
-Measurement1D VertexDistance3D::distance(const VertexState& vtx1, 
+Measurement1D VertexDistance3D::distance(const VertexState & vtx1, 
 					 const VertexState & vtx2) const
 {
   return distance(vtx1.position(), vtx1.error(),
@@ -17,8 +19,10 @@ Measurement1D VertexDistance3D::distance(const VertexState& vtx1,
 Measurement1D 
 VertexDistance3D::distance(const Vertex & vtx1, const Vertex & vtx2) const
 {
-  return distance(vtx1.position(), vtx1.error(),
-  		  vtx2.position(), vtx2.error());
+  return distance(RecoVertex::convertPos(vtx1.position()), 
+		  RecoVertex::convertError(vtx1.error()),
+  		  RecoVertex::convertPos(vtx2.position()), 
+		  RecoVertex::convertError(vtx2.error()));
 }
 
 
@@ -46,7 +50,7 @@ VertexDistance3D::distance(const GlobalPoint & vtx1Position,
 }
 
 
-float VertexDistance3D::compatibility(const VertexState& vtx1, 
+float VertexDistance3D::compatibility(const VertexState & vtx1, 
 				      const VertexState & vtx2) const
 {
   return compatibility(vtx1.position(), vtx1.error(),
@@ -54,11 +58,13 @@ float VertexDistance3D::compatibility(const VertexState& vtx1,
 }
 
 
-float VertexDistance3D::compatibility(const Vertex& vtx1, 
+float VertexDistance3D::compatibility(const Vertex & vtx1, 
 				      const Vertex & vtx2) const
 {
-  return compatibility(vtx1.position(), vtx1.error(),
-		       vtx2.position(), vtx2.error());
+  return compatibility(RecoVertex::convertPos(vtx1.position()), 
+		       RecoVertex::convertError(vtx1.error()),
+		       RecoVertex::convertPos(vtx2.position()), 
+		       RecoVertex::convertError(vtx2.error()));
 }
 
 
@@ -85,7 +91,7 @@ VertexDistance3D::compatibility(const GlobalPoint & vtx1Position,
   int ifail;
   error.invert(ifail);
   if (ifail != 0) {
-    throw LogicError("VertexDistance3D::matrix inversion problem");
+    throw cms::Exception("VertexDistance3D::matrix inversion problem");
   }
 
   return error.similarity(vDiff);
