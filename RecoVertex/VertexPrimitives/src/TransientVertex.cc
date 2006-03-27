@@ -137,7 +137,6 @@ void TransientVertex::tkToTkCovariance(const TTtoTTmap covMap)
   withPrior = true;
 }
 
-
 float TransientVertex::trackWeight(const TransientTrack track) const {
   if (!theWeightMapIsAvailable) {
     vector<TransientTrack>::const_iterator foundTrack = find(theOriginalTracks.begin(), 

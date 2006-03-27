@@ -16,7 +16,7 @@ class CachingVertex;
 /** \class TransientVertex
  */
 
-class TransientVertex : public reco::Vertex{
+class TransientVertex : public reco::Vertex {
 
 public:
 
@@ -190,6 +190,7 @@ public:
   AlgebraicMatrix tkToTkCovariance(const reco::TransientTrack& t1, 
   				const reco::TransientTrack& t2) const;
   void tkToTkCovariance(const TTtoTTmap covMap);
+
 
 private:
 
