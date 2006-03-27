@@ -10,13 +10,17 @@
 #include <Geometry/CommonDetAlgo/interface/AlgebraicObjects.h>
 #include "DataFormats/Common/interface/OwnVector.h"
 
-class TransientTrackingRecHit : public TrackingRecHit
-{
- public:
+class TransientTrackingRecHit : public TrackingRecHit {
+public:
+
   TransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh) {
     _geom = geom ;
     _trackingRecHit = rh->clone();
   }
+
+  /// invalid RecHit - has only GeomDet
+  explicit TransientTrackingRecHit( const GeomDet* geom);
+
   virtual ~TransientTrackingRecHit() {delete _trackingRecHit;}
 
 //   virtual const GlobalPoint globalPoint() = 0;
@@ -49,8 +53,7 @@ class TransientTrackingRecHit : public TrackingRecHit
   virtual AlgebraicSymMatrix parametersError(const TrajectoryStateOnSurface& ts) const = 0;
   TrackingRecHit * hit() const {return _trackingRecHit;};
   
-  bool isValid() {return true;}
-  bool isValid() const{return true;}
+  bool isValid() const{return _trackingRecHit->isValid();}
 
   virtual TransientTrackingRecHit * clone() const = 0;
   virtual edm::OwnVector<const TransientTrackingRecHit> transientHits() const {
