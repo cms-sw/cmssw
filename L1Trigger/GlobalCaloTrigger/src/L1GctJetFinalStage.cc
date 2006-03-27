@@ -8,6 +8,14 @@ L1GctJetFinalStage::~L1GctJetFinalStage()
 {
 }
 
+void L1GctJetFinalStage::reset()
+{
+}
+
+void L1GctJetFinalStage::process()
+{
+}
+
 void L1GctJetFinalStage::setInputJet(int i, L1GctJet jet)
 {
 }
