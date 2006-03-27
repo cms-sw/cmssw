@@ -23,9 +23,9 @@ LayerMeasurements::measurements( const GeometricSearchDet& layer,
     }
     return result;
   }
-  /*
-  GeometricSearchDetMeasurements cdm;
+
+  GeometricSearchDetMeasurements cdm( theDetSystem);
   return cdm.get( layer, compatDets, startingState, prop, est);
-  */
-  return std::vector<TrajectoryMeasurement>();
+
+  //return std::vector<TrajectoryMeasurement>();
 }

@@ -9,9 +9,13 @@ class TrajectoryStateOnSurface;
 class Propagator;
 class MeasurementEstimator;
 class TrajectoryMeasurement;
+class MeasurementDetSystem;
 
 class LayerMeasurements {
 public:
+
+  LayerMeasurements( const MeasurementDetSystem* detSysytem) :
+    theDetSystem (detSysytem) {}
 
   std::vector<TrajectoryMeasurement>
   measurements( const GeometricSearchDet& layer, 
@@ -19,6 +23,9 @@ public:
 		const Propagator& prop, 
 		const MeasurementEstimator& est) const;
   
+private:
+
+  const MeasurementDetSystem* theDetSystem;
 
 };
 

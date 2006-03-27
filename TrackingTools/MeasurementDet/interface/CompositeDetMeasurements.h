@@ -133,7 +133,7 @@ GeometricSearchDetMeasurements::get( const GeometricSearchDet& det,
   if (!compatDets.empty()) {
     for ( std::vector<DetWithState>::const_iterator i=compatDets.begin();
 	  i != compatDets.end(); i++) {
-      const MeasurementDet* mdet = theDetSysytem->idToDet(i->first->geographicalId());
+      const MeasurementDet* mdet = theDetSystem->idToDet(i->first->geographicalId());
       if (mdet == 0) {
 	throw MeasurementDetException( "MeasurementDet not found");
       }
@@ -141,7 +141,7 @@ GeometricSearchDetMeasurements::get( const GeometricSearchDet& det,
       std::vector<TM> tmp = mdet->fastMeasurements( i->second, ts, prop, est);
       if ( !tmp.empty()) {
 	// only collect valid RecHits
-	std::vector<TM>::iterator end = (tmp.back().recHit().isValid() ? tmp.end() : tmp.end()-1);
+	std::vector<TM>::iterator end = (tmp.back().recHit()->isValid() ? tmp.end() : tmp.end()-1);
 	result.insert( result.end(), tmp.begin(), end);
       }
     }
