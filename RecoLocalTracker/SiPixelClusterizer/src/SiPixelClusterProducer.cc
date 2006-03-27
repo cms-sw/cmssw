@@ -30,6 +30,9 @@
 #include <string>
 #include <iostream>
 
+// MessageLogger
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 namespace cms
 {
 
@@ -102,10 +105,10 @@ namespace cms
       readyToCluster_ = true;
     } 
     else {
-      std::cout << "[SiPixelClusterProducer]:"
+      edm::LogError("SiPixelClusterProducer") << "[SiPixelClusterProducer]:"
 		<<" choice " << clusterMode_ << " is invalid.\n"
 		<< "Possible choices:\n" 
-		<< "    PixelThresholdClusterizer" << std::endl;
+		<< "    PixelThresholdClusterizer";
       readyToCluster_ = false;
     }
   }
@@ -117,9 +120,8 @@ namespace cms
 				   SiPixelClusterCollection &output,
 				   edm::ESHandle<TrackerGeometry> & geom) {
     if ( ! readyToCluster_ ) {
-      std::cout << "[SiPixelClusterProducer]:"
-		<<" at least one clusterizer is not ready -- can't run!" 
-		<< std::endl;
+      edm::LogError("SiPixelClusterProducer")
+		<<" at least one clusterizer is not ready -- can't run!" ;
       // TO DO: throw an exception here?  The user may want to know...
       return;   // clusterizer is invalid, bail out
     }
@@ -182,10 +184,9 @@ namespace cms
     }
     // end of the loop over detunits
     
-    std::cout << "[SiPixelClusterProducer]: executing " 
+    LogDebug ("SiPixelClusterProducer") << " Executing " 
 	      << clusterMode_ << " resulted in " << numberOfClusters 
-	      << " SiPixelClusters in " << numberOfDetUnits << " DetUnits." 
-	      << std::endl; 
+					    << " SiPixelClusters in " << numberOfDetUnits << " DetUnits."; 
   }
 
 }  // end of namespace cms
