@@ -15,6 +15,9 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
 //#define DEBUG
 
+// MessageLogger
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iostream>
 using namespace std;
 
@@ -26,7 +29,7 @@ const float degsPerRad = 57.29578;
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf)
+CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf) const 
 {
   //--- Lorentz angle tangent per Tesla
   theTanLorentzAnglePerTesla =
@@ -42,7 +45,7 @@ CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf)
 //  One function to cache the variables common for one DetUnit.
 //-----------------------------------------------------------------------------
 void
-CPEFromDetPosition::setTheDet( const GeomDetUnit & det ) const 
+CPEFromDetPosition::setTheDet( const GeomDetUnit & det )const 
 {
   if ( theDet == &det )
     return;       // we have already seen this det unit
@@ -64,9 +67,8 @@ CPEFromDetPosition::setTheDet( const GeomDetUnit & det ) const
     // A forward!  A forward!
     break;
   default:
-    std::cout 
-      << "CPEFromDetPosition:: a non-pixel detector type in here? Yuck!" 
-      << std::endl;
+    LogDebug("CPEFromDetPosition") 
+      << "CPEFromDetPosition:: a non-pixel detector type in here? Yuck!" ;
     //  &&& Should throw an exception here!
     assert(0);
   }
@@ -111,18 +113,17 @@ CPEFromDetPosition::setTheDet( const GeomDetUnit & det ) const
   theLShift = lorentzShift();
 
   if (theVerboseLevel > 5) {
-    cout << "***** PIXEL LAYOUT *****" << endl;
-    cout << " theThickness = " << theThickness << endl;
-    cout << " thePitchX  = " << thePitchX << endl;
-    cout << " thePitchY  = " << thePitchY << endl;
-    cout << " theOffsetX = " << theOffsetX << endl;
-    cout << " theOffsetY = " << theOffsetY << endl;
-    cout << " theLShift  = " << theLShift  << endl;
+    LogDebug("CPEFromDetPosition") << "***** PIXEL LAYOUT *****" << " theThickness = " << theThickness
+    << " thePitchX  = " << thePitchX 
+    << " thePitchY  = " << thePitchY 
+    << " theOffsetX = " << theOffsetX 
+    << " theOffsetY = " << theOffsetY 
+    << " theLShift  = " << theLShift;
   }
 }
 
 MeasurementError  
-CPEFromDetPosition::measurementError( const SiPixelCluster& cluster, const GeomDetUnit & det)  const 
+CPEFromDetPosition::measurementError( const SiPixelCluster& cluster, const GeomDetUnit & det) const 
 {
   LocalPoint lp( localPosition(cluster, det) );
   LocalError le( localError(   cluster, det) );
@@ -130,7 +131,7 @@ CPEFromDetPosition::measurementError( const SiPixelCluster& cluster, const GeomD
 }
 
 LocalError  
-CPEFromDetPosition::localError( const SiPixelCluster& cluster, const GeomDetUnit & det) const 
+CPEFromDetPosition::localError( const SiPixelCluster& cluster, const GeomDetUnit & det)const 
 {
   setTheDet( det );
   int sizex = cluster.sizeX();
@@ -139,10 +140,11 @@ CPEFromDetPosition::localError( const SiPixelCluster& cluster, const GeomDetUnit
   bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol); 
   //&&& testing...
   if (theVerboseLevel > 5) {
-    cout << "sizex = " << sizex << endl;
-    cout << "sizey = " << sizey << endl;
-    cout << "edgex = " << edgex << endl;
-    cout << "edgey = " << edgey << endl;
+    LogDebug("CPEFromDetPosition") <<
+      "sizex = " << sizex << 
+      "sizey = " << sizey << 
+      "edgex = " << edgex << 
+      "edgey = " << edgey ;
   }
   if (sizex>0) return LocalError( sizex, 0, sizey );
 
@@ -150,19 +152,20 @@ CPEFromDetPosition::localError( const SiPixelCluster& cluster, const GeomDetUnit
 }
 
 MeasurementPoint 
-CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster, const GeomDetUnit & det)  const 
+CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster, const GeomDetUnit & det) const 
 {
   if (theVerboseLevel > 15) {
-    cout << "xpos = " << xpos(cluster) << endl;
-    cout << "ypos = " << ypos(cluster) << endl;
-    cout << "lshf = " << theLShift     << endl;
+    LogDebug("CPEFromDetPosition") <<
+      "xpos = " << xpos(cluster) << 
+      "ypos = " << ypos(cluster) << 
+      "lshf = " << theLShift ;
   }
   return MeasurementPoint( xpos(cluster)-theLShift, 
   			   ypos(cluster));
 }
 
 LocalPoint
-CPEFromDetPosition::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det)  const 
+CPEFromDetPosition::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) 
 {
   //return theTopol->localPosition(measurementPosition(cluster, det)); 
 
@@ -443,11 +446,11 @@ CPEFromDetPosition::lorentzShift() const
   // express the shift in units of pitch, 
   // divide by 2 to get the average correction
   float lshift = xdrift / thePitchX / 2.; 
-#ifdef DEBUG
-  cout << "Lorentz Drift = " << xdrift << endl;
-  cout << "X Drift = " << dir.x() << endl;
-  cout << "Z Drift = " << dir.z() << endl;
-#endif 
+
+  //cout << "Lorentz Drift = " << xdrift << endl;
+  //cout << "X Drift = " << dir.x() << endl;
+  //cout << "Z Drift = " << dir.z() << endl;
+ 
   return lshift;  
 }
 
@@ -538,7 +541,7 @@ CPEFromDetPosition::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
 //  Assumption: setTheDet() has been called already.
 //-----------------------------------------------------------------------------
 LocalVector 
-CPEFromDetPosition::driftDirection( GlobalVector bfield ) const 
+CPEFromDetPosition::driftDirection( GlobalVector bfield )const 
 {
   Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
   LocalVector Bfield = detFrame.toLocal(bfield);
@@ -551,8 +554,8 @@ CPEFromDetPosition::driftDirection( GlobalVector bfield ) const
   LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
 
   if (theVerboseLevel > 0) {
-    cout << " The drift direction in local coordinate is " 
-  	 << theDriftDirection    << endl;
+    LogDebug("CPEFromDetPosition") << " The drift direction in local coordinate is " 
+  	 << theDriftDirection    ;
   }
 
   return theDriftDirection;
