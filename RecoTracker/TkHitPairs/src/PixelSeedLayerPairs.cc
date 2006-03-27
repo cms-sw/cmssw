@@ -1,6 +1,9 @@
 #include "RecoTracker/TkHitPairs/interface/PixelSeedLayerPairs.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 // PixelSeedLayerPairs::PixelSeedLayerPairs()
 // {
 //  //  TrackerLayerIdAccessor accessor;
@@ -9,8 +12,13 @@
 // //   thePosPixel = accessor.pixelPositiveForwardLayers();
 // }
 
-#define DEBUG
+//#define DEBUG
 
+
+#ifdef DEBUG
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#endif
 
 vector<SeedLayerPairs::LayerPair> PixelSeedLayerPairs::operator()() 
 {
@@ -58,7 +66,6 @@ void PixelSeedLayerPairs::addBarrelBarrelLayers( int mid, int outer,
 
 void PixelSeedLayerPairs::init(const SiPixelRecHitCollection& coll, const edm::EventSetup& iSetup){
 
-
   edm::ESHandle<GeometricSearchTracker> track;
   iSetup.get<TrackerRecoGeometryRecord>().get( track ); 
   bl=track->barrelLayers(); 
@@ -74,6 +81,50 @@ void PixelSeedLayerPairs::init(const SiPixelRecHitCollection& coll, const edm::E
   map_diskneg2=coll.get(acc.pixelForwardDisk(1,2));
   map_diskpos1=coll.get(acc.pixelForwardDisk(2,1));
   map_diskpos2=coll.get(acc.pixelForwardDisk(2,2));
+  
+#ifdef DEBUG
+
+  SiPixelRecHitCollection::range map_diskpos3;
+  SiPixelRecHitCollection::range map_diskneg3;
+  map_diskneg3=coll.get(acc.pixelForwardDisk(1,3));
+  map_diskpos3=coll.get(acc.pixelForwardDisk(2,3));
+
+
+  for (SiPixelRecHitCollection::const_iterator it = coll.begin(); it != coll.end(); it++){
+    unsigned int id((*it).geographicalId().rawId());
+    DetId ii(id);
+    if (ii.subdetId() == PixelSubdetector::PixelBarrel){
+      PXBDetId iii(id);
+      std::cout <<" Pixel Hit on barrel "<<iii.layer()<<std::endl;
+    }else{
+      PXFDetId iii(id);
+      std::cout <<" Pixel Hit on Disk "<<iii.disk()<<" " <<iii.side()<<std::endl;
+    }
+  }
+   unsigned int tot = coll.end()-coll.begin();
+   unsigned int b1 = map_range1.second-map_range1.first;
+   unsigned int b2 = map_range2.second-map_range2.first;
+   unsigned int b3 = map_range3.second-map_range3.first;
+   unsigned int fp1 = map_diskpos1.second-map_diskpos1.first;
+   unsigned int fp2 = map_diskpos2.second-map_diskpos2.first;
+   unsigned int fp3 = map_diskpos3.second-map_diskpos3.first;
+   unsigned int fn1 = map_diskneg1.second-map_diskneg1.first;
+   unsigned int fn2 = map_diskneg2.second-map_diskneg2.first;
+   unsigned int fn3 = map_diskneg3.second-map_diskneg3.first;
+   std::cout<<"Total Number of Pixel RecHits "<<tot<<std::endl;
+   std::cout<<"Number of Pixel RecHits B1 "<<b1<<std::endl;
+   std::cout<<"Number of Pixel RecHits B2 "<<b2<<std::endl;
+   std::cout<<"Number of Pixel RecHits B3 "<<b3<<std::endl;
+   std::cout<<"Number of Pixel RecHits FP1 "<<fp1<<std::endl;
+   std::cout<<"Number of Pixel RecHits FP2 "<<fp2<<std::endl;
+   std::cout<<"Number of Pixel RecHits FP3 "<<fp3<<std::endl;
+   std::cout<<"Number of Pixel RecHits FN1 "<<fn1<<std::endl;
+   std::cout<<"Number of Pixel RecHits FN2 "<<fn2<<std::endl;
+   std::cout<<"Number of Pixel RecHits FN3 "<<fn3<<std::endl;
+   int res = tot-b1-b2-b3-fp1-fp2-fp3-fn1-fn2-fn3;
+   std::cout <<" ECCO "<<tot<<endl;
+  
+#endif
 
   //BarrelLayers
   const PixelBarrelLayer*  bl1=dynamic_cast<PixelBarrelLayer*>(bl[0]);
