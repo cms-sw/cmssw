@@ -12,6 +12,7 @@
 class TrajectorySeed : public BasicTrajectorySeed {
  public:
   TrajectorySeed(){}
+  virtual ~TrajectorySeed(){}
 
   TrajectorySeed(PTrajectoryStateOnDet ptsos, recHitContainer rh, PropagationDirection dir) : hits_(rh), 
     tsos_(ptsos), dir_(dir) {}
@@ -23,7 +24,8 @@ class TrajectorySeed : public BasicTrajectorySeed {
   PropagationDirection direction() const {return  dir_;}
   PTrajectoryStateOnDet startingState() const {return tsos_;}
 
-  virtual ~TrajectorySeed(){}
+  virtual TrajectorySeed * clone() const {return new TrajectorySeed( * this); }
+
  
  private:
   edm::OwnVector<TrackingRecHit> hits_;
