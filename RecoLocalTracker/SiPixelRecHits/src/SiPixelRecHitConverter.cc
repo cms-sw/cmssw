@@ -31,6 +31,9 @@ class GeometricDet;   // hack in 0.2.0pre5, OK for pre6 -- still needed?
 #include <string>
 #include <iostream>
 
+// MessageLogger
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 namespace cms
 {
 
@@ -103,10 +106,10 @@ namespace cms
       ready_ = true;
     } 
     else {
-      std::cout << "[SiPixelRecHitConverter]:"
-		<<" cluster parameter estimator " << cpeName_ << " is invalid.\n"
+      edm::LogError("SiPixelRecHitConverter") 
+		<<" Cluster parameter estimator " << cpeName_ << " is invalid.\n"
 		<< "Possible choices:\n" 
-		<< "    - FromDetPosition" << std::endl;
+		<< "    - FromDetPosition";
       ready_ = false;
     }
   }
@@ -121,9 +124,7 @@ namespace cms
 				   edm::ESHandle<TrackerGeometry> & geom)
   {
     if ( ! ready_ ) {
-      std::cout << "[SiPixelRecHitConverter]:"
-		<<" at least one CPE is not ready -- can't run!" 
-		<< std::endl;
+      edm::LogError("SiPixelRecHitConverter") << " at least one CPE is not ready -- can't run!";
       // TO DO: throw an exception here?  The user may want to know...
       assert(0);
       return;   // clusterizer is invalid, bail out
@@ -202,18 +203,17 @@ namespace cms
       if (recHitsOnDetUnit.size() > 0) {
 	output.put(detIdObject, 
 		   recHitsOnDetUnit.begin(), recHitsOnDetUnit.end());
-	std::cout << "[SiPixelRecHitConverter]: found " 
-		  << recHitsOnDetUnit.size() << " RecHits on" << detid
-		  << std::endl;
+	LogDebug("SiPixelRecHitConverter") << " Found " 
+					   << recHitsOnDetUnit.size() << " RecHits on" << detid;	
       }
       // numberOfRecHits += recHitsOnDetUnit.size();
     }
     // end of the loop over detunits
     
-    std::cout << "[SiPixelRecHitConverter]: " 
+    LogDebug ("SiPixelRecHitConverter") 
 	      << cpeName_ << " converted " << numberOfClusters 
-	      << " SiPixelClusters into SiPixelRecHits, in " << numberOfDetUnits << " DetUnits." 
-	      << std::endl; 
+	      << " SiPixelClusters into SiPixelRecHits, in " << numberOfDetUnits << " DetUnits."; 
+	   
   }
 
 
