@@ -18,16 +18,6 @@ namespace RecoVertex{
     }
   static GlobalError convertError(const reco::Vertex::Error& error)
     { return GlobalError(error(0,0), error(0,1), error(1,1), error(0,2), error(1,2), error(2,2)); }
-  static reco::Vertex::Point convertPos(const GlobalPoint& p) 
-    {
-      reco::Vertex::Point pos;
-      pos.SetX(p.x());
-      pos.SetY(p.y());
-      pos.SetZ(p.z());
-      return pos;
-    }
-  static GlobalPoint convertPos(const reco::Vertex::Point& p)
-    { return GlobalPoint(p.x(), p.y(), p.z()); }
 }
 
 #endif
