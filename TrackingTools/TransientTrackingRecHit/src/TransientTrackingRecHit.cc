@@ -2,11 +2,6 @@
 #include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 
-TransientTrackingRecHit::TransientTrackingRecHit( const GeomDet* geom) {
-  _geom = geom ;
-  _trackingRecHit = new InvalidTrackingRecHit(geom->geographicalId());
-}
-
 const GeomDet * TransientTrackingRecHit::det() const 
 {
   return _geom;

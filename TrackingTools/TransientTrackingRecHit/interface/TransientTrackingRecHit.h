@@ -18,9 +18,6 @@ public:
     _trackingRecHit = rh->clone();
   }
 
-  /// invalid RecHit - has only GeomDet
-  explicit TransientTrackingRecHit( const GeomDet* geom);
-
   virtual ~TransientTrackingRecHit() {delete _trackingRecHit;}
 
 //   virtual const GlobalPoint globalPoint() = 0;
