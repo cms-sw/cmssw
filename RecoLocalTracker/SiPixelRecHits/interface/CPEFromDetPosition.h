@@ -42,7 +42,6 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
   // LocalValues is typedef for pair<LocalPoint,LocalError> 
   LocalValues localParameters( const SiPixelCluster & cl, 
 			       const GeomDetUnit    & det ) const {
-    std::cout << "In localParameters()" << std::endl;
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
   }
 
