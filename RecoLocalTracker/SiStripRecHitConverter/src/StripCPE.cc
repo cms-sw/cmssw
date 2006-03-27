@@ -11,7 +11,7 @@ StripCPE::StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const Tr
   geom_ = geom;
 }
 
-StripClusterParameterEstimator::LocalValues StripCPE::localParameters( const SiStripCluster & cl){
+StripClusterParameterEstimator::LocalValues StripCPE::localParameters( const SiStripCluster & cl)const {
   //
   // get the det from the geometry
   //
@@ -38,7 +38,7 @@ StripClusterParameterEstimator::LocalValues StripCPE::localParameters( const SiS
   return std::make_pair(result+drift,eresult);
 }
 
-LocalVector StripCPE::driftDirection(const StripGeomDetUnit* det){
+LocalVector StripCPE::driftDirection(const StripGeomDetUnit* det)const{
   LocalVector lbfield=(det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
    float dir_x = -theTanLorentzAnglePerTesla * lbfield.y();
    float dir_y = theTanLorentzAnglePerTesla * lbfield.x();

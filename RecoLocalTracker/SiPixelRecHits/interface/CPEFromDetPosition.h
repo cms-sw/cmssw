@@ -41,42 +41,42 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
     
   // LocalValues is typedef for pair<LocalPoint,LocalError> 
   LocalValues localParameters( const SiPixelCluster & cl, 
-			       const GeomDetUnit    & det ) {
+			       const GeomDetUnit    & det ) const {
     std::cout << "In localParameters()" << std::endl;
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
   }
 
-  LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det);
-  LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det);
-  void       setTheDet( const GeomDetUnit & det );
+  LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const ;
+  LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const ;
+  void       setTheDet( const GeomDetUnit & det ) const ;
 
   //
   MeasurementPoint measurementPosition( const SiPixelCluster&, 
-					const GeomDetUnit & det);
+					const GeomDetUnit & det) const ;
   MeasurementError measurementError   ( const SiPixelCluster&, 
-					const GeomDetUnit & det);
+					const GeomDetUnit & det) const ;
   //
   float chaWidth2X(const float&) const;
   
  private:
   //members
-  const PixelGeomDetUnit* theDet;
-  const RectangularPixelTopology * theTopol;
-  GeomDetType::SubDetector thePart;
-  EtaCorrection theEtaFunc;
-  float theThickness;
-  float thePitchX;
-  float thePitchY;
-  float theOffsetX;
-  float theOffsetY;
-  float theNumOfRow;
-  float theNumOfCol;
-  float theDetZ;
-  float theDetR;
-  float theLShift;
-  float theSign;
+  mutable const PixelGeomDetUnit* theDet;
+  mutable const RectangularPixelTopology * theTopol;
+  mutable GeomDetType::SubDetector thePart;
+  mutable EtaCorrection theEtaFunc;
+  mutable float theThickness;
+  mutable float thePitchX;
+  mutable float thePitchY;
+  mutable float theOffsetX;
+  mutable float theOffsetY;
+  mutable float theNumOfRow;
+  mutable float theNumOfCol;
+  mutable  float theDetZ;
+  mutable float theDetR;
+  mutable float theLShift;
+  mutable float theSign;
 
-  float theTanLorentzAnglePerTesla;   // Lorentz angle tangent per Tesla
+  mutable float theTanLorentzAnglePerTesla;   // Lorentz angle tangent per Tesla
   int   theVerboseLevel;              // algorithm's verbosity
 
   
@@ -103,7 +103,7 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
   std::vector<float> 
     yCharge(const std::vector<SiPixelCluster::Pixel>&, const float&, const float&)const; 
 
-  LocalVector driftDirection( GlobalVector bfield );
+  LocalVector driftDirection( GlobalVector bfield )const ;
   typedef GloballyPositioned<double> Frame;
 };
 

@@ -15,14 +15,14 @@ class StripCPE : public StripClusterParameterEstimator
   StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom);
     
   // LocalValues is typedef for pair<LocalPoint,LocalError> 
-  StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl,const GeomDetUnit& det){
+  StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl,const GeomDetUnit& det) const {
     return localParameters(cl);
   }; 
-  StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl); 
+  StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl)const; 
   
  private:
   
-  LocalVector driftDirection(const StripGeomDetUnit* det);
+  LocalVector driftDirection(const StripGeomDetUnit* det)const;
   
   const TrackerGeometry * geom_;
   const MagneticField * magfield_ ;
