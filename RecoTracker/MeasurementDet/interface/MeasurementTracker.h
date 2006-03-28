@@ -16,6 +16,7 @@
 
 class TkStripMeasurementDet;
 class TkPixelMeasurementDet;
+class TrackingGeometry;
 
 class MeasurementTracker : public TrackingSystem {
 public:
