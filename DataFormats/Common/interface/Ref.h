@@ -5,10 +5,50 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.2 2006/02/22 22:41:09 wmtan Exp $
+$Id: Ref.h,v 1.3 2006/03/23 23:58:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
+/**
+  \b Summary
+  The edm::Ref<> is a storable reference to an item in a stored container.  
+  For example, you could use one to hold a reference back to one particular track
+  within an std::vector<> of tracks.
+ 
+  \b Usage
+ 
+  The edm::Ref<> works just like a pointer
+  \code
+     edm::Ref<Foo> fooPtr = ... //set the value
+     functionTakingConstFoo( *fooPtr ); //get the Foo object
+     fooPtr->bar();  //call a method of the held Foo object
+  \endcode
 
+  The main purpose of an edm::Ref<> is it can be used as a member datum for
+  a class that is to be stored in the edm::Event.
+ 
+  \b Customization
+ 
+   The edm::Ref<> takes three template parameters
+     1) \b C: The type of the container which is holding the item
+     2) \b T: The type of the item.  This defaults to C::value_type
+     3) \b F: A helper class (a functor) which knows how to find a particular 'T' within the container
+          given an appropriate index. The type of the index is deduced from F::second_argument. 
+          The default for F is refhelper::FindTrait<C,T>::value.  If no specialization of FindTrait<> is
+          available for the conbination (C,T) then it defaults to getting the iterator to be beginning of
+          the container and using std::advance() to move to the appropriate index in the container.
+ 
+     It is possible to customize the 'lookup' algorithm used.  The helper class should inherit from 
+     std::binary_function<const C&, typename IndexT, const T*>
+ 
+     and define the function
+     result_type operator()( first_argument_type iContainer, second_argument_type iIndex)
+ 
+     where result_type, first_argument_type and second_argument_type are typedefs inherited from std::binary_function<>
+ 
+     If one wishes to make a specialized lookup the default lookup for the container/type pair then one
+     needs to partially specialize the templated class edm::refhelper::FindTrait<C,T> such that it has a 
+     typedef named 'value' which refers to the specialized helper class (i.e., F)
+*/
 /*----------------------------------------------------------------------
 //  This defines the public interface to the class Ref<C, T>.
 //  C				is the collection type.
@@ -96,11 +136,11 @@ namespace edm {
     /// Default constructor needed for reading from persistent store. Not for direct use.
     Ref() : ref_() {}
 
-    /// General purpose constructor from handle like object.
-    // The templating is artificial.
-    // HandleC must have the following methods:
-    // id(), returning a ProductID,
-    // product(), returning a C*.
+    /** General purpose constructor from handle like object.
+        The templating is artificial.
+        HandleC must have the following methods:
+        id(), returning a ProductID,
+        product(), returning a C*. */
     template <typename HandleC>
       Ref(HandleC const& handle, size_type itemIndex, bool setNow=true) :
       ref_(handle.id(), handle.product(), itemIndex) {
@@ -108,14 +148,14 @@ namespace edm {
         if(setNow) {ref_.item().setPtr(getPtr_<C, T, F>(ref_.product(), ref_.item()));}
     }
 
-    // Constructor for those users who do not have a product handle,
-    // but have a pointer to a product getter (such as the EventPrincipal).
-    // prodGetter will ususally be a pointer to the event principal.
+    /** Constructor for those users who do not have a product handle,
+        but have a pointer to a product getter (such as the EventPrincipal).
+        prodGetter will ususally be a pointer to the event principal. */
     Ref(ProductID const& productID, size_type itemIndex, EDProductGetter const* prodGetter) :
         ref_(productID, 0, itemIndex, 0, prodGetter) {
     }
 
-    // Constructor from RefProd<C> and index
+    /// Constructor from RefProd<C> and index
     Ref(RefProd<C> const& refProd, size_type itemIndex) :
       ref_(refProd.id(), refProd.product().productPtr(), itemIndex, 0, refProd.product().productGetter()) {
         assert(ref_.item().index() == itemIndex);
