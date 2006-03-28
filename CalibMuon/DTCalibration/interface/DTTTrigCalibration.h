@@ -6,8 +6,8 @@
  *  for t_trig computation, fits the rising edge and write results to DB.
  *  The time boxes are written to file.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/03/13 12:17:37 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -27,6 +27,9 @@ namespace edm {
 class TFile;
 class TH1F;
 class DTTimeBoxFitter;
+class DTTTrigBaseSync;
+class DTDBWriterInterface;
+
 
 class DTTTrigCalibration : public edm::EDAnalyzer {
 public:
@@ -62,20 +65,16 @@ private:
   
   // Map of the histograms by SL
   std::map<DTSuperLayerId, TH1F*> theHistoMap;
-
+  // Switch for t0 subtraction
+  bool doSubtractT0;
   // The fitter
   DTTimeBoxFitter *theFitter;
-
-  // Parameters for DB
-  std::string theConnect;
-  std::string theCatalog;
+  // The module for t0 subtraction
+  DTTTrigBaseSync *theSync;//FIXME: should be const
   std::string theTag;
-  unsigned int theMessageLevel;
-  unsigned int theAuthMethod;
-  std::string theCoralUser;
-  std::string theCoralPasswd;
-  //   int theMaxRun;
-  //   int theMinRun;
+  // The interface to DB to write ttrig objects
+  DTDBWriterInterface *theDBWriter;
+
 };
 #endif
 

@@ -1,39 +1,43 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/03/13 12:17:37 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
-
+#include "CalibMuon/DTCalibration/interface/DTDBWriterInterface.h"
 #include "CalibMuon/DTCalibration/interface/DTTTrigCalibration.h"
 #include "CalibMuon/DTCalibration/interface/DTTimeBoxFitter.h"
+#include "RecoLocalMuon/DTRecHit/interface/DTTTrigSyncFactory.h"
+#include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"
 
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
+
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
-#include "CondCore/DBCommon/interface/DBWriter.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/ServiceLoader.h"
-#include "CondCore/DBCommon/interface/ConnectMode.h"
-#include "CondCore/DBCommon/interface/MessageLevel.h"
-#include "CondCore/IOVService/interface/IOV.h"
-
-#include "FWCore/Framework/interface/IOVSyncValue.h"
-
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
+
+#include "Geometry/Vector/interface/GlobalPoint.h"
+
+
+
 
 #include "TFile.h"
 #include "TH1F.h"
 
+class DTLayer;
+
 using namespace std;
 using namespace edm;
-using namespace cond;
+// using namespace cond;
 
+
+
+// Constructor
 DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
@@ -49,38 +53,40 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   if(debug)
     theFitter->setVerbosity(1);
 
-  // DB related parameters
-  theConnect = pset.getParameter<string>("connect");
-  theCatalog =  pset.getParameter<string>("catalog");
-  theTag = pset.getParameter<string>("tag");
-  theMessageLevel = pset.getUntrackedParameter<unsigned int>("messageLevel",0);
-  theAuthMethod =  pset.getParameter<unsigned int>("authenticationMethod");
-  theCoralUser =  string("CORAL_AUTH_USER=")
-    + pset.getUntrackedParameter<string>("coralUser","me");
-  theCoralPasswd = string("CORAL_AUTH_PASSWORD=")
-    + pset.getUntrackedParameter<string>("coralPasswd","mypass");
-  //   theMaxRun = pset.getParameter<int>("runMax");
-  //   theMinRun = pset.getParameter<int>("runMin");
+  doSubtractT0 = pset.getParameter<bool>("doSubtractT0");
+  // Get the synchronizer
+  if(doSubtractT0) {
+    theSync = DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
+						pset.getParameter<ParameterSet>("tTrigModeConfig"));
+  } else {
+    theSync = 0;
+  }
 
-  
+  theTag = pset.getParameter<string>("tTrigTag");
+  theDBWriter = new DTDBWriterInterface(pset.getParameter<ParameterSet>("dtDBWriterConfig"));
+
+
   if(debug) 
     cout << "[DTTTrigCalibration]Constructor called!" << endl;
 }
 
+
+
+// DEstructor
 DTTTrigCalibration::~DTTTrigCalibration(){
   if(debug) 
     cout << "[DTTTrigCalibration]Destructor called!" << endl;
 
-  // Write all time boxes to file
-  theFile->cd();
+  // Delete all histos
   for(map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin();
       slHisto != theHistoMap.end();
       slHisto++) {
-    (*slHisto).second->Write();
     delete (*slHisto).second;
   }
+
   theFile->Close();
   delete theFitter;
+  delete theDBWriter;
 }
 
 
@@ -90,6 +96,9 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
   // Get the digis from the event
   Handle<DTDigiCollection> digis; 
   event.getByLabel(digiLabel, digis);
+
+  // Set the IOV of the objects FIXME: Where to put this?
+  theDBWriter->setIOV(edm::IOVSyncValue::endOfTime().eventID().run());
 
   // Iterate through all digi collections ordered by LayerId   
   DTDigiCollection::DigiRangeIterator dtLayerIt;
@@ -105,7 +114,7 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
     if(hTBox == 0) {
       // Book the histogram
       theFile->cd();
-      hTBox = new TH1F(getTBoxName(slId).c_str(), "Time box (ns)", 10000, -1000, 9000);
+      hTBox = new TH1F(getTBoxName(slId).c_str(), "Time box (ns)", 12800, -1000, 9000);
       if(debug)
 	cout << "  New Time Box: " << hTBox->GetName() << endl;
       theHistoMap[slId] = hTBox;
@@ -119,112 +128,69 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
 	 digi != digiRange.second;
 	 digi++) {
       theFile->cd();
-      hTBox->Fill((*digi).time());
+      double offset = 0;
+      if(doSubtractT0) {
+	const DTLayer* layer = 0;//fake
+	const DTWireId wireId(layerId, (*digi).wire());
+	const GlobalPoint glPt;//fake
+	offset = theSync->offset(layer, wireId, glPt);
+      }
+      hTBox->Fill((*digi).time()-offset);
       if(debug) {
- 	cout << "   Filling Time Box: " << hTBox->GetName() << endl;
- 	cout << "           time(ns): " << (*digi).time() << endl;
+ 	cout << "   Filling Time Box:   " << hTBox->GetName() << endl;
+	cout << "           offset (ns): " << offset << endl;
+ 	cout << "           time(ns):   " << (*digi).time()-offset<< endl;
       }
     }
   }
+
 }
 
 
 void DTTTrigCalibration::endJob() {
-  // Connect to DB to write the results
-  ServiceLoader* loader = new ServiceLoader;
-  // Set the coral password
-  ::putenv(const_cast<char*>(theCoralUser.c_str()));
-  ::putenv(const_cast<char*>(theCoralPasswd.c_str()));
-
-  // Set the authentication method  
-  if(theAuthMethod == 1) {
-    loader->loadAuthenticationService(cond::XML);
-  }else{
-    loader->loadAuthenticationService(cond::Env);
+  if(debug) 
+    cout << "[DTTTrigCalibration]Writing histos to file!" << endl;
+  
+  // Write all time boxes to file
+  theFile->cd();
+  for(map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin();
+      slHisto != theHistoMap.end();
+      slHisto++) {
+    (*slHisto).second->Write();
   }
+  
+  // Create the object to be written to DB
+  DTTtrig* tTrig = new DTTtrig(theTag);
 
-  // Set the message level
-  switch (theMessageLevel) {
-  case 0 :
-    loader->loadMessageService(cond::Error);
-    break;    
-  case 1:
-    loader->loadMessageService(cond::Warning);
-    break;
-  case 2:
-    loader->loadMessageService( cond::Info );
-    break;
-  case 3:
-    loader->loadMessageService( cond::Debug );
-    break;  
-  default:
-    loader->loadMessageService();
-  }
-  try{
-    DBSession* session = new DBSession(theConnect);
-    session->setCatalog(theCatalog);
-    session->connect(cond::ReadWriteCreate);
-    DBWriter pwriter(*session, "DTTTrigs");
-    DBWriter iovwriter(*session, "IOV");
-
-    session->startUpdateTransaction();
-
-    IOV* ttrigIOV= new IOV; 
-   
-    // Create the object to be written to DB
-    DTTtrig* tTrig = new DTTtrig(theTag);
-
-
-    // Loop over the map, fit the histos and write the resulting values to the DB
-    for(map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin();
-	slHisto != theHistoMap.end();
-	slHisto++) {
-      pair<double, double> meanAndSigma = theFitter->fitTimeBox((*slHisto).second);
-      tTrig->setSLTtrig((*slHisto).first.wheel(),
-			(*slHisto).first.station(),
-			(*slHisto).first.sector(),
-			(*slHisto).first.superlayer(),
+  // Loop over the map, fit the histos and write the resulting values to the DB
+  for(map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin();
+      slHisto != theHistoMap.end();
+      slHisto++) {
+    cout << (int)(*slHisto).second << endl;
+    cout << (int)theFitter << endl;
+    pair<double, double> meanAndSigma = theFitter->fitTimeBox((*slHisto).second);
+    tTrig->setSLTtrig((*slHisto).first.wheel(),
+		      (*slHisto).first.station(),
+		      (*slHisto).first.sector(),
+		      (*slHisto).first.superlayer(),
 			meanAndSigma.first); //FIXME: should use tdc counts and sigma???
-      if(debug) {
-	cout << " SL: " << (*slHisto).first
-	     << " mean = " << meanAndSigma.first
-	     << " sigma = " << meanAndSigma.second << endl;
-      }
+    if(debug) {
+      cout << " SL: " << (*slHisto).first
+	   << " mean = " << meanAndSigma.first
+	   << " sigma = " << meanAndSigma.second << endl;
     }
-
-    string mytok = pwriter.markWrite<DTTtrig>(tTrig);
-    // Set the IOV
-    ttrigIOV->iov.insert(make_pair(edm::IOVSyncValue::endOfTime().eventID().run(), mytok ));
-    if(debug)
-      cout << "  iov size " << ttrigIOV->iov.size() << endl;
-
-    if(debug)
-      cout << "  markWrite IOV..." << endl;
-    string tTrigiovToken = iovwriter.markWrite<cond::IOV>(ttrigIOV);
-    if(debug)
-      cout << "   Commit..." << endl;
-    session->commit();//commit all in one
-    if(debug)
-      cout << "  iov size " << ttrigIOV->iov.size() << endl;
-    session->disconnect();
-    delete session;
-    if(debug)
-      cout << "  Add MetaData... " << endl;
-    cond::MetaData metadata_svc(theConnect, *loader );
-    metadata_svc.connect();
-    metadata_svc.addMapping(theTag, tTrigiovToken );
-    metadata_svc.disconnect();
-    if(debug)
-      cout << "   Done." << endl;
-  } catch( const cond::Exception& er ) {
-    std::cout << er.what() << std::endl;
-  } catch( ... ) {
-    std::cout << "Unknown excpetion while writeing to DB!" << std::endl;
   }
 
+  if(debug) 
+   cout << "[DTTTrigCalibration]Writing ttrig object to DB!" << endl;
+  // Write the ttrig object to DB
+  theDBWriter->write2DB<DTTtrig>(tTrig);
 
-  delete loader;
+
+
 }
+
+
 
 
 string DTTTrigCalibration::getTBoxName(const DTSuperLayerId& slId) const {
