@@ -1,0 +1,20 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/EDProduct>
+<use name=Geometry/CaloEventSetup>
+<use name=CalibFormats/HcalObjects>
+<use name=root>
+
+
+<flags SEAL_PLUGIN_NAME="ValidationHcalDigis">
+<export>
+   <lib name=ValidationHcalDigis>
+    <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/EDProduct>	
+   <use name=Geometry/CaloEventSetup>
+   <use name=CalibFormats/HcalObjects>	
+<use name=root>	 	
+</export>
