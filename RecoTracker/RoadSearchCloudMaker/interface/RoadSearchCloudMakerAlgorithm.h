@@ -50,25 +50,25 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/03/09 14:53:49 $
-// $Revision: 1.3 $
+// $Author: gutsche $
+// $Date: 2006/03/23 01:59:41 $
+// $Revision: 1.4 $
 //
 
 #include <string>
 
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
-
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
 
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -80,7 +80,7 @@ class RoadSearchCloudMakerAlgorithm
   ~RoadSearchCloudMakerAlgorithm();
 
   /// Runs the algorithm
-  void run(const TrackingSeedCollection* input,
+  void run(edm::Handle<TrajectorySeedCollection> input,
 	   const SiStripRecHit2DLocalPosCollection* rphiRecHits,
 	   const SiStripRecHit2DLocalPosCollection* stereoRecHits,
 	   const edm::EventSetup& es,
@@ -88,7 +88,7 @@ class RoadSearchCloudMakerAlgorithm
 
   void FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DLocalPosCollection* inputRecHits, 
 			    double phi0, double k0, Roads::type roadType, double ringPhi,
-			    const TrackingSeed* seed, std::vector<bool> &usedLayersArray, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
+			    const TrajectorySeed* seed, std::vector<bool> &usedLayersArray, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector,
 			    const TrackerGeometry *tracker, RoadSearchCloud &cloud);
 
   bool isSingleLayer(DetId id);
@@ -97,7 +97,7 @@ class RoadSearchCloudMakerAlgorithm
 
   double phiFromExtrapolation(double phi0, double k0, double ringRadius, Roads::type roadType);
 
-  double phiMax(const TrackingSeed *seed, double phi0, double k0);
+  double phiMax(const TrajectorySeed *seed, double phi0, double k0);
 
   double map_phi(double phi);
 

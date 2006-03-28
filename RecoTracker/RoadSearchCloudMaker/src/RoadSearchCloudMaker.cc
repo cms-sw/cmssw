@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/01/30 22:23:55 $
-// $Revision: 1.2 $
+// $Author: stevew $
+// $Date: 2006/02/10 22:54:52 $
+// $Revision: 1.3 $
 //
 
 #include <memory>
@@ -18,7 +18,7 @@
 
 #include "RecoTracker/RoadSearchCloudMaker/interface/RoadSearchCloudMaker.h"
 
-#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 
 #include "FWCore/Framework/interface/Handle.h"
@@ -46,7 +46,7 @@ namespace cms
     std::string seedProducer = conf_.getParameter<std::string>("SeedProducer");
 
     // Step A: Get Inputs 
-    edm::Handle<TrackingSeedCollection> seeds;
+    edm::Handle<TrajectorySeedCollection> seeds;
     e.getByLabel(seedProducer, seeds);
 
     // retrieve producer name of input SiStripRecHit2DLocalPosCollection
@@ -62,8 +62,8 @@ namespace cms
     std::auto_ptr<RoadSearchCloudCollection> output(new RoadSearchCloudCollection);
 
     // Step C: Invoke the seed finding algorithm
-    roadSearchCloudMakerAlgorithm_.run(seeds.product(),rphirecHits.product(),
-                                                       stereorecHits.product(),es,*output);
+    roadSearchCloudMakerAlgorithm_.run(seeds,rphirecHits.product(),
+				       stereorecHits.product(),es,*output);
 
     // Step D: write output to file
     e.put(output);
