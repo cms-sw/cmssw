@@ -258,7 +258,7 @@ CPEFromDetPosition::xpos(const SiPixelCluster& cluster) const
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
   float baryc = cluster.x();
   // &&& Testing...
-  if (baryc > 0) return baryc;
+  //if (baryc > 0) return baryc;
 
   if (size == 1) {
     // the middle of only one pixel is equivalent to the baryc.
@@ -306,7 +306,7 @@ CPEFromDetPosition::ypos(const SiPixelCluster& cluster) const
   int size = cluster.sizeY();
   float baryc = cluster.y();
   // &&& Testing...
-  if (baryc > 0) return baryc;
+  //if (baryc > 0) return baryc;
 
   if (size == 1) {
     ycluster = baryc;
