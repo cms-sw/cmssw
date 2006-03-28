@@ -11,10 +11,6 @@
 #include <vector>
 #include <algorithm>
 
-//#ifdef DEBUG_INSTANCE_COUNTING
-//#include "CommonDet/DetUtilities/interface/InstanceCounting.h"
-//#endif
-
 /** A class for detailed particle trajectory representation.
  *  It is used during trajectory building to "grow" a trajectory.
  *  The trajectory is represented as an ordered sequence of 
@@ -39,11 +35,6 @@
 
 
 class Trajectory
-
-//#ifdef DEBUG_INSTANCE_COUNTING
-//  : public InstanceCounting<Trajectory>
-//#endif
-
 {
 public:
   typedef vector<TrajectoryMeasurement> DataContainer;
@@ -118,15 +109,15 @@ public:
    *  detector layers crossed without using RecHits from them are also 
    *  stored as measurements.
    */
-  // FIXME
-  int foundHits() const { return recHits().size();}
+
+  int foundHits() const;
 
   /** Number of detector layers crossed without valid RecHits.
    *  Used mainly as a criteria for abandoning a trajectory candidate
    *  during trajectory building.
    */
-  // FIXME
-  int lostHits() const { return 0;}
+
+  int lostHits() const;
   
   /// True if trajectory has no measurements.
   bool empty() const { return theData.empty();}
@@ -155,7 +146,7 @@ public:
   /** Definition of inactive Det from the Trajectory point of view.
    */
   static bool inactive(//const Det& det
-		       ){return false;}
+		       ){return false;}//FIXME
 
   /** Definition of what it means for a hit to be "lost".
    *  This definition is also used by the TrajectoryBuilder.

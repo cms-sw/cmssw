@@ -2,10 +2,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-// #ifdef DEBUG_INSTANCE_COUNTING
-// int Trajectory::CountingBase::theInstances = 0;
-// #endif
-
 void Trajectory::pop() {
   if (!empty()) {
     theData.pop_back();
@@ -74,6 +70,23 @@ edm::OwnVector<TransientTrackingRecHit> Trajectory::recHits() const {
 }
 
 
+int Trajectory::foundHits() const {
+  int f = 0;
+  for (edm::OwnVector<TransientTrackingRecHit>::const_iterator i=recHits().begin();
+       i!=recHits().end();i++){
+    if (i->isValid()) f++;
+  }
+  return f;
+}
+
+int Trajectory::lostHits() const {
+  int l = 0;
+  for (edm::OwnVector<TransientTrackingRecHit>::const_iterator i=recHits().begin();
+       i!=recHits().end();i++){
+    if (i->isValid()) l++;
+  }
+  return l;
+}
 
 PropagationDirection Trajectory::direction() const {
   if (theDirectionValidity) return theDirection;
