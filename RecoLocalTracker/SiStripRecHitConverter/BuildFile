@@ -4,7 +4,6 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/SiStripCluster>
-<use name=DataFormats/TrajectoryState>                                                                                                     
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/Common>
 <use name=Geometry/CommonDetUnit>
