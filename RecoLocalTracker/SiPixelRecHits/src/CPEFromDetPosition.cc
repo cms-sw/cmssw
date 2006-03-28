@@ -37,7 +37,7 @@ CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf)
 
   //--- Algorithm's verbosity
   theVerboseLevel = 
-    conf.getParameter<int>("VerboseLevel");
+    conf.getUntrackedParameter<int>("VerboseLevel",20);
 }
 
 

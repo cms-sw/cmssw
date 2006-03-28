@@ -67,7 +67,7 @@ namespace cms
   void SiPixelRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es)
   {
     // retrieve producer name of input SiPixelClusterCollection
-    std::string clusterCollLabel = conf_.getParameter<std::string>("ClusterCollLabel");
+    std::string clusterCollLabel = conf_.getUntrackedParameter<std::string>("ClusterCollLabel","pixClust");
 
     // Step A.1: get input data
     edm::Handle<SiPixelClusterCollection> clusterColl;
