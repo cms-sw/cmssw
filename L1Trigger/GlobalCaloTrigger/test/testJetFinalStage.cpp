@@ -43,7 +43,7 @@ const int numTauJets = 4;     //Num. tau jets expected out
 
 
 //  FUNCTION PROTOTYPES
-/// Runs the test, and returns a string with the test result message in.
+/// Runs the test on the L1GctJetFinalStage passed into it.
 void classTest(L1GctJetFinalStage *myJetFinalStage);
 /// Loads test input and also the known results from a file.
 void loadTestData(JetsVector &inputJets, JetsVector &trueCentralJets,
@@ -54,7 +54,7 @@ void safeOpenInputFile(ifstream &fin, const string name);
 void safeOpenOutputFile(ofstream &fout, const string name);
 /// Reads jets from file and pushes the specified number into a vector of jets
 void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets);
-/// Gets jet data from the testDataFile (reasonably safely). 
+/// Gets the data of a single jet from the testDataFile (reasonably safely).  
 L1GctJet readSingleJet(ifstream &fin);
 /// Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
 bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string description);
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
     return 0;   
 }
 
-// Runs the test, and returns a string with the test result message in.
+// Runs the test on the L1GctJetFinalStage passed into it.
 void classTest(L1GctJetFinalStage *myJetFinalStage)
 {
     bool testPass = true; //flag to mark test failure
@@ -119,15 +119,17 @@ void classTest(L1GctJetFinalStage *myJetFinalStage)
     
     myJetFinalStage->process();  //Run algorithm
     
-    //Get and then test the output jets against known results
+    //Get the outputted jets and store locally
     outputCentralJets = myJetFinalStage->getCentralJets();
     outputForwardJets = myJetFinalStage->getForwardJets();
     outputTauJets = myJetFinalStage->getTauJets();
 
+    //Test the outputted jets against the known true results
     if(!compareJetsVectors(outputCentralJets, trueCentralJets, "central jets")) { testPass = false; }
     if(!compareJetsVectors(outputForwardJets, trueForwardJets, "forward jets")) { testPass = false; }
     if(!compareJetsVectors(outputTauJets, trueTauJets, "tau jets")) { testPass = false; }
 
+    //Write out all outputtable information to file
     cout << "\nWriting results of processing to file " << resultsFile << "..." << endl;;
     ofstream fout;
     safeOpenOutputFile(fout, resultsFile);
@@ -138,14 +140,16 @@ void classTest(L1GctJetFinalStage *myJetFinalStage)
     fout.close();
     cout << "Done!" << endl;
     
-    //test the reset method.
+    //Run the reset method.
     myJetFinalStage->reset();
-    //get all the data again
+    
+    //get all the data again - should all be empty
     outputJets = myJetFinalStage->getInputJets();
     outputCentralJets = myJetFinalStage->getCentralJets();
     outputForwardJets = myJetFinalStage->getForwardJets();
     outputTauJets = myJetFinalStage->getTauJets();
     
+    //Test that all the outputted vectors are indeed empty
     if(outputJets.empty() && outputCentralJets.empty() &&
        outputForwardJets.empty() && outputTauJets.empty())
     {   
@@ -157,6 +161,7 @@ void classTest(L1GctJetFinalStage *myJetFinalStage)
         testPass = false;
     }
     
+    //Print overall results summary to screen
     if(testPass)
     {
         cout << "\n*************************************" << endl;
@@ -230,7 +235,7 @@ void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets)
     }
 }
 
-//Gets jet data from the testDataFile (reasonably safely). 
+//Gets the data of a single jet from the testDataFile (reasonably safely). 
 L1GctJet readSingleJet(ifstream &fin)
 {
     //This reperesents how many numbers there are per line in the input file
@@ -241,17 +246,19 @@ L1GctJet readSingleJet(ifstream &fin)
     //read in the data from the file
     for(int i=0; i < numJetComponents; ++i)
     {
+        //check to see if the input stream is still ok first
         if(fin.eof() || fin.bad())
         {
            throw std::runtime_error("Error reading data from " + testDataFile + "!");
         }
         else
         {
-            fin >> jetComponents[i];
+            fin >> jetComponents[i];  //read in the components.
         }
     }
    
-    L1GctJet tempJet(jetComponents[0], jetComponents[1], jetComponents[2]);    
+    //return object
+    L1GctJet tempJet(jetComponents[0], jetComponents[1], jetComponents[2]); //add jetComponents[3] if we get tau feature bit, etc.   
 
     return tempJet;
 }
@@ -261,23 +268,26 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
 {
     bool testPass = true;
     
-    if(vector1.size() != vector2.size())  
+    if(vector1.size() != vector2.size())  //First check overall size is the same
     {
         testPass = false;
     }
     else
     {
-        if (!vector1.empty())
+        if (!vector1.empty())  //Make sure it isn't empty
         {
+            //compare the vectors
             for(unsigned int i = 0; i < vector1.size(); ++i)
             {
                 if(vector1[i].getRank() != vector2[i].getRank()) { testPass = false; break; }
                 if(vector1[i].getEta() != vector2[i].getEta()) { testPass = false; break; }
                 if(vector1[i].getPhi() != vector2[i].getPhi()) { testPass = false; break; }
+                //may need to add a tau feature bit comparison in the future here...
             }
         }
     }
     
+    //Print results to screen
     if(testPass == false)
     {
         cout << "\nTest class has FAILED " << description << " comparison!" << endl;
@@ -293,14 +303,16 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
 // Writes out the entire contents of a JetsVector to the given file output stream
 void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
 {
-    fout << description << endl;
-    if(!jets.empty())
+    fout << description << endl; //brief description for each JetsVector content
+    
+    if(!jets.empty())  //check it isn't an empty vector
     {
         for(unsigned int i=0; i < jets.size(); ++i)
         {
             fout << jets[i].getRank() << "\t" 
                  << jets[i].getEta()  << "\t"
                  << jets[i].getPhi()  << endl;
+                 //may need to add tau feature bit output here in the future
         }
     }
     fout << endl;  //write a blank line to separate each group
