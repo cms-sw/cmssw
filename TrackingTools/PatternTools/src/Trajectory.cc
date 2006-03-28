@@ -83,7 +83,7 @@ int Trajectory::lostHits() const {
   int l = 0;
   for (edm::OwnVector<TransientTrackingRecHit>::const_iterator i=recHits().begin();
        i!=recHits().end();i++){
-    if (i->isValid()) l++;
+    if (!(i->isValid())) l++;
   }
   return l;
 }
