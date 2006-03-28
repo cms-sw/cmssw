@@ -1,0 +1,7 @@
+
+<export>
+ <lib name=RecoTrackerCkfPattern>
+ <use name=RecoTracker/MeasurementDet>
+</export>
+
+<use name=RecoTracker/MeasurementDet>
