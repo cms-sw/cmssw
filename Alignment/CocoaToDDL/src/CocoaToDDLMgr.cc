@@ -89,9 +89,15 @@ void CocoaToDDLMgr::writeSolids()
   newSectPre_so("");
   
   static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite;
+  static std::vector< OpticalObject* >::const_iterator ite,ite2;
   for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    so( *ite );
+    bool alreadyWritten = false;
+    for(ite2 = optolist.begin(); ite2 != ite; ite2++ ){
+      if( (*ite)->shortName() == (*ite2)->shortName() ) {
+	alreadyWritten = true;
+      }
+    }
+    if( !alreadyWritten ) so( *ite );
   }
   
   newSectPost_so("");
@@ -104,10 +110,15 @@ void CocoaToDDLMgr::writeLogicalVolumes()
   newSectPre_lv("");
   
   static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite;
+  static std::vector< OpticalObject* >::const_iterator ite,ite2;
   for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    //each OpticalObject is a distinct logical volume. This is so because two OptO's of the same type may have different optical properties and this optical properties are SpecPart's. And to have different values of an SpecPart they have to be different logical volumes
-    lv( *ite );
+    bool alreadyWritten = false;
+    for(ite2 = optolist.begin(); ite2 != ite; ite2++ ){
+      if( (*ite)->shortName() == (*ite2)->shortName() ) {
+	alreadyWritten = true;
+      }
+    }
+    if( !alreadyWritten ) lv( *ite );
   }
   
   newSectPost_lv("");
@@ -263,7 +274,7 @@ void CocoaToDDLMgr::newSectPre_so(std::string name)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::so(OpticalObject * opto) 
 {
-  std::string name = scrubString(opto->name());
+  std::string name = opto->shortName();
 
   if( opto->type() == "system" ){
     //    file_ << " <Box name=\"" << name << "\"";
@@ -453,10 +464,8 @@ void CocoaToDDLMgr::newSectPre_lv(std::string name)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::lv(OpticalObject * opto)
 { 
-  std::string name = opto->name();
-  name = scrubString(name);
-  std::string rSolid = opto->name();
-  rSolid = scrubString(rSolid);
+  std::string name = opto->shortName();
+  std::string rSolid = opto->shortName();
   std::string sensitive = "unspecified";
 
   if( opto->type() == "system" ){
@@ -475,7 +484,7 @@ void CocoaToDDLMgr::lv(OpticalObject * opto)
   file_ << " <LogicalPart name=\"" 
 	<<  name << "\" category=\"" << sensitive << "\">" << std::endl
 	<< "  <rSolid name=\"" << rSolid << "\"/>" << std::endl
-	<< "  <rMaterial name=\"materials:" << opto->getMaterial()->getName() << "\"" 
+	<< "  <rMaterial name=\"" << opto->getMaterial()->getName() << "\"" 
 	<< "/>" << std::endl
 	<< " </LogicalPart>" << std::endl;			
 }
@@ -514,11 +523,11 @@ void CocoaToDDLMgr::pv(OpticalObject * opto)
 
    //t   if (file!=filename_) file_ << file << ":";
    
-   file_ << scrubString( opto->parent()->name()) << "\"/>" << std::endl;
+   file_ << opto->parent()->shortName() << "\"/>" << std::endl;
 
    file_ << "   <rChild name=\""; 
    //t  if (file_d != filename_)  file_<<  file_d << ":"; 	
-   file_ << scrubString(opto->name()) ;	
+   file_ << opto->shortName();	
    file_ << "\"/>" << std::endl;
    
    int rotNumber = buildRotationNumber( opto );
@@ -665,7 +674,7 @@ void CocoaToDDLMgr::measurementsAsSpecPars()
     file_ << " <SpecPar name=\"" << opto->name() << "_MEASUREMENT\">" << std::endl;
     file_ << "   <PartSelector path=\"//" << opto->name() << "\"/> " << std::endl;
     for( site = namelist.begin(); site != namelist.end(); site++ ){     
-      file_ << "   <Parameter name=\"" << std::string("meas_name") << "\" value=\"" << scrubString(*site) << "\"  eval=\"false\" /> " << std::endl;
+      file_ << "   <Parameter name=\"" << std::string("meas_name") << "\" value=\"" << (*site) << "\"  eval=\"false\" /> " << std::endl;
     }
 
     file_ << " </SpecPar>" << std::endl;
