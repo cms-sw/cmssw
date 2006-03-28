@@ -3,7 +3,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.cc,v 1.6 2006/03/01 07:27:40 fedor Exp $
+   $Id: HcalDbPool.cc,v 1.7 2006/03/21 01:45:18 fedor Exp $
 */
 
 // pool
@@ -79,8 +79,8 @@ bool HcalDbPool::storeObject (T* fObject, const std::string& fContainer, pool::R
     fRef->markWrite (*mPlacement);
     service ()->transaction().commit();
   }
-  catch (seal::Exception& e) {
-    std::cerr << "storeObject->  POOL error: "  << e << std::endl;
+  catch (pool::Exception& e) {
+    std::cerr << "storeObject->  POOL error: "  << e.what() << std::endl;
     return false;
   }
    catch (...) {
@@ -153,9 +153,10 @@ bool HcalDbPool::getObject (const std::string& fToken, pool::Ref<T>* fObject) {
   catch(const coral::TableNotExistingException& e) {
     std::cerr << "getObject-> coral::TableNotExisting Exception" << std::endl;
   }
-  catch (const seal::Exception& e) {
-    std::cerr<<"getObject-> CORAL error: " << e << std::endl;
-  }
+  // Removed to release 060pre2, it will probably need to be replaced- SA
+  //catch (const seal::Exception& e) {
+  //  std::cerr<<"getObject-> CORAL error: " << e << std::endl;
+  //}
   catch(...){
     std::cerr << "getObject-> Funny error" << std::endl;
   }
@@ -245,8 +246,8 @@ pool::IDataSvc* HcalDbPool::service ()
       mPlacement->setDatabase(mConnect, pool::DatabaseSpecification::PFN); 
       mPlacement->setTechnology(pool::POOL_RDBMS_StorageType.type());
     }
-    catch (const seal::Exception& e) {
-      std::cerr<<"HcalDbPool::service ()-> POOL error: " << e << std::endl;
+    catch (const pool::Exception& e) {
+      std::cerr<<"HcalDbPool::service ()-> POOL error: " << e.what() << std::endl;
     }
     catch (...) {
       std::cerr << "HcalDbPool::service ()-> General error" << std::endl;
@@ -272,8 +273,8 @@ coral::ISession* HcalDbPool::session () {
 	mSession.reset (domain.newSession (mConnect));
       }
     }
-    catch (const seal::Exception& e) {
-      std::cerr<<"HcalDbPool::session ()-> POOL error: " << e << std::endl;
+    catch (const pool::Exception& e) {
+      std::cerr<<"HcalDbPool::session ()-> POOL error: " << e.what() << std::endl;
     }
     catch (...) {
       std::cerr << "HcalDbPool::session ()-> General error" << std::endl;
@@ -319,10 +320,10 @@ const std::string& HcalDbPool::metadataGetToken (const std::string& fTag) {
       session ()->disconnect ();
       //std::cout << "HcalDbPool::metadataGetToken->disconnecting..." << std::endl;
     }
-    catch (const seal::Exception& e) {
+    catch (const pool::Exception& e) {
       session ()->transaction().rollback();
       session ()->disconnect ();
-      std::cerr<<"HcalDbPool::metadataGetToken-> POOL error: " << e << std::endl;
+      std::cerr<<"HcalDbPool::metadataGetToken-> POOL error: " << e.what() << std::endl;
       mToken.clear ();
     }
     catch (...) {
@@ -369,10 +370,10 @@ bool HcalDbPool::metadataSetTag (const std::string& fTag, const std::string& fTo
     //std::cout << "HcalDbPool::metadataSetTag->disconnect..." << std::endl;
    result = true;
   }
-  catch (const seal::Exception& e) {
+  catch (const pool::Exception& e) {
     session ()->transaction().rollback();
     session ()->disconnect ();
-    std::cerr<<"HcalDbPool::metadataSetTag-> POOL error: " << e << std::endl;
+    std::cerr<<"HcalDbPool::metadataSetTag-> POOL error: " << e.what() << std::endl;
     result = false;
   }
   catch (...) {
