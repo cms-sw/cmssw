@@ -20,11 +20,16 @@ checkRZ(const DetLayer* layer,
 	const SiPixelRecHit* outerHit,
 	const edm::EventSetup& iSetup) const
 {
+
+
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   //MP
   bool isBarrel = (layer->part() == barrel);
- 
+  bool isPixel = (layer->module() == pixel);
+
+  
+
     GlobalPoint ohit =  tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
  
   PixelRecoPointRZ outer(ohit.perp(), ohit.z());
@@ -35,7 +40,7 @@ checkRZ(const DetLayer* layer,
       PixelRecoPointRZ(-originRBound(), origin().z()-originZBound())
     : PixelRecoPointRZ( originRBound(), origin().z()-originZBound()); 
 
-  if (!thePrecise) {
+  if ((!thePrecise) &&(isPixel )) {
     double VcotMin = PixelRecoLineRZ( vtxR, outer).cotLine();
     double VcotMax = PixelRecoLineRZ( vtxL, outer).cotLine();
     return new HitEtaCheck(isBarrel, outer, VcotMax, VcotMin);
@@ -47,22 +52,23 @@ checkRZ(const DetLayer* layer,
   PixelRecoPointRZ  outerL, outerR;
 
   if (layer->part() == barrel) {
-    
+
     outerL = PixelRecoPointRZ(outer.r(), outer.z()-errZ);
     outerR = PixelRecoPointRZ(outer.r(), outer.z()+errZ);
   } else if (outer.z() > 0) {
+
     outerL = PixelRecoPointRZ(outer.r()+errR, outer.z());
     outerR = PixelRecoPointRZ(outer.r()-errR, outer.z());
   } else {
     outerL = PixelRecoPointRZ(outer.r()-errR, outer.z());
     outerR = PixelRecoPointRZ(outer.r()+errR, outer.z());
   }
+  
 
-  //MP
-  // MultipleScatteringParametrisation iSigma(layer);
+  MultipleScatteringParametrisation iSigma(layer,iSetup);
   PixelRecoPointRZ vtxMean(0.,origin().z());
-  // float innerScatt = 3 * iSigma( ptMin(), vtxMean, outer);
-  float innerScatt = 3.;
+  float innerScatt = 3 * iSigma( ptMin(), vtxMean, outer);
+
   PixelRecoLineRZ leftLine( vtxL, outerL);
   PixelRecoLineRZ rightLine( vtxR, outerR);
 
