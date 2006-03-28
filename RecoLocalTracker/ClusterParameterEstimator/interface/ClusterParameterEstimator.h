@@ -13,6 +13,9 @@ template <class T> class ClusterParameterEstimator {
    virtual LocalValues localParameters( const T& cluster, const GeomDetUnit& gd, float alpha, float beta) const {
      return localParameters(cluster,gd);
    } 
+   virtual LocalValues localParameters( const T& cluster, const GeomDetUnit& gd, LocalVector trackdir, LocalPoint middlepoint) {
+     return localParameters(cluster,gd);
+   } 
 
   virtual ~ClusterParameterEstimator(){}
   
