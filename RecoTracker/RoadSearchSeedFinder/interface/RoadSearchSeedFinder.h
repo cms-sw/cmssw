@@ -11,19 +11,18 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/01/15 01:04:14 $
-// $Revision: 1.1 $
+// $Author: burkett $
+// $Date: 2006/03/15 15:59:12 $
+// $Revision: 1.2 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoTracker/RoadSearchSeedFinder/interface/RoadSearchSeedFinderAlgorithm.h"
 

@@ -6,14 +6,14 @@
 //                  RoadSeed if hits are in the inner and
 //                  outer SeedRing, applies cuts for all 
 //                  combinations of inner and outer SeedHits,
-//                  stores valid combination in TrackingSeed
+//                  stores valid combination in TrajectorySeed
 //
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/02/28 18:01:41 $
-// $Revision: 1.5 $
+// $Date: 2006/03/23 01:56:54 $
+// $Revision: 1.6 $
 //
 
 #include <vector>
@@ -23,25 +23,29 @@
 
 #include "RecoTracker/RoadSearchSeedFinder/interface/RoadSearchSeedFinderAlgorithm.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
-#include "DataFormats/TrackingSeed/interface/TrackingSeed.h"
-
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
+
+#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoTracker/RoadMapRecord/interface/Roads.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
-
 #include "Geometry/Vector/interface/GlobalPoint.h"
 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"
+#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 
 RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
 }
@@ -53,7 +57,7 @@ RoadSearchSeedFinderAlgorithm::~RoadSearchSeedFinderAlgorithm() {
 void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> &handle,
                                         const edm::Handle<SiStripRecHit2DLocalPosCollection> &handle2,
 			      const edm::EventSetup& es,
-			      TrackingSeedCollection &output)
+			      TrajectorySeedCollection &output)
 {
 
   const SiStripRecHit2DMatchedLocalPosCollection* input = handle.product();
@@ -115,7 +119,6 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
 	    
 		double innerr = std::sqrt(inner.x()*inner.x()+inner.y()*inner.y());
 		double outerr = std::sqrt(outer.x()*outer.x()+outer.y()*outer.y());
-//                std::cout << "innerr, outerr " << innerr << " " << outerr << std::endl;
 
 		// calculate maximal delta phi in [0,2pi]
 		double deltaPhiMax = std::abs( std::asin(unitCorrection * B * innerr / ptmin) - std::asin(unitCorrection * B * outerr / ptmin) );
@@ -123,13 +126,19 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
 
 		if ( deltaPhi <= deltaPhiMax ) {
 	      
-		  // add dethits passing deltaPhi cut, first inner, second outer
-		  TrackingSeed productSeed;
-		  productSeed.addHit(&(*innerSeedDetHit));
-		  productSeed.addHit(&(*outerSeedDetHit));
-	      
+		  // use correct tk seed generator from consecutive hits
+		  // make PTrajectoryOnState from two hits and region (beamspot)
+		  GlobalTrackingRegion region;
+		  GlobalError vtxerr( std::sqrt(region.originRBound()),
+				      0, std::sqrt(region.originRBound()),
+				      0, 0, std::sqrt(region.originZBound()));
+
+		  SeedFromConsecutiveHits seedfromhits(((TrackingRecHit*)outerSeedDetHit->clone()), 
+						       ((TrackingRecHit*)innerSeedDetHit->clone()),
+						       region.origin(), vtxerr, es);
+
 		  // add seed to collection
-		  output.push_back(productSeed);
+		  output.push_back(*seedfromhits.TrajSeed());
 
 		}
 	      }
@@ -140,8 +149,6 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
     }
   }
 
-  if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-    std::cout << "[RoadSearchSeedFinderAlgorithm] found " << output.size() << " seeds." << std::endl; 
-  }
+  edm::LogInfo("RoadSearch") << "Found " << output.size() << " seeds."; 
 
 };

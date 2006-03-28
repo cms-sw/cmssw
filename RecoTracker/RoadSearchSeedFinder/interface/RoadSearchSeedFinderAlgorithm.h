@@ -14,9 +14,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/01/15 01:04:14 $
-// $Revision: 1.1 $
+// $Author: stevew $
+// $Date: 2006/02/08 02:06:48 $
+// $Revision: 1.2 $
 //
 
 #include <string>
@@ -27,7 +27,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 class RoadSearchSeedFinderAlgorithm 
 {
@@ -40,7 +40,7 @@ class RoadSearchSeedFinderAlgorithm
   void run(const edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> &handle,
            const edm::Handle<SiStripRecHit2DLocalPosCollection> &handle2,
 	   const edm::EventSetup& es,
-	   TrackingSeedCollection &output);
+	   TrajectorySeedCollection &output);
 
  private:
   edm::ParameterSet conf_;
