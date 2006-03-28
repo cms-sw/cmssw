@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: OneToManyAssociation.h,v 1.2 2006/03/16 16:35:29 llista Exp $
+ * $Id: OneToManyAssociation.h,v 1.3 2006/03/17 07:31:46 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -50,6 +50,14 @@ namespace edm {
       map_[ ik ].push_back( iv );
     }
 
+    struct keyVal {
+      keyVal( const KeyRef & k, const ValRefVec & v ) : key( k ), values( v ) { }
+      KeyRef key;
+      ValRefVec values;
+    };
+
+    typedef keyVal value_type;
+
     struct const_iterator {
       typedef ptrdiff_t difference_type;
       typedef typename map_type::const_iterator::iterator_category iterator_category;
@@ -70,6 +78,9 @@ namespace edm {
 	  v.push_back( ValRef( valRef_, * idx ) );
 	return v;
       }
+      keyVal operator *() const {
+	return keyVal( key(), values() );
+      }
     private:
       typename map_type::const_iterator i;
     };
@@ -84,6 +95,12 @@ namespace edm {
       typename map_type::const_iterator f = map_.find( k.index() );
       return const_iterator( f );
     }
+    /// return element with key k
+    keyVal operator[]( size_type i ) const {
+      typename map_type::const_iterator f = map_.find( k.index() );
+      const_iterator ci( f );
+      return * ci;
+    } 
 
   private:
     /// throw if k hasn't the same if as keyRef_

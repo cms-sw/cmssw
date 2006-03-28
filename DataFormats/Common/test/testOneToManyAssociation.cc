@@ -1,9 +1,10 @@
-// $Id: testOneToManyAssociation.cc,v 1.3 2006/02/23 12:33:13 llista Exp $
+// $Id: testOneToManyAssociation.cc,v 1.1 2006/03/16 16:29:12 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
 #include <iostream>
 #include "DataFormats/Common/interface/OneToManyAssociation.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 class testOneToManyAssociation : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testOneToManyAssociation);
@@ -29,5 +30,5 @@ void testOneToManyAssociation::checkAll() {
   CPPUNIT_ASSERT( b != e );
   Assoc::const_iterator f = v.find( edm::Ref<CKey>() );
   CPPUNIT_ASSERT( f != e );
-
+  edm::Ref<Assoc> r;
 }
