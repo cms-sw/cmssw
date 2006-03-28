@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/14 16:22:54 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/15 23:40:07 $
+ *  $Revision: 1.2 $
  *  \author M. Zanetti
  */
 
@@ -93,10 +93,12 @@ bool DTROS25FileReader::fillRawData(EventID& eID,
 
     // eventDataSize = (Number Of Words)* (Word Size)
     int eventDataSize = eventData.size()*rosWordLenght;
+    // It has to be a multiple of 8 bytes. if not, adjust the size of the FED payload
+    int adjustment = (eventDataSize/4)%2 == 1 ? 4 : 0; 
 
     // The FED ID is always the first in the DT range
     FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
-    fedRawData.resize(eventDataSize);
+    fedRawData.resize(eventDataSize+adjustment);
     
     copy(reinterpret_cast<unsigned char*>(&eventData[0]),
 	 reinterpret_cast<unsigned char*>(&eventData[0]) + eventDataSize, fedRawData.data());
