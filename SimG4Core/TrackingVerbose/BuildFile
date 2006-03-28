@@ -1,0 +1,13 @@
+<Flags SEAL_PLUGIN_NAME="SimG4TrackingVerbose">
+<export>
+ <lib name=SimG4CoreTrackingVerbose>
+ <use name=SimG4Core/Application>
+ <use name=Foundation/PluginManager>
+ <use name=FWCore/ParameterSet>
+</export>
+
+<use name=SimG4Core/Application>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=geant4>
+<use name=boost>
