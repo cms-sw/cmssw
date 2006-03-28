@@ -26,6 +26,10 @@ pre {
   border-color: #a0a0f0;
 }
 
+.fragment pre {
+  width: auto;
+}
+
 .doctable {
   font-size: 12pt;
   width: 800px;
