@@ -8,6 +8,9 @@
 namespace {
   namespace {
     edm::Wrapper<RoadSearchCloudCollection> roadSearchCloudCollectionWrapper;
+    edm::Ref<std::vector<RoadSearchCloud>, RoadSearchCloud> roadSearchCloudRef;
+    edm::RefVector<std::vector<RoadSearchCloud>, RoadSearchCloud> roadSearchCloudRefVector;
+
   }
 }
 

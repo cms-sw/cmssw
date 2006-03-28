@@ -13,28 +13,39 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 00:56:20 $
-// $Revision: 1.1 $
+// $Date: 2006/02/28 17:56:08 $
+// $Revision: 1.2 $
 //
 
-#include <vector>
-#include "DataFormats/TrackingSeed/interface/TrackingSeed.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Common/interface/ClonePolicy.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 class RoadSearchCloud {
 public:
 
-  RoadSearchCloud() {}
+  typedef edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> > RecHitOwnVector;
+  typedef edm::Ref<TrajectorySeedCollection, TrajectorySeed> SeedRef;
+  typedef edm::RefVector<TrajectorySeedCollection, TrajectorySeed> SeedRefs;
 
-  inline const std::vector<const SiStripRecHit2DLocalPos*> detHits() const { return detHits_;}
-  inline void addHit(const SiStripRecHit2DLocalPos *input) { detHits_.push_back(input); }
-  const TrackingSeed* seed() const { return seed_;}
-  inline unsigned int size() const { return detHits_.size(); }
+  RoadSearchCloud() {}
+  RoadSearchCloud(RecHitOwnVector rechits, SeedRefs seedrefs): recHits_(rechits), seeds_(seedrefs) {}
+
+  inline RoadSearchCloud* clone() const { return new RoadSearchCloud(recHits_,seeds_); }
+  inline RecHitOwnVector recHits() const { return recHits_;}
+  inline void addHit(TrackingRecHit* input) { recHits_.push_back(input); }
+  inline void addSeed(SeedRef input) { seeds_.push_back(input); }
+  inline  SeedRefs seeds() const { return seeds_;}
+  inline unsigned int size() const { return recHits_.size(); }
 
 private:
 
-  std::vector<const SiStripRecHit2DLocalPos*> detHits_;
-  const TrackingSeed*                         seed_;
+  RecHitOwnVector recHits_;
+  SeedRefs     seeds_;
 
 };
 
