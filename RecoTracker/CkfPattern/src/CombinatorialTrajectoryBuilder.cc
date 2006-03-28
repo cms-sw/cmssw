@@ -9,6 +9,8 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
+#include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
+#include "RecoTracker/CkfPattern/interface/TrajCandLess.h"
 
 CombinatorialTrajectoryBuilder::
 CombinatorialTrajectoryBuilder( const MeasurementTracker* tracker,
@@ -63,6 +65,63 @@ createStartingTrajectory( const TrajectorySeed& seed) const
   return result;
 }
 
+void CombinatorialTrajectoryBuilder::
+limitedCandidates( Trajectory& startingTraj, 
+		   TrajectoryContainer& result)
+{
+  TrajectoryContainer candidates;
+  TrajectoryContainer newCand;
+  candidates.push_back( startingTraj);
+
+  while ( !candidates.empty()) {
+
+    newCand.clear();
+    for (TrajectoryContainer::iterator traj=candidates.begin();
+	 traj!=candidates.end(); traj++) {
+      std::vector<TM> meas = findCompatibleMeasurements(*traj);
+      if ( meas.empty()) {
+	if ( qualityFilter( *traj)) addToResult( *traj, result);
+      }
+      else {
+	std::vector<TM>::const_iterator last;
+	if ( theAlwaysUseInvalid) last = meas.end();
+	else {
+	  if (meas.front().recHit()->isValid()) {
+	    last = find_if( meas.begin(), meas.end(), RecHitIsInvalid());
+	  }
+	  else last = meas.end();
+	}
+
+	for( std::vector<TM>::const_iterator itm = meas.begin(); 
+	     itm != last; itm++) {
+	  Trajectory newTraj = *traj;
+	  updateTrajectory( newTraj, *itm);
+
+	  if ( toBeContinued(newTraj)) newCand.push_back(newTraj);
+	  else {
+	    if ( qualityFilter(newTraj)) addToResult( newTraj, result);
+	    //// don't know yet
+	  }
+	}
+      }
+    
+      if ((int)newCand.size() > theMaxCand) {
+	sort( newCand.begin(), newCand.end(), TrajCandLess(theLostHitPenalty));
+	newCand.erase( newCand.begin()+theMaxCand, newCand.end());
+      }
+    }
+
+    // FIXME: restore intermediary cleaning
+//     if (theIntermediateCleaning) {
+//       candidates.clear();
+//       candidates = intermediaryClean(newCand);
+//     } else {
+    candidates.swap(newCand);
+//     }
+  }
+}
+
+
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -102,4 +161,70 @@ CombinatorialTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) con
   return result;
 }
 
+ bool CombinatorialTrajectoryBuilder::qualityFilter( const Trajectory& traj)
+{
+
+//    cout << "qualityFilter called for trajectory with " 
+//         << traj.foundHits() << " found hits and Chi2 = "
+//         << traj.chiSquared() << endl;
+
+  if ( traj.foundHits() >= theMinHits) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+
+void CombinatorialTrajectoryBuilder::addToResult( Trajectory& traj, 
+						  TrajectoryContainer& result)
+{
+  // discard latest dummy measurements
+  while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
+  result.push_back( traj);
+}
+
+void CombinatorialTrajectoryBuilder::updateTrajectory( Trajectory& traj,
+						       const TM& tm) const
+{
+  TSOS predictedState = tm.predictedState();
+  const TransientTrackingRecHit* hit = tm.recHit();
  
+  if ( hit->isValid()) {
+    traj.push( TM( predictedState, theUpdator->update( predictedState, *hit),
+		   hit, tm.estimate()));
+  }
+  else {
+    traj.push( TM( predictedState, hit));
+  }
+}
+
+bool CombinatorialTrajectoryBuilder::toBeContinued (const Trajectory& traj)
+{
+  if ( traj.lostHits() > theMaxLostHit) return false;
+
+  // check for conscutive lost hits only at the end 
+  // (before the last valid hit),
+  // since if there was an unacceptable gap before the last 
+  // valid hit the trajectory would have been stopped already
+
+  int consecLostHit = 0;
+  vector<TM> tms = traj.measurements();
+  for( vector<TM>::const_iterator itm=tms.end()-1; itm>=tms.begin(); itm--) {
+    if (itm->recHit()->isValid()) break;
+    else if ( // FIXME: restore this:   !Trajectory::inactive(itm->recHit()->det()) &&
+	      Trajectory::lost(*itm->recHit())) consecLostHit++;
+  }
+  if (consecLostHit > theMaxConsecLostHit) return false; 
+
+  // stopping condition from region has highest priority
+  // if ( regionalCondition && !(*regionalCondition)(traj) )  return false;
+  // next: pt-cut
+  // FIXME: restore this:  if ( !(*theMinPtCondition)(traj) )  return false;
+  // finally: configurable condition
+  // FIXME: restore this:  if ( !(*theConfigurableCondition)(traj) )  return false;
+
+  return true;
+}
+

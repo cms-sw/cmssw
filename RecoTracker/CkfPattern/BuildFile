@@ -2,6 +2,8 @@
 <export>
  <lib name=RecoTrackerCkfPattern>
  <use name=RecoTracker/MeasurementDet>
+ <use name=TrackingTools/PatternTools>
 </export>
 
 <use name=RecoTracker/MeasurementDet>
+<use name=TrackingTools/PatternTools>
