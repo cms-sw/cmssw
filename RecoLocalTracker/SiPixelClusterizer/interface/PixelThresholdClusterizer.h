@@ -65,7 +65,6 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
     clusterizeDetUnit( DigiIterator begin, DigiIterator end,
 		       unsigned int detid,
 		       const PixelGeomDetUnit * pixDet,
-		       const std::vector<float>& noiseVec,
 		       const std::vector<short>& badChannels);
   
  private:

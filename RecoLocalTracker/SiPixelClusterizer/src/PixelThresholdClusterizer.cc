@@ -16,6 +16,7 @@
 //! Translate the pixel charge to electrons, we are suppose to
 //! do the calibrations ADC->electrons here.
 //! Modify the thresholds to be in electrons, convert adc to electrons. d.k. 20/3/06
+//! Get rid of the noiseVector. d.k. 28/3/06
 //----------------------------------------------------------------------------
 
 // Our own includes
@@ -23,8 +24,6 @@
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelArrayBuffer.h"
 
 // Geometry
-//class GeometricDet;   // hack in 0.2.0pre5, should be OK for pre6
-//#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 //#include "Geometry/CommonTopologies/RectangularPixelTopology.h"
@@ -111,7 +110,6 @@ std::vector<SiPixelCluster>
 PixelThresholdClusterizer::clusterizeDetUnit( DigiIterator begin, DigiIterator end,
 					      unsigned int detid,
 					      const PixelGeomDetUnit * pixDet,
-					      const std::vector<float>& noiseVec,
 					      const std::vector<short>& badChannels) {
   TimeMe tm1( *theClustersTimer, false);
   theClusters.clear();

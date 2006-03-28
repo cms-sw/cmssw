@@ -1,8 +1,9 @@
 /** SiPixelClusterProducer.cc
  * -------------------------------------------- 
  * Description:  see SiPixelClusterProducer.h
- * Author:  P. Maksimovic, massaging the strip version from Oliver Gutsche.
+ * Author:  P. Maksimovic.
  * History: Oct 14, 2005, initial version
+ * Get rid of the noiseVector. d.k. 28/3/06
  * -------------------------------------------- 
  */
 
@@ -12,7 +13,6 @@
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-//#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 // Data Formats
@@ -161,7 +161,6 @@ namespace cms
       }
 
       // dummies, right now, all empty
-      std::vector<float> noiseVec(768,2);  // what is this for?
       std::vector<short> badChannels;
 
       // Run the clusterizer for one detUnit
@@ -170,7 +169,6 @@ namespace cms
 					digiRangeIteratorEnd,
 					detid,
 					pixDet,
-					noiseVec,
 					badChannels);
       
       if(clustersOnDetUnit.size()>0) { //Do only for full dets  

@@ -25,10 +25,8 @@ public:
     clusterizeDetUnit( DigiIterator begin, DigiIterator end,
 		       unsigned int detid,
 		       const PixelGeomDetUnit * pixDet,
-		       const std::vector<float>& noiseVec,
 		       const std::vector<short>& badChannels) = 0;
-  // TO DO: the way we pass noise and bad channels is most likely
-  //        have to change later.
+  // TO DO: the way we pass bad channels is most likely have to change later.
 
 };
 
