@@ -13,7 +13,7 @@ pre {
   font-weight: bold;
   white-space: pre;
   background-color: #ffffc0;
-  width: 700px;
+  width: auto;
   margin-top: 5px;
   margin-bottom: 5px;
   margin-left: 15px;
@@ -24,10 +24,6 @@ pre {
   border-width: 1px;
   border-style: dashed;
   border-color: #a0a0f0;
-}
-
-.fragment pre {
-  width: auto;
 }
 
 .doctable {
