@@ -106,6 +106,8 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
     SiStripRecHit2DLocalPosCollection::const_iterator rhRangeIteratorBegin = monoRecHitRange.first;
     SiStripRecHit2DLocalPosCollection::const_iterator rhRangeIteratorEnd   = monoRecHitRange.second;
     SiStripRecHit2DLocalPosCollection::const_iterator iter;
+    int numrechitrphi = rhRangeIteratorEnd - rhRangeIteratorBegin;
+    cout<<"n rechit= "<<numrechitrphi<<endl;
     unsigned int id = 0;
     for(iter=rhRangeIteratorBegin;iter!=rhRangeIteratorEnd;++iter){//loop on the mono RH
       edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collectorMatchedSingleHit; 
@@ -113,16 +115,18 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
       id = specDetId.partnerDetId();
       std::vector<unsigned int>::const_iterator partnerdetiter=std::find(detIDs.begin(),detIDs.end(),id);
       if(partnerdetiter==detIDs.end()) id=0;	
-      if (id>0){
-	//	DetId partnerdetId(id);
-	const GeomDetUnit * monostripdet=tracker.idToDetUnit(*detunit_iterator);
-	const GeomDetUnit * stereostripdet=tracker.idToDetUnit(DetId(id));
-	
 	const SiStripRecHit2DLocalPosCollection::range rhpartnerRange = outstereo.get(DetId(id));
 	SiStripRecHit2DLocalPosCollection::const_iterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
 	SiStripRecHit2DLocalPosCollection::const_iterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
 	
 	//	edm::OwnVector<SiStripRecHit2DMatchedLocalPos> tempCollector; 
+	int numrechitstereo = rhpartnerRangeIteratorEnd - rhpartnerRangeIteratorBegin;
+	cout<<"n rechit stereo= "<<numrechitstereo<<endl;
+
+      if (id>0){
+	//	DetId partnerdetId(id);
+	const GeomDetUnit * monostripdet=tracker.idToDetUnit(*detunit_iterator);
+	const GeomDetUnit * stereostripdet=tracker.idToDetUnit(DetId(id));
 	
 	const DetId theId(id);
 	const StripTopology& topol=(StripTopology&)stereostripdet->topology();

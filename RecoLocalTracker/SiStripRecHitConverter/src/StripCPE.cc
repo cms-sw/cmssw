@@ -42,7 +42,7 @@ LocalVector StripCPE::driftDirection(const StripGeomDetUnit* det)const{
   LocalVector lbfield=(det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
    float dir_x = -theTanLorentzAnglePerTesla * lbfield.y();
    float dir_y = theTanLorentzAnglePerTesla * lbfield.x();
-   float dir_z = 0.; // E field always in z direction
+   float dir_z = 1.; // E field always in z direction
    LocalVector drift = LocalVector(dir_x,dir_y,dir_z);
   return drift;
 

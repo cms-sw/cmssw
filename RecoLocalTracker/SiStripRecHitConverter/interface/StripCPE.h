@@ -20,10 +20,11 @@ class StripCPE : public StripClusterParameterEstimator
   }; 
   StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl)const; 
   
- private:
+
   
   LocalVector driftDirection(const StripGeomDetUnit* det)const;
-  
+
+ private:  
   const TrackerGeometry * geom_;
   const MagneticField * magfield_ ;
   float theTanLorentzAnglePerTesla;
