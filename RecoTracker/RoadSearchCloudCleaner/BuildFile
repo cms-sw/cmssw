@@ -1,0 +1,17 @@
+<flags SEAL_PLUGIN_NAME="RecoTrackerRoadSearchCloudCleaner">
+
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=DataFormats/RoadSearchCloud>
+
+<export>
+ <lib name=RecoTrackerRoadSearchCloudCleaner>
+
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/MessageLogger>
+
+ <use name=DataFormats/RoadSearchCloud>
+
+</export>
