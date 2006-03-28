@@ -4,6 +4,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=clhep>
+<use name=rootcore>
 <export>
   <lib name=PhysicsToolsJetExamples>
   <use name=PhysicsTools/CandUtils>
@@ -11,4 +12,5 @@
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=clhep>
+  <use name=rootcore>
 </export>
