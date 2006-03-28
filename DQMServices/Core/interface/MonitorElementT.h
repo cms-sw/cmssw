@@ -91,10 +91,16 @@ class MonitorElementT : public MonitorElement
   virtual float getBinError(int binx, int biny, int binz) const
   {return doNotUseMethod("getBinError(binx,biny,binz)");}
   // get # of entries
-  virtual float getEntries(void){return 1;}
+  virtual float getEntries(void) const {return 1;}
   // get # of bin entries (for profiles)
-  virtual float getBinEntries(int bin)
+  virtual float getBinEntries(int bin) const
   {return doNotUseMethod("getBinEntries");}
+  // get min Y value (for profiles)
+  virtual float getYmin(void) const
+  {return doNotUseMethod("getYmin");}
+  // get max Y value (for profiles)
+  virtual float getYmax(void) const 
+  {return doNotUseMethod("getXmin");}
 
   // set content of bin (1-D)
   virtual void setBinContent(int binx, float content)

@@ -103,9 +103,13 @@ class MonitorElement
   // get uncertainty on content of bin (3-D) - See TH1::GetBinError for details
   virtual float getBinError(int binx, int biny, int binz) const = 0;
   // get # of entries
-  virtual float getEntries(void) = 0;
+  virtual float getEntries(void) const = 0;
   // get # of bin entries (for profiles)
-  virtual float getBinEntries(int bin) = 0;
+  virtual float getBinEntries(int bin) const = 0;
+  // get min Y value (for profiles)
+  virtual float getYmin(void) const = 0;
+  // get max Y value (for profiles)
+  virtual float getYmax(void) const = 0;
 
   /*** setter methods (wrapper around ROOT methods) ****/
   // 
