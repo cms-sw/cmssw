@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/13 12:17:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/28 10:46:48 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/interface/DTDBWriterInterface.h"
@@ -166,8 +166,6 @@ void DTTTrigCalibration::endJob() {
   for(map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin();
       slHisto != theHistoMap.end();
       slHisto++) {
-    cout << (int)(*slHisto).second << endl;
-    cout << (int)theFitter << endl;
     pair<double, double> meanAndSigma = theFitter->fitTimeBox((*slHisto).second);
     tTrig->setSLTtrig((*slHisto).first.wheel(),
 		      (*slHisto).first.station(),
