@@ -13,7 +13,8 @@
 #include <iostream>
 
 MeasurementTracker::MeasurementTracker( const edm::EventSetup& setup, 
-					const edm::Event& event)
+					const edm::Event& event) :
+  theTrackerGeom(0)
 {
   using namespace std;
   initialize( setup);
@@ -32,7 +33,8 @@ void MeasurementTracker::initialize(const edm::EventSetup& setup)
     using namespace edm;
     edm::ESHandle<TrackingGeometry> pDD;
     setup.get<TrackerDigiGeometryRecord>().get( pDD );
-    const TrackingGeometry &tracker(*pDD);
+    const TrackingGeometry& tracker(*pDD);
+    theTrackerGeom = &tracker;
 
     cout << "MeasurementTracker::initialize: TrackingGeometry accessed" << endl; 
 

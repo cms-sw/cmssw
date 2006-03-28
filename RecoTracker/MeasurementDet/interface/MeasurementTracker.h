@@ -28,6 +28,8 @@ public:
   
   void update( const edm::Event&) const;
 
+  const TrackingGeometry* geomTracker() const { return theTrackerGeom;}
+
 private:
 
   typedef std::map<DetId,MeasurementDet*>   DetContainer;
@@ -35,6 +37,7 @@ private:
   DetContainer                        theDetMap;
   std::vector<TkStripMeasurementDet*> theStripDets;
   std::vector<TkPixelMeasurementDet*> thePixelDets;
+  const TrackingGeometry*             theTrackerGeom;
 
   const StripClusterParameterEstimator* stripCPE;
   const PixelClusterParameterEstimator* pixelCPE;
