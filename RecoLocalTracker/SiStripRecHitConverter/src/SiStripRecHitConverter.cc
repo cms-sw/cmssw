@@ -54,7 +54,7 @@ namespace cms
     std::string cpe = conf_.getParameter<std::string>("StripCPE");
     edm::ESHandle<StripClusterParameterEstimator> parameterestimator;
     es.get<TrackerCPERecord>().get(cpe, parameterestimator); 
-    StripClusterParameterEstimator &stripcpe(*parameterestimator);
+    const StripClusterParameterEstimator &stripcpe(*parameterestimator);
 
     std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
 

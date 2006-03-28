@@ -4,7 +4,7 @@
 //typedef std::pair<LocalPoint,LocalError>  LocalValues;
 
 
-StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParameters( const SiStripCluster & cl, LocalVector atrackUnit,LocalPoint middlepoint){
+StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParameters( const SiStripCluster & cl, LocalVector atrackUnit,LocalPoint middlepoint)const{
   //
   // get the det from the geometry
   //
