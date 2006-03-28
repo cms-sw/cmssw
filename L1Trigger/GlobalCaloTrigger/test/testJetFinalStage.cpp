@@ -24,7 +24,7 @@
 using namespace std;
 
 
-//Typedefs for the vector templates used
+//Typedefs for the vector templates and other types used
 typedef vector<L1GctJet> JetsVector;
 typedef unsigned long int ULong;
 
@@ -34,7 +34,7 @@ const string testDataFile = "testJetFinalStageInput.txt";
 const string resultsFile = "testJetFinalStageOutput.txt";
 
 
-// Constants to tell the program how many jets to read in
+// Global constants to tell the program how many jets to read in from file
 // THESE ARE TOTAL GUESSES!
 const int numInputJets = 12;  //Num. jets given as input
 const int numCentralJets = 4; //Num. central jets expected out
@@ -43,7 +43,7 @@ const int numTauJets = 4;     //Num. tau jets expected out
 
 
 //  FUNCTION PROTOTYPES
-/// Runs the test on the L1GctJetFinalStage passed into it.
+/// Runs the test on the L1GctJetFinalStage instance passed into it.
 void classTest(L1GctJetFinalStage *myJetFinalStage);
 /// Loads test input and also the known results from a file.
 void loadTestData(JetsVector &inputJets, JetsVector &trueCentralJets,
@@ -206,7 +206,7 @@ void safeOpenInputFile(ifstream &fin, const string name)
     //Opens the file
     fin.open(name.c_str(), ios::in);
 
-    //Error message, and return false if it goes pair shaped
+    //Throw an exception if something is wrong
     if(!fin.good())
     {
         throw std::runtime_error("Couldn't open the file " + name + " for reading!");
@@ -219,6 +219,8 @@ void safeOpenOutputFile(ofstream &fout, const string name)
 {
     //Opens the file
     fout.open(name.c_str(), ios::trunc);
+    
+    //Throw an exception if something is wrong
     if(!fout.good())
     {
         throw std::runtime_error("Couldn't open the file " + name + " for writing!");
@@ -277,7 +279,7 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
         if (!vector1.empty())  //Make sure it isn't empty
         {
             //compare the vectors
-            for(unsigned int i = 0; i < vector1.size(); ++i)
+            for(ULong i = 0; i < vector1.size(); ++i)
             {
                 if(vector1[i].getRank() != vector2[i].getRank()) { testPass = false; break; }
                 if(vector1[i].getEta() != vector2[i].getEta()) { testPass = false; break; }
@@ -307,7 +309,7 @@ void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
     
     if(!jets.empty())  //check it isn't an empty vector
     {
-        for(unsigned int i=0; i < jets.size(); ++i)
+        for(ULong i=0; i < jets.size(); ++i)
         {
             fout << jets[i].getRank() << "\t" 
                  << jets[i].getEta()  << "\t"
