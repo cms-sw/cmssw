@@ -57,9 +57,9 @@ int testCSCTriggerMapping::runIt(const std::string& config){
   try {
     edm::EventProcessor proc(config);
     proc.run();
-  } catch (seal::Error& e){
+  } catch (cms::Exception& e){
     std::cerr << "Exception caught:  " 
-	      << e.explainSelf()
+	      << e.what()
 	      << std::endl;
     rc=1;
   }
