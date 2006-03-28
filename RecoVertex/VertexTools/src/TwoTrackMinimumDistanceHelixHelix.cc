@@ -12,32 +12,32 @@
 namespace {
   inline GlobalPoint operator - ( const GlobalPoint & a, const GlobalPoint & b ){
     return GlobalPoint ( a.x() - b.x(), a.y() - b.y(), a.z() - b.z() );
-  };
+  }
 
   inline GlobalPoint operator + ( const GlobalPoint & a, const GlobalPoint & b ){
     return GlobalPoint ( a.x() + b.x(), a.y() + b.y(), a.z() + b.z() );
-  };
+  }
 
   inline GlobalPoint operator / ( const GlobalPoint & a, const double b ){
     return GlobalPoint ( a.x() / b, a.y() / b, a.z() / b );
-  };
+  }
 
   inline GlobalPoint operator * ( const GlobalPoint & a, const double b ){
     return GlobalPoint ( a.x() * b, a.y() * b, a.z() * b );
-  };
+  }
 
   inline GlobalPoint operator * ( const double b , const GlobalPoint & a ){
     return GlobalPoint ( a.x() * b, a.y() * b, a.z() * b );
-  };
+  }
 
-  inline double square ( const double s ) { return s*s; };
-};
+  inline double square ( const double s ) { return s*s; }
+}
 
 TwoTrackMinimumDistanceHelixHelix::TwoTrackMinimumDistanceHelixHelix():
 theH(), theG(), themaxjump(20),thesingjac(.1), themaxiter(4)
-{ };
+{ }
 
-TwoTrackMinimumDistanceHelixHelix::~TwoTrackMinimumDistanceHelixHelix() {};
+TwoTrackMinimumDistanceHelixHelix::~TwoTrackMinimumDistanceHelixHelix() {}
 
 bool TwoTrackMinimumDistanceHelixHelix::updateCoeffs(
     const GlobalPoint & gpH, const GlobalPoint & gpG )
@@ -106,7 +106,7 @@ bool TwoTrackMinimumDistanceHelixHelix::updateCoeffs(
   thee2= thetanlambdaG * ( theH->position().z() - theG->position().z() -
        theh * thepH0 * thetanlambdaH + theg * thepG0 * thetanlambdaG );
   return false;
-};
+}
 
 bool TwoTrackMinimumDistanceHelixHelix::oneIteration(
     double & dH, double & dG ) const
@@ -139,7 +139,7 @@ bool TwoTrackMinimumDistanceHelixHelix::oneIteration(
   thepH -= dH;
   thepG -= dG;
   return false;
-};
+}
 
 inline bool TwoTrackMinimumDistanceHelixHelix::parallelTracks() const
 {
@@ -149,7 +149,7 @@ inline bool TwoTrackMinimumDistanceHelixHelix::parallelTracks() const
   if (fabs(theH->momentum().z() - theG->momentum().z()) < .00000001 )
   if (theH->charge()==theG->charge()) retval=true;
   return retval;
-};
+}
 
 
 bool TwoTrackMinimumDistanceHelixHelix::calculate(
@@ -178,17 +178,17 @@ bool TwoTrackMinimumDistanceHelixHelix::calculate(
   if ( fabs ( theg * ( thepG - thepG0 ) ) > themaxjump ) retval=true;
   if ( fabs ( theh * ( thepH - thepH0 ) ) > themaxjump ) retval=true;
   return retval;
-};
+}
 
 double TwoTrackMinimumDistanceHelixHelix::firstAngle()  const
 {
   return thepG;
-};
+}
 
 double TwoTrackMinimumDistanceHelixHelix::secondAngle() const
 {
   return thepH;
-};
+}
 
 pair <GlobalPoint, GlobalPoint> TwoTrackMinimumDistanceHelixHelix::points()
     const {
@@ -205,4 +205,4 @@ pair <GlobalPoint, GlobalPoint> TwoTrackMinimumDistanceHelixHelix::points()
   );
   pair <GlobalPoint, GlobalPoint > ret ( first, second );
   return ret;
-};
+}

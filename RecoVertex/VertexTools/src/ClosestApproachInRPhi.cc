@@ -130,7 +130,7 @@ ClosestApproachInRPhi::trajectoryParameters (
     ret ( trajectoryParameters ( pts.first , sta.parameters() ),
           trajectoryParameters ( pts.second, stb.parameters() ) );
   return ret;
-};
+}
 
 
 pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters>
@@ -143,7 +143,7 @@ ClosestApproachInRPhi::trajectoryParameters (
     ret ( trajectoryParameters ( pts.first , sta.globalParameters() ),
           trajectoryParameters ( pts.second, stb.globalParameters() ) );
   return ret;
-};
+}
 
 GlobalTrajectoryParameters ClosestApproachInRPhi::trajectoryParameters ( 
    const GlobalPoint & newpt, const GlobalTrajectoryParameters & oldgtp ) const
@@ -171,7 +171,7 @@ GlobalTrajectoryParameters ClosestApproachInRPhi::trajectoryParameters (
   GlobalVector vta ( px, py, oldgtp.momentum().z() );
   GlobalTrajectoryParameters gta( newpt , vta , oldgtp.charge(), &(oldgtp.magneticField()) );
   return gta;
-};
+}
 
 void 
 ClosestApproachInRPhi::circleParameters(const TrackCharge& charge, 
