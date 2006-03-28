@@ -46,11 +46,11 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
 
    // Get thresholds in electrons
    thePixelThreshold   = 
-     conf_.getUntrackedParameter<int>("ChannelThreshold",2500);
+     conf_.getParameter<int>("ChannelThreshold");
    theSeedThreshold    = 
-     conf_.getUntrackedParameter<int>("SeedThreshold",3000);
+     conf_.getParameter<int>("SeedThreshold");
    theClusterThreshold = 
-     conf_.getUntrackedParameter<double>("ClusterThreshold",5050.);
+     conf_.getParameter<double>("ClusterThreshold");
    
    // Set the thresholds in units of noise!
    //   thePixelThresholdInNoiseUnits   = 
