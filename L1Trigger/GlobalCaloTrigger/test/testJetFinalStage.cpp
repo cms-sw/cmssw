@@ -34,12 +34,12 @@ const string testDataFile = "testJetFinalStageInput.txt";
 const string resultsFile = "testJetFinalStageOutput.txt";
 
 
-// Constants to tell the program how many jets to read in and out
+// Constants to tell the program how many jets to read in
 // THESE ARE TOTAL GUESSES!
-const int numInputJets = 12;
-const int numCentralJets = 4;
-const int numForwardJets = 4;
-const int numTauJets = 4;
+const int numInputJets = 12;  //Num. jets given as input
+const int numCentralJets = 4; //Num. central jets expected out
+const int numForwardJets = 4; //Num. forward jets expected out
+const int numTauJets = 4;     //Num. tau jets expected out
 
 
 //  FUNCTION PROTOTYPES
@@ -48,14 +48,18 @@ void classTest(L1GctJetFinalStage *myJetFinalStage);
 /// Loads test input and also the known results from a file.
 void loadTestData(JetsVector &inputJets, JetsVector &trueCentralJets,
                   JetsVector &trueForwardJets, JetsVector &trueTauJets);
-/// Function to safely open files of any name, using a referenced return ifstream
-void safeOpenFile(ifstream &fin, const string &name);
+/// Function to safely open input files of any name, using a referenced return ifstream
+void safeOpenInputFile(ifstream &fin, const string name);
+/// Function to safely open output files of any name, using a referenced return ofstream
+void safeOpenOutputFile(ofstream &fout, const string name);
 /// Reads jets from file and pushes the specified number into a vector of jets
-void putJetsInVector(ifstream &fin, JetsVector &jets, int numJets);
+void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets);
 /// Gets jet data from the testDataFile (reasonably safely). 
 L1GctJet readSingleJet(ifstream &fin);
 /// Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
 bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string description);
+/// Writes out the entire contents of a JetsVector to the given file output stream
+void outputJetsVector(ofstream &fout, JetsVector &jets, string description = "Jets");
 
 
 /// Entrypoint of unit test code + error handling
@@ -86,6 +90,8 @@ int main(int argc, char **argv)
 // Runs the test, and returns a string with the test result message in.
 void classTest(L1GctJetFinalStage *myJetFinalStage)
 {
+    bool testPass = true; //flag to mark test failure
+    
     // Vectors for reading in test data from the text file.
     JetsVector inputJets;        //Size?
     JetsVector trueCentralJets;  //Size?
@@ -109,7 +115,7 @@ void classTest(L1GctJetFinalStage *myJetFinalStage)
 
     // Test the getInputJets() method
     outputJets = myJetFinalStage->getInputJets();
-    if(!compareJetsVectors(outputJets, inputJets, "initial data input/output")) { return; }
+    if(!compareJetsVectors(outputJets, inputJets, "initial data input/output")) { testPass = false; }
     
     myJetFinalStage->process();  //Run algorithm
     
@@ -118,15 +124,19 @@ void classTest(L1GctJetFinalStage *myJetFinalStage)
     outputForwardJets = myJetFinalStage->getForwardJets();
     outputTauJets = myJetFinalStage->getTauJets();
 
-    if(!compareJetsVectors(outputCentralJets, trueCentralJets, "central jets")) { return; }
-    if(!compareJetsVectors(outputForwardJets, trueForwardJets, "forward jets")) { return; }
-    if(!compareJetsVectors(outputTauJets, trueTauJets, "tau jets")) { return; }
+    if(!compareJetsVectors(outputCentralJets, trueCentralJets, "central jets")) { testPass = false; }
+    if(!compareJetsVectors(outputForwardJets, trueForwardJets, "forward jets")) { testPass = false; }
+    if(!compareJetsVectors(outputTauJets, trueTauJets, "tau jets")) { testPass = false; }
 
-    cout << "\nWriting results of processing to file...";
-    /*
-     * Add file output of results
-    */
-    cout << "done!" << endl;
+    cout << "\nWriting results of processing to file " << resultsFile << "..." << endl;;
+    ofstream fout;
+    safeOpenOutputFile(fout, resultsFile);
+    outputJetsVector(fout, outputJets, "Inputted Jets");
+    outputJetsVector(fout, outputCentralJets, "Central Jets");
+    outputJetsVector(fout, outputForwardJets, "Forward Jets");
+    outputJetsVector(fout, outputTauJets, "Tau Jets");
+    fout.close();
+    cout << "Done!" << endl;
     
     //test the reset method.
     myJetFinalStage->reset();
@@ -144,11 +154,22 @@ void classTest(L1GctJetFinalStage *myJetFinalStage)
     else
     {
         cout << "\nTest class has FAILED reset method testing!" << endl;
-        return;
+        testPass = false;
     }
-
-    cout << "\nTest class has passed all tests." << endl;
-
+    
+    if(testPass)
+    {
+        cout << "\n*************************************" << endl;
+        cout << "      Class has passed testing." << endl;
+        cout << "*************************************" << endl;
+    }
+    else
+    {
+        cout << "\n*************************************" << endl;
+        cout << "      Class has FAILED testing!" << endl;
+        cout << "*************************************" << endl;
+    }
+    
     return;        
 }
 
@@ -160,7 +181,7 @@ void loadTestData(JetsVector &inputJets, JetsVector &trueCentralJets,
     // File input stream
     ifstream fin;
     
-    safeOpenFile(fin, testDataFile);  //open the file
+    safeOpenInputFile(fin, testDataFile);  //open the file
     
     // Loads the input data, and the correct results of processing from the file
     putJetsInVector(fin, inputJets, numInputJets);          //How many input jets? See global constants.
@@ -174,8 +195,8 @@ void loadTestData(JetsVector &inputJets, JetsVector &trueCentralJets,
 }
     
     
-// Function to safely open files of any name, using a referenced return ifstream
-void safeOpenFile(ifstream &fin, const string &name)
+// Function to safely open input files of any name, using a referenced return ifstream
+void safeOpenInputFile(ifstream &fin, const string name)
 {
     //Opens the file
     fin.open(name.c_str(), ios::in);
@@ -183,13 +204,25 @@ void safeOpenFile(ifstream &fin, const string &name)
     //Error message, and return false if it goes pair shaped
     if(!fin.good())
     {
-        throw std::runtime_error("Couldn't open the file " + name + "!");
+        throw std::runtime_error("Couldn't open the file " + name + " for reading!");
+    }
+    return;
+}
+
+// Function to safely open output files of any name, using a referenced return ofstream
+void safeOpenOutputFile(ofstream &fout, const string name)
+{
+    //Opens the file
+    fout.open(name.c_str(), ios::trunc);
+    if(!fout.good())
+    {
+        throw std::runtime_error("Couldn't open the file " + name + " for writing!");
     }
     return;
 }
 
 //Reads jets from file and pushes the specified number into a vector of jets
-void putJetsInVector(ifstream &fin, JetsVector &jets, int numJets)
+void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets)
 {
     for(int i=0; i < numJets; ++i)
     {
@@ -255,4 +288,20 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
         cout << "\nTest class has passed " << description << " comparison." << endl;
     }
     return true;
+}
+
+// Writes out the entire contents of a JetsVector to the given file output stream
+void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
+{
+    fout << description << endl;
+    if(!jets.empty())
+    {
+        for(unsigned int i=0; i < jets.size(); ++i)
+        {
+            fout << jets[i].getRank() << "\t" 
+                 << jets[i].getEta()  << "\t"
+                 << jets[i].getPhi()  << endl;
+        }
+    }
+    fout << endl;  //write a blank line to separate each group
 }
