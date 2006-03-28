@@ -4,8 +4,8 @@
 /** \class DTDBWriterInterface
  *  Utility class to write DT objects in the DB.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/03/28 10:46:48 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara & M. Zanetti
  */
 #include "FWCore/Framework/interface/IOVSyncValue.h"
@@ -99,7 +99,7 @@ public:
 	cout << "  Add MetaData... " << endl;
       cond::MetaData metadata_svc(theDbName, *loader );
       metadata_svc.connect();
-      metadata_svc.addMapping(mytok, aniovToken );//FIXME
+      metadata_svc.addMapping(theTag, aniovToken );//FIXME
       metadata_svc.disconnect();
       if(debug)
 	cout << "   Done." << endl;
@@ -134,7 +134,9 @@ private:
   // The DB name and catalog
   std::string theDbName;
   std::string theDbCatalog;
-
+  // The tag
+  std::string theTag;
+  
   std::string theContainerName;
   // IOV 
   unsigned long tillWhen;

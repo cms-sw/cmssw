@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/03/28 10:46:48 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -30,7 +30,7 @@ DTDBWriterInterface::DTDBWriterInterface(const ParameterSet& pset) {
   // The DB name and catalog
   theDbName = pset.getParameter<string>("dbName");
   theDbCatalog = pset.getParameter<string>("dbCatalog");
-  
+  theTag = pset.getParameter<string>("tag");
   theContainerName = pset.getUntrackedParameter<string>("containerName","DTDBObject");
   tillWhen = edm::IOVSyncValue::endOfTime().eventID().run();
 }
