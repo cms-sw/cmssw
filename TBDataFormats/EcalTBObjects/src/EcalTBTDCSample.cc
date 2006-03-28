@@ -1,7 +1,7 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCSample.h"
 
 
-EcalTBTDCSample::EcalTBTDCSample(int tdcChan, int tdcVal) {
+EcalTBTDCSample::EcalTBTDCSample(unsigned int tdcChan, unsigned int tdcVal) {
   theSample=(tdcVal&0xFFFFFF) | ((tdcChan&0xFF)<<24);
 }
 
