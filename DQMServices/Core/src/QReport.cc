@@ -39,12 +39,14 @@ void QReport::runTest(void)
 {
   int old_status = status_;
   string old_message = message_;
+  badChannels_.clear();
 
   if(qcriterion_)
     {
       qcriterion_->runTest(myME_);
       setStatus(qcriterion_->getStatus());
       setMessage(qcriterion_->getMessage());
+      badChannels_ = qcriterion_->getBadChannels();
     }
   else
     {

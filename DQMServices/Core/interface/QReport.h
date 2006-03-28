@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include "DQMServices/QualityTests/interface/QualTestBase.h"
 
 class QCriterion;
 class MonitorElement;
@@ -17,6 +18,11 @@ class QReport
   std::string getMessage(void) const {return message_;} 
   // get name of quality test
   std::string getQRName(void) const {return qtname_;}
+
+  // get vector of channels that failed test
+  // (not relevant for all quality tests!)
+  std::vector<dqm::me_util::Channel> getBadChannels(void) const
+  {return badChannels_;}
 
   static std::string getNullMessage(void) {return "NULL_MESSAGE";}
 
@@ -46,6 +52,10 @@ class QReport
   // to be called after test has run and status/message have been updated
   // (implemented in derived class)
   virtual void update(void) = 0;
+
+  //
+  std::vector<dqm::me_util::Channel> badChannels_;
+
  private:
   // pointer to QCriterion algorithm
   QCriterion * qcriterion_;

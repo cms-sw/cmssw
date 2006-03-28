@@ -6,6 +6,8 @@
 #include <set>
 #include <map>
 
+#include "DQMServices/QualityTests/interface/QualTestBase.h"
+
 class MonitorElement;
 
 /* Base class for quality tests run on Monitoring Elements; 
@@ -46,6 +48,10 @@ class QCriterion
   // set probability limit for test error (default: 50%)
   void setErrorProb(float prob)
   {if (validProb(prob))errorProb_ = prob;}
+
+  // get vector of channels that failed test
+  // (not relevant for all quality tests!)
+  virtual std::vector<dqm::me_util::Channel> getBadChannels(void) const=0;
 
  protected:
   // 
