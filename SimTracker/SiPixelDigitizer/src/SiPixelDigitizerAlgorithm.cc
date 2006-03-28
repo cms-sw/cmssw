@@ -1,10 +1,10 @@
 //class SiPixelDigitizerAlgorithm SimTracker/SiPixelDigitizer/src/SiPixelDigitizerAlgoithm.cc
 
-// Original Author Danek Kotlinsky
+// Original Author Danek Kotlinski
 // Ported in CMSSW by  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-
-
+// Change the charge drift direction from -z to +z to 
+// correctly model the sensor design. d.k. 25/03/06 
 
 #include <vector>
 #include <iostream>
@@ -370,7 +370,7 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
   }
   return;
 }
-
+//////////////////////////////////////////////////////////////////////////
 void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
 
 
@@ -415,9 +415,9 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
     SegZ = _ionization_points[i].z();
 
     // Distance from the collection plane
-    // Change drift direction to compensate for the tilt/cooridinate problem
-    //    DriftDistance = (moduleThickness/2. - SegZ); // Drift to +z
-    DriftDistance = (moduleThickness/2. + SegZ); // Drift to -z
+    // Change the drift direction to the correct one. d.k. 25/03/06
+    DriftDistance = (moduleThickness/2. - SegZ); // Drift to +z 
+    //DriftDistance = (moduleThickness/2. + SegZ); // Drift to -z (ORCA)
     
     if( DriftDistance < 0.)
       DriftDistance = 0.;
