@@ -16,10 +16,10 @@ class StripCPEfromTrackAngle : public StripCPE
   StripCPEfromTrackAngle(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom):StripCPE(conf,mag, geom){};
     
   // LocalValues is typedef for pair<LocalPoint,LocalError> 
-  StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl,const GeomDetUnit& det, LocalVector atrackUnit,LocalPoint middlepoint) const{
-    return localParameters(cl,atrackUnit,middlepoint);
+  StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl,const GeomDetUnit& det, const LocalTrajectoryParameters & ltp) const{
+    return localParameters(cl,ltp);
   }; 
-  StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl, LocalVector atrackUnit,LocalPoint middlepoint) const; 
+  StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl, const LocalTrajectoryParameters & ltp) const; 
   
  private:
   

@@ -4,10 +4,14 @@
 //typedef std::pair<LocalPoint,LocalError>  LocalValues;
 
 
-StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParameters( const SiStripCluster & cl, LocalVector atrackUnit,LocalPoint middlepoint)const{
+StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParameters( const SiStripCluster & cl,const LocalTrajectoryParameters & ltp)const{
   //
   // get the det from the geometry
   //
+
+  LocalPoint middlepoint = ltp.position();
+  LocalVector atrackUnit = ltp.momentum()/ltp.momentum().mag();
+
   DetId detId(cl.geographicalId());
   const GeomDetUnit *  det = geom_->idToDetUnit(detId);
 

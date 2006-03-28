@@ -4,16 +4,14 @@
 #include "Geometry/Surface/interface/LocalError.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 
 template <class T> class ClusterParameterEstimator {
   
  public:
    typedef std::pair<LocalPoint,LocalError>  LocalValues; 
    virtual LocalValues localParameters( const T&,const GeomDetUnit&) const = 0; 
-   virtual LocalValues localParameters( const T& cluster, const GeomDetUnit& gd, float alpha, float beta) const {
-     return localParameters(cluster,gd);
-   } 
-   virtual LocalValues localParameters( const T& cluster, const GeomDetUnit& gd, LocalVector trackdir, LocalPoint middlepoint) {
+   virtual LocalValues localParameters( const T& cluster, const GeomDetUnit& gd, const LocalTrajectoryParameters & ltp) {
      return localParameters(cluster,gd);
    } 
 
