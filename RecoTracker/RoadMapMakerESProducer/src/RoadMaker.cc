@@ -11,8 +11,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/03 22:23:12 $
-// $Revision: 1.4 $
+// $Date: 2006/03/23 01:55:48 $
+// $Revision: 1.5 $
 //
 
 #include <iostream>
@@ -22,6 +22,8 @@
 #include <sstream>
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/RoadMaker.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -38,11 +40,11 @@ RoadMaker::RoadMaker(const TrackerGeometry &tracker, unsigned int verbosity) :
 
     rings_ = new Rings(tracker,verbosity), 
 
-    roads_ = new Roads();
+      roads_ = new Roads();
 
     constructRoads();
 
-}
+  }
 
 RoadMaker::~RoadMaker() { 
 
@@ -194,9 +196,7 @@ void RoadMaker::constructRoads() {
 
   roads_->setNumberOfLayersPerSubdetector(rings_->getNumberOfLayersPerSubdetector());
 
-  if ( verbosity_ > 0 ) {
-    std::cout << "[RoadMaker] created: " << npairs << " RoadSets" << std::endl;
-  }
+  edm::LogInfo("RoadSearch") << "created: " << npairs << " RoadSets";
 
 }
 
@@ -206,9 +206,7 @@ void RoadMaker::collectInnerSeedRings(std::vector<Ring*>& set) {
   collectInnerTIDSeedRings(set);
   collectInnerTECSeedRings(set);
 
-  if ( verbosity_ > 1 ) {
-    std::cout << "[RoadMaker] collected " << set.size() << " inner seed rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "collected " << set.size() << " inner seed rings"; 
   
 }
 
@@ -228,17 +226,13 @@ void RoadMaker::collectInnerTIBSeedRings(std::vector<Ring*>& set) {
 	  Ring* temp_ring = rings_->getTrackerTIBRing(layer,fw_bw,ext_int,detector);
 	  set.push_back(temp_ring);
 	  ++counter;
-	  if ( verbosity_ > 3 ) {
-	    std::cout << "[RoadMaker] collected TIB inner seed ring with index: " << temp_ring->getindex() << std::endl; 
-	  }
+	  LogDebug("RoadSearch") << "collected TIB inner seed ring with index: " << temp_ring->getindex(); 
 	}    
       }    
     }
   }
 
-  if ( verbosity_ > 2 ) {
-    std::cout << "[RoadMaker] collected " << counter << " TIB inner seed rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "collected " << counter << " TIB inner seed rings"; 
 
 }
 
@@ -255,18 +249,14 @@ void RoadMaker::collectInnerTIDSeedRings(std::vector<Ring*>& set) {
     for ( unsigned int wheel = 0; wheel < wheel_max; ++wheel ) {
       for ( unsigned int ring = 0; ring < ring_max; ++ring ) {
 	Ring* temp_ring = rings_->getTrackerTIDRing(fw_bw,wheel,ring);
-	if ( verbosity_ > 3 ) {
-	  std::cout << "[RoadMaker] collected TID inner seed ring with index: " << temp_ring->getindex() << std::endl; 
-	}
+	LogDebug("RoadSearch") << "collected TID inner seed ring with index: " << temp_ring->getindex(); 
 	set.push_back(temp_ring);
 	++counter;
       }    
     }
   }
 
-  if ( verbosity_ > 2 ) {
-    std::cout << "[RoadMaker] collected " << counter << " TID inner seed rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "collected " << counter << " TID inner seed rings"; 
 
 }
 
@@ -303,18 +293,14 @@ void RoadMaker::collectInnerTECSeedRings(std::vector<Ring*>& set) {
     for ( unsigned int wheel = 0; wheel < wheel_max; ++wheel ) {
       for ( unsigned int ring = ring_min[wheel]; ring < ring_max[wheel]; ++ring ) {
 	Ring* temp_ring = rings_->getTrackerTECRing(fw_bw,wheel,ring);
-	if ( verbosity_ > 3 ) {
-	  std::cout << "[RoadMaker] collected TEC inner seed ring with index: " << temp_ring->getindex() << std::endl; 
-	  }
+	LogDebug("RoadSearch") << "collected TEC inner seed ring with index: " << temp_ring->getindex(); 
 	set.push_back(temp_ring);
 	++counter;
       }    
     }
   }
 
-  if ( verbosity_ > 2 ) {
-    std::cout << "[RoadMaker] collected " << counter << " TEC inner seed rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "collected " << counter << " TEC inner seed rings"; 
 
 }
 
@@ -323,9 +309,7 @@ void RoadMaker::collectOuterSeedRings(std::vector<Ring*>& set) {
   collectOuterTOBSeedRings(set);
   collectOuterTECSeedRings(set);
 
-  if ( verbosity_ > 1 ) {
-    std::cout << "[RoadMaker] collected " << set.size() << " outer seed rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "collected " << set.size() << " outer seed rings"; 
 }
 
 void RoadMaker::collectOuterTOBSeedRings(std::vector<Ring*>& set) {
@@ -341,9 +325,7 @@ void RoadMaker::collectOuterTOBSeedRings(std::vector<Ring*>& set) {
     for ( unsigned int rod_fw_bw = 0; rod_fw_bw < rod_fw_bw_max; ++rod_fw_bw ) {
       for ( unsigned int detector = 0; detector < detector_max; ++detector ) {
 	Ring* temp_ring = rings_->getTrackerTOBRing(layer,rod_fw_bw,detector);
-	if ( verbosity_ > 3 ) {
-	  std::cout << "[RoadMaker] collected TOB outer seed ring with index: " << temp_ring->getindex() << std::endl; 
-	}
+	LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
 	set.push_back(temp_ring);
 	++counter;
       }    
@@ -352,45 +334,31 @@ void RoadMaker::collectOuterTOBSeedRings(std::vector<Ring*>& set) {
   
   // add most outer rings
   Ring* temp_ring = rings_->getTrackerTOBRing(1,0,5);
-  if ( verbosity_ > 3 ) {
-    std::cout << "[RoadMaker] collected TOB outer seed ring with index: " << temp_ring->getindex() << std::endl; 
-  }
+  LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
   set.push_back(temp_ring);
   ++counter;
   temp_ring = rings_->getTrackerTOBRing(1,1,5);
-  if ( verbosity_ > 3 ) {
-    std::cout << "[RoadMaker] collected TOB outer seed ring with index: " << temp_ring->getindex() << std::endl; 
-  }
+  LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
   set.push_back(temp_ring);
   ++counter;
   temp_ring = rings_->getTrackerTOBRing(2,0,5);
-  if ( verbosity_ > 3 ) {
-    std::cout << "[RoadMaker] collected TOB outer seed ring with index: " << temp_ring->getindex() << std::endl; 
-  }
+  LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
   set.push_back(temp_ring);
   ++counter;
   temp_ring = rings_->getTrackerTOBRing(2,1,5);
-  if ( verbosity_ > 3 ) {
-    std::cout << "[RoadMaker] collected TOB outer seed ring with index: " << temp_ring->getindex() << std::endl; 
-  }
+  LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
   set.push_back(temp_ring);
   ++counter;
   temp_ring = rings_->getTrackerTOBRing(3,0,5);
-  if ( verbosity_ > 3 ) {
-    std::cout << "[RoadMaker] collected TOB outer seed ring with index: " << temp_ring->getindex() << std::endl; 
-  }
+  LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
   set.push_back(temp_ring);
   ++counter;
   temp_ring = rings_->getTrackerTOBRing(3,1,5);
-  if ( verbosity_ > 3 ) {
-    std::cout << "[RoadMaker] collected TOB outer seed ring with index: " << temp_ring->getindex() << std::endl; 
-  }
+  LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
   set.push_back(temp_ring);
   ++counter;
 
-  if ( verbosity_ > 2 ) {
-    std::cout << "[RoadMaker] collected " << counter << " TOB outer seed rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "collected " << counter << " TOB outer seed rings"; 
 
 }
 
@@ -404,9 +372,7 @@ void RoadMaker::collectOuterTECSeedRings(std::vector<Ring*>& set) {
   for ( unsigned int fw_bw = 0; fw_bw < fw_bw_max; ++fw_bw ) {
     for ( unsigned int wheel = 0; wheel < wheel_max; ++wheel ) {
       Ring* temp_ring = rings_->getTrackerTECRing(fw_bw,wheel,6);
-      if ( verbosity_ > 3 ) {
-	std::cout << "[RoadMaker] collected TEC outer seed ring with index: " << temp_ring->getindex() << std::endl; 
-      }
+      LogDebug("RoadSearch") << "collected TEC outer seed ring with index: " << temp_ring->getindex(); 
       set.push_back(temp_ring);
       ++counter;
     }
@@ -451,18 +417,14 @@ void RoadMaker::collectOuterTECSeedRings(std::vector<Ring*>& set) {
     for ( unsigned int wheel = wheel_start; wheel < wheel_max; ++wheel ) {
       for ( unsigned int second_ring = second_ring_min[wheel]; second_ring < second_ring_max[wheel]; ++second_ring ) {
 	Ring* temp_ring = rings_->getTrackerTECRing(fw_bw,wheel,second_ring);
-	if ( verbosity_ > 3 ) {
-	  std::cout << "[RoadMaker] collected TEC outer seed ring with index: " << temp_ring->getindex() << std::endl; 
-	}
+	LogDebug("RoadSearch") << "collected TEC outer seed ring with index: " << temp_ring->getindex(); 
 	set.push_back(temp_ring);
 	++counter;
       }    
     }
   }
 
-  if ( verbosity_ > 2 ) {
-    std::cout << "[RoadMaker] collected " << counter << " TEC outer seed rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "collected " << counter << " TEC outer seed rings"; 
 
 }
 
@@ -478,35 +440,35 @@ std::string RoadMaker::printTrackerDetUnits(const TrackerGeometry &tracker) {
     if ( (unsigned int)id.subdetId() == StripSubdetector::TIB ) {
       TIBDetId tibid(id.rawId()); 
       output << "[RoadMaker] DetUnit for TIB ring Detid: " << id.rawId() 
-		<< " layer: " << tibid.layer() 
-		<< " fw(0)/bw(1): " << tibid.string()[0]
-		<< " ext(0)/int(0): " << tibid.string()[1] 
-		<< " string: " << tibid.string()[2] 
-		<< " detector: " << tibid.module()
-		<< " not stereo(0)/stereo(1): " << tibid.stereo() 
-		<< " not glued(0)/glued(1): " << tibid.glued() 
-		<< std::endl; 
+	     << " layer: " << tibid.layer() 
+	     << " fw(0)/bw(1): " << tibid.string()[0]
+	     << " ext(0)/int(0): " << tibid.string()[1] 
+	     << " string: " << tibid.string()[2] 
+	     << " detector: " << tibid.module()
+	     << " not stereo(0)/stereo(1): " << tibid.stereo() 
+	     << " not glued(0)/glued(1): " << tibid.glued() 
+	     << std::endl; 
     } else if ( (unsigned int)id.subdetId() == StripSubdetector::TOB ) {
       TOBDetId tobid(id.rawId()); 
       output << "[RoadMaker] DetUnit for TOB ring Detid: " << id.rawId() 
-		<< " layer: " << tobid.layer() 
-		<< " fw(0)/bw(1): " << tobid.rod()[0]
-		<< " rod: " << tobid.rod()[1] 
-		<< " detector: " << tobid.module()
-		<< " not stereo(0)/stereo(1): " << tobid.stereo() 
-		<< " not glued(0)/glued(1): " << tobid.glued() 
-		<< std::endl; 
+	     << " layer: " << tobid.layer() 
+	     << " fw(0)/bw(1): " << tobid.rod()[0]
+	     << " rod: " << tobid.rod()[1] 
+	     << " detector: " << tobid.module()
+	     << " not stereo(0)/stereo(1): " << tobid.stereo() 
+	     << " not glued(0)/glued(1): " << tobid.glued() 
+	     << std::endl; 
     } else if ( (unsigned int)id.subdetId() == StripSubdetector::TID ) {
       TIDDetId tidid(id.rawId()); 
       output << "[RoadMaker] DetUnit for TID ring Detid: " << id.rawId() 
-		<< " side neg(1)/pos(2): " << tidid.side() 
-		<< " wheel: " << tidid.wheel()
-		<< " ring: " << tidid.ring()
-		<< " detector fw(0)/bw(1): " << tidid.module()[0]
-		<< " detector: " << tidid.module()[1] 
-		<< " not stereo(0)/stereo(1): " << tidid.stereo() 
-		<< " not glued(0)/glued(1): " << tidid.glued() 
-		<< std::endl; 
+	     << " side neg(1)/pos(2): " << tidid.side() 
+	     << " wheel: " << tidid.wheel()
+	     << " ring: " << tidid.ring()
+	     << " detector fw(0)/bw(1): " << tidid.module()[0]
+	     << " detector: " << tidid.module()[1] 
+	     << " not stereo(0)/stereo(1): " << tidid.stereo() 
+	     << " not glued(0)/glued(1): " << tidid.glued() 
+	     << std::endl; 
     } else if ( (unsigned int)id.subdetId() == StripSubdetector::TEC ) {
       TECDetId tecid(id.rawId()); 
       output << "[RoadMaker] DetUnit for TEC ring DetId: " << id.rawId() 
@@ -529,18 +491,18 @@ std::string RoadMaker::printTrackerDetUnits(const TrackerGeometry &tracker) {
     } else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelBarrel ) {
       PXBDetId pxbid(id.rawId()); 
       output << "[RoadMaker] DetUnit for PXB ring DetId: " << id.rawId() 
-		<< " layer: " << pxbid.layer()
-		<< " ladder: " << pxbid.ladder()
-		<< " detector: " << pxbid.module()
-		<< std::endl; 
+	     << " layer: " << pxbid.layer()
+	     << " ladder: " << pxbid.ladder()
+	     << " detector: " << pxbid.module()
+	     << std::endl; 
     } else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelEndcap ) {
       PXFDetId pxfid(id.rawId()); 
       output << "[RoadMaker] DetUnit for PXF ring DetId: " << id.rawId() 
-		<< " side: " << pxfid.side()
-		<< " disk: " << pxfid.disk()
-		<< " blade: " << pxfid.blade()
-		<< " detector: " << pxfid.module()
-		<< std::endl; 
+	     << " side: " << pxfid.side()
+	     << " disk: " << pxfid.disk()
+	     << " blade: " << pxfid.blade()
+	     << " detector: " << pxfid.module()
+	     << std::endl; 
     }
 
 

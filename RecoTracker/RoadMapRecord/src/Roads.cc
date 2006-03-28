@@ -13,14 +13,16 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
-// $Revision: 1.1 $
+// $Date: 2006/01/15 01:01:25 $
+// $Revision: 1.2 $
 //
 
 #include <iostream>
 #include <sstream>
 
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -176,9 +178,7 @@ void Roads::readInFromAsciiFile(std::string ascii_filename, unsigned int verbosi
     }
   }
 
-  if ( verbosity > 0 ) {
-    std::cout << "[Roads] read in: " << counter << " RoadSets from file: " << ascii_filename << std::endl;
-  }
+  edm::LogInfo("RoadSearch") << "Read in: " << counter << " RoadSets from file: " << ascii_filename;
 
 }
 
@@ -280,8 +280,8 @@ const Roads::RoadSeed* Roads::getRoadSeed(DetId fromInnerSeedRing, DetId fromOut
     }
   }
       
-  std::cout << "[Roads]: RoadSeed could not be found for inner SeedRing DetId: " << fromInnerSeedRing.rawId() 
-	    << " and outer SeedRing DetID: " << fromOuterSeedRing.rawId() << std::endl; 
+  edm::LogError("RoadSearch") << "RoadSeed could not be found for inner SeedRing DetId: " << fromInnerSeedRing.rawId() 
+	    << " and outer SeedRing DetID: " << fromOuterSeedRing.rawId(); 
   return 0;
 }
 

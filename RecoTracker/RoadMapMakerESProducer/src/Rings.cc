@@ -9,8 +9,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/23 01:55:48 $
-// $Revision: 1.5 $
+// $Date: 2006/03/23 14:12:24 $
+// $Revision: 1.6 $
 //
 
 #include <iostream>
@@ -19,6 +19,8 @@
 #include <utility>
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/Rings.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
@@ -58,9 +60,7 @@ void Rings::constructTrackerRings(const TrackerGeometry &tracker) {
   constructTrackerPXBRings(tracker);
   //   constructTrackerPXFRings(tracker);
 
-  if ( verbosity_ > 0 ) {
-    std::cout << "[Rings] constructed " << rings_.size() << " rings" << std::endl; 
-  }
+  edm::LogInfo("RoadSearch") << "constructed " << rings_.size() << " rings"; 
 
 }
 
@@ -82,17 +82,13 @@ void Rings::constructTrackerTIBRings(const TrackerGeometry &tracker) {
 	  ring.setindex(index++);
 	  rings_.push_back(ring);
 	  ++counter;
-	  if ( verbosity_ > 2 ) {
-	    std::cout << "[Rings] constructed TIB ring with index: " << ring.getindex() << " consisting of " << ring.getNumDetIds() << " DetIds" << std::endl; 
-	  }
+	  LogDebug("RoadSearch") << "constructed TIB ring with index: " << ring.getindex() << " consisting of " << ring.getNumDetIds() << " DetIds"; 
 	}    
       }    
     }    
   }
 
-  if ( verbosity_ > 1 ) {
-    std::cout << "[Rings] constructed " << counter << " TIB rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "constructed " << counter << " TIB rings"; 
   
 }
 
@@ -145,9 +141,7 @@ Ring Rings::constructTrackerTIBRing(const TrackerGeometry &tracker,
     }
   }
 
-  if ( verbosity_ > 2 ) {
-    std::cout << "[Rings] Ring with index: " << ring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax << std::endl;
-  }
+  LogDebug("RoadSearch") << "Ring with index: " << ring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax;
     
   ring.initialize(rmin,rmax,zmin,zmax);
 
@@ -161,12 +155,10 @@ DetId Rings::constructTrackerTIBDetId(unsigned int layer,
 				      unsigned int detector,
 				      unsigned int stereo) {
 
-   TIBDetId id(layer+1,fw_bw,ext_int,string+1,detector+1,stereo);
-   if ( verbosity_ > 3 ) {
-     std::cout << "[Rings] constructed TIB ring DetId for layer: " << id.layer() << " fw(0)/bw(1): " << id.string()[0]
-	       << " ext(0)/int(1): " << id.string()[1] << " string: " << id.string()[2] << " sensor: " << id.det()
-	       << " stereo: " << id.stereo() << std::endl; 
-   }
+  TIBDetId id(layer+1,fw_bw,ext_int,string+1,detector+1,stereo);
+  LogDebug("RoadSearch") << "constructed TIB ring DetId for layer: " << id.layer() << " fw(0)/bw(1): " << id.string()[0]
+			 << " ext(0)/int(1): " << id.string()[1] << " string: " << id.string()[2] << " sensor: " << id.det()
+			 << " stereo: " << id.stereo(); 
 
   return DetId(id.rawId());
 }
@@ -188,16 +180,12 @@ void Rings::constructTrackerTOBRings(const TrackerGeometry &tracker) {
 	ring.setindex(index++);
 	rings_.push_back(ring);
 	++counter;
-	if ( verbosity_ > 2 ) {
-	  std::cout << "[Rings] constructed TOB ring with index: " << ring.getindex() << " consisting of " << ring.getNumDetIds() << " DetIds" << std::endl; 
-	}
+	LogDebug("RoadSearch") << "constructed TOB ring with index: " << ring.getindex() << " consisting of " << ring.getNumDetIds() << " DetIds"; 
       }    
     }    
   }
 
-  if ( verbosity_ > 1 ) {
-    std::cout << "[Rings] constructed " << counter << " TOB rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "constructed " << counter << " TOB rings"; 
 
 }
 
@@ -246,9 +234,7 @@ Ring Rings::constructTrackerTOBRing(const TrackerGeometry &tracker,
     }
   }
 
-  if ( verbosity_ > 2 ) {
-    std::cout << "[Rings] Ring with index: " << ring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax << std::endl;
-  }
+  LogDebug("RoadSearch") << "Ring with index: " << ring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax;
     
   ring.initialize(rmin,rmax,zmin,zmax);
 
@@ -263,10 +249,8 @@ DetId Rings::constructTrackerTOBDetId(unsigned int layer,
 
   TOBDetId id(layer+1,rod_fw_bw,rod+1,detector+1,stereo);
 
-  if ( verbosity_ > 3 ) {
-    std::cout << "[Rings] constructed TOB ring DetId for layer: " << id.layer() << " rod fw(0)/bw(1): " << id.rod()[0] 
-	      << " rod: " << id.rod()[1] << " sensor: " << id.det() << " stereo: " << id.stereo() << std::endl; 
-  }
+  LogDebug("RoadSearch") << "constructed TOB ring DetId for layer: " << id.layer() << " rod fw(0)/bw(1): " << id.rod()[0] 
+			 << " rod: " << id.rod()[1] << " sensor: " << id.det() << " stereo: " << id.stereo(); 
 
   return DetId(id.rawId());
 }
@@ -290,16 +274,12 @@ void Rings::constructTrackerTIDRings(const TrackerGeometry &tracker) {
 	}
 	rings_.push_back(tempring);
 	++counter;
-	if ( verbosity_ > 2 ) {
-	  std::cout << "[Rings] constructed TID ring with index: " << tempring.getindex() << " consisting of " << tempring.getNumDetIds() << " DetIds" << std::endl; 
-	}
+	LogDebug("RoadSearch") << "constructed TID ring with index: " << tempring.getindex() << " consisting of " << tempring.getNumDetIds() << " DetIds"; 
       }   
     }  
   }
   
-  if ( verbosity_ > 1 ) {
-    std::cout << "[Rings] constructed " << counter << " TID rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "constructed " << counter << " TID rings"; 
 
 }
 
@@ -346,9 +326,7 @@ Ring Rings::constructTrackerTIDRing(const TrackerGeometry &tracker,
     }
   }
 	
-  if ( verbosity_ > 2 ) {
-    std::cout << "[Rings] Ring with index: " << tempring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax << std::endl;
-  }
+  LogDebug("RoadSearch") << "Ring with index: " << tempring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax;
     
   tempring.initialize(rmin,rmax,zmin,zmax);
 
@@ -364,11 +342,9 @@ DetId Rings::constructTrackerTIDDetId(unsigned int fw_bw,
 
   TIDDetId id(fw_bw+1,wheel+1,ring+1,module_fw_bw,module+1,stereo);
 
-  if ( verbosity_ > 3 ) {
-    std::cout << "[Rings] constructed TID ring DetId for side: " << id.side() << " wheel: " << id.wheel() 
-	      << " ring: " << id.ring() << " module_fw_bw: " << id.module()[0] << " module: " << id.module()[1] 
-	      << " stereo: " << id.stereo() << std::endl; 
-  }
+  LogDebug("RoadSearch") << "constructed TID ring DetId for side: " << id.side() << " wheel: " << id.wheel() 
+			 << " ring: " << id.ring() << " module_fw_bw: " << id.module()[0] << " module: " << id.module()[1] 
+			 << " stereo: " << id.stereo(); 
 	
   return DetId(id.rawId());
 }
@@ -421,16 +397,12 @@ void Rings::constructTrackerTECRings(const TrackerGeometry &tracker) {
 	}
 	rings_.push_back(tempring);
 	++counter;
-	if ( verbosity_ > 2 ) {
-	  std::cout << "[Rings] constructed TEC ring with index: " << tempring.getindex() << " consisting of " << tempring.getNumDetIds() << " DetIds" << std::endl; 
-	}
+	LogDebug("RoadSearch") << "constructed TEC ring with index: " << tempring.getindex() << " consisting of " << tempring.getNumDetIds() << " DetIds"; 
       }   
     }  
   }
 
-  if ( verbosity_ > 1 ) {
-    std::cout << "[Rings] constructed " << counter << " TEC rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "constructed " << counter << " TEC rings"; 
 
 }
 
@@ -466,9 +438,7 @@ Ring Rings::constructTrackerTECRing(const TrackerGeometry &tracker,
     }
   }
 
-  if ( verbosity_ > 2 ) {
-    std::cout << "[Rings] Ring with index: " << tempring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax << std::endl;
-  }
+  LogDebug("RoadSearch") << "Ring with index: " << tempring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax;
     
   tempring.initialize(rmin,rmax,zmin,zmax);
 
@@ -485,11 +455,9 @@ DetId Rings::constructTrackerTECDetId(unsigned int fw_bw,
 
   TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,module+1,stereo);
   
-  if ( verbosity_ > 3 ) {
-    std::cout << "[Rings] constructed TEC ring DetId for side: " << id.side() << " wheel: " << id.wheel() 
-	      << " ring: " << id.ring() << " petal fw(0)/bw(0): " << id.petal()[0] << " petal: " << id.petal()[1] 
-	      << " module: " << id.module() << " stereo: " << id.stereo() << std::endl; 
-  }
+  LogDebug("RoadSearch") << "constructed TEC ring DetId for side: " << id.side() << " wheel: " << id.wheel() 
+			 << " ring: " << id.ring() << " petal fw(0)/bw(0): " << id.petal()[0] << " petal: " << id.petal()[1] 
+			 << " module: " << id.module() << " stereo: " << id.stereo(); 
 
   return DetId(id.rawId());
 }
@@ -508,15 +476,11 @@ void Rings::constructTrackerPXBRings(const TrackerGeometry &tracker) {
       ring.setindex(index++);
       rings_.push_back(ring);
       ++counter;
-      if ( verbosity_ > 2 ) {
-	std::cout << "[Rings] constructed PXB ring with index: " << ring.getindex() << " consisting of " << ring.getNumDetIds() << " DetIds" << std::endl; 
-      }
+      LogDebug("RoadSearch") << "constructed PXB ring with index: " << ring.getindex() << " consisting of " << ring.getNumDetIds() << " DetIds"; 
     }    
   }    
 
-  if ( verbosity_ > 1 ) {
-    std::cout << "[Rings] constructed " << counter << " PXB rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "constructed " << counter << " PXB rings"; 
   
 }
 
@@ -547,9 +511,7 @@ Ring Rings::constructTrackerPXBRing(const TrackerGeometry &tracker,
     ring.addId(phi,id);
   }
   
-  if ( verbosity_ > 2 ) {
-    std::cout << "[Rings] Ring with index: " << ring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax << std::endl;
-  }
+  LogDebug("RoadSearch") << "Ring with index: " << ring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax;
     
   ring.initialize(rmin,rmax,zmin,zmax);
 
@@ -561,10 +523,8 @@ DetId Rings::constructTrackerPXBDetId(unsigned int layer,
 				      unsigned int detector) {
   PXBDetId id(layer+1,ladder+1,detector+1);
 	
-  if ( verbosity_ > 3 ) {
-    std::cout << "[Rings] constructed PXB ring DetId for layer: " << id.layer() << " ladder: " << id.ladder() 
-	      << " detector: " << id.det() << std::endl; 
-  }
+  LogDebug("RoadSearch") << "constructed PXB ring DetId for layer: " << id.layer() << " ladder: " << id.ladder() 
+			 << " detector: " << id.det(); 
 
   return DetId(id.rawId());
 }
@@ -585,16 +545,12 @@ void Rings::constructTrackerPXFRings(const TrackerGeometry &tracker) {
 	ring.setindex(index++);
 	rings_.push_back(ring);
 	++counter;
-	if ( verbosity_ > 2 ) {
-	  std::cout << "[Rings] constructed PXF ring with index: " << ring.getindex() << " consisting of " << ring.getNumDetIds() << " DetIds" << std::endl; 
-	}
+	LogDebug("RoadSearch") << "constructed PXF ring with index: " << ring.getindex() << " consisting of " << ring.getNumDetIds() << " DetIds"; 
       }
     }    
   }    
 
-  if ( verbosity_ > 1 ) {
-    std::cout << "[Rings] constructed " << counter << " PXF rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "constructed " << counter << " PXF rings"; 
   
 }
 
@@ -619,9 +575,7 @@ Ring Rings::constructTrackerPXFRing(const TrackerGeometry &tracker,
     ring.addId(phi,id);
   }
 
-  if ( verbosity_ > 2 ) {
-    std::cout << "[Rings] Ring with index: " << ring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax << std::endl;
-  }
+  LogDebug("RoadSearch") << "Ring with index: " << ring.getindex() << " initialized rmin/rmax/zmin/zmax: " << rmin << "/" << rmax << "/" << zmin << "/" << zmax;
     
   ring.initialize(rmin,rmax,zmin,zmax);
 
@@ -635,10 +589,8 @@ DetId Rings::constructTrackerPXFDetId(unsigned int fw_bw,
 
   PXFDetId id(fw_bw+1,disk+1,blade+1,detector+1,0);
 
-  if ( verbosity_ > 3 ) {
-    std::cout << "[Rings] constructed PXF ring DetId for fw_bw: " << id.side() << " disk: " << id.disk() 
-	      << " blade: " << id.blade() << " detector: " << id.det() << std::endl; 
-  }
+  LogDebug("RoadSearch") << "constructed PXF ring DetId for fw_bw: " << id.side() << " disk: " << id.disk() 
+			 << " blade: " << id.blade() << " detector: " << id.det(); 
 	
   return DetId(id.rawId());
 }
@@ -652,20 +604,7 @@ Ring* Rings::getTrackerRing(DetId id) {
     }
   }
   
-  std::cout << "[Rings] could not find Ring with DetId: " << id.rawId() << std::endl;
-  TECDetId tecid(id.rawId()); 
-  std::cout << "[Rings] problem resolving DetUnit for TEC ring DetId: " << id.rawId() 
-	    << " side neg(1)/pos(2): " << tecid.side() 
-	    << " wheel: " << tecid.wheel()
-	    << " petal fw(0)/bw(1): " << tecid.petal()[0]
-	    << " petal: " << tecid.petal()[1] 
-	    << " ring: " << tecid.ring()
-	    << " module: " << tecid.module()
-	    << " not stereo(0)/stereo(1): " << tecid.stereo() 
-	    << " not glued(0)/glued(1): " << tecid.glued() 
-	    << std::endl; 
- 
-  
+  edm::LogError("RoadSearch") << "could not find Ring with DetId: " << id.rawId();
   return 0;
 }
 
@@ -738,7 +677,7 @@ Ring* Rings::getTrackerTECRing(unsigned int fw_bw,
   }
 
   if ( tec_[fw_bw][wheel][petal_fw_bw][petal][ring][module][stereo] == 0 ) {
-    std::cout << "[Rings] problem generation TEC DetId from side: " << fw_bw+1 << " wheel: " << wheel+1 << " ring: " << ring+1 << std::endl;
+    edm::LogError("RoadSearch") << "problem generation TEC DetId from side: " << fw_bw+1 << " wheel: " << wheel+1 << " ring: " << ring+1;
   }
 
   TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,module+1,stereo);
@@ -1065,9 +1004,7 @@ void Rings::fixIndexNumberingScheme() {
 
   }
 
-  if ( verbosity_ > 1 ) {
-    std::cout << "[Rings] fixed the index numbering scheme for " << counter << " rings" << std::endl; 
-  }
+  LogDebug("RoadSearch") << "fixed the index numbering scheme for " << counter << " rings"; 
 
 }
 
@@ -1131,7 +1068,7 @@ double Rings::determineExtensions(const TrackerGeometry &tracker, DetId id, floa
       if ( r[i] > local_rmax ) local_rmax = r[i];
       if ( z[i] < local_zmin ) local_zmin = z[i];
       if ( z[i] > local_zmax ) local_zmax = z[i];
-      }
+    }
     
     if ( local_rmin < rmin ) rmin = local_rmin;
     if ( local_rmax > rmax ) rmax = local_rmax;
@@ -1142,63 +1079,57 @@ double Rings::determineExtensions(const TrackerGeometry &tracker, DetId id, floa
     
     if ( type == Ring::TIBRing ) {
       TIBDetId tibid(id.rawId());
-      std::cout << "[Rings] problem resolving DetUnit for TIB ring Detid: " << id.rawId() 
-		<< " layer: " << tibid.layer() 
-		<< " fw(0)/bw(1): " << tibid.string()[0]
-		<< " ext(0)/int(0): " << tibid.string()[1] 
-		<< " string: " << tibid.string()[2] 
-		<< " detector: " << tibid.det()
-		<< " not stereo(0)/stereo(1): " << tibid.stereo() 
-		<< " not glued(0)/glued(1): " << tibid.glued() 
-		<< std::endl; 
+      edm::LogError("RoadSearch") << "problem resolving DetUnit for TIB ring Detid: " << id.rawId() 
+				  << " layer: " << tibid.layer() 
+				  << " fw(0)/bw(1): " << tibid.string()[0]
+				  << " ext(0)/int(0): " << tibid.string()[1] 
+				  << " string: " << tibid.string()[2] 
+				  << " detector: " << tibid.det()
+				  << " not stereo(0)/stereo(1): " << tibid.stereo() 
+				  << " not glued(0)/glued(1): " << tibid.glued(); 
     } else if ( type == Ring::TOBRing ) {
       TOBDetId tobid(id.rawId()); 
-      std::cout << "[Rings] problem resolving DetUnit for TOB ring Detid: " << id.rawId() 
-		<< " layer: " << tobid.layer() 
-		<< " fw(0)/bw(1): " << tobid.rod()[0]
-		<< " rod: " << tobid.rod()[1] 
-		<< " detector: " << tobid.det()
-		<< " not stereo(0)/stereo(1): " << tobid.stereo() 
-		<< " not glued(0)/glued(1): " << tobid.glued() 
-		<< std::endl; 
+      edm::LogError("RoadSearch") << "problem resolving DetUnit for TOB ring Detid: " << id.rawId() 
+				  << " layer: " << tobid.layer() 
+				  << " fw(0)/bw(1): " << tobid.rod()[0]
+				  << " rod: " << tobid.rod()[1] 
+				  << " detector: " << tobid.det()
+				  << " not stereo(0)/stereo(1): " << tobid.stereo() 
+				  << " not glued(0)/glued(1): " << tobid.glued(); 
     } else if ( type == Ring::TIDRing ) {
       TIDDetId tidid(id.rawId()); 
-      std::cout << "[Rings] problem resolving DetUnit for TID ring Detid: " << id.rawId() 
-		<< " side neg(1)/pos(2): " << tidid.side() 
-		<< " wheel: " << tidid.wheel()
-		<< " ring: " << tidid.ring()
-		<< " detector fw(0)/bw(1): " << tidid.module()[0]
-		<< " detector: " << tidid.module()[1] 
-		<< " not stereo(0)/stereo(1): " << tidid.stereo() 
-		<< " not glued(0)/glued(1): " << tidid.glued() 
-		<< std::endl; 
+      edm::LogError("RoadSearch") << "problem resolving DetUnit for TID ring Detid: " << id.rawId() 
+				  << " side neg(1)/pos(2): " << tidid.side() 
+				  << " wheel: " << tidid.wheel()
+				  << " ring: " << tidid.ring()
+				  << " detector fw(0)/bw(1): " << tidid.module()[0]
+				  << " detector: " << tidid.module()[1] 
+				  << " not stereo(0)/stereo(1): " << tidid.stereo() 
+				  << " not glued(0)/glued(1): " << tidid.glued(); 
     } else if ( type == Ring::TECRing ) {
       TECDetId tecid(id.rawId()); 
-      std::cout << "[Rings] problem resolving DetUnit for TEC ring DetId: " << id.rawId() 
-		<< " side neg(1)/pos(2): " << tecid.side() 
-		<< " wheel: " << tecid.wheel()
-		<< " petal fw(0)/bw(1): " << tecid.petal()[0]
-		<< " petal: " << tecid.petal()[1] 
-		<< " ring: " << tecid.ring()
-		<< " module: " << tecid.module()
-		<< " not stereo(0)/stereo(1): " << tecid.stereo() 
-		<< " not glued(0)/glued(1): " << tecid.glued() 
-		<< std::endl; 
+      edm::LogError("RoadSearch") << "problem resolving DetUnit for TEC ring DetId: " << id.rawId() 
+				  << " side neg(1)/pos(2): " << tecid.side() 
+				  << " wheel: " << tecid.wheel()
+				  << " petal fw(0)/bw(1): " << tecid.petal()[0]
+				  << " petal: " << tecid.petal()[1] 
+				  << " ring: " << tecid.ring()
+				  << " module: " << tecid.module()
+				  << " not stereo(0)/stereo(1): " << tecid.stereo() 
+				  << " not glued(0)/glued(1): " << tecid.glued(); 
     } else if ( type == Ring::PXBRing ) {
       PXBDetId pxbid(id.rawId()); 
-      std::cout << "[Rings] problem resolving DetUnit for PXB ring DetId: " << id.rawId() 
-		<< " layer: " << pxbid.layer()
-		<< " ladder: " << pxbid.ladder()
-		<< " detector: " << pxbid.module()
-		<< std::endl; 
+      edm::LogError("RoadSearch") << "problem resolving DetUnit for PXB ring DetId: " << id.rawId() 
+				  << " layer: " << pxbid.layer()
+				  << " ladder: " << pxbid.ladder()
+				  << " detector: " << pxbid.module(); 
     } else if ( type == Ring::PXFRing ) {
       PXFDetId pxfid(id.rawId()); 
-      std::cout << "[Rings] problem resolving DetUnit for PXF ring DetId: " << id.rawId() 
-		<< " side: " << pxfid.side()
-		<< " disk: " << pxfid.disk()
-		<< " blade: " << pxfid.blade()
-		<< " detector: " << pxfid.module()
-		<< std::endl; 
+      edm::LogError("RoadSearch") << "problem resolving DetUnit for PXF ring DetId: " << id.rawId() 
+				  << " side: " << pxfid.side()
+				  << " disk: " << pxfid.disk()
+				  << " blade: " << pxfid.blade()
+				  << " detector: " << pxfid.module(); 
     }
   }
 
@@ -1222,7 +1153,7 @@ std::vector<unsigned int> Rings::dumpOldStyle(std::string ascii_filename, bool w
   std::string tid = dumpOldStyleTID(layersTID);
   std::string tec = dumpOldStyleTEC(layersTEC);
   std::string pxb = dumpOldStylePXB(layersPXB);
-//   std::string pxf = dumpOldStylePXF(layersPXF);
+  //   std::string pxf = dumpOldStylePXF(layersPXF);
 
   unsigned int nLayers = layersTIB + layersTOB +
     layersTID + layersTEC +
@@ -1232,7 +1163,7 @@ std::vector<unsigned int> Rings::dumpOldStyle(std::string ascii_filename, bool w
 
     std::ofstream stream(ascii_filename.c_str());
 
-    stream << nLayers << std::endl;
+    stream << nLayers;
 
     stream << tib;
     stream << tob;
@@ -1241,9 +1172,7 @@ std::vector<unsigned int> Rings::dumpOldStyle(std::string ascii_filename, bool w
     stream << pxb;
     //   stream << pxf;
 
-    if ( verbosity_ > 0 ) {
-      std::cout << "[Rings] wrote out rings for " << nLayers << " layers in old style." << std::endl; 
-    }
+    edm::LogInfo("RoadSearch") << "wrote out rings for " << nLayers << " layers in old style."; 
   }
 
   std::vector<unsigned int> layers;
@@ -1279,17 +1208,15 @@ std::string Rings::dumpOldStyleTIB(unsigned int &nLayers) {
 	  tempstream << ring->getrmin() << " "
 		     << ring->getrmax() << " "
 		     << ring->getzmin() << " "
-		     << ring->getzmax() << " " << std::endl;
+		     << ring->getzmax() << " ";
 	}    
       }    
     }
-    stream << "0 0.0" << std::endl;
-    stream << nRings << std::endl;
+    stream << "0 0.0";
+    stream << nRings;
     stream << tempstream.str();
 
-    if ( verbosity_ > 1 ) {
-      std::cout << "[Rings] wrote out " << nRings << " TIB rings in old style." << std::endl; 
-    }
+    LogDebug("RoadSearch") << "wrote out " << nRings << " TIB rings in old style."; 
 
   }
 
@@ -1316,16 +1243,14 @@ std::string Rings::dumpOldStyleTOB(unsigned int &nLayers) {
 	tempstream << ring->getrmin() << " "
 		   << ring->getrmax() << " "
 		   << ring->getzmin() << " "
-		   << ring->getzmax() << " " << std::endl;
+		   << ring->getzmax() << " ";
       }    
     }
-    stream << "0 0.0" << std::endl;
-    stream << nRings << std::endl;
+    stream << "0 0.0";
+    stream << nRings;
     stream << tempstream.str();
 
-    if ( verbosity_ > 1 ) {
-      std::cout << "[Rings] wrote out " << nRings << " TOB rings in old style." << std::endl; 
-    }
+    LogDebug("RoadSearch") << "wrote out " << nRings << " TOB rings in old style."; 
     
   }
   
@@ -1352,15 +1277,13 @@ std::string Rings::dumpOldStyleTID(unsigned int &nLayers) {
 	tempstream << tempring->getrmin() << " "
 		   << tempring->getrmax() << " "
 		   << tempring->getzmin() << " "
-		   << tempring->getzmax() << " " << std::endl;
+		   << tempring->getzmax() << " ";
       }    
-      stream << "0 0.0" << std::endl;
-      stream << nRings << std::endl;
+      stream << "0 0.0";
+      stream << nRings;
       stream << tempstream.str();
       
-      if ( verbosity_ > 1 ) {
-	std::cout << "[Rings] wrote out " << nRings << " TID rings in old style." << std::endl; 
-      }
+      LogDebug("RoadSearch") << "wrote out " << nRings << " TID rings in old style."; 
     
     }
   }
@@ -1417,15 +1340,13 @@ std::string Rings::dumpOldStyleTEC(unsigned int &nLayers) {
 	tempstream << tempring->getrmin() << " "
 		   << tempring->getrmax() << " "
 		   << tempring->getzmin() << " "
-		   << tempring->getzmax() << " " << std::endl;
+		   << tempring->getzmax() << " ";
       }    
-      stream << "0 0.0" << std::endl;
-      stream << nRings << std::endl;
+      stream << "0 0.0";
+      stream << nRings;
       stream << tempstream.str();
 
-      if ( verbosity_ > 1 ) {
-	std::cout << "[Rings] wrote out " << nRings << " TEC rings in old style." << std::endl; 
-      }
+      LogDebug("RoadSearch") << "wrote out " << nRings << " TEC rings in old style."; 
     
     }
   }
@@ -1451,15 +1372,13 @@ std::string Rings::dumpOldStylePXB(unsigned int &nLayers) {
       tempstream << ring->getrmin() << " "
 		 << ring->getrmax() << " "
 		 << ring->getzmin() << " "
-		 << ring->getzmax() << " " << std::endl;
+		 << ring->getzmax() << " ";
     }
-    stream << "0 0.0" << std::endl;
-    stream << nRings << std::endl;
+    stream << "0 0.0";
+    stream << nRings;
     stream << tempstream.str();
 
-    if ( verbosity_ > 1 ) {
-      std::cout << "[Rings] wrote out " << nRings << " PXB rings in old style." << std::endl; 
-    }
+    LogDebug("RoadSearch") << "wrote out " << nRings << " PXB rings in old style."; 
     
   }
   
@@ -1486,15 +1405,13 @@ std::string Rings::dumpOldStylePXF(unsigned int &nLayers) {
 	tempstream << ring->getrmin() << " "
 		   << ring->getrmax() << " "
 		   << ring->getzmin() << " "
-		   << ring->getzmax() << " " << std::endl;
+		   << ring->getzmax() << " ";
       }
-      stream << "0 0.0" << std::endl;
-      stream << nRings << std::endl;
+      stream << "0 0.0";
+      stream << nRings;
       stream << tempstream.str();
 
-      if ( verbosity_ > 1 ) {
-	std::cout << "[Rings] wrote out " << nRings << " PXF rings in old style." << std::endl; 
-      }
+      LogDebug("RoadSearch") << "wrote out " << nRings << " PXF rings in old style."; 
     
     }
   }
@@ -1540,7 +1457,7 @@ void Rings::fillTECGeometryArray(const TrackerGeometry &tracker) {
       } else if ( tecid.partnerDetId() == 0 ) {
 	tec_[tecid.side()-1][tecid.wheel()-1][tecid.petal()[0]][tecid.petal()[1]-1][tecid.ring()-1][tecid.module()-1][0] += 1;
       } else {
-	std::cout << "!!!!![Rings] stereo of TECId: " << id.rawId() << " could not be determined." << std::endl; 
+	edm::LogError("RoadSearch") << "stereo of TECId: " << id.rawId() << " could not be determined."; 
       }
 
     }

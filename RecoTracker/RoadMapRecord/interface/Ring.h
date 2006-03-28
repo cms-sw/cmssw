@@ -13,8 +13,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
-// $Revision: 1.1 $
+// $Date: 2006/01/15 01:01:25 $
+// $Revision: 1.2 $
 //
 
 #include <iostream>
@@ -24,6 +24,8 @@
 #include <utility>
 
 #include "DataFormats/DetId/interface/DetId.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class Ring {
   
@@ -141,7 +143,7 @@ class Ring {
     initialized_ = true; }
 
   inline void notInitializedMsg() const { 
-    std::cout << "[Ring] does not have initialized values for r_min, r_max, z_min, z_max! Using default value of 0. !" << std::endl; }
+    edm::LogWarning("RoadSearch") << "Ring does not have initialized values for r_min, r_max, z_min, z_max! Using default value of 0. !"; }
 
   inline void setType(type input) { type_ = input; }
 
