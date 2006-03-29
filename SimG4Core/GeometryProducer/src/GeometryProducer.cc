@@ -10,7 +10,6 @@
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
-#include "SimG4Core/Application/interface/SimTrackManager.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -60,6 +59,7 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const & p) :
     edm::Service<SimActivityRegistry> otherRegistry;
     if (otherRegistry) m_registry.connect(*otherRegistry);
     createWatchers(m_p, m_registry, m_watchers, m_producers);
+    produces<int>();
 }
 
 GeometryProducer::~GeometryProducer() 
@@ -92,31 +92,16 @@ void GeometryProducer::beginJob(const edm::EventSetup & es)
 	m_fieldBuilder->configure
 	    ("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
     }
-
-    // we need the track manager now
-    m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
-
-    m_attach = new AttachSD;
-    {
-	std::pair< std::vector<SensitiveTkDetector*>,
-	std::vector<SensitiveCaloDetector*> > sensDets = 
-	    m_attach->create(*world,(*pDD),m_p,m_trackManager.get(),m_registry);
-      
-	m_sensTkDets.swap(sensDets.first);
-	m_sensCaloDets.swap(sensDets.second);
-    }
-
-    std::cout << " Sensitive Detector building finished; found " << m_sensTkDets.size()
-	      << " Tk type Producers, and " << m_sensCaloDets.size() 
-	      << " Calo type producers " << std::endl;
-
 }
  
 void GeometryProducer::endJob()
 { std::cout << " GeometryProducer terminating " << std::endl; }
  
 void GeometryProducer::produce(edm::Event & e, const edm::EventSetup & es)
-{}
+{
+    for(Producers::iterator itProd = m_producers.begin();itProd != m_producers.end();
+	++itProd) { (*itProd)->produce(e,es); }
+}
 
 DEFINE_FWK_MODULE(GeometryProducer)
  
