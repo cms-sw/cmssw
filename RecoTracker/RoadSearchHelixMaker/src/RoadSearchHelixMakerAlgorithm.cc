@@ -8,8 +8,8 @@
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2006/02/13 19:32:28 $
-// $Revision: 1.4 $
+// $Date: 2006/03/22 22:43:09 $
+// $Revision: 1.2 $
 //
 
 #include <vector>
@@ -116,18 +116,18 @@ void RoadSearchHelixMakerAlgorithm::run(const RoadSearchCloudCollection* input,
 //      cout << "listohits.size() " << listohits.size() << endl;
       for (unsigned int i=0; i<clean_hits.size(); ++i) {
         SiStripRecHit2DLocalPos* temp_hit = const_cast<SiStripRecHit2DLocalPos*>(clean_hits[i]);
-        GlobalPoint hit_global_pos = tracker->idToDet(temp_hit->geographicalId())->surface().toGlobal(temp_hit->localPosition());
+        GlobalPoint hit_global_pos = tracker->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_hit->localPosition());
         double rhit=sqrt(hit_global_pos.x()*hit_global_pos.x()+hit_global_pos.y()*hit_global_pos.y());
 	DetId idi = temp_hit->geographicalId();
         if (isBarrelSensor(idi)){
           const RectangularStripTopology *topi = 
-                                       dynamic_cast<const RectangularStripTopology*>(&(tracker->idToDet(idi)->topology()));
+                                       dynamic_cast<const RectangularStripTopology*>(&(tracker->idToDetUnit(idi)->topology()));
 	  double iLength = topi->stripLength();
           LocalPoint temp_lpos = temp_hit->localPosition();
           LocalPoint temp_lpos_f(temp_lpos.x(),temp_lpos.y()+iLength/2.0,temp_lpos.z());
           LocalPoint temp_lpos_b(temp_lpos.x(),temp_lpos.y()-iLength/2.0,temp_lpos.z());
-          GlobalPoint temp_gpos_f = tracker->idToDet(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_f);
-          GlobalPoint temp_gpos_b = tracker->idToDet(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_b);
+          GlobalPoint temp_gpos_f = tracker->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_f);
+          GlobalPoint temp_gpos_b = tracker->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_b);
           GlobalVector fir_uvec((temp_gpos_f.x()-temp_gpos_b.x())/iLength,
                                 (temp_gpos_f.y()-temp_gpos_b.y())/iLength,(temp_gpos_f.z()-temp_gpos_b.z())/iLength);
 //          std::cout << "hit global position  = " << hit_global_pos.x() << " " << hit_global_pos.y() << " " << hit_global_pos.z()
@@ -137,13 +137,13 @@ void RoadSearchHelixMakerAlgorithm::run(const RoadSearchCloudCollection* input,
           listohits.push_back(try_me);
         }else{
           const TrapezoidalStripTopology *topi = 
-                                       dynamic_cast<const TrapezoidalStripTopology*>(&(tracker->idToDet(idi)->topology()));
+                                       dynamic_cast<const TrapezoidalStripTopology*>(&(tracker->idToDetUnit(idi)->topology()));
 	  double iLength = topi->stripLength();
           LocalPoint temp_lpos = temp_hit->localPosition();
           LocalPoint temp_lpos_f(temp_lpos.x(),temp_lpos.y()+iLength/2.0,temp_lpos.z());
           LocalPoint temp_lpos_b(temp_lpos.x(),temp_lpos.y()-iLength/2.0,temp_lpos.z());
-          GlobalPoint temp_gpos_f = tracker->idToDet(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_f);
-          GlobalPoint temp_gpos_b = tracker->idToDet(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_b);
+          GlobalPoint temp_gpos_f = tracker->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_f);
+          GlobalPoint temp_gpos_b = tracker->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_b);
           GlobalVector fir_uvec((temp_gpos_f.x()-temp_gpos_b.x())/iLength,
                                 (temp_gpos_f.y()-temp_gpos_b.y())/iLength,(temp_gpos_f.z()-temp_gpos_b.z())/iLength);
           std::cout << "hit global position  = " << hit_global_pos.x() << " " << hit_global_pos.y() << " " << hit_global_pos.z()
