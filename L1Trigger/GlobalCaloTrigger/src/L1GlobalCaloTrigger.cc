@@ -1,5 +1,18 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
+
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
+
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinder.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
+
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
+
+
 L1GlobalCaloTrigger* L1GlobalCaloTrigger::instance = 0;
 
 // constructor
@@ -29,21 +42,15 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger() :
 	theGlobalEnergyAlgos = new L1GctGlobalEnergyAlgos();
 	
 	// instantiate Source Cards	
-//	for (int i=0; i<18; i++) {
-//		L1GctSourceCard* sc = new L1GctSourceCard();
-//		theSourceCards.push_back(sc);
-//	}
+	for (int i=0; i<18; i++) {
+		L1GctSourceCard* sc = new L1GctSourceCard();
+		theSourceCards.push_back(sc);
+	}
 	
 }
 
 L1GlobalCaloTrigger::~L1GlobalCaloTrigger()
 {
-	delete caloConcCard;
-	delete muonConcCard;
-
-	delete plusWheelCard;
-	delete minusWheelCard;
-	
 	theSourceCards.clear();
 }
 

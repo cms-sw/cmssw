@@ -28,8 +28,8 @@ public:
 	L1GctCaloConcentratorCard();
 	~L1GctCaloConcentratorCard();
 	
-	inline L1GctElectronLeafCard* getIsoElectronleafCard() { return isoElectronLeafCard; }
-	inline L1GctElectronLeafCard* getNonIsoElectronleafCard() { return nonIsoElectronLeafCard; }
+	inline L1GctElectronLeafCard* getIsoElectronLeafCard() { return isoElectronLeafCard; }
+	inline L1GctElectronLeafCard* getNonIsoElectronLeafCard() { return nonIsoElectronLeafCard; }
 
 	void process();
 	

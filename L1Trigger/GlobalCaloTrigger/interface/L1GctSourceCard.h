@@ -3,11 +3,13 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctFileRW.h"
 
 #include <vector>
 #include <bitset>
 
-using namespace std;
+using std::vector;
+using std::bitset;
 
 class L1RctCrate;
 
@@ -21,18 +23,21 @@ class L1RctCrate;
 class L1GctSourceCard
 {
 public:
-	L1GctSourceCard();
-	~L1GctSourceCard();
+  L1GctSourceCard(); //(L1RctCrate* rc);
+  ~L1GctSourceCard();
+  
+  ///
+  ///
 
-	void setRctInputCrate(L1RctCrate* rc);
+  void process();
+  
+  vector<L1GctEmCand> getIsoElectrons();
+  vector<L1GctEmCand> getNonIsoElectrons();
+  vector<L1GctRegion> getRegions();
+  bitset<14> getMipBits();
+  bitset<14> getQuietBits();
 
-	void process();
-	
-	vector<L1GctEmCand> getIsoElectrons();
-	vector<L1GctEmCand> getNonIsoElectrons();
-	vector<L1GctRegion> getRegions();
-	bitset<14> getMipBits();
-	bitset<14> getQuietBits();
+  friend class L1GctFileRW;
 
 private:
 
