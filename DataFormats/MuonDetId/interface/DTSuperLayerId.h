@@ -4,8 +4,8 @@
 /** \class DTSuperLayerId
  *  DetUnit identifier for DT SuperLayers (SL)
  *
- *  $Date: 2006/01/19 15:41:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/02/08 00:08:31 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -44,8 +44,14 @@ public:
 
 
   /// Return the superlayer number
-  int superlayer() const {
+  int superLayer() const {
     return ((id_>>slayerStartBit_)&slMask_);
+  }
+
+
+  /// Return the superlayer number (deprecated method name)
+  int superlayer() const {
+    return superLayer();
   }
 
 
