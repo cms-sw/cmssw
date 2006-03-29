@@ -1,10 +1,9 @@
 /*! \file testJetFinder.cpp
  * \brief Procedural unit-test code for the L1GctJetFinder class.
  *
- *  This is code that reads in data from a text file to feed into
- *  the setInputRegions() method, runs the process() method, and then
- *  checks the data from the outputting methods getInputRegions() and
- *  getJets() against known results also stored in the text file.
+ *  This is code that tests each public method of the L1GctJetFinder
+ *  class.  It takes data from a file to test the methods against known
+ *  results.  Results are also output to file to allow debugging.
  *
  * \author Robert Frazier
  * \date March 2006
@@ -25,28 +24,64 @@
 #include <stdexcept> //for std::runtime_error()
 using namespace std;
 
-//Typedefs for the vector templates used
+
+//Typedefs for the vector templates and other types used
 typedef vector<L1GctRegion> RegionsVector;
 typedef vector<L1GctJet> JetsVector;
+typedef unsigned long int ULong;
+
+
+// Name of the files for test input data and results output.
+const string testDataFile = "testJetFinderInput.txt";  
+const string resultsFile = "testJetFinderOutput.txt";
+
+
+// Global constants to tell the program how many things to read in from file
+// THESE ARE TOTAL GUESSES!
+const int numInputRegions = 64;  //Num. calorimeter regions given as input
+const int numOutputJets = 7;     //Num. jets expected out
+//There will be Jet Counts to be added here at some point
+
 
 //  FUNCTION PROTOTYPES
-/// Runs the test, and returns a string with the test result message in.
-string classTest();
+/// Runs the test on the L1GctJetFinder instance passed into it.
+void classTest(L1GctJetFinder *myJetFinder);
 /// Loads test input regions and also the known results from a text file.
-void loadTestData(RegionsVector &regions, JetsVector &jets, const string &fileName);
-/// Function to safely open files of any name, using a referenced return ifstream
-void safeOpenFile(ifstream &fin, const string &name);
+void loadTestData(RegionsVector &inputRegions, JetsVector &trueJets, ULong &trueHt); //Need to add Jet Counts eventually
+/// Function to safely open input files of any name, using a referenced return ifstream
+void safeOpenInputFile(ifstream &fin, const string name);
+/// Function to safely open output files of any name, using a referenced return ofstream
+void safeOpenOutputFile(ofstream &fout, const string name);
+/// Reads regions from file and pushes the specified number into a vector of regions
+void putRegionsInVector(ifstream &fin, RegionsVector &regions, const int numRegions);
+/// Gets the data of a single region from the testDataFile (reasonably safely). 
+L1GctRegion readSingleRegion(ifstream &fin);
+/// Reads jets from file and pushes the specified number into a vector of jets
+void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets);
+/// Gets the data of a single jet from the testDataFile (reasonably safely).  
+L1GctJet readSingleJet(ifstream &fin);
+/// Compares RegionsVectors, prints a message about the comparison, returns true if identical, else false.
+bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const string description);
+/// Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
+bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string description);
+/// Writes out the entire contents of a RegionsVector to the given file output stream
+void outputRegionsVector(ofstream &fout, RegionsVector &regions, string description = "Regions");
+/// Writes out the entire contents of a JetsVector to the given file output stream
+void outputJetsVector(ofstream &fout, JetsVector &jets, string description = "Jets");
+
 
 /// Entrypoint of unit test code + error handling
 int main(int argc, char **argv)
 {
-    cout << "\n*********************************" << endl;
-    cout << "L1GctJetFinder class unit tester." << endl;
-    cout << "*********************************" << endl;
+    cout << "\n*************************************" << endl;
+    cout << "  L1GctJetFinder class unit tester." << endl;
+    cout << "*************************************" << endl;
 
     try
     {
-        cout << "\n" << classTest() << endl;
+        L1GctJetFinder * myJetFinder = new L1GctJetFinder(); //TEST OBJECT on heap;
+        classTest(myJetFinder);
+        delete myJetFinder;
     }
     catch(const exception &e)
     {
@@ -56,119 +91,345 @@ int main(int argc, char **argv)
     {
         cerr << "\nError! An unknown exception has occurred!" << endl;
     }
+    
     return 0;   
 }
 
 // Runs the test, and returns a string with the test result message in.
-string classTest()
+void classTest(L1GctJetFinder *myJetFinder)
 {
-    L1GctJetFinder myJetFinder; //TEST OBJECT;    
-    bool testPass = true;       //Test passing flag.
-    
-    // Number of calorimter regions to be fed to the jet finder.
-    const int maxRegions = 64;  //64 based on old GCT design
-    
-    // Name of the file containing the test input data.
-    const string testDataFile = "JetFinderTesterData.txt";  
+    bool testPass = true; //flag to mark test failure
     
     // Vectors for reading in test data from the text file.
-    RegionsVector inputRegions(maxRegions);
-    JetsVector correctJets;
+    RegionsVector inputRegions;  //Size?
+    JetsVector trueJets;         //Size?
+    ULong trueHt;
+    //Jet Counts to be added at some point
+    
     // Vectors for receiving the output from the object under test.
-    RegionsVector outputRegions(maxRegions);
-    JetsVector outputJets;
+    RegionsVector outputRegions; //Size?
+    JetsVector outputJets;       //Size?
+    ULong outputHt;
+    //Jet Counts to be added at some point
     
     // Load our test input data and known results
-    loadTestData(inputRegions, correctJets, testDataFile);
+    loadTestData(inputRegions, trueJets, trueHt);  //will need to add Jet Counts eventually
     
     //Fill the L1GctJetFinder with regions.
-    for(int i = 0; i < maxRegions; ++i)
+    for(int i = 0; i < numInputRegions; ++i)
     {
-        myJetFinder.setInputRegion(i, inputRegions[i]);
+        myJetFinder->setInputRegion(i, inputRegions[i]);
     }
 
     // Test the getInputRegion method
-    outputRegions = myJetFinder.getInputRegions();
-    if(outputRegions.size() != inputRegions.size())  
+    outputRegions = myJetFinder->getInputRegions();
+    if(!compareRegionsVectors(outputRegions, inputRegions, "initial data input/output")) { testPass = false; }
+
+    myJetFinder->process();  //Run algorithm
+    
+    //Get the outputted data and store locally
+    outputJets = myJetFinder->getJets();
+    outputHt = myJetFinder->getHt();
+    //Will need to add a line here for jet counts eventually
+
+    //Test the outputted jets against the known results
+    if(!compareJetsVectors(outputJets, trueJets, "outputted jets")) { testPass = false; }
+    
+    //Test the outputted Ht against known result
+    if(outputHt != trueHt)
+    {
+        cout << "\nTest class has FAILED Ht comparison!" << endl;
+        testPass = false;
+    }
+    else
+    {
+        cout << "\nTest class has passed Ht comparison." << endl;
+    }
+        
+    //Will have to add a jet counts comparison section here eventually
+
+    //Write out all outputtable information to file
+    cout << "\nWriting results of processing to file " << resultsFile << "..." << endl;;
+    ofstream fout;
+    safeOpenOutputFile(fout, resultsFile);
+    outputRegionsVector(fout, outputRegions, "Inputted Regions");
+    outputJetsVector(fout, outputJets, "Outputted Jets");
+    fout << "Outputted Ht" << endl;
+    fout << outputHt << endl << endl;
+    //will need to output jet counts here eventually
+    fout.close();
+    cout << "Done!" << endl;
+    
+    //Run the reset method.
+    myJetFinder->reset();
+    
+    //get all the data again - should all be empty
+    outputRegions = myJetFinder->getInputRegions();
+    outputJets = myJetFinder->getJets();
+    outputHt = myJetFinder->getHt();
+    //will need to and jets counts line here eventually
+    
+    //Test that all the vectors/values are empty/zero
+    if(outputRegions.empty() && outputJets.empty() && outputHt == 0)
+    { 
+        cout << "\nTest class has passed reset method testing." << endl;
+    }
+    else
+    {
+        cout << "\nTest class has FAILED reset method testing!" << endl;
+        testPass = false;
+    }
+
+    //Print overall results summary to screen
+    if(testPass)
+    {
+        cout << "\n*************************************" << endl;
+        cout << "      Class has passed testing." << endl;
+        cout << "*************************************" << endl;
+    }
+    else
+    {
+        cout << "\n*************************************" << endl;
+        cout << "      Class has FAILED testing!" << endl;
+        cout << "*************************************" << endl;
+    }
+    
+    return;                
+}
+
+
+// Loads test input regions from a text file.
+void loadTestData(RegionsVector &inputRegions, JetsVector &trueJets, ULong &trueHt) //Need to add Jet Counts eventually
+{
+    // File input stream
+    ifstream fin;
+    
+    safeOpenInputFile(fin, testDataFile);  //open the file
+    
+    putRegionsInVector(fin, inputRegions, numInputRegions);  //How many input regions? See global constants.
+    putJetsInVector(fin, trueJets, numOutputJets);           //How many?? See global constants.
+    
+    if(fin.eof() || fin.bad())
+    {
+       throw std::runtime_error("Error reading Ht data from " + testDataFile + "!");
+    }
+    else
+    {
+        fin >> trueHt;
+    }
+    
+    //Will need to add a Jet Counts bit to this
+    
+    fin.close();
+    
+    return;
+}
+
+// Function to safely open input files of any name, using a referenced return ifstream
+void safeOpenInputFile(ifstream &fin, const string name)
+{
+    //Opens the file
+    fin.open(name.c_str(), ios::in);
+
+    //Throw an exception if something is wrong
+    if(!fin.good())
+    {
+        throw std::runtime_error("Couldn't open the file " + name + " for reading!");
+    }
+    return;
+}
+
+// Function to safely open output files of any name, using a referenced return ofstream
+void safeOpenOutputFile(ofstream &fout, const string name)
+{
+    //Opens the file
+    fout.open(name.c_str(), ios::trunc);
+    
+    //Throw an exception if something is wrong
+    if(!fout.good())
+    {
+        throw std::runtime_error("Couldn't open the file " + name + " for writing!");
+    }
+    return;
+}
+
+//Reads regions from file and pushes the specified number into a vector of regions
+void putRegionsInVector(ifstream &fin, RegionsVector &regions, const int numRegions)
+{
+    for(int i=0; i < numRegions; ++i)
+    {
+        regions.push_back(readSingleRegion(fin));
+    }
+}
+
+//Gets the data of a single region from the testDataFile (reasonably safely). 
+L1GctRegion readSingleRegion(ifstream &fin)
+{   
+    //Represents how many numbers there are per line for a region in the input file
+    const int numRegionComponents = 3; //3 since we have Et, Mip & Quiet.
+    
+    ULong regionComponents[numRegionComponents];
+    
+    for(int i=0; i < numRegionComponents; ++i)
+    {
+        //check to see if the input stream is still ok first
+        if(fin.eof() || fin.bad())
+        {
+           throw std::runtime_error("Error reading region data from " + testDataFile + "!");
+        }
+        else
+        {
+            fin >> regionComponents[i];  //read in the components.
+        }
+    }
+    
+    //return object
+    L1GctRegion tempRegion(regionComponents[0], static_cast<bool>(regionComponents[1]), static_cast<bool>(regionComponents[2]));
+    
+    return tempRegion;
+}
+
+//Reads jets from file and pushes the specified number into a vector of jets
+void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets)
+{
+    for(int i=0; i < numJets; ++i)
+    {
+        jets.push_back(readSingleJet(fin));
+    }
+}
+
+//Gets the data of a single jet from the testDataFile (reasonably safely). 
+L1GctJet readSingleJet(ifstream &fin)
+{
+    //This reperesents how many numbers there are per line for a jet in the input file
+    const int numJetComponents = 3; //3 since we have rank, eta & phi.
+    
+    ULong jetComponents[numJetComponents];
+
+    //read in the data from the file
+    for(int i=0; i < numJetComponents; ++i)
+    {
+        //check to see if the input stream is still ok first
+        if(fin.eof() || fin.bad())
+        {
+           throw std::runtime_error("Error reading jet data from " + testDataFile + "!");
+        }
+        else
+        {
+            fin >> jetComponents[i];  //read in the components.
+        }
+    }
+   
+    //return object
+    L1GctJet tempJet(jetComponents[0], jetComponents[1], jetComponents[2]); //add jetComponents[3] if we get tau feature bit, etc.   
+
+    return tempJet;
+}
+
+// Compares RegionsVectors, prints a message about the comparison, returns true if identical, else false.
+bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const string description)
+{
+    bool testPass = true;
+    
+    if(vector1.size() != vector2.size())  //First check overall size is the same 
     {
         testPass = false;
     }
     else
     {
-        for(int i = 0; i < maxRegions; ++i)
+        if(!vector1.empty())  //make sure it isn't empty
         {
-            if(outputRegions[i].getEt() != inputRegions[i].getEt()) { testPass = false; break; }
-            if(outputRegions[i].getMip() != inputRegions[i].getMip()) { testPass = false; break; }
-            if(outputRegions[i].getQuiet() != inputRegions[i].getQuiet()) {testPass = false; break; }
+            //compare the vectors
+            for(ULong i = 0; i < vector1.size(); ++i)
+            {
+                if(vector1[i].getEt() != vector2[i].getEt()) { testPass = false; break; }
+                if(vector1[i].getMip() != vector2[i].getMip()) { testPass = false; break; }
+                if(vector1[i].getQuiet() != vector2[i].getQuiet()) {testPass = false; break; }
+            }
         }
     }
         
+    //Print results to screen
     if(testPass == false)
     {
-        return "Test class has failed initial data input/output comparison!";
+        cout << "\nTest class has FAILED " << description << "comparison!" << endl;
+        return false;
+    }
+    else
+    {
+        cout << "\nTest class has passed " << description << " comparison." << endl;
+    }
+    return true;
+}
+
+// Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
+bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string description)
+{
+    bool testPass = true;
+    
+    if(vector1.size() != vector2.size())  //First check overall size is the same
+    {
+        testPass = false;
+    }
+    else
+    {
+        if (!vector1.empty())  //Make sure it isn't empty
+        {
+            //compare the vectors
+            for(unsigned int i = 0; i < vector1.size(); ++i)
+            {
+                if(vector1[i].getRank() != vector2[i].getRank()) { testPass = false; break; }
+                if(vector1[i].getEta() != vector2[i].getEta()) { testPass = false; break; }
+                if(vector1[i].getPhi() != vector2[i].getPhi()) { testPass = false; break; }
+                //may need to add a tau feature bit comparison in the future here...
+            }
+        }
     }
     
-    myJetFinder.process();  //Run algorithm
-    
-    //Get and then test the output jets against known results
-    //NEEDS FILLING IN SIMILARLY TO ABOVE
-    outputJets = myJetFinder.getJets();
-    // **Fill in***
-    
-    
+    //Print results to screen
     if(testPass == false)
     {
-        return "Test class has failed algorithm processing!";
+        cout << "\nTest class has FAILED " << description << " comparison!" << endl;
+        return false;
     }
-
-    return "Test class has passed!";        
+    else
+    {
+        cout << "\nTest class has passed " << description << " comparison." << endl;
+    }
+    return true;
 }
 
-
-// Loads test input regions from a text file.
-void loadTestData(RegionsVector &regions, JetsVector &jets, const string &fileName)
+// Writes out the entire contents of a RegionsVector to the given file output stream
+void outputRegionsVector(ofstream &fout, RegionsVector &regions, string description)
 {
-    // File input stream
-    ifstream fin;
+    fout << description << endl; //brief description of the RegionsVector content
     
-    safeOpenFile(fin, fileName);  //open the file
-    
-    unsigned long int tempEt = 0;
-    unsigned short int tempMip = 0;
-    unsigned short int tempQuiet = 0;
-    
-    // Loads the input data
-    for(unsigned int i = 0; i < regions.size(); ++i)
+    if(!regions.empty())  //check it isn't an empty vector
     {
-        //read in the data from the file
-        fin >> tempEt;
-        fin >> tempMip;
-        fin >> tempQuiet;
-        
-        regions[i].setEt(tempEt);
-        if(tempMip == 0) { regions[i].setMip(false); } else { regions[i].setMip(true); }
-        if(tempQuiet == 0) { regions[i].setQuiet(false); } else { regions[i].setQuiet(true); }
+        for (unsigned int i=0; i < regions.size(); ++i)
+        {
+            fout << regions[i].getEt() << "\t"
+                 << regions[i].getMip() << "\t"
+                 << regions[i].getQuiet() << endl;
+        }
     }
-    
-    // Do similar to load the 'known' output jets (that we currently don't know...)
-    
-    // Close the file
-    fin.close();    
-        
-    return;
+    fout << endl;  //write a blank line to separate data
 }
-    
-    
-// Function to safely open files of any name, using a referenced return ifstream
-void safeOpenFile(ifstream &fin, const string &name)
-{
-    //Opens the file
-    fin.open(name.c_str(), ios::in);
 
-    //Error message, and return false if it goes pair shaped
-    if(!fin.good())
+// Writes out the entire contents of a JetsVector to the given file output stream
+void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
+{
+    fout << description << endl; //brief description for each JetsVector content
+    
+    if(!jets.empty())  //check it isn't an empty vector
     {
-        throw std::runtime_error("Couldn't open the file " + name + "!");
+        for(unsigned int i=0; i < jets.size(); ++i)
+        {
+            fout << jets[i].getRank() << "\t" 
+                 << jets[i].getEta()  << "\t"
+                 << jets[i].getPhi()  << endl;
+                 //may need to add tau feature bit output here in the future
+        }
     }
-    return;
+    fout << endl;  //write a blank line to separate data
 }
