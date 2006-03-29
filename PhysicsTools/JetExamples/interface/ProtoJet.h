@@ -15,7 +15,7 @@ public:
   ProtoJet();
 
   //**Constructor. Runs off an array of CaloTower* */
-  ProtoJet(const reco::CandidateRefs & theConstituents);
+  ProtoJet(const reco::CandidateRefVector & theConstituents);
 
   /**  Destructor*/
   ~ProtoJet();
@@ -88,16 +88,16 @@ public:
   //double energyFraction(const std::string detector = "HCAL", const std::string subdetector = "ALL", int layer= -1) const;
 
    /** Returns the list of tower in a particular protojet */
-   const reco::CandidateRefs & getTowerList() const {return m_constituents;} 
+   const reco::CandidateRefVector & getTowerList() const {return m_constituents;} 
    /** Sets the list of towers in a protojet */
-  void putTowers(const reco::CandidateRefs & towers) {
+  void putTowers(const reco::CandidateRefVector & towers) {
     m_constituents = towers;
     calculateLorentzVector(); 
   }
 
 private:
   /** Jet constituents */
-  reco::CandidateRefs m_constituents;
+  reco::CandidateRefVector m_constituents;
 
   /** Jet energy */
   double m_e;

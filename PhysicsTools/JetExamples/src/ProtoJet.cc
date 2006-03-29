@@ -18,7 +18,7 @@ ProtoJet::ProtoJet():
   m_constituents(), m_e(0), m_px(0), m_py(0), m_pz(0) {
 }
 
-ProtoJet::ProtoJet(const CandidateRefs & theConstituents) : 
+ProtoJet::ProtoJet(const CandidateRefVector & theConstituents) : 
   m_constituents(theConstituents), m_e(0), m_px(0), m_py(0), m_pz(0) {
   calculateLorentzVector(); 
 }//end of constructor
@@ -61,7 +61,7 @@ double ProtoJet::maxEInHadTowers() const
 {
   std::vector<double> energy_i;
   
-  for(CandidateRefs::iterator i = m_constituents.begin(); i != m_constituents.end(); ++i) {
+  for(candidate_iterator i = m_constituents.begin(); i != m_constituents.end(); ++i) {
     assert(*i);
     energy_i.push_back((*i)->e_had()); 
   }//end of for
@@ -77,7 +77,7 @@ double ProtoJet::emFraction() const {
   std::vector<double> emEnergy_i;
   std::vector<double> hadEnergy_i;
   
-  for(CandidateRefs::iterator i = m_constituents.begin(); i != m_constituents.end(); ++i) {
+  for(candidate_iterator i = m_constituents.begin(); i != m_constituents.end(); ++i) {
     assert(*i);
     emEnergy_i.push_back((*i)->e_em());
     hadEnergy_i.push_back((*i)->e_had());
@@ -96,7 +96,7 @@ int ProtoJet::n90() const {
   double et = 0.;
   
   eList.clear();
-  for(CandidatrRefs::iterator i = m_constituents.begin(); i != m_constituents.end(); ++i) {
+  for(CandidatrRefVector::iterator i = m_constituents.begin(); i != m_constituents.end(); ++i) {
     assert(*i);
     eList.push_back((*i)->e());
   }
@@ -222,7 +222,7 @@ HepLorentzVector ProtoJet::getLorentzVector() const {
 
 void ProtoJet::calculateLorentzVector() {
   m_e = 0; m_px = 0; m_py = 0; m_pz = 0;
-  for(CandidateRefs::iterator i = m_constituents.begin(); i !=  m_constituents.end(); ++i) {
+  for(candidate_iterator i = m_constituents.begin(); i !=  m_constituents.end(); ++i) {
     assert(*i);
     const Candidate &t = **i;
     m_e += t.energy();

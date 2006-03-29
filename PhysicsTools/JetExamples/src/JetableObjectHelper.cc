@@ -17,8 +17,8 @@ using namespace reco;
 //
 // towersWithinCone returns a list of pointers to CaloTowers with Et>etThreshold within coneRadius
 // in eta-phi space of the coneEta and conePhi.
-CandidateRefs JetableObjectHelper::towersWithinCone(double coneEta, double conePhi, double coneRadius, double etThreshold){
-  CandidateRefs result;
+CandidateRefVector JetableObjectHelper::towersWithinCone(double coneEta, double conePhi, double coneRadius, double etThreshold){
+  CandidateRefVector result;
   for ( size_t idx = 0; idx < constituents->size(); ++ idx ) {
     CandidateRef caloTowerPointer( constituents, idx );
     if(caloTowerPointer->et() > etThreshold){
@@ -46,8 +46,8 @@ public:
 
 
 // etOrderedCaloTowers returns an Et order list of pointers to CaloTowers with Et>etTreshold
-CandidateRefs JetableObjectHelper::etOrderedCaloTowers(double etThreshold) const {
-  CandidateRefs result;
+CandidateRefVector JetableObjectHelper::etOrderedCaloTowers(double etThreshold) const {
+  CandidateRefVector result;
   vector<pair<CandidateRef, CandidateRef> > cands;
   for ( size_t idx = 0; idx < constituents->size(); ++ idx ) {
     CandidateRef caloTowerPointer( constituents, idx );

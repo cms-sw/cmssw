@@ -27,11 +27,11 @@ public:
   /// Constructor takes a const pointer to the CaloTowerCollection we will help with.
   JetableObjectHelper( const Handle & ctcp ) : constituents(ctcp) { }  
   /// etOrderedCaloTowers returns an Et order list of pointers to CaloTowers with Et>etTreshold
-  reco::CandidateRefs etOrderedCaloTowers(double etThreshold) const;
+  reco::CandidateRefVector etOrderedCaloTowers(double etThreshold) const;
   
   /// towersWithinCone returns a list of pointers to CaloTowers with Et>etThreshold within coneRadius
   /// in eta-phi space of the coneEta and conePhi.
-  reco::CandidateRefs towersWithinCone(double coneEta, double conePhi, double coneRadius, double etEthreshold);
+  reco::CandidateRefVector towersWithinCone(double coneEta, double conePhi, double coneRadius, double etEthreshold);
   
   /// phidif calculates the difference between phi1 and phi2 taking into account the 2pi issue.
   double phidif(double phi1, double phi2);

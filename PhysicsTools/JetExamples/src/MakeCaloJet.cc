@@ -10,8 +10,8 @@ void MakeCaloJet(const CandidateCollection &ctc, const std::vector<ProtoJet>& pr
    for( std::vector<ProtoJet>::const_iterator i = protoJets.begin(); i != protoJets.end(); ++i ){
      const ProtoJet & p = *i;
      CompositeRefCandidate * jet = new CompositeRefCandidate;
-     CandidateRefs towers = p.getTowerList();
-     for( CandidateRefs::const_iterator i = towers.begin(); i != towers.end(); ++ i ) {
+     CandidateRefVector towers = p.getTowerList();
+     for( candidate_iterator i = towers.begin(); i != towers.end(); ++ i ) {
        jet->addDaughter( * i );
      }
      jet->set( addp4 );
