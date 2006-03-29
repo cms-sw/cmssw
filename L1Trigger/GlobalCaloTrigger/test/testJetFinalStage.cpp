@@ -240,7 +240,7 @@ void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets)
 //Gets the data of a single jet from the testDataFile (reasonably safely). 
 L1GctJet readSingleJet(ifstream &fin)
 {
-    //This reperesents how many numbers there are per line in the input file
+    //This reperesents how many numbers there are per line for a jet in the input file
     const int numJetComponents = 3; //3 since we have rank, eta & phi.
     
     ULong jetComponents[numJetComponents];
@@ -251,7 +251,7 @@ L1GctJet readSingleJet(ifstream &fin)
         //check to see if the input stream is still ok first
         if(fin.eof() || fin.bad())
         {
-           throw std::runtime_error("Error reading data from " + testDataFile + "!");
+           throw std::runtime_error("Error reading jet data from " + testDataFile + "!");
         }
         else
         {
@@ -305,7 +305,7 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
 // Writes out the entire contents of a JetsVector to the given file output stream
 void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
 {
-    fout << description << endl; //brief description for each JetsVector content
+    fout << description << endl; //brief description of the JetsVector content
     
     if(!jets.empty())  //check it isn't an empty vector
     {
@@ -317,5 +317,5 @@ void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
                  //may need to add tau feature bit output here in the future
         }
     }
-    fout << endl;  //write a blank line to separate each group
+    fout << endl;  //write a blank line to separate data
 }
