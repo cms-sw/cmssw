@@ -39,6 +39,7 @@ class TrackingVerboseAction :  public Observer<const BeginOfRun *>,
 private:
     void SetTrackingVerbose(int verblev);
 private:
+    bool fDEBUG;
     int fTVTrackMin;
     int fTVTrackMax;
     int fTVTrackStep;
