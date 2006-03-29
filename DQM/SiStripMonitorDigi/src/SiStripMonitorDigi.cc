@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.2 2006/03/08 13:00:45 dkcira Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.3 2006/03/29 15:13:39 dkcira Exp $
 //
 //
 
@@ -33,7 +33,11 @@
 
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 using namespace std;
+using namespace edm;
 
 SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig)
 {
@@ -52,9 +56,9 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
    bool show_mechanical_structure_view = conf_.getParameter<bool>("ShowMechanicalStructureView");
    bool show_readout_view = conf_.getParameter<bool>("ShowReadoutView");
    bool show_control_view = conf_.getParameter<bool>("ShowControlView");
-   cout<<"SiStripMonitorDigi::beginJob : show_mechanical_structure_view = "<<show_mechanical_structure_view<<endl;
-   cout<<"SiStripMonitorDigi::beginJob : show_readout_view = "<<show_readout_view<<endl;
-   cout<<"SiStripMonitorDigi::beginJob : show_control_view = "<<show_control_view<<endl;
+   LogInfo("SiStripTkDQM|ConfigParams")<<"show_mechanical_structure_view = "<<show_mechanical_structure_view;
+   LogInfo("SiStripTkDQM|ConfigParams")<<"show_readout_view = "<<show_readout_view;
+   LogInfo("SiStripTkDQM|ConfigParams")<<"show_control_view = "<<show_control_view;
 
   if ( show_mechanical_structure_view ){
     // take from eventSetup the SiStripStructure object - here will use SiStripDetControl later on
@@ -78,7 +82,7 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
      SiStripFolderOrganizer folder_organizer;
 
     // loop over detectors and book MEs
-    cout<<"SiStripMonitorDigis::analyze nr. of SelectedDetIds:  "<<SelectedDetIds.size()<<endl;
+    LogInfo("SiStripTkDQM")<<"nr. of SelectedDetIds:  "<<SelectedDetIds.size();
     for(vector<uint32_t>::const_iterator detid_iterator = SelectedDetIds.begin(); detid_iterator!=SelectedDetIds.end(); detid_iterator++){
       ModMEs local_modmes;
       string hid;

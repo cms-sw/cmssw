@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
-// $Id: SiStripFolderOrganizer.cc,v 1.1 2006/02/09 19:02:26 gbruno Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.2 2006/03/22 20:21:19 dkcira Exp $
 //
 
 #include <iostream>
@@ -22,9 +22,12 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
 using namespace std;
+using namespace edm;
 
 SiStripFolderOrganizer::SiStripFolderOrganizer()
 {
@@ -63,8 +66,7 @@ void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid){
     TECDetId tec1 = TECDetId(rawdetid);
     rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel()<<sep<<"petal_"<<(tec1.petal()).at(1)<<sep<<"ring_"<<tec1.ring()<<sep<<"module_in_ring_"<<tec1.module()<<sep<<"detector_"<<rawdetid;
   }else{
-    cout<<"SiStripFolderOrganizer::setDetectorFolder - no such subdetector type :"<<subdetid<<endl;
-    cout<<"                           no folder set!"<<endl;
+    LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdetid<<" no folder set!"<<endl;
     return;
   }
 
