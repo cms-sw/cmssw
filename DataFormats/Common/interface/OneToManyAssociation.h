@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: OneToManyAssociation.h,v 1.3 2006/03/17 07:31:46 llista Exp $
+ * $Id: OneToManyAssociation.h,v 1.4 2006/03/28 09:28:39 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -98,6 +98,9 @@ namespace edm {
     /// return element with key k
     keyVal operator[]( size_type i ) const {
       typename map_type::const_iterator f = map_.find( k.index() );
+      if ( f == map_.end() ) 
+	throw edm::Exception( edm::errors::InvalidReference )
+	  << "can't find reference in OneToManyAssociation at position " << i << endl;
       const_iterator ci( f );
       return * ci;
     } 
