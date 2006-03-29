@@ -28,7 +28,7 @@ class AutoCorrMat{
 
   void add(int *adc){
     int pairs[12][2]={{3,3},{3,4},{4,4},{3,5},{4,5},{5,5},{4,6},{5,6},{6,6},{5,7},{6,7},{7,7}};
-    float ped=(adc[0]+adc[1])/2.;
+    double ped=(adc[0]+adc[1])/2.;
     for(int i=0;i<12;i++){
       N[i]=N[i]+1;
       Mat[i]=Mat[i]+(adc[pairs[i][0]]-ped)*(adc[pairs[i][1]]-ped);
@@ -36,18 +36,18 @@ class AutoCorrMat{
     }
   }
 
-  float *mat(){
-    float *tmp;
+  double *mat(){
+    double *tmp;
     for(int i=0;i<12;i++)tMat[i]=Mat[i]/N[i];
     tmp=tMat;
     return tmp; 
- }
+  }
 
  private:
 
-  float Mat[12];
-  float N[12];
-  float tMat[12];
+  double Mat[12];
+  double N[12];
+  double tMat[12];
 
 };
 
@@ -69,8 +69,8 @@ class Chamber_AutoCorrMat{
     CMat[lay][strip].add(adc);
   } 
 
-  float *autocorrmat(int lay,int strip){
-    float *tmp;
+  double *autocorrmat(int lay,int strip){
+    double *tmp;
     tmp=m;
     tmp=CMat[lay][strip].mat();
     return tmp;
@@ -79,6 +79,6 @@ class Chamber_AutoCorrMat{
  private:
 
   AutoCorrMat CMat[6][80];
-  float m[12];
+  double m[12];
 
 };
