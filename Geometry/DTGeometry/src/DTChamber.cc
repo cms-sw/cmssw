@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/02/22 11:06:45 $
+ *  $Revision: 1.1 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  */
 
@@ -54,3 +54,19 @@ std::vector<const GeomDet*> DTChamber::components() const {
 std::vector<const DTSuperLayer*> DTChamber::superLayers() const {
   return theSLs;
 }
+
+
+const DTSuperLayer* DTChamber::superLayer(DTSuperLayerId id) const{
+  return superLayer(id.superLayer());
+}
+
+
+const DTSuperLayer* DTChamber::superLayer(int isl) const {
+  for (std::vector<const DTSuperLayer*>::const_iterator i = theSLs.begin();
+       i!= theSLs.end(); ++i) {
+    if ((*i)->id().superLayer()==isl) return (*i);
+  }
+  return 0;
+}
+
+

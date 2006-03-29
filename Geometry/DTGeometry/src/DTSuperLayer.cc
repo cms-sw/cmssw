@@ -1,7 +1,7 @@
 /** \file 
  *  
  *  $date   : 13/01/2006 11:46:51 CET $
- *  $Revision: $
+ *  $Revision: 1.1 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -25,7 +25,7 @@
 DTSuperLayer::DTSuperLayer(DTSuperLayerId id,
                            ReferenceCountingPointer<BoundPlane>& plane,
                            const DTChamber* ch) :
-  GeomDet(plane), theId(id) , theCh(ch){
+  GeomDet(plane), theId(id) , theLayers(4,(const DTLayer*)0), theCh(ch) {
 }
 
 /* Destructor */ 
@@ -57,9 +57,22 @@ std::vector< const DTLayer*> DTSuperLayer::layers() const {
 }
 
 void DTSuperLayer::add(DTLayer* l) {
-  theLayers.push_back(l);
+  // theLayers size is preallocated.
+  theLayers[l->id().layer()-1] = l;
 }
 
 const DTChamber* DTSuperLayer::chamber() const {
   return theCh;
+}
+
+const DTLayer* DTSuperLayer::layer(DTLayerId id) const {
+  return layer(id.layer());
+}
+  
+const DTLayer* DTSuperLayer::layer(int ilay) const{
+  if ((ilay>=1) && (ilay<=4)) {
+    return theLayers[ilay-1];
+  } else {
+    return 0;
+  }
 }

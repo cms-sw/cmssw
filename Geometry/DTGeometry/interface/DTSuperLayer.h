@@ -8,7 +8,7 @@
  *  A superlayer is composed by 4 staggered DTLayer s.
  *
  *  $date   : 13/01/2006 11:47:03 CET $
- *  $Revision: 1.6 $
+ *  $Revision: 1.1 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -18,6 +18,8 @@
 
 /* Collaborating Class Declarations */
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
+
 class DTLayer;
 class DTChamber;
 
@@ -61,6 +63,14 @@ class DTSuperLayer : public GeomDet {
     /// Return the chamber this SL belongs to (0 if any, eg if a SL is
     /// built on his own)
     const DTChamber* chamber() const;
+
+    /// Return the layer corresponding to the given id 
+    const DTLayer* layer(DTLayerId id) const;
+  
+    /// Return the given layer.
+    /// Layers are numbered 1-4.
+    const DTLayer* layer(int ilay) const;
+
 
   private:
     DTSuperLayerId theId;

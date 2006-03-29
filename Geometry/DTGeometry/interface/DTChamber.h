@@ -10,13 +10,15 @@
  *  The chamber is composed by 2 or three DTSuperLayer, which in turn are 
  *  composed by four DTLayer each.
  *
- *  $Date: 2006/02/02 18:05:54 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/02/22 11:06:51 $
+ *  $Revision: 1.1 $
  *  \author S. Lacaprara, N. Amapane
  */
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
+
 
 class DTSuperLayer;
 
@@ -47,6 +49,13 @@ class DTChamber : public GeomDet {
     /// Return the superlayers in the chamber
     std::vector< const DTSuperLayer*> superLayers() const;
 
+    /// Return the superlayer corresponding to the given id 
+    const DTSuperLayer* superLayer(DTSuperLayerId id) const;
+  
+    /// Return the given superlayer.
+    /// Superlayers are numbered 1 (phi), 2 (Z), 3 (phi)
+    const DTSuperLayer* superLayer(int isl) const;
+  
   private:
 
     DTChamberId theId;
