@@ -95,7 +95,7 @@ namespace edm {
       typename map_type::const_iterator f = map_.find( k.index() );
       return const_iterator( f );
     }
-    /// return element with key k
+    /// return element with key i
     keyVal operator[]( size_type i ) const {
       typename map_type::const_iterator f = map_.find( k.index() );
       if ( f == map_.end() ) 
