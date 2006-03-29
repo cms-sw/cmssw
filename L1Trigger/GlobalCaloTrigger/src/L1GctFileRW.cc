@@ -1,5 +1,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/RctFileRW.h"
+
 #include <iostream>
+#include <vector>
 
 using std::vector;
 typedef vector<unsigned> dataVector;
