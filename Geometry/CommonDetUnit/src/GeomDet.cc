@@ -1,6 +1,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
-#include "Geometry/CommonDetUnit/interface/AlignmentPositionError.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 GeomDet::GeomDet( BoundPlane* plane):
   thePlane(plane), theAlignmentPositionError(0) {}
