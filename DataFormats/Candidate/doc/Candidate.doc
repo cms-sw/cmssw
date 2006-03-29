@@ -61,8 +61,8 @@ Recursively scans a decay chain, if necessary.
 \subsection typedefs 
 - reco::CandidateCollection: collection of reco::Candidate objects
 - reco::CandidateRef: persistent reference to a reco::Candidate object
-- reco::CandidatesRef: reference to a reco::Candidate collection
-- reco::CandidateRefs: vector of references to reco::Candidate objects in the same collection
+- reco::CandidateRefProd: reference to a reco::Candidate collection
+- reco::CandidateRefVector: vector of references to reco::Candidate objects in the same collection
 - reco::candidate_iterator: iterator over a vector of references to reco::Candidate objects in the same collection
 
 \subsection modules Modules

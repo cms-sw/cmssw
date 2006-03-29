@@ -7,11 +7,16 @@
 
 namespace reco {
   class Candidate;
+  /// collection of Candidate objects
   typedef edm::OwnVector<Candidate> CandidateCollection;
+  /// persistent reference to an object in a collection of Candidate objects
   typedef edm::Ref<CandidateCollection> CandidateRef;
-  typedef edm::RefVector<CandidateCollection> CandidateRefs;
-  typedef edm::RefProd<CandidateCollection> CandidatesRef;
-  typedef CandidateRefs::iterator candidate_iterator;
+  /// vector of references to objects in the same  collection of Candidate objects
+  typedef edm::RefVector<CandidateCollection> CandidateRefVector;
+  /// reference to a collection of Candidate objects
+  typedef edm::RefProd<CandidateCollection> CandidateRefProd;
+  /// iterator over a vector of references Candidate objects
+  typedef CandidateRefVector::iterator candidate_iterator;
 }
 
 #endif

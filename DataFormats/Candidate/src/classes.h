@@ -11,7 +11,7 @@ namespace {
     reco::CandidateCollection o1;
     edm::Wrapper<reco::CandidateCollection> w1;
     reco::CandidateRef r1;
-    reco::CandidateRefs rv1;
-    reco::CandidatesRef rp1;
+    reco::CandidateRefVector rv1;
+    reco::CandidateRefProd rp1;
   }
 }

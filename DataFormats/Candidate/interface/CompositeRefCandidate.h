@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: CompositeRefCandidate.h,v 1.2 2006/03/08 12:26:37 llista Exp $
  *
  */
 namespace reco {
@@ -17,7 +17,7 @@ namespace reco {
   class CompositeRefCandidate : public Candidate {
   public:
     /// collection of references to daughters
-    typedef CandidateRefs daughters;
+    typedef CandidateRefVector daughters;
     /// default constructor
     CompositeRefCandidate() : Candidate() { }
     /// destructor
