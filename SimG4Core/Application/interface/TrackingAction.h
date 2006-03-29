@@ -19,14 +19,14 @@ public:
     virtual void PreUserTrackingAction(const G4Track * aTrack);
     virtual void PostUserTrackingAction(const G4Track * aTrack);
     TrackWithHistory * currentTrackWithHistory() { return currentTrack_; }
-
+    G4TrackingManager * getTrackManager();
     boost::signal< void(const BeginOfTrack*)> m_beginOfTrackSignal;
     boost::signal< void(const EndOfTrack*)> m_endOfTrackSignal;
-
 private:
     EventAction * eventAction_;
     TrackWithHistory * currentTrack_;
     bool detailedTiming;
+    int  trackMgrVerbose;
 };
 
 #endif

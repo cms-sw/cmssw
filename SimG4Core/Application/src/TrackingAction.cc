@@ -13,7 +13,8 @@
 
 TrackingAction::TrackingAction(EventAction * e, const edm::ParameterSet & p) 
 : eventAction_(e),currentTrack_(0),
-  detailedTiming(p.getUntrackedParameter<bool>("DetailedTiming",false)) {}
+  detailedTiming(p.getUntrackedParameter<bool>("DetailedTiming",false)),
+  trackMgrVerbose(p.getUntrackedParameter<int>("G4TrackManagerVerbosity",0)){}
 
 TrackingAction::~TrackingAction() {}
 
@@ -48,3 +49,11 @@ void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
     currentTrack_ = 0; // reset for next track
 }
 
+G4TrackingManager * TrackingAction::getTrackManager()
+{
+    G4TrackingManager * theTrackingManager = 0;
+    theTrackingManager = fpTrackingManager;
+    theTrackingManager->SetVerboseLevel(trackMgrVerbose);
+    return theTrackingManager;
+}
+ 
