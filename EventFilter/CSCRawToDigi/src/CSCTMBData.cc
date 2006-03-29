@@ -142,7 +142,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   // look for scope.  Should there be a 6?
   int b05Line = findLine(buf, 0x6b05, afterHeader, MaxSizeScope);
   if(b05Line != -1) {
-     edm::LogMessage("CSCTMBData") <<"found scope!!!!!!!!!!!!!"; 
+     edm::LogInfo("CSCTMBData") <<"found scope!!!!!!!!!!!!!"; 
      int e05Line = findLine(buf, 0x6e05, afterHeader, TotTMBReadout-afterHeader);
      if(e05Line != -1) {     
        theTMBScopeIsPresent = true;
