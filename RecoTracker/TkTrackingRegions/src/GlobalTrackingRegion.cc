@@ -17,7 +17,7 @@ template <class T> T sqr( T t) {return t*t;}
 
 HitRZCompatibility* GlobalTrackingRegion::
 checkRZ(const DetLayer* layer, 
-	const SiPixelRecHit* outerHit,
+	const TrackingRecHit* outerHit,
 	const edm::EventSetup& iSetup) const
 {
 

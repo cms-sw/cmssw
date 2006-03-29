@@ -11,9 +11,7 @@
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCellManager.h"
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCacheCell.h"
 #include "Geometry/Surface/interface/BoundCylinder.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
-//LayerHitMap::LayerHitMap(SiPixelRecHitCollection::Range hits) : theCells(0)
 LayerHitMap::LayerHitMap(const LayerWithHits* layerhits,const edm::EventSetup&iSetup) : theCells(0)
 {
 
@@ -21,10 +19,18 @@ LayerHitMap::LayerHitMap(const LayerWithHits* layerhits,const edm::EventSetup&iS
   static int nPhi=10;
   theNbinsRZ = nRZ;
   theNbinsPhi = nPhi;
-
   //MP Does it mean to have an empty range?
-  if (layerhits->Range().first==layerhits->Range().second) return;
-  else {
+
+  if ((layerhits->isPixel())&& 
+      (layerhits->PixRange().first==layerhits->PixRange().second)) return; 
+  if ((layerhits->isStrip())&& 
+      (layerhits->StripRange().first==layerhits->StripRange().second)) return;
+  if ((layerhits->isStripMatched())&& 
+      (layerhits->StripMatchedRange().first==layerhits->StripMatchedRange().second)) return;
+  if ((!layerhits->isPixel())&& 
+      (!layerhits->isStrip())&&
+      (!layerhits->isStripMatched())) return;
+ 
   theLayerPhimin = -M_PI;
   theCellDeltaPhi = 2*M_PI/theNbinsPhi;
   if (layerhits->layer()->part() == barrel) {
@@ -40,29 +46,52 @@ LayerHitMap::LayerHitMap(const LayerWithHits* layerhits,const edm::EventSetup&iS
     float  theLayerRZmax = lf->specificSurface().outerRadius();
     theCellDeltaRZ = (theLayerRZmax-theLayerRZmin)/theNbinsRZ;
   }
-  
 
- 
-  SiPixelRecHitCollection::const_iterator ih;
-
-  SiPixelRecHitCollection::const_iterator
-    hitRangeIteratorBegin=layerhits->Range().first;
-
-  SiPixelRecHitCollection::const_iterator
-    hitRangeIteratorEnd=layerhits->Range().second;
-
- 
- 
-      for (ih = hitRangeIteratorBegin; ih != hitRangeIteratorEnd; ih++) {
-
-
-	theHits.push_back( TkHitPairsCachedHit(&(*ih),iSetup));
-
-      }
+  //fill the hit vector with pixels
+  if (layerhits->isPixel()){
+    SiPixelRecHitCollection::const_iterator ih;
+    SiPixelRecHitCollection::const_iterator
+      hitRangeIteratorBegin=layerhits->PixRange().first;
     
+    SiPixelRecHitCollection::const_iterator
+      hitRangeIteratorEnd=layerhits->PixRange().second;
+
+
+    for (ih = hitRangeIteratorBegin; ih != hitRangeIteratorEnd; ih++) {
+      theHits.push_back( TkHitPairsCachedHit(&(*ih),iSetup));
+    }
+  }
+  //fill the hit vector with strips
+  if (layerhits->isStrip()){
+    SiStripRecHit2DLocalPosCollection::const_iterator ih;
+    SiStripRecHit2DLocalPosCollection::const_iterator
+      hitRangeIteratorBegin=layerhits->StripRange().first;
+        SiStripRecHit2DLocalPosCollection::const_iterator
+      hitRangeIteratorEnd=layerhits->StripRange().second;
+
+    for (ih = hitRangeIteratorBegin; ih != hitRangeIteratorEnd; ih++) {
+      theHits.push_back( TkHitPairsCachedHit(&(*ih),iSetup));
+    }
   }
 
+  //fill the hit vector with matched strips
+  if (layerhits->isStripMatched()){
+    SiStripRecHit2DMatchedLocalPosCollection::const_iterator ih;
+    SiStripRecHit2DMatchedLocalPosCollection::const_iterator
+      hitRangeIteratorBegin=layerhits->StripMatchedRange().first;
+    SiStripRecHit2DMatchedLocalPosCollection::const_iterator
+      hitRangeIteratorEnd=layerhits->StripMatchedRange().second;
+
+    for (ih = hitRangeIteratorBegin; ih != hitRangeIteratorEnd; ih++) {
+      theHits.push_back( TkHitPairsCachedHit(&(*ih),iSetup));
+    }
+  }
+
+
 }
+  
+
+      
 
 LayerHitMap::LayerHitMap(const LayerHitMap & lhm,const edm::EventSetup&iSetup)
     : theCells(0),

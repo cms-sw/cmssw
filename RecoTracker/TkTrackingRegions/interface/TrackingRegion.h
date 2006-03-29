@@ -13,8 +13,9 @@ using namespace std;
 //#include "CommonDet/DetLayout/interface/DetLayer.h"
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+//#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+//#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -60,7 +61,7 @@ public:
 /*  virtual HitRZCompatibility * checkRZ( */
 /*       const DetLayer* layer, SiPixelRecHit  outerHit) const = 0; */
   virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
-				       const SiPixelRecHit*  outerHit,
+				       const TrackingRecHit*  outerHit,
 				       const edm::EventSetup& iSetup) const = 0;
   /// new region with updated vertex position 
   virtual TrackingRegion* restrictedRegion( const GlobalPoint &  originPos, 

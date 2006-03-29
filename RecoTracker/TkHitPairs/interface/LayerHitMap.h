@@ -1,13 +1,12 @@
 #ifndef LayerHitMap_H
 #define LayerHitMap_H
 
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCacheCell.h"
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCellManager.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include <vector>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 class LayerHitMapLoop;
@@ -18,8 +17,6 @@ public:
   typedef PixelRecoRange<float> Range;
   typedef vector<TkHitPairsCachedHit>::const_iterator HitIter;
   LayerHitMap() : theCells(0) { }
-  //  LayerHitMap(const vector<SiPixelRecHit>& hits);
-  // LayerHitMap(SiPixelRecHitCollection ): theCells(0);
   LayerHitMap(const LayerWithHits*  ,  const edm::EventSetup& iSetup);
   LayerHitMap(const LayerHitMap & lhm,  const edm::EventSetup& iSetup); 
   ~LayerHitMap() { delete theCells; }

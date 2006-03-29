@@ -63,7 +63,7 @@ public:
 /*       const DetLayer* layer,  SiPixelRecHit  outerHit) const = 0; */
 
     virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
-					 const SiPixelRecHit*  outerHit,
+					 const TrackingRecHit*  outerHit,
 					 const edm::EventSetup& iSetup) const = 0;
   /// clone region with new vertex position
   virtual TrackingRegionBase* restrictedRegion( const GlobalPoint &  originPos,
