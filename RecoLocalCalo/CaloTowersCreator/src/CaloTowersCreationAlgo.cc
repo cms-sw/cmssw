@@ -78,7 +78,6 @@ void CaloTowersCreationAlgo::setGeometry(const CaloTowerTopology* ctt, const Hca
   theTowerGeometry=geo->getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);
 }
 
-
 void CaloTowersCreationAlgo::begin() {
   theTowerMap.clear();
 }
@@ -109,9 +108,9 @@ void CaloTowersCreationAlgo::process(const EcalRecHitCollection& ec) {
 
 void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
   // now copy this map into the final collection
-  for(CaloTowerMap::const_iterator mapItr = theTowerMap.begin();
+  for(MetaTowerMap::const_iterator mapItr = theTowerMap.begin();
       mapItr != theTowerMap.end(); ++ mapItr)
-    result.push_back(mapItr->second);
+    result.push_back(convert(mapItr->first,mapItr->second));
   theTowerMap.clear(); // save the memory
 }
 
@@ -128,67 +127,64 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       HcalDetId(detId).ietaAbs()==28) {
 
     CaloTowerDetId towerDetId = theTowerTopology->towerOf(detId);
-    CaloTower & tower28 = find(towerDetId);    
+    MetaTower & tower28 = find(towerDetId);    
     CaloTowerDetId towerDetId29 = CaloTowerDetId(towerDetId.ieta()+
 						 towerDetId.zside(),
 						 towerDetId.iphi());
-    CaloTower & tower29 = find(towerDetId29);
+    MetaTower & tower29 = find(towerDetId29);
 
     double energy = recHit->energy()/2; // NOTE DIVIDE BY 2!!!
     if(energy >= threshold) {
-      double sintheta28 = 1. / cosh(tower28.eta);
-      double eT28 = energy * sintheta28 * weight;
-      double sintheta29 = 1. / cosh(tower29.eta);
-      double eT29 = energy * sintheta29 * weight;
+      double e28 = energy * weight;
+      double e29 = energy * weight;
       
-      tower28.eT_had += eT28;
-      tower28.eT += eT28;
+      tower28.E_had += e28;
+      tower28.E += e28;
       tower28.constituents.push_back(detId);    
 
-      tower29.eT_had += eT29;
-      tower29.eT += eT29;
+      tower29.E_had += e29;
+      tower29.E += e29;
       tower29.constituents.push_back(detId);    
     }
   } else {
     CaloTowerDetId towerDetId = theTowerTopology->towerOf(detId);
-    CaloTower & tower = find(towerDetId);
+    MetaTower & tower = find(towerDetId);
 
 
     double energy = recHit->energy();
     if(energy >= threshold) {
       // TODO calculate crystal by crystal
-      double sintheta = 1. / cosh(tower.eta);
-      double eT = energy * sintheta * weight;
+      double e = energy * weight;
       
       DetId::Detector det = detId.det();
       if(det == DetId::Ecal) {
-        tower.eT_em += eT;
-        tower.eT += eT;
+        tower.E_em += e;
+        tower.E += e;
       }
       // HCAL
       else {
         HcalDetId hcalDetId(detId);
         if(hcalDetId.subdet() == HcalOuter) {
-          tower.eT_outer += eT;
-          if(theHOIsUsed) tower.eT += eT;
+          tower.E_outer += e;
+          if(theHOIsUsed) tower.E += e;
         } 
         // HF calculates EM fraction differently
         else if(hcalDetId.subdet() == HcalForward) {
           if(hcalDetId.depth() == 1) {
             // long fiber, so E_EM = E(Long) - E(Short)
-            tower.eT_em += eT;
+            tower.E_em += e;
           } 
           else {
             // short fiber, EHAD = 2 * E(Short)
-            tower.eT_em -= eT;
-            tower.eT_had += 2. * eT;
+            tower.E_em -= e;
+            tower.E_had += 2. * e;
           }
-          tower.eT += eT;
+          tower.E += e;
         }
         else {
           // HCAL situation normal
-          tower.eT_had += eT;
-          tower.eT += eT;
+          tower.E_had += e;
+          tower.E += e;
         }
       }
       tower.constituents.push_back(detId);
@@ -196,23 +192,31 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
   }
 }
 
+CaloTowersCreationAlgo::MetaTower::MetaTower() : E(0),E_em(0),E_had(0),E_outer(0) {
+}
 
-CaloTower & CaloTowersCreationAlgo::find(const CaloTowerDetId & detId) {
-  CaloTowerMap::iterator itr = theTowerMap.find(detId);
+CaloTowersCreationAlgo::MetaTower & CaloTowersCreationAlgo::find(const CaloTowerDetId & detId) {
+  MetaTowerMap::iterator itr = theTowerMap.find(detId);
   if(itr == theTowerMap.end()) {
     // need to build a new tower
-    CaloTower t(detId);
-    GlobalPoint p=theTowerGeometry->getGeometry(detId)->getPosition();
-    t.eta = p.eta();
-    t.phi = p.phi();
+    MetaTower t;
 
     // store it in the map
-    theTowerMap.insert(std::pair<CaloTowerDetId, CaloTower>(detId, t));
+    theTowerMap.insert(std::pair<CaloTowerDetId, CaloTowersCreationAlgo::MetaTower>(detId, t));
     itr = theTowerMap.find(detId);
   }
   return itr->second;
 }
- 
+
+CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& mt) {
+    GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
+    double pf=1.0/cosh(p.eta());
+    CaloTower::Vector v(mt.E*pf,p.eta(),p.phi());
+    CaloTower retval(id,v,mt.E_em*pf,mt.E_had*pf,mt.E_outer*pf,
+		     -1,-1);
+    retval.addConstituents(mt.constituents);
+    return retval;
+} 
   
 void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double & threshold, double & weight) const {
   DetId::Detector det = detId.det();

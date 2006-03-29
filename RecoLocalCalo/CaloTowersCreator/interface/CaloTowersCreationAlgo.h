@@ -16,8 +16,8 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2006/01/17 17:42:37 $
-  * $Revision: 1.5 $
+  * $Date: 2006/02/27 22:02:26 $
+  * $Revision: 1.6 $
   * \author R. Wilkinson - Caltech
   */
 class CaloTowersCreationAlgo {
@@ -43,11 +43,17 @@ public:
   void finish(CaloTowerCollection& destCollection);
 
 private:
+  struct MetaTower {
+    MetaTower();
+    double E, E_em, E_had, E_outer;
+    std::vector<DetId> constituents;
+  };
+
   /// adds a single hit to the tower
   void assignHit(const CaloRecHit * recHit);
   
   /// looks for a given tower in the internal cache.  If it can't find it, it makes it.
-  CaloTower & find(const CaloTowerDetId & id);
+  MetaTower & find(const CaloTowerDetId & id);
   
   /// helper method to look up the appropriate threshold & weight
   void getThresholdAndWeight(const DetId & detId, double & threshold, double & weight) const;
@@ -67,9 +73,12 @@ private:
   /// only affects energy and ET calculation.  HO is still recorded in the tower
   bool theHOIsUsed;
 
+
+  CaloTower convert(const CaloTowerDetId& id, const MetaTower& mt);
+
   // internal map
-  typedef std::map<CaloTowerDetId, CaloTower> CaloTowerMap;
-  CaloTowerMap theTowerMap;
+  typedef std::map<CaloTowerDetId, MetaTower> MetaTowerMap;
+  MetaTowerMap theTowerMap;
 };
 
 #endif

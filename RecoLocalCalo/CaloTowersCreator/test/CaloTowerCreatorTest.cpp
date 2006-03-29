@@ -80,7 +80,7 @@ std::cout << "NUMBER OF HITS " << hbheHits.size() << " " << hoHits.size() << " "
   for(CaloTowerCollection::const_iterator towerItr = collection.begin();
       towerItr != collection.end(); ++towerItr)
   {
-    std::cout << towerItr->id().ieta() << " " << towerItr->e() << " EM " << towerItr->e_em() << " HAD " << towerItr->e_had() << std::endl;
+    std::cout << towerItr->id().ieta() << " " << towerItr->energy() << " EM " << towerItr->emEnergy() << " HAD " << towerItr->hadEnergy() << std::endl;
   }
 
   std::cout << std::endl << "And now for something completely different..." << std::endl;
@@ -104,7 +104,7 @@ std::cout << "NUMBER OF HITS " << hbheHits.size() << " " << hoHits.size() << " "
   for(CaloTowerCollection::const_iterator towerItr = collection2.begin();
       towerItr != collection2.end(); ++towerItr)
   {
-    std::cout << towerItr->id().ieta() << " " << towerItr->e() << " EM " << towerItr->e_em() << " HAD " << towerItr->e_had() << std::endl;
+    std::cout << towerItr->id().ieta() << " " << towerItr->energy() << " EM " << towerItr->emEnergy() << " HAD " << towerItr->hadEnergy() << std::endl;
   }
 
 }
