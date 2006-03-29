@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id$
+// $Id: SiStripHistoId.cc,v 1.1 2006/03/08 12:55:27 dkcira Exp $
 //
 
 #include<boost/cstdint.hpp>
@@ -22,8 +22,8 @@ using namespace std;
 
 SiStripHistoId::SiStripHistoId()
 {
- separator1="_#";
- separator2="_#";
+ separator1="__";
+ separator2="__";
 }
 
 
