@@ -90,7 +90,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   //
   int TotTMBReadout = 27+Ntbins*6*5+1+Ntbins*2*4+2+8*256+8; //see tmb2004 manual (version v2p06) page54.
   int MaxSizeRPC = 1+Ntbins*2*4+1;
-  int MaxSizeScope = 10;
+  int MaxSizeScope = 5;
   int e0bLine = findLine(buf, 0x6e0b, 0, TotTMBReadout);
   
 
@@ -140,7 +140,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
 
  
   // look for scope.  Should there be a 6?
-  int b05Line = findLine(buf, 0x6b05, afterHeader, 5);
+  int b05Line = findLine(buf, 0x6b05, afterHeader, MaxSizeScope);
   if(b05Line != -1) {
      edm::LogMessage("CSCTMBData") <<"found scope!!!!!!!!!!!!!"; 
      int e05Line = findLine(buf, 0x6e05, afterHeader, TotTMBReadout-afterHeader);
