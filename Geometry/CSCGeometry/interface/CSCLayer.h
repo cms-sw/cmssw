@@ -34,6 +34,12 @@ public:
   DetId geographicalId() const { return theId; }
 
   /**
+   * Get the (concrete) DetId
+   */
+ 
+  CSCDetId id() const { return theId; }
+
+  /**
    * Access to object handling layer geomerty
    */
   const CSCLayerGeometry* geometry() const { return theGeometry; }

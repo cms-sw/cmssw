@@ -103,7 +103,8 @@ const CSCGeometry::LayerContainer CSCGeometry::layers() const
 
 
 const CSCChamber* CSCGeometry::chamber(CSCDetId id) const {
-  return dynamic_cast<const CSCChamber*>(idToDet(id));
+  CSCDetId id1(id.endcap(), id.station(), id.ring(), id.chamber(), 0);
+  return dynamic_cast<const CSCChamber*>(idToDet(id1));
 }
 
 

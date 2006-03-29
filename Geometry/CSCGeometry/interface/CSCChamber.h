@@ -15,7 +15,9 @@
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
+//#include <Geometry/CSCGeometry/interface/CSCLayer.h>
 
+class CSCLayer;
 
 class CSCChamber : public GeomDet {
 
@@ -23,7 +25,7 @@ public:
 
   CSCChamber( BoundPlane* bp, CSCDetId id, CSCChamberSpecs* specs ) :
   GeomDet( bp ), theId( id ), theChamberSpecs( specs ), 
-  theComponents( std::vector< const GeomDet* >() ) {}
+    theComponents(6,(const GeomDet*)0) {}
 
   ~CSCChamber();
 
@@ -31,13 +33,21 @@ public:
 
   DetId geographicalId() const { return theId; } //@@ Slices base
 
-  CSCDetId cscId() const { return theId; }
+  /// Get the (concrete) DetId.
+  CSCDetId id() const { return theId; }
 
   const CSCChamberSpecs* specs() const { return theChamberSpecs; }
 
-  void addComponent( int n, const GeomDet* gd ) { theComponents.push_back( gd ); }
+  void addComponent( int n, const GeomDet* gd );
 
   virtual std::vector< const GeomDet* > components() const { return theComponents; }
+
+  /// Return the layer corresponding to the given id 
+  const CSCLayer* layer(CSCDetId id) const;
+  
+  /// Return the given layer.
+  /// Layers are numbered 1-6.
+  const CSCLayer* layer(int ilay) const;
 
 private:
 
