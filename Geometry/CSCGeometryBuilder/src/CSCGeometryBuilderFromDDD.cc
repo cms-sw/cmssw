@@ -374,7 +374,7 @@ void CSCGeometryBuilderFromDDD::buildLayer (
   }
   else {
     edm::LogError("CSC") << ": ERROR, layer " << jlay <<
-            " for chamber = " << ( chamber->cscId() ) <<
+            " for chamber = " << ( chamber->id() ) <<
             " already exists: layer address=" << cLayer <<
       " chamber address=" << chamber << "\n";
   }         
