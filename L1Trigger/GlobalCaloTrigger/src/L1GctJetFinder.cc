@@ -8,6 +8,10 @@ L1GctJetFinder::~L1GctJetFinder()
 {
 }
 
+void L1GctJetFinder::reset() {
+
+}
+
 void L1GctJetFinder::process() {
 
 }

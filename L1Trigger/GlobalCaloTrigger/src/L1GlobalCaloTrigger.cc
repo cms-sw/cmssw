@@ -7,7 +7,7 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger() :
 	theJetFinders(18),
 	theElectronSorters(4),
 	theWheelJetFpgas(2),
-	theWheelEnergyFpgas(2),
+	theWheelEnergyFpgas(2)
 {
 	
 	// for first release, just instantiate algorithms
