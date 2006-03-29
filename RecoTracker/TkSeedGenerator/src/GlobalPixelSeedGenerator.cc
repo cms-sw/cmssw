@@ -52,8 +52,8 @@ void GlobalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
   globalseed.run(*output,es);
 
   // write output to file
+  LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();
 
-  std::cout <<" writing "<< output->size()<<" seeds "<<std::endl;
 
   e.put(output);
 }

@@ -4,6 +4,7 @@
 
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 // PixelSeedLayerPairs::PixelSeedLayerPairs()
 // {
 //  //  TrackerLayerIdAccessor accessor;
@@ -98,7 +99,7 @@ void PixelSeedLayerPairs::init(const SiPixelRecHitCollection& coll, const edm::E
       std::cout <<" Pixel Hit on barrel "<<iii.layer()<<std::endl;
     }else{
       PXFDetId iii(id);
-      std::cout <<" Pixel Hit on Disk "<<iii.disk()<<" " <<iii.side()<<std::endl;
+      LogDebug("PixelSeedLayerPairs") <<" Pixel Hit on Disk "<<iii.disk()<<" " <<iii.side();
     }
   }
    unsigned int tot = coll.end()-coll.begin();
@@ -111,18 +112,18 @@ void PixelSeedLayerPairs::init(const SiPixelRecHitCollection& coll, const edm::E
    unsigned int fn1 = map_diskneg1.second-map_diskneg1.first;
    unsigned int fn2 = map_diskneg2.second-map_diskneg2.first;
    unsigned int fn3 = map_diskneg3.second-map_diskneg3.first;
-   std::cout<<"Total Number of Pixel RecHits "<<tot<<std::endl;
-   std::cout<<"Number of Pixel RecHits B1 "<<b1<<std::endl;
-   std::cout<<"Number of Pixel RecHits B2 "<<b2<<std::endl;
-   std::cout<<"Number of Pixel RecHits B3 "<<b3<<std::endl;
-   std::cout<<"Number of Pixel RecHits FP1 "<<fp1<<std::endl;
-   std::cout<<"Number of Pixel RecHits FP2 "<<fp2<<std::endl;
-   std::cout<<"Number of Pixel RecHits FP3 "<<fp3<<std::endl;
-   std::cout<<"Number of Pixel RecHits FN1 "<<fn1<<std::endl;
-   std::cout<<"Number of Pixel RecHits FN2 "<<fn2<<std::endl;
-   std::cout<<"Number of Pixel RecHits FN3 "<<fn3<<std::endl;
+   LogDebug("PixelSeedLayerPairs")<<"Total Number of Pixel RecHits "<<tot;
+   LogDebug("PixelSeedLayerPairs")<<"Number of Pixel RecHits B1 "<<b1;
+   LogDebug("PixelSeedLayerPairs")<<"Number of Pixel RecHits B2 "<<b2;
+   LogDebug("PixelSeedLayerPairs")<<"Number of Pixel RecHits B3 "<<b3;
+   LogDebug("PixelSeedLayerPairs")<<"Number of Pixel RecHits FP1 "<<fp1;
+   LogDebug("PixelSeedLayerPairs")<<"Number of Pixel RecHits FP2 "<<fp2;
+   LogDebug("PixelSeedLayerPairs")<<"Number of Pixel RecHits FP3 "<<fp3;
+   LogDebug("PixelSeedLayerPairs")<<"Number of Pixel RecHits FN1 "<<fn1;
+   LogDebug("PixelSeedLayerPairs")<<"Number of Pixel RecHits FN2 "<<fn2;
+   LogDebug("PixelSeedLayerPairs")<<"Number of Pixel RecHits FN3 "<<fn3;
    int res = tot-b1-b2-b3-fp1-fp2-fp3-fn1-fn2-fn3;
-   std::cout <<" ECCO "<<tot<<endl;
+   LogDebug("PixelSeedLayerPairs") <<" Total number of PixelRecHits "<<tot;
   
 #endif
 

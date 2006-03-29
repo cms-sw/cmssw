@@ -55,16 +55,6 @@ construct( const TrackingRecHit* outerHit,
 					   vertexPos, vertexErr));
 
 
-//     cout << "SeedFromConsecutiveHits: Initial fts:" << fts << endl;
-
-//    Helix h(outerHit.det().toGlobal(outerHit.localPosition()),
-//  	  innerHit.det().toGlobal(innerHit.localPosition()),
-//  	  vertexPos);
-//    if (h.isValid()) {
-//      FreeTrajectoryState fts = 
-//        h.atVertex( sqrt( vertexErr.cxx()), 
-//  		  sqrt( vertexErr.cyy()), 
-//  		  sqrt( vertexErr.czz()), 10.);
 
 //MP
 //    GtfPropagator thePropagator( alongMomentum);
@@ -104,8 +94,7 @@ construct( const TrackingRecHit* outerHit,
 
     TSOS outerUpdated = theUpdator.update( outerState, *outrhit);
  
-    //       cout << "SeedFromConsecutiveHits: after second update :"
-    //   	 << outerUpdated << endl;
+
     //MP
     //what is the estimate value?
     theInnerMeas = TM( innerState, innerUpdated, intrhit, 0);

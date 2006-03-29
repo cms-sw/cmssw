@@ -98,9 +98,7 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
 						&(*pSetup)),
 		     CurvilinearTrajectoryError(C));
   
-  //  cout<<"FTS position: "<<atVertex.position()<<endl;
-  //  cout<<"FTS momentum: "<<atVertex.momentum()<<endl;
-  //  cout<<"FTS charge: "<<atVertex.charge()<<endl;
+
   
   return atVertex;
 }
