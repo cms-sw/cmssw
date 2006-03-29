@@ -39,17 +39,17 @@ public:
 /*         void setInputBoundaryJc(unsigned jcnum, unsigned count); */
 
 /* 	// return input data */
-/*         long int getInputExForwardWheel(); */
-/*         long int getInputEyForwardWheel(); */
-/*         long int getInputExBakwardWheel(); */
-/*         long int getInputEyBakwardWheel(); */
-/* 	inline unsigned long getInputEtForwardWheel() { return inputEtForwardWheel.to_ulong();; } */
-	inline unsigned long getInputHtForwardWheel() { return inputHtForwardWheel.to_ulong();; }
-/* 	inline unsigned long getInputEtBakwardWheel() { return inputEtBakwardWheel.to_ulong();; } */
-	inline unsigned long getInputHtBakwardWheel() { return inputHtBakwardWheel.to_ulong();; }
+/*         long int getInputExValPlusWheel(); */
+/*         long int getInputEyValPlusWheel(); */
+/*         long int getInputExVlMinusWheel(); */
+/*         long int getInputEyVlMinusWheel(); */
+/* 	inline unsigned long getInputEtValPlusWheel() { return inputEtValPlusWheel.to_ulong();; } */
+	inline unsigned long getInputHtValPlusWheel() { return inputHtValPlusWheel.to_ulong();; }
+/* 	inline unsigned long getInputEtVlMinusWheel() { return inputEtVlMinusWheel.to_ulong();; } */
+	inline unsigned long getInputHtVlMinusWheel() { return inputHtVlMinusWheel.to_ulong();; }
 	inline unsigned long getInputHtBoundaryJets() { return inputHtBoundaryJets.to_ulong();; }
-/*         inline unsigned long getInputJcForwardWheel(unsigned jcnum) {return inputJcForwardWheel[jcnum].to_ulong();; } */
-/*         inline unsigned long getInputJcBakwardWheel(unsigned jcnum) {return inputJcBakwardWheel[jcnum].to_ulong();; } */
+/*         inline unsigned long getInputJcValPlusWheel(unsigned jcnum) {return inputJcValPlusWheel[jcnum].to_ulong();; } */
+/*         inline unsigned long getInputJcVlMinusWheel(unsigned jcnum) {return inputJcVlMinusWheel[jcnum].to_ulong();; } */
 /*         inline unsigned long getInputJcBoundaryJets(unsigned jcnum) {return inputJcBoundaryJets[jcnum].to_ulong();; } */
 
 /* 	// return output data	 */
@@ -62,28 +62,28 @@ public:
 private:
 	
 	// input data - need to confirm number of bits!
-/* 	bitset<12> inputExForwardWheel; */
-/* 	bitset<12> inputEyForwardWheel; */
-/* 	bitset<12> inputEtForwardWheel; */
-	bitset<12> inputHtForwardWheel;
-/* 	bitset<12> inputExBakwardWheel; */
-/* 	bitset<12> inputEyBakwardWheel; */
-/* 	bitset<12> inputEtBakwardWheel; */
-	bitset<12> inputHtBakwardWheel;
+/* 	bitset<12> inputExValPlusWheel; */
+/* 	bitset<12> inputEyValPlusWheel; */
+/* 	bitset<12> inputEtValPlusWheel; */
+	bitset<12> inputHtValPlusWheel;
+/* 	bitset<12> inputExVlMinusWheel; */
+/* 	bitset<12> inputEyVlMinusWheel; */
+/* 	bitset<12> inputEtVlMinusWheel; */
+	bitset<12> inputHtVlMinusWheel;
         bitset<12> inputHtBoundaryJets;
 
-/*         bool ovfloExForwardWheel; */
-/*         bool ovfloEyForwardWheel; */
-/*         bool ovfloEtForwardWheel; */
-        bool ovfloHtForwardWheel;
-/*         bool ovfloExBakwardWheel; */
-/*         bool ovfloEyBakwardWheel; */
-/*         bool ovfloEtBakwardWheel; */
-        bool ovfloHtBakwardWheel;
+/*         bool ovfloExValPlusWheel; */
+/*         bool ovfloEyValPlusWheel; */
+/*         bool ovfloEtValPlusWheel; */
+        bool ovfloHtValPlusWheel;
+/*         bool ovfloExVlMinusWheel; */
+/*         bool ovfloEyVlMinusWheel; */
+/*         bool ovfloEtVlMinusWheel; */
+        bool ovfloHtVlMinusWheel;
         bool ovfloHtBoundaryJets;
 
-/*         vector<bitset<4>> inputJcForwardWheel; */
-/*         vector<bitset<4>> inputJcBakwardWheel; */
+/*         vector<bitset<4>> inputJcValPlusWheel; */
+/*         vector<bitset<4>> inputJcVlMinusWheel; */
 /*         vector<bitset<3>> inputJcBoundaryJets; */
 	
 	// output data

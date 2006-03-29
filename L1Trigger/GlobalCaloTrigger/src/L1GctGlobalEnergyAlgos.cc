@@ -1,8 +1,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 
 L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() // :
-//   inputJcForwardWheel(12),
-//   inputJcBakwardWheel(12),
+//   inputJcValPlusWheel(12),
+//   inputJcVlMinusWheel(12),
 //   inputJcBoundaryJets(12),
 //   outputJetCounts(12)
 {
@@ -15,12 +15,12 @@ L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos()
 // clear internal data
 void L1GctGlobalEnergyAlgos::reset()
 {
-  inputHtForwardWheel.reset();
-  inputHtBakwardWheel.reset();
+  inputHtValPlusWheel.reset();
+  inputHtVlMinusWheel.reset();
   inputHtBoundaryJets.reset();
   //
-  ovfloHtForwardWheel = false;
-  ovfloHtBakwardWheel = false;
+  ovfloHtValPlusWheel = false;
+  ovfloHtVlMinusWheel = false;
   ovfloHtBoundaryJets = false;
   //
   outputEtHad.reset();
@@ -34,8 +34,8 @@ void L1GctGlobalEnergyAlgos::process()
   bitset<13> HtResult;
 
   // Form the Ht sum
-  HtPlus  = inputHtForwardWheel.to_ulong();
-  HtMinus = inputHtBakwardWheel.to_ulong();
+  HtPlus  = inputHtValPlusWheel.to_ulong();
+  HtMinus = inputHtVlMinusWheel.to_ulong();
   HtBound = inputHtBoundaryJets.to_ulong();
   //
   HtSum = HtPlus + HtMinus + HtBound;
@@ -43,12 +43,12 @@ void L1GctGlobalEnergyAlgos::process()
     HtSum = HtSum % 0x1000;
     HtOvflo = true;
   } else {
-    HtOvflo = ovfloHtForwardWheel or ovfloHtBakwardWheel or ovfloHtBoundaryJets;
+    HtOvflo = ovfloHtValPlusWheel or ovfloHtVlMinusWheel or ovfloHtBoundaryJets;
   }
   //
   HtResult.reset();
   for (int i=0;i<12;i++) {
-    if (HtSum && (1<<i) != 0) {HtResult.set(i);}
+    if ((HtSum & (1<<i)) != 0) {HtResult.set(i);}
   }
   if (HtOvflo) {HtResult.set(12);}
   //
@@ -73,11 +73,11 @@ void L1GctGlobalEnergyAlgos::setInputWheelHt(unsigned wheel, unsigned energy, bo
   }
   bitset<12> energyBits(energyInput);
   if (wheel==0) {
-    inputHtForwardWheel = energyBits;
-    ovfloHtForwardWheel = energyOvflo;
+    inputHtValPlusWheel = energyBits;
+    ovfloHtValPlusWheel = energyOvflo;
   } else if (wheel==1) {
-    inputHtBakwardWheel = energyBits;
-    ovfloHtForwardWheel = energyOvflo;
+    inputHtVlMinusWheel = energyBits;
+    ovfloHtVlMinusWheel = energyOvflo;
   }
 }
 
