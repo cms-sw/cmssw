@@ -2,8 +2,11 @@
 #define L1GLOBALCALOTRIGGER_H_
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctCaloConcentratorCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctMuonConcentratorCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctMuonLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
