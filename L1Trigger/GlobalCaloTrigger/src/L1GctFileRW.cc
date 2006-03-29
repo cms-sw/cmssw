@@ -1,18 +1,18 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/RctFileRW.h"
 #include <iostream>
 
-using namespace std;
+using std::vector;
 typedef vector<unsigned> dataVector;
 
 RctFileRW::RctFileRW(char inputFile[256]): theData(64){
   file.open(inputFile,ios::in);
-  _bx="1";
-  _run=1;
-  if(!file){
-    cout << "Cannot open input data file" << endl;
-    exit(1);
-  }
-  file>>_bx>>_run;  
+//  _bx="1";
+//  _run=1;
+//  if(!file){
+//    cout << "Cannot open input data file" << endl;
+//    exit(1);
+//  }
+//  file>>_bx>>_run;  
 } 
 
 RctFileRW::~RctFileRW(){
