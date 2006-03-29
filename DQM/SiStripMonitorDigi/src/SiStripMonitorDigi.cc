@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.1 2006/02/09 19:08:43 gbruno Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.2 2006/03/08 13:00:45 dkcira Exp $
 //
 //
 
@@ -94,10 +94,10 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
       hid = hidmanager.createHistoId("DigisPerDetector","det",*detid_iterator);
       local_modmes.DigisPerModule = dbe_->book1D(hid, hid, 21, -0.5, 20.5);
       // create ADCs per "hottest" strip
-      hid = hidmanager.createHistoId("ADCs of hottest strip","det",*detid_iterator);
+      hid = hidmanager.createHistoId("ADCsHottest strip","det",*detid_iterator);
       local_modmes.ADCsHottestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.);
       // create ADCs per "coolest" strip
-      hid = hidmanager.createHistoId("ADCs of coolest strip","det",*detid_iterator);
+      hid = hidmanager.createHistoId("ADCsCoolest strip","det",*detid_iterator);
       local_modmes.ADCsCoolestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.);
       // append to DigiMEs
       DigiMEs.insert( std::make_pair(*detid_iterator, local_modmes));
@@ -180,8 +180,12 @@ SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
 void SiStripMonitorDigi::endJob(void){
+   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
+   string outputFileName = conf_.getParameter<string>("OutputFileName");
 //  dbe_->showDirStructure();
-//  dbe_->save("test_digi.root");
+  if(outputMEsInRootFile){
+    dbe_->save(outputFileName);
+  }
 }
 
 //define this as a plug-in
