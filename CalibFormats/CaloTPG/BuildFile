@@ -1,0 +1,13 @@
+<use name=DataFormats/HcalDetId>
+<use name=DataFormats/HcalDigi>
+<use name=CalibFormats/CaloObjects>
+<use name=boost>
+
+<export>
+   <lib name=CalibFormatsCaloTPG>
+   <use name=DataFormats/HcalDetId>
+   <use name=DataFormats/HcalDigi>
+   <use name=CalibFormats/CaloObjects>
+   <use name=boost>
+</export>
+
