@@ -1,4 +1,4 @@
-<Flags SEAL_PLUGIN_NAME="SimG4TrackingVerbose">
+<Flags SEAL_PLUGIN_NAME="SimG4CoreTrackingVerbose">
 <export>
  <lib name=SimG4CoreTrackingVerbose>
  <use name=SimG4Core/Application>
