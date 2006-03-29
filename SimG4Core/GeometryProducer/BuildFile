@@ -1,0 +1,27 @@
+<flags SEAL_PLUGIN_NAME="SimG4CoreGeometryProducer">
+<use name=Utilities/Notification>
+<use name=SimG4Core/Notification>
+<use name=SimG4Core/Watcher>
+<use name=SimG4Core/Geometry>
+<use name=SimG4Core/SensitiveDetector>
+<use name=SimG4Core/MagneticField>
+<use name=SimG4Core/Application>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<export>
+<lib name=SimG4CoreGeometryProducer>
+<use name=Utilities/Notification>
+<use name=SimG4Core/Notification>
+<use name=SimG4Core/Watcher>
+<use name=SimG4Core/Geometry>
+<use name=SimG4Core/SensitiveDetector>               
+<use name=SimG4Core/MagneticField>
+<use name=SimG4Core/Application>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Framework>
+</export>
+
+<use name=seal>
+<use name=geant4>
+<use name=clhep>
