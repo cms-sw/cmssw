@@ -218,7 +218,7 @@ void testEsproducer::labelTest()
       CPPUNIT_ASSERT(iTime == pDummy->value_);
    }
    } catch(const cms::Exception& iException) {
-      std::cout <<"caught exception "<<iException.what()<<std::endl;
+      std::cout <<"caught exception "<<iException.explainSelf()<<std::endl;
       throw;
    }
 }

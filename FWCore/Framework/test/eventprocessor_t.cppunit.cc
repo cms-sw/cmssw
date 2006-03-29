@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.11 2005/12/14 01:34:16 chrjones Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.12 2006/01/24 16:18:45 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -261,8 +261,8 @@ testeventprocessor::moduleFailureTest()
             edm::EventProcessor proc(configuration);
             threw = false;
          } catch(const cms::Exception& iException){
-            if(!findModuleName(iException.what())) {
-               std::cout <<iException.what()<<std::endl;
+            if(!findModuleName(iException.explainSelf())) {
+               std::cout <<iException.explainSelf()<<std::endl;
                CPPUNIT_ASSERT(0 == "module name not in exception message");
             }
          }
@@ -277,8 +277,8 @@ testeventprocessor::moduleFailureTest()
             proc.beginJob();
             threw = false;
          } catch(const cms::Exception& iException){
-            if(!findModuleName(iException.what())) {
-               std::cout <<iException.what()<<std::endl;
+            if(!findModuleName(iException.explainSelf())) {
+               std::cout <<iException.explainSelf()<<std::endl;
                CPPUNIT_ASSERT(0 == "module name not in exception message");
             }
          }
@@ -295,8 +295,8 @@ testeventprocessor::moduleFailureTest()
             proc.run(1);
             threw = false;
          } catch(const cms::Exception& iException){
-            if(!findModuleName(iException.what())) {
-               std::cout <<iException.what()<<std::endl;
+            if(!findModuleName(iException.explainSelf())) {
+               std::cout <<iException.explainSelf()<<std::endl;
                CPPUNIT_ASSERT(0 == "module name not in exception message");
             }
          }
@@ -312,7 +312,7 @@ testeventprocessor::moduleFailureTest()
          CPPUNIT_ASSERT(!(proc.endJob()));
       }
    } catch(const cms::Exception& iException) {
-      std::cout <<"Unexpected exception "<<iException.what()<<std::endl;
+      std::cout <<"Unexpected exception "<<iException.explainSelf()<<std::endl;
       throw;
    }
 }

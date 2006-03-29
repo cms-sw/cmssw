@@ -454,7 +454,7 @@ void testEventsetup::preferTest()
       }
       
    }catch(const cms::Exception& iException) {
-      std::cout <<"caught "<<iException.what()<<std::endl;
+      std::cout <<"caught "<<iException.explainSelf()<<std::endl;
       throw;
    }
 }

@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.7 2006/02/08 00:44:25 wmtan Exp $
+   \version $Id: productregistry.cppunit.cc,v 1.8 2006/03/05 00:36:38 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -159,7 +159,7 @@ void  testProductRegistry:: testProductRegistration(){
   try {
    edm::EventProcessor proc(config);
   } catch(const cms::Exception& iException) {
-     std::cout <<"caught "<<iException.what()<<std::endl;
+     std::cout <<"caught "<<iException.explainSelf()<<std::endl;
      throw;
   }
 }

@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.4 2006/02/13 22:36:36 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.5 2006/02/20 01:51:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -126,7 +126,7 @@ void testGenericHandle::getbyLabelTest() {
     event.getByLabel(label, productInstanceName,h);
   }
   catch (cms::Exception& x) {
-    std::cerr << x.what()<< std::endl;
+    std::cerr << x.explainSelf()<< std::endl;
     CPPUNIT_ASSERT("Threw exception unexpectedly" == 0);
   }
   catch(seal::Error& x){
