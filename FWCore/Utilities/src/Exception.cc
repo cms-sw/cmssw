@@ -3,31 +3,30 @@
 
 namespace cms {
 
-  Exception::Exception(const std::string& category):
-    seal::Error(),
+  Exception::Exception(std::string const& category) :
+    std::exception(),
     ost_(),
-    category_(1,category)
+    category_(1, category)
   {
   }
 
-  Exception::Exception(const std::string& category,
-		       const std::string& message):
-    seal::Error(),
+  Exception::Exception(std::string const& category,
+		       std::string const& message) :
+    std::exception(),
     ost_(),
-    category_(1,category)
+    category_(1, category)
   {
     ost_ << message;
-    if(!message.empty())
-      {
+    if(!message.empty()) {
 	unsigned sz = message.size()-1;
 	if(message[sz]!='\n' && message[sz]!=' ') ost_ << " ";
-      }
+    }
   }
 
-  Exception::Exception(const std::string& category,
-		       const std::string& message,
-		       const Exception& another):
-    seal::Error(),
+  Exception::Exception(std::string const& category,
+		       std::string const& message,
+		       Exception const& another) :
+    std::exception(),
     ost_(),
     category_(1,category)
   {
@@ -39,20 +38,18 @@ namespace cms {
     append(another);
   }
 
-  Exception::Exception(const Exception& other):
-    seal::Error(),
+  Exception::Exception(Exception const& other):
+    std::exception(),
     ost_(),
     category_(other.category_)
   {
     ost_ << other.ost_.str();
   }
 
-  Exception::~Exception()
-  {
+  Exception::~Exception() throw() {
   }
   
-  std::string Exception::what() const
-  {
+  std::string Exception::explainSelf() const {
     std::ostringstream ost;
     std::string part(ost_.str());
     // Remove any trailing newline
@@ -66,51 +63,42 @@ namespace cms {
     return ost.str();
   }
 
-  const Exception::CategoryList& Exception::history() const
-  {
+  Exception::CategoryList const& Exception::history() const {
     return category_;
   }
 
-  std::string Exception::category() const
-  {
+  std::string Exception::category() const {
     return category_.front();
   }
   
-  std::string Exception::rootCause() const
-  {
+  std::string Exception::rootCause() const {
     return category_.back();
   }
   
-  void Exception::append(const Exception& another)
-  {
-    ost_ << another.what();
+  void Exception::append(Exception const& another) {
+    ost_ << another.explainSelf();
   }
 
-  void Exception::append(const std::string& more_information)
-  {
+  void Exception::append(std::string const& more_information) {
     ost_ << more_information;
   }
 
-  void Exception::append(const char* more_information)
-  {
+  void Exception::append(char const* more_information) {
     ost_ << more_information;
   }
   
   // --------------------------------
-  // required for being a seal::Error
+  // required for being a std::exception
 
-  std::string Exception::explainSelf() const
-  {
-    return what();
+  char const* Exception::what() const throw() {
+    return explainSelf().c_str();;
   }
 
-  seal::Error* Exception::clone() const
-  {
+  std::exception* Exception::clone() const {
     return new Exception(*this);
   }
 
-  void Exception::rethrow()
-  {
+  void Exception::rethrow() {
     throw *this;
   }
   

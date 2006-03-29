@@ -35,7 +35,7 @@ namespace edm
 
     CodedException(const CodedException& other);
 
-    virtual ~CodedException();
+    virtual ~CodedException() throw();
 
     Code categoryCode() const { return category_; }
 
@@ -98,7 +98,7 @@ namespace edm
   }
 
   template <class Code>
-  CodedException<Code>::~CodedException()
+  CodedException<Code>::~CodedException() throw()
   {
   }
 

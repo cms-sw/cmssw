@@ -73,17 +73,16 @@
 #include <list>
 #include <sstream>
 #include <string>
+#include <stdexcept>
+#include "SealBase/Error.h" // Stil need to catch these as long as plug-in manager is used.
 
 #include "boost/type_traits/is_base_and_derived.hpp"
 #include "boost/type_traits/is_polymorphic.hpp"
 
-#include "SealBase/Error.h"
+#include <iostream>
+namespace cms {
 
-namespace cms
-{
-
-  namespace detail
-  {
+  namespace detail {
     // The struct template Desired exists in order to allow us to use
     // SFINAE to control the instantiation of the stream insertion
     // member template needed to support streaming output to an object
@@ -100,39 +99,40 @@ namespace cms
     
 
     template <class BASE, class DERIVED>
-    struct is_derived_or_same
-    {
-      static const bool value = 
+    struct is_derived_or_same {
+      static bool const value = 
 	is_base_and_derived<BASE,DERIVED>::value || is_same<BASE,DERIVED>::value;
     };
 
   }
 
 
-  class Exception : public seal::Error
-  {
+  class Exception : public std::exception {
   public:
     typedef std::string Category;
     typedef std::list<Category> CategoryList;
 
-    explicit Exception(const Category& category);
-    Exception(const Category& category,
-	      const std::string& message);
-    Exception(const Category& category,
-	      const std::string& message,
-	      const Exception& another);
-    Exception(const Exception& other);
-    virtual ~Exception();
+    explicit Exception(Category const& category);
+    Exception(Category const& category,
+	      std::string const& message);
+    Exception(Category const& category,
+	      std::string const& message,
+	      Exception const& another);
+    Exception(Exception const& other); 
+    virtual ~Exception() throw();
 
-    std::string what() const;
+    virtual char const* what() const throw();
+
+    virtual std::string explainSelf() const;
+
     std::string category() const;
 
-    const CategoryList& history() const;
+    CategoryList const& history() const;
     std::string rootCause() const;
 
-    void append(const Exception& another);
-    void append(const std::string& more_information);
-    void append(const char* more_information);
+    void append(Exception const& another);
+    void append(std::string const& more_information);
+    void append(char const* more_information);
 
 
     // In the following templates, class E is our Exception class or
@@ -158,12 +158,12 @@ namespace cms
     template <class E, class T>
     friend
     typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
-    operator<<(E& e, const T& stuff);
+    operator<<(E& e, T const& stuff);
 
     template <class E, class T>
     friend
     typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
-    operator<<(E const& e, const T& stuff);
+    operator<<(E const& e, T const& stuff);
 
     template <class E>
     friend
@@ -205,9 +205,8 @@ namespace cms
 
   private:
 
-    // the following are required by seal::Error
-    virtual std::string explainSelf() const;
-    virtual seal::Error* clone() const;
+    // the following were required by seal::Error
+    virtual std::exception* clone() const;
     virtual void rethrow();
 
     // data members
@@ -218,9 +217,9 @@ namespace cms
 
   inline 
   std::ostream& 
-  operator<<(std::ostream& ost, const Exception& e)
+  operator<<(std::ostream& ost, Exception const& e)
   {
-    ost << e.what();
+    ost << e.explainSelf();
     return ost;
   }
 
@@ -229,19 +228,25 @@ namespace cms
   template <class E, class T>
   inline
   typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
-  operator<<(E& e, const T& stuff)
+  operator<<(E& e, T const& stuff)
   {
+    std::cout << "STUFF 1 BEGIN: " << e.ost_.str() << std::endl;
+    std::cout << "STUFF 1: " << stuff << std::endl;
     e.ost_ << stuff;
+    std::cout << "STUFF 1 END: " << e.ost_.str() << std::endl;
     return e;
   }
 
   template <class E, class T>
   inline
   typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
-  operator<<(E const& e, const T& stuff)
+  operator<<(E const& e, T const& stuff)
   {
     E& ref = const_cast<E&>(e);
+    std::cout << "STUFF 2 BEGIN: " << e.ost_.str() << std::endl;
+    std::cout << "STUFF 2: " << stuff << std::endl;
     ref.ost_ << stuff;
+    std::cout << "STUFF 2 END: " << e.ost_.str() << std::endl;
     return e;
   }
 
@@ -292,7 +297,7 @@ namespace cms
   // template <class E>
   // inline 
   // typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type & 
-  // operator<<(E& e, const char* c)
+  // operator<<(E& e, char const* c)
   // {
   //   e.ost_ << c;
   //   return e;
@@ -301,7 +306,7 @@ namespace cms
   // template <class E>
   // inline 
   // typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const& 
-  // operator<<(E const& e, const char* c)
+  // operator<<(E const& e, char const* c)
   // {
   //   E& ref = const_cast<E&>(e);
   //   ref.ost_ << c;

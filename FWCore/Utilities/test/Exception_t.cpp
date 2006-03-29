@@ -116,24 +116,21 @@ const char* correct[] = { "InfiniteLoop","DataCorrupt" };
 
 int main()
 {
-  try
-    {
+  try {
       func1();
-    }
-  catch (Exception& e)
-    {
+  }
+  catch (Exception& e) {
       cerr << "*** main caught Exception, output is ***\n"
-	   << "(" << e.what() << ")"
+	   << "(" << e.explainSelf() << ")"
 	   << "*** After exception output ***"
 	   << endl;
 
 
-      if(e.what() != expected)
-	{
+      if(e.explainSelf() != expected) {
 	  cerr << "not right answer\n(" << expected << ")\n"
 	       << endl;
 	  abort();
-	}
+      }
 
 
       cerr << "\nCategory name list:\n";
@@ -144,12 +141,12 @@ int main()
       //if(e.history().size() !=2) abort();
       assert (e.history().size() == 2);
 
-      for(int j=0;i!=b;++i,++j)
-	{
-	  cout << "  " << *i << "\n";
-	  if(*i != correct[j])
-	    { cerr << "bad category " << *i << endl; abort(); }
-	}
+      for(int j=0; i != b; ++i,++j) {
+	cout << "  " << *i << "\n";
+	if(*i != correct[j]) {
+	  cerr << "bad category " << *i << endl; abort();
+        }
+      }
     }
   return 0; 
 }

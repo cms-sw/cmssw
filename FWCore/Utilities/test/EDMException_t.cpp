@@ -23,22 +23,19 @@ void func2()
 
 void func1()
 {
-  try 
-    {
+  try {
       func2();
-    }
-  catch (edm::Exception& e)
-    {
-      //cerr << "GOT HERE" << endl;
-      throw edm::Exception(edm::errors::Unknown,"In func2",e)
+  }
+  catch (edm::Exception& e) {
+    //cerr << "GOT HERE" << endl;
+    throw edm::Exception(edm::errors::Unknown,"In func2",e)
 	<< "Gave up";
-    }
-  catch (cms::Exception& e)
-    {
-      //cerr << "GOT HERE2 " << typeid(e).name() << endl;
-      throw cms::Exception("edm::errors::Unknown","In func2 bad place",e)
+  }
+  catch (cms::Exception& e) {
+    //cerr << "GOT HERE2 " << typeid(e).name() << endl;
+    throw cms::Exception("edm::errors::Unknown","In func2 bad place",e)
 	<< "Gave up";
-    }
+  }
   
 }
 
@@ -56,43 +53,40 @@ const char* correct[] = { "Unknown","NotFound" };
 
 int main()
 {
-  try
-    {
-      func1();
-    }
-  catch (cms::Exception& e)
-    {
-      cerr << "*** main caught Exception, output is ***\n"
-	   << "(" << e.what() << ")"
-	   << "*** After exception output ***"
-	   << endl;
+  try {
+    func1();
+  }
+  catch (cms::Exception& e) {
+    cerr << "*** main caught Exception, output is ***\n"
+	 << "(" << e.explainSelf() << ")"
+	 << "*** After exception output ***"
+	 << endl;
 
-      cerr << "\nCategory name list:\n";
+    cerr << "\nCategory name list:\n";
 
 #if 1
-      if(e.what() != answer)
-	{
-	  cerr << "not right answer\n(" << answer << ")\n"
-	       << endl;
-	  abort();
-	}
+    if(e.explainSelf() != answer) {
+	cerr << "not right answer\n(" << answer << ")\n"
+	     << endl;
+	abort();
+    }
 #endif
 
-      cms::Exception::CategoryList::const_iterator i(e.history().begin()),
+    cms::Exception::CategoryList::const_iterator i(e.history().begin()),
 	b(e.history().end());
 
-      if(e.history().size() !=2) 
-	{
-	  cerr << "Exception history is bad"  << endl;
-	  abort();
-	}
-
-      for(int j=0;i!=b;++i,++j)
-	{
-	  cout << "  " << *i << "\n";
-	  if(*i != correct[j])
-	    { cerr << "bad category " << *i << endl; abort(); }
-	}
+    if(e.history().size() !=2) {
+      cerr << "Exception history is bad"  << endl;
+      abort();
     }
+
+    for(int j=0; i != b; ++i, ++j) {
+      cout << "  " << *i << "\n";
+      if(*i != correct[j]) {
+        cerr << "bad category " << *i << endl;
+        abort();
+      }
+    }
+  }
   return 0; 
 }
