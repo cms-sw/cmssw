@@ -13,9 +13,13 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.1 2006/02/09 19:28:56 gbruno Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.2 2006/03/08 13:04:07 dkcira Exp $
 //
 //
+
+#include <vector>
+//#include <algorithm>
+#include <numeric>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -85,14 +89,17 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
       // set appropriate folder using SiStripFolderOrganizer
       folder_organizer.setDetectorFolder(*detid_iterator); // pass the detid to this method
       // create nr. of clusters per module
-      hid = hidmanager.createHistoId("ClusterDistribution","det",*detid_iterator);
+      hid = hidmanager.createHistoId("ClustersPerDetector","det",*detid_iterator);
       local_modmes.NrClusters = dbe_->book1D(hid, hid, 31,-0.5,30.5);
       //create ClusterPosition
       hid = hidmanager.createHistoId("ClusterPosition","det",*detid_iterator);
       local_modmes.ClusterPosition = dbe_->book1D(hid, hid, 31,-0.5,30.5);
       //create ClusterWidth
       hid = hidmanager.createHistoId("ClusterWidth","det",*detid_iterator);
-      local_modmes.ClusterWidth = dbe_->book1D(hid, hid, 31,-0.5,30.5);
+      local_modmes.ClusterWidth = dbe_->book1D(hid, hid, 10,-0.5,10.5);
+      //create ClusterWidth
+      hid = hidmanager.createHistoId("ClusterCharge","det",*detid_iterator);
+      local_modmes.ClusterCharge = dbe_->book1D(hid, hid, 31,-0.5,256.5);
       // append to ClusterMEs
       ClusterMEs.insert( std::make_pair(*detid_iterator, local_modmes));
     }
@@ -127,30 +134,53 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     edm::Handle<SiStripClusterCollection> cluster_collection;
     iEvent.getByLabel(clusterProducer, cluster_collection);
     // get range of clusters belonging to detector detid
-    const SiStripClusterCollection::Range cluster_range = cluster_collection->get(detid);
+    const SiStripClusterCollection::Range clusterRange = cluster_collection->get(detid);
+//    SiStripClusterCollection::ContainerIterator clusterRangeIteratorBegin = clusterRange.first;
+//    SiStripClusterCollection::ContainerIterator clusterRangeIteratorEnd   = clusterRange.second;
+    SiStripClusterCollection::ContainerIterator icluster;
+
 
     if(local_modmes.NrClusters != NULL){ // nr. of clusters per module
       // following line works only if clusters consecutive but is much shorter than looping
-      int nr_clusters = cluster_range.second - cluster_range.first + 1;
+      int nr_clusters = clusterRange.second - clusterRange.first + 1;
       (local_modmes.NrClusters)->Fill(static_cast<float>(nr_clusters),1.);
     }
     if(local_modmes.ClusterPosition != NULL){ // position of cluster
-//      for(SiStripClusterCollection::iterator icluster = cluster_range.first; icluster<cluster_range.second; icluster++){
-//      (local_modmes.ClusterPosition)->Fill((*icluster).barycenter(),1.);
-//      }
+      for(icluster = clusterRange.first; icluster<clusterRange.second; icluster++){
+        (local_modmes.ClusterPosition)->Fill((*icluster).barycenter(),1.);
+      }
     }
     if(local_modmes.ClusterWidth != NULL){ // width of cluster
-//--- ! no method for getting directly width - leave empty for the moment
-//      for(SiStripClusterCollection::const_iterator icluster = cluster_range.first; icluster<cluster_range.second; icluster++){
-//      (local_modmes.ClusterWidth)->Fill((*icluster).barycenter(),1.);
-//      }
+//--- ! no method for getting directly width
+      for(icluster = clusterRange.first; icluster<clusterRange.second; icluster++){
+        const std::vector<short>& ampls = icluster->amplitudes();
+        short local_size = ampls.size(); // nr. of strips that belong to cluster - use this as width for the moment
+        (local_modmes.ClusterWidth)->Fill(static_cast<float>(local_size),1.);
+      }
     }
+    if(local_modmes.ClusterCharge != NULL){ // charge of cluster
+      for(icluster = clusterRange.first; icluster<clusterRange.second; icluster++){
+        const std::vector<short>& ampls = icluster->amplitudes();
+//        short local_charge = accumulate( ampls.begin(), ampls.end(), 0 ); // when using this program crashes
+        short local_charge = 0;
+        for(std::vector<short>::const_iterator i = ampls.begin(); i<ampls.end(); i++){
+          local_charge += *i;
+        }
+        (local_modmes.ClusterCharge)->Fill(static_cast<float>(local_charge),1.);
+      }
+    }
+//
   }
 }
 
 void SiStripMonitorCluster::endJob(void){
-//  dbe_->showDirStructure();
-  dbe_->save("test_cluster.root");
+     dbe_->save("test_cluster.root");
+//    bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
+//    string outputFileName = conf_.getParameter<string>("OutputFileName");
+// //  dbe_->showDirStructure();
+//   if(outputMEsInRootFile){
+//     dbe_->save(outputFileName);
+//   }
 }
 
 //define this as a plug-in

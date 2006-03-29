@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.1 2006/02/09 19:28:56 gbruno Exp $
+// $Id: SiStripMonitorCluster.h,v 1.2 2006/03/08 13:04:15 dkcira Exp $
 //
 
 // system include files
@@ -47,6 +47,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
         MonitorElement* NrClusters;
         MonitorElement* ClusterPosition;
         MonitorElement* ClusterWidth;
+        MonitorElement* ClusterCharge;
        };
        DaqMonitorBEInterface* dbe_;
        edm::ParameterSet conf_;
