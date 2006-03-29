@@ -9,8 +9,8 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/02/22 01:16:15 $
+// $Author: gutsche $
+// $Date: 2006/03/28 23:15:44 $
 // $Revision: 1.1 $
 //
 
@@ -59,8 +59,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     RoadSearchCloud::SeedRefs seeds = cloud->seeds();
     RoadSearchCloud::SeedRef ref = *(seeds.begin());
 
-    TrajectorySeed *seed = (*ref).clone();
-    PTrajectoryStateOnDet *state = (*ref).startingState().clone();
+    TrajectorySeed seed = *((*ref).clone());
+    PTrajectoryStateOnDet state = *((*ref).startingState().clone());
   
     output.push_back(TrackCandidate(recHits,seed,state));
   }
