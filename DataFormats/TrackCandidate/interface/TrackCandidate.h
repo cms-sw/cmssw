@@ -26,20 +26,20 @@ class TrackCandidate{
  virtual ~TrackCandidate(){}
   
   
-  TrackCandidate(RecHitContainer rh, TrajectorySeed* s, PTrajectoryStateOnDet* st) :
+  TrackCandidate(RecHitContainer rh, TrajectorySeed s, PTrajectoryStateOnDet st) :
     rh_(rh), seed_(s), state_(st) {}
   TrackCandidate(RecHitContainer rh) :
-    rh_(rh),  seed_(0), state_(0) {}
+    rh_(rh),  seed_(), state_() {}
   
-  PTrajectoryStateOnDet& trajectoryStateOnDet() const { return *state_;}
+  PTrajectoryStateOnDet trajectoryStateOnDet() const { return state_;}
 
   range recHits() const {return std::make_pair(rh_.begin(), rh_.end());}
 
-  TrajectorySeed& seed() const {return *seed_;}
+  TrajectorySeed seed() const {return seed_;}
 
  private:
   RecHitContainer rh_;
-  TrajectorySeed* seed_;
-  PTrajectoryStateOnDet* state_;
+  TrajectorySeed seed_;
+  PTrajectoryStateOnDet state_;
 };
 #endif
