@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 /** \class HcalTopology
 
@@ -16,11 +17,11 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2005/10/06 00:42:49 $
-   $Revision: 1.4 $
+   $Date: 2005/11/30 19:55:34 $
+   $Revision: 1.5 $
    \author J. Mans - Minnesota
 */
-class HcalTopology {
+class HcalTopology : public CaloSubdetectorTopology {
 public:
   HcalTopology();
   
@@ -32,7 +33,20 @@ public:
   int exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi1, int iphi2, int depth1=1, int depth2=4);
 
   /** Is this a valid cell id? */
-  bool valid(const HcalDetId& id) const;
+  virtual bool valid(const HcalDetId& id) const;
+  /** Get the neighbors of the given cell in east direction*/
+  virtual std::vector<DetId> east(const DetId& id) const;
+  /** Get the neighbors of the given cell in west direction*/
+  virtual std::vector<DetId> west(const DetId& id) const;
+  /** Get the neighbors of the given cell in north direction*/
+  virtual std::vector<DetId> north(const DetId& id) const;
+  /** Get the neighbors of the given cell in south direction*/
+  virtual std::vector<DetId> south(const DetId& id) const;
+  /** Get the neighbors of the given cell in up direction (outward)*/
+  virtual std::vector<DetId> up(const DetId& id) const;
+  /** Get the neighbors of the given cell in down direction (inward)*/
+  virtual std::vector<DetId> down(const DetId& id) const;
+
   /** Get the neighbors of the given cell with higher (signed) ieta */
   int incIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
   /** Get the neighbors of the given cell with lower (signed) ieta */
