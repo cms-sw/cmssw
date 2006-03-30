@@ -79,7 +79,6 @@
 #include "boost/type_traits/is_base_and_derived.hpp"
 #include "boost/type_traits/is_polymorphic.hpp"
 
-#include <iostream>
 namespace cms {
 
   namespace detail {
@@ -230,10 +229,7 @@ namespace cms {
   typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
   operator<<(E& e, T const& stuff)
   {
-    std::cout << "STUFF 1 BEGIN: " << e.ost_.str() << std::endl;
-    std::cout << "STUFF 1: " << stuff << std::endl;
     e.ost_ << stuff;
-    std::cout << "STUFF 1 END: " << e.ost_.str() << std::endl;
     return e;
   }
 
@@ -243,10 +239,7 @@ namespace cms {
   operator<<(E const& e, T const& stuff)
   {
     E& ref = const_cast<E&>(e);
-    std::cout << "STUFF 2 BEGIN: " << e.ost_.str() << std::endl;
-    std::cout << "STUFF 2: " << stuff << std::endl;
     ref.ost_ << stuff;
-    std::cout << "STUFF 2 END: " << e.ost_.str() << std::endl;
     return e;
   }
 
