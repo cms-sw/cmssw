@@ -28,7 +28,8 @@ namespace stor
     event_area_(1000*1000*7),
     inserter_(*evtbuf_q_),
     prods_(&p),
-	info_(&h)
+	info_(&h),
+    evtsrv_area_(10), oneinN_(10), count_4_oneinN_(0) // added for Event Server by HWKC
   {
   }
 
@@ -129,6 +130,13 @@ namespace stor
 	  evtp = inserter_.decode(msg,*prods_);
 	}
 	inserter_.send(evtp);
+        // added for Event Server by HWKC - copy event to Event Server buffer
+        count_4_oneinN_++;
+        if(count_4_oneinN_ == oneinN_)
+        {
+          evtsrv_area_.push_back(msg);
+          count_4_oneinN_ = 0;
+        }
 
 	// used to be like next line, but that does decode and send in
 	// one operation, which can cause deadlock with the global junky lock
@@ -182,6 +190,15 @@ namespace stor
 	  evtp = inserter_.decode(em,*prods_);
 	}
 	inserter_.send(evtp);
+        // added for Event Server by HWKC - copy event to Event Server buffer
+        // note that em does not have the correct totalsize in totalSize()
+        // the ring buffer must use msgSize() or we send always 7MB events
+        count_4_oneinN_++;
+        if(count_4_oneinN_ == oneinN_)
+        {
+          evtsrv_area_.push_back(em);
+          count_4_oneinN_ = 0;
+        }
 
 	// see inserter use comment above
 	// inserter_.insert(em,*prods_);
