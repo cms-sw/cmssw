@@ -11,15 +11,15 @@ class SiStripRecHit2DMatchedLocalPos : public BaseSiStripRecHit2DLocalPos{
   ~SiStripRecHit2DMatchedLocalPos(){}
   SiStripRecHit2DMatchedLocalPos( const LocalPoint& pos, const LocalError& err, const DetId& id , const SiStripRecHit2DLocalPos* rMono,const SiStripRecHit2DLocalPos* rStereo);
 					 
-  const SiStripRecHit2DLocalPos *stereoHit() const { return componentStereo_;}
-  const SiStripRecHit2DLocalPos *monoHit() const { return componentMono_;}
+  const SiStripRecHit2DLocalPos *stereoHit() const { return &componentStereo_;}
+  const SiStripRecHit2DLocalPos *monoHit() const { return &componentMono_;}
   
   
   virtual SiStripRecHit2DMatchedLocalPos * clone() const {return new SiStripRecHit2DMatchedLocalPos( * this); }
 
   
  private:
-  const SiStripRecHit2DLocalPos *componentMono_,*componentStereo_;
+  const SiStripRecHit2DLocalPos componentMono_,componentStereo_;
 };
 
 
