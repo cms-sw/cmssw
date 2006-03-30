@@ -10,6 +10,9 @@ namespace cond{
   public:
     DBWriter( cond::DBSession& session,
 	      const std::string& containerName );
+    DBWriter( cond::DBSession& session,
+	      const std::string& containerName,
+	      const std::string& mappingFileName);
     ~DBWriter();
     /**pin the object into the object cache
      */
@@ -39,7 +42,7 @@ namespace cond{
     cond::DBSession& m_session;
     const std::string m_containerName;
     pool::Placement* m_placement;
-    std::string m_mappingoutput;
+    std::string m_mappinginput;
   };
 }
 #endif

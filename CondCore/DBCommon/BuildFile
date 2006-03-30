@@ -1,12 +1,14 @@
 <use name=Framework/SealKernel>
 <use name=CORALRelationalAccess>
 <use name=DataSvc>
+<use name=ObjectRelationalAccess>
 <use name=rootrflx>
 <use name=FWCore/Utilities>
 <export>
   <use name=Framework/SealKernel>
   <use name=CORALRelationalAccess>
   <use name=DataSvc>
+  <use name=ObjectRelationalAccess>
   <use name=rootrflx>
   <use name=FWCore/Utilities>
   <lib name=CondCoreDBCommon>
