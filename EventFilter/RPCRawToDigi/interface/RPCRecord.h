@@ -7,48 +7,55 @@
  *  possible types are: 
  *      StartOfBXData,
  *    	StartOfChannelData,
- *   	ChamberData,
+ *   	LinkBoardData,
  *    	EmptyWord,
  *      RMBDiscarded,
  *	RMBCorrupted,
  *	DCCDiscarded,
  *      UndefinedType.
  *
- *  $Date: 2005/12/12 17:29:24 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/12/15 17:47:10 $
+ *  $Revision: 1.5 $
  *  \author Ilaria Segoni
   */
 
 class RPCRecord {
 
 public:
-  
-  /// Constructor
-  RPCRecord(const unsigned char* index, bool printout): 
-    word_(reinterpret_cast<const unsigned int*>(index)), verbosity(printout){};
-
-  /// Destructor
-  virtual ~RPCRecord() {};
-
-  /// List of RPC RecordTypes
   enum recordTypes {
         StartOfBXData = 1, 
     	StartOfChannelData = 2,
-    	ChamberData   = 3,
+    	LinkBoardData = 3,
     	EmptyWord     = 4,
         RMBDiscarded  = 5,
 	RMBCorrupted  = 6,
 	DCCDiscarded  = 7,
         UndefinedType = 8
   };
+  
+  /// Constructor
+  RPCRecord(const unsigned char* index, bool printout,enum RPCRecord::recordTypes previousRecord): 
+    word_(reinterpret_cast<const unsigned int*>(index)), verbosity(printout){
+    oldRecord=previousRecord;};
 
+  /// Destructor
+  virtual ~RPCRecord() {};
 
+  /// List of RPC RecordTypes
+
+  /// Computes record type using pointer to beginning of buffer (* word_)
+  enum recordTypes computeType(); 
   /// Record type getter 
   enum recordTypes type(); 
-   
+   /// Buffer pointer getter 
+  const unsigned int * buf(); 
+  
+  /// Check that  StartOfBXData is followed by StartOfChannelData and that StartOfChannelData is followed
+  /// by LinkBoardData
+  bool check(); 
     
   /// Control bits definitions
-  static const int MaxChamberFlag  = 2;
+  static const int MaxLBFlag       = 2;
   static const int controlWordFlag = 3;
   
   static const int BXFlag                  = 1;
@@ -78,7 +85,8 @@ private:
 
   const unsigned int * word_;
   bool verbosity;
-
+  enum recordTypes oldRecord;
+  enum recordTypes wordType;
 
 };
 
