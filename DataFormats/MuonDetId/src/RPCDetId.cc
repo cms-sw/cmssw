@@ -2,17 +2,17 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.11 2006/03/09 00:21:53 mmaggi Exp $
+ * \version $Id: RPCDetId.cc,v 1.12 2006/03/20 08:24:52 namapane Exp $
  * \date 02 Aug 2005
  */
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <FWCore/Utilities/interface/Exception.h>
 
-RPCDetId::RPCDetId():DetId(DetId::Muon, MuonSubdetId::RPC){}
+RPCDetId::RPCDetId():DetId(DetId::Muon, MuonSubdetId::RPC),trind(0){}
 
 
-RPCDetId::RPCDetId(uint32_t id):DetId(id) {
+RPCDetId::RPCDetId(uint32_t id):DetId(id),trind(0) {
   //  std::cout<<" constructor of the RPCDetId" <<std::endl;
   if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::RPC) {
     throw cms::Exception("InvalidDetId") << "RPCDetId ctor:"
@@ -25,7 +25,7 @@ RPCDetId::RPCDetId(uint32_t id):DetId(id) {
 
 
 RPCDetId::RPCDetId(int region, int ring, int station, int sector, int layer,int subsector, int roll):	      
-        DetId(DetId::Muon, MuonSubdetId::RPC)
+  DetId(DetId::Muon, MuonSubdetId::RPC),trind(0)
 {
   this->init(region,ring,station,sector,layer,subsector,roll);
 }
