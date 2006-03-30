@@ -12,17 +12,15 @@
 
 #include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
-#include <EventFilter/RPCRawToDigi/interface/RPCEventData.h>
+#include <EventFilter/RPCRawToDigi/interface/RPCFEDData.h>
 #include <iostream>
 #include <vector>
-
-class RPCDetId;
 
 
 class RPCRecordFormatter{
 	public:
 	   ///Creator 
-	   RPCRecordFormatter(bool printout);
+	   RPCRecordFormatter();
 	   
 	   ///Destructor 
 	   ~RPCRecordFormatter();
@@ -30,31 +28,27 @@ class RPCRecordFormatter{
 	   /// Record Unpacker driver
 	   /// Takes a reference to std::auto_ptr<RPCDigiCollection> because
 	   /// I don't want to transfer ownership of RPCDigiCollection (I.S.)
-	   void recordUnpack(RPCRecord::recordTypes typeOfRecord, const unsigned
-	   			char* recordIndex, std::auto_ptr<RPCDigiCollection> & prod);
+	   void recordUnpack(RPCRecord & theRecord,std::auto_ptr<RPCDigiCollection> & prod, RPCFEDData & rawData);
            
 	   ///Unpack record type Start of BX Data and return BXN
-           int unpackBXRecord(const unsigned char* recordIndex); 
+           int unpackBXRecord(const unsigned int* recordIndex); 
       
-          ///Unpack record type Channel Data and return DetId
-          RPCDetId unpackChannelRecord(const unsigned char* recordIndex); 
+          ///Unpack record type Channel Data (=> finds rmb and channel number)
+          void unpackChannelRecord(const unsigned int* recordIndex); 
       
-          ///Unpack record type Chamber Data and return vector of Strip ID
-          std::vector<int> unpackChamberRecord(const unsigned char* recordIndex); 
+          ///Unpack record type Link Board Data and return vector of BITS with
+	  /// signal
+          RPCLinkBoardData  unpackLBRecord(const unsigned int* recordIndex); 
     
-         ///Unpack RMB corrupted/discarded data
-          void unpackRMBCorruptedRecord(const unsigned char* recordIndex);
+         ///Unpacks RMB corrupted/discarded data
+          void unpackRMBCorruptedRecord(const unsigned int* recordIndex, 
+	  	enum RPCRecord::recordTypes type, RPCFEDData & rawData);
 
-         ///Returnss Container for DQM imformation
-         RPCEventData eventData(){return rpcData;}
 
 
       private:    
-    
-         bool verbosity;  
-         RPCEventData rpcData; 
-	 RPCDetId currentDetId;
-	 int currentBx;
+    	 int currentRMB;
+    	 int currentChannel;
 };
 
 #endif
