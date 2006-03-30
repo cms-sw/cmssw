@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.11 2006/03/16 16:22:52 llista Exp $
+ * \version $Id: Muon.h,v 1.12 2006/03/23 11:00:27 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -16,6 +16,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonExtra.h"
+#include "DataFormats/EGammaReco/interface/SuperClusterFwd.h"
 
 namespace reco {
  
@@ -36,6 +37,10 @@ namespace reco {
     void setTrack( const TrackRef & ref ) { track_ = ref; }
     /// reference to Track reconstructed in the tracker only
     const TrackRef & track() const { return track_; }
+    /// set reference to associated Ecal SuperCluster
+    void setSuperCluster( const SuperClusterRef & ref ) { superCluster_ = ref; }
+    /// reference to associated Ecal SuperCluster
+    const SuperClusterRef & superCluster() const { return superCluster_; }
 
     /// reference to Track reconstructed in the muon detector only
     const TrackRef & standAloneMuon() const { return extra_->standAloneMuon(); }
@@ -53,6 +58,8 @@ namespace reco {
   private:
     /// reference to Track reconstructed in the tracker only
     TrackRef track_;
+    /// reference to associated Ecal SuperCluster
+    SuperClusterRef superCluster_;
     /// reference to "extra" object
     MuonExtraRef extra_;
 };
