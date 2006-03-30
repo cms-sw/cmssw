@@ -30,14 +30,15 @@ namespace edmtestp
 
   private:  
     std::string sourceurl_;
-    std::string eventurl_;
-    std::string headerurl_;
+    char eventurl_[256];
+    char headerurl_[256];
     Buf buf_;
+    int max_events2read_;  // use this until we inherent from the right input source
+    int events_read_;      // use this until we inherent from the right input source
     edm::EventDecoder decoder_;
     edm::ProductRegistry prods_;
   };
 
 }
-
 #endif
 
