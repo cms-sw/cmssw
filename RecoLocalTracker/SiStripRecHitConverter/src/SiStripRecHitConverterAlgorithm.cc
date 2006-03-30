@@ -10,22 +10,17 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverterAlgorithm.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 
+
+//DataFormats
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
+//Geometry
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 
-#include "Geometry/Surface/interface/LocalError.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-
+//messagelogger
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
 
 SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
@@ -63,7 +58,7 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
       DetId detId(id);
       //get geometry 
       const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tracker.idToDetUnit(detId);
-      if(stripdet==0)std::cout<<"Detid="<<id<<" not found, trying next one"<<endl;
+      if(stripdet==0)edm::LogWarning("SiStripRecHitConverter")<<"Detid="<<id<<" not found, trying next one";
       else{
 	const SiStripClusterCollection::Range clusterRange = input->get(id);
 	SiStripClusterCollection::ContainerIterator clusterRangeIteratorBegin = clusterRange.first;
@@ -106,8 +101,8 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
     SiStripRecHit2DLocalPosCollection::const_iterator rhRangeIteratorBegin = monoRecHitRange.first;
     SiStripRecHit2DLocalPosCollection::const_iterator rhRangeIteratorEnd   = monoRecHitRange.second;
     SiStripRecHit2DLocalPosCollection::const_iterator iter;
-    int numrechitrphi = rhRangeIteratorEnd - rhRangeIteratorBegin;
-    cout<<"n rechit= "<<numrechitrphi<<endl;
+    //int numrechitrphi = rhRangeIteratorEnd - rhRangeIteratorBegin;
+    //cout<<"n rechit= "<<numrechitrphi<<endl;
     unsigned int id = 0;
     for(iter=rhRangeIteratorBegin;iter!=rhRangeIteratorEnd;++iter){//loop on the mono RH
       edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collectorMatchedSingleHit; 
@@ -120,8 +115,8 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 	SiStripRecHit2DLocalPosCollection::const_iterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
 	
 	//	edm::OwnVector<SiStripRecHit2DMatchedLocalPos> tempCollector; 
-	int numrechitstereo = rhpartnerRangeIteratorEnd - rhpartnerRangeIteratorBegin;
-	cout<<"n rechit stereo= "<<numrechitstereo<<endl;
+	//int numrechitstereo = rhpartnerRangeIteratorEnd - rhpartnerRangeIteratorBegin;
+	//cout<<"n rechit stereo= "<<numrechitstereo<<endl;
 
       if (id>0){
 	//	DetId partnerdetId(id);
@@ -157,12 +152,12 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
     }
   }
 
-  if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-    std::cout << "[SiStripRecHitConverterAlgorithm] found" << std::endl; 
-    std::cout << nmono << "  clusters in mono detectors"<< std::endl;
-    std::cout << nstereo << "  clusters in partners stereo detectors"<< std::endl;
-    std::cout << nmatch << "  matched RecHit"<< std::endl;
-    std::cout << nunmatch << "  unmatched clusters "<< std::endl;
-  }
+  //  if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
+  edm::LogInfo("SiStripRecHitConverter") << "found\n"
+					 << nmono << "  clusters in mono detectors\n"
+					 << nstereo << "  clusters in partners stereo detectors\n"
+					 << nmatch << "  matched RecHit\n"
+					 << nunmatch << "  unmatched clusters";
+  //}
 };
   

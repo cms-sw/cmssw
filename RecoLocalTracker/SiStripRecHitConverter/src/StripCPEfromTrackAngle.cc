@@ -1,5 +1,6 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 //typedef std::pair<LocalPoint,LocalError>  LocalValues;
 
@@ -35,7 +36,7 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParamet
   LocalVector trackDir = atrackUnit;
       
   if(drift.z() == 0.) {
-    std::cout <<"StripDet::chargeCollectionAngles : No drift towards anodes !!!"<<std::endl;
+    edm::LogError("StripCPE") <<"No drift towards anodes !!!";
     eresult = topol.localError(cl.barycenter(),1/12.);
     return std::make_pair(position+drift*(thickness/2),eresult);
   }	 

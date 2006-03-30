@@ -12,20 +12,10 @@
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-
-#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
-#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-
 #include "Geometry/Surface/interface/LocalError.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
 
 ReadRecHitAlgorithm::ReadRecHitAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
@@ -57,8 +47,8 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DLocalPosCollection* input)
 	  //GeomDet& det=rechit->det();
 	  //DetId id=rechit.geographicalId();
 	  std::vector<const SiStripCluster*> clust=rechit.cluster();
-	  std::cout<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<" "<<std::endl;
-	  std::cout<<"local error: "<<error.xx()<<" "<<error.xy()<<" "<<error.yy()<<" "<<std::endl;
+	  edm::LogInfo("ReadRecHit")<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<"\n"
+	  <<"local error: "<<error.xx()<<" "<<error.xy()<<" "<<error.yy();
 	  //	  std::cout<<"det id: "<<id.rawid<<std::endl;
       }
     }
@@ -88,8 +78,8 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DMatchedLocalPosCollection* in
 	  //GeomDet& det=rechit->det();
 	  //DetId id=rechit.geographicalId();
 	  //	  std::vector<const SiStripCluster*> clust=rechit.cluster();
-	  std::cout<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<" "<<std::endl;
-	  std::cout<<"local error: "<<error.xx()<<" "<<error.xy()<<" "<<error.yy()<<" "<<std::endl;
+	  edm::LogInfo("ReadRecHit")<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<"\n"
+	  <<"local error: "<<error.xx()<<" "<<error.xy()<<" "<<error.yy();
 	  //	  std::cout<<"det id: "<<id.rawid<<std::endl;
       }
     }

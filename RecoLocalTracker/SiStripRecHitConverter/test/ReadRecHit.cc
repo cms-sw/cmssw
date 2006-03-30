@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 namespace cms
 {
 
@@ -44,11 +44,11 @@ namespace cms
     e.getByLabel(rechitProducer,"rphiRecHit", rechitsrphi);
     e.getByLabel(rechitProducer,"stereoRecHit", rechitsstereo);
 
-    std::cout<<"Matched hits:"<<std::endl;
+    edm::LogInfo("ReadRecHit")<<"Matched hits:";
     readRecHitAlgorithm_.run(rechitsmatched.product());
-    std::cout<<"Rphi hits:"<<std::endl;
+    edm::LogInfo("ReadRecHit")<<"Rphi hits:";
     readRecHitAlgorithm_.run(rechitsrphi.product());
-  std::cout<<"Stereo hits:"<<std::endl;
+    edm::LogInfo("ReadRecHit")<<"Stereo hits:";
     readRecHitAlgorithm_.run(rechitsstereo.product());
   }
 
