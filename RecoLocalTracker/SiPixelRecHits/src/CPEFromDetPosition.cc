@@ -13,10 +13,14 @@
 //#include "Tracker/SiPixelDet/interface/PixelTopology.h"
 //  #include "CommonDet/DetGeometry/interface/ActiveMediaShape.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
+
 //#define DEBUG
 
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+// Magnetic field
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include <iostream>
 using namespace std;
@@ -29,7 +33,7 @@ const float degsPerRad = 57.29578;
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf) 
+CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf, const MagneticField *mag) 
 {
   //--- Lorentz angle tangent per Tesla
   theTanLorentzAnglePerTesla =
@@ -38,6 +42,9 @@ CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf)
   //--- Algorithm's verbosity
   theVerboseLevel = 
     conf.getUntrackedParameter<int>("VerboseLevel",20);
+
+  //-- Magnetic Field
+  magfield_ = mag;
 }
 
 
@@ -437,9 +444,10 @@ float
 CPEFromDetPosition::lorentzShift() const
 {
   // Implement only the x direction shift for now (OK for barrel)
-  // &&& TEMPORARY LocalVector dir = theDet->driftDirection( LocalPoint(0,0));
-  LocalVector dir(0,0,1);  // &&& TEMPORARY HACK
-  //LocalVector dir = driftDirection( GlobalVector bfield );
+  // &&& TEMPORARY 
+  //LocalVector dir = theDet->driftDirection( LocalPoint(0,0));
+  //LocalVector dir(0,0,1);  // &&& TEMPORARY HACK
+  LocalVector dir = driftDirection(magfield_->inTesla(theDet->surface().position()) );
 
   // max shift in cm 
   float xdrift = dir.x()/dir.z() * theThickness;  
@@ -447,9 +455,9 @@ CPEFromDetPosition::lorentzShift() const
   // divide by 2 to get the average correction
   float lshift = xdrift / thePitchX / 2.; 
 
-  //cout << "Lorentz Drift = " << xdrift << endl;
-  //cout << "X Drift = " << dir.x() << endl;
-  //cout << "Z Drift = " << dir.z() << endl;
+  cout << "Lorentz Drift = " << lshift << endl;
+  cout << "X Drift = " << dir.x() << endl;
+  cout << "Z Drift = " << dir.z() << endl;
  
   return lshift;  
 }

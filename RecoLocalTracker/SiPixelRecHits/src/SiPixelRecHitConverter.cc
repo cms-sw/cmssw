@@ -34,6 +34,9 @@ class GeometricDet;   // hack in 0.2.0pre5, OK for pre6 -- still needed?
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+// Magnetic Field
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 namespace cms
 {
 
@@ -52,14 +55,21 @@ namespace cms
 
     //--- Make the algorithm(s) according to what the user specified
     //--- in the ParameterSet.
-    setupCPE();
+    //setupCPE();
   }
 
 
   // Virtual destructor needed, just in case.
   SiPixelRecHitConverter::~SiPixelRecHitConverter() { }  
 
-
+  //---------------------------------------------------------------------------
+  // Begin job: get magnetic field
+  //---------------------------------------------------------------------------
+  void SiPixelRecHitConverter::beginJob(const edm::EventSetup& c) {
+    edm::ESHandle<MagneticField> magfield;
+    c.get<IdealMagneticFieldRecord>().get(magfield);
+    setupCPE(magfield.product());
+  }
 
   //---------------------------------------------------------------------------
   //! The "Event" entrypoint: gets called by framework for every event
@@ -97,12 +107,12 @@ namespace cms
   //!  TO DO: in the future, we should allow for a different algorithm for 
   //!  each detector subset (e.g. barrel vs forward, per layer, etc).
   //---------------------------------------------------------------------------
-  void SiPixelRecHitConverter::setupCPE() 
+  void SiPixelRecHitConverter::setupCPE(const MagneticField* mag) 
   {
     cpeName_ = conf_.getParameter<std::string>("CPE");
 
     if ( cpeName_ == "FromDetPosition" ) {
-      cpe_ = new CPEFromDetPosition(conf_);
+      cpe_ = new CPEFromDetPosition(conf_,mag);
       ready_ = true;
     } 
     else {

@@ -49,7 +49,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
+class MagneticField;
 namespace cms
 {
   class SiPixelRecHitConverter : public edm::EDProducer
@@ -66,10 +66,13 @@ namespace cms
     //--- likely we can use one (and they will switch internally), or
     //--- make two of the same but configure them differently.  We need a more
     //--- realistic use case...
-    void setupCPE();
+    void setupCPE(const MagneticField* mag);
 
     //--- The top-level event method.
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
+
+    // Begin Job
+    virtual void beginJob(const edm::EventSetup& c);
 
     //--- Execute the algorithm(s).
     void run(const SiPixelClusterCollection* input,

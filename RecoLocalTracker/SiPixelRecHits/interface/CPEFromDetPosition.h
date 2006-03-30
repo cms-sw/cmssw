@@ -32,12 +32,12 @@
  * the Det angle to estimate the track impact angle 
 */
 #endif
-
+class MagneticField;
 class CPEFromDetPosition : public PixelClusterParameterEstimator 
 {
  public:
   // CPEFromDetPosition( const DetUnit& det );
-  CPEFromDetPosition(edm::ParameterSet const& conf);
+  CPEFromDetPosition(edm::ParameterSet const& conf, const MagneticField*);
     
   // LocalValues is typedef for pair<LocalPoint,LocalError> 
   LocalValues localParameters( const SiPixelCluster & cl, 
@@ -77,6 +77,9 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
 
   mutable float theTanLorentzAnglePerTesla;   // Lorentz angle tangent per Tesla
   int   theVerboseLevel;              // algorithm's verbosity
+
+  //magnetic field
+  const MagneticField* magfield_;
 
   
   //methods
