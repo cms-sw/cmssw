@@ -1,50 +1,87 @@
 #ifndef Common_RangeMap_h
 #define Common_RangeMap_h
+/* \class edm::RangeMap
+ *
+ * Generic container storing objects arranged according 
+ * to a specified identifier. 
+ *
+ * The data content can be fetched either via
+ * an iterator, or specifying user-defined identifier 
+ * match criteria.
+ *
+ * The template parameters are:
+ * - ID: identifier type
+ * - C : underlying collection used to 
+ * - P : policy to perform object cloning
+ *
+ * \author Tommaso Boccali, Luca Lista INFN
+ *
+ * \version $Revision$
+ *
+ * $Id$
+ *
+ */
 #include <map>
 #include <vector>
 #include <ext/functional>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 
-// $Id: RangeMap.h,v 1.20 2006/03/20 17:35:23 tboccali Exp $
 namespace edm {
   
   template<typename ID, typename C, typename P>
-    class RangeMap {
-    public:
+  class RangeMap {
+  public:
+    /// contained object type
     typedef typename C::value_type value_type;
+    /// collection size type
     typedef typename C::size_type size_type;
+    /// reference type
     typedef typename C::reference reference;
+    /// pointer type
     typedef typename C::pointer pointer;
+    /// constant access iterator type
     typedef typename C::const_iterator const_iterator;
+    /// index range
     typedef std::pair<typename C::size_type, typename C::size_type> pairType;
+    /// map of identifier to index range
     typedef std::map<ID, pairType> mapType;
+    /// iterator range
     typedef std::pair<const_iterator, const_iterator> range;
-
+    
+  private:
+    /// comparator helper class
+    template<typename CMP> 
+    struct comp {
+      comp( const CMP  c ) : cmp( c ) { }
+      bool operator()( ID id, const typename mapType::value_type & p ) {
+	return cmp( id, p.first );
+      }
+      bool operator()( const typename mapType::value_type & p, ID id ) {
+	return cmp( p.first, id );
+      }
     private:
-    template<typename CMP> 
-      struct comp {
-	comp( const CMP  c ) : cmp( c ) { }
-	bool operator()( ID id, const typename mapType::value_type & p ) {
-	  return cmp( id, p.first );
-	}
-	bool operator()( const typename mapType::value_type & p, ID id ) {
-	  return cmp( p.first, id );
-	}
-        private:
-	  CMP cmp;
+      CMP cmp;
+      
+    };
 
-      };
-    public:
-
+  public:
+    /// default constructor
+    RangeMap() { }
+    /// get range of objects matching a specified identifier with a specified comparator.
+    /// <b>WARNING</b>: the comparator has to be written 
+    /// in such a way that the std::equal_range 
+    /// function returns a meaningful range.
+    /// Not properly written comparators may return
+    /// an unpredictable range. It is recommended
+    /// to use only comparators provided with CMSSW release.
     template<typename CMP> 
-      range get(ID id, CMP comparator) const {
+    range get(ID id, CMP comparator) const {
       using namespace __gnu_cxx;
       std::pair<typename mapType::const_iterator,
 	typename mapType::const_iterator> r =
         std::equal_range( map_.begin(), map_.end(), id, comp<CMP>( comparator ) );
       const_iterator begin, end;
-      
       if ((r.first) == map_.end()){
 	begin = end = collection_.end();
 	return  make_pair(begin,end);
@@ -58,12 +95,12 @@ namespace edm {
       }
       return  make_pair(begin,end);
     }
+    /// get range of objects matching a specified identifier with a specified comparator.
     template<typename CMP> 
     range get(std::pair<ID, CMP> p) const {
       return get(p.first, p.second ); 
     }
-
-    RangeMap() { }
+    /// get a range of objects with specified identifier
     range get( ID id ) const {
       const_iterator begin, end;
       typename mapType::const_iterator i = map_.find( id );
@@ -75,9 +112,9 @@ namespace edm {
       }
       return std::make_pair( begin, end );
     }
-
+    /// insert an object range with specified identifier
     template<typename CI>
-      void put( ID id, CI begin, CI end ) {
+    void put( ID id, CI begin, CI end ) {
       typename mapType::const_iterator i = map_.find( id );
       if( i != map_.end() ) 
       	throw cms::Exception( "Error" ) << "trying to insert duplicate entry";
@@ -88,10 +125,13 @@ namespace edm {
 	collection_.push_back( P::clone( * i ) );
       p.second = collection_.size();
     }
+    /// return number of contained object
     size_t size() const { return collection_.size(); }
+    /// first collection iterator 
     typename C::const_iterator begin() const { return collection_.begin(); }
+    /// last collection iterator 
     typename C::const_iterator end() const { return collection_.end(); }
-    
+    /// identifier iterator 
     struct id_iterator {
       typedef ID value_type;
       typedef ID * pointer;
@@ -109,10 +149,10 @@ namespace edm {
       bool operator==( const id_iterator& ci ) const { return i == ci.i; }
       bool operator!=( const id_iterator& ci ) const { return i != ci.i; }
       const ID operator * () const { return i->first; }      
-      private:
+    private:
       const_iterator i;
     };
-
+    /// perfor post insert action
     void post_insert() {
       // sorts the container via ID
       C tmp;
@@ -126,22 +166,29 @@ namespace edm {
       }
       collection_ = tmp;
     }
-
+    /// first identifier iterator 
     id_iterator id_begin() const { return id_iterator( map_.begin() ); }
+    /// last identifier iterator 
     id_iterator id_end() const { return id_iterator( map_.end() ); }
+    /// number of contained identifiers 
     size_t id_size() const { return map_.size(); }
+    /// indentifier vector
     std::vector<ID> ids() const {
       std::vector<ID> temp( id_size() );
       std::copy( id_begin(), id_end(), temp.begin() );
       return temp;
     }
-
+    /// direct access to an object in the collection
     reference operator[]( size_type i ) { return collection_[ i ]; }
+
   private:
+    /// stored collection
     C collection_;
+    /// identifier map
     mapType map_;
   };
   
+  /// has port insert function
   template<typename  ID, typename C, typename P > 
   struct edm::has_postinsert_trait<edm::RangeMap<ID,C,P> >  { 
     static bool const value = true; 
