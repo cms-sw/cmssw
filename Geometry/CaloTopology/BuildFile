@@ -2,9 +2,11 @@
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/EcalDetId>
 <use name=boost>
+<use name=Geometry/CaloGeometry>
 
 <export>
    <lib name=GeometryCaloTopology>
+   <use name=Geometry/CaloGeometry>	
    <use name=DataFormats/HcalDetId>
    <use name=DataFormats/EcalDetId>
    <use name=DataFormats/CaloTowers>
