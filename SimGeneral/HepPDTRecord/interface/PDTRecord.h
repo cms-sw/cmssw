@@ -4,9 +4,11 @@
  *
  * Description: Record for Particle Data Table entry
  *
- * Author: Luca Lista, INFN
- * Created:     Fri Mar 10 16:31:53 CET 2006
- * $Id: PDTRecord.h,v 1.1 2006/03/13 18:03:05 llista Exp $
+ * \author: Luca Lista, INFN
+ *
+ * \version $Revision$
+ *
+ * $Id: PDTRecord.h,v 1.1 2006/03/14 16:22:30 llista Exp $
  */
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

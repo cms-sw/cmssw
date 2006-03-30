@@ -1,0 +1,37 @@
+/*!
+\page SimGeneral_HepPDTESSource Package SimGeneral/HepPDTESSource
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/SimGeneral/HepPDTESSource/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/SimGeneral/HepPDTESSource/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Classes defining the Particle Data Table Event Setup Source.
+
+\subsection interface Public interface
+None.<br><br>
+An example of how to configure a job to use the Particle Data Table Event Setup Source
+is presented below:
+\htmlonly
+<pre>
+  es_source = HepPDTESSource {
+    string pdtFileName = "/afs/cern.ch/.../PDG_mass_width_2004.mc"
+  }
+</pre>
+\endhtmlonly
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+- <b>testPDT.cfg</b>: example of how to retrieve PDT from the Event Setup using
+the Event Setup Source.
+
+\section status Status and planned development
+Complete. Should be updated to use the non-CHLEP HepPDT version.
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/
