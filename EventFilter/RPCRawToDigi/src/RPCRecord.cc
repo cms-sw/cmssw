@@ -2,29 +2,24 @@
  *
  *  Implementation of RPCRecord Class
  *
- *  $Date: 2005/12/12 17:32:11 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/12/15 17:49:32 $
+ *  $Revision: 1.6 $
  *  \author Ilaria Segoni
  */
 
 
 #include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
-#include <EventFilter/RPCRawToDigi/interface/RPCBXData.h>
-#include <EventFilter/RPCRawToDigi/interface/RMBErrorData.h>
-#include <EventFilter/RPCRawToDigi/interface/RPCChannelData.h>
-#include <EventFilter/RPCRawToDigi/interface/RPCChamberData.h>
+#include <EventFilter/RPCRawToDigi/interface/RPCLinkBoardData.h>
 
 #include <iostream>
 
-using namespace std;
 
-
-RPCRecord::recordTypes RPCRecord::type(){ 
+RPCRecord::recordTypes RPCRecord::computeType(){ 
     
-enum recordTypes wordType = UndefinedType;
+wordType = UndefinedType;
     
-/// Chamber Data
-if ( (int)((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) <= MaxChamberFlag) wordType = ChamberData;
+/// Link Board Data
+if ( (int)((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) <= MaxLBFlag) wordType = LinkBoardData;
  
 /// Control Word
 if ( (int)((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) == controlWordFlag){
@@ -45,8 +40,21 @@ if ( (int)((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) == controlWordFlag)
 	}
 }
 
-
 return wordType;
 }
 
 
+bool RPCRecord::check(){
+
+ if((oldRecord<3) & (wordType != oldRecord+1)) return true;
+ return false;
+
+}
+
+RPCRecord::recordTypes RPCRecord::type(){ 
+return wordType;
+}
+
+const unsigned int * RPCRecord::buf(){
+return word_;
+} 
