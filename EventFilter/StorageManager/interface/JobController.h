@@ -6,6 +6,9 @@
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/EPRunner.h"
 
+// added by HWKC for Event Server
+#include "IOPool/StreamerData/interface/Messages.h"
+
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
 
@@ -39,6 +42,14 @@ namespace stor
     
     edm::EventBuffer& getFragmentQueue()
     { return collector_->getFragmentQueue(); }
+
+    // added for Event Server by HWKC so SM can get event from ring buffer
+    bool isEmpty() { return collector_->esbuf_isEmpty(); }
+    bool isFull() { return collector_->esbuf_isFull(); }
+    edm::EventMsg pop_front() {return collector_->esbuf_pop_front();}
+    void push_back(edm::EventMsg msg) 
+      { collector_->esbuf_push_back(msg); }
+    void set_oneinN(int N) { collector_->set_esbuf_oneinN(N); }
 
   private:
     void init(const std::string& my_config,FragmentCollector::Deleter);
