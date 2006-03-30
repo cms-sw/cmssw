@@ -455,9 +455,9 @@ CPEFromDetPosition::lorentzShift() const
   // divide by 2 to get the average correction
   float lshift = xdrift / thePitchX / 2.; 
 
-  cout << "Lorentz Drift = " << lshift << endl;
-  cout << "X Drift = " << dir.x() << endl;
-  cout << "Z Drift = " << dir.z() << endl;
+  //cout << "Lorentz Drift = " << lshift << endl;
+  //cout << "X Drift = " << dir.x() << endl;
+  //cout << "Z Drift = " << dir.z() << endl;
  
   return lshift;  
 }
