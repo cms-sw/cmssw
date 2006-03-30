@@ -1,11 +1,14 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2006/02/14 10:52:19 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/02/15 09:42:29 $
+ *  $Revision: 1.14 $
  *
  * \author Ilaria Segoni
  */
+
+
+//#define DEBUG_RPCUNPACKER
 
 #include <EventFilter/RPCRawToDigi/interface/RPCUnpackingModule.h>
 #include <EventFilter/RPCRawToDigi/interface/RPCUnpackingParameters.h>
@@ -28,13 +31,11 @@
 #include <iostream>
 
 using namespace edm;
-using namespace std;
 
 RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset) 
 :nEvents(0){
   
   printout = pset.getUntrackedParameter<bool>("PrintOut", false); 
-  hexprintout = pset.getUntrackedParameter<bool>("PrintHexDump", false); 
   
   instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
   if(instatiateDQM){   
@@ -61,7 +62,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 
  edm::LogInfo ("RPCUnpacker") <<"Got FEDRawData";
  
- auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
+ std::auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
 
  std::pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
  edm::LogInfo ("RPCUnpacker") <<"Starting loop on FEDs, RPC FED ID RANGE: "<<rpcFEDS.first<<" - "<<rpcFEDS.second;
@@ -70,11 +71,12 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
  
  edm::LogInfo ("RPCUnpacker") <<"Beginning To Unpack Event: "<<nEvents;
 
-	RPCRecordFormatter interpreter(printout);
+	RPCRecordFormatter interpreter;
 	for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){  
 
  		const FEDRawData & fedData = allFEDRawData->FEDData(id);
-   
+    		RPCFEDData rpcRawData;
+  
                 edm::LogInfo ("RPCUnpacker") <<"Beginning to Unpack FED number "<<id<<", FED size: "<<fedData.size()<<" bytes";			 
 
 		if(fedData.size()){
@@ -82,11 +84,11 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
      			const unsigned char* index = fedData.data();
        
       			/// Unpack FED Header(s)
-      			int numberOfHeaders= this->unpackHeader(index);
+      			int numberOfHeaders= this->unpackHeader(index, rpcRawData);
  
       			/// Unpack FED Trailer(s)
       			const unsigned char* trailerIndex=index+fedData.size()- rpc::unpacking::SLINK_WORD_SIZE;
-      			int numberOfTrailers=this->unpackTrailer(trailerIndex);
+      			int numberOfTrailers=this->unpackTrailer(trailerIndex, rpcRawData);
        
       			edm::LogInfo ("RPCUnpacker") <<"Found "<<numberOfHeaders<<" Headers and "<<numberOfTrailers<<" Trailers";		  
       
@@ -98,30 +100,31 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
          
 	 			/// Loop on RPC Records
          			int numOfRecords=0;
-	 			//RPCRecord::recordTypes expectedRecord=RPCRecord::UndefinedType;
-         
+	 			enum RPCRecord::recordTypes previousRecord=RPCRecord::UndefinedType;
+
 	 			for(int nRecord=0; nRecord<4; nRecord++){
           
 	 				 const unsigned char* recordIndex;
 	  				 recordIndex=index+ rpc::unpacking::SLINK_WORD_SIZE -(nRecord+1)* rpc::unpacking::RPC_RECORD_SIZE;
 	   
-	   				if(hexprintout) {	  
+	   				        #ifdef DEBUG_RPCUNPACKER	  
 	     					numOfRecords++;
 	     					const unsigned int* word;	  
              					word=reinterpret_cast<const unsigned int*>(recordIndex);
 	     					cout<<oct<<*word<<" ";
 	     					if(numOfRecords==4) {
-	        					cout<<endl;
+	        					cout<<std::endl;
 	      					}		
-	   			 	}	
+	   			 	        #endif	
           
-	  				RPCRecord theRecord(recordIndex,printout);
+	  				RPCRecord theRecord(recordIndex,printout,previousRecord);
         
           				/// Find out type of record
-          				RPCRecord::recordTypes typeOfRecord = theRecord.type();
-	 
+          				RPCRecord::recordTypes typeOfRecord = theRecord.computeType();					
+					/// Check Record is of expected type
+	 				bool missingRecord = theRecord.check();
 	  				/// Unpack the Record 	  
-	  				interpreter.recordUnpack(typeOfRecord,recordIndex,producedRPCDigis);	  
+	  				interpreter.recordUnpack(theRecord,producedRPCDigis,rpcRawData);	  
 	 		 	}
           
           			///Go to beginning of next word
@@ -131,8 +134,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 		
       			///Send information to DQM
       			if(instatiateDQM){ 
-         			 RPCEventData rpcEvent= interpreter.eventData();
-          			 monitor->process(rpcEvent);
+          			 monitor->process(rpcRawData);
       			}	
 		}
 		
@@ -146,13 +148,14 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 
 
 
-int RPCUnpackingModule::unpackHeader(const unsigned char* headerIndex) const {
+int RPCUnpackingModule::unpackHeader(const unsigned char* headerIndex, RPCFEDData & rawData) {
  
  int numberOfHeaders=0;
  bool moreHeaders=true;
  
  while(moreHeaders){
   FEDHeader fedHeader(headerIndex); 
+  rawData.addCdfHeader(fedHeader);
   numberOfHeaders++;
   edm::LogInfo ("RPCUnpacker") <<"Trigger type: "<<fedHeader.triggerType()
      <<", L1A: "<<fedHeader.lvl1ID()
@@ -173,7 +176,7 @@ int RPCUnpackingModule::unpackHeader(const unsigned char* headerIndex) const {
 
 
 
-int RPCUnpackingModule::unpackTrailer(const unsigned char* trailerIndex) const {
+int RPCUnpackingModule::unpackTrailer(const unsigned char* trailerIndex, RPCFEDData & rawData) {
  
  int numberOfTrailers=0;
  bool moreTrailers = true;
@@ -181,6 +184,7 @@ int RPCUnpackingModule::unpackTrailer(const unsigned char* trailerIndex) const {
  while(moreTrailers){
  
   FEDTrailer fedTrailer(trailerIndex);
+  rawData.addCdfTrailer(fedTrailer);
   
   if(fedTrailer.check())  {
        
