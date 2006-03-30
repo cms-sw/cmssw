@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/24 18:28:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/02/28 17:28:20 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -52,6 +52,9 @@ DTSLMtimeData::DTSLMtimeData() :
 // Destructor --
 //--------------
 DTMtime::~DTMtime() {
+  std::string mTimeVersion = dataVersion + "_mTime";
+  DTDataBuffer<int,int  >::dropBuffer( mTimeVersion );
+  DTDataBuffer<int,float>::dropBuffer( mTimeVersion );
 }
 
 DTSLMtimeData::~DTSLMtimeData() {

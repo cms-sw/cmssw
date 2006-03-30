@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/01/27 15:21:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/02/28 17:28:55 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -66,5 +66,14 @@ DTDataBuffer<Key,Content>::findBuffer( std::string& name ) {
   return bufferMap.find( name )->second;
 }
 
+
+template<class Key, class Content>
+void
+DTDataBuffer<Key,Content>::dropBuffer( std::string& name ) {
+  DTBufferTree<Key,Content>* ptr = findBuffer( name );
+  if ( ptr == 0 ) return;
+  delete ptr;
+  bufferMap.erase( name );
+}
 
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/24 18:28:06 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/02/28 17:28:20 $
+ *  $Revision: 1.7 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -63,6 +63,12 @@ DTReadOutGeometryLink::DTReadOutGeometryLink():
 // Destructor --
 //--------------
 DTReadOutMapping::~DTReadOutMapping() {
+  std::string mapRtoG =
+       cellMapVersion + "_" + robMapVersion + "_map_RG";
+  std::string mapGtoR =
+       cellMapVersion + "_" + robMapVersion + "_map_GR";
+  DTDataBuffer<int,int>::dropBuffer( mapRtoG );
+  DTDataBuffer<int,int>::dropBuffer( mapGtoR );
 }
 
 DTReadOutGeometryLink::~DTReadOutGeometryLink() {

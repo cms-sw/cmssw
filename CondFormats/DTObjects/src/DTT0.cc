@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/24 18:28:06 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/02/28 17:28:20 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -54,6 +54,9 @@ DTCellT0Data::DTCellT0Data() :
 // Destructor --
 //--------------
 DTT0::~DTT0() {
+  std::string t0Version = dataVersion + "_t0";
+  DTDataBuffer<int,int  >::dropBuffer( t0Version );
+  DTDataBuffer<int,float>::dropBuffer( t0Version );
 }
 
 DTCellT0Data::~DTCellT0Data() {

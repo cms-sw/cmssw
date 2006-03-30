@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/24 18:28:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/02/28 17:28:20 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -51,6 +51,8 @@ DTSLTtrigData::DTSLTtrigData() :
 // Destructor --
 //--------------
 DTTtrig::~DTTtrig() {
+  std::string tTrigVersion = dataVersion + "_tTrig";
+  DTDataBuffer<int,int>::dropBuffer( tTrigVersion );
 }
 
 DTSLTtrigData::~DTSLTtrigData() {
