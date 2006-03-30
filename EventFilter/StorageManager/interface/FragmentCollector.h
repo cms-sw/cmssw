@@ -16,6 +16,8 @@
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
+// added for Event Server by HWKC
+#include "EventFilter/StorageManager/interface/ESRingBuffer.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
@@ -64,6 +66,20 @@ namespace stor
     boost::shared_ptr<boost::thread> me_;
     const edm::ProductRegistry* prods_; // change to shared_ptr ? 
 	const stor::HLTInfo* info_;
+
+  // added for Event Server by HWKC so SM can get events from ring buffer
+  public:
+    bool esbuf_isEmpty() { return evtsrv_area_.isEmpty(); }
+    bool esbuf_isFull() { return evtsrv_area_.isFull(); }
+    edm::EventMsg esbuf_pop_front() {return evtsrv_area_.pop_front();}
+    void esbuf_push_back(edm::EventMsg msg) { evtsrv_area_.push_back(msg); }
+
+    void set_esbuf_oneinN(int N) { oneinN_ = N; }
+
+  private:
+    stor::ESRingBuffer evtsrv_area_;
+    int oneinN_;  // place one in every oneinN_ events into the buffer
+    int count_4_oneinN_;
   };
 }
 
