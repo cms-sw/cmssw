@@ -4,11 +4,11 @@
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
 
-std::vector<Pointer2Chamber> 
+std::vector<const CSCChamber*> 
 CSCTriggerGeomManager::sectorOfChambersInStation(unsigned endcap, unsigned station, 
 						 unsigned sector, unsigned subsector) const
 {
-  std::vector<Pointer2Chamber> result;
+  std::vector<const CSCChamber*> result;
   int ring = 0, chamber = 0;
   CSCDetId id;
 
@@ -22,7 +22,7 @@ CSCTriggerGeomManager::sectorOfChambersInStation(unsigned endcap, unsigned stati
 	  
 	  id = CSCDetId(endcap,station,ring,chamber,0);
 	  
-	  result.push_back(geom->getChamber(id));
+	  result.push_back(geom->chamber(id));
 	}
       catch(...) {}
     }
@@ -30,12 +30,12 @@ CSCTriggerGeomManager::sectorOfChambersInStation(unsigned endcap, unsigned stati
   return result;
 }
 
-Pointer2Chamber 
+const CSCChamber*
 CSCTriggerGeomManager::chamber(unsigned endcap, unsigned station, 
 			       unsigned sector, unsigned subsector, 
 			       unsigned tcscid) const
 {
-  Pointer2Chamber result;
+  CSCChamber* result = NULL;
   
   int ring = 0;
   int chamber = 0;
@@ -46,9 +46,9 @@ CSCTriggerGeomManager::chamber(unsigned endcap, unsigned station,
       chamber = CSCTriggerNumbering::chamberFromTriggerLabels(sector,subsector,station,tcscid);
       CSCDetId id(endcap,station,ring,chamber,0);
 
-      result = geom->getChamber(id);
+      result = const_cast<CSCChamber*>(geom->chamber(id));
     }
   catch(...) {}  
   
-  return result;
+  return const_cast<const CSCChamber*>(result);
 }
