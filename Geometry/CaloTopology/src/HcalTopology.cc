@@ -71,6 +71,58 @@ void HcalTopology::excludeSubdetector(HcalSubdetector subdet) {
   }
 }
 
+
+
+std::vector<DetId> HcalTopology::east(const DetId& id) const
+{
+  std::vector<DetId> vNeighborsDetId;
+  HcalDetId neighbors[2];
+  for (int i=0;i<decIEta(HcalDetId(id),neighbors);i++)
+    vNeighborsDetId.push_back(DetId(neighbors[i].rawId()));
+  return vNeighborsDetId;
+}
+
+std::vector<DetId> HcalTopology::west(const DetId& id) const
+{
+  std::vector<DetId> vNeighborsDetId;
+  HcalDetId neighbors[2];
+  for (int i=0;i<incIEta(HcalDetId(id),neighbors);i++)
+    vNeighborsDetId.push_back(DetId(neighbors[i].rawId()));
+  return  vNeighborsDetId;
+}
+
+std::vector<DetId> HcalTopology::north(const DetId& id) const
+{
+  std::vector<DetId> vNeighborsDetId;
+  HcalDetId neighbor;
+  if (incIPhi(HcalDetId(id),neighbor))
+    vNeighborsDetId.push_back(DetId(neighbor.rawId()));
+  return  vNeighborsDetId;
+}
+
+std::vector<DetId> HcalTopology::south(const DetId& id) const
+{
+  std::vector<DetId> vNeighborsDetId;
+  HcalDetId neighbor;
+  if (decIPhi(HcalDetId(id),neighbor))
+    vNeighborsDetId.push_back(DetId(neighbor.rawId()));
+  return  vNeighborsDetId;
+}
+
+std::vector<DetId> HcalTopology::up(const DetId& id) const
+{
+  std::cout << "HcalTopology::up() not yet implemented" << std::endl; 
+  std::vector<DetId> vNeighborsDetId;
+  return  vNeighborsDetId;
+}
+
+std::vector<DetId> HcalTopology::down(const DetId& id) const
+{
+  std::cout << "HcalTopology::down() not yet implemented" << std::endl; 
+  std::vector<DetId> vNeighborsDetId;
+  return  vNeighborsDetId;
+}
+
 int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi1, int iphi2, int depth1, int depth2) {
 
   bool exed=false;
