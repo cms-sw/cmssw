@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.3 2006/03/29 15:16:19 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.4 2006/03/29 21:42:05 dkcira Exp $
 //
 //
 
@@ -91,18 +91,24 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
       string hid;
       // set appropriate folder using SiStripFolderOrganizer
       folder_organizer.setDetectorFolder(*detid_iterator); // pass the detid to this method
-      // create nr. of clusters per module
+      //nr. of clusters per module
       hid = hidmanager.createHistoId("ClustersPerDetector","det",*detid_iterator);
       local_modmes.NrClusters = dbe_->book1D(hid, hid, 31,-0.5,30.5);
-      //create ClusterPosition
+      //ClusterPosition
       hid = hidmanager.createHistoId("ClusterPosition","det",*detid_iterator);
-      local_modmes.ClusterPosition = dbe_->book1D(hid, hid, 31,-0.5,30.5);
-      //create ClusterWidth
+      local_modmes.ClusterPosition = dbe_->book1D(hid, hid, 30,-0.5,128.5);
+      //ClusterWidth
       hid = hidmanager.createHistoId("ClusterWidth","det",*detid_iterator);
       local_modmes.ClusterWidth = dbe_->book1D(hid, hid, 10,-0.5,10.5);
-      //create ClusterWidth
+      //ClusterWidth
       hid = hidmanager.createHistoId("ClusterCharge","det",*detid_iterator);
       local_modmes.ClusterCharge = dbe_->book1D(hid, hid, 31,-0.5,256.5);
+      //ModuleLocalOccupancy
+      hid = hidmanager.createHistoId("ModuleLocalOccupancy","det",*detid_iterator);
+      local_modmes.ModuleLocalOccupancy = dbe_->book1D(hid, hid, 20,0.,1.0);// occupancy goes from 0 to 1, probably not over some limit value (here 0.5)
+      //NrOfClusterizedStrips
+      hid = hidmanager.createHistoId("NrOfClusterizedStrips","det",*detid_iterator);
+      local_modmes.NrOfClusterizedStrips = dbe_->book1D(hid, hid, 20,0.,768.);
       // append to ClusterMEs
       ClusterMEs.insert( std::make_pair(*detid_iterator, local_modmes));
     }
@@ -153,11 +159,13 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
         (local_modmes.ClusterPosition)->Fill((*icluster).barycenter(),1.);
       }
     }
+    short total_clusterized_strips = 0;
     if(local_modmes.ClusterWidth != NULL){ // width of cluster
 //--- ! no method for getting directly width
       for(icluster = clusterRange.first; icluster<clusterRange.second; icluster++){
         const std::vector<short>& ampls = icluster->amplitudes();
         short local_size = ampls.size(); // nr. of strips that belong to cluster - use this as width for the moment
+        total_clusterized_strips = total_clusterized_strips + local_size; // add nr of strips of this cluster to total nr. of clusterized strips
         (local_modmes.ClusterWidth)->Fill(static_cast<float>(local_size),1.);
       }
     }
@@ -172,18 +180,21 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
         (local_modmes.ClusterCharge)->Fill(static_cast<float>(local_charge),1.);
       }
     }
+    local_modmes.NrOfClusterizedStrips->Fill(static_cast<float>(total_clusterized_strips),1.);
+    short total_nr_strips = 6 * 128; // assume 6 APVs per detector for the moment. later ask FedCabling object
+    float local_occupancy = static_cast<float>(total_clusterized_strips)/static_cast<float>(total_nr_strips);
+    local_modmes.ModuleLocalOccupancy->Fill(local_occupancy,1.);
 //
   }
 }
 
 void SiStripMonitorCluster::endJob(void){
-     dbe_->save("test_cluster.root");
-//    bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-//    string outputFileName = conf_.getParameter<string>("OutputFileName");
-// //  dbe_->showDirStructure();
-//   if(outputMEsInRootFile){
-//     dbe_->save(outputFileName);
-//   }
+    bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
+    string outputFileName = conf_.getParameter<string>("OutputFileName");
+ //  dbe_->showDirStructure();
+   if(outputMEsInRootFile){
+     dbe_->save(outputFileName);
+   }
 }
 
 //define this as a plug-in
