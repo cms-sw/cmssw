@@ -1,12 +1,12 @@
-#ifndef EVENTFILTER_RPCUnpackingModule_H
-#define EVENTFILTER_RPCUnpackingModule_H
+#ifndef RPCUnpackingModule_H
+#define RPCUnpackingModule_H
 
 
 /** \class RPCUnpackingModule
  *  Driver class for unpacking RPC raw data (DCC format)
  *
- *  $Date: 2006/02/06 11:35:27 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/03/30 14:37:00 $
+ *  $Revision: 1.10 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -16,12 +16,8 @@
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
 
-#include <iostream>
-#include <vector>
 
 class RPCDetId;
-
-using namespace std;
 
 
 class RPCMonitorInterface;
