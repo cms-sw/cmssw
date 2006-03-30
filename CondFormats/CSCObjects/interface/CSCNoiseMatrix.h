@@ -10,7 +10,8 @@ class CSCNoiseMatrix{
   ~CSCNoiseMatrix();
   
   struct Item{
-    float elem1,elem2,elem3,elem4,elem5,elem6,elem7,elem8,elem9,elem10,elem11,elem12;
+    float elem33,elem34,elem35,elem44,elem45,elem46,
+          elem55,elem56,elem57,elem66,elem67,elem77;
   };
   
   std::map< int,std::vector<Item> > matrix;
