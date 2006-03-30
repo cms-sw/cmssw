@@ -35,5 +35,6 @@ RPCSimSimple::fillDigis(int rollDetId, RPCDigiCollection& digis)
     //NCA
     digis.insertDigi(RPCDetId(rollDetId),rpcDigi);
   }
+  strips.clear();
 }
 
