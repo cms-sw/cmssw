@@ -4,9 +4,9 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id$
+/// $Id: JetMaker.h,v 1.1 2006/03/08 20:30:29 fedor Exp $
 
-#include "DataFormats/JetObjects/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 
 

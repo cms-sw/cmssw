@@ -1,14 +1,14 @@
 /* Template producer to correct jet
     F.Ratnikov (UMd)
     Mar 2, 2006
-    $Id$
+    $Id: ToyJetCorrector.cc,v 1.2 2006/03/08 20:34:20 fedor Exp $
 */
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/JetObjects/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include "RecoJets/JetProducers/interface/ToyJetCorrector.h"
 

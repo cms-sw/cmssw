@@ -3,7 +3,7 @@
     Mar 2, 2006
 */
 
-#include "DataFormats/JetObjects/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "RecoJets/JetAlgorithms/interface/ToyJetCorrection.h"
 

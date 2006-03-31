@@ -4,12 +4,12 @@
 // Creation Date:  Apr. 22 2005 Initial version.
 // Revisions:  R. Harris, 19-Oct-2005, modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id$
+// $Id: KtJetProducer.cc,v 1.10 2006/03/08 20:34:19 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
 #include "RecoJets/JetProducers/interface/KtJetProducer.h"
-#include "DataFormats/JetObjects/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/Handle.h"
