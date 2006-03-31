@@ -1,0 +1,23 @@
+<soap-env:Envelope
+ soap-env:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/">
+<soap-env:Header>
+</soap-env:Header>
+<soap-env:Body>
+<xdaq:Configure xmlns:xdaq="urn:xdaq-soap:3.0">
+<xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
+	
+    	<xc:Context url="http://.host:.portn">
+	    
+                <xc:Application class="SiStripWebClient" id="15" instance="0" network="local"></xc:Application>
+                <xc:Module>.libpath</xc:Module>
+
+        </xc:Context>
+
+</xc:Partition>
+</xdaq:Configure>
+</soap-env:Body>
+</soap-env:Envelope>
