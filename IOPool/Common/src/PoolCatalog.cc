@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolCatalog.cc,v 1.5 2006/01/20 20:45:14 wmtan Exp $
+// $Id: PoolCatalog.cc,v 1.6 2006/03/10 23:24:54 wmtan Exp $
 //
 // Author: Luca Lista
 // Co-Author: Bill Tanenbaum
@@ -27,26 +27,45 @@ namespace edm {
     //  POOLContext::setMessageVerbosityLevel(seal::Msg::Info);
 
     if (url.empty()) {
-      url = "file:PoolFileCatalog.xml";
-/*
+
       if (!write) {
-	// For reading make the trivial file catalog the default.
-	std::string const configDir = getenv("CMS_PATH");
-	if (!configDir.empty()) {
-          std::string const configFileName = configDir + "/site-local.cfg";
-	  std::ifstream configFile(configFileName.c_str());
-	  if (configFile) {
-	    char buffer[1024];
-	    configFile.get(buffer, 1024);
-	    if (configFile) {
-	      url = buffer;
+	// For reading use the catalog specified in the site-local
+        // config file if that config file exists, otherwise default
+        // to file:PoolFileCatalog.xml for now.
+        if (0 == getenv("CMS_PATH")) {
+          throw cms::Exception("CMSPATHNotFound", 
+                               "PoolCatalog::PoolCatalog()\n")
+          << "CMS_PATH envvar is not set, this is required to find the \n"
+          << "site-local data management configuration. \n";
+        }
+        std::string const configDir = getenv("CMS_PATH");
+        if (!configDir.empty()) {
+          std::string const configFileName = configDir 
+                                 + "/SITECONF/JobConfig/site-local.cfg";
+          std::ifstream configFile(configFileName.c_str());
+          if (configFile) {
+            char buffer[1024];
+            configFile.get(buffer, 1024);
+            if (configFile) {
+              url = buffer;
               std::cout << "CATALOG: " << url << std::endl;
-	    }
-	    configFile.close();
-	  }
-	}
+            }
+            configFile.close();
+          } else {
+            // Use the default catalog until the site-local config is
+            // really deployed and can be made a required default - PE
+            url = "file:PoolFileCatalog.xml";
+            //throw cms::Exception("SiteLocalConfigNotFound", 
+            //                 "PoolCatalog::PoolCatalog()\n")
+            //<< "The site-local data management configuration file was\n";
+            //<< "not found. This should be located at:\n";
+            //<< "  $CMSPATH/SITECONF/JobConfig/site-local.cfg\n";
+          }
+        } 
+      } else {
+        url = "file:PoolFileCatalog.xml"; // always for the write case
       }
-*/
+
     } else {
       url = toPhysical(url);
     }
