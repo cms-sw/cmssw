@@ -12,7 +12,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: HelixParameters.h,v 1.6 2006/03/01 12:28:44 llista Exp $
  *
  */
 
@@ -37,7 +37,7 @@ namespace reco {
     /// parameter vector.
     /// This type has to be replaced by MathCore type
     /// SVector<5, Double32_t>
-    typedef math::Vector<5> ParameterVector;
+    typedef math::Vector<5>::type ParameterVector;
     /// helix parameter covariance matrix (5x5)
     /// This type will be replaced by a MathCore symmetric
     /// matrix, as soon as available
@@ -47,34 +47,35 @@ namespace reco {
     public:
       /// default constructor
       Parameters() { }
-      /// constructor from double * (5 parameters)
-      Parameters( const double * par ) : par_( par ) { }
+      /// constructor from five double parameters
+      Parameters( double p1, double p2, double p3, double p4, double p5 ) : 
+	par_( p1, p2, p3, p4, p5 ) { }
       /// index type
-      typedef ParameterVector::index index;
+      typedef unsigned int index;
       /// accessing i-th parameter, i = 0, ..., 4 (read-only mode)
       double operator()( index i ) const { return par_( i ); }
       /// accessing i-th parameter, i = 0, ..., 4
       double & operator()( index i ) { return par_( i ); }
       /// track impact parameter (distance of closest approach to beamline) (read-only mode)
-      double d0() const { return par_.get<i_d0>(); }
+      double d0() const { return par_[ i_d0 ]; }
       /// track azimuthal angle of point of closest approach to beamline (read-only mode)
-      double phi0() const { return par_.get<i_phi0>(); }
+      double phi0() const { return par_[ i_phi0 ]; }
       /// e / pt (electric charge divided by transverse momentum) (read-only mode)     
-      double omega() const { return par_.get<i_omega>(); }
+      double omega() const { return par_[ i_omega ]; }
       /// z coordniate of point of closest approach to beamline (read-only mode)
-      double dz() const { return par_.get<i_dz>(); }
+      double dz() const { return par_[ i_dz ]; }
       /// tangent of the dip angle ( tanDip = pz / pt ) (read-only mode)
-      double tanDip() const { return par_.get<i_tanDip>(); }
+      double tanDip() const { return par_[ i_tanDip ]; }
       /// track impact parameter (distance of closest approach to beamline)
-      double & d0() { return par_.get<i_d0>(); }
+      double & d0() { return par_[ i_d0 ]; }
       /// track azimuthal angle of point of closest approach to beamline
-      double & phi0() { return par_.get<i_phi0>(); }
+      double & phi0() { return par_[ i_phi0 ]; }
       /// e / pt (electric charge divided by transverse momentum)      
-      double & omega() { return par_.get<i_omega>(); }
+      double & omega() { return par_[ i_omega ]; }
       /// z coordniate of point of closest approach to beamline
-      double & dz() { return par_.get<i_dz>(); }
+      double & dz() { return par_[ i_dz ]; }
       /// tangent of the dip angle ( tanDip = pz / pt )
-      double & tanDip() { return par_.get<i_tanDip>(); }
+      double & tanDip() { return par_[ i_tanDip ]; }
       /// electric charge
       int charge() const;
       /// transverse momentum
@@ -96,7 +97,7 @@ namespace reco {
       /// constructor from double * (15 parameters)
       Covariance( const double * cov ) : cov_( cov ) { }
       /// index type
-      typedef ParameterError::index index;
+      typedef unsigned int index;
       /// accessing (i, j)-th parameter, i, j = 0, ..., 4 (read only mode)
       double operator()( index i, index j ) const { return cov_( i, j ); }
       /// accessing (i, j)-th parameter, i, j = 0, ..., 4
