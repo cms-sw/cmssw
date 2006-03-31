@@ -7,7 +7,7 @@ namespace cond{
   public:
     MetaDataDuplicateEntryException(const std::string& source, 
 				   const std::string& name);
-    ~MetaDataDuplicateEntryException(){}
+    ~MetaDataDuplicateEntryException() throw(){}
   };
 }
 #endif

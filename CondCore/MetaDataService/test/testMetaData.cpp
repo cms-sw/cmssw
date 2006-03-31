@@ -28,9 +28,9 @@ int main(){
     std::string mytok2=metadata_svc.getToken("mytest2");
     std::cout<<"get back new tok2 "<<newtok2<<" "<<mytok2<<std::endl;
     metadata_svc.disconnect();
-  }catch(std::exception& er){
-    std::cout<<er.what()<<std::endl;
   }catch(cond::Exception& er){
+    std::cout<<er.what()<<std::endl;
+  }catch(std::exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(...){
     std::cout<<"Funny error"<<std::endl;
