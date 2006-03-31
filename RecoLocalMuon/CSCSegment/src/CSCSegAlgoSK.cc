@@ -46,8 +46,8 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
     for(unsigned int i = 0; i < rechits.size() - 1; i++) {
         for(unsigned int j=i+1; j < rechits.size(); j++) {
 			
-            int zi = rechits[i].id().layer(); 
-            int zj = rechits[i].id().layer();
+            int zi = rechits[i].cscDetId().layer(); 
+            int zj = rechits[i].cscDetId().layer();
             if (((z_det > 0.) && (zi > zj)) || ((z_det < 0.) && (zi < zj))) {
 				
                 CSCRecHit2D temp = *(rechits[i].clone());
@@ -103,14 +103,14 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
             if(used[i1-ib]) 
                 continue;
 
-            int layer1 = i1->id().layer();
+            int layer1 = i1->cscDetId().layer();
             const CSCRecHit2D& h1 = *i1;
 
             for (ChamberHitContainerCIt i2 = ie-1; i2 != i1; --i2) {
                 if(used[i2-ib]) 
                     continue;
 
-                int layer2 = i2->id().layer();
+                int layer2 = i2->cscDetId().layer();
 				
                 if (layer2 - layer1 < minLayersApart) 
                     break;
@@ -120,9 +120,9 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
 					
                     proto_segment.clear();
 					
-                    const CSCLayer* l1 = theChamber->layer(h1.id().layer());
+                    const CSCLayer* l1 = theChamber->layer(h1.cscDetId().layer());
                     GlobalPoint gp1 = l1->surface().toGlobal(h1.localPosition());					
-                    const CSCLayer* l2 = theChamber->layer(h2.id().layer());
+                    const CSCLayer* l2 = theChamber->layer(h2.cscDetId().layer());
                     GlobalPoint gp2 = l2->surface().toGlobal(h2.localPosition());					
                     LogDebug("CSC") << "start new segment from hits " << "h1: " << gp1 << " - h2: " << gp2 << "\n";
 					
@@ -188,11 +188,11 @@ void CSCSegAlgoSK::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
         if (i == i1 || i == i2 || used[i-ib]) 
             continue; 
         
-        int layer = i->id().layer();
+        int layer = i->cscDetId().layer();
         const CSCRecHit2D& h = *i;
 	    if (isHitNearSegment(h)) {
 			
-		    const CSCLayer* l1 = theChamber->layer(h.id().layer());
+		    const CSCLayer* l1 = theChamber->layer(h.cscDetId().layer());
             GlobalPoint gp1 = l1->surface().toGlobal(h.localPosition());		
             LogDebug("CSC") << "    hit at global " << gp1 << " is near segment\n.";
 
@@ -222,9 +222,9 @@ bool CSCSegAlgoSK::areHitsCloseInLocalX(const CSCRecHit2D& h1, const CSCRecHit2D
 
 bool CSCSegAlgoSK::areHitsCloseInGlobalPhi(const CSCRecHit2D& h1, const CSCRecHit2D& h2) const {
 
-    const CSCLayer* l1 = theChamber->layer(h1.id().layer());
+    const CSCLayer* l1 = theChamber->layer(h1.cscDetId().layer());
     GlobalPoint gp1 = l1->surface().toGlobal(h1.localPosition());	
-    const CSCLayer* l2 = theChamber->layer(h2.id().layer());
+    const CSCLayer* l2 = theChamber->layer(h2.cscDetId().layer());
     GlobalPoint gp2 = l2->surface().toGlobal(h2.localPosition());	
   	
     float h1p = gp1.phi();
@@ -249,7 +249,7 @@ bool CSCSegAlgoSK::isHitNearSegment(const CSCRecHit2D& h) const {
     // Note that to make intuitive cuts on delta(phi) one must work in
     // phi range (-pi, +pi] not [0, 2pi
 
-    const CSCLayer* l1 = theChamber->layer(h.id().layer());
+    const CSCLayer* l1 = theChamber->layer(h.cscDetId().layer());
     GlobalPoint hp = l1->surface().toGlobal(h.localPosition());	
 
     float hphi = hp.phi();                  // in (-pi, +pi]
@@ -278,13 +278,13 @@ void CSCSegAlgoSK::dumpHits(const ChamberHitContainer& rechits) const {
   	
     for(it=rechits.begin(); it!=rechits.end(); it++) {
 		
-        const CSCLayer* l1 = theChamber->layer(it->id().layer());
+        const CSCLayer* l1 = theChamber->layer(it->cscDetId().layer());
         GlobalPoint gp1 = l1->surface().toGlobal(it->localPosition());	
 		
         LogDebug("CSC") << "Global pos.: " << gp1 << ", phi: " << gp1.phi() << ". Local position: "
             << (*it).localPosition() << ", phi: "
             << (*it).localPosition().phi() << ". Layer: "
-            << (*it).id().layer() << "\n";
+            << (*it).cscDetId().layer() << "\n";
     }	
 }
 
@@ -319,7 +319,7 @@ void CSCSegAlgoSK::flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber,
             CSCRecHit2D h2 = *iu;		
             if((h1.localPosition().x() == h2.localPosition().x()) &&	
                 (h1.localPosition().y() == h2.localPosition().y()) && 
-                (h1.id().layer() == h2.id().layer()))				// FIX 
+                (h1.cscDetId().layer() == h2.cscDetId().layer()))				// FIX 
             used[iu-ib] = true;
         }
     }
@@ -353,7 +353,7 @@ bool CSCSegAlgoSK::addHit(const CSCRecHit2D& aHit, int layer) {
     ChamberHitContainer::const_iterator it;
 	
     for(it = proto_segment.begin(); it != proto_segment.end(); it++)
-        if ((it->id().layer() == layer) && (aHit.localPosition().x() != it->localPosition().x())
+        if ((it->cscDetId().layer() == layer) && (aHit.localPosition().x() != it->localPosition().x())
             && (aHit.localPosition().y() != it->localPosition().y()))
             return false; 
 
@@ -385,10 +385,10 @@ void CSCSegAlgoSK::updateParameters() {
         // Once we have two hits we can calculate a straight line 
         // (or rather, a straight line for each projection in xz and yz.)
         ChamberHitContainer::const_iterator ih = proto_segment.begin();
-        int il1 = (*ih).id().layer();
+        int il1 = (*ih).cscDetId().layer();
         const CSCRecHit2D& h1 = (*ih);
         ++ih;    
-        int il2 = (*ih).id().layer();
+        int il2 = (*ih).cscDetId().layer();
         const CSCRecHit2D& h2 = (*ih);
 
         //@@ Skip if on same layer, but should be impossible
@@ -513,7 +513,7 @@ void CSCSegAlgoSK::fitSlopes() {
     for (ih = proto_segment.begin(); ih != proto_segment.end(); ++ih) {
         
         const CSCRecHit2D& hit = (*ih);
-        const CSCLayer* layer = theChamber->layer(hit.id().layer());
+        const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
         GlobalPoint gp = layer->surface().toGlobal(hit.localPosition());
         LocalPoint  lp  = theChamber->surface().toLocal(gp); // FIX !!
 
@@ -588,7 +588,7 @@ void CSCSegAlgoSK::fillChiSquared() {
     for (ih = proto_segment.begin(); ih != proto_segment.end(); ++ih) {
 
         const CSCRecHit2D& hit = (*ih);
-        const CSCLayer* layer = theChamber->layer(hit.id().layer());
+        const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
         GlobalPoint gp = layer->surface().toGlobal(hit.localPosition());
         LocalPoint lp = theChamber->surface().toLocal(gp);  // FIX !!
 
@@ -670,7 +670,7 @@ bool CSCSegAlgoSK::hasHitOnLayer(int layer) const {
     ChamberHitContainerCIt it;
 	
     for(it = proto_segment.begin(); it != proto_segment.end(); it++)
-        if (it->id().layer() == layer)
+        if (it->cscDetId().layer() == layer)
             return true; 
   	
     return false;
@@ -681,7 +681,7 @@ bool CSCSegAlgoSK::replaceHit(const CSCRecHit2D& h, int layer) {
     // replace a hit from a layer 
        
     ChamberHitContainer::iterator it = proto_segment.end();
-    if (it->id().layer() == layer)
+    if (it->cscDetId().layer() == layer)
         proto_segment.pop_back();
     	
     return addHit(h, layer);				
@@ -750,7 +750,7 @@ HepMatrix CSCSegAlgoSK::derivativeMatrix() const {
     for(it = proto_segment.begin(); it != proto_segment.end(); ++it) {
         
         const CSCRecHit2D& hit = (*it);
-        const CSCLayer* layer = theChamber->layer(hit.id().layer());
+        const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
         GlobalPoint gp = layer->surface().toGlobal(hit.localPosition());    	
         LocalPoint lp = theChamber->surface().toLocal(gp); // FIX
         float z = lp.z();

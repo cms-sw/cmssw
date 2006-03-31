@@ -6,7 +6,7 @@
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
-#include <DataFormats/CSCRecHit/interface/CSCDetIdAccessor.h>
+#include <RecoLocalMuon/CSCSegment/src/CSCDetIdAccessor.h>
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentBuilderPluginFactory.h>
@@ -72,14 +72,14 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCo
     
         bool insert = true;
         for(chIt=chambers.begin(); chIt != chambers.end(); ++chIt) 
-            if (((*it2).id().chamber() == (*chIt).chamber()) &&
-                ((*it2).id().station() == (*chIt).station()) &&
-                ((*it2).id().ring() == (*chIt).ring()) &&
-                ((*it2).id().endcap() == (*chIt).endcap()))
+            if (((*it2).cscDetId().chamber() == (*chIt).chamber()) &&
+                ((*it2).cscDetId().station() == (*chIt).station()) &&
+                ((*it2).cscDetId().ring() == (*chIt).ring()) &&
+                ((*it2).cscDetId().endcap() == (*chIt).endcap()))
                 insert = false;
 	
         if (insert) 
-            chambers.push_back((*it2).id());
+            chambers.push_back((*it2).cscDetId());
     }
 
     for(chIt=chambers.begin(); chIt != chambers.end(); ++chIt) {
