@@ -11,7 +11,7 @@
 <!--some exterior structure-->
 <!--the constant is used to place TEC_MTCCSupportBase and TECWheels, and should-->
 <!--be used for any future children of the root object TEC-->
-<Constant name="globalZOffset" value="0*cm" />
+<Constant name="globalZOffset" value="-50*cm" />
 
 <!--the following are referenced in tecwheeld_mtcc to adjust the positioning-->
 <!--of the petals-->
@@ -19,8 +19,10 @@
 <Constant name="tecpetalcont8b_ZOffset" value="0*cm" />
 <Constant name="tecpetalcont8f_ROffset" value="0*cm" />
 <Constant name="tecpetalcont8b_ROffset" value="0*cm" />
-<Constant name="tecpetalcont8f_PhiOffset" value="0*deg" />
-<Constant name="tecpetalcont8b_PhiOffset" value="0*deg" />
+<!--<Constant name="tecpetalcont8f_PhiOffset" value="" /> -->
+<!--<Constant name="tecpetalcont8b_PhiOffset" value="2*360/12*deg" /> -->
+<Constant name="tecpetalcont8f_PhiOffset" value="3*360/12*deg" />
+<Constant name="tecpetalcont8b_PhiOffset" value="4*360/12*deg" />
 
 
 <!--section of comments inherited from the real TEC geometry files-->

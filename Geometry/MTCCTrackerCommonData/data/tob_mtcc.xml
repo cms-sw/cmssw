@@ -13,8 +13,7 @@
 <!--some exterior structure-->
 <!--the constant is used to place TOBLayer0, TOBLayer4 and TOB_MTCCSupportBase -->
 <!--and any other future children of the root object, TOB-->
-<!-- <Constant name="globalZOffset"  value="0.0*cm"/> -->
- <Constant name="globalZOffset"  value="[tobrodpar:RodL]"/>
+ <Constant name="globalZOffset"  value="110.80*cm"/> <!-- same as length of rod-->
 
 <!--these constants are used to adjust the z offsets of the individual rods -->
 <!--they are referenced in the file tobrod0_a_MTCC.xml, and his seven brothers-->
@@ -252,9 +251,9 @@
 
 <!-- THIS DOES NOT WORK [rr 30 Jan 2006] COMMENT -->
 <!--define the location of the MTCC-custom support structure:-->
-<!-- <PosPart copyNumber="0"> -->
+<!-- <PosPart copyNumber="0">  -->
 <!--   <rParent name="tob_mtcc:TOB"/> -->
-<!--   <rChild name="tobsupport_mtcc:TOB_MTCCSupportBase"/> -->
+<!--   <rChild name="tobsupport_mtcc:TOB_MTCCSupportBase"/>  -->
 <!--   <Translation x="0*cm" y="0*cm" z="[globalZOffset]" /> -->
 <!-- </PosPart> -->
 

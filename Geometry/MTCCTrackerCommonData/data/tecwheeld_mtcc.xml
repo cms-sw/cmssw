@@ -97,7 +97,7 @@
   <Numeric name="StartCopyNo" value="1" />
   <Numeric name="IncrCopyNo"  value="1" />
   <Numeric name="RangeAngle"  value="360*deg"/>
-  <Numeric name="StartAngle"  value="[tecwheel:PetalContFiF] + 270*deg+[tec_mtcc:tecpetalcont8f_PhiOffset]"/>
+  <Numeric name="StartAngle"  value="[tec_mtcc:tecpetalcont8f_PhiOffset]"/>
   <Numeric name="Radius"      value="[zero]+[tec_mtcc:tecpetalcont8f_ROffset]"/>
   <Vector name="Center" type="numeric" nEntries="3">
     0, 0, -[tecwheel:PetalContZ]+[tec_mtcc:tecpetalcont8f_ZOffset]  </Vector>
@@ -109,7 +109,7 @@
   <Numeric name="StartCopyNo" value="1" />
   <Numeric name="IncrCopyNo"  value="1" />
   <Numeric name="RangeAngle"  value="360*deg"/>
-  <Numeric name="StartAngle"  value="[tecwheel:PetalContFiB] + 270*deg+[tec_mtcc:tecpetalcont8b_PhiOffset]"/>
+  <Numeric name="StartAngle"  value="[tec_mtcc:tecpetalcont8b_PhiOffset]"/>
   <Numeric name="Radius"      value="[zero]+[tec_mtcc:tecpetalcont8b_ROffset]"/>
   <Vector name="Center" type="numeric" nEntries="3">
     0, 0, [tecwheel:PetalContZ]+[tec_mtcc:tecpetalcont8b_ZOffset]  </Vector>
