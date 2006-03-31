@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/02/15 09:41:14 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/30 15:19:07 $
+ *  $Revision: 1.6 $
  *
  * \author Ilaria Segoni
  */
@@ -10,7 +10,6 @@
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCRecord.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCLinkBoardData.h"
-#include "EventFilter/RPCRawToDigi/interface/RMBErrorData.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCRawDataPattern.h"
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
