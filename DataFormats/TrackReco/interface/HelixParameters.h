@@ -12,7 +12,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Id: HelixParameters.h,v 1.6 2006/03/01 12:28:44 llista Exp $
+ * \version $Id: HelixParameters.h,v 1.7 2006/03/31 09:50:42 llista Exp $
  *
  */
 
@@ -50,7 +50,10 @@ namespace reco {
       /// constructor from five double parameters
       Parameters( double p1, double p2, double p3, double p4, double p5 ) : 
 	par_( p1, p2, p3, p4, p5 ) { }
-      /// index type
+      /// constructor from double *
+      Parameters( const double * p ) : 
+	par_( p[ 0 ], p[ 1 ], p[ 2 ], p[ 3 ], p[ 4 ] ) { }
+       /// index type
       typedef unsigned int index;
       /// accessing i-th parameter, i = 0, ..., 4 (read-only mode)
       double operator()( index i ) const { return par_( i ); }
