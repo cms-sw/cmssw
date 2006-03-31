@@ -1,5 +1,4 @@
 // CaloJet.cc
-// $Id: CaloJet.cc,v 1.1 2005/11/28 14:45:33 llista Exp $
 // Initial Version From Fernando Varela Rodriguez
 // Revisions: R. Harris, 19-Oct-2005, modified to work with real 
 //            CaloTowers from Jeremy Mans.  Commented out energy
@@ -9,21 +8,20 @@
 
 //Own header file
 #include "DataFormats/JetReco/interface/CaloJet.h"
-using namespace std;
-using namespace reco;
 
-CaloJet::CaloJet() {
-}
+// Jet four-momentum
+double CaloJet::getPx() const {return m_data.px;}
+double CaloJet::getPy() const {return m_data.py;}
+double CaloJet::getPz() const {return m_data.pz;}
+double CaloJet::getE() const {return m_data.e;}
 
-CaloJet::CaloJet( double px, double py, double pz, double e, 
-	     double maxEInEmTowers, double maxEInHadTowers, 
-	     double energyFractionInHCAL, double energyFractionInECAL,
-	     int n90 ) :
-  p4_( px, py, pz, e ), 
-  maxEInEmTowers_( maxEInEmTowers ), maxEInHadTowers_( maxEInHadTowers ),
-  energyFractionInHCAL_( energyFractionInHCAL ), energyFractionInECAL_( energyFractionInECAL ),
-  n90_( n90 ) {
-}
+// Standard quantities derived from the Jet Lorentz vector
+double CaloJet::getP() const {return m_data.p;}
+double CaloJet::getPt() const {return m_data.pt;}
+double CaloJet::getEt() const {return m_data.et;}
+double CaloJet::getM() const {return m_data.m;}
+double CaloJet::getPhi() const {return m_data.phi;}
+double CaloJet::getEta() const {return m_data.eta;}
+double CaloJet::getY() const {return m_data.y;}
+int CaloJet::getNConstituents() const {return m_data.numberOfConstituents;}
 
-CaloJet::~CaloJet() {
-}

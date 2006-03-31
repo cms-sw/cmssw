@@ -2,9 +2,6 @@
 #define JetReco_CaloJet_h
 
 /** \class CaloJet
- * $Id: CaloJet.h,v 1.7 2006/01/10 09:07:53 llista Exp $
- *
- * Ported from original version in JetObjects package
  *
  * \short Jets made from CaloTowers
  *
@@ -18,101 +15,124 @@
  * \version   2nd Version Oct 19, 2005, R. Harris, modified to work 
  *            with real CaloTowers. No energy fractions yet.
  ************************************************************/
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/SortedCollection.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
+
+
+#include "DataFormats/JetReco/interface/CommonJetData.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+
 #include <vector>
-class CaloTower;
 
-namespace reco {
-  
-  class CaloJet {
-  public:
-    typedef math::PtEtaPhiELorentzVector LorentzVector;
-    /** Default constructor*/
-    CaloJet();
-    
-    /** Constructor from values*/
-    CaloJet( double px, double py, double pz, double e, 
-	     double maxEInEmTowers, double maxEInHadTowers, 
-	     double energyFractionInHCAL, double energyFractionInECAL,
-	     int n90 );
-    
-    /** Default destructor*/
-    ~CaloJet();
-    
-    /** The Jet four-vector as a true Lorentz vector **/
-    const LorentzVector & p4() const { return p4_; }
-    /* Return the jet momentum component along the x axis */
-    double px() const { return p4_.Px(); }
-    /** Returns the jet momentum component along the y axis */
-    double py() const { return p4_.Py(); }
-    /** Returns the jet momentum component along the z axis */
-    double pz() const { return p4_.Pz(); }
-    /** Returns the total energy of the jet*/
-    double energy() const { return p4_.E(); }
-    
-    /** Standard quantities derived from the Jet Lorentz vector
-	/\return the modulus of the momentum of the jet */
-    double p() const { return p4_.P(); }
-    /** Returns the transverse momentum of the jet*/
-    double pt() const { return p4_.Pt(); }
-    /** Returns the transverse energy of the jet*/
-    double et() const { return p4_.Et(); }
-    /** Returns the jet mass of the jet*/
-    double mass() const { return p4_.M(); }
-    /** Returns the azimuthal angle of the jet, Phi*/
-    double phi() const { return p4_.Phi(); }
-    /** Returns the pseudorapidity of the jet*/
-    double eta() const { return p4_.Eta(); }
-    /** Returns the rapidity of the jet*/
-    double y() const { return p4_.Rapidity(); }
-    
-    //These methods are specific to the CaloJet class
-    
-    typedef edm::SortedCollection<CaloTower> ConstituentCollection; 
-    typedef edm::Ref<ConstituentCollection> ConstituentRef;
-    typedef edm::RefVector<ConstituentCollection> ConstituentRefs;
-    typedef ConstituentRefs::iterator constituents_iterator;
+class CaloJet : public Jet {
+public:
+  struct Specific {
+    Specific () :
+      m_maxEInEmTowers (0),
+	 m_maxEInHadTowers (0),
+	 m_energyFractionInHO (0),
+	 m_energyFractionInHB (0),
+	 m_energyFractionInHF (0),
+	 m_energyFractionInHE (0),
+	 m_energyFractionInHCAL (0),
+	 m_energyFractionInECAL (0) {}
 
-    /** Returns/add the list of CaloTower IDs forming the Jet*/
-    void add( const ConstituentRef & r ) { constituents_.push_back( r ); }
-    constituents_iterator constituents_begin() const { return constituents_.begin(); }
-    constituents_iterator constituents_end() const { return constituents_.end(); }
-    size_t constituentsSize() const { return constituents_.size(); }
-    
-    /** Returns the maximum energy deposited in ECAL towers*/
-    double maxEInEmTowers() const { return maxEInEmTowers_; }
-    /** Returns the maximum energy deposited in HCAL towers*/
-    double maxEInHadTowers() const { return maxEInHadTowers_; }
-    /** Returns the jet energy fraction in HCAL*/
-    double energyFractionInHCAL() const { return energyFractionInHCAL_; }
-    /** Returns the jet energy fraction in ECAL*/
-    double energyFractionInECAL() const { return energyFractionInECAL_; }
-    /** Returns the number of constituents carrying a 90% of the total Jet
-	energy*/
-    int n90() const { return n90_; }
-    
-  private:
-    // Data members
-    LorentzVector p4_;
-    /** List of CaloTower IDs the Jet consists of*/
-    ConstituentRefs constituents_;
-    //Variables specific to to the CaloJet class
-    /** Maximum energy in EM towers*/
-    double maxEInEmTowers_;
-    /** Maximum energy in EM towers*/
-    double maxEInHadTowers_;
-    /** Energy fraction in HCAL*/
-    double energyFractionInHCAL_;
-    /** Energy fraction in ECAL*/
-    double energyFractionInECAL_;
-    /**Number of constituents carrying 90% of the Jet energy*/
-    int n90_;
+    /// Maximum energy in EM towers
+    double m_maxEInEmTowers;
+    /// Maximum energy in HCAL towers
+    double m_maxEInHadTowers;
+    /// Energy fraction in HO
+    double m_energyFractionInHO;
+    /// Energy fraction in HB
+    double m_energyFractionInHB;
+    /// Energy fraction in HF
+    double m_energyFractionInHF;
+    /// Energy fraction in HE
+    double m_energyFractionInHE;
+    /// Energy fraction in HCAL
+    double m_energyFractionInHCAL;
+    /// Energy fraction in ECAL
+    double m_energyFractionInECAL;
+    /// Number of constituents carrying 90% of the Jet energy
+    int m_n90;
   };
-  
-}
 
+  /** Default constructor*/
+  CaloJet() {}
+
+  /** Constructor from values*/
+  CaloJet(const CommonJetData& fCommon, const Specific& fSpecific, 
+	  const std::vector<CaloTowerDetId>& fIndices):
+    m_data (fCommon), m_towerIdxs (fIndices), m_specific (fSpecific)  {}
+  
+  /** Default destructor*/
+  virtual ~CaloJet() {};
+
+  /** The Jet four-vector as a true Lorentz vector
+  \return the jet momentum component along the x axis */
+  virtual double getPx() const;
+  /** Returns the jet momentum component along the y axis */
+  virtual double getPy() const;
+  /** Returns the jet momentum component along the z axis */
+  virtual double getPz() const;
+  /** Returns the total energy of the jet*/
+  virtual double getE() const;
+
+  /** Standard quantities derived from the Jet Lorentz vector
+  /\return the modulus of the momentum of the jet */
+  virtual double getP() const;
+  /** Returns the transverse momentum of the jet*/
+  virtual double getPt() const;
+  /** Returns the transverse energy of the jet*/
+  virtual double getEt() const;
+  /** Returns the jet mass of the jet*/
+  virtual double getM() const;
+  /** Returns the azimuthal angle of the jet, Phi*/
+  virtual double getPhi() const;
+  /** Returns the pseudorapidity of the jet*/
+  virtual double getEta() const;
+  /** Returns the rapidity of the jet*/
+  virtual double getY() const;
+  /** Returns the number of constituents of the jet*/
+  virtual int getNConstituents() const;
+
+
+  //These methods are specific to the CaloJet class
+  
+  /** Returns the list of CaloTower IDs forming the Jet*/
+  
+  /** Returns the maximum energy deposited in ECAL towers*/
+  double maxEInEmTowers() const {return m_specific.m_maxEInEmTowers;};
+  /** Returns the maximum energy deposited in HCAL towers*/
+  double maxEInHadTowers() const {return m_specific.m_maxEInHadTowers;};
+  /** Returns the jet energy fraction in HCAL*/
+  double energyFractionInHCAL() const {return m_specific.m_energyFractionInHCAL;};
+  /** Returns the jet energy fraction in ECAL*/
+  double energyFractionInECAL() const {return m_specific.m_energyFractionInECAL;};
+  /** Returns the jet energy fraction in HB*/ 
+  double energyFractionInHB() const {return m_specific.m_energyFractionInHB;};
+  /** Returns the jet energy fraction in HO*/
+  double energyFractionInHO() const {return m_specific.m_energyFractionInHO;};
+  /** Returns the jet energy fraction in HES*/
+  double energyFractionInHE() const {return m_specific.m_energyFractionInHE;};
+   /** Returns the jet energy fraction in HF*/
+  double energyFractionInHF() const {return m_specific.m_energyFractionInHF;};
+  /** Returns the number of constituents carrying a 90% of the total Jet energy*/
+  int n90() const {return m_specific.m_n90;};
+
+  // block accessors
+
+  const std::vector<CaloTowerDetId>& getTowerIndices() const {return m_towerIdxs;};
+  const CommonJetData& getCommonData () const {return m_data;}
+  const Specific& getSpecific () const {return m_specific;}
+
+  
+private:
+  // Data members
+  /** Structure containing data common to all types of jets*/
+  CommonJetData m_data;
+  /** List of CaloTower IDs the Jet consists of*/
+  std::vector<CaloTowerDetId> m_towerIdxs;
+  //Variables specific to to the CaloJet class
+  Specific m_specific;
+};
 #endif

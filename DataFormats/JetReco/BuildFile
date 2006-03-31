@@ -1,10 +1,9 @@
-<use name=DataFormats/CaloTowers>
-<use name=DataFormats/Math>
+<use name=clhep>
 <use name=DataFormats/Common>
-<flags LCGDICT_ARGS="--deep">
+<use name=DataFormats/CaloTowers>
 <export>
  <lib name=DataFormatsJetReco>
- <use name=DataFormats/CaloTowers>
- <use name=DataFormats/Math>
+ <use name=clhep>
  <use name=DataFormats/Common>
+ <use name=DataFormats/CaloTowers>
 </export>

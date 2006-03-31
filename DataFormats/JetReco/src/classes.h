@@ -1,14 +1,12 @@
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#ifndef JetObjects_classes_h
+#define JetObjects_classes_h
+
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-
+#include <vector>
 namespace {
-  namespace {
-    std::vector<CaloTower> vc1;
-    edm::SortedCollection<CaloTower> c1;
-
-    edm::RefVector<edm::SortedCollection<CaloTower> > r1;
-
-    std::vector<reco::CaloJet> v1;
-    edm::Wrapper<std::vector<reco::CaloJet> > w1;
-  }
+namespace {
+	edm::Wrapper<CaloJetCollection> dummy;
 }
+}
+#endif
