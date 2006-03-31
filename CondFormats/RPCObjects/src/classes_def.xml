@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="RPCReadOutMapping"/>
+  <class name="RPCReadOutLink"/>
+  <class name="std::vector<RPCReadOutLink>"/>
+  <class pattern="*iterator*"/>
+</lcgdict>
+
