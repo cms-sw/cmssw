@@ -24,7 +24,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id: GenericHandle.h,v 1.1 2006/01/10 17:21:35 chrjones Exp $
+// $Id: GenericHandle.h,v 1.2 2006/02/01 00:40:25 wmtan Exp $
 //
 
 // system include files
@@ -133,57 +133,15 @@ typedef Handle<GenericObject> GenericHandle;
 
 ///specialize this function for GenericHandle
 void convert_handle(BasicHandle const& orig,
-                    Handle<GenericObject>& result)
-{
-   using namespace ROOT::Reflex;
-   EDProduct const* originalWrap = orig.wrapper();
-   if (originalWrap == 0)
-      throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
-         << "edm::BasicHandle has null pointer to Wrapper";
+                    Handle<GenericObject>& result);
 
-   //Since a pointer to an EDProduct is not necessarily the same as a pointer to the actual type
-   // (compilers are allowed to offset the two) we must get our object via a two step process
-   Object edproductObject(Type::ByTypeInfo(typeid(EDProduct)), const_cast<EDProduct*>(originalWrap));
-   assert(edproductObject != Object());
-
-   Object wrap(edproductObject.CastObject(edproductObject.DynamicType()));
-   assert(wrap != Object());
-   
-   Object product(wrap.Get("obj"));
-   if(!product){
-      throw edm::Exception(edm::errors::LogicError)<<"GenericObject could not find 'obj' member";
-   }
-   if(product.TypeOf().IsTypedef()){
-      //For a 'Reflex::Typedef' the 'ToType' method returns the actual type
-      // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
-      // only for a 'real' class
-      product = Object(product.TypeOf().ToType(), product.Address());
-      assert(!product.TypeOf().IsTypedef());
-   }
-   //NOTE: comparing on type doesn't seem to always work! The problem appears to be if we have a typedef
-   if(product.TypeOf()!=result.type() &&
-      !product.TypeOf().IsEquivalentTo(result.type()) &&
-      product.TypeOf().TypeInfo()!= result.type().TypeInfo()){
-      throw edm::Exception(edm::errors::LogicError)<<"GenericObject asked for "<<result.type().Name()
-      <<" but was given a "<<product.TypeOf().Name();
-   }
-   
-   Handle<GenericObject> h(product, orig.provenance());
-   h.swap(result);
-}
 
 ///Specialize the Event's getByLabel method to work with a Handle<GenericObject>
 template<>
 void
 edm::Event::getByLabel<GenericObject>(std::string const& label,
                                       const std::string& productInstanceName,
-                                      Handle<GenericObject>& result) const
-{
-   BasicHandle bh = this->getByLabel_(TypeID(result.type().TypeInfo()), label, productInstanceName);
-   gotProductIDs_.push_back(bh.id());
-   convert_handle(bh, result);  // throws on conversion error
-}
-
+                                      Handle<GenericObject>& result) const;
 
 }
 #endif
