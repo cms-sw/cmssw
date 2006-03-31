@@ -27,13 +27,13 @@ namespace {
     for(vector<CaloTowerDetId>::const_iterator i = fTowerIds.begin(); i != fTowerIds.end(); ++i) {
       const CaloTower* aTower =  &*fTowers.find(*i);
       //Array of energy in EM Towers:
-      eECal_i.push_back(aTower->e_em());
-      eInEm += aTower->e_em();
+      eECal_i.push_back(aTower->emEnergy());
+      eInEm += aTower->emEnergy();
       //Array of energy in HCAL Towers:
-      eHCal_i.push_back(aTower->e_had()); 
-      eInHad += aTower->e_had();
+      eHCal_i.push_back(aTower->hadEnergy()); 
+      eInHad += aTower->hadEnergy();
       
-      eInHO += aTower->e_outer();
+      eInHO += aTower->outerEnergy();
       // have no data for eInHB eInHE eInHF
     }
     double towerEnergy = eInHad + eInEm;
