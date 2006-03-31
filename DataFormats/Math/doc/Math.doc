@@ -10,20 +10,17 @@
 \section desc Description
 Persistent classes for mathematical types. This package is based on ROOT/SEAL <a href="http://seal.web.cern.ch/seal/MathLibs/MathCore/html/index.html">MathCore</a> library.
 
-\subsection interface Public interface
-- math::Error <b><N></b>: NxN symmetric matrix.  The elements are stored as <tt>Double32_t</tt>,
-  i.e.: are stored as <tt>float</tt> and represented in memory as <tt>double</tt>. A functionally
-  equivalent class has been requested to the ROOT team. Will be replaced by this new class as
-  soon as available.
-
-\subsection typedefs 
+\subsection interface Public interface (typedefs)
 - math::XYZVector: spatial vector with cartesian internal representation.
 - math::RhoEtaPhiVector: spatial vector with cylindrical internal representation using pseudorapidity.
 - math::RThetaPhiVector: spatial vector with polar internal representation.
 - math::XYZPoint: point in space with cartesian internal representation.
 - math::XYZTLorentzVector: Lorentz vector with cartesian internal representation.
 - math::PtEtaPhiELorentzVector: Lorentz vector with cylindrical internal representation using pseudorapidity.
-- math::Vector <b>&lt;N&gt;::type</b>: Fixed dimension N-component vector.
+- math::Vector <b>&lt;N&gt;::type</b>: Fixed size N-dimensional vector.
+- math::Error <b>&lt;N&gt::type</b>: NxN symmetric matrix. The elements are stored as <tt>Double32_t</tt>,
+  i.e.: are stored as <tt>float</tt> and represented in memory as <tt>double</tt>. It is
+  a typedef of a class forom the <a href="http://seal.web.cern.ch/seal/MathLibs/SMatrix/html/index.html">Smatrix package</a>
 
 \subsection modules Modules
 None.
@@ -32,7 +29,8 @@ None.
 None.
 
 \section status Status and planned development
-Stable. Few classes to be migrated to Root MathCore types.
+Stable. The dictionary generation for this package can be replaced 
+eventyally using the RELAX project.
 
 <hr>
 Last updated: @DATE@ L. Lista

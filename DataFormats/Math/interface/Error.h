@@ -1,58 +1,23 @@
 #ifndef TrackReco_Error_h
 #define TrackReco_Error_h
-// $Id: Error.h,v 1.2 2005/11/24 11:58:21 llista Exp $
+// $Id: Error.h,v 1.1 2005/12/15 03:39:02 llista Exp $
 //
 // very simple persistent error matrix with minumal functionalities
 //
-#include <algorithm>
 #include <Rtypes.h>
+#include <Math/MatrixRepresentationsStatic.h>
 
 namespace math {
-
-  template< unsigned int N >
+  /// fixed size error matrix
+  template<unsigned int D>
   struct Error {
-    enum { dimension = N, size = N * ( N + 1 ) / 2 };
-    typedef unsigned int index;
-    Error() { }
-    Error( const Error<N> & o ) { 
-      std::copy( o.err, o.err + size, err ); 
-    }
-    Error( const double * v ) {
-      std::copy( v, v + size, err );
-    }
-    Error<N> & operator=( const Error<N> & o ) {
-      std::copy( o.err, o.err + size, err ); 
-      return * this;
-    }
-    double & operator()( index i, index j ) { 
-      return err[ idx( i, j ) ]; 
-    }
-    const double & operator()( index i, index j ) const { 
-      return err[ idx( i, j ) ]; 
-    }
-    template< index i, index j >
-    double & get() { 
-      return err[ idx_t< i, j >::value ]; 
-    }
-    template< index i, index j >
-    const double & get() const { 
-      return err[ idx_t< i, j >::value ]; 
-    }
-  private:
-    index idx( index i, index j ) const {
-      int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
-      return a * dimension + b - a * ( a + 1 ) / 2;
-    };
-    template< index i, index j >
-    struct idx_t {
-      enum { a = ( i <= j ? i : j ), b = ( i <= j ? j : i ) };
-      enum { value =  a * dimension + b - a * ( a + 1 ) / 2 };
-    };
-    Double32_t err[ size ];
+    typedef ROOT::Math::MatRepSym<Double32_t, D> type;
   };
-
-  typedef Error<3> Error3D;
-
+  /// fixed size error matrix with double components
+  template<unsigned int D>
+  struct ErrorD {
+    typedef ROOT::Math::MatRepSym<double, D> type;
+  };
 }
 
 #endif

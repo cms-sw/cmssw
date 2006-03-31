@@ -25,11 +25,11 @@ namespace {
     math::Vector<5>::type v5;
     math::Vector<6>::type v6;
 
-    math::Error<1> e1;
-    math::Error<2> e2;
-    math::Error<3> e3;
-    math::Error<4> e4;
-    math::Error<5> e5;
-    math::Error<6> e6;
+    math::Error<1>::type e1;
+    math::Error<2>::type e2;
+    math::Error<3>::type e3;
+    math::Error<4>::type e4;
+    math::Error<5>::type e5;
+    math::Error<6>::type e6;
   }
 }
