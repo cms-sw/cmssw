@@ -167,7 +167,7 @@ G4LogicalVolume * DDG4Builder::BuildGeometry()
 	{
 	    DDLogicalPart ddlv = ddg4_it->first;
 	    G4LogicalVolumeToDDLogicalPartMapper::instance()->insert(reflLogicalVolume,ddlv);
-	    DDG4Dispatchable * disp = new DDG4Dispatchable(&ddlv,reflLogicalVolume);
+	    DDG4Dispatchable * disp = new DDG4Dispatchable(&(ddg4_it->first),reflLogicalVolume);
 	    theVectorOfDDG4Dispatchables_->push_back(disp);
             DCOUT('G', "DDG4Builder: newEvent: dd=" << ddlv.ddname() << " g4=" 
 		  << reflLogicalVolume->GetName());
