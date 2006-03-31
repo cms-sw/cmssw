@@ -199,7 +199,7 @@ void CSCDDUEventData::unpack_data(unsigned short *buf) {
   errorstat=theDDUTrailer.errorstat();
   if (errorstat != 0) {
     edm::LogError ("CSCDDUEventData") 
-      << "+++ CSCDDUEventData warning: DDU Trailer errors = " << errorstat << " +++ ";
+      << "+++ CSCDDUEventData warning: DDU Trailer errors = " << std::hex << errorstat << " +++ ";
     decodeStatus(errorstat);
   }
    
