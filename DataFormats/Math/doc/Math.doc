@@ -8,19 +8,25 @@
 </center>
 
 \section desc Description
-Persistent classes for mathematical types. This package is based on ROOT/SEAL <a href="http://seal.web.cern.ch/seal/MathLibs/MathCore/html/index.html">MathCore</a> library.
-
-\subsection interface Public interface (typedefs)
-- math::XYZVector: spatial vector with cartesian internal representation.
-- math::RhoEtaPhiVector: spatial vector with cylindrical internal representation using pseudorapidity.
-- math::RThetaPhiVector: spatial vector with polar internal representation.
-- math::XYZPoint: point in space with cartesian internal representation.
-- math::XYZTLorentzVector: Lorentz vector with cartesian internal representation.
-- math::PtEtaPhiELorentzVector: Lorentz vector with cylindrical internal representation using pseudorapidity.
-- math::Vector <b>&lt;N&gt;::type</b>: Fixed size N-dimensional vector.
-- math::Error <b>&lt;N&gt::type</b>: NxN symmetric matrix. The elements are stored as <tt>Double32_t</tt>,
-  i.e.: are stored as <tt>float</tt> and represented in memory as <tt>double</tt>. It is
-  a typedef of a class forom the <a href="http://seal.web.cern.ch/seal/MathLibs/SMatrix/html/index.html">Smatrix package</a>
+Persistent classes for mathematical types. This package is based on ROOT/SEAL <a href="http://seal.web.cern.ch/seal/MathLibs/MathCore/html/index.html">MathCore</a> and <a href="http://seal.web.cern.ch/seal/MathLibs/SMatrix/html/index.html">Smatrix</a> libraries.
+\subsection interface Public interface
+typedefs of commonly used <a href="http://seal.web.cern.ch/seal/MathLibs/MathCore/html/index.html">MathCore</a> and
+and <a href="http://seal.web.cern.ch/seal/MathLibs/SMatrix/html/index.html">Smatrix</a> types.
+In all cases, unless explicitly stated, the elements are of type <tt>Double32_t</tt>, i.e.: are stored as <tt>float</tt> and represented in memory as <tt>double</tt>. 
+- <b>Spatial Vectors:</b>
+  - math::XYZVector: spatial vector with cartesian internal representation.
+  - math::RhoEtaPhiVector: spatial vector with cylindrical internal representation using pseudorapidity.
+  - math::RThetaPhiVector: spatial vector with polar internal representation.
+- <b>Spatial Points:</b>
+  - math::XYZPoint: point in space with cartesian internal representation.
+- <b>Lorentz Vectors:</b>
+  - math::XYZTLorentzVector: Lorentz vector with cartesian internal representation.
+  - math::PtEtaPhiELorentzVector: Lorentz vector with cylindrical internal representation using pseudorapidity.
+- <b>Fixed Size Vectors:</b>
+  - math::Vector<N>::type: Fixed size N-dimensional vector.
+- <b>Fixed size Matrices:</b>
+  - math::Error<N>::type: NxN symmetric matrix. 
+  - math::ErrorD<N>::type: NxN symmetric matrix with <tt>double</tt> elements. 
 
 \subsection modules Modules
 None.
