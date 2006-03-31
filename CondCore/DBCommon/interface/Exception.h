@@ -6,14 +6,14 @@ namespace cond{
   class Exception : public cms::Exception{
   public:
     explicit Exception( const std::string& message );    
-    virtual ~Exception();
+    virtual ~Exception() throw();
   };
   class noDataForRequiredTimeException : public Exception{
   public:
     noDataForRequiredTimeException(const std::string& from,
 				   const std::string& rcd,
 				   const std::string& current);
-    virtual ~noDataForRequiredTimeException();
+    virtual ~noDataForRequiredTimeException() throw();
   };
 }
 #endif
