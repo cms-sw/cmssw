@@ -6,7 +6,7 @@
  *  Compute drift distance using the CIEMAT (by P.Garcia Abia and J. Puerta)
  *  parametrization of the cell behavior obtained with GARFIELD
  *
- *  $Date: 2006/02/15 13:54:45 $
+ *  $Date: 2006/03/14 13:05:06 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -61,7 +61,7 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   /// angle=atan(dir.x()/dir.z()) . This can be used when a SL segment is
   /// built, so the impact angle is known but the position along wire is not.
   virtual bool compute(const DTLayer* layer,
-                       const DTDigi& digi,
+                       const DTRecHit1D& recHit1D,
                        const float& angle,
                        LocalPoint& leftPoint,
                        LocalPoint& rightPoint,
@@ -75,7 +75,7 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   /// wire is available and can be used to correct the drift time for particle
   /// TOF and propagation of signal along the wire. 
   virtual bool compute(const DTLayer* layer,
-                       const DTDigi& digi,
+                       const DTRecHit1D& recHit1D,
                        const float& angle,
                        const GlobalPoint& globPos, 
                        LocalPoint& leftPoint,
@@ -95,7 +95,8 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   
   // Do the actual work.
   virtual bool compute(const DTLayer* layer,
-		       const DTDigi& digi,
+		       const DTWireId& wireId,
+		       const float digiTime,
 		       const float& angle,
 		       const GlobalPoint& globPos, 
 		       LocalPoint& leftPoint,

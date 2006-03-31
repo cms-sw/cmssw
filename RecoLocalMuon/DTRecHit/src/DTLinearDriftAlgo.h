@@ -6,8 +6,8 @@
  *  Compute drift distance using constant drift velocity
  *  as defined in the "driftVelocity" parameter.
  *
- *  $Date: 2006/03/14 13:02:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/23 15:39:30 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -56,7 +56,7 @@ class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
   /// Second step in hit position computation.
   /// It is the same as first step since the angular information is not used
   virtual bool compute(const DTLayer* layer,
-                       const DTDigi& digi,
+                       const DTRecHit1D& recHit1D,
                        const float& angle,
                        LocalPoint& leftPoint,
                        LocalPoint& rightPoint,
@@ -68,7 +68,7 @@ class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
   /// and can be used to correct the drift time for particle
   /// TOF and propagation of signal along the wire. 
   virtual bool compute(const DTLayer* layer,
-                       const DTDigi& digi,
+                       const DTRecHit1D& recHit1D,
                        const float& angle,
                        const GlobalPoint& globPos, 
                        LocalPoint& leftPoint,
@@ -80,7 +80,8 @@ class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
 
   // Do the actual work.
   virtual bool compute(const DTLayer* layer,
-		       const DTDigi& digi,
+		       const DTWireId& wireId,
+		       const float digiTime,
 		       const GlobalPoint& globPos, 
 		       LocalPoint& leftPoint,
 		       LocalPoint& rightPoint,

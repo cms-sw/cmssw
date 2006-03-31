@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/14 13:02:42 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/23 15:39:30 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -49,58 +49,59 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
 				LocalPoint& leftPoint,
 				LocalPoint& rightPoint,
 				LocalError& error) const {
+  // Get the wireId
+  DTLayerId layerId = layer->id();//FIXME: pass it instead of get it from layer
+  const DTWireId wireId(layerId, digi.wire());
+
   // Get Wire position
   LocalPoint locWirePos(layer->specificTopology().wirePosition(digi.wire()), 0, 0);
   const GlobalPoint globWirePos = layer->surface().toGlobal(locWirePos);
   
-  return compute(layer, digi, globWirePos, leftPoint, rightPoint, error, 1); 
+  return compute(layer, wireId, digi.time(), globWirePos, leftPoint, rightPoint, error, 1); 
 }
 
 
 // Second step: the same as 1st step
 bool DTLinearDriftAlgo::compute(const DTLayer* layer,
-				const DTDigi& digi,
+				const DTRecHit1D& recHit1D,
 				const float& angle,
 				LocalPoint& leftPoint,
 				LocalPoint& rightPoint,
 				LocalError& error) const {
-  // Get Wire position
-  LocalPoint locWirePos(layer->specificTopology().wirePosition(digi.wire()), 0, 0);
-  const GlobalPoint globWirePos = layer->surface().toGlobal(locWirePos);
+  // Get Hit position
+  const GlobalPoint globPos = layer->surface().toGlobal(recHit1D.localPosition());
   
-  return compute(layer, digi, globWirePos, leftPoint, rightPoint, error, 2); 
+  return compute(layer, recHit1D.wireId(), recHit1D.digiTime(),
+		 globPos, leftPoint, rightPoint, error, 2); 
 }
 
 
 
 // Third step.
 bool DTLinearDriftAlgo::compute(const DTLayer* layer,
-				const DTDigi& digi,
+				const DTRecHit1D& recHit1D,
 				const float& angle,
 				const GlobalPoint& globPos, 
 				LocalPoint& leftPoint,
 				LocalPoint& rightPoint,
 				LocalError& error) const {
-  return compute(layer, digi, globPos, leftPoint, rightPoint, error, 3); 
+  return compute(layer, recHit1D.wireId(), recHit1D.digiTime(),
+		 globPos, leftPoint, rightPoint, error, 3); 
 }
 
 
 
 // Do the actual work.
 bool DTLinearDriftAlgo::compute(const DTLayer* layer,
-				const DTDigi& digi,
+				const DTWireId& wireId,
+				const float digiTime,
 				const GlobalPoint& globPos, 
 				LocalPoint& leftPoint,
 				LocalPoint& rightPoint,
 				LocalError& error,
 				int step) const {
-  // Get the layerId
-  DTLayerId layerId = layer->id();//FIXME: pass it instead of get it from layer
-  const DTWireId wireId(layerId, digi.wire());
-
-
   // Subtract the offset to the digi time accordingly to the DTTTrigBaseSync concrete instance
-  float driftTime = digi.time() - theSync->offset(layer, wireId, globPos); 
+  float driftTime = digiTime - theSync->offset(layer, wireId, globPos); 
   
   // check for out-of-time
   if (driftTime < minTime || driftTime > maxTime) {
@@ -118,7 +119,7 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
   float drift = driftTime * vDrift;
 
   // Get Wire position
-  LocalPoint locWirePos(layer->specificTopology().wirePosition(digi.wire()), 0, 0);
+  LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
   //Build the two possible points and the error on the position
   leftPoint  = LocalPoint(locWirePos.x()-drift,
                             locWirePos.y(),
@@ -132,7 +133,7 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
   if(debug) {
     cout << "[DTLinearDriftAlgo] Compute drift distance, for digi at wire: " << wireId << endl
 	 << "       Step:           " << step << endl
-	 << "       Digi time:      " << digi.time() << endl
+	 << "       Digi time:      " << digiTime << endl
 	 << "       Drift time:     " << driftTime << endl
 	 << "       Drift distance: " << drift << endl
 	 << "       Hit Resolution: " << hitResolution << endl

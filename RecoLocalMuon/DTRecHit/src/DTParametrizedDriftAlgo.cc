@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/22 13:52:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/14 13:05:06 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -83,7 +83,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
     angle = atan(lDirLoc.x()/lDirLoc.z());
   } 
   
-  return compute(layer, digi, angle, globWirePos,
+  return compute(layer, wireId, digi.time(), angle, globWirePos,
                  leftPoint, rightPoint, error, 1);
 }
 
@@ -91,20 +91,18 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
 
 // Second step
 bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
-				      const DTDigi& digi,
+				      const DTRecHit1D& recHit1D,
 				      const float& angle,
 				      LocalPoint& leftPoint,
 				      LocalPoint& rightPoint,
 				      LocalError& error) const {
-  // Get the layerId
-  DTLayerId layerId = layer->id();//FIXME: pass it instead of get it from layer
-  const DTWireId wireId(layerId, digi.wire());
+  const DTWireId wireId = recHit1D.wireId();
   
   // Get Wire position
   LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
   const GlobalPoint globWirePos = layer->surface().toGlobal(locWirePos);
 
-  return compute(layer, digi, angle, globWirePos,
+  return compute(layer, wireId, recHit1D.digiTime(), angle, globWirePos,
                  leftPoint, rightPoint, error, 2);
 }
 
@@ -112,33 +110,31 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
 
 // Third step
 bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
-				      const DTDigi& digi,
+				      const DTRecHit1D& recHit1D,
 				      const float& angle,
 				      const GlobalPoint& globPos, 
 				      LocalPoint& leftPoint,
 				      LocalPoint& rightPoint,
 				      LocalError& error) const {
-  return compute(layer,digi,angle,globPos,leftPoint,rightPoint,error,3);
+  return compute(layer, recHit1D.wireId(), recHit1D.digiTime(), angle,
+		 globPos, leftPoint, rightPoint, error, 3);
 }
 
 
 
 // Do the actual work.
 bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
-				      const DTDigi& digi,
+				      const DTWireId& wireId,
+				      const float digiTime,
 				      const float& angle,
 				      const GlobalPoint& globPos, 
 				      LocalPoint& leftPoint,
 				      LocalPoint& rightPoint,
 				      LocalError& error,
 				      int step) const {
-  // Get the layerId
-  DTLayerId layerId = layer->id();//FIXME: pass it instead of get it from layer
-  const DTWireId wireId(layerId, digi.wire());
-  
   // Subtract Offset according to DTTTrigBaseSync concrete instance
   // chosen with the 'tZeroMode' parameter
-  float driftTime = digi.time() - theSync->offset(layer, wireId, globPos);
+  float driftTime = digiTime - theSync->offset(layer, wireId, globPos);
 
   // check for out-of-time only at step 1
   if (step==1 && (driftTime < minTime || driftTime > maxTime)) {
@@ -303,7 +299,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
          << "  Global Position  " << globPos << endl
          << "  Local Position   " << layer->surface().toLocal(globPos) << endl
       //          << "  y along Wire     " << wireCoord << endl
-         << "  Digi time        " << digi.time() << endl
+         << "  Digi time        " << digiTime << endl
       //          << "  dpropDelay       " << propDelay << endl
       //          << "  deltaTOF         " << deltaTOF << endl
          << " >Drif time        " << driftTime << endl

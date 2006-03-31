@@ -5,8 +5,8 @@
  *  Abstract algorithmic class to compute drift distance and error 
  *  form a DT digi
  *
- *  $Date: 2006/03/03 11:29:41 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/14 13:02:41 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane & G. Cerminara - INFN Torino
  */
 
@@ -80,7 +80,7 @@ class DTRecHitBaseAlgo {
   /// angle=atan(dir.x()/dir.z()) . This can be used when a SL segment is
   /// built, so the impact angle is known but the position along wire is not.
   virtual bool compute(const DTLayer* layer,
-                       const DTDigi& digi,
+                       const DTRecHit1D& recHit1D,
                        const float& angle,
                        LocalPoint& leftPoint,
                        LocalPoint& rightPoint,
@@ -95,7 +95,7 @@ class DTRecHitBaseAlgo {
   /// wire is available and can be used to correct the drift time for particle
   /// TOF and propagation of signal along the wire. 
   virtual bool compute(const DTLayer* layer,
-                       const DTDigi& digi,
+		       const DTRecHit1D& recHit1D,
                        const float& angle,
                        const GlobalPoint& globPos, 
                        LocalPoint& leftPoint,
