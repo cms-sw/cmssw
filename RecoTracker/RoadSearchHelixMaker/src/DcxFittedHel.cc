@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxFittedHel.cc,v 1.18 2004/08/06 05:58:21 bartoldu Exp $
+// 	$Id: DcxFittedHel.cc,v 1.2 2006/03/22 22:43:09 stevew Exp $
 //
 // Description:
 //	Class Implementation for |DcxFittedHel|
@@ -23,10 +23,13 @@
 //babar #include "DcxReco/DcxHit.hh"
 //babar #include "DcxReco/Dcxprobab.hh"
 #include <cmath>
+#include <sstream>
 #include "RecoTracker/RoadSearchHelixMaker/interface/Dcxmatinv.hh"
 #include "RecoTracker/RoadSearchHelixMaker/interface/DcxFittedHel.hh"
 #include "RecoTracker/RoadSearchHelixMaker/interface/DcxHit.hh"
 #include "RecoTracker/RoadSearchHelixMaker/interface/Dcxprobab.hh"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using std::cout;
 using std::endl;
@@ -34,8 +37,8 @@ using std::ostream;
 
 void DcxFittedHel::basics() 
 {nhits=0; itofit=0; fittime=0.0;
-prob=0.0; chisq=1000000.0; fail=1300; quality=0; origin=-1; usedonhel=0;
-bailout=1; chidofbail=1000.0; niter=10;
+  prob=0.0; chisq=1000000.0; fail=1300; quality=0; origin=-1; usedonhel=0;
+  bailout=1; chidofbail=1000.0; niter=10;
 } // endof basics 
 
 //babar void DcxFittedHel::basics(const HepAList<DcxHit> &e) {
@@ -53,13 +56,13 @@ DcxFittedHel::DcxFittedHel(){basics();}
 //babar DcxFittedHel::DcxFittedHel(HepAList<DcxHit> &ListOHits, DcxHel& hel, double Sfac)
 DcxFittedHel::DcxFittedHel(std::vector<DcxHit*> &ListOHits, DcxHel& hel, double Sfac)
 { 
-//  float tstart=clock();
+  //  float tstart=clock();
   basics(ListOHits);
   sfac=Sfac;
   *this=hel;
   fail=IterateFit();
-//  float tstop=clock();
-//  fittime=tstop-tstart;
+  //  float tstop=clock();
+  //  fittime=tstop-tstart;
 }//endof DcxFittedHel
 
 //destructor
@@ -72,72 +75,72 @@ DcxFittedHel& DcxFittedHel::operator=(const DcxHel& rhs){
 } //endof DcxFittedHel::operator=
 
 DcxFittedHel& DcxFittedHel::operator=(const DcxFittedHel& rhs){
- copy(rhs);
- fail=rhs.Fail();
- chisq=rhs.Chisq();
- rcs=rhs.Rcs();
- prob=rhs.Prob();
- fittime=rhs.Fittime();
- nhits=rhs.Nhits();
- itofit=rhs.Itofit();
- quality=rhs.Quality();
- origin=rhs.Origin();
- listohits=rhs.ListOHits();
- sfac=rhs.Sfac();               
- usedonhel=rhs.GetUsedOnHel();
- bailout=1; chidofbail=1000.0; niter=10;
- return *this;
+  copy(rhs);
+  fail=rhs.Fail();
+  chisq=rhs.Chisq();
+  rcs=rhs.Rcs();
+  prob=rhs.Prob();
+  fittime=rhs.Fittime();
+  nhits=rhs.Nhits();
+  itofit=rhs.Itofit();
+  quality=rhs.Quality();
+  origin=rhs.Origin();
+  listohits=rhs.ListOHits();
+  sfac=rhs.Sfac();               
+  usedonhel=rhs.GetUsedOnHel();
+  bailout=1; chidofbail=1000.0; niter=10;
+  return *this;
 }//endof DcxFittedHel::operator=
 
 //babar DcxFittedHel& DcxFittedHel::Grow(const DcxFittedHel& rhs, HepAList<DcxHit> &ListOAdds){
 DcxFittedHel& DcxFittedHel::Grow(const DcxFittedHel& rhs, std::vector<DcxHit*> &ListOAdds){
- copy(rhs);
- fail=rhs.Fail();
- chisq=rhs.Chisq();
-// rcs=rhs.Rcs();
-// prob=rhs.Prob();
- fittime=0.0;
- nhits=rhs.Nhits();
- itofit=0;
- quality=rhs.Quality();
- origin=rhs.Origin();
- listohits=rhs.ListOHits();
- sfac=rhs.Sfac();               
- usedonhel=rhs.GetUsedOnHel();
- bailout=1; chidofbail=1000.0; niter=10;
- int kkk=0; while (ListOAdds[kkk]){ListOAdds[kkk]->SetUsedOnHel(0); kkk++;}
- kkk=0; while (listohits[kkk]){listohits[kkk]->SetUsedOnHel(1); kkk++;}
- double spull; DcxHel temp=rhs;
- kkk=0; while (ListOAdds[kkk]){
-   if (ListOAdds[kkk]->GetUsedOnHel() == 0){
-     spull=ListOAdds[kkk]->pull(temp)/sfac; chisq+=spull*spull; 
-//babar     listohits.append(ListOAdds[kkk]); nhits++; 
-     listohits.push_back(ListOAdds[kkk]); nhits++; 
-   }
-   kkk++;
- }
- int ndof=nhits-nfree;
- prob=Dcxprobab(ndof,chisq);
- rcs=chisq/ndof;
- return *this;
+  copy(rhs);
+  fail=rhs.Fail();
+  chisq=rhs.Chisq();
+  // rcs=rhs.Rcs();
+  // prob=rhs.Prob();
+  fittime=0.0;
+  nhits=rhs.Nhits();
+  itofit=0;
+  quality=rhs.Quality();
+  origin=rhs.Origin();
+  listohits=rhs.ListOHits();
+  sfac=rhs.Sfac();               
+  usedonhel=rhs.GetUsedOnHel();
+  bailout=1; chidofbail=1000.0; niter=10;
+  int kkk=0; while (ListOAdds[kkk]){ListOAdds[kkk]->SetUsedOnHel(0); kkk++;}
+  kkk=0; while (listohits[kkk]){listohits[kkk]->SetUsedOnHel(1); kkk++;}
+  double spull; DcxHel temp=rhs;
+  kkk=0; while (ListOAdds[kkk]){
+    if (ListOAdds[kkk]->GetUsedOnHel() == 0){
+      spull=ListOAdds[kkk]->pull(temp)/sfac; chisq+=spull*spull; 
+      //babar     listohits.append(ListOAdds[kkk]); nhits++; 
+      listohits.push_back(ListOAdds[kkk]); nhits++; 
+    }
+    kkk++;
+  }
+  int ndof=nhits-nfree;
+  prob=Dcxprobab(ndof,chisq);
+  rcs=chisq/ndof;
+  return *this;
 }//endof DcxFittedHel::Grow
 
 //accessors
 float DcxFittedHel::Residual(int i){
- float pull=listohits[i]->pull(*this);
- float E=listohits[i]->e();
- return pull*E;
+  float pull=listohits[i]->pull(*this);
+  float E=listohits[i]->e();
+  return pull*E;
 }//endof Residual
 
 float DcxFittedHel::Pull(int i){
- float pull=listohits[i]->pull(*this);
- return pull;
+  float pull=listohits[i]->pull(*this);
+  return pull;
 }//endof Pulls
 
 int DcxFittedHel::Fail(float Probmin)const {
   if(fail) {return fail;}
   if(prob<Probmin) {return 1303;}
-// now done in DoFit  if(fabs(omega)>omegmax) {return 1306;}
+  // now done in DoFit  if(fabs(omega)>omegmax) {return 1306;}
   return 0;
 } // endof Fail
 
@@ -148,8 +151,8 @@ void DcxFittedHel::VaryRes() {
 }
 
 int DcxFittedHel::ReFit(){
- fail=IterateFit();
- return fail;
+  fail=IterateFit();
+  return fail;
 }//endof ReFit
 
 int DcxFittedHel::IterateFit(){
@@ -161,12 +164,11 @@ int DcxFittedHel::IterateFit(){
     for (int i=0; i< niter; i++) {
       itofit=i+1;
       ftemp=DoFit();
-//      if (nfree == 5){
-//      cout << " iteration number= " << i  << " chisq= " << chisq;
-//      cout << " nhits= " << nhits << " " << " fail= " << ftemp << endl;
-//      }
-//      print();
-//      cout << "  " << endl;
+      if (nfree == 5){
+	LogDebug("RoadSearch") << " iteration number= " << i  << " chisq= " << chisq;
+	LogDebug("RoadSearch") << " nhits= " << nhits << " " << " fail= " << ftemp ;
+      }
+      print();
       if(ftemp!=0) {break;}
       if(fabs(chisq-prevchisq)<0.01*chisq) {break;}
       prevchisq=chisq;
@@ -190,82 +192,83 @@ int DcxFittedHel::IterateFit(){
 }//endof IterateFit
 
 int DcxFittedHel::DoFit(){
- int ftemp=1301;
-// if(nfree>nhits) {return Fail;}
- if(nfree>=nhits) {return ftemp;}
- double m_2pi=2.0*M_PI;
- ftemp=0;
- //pointloop
- int norder=nfree;
- double A[10][10], B[10], D[10], det; int ii, jj;
- for (ii=0; ii<norder; ii++){
-  D[ii]=0.0; B[ii]=0.0; for (jj=0; jj<norder; jj++){A[ii][jj]=0.0;}
- }
- chisq=0.0;
- for (int i=0; i< nhits; i++){
-  std::vector<float> derivs=listohits[i]->derivatives(*this);
-//  cout << derivs;
-  if (sfac != 1.0){
-   for(int ipar=0; ipar<derivs.size(); ipar++) {derivs[ipar]/=sfac;
-//    cout << " " << derivs[ipar];
-   }
-//   cout << endl;
+  int ftemp=1301;
+  // if(nfree>nhits) {return Fail;}
+  if(nfree>=nhits) {return ftemp;}
+  double m_2pi=2.0*M_PI;
+  ftemp=0;
+  //pointloop
+  int norder=nfree;
+  double A[10][10], B[10], D[10], det; int ii, jj;
+  for (ii=0; ii<norder; ii++){
+    D[ii]=0.0; B[ii]=0.0; for (jj=0; jj<norder; jj++){A[ii][jj]=0.0;}
   }
-  chisq+=derivs[0]*derivs[0];
-  //outer parameter loop
-  for(int ipar=0; ipar<norder; ipar++){
-   D[ipar]+=derivs[0]*derivs[ipar+1];
-   //inner parameter loop
-   for(int jpar=0; jpar<norder; jpar++){
-    A[ipar][jpar]+=derivs[ipar+1]*derivs[jpar+1];
-   }//endof inner parameter loop
-  }//endof outer parameter loop
- }//pointloop
-// cout << " D A " << endl;
-// for (ii=0; ii<norder; ii++){
-//  cout << D[ii] << " "; for (jj=0;jj<norder;jj++){cout << A[ii][jj] << " ";}
-//  cout << endl;
-// }
-//invert A
+  chisq=0.0;
+  for (int i=0; i< nhits; i++){
+    std::vector<float> derivs=listohits[i]->derivatives(*this);
+    std::ostringstream output;
+    output << "derivs ";
+    if (sfac != 1.0){
+      for(unsigned int ipar=0; ipar<derivs.size(); ipar++) {derivs[ipar]/=sfac;
+	output << " " << derivs[ipar];
+      }
+      LogDebug("RoadSearch") << output;
+    }
+    chisq+=derivs[0]*derivs[0];
+    //outer parameter loop
+    for(int ipar=0; ipar<norder; ipar++){
+      D[ipar]+=derivs[0]*derivs[ipar+1];
+      //inner parameter loop
+      for(int jpar=0; jpar<norder; jpar++){
+	A[ipar][jpar]+=derivs[ipar+1]*derivs[jpar+1];
+      }//endof inner parameter loop
+    }//endof outer parameter loop
+  }//pointloop
+  LogDebug("RoadSearch") << " D A " ;
+  for (ii=0; ii<norder; ii++){
+    std::ostringstream output;
+    output << D[ii] << " "; for (jj=0;jj<norder;jj++){output << A[ii][jj] << " ";}
+    LogDebug("RoadSearch") << output;
+  }
+  //invert A
   int ierr;
   if(bailout) {
     ftemp=1308;			// bailout
     int ndof=nhits-nfree;
     if(ndof>0) {
       float chiperdof=chisq/ndof;
-      if(chiperdof>chidofbail) {return ftemp;}
-//      cout << " got here; chiperdof = " << chiperdof << endl;
+      if(chiperdof>chidofbail) {return ftemp;} LogDebug("RoadSearch") << " got here; chiperdof = " << chiperdof ;
     } // (ndof>0)
   } // (bailout)
   ftemp=0;
   ierr = Dcxmatinv(&A[0][0],&norder,&det);
-//  cout << " ierr = " << ierr << endl;
+  LogDebug("RoadSearch") << " ierr = " << ierr ;
   if(ierr==0) {
-   for(ii=0;ii<norder;ii++){for(jj=0;jj<norder;jj++){B[ii]+=A[ii][jj]*D[jj];}}
-//   cout << " B A " << endl;
-//   for (ii=0; ii<norder; ii++){
-//    cout << B[ii] << " "; for(jj=0;jj<norder;jj++){cout << A[ii][jj] << " ";}
-//    cout << endl;
-//   }
-   int bump=-1;
-   if(qd0)    {bump++; d0-=B[bump];}
-   if(qphi0)  {bump++; phi0-=B[bump]; 
-               if (phi0 > M_PI){phi0-=m_2pi;} 
-               if (phi0 < -M_PI){phi0+=m_2pi;}
-               cphi0=cos(phi0); sphi0=sin(phi0);
-              }
-   if(qomega) {bump++; omega-=B[bump];
-               ominfl=1; if(fabs(omega)<omin){ominfl=0;}
-              }
-   if(qz0)    {bump++; z0-=B[bump];}
-   if(qtanl)  {bump++; tanl-=B[bump];}
-   if(qt0)    {bump++; t0-=B[bump];}
-   x0=X0(); y0=Y0(); xc=Xc(); yc=Yc();
-   if ( fabs(d0) > 80.0 )ftemp=1305; // No longer in Dch
-   if ( fabs(omega) > 1.0 )ftemp=1306; // Too tight (r < 1 cm)
+    for(ii=0;ii<norder;ii++){for(jj=0;jj<norder;jj++){B[ii]+=A[ii][jj]*D[jj];}}
+    for (ii=0; ii<norder; ii++){
+      std::ostringstream output;
+      output << B[ii] << " "; for(jj=0;jj<norder;jj++){output << A[ii][jj] << " ";}
+      LogDebug("RoadSearch") << output;
+    }
+    int bump=-1;
+    if(qd0)    {bump++; d0-=B[bump];}
+    if(qphi0)  {bump++; phi0-=B[bump]; 
+      if (phi0 > M_PI){phi0-=m_2pi;} 
+      if (phi0 < -M_PI){phi0+=m_2pi;}
+      cphi0=cos(phi0); sphi0=sin(phi0);
+    }
+    if(qomega) {bump++; omega-=B[bump];
+      ominfl=1; if(fabs(omega)<omin){ominfl=0;}
+    }
+    if(qz0)    {bump++; z0-=B[bump];}
+    if(qtanl)  {bump++; tanl-=B[bump];}
+    if(qt0)    {bump++; t0-=B[bump];}
+    x0=X0(); y0=Y0(); xc=Xc(); yc=Yc();
+    if ( fabs(d0) > 80.0 )ftemp=1305; // No longer in Dch
+    if ( fabs(omega) > 1.0 )ftemp=1306; // Too tight (r < 1 cm)
   }else{
-//   Fail=Fail+ierr;
-   ftemp=ierr;
+    //   Fail=Fail+ierr;
+    ftemp=ierr;
   }
   return ftemp;
 }//endof DoFit
@@ -276,7 +279,7 @@ int DcxFittedHel::OriginIncluded() {
     int type=listohits[i]->type();
     if(2==type) {		// origin "hit" ?
       //move to end, move fit point, return hit number
-//cms??      listohits.swap(i,nhits-1);
+      //cms??      listohits.swap(i,nhits-1);
       return nhits-1;
     } // (2==type)
   } // (int i=0; listohits[i]; i++)
@@ -284,41 +287,41 @@ int DcxFittedHel::OriginIncluded() {
 }//endof OriginIncluded
 
 int DcxFittedHel::FitPrint(){
- cout << " fail= " << fail << endl;
- cout << " iterations to fit= " << itofit << endl;
- cout << " nhits= " << nhits << endl;
- cout << " sfac= " << sfac << endl;
- cout << " chisq= " << chisq << endl;
- cout << " rcs= " << rcs << endl;
- cout << " prob= " << prob << endl;
- cout << " fittime= " << fittime << endl;
- return 0;
+  LogDebug("RoadSearch") << " fail= " << fail ;
+  LogDebug("RoadSearch") << " iterations to fit= " << itofit ;
+  LogDebug("RoadSearch") << " nhits= " << nhits ;
+  LogDebug("RoadSearch") << " sfac= " << sfac ;
+  LogDebug("RoadSearch") << " chisq= " << chisq ;
+  LogDebug("RoadSearch") << " rcs= " << rcs ;
+  LogDebug("RoadSearch") << " prob= " << prob ;
+  LogDebug("RoadSearch") << " fittime= " << fittime ;
+  return 0;
 }//endof FitPrint
 
 int DcxFittedHel::FitPrint(DcxHel &hel, ostream &o){
-// FitPrint();
-// cout << " difd0= " << d0-hel.D0() << endl;
- double m_2pi=2.0*M_PI;
- double difphi0=phi0-hel.Phi0();
- if (difphi0>M_PI)difphi0-=m_2pi; if (difphi0<-M_PI)difphi0+=m_2pi; 
-// cout << " difphi0= " << difphi0 << endl;
-// cout << " difomega= " << omega-hel.Omega() << endl;
-// cout << " difz0= " << z0-hel.Z0() << endl;
-// cout << " diftanl= " << tanl-hel.Tanl() << endl;
- o << "*&*" << " ";
-// o << itofit << " " << fail << " " << chisq << " " << rcs << " "; 
- o << nhits << " " << fail << " " << chisq << " " << rcs << " "; 
-// o << prob << " " << fittime << " " << d0-hel.D0() << " ";
- o << prob << " " << hel.Tanl() << " " << d0-hel.D0() << " ";
- o << difphi0 << " " << omega-hel.Omega() << " "; 
- o << z0-hel.Z0() << " " << tanl-hel.Tanl() << endl;
- return 0;
+  FitPrint();
+  LogDebug("RoadSearch") << " difd0= " << d0-hel.D0() ;
+  double m_2pi=2.0*M_PI;
+  double difphi0=phi0-hel.Phi0();
+  if (difphi0>M_PI)difphi0-=m_2pi; if (difphi0<-M_PI)difphi0+=m_2pi; 
+  LogDebug("RoadSearch") << " difphi0= " << difphi0 ;
+  LogDebug("RoadSearch") << " difomega= " << omega-hel.Omega() ;
+  LogDebug("RoadSearch") << " difz0= " << z0-hel.Z0() ;
+  LogDebug("RoadSearch") << " diftanl= " << tanl-hel.Tanl() ;
+  o << "*&*" << " ";
+  // o << itofit << " " << fail << " " << chisq << " " << rcs << " "; 
+  o << nhits << " " << fail << " " << chisq << " " << rcs << " "; 
+  // o << prob << " " << fittime << " " << d0-hel.D0() << " ";
+  o << prob << " " << hel.Tanl() << " " << d0-hel.D0() << " ";
+  o << difphi0 << " " << omega-hel.Omega() << " "; 
+  o << z0-hel.Z0() << " " << tanl-hel.Tanl() << endl;
+  return 0;
 }//endof FitPrint
 
 //Find layer number of |hitno|
 int DcxFittedHel::Layer(int hitno)const {
   if(hitno>=nhits) {return 0;}
-//babar  const HepAList<DcxHit> &temp=(HepAList<DcxHit>&)listohits;
+  //babar  const HepAList<DcxHit> &temp=(HepAList<DcxHit>&)listohits;
   const std::vector<DcxHit*> &temp=(std::vector<DcxHit*>&)listohits;
   int layer=temp[hitno]->Layer();
   return layer;
@@ -326,10 +329,10 @@ int DcxFittedHel::Layer(int hitno)const {
 
 //Find superlayer numbber of |hitno|
 int DcxFittedHel::SuperLayer(int hitno)const {
-    if(hitno>=nhits) {return 0;}
-    if(hitno<0) {return 0;}
-//babar    const HepAList<DcxHit> &temp=(HepAList<DcxHit>&)listohits;
-    const std::vector<DcxHit*> &temp=(std::vector<DcxHit*>&)listohits;
-    return temp[hitno]->SuperLayer();
-  } // endof SuperLayer
+  if(hitno>=nhits) {return 0;}
+  if(hitno<0) {return 0;}
+  //babar    const HepAList<DcxHit> &temp=(HepAList<DcxHit>&)listohits;
+  const std::vector<DcxHit*> &temp=(std::vector<DcxHit*>&)listohits;
+  return temp[hitno]->SuperLayer();
+} // endof SuperLayer
 

@@ -10,7 +10,7 @@
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2006/02/10 22:54:52 $
+// $Date: 2006/03/22 22:47:37 $
 // $Revision: 1.2 $
 //
 
@@ -19,8 +19,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -28,11 +26,7 @@
 
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
 
-#include "RecoTracker/RoadMapRecord/interface/Roads.h"
-
 #include "DataFormats/DetId/interface/DetId.h"
-
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 
 class RoadSearchHelixMakerAlgorithm 
 {

@@ -9,8 +9,8 @@
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2006/02/10 22:54:52 $
-// $Revision: 1.3 $
+// $Date: 2006/03/22 22:43:09 $
+// $Revision: 1.2 $
 //
 
 #include <memory>
@@ -18,10 +18,7 @@
 
 #include "RecoTracker/RoadSearchHelixMaker/interface/RoadSearchHelixMaker.h"
 
-#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -34,7 +31,7 @@ namespace cms
     roadSearchHelixMakerAlgorithm_(conf) ,
     conf_(conf)
   {
-    produces<RoadSearchCloudCollection>();
+    produces<reco::TrackCollection>();
   }
 
 
@@ -58,7 +55,7 @@ namespace cms
     roadSearchHelixMakerAlgorithm_.run(cleanclouds.product(),es,*output);
 
     // Step D: write output to file
-//    e.put(output);
+   e.put(output);
 
   }
 

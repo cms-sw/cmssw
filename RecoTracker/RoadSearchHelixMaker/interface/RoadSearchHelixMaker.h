@@ -2,18 +2,18 @@
 #define RoadSearchHelixMaker_h
 
 //
-// Package:         RecoTracker/HelixMaker
+// Package:         RecoTracker/RoadSearchHelixMaker
 // Class:           RoadSearchHelixMaker
 // 
 // Description:     Calls RoadSeachHelixMakerAlgorithm
-//                  to find RoadSearchClouds.
+//                  to find simple Helices.
 //
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/03/22 22:47:37 $
-// $Revision: 1.2 $
+// $Author: burkett $
+// $Date: 2006/03/29 00:14:45 $
+// $Revision: 1.3 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"

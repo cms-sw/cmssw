@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxCloudsToTracks.hh,v 1.11 2004/08/06 05:58:21 bartoldu Exp $
+// 	$Id: DcxCloudsToTracks.hh,v 1.2 2006/03/22 22:47:37 stevew Exp $
 //
 // Description:
 //	Class Header for |DcxCloudsToTracks| - a version of
@@ -21,8 +21,12 @@
 
 #include <iostream>
 #include <fstream>
-#include "RecoTracker/RoadSearchHelixMaker/interface/DcxHel.hh"
 #include <vector>
+
+#include "RecoTracker/RoadSearchHelixMaker/interface/DcxHel.hh"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
  
 class DcxHit;
 
@@ -30,7 +34,7 @@ class DcxCloudsToTracks{
 public:
 //constructors
   DcxCloudsToTracks();
-  DcxCloudsToTracks(std::vector<DcxHit*> &listohits);
+  DcxCloudsToTracks(std::vector<DcxHit*> &listohits, reco::TrackCollection &output);
 
 //destructor
   virtual ~DcxCloudsToTracks( );
