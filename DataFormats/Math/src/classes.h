@@ -18,12 +18,12 @@ namespace {
     ROOT::Math::DisplacementVector3D<ROOT::Math::Polar3D<Double32_t> > v33;
     ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> > p3;
 
-    math::Vector<1> v1;
-    math::Vector<2> v2;
-    math::Vector<3> v3;
-    math::Vector<4> v4;
-    math::Vector<5> v5;
-    math::Vector<6> v6;
+    math::Vector<1>::type v1;
+    math::Vector<2>::type v2;
+    math::Vector<3>::type v3;
+    math::Vector<4>::type v4;
+    math::Vector<5>::type v5;
+    math::Vector<6>::type v6;
 
     math::Error<1> e1;
     math::Error<2> e2;
