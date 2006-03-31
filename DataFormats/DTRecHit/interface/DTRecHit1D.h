@@ -9,8 +9,8 @@
  *  DTRecHit1DPair). The coordiante measured is always the x (in Det frame)
  *
  *
- *  $Date: 2006/01/24 14:23:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/02/15 09:24:45 $
+ *  $Revision: 1.2 $
  *  \author S. Lacaprara, G. Cerminara
  */
 
@@ -107,6 +107,12 @@ class DTRecHit1D : public RecHit1D {
   /// Return the wireId
   DTWireId wireId() const {
     return theWireId;
+  }
+
+  
+  /// Return the time (ns) of the digi used to build the rechit
+  float digiTime() const {
+    return theDigiTime;
   }
 
  private:
