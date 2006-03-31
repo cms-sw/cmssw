@@ -8,7 +8,7 @@
 </center>
 
 \section desc Description
-Persistent classes for mathematical types.
+Persistent classes for mathematical types. This package is based on ROOT/SEAL <a href="http://seal.web.cern.ch/seal/MathLibs/MathCore/html/index.html">MathCore</a> library.
 
 \subsection interface Public interface
 - math::Error <b><N></b>: NxN symmetric matrix.  The elements are stored as <tt>Double32_t</tt>,
