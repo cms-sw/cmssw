@@ -4,7 +4,7 @@ CMS detector in global coordinates (i.e. a port of ExSimHitStatistics
 to CMSSW). It puts into the event a PGlobalSimHit object as defined in
 SimDataFormats/GlobalValidation.
 
-It is possible to use two .cfg files to run the package:
+It is possible to use three .cfg files to run the package:
 
 EvtGen+DetSim+Global.cfg runs the full chain of event generation, detector
 	simulation and global translation making use of local .cfi files
@@ -12,8 +12,16 @@ EvtGen+DetSim+Global.cfg runs the full chain of event generation, detector
 	available and appropriate). For instance, you can quickly change
 	between different generators by uncommenting the one you want and
 	commenting all others. Right now EGun and Pythia have .cfi files.
-GlobalValProducer.cfg uses as input a root file created in the 
-        SimG4Core/Application/test directory for quick processing
+
+Or one can run:
+EvtGen+DetSim.cfg which just runs the event generation and detector simulation
+	using the same .cfi files as above. The output file can then be
+	processed by GlobalValProducer.cfg to produce the same output file
+	as the full chain, but allowing for faster turn-around while debugging
+	the code
+
+GlobalValProducer.cfg uses as input a root file created by SimG4Core, by 
+	default the file produced by running EvtGen+DetSim.cfg
 
 To execute type cmsRun -p *.cfg
 
@@ -23,10 +31,6 @@ Also included is a MakeHistograms.C macro that processes the output root file
 	use of the PGlobalSimHit accessor methods, so a .rootrc and rootlogon.C
 	file is provided to load the FWLite package to provide this
 	functionality.
-
-Currently, RPC Muon information is not included pending release of the
-	appropriate geometry, although the necessary code is waiting in the
-	GlobalProducer.cc file.
 
 Future revisions will include macros to perform the actual validation based
 	on the PGlobalSimHit information.
