@@ -4,8 +4,8 @@
 //   Ported from ORCA. 
 //   compatibleLayers(dir) and compatibleLayers(fts, dir) are added, 
 //   which return ALL DetLayers that are compatible with a given DetLayer.
-//   $Date: $
-//   $Revision: $
+//   $Date: 2006/03/22 01:17:39 $
+//   $Revision: 1.1 $
 
 /* Collaborating Class Declarations */
 #include "RecoMuon/Navigation/interface/MuonLayerSort.h"
@@ -15,15 +15,14 @@ class DetLayer;
 class BarrelDetLayer;
 
 /* Base Class Headers */
-#include "TrackingTools/DetLayers/interface/NavigableLayer.h"
-
+#include "RecoMuon/Navigation/interface/MuonNavigableLayer.h"
 /* C++ Headers */
 
 /* ====================================================================== */
 
 /* Class MuonBarrelNavigableLayer Interface */
 
-class MuonBarrelNavigableLayer : public NavigableLayer {
+class MuonBarrelNavigableLayer : public MuonNavigableLayer {
 
   public:
 
@@ -155,8 +154,6 @@ class MuonBarrelNavigableLayer : public NavigableLayer {
     void pushCompatibleResult(vector<const DetLayer*>& result,
                     const MapE& map, const
                     FreeTrajectoryState& fts) const;
-
-    MuonEtaRange TrackingRange(const FreeTrajectoryState& fts) const;
 
   private:
 

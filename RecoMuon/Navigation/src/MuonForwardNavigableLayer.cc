@@ -2,8 +2,8 @@
 
 //   Ported from ORCA.
 //   Two new methods compatibleLayers are added.
-//   $Date: $
-//   $Revision: $
+//   $Date: 2006/03/22 02:14:21 $
+//   $Revision: 1.1 $
 
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -149,27 +149,6 @@ void MuonForwardNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& re
   for (MapEI i = map.begin(); i != map.end(); i++)
     if ((*i).second.isCompatible(range)) result.push_back((*i).first);
 
-}
-// Estimate an eta range for a FTS
-MuonEtaRange MuonForwardNavigableLayer::TrackingRange(const FreeTrajectoryState& fts) const
-{  
-  float z = fts.position().z();
-  float r = fts.position().perp();
-  float eta= log(-(tan(atan(r/z)/2.)));
-  if ( z>0 ) eta=-log((tan(atan(r/z)/2.)));
-  float theta2 = atan(r/z)/2.;
-  float spread = 5.0*sqrt(fts.curvilinearError().matrix()(2,2))/(2.0*sin(theta2)*cos(theta2));  //5*sigma(eta)
-  float eta_max=0;
-  if ( z > 0 ) eta_max = -log((tan(atan(r/(z+spread))/2.)));
-  else eta_max = log(-(tan(atan(r/(z-spread))/2.)));
-
-  spread = fabs(eta_max-eta);
-  MuonEtaRange range(eta+spread,eta-spread);
-
-  if ( spread < 0.07 ) spread = 0.07;
-  if ( eta > 1.0 && eta < 1.1 ) MuonEtaRange range(eta+3.0*spread,eta-spread);
-  if ( eta < -1.0 && eta > -1.1 ) MuonEtaRange range(eta+spread,eta-3.0*spread);
-  return range;
 }
 
 

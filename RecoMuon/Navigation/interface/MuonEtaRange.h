@@ -1,5 +1,5 @@
-#ifndef RecoMuon_MuonEtaRange_H
-#define RecoMuon_MuonEtaRange_H
+#ifndef Navigation_MuonEtaRange_H
+#define Navigation_MuonEtaRange_H
 
 //Ported form ORCA 
 
