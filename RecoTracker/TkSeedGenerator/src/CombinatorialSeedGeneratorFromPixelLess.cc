@@ -5,12 +5,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 void 
 CombinatorialSeedGeneratorFromPixelLess::init(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
+					  const SiStripRecHit2DLocalPosCollection &collstereo ,
 					  const SiStripRecHit2DLocalPosCollection &collrphi ,
 					  const edm::EventSetup& iSetup)
 {
 
    PixelLessSeedLayerPairs pixellesslayers;
-   pixellesslayers.init(collmatch,collrphi,iSetup);
+   pixellesslayers.init(collmatch,collstereo,collrphi,iSetup);
    initPairGenerator(&pixellesslayers,iSetup);
 }
 

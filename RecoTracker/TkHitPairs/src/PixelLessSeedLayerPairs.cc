@@ -66,6 +66,7 @@ void PixelLessSeedLayerPairs::addBarrelBarrelLayers( int mid, int outer,
 // }
 
 void PixelLessSeedLayerPairs::init(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
+				   const SiStripRecHit2DLocalPosCollection &collstereo, 
 				   const SiStripRecHit2DLocalPosCollection &collrphi, 
 				   const edm::EventSetup& iSetup){
 

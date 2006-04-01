@@ -1,5 +1,5 @@
-#ifndef CombinatorialSeedGeneratorFromPixelLess_H
-#define CombinatorialSeedGeneratorFromPixelLess_H
+#ifndef SeedGeneratorForCosmics_H
+#define SeedGeneratorForCosmics_H
 
 /** \class CombinatorialSeedGeneratorFromPixel
  *  A concrete regional seed generator providing seeds constructed 
@@ -12,23 +12,30 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-
+#include "RecoTracker/TkHitPairs/interface/CosmicHitPairGenerator.h"
 class PixelSeedLayerPairs;
 
-class CombinatorialSeedGeneratorFromPixelLess : public SeedGeneratorFromLayerPairs {
+class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
  public:
  
-  CombinatorialSeedGeneratorFromPixelLess(const edm::ParameterSet& conf);
-
-  void init(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
-	    const SiStripRecHit2DLocalPosCollection &collstereo ,
+  SeedGeneratorForCosmics(const edm::ParameterSet& conf);
+  virtual ~SeedGeneratorForCosmics(){};
+  void init(const SiStripRecHit2DLocalPosCollection &collstereo,
 	    const SiStripRecHit2DLocalPosCollection &collrphi,
 	    const edm::EventSetup& c);
+
+
+
   void  run(TrajectorySeedCollection &,const edm::EventSetup& c);
+  void  seeds(TrajectorySeedCollection &output,
+	      const edm::EventSetup& c,
+	      const TrackingRegion& region);
+ 
  private:
   edm::ParameterSet conf_;
   GlobalTrackingRegion region;
- 
+  CosmicHitPairGenerator* thePairGenerator; 
+
 };
 #endif
 

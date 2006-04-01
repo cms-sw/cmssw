@@ -7,8 +7,7 @@
 #include <memory>
 #include <string>
 
-#include "RecoTracker/TkSeedGenerator/interface/GlobalPixelLessSeedGenerator.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
+#include "RecoTracker/TkSeedGenerator/interface/CosmicSeedGenerator.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -19,41 +18,38 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 using namespace std;
-GlobalPixelLessSeedGenerator::GlobalPixelLessSeedGenerator(edm::ParameterSet const& conf) : 
-  conf_(conf) ,globalpixelless(conf)
+CosmicSeedGenerator::CosmicSeedGenerator(edm::ParameterSet const& conf) : 
+  conf_(conf) ,cosmic_seed(conf)
  {
-  edm::LogInfo ("GlobalPixelLessSeedGenerator")<<"Enter the GlobalPixelLessSeedGenerator";
+  edm::LogInfo ("CosmicSeedGenerator")<<"Enter the CosmicSeedGenerator";
   produces<TrajectorySeedCollection>();
 }
 
 
 // Virtual destructor needed.
-GlobalPixelLessSeedGenerator::~GlobalPixelLessSeedGenerator() { }  
+CosmicSeedGenerator::~CosmicSeedGenerator() { }  
 
 // Functions that gets called by framework every event
-void GlobalPixelLessSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
+void CosmicSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
 {
 
 
   
   // get Inputs
-  edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits;
-  e.getByLabel("LocalMeasurementConverter","matchedRecHit" ,matchedrecHits);
   edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
   e.getByLabel("LocalMeasurementConverter","rphiRecHit" ,rphirecHits);
   edm::Handle<SiStripRecHit2DLocalPosCollection> stereorecHits;
   e.getByLabel("LocalMeasurementConverter","stereoRecHit" ,stereorecHits);
-
-
+  
  
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   //
 
-  globalpixelless.init(*matchedrecHits,*stereorecHits,*rphirecHits,es);
+  cosmic_seed.init(*stereorecHits,*rphirecHits,es);
 
   // invoke the seed finding algorithm
-  globalpixelless.run(*output,es);
+  cosmic_seed.run(*output,es);
 
   // write output to file
   LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();

@@ -1,12 +1,11 @@
-#ifndef PixelLessSeedLayerPairs_H
-#define PixelLessSeedLayerPairs_H
+#ifndef CosmicLayerPairs_H
+#define CosmicLayerPairs_H
 
-/** \class PixelLessSeedLayerPairs
+/** \class CosmicLayerPairs
  * find all (resonable) pairs of pixel layers
  */
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h"
 #include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -14,10 +13,10 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 //#include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
-#include "RecoTracker/TkDetLayers/interface/TIBLayer.h"
-class PixelLessSeedLayerPairs : public SeedLayerPairs{
+#include "RecoTracker/TkDetLayers/interface/TOBLayer.h"
+class CosmicLayerPairs : public SeedLayerPairs{
 public:
-  PixelLessSeedLayerPairs():SeedLayerPairs(){};
+  CosmicLayerPairs():SeedLayerPairs(){};
   //  explicit PixelSeedLayerPairs(const edm::EventSetup& iSetup);
 
 
@@ -30,21 +29,15 @@ private:
 
   //definition of the map 
  
-  SiStripRecHit2DMatchedLocalPosCollection::range map_range1;
-  SiStripRecHit2DMatchedLocalPosCollection::range map_range2;
+  SiStripRecHit2DLocalPosCollection::range map_range1;
+  SiStripRecHit2DLocalPosCollection::range map_range2;
 
 
   TrackerLayerIdAccessor acc;
   
   LayerWithHits *lh1;
   LayerWithHits *lh2;
-/*   LayerWithHits *lh3; */
 
-/*   LayerWithHits *pos1; */
-/*   LayerWithHits *pos2; */
-
-/*   LayerWithHits *neg1; */
-/*   LayerWithHits *neg2; */
 
 
    vector<BarrelDetLayer*> bl;
@@ -52,8 +45,7 @@ private:
    vector<ForwardDetLayer*> fneg;
  public:
  
-   void init(const SiStripRecHit2DMatchedLocalPosCollection &collmatch,
-	     const SiStripRecHit2DLocalPosCollection &collstereo, 
+   void init(const SiStripRecHit2DLocalPosCollection &collstereo,
 	     const SiStripRecHit2DLocalPosCollection &collrphi,
 	     const edm::EventSetup& iSetup);
  private:
