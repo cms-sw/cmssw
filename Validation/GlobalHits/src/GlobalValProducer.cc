@@ -27,11 +27,11 @@ GlobalValProducer::GlobalValProducer(const edm::ParameterSet& iPSet) :
     edm::LogInfo ("GlobalValProducer::GlobalValProducer") 
       << "\n===============================\n"
       << "Initialized as EDProducer with parameter values:\n"
-      << "    Name      =" << fName << "\n"
-      << "    Verbosity =" << verbosity << "\n"
-      << "    Label     =" << label << "\n"
-      << "    GetProv   =" << getAllProvenances << "\n"
-      << "    PrintProv =" << printProvenanceInfo << "\n"
+      << "    Name      = " << fName << "\n"
+      << "    Verbosity = " << verbosity << "\n"
+      << "    Label     = " << label << "\n"
+      << "    GetProv   = " << getAllProvenances << "\n"
+      << "    PrintProv = " << printProvenanceInfo << "\n"
       << "===============================\n";
   }
 }
@@ -50,7 +50,7 @@ void GlobalValProducer::endJob()
 {
   if (verbosity > 0)
     edm::LogInfo ("GlobalValProducer::endJob") 
-      << "Terminating having processed" << count << "events.";
+      << "Terminating having processed " << count << " events.";
   return;
 }
 
@@ -66,7 +66,7 @@ void GlobalValProducer::produce(edm::Event& iEvent,
 
   if (verbosity > 0) {
     edm::LogInfo ("GlobalValProducer::produce")
-      << "Processing run" << nrun << "," << "event " << nevt;
+      << "Processing run " << nrun << ", event " << nevt;
   }
 
   // clear event holders
@@ -80,7 +80,7 @@ void GlobalValProducer::produce(edm::Event& iEvent,
 
     if (verbosity > 0)
       edm::LogInfo ("GlobalValProducer::produce")
-	<< "Number of Provenances =" << AllProv.size();
+	<< "Number of Provenances = " << AllProv.size();
 
     if (printProvenanceInfo && (verbosity > 0)) {
       TString eventout("\nProvenance info:\n");
@@ -179,7 +179,7 @@ void GlobalValProducer::fillG4MC(edm::Event& iEvent)
   nRawGenPart = MCEvt->particles_size();
 
   if (verbosity > 1) {
-    eventout += "\n          Number of Raw Particles collected:         ";
+    eventout += "\n          Number of Raw Particles collected:......... ";
     eventout += nRawGenPart;
   }  
 
@@ -207,7 +207,7 @@ void GlobalValProducer::fillG4MC(edm::Event& iEvent)
   }
 
   if (verbosity > 1) {
-    eventout += "\n          Number of G4Vertices collected:            ";
+    eventout += "\n          Number of G4Vertices collected:............ ";
     eventout += i;
   }  
 
@@ -234,7 +234,7 @@ void GlobalValProducer::fillG4MC(edm::Event& iEvent)
   } 
 
   if (verbosity > 1) {
-    eventout += "\n          Number of G4Tracks collected:              ";
+    eventout += "\n          Number of G4Tracks collected:.............. ";
     eventout += i;
   }  
 
@@ -248,7 +248,7 @@ void GlobalValProducer::storeG4MC(PGlobalSimHit& product)
 {
 
   if (verbosity > 2) {
-    TString eventout("\nnRawGenPart        = ");
+    TString eventout("\n       nRawGenPart        = ");
     eventout += nRawGenPart;
     eventout += "\n       nG4Vtx             = ";
     eventout += G4VtxX.size();
@@ -347,7 +347,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
 
       if (!theDet) {
 	edm::LogWarning("GlobalValProducer::fillTrk")
-	  << "Unable to get GeomDetUnit from PxlBrlHits for Hit" << i;
+	  << "Unable to get GeomDetUnit from PxlBrlHits for Hit " << i;
 	continue;
       }
 
@@ -364,17 +364,17 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
 
     } else {
       edm::LogWarning("GlobalValProducer::fillTrk")
-	<< "PxlBrl PSimHit" << i 
-	<< "is expected to be (det,subdet) = (" 
+	<< "PxlBrl PSimHit " << i 
+	<< " is expected to be (det,subdet) = (" 
 	<< dTrk << "," << sdPxlBrl
-	<< "); value returned is:"
-	<< "(" << detector << "," << subdetector << ")";
+	<< "); value returned is: ("
+	<< detector << "," << subdetector << ")";
       continue;
     } // end detector type check
   } // end loop through PxlBrl Hits
 
   if (verbosity > 1) {
-    eventout += "\n          Number of Pixel Barrel Hits collected:     ";
+    eventout += "\n          Number of Pixel Barrel Hits collected:..... ";
     eventout += j;
   }  
   
@@ -425,7 +425,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
 
       if (!theDet) {
 	edm::LogWarning("GlobalValProducer::fillTrk")
-	  << "Unable to get GeomDetUnit from PxlFwdHits for Hit" << i;;
+	  << "Unable to get GeomDetUnit from PxlFwdHits for Hit " << i;;
 	continue;
       }
 
@@ -441,17 +441,17 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
       PxlFwdEta.push_back(bSurface.toGlobal(itHit->localPosition()).eta());
     } else {
       edm::LogWarning("GlobalValProducer::fillTrk")
-	<< "PxlFwd PSimHit" << i 
-	<< "is expected to be (det,subdet) = (" 
+	<< "PxlFwd PSimHit " << i 
+	<< " is expected to be (det,subdet) = (" 
 	<< dTrk << "," << sdPxlFwd
-	<< "); value returned is:"
-	<< "(" << detector << "," << subdetector << ")";
+	<< "); value returned is: ("
+	<< detector << "," << subdetector << ")";
       continue;
     } // end detector type check
   } // end loop through PxlFwd Hits
 
   if (verbosity > 1) {
-    eventout += "\n          Number of Pixel Forward Hits collected:    ";
+    eventout += "\n          Number of Pixel Forward Hits collected:.... ";
     eventout += j;
   }  
 
@@ -522,7 +522,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
 
       if (!theDet) {
 	edm::LogWarning("GlobalValProducer::fillTrk")
-	  << "Unable to get GeomDetUnit from SiBrlHits for Hit" << i;
+	  << "Unable to get GeomDetUnit from SiBrlHits for Hit " << i;
 	continue;
       }
 
@@ -538,17 +538,17 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
       SiBrlEta.push_back(bSurface.toGlobal(itHit->localPosition()).eta());
     } else {
       edm::LogWarning("GlobalValProducer::fillTrk")
-	<< "SiBrl PSimHit" << i 
-	<< "is expected to be (det,subdet) = (" 
+	<< "SiBrl PSimHit " << i 
+	<< " is expected to be (det,subdet) = (" 
 	<< dTrk << "," << sdSiTIB
-	<< "||" << sdSiTOB << "); value returned is:"
-	<< "(" << detector << "," << subdetector << ")";
+	<< " || " << sdSiTOB << "); value returned is: ("
+	<< detector << "," << subdetector << ")";
       continue;
     } // end detector type check
   } // end loop through SiBrl Hits
 
   if (verbosity > 1) {
-    eventout += "\n          Number of Silicon Barrel Hits collected:   ";
+    eventout += "\n          Number of Silicon Barrel Hits collected:... ";
     eventout += j;
   }  
 
@@ -619,7 +619,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
       
       if (!theDet) {
 	edm::LogWarning("GlobalValProducer::fillTrk")
-	  << "Unable to get GeomDetUnit from SiFwdHits Hit" << i;
+	  << "Unable to get GeomDetUnit from SiFwdHits Hit " << i;
 	return;
       }
       
@@ -635,17 +635,17 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
       SiFwdEta.push_back(bSurface.toGlobal(itHit->localPosition()).eta());
     } else {
       edm::LogWarning("GlobalValProducer::fillTrk")
-	<< "SiFwd PSimHit" << i 
-	<< "is expected to be (det,subdet) = (" 
+	<< "SiFwd PSimHit " << i 
+	<< " is expected to be (det,subdet) = (" 
 	<< dTrk << "," << sdSiTOB
-	<< "||" << sdSiTEC << "); value returned is:"
-	<< "(" << detector << "," << subdetector << ")";
+	<< " || " << sdSiTEC << "); value returned is: ("
+	<< detector << "," << subdetector << ")";
       continue;
     } // end check detector type
   } // end loop through SiFwd Hits
 
   if (verbosity > 1) {
-    eventout += "\n          Number of Silicon Forward Hits collected:  ";
+    eventout += "\n          Number of Silicon Forward Hits collected:.. ";
     eventout += j;
   }  
 
@@ -658,7 +658,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
 void GlobalValProducer::storeTrk(PGlobalSimHit& product)
 {
   if (verbosity > 2) {
-    TString eventout("\nnPxlBrlHits        = ");
+    TString eventout("\n       nPxlBrlHits        = ");
     eventout += PxlBrlToF.size();
     for (unsigned int i = 0; i < PxlBrlToF.size(); ++i) {
       eventout += "\n          (tof,r,phi,eta) = (";
@@ -791,17 +791,17 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
       MuonCscEta.push_back(bSurface.toGlobal(itHit->localPosition()).eta());
     } else {
       edm::LogWarning("GlobalValProducer::fillMuon")
-        << "MuonCsc PSimHit" << i 
-        << "is expected to be (det,subdet) = (" 
+        << "MuonCsc PSimHit " << i 
+        << " is expected to be (det,subdet) = (" 
         << dMuon << "," << sdMuonCSC
-        << "); value returned is:"
-        << "(" << detector << "," << subdetector << ")";
+        << "); value returned is: ("
+        << detector << "," << subdetector << ")";
       continue;
     } // end detector type check
   } // end loop through CSC Hits
 
   if (verbosity > 1) {
-    eventout += "\n          Number of CSC muon Hits collected:         ";
+    eventout += "\n          Number of CSC muon Hits collected:......... ";
     eventout += j;
   }  
 
@@ -869,23 +869,22 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
       MuonDtEta.push_back(bSurface.toGlobal(itHit->localPosition()).eta());
     } else {
       edm::LogWarning("GlobalValProducer::fillMuon")
-        << "MuonDt PSimHit" << i 
-        << "is expected to be (det,subdet) = (" 
+        << "MuonDt PSimHit " << i 
+        << " is expected to be (det,subdet) = (" 
         << dMuon << "," << sdMuonDT
-        << "); value returned is:"
-        << "(" << detector << "," << subdetector << ")";
+        << "); value returned is: ("
+        << detector << "," << subdetector << ")";
       continue;
     } // end detector type check
   } // end loop through DT Hits
 
   if (verbosity > 1) {
-    eventout += "\n          Number of DT muon Hits collected:          ";
+    eventout += "\n          Number of DT muon Hits collected:.......... ";
     eventout += j;
   } 
 
-  i = 0, j = 0;
-  int RPCBrl = 0, RPCFwd = 0;
-  /*
+  //i = 0, j = 0;
+  //int RPCBrl = 0, RPCFwd = 0;
   ///////////////////////
   // access the RPC Muon
   ///////////////////////
@@ -972,23 +971,22 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
       } // end check of region
     } else {
       edm::LogWarning("GlobalValProducer::fillMuon")
-        << "MuonRpc PSimHit" << i 
-        << "is expected to be (det,subdet) = (" 
+        << "MuonRpc PSimHit " << i 
+        << " is expected to be (det,subdet) = (" 
         << dMuon << "," << sdMuonRPC
-        << "); value returned is:"
-        << "(" << detector << "," << subdetector << ")";
+        << "); value returned is: ("
+        << detector << "," << subdetector << ")";
       continue;
     } // end detector type check
   } // end loop through RPC Hits
-  */
 
   if (verbosity > 1) {
-    eventout += "\n          Number of RPC muon Hits collected:         ";
+    eventout += "\n          Number of RPC muon Hits collected:......... ";
     eventout += j;
-    eventout += "\n          Number of RPC Barrel muon Hits collected:  ";
+    eventout += "\n                    RPC Barrel muon Hits:............ ";
     eventout += RPCBrl;
-    eventout += "\n          Number of RPC Forward muon Hits collected: ";
-    eventout += RPCFwd;
+    eventout += "\n                    RPC Forward muon Hits:........... ";
+    eventout += RPCFwd;    
   }  
 
   if (verbosity > 0)
@@ -1000,7 +998,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
 void GlobalValProducer::storeMuon(PGlobalSimHit& product)
 {
   if (verbosity > 2) {
-    TString eventout("\nnMuonCSCHits       = ");
+    TString eventout("\n       nMuonCSCHits       = ");
     eventout += MuonCscToF.size();
     for (unsigned int i = 0; i < MuonCscToF.size(); ++i) {
       eventout += "\n          (tof,z,phi,eta) = (";
@@ -1133,7 +1131,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
 
       if (!theDet) {
 	edm::LogWarning("GlobalValProducer::fillECal")
-	  << "Unable to get CaloCellGeometry from ECalHits for Hit" << i;
+	  << "Unable to get CaloCellGeometry from ECalHits for Hit " << i;
 	continue;
       }
 
@@ -1150,17 +1148,17 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
 
     } else {
       edm::LogWarning("GlobalValProducer::fillECal")
-	<< "ECal PCaloHit" << i 
-	<< "is expected to be (det,subdet) = (" 
+	<< "ECal PCaloHit " << i 
+	<< " is expected to be (det,subdet) = (" 
 	<< dEcal << "," << sdEcalBrl
-	<< "||" << sdEcalFwd << "); value returned is:"
-	<< "(" << detector << "," << subdetector << ")";
+	<< " || " << sdEcalFwd << "); value returned is: ("
+	<< detector << "," << subdetector << ")";
       continue;
     } // end detector type check
   } // end loop through ECal Hits
 
   if (verbosity > 1) {
-    eventout += "\n          Number of ECal Hits collected:             ";
+    eventout += "\n          Number of ECal Hits collected:............. ";
     eventout += j;
   }  
 
@@ -1198,7 +1196,8 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
 
       if (!theDet) {
 	edm::LogWarning("GlobalValProducer::fillECal")
-	  << "Unable to get CaloCellGeometry from PreShContainer for Hit" << i;
+	  << "Unable to get CaloCellGeometry from PreShContainer for Hit " 
+	  << i;
 	continue;
       }
 
@@ -1215,17 +1214,17 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
 
     } else {
       edm::LogWarning("GlobalValProducer::fillECal")
-	<< "PreSh PCaloHit" << i 
-	<< "is expected to be (det,subdet) = (" 
+	<< "PreSh PCaloHit " << i 
+	<< " is expected to be (det,subdet) = (" 
 	<< dEcal << "," << sdEcalPS
-	<< "); value returned is:"
-	<< "(" << detector << "," << subdetector << ")";
+	<< "); value returned is: ("
+	<< detector << "," << subdetector << ")";
       continue;
     } // end detector type check
   } // end loop through PreShower Hits
 
   if (verbosity > 1) {
-    eventout += "\n          Number of PreSh Hits collected:            ";
+    eventout += "\n          Number of PreSh Hits collected:............ ";
     eventout += j;
   }  
 
@@ -1238,7 +1237,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
 void GlobalValProducer::storeECal(PGlobalSimHit& product)
 {
   if (verbosity > 2) {
-    TString eventout("\nnECalHits          = ");
+    TString eventout("\n       nECalHits          = ");
     eventout += ECalE.size();
     for (unsigned int i = 0; i < ECalE.size(); ++i) {
       eventout += "\n          (e,tof,phi,eta) = (";
@@ -1330,7 +1329,7 @@ void GlobalValProducer::fillHCal(edm::Event& iEvent,
 
       if (!theDet) {
 	edm::LogWarning("GlobalValProducer::fillHCal")
-	  << "Unable to get CaloCellGeometry from HCalContainer for Hit" << i;
+	  << "Unable to get CaloCellGeometry from HCalContainer for Hit " << i;
 	continue;
       }
 
@@ -1347,18 +1346,18 @@ void GlobalValProducer::fillHCal(edm::Event& iEvent,
 
     } else {
       edm::LogWarning("GlobalValProducer::fillHCal")
-	<< "HCal PCaloHit" << i 
-	<< "is expected to be (det,subdet) = (" 
+	<< "HCal PCaloHit " << i 
+	<< " is expected to be (det,subdet) = (" 
 	<< dHcal << "," << sdHcalBrl
-	<< "||" << sdHcalEC << "||" << sdHcalOut << "||" << sdHcalFwd
-	<< "); value returned is:"
-	<< "(" << detector << "," << subdetector << ")";
+	<< " || " << sdHcalEC << " || " << sdHcalOut << " || " << sdHcalFwd
+	<< "); value returned is: ("
+	<< detector << "," << subdetector << ")";
       continue;
     } // end detector type check
   } // end loop through HCal Hits
 
   if (verbosity > 1) {
-    eventout += "\n          Number of HCal Hits collected:             ";
+    eventout += "\n          Number of HCal Hits collected:............. ";
     eventout += j;
   }  
 
@@ -1371,7 +1370,7 @@ void GlobalValProducer::fillHCal(edm::Event& iEvent,
 void GlobalValProducer::storeHCal(PGlobalSimHit& product)
 {
   if (verbosity > 2) {
-    TString eventout("\nnHCalHits          = ");
+    TString eventout("\n       nHCalHits          = ");
     eventout += HCalE.size();
     for (unsigned int i = 0; i < HCalE.size(); ++i) {
       eventout += "\n          (e,tof,phi,eta) = (";
