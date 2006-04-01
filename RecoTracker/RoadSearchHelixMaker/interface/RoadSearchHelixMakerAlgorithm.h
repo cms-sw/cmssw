@@ -9,9 +9,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/03/22 22:47:37 $
-// $Revision: 1.2 $
+// $Author: gutsche $
+// $Date: 2006/03/31 23:28:42 $
+// $Revision: 1.3 $
 //
 
 #include <string>
@@ -19,12 +19,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -36,7 +34,7 @@ class RoadSearchHelixMakerAlgorithm
   ~RoadSearchHelixMakerAlgorithm();
 
   /// Runs the algorithm
-  void run(const RoadSearchCloudCollection* input,
+  void run(const TrackCandidateCollection* input,
 	   const edm::EventSetup& es,
 	   reco::TrackCollection &output);
 

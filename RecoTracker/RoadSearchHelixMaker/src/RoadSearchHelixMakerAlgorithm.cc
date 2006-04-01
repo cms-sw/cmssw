@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/03/29 00:14:46 $
-// $Revision: 1.3 $
+// $Author: gutsche $
+// $Date: 2006/03/31 23:28:42 $
+// $Revision: 1.4 $
 //
 
 #include <vector>
@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -43,7 +43,7 @@
 #include "RecoTracker/RoadSearchHelixMaker/interface/DcxHel.hh"
 #include "RecoTracker/RoadSearchHelixMaker/interface/DcxFittedHel.hh"
 #include "RecoTracker/RoadSearchHelixMaker/interface/DcxHit.hh"
-#include "RecoTracker/RoadSearchHelixMaker/interface/DcxCloudsToTracks.hh"
+#include "RecoTracker/RoadSearchHelixMaker/interface/DcxTrackCandidatesToTracks.hh"
 
 //using namespace std;
 
@@ -53,15 +53,15 @@ RoadSearchHelixMakerAlgorithm::RoadSearchHelixMakerAlgorithm(const edm::Paramete
 RoadSearchHelixMakerAlgorithm::~RoadSearchHelixMakerAlgorithm() {
 }
 
-void RoadSearchHelixMakerAlgorithm::run(const RoadSearchCloudCollection* input,
+void RoadSearchHelixMakerAlgorithm::run(const TrackCandidateCollection* input,
 					const edm::EventSetup& es,
 					reco::TrackCollection &output)
 {
 
-  edm::LogInfo("RoadSearch") << "Input of " << input->size() << " clean clouds"; 
+  edm::LogInfo("RoadSearch") << "Input of " << input->size() << " track candidates"; 
 
   //
-  //  no clean clouds - nothing to try fitting
+  //  no track candidates - nothing to try fitting
   //
   if ( input->empty() ){
     edm::LogInfo("RoadSearch") << "Created " << output.size() << " tracks.";
@@ -69,7 +69,7 @@ void RoadSearchHelixMakerAlgorithm::run(const RoadSearchCloudCollection* input,
   }
 
   //
-  //  got > 0 clean cloud - try fitting
+  //  got > 0 track candidate - try fitting
   //
 
   // get roads
@@ -82,26 +82,30 @@ void RoadSearchHelixMakerAlgorithm::run(const RoadSearchCloudCollection* input,
 
 
   //   bool useKF = conf_.getParameter<bool>("UseKF");
-  int clean_cloud_ctr=0;
+  unsigned int trackcandidate_ctr=0;
   // loop over clouds
-  for ( RoadSearchCloudCollection::const_iterator clean_cloud = input->begin(); clean_cloud != input->end(); ++clean_cloud) {
-    clean_cloud_ctr++;
-    LogDebug("RoadSearch") << "Cloud number, size = " << clean_cloud_ctr << " " 
-			   << clean_cloud->size(); 
+  for ( TrackCandidateCollection::const_iterator trackcandidate = input->begin(); trackcandidate != input->end(); ++trackcandidate ) {
+    TrackCandidate currentCandidate = *trackcandidate;
+    ++trackcandidate_ctr;
+    unsigned int trackcandidate_number_rechits = 0;
+    TrackCandidate::range recHitRange = currentCandidate.recHits();
+    for ( TrackCandidate::const_iterator recHit = recHitRange.first; recHit != recHitRange.second; ++recHit ) {
+      ++trackcandidate_number_rechits;
+    }
+
+    LogDebug("RoadSearch") << "Track candidate number, number of TrackingRecHits = " << trackcandidate_ctr << " " 
+			   << trackcandidate_number_rechits; 
 
     //
     // helix fitting here
     //
     edm::LogInfo("RoadSearch") << "Beware - Use Simple Helix Fitted Tracks only for Debugging Purposes!!" ;
 
-    RoadSearchCloud::RecHitOwnVector clean_hits = clean_cloud->recHits();
     std::vector<DcxHit*> listohits; 
     LogDebug("RoadSearch") << "listohits.size() " << listohits.size() ;
-    //     for (unsigned int i=0; i<clean_hits.size(); ++i) {
-    for (RoadSearchCloud::RecHitOwnVector::const_iterator clean_hit = clean_hits.begin();
-	 clean_hit != clean_hits.end();
-	 ++clean_hit) {
-      const TrackingRecHit* temp_hit = &(*clean_hit);
+
+    for ( TrackCandidate::const_iterator recHit = recHitRange.first; recHit != recHitRange.second; ++recHit ) {
+      const TrackingRecHit* temp_hit = &(*recHit);
       GlobalPoint hit_global_pos = tracker->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_hit->localPosition());
       //       double rhit=sqrt(hit_global_pos.x()*hit_global_pos.x()+hit_global_pos.y()*hit_global_pos.y());
       DetId idi = temp_hit->geographicalId();
@@ -140,9 +144,9 @@ void RoadSearchHelixMakerAlgorithm::run(const RoadSearchCloudCollection* input,
       }//make DcxHit from Barrel or Endcap sensor
     }
     LogDebug("RoadSearch") << "finished DcxHit making; listohits.size() " << listohits.size() ;
-    DcxCloudsToTracks make_tracks(listohits,output);
+    DcxTrackCandidatesToTracks make_tracks(listohits,output);
     //      listohits.~vector<DcxHit*>();// leak or crash - right now we're leaking
-  }//iterate over all clean clouds
+  }//iterate over all track candidates
 
   edm::LogInfo("RoadSearch") << "Created " << output.size() << " tracks.";
 

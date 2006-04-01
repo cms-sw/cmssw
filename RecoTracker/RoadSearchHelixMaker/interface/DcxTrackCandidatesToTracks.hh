@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxCloudsToTracks.hh,v 1.2 2006/03/22 22:47:37 stevew Exp $
+// 	$Id: DcxTrackCandidatesToTracks.hh,v 1.3 2006/03/31 23:28:42 gutsche Exp $
 //
 // Description:
-//	Class Header for |DcxCloudsToTracks| - a version of
+//	Class Header for |DcxTrackCandidatesToTracks| - a version of
 //      DcxSparseFinder for CMS
 //
 // Environment:
@@ -16,8 +16,8 @@
 //	Copyright (C) 1995	SLAC
 //
 //------------------------------------------------------------------------
-#ifndef _DcxCloudsToHelix_
-#define _DcxCloudsToHelix_
+#ifndef _DcxTrackCandidatesToHelix_
+#define _DcxTrackCandidatesToHelix_
 
 #include <iostream>
 #include <fstream>
@@ -30,14 +30,14 @@
  
 class DcxHit;
 
-class DcxCloudsToTracks{
+class DcxTrackCandidatesToTracks{
 public:
 //constructors
-  DcxCloudsToTracks();
-  DcxCloudsToTracks(std::vector<DcxHit*> &listohits, reco::TrackCollection &output);
+  DcxTrackCandidatesToTracks();
+  DcxTrackCandidatesToTracks(std::vector<DcxHit*> &listohits, reco::TrackCollection &output);
 
 //destructor
-  virtual ~DcxCloudsToTracks( );
+  virtual ~DcxTrackCandidatesToTracks( );
 
 //accessors
 
@@ -74,7 +74,7 @@ static double half_pi;
 //static control sets
 public:
   
-};// endof DcxCloudsToTracks
+};// endof DcxTrackCandidatesToTracks
  
 #endif
 

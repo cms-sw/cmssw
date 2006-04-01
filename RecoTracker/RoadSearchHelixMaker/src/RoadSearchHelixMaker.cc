@@ -8,9 +8,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/03/22 22:43:09 $
-// $Revision: 1.2 $
+// $Author: gutsche $
+// $Date: 2006/03/31 23:28:42 $
+// $Revision: 1.3 $
 //
 
 #include <memory>
@@ -18,7 +18,7 @@
 
 #include "RecoTracker/RoadSearchHelixMaker/interface/RoadSearchHelixMaker.h"
 
-#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -44,15 +44,15 @@ namespace cms
     // Step A: Get Inputs 
 
     // retrieve producer name of raw CloudCollection
-    std::string cleancloudProducer = conf_.getParameter<std::string>("CleanCloudProducer");
-    edm::Handle<RoadSearchCloudCollection> cleanclouds;
-    e.getByLabel(cleancloudProducer, cleanclouds);
+    std::string trackCandidateProducer = conf_.getParameter<std::string>("TrackCandidateProducer");
+    edm::Handle<TrackCandidateCollection> trackCandidates;
+    e.getByLabel(trackCandidateProducer, trackCandidates);
 
     // Step B: create empty output collection
     std::auto_ptr<reco::TrackCollection> output(new reco::TrackCollection);
 
     // Step C: Invoke the cloud cleaning algorithm
-    roadSearchHelixMakerAlgorithm_.run(cleanclouds.product(),es,*output);
+    roadSearchHelixMakerAlgorithm_.run(trackCandidates.product(),es,*output);
 
     // Step D: write output to file
    e.put(output);

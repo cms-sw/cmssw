@@ -1,9 +1,9 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxCloudsToTracks.cc,v 1.2 2006/03/22 22:43:09 stevew Exp $
+// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.3 2006/03/31 23:28:42 gutsche Exp $
 //
 // Description:
-//	Class Implementation for |DcxCloudsToTracks|
+//	Class Implementation for |DcxTrackCandidatesToTracks|
 //
 // Environment:
 //	Software developed for the BaBar Detector at the SLAC B-Factory.
@@ -16,7 +16,7 @@
 //
 //------------------------------------------------------------------------
 #include <cmath>
-#include "RecoTracker/RoadSearchHelixMaker/interface/DcxCloudsToTracks.hh"
+#include "RecoTracker/RoadSearchHelixMaker/interface/DcxTrackCandidatesToTracks.hh"
 #include "RecoTracker/RoadSearchHelixMaker/interface/Dcxmatinv.hh"
 #include "RecoTracker/RoadSearchHelixMaker/interface/DcxFittedHel.hh"
 #include "RecoTracker/RoadSearchHelixMaker/interface/DcxHit.hh"
@@ -28,17 +28,17 @@ using std::cout;
 using std::endl;
 using std::ostream;
 
-double DcxCloudsToTracks::epsilon      =   0.000000001;
-double DcxCloudsToTracks::half_pi=1.570796327;
+double DcxTrackCandidatesToTracks::epsilon      =   0.000000001;
+double DcxTrackCandidatesToTracks::half_pi=1.570796327;
 
 //constructors
-DcxCloudsToTracks::DcxCloudsToTracks(){
-  LogDebug("RoadSearch") << "DcxCloudsToTracks null constructor - does nothing" ;}
+DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(){
+  LogDebug("RoadSearch") << "DcxTrackCandidatesToTracks null constructor - does nothing" ;}
 
 //points
-DcxCloudsToTracks::DcxCloudsToTracks(std::vector<DcxHit*> &listohits, reco::TrackCollection &output)
+DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &listohits, reco::TrackCollection &output)
 { 
-  LogDebug("RoadSearch") << "listohits.size() = " << listohits.size() << " in DcxCloudsToTracks" ;
+  LogDebug("RoadSearch") << "listohits.size() = " << listohits.size() << " in DcxTrackCandidatesToTracks" ;
   double rmin=1000.0; double phi_try=0.0; int ntrk=0;
   for (unsigned int i=0; i<listohits.size(); ++i) {
     if (!listohits[i]->stereo()){
@@ -129,18 +129,18 @@ DcxCloudsToTracks::DcxCloudsToTracks(std::vector<DcxHit*> &listohits, reco::Trac
       }
     }
   }
-}//endof DcxCloudsToTracks
+}//endof DcxTrackCandidatesToTracks
 
 //destructor
-DcxCloudsToTracks::~DcxCloudsToTracks( ){ }//endof ~DcxCloudsToTracks
+DcxTrackCandidatesToTracks::~DcxTrackCandidatesToTracks( ){ }//endof ~DcxTrackCandidatesToTracks
 
-void DcxCloudsToTracks::makecircle(double x1_cs, double y1_cs, double x2_cs,
+void DcxTrackCandidatesToTracks::makecircle(double x1_cs, double y1_cs, double x2_cs,
 				   double y2_cs, double x3_cs, double y3_cs){
   x1t_cs=x1_cs-x3_cs; y1t_cs=y1_cs-y3_cs; r1s_cs=x1t_cs*x1t_cs+y1t_cs*y1t_cs;
   x2t_cs=x2_cs-x3_cs; y2t_cs=y2_cs-y3_cs; r2s_cs=x2t_cs*x2t_cs+y2t_cs*y2t_cs;
   double rho=x1t_cs*y2t_cs-x2t_cs*y1t_cs;
-  if (fabs(rho)<DcxCloudsToTracks::epsilon){
-    rc_cs=1.0/(DcxCloudsToTracks::epsilon);
+  if (fabs(rho)<DcxTrackCandidatesToTracks::epsilon){
+    rc_cs=1.0/(DcxTrackCandidatesToTracks::epsilon);
     fac_cs=sqrt(x1t_cs*x1t_cs+y1t_cs*y1t_cs);
     xc_cs=x2_cs+y1t_cs*rc_cs/fac_cs;
     yc_cs=y2_cs-x1t_cs*rc_cs/fac_cs;
@@ -157,7 +157,7 @@ void DcxCloudsToTracks::makecircle(double x1_cs, double y1_cs, double x2_cs,
   if ((f1_cs>0.0)&&(f2_cs>0.0)&&(f3_cs>0.0))s3_cs=-1.0;
 }
 
-void DcxCloudsToTracks::check_axial( std::vector<DcxHit*> &listohits, std::vector<DcxHit*> &outlist, DcxHel make_a_hel){
+void DcxTrackCandidatesToTracks::check_axial( std::vector<DcxHit*> &listohits, std::vector<DcxHit*> &outlist, DcxHel make_a_hel){
   for (unsigned int i=0; i<listohits.size(); ++i) {
     DcxHit* try_me = listohits[i];
     if ((!try_me->stereo())&&(!try_me->GetUsedOnHel())){
@@ -170,7 +170,7 @@ void DcxCloudsToTracks::check_axial( std::vector<DcxHit*> &listohits, std::vecto
   }
 }
 
-void DcxCloudsToTracks::check_stereo( std::vector<DcxHit*> &listohits, std::vector<DcxHit*> &outlist, DcxHel make_a_hel){
+void DcxTrackCandidatesToTracks::check_stereo( std::vector<DcxHit*> &listohits, std::vector<DcxHit*> &outlist, DcxHel make_a_hel){
   for (unsigned int i=0; i<listohits.size(); ++i) {
     DcxHit* try_me = listohits[i];
     if ((try_me->stereo())&&(!try_me->GetUsedOnHel())){
@@ -183,7 +183,7 @@ void DcxCloudsToTracks::check_stereo( std::vector<DcxHit*> &listohits, std::vect
   }
 }
 
-double DcxCloudsToTracks::find_z_at_cyl(DcxHel he, DcxHit* hi){
+double DcxTrackCandidatesToTracks::find_z_at_cyl(DcxHel he, DcxHit* hi){
   zint=-1000.0;
   x0_wr=hi->x(); y0_wr=hi->y(); sx_wr=hi->wx(); sy_wr=hi->wy();
   xc_cl=he.Xc(); yc_cl=he.Yc(); r_cl=fabs(1.0/he.Omega()); 
@@ -201,7 +201,7 @@ double DcxCloudsToTracks::find_z_at_cyl(DcxHel he, DcxHit* hi){
   }
   return zint;
 }
-double DcxCloudsToTracks::find_l_at_z(double zi, DcxHel he, DcxHit* hi){
+double DcxTrackCandidatesToTracks::find_l_at_z(double zi, DcxHel he, DcxHit* hi){
   double omega=he.Omega(), d0=he.D0();
   double xl = hi->x()+zi*hi->wx()/hi->wz();
   double yl = hi->y()+zi*hi->wy()/hi->wz();
