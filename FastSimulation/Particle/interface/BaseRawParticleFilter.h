@@ -8,6 +8,7 @@
  * Filters can be chained - with logical AND between them.
  * \author Stephan Wynhoff
  */
+
 class BaseRawParticleFilter  {
 public:
 
@@ -16,8 +17,6 @@ public:
   virtual ~BaseRawParticleFilter(){;};
 
 public:
-
-  virtual bool accept(HepMC::GenParticle* p) const;
 
   virtual bool accept(const RawParticle& p) const;
 

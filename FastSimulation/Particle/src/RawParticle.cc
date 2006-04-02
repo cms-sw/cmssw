@@ -1,18 +1,19 @@
 // -----------------------------------------------------------------------------
 //  Prototype for a particle class
 // -----------------------------------------------------------------------------
-//  $Date: 2004/02/03 14:24:29 $
-//  $Revision: 1.11 $
+//  $Date: 2006/03/10 21:23:56 $
+//  $Revision: 1.1 $
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
 // -----------------------------------------------------------------------------
 #include "CLHEP/HepMC/GenVertex.h"
+#include "CLHEP/HepMC/GenParticle.h"
 /** \file GeneratorInterface/Particle/src/RawParticle.cc */
-//#include "GeneratorInterface/HepPDT/interface/HepPDT.h"
-//#include "GeneratorInterface/HepPDT/interface/HepPDTable.h"
-//#include "GeneratorInterface/HepPDT/interface/HepDecayMode.h"
-//#include "GeneratorInterface/HepPDT/interface/HepJetsetDummyHandler.h"
-//#include "GeneratorInterface/HepPDT/interface/HepParticleData.h"
+#include "SimGeneral/HepPDT/interface/HepPDT.h"
+#include "SimGeneral/HepPDT/interface/HepPDTable.h"
+#include "SimGeneral/HepPDT/interface/HepDecayMode.h"
+#include "SimGeneral/HepPDT/interface/HepJetsetDummyHandler.h"
+#include "SimGeneral/HepPDT/interface/HepParticleData.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"
 //#include "Utilities/GenUtil/interface/ConfigurationDictionary.h"
 //#include "Utilities/GenUtil/interface/FileInPath.h"
@@ -43,10 +44,13 @@ RawParticle::RawParticle(HepMC::GenParticle *p) :
   HepLorentzVector(p->momentum()) {
   init();
   myId = p->pdg_id();
-  myVertex = p->production_vertex()->position();
+  if ( p->production_vertex() )
+    myVertex = p->production_vertex()->position();
+  else
+    myVertex = HepLorentzVector(0.,0.,0.,0.);
   myStatus = p->status();
-  //  myCharge = ??;
-  //  myMass   = ??;
+  myCharge = tab->getParticleData(myId)->charge();
+  myMass   = tab->getParticleData(myId)->mass();
 }
   
 
@@ -139,7 +143,7 @@ void RawParticle::init() {
   myCharge=0.;
   myMass=0.;
   if (isfirst) {
-    //    tab = & HepPDT::theTable();
+    tab = & HepPDT::theTable();
     isfirst=false;
   }
   nParticles++;
@@ -150,11 +154,11 @@ void RawParticle::setID(const int id) {
 }
 
 void RawParticle::setID(const std::string name) {
-  //  if (tab->getParticleData(name) != 0) {
-  //  myId = (tab->getParticleData(name))->id();
-  //  } else {
+  if (tab->getParticleData(name) != 0) {
+    myId = (tab->getParticleData(name))->id();
+  } else {
     myId = 0;
-  //}
+  }
 }
 
 void RawParticle::setStatus(int istat) {
@@ -170,10 +174,10 @@ void RawParticle::setCharge(float q) {
 }
 
 void RawParticle::chargeConjugate() {
-  //  if ((tab->getParticleData(myId))->CC()) {
-  //    myId = (tab->getParticleData(myId))->CC()->id();
+  if ((tab->getParticleData(myId))->CC()) {
+    myId = (tab->getParticleData(myId))->CC()->id();
     myCharge = -1*myCharge;
-  //  }
+  }
 }
 
 void RawParticle::setT(const double t) {
@@ -182,7 +186,7 @@ void RawParticle::setT(const double t) {
 
 void RawParticle::setVertex(const HepLorentzVector vtx) {
   myVertex = vtx;
-  //  cout << this->vertex() << endl;
+  cout << this->vertex() << endl;
   //    { pidInfo a;}
 }
 
@@ -213,26 +217,26 @@ void RawParticle::rotateZ(HepDouble rphi) {
 std::string RawParticle::PDGname() const {
   std::string MyParticleName;
   //  HepString MyParticleName;
-  //  if (tab->getParticleData(myId) != 0) {
-  //    MyParticleName = (tab->getParticleData(myId))->name();
-  //  } else {
-  //    MyParticleName = "none";
-  //  }
+  if (tab->getParticleData(myId) != 0) {
+    MyParticleName = (tab->getParticleData(myId))->name();
+  } else {
+    MyParticleName = "none";
+  }
   return (std::string) MyParticleName;}
 
 
 void RawParticle::printName() const {
   std::string MyParticleName;
   //  CLHep::HepString MyParticleName;
-  //  if (tab->getParticleData(myId) != 0) {
-  //    MyParticleName = (tab->getParticleData(myId))->name();
-  //  }  if (MyParticleName.length() != 0) {
-  //   cout <<  MyParticleName;
-  //    for(unsigned int k=0;k<9-MyParticleName.length() && k<10; k++) 
-  //      cout << " " ;
-  //  }
-  //  else
-  //    cout << "unknown  ";
+  if (tab->getParticleData(myId) != 0) {
+    MyParticleName = (tab->getParticleData(myId))->name();
+  }  if (MyParticleName.length() != 0) {
+    cout <<  MyParticleName;
+    for(unsigned int k=0;k<9-MyParticleName.length() && k<10; k++) 
+      cout << " " ;
+  }
+  else
+    cout << "unknown  ";
 }
 
 void RawParticle::print() const {
@@ -270,25 +274,25 @@ int RawParticle::ntot() const {
 
 HepDouble RawParticle::PDGcharge() const { 
   HepDouble q=-99999;
-  //  if (tab->getParticleData(myId)) {
-  //    q=tab->getParticleData(myId)->charge();
-  //  }
+  if (tab->getParticleData(myId)) {
+    q=tab->getParticleData(myId)->charge();
+  }
   return q;
 }
 
 HepDouble RawParticle::PDGmass() const  { 
   HepDouble m=-99999;
-  //  if (tab->getParticleData(myId)) {
-  //    m=tab->getParticleData(myId)->mass();
-  //  }
+  if (tab->getParticleData(myId)) {
+    m=tab->getParticleData(myId)->mass();
+  }
   return m;
 }
 
 HepDouble RawParticle::PDGcTau() const { 
   HepDouble ct=-99999;
-  //  if (tab->getParticleData(myId)) {
-  //    ct=tab->getParticleData(myId)->cTau();
-  //  }
+  if (tab->getParticleData(myId)) {
+    ct=tab->getParticleData(myId)->cTau();
+  }
   return ct;
 }
 

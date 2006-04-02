@@ -2,15 +2,6 @@
 
 #include <iostream>
 
-using namespace HepMC;
-
-bool BaseRawParticleFilter::accept(GenParticle* p) const
-{
-  RawParticle part(p);
-  return this->accept(p);
-}
-
-
 bool BaseRawParticleFilter::accept(const RawParticle& p) const
 {
   return this->accept(&p);
