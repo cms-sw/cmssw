@@ -6,8 +6,7 @@
 #include "CLHEP/HepMC/GenEvent.h"
 #include "CLHEP/HepMC/GenVertex.h"
 #include "CLHEP/HepMC/GenParticle.h"
-#include "FastSimulation/Particle/interface/RawParticle.h"
-#include "FastSimulation/Particle/interface/KineParticleFilter.h"
+#include "FastSimulation/Event/interface/KineParticleFilter.h"
 #include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
 
@@ -16,6 +15,8 @@
  * \author Patrick Janot, CERN
  * \date: 9-Dec-2003
  */
+
+class HepPDTable;
 
 class FBaseSimEvent : public HepMC::GenEvent {
 
@@ -57,6 +58,16 @@ public:
   /// return MC track with a given id
   const HepMC::GenParticle* embdGenpart(int i) const;
 
+  /// Add a new track to the Event and to the various lists
+  int addSimTrack(HepMC::GenParticle* part, 
+		  HepMC::GenVertex* originVertex, 
+		  int ig=-1);
+
+  /// Add a new vertex to the Event and to the various lists
+  int addSimVertex(HepMC::GenVertex* decayVertex,
+		   HepMC::GenParticle* motherParticle=0,
+		   int it=-1);
+
 private:
 
   /// To have the same output as for OscarProducer (->FamosProducer)
@@ -70,12 +81,11 @@ private:
   /// The particle filter
   KineParticleFilter myFilter;
 
-  //  edm::EventID Id;
-  std::map<int,std::string> particleNames;
-
   double sigmaVerteX;
   double sigmaVerteY;
   double sigmaVerteZ;
+
+  HepPDTable * tab;
 
 };
 

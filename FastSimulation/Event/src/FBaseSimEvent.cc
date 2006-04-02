@@ -7,6 +7,8 @@
 
 //CLHEP Headers
 #include "CLHEP/Random/RandGauss.h"
+#include "SimGeneral/HepPDT/interface/HepPDTable.h"
+#include "SimGeneral/HepPDT/interface/HepParticleData.h"
 
 using namespace std;
 using namespace edm;
@@ -25,190 +27,9 @@ FBaseSimEvent::FBaseSimEvent() {
   sigmaVerteY = 0.015;
   sigmaVerteZ = 53.0;
 
+  // The particle Data Table
+  tab = & HepPDT::theTable();
   
-  // Get the Susy particle names (ugly, but this is because the 
-  // particle data table does not contain SUSY particles!)
-  particleNames[1] = "d";
-  particleNames[2] = "u";
-  particleNames[3] = "s";
-  particleNames[4] = "c";
-  particleNames[5] = "b";
-  particleNames[6] = "t";
-  particleNames[7] = "l";
-  particleNames[8] = "h";
-  particleNames[-1] = "d~";
-  particleNames[-2] = "u~";
-  particleNames[-3] = "s~";
-  particleNames[-4] = "c~";
-  particleNames[-5] = "b~";
-  particleNames[-6] = "t~";
-  particleNames[-7] = "l~";
-  particleNames[-8] = "h~";
-
-  particleNames[11] = "e-";
-  particleNames[12] = "nu_e";
-  particleNames[13] = "mu-";
-  particleNames[14] = "nu_mu";
-  particleNames[15] = "tau-";
-  particleNames[16] = "nu_tau";
-  particleNames[17] = "chi-";
-  particleNames[18] = "nu_chi";
-  particleNames[-11] = "e+";
-  particleNames[-12] = "nu_e~";
-  particleNames[-13] = "mu+";
-  particleNames[-14] = "nu_mu~";
-  particleNames[-15] = "tau+";
-  particleNames[-16] = "nu_tau~";
-  particleNames[-17] = "chi+";
-  particleNames[-18] = "nu_chi~";
-
-  particleNames[21] = "g";
-  particleNames[22] = "gamma";
-  particleNames[23] = "Z0";
-  particleNames[24] = "W+";
-  particleNames[-24] = "W-";
-  particleNames[25] = "H0";
-
-  particleNames[81] = "specflav";
-  particleNames[82] = "rndmflav";
-  particleNames[83] = "phasespa";
-  particleNames[84] = "c-hadron";
-  particleNames[85] = "b-hadron";
-  particleNames[86] = "t-hadron";
-  particleNames[87] = "l-hadron";
-  particleNames[88] = "h-hadron";
-  particleNames[89] = "Wvirt";
-  particleNames[90] = "diquark";
-  particleNames[91] = "cluster";
-  particleNames[92] = "string";
-  particleNames[93] = "indep.";
-  particleNames[94] = "CMshower";
-  particleNames[95] = "SPHEaxis";
-  particleNames[96] = "THRUaxis";
-  particleNames[97] = "CLUSjet";
-  particleNames[98] = "CELLjet";
-  particleNames[99] = "table";
-
-  particleNames[211] = "pi+";
-  particleNames[311] = "K0";
-  particleNames[321] = "K+";
-  particleNames[411] = "D+";
-  particleNames[421] = "D0";
-  particleNames[431] = "D_s+";
-  particleNames[511] = "B0";
-  particleNames[521] = "B+";
-  particleNames[531] = "B_s0";
-  particleNames[541] = "B_c+";
-  particleNames[-211] = "pi-";
-  particleNames[-311] = "K0~";
-  particleNames[-321] = "K-";
-  particleNames[-411] = "D-";
-  particleNames[-421] = "D0~";
-  particleNames[-431] = "D_s-";
-  particleNames[-511] = "B0~";
-  particleNames[-521] = "B-";
-  particleNames[-531] = "B_s0~";
-  particleNames[-541] = "B_c-";
-
-  particleNames[111] = "pi0";
-  particleNames[221] = "eta";
-  particleNames[331] = "eta'";
-  particleNames[441] = "eta_c";
-  particleNames[551] = "eta_b";
-  particleNames[661] = "eta_t";
-  particleNames[130] = "K_L0";
-  particleNames[310] = "K_S0";
-
-  particleNames[213] = "rho+";
-  particleNames[313] = "K*0";
-  particleNames[323] = "K*+";
-  particleNames[413] = "D*+";
-  particleNames[423] = "D*0";
-  particleNames[433] = "D*+";
-  particleNames[513] = "B*0";
-  particleNames[523] = "B*+";
-  particleNames[533] = "B*_s0";
-  particleNames[543] = "B*_c+";
-  particleNames[-213] = "rho-";
-  particleNames[-313] = "K*0~";
-  particleNames[-323] = "K*-";
-  particleNames[-413] = "D*-";
-  particleNames[-423] = "D*0~";
-  particleNames[-433] = "D*-";
-  particleNames[-513] = "B*0~";
-  particleNames[-523] = "B*-";
-  particleNames[-533] = "B*_s0~";
-  particleNames[-543] = "B*_c-";
-
-  particleNames[113] = "rho0";
-  particleNames[223] = "omega";
-  particleNames[333] = "phi";
-  particleNames[443] = "J/psi";
-  particleNames[553] = "Upsilon";
-  particleNames[663] = "Theta";
-
-  particleNames[2112] = "n0";
-  particleNames[2212] = "p";
-  particleNames[-2112] = "n0~";
-  particleNames[-2212] = "p~";
-
-  particleNames[3112] = "Sigma-";
-  particleNames[3122] = "Lambda0";
-  particleNames[3212] = "Sigma0";
-  particleNames[3222] = "Sigma+";
-  particleNames[3312] = "Xi-";
-  particleNames[3322] = "Xi0";
-  particleNames[-3112] = "Sigma+";
-  particleNames[-3122] = "Lambda0~";
-  particleNames[-3212] = "Sigma0~";
-  particleNames[-3222] = "Sigma-";
-  particleNames[-3312] = "Xi+";
-  particleNames[-3322] = "Xi0~";
-  
-  particleNames[1114] = "Delta-";
-  particleNames[2114] = "Delta0";
-  particleNames[2214] = "Delta+";
-  particleNames[2224] = "Delta++";
-  particleNames[3114] = "Sigma*-";
-  particleNames[-1114] = "Delta+";
-  particleNames[-2114] = "Delta0~";
-  particleNames[-2214] = "Delta=";
-  particleNames[-2224] = "Delta--";
-  particleNames[-3114] = "Sigma*+";
-
-  particleNames[3214] = "Sigma*0";
-  particleNames[3224] = "Sigma*+";
-  particleNames[3314] = "Xi*-";
-  particleNames[3324] = "Xi*0";
-  particleNames[3334] = "Omega-";
-  particleNames[-3214] = "Sigma*0~";
-  particleNames[-3224] = "Sigma*-";
-  particleNames[-3314] = "Xi*+";
-  particleNames[-3324] = "Xi*0~";
-  particleNames[-3334] = "Omega+";
-
-  particleNames[4114] = "Sigma*_c0";
-  particleNames[4214] = "Sigma*_c+";
-  particleNames[4224] = "Sigma*_c++";
-  particleNames[4314] = "Xi*_c0";
-  particleNames[4324] = "Xi*_c+";
-  particleNames[4334] = "Omega*_c0";
-  particleNames[-4114] = "Sigma*_c0~";
-  particleNames[-4214] = "Sigma*_c-";
-  particleNames[-4224] = "Sigma*_c--";
-  particleNames[-4314] = "Xi*_c0~";
-  particleNames[-4324] = "Xi*_c-";
-  particleNames[-4334] = "Omega*_c0~";
-
-  particleNames[2101] = "ud_0";
-  particleNames[3101] = "sd_0";
-  particleNames[3201] = "su_0";
-  particleNames[1103] = "dd_1";
-  particleNames[2103] = "ud_1";
-  particleNames[2203] = "uu_1";
-  particleNames[3103] = "sd_1";
-  particleNames[3203] = "su_1";
-  particleNames[3303] = "ss_1";
 }
  
 FBaseSimEvent::~FBaseSimEvent(){
@@ -273,9 +94,9 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
   // This is the smeared main vertex
   GenVertex* mainVertex = new GenVertex(myFilter.vertex());
+  addSimVertex(mainVertex);
 
   // Loop on the particles of the generated event
-  int sugBar=0;
   for ( HepMC::GenEvent::particle_const_iterator 
 	  piter  = myGenEvent.particles_begin();
 	  piter != myGenEvent.particles_end(); 
@@ -315,9 +136,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 			p->status(),
 			p->flow(),
 			p->polarization());
-      // With an increasing barcode
-      part->suggest_barcode(++sugBar);
-      
+
       // The origin vertex is either the primary, 
       // or the end vertex of the mother, if saved
       GenVertex* originVertex = 
@@ -325,16 +144,8 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 	myGenVertices.find(p->mother()) != myGenVertices.end() ? 
 	originVertex = myGenVertices[p->mother()] : mainVertex;
 
-      // Attach the particle to the origin vertex
-      originVertex->add_particle_out(part);
-
-      // Attach the vertex to the event
-      add_vertex(originVertex);
-
-      // Some persistent information
-      mySimTracks->push_back(
-        EmbdSimTrack(part->pdg_id(), part->momentum(), 
-		     -originVertex->barcode()-1, nGenParts()));
+      // Add the particle to the event and to the various lists
+      int theTrack = addSimTrack(part,originVertex,nGenParts()-1);
 
       // It there an end vertex ?
       if ( !p->end_vertex() ) continue; 
@@ -343,22 +154,71 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
       GenVertex* decayVertex = 
 	new GenVertex(p->end_vertex()->position()
 		      +mainVertex->position());
-      
-      // Attach the end vertex to the particle
-      decayVertex->add_particle_in(part);
+
+      // Add the vertex to the event and to the various lists
+      int theVertex = addSimVertex(decayVertex, part, theTrack);
 
       // And record it for later use 
-      myGenVertices[p] = decayVertex;
-      mySimVertices->push_back(
-	EmbdSimVertex(decayVertex->position().vect(),
-		      decayVertex->position().e(), 
-		      nTracks()));
+      if ( theVertex != -1 ) myGenVertices[p] = decayVertex;
 
       // There we are !
+
+
     }
   }
 
   printMCTruth(*this);
+
+}
+
+int 
+FBaseSimEvent::addSimTrack(GenParticle* part, 
+			   GenVertex* originVertex,
+			   int ig) {
+  
+  // Check that the particle is in the Famos "acceptance"
+  if ( !myFilter.accept(RawParticle(part)) ) return -1;
+
+  // An increasing barcode, corresponding to the list index
+  part->suggest_barcode(nTracks()+1);
+  
+  // Attach the particle to the origin vertex
+  originVertex->add_particle_out(part);
+  
+  // Attach the vertex to the event (inoccuous if the vertex exists)
+  // add_vertex(originVertex);
+  
+  // Some persistent information for the users
+  mySimTracks->push_back(
+     EmbdSimTrack(part->pdg_id(), part->momentum(), 
+		  -originVertex->barcode()-1, ig));
+
+  return nTracks()-1;
+
+}
+
+int
+FBaseSimEvent::addSimVertex(GenVertex* decayVertex, 
+			    GenParticle* motherParticle,
+			    int it) {
+  
+  // Check that the vertex is in the Famos "acceptance"
+  if ( !myFilter.accept(RawParticle(HepLorentzVector(),
+				    decayVertex->position()))) return -1;
+
+  // Attach the vertex to the event (inoccuous if the vertex exists)
+  add_vertex(decayVertex);
+
+  // Attach the end vertex to the particle (if accepted)
+  if ( it!=-1 ) decayVertex->add_particle_in(motherParticle);
+
+  // Some persistent information for the users
+  mySimVertices->push_back(
+    EmbdSimVertex(decayVertex->position().vect(),
+		  decayVertex->position().e(), 
+		  it));
+
+  return nVertices()-1;
 
 }
 
@@ -380,11 +240,10 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
      //     const std::string name = (*p)->particledata().name();
     int partId = p->pdg_id();
     std::string name;
-    if ( particleNames.find(partId) != particleNames.end() ) {
-      name = particleNames[partId];
+    if (tab->getParticleData(partId) != 0) {
+      name = (tab->getParticleData(partId))->name();
     } else {
-      name = "Unknown";
-      cout << "Unknown particle with id = " << partId << endl;
+      name = "none";
     }
        
     HepLorentzVector momentum1 = p->momentum();
@@ -431,7 +290,8 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
 	                 p->listChildren().size()-1 << " " ;
     }
     cout << endl;
-   }
+
+  }
 
 }
 
