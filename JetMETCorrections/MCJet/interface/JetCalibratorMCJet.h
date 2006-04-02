@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/JetObjects/interface/CaloJetCollection.h"
-#include "DataFormats/JetObjects/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 

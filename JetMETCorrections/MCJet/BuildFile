@@ -3,7 +3,7 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/JetObjects>
+<use name=DataFormats/JetReco>
 <use name=rootrflx>
 <flags SEAL_PLUGIN_NAME="JetMETCorrectionsMCJet">
 <export>
@@ -11,7 +11,7 @@
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
-   <use name=DataFormats/JetObjects>
+   <use name=DataFormats/JetReco>
    <use name=DataFormats/Common>
    <use name=rootrflx>
    <use name=clhep>
