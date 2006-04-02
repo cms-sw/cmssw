@@ -60,6 +60,7 @@ coral::IAuthenticationService& cond::ServiceLoader::loadAuthenticationService( c
   switch ( method ) {
   case cond::Env :
     m_loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
+    pool::POOLContext::loadComponent( "CORAL/Services/EnvironmentAuthenticationService" );
     m_context->query( v_svc );
     if ( v_svc.empty() ) {
       throw cond::Exception( "could not locate the coral authentication service" );
@@ -67,6 +68,7 @@ coral::IAuthenticationService& cond::ServiceLoader::loadAuthenticationService( c
     break;
   case cond::XML :
     m_loader->load( "CORAL/Services/XMLAuthenticationService" );
+    pool::POOLContext::loadComponent( "CORAL/Services/XMLAuthenticationService" );
     m_context->query( v_svc );
     if ( v_svc.empty() ) {
       throw cond::Exception( "could not locate the coral authentication service" );
@@ -74,6 +76,7 @@ coral::IAuthenticationService& cond::ServiceLoader::loadAuthenticationService( c
     break;
   default:
     m_loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
+    pool::POOLContext::loadComponent( "CORAL/Services/EnvironmentAuthenticationService" );
     m_context->query( v_svc );
     if ( v_svc.empty() ) {
       throw cond::Exception( "could not locate the coral authentication service" );
