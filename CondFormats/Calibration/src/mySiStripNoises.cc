@@ -4,7 +4,7 @@ float mySiStripNoises::SiStripData::getNoise() const{
   return static_cast<float>(abs(mySiStripNoises::SiStripData::Data)/10.0);
 } 
 bool mySiStripNoises::SiStripData::getDisable() const{
-  return ( (mySiStripNoises::SiStripData::Data>0) ? false : true );
+  return ( (mySiStripNoises::SiStripData::Data>=0) ? false : true );
 }
 void mySiStripNoises::SiStripData::setData(short data){
   mySiStripNoises::SiStripData::Data=data ;
@@ -33,7 +33,6 @@ bool mySiStripNoises::put(const uint32_t& DetId, Range input) {
 
 const mySiStripNoises::Range mySiStripNoises::getRange(const uint32_t& DetId) const {
   // get SiStripNoises Range of DetId
-  
   RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,StrictWeakOrdering());
   if (p==indexes.end()|| p->detid!=DetId) 
     return mySiStripNoises::Range(v_noises.end(),v_noises.end()); 
@@ -45,8 +44,8 @@ void mySiStripNoises::getDetIds(std::vector<uint32_t>& DetIds) const {
   // returns vector of DetIds in map
   mySiStripNoises::RegistryIterator begin = indexes.begin();
   mySiStripNoises::RegistryIterator end   = indexes.end();
-  for (; begin != end; ++begin) {
-    DetIds.push_back(begin->detid);
+  for (mySiStripNoises::RegistryIterator p=begin; p != end; ++p) {
+    DetIds.push_back(p->detid);
   }
 }
 
