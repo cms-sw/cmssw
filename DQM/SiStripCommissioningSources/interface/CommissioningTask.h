@@ -4,9 +4,10 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "boost/cstdint.hpp"
 
 class DaqMonitorBEInterface;
-class FedChannelConnection;
 class MonitorElement;
 
 using namespace std;
@@ -30,15 +31,21 @@ class CommissioningTask {
   CommissioningTask( DaqMonitorBEInterface*, const FedChannelConnection& );
   virtual ~CommissioningTask();
   
-  virtual void fillHistograms( const SiStripEventSummary&,
-			       const edm::DetSet<SiStripRawDigi>& );
+  void bookHistograms();
+  void fillHistograms( const SiStripEventSummary&, const edm::DetSet<SiStripRawDigi>& );
+
+  void updateHistograms();
   void updateFreq( int freq ) { updateFreq_ = freq; }
   
  protected:
+
+  string title( string variable, string contents, uint32_t lld_channel );
   
   DaqMonitorBEInterface* dqm_;
-  unsigned int updateFreq_;
-  unsigned int fillCntr_;
+  uint32_t updateFreq_;
+  uint32_t fillCntr_;
+  FedChannelConnection connection_;
+  bool booked_;
   
  private:
   

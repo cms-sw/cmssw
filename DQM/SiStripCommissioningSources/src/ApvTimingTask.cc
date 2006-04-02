@@ -1,39 +1,41 @@
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // -----------------------------------------------------------------------------
 //
 ApvTimingTask::ApvTimingTask( DaqMonitorBEInterface* dqm,
 			      const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn ),
-  timing_()
+  timing_(),
+  nBins_(40) //@@ this should be from number of scope mode samples (mean booking in event loop and putting scope mode length in trigger fed)
 {
-  cout << "[ApvTimingTask::ApvTimingTask]" 
-       << " Constructing object..." << endl;
+  edm::LogInfo("Commissioning") << "[ApvTimingTask::ApvTimingTask] Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 ApvTimingTask::~ApvTimingTask() {
-  cout << "[ApvTimingTask::~ApvTimingTask]"
-       << " Destructing object..." << endl;
+  edm::LogInfo("Commissioning") << "[ApvTimingTask::ApvTimingTask] Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 void ApvTimingTask::book( const FedChannelConnection& conn ) {
-  cout << "[ApvTimingTask::book]" << endl;
-  
-  unsigned short nbins = 60; //@@ correct?
+  edm::LogInfo("Commissioning") << "[ApvTimingTask::book]";
 
-  stringstream ss;
-  ss.str(""); ss << "ApvTiming|ApvPair" << conn.lldChannel() << "|sumOfSquares";
-  timing_.meSumOfSquares_  = dqm_->book1D( ss.str(), ss.str(), nbins, 0., nbins*1. );
-  ss.str(""); ss << "ApvTiming|ApvPair" << conn.lldChannel() << "|sumOfContents";
-  timing_.meSumOfContents_ = dqm_->book1D( ss.str(), ss.str(), nbins, 0., nbins*1. );
-  ss.str(""); ss << "ApvTiming|ApvPair" << conn.lldChannel() << "|numOfEntries";
-  timing_.meNumOfEntries_  = dqm_->book1D( ss.str(), ss.str(), nbins, 0., nbins*1. );
+  uint16_t nbins = 24 * nBins_; // 24 "fine" pll skews possible
+
+  timing_.meSumOfSquares_  = dqm_->book1D( title( "ApvTiming", "sumOfSquares", conn.lldChannel() ),
+					   title( "ApvTiming", "sumOfSquares", conn.lldChannel() ),
+					   nbins, 0., nbins*1. );
+  timing_.meSumOfContents_ = dqm_->book1D( title( "ApvTiming", "sumOfContents", conn.lldChannel() ),
+					   title( "ApvTiming", "sumOfContents", conn.lldChannel() ), 
+					   nbins, 0., nbins*1. );
+  timing_.meNumOfEntries_  = dqm_->book1D( title( "ApvTiming", "numOfEntries", conn.lldChannel() ),
+					   title( "ApvTiming", "numOfEntries", conn.lldChannel() ), 
+					   nbins, 0., nbins*1. );
   
   timing_.vSumOfSquares_.resize(nbins,0);
   timing_.vSumOfContents_.resize(nbins,0);
@@ -43,24 +45,37 @@ void ApvTimingTask::book( const FedChannelConnection& conn ) {
 
 // -----------------------------------------------------------------------------
 //
+/*
+  Some notes: 
+  - use all samples 
+  - extract number of samples from trigger fed
+  - need to book histos in event loop?
+  - why only use fine skew setting when filling histos? should use coarse setting as well?
+  - why do different settings every 100 events - change more freq? 
+*/
 void ApvTimingTask::fill( const SiStripEventSummary& summary,
 			  const edm::DetSet<SiStripRawDigi>& digis ) {
-  cout << "[ApvTimingTask::fill]" << endl;
+  LogDebug("Commissioning") << "[ApvTimingTask::fill]";
 
-  //@@ get bin number from SiStripEventInfo!
-  unsigned short ibin = 0;
-
-  if ( digis.data.size() != 256 ) {
-    cerr << "[ApvTimingTask::fill]" 
-	 << " Unexpected number of digis! " << digis.data.size() 
-	 << endl; 
+  //@@ if scope mode length is in trigger fed, then 
+  //@@ can add check here on number of digis
+  if ( digis.data.size() != 280 ) {
+    edm::LogError("Commissioning") << "[ApvTimingTask::fill]" 
+				   << " Unexpected number of digis! " 
+				   << digis.data.size(); 
   }
   
+  pair<uint32_t,uint32_t> skews = const_cast<SiStripEventSummary&>(summary).pll();
+  //cout << "skews " << summary.event() << " " << summary.bx() << " " << skews.first << " " << skews.second << endl;
+  
   // Fill vectors
-  for ( unsigned short idigi = 0; idigi < digis.data.size(); idigi++ ) {
-    timing_.vSumOfSquares_[ibin] += digis.data[idigi].adc() * digis.data[idigi].adc();
-    timing_.vSumOfContents_[ibin] += digis.data[idigi].adc();
-    timing_.vNumOfEntries_[ibin]++;
+  for ( uint16_t coarse = 0; coarse < nBins_/*digis.data.size()*/; coarse++ ) {
+    //uint16_t fine = ( coarse + 1 ) * 25 - static_cast<uint16_t>( skews.second * 25./24. ); //@@ check formula!
+    uint16_t fine = (coarse+1)*24 - skews.second; //@@ check formula!
+    //cout << "fine " << coarse << " " << fine << endl;
+    timing_.vSumOfSquares_[fine] += digis.data[coarse].adc() * digis.data[coarse].adc();
+    timing_.vSumOfContents_[fine] += digis.data[coarse].adc();
+    timing_.vNumOfEntries_[fine]++;
   }      
   
 }
@@ -68,14 +83,12 @@ void ApvTimingTask::fill( const SiStripEventSummary& summary,
 // -----------------------------------------------------------------------------
 //
 void ApvTimingTask::update() {
-  cout << "[ApvTimingTask::update]" << endl;
-
-  for ( unsigned short ibin = 0; ibin < timing_.vNumOfEntries_.size(); ibin++ ) {
-    timing_.meSumOfSquares_->setBinContent(  ibin+1, timing_.vSumOfSquares_[ibin]*1. );
-    timing_.meSumOfContents_->setBinContent( ibin+1, timing_.vSumOfContents_[ibin]*1. );
-    timing_.meNumOfEntries_->setBinContent(  ibin+1, timing_.vNumOfEntries_[ibin]*1. );
+  LogDebug("Commissioning") << "[ApvTimingTask::update]";
+  for ( uint16_t fine = 0; fine < timing_.vNumOfEntries_.size(); fine++ ) {
+    timing_.meSumOfSquares_->setBinContent( fine+1, timing_.vSumOfSquares_[fine]*1. );
+    timing_.meSumOfContents_->setBinContent( fine+1, timing_.vSumOfContents_[fine]*1. );
+    timing_.meNumOfEntries_->setBinContent( fine+1, timing_.vNumOfEntries_[fine]*1. );
   }
-  
 }
 
 

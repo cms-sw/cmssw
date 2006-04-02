@@ -1,6 +1,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/ServiceRegistry>
+<use name=FWCore/MessageLogger>
 <use name=DQMServices/Core>
 <use name=DQM/SiStripCommon>
 <use name=CondCore/SiStripPlugins>
@@ -10,13 +10,14 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/SiStripDigi>
 <use name=boost>
+<flags CXXFLAGS="-g">
 <flags SEAL_PLUGIN_NAME="DQMSiStripCommissioningSources">
 
 <export>
    <lib name=DQMSiStripCommissioningSources> 
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
-   <use name=FWCore/ServiceRegistry>
+   <use name=FWCore/MessageLogger>
    <use name=DQMServices/Core>
    <use name=DQM/SiStripCommon>
    <use name=CondCore/SiStripPlugins>

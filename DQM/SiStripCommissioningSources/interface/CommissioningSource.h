@@ -1,6 +1,7 @@
 #ifndef DQM_SiStripCommissioningSources_CommissioningSource_H
 #define DQM_SiStripCommissioningSources_CommissioningSource_H
 
+#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include <string>
 #include <map>
@@ -30,21 +31,20 @@ class CommissioningSource : public edm::EDAnalyzer {
   
  private: // ----- private methods -----
 
-  CommissioningTask* createTask( const FedChannelConnection& );
-
- private: // ----- data members -----
-
   /** Private default constructor. */
   CommissioningSource();
 
+  bool createTask( const edm::EventSetup& setup, SiStripEventSummary::Task task = SiStripEventSummary::UNKNOWN_TASK );
+
+ private: // ----- data members -----
+
+  string inputModuleLabel_;
   /** Interface to Data Quality Monitoring framework. */
   DaqMonitorBEInterface* dqm_;
-  
   /** Identifies commissioning task. */
   string task_; 
   /** Map of task objects, identified through FedChanKey. */
   TaskMap tasks_;
-
   /** */
   int updateFreq_;
   
