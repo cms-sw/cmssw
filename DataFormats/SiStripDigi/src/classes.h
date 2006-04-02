@@ -13,6 +13,8 @@ namespace {
     edm::Wrapper< edm::DetSetVector<SiStripDigi> > zs_digis;
     edm::Wrapper<SiStripRawDigi> rawdigi;
     edm::Wrapper< edm::DetSetVector<SiStripRawDigi> > raw_digis;
+    edm::Wrapper<SiStripEventSummary::Task> task;
+    edm::Wrapper<SiStripEventSummary::FedReadoutMode> fed_mode;
     edm::Wrapper<SiStripEventSummary> summary;
   }
 }

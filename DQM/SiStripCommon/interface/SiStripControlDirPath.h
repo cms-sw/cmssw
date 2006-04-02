@@ -15,12 +15,12 @@ class SiStripControlDirPath {
     : root_("/"),
     top_("SiStrip"),
     control_("ControlView"),
-    crate_("FECcrate"),
-    slot_("FECslot"),
-    ring_("FECring"),
-    addr_("CCUaddress"),
-    chan_("CCUchannel"),
-    i2c_("I2Caddress"),
+    crate_("FecCrate"),
+    slot_("FecSlot"),
+    ring_("FecRing"),
+    addr_("CcuAddr"),
+    chan_("CcuChan"),
+    i2c_("I2cAddr"),
     sep_("/") {;}
   ~SiStripControlDirPath() {;}
   

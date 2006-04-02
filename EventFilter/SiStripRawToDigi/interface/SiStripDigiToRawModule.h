@@ -29,7 +29,8 @@ class SiStripDigiToRawModule : public edm::EDProducer {
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
  private:
-  
+
+  string inputModuleLabel_;
   SiStripDigiToRaw* digiToRaw_;
   uint32_t eventCounter_;
 

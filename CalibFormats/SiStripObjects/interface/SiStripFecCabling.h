@@ -32,10 +32,14 @@ class SiStripModule {
   
   ~SiStripModule() {;}
 
+  // ----- Misc -----
+
   /** Returns CCU channel for this module. */
   inline const uint16_t& ccuChan() const { return ccuChan_; }
   /** Sets device info (addresses, DetID, etc) for this module. */
   void addDevices( const FedChannelConnection& conn );
+  /** Prints some debug information for this module. */
+  void print() const; 
   
   // ----- APV addresses  -----
 

@@ -23,13 +23,14 @@
     Creates instance of DigiToRaw converter, defines EDProduct type.
 */
 SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) :
+  inputModuleLabel_( pset.getParameter<string>( "InputModuleLabel" ) ),
   digiToRaw_(0),
   eventCounter_(0)
 {
   edm::LogInfo("DigiToRaw") << "[SiStripDigiToRawModule::SiStripDigiToRawModule] Constructing object...";
   
   // Create instance of DigiToRaw formatter
-  string mode    = pset.getUntrackedParameter<std::string>("FedReadoutMode","VIRGIN_RAW");
+  string mode    = pset.getUntrackedParameter<string>("FedReadoutMode","VIRGIN_RAW");
   int16_t nbytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
   digiToRaw_ = new SiStripDigiToRaw( mode, nbytes );
   
@@ -47,7 +48,7 @@ SiStripDigiToRawModule::~SiStripDigiToRawModule() {
 // -----------------------------------------------------------------------------
 /** 
     Retrieves cabling map from EventSetup, retrieves a DetSetVector of
-    SiStirpDigis from Event, creates a FEDRawDataCollection
+    SiStripDigis from Event, creates a FEDRawDataCollection
     (EDProduct), uses DigiToRaw converter to fill
     FEDRawDataCollection, attaches FEDRawDataCollection to Event.
 */
@@ -61,12 +62,12 @@ void SiStripDigiToRawModule::produce( edm::Event& iEvent,
   iSetup.get<SiStripFedCablingRcd>().get( cabling );
   
   edm::Handle< edm::DetSetVector<SiStripDigi> > digis;
-  iEvent.getByType( digis );
+  iEvent.getByLabel( inputModuleLabel_, digis );
   
   std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
   
   digiToRaw_->createFedBuffers( cabling, digis, buffers );
-
+  
   iEvent.put( buffers );
-
+  
 }

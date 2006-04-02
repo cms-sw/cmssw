@@ -24,6 +24,7 @@
     Creates instance of RawToDigi converter, defines EDProduct type.
 */
 SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) :
+  inputModuleLabel_( pset.getParameter<string>( "InputModuleLabel" ) ),
   rawToDigi_(0),
   eventCounter_(0)
 {
@@ -65,16 +66,16 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
   
   edm::ESHandle<SiStripFedCabling> cabling;
   iSetup.get<SiStripFedCablingRcd>().get( cabling );
-
+  
   edm::Handle<FEDRawDataCollection> buffers;
-  iEvent.getByType( buffers );
-
+  iEvent.getByLabel( inputModuleLabel_, buffers );
+  
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > vr( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripDigi> >    zs( new edm::DetSetVector<SiStripDigi> );
   auto_ptr<SiStripEventSummary> ev( new SiStripEventSummary );
-
+  
   rawToDigi_->createDigis( cabling, buffers, sm, vr, pr, zs, ev );
   
   iEvent.put( sm, "ScopeMode" );

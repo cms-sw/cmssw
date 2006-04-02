@@ -187,48 +187,59 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
       if ( ev_type == 1 ) { // SCOPE MODE
 	edm::DetSet<SiStripRawDigi>& sm = scope_mode->find_or_insert( key );
 	vector<uint16_t> samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
-	if ( samples.empty() ) { edm::LogWarning("RawToDigi") << "[SiStripRawToDigi::createDigis] No SM digis found!"; }
-	sm.data.clear(); sm.data.resize( samples.size(), 0 ); 
-	for ( uint16_t i = 0; i < samples.size(); i++ ) {
-	  sm.data[i] = SiStripRawDigi( samples[i] ); 
-	  anal_.smDigi( i, sm.data[i].adc() );
- 	  LogDebug("RawToDigi") << "[SiStripRawToDigi::createDigis] Scope mode readout! "
-				<< " Extracting digi with value " << sm.data[i].adc()
-				<< " from FED id/ch/strip " 
-				<< conn.fedId() << "/" << conn.fedCh() << "/" << i;
+	if ( samples.empty() ) { 
+	  edm::LogWarning("Commissioning") << "[SiStripRawToDigi::createDigis] No SM digis found!"; 
+	} else {
+	  sm.data.clear(); sm.data.resize( samples.size(), 0 ); 
+	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
+	    sm.data[i] = SiStripRawDigi( samples[i] ); 
+	    anal_.smDigi( i, sm.data[i].adc() );
+	  }
+	  LogDebug("Commissioning") << "Extracted " << samples.size() 
+				    << " SCOPE MODE digis (samples[0] = " << samples[0] 
+				    << ") from FED id/ch " 
+				    << conn.fedId() << "/" << conn.fedCh();
 	}
       } else if ( ev_type == 2 ) { // VIRGIN RAW
 	edm::DetSet<SiStripRawDigi>& vr = virgin_raw->find_or_insert( key );
 	vector<uint16_t> samples = fedEvent_->channel( iunit, ichan ).getSamples();
-	if ( vr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { vr.data.resize( 256*(ipair+1) ); }
-	uint16_t physical;
-	uint16_t readout; 
-	for ( uint16_t i = 0; i < samples.size(); i++ ) {
-	  physical = i%128;
-	  readoutOrder( physical, readout ); // convert from physical to readout order
-	  (i/128) ? readout=readout*2+1 : readout=readout*2; // multiplexed data
-	  vr.data[ipair*256+i] = SiStripRawDigi( samples[readout] ); 
-	  anal_.vrDigi( ipair*256+i, vr.data[ipair*256+i].adc() );
-	   	  LogDebug("RawToDigi") << "[SiStripRawToDigi::createDigis] Virgin raw readout! "
-					<< " Extracting digi with value " << vr.data[ipair*256+i].adc()
-					<< " from FED id/ch/strip " 
-					<< conn.fedId() << "/" << conn.fedCh() << "/" << ipair*256+i;
+	if ( samples.empty() ) { 
+	  edm::LogWarning("Commissioning") << "[SiStripRawToDigi::createDigis] No VR digis found!"; 
+	} else {
+	  if ( vr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { vr.data.resize( 256*(ipair+1) ); }
+	  uint16_t physical;
+	  uint16_t readout; 
+	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
+	    physical = i%128;
+	    readoutOrder( physical, readout ); // convert from physical to readout order
+	    (i/128) ? readout=readout*2+1 : readout=readout*2; // multiplexed data
+	    vr.data[ipair*256+i] = SiStripRawDigi( samples[readout] ); 
+	    anal_.vrDigi( ipair*256+i, vr.data[ipair*256+i].adc() );
+	  }
+	  LogDebug("Commissioning") << "Extracted " << samples.size() 
+				    << " VIRGIN RAW digis (samples[0] = " << samples[0] 
+				    << ") from FED id/ch " 
+				    << conn.fedId() << "/" << conn.fedCh();
 	}
       } else if ( ev_type == 6 ) { // PROCESSED RAW
 	edm::DetSet<SiStripRawDigi>& pr = proc_raw->find_or_insert( key ) ;
 	vector<uint16_t> samples = fedEvent_->channel( iunit, ichan ).getSamples();
-	if ( pr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { pr.data.resize( 256*(ipair+1) ); }
-	int physical;
-	for ( uint16_t i = 0; i < samples.size(); i++ ) {
-	  physical = i%128; 
-	  (i/128) ? physical=physical*2+1 : physical=physical*2; // multiplexed data
-	  pr.data[ipair*256+i] = SiStripRawDigi( samples[physical] ); 
-	  anal_.prDigi( ipair*256+i, pr.data[ipair*256+i].adc() );
-	  LogDebug("RawToDigi") << "[SiStripRawToDigi::createDigis] Processed raw readout! "
-				<< " Extracting digi with value " << pr.data[ipair*256+i].adc()
-				<< " from FED id/ch/strip " 
-				<< conn.fedId() << "/" << conn.fedCh() << "/" << ipair*256+i;
-	} 
+	if ( samples.empty() ) { 
+	  edm::LogWarning("Commissioning") << "[SiStripRawToDigi::createDigis] No PR digis found!"; 
+	} else {
+	  if ( pr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { pr.data.resize( 256*(ipair+1) ); }
+	  int physical;
+	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
+	    physical = i%128; 
+	    (i/128) ? physical=physical*2+1 : physical=physical*2; // multiplexed data
+	    pr.data[ipair*256+i] = SiStripRawDigi( samples[physical] ); 
+	    anal_.prDigi( ipair*256+i, pr.data[ipair*256+i].adc() );
+	  } 
+	  LogDebug("Commissioning") << "Extracted " << samples.size() 
+				    << " PROCESSED RAW digis (samples[0] = " << samples[0] 
+				    << ") from FED id/ch " 
+				    << conn.fedId() << "/" << conn.fedCh();
+	}
       } else if ( ev_type == 10 ) { // ZERO SUPPRESSED
 	edm::DetSet<SiStripDigi>& zs = zero_suppr->find_or_insert( key );
 	Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
@@ -240,13 +251,13 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	    zs.data.push_back( SiStripDigi( strip, static_cast<uint16_t>(*i) ) );
 	    anal_.zsDigi( zs.data.back().strip(), zs.data.back().strip() );
 	    *i++; // Iterate to next sample
-	    LogDebug("RawToDigi") << "[SiStripRawToDigi::createDigis] Zero suppressed readout! "
-				  << " Extracting digi with value " << zs.data.back().adc()
-				  << " from FED id/ch/strip " 
-				  << conn.fedId() << "/" << conn.fedCh() << "/" << zs.data.back().strip();
 	  }
+	  LogDebug("Commissioning") << "Extracted " << zs.data.size() 
+				    << " PROCESSED RAW digis (samples[0] = " << zs.data.front().adc()
+				    << ") from FED id/ch " 
+				    << conn.fedId() << "/" << conn.fedCh();
 	}
-	sort( zs.data.begin(), zs.data.end() ); //@@ necessary?
+	//sort( zs.data.begin(), zs.data.end() ); //@@ necessary?
       } else { // UNKNOWN READOUT MODE => ASSUME SCOPE MODE
 	stringstream ss;
 	ss << "[SiStripRawToDigi::createDigis]"
@@ -255,15 +266,19 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	edm::LogError("RawToDigi") << ss.str();
 	edm::DetSet<SiStripRawDigi>& sm = scope_mode->find_or_insert( key );
 	vector<uint16_t> samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
-	if ( samples.empty() ) { edm::LogWarning("RawToDigi") << "[SiStripRawToDigi::createDigis] No SM digis found!"; }
-	sm.data.clear(); sm.data.resize( samples.size(), 0 ); 
-	for ( uint16_t i = 0; i < samples.size(); i++ ) {
-	  sm.data[i] = SiStripRawDigi( samples[i] ); 
-	  anal_.smDigi( i, sm.data[i].adc() );
- 	  LogDebug("RawToDigi") << "[SiStripRawToDigi::createDigis] Scope mode readout! "
-				<< " Extracting digi with value " << sm.data[i].adc()
-				<< " from FED id/ch/strip " 
-				<< conn.fedId() << "/" << conn.fedCh() << "/" << i;
+
+	if ( samples.empty() ) { 
+	  edm::LogWarning("Commissioning") << "[SiStripRawToDigi::createDigis] No SM digis found!"; 
+	} else {
+	  sm.data.clear(); sm.data.resize( samples.size(), 0 ); 
+	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
+	    sm.data[i] = SiStripRawDigi( samples[i] ); 
+	    anal_.smDigi( i, sm.data[i].adc() );
+	  }
+	  LogDebug("Commissioning") << "Extracted " << samples.size() 
+				    << " SCOPE MODE digis (samples[0] = " << samples[0] 
+				    << ") from FED id/ch " 
+				    << conn.fedId() << "/" << conn.fedCh();
 	}
       }
     }
@@ -297,62 +312,19 @@ void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
 			    << "  getFedType: " << header->getFedType()
 			    << "  getFedId: " << header->getFedId()
 			    << "  getFedEventNumber: " << header->getFedEventNumber();
+
+      // Write event-specific data to event
+      summary->event( static_cast<uint32_t>(header->getFedEventNumber()) );
+      summary->bx( static_cast<uint32_t>(header->getBunchCrossing()) );
       
+      // Write commissioning information to event 
       uint32_t hsize = sizeof(TFHeaderDescription)/sizeof(uint32_t);
       uint32_t* head = &data[hsize];
+      summary->commissioningInfo( head );
       
-      for ( uint16_t ihead = 0; ihead < (size-hsize); ihead++ ) {
-	if ( head[ihead] ) { 
-	  LogDebug("RawToDigi") << "[SiStripRawToDigi::triggerFed]"
-				<< " head[" << setfill('0') << setw(3) 
-				<< ihead << "] = " << head[ihead];
-	}
-      }
-      
-//       // calibration or latency
-//       if ( head[10]==3  || 
-// 	   head[10]==33 || 
-// 	   head[10]==6  || 
-// 	   head[10]==16 || 
-// 	   head[10]==26 ) {
-// 	head[11]; // latency
-// 	head[12]; // cal chan
-// 	head[13]; // cal sel
-//       }
-      
-//       // opto 
-//       if ( head[10]==4 ) {
-// 	head[11]; // opto gain
-// 	head[12]; // opto bias
-//       }
-
-//       // pll loop
-//       if ( head[10]==7 || 
-// 	   head[10]==8 || 
-// 	   head[10]==5 || 
-// 	   head[10]==12 ) {
-// 	head[11]; // pll coarse shift
-// 	head[12]; // pll fine shift
-// 	head[13]; // tsc fed shift
-//       }
-
-//       // use calibration channel to store channel key
-//       if ( head[10]==11 || 
-// 	   head[10]==13 ) {
-// 	head[11]; // id key on
-// 	head[12]; // id instance
-// 	head[13]; // id ip
-// 	head[14]; // dcu hard id
-//       }
-      
-//       // vpsp
-//       if ( head[10]==14 ) {
-// 	head[11]; // vpsp
-//       }
-
     }
   }
-
+  
 }
 
 //------------------------------------------------------------------------------
