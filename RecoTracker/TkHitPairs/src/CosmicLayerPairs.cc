@@ -6,6 +6,8 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 
 
@@ -20,13 +22,6 @@ vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()()
   return result;
 }
 
-void CosmicLayerPairs::addBarrelBarrelLayers( int mid, int outer, 
-						 vector<LayerPair>& result) const
-{
-
- 
-}
-
 void CosmicLayerPairs::init(const SiStripRecHit2DLocalPosCollection &collstereo,
 			    const SiStripRecHit2DLocalPosCollection &collrphi, 
 			    const edm::EventSetup& iSetup){
@@ -37,20 +32,19 @@ void CosmicLayerPairs::init(const SiStripRecHit2DLocalPosCollection &collstereo,
   fpos=track->posForwardLayers(); 
   fneg=track->negForwardLayers(); 
   
-  map_range1=collrphi.get(acc.stripTOBLayer(7));
-  map_range2=collrphi.get(acc.stripTOBLayer(8));
+  rphi_range1=collrphi.get(acc.stripTOBLayer(5));
+  rphi_range2=collrphi.get(acc.stripTOBLayer(6));
+
+
+  const TOBLayer*  bl1=dynamic_cast<TOBLayer*>(bl[11]);
+  const TOBLayer*  bl2=dynamic_cast<TOBLayer*>(bl[12]);
 
   
 
-
-   const TOBLayer*  bl1=dynamic_cast<TOBLayer*>(bl[11]);
-   const TOBLayer*  bl2=dynamic_cast<TOBLayer*>(bl[12]);
-
-
 //   //LayersWithHits
 
-  lh1=new  LayerWithHits(bl1,map_range1);
-  lh2=new  LayerWithHits(bl2,map_range2);
+  lh1=new  LayerWithHits(bl1,rphi_range1);
+  lh2=new  LayerWithHits(bl2,rphi_range2);
 
 
 }

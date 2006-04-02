@@ -29,9 +29,11 @@ private:
 
   //definition of the map 
  
-  SiStripRecHit2DLocalPosCollection::range map_range1;
-  SiStripRecHit2DLocalPosCollection::range map_range2;
+  SiStripRecHit2DLocalPosCollection::range rphi_range1;
+  SiStripRecHit2DLocalPosCollection::range rphi_range2;
 
+  SiStripRecHit2DLocalPosCollection::range stereo_range1;
+  SiStripRecHit2DLocalPosCollection::range stereo_range2;
 
   TrackerLayerIdAccessor acc;
   
@@ -48,13 +50,7 @@ private:
    void init(const SiStripRecHit2DLocalPosCollection &collstereo,
 	     const SiStripRecHit2DLocalPosCollection &collrphi,
 	     const edm::EventSetup& iSetup);
- private:
-  void addBarrelBarrelLayers( int mid, int outer, 
-       vector<LayerPair>& result) const;
-  void addBarrelForwardLayers( int mid, int outer, 
-       vector<LayerPair>& result) const ;
-  void addForwardForwardLayers( int mid, int outer, 
-       vector<LayerPair>& result) const;
+
 };
 
 
