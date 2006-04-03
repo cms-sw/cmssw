@@ -10,8 +10,8 @@
   * Abstract interface for the mutual transcoder required for compressing
   * and uncompressing the ET stored in HCAL Trigger Primitives
   * 
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/03/29 15:53:20 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class HcalTPGTranscoder {
@@ -26,6 +26,9 @@ public:
       \note This does not need to be virtual since it is a defined characteristic of the digis
   */
   void rctFineGrain(const HcalTriggerPrimitiveDigi& digi, std::vector<bool>& fineGrain);
+  
+  static const int EGAMMA_LUT_SIZE;//=128;
+  static const int JET_LUT_SIZE;//=256;
 };
 
 #endif
