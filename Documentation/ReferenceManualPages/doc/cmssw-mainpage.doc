@@ -29,6 +29,13 @@ This is the CMSSW mainpage
    <a href="mailto:Jeremy.Mans@cern.ch">Jeremiah Mans</a>
   </td>
 </tr>
+<tr>
+  <td>
+  \endhtmlonly \ref TrackerPackages "Tracker"   \htmlonly
+  </td>
+  <td>Tracker related simulation and reconstruction</td>
+  <td class="contact"><a href="mailto:Marcel.Vos@cern.ch">Marcel Vos</a>, <a href="mailto:Ian.Tomalin@cern.ch">Ian Tomalin</a>
+</tr>
 </table>
 
 \endhtmlonly
