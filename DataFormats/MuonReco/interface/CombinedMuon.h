@@ -29,6 +29,12 @@ namespace reco {
     /// default constructor
     CombinedMuon( const TrackRef & t, const TrackRef & s, const TrackRef & c, defaultMomentumEstimate d ) :
       track_( t ), standAlone_( s ), combined_( c ), default_( d ) { }
+    defaultMomentumEstimate defaultFitEstimate() const {
+      if ( default_ == i_tracker ) return i_tracker;
+      if ( default_ == i_combined ) return i_combined;
+      if ( default_ == i_standAlone ) return i_standAlone;
+      throw edm::Exception( edm::errors::InvalidReference, "Invalid default muon reference" );
+    }
     /// reference to Track reconstructed in the tracker only
     const TrackRef & track() const { return track_; }
     /// reference to Track reconstructed in the muon detector only
