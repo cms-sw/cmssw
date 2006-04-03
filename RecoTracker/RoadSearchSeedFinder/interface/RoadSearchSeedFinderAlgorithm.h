@@ -14,9 +14,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/02/08 02:06:48 $
-// $Revision: 1.2 $
+// $Author: gutsche $
+// $Date: 2006/03/28 22:54:06 $
+// $Revision: 1.3 $
 //
 
 #include <string>
@@ -28,6 +28,12 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
+#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "Geometry/Vector/interface/GlobalPoint.h"
+
+#include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 
 class RoadSearchSeedFinderAlgorithm 
 {
@@ -42,6 +48,10 @@ class RoadSearchSeedFinderAlgorithm
 	   const edm::EventSetup& es,
 	   TrajectorySeedCollection &output);
 
+  CurvilinearTrajectoryError initialError( const TrackingRecHit* outerHit,
+					   const TrackingRecHit* innerHit,
+					   const GlobalPoint& vertexPos,
+					   const GlobalError& vertexErr);
  private:
   edm::ParameterSet conf_;
 

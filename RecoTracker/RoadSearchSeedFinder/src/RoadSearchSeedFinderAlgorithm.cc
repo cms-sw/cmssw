@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/23 01:56:54 $
-// $Revision: 1.6 $
+// $Date: 2006/03/28 22:54:07 $
+// $Revision: 1.7 $
 //
 
 #include <vector>
@@ -31,21 +31,23 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
 
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
+#include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
+
+#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
 }
@@ -69,10 +71,6 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
   // get roads
   edm::ESHandle<Roads> roads;
   es.get<TrackerDigiGeometryRecord>().get(roads);
-
-  // get tracker geometry
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
 
   // calculate maximal possible delta phi for given delta r and parameter pTmin
   double ptmin = conf_.getParameter<double>("MinimalReconstructedTransverseMomentum");
@@ -109,6 +107,10 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
 	      for ( SiStripRecHit2DLocalPosCollection::const_iterator outerSeedDetHit = outerSeedDetHits.first;
 		    outerSeedDetHit != outerSeedDetHits.second; ++outerSeedDetHit ) {
 
+		// get tracker geometry
+		edm::ESHandle<TrackerGeometry> tracker;
+		es.get<TrackerDigiGeometryRecord>().get(tracker);
+
 		GlobalPoint inner = tracker->idToDet(innerSeedDetHit->geographicalId())->surface().toGlobal(innerSeedDetHit->localPosition());
 		GlobalPoint outer = tracker->idToDet(outerSeedDetHit->geographicalId())->surface().toGlobal(outerSeedDetHit->localPosition());
 
@@ -133,12 +135,38 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
 				      0, std::sqrt(region.originRBound()),
 				      0, 0, std::sqrt(region.originZBound()));
 
-		  SeedFromConsecutiveHits seedfromhits(((TrackingRecHit*)outerSeedDetHit->clone()), 
-						       ((TrackingRecHit*)innerSeedDetHit->clone()),
-						       region.origin(), vtxerr, es);
+		  FastHelix helix(outer, inner, GlobalPoint(0.,0.,0.),es);
+
+                  FreeTrajectoryState fts( helix.stateAtVertex().parameters(),
+                                           initialError( &(*outerSeedDetHit), &(*innerSeedDetHit),
+                                                         region.origin(), vtxerr));
+
+                  edm::ESHandle<MagneticField> pSetup;
+                  es.get<IdealMagneticFieldRecord>().get(pSetup);
+
+                  AnalyticalPropagator  thePropagator(&(*pSetup), alongMomentum);
+
+                  KFUpdator     theUpdator;
+
+                  const TrajectoryStateOnSurface  innerState = thePropagator.propagate(fts,tracker->idToDet(innerSeedDetHit->geographicalId())->surface());
+
+                  //
+                  // create the OwnVector of TrackingRecHits
+                  //
+                  edm::OwnVector<TrackingRecHit> rh;
+
+                  //
+                  // memory leak??? TB
+                  //
+                  rh.push_back(innerSeedDetHit->clone());
+                  rh.push_back(outerSeedDetHit->clone());
+                  TrajectoryStateTransform transformer;
+
+                  PTrajectoryStateOnDet * PTraj=  transformer.persistentState(innerState, innerSeedDetHit->geographicalId().rawId());
+                  TrajectorySeed ts(*PTraj,rh,alongMomentum);
 
 		  // add seed to collection
-		  output.push_back(*seedfromhits.TrajSeed());
+		  output.push_back(ts);
 
 		}
 	      }
@@ -152,3 +180,19 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
   edm::LogInfo("RoadSearch") << "Found " << output.size() << " seeds."; 
 
 };
+
+CurvilinearTrajectoryError RoadSearchSeedFinderAlgorithm::
+initialError( const TrackingRecHit* outerHit,
+              const TrackingRecHit* innerHit,
+              const GlobalPoint& vertexPos,
+              const GlobalError& vertexErr)
+{
+  AlgebraicSymMatrix C(5,1);
+
+  float zErr = vertexErr.czz();
+  float transverseErr = vertexErr.cxx(); // assume equal cxx cyy 
+  C[3][3] = transverseErr;
+  C[4][4] = zErr;
+
+  return CurvilinearTrajectoryError(C);
+}
