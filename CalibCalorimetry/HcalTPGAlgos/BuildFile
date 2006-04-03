@@ -1,0 +1,11 @@
+<use name=DataFormats/HcalDigi>
+<use name=CalibFormats/HcalObjects>
+<use name=CalibCalorimetry/HcalAlgos>
+<use name=Geometry/CaloGeometry>
+<export>
+  <lib name=CalibCalorimetryHcalTPGAlgos>
+  <use name=DataFormats/HcalDigi>
+  <use name=CalibFormats/HcalObjects>
+  <use name=CalibCalorimetry/HcalAlgos>
+  <use name=Geometry/CaloGeometry>
+</export>
