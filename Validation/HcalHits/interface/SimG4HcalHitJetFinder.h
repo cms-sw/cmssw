@@ -6,7 +6,7 @@
 #define SimG4HcalHitJetFinder_H
 
 #include "SimG4CMS/Calo/interface/CaloHit.h"
-#include "SimG4Validation/Hcal/interface/SimG4HcalHitCluster.h"
+#include "Validation/HcalHits/interface/SimG4HcalHitCluster.h"
 
 #include <vector>
 

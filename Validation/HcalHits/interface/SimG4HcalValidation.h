@@ -9,8 +9,8 @@
 #include "SimG4Core/Notification/interface/Observer.h"
 
 #include "SimG4CMS/Calo/interface/CaloHit.h"
-#include "SimG4Validation/Hcal/interface/SimG4HcalHitCluster.h"
-#include "SimG4Validation/Hcal/interface/SimG4HcalHitJetFinder.h"
+#include "Validation/HcalHits/interface/SimG4HcalHitCluster.h"
+#include "Validation/HcalHits/interface/SimG4HcalHitJetFinder.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 

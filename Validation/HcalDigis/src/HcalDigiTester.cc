@@ -1,4 +1,4 @@
-#include "/localscratch/dkonst/WORK/test/CMSSW_0_6_0_pre1/src/Validation/HcalDigis/interface/HcalDigiTester.h"
+#include "Validation/HcalDigis/interface/HcalDigiTester.h"
 
 
 HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
