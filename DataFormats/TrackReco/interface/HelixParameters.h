@@ -12,7 +12,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Id: HelixParameters.h,v 1.7 2006/03/31 09:50:42 llista Exp $
+ * \version $Id: HelixParameters.h,v 1.8 2006/03/31 10:04:17 llista Exp $
  *
  */
 
@@ -29,7 +29,7 @@ namespace reco {
     /// position-momentum covariance matrix (6x6).
     /// This type will be replaced by a MathCore symmetric
     /// matrix, as soon as available
-    typedef math::Error<6> PosMomError;
+    typedef math::Error<6>::type PosMomError;
     /// spatial vector
     typedef math::XYZVector Vector;
     /// point in the space
@@ -41,7 +41,7 @@ namespace reco {
     /// helix parameter covariance matrix (5x5)
     /// This type will be replaced by a MathCore symmetric
     /// matrix, as soon as available
-    typedef math::Error<5> ParameterError;
+    typedef math::Error<5>::type ParameterError;
  
     class Parameters {
     public:
@@ -50,6 +50,9 @@ namespace reco {
       /// constructor from five double parameters
       Parameters( double p1, double p2, double p3, double p4, double p5 ) : 
 	par_( p1, p2, p3, p4, p5 ) { }
+      /// constructor from vector
+      Parameters( const ParameterVector p ) : 
+	par_( p ) { }
       /// constructor from double *
       Parameters( const double * p ) : 
 	par_( p[ 0 ], p[ 1 ], p[ 2 ], p[ 3 ], p[ 4 ] ) { }
@@ -97,8 +100,16 @@ namespace reco {
     public:
       /// default constructor
       Covariance() {} 
+      /// constructor from matrix
+      Covariance( const ParameterError & e ) : 
+	cov_( e ) { }
       /// constructor from double * (15 parameters)
-      Covariance( const double * cov ) : cov_( cov ) { }
+      Covariance( const double * cov ) : cov_() { 
+	int k = 0;
+	for( int i = 0; i < 5; ++i )
+	  for( int j = 0; j <= i; ++j )
+	    cov_( i, j ) = cov[ k++ ];
+      }
       /// index type
       typedef unsigned int index;
       /// accessing (i, j)-th parameter, i, j = 0, ..., 4 (read only mode)
@@ -106,15 +117,15 @@ namespace reco {
       /// accessing (i, j)-th parameter, i, j = 0, ..., 4
       double & operator()( index i, index j ) { return cov_ ( i, j ); }
       /// error on d0
-      double d0Error() const { return sqrt( cov_.get<i_d0, i_d0>() ); }
+      double d0Error() const { return sqrt( cov_( i_d0, i_d0 ) ); }
       /// error on phi0
-      double phi0Error() const { return sqrt( cov_.get<i_phi0, i_phi0>() ); }
+      double phi0Error() const { return sqrt( cov_( i_phi0, i_phi0 ) ); }
       /// error on omega
-      double omegaError() const { return sqrt( cov_.get<i_omega, i_omega>() ); }
+      double omegaError() const { return sqrt( cov_( i_omega, i_omega ) ); }
       /// error on dx
-      double dzError() const { return sqrt( cov_.get<i_dz, i_dz>() ); }
+      double dzError() const { return sqrt( cov_( i_dz, i_dz ) ); }
       /// error on tanDip
-      double tanDipError() const { return sqrt( cov_.get<i_tanDip, i_tanDip>() ); }
+      double tanDipError() const { return sqrt( cov_( i_tanDip, i_tanDip ) ); }
 
     private:
       /// 5x5 matrix

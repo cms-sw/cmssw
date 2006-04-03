@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackBase.h,v 1.4 2006/03/20 14:15:28 llista Exp $
+ * \version $Id: TrackBase.h,v 1.5 2006/03/24 11:00:08 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -28,7 +28,7 @@ namespace reco {
     /// position-momentum covariance matrix (6x6).
     /// This type will be replaced by a MathCore symmetric
     /// matrix, as soon as available
-    typedef math::Error<6> PosMomError;
+    typedef math::Error<6>::type PosMomError;
     /// spatial vector
     typedef math::XYZVector Vector;
     /// point in the space
