@@ -12,7 +12,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Id: HelixParameters.h,v 1.8 2006/03/31 10:04:17 llista Exp $
+ * \version $Id: HelixParameters.h,v 1.9 2006/04/03 07:47:36 llista Exp $
  *
  */
 
@@ -106,8 +106,8 @@ namespace reco {
       /// constructor from double * (15 parameters)
       Covariance( const double * cov ) : cov_() { 
 	int k = 0;
-	for( int i = 0; i < 5; ++i )
-	  for( int j = 0; j <= i; ++j )
+	for( int i = 0; i < ParameterError::kRows; ++i )
+	  for( int j = i; j < ParameterError::kCols; ++j )
 	    cov_( i, j ) = cov[ k++ ];
       }
       /// index type

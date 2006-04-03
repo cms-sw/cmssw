@@ -8,13 +8,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackBase.h,v 1.5 2006/03/24 11:00:08 llista Exp $
+ * \version $Id: TrackBase.h,v 1.6 2006/04/03 07:47:36 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/TrackReco/interface/HelixParameters.h"
 
 namespace reco {
