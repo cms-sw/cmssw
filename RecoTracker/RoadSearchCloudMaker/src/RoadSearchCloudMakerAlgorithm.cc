@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/23 01:59:41 $
-// $Revision: 1.9 $
+// $Date: 2006/03/28 23:08:40 $
+// $Revision: 1.11 $
 //
 
 #include <vector>
@@ -289,18 +289,15 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 	       checkMaximalNumberOfMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) && 
 	       checkMaximalNumberOfConsecutiveMissedLayers(usedLayersArray,roadMapEntry->second,numberOfLayersPerSubdetector) ) {
 	    output.push_back(cloud);
-	    if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {
-	      if ( roadType == Roads::RPhi ){ 
-		LogDebug("RoadSearch") << "This r-phi seed yields a cloud with " <<cloud.size() <<" hits";
-	      } else { LogDebug("RoadSearch") << "This z-phi seed yields a cloud with "<<cloud.size() <<" hits";
-	      }
+	    
+	    if ( roadType == Roads::RPhi ){ 
+	      LogDebug("RoadSearch") << "This r-phi seed yields a cloud with " <<cloud.size() <<" hits";
+	    } else { LogDebug("RoadSearch") << "This z-phi seed yields a cloud with "<<cloud.size() <<" hits";
 	    }
 	  } else {
-	    if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {
-	      if ( roadType == Roads::RPhi ){ 
-		LogDebug("RoadSearch") << "This r-phi seed yields no clouds";
-	      } else { LogDebug("RoadSearch") << "This z-phi seed yields no clouds";
-	      }
+	    if ( roadType == Roads::RPhi ){ 
+	      LogDebug("RoadSearch") << "This r-phi seed yields no clouds";
+	    } else { LogDebug("RoadSearch") << "This z-phi seed yields no clouds";
 	    }
 	  }
 	}
@@ -646,11 +643,11 @@ bool RoadSearchCloudMakerAlgorithm::checkMinimalNumberOfUsedLayers(std::vector<b
 
   if ( numberOfUsedLayers >= (unsigned int)conf_.getParameter<int>("MinimalNumberOfUsedLayersPerRoad") ) {
     result = true;
+  } else {
+    LogDebug("RoadSearch") << " Cloud only has "<<numberOfUsedLayers<<" hits";
   }
-  if (!result && conf_.getUntrackedParameter<int>("VerbosityLevel") > 1) 
-    edm::LogWarning("RoadSearch") << " Cloud only has "<<numberOfUsedLayers<<" hits";
-  return result;
 
+  return result;
 }
 
 bool RoadSearchCloudMakerAlgorithm::checkMaximalNumberOfMissedLayers(std::vector<bool> &usedLayersArray, const Roads::RoadSet &roadSet, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector){
