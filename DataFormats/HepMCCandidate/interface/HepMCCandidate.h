@@ -6,7 +6,7 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: HepMCCandidate.h,v 1.2 2006/03/08 11:07:54 llista Exp $
+ * \version $Id: HepMCCandidate.h,v 1.3 2006/03/08 12:57:08 llista Exp $
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
@@ -18,6 +18,8 @@ namespace reco {
 
   class HepMCCandidate : public LeafCandidate {
   public:
+    /// reference to HepMC::GenParticle
+    typedef const HepMC::GenParticle * GenParticleRef;
     /// default constructor
     HepMCCandidate() : LeafCandidate(), genParticle_( 0 ) { }
     /// constroctor from pointer to generator particle
@@ -25,25 +27,17 @@ namespace reco {
     /// destructor
     virtual ~HepMCCandidate();
     /// pointer to generator particle
-    const HepMC::GenParticle * genParticle() const { return genParticle_; }
+    GenParticleRef genParticle() const { return genParticle_; }
 
   private:
     /// checp overlap with another candidate
     bool overlap( const Candidate & ) const;
     /// pointer to generator particle
-    const HepMC::GenParticle * genParticle_;
+    GenParticleRef genParticle_;
   };
 
-  /// Accessor to GenParticle component 
-  template<>
-  struct component<HepMC::GenParticle> {
-    static const HepMC::GenParticle * get( const Candidate & c ) {
-      const HepMCCandidate * dc = dynamic_cast<const HepMCCandidate *>( & c );
-      if ( dc == 0 ) return 0;
-      return dc->genParticle();
-    }
-  };
-
+  /// get GenParticle component
+  GET_CANDIDATE_COMPONENT( HepMCCandidate, HepMCCandidate::GenParticleRef, DefaultComponentTag, genParticle );
 }
 
 #endif

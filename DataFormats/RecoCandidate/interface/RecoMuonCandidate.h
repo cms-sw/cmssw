@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: RecoMuonCandidate.h,v 1.2 2006/03/01 16:31:47 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -33,6 +33,8 @@ namespace reco {
     /// reference to a muon
     virtual reco::MuonRef muon() const;
     /// reference to a muon
+    /// reference to a stand-alone muon Track
+    virtual reco::TrackRef standAloneMuon() const;
     reco::MuonRef muon_;
   };
   

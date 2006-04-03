@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.3 2006/03/08 11:08:08 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.4 2006/03/08 12:57:08 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -38,6 +38,8 @@ namespace reco {
     virtual reco::TrackRef track() const;
     /// reference to a Muon
     virtual reco::MuonRef muon() const;
+    /// reference to a stand-alone muon Track
+    virtual reco::TrackRef standAloneMuon() const;
     /// reference to a SuperCluster
     virtual reco::SuperClusterRef superCluster() const;
     /// reference to an Electron
@@ -51,71 +53,24 @@ namespace reco {
     bool overlap( const Candidate & ) const;
   };
 
-  /// Accessor to Track component 
-  template<>
-  struct component<reco::Track> {
-    typedef reco::TrackRef Ref;
-    static Ref get( const Candidate & c ) {
-      const RecoCandidate * dc = dynamic_cast<const RecoCandidate *>( & c );
-      if ( dc == 0 ) return Ref();
-      return dc->track();
-    }
-  };
-    
-  /// Accessor to Muon component 
-  template<>
-  struct  component<reco::Muon> {
-    typedef reco::MuonRef Ref;
-    static Ref get( const Candidate & c ) {
-      const RecoCandidate * dc = dynamic_cast<const RecoCandidate *>( & c );
-      if ( dc == 0 ) return Ref();
-      return dc->muon();
-    }
-  };
-  
-  /// Accessor to Electron component 
-  template<>
-  struct  component<reco::Electron> {
-    typedef reco::ElectronRef Ref;
-    static Ref get( const Candidate & c ) {
-      const RecoCandidate * dc = dynamic_cast<const RecoCandidate *>( & c );
-      if ( dc == 0 ) return Ref();
-      return dc->electron();
-    }
+  /// stand alone muon component tag
+  struct StandAloneMuonTag {
   };
 
-  /// Accessor to SuperCluster component 
-  template<>
-  struct  component<reco::SuperCluster> {
-    typedef reco::SuperClusterRef Ref;
-    static Ref get( const Candidate & c ) {
-      const RecoCandidate * dc = dynamic_cast<const RecoCandidate *>( & c );
-      if ( dc == 0 ) return Ref();
-      return dc->superCluster();
-    }
-  };
-
-  /// Accessor to Photon component 
-  template<>
-  struct  component<reco::Photon> {
-    typedef reco::PhotonRef Ref;
-    static Ref get( const Candidate & c ) {
-      const RecoCandidate * dc = dynamic_cast<const RecoCandidate *>( & c );
-      if ( dc == 0 ) return Ref();
-      return dc->photon();
-    }
-  };
-  
-  /// get CaloTower component 
-  template<>
-  struct  component<CaloTower> {
-    typedef RecoCandidate::CaloTowerRef Ref;
-    static Ref get( const Candidate & c ) {
-      const RecoCandidate * dc = dynamic_cast<const RecoCandidate *>( & c );
-      if ( dc == 0 ) return Ref();
-      return dc->caloTower();
-    }
-  };
+  /// get default Track component
+  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, DefaultComponentTag, track );
+  /// get default Muon component
+  GET_CANDIDATE_COMPONENT( RecoCandidate, MuonRef, DefaultComponentTag, muon );
+  /// get stand-alone muon Track component
+  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, StandAloneMuonTag, standAloneMuon );
+  /// get default Electron component
+  GET_CANDIDATE_COMPONENT( RecoCandidate, ElectronRef, DefaultComponentTag, electron );
+  /// get default SuperCluster component
+  GET_CANDIDATE_COMPONENT( RecoCandidate, SuperClusterRef, DefaultComponentTag, superCluster );
+  /// get default Photon component
+  GET_CANDIDATE_COMPONENT( RecoCandidate, PhotonRef, DefaultComponentTag, photon );
+  /// get default CaloTower component
+  GET_CANDIDATE_COMPONENT( RecoCandidate, RecoCandidate::CaloTowerRef, DefaultComponentTag, caloTower );
   
 }
 

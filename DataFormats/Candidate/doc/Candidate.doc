@@ -47,14 +47,18 @@ Recursively scans a decay chain, if necessary.
   if ( overlap( c1, c2 ) ) { /* .... */ }
 </pre>
 \endhtmlonly
-- reco::component <b>&lt;T&gt;</b>: utility to extrack components from a reco::Candidate
-  avoiding explicit <tt>dynamic_cast</tt>.
+- reco::component <b>&lt;T, Tag=DefaultComponentTag&gt;</b>: utility to extrack components from a reco::Candidate
+  avoiding explicit <tt>dynamic_cast</tt>. A tag struct can be used as optional second template parameter to
+  disambiguate between more components in a Candidate of the same type.
   The following example shows how to extract references to a reco::Track or reco::Muon:
 \htmlonly
 <pre>
   const Candidate & c = ...;
-  TrackRef trk = component<Track>::get( c );
-  MuonRef mu = component<Muon>::get( c );
+  TrackRef trk = component&lt;TrackRef&gt;::get( c );
+  MuonRef mu = component&lt;MuonRef&gt;::get( c );
+  TrackRef standAloneMu = component&lt;TrackRef, StandAloneMuonTag&gt;::get( c );
+
+  const HepMC::GenParticle * gen = component&lt;const HepMC::GenParticle *&gt;::get( c );
 </pre>
 \endhtmlonly
 

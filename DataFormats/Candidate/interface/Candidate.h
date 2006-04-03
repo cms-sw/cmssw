@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.2 2006/03/08 12:26:37 llista Exp $
+ * \version $Id: Candidate.h,v 1.3 2006/03/08 12:57:07 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -203,7 +203,7 @@ namespace reco {
     void set( setup & s );
 
   private:
-    template<typename T> friend struct component; 
+    template<typename T, typename Tag> friend struct component; 
     friend class OverlapChecker;
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & ) const = 0;
@@ -214,7 +214,7 @@ namespace reco {
     s.setP4( p4_ );
     s.setCharge( q_ );
     // .. vertex or other attributes should be updated 
-    // when will be implemented
+    // when implemented
   }
   
 }
