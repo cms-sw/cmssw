@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.10 2006/03/10 14:33:38 llista Exp $
+ * \version $Id: Vertex.h,v 1.11 2006/03/20 14:06:39 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -26,7 +26,7 @@ namespace reco {
     /// point in the space
     typedef math::XYZPoint Point;
     /// covariance error matrix (3x3)
-    typedef math::Error3D Error;
+    typedef math::Error<3>::type Error;
     /// default constructor
     Vertex() { }
     /// constructor from values
