@@ -8,6 +8,8 @@
  * Implementation notes: <BR>
  * For example, CSCSegmentizerSK inherits from this class,
  * and classes ported from ORCA local reco inherit from that.
+ *
+ * \author Matteo Sani
  */
 
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>

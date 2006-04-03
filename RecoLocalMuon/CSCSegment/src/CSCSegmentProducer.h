@@ -4,6 +4,7 @@
 /** \class CSCSegmentProducer 
  * Produces a collection of CSCSegment's in endcap muon CSCs. 
  *
+ *  \author Matteo Sani
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

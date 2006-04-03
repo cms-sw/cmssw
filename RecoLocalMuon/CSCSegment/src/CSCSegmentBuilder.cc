@@ -14,49 +14,37 @@
 #include <FWCore/Utilities/interface/Exception.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
 
-CSCSegmentBuilder::CSCSegmentBuilder(const edm::ParameterSet& ps) : geom_(0), 
-    algos_(std::vector<CSCSegmentAlgorithm*>()) {
-	
-    // Receives ParameterSet percolated down from EDProducer
-    // Find names of algorithms
-    std::vector<std::string> algoNames = ps.getParameter<std::vector<std::string> >("algo_types");
-
-    // Find appropriate ParameterSets
+CSCSegmentBuilder::CSCSegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
+    
+    // The algo chosen for the segment building
+    int chosenAlgo = ps.getParameter<int>("algo_type") - 1;
+    
+    // Find appropriate ParameterSets for each algo type
     std::vector<edm::ParameterSet> algoPSets = ps.getParameter<std::vector<edm::ParameterSet> >("algo_psets");
 
-    // Find allocation of algorithm to chamber type
-    std::vector<int> algoToType = ps.getParameter<std::vector<int> >("parameters_per_chamber_type");
+    // Now load the right parameter set
+    // Algo name
+    std::string algoName = algoPSets[chosenAlgo].getParameter<std::string>("algo_name");
+        
+    // SegAlgo parameter set
+    std::vector<edm::ParameterSet> segAlgoPSet = algoPSets[chosenAlgo].getParameter<std::vector<edm::ParameterSet> >("algo_psets");
+        
+    // Algo to chamber type 
+    std::vector<int> algoToType = algoPSets[chosenAlgo].getParameter<std::vector<int> >("parameters_per_chamber_type");
 
-    // How many chamber types do we have?
-    ntypes = 9;
-    LogDebug("CSC") << "no. of chamber types = " << ntypes;
-
-    algos_.resize(ntypes*algoNames.size());
-	
-    // Trap if we don't have enough parameter sets or haven't assigned an algo to every type
-    if (algoToType.size() != (ntypes*algoNames.size())) {
+    // Trap if we don't have enough parameter sets or haven't assigned an algo to every type   
+    if (algoToType.size() != 9) {
         throw cms::Exception("ParameterSetError") << 
-            "#dim algosToType=" << algoToType.size() << ", # chamber types=" << ntypes 
-            << ", algos=" << algoNames.size() << std::endl;
+            "#dim algosToType=" << algoToType.size() << ", # chamber types=9" << std::endl;
     }
 
-    std::vector<CSCSegmentAlgorithm*> algobuf;
-  	
     // Ask factory to build this algorithm, giving it appropriate ParameterSet
-    for (size_t i=0; i<algoNames.size(); ++i ) {
-        for (size_t j=0; j<algoToType.size(); j++) {
-			
-            CSCSegmentAlgorithm* pAlgo = CSCSegmentBuilderPluginFactory::get()->
-                create(algoNames[i], algoPSets[algoToType[j]-1]);
-            algobuf.push_back(pAlgo);
-            LogDebug("CSC") << "algorithm [" << i << "] named " << algoNames[i] << " has address " << pAlgo;
-        }
-    }	
-	
-    for ( size_t i = 0; i < algobuf.size(); ++i ) {
-        algos_[i] = algobuf[i]; // 
-        LogDebug("CSC") << "address of algorithm for chamber type " << i << " is " << algos_[i];
-    }
+    std::string chType[] = {"ME1/a", "ME1/b", "ME1/1", "ME1/2",
+            "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1"};
+            
+    for (size_t j=0; j<9; j++) 		
+        algoMap[chType[j]] = CSCSegmentBuilderPluginFactory::get()->
+                create(algoName, segAlgoPSet[algoToType[j]-1]);
 }
 
 CSCSegmentBuilder::~CSCSegmentBuilder() {}
@@ -93,18 +81,9 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCo
             cscRecHits.push_back(*rechit);
         
         LogDebug("CSC") << "found " << cscRecHits.size() << " rechit in this chamber.";
-        
-        std::string chType[] = {"ME1/a", "ME1/b", "ME1/1", "ME1/2",
-            "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1"};
-        unsigned int algoNum;
-        for(algoNum=0; algoNum<ntypes; algoNum++) {
-		
-            if (chamber->specs()->chamberTypeName() == chType[algoNum])
-                break;
-        }
 				
         // given the chamber select the right algo...
-        CSCSegmentCollection rhv = algos_[algoNum]->run(chamber, cscRecHits);
+        CSCSegmentCollection rhv = algoMap[chamber->specs()->chamberTypeName()]->run(chamber, cscRecHits);
 	  
         // Add the segments to master collection !!!
         LogDebug("CSC") << "Total number of segments found: " << rhv.size() <<std::endl;

@@ -1,7 +1,8 @@
 #include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoSK.h>
-#include <Geometry/CSCGeometry/interface/CSCLayer.h>
 
+#include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
+#include <Geometry/Vector/interface/GlobalPoint.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
@@ -14,6 +15,8 @@
 CSCSegAlgoSK::CSCSegAlgoSK(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps),
 	myName("CSCSegAlgoSK") {
 	
+    debugInfo = ps.getUntrackedParameter<bool>("verboseInfo");
+    
 	dRPhiMax       = ps.getParameter<double>("dRPhiMax");
 	dPhiMax        = ps.getParameter<double>("dPhiMax");
 	dRPhiFineMax   = ps.getParameter<double>("dRPhiFineMax");
@@ -31,6 +34,11 @@ CSCSegAlgoSK::CSCSegAlgoSK(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
    	   << "chi2Max      = " << chi2Max << '\n'
    	   << "wideSeg      = " << wideSeg << '\n'
    	   << "minLayersApart = " << minLayersApart << std::endl;
+}
+
+CSCSegmentCollection CSCSegAlgoSK::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
+    theChamber = aChamber; 
+    return buildSegments(rechits); 
 }
 
 CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
@@ -57,8 +65,7 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
         }
     }
 
-    bool debug = false; //FIX !!!
-    if (debug) {
+    if (debugInfo) {
         // dump after sorting
         dumpHits(rechits);
     }
@@ -143,7 +150,20 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
                     segok = isSegmentGood(rechits);
                     if (segok) {
                         flagHitsAsUsed(rechits, used);
-                        passToRecDet(segments);	
+                        // Copy the proto_segment and its properties inside a CSCSegment.
+                        // Then fill the segment vector..
+	
+                        if (proto_segment.empty()) {
+		
+                            LogDebug("CSC") << "No segment has been found !!!\n";
+                        }	
+                        else {
+		
+                            AlgebraicSymMatrix errors = calculateError();	
+                            CSCSegment temp(proto_segment, theOrigin, theDirection, errors, theChi2); //FIX
+                            LogDebug("CSC") << "Found a segment !!!\n";
+                            segments.push_back(temp);	
+                        }
                     }
                 }  //   h1 & h2 close
 
@@ -322,25 +342,6 @@ void CSCSegAlgoSK::flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber,
                 (h1.cscDetId().layer() == h2.cscDetId().layer()))				// FIX 
             used[iu-ib] = true;
         }
-    }
-}
-
-void CSCSegAlgoSK::passToRecDet(CSCSegmentCollection& segments) {
-	
-    // Copy the proto_segment and its properties inside a CSCSegment.
-    // Then fill the segment vector..
-	
-    if (proto_segment.empty()) {
-		
-        LogDebug("CSC") << "No segment has been found !!!\n";
-        return;
-    }	
-    else {
-		
-        AlgebraicSymMatrix errors = calculateError();	
-        CSCSegment temp(proto_segment, theOrigin, theDirection, errors, theChi2); //FIX
-        LogDebug("CSC") << "Found a segment !!!\n";
-        segments.push_back(temp);	
     }
 }
 
@@ -679,12 +680,15 @@ bool CSCSegAlgoSK::hasHitOnLayer(int layer) const {
 bool CSCSegAlgoSK::replaceHit(const CSCRecHit2D& h, int layer) {
 	
     // replace a hit from a layer 
-       
-    ChamberHitContainer::iterator it = proto_segment.end();
-    if (it->cscDetId().layer() == layer)
-        proto_segment.pop_back();
-    	
-    return addHit(h, layer);				
+    ChamberHitContainer::iterator it;
+    for (it = proto_segment.begin(); it != proto_segment.end();) {
+        if (it->cscDetId().layer() == layer)
+            it = proto_segment.erase(it);
+        else
+            ++it;   
+    }
+    
+    return addHit(h, layer);				    
 }
 
 void CSCSegAlgoSK::compareProtoSegment(const CSCRecHit2D& h, int layer) {

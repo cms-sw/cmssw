@@ -4,6 +4,7 @@
 /** \class CSCSegmentBuilderPluginFactory
  *  Plugin factory for concrete CSCSegmentBuilder algorithms
  *
+ * \author Matteo Sani
  */
 
 #include <PluginManager/PluginFactory.h>

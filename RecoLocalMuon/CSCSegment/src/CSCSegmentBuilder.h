@@ -9,6 +9,8 @@
  * Configured via the Producer's ParameterSet. <BR>
  * Presume this might become an abstract base class one day. <BR>
  *
+ * \author Matteo Sani
+ *
  */
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
@@ -41,11 +43,8 @@ public:
 
 private:
 
-    /** Cache geometry for current event
-     */
-    unsigned int ntypes;
     const CSCGeometry* geom_;
-    std::vector<CSCSegmentAlgorithm*> algos_;
+    std::map<std::string, CSCSegmentAlgorithm*> algoMap;
 };
 
 #endif

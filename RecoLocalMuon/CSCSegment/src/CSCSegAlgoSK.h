@@ -20,14 +20,14 @@
  * Ported to C++ and improved: Rick.Wilkinson@cern.ch <BR>
  * Reimplemented in terms of layer index, and bug fix: Tim.Cox@cern.ch <BR>
  *
- * \author Various (see above)
- *
+ * \author Matteo Sani
+ *  Porting of the original algorithm from ORCA to CMSSW 2006-04-03
  */
 
-#include "RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h"
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
+#include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
+#include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 
-#include <Geometry/Vector/interface/GlobalPoint.h>
+//#include <Geometry/Vector/interface/GlobalPoint.h>
 
 #include <deque>
 #include <vector>
@@ -69,8 +69,7 @@ public:
     /**
      * Here we must implement the algorithm
      */
-    CSCSegmentCollection run(const CSCChamber* aChamber, ChamberHitContainer rechits) 
-        { theChamber = aChamber; return buildSegments(rechits); }
+    CSCSegmentCollection run(const CSCChamber* aChamber, ChamberHitContainer rechits); 
 
 private:
 
@@ -102,11 +101,6 @@ private:
      * Flag hits on segment as used
      */
     void flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber, BoolContainer& used) const;
-
-    /**
-     * Pass final segments to Event
-     */
-    void passToRecDet(CSCSegmentCollection& segments);
 		
     bool addHit(const CSCRecHit2D& hit, int layer);
     void updateParameters(void);
@@ -142,6 +136,7 @@ private:
     float chi2Max;
     float wideSeg;
     int minLayersApart;
+    bool debugInfo;
 };
 
 #endif
