@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/28 23:15:44 $
-// $Revision: 1.1 $
+// $Date: 2006/03/29 20:10:37 $
+// $Revision: 1.2 $
 //
 
 #include <vector>
@@ -19,11 +19,20 @@
 #include <cmath>
 
 #include "RecoTracker/RoadSearchTrackCandidateMaker/interface/RoadSearchTrackCandidateMakerAlgorithm.h"
+
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
-
 #include "DataFormats/Common/interface/OwnVector.h"
 
+#include "RecoTracker/TrackProducer/interface/TrackingRecHitLess.h"
+
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
@@ -58,6 +67,13 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     // take the first seed to fill in trackcandidate
     RoadSearchCloud::SeedRefs seeds = cloud->seeds();
     RoadSearchCloud::SeedRef ref = *(seeds.begin());
+
+    // sort recHits, done after getting seed because propagationDirection is needed
+    // get tracker geometry
+    edm::ESHandle<TrackerGeometry> tracker;
+    es.get<TrackerDigiGeometryRecord>().get(tracker);
+
+    recHits.sort(TrackingRecHitLess(((TrackingGeometry*)(&(*tracker))),ref->direction()));
 
     TrajectorySeed seed = *((*ref).clone());
     PTrajectoryStateOnDet state = *((*ref).startingState().clone());
