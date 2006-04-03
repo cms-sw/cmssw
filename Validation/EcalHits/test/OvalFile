@@ -1,0 +1,4 @@
+<config name="run tool" value="oval">
+<executable name="valid_ecal_simhit.csh"></executable>
+
+
