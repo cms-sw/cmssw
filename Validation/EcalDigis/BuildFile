@@ -1,0 +1,23 @@
+<use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/Track>
+<use name=SimDataFormats/Vertex>
+<use name=SimDataFormats/HepMCProduct>
+<use name=DataFormats/EcalDetId>
+<use name=FWCore/Framework>
+<use name=DQMServices/CoreROOT>
+<use name=boost>
+<use name=root>
+
+<flags SEAL_PLUGIN_NAME="ValidationEcalDigis">
+<export>
+   <lib name=ValidationEcalDigis>
+   <use name=SimDataFormats/CaloHit>      
+   <use name=SimDataFormats/Track>        
+   <use name=SimDataFormats/Vertex>       
+   <use name=SimDataFormats/HepMCProduct> 
+   <use name=DataFormats/EcalDetId>       
+   <use name=FWCore/Framework>            
+   <use name=DQMServices/CoreROOT>        
+   <use name=boost>                       
+   <use name=root>                        
+</export>

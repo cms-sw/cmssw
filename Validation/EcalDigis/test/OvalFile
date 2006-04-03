@@ -1,0 +1,9 @@
+<!===== ==========================================================
+ ! environment for EcalDigis validation
+ !===============================================================>
+
+<environment name=testsuite>
+
+<executable name=testsuite.csh>validation suite</executable>
+
+</environment>
