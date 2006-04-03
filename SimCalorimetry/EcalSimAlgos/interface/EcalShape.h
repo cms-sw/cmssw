@@ -5,20 +5,16 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
   
 /**
-
    \class EcalShape
-
    \brief  shaper for Ecal
-   
 */
-  
-
 class EcalShape : public CaloVShape
 {
 public:
   
+  /// ctor
   EcalShape();
-
+  /// dtor
   ~EcalShape(){}
   
   double operator () (double time_) const;
