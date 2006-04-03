@@ -1,0 +1,34 @@
+<use name=Foundation/PluginManager>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=SimDataFormats/TrackerValidation>
+<use name=SimDataFormats/HepMCProduct>
+<use name=DataFormats/DetId>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/DTSimAlgo>
+<use name=root>
+<use name=clhep>
+
+<flags SEAL_PLUGIN_NAME="ValidationTrackerHits">
+
+<export>
+ <lib name=ValidationTrackerHits>
+ <use name=Foundation/PluginManager>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/MessageLogger>
+ <use name=SimG4CMS/Tracker>
+ <use name=root>
+ <use name=SimDataFormats/TrackerValidation>
+ <use name=SimDataFormats/HepMCProduct>
+ <use name=DataFormats/DetId>
+ <use name=Geometry/CommonDetUnit>
+ <use name=Geometry/DTSimAlgo>
+ <use name=root>
+ <use name=clhep>
+</export>
+
+<use name=SimG4CMS/Tracker>
+<use name=root>
+
