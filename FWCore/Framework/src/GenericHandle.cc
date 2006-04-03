@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Mar 30 15:48:37 EST 2006
-// $Id$
+// $Id: GenericHandle.cc,v 1.1 2006/03/31 00:28:52 chrjones Exp $
 //
 
 // system include files
@@ -67,5 +67,4 @@ edm::Event::getByLabel<GenericObject>(std::string const& label,
   BasicHandle bh = this->getByLabel_(TypeID(result.type().TypeInfo()), label, productInstanceName);
   gotProductIDs_.push_back(bh.id());
   convert_handle(bh, result);  // throws on conversion error
-}
 }
