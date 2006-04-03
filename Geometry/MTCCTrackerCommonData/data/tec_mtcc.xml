@@ -11,7 +11,7 @@
 <!--some exterior structure-->
 <!--the constant is used to place TEC_MTCCSupportBase and TECWheels, and should-->
 <!--be used for any future children of the root object TEC-->
-<Constant name="globalZOffset" value="-50*cm" />
+<Constant name="globalZOffset" value="0*cm" />
 
 <!--the following are referenced in tecwheeld_mtcc to adjust the positioning-->
 <!--of the petals-->
