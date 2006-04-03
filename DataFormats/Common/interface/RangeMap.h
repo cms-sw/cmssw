@@ -16,9 +16,9 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision$
+ * \version $Revision: 1.22 $
  *
- * $Id$
+ * $Id: RangeMap.h,v 1.22 2006/03/30 08:05:03 llista Exp $
  *
  */
 #include <map>
@@ -84,7 +84,7 @@ namespace edm {
       const_iterator begin, end;
       if ((r.first) == map_.end()){
 	begin = end = collection_.end();
-	return  make_pair(begin,end);
+	return  std::make_pair(begin,end);
       } else {
 	begin = collection_.begin() + (r.first)->second.first;
       }
@@ -93,7 +93,7 @@ namespace edm {
       }else{
 	end = collection_.begin() + (r.second)->second.first;
       }
-      return  make_pair(begin,end);
+      return  std::make_pair(begin,end);
     }
     /// get range of objects matching a specified identifier with a specified comparator.
     template<typename CMP> 
