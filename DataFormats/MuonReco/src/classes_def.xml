@@ -11,4 +11,6 @@
   <class name="edm::Ref<std::vector<reco::MuonExtra>,reco::MuonExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonExtra>,reco::MuonExtra> >"/>
   <class name="edm::RefProd<std::vector<reco::MuonExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::MuonExtra>,reco::MuonExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonExtra>,reco::MuonExtra> >"/>
+
+  <class name="reco::CombinedMuon" />
 </lcgdict>

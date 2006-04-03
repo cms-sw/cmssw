@@ -1,6 +1,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonExtra.h"
+#include "DataFormats/MuonReco/interface/CombinedMuon.h"
 #include <vector>
 
 namespace {
