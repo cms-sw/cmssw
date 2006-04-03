@@ -378,11 +378,15 @@ bool
 CPEFromDetPosition::isFlipped() const
 {
 // &&& Not sure what the need is -- ask Danek.
-//   float tmp1 = theDet->toGlobal( Local3DPoint(0.,0.,0.) ).perp();
-//   float tmp2 = theDet->toGlobal( Local3DPoint(0.,0.,1.) ).perp();
-//   if ( tmp2<tmp1 ) return true;
-//   else return false;
-  return false;    // &&& TEMPORARY HACK
+  //  float tmp1 = theDet->toGlobal( Local3DPoint(0.,0.,0.) ).perp();
+  //   float tmp2 = theDet->toGlobal( Local3DPoint(0.,0.,1.) ).perp();
+  //   if ( tmp2<tmp1 ) return true;
+  // else return false;
+  float tmp1 = theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
+  float tmp2 = theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
+  //cout << " 1: " << tmp1 << " 2: " << tmp2 << endl;
+  if ( tmp2<tmp1 ) return true;
+  else return false;    
 }
 
 
