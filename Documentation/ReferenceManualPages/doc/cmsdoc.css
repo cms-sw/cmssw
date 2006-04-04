@@ -1,5 +1,13 @@
 tt {
-  color: #a030ff;
+  color: #2000b0;
+  background-color: #ffffff;
+  font-family: "Courier New", courier, monospace;
+  font-size: 10pt;
+  font-weight: bold;
+}
+
+code {
+  color: #2000b0;
   background-color: #ffffff;
   font-family: "Courier New", courier, monospace;
   font-size: 10pt;
