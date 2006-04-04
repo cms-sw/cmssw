@@ -162,6 +162,7 @@ namespace edm {
       targetPtr->replaceWith(replaceNode);
     }
 
+
     NodePtr ParseResultsTweaker::findInPath(const string & path)
     {
       typedef boost::char_separator<char>   separator_t;
@@ -272,6 +273,6 @@ namespace edm {
     }
 
     
-  }
+  }  // pset namespace
+} // edm namespace
 
-} 
