@@ -1,6 +1,4 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
-#include "TH1F.h"
-#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 
 HcalDataFormatMonitor::HcalDataFormatMonitor() {}
 
@@ -9,24 +7,12 @@ HcalDataFormatMonitor::~HcalDataFormatMonitor() {}
 void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
 
+    
   if ( m_dbe ) {
     m_dbe->setCurrentFolder("Hcal/DataFormatMonitor");
-    m_meDCC_ERRWD =  m_dbe->book1D("DataFormat Error Words","DataFormat Error Words",12,0,12);
-    MonitorElementRootH1* me_ = (MonitorElementRootH1*)m_meDCC_ERRWD;
-    ((TH1F*)(me_->operator->()))->GetXaxis()->SetBinLabel(1,"Overflow Err");
-    ((TH1F*)(me_->operator->()))->GetXaxis()->SetBinLabel(2,"Buffer Busy");
-    ((TH1F*)(me_->operator->()))->GetXaxis()->SetBinLabel(3,"Empty Event");
-    ((TH1F*)(me_->operator->()))->GetXaxis()->SetBinLabel(4,"Rejected L1A");
-    ((TH1F*)(me_->operator->()))->GetXaxis()->SetBinLabel(5,"Latency Err");
-    ((TH1F*)(me_->operator->()))->GetXaxis()->SetBinLabel(6,"Latency Warn");
-    ((TH1F*)(me_->operator->()))->GetXaxis()->SetBinLabel(7,"Optical Data");
-    ((TH1F*)(me_->operator->()))->GetXaxis()->SetBinLabel(8,"Clock Err");
-    ((TH1F*)(me_->operator->()))->GetXaxis()->SetBinLabel(9,"Bunch Err");
-    ((TH1F*)(me_->operator->()))->GetXaxis()->SetBinLabel(10,"??1");
-    ((TH1F*)(me_->operator->()))->GetXaxis()->SetBinLabel(11,"??2");
-    ((TH1F*)(me_->operator->()))->GetXaxis()->SetBinLabel(12,"??3");
+    m_DCC_ERRWD =  m_dbe->book1D("Data Format Error Words","Data Format Error Words",12,0,12);
+    m_ERR_MAP = m_dbe->book2D("Data Format Error Map","Data Format Error Map",59,-29.5,29.5,40,0,40);
   }
-
   m_fedUnpackList = ps.getParameter<vector<int> >("FEDs");
   m_firstFED = ps.getParameter<int>("HcalFirstFED");
   cout << "HcalDataFormatMonitor::setup  Will unpack FEDs ";
@@ -44,17 +30,17 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw)
 
   for (vector<int>::const_iterator i=m_fedUnpackList.begin(); i!=m_fedUnpackList.end(); i++) {
     const FEDRawData& fed = rawraw.FEDData(*i);
-    //   cout << "Processing FED " << *i << endl;
+    //    cout << "Data format monitor: Processing FED " << *i << endl;
     // look only at the potential ones, to save time.
     unpack(fed);
    }
 }
 
 void HcalDataFormatMonitor::unpack(const FEDRawData& raw){
-
+  
   // get the DataFormat header
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
-  //  int dccid=dccHeader->getSourceId()-f_offset;  
+  //  int dccid=dccHeader->getSourceId();  
   // check the summary status
   if(!dccHeader) return;
   // walk through the HTR data...
@@ -63,15 +49,15 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw){
     if (!dccHeader->getSpigotPresent(spigot)) continue;    
     dccHeader->getSpigotData(spigot,htr);
     // check
-    if (!htr.check()) continue;
-
-    // calculate "real" number of presamples
-    //    int nps=htr.getNPS()-f_start;
-
-    //    printf("Spigot: %d, dccid: %d, nps; %d, errorword 0x%x\n",spigot,dccid,nps,htr.getErrorsWord());
+    if (!htr.check() || htr.isHistogramEvent()) continue;
+    
     int err = htr.getErrorsWord();
     for(int i=0; i<12; i++)
-      m_meDCC_ERRWD->Fill(i,err&(0x01<<i));
+      m_DCC_ERRWD->Fill(i,err&(0x01<<i));    
+
+    if(err>0){
+      m_ERR_MAP->Fill(htr.readoutVMECrateId(),htr.htrSlot());
+    }
 
   }
   return;

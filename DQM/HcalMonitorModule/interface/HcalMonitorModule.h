@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2005/11/30 22:05:56 $
- * $Revision: 1.4 $
+ * $Date: 2006/01/03 19:49:45 $
+ * $Revision: 1.5 $
  * \author W. Fisher
  *
 */
@@ -24,6 +24,8 @@
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalPedestalMonitor.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include <memory>
 #include <iostream>
@@ -58,11 +60,14 @@ void endJob(void);
 private:
 
   int m_ievt;
+  int m_runNum;
   DaqMonitorBEInterface* m_dbe;
   
   MonitorElement* m_meStatus;
-  MonitorElement* m_meRun;
-  MonitorElement* m_meEvt;
+  MonitorElement* m_meRunNum;
+  MonitorElement* m_meRunType;
+  MonitorElement* m_meEvtNum;
+  MonitorElement* m_meEvtMask;
   
   HcalMonitorSelector*    m_evtSel;
   HcalDigiMonitor*        m_digiMon;
@@ -70,6 +75,8 @@ private:
   HcalRecHitMonitor*      m_rhMon;
   HcalPedestalMonitor*    m_pedMon;
   
+  bool m_monitorDaemon;
+
   string m_outputFile;
   ofstream m_logFile;
   

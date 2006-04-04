@@ -3,6 +3,9 @@
 <use name=DQMServices/CoreROOT>
 <use name=DataFormats/FEDRawData>
 <use name=DQM/HcalMonitorTasks>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/Records>
 <use name=boost>
 <use name=root>
 <export>
@@ -11,6 +14,9 @@
  <use name=DQMServices/CoreROOT>
  <use name=DataFormats/FEDRawData>	
  <use name=DQM/HcalMonitorTasks>
+ <use name=Geometry/CaloGeometry>
+ <use name=Geometry/CaloEventSetup>
+ <use name=Geometry/Records>
  <use name=boost>	
  <use name=root>
 </export>

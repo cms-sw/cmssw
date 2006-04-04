@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2005/12/08 21:18:16 $
- * $Revision: 1.5 $
+ * $Date: 2006/01/03 19:49:47 $
+ * $Revision: 1.6 $
  * \author W Fisher
  *
 */
@@ -18,10 +18,11 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     m_dbe = edm::Service<DaqMonitorBEInterface>().operator->();
     m_dbe->setVerbose(0);
   }
-
+  m_monitorDaemon = false;
   if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
     edm::Service<MonitorDaemon> daemon;
     daemon.operator->();
+    m_monitorDaemon = true;
   }
 
   m_outputFile = ps.getUntrackedParameter<string>("outputFile", "");
@@ -29,13 +30,28 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     cout << "Hcal Monitoring histograms will be saved to " << m_outputFile.c_str() << endl;
   }
   
+  m_runNum = 0;
+  m_meStatus=0;
+  m_meRunNum=0;
+  m_meRunType=0;
+  m_meEvtNum=0;
+  m_meEvtMask=0;
+  
   if ( m_dbe ) {
     m_dbe->setCurrentFolder("Hcal");
     m_meStatus  = m_dbe->bookInt("STATUS");
-    m_meRun     = m_dbe->bookInt("RUN");
-    m_meEvt     = m_dbe->book1D("EVT","EVT", 100,0,1000);
-  }
+    m_meRunNum  = m_dbe->bookInt("RUN NUMBER");
+    m_meRunType = m_dbe->bookInt("RUN TYPE");
+    m_meEvtNum  = m_dbe->bookInt("EVT NUMBER");
+    m_meEvtMask = m_dbe->bookInt("EVT MASK");
 
+    m_meStatus->Fill(-1);
+    m_meRunNum->Fill(0);
+    m_meRunType->Fill(-1);
+    m_meEvtNum->Fill(-1);
+    m_meEvtMask->Fill(-1);
+  }
+  
   m_evtSel = new HcalMonitorSelector(ps);
   m_digiMon = NULL;
   m_dfMon = NULL;
@@ -79,35 +95,46 @@ HcalMonitorModule::~HcalMonitorModule(){
 void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   m_ievt = 0;
   if ( m_meStatus ) m_meStatus->Fill(0);
+  if ( m_meEvtNum ) m_meEvtNum->Fill(m_ievt);
+  if ( m_monitorDaemon ) sleep(15);
+
 }
 
 void HcalMonitorModule::endJob(void) {
 
   cout << "HcalMonitorModule: analyzed " << m_ievt << " events" << endl;
 
+  if ( m_meStatus ) m_meStatus->Fill(2);
+  if ( m_meRunNum) m_meRunNum->Fill(m_runNum); //???
+  if ( m_meEvtNum ) m_meEvtNum->Fill(m_ievt);
+  if ( m_monitorDaemon ) sleep(45);
+
   if(m_digiMon!=NULL) m_digiMon->done();
   if(m_dfMon!=NULL) m_dfMon->done();
   if(m_rhMon!=NULL) m_rhMon->done();
   if(m_pedMon!=NULL) m_pedMon->done();
 
-  if ( m_meStatus ) m_meStatus->Fill(2);
   if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(m_outputFile);
-
-  //  usleep(100);
 }
 
 void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
 
   m_ievt++;
+  m_evtSel->processEvent(e);
+  int evtMask = m_evtSel->getEventMask();
+  m_runNum = m_evtSel->getRunNumber();
+  
+  // To get information from the event setup, you must request the "Record"
+  // which contains it and then extract the object you need
+  edm::ESHandle<CaloGeometry> geometry;
+  eventSetup.get<IdealGeometryRecord>().get(geometry);
 
   if ( m_dbe ){ 
     m_meStatus->Fill(1);
-    m_meRun->Fill(14316);
-    m_meEvt->Fill(m_ievt,m_ievt);
+    m_meRunNum->Fill(m_runNum);  ///????
+    m_meEvtNum->Fill(m_ievt);
+    m_meEvtMask->Fill(evtMask);
   }
-
-  m_evtSel->processEvent(e);
-  int evtMask = m_evtSel->getEventMask();
 
   /////Digi monitor stuff
   if((m_digiMon != NULL) && (evtMask&DO_HCAL_DIGIMON)){
@@ -155,7 +182,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if(m_ievt%1000 == 0)
     cout << "HcalMonitorModule: analyzed " << m_ievt << " events" << endl;
 
-  //  sleep(2);
   return;
 }
 

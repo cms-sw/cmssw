@@ -6,8 +6,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2005/11/14 17:17:35 $
-  * $Revision: 1.3 $
+  * $Date: 2005/11/30 22:05:36 $
+  * $Revision: 1.4 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -35,7 +35,12 @@ private:  ///Monitoring elements
     MonitorElement* QIE_DV;
     MonitorElement* ERR_MAP_GEO;
     MonitorElement* ERR_MAP_ELEC;
+    MonitorElement* OCC_MAP_GEO;
+    MonitorElement* OCC_MAP_ELEC;
+
   } hbHists, hfHists, hoHists;
+
+  int m_occThresh;
 
 };
 

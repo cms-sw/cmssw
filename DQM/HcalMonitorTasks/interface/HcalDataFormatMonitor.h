@@ -10,11 +10,13 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
+#include "TH1F.h"
+#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 
 /** \class Hcaldataformatmonitor
   *  
-  * $Date: 2005/11/17 17:55:35 $
-  * $Revision: 1.2 $
+  * $Date: 2006/02/02 16:32:12 $
+  * $Revision: 1.3 $
   * \author W. Fisher - FNAL
   */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -31,8 +33,9 @@ private: /// Data accessors
   int m_firstFED;
 
 private:  ///Monitoring elements
-  MonitorElement* m_meDCC_ERRWD;
-  MonitorElement* m_meDCC_FMT;
+
+  MonitorElement* m_ERR_MAP;
+  MonitorElement* m_DCC_ERRWD;
   
 };
 

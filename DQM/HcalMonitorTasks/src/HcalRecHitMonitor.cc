@@ -2,6 +2,7 @@
 
 HcalRecHitMonitor::HcalRecHitMonitor() {
   m_doPerChannel = false;
+  m_occThresh = 1.0;
 }
 
 HcalRecHitMonitor::~HcalRecHitMonitor() {}
@@ -12,10 +13,10 @@ namespace HcalRecHitPerChan{
   inline void perChanHists(int id, const RecHit& rhit, std::map<HcalDetId, MonitorElement*> &toolE, std::map<HcalDetId, MonitorElement*> &toolT, DaqMonitorBEInterface* dbe) {
     
     std::map<HcalDetId,MonitorElement*>::iterator _mei;
-    string type = "HB/HE";
+    string type = "HBHE";
     if(dbe) dbe->setCurrentFolder("Hcal/RecHitMonitor/HBHE");
     if(id==0) { 
-      type = "HB/HE"; 
+      type = "HBHE"; 
       if(dbe) dbe->setCurrentFolder("Hcal/RecHitMonitor/HBHE");
     }
     else if(id==1) { 
@@ -36,7 +37,7 @@ namespace HcalRecHitPerChan{
     else{
       if(dbe){
 	char name[1024];
-	sprintf(name,"%s RecHit Energy, ieta=%d iphi=%d depth=%d",type.c_str(),rhit.id().ieta(),rhit.id().iphi(),rhit.id().depth());
+	sprintf(name,"%s RecHit Energy ieta=%d iphi=%d depth=%d",type.c_str(),rhit.id().ieta(),rhit.id().iphi(),rhit.id().depth());
 	toolE[rhit.id()] =  dbe->book1D(name,name,100,0,500); 
 	toolE[rhit.id()]->Fill(rhit.energy());
       }
@@ -51,7 +52,7 @@ namespace HcalRecHitPerChan{
     else{
       if(dbe){
 	char name[1024];
-	sprintf(name,"%s RecHit Time, ieta=%d iphi=%d depth=%d",type.c_str(),rhit.id().ieta(),rhit.id().iphi(),rhit.id().depth());
+	sprintf(name,"%s RecHit Time ieta=%d iphi=%d depth=%d",type.c_str(),rhit.id().ieta(),rhit.id().iphi(),rhit.id().depth());
 	toolT[rhit.id()] =  dbe->book1D(name,name,100,0,500); 
 	toolT[rhit.id()]->Fill(rhit.time());
       }
@@ -66,27 +67,33 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface
   if ( ps.getUntrackedParameter<bool>("RecHitsPerChannel", false) ) {
     m_doPerChannel = true;
   }
+  
+  m_occThresh = ps.getUntrackedParameter<double>("RecHitOccThresh", 1.0);
+  cout << "RecHit occupancy threshold set to " << m_occThresh << endl;
 
   if ( m_dbe != NULL) {
 
     m_dbe->setCurrentFolder("Hcal/RecHitMonitor");
     m_meRECHIT_E_all =  m_dbe->book1D("RecHit Total Energy","RecHit Total Energy",100,0,2000);
-    
+    m_meOCC_MAP_all_GEO  = m_dbe->book2D("RecHit Geo Occupancy Map","RecHit Geo Occupancy Map",59,-29.5,29.5,40,0,40);
+
     m_dbe->setCurrentFolder("Hcal/RecHitMonitor/HBHE");
-    m_meRECHIT_E_hb_tot =  m_dbe->book1D("HB/HE RecHit Total Energy","HB/HE RecHit Total Energy",100,0,2000);
-    m_meRECHIT_E_hb_all =  m_dbe->book1D("HB/HE RecHit Energies","HB/HE RecHit Energies",100,0,1000);
-    m_meRECHIT_T_hb_tot =  m_dbe->book1D("HB/HE RecHit Times","HB/HE RecHit Times",100,0,500);
+    m_meRECHIT_E_hb_tot =  m_dbe->book1D("HBHE RecHit Total Energy","HBHE RecHit Total Energy",100,0,2000);
+    m_meRECHIT_E_hb_all =  m_dbe->book1D("HBHE RecHit Energies","HBHE RecHit Energies",100,0,1000);
+    m_meRECHIT_T_hb_tot =  m_dbe->book1D("HBHE RecHit Times","HBHE RecHit Times",100,0,500);
+    m_meOCC_MAP_hb_GEO  = m_dbe->book2D("HBHE RecHit Geo Occupancy Map","RecHit Geo Occupancy Map",59,-29.5,29.5,40,0,40);
 
     m_dbe->setCurrentFolder("Hcal/RecHitMonitor/HF");
     m_meRECHIT_E_hf_tot =  m_dbe->book1D("HF RecHit Total Energy","HF RecHit Total Energy",100,0,2000);
     m_meRECHIT_E_hf_all =  m_dbe->book1D("HF RecHit Energies","HF RecHit Energies",100,0,1000);
     m_meRECHIT_T_hf_tot =  m_dbe->book1D("HF RecHit Times","HF RecHit Times",100,0,500);
+    m_meOCC_MAP_hf_GEO  = m_dbe->book2D("HF RecHit Geo Occupancy Map","RecHit Geo Occupancy Map",59,-29.5,29.5,40,0,40);
 
     m_dbe->setCurrentFolder("Hcal/RecHitMonitor/HO");
     m_meRECHIT_E_ho_tot =  m_dbe->book1D("HO RecHit Total Energy","HO RecHit Total Energy",100,0,2000);
     m_meRECHIT_E_ho_all =  m_dbe->book1D("HO RecHit Energies","HO RecHit Energies",100,0,1000);
     m_meRECHIT_T_ho_tot =  m_dbe->book1D("HO RecHit Times","HO RecHit Times",100,0,500);
-
+    m_meOCC_MAP_ho_GEO  = m_dbe->book2D("HO RecHit Geo Occupancy Map","RecHit Geo Occupancy Map",59,-29.5,29.5,40,0,40);
   }
 
   return;
@@ -101,6 +108,10 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits, const H
   for (_ib=hbHits.begin(); _ib!=hbHits.end(); _ib++) { // loop over all hits
     //    if(fabs(_ib->id().ieta())>14) continue;
     m_meRECHIT_E_hb_all->Fill(_ib->energy());
+    if(_ib->energy()>m_occThresh){
+      m_meOCC_MAP_hb_GEO->Fill(_ib->id().ieta(),_ib->id().ieta());
+      m_meOCC_MAP_all_GEO->Fill(_ib->id().ieta(),_ib->id().ieta());      
+    }
     tot += _ib->energy();
     m_meRECHIT_T_hb_tot->Fill(_ib->time());
     if(m_doPerChannel) HcalRecHitPerChan::perChanHists<HBHERecHit>(0,*_ib,m_meRECHIT_E_hb,m_meRECHIT_T_hb,m_dbe);
@@ -112,6 +123,10 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits, const H
   for (_io=hoHits.begin(); _io!=hoHits.end(); _io++) { // loop over all hits
     //    if(fabs(_io->id().ieta())>14) continue;
     m_meRECHIT_E_ho_all->Fill(_io->energy());
+    if(_io->energy()>m_occThresh){
+      m_meOCC_MAP_ho_GEO->Fill(_io->id().ieta(),_io->id().ieta());
+      m_meOCC_MAP_all_GEO->Fill(_io->id().ieta(),_io->id().ieta());      
+    }
     tot += _io->energy();
     m_meRECHIT_T_ho_tot->Fill(_io->time());
     if(m_doPerChannel) HcalRecHitPerChan::perChanHists<HORecHit>(1,*_io,m_meRECHIT_E_ho,m_meRECHIT_T_ho,m_dbe);
@@ -123,7 +138,11 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits, const H
   for (_if=hfHits.begin(); _if!=hfHits.end(); _if++) { // loop over all hits
     //    if(fabs(_if->id().ieta())>14) continue;
     m_meRECHIT_E_hf_all->Fill(_if->energy());
-     tot += _if->energy();
+    if(_if->energy()>m_occThresh){
+      m_meOCC_MAP_hf_GEO->Fill(_if->id().ieta(),_if->id().ieta());
+      m_meOCC_MAP_all_GEO->Fill(_if->id().ieta(),_if->id().ieta());      
+    }
+    tot += _if->energy();
     m_meRECHIT_T_hf_tot->Fill(_if->time());
     if(m_doPerChannel) HcalRecHitPerChan::perChanHists<HFRecHit>(2,*_if,m_meRECHIT_E_hf,m_meRECHIT_T_hf,m_dbe);
   }

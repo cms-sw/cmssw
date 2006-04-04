@@ -1,25 +1,33 @@
 <use name=root>
 <use name=boost>
 <use name=DataFormats/HcalRecHit>
-<use name=TBDataFormats/HcalTBObjects>
 <use name=DataFormats/HcalDigi>
+<use name=TBDataFormats/HcalTBObjects>
 <use name=EventFilter/HcalRawToDigi>
-<use name=DQMServices/CoreROOT>
 <use name=CalibFormats/HcalObjects>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
 <use name=CalibCalorimetry/HcalAlgos>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=DQMServices/NodeROOT>
+<use name=DQMServices/CoreROOT>
+<use name=DQMServices/UI>
+
+
 <export>
   <lib name=DQMHcalMonitorTasks>
   <use name=root>
   <use name=boost>
   <use name=DataFormats/HcalRecHit>
-  <use name=TBDataFormats/HcalTBObjects>
   <use name=DataFormats/HcalDigi>
+  <use name=TBDataFormats/HcalTBObjects>
   <use name=EventFilter/HcalRawToDigi>
-  <use name=DQMServices/CoreROOT>
   <use name=CalibFormats/HcalObjects>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
   <use name=CalibCalorimetry/HcalAlgos>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=DQMServices/NodeROOT>
+  <use name=DQMServices/CoreROOT>
+  <use name=DQMServices/UI>
 </export>
