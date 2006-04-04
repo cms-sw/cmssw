@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2005/07/26 15:10:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/14 22:41:39 $
+ *  $Revision: 1.2 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -260,6 +260,18 @@ unsigned int HcalHTRData::getOrbitNumber() const {
 unsigned int HcalHTRData::getSubmodule() const {
   return (m_formatVersion==-1)?(m_rawConst[3]&0xFF):(m_rawConst[3]&0x3FF);
 }
+unsigned int HcalHTRData::htrSlot() const{
+  const unsigned int smid = getSubmodule();
+  return ((smid>>1)&0x1F);
+} 
+unsigned int HcalHTRData::htrTopBottom() const{
+  const unsigned int smid = getSubmodule();
+  return (smid&0x01);
+} 
+unsigned int HcalHTRData::readoutVMECrateId() const{
+  const unsigned int smid = getSubmodule();
+  return ((smid>>6)&0x1F);
+} 
 bool HcalHTRData::isCalibrationStream() const {
   return (m_formatVersion==-1)?(false):(m_rawConst[2]&0x4000);
 }

@@ -8,8 +8,8 @@
  *  Since this class requires external specification of the length of the data, it is implemented 
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2005/07/26 15:10:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/14 22:38:56 $
+ *  $Revision: 1.2 $
  *  \author J. Mans - UMD
  */
 
@@ -88,6 +88,15 @@ class HcalHTRData {
   unsigned int getOrbitNumber() const;
   /** \brief Get the HTR submodule number */
   unsigned int getSubmodule() const;
+  /** \brief HcalElectronicsId-style HTR slot */
+  /// get the htr slot
+  unsigned int htrSlot() const;  
+  /** \brief HcalElectronicsId-style HTR top/bottom (1=top/0=bottom) */
+  /// get the htr top/bottom (1=top/0=bottom)
+  unsigned int htrTopBottom() const;
+  /** \brief HcalElectronicsId-style VME crate number */
+  /// get the readout VME crate number
+  unsigned int readoutVMECrateId() const;
   /** \brief Is this event a calibration-stream event? */
   bool isCalibrationStream() const;
   /** \brief Is this event a pattern-ram event? */
