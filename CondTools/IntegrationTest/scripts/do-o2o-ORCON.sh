@@ -27,12 +27,12 @@ TAG=from_online
 # Online DB info
 ONLINE_DB=cmsomds
 ONLINE_DB_USER=cms_ecal
-ONLINE_DB_PASSWORD=********
+ONLINE_DB_PASSWORD=*********
 
 # Offline DB info
 OFFLINE_DB=orcon
 OFFLINE_DB_USER=cms_cond_ecal
-OFFLINE_DB_PASSWORD=*******
+OFFLINE_DB_PASSWORD=*********
 OFFLINE_CONNECT=oracle://${OFFLINE_DB}/${OFFLINE_DB_USER}
 MVGRP=ECALGRP
 
@@ -66,23 +66,37 @@ export CORAL_AUTH_PASSWORD=$OFFLINE_DB_PASSWORD
 ###
 
 # Transform payload data
+T1=`date +%s`
 echo -n "Updating payload MVs..." >> $LOG;
 echo "exec dbms_refresh.refresh('${MVGRP}');" | sqlplus -S ${OFFLINE_DB_USER}/${OFFLINE_DB_PASSWORD}@${OFFLINE_DB} 2>> $LOG
+T2=`date +%s`
+T_JOB=$(($T2-$T1))
+echo -n "($T_JOB s)" >> $LOG;
+
 
 # Poolify offline objects
+T1=`date +%s`
 echo -n "Registering to POOL..." >> $LOG;
 setup_pool_database $OBJECT_NAME \
                     $OBJECT_LIBRARY \
                     $OFFLINE_CONNECT \
                     $MAPPING_FILE -o $O2ODIR 2>>$LOG
+T2=`date +%s`
+T_JOB=$(($T2-$T1))
+echo -n "($T_JOB s)" >> $LOG;
 
 # Assign iov
+T1=`date +%s`
 echo -n "Assigning IOV..." >> $LOG;
 cmscond_build_iov -c $OFFLINE_CONNECT \
                   -d $OBJECT_LIBRARY \
                   -t $OBJECT_TABLE \
                   -o $OBJECT_NAME \
                   -a $TAG 2>>$LOG
+T2=`date +%s`
+T_JOB=$(($T2-$T1))
+echo -n "($T_JOB s)" >> $LOG;
+
 
 # Log the duration of the O2O
 T_FINISH=`date +%s`;
