@@ -2,7 +2,7 @@
 //
 // see header file for documentation
 //
-// $Id: HLTSimpleJet.cc,v 1.2 2006/03/23 16:34:01 gruen Exp $
+// $Id: HLTSimpleJet.cc,v 1.3 2006/03/27 14:42:42 gruen Exp $
 //
 
 #include "HLTrigger/HLTcore/interface/HLTSimpleJet.h"
@@ -10,8 +10,8 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DataFormats/JetObjects/interface/CaloJetCollection.h"
-#include "DataFormats/JetObjects/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
 //
 // constructors and destructor
