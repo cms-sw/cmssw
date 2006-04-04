@@ -20,7 +20,7 @@ class TECLayer : public ForwardDetLayer{
   
   // GeometricSearchDet interface
   
-  virtual vector<const GeomDet*> basicComponents() const;
+  virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
 
   virtual vector<const GeometricSearchDet*> components() const;
   
@@ -88,6 +88,7 @@ class TECLayer : public ForwardDetLayer{
 
   vector<const TECPetal*> thePetals;
   vector<const GeometricSearchDet*> theComponents;
+  vector<const GeomDet*> theBasicComps;
   vector<const TECPetal*> theFrontPetals;
   vector<const TECPetal*> theBackPetals;
 

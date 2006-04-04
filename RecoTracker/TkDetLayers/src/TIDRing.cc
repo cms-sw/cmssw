@@ -42,10 +42,6 @@ TIDRing::~TIDRing(){
 
 } 
 
-vector<const GeomDet*> 
-TIDRing::basicComponents() const{
-  return theDets;
-}
   
 pair<bool, TrajectoryStateOnSurface>
 TIDRing::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 

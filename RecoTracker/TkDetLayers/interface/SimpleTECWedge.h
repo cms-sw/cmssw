@@ -16,7 +16,7 @@ class SimpleTECWedge : public TECWedge{
   ~SimpleTECWedge();
   
   // GeometricSearchDet interface
-  virtual vector<const GeomDet*> basicComponents() const;
+  virtual vector<const GeomDet*> basicComponents() const {return theDets;}
 
   virtual vector<const GeometricSearchDet*> components() const;
   
@@ -31,6 +31,7 @@ class SimpleTECWedge : public TECWedge{
 
  private:
   const GeomDet* theDet;
+  vector<const GeomDet*> theDets;
 
 };
 

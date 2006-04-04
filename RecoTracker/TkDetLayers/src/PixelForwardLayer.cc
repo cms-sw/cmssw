@@ -24,6 +24,11 @@ PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades):
   for(vector<const PixelBlade*>::const_iterator it=theBlades.begin();
       it!=theBlades.end();it++){
     theComps.push_back(*it);
+    vector<const GeomDet*> basicCompsVector = (**it).basicComponents();
+    for(vector<const GeomDet*>::const_iterator itBasic=basicCompsVector.begin();
+	itBasic!=basicCompsVector.end(); itBasic++){
+      theBasicComps.push_back( *itBasic );
+    }
   }
 
   //They should be already phi-ordered. TO BE CHECKED!!
@@ -60,11 +65,6 @@ PixelForwardLayer::~PixelForwardLayer(){
   }
 } 
 
-vector<const GeomDet*> 
-PixelForwardLayer::basicComponents() const{
-  cout << "temporary dummy implementation of PixelForwardLayer::basicComponents()!!" << endl;
-  return vector<const GeomDet*>();
-}
   
 pair<bool, TrajectoryStateOnSurface>
 PixelForwardLayer::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 

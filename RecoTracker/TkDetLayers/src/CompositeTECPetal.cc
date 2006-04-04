@@ -23,6 +23,11 @@ CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges,
 
   for(vector<const TECWedge*>::const_iterator it=theWedges.begin();it!=theWedges.end();it++){
     theComponents.push_back(*it);
+    vector<const GeomDet*> basicCompsVector = (**it).basicComponents();
+    for(vector<const GeomDet*>::const_iterator itBasic=basicCompsVector.begin();
+	itBasic!=basicCompsVector.end(); itBasic++){
+      theBasicComps.push_back( *itBasic );
+    }
   }
 
 
@@ -47,12 +52,6 @@ CompositeTECPetal::~CompositeTECPetal(){
 } 
 
 
-
-vector<const GeomDet*> 
-CompositeTECPetal::basicComponents() const{
-  cout << "temporary dummy implementation of CompositeTECPetal::basicComponents()!!" << endl;
-  return vector<const GeomDet*>();
-}
 
 vector<const GeometricSearchDet*> 
 CompositeTECPetal::components() const{

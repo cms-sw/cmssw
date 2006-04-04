@@ -18,7 +18,7 @@ class PixelForwardLayer : public ForwardDetLayer{
   
   // GeometricSearchDet interface
   
-  virtual vector<const GeomDet*> basicComponents() const;
+  virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
 
   virtual vector<const GeometricSearchDet*> components() const {return theComps;}
   
@@ -79,6 +79,7 @@ class PixelForwardLayer : public ForwardDetLayer{
 
   vector<const PixelBlade*> theBlades;
   vector<const GeometricSearchDet*> theComps;
+  vector<const GeomDet*> theBasicComps;
   int              theHelicity;    
 };
 

@@ -21,7 +21,7 @@ class TIBLayer : public BarrelDetLayer {
   
   // GeometricSearchDet interface
 
-  virtual vector<const GeomDet*> basicComponents() const;
+  virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
 
   virtual vector<const GeometricSearchDet*> components() const;
   
@@ -80,6 +80,7 @@ class TIBLayer : public BarrelDetLayer {
  private:
   vector<const TIBRing*> theRings;
   vector<const GeometricSearchDet*> theComponents;
+  vector<const GeomDet*> theBasicComps;
   vector<const TIBRing*> theInnerRings;
   vector<const TIBRing*> theOuterRings;
   

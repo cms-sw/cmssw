@@ -24,6 +24,11 @@ PixelBarrelLayer::PixelBarrelLayer(vector<const PixelRod*>& innerRods,
 
   for(vector<const PixelRod*>::const_iterator it=theRods.begin();it!=theRods.end();it++){
     theComponents.push_back(*it);
+    vector<const GeomDet*> basicCompsVector = (**it).basicComponents();
+    for(vector<const GeomDet*>::const_iterator itBasic=basicCompsVector.begin();
+	itBasic!=basicCompsVector.end(); itBasic++){
+      theBasicComps.push_back( *itBasic );
+    }
   }
 
 
@@ -52,12 +57,6 @@ PixelBarrelLayer::~PixelBarrelLayer(){
     delete *i;
   }
 } 
-
-vector<const GeomDet*> 
-PixelBarrelLayer::basicComponents() const{
-  cout << "temporary dummy implementation of PixelBarrelLayer::basicComponents()!!" << endl;
-  return vector<const GeomDet*>();
-}
   
 
 vector<const GeometricSearchDet*> 

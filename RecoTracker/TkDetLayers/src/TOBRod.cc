@@ -36,10 +36,6 @@ TOBRod::~TOBRod(){
   
 } 
 
-vector<const GeomDet*> 
-TOBRod::basicComponents() const{
-  return theDets;
-}
 
 vector<const GeometricSearchDet*> 
 TOBRod::components() const{

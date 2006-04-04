@@ -25,7 +25,7 @@ class PixelBarrelLayer : public RodBarrelLayer{
   
   // GeometricSearchDet interface
   
-  virtual vector<const GeomDet*> basicComponents() const;
+  virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
   
   virtual vector<const GeometricSearchDet*> components() const;
 
@@ -91,6 +91,7 @@ class PixelBarrelLayer : public RodBarrelLayer{
  private:
   vector<const PixelRod*> theRods;
   vector<const GeometricSearchDet*> theComponents;
+  vector<const GeomDet*> theBasicComps;
   vector<const PixelRod*> theInnerRods;
   vector<const PixelRod*> theOuterRods;
 

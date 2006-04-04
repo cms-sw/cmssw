@@ -19,7 +19,7 @@ class CompositeTECPetal : public TECPetal{
   ~CompositeTECPetal();
   
   // GeometricSearchDet interface  
-  virtual vector<const GeomDet*> basicComponents() const;
+  virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
 
   virtual vector<const GeometricSearchDet*> components() const;
   
@@ -71,6 +71,7 @@ class CompositeTECPetal : public TECPetal{
  private:
   vector<const TECWedge*> theWedges;
   vector<const GeometricSearchDet*> theComponents;
+  vector<const GeomDet*> theBasicComps;
   vector<const TECWedge*> theFrontWedges;
   vector<const TECWedge*> theBackWedges;
 

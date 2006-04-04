@@ -33,6 +33,15 @@ TIDLayer::TIDLayer(vector<const TIDRing*>& rings):
 
   if ( theRings.size() != 3) throw Genexception("Number of rings in TID layer is not equal to 3 !!");
 
+  for(vector<const TIDRing*>::const_iterator it=theRings.begin();
+      it!=theRings.end();it++){
+    vector<const GeomDet*> basicCompsVector = (**it).basicComponents();
+    for(vector<const GeomDet*>::const_iterator itBasic=basicCompsVector.begin();
+	itBasic!=basicCompsVector.end(); itBasic++){
+      theBasicComps.push_back( *itBasic );
+    }
+  }
+
 }
 
 
@@ -73,11 +82,6 @@ TIDLayer::~TIDLayer(){
 
 } 
 
-vector<const GeomDet*> 
-TIDLayer::basicComponents() const{
-  cout << "temporary dummy implementation of TIDLayer::basicComponents()!!" << endl;
-  return vector<const GeomDet*>();
-}
   
 pair<bool, TrajectoryStateOnSurface>
 TIDLayer::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 

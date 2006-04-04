@@ -36,10 +36,6 @@ CompositeTECWedge::~CompositeTECWedge(){
 
 } 
 
-vector<const GeomDet*> 
-CompositeTECWedge::basicComponents() const{
-  return theDets;
-}
 
 vector<const GeometricSearchDet*> 
 CompositeTECWedge::components() const{

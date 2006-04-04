@@ -21,6 +21,11 @@ TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
   
   for(vector<const TIBRing*>::const_iterator it=theRings.begin();it!=theRings.end();it++){
     theComponents.push_back(*it);
+    vector<const GeomDet*> basicCompsVector = (**it).basicComponents();
+    for(vector<const GeomDet*>::const_iterator itBasic=basicCompsVector.begin();
+	itBasic!=basicCompsVector.end(); itBasic++){
+      theBasicComps.push_back( *itBasic );
+    }
   }
 
   // initialize the surface
@@ -50,11 +55,6 @@ TIBLayer::~TIBLayer(){
   }
 } 
 
-vector<const GeomDet*> 
-TIBLayer::basicComponents() const{
-  cout << "temporary dummy implementation of TIBLayer::basicComponents()!!" << endl;
-  return vector<const GeomDet*>();
-}
 
 vector<const GeometricSearchDet*> 
 TIBLayer::components() const{

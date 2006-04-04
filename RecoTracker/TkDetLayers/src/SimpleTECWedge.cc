@@ -3,22 +3,17 @@
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-SimpleTECWedge::SimpleTECWedge(const GeomDet* theInputDet){
-  theDet = theInputDet;
-  vector<const GeomDet*> tmpV;
-  tmpV.push_back(theDet);
-  theDiskSector = ForwardDiskSectorBuilderFromDet()( tmpV );
+SimpleTECWedge::SimpleTECWedge(const GeomDet* theInputDet):
+  theDet(theInputDet)
+{
+  theDets.push_back(theDet);
+  theDiskSector = ForwardDiskSectorBuilderFromDet()( theDets );
 }
 
 SimpleTECWedge::~SimpleTECWedge(){
 
 } 
 
-vector<const GeomDet*> 
-SimpleTECWedge::basicComponents() const{
-  cout << "temporary dummy implementation of SimpleTECWedge::basicComponents()!!" << endl;
-  return vector<const GeomDet*>();
-}
 
 vector<const GeometricSearchDet*> 
 SimpleTECWedge::components() const{

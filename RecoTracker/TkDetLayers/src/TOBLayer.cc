@@ -26,6 +26,11 @@ TOBLayer::TOBLayer(vector<const TOBRod*>& innerRods,
   
   for(vector<const TOBRod*>::const_iterator it=theRods.begin();it!=theRods.end();it++){
     theComponents.push_back(*it);
+    vector<const GeomDet*> basicCompsVector = (**it).basicComponents();
+    for(vector<const GeomDet*>::const_iterator itBasic=basicCompsVector.begin();
+	itBasic!=basicCompsVector.end(); itBasic++){
+      theBasicComps.push_back( *itBasic );
+    }
   }
   
   
@@ -49,11 +54,6 @@ TOBLayer::~TOBLayer(){
   }
 } 
 
-vector<const GeomDet*> 
-TOBLayer::basicComponents() const{
-  cout << "temporary dummy implementation of TOBLayer::basicComponents()!!" << endl;
-  return vector<const GeomDet*>();
-}
 
 vector<const GeometricSearchDet*> 
 TOBLayer::components() const{

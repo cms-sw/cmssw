@@ -21,6 +21,11 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
 
   for(vector<const TECPetal*>::const_iterator it=thePetals.begin();it!=thePetals.end();it++){
     theComponents.push_back(*it);
+    vector<const GeomDet*> basicCompsVector = (**it).basicComponents();
+    for(vector<const GeomDet*>::const_iterator itBasic=basicCompsVector.begin();
+	itBasic!=basicCompsVector.end(); itBasic++){
+      theBasicComps.push_back( *itBasic );
+    }
   }
 
 
@@ -49,11 +54,6 @@ TECLayer::~TECLayer(){
   }
 } 
 
-vector<const GeomDet*> 
-TECLayer::basicComponents() const{
-  cout << "temporary dummy implementation of TECLayer::basicComponents()!!" << endl;
-  return vector<const GeomDet*>();
-}
 
 vector<const GeometricSearchDet*> 
 TECLayer::components() const{

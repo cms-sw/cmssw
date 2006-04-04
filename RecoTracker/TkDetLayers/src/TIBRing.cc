@@ -92,10 +92,6 @@ TIBRing::~TIBRing(){
 
 } 
 
-vector<const GeomDet*> 
-TIBRing::basicComponents() const{
-  return theDets;
-}
   
 pair<bool, TrajectoryStateOnSurface>
 TIBRing::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 

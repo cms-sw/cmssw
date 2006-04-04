@@ -17,7 +17,7 @@ class TIBRing : public GeometricSearchDet{
   // GeometricSearchDet interface
   virtual const BoundSurface& surface() const {return *theCylinder;}  
 
-  virtual vector<const GeomDet*> basicComponents() const;
+  virtual vector<const GeomDet*> basicComponents() const {return theDets;}
   
   virtual vector<const GeometricSearchDet*> components() const {
     return vector<const GeometricSearchDet*>();}

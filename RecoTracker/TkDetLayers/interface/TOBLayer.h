@@ -22,7 +22,7 @@ class TOBLayer : public RodBarrelLayer{
   
   // GeometricSearchDet interface
   
-  virtual vector<const GeomDet*> basicComponents() const;
+  virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
 
   virtual vector<const GeometricSearchDet*> components() const;
 
@@ -88,6 +88,7 @@ class TOBLayer : public RodBarrelLayer{
  private:
   vector<const TOBRod*> theRods;
   vector<const GeometricSearchDet*> theComponents;
+  vector<const GeomDet*> theBasicComps;
   vector<const TOBRod*> theInnerRods;
   vector<const TOBRod*> theOuterRods;
   
