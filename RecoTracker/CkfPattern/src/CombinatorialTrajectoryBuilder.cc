@@ -285,13 +285,5 @@ CombinatorialTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& tr
   //analyseMeasurements( result, traj);
 
   return result;
-
-
-
-
-  return vector<TrajectoryMeasurement>();
-
-
-
 }
 
