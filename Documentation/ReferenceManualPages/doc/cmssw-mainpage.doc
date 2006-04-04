@@ -12,7 +12,7 @@ This is the CMSSW mainpage
 <caption>
 </caption>
 <tr valign=top><th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th></tr>
-<tr>
+<tr class="odd">
   <td>
   \endhtmlonly \ref MuonPackages "Muon"   \htmlonly
   </td>
@@ -20,7 +20,7 @@ This is the CMSSW mainpage
   <td class="contact"><a href="mailto:">Nicola Amapane</a>,
        <a href="mailto:">Tim Cox</a>
 </tr>
-<tr>
+<tr class="even">
   <td>
   \endhtmlonly \ref CaloPackages "Calorimetry" \htmlonly
   </td>
@@ -29,7 +29,7 @@ This is the CMSSW mainpage
    <a href="mailto:Jeremy.Mans@cern.ch">Jeremiah Mans</a>
   </td>
 </tr>
-<tr>
+<tr class="odd">
   <td>
   \endhtmlonly \ref TrackerPackages "Tracker"   \htmlonly
   </td>
@@ -48,7 +48,7 @@ This is the CMSSW mainpage
 <caption>
 </caption>
 <tr valign=top><th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th></tr>
-<tr>
+<tr class="odd">
   <td>
   \endhtmlonly \ref CommonData "Common data formats"   \htmlonly
   </td>
@@ -57,7 +57,7 @@ This is the CMSSW mainpage
     <a href="mailto:">Luca Lista</a>,
     <a href="mailto:">William Tanenbaum</a>
 </tr>
-<tr>
+<tr class="even">
   <td>
   \endhtmlonly \ref RecoPackages "Reco data format"   \htmlonly
   </td>
@@ -65,14 +65,14 @@ This is the CMSSW mainpage
   <td class="contact"><a href="mailto:">Luca Lista</a>,
        <a href="mailto:">Tommaso Boccali</a>
 </tr>
-<tr>
+<tr class="odd">
   <td>
   \endhtmlonly \ref Reconstruction "Reconstruction"   \htmlonly
   </td>
   <td>CMS reconstruction sofware</td>
   <td class="contact"><a href="mailto:">Tommaso Boccali</a>
 </tr>
-<tr>
+<tr class="even">
   <td>
   \endhtmlonly \ref Simulation "Simulation Software" \htmlonly
   </td>
@@ -82,7 +82,7 @@ This is the CMSSW mainpage
     <a href="mailto:">Maya Stavrianakou</a>
   </td>
 </tr>
-<tr>
+<tr class="odd">
   <td>
   \endhtmlonly \ref PhysicsTools "Physics Tools" \htmlonly
   </td>
@@ -91,7 +91,6 @@ This is the CMSSW mainpage
   </td>
 </tr>
 </table>
-
 
 \endhtmlonly
 

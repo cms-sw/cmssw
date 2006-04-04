@@ -44,10 +44,18 @@ pre {
 }
 
 .doctable TH {
-  background-color: #e8ecf5; 
+  background-color: #B7CADE; 
   text-align: center; 
   font-weight: bold;
   vertical-align: top;
+}
+
+.odd  TD {
+  background-color: #f8f8fa;
+}
+
+.even  TD {
+  background-color: #eeeeff; 
 }
 
 .contact {
