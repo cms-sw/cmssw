@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
-
+#include <typeinfo>
 
 using namespace std;
 
@@ -15,6 +15,78 @@ namespace edm {
 
     Node::~Node() { }
 
+    void Node::replaceWith(const ReplaceNode *) {
+       throw edm::Exception(errors::Configuration)
+          << "No way to replace node " << name;
+    }
+
+
+    void Node::assertNotModified() const
+    {
+      if(isModified()) {
+       throw edm::Exception(errors::Configuration)
+          << "Cannot replace a node that has already been modified: " << name;
+      }
+    }
+
+    //-------------------------------------------------
+    // CompositeNode
+    //--------------------------------------------------
+
+    void CompositeNode::acceptForChildren(Visitor& v) const
+    {
+      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+        {
+          (*i)->accept(v);
+        }
+    }
+
+
+    void CompositeNode::print(ostream& ost) const
+    {
+      ost << "  {\n  ";
+      copy(nodes_->begin(),nodes_->end(),
+           ostream_iterator<NodePtr>(ost,"\n  "));
+      ost << "}\n";
+    }
+
+
+    void CompositeNode::setModified(bool value) {
+      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+      {
+        (*i)->setModified(value);
+      }
+    }
+
+
+    bool CompositeNode::isModified() const {
+      // see if any child is modified
+      bool result = modified_;
+      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      for(;(i!=e) &&  !result;++i)
+      {
+        result = result || (*i)->isModified();
+      }
+      return result;
+    }
+
+    NodePtr CompositeNode::findChild(const string & child)
+    {
+      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+      {
+         if((*i)->name == child) {
+           return *i;
+         }
+      }
+     
+      // uh oh.  Didn't find it. 
+      throw edm::Exception(errors::Configuration) 
+        << "Cannot find child " << child 
+        << " in composite node " << name;
+    }
     //--------------------------------------------------
     // UsingNode
     //--------------------------------------------------
@@ -28,12 +100,28 @@ namespace edm {
 
     void UsingNode::print(ostream& ost) const
     {
-      ost << "using " << name;
+      ost << "  using " << name;
     }
     
     void UsingNode::accept(Visitor& v) const
     {
       v.visitUsing(*this);
+    }
+
+    //--------------------------------------------------
+    // ReplaceNode
+    //--------------------------------------------------
+
+
+    void ReplaceNode::print(ostream& ost) const
+    {
+      ost << type() << " " << name << " with ";
+      value_->print(ost);
+    }
+
+    void ReplaceNode::accept(Visitor& v) const
+    {
+      throw edm::Exception(errors::LogicError,"Replace Nodes should always be processed by ParseResultsTweaker");
     }
 
     //--------------------------------------------------
@@ -49,7 +137,7 @@ namespace edm {
 
     void StringNode::print(ostream& ost) const
     {
-      ost << value_;
+      ost <<  value_;
     }
 
     void StringNode::accept(Visitor& v) const
@@ -83,6 +171,19 @@ namespace edm {
       v.visitEntry(*this);
     }
 
+    void EntryNode::replaceWith(const ReplaceNode * replaceNode) {
+      assertNotModified();
+      EntryNode * replacement = dynamic_cast<EntryNode*>(replaceNode->value_.get());
+      if(replacement == 0) {
+        throw edm::Exception(errors::Configuration)
+          << "Cannot replace entry " << name 
+          << " with " << replaceNode->type();
+      }
+      // replace the value, keep the type
+      value_ = replacement->value_;
+      setModified(true);
+    }
+    
     //--------------------------------------------------
     // VEntryNode
     //--------------------------------------------------
@@ -101,7 +202,7 @@ namespace edm {
     void VEntryNode::print(ostream& ost) const
     {
       const char* t = !tracked_ ? "" : "untracked ";
-      ost << t << type_ << " " << name << " = {\n";
+      ost << t << type_ << " " << name << " = {\n  ";
 
       if(!value_->empty())
 	{
@@ -111,13 +212,25 @@ namespace edm {
 	       ostream_iterator<string>(ost,", "));
 	  ost << *ie;
 	}
-      ost << "\n}\n";
+      ost << "\n  }\n";
     }
 
     void VEntryNode::accept(Visitor& v) const
     {
       v.visitVEntry(*this);
     }
+
+    void VEntryNode::replaceWith(const ReplaceNode * replaceNode) {
+      assertNotModified();
+      VEntryNode * replacement = dynamic_cast<VEntryNode*>(replaceNode->value_.get());
+      if(replacement == 0) {
+        throw edm::Exception(errors::Configuration)
+          << "Cannot replace entry vector" << name
+          << " with " << replaceNode->type();
+      }
+      // replace the value, keep the type
+      value_ = replacement->value_;
+      setModified(true);                                                                             }
 
     //--------------------------------------------------
     // PSetRefNode
@@ -150,32 +263,14 @@ namespace edm {
     //--------------------------------------------------
 
     ContentsNode::ContentsNode(NodePtrListPtr value, int line):
-      Node("", line),
-      value_(value)
+      CompositeNode("", value, line)
     { }
 
     string ContentsNode::type() const { return ""; }
 
-    void ContentsNode::print(ostream& ost) const
-    {
-      ost << "{\n";
-      copy(value_->begin(),value_->end(),
-	   ostream_iterator<NodePtr>(ost,"\n  "));
-      ost << "}\n";
-    }
-
     void ContentsNode::accept(Visitor& v) const
     {
       v.visitContents(*this);
-    }
-
-    void ContentsNode::acceptForChildren(Visitor& v) const
-    {
-      NodePtrList::const_iterator i(value_->begin()),e(value_->end());
-      for(;i!=e;++i)
-	{
-	  (*i)->accept(v);
-	}
     }
 
 
@@ -192,7 +287,7 @@ namespace edm {
       type_(t),
       value_(v,line),
       tracked_(tracked)
-    { }
+    {}
 
     string PSetNode::type() const { return type_; }
 
@@ -214,6 +309,22 @@ namespace edm {
     {
       //CDJ: should this be 'accept' or 'acceptForChildren' or both?
       value_.accept(v);
+    }
+
+    bool PSetNode::isModified() const {
+      return modified_ || value_.isModified();
+    }
+
+    void PSetNode::replaceWith(const ReplaceNode * replaceNode)
+    {
+      assertNotModified();
+       // the ReplaceNode had better contain a ContentsNodes
+      NodePtr contentsPtr = replaceNode->value_;
+      ContentsNode * contents = dynamic_cast<ContentsNode*>(contentsPtr.get());
+      assert(contents != 0);
+
+      value_ = *contents;
+      setModified(true);
     }
 
     //--------------------------------------------------
@@ -383,10 +494,9 @@ namespace edm {
     ModuleNode::ModuleNode(const string& typ, const string& instname,
 			   const string& classname, NodePtrListPtr nl,
 			   int line):
-      Node(instname, line),
+      CompositeNode(instname, nl, line),
       type_(typ),
-      class_(classname),
-      nodes_(nl)
+      class_(classname)
     { }
 
     string ModuleNode::type() const { return type_; }
@@ -394,10 +504,8 @@ namespace edm {
     void ModuleNode::print(ostream& ost) const
     {
       string output_name = ( name == "nameless" ? string() : name);
-      ost << type_ << " " << output_name << " = " << class_ << "\n{\n";
-      copy(nodes_->begin(),nodes_->end(),
-		ostream_iterator<NodePtr>(ost,"\n"));
-      ost << "\n}\n";
+      ost << type_ << " " << output_name << " = " << class_ << "\n";
+      CompositeNode::print(ost);
     }
 
     void ModuleNode::accept(Visitor& v) const
@@ -405,14 +513,17 @@ namespace edm {
       v.visitModule(*this);
     }
 
-    void ModuleNode::acceptForChildren(Visitor& v) const
-    {
-      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
-	{
-	  (*i)->accept(v);
-	}
+    void ModuleNode::replaceWith(const ReplaceNode * replaceNode) {
+      ModuleNode * replacement = dynamic_cast<ModuleNode *>(replaceNode->value_.get());
+      if(replacement == 0) {
+        throw edm::Exception(errors::Configuration)
+          << "Cannot replace this module with a non-module  " << name;
+      }
+      type_ = replacement->type_;
+      nodes_ = replacement->nodes_;
+      class_ = replacement->class_;
     }
+       
 
     // ---------------------------------------------
 

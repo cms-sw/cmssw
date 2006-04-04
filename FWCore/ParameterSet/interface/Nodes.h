@@ -20,12 +20,15 @@
 #include <vector>
 #include <string>
 
+//RICK TEMP
+#include <iostream>
+
 #include "boost/shared_ptr.hpp"
 namespace edm {
   namespace pset {
 
     struct Visitor;
-
+    struct ReplaceNode;
     // Base type for all nodes.  All nodes have a type associated
     // with them - this is basically the keyword that caused the
     // generation of this node.  All nodes have a name - this is the
@@ -33,7 +36,7 @@ namespace edm {
 
     struct Node
     {
-      Node(std::string const& n, int li) : name(n), line(li) { }
+      Node(std::string const& n, int li) : name(n), line(li), modified_(false) { }
       typedef boost::shared_ptr<Node> Ptr;
 
       virtual std::string type() const = 0;
@@ -44,8 +47,17 @@ namespace edm {
       virtual ~Node();
       virtual void accept(Visitor& v) const = 0;
 
+      virtual void setModified(bool value) {modified_ = value;}
+      /// throw an exception if this node is flagged as modified
+      void assertNotModified() const; 
+      virtual bool isModified() const {return modified_;}
+      /// throws an exception if they're not the same type
+      virtual void replaceWith(const ReplaceNode * replaceNode);
+
       std::string name;
       int         line;
+      // nodes can only be modified once, so the config files can be order-independent
+      bool modified_;
     };
 
     typedef boost::shared_ptr<Node>        NodePtr;
@@ -67,6 +79,25 @@ namespace edm {
       return ost;
     }
 
+    /** CompositeNode is meant as a base class */
+    struct CompositeNode : public Node {
+      CompositeNode(const std::string& name, NodePtrListPtr nodes, int line=-1)
+      : Node(name, line), nodes_(nodes) {}
+      // should have a copy ctor someday
+      virtual void acceptForChildren(Visitor& v) const;
+      virtual void print(std::ostream& ost) const;
+      // if this is flagged as modified, all subnodes are
+      virtual void setModified(bool value);
+      /// if any subnodes are modified, this counts as modified
+      virtual bool isModified() const;
+      /// finds a first-level subnode with this name
+      NodePtr findChild(const std::string & child);
+
+      NodePtrListPtr nodes_;
+    };
+
+
+
     /*
       -----------------------------------------
       Usings hold: using
@@ -79,6 +110,27 @@ namespace edm {
       virtual void print(std::ostream& ost) const;
       virtual void accept(Visitor& v) const;
     };
+
+
+   /*
+      -----------------------------------------
+      Replace : instructions for replacing the value of this node 
+    */
+
+    struct ReplaceNode : public Node
+    {
+      ReplaceNode(const std::string & type, const std::string& name, 
+                  NodePtr value, int line=-1)
+      : Node(name, line), type_(type), value_(value) {}
+      virtual std::string type() const {return type_;}
+      virtual void print(std::ostream& ost) const;
+      virtual void accept(Visitor& v) const;
+
+      std::string type_;
+      NodePtr value_;
+    };
+
+ 
 
     /*
       -----------------------------------------
@@ -110,6 +162,8 @@ namespace edm {
       virtual void print(std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
+      // keeps the orignal type and tracked-ness
+      virtual void replaceWith(const ReplaceNode *);
 
       std::string type_;
       std::string value_;
@@ -129,6 +183,9 @@ namespace edm {
       virtual void print(std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
+      // keeps the orignal type and tracked-ness
+      virtual void replaceWith(const ReplaceNode *);
+
 
       std::string type_;
       StringListPtr value_;
@@ -160,16 +217,11 @@ namespace edm {
       Contents hold: Nodes
     */
 
-    struct ContentsNode : public Node
+    struct ContentsNode : public CompositeNode
     {
       explicit ContentsNode(NodePtrListPtr value, int line=-1);
       virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
-
       virtual void accept(Visitor& v) const;
-      void acceptForChildren(Visitor& v) const;
-
-      NodePtrListPtr value_;
     };
 
     typedef boost::shared_ptr<ContentsNode> ContentsNodePtr;
@@ -188,9 +240,11 @@ namespace edm {
 	       int line=-1);
       virtual std::string type() const;
       virtual void print(std::ostream& ost) const;
+      virtual bool isModified() const;
 
       virtual void accept(Visitor& v) const;
       void acceptForChildren(Visitor& v) const;
+      virtual void replaceWith(const ReplaceNode * replaceNode);
 
       std::string type_;
       ContentsNode value_;
@@ -306,7 +360,7 @@ namespace edm {
       Modules hold: source (named/unnamed), modules
     */
 
-    struct ModuleNode : public Node
+    struct ModuleNode : public CompositeNode
     {
       ModuleNode(const std::string& type, const std::string& instname,
 		 const std::string& classname,
@@ -316,11 +370,10 @@ namespace edm {
       virtual void print(std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
-      void acceptForChildren(Visitor& v) const;
+      virtual void replaceWith(const ReplaceNode * replaceNode);
 
       std::string type_;
       std::string class_;
-      NodePtrListPtr nodes_;
     };
 
     // ------------------------------------------------
