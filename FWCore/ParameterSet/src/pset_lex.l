@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.10 2006/01/17 20:32:31 paterno Exp $
+ * $Id: pset_lex.l,v 1.11 2006/02/03 19:06:57 jbk Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -78,6 +78,7 @@ comment2        "//".*[\n]?
 "block"         { return BLOCK_tok; }
 "endpath"       { return ENDPATH_tok; }
 "using"         { return USING_tok; }
+"replace"       { return REPLACE_tok; }
 "module"        { return MODULE_tok; }
 "service"       { return SERVICE_tok; }
 "es_module"     { return ES_MODULE_tok; }
