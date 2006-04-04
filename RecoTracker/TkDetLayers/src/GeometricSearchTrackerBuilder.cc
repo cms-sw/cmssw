@@ -97,31 +97,7 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
   }
 
 
-  
-  vector<BarrelDetLayer*>  bl(thePxlBarLayers.begin(),thePxlBarLayers.end());
-  bl.insert(bl.end(),theTIBLayers.begin(),theTIBLayers.end());
-  bl.insert(bl.end(),theTOBLayers.begin(),theTOBLayers.end());
-  vector<ForwardDetLayer*> negFl(theNegPxlFwdLayers.begin(),theNegPxlFwdLayers.end());
-  negFl.insert(negFl.end(),theNegTIDLayers.begin(),theNegTIDLayers.end());
-  negFl.insert(negFl.end(),theNegTECLayers.begin(),theNegTECLayers.end());
-  vector<ForwardDetLayer*> posFl(thePosPxlFwdLayers.begin(),thePosPxlFwdLayers.end());
-  posFl.insert(posFl.end(),thePosTIDLayers.begin(),thePosTIDLayers.end());
-  posFl.insert(posFl.end(),thePosTECLayers.begin(),thePosTECLayers.end());
-
-
-  cout << "n pxlBarLayers: " << thePxlBarLayers.size() << endl;
-  cout << "n tibLayers:    " << theTIBLayers.size() << endl;
-  cout << "n tobLayers:    " << theTOBLayers.size() << endl;
-  cout << "n negPxlFwdLayers: " << theNegPxlFwdLayers.size() << endl;
-  cout << "n negPxlFwdLayers: " << thePosPxlFwdLayers.size() << endl;
-  cout << "n negTidLayers: " << theNegTIDLayers.size() << endl;
-  cout << "n posTidLayers: " << thePosTIDLayers.size() << endl;
-  cout << "n negTecLayers: " << theNegTECLayers.size() << endl;
-  cout << "n posTecLayers: " << thePosTECLayers.size() << endl;
-
-  cout << "n barreLayers:  " << bl.size() << endl;
-  cout << "n negforwardLayers: " << negFl.size() << endl;
-  cout << "n posForwardLayers: " << posFl.size() << endl;
-
-  return new GeometricSearchTracker(bl,negFl,posFl);
+  return new GeometricSearchTracker(thePxlBarLayers,theTIBLayers,theTOBLayers,
+				    theNegPxlFwdLayers,theNegTIDLayers,theNegTECLayers,
+				    thePosPxlFwdLayers,thePosTIDLayers,thePosTECLayers);
 }
