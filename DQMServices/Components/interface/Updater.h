@@ -25,7 +25,9 @@ namespace dqm
       
       Updater(MonitorUserInterface *the_mui);
       
-      ~Updater(){}
+      ~Updater()
+	{
+	}
       
       void registerObserver(dqm::UpdateObserver *);
 
@@ -34,9 +36,20 @@ namespace dqm
       // this is the function the thread will execute
       static void *start(void *pthis);
       
-      void setRunning(){running=true;}
-      bool checkRunning() const {return running;}
-      void setStopped(){running=false;}
+      void setRunning()
+	{ 
+	  running = true; 
+	}
+
+      bool checkRunning() const 
+	{
+	  return running;
+	}
+
+      void setStopped()
+	{
+	  running=false;
+	}
 
     };
 }

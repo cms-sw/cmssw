@@ -6,15 +6,31 @@
 
 using namespace std;
 
-DQMBaseClient::DQMBaseClient(xdaq::ApplicationStub *s, std::string name) : dqm::StateMachine(s),
-									   mui_(0), 
-									   upd_(0), name_(name),
-							 server_("localhost"),
-							 port_(9090)
+DQMBaseClient::DQMBaseClient(xdaq::ApplicationStub *s, 
+			     std::string name, 
+			     std::string server, 
+			     int port) 
+  : dqm::StateMachine(s)
 {
+  contextURL = getApplicationDescriptor()->getContextDescriptor()->getURL();
+  applicationURL = contextURL + "/" + getApplicationDescriptor()->getURN();
+
+  mui_    = 0;
+  upd_    = 0;
+  name_   = name;
+  server_ = server;
+  port_   = port;
+
   xgi::bind(this, &DQMBaseClient::Default, "Default");
   xgi::bind(this, &DQMBaseClient::general, "general");
+
   dqm::StateMachine::bind("fsm");
+
+  fireConfiguration(name_, server_, port_);
+}
+
+void DQMBaseClient::fireConfiguration(std::string name, std::string server, int port)
+{
   xdata::InfoSpace *sp = getApplicationInfoSpace();
   sp->fireItemAvailable("serverHost",&server_);
   sp->fireItemAvailable("serverPort",&port_);
@@ -27,19 +43,14 @@ void DQMBaseClient::Default(xgi::Input * in, xgi::Output * out ) throw (xgi::exc
 {
   *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict) << std::endl;
   *out << cgicc::html().set("lang", "en").set("dir","ltr") << std::endl;
-  std::string url = "/";
-  url += getApplicationDescriptor()->getURN();
-  *out << "<head>"                                                   << endl;
-  *out << "<title>" << getApplicationDescriptor()->getClassName() 
-       << getApplicationDescriptor()->getInstance() 
-       << " MAIN</title>"     << endl;
-  *out << "</head>"                                                  << endl;
+  std::string url = getApplicationDescriptor()->getContextDescriptor()->getURL() + "/" + getApplicationDescriptor()->getURN();
   *out << "<frameset rows=\"300,90%\">" << std::endl;
   *out << "  <frame src=\"" << url << "/fsm" << "\">" << std::endl;
   *out << "  <frame src=\"" << url << "/general" << "\">" << std::endl;
   *out << "</frameset>" << std::endl;
   *out << cgicc::html() << std::endl;
 }
+
 void DQMBaseClient::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception)
 {
   *out << "General access to client info " << std::endl;
@@ -60,8 +71,6 @@ void DQMBaseClient::configureAction(toolbox::Event::Reference e)
     mui_->subscribe(*((string*)subs_.elementAt(i)));
 
   configure();
-
-  
 }
 
 void DQMBaseClient::enableAction(toolbox::Event::Reference e) 
