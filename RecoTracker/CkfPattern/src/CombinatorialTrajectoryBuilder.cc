@@ -6,11 +6,14 @@
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "RecoTracker/CkfPattern/interface/TrajCandLess.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
 CombinatorialTrajectoryBuilder::
 CombinatorialTrajectoryBuilder( const MeasurementTracker* tracker,
@@ -24,7 +27,9 @@ CombinatorialTrajectoryBuilder( const MeasurementTracker* tracker,
     theUpdator(upd),
     theEstimator(est),
     theNavigationSchool(ns)
-{}
+{
+  //theLayerMeasurements = new LayerMeasurements(tracker);
+}
 
 CombinatorialTrajectoryBuilder::TrajectoryContainer 
 CombinatorialTrajectoryBuilder::trajectories(const TrajectorySeed& seed)
@@ -139,6 +144,9 @@ CombinatorialTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) con
     TransientTrackingRecHit* recHit = recHitBuilder.build(&(*ihit));
     const GeomDet* hitGeomDet = 
       theTracker->geomTracker()->idToDet( ihit->geographicalId());
+
+    const DetLayer* hitLayer = theTracker->geometricSearchTracker()->detLayer(ihit->geographicalId());
+
     TSOS invalidState( new BasicSingleTrajectoryState( hitGeomDet->surface()));
     if (ihit == hitRange.second - 1) {
       // the seed trajectory state should correspond to this hit
@@ -152,10 +160,10 @@ CombinatorialTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) con
 
       TSOS updatedState = tsTransform.transientState( pState, &(gdet->surface()), 
 						      thePropagator->magneticField());
-      result.push_back(TM( invalidState, updatedState, recHit));
+      result.push_back(TM( invalidState, updatedState, recHit, 0, hitLayer));
     }
     else {
-      result.push_back(TM( invalidState, recHit));
+      result.push_back(TM( invalidState, recHit, 0, hitLayer));
     }
   }
   return result;
@@ -193,10 +201,10 @@ void CombinatorialTrajectoryBuilder::updateTrajectory( Trajectory& traj,
  
   if ( hit->isValid()) {
     traj.push( TM( predictedState, theUpdator->update( predictedState, *hit),
-		   hit, tm.estimate()));
+		   hit, tm.estimate(), tm.layer()));
   }
   else {
-    traj.push( TM( predictedState, hit));
+    traj.push( TM( predictedState, hit, 0, tm.layer()));
   }
 }
 
@@ -226,5 +234,64 @@ bool CombinatorialTrajectoryBuilder::toBeContinued (const Trajectory& traj)
   // FIXME: restore this:  if ( !(*theConfigurableCondition)(traj) )  return false;
 
   return true;
+}
+
+
+std::vector<TrajectoryMeasurement> 
+CombinatorialTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj){
+  vector<TM> result;
+  int invalidHits = 0;
+
+  // const FTS& currFts( *traj.lastFts());
+  TSOS currentState( traj.lastMeasurement().updatedState());
+
+  vector<const DetLayer*> nl = 
+    traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction());
+  
+  if (nl.empty()) return result;
+
+  for (vector<const DetLayer*>::iterator il = nl.begin(); 
+       il != nl.end(); il++) {
+    vector<TM> tmp =
+      theLayerMeasurements->measurements((**il),currentState, *thePropagator, *theEstimator);
+    //(**il).measurements( currentState, *thePropagator, *theEstimator);
+    if ( !tmp.empty()) {
+      if ( result.empty()) result = tmp;
+      else {
+	// keep one dummy TM at the end, skip the others
+	result.insert( result.end()-invalidHits, tmp.begin(), tmp.end());
+      }
+      invalidHits++;
+    }
+  }
+
+  // sort the final result, keep dummy measurements at the end
+  if ( result.size() > 1) {
+    sort( result.begin(), result.end()-invalidHits, TrajMeasLessEstim());
+  }
+
+#ifdef DEBUG_INVALID
+  bool afterInvalid = false;
+  for (vector<TM>::const_iterator i=result.begin();
+       i!=result.end(); i++) {
+    if ( ! i->recHit().isValid()) afterInvalid = true;
+    if (afterInvalid && i->recHit().isValid()) {
+      cout << "CombinatorialTrajectoryBuilder error: valid hit avter invalid!" 
+	   << endl;
+    }
+  }
+#endif
+
+  //analyseMeasurements( result, traj);
+
+  return result;
+
+
+
+
+  return vector<TrajectoryMeasurement>();
+
+
+
 }
 

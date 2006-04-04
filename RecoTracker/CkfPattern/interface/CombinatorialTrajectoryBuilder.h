@@ -12,6 +12,7 @@ class TrajectorySeed;
 class Trajectory;
 class TrajectoryStateOnSurface;
 class TrajectoryMeasurement;
+class LayerMeasurements;
 
 class CombinatorialTrajectoryBuilder {
 protected:
@@ -39,7 +40,8 @@ private:
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator*   theEstimator;
   const NavigationSchool*       theNavigationSchool;
- 
+  const LayerMeasurements*      theLayerMeasurements;
+
   int theMaxCand;               /**< Maximum number of trajectory candidates 
 		                     to propagate to the next layer. */
   int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
