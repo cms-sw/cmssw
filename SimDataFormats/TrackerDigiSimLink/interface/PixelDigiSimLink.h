@@ -14,9 +14,9 @@ public:
    simTkId=0;
    fract=0;};
   ~PixelDigiSimLink(){};
-  unsigned int channel(){return chan;};
-  unsigned int SimTrackId(){return simTkId;};
-  float fraction(){return fract;};
+  unsigned int channel() const{return chan;};
+  unsigned int SimTrackId() const{return simTkId;};
+  float fraction() const{return fract;};
  private:
   unsigned int chan;
   unsigned int simTkId;
