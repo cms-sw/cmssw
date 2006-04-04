@@ -9,8 +9,12 @@ class CaloCellGeometry;
 
 /** \class CaloSubdetectorGeometry
       
-$Date: 2005/09/30 13:42:44 $
-$Revision: 1.1 $
+Base class for a geometry container for a specific calorimetry
+subdetector.
+
+
+$Date: 2005/10/03 22:35:23 $
+$Revision: 1.2 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -29,7 +33,7 @@ public:
       a single subdetector at a time.  It does not look at the det and subdet arguments.
   */
   virtual std::vector<DetId> getValidDetIds(DetId::Detector det, int subdet) const;
-  /// Eventually -- get closest cell, etc...
+  // Eventually -- get closest cell, etc...
 protected:
   mutable std::vector<DetId> validIds_;
   std::map<DetId, const CaloCellGeometry*> cellGeometries_;    

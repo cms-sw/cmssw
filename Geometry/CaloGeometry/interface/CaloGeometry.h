@@ -11,8 +11,11 @@ class CaloCellGeometry;
 
 /** \class CaloGeometry
       
-$Date: 2005/09/30 13:42:44 $
-$Revision: 1.1 $
+Interface class to the geometry information for all calorimetry 
+subdetectors.
+
+$Date: 2005/10/03 22:35:23 $
+$Revision: 1.2 $
 \author J. Mans and P. Meridiani
 */
 class CaloGeometry {
@@ -43,8 +46,7 @@ public:
   /// access the subdetector geometry for the given subdetector directly
   const CaloSubdetectorGeometry* getSubdetectorGeometry(DetId::Detector det, int subdet) const;
 
-  /// Eventually --> Get closest cell, etc...
-
+  // Eventually --> Get closest cell, etc...
 
 private:
   std::map<int, const CaloSubdetectorGeometry*> theGeometries_;

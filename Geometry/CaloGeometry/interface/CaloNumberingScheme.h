@@ -1,20 +1,21 @@
-///////////////////////////////////////////////////////////////////////////////
-// File: CaloNumberingScheme.h
-// Description: Definition of sensitive unit numbering schema for Calorimeters
-///////////////////////////////////////////////////////////////////////////////
 #ifndef CaloNumberingScheme_h
 #define CaloNumberingScheme_h
 
-class CaloNumberingScheme {
+/** \class CaloNumberingScheme
 
+  Generic base class for converters between DDD numbering and DetId numbering.
+  Provides only a verbosity control to derived classes.
+*/
+class CaloNumberingScheme {
 public:
+  /// Constructor with optional verbosity control
   CaloNumberingScheme(int iv=0);
   virtual ~CaloNumberingScheme(){};
-  void    setVerbosity(const int);
-	 
+  /// Verbosity setting
+  void    setVerbosity(const int);	 
 protected:
+  /// Verbosity field: Zero = quiet, increasing integers mean more output
   int verbosity;
-
 };
 
 #endif
