@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.8 2006/01/29 23:33:58 jbk Exp $
+$Id: Worker.h,v 1.9 2006/02/08 00:44:25 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -27,7 +27,10 @@ the worker in reset().
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
+#include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
+
+#include "FWCore/Framework/src/RunStopwatch.h"
 
 namespace edm {
   class ActionTable;
@@ -48,14 +51,18 @@ namespace edm {
     void reset() { state_ = Ready; }
     
     const ModuleDescription& description() const {return md_;}
-    State state() const { return state_; }
     void connect(ActivityRegistry::PreModule&, ActivityRegistry::PostModule&);
 
-    int timesVisited() const { return timesVisited_; }
+    std::pair<double,double> timeCpuReal() const {
+      return std::pair<double,double>(stopwatch_->CpuTime(),stopwatch_->RealTime());
+    }
+
     int timesRun() const { return timesRun_; }
+    int timesVisited() const { return timesVisited_; }
+    int timesPassed() const { return timesPassed_; }
     int timesFailed() const { return timesFailed_; }
-    int timesPass() const { return timesPass_; }
     int timesExcept() const { return timesExcept_; }
+    State state() const { return state_; }
    
     struct Sigs
     {
@@ -63,17 +70,21 @@ namespace edm {
       boost::signal<void (const ModuleDescription&)> postModuleSignal;
     };
 
+    int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon
+
   protected:
     virtual std::string workerType() const = 0;
     virtual bool implDoWork(EventPrincipal&, EventSetup const& c) = 0;
     virtual void implBeginJob(EventSetup const&) = 0;
     virtual void implEndJob() = 0;
-    
+
   private:
-    int timesVisited_;
+    RunStopwatch::StopwatchPointer stopwatch_;
+
     int timesRun_;
+    int timesVisited_;
+    int timesPassed_;
     int timesFailed_;
-    int timesPass_;
     int timesExcept_;
     State state_;
 

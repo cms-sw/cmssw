@@ -206,6 +206,7 @@ namespace edm
     makeTriggerResults_(false),
     total_events_(),
     total_passed_(),
+    stopwatch_(new TStopwatch),
     unscheduled_(new UnscheduledCallProducer)
   {
     ParameterSet defopts;
@@ -322,6 +323,8 @@ namespace edm
           demandGroups_.push_back(theGroup);
        }
     }
+
+    stopwatch_->Stop();
   }
 
   void Schedule::handleWronglyPlacedModules()
@@ -425,6 +428,7 @@ namespace edm
 
   void Schedule::runOneEvent(EventPrincipal& ep, EventSetup const& es)
   {
+    RunStopwatch stopwatch(stopwatch_);
     resetWorkers();
     results_->reset();
     endpath_results_->reset();
@@ -445,14 +449,19 @@ namespace edm
     try {
 	CallPrePost cpp(act_reg_.get(),&ep,&es);
 
-	// go through triggering paths first
+	// go through normal paths and check only trigger paths for accept
 	bool result = false;
-
+        int which_one = 0;
 	TrigPaths::iterator ti(trig_paths_.begin()),te(trig_paths_.end());
-	for(int which_one=0;ti!=te;++ti,++which_one) {
+	for(;ti!=te;++ti)
+	  {
 	    ti->runOneEvent(ep,es);
-	    result += (*results_)[which_one];
-	}
+	    if (trig_name_set_.find(ti->name())!=trig_name_set_.end())
+	      {
+		result = result || (*results_)[which_one];
+		++which_one;
+	      }
+	  }
 
 	if(result) ++total_passed_;
 	state_ = Latched;
@@ -503,6 +512,7 @@ namespace edm
 
     // next thing probably is not needed, the product insertion code clears it
     state_ = Ready;
+
   }
 
   using namespace boost::lambda;
@@ -517,51 +527,161 @@ namespace edm
 
     if(wantSummary_ == false) return;
 
-    cout << "trigreport " << "---------- Path Summary ----------\n";
-    cout << "trigreport "
-	 << right << setw(4)  << "Bit" << " "
-	 << right << setw(10) << "Passed" << " "
-	 << right << setw(10) << "Failed" << " "
-	 << "Name" << "\n";
-
     TrigPaths::iterator pi(trig_paths_.begin()),pe(trig_paths_.end());
-    for(;pi!=pe;++pi) {
-	cout << "trigreport "
-	     << right << setw(4)  << pi->bitPosition() << " "
-	     << right << setw(10) << pi->timesPassed() << " "
-	     << right << setw(10) << (pi->timesVisited() - pi->timesPassed()) << " "
-	     << pi->name() << "\n";
-    }
+    AllWorkers::iterator ai(all_workers_.begin()),ae(all_workers_.end());
 
-    cout << "trigreport " << "---------- Module Summary ----------\n";
-    cout << "trigreport "
+    // The trigger report (pass/fail etc.):
+
+    cout << endl;
+    cout << "TrigReport " << "---------- Event  Summary ------------\n";
+    cout << "TrigReport"
+	 << " Events total = " << total_events_
+	 << " passed = " << total_passed_
+	 << " failed = " << (total_events_ - total_passed_)
+	 << "\n";
+
+    cout << endl;
+    cout << "TrigReport " << "---------- Path   Summary ------------\n";
+    cout << "TrigReport "
+	 << right << setw(10) << "Trig Bit#" << " "
+	 << right << setw(10) << "Run" << " "
 	 << right << setw(10) << "Passed" << " "
 	 << right << setw(10) << "Failed" << " "
-	 << right << setw(10) << "Run" << " "
-	 << right << setw(10) << "Visited" << " "
 	 << right << setw(10) << "Error" << " "
 	 << "Name" << "\n";
 
-    AllWorkers::iterator ai(all_workers_.begin()),ae(all_workers_.end());
-    for(;ai!=ae;++ai) {
-	cout << "trigreport "
-	     << right << setw(10) << (*ai)->timesPass() << " "
-	     << right << setw(10) << (*ai)->timesFailed() << " "
-	     << right << setw(10) << (*ai)->timesRun() << " "
+    pi=trig_paths_.begin();
+    for(;pi!=pe;++pi)
+      {
+	cout << "TrigReport "
+             << right << setw( 5) << (trig_name_set_.find(pi->name())!=trig_name_set_.end())
+             << right << setw( 5) << pi->bitPosition() << " "
+	     << right << setw(10) << pi->timesRun() << " "
+	     << right << setw(10) << pi->timesPassed() << " "
+	     << right << setw(10) << pi->timesFailed() << " "
+	     << right << setw(10) << pi->timesExcept() << " "
+	     << pi->name() << "\n";
+      }
+
+    pi=trig_paths_.begin();
+    for(;pi!=pe;++pi)
+      {
+    cout << endl;
+    cout << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------\n";
+    cout << "TrigReport "
+	 << right << setw(10) << "Trig Bit#" << " "
+	 << right << setw(10) << "Visited" << " "
+	 << right << setw(10) << "Passed" << " "
+	 << right << setw(10) << "Failed" << " "
+	 << right << setw(10) << "Error" << " "
+	 << "Name" << "\n";
+
+       for (unsigned int i=0; i<pi->size(); ++i)
+       {
+	cout << "TrigReport "
+             << right << setw( 5) << (trig_name_set_.find(pi->name())!=trig_name_set_.end())
+	     << right << setw( 5) << pi->bitPosition() << " "
+	     << right << setw(10) << pi->timesVisited(i) << " "
+	     << right << setw(10) << pi->timesPassed(i) << " "
+	     << right << setw(10) << pi->timesFailed(i) << " "
+	     << right << setw(10) << pi->timesExcept(i) << " "
+	     << pi->getWorker(i)->description().moduleLabel_ << "\n";
+      }}
+
+    cout << endl;
+    cout << "TrigReport " << "---------- Module Summary ------------\n";
+    cout << "TrigReport "
+	 << right << setw(10) << "Visited" << " "
+	 << right << setw(10) << "Run" << " "
+	 << right << setw(10) << "Passed" << " "
+	 << right << setw(10) << "Failed" << " "
+	 << right << setw(10) << "Error" << " "
+	 << "Name" << "\n";
+
+    ai=all_workers_.begin();
+    for(;ai!=ae;++ai)
+      {
+	cout << "TrigReport "
 	     << right << setw(10) << (*ai)->timesVisited() << " "
+	     << right << setw(10) << (*ai)->timesRun() << " "
+	     << right << setw(10) << (*ai)->timesPassed() << " "
+	     << right << setw(10) << (*ai)->timesFailed() << " "
 	     << right << setw(10) << (*ai)->timesExcept() << " "
 	     << (*ai)->description().moduleLabel_ << "\n";
 	  
-    }
+      }
+    cout << endl;
 
-    cout << "trigreport " << "---------- Event Summary ------------\n";
-    cout << "trigreport"
-	 << " Event total = " << total_events_
-	 << " Passed = " << total_passed_
-	 << " Failed = " << (total_events_ - total_passed_)
+    // The timing report (CPU and Real Time):
+
+    cout << setprecision(6) << fixed << endl;
+    cout << "TimeReport " << "---------- Event  Summary ---[sec]----\n";
+    cout << "TimeReport"
+	 << " CPU/event = " << timeCpuReal().first/max(1,total_events_)
+	 << " Real/event = " << timeCpuReal().second/max(1,total_events_)
 	 << "\n";
 
-    // the module-in-path stats are not reported here and could be!
+    cout << endl;
+    cout << "TimeReport " << "---------- Path   Summary ---[sec]----\n";
+    cout << "TimeReport "
+	 << right << setw(10) << "CPU/event" << " "
+	 << right << setw(10) << "Real/event" << " "
+	 << "Name" << "\n";
+
+    pi=trig_paths_.begin();
+    for(;pi!=pe;++pi)
+      {
+	cout << "TimeReport "
+	     << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
+	     << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
+	     << pi->name() << "\n";
+      }
+
+    pi=trig_paths_.begin();
+    for(;pi!=pe;++pi)
+      {
+    cout << endl;
+    cout << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----\n";
+    cout << "TimeReport "
+	 << right << setw(10) << "CPU/event" << " "
+	 << right << setw(10) << "Real/event" << " "
+	 << "Name" << "\n";
+
+       for (unsigned int i=0; i<pi->size(); ++i)
+       {
+	cout << "TimeReport "
+	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
+	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
+	     << pi->getWorker(i)->description().moduleLabel_ << "\n";
+      }}
+
+    cout << endl;
+    cout << "TimeReport " << "---------- Module Summary ---[sec]----\n";
+    cout << "TimeReport "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << "Name" << "\n";
+    cout << "TimeReport "
+	 << right << setw(22) << "per visited event " 
+	 << right << setw(22) << "per run event " << "\n";
+
+    ai=all_workers_.begin();
+    for(;ai!=ae;++ai)
+      {
+	cout << "TimeReport "
+	     << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesVisited()) << " "
+	     << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesVisited()) << " "
+	     << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesRun()) << " "
+	     << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesRun()) << " "
+	     << (*ai)->description().moduleLabel_ << "\n";
+	  
+      }
+    cout << endl;
+    cout << "T---Report end!" << endl;
+    cout << endl;
+
   }
 
   void Schedule::beginJob(EventSetup const& es)

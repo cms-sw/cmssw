@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.6 2006/02/02 21:00:57 wmtan Exp $
+$Id: Worker.cc,v 1.7 2006/02/17 22:09:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -32,16 +32,18 @@ namespace edm
   
   Worker::Worker(const ModuleDescription& iMD, 
 		 const WorkerParams& iWP):
-    timesVisited_(),
+    stopwatch_(new TStopwatch),
     timesRun_(),
+    timesVisited_(),
+    timesPassed_(),
     timesFailed_(),
-    timesPass_(),
     timesExcept_(),
     state_(Ready),
     md_(iMD),
     actions_(iWP.actions_),
     cached_exception_()
   {
+    stopwatch_->Stop();
   }
 
   Worker::~Worker()
@@ -58,6 +60,7 @@ namespace edm
   bool Worker::doWork(EventPrincipal& ep, EventSetup const& es)
   {
     using namespace std;
+    RunStopwatch stopwatch(stopwatch_);
 
     bool rc = false;
     ++timesVisited_;
@@ -85,16 +88,18 @@ namespace edm
 	}
       }
 
+    ++timesRun_;
+
     try
       {
+
 	CallPrePost cpp(sigs_,md_);
-	++timesRun_;
 
 	rc = implDoWork(ep,es);
 
 	if(rc)
 	  {
-	    ++timesPass_;
+	    ++timesPassed_;
 	    state_ = Pass;
 	  }
 	else
@@ -116,6 +121,7 @@ namespace edm
 	  case actions::IgnoreCompletely:
 	    {
 	      rc=true;
+	      ++timesPassed_;
 	      state_=Pass;
 	      LogWarning("IgnoreCompletely")
 		<< "Module ignored an exception\n";
@@ -126,6 +132,7 @@ namespace edm
 	    {
 	      LogWarning("FailModule")
 		<< "Module failed an event due to exception\n";
+	      ++timesFailed_;
 	      state_=Fail;
 	      break;
 	    }
@@ -147,10 +154,10 @@ namespace edm
 	      // as an argument to the constructor.
 
 	      ++timesExcept_;
+	      state_ = Exception;
 	      e << "cms::Exception going through module\n"
 		<< md_.moduleName_ << "/" << md_.moduleLabel_ 
 		<< " " << ep.id() << "\n";
-	      state_ = Exception;
 	      cached_exception_.reset(new cms::Exception(e));
 	      throw;
 	    }
@@ -169,7 +176,6 @@ namespace edm
 	  << "A seal::Error occurred during a previous call to this "
 	  << "module and cannot be repropagated.\n"
 	  << "Previous information:\n" << e.explainSelf();
-	  
 	throw *cached_exception_;
       }
     catch(std::exception& e)
@@ -190,7 +196,6 @@ namespace edm
 	LogError("BadExceptionType")
 	  << "Module received std::string as an exception.\n"
 	  << "string = " << s << "\n";
-
 	++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new cms::Exception("BadExceptionType","std::string"));
@@ -205,11 +210,9 @@ namespace edm
 	LogError("BadExceptionType")
 	  << "Module received const char* as an exception.\n"
 	  << "const char* = " << c << "\n";
-
 	++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new cms::Exception("BadExceptionType","const char*"));
-
 	*cached_exception_
 	  << "cstring = " << c << "\n"
 	  << md_.moduleName_ << "/" << md_.moduleLabel_ 
@@ -220,11 +223,9 @@ namespace edm
       {
 	LogError("BadExceptionType")
 	  << "Module received an unknown exception.\n";
-
 	++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new cms::Exception("repeated"));
-
 	*cached_exception_
 	  << "An unknown exception occurred during a previous call to this "
 	  << "module and cannot be repropagated.\n";

@@ -39,11 +39,13 @@ namespace edm
 	     ParameterSet const& proc_pset,
 	     ActionTable& actions,
 	     ActivityRegistryPtr areg):
+    stopwatch_(new TStopwatch),
+    timesRun_(),
     timesPassed_(),
-    timesVisited_(),
-    enabled_(true),
-    invertDecision_(false),
-    pass_(false),
+    timesFailed_(),
+    timesExcept_(),
+    abortWorker_(),
+    state_(Ready),
     bitpos_(bitpos),
     name_(path_name),
     bitmask_(bitmask),
@@ -51,6 +53,7 @@ namespace edm
     act_table_(&actions),
     workers_(workers)
   {
+    stopwatch_->Stop();
   }
 
 #if 0
@@ -64,8 +67,11 @@ namespace edm
   
   void Path::runOneEvent(EventPrincipal& ep, EventSetup const& es)
   {
+    RunStopwatch stopwatch(stopwatch_);
+    ++timesRun_;
+    state_ = Ready;
+    abortWorker_=0;
     CallPrePost cpp(act_reg_.get(),name_,bitpos_);
-    ++timesVisited_;
     Workers::iterator i(workers_.begin()),e(workers_.end());
     bool rc = true;
     for(;i!=e && rc==true;++i)
@@ -104,6 +110,8 @@ namespace edm
 		{
 		  LogError(e.category())
 		    << "Exception going through path " << name_ << "\n";
+                  ++timesExcept_;
+                  state_ = Exception;
 		  throw edm::Exception(errors::ScheduleExecutionFailure,
 				       "ProcessingStopped", e)
 		    << "Exception going through path " << name_ << "\n";
@@ -114,12 +122,26 @@ namespace edm
 	  {
 	    LogError("PassingThrough")
 	      << "Exception passing through path " << name_ << "\n";
+            ++timesExcept_;
+            state_ = Exception;
 	    throw;
 	  }
+        ++abortWorker_;
       }
 
-    if(rc) ++timesPassed_;
+    if(rc)
+      {
+        ++timesPassed_;
+        state_=Pass;
+      }
+    else
+      {
+        ++timesFailed_;
+        state_=Fail;
+      }
+
     (*bitmask_)[bitpos_]=rc;
+
   }
 
 }

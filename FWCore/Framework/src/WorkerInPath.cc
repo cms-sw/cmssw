@@ -5,6 +5,7 @@
 namespace edm
 {
   WorkerInPath::WorkerInPath(Worker* w, State state):
+    stopwatch_(new TStopwatch),
     timesVisited_(),
     timesPassed_(),
     timesFailed_(),
@@ -12,9 +13,11 @@ namespace edm
     state_(state),
     worker_(w)
   {
+    stopwatch_->Stop();
   }
 
   WorkerInPath::WorkerInPath(Worker* w):
+    stopwatch_(new TStopwatch),
     timesVisited_(),
     timesPassed_(),
     timesFailed_(),
@@ -22,10 +25,12 @@ namespace edm
     state_(Normal),
     worker_(w)
   {
+    stopwatch_->Stop();
   }
 
   bool WorkerInPath::runWorker(EventPrincipal& ep, EventSetup const & es)
   {
+    RunStopwatch stopwatch(stopwatch_);
     ++timesVisited_;
     bool rc = true;
 
@@ -44,8 +49,7 @@ namespace edm
 
 	if(state_ == Veto) rc = !rc;
 
-	if(rc==true) ++timesPassed_;
-	else ++timesFailed_;
+	if(rc) ++timesPassed_; else ++timesFailed_;
       }
     catch(...)
       {
