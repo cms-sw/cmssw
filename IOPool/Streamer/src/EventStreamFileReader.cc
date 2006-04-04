@@ -15,10 +15,10 @@ namespace edmtestp
 {  
   // ----------------------------------
 
-  EventStreamFileReader::EventStreamFileReader(edm::ParameterSet const& ps,
+  EventStreamFileReader::EventStreamFileReader(edm::ParameterSet const& pset,
 					       edm::InputSourceDescription const& desc):
-    edm::InputSource(desc),
-    filename_(ps.getParameter<string>("fileName")),
+    edm::InputSource(pset, desc),
+    filename_(pset.getParameter<string>("fileName")),
     ist_(filename_.c_str(),ios_base::binary | ios_base::in),
     reader_(ist_)
   {

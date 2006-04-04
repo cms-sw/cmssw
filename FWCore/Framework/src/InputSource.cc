@@ -1,15 +1,19 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.4 2006/01/07 00:38:14 wmtan Exp $
+$Id: InputSource.cc,v 1.5 2006/01/07 20:41:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert>
 
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
 
-  InputSource::InputSource(InputSourceDescription const& desc) :
+  InputSource::InputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
+      ProductRegistryHelper(),
+      maxEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
+      module_(),
       preg_(desc.preg_),
       process_(desc.processName_) {
     // Secondary input sources currently do not have a product registry or a process name.
@@ -33,7 +37,7 @@ namespace edm {
   std::auto_ptr<EventPrincipal>
   InputSource::readEvent(EventID const& eventID) {
     // Do we need any error handling (e.g. exception translation) here?
-    std::auto_ptr<EventPrincipal> ep(this->read(eventID));
+    std::auto_ptr<EventPrincipal> ep(this->readIt(eventID));
     if (ep.get()) {
 	ep->addToProcessHistory(process_);
     }
@@ -41,7 +45,12 @@ namespace edm {
   }
 
   void
-  InputSource::addToReg(ModuleDescription const&) {}
+  InputSource::addToRegistry(ModuleDescription const& md) {
+    module_ = md;
+    if (!typeLabelList().empty()) {
+      ProductRegistryHelper::addToRegistry(typeLabelList().begin(), typeLabelList().end(), md, productRegistry());
+    }
+  }
 
   void
   InputSource::skipEvents(int offset) {

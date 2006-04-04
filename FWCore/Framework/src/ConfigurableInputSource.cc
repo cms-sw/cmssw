@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.4 2006/01/07 00:38:14 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.1 2006/01/18 00:38:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,8 +14,8 @@ namespace edm {
   
   ConfigurableInputSource::ConfigurableInputSource(ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
-    GenericInputSource(desc),
-    remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
+    InputSource(pset, desc),
+    remainingEvents_(maxEvents()),
     numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents_)),
     presentTime_(pset.getUntrackedParameter<unsigned int>("firstTime", 0)),  //time in ns
     timeBetweenEvents_(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
@@ -27,25 +27,37 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
+  ConfigurableInputSource::readOneEvent() {
+    setRunAndEventInfo();
+    if (eventID_ == EventID()) {
+      return std::auto_ptr<EventPrincipal>(0); 
+    }
+    std::auto_ptr<EventPrincipal> result = 
+      std::auto_ptr<EventPrincipal>(new EventPrincipal(eventID_, Timestamp(presentTime_), productRegistry()));
+    Event e(*result, module());
+    if (!produce(e)) {
+      return std::auto_ptr<EventPrincipal>(0); 
+    }
+    e.commit_();
+    return result;
+  }
+
+  std::auto_ptr<EventPrincipal>
   ConfigurableInputSource::read() {
     std::auto_ptr<EventPrincipal> result(0);
     
     if (remainingEvents_ != 0) {
-      setRunAndEventInfo();
-      result = std::auto_ptr<EventPrincipal>(new EventPrincipal(eventID_, Timestamp(presentTime_), productRegistry()));
-      Event e(*result, module());
-      if (!produce(e)) {
-        return std::auto_ptr<EventPrincipal>(0); 
+      result = readOneEvent();
+      if (result.get() != 0) {
+        ++numberEventsInThisRun_;
+        --remainingEvents_;
       }
-      e.commit_();
-      ++numberEventsInThisRun_;
-      --remainingEvents_;
     }
     return result;
   }
 
   std::auto_ptr<EventPrincipal>
-  ConfigurableInputSource::read(EventID const& eventID) {
+  ConfigurableInputSource::readIt(EventID const& eventID) {
     eventID_ = eventID.previous();
     return read();
   }

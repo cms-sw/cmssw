@@ -2,28 +2,35 @@
 #define Framework_GenericInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: GenericInputSource.h,v 1.5 2006/01/18 00:38:44 wmtan Exp $
+$Id: GenericInputSource.h,v 1.2 2006/02/07 07:51:41 wmtan Exp $
 ----------------------------------------------------------------------*/
 
-//#include <memory>
-
 #include "FWCore/Framework/interface/InputSource.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
-#include "FWCore/Framework/interface/ProductRegistryHelper.h"
+#include <vector>
+#include <string>
 
 namespace edm {
   class InputSourceDescription;
-  class GenericInputSource : public InputSource, public ProductRegistryHelper {
+  class ParameterSet;
+  class GenericInputSource : public InputSource {
   public:
-    explicit GenericInputSource(InputSourceDescription const& desc);
+    explicit GenericInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~GenericInputSource();
 
+    int remainingEvents() const {return remainingEvents_;}
+    std::vector<std::string> const& fileNames() const{return fileNames_;}
+
   protected:
-    ModuleDescription const& module() const {return module_;}
+
+    void repeat() {remainingEvents_ = maxEvents();}
+    virtual std::auto_ptr<EventPrincipal> read();
+
 
   private:
-    virtual void addToReg(ModuleDescription const& md);
-    ModuleDescription module_;
+    virtual std::auto_ptr<EventPrincipal> readOneEvent() = 0;
+    
+    std::vector<std::string> fileNames_;
+    int remainingEvents_;
   };
 }
 #endif

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.4 2006/01/07 00:38:14 wmtan Exp $
+$Id: RawInputSource.cc,v 1.1 2006/01/18 00:38:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -10,8 +10,8 @@ $Id: RawInputSource.cc,v 1.4 2006/01/07 00:38:14 wmtan Exp $
 namespace edm {
   RawInputSource::RawInputSource(ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
-    GenericInputSource(desc),
-    remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
+    InputSource(pset, desc),
+    remainingEvents_(maxEvents()),
     ep_(0)
   { }
 

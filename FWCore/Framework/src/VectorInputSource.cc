@@ -1,13 +1,13 @@
 /*----------------------------------------------------------------------
-$Id: VectorInputSource.cc,v 1.1 2006/01/07 20:41:12 wmtan Exp $
+$Id: VectorInputSource.cc,v 1.2 2006/01/18 23:26:22 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "FWCore/Framework/interface/VectorInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
 namespace edm {
 
-  VectorInputSource::VectorInputSource(InputSourceDescription const& desc) :
-    InputSource(desc) {}
+  VectorInputSource::VectorInputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
+    GenericInputSource(pset, desc) {}
 
   VectorInputSource::~VectorInputSource() {}
 

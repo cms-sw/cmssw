@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.16 2006/03/14 23:33:01 wmtan Exp $
+$Id: PoolSource.h,v 1.17 2006/03/15 21:22:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -36,8 +36,8 @@ namespace edm {
     typedef input::EntryNumber EntryNumber;
     PoolRASource(PoolRASource const&); // disable copy construction
     PoolRASource & operator=(PoolRASource const&); // disable assignment
-    virtual std::auto_ptr<EventPrincipal> read();
-    virtual std::auto_ptr<EventPrincipal> read(EventID const& id);
+    virtual std::auto_ptr<EventPrincipal> readOneEvent();
+    virtual std::auto_ptr<EventPrincipal> readIt(EventID const& id);
     virtual void skip(int offset);
     virtual void readMany_(int number, EventPrincipalVector& result);
     void init(std::string const& file);
@@ -46,12 +46,9 @@ namespace edm {
     bool previous();
 
     PoolCatalog catalog_;
-    std::vector<std::string> const files_;
     std::vector<std::string>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
     RootFileMap rootFiles_;
-    int maxEvents_;
-    int remainingEvents_;
     bool mainInput_;
   }; // class PoolRASource
 }

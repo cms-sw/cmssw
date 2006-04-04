@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.23 2006/03/14 23:33:01 wmtan Exp $
+$Id: PoolSource.cc,v 1.24 2006/03/15 21:22:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -15,14 +15,11 @@ $Id: PoolSource.cc,v 1.23 2006/03/14 23:33:01 wmtan Exp $
 
 namespace edm {
   PoolRASource::PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc) :
-    VectorInputSource(desc),
+    VectorInputSource(pset, desc),
     catalog_(PoolCatalog::READ, pset.getUntrackedParameter("catalog", std::string())),
-    files_(pset.getUntrackedParameter("fileNames", std::vector<std::string>())),
-    fileIter_(files_.begin()),
+    fileIter_(fileNames().begin()),
     rootFile_(),
     rootFiles_(),
-    maxEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
-    remainingEvents_(maxEvents_),
     mainInput_(pset.getParameter<std::string>("@module_label") == std::string("@main_input"))
   {
     ClassFiller();
@@ -67,11 +64,11 @@ namespace edm {
   bool PoolRASource::next() {
     if(rootFile_->next()) return true;
     ++fileIter_;
-    if(fileIter_ == files_.end()) {
+    if(fileIter_ == fileNames().end()) {
       if (mainInput_) {
 	return false;
       } else {
-	fileIter_ = files_.begin();
+	fileIter_ = fileNames().begin();
       }
     }
 
@@ -90,11 +87,11 @@ namespace edm {
 
   bool PoolRASource::previous() {
     if(rootFile_->previous()) return true;
-    if(fileIter_ == files_.begin()) {
+    if(fileIter_ == fileNames().begin()) {
       if (mainInput_) {
 	return false;
       } else {
-	fileIter_ = files_.end();
+	fileIter_ = fileNames().end();
       }
     }
     --fileIter_;
@@ -116,7 +113,7 @@ namespace edm {
   PoolRASource::~PoolRASource() {
   }
 
-  // read() is responsible for creating, and setting up, the
+  // readOneEvent() is responsible for creating, and setting up, the
   // EventPrincipal.
   //
   //   1. create an EventPrincipal with a unique EventID
@@ -130,23 +127,18 @@ namespace edm {
   //  when it is asked to do so.
   //
   std::auto_ptr<EventPrincipal>
-  PoolRASource::read() {
-    // If we're done, or out of range, return a null auto_ptr
-    if (remainingEvents_ == 0) {
+  PoolRASource::readOneEvent() {
+    if (!next()) {
       if (!mainInput_) {
-	remainingEvents_ = maxEvents_;
+	repeat();
       }
       return std::auto_ptr<EventPrincipal>(0);
     }
-    if (!next()) {
-      return std::auto_ptr<EventPrincipal>(0);
-    }
-    --remainingEvents_;
     return rootFile_->read(mainInput_ ? productRegistry() : rootFile_->productRegistry()); 
   }
 
   std::auto_ptr<EventPrincipal>
-  PoolRASource::read(EventID const& id) {
+  PoolRASource::readIt(EventID const& id) {
     RootFile::EntryNumber entry = rootFile_->getEntryNumber(id);
     if (entry >= 0) {
       rootFile_->setEntryNumber(entry - 1);

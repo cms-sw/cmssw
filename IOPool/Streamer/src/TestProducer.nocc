@@ -13,10 +13,10 @@ namespace edmtestp
 {  
   // ----------------------------------
 
-  TestProducer::TestProducer(edm::ParameterSet const& ps,
+  TestProducer::TestProducer(edm::ParameterSet const& pset,
 			     edm::InputSourceDescription const& desc):
-    edm::InputSource(desc),
-    filename_(ps.getParameter<string>("fileName")),
+    edm::InputSource(pset, desc),
+    filename_(pset.getParameter<string>("fileName")),
     ist_(s.c_str(),ios_base::binary | ios_base::in),
     regdata_(1000*1000),
     edata_(1000*1000*4)

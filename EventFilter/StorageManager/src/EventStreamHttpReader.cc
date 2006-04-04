@@ -66,10 +66,10 @@ namespace edmtestp
 
   EventStreamHttpReader::EventStreamHttpReader(edm::ParameterSet const& ps,
 					       edm::InputSourceDescription const& desc):
-    edm::InputSource(desc),
+    edm::InputSource(ps, desc),
     sourceurl_(ps.getParameter<string>("sourceURL")),
     buf_(1000*1000*7), 
-    max_events2read_(ps.getParameter<int>("maxEvents")), events_read_(0)
+    events_read_(0)
   {
     std::string evturl = sourceurl_ + "/geteventdata";
     int stlen = evturl.length();
@@ -80,8 +80,6 @@ namespace edmtestp
     stlen = header.length();
     for (int i=0; i<stlen; i++) headerurl_[i]=header[i];
     headerurl_[stlen] = '\0';
-
-    if(max_events2read_ <= 0) max_events2read_ = -1; // nomax event limit
 
     std::auto_ptr<SendJobHeader> p = readHeader();
     edm::mergeWithRegistry(*p,productRegistry());
@@ -107,7 +105,7 @@ namespace edmtestp
     // do it like test for the proof of principle test
 
     // see if already read maxEvents
-    if(max_events2read_ != -1 && events_read_ >= max_events2read_) 
+    if(maxEvents() > 0 && events_read_ >= maxEvents()) 
       return std::auto_ptr<edm::EventPrincipal>();
 
     ReadData data;

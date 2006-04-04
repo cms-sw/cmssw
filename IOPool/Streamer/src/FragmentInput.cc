@@ -17,7 +17,7 @@ namespace stor
 
   FragmentInput::FragmentInput(edm::ParameterSet const& pset,
 			  edm::InputSourceDescription const& desc):
-    edm::InputSource(desc),
+    edm::InputSource(pset, desc),
     extractor_(getInfo()->getEventQueue())
   {
     edm::Service<HLTInfo> info;

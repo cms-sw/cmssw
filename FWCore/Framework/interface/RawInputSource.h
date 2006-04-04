@@ -2,12 +2,12 @@
 #define Framework_RawInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: RawInputSource.h,v 1.4 2006/01/07 00:38:14 wmtan Exp $
+$Id: RawInputSource.h,v 1.1 2006/01/18 00:38:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
 
-#include "FWCore/Framework/interface/GenericInputSource.h"
+#include "FWCore/Framework/interface/InputSource.h"
 
 namespace edm {
   class Event;
@@ -15,7 +15,7 @@ namespace edm {
   class InputSourceDescription;
   class ParameterSet;
   class Timestamp;
-  class RawInputSource : public GenericInputSource {
+  class RawInputSource : public InputSource {
   public:
     explicit RawInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~RawInputSource();
