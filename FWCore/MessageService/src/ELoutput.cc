@@ -37,9 +37,12 @@
 //                      CST every time.
 //
 // 12/xx/06     mf	Tailoring to CMS MessageLogger 
-// 1/11/06	mf      Eliminate time stamp from starting message 
-// 3/20/06	mf	Major formatting change to do no formatting
+//  1/11/06	mf      Eliminate time stamp from starting message 
+//  3/20/06	mf	Major formatting change to do no formatting
 //			except the header and line separation.
+//  4/04/06	mf	Move the line feed between header and text
+//			till after the first 3 items (FILE:LINE) for
+//			debug messages. 
 // ----------------------------------------------------------------------
 
 
@@ -415,13 +418,17 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
 
   // Provide traceback information:
   //
+
+  bool insertNewlineAfterHeader = ( msg.xid().severity != ELsuccess );
+  // ELsuccess is what LogDebug issues
+  
   if ( msg.xid().severity >= traceThreshold )  {
     emit( ELstring("\n")
           + ELadministrator::instance()->getContextSupplier().traceRoutine()
-        , true );
+        , insertNewlineAfterHeader );
   }
   else  {                                        //else statement added JV:1
-    emit ("", true);
+    emit ("", insertNewlineAfterHeader);
   }
   #ifdef ELoutputTRACE_LOG
     std::cerr << "    =:=:=: Trace routine done: \n";
@@ -433,11 +440,18 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   preambleMode = false;
   if ( wantText )  {
     ELlist_string::const_iterator it;
+    int item_count = 0;
     for ( it = msg.items().begin();  it != msg.items().end();  ++it )  {
     #ifdef ELoutputTRACE_LOG
       std::cerr << "      =:=:=: Item:  " << *it << '\n';
     #endif
-      emit( *it );
+      ++item_count;
+      if ( !insertNewlineAfterHeader && (item_count == 3) ) {
+        // in a LogDebug message, the first 3 items are FILE, :, and LINE
+        emit( *it, true );
+      } else {
+        emit( *it );
+      }
     }
   }
 #endif
