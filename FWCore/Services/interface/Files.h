@@ -2,7 +2,7 @@
 #define Services_Files_h
 
 // Original Author:  Marc Paterno
-// $Id: InputFile.h,v 1.3 2006/03/05 16:42:27 chrjones Exp $
+// $Id: Files.h,v 1.1 2006/03/21 22:11:35 paterno Exp $
 
 // -*- C++ -*-
 //
@@ -19,6 +19,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include "FWCore/Services/interface/ServicesFwd.h"
 #include "DataFormats/Common/interface/EventID.h"
@@ -84,6 +85,45 @@ namespace edm {
 
     std::ostream& operator<< (std::ostream& os, InputFile const& f);
     std::ostream& operator<< (std::ostream& os, OutputFile const& f);
+    
+    
+    /*
+     * Note that output formatting is spattered across these classes
+     * If something outside these classes requires access to the 
+     * same formatting then we need to refactor it into a common library
+     */
+    template <typename T>
+      std::ostream& formatFile(T f, std::ostream& os)
+    {
+
+      if (f.fileHasBeenClosed){
+	os << "\n<State  Value=\"closed\">";
+      }
+      else{
+	os << "\n<State  Value=\"open\">";
+      }
+      os << "\n<LFN>" << f.logicalFileName << "</LFN>";
+      os << "\n<PFN>" << f.physicalFileName << "</PFN>";
+      os << "\n<Catalog>" << f.catalog << "</Catalog>";
+      os << "\n<ModuleLabel>" << f.moduleLabel << "</ModuleLabel>";
+      os << "\n<Runs>";
+      std::set<edm::RunNumber_t>::iterator iRun;
+      for ( iRun = f.runsSeen.begin(); iRun != f.runsSeen.end(); iRun++)
+	{
+	  os << "\n  <Run>" << *iRun << "</Run>";
+	}
+      os << "\n</Runs>";
+      os << "\n<Branches>";
+      std::vector<std::string>::iterator iBranch;
+      for (iBranch = f.branchNames.begin(); 
+	   iBranch != f.branchNames.end(); 
+	   iBranch++)
+	{
+	  os << "\n  <Branch>" << *iBranch << "</Branch>";
+	}
+      os << "\n</Branches>";
+      return os;
+    };
 
   } // namespace services
 } // namespace edm
