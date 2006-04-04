@@ -11,10 +11,12 @@
 Commonly used persistent containers.
 
 \subsection interface Public interface
-- edm::EDCollection <b>&lt;T&gt;</b>:
+- edm::EDCollection <b>&lt;T&gt;</b>: Functionally equivalent to <tt>std::vector&lt;T&gt;</tt>. 
+  Still present for hystorical reason; will be probably removed in one of the next releases.
+
 - edm::DetSet <b>&lt;T&gt;</b>:
 
-- edm::ExtCollection <b>&lt;C, Ext&gt;</b>: a collection providing 
+- edm::ExtCollection <b>&lt;C, Ext&gt;</b>:a collection providing 
   internally as instance of a collection of type 
   <tt><b>C</b></tt> plus an intsance of the type <tt><b>Ext</b></tt> 
   specified as template parameter. The class provides the same interface of 
@@ -31,10 +33,10 @@ type <tt><b>Ext</b></tt>.
 - edm::IDVectorMap <b>&lt;ID, C, P&gt;</b>:
 
 - edm::OneToManyAssociation <b>&lt;CKey, CVal, index &gt;</b>: one-to-many
-  association based on edm::Ref, of objects in a <b>CKey</b> collection 
-  to many objects in a collection <b>CVal</b>. Stored indices are of type 
-  <b>index</b>, that is by default <b>unsigned long</b>, but could be
-  <b>unsigned short</b> for collections with less than 65535 objects.
+  association based on edm::Ref, of objects in a <tt>CKey</tt> collection 
+  to many objects in a collection <tt>CVal</tt>. Stored indices are of type 
+  <tt>index</tt>, that is by default <tt>unsigned long</tt>, but could be
+  <tt>unsigned short</tt> for collections with less than 65535 objects.
 
 - edm::OwnVector <b>&lt;T, P = edm::ClonePolicy&lt;T&gt; &gt;</b>: container 
   with interface very similar to <tt>std::vector&lt;T&gt;</tt>, but 
