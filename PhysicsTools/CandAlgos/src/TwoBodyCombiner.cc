@@ -1,4 +1,4 @@
-// $Id: TwoBodyCombiner.cc,v 1.7 2005/12/11 19:02:14 llista Exp $
+// $Id: TwoBodyCombiner.cc,v 1.8 2006/02/21 10:37:28 llista Exp $
 #include "PhysicsTools/CandAlgos/src/TwoBodyCombiner.h"
 #include "PhysicsTools/CandUtils/interface/MassWindowSelector.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -8,7 +8,7 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-candmodules::TwoBodyCombiner::TwoBodyCombiner( const ParameterSet & p ) :
+cand::modules::TwoBodyCombiner::TwoBodyCombiner( const ParameterSet & p ) :
   // bad? http://www.boost.org/libs/smart_ptr/shared_ptr.htm
   combiner( boost::shared_ptr<CandSelector>( 
     new MassWindowSelector( p.getParameter<double>( "massMin" ), 
@@ -20,10 +20,10 @@ candmodules::TwoBodyCombiner::TwoBodyCombiner( const ParameterSet & p ) :
   produces<CandidateCollection>();
 }
 
-candmodules::TwoBodyCombiner::~TwoBodyCombiner() {
+cand::modules::TwoBodyCombiner::~TwoBodyCombiner() {
 }
 
-void candmodules::TwoBodyCombiner::produce( Event& evt, const EventSetup& ) {
+void cand::modules::TwoBodyCombiner::produce( Event& evt, const EventSetup& ) {
   Handle<CandidateCollection> cands1, cands2;
   evt.getByLabel( source1, cands1 );
   evt.getByLabel( source2, cands2 );

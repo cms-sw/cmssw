@@ -8,23 +8,25 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.5 $
  *
- * $Id: CandReducer.h,v 1.2 2006/03/03 10:20:44 llista Exp $
+ * $Id: CandSelector.h,v 1.5 2006/03/03 10:48:21 llista Exp $
  *
  */
 #include "PhysicsTools/CandAlgos/interface/CandSelectorBase.h"
 
-namespace candmodules {
+namespace cand {
+  namespace modules {
+    
+    class CandSelector : public CandSelectorBase {
+    public:
+      /// constructor from parameter set
+      explicit CandSelector( const edm::ParameterSet& );
+      /// destructor
+      ~CandSelector();
+    };
 
-  class CandSelector : public CandSelectorBase {
-  public:
-    /// constructor from parameter set
-    explicit CandSelector( const edm::ParameterSet& );
-    /// destructor
-    ~CandSelector();
-  };
-
+  }
 }
 
 #endif

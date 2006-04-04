@@ -1,4 +1,4 @@
-// $Id: CandReducer.cc,v 1.3 2006/02/21 10:37:28 llista Exp $
+// $Id: CandReducer.cc,v 1.4 2006/02/28 11:29:19 llista Exp $
 #include <memory>
 #include "PhysicsTools/CandAlgos/src/CandReducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -10,7 +10,7 @@
 
 using namespace reco;
 using namespace edm;
-using namespace candmodules;
+using namespace cand::modules;
 
 CandReducer::CandReducer( const edm::ParameterSet& cfg ) :
   src_( cfg.getParameter<std::string>("src") ) {

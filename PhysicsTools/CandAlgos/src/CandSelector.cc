@@ -1,4 +1,4 @@
-// $Id: CandSelector.cc,v 1.9 2006/02/21 10:37:28 llista Exp $
+// $Id: CandSelector.cc,v 1.10 2006/02/28 11:29:19 llista Exp $
 #include <memory>
 #include "PhysicsTools/CandAlgos/src/CandSelector.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -9,18 +9,25 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace reco;
+using namespace std;
+using namespace edm;
 
-candmodules::CandSelector::CandSelector( const edm::ParameterSet& cfg ) :
-  CandSelectorBase( cfg.getParameter<std::string>("src") ) {
-  std::string cut = cfg.getParameter<std::string>( "cut" );
-  if( cutParser( cut, candidateMethods(), select_ ) ) {
-  } else {
-    throw edm::Exception( edm::errors::Configuration, 
-			  "failed to parse \"" + cut + "\"" );
+namespace cand {
+  namespace modules {
+ 
+    CandSelector::CandSelector( const ParameterSet& cfg ) :
+      CandSelectorBase( cfg.getParameter<string>( "src" ) ) {
+      string cut = cfg.getParameter<string>( "cut" );
+      if( ! cand::parser::cutParser( cut, candidateMethods(), select_ ) ) {
+	throw Exception( errors::Configuration, 
+			 "failed to parse \"" + cut + "\"" );
+      }
+      produces<CandidateCollection>();
+    }
+    
+    CandSelector::~CandSelector() {
+    }
+
   }
-  produces<CandidateCollection>();
-}
-
-candmodules::CandSelector::~CandSelector() {
 }
 

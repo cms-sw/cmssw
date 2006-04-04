@@ -1,4 +1,4 @@
-// $Id: CandCombiner.cc,v 1.5 2005/12/11 19:02:14 llista Exp $
+// $Id: CandCombiner.cc,v 1.6 2006/02/21 10:37:28 llista Exp $
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -9,8 +9,8 @@
 using namespace reco;
 using namespace edm;
 using namespace std;
-using namespace candcombiner;
-using namespace candmodules;
+using namespace cand::parser;
+using namespace cand::modules;
 
 CandCombiner::CandCombiner( const ParameterSet & cfg ) :
   combiner_( 0 ) {

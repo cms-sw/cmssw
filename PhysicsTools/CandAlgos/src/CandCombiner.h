@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision$
+ * \version $Revision: 1.5 $
  *
- * $Id: Track.h,v 1.12 2006/03/01 12:23:40 llista Exp $
+ * $Id: CandCombiner.h,v 1.5 2006/03/03 10:20:44 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -22,26 +22,27 @@ namespace edm {
   class ParameterSet;
 }
 
-namespace candmodules {
-
-  class CandCombiner : public edm::EDProducer {
-  public:
-    /// constructor from parameter set
-    explicit CandCombiner( const edm::ParameterSet & );    
-    /// destructor
-    ~CandCombiner();
-
-  private:
-    /// process an event
-    void produce( edm::Event& e, const edm::EventSetup& );
-    /// label vector
-    std::vector<candcombiner::ConjInfo> labels_;
-    /// combiner utility
-    std::auto_ptr<TwoBodyCombiner> combiner_;
-    /// labels of the two source candidate collections
-    std::string source1_, source2_;
-  };
-
+namespace cand {
+  namespace modules {
+    
+    class CandCombiner : public edm::EDProducer {
+    public:
+      /// constructor from parameter set
+      explicit CandCombiner( const edm::ParameterSet & );    
+      /// destructor
+      ~CandCombiner();
+      
+    private:
+      /// process an event
+      void produce( edm::Event& e, const edm::EventSetup& );
+      /// label vector
+      std::vector<cand::parser::ConjInfo> labels_;
+      /// combiner utility
+      std::auto_ptr<TwoBodyCombiner> combiner_;
+      /// labels of the two source candidate collections
+      std::string source1_, source2_;
+    };
+  }
 }
 
 #endif

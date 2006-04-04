@@ -15,7 +15,7 @@ Framework module for common particle candidate manupulation
 generic selector module SelectorProducer.
 
 \subsection modules Modules
-- candmodules::CandCombiner: combine pairs of candidates. The collection names that
+- cand::modules::CandCombiner: combine pairs of candidates. The collection names that
 have to be combined and their charge combination is specified by the user. A string
 can also specify the selection cut on the composite candidates.<br>
 Examples of configuration for this module are the following:
@@ -36,7 +36,7 @@ both decays to <i>x<sup>+</sup>y<sup>-</sup></i> and <i>x<sup>-</sup>y<sup>+</su
 
 \endhtmlonly
 
-- candmodules::CandSelector: selects candidates from a collection and saves their clones in 
+- cand::modules::CandSelector: selects candidates from a collection and saves their clones in 
 a new collection. The selection can be specified by the user as a string. <br>
 Examples of configuration for this module are the following:
 \htmlonly
@@ -54,7 +54,7 @@ Examples of configuration for this module are the following:
 \endhtmlonly
 
 
-- candmodules::CandReducer: clones a collection of candidates removing all daughters and external
+- cand::modules::CandReducer: clones a collection of candidates removing all daughters and external
 components, leaving only kinematic information. This is ment to produce a "light" collection
 of candiadates just containing kimenatics information for very fast analysis purpose.
 Example of configuration for this module is the following:
@@ -67,7 +67,7 @@ Example of configuration for this module is the following:
 \endhtmlonly
 
 
-- candmodules::CandMerger: merges an arbitray number of candidate collection. 
+- cand::modules::CandMerger: merges an arbitray number of candidate collection. 
 Example of configuration for this module is the following:
 \htmlonly
 <pre>
