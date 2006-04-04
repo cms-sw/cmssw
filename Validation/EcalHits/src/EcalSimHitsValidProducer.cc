@@ -236,8 +236,8 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
           double  py = thePrim -> GetPy();
           double  pz = thePrim -> GetPz();
           theMomentum[0] = px;
-          theMomentum[1] = px;
-          theMomentum[2] = px;
+          theMomentum[1] = py;
+          theMomentum[2] = pz;
           theMomentum[3] = 0.0;
 
           pInit =sqrt( pow(px,2.) + pow(py,2.) + pow(pz,2.));
