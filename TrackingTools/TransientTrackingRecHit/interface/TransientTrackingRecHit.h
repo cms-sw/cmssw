@@ -17,6 +17,15 @@ public:
     _geom = geom ;
     _trackingRecHit = rh->clone();
   }
+  TransientTrackingRecHit( const TransientTrackingRecHit & t ) {
+    _trackingRecHit = (t.hit())->clone();
+    _geom = t.det();
+  }
+  TransientTrackingRecHit & operator= (const TransientTrackingRecHit & t) {
+    _trackingRecHit = (t.hit())->clone();
+    _geom = t.det();
+    return *(this);
+  }
 
   virtual ~TransientTrackingRecHit() {delete _trackingRecHit;}
 
