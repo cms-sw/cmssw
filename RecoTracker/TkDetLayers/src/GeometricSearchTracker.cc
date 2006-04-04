@@ -125,4 +125,5 @@ GeometricSearchTracker::detLayer( const DetId& id) const
     cout << "ERROR:layer not found!" << endl;
     // throw(something);
   }
+  return 0; //just to avoid compile warnings
 }
