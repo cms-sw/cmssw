@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.15 2006/02/03 19:06:57 jbk Exp $
+ * $Id: pset_parse.y,v 1.16 2006/02/07 22:20:57 paterno Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -138,6 +138,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token BLOCK_tok
 %token ENDPATH_tok
 %token USING_tok
+%token REPLACE_tok
 %token MODULE_tok
 %token SERVICE_tok
 %token ES_MODULE_tok
@@ -449,6 +450,7 @@ anyquote:        SQWORD_tok
                  DQWORD_tok
                  {
                    DBPRINT("anyquote: DQWORD");
+ DBPRINT($<str>1);
                    $<str>$ = $<str>1;
                  }
                ;
@@ -560,6 +562,76 @@ procnode:        allpset
                  {
                    DBPRINT("procnode: BLOCK");
                    $<_Node>$ = $<_PSetNode>2;
+                 }
+               |
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok any
+                 {
+                   DBPRINT("procnode: REPLACEVALUE");
+                   string name(toString($<str>2));
+                   string value(toString($<str>4));
+                   EntryNode * entry = new EntryNode("replace",name, value, false, lines);
+                   NodePtr entryPtr(entry);
+                   ReplaceNode* wn(new ReplaceNode("replaceEntry", name, entryPtr, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok array
+                 {
+                   DBPRINT("node: VTYPE");
+                   string name(toString($<str>2));
+                   StringListPtr value($<_StringList>4);
+                   VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
+                   NodePtr entryPtr(en);
+                   ReplaceNode* wn(new ReplaceNode("replaceVEntry", name, entryPtr, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok anyquote
+                 {
+                   DBPRINT("procnode: REPLACESTRING");
+                   string name(toString($<str>2));
+                   string value(toString($<str>4));
+                   EntryNode * entry = new EntryNode("replace",name, value, false, lines);
+                   NodePtr entryPtr(entry);
+                   ReplaceNode* wn(new ReplaceNode("replaceString", name, entryPtr, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok strarray
+                 {
+                   DBPRINT("procnode: REPLACEVSTRING");
+                   string name(toString($<str>2));
+                   StringListPtr value($<_StringList>4);
+                   VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
+                   NodePtr entryPtr(en);
+                   ReplaceNode* wn(new ReplaceNode("replaceVString", name, entryPtr, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok scoped
+                 {
+                   DBPRINT("procnode:REPLACESCOPE");
+                   string name(toString($<str>2));
+                   NodePtrListPtr value($<_NodePtrList>4);
+                   ContentsNode* en(new ContentsNode(value,lines));
+                   NodePtr entryPtr(en);
+                   ReplaceNode* wn(new ReplaceNode("replaceScope", name, entryPtr, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 REPLACE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: REPLACEMODULE");
+                   string name(toString($<str>2));
+                   string type(toString($<str>4));
+                   DBPRINT(name);
+                   DBPRINT(type);
+                   NodePtrListPtr nodelist($<_NodePtrList>5);
+                   ModuleNode * moduleNode(new ModuleNode("module",name,type,nodelist,lines));
+                   NodePtr entryPtr(moduleNode);
+                   ReplaceNode* wn(new ReplaceNode("replaceModule", name, entryPtr, lines));
+                   $<_Node>$ = wn;
                  }
                |
                  MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
