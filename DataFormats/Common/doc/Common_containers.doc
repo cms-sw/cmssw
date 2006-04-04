@@ -53,7 +53,7 @@ type <tt><b>Ext</b></tt>.
   instance of the actual concrete object. Other user-provided policy implementations are possible.
   <br><br>Due to the polymorphic nature of contained objects, the STL <tt><b>std::sort</b></tt>
   functions do not work with edm::OwnVector. For this reason, functions to sort
-  the collection are provided as member functions.
+  the collection are provided as class methods.
 
 - edm::RangeMap <b>&lt;ID, C, P&gt;</b>: generic container of objects
   organized in a collection of type <tt><b>C</b></tt> and sorted 
