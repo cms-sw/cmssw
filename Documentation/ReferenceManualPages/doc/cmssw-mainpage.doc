@@ -1,8 +1,8 @@
 /** \mainpage
 
-This is the CMSSW mainpage
+This is main page of the CMSSW Reference Manual.
 
-<br><br><br>
+<br><br>
 
 \section subdv SubDetector View
 
@@ -59,6 +59,8 @@ This is the CMSSW mainpage
 
 \endhtmlonly
 
+<br>
+
 \section funcv Functional View
 
 \htmlonly
@@ -113,8 +115,8 @@ This is the CMSSW mainpage
 
 \endhtmlonly
 
-<br>
-\ref ReferenceManual "How to contribute to this Reference Manual"
+<br><br>
+Learn \ref ReferenceManual "how to contribute to this Reference Manual"
 <br>
 
 

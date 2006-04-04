@@ -14,11 +14,17 @@ Here is a template of a documented
 and of a <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Documentation/CodingRules/Template.cc?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>.cc file</a>. The resulting doxygen page is \ref Template "here".
 
 \section pakagedoc Package Documentation
-Each package should contain a very brief description of its content and purpose. Remember that this is a reference, and not a user's guide: tutorials, howtos, etc. are best documented on the Wiki pages. Cross link between Wiki pages and this manual are a good way to avoid duplication of content.
+Each package should contain a very brief description of its content and purpose. Remember that this is a reference, and not a user's guide: tutorials, howtos, etc. are best documented on the Wiki pages. Cross link between <a href=https://uimon.cern.ch/twiki/bin/view/CMS/MuonSW>Wiki pages</a>
+and this manual are a good way to avoid duplication of content.
 
-This documentation should be written in a file [Package]/doc/[Package].doc. 
-It is recommended to stick to the template provided 
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Documentation/ReferenceManualPages/template/Package.doc.template?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>here</a>.
+This documentation should be written in a file [Package]/doc/[Package].doc,
+according to the template
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Documentation/ReferenceManualPages/template/Package.doc.template?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Documentation/ReferenceManualPages/template/Package.doc</a>. 
+It is highly recommended to create the .doc file using the script Documentation/ReferenceManualScripts/scripts/makePackageDoc
+\htmlonly
+<a href="http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/*checkout*/CMSSW/Documentation/ReferenceManualScripts/scripts/makePackageDoc?rev=1.1&cvsroot=CMSSW">(download here)</a>. 
+\endhtmlonly
+Running this script in the doc area of your package creates a .doc file already containing a list of classes and modules to be documenred.
 
 Documentation on modules can include <b>.cfi</b> files as follows:
 \htmlonly
@@ -32,5 +38,5 @@ Documentation on modules can include <b>.cfi</b> files as follows:
 
 <hr>
 Last updated:
- 30-Mar-06 N. Amapane
+ @DATE@ N. Amapane
 */
