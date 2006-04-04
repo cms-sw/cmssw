@@ -103,7 +103,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   memcpy(&theTMBHeader, buf, NHeaderFrames*2);
 
   if(!theTMBHeader.check()) {
-     edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad TMB header e0bLine=" << std::ios::hex << buf[e0bLine];
+     edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad TMB header e0bLine=" << std::hex << buf[e0bLine];
      return 0;
   }
 

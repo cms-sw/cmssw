@@ -1,3 +1,4 @@
+
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCBadCFEBTimeSlice.h"
@@ -35,9 +36,9 @@ CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf)
         maxSamples =   goodSlice->sixteenSamples() ? 16 : 8;
         pos += goodSlice->sizeInWords();
       } else {
-        edm::LogError ("CSCCFEBData") << "CORRUPT CFEB DATA slice " << theNumberOfSamples << std::ios::hex 
+        edm::LogError ("CSCCFEBData") << "CORRUPT CFEB DATA slice " << theNumberOfSamples << std::hex 
 				      << " " << *(buf+pos) << " " << *(buf+pos+1) << " " 
-				      << *(buf+pos+2) << std::ios::dec;
+				      << *(buf+pos+2) << std::dec;
         return;
       }
     }
@@ -100,7 +101,9 @@ std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned layer) const {
     for(unsigned itime = 0; itime < nTimeSamples(); ++itime) {
       sca[itime] = adcCounts(layer, ichannel, itime);
     }
-   
+    if (sca.size()==0) std::cout << "Sandrik SCA ZERO" << std::endl;
+    if (nTimeSamples()==0) std::cout << "Sandrik TimeSamples ZERO" << std::endl;
+
     int strip = ichannel + 16*boardNumber_;
     CSCStripDigi digi(strip, sca);
     result.push_back(digi);

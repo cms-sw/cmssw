@@ -40,7 +40,7 @@ CSCEventData::CSCEventData(unsigned short * buf)
     if(debug) {
       edm::LogInfo ("CSCEventData") << "The event data ";
       for(int i = 0; i < 16; ++i) {
-	edm::LogInfo ("CSCEventData") << std::ios::hex << pos[i ] << " ";
+	edm::LogInfo ("CSCEventData") << std::hex << pos[i ] << " ";
       }
     }
    
@@ -48,7 +48,7 @@ CSCEventData::CSCEventData(unsigned short * buf)
     if(!(theDMBHeader.check())) {
       edm::LogError ("CSCEventData")  << "Bad DMB Header??? " << " first four words: ";
       for(int i = 0; i < 4; ++i) {
-	edm::LogError ("CSCEventData") << std::ios::hex << pos[i ] << " ";
+	edm::LogError ("CSCEventData") << std::hex << pos[i ] << " ";
       }
     }
   
@@ -113,7 +113,7 @@ CSCEventData::CSCEventData(unsigned short * buf)
     if(debug) {
       edm::LogInfo ("CSCEventData") << "ready to unpack trailer ";
       for(unsigned i = 0; i < 8; ++i) {
-	edm::LogInfo ("CSCEventData") << std::ios::hex << pos[i] <<" ";
+	edm::LogInfo ("CSCEventData") << std::hex << pos[i] <<" ";
       }
     }
     theDMBTrailer = *( (CSCDMBTrailer *) pos );

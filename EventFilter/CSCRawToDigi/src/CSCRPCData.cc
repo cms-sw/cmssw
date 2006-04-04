@@ -45,7 +45,7 @@ CSCRPCData::CSCRPCData(const unsigned short * buf, int length)
 void CSCRPCData::Print() const {
   edm::LogInfo ("CSCRPCData") << "CSCRPCData.Print";
   for(int line = 0; line < ((size_)); ++line) {
-    edm::LogInfo ("CSCRPCData") <<std::ios::hex << theData[line];
+    edm::LogInfo ("CSCRPCData") <<std::hex << theData[line];
   }
   
   for(int linePair = 0; linePair < ((size_-2)/2); ++linePair) {
@@ -94,7 +94,7 @@ std::vector<CSCRPCDigi> CSCRPCData::digis() const {
     // skip header word
     int pos = linePair*2 + 1;
     if (debug) 
-      edm::LogInfo("CSCRPCData") << "+++ CSCRPCData " << std::ios::hex << theData[pos] 
+      edm::LogInfo("CSCRPCData") << "+++ CSCRPCData " << std::hex << theData[pos] 
 				 << " " << theData[pos+1];
     // make the two pad words into one and see if it's empty
     int pad = theData[pos] & 0xff + ((theData[pos+1] & 0x3f) << 8);
@@ -107,7 +107,7 @@ std::vector<CSCRPCDigi> CSCRPCData::digis() const {
 
     if(pad != 0) {
       if (debug) edm::LogInfo("CSCRPCData") << "+++ CSCRPCData Found a PAD =" 
-					    << std::ios::hex << pad << " " << theData[pos] 
+					    << std::hex << pad << " " << theData[pos] 
 					    << " + " << theData[pos+1];
       int rpc  = (theData[pos]   >> 12) & 0x7;
       int tbin = (theData[pos]   >> 8)  & 0xf;

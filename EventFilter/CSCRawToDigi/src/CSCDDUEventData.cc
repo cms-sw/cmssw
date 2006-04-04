@@ -47,12 +47,7 @@ void CSCDDUEventData::decodeStatus() const {
 void CSCDDUEventData::decodeStatus(int code) const {
   //JRG is Jason Gilmore
   // JRG, low-order 16-bit status (most serious errors):
-  if((code&0x0000F000)>0){
-    if((0x00008000&code)>0)
-      edm::LogError ("CSCDDUEventData") << "   DDU Critical Error, ** needs reset **";
-    if((0x00004000&code)>0)
-      edm::LogError ("CSCDDUEventData") << "   DDU Single Error, bad event";
-
+  if((code&0xFFFFFFFF)>0){///this is a mask for printing out errors
     // JRG, low-order 16-bit status (most serious errors):
     if((code&0x0000F000)>0){
       if((0x00008000&code)>0)
@@ -80,39 +75,31 @@ void CSCDDUEventData::decodeStatus(int code) const {
 	edm::LogError ("CSCDDUEventData") << "   DDU Lost In Data Error occurred";
       if((0x00000040&code)>0)
 	edm::LogError ("CSCDDUEventData") << "   DDU Timeout Error";
- 
-      // Multiple-bit vote failures (or Rx Errors) in one 64-bit word:
       if((0x00000020&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU Critical Data Error For OLD DDU";
-      // Multiple-bit vote failures (or Rx Errors) in one 64-bit word:
-      if((0x00000020&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   TMB or ALCT CRC Error For NEW DDU";
-
-
-      // Multiple single-bit vote failures (or Rx Errors) over time from one DMB:
+	edm::LogError ("CSCDDUEventData") << "   TMB or ALCT CRC Error";
       if((0x00000010&code)>0)
 	edm::LogError ("CSCDDUEventData") << "   DDU Multiple Transmit Errors";
     }
     if((code&0x0000000F)>0){
       if((0x00000008&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU FIFO Full Error";
+	edm::LogError ("CSCDDUEventData") << "   DDU Sync Lost or FIFO Full Error";
       if((0x00000004&code)>0)
 	edm::LogError ("CSCDDUEventData") << "   DDU Fiber Error";
       if((0x00000002&code)>0)
 	edm::LogError ("CSCDDUEventData") << "   DDU L1A Match Error";
       if((0x00000001&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU CRC Error";
+	edm::LogError ("CSCDDUEventData") << "   DDU CFEB CRC Error";
     }
     if((code&0xF0000000)>0){
       // JRG, high-order 16-bit status (not-so-serious errors):
       if((0x80000000&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU Output Limited Buffer Overflow";
+	edm::LogError ("CSCDDUEventData") << "   DDU LCT/DAV Mismatch";
       if((0x40000000&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU G-Bit FIFO Full Warning";
+	edm::LogError ("CSCDDUEventData") << "   DDU-CFEB L1 Mismatch";
       if((0x20000000&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU Ethernet Xmit Limit flag";
+	edm::LogError ("CSCDDUEventData") << "   DDU CRC Error in Event";
       if((0x10000000&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU G-Bit Fiber Error";
+	edm::LogError ("CSCDDUEventData") << "   DDU CFEB Count Error";
      
     }
     if((code&0x0F000000)>0){
@@ -129,13 +116,11 @@ void CSCDDUEventData::decodeStatus(int code) const {
       if((0x00800000&code)>0)
 	edm::LogError ("CSCDDUEventData") << "   DDU Spwd single-bit Warning";
       if((0x00400000&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU Ethernet DLL Error";
+	edm::LogError ("CSCDDUEventData") << "   DDU Input FPGA Error";
       if((0x00200000&code)>0)
-	edm::LogError ("CSCDDUEventData") << "   DDU S-Link Full Bit set";
+	edm::LogError ("CSCDDUEventData") << "   DDU S-Link Wait is set";
       if((0x00100000&code)>0)
 	edm::LogError ("CSCDDUEventData") << "   DDU S-Link Not Ready";
-      if((0x00300000&code)==0x00200000)
-	edm::LogError ("CSCDDUEventData") << "   DDU S-Link Stopped (backpressure)";
     }
     if((code&0x000F0000)>0){
       if((0x00080000&code)>0)
@@ -199,7 +184,7 @@ void CSCDDUEventData::unpack_data(unsigned short *buf) {
   errorstat=theDDUTrailer.errorstat();
   if (errorstat != 0) {
     edm::LogError ("CSCDDUEventData") 
-      << "+++ CSCDDUEventData warning: DDU Trailer errors = " << std::hex << errorstat << " +++ ";
+     << "+++ CSCDDUEventData warning: DDU Trailer errors = " << std::hex << errorstat << " +++ ";
     decodeStatus(errorstat);
   }
    

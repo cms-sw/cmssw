@@ -122,26 +122,33 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
 
     
-    // Take a reference to this FED's data
+    /// Take a reference to this FED's data
     const FEDRawData& fedData = rawdata->FEDData(id);
 
 
-    if (fedData.size()){ //unpack data 
+    if (fedData.size()){ ///unpack data 
      
-      //get a pointer to data and pass it to constructor for unpacking
+      ///get a pointer to data and pass it to constructor for unpacking
       CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
       
 
       if(instatiateDQM) monitor->process(dccData);
 
-      //get a reference to dduData
+      ///get a reference to dduData
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
 
-      for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  //loop over DDUs
+      for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
 	
-	//get a reference to chamber data
+	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
 	
+	///skip the DDU if its data has serious errors
+	/// 0xFFFFFFFF -is a mask for serious errors  
+	if (dduData[iDDU].trailer().errorstat()&0xFFFFFFFF) {
+	  edm::LogError("CSCDCCUnpacker") << "DDU has errors - Digis are not stored! " <<
+	    std::hex << dduData[iDDU].trailer().errorstat();
+	  continue;
+	}
 	for (unsigned int iCSC=0; iCSC<cscData.size(); ++iCSC) { //loop over CSCs
 
 	  //this loop stores strip and wire digis:
@@ -168,15 +175,18 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	      edm::LogError ("CSCDCCUnpacker") << " using fake CSCDetId!!!! ";
 	    }
 
+
+	    
 	    std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
 	    for (unsigned int i=0; i<wireDigis.size() ; i++) {
 	      wireProduct->insertDigi(layer, wireDigis[i]);
 	    }
 
 	    std::vector <CSCStripDigi> stripDigis =  cscData[iCSC].stripDigis(ilayer);
-            for (unsigned int i=0; i<stripDigis.size() ; i++) {
-              stripProduct->insertDigi(layer, stripDigis[i]);
-            }
+	    for (unsigned int i=0; i<stripDigis.size() ; i++) {
+	      stripProduct->insertDigi(layer, stripDigis[i]);
+	    }
+	    
 
 	    int nclct = cscData[iCSC].dmbHeader().nclct();
 	    if (nclct) {
