@@ -70,6 +70,8 @@ class SiStripRawToDigi {
   uint16_t triggerFedId_;
 
   SiStripTrivialDigiAnalysis anal_;
+
+  vector<uint16_t> skews_; //@@ debug
   
 };
 

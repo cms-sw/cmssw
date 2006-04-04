@@ -20,7 +20,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 // tasks
-#include "DQM/SiStripCommissioningSources/interface/PhysicsTask.h"
+//#include "DQM/SiStripCommissioningSources/interface/PhysicsTask.h"
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 // std, utilities
@@ -160,14 +160,14 @@ bool CommissioningSource::createTask( const edm::EventSetup& setup,
 	    uint32_t fed_key = SiStripGenerateKey::fed( conn.fedId(), conn.fedCh() );
 	    // Create commissioning task objects
 	    if ( tasks_.find( fed_key ) == tasks_.end() ) {
-	      if      ( task_ == "PHYSICS" )    { tasks_[fed_key] = new PhysicsTask( dqm_, conn ); }
-	      else if ( task_ == "PEDESTALS" )  { tasks_[fed_key] = new PedestalsTask( dqm_, conn ); }
+	      if      ( task_ == "PEDESTALS" )  { tasks_[fed_key] = new PedestalsTask( dqm_, conn ); }
 	      else if ( task_ == "APV_TIMING" ) { tasks_[fed_key] = new ApvTimingTask( dqm_, conn ); }
+	      //else if ( task_ == "PHYSICS" )    { tasks_[fed_key] = new PhysicsTask( dqm_, conn ); }
 	      else if ( task_ != "UNKNOWN" ) {
 		//  Use data stream to determine which task objects are created!
-		if      ( task == SiStripEventSummary::PHYSICS )    { tasks_[fed_key] = new PhysicsTask( dqm_, conn ); }
-		else if ( task == SiStripEventSummary::PEDESTALS )  { tasks_[fed_key] = new PedestalsTask( dqm_, conn ); }
+		if ( task == SiStripEventSummary::PEDESTALS )  { tasks_[fed_key] = new PedestalsTask( dqm_, conn ); }
 		else if ( task == SiStripEventSummary::APV_TIMING ) { tasks_[fed_key] = new ApvTimingTask( dqm_, conn ); }
+		//else if ( task == SiStripEventSummary::PHYSICS )    { tasks_[fed_key] = new PhysicsTask( dqm_, conn ); }
 		else if ( task == SiStripEventSummary::UNKNOWN_TASK ) {
 		  edm::LogError("CommissioningSource") << "[CommissioningSource::createTask]"
 						       << " Unknown commissioning task in data stream! " << task_;

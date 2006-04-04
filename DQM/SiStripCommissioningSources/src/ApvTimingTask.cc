@@ -70,9 +70,7 @@ void ApvTimingTask::fill( const SiStripEventSummary& summary,
   
   // Fill vectors
   for ( uint16_t coarse = 0; coarse < nBins_/*digis.data.size()*/; coarse++ ) {
-    //uint16_t fine = ( coarse + 1 ) * 25 - static_cast<uint16_t>( skews.second * 25./24. ); //@@ check formula!
-    uint16_t fine = (coarse+1)*24 - skews.second; //@@ check formula!
-    //cout << "fine " << coarse << " " << fine << endl;
+    uint16_t fine = ( (skews.first + coarse ) * 24 ) + skews.second; //@@ check formula!
     timing_.vSumOfSquares_[fine] += digis.data[coarse].adc() * digis.data[coarse].adc();
     timing_.vSumOfContents_[fine] += digis.data[coarse].adc();
     timing_.vNumOfEntries_[fine]++;

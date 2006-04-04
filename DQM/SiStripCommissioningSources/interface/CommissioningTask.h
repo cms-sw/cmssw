@@ -23,9 +23,10 @@ class CommissioningTask {
     MonitorElement* meSumOfSquares_;
     MonitorElement* meSumOfContents_;
     MonitorElement* meNumOfEntries_;
-    vector<unsigned int> vSumOfSquares_;
-    vector<unsigned int> vSumOfContents_;
-    vector<unsigned int> vNumOfEntries_;
+    vector<uint32_t> vSumOfSquares_;
+    vector<uint32_t> vSumOfSquaresOverflow_;
+    vector<uint32_t> vSumOfContents_;
+    vector<uint32_t> vNumOfEntries_;
   };
   
   CommissioningTask( DaqMonitorBEInterface*, const FedChannelConnection& );

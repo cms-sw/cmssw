@@ -61,9 +61,11 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
 				      const edm::EventSetup& iSetup ) {
   
   eventCounter_++; 
-  edm::LogInfo("RawToDigi") << "[SiStripRawToDigiModule::produce]"
-			    << " Processing event number: " << eventCounter_;
-  
+  if ( !(eventCounter_%10) ) {
+    edm::LogInfo("RawToDigi") << "[SiStripRawToDigiModule::produce]"
+			      << " Processing event number: " << eventCounter_;
+  }
+
   edm::ESHandle<SiStripFedCabling> cabling;
   iSetup.get<SiStripFedCablingRcd>().get( cabling );
   

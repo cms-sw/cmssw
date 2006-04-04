@@ -35,11 +35,11 @@ SiStripRawToDigi::SiStripRawToDigi( int16_t header_bytes,
   dumpFrequency_( dump_frequency ),
   useFedKey_( use_fed_key ),
   triggerFedId_( trigger_fed_id ),
-  anal_("SiStripRawToDigi")
+  anal_("SiStripRawToDigi"),
+  skews_() //@@ debug
 {
   edm::LogInfo("RawToDigi") << "[SiStripRawToDigi::SiStripRawToDigi] Constructing object...";
 }
-
 
 // -----------------------------------------------------------------------------
 /** */
@@ -47,6 +47,11 @@ SiStripRawToDigi::~SiStripRawToDigi() {
   edm::LogInfo("RawToDigi") << "[SiStripRawToDigi::~SiStripRawToDigi] Destructing object...";
   if ( fedEvent_ ) { delete fedEvent_; }
   if ( fedDescription_ ) { delete fedDescription_; }
+
+  //@@ debug
+  stringstream ss;
+  for ( uint16_t iter = 0; iter < skews_.size(); iter++ ) { ss << iter << "/" << skews_[iter] << " "; }
+  edm::LogInfo("SiStripRawToDigi::~SiStripRawToDigi") << "Skew/Freq: " << ss.str();
 }
 
 // -----------------------------------------------------------------------------
@@ -321,6 +326,13 @@ void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
       uint32_t hsize = sizeof(TFHeaderDescription)/sizeof(uint32_t);
       uint32_t* head = &data[hsize];
       summary->commissioningInfo( head );
+      
+      //@@ debug
+      if ( summary->task() == SiStripEventSummary::APV_TIMING ) {
+	pair<uint32_t,uint32_t> skews = summary->pll();
+	if ( skews.second >= skews_.size() ) { skews_.resize(skews.second+1); }
+	skews_[skews.second]++;
+      }
       
     }
   }
