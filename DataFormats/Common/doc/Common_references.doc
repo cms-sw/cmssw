@@ -11,6 +11,7 @@
 Commonly used persistent references.
 
 \subsection interface Public interface
+- edm::CloningPtr <b>&lt;T&gt;</b>:
 - edm::Ref: 
 - edm::RefVector:
 - edm::RefProd:
