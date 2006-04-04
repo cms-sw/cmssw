@@ -11,7 +11,6 @@
 Commonly used persistent references.
 
 \subsection interface Public interface
-- edm::CloningPtr <b>&lt;T&gt;</b>:
 - edm::Ref: 
 - edm::RefVector:
 - edm::RefProd:
@@ -20,6 +19,9 @@ Commonly used persistent references.
 - edm::RefVectorBase:
 - edm::RefCore:
 - edm::RefItem:
+
+- edm::CloningPtr <b>&lt;T, P&gt;</b>: owning pointer to an object that gets cloned
+  with a specified \ref DataFormats_Common_helpers "policy".
 
 - edm::Associated <b>&lt;C, T&gt;</b>: helper class to be used with an 
   edm::ExtCollection <b>&lt;C, Ext&gt;</b> whose <tt><b>Ext</b></tt> parametric 
