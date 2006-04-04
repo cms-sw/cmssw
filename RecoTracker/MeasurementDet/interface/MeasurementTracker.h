@@ -16,6 +16,7 @@
 
 class TkStripMeasurementDet;
 class TkPixelMeasurementDet;
+class GeometricSearchTracker;
 class TrackingGeometry;
 
 class MeasurementTracker : public TrackingSystem {
@@ -31,6 +32,8 @@ public:
 
   const TrackingGeometry* geomTracker() const { return theTrackerGeom;}
 
+  const GeometricSearchTracker* geometricSearchTracker() const {return theGeometricSearchTracker;}
+
 private:
 
   typedef std::map<DetId,MeasurementDet*>   DetContainer;
@@ -39,6 +42,7 @@ private:
   std::vector<TkStripMeasurementDet*> theStripDets;
   std::vector<TkPixelMeasurementDet*> thePixelDets;
   const TrackingGeometry*             theTrackerGeom;
+  const GeometricSearchTracker*       theGeometricSearchTracker;
 
   const StripClusterParameterEstimator* stripCPE;
   const PixelClusterParameterEstimator* pixelCPE;

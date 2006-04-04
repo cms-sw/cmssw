@@ -6,9 +6,11 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 #include <iostream>
 
@@ -53,6 +55,10 @@ void MeasurementTracker::initialize(const edm::EventSetup& setup)
       
       addDet(*gd);
     }
+
+   edm::ESHandle<GeometricSearchTracker> gstrackerHandle;
+   setup.get<TrackerRecoGeometryRecord>().get( gstrackerHandle);
+   theGeometricSearchTracker = &(*gstrackerHandle);
 }
 
 void MeasurementTracker::addDet( const GeomDet* gd)
