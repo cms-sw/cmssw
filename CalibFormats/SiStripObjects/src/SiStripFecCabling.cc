@@ -370,11 +370,11 @@ const pair<uint16_t,uint16_t>& SiStripModule::fedCh( const uint16_t& apv_pair ) 
 bool SiStripModule::fedCh( const uint16_t& apv_address, 
 			   const pair<uint16_t,uint16_t>& fed_ch ) {
   // Determine LLD channel
-  int16_t lld_ch;
+  int16_t lld_ch = 0;
   if      ( apv_address == 32 || apv_address == 33 ) { lld_ch = 0; }
   else if ( apv_address == 34 || apv_address == 35 ) { lld_ch = 1; }
   else if ( apv_address == 36 || apv_address == 37 ) { lld_ch = 2; }
-  else if ( apv_address == 0 ) { ; } //@@ 
+  else if ( apv_address == 0 ) { ; } //@@ do nothing?
   else { 
     edm::LogError("FecCabling") << "[SiStripModule::fedCh]" 
 				<< " Unexpected I2C address (" 
