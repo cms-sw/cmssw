@@ -206,23 +206,25 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
  
     vector<PSimHit>::const_iterator ssbegin; 
     for (ssbegin= _PixelHits.begin();ssbegin !=_PixelHits.end(); ++ssbegin) {
-
-	LogDebug ("Pixel Digitizer") << (*ssbegin).particleType() << " " << (*ssbegin).pabs() << " " 
-				     << (*ssbegin).energyLoss() << " " << (*ssbegin).tof() << " " 
-				     << (*ssbegin).trackId() << " " << (*ssbegin).processType() << " " 
-				     << (*ssbegin).detUnitId()  
-				     << (*ssbegin).entryPoint() << " " << (*ssbegin).exitPoint() ; 
-
-
+      
+      LogDebug ("Pixel Digitizer") << (*ssbegin).particleType() << " " << (*ssbegin).pabs() << " " 
+				   << (*ssbegin).energyLoss() << " " << (*ssbegin).tof() << " " 
+				   << (*ssbegin).trackId() << " " << (*ssbegin).processType() << " " 
+				   << (*ssbegin).detUnitId()  
+				   << (*ssbegin).entryPoint() << " " << (*ssbegin).exitPoint() ; 
+      
+      
       _collection_points.clear();  // Clear the container
       // fill _collection_points for this SimHit, indpendent of topology
-      primary_ionization(*ssbegin); // fills _ionization_points
-
-      drift(*ssbegin);  // transforms _ionization_points to _collection_points  
-
-      // compute induced signal on readout elements and add to _signal
-      induce_signal(*ssbegin); //*ihit needed only for SimHit<-->Digi link
-				   }
+      if (abs( (*ssbegin).tof())<theTofCut){
+	primary_ionization(*ssbegin); // fills _ionization_points
+	
+	drift(*ssbegin);  // transforms _ionization_points to _collection_points  
+	
+	// compute induced signal on readout elements and add to _signal
+	induce_signal(*ssbegin); //*ihit needed only for SimHit<-->Digi link
+				     }
+    }
 
     if(addNoise) add_noise();  // generate noise
     // Do only if needed 
