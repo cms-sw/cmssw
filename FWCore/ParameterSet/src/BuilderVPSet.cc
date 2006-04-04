@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 15:43:02 EDT 2005
-// $Id: BuilderVPSet.cc,v 1.3 2005/07/14 16:17:23 jbk Exp $
+// $Id: BuilderVPSet.cc,v 1.4 2006/03/02 22:58:11 paterno Exp $
 //
 
 // system include files
@@ -78,7 +78,7 @@ void BuilderVPSet::visitString(const StringNode& n)
 
 void BuilderVPSet::visitContents(const ContentsNode& n)
 {
-   boost::shared_ptr<ParameterSet> newPSet = makePSet(*(n.value_), 
+   boost::shared_ptr<ParameterSet> newPSet = makePSet(*(n.nodes_), 
                                               blocks_,
                                               psets_);
    main_.push_back(*newPSet);

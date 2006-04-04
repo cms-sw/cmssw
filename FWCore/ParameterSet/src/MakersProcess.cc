@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.18 2006/02/07 22:20:57 paterno Exp $
+// $Id: MakersProcess.cc,v 1.19 2006/03/02 22:58:11 paterno Exp $
 //
 
 // system include files
@@ -92,11 +92,11 @@ namespace edm {
       {
 	static const std::string kPSet("PSet");
 	static const std::string kBlock("block");
-
+        NodePtrListPtr nodes = iNode.value_.nodes_;
 	if(iNode.type() == kPSet) 
 	  {
 	    boost::shared_ptr<edm::ParameterSet> tmp_pset = 
-	      makePSet(*(iNode.value_.value_),usingBlocks_,pSets_);
+	      makePSet(*nodes,usingBlocks_,pSets_);
 	    
 	    pSets_.insert(make_pair(iNode.name, tmp_pset));
 	    
@@ -105,15 +105,15 @@ namespace edm {
 	  } 
 	else if (iNode.type() == kBlock) 
 	  {
-	    if(iNode.value_.value_->empty()==true)
+	    if(nodes->empty()==true)
 	      {
 		throw edm::Exception(errors::Configuration,"EmptySet")
 		  << "ParameterSet: Empty Blocks are not allowed.\n"
 		  << "name = " << iNode.name;
 	      }
-	    usingBlocks_.insert(make_pair(iNode.name, makePSet(*(iNode.value_.value_),
-								 usingBlocks_,
-								 pSets_)));
+	    usingBlocks_.insert(make_pair(iNode.name, makePSet(*nodes,
+							       usingBlocks_,
+							       pSets_)));
 	  }
 	else
 	  {

@@ -215,7 +215,7 @@ namespace edm {
 //               << "A parameter cannot be empty."
 //               << " name = " << n.name;
 //           }
-         boost::shared_ptr<ParameterSet> newPSet = makePSet(*(n.value_.value_),
+         boost::shared_ptr<ParameterSet> newPSet = makePSet(*(n.value_.nodes_),
                                                         blocks_,
                                                         psets_);
          
