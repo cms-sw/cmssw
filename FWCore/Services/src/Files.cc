@@ -11,26 +11,21 @@ namespace edm
 {
   namespace service
   {
-
+    /*
+     * Note that output formatting is spattered across these classes
+     * If something outside these classes requires access to the 
+     * same formatting then we need to refactor it into a common library
+     */
     ostream& 
     operator<< (ostream& os, InputFile const& f)
     {
-      os << "InputFile record:"
-	 << "\n logical filename:     " << f.logicalFileName
-	 << "\n physical filename:    " << f.physicalFileName
-	 << "\n catalog:              " << f.catalog
-	 << "\n input source class:   " << f.inputSourceClassName
-	 << "\n input source label:   " << f.moduleLabel
-	 << "\n runsSeen: ";
-      copy(f.runsSeen.begin(), 
-	   f.runsSeen.end(),
-	   ostream_iterator<RunNumber_t>(os, " "));
-      os << "\n number of events read: " << f.numEventsRead
-	 << "\n branch names: ";
-      copy(f.branchNames.begin(),
-	   f.branchNames.end(),
-	   ostream_iterator<string>(os, "\n "));
-      os << "\n file close?:  " << boolalpha << f.fileHasBeenClosed;
+      
+      os << "\n<InputFile>";
+      formatFile<InputFile>(f, os);
+      os << "\n<InputSourceClass>" << f.inputSourceClassName 
+	 << "</InputSourceClass>";
+      os << "\n<EventsRead>" << f.numEventsRead << "</EventsRead>";
+      os << "\n</InputFile>";
       return os;
     }
 
@@ -38,7 +33,13 @@ namespace edm
     ostream& 
     operator<< (ostream& os, OutputFile const& f)
     {
-      os << "not yet implemented\n";
+      formatFile<OutputFile>(f, os);           
+      os << "\n<OutputModuleClass>" 
+			<< f.outputModuleClassName 
+			<< "</OutputModuleClass>";
+      os << "\n<TotalEvents>" 
+			<< f.numEventsWritten 
+			<< "</TotalEvents>\n";
       return os;      
     }
 
