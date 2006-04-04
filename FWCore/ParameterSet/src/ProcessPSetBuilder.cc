@@ -3,11 +3,11 @@
    Implementation of calss ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ProcessPSetBuilder.cc,v 1.10 2006/01/24 21:15:12 jbk Exp $
+   \version $Id: ProcessPSetBuilder.cc,v 1.11 2006/03/02 22:58:11 paterno Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.10 2006/01/24 21:15:12 jbk Exp $";
+static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.11 2006/03/02 22:58:11 paterno Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessPSetBuilder.h>
@@ -19,6 +19,7 @@ static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.10 2006/01/24 21:15:
 #include "FWCore/ParameterSet/interface/Entry.h"
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
+#include "FWCore/ParameterSet/src/ParseResultsTweaker.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
@@ -53,7 +54,10 @@ namespace edm
     //       << "Unable to parse configuration file.\n"
     //       << "Please check the error message reported earlier.";
     //   }
-  
+    // process "replace" commands, inline using blocks, etc.
+    edm::pset::ParseResultsTweaker tweaker;
+    tweaker.process(parsetree);
+
     processDesc_= edm::pset::makeProcess(parsetree);
 
     SeqMap sequences;
