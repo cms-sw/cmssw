@@ -1,8 +1,10 @@
 <use name=DataFormats/Common>
+<use name=DataFormats/DetId>
 <use name=clhep>
 <flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsTrackingRecHit>
  <use name=DataFormats/Common>
- <use name=clhep>
+ <use name=DataFormats/DetId>
+<use name=clhep>
 </export>

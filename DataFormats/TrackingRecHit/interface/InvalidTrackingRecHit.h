@@ -10,6 +10,7 @@ class InvalidTrackingRecHit : public TrackingRecHit {
 public:
 
   InvalidTrackingRecHit( const DetId& id) : detId_(id) {}
+  InvalidTrackingRecHit() : detId_(0) {}
 
   virtual ~InvalidTrackingRecHit() {}
   
