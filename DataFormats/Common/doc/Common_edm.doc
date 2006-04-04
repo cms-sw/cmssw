@@ -15,7 +15,6 @@ Commonly used EDM classes.
 - edm::BranchEntryDescription
 - edm::BranchKey:
 - edm::ConditionsID:
-- edm::EDCollection:
 - edm::EDProduct:
 - edm::EDProductGetter:
 - edm::ModuleDescription:

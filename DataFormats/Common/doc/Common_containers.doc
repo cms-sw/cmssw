@@ -11,7 +11,8 @@
 Commonly used persistent containers.
 
 \subsection interface Public interface
-- edm::DetSet:
+- edm::EDCollection <b>&lt;T&gt;</b>:
+- edm::DetSet <b>&lt;T&gt;</b>:
 
 - edm::ExtCollection <b>&lt;C, Ext&gt;</b>: a collection providing 
   internally as instance of a collection of type 
@@ -27,7 +28,7 @@ Commonly used persistent containers.
 that allow to access, and possibly modify, the instance <tt><b>ext_</b></tt> of the 
 type <tt><b>Ext</b></tt>.
 
-- edm::IDVectorMap:
+- edm::IDVectorMap <b>&lt;ID, C, P&gt;</b>:
 
 - edm::OneToManyAssociation <b>&lt;CKey, CVal, index &gt;</b>: one-to-many
   association based on edm::Ref, of objects in a <b>CKey</b> collection 
@@ -43,7 +44,8 @@ type <tt><b>Ext</b></tt>.
   capabilities. 
   <br><br>The first template argument <tt><b>T</b></tt> is the common base class of
   polymorphic objects to be stored; the second parameter <tt><b>P</b></TT> specifies
-  the <a href="#IV">policy</a> required to allocate clones of the stored object. By default, it
+  the  \ref DataFormats_Common_helpers "policy" required to allocate clones of 
+  the stored object. By default, it
   is equal to the type <b>edm::ClonePolicy&lt;T&gt;</b>, which assumes that the 
   type <tt>T</tt> is equipped with a virtual method <tt><b>clone()</b></tt> that returns a cloned
   instance of the actual concrete object. Other user-provided policy implementations are possible.
@@ -57,11 +59,11 @@ type <tt><b>Ext</b></tt>.
   possible to iterate over contained object, iterate over identifiers,
   access only objects with a specified identifier, or whose identifier
   match a specified criterion. The collection is sorted before being
-  inserted in the Event. The <a href="#IV">policy</a> to be used
+  inserted in the Event. The  \ref DataFormats_Common_helpers "policy" to be used
   to produce copies/clones of the objects during insertion and final
   sorting phases can be specified as template parameter <tt><b>P</b></tt>.
 
-- edm::SortedCollection:
+- edm::SortedCollection <b>&lt;T, SORT&gt;</b>:
 
 \subsection modules Modules
 None.
