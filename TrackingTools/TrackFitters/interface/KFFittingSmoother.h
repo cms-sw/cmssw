@@ -11,45 +11,35 @@
  *  a beam contraint etc.). 
  */
 
-class KFFittingSmoother : public TrajectorySmoother {
+class KFFittingSmoother : public TrajectoryFitter {
 
 public:
-  /// default constructor with mass from SimpleConfigurable
-  KFFittingSmoother();
-  /// constructor with explicit mass hypothesis
-  KFFittingSmoother(const float mass);
-  /// constructor with predefined fitter and smoother
+  /// constructor with predefined fitter and smoother and propagator
   KFFittingSmoother(const TrajectoryFitter& aFitter,
                     const TrajectorySmoother& aSmoother) :
     theFitter(aFitter.clone()),
     theSmoother(aSmoother.clone()) {}
-
-  KFFittingSmoother(const TrajectoryFitter* aFitter,
-		    const TrajectorySmoother* aSmoother) :
-    theFitter(aFitter->clone()),
-    theSmoother(aSmoother->clone()) {}
   
   virtual ~KFFittingSmoother();
-
-  virtual vector<Trajectory> trajectories(const Trajectory& t) const;
-  virtual vector<Trajectory> trajectories(const TrajectorySeed& aSeed,
+  
+  virtual vector<Trajectory> fit(const Trajectory& t) const;
+  virtual vector<Trajectory> fit(const TrajectorySeed& aSeed,
 				 const edm::OwnVector<TransientTrackingRecHit>& hits, 
 				 const TrajectoryStateOnSurface& firstPredTsos) const;
+  virtual vector<Trajectory> fit(const TrajectorySeed& aSeed,
+				 const edm::OwnVector<TransientTrackingRecHit>& hits) const;
 
   const TrajectoryFitter* fitter() const {return theFitter;}
   const TrajectorySmoother* smoother() const {return theSmoother;}
 
   KFFittingSmoother* clone() const {
-    return new KFFittingSmoother(theFitter,theSmoother);
+    return new KFFittingSmoother(*theFitter,*theSmoother);
   }
   
 private:
 
-  const TrajectoryFitter* theFitter;
-  const TrajectorySmoother* theSmoother;
-
-  /// Initialisation of fitter and smoother
-  void init (const float mass);
+  const TrajectoryFitter* theFitter
+;  const TrajectorySmoother* theSmoother;
 
   vector<Trajectory> smoothingStep(vector<Trajectory>& fitted) const;
   TrajectoryStateWithArbitraryError   tsosWithError;

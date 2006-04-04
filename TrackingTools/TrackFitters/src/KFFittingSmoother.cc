@@ -5,44 +5,18 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 //#include "Utilities/UI/interface/SimpleConfigurable.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
-KFFittingSmoother::KFFittingSmoother()
-{
-  //
-  // Temporary: take mass from same configurable as the MaterialEffectsUpdator
-  //
-  //static SimpleConfigurable<float> massConfigurable(0.1057,"MaterialEffects:defaultMass");
-  //init(massConfigurable.value());
-  init(0.1057);//temporary hack
-}
-
-KFFittingSmoother::KFFittingSmoother(const float mass)
-{
-  init(mass);
-}
-
-void KFFittingSmoother::init (const float mass)
-{
-  PropagatorWithMaterial propagator(alongMomentum,mass);
-  KFUpdator updator;
-  Chi2MeasurementEstimator estimator(100);
-  theFitter = new KFTrajectoryFitter(propagator,updator,estimator);
-
-  propagator.setPropagationDirection(oppositeToMomentum);
-  theSmoother = new KFTrajectorySmoother(propagator,updator,estimator);
-}
 
 KFFittingSmoother::~KFFittingSmoother() {
-
   delete theSmoother;
   delete theFitter;
-
 }
 
 
 vector<Trajectory> 
-KFFittingSmoother::trajectories(const Trajectory& t) const {
-
+KFFittingSmoother::fit(const Trajectory& t) const {
+  
   if(!t.isValid()) return vector<Trajectory>();
 
   vector<Trajectory> fitted = fitter()->fit(t);
@@ -50,7 +24,7 @@ KFFittingSmoother::trajectories(const Trajectory& t) const {
 }
 
 vector<Trajectory> KFFittingSmoother::
-trajectories(const TrajectorySeed& aSeed,
+fit(const TrajectorySeed& aSeed,
 	     const edm::OwnVector<TransientTrackingRecHit>& hits, 
 	     const TrajectoryStateOnSurface& firstPredTsos) const 
 {
@@ -58,6 +32,8 @@ trajectories(const TrajectorySeed& aSeed,
   
   vector<Trajectory> fitted = 
     fitter()->fit(aSeed, hits, tsosWithError(firstPredTsos));
+  //    std::cout <<" ))))))))))))))))) IN KFFittingSmoother::fit "<<fitted.size()<<std::endl;
+    
   return smoothingStep(fitted);
 }
 
@@ -72,6 +48,14 @@ KFFittingSmoother::smoothingStep(vector<Trajectory>& fitted) const
     vector<Trajectory> smoothed = smoother()->trajectories(*it);
     result.insert(result.end(), smoothed.begin(), smoothed.end());
   }
-
+  //  std::cout <<" ))))))))))))))))) IN KFFittingSmoother::smoothingStep "<<result.size()<<std::endl;
   return result;
+}
+vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
+					   const edm::OwnVector<TransientTrackingRecHit>& hits) const{
+
+  throw cms::Exception("TrackingTools/TrackFitters", 
+		       "KFFittingSmoother::fit(TrajectorySeed, <TransientTrackingRecHit>) not implemented"); 
+
+  return vector<Trajectory>();
 }
