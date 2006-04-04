@@ -1,10 +1,10 @@
-#include <DQM/HcalMonitorModule/interface/HcalMonitorModule.h>
+#include <DQM/HcalMonitorModule/src/HcalMonitorModule.h>
 
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/01/03 19:49:47 $
- * $Revision: 1.6 $
+ * $Date: 2006/04/04 19:26:04 $
+ * $Revision: 1.7 $
  * \author W Fisher
  *
 */
