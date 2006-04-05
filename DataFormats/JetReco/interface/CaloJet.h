@@ -23,6 +23,8 @@
 
 #include <vector>
 
+#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+
 class CaloJet : public Jet {
 public:
   struct Specific {
