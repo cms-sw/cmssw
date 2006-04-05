@@ -2,7 +2,6 @@
 <class name="DTDigi"/>
 <class name="std::vector<DTDigi>"/>
 <class name="std::map<DTLayerId,std::vector<DTDigi> >"/>
-<class name="DTDigi::PersistentPacking"/>
 <class name="MuonDigiCollection<DTLayerId,DTDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<DTLayerId,DTDigi>>"/> 
 </lcgdict>

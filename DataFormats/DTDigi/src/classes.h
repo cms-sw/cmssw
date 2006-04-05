@@ -8,7 +8,6 @@ namespace{
   namespace {
 
   DTDigi d;
-  DTDigi::PersistentPacking bb;
   std::vector<DTDigi>  vv;
   std::vector<std::vector<DTDigi> >  v1; 
   DTDigiCollection dd;

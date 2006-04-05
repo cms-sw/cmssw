@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2005/10/25 13:48:54 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/10 13:21:02 $
+ *  $Revision: 1.3 $
  *
  * \author N. Amapane - INFN Torino
  */
@@ -10,65 +10,60 @@
 #include <DataFormats/DTDigi/interface/DTDigi.h>
 
 #include <iostream>
-#include <bitset>
 
 using namespace std;
 
+
 const double DTDigi::reso =  25./32.; //ns
 
-DTDigi::DTDigi (int wire, int nTDC, int number){
-  set(wire, number, nTDC);
-}
 
-DTDigi::DTDigi (int wire, float tdrift, int number){
-  set(wire, number, static_cast<int>(tdrift/reso));
-}
+DTDigi::DTDigi (int wire, int nTDC, int number) : 
+  theWire(wire),
+  theCounts(nTDC),
+  theNumber(number)
+{}
 
-DTDigi::DTDigi (ChannelType channel, int nTDC){
+
+DTDigi::DTDigi (int wire, double tdrift, int number): 
+  theWire(wire),
+  theCounts(static_cast<int>(tdrift/reso)),
+  theNumber(number)
+{}
+
+
+DTDigi::DTDigi (ChannelType channel, int nTDC):
+  theWire(0),
+  theCounts(nTDC),
+  theNumber(0)
+{
   ChannelPacking* ch = reinterpret_cast<ChannelPacking*>(&channel);
-  set(ch->wire,
-      ch->number,
-      nTDC);
-}
-
-DTDigi::DTDigi (PackedDigiType packed_value){
-  setData(packed_value);
-}
-
-// Copy constructor
-DTDigi::DTDigi(const DTDigi& digi) {
-  persistentData = digi.persistentData;
-}
-
-DTDigi::DTDigi (){
-  set(0,0,0);
+  theWire = ch->wire;
+  theNumber = ch->number;
 }
 
 
-// Assignment
-DTDigi& 
-DTDigi::operator=(const DTDigi& digi){
-  persistentData = digi.persistentData;
-  return *this;
-}
+DTDigi::DTDigi ():
+  theWire(0),
+  theCounts(0), 
+  theNumber(0)
+{}
+
 
 // Comparison
 bool
 DTDigi::operator == (const DTDigi& digi) const {
-  if ( !(wire() == digi.wire())     ||
-       !(number()== digi.number()) ) return false;
-  if ( countsTDC() != digi.countsTDC() ) return false;
+  if ( theWire != digi.wire() ||
+       //       theNumber != digi.number() || //FIXME required ??
+       theCounts != digi.countsTDC() ) return false;
   return true;
 }
 
 // Getters
 DTDigi::ChannelType
 DTDigi::channel() const {
-  const PackedDigiType* d = data();
   ChannelPacking result;
-  result.wire = d->wire;
-  result.number= d->number;
-  result.padding = 0;
+  result.wire = theWire;
+  result.number= theNumber;
   return *(reinterpret_cast<DTDigi::ChannelType*>(&result));
 }
 
@@ -79,29 +74,26 @@ DTDigi::channel() const {
 //   else return DTEnum::RPhi;
 // }
 
-double DTDigi::time() const { return countsTDC()*reso; }
+double DTDigi::time() const { return theCounts*reso; }
 
-int DTDigi::countsTDC() const { return data()->counts; }
+uint32_t DTDigi::countsTDC() const { return theCounts; }
 
-int DTDigi::wire() const { return data()->wire; }
+int DTDigi::wire() const { return theWire; }
 
-int DTDigi::number() const { return data()->number; }
+int DTDigi::number() const { return theNumber; }
 
 // Setters
 
 void DTDigi::setTime(double time){
-  setCountsTDC(static_cast<int>(time/reso));
+  theCounts = static_cast<int>(time/reso);
 }
 
 void DTDigi::setCountsTDC (int nTDC) {
-  if (nTDC<0) cout << "WARNING: negative TDC count not supported "
+  if (nTDC<0) cout << "WARNING: DTDigi::setCountsTDC: negative TDC count not supported "
 		   << nTDC << endl;
-  data()->counts = nTDC;
+  theCounts = nTDC;
 }
 
-void DTDigi::setTrailer(int trailer) {
-  data()->trailer=trailer;
-}
 
 // Debug
 
@@ -112,35 +104,3 @@ DTDigi::print() const {
        << " Drift time (ns) " << time() << endl;
 }
 
-void
-DTDigi::dump() const {
-  typedef bitset<8*sizeof(PackedDigiType)> bits;
-  cout << *reinterpret_cast<const bits*>(data());  
-}
-
-// ----- Private members
-
-void
-DTDigi::set(int  wire, int number, int counts) {
-
-  PackedDigiType* d = data();
-  d->wire   = wire;
-  d->number = number;
-  d->counts = counts;
-  d->trailer = 0;
-}
-
-DTDigi::PackedDigiType* 
-DTDigi::data() {
-  return reinterpret_cast<PackedDigiType*>(&persistentData);
-}
-
-const DTDigi::PackedDigiType* 
-DTDigi::data() const {
-  return reinterpret_cast<const PackedDigiType*>(&persistentData);
-}
-
-void 
-DTDigi::setData(PackedDigiType p){
-  *(data()) = p;
-}

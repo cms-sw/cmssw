@@ -7,8 +7,8 @@
  * It can be initialized/set with a time in ns or a TDC count in 25/32 ns 
  * units.
  *  
- *  $Date: 2005/12/02 09:28:35 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/12/02 10:18:27 $
+ *  $Revision: 1.6 $
  *
  * \author N. Amapane - INFN Torino
  *
@@ -20,24 +20,6 @@ class DTDigi{
 
 public:
   typedef uint32_t ChannelType;
-
-  /// Lenght of packed fields
-  enum packing{wire_s     = 7,
-	       number_s   = 3,
-	       counts_s   = 20,
-	       trailer_s  = 2  // padding (unused)
-  };
-
-  /// The packed digi content  
-  struct PackedDigiType {
-
-    unsigned int wire     : wire_s;
-    unsigned int number   : number_s;
-    unsigned int counts   : counts_s;
-    unsigned int trailer  : trailer_s; 
-    
-    PackedDigiType():wire(0),number(0),counts(0),trailer(0) {}
-  };
   
   /// Construct from the wire#, the TDC counts and the digi number.
   /// number should identify uniquely multiple digis in the same cell.
@@ -46,28 +28,16 @@ public:
   /// Construct from the wire#, the time (ns) and the digi number.
   /// time is converted in TDC counts (1 TDC = 25./32. ns)
   /// number should identify uniquely multiple digis in the same cell.
-  explicit DTDigi (int wire, float tdrift, int number=0);
+  explicit DTDigi (int wire, double tdrift, int number=0);
 
   /// Construct from channel and counts.
   explicit DTDigi (ChannelType channel, int nTDC);
 
-  /// Construct from a packed value
-  DTDigi (PackedDigiType packed_value);
-
-  /// Copy constructor
-  DTDigi (const DTDigi& digi);
-
   /// Default construction.
   DTDigi ();
 
-  /// Assignment operator
-  DTDigi& operator=(const DTDigi& digi);
-
   /// Digis are equal if they are on the same cell and have same TDC count
   bool operator==(const DTDigi& digi) const;
-
-  /// Get all digi content (incl. channel and digi number) in a packed fromat
-  PackedDigiType packedData() const { return *(data()); }
 
   /// The channel identifier and the digi number packed together
   ChannelType channel() const ;
@@ -85,7 +55,7 @@ public:
   double time() const;
 
   /// Get raw TDC count
-  int countsTDC() const;
+  uint32_t countsTDC() const;
 
   /// Set with a time in ns
   void setTime(double time);  
@@ -93,14 +63,8 @@ public:
   /// Set with a TDC count
   void setCountsTDC (int nTDC);
 
-  /// Setter for trailing bits at the end of the data words (currently unused)
-  void setTrailer(int trailer);
-
   /// Print content of digi
   void print() const;
-
-  /// Print the binary representation of the digi
-  void dump() const;
 
 private:
   friend class testDTDigis;
@@ -108,41 +72,20 @@ private:
   // The value of one TDC count in ns
   static const double reso;
 
-  // Set data words
-  void set(int  wire, int number, int counts);
-
-  // Set from a PackedDigiType
-  void setData(PackedDigiType p);
-
-  // Access to the packed data
-  PackedDigiType* data();
-
-  // Const access to the packed data
-  const PackedDigiType* data() const;
-
   // Used to repack the channel number to an int
   struct ChannelPacking {
-    unsigned int wire    : wire_s;
-    unsigned int number  : number_s;
-    unsigned int padding : trailer_s+counts_s;    // unused
+    uint16_t wire;
+    uint16_t number;
   };
 
- public:
-  // the packed data as seen by the persistency - should never be used 
-  // directly, only by calling data()
-// made public to be able to generate lcgdict, SA, 27/4/05
-  struct PersistentPacking {
-    uint32_t w1;
-  };
 
  private:
-
-  PersistentPacking persistentData;
-
+  uint16_t theWire;   // channel number
+  uint32_t theCounts; // TDC count, up to 20 bits actually used
+  uint16_t theNumber; // counter for digis in the same cell
 };
 
 #include<iostream>
-// needed by COBRA
 inline std::ostream & operator<<(std::ostream & o, const DTDigi& digi) {
   return o << " " << digi.wire()
 	   << " " << digi.time()

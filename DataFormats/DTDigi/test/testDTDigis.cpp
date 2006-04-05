@@ -3,7 +3,7 @@
    Test suit for DTDigis
 
    \author Stefano ARGIRO
-   \version $Id: testDTDigis.cc,v 1.6 2006/01/20 14:58:18 bellan Exp $
+   \version $Id: testDTDigis.cpp,v 1.1 2006/03/24 14:16:11 argiro Exp $
    \date 29 Jun 2005
 
    \note This test is not exaustive     
@@ -19,7 +19,6 @@ class testDTDigis: public CppUnit::TestFixture {
 
   CPPUNIT_TEST_SUITE(testDTDigis);
 
-  CPPUNIT_TEST(testDigiPacking);
   CPPUNIT_TEST(testDigiCollectionInsert);
   CPPUNIT_TEST(testDigiCollectionPut);
   CPPUNIT_TEST(testTime2TDCConversion);
@@ -31,7 +30,6 @@ public:
 
   void setUp(){}
   void tearDown(){}  
-  void testDigiPacking();
   void testDigiCollectionInsert();
   void testDigiCollectionPut();
   void testTime2TDCConversion();
@@ -39,12 +37,6 @@ public:
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testDTDigis);
-
-
-void testDTDigis::testDigiPacking(){
-  CPPUNIT_ASSERT (sizeof(DTDigi::PersistentPacking)==sizeof(DTDigi::PackedDigiType));
-  CPPUNIT_ASSERT(sizeof(DTDigi::ChannelPacking)==sizeof(int));
-}
 
 
 void testDTDigis::testDigiCollectionPut(){
@@ -55,11 +47,7 @@ void testDTDigis::testDigiCollectionPut(){
 
   std::vector<DTDigi> digivec;
   for (int i=0; i<10; ++i){
-    DTDigi::PackedDigiType pd;
-    pd.wire=1+i;
-    pd.counts=5+i;
-
-    DTDigi digi(pd);
+    DTDigi digi(1+i,5+i);
     digivec.push_back(digi);
   }
 
@@ -86,7 +74,7 @@ void testDTDigis::testDigiCollectionPut(){
 	 ++digiIt){
 
       CPPUNIT_ASSERT((*digiIt).wire()==1+i);
-      CPPUNIT_ASSERT((*digiIt).countsTDC()==5+i);
+      CPPUNIT_ASSERT((*digiIt).countsTDC()==(unsigned)5+i);
       i++;
       
     }// for digis in layer
@@ -96,13 +84,7 @@ void testDTDigis::testDigiCollectionPut(){
 
 void testDTDigis::testDigiCollectionInsert(){
 
-  DTDigi::PackedDigiType pd;
-  pd.wire=1;
-  pd.number=4;
-  pd.counts=5;
-
-  DTDigi digi(pd);
-
+  DTDigi digi(1,5,4);
 
   DTLayerId layer(2,3,8,1,4);
 
@@ -146,7 +128,7 @@ void testDTDigis::testDigiCollectionInsert(){
 void testDTDigis::testTime2TDCConversion(){
   float time=243;
   float reso=25./32.;
-  int tdc=int(time/reso);
+  unsigned int tdc=int(time/reso);
   int pos=2;
   int wire=1;
 
