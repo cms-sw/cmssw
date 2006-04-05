@@ -138,14 +138,22 @@ namespace edmtestp
       }
     } while (data.d_.length() == 0);
 
-    events_read_++;
-
     int len = data.d_.length();
     FDEBUG(9) << "EventStreamHttpReader received len = " << len << std::endl;
     buf_.resize(len);
     for (int i=0; i<len ; i++) buf_[i] = data.d_[i];
-    edm::EventMsg msg(&buf_[0],len);
-    return decoder_.decodeEvent(msg,prods_);
+
+    // first check if done message
+    edm::MsgCode msgtest(&buf_[0],len);
+    if(msgtest.getCode() == MsgCode::DONE) {
+      // this will end cmsRun 
+      std::cout << "Storage Manager as halted - ending run" << std::endl;
+      return std::auto_ptr<edm::EventPrincipal>();
+    } else {
+      events_read_++;
+      edm::EventMsg msg(&buf_[0],len);
+      return decoder_.decodeEvent(msg,prods_);
+    }
   }
 
   std::auto_ptr<SendJobHeader> EventStreamHttpReader::readHeader()
