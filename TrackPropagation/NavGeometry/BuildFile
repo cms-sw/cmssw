@@ -4,7 +4,7 @@
 <use name=TrackingTools/GeomPropagators>
 
 <export>
- <lib name=TrackPropagation/NavVolumeGeometry>
+ <lib name=TrackPropagationNavGeometry>
  <use name=Geometry/Surface>
  <use name=MagneticField/VolumeGeometry>
  <use name=TrackingTools/GeomPropagators>
