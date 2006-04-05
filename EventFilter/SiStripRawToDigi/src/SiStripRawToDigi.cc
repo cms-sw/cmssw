@@ -195,9 +195,9 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	if ( samples.empty() ) { 
 	  edm::LogWarning("Commissioning") << "[SiStripRawToDigi::createDigis] No SM digis found!"; 
 	} else {
-	  sm.data.clear(); sm.data.resize( samples.size(), 0 ); 
+	  sm.data.clear(); sm.data.resize( samples.size() ); 
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
-	    sm.data[i] = SiStripRawDigi( samples[i] ); 
+	    sm.data[i] = SiStripRawDigi( i, samples[i] ); 
 	    anal_.smDigi( i, sm.data[i].adc() );
 	  }
 	  LogDebug("Commissioning") << "Extracted " << samples.size() 
@@ -218,7 +218,7 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	    physical = i%128;
 	    readoutOrder( physical, readout ); // convert from physical to readout order
 	    (i/128) ? readout=readout*2+1 : readout=readout*2; // multiplexed data
-	    vr.data[ipair*256+i] = SiStripRawDigi( samples[readout] ); 
+	    vr.data[ipair*256+i] = SiStripRawDigi( ipair*256+i, samples[readout] ); 
 	    anal_.vrDigi( ipair*256+i, vr.data[ipair*256+i].adc() );
 	  }
 	  LogDebug("Commissioning") << "Extracted " << samples.size() 
@@ -237,7 +237,7 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
 	    physical = i%128; 
 	    (i/128) ? physical=physical*2+1 : physical=physical*2; // multiplexed data
-	    pr.data[ipair*256+i] = SiStripRawDigi( samples[physical] ); 
+	    pr.data[ipair*256+i] = SiStripRawDigi( ipair*256+i, samples[physical] ); 
 	    anal_.prDigi( ipair*256+i, pr.data[ipair*256+i].adc() );
 	  } 
 	  LogDebug("Commissioning") << "Extracted " << samples.size() 
@@ -275,9 +275,9 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	if ( samples.empty() ) { 
 	  edm::LogWarning("Commissioning") << "[SiStripRawToDigi::createDigis] No SM digis found!"; 
 	} else {
-	  sm.data.clear(); sm.data.resize( samples.size(), 0 ); 
+	  sm.data.clear(); sm.data.resize( samples.size() ); 
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
-	    sm.data[i] = SiStripRawDigi( samples[i] ); 
+	    sm.data[i] = SiStripRawDigi( i, samples[i] ); 
 	    anal_.smDigi( i, sm.data[i].adc() );
 	  }
 	  LogDebug("Commissioning") << "Extracted " << samples.size() 

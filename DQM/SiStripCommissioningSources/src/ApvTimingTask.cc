@@ -29,13 +29,13 @@ void ApvTimingTask::book( const FedChannelConnection& conn ) {
 
   timing_.meSumOfSquares_  = dqm_->book1D( title( "ApvTiming", "sumOfSquares", conn.lldChannel() ),
 					   title( "ApvTiming", "sumOfSquares", conn.lldChannel() ),
-					   nbins, 0., nbins*1. );
+					   nbins, 0.1, nBins_*25.+0.1 );
   timing_.meSumOfContents_ = dqm_->book1D( title( "ApvTiming", "sumOfContents", conn.lldChannel() ),
 					   title( "ApvTiming", "sumOfContents", conn.lldChannel() ), 
-					   nbins, 0., nbins*1. );
+					   nbins, 0.1, nBins_*25.+0.1 );
   timing_.meNumOfEntries_  = dqm_->book1D( title( "ApvTiming", "numOfEntries", conn.lldChannel() ),
 					   title( "ApvTiming", "numOfEntries", conn.lldChannel() ), 
-					   nbins, 0., nbins*1. );
+					   nbins, 0.1, nBins_*25.+0.1 );
   
   timing_.vSumOfSquares_.resize(nbins,0);
   timing_.vSumOfContents_.resize(nbins,0);
@@ -66,11 +66,11 @@ void ApvTimingTask::fill( const SiStripEventSummary& summary,
   }
   
   pair<uint32_t,uint32_t> skews = const_cast<SiStripEventSummary&>(summary).pll();
-  //cout << "skews " << summary.event() << " " << summary.bx() << " " << skews.first << " " << skews.second << endl;
   
   // Fill vectors
   for ( uint16_t coarse = 0; coarse < nBins_/*digis.data.size()*/; coarse++ ) {
-    uint16_t fine = ( (skews.first + coarse ) * 24 ) + skews.second; //@@ check formula!
+    uint16_t fine = (coarse+1)*24 - (skews.second+1);
+    //cout << "coarse " << coarse << " fine " << fine << " adc " << digis.data[coarse].adc() << endl;
     timing_.vSumOfSquares_[fine] += digis.data[coarse].adc() * digis.data[coarse].adc();
     timing_.vSumOfContents_[fine] += digis.data[coarse].adc();
     timing_.vNumOfEntries_[fine]++;
