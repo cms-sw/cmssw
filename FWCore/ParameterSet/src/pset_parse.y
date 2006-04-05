@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.16 2006/02/07 22:20:57 paterno Exp $
+ * $Id: pset_parse.y,v 1.17 2006/04/04 22:37:57 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -571,18 +571,18 @@ procnode:        allpset
                    string value(toString($<str>4));
                    EntryNode * entry = new EntryNode("replace",name, value, false, lines);
                    NodePtr entryPtr(entry);
-                   ReplaceNode* wn(new ReplaceNode("replaceEntry", name, entryPtr, lines));
+                   ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
                    $<_Node>$ = wn;
                  }
                |
                  REPLACE_tok LETTERSTART_tok EQUAL_tok array
                  {
-                   DBPRINT("node: VTYPE");
+                   DBPRINT("node: REPLACEVTYPE");
                    string name(toString($<str>2));
                    StringListPtr value($<_StringList>4);
                    VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
                    NodePtr entryPtr(en);
-                   ReplaceNode* wn(new ReplaceNode("replaceVEntry", name, entryPtr, lines));
+                   ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
                    $<_Node>$ = wn;
                  }
                |
@@ -593,7 +593,7 @@ procnode:        allpset
                    string value(toString($<str>4));
                    EntryNode * entry = new EntryNode("replace",name, value, false, lines);
                    NodePtr entryPtr(entry);
-                   ReplaceNode* wn(new ReplaceNode("replaceString", name, entryPtr, lines));
+                   ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
                    $<_Node>$ = wn;
                  }
                |
@@ -604,7 +604,7 @@ procnode:        allpset
                    StringListPtr value($<_StringList>4);
                    VEntryNode* en(new VEntryNode("replace",name,value,false,lines));
                    NodePtr entryPtr(en);
-                   ReplaceNode* wn(new ReplaceNode("replaceVString", name, entryPtr, lines));
+                   ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
                    $<_Node>$ = wn;
                  }
                |
@@ -614,9 +614,9 @@ procnode:        allpset
                    DBPRINT("procnode:REPLACESCOPE");
                    string name(toString($<str>2));
                    NodePtrListPtr value($<_NodePtrList>4);
-                   ContentsNode* en(new ContentsNode(value,lines));
-                   NodePtr entryPtr(en);
-                   ReplaceNode* wn(new ReplaceNode("replaceScope", name, entryPtr, lines));
+                   PSetNode* en(new PSetNode("replace", name, value,lines));
+                   NodePtr psetPtr(en);
+                   ReplaceNode* wn(new ReplaceNode("replace", name, psetPtr, lines));
                    $<_Node>$ = wn;
                  }
                |
@@ -628,9 +628,9 @@ procnode:        allpset
                    DBPRINT(name);
                    DBPRINT(type);
                    NodePtrListPtr nodelist($<_NodePtrList>5);
-                   ModuleNode * moduleNode(new ModuleNode("module",name,type,nodelist,lines));
+                   ModuleNode * moduleNode(new ModuleNode("replace",name,type,nodelist,lines));
                    NodePtr entryPtr(moduleNode);
-                   ReplaceNode* wn(new ReplaceNode("replaceModule", name, entryPtr, lines));
+                   ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
                    $<_Node>$ = wn;
                  }
                |
