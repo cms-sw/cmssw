@@ -7,15 +7,14 @@
  *  the RPC Data Quality Monitor (mainly prints the control web page and runs quality tests
  *  on real-time demand).
  * 
- *  $Date: 2006/01/30 17:38:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/14 11:23:52 $
+ *  $Revision: 1.4 $
  *  \author Ilaria Segoni
   */
 
 #include "DQMServices/WebComponents/interface/DQMWebClient.h"
 #include "DQMServices/WebComponents/interface/WebElement.h"
 #include "DQMServices/WebComponents/interface/WebPage.h"
-#include "DQM/RPCMonitorClient/interface/RPCQualityTester.h"
 
 class Button;
 
@@ -33,6 +32,10 @@ class RPCWebClient : public DQMWebClient
   ///A method that responds to WebElements submitting non-default requests (like Buttons)
   void Request(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
  
+  /// Get List of Monitoring Tasks running (like RPC DQM for Digi, RPC DQM for
+  /// data integrity checks, DT Global Reco,...
+  void GetAvailableTasks(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
+  
   /// Set up Quality Tests
   void ConfigQTestsRequest(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
   
@@ -45,18 +48,22 @@ class RPCWebClient : public DQMWebClient
   /// Check Status of Quality Tests
   void CheckQTestsRequestSingle(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
 
+  /// Check Status of Quality Tests
+  void AddTaskButtons(xgi::Input * in, xgi::Output *out,std::string) throw (xgi::exception::Exception);
+
  private:
 
   WebPage * page;
   bool printout;
-  bool testsWereSet;
+  bool testsConfigured;
+  bool testsRunning;
   
   
-  RPCQualityTester * qualityTests;
-
   Button * butRunQT;
   Button * butCheckQT;
   Button * butCheckQTSingle;
+  
+  std::vector<std::string> taskList;
   
   int yCoordinateMessage;
 };
