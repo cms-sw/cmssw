@@ -2,8 +2,8 @@
  *
  *  Implementation of RPCWebClient
  *
- *  $Date: 2006/02/02 15:50:18 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/14 11:24:20 $
+ *  $Revision: 1.6 $
  *  \author Ilaria Segoni
  */
 #include "DQM/RPCMonitorClient/interface/RPCWebClient.h"
@@ -16,12 +16,19 @@
 #include "DQMServices/WebComponents/interface/GifDisplay.h"
 #include "DQM/RPCMonitorClient/interface/WebMessage.h"
 
+
+#include "DQM/RPCMonitorClient/interface/QTestConfigurationParser.h"
+#include "DQM/RPCMonitorClient/interface/QTestEnabler.h"
+
 RPCWebClient::RPCWebClient(xdaq::ApplicationStub * s) : DQMWebClient(s)
 {
   printout=true;
-  testsWereSet=false;
+  testsConfigured=false;
+  testsRunning=false;
+  taskList.clear();
+  
   yCoordinateMessage=350;
-  qualityTests=new RPCQualityTester();
+  
   
 
 /// Drop down menus  
@@ -30,6 +37,9 @@ RPCWebClient::RPCWebClient(xdaq::ApplicationStub * s) : DQMWebClient(s)
   ContentViewer * cont = new ContentViewer(getApplicationURL(), "1700px", "50px");
 
 ///  BUTTONS:  
+
+  ///Button to get list of Monitoring Tasks Available
+  Button * butTasks = new Button(getApplicationURL(), "50px", "500px", "GetMonitoringTasks", "Get Monitoring Tasks List"); 
   ///Button to set up Quality tests (from txt configuration file)
   Button * butConfigQT = new Button(getApplicationURL(), "350px", "50px", "ConfigQltyTests", "Configure Quality Tests");
   ///Button to run Quality tests
@@ -55,10 +65,12 @@ RPCWebClient::RPCWebClient(xdaq::ApplicationStub * s) : DQMWebClient(s)
   page->add("navigator", nav);
   page->add("contentViewer", cont);
   
+  page->add("button_getTasks", butTasks);
+  
   page->add("button_setTests", butConfigQT);
-  //page->add("button_runTests", butRunQT);
-  //page->add("button_checkTests", butCheckQT);
-  //page->add("button_checkTestsSingle", butCheckQTSingle);
+  page->add("button_runTests", butRunQT);
+  page->add("button_checkTests", butCheckQT);
+  page->add("button_checkTestsSingle", butCheckQTSingle);
   
   page->add("gifDisplay", dis);
   page->add("gifDisplayBase", disBasePlots);
@@ -90,28 +102,99 @@ void RPCWebClient::Request(xgi::Input * in, xgi::Output * out )
 
   // get the string that identifies the request:
   std::string requestID = this->get_from_multimap(request_multimap, "RequestID");
-
+  
+  
+  for(std::vector<std::string>::iterator it=taskList.begin(); it!=taskList.end(); ++it){   
+    if (requestID == *it)    this->AddTaskButtons(in, out,*it);
+  }
+  
+  
+  
+  if (requestID == "GetMonitoringTasks")    this->GetAvailableTasks(in, out);
+  
   if (requestID == "ConfigQltyTests")       this->ConfigQTestsRequest(in, out);
   if (requestID == "RunQltyTests")          this->RunQTestsRequest(in, out);
   if (requestID == "CheckQltyTests")        this->CheckQTestsRequest(in, out);
   if (requestID == "CheckQltyTestsSingle")  this->CheckQTestsRequestSingle(in, out);
 }
 
+void RPCWebClient::GetAvailableTasks(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception){
+
+  mui->subscribe("*/MonitoringTask/*");
+  
+  usleep(1000000);
+
+  mui->cd("Collector/FU0/MonitoringTask");
+  mui->pwd();
+  std::vector<std::string> meNames=mui->getMEs(); 
+  int ycoord=80;  
+  char yValue[20];
+  sprintf(yValue,"%dpx",ycoord);
+  WebMessage * taskType= new WebMessage(getApplicationURL(), yValue , "500px","Available Monitoring Tasks:","green"  );
+  page->add("availableTasks",taskType);
+  
+  taskList.clear();
+  for(std::vector<std::string>::iterator it = meNames.begin(); 
+			it != meNames.end();++it)
+  {        
+	char fullPath[128];
+	sprintf(fullPath,"Collector/FU0/MonitoringTask/%s",(*it).c_str());
+   	MonitorElement * me =mui->get(fullPath);
+	std::string taskName=me->valueString();
+	taskList.push_back(taskName);
+ 	ycoord+=40;
+ 	sprintf(yValue,"%dpx",ycoord);
+        Button * butTask= new Button(getApplicationURL(),yValue , "500px",taskName , taskName);
+        char butName[120];
+	sprintf(butName,"But_%s",taskName.c_str());
+	page->add(butName,butTask);
+  }   
+   
+
+
+}
+void RPCWebClient::AddTaskButtons(xgi::Input * in, xgi::Output *out,std::string taskType) throw (xgi::exception::Exception) {
+
+
+ std::cout<<"Adding Buttons for task: "<<taskType<<endl;
+
+
+}
+
+
+
+
 
 void RPCWebClient::ConfigQTestsRequest(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception)
 {
-
-  if(testsWereSet){   
-    if(printout) std::cout<< "Quality tests are already configured!"<<std::endl;
-    return;     
+  if(testsConfigured){   
+	if(printout) std::cout<< "Quality tests are already configured!"<<std::endl;
+	return;     
+  } else{  
+  	if(printout) std::cout << "Quality Tests are being configured" << std::endl;
   } 
   
-  if(printout) std::cout << "Quality Tests are being configured" << std::endl;
- 
-  qualityTests->SetupTests(mui);
- 
-  testsWereSet=true;
-  page->add("button_runTests", butRunQT);
+  
+  std::string xmlFile="QualityTests.xml";
+  QTestConfigurationParser * qtParser=new QTestConfigurationParser(xmlFile);
+  std::map<std::string, std::map<std::string, std::string> > testsList=qtParser->testsList();
+  QTestEnabler * testsEnabler= new QTestEnabler();
+  testsEnabler->enableTests(testsList,mui);
+  std::vector<std::string> tests= testsEnabler->testsReady();
+
+  std::vector<std::string>::iterator itr;
+  for(itr=tests.begin();  itr!=tests.end();++itr){
+        std::cout<<"Tests configured: "<<*itr<<std::endl;
+  }
+  
+  
+
+  if(testsList.size() == 0 ){
+        if(printout) std::cout<< "Error Configuring Quality Tests"<<std::endl;
+	return;
+  }
+  
+  testsConfigured=true;
  
   return;
 
@@ -121,18 +204,15 @@ void RPCWebClient::ConfigQTestsRequest(xgi::Input * in, xgi::Output *out) throw 
 void RPCWebClient::RunQTestsRequest(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception)
 {
 
-  if(!testsWereSet){   
-    if(printout) std::cout<< "Configure quality tests first!"<<std::endl;
-    return;     
-  } 
-  
-  if(printout) std::cout << "Beginning to run quality tests" << std::endl;
- 
-  qualityTests->RunTests(mui);
-  page->add("button_checkTests", butCheckQT);
-  page->add("button_checkTestsSingle", butCheckQTSingle);
- 
-  testsWereSet=true;
+  if(! testsConfigured){   
+	if(printout) std::cout<< "Configure quality tests first!"<<std::endl;
+	return;     
+  } else{  
+	if(printout) std::cout << "Beginning to run quality tests" << std::endl;
+  }
+  //qualityTests->RunTests(mui);
+
+  testsRunning=true;
   return;
 
 }
@@ -141,47 +221,50 @@ void RPCWebClient::RunQTestsRequest(xgi::Input * in, xgi::Output *out) throw (xg
 
 void RPCWebClient::CheckQTestsRequest(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception)
 {
-  if(!testsWereSet){   
-    if(printout) cout<< "No quality tests are set. Set Quality tests First!"<<endl;
+  if(!testsRunning){   
+    if(printout) cout<< "No quality tests are running. Start Quality tests First!"<<endl;
     return;     
   }
 
-  std::pair<std::string,std::string> globalStatus = qualityTests->CheckTestsGlobal(mui);
+  // std::pair<std::string,std::string> globalStatus = qualityTests->CheckTestsGlobal(mui);
+  // WebMessage * message= new WebMessage(getApplicationURL(), "350px" , "500px", globalStatus.first,globalStatus.second  );
+  // if(printout) cout<< globalStatus.first<<endl;
   
-  char yValue[20];
-  string extension="px";
-  sprintf(yValue,"%d%s",yCoordinateMessage,extension.c_str());
-  WebMessage * message= new WebMessage(getApplicationURL(), yValue , "500px", globalStatus.first,globalStatus.second  );
-  page->add("mess",  message);
-  yCoordinateMessage+=30;
 
-  return;
+ 
+ 
+
+
+
+   return;
 }
 
 void RPCWebClient::CheckQTestsRequestSingle(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception)
 {
-  if(!testsWereSet){   
-    if(printout) cout<< "No quality tests are set. Set Quality tests First!"<<endl;
+  if(!testsRunning){   
+    if(printout) cout<< "No quality tests are running. Start Quality tests First!"<<endl;
     return;     
   }
-  
-  std::map< std::string, std::vector<std::string> > messages= qualityTests->CheckTestsSingle(mui);  
-///Errors  
+/*  
+  //std::map< std::string, std::vector<std::string> > messages= qualityTests->CheckTestsSingle(mui);  
+///Error messages  
+  char alarm[128] ;
   std::vector<std::string> errors = messages["red"];
-  int errNumber= errors.size();
-  std::cout<<"Number of Errors: "<<errNumber<<std::endl;
-	
-	char yValue[20];
-  	string extension="px";
-  	sprintf(yValue,"%d%s",yCoordinateMessage,extension.c_str());
-  	
-	char alarm[20];
-  	sprintf(alarm,"Number of Errors :%d",errNumber);
-	
-	WebMessage * messageNumberOfErrors= new WebMessage(getApplicationURL(), yValue , "500px", alarm,"red"  );
-  	page->add("numberoferrors",messageNumberOfErrors);
-  	yCoordinateMessage+=30;
-  
+  sprintf(alarm,"Number of Errors :%d",errors.size());
+  if(printout) cout<< alarm <<endl;
+  //WebMessage * messageNumberOfErrors= new WebMessage(getApplicationURL(), "380px" , "500px", alarm,"red"  );
+  //page->add("numberoferrors",messageNumberOfErrors);
+///Warning messages  
+  std::vector<std::string> warnings = messages["orange"];
+  sprintf(alarm,"Number of Warnings :%d", warnings.size() );
+  if(printout) cout<< alarm <<endl;
+  //WebMessage * messageNumberOfWarningss= new WebMessage(getApplicationURL(), "410px" , "500px", alarm,"orange"  );
+  //page->add("numberofwarnings",messageNumberOfWarningss );
+   
+  int yCoordinateMessage=440;
+
+
+
   int counter=0;
   for(std::vector<std::string>::iterator itr=errors.begin(); itr!=errors.end(); ++itr){
   	std::cout<<"Messaggi: "<<(*itr)<<std::endl;  
@@ -197,19 +280,6 @@ void RPCWebClient::CheckQTestsRequestSingle(xgi::Input * in, xgi::Output *out) t
   	page->add(messName,  message);
   	yCoordinateMessage+=30;
   }
-  
- ///Warnings  
-  std::vector<std::string> warnings = messages["orange"];
-  int warnNumber= warnings.size();
-  std::cout<<"Number of Warnings: "<<warnNumber <<std::endl;
-	
-  	sprintf(yValue,"%d%s",yCoordinateMessage,extension.c_str());
-  	
-  	sprintf(alarm,"Number of Warnings :%d", warnNumber);
-	
-	WebMessage * messageNumberOfWarningss= new WebMessage(getApplicationURL(), yValue , "500px", alarm,"orange"  );
-  	page->add("numberofwarnings",messageNumberOfWarningss );
-  	yCoordinateMessage+=30;
   
   counter=0;
   for(std::vector<std::string>::iterator itr= warnings.begin(); itr!=warnings.end(); ++itr){
@@ -227,6 +297,8 @@ void RPCWebClient::CheckQTestsRequestSingle(xgi::Input * in, xgi::Output *out) t
   	yCoordinateMessage+=30;
   }
  
+*/  
+   
   return;
 }
 
