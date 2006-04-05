@@ -241,7 +241,7 @@ void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets)
 L1GctJet readSingleJet(ifstream &fin)
 {
     //This reperesents how many numbers there are per line for a jet in the input file
-    const int numJetComponents = 3; //3 since we have rank, eta & phi.
+    const int numJetComponents = 4; //4 since we have rank, eta, phi & tauVeto.
     
     ULong jetComponents[numJetComponents];
 
@@ -260,7 +260,8 @@ L1GctJet readSingleJet(ifstream &fin)
     }
    
     //return object
-    L1GctJet tempJet(jetComponents[0], jetComponents[1], jetComponents[2]); //add jetComponents[3] if we get tau feature bit, etc.   
+    L1GctJet tempJet(jetComponents[0], jetComponents[1],
+                     jetComponents[2], static_cast<bool>(jetComponents[3]));
 
     return tempJet;
 }
@@ -284,7 +285,7 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
                 if(vector1[i].getRank() != vector2[i].getRank()) { testPass = false; break; }
                 if(vector1[i].getEta() != vector2[i].getEta()) { testPass = false; break; }
                 if(vector1[i].getPhi() != vector2[i].getPhi()) { testPass = false; break; }
-                //may need to add a tau feature bit comparison in the future here...
+                if(vector1[i].getTauVeto() != vector2[i].getTauVeto()) { testPass = false; break; }
             }
         }
     }
@@ -313,8 +314,8 @@ void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
         {
             fout << jets[i].getRank() << "\t" 
                  << jets[i].getEta()  << "\t"
-                 << jets[i].getPhi()  << endl;
-                 //may need to add tau feature bit output here in the future
+                 << jets[i].getPhi()  << "\t"
+                 << jets[i].getTauVeto() << endl;
         }
     }
     fout << endl;  //write a blank line to separate data
