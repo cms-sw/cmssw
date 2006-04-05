@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.3 2006/02/22 19:51:38 fedor Exp $
+// $Id: HcalDbHardcode.cc,v 1.4 2006/03/24 03:01:46 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -41,7 +41,7 @@ HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalDetId fId) {
 
 HcalGain HcalDbHardcode::makeGain (HcalDetId fId, bool fSmear) {
   HcalGainWidth width = makeGainWidth (fId);
-  float value0 = fId.subdet () == HcalForward ? 0.058 : 0.177; // GeV/fC
+  float value0 = fId.subdet () == HcalForward ? 0.48 : 0.177; // GeV/fC
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) for (int i = 0; i < 4; i++) value [i] = RandGauss::shoot (value0, width.getValue (i+1)); 
   HcalGain result (fId.rawId (), value[0], value[1], value[2], value[3]);
