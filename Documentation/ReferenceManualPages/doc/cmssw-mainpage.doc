@@ -71,6 +71,14 @@ This is main page of the CMSSW Reference Manual.
 <tr valign=top><th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th></tr>
 <tr>
   <td>
+  \endhtmlonly \ref Framework "Framework and EDM"   \htmlonly
+  </td>
+  <td>Core Framework and Event Data Model components
+  <td class="contact"> 
+    <a href="mailto:">Liz Sexton Kennedy</a>
+</tr>
+<tr>
+  <td>
   \endhtmlonly \ref CommonData "Common data formats"   \htmlonly
   </td>
   <td>Definition of commonly used persistent data types</td>
