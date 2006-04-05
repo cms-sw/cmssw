@@ -23,12 +23,11 @@
    <class name="std::map<CSCDetId,std::vector<CSCCLCTDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCALCTDigi> >"/>
 
-   <class name="CSCWireDigi::PersistentPacking"/>
    <class name="CSCCorrelatedLCTDigi::PersistentPacking"/>
    <class name="CSCCLCTDigi::PersistentPacking"/>
    <class name="CSCALCTDigi::PersistentPacking"/>
-   <class name="CSCComparatorDigi::theComparatorDigi"/>   
 
+   <class name="CSCComparatorDigi::theComparatorDigi"/>   
 
    <class name="MuonDigiCollection<CSCDetId,CSCWireDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCRPCDigi>"/>

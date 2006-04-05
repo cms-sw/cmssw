@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2006/04/05 08:17:51 $
- * $Revision: 1.2 $
+ * $Date:$
+ * $Revision:$
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.2 2006/04/05 08:17:51 tumanov Exp $";
+static const char CVSId[] = "$Id:$";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -77,10 +77,6 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testCSCDigis);
 
 void testCSCDigis::testDigiPacking(){
 
-  CPPUNIT_ASSERT(sizeof(CSCWireDigi::PersistentPacking)==sizeof(CSCWireDigi::PackedDigiType));
-  CPPUNIT_ASSERT(sizeof(CSCWireDigi::ChannelPacking)==sizeof(int));
-
-
   CPPUNIT_ASSERT (sizeof(CSCALCTDigi::PersistentPacking)==sizeof(CSCALCTDigi::PackedDigiType));
   CPPUNIT_ASSERT(sizeof(CSCALCTDigi::ChannelPacking)==sizeof(int));
 
@@ -100,11 +96,9 @@ void testCSCDigis::fillCSCWireDigi(CSCWireDigiCollection & collection){
                                                                                 
        std::vector<CSCWireDigi> digivec;
        for (int i=10; i<11; ++i){
-           CSCWireDigi::PackedDigiType pd;
-           pd.wire=i;
-           pd.tbin=5;
-  
-           CSCWireDigi digi(pd);
+           int wire=i;
+           int tbin=5;
+           CSCWireDigi digi(wire,tbin);
            digivec.push_back(digi);
         }
   
@@ -344,7 +338,7 @@ void testCSCDigis::readCSCWireDigi(CSCWireDigiCollection & collection){
   
               count++;
               CPPUNIT_ASSERT((*digiIt).getWireGroup()==10);
-              CPPUNIT_ASSERT((*digiIt).getBeamCrossingTag()==5);
+              CPPUNIT_ASSERT((*digiIt).getTimeBin()==5);
  printf("CSC Wire - endcap station ring csc plane wire tbin: %3d %3d %3d %3d %3d %3d  %3d\n",id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),(*digiIt).getWireGroup(),(*digiIt).getBeamCrossingTag());
   
     }// for digis in layer

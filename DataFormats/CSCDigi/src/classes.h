@@ -27,7 +27,6 @@ namespace{
   CSCALCTDigi cALCTD_;
   CSCCorrelatedLCTDigi cCorLCTD_;
 
-  CSCWireDigi::PersistentPacking ppWD_;
   CSCCLCTDigi::PersistentPacking ppCLCTD_;
   CSCALCTDigi::PersistentPacking ppALCTD_;
   CSCCorrelatedLCTDigi::PersistentPacking ppCorLCTD_;
