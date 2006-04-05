@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/29 20:10:37 $
-// $Revision: 1.2 $
+// $Date: 2006/04/03 22:44:09 $
+// $Revision: 1.3 $
 //
 
 #include <vector>
@@ -27,13 +27,21 @@
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLess.h"
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
 }
@@ -75,10 +83,36 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
     recHits.sort(TrackingRecHitLess(((TrackingGeometry*)(&(*tracker))),ref->direction()));
 
+    // clone 
     TrajectorySeed seed = *((*ref).clone());
     PTrajectoryStateOnDet state = *((*ref).startingState().clone());
   
-    output.push_back(TrackCandidate(recHits,seed,state));
+    // check if Trajectory from seed is on first hit of the cloud, if not, propagate
+    // exclude if first state on first hit is not valid
+    edm::ESHandle<MagneticField> magField_;
+    es.get<IdealMagneticFieldRecord>().get(magField_);
+
+    const TrackerGeometry * geom = tracker.product();
+    const MagneticField * magField = magField_.product();
+
+    bool valid = true;
+    if (recHits.begin()->geographicalId().rawId() != state.detId()) {
+      AnalyticalPropagator prop(magField,anyDirection);
+      const GeomDetUnit* det = geom->idToDetUnit(recHits.begin()->geographicalId());
+      const GeomDetUnit* detState = geom->idToDetUnit(DetId(state.detId())  );
+      
+      TrajectoryStateTransform transformer;
+      TrajectoryStateOnSurface before(transformer.transientState(state,  &(detState->surface()), magField));
+      TrajectoryStateOnSurface firstState = prop.propagate(before, det->surface());
+      
+      if (firstState.isValid() == false){
+	valid=false;
+      }
+      
+      state = *(transformer.persistentState(firstState,recHits.begin()->geographicalId().rawId()));
+    }
+    
+    if (valid == true) output.push_back(TrackCandidate(recHits,seed,state));
   }
 
   edm::LogInfo("RoadSearch") << "Found " << output.size() << " track candidates.";
