@@ -68,7 +68,7 @@ CSCEventData::CSCEventData(unsigned short * buf)
    
     pos += theDMBHeader.sizeInWords();
 
-    if (nalct() > 0) {
+    if (nalct() ==1) {
       theALCTHeader = new CSCALCTHeader( pos );
       pos += theALCTHeader->sizeInWords(); //size of the header
 
@@ -86,7 +86,7 @@ CSCEventData::CSCEventData(unsigned short * buf)
       }
     }
 
-    if (nclct() > 0) {
+    if (nclct() ==1) {
       theTMBData = new CSCTMBData(pos);  //fill all TMB data
       pos += theTMBData->size();
     }
