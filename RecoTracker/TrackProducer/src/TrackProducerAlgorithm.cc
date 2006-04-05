@@ -24,13 +24,18 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 				 AlgoProductCollection& algoResults)
 {
   edm::LogInfo("RecoTracker/TrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
+
   int cont = 0;
   for (TrackCandidateCollection::const_iterator i=theTCCollection.begin(); i!=theTCCollection.end();i++)
     {
+
+
       const TrackCandidate * theTC = &(*i);
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
       TrajectoryStateTransform transformer;
       PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
+
+
       DetId * detId = new DetId(state.detId());
       TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
 								     &(theG->idToDet(*detId)->surface()), 
@@ -40,6 +45,7 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
       //meanwhile computes the number of degrees of freedom
       edm::OwnVector<TransientTrackingRecHit> hits;
       TransientTrackingRecHitBuilder * builder;
+
 
       //
       // temporary!
@@ -57,7 +63,6 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
       delete builder;
 
       ndof = ndof - 5;
-      
       //variable declarations
       std::vector<Trajectory> trajVec;
       reco::Track * theTrack;
@@ -66,6 +71,8 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
       //perform the fit: the result's size is 1 if it succeded, 0 if fails
       trajVec = theFitter->fit(theTC->seed(), hits, theTSOS);
       
+       edm::LogInfo("RecoTracker/TrackProducer") <<" FITTER FOUND "<<trajVec.size()<<"\n";
+
       TransverseImpactPointExtrapolator * tipe;
       TrajectoryStateOnSurface tsos;
       TrajectoryStateOnSurface innertsos;
@@ -75,7 +82,7 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 	
 	tipe = new TransverseImpactPointExtrapolator(*thePropagator);
 	
-	theTraj = &( trajVec.front() );
+	theTraj = new Trajectory( trajVec.front() );
 	
 	if (theTraj->direction() == alongMomentum) {
 	  innertsos = theTraj->firstMeasurement().updatedState();
@@ -87,6 +94,8 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 	//extrapolate the innermost state to the point of closest approach to the beamline
 	tsos = tipe->extrapolate(*(innertsos.freeState()), 
 				 GlobalPoint(0,0,0) );//FIXME Correct?
+
+
 	
 	//compute parameters needed to build a Track from a Trajectory    
 	int charge = tsos.charge();
@@ -101,7 +110,10 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 	    cov( i, j ) = m.fast( i + 1 , j + 1 );
 	math::XYZVector mom( p.x(), p.y(), p.z() );
 	math::XYZPoint  vtx( v.x(), v.y(), v.z() );   
-	
+	edm::LogInfo("RecoTracker/TrackProducer") << " RESULT Momentum "<< p<<"\n";
+	edm::LogInfo("RecoTracker/TrackProducer") << " RESULT Vertex "<< v<<"\n";
+
+		
 	//build the Track(chiSquared, ndof, found, invalid, lost, q, vertex, momentum, covariance)
 	theTrack = new reco::Track(theTraj->chiSquared(), 
 				   int(ndof),//FIXME fix weight() in TrackingRecHit 
@@ -119,7 +131,6 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 	cont++;
       }
     }
-
   edm::LogInfo("RecoTracker/TrackProducer") << "Number of Tracks found: " << cont << "\n";
 
 }

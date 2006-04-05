@@ -38,9 +38,9 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   //
   // create empty output collections
   //
-  std::auto_ptr<TrackingRecHitCollection> outputRHColl;
-  std::auto_ptr<reco::TrackCollection> outputTColl;
-  std::auto_ptr<reco::TrackExtraCollection> outputTEColl;
+  std::auto_ptr<TrackingRecHitCollection> outputRHColl (new TrackingRecHitCollection);
+  std::auto_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
+  std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
   //
   //get geometry
   //
@@ -74,7 +74,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   edm::LogInfo("RecoTracker/TrackProducer") << 
     "get the TrackCandidateCollection from the event" << "\n";
   edm::Handle<TrackCandidateCollection> theTCCollection;
-  theEvent.getByLabel( src_, theTCCollection );
+  theEvent.getByType(theTCCollection );
 
   //
   //run the algorithm  
@@ -83,7 +83,9 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   AlgoProductCollection algoResults;
   theAlgo.run(theG.product(), theMF.product(), *theTCCollection, theFitter.product(), 
 	      thePropagator.product(), algoResults);
-
+  
+  
+  
   if (algoResults.size()==0){
     edm::LogInfo("RecoTracker/TrackProducer") << "No Tracks found: skipping to next event" << "\n";
   } else {
@@ -94,21 +96,23 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       "first loop: create the full collection of TrackingRecHit" << "\n";
     for(AlgoProductCollection::iterator i=algoResults.begin();
 	i!=algoResults.end();i++){
-      
       Trajectory * theTraj = (*i).first;
-    
+      
+      
       const edm::OwnVector<TransientTrackingRecHit>& transHits = theTraj->recHits();
       for(edm::OwnVector<TransientTrackingRecHit>::const_iterator j=transHits.begin();
 	  j!=transHits.end(); j++){
-	outputRHColl->push_back( ( j->hit() ) );
+	outputRHColl->push_back( ( (j->hit() )->clone()) );
       }
       
-  }
+    }
     //put the collection of TrackingRecHit in the event
     edm::LogInfo("RecoTracker/TrackProducer") << 
       "put the collection of TrackingRecHit in the event" << "\n";
+
+
+
     edm::OrphanHandle <TrackingRecHitCollection> ohRH = theEvent.put( outputRHColl );
-    
 
     //
     //second loop: create the collection of TrackExtra
@@ -139,7 +143,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
       theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
       
-      
+
       //fill the TrackExtra with TrackingRecHitRef	
       const edm::OwnVector<TransientTrackingRecHit>& transHits = theTraj->recHits();
       for(edm::OwnVector<TransientTrackingRecHit>::const_iterator j=transHits.begin();
@@ -184,7 +188,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       "put the TrackCollection in the event" << "\n";
     theEvent.put(outputTColl);
     edm::LogInfo("RecoTracker/TrackProducer") << "end" << "\n";
-  }
+    } 
 }
 
 //define this as a plug-in
