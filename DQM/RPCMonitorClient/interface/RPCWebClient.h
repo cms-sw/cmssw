@@ -4,11 +4,11 @@
 /** \class RPCWebClient
  * *
  *  Client Class that performs the handling of monitoring elements for
- *  the RPC Data Quality Monitor (mainly prints the control web page and runs quality tests
- *  on real-time demand).
+ *  the RPC Data Quality Monitor (mainly prints the control web page and 
+ *  runs quality tests on real-time demand).
  * 
- *  $Date: 2006/03/14 11:23:52 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/04/05 08:03:13 $
+ *  $Revision: 1.3 $
  *  \author Ilaria Segoni
   */
 
@@ -17,6 +17,8 @@
 #include "DQMServices/WebComponents/interface/WebPage.h"
 
 class Button;
+class QTestConfigurationParser;
+class QTestEnabler;
 
 class RPCWebClient : public DQMWebClient
 {
@@ -24,8 +26,12 @@ class RPCWebClient : public DQMWebClient
   
   XDAQ_INSTANTIATOR();
   
+  ///Creator
   explicit RPCWebClient(xdaq::ApplicationStub * s);
 
+  ///Destructor
+  ~RPCWebClient();
+  
   /// The method that prints out the webpage
   void Default(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
   
@@ -55,6 +61,10 @@ class RPCWebClient : public DQMWebClient
 
   WebPage * page;
   bool printout;
+  
+  QTestConfigurationParser * qtParser;
+  QTestEnabler * qtEnabler;
+  
   bool testsConfigured;
   bool testsRunning;
   

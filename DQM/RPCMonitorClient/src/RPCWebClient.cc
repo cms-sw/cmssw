@@ -2,8 +2,8 @@
  *
  *  Implementation of RPCWebClient
  *
- *  $Date: 2006/03/14 11:24:20 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/04/05 08:05:09 $
+ *  $Revision: 1.4 $
  *  \author Ilaria Segoni
  */
 #include "DQM/RPCMonitorClient/interface/RPCWebClient.h"
@@ -22,7 +22,11 @@
 
 RPCWebClient::RPCWebClient(xdaq::ApplicationStub * s) : DQMWebClient(s)
 {
+  
+  qtParser=new QTestConfigurationParser();
+  qtEnabler= new QTestEnabler();
   printout=true;
+  
   testsConfigured=false;
   testsRunning=false;
   taskList.clear();
@@ -76,6 +80,13 @@ RPCWebClient::RPCWebClient(xdaq::ApplicationStub * s) : DQMWebClient(s)
   page->add("gifDisplayBase", disBasePlots);
   page->add("gifDisplayRef", disRefPlots);
 
+}
+
+RPCWebClient::~RPCWebClient(){
+	delete qtParser;
+	delete qtEnabler;
+	qtParser=0;
+	qtEnabler=0;
 }
 
 
@@ -174,29 +185,25 @@ void RPCWebClient::ConfigQTestsRequest(xgi::Input * in, xgi::Output *out) throw 
   	if(printout) std::cout << "Quality Tests are being configured" << std::endl;
   } 
   
-  
-  std::string xmlFile="QualityTests.xml";
-  QTestConfigurationParser * qtParser=new QTestConfigurationParser(xmlFile);
-  std::map<std::string, std::map<std::string, std::string> > testsList=qtParser->testsList();
-  QTestEnabler * testsEnabler= new QTestEnabler();
-  testsEnabler->enableTests(testsList,mui);
-  std::vector<std::string> tests= testsEnabler->testsReady();
-
-  std::vector<std::string>::iterator itr;
-  for(itr=tests.begin();  itr!=tests.end();++itr){
-        std::cout<<"Tests configured: "<<*itr<<std::endl;
+  std::string xmlFile="QualityTests.xml";  
+  if(! qtParser->parseQTestsConfiguration(xmlFile) ){
+  	std::map<std::string, std::map<std::string, std::string> > testsList=qtParser->testsList();
+	if(! qtEnabler->enableTests(testsList,mui)){
+		std::vector<std::string> tests= qtEnabler->testsReady();
+		std::vector<std::string>::iterator itr;
+		for(itr=tests.begin();  itr!=tests.end();++itr){
+			std::cout<<"Tests configured: "<<*itr<<std::endl;
+		}	  
+		testsConfigured=true;
+	}else{
+		if(printout) std::cout<< "Error Enabling Quality Tests"<<std::endl;
+		return;
+	}
+  }else{
+         if(printout) std::cout<< "Error Parsing Quality Tests"<<std::endl;
+	 return;
   }
-  
-  
-
-  if(testsList.size() == 0 ){
-        if(printout) std::cout<< "Error Configuring Quality Tests"<<std::endl;
-	return;
-  }
-  
-  testsConfigured=true;
  
-  return;
 
 }
 
@@ -206,14 +213,13 @@ void RPCWebClient::RunQTestsRequest(xgi::Input * in, xgi::Output *out) throw (xg
 
   if(! testsConfigured){   
 	if(printout) std::cout<< "Configure quality tests first!"<<std::endl;
-	return;     
   } else{  
 	if(printout) std::cout << "Beginning to run quality tests" << std::endl;
+	std::map<std::string, std::vector<std::string> > mapMeToTests= qtParser->meToTestsList();
+	qtEnabler->startTests(mapMeToTests, mui);
+        testsRunning=true;
   }
-  //qualityTests->RunTests(mui);
 
-  testsRunning=true;
-  return;
 
 }
 
