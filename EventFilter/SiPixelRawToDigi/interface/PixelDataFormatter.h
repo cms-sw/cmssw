@@ -31,29 +31,42 @@
  * (not FED headers or trailer, which are treated elsewhere).
  */
 
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include <boost/cstdint.hpp>
+#include <vector>
+#include <map>
 
 class PixelDigi;
 class PixelROC;
-class PixelFEDConnections;
+class PixelFEDCabling;
+class FEDRawData;
 
 class PixelDataFormatter {
 
 public:
 
+  typedef std::vector<PixelDigi> DetDigis;
+  typedef std::map<uint32_t, DetDigis> Digis;
+  typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range;
+
   PixelDataFormatter();
 
-  void interpretRawData(PixelFEDConnections* fed, const FEDRawData& data, PixelDigiCollection & digis);
+  void interpretRawData( 
+      const PixelFEDCabling & fed, const FEDRawData & data, Digis & digis);
+
+  FEDRawData * formatData( PixelFEDCabling & fed, const Digis & digis);
 
 private:
 
   typedef unsigned int Word32;
   typedef long long Word64;
 
-//  void roc2words(PixelROC &, vector<Word32> &) const;
-  void word2digi(PixelFEDConnections &, Word32 & ) const;
+  void roc2words( PixelROC &, 
+                  const Range & range, 
+                  std::vector<Word32> &) const;
+  void word2digi(const PixelFEDCabling& fed, 
+                 const Word32& data, 
+                 Digis & digis) const;
 
   static const int LINK_bits,  ROC_bits,  DCOL_bits,  PXID_bits,  ADC_bits;
   static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift;
