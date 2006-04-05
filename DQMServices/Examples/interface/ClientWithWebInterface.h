@@ -1,6 +1,14 @@
 #ifndef _DQMServices_Examples_ClientWithWebInterface_h_
 #define _DQMServices_Examples_ClientWithWebInterface_h_
 
+/*
+  This class is an example DQM client with a web interface. 
+  Such clients inherit the state machine from the DQMBaseClient class
+  of Components. From the UpdateObserver class of Components, they 
+  inherit the ability to define a function that gets automatically
+  called when an update is received.
+*/
+
 #include "DQMServices/Components/interface/DQMBaseClient.h"
 #include "DQMServices/Components/interface/Updater.h"
 #include "DQMServices/Components/interface/UpdateObserver.h"
@@ -13,13 +21,16 @@
 #include <string>
 #include <iostream>
 
+
 class ClientWithWebInterface : public DQMBaseClient, 
-		      public dqm::UpdateObserver
+			       public dqm::UpdateObserver
 {
 public:
   
+  // You always need to have this line! Do not remove:
   XDAQ_INSTANTIATOR();
-  
+
+  // The class constructor:  
   ClientWithWebInterface(xdaq::ApplicationStub *s);
 
   // implement the method that outputs the page with the widgets (declared in DQMBaseClient):
@@ -42,10 +53,12 @@ public:
 
 
 public:
-  
+
+  // this client has a web interface:  
   ExampleWebInterface * webInterface_p;
 };
 
+// You always need to have this line! Do not remove:
 XDAQ_INSTANTIATOR_IMPL(ClientWithWebInterface)
 
 #endif
