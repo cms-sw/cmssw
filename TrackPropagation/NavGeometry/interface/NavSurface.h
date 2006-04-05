@@ -47,7 +47,7 @@ public:
     virtual std::pair<bool,double> 
     distanceAlongLine( const GlobalPoint& pos, const GlobalVector& dir) const = 0;
 
-    ///Forwarding of part of surface i nterface for convenience
+    ///Forwarding of part of surface interface for convenience
     LocalPoint  toLocal( const GlobalPoint& p)   const {return surface().toLocal(p);}
     LocalVector toLocal( const GlobalVector& p)  const {return surface().toLocal(p);}
     GlobalPoint  toGlobal( const LocalPoint& p)  const {return surface().toGlobal(p);}

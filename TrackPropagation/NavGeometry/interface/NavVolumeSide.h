@@ -4,7 +4,7 @@
 #include "TrackPropagation/NavGeometry/interface/NavSurface.h"
 #include "Geometry/Surface/interface/ReferenceCounted.h"
 
-/** Class for delimiding surface of a NevVolume.
+/** Class for delimiding surface of a NavVolume.
  *  The additional information with respect to NavSurface that is needed
  *  to define <BR>
  *  a) which side of the Surface the volume is (enumerator Surface::Side) <BR>

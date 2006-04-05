@@ -15,7 +15,11 @@ public:
 /*     NavPlane( const PositionType& pos, const RotationType& rot) : */
 /* 	Surface( pos, rot), Plane( pos, rot), NavSurface( pos, rot) {} */
 
-    NavPlane( const Plane* plane) : theSurfaceP(plane) {}
+    typedef ConstReferenceCountingPointer<Plane> PlanePointer;
+
+    // NavPlane( const Plane* plane) : theSurfaceP(plane) {}
+  
+    NavPlane( PlanePointer plane) : theSurfaceP(plane) {}
 
     // FIXME: restore covariant return type when gcc version upgraded
     //virtual const Plane& surface() const {return *theSurfaceP;} 
@@ -41,7 +45,7 @@ public:
 
 private:
 
-  ConstReferenceCountingPointer<Plane> theSurfaceP;
+  PlanePointer theSurfaceP;
   LinearSearchNavSurfaceImpl theImpl;
 
 };

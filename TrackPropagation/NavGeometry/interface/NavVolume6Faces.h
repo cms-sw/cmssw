@@ -23,8 +23,15 @@ public:
 				   const NavVolume::LocalVector& mom,
 				   double charge, PropagationDirection propDir=alongMomentum) const;
 
+  /// Access to volume faces
+  std::vector<VolumeSide> faces() const {return theFaces;}
+
+  using MagVolume::inside;
+  bool inside( const GlobalPoint& gp, double tolerance) const; 
+
 private:
 
+    std::vector<VolumeSide> theFaces;
     Container theNavSurfaces;
 
     void computeBounds(const std::vector<NavVolumeSide>& faces);
@@ -32,5 +39,17 @@ private:
     Bounds* computeBounds( int index, const std::vector<NavVolumeSide>& faces);
 
 };
+
+/* bool NavVolume6Faces::inside( const GlobalPoint& gp, double tolerance) const 
+{
+   
+  // check if the point is on the correct side of all delimiting surfaces
+  for (std::vector<VolumeSide>::const_iterator i=theFaces.begin(); i!=theFaces.end(); i++) {
+    Surface::Side side = i->surface().side( gp, tolerance);
+    if ( side != i->surfaceSide() && side != SurfaceOrientation::onSurface) return false;
+  }
+  return true;
+}
+*/
 
 #endif

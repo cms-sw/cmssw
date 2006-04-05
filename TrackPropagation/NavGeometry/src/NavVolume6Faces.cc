@@ -14,13 +14,20 @@ NavVolume6Faces::NavVolume6Faces( const PositionType& pos,
 				  DDSolidShape shape,
 				  const std::vector<NavVolumeSide>& faces,
 				  const MagneticFieldProvider<float> * mfp) :
-  NavVolume(pos,rot,shape,mfp)
+  NavVolume(pos,rot,shape,mfp) 
 {
+  for (std::vector<NavVolumeSide>::const_iterator i=faces.begin();
+       i != faces.end(); i++) {
+    theFaces.push_back( VolumeSide( const_cast<Surface*>(&(i->surface().surface())), 
+				    i->globalFace(), i->surfaceSide()));
+  }
+
     computeBounds(faces);
 }
 
 NavVolume6Faces::NavVolume6Faces( const MagVolume& magvol) :
-  NavVolume( magvol.position(), magvol.rotation(), magvol.shapeType(), magvol.provider())
+  NavVolume( magvol.position(), magvol.rotation(), magvol.shapeType(), magvol.provider()),
+  theFaces(magvol.faces())
 {
   std::vector<NavVolumeSide> navSides;
   std::vector<VolumeSide> magSides( magvol.faces());
@@ -33,6 +40,18 @@ NavVolume6Faces::NavVolume6Faces( const MagVolume& magvol) :
   }
   computeBounds(navSides);
 }
+
+
+bool NavVolume6Faces::inside( const GlobalPoint& gp, double tolerance) const 
+{
+  // check if the point is on the correct side of all delimiting surfaces
+  for (std::vector<VolumeSide>::const_iterator i=theFaces.begin(); i!=theFaces.end(); i++) {
+    Surface::Side side = i->surface().side( gp, tolerance);
+    if ( side != i->surfaceSide() && side != SurfaceOrientation::onSurface) return false;
+  }
+  return true;
+}
+
 
 
 void NavVolume6Faces::computeBounds(const std::vector<NavVolumeSide>& faces) 
@@ -48,7 +67,7 @@ void NavVolume6Faces::computeBounds(const std::vector<NavVolumeSide>& faces)
 	else allPlanes = false;
     }
     
-    for (int i=0; i<faces.size(); i++) {
+    for (unsigned int i=0; i<faces.size(); i++) {
 
       // FIXME: who owns the new NavSurface? memory leak???
 
@@ -207,6 +226,7 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
 	    movingaway.push_back( SurfaceAndBounds( i->first, i->second));
 	}
     }
+
     NavVolume::Container result(1,bestGuess); result.reserve(theNavSurfaces.size());
     result.insert(result.end(), approaching.begin(), approaching.end());
     result.insert(result.end(), movingaway.begin(), movingaway.end());
