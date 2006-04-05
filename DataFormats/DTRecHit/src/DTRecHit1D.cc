@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/01/24 14:23:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/02/15 09:24:46 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -99,6 +99,11 @@ vector<TrackingRecHit*> DTRecHit1D::recHits() {
   return nullvector; 
 }
 
+
+// Comparison operator, based on the wireId and the digi time
+bool DTRecHit1D::operator==(const DTRecHit1D& hit) const {
+  return wireId() == hit.wireId() && fabs(digiTime() - hit.digiTime()) < 0.1;
+}
 
 
 // The ostream operator

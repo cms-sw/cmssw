@@ -9,8 +9,8 @@
  *  DTRecHit1DPair). The coordiante measured is always the x (in Det frame)
  *
  *
- *  $Date: 2006/02/15 09:24:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/31 09:59:30 $
+ *  $Revision: 1.3 $
  *  \author S. Lacaprara, G. Cerminara
  */
 
@@ -94,13 +94,20 @@ class DTRecHit1D : public RecHit1D {
 
   /// Set local position 
   void setPosition(LocalPoint pos) {
-    theLocalPosition = pos ;
+    theLocalPosition = pos;
   }
 
   
   /// Set local position error
   void setError(LocalError err) {
-    theLocalError = err ;
+    theLocalError = err;
+  }
+
+
+  /// Set the local position and its error
+  void setPositionAndError(LocalPoint pos, LocalError err) {
+    theLocalPosition = pos;
+    theLocalError = err;
   }
 
 
@@ -114,6 +121,10 @@ class DTRecHit1D : public RecHit1D {
   float digiTime() const {
     return theDigiTime;
   }
+
+
+  /// Comparison operator, based on the wireId and the digi time
+  bool operator==(const DTRecHit1D& hit) const;
 
  private:
   // The wire id
