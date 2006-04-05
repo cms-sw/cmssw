@@ -38,8 +38,8 @@ const string resultsFile = "testJetFinderOutput.txt";
 
 // Global constants to tell the program how many things to read in from file
 // THESE ARE TOTAL GUESSES!
-const int numInputRegions = 64;  //Num. calorimeter regions given as input
-const int numOutputJets = 7;     //Num. jets expected out
+const int numInputRegions = 48;  //Num. calorimeter regions given as input
+const int numOutputJets = 5;     //Num. jets expected out
 //There will be Jet Counts to be added here at some point
 
 
@@ -169,8 +169,12 @@ void classTest(L1GctJetFinder *myJetFinder)
     outputHt = myJetFinder->getHt();
     //will need to and jets counts line here eventually
     
+    //an empty regions vector for reset comparison
+    vector<L1GctRegion> blankRegionsVec(numInputRegions);
+    
     //Test that all the vectors/values are empty/zero
-    if(outputRegions.empty() && outputJets.empty() && outputHt == 0)
+    if(compareRegionsVectors(outputRegions, blankRegionsVec, "input regions reset") &&
+       outputJets.empty() && outputHt == 0)
     { 
         cout << "\nTest class has passed reset method testing." << endl;
     }
@@ -266,7 +270,7 @@ void putRegionsInVector(ifstream &fin, RegionsVector &regions, const int numRegi
 L1GctRegion readSingleRegion(ifstream &fin)
 {   
     //Represents how many numbers there are per line for a region in the input file
-    const int numRegionComponents = 3; //3 since we have Et, Mip & Quiet.
+    const int numRegionComponents = 4; //4 since we have Et, Mip, Quiet & tauVeto.
     
     ULong regionComponents[numRegionComponents];
     
@@ -284,7 +288,10 @@ L1GctRegion readSingleRegion(ifstream &fin)
     }
     
     //return object
-    L1GctRegion tempRegion(regionComponents[0], static_cast<bool>(regionComponents[1]), static_cast<bool>(regionComponents[2]));
+    L1GctRegion tempRegion(regionComponents[0],
+                           static_cast<bool>(regionComponents[1]),
+                           static_cast<bool>(regionComponents[2]),
+                           static_cast<bool>(regionComponents[3]));
     
     return tempRegion;
 }
@@ -302,7 +309,7 @@ void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets)
 L1GctJet readSingleJet(ifstream &fin)
 {
     //This reperesents how many numbers there are per line for a jet in the input file
-    const int numJetComponents = 3; //3 since we have rank, eta & phi.
+    const int numJetComponents = 4; //4 since we have rank, eta, phi & tauVeto.
     
     ULong jetComponents[numJetComponents];
 
@@ -321,7 +328,8 @@ L1GctJet readSingleJet(ifstream &fin)
     }
    
     //return object
-    L1GctJet tempJet(jetComponents[0], jetComponents[1], jetComponents[2]); //add jetComponents[3] if we get tau feature bit, etc.   
+    L1GctJet tempJet(jetComponents[0], jetComponents[1],
+                     jetComponents[2], static_cast<bool>(jetComponents[3]));
 
     return tempJet;
 }
@@ -345,6 +353,7 @@ bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const
                 if(vector1[i].getEt() != vector2[i].getEt()) { testPass = false; break; }
                 if(vector1[i].getMip() != vector2[i].getMip()) { testPass = false; break; }
                 if(vector1[i].getQuiet() != vector2[i].getQuiet()) {testPass = false; break; }
+                if(vector1[i].getTauVeto() != vector2[i].getTauVeto()) {testPass = false; break; }
             }
         }
     }
@@ -381,7 +390,7 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
                 if(vector1[i].getRank() != vector2[i].getRank()) { testPass = false; break; }
                 if(vector1[i].getEta() != vector2[i].getEta()) { testPass = false; break; }
                 if(vector1[i].getPhi() != vector2[i].getPhi()) { testPass = false; break; }
-                //may need to add a tau feature bit comparison in the future here...
+                if(vector1[i].getTauVeto() != vector2[i].getTauVeto()) { testPass = false; break; }
             }
         }
     }
@@ -410,7 +419,8 @@ void outputRegionsVector(ofstream &fout, RegionsVector &regions, string descript
         {
             fout << regions[i].getEt() << "\t"
                  << regions[i].getMip() << "\t"
-                 << regions[i].getQuiet() << endl;
+                 << regions[i].getQuiet() << "\t"
+                 << regions[i].getTauVeto() << endl;
         }
     }
     fout << endl;  //write a blank line to separate data
@@ -427,8 +437,8 @@ void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
         {
             fout << jets[i].getRank() << "\t" 
                  << jets[i].getEta()  << "\t"
-                 << jets[i].getPhi()  << endl;
-                 //may need to add tau feature bit output here in the future
+                 << jets[i].getPhi()  << "\t"
+                 << jets[i].getTauVeto() << endl;
         }
     }
     fout << endl;  //write a blank line to separate data
