@@ -1,0 +1,23 @@
+<use name=FWCore/Framework>
+<use name=DQMServices/CoreROOT>
+<use name=DataFormats/SiPixelDigi>
+<use name=DataFormats/SiStripDigi>
+<use name=DataFormats/SiStripDetId> 
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=boost>
+<use name=root>
+
+<flags SEAL_PLUGIN_NAME="ValidationTrackerDigis">
+
+<export>
+ <lib name=ValidationTrackerDigis>
+ <use name=FWCore/Framework>
+ <use name=DQMServices/CoreROOT>
+ <use name=DataFormats/SiPixelDigi>
+ <use name=DataFormats/SiStripDigi>
+ <use name=DataFormats/SiStripDetId>
+ <use name=Geometry/TrackerGeometryBuilder>
+ <use name=boost>
+ <use name=root>
+</export>
+
