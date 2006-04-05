@@ -4,19 +4,24 @@
 // Creation Date:  MFP Apr. 6 2005 Initial version.
 // Revision:  R. Harris,  Oct. 19, 2005 Modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id: MidpointJetProducer.cc,v 1.9 2006/03/08 20:34:19 fedor Exp $
+// $Id: MidpointJetProducer.cc,v 1.10 2006/03/31 20:57:52 fedor Exp $
 //
 //--------------------------------------------
 #include <memory>
 
 #include "RecoJets/JetProducers/interface/MidpointJetProducer.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Framework/interface/Handle.h"
 
 using namespace std;
 using namespace reco;
+
+namespace {
+  const bool debug = false;
+}
 
 namespace cms
 {
@@ -35,6 +40,7 @@ namespace cms
     src_(conf.getParameter<string>( "src" ))
   {
     produces<CaloJetCollection>();
+    produces<GenJetCollection>();
   }
 
   // Virtual destructor needed.
@@ -44,27 +50,41 @@ namespace cms
   void MidpointJetProducer::produce(edm::Event& e, const edm::EventSetup&)
   {
     // get input
-    edm::Handle<CandidateCollection> towers;
-    e.getByLabel( src_, towers );                    
+    edm::Handle<CandidateCollection> inputs;
+    e.getByLabel( src_, inputs );                    
     vector <const Candidate*> input;
     vector <ProtoJet> output;
     // fill input
-    input.reserve (towers->size ());
-    CandidateCollection::const_iterator tower = towers->begin ();
-    for (; tower != towers->end (); tower++) {
-      input.push_back (&*tower); 
+    input.reserve (inputs->size ());
+    CandidateCollection::const_iterator input_object = inputs->begin ();
+    for (; input_object != inputs->end (); input_object++) {
+      if (debug) {
+	std::cout << "MidpointJetProducer::produce-> input E/p/eta/phi/M: " << input_object->energy ()
+		  << '/' << input_object->p() << '/' << input_object->eta ()
+		  << '/' << input_object->phi() << '/' << input_object->mass ()
+		  << std::endl;
+      }
+      input.push_back (&*input_object); 
     }
     // run algorithm
     alg_.run (input, &output);
     // produce output collection
-    auto_ptr<CaloJetCollection> result(new CaloJetCollection);  //Empty Jet Coll
+    auto_ptr<CaloJetCollection> caloJets(new CaloJetCollection);  //Empty Jet Coll
+    auto_ptr<GenJetCollection> genJets(new GenJetCollection);  //Empty Jet Coll
     vector <ProtoJet>::const_iterator protojet = output.begin ();
     JetMaker jetMaker;
     for (; protojet != output.end (); protojet++) {
-      result->push_back (jetMaker.makeCaloJet (*protojet));
+      if (jetMaker.convertableToCaloJet (*protojet)) {
+	caloJets->push_back (jetMaker.makeCaloJet (*protojet));
+      }
+      if (jetMaker.convertableToGenJet (*protojet)) { 
+	genJets->push_back (jetMaker.makeGenJet (*protojet));
+	if (debug) std::cout << "MidpointJetProducer::produce-> add protojet to GenJets." << std::endl;
+      }
     }
     // store output
-    e.put(result);  //Puts Jet Collection into event
+    if (!caloJets->empty ()) e.put(caloJets);  //Puts Jet Collection into event
+    if (!genJets->empty ()) e.put(genJets);  //Puts Jet Collection into event
   }
 
 }
