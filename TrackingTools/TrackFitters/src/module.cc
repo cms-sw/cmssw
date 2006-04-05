@@ -1,5 +1,6 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitterESProducer.h" 
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmootherESProducer.h" 
+#include "TrackingTools/TrackFitters/interface/KFFittingSmootherESProducer.h" 
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h" 
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h" 
 
@@ -13,3 +14,4 @@ EVENTSETUP_DATA_REG(TrajectoryFitter);
 EVENTSETUP_DATA_REG(TrajectorySmoother);
 DEFINE_FWK_EVENTSETUP_MODULE(KFTrajectoryFitterESProducer)
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(KFTrajectorySmootherESProducer)
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(KFFittingSmootherESProducer)
