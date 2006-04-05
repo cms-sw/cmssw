@@ -6,8 +6,8 @@
  * Digi for CSC anode wires. 
  * Based on modified DTDigi.
  *
- * $Date:$
- * $Revision:$
+ * $Date: 2006/04/05 19:41:34 $
+ * $Revision: 1.2 $
  *
  * \author N. Terentiev, CMU
  */
@@ -27,11 +27,11 @@ public:
   CSCWireDigi& operator=(const CSCWireDigi& digi);
 
   /// return wire number
-  int getWireGroup() const {return wire_;};
+  int getWireGroup() const {return wire_;}
   /// return tbin number
-  int getBeamCrossingTag() const {return tbin_;};
+  int getBeamCrossingTag() const {return tbin_;}
   /// return tbin number, consider getBeamCrossingTag() obsolete
-  int getTimeBin()         const {return tbin_;};
+  int getTimeBin()         const {return tbin_;}
 
   /// Print content of digi
   void print() const;
