@@ -115,7 +115,6 @@ namespace edm {
 
     void ReplaceNode::print(ostream& ost) const
     {
-      ost << type() << " " << name << " with ";
       value_->print(ost);
     }
 
@@ -319,11 +318,11 @@ namespace edm {
     {
       assertNotModified();
        // the ReplaceNode had better contain a ContentsNodes
-      NodePtr contentsPtr = replaceNode->value_;
-      ContentsNode * contents = dynamic_cast<ContentsNode*>(contentsPtr.get());
-      assert(contents != 0);
+      NodePtr replacementPtr = replaceNode->value_;
+      PSetNode * replacement = dynamic_cast<PSetNode*>(replacementPtr.get());
+      assert(replacement != 0);
 
-      value_ = *contents;
+      value_ = replacement->value_;
       setModified(true);
     }
 
