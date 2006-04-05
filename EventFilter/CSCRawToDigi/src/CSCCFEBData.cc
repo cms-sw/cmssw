@@ -98,12 +98,17 @@ std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned layer) const {
   result.reserve(16);
   std::vector<int> sca(nTimeSamples());
   for(unsigned ichannel = 1; ichannel <= 16; ++ichannel) {
+    if (nTimeSamples()==0) {
+      edm::LogError("CSCCFEBData") << "TimeSamples is Zero - CFEB Data Corrupt!";
+      break;
+    }
     for(unsigned itime = 0; itime < nTimeSamples(); ++itime) {
       sca[itime] = adcCounts(layer, ichannel, itime);
     }
-    if (sca.size()==0) std::cout << "Sandrik SCA ZERO" << std::endl;
-    if (nTimeSamples()==0) std::cout << "Sandrik TimeSamples ZERO" << std::endl;
-
+    if (sca.size()==0) {
+      edm::LogError("CSCCFEBData") << "ADC counts are empty - CFEB Data Corrupt!";
+      break;
+    }
     int strip = ichannel + 16*boardNumber_;
     CSCStripDigi digi(strip, sca);
     result.push_back(digi);
