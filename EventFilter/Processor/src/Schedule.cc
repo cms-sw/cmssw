@@ -444,12 +444,12 @@ namespace evf
 	 << "Name" << "\n";
 
     TrigPaths::iterator pi(trig_paths_.begin()),pe(trig_paths_.end());
-    for(;pi!=pe;++pi)
-      {
+    for(int i=0;pi!=pe;++pi,i++)
+      { 
 	cout << "trigreport "
 	     << right << setw(4)  << pi->bitPosition() << " "
 	     << right << setw(10) << pi->timesPassed() << " "
-	     << right << setw(10) << (pi->timesVisited() - pi->timesPassed()) << " "
+	     << right << setw(10) << (pi->timesVisited(i) - pi->timesPassed()) << " "
 	     << pi->name() << "\n";
       }
 
