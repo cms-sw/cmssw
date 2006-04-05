@@ -18,5 +18,4 @@ void L1GctJetFinalStage::process()
 
 void L1GctJetFinalStage::setInputJet(int i, L1GctJet jet)
 {
-    inputJets.push_back(jet);
 }
