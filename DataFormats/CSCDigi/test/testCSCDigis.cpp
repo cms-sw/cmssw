@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2006/03/24 18:04:35 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/05 08:17:51 $
+ * $Revision: 1.2 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.1 2006/03/24 18:04:35 teren Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.2 2006/04/05 08:17:51 tumanov Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -80,14 +80,6 @@ void testCSCDigis::testDigiPacking(){
   CPPUNIT_ASSERT(sizeof(CSCWireDigi::PersistentPacking)==sizeof(CSCWireDigi::PackedDigiType));
   CPPUNIT_ASSERT(sizeof(CSCWireDigi::ChannelPacking)==sizeof(int));
 
-//  CPPUNIT_ASSERT(sizeof(CSCComparatorDigi::PersistentPacking)==sizeof(CSCComparatorDigi::PackedDigiType));
-//  CPPUNIT_ASSERT(sizeof(CSCComparatorDigi::ChannelPacking)==sizeof(int));
-
-//  CPPUNIT_ASSERT(sizeof(CSCStripDigi::PersistentPacking)==sizeof(CSCStripDigi::PackedDigiType));
-//  CPPUNIT_ASSERT(sizeof(CSCStripDigi::ChannelPacking)==sizeof(int));
-
-  CPPUNIT_ASSERT (sizeof(CSCRPCDigi::PersistentPacking)==
-		  sizeof(CSCRPCDigi::PackedDigiType));
 
   CPPUNIT_ASSERT (sizeof(CSCALCTDigi::PersistentPacking)==sizeof(CSCALCTDigi::PackedDigiType));
   CPPUNIT_ASSERT(sizeof(CSCALCTDigi::ChannelPacking)==sizeof(int));
@@ -192,13 +184,11 @@ void testCSCDigis::fillCSCRPCDigi(CSCRPCDigiCollection & collection){
    
 	    std::vector<CSCRPCDigi> digivec;
 	    for (int i=5; i<6; ++i){
-	      CSCRPCDigi::PackedDigiType pd;
-	      pd.rpc=i;
-	      pd.bxn=1;
-	      pd.pad=1;
-	      pd.tbin=3;
- 
-	      CSCRPCDigi digi(pd);
+	      int rpc=i;
+	      int bxn=1;
+	      int pad=1;
+	      int tbin=3;
+	      CSCRPCDigi digi(rpc, pad, bxn, tbin);
 	      digivec.push_back(digi);
 	    }
  
@@ -254,6 +244,8 @@ void testCSCDigis::fillCSCCLCTDigi(CSCCLCTDigiCollection & collection){
 
            pd.valid=1;
            pd.quality=3;
+
+
            pd.patshape=2;
            pd.striptype=1;
            pd.bend=0;

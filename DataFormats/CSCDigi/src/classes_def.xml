@@ -24,7 +24,6 @@
    <class name="std::map<CSCDetId,std::vector<CSCALCTDigi> >"/>
 
    <class name="CSCWireDigi::PersistentPacking"/>
-   <class name="CSCRPCDigi::PersistentPacking"/>
    <class name="CSCCorrelatedLCTDigi::PersistentPacking"/>
    <class name="CSCCLCTDigi::PersistentPacking"/>
    <class name="CSCALCTDigi::PersistentPacking"/>

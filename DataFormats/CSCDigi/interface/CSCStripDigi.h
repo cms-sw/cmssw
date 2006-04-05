@@ -5,8 +5,8 @@
  *
  * Digi for CSC Cathode Strips.
  *  
- *  $Date: 2006/03/03 13:51:30 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/04/05 08:18:14 $
+ *  $Revision: 1.7 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -59,7 +59,11 @@ private:
 #include<iostream>
 // needed by COBRA
 inline std::ostream & operator<<(std::ostream & o, const CSCStripDigi& digi) {
-  return o << " " << digi.getStrip();
+  o << " " << digi.getStrip();
+  for (size_t i = 0; i<digi.getADCCounts().size(); ++i ){
+    o <<" " <<(digi.getADCCounts())[i]; }
+  return o;
+  
 }
 
 #endif
