@@ -28,7 +28,6 @@
    <class name="CSCCorrelatedLCTDigi::PersistentPacking"/>
    <class name="CSCCLCTDigi::PersistentPacking"/>
    <class name="CSCALCTDigi::PersistentPacking"/>
-   <class name="CSCStripDigi::theStripDigi"/>   
    <class name="CSCComparatorDigi::theComparatorDigi"/>   
 
 

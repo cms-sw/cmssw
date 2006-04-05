@@ -32,7 +32,7 @@ namespace{
   CSCCLCTDigi::PersistentPacking ppCLCTD_;
   CSCALCTDigi::PersistentPacking ppALCTD_;
   CSCCorrelatedLCTDigi::PersistentPacking ppCorLCTD_;
-  CSCStripDigi::theStripDigi ppSD_;
+  //CSCStripDigi::PeristentPacking ppSD_;
   CSCComparatorDigi::theComparatorDigi ppCD_; 
  
   std::vector<CSCWireDigi>  vWD_;

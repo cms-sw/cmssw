@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2006/03/01 13:26:45 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/03/03 13:50:52 $
+ *  $Revision: 1.6 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -13,28 +13,28 @@
 using namespace std;
 
 // Constructors
-CSCStripDigi::CSCStripDigi (int strip, vector<int> ADCCounts){
-  set(strip, ADCCounts);
-}
-
-CSCStripDigi::CSCStripDigi (theStripDigi aStripDigi){
-  setData(aStripDigi);
+CSCStripDigi::CSCStripDigi (int istrip, vector<int> vADCCounts){
+  strip = istrip;
+  ADCCounts = vADCCounts;
 }
 
 CSCStripDigi::CSCStripDigi (){
   vector<int> ZeroCounts(8,0);
-  set(0,ZeroCounts);
+  strip = 0;
+  ADCCounts = ZeroCounts;
 }
 
 // Copy constructor
 CSCStripDigi::CSCStripDigi(const CSCStripDigi& digi) {
-  aStripDigi = digi.aStripDigi;
+ ADCCounts = digi.getADCCounts();
+ strip = digi.getStrip();
 }
 
 // Assignment
 CSCStripDigi& 
 CSCStripDigi::operator=(const CSCStripDigi& digi){
-  aStripDigi = digi.aStripDigi;
+  ADCCounts = digi.getADCCounts();
+  strip = digi.getStrip();
   return *this;
 }
 
@@ -48,23 +48,23 @@ CSCStripDigi::operator == (const CSCStripDigi& digi) const {
 }
 
 // Getters
-int CSCStripDigi::getStrip() const { return data()->strip; }
-std::vector<int> CSCStripDigi::getADCCounts() const { return data()->ADCCounts; }
+int CSCStripDigi::getStrip() const { return strip; }
+std::vector<int> CSCStripDigi::getADCCounts() const { return ADCCounts; }
 
 // Setters
-void CSCStripDigi::setStrip(int strip) {
-  data()->strip = strip;
+void CSCStripDigi::setStrip(int istrip) {
+  strip = istrip;
 }
-void CSCStripDigi::setADCCounts(vector<int>ADCCounts) {
+void CSCStripDigi::setADCCounts(vector<int>vADCCounts) {
   bool badVal = false;
-  for (int i=0; i<(int)ADCCounts.size(); i++) {
-    if (ADCCounts[i] < 1) badVal = true;
+  for (int i=0; i<(int)vADCCounts.size(); i++) {
+    if (vADCCounts[i] < 1) badVal = true;
   }
   if ( !badVal ) {
-    data()->ADCCounts = ADCCounts;
+    ADCCounts = vADCCounts;
   } else {
     vector<int> ZeroCounts(8,0);
-    data()->ADCCounts = ZeroCounts;
+    ADCCounts = ZeroCounts;
   }
 }
 
@@ -77,21 +77,5 @@ CSCStripDigi::print() const {
 }
 
 
-// ----- Private members
-void
-CSCStripDigi::set(int strip, vector<int> ADCCounts) {
-  data()->strip = strip;
-  data()->ADCCounts = ADCCounts;
-}
 
-CSCStripDigi::theStripDigi* CSCStripDigi::data() {
-  return &aStripDigi;
-}
 
-const CSCStripDigi::theStripDigi * CSCStripDigi::data() const {
-  return &aStripDigi;
-}
-
-void CSCStripDigi::setData(theStripDigi p){
-  *(data()) = p;
-}
