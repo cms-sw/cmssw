@@ -1,5 +1,9 @@
 <use name=DQMServices/WebComponents>
+<use name=DQMServices/QualityTests>
+<Use name=xerces-c>
 <export>
 <lib name=DQMRPCMonitorClient>
 <use name=DQMServices/WebComponents>
+<use name=DQMServices/QualityTests>
+<Use name=xerces-c>
 </export>
