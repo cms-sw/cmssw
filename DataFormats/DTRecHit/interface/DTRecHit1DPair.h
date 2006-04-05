@@ -12,18 +12,18 @@
  *  method. The position is the average of the theLeftHit and theRightHit hits, namely the
  *  wire position.
  *
- *  $Date: 2006/02/15 09:25:30 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/01 13:27:17 $
+ *  $Revision: 1.3 $
  *  \author S. Lacaprara & G. Cerminara
  */
 
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
-#include "DataFormats/DTDigi/interface/DTDigi.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include <utility>
 
 class DTLayer;
+class DTDigi;
 
 class DTRecHit1DPair : public RecHit1D {
 public:
@@ -69,13 +69,13 @@ public:
   virtual DetId geographicalId() const;
 
 
-  /// Return the digi
-  const DTDigi& digi() const {
-    return theDigi;
+  /// Return the digi time (ns) used to build the rechits
+  float digiTime() const {
+    return theLeftHit.digiTime();
   }
 
 
-  /// Comparison operator, based on the wireId and the digi
+  /// Comparison operator, based on the wireId and the digi time
   bool operator==(const DTRecHit1DPair& hit) const;
 
 
@@ -127,9 +127,6 @@ public:
   /// Non const access to left/right DTRecHit1D
   DTRecHit1D* componentRecHit(DTEnums::DTCellSide lrSide);
 
-  // The digi
-  DTDigi theDigi;  //FIXME: is it really needed      
-  
   // The two rechits
   DTRecHit1D theLeftHit;
   DTRecHit1D theRightHit;

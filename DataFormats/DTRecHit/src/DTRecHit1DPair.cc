@@ -2,12 +2,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/15 09:25:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/01 13:27:18 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
+#include "DataFormats/DTDigi/interface/DTDigi.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -19,14 +20,12 @@ using namespace std;
 
 // Constructor without components: must use setPos and Err!
 DTRecHit1DPair::DTRecHit1DPair(const DTWireId& wireId,
-                               const DTDigi& digi) : theDigi(digi),
-                                                     theLeftHit(wireId, Left, theDigi.time()),
-                                                     theRightHit(wireId, Right, theDigi.time()) {}
+                               const DTDigi& digi) : theLeftHit(wireId, Left, digi.time()),
+                                                     theRightHit(wireId, Right, digi.time()) {}
 
 
 // Default constructor
-DTRecHit1DPair::DTRecHit1DPair() : theDigi(),
-                                   theLeftHit(),
+DTRecHit1DPair::DTRecHit1DPair() : theLeftHit(),
                                    theRightHit() {}
 
 
@@ -88,9 +87,9 @@ DetId DTRecHit1DPair::geographicalId() const {
 
 
   
-// Comparison operator, based on the wireId and the digi
+// Comparison operator, based on the wireId and the digi time
 bool DTRecHit1DPair::operator==(const DTRecHit1DPair& hit) const {
-  return wireId() == hit.wireId() && digi() == hit.digi();
+  return wireId() == hit.wireId() && fabs(digiTime() - hit.digiTime()) < 0.1;
 }
 
 
