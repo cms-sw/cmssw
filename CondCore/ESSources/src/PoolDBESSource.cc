@@ -147,6 +147,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
    */
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   unsigned int auth=iConfig.getUntrackedParameter<unsigned int>("authenticationMethod",0) ;
+  bool loadblob=iConfig.getUntrackedParameter<bool>("loadBlobStreamer",false);
   std::string catconnect;
   try{
     if( auth==1 ){
@@ -171,6 +172,9 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       break;  
     default:
       m_loader->loadMessageService();
+    }
+    if( loadblob ){
+      m_loader->loadBlobStreamingService();
     }
   }catch( const cond::Exception& e){
     throw e;
