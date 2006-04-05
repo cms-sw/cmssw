@@ -32,9 +32,9 @@ KFTrajectorySmootherESProducer::produce(const TrackingComponentsRecord & iRecord
 //     delete _updator;
 //     _updator = 0;
 //   }
-  std::string pname = pset_.getParameter<std::string>("UsePropagator");
-  std::string uname = pset_.getParameter<std::string>("UseUpdator");
-  std::string ename = pset_.getParameter<std::string>("UseEstimator");
+  std::string pname = pset_.getParameter<std::string>("Propagator");
+  std::string uname = pset_.getParameter<std::string>("Updator");
+  std::string ename = pset_.getParameter<std::string>("Estimator");
 
   edm::ESHandle<Propagator> prop;
   edm::ESHandle<TrajectoryStateUpdator> upd;
