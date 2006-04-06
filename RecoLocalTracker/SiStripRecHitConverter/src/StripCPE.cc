@@ -18,24 +18,21 @@ StripClusterParameterEstimator::LocalValues StripCPE::localParameters( const SiS
   DetId detId(cl.geographicalId());
   const GeomDetUnit *  det = geom_->idToDetUnit(detId);
 
-  LocalPoint result;
+  LocalPoint position;
   LocalError eresult;
 
   const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
   //  DetId detId(det.geographicalId());
   const StripTopology &topol=(StripTopology&)stripdet->topology();
-  result = topol.localPosition(cl.barycenter());
+  position = topol.localPosition(cl.barycenter());
   eresult = topol.localError(cl.barycenter(),1/12.);
   
-  //  std::cout<<"Apply  lorentz drift <-----"<<std::endl;
   LocalVector drift = driftDirection(stripdet);
   float thickness=stripdet->specificSurface().bounds().thickness();
-  //std::cout<<"Before:"<<result.x()<<" "<<result.y()<<std::endl;
-  //LocalPoint resulta;
-  drift*=(thickness/2);
-  //resulta=result+drift;
-  //std::cout<<"After:"<<resulta.x()<<" "<<resulta.y()<<std::endl;
-  return std::make_pair(result+drift,eresult);
+  drift*=thickness;
+  LocalPoint result=LocalPoint(position.x()+drift.x()/2,position.y()+drift.y()/2,0);
+
+  return std::make_pair(result,eresult);
 }
 
 LocalVector StripCPE::driftDirection(const StripGeomDetUnit* det)const{
