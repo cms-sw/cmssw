@@ -136,12 +136,12 @@ int main()
 
 	    int itry = 0;
 	    for (NavVolume::Container::const_iterator isur = nsc.begin(); isur!=nsc.end(); isur++) {
-		TSOS state = isur->first->propagate( propagator, startingState);
+		TSOS state = isur->surface().propagate( propagator, startingState);
 		if (!state.isValid()) {
 		    ++itry;
 		    continue;
 		}
-		if (isur->second->inside(state.localPosition())) {
+		if (isur->bounds().inside(state.localPosition())) {
 		    cout << "Surface containing destination point found at try " << itry << endl;
 		    break;
 		}

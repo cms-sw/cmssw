@@ -17,6 +17,10 @@ const NavVolume* LinearSearchNavSurfaceImpl::findVolume( const NavSurface::Local
 							 const VolumeContainer& vols) const
 {
 // simple linear search for volume who's bounds contain the point
+
+//MM:return 0 if no volume was defined on this side! 
+  if (vols.size()==0) return 0;
+
     for (VolumeContainer::const_iterator i=vols.begin(); i!=vols.end(); i++) {
 	if (i->second->inside(point)) return i->first;
     }

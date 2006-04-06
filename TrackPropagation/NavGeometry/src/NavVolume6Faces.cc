@@ -20,7 +20,10 @@ NavVolume6Faces::NavVolume6Faces( const PositionType& pos,
        i != faces.end(); i++) {
     theFaces.push_back( VolumeSide( const_cast<Surface*>(&(i->surface().surface())), 
 				    i->globalFace(), i->surfaceSide()));
+  std::cout << " or actually this is where we have side " << i->surfaceSide() << " and face " << i->globalFace() << std::endl;
   }
+
+
 
     computeBounds(faces);
 }
@@ -86,7 +89,8 @@ void NavVolume6Faces::computeBounds(const std::vector<NavVolumeSide>& faces)
 // a copy of Bounds for each touching Volume (instantiated in the call to addVolume).
 // We would like to keep a pointer to the same Bounds in the NavVolume, so we have to ASK
 // the NavSurface for the Bounds* of the Bounds we just gave it!
-	theNavSurfaces.push_back( SurfaceAndBounds(&navSurf, navSurf.bounds(this)));
+	std::cout << "Adding a Volume Side with center " << navSurf.surface().position() << " side "<< faces[i].surfaceSide() << " and face " << faces[i].globalFace()<< std::endl;
+	theNavSurfaces.push_back( SurfaceAndBounds(&navSurf, navSurf.bounds(this), faces[i].surfaceSide()));
     }
 }
 
@@ -169,7 +173,8 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
 
     for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
 	// pair<bool,double> dist = linearDistance( *(i->first), gpos, gdir);
-	std::pair<bool,double> dist = i->first->distanceAlongLine( gpos, gdir);
+      ////	std::pair<bool,double> dist = i->first->distanceAlongLine( gpos, gdir);
+	std::pair<bool,double> dist = i->surface().distanceAlongLine( gpos, gdir);
 	if (dist.first) sortedSurfaces[dist.second] = *i;
 	else unreachableSurfaces.push_back(*i);
     }

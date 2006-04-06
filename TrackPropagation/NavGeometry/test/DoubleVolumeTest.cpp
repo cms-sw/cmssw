@@ -30,6 +30,14 @@ NavPlane* navPlane( ReferenceCountingPointer<BoundPlane> p) {
   return new NavPlane(p.get());
 }
 
+SurfaceOrientation::Side oppositeSide( SurfaceOrientation::Side side = SurfaceOrientation::onSurface) {
+  if ( side == SurfaceOrientation::onSurface ) {
+    return side; 
+  } else {
+    SurfaceOrientation::Side oppositeSide = ( side ==SurfaceOrientation::positiveSide ? SurfaceOrientation::negativeSide : SurfaceOrientation::positiveSide);
+    return oppositeSide;
+  } 
+}
 
 
 int main() 
@@ -46,7 +54,7 @@ int main()
 
     float xSize = 10.;
     float ySize = 10.;
-    float zSize = 100.;
+    float zSize = 10.;
     float xPos = 0.;
     float yPos = 0.;
     float zPos = 0.;
@@ -74,10 +82,6 @@ int main()
     ReferenceCountingPointer<BoundPlane> rPlusPlane  = planeGenerator(rPlus,globalY);
     ReferenceCountingPointer<BoundPlane> rPlus2Plane  = planeGenerator(rPlus2,globalY);
 
-    //cout << " testing NavPlane constructor " << endl;
-    //NavPlane MyTestNavPlane(rPlusPlane);
-    //cout << " Succesful !!!! " << endl;
-
     GlobalPoint volumePos( xPos, yPos, zPos);
     GlobalPoint volumePos2( xPos, yPos + 2 * ySize , zPos);
     Surface::RotationType volumeRot; // unit matrix
@@ -85,8 +89,13 @@ int main()
     vector<NavVolumeSide> MyNavVolumeSides;
     MyNavVolumeSides.push_back( NavVolumeSide( navPlane( rMinusPlane), SurfaceOrientation::inner,
 				       rMinusPlane->side(volumePos,0)));
-    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( rPlusPlane), SurfaceOrientation::outer,
-				       rPlusPlane->side(volumePos,0)));
+
+    NavPlane* CommonSideP = navPlane( rPlusPlane);
+
+    MyNavVolumeSides.push_back( NavVolumeSide(CommonSideP,  SurfaceOrientation::outer,
+    				rPlusPlane->side(volumePos,0))); 
+    //    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( rPlusPlane), SurfaceOrientation::outer,
+    //				       rPlusPlane->side(volumePos,0)));
 
     MyNavVolumeSides.push_back( NavVolumeSide( navPlane( zMinusPlane), SurfaceOrientation::zminus,
 				       zMinusPlane->side(volumePos,0)));
@@ -97,31 +106,23 @@ int main()
 				       phiMinusPlane->side(volumePos,0)));
     MyNavVolumeSides.push_back( NavVolumeSide( navPlane( phiPlusPlane), SurfaceOrientation::phiplus,
 				       phiPlusPlane->side(volumePos,0)));
-    cout << "MIDDLE of the NavVolume: " << volumePos << endl;
-    cout << "... but rotated using rotation: " << endl; cout << volumeRot << endl;
 
 
     vector<NavVolumeSide> MyNavVolumeSides2;
-    MyNavVolumeSides2.push_back( NavVolumeSide( navPlane( rPlusPlane), SurfaceOrientation::inner,
-				       rMinusPlane->side(volumePos,0)));
+    MyNavVolumeSides2.push_back( NavVolumeSide( CommonSideP , SurfaceOrientation::inner,
+				       rPlusPlane->side(volumePos2,0)));
     MyNavVolumeSides2.push_back( NavVolumeSide( navPlane( rPlus2Plane), SurfaceOrientation::outer,
-				       rPlusPlane->side(volumePos,0)));
+				       rPlus2Plane->side(volumePos2,0)));
 
     MyNavVolumeSides2.push_back( NavVolumeSide( navPlane( zMinusPlane), SurfaceOrientation::zminus,
-				       zMinusPlane->side(volumePos,0)));
+				       zMinusPlane->side(volumePos2,0)));
     MyNavVolumeSides2.push_back( NavVolumeSide( navPlane( zPlusPlane), SurfaceOrientation::zplus,
-				       zPlusPlane->side(volumePos,0)));
+				       zPlusPlane->side(volumePos2,0)));
 
     MyNavVolumeSides2.push_back( NavVolumeSide( navPlane( phiMinusPlane), SurfaceOrientation::phiminus,
-				       phiMinusPlane->side(volumePos,0)));
+				       phiMinusPlane->side(volumePos2,0)));
     MyNavVolumeSides2.push_back( NavVolumeSide( navPlane( phiPlusPlane), SurfaceOrientation::phiplus,
-				       phiPlusPlane->side(volumePos,0)));
-    cout << "MIDDLE of the NavVolume2: " << volumePos2 << endl;
-    cout << "... but rotated using rotation: " << endl; cout << volumeRot << endl;
-
-
-
-
+				       phiPlusPlane->side(volumePos2,0)));
 
     for (vector<NavVolumeSide>::const_iterator iv=MyNavVolumeSides.begin(); iv!=MyNavVolumeSides.end(); iv++) {
 
@@ -142,10 +143,7 @@ int main()
     
     try {
 	NavVolume6Faces vol( volumePos, volumeRot, ddshapeless, MyNavVolumeSides, 0);
-	
-
-
-	NavVolume6Faces vol2( volumePos, volumeRot, ddshapeless, MyNavVolumeSides2, 0);
+	NavVolume6Faces vol2( volumePos2, volumeRot, ddshapeless, MyNavVolumeSides2, 0);
 	
 	cout << "check if starting point is inside volume 1 : " << vol.inside(GlobalPoint(xPos, yPos, zPos),0.1) << endl;
 	cout << "check if starting point is inside volume 2 : " << vol2.inside(GlobalPoint(xPos, yPos, zPos),0.1) << endl;
@@ -156,7 +154,7 @@ int main()
 	MyMagneticField  MyTestField;
 	AnalyticalPropagator propagator ( &MyTestField, alongMomentum );
 
-	for (int i=0; i<10; i++) {
+	for (int i=0; i<200; i++) {
 	    GlobalVector gStartMomentum( momentumGenerator());
 
 	    cout << "************* " << endl;
@@ -175,43 +173,68 @@ int main()
 							vol.toLocal( gtp.momentum()), -1);
 	    // cout << "nextSurface size " << nsc.size() << endl;
 
-	    
 
 	    int itry = 0;
+	    const NavVolume* nextVol = 0;
 
 	    for (NavVolume::Container::const_iterator isur = nsc.begin(); isur!=nsc.end(); isur++) {
-		TSOS state = isur->first->propagate( propagator, startingState);
+		TSOS state = isur->surface().propagate( propagator, startingState);
 		if (!state.isValid()) {
 		    ++itry;
 		    continue;
 		}
-		if (isur->second->inside(state.localPosition())) {
+		if (isur->bounds().inside(state.localPosition())) {
 		    cout << "Surface containing destination point found at try " << itry << endl;
+		    nextVol = isur->surface().nextVolume(state.localPosition(),oppositeSide(isur->side()));
 
-		    // Write out some information: 
-		    cout << "and position is now " << state.globalPosition() << endl;
-		    //
-		    /* isur->first is a pointer to a NavSurface, ->second points at a Bounds */
-		    //
-		    cout << "which is on the surface with center " << isur->first->surface().position() << endl;
-		    //		
-		    cout << "and gives acces to volume " << endl;
-		    cout << " [ ... still trying to find out how to get to nextVolume ... ] " << endl;
-		    // isur->first->nextVolume(state.localPosition(),isur->first->surface().position()) << endl;
-		    int ivol = 0;
-		    for (vector<NavVolumeSide>::const_iterator iv=MyNavVolumeSides.begin(); iv!=MyNavVolumeSides.end(); iv++) {
-		      ivol++;
-		      cout << " ... trying side no. " << ivol << endl;
-		      //     if (iv->surface().surface().position() == isur->first->surface().position()) {
-		      //cout << "Matched to Volumside no. " << ivol << endl;
-		      //}
-		    }
+		    cout << "Looking for next Volume on other side of surface with center " << isur->surface().surface().position() << endl;
+		    startingState = state;
 		    break;
 		}
 		else {
 		    ++itry;
 		}
-	    }	       
+	    }
+	    
+
+	    if (nextVol != 0) {
+	      cout << "YES !!! Found next volume with position: " << nextVol->position() << endl;
+	      cout << "Do a second Iteration step !" << endl;
+		
+	      NavVolume::Container nsc2 = nextVol->nextSurface( nextVol->toLocal( startingState.globalPosition()+0.01*startingState.globalMomentum()), 
+							nextVol->toLocal( startingState.globalMomentum()), -1);
+
+	      
+	      for (NavVolume::Container::const_iterator isur = nsc2.begin(); isur!=nsc2.end(); isur++) {
+		TSOS state = isur->surface().propagate( propagator, startingState);
+		if (!state.isValid()) {
+		  ++itry;
+		  continue;
+		}
+		if (isur->bounds().inside(state.localPosition())) {
+		  cout << "** SECOND ** Surface containing destination point found at try " << itry << endl;
+		  cout << "Position and momentum after first step: " << startingState.globalPosition() << ", " << startingState.globalMomentum() << endl;	
+		  cout << "Position and momentum after second step: " << state.globalPosition() << ", " << state.globalMomentum() << endl;
+
+		  nextVol = isur->surface().nextVolume(state.localPosition(),oppositeSide(isur->side()));
+		  
+		  cout << "Looking for ** NEXT ** next Volume on other side of surface with center " << isur->surface().surface().position() << endl;
+		  //		  startingState = state;
+		  break;
+		}
+		else {
+		  ++itry;
+		}
+	      }
+	      if (nextVol != 0) {
+		cout << "Succeeded to find THIRD volume with pos, mom, " << startingState.globalPosition() << ", " << startingState.globalMomentum() << endl;
+	      } else {
+		cout << "Failed to find THIRD volume " << endl;
+	      }
+	    } else {
+	      cout << "NO !!!!!!!! Nothing on other side" << endl;
+	    }
+	    
 	}
 
     }
