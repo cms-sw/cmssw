@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.3 2005/11/23 02:21:29 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.4 2006/03/11 00:15:13 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "IOPool/Common/interface/PoolNames.h"
-#include "IOPool/Common/interface/PoolCatalog.h"
+#include "FWCore/Framework/interface/FileCatalog.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
 #include "PersistencySvc/Placement.h"
 
@@ -27,7 +27,7 @@ namespace pool {
 }
 
 namespace edm {
-  class PoolCatalog;
+  class OutputFileCatalog;
   class ParameterSet;
 
   class PoolOutputModule : public OutputModule {
@@ -44,7 +44,7 @@ namespace edm {
     pool::IDataSvc *context() const {return context_.context();}
 
   private:
-    PoolCatalog mutable catalog_;
+    OutputFileCatalog mutable catalog_;
     PoolDataSvc mutable context_;
     std::string const fileName_;
     std::string const logicalFileName_;

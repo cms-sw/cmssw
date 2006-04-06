@@ -2,7 +2,7 @@
 #define Common_PoolDataSvc_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolDataSvc.h,v 1.1 2005/11/01 22:42:45 wmtan Exp $
+// $Id: PoolDataSvc.h,v 1.1 2005/11/23 02:17:56 wmtan Exp $
 //
 // Class PoolDataSvc. Common services to manage POOL cache
 //
@@ -18,10 +18,12 @@ namespace pool {
 }
 
 namespace edm {
-  class PoolCatalog;
+  class InputFileCatalog;
+  class OutputFileCatalog;
   class PoolDataSvc {
   public:
-    PoolDataSvc(PoolCatalog & catalog_, bool write, bool delete_on_free);
+    PoolDataSvc(InputFileCatalog & catalog_, bool delete_on_free);
+    PoolDataSvc(OutputFileCatalog & catalog_, bool delete_on_free);
     ~PoolDataSvc() {}
     size_t getFileSize(std::string const& fileName);
     pool::IDataSvc *context() {return context_;}

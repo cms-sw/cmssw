@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.17 2006/03/15 21:22:54 wmtan Exp $
+$Id: PoolSource.h,v 1.18 2006/04/04 22:19:16 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,7 +14,6 @@ $Id: PoolSource.h,v 1.17 2006/03/15 21:22:54 wmtan Exp $
 #include <string>
 #include <map>
 
-#include "IOPool/Common/interface/PoolCatalog.h"
 #include "IOPool/Input/src/Inputfwd.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -45,7 +44,6 @@ namespace edm {
     bool next();
     bool previous();
 
-    PoolCatalog catalog_;
     std::vector<std::string>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
     RootFileMap rootFiles_;

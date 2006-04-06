@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.18 2006/03/21 23:24:26 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.19 2006/03/24 14:16:56 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -30,9 +30,9 @@
 namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
-    catalog_(PoolCatalog::WRITE, pset.getUntrackedParameter<std::string>("catalog", std::string())),
-    context_(catalog_, true, false),
-    fileName_(PoolCatalog::toPhysical(pset.getUntrackedParameter<std::string>("fileName"))),
+    catalog_(pset),
+    context_(catalog_, false),
+    fileName_(FileCatalog::toPhysical(pset.getUntrackedParameter<std::string>("fileName"))),
     logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())),
     commitInterval_(pset.getUntrackedParameter<unsigned int>("commitInterval", 100U)),
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),

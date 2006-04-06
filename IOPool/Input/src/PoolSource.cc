@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.24 2006/03/15 21:22:54 wmtan Exp $
+$Id: PoolSource.cc,v 1.25 2006/04/04 22:19:16 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -16,7 +16,6 @@ $Id: PoolSource.cc,v 1.24 2006/03/15 21:22:54 wmtan Exp $
 namespace edm {
   PoolRASource::PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
-    catalog_(PoolCatalog::READ, pset.getUntrackedParameter("catalog", std::string())),
     fileIter_(fileNames().begin()),
     rootFile_(),
     rootFiles_(),
@@ -37,9 +36,7 @@ namespace edm {
 
     RootFileMap::const_iterator it = rootFiles_.find(file);
     if (it == rootFiles_.end()) {
-      std::string pfn;
-      catalog_.findFile(pfn, file);
-      rootFile_ = RootFileSharedPtr(new RootFile(pfn));
+      rootFile_ = RootFileSharedPtr(new RootFile(file));
       rootFiles_.insert(std::make_pair(file, rootFile_));
       if (mainInput_) {
         rootFile_->fillParameterSetRegistry(*pset::Registry::instance());
