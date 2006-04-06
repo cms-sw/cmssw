@@ -102,7 +102,7 @@ bool cond::MetaData::replaceToken(const std::string& name, const std::string& ne
     setClause+="= :newToken";
     std::string condition( cond::MetaDataNames::tagColumn() );
     condition+="= :oldTag";
-    long update=dataEditor.updateRows( setClause, condition, inputData );
+    dataEditor.updateRows( setClause, condition, inputData );
     m_session->transaction().commit() ;
   }catch( coral::DuplicateEntryInUniqueKeyException& er ){
     throw cond::MetaDataDuplicateEntryException("MetaData::replaceToken",name);
@@ -155,5 +155,48 @@ void cond::MetaData::createTable(const std::string& tabname){
   description.setNotNullConstraint( cond::MetaDataNames::tokenColumn() );
   coral::ITable& table=schema.createTable(description);
   table.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select);
-  //m_table=&table;
+}
+bool cond::MetaData::hasTag( const std::string& name ) const{
+  bool result=false;
+  try{
+    m_session->transaction().start();
+    coral::ITable& mytable=m_session->nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
+    std::auto_ptr< coral::IQuery > query(mytable.newQuery());
+    coral::AttributeList emptyBindVariableList;
+    std::string condition=cond::MetaDataNames::tagColumn()+" = '"+name+"'";
+    query->setCondition( condition, emptyBindVariableList );
+    coral::ICursor& cursor = query->execute();
+    if( cursor.next() ) result=true;
+    cursor.close();
+    // Committing the transaction
+    //std::cout << "Committing..." << std::endl;
+    m_session->transaction().commit();
+  }catch(const std::exception& er){
+    throw cond::Exception( std::string("MetaData::hasTag: " )+er.what() );
+  }catch(...){
+    throw cond::Exception( "MetaData::hasTag: unknown exception ");
+  }
+  return result;
+}
+void cond::MetaData::listAllTags( std::vector<std::string>& result ) const{
+  try{
+    m_session->transaction().start();
+    coral::ITable& mytable=m_session->nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
+    std::auto_ptr< coral::IQuery > query(mytable.newQuery());
+    query->addToOutputList( cond::MetaDataNames::tagColumn() );
+    query->setMemoryCacheSize( 100 );
+    coral::ICursor& cursor = query->execute();
+    while( cursor.next() ){
+      const coral::AttributeList& row = cursor.currentRow();
+      result.push_back(row[cond::MetaDataNames::tagColumn()].data<std::string>());
+    }
+    cursor.close();
+    // Committing the transaction
+    //std::cout << "Committing..." << std::endl;
+    m_session->transaction().commit();
+  }catch(const std::exception& er){
+    throw cond::Exception( std::string("MetaData::listAllTag: " )+er.what() );
+  }catch(...){
+    throw cond::Exception( "MetaData::listAllTag: unknown exception ");
+  }
 }

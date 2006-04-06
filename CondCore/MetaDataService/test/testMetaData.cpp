@@ -4,6 +4,9 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 //#include "SealKernel/Exception.h"
 #include <string>
+#include <vector>
+#include <algorithm>
+#include <iostream>
 int main(){
   cond::ServiceLoader* loader=new cond::ServiceLoader;
   ::putenv("CORAL_AUTH_USER=cms_xiezhen_dev");
@@ -27,6 +30,14 @@ int main(){
     metadata_svc.replaceToken("mytest2",newtok2);
     std::string mytok2=metadata_svc.getToken("mytest2");
     std::cout<<"get back new tok2 "<<newtok2<<" "<<mytok2<<std::endl;
+    std::cout<<"tag exists mytest2 "<<metadata_svc.hasTag("mytest2")<<std::endl;
+    std::cout<<"tag exists crap "<<metadata_svc.hasTag("crap")<<std::endl;
+    std::vector<std::string> alltags;
+    metadata_svc.listAllTags(alltags);
+    std::copy (alltags.begin(),
+	       alltags.end(),
+	       std::ostream_iterator<std::string>(std::cout,"\n")
+	       );
     metadata_svc.disconnect();
   }catch(cond::Exception& er){
     std::cout<<er.what()<<std::endl;
