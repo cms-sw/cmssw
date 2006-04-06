@@ -5,8 +5,8 @@
  *  Abstract algorithmic class to compute drift distance and error 
  *  form a DT digi
  *
- *  $Date: 2006/03/14 13:02:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/31 09:58:04 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane & G. Cerminara - INFN Torino
  */
 
@@ -52,16 +52,6 @@ class DTRecHitBaseAlgo {
 						     const DTDigiCollection::Range& digiRange);
 
 
-  /// Whether the algorithm can update hits once the 2D segment is
-  /// known (i.e. compute() is implemented for the 2nd step)
-  virtual bool canUpdate2D() = 0; //FIXME: Is it really needed?
-
-
-  /// Whether the algorithm can update hits once the 4D segment is
-  /// known (i.e. compute() is implemented for the 3rd step)
-  virtual bool canUpdate4D() = 0; //FIXME: Is it really needed?
-
-    
   /// First step in computation of Left/Right hits from a Digi.  
   /// The results are the local position (in MuBarLayer frame) of the
   /// Left and Right hit, and the error (which is common). Returns
@@ -82,10 +72,8 @@ class DTRecHitBaseAlgo {
   virtual bool compute(const DTLayer* layer,
                        const DTRecHit1D& recHit1D,
                        const float& angle,
-                       LocalPoint& leftPoint,
-                       LocalPoint& rightPoint,
-                       LocalError& error) const = 0;
-
+                       DTRecHit1D& newHit1D) const = 0;
+  
 
   /// Third (and final) step in hits position computation, for
   /// algorithms which support it.
@@ -98,9 +86,7 @@ class DTRecHitBaseAlgo {
 		       const DTRecHit1D& recHit1D,
                        const float& angle,
                        const GlobalPoint& globPos, 
-                       LocalPoint& leftPoint,
-                       LocalPoint& rightPoint,
-                       LocalError& error) const = 0;
+                       DTRecHit1D& newHit1D) const = 0;
 
  protected:
   // The module to be used for digi time synchronization

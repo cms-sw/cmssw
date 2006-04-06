@@ -6,8 +6,8 @@
  *  Compute drift distance using the CIEMAT (by P.Garcia Abia and J. Puerta)
  *  parametrization of the cell behavior obtained with GARFIELD
  *
- *  $Date: 2006/03/14 13:05:06 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/31 09:58:04 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -28,19 +28,6 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   /// Pass the Event Setup to the algo at each event
   virtual void setES(const edm::EventSetup& setup);
 
-
-  /// Whether the algorithm can update hits once the 2D segment is
-  /// known (i.e. compute() is implemented for the 2nd step)
-  virtual bool canUpdate2D() { //FIXME: Is it really needed?
-    return true;
-  }
-
-
-  /// Whether the algorithm can update hits once the 4D segment is
-  /// known (i.e. compute() is implemented for the 3rd step)
-  virtual bool canUpdate4D() { //FIXME: Is it really needed?
-    return true;
-  }
     
   /// First step in computation of Left/Right hits from a Digi.  
   /// The results are the local position (in DTLayer frame) of the
@@ -60,12 +47,11 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   /// respect to the perpendicular to the layer plane. Given the local direction,
   /// angle=atan(dir.x()/dir.z()) . This can be used when a SL segment is
   /// built, so the impact angle is known but the position along wire is not.
+  /// NOTE: Only position and error of the new hit are modified
   virtual bool compute(const DTLayer* layer,
                        const DTRecHit1D& recHit1D,
                        const float& angle,
-                       LocalPoint& leftPoint,
-                       LocalPoint& rightPoint,
-                       LocalError& error) const;
+		       DTRecHit1D& newHit1D) const;
 
 
   /// Third (and final) step in hits position computation.
@@ -73,14 +59,13 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   /// as input. This allows to get the magnetic field at the hit position (and
   /// not only that at the center of the wire). Also the position along the
   /// wire is available and can be used to correct the drift time for particle
-  /// TOF and propagation of signal along the wire. 
+  /// TOF and propagation of signal along the wire.
+  /// NOTE: Only position and error of the new hit are modified
   virtual bool compute(const DTLayer* layer,
                        const DTRecHit1D& recHit1D,
                        const float& angle,
                        const GlobalPoint& globPos, 
-                       LocalPoint& leftPoint,
-                       LocalPoint& rightPoint,
-                       LocalError& error) const;
+                       DTRecHit1D& newHit1D) const;
 
 
  private:
@@ -102,6 +87,15 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
 		       LocalPoint& leftPoint,
 		       LocalPoint& rightPoint,
 		       LocalError& error,
+		       int step) const;
+
+  // Interface to the method which does the actual work suited for 2nd and 3rd steps 
+  virtual bool compute(const DTLayer* layer,
+		       const DTWireId& wireId,
+		       const float digiTime,
+		       const float& angle,
+		       const GlobalPoint& globPos, 
+		       DTRecHit1D& newHit1D,
 		       int step) const;
 
   // Switch on/off the verbosity

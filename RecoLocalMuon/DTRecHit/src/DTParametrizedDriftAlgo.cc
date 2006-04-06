@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/14 13:05:06 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/31 09:58:04 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -93,9 +93,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
 bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
 				      const DTRecHit1D& recHit1D,
 				      const float& angle,
-				      LocalPoint& leftPoint,
-				      LocalPoint& rightPoint,
-				      LocalError& error) const {
+				      DTRecHit1D& newHit1D) const {
   const DTWireId wireId = recHit1D.wireId();
   
   // Get Wire position
@@ -103,7 +101,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
   const GlobalPoint globWirePos = layer->surface().toGlobal(locWirePos);
 
   return compute(layer, wireId, recHit1D.digiTime(), angle, globWirePos,
-                 leftPoint, rightPoint, error, 2);
+                 newHit1D, 2);
 }
 
 
@@ -113,11 +111,9 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
 				      const DTRecHit1D& recHit1D,
 				      const float& angle,
 				      const GlobalPoint& globPos, 
-				      LocalPoint& leftPoint,
-				      LocalPoint& rightPoint,
-				      LocalError& error) const {
+				      DTRecHit1D& newHit1D) const {
   return compute(layer, recHit1D.wireId(), recHit1D.digiTime(), angle,
-		 globPos, leftPoint, rightPoint, error, 3);
+		 globPos, newHit1D, 3);
 }
 
 
@@ -316,6 +312,45 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
   }
 
   return true;
+}
+
+
+// Interface to the method which does the actual work suited for 2nd and 3rd steps 
+bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
+				      const DTWireId& wireId,
+				      const float digiTime,
+				      const float& angle,
+				      const GlobalPoint& globPos, 
+				      DTRecHit1D& newHit1D,
+				      int step) const {
+  LocalPoint leftPoint;
+  LocalPoint rightPoint;
+  LocalError error;
+    
+  if(compute(layer, wireId, digiTime, angle, globPos, leftPoint, rightPoint, error, step)) {
+    // Set the position and the error of the rechit which is being updated
+    switch(newHit1D.lrSide()) {
+	
+    case DTEnums::Left:
+      newHit1D.setPositionAndError(leftPoint, error);
+      break;
+	
+    case DTEnums::Right:
+      newHit1D.setPositionAndError(rightPoint, error);
+      break;
+	
+    default:
+      throw cms::Exception("InvalidDTCellSide") << "[DTParametrizedDriftAlgo] Compute at Step "
+						<< step << ", Hit side "
+						<< newHit1D.lrSide()
+						<< " is invalid!" << endl;
+      return false;
+    }
+      
+    return true;
+  }else {
+    return false;
+  }
 }
 
 

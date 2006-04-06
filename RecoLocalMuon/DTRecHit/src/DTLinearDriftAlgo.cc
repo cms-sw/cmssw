@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/23 15:39:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/31 09:58:04 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -12,6 +12,7 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 using namespace edm;
@@ -50,7 +51,7 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
 				LocalPoint& rightPoint,
 				LocalError& error) const {
   // Get the wireId
-  DTLayerId layerId = layer->id();//FIXME: pass it instead of get it from layer
+  DTLayerId layerId = layer->id();
   const DTWireId wireId(layerId, digi.wire());
 
   // Get Wire position
@@ -61,18 +62,16 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
 }
 
 
+
 // Second step: the same as 1st step
 bool DTLinearDriftAlgo::compute(const DTLayer* layer,
 				const DTRecHit1D& recHit1D,
 				const float& angle,
-				LocalPoint& leftPoint,
-				LocalPoint& rightPoint,
-				LocalError& error) const {
+				DTRecHit1D& newHit1D) const {
   // Get Hit position
   const GlobalPoint globPos = layer->surface().toGlobal(recHit1D.localPosition());
-  
   return compute(layer, recHit1D.wireId(), recHit1D.digiTime(),
-		 globPos, leftPoint, rightPoint, error, 2); 
+		 globPos, newHit1D, 2);
 }
 
 
@@ -82,11 +81,8 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
 				const DTRecHit1D& recHit1D,
 				const float& angle,
 				const GlobalPoint& globPos, 
-				LocalPoint& leftPoint,
-				LocalPoint& rightPoint,
-				LocalError& error) const {
-  return compute(layer, recHit1D.wireId(), recHit1D.digiTime(),
-		 globPos, leftPoint, rightPoint, error, 3); 
+				DTRecHit1D& newHit1D) const {
+  return compute(layer, recHit1D.wireId(), recHit1D.digiTime(), globPos, newHit1D, 3);
 }
 
 
@@ -144,6 +140,44 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
   
   return true;
   
+}
+
+
+// Interface to the method which does the actual work suited for 2nd and 3rd steps 
+bool DTLinearDriftAlgo::compute(const DTLayer* layer,
+				const DTWireId& wireId,
+				const float digiTime,
+				const GlobalPoint& globPos, 
+				DTRecHit1D& newHit1D,
+				int step) const {
+  LocalPoint leftPoint;
+  LocalPoint rightPoint;
+  LocalError error;
+
+  if(compute(layer, wireId, digiTime, globPos, leftPoint, rightPoint, error, step)) {
+    // Set the position and the error of the rechit which is being updated
+    switch(newHit1D.lrSide()) {
+	
+    case DTEnums::Left:
+      newHit1D.setPositionAndError(leftPoint, error);
+      break;
+	
+    case DTEnums::Right:
+      newHit1D.setPositionAndError(rightPoint, error);
+      break;
+	
+    default:
+      throw cms::Exception("InvalidDTCellSide") << "[DTLinearDriftAlgo] Compute at Step "
+						<< step << ", Hit side "
+						<< newHit1D.lrSide()
+						<< " is invalid!" << endl;
+      return false;
+    }
+      
+    return true;
+  }else {
+    return false;
+  }
 }
 
 
