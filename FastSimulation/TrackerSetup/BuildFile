@@ -1,0 +1,10 @@
+<use name=clhep>
+<use name=Geometry/Surface>
+<use name=TrackingTools/PatternTools>
+
+<export>
+ <lib name=TrackerSetup>
+ <use name=Geometry/Surface>
+ <use name=TrackingTools/PatternTools>
+</export>
+
