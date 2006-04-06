@@ -26,8 +26,8 @@ namespace edm {
     private:
       void clear();
 
-      /// pulls the names out and remembers the Node
-      void sortNodes(ParseResults & parseResults);
+      /// pulls the names out and remembers the Nodes
+      void sortNodes(const NodePtrListPtr & parseResults);
 
       /// Only looks in top-level modules and sources
       /// inlines all parameters in the block
@@ -50,7 +50,7 @@ namespace edm {
       ModuleNode * findModule(const std::string & name);
 
       /// puts the parts back together to return the ParseResults
-      void reassemble(ParseResults & parseResults);
+      void reassemble(NodePtrListPtr & parseResults);
 
 
       /// for sorting NodePtrs by name
@@ -68,9 +68,6 @@ namespace edm {
       /// Everything but modules, sources, & modification nodes
       NodePtrList everythingElse_;
     };
-
-    /// ParseResults is the process node.  Navigate down to contents
-    NodePtrListPtr getContents(ParseResults & parseResults);
   }
 }
 

@@ -12,28 +12,41 @@ namespace edm {
 
     void ParseResultsTweaker::process(ParseResults & parseResults)
     {
-      clear();
-      sortNodes(parseResults);
+      // find the node that represents the process
+      PSetNode * processNode = 0;
+      // assume it's the only one in a sane .cfg file
+      if(parseResults->size() == 1) {
+        processNode = dynamic_cast<PSetNode*>(parseResults->front().get());
+      }
 
-      // maybe we don't have to do anything
-      if(!replaceNodes_.empty()) 
-      {
-  
-        // NOTE: We only bother inlining the Using blocks
-        // if there's a chance the parameters will be modified.
-        // If not, they'll get done later.
-        processUsingBlocks();
+      // if it's not a simple config file, with one process node, bail out
+      if(processNode == 0) {
+        edm::LogWarning("ParseResultsTweaker") << "Cannot find process node";
+      } else {
+        // PSetNode -> ContentsNode -> NodePtrListPtr
+        NodePtrListPtr contents = processNode->value_.nodes_;
+        sortNodes(contents);
 
-        NodePtrList::const_iterator nodeItr;
-
-        // now replace nodes
-        for(nodeItr = replaceNodes_.begin();
-            nodeItr != replaceNodes_.end(); ++nodeItr) 
+        // maybe we don't have to do anything
+        if(!replaceNodes_.empty()) 
         {
-          processReplaceNode(*nodeItr);
-        }
+  
+          // NOTE: We only bother inlining the Using blocks
+          // if there's a chance the parameters will be modified.
+          // If not, they'll get done later.
+          processUsingBlocks();
+ 
+          NodePtrList::const_iterator nodeItr;
 
-        reassemble(parseResults);
+          // now replace nodes
+          for(nodeItr = replaceNodes_.begin();
+              nodeItr != replaceNodes_.end(); ++nodeItr) 
+          {
+            processReplaceNode(*nodeItr);
+          }
+
+          reassemble(contents);
+        }
       }
     }
 
@@ -47,9 +60,8 @@ namespace edm {
     }
 
 
-    void ParseResultsTweaker::sortNodes(ParseResults & parseResults)
+    void ParseResultsTweaker::sortNodes(const NodePtrListPtr & nodes)
     {
-      NodePtrListPtr nodes = getContents(parseResults); 
 
       for(NodePtrList::const_iterator nodeItr = nodes->begin();
           nodeItr != nodes->end(); ++nodeItr)
@@ -232,9 +244,8 @@ namespace edm {
     }
 
 
-    void ParseResultsTweaker::reassemble(ParseResults & results)
+    void ParseResultsTweaker::reassemble(NodePtrListPtr & contents)
     {
-      NodePtrListPtr contents = getContents(results);
       contents->clear();
  
       // blocks go first
@@ -259,20 +270,6 @@ namespace edm {
       }
     }
 
-
-
-    NodePtrListPtr getContents(ParseResults & parseResults)
-    {
-      assert(parseResults->size() == 1);
-      PSetNode * processNode = dynamic_cast<PSetNode*>(parseResults->front().get());
-      if(processNode == 0) {
-        throw edm::Exception(errors::Configuration,"") << "Top level is not a process";
-      }
-      // PSetNode -> ContentsNode -> NodePtrListPtr
-      return processNode->value_.nodes_;
-    }
-
-    
   }  // pset namespace
 } // edm namespace
 
