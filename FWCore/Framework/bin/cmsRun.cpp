@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.14 2006/03/14 21:14:42 wmtan Exp $
+$Id: cmsRun.cpp,v 1.15 2006/03/20 15:08:42 paterno Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -120,7 +120,15 @@ int main(int argc, char* argv[])
       }
   }
   catch (seal::Error& e) {
-      edm::LogError("FwkJob") << "Exception caught in " 
+      edm::LogError("FwkJob") << "seal::Exception caught in " 
+				<< kProgramName
+				<< "\n"
+				<< e.explainSelf();
+      rc = 1;
+      // TODO: Put 'job failure' report to JobSummary here
+  }
+  catch (cms::Exception& e) {
+      edm::LogError("FwkJob") << "cms::Exception caught in " 
 				<< kProgramName
 				<< "\n"
 				<< e.explainSelf();
