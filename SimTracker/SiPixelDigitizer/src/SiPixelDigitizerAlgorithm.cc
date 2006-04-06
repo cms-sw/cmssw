@@ -216,7 +216,7 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
       
       _collection_points.clear();  // Clear the container
       // fill _collection_points for this SimHit, indpendent of topology
-      if (abs( (*ssbegin).tof())<theTofCut){
+      if (std::abs( (*ssbegin).tof() )<theTofCut){
 	primary_ionization(*ssbegin); // fills _ionization_points
 	
 	drift(*ssbegin);  // transforms _ionization_points to _collection_points  
@@ -375,14 +375,11 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
 //////////////////////////////////////////////////////////////////////////
 void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
 
+  LogDebug ("Pixel Digitizer") << " enter drift " ;
 
-    LogDebug ("Pixel Digitizer") << " enter drift " ;
-
-  
   _collection_points.resize( _ionization_points.size()); // set size
-
+  
   LocalVector driftDir=DriftDirection();
-
 
   if(driftDir.z() ==0.) {
     LogWarning("Magnetic field") << " pxlx: drift in z is zero ";
@@ -396,11 +393,11 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
   float CosLorenzAngleY = 1.;
  
 
-
-      LogDebug ("Pixel Digitizer") << " Lorentz Tan " << TanLorenzAngleX << " " << TanLorenzAngleY <<" "
-				   << CosLorenzAngleX << " " << CosLorenzAngleY << " "
-				   << moduleThickness*TanLorenzAngleX << " " << driftDir;
-
+  LogDebug ("Pixel Digitizer") 
+    << " Lorentz Tan " << TanLorenzAngleX << " " << TanLorenzAngleY <<" "
+    << CosLorenzAngleX << " " << CosLorenzAngleY << " "
+    << moduleThickness*TanLorenzAngleX << " " << driftDir;
+  
 
   float Sigma_x = 1.;  // Charge spread 
   float Sigma_y = 1.;
@@ -452,22 +449,20 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
     // Load the Charge distribution parameters
     _collection_points[i] = (sp);
 
-
-
   } // loop over ionization points, i.
  
-}
-
-
-
+} // end drift
+//
+// Induce the signal on the collection plane of the active sensor area.
 void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 
   // X  - Rows, Left-Right, 160, (1.6cm)   for barrel
   // Y  - Columns, Down-Up, 416, (6.4cm)
   //DA MODIFICARE
 
-    LogDebug ("Pixel Digitizer") << " enter induce_signal, " 
-				 << topol->pitch().first << " " << topol->pitch().second; //OK
+    LogDebug ("Pixel Digitizer") 
+      << " enter induce_signal, " 
+      << topol->pitch().first << " " << topol->pitch().second; //OK
 
 
    // local map to store pixels hit by 1 Hit.      
@@ -490,11 +485,10 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
      float Charge = i->amplitude();          // Charge amplitude
      
  
-
-       LogDebug ("Pixel Digitizer") << " cloud " << i->position().x() << " " << i->position().y() << " " 
-				    << i->sigma_x() << " " << i->sigma_y() << " " << i->amplitude();
+       LogDebug ("Pixel Digitizer") 
+	 << " cloud " << i->position().x() << " " << i->position().y() << " " 
+	 << i->sigma_x() << " " << i->sigma_y() << " " << i->amplitude();
       
-
      
      // Find the maximum cloud spread in 2D plane , assume 3*sigma
      float CloudRight = CloudCenterX + ClusterWidth*SigmaX;
@@ -506,32 +500,36 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
      LocalPoint PointRightUp  = LocalPoint(CloudRight,CloudUp);
      LocalPoint PointLeftDown = LocalPoint(CloudLeft,CloudDown);
      
-     // Convert the 2D points to pixel indices
+     // This points can be located outside the sensor area.
+     // The conversion to measurement point does not check for that
+     // so the returned pixel index might be wrong (outside range).
+     // We rely on the limits check below to fix this.
+     // But remember whatever we do here THE CHARGE OUTSIDE THE ACTIVE
+     // PIXEL ARE IS LOST, it should not be collected.
 
+     // Convert the 2D points to pixel indices
      MeasurementPoint mp = topol->measurementPosition(PointRightUp ); //OK
      
      int IPixRightUpX = int( floor( mp.x()));
      int IPixRightUpY = int( floor( mp.y()));
-
-
-       LogDebug ("Pixel Digitizer") << " right-up " << PointRightUp << " " 
-				    << mp.x() << " " << mp.y() << " "
-				    << IPixRightUpX << " " << IPixRightUpY ;
+     
+     LogDebug ("Pixel Digitizer") << " right-up " << PointRightUp << " " 
+				  << mp.x() << " " << mp.y() << " "
+				  << IPixRightUpX << " " << IPixRightUpY ;
 
  
-
      mp = topol->measurementPosition(PointLeftDown ); //OK
     
      int IPixLeftDownX = int( floor( mp.x()));
      int IPixLeftDownY = int( floor( mp.y()));
      
 
-       LogDebug ("Pixel Digitizer") << " left-down " << PointLeftDown << " " 
-				    << mp.x() << " " << mp.y() << " "
-				    << IPixLeftDownX << " " << IPixLeftDownY ;
+     LogDebug ("Pixel Digitizer") << " left-down " << PointLeftDown << " " 
+				  << mp.x() << " " << mp.y() << " "
+				  << IPixLeftDownX << " " << IPixLeftDownY ;
 
 
-     // Check detector limits
+     // Check detector limits to correct for pixels outside range.
      IPixRightUpX = numRows>IPixRightUpX ? IPixRightUpX : numRows-1 ;
      IPixRightUpY = numColumns>IPixRightUpY ? IPixRightUpY : numColumns-1 ;
      IPixLeftDownX = 0<IPixLeftDownX ? IPixLeftDownX : 0 ;
@@ -549,8 +547,6 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
        else {
 	 mp = MeasurementPoint( float(ix), 0.0);
 	 xLB = topol->localPosition(mp).x();
-	 //	float oLowerBound = freq_( (xLB-CloudCenterX)/SigmaX);
-	 
 	 gsl_sf_result result;
 	 int status = gsl_sf_erf_Q_e( (xLB-CloudCenterX)/SigmaX, &result);
 
@@ -563,8 +559,6 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
        else {
 	 mp = MeasurementPoint( float(ix+1), 0.0);
 	 xUB = topol->localPosition(mp).x();
-	 //	float oUpperBound = freq_( (xUB-CloudCenterX)/SigmaX);
-	
 	 gsl_sf_result result;
 	 int status = gsl_sf_erf_Q_e( (xUB-CloudCenterX)/SigmaX, &result);
 	 if (status != 0)  edm::LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
@@ -586,7 +580,6 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
       else {
         mp = MeasurementPoint( 0.0, float(iy) );
         yLB = topol->localPosition(mp).y();
-	//	float oLowerBound = freq_( (yLB-CloudCenterY)/SigmaY);
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e( (yLB-CloudCenterY)/SigmaY, &result);
 	 if (status != 0)  edm::LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
@@ -601,14 +594,12 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
       else {
         mp = MeasurementPoint( 0.0, float(iy+1) );
         yUB = topol->localPosition(mp).y();
-	//        float oUpperBound = freq_( (yUB-CloudCenterY)/SigmaY);
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e( (yUB-CloudCenterY)/SigmaY, &result);
 
 	if (status != 0) edm::LogWarning ("Integration") <<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
 
 	UpperBound = 1. - result.val;
-
 
       }
 
@@ -630,67 +621,62 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
           hit_signal[chan] += ChargeFraction;
 	} // endif
 
-
-
-	  mp = MeasurementPoint( float(ix), float(iy) );
-	  LocalPoint lp = topol->localPosition(mp);
-	  chan = topol->channel(lp);
-	  LogDebug ("Pixel Digitizer") << " pixel " << ix << " " << iy << " - "<<" "
-				       << chan << " " << ChargeFraction<<" "
-				       << mp.x() << " " << mp.y() <<" "
-				       << lp.x() << " " << lp.y() << " "  // givex edge position
-				       << chan; // edge belongs to previous ?
-
 	
+	
+	mp = MeasurementPoint( float(ix), float(iy) );
+	LocalPoint lp = topol->localPosition(mp);
+	chan = topol->channel(lp);
+	LogDebug ("Pixel Digitizer") 
+	  << " pixel " << ix << " " << iy << " - "<<" "
+	  << chan << " " << ChargeFraction<<" "
+	  << mp.x() << " " << mp.y() <<" "
+	  << lp.x() << " " << lp.y() << " "  // givex edge position
+	  << chan; // edge belongs to previous ?
+
       } // endfor iy
     } //endfor ix
    
 
-      
-      // Test conversions
+    // Test conversions (THIS IS FOR TESTING ONLY) comment-out.
+//     mp = topol->measurementPosition( i->position() ); //OK
+//     LocalPoint lp = topol->localPosition(mp);     //OK
+//     pair<float,float> p = topol->pixel( i->position() );  //OK
+//     chan = PixelDigi::pixelToChannel( int(p.first), int(p.second));
+//     pair<int,int> ip = PixelDigi::channelToPixel(chan);
+//     MeasurementPoint mp1 = MeasurementPoint( float(ip.first),
+// 					     float(ip.second) );
 
-      mp = topol->measurementPosition( i->position() ); //OK
-      LocalPoint lp = topol->localPosition(mp);     //OK
-      pair<float,float> p = topol->pixel( i->position() );  //OK
-      chan = PixelDigi::pixelToChannel( int(p.first), int(p.second));
-      pair<int,int> ip = PixelDigi::channelToPixel(chan);
-      MeasurementPoint mp1 = MeasurementPoint( float(ip.first),
-					       float(ip.second) );
-
-      LogDebug ("Pixel Digitizer") << " Test "<< mp.x() << " " << mp.y() 
-				   << " "<< lp.x() << " " << lp.y() << " "<<" "
-				   <<p.first << " " << p.second << " "<< chan << " "
-				   <<" " << ip.first << " " << ip.second << " "
-				   << mp1.x() << " " << mp1.y() << " " //OK
-				   << topol->localPosition(mp1).x() << " "  //OK
-				   << topol->localPosition(mp1).y() << " "
-				   << topol->channel( i->position() ); //OK
-
+//     LogDebug ("Pixel Digitizer") << " Test "<< mp.x() << " " << mp.y() 
+// 				 << " "<< lp.x() << " " << lp.y() << " "<<" "
+// 				 <<p.first <<" "<<p.second<<" "<<chan<< " "
+// 				 <<" " << ip.first << " " << ip.second << " "
+// 				 << mp1.x() << " " << mp1.y() << " " //OK
+// 				 << topol->localPosition(mp1).x() << " "  //OK
+// 				 << topol->localPosition(mp1).y() << " "
+// 				 << topol->channel( i->position() ); //OK
+    
     
   } // loop over charge distributions
-
+   
   // Fill the global map with all hit pixels from this event
    
   for ( hit_map_type::const_iterator im = hit_signal.begin();
 	im != hit_signal.end(); im++) {
     _signal[(*im).first] += Amplitude( (*im).second, &hit, (*im).second);
     
-
     int chan =  (*im).first; 
     pair<int,int> ip = PixelDigi::channelToPixel(chan);
-    LogDebug ("Pixel Digitizer") << " pixel " << ip.first << " " << ip.second << " "
-				 << _signal[(*im).first];    
-
+    LogDebug ("Pixel Digitizer") 
+      << " pixel " << ip.first << " " << ip.second << " "
+      << _signal[(*im).first];    
 
   }
 
-}
-
+} // end induce_signal
 /***********************************************************************/
 //
 void SiPixelDigitizerAlgorithm::make_digis() {
   internal_coll.reserve(50); internal_coll.clear();
-
 
     LogDebug ("Pixel Digitizer") << " make digis "<<" "
 				 << " pixel threshold " << thePixelThresholdInE << " " 
