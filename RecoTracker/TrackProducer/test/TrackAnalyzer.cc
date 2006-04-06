@@ -16,6 +16,12 @@
 // #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include <iostream>
 #include <string>
@@ -29,6 +35,14 @@ class TrackAnalyzer : public edm::EDAnalyzer {
   ~TrackAnalyzer(){}
 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){
+
+    //
+    // extract tracker geometry
+    //
+    edm::ESHandle<TrackerGeometry> theG;
+    setup.get<TrackerDigiGeometryRecord>().get(theG);
+
+    using namespace std;
 
     std::cout << "\nEvent ID = "<< event.id() << std::endl ;
 
@@ -50,9 +64,19 @@ class TrackAnalyzer : public edm::EDAnalyzer {
       std::cout << "\tcharge: " << track->charge()<< std::endl;
       std::cout << "\tnormalizedChi2: " << track->normalizedChi2()<< std::endl;
       i++;
+      cout<<"\tFrom EXTRA : "<<endl;
+      cout<<"\t\touter PT "<< track->outerPt()<<endl;
+      //
+      // try and access Hits
+      //
+      cout <<"\t\tNumber of RecHits "<<track->recHitsSize()<<endl;
+      for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
+	cout <<"\t\t\tRecHit on det "<<(*it)->geographicalId().rawId()<<endl;
+	cout <<"\t\t\tRecHit in LP "<<(*it)->localPosition()<<endl;
+	cout <<"\t\t\tRecHit in GP "<<theG->idToDet((*it)->geographicalId())->surface().toGlobal((*it)->localPosition()) <<endl;
+	
+      }
     }
-
-
   }
 };
 
