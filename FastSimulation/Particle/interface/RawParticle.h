@@ -27,7 +27,7 @@ public:
   /** Construct from a GenParticle pointer
    *  where all the necessary information is already
    */
-  RawParticle(HepMC::GenParticle* p);
+  RawParticle(const HepMC::GenParticle* p);
 
   /** Construct from a fourvector.
    *  The fourvector is taken for the particle, the vertex is set to 0. 

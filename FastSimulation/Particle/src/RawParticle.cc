@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
 //  Prototype for a particle class
 // -----------------------------------------------------------------------------
-//  $Date: 2006/03/10 21:23:56 $
-//  $Revision: 1.1 $
+//  $Date: 2006/04/02 16:06:15 $
+//  $Revision: 1.2 $
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
 // -----------------------------------------------------------------------------
@@ -40,7 +40,7 @@ RawParticle::RawParticle() {
   //  cout << "Create RawParticle as default" << nParticles << endl;
 }
 
-RawParticle::RawParticle(HepMC::GenParticle *p) : 
+RawParticle::RawParticle(const HepMC::GenParticle *p) : 
   HepLorentzVector(p->momentum()) {
   init();
   myId = p->pdg_id();
@@ -151,11 +151,15 @@ void RawParticle::init() {
 
 void RawParticle::setID(const int id) {
   myId = id;
+  myCharge = tab->getParticleData(myId)->charge();
+  myMass   = tab->getParticleData(myId)->mass();
 }
 
 void RawParticle::setID(const std::string name) {
   if (tab->getParticleData(name) != 0) {
     myId = (tab->getParticleData(name))->id();
+    myCharge = tab->getParticleData(myId)->charge();
+    myMass   = tab->getParticleData(myId)->mass();
   } else {
     myId = 0;
   }
