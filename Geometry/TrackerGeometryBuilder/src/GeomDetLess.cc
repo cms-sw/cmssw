@@ -5,6 +5,11 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
+#include "Geometry/Surface/interface/Bounds.h"
+#include "Geometry/Surface/interface/BoundPlane.h"
+
+#include <iostream>
+
 bool GeomDetLess::insideOutLess( const GeomDet* a, const GeomDet* b) const
 {
   if (a == b) return false;
@@ -19,7 +24,7 @@ bool GeomDetLess::insideOutLess( const GeomDet* a, const GeomDet* b) const
 
   if      ( (ida.subdetId() == StripSubdetector::TEC || ida.subdetId() == StripSubdetector::TID || ida.subdetId() == PixelSubdetector::PixelEndcap) &&
 	    (idb.subdetId() == StripSubdetector::TEC || idb.subdetId() == StripSubdetector::TID || idb.subdetId() == PixelSubdetector::PixelEndcap)) {  // fwd with fwd
-    return std::abs(a->surface().position().z()) < std::abs(b->surface().position().z());
+    return fabs(a->surface().position().z()) < fabs(b->surface().position().z());
   }
   
   //
@@ -41,7 +46,13 @@ bool GeomDetLess::insideOutLess( const GeomDet* a, const GeomDet* b) const
 bool GeomDetLess::barrelForwardLess( const GeomDet* bla, 
 				     const GeomDet* flb) const
 {
-  return std::abs(bla->surface().position().z()) < std::abs( flb->position().z());
+  
+  BoundPlane s = bla->specificSurface();
+  Bounds * b     = &(s.bounds());
+
+  return (fabs(bla->surface().position().z())
+	  + fabs(b->length()/2.)) 
+	  < fabs( flb->position().z());
 }
 
 
