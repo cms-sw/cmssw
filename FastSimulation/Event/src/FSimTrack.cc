@@ -26,6 +26,9 @@ FSimTrack::particleInfo() const {
   return HepPDT::theTable().getParticleData(type());
 }
 
+float 
+FSimTrack::charge() const { return particleInfo()->charge();}
+  
 static  const FSimVertex oVertex;
 const FSimVertex& 
 FSimTrack::vertex() const {

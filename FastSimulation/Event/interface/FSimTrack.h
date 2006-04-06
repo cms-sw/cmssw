@@ -44,8 +44,8 @@ class FSimTrack {
   inline int type() const { return me() ? me()->pdg_id() : 0;}
 
   /// charge
-  //  float charge() const{ return me().charge();}
-  
+  float charge() const; 
+
   /// Origin vertex
   const FSimVertex& vertex() const;
 
