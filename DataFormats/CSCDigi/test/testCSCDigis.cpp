@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date:$
- * $Revision:$
+ * $Date: 2006/04/06 04:09:19 $
+ * $Revision: 1.5 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id:$";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.5 2006/04/06 04:09:19 teren Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -43,7 +43,6 @@ static const char CVSId[] = "$Id:$";
 class testCSCDigis: public CppUnit::TestFixture {
 
   CPPUNIT_TEST_SUITE(testCSCDigis);
-  CPPUNIT_TEST(testDigiPacking);
   CPPUNIT_TEST(testDigiCollectionPut);
   CPPUNIT_TEST_SUITE_END();
 
@@ -51,7 +50,6 @@ public:
 
   void setUp(){}
   void tearDown(){}  
-  void testDigiPacking();
 
   void fillCSCWireDigi(CSCWireDigiCollection &);
   void fillCSCComparatorDigi(CSCComparatorDigiCollection &);
@@ -75,8 +73,6 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testCSCDigis);
 
-void testCSCDigis::testDigiPacking(){
-}
 
 void testCSCDigis::fillCSCWireDigi(CSCWireDigiCollection & collection){
 
@@ -115,10 +111,8 @@ void testCSCDigis::fillCSCComparatorDigi(CSCComparatorDigiCollection & collectio
        for (int i=10; i<11; ++i){
            int aStrip = i;
            int aComparator = 2;
-           CSCComparatorDigi::theComparatorDigi cd;
-           cd.strip = aStrip;
-           cd.comparator = aComparator;
-           CSCComparatorDigi digi(cd);
+	   int aTbin = 1;
+	   CSCComparatorDigi digi(aStrip, aComparator, aTbin);
            digivec.push_back(digi);
         }
  
@@ -258,18 +252,15 @@ void testCSCDigis::fillCSCCorrLCTDigi(CSCCorrelatedLCTDigiCollection & collectio
 
 	      for(int trknmb = 1; trknmb <=2 ; ++trknmb)
                 {
-		  CSCCorrelatedLCTDigi::PackedDigiType pd;
-		  
-		  pd.trknmb = trknmb;
-		  pd.valid = 1;
-		  pd.quality = 15;
-		  pd.pattern = 2;
-		  pd.strip = 16;
-		  pd.keywire = 10;
-		  pd.bend = 1;
-		  pd.bx = 0;
+		  int valid = 1;
+		  int quality = 15;
+		  int pattern = 2;
+		  int strip = 16;
+		  int keywire = 10;
+		  int bend = 1;
+		  int bx = 0;
 
-		  CSCCorrelatedLCTDigi digi(pd);
+		  CSCCorrelatedLCTDigi digi(trknmb,valid,quality,keywire,strip,pattern,bend,bx);
 		  digivec.push_back(digi);
 		}
 	      collection.put(std::make_pair(digivec.begin(),digivec.end()),detid);

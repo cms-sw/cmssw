@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2006/03/03 13:50:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/04/05 08:18:04 $
+ *  $Revision: 1.7 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -22,20 +22,6 @@ CSCStripDigi::CSCStripDigi (){
   vector<int> ZeroCounts(8,0);
   strip = 0;
   ADCCounts = ZeroCounts;
-}
-
-// Copy constructor
-CSCStripDigi::CSCStripDigi(const CSCStripDigi& digi) {
- ADCCounts = digi.getADCCounts();
- strip = digi.getStrip();
-}
-
-// Assignment
-CSCStripDigi& 
-CSCStripDigi::operator=(const CSCStripDigi& digi){
-  ADCCounts = digi.getADCCounts();
-  strip = digi.getStrip();
-  return *this;
 }
 
 // Comparison

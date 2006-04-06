@@ -6,11 +6,14 @@
  * Digi for CSC anode wires. 
  * Based on modified DTDigi.
  *
- * $Date: 2006/04/05 19:41:34 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/05 22:17:19 $
+ * $Revision: 1.3 $
  *
  * \author N. Terentiev, CMU
  */
+
+
+#include <boost/cstdint.hpp>
 
 class CSCWireDigi{
 
@@ -19,12 +22,8 @@ public:
   /// Constructors
   
   explicit CSCWireDigi (int wire, int tbin);  /// from the wire#, tbin#
-  CSCWireDigi (const CSCWireDigi& digi);      /// copy
   CSCWireDigi ();                             /// default
 
-  /// Assignment operator
-
-  CSCWireDigi& operator=(const CSCWireDigi& digi);
 
   /// return wire number
   int getWireGroup() const {return wire_;}
@@ -38,8 +37,8 @@ public:
 
 private:
   friend class testCSCDigis;
-  unsigned int wire_;
-  unsigned int tbin_;
+  uint16_t wire_;
+  uint16_t tbin_;
 
 };
 

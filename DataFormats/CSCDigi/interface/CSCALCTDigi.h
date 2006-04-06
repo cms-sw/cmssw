@@ -5,11 +5,13 @@
  *
  * Digi for ALCT trigger primitives. 
  *
- * $Date:$
- * $Revision:$
+ * $Date: 2006/04/06 04:10:46 $
+ * $Revision: 1.5 $
  *
  * \author N. Terentiev, CMU
  */
+
+#include <boost/cstdint.hpp>
 
 class CSCALCTDigi{
 
@@ -19,13 +21,8 @@ public:
   /// for consistency with DQM
   explicit CSCALCTDigi (int valid, int quality, int accel, int patternb, int keywire, int bx ); 
   explicit CSCALCTDigi (int valid, int quality, int accel, int patternb, int keywire, int bx, int trknmb); 
-  /// copy
-  CSCALCTDigi (const CSCALCTDigi& digi); 
   /// default
   CSCALCTDigi ();
-
-  /// Assignment operator
-  CSCALCTDigi& operator=(const CSCALCTDigi& digi);
 
   /// return ALCT validity, 1 - valid ALCT
   int getValid() const {return valid_ ;}  
@@ -61,13 +58,13 @@ public:
 
 private:
   friend class testCSCDigis;
-  unsigned int valid_      ;
-  unsigned int quality_    ;
-  unsigned int accel_      ;
-  unsigned int patternb_   ;
-  unsigned int keywire_    ;
-  unsigned int bx_         ;
-  unsigned int trknmb_     ;
+  uint16_t valid_      ;
+  uint16_t quality_    ;
+  uint16_t accel_      ;
+  uint16_t patternb_   ;
+  uint16_t keywire_    ;
+  uint16_t bx_         ;
+  uint16_t trknmb_     ;
 }; 
 
 

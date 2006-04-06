@@ -5,14 +5,15 @@
  *
  * Digi for CSC Cathode Strips.
  *  
- *  $Date: 2006/04/05 08:18:14 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/04/05 10:06:51 $
+ *  $Revision: 1.8 $
  *
  * \author M. Schmitt, Northwestern
  *
  */
 
 #include <vector>
+#include <boost/cstdint.hpp>
 
 class CSCStripDigi{
 
@@ -21,14 +22,8 @@ public:
   // Construct from the strip number and the ADC readings.
   explicit CSCStripDigi (int strip, std::vector<int> ADCCounts);
 
-  // Copy constructor
-  CSCStripDigi (const CSCStripDigi& digi);
-
   // Default construction.
   CSCStripDigi ();
-
-  // Assignment operator
-  CSCStripDigi& operator=(const CSCStripDigi& digi);
 
   // Digis are equal if they are on the same strip and have same ADC readings
   bool operator==(const CSCStripDigi& digi) const;
@@ -51,7 +46,7 @@ public:
 private:
   friend class testCSCStripDigis;
   
-  unsigned int strip;
+  uint16_t strip;
   std::vector<int> ADCCounts;
 
 };

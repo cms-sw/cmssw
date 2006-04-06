@@ -2,8 +2,8 @@
  *
  * Digi for ALCT trigger primitives.
  *
- * $Date:$
- * $Revision:$
+ * $Date: 2006/04/06 04:10:11 $
+ * $Revision: 1.5 $
  *
  * \author N. Terentiev, CMU
  */
@@ -36,16 +36,7 @@ CSCALCTDigi::CSCALCTDigi (int valid, int quality, int accel, int patternb, int k
   bx_       = bx;
   trknmb_   = trknmb;
 }
-   /// Copy
-CSCALCTDigi::CSCALCTDigi(const CSCALCTDigi& digi) {
-  valid_    = digi.getValid(); 
-  quality_  = digi.getQuality();
-  accel_    = digi.getAccelerator();
-  patternb_ = digi.getCollisionB();
-  keywire_  = digi.getKeyWG();
-  bx_       = digi.getBX();
-  trknmb_   = digi.getTrknmb();
-}
+
       /// Default
 CSCALCTDigi::CSCALCTDigi (){
   valid_    = 0;
@@ -57,20 +48,6 @@ CSCALCTDigi::CSCALCTDigi (){
   trknmb_   = 0;
 }
 
-
-  /// Assignment
-CSCALCTDigi& 
-CSCALCTDigi::operator=(const CSCALCTDigi& digi){
-  valid_    = digi.getValid();
-  quality_  = digi.getQuality();
-  accel_    = digi.getAccelerator();
-  patternb_ = digi.getCollisionB();
-  keywire_  = digi.getKeyWG();
-  bx_       = digi.getBX();
-  trknmb_   = digi.getTrknmb();
-
-  return *this;
-}
 
   /// Debug
 

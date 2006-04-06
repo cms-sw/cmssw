@@ -5,66 +5,28 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date:$
- * $Revision:$
+ * $Date: 2006/03/03 22:28:47 $
+ * $Revision: 1.3 $
  *
  * \author L. Gray, UF
  */
+
+#include <boost/cstdint.hpp>
 
 class CSCCorrelatedLCTDigi 
 {
  public:
   
-  typedef unsigned int ChannelType;
-
-  enum packing{ trknmb_s       = 2,  // Track Number (1,2), 0 if from TF
-		quality_s      = 4,  // Quality (0-15)
-		wire_s         = 7,  // Key Wire		
-		strip_s        = 8,  // Half/Di strip
-		clct_pattern_s = 4,  // Pattern number
-		bend_s         = 1,  // Bend (0-Left, 1-right)
-		bx_s           = 4,  // BX 4 lsb
-		valid_s        = 1   // Valid Pattern
-              };
-
-  /// The packed digi content
-  struct PackedDigiType {
-    unsigned int trknmb    : trknmb_s ;
-    unsigned int quality   : quality_s ;
-    unsigned int keywire   : wire_s ;
-    unsigned int strip     : strip_s ;
-    unsigned int pattern   : clct_pattern_s ;
-    unsigned int bend      : bend_s ;
-    unsigned int bx        : bx_s ;
-    unsigned int valid     : valid_s ;
-  };
-
-  /// The packed data as seen by the persistency - should never be used
-  /// directly, only by calling data().
-  struct PersistentPacking {
-    unsigned int w1;
-  };
 
   /// Constructors
 
   explicit CSCCorrelatedLCTDigi(int trknmb, int valid, int quality,       /// from values
 				int keywire, int strip, int clct_pattern, /// clct pattern is 4 bit pattern! 
 				int bend, int bx);                        /// (pattern) | (strip_type << 3) 
-  explicit CSCCorrelatedLCTDigi(ChannelType channel);                     /// from channel
-  CSCCorrelatedLCTDigi         (PackedDigiType packed_value);             /// from packed digi
-  CSCCorrelatedLCTDigi         (const CSCCorrelatedLCTDigi &digi);        /// copy
-  CSCCorrelatedLCTDigi         ();                                        /// default
+   CSCCorrelatedLCTDigi         ();                                        /// default
 
-  /// Assignment Operator
-
-  CSCCorrelatedLCTDigi& operator=(const CSCCorrelatedLCTDigi &digi);
 
   /// Gets
-
-  /// all digi content in a packed format
-  PackedDigiType packedData() const { return *(data()); }
-  /// the channel identifier and the digi number packed together
-  ChannelType channel() const ;
 
   /// return track number number
   int getTrknmb() const;
@@ -80,6 +42,8 @@ class CSCCorrelatedLCTDigi
   int getStrip() const;
   /// return CLCT pattern number
   int getCLCTPattern() const;
+  /// return pattern 
+  int getPattern() const;
   /// return strip type
   int getStriptype() const; // obsolete, use getStripType()
   int getStripType() const; 
@@ -93,31 +57,19 @@ class CSCCorrelatedLCTDigi
 
   /// Print content of correlated LCT digi
   void print() const;
-  /// Print the binary representation of the digi.
-  void dump() const;
 
  private:
 
   friend class testCSCDigis;
+  uint16_t trknmb;
+  uint16_t quality;
+  uint16_t keywire;
+  uint16_t strip;
+  uint16_t pattern;
+  uint16_t bend;
+  uint16_t bx;
+  uint16_t valid;
 
-  void set(int trknmb, int valid, int quality,        /// set data words
-	   int keywire, int strip, int clct_pattern, 
-	   int bend, int bx);
-  void setData(PackedDigiType p);     /// set from a PackedDigiType
-  PackedDigiType* data();             /// access to the packed data
-  const PackedDigiType* data() const; /// const access to the packed data
-  struct ChannelPacking {
-    unsigned int trknmb     : trknmb_s;
-    unsigned int quality    : quality_s;
-    unsigned int keywire    : wire_s;
-    unsigned int strip      : strip_s;
-    unsigned int pattern    : clct_pattern_s;
-    unsigned int bend       : bend_s;
-    unsigned int bx         : bx_s;
-    unsigned int valid      : valid_s;
-  }; /// repack the channel number to an int
-
-  PersistentPacking persistentData;
 };
 
 #include<iostream>

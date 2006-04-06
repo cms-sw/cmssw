@@ -2,8 +2,8 @@
  *
  * Digi for CLCT trigger primitives.
  *
- * $Date:$
- * $Revision:$
+ * $Date: 2006/04/06 04:10:22 $
+ * $Revision: 1.4 $
  *
  * \author N. Terentiev, CMU
  */
@@ -40,19 +40,7 @@ CSCCLCTDigi::CSCCLCTDigi (int valid, int quality, int patshape, int striptype,in
   bx_        = bx;
   trknmb_    = trknmb;
 }
-      /// Copy
-CSCCLCTDigi::CSCCLCTDigi(const CSCCLCTDigi& digi) {
-  valid_     = digi.getValid();
-  quality_   = digi.getQuality();
-  patshape_  = digi.getPattern();
-  striptype_ = digi.getStripType();
-  bend_      = digi.getBend();
-  strip_     = digi.getStrip();
-  cfeb_      = digi.getCFEB();
-  bx_        = digi.getBX();
-  trknmb_    = digi.getTrknmb();
 
-}
       /// Default
 CSCCLCTDigi::CSCCLCTDigi (){
   valid_     = 0;
@@ -64,22 +52,6 @@ CSCCLCTDigi::CSCCLCTDigi (){
   cfeb_      = 0;
   bx_        = 0;
   trknmb_    = 0;
-}
-
-  /// Assignment
-CSCCLCTDigi& 
-CSCCLCTDigi::operator=(const CSCCLCTDigi& digi){
-  valid_     = digi.getValid();
-  quality_   = digi.getQuality();
-  patshape_  = digi.getPattern();
-  striptype_ = digi.getStripType();
-  bend_      = digi.getBend();
-  strip_     = digi.getStrip();
-  cfeb_      = digi.getCFEB();
-  bx_        = digi.getBX();
-  trknmb_    = digi.getTrknmb();
-
-  return *this;
 }
 
   /// Debug

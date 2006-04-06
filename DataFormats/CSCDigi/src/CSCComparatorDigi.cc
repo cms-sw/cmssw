@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2005/11/19 13:58:18 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/01/08 19:15:43 $
+ *  $Revision: 1.4 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -12,29 +12,17 @@
 using namespace std;
 
 // Constructors
-CSCComparatorDigi::CSCComparatorDigi (int strip, int comparator, int timeBin){
-  set(strip, comparator, timeBin);
+CSCComparatorDigi::CSCComparatorDigi (int istrip, int icomparator, int itimeBin){
+  strip = istrip;
+  comparator = icomparator;
+  timeBin = itimeBin;
 }
 
-CSCComparatorDigi::CSCComparatorDigi (theComparatorDigi aComparatorDigi){
-  setData(aComparatorDigi);
-}
 
 CSCComparatorDigi::CSCComparatorDigi (){
-  set(0,0, 0);
+  strip = comparator = timeBin =0;
 }
 
-// Copy constructor
-CSCComparatorDigi::CSCComparatorDigi(const CSCComparatorDigi& digi) {
-  aComparatorDigi = digi.aComparatorDigi;
-}
-
-// Assignment
-CSCComparatorDigi& 
-CSCComparatorDigi::operator=(const CSCComparatorDigi& digi){
-  aComparatorDigi = digi.aComparatorDigi;
-  return *this;
-}
 
 // Comparison
 bool
@@ -60,16 +48,16 @@ CSCComparatorDigi::operator<(const CSCComparatorDigi& digi) const {
 
 
 // Getters
-int CSCComparatorDigi::getStrip() const { return data()->strip; }
-int CSCComparatorDigi::getComparator() const { return data()->comparator; }
-int CSCComparatorDigi::getTimeBin() const {return data()->timeBin; }
+int CSCComparatorDigi::getStrip() const { return strip; }
+int CSCComparatorDigi::getComparator() const { return comparator; }
+int CSCComparatorDigi::getTimeBin() const {return timeBin; }
 
 // Setters
-void CSCComparatorDigi::setStrip(int strip) {
-  data()->strip = strip;
+void CSCComparatorDigi::setStrip(int istrip) {
+  strip = istrip;
 }
-void CSCComparatorDigi::setComparator(int comparator) {
-  data()->comparator = comparator;
+void CSCComparatorDigi::setComparator(int icomparator) {
+  comparator = icomparator;
 }
 
 // Debug
@@ -79,30 +67,4 @@ CSCComparatorDigi::print() const {
        << " Comparator: " << getComparator() << endl;
 }
 
-void
-CSCComparatorDigi::dump() const {
-  typedef bitset<8*sizeof(theComparatorDigi)> bits;
-  cout << *reinterpret_cast<const bits*>(data());  
-}
 
-// ----- Private members
-void
-CSCComparatorDigi::set(int strip, int comparator, int timeBin) {
-  data()->strip = strip;
-  data()->comparator = comparator;
-  data()->timeBin = timeBin;
-}
-
-CSCComparatorDigi::theComparatorDigi*
-CSCComparatorDigi::data() {
-  return reinterpret_cast<theComparatorDigi*>(&aComparatorDigi);
-}
-
-const CSCComparatorDigi::theComparatorDigi*
-CSCComparatorDigi::data() const {
-  return reinterpret_cast<const theComparatorDigi*>(&aComparatorDigi);
-}
-
-void CSCComparatorDigi::setData(theComparatorDigi p){
-  *(data()) = p;
-}

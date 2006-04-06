@@ -5,11 +5,14 @@
  *
  * Digi for RPC data coming thru RAT-ALCT-DDU. 
  *
- * $Date: 2006/03/01 09:40:30 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/05 10:06:51 $
+ * $Revision: 1.3 $
  *
  * \author N. Terentiev, CMU
  */
+
+#include <boost/cstdint.hpp>
+
 
 class CSCRPCDigi{
 
@@ -17,13 +20,8 @@ public:
 
   /// Constructors
   explicit CSCRPCDigi (int rpc, int pad, int bxn , int tbin);  /// from the rpc#, pad#, bxn#, tbin#
-  CSCRPCDigi (const CSCRPCDigi& digi);       /// copy
   CSCRPCDigi ();                             /// default
 
-  /// Assignment operator
-  CSCRPCDigi& operator=(const CSCRPCDigi& digi);
-
-  
   
   /// get RPC
   int getRpc() const {return rpc_;}
@@ -40,10 +38,10 @@ public:
 
 private:
   friend class testCSCDigis;
-  unsigned int rpc_;
-  unsigned int pad_;
-  unsigned int bxn_;
-  unsigned int tbin_;
+  uint16_t rpc_;
+  uint16_t pad_;
+  uint16_t bxn_;
+  uint16_t tbin_;
 
 
 };

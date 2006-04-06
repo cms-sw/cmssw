@@ -5,11 +5,13 @@
  *
  * Digi for CLCT trigger primitives. 
  *
- * $Date:$
- * $Revision:$
+ * $Date: 2006/04/06 04:10:55 $
+ * $Revision: 1.4 $
  *
  * \author N. Terentiev, CMU
  */
+
+#include <boost/cstdint.hpp>
 
 class CSCCLCTDigi{
 
@@ -19,13 +21,8 @@ public:
   /// for consistency with DQM
   explicit CSCCLCTDigi (int valid, int quality, int patshape, int striptype,int bend,  int strip, int cfeb, int bx); 
   explicit CSCCLCTDigi (int valid, int quality, int patshape, int striptype, int bend,  int strip, int cfeb, int bx, int trknmb);  
-  /// copy
-  CSCCLCTDigi (const CSCCLCTDigi& digi);
   /// default
   CSCCLCTDigi ();
-
-  /// Assignment operator
-  CSCCLCTDigi& operator=(const CSCCLCTDigi& digi);
 
   /// return CLCT validity, 1 - valid ALCT
   int getValid() const {return valid_ ;}
@@ -73,15 +70,15 @@ public:
 
 private:
   friend class testCSCDigis;
-  unsigned int valid_      ;
-  unsigned int quality_    ;
-  unsigned int patshape_   ;
-  unsigned int striptype_  ;
-  unsigned int bend_       ;
-  unsigned int strip_      ;
-  unsigned int cfeb_       ;
-  unsigned int bx_         ;
-  unsigned int trknmb_     ;
+  uint16_t valid_      ;
+  uint16_t quality_    ;
+  uint16_t patshape_   ;
+  uint16_t striptype_  ;
+  uint16_t bend_       ;
+  uint16_t strip_      ;
+  uint16_t cfeb_       ;
+  uint16_t bx_         ;
+  uint16_t trknmb_     ;
 };
 
 #include<iostream>

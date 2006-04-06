@@ -27,8 +27,6 @@ namespace{
   CSCALCTDigi cALCTD_;
   CSCCorrelatedLCTDigi cCorLCTD_;
 
-  CSCCorrelatedLCTDigi::PersistentPacking ppCorLCTD_;
-  CSCComparatorDigi::theComparatorDigi ppCD_; 
  
   std::vector<CSCWireDigi>  vWD_;
   std::vector<CSCRPCDigi>   vRD_;

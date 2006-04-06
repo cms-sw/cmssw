@@ -2,8 +2,8 @@
  *
  * Digi for Correlated LCT trigger primitives.
  *
- * $Date:$
- * $Revision:$
+ * $Date: 2006/03/03 22:29:01 $
+ * $Revision: 1.5 $
  *
  * \author L.Gray, UF
  */
@@ -12,78 +12,48 @@
 #include <iostream>
 #include <bitset>
 
-CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(int trknmb, int valid, int quality,
-					   int keywire, int strip, int clct_pattern,
-					   int bend, int bx)
+CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(int itrknmb, int ivalid, int iquality,
+					   int ikeywire, int istrip, int ipattern,
+					   int ibend, int ibx)
 {
-  set(trknmb, valid, quality, keywire, strip, clct_pattern, bend, bx);
-}
-
-CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(ChannelType channel)
-{
-  ChannelPacking* ch = reinterpret_cast<ChannelPacking*>(&channel);
-  set(ch->trknmb, ch->valid, ch->quality, ch->keywire, 
-      ch->strip, ch->pattern, ch->bend, ch->bx);  
-}
-
-CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(PackedDigiType packed_type)
-{
-  setData(packed_type);
-}
-
-/// Copy
-CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const CSCCorrelatedLCTDigi& digi)
-{
-  persistentData = digi.persistentData;
+  trknmb = itrknmb;
+  valid  = ivalid;
+  quality = iquality;
+  keywire = ikeywire;
+  strip = istrip;
+  pattern = ipattern;
+  bend = ibend;
+  bx = ibx;
 }
 
 /// Default
 CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi()
 {
-  set(0, 0, 0, 0, 0, 0, 0, 0);
-}
-
-/// Assignment
-CSCCorrelatedLCTDigi & 
-CSCCorrelatedLCTDigi::operator=(const CSCCorrelatedLCTDigi& digi)
-{
-  if(&digi != this) persistentData = digi.persistentData;
-  return *this;
+  trknmb = 0;
+  valid  = 0;
+  quality = 0;
+  keywire = 0;
+  strip = 0;
+  pattern = 0;
+  bend = 0;
+  bx = 0;
 }
 
 /// Getters
-CSCCorrelatedLCTDigi::ChannelType
-CSCCorrelatedLCTDigi::channel() const
-{
-  const PackedDigiType* d = data();
-  ChannelPacking result;
-  
-  result.trknmb  = d->trknmb;
-  result.quality = d->quality;
-  result.keywire = d->keywire;
-  result.strip   = d->strip;
-  result.pattern = d->pattern;
-  result.bend    = d->bend;
-  result.bx      = d->bx;
-  result.valid   = d->valid;
-
-  return *(reinterpret_cast<CSCCorrelatedLCTDigi::ChannelType*>(&result));
-}
-
-int CSCCorrelatedLCTDigi::getTrknmb()      const { return data()->trknmb; }
-
-int CSCCorrelatedLCTDigi::getValid()       const { return data()->valid;  }
-bool CSCCorrelatedLCTDigi::isValid()       const { return data()->valid;  }
-int CSCCorrelatedLCTDigi::getQuality()     const { return data()->quality;}
-int CSCCorrelatedLCTDigi::getKwire()       const { return data()->keywire;}
-int CSCCorrelatedLCTDigi::getKeyWG()       const { return data()->keywire;}
-int CSCCorrelatedLCTDigi::getStrip()       const { return data()->strip;  }
-int CSCCorrelatedLCTDigi::getCLCTPattern() const { return ((data()->pattern) & 0x7); }
-int CSCCorrelatedLCTDigi::getStriptype()   const { return (((data()->pattern) & 0x8) >> 3); }
-int CSCCorrelatedLCTDigi::getStripType()   const { return (((data()->pattern) & 0x8) >> 3); }
-int CSCCorrelatedLCTDigi::getBend()        const { return data()->bend;   }
-int CSCCorrelatedLCTDigi::getBx()          const { return data()->bx;     }
-int CSCCorrelatedLCTDigi::getBX()          const { return data()->bx;     }
+int CSCCorrelatedLCTDigi::getTrknmb()      const { return trknmb; }
+int CSCCorrelatedLCTDigi::getValid()       const { return valid;  }
+bool CSCCorrelatedLCTDigi::isValid()       const { return valid;  }
+int CSCCorrelatedLCTDigi::getQuality()     const { return quality;}
+int CSCCorrelatedLCTDigi::getKwire()       const { return keywire;}
+int CSCCorrelatedLCTDigi::getKeyWG()       const { return keywire;}
+int CSCCorrelatedLCTDigi::getStrip()       const { return strip;  }
+int CSCCorrelatedLCTDigi::getPattern() const { return pattern; }
+int CSCCorrelatedLCTDigi::getCLCTPattern() const { return (pattern & 0x7); }
+int CSCCorrelatedLCTDigi::getStriptype()   const { return ((pattern & 0x8) >> 3); }
+int CSCCorrelatedLCTDigi::getStripType()   const { return ((pattern & 0x8) >> 3); }
+int CSCCorrelatedLCTDigi::getBend()        const { return bend;   }
+int CSCCorrelatedLCTDigi::getBx()          const { return bx;     }
+int CSCCorrelatedLCTDigi::getBX()          const { return bx;     }
 
 /// Debug
 
@@ -100,37 +70,3 @@ void CSCCorrelatedLCTDigi::print() const
 	   << " Valid: " << isValid() << std::endl;
 }
 
-void CSCCorrelatedLCTDigi::dump() const
-{
-  typedef std::bitset<8*sizeof(PackedDigiType)> bits;
-  std::cout << *reinterpret_cast<const bits*>(data());
-}
-
-void CSCCorrelatedLCTDigi::set(int trknmb, int valid, int quality,
-	 int keywire, int strip, int clct_pattern, 
-	 int bend, int bx)
-{
-  PackedDigiType* d = data();
-  d->trknmb  = trknmb;
-  d->quality = quality;
-  d->keywire = keywire;
-  d->strip   = strip;
-  d->pattern = clct_pattern;
-  d->bend    = bend;
-  d->bx      = bx;
-  d->valid   = valid;
-}
-
-CSCCorrelatedLCTDigi::PackedDigiType* 
-CSCCorrelatedLCTDigi::data() {
-  return reinterpret_cast<PackedDigiType*>(&persistentData);
-}
-
-const CSCCorrelatedLCTDigi::PackedDigiType* 
-CSCCorrelatedLCTDigi::data() const {
-  return reinterpret_cast<const PackedDigiType*>(&persistentData);
-}
-
-void CSCCorrelatedLCTDigi::setData(PackedDigiType p){
-  *(data()) = p;
-}
