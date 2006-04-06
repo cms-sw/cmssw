@@ -112,7 +112,7 @@ class CSCTriggerNumbering {
   static int maxTriggerCscId()        { return MAX_CSCID; }
   static int minTriggerCscId()        { return MIN_CSCID; }
   static int maxTriggerSectorId()     { return MAX_TRIGSECTOR; }
-  static int minTriggerSectorId()     { return MIN_TRIGSECTOR+1; }
+  static int minTriggerSectorId()     { return MIN_TRIGSECTOR; }
   static int maxTriggerSubSectorId()  { return MAX_TRIGSUBSECTOR; }
   static int minTriggerSubSectorId()  { return MIN_TRIGSUBSECTOR+1; }
 
