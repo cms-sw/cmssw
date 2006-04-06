@@ -20,6 +20,5 @@
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(OpticalAlignmentsRcd,OpticalAlignments);
 REGISTER_PLUGIN(CSCZSensorsRcd,CSCZSensors);
-
 REGISTER_PLUGIN(MBAChBenchCalPlateRcd,MBAChBenchCalPlate);
 REGISTER_PLUGIN(MBAChBenchSurveyPlateRcd,MBAChBenchSurveyPlate);
