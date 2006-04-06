@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2006/02/21 20:32:48 $
- * $Revision: 1.40 $
+ * $Date: 2006/03/13 09:54:46 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -156,8 +156,6 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     int ism = id.ism();
 
-    int ic = id.ic();
-
     if ( dccMap[ism-1].getRunType() != TESTPULSE_MGPA ) continue;
 
     LogDebug("EBTestPulseTask") << " det id = " << id;
@@ -178,6 +176,8 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
       if ( dccMap[ism-1].getMgpaGain() == 3 ) meShapeMap = meShapeMapG01_[ism-1];
       if ( dccMap[ism-1].getMgpaGain() == 2 ) meShapeMap = meShapeMapG06_[ism-1];
       if ( dccMap[ism-1].getMgpaGain() == 1 ) meShapeMap = meShapeMapG12_[ism-1];
+
+      int ic = (ip-1) + 20*(ie-1) + 1;
 
       float xval = float(adc) * gain;
 
