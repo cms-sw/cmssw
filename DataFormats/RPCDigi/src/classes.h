@@ -8,7 +8,6 @@ namespace{
   namespace {
 
   RPCDigi d;
-  RPCDigi::PersistentPacking bb;
   std::vector<RPCDigi>  vv;
   std::vector<std::vector<RPCDigi> >  v1; 
   RPCDigiCollection dd;
