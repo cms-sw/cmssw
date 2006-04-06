@@ -15,7 +15,8 @@ class CSCPatternLUT
 {
  public:
 
-  static int getBendValue(int pattern) {return static_cast<int>(patternLUT[pattern][BENDANGLE]);}
+  static int getBendValue(int pattern);
+  static double getPosition(int pattern);
 
  private:
 
@@ -29,10 +30,7 @@ class CSCPatternLUT
    * Note that the positions are unitless-- they are in "pattern widths"
    * meaning that they are in 1/2 strips for high pt patterns and distrips
    * for low pt patterns. BHT 26 June 2001
-   */
-  static const double patternLUT[CSCConstants::NUM_CLCT_PATTERNS][2] = { {0.0, 0.0, 0.0, -0.41, 0.41, 0.42, -0.42, 0.0}, // 
-									 {0.0, 3.0, -3.0, 2.0, -2.0, 1.0, -1.0, 0.0} } ;
-  enum contents{ POSITION, BENDANGLE };
+   */  
 };
 
 #endif

@@ -10,7 +10,14 @@
 
 class CSCBitWidths
 {
-  static enum lct_bits { CLCT_PATTERN_BITS = 4 };
+ public:
+  enum clct_bits { CLCT_PATTERN_BITS = 4 };
+
+  enum corrlct_bits { kPatternBitWidth=CLCT_PATTERN_BITS, kQualityBitWidth = 4, kBendBitWidth = 1 };
+
+  enum addresses { kLocalPhiAddressWidth = 19 };
+
+  enum data_sizes { kLocalPhiDataBitWidth = 10, kLocalPhiBendDataBitWidth = 6 , kGlobalEtaBitWidth = 7};
 };
 
 #endif

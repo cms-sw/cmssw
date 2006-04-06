@@ -39,7 +39,7 @@ class CSCSectorReceiverLUT
   typedef struct global_eta_address
   {
     unsigned int phi_bend     : 6;
-    unsigned int local_phi    : 2; // bits 8-9 of LP
+    unsigned int phi_local    : 2; // bits 8-9 of LP
     unsigned int wire_group   : 7;
     unsigned int cscid        : 4;
   } gbletaadd;
@@ -93,7 +93,7 @@ class CSCSectorReceiverLUT
   
   /// Global Eta LUT
   gbletadat calcGlobalEtaME(const gbletaadd& address) const;
-  double getEtaValue(unsigned cscid, unsigned wire_group) const;
+  double getEtaValue(const unsigned& cscid, const unsigned& wire_group, const unsigned& phi_local) const;
 
   void fillLocalPhiLUT();
   

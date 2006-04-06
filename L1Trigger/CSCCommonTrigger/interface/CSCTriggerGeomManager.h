@@ -29,12 +29,12 @@ class CSCTriggerGeomManager
   void setGeometry(const edm::ESHandle<CSCGeometry>& thegeom) { geom = const_cast<CSCGeometry*>(thegeom.product()); }
   
   /// Return a list of chambers in a given endcap/station/sector/subsector
-  std::vector<const CSCChamber*> sectorOfChambersInStation(unsigned endcap, unsigned station, 
-							 unsigned sector, unsigned subsector) const;
+  std::vector<CSCChamber*> sectorOfChambersInStation(unsigned endcap, unsigned station, 
+						     unsigned sector, unsigned subsector) const;
 
   /// Return the CSCChamber for a corresponding endcap/station/sector/subsector/trigger cscid
-  const CSCChamber* chamber(unsigned endcap, unsigned station, unsigned sector,
-			    unsigned subsector, unsigned tcscid) const;
+  CSCChamber* chamber(unsigned endcap, unsigned station, unsigned sector,
+		      unsigned subsector, unsigned tcscid) const;
 
  private:
 
