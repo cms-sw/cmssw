@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2005/11/04 17:28:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/11/06 16:22:45 $
+ *  $Revision: 1.4 $
  *
  * \author Ilaria Segoni
  */
@@ -16,13 +16,13 @@ using namespace std;
 
 
 RPCDigi::RPCDigi(int strip, int bx){
-    setStripBx( strip , bx );
+	this->setStripBx( strip , bx );
 }
 
 
 /// Copy constructor
 RPCDigi::RPCDigi(const RPCDigi& digi) {
-  persistentData = digi.persistentData;
+	this->setStripBx(digi.strip(), digi.bx());
 }
 
 
@@ -30,8 +30,8 @@ RPCDigi::RPCDigi(const RPCDigi& digi) {
 /// Assignment
 RPCDigi& 
 RPCDigi::operator=(const RPCDigi& digi){
-  persistentData = digi.persistentData;
-  return *this;
+	this->setStripBx(digi.strip(), digi.bx());
+	return *this;
 }
 
 ///Precedence operator
@@ -47,49 +47,38 @@ else
 
 /// Comparison
 bool RPCDigi::operator == (const RPCDigi& digi) const {
-  if ( !(strip() == digi.strip())     ||
-       !(bx()== digi.bx()) ) return false;
+  if ( !(this->strip() == digi.strip())     ||
+       !(this->bx()== digi.bx()) ) return false;
   return true;
 }
 
 ///Print Digi Content
 void RPCDigi::print() const {
-  cout << "strip " << strip() 
-       << " bx   " << bx() << endl;
+  cout << "strip " << this->strip() 
+       << " bx   " << this->bx() << endl;
 }
 
 /// Getter methods:
-int RPCDigi::strip() const { return data()->strip; }
+int RPCDigi::strip() const { return this->strip(); }
 
-int RPCDigi::bx() const { return data()->bx; }
+int RPCDigi::bx() const { return this->bx(); }
 
 
 /// Setter methods:
 
 void RPCDigi::setStripBx(int strip, int bx) {
-  data()->strip=strip;
-  data()->bx=bx;
+  strip_=strip;
+  bx_=bx;
 }
 
 void RPCDigi::setStrip(int strip) {
-  data()->strip=strip;
+  strip_=strip;
 }
 
 void RPCDigi::setBx(int bx) {
-  data()->bx=bx;
+  bx_=bx;
 }
 
 
 
 
-///  Private members
-
-RPCDigi::PackedDigiType* 
-RPCDigi::data() {
-  return reinterpret_cast<PackedDigiType*>(&persistentData);
-}
-
-const RPCDigi::PackedDigiType* 
-RPCDigi::data() const {
-  return reinterpret_cast<const PackedDigiType*>(&persistentData);
-}
