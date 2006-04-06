@@ -518,7 +518,6 @@ namespace edm {
         throw edm::Exception(errors::Configuration)
           << "Cannot replace this module with a non-module  " << name;
       }
-      type_ = replacement->type_;
       nodes_ = replacement->nodes_;
       class_ = replacement->class_;
     }
