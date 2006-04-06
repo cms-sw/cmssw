@@ -186,7 +186,8 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     numRows = topol->nrows();
 
 
-    moduleThickness = det->specificSurface().bounds().thickness(); // full detector thicness
+    // full detector thicness
+    moduleThickness = det->specificSurface().bounds().thickness(); 
 
     //MP DA SISTEMARE
     //     float noiseInADCCounts = _detp->readout().noiseInAdcCounts();
@@ -196,10 +197,9 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     // Find the threshold in electrons
     thePixelThresholdInE = thePixelThreshold * theNoiseInElectrons; 
 
-
-
-       LogDebug ("PixelDigitizer") << " PixelDigitizer "  
-				   << numColumns << " " << numRows << " " << moduleThickness;
+    LogDebug ("PixelDigitizer") 
+      << " PixelDigitizer "  
+      << numColumns << " " << numRows << " " << moduleThickness;
 
     // produce SignalPoint's for all SimHit's in detector
     // Loop over hits
@@ -207,11 +207,12 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     vector<PSimHit>::const_iterator ssbegin; 
     for (ssbegin= _PixelHits.begin();ssbegin !=_PixelHits.end(); ++ssbegin) {
       
-      LogDebug ("Pixel Digitizer") << (*ssbegin).particleType() << " " << (*ssbegin).pabs() << " " 
-				   << (*ssbegin).energyLoss() << " " << (*ssbegin).tof() << " " 
-				   << (*ssbegin).trackId() << " " << (*ssbegin).processType() << " " 
-				   << (*ssbegin).detUnitId()  
-				   << (*ssbegin).entryPoint() << " " << (*ssbegin).exitPoint() ; 
+      LogDebug ("Pixel Digitizer") 
+	<< (*ssbegin).particleType() << " " << (*ssbegin).pabs() << " " 
+	<< (*ssbegin).energyLoss() << " " << (*ssbegin).tof() << " " 
+	<< (*ssbegin).trackId() << " " << (*ssbegin).processType() << " " 
+	<< (*ssbegin).detUnitId()  
+	<< (*ssbegin).entryPoint() << " " << (*ssbegin).exitPoint() ; 
       
       
       _collection_points.clear();  // Clear the container
@@ -238,7 +239,6 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
   return internal_coll;
 }
 
-
 //***********************************************************************/
 // Generate primary ionization along the track segment. 
 // Divide the track into small sub-segments  
@@ -259,15 +259,14 @@ void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
   if(NumberOfSegments < 1)
     NumberOfSegments = 1;
 
-
-    LogDebug ("Pixel Digitizer") << " enter primary_ionzation " << NumberOfSegments 
-				 << " shift = " 
-				 << (hit.exitPoint().x()-hit.entryPoint().x()) << " " 
-				 << (hit.exitPoint().y()-hit.entryPoint().y()) << " " 
-				 << (hit.exitPoint().z()-hit.entryPoint().z()) << " "
-				 << hit.particleType() <<" "<< hit.pabs() ; 
-
-
+  LogDebug ("Pixel Digitizer") 
+    << " enter primary_ionzation " << NumberOfSegments 
+    << " shift = " 
+    << (hit.exitPoint().x()-hit.entryPoint().x()) << " " 
+    << (hit.exitPoint().y()-hit.entryPoint().y()) << " " 
+    << (hit.exitPoint().z()-hit.entryPoint().z()) << " "
+    << hit.particleType() <<" "<< hit.pabs() ; 
+  
 
   float* elossVector = new float[NumberOfSegments];  // Eloss vector
 
@@ -275,8 +274,7 @@ void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
     //MP DA RIMUOVERE ASSOLUTAMENTE
     //    int pid = hit.particleType();
     int pid=13;
-
-    
+  
     float momentum = hit.pabs();
     // Generate fluctuated charge points
     fluctuateEloss(pid, momentum, eLoss, length, NumberOfSegments, 
@@ -285,7 +283,7 @@ void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
   
   _ionization_points.resize( NumberOfSegments); // set size
 
-//   // loop over segments
+  // loop over segments
   for ( int i = 0; i != NumberOfSegments; i++) {
     // Divide the segment into equal length subsegments 
     Local3DPoint point = hit.entryPoint() + 
@@ -300,17 +298,18 @@ void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
     _ionization_points[i] = edu; // save
     
 
-      LogDebug ("Pixel Digitizer") << i << " " << _ionization_points[i].x() << " " 
-				   << _ionization_points[i].y() << " " 
-				   << _ionization_points[i].z() << " " 
-				   << _ionization_points[i].energy();
-
+    LogDebug ("Pixel Digitizer") 
+      << i << " " << _ionization_points[i].x() << " " 
+      << _ionization_points[i].y() << " " 
+      << _ionization_points[i].z() << " " 
+      << _ionization_points[i].energy();
+    
   }
 
   delete[] elossVector;
 
 }
-
+// 
 void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum, 
 				      float eloss, float length, 
 				      int NumberOfSegs,float elossVector[]) {
@@ -321,17 +320,16 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
   else dedx = eloss;
 
 
-
   // This is a big! apporximation. Needs to be improved.
   //const float zMaterial = 14.; // Fix to Silicon
   //particleMomentum = 2.; // Assume 2Gev/c
 
   double particleMass = 139.57; // Mass in MeV, Assume pion
   //MP DA RIMUOVERE
-//   if( particleTable->getParticleData(pid) ) {  // Get mass from the PDTable
-//     particleMass = 1000. * particleTable->getParticleData(pid)->mass(); //Conv. GeV to MeV
-//   }
-
+  //   if( particleTable->getParticleData(pid) ) {  // Get mass from the PDTable
+  //     particleMass = 1000. * particleTable->getParticleData(pid)->mass(); //Conv. GeV to MeV
+  //   }
+  
   //  pid = abs(pid);
   //if(pid==11) particleMass = 0.511;         // Mass in MeV
   //else if(pid==13) particleMass = 105.658;
@@ -414,9 +412,8 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
     SegZ = _ionization_points[i].z();
 
     // Distance from the collection plane
-    // Change the drift direction to the correct one. d.k. 25/03/06
-    DriftDistance = (moduleThickness/2. - SegZ); // Drift to +z 
-    //DriftDistance = (moduleThickness/2. + SegZ); // Drift to -z (ORCA)
+    //DriftDistance = (moduleThickness/2. - SegZ); // Drift to +z 
+    DriftDistance = (moduleThickness/2. + SegZ); // Drift to -z 
     
     if( DriftDistance < 0.)
       DriftDistance = 0.;
