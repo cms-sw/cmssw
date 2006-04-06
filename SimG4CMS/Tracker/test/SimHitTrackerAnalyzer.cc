@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: SimHitTrackerAnalyzer.cc,v 1.4 2006/03/06 18:04:48 wmtan Exp $
+// $Id: SimHitTrackerAnalyzer.cc,v 1.5 2006/03/21 13:32:52 fambrogl Exp $
 //
 //
 
@@ -46,6 +46,7 @@
 #include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
 #include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
 //
@@ -165,20 +166,20 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    
    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
 	 p != myGenEvent->particles_end(); ++p ) {
-     std::cout<< "Particle type form MC = "<< abs((*p)->pdg_id()) << std::endl; 
-     std::cout<< "Particle momentum Pt form MC = "<< (*p)->momentum().perp() << std::endl;  
+     edm::LogInfo("TrackerSimInfoAnalyzer")<< "Particle type form MC = "<< abs((*p)->pdg_id()) ; 
+     edm::LogInfo("TrackerSimInfoAnalyzer")<< "Particle momentum Pt form MC = "<< (*p)->momentum().perp() ;  
    }
 
 
    for (std::vector<EmbdSimTrack>::iterator isimtk = theSimTracks.begin();
 	isimtk != theSimTracks.end(); ++isimtk){
-     std::cout<<" Track momentum  x = "<<isimtk->momentum().x() <<" y = "<<isimtk->momentum().y() <<" z = "<< isimtk->momentum().z()<<std::endl;
-     std::cout<<" Track momentum Ptx = "<<isimtk->momentum().perp() <<std::endl;
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum  x = "<<isimtk->momentum().x() <<" y = "<<isimtk->momentum().y() <<" z = "<< isimtk->momentum().z();
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum Ptx = "<<isimtk->momentum().perp() ;
    }
 
    for (std::vector<EmbdSimVertex>::iterator isimvtx = theSimVertexes.begin();
 	isimvtx != theSimVertexes.end(); ++isimvtx){
-     std::cout<<" Vertex position  x = "<<isimvtx->position().x() <<" y = "<<isimvtx->position().y() <<" z = "<< isimvtx->position().z()<<std::endl;
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Vertex position  x = "<<isimvtx->position().x() <<" y = "<<isimvtx->position().y() <<" z = "<< isimvtx->position().z();
    }
 
 
@@ -187,9 +188,9 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    for (std::vector<PSimHit>::iterator isim = theTrackerHits.begin();
 	isim != theTrackerHits.end(); ++isim){
      SimHitMap[(*isim).detUnitId()].push_back((*isim));
-     std::cout<<" SimHit position  x = "<<isim->localPosition().x() <<" y = "<<isim->localPosition().y() <<" z = "<< isim->localPosition().z()<<std::endl;
-     std::cout<<" SimHit DetID = "<<isim->detUnitId()<<std::endl;	
-     std::cout<<" Time of flight = "<<isim->timeOfFlight()<<std::endl;
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" SimHit position  x = "<<isim->localPosition().x() <<" y = "<<isim->localPosition().y() <<" z = "<< isim->localPosition().z();
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" SimHit DetID = "<<isim->detUnitId();	
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Time of flight = "<<isim->timeOfFlight();
    }
 }
 
