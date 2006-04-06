@@ -39,7 +39,7 @@ CSCSegmentBuilder::CSCSegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
     }
 
     // Ask factory to build this algorithm, giving it appropriate ParameterSet
-    std::string chType[] = {"ME1/a", "ME1/b", "ME1/1", "ME1/2",
+    std::string chType[] = {"ME1/a", "ME1/b", "ME1/2", "ME1/3",
             "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1"};
             
     for (size_t j=0; j<9; j++) 		

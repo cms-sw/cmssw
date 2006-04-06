@@ -65,8 +65,14 @@ CSCSegmentCollection CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
     for(unsigned int i = 0; i < rechits.size() - 1; i++) {
         for(unsigned int j=i+1; j < rechits.size(); j++) {
 			
-            int zi = rechits[i].cscDetId().layer(); 
-            int zj = rechits[i].cscDetId().layer();
+            const CSCLayer* l1 = theChamber->layer(rechits[i].cscDetId().layer());
+            GlobalPoint gp1 = l1->surface().toGlobal(rechits[i].localPosition());	
+
+            const CSCLayer* l2 = theChamber->layer(rechits[j].cscDetId().layer());
+            GlobalPoint gp2 = l2->surface().toGlobal(rechits[j].localPosition());	
+            float zi = gp1.z();
+            float zj = gp2.z();
+
             if (((z_det > 0.) && (zi > zj)) || ((z_det < 0.) && (zi < zj))) {
 				
                 CSCRecHit2D temp = *(rechits[i].clone());
@@ -151,8 +157,15 @@ CSCSegmentCollection CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
                 }	
                 else {
             
-            		AlgebraicSymMatrix errors = calculateError();
-                    CSCSegment temp(proto_segment, theOrigin, theDirection, errors, theChi2); //FIX
+            		// calculate error matrix
+                    AlgebraicSymMatrix errors = calculateError();	
+                            
+                    // convert the coor. of the origin in the chamber reference frame
+                    const CSCLayer* l1 = theChamber->layer(proto_segment[0].cscDetId().layer());
+                    GlobalPoint gp1 = l1->surface().toGlobal(theOrigin);	
+                    LocalPoint lp = theChamber->surface().toLocal(gp1);	
+
+                    CSCSegment temp(proto_segment, lp, theDirection, errors, theChi2); 
                     LogDebug("CSC") << "Found a segment !!!\n";
                     segments.push_back(temp);	
                 }
@@ -526,12 +539,12 @@ void CSCSegAlgoTC::fillLocalDirection() {
     // ptc: Examine its direction and origin in global z: to point outward
     // the localDir should always have same sign as global z...
 
-    const CSCLayer* l1 = theChamber->layer(1);
+    const CSCLayer* l1 = theChamber->layer(proto_segment[0].cscDetId().layer());
     GlobalPoint gp1 = l1->surface().toGlobal(lp);	
     double globalZpos = gp1.z(); 				 
-    GlobalVector gv1 = l1->surface().toGlobal(localDir);	
-    double globalZdir = gv1.z();						 	// FIX 	
-    double directionSign = globalZpos * globalZdir;
+    GlobalVector gv1 = theChamber->surface().toGlobal(localDir);	
+    double globalZdir = gv1.z();					
+    double directionSign = globalZpos * globalZdir * (globalZdir*localDir.z()/fabs(globalZdir*localDir.z()));
     
     theDirection = (directionSign * localDir).unit();
 }

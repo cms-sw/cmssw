@@ -8,20 +8,19 @@
  * out of the rechit's in a CSCChamber. cf. CSCSegmentizerTC.<BR>
  * 'SK' = 'Sasha Khanov' = Speed King <BR>
  *
- * A CSCSegment isa BasicRecHit4D, and is built from
- * CSCRhit objects, each of which isa BasicRecHit2D. <BR>
+ * A CSCSegment is a RecSegment4D, and is built from
+ * CSCRecHit2D objects, each of which is a RecHit2DLocalPos. <BR>
  *
- * This class is used by the CSCSegmentRecDet. <BR>
+ * This class is used by the CSCSegmentAlgorithm. <BR>
  * Alternative algorithms can be used for the segment building
  * by writing classes like this, and then selecting which one is actually
- * used via the CSCSegmentizerBuilder in CSCDetector. <BR>
+ * used via the CSCSegmentBuilder. <BR>
  *
  * Original (in FORTRAN): Alexandre.Khanov@cern.ch <BR>
  * Ported to C++ and improved: Rick.Wilkinson@cern.ch <BR>
  * Reimplemented in terms of layer index, and bug fix: Tim.Cox@cern.ch <BR>
+ * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- * \author Matteo Sani
- *  Porting of the original algorithm from ORCA to CMSSW 2006-04-03
  */
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
@@ -43,9 +42,6 @@ public:
     // Instead we just have to ensure the layer index is correctly adjusted 
     // to enforce the requirement that 'layer 1' is closest in the chamber
     // to the IP.
-    // However a map is very painful to use when handling the original 'SK' algorithm,
-    // particularly when we need to flag a hit as 'used'. Because of this I am now
-    // favouring a pair of vectors, vector<RecHit> and vector<int> for the layer id.
     
     typedef std::vector<CSCRecHit2D> ChamberHitContainer;
     typedef std::vector<CSCRecHit2D>::const_iterator ChamberHitContainerCIt;
@@ -53,7 +49,7 @@ public:
     // We need to be able to flag a hit as 'used' and so need a container
     // of bool's. Naively, this would be vector<bool>... but AVOID that since it's
     // non-standard i.e. packed-bit implementation which is not a standard STL container. 
-    // We don't need what it offers and it could lead to unexpected trouble in the future
+    // We don't need what it offers and it could lead to unexpected trouble in the future.
 
     typedef std::deque<bool> BoolContainer;
 
