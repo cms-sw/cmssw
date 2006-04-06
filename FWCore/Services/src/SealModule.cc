@@ -1,5 +1,6 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Services/interface/JobReport.h"
 #include "FWCore/Services/src/Tracer.h"
 #include "FWCore/Services/src/Timing.h"
 #include "FWCore/Services/src/Memory.h"
@@ -8,6 +9,7 @@
 #include "FWCore/Services/src/RandomNumberGeneratorService.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
+using edm::service::JobReport;
 using edm::service::Tracer;
 using edm::service::Timing;
 using edm::service::SimpleMemoryCheck;
@@ -16,6 +18,7 @@ using edm::service::LoadAllDictionaries;
 using edm::service::RandomNumberGeneratorService;
 
 DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_SERVICE(JobReport)
 DEFINE_ANOTHER_FWK_SERVICE(Tracer)
 DEFINE_ANOTHER_FWK_SERVICE(Timing)
 DEFINE_ANOTHER_FWK_SERVICE(SimpleMemoryCheck)
