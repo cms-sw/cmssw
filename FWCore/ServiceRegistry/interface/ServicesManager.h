@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:01 EDT 2005
-// $Id: ServicesManager.h,v 1.3 2005/09/12 19:07:21 chrjones Exp $
+// $Id: ServicesManager.h,v 1.4 2005/11/11 20:55:43 chrjones Exp $
 //
 
 // system include files
@@ -79,7 +79,7 @@ public:
                if(0 == type2Maker_.get() || 
                    type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
                       throw edm::Exception(edm::errors::NotFound,"Service Request") 
-                      <<" unable to find requested service";
+                      <<" unable to find requested service.\n";
                } else {
                   itFoundMaker->second.add(const_cast<ServicesManager&>(*this));
                   itFound = type2Service_.find(TypeIDBase(typeid(T)));
