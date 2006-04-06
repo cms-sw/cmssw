@@ -8,8 +8,11 @@
 <use name=RecoTracker/TransientTrackingRecHit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=TrackingTools/KalmanUpdators>
+<use name=TrackingTools/TrackFitters>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
+<use name=RecoTracker/GeometryESProducer>
+<use name=TrackingTools/MeasurementDet>
 <export>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
@@ -20,6 +23,9 @@
  <use name=RecoTracker/TransientTrackingRecHit>
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=TrackingTools/KalmanUpdators>
+ <use name=TrackingTools/TrackFitters>
  <use name=MagneticField/Records>
  <use name=MagneticField/Engine>
+ <use name=RecoTracker/GeometryESProducer>
+ <use name=TrackingTools/MeasurementDet>
 </export>

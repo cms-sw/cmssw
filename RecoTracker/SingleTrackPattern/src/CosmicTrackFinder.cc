@@ -9,10 +9,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -44,15 +41,13 @@ namespace cms
     e.getByType(pixelHits);
     //retrieve StripRecHits
     edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits;
-    e.getByLabel("LocalMeasurementConverter","matchedRecHit" ,matchedrecHits);
+    e.getByLabel("SiStripRecHits","matchedRecHit" ,matchedrecHits);
     edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
-    e.getByLabel("LocalMeasurementConverter","rphiRecHit" ,rphirecHits);
+    e.getByLabel("SiStripRecHits","rphiRecHit" ,rphirecHits);
     edm::Handle<SiStripRecHit2DLocalPosCollection> stereorecHits;
-    e.getByLabel("LocalMeasurementConverter","stereoRecHit" ,stereorecHits);
+    e.getByLabel("SiStripRecHits","stereoRecHit" ,stereorecHits);
     
-    //get tracker geometry
-    edm::ESHandle<TrackerGeometry> tracker;
-    es.get<TrackerDigiGeometryRecord>().get(tracker);
+
 
 
     // Step B: create empty output collection
@@ -69,8 +64,7 @@ namespace cms
 				   *matchedrecHits,
 				   *pixelHits,
 				   es,
-				   *output,
-				   *tracker);
+				   *output);
       
       
       // Step D: write output to file
