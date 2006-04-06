@@ -142,7 +142,7 @@ void CSCDDUEventData::unpack_data(unsigned short *buf) {
   if (debug) edm::LogInfo ("CSCDDUEventData") << "CSCDDUEventData::unpack_data() is called";
 
   if (debug) for (int i=0;i<4;i++) {
-    edm::LogInfo ("CSCDDUEventData") << i << std::ios::hex << buf[4*i+3] << buf[4*i+2] 
+    edm::LogInfo ("CSCDDUEventData") << i << std::hex << buf[4*i+3] << buf[4*i+2] 
 				     << buf[4*i+1] << buf[4*i];
   }
 
@@ -175,21 +175,27 @@ void CSCDDUEventData::unpack_data(unsigned short *buf) {
 
   if (debug) {
     edm::LogInfo ("CSCDDUEventData") << "unpacking ddu trailer ";
-    edm::LogInfo ("CSCDDUEventData") << std::ios::hex << buf[3] << buf[2] << buf[1] << buf[0];
+    edm::LogInfo ("CSCDDUEventData") << std::hex << buf[3]<<" " << buf[2] 
+				     <<" " << buf[1]<<" " << buf[0];
   }
 
   // decode ddu tail
   memcpy(&theDDUTrailer, buf, theDDUTrailer.sizeInWords()*2);
   if (debug) edm::LogInfo ("CSCDDUEventData") << theDDUTrailer.check();
   errorstat=theDDUTrailer.errorstat();
-  if (errorstat != 0) {
-    edm::LogError ("CSCDDUEventData") 
-     << "+++ CSCDDUEventData warning: DDU Trailer errors = " << std::hex << errorstat << " +++ ";
-    decodeStatus(errorstat);
+  if (errorstat != 0)  {
+    if (theDDUTrailer.check()) {
+      edm::LogError ("CSCDDUEventData") 
+	<< "+++ CSCDDUEventData warning: DDU Trailer errors = " << std::hex << errorstat << " +++ ";
+      decodeStatus(errorstat);
+    } else {
+      edm::LogError ("CSCDDUEventData" ) 
+	<< " Unpacking lost DDU trailer - check() failed and 8 8 ffff 8 was not found ";
+    }
   }
    
   if (debug) 
-    edm::LogInfo ("CSCDDUEventData")  << " Final errorstat " << std::ios::hex << errorstat << std::ios::dec ;
+    edm::LogInfo ("CSCDDUEventData")  << " Final errorstat " << std::hex << errorstat << std::dec ;
   // the trailer counts in 64-bit words
   buf += theDDUTrailer.sizeInWords();
   

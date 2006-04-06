@@ -99,10 +99,11 @@ CSCEventData::CSCEventData(unsigned short * buf)
       // word in DMBHeader whereas in reality it was not zero.  So TMBHeader
       // might be a better place to get this info from.  But I am not quite
       // sure of it, so I leave it as is for now. -Sl.
-      int cfeb_available_2 = 0;
-      if (nclct()== 1)
-	cfeb_available_2 = (theTMBData->tmbHeader().ActiveCFEBs() >> icfeb) & 1;
-      if ( (cfeb_available==1)&&(cfeb_available_2 == 1) ) {
+      //int cfeb_available_2 = 0;
+      //if (nclct()== 1)
+      //	cfeb_available_2 = (theTMBData->tmbHeader().ActiveCFEBs() >> icfeb) & 1;
+      //if ( (cfeb_available==1)&&(cfeb_available_2 == 1) ) {
+      if ( cfeb_available==1 ) {
 	// Fill CFEB data and convert it into cathode digis
 	theCFEBData[icfeb] = new CSCCFEBData(icfeb, pos);
 	theCFEBData[icfeb]->check();
