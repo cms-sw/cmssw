@@ -7,6 +7,9 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GeomDetLess.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 /** Defines order of layers in the Tracker as seen by straight tracks
  *  coming from the interaction region.
  */
@@ -22,6 +25,7 @@ public:
 
 
   bool operator()( const TrackingRecHit& a, const TrackingRecHit& b) const {
+    
     return  less_->operator()(
 			     g_->idToDet(a.geographicalId()), g_->idToDet(b.geographicalId()));
   }
