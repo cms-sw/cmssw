@@ -1,9 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: GenericInputSource.cc,v 1.1 2006/01/18 00:38:44 wmtan Exp $
+$Id: EDInputSource.cc,v 1.6 2006/04/04 22:15:22 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/GenericInputSource.h"
+#include "FWCore/Framework/interface/EDInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -12,18 +12,18 @@ namespace edm {
   static const unsigned long kNanoSecPerSec = 1000000000;
   static const unsigned long kAveEventPerSec = 200;
   
-  GenericInputSource::GenericInputSource(ParameterSet const& pset,
+  EDInputSource::EDInputSource(ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
     InputSource(pset, desc),
-    fileNames_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames")),
+    catalog_(pset),
     remainingEvents_(maxEvents())
   { }
 
-  GenericInputSource::~GenericInputSource() {
+  EDInputSource::~EDInputSource() {
   }
 
   std::auto_ptr<EventPrincipal>
-  GenericInputSource::read() {
+  EDInputSource::read() {
     std::auto_ptr<EventPrincipal> result(0);
     
     if (remainingEvents_ != 0) {

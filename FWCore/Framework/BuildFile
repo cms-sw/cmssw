@@ -1,6 +1,7 @@
 <use name=boost>
 <use name=rootcore>
 <use name=DataFormats/Common>
+<use name=FileCatalog>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=FWCore/ServiceRegistry>
@@ -10,6 +11,7 @@
  <use name=boost>
  <use name=rootcore>
  <use name=DataFormats/Common>
+ <use name=FileCatalog>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Utilities>
  <use name=FWCore/ServiceRegistry>

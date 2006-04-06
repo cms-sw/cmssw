@@ -5,7 +5,7 @@
 /*----------------------------------------------------------------------
   
 VectorInputSource: Abstract interface for vector input sources.
-$Id: VectorInputSource.h,v 1.3 2006/01/19 22:27:14 wmtan Exp $
+$Id: VectorInputSource.h,v 1.4 2006/04/04 22:15:21 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -13,13 +13,13 @@ $Id: VectorInputSource.h,v 1.3 2006/01/19 22:27:14 wmtan Exp $
 #include <vector>
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/Framework/interface/GenericInputSource.h"
+#include "FWCore/Framework/interface/EDInputSource.h"
 
 namespace edm {
   class EventPrincipal;
   class InputSourceDescription;
   class ParameterSet;
-  class VectorInputSource : public GenericInputSource {
+  class VectorInputSource : public EDInputSource {
   public:
     typedef boost::shared_ptr<EventPrincipal> EventPrincipalVectorElement;
     typedef std::vector<EventPrincipalVectorElement> EventPrincipalVector;

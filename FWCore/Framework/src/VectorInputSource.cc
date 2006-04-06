@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: VectorInputSource.cc,v 1.2 2006/01/18 23:26:22 wmtan Exp $
+$Id: VectorInputSource.cc,v 1.3 2006/04/04 22:15:22 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "FWCore/Framework/interface/VectorInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -7,7 +7,7 @@ $Id: VectorInputSource.cc,v 1.2 2006/01/18 23:26:22 wmtan Exp $
 namespace edm {
 
   VectorInputSource::VectorInputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
-    GenericInputSource(pset, desc) {}
+    EDInputSource(pset, desc) {}
 
   VectorInputSource::~VectorInputSource() {}
 
