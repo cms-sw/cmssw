@@ -76,12 +76,6 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(testCSCDigis);
 
 void testCSCDigis::testDigiPacking(){
-
-  CPPUNIT_ASSERT (sizeof(CSCALCTDigi::PersistentPacking)==sizeof(CSCALCTDigi::PackedDigiType));
-  CPPUNIT_ASSERT(sizeof(CSCALCTDigi::ChannelPacking)==sizeof(int));
-
-  CPPUNIT_ASSERT (sizeof(CSCCLCTDigi::PersistentPacking)==sizeof(CSCCLCTDigi::PackedDigiType));
-  CPPUNIT_ASSERT(sizeof(CSCCLCTDigi::ChannelPacking)==sizeof(int));
 }
 
 void testCSCDigis::fillCSCWireDigi(CSCWireDigiCollection & collection){
@@ -203,17 +197,15 @@ void testCSCDigis::fillCSCALCTDigi(CSCALCTDigiCollection & collection){
                                                                                 
        std::vector<CSCALCTDigi> digivec;
        for (int i=1; i<3; ++i){
-           CSCALCTDigi::PackedDigiType pd;
+           int valid=1;
+           int quality=3;
+           int accel=0;
+           int patternb=1;
+           int keywire=16;
+           int bx=4;
+           int trknmb=1;
 
-           pd.valid=1;
-           pd.quality=3;
-           pd.accel=0;
-           pd.patternb=1;
-           pd.keywire=16;
-           pd.bx=4;
-           pd.trknmb=1;
-
-           CSCALCTDigi digi(pd);
+           CSCALCTDigi digi(valid,quality,accel,patternb,keywire,bx,trknmb);
            digivec.push_back(digi);
         }
         
@@ -234,24 +226,19 @@ void testCSCDigis::fillCSCCLCTDigi(CSCCLCTDigiCollection & collection){
                                                                                 
        std::vector<CSCCLCTDigi> digivec;
        for (int i=1; i<3; ++i){
-           CSCCLCTDigi::PackedDigiType pd;
-
-           pd.valid=1;
-           pd.quality=3;
-
-
-           pd.patshape=2;
-           pd.striptype=1;
-           pd.bend=0;
-           pd.strip=16;
-           pd.cfeb=5;
-           pd.bx=3;
-           pd.trknmb=1;
+           int valid=1;
+           int quality=3;
+           int patshape=2;
+           int striptype=1;
+           int bend=0;
+           int strip=16;
+           int cfeb=5;
+           int bx=3;
+           int trknmb=1;
  
-           CSCCLCTDigi digi(pd);
+           CSCCLCTDigi digi(valid, quality, patshape, striptype, bend, strip, cfeb, bx, trknmb);
            digivec.push_back(digi);
         }
-         
         
 collection.put(std::make_pair(digivec.begin(),digivec.end()),detid);
  
@@ -270,7 +257,7 @@ void testCSCDigis::fillCSCCorrLCTDigi(CSCCorrelatedLCTDigiCollection & collectio
 	      std::vector<CSCCorrelatedLCTDigi> digivec;
 
 	      for(int trknmb = 1; trknmb <=2 ; ++trknmb)
-		{
+                {
 		  CSCCorrelatedLCTDigi::PackedDigiType pd;
 		  
 		  pd.trknmb = trknmb;

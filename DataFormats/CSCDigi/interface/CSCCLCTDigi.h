@@ -15,129 +15,87 @@ class CSCCLCTDigi{
 
 public:
 
-  typedef unsigned int ChannelType;
-
-  /// Enum, structures
-
-      /// Length of packed fields
-  enum packing{
-                valid_s    = 1, // CLCT validity (1 - valid CLCT)
-                quality_s  = 3, // Quality of pattern (Hits on pattern)
-                patshape_s = 3, // Pattern shape
-                striptype_s= 1, // Strip Type 1=Half-Strip, 0=Di-Strip
-                bend_s     = 1, // Bend direction (0-left, 1-right)
-                strip_s    = 7, // Key Half-strip,Di-Strip points to lower Half
-                cfeb_s     = 3, // Key CFEB ID
-                bx_s       = 2, // BXN
-                trknmb_s   = 2  // Track number (1,2)
-  };
-      /// The packed digi content  
-  struct PackedDigiType {
-    unsigned int valid     : valid_s;
-    unsigned int quality   : quality_s;
-    unsigned int patshape  : patshape_s; 
-    unsigned int striptype : striptype_s;
-    unsigned int bend      : bend_s;
-    unsigned int strip     : strip_s;
-    unsigned int cfeb      : cfeb_s;
-    unsigned int bx        : bx_s;
-    unsigned int trknmb    : trknmb_s;
- };
-
-      /// The packed data as seen by the persistency - should never be used
-      /// directly, only by calling data().
-      /// Made public to be able to generate lcgdict, SA, 27/4/05
-  struct PersistentPacking {
-    unsigned int w1;
-  };
-
   /// Constructors
-
-  explicit CSCCLCTDigi (int valid, int quality, int patshape, int striptype,int bend,  int strip, int cfeb, int bx); // for DQM
+  /// for consistency with DQM
+  explicit CSCCLCTDigi (int valid, int quality, int patshape, int striptype,int bend,  int strip, int cfeb, int bx); 
   explicit CSCCLCTDigi (int valid, int quality, int patshape, int striptype, int bend,  int strip, int cfeb, int bx, int trknmb);  
-  explicit CSCCLCTDigi (ChannelType channel); /// from channel
-  CSCCLCTDigi (PackedDigiType packed_value);  /// from a packed value
-  CSCCLCTDigi (const CSCCLCTDigi& digi);      /// copy
-  CSCCLCTDigi ();                             /// default
+  /// copy
+  CSCCLCTDigi (const CSCCLCTDigi& digi);
+  /// default
+  CSCCLCTDigi ();
 
   /// Assignment operator
-
   CSCCLCTDigi& operator=(const CSCCLCTDigi& digi);
 
-  /// Gets
+  /// return CLCT validity, 1 - valid ALCT
+  int getValid() const {return valid_ ;}
+  /// check CLCT validity (for consistency with ORCA)
+  bool isValid()     const {return valid_ ;}
+  /// return quality of a pattern
+  int getQuality()   const {return quality_ ;}
+  /// return pattern
+  int getPattern()   const {return patshape_ ;}
+  /// return striptype (obsolete, use getStripType() instead)
+  int getStriptype() const {return striptype_ ;}   
+  /// return striptype (compatible with ORCA)
+  int getStripType() const {return striptype_ ;}
+  /// return bend
+  int getBend()      const {return bend_ ;}
+  /// return strip     
+  int getStrip()     const {return strip_ ;}
 
-      /// all digi content in a packed format
-  PackedDigiType packedData() const { return *(data()); }
-      /// the channel identifier and the digi number packed together
-  ChannelType channel() const ;
+  /// Convert strip and CFEB to keyStrip. Each CFEB has up to 16 strips
+  /// (32 halfstrips). There are 5 cfebs.  The "strip" variable is one
+  /// of 32 halfstrips on the keylayer of a single CFEB, so that
+  /// Distrip   = (cfeb*32 + strip)/4.
+  /// Halfstrip = (cfeb*32 + strip).
+  int getKeyStrip()  const {
+                int keyStrip = 0;
+                if (striptype_ == 1)
+                        keyStrip = cfeb_ * 32 + strip_;
+                else
+                        keyStrip = cfeb_ * 8  + strip_/4;
+                return keyStrip;
+  }
+  /// return Key CFEB ID (obsolete, use getCFEB()  instead)
+  int getCfeb()      const {return cfeb_ ;}
+  /// return Key CFEB ID (compatible with ORCA)
+  int getCFEB()      const {return cfeb_ ;} 
+  /// return BX (obsolete, use  getBX())
+  int getBx()        const {return bx_ ;}
+  /// return BX (compatible with ORCA)
+  int getBX()        const {return bx_ ;}
+  /// return track number (1,2)
+  int getTrknmb()    const {return trknmb_ ;}
 
-  int getValid()     const;     // return validity
-  bool isValid()     const;     // check CLCT validity (ORCA compatible) 
-
-  int getQuality()   const;     // return quality
-  int getPattern()   const;     // return pattern number
-
-  int getStriptype() const;     // return striptype (obsolete, use 
-                                // getStripType() instead)
-  int getStripType() const;     // return striptype (compatible with ORCA)
-
-  int getBend()      const;     // return bend
-  int getStrip()     const;     // return strip
-  int getKeyStrip()  const;     // return key strip
-
-  int getCfeb()      const;     // return Key CFEB ID (obsolete, use 
-                                // getCFEB()  instead)
-  int getCFEB()      const;      // return Key CFEB ID (compatible with ORCA)
-
-  int getBx()        const;     // return BX (obsolete, use  getBX())
-  int getBX()        const;     // return BX (compatible with ORCA)
- 
-  int getTrknmb()    const;     // return track number
-
-  /// Prints
-
-      /// Print content of digi
+  /// Print content of digi
   void print() const;
-      /// Print the binary representation of the digi
-  void dump() const;
 
 private:
   friend class testCSCDigis;
-
-  /// Set, access, repack
-
-  void set(int valid, int quality, int patshape, int striptype, int bend,  int strip, int cfeb, int bx, int trknmb); /// set data words
-  void setData(PackedDigiType p);     /// set from a PackedDigiType
-  PackedDigiType* data();             /// access to the packed data
-  const PackedDigiType* data() const; /// const access to the packed data
-  struct ChannelPacking {
-    unsigned int valid     : valid_s;
-    unsigned int quality   : quality_s;
-    unsigned int patshape  : patshape_s;
-    unsigned int striptype : striptype_s;
-    unsigned int bend      : bend_s;
-    unsigned int strip     : strip_s;
-    unsigned int cfeb      : cfeb_s;
-    unsigned int bx        : bx_s;
-    unsigned int trknmb    : trknmb_s;
-  };                                 /// repack the channel number to an int
-
-  PersistentPacking persistentData;
-
+  unsigned int valid_      ;
+  unsigned int quality_    ;
+  unsigned int patshape_   ;
+  unsigned int striptype_  ;
+  unsigned int bend_       ;
+  unsigned int strip_      ;
+  unsigned int cfeb_       ;
+  unsigned int bx_         ;
+  unsigned int trknmb_     ;
 };
 
 #include<iostream>
   /// needed by COBRA
 inline std::ostream & operator<<(std::ostream & o, const CSCCLCTDigi& digi) {
-  return o << " " << digi.isValid()
-           << " " << digi.getQuality()
-           << " " << digi.getPattern()
-           << " " << digi.getStripType()
-           << " " << digi.getBend()
-           << " " << digi.getStrip()
-           << " " << digi.getKeyStrip()
-           << " " << digi.getCFEB()
-	   << " " << digi.getBX()
-           << " " << digi.getTrknmb();
+  return o << " CSC CLCT isValid "      << digi.isValid()
+           << " CSC CLCT Quality "      << digi.getQuality()
+           << " CSC CLCT Pattern "      << digi.getPattern()
+           << " CSC CLCT StripType "    << digi.getStripType()
+           << " CSC CLCT Bend "         << digi.getBend()
+           << " CSC CLCT Strip "        << digi.getStrip()
+           << " CSC CLCT KeyStrip "     << digi.getKeyStrip()
+           << " CSC CLCT CFEB "         << digi.getCFEB()
+	   << " CSC CLCT BX "           << digi.getBX()
+           << " CSC CLCT track number " << digi.getTrknmb();
 }
 #endif

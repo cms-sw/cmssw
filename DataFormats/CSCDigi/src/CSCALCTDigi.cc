@@ -12,133 +12,74 @@
 
 #include <iostream>
 #include <iomanip>
-#include <bitset>
 
 using namespace std;
 
   /// Constructors
 
-/*CSCALCTDigi::CSCALCTDigi (int trknmb, int keywire,int bx, int quality, 
-int patternb, int valid)
-{
-  set(trknmb, keywire, bx, quality, patternb, valid);
-} */
-
 CSCALCTDigi::CSCALCTDigi (int valid, int quality, int accel, int patternb,int keywire, int bx) {
-  set(valid, quality, accel, patternb, keywire, bx, 0);
-}      // for DQM
+  valid_    = valid;
+  quality_  = quality;
+  accel_    = accel;
+  patternb_ = patternb;
+  keywire_  = keywire;
+  bx_       = bx;
+  trknmb_   = 0;
+}    
 
 CSCALCTDigi::CSCALCTDigi (int valid, int quality, int accel, int patternb, int keywire, int bx, int trknmb) {
-  set(valid, quality, accel, patternb, keywire, bx, trknmb);
+  valid_    = valid;
+  quality_  = quality;
+  accel_    = accel;
+  patternb_ = patternb;
+  keywire_  = keywire;
+  bx_       = bx;
+  trknmb_   = trknmb;
 }
-CSCALCTDigi::CSCALCTDigi (ChannelType channel){
-  ChannelPacking* ch = reinterpret_cast<ChannelPacking*>(&channel);
-  set(
-      ch->valid,
-      ch->quality,
-      ch->accel,
-      ch->patternb,
-      ch->keywire,
-      ch->bx,
-      ch->trknmb);
-}
-
-CSCALCTDigi::CSCALCTDigi (PackedDigiType packed_value){
-  setData(packed_value);
-}
-      /// Copy
+   /// Copy
 CSCALCTDigi::CSCALCTDigi(const CSCALCTDigi& digi) {
-  persistentData = digi.persistentData;
+  valid_    = digi.getValid(); 
+  quality_  = digi.getQuality();
+  accel_    = digi.getAccelerator();
+  patternb_ = digi.getCollisionB();
+  keywire_  = digi.getKeyWG();
+  bx_       = digi.getBX();
+  trknmb_   = digi.getTrknmb();
 }
       /// Default
 CSCALCTDigi::CSCALCTDigi (){
-  set(0,0,0,0,0,0,0);
+  valid_    = 0;
+  quality_  = 0;
+  accel_    = 0;
+  patternb_ = 0;
+  keywire_  = 0;
+  bx_       = 0;
+  trknmb_   = 0;
 }
 
 
   /// Assignment
 CSCALCTDigi& 
 CSCALCTDigi::operator=(const CSCALCTDigi& digi){
-  persistentData = digi.persistentData;
+  valid_    = digi.getValid();
+  quality_  = digi.getQuality();
+  accel_    = digi.getAccelerator();
+  patternb_ = digi.getCollisionB();
+  keywire_  = digi.getKeyWG();
+  bx_       = digi.getBX();
+  trknmb_   = digi.getTrknmb();
+
   return *this;
 }
-
-  /// Getters
-
-CSCALCTDigi::ChannelType
-CSCALCTDigi::channel() const {
-  const PackedDigiType* d = data();
-  ChannelPacking result;
-  result.valid    = d->valid;
-  result.quality  = d->quality;
-  result.accel    = d->accel;
-  result.patternb = d->patternb;
-  result.keywire  = d->keywire;
-  result.bx       = d->bx;
-  result.trknmb   = d->trknmb;
-  return *(reinterpret_cast<CSCALCTDigi::ChannelType*>(&result));
-}
-
-int CSCALCTDigi::getValid()       const { return data()->valid;  }
-bool CSCALCTDigi::isValid()       const { return data()->valid; }
-
-int CSCALCTDigi::getQuality()     const { return data()->quality;}
-
-int CSCALCTDigi::getAccel()       const { return data()->accel;}
-int CSCALCTDigi::getAccelerator() const { return data()->accel;}
-
-int CSCALCTDigi::getPattern()     const { return data()->patternb;}
-int CSCALCTDigi::getCollisionB()  const { return data()->patternb;}
-
-int CSCALCTDigi::getKwire()       const { return data()->keywire;}
-int CSCALCTDigi::getKeyWG()       const { return data()->keywire;}
-
-int CSCALCTDigi::getBx()          const { return data()->bx;     }
-int CSCALCTDigi::getBX()          const { return data()->bx;     }
-
-int CSCALCTDigi::getTrknmb()      const { return data()->trknmb; }
 
   /// Debug
 
 void CSCALCTDigi::print() const { 
-  cout << " Valid: "          << setw(1)<<isValid() 
-       << " Quality: "        << setw(1)<<getQuality()
-       << " Accel.:  "        << setw(1)<<getAccelerator()
-       << " Collision B: "    << setw(1)<<getCollisionB()
-       << " Key Wire group: " << setw(3)<<getKeyWG()
-       << " BX: "             << setw(2)<<getBX()
-       << " Track number: "   << setw(2)<<getTrknmb() << endl;
-}
-
-void CSCALCTDigi::dump() const {
-  typedef bitset<8*sizeof(PackedDigiType)> bits;
-  cout << *reinterpret_cast<const bits*>(data());  
-}
-
-  /// Private members
-
-void CSCALCTDigi::set(int valid, int quality, int accel, int patternb, int keywire, int bx, int trknmb) 
-{
-  PackedDigiType* d = data();
-  d->valid    = valid;
-  d->quality  = quality;
-  d->accel    = accel;
-  d->patternb = patternb;
-  d->keywire  = keywire;
-  d->bx       = bx;
-  d->trknmb   = trknmb;
-}
-
-CSCALCTDigi::PackedDigiType* 
-CSCALCTDigi::data() {
-  return reinterpret_cast<PackedDigiType*>(&persistentData);
-}
-
-const CSCALCTDigi::PackedDigiType* 
-CSCALCTDigi::data() const {
-  return reinterpret_cast<const PackedDigiType*>(&persistentData);
-}
-
-void CSCALCTDigi::setData(PackedDigiType p){
-  *(data()) = p;
+  std::cout << " CSC ALCT Valid: "     << setw(1)<<isValid() 
+       << " CSC ALCT Quality: "        << setw(1)<<getQuality()
+       << " CSC ALCT Accel.:  "        << setw(1)<<getAccelerator()
+       << " CSC ALCT Collision B: "    << setw(1)<<getCollisionB()
+       << " CSC ALCT key wire group: " << setw(3)<<getKeyWG()
+       << " CSC ALCT BX: "             << setw(2)<<getBX()
+       << " CSC ALCT track number: "   << setw(2)<<getTrknmb() << std::endl;
 }

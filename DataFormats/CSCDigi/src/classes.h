@@ -27,8 +27,6 @@ namespace{
   CSCALCTDigi cALCTD_;
   CSCCorrelatedLCTDigi cCorLCTD_;
 
-  CSCCLCTDigi::PersistentPacking ppCLCTD_;
-  CSCALCTDigi::PersistentPacking ppALCTD_;
   CSCCorrelatedLCTDigi::PersistentPacking ppCorLCTD_;
   CSCComparatorDigi::theComparatorDigi ppCD_; 
  
