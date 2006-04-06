@@ -71,21 +71,25 @@ edm::OwnVector<TransientTrackingRecHit> Trajectory::recHits() const {
 
 
 int Trajectory::foundHits() const {
-  int f = 0;
-  for (edm::OwnVector<TransientTrackingRecHit>::const_iterator i=recHits().begin();
-       i!=recHits().end();i++){
-    if (i->isValid()) f++;
+  //  return recHits().size();
+  int valid=0;
+  for (Trajectory::DataContainer::const_iterator itm
+	 = theData.begin(); itm != theData.end(); itm++) {
+    if ((*itm).recHit()->isValid() == true) valid++;
   }
-  return f;
+
+  return valid;
 }
 
 int Trajectory::lostHits() const {
-  int l = 0;
-  for (edm::OwnVector<TransientTrackingRecHit>::const_iterator i=recHits().begin();
-       i!=recHits().end();i++){
-    if (!(i->isValid())) l++;
+    //  return recHits().size();
+  int invalid=0;
+  for (Trajectory::DataContainer::const_iterator itm
+	 = theData.begin(); itm != theData.end(); itm++) {
+    if ((*itm).recHit()->isValid() == false) invalid++;
   }
-  return l;
+
+  return invalid;
 }
 
 PropagationDirection Trajectory::direction() const {
