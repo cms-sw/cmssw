@@ -136,7 +136,7 @@
      In a fit of blind optimism just duplicate the overall ME11 values
      for ME1A too. (ptc 18-Apr-05)
 -->
-<Parameter name="WireSpacing" value="3.16108*mm"/>
+<Parameter name="WireSpacing" value="2.5*mm"/>
 <Parameter name="CenterPinToFirstWire" value="28.5*mm"/>
 <Parameter name="TotNumWireGroups" value="48"/>
 <Parameter name="NumGroups" value="1"/>
@@ -281,7 +281,7 @@
      For ME1/1 the dead-space is not defined by the numbers provided.
      Number of wires should be 587, Number of wires per group should be 11.
 -->
-<Parameter name="WireSpacing" value="3.16108*mm"/>
+<Parameter name="WireSpacing" value="2.5*mm"/>
 <Parameter name="CenterPinToFirstWire" value="28.5*mm"/>
 <Parameter name="TotNumWireGroups" value="48"/>
 <Parameter name="NumGroups" value="1"/>
