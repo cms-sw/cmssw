@@ -4,8 +4,8 @@
 /** \class DTUnpacker
  *  Base class for DT data unpackers
  *
- *  $Date: 2005/11/23 11:36:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/25 18:12:53 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti INFN Padova
  */
 
@@ -25,7 +25,9 @@ class DTUnpacker {
   /// Destructor
   virtual ~DTUnpacker() {}
 
-  /// Unpacking method
+  /// Unpacking method.
+  /// index is the pointer to the beginning of the buffer.
+  /// datasize is the size of the buffer in bytes
   virtual void interpretRawData(const unsigned int* index, int datasize,
 				int dduID,
 				edm::ESHandle<DTReadOutMapping>& mapping, 

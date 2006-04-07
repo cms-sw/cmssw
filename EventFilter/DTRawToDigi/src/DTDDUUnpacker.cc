@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/14 17:06:19 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/02/21 19:15:55 $
+ *  $Revision: 1.6 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -34,12 +34,12 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index, int datasize,
   FEDHeader dduHeader(reinterpret_cast<const unsigned char*>(index));
 
   // Check DDU trailer
-  FEDTrailer dduTrailer(reinterpret_cast<const unsigned char*>(index) + datasize - 1*2);
+  FEDTrailer dduTrailer(reinterpret_cast<const unsigned char*>(index) + datasize - 8); // stop before FED trailer
 
   // Check Status Words (CHECK THIS)
-  DTDDUFirstStatusWord dduStatusWord1(index[datasize - 3*2]);
+  DTDDUFirstStatusWord dduStatusWord1(index[datasize - 3*8]);
   
-  DTDDUSecondStatusWord dduStatusWord2(index[datasize - 2*2]);
+  DTDDUSecondStatusWord dduStatusWord2(index[datasize - 2*8]);
 
   
   //---- ROS data

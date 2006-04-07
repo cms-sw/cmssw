@@ -4,8 +4,8 @@
 /** \class DTDDUUnpacker
  *  The unpacker for DTs' FED.
  *
- *  $Date: 2005/11/25 18:12:53 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/02/21 19:15:55 $
+ *  $Revision: 1.5 $
  * \author M. Zanetti INFN Padova
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,7 +24,7 @@ class DTDDUUnpacker : public DTUnpacker {
   /// Destructor
   virtual ~DTDDUUnpacker();
 
-  /// Unpacking method
+  // Unpacking method
   virtual void interpretRawData(const unsigned int* index, int datasize,
 				int dduID,
 				edm::ESHandle<DTReadOutMapping>& mapping, 
