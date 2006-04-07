@@ -38,6 +38,12 @@ type <tt><b>Ext</b></tt>.
   <tt>index</tt>, that is by default <tt>unsigned long</tt>, but could be
   <tt>unsigned short</tt> for collections with less than 65535 objects.
 
+- edm::OneToOneAssociation <b>&lt;CKey, CVal, index &gt;</b>: one-to-one
+  association based on edm::Ref, of objects in a <tt>CKey</tt> collection 
+  to objects in a collection <tt>CVal</tt>. Stored indices are of type 
+  <tt>index</tt>, that is by default <tt>unsigned long</tt>, but could be
+  <tt>unsigned short</tt> for collections with less than 65535 objects.
+
 - edm::OwnVector <b>&lt;T, P = edm::ClonePolicy&lt;T&gt; &gt;</b>: container 
   with interface very similar to <tt>std::vector&lt;T&gt;</tt>, but 
   capable of storing polymorphic objects that are owned by the 
