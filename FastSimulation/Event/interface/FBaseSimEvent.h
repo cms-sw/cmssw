@@ -63,11 +63,11 @@ public:
   int addSimTrack(HepMC::GenParticle* part, 
 		  HepMC::GenVertex* originVertex, 
 		  int ig=-1);
+  int addSimTrack(const RawParticle* p, int iv);
 
   /// Add a new vertex to the Event and to the various lists
-  int addSimVertex(HepMC::GenVertex* decayVertex,
-		   HepMC::GenParticle* motherParticle=0,
-		   int it=-1);
+  int addSimVertex(HepMC::GenVertex* decayVertex,int im=-1);
+  int addSimVertex(const CLHEP::HepLorentzVector& decayVertex,int im=-1);
 
 
  protected:

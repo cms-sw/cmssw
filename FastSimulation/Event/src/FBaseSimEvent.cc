@@ -159,7 +159,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 		      +mainVertex->position());
 
       // Add the vertex to the event and to the various lists
-      int theVertex = addSimVertex(decayVertex, part, theTrack);
+      int theVertex = addSimVertex(decayVertex,theTrack);
 
       // And record it for later use 
       if ( theVertex != -1 ) myGenVertices[p] = decayVertex;
@@ -173,6 +173,18 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   //  printMCTruth(*this);
 
 }
+
+int 
+FBaseSimEvent::addSimTrack(const RawParticle* p, int iv) {
+
+  GenParticle* part = new GenParticle(*p,p->pid(),p->status());
+  GenVertex* vert = vertex(iv).me();
+  int trk = addSimTrack(part,vert);
+  if ( trk==-1 ) delete part;
+  return trk;
+
+}
+
 
 int 
 FBaseSimEvent::addSimTrack(GenParticle* part, 
@@ -203,10 +215,19 @@ FBaseSimEvent::addSimTrack(GenParticle* part,
 
 }
 
+int 
+FBaseSimEvent::addSimVertex(const HepLorentzVector& v, int im) {
+
+  // Create a new GenVertex
+  GenVertex* decayVertex = new GenVertex(v);
+  int nVert = addSimVertex(decayVertex,im);
+  if ( nVert == -1 ) delete decayVertex;
+  return nVert;
+
+}
+
 int
-FBaseSimEvent::addSimVertex(GenVertex* decayVertex, 
-			    GenParticle* motherParticle,
-			    int it) {
+FBaseSimEvent::addSimVertex(GenVertex* decayVertex,int im) {
   
   // Check that the vertex is in the Famos "acceptance"
   if ( !myFilter.accept(RawParticle(HepLorentzVector(),
@@ -219,13 +240,13 @@ FBaseSimEvent::addSimVertex(GenVertex* decayVertex,
   add_vertex(decayVertex);
 
   // Attach the end vertex to the particle (if accepted)
-  if ( it!=-1 ) decayVertex->add_particle_in(motherParticle);
+  if ( im!=-1 ) decayVertex->add_particle_in(track(im).me());
 
   // Some persistent information for the users
   mySimVertices->push_back(
     EmbdSimVertex(decayVertex->position().vect(),
 		  decayVertex->position().e(), 
-		  it));
+		  im));
 
   // Some transient information for FAMOS internal use
   theSimVertices->push_back(FSimVertex(decayVertex,this));
