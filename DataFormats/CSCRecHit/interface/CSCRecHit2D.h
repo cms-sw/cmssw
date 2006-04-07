@@ -35,6 +35,8 @@ public:
   /// TrackingRecHit base class interface
     //  const GeomDet& det() const { return *theDet; } // geom removed from TRH
   DetId geographicalId() const { return theDetId; }
+  
+  CSCDetId cscDetId() const { return theDetId; }
 
   /// Probability from fit during rechit build
   float prob() const { return theProb; }
