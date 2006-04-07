@@ -41,10 +41,11 @@ void SiPixelDigiModule::fill(const PixelDigiCollection* digiCollection) {
   const std::vector<unsigned int> detIDs = digiCollection->detIDs();
  
   std::vector<unsigned int>::const_iterator detunit_it  = detIDs.begin(), detunit_end = detIDs.end();
-  int numberOfDigis = 0;
+  //int numberOfDigis = 0;
   
   for ( ; detunit_it != detunit_end; ++detunit_it ) {
     if( id_ ==(*detunit_it)) {
+      int numberOfDigis = 0;
       const PixelDigiCollection::Range digiRange = digiCollection->get(id_);
       
       PixelDigiCollection::ContainerIterator digiBegin = digiRange.first;
@@ -63,8 +64,10 @@ void SiPixelDigiModule::fill(const PixelDigiCollection* digiCollection) {
 	(meRow_)->Fill((float)row);
 	//       //cout << " DetID: " << detid << " Col: " << col << " Row: " << row << " ADC: " << adc << endl;
       }
+      (meNDigis_)->Fill((float)numberOfDigis);
     }
+    
   }
- (meNDigis_)->Fill((float)numberOfDigis); 
+  
   
 }
