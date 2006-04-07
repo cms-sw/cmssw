@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/03/24 10:16:06 $
- * $Revision: 1.100 $
+ * $Date: 2006/03/25 08:39:01 $
+ * $Revision: 1.101 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1073,29 +1073,6 @@ void EcalBarrelMonitorClient::analyze(void){
 
     }
 
-    if ( begin_run_done_ && ! forced_begin_run_ && ! end_run_done_ ) {
-
-      if ( run_ > 0 && evt_ > 0 && runtype_ != "UNKNOWN" ) {
-
-        if ( ( jevt_ - last_jevt_ ) > 200 ) {
-
-          cout << "Running with no updates since too long ..." << endl;
-
-          cout << "Forcing end-of-run ... NOW !" << endl;
-
-          begin_run_done_ = false;
-
-          status_ = "end-of-run";
-          this->endRun();
-          end_run_done_ = true;
-          forced_end_run_ = true;
-
-        }
-
-      }
-
-    }
-
     if ( begin_run_done_ && ! end_run_done_ ) {
 
       if ( update && updates % 5 == 0 ) {
@@ -1148,11 +1125,49 @@ void EcalBarrelMonitorClient::analyze(void){
           }
         }
 
-        if ( enableSubRun_ ) {
-          time_t seconds = 15 * 60;
-          if ( (current_time_ - last_time_) > seconds ) {
-            if ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) this->writeDb();
+      }
+
+      if ( enableSubRun_ ) {
+        time_t seconds = 15 * 60;
+        if ( (current_time_ - last_time_) > seconds ) {
+          if ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) this->writeDb();
+        }
+      }
+
+    }
+
+    if ( begin_run_done_ && ! forced_begin_run_ && ! end_run_done_ ) {
+
+      if ( run_ > 0 && evt_ > 0 && runtype_ != "UNKNOWN" ) {
+
+        if ( ( jevt_ - last_jevt_ ) > 200 ) {
+
+          cout << "Running with no updates since too long ..." << endl;
+
+          if ( enableSubRun_ ) {
+
+            if ( cosmic_client_ ) {
+              if ( h_ && h_->GetBinContent(COSMIC+1) != 0 ) {
+                if ( runtype_ == "COSMIC" ) {
+                  cosmic_client_->analyze();
+                }
+              }
+            }
+            if ( pedestalonline_client_ ) {
+              pedestalonline_client_->analyze();
+            }
+
           }
+
+          cout << "Forcing end-of-run ... NOW !" << endl;
+
+          begin_run_done_ = false;
+
+          status_ = "end-of-run";
+          this->endRun();
+          end_run_done_ = true;
+          forced_end_run_ = true;
+
         }
 
       }

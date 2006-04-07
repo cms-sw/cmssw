@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/03/24 10:16:06 $
- * $Revision: 1.10 $
+ * $Date: 2006/03/25 08:39:01 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -335,10 +335,8 @@ void EBPedestalOnlineClient::analyze(void){
           h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
         }
       }
-      if ( ! meh03_[ism-1] ) {
-        meh03_[ism-1] = me;
-      }
     }
+    meh03_[ism-1] = me;
 
     const float n_min_tot = 1000.;
     const float n_min_bin = 50.;

@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/03/24 10:16:06 $
- * $Revision: 1.42 $
+ * $Date: 2006/03/25 08:39:01 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -309,10 +309,8 @@ void EBCosmicClient::analyze(void){
           h01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
         }
       }
-      if ( ! meh01_[ism-1] ) {
-        meh01_[ism-1] = me;
-      }
     }
+    meh01_[ism-1] = me;
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
@@ -332,10 +330,8 @@ void EBCosmicClient::analyze(void){
           h02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
         }
       }
-      if ( ! meh02_[ism-1] ) {
-        meh02_[ism-1] = me;
-      }
     }
+    meh02_[ism-1] = me;
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
@@ -355,10 +351,8 @@ void EBCosmicClient::analyze(void){
           h03_[ism-1] = dynamic_cast<TH1F*> (ob->operator->());
         }
       }
-      if ( ! meh03_[ism-1] ) {
-        meh03_[ism-1] = me;
-      }
     }
+    meh03_[ism-1] = me;
 
   }
 
