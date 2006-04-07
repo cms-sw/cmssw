@@ -11,8 +11,9 @@
  <!--class name="XXXXMeasurements"/-->
  <!--class name="XXXXMeasurementInfo"/-->
 
+ <class name="CSCZSensors"/>
  <class name="CSCZSensorData"/>
-
+ <class name="std::vector<CSCZSensorData>"/>
 
  <class name="std::vector<OpticalAlignInfo>"/>
  <!--class name="std::vector<XXXXMeasurementInfo>"/-->
