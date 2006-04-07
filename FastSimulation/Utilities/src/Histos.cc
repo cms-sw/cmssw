@@ -1,0 +1,168 @@
+//FAMOS headers
+#include "FastSimulation/Utilities/interface/Histos.h"
+
+#include "TFile.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
+
+using namespace std;
+
+Histos* Histos::myself = 0;
+
+Histos::Histos() {}
+
+Histos* Histos::instance() {
+  if (!myself) myself = new Histos();
+  return myself;
+}
+
+Histos::~Histos() {}
+
+void 
+Histos::book(string name, 
+	     int nx, float xmin, float xmax,
+	     int ny, float ymin, float ymax) {
+  
+  if ( theHistos.find(name) != theHistos.end() ) { 
+
+    std::cout << "Histos::book() : Histogram " 
+	 << name << " exists already. Nothing done" << std::endl;
+
+  } else {
+
+    if ( ny ) {
+
+      theHistos[name] = new TH2F(name.c_str(),"",nx,xmin,xmax,ny,ymin,ymax);
+      theTypes[name] = 2;
+
+    } else {
+
+      theHistos[name] = new TH1F(name.c_str(),"",nx,xmin,xmax);
+      theTypes[name] = 1;
+
+    }
+
+  }
+
+}
+
+void 
+Histos::book(string name, 
+	     int nx, float xmin, float xmax,
+	     string option) {
+  
+  if ( theHistos.find(name) != theHistos.end() ) { 
+
+    std::cout << "Histos::book() : Histogram " 
+	 << name << " exists already. Nothing done" << std::endl;
+
+  } else {
+
+    theHistos[name] = new TProfile(name.c_str(),"",nx,xmin,xmax,option.c_str());
+    theTypes[name] = 3;  
+  }
+
+}
+
+void 
+Histos::put(string file, string name) {
+
+  TFile * f = new TFile(file.c_str(),"recreate");
+  f->cd();
+
+  HistoItr hh = theHistos.find(name);
+  if ( name == "" ) 
+    for ( hh  = theHistos.begin(); 
+	  hh != theHistos.end(); 
+	  ++hh ) { 
+      if ( theTypes[(*hh).first] == 1 )  ( (TH1F*)((*hh).second) )->Write();
+      if ( theTypes[(*hh).first] == 2 )  ( (TH2F*)((*hh).second) )->Write();
+      if ( theTypes[(*hh).first] == 3 )  ( (TProfile*)((*hh).second) )->Write();
+    }
+
+  else 
+    if ( hh != theHistos.end() ) { 
+      if ( theTypes[name] == 1 )  ( (TH1F*)((*hh).second) )->Write();
+      if ( theTypes[name] == 2 )  ( (TH2F*)((*hh).second) )->Write();
+      if ( theTypes[name] == 3 )  ( (TProfile*)((*hh).second) )->Write();
+    }
+
+  else 
+    std::cout << "Histos::put() : Histogram " 
+	 << name << " does not exist. Nothing done" << std::endl;
+
+  f->Write();
+  f->Close();
+
+}  
+
+void
+Histos::divide(string h1, string h2, string h3) {
+
+  HistoItr hh1 = theHistos.find(h1);
+  HistoItr hh2 = theHistos.find(h2);
+  HistoItr hh3 = theHistos.find(h3);
+
+  if ( hh1 == theHistos.end() ||
+       hh2 == theHistos.end() ||
+       hh3 != theHistos.end() ) {
+
+    if ( hh1 == theHistos.end() ) 
+      std::cout << "Histos::divide() : First histo " 
+	   << h1 << " does not exist" << std::endl;
+
+    if ( hh2 == theHistos.end() ) 
+      std::cout << "Histos::divide() : Second histo " 
+	   << h2 << " does not exist" << std::endl;
+
+    if ( hh3 != theHistos.end() ) 
+      std::cout << "Histos::divide() : Third histo " 
+	   << h3 << " already exists" << std::endl;
+
+  } else {
+
+    if ( theTypes[h1] == 1 && theTypes[h2] == 1 ) { 
+      
+      theHistos[h3] = (TH1F*) ((*hh1).second)->Clone(h3.c_str());
+      theTypes[h3] = 1;
+      ((TH1F*)theHistos[h3])->Divide( (TH1F*)( (*hh2).second ) );
+
+    }
+      
+    if ( theTypes[h1] == 2 && theTypes[h2] == 2 ) { 
+
+      theHistos[h3] = (TH2F*)((*hh1).second)->Clone(h3.c_str());
+      theTypes[h3] = 2;
+      ((TH2F*)theHistos[h3])->Divide( (TH2F*)( (*hh2).second ) );
+      
+    }
+
+  }
+
+}
+
+
+void 
+Histos::fill(string name, float val1, float val2,float val3) {
+
+  HistoItr hh = theHistos.find(name);
+
+  if ( hh == theHistos.end() ) {
+
+    std::cout << "Histos::fill() : Histogram " << name 
+	 << " does not exist" << std::endl;
+
+  } else {
+
+    if ( theTypes[name] == 1 ) 
+      ( (TH1F*) ( (*hh).second ) )->Fill(val1,val2);
+
+    if ( theTypes[name] == 2 ) 
+      ( (TH2F*) ( (*hh).second ) )->Fill(val1,val2,val3);
+    
+    if ( theTypes[name] == 3 ) 
+      ( (TProfile*) ( (*hh).second ) )->Fill(val1,val2,val3);
+  }
+
+}

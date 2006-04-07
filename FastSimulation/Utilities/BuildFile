@@ -1,0 +1,7 @@
+<use name=clhep>
+<use name=root>
+<export>
+ <use name=root>
+ <use name=clhep>
+ <lib name=FastSimulationUtilities>
+</export>
