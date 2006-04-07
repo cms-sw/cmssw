@@ -242,7 +242,8 @@ void CSCGeometryBuilderFromDDD::buildLayer (
   // Overall, this is about an inch, or nearer 2.56 or 2.57cm. I take 2.56cm, which is also
   // consistent with GEANT z-positions of layers (layer 1 to layer 6 is about 12.8cm)
 
-  const float hFiveLayerThickness = 6.4; // (cm) 2.5 layer thicknesses along z
+  const float layerThickness = 2.56; // (cm) effective thickness of a chamber
+  const float centreChamberToFirstLayer = layerThickness * 2.5; // (cm) distance between centre of chamber and first layer
   
   const size_t kNpar = 4;
   if ( fpar.size() != kNpar ) 
@@ -263,17 +264,8 @@ void CSCGeometryBuilderFromDDD::buildLayer (
    // offset translates centre of Layer 1 to centre of Chamber
    // Since Layer 1 is nearest IP in station 1,2 but Layer 6 is
    // nearest in station 3,4, we need to make it negative sometimes...
-  float offset = hFiveLayerThickness;
+  float offset = centreChamberToFirstLayer;
   if ( (jend==1 && jstat>2 ) || ( jend==2 && jstat<3 ) ) offset=-offset;
-
-      //@@ The z of a ring is not well-defined but isn't useful anyway.
-      // The trouble is that the chambers in a ring overlap so there is no
-      // easy way to calculate the ring z from the Layer 1 z of first chamber
-      // constructed in that ring.
-  //    float ringZ = gtran[2] + offset; //@@ Wrong, but no easy solution.
-  //    float layerRMin = sqrt(gtran[0]*gtran[0] + gtran[1]*gtran[1]) - par[3]; // gtran gives center
-  //    float layerRMax = layerRMin + 2*par[3];
-
 
   CSCChamber* chamber = const_cast<CSCChamber*>(theGeometry->chamber( chamberId ));
   if ( chamber ){
@@ -320,9 +312,13 @@ void CSCGeometryBuilderFromDDD::buildLayer (
 
     aRot.rotateAxes(oldX, oldY, oldZ);
       
-      // Choose the odd-layer geometry, just for its plane bounds.
+      // Find parameters of Trapezoidal Plane Bounds of a layer in the chamber
+    std::vector<float> pars = (*aSpecs->oddLayerGeometry( jend ) ).parameters();
+    float hChamberThickness = layerThickness * 3.; // 6 layers so half-thickness is 3
+      // Now create TPB for chamber 
+      // N.B. apothem is 4th in pars but 3rd in ctor (!)
     TrapezoidalPlaneBounds* bounds = 
-	new TrapezoidalPlaneBounds(*aSpecs->oddLayerGeometry( jend ) );
+      new TrapezoidalPlaneBounds( pars[0], pars[1], pars[3], hChamberThickness ); 
       // Centre of chamber in z is 2.5 layers from centre of layer 1...
     Surface::PositionType aVec( gtran[0], gtran[1], gtran[2]+offset ); 
     BoundPlane * plane = new BoundPlane(aVec, aRot, bounds); 
