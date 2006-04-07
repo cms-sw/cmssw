@@ -106,9 +106,9 @@ void
 
 	const BoundSurface& bSurface = chamber->surface();
 
-	//        std::cout << "length=" << bSurface.bounds().length() << 
-	//	             ", width=" << bSurface.bounds().width() << 
-	//                     ", thickness=" << bSurface.bounds().thickness() << std::endl;
+	std::cout << "length=" << bSurface.bounds().length() << 
+       	             ", width=" << bSurface.bounds().width() << 
+                     ", thickness=" << bSurface.bounds().thickness() << std::endl;
 
 	// Check global coordinates of centre of CSCChamber, and how
 	// local z direction relates to global z direction
