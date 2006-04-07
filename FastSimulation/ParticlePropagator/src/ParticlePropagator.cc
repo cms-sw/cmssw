@@ -106,8 +106,9 @@ ParticlePropagator::setPropagationConditions(const TrackerLayer& layer,
 
     const BoundDisk & myDisk = dynamic_cast<const BoundDisk&>(surface);
     // ParticlePropagator works in mm, whereas the detector geometry is in cm
-    setPropagationConditions(     myDisk.outerRadius()*10.,
-			     fabs(myDisk.position().z())*10.,
+    BaseParticlePropagator::setPropagationConditions(
+                                  myDisk.outerRadius()*10.,
+				  fabs(myDisk.position().z())*10.,
 				  firstLoop);       
 
   // ... or if it is a cylinder barrel 
@@ -115,9 +116,10 @@ ParticlePropagator::setPropagationConditions(const TrackerLayer& layer,
 
     const BoundCylinder & myCylinder = dynamic_cast<const BoundCylinder &>(surface);
     // ParticlePropagator works in mm, whereas the detector geometry is in cm
-    setPropagationConditions(myCylinder.radius()*10.,
-			     myCylinder.bounds().length()/2.*10.,
-			     firstLoop);
+    BaseParticlePropagator::setPropagationConditions(
+					 myCylinder.radius()*10.,
+					 myCylinder.bounds().length()/2.*10.,
+					 firstLoop);
   }
 
 }

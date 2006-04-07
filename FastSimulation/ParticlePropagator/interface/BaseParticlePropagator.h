@@ -158,18 +158,21 @@ private:
   /// Simulated particle that is to be resp has been propagated
   //  RawParticle   particle;
   /// Radius of the cylinder (centred at 0,0,0) to which propagation is done
-  double        rCyl;
+  double rCyl;
   /// Half-height of the cylinder (centred at 0,0,0) to which propagation is done
-  double        zCyl;
+  double zCyl;
   /// Magnetic field in the cylinder, oriented along the Z axis
-  double        bField;
-  /// 0:propagation still be done, 1:reached 'barrel', 2:reached 'endcaps'
-  int           success;
+  double bField;
 
-  /// Do only the first half-loop
-  bool firstLoop;
+protected:
+  /// 0:propagation still be done, 1:reached 'barrel', 2:reached 'endcaps'
+  int success;
   /// The particle traverses some real material
   bool fiducial;
+
+private:
+  /// Do only the first half-loop
+  bool firstLoop;
   /// The particle decayed while propagated !
   bool decayed;
   /// The proper time of the particle
