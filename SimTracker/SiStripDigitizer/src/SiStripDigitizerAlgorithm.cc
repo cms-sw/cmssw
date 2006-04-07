@@ -21,7 +21,7 @@
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "Geometry/Surface/interface/BoundSurface.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
 
 #define CBOLTZ (1.38E-23)
@@ -45,12 +45,12 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   if (peakMode) {
     tofCut=100;
     if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-      cout<<"APVs running in peak mode (poor time resolution)"<<endl;
+      edm::LogInfo("StripDigiInfo")<<"APVs running in peak mode (poor time resolution)";
     }
   } else {
     tofCut=50;
     if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-      cout<<"APVs running in deconvolution mode (good time resolution)"<<endl;
+      edm::LogInfo("StripDigiInfo")<<"APVs running in deconvolution mode (good time resolution)";
     }
   };
  

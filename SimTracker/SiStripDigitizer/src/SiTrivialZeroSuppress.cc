@@ -1,4 +1,5 @@
 #include "SimTracker/SiStripDigitizer/interface/SiTrivialZeroSuppress.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "Utilities/Notification/interface/TimingReport.h" // ???
 
 //Author: Matthew Pearson, March 2003, ported to CMSSW by Andrea Giammanco, November 2005
@@ -24,13 +25,13 @@ void SiTrivialZeroSuppress::initParams(edm::ParameterSet const& conf_)
 
   //Check zero suppress algorithm
   if (theFEDalgorithm < 1 || theFEDalgorithm > theNumFEDalgos) {
-    cout<<"SiTrivialZeroSuppress FATAL ERROR: Unknown zero suppress algorithm "<<theFEDalgorithm<<endl;
+    edm::LogError("StripDigiInfo")<<"SiTrivialZeroSuppress FATAL ERROR: Unknown zero suppress algorithm "<<theFEDalgorithm;
     exit(1);
   }
   
   //Check thresholds
   if (theFEDlowThresh > theFEDhighThresh) {
-    cout<<"SiTrivialZeroSuppress FATAL ERROR: Low threshold exceeds high threshold: "<<theFEDlowThresh<<" > "<<theFEDhighThresh<<endl;
+    edm::LogError("StripDigiInfo")<<"SiTrivialZeroSuppress FATAL ERROR: Low threshold exceeds high threshold: "<<theFEDlowThresh<<" > "<<theFEDhighThresh;
     exit(2);
   }
 }

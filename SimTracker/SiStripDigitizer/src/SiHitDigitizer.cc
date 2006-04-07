@@ -6,6 +6,7 @@
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "SimTracker/SiStripDigitizer/interface/SiTrivialInduceChargeOnStrips.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #define CBOLTZ (1.38E-23)
 #define e_SI (1.6E-19)
@@ -90,8 +91,8 @@ LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalV
   float dir_z = 1.; // E field always in z direction
   LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-    cout << " The drift direction in local coordinate is " <<  
-      theDriftDirection    << endl;
+    edm::LogInfo("StripDigiInfo")<< " The drift direction in local coordinate is " 
+		  <<theDriftDirection;
   }
   return theDriftDirection;
 
