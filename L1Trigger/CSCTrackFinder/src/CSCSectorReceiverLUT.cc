@@ -108,13 +108,29 @@ CSCSectorReceiverLUT::lclphidat CSCSectorReceiverLUT::localPhi(lclphiadd address
   return result;
 }
 
-double CSCSectorReceiverLUT::getEtaValue(const unsigned& cscid, const unsigned& wire_group, const unsigned& phi_local) const
+double CSCSectorReceiverLUT::getEtaValue(const unsigned& thecscid, const unsigned& thewire_group, const unsigned& thephi_local) const
 {
   double result = 0.0;
+  unsigned wire_group = thewire_group;
+  int cscid = thecscid;
+  unsigned phi_local = thephi_local;
+
+  if(cscid < CSCTriggerNumbering::minTriggerCscId() || cscid > CSCTriggerNumbering::maxTriggerCscId())
+    {
+      LogDebug("CSCSectorReceiverLUT|getEtaValue") << " warning: cscId " << cscid
+						   << " is out of bounds (1-" << CSCTriggerNumbering::maxTriggerCscId();
+      cscid = CSCTriggerNumbering::maxTriggerCscId();
+    }
   CSCTriggerGeomManager* thegeom = CSCTriggerGeometry::get();
   CSCLayerGeometry* layerGeom = NULL;
-  const int numBins = 1 << 2; // 4 local phi bins
-
+  const unsigned numBins = 1 << 2; // 4 local phi bins
+  
+  if(phi_local > numBins - 1)
+    {
+      LogDebug("CSCSectorReceiverLUT|getEtaValue") << "warning: phiL " << phi_local
+						   << " is out of bounds (0-" << numBins - 1;
+      phi_local = numBins - 1;
+    }
   try 
     {    
       const CSCChamber* thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);     
@@ -123,23 +139,34 @@ double CSCSectorReceiverLUT::getEtaValue(const unsigned& cscid, const unsigned& 
 
 	  layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(3)->geometry());
           
-	  const int nStrips = layerGeom->numberOfStrips();
-	  const int nStripsPerBin = CSCConstants::MAX_NUM_STRIPS/numBins;
+	  const unsigned nStrips = layerGeom->numberOfStrips();
+	  const unsigned nWireGroups = layerGeom->numberOfWireGroups();
+	  const unsigned nStripsPerBin = CSCConstants::MAX_NUM_STRIPS/numBins;
 	  
+
+	  if(wire_group > nWireGroups) // apply maximum limit
+	    {
+	      LogDebug("CSCSectorReceiverLUT|getEtaValue") << "warning: wireGroup "
+							   << wire_group << " is out of bounds (0-"
+							   << nWireGroups;
+	      wire_group = nWireGroups;
+	    }
+	    	    
 	  /**
 	   * Calculate Eta correction
 	   */
 	  
 	  // Check that no strips will be left out.
-	  if (nStrips%numBins != 0 || CSCConstants::MAX_NUM_STRIPS%numBins != 0)
-	    edm::LogWarning("CSCSectorReceiverLUT:EtaCorrectionWarning") << "calcEtaCorrection warning: number of strips "
-									 << nStrips << " (" << CSCConstants::MAX_NUM_STRIPS
-									 << ") is not divisible by numBins " << numBins
-									 << " Station " << _station << " sector " << _sector
-									 << " subsector " << _subsector << " cscid " << cscid;
 	  
-	  int    maxStripPrevBin = 0, maxStripThisBin = 0;
-	  int    correctionStrip;
+	  if (nStrips%numBins != 0 || CSCConstants::MAX_NUM_STRIPS%numBins != 0)
+	    LogDebug("CSCSectorReceiverLUT|EtaCorrectionWarning") << "calcEtaCorrection warning: number of strips "
+								  << nStrips << " (" << CSCConstants::MAX_NUM_STRIPS
+								  << ") is not divisible by numBins " << numBins
+								  << " Station " << _station << " sector " << _sector
+								  << " subsector " << _subsector << " cscid " << cscid;
+	  
+	  unsigned    maxStripPrevBin = 0, maxStripThisBin = 0;
+	  unsigned    correctionStrip;
 	  LocalPoint  lPoint;
 	  GlobalPoint gPoint;
 	  // Bins phi_local and find the the middle strip for each bin.
@@ -168,7 +195,7 @@ double CSCSectorReceiverLUT::getEtaValue(const unsigned& cscid, const unsigned& 
     }
   catch (cms::Exception &e)
     {
-      edm::LogWarning("CSCSectorReceiver:OutofBoundInput") << e.what();
+      LogDebug("CSCSectorReceiver:OutofBoundInput") << e.what();
     }
   
   return std::fabs(result);
@@ -183,14 +210,14 @@ CSCSectorReceiverLUT::gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gble
   unsigned bend_global = 0; // not filled yet... will change when it is.
   const double etaPerBin = (CSCConstants::maxEta - CSCConstants::minEta)/CSCConstants::etaBins;
   const unsigned me12EtaCut = 56;
-
+    
   if ((float_eta < CSCConstants::minEta) || (float_eta >= CSCConstants::maxEta)) 
     {
-    
-      edm::LogWarning("CSCSectorReceiverLUT:OutOfBounds") << "L1MuCSCSectorReceiverLUT warning: float_eta = " << float_eta
-							  << " minEta = " << CSCConstants::minEta << " maxEta = " << CSCConstants::maxEta
-							  << "   station " << _station << " sector " << _sector
-							  << " chamber "   << address.cscid << " wire group " << address.wire_group;
+      
+      LogDebug("CSCSectorReceiverLUT:OutOfBounds") << "L1MuCSCSectorReceiverLUT warning: float_eta = " << float_eta
+						   << " minEta = " << CSCConstants::minEta << " maxEta = " << CSCConstants::maxEta
+						   << "   station " << _station << " sector " << _sector
+						   << " chamber "   << address.cscid << " wire group " << address.wire_group;
       
       if (float_eta < CSCConstants::minEta) 
 	result.global_eta = 0;
@@ -211,7 +238,8 @@ CSCSectorReceiverLUT::gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gble
 	intEta = static_cast<int>(bitEta);
       }
       */
-      if (_station == 1) // don't need to check for valid cscid since only valid cscid produce non-zero eta (delt with above) 
+      if (_station == 1 && address.cscid > CSCTriggerNumbering::minTriggerCscId() 
+	  && address.cscid < CSCTriggerNumbering::maxTriggerCscId() )
 	{
 	  unsigned ring = CSCTriggerNumbering::ringFromTriggerLabels(_station, address.cscid);
 	  if      (ring == 1 && int_eta <  me12EtaCut) {int_eta = me12EtaCut;}

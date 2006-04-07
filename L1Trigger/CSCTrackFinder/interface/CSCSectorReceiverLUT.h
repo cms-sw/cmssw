@@ -39,7 +39,7 @@ class CSCSectorReceiverLUT
   typedef struct global_eta_address
   {
     unsigned int phi_bend     : 6;
-    unsigned int phi_local    : 2; // bits 8-9 of LP
+    unsigned int phi_local    : 2;
     unsigned int wire_group   : 7;
     unsigned int cscid        : 4;
   } gbletaadd;
