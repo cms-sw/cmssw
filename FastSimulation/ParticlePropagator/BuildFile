@@ -4,7 +4,8 @@
 <use name=FastSimulation/Event>
 
 <export>
- <lib name=ParticlePropagator>
+ <use name=clhep>
+ <lib name=FastSimulationParticlePropagator>
  <use name=Geometry/Surface>
  <use name=FastSimulation/Particle>
  <use name=FastSimulation/Event>

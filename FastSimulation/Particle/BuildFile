@@ -3,6 +3,7 @@
 <use name=clhep>
 
 <export>
+ <use name=clhep>
  <lib name=FastSimulationParticle>
  <use name=SimGeneral/HepPDT>
 </export>

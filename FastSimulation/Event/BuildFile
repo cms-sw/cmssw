@@ -2,10 +2,9 @@
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
 <use name=SimGeneral/HepPDT>
-<use name=Foundation/PluginManager>
 <use name=FastSimulation/Particle>
 <export>
- <use name=root>
+ <use name=clhep>
  <lib name=FastSimulationEvent>
  <use name=SimDataFormats/Track>
  <use name=SimDataFormats/Vertex>

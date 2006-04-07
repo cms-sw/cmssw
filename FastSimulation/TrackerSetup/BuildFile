@@ -3,7 +3,8 @@
 <use name=TrackingTools/PatternTools>
 
 <export>
- <lib name=TrackerSetup>
+ <use name=clhep>
+ <lib name=FastSimulationTrackerSetup>
  <use name=Geometry/Surface>
  <use name=TrackingTools/PatternTools>
 </export>
