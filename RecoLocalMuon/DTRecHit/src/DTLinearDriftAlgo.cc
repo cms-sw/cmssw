@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/31 09:58:04 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/04/06 12:40:52 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -68,10 +68,8 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
 				const DTRecHit1D& recHit1D,
 				const float& angle,
 				DTRecHit1D& newHit1D) const {
-  // Get Hit position
-  const GlobalPoint globPos = layer->surface().toGlobal(recHit1D.localPosition());
-  return compute(layer, recHit1D.wireId(), recHit1D.digiTime(),
-		 globPos, newHit1D, 2);
+  newHit1D.setPositionAndError(recHit1D.localPosition(), recHit1D.localPositionError());
+  return true;
 }
 
 
