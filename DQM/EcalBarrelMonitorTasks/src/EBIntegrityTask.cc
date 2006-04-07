@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/02/05 22:19:22 $
- * $Revision: 1.10 $
+ * $Date: 2006/02/21 20:32:48 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -134,13 +134,14 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     EBDetId id = (*idItr);
 
-    int ie = id.ieta();
-    int ip = id.iphi();
+    int ic = id.ic();
+    int ie = (ic-1)/20 + 1;
+    int ip = (ic-1)%20 + 1;
+
+    int ism = id.ism();
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;
-
-    int ism = id.ism();
 
     if ( meIntegrityGain[ism-1] ) meIntegrityGain[ism-1]->Fill(xie, xip);
 
@@ -153,13 +154,14 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     EBDetId id = (*idItr);
 
-    int ie = id.ieta();
-    int ip = id.iphi();
+    int ic = id.ic();
+    int ie = (ic-1)/20 + 1;
+    int ip = (ic-1)%20 + 1;
+
+    int ism = id.ism();
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;
-
-    int ism = id.ism();
 
     if ( meIntegrityChId[ism-1] ) meIntegrityChId[ism-1]->Fill(xie, xip);
 
@@ -172,13 +174,14 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     EBDetId id = (*idItr);
 
-    int ie = id.ieta();
-    int ip = id.iphi();
+    int ic = id.ic();
+    int ie = (ic-1)/20 + 1;
+    int ip = (ic-1)%20 + 1;
+
+    int ism = id.ism();
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;
-
-    int ism = id.ism();
 
     if ( meIntegrityGainSwitch[ism-1] ) meIntegrityGainSwitch[ism-1]->Fill(xie, xip);
 
@@ -191,13 +194,14 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     EBDetId id = (*idItr);
 
-    int ie = id.ieta();
-    int ip = id.iphi();
+    int ic = id.ic();
+    int ie = (ic-1)/20 + 1;
+    int ip = (ic-1)%20 + 1;
+
+    int ism = id.ism();
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;
-
-    int ism = id.ism();
 
     if ( meIntegrityGainSwitchStay[ism-1] ) meIntegrityGainSwitchStay[ism-1]->Fill(xie, xip);
 
@@ -210,16 +214,16 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     EcalTrigTowerDetId id = (*idItr);
 
-    int ie = id.ieta();
-    int ip = id.iphi();
+    int iet = id.ieta();
+    int ipt = id.iphi();
 
-    float xie = ie + 0.5;
-    float xip = ip + 0.5;
+//    int ismt = id.ism();
+    int ismt = 1;
 
-//    int ism = id.ism();
-    int ism = 1;
+    float xiet = iet + 0.5;
+    float xipt = ipt + 0.5;
 
-    if ( meIntegrityTTId[ism-1] ) meIntegrityTTId[ism-1]->Fill(xie, xip);
+    if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xiet, xipt);
 
   }
 
@@ -230,20 +234,18 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     EcalTrigTowerDetId id = (*idItr);
 
-    int ie = id.ieta();
-    int ip = id.iphi();
+    int iet = id.ieta();
+    int ipt = id.iphi();
 
-    float xie = ie + 0.5;
-    float xip = ip + 0.5;
+//    int ismt = id.ism();
+    int ismt = 1;
 
-//    int ism = id.ism();
-    int ism = 1;
+    float xiet = iet + 0.5;
+    float xipt = ipt + 0.5;
 
-    if ( meIntegrityTTBlockSize[ism-1] ) meIntegrityTTBlockSize[ism-1]->Fill(xie, xip);
+    if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xiet, xipt);
 
   }
-
-
 
 }
 

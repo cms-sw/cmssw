@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/03/05 12:11:29 $
- * $Revision: 1.83 $
+ * $Date: 2006/03/13 09:54:45 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  *
 */
@@ -263,8 +263,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     EBDataFrame dataframe = (*digiItr);
     EBDetId id = dataframe.id();
 
-    int ie = id.ieta();
-    int ip = id.iphi();
+    int ic = id.ic();
+    int ie = (ic-1)/20 + 1;
+    int ip = (ic-1)%20 + 1;
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;
@@ -306,8 +307,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       EcalUncalibratedRecHit hit = (*hitItr);
       EBDetId id = hit.id();
 
-      int ie = id.ieta();
-      int ip = id.iphi();
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;

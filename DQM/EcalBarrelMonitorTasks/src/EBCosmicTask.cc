@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/03/13 15:33:52 $
- * $Revision: 1.42 $
+ * $Date: 2006/03/13 19:15:26 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -108,13 +108,14 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
     EcalRecHit hit = (*hitItr);
     EBDetId id = hit.id();
 
-    int ie = id.ieta();
-    int ip = id.iphi();
+    int ic = id.ic();
+    int ie = (ic-1)/20 + 1;
+    int ip = (ic-1)%20 + 1;
+
+    int ism = id.ism();
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;
-
-    int ism = id.ism();
 
     if ( dccMap[ism-1].getRunType() != COSMIC ) continue;
 

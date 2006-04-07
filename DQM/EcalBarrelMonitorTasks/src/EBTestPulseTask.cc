@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2006/03/13 09:54:46 $
- * $Revision: 1.41 $
+ * $Date: 2006/04/06 10:02:24 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
@@ -151,8 +151,9 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
     EBDataFrame dataframe = (*digiItr);
     EBDetId id = dataframe.id();
 
-    int ie = id.ieta();
-    int ip = id.iphi();
+    int ic = id.ic();
+    int ie = (ic-1)/20 + 1;
+    int ip = (ic-1)%20 + 1;
 
     int ism = id.ism();
 
@@ -198,8 +199,9 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
     EcalUncalibratedRecHit hit = (*hitItr);
     EBDetId id = hit.id();
 
-    int ie = id.ieta();
-    int ip = id.iphi();
+    int ic = id.ic();
+    int ie = (ic-1)/20 + 1;
+    int ip = (ic-1)%20 + 1;
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;

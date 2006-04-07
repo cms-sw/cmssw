@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/02/13 09:01:49 $
- * $Revision: 1.33 $
+ * $Date: 2006/02/21 20:32:48 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -157,13 +157,14 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
     EBDataFrame dataframe = (*digiItr);
     EBDetId id = dataframe.id();
 
-    int ie = id.ieta();
-    int ip = id.iphi();
+    int ic = id.ic();
+    int ie = (ic-1)/20 + 1;
+    int ip = (ic-1)%20 + 1;
+
+    int ism = id.ism();
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;
-
-    int ism = id.ism();
 
     if ( dccMap[ism-1].getRunType() != PEDESTAL_STD ) continue;
 
