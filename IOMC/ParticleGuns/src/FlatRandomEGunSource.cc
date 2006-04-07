@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/02/28 06:54:30 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/03/24 00:09:45 $
+ *  $Revision: 1.6 $
  *  \author Julia Yarba
  */
 
@@ -36,8 +36,7 @@ FlatRandomEGunSource::FlatRandomEGunSource(const ParameterSet& pset,
 
 FlatRandomEGunSource::~FlatRandomEGunSource()
 {
-  if (fEvt != NULL) delete fEvt ;
-  fEvt = 0 ;
+   // no need to cleanup fEvt since it's done in HepMCProduct
 }
 
 bool FlatRandomEGunSource::produce(Event & e) 
@@ -50,11 +49,10 @@ bool FlatRandomEGunSource::produce(Event & e)
    
    // event loop (well, another step in it...)
           
-   // clean up GenEvent memory : also deletes all vtx/part in it
-   // 
-   if (fEvt != NULL) delete fEvt ;
-   
+   // no need to clean up GenEvent memory - done in HepMCProduct
+
    // here re-create fEvt (memory)
+   //
    fEvt = new HepMC::GenEvent() ;
    
    // now actualy, cook up the event from PDGTable and gun parameters

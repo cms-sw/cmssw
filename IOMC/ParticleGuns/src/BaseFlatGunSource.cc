@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/03/05 23:21:41 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/03/24 00:09:45 $
+ *  $Revision: 1.10 $
  *  \author Julia Yarba
  */
 
@@ -75,7 +75,8 @@ BaseFlatGunSource::~BaseFlatGunSource()
   if ( fRandomGenerator != NULL ) delete fRandomGenerator;
   // do I need to delete the Engine, too ?
   
-  if (fEvt != NULL) delete fEvt ; // double check
+  // no need to cleanup GenEvent memory - done in HepMCProduct
+  // if (fEvt != NULL) delete fEvt ; // double check
   delete fPDGTable;
   
 }

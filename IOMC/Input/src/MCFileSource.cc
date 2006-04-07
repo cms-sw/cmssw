@@ -2,8 +2,8 @@
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2006/01/16 15:41:05 $
-*  $Revision: 1.5 $
+*  $Date: 2006/02/23 20:51:04 $
+*  $Revision: 1.6 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 *  \author F.Moortgat - CERN, Ph Division
 */
@@ -43,11 +43,11 @@ void MCFileSource::clear() {
 
 bool MCFileSource::produce(Event & e) {
 	
-	// clean up GenEvent memory : also deletes all vtx/part in it
-	if (evt != 0) {
-	  delete evt;
-	  evt = 0;
-	}
+	// no need to clean up GenEvent memory - now done in HepMCProduct
+//	if (evt != 0) {
+//	  delete evt;
+//	  evt = 0;
+//	}
 	auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
 	cout << "MCFileSource: Start Reading  " << endl;
 	evt = reader_->fillCurrentEventData(); 

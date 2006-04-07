@@ -1,7 +1,7 @@
 
 /*
-*  $Date: 2006/03/22 22:51:28 $
-*  $Revision: 1.2 $
+*  $Date: 2006/03/24 01:30:20 $
+*  $Revision: 1.3 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/VertexGenerator.h"
@@ -60,7 +60,8 @@ VertexGenerator::VertexGenerator( const ParameterSet& pset )
 
 VertexGenerator::~VertexGenerator() 
 {
-   if ( fEvt != NULL ) delete fEvt ;
+   // no need since now it's done in HepMCProduct
+   //if ( fEvt != NULL ) delete fEvt ;
 }
 
 void VertexGenerator::produce( Event& evt, const EventSetup& )
@@ -97,9 +98,10 @@ void VertexGenerator::produce( Event& evt, const EventSetup& )
    //        somehow creates rubish in the HepMCProduct, don't know why...
    //        so I've decided to go with a pointer
    //
-   // memory cleanup
+   // no need for memory cleanup here - done in HepMCProduct
    //
-   if ( fEvt != NULL ) delete fEvt ;
+   //if ( fEvt != NULL ) delete fEvt ;
+   //
    fEvt = new GenEvent(*AllHepMCEvt[0]->GetEvent()) ;
          
    // vertex ietself
