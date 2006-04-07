@@ -1,0 +1,46 @@
+<flags SEAL_PLUGIN_NAME="RecoLocalTrackerSiStripZeroSuppression">
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+
+<use name=DataFormats/Common>
+<use name=DataFormats/SiStripDigi>
+<use name=DataFormats/FEDRawData>
+<use name=DataFormats/SiStripDetId>
+<use name=DataFormats/FEDRawData> 
+
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/SiStripObjects>
+
+<use name=CondCore/DBCommon>
+<use name=CondCore/ESSources>
+<use name=CondCore/IOVService>
+<use name=CondCore/MetaDataService>
+
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerGeometryBuilder>	
+
+<export>
+<lib name=RecoLocalTrackerSiStripZeroSuppression>
+
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+
+<use name=DataFormats/Common>
+<use name=DataFormats/SiStripDigi>
+<use name=DataFormats/FEDRawData>
+<use name=DataFormats/SiStripDetId>
+<use name=DataFormats/FEDRawData> 
+
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/SiStripObjects>
+
+<use name=CondCore/DBCommon>
+<use name=CondCore/ESSources>
+<use name=CondCore/IOVService>
+<use name=CondCore/MetaDataService>
+
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerGeometryBuilder>	
+</export>
