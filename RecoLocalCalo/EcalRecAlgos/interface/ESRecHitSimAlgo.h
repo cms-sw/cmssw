@@ -1,0 +1,24 @@
+#ifndef RecoLocalCalo_EcalRecAlgos_ESRecHitSimAlgo_HH
+#define RecoLocalCalo_EcalRecAlgos_ESRecHitSimAlgo_HH
+
+#include "DataFormats/EcalDigi/interface/ESDataFrame.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+
+class ESRecHitSimAlgo {
+
+ public:
+
+  ESRecHitSimAlgo(int gain, int pedestal, double MIPADC, double MIPkeV);
+  ~ESRecHitSimAlgo(){}
+  EcalRecHit reconstruct(const ESDataFrame& digi) const;
+
+ private:
+
+  int gain_;
+  double ped_;
+  float pw[3];
+  double MIPADC_;
+  double MIPkeV_; 
+};
+
+#endif
