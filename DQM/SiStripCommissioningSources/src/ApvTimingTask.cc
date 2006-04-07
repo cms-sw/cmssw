@@ -1,4 +1,6 @@
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -27,15 +29,32 @@ void ApvTimingTask::book( const FedChannelConnection& conn ) {
 
   uint16_t nbins = 24 * nBins_; // 24 "fine" pll skews possible
 
-  timing_.meSumOfSquares_  = dqm_->book1D( title( "ApvTiming", "sumOfSquares", conn.lldChannel() ),
-					   title( "ApvTiming", "sumOfSquares", conn.lldChannel() ),
-					   nbins, 0.1, nBins_*25.+0.1 );
-  timing_.meSumOfContents_ = dqm_->book1D( title( "ApvTiming", "sumOfContents", conn.lldChannel() ),
-					   title( "ApvTiming", "sumOfContents", conn.lldChannel() ), 
-					   nbins, 0.1, nBins_*25.+0.1 );
-  timing_.meNumOfEntries_  = dqm_->book1D( title( "ApvTiming", "numOfEntries", conn.lldChannel() ),
-					   title( "ApvTiming", "numOfEntries", conn.lldChannel() ), 
-					   nbins, 0.1, nBins_*25.+0.1 );
+  string name;
+  uint32_t fed_key = SiStripGenerateKey::fed( conn.fedId(), conn.fedCh() );
+  
+  name = SiStripHistoNamingScheme::histoName( "ApvTiming", 
+					      SiStripHistoNamingScheme::SUM2, 
+					      SiStripHistoNamingScheme::FED, 
+					      fed_key,
+					      SiStripHistoNamingScheme::LLD_CHAN, 
+					      conn.lldChannel() );
+  timing_.meSumOfSquares_ = dqm_->book1D( name, name, nbins, 0.1, nBins_*25.+0.1 );
+  
+  name = SiStripHistoNamingScheme::histoName( "ApvTiming", 
+					      SiStripHistoNamingScheme::SUM, 
+					      SiStripHistoNamingScheme::FED, 
+					      fed_key,
+					      SiStripHistoNamingScheme::LLD_CHAN, 
+					      conn.lldChannel() );
+  timing_.meSumOfContents_ = dqm_->book1D( name, name, nbins, 0.1, nBins_*25.+0.1 );
+  
+  name = SiStripHistoNamingScheme::histoName( "ApvTiming", 
+					      SiStripHistoNamingScheme::NUM, 
+					      SiStripHistoNamingScheme::FED, 
+					      fed_key,
+					      SiStripHistoNamingScheme::LLD_CHAN, 
+					      conn.lldChannel() );
+  timing_.meNumOfEntries_ = dqm_->book1D( name, name, nbins, 0.1, nBins_*25.+0.1 );
   
   timing_.vSumOfSquares_.resize(nbins,0);
   timing_.vSumOfContents_.resize(nbins,0);
@@ -82,6 +101,13 @@ void ApvTimingTask::fill( const SiStripEventSummary& summary,
 //
 void ApvTimingTask::update() {
   LogDebug("Commissioning") << "[ApvTimingTask::update]";
+  if ( !timing_.meSumOfSquares_ ||
+       !timing_.meSumOfContents_ ||
+       !timing_.meNumOfEntries_ ) {
+    edm::LogWarning("Commissioning") << "[ApvTimingTask::update]"
+				     << "Histograms not booked! Cannot update!";
+    return;
+  }
   for ( uint16_t fine = 0; fine < timing_.vNumOfEntries_.size(); fine++ ) {
     timing_.meSumOfSquares_->setBinContent( fine+1, timing_.vSumOfSquares_[fine]*1. );
     timing_.meSumOfContents_->setBinContent( fine+1, timing_.vSumOfContents_[fine]*1. );

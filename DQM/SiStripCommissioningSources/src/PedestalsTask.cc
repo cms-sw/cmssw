@@ -1,4 +1,6 @@
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -25,17 +27,34 @@ void PedestalsTask::book( const FedChannelConnection& conn ) {
   edm::LogInfo("Commissioning") << "[PedestalsTask::book]";
   
   uint16_t nbins = 256;
-
-  peds_.meSumOfSquares_  = dqm_->book1D( title( "Pedestals", "sumOfSquares", conn.lldChannel() ),
-					 title( "Pedestals", "sumOfSquares", conn.lldChannel() ),
-					 nbins, 0., nbins*1. );
-  peds_.meSumOfContents_ = dqm_->book1D( title( "Pedestals", "sumOfContents", conn.lldChannel() ),
-					 title( "Pedestals", "sumOfContents", conn.lldChannel() ), 
-					 nbins, 0., nbins*1. );
-  peds_.meNumOfEntries_  = dqm_->book1D( title( "Pedestals", "numOfEntries", conn.lldChannel() ),
-					 title( "Pedestals", "numOfEntries", conn.lldChannel() ), 
-					 nbins, 0., nbins*1. );
   
+  string name;
+  uint32_t fed_key = SiStripGenerateKey::fed( conn.fedId(), conn.fedCh() );
+  
+  name = SiStripHistoNamingScheme::histoName( "Pedestals", 
+					      SiStripHistoNamingScheme::SUM2, 
+					      SiStripHistoNamingScheme::FED, 
+					      fed_key,
+					      SiStripHistoNamingScheme::LLD_CHAN, 
+					      conn.lldChannel() );
+  peds_.meSumOfSquares_ = dqm_->book1D( name, name, nbins, 0., nbins*1. );
+
+  name = SiStripHistoNamingScheme::histoName( "Pedestals", 
+					      SiStripHistoNamingScheme::SUM, 
+					      SiStripHistoNamingScheme::FED, 
+					      fed_key,
+					      SiStripHistoNamingScheme::LLD_CHAN, 
+					      conn.lldChannel() );
+  peds_.meSumOfContents_ = dqm_->book1D( name, name, nbins, 0., nbins*1. );
+
+  name = SiStripHistoNamingScheme::histoName( "Pedestals", 
+					      SiStripHistoNamingScheme::NUM, 
+					      SiStripHistoNamingScheme::FED, 
+					      fed_key,
+					      SiStripHistoNamingScheme::LLD_CHAN, 
+					      conn.lldChannel() );
+  peds_.meNumOfEntries_ = dqm_->book1D( name, name, nbins, 0., nbins*1. );
+
   peds_.vSumOfSquares_.resize(nbins,0);
   peds_.vSumOfContents_.resize(nbins,0);
   peds_.vNumOfEntries_.resize(nbins,0);

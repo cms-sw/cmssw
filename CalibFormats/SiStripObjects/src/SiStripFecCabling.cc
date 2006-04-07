@@ -65,7 +65,8 @@ void SiStripFecCabling::connections( vector<FedChannelConnection>& conns ) {
 	for ( vector<SiStripModule>::const_iterator imod = (*iccu).modules().begin(); imod != (*iccu).modules().end(); imod++ ) {
 	  for ( uint16_t ipair = 0; ipair < (*imod).nApvPairs(); ipair++ ) {
 	    conns.push_back( FedChannelConnection( 0, (*ifec).fecSlot(), (*iring).fecRing(), (*iccu).ccuAddr(), (*imod).ccuChan(), 
-						   (*imod).activeApvPair(ipair).first, (*imod).activeApvPair(ipair).second,
+						   (*imod).activeApvPair( (*imod).lldChannel(ipair) ).first, 
+						   (*imod).activeApvPair( (*imod).lldChannel(ipair) ).second,
 						   (*imod).dcuId(), (*imod).detId(), (*imod).nApvPairs(),
 						   (*imod).fedCh(ipair).first, (*imod).fedCh(ipair).second, 0, //(*imod).length(),
 						   (*imod).dcu(), (*imod).pll(), (*imod).mux(), (*imod).lld() ) );
@@ -318,20 +319,43 @@ void SiStripModule::nApvPairs( const uint16_t& npairs ) {
 
 // -----------------------------------------------------------------------------
 //
-pair<uint16_t,uint16_t> SiStripModule::activeApvPair( const uint16_t& apv_pair_number ) const {
-  if ( nApvPairs_ == 2 ) {
-    if      ( apv_pair_number == 0 ) { return pair<uint16_t,uint16_t>(apv0x32_,apv0x33_); }
-    else if ( apv_pair_number == 1 ) { return pair<uint16_t,uint16_t>(apv0x36_,apv0x37_); }
-    else                             { return pair<uint16_t,uint16_t>(0,0); }
-  } else if ( nApvPairs_ == 3 ) {
-    if      ( apv_pair_number == 0 ) { return pair<uint16_t,uint16_t>(apv0x32_,apv0x33_); }
-    else if ( apv_pair_number == 1 ) { return pair<uint16_t,uint16_t>(apv0x34_,apv0x35_); }
-    else if ( apv_pair_number == 2 ) { return pair<uint16_t,uint16_t>(apv0x36_,apv0x37_); }
-    else                             { return pair<uint16_t,uint16_t>(0,0); }
-  } else {
-    edm::LogError("FecCabling") << "[SiStripFecCabling::pair] Unexpected number of pairs!";
+pair<uint16_t,uint16_t> SiStripModule::activeApvPair( const uint16_t& lld_channel ) const {
+  if      ( lld_channel == 0 ) { return pair<uint16_t,uint16_t>(apv0x32_,apv0x33_); }
+  else if ( lld_channel == 1 ) { return pair<uint16_t,uint16_t>(apv0x34_,apv0x35_); }
+  else if ( lld_channel == 2 ) { return pair<uint16_t,uint16_t>(apv0x36_,apv0x37_); }
+  else                         { return pair<uint16_t,uint16_t>(0,0); }
+}
+
+// -----------------------------------------------------------------------------
+//
+uint16_t SiStripModule::lldChannel( const uint16_t& apv_pair_num ) const {
+  if ( nApvPairs_ != 2 && nApvPairs_ != 3 ) {
+    edm::LogError("FecCabling") << "[SiStripFecCabling::lldChannel]"
+				<< " Unexpected nunber of APV pairs!";
+    return 0;
   }
-  return pair<uint16_t,uint16_t>(0,0);
+  if ( nApvPairs_ == 2 && apv_pair_num == 1 ) { return 2; }
+  else if ( nApvPairs_ == 2 && apv_pair_num == 3 ) { 
+    edm::LogError("FecCabling") << "[SiStripFecCabling::lldChannel]"
+				<< " Unexpected APV pair number!";
+    return 0;
+  } else { return apv_pair_num; } // is identical in this case
+}
+
+// -----------------------------------------------------------------------------
+//
+uint16_t SiStripModule::apvPairNum( const uint16_t& lld_channel ) const {
+  if ( nApvPairs_ != 2 && nApvPairs_ != 3 ) {
+    edm::LogError("FecCabling") << "[SiStripFecCabling::apvPairNum]"
+				<< " Unexpected nunber of APV pairs!";
+    return 0;
+  }
+  if ( nApvPairs_ == 2 && lld_channel == 2 ) { return 1; }
+  else if ( nApvPairs_ == 2 && lld_channel == 1 ) { 
+    edm::LogError("FecCabling") << "[SiStripFecCabling::apvPairNum]"
+				<< " Unexpected LLD channel!";
+    return 0;
+  } else { return lld_channel; } // is identical in this case
 }
 
 // -----------------------------------------------------------------------------

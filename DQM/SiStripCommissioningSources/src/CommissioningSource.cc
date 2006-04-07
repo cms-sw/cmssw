@@ -9,7 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // dqm
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQM/SiStripCommon/interface/SiStripControlDirPath.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 // conditions
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
@@ -120,18 +120,18 @@ void CommissioningSource::analyze( const edm::Event& event,
 //
 bool CommissioningSource::createTask( const edm::EventSetup& setup,
 				      SiStripEventSummary::Task task ) {
-  LogDebug("CommissioningSource") << "[CommissioningSource::createTask]";
-
+  LogDebug("Commissioning") << "[CommissioningSource::createTask]";
+  
   // Check DQM service is available
   dqm_ = edm::Service<DaqMonitorBEInterface>().operator->();
   if ( !dqm_ ) { 
-    edm::LogError("CommissioningSource") << "[CommissioningSource::beginJob] Null pointer to DQM interface!"; 
+    edm::LogError("Commissioning") << "[CommissioningSource::createTask] Null pointer to DQM interface!"; 
     return false; 
   }
 
   // Check commissioning task is known
   if ( task == SiStripEventSummary::UNKNOWN_TASK && task_ == "UNKNOWN" ) {
-    edm::LogError("CommissioningSource") << "[CommissioningSource::beginJob] Unknown commissioning task!"; 
+    edm::LogError("Commissioning") << "[CommissioningSource::createTask] Unknown commissioning task!"; 
     return false; 
   }
 
@@ -145,11 +145,18 @@ bool CommissioningSource::createTask( const edm::EventSetup& setup,
     for ( vector<SiStripRing>::const_iterator iring = (*ifec).rings().begin(); iring != (*ifec).rings().end(); iring++ ) {
       for ( vector<SiStripCcu>::const_iterator iccu = (*iring).ccus().begin(); iccu != (*iring).ccus().end(); iccu++ ) {
 	for ( vector<SiStripModule>::const_iterator imodule = (*iccu).modules().begin(); imodule != (*iccu).modules().end(); imodule++ ) {
-	  static SiStripControlDirPath directory; // one instance only!
-	  string dir = directory.path( (*ifec).fecSlot(),
-				       (*iring).fecRing(),
-				       (*iccu).ccuAddr(),
-				       (*imodule).ccuChan() );
+	  string dir = SiStripHistoNamingScheme::controlPath( 0, // FEC crate 
+							      (*ifec).fecSlot(),
+							      (*iring).fecRing(),
+							      (*iccu).ccuAddr(),
+							      (*imodule).ccuChan() );
+	  SiStripHistoNamingScheme::ControlPath path = SiStripHistoNamingScheme::controlPath( dir );
+	  edm::LogInfo("rob") << dir << " " 
+			      << path.fecCrate_ << " " 
+			      << path.fecSlot_ << " " 
+			      << path.fecRing_ << " " 
+			      << path.ccuAddr_ << " "  
+			      << path.ccuChan_; 
 	  dqm_->setCurrentFolder( dir );
 	  map< uint16_t, pair<uint16_t,uint16_t> >::const_iterator iconn;
 	  for ( iconn = imodule->fedChannels().begin(); iconn != imodule->fedChannels().end(); iconn++ ) {
@@ -169,12 +176,12 @@ bool CommissioningSource::createTask( const edm::EventSetup& setup,
 		else if ( task == SiStripEventSummary::APV_TIMING ) { tasks_[fed_key] = new ApvTimingTask( dqm_, conn ); }
 		//else if ( task == SiStripEventSummary::PHYSICS )    { tasks_[fed_key] = new PhysicsTask( dqm_, conn ); }
 		else if ( task == SiStripEventSummary::UNKNOWN_TASK ) {
-		  edm::LogError("CommissioningSource") << "[CommissioningSource::createTask]"
-						       << " Unknown commissioning task in data stream! " << task_;
+		  edm::LogError("Commissioning") << "[CommissioningSource::createTask]"
+						 << " Unknown commissioning task in data stream! " << task_;
 		}
 	      } else {
-		edm::LogError("CommissioningSource") << "[CommissioningSource::createTask]"
-						     << " Unknown commissioning task in .cfg file! " << task_;
+		edm::LogError("Commissioning") << "[CommissioningSource::createTask]"
+					       << " Unknown commissioning task in .cfg file! " << task_;
 	      }
 	      // Check if FED key found and, if so, book histos and set update freq
 	      if ( tasks_.find( fed_key ) != tasks_.end() ) {
@@ -182,17 +189,17 @@ bool CommissioningSource::createTask( const edm::EventSetup& setup,
 		tasks_[fed_key]->updateFreq( updateFreq_ ); 
 	      }
 	    } else {
-	      edm::LogError("CommissioningSource") << "[CommissioningSource::createTask]"
-						   << " PhysicsTask already exists for FED id/channel "
-						   << conn.fedId() << "/" << conn.fedCh(); 
+	      edm::LogError("Commissioning") << "[CommissioningSource::createTask]"
+					     << " PhysicsTask already exists for FED id/channel "
+					     << conn.fedId() << "/" << conn.fedCh(); 
 	    }
 	  }
 	}
       }
     }
   }
-  edm::LogInfo("CommissioningSource") << "[CommissioningSource]"
-				      << " Number of task objects created: " << tasks_.size();
+  edm::LogInfo("Commissioning") << "[CommissioningSource]"
+				<< " Number of task objects created: " << tasks_.size();
   return true;
 }
 

@@ -40,8 +40,6 @@ class CommissioningTask {
   
  protected:
 
-  string title( string variable, string contents, uint32_t lld_channel );
-  
   DaqMonitorBEInterface* dqm_;
   uint32_t updateFreq_;
   uint32_t fillCntr_;

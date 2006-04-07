@@ -73,12 +73,3 @@ void CommissioningTask::updateHistograms() {
   update();
 }
 
-// -----------------------------------------------------------------------------
-//
-string CommissioningTask::title( string variable, string contents, uint32_t lld_channel ) {
-  static string sep("|");
-  static stringstream ss; ss.str(""); 
-  if ( contents != "" ) { ss << variable << sep << contents << sep << "LLDchan" << lld_channel; }
-  else { ss << variable << sep << lld_channel; }
-  return ss.str();
-}

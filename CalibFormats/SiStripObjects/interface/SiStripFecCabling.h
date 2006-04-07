@@ -49,44 +49,54 @@ class SiStripModule {
       footprint position on the hybrid (0->5) is active or
       not. Returns actual address instead of boolean. */
   const uint16_t& activeApv( const uint16_t& apv_address ) const;
+  /** Identifies APV pairs that are active, for a given LLD channel
+      (0->2). Returns actual address instead of boolean. */
+  pair<uint16_t,uint16_t> activeApvPair( const uint16_t& lld_channel ) const;
+
   /** Add APV to module using I2C address (32->37). */
   void addApv( const uint16_t& apv_address );
-  
-  /** Identifies APV pairs that are active, for a given pair number
-      (0->1 or 0->2, depending on number of APVs). Returns actual
-      address instead of boolean. */
-  pair<uint16_t,uint16_t> activeApvPair( const uint16_t& apv_pair ) const;
+
 
   // ----- Detector/module information -----
   
   /** Returns DCU id for this module. */
   inline const uint32_t& dcuId() const { return dcuId_; } 
-  /** Set DCU id for this module. */
-  inline void dcuId( const uint32_t& dcu_id ) { if ( dcu_id ) { dcuId_ = dcu_id; dcu0x00_ = true; } }
   /** Returns unique (geometry-based) identifier for this module. */
   inline const uint32_t& detId() const { return detId_; } 
-  /** Set DetId for this module. */
-  inline void detId( const uint32_t& det_id ) { if ( det_id ) { detId_ = det_id; } } 
   /** Returns number of detector strips for this module (and so allows
       to infer the number of APVs or APV pairs). */
   inline const uint16_t& nApvPairs() const { return nApvPairs_; }
+
+  /** Returns LLD channel (0->2) for a given APV pair number (0->1 or
+      0->2, depending on number of APV pairs). */
+  uint16_t lldChannel( const uint16_t& apv_pair_num ) const;
+  /** Returns APV pair number (0->1 or 0->2, depending on number of
+      APV pairs) for a given LLD channel (0->2). */
+  uint16_t apvPairNum( const uint16_t& lld_channel ) const;
+
+  /** Set DCU id for this module. */
+  inline void dcuId( const uint32_t& dcu_id ) { if ( dcu_id ) { dcuId_ = dcu_id; dcu0x00_ = true; } }
+  /** Set DetId for this module. */
+  inline void detId( const uint32_t& det_id ) { if ( det_id ) { detId_ = det_id; } } 
   /** Set number of detector strips for this module. */
   void nApvPairs( const uint16_t& npairs );
   
   // ----- FED information -----
 
-  /** Returns FED id/channel of a given APV pair (0->1 or 0->2). */
+  /** Returns map of APV pair (0->1 or 0->2) and FED id/channel. */
   inline const map< uint16_t, pair<uint16_t,uint16_t> >& fedChannels() const { return cabling_; } 
   /** Returns FED id/channel of a given APV pair (0->1 or 0->2). */
-  const pair<uint16_t,uint16_t>& fedCh( const uint16_t& apv_pair ) const;
-  /** Sets FED id/channel for given APV address (32->37). Returns true
-      if connection made, false otherwise. */
-  bool fedCh( const uint16_t& apv_address, const pair<uint16_t,uint16_t>& fed_ch );
+  const pair<uint16_t,uint16_t>& fedCh( const uint16_t& apv_pair_num ) const;
+
   /** Returns cable length. */
   inline const uint16_t& length() const { return length_; } 
   /** Sets cable length. */
   inline void length( const uint16_t& length ) { length_ = length; } 
   
+  /** Sets FED id/channel for given APV address (32->37). Returns true
+      if connection made, false otherwise. */
+  bool fedCh( const uint16_t& apv_address, const pair<uint16_t,uint16_t>& fed_ch );
+
   // ----- Other hybrid devices -----
   
   /** Identifies whether the DCU device is active ("found") or not. */
