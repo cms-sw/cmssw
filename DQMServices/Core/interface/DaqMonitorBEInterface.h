@@ -95,7 +95,7 @@ class DaqMonitorBEInterface: public StringUtil
   // (defined in Core/interface/QTestStatus.h);
   // if directory="", save full monitoring structure
   virtual void save(std::string filename, std::string directory="",
-		    int minimum_status=dqm::qstatus::STATUS_OK) const = 0;
+		    int minimum_status=dqm::qstatus::STATUS_OK) = 0;
   // cycle through all monitoring objects, draw one at time
   virtual void drawAll(void) = 0;
   // get list of subdirectories of current directory
