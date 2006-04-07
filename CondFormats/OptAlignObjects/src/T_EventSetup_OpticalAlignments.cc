@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:42:52 EDT 2005
-// $Id: T_EventSetup_OpticalAlignments.cc,v 1.1 2006/01/26 13:44:14 case Exp $
+// $Id: T_EventSetup_OpticalAlignments.cc,v 1.2 2006/03/08 17:14:51 case Exp $
 //
 
 // system include files
@@ -16,8 +16,12 @@
 // user include files
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignments.h"
 #include "CondFormats/OptAlignObjects/interface/CSCZSensors.h"
+#include "CondFormats/OptAlignObjects/interface/MBAChBenchCalPlate.h"
+#include "CondFormats/OptAlignObjects/interface/MBAChBenchSurveyPlate.h"
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
 //using Alignments;
 EVENTSETUP_DATA_REG(OpticalAlignments);
 EVENTSETUP_DATA_REG(CSCZSensors);
+EVENTSETUP_DATA_REG(MBAChBenchCalPlate);
+EVENTSETUP_DATA_REG(MBAChBenchSurveyPlate);
