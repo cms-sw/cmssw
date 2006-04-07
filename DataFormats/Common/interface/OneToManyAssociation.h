@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: OneToManyAssociation.h,v 1.4 2006/03/28 09:28:39 llista Exp $
+ * $Id: OneToManyAssociation.h,v 1.6 2006/03/29 12:50:47 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -51,6 +51,7 @@ namespace edm {
     }
 
     struct keyVal {
+      keyVal() { }
       keyVal( const KeyRef & k, const ValRefVec & v ) : key( k ), values( v ) { }
       KeyRef key;
       ValRefVec values;
