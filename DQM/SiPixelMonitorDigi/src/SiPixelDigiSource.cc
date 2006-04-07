@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.1 2006/02/15 09:40:47 chiochia Exp $
+// $Id: SiPixelDigiSource.cc,v 1.2 2006/03/21 15:34:39 chiochia Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -88,11 +88,11 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
     (*struct_iter).second->fill(digiCollection.product());
-    // slow down...
-
     
   }
-  
+  // slow down...
+  usleep(1000);
+ 
   
 }
 
