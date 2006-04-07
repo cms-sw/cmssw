@@ -1,22 +1,27 @@
 <lcgdict>
 
-  <class name="StripDigi"/>
-  <class name="std::vector<StripDigi>"/>
-  <class name="std::pair<unsigned int, unsigned int>"/>
-  <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
-  <class name="std::map<unsigned int, std::vector<StripDigi> >"/>
-  <class name="StripDigiCollection"/>
-  <class name="edm::Wrapper<StripDigiCollection>"/>
+ <class name="SiStripDigi"/>
+ <class name="edm::DetSet<SiStripDigi>"/>
+ <class name="std::vector<SiStripDigi>"/>
+ <class name="edm::DetSetVector<SiStripDigi>"/>
+ <class name="std::vector<edm::DetSet<SiStripDigi> >"/>
+ <class name="edm::Wrapper< edm::DetSet<SiStripDigi> >"/>
+ <class name="edm::Wrapper< std::vector<edm::DetSet<SiStripDigi> > >"/>
+ <class name="edm::Wrapper< edm::DetSetVector<SiStripDigi> >"/>
 
-  <class name="SiStripDigi"/>
-  <class name="edm::DetSetVector<SiStripDigi>"/>
-  <class name="edm::Wrapper< edm::DetSetVector<SiStripDigi> >"/>
-
-  <class name="SiStripRawDigi"/>
-  <class name="edm::DetSetVector<SiStripRawDigi>"/>
-  <class name="edm::Wrapper< edm::DetSetVector<SiStripRawDigi> >"/>
+ <class name="SiStripRawDigi"/>
+ <class name="std::vector<SiStripRawDigi>"/>
+ <class name="edm::DetSet<SiStripRawDigi>"/>
+ <class name="edm::DetSetVector<SiStripRawDigi>"/>
+ <class name="std::vector<edm::DetSet<SiStripRawDigi> >"/>
+ <class name="edm::Wrapper< edm::DetSet<SiStripRawDigi> >"/>
+ <class name="edm::Wrapper< std::vector<edm::DetSet<SiStripRawDigi> > >"/>
+ <class name="edm::Wrapper< edm::DetSetVector<SiStripRawDigi> >"/>
 
   <class name="SiStripEventSummary"/>
   <class name="edm::Wrapper< SiStripEventSummary >"/>
 
 </lcgdict>
+
+
+
