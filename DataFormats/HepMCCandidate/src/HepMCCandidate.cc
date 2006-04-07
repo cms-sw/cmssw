@@ -1,4 +1,4 @@
-// $Id: HepMCCandidate.cc,v 1.2 2006/03/08 09:24:20 llista Exp $
+// $Id: HepMCCandidate.cc,v 1.3 2006/03/08 10:50:31 llista Exp $
 #include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
 #include <CLHEP/HepMC/GenParticle.h>
 #include <CLHEP/HepMC/GenVertex.h>
@@ -30,4 +30,8 @@ bool HepMCCandidate::overlap( const Candidate & c ) const {
    * WARNING: should also check here the full decay chain 
    * for possible overlap of daughters
    */
+}
+
+HepMCCandidate * HepMCCandidate::clone() const {
+  return new HepMCCandidate( * this );
 }
