@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //SiStripPedestalsService
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
@@ -19,8 +20,8 @@ public:
   ~SiStripZeroSuppressor(){};
   
   void setSiStripPedestalsService( const SiStripPedestalsService& in ){ SiStripPedestalsService_=&in;}
-  void suppress(const edm::DetSet<SiStripRawDigi>&,edm::DetSet<SiStripDigi>&){};
-  void suppress(const std::vector<int16_t>&,edm::DetSet<SiStripDigi>&){};
+  void suppress(const edm::DetSet<SiStripRawDigi>&,edm::DetSet<SiStripDigi>&);
+  void suppress(const std::vector<int16_t>&,edm::DetSet<SiStripDigi>&);
 
 private:
 
