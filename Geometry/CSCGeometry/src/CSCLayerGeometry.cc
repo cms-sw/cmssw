@@ -20,7 +20,8 @@ CSCLayerGeometry::CSCLayerGeometry( int iChamberType,
          int nstrips, float stripOffset, float stripPhiPitch,
 	 const CSCWireGroupPackage& wg, float wireAngleInDegrees )
   :   TrapezoidalPlaneBounds( bounds ), theWireTopology( 0 ),
-      theStripTopology( 0 ), myName( "CSCLayerGeometry" ) {
+      theStripTopology( 0 ), myName( "CSCLayerGeometry" ), 
+      chamberType( iChamberType ) {
 
   LogDebug("CSC") << ": being constructed, this=" << this << "\n";
 
@@ -264,7 +265,7 @@ std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
   float cw = yOfWire( wire );
 
 
-  LogDebug("CSC") << ": wire=" << wire << 
+  LogDebug("CSC") << ": chamber type= " << chamberType << ", wire=" << wire << 
     ", wire angle = " << wangle << 
     ", intercept on y axis=" << cw << "\n";
 

@@ -278,6 +278,7 @@ private:
   float apothem;
 
   const std::string myName;
+  int chamberType;
 
 };
 #endif
