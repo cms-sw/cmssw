@@ -1,9 +1,11 @@
  <use name=DataFormats/TrackingRecHit>
  <use name=DataFormats/MuonDetId>
  <use name=DataFormats/Common>
+ <use name=FWCore/MessageLogger>
 <export>
  <lib name=DataFormatsCSCRecHit>
  <use name=DataFormats/TrackingRecHit>
  <use name=DataFormats/MuonDetId>
  <use name=DataFormats/Common>
+ <use name=FWCore/MessageLogger>
 </export>
