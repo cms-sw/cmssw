@@ -115,12 +115,14 @@ void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripC
 	    }
 	  collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise);
 	}
-	
-	SiStripClusterCollection::Range inputRange;
-	inputRange.first = collector.begin();
-	inputRange.second = collector.end();
-	output.put(inputRange,detID);
-	number_localstriprechits += collector.size();
+
+	if (collector.size()){
+	  SiStripClusterCollection::Range inputRange;
+	  inputRange.first = collector.begin();
+	  inputRange.second = collector.end();
+	  output.put(inputRange,detID);
+	  number_localstriprechits += collector.size();
+	}
       }
     }
     cout << "[SiStripClusterizerAlgorithm] execution in mode " << clusterMode_ << " generating " << number_localstriprechits << " SiStripClusters in " << number_detunits << " DetUnits." << endl; 
