@@ -5,6 +5,8 @@
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=RecoLocalCalo/EcalRecAlgos>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/MessageService>
 <use name=clhep>
 <flags SEAL_PLUGIN_NAME="RecoLocalCaloEcalRecProducers">
 <export>
@@ -16,5 +18,7 @@
   <use name=CondFormats/EcalObjects>
   <use name=CondFormats/DataRecord>
   <use name=RecoLocalCalo/EcalRecAlgos>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/MessageService>
   <use name=clhep>
 </export>

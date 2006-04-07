@@ -2,10 +2,14 @@
 <use name=DataFormats/EcalRecHit>
 <use name=root>
 <lib name=Minuit>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/MessageService>
 <export>
   <lib name=RecoLocalCaloEcalRecAlgos>
   <use name=clhep>
   <use name=DataFormats/EcalRecHit>
   <use name=root>
   <lib name=Minuit>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/MessageService>
 </export>
