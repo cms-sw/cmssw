@@ -8,6 +8,7 @@
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecAnalFitAlgo.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 
 // forward declaration
 class EcalAnalFitUncalibRecHitProducer : public edm::EDProducer {
@@ -20,14 +21,17 @@ class EcalAnalFitUncalibRecHitProducer : public edm::EDProducer {
 
   private:
     std::string digiProducer_; // name of module/plugin/producer making digis
-    std::string digiCollection_; // secondary name given to collection of digis
-    std::string hitCollection_; // secondary name to be given to collection of hits
+    std::string EBdigiCollection_; // secondary name given to collection of digis
+    std::string EEdigiCollection_; // secondary name given to collection of digis
+    std::string EBhitCollection_; // secondary name to be given to collection of hit
+    std::string EEhitCollection_; // secondary name to be given to collection of hits
 
-    EcalUncalibRecHitRecAnalFitAlgo<EBDataFrame> algo_;
+    EcalUncalibRecHitRecAnalFitAlgo<EBDataFrame> EBalgo_;
+    EcalUncalibRecHitRecAnalFitAlgo<EEDataFrame> EEalgo_;
 
-    int nMaxPrintout_; // max # of printouts
-    int nEvt_; // internal counter of events
+/*     int nMaxPrintout_; // max # of printouts */
+/*     int nEvt_; // internal counter of events */
 
-    bool counterExceeded() const { return ( (nEvt_>nMaxPrintout_) || (nMaxPrintout_<0) ) ; }
+/*     bool counterExceeded() const { return ( (nEvt_>nMaxPrintout_) || (nMaxPrintout_<0) ) ; } */
 };
 #endif

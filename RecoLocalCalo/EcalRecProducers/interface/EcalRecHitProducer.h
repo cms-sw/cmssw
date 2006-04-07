@@ -3,9 +3,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: $
- *  $Date: $
- *  $Revision: $
+ *  $Id: EcalRecHitProducer.h,v 1.1 2006/03/10 08:43:15 rahatlou Exp $
+ *  $Date: 2006/03/10 08:43:15 $
+ *  $Revision: 1.1 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -26,15 +26,19 @@ class EcalRecHitProducer : public edm::EDProducer {
     virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
   private:
+
     std::string uncalibRecHitProducer_; // name of module/plugin/producer making uncalib rechits
-    std::string uncalibRecHitCollection_; // secondary name given to collection of uncalib rechits
-    std::string rechitCollection_; // secondary name to be given to collection of hits
+    std::string EBuncalibRecHitCollection_; // secondary name given to collection of EB uncalib rechits
+    std::string EEuncalibRecHitCollection_; // secondary name given to collection of EE uncalib rechits
+    std::string EBrechitCollection_; // secondary name to be given to EB collection of hits
+    std::string EErechitCollection_; // secondary name to be given to EE collection of hits
 
-    EcalRecHitAbsAlgo* algo_;
+    EcalRecHitAbsAlgo* EBalgo_;
+    EcalRecHitAbsAlgo* EEalgo_;
 
-    int nMaxPrintout_; // max # of printouts
-    int nEvt_; // internal counter of events
+/*     int nMaxPrintout_; // max # of printouts */
+/*     int nEvt_; // internal counter of events */
 
-    bool counterExceeded() const { return ( (nEvt_>nMaxPrintout_) || (nMaxPrintout_<0) ) ; }
+/*     bool counterExceeded() const { return ( (nEvt_>nMaxPrintout_) || (nMaxPrintout_<0) ) ; } */
 };
 #endif

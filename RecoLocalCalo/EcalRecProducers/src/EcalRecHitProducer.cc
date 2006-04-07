@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.1 2006/03/10 08:43:16 rahatlou Exp $
- *  $Date: 2006/03/10 08:43:16 $
- *  $Revision: 1.1 $
+ *  $Id: EcalRecHitProducer.cc,v 1.2 2006/03/10 19:04:45 rahatlou Exp $
+ *  $Date: 2006/03/10 19:04:45 $
+ *  $Revision: 1.2 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -16,6 +16,8 @@
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <cmath>
@@ -30,20 +32,26 @@
 
 EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps) {
 
-   uncalibRecHitCollection_ = ps.getParameter<std::string>("uncalibRecHitCollection");
+   EBuncalibRecHitCollection_ = ps.getParameter<std::string>("EBuncalibRecHitCollection");
+   EEuncalibRecHitCollection_ = ps.getParameter<std::string>("EEuncalibRecHitCollection");
    uncalibRecHitProducer_   = ps.getParameter<std::string>("uncalibRecHitProducer");
-   rechitCollection_        = ps.getParameter<std::string>("rechitCollection");
-   nMaxPrintout_            = ps.getUntrackedParameter<int>("nMaxPrintout",10);
+   EBrechitCollection_        = ps.getParameter<std::string>("EBrechitCollection");
+   EErechitCollection_        = ps.getParameter<std::string>("EErechitCollection");
+   //   nMaxPrintout_            = ps.getUntrackedParameter<int>("nMaxPrintout",10);
 
-   algo_ = new EcalRecHitSimpleAlgo();
+   EBalgo_ = new EcalRecHitSimpleAlgo();
+   EEalgo_ = new EcalRecHitSimpleAlgo();
 
-   produces< EcalRecHitCollection >(rechitCollection_);
-   nEvt_ = 0; // reset local event counter
+   produces< EBRecHitCollection >(EBrechitCollection_);
+   produces< EERecHitCollection >(EErechitCollection_);
+
+   //   nEvt_ = 0; // reset local event counter
 }
 
 EcalRecHitProducer::~EcalRecHitProducer() {
 
-  delete algo_;
+  if (EBalgo_) delete EBalgo_;
+  if (EEalgo_) delete EEalgo_;
 
 }
 
@@ -52,29 +60,42 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
    using namespace edm;
 
-   nEvt_++;
+   //   nEvt_++;
 
-   Handle< EcalUncalibratedRecHitCollection > pUncalibRecHits;
+   Handle< EBUncalibratedRecHitCollection > pEBUncalibRecHits;
+   Handle< EEUncalibratedRecHitCollection > pEEUncalibRecHits;
+
    try {
-     evt.getByLabel( uncalibRecHitProducer_, uncalibRecHitCollection_, pUncalibRecHits);
+     evt.getByLabel( uncalibRecHitProducer_, EBuncalibRecHitCollection_, pEBUncalibRecHits);
    } catch ( std::exception& ex ) {
-     std::cerr << "Error! can't get the product " << uncalibRecHitCollection_.c_str() << std::endl;
-   }
-   const EcalUncalibratedRecHitCollection*  uncalibRecHits = pUncalibRecHits.product(); // get a ptr to the product
-   if(!counterExceeded()) {
-      std::cout << "EcalRecHitProducer: total # uncalibrated rechits: " << uncalibRecHits->size()
-                << std::endl;
+     edm::LogError("EcalRecHitError") << "Error! can't get the product " << EBuncalibRecHitCollection_.c_str() ;
    }
 
-   // now fetch all conditions we need to make rechits
+   try {
+     evt.getByLabel( uncalibRecHitProducer_, EEuncalibRecHitCollection_, pEEUncalibRecHits);
+   } catch ( std::exception& ex ) {
+     edm::LogError("EcalRecHitError") << "Error! can't get the product " << EEuncalibRecHitCollection_.c_str() ;
+   }
+
+   const EBUncalibratedRecHitCollection*  EBuncalibRecHits = pEBUncalibRecHits.product(); // get a ptr to the product
+   const EEUncalibratedRecHitCollection*  EEuncalibRecHits = pEEUncalibRecHits.product(); // get a ptr to the product
+
+   edm::LogInfo("EcalRecHitInfo") << "total # EB uncalibrated rechits: " << EBuncalibRecHits->size()
+     ;
+   edm::LogInfo("EcalRecHitInfo") << "total # EE uncalibrated rechits: " << EEuncalibRecHits->size()
+                ;
+
+   // now fetch all conditions we nEEd to make rechits
    // ADC -> GeV Scale
+   // TODO Make two ADCtoGeV scale for EB & EE 
+
    edm::ESHandle<EcalADCToGeVConstant> pAgc;
    es.get<EcalADCToGeVConstantRcd>().get(pAgc);
    const EcalADCToGeVConstant* agc = pAgc.product();
-   //std::cout << "Global ADC->GeV scale: " << agc->getValue() << " GeV/ADC count" << std::endl;
+   //edm::LogInfo("EcalRecHitInfo") << "Global ADC->GeV scale: " << agc->getValue() << " GeV/ADC count" ;
    //
    // use this value in the algorithm
-   algo_->setADCToGeVConstant(float(agc->getValue()));
+   EBalgo_->setADCToGeVConstant(float(agc->getValue()));
 
    // Intercalib constants
    edm::ESHandle<EcalIntercalibConstants> pIcal;
@@ -83,11 +104,12 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
 
    // collection of rechits to put in the event
-   std::auto_ptr< EcalRecHitCollection > rechits( new EcalRecHitCollection );
+   std::auto_ptr< EBRecHitCollection > EBrechits( new EBRecHitCollection );
+   std::auto_ptr< EERecHitCollection > EErechits( new EERecHitCollection );
 
    // loop over uncalibrated rechits to make calibrated ones
-   for(EcalUncalibratedRecHitCollection::const_iterator it  = uncalibRecHits->begin();
-                                                        it != uncalibRecHits->end(); ++it) {
+   for(EBUncalibratedRecHitCollection::const_iterator it  = EBuncalibRecHits->begin();
+                                                        it != EBuncalibRecHits->end(); ++it) {
 
      // find intercalib constant for this xtal
      EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(it->id().rawId());
@@ -95,33 +117,34 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
      if( icalit!=ical->getMap().end() ){
        icalconst = icalit->second;
      } else {
-      std::cout << "No intercalib const found for this xtal! something wrong with EcalIntercalibConstants in your DB? "
-                << std::endl;
+      edm::LogError("EcalRecHitError") << "No intercalib const found for this xtal! something wrong with EcalIntercalibConstants in your DB? "
+                ;
      }
 
      // make the rechit and put in the output collection
      // must implement op= for EcalRecHit
-     EcalRecHit aHit( algo_->makeRecHit(*it, icalconst ) );
-     rechits->push_back( aHit );
+     EcalRecHit aHit( EBalgo_->makeRecHit(*it, icalconst ) );
+     EBrechits->push_back( aHit );
 
-  /**
-     if(it->amplitude()>0. && !counterExceeded() ) {
-        std::cout << "EcalRecHitProducer: processed UncalibRecHit with rawId: "
-                  << it->id().rawId() << "\n"
-                  << "uncalib rechit amplitude: " << it->amplitude()
-                  << " calib rechit energy: " << aHit.energy()
-                  << std::endl;
-     }
-  **/
+
+     if(it->amplitude()>0.) 
+       {
+	 LogDebug("EcalRecHitDebug") << "processed UncalibRecHit with rawId: "
+				     << it->id().rawId() << "\n"
+				     << "uncalib rechit amplitude: " << it->amplitude()
+				     << " calib rechit energy: " << aHit.energy()
+	   ;
+       }
    }
 
    // put the collection of recunstructed hits in the event
 
-   if(!counterExceeded()) {
-      std::cout << "EcalRecHitProducer: total # calibrated rechits: " << rechits->size()
-                << std::endl;
-   }
+   edm::LogInfo("EcalRecHitInfo") << "total # EB calibrated rechits: " << EBrechits->size()
+     ;
+   edm::LogInfo("EcalRecHitInfo") << "total # EE calibrated rechits: " << EErechits->size()
+     ;
 
-   evt.put( rechits, rechitCollection_ );
+   evt.put( EBrechits, EBrechitCollection_ );
+   evt.put( EErechits, EErechitCollection_ );
 } //produce()
 

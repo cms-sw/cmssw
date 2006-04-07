@@ -8,6 +8,7 @@
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecWeightsAlgo.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "CondFormats/EcalObjects/interface/EcalWeight.h"
 
 // forward declaration
@@ -21,15 +22,19 @@ class EcalWeightUncalibRecHitProducer : public edm::EDProducer {
 
   private:
     std::string digiProducer_; // name of module/plugin/producer making digis
-    std::string digiCollection_; // secondary name given to collection of digis
-    std::string hitCollection_; // secondary name to be given to collection of hits
+    std::string EBdigiCollection_; // secondary name given to collection of digis
+    std::string EEdigiCollection_; // secondary name given to collection of digis
+    std::string EBhitCollection_; // secondary name to be given to collection of hit
+    std::string EEhitCollection_; // secondary name to be given to collection of hits
 
-    EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> algo_;
+    EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> EBalgo_;
+    EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> EEalgo_;
+
     HepMatrix makeMatrixFromVectors(const std::vector< std::vector<EcalWeight> >& vecvec);
 
-    int nMaxPrintout_; // max # of printouts
-    int counter_; // internal verbosity counter
+/*     int nMaxPrintout_; // max # of printouts */
+/*     int counter_; // internal verbosity counter */
 
-    bool counterExceeded() const { return ( (counter_>nMaxPrintout_) || (counter_<0) ) ; }
+    //    bool counterExceeded() const { return ( (counter_>nMaxPrintout_) || (counter_<0) ) ; }
 };
 #endif
