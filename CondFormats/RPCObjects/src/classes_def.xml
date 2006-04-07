@@ -1,7 +1,11 @@
 <lcgdict>
   <class name="RPCReadOutMapping"/>
   <class name="RPCReadOutLink"/>
+  <class name="RPCdeteIndex"/>
+  <class name="RPCelecIndex"/>
   <class name="std::vector<RPCReadOutLink>"/>
+  <class name="std::map<RPCdeteIndex,RPCelecIndex>"/>
+  <class name="std::map<RPCelecIndex,RPCdeteIndex>"/>
   <class pattern="*iterator*"/>
 </lcgdict>
 
