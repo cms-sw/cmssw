@@ -3,12 +3,12 @@
 
 #include<cmath>
 #include <CLHEP/Vector/LorentzVector.h>
-#include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"
 
 #include <map>
 
 class FSimVertex;
+class FBaseSimEvent;
 class HepParticleData;
 
 /** A class that mimics SimTrack, with enhanced features.
@@ -77,7 +77,7 @@ class FSimTrack {
   bool  noDaughter() const { return !me() || !me()->listChildren().size(); }
 
   /// The original GenParticle
-  const HepMC::GenParticle* me() const { return me_; }
+  HepMC::GenParticle* me() const { return me_; }
 
   /// The original GenParticle in the original event
   int genpartIndex() const { return gen_; }
@@ -184,7 +184,7 @@ class FSimTrack {
 
  private:
 
-  const HepMC::GenParticle* me_;
+  HepMC::GenParticle* me_;
   const FBaseSimEvent* mom_;
   int gen_;
 

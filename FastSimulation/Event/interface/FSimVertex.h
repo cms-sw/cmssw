@@ -3,10 +3,10 @@
 
 #include<cmath>
 #include <CLHEP/Vector/LorentzVector.h>
-#include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "CLHEP/HepMC/GenVertex.h"
 
 
+class FBaseSimEvent;
 class FSimTrack;
 
 /** A class that mimics SimVertex, with enhanced features.
@@ -45,14 +45,14 @@ public:
   bool  noDaughter() const { return !me() || me()->listChildren().size(); }
 
   /// the original GenVertex 
-  const HepMC::GenVertex* me() const { return me_; }
+  HepMC::GenVertex* me() const { return me_; }
 
   /// the index in FBaseSimEvent
   int id() const { return me() ? -me()->barcode()+1 : -1; }
 
  private:
 
-  const HepMC::GenVertex* me_;
+  HepMC::GenVertex* me_;
   const FBaseSimEvent* mom_;
 
   

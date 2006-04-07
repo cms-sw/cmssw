@@ -1,3 +1,4 @@
+#include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 
