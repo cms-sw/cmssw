@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/03/01 10:31:30 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/03/20 22:28:31 $
+ *  $Revision: 1.22 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -262,12 +262,13 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     
 	    // comparison: expectation VS crystal in data
 	    if(!	   (strip == expStripInTower &&
-			    ch     == expCryInStrip )	     
+			    ch    == expCryInStrip )	     
 	       )
 	      {
 		
-		pair<int,int> cellIndExp=cellIndex(tower, expStripInTower, expCryInStrip); 
-		EBDetId  idExp(cellIndExp.first, cellIndExp.second );           
+		int ic        = cryIc(tower, expStripInTower,  expCryInStrip) ;
+		int  sm = 1;
+		EBDetId  idExp(sm, ic,1);
 		
 		LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
 					      << " wrong channel id for strip: "  << expStripInTower
@@ -285,9 +286,10 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
       
       
 	    // data  to be stored in EBDataFrame, identified by EBDetId
-	    pair<int,int> cellInd=cellIndex(tower, strip, ch); 
-	    EBDetId  id(cellInd.first, cellInd.second );           
-      
+	    int  ic        = cryIc(tower, expStripInTower,  expCryInStrip) ;
+	    int  sm = 1;
+	    EBDetId  id(sm, ic,1);                 
+	    
 	    EBDataFrame theFrame ( id );
 	    vector<int> xtalDataSamples = (*itXtalBlock)->xtalDataSamples();   
 	    theFrame.setSize(xtalDataSamples.size());
@@ -670,6 +672,11 @@ pair<int,int>  EcalTBDaqFormatter::cellIndex(int tower_id, int strip, int ch) {
 
 }
 
+
+int  EcalTBDaqFormatter::cryIc(int tower, int strip, int ch) {
+  pair<int,int> cellInd= EcalTBDaqFormatter::cellIndex(tower, strip, ch); 
+  return cellInd.second + (cellInd.first-1)*kCrystalsInPhi;
+}
 
 bool EcalTBDaqFormatter::rightTower(int tower) const {
   

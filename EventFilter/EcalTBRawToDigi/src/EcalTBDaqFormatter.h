@@ -2,8 +2,8 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2006/02/17 15:44:11 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/03/20 22:28:31 $
+ *  $Revision: 1.10 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -52,6 +52,7 @@ class EcalTBDaqFormatter   {
 		   EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection);
   
   pair<int,int>  cellIndex(int tower_id, int strip, int xtal); 
+  int            cryIc(int tower_id, int strip, int xtal); 
   bool leftTower(int tower) const ;
   bool rightTower(int tower) const ;
 
