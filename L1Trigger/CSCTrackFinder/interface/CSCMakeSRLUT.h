@@ -32,6 +32,7 @@ class CSCMakeSRLUT : public edm::EDAnalyzer {
   std::string fileSuffix() const;   
   CSCSectorReceiverLUT* mySR[2][6][2][4]; // [Endcap][Sector][Subsector][Station]
   bool writeLocalPhi, writeGlobalPhi, writeGlobalEta, binary;
+  int endcap, sector, station;
   edm::ParameterSet LUTparam;
 };
 

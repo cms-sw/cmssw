@@ -121,6 +121,7 @@ double CSCSectorReceiverLUT::getEtaValue(const unsigned& thecscid, const unsigne
 						   << " is out of bounds (1-" << CSCTriggerNumbering::maxTriggerCscId();
       cscid = CSCTriggerNumbering::maxTriggerCscId();
     }
+
   CSCTriggerGeomManager* thegeom = CSCTriggerGeometry::get();
   CSCLayerGeometry* layerGeom = NULL;
   const unsigned numBins = 1 << 2; // 4 local phi bins
@@ -136,61 +137,78 @@ double CSCSectorReceiverLUT::getEtaValue(const unsigned& thecscid, const unsigne
       const CSCChamber* thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);     
       if(thechamber) 
 	{
+	  if(_station != 1)
+	    {
+	      layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(3)->geometry());
+	      const unsigned nWireGroups = layerGeom->numberOfStrips();
 
-	  layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(3)->geometry());
-          
-	  const unsigned nStrips = layerGeom->numberOfStrips();
-	  const unsigned nWireGroups = layerGeom->numberOfWireGroups();
-	  const unsigned nStripsPerBin = CSCConstants::MAX_NUM_STRIPS/numBins;
-	  
+	      if(wire_group > nWireGroups)
+		{
+		  LogDebug("CSCSectorReceiverLUT|getEtaValue") << "warning: wireGroup "
+                                                               << wire_group << " is out of bounds (0-"
+                                                               << nWireGroups;
+                  wire_group = nWireGroups - 1;
+		}
 
-	  if(wire_group > nWireGroups) // apply maximum limit
-	    {
-	      LogDebug("CSCSectorReceiverLUT|getEtaValue") << "warning: wireGroup "
-							   << wire_group << " is out of bounds (0-"
-							   << nWireGroups;
-	      wire_group = nWireGroups;
+	      result = thechamber->layer(3)->centerOfWireGroup(wire_group+1).eta();
 	    }
-	    	    
-	  /**
-	   * Calculate Eta correction
-	   */
-	  
-	  // Check that no strips will be left out.
-	  
-	  if (nStrips%numBins != 0 || CSCConstants::MAX_NUM_STRIPS%numBins != 0)
-	    LogDebug("CSCSectorReceiverLUT|EtaCorrectionWarning") << "calcEtaCorrection warning: number of strips "
-								  << nStrips << " (" << CSCConstants::MAX_NUM_STRIPS
-								  << ") is not divisible by numBins " << numBins
-								  << " Station " << _station << " sector " << _sector
-								  << " subsector " << _subsector << " cscid " << cscid;
-	  
-	  unsigned    maxStripPrevBin = 0, maxStripThisBin = 0;
-	  unsigned    correctionStrip;
-	  LocalPoint  lPoint;
-	  GlobalPoint gPoint;
-	  // Bins phi_local and find the the middle strip for each bin.
-	  maxStripThisBin = nStripsPerBin * (phi_local+1);
-	  if (maxStripThisBin <= nStrips) 
+	  else
 	    {
-	      correctionStrip = nStripsPerBin/2 * (2*phi_local+1);
-	      maxStripPrevBin = maxStripThisBin;
+	      layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(3)->geometry());
+	      
+	      const unsigned nStrips = layerGeom->numberOfStrips();
+	      const unsigned nWireGroups = layerGeom->numberOfWireGroups();
+	      const unsigned nStripsPerBin = CSCConstants::MAX_NUM_STRIPS/numBins;
+	      
+	      
+	      if(wire_group > nWireGroups) // apply maximum limit
+		{
+		  LogDebug("CSCSectorReceiverLUT|getEtaValue") << "warning: wireGroup "
+							       << wire_group << " is out of bounds (0-"
+							       << nWireGroups;
+		  wire_group = nWireGroups - 1;
+		}
+	      
+	      /**
+	       * Calculate Eta correction
+	       */
+	      
+	      // Check that no strips will be left out.
+	      
+	      if (nStrips%numBins != 0 || CSCConstants::MAX_NUM_STRIPS%numBins != 0)
+		LogDebug("CSCSectorReceiverLUT|EtaCorrectionWarning") << "calcEtaCorrection warning: number of strips "
+								      << nStrips << " (" << CSCConstants::MAX_NUM_STRIPS
+								      << ") is not divisible by numBins " << numBins
+								      << " Station " << _station << " sector " << _sector
+								      << " subsector " << _subsector << " cscid " << cscid;
+	      
+	      unsigned    maxStripPrevBin = 0, maxStripThisBin = 0;
+	      unsigned    correctionStrip;
+	      LocalPoint  lPoint;
+	      GlobalPoint gPoint;
+	      // Bins phi_local and find the the middle strip for each bin.
+	      maxStripThisBin = nStripsPerBin * (phi_local+1);
+	      if (maxStripThisBin <= nStrips) 
+		{
+		  correctionStrip = nStripsPerBin/2 * (phi_local+1);
+		  maxStripPrevBin = maxStripThisBin;
+		}
+	      else 
+		{
+		  // If the actual number of strips in the chamber is smaller than
+		  // the number of strips corresponding to the right edge of this phi
+		  // local bin, we take the middle strip between number of strips
+		  // at the left edge of the bin and the actual number of strips.
+		  correctionStrip = (nStrips+maxStripPrevBin)/2;
+		}
+	      
+	      lPoint = layerGeom->stripWireGroupIntersection(correctionStrip, wire_group+1);
+	      if(thechamber) gPoint = thechamber->layer(3)->surface().toGlobal(lPoint);
+	      
+	      // end calc of eta correction.
+	      
+	      result = gPoint.eta();
 	    }
-	  else 
-	    {
-	      // If the actual number of strips in the chamber is smaller than
-	      // the number of strips corresponding to the right edge of this phi
-	      // local bin, we take the middle strip between number of strips
-	      // at the left edge of the bin and the actual number of strips.
-	      correctionStrip = (nStrips+maxStripPrevBin)/2;
-	    }
-	  
-	  lPoint = layerGeom->stripWireGroupIntersection(correctionStrip, wire_group+1);
-	  if(thechamber) gPoint = thechamber->layer(3)->surface().toGlobal(lPoint);
-	  
-	  // end calc of eta correction.
-	  
-	  result = gPoint.eta();
 	}
     }
   catch (cms::Exception &e)
