@@ -12,7 +12,7 @@
  *
  * \version   1st Version Apr. 22, 2005  
  * \version   F.Ratnikov, Mar. 8, 2006. work from Candidate
- * $Id: KtJetProducer.h,v 1.5 2006/03/08 20:34:19 fedor Exp $
+ * $Id: KtJetProducer.h,v 1.6 2006/03/15 23:40:22 wmtan Exp $
  *
  ************************************************************/
 
@@ -46,6 +46,7 @@ namespace cms
     /** Reconstruction algorithm*/
     CMSKtJetAlgorithm alg_;
     std::string src_;
+    std::string jetType_;
   };
 }
 

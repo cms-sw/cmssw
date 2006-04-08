@@ -4,7 +4,7 @@
 // Creation Date:  MFP Apr. 6 2005 Initial version.
 // Revision:  R. Harris,  Oct. 19, 2005 Modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id: MidpointJetProducer.cc,v 1.10 2006/03/31 20:57:52 fedor Exp $
+// $Id: MidpointJetProducer.cc,v 1.11 2006/04/05 00:26:57 fedor Exp $
 //
 //--------------------------------------------
 #include <memory>
@@ -21,6 +21,13 @@ using namespace reco;
 
 namespace {
   const bool debug = false;
+
+  bool makeCaloJet (const string& fTag) {
+    return fTag == "CaloJet";
+  }
+  bool makeGenJet (const string& fTag) {
+    return fTag == "GenJet";
+  }
 }
 
 namespace cms
@@ -37,10 +44,11 @@ namespace cms
 	 conf.getParameter<int>("maxIterations"),
 	 conf.getParameter<double>("overlapThreshold"),
 	 conf.getUntrackedParameter<int>("debugLevel",0)),
-    src_(conf.getParameter<string>( "src" ))
+    src_(conf.getParameter<string>( "src" )),
+    jetType_ (conf.getUntrackedParameter<string>( "jetType", "CaloJet"))
   {
-    produces<CaloJetCollection>();
-    produces<GenJetCollection>();
+    if (makeCaloJet (jetType_)) produces<CaloJetCollection>();
+    if (makeGenJet (jetType_)) produces<GenJetCollection>();
   }
 
   // Virtual destructor needed.
@@ -49,6 +57,15 @@ namespace cms
   // Functions that gets called by framework every event
   void MidpointJetProducer::produce(edm::Event& e, const edm::EventSetup&)
   {
+    if (debug) {
+      std::cout << "MidpointJetProducer::produce->" 
+	//	      << " run:" <<  e.getRun()
+		<< " event:" << e.id ()
+		<< " timestamp:" << e.time ().value ()
+	//	      << " section:" << e.getLuminositySection()
+		<< "\n ====================================================="
+		<< std::endl;
+    } 
     // get input
     edm::Handle<CandidateCollection> inputs;
     e.getByLabel( src_, inputs );                    
@@ -69,22 +86,26 @@ namespace cms
     // run algorithm
     alg_.run (input, &output);
     // produce output collection
-    auto_ptr<CaloJetCollection> caloJets(new CaloJetCollection);  //Empty Jet Coll
-    auto_ptr<GenJetCollection> genJets(new GenJetCollection);  //Empty Jet Coll
+    auto_ptr<CaloJetCollection> caloJets;
+    if (makeCaloJet (jetType_)) caloJets.reset (new CaloJetCollection);
+    auto_ptr<GenJetCollection> genJets;
+    if (makeGenJet (jetType_)) genJets.reset (new GenJetCollection);
+
     vector <ProtoJet>::const_iterator protojet = output.begin ();
     JetMaker jetMaker;
     for (; protojet != output.end (); protojet++) {
-      if (jetMaker.convertableToCaloJet (*protojet)) {
+      if (caloJets.get ()) {
 	caloJets->push_back (jetMaker.makeCaloJet (*protojet));
+	if (debug) std::cout << "MidpointJetProducer::produce-> add protojet to CaloJets." << std::endl;
       }
-      if (jetMaker.convertableToGenJet (*protojet)) { 
+      if (genJets.get ()) { 
 	genJets->push_back (jetMaker.makeGenJet (*protojet));
 	if (debug) std::cout << "MidpointJetProducer::produce-> add protojet to GenJets." << std::endl;
       }
     }
     // store output
-    if (!caloJets->empty ()) e.put(caloJets);  //Puts Jet Collection into event
-    if (!genJets->empty ()) e.put(genJets);  //Puts Jet Collection into event
+    if (caloJets.get ()) e.put(caloJets);  //Puts Jet Collection into event
+    if (genJets.get ()) e.put(genJets);  //Puts Jet Collection into event
   }
 
 }
