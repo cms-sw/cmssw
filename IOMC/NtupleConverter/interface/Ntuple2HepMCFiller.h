@@ -35,7 +35,7 @@ class Ntuple2HepMCFiller {
 	virtual bool readCurrentEvent();
 	virtual bool printHepMcEvent() const;	
 	HepMC::GenEvent* fillCurrentEventData();
-	virtual bool toGenEvent( HepMC::GenEvent* evt );
+	virtual bool toGenEvent( int evtnum, HepMC::GenEvent* evt );
 	HepMC::GenParticle* createParticle( int index );
 	
 	

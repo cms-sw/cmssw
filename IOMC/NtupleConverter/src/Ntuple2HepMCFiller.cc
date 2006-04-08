@@ -21,7 +21,9 @@ Ntuple2HepMCFiller * Ntuple2HepMCFiller::instance(){
 }
 
 
-Ntuple2HepMCFiller::Ntuple2HepMCFiller(): initialized_(false), input_(0), index_to_particle(3996),evtid(0),ntpl_id(1) { 
+Ntuple2HepMCFiller::Ntuple2HepMCFiller(): 
+   initialized_(false), input_(0),
+   index_to_particle(3996),evtid(1),ntpl_id(1) { 
 	cout << "Constructing a new Ntuple2HepMCFiller" << endl;
 	if(instance_ == 0) instance_ = this;  	
 } 
@@ -69,7 +71,7 @@ bool  Ntuple2HepMCFiller::readCurrentEvent() {
 	input_ ->setEvent(evtid);
 	cout <<"| --<<  "<<evtid<< endl;
 	// 2. fill the evt container - if the read is successful, set the pointer
-	if ( this->toGenEvent( event ) ) evt=event;
+	if ( this->toGenEvent( evtid, event ) ) evt=event;
 	evtid++;
 	//	if (evtid> evt->event_number())	filter=false;
 	if (evt){ 
@@ -82,7 +84,7 @@ bool  Ntuple2HepMCFiller::readCurrentEvent() {
 		filter=false;
 		delete  evt;  // @@@
 	}	
-	if (evtid> input_->getNevhep()) filter = false; 	  	  
+	if (evtid > input_->getNevhep()) filter = false; 	  	  
 	return filter;
 }
 
@@ -106,10 +108,11 @@ HepMC::GenEvent * Ntuple2HepMCFiller::fillCurrentEventData(){
 
 
 //-------------------------------------------------------------------
-bool Ntuple2HepMCFiller::toGenEvent(HepMC::GenEvent* evt ){
+bool Ntuple2HepMCFiller::toGenEvent( int evtnum, HepMC::GenEvent* evt ){
         // Written according to HepMC /fio/ IO_HEPEVT.cc( hepmc-01-26 tag at Savannah)
 	// 1. set event number
-	evt->set_event_number( input_->getNevhep()); 
+	// evt->set_event_number( input_->getNevhep());
+	evt->set_event_number( evtnum ) ; 
 	// these do not have the correct defaults if hepev4 is not filled
 	//evt->set_event_scale( hepev4()->scalelh[1] );
 	//evt->set_alphaQCD( hepev4()->alphaqcdlh );

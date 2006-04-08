@@ -38,8 +38,8 @@ void H2RootNtplSource::clear() {
 bool H2RootNtplSource::produce(Event & e) {
 	
 
-	// clean up GenEvent memory : also deletes all vtx/part in it
-	if ( evt != NULL ) delete evt ;
+	// no need to clean up GenEvent memory - now done in HepMCProduct
+	//if ( evt != NULL ) delete evt ;
    
 		
 		auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
