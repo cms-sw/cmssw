@@ -114,7 +114,7 @@ void TBRUInputSource::openFile(const std::string& filename) {
   }
   m_i=0;
   LogDebug("TBRU") << "File " << filename << " is opened";
-  n_fed9ubufs = m_branches/2;
+  //n_fed9ubufs = m_branches/2;
 }
 
 void TBRUInputSource::setRunAndEventInfo() {
