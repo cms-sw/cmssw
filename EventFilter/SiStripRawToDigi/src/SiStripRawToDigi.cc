@@ -191,11 +191,12 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
       
       if ( ev_type == 1 ) { // SCOPE MODE
 	edm::DetSet<SiStripRawDigi>& sm = scope_mode->find_or_insert( key );
-	vector<uint16_t> samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
+	vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum
+	samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
 	if ( samples.empty() ) { 
 	  edm::LogWarning("Commissioning") << "[SiStripRawToDigi::createDigis] No SM digis found!"; 
 	} else {
-	  sm.data.clear(); sm.data.resize( samples.size() ); 
+	  sm.data.clear(); sm.data.reserve( samples.size() ); 
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
 	    sm.data[i] = SiStripRawDigi( i, samples[i] ); 
 	    anal_.smDigi( i, sm.data[i].adc() );
@@ -207,11 +208,14 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	}
       } else if ( ev_type == 2 ) { // VIRGIN RAW
 	edm::DetSet<SiStripRawDigi>& vr = virgin_raw->find_or_insert( key );
-	vector<uint16_t> samples = fedEvent_->channel( iunit, ichan ).getSamples();
+	vector<uint16_t> samples; samples.reserve(256);
+	samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	if ( samples.empty() ) { 
 	  edm::LogWarning("Commissioning") << "[SiStripRawToDigi::createDigis] No VR digis found!"; 
 	} else {
-	  if ( vr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { vr.data.resize( 256*(ipair+1) ); }
+	  if ( vr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { 
+	    vr.data.reserve( 256*(ipair+1) ); vr.data.resize( 256*(ipair+1) ); 
+	  }
 	  uint16_t physical;
 	  uint16_t readout; 
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
@@ -228,11 +232,14 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	}
       } else if ( ev_type == 6 ) { // PROCESSED RAW
 	edm::DetSet<SiStripRawDigi>& pr = proc_raw->find_or_insert( key ) ;
-	vector<uint16_t> samples = fedEvent_->channel( iunit, ichan ).getSamples();
+	vector<uint16_t> samples; samples.reserve(256);
+	samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	if ( samples.empty() ) { 
 	  edm::LogWarning("Commissioning") << "[SiStripRawToDigi::createDigis] No PR digis found!"; 
 	} else {
-	  if ( pr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { pr.data.resize( 256*(ipair+1) ); }
+	  if ( pr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { 
+	    pr.data.reserve( 256*(ipair+1) ); pr.data.resize( 256*(ipair+1) ); 
+	  }
 	  int physical;
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
 	    physical = i%128; 
@@ -247,11 +254,12 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	}
       } else if ( ev_type == 10 ) { // ZERO SUPPRESSED
 	edm::DetSet<SiStripDigi>& zs = zero_suppr->find_or_insert( key );
+	zs.data.reserve(256); // theoretical maximum (768/3, ie, clusters separated by at least 2 strips)
 	Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
 	for (Fed9U::Fed9UEventIterator i = fed_iter+7; i.size() > 0; /**/) {
 	  unsigned char first_strip = *i++; // first strip of cluster
 	  unsigned char width = *i++;       // cluster width in strips 
-	  for (uint16_t istr = 0; istr < width; istr++) {
+	  for ( uint16_t istr = 0; istr < width; istr++) {
 	    uint16_t strip = ipair*256 + first_strip + istr;
 	    zs.data.push_back( SiStripDigi( strip, static_cast<uint16_t>(*i) ) );
 	    anal_.zsDigi( zs.data.back().strip(), zs.data.back().strip() );
@@ -270,12 +278,12 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	   << " Assuming SCOPE MODE..."; 
 	edm::LogError("RawToDigi") << ss.str();
 	edm::DetSet<SiStripRawDigi>& sm = scope_mode->find_or_insert( key );
-	vector<uint16_t> samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
-
+	vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum
+	samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
 	if ( samples.empty() ) { 
 	  edm::LogWarning("Commissioning") << "[SiStripRawToDigi::createDigis] No SM digis found!"; 
 	} else {
-	  sm.data.clear(); sm.data.resize( samples.size() ); 
+	  sm.data.clear(); sm.data.reserve( samples.size() ); sm.data.resize( samples.size() ); 
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
 	    sm.data[i] = SiStripRawDigi( i, samples[i] ); 
 	    anal_.smDigi( i, sm.data[i].adc() );
