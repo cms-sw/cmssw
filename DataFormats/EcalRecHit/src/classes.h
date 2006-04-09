@@ -10,7 +10,12 @@ namespace {
     std::vector<EcalUncalibratedRecHit> _hitVect;
     edm::SortedCollection<EcalUncalibratedRecHit> _theEURsc;
     EcalUncalibratedRecHitCollection _theEURHitCollection;
+    EBUncalibratedRecHitCollection _theEBURHitCollection;
+    EEUncalibratedRecHitCollection _theEEURHitCollection;
     edm::Wrapper< EcalUncalibratedRecHitCollection > _EURHitProd;
+    edm::Wrapper< EBUncalibratedRecHitCollection > _EBURHitProd;
+    edm::Wrapper< EEUncalibratedRecHitCollection > _EEURHitProd;
+
     EcalUncalibratedRecHitRef _EURHitRef;
     EcalUncalibratedRecHitRefs _EURHitRefs;
     EcalUncalibratedRecHitsRef _EURHitsRef;
@@ -19,7 +24,11 @@ namespace {
     std::vector<EcalRecHit> _ERHitVect;
     edm::SortedCollection<EcalRecHit> _theERsc;
     EcalRecHitCollection _theERHitCollection;
+    EBRecHitCollection _theEBRHitCollection;
+    EERecHitCollection _theEERHitCollection;
     edm::Wrapper< EcalRecHitCollection > _ERHitProd;
+    edm::Wrapper< EBRecHitCollection > _EBRHitProd;
+    edm::Wrapper< EERecHitCollection > _EERHitProd;
     EcalRecHitRef _ERHitRef;
     EcalRecHitRefs _ERHitRefs;
     EcalRecHitsRef _ERHitsRef;
