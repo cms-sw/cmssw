@@ -110,8 +110,8 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    /* ZMinus Side 1st Disk */
    meAdcZmDisk1Panel1Plaq1_ = dbe_->book1D("adc_zm_disk1_panel1_plaq1","Digi charge",300,0.,300.);
    meAdcZmDisk1Panel1Plaq2_ = dbe_->book1D("adc_zm_disk1_panel1_plaq2","Digi charge",300,0.,300.);
-   meAdcZmDisk1Panel1Plaq2_ = dbe_->book1D("adc_zm_disk1_panel1_plaq3","Digi charge",300,0.,300.);
-   meAdcZmDisk1Panel1Plaq3_ = dbe_->book1D("adc_zm_disk1_panel1_plaq4","Digi charge",300,0.,300.);
+   meAdcZmDisk1Panel1Plaq3_ = dbe_->book1D("adc_zm_disk1_panel1_plaq3","Digi charge",300,0.,300.);
+   meAdcZmDisk1Panel1Plaq4_ = dbe_->book1D("adc_zm_disk1_panel1_plaq4","Digi charge",300,0.,300.);
    meAdcZmDisk1Panel2Plaq1_ = dbe_->book1D("adc_zm_disk1_panel2_plaq1","Digi charge",300,0.,300.);
    meAdcZmDisk1Panel2Plaq2_ = dbe_->book1D("adc_zm_disk1_panel2_plaq2","Digi charge",300,0.,300.);
    meAdcZmDisk1Panel2Plaq3_ = dbe_->book1D("adc_zm_disk1_panel2_plaq3","Digi charge",300,0.,300.);
@@ -124,13 +124,13 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    meRowZmDisk1Panel2Plaq2_ = dbe_->book1D("row_zm_disk1_panel2_plaq2","Digi row",200,0.,200.);
    meRowZmDisk1Panel2Plaq3_ = dbe_->book1D("row_zm_disk1_panel2_plaq3","Digi row",200,0.,200.);
 
-   meColZmDisk1Panel1Plaq1_ = dbe_->book1D("col_zm_disk1_panel1_plaq1","Digi row",500,0.,500.);
-   meColZmDisk1Panel1Plaq2_ = dbe_->book1D("col_zm_disk1_panel1_plaq2","Digi row",500,0.,500.);
-   meColZmDisk1Panel1Plaq3_ = dbe_->book1D("col_zm_disk1_panel1_plaq3","Digi row",500,0.,500.);
-   meColZmDisk1Panel1Plaq4_ = dbe_->book1D("col_zm_disk1_panel1_plaq4","Digi row",500,0.,500.);
-   meColZmDisk1Panel2Plaq1_ = dbe_->book1D("col_zm_disk1_panel2_plaq1","Digi row",500,0.,500.);
-   meColZmDisk1Panel2Plaq2_ = dbe_->book1D("col_zm_disk1_panel2_plaq2","Digi row",500,0.,500.);
-   meColZmDisk1Panel2Plaq3_ = dbe_->book1D("col_zm_disk1_panel2_plaq3","Digi row",500,0.,500.);
+   meColZmDisk1Panel1Plaq1_ = dbe_->book1D("col_zm_disk1_panel1_plaq1","Digi column",500,0.,500.);
+   meColZmDisk1Panel1Plaq2_ = dbe_->book1D("col_zm_disk1_panel1_plaq2","Digi column",500,0.,500.);
+   meColZmDisk1Panel1Plaq3_ = dbe_->book1D("col_zm_disk1_panel1_plaq3","Digi column",500,0.,500.);
+   meColZmDisk1Panel1Plaq4_ = dbe_->book1D("col_zm_disk1_panel1_plaq4","Digi column",500,0.,500.);
+   meColZmDisk1Panel2Plaq1_ = dbe_->book1D("col_zm_disk1_panel2_plaq1","Digi column",500,0.,500.);
+   meColZmDisk1Panel2Plaq2_ = dbe_->book1D("col_zm_disk1_panel2_plaq2","Digi column",500,0.,500.);
+   meColZmDisk1Panel2Plaq3_ = dbe_->book1D("col_zm_disk1_panel2_plaq3","Digi column",500,0.,500.);
    meNdigiZmDisk1PerPanel1_ = dbe_->book2D("digi_zm_disk1_panel1","Digi Num. Panel1 Of 1st Disk In ZMinus Side ",25,0.,25, 100,0., 10.);
    meNdigiZmDisk1PerPanel2_ = dbe_->book2D("digi_zm_disk1_panel2","Digi Num. Panel2 Of 1st Disk In ZMinus Side ",25,0.,25, 100,0., 10.);
 
@@ -151,13 +151,13 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    meRowZmDisk2Panel2Plaq2_ = dbe_->book1D("row_zm_disk2_panel2_plaq2","Digi row",200,0.,200.);
    meRowZmDisk2Panel2Plaq3_ = dbe_->book1D("row_zm_disk2_panel2_plaq3","Digi row",200,0.,200.);
 
-   meColZmDisk2Panel1Plaq1_ = dbe_->book1D("col_zm_disk2_panel1_plaq1","Digi row",500,0.,500.);
-   meColZmDisk2Panel1Plaq2_ = dbe_->book1D("col_zm_disk2_panel1_plaq2","Digi row",500,0.,500.);
-   meColZmDisk2Panel1Plaq3_ = dbe_->book1D("col_zm_disk2_panel1_plaq3","Digi row",500,0.,500.);
-   meColZmDisk2Panel1Plaq4_ = dbe_->book1D("col_zm_disk2_panel1_plaq4","Digi row",500,0.,500.);
-   meColZmDisk2Panel2Plaq1_ = dbe_->book1D("col_zm_disk2_panel2_plaq1","Digi row",500,0.,500.);
-   meColZmDisk2Panel2Plaq2_ = dbe_->book1D("col_zm_disk2_panel2_plaq2","Digi row",500,0.,500.);
-   meColZmDisk2Panel2Plaq3_ = dbe_->book1D("col_zm_disk2_panel2_plaq3","Digi row",500,0.,500.);
+   meColZmDisk2Panel1Plaq1_ = dbe_->book1D("col_zm_disk2_panel1_plaq1","Digi Column",500,0.,500.);
+   meColZmDisk2Panel1Plaq2_ = dbe_->book1D("col_zm_disk2_panel1_plaq2","Digi Column",500,0.,500.);
+   meColZmDisk2Panel1Plaq3_ = dbe_->book1D("col_zm_disk2_panel1_plaq3","Digi Column",500,0.,500.);
+   meColZmDisk2Panel1Plaq4_ = dbe_->book1D("col_zm_disk2_panel1_plaq4","Digi Column",500,0.,500.);
+   meColZmDisk2Panel2Plaq1_ = dbe_->book1D("col_zm_disk2_panel2_plaq1","Digi Column",500,0.,500.);
+   meColZmDisk2Panel2Plaq2_ = dbe_->book1D("col_zm_disk2_panel2_plaq2","Digi Column",500,0.,500.);
+   meColZmDisk2Panel2Plaq3_ = dbe_->book1D("col_zm_disk2_panel2_plaq3","Digi Column",500,0.,500.);
    meNdigiZmDisk2PerPanel1_ = dbe_->book2D("digi_zm_disk2_panel1","Digi Num. Panel1 Of 2nd Disk In ZMinus Side ",25,0.,25, 100,0., 10.);
    meNdigiZmDisk2PerPanel2_ = dbe_->book2D("digi_zm_disk2_panel2","Digi Num. Panel2 Of 2nd Disk In ZMinus Side ",25,0.,25, 100,0., 10.);
 
@@ -179,13 +179,13 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    meRowZpDisk1Panel2Plaq2_ = dbe_->book1D("row_zp_disk1_panel2_plaq2","Digi row",200,0.,200.);
    meRowZpDisk1Panel2Plaq3_ = dbe_->book1D("row_zp_disk1_panel2_plaq3","Digi row",200,0.,200.);
 
-   meColZpDisk1Panel1Plaq1_ = dbe_->book1D("col_zp_disk1_panel1_plaq1","Digi row",500,0.,500.);
-   meColZpDisk1Panel1Plaq2_ = dbe_->book1D("col_zp_disk1_panel1_plaq2","Digi row",500,0.,500.);
-   meColZpDisk1Panel1Plaq3_ = dbe_->book1D("col_zp_disk1_panel1_plaq3","Digi row",500,0.,500.);
-   meColZpDisk1Panel1Plaq4_ = dbe_->book1D("col_zp_disk1_panel1_plaq4","Digi row",500,0.,500.);
-   meColZpDisk1Panel2Plaq1_ = dbe_->book1D("col_zp_disk1_panel2_plaq1","Digi row",500,0.,500.);
-   meColZpDisk1Panel2Plaq2_ = dbe_->book1D("col_zp_disk1_panel2_plaq2","Digi row",500,0.,500.);
-   meColZpDisk1Panel2Plaq3_ = dbe_->book1D("col_zp_disk1_panel2_plaq3","Digi row",500,0.,500.);
+   meColZpDisk1Panel1Plaq1_ = dbe_->book1D("col_zp_disk1_panel1_plaq1","Digi Column",500,0.,500.);
+   meColZpDisk1Panel1Plaq2_ = dbe_->book1D("col_zp_disk1_panel1_plaq2","Digi column",500,0.,500.);
+   meColZpDisk1Panel1Plaq3_ = dbe_->book1D("col_zp_disk1_panel1_plaq3","Digi column",500,0.,500.);
+   meColZpDisk1Panel1Plaq4_ = dbe_->book1D("col_zp_disk1_panel1_plaq4","Digi column",500,0.,500.);
+   meColZpDisk1Panel2Plaq1_ = dbe_->book1D("col_zp_disk1_panel2_plaq1","Digi column",500,0.,500.);
+   meColZpDisk1Panel2Plaq2_ = dbe_->book1D("col_zp_disk1_panel2_plaq2","Digi column",500,0.,500.);
+   meColZpDisk1Panel2Plaq3_ = dbe_->book1D("col_zp_disk1_panel2_plaq3","Digi column",500,0.,500.);
    meNdigiZpDisk1PerPanel1_ = dbe_->book2D("digi_zp_disk1_panel1","Digi Num. Panel1 Of 1st Disk In ZPlus Side ",25,0.,25, 100,0., 10.);
    meNdigiZpDisk1PerPanel2_ = dbe_->book2D("digi_zp_disk1_panel2","Digi Num. Panel2 Of 1st Disk In ZPlus Side ",25,0.,25, 100,0., 10.);
 
@@ -207,13 +207,13 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    meRowZpDisk2Panel2Plaq2_ = dbe_->book1D("row_zp_disk2_panel2_plaq2","Digi row",200,0.,200.);
    meRowZpDisk2Panel2Plaq3_ = dbe_->book1D("row_zp_disk2_panel2_plaq3","Digi row",200,0.,200.);
 
-   meColZpDisk2Panel1Plaq1_ = dbe_->book1D("col_zp_disk2_panel1_plaq1","Digi row",500,0.,500.);
-   meColZpDisk2Panel1Plaq2_ = dbe_->book1D("col_zp_disk2_panel1_plaq2","Digi row",500,0.,500.);
-   meColZpDisk2Panel1Plaq3_ = dbe_->book1D("col_zp_disk2_panel1_plaq3","Digi row",500,0.,500.);
-   meColZpDisk2Panel1Plaq4_ = dbe_->book1D("col_zp_disk2_panel1_plaq4","Digi row",500,0.,500.);
-   meColZpDisk2Panel2Plaq1_ = dbe_->book1D("col_zp_disk2_panel2_plaq1","Digi row",500,0.,500.);
-   meColZpDisk2Panel2Plaq2_ = dbe_->book1D("col_zp_disk2_panel2_plaq2","Digi row",500,0.,500.);
-   meColZpDisk2Panel2Plaq3_ = dbe_->book1D("col_zp_disk2_panel2_plaq3","Digi row",500,0.,500.);
+   meColZpDisk2Panel1Plaq1_ = dbe_->book1D("col_zp_disk2_panel1_plaq1","Digi column",500,0.,500.);
+   meColZpDisk2Panel1Plaq2_ = dbe_->book1D("col_zp_disk2_panel1_plaq2","Digi column",500,0.,500.);
+   meColZpDisk2Panel1Plaq3_ = dbe_->book1D("col_zp_disk2_panel1_plaq3","Digi column",500,0.,500.);
+   meColZpDisk2Panel1Plaq4_ = dbe_->book1D("col_zp_disk2_panel1_plaq4","Digi column",500,0.,500.);
+   meColZpDisk2Panel2Plaq1_ = dbe_->book1D("col_zp_disk2_panel2_plaq1","Digi column",500,0.,500.);
+   meColZpDisk2Panel2Plaq2_ = dbe_->book1D("col_zp_disk2_panel2_plaq2","Digi column",500,0.,500.);
+   meColZpDisk2Panel2Plaq3_ = dbe_->book1D("col_zp_disk2_panel2_plaq3","Digi column",500,0.,500.);
    meNdigiZpDisk2PerPanel1_ = dbe_->book2D("digi_zp_disk2_panel1","Digi Num. Panel1 Of 2nd Disk In ZPlus Side ",25,0.,25, 100,0., 10.);
    meNdigiZpDisk2PerPanel2_ = dbe_->book2D("digi_zp_disk2_panel2","Digi Num. Panel2 Of 2nd Disk In ZPlus Side ",25,0.,25, 100,0., 10.);
 
