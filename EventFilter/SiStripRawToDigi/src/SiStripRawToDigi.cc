@@ -196,7 +196,7 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
 	if ( samples.empty() ) { 
 	  edm::LogWarning("Commissioning") << "[SiStripRawToDigi::createDigis] No SM digis found!"; 
 	} else {
-	  sm.data.clear(); sm.data.reserve( samples.size() ); 
+	  sm.data.clear(); sm.data.reserve( samples.size() ); sm.data.resize( samples.size() ); 
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
 	    sm.data[i] = SiStripRawDigi( i, samples[i] ); 
 	    anal_.smDigi( i, sm.data[i].adc() );

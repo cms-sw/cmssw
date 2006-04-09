@@ -78,23 +78,20 @@ void ApvTimingTask::fill( const SiStripEventSummary& summary,
 
   //@@ if scope mode length is in trigger fed, then 
   //@@ can add check here on number of digis
-  if ( digis.data.size() != 280 ) {
+  if ( digis.data.size() < nBins_ ) {
     edm::LogError("Commissioning") << "[ApvTimingTask::fill]" 
 				   << " Unexpected number of digis! " 
 				   << digis.data.size(); 
+  } else {
+    pair<uint32_t,uint32_t> skews = const_cast<SiStripEventSummary&>(summary).pll();
+    for ( uint16_t coarse = 0; coarse < nBins_/*digis.data.size()*/; coarse++ ) {
+      uint16_t fine = (coarse+1)*24 - (skews.second+1);
+      timing_.vSumOfSquares_[fine] += digis.data[coarse].adc() * digis.data[coarse].adc();
+      timing_.vSumOfContents_[fine] += digis.data[coarse].adc();
+      timing_.vNumOfEntries_[fine]++;
+    }      
   }
-  
-  pair<uint32_t,uint32_t> skews = const_cast<SiStripEventSummary&>(summary).pll();
-  
-  // Fill vectors
-  for ( uint16_t coarse = 0; coarse < nBins_/*digis.data.size()*/; coarse++ ) {
-    uint16_t fine = (coarse+1)*24 - (skews.second+1);
-    //cout << "coarse " << coarse << " fine " << fine << " adc " << digis.data[coarse].adc() << endl;
-    timing_.vSumOfSquares_[fine] += digis.data[coarse].adc() * digis.data[coarse].adc();
-    timing_.vSumOfContents_[fine] += digis.data[coarse].adc();
-    timing_.vNumOfEntries_[fine]++;
-  }      
-  
+
 }
 
 // -----------------------------------------------------------------------------

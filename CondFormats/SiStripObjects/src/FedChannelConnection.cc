@@ -12,10 +12,10 @@ uint16_t FedChannelConnection::lldChannel() const {
   else if ( apv0_ == 34 || apv1_ == 35 ) { return 1; }
   else if ( apv0_ == 36 || apv1_ == 37 ) { return 2; }
   else {
-    edm::LogWarning("FedCabling") << "[FedChannelConnection::lldChannel]"
-				  << " Unexpected APV I2C addresses!" 
-				  << " Apv0: " << apv0_
-				  << " Apv1: " << apv1_;
+    edm::LogWarning("Cabling") << "[FedChannelConnection::lldChannel]"
+			       << " Unexpected APV I2C addresses!" 
+			       << " Apv0: " << apv0_
+			       << " Apv1: " << apv1_;
   }
   return 0;
 }
@@ -27,28 +27,28 @@ uint16_t FedChannelConnection::apvPairNumber() const {
     if      ( apv0_ == 32 || apv1_ == 33 ) { return 0; }
     else if ( apv0_ == 36 || apv1_ == 37 ) { return 1; }
     else { 
-      edm::LogWarning("FedCabling") << "[FedChannelConnection::apvPairNumber]"
-				    << " Incompatible data!" 
-				    << " APV pairs: " << nApvPairs_
-				    << " APV0: " << apv0_
-				    << " APV1: " << apv1_;
+      edm::LogWarning("Cabling") << "[FedChannelConnection::apvPairNumber]"
+				 << " Incompatible data!" 
+				 << " APV pairs: " << nApvPairs_
+				 << " APV0: " << apv0_
+				 << " APV1: " << apv1_;
     }
   } else if ( nApvPairs_ == 3 ) {
     if      ( apv0_ == 32 || apv1_ == 33 ) { return 0; }
     else if ( apv0_ == 34 || apv1_ == 35 ) { return 1; }
     else if ( apv0_ == 36 || apv1_ == 37 ) { return 2; }
     else { 
-      edm::LogWarning("FedCabling") << "[FedChannelConnection::apvPairNumber]"
-				    << " Incompatible data!" 
-				    << " APV pairs: " << nApvPairs_
-				    << " APV0: " << apv0_
-				    << " APV1: " << apv1_;
+      edm::LogWarning("Cabling") << "[FedChannelConnection::apvPairNumber]"
+				 << " Incompatible data!" 
+				 << " APV pairs: " << nApvPairs_
+				 << " APV0: " << apv0_
+				 << " APV1: " << apv1_;
     }
   } else if ( nApvPairs_ == 0 ) {
-    LogDebug("FedCabling") << "[FedChannelConnection::apvPairNumber] Zero APV pairs";
+    LogDebug("Cabling") << "[FedChannelConnection::apvPairNumber] Zero APV pairs";
   } else {
-    edm::LogWarning("FedCabling") << "[FedChannelConnection::apvPairNumber]"
-				  << " Unexpected number of APV pairs: " << nApvPairs_;
+    edm::LogWarning("Cabling") << "[FedChannelConnection::apvPairNumber]"
+			       << " Unexpected number of APV pairs: " << nApvPairs_;
   }
   return 0;
 }
@@ -82,6 +82,6 @@ void FedChannelConnection::print() const {
      << apvPairNumber() 
      << "  FedId/FedCh: "
      << fedId() << "/"
-     << fedCh() << std::endl;
-  LogDebug("FedCabling") << ss.str();
+     << fedCh();
+  LogDebug("Cabling") << ss.str();
 }

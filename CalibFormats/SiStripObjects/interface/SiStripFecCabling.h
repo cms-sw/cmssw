@@ -88,14 +88,14 @@ class SiStripModule {
   /** Returns FED id/channel of a given APV pair (0->1 or 0->2). */
   const pair<uint16_t,uint16_t>& fedCh( const uint16_t& apv_pair_num ) const;
 
+  /** Sets FED id/channel for given APV address (32->37). Returns true
+      if connection made, false otherwise. */
+  bool fedCh( const uint16_t& apv_address, const pair<uint16_t,uint16_t>& fed_ch );
+
   /** Returns cable length. */
   inline const uint16_t& length() const { return length_; } 
   /** Sets cable length. */
   inline void length( const uint16_t& length ) { length_ = length; } 
-  
-  /** Sets FED id/channel for given APV address (32->37). Returns true
-      if connection made, false otherwise. */
-  bool fedCh( const uint16_t& apv_address, const pair<uint16_t,uint16_t>& fed_ch );
 
   // ----- Other hybrid devices -----
   

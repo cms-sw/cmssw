@@ -61,6 +61,7 @@ SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& i
     
   }
 
+  LogDebug("Cabling") << "[SiStripFedCabling::SiStripFedCabling] Printing FedChannelConnections: ";
   std::vector<uint16_t>::const_iterator ifed;
   for ( ifed = (*this).feds().begin(); ifed != (*this).feds().end(); ifed++ ) {
     uint16_t connected = 0;

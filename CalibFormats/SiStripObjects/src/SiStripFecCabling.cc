@@ -22,7 +22,7 @@ SiStripFecCabling::SiStripFecCabling( const SiStripFedCabling& cabling ) : fecs_
     for ( vector<SiStripRing>::const_iterator iring = (*ifec).rings().begin(); iring != (*ifec).rings().end(); iring++ ) {
       for ( vector<SiStripCcu>::const_iterator iccu = (*iring).ccus().begin(); iccu != (*iring).ccus().end(); iccu++ ) {
 	for ( vector<SiStripModule>::const_iterator imodule = (*iccu).modules().begin(); imodule != (*iccu).modules().end(); imodule++ ) {
-	  imodule->print();
+	  imodule->print(); //@@ need consistency checks here!
 	}
       }
     }
