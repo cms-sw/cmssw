@@ -27,6 +27,7 @@ class CSCSectorReceiverLUT
     unsigned int quality      : 4;
     unsigned int lr           : 1;
     unsigned int spare        : 2;
+    unsigned int zero         : 13;
   } lclphiadd;
 
   typedef struct global_phi_address
@@ -34,6 +35,7 @@ class CSCSectorReceiverLUT
     unsigned int phi_local    : 9;
     unsigned int wire_group   : 5;  // bits 2-6 of wg
     unsigned int cscid        : 4;
+    unsigned int zero         : 13;
   } gblphiadd;
 
   typedef struct global_eta_address
@@ -42,6 +44,7 @@ class CSCSectorReceiverLUT
     unsigned int phi_local    : 2;
     unsigned int wire_group   : 7;
     unsigned int cscid        : 4;
+    unsigned int zero         : 13;
   } gbletaadd;
 
   /// Data Types
@@ -97,7 +100,9 @@ class CSCSectorReceiverLUT
 
   void fillLocalPhiLUT();
   
+  std::string lut_path;
   bool LUTsFromFile;
+  bool isBinary;
 
   /// Arrays for holding read in LUT information.
   /// MB LUT arrays only initialized in ME1
@@ -105,7 +110,7 @@ class CSCSectorReceiverLUT
   
   static bool me_lcl_phi_loaded;
   static lclphidat* me_lcl_phi;
-  //gblphidat* me_global_phi, mb_global_phi;
+  //gblphidat* me_global_phi, *mb_global_phi;
   gbletadat* me_global_eta;
 };
 
