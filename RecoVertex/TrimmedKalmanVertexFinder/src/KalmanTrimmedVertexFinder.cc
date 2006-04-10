@@ -1,5 +1,3 @@
-#include "Utilities/Configuration/interface/Architecture.h"
-
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/KalmanTrimmedVertexFinder.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"

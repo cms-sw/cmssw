@@ -1,8 +1,7 @@
-#include "Utilities/Configuration/interface/Architecture.h"
-
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/ConfigurableTrimmedVertexFinder.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
+using namespace reco;
 
 ConfigurableTrimmedVertexFinder::ConfigurableTrimmedVertexFinder(
   const VertexFitter * vf, 
@@ -18,9 +17,9 @@ ConfigurableTrimmedVertexFinder::ConfigurableTrimmedVertexFinder(
 
 
 vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(
-  const vector<RecTrack> & tracks) const
+  const vector<TransientTrack> & tracks) const
 {
-  vector<RecTrack> remaining;
+  vector<TransientTrack> remaining;
 
   return vertices(tracks, remaining);
 
@@ -28,14 +27,14 @@ vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(
 
 
 vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(
-  const vector<RecTrack> & tracks, vector<RecTrack> & unused) 
+  const vector<TransientTrack> & tracks, vector<TransientTrack> & unused) 
   const
 {
   resetEvent(tracks);
   analyseInputTracks(tracks);
 
-  vector<RecTrack> filtered;
-  for (vector<RecTrack>::const_iterator it = tracks.begin();
+  vector<TransientTrack> filtered;
+  for (vector<TransientTrack>::const_iterator it = tracks.begin();
        it != tracks.end(); it++) {
     if (theFilter(*it)) { 
       filtered.push_back(*it);
@@ -59,12 +58,12 @@ vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(
 
 
 vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(
-  const vector<RecTrack> & tracks, vector<RecTrack> & unused) const 
+  const vector<TransientTrack> & tracks, vector<TransientTrack> & unused) const 
 {
 
   vector<TransientVertex> cand;
 
-  vector<RecTrack> remain = tracks;
+  vector<TransientTrack> remain = tracks;
 
   while (true) {
 
@@ -89,7 +88,7 @@ vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(
       } 
       else {
         // candidate has too few tracks - get them back into the vector
-        for ( vector< RecTrack >::const_iterator trk
+        for ( vector< TransientTrack >::const_iterator trk
 		= iv->originalTracks().begin();
               trk != iv->originalTracks().end(); ++trk ) {
           unused.push_back ( *trk );
@@ -103,7 +102,7 @@ vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(
     }
   }
 
-  for (vector<RecTrack>::const_iterator it = remain.begin();
+  for (vector<TransientTrack>::const_iterator it = remain.begin();
        it != remain.end(); it++) {
     unused.push_back(*it);
   }

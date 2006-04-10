@@ -50,11 +50,12 @@ public:
 
   virtual ~ConfigurableTrimmedVertexFinder() {}
 
-  virtual vector<TransientVertex> vertices(const vector<TransientTrack> & tracks)
-    const;
+  virtual vector<TransientVertex> 
+    vertices(const vector<reco::TransientTrack> & tracks) const;
 
-  vector<TransientVertex> vertices( const vector<TransientTrack> & tracks,
-			      vector<TransientTrack>& unused) const;
+  vector<TransientVertex> 
+    vertices( const vector<reco::TransientTrack> & tracks,
+	      vector<reco::TransientTrack>& unused) const;
 
   /** Access to parameters
    */
@@ -87,13 +88,14 @@ public:
 
 protected:
 
-  virtual void resetEvent(const vector<TransientTrack> & tracks) const {}
+  virtual void resetEvent(const vector<reco::TransientTrack> & tracks) const {}
 
-  virtual void analyseInputTracks(const vector<TransientTrack> & tracks) 
+  virtual void analyseInputTracks(const vector<reco::TransientTrack> & tracks) 
     const {}
 
-  virtual void analyseClusterFinder(const vector<TransientVertex> & vts, 
-				    const vector<TransientTrack> & remain) 
+  virtual void 
+    analyseClusterFinder(const vector<TransientVertex> & vts, 
+			 const vector<reco::TransientTrack> & remain) 
     const {}
 
   virtual void analyseVertexCandidates(const vector<TransientVertex> & vts) 
@@ -111,8 +113,8 @@ private:
 
   // find vertex candidates
   vector<TransientVertex> 
-    vertexCandidates(const vector<TransientTrack> & tracks, 
-		     vector<TransientTrack>& unused) const;
+    vertexCandidates(const vector<reco::TransientTrack> & tracks, 
+		     vector<reco::TransientTrack>& unused) const;
 
   // remove bad candidates
   vector<TransientVertex> 

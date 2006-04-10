@@ -28,7 +28,7 @@ public:
    */
   void setPtCut(double ptCut) { thePtCut = ptCut; }
 
-  bool operator()(const TransientTrack &) const;
+  bool operator()(const reco::TransientTrack &) const;
 
 private:
 

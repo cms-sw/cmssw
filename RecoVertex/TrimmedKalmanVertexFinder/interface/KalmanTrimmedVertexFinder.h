@@ -27,13 +27,13 @@ public:
   }
 
   virtual inline vector<TransientVertex> 
-    vertices(const vector<RecTrack> & tracks) const { 
+    vertices(const vector<reco::TransientTrack> & tracks) const { 
     return theFinder->vertices(tracks); 
   }
 
   inline vector<TransientVertex> 
-    vertices( const vector<RecTrack> & tracks, vector<RecTrack>& unused) 
-    const {
+    vertices( const vector<reco::TransientTrack> & tracks, 
+	      vector<reco::TransientTrack>& unused) const {
     return theFinder->vertices(tracks, unused);
   }
 

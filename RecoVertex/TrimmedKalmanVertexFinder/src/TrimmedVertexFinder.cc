@@ -1,11 +1,12 @@
-#include "Utilities/Configuration/interface/Architecture.h"
-
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/TrimmedVertexFinder.h"
-#include "CommonDet/StatUtilities/interface/ChiSquaredProbability.h"
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexFitter.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexUpdator.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexTrackCompatibilityEstimator.h"
 #include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+using namespace reco;
 
 TrimmedVertexFinder::TrimmedVertexFinder(
   const VertexFitter * vf, const VertexUpdator * vu, 
@@ -31,11 +32,11 @@ TrimmedVertexFinder::~TrimmedVertexFinder() {
 }
 
 
-vector<RecVertex> 
+vector<TransientVertex> 
 TrimmedVertexFinder::vertices(vector<TransientTrack> & tks) 
   const
 {
-  vector<RecVertex> all;
+  vector<TransientVertex> all;
   if (tks.size() < 2) return all;
 
   // prepare vertex tracks and initial vertex
@@ -122,7 +123,7 @@ TrimmedVertexFinder::vertices(vector<TransientTrack> & tks)
       dynamic_cast<const PerigeeLinearizedTrackState*>
       ((**i).linearizedTrack().get());
     if (plts == 0) {
-      throw DetLogicError("TrimmedVertexFinder: can't take track from non-perigee track state");
+      throw cms::Exception("TrimmedVertexFinder: can't take track from non-perigee track state");
     }
 
     tks.push_back(plts->track());
@@ -153,7 +154,7 @@ TrimmedVertexFinder::theWorst(const CachingVertex & vtx,
       // compute compatibility
       chi2 = theEstimator->estimate(newV, *itr);
     }
-    catch ( CMSexception & e) {
+    catch ( cms::Exception & e) {
       // problematic track, remove it from vertex
       cout << "[TrimmedVertexFinder] warning: "
 	   << "exception caught for this track, causing its rejection:" 

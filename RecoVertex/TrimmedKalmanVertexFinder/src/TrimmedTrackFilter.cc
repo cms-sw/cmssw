@@ -1,7 +1,6 @@
-#include "Utilities/Configuration/interface/Architecture.h"
-
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/TrimmedTrackFilter.h"
 
+using namespace reco;
 
 TrimmedTrackFilter::TrimmedTrackFilter()
   : thePtCut(0.) 

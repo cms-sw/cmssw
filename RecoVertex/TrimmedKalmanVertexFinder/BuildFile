@@ -1,6 +1,8 @@
 <export>
- <lib name=RecoVertexTrimmedKalmanVertexFinder>
- <use name=RecoVertex/KalmanVertexFit>
+  <lib name=RecoVertexTrimmedKalmanVertexFinder>
+  <use name=RecoVertex/KalmanVertexFit>
+  <use name=CommonTools/Statistics>
 </export>
 
 <use name=RecoVertex/KalmanVertexFit>
+<use name=CommonTools/Statistics>

@@ -2,6 +2,7 @@
 #define _RecoVertex_TrimmedVertexFinder_H_
 
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include <vector>
 
@@ -41,7 +42,8 @@ public:
   /** Make 0 or 1 vertex 
    *  On output, `remain` contains the incompatible tracks
    */
-  vector<RecVertex> vertices(vector<TransientTrack> & remain) const;
+  std::vector<TransientVertex> 
+    vertices(std::vector<reco::TransientTrack> & remain) const;
 
   /** Access to parameter
    */
@@ -65,13 +67,13 @@ private:
   //
   vector<RefCountedVertexTrack>::iterator theWorst(
     const CachingVertex & vtx, 
-    vector<RefCountedVertexTrack> & vtxTracks, 
+    std::vector<RefCountedVertexTrack> & vtxTracks, 
     float cut) const;
 
-  float theMinProb;
   VertexFitter * theFitter;
   VertexUpdator * theUpdator;
   VertexTrackCompatibilityEstimator * theEstimator;
+  float theMinProb;
 
 };
 
