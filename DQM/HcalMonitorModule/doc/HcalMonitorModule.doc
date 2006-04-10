@@ -13,7 +13,8 @@
 </center>
 
 
-\section desc Description Processing module and simple event filter
+\section desc Description 
+Processing module and simple event filter
 for HCAL Data Quality Monitoring (DQM).  This is the server side of
 the event monitoring process.
 

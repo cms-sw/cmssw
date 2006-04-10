@@ -11,8 +11,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2005/12/21 22:05:36 $
-  * $Revision: 1.4 $
+  * $Date: 2006/01/03 19:49:18 $
+  * $Revision: 1.1 $
   * \author W. Fisher - FNAL
   */
 class HcalPedestalMonitor: public HcalBaseMonitor {
@@ -40,10 +40,6 @@ private:
   struct{
     map<HcalDetId,map<int, MonitorElement*> > PEDVALS;
     MonitorElement* ALLPEDS;
-    MonitorElement* PEDRMS;
-    MonitorElement* PEDMEAN;
-    MonitorElement* CAPIDRMS;
-    MonitorElement* CAPIDMEAN;
   } hbHists, hfHists, hoHists;
 
 };
