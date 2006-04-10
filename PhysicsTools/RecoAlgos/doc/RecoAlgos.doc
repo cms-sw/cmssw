@@ -14,10 +14,10 @@ Common algrithtm for  \ref RecoPackages "Reco objects".
 None.
 
 \subsection modules Modules
-- recomodules::TrackMerger: merges an arbitrary number of reco::TrackCollection.
-- recomodules::MuonMerger:  merges an arbitrary number of reco::MuonCollection.
-- recomodules::ElectronMerger: merges an arbitrary number of reco::ElectronCollection.
-- recomodules::PhotonMerger: merges an arbitrary number of reco::PhotonCollection.
+- reco::modules::TrackMerger: merges an arbitrary number of reco::TrackCollection.
+- reco::modules::MuonMerger:  merges an arbitrary number of reco::MuonCollection.
+- reco::modules::ElectronMerger: merges an arbitrary number of reco::ElectronCollection.
+- reco::modules::PhotonMerger: merges an arbitrary number of reco::PhotonCollection.
 <br>
 Examples of configuration for the merger modules is the following:
 \htmlonly
