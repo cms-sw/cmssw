@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/02/21 19:04:14 $
- * $Revision: 1.3 $
+ * $Date: 2006/02/22 14:10:33 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -82,9 +82,12 @@ void DTDigiTask::beginJob(const edm::EventSetup& context){
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
-  // Get the pedestals tTrig
-  //context.get<DTTtrigRcd>().get(tTrigMap);
-  if (parameters.getParameter<bool>("performPerWireT0Calibration")) context.get<DTT0Rcd>().get(t0Map);
+  // Get the pedestals 
+  // tTrig (always get it, even if the tTrig_TP is taken from conf)
+  context.get<DTTtrigRcd>().get(tTrigMap);
+  // t0s 
+  if (parameters.getParameter<bool>("performPerWireT0Calibration")) 
+    context.get<DTT0Rcd>().get(t0Map);
  
 }
 
@@ -125,13 +128,15 @@ void DTDigiTask::bookHistos(const DTLayerId& dtLayer, string folder, string hist
 					       dtLayer.superlayer(),
 					       dtLayer.layer()))->specificTopology().channels();
 
-  // To be un-commented once the pedestal DB will work
-//   if ( ! tTrigMap->slTtrig( dtLayer.wheel(),
-// 			    dtLayer.station(),
-// 			    dtLayer.sector(),
-// 			    dtLayer.superlayer(), tTrig)) 
-    tTrig = parameters.getParameter<int>("defaultTtrig");
-    
+  if ( parameters.getUntrackedParameter<bool>("readDB", false) ) {
+    if ( ! tTrigMap->slTtrig( dtLayer.wheel(),
+			      dtLayer.station(),
+			      dtLayer.sector(),
+			      dtLayer.superlayer(), tTrig)) 
+      tTrig = parameters.getParameter<int>("defaultTtrig");
+  }
+  else tTrig = parameters.getParameter<int>("defaultTtrig");
+
   tMax = parameters.getParameter<int>("defaultTmax");
 
   
@@ -171,7 +176,7 @@ void DTDigiTask::bookHistos(const DTLayerId& dtLayer, string folder, string hist
 void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   nevents++;
-  if (nevents%100 == 0) 
+  if (nevents%1000 == 0) 
     cout<<"[DTDigiTask]: "<<nevents<<" events analyzed"<<endl;
 
   edm::Handle<DTDigiCollection> dtdigis;
@@ -188,13 +193,15 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       // for clearness..
       int index = ((*dtLayerId_It).first).rawId();
 
-  // To be un-commented once the pedestal DB will work
-//       if ( ! tTrigMap->slTtrig( ((*dtLayerId_It).first).wheel(),
-// 				((*dtLayerId_It).first).station(),
-// 				((*dtLayerId_It).first).sector(),
-// 				((*dtLayerId_It).first).superlayer(), tTrig)) 
-	tTrig = parameters.getParameter<int>("defaultTtrig");
-      
+      if ( parameters.getUntrackedParameter<bool>("readDB", false) ) {
+	if ( ! tTrigMap->slTtrig( ((*dtLayerId_It).first).wheel(),
+				  ((*dtLayerId_It).first).station(),
+				  ((*dtLayerId_It).first).sector(),
+				  ((*dtLayerId_It).first).superlayer(), tTrig)) 
+	  tTrig = parameters.getParameter<int>("defaultTtrig");
+      }
+      else tTrig = parameters.getParameter<int>("defaultTtrig");
+
       int inTimeHitsLowerBound = tTrig - parameters.getParameter<int>("inTimeHitsLowerBound");
       int inTimeHitsUpperBound = tTrig + tMax + parameters.getParameter<int>("inTimeHitsUpperBound");
 

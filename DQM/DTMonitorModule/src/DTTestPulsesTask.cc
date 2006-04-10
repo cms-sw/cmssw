@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2006/02/22 14:10:33 $
- * $Revision: 1.4 $
+ * $Date: 2006/03/24 16:18:29 $
+ * $Revision: 1.5 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -90,7 +90,9 @@ void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, strin
 
   dbe->setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
 			"/Station" + station.str() +
-			"/Sector" + sector.str() + "/" + folder);
+			"/Sector" + sector.str() + 
+			"/SuperLayer" + superLayer.str() + 
+			"/" +folder);
 
   string histoName = histoTag 
     + "_W" + wheel.str() 
@@ -109,10 +111,14 @@ void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, strin
   }
   else tTrig_TP = parameters.getParameter<int>("defaultTtrig_TP");
   
+
   // keep the Range around the tTrig in order to keep track of it in the histos
   t0sPeakRange = make_pair( parameters.getUntrackedParameter<int>("t0sRangeLowerBound", -100) + tTrig_TP, 
 			    parameters.getUntrackedParameter<int>("t0sRangeUpperBound", 100) + tTrig_TP);
   
+
+  cout<<"t0sRangeLowerBound "<<t0sPeakRange.first<<"; "
+      <<"t0sRangeUpperBound "<<t0sPeakRange.second<<endl;
   
   if ( folder == "TPOccupancies" ) {
 
@@ -157,14 +163,14 @@ void DTTestPulsesTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
       
       // for clearness..
-      int index = ((*dtLayerId_It).first).rawId();
+      int layerIndex = ((*dtLayerId_It).first).rawId();
       int chIndex = ((*dtLayerId_It).first).chamberId().rawId();
 
-      if (testPulsesTimeBoxes.find(index) != testPulsesTimeBoxes.end())
-	testPulsesHistos.find(index)->second->Fill(index,(*digiIt).countsTDC());
+      if (testPulsesHistos.find(layerIndex) != testPulsesHistos.end())
+	testPulsesHistos.find(layerIndex)->second->Fill((*digiIt).channel(),(*digiIt).countsTDC());
       else {
 	bookHistos( (*dtLayerId_It).first , string("TPOccupancies"), string("TestPulses2D") );
-	testPulsesHistos.find(index)->second->Fill(index,(*digiIt).countsTDC());
+	testPulsesHistos.find(layerIndex)->second->Fill((*digiIt).channel(),(*digiIt).countsTDC());
       }
 	
       if (testPulsesTimeBoxes.find(chIndex) != testPulsesTimeBoxes.end())
