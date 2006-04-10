@@ -1,0 +1,32 @@
+<flags SEAL_PLUGIN_NAME="RecoEcalEgammaRecoProducers">
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=RecoEcal/EgammaClusterAlgos>
+<use name=DataFormats/EgammaReco>
+<use name=RecoLocalCalo/EcalRecAlgos>
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/EcalRecHit>
+<use name=CondFormats/EcalObjects>
+<use name=CondFormats/DataRecord>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>
+<use name=RecoCaloTools/Navigation>
+<use name=DataFormats/Math>
+<use name=clhep>
+
+<export>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=RecoEcal/EgammaClusterAlgos>
+  <use name=DataFormats/EgammaReco>
+  <use name=RecoLocalCalo/EcalRecAlgos>
+  <use name=DataFormats/EcalDigi>
+  <use name=DataFormats/EcalRecHit>
+  <use name=CondFormats/EcalObjects>
+  <use name=CondFormats/DataRecord>
+  <use name=Geometry/CaloEventSetup>
+  <use name=Geometry/CaloGeometry>
+  <use name=RecoCaloTools/Navigation>
+  <use name=DataFormats/Math>
+  <use name=clhep>
+</export>
