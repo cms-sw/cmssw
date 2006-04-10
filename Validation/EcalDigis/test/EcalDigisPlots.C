@@ -18,6 +18,8 @@ void EcalDigisPlots()
 
  Char_t histo[200];
 
+ gStyle->SetOptStat("nemruoi");
+
 //////////////////////////////////////////////////////////////
 
 // Particle Gun
@@ -67,13 +69,20 @@ void EcalDigisPlots()
 
  if (1) {
    TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
+   Ecal->Divide(1,2);
 
-   TH2 * meEEDigiOccupancy_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy;1",meEEDigiOccupancy_);
-   meEEDigiOccupancy_;
+   TH2 * meEEDigiOccupancyzp_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy z+;1",meEEDigiOccupancyzp_);
+   meEEDigiOccupancyzp_;
+
+   TH2 * meEEDigiOccupancyzm_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy z-;1",meEEDigiOccupancyzm_);
+   meEEDigiOccupancyzm_;
 
    Ecal->cd(1);
-   meEEDigiOccupancy_->Draw();
+   meEEDigiOccupancyzp_->Draw();
+   Ecal->cd(2);
+   meEEDigiOccupancyzm_->Draw();
    Ecal->Print("Endcap_Occupancy.eps");
  }
 

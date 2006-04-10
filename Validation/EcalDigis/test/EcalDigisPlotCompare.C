@@ -25,6 +25,8 @@ void EcalDigisPlotCompare()
 
  Char_t histo[200];
 
+ gStyle->SetOptStat("n");
+
  gROOT->ProcessLine(".x HistoCompare.C");
  HistoCompare * myPV = new HistoCompare();
 
@@ -111,23 +113,38 @@ void EcalDigisPlotCompare()
 
  if (1) {
    TCanvas * Ecal = new TCanvas("Ecal","Ecal",800,1000);
-   Ecal->Divide(1,2);
+   Ecal->Divide(2,2);
 
-   TH2 * meEEDigiOccupancy_;
-   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy;1",meEEDigiOccupancy_);
-   meEEDigiOccupancy_;
-   meEEDigiOccupancy_->SetLineColor(4);
+   TH2 * meEEDigiOccupancyzp_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy z+;1",meEEDigiOccupancyzp_);
+   meEEDigiOccupancyzp_;
+   meEEDigiOccupancyzp_->SetLineColor(4);
 
-   TH2 * newmeEEDigiOccupancy_;
-   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy;1",newmeEEDigiOccupancy_);
-   newmeEEDigiOccupancy_;
-   newmeEEDigiOccupancy_->SetLineColor(2);
+   TH2 * meEEDigiOccupancyzm_;
+   rfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy z-;1",meEEDigiOccupancyzm_);
+   meEEDigiOccupancyzm_;
+   meEEDigiOccupancyzm_->SetLineColor(4);
+
+   TH2 * newmeEEDigiOccupancyzp_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy z+;1",newmeEEDigiOccupancyzp_);
+   newmeEEDigiOccupancyzp_;
+   newmeEEDigiOccupancyzp_->SetLineColor(2);
+
+   TH2 * newmeEEDigiOccupancyzm_;
+   sfile->GetObject("DQMData/EcalDigiTask/EcalDigiTask Endcap occupancy z-;1",newmeEEDigiOccupancyzm_);
+   newmeEEDigiOccupancyzm_;
+   newmeEEDigiOccupancyzm_->SetLineColor(2);
 
    Ecal->cd(1);
-   meEEDigiOccupancy_->Draw();
+   meEEDigiOccupancyzp_->Draw();
+   Ecal->cd(3);
+   newmeEEDigiOccupancyzp_->Draw();
+   myPV->PVCompute(meEEDigiOccupancyzp_ , newmeEEDigiOccupancyzp_ , te);
    Ecal->cd(2);
-   newmeEEDigiOccupancy_->Draw();
-   myPV->PVCompute(meEEDigiOccupancy_ , newmeEEDigiOccupancy_ , te);
+   meEEDigiOccupancyzm_->Draw();
+   Ecal->cd(4);
+   newmeEEDigiOccupancyzm_->Draw();
+   myPV->PVCompute(meEEDigiOccupancyzm_ , newmeEEDigiOccupancyzm_ , te);
    Ecal->Print("Endcap_Occupancy_compare.eps");
  }
 

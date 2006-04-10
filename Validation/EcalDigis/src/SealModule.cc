@@ -6,3 +6,12 @@ DEFINE_SEAL_MODULE();
 
 #include <Validation/EcalDigis/interface/EcalDigisValidation.h>
 DEFINE_ANOTHER_FWK_MODULE(EcalDigisValidation)
+
+#include <Validation/EcalDigis/interface/EcalBarrelDigisValidation.h>
+DEFINE_ANOTHER_FWK_MODULE(EcalBarrelDigisValidation)
+
+#include <Validation/EcalDigis/interface/EcalEndcapDigisValidation.h>
+DEFINE_ANOTHER_FWK_MODULE(EcalEndcapDigisValidation)
+
+#include <Validation/EcalDigis/interface/EcalPreshowerDigisValidation.h>
+DEFINE_ANOTHER_FWK_MODULE(EcalPreshowerDigisValidation)

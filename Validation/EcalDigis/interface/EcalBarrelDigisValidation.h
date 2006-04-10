@@ -1,8 +1,8 @@
-#ifndef EcalDigisValidation_H
-#define EcalDigisValidation_H
+#ifndef EcalBarrelDigisValidation_H
+#define EcalBarrelDigisValidation_H
 
 /*
- * \file EcalDigisValidation.h
+ * \file EcalBarrelDigisValidation.h
  *
  * $Date: 2006/04/03 14:06:41 $
  * $Revision: 1.1 $
@@ -25,21 +25,9 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
-#include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -49,17 +37,17 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-class EcalDigisValidation: public EDAnalyzer{
+class EcalBarrelDigisValidation: public EDAnalyzer{
 
     typedef map<uint32_t,float,less<uint32_t> >  MapType;
 
 public:
 
 /// Constructor
-EcalDigisValidation(const ParameterSet& ps);
+EcalBarrelDigisValidation(const ParameterSet& ps);
 
 /// Destructor
-~EcalDigisValidation();
+~EcalBarrelDigisValidation();
 
 protected:
 
@@ -74,10 +62,6 @@ void endJob(void);
 
 private:
 
- string HepMCLabel;
- string SimTkLabel;
- string SimVtxLabel;
- 
  bool verbose_;
  
  DaqMonitorBEInterface* dbe_;
@@ -89,18 +73,25 @@ private:
  double barrelADCtoGeV_;
  double endcapADCtoGeV_;
  
- MonitorElement* meGunEnergy_;
- MonitorElement* meGunEta_;
- MonitorElement* meGunPhi_;   
+ MonitorElement* meEBDigiOccupancy_;
 
- MonitorElement* meEBDigiSimRatio_;
- MonitorElement* meEEDigiSimRatio_;
+ MonitorElement* meEBDigiADCGlobal_;
 
- MonitorElement* meEBDigiSimRatiogt10ADC_;
- MonitorElement* meEEDigiSimRatiogt10ADC_;
+ MonitorElement* meEBDigiADCAnalog_[10];
 
- MonitorElement* meEBDigiSimRatiogt100ADC_;
- MonitorElement* meEEDigiSimRatiogt100ADC_;
+ MonitorElement* meEBDigiADCg1_[10];
+ MonitorElement* meEBDigiADCg6_[10];
+ MonitorElement* meEBDigiADCg12_[10];
+
+ MonitorElement* meEBDigiGain_[10];
+
+ MonitorElement* meEBPedestal_;
+
+ MonitorElement* meEBMaximumgt100ADC_;
+
+ MonitorElement* meEBMaximumgt10ADC_;
+
+ MonitorElement* meEBnADCafterSwitch_;
 
 };
 
