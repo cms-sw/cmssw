@@ -1,5 +1,5 @@
-#include "RecoEcal/EcalClusterAlgos/interface/HybridClusterAlgo.h"
-#include "RecoEcal/EcalClusterAlgos/interface/PositionAwareHit.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/HybridClusterAlgo.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/PositionAwareHit.h"
 
 #include "RecoCaloTools/Navigation/interface/EBDetIdNavigator.h"
 
