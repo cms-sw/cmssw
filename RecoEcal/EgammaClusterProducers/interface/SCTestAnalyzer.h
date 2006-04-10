@@ -11,7 +11,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoEcal/EgammaClusterProducers/interface/IslandClusterAlgo.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/IslandClusterAlgo.h"
 
 
 //

@@ -23,12 +23,12 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 // Class header file
-#include "RecoEcal/EgammaClusterProeducers/interface/TestClusterProducer.h"
+#include "RecoEcal/EgammaClusterProducers/interface/TestClusterProducer.h"
 
 
 TestClusterProducer::TestClusterProducer(const edm::ParameterSet& ps)
 {
-  island_p = new Island(ps.getParameter<double>("IslandBarrelSeedThr"), 
+  island_p = new IslandClusterAlgo(ps.getParameter<double>("IslandBarrelSeedThr"), 
 			ps.getParameter<double>("IslandEndcapSeedThr"));
 
   clusterCollection_ = ps.getParameter<std::string>("clusterCollection");

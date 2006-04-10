@@ -32,7 +32,7 @@ class TestClusterProducer : public edm::EDProducer
       int nEvt_;         // internal counter of events
  
       std::string clusterCollection_;
-      Island * island_p;
+      IslandClusterAlgo * island_p;
 
 };
 

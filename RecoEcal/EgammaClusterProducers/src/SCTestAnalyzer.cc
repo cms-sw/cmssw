@@ -25,7 +25,7 @@
 
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/SCTestAnalyzer.h"
-#include "RecoEcal/EgammaClusterAlgos/interface/BremRecovery.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/BremRecoveryClusterAlgo.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 SCTestAnalyzer::SCTestAnalyzer(const edm::ParameterSet& iConfig)
@@ -60,7 +60,7 @@ void SCTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   std::cout << "Got the BasicClusterCollection" << std::endl;
 
-  BremRecovery myBremRecovery;
+  BremRecoveryClusterAlgo myBremRecovery;
 
   std::vector<SuperCluster> mySuperClusters = myBremRecovery.makeSuperClusters(cluster_collection);
 }
