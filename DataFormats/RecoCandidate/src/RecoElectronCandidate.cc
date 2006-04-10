@@ -1,6 +1,6 @@
-// $Id: RecoElectronCandidate.cc,v 1.4 2006/02/21 10:37:36 llista Exp $
+// $Id: RecoElectronCandidate.cc,v 1.1 2006/02/28 10:59:16 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoElectronCandidate.h"
-#include "DataFormats/EGammaReco/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
 
 using namespace reco;
 

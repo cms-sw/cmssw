@@ -1,4 +1,5 @@
-<use name=DataFormats/EGammaReco>
+<use name=DataFormats/EgammaReco>
+<use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/TrackReco>
@@ -7,7 +8,8 @@
 <flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsRecoCandidate>
- <use name=DataFormats/EGammaReco>
+ <use name=DataFormats/EgammaReco>
+ <use name=DataFormats/EgammaCandidates>
  <use name=DataFormats/MuonReco>
  <use name=DataFormats/VertexReco>
  <use name=DataFormats/TrackReco>

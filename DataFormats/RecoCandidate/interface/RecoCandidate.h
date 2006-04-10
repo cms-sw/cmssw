@@ -6,15 +6,15 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.4 2006/03/08 12:57:08 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.5 2006/04/03 09:05:32 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/EGammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EGammaReco/interface/ElectronFwd.h"
-#include "DataFormats/EGammaReco/interface/PhotonFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 namespace reco {

@@ -1,6 +1,6 @@
-// $Id: RecoPhotonCandidate.cc,v 1.4 2006/02/21 10:37:36 llista Exp $
+// $Id: RecoPhotonCandidate.cc,v 1.1 2006/02/28 10:59:16 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoPhotonCandidate.h"
-#include "DataFormats/EGammaReco/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 using namespace reco;
 
