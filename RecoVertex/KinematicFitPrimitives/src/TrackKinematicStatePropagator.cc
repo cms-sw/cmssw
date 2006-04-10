@@ -24,7 +24,7 @@ pair<HelixBarrelPlaneCrossingByCircle,BoundPlane *> TrackKinematicStatePropagato
  GlobalPoint inPos = state.position();
  GlobalVector inMom = state.momentum();
  double kappa = state.transverseCurvature();
- double fac = 1./state.charge()/TrackingTools::FakeField::Field::inInverseGeV(point).z();
+ double fac = 1./state.charge()/TrackingTools::FakeField::Field::inGeVPerCentimeter(point).z();
  
  GlobalVectorDouble xOrig2Centre = GlobalVectorDouble(fac * inMom.y(), -fac * inMom.x(), 0.);
  GlobalVectorDouble xOrigProj = GlobalVectorDouble(inPos.x(), inPos.y(), 0.);

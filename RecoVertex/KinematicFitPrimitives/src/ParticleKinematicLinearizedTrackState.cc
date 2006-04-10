@@ -154,7 +154,7 @@ void ParticleKinematicLinearizedTrackState::computeChargedJacobians() const
  GlobalPoint paramPt(theLinPoint);
 // thePredState = builder(part->currentState(), paramPt);
  
- double field = TrackingTools::FakeField::Field::inInverseGeV(thePredState.theState().globalPosition()).z();
+ double field = TrackingTools::FakeField::Field::inGeVPerCentimeter(thePredState.theState().globalPosition()).z();
  double signTC = -part->currentState().particleCharge();
  
  double thetaAtEP = thePredState.theState().globalMomentum().theta();

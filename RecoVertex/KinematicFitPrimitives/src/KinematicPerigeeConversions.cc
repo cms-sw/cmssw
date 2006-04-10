@@ -16,8 +16,8 @@ ExtendedPerigeeTrajectoryParameters KinematicPerigeeConversions::
  double theta = state.globalMomentum().theta();
  double phi = state.globalMomentum().phi();
  double pt  = state.globalMomentum().transverse();
-//  double field = MagneticField::inInverseGeV(state.globalPosition()).z();
- double field = TrackingTools::FakeField::Field::inInverseGeV(state.globalPosition()).z();
+//  double field = MagneticField::inGeVPerCentimeter(state.globalPosition()).z();
+ double field = TrackingTools::FakeField::Field::inGeVPerCentimeter(state.globalPosition()).z();
 // double signTC = -state.particleCharge();
 // double transverseCurvature = field/pt*signTC;
 
@@ -57,7 +57,7 @@ ExtendedPerigeeTrajectoryParameters KinematicPerigeeConversions::
  AlgebraicVector theVector = pr.vector(); 
  double pt;
  if(pr.charge() !=0){
-  pt = std::abs(TrackingTools::FakeField::Field::inInverseGeV(point).z() / theVector(1));
+  pt = std::abs(TrackingTools::FakeField::Field::inGeVPerCentimeter(point).z() / theVector(1));
  }else{pt = 1/theVector(1);}
  par(7) = theVector(6);
  par(1) = theVector[3]*sin(theVector[2])+point.x(); 
@@ -101,7 +101,7 @@ AlgebraicMatrix KinematicPerigeeConversions::jacobianParameters2Kinematic(const 
 {
   double factor = 1;
   if (charge != 0){
-   double field = TrackingTools::FakeField::Field::inInverseGeV(referencePoint).z();
+   double field = TrackingTools::FakeField::Field::inGeVPerCentimeter(referencePoint).z();
    factor =  -field*charge;
    }
   AlgebraicMatrix frameTransJ(7, 7, 0);
@@ -129,8 +129,8 @@ AlgebraicVector KinematicPerigeeConversions::momentumFromPerigee(const Algebraic
  AlgebraicVector mm(4);
  double pt;
  if(ch !=0){
-//   pt = abs(MagneticField::inInverseGeV(referencePoint).z() / momentum[0]);
-     pt = std::abs(TrackingTools::FakeField::Field::inInverseGeV(referencePoint).z()  / momentum[0]);
+//   pt = abs(MagneticField::inGeVPerCentimeter(referencePoint).z() / momentum[0]);
+     pt = std::abs(TrackingTools::FakeField::Field::inGeVPerCentimeter(referencePoint).z()  / momentum[0]);
  }else{pt = 1/ momentum[0];}
  mm(1) = cos(momentum[2]) * pt;
  mm(2) = sin(momentum[2]) * pt;

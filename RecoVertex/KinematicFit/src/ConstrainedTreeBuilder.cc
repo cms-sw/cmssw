@@ -122,7 +122,7 @@ AlgebraicMatrix ConstrainedTreeBuilder::momentumPart(vector<RefCountedKinematicP
  
 //vertex position related components of the matrix 
   TrackCharge ch = (*i)->currentState().particleCharge();
-  double field = TrackingTools::FakeField::Field::inInverseGeV((*i)->currentState().globalPosition()).z();
+  double field = TrackingTools::FakeField::Field::inGeVPerCentimeter((*i)->currentState().globalPosition()).z();
   double a_i = -0.29979246*ch*field;
   AlgebraicMatrix upper(3,7,0);
   AlgebraicMatrix diagonal(7,7,0);

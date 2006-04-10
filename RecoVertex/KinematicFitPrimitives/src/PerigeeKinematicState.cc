@@ -2,6 +2,7 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicPerigeeConversions.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
+#include "TrackingTools/TrajectoryState/interface/FakeField.h"
 
 PerigeeKinematicState::PerigeeKinematicState(const KinematicState& state, const GlobalPoint& pt):
  point(pt), inState(state),  errorIsAvailable(true),vl(true)
@@ -39,7 +40,7 @@ AlgebraicMatrix PerigeeKinematicState::jacobianKinematicToExPerigee(const Kinema
  jac(5,3) = 1;
  AlgebraicVector par = state.kinematicParameters().vector();
  GlobalVector impactDistance = state.globalPosition() - point;
- double field = MagneticField::inInverseGeV(state.globalPosition()).z();
+ double field = TrackingTools::FakeField::Field::inGeVPerCentimeter(state.globalPosition()).z();
  double signTC = -state.particleCharge();
  double theta = state.globalMomentum().theta();
  double phi = state.globalMomentum().phi();

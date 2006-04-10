@@ -17,9 +17,9 @@ AlgebraicVector  TwoTrackMassKinematicConstraint::value(const vector<KinematicSt
  TrackCharge ch1 = p_1.particleCharge();
  TrackCharge ch2 = p_2.particleCharge();
  
- double field1 = TrackingTools::FakeField::Field::inInverseGeV(p_1.globalPosition()).z();
+ double field1 = TrackingTools::FakeField::Field::inGeVPerCentimeter(p_1.globalPosition()).z();
  double a_1 = -0.29979246*ch1*field1;
- double field2 = TrackingTools::FakeField::Field::inInverseGeV(p_2.globalPosition()).z();
+ double field2 = TrackingTools::FakeField::Field::inGeVPerCentimeter(p_2.globalPosition()).z();
  double a_2 = -0.29979246*ch2*field2;
 
  AlgebraicVector p1 = p_1.kinematicParameters().vector();
@@ -62,9 +62,9 @@ AlgebraicMatrix TwoTrackMassKinematicConstraint::parametersDerivative(const vect
  TrackCharge ch1 = p_1.particleCharge();
  TrackCharge ch2 = p_2.particleCharge();
  
- double field1 = TrackingTools::FakeField::Field::inInverseGeV(p_1.globalPosition()).z();
+ double field1 = TrackingTools::FakeField::Field::inGeVPerCentimeter(p_1.globalPosition()).z();
  double a_1 = -0.29979246*ch1*field1;
- double field2 = TrackingTools::FakeField::Field::inInverseGeV(p_2.globalPosition()).z();
+ double field2 = TrackingTools::FakeField::Field::inGeVPerCentimeter(p_2.globalPosition()).z();
  double a_2 = -0.29979246*ch2*field2;
  
  AlgebraicVector p1 = p_1.kinematicParameters().vector();
@@ -129,9 +129,9 @@ AlgebraicMatrix TwoTrackMassKinematicConstraint::positionDerivative(const vector
  TrackCharge ch1 = p_1.particleCharge();
  TrackCharge ch2 = p_2.particleCharge();
  
- double field1 = TrackingTools::FakeField::Field::inInverseGeV(p_1.globalPosition()).z();
+ double field1 = TrackingTools::FakeField::Field::inGeVPerCentimeter(p_1.globalPosition()).z();
  double a_1 = -0.29979246*ch1*field1;
- double field2 = TrackingTools::FakeField::Field::inInverseGeV(p_2.globalPosition()).z();
+ double field2 = TrackingTools::FakeField::Field::inGeVPerCentimeter(p_2.globalPosition()).z();
  double a_2 = -0.29979246*ch2*field2;
  
  AlgebraicVector p1 = p_1.kinematicParameters().vector();
