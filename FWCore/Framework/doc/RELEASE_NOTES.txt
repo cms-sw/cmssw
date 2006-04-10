@@ -268,3 +268,28 @@ using entirely in Schedule.cc.  The test/testBitsCount.cfg script
 tests that a correctly specified listOfTriggers works properly; it 
 does not check the bad cases.
 
+10-04-06 jbk
+
+The listOfTriggers information was not properly applied to both the
+TriggerNamesService and the Schedule.  Although it was correct in the
+Schedule, the TriggerNameService never saw it and therefore OutputModules
+did not make the correct selection when listOfTriggers was set in the
+process pset options pset.  Now the TriggerNameService calculates all the
+values needed for making the trigger bit mask and both the OutputModule
+and Schedule use its results.
+
+Note: The code in Schedule:runOneEvent replies on the fact that trigger bits
+are assigned sequencially and the set contains only the paths that are
+labelled as trigger paths (included in listOfTriggers if it is present).
+
+Note: The artificially generated "@trigger_paths" parameter (within 
+@trigger_paths - yes, a bit obscure and confusing) is untracked.  This
+may not be a good idea.  To interpret bit names, care must be taken to
+make use of the "options" information i.e. listOfTriggers.  We are ok for
+now because the TriggerResult caches the trigger names (because the psets
+were not stored in the output files when it was written).  The TriggerResultInserter
+module relies on @trigger_paths to be the list of paths with listOfTriggers
+applied.  If TriggerResults is modified to only hold the parameter set ID,
+then care must be taken to produce a trigger name list that applies the
+listOfTriggers.  It might be as easy as making @trigger_paths (within
+@trigger_paths of process pset - can't forget that). tracked instead of untracked.

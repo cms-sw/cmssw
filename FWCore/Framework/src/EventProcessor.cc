@@ -295,6 +295,8 @@ namespace edm {
 
     bool                            emittedBeginJob_;
     ActionTable                     act_table_;
+
+    EventProcessor::State state_;
   }; // class FwkImpl
 
   // ---------------------------------------------------------------
@@ -355,9 +357,9 @@ namespace edm {
     typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
     shared_ptr<w_CPR>
       reg(new w_CPR( std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(preg_))));
-    ServiceToken tempToken( ServiceRegistry::createContaining(reg, 
-							      serviceToken_, 
-							      kOverlapIsError));
+    ServiceToken tempToken(ServiceRegistry::createContaining(reg, 
+							     serviceToken_, 
+							     kOverlapIsError));
 
     // the next thing is ugly: pull out the trigger path pset and 
     // create a service and extra token for it
@@ -366,13 +368,12 @@ namespace edm {
     typedef edm::service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
-    ParameterSet trigger_paths =
-      (*params_).getUntrackedParameter<ParameterSet>("@trigger_paths");
     shared_ptr<w_TNS> tnsptr
-      (new w_TNS( std::auto_ptr<TNS>(new TNS(trigger_paths,proc_name))));
-    ServiceToken tempToken2(ServiceRegistry::createContaining(tnsptr, 
-							      tempToken, 
-							      kOverlapIsError));
+      (new w_TNS( std::auto_ptr<TNS>(new TNS(*params_))));
+    ServiceToken tempToken2
+      (ServiceRegistry::createContaining(tnsptr, 
+					 tempToken, 
+					 kOverlapIsError));
     //make the services available
     ServiceRegistry::Operate operate(tempToken2);
      
@@ -382,10 +383,14 @@ namespace edm {
 			   getVersion(), // this is not written for real yet
 			   0); // Where does it come from?
      
-    input_= makeInput(*params_, common_, preg_,*actReg_);     
-    sched_ = std::auto_ptr<Schedule>(new Schedule(*params_,wreg_,
-						  preg_,act_table_,
-						  actReg_));
+    input_= makeInput(*params_, common_, preg_,*actReg_);
+    sched_ = std::auto_ptr<Schedule>
+      (new Schedule(*params_,
+		    ServiceRegistry::instance().get<TNS>(),
+		    wreg_,
+		    preg_,
+		    act_table_,
+		    actReg_));
 
     esp_ = makeEventSetupProvider(*params_);
     fillEventSetupProvider(*esp_, *params_, common_);

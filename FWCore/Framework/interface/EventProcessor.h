@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.13 2005/12/09 19:53:57 paterno Exp $
+$Id: EventProcessor.h,v 1.14 2006/03/15 21:24:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -92,6 +92,35 @@ namespace edm {
        returns false if any module's endJob throws an exception
        */
     bool endJob();
+
+    /*
+      ------------
+      cause events to be processed in a separate thread
+      and functions used in the online.  Several of these
+      state are likely to be tranitory in the offline
+      because they are completly driven by the data coming from the 
+      input source.
+
+      sInit: ctor has completed
+      sJobStart: beginJob is active or complete
+      sRunStart: beginRun is active or complete
+      sRunning: event loop is actively processing events
+      sStopping: event loop is supposed to shut down after the current event
+      sIdle: no event loop is active
+      sError: event loop has encountered a bad error and stopped
+      sRunEnd: endRun is active or complete
+      sJobEnd: endJob is active or complete
+    */
+    enum State {sInit,sJobStart,sRunStart,sRunning,sStopping,
+		sIdle,sError,sRunEnd,sJobEnd };
+
+    State getState() const;
+    void runAsync();
+    StatusCode statusAsync() const;
+    StatusCode stopAsync(); // wait for the completion
+    void beginRun();
+    void endRun();
+    // -------------
 
     // Invoke event processing.  We will process a total of
     // 'numberToProcess' events. If numberToProcess is zero, we will

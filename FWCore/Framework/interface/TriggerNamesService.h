@@ -6,7 +6,7 @@
 
  Original Author:  Jim Kowalkowski 26-01-06
 
- $Id: TriggerNamesService.h,v 1.2 2006/02/03 06:00:15 jbk Exp $
+ $Id: TriggerNamesService.h,v 1.3 2006/02/08 00:44:24 wmtan Exp $
 
  This service makes the trigger bit assignments for the current process
  available to all modules.  This of particular use in the output modules.
@@ -35,17 +35,30 @@ namespace edm {
       typedef edm::TriggerResults::BitVector BitVector;
       typedef std::map<std::string, int> PosMap;
 
-      TriggerNamesService(const ParameterSet& trigger_names,
-			  const std::string& process_name);
+      TriggerNamesService(const ParameterSet& proc_pset);
       ~TriggerNamesService();
       
+      // trigger path information after all configuration options are applied
       BitVector getBitMask(const Strings& interesting_names) const;
       void getNames(Strings& out) const { out = names_; }
+
+      // info from configuration script
       std::string getProcessName() const { return process_name_; }
+      const Strings& getEndPaths() const { return end_paths_; }
+      const Strings& getPaths() const { return paths_; }
+      const Strings& getTrigPaths() const { return names_; }
+      bool wantSummary() const { return wantSummary_; }
+      bool makeTriggerResults() const { return makeTriggerResults_; }
+      edm::ParameterSet getTrigPSet() const { return trig_pset_; }
 
     private:
       std::string process_name_;
-      Strings names_;
+      edm::ParameterSet trig_pset_;
+      Strings names_; // of trigger paths
+      Strings paths_;
+      Strings end_paths_;
+      bool wantSummary_;
+      bool makeTriggerResults_;
       PosMap pos_;
     };
   }

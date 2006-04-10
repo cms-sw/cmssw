@@ -1,12 +1,14 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/ProducerWorker.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
@@ -116,64 +118,12 @@ namespace edm
 
   typedef vector<string> vstring;
 
-  void checkIfSubset(const vstring& in_all, const vstring& in_sub)
-  {
-    vstring all(in_all), sub(in_sub), result;
-    sort(all.begin(),all.end());
-    sort(sub.begin(),sub.end());
-    set_intersection(all.begin(),all.end(),
-		     sub.begin(),sub.end(),
-		     back_inserter(result));
-
-    if(result.size() != sub.size())
-      throw cms::Exception("TriggerPaths")
-	<< "Specified listOfTriggers is not a subset of the available paths\n";
-  }
-
-  ParameterSet getTrigPSet(ParameterSet const& proc_pset)
-  {
-    ParameterSet rc = 
-      proc_pset.getUntrackedParameter<ParameterSet>("@trigger_paths");
-    bool want_results = false;
-    // default for trigger paths is all the paths
-    vstring allpaths = rc.getParameter<vstring>("@paths");
-
-    // the value depends on options and value of listOfTriggers
-    try {
-	ParameterSet defopts;
-        ParameterSet opts = 
-	  proc_pset.getUntrackedParameter<ParameterSet>("options", defopts);
-	want_results =
-	  opts.getUntrackedParameter<bool>("makeTriggerResults",false);
-
-	// if makeTriggerResults is true, then listOfTriggers must be given
-
-	if(want_results) {
-	    vstring tmppaths = opts.getParameter<vstring>("listOfTriggers");
-
-	    // verify that all the names in allpaths are a subset of
-	    // the names currently in allpaths (all the names)
-
-	    if(!tmppaths.empty() && tmppaths[0] == "*") {
-		// leave as full list
-	    } else {
-		checkIfSubset(allpaths, tmppaths);
-		allpaths.swap(tmppaths);
-	    }
-	}
-    }
-    catch(edm::Exception& e) {
-    }
-
-    rc.addUntrackedParameter<vstring>("@trigger_paths",allpaths);
-    return rc;
-  }
-
   // -----------------------------
 
   Schedule::~Schedule() { }
 
   Schedule::Schedule(ParameterSet const& proc_pset,
+		     edm::service::TriggerNamesService& tns,
 		     WorkerRegistry& wreg,
 		     ProductRegistry& preg,
 		     ActionTable& actions,
@@ -182,13 +132,13 @@ namespace edm
     worker_reg_(&wreg),
     prod_reg_(&preg),
     act_table_(&actions),
-    proc_name_(proc_pset.getParameter<string>("@process_name")),
-    trig_pset_(getTrigPSet(proc_pset)),
+    proc_name_(tns.getProcessName()),
+    trig_pset_(tns.getTrigPSet()),
     act_reg_(areg),
     state_(Ready),
-    trig_name_list_(trig_pset_.getUntrackedParameter<vstring>("@trigger_paths")),
-    path_name_list_(trig_pset_.getParameter<vstring>("@paths")),
-    end_path_name_list_(trig_pset_.getParameter<vstring>("@end_paths")),
+    trig_name_list_(tns.getTrigPaths()),
+    path_name_list_(tns.getPaths()),
+    end_path_name_list_(tns.getEndPaths()),
     trig_name_set_(trig_name_list_.begin(),trig_name_list_.end()),
 
     results_(new BitMask),
@@ -202,8 +152,8 @@ namespace edm
     results_inserter_(),
     trig_paths_(),
     end_paths_(),
-    wantSummary_(false),
-    makeTriggerResults_(false),
+    wantSummary_(tns.wantSummary()),
+    makeTriggerResults_(tns.makeTriggerResults()),
     total_events_(),
     total_passed_(),
     stopwatch_(new TStopwatch),
@@ -212,10 +162,6 @@ namespace edm
     ParameterSet defopts;
     ParameterSet opts = 
       pset_.getUntrackedParameter<ParameterSet>("options", defopts);
-    wantSummary_ = 
-      opts.getUntrackedParameter("wantSummary",false);
-    makeTriggerResults_ = 
-      opts.getUntrackedParameter("makeTriggerResults",false);
     
     vstring& ends = end_path_name_list_;
     bool hasFilter = false;
