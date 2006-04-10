@@ -1,0 +1,19 @@
+<use name=clhep>
+<use name=FastSimulation/Event>
+<use name=FastSimulation/MaterialEffects>
+<use name=FastSimulation/ParticlePropagator>
+<use name=FastSimulation/TrackerSetup>
+<use name=FastSimulation/ParticleDecay>
+# <use name=FastSimulation/Utilities>
+<use name=Geometry/Surface>
+<export>
+ <use name=clhep>
+ <lib name=FastSimulationTrajectoryManager>
+ <use name=FastSimulation/Event>
+ <use name=FastSimulation/MaterialEffects>
+ <use name=FastSimulation/ParticlePropagator>
+ <use name=FastSimulation/TrackerSetup>
+ <use name=FastSimulation/ParticleDecay>
+# <use name=FastSimulation/Utilities>
+ <use name=Geometry/Surface>
+</export>
