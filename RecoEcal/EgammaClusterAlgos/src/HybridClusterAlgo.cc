@@ -1,5 +1,5 @@
-#include "RecoECAL/ECALClusters/interface/Hybrid.h"
-#include "RecoECAL/ECALClusters/interface/PositionAwareHit.h"
+#include "RecoEcal/EcalClusterAlgos/interface/HybridClusterAlgo.h"
+#include "RecoEcal/EcalClusterAlgos/interface/PositionAwareHit.h"
 
 #include "RecoCaloTools/Navigation/interface/EBDetIdNavigator.h"
 
@@ -7,9 +7,9 @@
 #include <map>
 #include <vector>
 
-void Hybrid::mainSearch(const CaloSubdetectorGeometry & geometry)
+void HybridClusterAlgo::mainSearch(const CaloSubdetectorGeometry & geometry)
 {
-  std::cout << "Hybrid Algorithm - looking for clusters" << std::endl;
+  std::cout << "HybridClusterAlgo Algorithm - looking for clusters" << std::endl;
   std::cout << "Found the following clusters:" << std::endl;
   
   // Loop over seeds:
@@ -182,7 +182,7 @@ void Hybrid::mainSearch(const CaloSubdetectorGeometry & geometry)
   }
 }
 
-double Hybrid::makeDomino(EBDetIdNavigator &navigator, std::vector <PositionAwareHit> &cells)
+double HybridClusterAlgo::makeDomino(EBDetIdNavigator &navigator, std::vector <PositionAwareHit> &cells)
 {
   //At the beginning of this function, the navigator starts at the middle of the domino,
   //and that's where EBDetIdNavigator::home() should send it.

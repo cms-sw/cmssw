@@ -1,5 +1,5 @@
-#ifndef RecoECAL_ECALClusters_ClusteringAlgorithm_h
-#define RecoECAL_ECALClusters_ClusteringAlgorithm_h
+#ifndef RecoEcal_EcalClusterAlgos_ClusteringAlgorithm_h
+#define RecoEcal_EcalClusterAlgos_ClusteringAlgorithm_h
 
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"

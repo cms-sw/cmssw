@@ -1,5 +1,5 @@
-#ifndef RecoECAL_ECALClusters_IslandClusterAlgo_h
-#define RecoECAL_ECALClusters_IslandClusterAlgo_h
+#ifndef RecoEcal_EcalClusterAlgos_IslandClusterAlgo_h
+#define RecoEcal_EcalClusterAlgos_IslandClusterAlgo_h
 
 #include "RecoEcal/EgammaClusterAlgos/interface/ClusteringAlgorithm.h"
 

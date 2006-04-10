@@ -1,5 +1,5 @@
-#ifndef RecoECAL_ECALClusters_BremRecoveryClusterAlgo_h_
-#define RecoECAL_ECALClusters_BremRecoveryClusterAlgo_h_
+#ifndef RecoEcal_EcalClusterAlgos_BremRecoveryClusterAlgo_h_
+#define RecoEcal_EcalClusterAlgos_BremRecoveryClusterAlgo_h_
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
