@@ -1,7 +1,7 @@
 #include "RecoVertex/VertexTools/interface/PerigeeRefittedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/RefCountedRefittedTrackState.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 

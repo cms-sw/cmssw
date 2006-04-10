@@ -1,7 +1,7 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicRefittedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/RefCountedRefittedTrackState.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicPerigeeConversions.h"
 #include "TrackingTools/TrajectoryState/interface/FakeField.h"
 
