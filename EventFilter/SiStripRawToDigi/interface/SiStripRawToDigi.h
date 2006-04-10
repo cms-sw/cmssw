@@ -36,7 +36,8 @@ class SiStripRawToDigi {
   ~SiStripRawToDigi();
   
   //@@ pass-by-ref otherwise auto_ptr "sink"?! IMPROVE
-  void createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
+  void createDigis( uint32_t& event,
+		    edm::ESHandle<SiStripFedCabling>& cabling,
 		    edm::Handle<FEDRawDataCollection>& buffers,
 		    auto_ptr< edm::DetSetVector<SiStripRawDigi> >& scope_mode,
 		    auto_ptr< edm::DetSetVector<SiStripRawDigi> >& virgin_raw,
