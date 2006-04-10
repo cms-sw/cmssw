@@ -23,6 +23,8 @@
 //#include "DQM/SiStripCommissioningSources/interface/PhysicsTask.h"
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
+#include "DQM/SiStripCommissioningSources/interface/OptoBiasAndGainScanTask.h"
+//#include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
 // std, utilities
 #include <boost/cstdint.hpp>
 #include <memory>
@@ -150,13 +152,13 @@ bool CommissioningSource::createTask( const edm::EventSetup& setup,
 							      (*iring).fecRing(),
 							      (*iccu).ccuAddr(),
 							      (*imodule).ccuChan() );
-	  SiStripHistoNamingScheme::ControlPath path = SiStripHistoNamingScheme::controlPath( dir );
-	  edm::LogInfo("rob") << dir << " " 
-			      << path.fecCrate_ << " " 
-			      << path.fecSlot_ << " " 
-			      << path.fecRing_ << " " 
-			      << path.ccuAddr_ << " "  
-			      << path.ccuChan_; 
+// 	  SiStripHistoNamingScheme::ControlPath path = SiStripHistoNamingScheme::controlPath( dir );
+// 	  edm::LogInfo("rob") << dir << " " 
+// 			      << path.fecCrate_ << " " 
+// 			      << path.fecSlot_ << " " 
+// 			      << path.fecRing_ << " " 
+// 			      << path.ccuAddr_ << " "  
+// 			      << path.ccuChan_; 
 	  dqm_->setCurrentFolder( dir );
 	  map< uint16_t, pair<uint16_t,uint16_t> >::const_iterator iconn;
 	  for ( iconn = imodule->fedChannels().begin(); iconn != imodule->fedChannels().end(); iconn++ ) {
@@ -169,11 +171,15 @@ bool CommissioningSource::createTask( const edm::EventSetup& setup,
 	    if ( tasks_.find( fed_key ) == tasks_.end() ) {
 	      if      ( task_ == "PEDESTALS" )  { tasks_[fed_key] = new PedestalsTask( dqm_, conn ); }
 	      else if ( task_ == "APV_TIMING" ) { tasks_[fed_key] = new ApvTimingTask( dqm_, conn ); }
+	      else if ( task_ == "OPTO_SCAN" )  { tasks_[fed_key] = new OptoBiasAndGainScanTask( dqm_, conn ); }
+	      //	      else if ( task_ == "VPSP_SCAN" )  { tasks_[fed_key] = new VpspScanTask( dqm_, conn ); }
 	      //else if ( task_ == "PHYSICS" )    { tasks_[fed_key] = new PhysicsTask( dqm_, conn ); }
 	      else if ( task_ != "UNKNOWN" ) {
 		//  Use data stream to determine which task objects are created!
-		if ( task == SiStripEventSummary::PEDESTALS )  { tasks_[fed_key] = new PedestalsTask( dqm_, conn ); }
+		if      ( task == SiStripEventSummary::PEDESTALS )  { tasks_[fed_key] = new PedestalsTask( dqm_, conn ); }
 		else if ( task == SiStripEventSummary::APV_TIMING ) { tasks_[fed_key] = new ApvTimingTask( dqm_, conn ); }
+		else if ( task == SiStripEventSummary::OPTO_SCAN )  { tasks_[fed_key] = new OptoBiasAndGainScanTask( dqm_, conn ); }
+		//		else if ( task == SiStripEventSummary::VPSP_SCAN )  { tasks_[fed_key] = new VpspScanTask( dqm_, conn ); }
 		//else if ( task == SiStripEventSummary::PHYSICS )    { tasks_[fed_key] = new PhysicsTask( dqm_, conn ); }
 		else if ( task == SiStripEventSummary::UNKNOWN_TASK ) {
 		  edm::LogError("Commissioning") << "[CommissioningSource::createTask]"

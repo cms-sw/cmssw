@@ -5,6 +5,20 @@
 #include <sstream>
 #include <string>
 
+
+// -----------------------------------------------------------------------------
+//
+const uint16_t& FedChannelConnection::i2cAddr( const uint16_t& apv ) const { 
+  if      ( apv == 0 ) { return apv0_; }
+  else if ( apv == 1 ) { return apv1_; }
+  else {
+    edm::LogWarning("Cabling") << "[FedChannelConnection::i2cAddr]"
+			       << " Unexpected APV I2C address!" << apv;
+    static const uint16_t i2c_addr = 0;
+    return i2c_addr;
+  }
+}
+
 // -----------------------------------------------------------------------------
 //
 uint16_t FedChannelConnection::lldChannel() const {
@@ -64,8 +78,8 @@ void FedChannelConnection::print() const {
      << fecRing() << "/"
      << ccuAddr() << "/"
      << ccuChan() << "/"
-     << i2cAddrApv0() << "/"
-     << i2cAddrApv1() 
+     << i2cAddr(0) << "/"
+     << i2cAddr(1) 
      << "  DCU/MUX/PLL/LLD: "
      << dcu() << "/"
      << mux() << "/"

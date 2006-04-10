@@ -48,28 +48,28 @@ class FedChannelConnection {
 
   // ----- Control structure -----
 
-  const uint16_t& fecCrate() const { return fecCrate_; } 
-  const uint16_t& fecSlot() const { return fecSlot_; } 
-  const uint16_t& fecRing() const { return fecRing_; }
-  const uint16_t& ccuAddr() const { return ccuAddr_; }
-  const uint16_t& ccuChan() const { return ccuChan_; }
+  inline const uint16_t& fecCrate() const { return fecCrate_; } 
+  inline const uint16_t& fecSlot() const { return fecSlot_; } 
+  inline const uint16_t& fecRing() const { return fecRing_; }
+  inline const uint16_t& ccuAddr() const { return ccuAddr_; }
+  inline const uint16_t& ccuChan() const { return ccuChan_; }
 
   // ----- APV I2C addresses -----
-  const uint16_t& i2cAddrApv0() const { return apv0_; }
-  const uint16_t& i2cAddrApv1() const { return apv1_; }
+
+  const uint16_t& i2cAddr( const uint16_t& apv ) const; 
 
   // ----- Other hybrid devices -----
 
-  const bool& dcu() const { return dcu0x00_; }
-  const bool& mux() const { return mux0x43_; }
-  const bool& pll() const { return pll0x44_; }
-  const bool& lld() const { return lld0x60_; }
+  inline const bool& dcu() const { return dcu0x00_; }
+  inline const bool& mux() const { return mux0x43_; }
+  inline const bool& pll() const { return pll0x44_; }
+  inline const bool& lld() const { return lld0x60_; }
   
   // ----- Module / Detector -----
 
-  const uint32_t& dcuId() const { return dcuId_; }
-  const uint32_t& detId() const { return detId_; }
-  const uint16_t& nApvPairs() const { return nApvPairs_; }
+  inline const uint32_t& dcuId() const { return dcuId_; }
+  inline const uint32_t& detId() const { return detId_; }
+  inline const uint16_t& nApvPairs() const { return nApvPairs_; }
   /** Returns APV pair number for this connection (this can be either
       0->1 or 0->2, depending on number of detector strips). */
   uint16_t apvPairNumber() const;
@@ -78,8 +78,9 @@ class FedChannelConnection {
   
   // ----- FED -----
 
-  const uint16_t& fedId() const { return fedId_; }
-  const uint16_t& fedCh() const { return fedCh_; }
+  inline const uint16_t& fedId() const { return fedId_; }
+  inline const uint16_t& fedCh() const { return fedCh_; }
+
   void fedId( uint16_t& fed_id ) { fedId_ = fed_id; }
   void fedCh( uint16_t& fed_ch ) { fedCh_ = fed_ch; }
   

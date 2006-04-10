@@ -26,7 +26,7 @@ TBRUInputSource::TBRUInputSource(const edm::ParameterSet & pset, edm::InputSourc
   edm::ExternalInputSource(pset,desc),
   m_quiet( pset.getUntrackedParameter<bool>("quiet",true)),
   m_branches(-1),
-  branches(-1)
+  branches(-1) // R.B.
 {
   m_tree=0;
   m_fileCounter=-1;
@@ -35,8 +35,7 @@ TBRUInputSource::TBRUInputSource(const edm::ParameterSet & pset, edm::InputSourc
   n_fed9ubufs=0;
   for (int i=0;i<MAX_FED9U_BUFFER;i++)
     m_fed9ubufs[i]=0;
-  //if (pset.retrieveUntracked("branches")!=NULL)
-  branches = pset.getUntrackedParameter<int>("branches",-1);
+  branches = pset.getUntrackedParameter<int>("branches",-1); // R.B.
   
   produces<FEDRawDataCollection>();
 }
@@ -85,10 +84,7 @@ void TBRUInputSource::openFile(const std::string& filename) {
 
   TObjArray* lb=m_tree->GetListOfBranches();
   n_fed9ubufs=0;
-  m_branches = (branches<0) ? lb->GetSize() : branches;
-  if (!m_quiet) {
-    LogDebug("TBRU") << " Number of branches: " << m_branches;
-  }
+  m_branches = (branches<0) ? lb->GetSize() : branches; // R.B.
   for (int i=0; i<lb->GetSize(); i++) {
     TBranch* b=(TBranch*)lb->At(i);
     if (b==0) continue;
@@ -118,7 +114,7 @@ void TBRUInputSource::openFile(const std::string& filename) {
   }
   m_i=0;
   LogDebug("TBRU") << "File " << filename << " is opened";
-  if (branches>0) n_fed9ubufs = m_branches/2;
+  if (branches>0) n_fed9ubufs = m_branches/2; //R.B.
 }
 
 void TBRUInputSource::setRunAndEventInfo() {

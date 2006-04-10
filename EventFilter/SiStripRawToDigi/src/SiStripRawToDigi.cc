@@ -35,8 +35,7 @@ SiStripRawToDigi::SiStripRawToDigi( int16_t header_bytes,
   dumpFrequency_( dump_frequency ),
   useFedKey_( use_fed_key ),
   triggerFedId_( trigger_fed_id ),
-  anal_("SiStripRawToDigi"),
-  skews_() //@@ debug
+  anal_("SiStripRawToDigi")
 {
   edm::LogInfo("RawToDigi") << "[SiStripRawToDigi::SiStripRawToDigi] Constructing object...";
 }
@@ -48,10 +47,6 @@ SiStripRawToDigi::~SiStripRawToDigi() {
   if ( fedEvent_ ) { delete fedEvent_; }
   if ( fedDescription_ ) { delete fedDescription_; }
 
-  //@@ debug
-  stringstream ss;
-  for ( uint16_t iter = 0; iter < skews_.size(); iter++ ) { ss << iter << "/" << skews_[iter] << " "; }
-  edm::LogInfo("SiStripRawToDigi::~SiStripRawToDigi") << "Skew/Freq: " << ss.str();
 }
 
 // -----------------------------------------------------------------------------
@@ -63,7 +58,8 @@ SiStripRawToDigi::~SiStripRawToDigi() {
     Fed9UEvent object using current FEDRawData buffer, dumps FED
     buffer to stdout, retrieves data from various header fields
 */
-void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
+void SiStripRawToDigi::createDigis( uint32_t& event,
+				    edm::ESHandle<SiStripFedCabling>& cabling,
 				    edm::Handle<FEDRawDataCollection>& buffers,
 				    auto_ptr< edm::DetSetVector<SiStripRawDigi> >& scope_mode,
 				    auto_ptr< edm::DetSetVector<SiStripRawDigi> >& virgin_raw,
@@ -77,7 +73,7 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
   const uint16_t& trigger_fed_id = triggerFedId_; // cabling->triggerFedId(); //@@ from cabling?!
   const FEDRawData& trigger_fed = buffers->FEDData( static_cast<int>(trigger_fed_id) );
   if ( trigger_fed_id && trigger_fed.size() ) { triggerFed( trigger_fed, summary ); }
-  dumpRawData( trigger_fed_id, trigger_fed );
+  //dumpRawData( trigger_fed_id, trigger_fed ); 
 
   // Retrieve FED ids from cabling map and iterate through 
   const vector<uint16_t>& fed_ids = cabling->feds(); 
@@ -107,20 +103,22 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
       ss << "[SiStripRawToDigi::createDigis]"
 	 << " Caught ICExeption: " << e.what();
       throw string( ss.str() );
-      edm::LogError("RawToDigi") << ss.str();; 
+      edm::LogError("RawToDigi") << ss.str();
     } 
     catch(...) {
       stringstream ss;
       ss << "[SiStripRawToDigi::createDigis]"
 	 << " Unknown exception thrown by Fed9UEvent!";
       throw string( ss.str() );
-      edm::LogError("RawToDigi") << ss.str();; 
+      edm::LogError("RawToDigi") << ss.str();
     }
     
     // Dump of FED buffer to stdout
-    stringstream ss;
-    fedEvent_->dump( ss );
-    LogDebug("RawToDigi") << ss.str();
+    if ( dumpFrequency_ && !(event%dumpFrequency_) ) {
+      stringstream ss;
+      fedEvent_->dump( ss );
+      LogDebug("RawToDigi") << ss.str();
+    }
     
     // Retrieve DAQ/TK header information
     uint32_t run_type = fedEvent_->getEventType();
@@ -128,13 +126,14 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
     uint32_t bunchx   = fedEvent_->getBunchCrossing();
     uint32_t ev_type  = fedEvent_->getSpecialTrackerEventType();
     uint32_t daq_reg  = fedEvent_->getDaqRegister();
-    LogDebug("RawToDigi") << "[SiStripRawToDigi::createDigis]"
-			  << "  Run Type: " << run_type 
-			  << "  Event Number: " << ev_num 
-			  << "  Bunch Crossing: " << bunchx 
-			  << "  FED Readout Mode: " << ev_type 
-			  << "  DAQ Register: " << daq_reg; 
-    
+    if ( dumpFrequency_ && !(event%dumpFrequency_) ) {
+      LogDebug("RawToDigi") << "[SiStripRawToDigi::createDigis]"
+			    << "  Run Type: " << run_type 
+			    << "  Event Number: " << ev_num 
+			    << "  Bunch Crossing: " << bunchx 
+			    << "  FED Readout Mode: " << ev_type 
+			    << "  DAQ Register: " << daq_reg; 
+    }
 
     // Iterate through FED channels, extract payload and create Digis
     Fed9U::Fed9UAddress addr;
@@ -157,14 +156,6 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
       uint16_t iunit = addr.getFedFeUnit();
       uint16_t ichan = addr.getFeUnitChannel();
       
-      LogDebug("RawToDigi") << "[SiStripRawToDigi::createDigis]" 
-			    << "  channel: " << channel 
-			    << "  InternalFeUnit: " << static_cast<uint16_t>( addr.getFedFeUnit() )
-			    << "  InternalFeChannel: " <<  static_cast<uint16_t>( addr.getFeUnitChannel() )
-			    << "  InternalFeNumChannels: " << static_cast<uint16_t>( fedEvent_->feUnit( addr.getFedFeUnit() ).channels() )
-			    << "  ExternalFeUnit: " << static_cast<uint16_t>( addr.getExternalFedFeUnit() )
-			    << "  ExternalFeChannel: " <<  static_cast<uint16_t>( addr.getExternalFeUnitChannel() );
-      
       // Retrieve cabling map information and define "FED key" for Digis
       uint16_t chan = (addr.getFedFeUnit())*12 + (addr.getFeUnitChannel()); //@@ needed due to bug in module.xml generation?
       const FedChannelConnection& conn = cabling->connection( *ifed, chan );
@@ -173,17 +164,17 @@ void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripFedCabling>& cabling,
       uint32_t fed_key = SiStripGenerateKey::fed( conn.fedId(), conn.fedCh() );
       uint32_t key     = (useFedKey_ || ev_type==1) ? fed_key : conn.detId();
       uint16_t ipair   = (useFedKey_ || ev_type==1) ? 0 : conn.apvPairNumber();
-      stringstream ss; 
-      ss << "[SiStripRawToDigi::createDigis]" 
-	 << "  FED id/ch/key: " 
-	 << conn.fedId() << "/" << conn.fedCh() << "/" 
-	 << hex << setfill('0') << setw(8) << fed_key << dec
-	 << " UseFedKey?/ScopeMode?/DetId/ApvPairNumber/key/ipair: " 
-	 << useFedKey_ << "/" << (ev_type==1) << "/" << conn.detId() 
-	 << "/" << conn.apvPairNumber() << "/" 
-	 << hex << setfill('0') << setw(8) << key << dec 
-	 << "/" << ipair;
-      LogDebug("RawToDigi") << ss.str();
+//       stringstream ss; 
+//       ss << "[SiStripRawToDigi::createDigis]" 
+// 	 << "  FED id/ch/key: " 
+// 	 << conn.fedId() << "/" << conn.fedCh() << "/" 
+// 	 << hex << setfill('0') << setw(8) << fed_key << dec
+// 	 << " UseFedKey?/ScopeMode?/DetId/ApvPairNumber/key/ipair: " 
+// 	 << useFedKey_ << "/" << (ev_type==1) << "/" << conn.detId() 
+// 	 << "/" << conn.apvPairNumber() << "/" 
+// 	 << hex << setfill('0') << setw(8) << key << dec 
+// 	 << "/" << ipair;
+//       LogDebug("RawToDigi") << ss.str();
       
       // Check for non-zero key OR scope mode
       if ( !key ) { continue; }
@@ -335,13 +326,6 @@ void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
       uint32_t* head = &data[hsize];
       summary->commissioningInfo( head );
       
-      //@@ debug
-      if ( summary->task() == SiStripEventSummary::APV_TIMING ) {
-	pair<uint32_t,uint32_t> skews = summary->pll();
-	if ( skews.second >= skews_.size() ) { skews_.resize(skews.second+1); }
-	skews_[skews.second]++;
-      }
-      
     }
   }
   
@@ -376,11 +360,11 @@ void SiStripRawToDigi::locateStartOfFedBuffer( uint16_t fed_id,
       Resv = input_u32[2] & 0xFF000000;
       if ( BOE1 == 0x50000000 &&
 	   HxSS == 0x00000008 ) { // && Resv == 0xED000000 ) {
-	LogDebug("RawToDigi") << "[SiStripRawToDigi::locateStartOfFedBuffer]" 
-			      << " FED buffer has been found at byte position " 
-			      << ichar << " with a size of " << input.size()-ichar << " bytes";
-	LogDebug("RawToDigi") << "[SiStripRawToDigi::locateStartOfFedBuffer]" 
-			      << " adjust the configurable 'AppendedHeaderBytes' to " << ichar;
+	edm::LogInfo("RawToDigi") << "[SiStripRawToDigi::locateStartOfFedBuffer]" 
+				  << " FED buffer has been found at byte position " 
+				  << ichar << " with a size of " << input.size()-ichar << " bytes";
+	edm::LogInfo("RawToDigi") << "[SiStripRawToDigi::locateStartOfFedBuffer]" 
+				  << " Adjust the configurable 'AppendedHeaderBytes' to " << ichar;
 	// Found DAQ header at byte position 'ichar' 
 	// Return adjusted buffer start position and size
 	output.resize( input.size()-ichar );
@@ -444,8 +428,7 @@ void SiStripRawToDigi::locateStartOfFedBuffer( uint16_t fed_id,
     Dumps raw data to stdout (NB: payload is byte-swapped,
     headers/trailer are not).
 */
-void SiStripRawToDigi::dumpRawData( uint16_t fed_id, 
-				    const FEDRawData& buffer ) {
+void SiStripRawToDigi::dumpRawData( uint16_t fed_id, const FEDRawData& buffer ) {
   LogDebug("RawToDigi") << "[SiStripRawToDigi::dumpRawData] "
 			<< "Dump of buffer from FED id " <<  fed_id 
 			<< " which contains " << buffer.size() <<" bytes";

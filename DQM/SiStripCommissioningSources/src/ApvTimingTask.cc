@@ -38,7 +38,7 @@ void ApvTimingTask::book( const FedChannelConnection& conn ) {
 					      fed_key,
 					      SiStripHistoNamingScheme::LLD_CHAN, 
 					      conn.lldChannel() );
-  timing_.meSumOfSquares_ = dqm_->book1D( name, name, nbins, 0.1, nBins_*25.+0.1 );
+  timing_.meSumOfSquares_ = dqm_->book1D( name, name, nbins, -0.5, nBins_*25.-0.5 );
   
   name = SiStripHistoNamingScheme::histoName( "ApvTiming", 
 					      SiStripHistoNamingScheme::SUM, 
@@ -46,7 +46,7 @@ void ApvTimingTask::book( const FedChannelConnection& conn ) {
 					      fed_key,
 					      SiStripHistoNamingScheme::LLD_CHAN, 
 					      conn.lldChannel() );
-  timing_.meSumOfContents_ = dqm_->book1D( name, name, nbins, 0.1, nBins_*25.+0.1 );
+  timing_.meSumOfContents_ = dqm_->book1D( name, name, nbins, -0.5, nBins_*25.-0.5 );
   
   name = SiStripHistoNamingScheme::histoName( "ApvTiming", 
 					      SiStripHistoNamingScheme::NUM, 
@@ -54,7 +54,7 @@ void ApvTimingTask::book( const FedChannelConnection& conn ) {
 					      fed_key,
 					      SiStripHistoNamingScheme::LLD_CHAN, 
 					      conn.lldChannel() );
-  timing_.meNumOfEntries_ = dqm_->book1D( name, name, nbins, 0.1, nBins_*25.+0.1 );
+  timing_.meNumOfEntries_ = dqm_->book1D( name, name, nbins, -0.5, nBins_*25.-0.5 );
   
   timing_.vSumOfSquares_.resize(nbins,0);
   timing_.vSumOfContents_.resize(nbins,0);

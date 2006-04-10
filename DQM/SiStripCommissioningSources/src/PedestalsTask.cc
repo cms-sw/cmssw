@@ -37,7 +37,7 @@ void PedestalsTask::book( const FedChannelConnection& conn ) {
 					      fed_key,
 					      SiStripHistoNamingScheme::LLD_CHAN, 
 					      conn.lldChannel() );
-  peds_.meSumOfSquares_ = dqm_->book1D( name, name, nbins, 0., nbins*1. );
+  peds_.meSumOfSquares_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
 
   name = SiStripHistoNamingScheme::histoName( "Pedestals", 
 					      SiStripHistoNamingScheme::SUM, 
@@ -45,7 +45,7 @@ void PedestalsTask::book( const FedChannelConnection& conn ) {
 					      fed_key,
 					      SiStripHistoNamingScheme::LLD_CHAN, 
 					      conn.lldChannel() );
-  peds_.meSumOfContents_ = dqm_->book1D( name, name, nbins, 0., nbins*1. );
+  peds_.meSumOfContents_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
 
   name = SiStripHistoNamingScheme::histoName( "Pedestals", 
 					      SiStripHistoNamingScheme::NUM, 
@@ -53,7 +53,7 @@ void PedestalsTask::book( const FedChannelConnection& conn ) {
 					      fed_key,
 					      SiStripHistoNamingScheme::LLD_CHAN, 
 					      conn.lldChannel() );
-  peds_.meNumOfEntries_ = dqm_->book1D( name, name, nbins, 0., nbins*1. );
+  peds_.meNumOfEntries_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
 
   peds_.vSumOfSquares_.resize(nbins,0);
   peds_.vSumOfContents_.resize(nbins,0);

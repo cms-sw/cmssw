@@ -228,8 +228,8 @@ void SiStripCcu::addDevices( const FedChannelConnection& conn ) {
 void SiStripModule::addDevices( const FedChannelConnection& conn ) {
 
   // APVs
-  addApv( conn.i2cAddrApv0() );
-  addApv( conn.i2cAddrApv1() );
+  addApv( conn.i2cAddr(0) );
+  addApv( conn.i2cAddr(1) );
 
   // Detector
   dcuId( conn.dcuId() ); 
@@ -238,7 +238,7 @@ void SiStripModule::addDevices( const FedChannelConnection& conn ) {
   
   // FED cabling
   pair<uint16_t,uint16_t> fed_ch = pair<uint16_t,uint16_t>( conn.fedId(), conn.fedCh() ); 
-  fedCh( conn.i2cAddrApv0(), fed_ch );
+  fedCh( conn.i2cAddr(0), fed_ch );
   
   // DCU, MUX, PLL, LLD
   if ( conn.dcu() ) { dcu0x00_ = true; }
