@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2006/02/21 19:03:11 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/24 16:17:22 $
+ *  $Revision: 1.2 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -28,7 +28,7 @@
 using namespace std;
 
 class DTROS25Data;
-
+class DTDDUData;
 
 class DTDataIntegrityTask : public DTDataMonitorInterface {
 
@@ -40,8 +40,10 @@ public:
    
   void bookHistos(string folder, int index = 0);
 
-  void process(DTROS25Data & data);
- 
+  void processROS25(DTROS25Data & data);
+  void processFED(DTDDUData & data);
+
+
 private:
 
   edm::ParameterSet parameters;

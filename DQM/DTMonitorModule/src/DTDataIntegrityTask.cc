@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/02/21 19:03:12 $
- * $Revision: 1.1 $
+ * $Date: 2006/03/24 16:17:22 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h"
-#include "EventFilter/DTRawToDigi/interface/DTROS25Data.h"
+#include "EventFilter/DTRawToDigi/interface/DTControlData.h"
 #include "EventFilter/DTRawToDigi/interface/DTDDUWords.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -98,7 +98,7 @@ void DTDataIntegrityTask::bookHistos(string folder, int index) {
 
 
 
-void DTDataIntegrityTask::process(DTROS25Data & data) {
+void DTDataIntegrityTask::processROS25(DTROS25Data & data) {
   
   nevents++;
   if (nevents%100 == 0) 
@@ -154,4 +154,6 @@ void DTDataIntegrityTask::process(DTROS25Data & data) {
 
 }
 
+void DTDataIntegrityTask::processFED(DTDDUData & data) {
 
+}
