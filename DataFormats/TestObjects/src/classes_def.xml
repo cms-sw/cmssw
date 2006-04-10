@@ -19,4 +19,16 @@
  <class name="edm::RefVector<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
  <class name="edm::Wrapper<std::vector<edmtest::Thing> >"/>
  <class name="edm::Wrapper<std::vector<edmtest::OtherThing> >"/>
+
+ <class name="edmtestprod::Simple"/>
+ <class name="edmtestprod::Ord<edmtestprod::Simple>"/>
+ <class name="edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> >"/>
+ <class name="edm::Wrapper<edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> > >"/>
+ <class name="std::vector<edmtestprod::Simple>"/>
+ <class name="edm::SortedCollection<edmtestprod::Simple,edm::StrictWeakOrdering<edmtestprod::Simple> >"/>
+ <class name="edm::Wrapper<edm::SortedCollection<edmtestprod::Simple,edm::StrictWeakOrdering<edmtestprod::Simple> > >"/>
+ <class name="edmtestprod::StreamTestThing"/>
+ <class name="edm::Wrapper<edmtestprod::StreamTestThing>"/>
+ <class name="edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901"/>
+ <class name="edm::Wrapper<edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901>"/>
 </lcgdict>
