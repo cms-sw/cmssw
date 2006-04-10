@@ -52,36 +52,6 @@ FSimEvent::nGenParts() const {
   return myGenParticles->size();
 }
 
-static  const EmbdSimVertex zeroVertex;
-const EmbdSimVertex & 
-FSimEvent::embdVertex(int i) const { 
-  if (i>=0 && i<=(int)mySimVertices->size()) 
-    return (*mySimVertices)[i]; 
-  else 
-    return zeroVertex;
-}
-
-static  const EmbdSimTrack zeroTrack;
-const EmbdSimTrack & 
-FSimEvent::embdTrack(int i) const { 
-  if (i>=0 && i<=(int)mySimTracks->size()) 
-    return (*mySimTracks)[i]; 
-  else 
-    return zeroTrack;
-}
-
-const HepMC::GenParticle* 
-FSimEvent::embdGenpart(int i) const { 
-  if (i>=0 && i<=(int)myGenParticles->size()) 
-    return (*myGenParticles)[i]; 
-  else 
-    return 0;
-}
-
-// dummy for now
-void FSimEvent::load(EmbdSimTrack & trk, int i) const {}
-void FSimEvent::load(EmbdSimVertex & vtx, int i) const {}
-void FSimEvent::load(HepMC::GenParticle & part, int i) const {}
 
 
 

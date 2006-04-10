@@ -1,8 +1,14 @@
 #ifndef FSimTrack_H
 #define FSimTrack_H
 
-#include<cmath>
+//CLHEP Headers
+#include "CLHEP/HepMC/GenParticle.h"
 #include <CLHEP/Vector/LorentzVector.h>
+
+// CMSSW Headers
+#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
+
+// FAMOS headers
 #include "FastSimulation/Particle/interface/RawParticle.h"
 
 #include <map>
@@ -12,7 +18,7 @@ class FBaseSimEvent;
 class HepParticleData;
 
 /** A class that mimics SimTrack, with enhanced features.
- *  Essentially an interface to FEmbdSimTrack.
+ *  Essentially an interface to EmbdSimTrack.
  * \author Patrick Janot, CERN 
  * $Date: 9-Dec-2003
  */
@@ -21,14 +27,10 @@ class FSimTrack {
 
  public:
   /// Default constructor
-  FSimTrack() : 
-    me_(0), mom_(0), gen_(-1),
-    layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) {;}
+  FSimTrack();
   
-  /// Constructor from the GenParticle index in the FBaseSimEvent
-  FSimTrack(HepMC::GenParticle* ime, FBaseSimEvent* mom, int gen=-1) : 
-    me_(ime), mom_(mom), gen_(gen),
-    layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) {;}
+  /// Constructor from the EmmbSimTrack index in the FBaseSimEvent
+  FSimTrack(int iembd, FBaseSimEvent* mom);
   
   /// Destructor
   virtual ~FSimTrack();
@@ -37,11 +39,10 @@ class FSimTrack {
   const HepParticleData * particleInfo() const;
   
   /// four momentum
-  inline HepLorentzVector momentum() const { 
-    return me() ? me()->momentum() : HepLorentzVector();}
+  inline HepLorentzVector momentum() const { return me().momentum(); }
 
   /// particle type (HEP PDT convension)
-  inline int type() const { return me() ? me()->pdg_id() : 0;}
+  inline int type() const { return me().type(); }
 
   /// charge
   float charge() const; 
@@ -55,32 +56,38 @@ class FSimTrack {
   /// mother
   const FSimTrack& mother() const; 
 
-  /// first daughter
-  const FSimTrack& daughter1() const;
+  /// Ith daughter
+  const FSimTrack& daughter(int i) const; 
 
-  /// last daughter
-  const FSimTrack& daughter2() const;
+  /// Number of daughters
+  int nDaughters() const; 
+
+  /// Vector of daughter indices
+  const std::vector<int>& daughters() const;
 
   /// no origin vertex...
-  bool  noVertex() const { return !me() || !me()->production_vertex(); }
+  inline bool  noVertex() const { return me().noVertex(); }
 
   /// no end vertex
-  bool  noEndVertex() const { return !me() || !me()->end_vertex(); }
+  bool  noEndVertex() const; 
 
   /// Compare the end vertex position with another position.
   bool notYetToEndVertex(const HepLorentzVector& pos) const;
 
   /// no mother particle
-  bool  noMother() const { return !me() || !me()->mother(); }
+  bool  noMother() const;
 
   /// no daughters
-  bool  noDaughter() const { return !me() || !me()->listChildren().size(); }
+  bool  noDaughter() const;
 
   /// The original GenParticle
-  HepMC::GenParticle* me() const { return me_; }
+  const HepMC::GenParticle* genParticle() const;
+   
+  /// The attached EmbdSimTrack
+  const EmbdSimTrack& me() const;
 
   /// The original GenParticle in the original event
-  int genpartIndex() const { return gen_; }
+  inline int genpartIndex() const { return me().genpartIndex(); }
 
   /// the generator particle index
   //  short int genpartIndex() const { return me().genpartIndex(); }
@@ -92,7 +99,7 @@ class FSimTrack {
   //  const FEmbdSimTrack & me() const { return mom->embdTrack(id()); }
 
   /// the index in FBaseSimEvent and other vectors
-  int id() const { return me() ? me()->barcode()-1 : -1; }
+  inline int id() const { return id_; }
 
   /// the distance to a reconstructed track
   //  double distFromRecTrack(const TTrack&) const; 
@@ -100,51 +107,51 @@ class FSimTrack {
   /// The particle was propagated to the Preshower Layer1
   /// 2 : on the EndCaps; (no Barrel Preshower); no propagation possible
   /// 0 : not yet propagated or no pe
-  int onLayer1() const { return layer1; }
+  inline int onLayer1() const { return layer1; }
 
   /// The particle was propagated to the Preshower Layer2 
   /// 2 : on the EndCaps; (no Barrel Preshower); 3 : No propagation possible
   /// 0 : not yet propagated
-  int onLayer2() const { return layer2; }
+  inline int onLayer2() const { return layer2; }
 
   /// The particle was propagated to the ECAL front face
   /// 1 : on the barrel; 2 : on the EndCaps; 3 : no propagation possible
   /// 0 : not yet propagated
-  int onEcal() const { return ecal; }
+  inline int onEcal() const { return ecal; }
 
   /// The particle was propagated to the HCAL front face
   /// 1 : on the barrel; 2 : on the EndCaps; 3 : no propagation possible
   /// 0 : not yet propagated
-  int onHcal() const { return hcal; }
+  inline int onHcal() const { return hcal; }
 
   /// The particle was propagated to the VFCAL front face
   /// 2 : on the EndCaps (No VFCAL Barrel); 3 : no propagation possible
   /// 0 : not yet propagated
-  int onVFcal() const { return vfcal; }
+  inline int onVFcal() const { return vfcal; }
 
   /// The particle was tentatively propagated to calorimeters
-  bool propagated() const { return prop; }
+  inline bool propagated() const { return prop; }
 
   /// The particle at Preshower Layer 1
-  const RawParticle& layer1Entrance() const { return Layer1_Entrance; }
+  inline const RawParticle& layer1Entrance() const { return Layer1_Entrance; }
 
   /// The particle at Preshower Layer 2
-  const RawParticle& layer2Entrance() const { return Layer2_Entrance; }
+  inline const RawParticle& layer2Entrance() const { return Layer2_Entrance; }
 
   /// The particle at ECAL entrance
-  const RawParticle& ecalEntrance() const { return ECAL_Entrance; }
+  inline const RawParticle& ecalEntrance() const { return ECAL_Entrance; }
 
   /// The particle at HCAL entrance
-  const RawParticle& hcalEntrance() const { return HCAL_Entrance; }
+  inline const RawParticle& hcalEntrance() const { return HCAL_Entrance; }
 
   /// The particle at VFCAL entrance
-  const RawParticle& vfcalEntrance() const { return VFCAL_Entrance; }
+  inline const RawParticle& vfcalEntrance() const { return VFCAL_Entrance; }
 
   /// The RecHits in the Tracker
   // const map<unsigned,const FamosBasicRecHit*>& recHits() const {return theRecHits;}
 
   /// The SimHits in the Tracker
-  const std::map<unsigned,RawParticle>& simHits() const {return theSimHits;}
+  inline const std::map<unsigned,RawParticle>& simHits() const {return theSimHits;}
 
   /// Is there a RecHit on this layer?
   //  bool isARecHit(const unsigned layer) const;
@@ -157,6 +164,9 @@ class FSimTrack {
 
   /// If yes, here is the corresponding RawParticle
   const RawParticle& simHit(unsigned layer) const;
+
+  /// Set the end vertex
+  void setEndVertex(int endv) { endv_ = endv; } 
 
   /// The particle has been propgated through the tracker
   void setPropagate();
@@ -184,9 +194,13 @@ class FSimTrack {
 
  private:
 
-  HepMC::GenParticle* me_;
+  //  HepMC::GenParticle* me_;
+
   const FBaseSimEvent* mom_;
-  int gen_;
+  int embd_;   // The index in the EmbdSimTrack vector
+  int id_; // The index in the FSimTrackVector
+  
+  int endv_; // The index of the end vertex in FSimVertex
 
   int layer1;// 1 if the particle was propagated to preshower layer1
   int layer2;// 1 if the particle was propagated to preshower layer2

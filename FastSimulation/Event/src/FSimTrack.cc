@@ -16,6 +16,14 @@
 
 using namespace std;
 
+FSimTrack:: FSimTrack() : 
+  mom_(0), embd_(-1), id_(-1), endv_(-1),
+  layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) {;}
+  
+FSimTrack::FSimTrack(int embd, FBaseSimEvent* mom) : 
+  mom_(mom), embd_(embd), id_(mom->nTracks()), endv_(-1),
+  layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) {;}
+  
 FSimTrack::~FSimTrack() {
   // Clear the maps 
   //  theRecHits.clear();
@@ -30,52 +38,38 @@ FSimTrack::particleInfo() const {
 float 
 FSimTrack::charge() const { return particleInfo()->charge();}
   
-static  const FSimVertex oVertex;
 const FSimVertex& 
-FSimTrack::vertex() const {
-  if ( noVertex() ) return oVertex;
-  int id = -me()->production_vertex()->barcode()+1;
-  return mom_->vertex(id);
-}
+FSimTrack::vertex() const { return mom_->vertex(me().vertIndex()); }
 
-static const FSimVertex eVertex;
 const FSimVertex& 
-FSimTrack::endVertex() const { 
-  if ( noEndVertex() ) return eVertex;
-  int id = -me()->end_vertex()->barcode()+1;
-  return mom_->vertex(id);
-}
+FSimTrack::endVertex() const { return mom_->vertex(endv_); }
 
-static const FSimTrack mTrack;
 const FSimTrack& 
-FSimTrack::mother() const { 
-  if ( noMother() ) return mTrack;
-  int id = me()->mother()->barcode()-1;
-  return mom_->track(id);
-}
+FSimTrack::mother() const { return vertex().parent(); }
 
-static const FSimTrack d1Track;
-const FSimTrack& 
-FSimTrack::daughter1() const { 
-  if ( noDaughter() ) return d1Track;
-  int id = me()->listChildren().front()->barcode()-1;
-  return mom_->track(id);
-}
+int
+FSimTrack::nDaughters() const { return endVertex().nDaughters(); }
 
-static const FSimTrack d2Track;
 const FSimTrack& 
-FSimTrack::daughter2() const { 
-  if ( noDaughter() ) return d2Track;
-  int id = me()->listChildren().back()->barcode()-1;
-  return mom_->track(id);
-}
+FSimTrack::daughter(int i) const { return endVertex().daughter(i); }
+
+const vector<int>&
+FSimTrack::daughters() const { return endVertex().daughters(); }
+
+bool  
+FSimTrack::noEndVertex() const { 
+  return 
+    // The particle either has no end vertex index
+    endv_ == -1 || 
+    // or it's an electron that has just brem'ed, but continues its way
+    ( abs(type())==11&&nDaughters()>0&&daughter(nDaughters()-1).type()==22); } 
 
 bool 
 FSimTrack::notYetToEndVertex(const HepLorentzVector& pos) const {
   // If there is no end vertex, nothing to compare to
   if ( noEndVertex() ) return true;
   // If the particle immediately decays, no need to propagate
-  if ( (endVertex().position()-vertex().position()).vect().mag() < 0.1 ) 
+  if ( (endVertex().position()-vertex().position()).vect().mag() < 0.1 )
     return false;
   // If the end vertex has a larger radius, not yet there
   if ( endVertex().position().perp() > pos.perp()+0.0001 ) return true;
@@ -84,6 +78,18 @@ FSimTrack::notYetToEndVertex(const HepLorentzVector& pos) const {
   // Otherwise, the end vertex is overtaken already
   return false;
 }
+
+bool  
+FSimTrack::noMother() const { return noVertex() || vertex().noParent(); }
+
+bool  
+FSimTrack::noDaughter() const { return noEndVertex() || !nDaughters(); }
+
+const HepMC::GenParticle* 
+FSimTrack::genParticle() const { return mom_->embdGenpart(genpartIndex()); }
+   
+const EmbdSimTrack& 
+FSimTrack::me() const { return mom_->embdTrack(embd_); } 
 
 /*
 double
@@ -210,7 +216,7 @@ ostream& operator <<(ostream& o , const FSimTrack& t) {
 
   string name = t.particleInfo()->name();
   HepLorentzVector momentum1 = t.momentum();
-  Hep3Vector vertex1 = t.vertex().position().vect();
+  Hep3Vector vertex1 = t.vertex().position().vect()*0.1;
   int vertexId1 = t.vertex().id();
 
   o.setf(ios::fixed, ios::floatfield);
@@ -233,16 +239,16 @@ ostream& operator <<(ostream& o , const FSimTrack& t) {
     << setw(4) << t.mother().id() << " ";
   
   if ( !t.noEndVertex() ) {
-    HepLorentzVector vertex2 = t.endVertex().position();
+    HepLorentzVector vertex2 = t.endVertex().position()*0.1;
     int vertexId2 = t.endVertex().id();
     
     o << setw(4) << vertexId2 << " "
       << setw(6) << setprecision(2) << vertex2.eta() << " " 
       << setw(6) << setprecision(2) << vertex2.phi() << " " 
       << setw(5) << setprecision(1) << vertex2.perp() << " " 
-      << setw(6) << setprecision(1) << vertex2.z() << " "
-      << setw(4) << t.daughter1().id() << " "
-      << setw(4) << t.daughter2().id() << " ";
+      << setw(6) << setprecision(1) << vertex2.z() << " ";
+    for (int i=0; i<t.nDaughters(); ++i)
+      o << setw(4) << t.daughter(i).id() << " ";
 
   } else {
 

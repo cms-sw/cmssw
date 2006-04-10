@@ -2,29 +2,21 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 
-static const FSimTrack pTrack;
-const FSimTrack&
-FSimVertex::parent() const {
-  if ( noParent() ) return pTrack;
-  int id = me()->mother()->barcode()-1;
-  return mom_->track(id);
-}
+  /// Default constructor
+FSimVertex::FSimVertex() : mom_(0), embd_(-1), id_(-1) {;}
+  
+  /// constructor from the embedded vertex index in the FBaseSimEvent
+FSimVertex::FSimVertex(int embd, FBaseSimEvent* mom) : 
+    mom_(mom), embd_(embd), id_(mom->nVertices()) {;}
 
-static const FSimTrack d1Track;
 const FSimTrack&
-FSimVertex::daughter1() const {
-  if ( noDaughter() ) return d1Track;
-  int id = me()->listChildren().front()->barcode()-1;
-  return mom_->track(id);
-}
+FSimVertex::parent() const { return mom_->track(me().parentIndex()); }
 
-static const FSimTrack d2Track;
 const FSimTrack&
-FSimVertex::daughter2() const {
-  if ( noDaughter() ) return d2Track;
-  int id = me()->listChildren().back()->barcode()-1;
-  return mom_->track(id);
-}
+FSimVertex::daughter(int i) const { return mom_->track(daugh_[i]); }
+
+const EmbdSimVertex& 
+FSimVertex::me() const { return mom_->embdVertex(embd_); } 
 
 std::ostream& operator <<(std::ostream& o , const FSimVertex& t) {
   return o << t.me();

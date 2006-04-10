@@ -53,13 +53,6 @@ public:
   /// Number of MC particles
   virtual unsigned int nGenParts() const;  
 
-  /// return track with given id
-  const EmbdSimTrack & embdTrack(int i) const;
-  /// return vertex with given id
-  const EmbdSimVertex & embdVertex(int i) const;
-  /// return MC track with a given id
-  const HepMC::GenParticle* embdGenpart(int i) const;
-
   /// return track container
   edm::EmbdSimTrackContainer* tracks() const;
   /// return vertex container
@@ -67,19 +60,11 @@ public:
   /// return MC track container
   std::vector<HepMC::GenParticle*>* genparts() const;
 
-  /// dummy load methods dummy, at least for now
-  /// load in tr track i
-  virtual void load(EmbdSimTrack & trk, int i) const;
-  /// load in vert vertex i
-  virtual void load(EmbdSimVertex & vtx, int i) const;
-  /// load in gen generator particle i
-  virtual void load(HepMC::GenParticle & part, int i) const;
-  
 private:
 
   edm::EventID id_;
   double weight_;
-    
+
 };
 
 #endif // FSIMEVENT_H
