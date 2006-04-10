@@ -12,9 +12,10 @@
 #include <DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <vector>
+#include <iosfwd>
 
-class CSCRecHit2D : public RecHit2DLocalPos
-{
+class CSCRecHit2D : public RecHit2DLocalPos {
+
 public:
 
   typedef std::vector<int> ChannelContainer;
@@ -33,9 +34,8 @@ public:
   LocalError localPositionError() const { return theLocalError; }
 
   /// TrackingRecHit base class interface
-    //  const GeomDet& det() const { return *theDet; } // geom removed from TRH
   DetId geographicalId() const { return theDetId; }
-  
+
   CSCDetId cscDetId() const { return theDetId; }
 
   /// Probability from fit during rechit build
@@ -67,6 +67,9 @@ private:
   float theProb;
 
 };
+
+/// Output operator for CSCRecHit2D
+std::ostream& operator<<(std::ostream& os, const CSCRecHit2D& rh);
 
 #endif
 

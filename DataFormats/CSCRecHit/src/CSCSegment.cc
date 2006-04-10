@@ -1,7 +1,6 @@
 #include <DataFormats/CSCRecHit/interface/CSCSegment.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
-
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include <iostream>
 
 CSCSegment::CSCSegment(std::vector<CSCRecHit2D> proto_segment, LocalPoint origin, 
 	LocalVector direction, AlgebraicSymMatrix errors, double chi2) : theCSCRecHits(proto_segment),
@@ -41,22 +40,16 @@ double CSCSegment::chi2() const {
 }
 
 void CSCSegment::print() const {
-
-	LogDebug("CSC") << "Segment: " << theCSCRecHits.size() << "   " << theOrigin << "  "
-		<< theLocalDirection << "\n";
+  std::cout << *this << std::endl;
 }
 
-//std::ostream& operator<<(std::ostream& os, const CSCSegment& seg) {
+std::ostream& operator<<(std::ostream& os, const CSCSegment& seg) {
+  os << "CSCSegment: local pos = " << seg.localPosition() << 
+    " dir = " << seg.localDirection() <<
+    " chi2 = " << seg.chi2() << " #rechits = " << seg.specificRecHits().size();
+  return os;  
+}
 
-//	os << "Pos " << seg.localPosition() << 
-//    " Dir: " << seg.localDirection() <<
-//    " chi2: " << seg.chi2();
-  
-//  return os;  
-//}
 /*
-
-const CSCChamber* CSCSegment::chamber() const {
-  	return theChamber;
-}
+const CSCChamber* CSCSegment::chamber() const { return theChamber; }
 */

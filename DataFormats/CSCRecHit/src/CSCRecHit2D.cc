@@ -1,4 +1,5 @@
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
+#include <iostream>
 
 CSCRecHit2D::CSCRecHit2D() :
   theDetId(),
@@ -35,3 +36,9 @@ CSCRecHit2D::~CSCRecHit2D() {}
 //  return dy < maxDeltaRPhi;
 //}
 
+std::ostream& operator<<(std::ostream& os, const CSCRecHit2D& rh) {
+  os << "CSCRecHit2D: local x = " << rh.localPosition().x() << " +/- " << sqrt( rh.localPositionError().xx() ) <<
+    " y = " << rh.localPosition().y() << " +/- " << sqrt( rh.localPositionError().yy() ) <<
+    " chi2 = " << rh.chi2() << " prob = " << rh.prob();
+  return os;
+}

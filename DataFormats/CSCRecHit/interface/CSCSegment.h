@@ -4,6 +4,7 @@
 #include <DataFormats/TrackingRecHit/interface/RecSegment4D.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
 //#include <Geometry/CSCGeometry/interface/CSCChamber.h>
+#include <iosfwd>
 
 class CSCDetId;
 //class Det;
@@ -13,7 +14,7 @@ class CSCSegment : public RecSegment4D {
   	public:
 
 /// Constructor
-		CSCSegment() {};
+        CSCSegment() {};
 		
     	CSCSegment(std::vector<CSCRecHit2D> proto_segment, LocalPoint origin, 
 			LocalVector direction, AlgebraicSymMatrix errors, double chi2);
@@ -23,43 +24,43 @@ class CSCSegment : public RecSegment4D {
 
 /* Operations */ 
     	const std::vector<CSCRecHit2D> specificRecHits() const { return theCSCRecHits; }  
-		virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
-		virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
+	virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
+	virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
 		
-		int nRecHits() const { return theCSCRecHits.size(); }
+	int nRecHits() const { return theCSCRecHits.size(); }
         
         CSCDetId cscDetId() const { return theCSCRecHits.begin()->cscDetId(); }
 		
-		void print() const;
+	void print() const;
 		
-		AlgebraicVector parameters() const;
+	AlgebraicVector parameters() const;
     	AlgebraicSymMatrix parametersError() const;
 		
-		LocalPoint localPosition() const { return theOrigin; }
-		LocalError localPositionError() const ;
+	LocalPoint localPosition() const { return theOrigin; }
+	LocalError localPositionError() const ;
 	
-		LocalVector localDirection() const { return theLocalDirection; }
+	LocalVector localDirection() const { return theLocalDirection; }
     	LocalError localDirectionError() const ;
 	
     	double chi2() const ;
 		
-		CSCSegment* clone() const { return new CSCSegment(*this); }
-		virtual DetId geographicalId() const { return theDetId; } // FIX !!!
-		virtual int degreesOfFreedom()const { return 0;}	// FIX !!!
+	CSCSegment* clone() const { return new CSCSegment(*this); }
+	virtual DetId geographicalId() const { return theDetId; } //@@ FIX !!!
+	virtual int degreesOfFreedom()const { return 0;}	  //@@ FIX !!!
 		
    
   	private:
     
-		//CSCChamber* theChamber;
-		DetId theDetId;
-		//CSCRecHit2DCollection* theCSCRecHits;
-		std::vector<CSCRecHit2D> theCSCRecHits;
-		LocalPoint theOrigin;   // in chamber frame
-    	LocalVector theLocalDirection; // in chamber frame
+	//CSCChamber* theChamber;
+	DetId theDetId;
+	//CSCRecHit2DCollection* theCSCRecHits;
+	std::vector<CSCRecHit2D> theCSCRecHits;
+	LocalPoint theOrigin;   // in chamber frame - the GeomDet local coordinate system
+    	LocalVector theLocalDirection; // in chamber frame - the GeomDet local coordinate system
     	AlgebraicSymMatrix theCovMatrix; // the covariance matrix
-		double theChi2;
+	double theChi2;
 };
 
-//std::ostream& operator<<(std::ostream& os, const CSCSegment& seg);
+std::ostream& operator<<(std::ostream& os, const CSCSegment& seg);
 
 #endif // CSCRecHit_CSCSegment_h
