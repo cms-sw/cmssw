@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/04/03 22:44:09 $
-// $Revision: 1.3 $
+// $Date: 2006/04/05 21:22:25 $
+// $Revision: 1.4 $
 //
 
 #include <vector>
@@ -24,7 +24,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
-#include "RecoTracker/TrackProducer/interface/TrackingRecHitLess.h"
+#include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -81,7 +81,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     edm::ESHandle<TrackerGeometry> tracker;
     es.get<TrackerDigiGeometryRecord>().get(tracker);
 
-    recHits.sort(TrackingRecHitLess(((TrackingGeometry*)(&(*tracker))),ref->direction()));
+    recHits.sort(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(&(*tracker))),ref->direction()));
 
     // clone 
     TrajectorySeed seed = *((*ref).clone());

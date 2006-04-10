@@ -10,6 +10,7 @@
 <use name=Geometry/Records>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
+<use name=RecoTracker/TrackProducer>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/GeomPropagators>
 <export>
@@ -24,6 +25,7 @@
  <use name=Geometry/Records>
  <use name=MagneticField/Records>
  <use name=MagneticField/Engine>
+ <use name=RecoTracker/TrackProducer>
  <use name=TrackingTools/TrajectoryState>
  <use name=TrackingTools/GeomPropagators>
 </export>
