@@ -1,24 +1,17 @@
 // -----------------------------------------------------------------------------
 //  Prototype for a particle class
 // -----------------------------------------------------------------------------
-//  $Date: 2006/04/02 16:06:15 $
-//  $Revision: 1.2 $
+//  $Date: 2006/04/06 19:38:02 $
+//  $Revision: 1.3 $
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
 // -----------------------------------------------------------------------------
-#include "CLHEP/HepMC/GenVertex.h"
-#include "CLHEP/HepMC/GenParticle.h"
-/** \file GeneratorInterface/Particle/src/RawParticle.cc */
 #include "SimGeneral/HepPDT/interface/HepPDT.h"
 #include "SimGeneral/HepPDT/interface/HepPDTable.h"
 #include "SimGeneral/HepPDT/interface/HepDecayMode.h"
 #include "SimGeneral/HepPDT/interface/HepJetsetDummyHandler.h"
 #include "SimGeneral/HepPDT/interface/HepParticleData.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"
-//#include "Utilities/GenUtil/interface/ConfigurationDictionary.h"
-//#include "Utilities/GenUtil/interface/FileInPath.h"
-//#include "Utilities/GenUtil/interface/pidInfo.h"
-//#include "Utilities/GenUtil/interface/CMSexception.h"
 
 #include <fstream>
 #include <iostream>
@@ -33,26 +26,11 @@ int RawParticle::nParticles = 0;
 bool RawParticle::isfirst = true;
 
 using namespace std;
-using namespace HepMC;
 
 RawParticle::RawParticle() {
   init();
   //  cout << "Create RawParticle as default" << nParticles << endl;
 }
-
-RawParticle::RawParticle(const HepMC::GenParticle *p) : 
-  HepLorentzVector(p->momentum()) {
-  init();
-  myId = p->pdg_id();
-  if ( p->production_vertex() )
-    myVertex = p->production_vertex()->position();
-  else
-    myVertex = HepLorentzVector(0.,0.,0.,0.);
-  myStatus = p->status();
-  myCharge = tab->getParticleData(myId)->charge();
-  myMass   = tab->getParticleData(myId)->mass();
-}
-  
 
 RawParticle::RawParticle(HepLorentzVector p) 
   : HepLorentzVector(p) {
@@ -190,7 +168,7 @@ void RawParticle::setT(const double t) {
 
 void RawParticle::setVertex(const HepLorentzVector vtx) {
   myVertex = vtx;
-  cout << this->vertex() << endl;
+  //  cout << this->vertex() << endl;
   //    { pidInfo a;}
 }
 

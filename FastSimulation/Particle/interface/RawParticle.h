@@ -3,7 +3,6 @@
 
 #include "CLHEP/config/CLHEP.h"
 #include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/HepMC/GenParticle.h"
 
 class HepPDTable;
 
@@ -23,11 +22,6 @@ public:
   RawParticle();
 
   virtual ~RawParticle();
-
-  /** Construct from a GenParticle pointer
-   *  where all the necessary information is already
-   */
-  RawParticle(const HepMC::GenParticle* p);
 
   /** Construct from a fourvector.
    *  The fourvector is taken for the particle, the vertex is set to 0. 
