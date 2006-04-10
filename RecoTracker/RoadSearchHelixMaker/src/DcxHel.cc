@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxHel.cc,v 1.2 2006/03/22 22:43:09 stevew Exp $
+// 	$Id: DcxHel.cc,v 1.3 2006/03/31 23:28:42 gutsche Exp $
 //
 // Description:
 //	Class Implementation for |DcxHel|
@@ -242,13 +242,13 @@ DcxHel::Doca( double wx, double wy, double wz,
               double xi, double yi, double zi )
 {
   // describe wire
-  LogDebug("RoadSearch") << " In Doca, xi = " << xi << " yi = " << yi << " zi = " << zi ;
+//  edm::LogInfo("RoadSearch") << " In Doca, xi = " << xi << " yi = " << yi << " zi = " << zi ;
   Hep3Vector ivec(xi,yi,zi); 
   wvec=Hep3Vector(wx,wy,wz);
-  LogDebug("RoadSearch") << " In Doca, wx = " << wx << " wy = " << wy << " wz = " << wz ;
+//  edm::LogInfo("RoadSearch") << " In Doca, wx = " << wx << " wy = " << wy << " wz = " << wz ;
   //  calculate len to doca
   double zd,xd=xi,yd=yi;
-  LogDebug("RoadSearch") << " In Doca, start xd = " << xd << " yd = " << yd ;
+//  edm::LogInfo("RoadSearch") << " In Doca, start xd = " << xd << " yd = " << yd ;
   double lnew,t1,t2,dphi,dlen=1000.0; len=0.0; int itry=2;
   // int segflg=0; if ((code==111)&&(z0==0.0)&&(tanl==0.0))segflg=1;
   // int superseg=0; if ((code==11111)&&(xref!=0.0)&&(yref!=0.0))superseg=1;
@@ -271,8 +271,8 @@ DcxHel::Doca( double wx, double wy, double wz,
       if ((lnew>circut)&&(turnflag))lnew-=circum; 
       zh=Zh(lnew); 
       xd=xi+(zh-zi)*wx/wz; yd=yi+(zh-zi)*wy/wz; zd=zh;
-      LogDebug("RoadSearch") << " In Doca, xd = " << xd << " yd = " << yd << " zh = " << zh;
-      LogDebug("RoadSearch") << " lnew = " << lnew ;
+//      edm::LogInfo("RoadSearch") << " In Doca, xd = " << xd << " yd = " << yd << " zh = " << zh;
+//      edm::LogInfo("RoadSearch") << " lnew = " << lnew ;
       dlen=fabs(lnew-len); len=lnew; 
       //   if (segflg)break; 
       if (fabs(zh) > 250.0)break;
@@ -281,15 +281,15 @@ DcxHel::Doca( double wx, double wy, double wz,
   }
   //  Hep3Vector Dvec(xd,yd,zd);
   xh=Xh(len); yh=Yh(len); Hep3Vector hvec(xh,yh,zh);
-  LogDebug("RoadSearch") << " In Doca, xh = " << xh << " yh = " << yh << " zh = " << zh ;
+//  edm::LogInfo("RoadSearch") << " In Doca, xh = " << xh << " yh = " << yh << " zh = " << zh ;
   double lamb=atan(tanl); cosl=cos(lamb); sinl=sin(lamb);
   tx=cosl*cos(phi); ty=cosl*sin(phi); tz=sinl; 
   tvec=Hep3Vector(tx,ty,tz); 
   Hep3Vector vvec=wvec.cross(tvec); 
   vhat=vvec.unit(); vx=vhat.x(); vy=vhat.y(); vz=vhat.z();
-  LogDebug("RoadSearch") << " In Doca, vx = " << vx << " vy = " << vy << " vz = " << vz ;
+//  edm::LogInfo("RoadSearch") << " In Doca, vx = " << vx << " vy = " << vy << " vz = " << vz ;
   dvec=ivec-hvec; double doca=dvec*vhat;
-  LogDebug("RoadSearch") << " doca = " << doca ;
+//  edm::LogInfo("RoadSearch") << " doca = " << doca ;
   double f1=dvec*tvec; double f2=wvec*tvec; double f3=dvec*wvec;
   f0=(f1-f2*f3)/(1.0-f2*f2); 
   if (doca>0.0){samb=-1;}else{samb=+1;}
@@ -333,31 +333,31 @@ DcxHel::derivatives(const DcxHit& hit)
 }//endof derivatives
 
 void DcxHel::print()const {
-  LogDebug("RoadSearch") << "  " ;
-  LogDebug("RoadSearch") << " d0 = " << d0;
-  LogDebug("RoadSearch") << " phi0 = " << phi0;
-  LogDebug("RoadSearch") << " omega = " << omega;
-  LogDebug("RoadSearch") << " z0 = " << z0;
-  LogDebug("RoadSearch") << " tanl = " << tanl;
-  LogDebug("RoadSearch") << " t0 = " << t0 ;
-  LogDebug("RoadSearch") << " code = " << code; 
-  LogDebug("RoadSearch") << " mode = " << mode;
-  LogDebug("RoadSearch") << " ominfl = " << ominfl;
-  LogDebug("RoadSearch") << " nfree = " << nfree ;
-  LogDebug("RoadSearch") << " x0 = " << x0;
-  LogDebug("RoadSearch") << " y0 = " << y0;
-  LogDebug("RoadSearch") << " xc = " << xc;
-  LogDebug("RoadSearch") << " yc = " << yc;
-  LogDebug("RoadSearch") << " xref = " << xref;
-  LogDebug("RoadSearch") << " yref = " << yref ;
-  LogDebug("RoadSearch") << "  " ;
+  edm::LogInfo("RoadSearch") << "  " 
+   << " d0 = " << d0
+   << " phi0 = " << phi0
+   << " omega = " << omega
+   << " z0 = " << z0
+   << " tanl = " << tanl
+   << " t0 = " << t0 
+   << " code = " << code 
+   << " mode = " << mode
+   << " ominfl = " << ominfl
+   << " nfree = " << nfree 
+   << " x0 = " << x0
+   << " y0 = " << y0
+   << " xc = " << xc
+   << " yc = " << yc
+   << " xref = " << xref
+   << " yref = " << yref 
+   << "  " ;
 }//endof print
 
 void DcxHel::flip(){ 
   if (ominfl){
     if ( (fabs(d0)+2.0/fabs(omega)) > 80.0)return;
     double lturn=DcxHel::twoPi/fabs(omega); double zturn=Zh(lturn);
-    LogDebug("RoadSearch") << "z0 " << z0 << " zturn " << zturn ;
+//    edm::LogInfo("RoadSearch") << "z0 " << z0 << " zturn " << zturn ;
     if (fabs(zturn) < fabs(z0)){
       z0=zturn; tanl=-tanl; omega=-omega; d0=-d0; 
       phi0=phi0-DcxHel::pi; if (phi0<-DcxHel::pi){phi0+=DcxHel::twoPi;} 

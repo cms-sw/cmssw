@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.1 2006/04/01 16:11:49 gutsche Exp $
+// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.2 2006/04/10 15:51:41 stevew Exp $
 //
 // Description:
 //	Class Implementation for |DcxTrackCandidatesToTracks|
@@ -33,23 +33,23 @@ double DcxTrackCandidatesToTracks::half_pi=1.570796327;
 
 //constructors
 DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(){
-  LogDebug("RoadSearch") << "DcxTrackCandidatesToTracks null constructor - does nothing" ;}
+  edm::LogInfo("RoadSearch") << "DcxTrackCandidatesToTracks null constructor - does nothing" ;}
 
 //points
 DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &listohits, reco::TrackCollection &output)
 { 
-  LogDebug("RoadSearch") << "listohits.size() = " << listohits.size() << " in DcxTrackCandidatesToTracks" ;
+//  edm::LogInfo("RoadSearch") << "listohits.size() = " << listohits.size() << " in DcxTrackCandidatesToTracks" ;
   double rmin=1000.0; double phi_try=0.0; int ntrk=0;
   for (unsigned int i=0; i<listohits.size(); ++i) {
     if (!listohits[i]->stereo()){
       double rhit=sqrt(listohits[i]->x()*listohits[i]->x()+listohits[i]->y()*listohits[i]->y());
       if ( (rhit<rmin) ){phi_try=atan2(listohits[i]->y(),listohits[i]->x());rmin=rhit;}
-      LogDebug("RoadSearch") << "axial strip radius = " << rhit ;
+//      edm::LogInfo("RoadSearch") << "axial strip radius = " << rhit ;
     }
     for (unsigned int j=0; j<listohits.size(); ++j) {
       for (unsigned int k=0; k<listohits.size(); ++k) {
-	LogDebug("RoadSearch") << "layers " << listohits[i]->Layer() << " " << listohits[j]->Layer() << " " 
-			       << listohits[k]->Layer() ;
+//	edm::LogInfo("RoadSearch") << "layers " << listohits[i]->Layer() << " " << listohits[j]->Layer() << " " 
+//		 	           << listohits[k]->Layer() ;
         if ( ( ( 1==listohits[i]->Layer())||( 3==listohits[i]->Layer()) ) 
 	     && ( ( 9==listohits[j]->Layer())||(11==listohits[j]->Layer()) )
 	     && ( (17==listohits[k]->Layer())||(19==listohits[k]->Layer()) ) ){
@@ -59,19 +59,19 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &lis
           double d0=sqrt(xc*xc+yc*yc)-rc; double dmax=sqrt(xc*xc+yc*yc)+rc;
           double s3=s3_cs;
           if ( (fabs(s3)>0.1) ){
-	    //           DcxHit* l1ptr=listohits[i]; DcxHit* l2ptr=listohits[j]; DcxHit* l3ptr=listohits[k];
-	    // 	    LogDebug("RoadSearch") << "Pivot lwlwlw " << l1ptr->Layer() << " " << l1ptr->WireNo()
-	    // 				   << " " << l2ptr->Layer() << " " << l2ptr->WireNo()
-	    // 				   << " " << l3ptr->Layer() << " " << l3ptr->WireNo() ;
-	    LogDebug("RoadSearch") << "trial circ " << xc << " " << yc << " " << rc 
-				   << " " << d0 << " " << dmax << " " << s3 ;
+//           DcxHit* l1ptr=listohits[i]; DcxHit* l2ptr=listohits[j]; DcxHit* l3ptr=listohits[k];
+// 	     edm::LogInfo("RoadSearch") << "Pivot lwlwlw " << l1ptr->Layer() << " " << l1ptr->WireNo()
+// 				        << " " << l2ptr->Layer() << " " << l2ptr->WireNo()
+// 				        << " " << l3ptr->Layer() << " " << l3ptr->WireNo() ;
+//	     edm::LogInfo("RoadSearch") << "trial circ " << xc << " " << yc << " " << rc 
+//				        << " " << d0 << " " << dmax << " " << s3 ;
 	    double d0h=-s3*d0;
 	    double phi0h=atan2(yc,xc)+s3*half_pi;
 	    double omegah=-s3/rc;
 	    DcxHel make_a_circ(d0h,phi0h,omegah,0.0,0.0);// make_a_hel.print();
 	    std::vector<DcxHit*> axlist;
 	    check_axial( listohits, axlist, make_a_circ);
-	    LogDebug("RoadSearch") << "listohits.size(), axlist.size() " << listohits.size() << " " << axlist.size() ;
+//	      edm::LogInfo("RoadSearch") << "listohits.size(), axlist.size() " << listohits.size() << " " << axlist.size() ;
 	    int n_axial=axlist.size();
 	    for (unsigned int l=0; l<listohits.size(); ++l) {
 	      for (unsigned int m=0; m<listohits.size(); ++m) {
@@ -81,14 +81,14 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &lis
 		  double z2=find_z_at_cyl(make_a_circ,listohits[m]);
 		  double l1=find_l_at_z(z1,make_a_circ,listohits[l]); 
 		  double l2=find_l_at_z(z2,make_a_circ,listohits[m]);
-		  LogDebug("RoadSearch") << "z1 l1 z2 l2 " << z1 << " " << l1
-					 << " " << z2 << " " << l2 ;
+//		  edm::LogInfo("RoadSearch") << "z1 l1 z2 l2 " << z1 << " " << l1
+//					     << " " << z2 << " " << l2 ;
 		  double tanl=(z1-z2)/(l1-l2); double z0=z1-tanl*l1;
 		  DcxHel make_a_hel(d0h,phi0h,omegah,z0,tanl);// make_a_hel.print();
 		  std::vector<DcxHit*> outlist = axlist;
 		  check_stereo( listohits, outlist, make_a_hel);
 		  int n_stereo=outlist.size()-n_axial;
-		  LogDebug("RoadSearch") << "listohits.size(), outlist.size() " << listohits.size() << " " << outlist.size() ;
+//		  edm::LogInfo("RoadSearch") << "listohits.size(), outlist.size() " << listohits.size() << " " << outlist.size() ;
 		  if ((n_stereo>2)&&(n_axial>6)){
 //		    DcxFittedHel try_fit(outlist,make_a_hel,55.6);// try_fit.FitPrint(); try_fit.print();
 //		    DcxHel real_trk = (DcxHel)try_fit;
@@ -117,12 +117,12 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &lis
 		      reco::Track::Covariance cov(covpara);
 //		      output.push_back(reco::Track(real_fit.Prob(),int(real_fit.Prob()/real_fit.Rcs()),outlist.size(),0,listohits.size(),params,cov));
 		      output.push_back(reco::Track(real_fit.Chisq(),outlist.size()-5,listohits.size(),listohits.size()-outlist.size(),0,params,cov));
-		      //                     real_fit.print();
+//                      real_fit.print(); real_fit.FitPrint(make_a_hel);
 		      for (unsigned int n=0; n<outlist.size(); ++n){outlist[n]->SetUsedOnHel(ntrk);}
 		    }else{
-		      LogDebug("RoadSearch") << " ntrk xprob pt nax nst = " << ntrk << " " << real_fit.Prob() 
-					     << " " << real_fit.Pt() << " " << n_axial << " " << n_stereo ; 
-		      //                     real_fit.print();
+//   		       edm::LogInfo("RoadSearch") << " ntrk xprob pt nax nst = " << ntrk << " " << real_fit.Prob() 
+//					     << " " << real_fit.Pt() << " " << n_axial << " " << n_stereo ; 
+//                     real_fit.print();
 		    }
 		  }
 		}
@@ -166,9 +166,9 @@ void DcxTrackCandidatesToTracks::check_axial( std::vector<DcxHit*> &listohits, s
     DcxHit* try_me = listohits[i];
     if ((!try_me->stereo())&&(!try_me->GetUsedOnHel())){
       double doca = try_me->residual(make_a_hel); 
-      //        double len = make_a_hel.Doca_Len();
-      //       LogDebug("RoadSearch") << "In check_axial, doca(mmm) len xh yh " << 10000.0*doca << " " << len 
-      // 			     << " " << make_a_hel.Xh(len) << " " << make_a_hel.Yh() ;
+//      double len = make_a_hel.Doca_Len();
+//      edm::LogInfo("RoadSearch") << "In check_axial, doca(mmm) len xh yh " << 10000.0*doca << " " << len 
+// 			      << " " << make_a_hel.Xh(len) << " " << make_a_hel.Yh() ;
       if (fabs(doca)<0.100)outlist.push_back(try_me);
     } 
   }
@@ -179,9 +179,9 @@ void DcxTrackCandidatesToTracks::check_stereo( std::vector<DcxHit*> &listohits, 
     DcxHit* try_me = listohits[i];
     if ((try_me->stereo())&&(!try_me->GetUsedOnHel())){
       double doca = try_me->residual(make_a_hel);
-      //        double len = make_a_hel.Doca_Len();
-      //       LogDebug("RoadSearch") << "In check_stereo, doca(mmm) len xh yh " << 10000.0*doca << " " << len 
-      // 			     << " " << make_a_hel.Xh(len) << " " << make_a_hel.Yh(len) ;
+//      double len = make_a_hel.Doca_Len();
+//      edm::LogInfo("RoadSearch") << "In check_stereo, doca(mmm) len xh yh " << 10000.0*doca << " " << len 
+// 			      << " " << make_a_hel.Xh(len) << " " << make_a_hel.Yh(len) ;
       if (fabs(doca)<0.100)outlist.push_back(try_me);
     } 
   }

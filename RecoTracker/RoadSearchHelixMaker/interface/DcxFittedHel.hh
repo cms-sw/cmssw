@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxFittedHel.hh,v 1.11 2004/08/06 05:58:21 bartoldu Exp $
+// 	$Id: DcxFittedHel.hh,v 1.2 2006/03/22 22:47:37 stevew Exp $
 //
 // Description:
 //	Class Header for |DcxFittedHel| - helix fitting class
@@ -65,7 +65,7 @@ public:
   int Fail(float Probmin=0.0)const;
   int ReFit();
   int FitPrint();
-  int FitPrint(DcxHel &hel, std::ostream &o);
+  int FitPrint(DcxHel &hel);
   void VaryRes();
 
 //operators

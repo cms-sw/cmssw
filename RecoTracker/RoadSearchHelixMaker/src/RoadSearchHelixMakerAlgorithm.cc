@@ -8,8 +8,8 @@
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/31 23:28:42 $
-// $Revision: 1.4 $
+// $Date: 2006/04/01 16:11:49 $
+// $Revision: 1.5 $
 //
 
 #include <vector>
@@ -102,7 +102,7 @@ void RoadSearchHelixMakerAlgorithm::run(const TrackCandidateCollection* input,
     edm::LogInfo("RoadSearch") << "Beware - Use Simple Helix Fitted Tracks only for Debugging Purposes!!" ;
 
     std::vector<DcxHit*> listohits; 
-    LogDebug("RoadSearch") << "listohits.size() " << listohits.size() ;
+//    edm::LogInfo("RoadSearch") << "listohits.size() " << listohits.size() ;
 
     for ( TrackCandidate::const_iterator recHit = recHitRange.first; recHit != recHitRange.second; ++recHit ) {
       const TrackingRecHit* temp_hit = &(*recHit);
@@ -120,8 +120,8 @@ void RoadSearchHelixMakerAlgorithm::run(const TrackCandidateCollection* input,
 	GlobalPoint temp_gpos_b = tracker->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_b);
 	GlobalVector fir_uvec((temp_gpos_f.x()-temp_gpos_b.x())/iLength,
 			      (temp_gpos_f.y()-temp_gpos_b.y())/iLength,(temp_gpos_f.z()-temp_gpos_b.z())/iLength);
-	LogDebug("RoadSearch") << "hit global position  = " << hit_global_pos.x() << " " << hit_global_pos.y() << " " << hit_global_pos.z()
-			       << " " << fir_uvec.x() << " " << fir_uvec.y() << " " << fir_uvec.z() ;
+//	LogInfo("RoadSearch") << "hit global position  = " << hit_global_pos.x() << " " << hit_global_pos.y() << " " << hit_global_pos.z()
+//			      << " " << fir_uvec.x() << " " << fir_uvec.y() << " " << fir_uvec.z() ;
 	DcxHit* try_me = new DcxHit(hit_global_pos.x(), hit_global_pos.y(), hit_global_pos.z(), 
 				    fir_uvec.x(), fir_uvec.y(), fir_uvec.z());
 	listohits.push_back(try_me);
@@ -136,16 +136,16 @@ void RoadSearchHelixMakerAlgorithm::run(const TrackCandidateCollection* input,
 	GlobalPoint temp_gpos_b = tracker->idToDetUnit(temp_hit->geographicalId())->surface().toGlobal(temp_lpos_b);
 	GlobalVector fir_uvec((temp_gpos_f.x()-temp_gpos_b.x())/iLength,
 			      (temp_gpos_f.y()-temp_gpos_b.y())/iLength,(temp_gpos_f.z()-temp_gpos_b.z())/iLength);
-	LogDebug("RoadSearch") << "hit global position  = " << hit_global_pos.x() << " " << hit_global_pos.y() << " " << hit_global_pos.z()
-			       << " " << fir_uvec.x() << " " << fir_uvec.y() << " " << fir_uvec.z() ;
-	//        DcxHit* try_me = new DcxHit(hit_global_pos.x(), hit_global_pos.y(), hit_global_pos.z(), 
-	//                                    fir_uvec.x(), fir_uvec.y(), fir_uvec.z());
-	//        listohits.push_back(try_me);
+//	LogInfo("RoadSearch") << "hit global position  = " << hit_global_pos.x() << " " << hit_global_pos.y() << " " << hit_global_pos.z()
+//			      << " " << fir_uvec.x() << " " << fir_uvec.y() << " " << fir_uvec.z() ;
+//        DcxHit* try_me = new DcxHit(hit_global_pos.x(), hit_global_pos.y(), hit_global_pos.z(), 
+//                                    fir_uvec.x(), fir_uvec.y(), fir_uvec.z());
+//        listohits.push_back(try_me);
       }//make DcxHit from Barrel or Endcap sensor
     }
-    LogDebug("RoadSearch") << "finished DcxHit making; listohits.size() " << listohits.size() ;
+//    edm::LogInfo("RoadSearch") << "finished DcxHit making; listohits.size() " << listohits.size() ;
     DcxTrackCandidatesToTracks make_tracks(listohits,output);
-    //      listohits.~vector<DcxHit*>();// leak or crash - right now we're leaking
+//      listohits.~vector<DcxHit*>();// leak or crash - right now we're leaking
   }//iterate over all track candidates
 
   edm::LogInfo("RoadSearch") << "Created " << output.size() << " tracks.";

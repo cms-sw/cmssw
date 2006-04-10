@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxFittedHel.cc,v 1.2 2006/03/22 22:43:09 stevew Exp $
+// 	$Id: DcxFittedHel.cc,v 1.3 2006/03/31 23:28:42 gutsche Exp $
 //
 // Description:
 //	Class Implementation for |DcxFittedHel|
@@ -164,11 +164,11 @@ int DcxFittedHel::IterateFit(){
     for (int i=0; i< niter; i++) {
       itofit=i+1;
       ftemp=DoFit();
-      if (nfree == 5){
-	LogDebug("RoadSearch") << " iteration number= " << i  << " chisq= " << chisq;
-	LogDebug("RoadSearch") << " nhits= " << nhits << " " << " fail= " << ftemp ;
-      }
-      print();
+//      if (nfree == 5){
+//	LogInfo("RoadSearch") << " iteration number= " << i  << " chisq= " << chisq;
+//	LogInfo("RoadSearch") << " nhits= " << nhits << " " << " fail= " << ftemp ;
+//      }
+//      print();
       if(ftemp!=0) {break;}
       if(fabs(chisq-prevchisq)<0.01*chisq) {break;}
       prevchisq=chisq;
@@ -212,7 +212,7 @@ int DcxFittedHel::DoFit(){
       for(unsigned int ipar=0; ipar<derivs.size(); ipar++) {derivs[ipar]/=sfac;
 	output << " " << derivs[ipar];
       }
-      LogDebug("RoadSearch") << output;
+//      edm::LogInfo("RoadSearch") << output;
     }
     chisq+=derivs[0]*derivs[0];
     //outer parameter loop
@@ -224,11 +224,11 @@ int DcxFittedHel::DoFit(){
       }//endof inner parameter loop
     }//endof outer parameter loop
   }//pointloop
-  LogDebug("RoadSearch") << " D A " ;
+//  edm::LogInfo("RoadSearch") << " D A " ;
   for (ii=0; ii<norder; ii++){
     std::ostringstream output;
     output << D[ii] << " "; for (jj=0;jj<norder;jj++){output << A[ii][jj] << " ";}
-    LogDebug("RoadSearch") << output;
+//    edm::LogInfo("RoadSearch") << output;
   }
   //invert A
   int ierr;
@@ -237,18 +237,19 @@ int DcxFittedHel::DoFit(){
     int ndof=nhits-nfree;
     if(ndof>0) {
       float chiperdof=chisq/ndof;
-      if(chiperdof>chidofbail) {return ftemp;} LogDebug("RoadSearch") << " got here; chiperdof = " << chiperdof ;
+      if(chiperdof>chidofbail) {return ftemp;} 
+//      edm::LogInfo("RoadSearch") << " got here; chiperdof = " << chiperdof ;
     } // (ndof>0)
   } // (bailout)
   ftemp=0;
   ierr = Dcxmatinv(&A[0][0],&norder,&det);
-  LogDebug("RoadSearch") << " ierr = " << ierr ;
+//  edm::LogInfo("RoadSearch") << " ierr = " << ierr ;
   if(ierr==0) {
     for(ii=0;ii<norder;ii++){for(jj=0;jj<norder;jj++){B[ii]+=A[ii][jj]*D[jj];}}
     for (ii=0; ii<norder; ii++){
       std::ostringstream output;
       output << B[ii] << " "; for(jj=0;jj<norder;jj++){output << A[ii][jj] << " ";}
-      LogDebug("RoadSearch") << output;
+//      edm::LogInfo("RoadSearch") << output;
     }
     int bump=-1;
     if(qd0)    {bump++; d0-=B[bump];}
@@ -287,34 +288,27 @@ int DcxFittedHel::OriginIncluded() {
 }//endof OriginIncluded
 
 int DcxFittedHel::FitPrint(){
-  LogDebug("RoadSearch") << " fail= " << fail ;
-  LogDebug("RoadSearch") << " iterations to fit= " << itofit ;
-  LogDebug("RoadSearch") << " nhits= " << nhits ;
-  LogDebug("RoadSearch") << " sfac= " << sfac ;
-  LogDebug("RoadSearch") << " chisq= " << chisq ;
-  LogDebug("RoadSearch") << " rcs= " << rcs ;
-  LogDebug("RoadSearch") << " prob= " << prob ;
-  LogDebug("RoadSearch") << " fittime= " << fittime ;
+  edm::LogInfo("RoadSearch") << " fail= " << fail 
+                             << " iterations to fit= " << itofit 
+                             << " nhits= " << nhits 
+                             << " sfac= " << sfac 
+                             << " chisq= " << chisq 
+                             << " rcs= " << rcs 
+                             << " prob= " << prob 
+                             << " fittime= " << fittime ;
   return 0;
 }//endof FitPrint
 
-int DcxFittedHel::FitPrint(DcxHel &hel, ostream &o){
+int DcxFittedHel::FitPrint(DcxHel &hel){
   FitPrint();
-  LogDebug("RoadSearch") << " difd0= " << d0-hel.D0() ;
   double m_2pi=2.0*M_PI;
   double difphi0=phi0-hel.Phi0();
   if (difphi0>M_PI)difphi0-=m_2pi; if (difphi0<-M_PI)difphi0+=m_2pi; 
-  LogDebug("RoadSearch") << " difphi0= " << difphi0 ;
-  LogDebug("RoadSearch") << " difomega= " << omega-hel.Omega() ;
-  LogDebug("RoadSearch") << " difz0= " << z0-hel.Z0() ;
-  LogDebug("RoadSearch") << " diftanl= " << tanl-hel.Tanl() ;
-  o << "*&*" << " ";
-  // o << itofit << " " << fail << " " << chisq << " " << rcs << " "; 
-  o << nhits << " " << fail << " " << chisq << " " << rcs << " "; 
-  // o << prob << " " << fittime << " " << d0-hel.D0() << " ";
-  o << prob << " " << hel.Tanl() << " " << d0-hel.D0() << " ";
-  o << difphi0 << " " << omega-hel.Omega() << " "; 
-  o << z0-hel.Z0() << " " << tanl-hel.Tanl() << endl;
+  edm::LogInfo("RoadSearch") << " difd0= " << d0-hel.D0() 
+                             << " difphi0= " << difphi0 
+                             << " difomega= " << omega-hel.Omega() 
+                             << " difz0= " << z0-hel.Z0() 
+                             << " diftanl= " << tanl-hel.Tanl() ;
   return 0;
 }//endof FitPrint
 

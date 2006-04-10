@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxHit.cc,v 1.2 2006/03/22 22:43:09 stevew Exp $
+// 	$Id: DcxHit.cc,v 1.3 2006/03/31 23:28:42 gutsche Exp $
 //
 // Description:
 //	Class Implementation for |DcxHit|: drift chamber hit that can compute
@@ -42,7 +42,7 @@ DcxHit::DcxHit(float sx, float sy, float sz, float wx, float wy, float wz,
                float c0, float cresol) 
               :_wx(wx),_wy(wy),_wz(wz),_c0(c0),_cresol(cresol)
 {
-  LogDebug("RoadSearch") << "try to make a cms DcxHit " << _c0 << " " << _cresol;
+//  edm::LogInfo("RoadSearch") << "try to make a cms DcxHit " << _c0 << " " << _cresol;
   _layernumber=0;
   if (_wz<0.0){_wx=-_wx;_wy=-_wy;_wz=-_wz;}
   _s = false; if (_wz<0.9975)_s=true; 
@@ -52,8 +52,8 @@ DcxHit::DcxHit(float sx, float sy, float sz, float wx, float wy, float wz,
     if ((30.0<rad)&&(rad<38.0))_layernumber=4;
     if ((58.0<rad)&&(rad<66.0))_layernumber=10;
     if ((66.0<rad)&&(rad<74.0))_layernumber=12;
-    LogDebug("RoadSearch") << "stereo rad layer " << rad << " " << _layernumber 
-			   << " " << _wx << " " << _wy << " " << _wz;
+//    edm::LogInfo("RoadSearch") << "stereo rad layer " << rad << " " << _layernumber 
+//			         << " " << _wx << " " << _wy << " " << _wz;
     _x = sx-sz*_wx/_wz; _y = sy-sz*_wy/_wz; 
   }else{
     _x = sx; _y = sy; 
@@ -68,7 +68,7 @@ DcxHit::DcxHit(float sx, float sy, float sz, float wx, float wy, float wz,
     if ((83.0<rad)&&(rad<92.0))_layernumber=15;
     if ((92.0<rad)&&(rad<100.0))_layernumber=17;
     if ((100.0<rad)&&(rad<120.0))_layernumber=19;
-    LogDebug("RoadSearch") << "axial layer " << _x << " " << _y;
+//    edm::LogInfo("RoadSearch") << "axial layer " << _x << " " << _y;
   }
   _wirenumber=0;
   _superlayer=1+(_layernumber-1)/4;
@@ -147,10 +147,9 @@ DcxHit::~DcxHit( )
 float 
 DcxHit::d(DcxHel &hel)const 
 {
-  // float doca=hel.Doca(*this); // changes hel's internal state...
+  float doca=hel.Doca(*this); // changes hel's internal state...
   return d(hel.Doca_Zh(),hel.Doca_Tof(),hel.T0(),
            hel.Doca_Wamb(),hel.Doca_Eang());
-  //   LogDebug("RoadSearch") << "In DcxHit::d(), zh = " << zh ;
 }//endof d
 
 float 

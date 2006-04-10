@@ -17,9 +17,9 @@ extern int Dcxmatinv(double *array, int *norder, double *det){
 
   /* Local variables */
   const int nmax = 10;
-  LogDebug("RoadSearch") << "norder in Dcxmatinv = " << *norder ;
+//  edm::LogInfo("RoadSearch") << "norder in Dcxmatinv = " << *norder ;
   if (*norder > nmax){
-    LogDebug("RoadSearch") << "In Dcxmatinv, norder ( = " << *norder << " ) > nmax ( = "
+    edm::LogInfo("RoadSearch") << "In Dcxmatinv, norder ( = " << *norder << " ) > nmax ( = "
 			   << nmax << " ); error" ; return 1000;
   }
   static double amax, save;
