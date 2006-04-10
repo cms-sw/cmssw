@@ -36,6 +36,7 @@
 
 #include <iostream>
 
+class FSimEvent;
 class TrackerLayer;
 class ParticlePropagator;
 

@@ -1,6 +1,7 @@
 #include "TrackingTools/PatternTools/interface/MediumProperties.h"
 
 #include "FastSimulation/Event/interface/FSimEvent.h"
+#include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
@@ -126,8 +127,8 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       
       // Add a vertex, but do not attach it to the electron, because it 
       // continues its way...
-      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),-1);
-      //myHistos->fill("h200",myTrack.vertex().z()*0.1,myTrack.vertex().perp()*0.1);
+      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
+       //myHistos->fill("h200",myTrack.vertex().z()*0.1,myTrack.vertex().perp()*0.1);
 
       for ( DaughterIter = Bremsstrahlung.beginDaughters();
 	    DaughterIter != Bremsstrahlung.endDaughters(); 
