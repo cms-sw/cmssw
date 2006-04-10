@@ -4,7 +4,7 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/ClusteringAlgorithm.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
-#include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
+#include "RecoCaloTools/Navigation/interface/EBDetIdNavigator.h"
 #include <vector>
 
 class HybridClusterAlgo : public ClusteringAlgorithm
@@ -41,7 +41,7 @@ class HybridClusterAlgo : public ClusteringAlgorithm
     }
   
   void mainSearch(const CaloSubdetectorGeometry & geometry);
-  double makeDomino(EcalBarrelNavigator &navigator, std::vector <PositionAwareHit> &cells);
+  double makeDomino(EBDetIdNavigator &navigator, std::vector <PositionAwareHit> &cells);
 
 
 };
