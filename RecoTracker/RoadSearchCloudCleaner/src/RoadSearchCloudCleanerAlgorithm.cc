@@ -8,8 +8,8 @@
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/23 01:59:41 $
-// $Revision: 1.2 $
+// $Date: 2006/03/28 23:12:10 $
+// $Revision: 1.1 $
 //
 
 #include <vector>
@@ -45,9 +45,9 @@ void RoadSearchCloudCleanerAlgorithm::run(const RoadSearchCloudCollection* input
   //
 
   if ( input->empty() ){
-    if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
+  //  if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
       LogDebug("RoadSearch") << "Found " << output.size() << " clouds.";
-    }
+  //  }
     return;  
   }
 
