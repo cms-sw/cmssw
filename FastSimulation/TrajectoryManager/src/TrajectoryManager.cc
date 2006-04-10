@@ -14,6 +14,7 @@
 //#include "FastSimulation/FamosTracker/interface/FamosDummyDet.h"
 //#include "FastSimulation/FamosTracker/interface/FamosBasicRecHit.h"
 
+#include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 
@@ -31,7 +32,8 @@
 
 using namespace std;
 
-TrajectoryManager::TrajectoryManager() : FSimEvent() {
+TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent) : 
+  mySimEvent(aSimEvent) {
   
   // Initialize the simplified tracker geometry
   _theGeometry = new TrackerGeometry();
@@ -53,9 +55,6 @@ TrajectoryManager::TrajectoryManager() : FSimEvent() {
   /*
   myHistos->book("h300",1210,-121.,121.,1210,-121.,121.);
   myHistos->book("h301",1200,-300.,300.,1210,-121.,121.);
-  myHistos->book("K0s",100,0.,100.);
-  myHistos->book("pion",100,0.,100.);
-  myHistos->book("Lambda0",100,0.,100.);
   */
 }
 
@@ -89,9 +88,9 @@ TrajectoryManager::reconstruct()
   std::list<TrackerLayer>::iterator cyliter;
 
   // Loop over the particles
-  for( unsigned fsimi=0; fsimi < nTracks() ; ++fsimi) {
+  for( int fsimi=0; fsimi < (int) mySimEvent->nTracks() ; ++fsimi) {
 
-    FSimTrack& myTrack = track((int)fsimi);
+    FSimTrack& myTrack = mySimEvent->track(fsimi);
 
     // If the particle has decayed inside the beampipe, or decays 
     // immediately, there is nothing to do
@@ -169,7 +168,7 @@ TrajectoryManager::reconstruct()
       if( PP.getSuccess() > 0 && PP.onFiducial() ) {
 
 	// Material effects are simulated there
-	theMaterialEffects.interact(*this,*cyliter,PP,fsimi); 
+	theMaterialEffects.interact(*mySimEvent,*cyliter,PP,fsimi); 
 
 	// Add a SimHit to the SimTrack for the first half loop...
 	// if the particle is charged, if the layer is sensitive,
@@ -214,8 +213,9 @@ TrajectoryManager::reconstruct()
 	*/
 
 	//The particle may have lost its energy in the material
-	if ( myTrack.notYetToEndVertex(PP.vertex()) && !filter().accept(PP)  ) 
-	  addSimVertex(PP.vertex(),fsimi);
+	if ( myTrack.notYetToEndVertex(PP.vertex()) && 
+	     !mySimEvent->filter().accept(PP)  ) 
+	  mySimEvent->addSimVertex(PP.vertex(),fsimi);
 	  
       }
 
@@ -266,10 +266,9 @@ TrajectoryManager::reconstruct()
 }
 
 void 
-TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, 
-                                           int fsimi) {
+TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi) {
 
-  FSimTrack& myTrack = track((int)fsimi);
+  FSimTrack& myTrack = mySimEvent->track(fsimi);
 
   // Propagate to Preshower Layer 1 
   PP.propagateToPreshowerLayer1(false);
@@ -319,8 +318,7 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP,
 }
 
 bool
-TrajectoryManager::propagateToLayer(ParticlePropagator& PP,
-				    unsigned layer) {
+TrajectoryManager::propagateToLayer(ParticlePropagator& PP, unsigned layer) {
 
   std::list<TrackerLayer>::iterator cyliter;
   bool done = false;
@@ -349,8 +347,7 @@ TrajectoryManager::propagateToLayer(ParticlePropagator& PP,
 }
 
 void
-TrajectoryManager::updateWithDaughters(ParticlePropagator& PP,
-                                       unsigned int fsimi) {
+TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
 
   // Invoke PYDECY to decay the particle and get the daughters
   DaughterParticleList daughters = myDecayEngine->particleDaughters(PP);
@@ -359,11 +356,11 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP,
   if ( daughters.size() ) { 
     DaughterParticleIterator daughter = daughters.begin();
     
-    int ivertex = addSimVertex((*daughter)->vertex(),fsimi);
+    int ivertex = mySimEvent->addSimVertex((*daughter)->vertex(),fsimi);
 
     if ( ivertex != -1 ) {
       for ( ; daughter != daughters.end(); ++daughter) 
-	addSimTrack(*daughter, ivertex);
+	mySimEvent->addSimTrack(*daughter, ivertex);
     }
   }
 }

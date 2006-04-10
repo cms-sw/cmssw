@@ -3,7 +3,6 @@
 
 //#include "FamosGeneric/FamosManager/interface/FamosSimulator.h"
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
-#include "FastSimulation/Event/interface/FSimEvent.h"
 
 /**
  * This class takes all the particles of a FSimEvent with no end vertex, 
@@ -37,14 +36,17 @@ class FSimTrack;
 //class FamosBasicRecHit;
 //class RecHit;
 
-class TrajectoryManager : public FSimEvent
+class TrajectoryManager
 {
  public:
 
   /// Default Constructor
-  TrajectoryManager();
+  TrajectoryManager() {;}
 
-  /// Default Constructor
+  /// Constructor from a FSimEvent
+  TrajectoryManager(FSimEvent* aSimEvent);
+
+  /// Default Destructor
   ~TrajectoryManager();
   
   /// Does the real job
@@ -65,8 +67,7 @@ class TrajectoryManager : public FSimEvent
  private:
 
   /// Decay the particle and update the SimEvent with daughters 
-  void updateWithDaughters(ParticlePropagator& PP,
-			   unsigned int fsimi);
+  void updateWithDaughters(ParticlePropagator& PP, int fsimi);
 
  private:
 
@@ -74,6 +75,8 @@ class TrajectoryManager : public FSimEvent
   //  FamosBasicRecHit* oneHit(const ParticlePropagator& PP, 
   //			   const TrackerLayer& layer,
   //			   unsigned ringNumber) const;
+
+  FSimEvent* mySimEvent;
 
   TrackerGeometry* _theGeometry;
   
