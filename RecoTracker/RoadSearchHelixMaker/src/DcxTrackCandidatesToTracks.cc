@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.3 2006/03/31 23:28:42 gutsche Exp $
+// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.1 2006/04/01 16:11:49 gutsche Exp $
 //
 // Description:
 //	Class Implementation for |DcxTrackCandidatesToTracks|
@@ -90,9 +90,11 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &lis
 		  int n_stereo=outlist.size()-n_axial;
 		  LogDebug("RoadSearch") << "listohits.size(), outlist.size() " << listohits.size() << " " << outlist.size() ;
 		  if ((n_stereo>2)&&(n_axial>6)){
-		    DcxFittedHel try_fit(listohits,make_a_hel,55.6);// try_fit.FitPrint(); try_fit.print();
-		    DcxHel real_trk = (DcxHel)try_fit;
-		    DcxFittedHel real_fit(listohits,real_trk);// real_fit.FitPrint();
+//		    DcxFittedHel try_fit(outlist,make_a_hel,55.6);// try_fit.FitPrint(); try_fit.print();
+//		    DcxHel real_trk = (DcxHel)try_fit;
+//		    DcxFittedHel real_fit(outlist,real_trk);// real_fit.FitPrint();
+//  try without wide fit first to save time
+		    DcxFittedHel real_fit(outlist,make_a_hel);// real_fit.FitPrint();
 		    if (real_fit.Prob()>0.001){
 		      ntrk++;
 		      edm::LogInfo("RoadSearch") << "ntrk xprob pt nax nst d0 phi0 omega z0 tanl " << ntrk << " " << real_fit.Prob() 
@@ -103,7 +105,8 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &lis
 		      double para[5];
 		      para[0] = real_fit.D0();
 		      para[1] = real_fit.Phi0();
-		      para[2] = real_fit.Omega();
+//		      para[2] = real_fit.Omega();
+		      para[2] = -real_fit.Omega()/0.0120;
 		      para[3] = real_fit.Z0();
 		      para[4] = real_fit.Tanl();
 		      reco::Track::Parameters params(para);
@@ -112,7 +115,8 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &lis
 			covpara[i] = 0;
 		      }
 		      reco::Track::Covariance cov(covpara);
-		      output.push_back(reco::Track(real_fit.Prob(),int(real_fit.Prob()/real_fit.Rcs()),outlist.size(),0,listohits.size(),params,cov));
+//		      output.push_back(reco::Track(real_fit.Prob(),int(real_fit.Prob()/real_fit.Rcs()),outlist.size(),0,listohits.size(),params,cov));
+		      output.push_back(reco::Track(real_fit.Chisq(),outlist.size()-5,listohits.size(),listohits.size()-outlist.size(),0,params,cov));
 		      //                     real_fit.print();
 		      for (unsigned int n=0; n<outlist.size(); ++n){outlist[n]->SetUsedOnHel(ntrk);}
 		    }else{
