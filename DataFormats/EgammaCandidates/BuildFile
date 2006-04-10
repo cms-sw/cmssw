@@ -5,6 +5,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/Math>
 <export>
+ <lib name=DataFormatsEgammaCandidates>
  <use name=DataFormats/EgammaReco>
  <use name=DataFormats/TrackReco>
  <use name=DataFormats/EcalRecHit>
