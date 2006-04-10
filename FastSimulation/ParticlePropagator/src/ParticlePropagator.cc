@@ -6,6 +6,7 @@
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
+#include "FastSimulation/Event/interface/FSimVertex.h"
 
 #include <iomanip>
 
@@ -39,9 +40,10 @@ ParticlePropagator::ParticlePropagator(const HepLorentzVector& mom,
 }
 
 ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack) : 
-  BaseParticlePropagator(RawParticle(simTrack.me()),0.,0.,0.)
+  BaseParticlePropagator(RawParticle(simTrack.type(),simTrack.momentum()),
+			 0.,0.,0.)
 {
-  setCharge(simTrack.charge());
+  setVertex(simTrack.vertex().position());
   setMagneticField(fieldMap(x(),y(),z()));
 }
 
