@@ -12,21 +12,24 @@ Persistent classes for mathematical types. This package is based on ROOT/SEAL <a
 \subsection interface Public interface
 typedefs of commonly used <a href="http://seal.web.cern.ch/seal/MathLibs/MathCore/html/index.html">MathCore</a> and
 and <a href="http://seal.web.cern.ch/seal/MathLibs/SMatrix/html/index.html">Smatrix</a> types.
-In all cases, unless explicitly stated, the elements are of type <tt>Double32_t</tt>, i.e.: are stored as <tt>float</tt> and represented in memory as <tt>double</tt>. 
+In all cases, the elements are of type <tt>Double32_t</tt>, i.e.: are stored by default as <tt>float</tt> and represented in memory as <tt>double</tt>. Classes whose typedefs end by "<tt><b>D</b></tt>" store elements as <tt>double</tt>, and classes whose typedefs end by "<tt><b>F</b></tt>" store elements as <tt>float</tt>, 
 - <b>Spatial Vectors:</b>
-  - math::XYZVector: spatial vector with cartesian internal representation.
-  - math::RhoEtaPhiVector: spatial vector with cylindrical internal representation using pseudorapidity.
-  - math::RThetaPhiVector: spatial vector with polar internal representation.
+  - math::XYZVector, math::XYZVectorD, math::XYZVectorF: spatial vector with cartesian internal representation.
+  - math::RhoEtaPhiVector, math::RhoEtaPhiVectorD, math::RhoEtaPhiVectorF: spatial vector with cylindrical internal representation using pseudorapidity.
+  - math::RThetaPhiVector, math::RThetaPhiVectorD, math::RThetaPhiVectorF: spatial vector with polar internal representation.
+
 - <b>Spatial Points:</b>
-  - math::XYZPoint: point in space with cartesian internal representation.
+  - math::XYZPoint, math::XYZPointD, math::XYZPointF: point in space with cartesian internal representation.
+
 - <b>Lorentz Vectors:</b>
-  - math::XYZTLorentzVector: Lorentz vector with cartesian internal representation.
-  - math::PtEtaPhiELorentzVector: Lorentz vector with cylindrical internal representation using pseudorapidity.
+  - math::XYZTLorentzVector, math::XYZTLorentzVectorD, math::XYZTLorentzVectorF: Lorentz vector with cartesian internal representation.
+  - math::PtEtaPhiELorentzVector, math::PtEtaPhiELorentzVectorD, math::PtEtaPhiELorentzVectorF: Lorentz vector with cylindrical internal representation using pseudorapidity.
+
 - <b>Fixed Size Vectors:</b>
-  - math::Vector<N>::type: Fixed size N-dimensional vector.
+  - math::Vector<N>::type, math::VectorD<N>::type, math::VectorF<N>::type: Fixed size N-dimensional vector.
+
 - <b>Fixed size Matrices:</b>
-  - math::Error<N>::type: NxN symmetric matrix. 
-  - math::ErrorD<N>::type: NxN symmetric matrix with <tt>double</tt> elements. 
+  - math::Error<N>::type, math::ErrorD<N>::type, math::ErrorF<N>::type: NxN symmetric matrix. 
 
 \subsection modules Modules
 None.
