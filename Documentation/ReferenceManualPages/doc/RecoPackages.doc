@@ -11,6 +11,7 @@ Definition of classes modelling Reco.
  - \ref DataFormats_MuonReco "MuonReco": Muon Reco classes<br>
  - \ref DataFormats_VertexReco "VertexReco": Vertex Reco classes<br>
  - \ref DataFormats_EGammaReco "EGammaReco": Electron/photon Reco classes<br>
+ - \ref DataFormats_JetReco "JetReco": Jet Reco classes<br>
 
 - <b>Candidate model</b><br>
 Generic particle <a href="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsTools/candidates/">candidate model</a>.
