@@ -13,7 +13,7 @@
   30 Mar 2006 - HWKC - First implementation.
 */
 
-#include "IOPool/StreamerData/interface/Messages.h"
+#include "IOPool/Streamer/interface/Messages.h"
 
 #include <vector>
 

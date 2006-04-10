@@ -2,8 +2,8 @@
 #include "EventFilter/StorageManager/interface/JobController.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Framework/interface/InputSource.h"
-#include "IOPool/StreamerData/interface/Messages.h"
-#include "IOPool/StreamerData/interface/StreamedProducts.h"
+#include "IOPool/Streamer/interface/Messages.h"
+#include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 
 #include "boost/bind.hpp"

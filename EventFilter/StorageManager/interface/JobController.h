@@ -7,7 +7,7 @@
 #include "EventFilter/StorageManager/interface/EPRunner.h"
 
 // added by HWKC for Event Server
-#include "IOPool/StreamerData/interface/Messages.h"
+#include "IOPool/Streamer/interface/Messages.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"

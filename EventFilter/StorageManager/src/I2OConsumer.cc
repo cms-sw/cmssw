@@ -34,7 +34,7 @@
 
 #include "EventFilter/StorageManager/interface/i2oStorageManagerMsg.h"
 #include "EventFilter/StorageManager/src/I2OConsumer.h"
-#include "IOPool/StreamerData/interface/Messages.h"
+#include "IOPool/Streamer/interface/Messages.h"
 #include "EventFilter/StorageManager/interface/SMi2oSender.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"

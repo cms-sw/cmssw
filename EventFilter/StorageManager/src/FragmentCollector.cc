@@ -1,7 +1,7 @@
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/test/SillyLockService.h"
-#include "IOPool/StreamerData/interface/Messages.h"
+#include "IOPool/Streamer/interface/Messages.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "boost/bind.hpp"
