@@ -1,9 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: EventStreamInput.nocc,v 1.1 2005/11/01 17:29:20 jbk Exp $
+$Id: EventStreamInput.nocc,v 1.2 2006/02/13 23:38:30 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Streamer/interface/EventStreamInput.h"
-#include "IOPool/StreamerData/interface/StreamedProducts.h"
+#include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 

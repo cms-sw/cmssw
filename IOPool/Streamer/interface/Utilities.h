@@ -7,8 +7,8 @@
 //  Streamer package.
 //
 
-#include "IOPool/StreamerData/interface/StreamedProducts.h"
-#include "IOPool/StreamerData/interface/Messages.h"
+#include "DataFormats/Streamer/interface/StreamedProducts.h"
+#include "IOPool/Streamer/interface/Messages.h"
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"

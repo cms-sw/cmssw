@@ -3,13 +3,13 @@
 <use name=rootcore>
 <use name=FWCore/Framework>
 <use name=IOPool/Common>
-<use name=IOPool/StreamerData>
+<use name=DataFormats/Streamer>
 <export>
  <lib name=IOPoolStreamer>
  <use name=boost>
  <use name=rootcore>
  <use name=FWCore/Framework>
  <use name=IOPool/Common>
- <use name=IOPool/StreamerData>
+ <use name=DataFormats/Streamer>
 </export>
 

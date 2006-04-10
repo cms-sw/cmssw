@@ -8,7 +8,7 @@
 
 Event streaming input source
 
-$Id: EventStreamInput.h,v 1.8 2006/02/07 07:35:35 wmtan Exp $
+$Id: EventStreamInput.h,v 1.9 2006/02/08 00:44:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ $Id: EventStreamInput.h,v 1.8 2006/02/07 07:35:35 wmtan Exp $
 #include <string>
 #include <fstream>
 
-#include "IOPool/StreamerData/interface/Messages.h"
+#include "IOPool/Streamer/interface/Messages.h"
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 

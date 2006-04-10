@@ -3,9 +3,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #if 1
-#include "IOPool/StreamerData/interface/StreamTestThing.h"
-#include "IOPool/StreamerData/interface/StreamTestTmpl.h"
-#include "IOPool/StreamerData/interface/StreamTestSimple.h"
+#include "DataFormats/TestObjects/interface/StreamTestThing.h"
+#include "DataFormats/TestObjects/interface/StreamTestTmpl.h"
+#include "DataFormats/TestObjects/interface/StreamTestSimple.h"
 typedef edmtestprod::StreamTestThing WriteThis;
 #else
 #include "FWCore/Integration/interface/IntArray.h"
