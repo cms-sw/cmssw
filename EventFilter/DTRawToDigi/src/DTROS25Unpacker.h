@@ -5,8 +5,8 @@
  *  The unpacker for DTs' ROS25: 
  *  final version of Read Out Sector board with 25 channels.
  *
- *  $Date: 2006/02/21 19:15:55 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/04/07 15:36:04 $
+ *  $Revision: 1.7 $
  * \author M. Zanetti INFN Padova
  */
 
@@ -30,7 +30,8 @@ public:
   virtual void interpretRawData(const unsigned int* index, int datasize,
 				int dduID,
 				edm::ESHandle<DTReadOutMapping>& mapping, 
-				std::auto_ptr<DTDigiCollection>& product);
+				std::auto_ptr<DTDigiCollection>& product,
+				uint16_t rosList = 0);
 
 private:
 

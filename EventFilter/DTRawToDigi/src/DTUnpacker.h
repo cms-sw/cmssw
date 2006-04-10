@@ -4,8 +4,8 @@
 /** \class DTUnpacker
  *  Base class for DT data unpackers
  *
- *  $Date: 2005/11/25 18:12:53 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/07 15:36:04 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti INFN Padova
  */
 
@@ -31,7 +31,7 @@ class DTUnpacker {
   virtual void interpretRawData(const unsigned int* index, int datasize,
 				int dduID,
 				edm::ESHandle<DTReadOutMapping>& mapping, 
-				std::auto_ptr<DTDigiCollection>& product) = 0;
+				std::auto_ptr<DTDigiCollection>& product, uint16_t rosList=0) = 0;
 
  protected:
 

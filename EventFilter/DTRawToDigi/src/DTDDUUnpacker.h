@@ -4,8 +4,8 @@
 /** \class DTDDUUnpacker
  *  The unpacker for DTs' FED.
  *
- *  $Date: 2006/02/21 19:15:55 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/04/07 15:36:04 $
+ *  $Revision: 1.6 $
  * \author M. Zanetti INFN Padova
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,6 +13,7 @@
 #include <EventFilter/DTRawToDigi/src/DTUnpacker.h>
 
 class DTROS25Unpacker;
+class DTDataMonitorInterface;
 
 class DTDDUUnpacker : public DTUnpacker {
 
@@ -28,7 +29,8 @@ class DTDDUUnpacker : public DTUnpacker {
   virtual void interpretRawData(const unsigned int* index, int datasize,
 				int dduID,
 				edm::ESHandle<DTReadOutMapping>& mapping, 
-				std::auto_ptr<DTDigiCollection>& product);
+				std::auto_ptr<DTDigiCollection>& product,
+				uint16_t rosList=0);
 
  private:
 
@@ -36,6 +38,7 @@ class DTDDUUnpacker : public DTUnpacker {
 
   DTROS25Unpacker* ros25Unpacker;
 
+  DTDataMonitorInterface * dataMonitor;
 
 };
 

@@ -1,14 +1,14 @@
 /** \file
  *
- *  $Date: 2006/03/24 16:15:02 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/03/27 15:50:39 $
+ *  $Revision: 1.11 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
 #include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
 
 #include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
-#include <EventFilter/DTRawToDigi/interface/DTROS25Data.h>
+#include <EventFilter/DTRawToDigi/interface/DTControlData.h>
 
 #include <EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -21,9 +21,12 @@
 
 #include <iostream>
 
+
 using namespace std;
 using namespace edm;
 
+
+// FIXME: SC words processing is missing!!
 
 
 DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps): pset(ps) {
@@ -39,13 +42,14 @@ DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps): pset(ps) {
 void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
                                        int dduID,
                                        edm::ESHandle<DTReadOutMapping>& mapping, 
-                                       std::auto_ptr<DTDigiCollection>& product) {
+                                       std::auto_ptr<DTDigiCollection>& product,
+				       uint16_t rosList) {
 
 
   const int wordLength = 4;
   int numberOfWords = datasize / wordLength;
 
-  int rosID = 0; // To be taken from DDU control word
+  int rosID = 0; 
   DTROS25Data controlData(rosID);
 
   int wordCounter = 0;
@@ -62,11 +66,12 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
   // Loop on ROSs
   while (wordCounter < numberOfWords) {
 
+    rosID++; // to be mapped;
+    if ( !((rosList & int(pow(2., (rosID-1) )) ) >> (rosID-1) ) ) continue;      
+
     // ROS Header; 
     if (DTROSWordType(word).type() == DTROSWordType::ROSHeader) {
       DTROSHeaderWord rosHeaderWord(word);
-
-      rosID++; // to be mapped;
 
       // container for words to be sent to DQM
       controlData.setROSId(rosID);
@@ -159,13 +164,21 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
       }
     }
 
+    else {
+      cout<<"[DTROS25Unpacker]: ERROR! First word is not a ROS Header"<<endl;
+    }
+
+
     // (needed only if there are more than 1 ROS)
     wordCounter++; word = index[wordCounter];
+
+    // Perform dqm if requested:
+    // DQM IS PERFORMED FOR EACH ROS SEPARATELY
+    if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) 
+      dataMonitor->processROS25(controlData);
+
   }  
   
-  // Perform dqm if requested
-  if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) 
-    dataMonitor->process(controlData);
   
   
 }
