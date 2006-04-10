@@ -2,7 +2,7 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 

@@ -38,7 +38,8 @@ public:
 
   /** Fit vertex out of a set of RecTracks
    */
-  virtual inline CachingVertex vertex(const vector<RecTrack> & tracks) const
+  virtual inline CachingVertex 
+    vertex(const std::vector<reco::TransientTrack>  & tracks) const
   {
     return theSequentialFitter->vertex(tracks);
   }
@@ -55,7 +56,8 @@ public:
    *  Uses the specified linearization point.
    */
   virtual inline CachingVertex 
-  vertex(const vector<RecTrack> & tracks, const GlobalPoint& linPoint) const
+    vertex(const std::vector<reco::TransientTrack>  & tracks, 
+	   const GlobalPoint& linPoint) const
   {
     return theSequentialFitter->vertex(tracks, linPoint);
   }
@@ -66,7 +68,8 @@ public:
    *  weight of the prior estimate.
    */
   virtual inline CachingVertex 
-  vertex(const vector<RecTrack> & tracks, const GlobalPoint& priorPos,
+  vertex(const std::vector<reco::TransientTrack> & tracks, 
+	 const GlobalPoint& priorPos,
   	 const GlobalError& priorError) const
   {
     return theSequentialFitter->vertex(tracks, priorPos, priorError);

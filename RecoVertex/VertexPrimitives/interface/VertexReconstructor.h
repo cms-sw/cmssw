@@ -3,7 +3,7 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "RecoVertex/VertexPrimitives/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 /** Abstract class for vertex reconstructors, 
  *  i.e. objects reconstructing vertices using a set of TransientTracks

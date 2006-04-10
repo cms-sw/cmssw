@@ -4,7 +4,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 

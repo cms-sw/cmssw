@@ -1,5 +1,3 @@
-#include "Utilities/Configuration/interface/Architecture.h"
-
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 #include "RecoVertex/VertexTools/interface/SequentialVertexSmoother.h"
@@ -7,7 +5,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackUpdator.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanSmoothedVertexChi2Estimator.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanTrackToTrackCovCalculator.h"
-#include "Vertex/LinearizationPointFinders/interface/FsmwLinearizationPointFinder.h"
+#include "RecoVertex/LinearizationPointFinders/interface/FsmwLinearizationPointFinder.h"
 
 
 KalmanVertexFitter::KalmanVertexFitter( bool useSmoothing )
