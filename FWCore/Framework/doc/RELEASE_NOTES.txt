@@ -293,3 +293,11 @@ applied.  If TriggerResults is modified to only hold the parameter set ID,
 then care must be taken to produce a trigger name list that applies the
 listOfTriggers.  It might be as easy as making @trigger_paths (within
 @trigger_paths of process pset - can't forget that). tracked instead of untracked.
+
+The set of tests has not been adjusted to check that listOfTriggers is
+functioning correctly in each release (I did a temporary mod in my own area
+to test it).  The testBitsPass.cfg can be copied and modified to use a subset
+of the full path set in listOfTriggers and the pass/fail numbers can be
+verified (the run_trig*.sh script will need to be modified to include the
+new test case).
+
