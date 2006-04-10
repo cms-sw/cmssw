@@ -1,15 +1,15 @@
 #ifndef CandAlgos_CandCombiner_h
 #define CandAlgos_CandCombiner_h
-/** \class candmodules::CandCombiner
+/** \class cand::modules::CandCombiner
  *
  * performs all possible and selected combinations
  * of particle pairs using the TwoBoddyCombiner utility
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: CandCombiner.h,v 1.5 2006/03/03 10:20:44 llista Exp $
+ * $Id: CandCombiner.h,v 1.6 2006/04/04 11:12:48 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"

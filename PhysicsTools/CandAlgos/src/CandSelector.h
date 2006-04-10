@@ -1,6 +1,6 @@
 #ifndef CandAlgos_CandSelector_h
 #define CandAlgos_CandSelector_h
-/** \class candmodules::CandSelector
+/** \class cand::modules::CandSelector
  *
  * Selects candidates from a collection and saves 
  * their clones in a new collection. The selection can 
@@ -8,9 +8,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: CandSelector.h,v 1.5 2006/03/03 10:48:21 llista Exp $
+ * $Id: CandSelector.h,v 1.6 2006/04/04 11:12:48 llista Exp $
  *
  */
 #include "PhysicsTools/CandAlgos/interface/CandSelectorBase.h"
