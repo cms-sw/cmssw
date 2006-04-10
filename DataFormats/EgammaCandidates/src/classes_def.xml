@@ -1,0 +1,16 @@
+<lcgdict>
+  <class name="reco::Photon"/>
+  <class name="std::vector<reco::Photon>"/>
+  <class name="edm::Wrapper<std::vector<reco::Photon> >"/>
+  <class name="edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> >"/>
+  <class name="edm::RefProd<std::vector<reco::Photon> >"/>
+  <class name="edm::RefVector<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> >"/>
+
+  <class name="reco::Electron"/>
+  <class name="std::vector<reco::Electron>"/>
+  <class name="edm::Wrapper<std::vector<reco::Electron> >"/>
+  <class name="edm::Ref<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> >"/>
+  <class name="edm::RefProd<std::vector<reco::Electron> >"/>
+  <class name="edm::RefVector<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> >"/>
+</lcgdict>
+

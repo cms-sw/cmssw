@@ -1,0 +1,40 @@
+<lcgdict>
+  <class name="reco::EcalRecHitData"/>
+  <class name="std::vector<reco::EcalRecHitData>"/>
+
+  <class name="reco::BasicCluster"/>
+  <class name="std::vector<reco::BasicCluster>"/>
+  <class name="edm::Wrapper<std::vector<reco::BasicCluster> >"/>
+  <class name="edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> >"/>
+  <class name="edm::RefProd<std::vector<reco::BasicCluster> >"/>
+  <class name="edm::RefVector<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> >"/>
+
+  <class name="reco::PreShowerCluster"/>
+  <class name="std::vector<reco::PreShowerCluster>"/>
+  <class name="edm::Wrapper<std::vector<reco::PreShowerCluster> >"/>
+  <class name="edm::Ref<std::vector<reco::PreShowerCluster>,reco::PreShowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreShowerCluster>,reco::PreShowerCluster> >"/>
+  <class name="edm::RefProd<std::vector<reco::PreShowerCluster> >"/>
+  <class name="edm::RefVector<std::vector<reco::PreShowerCluster>,reco::PreShowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreShowerCluster>,reco::PreShowerCluster> >"/>
+
+  <class name="reco::SuperCluster"/>  
+  <class name="std::vector<reco::SuperCluster>"/>
+  <class name="edm::Wrapper<std::vector<reco::SuperCluster> >"/>
+  <class name="edm::Ref<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> >"/>
+  <class name="edm::RefProd<std::vector<reco::SuperCluster> >"/>
+  <class name="edm::RefVector<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> >"/>
+
+  <class name="reco::ClusterShape"/>
+  <class name="std::vector<reco::ClusterShape>"/>
+  <class name="edm::Wrapper<std::vector<reco::ClusterShape> >"/>
+  <class name="edm::Ref<std::vector<reco::ClusterShape>,reco::ClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::ClusterShape>,reco::ClusterShape> >"/>
+  <class name="edm::RefProd<std::vector<reco::ClusterShape> >"/>
+  <class name="edm::RefVector<std::vector<reco::ClusterShape>,reco::ClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::ClusterShape>,reco::ClusterShape> >"/>
+
+  <class name="reco::ClusterPi0Discriminator"/>
+  <class name="std::vector<reco::ClusterPi0Discriminator>"/>
+  <class name="edm::Wrapper<std::vector<reco::ClusterPi0Discriminator> >"/>
+  <class name="edm::Ref<std::vector<reco::ClusterPi0Discriminator>,reco::ClusterPi0Discriminator,edm::refhelper::FindUsingAdvance<std::vector<reco::ClusterPi0Discriminator>,reco::ClusterPi0Discriminator> >"/>
+  <class name="edm::RefProd<std::vector<reco::ClusterPi0Discriminator> >"/>
+  <class name="edm::RefVector<std::vector<reco::ClusterPi0Discriminator>,reco::ClusterPi0Discriminator,edm::refhelper::FindUsingAdvance<std::vector<reco::ClusterPi0Discriminator>,reco::ClusterPi0Discriminator> >"/>
+</lcgdict>
+
