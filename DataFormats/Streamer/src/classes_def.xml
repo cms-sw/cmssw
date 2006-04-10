@@ -1,0 +1,10 @@
+
+<lcgdict>
+ <class name="edm::ProdPair"/>
+ <class name="std::vector<edm::ProdPair>"/>
+ <class name="edm::SendEvent"/>
+ <class name="edm::SendJobHeader"/>
+ <class name="std::vector<edm::BranchDescription>"/>
+</lcgdict>
+
+
