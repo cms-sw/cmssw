@@ -19,6 +19,7 @@
 #define SimG4Core_TrackingVerbose_h 1
 class G4TrackingManager;
 
+#include "SimG4Core/UtilityAction/interface/UtilityAction.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
   
@@ -26,7 +27,8 @@ class BeginOfTrack;
 class BeginOfEvent;
 class BeginOfRun;
 
-class TrackingVerboseAction :  public Observer<const BeginOfRun *>, 
+class TrackingVerboseAction :  public UtilityAction,
+			       public Observer<const BeginOfRun *>, 
 			       public Observer<const BeginOfEvent *>, 
 			       public Observer<const BeginOfTrack *>
 {
@@ -40,6 +42,7 @@ private:
     void SetTrackingVerbose(int verblev);
 private:
     bool fDEBUG;
+    bool fHighEtPhotons;
     int fTVTrackMin;
     int fTVTrackMax;
     int fTVTrackStep;

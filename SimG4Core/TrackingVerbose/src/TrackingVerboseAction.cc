@@ -23,9 +23,11 @@ using std::cout;
 using std::endl;
 
 TrackingVerboseAction::TrackingVerboseAction(edm::ParameterSet const & p) 
+    : UtilityAction(p)
 {
     fDEBUG = p.getUntrackedParameter<bool>("DEBUG",false);
-    
+    fHighEtPhotons = p.getUntrackedParameter<bool>("CheckForHighEtPhotons",false);
+
     //----- Set which events are verbose
     fTVEventMin  = p.getUntrackedParameter<int>("EventMin",0);
     fTVEventMax  = p.getUntrackedParameter<int>("EventMax",int(1E10));
@@ -64,7 +66,10 @@ void TrackingVerboseAction::update(const BeginOfRun * run)
 
 void TrackingVerboseAction::update(const BeginOfEvent * evt)
 {
+    if (evt==0) return;
     const G4Event * anEvent = (*evt)();
+    if (anEvent==0) return;
+
     //----------- Set /tracking/verbose for this event 
     int eventNo = anEvent->GetEventID();
     if (fDEBUG) cout << "TV: trackID: NEW EVENT " << eventNo << endl;
@@ -123,72 +128,88 @@ void TrackingVerboseAction::update(const BeginOfTrack * trk)
     double g4t_eta=-log(tan(mythetapart/2.));
     G4int MytrackNo = aTrack->GetTrackID();
     
-    if(aTrack->GetDefinition()->GetParticleName() == "gamma" && aTrack->GetParentID() !=0)
+    if (fHighEtPhotons)
     {
-        if((tkPx*tkPx + tkPy*tkPy + tkPz*tkPz)>1000.0*1000.0 &&
-           aTrack->GetCreatorProcess()->GetProcessName() == "LCapture")
-        {
-            cout << "MY NEW GAMMA " << endl;
-            cout << "**********************************************************************"  << endl;
-            cout << "MY NEW TRACK ID = " << MytrackNo << "("<< aTrack->GetDefinition()->GetParticleName()
-		 <<")"<< " PARENT ="<< aTrack->GetParentID() << endl;
-            cout << "Primary particle: " <<aTrack->GetDynamicParticle()->GetPrimaryParticle() << endl;
-            cout << "Process type: " << aTrack->GetCreatorProcess()->GetProcessType()
-		 << " Process name: " << aTrack->GetCreatorProcess()->GetProcessName() << endl;
-            cout << "ToT E = " << aTrack->GetTotalEnergy() << " KineE = " << aTrack->GetKineticEnergy()
-		 << " Tot P = " << tkP << " Pt = "
-		 << sqrt(tkPx*tkPx + tkPy*tkPy) << " VTX=(" << tvtx << "," << tvty << "," << tvtz << ")"
-		 << endl;
-            if (aTrack->GetKineticEnergy() > 1.*GeV && aTrack->GetCreatorProcess()->GetProcessName() != "LCapture")
+	if (aTrack->GetDefinition()->GetParticleName() == "gamma" && aTrack->GetParentID() !=0)
+	{
+	    if((tkPx*tkPx + tkPy*tkPy + tkPz*tkPz)>1000.0*1000.0 &&
+	       aTrack->GetCreatorProcess()->GetProcessName() == "LCapture")
+	    {
+		cout << "MY NEW GAMMA " << endl;
+		cout << "**********************************************************************"  << endl;
+		cout << "MY NEW TRACK ID = " << MytrackNo << "("
+		     << aTrack->GetDefinition()->GetParticleName()
+		     <<")"<< " PARENT ="<< aTrack->GetParentID() << endl;
+		cout << "Primary particle: " 
+		     << aTrack->GetDynamicParticle()->GetPrimaryParticle() << endl;
+		cout << "Process type: " << aTrack->GetCreatorProcess()->GetProcessType()
+		     << " Process name: " 
+		     << aTrack->GetCreatorProcess()->GetProcessName() << endl;
+		cout << "ToT E = " << aTrack->GetTotalEnergy() 
+		     << " KineE = " << aTrack->GetKineticEnergy()
+		     << " Tot P = " << tkP << " Pt = " << sqrt(tkPx*tkPx + tkPy*tkPy) 
+		     << " VTX=(" << tvtx << "," << tvty << "," << tvtz << ")" << endl;
+		if (aTrack->GetKineticEnergy() > 1.*GeV 
+		    && aTrack->GetCreatorProcess()->GetProcessName() != "LCapture")
                 cout << " KineE > 1 GeV !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-            const G4VTouchable* touchable=aTrack->GetTouchable();
-            if (touchable!=0 && touchable->GetVolume()!=0 && touchable->GetVolume()->GetLogicalVolume()!=0)
-            {
-                G4Material* material=touchable->GetVolume()->GetLogicalVolume()->GetMaterial();
-                cout << "G4LCapture Gamma E(GeV) "<< aTrack->GetTotalEnergy()/GeV << "  "
-		     << material->GetName()<< " " << touchable->GetVolume()->GetName() << endl;
-                cout << "G4LCapture Gamma position(m): " << aTrack->GetPosition()/m << endl;
-                cout << "G4LCapture created Gamma direction " << aTrack->GetMomentumDirection() << endl;
-                cout << "G4LCapture gamma (eta,phi) = " << "(" << g4t_eta << "," << g4t_phi << ")" << endl;
-            }
-            aTrack->GetUserInformation()->Print();
-            cout << "**********************************************************************"  << endl;
-        }
-    }
+		const G4VTouchable* touchable=aTrack->GetTouchable();
+		if (touchable!=0 && touchable->GetVolume()!=0 
+		    && touchable->GetVolume()->GetLogicalVolume()!=0)
+		{
+		    G4Material* material=touchable->GetVolume()->GetLogicalVolume()->GetMaterial();
+		    cout << "G4LCapture Gamma E(GeV) " 
+			 << aTrack->GetTotalEnergy()/GeV << "  "
+			 << material->GetName()<< " " 
+			 << touchable->GetVolume()->GetName() << endl;
+		    cout << "G4LCapture Gamma position(m): " 
+			 << aTrack->GetPosition()/m << endl;
+		    cout << "G4LCapture created Gamma direction " 
+			 << aTrack->GetMomentumDirection() << endl;
+		    cout << "G4LCapture gamma (eta,phi) = " 
+			 << "(" << g4t_eta << "," << g4t_phi << ")" << endl;
+		}
+		aTrack->GetUserInformation()->Print();
+		cout << "**********************************************************************"  << endl;
+	    }
+	}
 
-  if (aTrack->GetDefinition()->GetParticleName() == "gamma")
-  {
-    const G4VProcess * proc = aTrack->GetCreatorProcess();
-    double Tgamma = aTrack->GetKineticEnergy();
-    std::string ProcName;
-    const  std::string nullstr ("Null_prc");
-    if (proc) ProcName = proc->GetProcessName();
-    else ProcName = nullstr;
-    if (Tgamma > 2.5*GeV ) //&& ProcName!="Decay" && ProcName!="eBrem")
-    {
-       std::string volumeName("_Unknown_Vol_");
-       std::string materialName("_Unknown_Mat_");
-       G4Material * material = 0;
-       G4VPhysicalVolume * pvolume = 0;
-       G4LogicalVolume * lvolume = 0;
-       const G4VTouchable * touchable = aTrack->GetTouchable();
-       if (touchable) pvolume = touchable->GetVolume();
-       if (pvolume)
-       {
-           volumeName = pvolume->GetName();
-           lvolume = pvolume->GetLogicalVolume();
-       }
-       if (lvolume) material = lvolume->GetMaterial();
-       if (material) materialName = material->GetName();
-       cout << "**** ALL photons > 2.5 GeV ****" << endl;
-       cout << ProcName << "**** ALL photons: gamma E(GeV) "<< aTrack->GetTotalEnergy()/GeV << "  "
-	    <<  materialName << " " << volumeName << endl;
-       cout << ProcName << "**** ALL photons: gamma position(m): " << aTrack->GetPosition()/m << endl;
-       cout << ProcName << "**** ALL photons: gamma direction " << aTrack->GetMomentumDirection() << endl;
-       cout << "**********************************************************************"  << endl;
+	if (aTrack->GetDefinition()->GetParticleName() == "gamma")
+	{
+	    const G4VProcess * proc = aTrack->GetCreatorProcess();
+	    double Tgamma = aTrack->GetKineticEnergy();
+	    std::string ProcName;
+	    const  std::string nullstr ("Null_prc");
+	    if (proc) ProcName = proc->GetProcessName();
+	    else ProcName = nullstr;
+	    if (Tgamma > 2.5*GeV ) //&& ProcName!="Decay" && ProcName!="eBrem")
+	    {
+		std::string volumeName("_Unknown_Vol_");
+		std::string materialName("_Unknown_Mat_");
+		G4Material * material = 0;
+		G4VPhysicalVolume * pvolume = 0;
+		G4LogicalVolume * lvolume = 0;
+		const G4VTouchable * touchable = aTrack->GetTouchable();
+		if (touchable) pvolume = touchable->GetVolume();
+		if (pvolume)
+		{
+		    volumeName = pvolume->GetName();
+		    lvolume = pvolume->GetLogicalVolume();
+		}
+		if (lvolume) material = lvolume->GetMaterial();
+		if (material) materialName = material->GetName();
+		cout << "**** ALL photons > 2.5 GeV ****" << endl;
+		cout << ProcName << "**** ALL photons: gamma E(GeV) "
+		     << aTrack->GetTotalEnergy()/GeV << "  "
+		     <<  materialName << " " << volumeName << endl;
+		cout << ProcName << "**** ALL photons: gamma position(m): " 
+		     << aTrack->GetPosition()/m << endl;
+		cout << ProcName << "**** ALL photons: gamma direction " 
+		     << aTrack->GetMomentumDirection() << endl;
+		cout << "**********************************************************************"  << endl;
+	    }
+	}                                               
     }
-  }                                               
-
+    
     //---------- Set /tracking/verbose
     //----- track is verbose only if event is verbose
     if (fTkVerbThisEventON) 
