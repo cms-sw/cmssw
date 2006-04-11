@@ -30,7 +30,7 @@ using namespace reco;
 PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& iConfig)
 {
   edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-    << "constructing PV producer " << "\n";
+    << "Initializing PV producer " << "\n";
 
   produces<VertexCollection>("PrimaryVertex");
   
@@ -63,7 +63,8 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 {
   using namespace edm;
 
-  edm::LogInfo("RecoVertex/PrimaryVertexProducer") << "Analyzing event number: " << iEvent.id() << "\n";
+  edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+    << "Reconstructing event number: " << iEvent.id() << "\n";
   
   // get RECO tracks from the event
   edm::Handle<reco::TrackCollection> trackCollection;
