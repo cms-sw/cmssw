@@ -61,7 +61,9 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   using namespace edm;
   
   // get RECO tracks from the event
-  reco::TrackCollection tks;
+  edm::Handle<reco::TrackCollection> trackCollection;
+  iEvent.getByType(trackCollection);
+  reco::TrackCollection tks = *(trackCollection.product());
 
   // interface RECO tracks to vertex reconstruction
   vector<TransientTrack> t_tks;
