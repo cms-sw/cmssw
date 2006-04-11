@@ -132,11 +132,11 @@ void LoadFileData(const string &inputFile)
  
   //Read in 20 electrons for now
    for(int i=0;i<20;i++){     
-     file >> candidate;
+     file >>std::hex>>candidate;
      electron.setRank(candidate);
-     file >>  candidate;
+     file >>std::hex>>candidate;
      electron.setEta(candidate);
-     file >> candidate;
+     file >>std::hex>>candidate;
      electron.setPhi(candidate);
      data.push_back(electron);
     }
@@ -151,11 +151,11 @@ void WriteFileData(EmCandidate outputs)
   writeThis = outputs;
   ofile.open("sortOutput.txt",ios::out);
   for(int i=0;i!=writeThis.size();i++){ 
-      ofile<<writeThis[i].getRank();
+      ofile<<std::hex<<writeThis[i].getRank();
       ofile<<" ";
-      ofile<<writeThis[i].getEta();
+      ofile<<std::hex<<writeThis[i].getEta();
       ofile<<" ";
-      ofile<<writeThis[i].getPhi();
+      ofile<<std::hex<<writeThis[i].getPhi();
       ofile<<"\n";
     }
     return;
