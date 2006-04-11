@@ -13,11 +13,10 @@ namespace  TrackingTools{
       static  GlobalVector inTesla( const math::XYZPoint& pos)
        	 {return GlobalVector(0, 0, 4);}
       static  MagneticField* field() {return theField;}
-      static  GlobalVector inGevPerCentimeter( const GlobalPoint& pos)
+      static  GlobalVector inGeVPerCentimeter( const GlobalPoint& pos)
       	 {return inTesla(pos) * 2.99792458e-3;}
-      static  GlobalVector inGevPerCentimeter( const math::XYZPoint& pos)
+      static  GlobalVector inGeVPerCentimeter( const math::XYZPoint& pos)
        	 {return inTesla(pos) * 2.99792458e-3;}
-      static  MagneticField* field() {return theField;}
      private:
       static MagneticField* theField;
     };
