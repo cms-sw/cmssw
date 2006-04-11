@@ -1,18 +1,26 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/ClusteringAlgorithm.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/PositionAwareHit.h"
 
+// Geometry
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 //#include <algorithm>
 
 //
 
 // Return a vector of clusters from a collection of EcalRecHits:
-std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(EcalRecHitCollection & rechits, const CaloSubdetectorGeometry & geometry)
+std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(EcalRecHitCollection & rechits,
+								  edm::ESHandle<CaloGeometry> geometry_h)
 {
   rechits_m.clear();
   seeds.clear();
   clusters.clear();
+
+  const CaloSubdetectorGeometry *geometry_p = (*geometry_h).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
 
   std::cout << "Cleared vectors, starting clusterization..." << std::endl;
   std::cout << "Number of RecHits in event = " << rechits.size() << std::endl;
@@ -22,7 +30,7 @@ std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(EcalRecHitColl
   for (it = rechits.begin(); it != rechits.end(); it++)
     {
       // every hit should be position aware(?)
-      PositionAwareHit pah(*it, geometry);
+      PositionAwareHit pah(*it, *geometry_p);
 
       std::pair<EBDetId, PositionAwareHit> map_entry(pah.getId(), pah);
       rechits_m.insert(map_entry);
@@ -39,7 +47,9 @@ std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(EcalRecHitColl
   std::cout << "done" << std::endl;
 
   std::cout << "About to call mainSearch...";
-  mainSearch(geometry);
+
+
+  mainSearch(geometry_h);
   std::cout << "done" << std::endl;
 
   sort(clusters.begin(), clusters.end());
@@ -47,7 +57,8 @@ std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(EcalRecHitColl
   return clusters;
 }
   
-math::XYZPoint ClusteringAlgorithm::getECALposition(std::vector<reco::EcalRecHitData> recHits, const CaloSubdetectorGeometry & geometry)
+math::XYZPoint ClusteringAlgorithm::getECALposition(std::vector<reco::EcalRecHitData> recHits, 
+						    const CaloSubdetectorGeometry & geometry)
 {
   // Calculates position of cluster using the algorithm presented in
   // Awes et al., NIM A311, p130-138.  See also CMS Note 2001/034 p11

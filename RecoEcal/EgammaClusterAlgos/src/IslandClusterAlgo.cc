@@ -1,12 +1,12 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/IslandClusterAlgo.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/PositionAwareHit.h"
 
-#include "RecoCaloTools/Navigation/interface/EBDetIdNavigator.h"
+#include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
 
 #include <iostream>
 #include <map>
 
-void IslandClusterAlgo::mainSearch(const CaloSubdetectorGeometry & geometry)
+void IslandClusterAlgo::mainSearch(edm::ESHandle<CaloGeometry> geometry_h)
 {
   std::cout << "IslandClusterAlgo Algorithm - looking for clusters" << std::endl;
   std::cout << "Found the following clusters:" << std::endl;
@@ -32,22 +32,27 @@ void IslandClusterAlgo::mainSearch(const CaloSubdetectorGeometry & geometry)
       reco::EcalRecHitData data(it->getEnergy(),0,it->getId());
       hitData_v.push_back(data);
 
+      EcalBarrelTopology topology(geometry_h);
+      const CaloSubdetectorGeometry *geometry_p = (*geometry_h).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+      CaloSubdetectorGeometry const geometry = *geometry_p;
+
+
       // perform the search:
-      EBDetIdNavigator navigator(it->getId());
+      EcalBarrelNavigator navigator(it->getId(), &topology);
       searchNorth(navigator);
       navigator.home();
       searchSouth(navigator);
       navigator.home();
-      searchWest(navigator);
+      searchWest(navigator, topology);
       navigator.home();
-      searchEast(navigator);
+      searchEast(navigator, topology);
       Point pos = getECALposition(hitData_v, geometry);
       clusters.push_back(reco::BasicCluster(hitData_v, 1, pos));
       hitData_v.clear();
     }
 }
 
-void IslandClusterAlgo::searchNorth(EBDetIdNavigator &navigator)
+void IslandClusterAlgo::searchNorth(EcalBarrelNavigator &navigator)
 {
   EBDetId southern = navigator.pos();
   std::map<EBDetId, PositionAwareHit>::iterator southern_it = rechits_m.find(southern);
@@ -71,7 +76,7 @@ void IslandClusterAlgo::searchNorth(EBDetIdNavigator &navigator)
   northern_it->second.use();
 }
 
-void IslandClusterAlgo::searchSouth(EBDetIdNavigator &navigator)
+void IslandClusterAlgo::searchSouth(EcalBarrelNavigator &navigator)
 {
   EBDetId northern = navigator.pos();
   std::map<EBDetId, PositionAwareHit>::iterator northern_it = rechits_m.find(northern);
@@ -94,7 +99,7 @@ void IslandClusterAlgo::searchSouth(EBDetIdNavigator &navigator)
   southern_it->second.use();
 }
 
-void IslandClusterAlgo::searchWest(EBDetIdNavigator &navigator)
+void IslandClusterAlgo::searchWest(EcalBarrelNavigator &navigator, EcalBarrelTopology &topology)
 {
   EBDetId eastern = navigator.pos();
   std::map<EBDetId, PositionAwareHit>::iterator eastern_it = rechits_m.find(eastern);
@@ -105,7 +110,7 @@ void IslandClusterAlgo::searchWest(EBDetIdNavigator &navigator)
 
   if (western_it->second.isUsed()) return;
 
-  EBDetIdNavigator nsNavigator(western);
+  EcalBarrelNavigator nsNavigator(western, &topology);
 
   if ((western_it != rechits_m.end()) && (western_it->second.getEnergy() <= eastern_it->second.getEnergy()))
     {
@@ -119,13 +124,13 @@ void IslandClusterAlgo::searchWest(EBDetIdNavigator &navigator)
       nsNavigator.home();
       searchSouth(nsNavigator);
       nsNavigator.home();
-      searchWest(navigator);
+      searchWest(navigator, topology);
     }
 
   western_it->second.use();
 }
 
-void IslandClusterAlgo::searchEast(EBDetIdNavigator &navigator)
+void IslandClusterAlgo::searchEast(EcalBarrelNavigator &navigator, EcalBarrelTopology &topology)
 {
   EBDetId western = navigator.pos();
   std::map<EBDetId, PositionAwareHit>::iterator western_it = rechits_m.find(western);
@@ -136,7 +141,7 @@ void IslandClusterAlgo::searchEast(EBDetIdNavigator &navigator)
 
   if (eastern_it->second.isUsed()) return;
 
-  EBDetIdNavigator nsNavigator(eastern);
+  EcalBarrelNavigator nsNavigator(eastern, &topology);
 
   if ((eastern_it != rechits_m.end()) && (eastern_it->second.getEnergy() <= western_it->second.getEnergy()))
     {
@@ -150,7 +155,7 @@ void IslandClusterAlgo::searchEast(EBDetIdNavigator &navigator)
       nsNavigator.home();
       searchSouth(nsNavigator);
       nsNavigator.home();
-      searchEast(navigator);
+      searchEast(navigator, topology);
     }
 
   eastern_it->second.use();

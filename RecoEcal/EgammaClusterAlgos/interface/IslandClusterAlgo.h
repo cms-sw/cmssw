@@ -1,11 +1,12 @@
-#ifndef RecoEcal_EcalClusterAlgos_IslandClusterAlgo_h
-#define RecoEcal_EcalClusterAlgos_IslandClusterAlgo_h
+#ifndef RecoECAL_ECALClusters_IslandClusterAlgo_h
+#define RecoECAL_ECALClusters_IslandClusterAlgo_h
 
 #include "RecoEcal/EgammaClusterAlgos/interface/ClusteringAlgorithm.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
-#include "RecoCaloTools/Navigation/interface/EBDetIdNavigator.h"
+#include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
 
 class IslandClusterAlgo : public ClusteringAlgorithm
@@ -26,12 +27,12 @@ class IslandClusterAlgo : public ClusteringAlgorithm
 
     }
   
-  void mainSearch(const CaloSubdetectorGeometry & geometry);
+  void mainSearch(edm::ESHandle<CaloGeometry> geometry_h);
 
-  void searchNorth(EBDetIdNavigator &navigator);
-  void searchSouth(EBDetIdNavigator &navigator);
-  void searchWest (EBDetIdNavigator &navigator);
-  void searchEast (EBDetIdNavigator &navigator);
+  void searchNorth(EcalBarrelNavigator &navigator);
+  void searchSouth(EcalBarrelNavigator &navigator);
+  void searchWest (EcalBarrelNavigator &navigator, EcalBarrelTopology &topology);
+  void searchEast (EcalBarrelNavigator &navigator, EcalBarrelTopology &topology);
 
 };
 

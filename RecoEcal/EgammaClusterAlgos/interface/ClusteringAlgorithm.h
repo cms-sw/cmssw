@@ -1,15 +1,21 @@
-#ifndef RecoEcal_EcalClusterAlgos_ClusteringAlgorithm_h
-#define RecoEcal_EcalClusterAlgos_ClusteringAlgorithm_h
+#ifndef RecoECAL_ECALClusters_ClusteringAlgorithm_h
+#define RecoECAL_ECALClusters_ClusteringAlgorithm_h
 
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
+#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
-// CMSSW headers from this subsystem
 #include "RecoEcal/EgammaClusterAlgos/interface/PositionAwareHit.h"
-#include "DataFormats/Math/interface/Point3D.h"
+
+
 // C/C++ headers
 #include <string>
 #include <vector>
@@ -36,7 +42,8 @@ class ClusteringAlgorithm
     }
 
   // this is the method that will start the clusterisation
-  std::vector<reco::BasicCluster> makeClusters(EcalRecHitCollection & rechits, const CaloSubdetectorGeometry & geometry);
+  std::vector<reco::BasicCluster> makeClusters(EcalRecHitCollection & rechits,
+					       edm::ESHandle<CaloGeometry> geometry_h);
   /// point in the space
     typedef math::XYZPoint Point;
 
@@ -54,7 +61,7 @@ class ClusteringAlgorithm
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters;
 
-  virtual void mainSearch(const CaloSubdetectorGeometry & geometry)=0; //the real clustering algorithm
+  virtual void mainSearch(edm::ESHandle<CaloGeometry> geometry_h)=0; //the real clustering algorithm
   Point getECALposition(std::vector<reco::EcalRecHitData> recHits, const CaloSubdetectorGeometry & geometry);//Position determination
 
 };

@@ -1,5 +1,5 @@
-#ifndef RecoEcal_EcalClusterAlgos_PositionAwareHit_h
-#define RecoEcal_EcalClusterAlgos_PositionAwareHit_h
+#ifndef RecoECAL_ECALClusters_PositionAwareHit_h
+#define RecoECAL_ECALClusters_PositionAwareHit_h
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"

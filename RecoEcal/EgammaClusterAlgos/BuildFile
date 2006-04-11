@@ -1,9 +1,9 @@
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EgammaReco>
-<use name=Geometry/CaloGeometry>
-<use name=RecoCaloTools/Navigation>
 <use name=DataFormats/Math>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloTopology>
 <use name=clhep>
 
 <export>
@@ -11,8 +11,8 @@
   <use name=DataFormats/EcalDigi>
   <use name=DataFormats/EcalRecHit>
   <use name=DataFormats/EgammaReco>
-  <use name=Geometry/CaloGeometry>
-  <use name=RecoCaloTools/Navigation>
   <use name=DataFormats/Math>
+  <use name=Geometry/CaloGeometry>
+  <use name=Geometry/CaloTopology>
   <use name=clhep>
 </export>
