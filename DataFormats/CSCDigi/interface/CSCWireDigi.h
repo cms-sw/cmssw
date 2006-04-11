@@ -4,10 +4,6 @@
 /**\class CSCWireDigi
  *
  * Digi for CSC anode wires. 
- * Based on modified DTDigi.
- *
- * $Date: 2006/04/05 22:17:19 $
- * $Revision: 1.3 $
  *
  * \author N. Terentiev, CMU
  */
@@ -21,11 +17,11 @@ public:
 
   /// Constructors
   
-  explicit CSCWireDigi (int wire, int tbin);  /// from the wire#, tbin#
+  explicit CSCWireDigi (int wire, int tbin);  /// from the wiregroup#, tbin#
   CSCWireDigi ();                             /// default
 
 
-  /// return wire number
+  /// return wiregroup number
   int getWireGroup() const {return wire_;}
   /// return tbin number
   int getBeamCrossingTag() const {return tbin_;}
@@ -36,14 +32,14 @@ public:
   void print() const;
 
 private:
-  friend class testCSCDigis;
+  friend class testCSCDigis; //@@ Do we really want friend access for a test?
   uint16_t wire_;
   uint16_t tbin_;
 
 };
 
 #include<iostream>
-  /// needed by COBRA
+
 inline std::ostream & operator<<(std::ostream & o, const CSCWireDigi& digi) {
   return o << " CSC Wire " << digi.getWireGroup()
 	   << " CSC Wire Time Bin " << digi.getTimeBin();
