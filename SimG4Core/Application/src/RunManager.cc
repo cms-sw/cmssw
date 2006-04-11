@@ -11,6 +11,7 @@
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
+#include "SimG4Core/UtilityAction/interface/UtilityActionPluginFactory.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
@@ -120,6 +121,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_pEventAction(p.getParameter<edm::ParameterSet>("EventAction")),
       m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
+      m_pUtilityActions(p.getParameter<edm::ParameterSet>("UtilityActions")),
       m_p(p)
 {    
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
@@ -189,7 +191,7 @@ void RunManager::initG4(const edm::EventSetup & es)
     std::auto_ptr<PhysicsListMakerBase> physicsMaker( 
       PhysicsListFactory::get()->create
       (m_pPhysics.getParameter<std::string> ("type")));
-    if(physicsMaker.get()==0) throw SimG4Exception("Unable to find the Physics list requested");
+    if (physicsMaker.get()==0) throw SimG4Exception("Unable to find the Physics list requested");
     m_physicsList = physicsMaker->make(m_pPhysics,m_registry);
     if (m_physicsList.get()==0) throw SimG4Exception("Physics list construction failed!");
     m_kernel->SetPhysics(m_physicsList.get());
@@ -217,6 +219,13 @@ void RunManager::initG4(const edm::EventSetup & es)
     m_registry.beginOfJobSignal_(&aBeginOfJob);
 
     initializeUserActions();
+
+    std::auto_ptr<UtilityActionMakerBase> utilityActionMaker(UtilityActionPluginFactory::get()->create
+	(m_pUtilityActions.getParameter<std::string> ("type")));
+    if (utilityActionMaker.get()==0) throw SimG4Exception("Unable to find the utility action requested");
+    m_utilityAction = utilityActionMaker->make(m_pUtilityActions,m_registry);
+    if (m_utilityAction.get()==0) throw SimG4Exception("Utility action construction failed!");
+
     initializeRun();
 
 }
