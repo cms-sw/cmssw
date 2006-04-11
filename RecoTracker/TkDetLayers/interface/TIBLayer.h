@@ -25,15 +25,10 @@ class TIBLayer : public BarrelDetLayer {
 
   virtual vector<const GeometricSearchDet*> components() const;
   
-  virtual pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const;
-
   virtual vector<GeometricSearchDet::DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& tsos,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const; 
-    //{return TkGeometricSearchDet::compatibleDets(tsos,prop,est);}
 
   virtual vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,

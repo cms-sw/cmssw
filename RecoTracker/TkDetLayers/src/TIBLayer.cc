@@ -62,14 +62,6 @@ TIBLayer::components() const{
 }
 
   
-pair<bool, TrajectoryStateOnSurface>
-TIBLayer::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-		      const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of TIBLayer::compatible()!!" << endl;
-  return pair<bool,TrajectoryStateOnSurface>();
-}
-
-
 vector<DetWithState> 
 TIBLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
 			  const Propagator& prop, 
