@@ -17,7 +17,10 @@ class CSCSectorReceiverLUT
  public:
 
   CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station, const edm::ParameterSet &pset);
+  CSCSectorReceiverLUT(const CSCSectorReceiverLUT&);
   ~CSCSectorReceiverLUT();
+
+  CSCSectorReceiverLUT& operator=(const CSCSectorReceiverLUT&);
 
   ///Geometry Lookup Tables
 
@@ -25,12 +28,14 @@ class CSCSectorReceiverLUT
   lclphidat localPhi(unsigned address) const;
   lclphidat localPhi(lclphiadd address) const;
 
-  /*
-  unsigned short globalPhiME(int phi_local, int wire_group, int cscid) const;
-  unsigned short globalPhiME(unsigned address) const;
+  
+  gblphidat globalPhiME(int phi_local, int wire_group, int cscid) const;
+  gblphidat globalPhiME(unsigned address) const;
+  gblphidat globalPhiME(gblphiadd address) const;
 
-  unsigned short globalPhiMB(int phi_local,int wire_group, int cscid) const;
-  unsigned short globalPhiMB(unsigned address) const;
+  /*
+  gblphidat globalPhiMB(int phi_local,int wire_group, int cscid) const;
+  gblphidat globalPhiMB(unsigned address) const;
   */
 
   gbletadat globalEtaME(int phi_bend, int phi_local, int wire_group, int cscid) const;
@@ -46,9 +51,13 @@ class CSCSectorReceiverLUT
   /// Local Phi LUT 
   lclphidat calcLocalPhi(const lclphiadd& address) const;
   
+  /// Global Phi LUT
+  gblphidat calcGlobalPhiME(const gblphiadd& address) const;
+  double getGlobalPhiValue(const unsigned& cscid, const unsigned& wire_group, const unsigned& phi_local) const;
+
   /// Global Eta LUT
   gbletadat calcGlobalEtaME(const gbletaadd& address) const;
-  double getEtaValue(const unsigned& cscid, const unsigned& wire_group, const unsigned& phi_local) const;
+  double getGlobalEtaValue(const unsigned& cscid, const unsigned& wire_group, const unsigned& phi_local) const;
 
   void fillLocalPhiLUT();
   

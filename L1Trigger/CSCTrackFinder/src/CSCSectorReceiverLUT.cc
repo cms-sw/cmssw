@@ -31,6 +31,44 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector
   if(LUTsFromFile) readLUTsFromFile();
 }
 
+CSCSectorReceiverLUT::CSCSectorReceiverLUT(const CSCSectorReceiverLUT& lut):_endcap(lut._endcap),
+									    _sector(lut._sector),
+									    _subsector(lut._subsector),
+									    _station(lut._station),
+									    lut_path(lut.lut_path),
+									    LUTsFromFile(lut.LUTsFromFile),
+									    isBinary(lut.isBinary)
+{
+  if(lut.me_global_eta)
+    {
+      me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
+      memcpy(me_global_eta, lut.me_global_eta, (1<<CSCBitWidths::kGlobalEtaAddressWidth)*sizeof(gbletadat));
+    }
+}
+										       
+CSCSectorReceiverLUT& CSCSectorReceiverLUT::operator=(const CSCSectorReceiverLUT& lut)
+{
+  if(this != &lut)
+    {
+      _endcap = lut._endcap;
+      _sector = lut._sector;
+      _subsector = lut._subsector;
+      _station = lut._station;
+      lut_path = lut.lut_path;
+      LUTsFromFile = lut.LUTsFromFile;
+      isBinary = lut.isBinary;
+
+      
+      if(lut.me_global_eta)
+	{
+	  me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
+	  memcpy(me_global_eta, lut.me_global_eta, (1<<CSCBitWidths::kGlobalEtaAddressWidth)*sizeof(gbletadat));
+	}
+      else me_global_eta = NULL;
+    }
+  return *this;
+}
+
 CSCSectorReceiverLUT::~CSCSectorReceiverLUT()
 {
   if(me_lcl_phi_loaded)
@@ -114,7 +152,32 @@ lclphidat CSCSectorReceiverLUT::localPhi(lclphiadd address) const
   return result;
 }
 
-double CSCSectorReceiverLUT::getEtaValue(const unsigned& thecscid, const unsigned& thewire_group, const unsigned& thephi_local) const
+double CSCSectorReceiverLUT::getGlobalPhiValue(const unsigned& cscid, const unsigned& wire_group, const unsigned& phi_local) const
+{
+  return 0.0;
+}
+
+gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
+{
+  return gblphidat();
+} 
+
+gblphidat CSCSectorReceiverLUT::globalPhiME(int phi_local, int wire_group, int cscid) const
+{
+  return gblphidat();
+}
+
+gblphidat CSCSectorReceiverLUT::globalPhiME(unsigned address) const
+{
+  return gblphidat();
+}
+
+gblphidat CSCSectorReceiverLUT::globalPhiME(gblphiadd address) const
+{
+  return gblphidat();
+}
+
+double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const unsigned& thewire_group, const unsigned& thephi_local) const
 {
   double result = 0.0;
   unsigned wire_group = thewire_group;
@@ -229,7 +292,7 @@ double CSCSectorReceiverLUT::getEtaValue(const unsigned& thecscid, const unsigne
 gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gbletaadd& address) const
 {
   gbletadat result;
-  double float_eta = getEtaValue(address.cscid, address.wire_group, address.phi_local);
+  double float_eta = getGlobalEtaValue(address.cscid, address.wire_group, address.phi_local);
   unsigned int_eta = 0;
   unsigned bend_global = 0; // not filled yet... will change when it is.
   const double etaPerBin = (CSCConstants::maxEta - CSCConstants::minEta)/CSCConstants::etaBins;
@@ -261,8 +324,8 @@ gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gbletaadd& address) const
 	intEta = static_cast<int>(bitEta);
       }
       */
-      if (_station == 1 && address.cscid >= CSCTriggerNumbering::minTriggerCscId() 
-	  && address.cscid <= CSCTriggerNumbering::maxTriggerCscId() )
+      if (_station == 1 && address.cscid >= static_cast<unsigned>(CSCTriggerNumbering::minTriggerCscId()) 
+	  && address.cscid <= static_cast<unsigned>(CSCTriggerNumbering::maxTriggerCscId()) )
 	{
 	  unsigned ring = CSCTriggerNumbering::ringFromTriggerLabels(_station, address.cscid);
 	  
