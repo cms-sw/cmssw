@@ -13,6 +13,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
 using namespace reco;
 
@@ -63,42 +64,61 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 {
   using namespace edm;
 
-  edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-    << "Reconstructing event number: " << iEvent.id() << "\n";
-  
-  // get RECO tracks from the event
-  edm::Handle<reco::TrackCollection> trackCollection;
-  iEvent.getByType(trackCollection);
-  reco::TrackCollection tks = *(trackCollection.product());
-
-  // interface RECO tracks to vertex reconstruction
-  vector<TransientTrack> t_tks;
-  for (reco::TrackCollection::const_iterator it = tks.begin();
-       it != tks.end(); it++) {
-    t_tks.push_back(*it);
-  }
-
-  //  reco::Vertex::Point pos(-1, -1, -1);
-  //  double e[6]; reco::Vertex::Error err(e);
-  //  double chi2 = -1; double ndof = 1; double ntks = 0;
-  
   std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection); // empty vertex collection,on the heap ??
-  // here call vertex reconstruction
-  vector<TransientVertex> t_vts = (*theFinder).vertices(t_tks);
-
   reco::VertexCollection vColl;
-  for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
-       iv != t_vts.end(); iv++) {
-    Vertex v(Vertex::Point((*iv).position()), 
-	     RecoVertex::convertError((*iv).positionError()), 
-	     (*iv).totalChiSquared(), 
-	     (*iv).degreesOfFreedom() , 
-	     (*iv).originalTracks().size());
-    vColl.push_back(v);
+    
+  try {
+    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+      << "Reconstructing event number: " << iEvent.id() << "\n";
+    
+    // get RECO tracks from the event
+    edm::Handle<reco::TrackCollection> trackCollection;
+    iEvent.getByType(trackCollection);
+    reco::TrackCollection tks = *(trackCollection.product());
+    
+    // interface RECO tracks to vertex reconstruction
+    vector<TransientTrack> t_tks;
+    for (reco::TrackCollection::const_iterator it = tks.begin();
+	 it != tks.end(); it++) {
+      t_tks.push_back(*it);
+    }
+    
+    // here call vertex reconstruction
+    /*
+      vector<TransientVertex> t_vts = (*theFinder).vertices(t_tks);
+      for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
+      iv != t_vts.end(); iv++) {
+      Vertex v(Vertex::Point((*iv).position()), 
+      RecoVertex::convertError((*iv).positionError()), 
+      (*iv).totalChiSquared(), 
+      (*iv).degreesOfFreedom() , 
+      (*iv).originalTracks().size());
+      vColl.push_back(v);
+      }
+    */
+    // test with vertex fitter
+    if (t_tks.size() > 1) {
+      KalmanVertexFitter kvf;
+      TransientVertex tv = kvf.vertex(t_tks);
+      Vertex v(Vertex::Point((tv).position()), 
+	       RecoVertex::convertError((tv).positionError()), 
+	       (tv).totalChiSquared(), 
+	       (tv).degreesOfFreedom() , 
+	       (tv).originalTracks().size());
+      vColl.push_back(v);
+    }
+    
+    //  reco::Vertex v(pos, err, chi2, ndof, ntks);
+    //  tmpVColl.push_back(v);
+
+
+  }
+  catch (std::exception & err) {
+    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+      << "Exception during event number: " << iEvent.id() 
+      << "\n" << err.what() << "\n";
   }
 
-  //  reco::Vertex v(pos, err, chi2, ndof, ntks);
-  //  tmpVColl.push_back(v);
   *result = vColl;
   iEvent.put(result, "PrimaryVertex");
   
