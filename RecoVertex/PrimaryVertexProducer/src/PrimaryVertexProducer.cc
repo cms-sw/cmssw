@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/KalmanTrimmedVertexFinder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
