@@ -6,7 +6,7 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 PixelRod::PixelRod(vector<const GeomDet*>& theInputDets):
   DetRodOneR(theInputDets.begin(),theInputDets.end())
 {
-  theBinFinder = BinFinderType(basicComponents().begin(), basicComponents().end());
+  theBinFinder = BinFinderType(theDets.begin(),theDets.end());
 }
 
 PixelRod::~PixelRod(){
@@ -39,27 +39,24 @@ PixelRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
 
   GlobalPoint startPos = ts.globalPosition();
 
-  const vector<const GeomDet*> theDets = basicComponents();
   vector<DetWithState> result;
-  
+
   int closest = theBinFinder.binIndex(startPos.z());
   pair<bool,TrajectoryStateOnSurface> closestCompat = 
     theCompatibilityChecker.isCompatible(theDets[closest],startingState, prop, est);
-  
   if ( closestCompat.first) {
     result.push_back( DetWithState( theDets[closest], closestCompat.second));
   }
 
-  const BoundPlane& closestPlane( dynamic_cast<const BoundPlane&>( 
-				  theDets[closest]->surface()));
-  
+  const BoundPlane& closestPlane( theDets[closest]->specificSurface() );
+
+
   Local2DVector maxDistance = 
     est.maximalLocalDisplacement( closestCompat.second, closestPlane);
   
   float detHalfLen = theDets[closest]->surface().bounds().length()/2.;
   
   // explore neighbours
-
   for (size_t idet=closest+1; idet < theDets.size(); idet++) {
     LocalPoint nextPos( theDets[idet]->surface().toLocal( closestCompat.second.globalPosition()));
     if (fabs(nextPos.y()) < detHalfLen + maxDistance.y()) {
@@ -68,6 +65,7 @@ PixelRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
       break;
     }
   }
+
   for (int idet=closest-1; idet >= 0; idet--) {
     LocalPoint nextPos( theDets[idet]->surface().toLocal( closestCompat.second.globalPosition()));
     if (fabs(nextPos.y()) < detHalfLen + maxDistance.y()) {
