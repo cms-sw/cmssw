@@ -302,27 +302,25 @@ namespace edm {
   // ---------------------------------------------------------------
 
 
-  // a bit of a hack to make sure that at least a minimal parameter set for the message logger
-  // is included in the services list
-  void adjustForDefaultMessageLogger(vector<ParameterSet>& adjust)
-  {
-    typedef std::vector<edm::ParameterSet>::const_iterator Iter;
-    bool found = false;
-    for(Iter it = adjust.begin(); it != adjust.end() && !found; ++it)
-      {
-	string name = it->getParameter<std::string>("@service_type");
-	if(name=="MessageLogger") found = true;
-      }
-
-    if(!found)
-      {
-	FDEBUG(1) << "Adding default MessageLogger Service\n";
+  // Add a service to the services list
+  void adjustForService(vector<ParameterSet>& adjust, string const& service) {
+	FDEBUG(1) << "Adding default " << service << " Service\n";
 	ParameterSet newpset;
-	newpset.addParameter<string>("@service_type","MessageLogger");
+	newpset.addParameter<string>("@service_type",service);
 	adjust.push_back(newpset);
 	// Record this new ParameterSet in the Registry!
 	pset::Registry::instance()->insertParameterSet(newpset);
-      }
+  }
+
+  // Add a service to the services list if it is not already there
+  void adjustForDefaultService(vector<ParameterSet>& adjust, string const& service)
+  {
+    typedef std::vector<edm::ParameterSet>::const_iterator Iter;
+    for(Iter it = adjust.begin(); it != adjust.end(); ++it) {
+      string name = it->getParameter<std::string>("@service_type");
+      if (name == service) return;
+    }
+    adjustForService(adjust, service);
   }
 
   FwkImpl::FwkImpl(const string& config,
@@ -347,7 +345,9 @@ namespace edm {
     shared_ptr<vector<ParameterSet> > pServiceSets;
     shared_ptr<ParameterSet>          params_; // change this name!
     makeParameterSets(config, params_, pServiceSets);
-    adjustForDefaultMessageLogger(*(pServiceSets.get()));
+    adjustForDefaultService(*(pServiceSets.get()), "MessageLogger");
+    adjustForService(*(pServiceSets.get()), "LoadAllDictionaries");
+    adjustForService(*(pServiceSets.get()), "JobReport");
 
     //create the services
     serviceToken_ = ServiceRegistry::createSet(*pServiceSets,iToken,iLegacy);
