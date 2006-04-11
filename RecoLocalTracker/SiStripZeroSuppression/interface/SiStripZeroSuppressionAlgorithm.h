@@ -32,8 +32,6 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripZeroSuppressor.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
-//SiStripPedestalsService
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
 
 #include <iostream> 
 #include <memory>
@@ -52,11 +50,10 @@ class SiStripZeroSuppressionAlgorithm
   void run(std::string RawDigiType, const edm::DetSetVector<SiStripRawDigi>& input,
 	   edm::DetSetVector<SiStripDigi>& output);
 
-  void configure( const edm::EventSetup&  );
+  void configure( SiStripPedestalsService* );
 
  private:
   edm::ParameterSet conf_;
-  SiStripPedestalsService SiStripPedestalsService_;
 
   SiStripZeroSuppressor* SiStripZeroSuppressor_;
   std::string ZeroSuppressionMode_;

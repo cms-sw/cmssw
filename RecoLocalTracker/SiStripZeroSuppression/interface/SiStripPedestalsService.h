@@ -22,11 +22,12 @@ class SiStripPedestalsService {
   SiStripPedestalsService(const edm::ParameterSet& conf);
   ~SiStripPedestalsService(){};
   
-  void configure( const edm::EventSetup& iSetup );
+  void configure( const edm::EventSetup& es );
+  void setESObjects( const edm::EventSetup& es );
   int16_t getPedestal(const uint32_t& detID,const uint32_t& strip) const;
-  float getNoise (const uint32_t& detID,const uint32_t& strip);
-  float getLowTh (const uint32_t& detID,const uint32_t& strip);
-  float getHighTh(const uint32_t& detID,const uint32_t& strip);
+  float getNoise (const uint32_t& detID,const uint32_t& strip) const;
+  float getLowTh (const uint32_t& detID,const uint32_t& strip) const;
+  float getHighTh(const uint32_t& detID,const uint32_t& strip) const;
 
  private:
   edm::ParameterSet conf_;

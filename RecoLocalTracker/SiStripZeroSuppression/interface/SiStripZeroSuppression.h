@@ -37,6 +37,8 @@
 //#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 //ZeroSuppression 
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripZeroSuppressionAlgorithm.h"
+//SiStripPedestalsService
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
 
 
 
@@ -61,6 +63,7 @@ namespace cms
   private:
     edm::ParameterSet conf_;
     SiStripZeroSuppressionAlgorithm SiStripZeroSuppressionAlgorithm_;
+    SiStripPedestalsService SiStripPedestalsService_;  
   };
 }
 #endif

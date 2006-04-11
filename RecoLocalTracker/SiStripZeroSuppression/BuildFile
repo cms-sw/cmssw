@@ -1,3 +1,4 @@
+#<Flags CXXFLAGS="-DDEBUG">
 <flags SEAL_PLUGIN_NAME="RecoLocalTrackerSiStripZeroSuppression">
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>

@@ -6,12 +6,13 @@ void SiStripPedestalsSubtractor::subtract(const edm::DetSet<SiStripRawDigi>& inp
      uint32_t c=0;
      for (;iter!=input.data.end();iter++) {
        ssrd[c] = iter->adc() - SiStripPedestalsService_->getPedestal(input.id,c);
-       //FIXME for debug, insert messagelogger
-       std::cout << "[SiStripPedestalsSubtractor::subtract]: adc before sub= " 
-		 << iter->adc() 
-		 << "\t pedval= " << SiStripPedestalsService_->getPedestal(input.id,c)
-		 << "\t adc pedsub = " << ssrd[c]
-		 << std::endl;
+#ifdef DEBUG 
+       std::cout <<"[SiStripPedestalsSubtractor::subtract]: strip " << c << " adc before sub= " 
+					 << iter->adc() 
+					 << "\t pedval= " << SiStripPedestalsService_->getPedestal(input.id,c)
+					 << "\t adc pedsub = " << ssrd[c]
+					 << std::endl;
+#endif
        c++;
      }
 }

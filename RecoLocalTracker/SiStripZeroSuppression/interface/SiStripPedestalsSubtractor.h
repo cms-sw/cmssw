@@ -18,11 +18,11 @@ public:
   SiStripPedestalsSubtractor(){};
   ~SiStripPedestalsSubtractor(){};
 
-  void setSiStripPedestalsService( const SiStripPedestalsService& in ){SiStripPedestalsService_=&in;} 
+  void setSiStripPedestalsService( SiStripPedestalsService* in ){SiStripPedestalsService_=in;} 
   void subtract(const edm::DetSet<SiStripRawDigi>&, std::vector<int16_t>&);
 
 private:
 
-  const SiStripPedestalsService* SiStripPedestalsService_; 
+  SiStripPedestalsService* SiStripPedestalsService_; 
 };
 #endif
