@@ -1,0 +1,17 @@
+<use name=FWCore/MessageLogger>
+<use name=TkOnlineSw>
+<use name=xerces-c>
+<use name=oracle>
+<use name=boost>
+#<flags SEAL_PLUGIN_NAME="OnlineDBSiStripConfigDb">
+
+<export>
+   <lib name=OnlineDBSiStripConfigDb>
+   <use name=FWCore/MessageLogger>
+   <use name=TkOnlineSw>
+   <use name=xerces-c>
+   <use name=oracle>
+   <use name=boost>
+</export>
+
+

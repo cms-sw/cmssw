@@ -1,0 +1,20 @@
+<use name=FWCore/MessageLogger>
+<use name=CondFormats/SiStripObjects>
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/SiStripConnectivity>
+<use name=OnlineDB/SiStripConfigDb>
+<use name=DQM/SiStripCommon>
+<use name=boost>
+<flags SEAL_PLUGIN_NAME="OnlineDBSiStripESSources">
+
+<export>
+   <lib name=OnlineDBSiStripESSources>
+   <use name=FWCore/MessageLogger>
+   <use name=CondFormats/SiStripObjects>
+   <use name=CalibFormats/SiStripObjects>
+   <use name=CalibTracker/SiStripConnectivity>
+   <use name=OnlineDB/SiStripConfigDb>
+   <use name=DQM/SiStripCommon>
+   <use name=boost>
+</export>
+
