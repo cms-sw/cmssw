@@ -49,6 +49,7 @@ CPPUNIT_TEST(proxyProviderTest);
 
 CPPUNIT_TEST_EXCEPTION(producerConflictTest,cms::Exception);
 CPPUNIT_TEST_EXCEPTION(sourceConflictTest,cms::Exception);
+CPPUNIT_TEST(twoSourceTest);
 CPPUNIT_TEST(sourceProducerResolutionTest);
 CPPUNIT_TEST(preferTest);
 
@@ -67,6 +68,7 @@ public:
   
   void producerConflictTest();
   void sourceConflictTest();
+  void twoSourceTest();
   void sourceProducerResolutionTest();
   void preferTest();
   
@@ -288,6 +290,32 @@ void testEventsetup::sourceConflictTest()
    //checking for conflicts is now delayed until first time EventSetup is requested
    EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
    
+}
+#define TEST_EXCLUDE_DEF
+#include "FWCore/Framework/test/DummyEventSetupRecordRetriever.h"
+
+void testEventsetup::twoSourceTest()
+{
+  edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
+  using edm::eventsetup::test::DummyProxyProvider;
+  eventsetup::EventSetupProvider provider;
+  {
+    boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider());
+    dummyProv->setDescription(description);
+    provider.add(dummyProv);
+  }
+  {
+    boost::shared_ptr<edm::DummyEventSetupRecordRetriever> dummyProv(new edm::DummyEventSetupRecordRetriever());
+    boost::shared_ptr<eventsetup::DataProxyProvider> providerPtr(dummyProv);
+    boost::shared_ptr<edm::EventSetupRecordIntervalFinder> finderPtr(dummyProv);
+    edm::eventsetup::ComponentDescription description("DummyEventSetupRecordRetriever","",true);
+    dummyProv->setDescription(description);
+    provider.add(providerPtr);
+    provider.add(finderPtr);
+  }
+  //checking for conflicts is now delayed until first time EventSetup is requested
+  EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+  
 }
 
 void testEventsetup::sourceProducerResolutionTest()
