@@ -41,7 +41,7 @@ namespace reco {
     const Track & persistentTrack() const { return tk_; }
     const TrackRef & persistentTrackRef() const { return tkr_; }
 
-    TrackCharge charge() const {return charge();}
+    TrackCharge charge() const {return Track::charge();}
 
     bool operator== (const TransientTrack & a) const {return (a.persistentTrackRef()==tkr_);}
     bool operator< (const TransientTrack & a) const 
