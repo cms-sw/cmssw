@@ -85,8 +85,6 @@ public:
 	 const TrackCharge& charge, const AlgebraicMatrix& theCovarianceMatrix) const;
 
 
-private:
-
   /**
    * Jacobians of tranformations between the parametrixation
    * (x, y, z, transverse curvature, theta, phi) to Cartesian
