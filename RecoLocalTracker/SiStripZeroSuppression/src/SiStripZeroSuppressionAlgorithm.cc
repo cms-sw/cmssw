@@ -51,7 +51,6 @@ SiStripZeroSuppressionAlgorithm::~SiStripZeroSuppressionAlgorithm() {
 
 void SiStripZeroSuppressionAlgorithm::configure( SiStripPedestalsService* in ) {
 
-    in->getPedestal(589838,0);
     SiStripPedestalsSubtractor_->setSiStripPedestalsService(in);
     SiStripZeroSuppressor_->setSiStripPedestalsService(in);
 } 
