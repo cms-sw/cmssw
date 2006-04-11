@@ -12,6 +12,9 @@ void MakeValidation()
 {
   gROOT->Reset();
 
+  // zoom in on x-axis of plots
+  bool zoomx = false;
+
   // create new histograms for comparison
   gROOT->LoadMacro("MakeHistograms.C");
   MakeHistograms();
@@ -48,14 +51,14 @@ void MakeValidation()
 
   // ceate text
   TText* te = new TText();
-  te->SetTextSize(0.1);
+  te->SetTextSize(0.075);
 
   // create attributes
-  Int_t scolor = kBlue;
-  Int_t rcolor = kRed;
+  Int_t rcolor = kBlue;
+  Int_t rtype = kSolid;
+  Int_t stype = kDotted;
+  Int_t scolor = kRed;
   Int_t linewidth = 2;
-  Int_t stype = kSolid;
-  Int_t rtype = kDashed;
 
   vector<Int_t> histnames;
 
@@ -167,6 +170,7 @@ void MakeValidation()
 
     vector<string> names;
 
+    // setup canvas depending on group of plots
     TCanvas *Canvas;
     if (i == 0) {
       names = mchistname;
@@ -265,26 +269,65 @@ void MakeValidation()
       label->DrawLatex(0.5,1.00,"Muon RPC Information");
     }
 
+    // loop through plots
     for (Int_t j = 0; j < names.size(); ++j) {
+
+      // extract plot from both files
       TH1F *sh = (TH1F*)sfile->Get(names[j].c_str());
       sh->SetLineColor(scolor);
       sh->SetLineWidth(linewidth);
       sh->SetLineStyle(stype);
+      Double_t smax = sh->GetMaximum();
       TH1F *rh = (TH1F*)rfile->Get(names[j].c_str());
       rh->SetLineColor(rcolor);
       rh->SetLineWidth(linewidth);
       rh->SetLineStyle(rtype);
+      Double_t rmax = rh->GetMaximum();
 
-      myCanvas->cd(j+1);
-      sh->Draw();
-      rh->Draw("sames");
-
+      // find the probability value for the two plots being from the same
+      // source
       double pv = rh->Chi2Test(sh,"OU");
+      //double pv = rh->KolmogorovTest(sh);
       std::strstream buf;
       std::string value;
-      buf<<"PV="<<pv<<std::endl;
+      buf << "PV=" << pv <<std::endl;
       buf >> value;
-      te->DrawTextNDC(0.2,0.7, value.c_str());
+
+      // set maximum of y axis
+      Double_t max = smax;
+      if (rmax > smax) max = rmax;
+      max *= 1.10;
+      rh->SetMaximum(max);
+
+      // zoom in on x axis
+      if (zoomx) {
+	Int_t nbins = rh->GetNbinsX();
+	Int_t rlbin, slbin;
+	Int_t rfbin = -1, sfbin = -1;
+	for (Int_t k = 1; k < nbins; ++k) {
+	  Int_t rbincont = rh->GetBinContent(k);
+	  if (rbincont != 0) {
+	    rlbin = k;
+	    if (rfbin == -1) rfbin = k;
+	  }
+	  Int_t sbincont = sh->GetBinContent(k);
+	  if (sbincont != 0) {
+	    slbin = k;
+	    if (sfbin == -1) sfbin = k;
+	  }
+	}
+	Int_t binmin = rfbin, binmax = rlbin+1;
+	if (sfbin < binmin) binmin = sfbin;
+	if (slbin > binmax) binmax = slbin+1;
+	rh->SetAxisRange(rh->GetBinLowEdge(binmin),rh->GetBinLowEdge(binmax));
+      }
+
+      // make plots
+      myCanvas->cd(j+1);
+      rh->Draw();
+      sh->Draw("sames");
+
+      te->DrawTextNDC(0.15,0.8, value.c_str());
       std::cout << "[OVAL] " << rh->GetName() 
 		<< " PV = " << pv << std::endl;
     }
