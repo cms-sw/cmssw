@@ -3,8 +3,7 @@
 // Original Author Danek Kotlinski
 // Ported in CMSSW by  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// Change the charge drift direction from -z to +z to 
-// correctly model the sensor design. d.k. 25/03/06 
+// Add tof, change AddNoise to tracked. 4/06
 
 #include <vector>
 #include <iostream>
@@ -54,7 +53,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   tanLorentzAnglePerTesla=conf_.getParameter<double>("TanLorentzAnglePerTesla");
 
   // Add noise   
-  addNoise=conf_.getUntrackedParameter<bool>("AddNoise",true);
+  addNoise=conf_.getParameter<bool>("AddNoise");
 
   // Add noisy pixels 
   addNoisyPixels=conf_.getParameter<bool>("AddNoisyPixels");
