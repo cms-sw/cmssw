@@ -127,13 +127,13 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
     
     /// Take a reference to this FED's data
     const FEDRawData& fedData = rawdata->FEDData(id);
+    unsigned short int length =  fedData.size();
 
-
-    if (fedData.size()){ ///unpack data 
+    if (length){ ///unpack data 
 
       if (useExaminer) {///examine event for integrity
 	CSCDCCExaminer examiner;
-	goodEvent=examiner.examine((short unsigned int *) fedData.data());
+	goodEvent=examiner.examine((short unsigned int *) fedData.data(), length);
       }
       if (goodEvent) {
 	///get a pointer to data and pass it to constructor for unpacking

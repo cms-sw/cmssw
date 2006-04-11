@@ -12,7 +12,7 @@ public:
 
   static void setDebug(bool value) {debug = value;} 
  
-  bool examine(unsigned short * buf);
+  bool examine(unsigned short * buf, unsigned short int length);
 
   static bool debug;
 
