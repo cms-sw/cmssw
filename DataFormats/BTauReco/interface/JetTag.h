@@ -9,54 +9,37 @@
 // \author Marcel Vos, based on ORCA version by Christian Weiser, Andrea Rizzi
 // \version first version on January 12, 2006
 
+#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/JetObjects/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include <vector>
-#include "FWCore/EDProduct/interface/Ref.h"
-#include "FWCore/EDProduct/interface/RefVector.h"
-
-
-
-typedef edm::Ref<std::vector<Jet> > JetRef ; /// MVS: Jet does not have name sp\ace reco and does no forward typedefs
-
 
 
 namespace reco {
-  class JetTag  {
+   class JetTag {
+      public:
+        JetTag() : m_discriminator(0), m_jetTracksAssociation() {}
+        JetTag(double discriminator,JetTracksAssociation jetTracks) : 
+         m_discriminator(discriminator), m_jetTracksAssociation(jetTracks){ }
+    virtual ~JetTag(){}
 
-//
-// The base class for jets with tag information.
-// Concrete b- and tau tag Algos extend this interface with additional, algo-specific info
-//
+    virtual JetTag* clone() const { return new JetTag( * this ); }
 
 
- public:
+    double discriminator () { return m_discriminator; }  
 
-  
-    JetTag() {}
-
-    
-    virtual ~JetTag() {} 
-    
-    // discriminator should be a continuous variable, the tagging efficiency and purity should have a monotonous dependence on the discriminator
-
-    virtual float discriminator () const=0;  
-  
-    // reference to jet
-
-    virtual JetRef jetRef () const=0;  // 
-    virtual const Jet & jet() const=0; 
-
-    // reference to all tracks that have passed selection and thus contribute to the discriminator  
-    virtual TrackRefs selectedTracks () const=0; 
-
-    virtual JetTag* clone() const=0;
+    const Jet & jet() { return *m_jetTracksAssociation.key; }
+    const edm::RefVector<TrackCollection> & tracks() { return m_jetTracksAssociation.values; } 
 
     
  private:
+        double m_discriminator;
+        JetTracksAssociation m_jetTracksAssociation;
     
-
    
 };
+
+typedef std::vector<JetTag> JetTagCollection;
+
 }
 #endif
