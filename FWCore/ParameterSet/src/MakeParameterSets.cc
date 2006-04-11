@@ -182,11 +182,6 @@ namespace edm
     main = builder.getProcessPSet();
     serviceparams = builder.getServicesPSets();
 
-    // NOTE: FIX WHEN POOL BUG IS FIXED.
-    // For now, we have to always make use of the "LoadAllDictionaries" service.
-    serviceparams->push_back(ParameterSet());
-    serviceparams->back().addParameter<std::string>("@service_type", "LoadAllDictionaries");
-
     // Load every ParameterSet into the Registry
     pset::loadAllNestedParameterSets(*main);
     {
