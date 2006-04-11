@@ -10,8 +10,8 @@
 #ifndef _FittedEntriesManager_HH
 #define _FittedEntriesManager_HH
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
-#include "OpticalAlignment/CocoaAnalysis/interface/FittedEntriesSet.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaAnalysis/interface/FittedEntriesSet.h"
 
 
 class FittedEntriesManager

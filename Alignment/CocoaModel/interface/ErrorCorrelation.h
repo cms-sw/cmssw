@@ -9,7 +9,7 @@
 #ifndef ErrorCorrelation_h
 #define ErrorCorrelation_h
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h" 
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h" 
 
 typedef std::pair<ALIstring, ALIstring> pss;
 

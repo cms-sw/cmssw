@@ -5,10 +5,10 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/EntryAngleAffAngles.h"
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
-#include "OpticalAlignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+#include "Alignment/CocoaModel/interface/EntryAngleAffAngles.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 EntryAngleAffAngles::EntryAngleAffAngles( const ALIstring& type )

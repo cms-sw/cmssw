@@ -10,8 +10,8 @@
 #ifndef _OPTOMODIFIEDRHOMBOIDPRISM_HH
 #define _OPTOMODIFIEDRHOMBOIDPRISM_HH
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
 class Measurement;
 class LightRay;
 

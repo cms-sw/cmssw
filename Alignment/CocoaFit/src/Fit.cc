@@ -7,26 +7,26 @@
 
 #include <tree.h>
 
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
-#include "OpticalAlignment/CocoaFit/interface/Fit.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaFit/interface/Fit.h"
 
-#include "OpticalAlignment/CocoaModel/interface/Measurement.h"
-#include "OpticalAlignment/CocoaModel/interface/Entry.h"
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIFileOut.h"
-#include "OpticalAlignment/CocoaUtilities/interface/GlobalOptionMgr.h"
-#include "OpticalAlignment/CocoaModel/interface/DeviationsFromFileSensor2D.h"
-#include "OpticalAlignment/CocoaAnalysis/interface/FittedEntriesManager.h"
-#include "OpticalAlignment/CocoaAnalysis/interface/FittedEntriesSet.h"
+#include "Alignment/CocoaModel/interface/Measurement.h"
+#include "Alignment/CocoaModel/interface/Entry.h"
+#include "Alignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaUtilities/interface/ALIFileOut.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+#include "Alignment/CocoaModel/interface/DeviationsFromFileSensor2D.h"
+#include "Alignment/CocoaAnalysis/interface/FittedEntriesManager.h"
+#include "Alignment/CocoaAnalysis/interface/FittedEntriesSet.h"
 #ifdef COCOA_VIS
-#include "OpticalAlignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
-#include "OpticalAlignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
+#include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
+#include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
-#include "OpticalAlignment/CocoaModel/interface/OpticalObjectMgr.h"
-#include "OpticalAlignment/CocoaModel/interface/ErrorCorrelationMgr.h"
-#include "OpticalAlignment/CocoaModel/interface/ErrorCorrelation.h"
-#include "OpticalAlignment/CocoaModel/interface/FittedEntriesReader.h"
+#include "Alignment/CocoaModel/interface/OpticalObjectMgr.h"
+#include "Alignment/CocoaModel/interface/ErrorCorrelationMgr.h"
+#include "Alignment/CocoaModel/interface/ErrorCorrelation.h"
+#include "Alignment/CocoaModel/interface/FittedEntriesReader.h"
 
 #include <stdlib.h>
 #include <iomanip>

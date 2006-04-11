@@ -6,24 +6,24 @@
 // Authors:
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaModel/interface/Model.h"
 
 //#include <algorithm>
 #include <iomanip> 
 #include <iostream>
 #include <algo.h>
 
-#include "OpticalAlignment/CocoaModel/interface/Entry.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIFileIn.h"
-#include "OpticalAlignment/CocoaModel/interface/LightRay.h"
-#include "OpticalAlignment/CocoaModel/interface/Measurement.h"
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
-#include "OpticalAlignment/CocoaUtilities/interface/GlobalOptionMgr.h"
-#include "OpticalAlignment/CocoaModel/interface/ParameterMgr.h"
+#include "Alignment/CocoaModel/interface/Entry.h"
+#include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
+#include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/Measurement.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+#include "Alignment/CocoaModel/interface/ParameterMgr.h"
 #ifdef COCOA_VIS
-#include "OpticalAlignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
-#include "OpticalAlignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
+#include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
+#include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
 
 ALIdouble Measurement::cameraScaleFactor = 1.;

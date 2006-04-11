@@ -5,13 +5,13 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaAnalysis/interface/FittedEntry.h"
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
-#include "OpticalAlignment/CocoaModel/interface/Entry.h"
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaAnalysis/interface/FittedEntry.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaModel/interface/Entry.h"
+#include "Alignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include <iostream>
 #include <iomanip>
 

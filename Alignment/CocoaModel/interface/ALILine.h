@@ -9,7 +9,7 @@
 
 #ifndef _ALILINE_HH
 #define _ALILINE_HH
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include <iostream>
 #include <CLHEP/Vector/ThreeVector.h>
 class ALIPlane;

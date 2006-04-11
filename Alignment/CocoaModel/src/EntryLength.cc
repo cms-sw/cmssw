@@ -5,7 +5,7 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/EntryLength.h"
+#include "Alignment/CocoaModel/interface/EntryLength.h"
 
 //ALIdouble EntryLength::_startingDisplacement = 1.E-6; // in meters
 ALIdouble EntryLength::_startingDisplacement = 1.E-2; // in meters

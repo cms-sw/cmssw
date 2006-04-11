@@ -1,12 +1,12 @@
 
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include <assert.h>
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
-#include "OpticalAlignment/CocoaFit/interface/Fit.h"
-#include "OpticalAlignment/CocoaModel/interface/Entry.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIFileOut.h"
+#include "Alignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaFit/interface/Fit.h"
+#include "Alignment/CocoaModel/interface/Entry.h"
+#include "Alignment/CocoaUtilities/interface/ALIFileOut.h"
 //#include "Analysis/FittedEntriesRoot/interface/FERootDump.h"
-//#include "OpticalAlignment/CocoaToDDL/interface/CocoaToDDLMgr.h"
+//#include "Alignment/CocoaToDDL/interface/CocoaToDDLMgr.h"
 
 #include <time.h>
 #include "CLHEP/Vector/Rotation.h"

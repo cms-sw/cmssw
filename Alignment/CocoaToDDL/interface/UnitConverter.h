@@ -1,7 +1,7 @@
 #ifndef OSCAR_UnitConverter_h
 #define OSCAR_UnitConverter_h
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
 #include <iostream>
 #include <string>

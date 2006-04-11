@@ -8,7 +8,7 @@
 #ifndef EntryMgr_h
 #define EntryMgr_h
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h" 
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h" 
 #include <vector>
 class EntryData;
 

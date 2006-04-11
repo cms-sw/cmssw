@@ -5,9 +5,9 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/LightRay.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

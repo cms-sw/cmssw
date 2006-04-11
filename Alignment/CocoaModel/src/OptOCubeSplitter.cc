@@ -5,13 +5,13 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/OptOCubeSplitter.h"
-#include "OpticalAlignment/CocoaModel/interface/LightRay.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaModel/interface/OptOCubeSplitter.h"
+#include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #ifdef COCOA_VIS
-#include "OpticalAlignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
-#include "OpticalAlignment/CocoaVisMgr/interface/ALIColour.h"
+#include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
+#include "Alignment/CocoaVisMgr/interface/ALIColour.h"
 #endif
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

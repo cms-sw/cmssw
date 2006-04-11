@@ -21,7 +21,7 @@
 // ********************************************************************
 //
 //
-// $Id: CocoaUnitsTable.cc,v 1.1 2005/12/12 11:54:54 arce Exp $
+// $Id: CocoaUnitsTable.cc,v 1.2 2006/02/28 10:13:06 arce Exp $
 // GEANT4 tag $Name:  $
 // 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.... 
@@ -37,7 +37,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
  
  
-#include "OpticalAlignment/CocoaToDDL/interface/CocoaUnitsTable.h"
+#include "Alignment/CocoaToDDL/interface/CocoaUnitsTable.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include <iomanip>

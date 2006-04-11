@@ -5,8 +5,8 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
-#include "OpticalAlignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 #include <math.h>
 #include <stdlib.h>

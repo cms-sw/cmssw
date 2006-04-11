@@ -9,7 +9,7 @@
 #ifndef ErrorCorrelationMgr_h
 #define ErrorCorrelationMgr_h
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h" 
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h" 
 #include <vector>
 #include <map>
 typedef std::map<ALIstring, ALIdouble, std::less<ALIstring> > msd;

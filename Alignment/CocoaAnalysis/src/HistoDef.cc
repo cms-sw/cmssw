@@ -5,7 +5,7 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaAnalysis/interface/HistoDef.h"
+#include "Alignment/CocoaAnalysis/interface/HistoDef.h"
 #include <math.h>
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2

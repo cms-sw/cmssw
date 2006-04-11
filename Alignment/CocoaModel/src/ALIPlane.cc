@@ -5,8 +5,8 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/ALIPlane.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaModel/interface/ALIPlane.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

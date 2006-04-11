@@ -6,7 +6,7 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaUtilities/interface/ALIFileIn.h"
+#include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 
 #include <stdlib.h>
 #include <strstream>

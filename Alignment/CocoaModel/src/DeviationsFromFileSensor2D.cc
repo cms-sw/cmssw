@@ -5,9 +5,9 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/DeviationsFromFileSensor2D.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIFileIn.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaModel/interface/DeviationsFromFileSensor2D.h"
+#include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 
 enum directions{ xdir = 0, ydir = 1};
 

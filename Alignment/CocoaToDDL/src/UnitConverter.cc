@@ -1,7 +1,7 @@
 using namespace std;
 
-#include "OpticalAlignment/CocoaToDDL/interface/UnitConverter.h"
-#include "OpticalAlignment/CocoaToDDL/interface/CocoaUnitsTable.h"
+#include "Alignment/CocoaToDDL/interface/UnitConverter.h"
+#include "Alignment/CocoaToDDL/interface/CocoaUnitsTable.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <sstream>
 #include <strstream>

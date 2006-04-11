@@ -10,12 +10,12 @@
 #ifndef _FittedEntriesSet_HH
 #define _FittedEntriesSet_HH
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include "time.h"
 #include <vector>
-#include "OpticalAlignment/CocoaAnalysis/interface/FittedEntry.h"
+#include "Alignment/CocoaAnalysis/interface/FittedEntry.h"
 //#ifdef MAT_MESCHACH
-#include "OpticalAlignment/CocoaFit/interface/MatrixMeschach.h"
+#include "Alignment/CocoaFit/interface/MatrixMeschach.h"
 //typedef MatrixMeschach ALIMatrix;
 //#endif
 

@@ -10,8 +10,8 @@
 #ifndef _ENTRYLENGTH_HH
 #define _ENTRYLENGTH_HH
 
-#include "OpticalAlignment/CocoaModel/interface/Entry.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaModel/interface/Entry.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 
 
 class EntryLength : public Entry

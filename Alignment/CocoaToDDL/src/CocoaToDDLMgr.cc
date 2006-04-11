@@ -5,18 +5,18 @@
 //   Pedro Arce
 
 
-#include "OpticalAlignment/CocoaToDDL/interface/CocoaToDDLMgr.h"
-#include "OpticalAlignment/CocoaToDDL/interface/UnitConverter.h"
+#include "Alignment/CocoaToDDL/interface/CocoaToDDLMgr.h"
+#include "Alignment/CocoaToDDL/interface/UnitConverter.h"
 #define UC(val,category) UnitConverter(val,category).ucstring()
 
-#include "OpticalAlignment/CocoaDDLObjects/interface/CocoaMaterialElementary.h"
-#include "OpticalAlignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
-#include "OpticalAlignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
+#include "Alignment/CocoaDDLObjects/interface/CocoaMaterialElementary.h"
+#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
+#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
 
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
-#include "OpticalAlignment/CocoaModel/interface/Entry.h"
-#include "OpticalAlignment/CocoaModel/interface/Measurement.h"
+#include "Alignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaModel/interface/Entry.h"
+#include "Alignment/CocoaModel/interface/Measurement.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 

@@ -10,7 +10,7 @@
 #ifndef _ALIMATRIX_HH
 #define _ALIMATRIX_HH
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include <vector>
 #include <iostream>
 

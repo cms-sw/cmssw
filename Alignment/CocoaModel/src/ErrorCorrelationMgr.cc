@@ -3,10 +3,10 @@
 //CAT: Model
 //
 
-#include "OpticalAlignment/CocoaModel/interface/ErrorCorrelationMgr.h"
-#include "OpticalAlignment/CocoaModel/interface/ErrorCorrelation.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIFileIn.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaModel/interface/ErrorCorrelationMgr.h"
+#include "Alignment/CocoaModel/interface/ErrorCorrelation.h"
+#include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 
 //----------------------------------------------------------------------------
 ErrorCorrelationMgr* ErrorCorrelationMgr::theInstance = 0;

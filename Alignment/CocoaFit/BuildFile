@@ -1,12 +1,12 @@
- <use name=OpticalAlignment/CocoaUtilities> 
- <use name=OpticalAlignment/CocoaModel> 
- <use name=OpticalAlignment/CocoaAnalysis>
+ <use name=Alignment/CocoaUtilities> 
+ <use name=Alignment/CocoaModel> 
+ <use name=Alignment/CocoaAnalysis>
  <use name=CLHEP>
  <use name=meschach>
 
 <export>
- <lib name=OpticalAlignmentCocoaFit>
- <use name=OpticalAlignment/CocoaUtilities> 
+ <lib name=AlignmentCocoaFit>
+ <use name=Alignment/CocoaUtilities> 
 </export>
 
 

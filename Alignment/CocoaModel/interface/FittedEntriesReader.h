@@ -9,8 +9,8 @@ Changes:     24/06/05: creation
 // Manages the set of optical objects 
 
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIFileIn.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 
 class FittedEntriesReader 
 {

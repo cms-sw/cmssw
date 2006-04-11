@@ -16,7 +16,7 @@
 #include <vector>
 //#include "bstring.h"
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
 
 class ALIFileOut : public std::ofstream 

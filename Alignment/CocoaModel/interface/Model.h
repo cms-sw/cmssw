@@ -16,11 +16,11 @@
 //#include <multimap.h>
 
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h" 
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h" 
 class Entry;
-//#include "OpticalAlignment/CocoaModel/interface/Entry.h"  //temporal
+//#include "Alignment/CocoaModel/interface/Entry.h"  //temporal
 class OpticalObject;
-//#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
+//#include "Alignment/CocoaModel/interface/OpticalObject.h"
 class Measurement;
 class ALIFileIn;
 class FittedEntriesReader;

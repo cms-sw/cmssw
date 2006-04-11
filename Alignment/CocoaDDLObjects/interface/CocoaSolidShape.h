@@ -10,7 +10,7 @@
 #ifndef _CocoaSolidShape_HH
 #define _CocoaSolidShape_HH
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
 
 class CocoaSolidShape

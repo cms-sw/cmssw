@@ -10,7 +10,7 @@
 #ifndef _DEVIATIONSensor2D_HH
 #define _DEVIATIONSensor2D_HH
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include <vector>
 
 class DeviationSensor2D

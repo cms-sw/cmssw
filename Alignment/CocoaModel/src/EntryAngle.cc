@@ -5,7 +5,7 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/EntryAngle.h"
+#include "Alignment/CocoaModel/interface/EntryAngle.h"
 
 ALIdouble EntryAngle::_startingDisplacement = 1.E-2; //in radians
 //ALIdouble EntryAngle::_startingDisplacement = 1.E-2; //in radians

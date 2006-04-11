@@ -10,8 +10,8 @@
 #ifndef _OPTOCAMERADETECTOR_HH
 #define _OPTOCAMERADETECTOR_HH
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
 class Measurement;
 class LightRay;
 

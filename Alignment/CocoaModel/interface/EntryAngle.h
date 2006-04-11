@@ -10,8 +10,8 @@
 #ifndef _ENTRYANGLE_HH
 #define _ENTRYANGLE_HH
 
-#include "OpticalAlignment/CocoaModel/interface/Entry.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaModel/interface/Entry.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 
 class EntryAngle : public Entry
 {

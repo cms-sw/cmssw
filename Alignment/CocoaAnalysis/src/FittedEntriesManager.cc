@@ -7,13 +7,13 @@
 #include <map>
 #include <fstream>
 
-#include "OpticalAlignment/CocoaAnalysis/interface/FittedEntriesManager.h"
-#include "OpticalAlignment/CocoaAnalysis/interface/FittedEntriesSet.h"
+#include "Alignment/CocoaAnalysis/interface/FittedEntriesManager.h"
+#include "Alignment/CocoaAnalysis/interface/FittedEntriesSet.h"
 #include <iostream>
 #include <iomanip>
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
-#include "OpticalAlignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+#include "Alignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 FittedEntriesManager* FittedEntriesManager::instance = 0;
 
@@ -120,8 +120,8 @@ void FittedEntriesManager::MakeHistos()
 
 }
 
-#include "OpticalAlignment/CocoaModel/interface/LightRay.h"
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void FittedEntriesManager::GetDifferentBetweenLasers()

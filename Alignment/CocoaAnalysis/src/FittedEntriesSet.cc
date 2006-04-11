@@ -7,16 +7,16 @@
 
 #include <fstream>
 #include <map>
-#include "OpticalAlignment/CocoaAnalysis/interface/FittedEntriesSet.h"
-#include "OpticalAlignment/CocoaAnalysis/interface/FittedEntriesManager.h"
-#include "OpticalAlignment/CocoaAnalysis/interface/FittedEntry.h"
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
-#include "OpticalAlignment/CocoaModel/interface/Measurement.h"
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
-#include "OpticalAlignment/CocoaModel/interface/Entry.h"
+#include "Alignment/CocoaAnalysis/interface/FittedEntriesSet.h"
+#include "Alignment/CocoaAnalysis/interface/FittedEntriesManager.h"
+#include "Alignment/CocoaAnalysis/interface/FittedEntry.h"
+#include "Alignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaModel/interface/Measurement.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaModel/interface/Entry.h"
 
 #ifdef MAT_MESCHACH
-#include "OpticalAlignment/CocoaFit/interface/MatrixMeschach.h"
+#include "Alignment/CocoaFit/interface/MatrixMeschach.h"
 #endif
 //
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2

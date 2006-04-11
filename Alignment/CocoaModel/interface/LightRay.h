@@ -15,7 +15,7 @@ class OpticalObject;
 class ALIPlane;
 
 #include "CLHEP/Vector/ThreeVector.h"
-#include "OpticalAlignment/CocoaModel/interface/ALIPlane.h"
+#include "Alignment/CocoaModel/interface/ALIPlane.h"
 
 class LightRay
 {

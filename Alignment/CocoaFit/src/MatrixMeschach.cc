@@ -5,8 +5,8 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
-#include "OpticalAlignment/CocoaFit/interface/MatrixMeschach.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaFit/interface/MatrixMeschach.h"
 
 #include <iomanip>
 #include <math.h>

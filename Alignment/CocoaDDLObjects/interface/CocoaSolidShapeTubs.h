@@ -7,8 +7,8 @@
 #ifndef _CocoaSolidShapeTubs_HH
 #define _CocoaSolidShapeTubs_HH
 
-#include "OpticalAlignment/CocoaDDLObjects/interface/CocoaSolidShape.h"
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShape.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
 
 class CocoaSolidShapeTubs : public CocoaSolidShape

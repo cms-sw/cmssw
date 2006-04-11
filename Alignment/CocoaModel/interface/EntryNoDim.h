@@ -10,7 +10,7 @@
 #ifndef _ENTRYNoDim_HH
 #define _ENTRYNoDim_HH
 
-#include "OpticalAlignment/CocoaModel/interface/Entry.h"
+#include "Alignment/CocoaModel/interface/Entry.h"
 
 class EntryNoDim : public Entry
 {

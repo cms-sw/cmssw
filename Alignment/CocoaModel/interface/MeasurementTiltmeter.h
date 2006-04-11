@@ -12,8 +12,8 @@
 #define _MEASUREMENTTILTMETER_HH
 
 #include <vector>
-#include "OpticalAlignment/CocoaModel/interface/Measurement.h"
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaModel/interface/Measurement.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
 class MeasurementTiltmeter : public Measurement
 { 

@@ -39,7 +39,7 @@
 #ifndef ALIUnitsTable_HH
 #define ALIUnitsTable_HH
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include <vector>
 #include <CLHEP/Vector/ThreeVector.h>
 

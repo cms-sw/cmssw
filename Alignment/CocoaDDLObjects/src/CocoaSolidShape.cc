@@ -7,7 +7,7 @@
 #include <map>
 #include <fstream>
 
-#include "OpticalAlignment/CocoaDDLObjects/interface/CocoaSolidShape.h"
+#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShape.h"
 
 
 CocoaSolidShape::CocoaSolidShape( ALIstring type )

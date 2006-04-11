@@ -10,7 +10,7 @@
 #ifndef _CocoaMaterialElementary_HH
 #define _CocoaMaterialElementary_HH
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
 
 class CocoaMaterialElementary

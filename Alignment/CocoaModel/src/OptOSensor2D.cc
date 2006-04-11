@@ -5,17 +5,17 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/OptOSensor2D.h"
-#include "OpticalAlignment/CocoaModel/interface/LightRay.h"
-#include "OpticalAlignment/CocoaModel/interface/Measurement.h"
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
-#include "OpticalAlignment/CocoaModel/interface/Entry.h"
-#include "OpticalAlignment/CocoaModel/interface/DeviationsFromFileSensor2D.h"
+#include "Alignment/CocoaModel/interface/OptOSensor2D.h"
+#include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/Measurement.h"
+#include "Alignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaModel/interface/Entry.h"
+#include "Alignment/CocoaModel/interface/DeviationsFromFileSensor2D.h"
 #ifdef COCOA_VIS
-#include "OpticalAlignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
-#include "OpticalAlignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
+#include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
+#include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
-#include "OpticalAlignment/CocoaUtilities/interface/ALIFileIn.h"
+#include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 
 #include <iostream>
 #include <iomanip>

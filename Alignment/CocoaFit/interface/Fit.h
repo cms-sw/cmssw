@@ -12,19 +12,19 @@
 
 #define MAT_MESCHACH
 #ifdef MAT_MESCHACH
-#include "OpticalAlignment/CocoaFit/interface/MatrixMeschach.h"
+#include "Alignment/CocoaFit/interface/MatrixMeschach.h"
 #endif
 
 
 #include <vector>
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h" 
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h" 
 class Entry;
 class OpticalObject;
 #include "CLHEP/Vector/Rotation.h"
 class FittedEntriesSet;
 class ALIFileOut;
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaModel/interface/Model.h"
 
 typedef std::pair<ALIstring, ALIstring> pss;
 

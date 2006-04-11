@@ -1,6 +1,6 @@
-#include "OpticalAlignment/CocoaModel/interface/OpticalObjectMgr.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaModel/interface/OpticalObjectMgr.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaModel/interface/Model.h"
 
 OpticalObjectMgr* OpticalObjectMgr::theInstance = 0;
   

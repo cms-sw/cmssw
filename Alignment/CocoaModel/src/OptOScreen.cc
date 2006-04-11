@@ -5,15 +5,15 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/OptOScreen.h"
-#include "OpticalAlignment/CocoaModel/interface/LightRay.h"
-#include "OpticalAlignment/CocoaModel/interface/Measurement.h"
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaModel/interface/OptOScreen.h"
+#include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/Measurement.h"
+#include "Alignment/CocoaModel/interface/Model.h"
 #include <iostream>
 #include <iomanip>
 #ifdef COCOA_VIS
-#include "OpticalAlignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
-#include "OpticalAlignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
+#include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
+#include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

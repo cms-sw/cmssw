@@ -7,7 +7,7 @@
 #include <map>
 #include <fstream>
 
-#include "OpticalAlignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
+#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 
 
 CocoaSolidShapeBox::CocoaSolidShapeBox( ALIstring type, ALIfloat xdim, ALIfloat ydim, ALIfloat zdim ): CocoaSolidShape( type )

@@ -7,7 +7,7 @@
 #include <map>
 #include <fstream>
 
-#include "OpticalAlignment/CocoaDDLObjects/interface/CocoaMaterialElementary.h"
+#include "Alignment/CocoaDDLObjects/interface/CocoaMaterialElementary.h"
 
 
 CocoaMaterialElementary::CocoaMaterialElementary( ALIstring name, float density, ALIstring symbol, ALIint A, ALIint Z )

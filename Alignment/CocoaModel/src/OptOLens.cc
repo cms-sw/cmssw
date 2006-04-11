@@ -5,16 +5,16 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/OptOLens.h"
-#include "OpticalAlignment/CocoaModel/interface/LightRay.h"
-#include "OpticalAlignment/CocoaModel/interface/Measurement.h"
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaModel/interface/OptOLens.h"
+#include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/Measurement.h"
+#include "Alignment/CocoaModel/interface/Model.h"
 #include <iostream>
 #include <iomanip>
 #include "CLHEP/Units/SystemOfUnits.h"
 #ifdef COCOA_VIS
-#include "OpticalAlignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
-#include "OpticalAlignment/CocoaVisMgr/interface/ALIColour.h"
+#include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
+#include "Alignment/CocoaVisMgr/interface/ALIColour.h"
 #endif
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 OptOLens::OptOLens()

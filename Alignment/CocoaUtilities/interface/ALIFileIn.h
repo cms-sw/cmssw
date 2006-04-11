@@ -15,7 +15,7 @@
 
 #include <vector>
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
 
 class ALIFileIn 

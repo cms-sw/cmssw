@@ -6,11 +6,11 @@
 // Authors:
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/MeasurementTiltmeter.h"
-#include "OpticalAlignment/CocoaModel/interface/LightRay.h"
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
-#include "OpticalAlignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+#include "Alignment/CocoaModel/interface/MeasurementTiltmeter.h"
+#include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include <iostream>
 #include <iomanip>
 

@@ -9,7 +9,7 @@
 
 #ifndef _ALIRmDataFromFile_HH
 #define _ALIRmDataFromFile_HH
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include "CLHEP/Vector/Rotation.h"
 
 class ALIRmDataFromFile

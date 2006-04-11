@@ -10,7 +10,7 @@
 #ifndef _ENTRYANGLEAFFANGLES_HH
 #define _ENTRYANGLEAFFANGLES_HH
 
-#include "OpticalAlignment/CocoaModel/interface/EntryAngle.h"
+#include "Alignment/CocoaModel/interface/EntryAngle.h"
 
 
 class EntryAngleAffAngles : public EntryAngle

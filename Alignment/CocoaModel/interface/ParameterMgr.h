@@ -8,7 +8,7 @@
 #ifndef ParameterMgr_h
 #define ParameterMgr_h
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h" 
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h" 
 #include <map>
 typedef std::map<ALIstring, ALIdouble, std::less<ALIstring> > msd;
 

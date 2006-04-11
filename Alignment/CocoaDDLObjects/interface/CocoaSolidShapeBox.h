@@ -7,8 +7,8 @@
 #ifndef _CocoaSolidShapeBox_HH
 #define _CocoaSolidShapeBox_HH
 
-#include "OpticalAlignment/CocoaDDLObjects/interface/CocoaSolidShape.h"
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShape.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
 
 class CocoaSolidShapeBox : public CocoaSolidShape

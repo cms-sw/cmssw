@@ -6,20 +6,20 @@
 // Authors:
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/MeasurementDiffEntry.h"
-#include "OpticalAlignment/CocoaModel/interface/LightRay.h"
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
-#include "OpticalAlignment/CocoaModel/interface/Entry.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIFileIn.h"
+#include "Alignment/CocoaModel/interface/MeasurementDiffEntry.h"
+#include "Alignment/CocoaModel/interface/LightRay.h"
+#include "Alignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaModel/interface/Entry.h"
+#include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 #include <iostream>
 #include <iomanip>
 #ifdef COCOA_VIS
-#include "OpticalAlignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
-#include "OpticalAlignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
-#include "OpticalAlignment/IgCocoaFileWriter/interface/ALIVisLightPath.h"
+#include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
+#include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
+#include "Alignment/IgCocoaFileWriter/interface/ALIVisLightPath.h"
 #endif
-#include "OpticalAlignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

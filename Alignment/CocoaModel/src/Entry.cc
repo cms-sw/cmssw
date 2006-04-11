@@ -5,15 +5,15 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/Entry.h"
-#include "OpticalAlignment/CocoaModel/interface/Model.h"
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIFileIn.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
-#include "OpticalAlignment/CocoaUtilities/interface/GlobalOptionMgr.h"
-#include "OpticalAlignment/CocoaModel/interface/ParameterMgr.h"
-#include "OpticalAlignment/CocoaModel/interface/EntryMgr.h"
-#include "OpticalAlignment/CocoaModel/interface/EntryData.h"
+#include "Alignment/CocoaModel/interface/Entry.h"
+#include "Alignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+#include "Alignment/CocoaModel/interface/ParameterMgr.h"
+#include "Alignment/CocoaModel/interface/EntryMgr.h"
+#include "Alignment/CocoaModel/interface/EntryData.h"
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

@@ -4,9 +4,9 @@
 //
 //   History: v1.0  10/11/01   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/EntryMgr.h"
-#include "OpticalAlignment/CocoaModel/interface/EntryData.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaModel/interface/EntryMgr.h"
+#include "Alignment/CocoaModel/interface/EntryData.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 //----------------------------------------------------------------------------
 
 

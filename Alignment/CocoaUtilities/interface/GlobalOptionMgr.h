@@ -10,7 +10,7 @@
 #ifndef _GlobalOptionMgr_HH
 #define _GlobalOptionMgr_HH
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include <map>
 
 class ALIFileIn;

@@ -21,8 +21,8 @@
 // ********************************************************************
 //
 //
-// $Id: CocoaUnitsTable.hh,v 1.14 2004/01/21 13:17:50 gcosmo Exp $
-// GEANT4 tag $Name: geant4-06-01 $
+// $Id: CocoaUnitsTable.h,v 1.1 2005/12/12 11:54:54 arce Exp $
+// GEANT4 tag $Name:  $
 //
 // 
 // -----------------------------------------------------------------
@@ -50,7 +50,7 @@
 #ifndef CocoaUnitsTable_HH
 #define CocoaUnitsTable_HH
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include <vector>
 #include "CLHEP/Vector/ThreeVector.h"
 

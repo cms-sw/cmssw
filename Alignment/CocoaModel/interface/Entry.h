@@ -9,7 +9,7 @@
 
 #ifndef _ENTRY_HH
 #define _ENTRY_HH
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include <vector>
 class OpticalObject;
 class EntryData;

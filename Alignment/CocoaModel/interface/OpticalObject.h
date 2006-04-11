@@ -10,14 +10,14 @@
 #ifndef _OPTICALOBJECT_HH
 #define _OPTICALOBJECT_HH
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
 class LightRay;
-//#include "OpticalAlignment/CocoaModel/interface/LightRay.h"
+//#include "Alignment/CocoaModel/interface/LightRay.h"
 class Measurement;
-//#include "OpticalAlignment/CocoaModel/interface/Measurement.h"
+//#include "Alignment/CocoaModel/interface/Measurement.h"
 class Entry;
-//#include "OpticalAlignment/CocoaModel/interface/Entry.h"
+//#include "Alignment/CocoaModel/interface/Entry.h"
 class ALIFileIn;
 class Measurement;
 class ALIPlane;

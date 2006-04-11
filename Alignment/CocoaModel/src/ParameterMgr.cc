@@ -4,9 +4,9 @@
 //
 //   History: v1.0  10/11/01   Pedro Arce
 
-#include "OpticalAlignment/CocoaModel/interface/ParameterMgr.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
-#include "OpticalAlignment/CocoaModel/interface/ALIUnitsTable.h"
+#include "Alignment/CocoaModel/interface/ParameterMgr.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaModel/interface/ALIUnitsTable.h"
 #include <CLHEP/Random/RandGauss.h>
 #include <CLHEP/Random/Random.h>
 //----------------------------------------------------------------------------

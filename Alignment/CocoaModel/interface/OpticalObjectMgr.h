@@ -9,9 +9,9 @@ Changes:     02/05/01: creation
 // Manages the set of optical objects 
 
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include <map>
-#include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
+#include "Alignment/CocoaModel/interface/OpticalObject.h"
 
 typedef std::map<ALIstring, OpticalObject*, std::less<ALIstring> > msopto;
 

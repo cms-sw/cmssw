@@ -10,8 +10,8 @@
 #ifndef _DEVIATIONSTRAVERSINGSENSOR2D_HH
 #define _DEVIATIONSTRAVERSINGSENSOR2D_HH
 
-#include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
-#include "OpticalAlignment/CocoaModel/interface/DeviationSensor2D.h"
+#include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include "Alignment/CocoaModel/interface/DeviationSensor2D.h"
 
 #include <vector>
 

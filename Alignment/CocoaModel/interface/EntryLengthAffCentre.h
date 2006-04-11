@@ -10,7 +10,7 @@
 #ifndef _ENTRYLengthAffCentre_HH
 #define _ENTRYLengthAffCentre_HH
 
-#include "OpticalAlignment/CocoaModel/interface/EntryLength.h"
+#include "Alignment/CocoaModel/interface/EntryLength.h"
 
 
 class EntryLengthAffCentre : public EntryLength

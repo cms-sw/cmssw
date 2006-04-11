@@ -7,11 +7,11 @@
 #include <map>
 #include <fstream>
 
-#include "OpticalAlignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include <iostream>
 #include <iomanip>
-#include "OpticalAlignment/CocoaUtilities/interface/ALIUtils.h"
-#include "OpticalAlignment/CocoaUtilities/interface/ALIFileIn.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
+#include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 
 GlobalOptionMgr* GlobalOptionMgr::theInstance = 0;
 

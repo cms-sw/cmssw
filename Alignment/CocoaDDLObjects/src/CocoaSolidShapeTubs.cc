@@ -7,7 +7,7 @@
 #include <map>
 #include <fstream>
 
-#include "OpticalAlignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
+#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
 
 CocoaSolidShapeTubs::CocoaSolidShapeTubs( const ALIstring type, ALIfloat pRMin, ALIfloat pRMax, ALIfloat pDz, ALIfloat pSPhi, ALIfloat pDPhi ) : CocoaSolidShape( type )
 { 
