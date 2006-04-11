@@ -144,9 +144,8 @@ lclphidat CSCSectorReceiverLUT::localPhi(unsigned address) const
 lclphidat CSCSectorReceiverLUT::localPhi(lclphiadd address) const
 {
   lclphidat result;
-  unsigned theadd = address.toint();
   
-  if(LUTsFromFile) result = me_lcl_phi[theadd];
+  if(LUTsFromFile) result = me_lcl_phi[address.toint()];
   else result = calcLocalPhi(address);
   
   return result;
@@ -370,9 +369,8 @@ gbletadat CSCSectorReceiverLUT::globalEtaME(unsigned address) const
 gbletadat CSCSectorReceiverLUT::globalEtaME(gbletaadd address) const
 {
   gbletadat result;
-  unsigned theadd = address.toint();
 
-  if(LUTsFromFile) result = me_global_eta[theadd];
+  if(LUTsFromFile) result = me_global_eta[address.toint()];
   else result = calcGlobalEtaME(address);
   return result;
 }
