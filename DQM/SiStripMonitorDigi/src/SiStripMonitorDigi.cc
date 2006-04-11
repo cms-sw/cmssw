@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.3 2006/03/29 15:13:39 dkcira Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.4 2006/03/29 21:41:58 dkcira Exp $
 //
 //
 
@@ -71,10 +71,8 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
     // use SiStripSubStructure for selecting certain regions
     SiStripSubStructure substructure;
     vector<uint32_t> SelectedDetIds;
-    // select TIBs of layer=2. 0 selects everything
-    substructure.getTIBDetectors(activeDets, SelectedDetIds, 2, 7, 2, 0); // this adds rawDetIds to SelectedDetIds
-    // select TOBs of layer=1, etc.
-    substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 3, 4, 0); // this adds rawDetIds to SelectedDetIds
+    substructure.getTIBDetectors(activeDets, SelectedDetIds, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
+    substructure.getTOBDetectors(activeDets, SelectedDetIds, 0, 0, 0);    // this adds rawDetIds to SelectedDetIds
 
      // use SistripHistoId for producing histogram id (and title)
      SiStripHistoId hidmanager;
