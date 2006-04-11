@@ -1,13 +1,33 @@
-#! /bin/bash
+#!/bin/bash
 
-if [ $# -ne 1 ] ; then 
-    echo "Usage: InstallFromSource.sh [CMSSW_version]";
+# 
+# Simple script to install CMSSW from sources in one go
+#
+# Author $Id$
+
+
+cmssw_release_area=/afs/cern.ch/cms/Releases/CMSSW
+
+if [ $# -ne 2 ] ; then 
+    echo "Usage: InstallFromSource.sh --release|--prerelease [CMSSW_version]";
     exit 1;
 fi
 
+case $1 in 
 
+    --release ) 
+      is_release=1;;
 
-cmssw_version=$1
+    --prerelease )
+      is_release=0;;
+    *)
+      echo "Error, --release or --prerelease must be specified";
+      exit 1;
+
+    break;
+esac
+
+cmssw_version=$2
 
 echo Installing $cmssw_version;
 
@@ -25,23 +45,42 @@ if [ ! -f config/bootsrc ] ; then
   exit 1;
 fi
 
+# If we are building a prerelease, add debug symbols
+if [ $is_release -eq 0 ]; then 
+  echo "<flags CXXFLAGS=\"-g\">" >> config/BuildFile ;
+fi
+
+#boot the scram project
 scramv1 project -b config/bootsrc
 
-echo "Finished configuring scram area "
+echo "Finished configuring scram area, starting "
 
+#skip symbol checking
 export SCRAM_NOSYMCHECK=true
 
-cd $cmssw_version;
 
+#build
+cd $cmssw_version;
 scramv1 b -v -k release-build > logs/slc3_ia32_gcc323/release-build.log 2> logs/slc3_ia32_gcc323/release-build-errors.log
+
+#check plugins
 
 #scramv1 b release-freeze;
 eval `scramv1 runtime -sh`
 SealPluginRefresh >& logs/slc3_ia32_gcc323/SealPluginRefresh.log;
 
+#build doc and install
 scramv1 b doc >& logs/slc3_ia32_gcc323/docgen.log ;
 scramv1 install;
 
-# freeze
+#create symbolic links
 cd ..;
-find CMSSW_0_5_0 -type d -exec fs setacl {} -acl system:anyuser rl \;
+if [ $is_release -eq 1 ] ; then 
+    ln -sf `pwd`/$cmssw_version $cmssw_release_area/latest_release ;
+else
+    ln -sf `pwd`/$cmssw_version $cmssw_release_area/latest_prerelease;
+fi
+
+# freeze .. auch, does not work, must be afs admins ...
+#cd ..;
+#find CMSSW_0_5_0 -type d -exec fs setacl {} -acl system:anyuser rl \;
