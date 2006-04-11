@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a combinatorial approach
  *  
- * $Date: 01/03/2006 16:53:13 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:18 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -18,6 +18,7 @@
 namespace edm {
   class ParameterSet;
   class EventSetup;
+  //  class ESHandle;
 }
 class DTSegmentUpdator;
 class DTSegmentCleaner;
@@ -28,6 +29,9 @@ class DTSegmentCand;
 #include <vector>
 #include <deque>
 #include <utility>
+
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 /* ====================================================================== */
 

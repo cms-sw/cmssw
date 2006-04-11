@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date:  02/03/2006 18:16:35 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:18 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -22,7 +22,12 @@ DTHitPairForFit::DTHitPairForFit(const DTRecHit1DPair& pair,
                                  const DTSuperLayer& sl,
                                  const edm::ESHandle<DTGeometry>& dtGeom) {
   theLayId = pair.geographicalId();
-  const GeomDetUnit* layer = dtGeom->idToDet(theLayId);
+  
+  //  const DTLayer* layer =dtGeom->layer(theLayId);
+  const DTLayer* layer = dynamic_cast< const DTLayer* >(dtGeom->idToDet(theLayId));
+  // was
+  //const GeomDetUnit* layer = dtGeom->idToDet(theLayId);
+  // RB@SL: is it right?
 
   theLeftPos =
     layer->surface().toLocal(sl.surface().toGlobal(pair.componentRecHit(DTEnums::Left)->localPosition()));
@@ -46,6 +51,8 @@ LocalPoint DTHitPairForFit::localPosition(DTEnums::DTCellSide s) const {
   // TODO how does this works?
   // else throw edm::Exception("Error") << 
   //   "DTHitPairForFit::localPosition called with undef LR code" << endl;
+  
+  //RB, FIXME the warning, return the a LocalPoint
 }
 
 GlobalPoint DTHitPairForFit::globalPosition(DTEnums::DTCellSide) const {

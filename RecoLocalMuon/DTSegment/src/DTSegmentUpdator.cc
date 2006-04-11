@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date:  14/03/2006 13:41:10 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:18 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -14,6 +14,9 @@
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 #include "RecoLocalMuon/DTSegment/interface/DTLinearFit.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /* C++ Headers */
 #include <string>
@@ -81,7 +84,8 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg) {
 }
 
 void DTSegmentUpdator::fit(DTRecSegment2D* seg) {
-  return true;
+  //RB  return true;
+
   // vector<float> x;
   // vector<float> y;
   // vector<float> sigy;
@@ -158,8 +162,10 @@ void DTSegmentUpdator::fit(const vector<float>& x,
 }
 
 void DTSegmentUpdator::updateHits(DTRecSegment2D* seg) {
-  GlobalPoint pos = (theGeom.idToDet(seg->id()))->toGlobal(seg->localPosition());
-  GlobalVector dir = (theGeom.idToDet(seg->id()))->toGlobal(seg->localDirection());
+
+  //FIXME, RB: put a dynamic cast
+  GlobalPoint pos = (theGeom->idToDet(seg->geographicalId()))->surface().toGlobal(seg->localPosition());
+  GlobalVector dir = (theGeom->idToDet(seg->geographicalId()))->surface().toGlobal(seg->localDirection());
   updateHits(seg, pos, dir);
 }
 
@@ -168,18 +174,18 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
                                   GlobalVector gdir,
                                   int step) {
   /// define impact angle
-  LocalPoint segPos=theGeom.idToDet(hit->id())->toLocal(gpos);
-  LocalVector segDir=theGeom.idToDet(hit->id())->toLocal(gdir);
+  LocalPoint segPos=theGeom->idToDet(seg->geographicalId())->surface().toLocal(gpos);
+  LocalVector segDir=theGeom->idToDet(seg->geographicalId())->surface().toLocal(gdir);
   LocalPoint segPosAtLayer=segPos+segDir*segPos.z()/cos(segDir.theta());
   const float angle = atan(segDir.x()/-segDir.z());
 
   vector<DTRecHit1D> hits = seg->specificRecHits();
   for (vector<DTRecHit1D>::iterator hit=hits.begin(); 
        hit!=hits.end(); ++hit) {
-    LocalPoint leftPoint;
-    LocalPoint rightPoint;
-    LocalError error;
 
+    // LocalPoint leftPoint;
+    // LocalPoint rightPoint;
+    // LocalError error;
 
     // TODO needed?
     // TODO How do I get a DTDigi (or a drift time) from a DTRecHit1D???
@@ -189,41 +195,64 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
     // DTDigi::ChannelType channel = (*hit)->channels().front();
     // int countTDC=du->readout().channelAdc(channel);
     // DTDigi digi(channel,countTDC);
-    DTDigi digi;
-    const DTLayer* layer = theGeom.layer((*hit)->wireId().layerId());
-    
+
+    //    DTDigi digi;
+
+    const DTLayer* layer = theGeom->layer( hit->wireId().layerId() );
+    // FIXME, RB temporary to compile
+    DTRecHit1D newHit1D;
+
     bool ok=true;
     if (step==2) {
-      ok = theAlgo->compute(&layer,
-                            digi,
-                            angle,
-                            leftPoint,
-                            rightPoint,
-                            error) ;
+      ok = theAlgo->compute(layer,
+			    (*hit),
+			    angle,
+			    newHit1D);
+      // was
+      // ok = theAlgo->compute(&layer,
+      //                       digi,
+      //                       angle,
+      //                       leftPoint,
+      //                       rightPoint,
+      //                       error) ;
     } else if (step==3) {
 
       LocalPoint hitPos(hit->localPosition().x(),+segPosAtLayer.y(),0.);
 
-      GlobalPoint gpos=theGeom.idToDet(hit->id())->toGlobal(hitPos);
-
-      ok = theAlgo->compute(&layer,
-                            digi,
-                            angle,
-                            gpos;
-                            leftPoint,
-                            rightPoint,
-                            error) ;
+      //GlobalPoint gpos=theGeom.idToDet(hit->id())->toGlobal(hitPos);
+      
+      //FIXME,RB: is it right?
+      GlobalPoint gpos= theGeom->layer( hit->wireId().layerId() )->surface().toGlobal(hitPos);
+      // FIXME, RB temporary to compile
+      DTRecHit1D newHit1D;
+      ok = theAlgo->compute(layer,
+			    (*hit),
+			    angle,gpos,
+			    newHit1D);
+      // was
+      //       ok = theAlgo->compute(&layer,
+      //                             digi,
+      //                             angle,
+      //                             gpos;
+      //                             leftPoint,
+      //                             rightPoint,
+      //                             error) ;
     } else {
-      throw LogicError("DTSegmentUpdator::updateHits called with wrong step");
+      throw cms::Exception("DTSegmentUpdator")<<" updateHits called with wrong step"<<endl;
+      // RB, was
+      // throw LogicError("DTSegmentUpdator::updateHits called with wrong step");
     }
 
     if (ok) {
-      if (hit->lrSide()==DTEnums::Left ) hit->setPosition(leftPoint);
-      else if (hit->lrSide()==DTEnums::Right ) hit->setPosition(rightPoint);
-      hit->setError(error);
+      // RB,FIXME
+      //      if (hit->lrSide()==DTEnums::Left ) hit->setPosition(leftPoint);
+      // else if (hit->lrSide()==DTEnums::Right ) hit->setPosition(rightPoint);
+      //   hit->setError(error);
     } else {
       cout << "MuBarSegmentUpdator::updateHits failed update" << endl;
-      throw LogicError("MuBarSegmentUpdator::updateHits failed update");
+      throw cms::Exception("MuBarSegmentUpdator")<<"updateHits failed update"<<endl;
+      // RB, was
+      // throw LogicError("MuBarSegmentUpdator::updateHits failed update");
     }
   }
 }

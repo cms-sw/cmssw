@@ -12,8 +12,8 @@
  *  retaining the segment with higher number of hits and best chi2, while the
  *  others are deleted.
  *
- * $Date:  01/03/2006 16:59:11 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:18 $
+ * $Revision: 1.1 $
  * \author : Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -21,7 +21,7 @@
 
 /* Collaborating Class Declarations */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoLocalMuon/DTRecSegment/src/DTSegmentCand.h"
+#include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 
 /* C++ Headers */
 #include <vector>
@@ -50,6 +50,8 @@ class DTSegmentCleaner{
 
     /// ghost  suppression
     std::vector<DTSegmentCand*> ghostBuster(std::vector<DTSegmentCand*> inputCands) const ;
+
+    int nSharedHitsMax;
 
 };
 #endif // DTSegment_DTSegmentCleaner_h

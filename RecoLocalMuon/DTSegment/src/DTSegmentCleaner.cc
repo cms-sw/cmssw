@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date:  01/03/2006 16:59:11 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:18 $
+ * $Revision: 1.1 $
  * \author : Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -9,6 +9,7 @@
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCleaner.h"
 
 /* Collaborating Class Header */
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /* C++ Headers */
 using namespace std;
@@ -17,6 +18,7 @@ using namespace std;
 
 /* Constructor */ 
 DTSegmentCleaner::DTSegmentCleaner(const edm::ParameterSet& pset) {
+  nSharedHitsMax = pset.getParameter<int>("nSharedHitsMax");
 }
 
 /* Destructor */ 

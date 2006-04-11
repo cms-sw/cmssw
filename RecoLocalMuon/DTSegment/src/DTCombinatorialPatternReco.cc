@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date:  01/03/2006 16:59:11 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:17 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -26,7 +26,7 @@
 /* C++ Headers */
 #include <iterator>
 using namespace std;
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /* ====================================================================== */
 
@@ -35,8 +35,8 @@ DTCombinatorialPatternReco::DTCombinatorialPatternReco(const edm::ParameterSet& 
 DTRecSegment2DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco")
 {
   theMaxAllowedHits = pset.getParameter<unsigned int>("MaxAllowedHits"); // 100
-  theAlphaMaxTheta = pset.getParameter<float>("AlphaMaxTheta");// 0.1 ;
-  theAlphaMaxPhi = pset.getParameter<float>("AlphaMaxPhi");// 1.0 ;
+  theAlphaMaxTheta = pset.getParameter<double>("AlphaMaxTheta");// 0.1 ;
+  theAlphaMaxPhi = pset.getParameter<double>("AlphaMaxPhi");// 1.0 ;
   debug = pset.getUntrackedParameter<bool>("debug"); //true;
   theUpdator = new DTSegmentUpdator(pset);
   theCleaner = new DTSegmentCleaner(pset);
@@ -66,7 +66,7 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
 
     //TODO constructor from cand: need to move cand to DataFormats (don't like)
     // or constructor from cand abstract base or from components...
-    DTRecSegment2D* segment=new DTRecSegment2D();
+    DTRecSegment2D* segment = new DTRecSegment2D();
 
     theUpdator->update(segment);
 
@@ -150,10 +150,16 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
       DTEnums::DTCellSide codes[2]={DTEnums::Right, DTEnums::Left};
       for (int firstLR=0; firstLR<2; ++firstLR) {
         for (int lastLR=0; lastLR<2; ++lastLR) {
-          const GeomDet* firstDet=dtGeom.idToDet((*firstHit)->id());
-          const GeomDet* lastDet=dtGeom.idToDet((*lastHit)->id());
-          GlobalPoint gposFirst=firstDet->globalPosition(codes[firstLR]);
-          GlobalPoint gposLast=lastDet->globalPosition(codes[lastLR]);
+
+	  GlobalPoint gposFirst=(*firstHit)->globalPosition(codes[firstLR]);
+	  GlobalPoint gposLast=(*lastHit)->globalPosition(codes[lastLR]);
+	  
+	  // was:
+          // const GeomDet* firstDet=dtGeom.idToDet((*firstHit)->id());
+	  // const GeomDet* lastDet=dtGeom.idToDet((*lastHit)->id());
+	  // GlobalPoint gposFirst=firstDet->globalPosition(codes[firstLR]);
+	  // GlobalPoint gposLast=lastDet->globalPosition(codes[lastLR]);
+	  // RB @ SL: is it right my substitution?
 
           GlobalVector gvec=gposLast-gposFirst;
           GlobalVector gvecIP=gposLast-IP;
