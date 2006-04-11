@@ -15,6 +15,9 @@ public:
   virtual DetId geographicalId() const;
   virtual std::vector<const GeomDet*> components() const;
 
+  const GeomDetUnit* monoDet() const { return theMonoDet;}
+  const GeomDetUnit* stereoDet() const { return theStereoDet;}
+
 private:
   const GeomDetUnit* theMonoDet;
   const GeomDetUnit* theStereoDet;  
