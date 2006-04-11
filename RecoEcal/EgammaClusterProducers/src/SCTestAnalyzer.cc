@@ -26,7 +26,7 @@
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/SCTestAnalyzer.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/BremRecoveryClusterAlgo.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/SuperCluster.h"
 
 SCTestAnalyzer::SCTestAnalyzer(const edm::ParameterSet& iConfig)
 {

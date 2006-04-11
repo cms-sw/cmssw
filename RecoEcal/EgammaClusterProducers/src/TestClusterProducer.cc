@@ -29,7 +29,7 @@
 TestClusterProducer::TestClusterProducer(const edm::ParameterSet& ps)
 {
   island_p = new IslandClusterAlgo(ps.getParameter<double>("IslandBarrelSeedThr"), 
-			ps.getParameter<double>("IslandEndcapSeedThr"));
+				   ps.getParameter<double>("IslandEndcapSeedThr"));
 
   clusterCollection_ = ps.getParameter<std::string>("clusterCollection");
   produces< reco::BasicClusterCollection >(clusterCollection_);
@@ -56,12 +56,15 @@ void TestClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   // get the barrel geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
+  
   es.get<IdealGeometryRecord>().get(geoHandle);
-  const CaloSubdetectorGeometry *geometry_p = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  CaloSubdetectorGeometry const geometry = *geometry_p;
+
+  //  const CaloSubdetectorGeometry *geometry_p = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  //  CaloSubdetectorGeometry const geometry = *geometry_p;
+  
   
   // make the clusters!
-  reco::BasicClusterCollection clusters = island_p->makeClusters(hit_collection, geometry);
+  reco::BasicClusterCollection clusters = island_p->makeClusters(hit_collection, geoHandle);
   std::cout << "Finished clustering - BasicClusterCollection returned to producer..." << std::endl;
 
   // create an auto_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
