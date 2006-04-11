@@ -9,6 +9,7 @@
  * Partial port from ORCA.
  */
 
+#include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 class CSCSectorReceiverLUT
@@ -17,55 +18,6 @@ class CSCSectorReceiverLUT
 
   CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station, const edm::ParameterSet &pset);
   ~CSCSectorReceiverLUT();
-
-  // Address Types
-  typedef struct local_phi_address
-  {
-    unsigned int strip        : 8;
-    unsigned int clct_pattern : 3;
-    unsigned int pattern_type : 1; // 1 is half strip 0 is di strip
-    unsigned int quality      : 4;
-    unsigned int lr           : 1;
-    unsigned int spare        : 2;
-    unsigned int zero         : 13;
-  } lclphiadd;
-
-  typedef struct global_phi_address
-  {
-    unsigned int phi_local    : 9;
-    unsigned int wire_group   : 5;  // bits 2-6 of wg
-    unsigned int cscid        : 4;
-    unsigned int zero         : 13;
-  } gblphiadd;
-
-  typedef struct global_eta_address
-  {
-    unsigned int phi_bend     : 6;
-    unsigned int phi_local    : 2;
-    unsigned int wire_group   : 7;
-    unsigned int cscid        : 4;
-    unsigned int zero         : 13;
-  } gbletaadd;
-
-  /// Data Types
-  typedef struct local_phi_data
-  {
-    unsigned short phi_local      : 10;
-    unsigned short phi_bend_local : 6;
-  } lclphidat;
-
-  typedef struct global_phi_data
-  {
-    unsigned short global_phi : 12;
-    unsigned short spare      : 4;
-  } gblphidat;
-
-  typedef struct global_eta_data
-  {
-    unsigned short global_eta  : 7;
-    unsigned short global_bend : 5;
-    unsigned short spare       : 4;
-  } gbletadat;
 
   ///Geometry Lookup Tables
 

@@ -16,7 +16,7 @@
 
 #include <fstream>
 
-CSCSectorReceiverLUT::lclphidat* CSCSectorReceiverLUT::me_lcl_phi = NULL;
+lclphidat* CSCSectorReceiverLUT::me_lcl_phi = NULL;
 bool CSCSectorReceiverLUT::me_lcl_phi_loaded = false;
 
 CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
@@ -46,7 +46,7 @@ CSCSectorReceiverLUT::~CSCSectorReceiverLUT()
     }
 }
 
-CSCSectorReceiverLUT::lclphidat CSCSectorReceiverLUT::calcLocalPhi(const lclphiadd& theadd) const
+lclphidat CSCSectorReceiverLUT::calcLocalPhi(const lclphiadd& theadd) const
 {
   lclphidat data;
 
@@ -79,7 +79,7 @@ void CSCSectorReceiverLUT::fillLocalPhiLUT()
   // read data in from a file... Add this later.
 }
 
-CSCSectorReceiverLUT::lclphidat CSCSectorReceiverLUT::localPhi(int strip, int pattern, int quality, int lr) const
+lclphidat CSCSectorReceiverLUT::localPhi(int strip, int pattern, int quality, int lr) const
 {
   lclphiadd theadd;
 
@@ -92,21 +92,23 @@ CSCSectorReceiverLUT::lclphidat CSCSectorReceiverLUT::localPhi(int strip, int pa
   return localPhi(theadd);
 }
 
-CSCSectorReceiverLUT::lclphidat CSCSectorReceiverLUT::localPhi(unsigned address) const
+lclphidat CSCSectorReceiverLUT::localPhi(unsigned address) const
 {
   lclphidat result;
+  lclphiadd theadd(address);
 
   if(LUTsFromFile) result = me_lcl_phi[address];
-  else result = calcLocalPhi(*reinterpret_cast<lclphiadd*>(&address));
+  else result = calcLocalPhi(theadd);
 
   return result;
 }
 
-CSCSectorReceiverLUT::lclphidat CSCSectorReceiverLUT::localPhi(lclphiadd address) const
+lclphidat CSCSectorReceiverLUT::localPhi(lclphiadd address) const
 {
   lclphidat result;
+  unsigned theadd = address.toint();
   
-  if(LUTsFromFile) result = me_lcl_phi[(*reinterpret_cast<unsigned*>(&address))];
+  if(LUTsFromFile) result = me_lcl_phi[theadd];
   else result = calcLocalPhi(address);
   
   return result;
@@ -224,7 +226,7 @@ double CSCSectorReceiverLUT::getEtaValue(const unsigned& thecscid, const unsigne
 }
 
 
-CSCSectorReceiverLUT::gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gbletaadd& address) const
+gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gbletaadd& address) const
 {
   gbletadat result;
   double float_eta = getEtaValue(address.cscid, address.wire_group, address.phi_local);
@@ -259,23 +261,22 @@ CSCSectorReceiverLUT::gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gble
 	intEta = static_cast<int>(bitEta);
       }
       */
-      if (_station == 1 && address.cscid > CSCTriggerNumbering::minTriggerCscId() 
-	  && address.cscid < CSCTriggerNumbering::maxTriggerCscId() )
+      if (_station == 1 && address.cscid >= CSCTriggerNumbering::minTriggerCscId() 
+	  && address.cscid <= CSCTriggerNumbering::maxTriggerCscId() )
 	{
 	  unsigned ring = CSCTriggerNumbering::ringFromTriggerLabels(_station, address.cscid);
+	  
 	  if      (ring == 1 && int_eta <  me12EtaCut) {int_eta = me12EtaCut;}
 	  else if (ring == 2 && int_eta >= me12EtaCut) {int_eta = me12EtaCut-1;}
 	}
-
       result.global_eta = int_eta;
     }
-
   result.global_bend = bend_global;
 
   return result;
 }
 
-CSCSectorReceiverLUT::gbletadat CSCSectorReceiverLUT::globalEtaME(int tphi_bend, int tphi_local, int twire_group, int tcscid) const
+gbletadat CSCSectorReceiverLUT::globalEtaME(int tphi_bend, int tphi_local, int twire_group, int tcscid) const
 {
   gbletadat result;
   gbletaadd theadd;
@@ -285,7 +286,7 @@ CSCSectorReceiverLUT::gbletadat CSCSectorReceiverLUT::globalEtaME(int tphi_bend,
   theadd.wire_group = twire_group;
   theadd.cscid = tcscid;
   
-  if(LUTsFromFile) result = me_global_eta[(*reinterpret_cast<unsigned*>(&theadd))];
+  if(LUTsFromFile) result = me_global_eta[theadd.toint()];
   else result = calcGlobalEtaME(theadd);
 
   //  if(address.wire_group == 0 && address.phi_local==0) std::cout << result.global_eta << std::endl;
@@ -293,18 +294,22 @@ CSCSectorReceiverLUT::gbletadat CSCSectorReceiverLUT::globalEtaME(int tphi_bend,
   return result;
 }
 
-CSCSectorReceiverLUT::gbletadat CSCSectorReceiverLUT::globalEtaME(unsigned address) const
+gbletadat CSCSectorReceiverLUT::globalEtaME(unsigned address) const
 {
   gbletadat result;
+  gbletaadd theadd(address);
+
   if(LUTsFromFile) result = me_global_eta[address];
-  else result = calcGlobalEtaME(*reinterpret_cast<gbletaadd*>(&address));
+  else result = calcGlobalEtaME(theadd);
   return result;
 }
 
-CSCSectorReceiverLUT::gbletadat CSCSectorReceiverLUT::globalEtaME(gbletaadd address) const
+gbletadat CSCSectorReceiverLUT::globalEtaME(gbletaadd address) const
 {
   gbletadat result;
-  if(LUTsFromFile) result = me_global_eta[(*reinterpret_cast<unsigned*>(&address))];
+  unsigned theadd = address.toint();
+
+  if(LUTsFromFile) result = me_global_eta[theadd];
   else result = calcGlobalEtaME(address);
   return result;
 }
@@ -383,7 +388,6 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
       edm::LogInfo("CSCSectorReceiverLUT|loadLUT") << "Loading SR LUT: " << fName;
 
       fName += ((isBinary) ? ".bin" : ".dat");
-      std::cout<<(lut_path+fName) << std::endl;
 
       if(isBinary)
 	{
