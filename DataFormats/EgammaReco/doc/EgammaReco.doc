@@ -16,8 +16,6 @@ Persistent classes for Egamma Reco data format.
 - reco::ClusterShape: Cluster shape variable set
 - reco::EgammaTrigger: Escal trigger information
 - reco::ClusterPi0Discriminator: pi0 discriminator variable set.
-- reco::Electron: Electron from associated reco::Track and reco::SuperCluster.
-- reco::Photon: Photon from an associated reco::SuperCluster.
 
 
 \subsection typedefs 
