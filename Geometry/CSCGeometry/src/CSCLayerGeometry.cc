@@ -340,6 +340,8 @@ std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
     " xb=" << xb << " yb=" << yb << "\n";
 
   float xWireEnd[4], yWireEnd[4];
+
+  /*
   int i = 0;
   if ( fabs(x1) >= hBottomEdge && fabs(x1) <= hTopEdge ) {
     // wire does intersect side edge 1 of chamber
@@ -365,10 +367,23 @@ std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
     yWireEnd[i] = yt;
     i++;
   }
+  */
+
+  //@@ Above logic fails for ME1/A when the wire geometry is the complete ME1/1 coverage
+  //@@ For now try the simplistic approach of always taking the intersection points of the
+  //@@ wire with the sides (or sides projected along their lengths)
+  //@@ This is strictly incorrect for the first and last tilted wires in ME1/1.
+
+  int i = 2;
+  xWireEnd[0] = x1;
+  xWireEnd[1] = x2;
+  yWireEnd[0] = y1;
+  yWireEnd[1] = y2;
 
   std::vector<float> buf(3);
 
   if ( i != 2 ) {
+     
      throw cms::Exception("BadCSCGeometry") << "the wire has " << i <<
        " ends!" << "\n";
      //    return buf;
