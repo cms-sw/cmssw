@@ -6,12 +6,17 @@
 using std::string;
 using std::map;
 #include <iostream>
+#include<iterator>
 
 namespace edm {
   namespace pset {
 
     void ParseResultsTweaker::process(ParseResults & parseResults)
     {
+// std::copy(parseResults->begin(),
+//       parseResults->end(),
+//       std::ostream_iterator<edm::pset::NodePtr>(std::cout,"\n"));
+
       // find the node that represents the process
       PSetNode * processNode = 0;
       // assume it's the only one in a sane .cfg file
@@ -74,7 +79,8 @@ namespace edm {
         || type == "source" || type == "es_source") 
         {
           // unnamed modules are named after class
-          if(name == "nameless" || name == "") {
+          if(name == "nameless" || name == "" || name=="main_es_input") 
+          {
             ModuleNode * moduleNode = dynamic_cast<ModuleNode *>((*nodeItr).get());
             name = moduleNode->class_;
           }
