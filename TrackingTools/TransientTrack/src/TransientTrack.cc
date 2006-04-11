@@ -1,26 +1,33 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+//#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace reco;
 
-TransientTrack::TransientTrack( const Track & tk ) : Track(tk), tk_(tk) {
+TransientTrack::TransientTrack( const Track & tk ) : 
+  Track(tk), tk_(tk), stateAtVertexAvailable(false) 
+{
   originalTSCP = TrajectoryStateClosestToPoint
     (parameters(), covariance(), GlobalPoint(0.,0.,0.));
 }
 
-TransientTrack::TransientTrack( const TrackRef & tk ) : Track((*tk)), 
-tk_((*tk)), 
-tkr_(tk)
+
+TransientTrack::TransientTrack( const TrackRef & tk ) : 
+  Track((*tk)), tk_((*tk)), tkr_(tk), stateAtVertexAvailable(false) 
 {
   tk->chi2();
 }
 
+
 TransientTrack::TransientTrack( const TransientTrack & tt ) :
   Track(tt.persistentTrack()), tk_(tt.persistentTrack()),
-  tkr_(tt.persistentTrackRef())
-{originalTSCP = TrajectoryStateClosestToPoint
-    (parameters(), covariance(), GlobalPoint(0.,0.,0.));}
+  tkr_(tt.persistentTrackRef()), stateAtVertexAvailable(false) 
+{
+  originalTSCP = TrajectoryStateClosestToPoint
+    (parameters(), covariance(), GlobalPoint(0.,0.,0.));
+}
+
 
 TransientTrack& TransientTrack::operator=(const TransientTrack & tt)
 {
@@ -40,10 +47,18 @@ TrajectoryStateOnSurface TransientTrack::impactPointState() const
   return theStateAtVertex;
 }
 
+
 void TransientTrack::calculateStateAtVertex() const
 {
+  //  edm::LogInfo("TransientTrack") 
+  //    << "initial state validity:" << originalTSCP.theState() << "\n";
+
   theStateAtVertex = TransverseImpactPointExtrapolator().extrapolate(
      originalTSCP.theState(), originalTSCP.position());
+  //  edm::LogInfo("TransientTrack") 
+  //    << "extrapolated state validity:" 
+  //    << theStateAtVertex.isValid() << "\n";
+  
   stateAtVertexAvailable = true;
 }
 
