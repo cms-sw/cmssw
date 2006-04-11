@@ -47,15 +47,6 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
 
   LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const ;
   LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const ;
-  void       setTheDet( const GeomDetUnit & det ) const ;
-
-  //
-  MeasurementPoint measurementPosition( const SiPixelCluster&, 
-					const GeomDetUnit & det) const ;
-  MeasurementError measurementError   ( const SiPixelCluster&, 
-					const GeomDetUnit & det) const ;
-  //
-  float chaWidth2X(const float&) const;
   
  private:
   //members
@@ -81,7 +72,15 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
   //magnetic field
   const MagneticField* magfield_;
 
-  
+  // Private methods
+  void       setTheDet( const GeomDetUnit & det ) const ;
+  //
+  MeasurementPoint measurementPosition( const SiPixelCluster&, 
+					const GeomDetUnit & det) const ;
+  MeasurementError measurementError   ( const SiPixelCluster&, 
+					const GeomDetUnit & det) const ;
+  float chaWidth2X(const float&) const;
+
   //methods
   float err2X(bool&, int&) const;
   float err2Y(bool&, int&) const;

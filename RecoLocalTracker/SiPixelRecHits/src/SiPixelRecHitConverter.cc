@@ -187,11 +187,11 @@ namespace cms
       // &&& we *know* how many PixelClusters there are on this det unit!
 
        //
-       // modification by tom e vincenzo .... please do something
+       // Not needed anymore: setTheDet is called directly from localPosition
+       // and localError
        //      
-
-       if (dynamic_cast<CPEFromDetPosition*>(cpe_))
-	 (dynamic_cast<CPEFromDetPosition*>(cpe_))->setTheDet( *pixDet );  // &&& not in the base class,
+       //if (dynamic_cast<CPEFromDetPosition*>(cpe_))
+       // (dynamic_cast<CPEFromDetPosition*>(cpe_))->setTheDet( *pixDet );  // &&& not in the base class,
 
       for ( ; clustIt != endClustIt; ++clustIt ) {
 	std::pair<LocalPoint,LocalError> lv = 

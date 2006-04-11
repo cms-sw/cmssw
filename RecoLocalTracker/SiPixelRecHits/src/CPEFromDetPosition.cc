@@ -148,10 +148,10 @@ CPEFromDetPosition::localError( const SiPixelCluster& cluster, const GeomDetUnit
   //&&& testing...
   if (theVerboseLevel > 5) {
     LogDebug("CPEFromDetPosition") <<
-      "sizex = " << sizex << 
-      "sizey = " << sizey << 
-      "edgex = " << edgex << 
-      "edgey = " << edgey ;
+      "Sizex = " << sizex << 
+      " Sizey = " << sizey << 
+      " Edgex = " << edgex << 
+      " Edgey = " << edgey ;
   }
   if (sizex>0) return LocalError( sizex, 0, sizey );
 
@@ -163,9 +163,9 @@ CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster, const Ge
 {
   if (theVerboseLevel > 15) {
     LogDebug("CPEFromDetPosition") <<
-      "xpos = " << xpos(cluster) << 
-      "ypos = " << ypos(cluster) << 
-      "lshf = " << theLShift ;
+      "X-pos = " << xpos(cluster) << 
+      " Y-pos = " << ypos(cluster) << 
+      " Lshf = " << theLShift ;
   }
   return MeasurementPoint( xpos(cluster)-theLShift, 
   			   ypos(cluster));
@@ -175,7 +175,7 @@ LocalPoint
 CPEFromDetPosition::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) const
 {
   //return theTopol->localPosition(measurementPosition(cluster, det)); 
-
+  setTheDet( det );
   MeasurementPoint ssss = measurementPosition(cluster, det);
 
 
