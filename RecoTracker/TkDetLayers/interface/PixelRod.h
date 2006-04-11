@@ -34,7 +34,7 @@ class PixelRod : public DetRodOneR{
 			 const MeasurementEstimator& est) const;
 
 
-  virtual bool hasGroups() const {return false;};  
+  virtual bool hasGroups() const {return false;}
 
  private:
   BinFinderType theBinFinder;
