@@ -39,7 +39,6 @@ protected:
 	    const Propagator& prop, 
 	    const MeasurementEstimator& est) const;
 
- private:
   vector<const GeomDet*>     theDets;
   
   void initialize();
