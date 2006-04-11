@@ -13,6 +13,8 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 
+using namespace reco;
+
 //
 // constants, enums and typedefs
 //
@@ -26,7 +28,6 @@
 //
 PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& iConfig)
 {
-  using namespace reco;
 
   produces<VertexCollection>("PrimaryVertex");
   
@@ -60,7 +61,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   using namespace edm;
   
   // get RECO tracks from the event
-  reco::TrackCollection tks();
+  reco::TrackCollection tks;
 
   // interface RECO tracks to vertex reconstruction
   vector<TransientTrack> t_tks;

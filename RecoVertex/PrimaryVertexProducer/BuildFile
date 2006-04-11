@@ -3,7 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
-<flags SEAL_PLUGIN_NAME="RecoVertexDummyPrimaryVertexProducer">
+<use name=RecoVertex/TrimmedKalmanVertexFinder>
 <flags SEAL_PLUGIN_NAME="RecoVertexPrimaryVertexProducer">
 <export>
    <lib name=RecoVertexPrimaryVertexProducer>
@@ -12,4 +12,5 @@
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/TrackReco>
    <use name=DataFormats/VertexReco>
+   <use name=RecoVertex/TrimmedKalmanVertexFinder>
 </export>

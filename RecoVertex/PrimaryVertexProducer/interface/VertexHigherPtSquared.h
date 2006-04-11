@@ -2,6 +2,8 @@
 #define VertexHigherPtSquared_H
 
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include <vector>
 
 /** \class VertexHigherPtSquared
  * operator for sorting TransientVertex objects
@@ -15,7 +17,7 @@ struct VertexHigherPtSquared {
 
 private:
 
-  double sumPtSquared(const vector<TransientTrack> & tks) const;
+  double sumPtSquared(const std::vector<reco::TransientTrack> & tks) const;
 };
 
 #endif
