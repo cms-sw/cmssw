@@ -37,7 +37,7 @@ const string SiStripHistoNamingScheme::unknownType_ = "UnknownType";
 
 const string SiStripHistoNamingScheme::lldChan_ = "LldChan";
 const string SiStripHistoNamingScheme::apvPair_ = "ApvPair";
-const string SiStripHistoNamingScheme::apv_ = "ApvPair";
+const string SiStripHistoNamingScheme::apv_ = "Apv";
 const string SiStripHistoNamingScheme::unknownGranularity_ = "UnknownGranularity";
 
 // -----------------------------------------------------------------------------

@@ -40,6 +40,11 @@ class CommissioningTask {
   
  protected:
 
+  /** Updates vectors of HistoSet. */
+  void updateHistoSet( HistoSet&, const uint32_t& bin, const uint32_t& value );
+  /** Updates histograms (ME's) of HistoSet. */
+  void updateHistoSet( HistoSet& );
+
   DaqMonitorBEInterface* dqm_;
   uint32_t updateFreq_;
   uint32_t fillCntr_;

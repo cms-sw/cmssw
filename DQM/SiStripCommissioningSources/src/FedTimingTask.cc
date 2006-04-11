@@ -1,4 +1,4 @@
-#include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
+#include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -7,54 +7,54 @@
 
 // -----------------------------------------------------------------------------
 //
-ApvTimingTask::ApvTimingTask( DaqMonitorBEInterface* dqm,
+FedTimingTask::FedTimingTask( DaqMonitorBEInterface* dqm,
 			      const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn ),
   timing_(),
   nBins_(40) //@@ this should be from number of scope mode samples (mean booking in event loop and putting scope mode length in trigger fed)
 {
-  edm::LogInfo("Commissioning") << "[ApvTimingTask::ApvTimingTask] Constructing object...";
+  edm::LogInfo("Commissioning") << "[FedTimingTask::FedTimingTask] Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
-ApvTimingTask::~ApvTimingTask() {
-  edm::LogInfo("Commissioning") << "[ApvTimingTask::ApvTimingTask] Destructing object...";
+FedTimingTask::~FedTimingTask() {
+  edm::LogInfo("Commissioning") << "[FedTimingTask::FedTimingTask] Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
-void ApvTimingTask::book( const FedChannelConnection& conn ) {
-  edm::LogInfo("Commissioning") << "[ApvTimingTask::book]";
+void FedTimingTask::book( const FedChannelConnection& conn ) {
+  edm::LogInfo("Commissioning") << "[FedTimingTask::book]";
 
   uint16_t nbins = 24 * nBins_; // 24 "fine" pll skews possible
 
   string name;
   uint32_t fed_key = SiStripGenerateKey::fed( conn.fedId(), conn.fedCh() );
   
-  name = SiStripHistoNamingScheme::histoName( "ApvTiming", 
+  name = SiStripHistoNamingScheme::histoName( "FedTiming", 
 					      SiStripHistoNamingScheme::SUM2, 
 					      SiStripHistoNamingScheme::FED, 
 					      fed_key,
 					      SiStripHistoNamingScheme::LLD_CHAN, 
 					      conn.lldChannel() );
-  timing_.meSumOfSquares_ = dqm_->book1D( name, name, nbins, -0.5, nBins_*25.-0.5 );
+  timing_.meSumOfSquares_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
   
-  name = SiStripHistoNamingScheme::histoName( "ApvTiming", 
+  name = SiStripHistoNamingScheme::histoName( "FedTiming", 
 					      SiStripHistoNamingScheme::SUM, 
 					      SiStripHistoNamingScheme::FED, 
 					      fed_key,
 					      SiStripHistoNamingScheme::LLD_CHAN, 
 					      conn.lldChannel() );
-  timing_.meSumOfContents_ = dqm_->book1D( name, name, nbins, -0.5, nBins_*25.-0.5 );
+  timing_.meSumOfContents_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
   
-  name = SiStripHistoNamingScheme::histoName( "ApvTiming", 
+  name = SiStripHistoNamingScheme::histoName( "FedTiming", 
 					      SiStripHistoNamingScheme::NUM, 
 					      SiStripHistoNamingScheme::FED, 
 					      fed_key,
 					      SiStripHistoNamingScheme::LLD_CHAN, 
 					      conn.lldChannel() );
-  timing_.meNumOfEntries_ = dqm_->book1D( name, name, nbins, -0.5, nBins_*25.-0.5 );
+  timing_.meNumOfEntries_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
   
   timing_.vSumOfSquares_.resize(nbins,0);
   timing_.vSumOfSquaresOverflow_.resize(nbins,0);
@@ -73,14 +73,14 @@ void ApvTimingTask::book( const FedChannelConnection& conn ) {
   - why only use fine skew setting when filling histos? should use coarse setting as well?
   - why do different settings every 100 events - change more freq? 
 */
-void ApvTimingTask::fill( const SiStripEventSummary& summary,
+void FedTimingTask::fill( const SiStripEventSummary& summary,
 			  const edm::DetSet<SiStripRawDigi>& digis ) {
-  LogDebug("Commissioning") << "[ApvTimingTask::fill]";
+  LogDebug("Commissioning") << "[FedTimingTask::fill]";
 
   //@@ if scope mode length is in trigger fed, then 
   //@@ can add check here on number of digis
   if ( digis.data.size() < nBins_ ) {
-    edm::LogError("Commissioning") << "[ApvTimingTask::fill]" 
+    edm::LogError("Commissioning") << "[FedTimingTask::fill]" 
 				   << " Unexpected number of digis! " 
 				   << digis.data.size(); 
   } else {
@@ -98,8 +98,8 @@ void ApvTimingTask::fill( const SiStripEventSummary& summary,
 
 // -----------------------------------------------------------------------------
 //
-void ApvTimingTask::update() {
-  LogDebug("Commissioning") << "[ApvTimingTask::update]";
+void FedTimingTask::update() {
+  LogDebug("Commissioning") << "[FedTimingTask::update]";
   updateHistoSet( timing_ );
 //   for ( uint16_t fine = 0; fine < timing_.vNumOfEntries_.size(); fine++ ) {
 //     timing_.meSumOfSquares_->setBinContent( fine+1, timing_.vSumOfSquares_[fine]*1. );

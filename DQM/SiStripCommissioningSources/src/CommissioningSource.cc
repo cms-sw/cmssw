@@ -24,7 +24,8 @@
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/OptoBiasAndGainScanTask.h"
-//#include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
+#include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
+#include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
 // std, utilities
 #include <boost/cstdint.hpp>
 #include <memory>
@@ -172,14 +173,16 @@ bool CommissioningSource::createTask( const edm::EventSetup& setup,
 	      if      ( task_ == "PEDESTALS" )  { tasks_[fed_key] = new PedestalsTask( dqm_, conn ); }
 	      else if ( task_ == "APV_TIMING" ) { tasks_[fed_key] = new ApvTimingTask( dqm_, conn ); }
 	      else if ( task_ == "OPTO_SCAN" )  { tasks_[fed_key] = new OptoBiasAndGainScanTask( dqm_, conn ); }
-	      //	      else if ( task_ == "VPSP_SCAN" )  { tasks_[fed_key] = new VpspScanTask( dqm_, conn ); }
+	      else if ( task_ == "VPSP_SCAN" )  { tasks_[fed_key] = new VpspScanTask( dqm_, conn ); }
+	      else if ( task_ == "FED_TIMING" ) { tasks_[fed_key] = new FedTimingTask( dqm_, conn ); }
 	      //else if ( task_ == "PHYSICS" )    { tasks_[fed_key] = new PhysicsTask( dqm_, conn ); }
 	      else if ( task_ != "UNKNOWN" ) {
 		//  Use data stream to determine which task objects are created!
 		if      ( task == SiStripEventSummary::PEDESTALS )  { tasks_[fed_key] = new PedestalsTask( dqm_, conn ); }
 		else if ( task == SiStripEventSummary::APV_TIMING ) { tasks_[fed_key] = new ApvTimingTask( dqm_, conn ); }
 		else if ( task == SiStripEventSummary::OPTO_SCAN )  { tasks_[fed_key] = new OptoBiasAndGainScanTask( dqm_, conn ); }
-		//		else if ( task == SiStripEventSummary::VPSP_SCAN )  { tasks_[fed_key] = new VpspScanTask( dqm_, conn ); }
+		else if ( task == SiStripEventSummary::VPSP_SCAN )  { tasks_[fed_key] = new VpspScanTask( dqm_, conn ); }
+		else if ( task == SiStripEventSummary::FED_TIMING ) { tasks_[fed_key] = new FedTimingTask( dqm_, conn ); }
 		//else if ( task == SiStripEventSummary::PHYSICS )    { tasks_[fed_key] = new PhysicsTask( dqm_, conn ); }
 		else if ( task == SiStripEventSummary::UNKNOWN_TASK ) {
 		  edm::LogError("Commissioning") << "[CommissioningSource::createTask]"

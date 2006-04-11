@@ -56,6 +56,7 @@ void PedestalsTask::book( const FedChannelConnection& conn ) {
   peds_.meNumOfEntries_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
 
   peds_.vSumOfSquares_.resize(nbins,0);
+  peds_.vSumOfSquaresOverflow_.resize(nbins,0);
   peds_.vSumOfContents_.resize(nbins,0);
   peds_.vNumOfEntries_.resize(nbins,0);
   
@@ -79,9 +80,10 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
 
   // Fill vectors
   for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
-    peds_.vSumOfSquares_[ibin] += digis.data[ibin].adc() * digis.data[ibin].adc();
-    peds_.vSumOfContents_[ibin] += digis.data[ibin].adc();
-    peds_.vNumOfEntries_[ibin]++;
+    updateHistoSet( peds_, ibin, digis.data[ibin].adc() );
+//     peds_.vSumOfSquares_[ibin] += digis.data[ibin].adc() * digis.data[ibin].adc();
+//     peds_.vSumOfContents_[ibin] += digis.data[ibin].adc();
+//     peds_.vNumOfEntries_[ibin]++;
   }
 
 }
@@ -90,11 +92,12 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
 //
 void PedestalsTask::update() {
   LogDebug("Commissioning") << "[PedestalsTask::update]";
-  for ( uint16_t ibin = 0; ibin < peds_.vNumOfEntries_.size(); ibin++ ) {
-    peds_.meSumOfSquares_->setBinContent( ibin+1, peds_.vSumOfSquares_[ibin] );
-    peds_.meSumOfContents_->setBinContent( ibin+1, peds_.vSumOfContents_[ibin] );
-    peds_.meNumOfEntries_->setBinContent( ibin+1, peds_.vNumOfEntries_[ibin] );
-  }
+  updateHistoSet( peds_ );
+//   for ( uint16_t ibin = 0; ibin < peds_.vNumOfEntries_.size(); ibin++ ) {
+//     peds_.meSumOfSquares_->setBinContent( ibin+1, peds_.vSumOfSquares_[ibin] );
+//     peds_.meSumOfContents_->setBinContent( ibin+1, peds_.vSumOfContents_[ibin] );
+//     peds_.meNumOfEntries_->setBinContent( ibin+1, peds_.vNumOfEntries_[ibin] );
+//   }
 }
 
 
