@@ -1,7 +1,52 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
-edm::OwnVector<SiStripRecHit2DMatchedLocalPos> SiStripRecHitMatcher::match(const  SiStripRecHit2DLocalPos *monoRH,RecHitIterator &begin, RecHitIterator &end, const DetId &detId, const StripTopology &topol,const GeomDetUnit* stripdet,const GeomDetUnit * partnerstripdet, LocalVector trackdirection){
+edm::OwnVector<SiStripRecHit2DMatchedLocalPos> 
+SiStripRecHitMatcher::match( const SiStripRecHit2DLocalPos *monoRH, 
+			     SimpleHitIterator begin, SimpleHitIterator end,
+			     const GluedGeomDet* gluedDet,
+			     LocalVector trackdirection) 
+{
+  const StripGeomDetUnit* monoDet = dynamic_cast< const StripGeomDetUnit*>(gluedDet->monoDet());
+  const GeomDetUnit* stereoDet = gluedDet->stereoDet();
+
+  return match( monoRH, begin, end,
+		gluedDet->geographicalId(),
+		monoDet->specificTopology(),
+		monoDet, stereoDet, trackdirection);
+}
+
+
+
+edm::OwnVector<SiStripRecHit2DMatchedLocalPos> 
+SiStripRecHitMatcher::match( const  SiStripRecHit2DLocalPos *monoRH,
+			     RecHitIterator &begin, RecHitIterator &end, 
+			     const DetId &detId, 
+			     const StripTopology &topol,
+			     const GeomDetUnit* stripdet,
+			     const GeomDetUnit * partnerstripdet, 
+			     LocalVector trackdirection)
+{
+  SimpleHitCollection stereoHits;
+  for (RecHitIterator i=begin; i != end; ++i) {
+    stereoHits.push_back( &(*i)); // convert to simple pointer
+  }
+  return match( monoRH,
+		stereoHits.begin(), stereoHits.end(), 
+		detId, topol, stripdet,partnerstripdet,trackdirection);
+}
+
+edm::OwnVector<SiStripRecHit2DMatchedLocalPos> 
+SiStripRecHitMatcher::match( const  SiStripRecHit2DLocalPos *monoRH,
+			     SimpleHitIterator begin, SimpleHitIterator end,
+			     const DetId &detId, 
+			     const StripTopology &topol,
+			     const GeomDetUnit* stripdet,
+			     const GeomDetUnit * partnerstripdet, 
+			     LocalVector trackdirection)
+{
   // stripdet = mono
   // partnerstripdet = stereo
   edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collector;
@@ -49,10 +94,10 @@ edm::OwnVector<SiStripRecHit2DMatchedLocalPos> SiStripRecHitMatcher::match(const
   double c1=fabs(sin(RPHIpositiononStereoendvector.phi())); double s1=fabs(cos(RPHIpositiononStereoendvector.phi()));
   MeasurementError errormonoRH=topol.measurementError(monoRH->localPosition(),monoRH->localPositionError());
     double sigmap12=errormonoRH.uu()*pow(topol.localPitch(monoRH->localPosition()),2);
-    RecHitIterator seconditer;  
+    SimpleHitIterator seconditer;  
     for(seconditer=begin;seconditer!=end;++seconditer){
       // position of the initial and final point of the strip (STEREO cluster)
-      MeasurementPoint STEREOpoint=partnertopol.measurementPosition(seconditer->localPosition());
+      MeasurementPoint STEREOpoint=partnertopol.measurementPosition((*seconditer)->localPosition());
       MeasurementPoint STEREOpointini=MeasurementPoint(STEREOpoint.x(),-0.5);
       MeasurementPoint STEREOpointend=MeasurementPoint(STEREOpoint.x(),0.5);
       LocalPoint STEREOpositionini=partnertopol.localPosition(STEREOpointini); 
@@ -67,12 +112,12 @@ edm::OwnVector<SiStripRecHit2DMatchedLocalPos> SiStripRecHitMatcher::match(const
       c(2)=m(2,2)*STEREOpositionini.y()+m(2,1)*STEREOpositionini.x();
       solution=solve(m,c);
       //cout<<"LocalPosition of matched on stereodet: "<<solution(1)<<" "<<solution(2)<<endl;
-      if(solution(2)>-(partnertopol.localStripLength(seconditer->localPosition())/2)&&solution(2)<partnertopol.localStripLength(seconditer->localPosition())/2){//(to be modified)
+      if(solution(2)>-(partnertopol.localStripLength((*seconditer)->localPosition())/2)&&solution(2)<partnertopol.localStripLength((*seconditer)->localPosition())/2){//(to be modified)
 	position=LocalPoint(solution(1),solution(2));
 	// then calculate the error
 	double c2=cos(partnertopol.stripAngle(STEREOpoint.x())); double s2=sin(partnertopol.stripAngle(STEREOpoint.x()));
-	MeasurementError errorstereoRH=partnertopol.measurementError(seconditer->localPosition(),seconditer->localPositionError());
-	double sigmap22=errorstereoRH.uu()*pow(partnertopol.localPitch(seconditer->localPosition()),2);
+	MeasurementError errorstereoRH=partnertopol.measurementError((*seconditer)->localPosition(),(*seconditer)->localPositionError());
+	double sigmap22=errorstereoRH.uu()*pow(partnertopol.localPitch((*seconditer)->localPosition()),2);
 	double invdet2=1/pow((c1*s2-c2*s1),2);
 	float xx=invdet2*(sigmap12*s2*s2+sigmap22*s1*s1);
 	float xy=-invdet2*(sigmap12+c2*s2+invdet2*sigmap22*c1*s1);
@@ -80,7 +125,9 @@ edm::OwnVector<SiStripRecHit2DMatchedLocalPos> SiStripRecHitMatcher::match(const
 	LocalError error=LocalError(xx,xy,yy);
 	//...and add it to the Rechit collection 
 	//	SiStripRecHit2DLocalPos secondcluster=*seconditer;
-	collector.push_back(new SiStripRecHit2DMatchedLocalPos(position, error,detId,monoRH,&(*seconditer)));
+	const SiStripRecHit2DLocalPos* secondHit = *seconditer;
+	collector.push_back(new SiStripRecHit2DMatchedLocalPos(position, error,detId,
+							       monoRH,secondHit));
       }
     }
     return collector;
