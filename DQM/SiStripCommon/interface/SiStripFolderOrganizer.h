@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
-// $Id$
+// $Id: SiStripFolderOrganizer.h,v 1.1 2006/02/09 19:02:26 gbruno Exp $
 //
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -29,15 +29,16 @@ class SiStripFolderOrganizer
       SiStripFolderOrganizer();
       virtual ~SiStripFolderOrganizer();
 
-      // get top folder
-      std::string getSiStripFolder();
-      // get Readout view top folder or, if fed_id!= 99999, to corresponding Fed folder
-      std::string getReadoutFolder(unsigned int fed_id = 99999);
-      // get TOB folders (specifying first parameters means going to underlying folder)
-      std::string getTOBFolder();
-      std::string getTIBFolder();
+//      //old methods
+//      // get top folder
+//      std::string getSiStripFolder();
+//      // get Readout view top folder or, if fed_id!= 99999, to corresponding Fed folder
+//      std::string getReadoutFolder(unsigned int fed_id = 99999);
+//      // get TOB folders (specifying first parameters means going to underlying folder)
+//      std::string getTOBFolder();
+//      std::string getTIBFolder();
 
-      //new classes
+      //new methods
       void setDetectorFolder(uint32_t rawdetid=0);
 
    private:
