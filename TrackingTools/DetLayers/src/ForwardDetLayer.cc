@@ -4,9 +4,6 @@
 #include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
 #include "Geometry/Surface/interface/BoundingBox.h"
 
-//#include "CommonDet/BasicDet/interface/DetUnit.h"
-//#include "CommonDet/PatternPrimitives/interface/Propagator.h"
-
 
 ForwardDetLayer::~ForwardDetLayer() {}
 
@@ -79,3 +76,29 @@ BoundDisk* ForwardDetLayer::computeSurface() {
 }  
 
 
+pair<bool, TrajectoryStateOnSurface>
+ForwardDetLayer::compatible( const TrajectoryStateOnSurface& ts, 
+			     const Propagator& prop, 
+			     const MeasurementEstimator& est) const
+{
+  TrajectoryStateOnSurface myState = prop.propagate( ts, specificSurface());
+  if ( !myState.isValid()) return make_pair( false, myState);
+
+  // take into account the thickness of the layer
+  float deltaR = surface().bounds().thickness()/2. *
+    fabs( tan( myState.localDirection().theta()));
+
+  // take into account the error on the predicted state
+  const float nSigma = 3.;
+  if (myState.hasError()) {
+    LocalError err = myState.localError().positionError();
+    // ignore correlation for the moment...
+    deltaR += nSigma * sqrt(err.xx() + err.yy());
+  }
+
+  float zPos = (theZmax+theZmin)/2.;
+  SimpleDiskBounds tmp( theRmin-deltaR, theRmax+deltaR, 
+			theZmin-zPos, theZmax-zPos);
+
+  return make_pair( tmp.inside(myState.localPosition()), myState);
+}

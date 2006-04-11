@@ -27,8 +27,12 @@ public:
 
   virtual ~ForwardDetLayer();
 
+  // GeometricSearchDet interface
   virtual const BoundSurface&  surface() const { return *theDisk;}
 
+  virtual pair<bool, TrajectoryStateOnSurface>
+  compatible( const TrajectoryStateOnSurface&, const Propagator&, 
+	      const MeasurementEstimator&) const;
 
   // DetLayer interface
   virtual Part   part()   const { return forward;}

@@ -65,3 +65,27 @@ BoundCylinder* BarrelDetLayer::computeSurface() {
 }  
 
 
+pair<bool, TrajectoryStateOnSurface>
+BarrelDetLayer::compatible( const TrajectoryStateOnSurface& ts, 
+			    const Propagator& prop, 
+			    const MeasurementEstimator& est) const
+{
+  TrajectoryStateOnSurface myState = prop.propagate( ts, specificSurface());
+  if ( !myState.isValid()) return make_pair( false, myState);
+
+  // take into account the thickness of the layer
+  float deltaZ = surface().bounds().thickness()/2. / 
+    fabs( tan( myState.globalDirection().theta()));
+
+  // take into account the error on the predicted state
+  const float nSigma = 3.;
+  if (myState.hasError()) {
+    deltaZ += nSigma * sqrt( ts.cartesianError().position().czz());
+  }
+  //
+  // check z assuming symmetric bounds around position().z()
+  //
+  deltaZ += surface().bounds().length()/2;
+  return make_pair(fabs(myState.globalPosition().z()-surface().position().z())<deltaZ,
+		   myState);  
+}
