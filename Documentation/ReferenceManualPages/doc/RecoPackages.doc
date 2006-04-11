@@ -10,8 +10,8 @@ Definition of classes modelling Reco.
  - \ref DataFormats_TrackReco "TrackReco": Track Reco classes<br>
  - \ref DataFormats_MuonReco "MuonReco": Muon Reco classes<br>
  - \ref DataFormats_VertexReco "VertexReco": Vertex Reco classes<br>
- - \ref DataFormats_EgammaReco "EGammaReco": ECAL Reco classes<br>
- - \ref DataFormats_EgammaCandidates "EGammaCandidates": Electron and photon definitions<br>
+ - \ref DataFormats_EgammaReco "EgammaReco": ECAL Reco classes<br>
+ - \ref DataFormats_EgammaCandidates "EgammaCandidates": Electron and photon definitions<br>
  - \ref DataFormats_JetReco "JetReco": Jet Reco classes<br>
 
 - <b>Candidate model</b><br>
@@ -25,5 +25,5 @@ Generic particle <a href="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsToo
 - Tommaso Boccali
 
 <hr>
-Last updated: 2006-04-11 L.Lista
+Last updated: @DATE@ L.Lista
 */
