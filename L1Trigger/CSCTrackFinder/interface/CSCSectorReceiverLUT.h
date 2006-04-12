@@ -12,6 +12,8 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
+class CSCLayer;
+
 class CSCSectorReceiverLUT
 {
  public:
@@ -53,7 +55,7 @@ class CSCSectorReceiverLUT
   
   /// Global Phi LUT
   gblphidat calcGlobalPhiME(const gblphiadd& address) const;
-  double getGlobalPhiValue(const unsigned& cscid, const unsigned& wire_group, const unsigned& phi_local) const;
+  double getGlobalPhiValue(const CSCLayer* thelayer, const unsigned& strip, const unsigned& wire_group) const;
 
   /// Global Eta LUT
   gbletadat calcGlobalEtaME(const gbletaadd& address) const;
@@ -71,7 +73,7 @@ class CSCSectorReceiverLUT
   
   static bool me_lcl_phi_loaded;
   static lclphidat* me_lcl_phi;
-  //gblphidat* me_global_phi, *mb_global_phi;
+  gblphidat* me_global_phi, *mb_global_phi;
   gbletadat* me_global_eta;
 };
 
