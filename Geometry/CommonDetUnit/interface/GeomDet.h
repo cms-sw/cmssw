@@ -4,13 +4,19 @@
 /** \class GeomDet
  *  Base class for GeomDetUnit and for composite GeomDet s. 
  *
- *  $Date: 2006/03/17 15:02:26 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/03/21 14:03:01 $
+ *  $Revision: 1.6 $
  */
 
 
 #include "Geometry/Surface/interface/BoundPlane.h"
 #include "DataFormats/DetId/interface/DetId.h"
+
+#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Geometry/Vector/interface/GlobalVector.h"
+#include "Geometry/Vector/interface/LocalPoint.h"
+#include "Geometry/Vector/interface/LocalVector.h"
+
 
 #include <vector>
 
@@ -18,22 +24,51 @@ class AlignmentPositionError;
 
 class GeomDet {
 public:
+  
+  explicit GeomDet(BoundPlane* plane);
 
-  // empty constructor, requires a call to setSurface from derived class constructor
-  // GeomDet();
-
-  explicit GeomDet( BoundPlane* plane);
-
-  explicit GeomDet( const ReferenceCountingPointer<BoundPlane>& plane);
+  explicit GeomDet(const ReferenceCountingPointer<BoundPlane>& plane);
 
   virtual ~GeomDet();
-  
-  virtual const BoundPlane& surface() const {return *thePlane;}
-  virtual const BoundPlane& specificSurface() const {return *thePlane;} // obsolete?
- 
-  virtual const Surface::PositionType& position() const {return surface().position();} 
-  
 
+  /// The nominal surface of the GeomDet
+  virtual const BoundPlane& surface() const {return *thePlane;}
+
+  /// Same as surface(), kept for backward compatibility
+  virtual const BoundPlane& specificSurface() const {return *thePlane;}
+  
+  /// The position (origin of the R.F.)
+  const Surface::PositionType& position() const {return surface().position();} 
+  
+  /// The rotation defining the local R.F.
+  const Surface::RotationType& rotation() const { return surface().rotation();}
+
+  /// Conversion to the global R.F. from the R.F. of the GeomDet
+  GlobalPoint toGlobal(const Local2DPoint& lp) const {
+    return surface().toGlobal( lp);
+  }
+  
+  /// Conversion to the global R.F. from the R.F. of the GeomDet
+  GlobalPoint toGlobal(const Local3DPoint& lp) const {
+    return surface().toGlobal( lp);
+  }
+
+  /// Conversion to the global R.F. from the R.F. of the GeomDet
+  GlobalVector toGlobal(const LocalVector& lv) const {
+    return surface().toGlobal( lv);
+  }
+  
+  /// Conversion to the R.F. of the GeomDet
+  LocalPoint toLocal(const GlobalPoint& gp) const {
+    return surface().toLocal( gp);
+  }
+  
+  /// Conversion to the R.F. of the GeomDet
+  LocalVector toLocal(const GlobalVector& gv) const {
+    return surface().toLocal( gv);
+  } 
+
+  /// The label of this GeomDet
   virtual DetId geographicalId() const = 0;
 
   /// Return pointer to alignment errors. 
@@ -42,10 +77,6 @@ public:
 
   /// Returns direct components, if any
   virtual std::vector< const GeomDet*> components() const = 0;
-
-protected:
-
-  // setSurface( const ReferenceCountingPointer<BoundPlane>& plane);
 
 private:
 
