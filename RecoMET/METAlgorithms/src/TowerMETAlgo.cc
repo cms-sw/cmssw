@@ -5,6 +5,10 @@
 //
 //--------------------------------------------
 
+//----- WARNING ----
+// MET Temporarily disabled due to changes in CaloTowers
+//------------------ 
+
 #include "RecoMET/METAlgorithms/interface/TowerMETAlgo.h"
 #include <iostream>
 
@@ -29,10 +33,10 @@ void TowerMETAlgo::run(const CaloTowerCollection *towers, TowerMETCollection &me
       // Get the relevant CaloTower data
       //double e     = ct_iter->e;
       //double theta = ct_iter->getTheta();
-      double phi   = ct_iter->phi;
+      double phi   = 1.0;//ct_iter->phi;
       // Sum over the transverse energy
-      double et = ct_iter->eT;//10.0 * e * sin(theta);
-      double eta = ct_iter->eta;
+      double et = 1.0;//ct_iter->eT;//10.0 * e * sin(theta);
+      double eta = 1.0;//ct_iter->eta;
       double theta = 2.0 * atan( exp( -eta ) );
       double e = et * sin(theta);
       sum_ez += e * cos(theta);
