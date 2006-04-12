@@ -62,6 +62,12 @@ else
       die "PackageManagement: \"--justtag\" only makes sense with \"--query\" and \"--pack X\" (i.e. one package on the cmd line).","\n";
       }
 
+   # Check that MYPACKAGES option set if --rel HEAD option given:
+   if (($releaseid eq 'HEAD' || $releaseid eq 'head') && !$opts{MYPACKAGES})
+      {
+      die "PackageManagement: \"--rel HEAD\" must only be used with \"--mypackagefile=FILE\" for checking out listed packages without versioning.","\n";
+      }
+   
    # Somewhere to store checked-out tags:
    $versionfile="PackageVersions.".$releaseid;
    # Checkout to current dir unless overridden:
@@ -91,16 +97,28 @@ else
    # specified packages on the command line. In either case, make copies of the wanted tags:
    if ($opts{MYPACKAGES} && -f cwd()."/".$mypackagefile)
       {
-      $mypackagefile = cwd()."/".$mypackagefile;
-      my $mypacklist=&getmypackages($mypackagefile);
+      $mypfile = cwd()."/".$mypackagefile;
       if ($opts{QUERY})
 	 {
+	 my $mypacklist=&getmypackages($mypfile);
 	 &do_query($mypacklist);
 	 }
       else
 	 {
 	 print "PackageManagement: Checking out packages listed in $mypackagefile.","\n", if ($opts{VERBOSE});
-	 &do_checkout($mypacklist);
+	 if ($releaseid eq 'HEAD' || $releaseid eq 'head')
+	    {
+	    my $mypacklist=&getmypackages($mypfile,1);
+	    # If the release is HEAD, check out the required packages from the HEAD
+	    # rather than using the version info from the TC:
+	    &do_checkout($mypacklist,1);
+	    }
+	 else
+	    {
+	    my $mypacklist=&getmypackages($mypfile);
+	    # Do normal checkout of packages with specific versions:
+	    &do_checkout($mypacklist);
+	    }
 	 }
       }
    elsif ($opts{PACKAGES})
@@ -154,7 +172,7 @@ else
 #### subroutines ####
 sub getmypackages()
    {
-   my ($mypackagefile)=@_;
+   my ($mypackagefile,$noversions)=@_;
    my $packlist={};
    # Open the file and copy tag info for selected packages:
    open(MYPACKAGELIST,"$mypackagefile") || die "PackageManagement: $!","\n";
@@ -165,16 +183,32 @@ sub getmypackages()
       # and discard the tag:
       if (my ($p) = ($_ =~ /(.*?)\s+?V[0-9][0-9]-[0-9][0-9]-[0-9][0-9].*?$/))
 	 {
-	 if (exists($packagelist->{$p}))
+	 if ($noversions)
 	    {
-	    $packlist->{$p} = $packagelist->{$p};
-	    }	 
+	    # Don't check whether package exists or not:
+	    $packlist->{$p}='HEAD';
+	    }
+	 else
+	    {
+	    if (exists($packagelist->{$p}))
+	       {
+	       $packlist->{$p} = $packagelist->{$p};
+	       }
+	    }
 	 }
       else
 	 {
-	 if (exists($packagelist->{$_}))
+	 if ($noversions)
 	    {
-	    $packlist->{$_} = $packagelist->{$_};
+	    # Don't check whether package exists or not:
+	    $packlist->{$_}='HEAD';	    
+	    }
+	 else
+	    {
+	    if (exists($packagelist->{$_}))
+	       {
+	       $packlist->{$_} = $packagelist->{$_};
+	       }
 	    }
 	 }
       }
@@ -184,9 +218,10 @@ sub getmypackages()
 
 sub do_checkout()
    {
-   my ($packagelist)=@_;
+   my ($packagelist,$noversions)=@_;
    die "PackageManagement: No packages to check out!","\n", unless (scalar (my $nkeys = keys %$packagelist) > 0);
-
+   print "PackageManagement: Checking out packages from HEAD of CVS repo.","\n", if ($noversions && $opts{VERBOSE});
+   
    # Create the output directory if it doesn't already exist:
    if (! -d $outdir)
       {
@@ -195,12 +230,12 @@ sub do_checkout()
    
    # Move to the output directory:
    chdir $outdir;
-
+   
    foreach my $pkg (sort keys %$packagelist)
       {
       chomp($pkg);
-      # Check out the package:
       $rv = system($cvs,"-Q","-d",$cvsroot,"co","-P","-r",$packagelist->{$pkg}, $pkg);
+      
       # Check the status of the checkout and report if a package tag doesn't exist:
       if ($rv == 0)
 	 {
@@ -292,6 +327,8 @@ sub usage()
    my $string="\nUsage: PackageManagement.pl --release <REL> [--out <DIR>] [--dumptags] [OPTIONS]\n";
    $string.="\n";
    $string.="--release=<REL>             The release: either \"nightly\" or a release tag like \"CMSSW_x_y_z\".\n";
+   $string.="                            If the \"--mypackagefile=FILE\" option is used, the release version HEAD\n";
+   $string.="                            is also available to check out listed packages without versioning.\n";
    $string.="\n";
    $string.="OPTIONS:\n";
    $string.="\n";
