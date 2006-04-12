@@ -1,12 +1,20 @@
-// $Id: SuperCluster.cc,v 1.3 2006/02/17 08:34:43 llista Exp $
+// $Id: SuperCluster.cc,v 1.1 2006/04/09 15:40:41 rahatlou Exp $
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/ClusterPi0Discriminator.h"
 using namespace reco;
 
-SuperCluster::SuperCluster( const Vector & m, const Point & p, double uE ) :
-  momentum_( m ), position_( p ), uncorrectedEnergy_( uE ) {
+SuperCluster::SuperCluster( double energy, const math::XYZPoint& position ) :
+  EcalCluster(energy,position) {
 }
+
+std::vector<DetId>
+SuperCluster::getHitsByDetId() const {
+  std::vector<DetId> usedHits;
+  return usedHits;
+}
+
+
 
 double SuperCluster::eMax() const{
   return shape_->eMax();
@@ -40,6 +48,7 @@ double SuperCluster::hadOverEcal() const{
   return shape_->hadOverEcal();
 }
 
+/**
 double SuperCluster::disc1() const { 
   return pi0Discriminator_->disc1(); 
 }
@@ -51,3 +60,4 @@ double SuperCluster::disc2() const {
 double SuperCluster::disc3() const { 
   return pi0Discriminator_->disc3(); 
 }
+**/

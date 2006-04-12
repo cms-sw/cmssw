@@ -2,7 +2,7 @@
 
 using namespace reco;
 
-EcalCluster::EcalCluster(const float& energy, const math::XYZPoint& position) {
+EcalCluster::EcalCluster(const double energy, const math::XYZPoint& position) {
   position_ = position;
   energy_ = energy;
 }

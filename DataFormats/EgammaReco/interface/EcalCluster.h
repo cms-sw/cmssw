@@ -10,10 +10,11 @@ namespace reco {
 class EcalCluster {
 
  public:
-   EcalCluster(const float& energy, const math::XYZPoint& position);
+   EcalCluster() : energy_(0.), position_(math::XYZPoint(0.,0.,0.)) {}
+   EcalCluster(const double energy, const math::XYZPoint& position);
 
    // accessors
-   float energy() const { return energy_; }
+   double energy() const { return energy_; }
    math::XYZPoint position() const { return position_; }
 
    // operators
@@ -27,12 +28,12 @@ class EcalCluster {
 
   // virtual methods
   virtual ~EcalCluster();
-  virtual std::vector<DetId> getHistByDetId() const = 0; // vector of used hits
+  virtual std::vector<DetId> getHitsByDetId() const = 0; // vector of used hits
                                                          // must be implemented by all
                                                          // derived instances
 
  private:
-   float               energy_; // cluster energy
+   double              energy_; // cluster energy
    math::XYZPoint   position_; // cluster position
 
 }; // EcalCluster
