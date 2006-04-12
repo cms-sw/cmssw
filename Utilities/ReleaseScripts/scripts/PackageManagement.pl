@@ -6,7 +6,7 @@
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # (Tagcollector interface taken from CmsTCPackageList.pl (author D.Lange))
 # Update: 2006-04-10 16:15:32+0200
-# Revision: $Id$ 
+# Revision: $Id: PackageManagement.pl,v 1.1 2006/04/11 13:33:48 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -28,7 +28,7 @@ my $versionfile;
 my $packagelist;
 
 # Getopt option variables:
-my %opts;
+my %opts; $opts{VERBOSE} = 1; # Verbose by default;
 my %options =
    ("release=s"       => sub { $releaseid=$_[1] },
     "mypackagefile=s" => sub { $opts{MYPACKAGES} = 1; $mypackagefile=$_[1] },
@@ -38,7 +38,7 @@ my %options =
     "pack=s"          => sub { $opts{PACKAGES} = 1; $wantedpackages = [ split(" ",$_[1]) ]; $opts{MYPACKAGES} = 0; },
     "justtag"         => sub { $opts{SHOWTAGONLY} = 1 },
     "dumptags"        => sub { $opts{DUMPTAGLIST} = 1 },
-    "verbose"         => sub { $opts{VERBOSE} = 1 },
+    "silent"          => sub { $opts{VERBOSE} = 0 },
     "help"            => sub { &usage(); exit(0)}
     );
 
@@ -114,6 +114,10 @@ else
 	    {
 	    $wantedpks->{$wpk} = $packagelist->{$wpk};
 	    }
+	 else
+	    {
+	    die "PackageManagement: Unknown package \"".$wpk."\"","\n";
+	    }
 	 }
       
       if ($opts{QUERY})
@@ -137,6 +141,8 @@ else
 	 }
       else
 	 {
+	 # Skip config and SCRAMToolbox packages:
+	 delete $packagelist->{'config'}; delete $packagelist->{'SCRAMToolbox'};
 	 # Run the checkout:
 	 print "PackageManagement: Checking out full list of packages in the tag collector for release $releaseid.","\n", if ($opts{VERBOSE});
 	 print "\n";
@@ -296,7 +302,7 @@ sub usage()
    $string.="--pack=<PACKAGES>           Only consider the packages listed in space-separated string PACKAGES.\n";
    $string.="--justtag | -j              Print just the CVS tag for the package given in \"--pack X\" option.\n";
    $string.="--query | -q                Query package lists to see tags. Don't perform any checkouts.\n";
-   $string.="--verbose | -v              Be slightly verbose.\n";
+   $string.="--silent | -s               Be silent: don't print anything.\n";
    $string.="--help | -h                 Show this help and exit.\n";
    $string.="\n";
    print $string,"\n";
