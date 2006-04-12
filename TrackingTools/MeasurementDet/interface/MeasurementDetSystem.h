@@ -8,7 +8,7 @@ class MeasurementDetSystem {
 public:
 
   /// Return the pointer to the MeasurementDet corresponding to a given DetId
-  virtual const MeasurementDet*       idToDet(DetId) const = 0;
+  virtual const MeasurementDet*       idToDet(const DetId& id) const = 0;
 
 
 };
