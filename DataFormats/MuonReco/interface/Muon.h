@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.12 2006/03/23 11:00:27 llista Exp $
+ * \version $Id: Muon.h,v 1.13 2006/03/30 07:15:59 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -16,7 +16,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonExtra.h"
-#include "DataFormats/EGammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 namespace reco {
  

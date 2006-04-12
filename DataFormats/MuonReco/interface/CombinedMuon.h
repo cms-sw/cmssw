@@ -6,13 +6,13 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.13 2006/03/30 07:15:59 llista Exp $
+ * \version $Id: CombinedMuon.h,v 1.2 2006/04/03 10:55:04 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/EGammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 namespace reco {
  
