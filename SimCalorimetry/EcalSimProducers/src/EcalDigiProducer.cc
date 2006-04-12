@@ -41,12 +41,12 @@ void EcalDigiProducer::setupFakePedestals()
   thePedestals.m_pedestals.clear();
   // make pedestals for each of these
   EcalPedestals::Item item;
-  item.mean_x1 = 200.;
-  item.rms_x1 = 0.;
-  item.mean_x6 = 200.;
-  item.rms_x6 = 0.;
-  item.mean_x12 = 200.;
-  item.rms_x12 = 0.;
+  item.mean_x1 = 201.0;
+  item.rms_x1 = 0.62;
+  item.mean_x6 = 199.4;
+  item.rms_x6 = 0.9;
+  item.mean_x12 = 198.8;
+  item.rms_x12 = 1.10;
 
   // make one vector of all det ids
   vector<DetId> detIds(theBarrelDets.begin(), theBarrelDets.end());
