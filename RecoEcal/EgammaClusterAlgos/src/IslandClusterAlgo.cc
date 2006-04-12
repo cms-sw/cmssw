@@ -47,7 +47,11 @@ void IslandClusterAlgo::mainSearch(edm::ESHandle<CaloGeometry> geometry_h)
       navigator.home();
       searchEast(navigator, topology);
       Point pos = getECALposition(hitData_v, geometry);
-      clusters.push_back(reco::BasicCluster(hitData_v, 1, pos));
+      ClusterVars vars = computeClusterVars(hitData_v);
+
+      //clusters.push_back(reco::BasicCluster(hitData_v, 1, pos));
+      clusters.push_back(reco::BasicCluster(vars.energy, pos, vars.chi2));
+
       hitData_v.clear();
     }
 }
@@ -159,4 +163,19 @@ void IslandClusterAlgo::searchEast(EcalBarrelNavigator &navigator, EcalBarrelTop
     }
 
   eastern_it->second.use();
+}
+
+IslandClusterAlgo::ClusterVars
+IslandClusterAlgo::computeClusterVars( const std::vector<reco::EcalRecHitData>& hits ) const {
+  ClusterVars vars;
+  vars.energy = 0.;
+  vars.chi2 = -1.;
+
+  std::vector<reco::EcalRecHitData>::const_iterator it;
+  for (it = hits.begin(); it != hits.end(); it++) {
+    vars.energy += it->energy() * it->fraction();
+    vars.chi2   += it->energy() * it->chi2();
+  }
+
+  return vars;
 }

@@ -17,6 +17,11 @@ class IslandClusterAlgo : public ClusteringAlgorithm
 
  public:
 
+  struct ClusterVars{
+    double energy;
+    double chi2;
+  };
+
   IslandClusterAlgo() : ClusteringAlgorithm()
     {
 
@@ -33,6 +38,9 @@ class IslandClusterAlgo : public ClusteringAlgorithm
   void searchSouth(EcalBarrelNavigator &navigator);
   void searchWest (EcalBarrelNavigator &navigator, EcalBarrelTopology &topology);
   void searchEast (EcalBarrelNavigator &navigator, EcalBarrelTopology &topology);
+
+  ClusterVars computeClusterVars( const std::vector<reco::EcalRecHitData>& hits ) const;
+
 
 };
 
