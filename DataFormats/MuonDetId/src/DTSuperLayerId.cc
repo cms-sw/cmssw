@@ -1,7 +1,7 @@
 /** \file
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/19 16:15:12 $
+ *  $Date: 2006/01/19 15:41:33 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -12,12 +12,14 @@
 
 
 
-DTSuperLayerId::DTSuperLayerId():DTChamberId() {}
+DTSuperLayerId::DTSuperLayerId() : DTChamberId() {}
 
 
 
-DTSuperLayerId::DTSuperLayerId(uint32_t id) : DTChamberId(id) {}// FIXME: Check this is a valid DTSuperLayerId?
-
+DTSuperLayerId::DTSuperLayerId(uint32_t id) {
+  id_ = id & slIdMask_; // Mask the bits outside DTSuperLayerId fields
+  checkMuonId();        // Check this is a valid id for muon DTs.
+}
 
 
 DTSuperLayerId::DTSuperLayerId(int wheel,
@@ -39,7 +41,9 @@ DTSuperLayerId::DTSuperLayerId(int wheel,
 
 
 // Copy Constructor.
-DTSuperLayerId::DTSuperLayerId(const DTSuperLayerId& slId) : DTChamberId() {
+DTSuperLayerId::DTSuperLayerId(const DTSuperLayerId& slId) {
+  // The mask is required for proper slicing, i.e. if slId is
+  // actually a derived class.
   id_ = (slId.rawId() &  slIdMask_);						 
 }
 

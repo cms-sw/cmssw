@@ -4,8 +4,8 @@
 /** \class DTSuperLayerId
  *  DetUnit identifier for DT SuperLayers (SL)
  *
- *  $Date: 2006/02/08 00:08:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/29 19:00:56 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -15,17 +15,20 @@
 class DTSuperLayerId : public DTChamberId {
 public:
 
-  /// Default constructor; fills the common part in the base
+  /// Default constructor. It fills the common part in the base
   /// and leaves 0 in all other fields
   DTSuperLayerId();
 
 
-  /// Construct from a packed id. It is required that the Detector part of
-  /// id is Muon and the SubDet part is DT, otherwise an exception is thrown.
+  /// Construct from a packed id.
+  /// It is required that the packed id represents a valid DT DetId
+  /// (proper Detector and  SubDet fields), otherwise an exception is thrown.
+  /// Any bits outside the DTSuperLayerId fields are zeroed; apart for
+  /// this, no check is done on the vaildity of the values.
   explicit DTSuperLayerId(uint32_t id);
 
 
-  /// Construct from fully qualified identifier. 
+  /// Construct from indexes.
   /// Input values are required to be within legal ranges, otherwise an
   /// exception is thrown.
   DTSuperLayerId(int wheel, 
@@ -35,11 +38,12 @@ public:
 
 
   /// Copy Constructor.
-  /// It takes care of masking fields which are not meaningful for a DTSuperLayerId
+  /// Any bits outside the DTChamberId fields are zeroed; apart for
+  /// this, no check is done on the vaildity of the values.
   DTSuperLayerId(const DTSuperLayerId& slId);
 
 
-  /// Constructor from a camberId and SL number
+  /// Constructor from a DTChamberId and SL number.
   DTSuperLayerId(const DTChamberId& chId, int superlayer);
 
 

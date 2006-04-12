@@ -4,8 +4,8 @@
 /** \class DTChamberId
  *  DetUnit identifier for DT chambers
  *
- *  $Date: 2006/01/19 15:42:58 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/01/23 22:43:47 $
+ *  $Revision: 1.3 $
  *  \author Stefano ARGIRO & G. Cerminara
  */
 
@@ -17,32 +17,30 @@
 
 class DTChamberId : public DetId {
 public:
-  /// Default constructor. It fills the common part in the base
-  /// and leaves 0 in all other fields
+  /// Default constructor. 
+  /// Fills the common part in the base and leaves 0 in all other fields
   DTChamberId();
   
 
-  /// Construct from a packed id. It is required that the Detector part of
-  /// id is Muon and the SubDet part is DT, otherwise an exception is thrown.
+  /// Construct from a packed id.
+  /// It is required that the packed id represents a valid DT DetId
+  /// (proper Detector and  SubDet fields), otherwise an exception is thrown.
+  /// Any bits outside the DTChamberId fields are zeroed; apart for
+  /// this, no check is done on the vaildity of the values.
   explicit DTChamberId(uint32_t id);
 
 
-  /// Construct from fully qualified identifier.
+  /// Construct from indexes.
   /// Input values are required to be within legal ranges, otherwise an
   /// exception is thrown.
   DTChamberId(int wheel, 
 	      int station, 
 	      int sector);
 
-//   /// 
-//   DTChamberId(const DetId& id) {
-//     id_ = id.rawId();
-//     std::cout << "DTChamberId(const DetId& id)" << std:: endl;
-//   }
-
 
   /// Copy Constructor.
-  /// It takes care of masking fields which are not meaningful for a DTChamberId
+  /// Any bits outside the DTChamberId fields are zeroed; apart for
+  /// this, no check is done on the vaildity of the values.
   DTChamberId(const DTChamberId& chId);
 
 

@@ -2,7 +2,7 @@
  * Impl of DTWireId
  *
  * \author G. Cerminara - INFN Torino
- * \version $Id: DTWireId.cc,v 1.1 2005/12/19 16:15:12 cerminar Exp $
+ * \version $Id: DTWireId.cc,v 1.2 2006/01/19 15:42:59 cerminar Exp $
  * \date 02 Aug 2005
 */
 
@@ -17,7 +17,10 @@ DTWireId::DTWireId() : DTLayerId() {}
 
 
 
-DTWireId::DTWireId(uint32_t id) : DTLayerId(id) {}// FIXME: Check this is a valid DTWireId?
+DTWireId::DTWireId(uint32_t id) {
+  id_= id;
+  checkMuonId(); // Check this is a valid id for muon DTs.
+}
 
 
 
@@ -45,7 +48,7 @@ DTWireId::DTWireId(int wheel,
 
 
 // Copy Constructor.
-DTWireId::DTWireId(const DTWireId& wireId) : DTLayerId() {
+DTWireId::DTWireId(const DTWireId& wireId) {
   id_ = wireId.rawId();
 }
 

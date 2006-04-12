@@ -1,8 +1,8 @@
 /** \file
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/19 16:15:12 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/01/19 15:42:59 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -12,13 +12,12 @@
 
 using namespace std;
 
-DTChamberId::DTChamberId():DetId(DetId::Muon, MuonSubdetId::DT){}
+DTChamberId::DTChamberId() : DetId(DetId::Muon, MuonSubdetId::DT){}
 
 
-// FIXME: Check this is a valid DTChamberId?
-DTChamberId::DTChamberId(uint32_t id):DetId(id) {
-  checkMuonId();
-//   cout << "DTChamberId::DTChamberId(uint32_t id):DetId(id)" << endl;
+DTChamberId::DTChamberId(uint32_t id) :
+  DetId(id & chamberIdMask_) { // Mask the bits outside DTChamberId fields
+  checkMuonId();               // Check this is a valid id for muon DTs.
 }
 
 
@@ -46,10 +45,9 @@ DTChamberId::DTChamberId(int wheel, int station, int sector):
 
 
 
-DTChamberId::DTChamberId(const DTChamberId& chId):
-  DetId(chId.rawId() & chamberIdMask_) {
-//     cout << "DTChamberId::DTChamberId(const DTChamberId& chId)" << endl;
-  }
+DTChamberId::DTChamberId(const DTChamberId& chId) :
+  DetId(chId.rawId() & chamberIdMask_) {   // The mask is required for proper slicing, i.e. if chId is actually a derived class.
+}
 
 
 

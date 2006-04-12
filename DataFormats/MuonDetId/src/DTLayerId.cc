@@ -2,7 +2,7 @@
  * Impl of DTLayerId
  *
  * \author Stefano ARGIRO
- * \version $Id: DTLayerId.cc,v 1.1 2005/12/19 16:15:12 cerminar Exp $
+ * \version $Id: DTLayerId.cc,v 1.2 2006/01/19 15:42:59 cerminar Exp $
  * \date 02 Aug 2005
 */
 
@@ -12,17 +12,22 @@
 
 
 
-
 DTLayerId::DTLayerId() : DTSuperLayerId() {}
 
 
-
-DTLayerId::DTLayerId(uint32_t id) : DTSuperLayerId(id) {}// FIXME: Check this is a valid DTLayerId?
+DTLayerId::DTLayerId(uint32_t id) {
+  // Mask the bits outside DTLayerId fields (notably, the wire number)
+  id_ = id & layerIdMask_;
+  // Check this is a valid id for muon DTs.
+  checkMuonId();
+}
 
 
 
 // Copy Constructor.
-DTLayerId::DTLayerId(const DTLayerId& layerId) : DTSuperLayerId() {
+DTLayerId::DTLayerId(const DTLayerId& layerId) {
+  // The mask is required for proper slicing, i.e. if layerId is
+  // actually a derived class.
   id_ = (layerId.rawId() & layerIdMask_);
 }
 

@@ -3,7 +3,7 @@
    test file for DTChamberId, DTSuperLayerId, DTLayerId and DTWireId
 
    \author S. Argiro' & G. Cerminara
-   \version $Id: testDTChamberId.cc,v 1.1 2005/12/19 16:15:13 cerminar Exp $
+   \version $Id: testDTDetIds.cc,v 1.1 2006/01/19 15:46:43 cerminar Exp $
    \date 27 Jul 2005
 */
 
@@ -81,6 +81,10 @@ void testDTDetIds::testConstructors(){
 	  DTChamberId copyChamberIdFromSl(slId);
 	  CPPUNIT_ASSERT(copyChamberIdFromSl == chamberId);
 
+	  // Test DTSuperLayerId constructor from raw SL Id
+	  DTChamberId copyChamberIdFromRawSl(sId);
+	  CPPUNIT_ASSERT(copyChamberIdFromRawSl == chamberId);
+
 	  // Test DTSuperLayerId copy constructor
 	  DTSuperLayerId copySlId(slId);
 	  CPPUNIT_ASSERT(slId == copySlId);
@@ -111,10 +115,18 @@ void testDTDetIds::testConstructors(){
 	    // Test DTChamberId copy constructor
 	    DTChamberId copyChamberIdFromLayer(layerId);
 	    CPPUNIT_ASSERT(copyChamberIdFromLayer == chamberId);
+
+	    // Test DTSuperLayerId constructor from raw layer Id
+	    DTChamberId copyChamberIdFromRawLayer(lId);
+	    CPPUNIT_ASSERT(copyChamberIdFromRawLayer == chamberId);
 	    
 	    // Test DTSuperLayerId copy constructor
 	    DTSuperLayerId copySlIdFromLayer(layerId);
 	    CPPUNIT_ASSERT(copySlIdFromLayer == slId);
+
+	    // Test DTSuperLayerId constructor from raw layer Id
+	    DTSuperLayerId copySlIdFromRawLayer(lId);
+	    CPPUNIT_ASSERT(copySlIdFromRawLayer == slId);
 
 	    // Test DTLayerId copy constructor
 	    DTLayerId copyLayerId(layerId);
@@ -153,13 +165,25 @@ void testDTDetIds::testConstructors(){
 	      DTChamberId copyChamberIdFromWire(wireId);
 	      CPPUNIT_ASSERT(copyChamberIdFromWire == chamberId);
 
+	      // Test DTChamberId constructor from raw wireId
+	      DTChamberId copyChamberIdFromRawWire(myId);
+	      CPPUNIT_ASSERT(copyChamberIdFromRawWire == chamberId);
+
 	      // Test DTSuperLayerId copy constructor
 	      DTSuperLayerId copySlIdFromWire(wireId);
 	      CPPUNIT_ASSERT(copySlIdFromWire == slId);
+
+	      // Test DTSuperLayerId constructor from raw wireId
+	      DTSuperLayerId copySlIdFromRawWire(myId);
+	      CPPUNIT_ASSERT(copySlIdFromRawWire == slId);
 	      
 	      // Test DTLayerId copy constructor
 	      DTLayerId copyLayerIdFromWire(wireId);
 	      CPPUNIT_ASSERT(copyLayerIdFromWire == layerId);
+
+	      // Test DTLayerId constructor from raw wireId
+	      DTLayerId copyLayerIdFromRawWire(myId);
+	      CPPUNIT_ASSERT(copyLayerIdFromRawWire == layerId);
 
 	      // Test DTWireId copy constructor
 	      DTWireId copyWireId(wireId);
@@ -302,7 +326,7 @@ void testDTDetIds::testMemberOperators(){
   wire2=wire1;
   CPPUNIT_ASSERT(wire2==wire1);
 
-  // Test other members
+  // Test getter of base id
   DTChamberId chamber3 = superlayer1.chamberId();
   CPPUNIT_ASSERT(chamber3 == chamber1);
   
@@ -320,4 +344,22 @@ void testDTDetIds::testMemberOperators(){
 
   DTLayerId layer3 = wire1.layerId();
   CPPUNIT_ASSERT(layer3 == layer1);
+
+
+  // Forbidden constructors. None of these should be accepted by the compiler!!!
+
+  // It should not be allowed to create a derived from a base
+//   DTSuperLayerId s(chamber1);
+//   DTLayerId      l(superlayer1);
+//   DTWireId       w(layer1);  
+  
+  // It is not currently allowed to build any DT id directly from a Detid
+  // (would allow the above ones)
+//   DetId d;
+//   DTChamberId    c(d);
+//   DTSuperLayerId s1(d);
+//   DTLayerId      l1(d);
+//   DTWireId       w1(d);  
+
+
 }
