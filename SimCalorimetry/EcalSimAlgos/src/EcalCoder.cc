@@ -17,9 +17,9 @@ EcalCoder::EcalCoder(bool addNoise)
   theGains[1] = 6.;
   theGains[2] = 12.;
   // 0.2% gain variation
-  theGainErrors[0] = 0.002;
-  theGainErrors[1] = 0.002;
-  theGainErrors[2] = 0.002;
+  theGainErrors[0] = 0.;
+  theGainErrors[1] = 0.;
+  theGainErrors[2] = 0.;
   //PG to be replaced with a DB call FIXME    
   m_maxEneEB = 1719.9 ; //PG assuming 35 MeV/ADC
 // m_maxEneEB = 1818.18 ; //PG assuming 37 MeV/ADC
@@ -83,6 +83,9 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
   double Emax = fullScaleEnergy(detId);
   //....initialisation
 
+  if ( caloSamples[5] > 0. ) 
+    LogDebug("DigiCoder") << "Input caloSample" << "\n" << caloSamples;
+
   double LSB[NGAINS];
   double pedestals[NGAINS];
   double widths[NGAINS];
@@ -93,13 +96,12 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
     findPedestal(detId, igain, pedestals[igain], widths[igain]);
     // set nominal value first
     gains[igain] = theGains[igain];
-    if(addNoise_) {
-      gains[igain] *= RandGauss::shoot(1., theGainErrors[igain]);
-    }
+    //if(addNoise_) {
+    //  gains[igain] *= RandGauss::shoot(1., theGainErrors[igain]);
+    //}
     LSB[igain]= Emax/(MAXADC*gains[igain]);
     threeSigmaADCNoise[igain] = widths[igain]/LSB[igain] * 3.;
   }
-
 
   int wait = 0 ;
   int gainId = NGAINS - 1 ;
@@ -121,6 +123,7 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
           ped = RandGauss::shoot(ped, widths[igain]);
           tmpadc = int (ped + caloSamples[i] / LSB[igain]) ;
        }
+       //std::cout << "DetId " << detId.rawId() << " gain " << igain << " " << caloSamples[i] << " " << pedestals[igain] << " " << widths[igain] << " " << LSB[igain] << " result = " << ped << " " << tmpadc <<std::endl;
          
        if(tmpadc <= MAXADC ) {
          adc = tmpadc;

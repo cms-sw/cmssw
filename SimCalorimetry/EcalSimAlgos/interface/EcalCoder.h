@@ -2,6 +2,15 @@
 #ifndef EcalSimAlgos_EcalCoder_h
 #define EcalSimAlgos_EcalCoder_h 1
 
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/Common/interface/EDProduct.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 class EcalMGPASample;
 class EcalPedestals;
 class EBDataFrame;
