@@ -120,8 +120,8 @@ namespace edm {
 
     void ReplaceNode::accept(Visitor& v) const
     {
-      throw edm::Exception(errors::LogicError,"Replace Nodes should always be processed by ParseResultsTweaker");
-    }
+      throw edm::Exception(errors::LogicError,"Replace Nodes should always be processed by the postprocessor.  Please contact an EDM developer");
+    } 
 
     //--------------------------------------------------
     // StringNode
