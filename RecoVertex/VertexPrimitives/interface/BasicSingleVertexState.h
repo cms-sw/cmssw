@@ -36,7 +36,7 @@ public:
   GlobalError error() const;
   GlobalWeight weight() const;
   AlgebraicVector weightTimesPosition() const;
-  double weightInMixture() const {return theWeightInMix;}
+  double weightInMixture() const;
 
   /** conversion to VertexSeed
    */
@@ -58,6 +58,7 @@ private:
   mutable AlgebraicVector theWeightTimesPos;
   mutable bool theWeightTimesPosAvailable;
 
+  bool isValid;
   double theWeightInMix;
 };
 
