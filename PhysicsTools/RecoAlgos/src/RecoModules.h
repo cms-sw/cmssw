@@ -1,12 +1,12 @@
 #ifndef RecoAlgos_RecoModules_h
 #define RecoAlgos_RecoModules_h
-// $Id: RecoModules.h,v 1.1 2006/03/03 13:16:21 llista Exp $
+// $Id: RecoModules.h,v 1.2 2006/04/10 08:34:51 llista Exp $
 #include "PhysicsTools/UtilAlgos/interface/Merger.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/EGammaReco/interface/Electron.h"
-#include "DataFormats/EGammaReco/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 namespace reco {
   namespace modules {
