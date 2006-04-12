@@ -3,12 +3,15 @@
 
 #include <vector>
 
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+
 class TrajectoryStateOnSurface;
 class TrajectoryMeasurement;
 class GeomDet;
 class Propagator;
 class MeasurementEstimator;
 class TransientTrackingRecHit;
+class BoundSurface;
 
 class MeasurementDet {
 public:
@@ -34,7 +37,11 @@ public:
 
   virtual const GeomDet& geomDet() const { return *theGeomDet;}
 
-private:
+  const BoundSurface& surface() const {return  geomDet().surface();}
+
+  const Surface::PositionType& position() const {return geomDet().position();}
+
+ private:
 
   const GeomDet* theGeomDet;
 
