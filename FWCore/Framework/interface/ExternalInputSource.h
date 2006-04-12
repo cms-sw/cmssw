@@ -2,7 +2,7 @@
 #define Framework_ExternalInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ExternalInputSource.h,v 1.1 2005/12/28 00:30:09 wmtan Exp $
+$Id: ExternalInputSource.h,v 1.2 2006/01/18 00:38:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -10,6 +10,7 @@ $Id: ExternalInputSource.h,v 1.1 2005/12/28 00:30:09 wmtan Exp $
 #include <string>
 
 #include "FWCore/Framework/interface/ConfigurableInputSource.h"
+#include "FWCore/Framework/interface/FileCatalog.h"
 
 namespace edm {
   class ExternalInputSource : public ConfigurableInputSource {
@@ -17,10 +18,12 @@ namespace edm {
     explicit ExternalInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~ExternalInputSource();
 
-  std::vector<std::string> const& fileNames() const {return fileNames_;}
+  std::vector<std::string> const& fileNames() const {return catalog_.fileNames();}
+  InputFileCatalog& catalog() {return catalog_;}
+
 
   private:
-    std::vector<std::string> fileNames_;
+    InputFileCatalog catalog_;
   };
 }
 #endif
