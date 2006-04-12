@@ -11,6 +11,10 @@
 Persistent classes for Track Reco data format.
 
 \subsection interface Public interfaces
+- reco::helix::Parameters: parametrization of an helix with 5 parameters, according to 
+  the perigee convention. The conventions are documented in 
+  this <a href="http://www-jlc.kek.jp/subg/offl/lib/docs/helix_manip/main.html">page</a>.
+- reco::helix::Covariance: non degenerate 5x5 covariance matrix for perigee parametrization.
 - reco::Track: reconstructed Track. Objects of this type are ment to be stored in the AOD.
    <br>Contains a reference to an object of type reco::TrackExtra.
 - reco::TrackExtra: Track extension. Objects of this type are ment to be stored in the RECO.
