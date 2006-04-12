@@ -7,9 +7,10 @@
  * and store relative information. It must be transformed into a DTSegment
  * for further use.
  *
- * $Date: 03/03/2006 16:04:11 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:18 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */
 
@@ -18,6 +19,7 @@
 /* Collaborating Class Declarations */
 #include "RecoLocalMuon/DTSegment/src/DTHitPairForFit.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 
 /* C++ Headers */
 #include <vector>
@@ -105,6 +107,8 @@ class DTSegmentCand{
     /// the used hits
     AssPointCont hits() const { return theHits;}
 
+    /// convert this DTSegmentCand in a DTRecSegment2D
+    DTRecSegment2D* convert();
 
   protected:
 

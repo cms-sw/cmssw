@@ -5,8 +5,8 @@
  *
  * Abstract aglo class to reconstruct segments in SL given a set of hits
  *
- * $Date: 01/03/2006 16:38:03 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:18 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -47,9 +47,11 @@ class DTRecSegment2DBaseAlgo{
                   const edm::EventSetup& setup) = 0;
 
     virtual std::string algoName() const = 0;
-
-  protected:
-
+    
+    //    virtual  void setES(const edm::EventSetup& setup) = 0;
+    
+ protected:
+    
   private:
 
 };

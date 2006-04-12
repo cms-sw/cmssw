@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/03/30 16:53:18 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/11 16:59:01 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -16,6 +16,7 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /* C++ Headers */
@@ -42,7 +43,7 @@ DTSegmentUpdator::~DTSegmentUpdator() {
 // }
 
 void DTSegmentUpdator::update(DTRecSegment2D* seg)  {
-  if (theAlgo->canUpdate2D()) {
+  if (theAlgo->canUpdate2D()) { // FIXME canUpdate2D to be implemented
     updateHits(seg);
     fit(seg);
   }
@@ -179,9 +180,12 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
   LocalPoint segPosAtLayer=segPos+segDir*segPos.z()/cos(segDir.theta());
   const float angle = atan(segDir.x()/-segDir.z());
 
-  vector<DTRecHit1D> hits = seg->specificRecHits();
-  for (vector<DTRecHit1D>::iterator hit=hits.begin(); 
-       hit!=hits.end(); ++hit) {
+
+  // it is not necessary to have DTRecHit1D* to modify the obj in the container
+  // but I have to be carefully, since I cannot make a copy before the iteration!
+
+  for (vector<DTRecHit1D>::iterator hit= seg->specificRecHits().begin(); 
+       hit!=seg->specificRecHits().end(); ++hit) {
 
     // LocalPoint leftPoint;
     // LocalPoint rightPoint;
@@ -199,60 +203,46 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
     //    DTDigi digi;
 
     const DTLayer* layer = theGeom->layer( hit->wireId().layerId() );
-    // FIXME, RB temporary to compile
+
     DTRecHit1D newHit1D;
 
     bool ok=true;
+
     if (step==2) {
       ok = theAlgo->compute(layer,
 			    (*hit),
 			    angle,
 			    newHit1D);
-      // was
-      // ok = theAlgo->compute(&layer,
-      //                       digi,
-      //                       angle,
-      //                       leftPoint,
-      //                       rightPoint,
-      //                       error) ;
     } else if (step==3) {
-
+      
       LocalPoint hitPos(hit->localPosition().x(),+segPosAtLayer.y(),0.);
-
+      
       //GlobalPoint gpos=theGeom.idToDet(hit->id())->toGlobal(hitPos);
       
       //FIXME,RB: is it right?
       GlobalPoint gpos= theGeom->layer( hit->wireId().layerId() )->surface().toGlobal(hitPos);
-      // FIXME, RB temporary to compile
-      DTRecHit1D newHit1D;
+
       ok = theAlgo->compute(layer,
 			    (*hit),
 			    angle,gpos,
 			    newHit1D);
-      // was
-      //       ok = theAlgo->compute(&layer,
-      //                             digi,
-      //                             angle,
-      //                             gpos;
-      //                             leftPoint,
-      //                             rightPoint,
-      //                             error) ;
     } else {
       throw cms::Exception("DTSegmentUpdator")<<" updateHits called with wrong step"<<endl;
-      // RB, was
-      // throw LogicError("DTSegmentUpdator::updateHits called with wrong step");
     }
 
     if (ok) {
-      // RB,FIXME
+
+      (*hit) = newHit1D;
+
+      // RB,FIXME. was
       //      if (hit->lrSide()==DTEnums::Left ) hit->setPosition(leftPoint);
       // else if (hit->lrSide()==DTEnums::Right ) hit->setPosition(rightPoint);
       //   hit->setError(error);
+      // is my line right?
+
     } else {
-      cout << "MuBarSegmentUpdator::updateHits failed update" << endl;
-      throw cms::Exception("MuBarSegmentUpdator")<<"updateHits failed update"<<endl;
-      // RB, was
-      // throw LogicError("MuBarSegmentUpdator::updateHits failed update");
+      LogError("DTSegmentUpdator")<<"DTSegmentUpdator::updateHits failed update" << endl;
+      throw cms::Exception("DTSegmentUpdator")<<"updateHits failed update"<<endl;
     }
   }
 }

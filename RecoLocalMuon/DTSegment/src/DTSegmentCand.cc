@@ -1,8 +1,9 @@
 /** \file
  *
- * $Date:  03/03/2006 18:25:28 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:18 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
 
 /* This Class Header */
@@ -105,6 +106,30 @@ int DTSegmentCand::nLayers() const {
   // TODO
   return 0;
 }
+
+DTRecSegment2D* DTSegmentCand::convert(){
+  
+  LocalPoint seg2Dposition = position();
+  LocalVector seg2DDirection = direction();
+  double seg2DChi2 = chi2();
+  AlgebraicSymMatrix seg2DCovMatrix = covMatrix();
+  
+  std::vector<DTRecHit1D> hits1D;
+  for(DTSegmentCand::AssPointCont::iterator assHit=hits().begin();
+      assHit!=hits().end(); ++assHit) {
+    DTRecHit1D hit( ((*assHit).first)->id(),
+		    (*assHit).second,
+		    ((*assHit).first)->digiTime(),
+		    ((*assHit).first)->localPosition((*assHit).second),
+		    ((*assHit).first)->localPositionError() );
+    hits1D.push_back(hit);
+  }
+  
+  return new DTRecSegment2D(theSL->id(),
+			    seg2Dposition,seg2DDirection,seg2DCovMatrix,
+			    seg2DChi2,hits1D);
+}
+
 
 bool DTSegmentCand::AssPointLessZ::operator()(const AssPoint& pt1, 
                                               const AssPoint& pt2) const {

@@ -1,8 +1,9 @@
 /** \file
  *
- * $Date: 2006/03/30 16:53:17 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/11 16:59:01 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
 
 /* This Class Header */
@@ -64,9 +65,8 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
   vector<DTSegmentCand*>::const_iterator cand=candidates.begin();
   while (cand<candidates.end()) {
 
-    //TODO constructor from cand: need to move cand to DataFormats (don't like)
-    // or constructor from cand abstract base or from components...
-    DTRecSegment2D* segment = new DTRecSegment2D();
+    //RB:TODO put an implict converter instead of the explicit conversion below
+    DTRecSegment2D *segment = (*cand)->convert();
 
     theUpdator->update(segment);
 
@@ -81,6 +81,10 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
   // DTRecSegment2D*  seg = new DTRecSegment2D(sl->id(), hits);
   return result;
 }
+
+// void DTCombinatorialPatternReco::setES(const edm::EventSetup& setup){
+//   theUpdator->setES(setup);
+// }
 
 vector<DTHitPairForFit*>
 DTCombinatorialPatternReco::initHits(const DTSuperLayer* sl,

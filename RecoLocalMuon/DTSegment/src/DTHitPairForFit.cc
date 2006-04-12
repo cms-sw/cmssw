@@ -1,8 +1,9 @@
 /** \file
  *
- * $Date: 2006/03/30 16:53:18 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/11 16:59:01 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
 
 /* This Class Header */
@@ -21,13 +22,12 @@ using namespace std;
 DTHitPairForFit::DTHitPairForFit(const DTRecHit1DPair& pair,
                                  const DTSuperLayer& sl,
                                  const edm::ESHandle<DTGeometry>& dtGeom) {
-  theLayId = pair.geographicalId();
+
+  theWireId = pair.wireId();
+  theDigiTime = pair.digiTime();
   
   //  const DTLayer* layer =dtGeom->layer(theLayId);
-  const DTLayer* layer = dynamic_cast< const DTLayer* >(dtGeom->idToDet(theLayId));
-  // was
-  //const GeomDetUnit* layer = dtGeom->idToDet(theLayId);
-  // RB@SL: is it right?
+  const DTLayer* layer = dynamic_cast< const DTLayer* >(dtGeom->idToDet(theWireId.layerId()));
 
   theLeftPos =
     layer->surface().toLocal(sl.surface().toGlobal(pair.componentRecHit(DTEnums::Left)->localPosition()));

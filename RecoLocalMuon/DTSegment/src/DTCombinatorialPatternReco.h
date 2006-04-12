@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a combinatorial approach
  *  
- * $Date: 2006/03/30 16:53:18 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/11 16:59:01 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -51,14 +51,16 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
     virtual edm::OwnVector<DTRecSegment2D>
       reconstruct(const DTSuperLayer* sl,
                   const std::vector<DTRecHit1DPair>& hits,
-                  const edm::EventSetup& setup) ;
-
+		  const edm::EventSetup& setup);
+    
     virtual std::string algoName() const { return theAlgoName; }
-  protected:
+    
+    //    virtual void setES(const edm::EventSetup& setup);
+ protected:
 
-  private:
+ private:
     typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
-
+    
     // create the DTHitPairForFit from the pairs for easy use
     std::vector<DTHitPairForFit*> initHits(const DTSuperLayer* sl,
                                            const std::vector<DTRecHit1DPair>& hits,

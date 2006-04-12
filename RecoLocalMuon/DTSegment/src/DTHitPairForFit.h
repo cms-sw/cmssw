@@ -8,9 +8,10 @@
  * This class is useful for segment fitting, which is done in SL or Chamber
  * reference frame, while the DT hits live on the layer.
  *
- * $Date: 02/03/2006 16:59:48 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:18 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */
 
@@ -48,7 +49,8 @@ class DTHitPairForFit{
     LocalPoint rightPos() const { return theRightPos; }
     LocalError localPositionError() const { return theError; }
 
-    DetId id() const { return theLayId; }
+    DTWireId id() const { return theWireId; }
+    double digiTime() const {return theDigiTime;}
 
     /** check for compatibility of the hit pair with a given position and direction: 
      * the first bool of the returned pair is for the left hit, the second for
@@ -69,7 +71,8 @@ class DTHitPairForFit{
     LocalPoint theLeftPos ;         // left hit pos in SL ref frame
     LocalPoint theRightPos ;        // right hit pos in SL ref frame
     LocalError theError;            // it's the same for left and right
-    DetId  theLayId;
+    DTWireId  theWireId;
+    double theDigiTime;             // the time of the corresp. digi
 //    int theLayerNumber;             // the layer number
 
     bool isCompatible(const LocalPoint& posIni, 
