@@ -15,7 +15,13 @@ with HepMC generator particle components.
 None.
 
 \subsection modules Modules
-- HepMCCandidateProducer: produces a collection of reco::Candidate with a reco::Track component.
+- HepMCCandidateProducer: produces a collection of reco::Candidate of concrete type 
+reco::HepMCCandidate with a HepMC::GenParticle component.
+It is possible to specify that only stable particles should be used to 
+build candidates setting the boolean parameter <tt>stableOnly</tt>, 
+and it is possible to specify a list of particle types to be excluded
+with the string list parameter <tt>excludeList</tt>. Charge conjugate particles 
+will be excluded as well.
 <br><br>
 Examples of configuration for the modules is the following:
 \htmlonly

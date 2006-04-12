@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: HepMCCandidateProducer.h,v 1.2 2006/03/09 10:40:31 llista Exp $
+ * \version $Id: HepMCCandidateProducer.h,v 1.3 2006/03/13 18:40:00 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -38,6 +38,8 @@ class HepMCCandidateProducer : public edm::EDProducer {
   vstring excludeList;
   /// set of excluded particle id's
   std::set<int> excludedIds;
+  /// verbose flag
+  bool verbose;
 };
 
 #endif
