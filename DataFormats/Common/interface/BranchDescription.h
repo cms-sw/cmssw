@@ -6,7 +6,7 @@
 BranchDescription: The full description of a product and how it came into
 existence.
 
-$Id: BranchDescription.h,v 1.2 2006/03/02 05:50:22 wmtan Exp $
+$Id: BranchDescription.h,v 1.3 2006/03/05 00:25:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -68,10 +68,13 @@ namespace edm {
 
     bool operator==(BranchDescription const& rh) const;
 
-    std::string productType() const {return friendlyClassName_;}
+    std::string branchName() const {return branchName_;}
+    std::string className() const {return fullClassName_;}
     std::string moduleLabel() const {return module.moduleLabel_;}
-    std::string productInstanceName() const {return productInstanceName_;} 
+    std::string moduleName() const {return module.moduleName_;}
     std::string processName() const {return module.processName_;}
+    std::string productInstanceName() const {return productInstanceName_;} 
+    std::string productType() const {return friendlyClassName_;}
   };
   
   inline

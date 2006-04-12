@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.17 2006/02/07 07:51:41 wmtan Exp $
+$Id: Provenance.h,v 1.1 2006/02/08 00:44:23 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 
@@ -34,6 +34,14 @@ namespace edm {
 
     BranchDescription product;
     BranchEntryDescription event;
+
+    std::string branchName() const {return product.branchName();}
+    std::string className() const {return product.className();}
+    std::string moduleLabel() const {return product.moduleLabel();}
+    std::string moduleName() const {return product.moduleName();}
+    std::string processName() const {return product.processName();}
+    std::string productInstanceName() const {return product.productInstanceName();}
+    std::string productType() const {return product.productType();}
 
     void write(std::ostream& os) const;
   };
