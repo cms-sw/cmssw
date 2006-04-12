@@ -251,14 +251,14 @@ bool ELfwkJobReport::log( const edm::ErrorObj & msg )  {
 
   // Output the prologue:
   //
-  emit ( "  <Report>\n" );
-  emit ( "    <Severity> " );
-  emit (xid.severity.getSymbol());
-  emit (" </Severity>\n");
-  emit ( "    <Category> ");
-  emit (xid.id);
-  emit ( " </Category>\n");
-  emit ( "    <Message> \n");
+  //emit ( "  <Report>\n" );
+  //emit ( "    <Severity> " );
+  //emit (xid.severity.getSymbol());
+  //emit (" </Severity>\n");
+  //emit ( "    <Category> ");
+  //emit (xid.id);
+  //emit ( " </Category>\n");
+  //emit ( "    <Message> \n");
   
  //  emit( msg.idOverflow() ); this is how to get the rest of the category
 
@@ -274,20 +274,21 @@ bool ELfwkJobReport::log( const edm::ErrorObj & msg )  {
     #ifdef ELfwkJobReportTRACE_LOG
       std::cerr << "      =:=:=: Item:  " << *it << '\n';
     #endif
-      emit( "      <Item> " );
+      //  emit( "      <Item> " );
       emit( *it);
-      emit( " </Item>\n" );
+      emit( "\n" );
+      //emit( " </Item>\n" );
     }
   }
 
   // Close the body of the message
-  emit ("    </Message>\n");
+  //emit ("    </Message>\n");
   
   // Provide further identification: Module
   //
-  emit ("    <Module> ");
-  emit ( xid.module );
-  emit (" </Module>\n");    
+  //emit ("    <Module> ");
+  //emit ( xid.module );
+  //emit (" </Module>\n");    
 
   #ifdef ELfwkJobReportTRACE_LOG
     std::cerr << "    =:=:=: Module done \n";
@@ -295,7 +296,7 @@ bool ELfwkJobReport::log( const edm::ErrorObj & msg )  {
 
   // close report
   //
-  emit ("  </Report>\n\n");
+  //emit ("  </Report>\n\n");
 
   #ifdef ELfwkJobReportTRACE_LOG
     std::cerr << "  =:=:=: log(msg) done: \n";
