@@ -17,7 +17,7 @@ PROOF, ROOT's parallel processing system, is described in <a href="ftp://root.ce
 - JetTSelector: simple analysis example based on TSelector. Just 
   produces <i>E<sub>t</sub></i> and <i>eta</i> spectra for a 
   collection of jets (reco::Candidate). Uses the output of
-  the package \ref PhysicsTools_JetExamples JetExamples.
+  the package \ref PhysicsTools_JetExamples "JetExamples".
 
 \subsection modules Modules
 None.
