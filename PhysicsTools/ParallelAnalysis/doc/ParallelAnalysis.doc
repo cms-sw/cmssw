@@ -11,7 +11,10 @@
 Analysis examples using <a href="http://root.cern.ch">ROOT</a> TSelector for PROOF parallel processing
 accessing EDM data.
 More details about TSelector can be found in <a href="ftp://root.cern.ch/root/doc/chapter12.pdf">Chapter 12</a> of ROOT user's manual.
-PROOF, ROOT's parallel processing system, is described in <a href="ftp://root.cern.ch/root/doc/chapter25.pdf">Chapter 25</a> of ROOT user's maual.
+PROOF, ROOT's parallel processing system, is described in <a href="ftp://root.cern.ch/root/doc/chapter25.pdf">Chapter 25</a> of ROOT user's maual.<br>
+<br>
+See also the <a href="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsTools/TSelector/">TSelector Analysis</a> page
+under <a href="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsTools/">Physics Tools</a> page.
 
 \subsection interface Public interface
 - JetTSelector: simple analysis example based on TSelector. Just 
