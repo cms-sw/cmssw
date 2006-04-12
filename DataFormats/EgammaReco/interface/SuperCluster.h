@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.1 2006/04/09 15:40:40 rahatlou Exp $
+ * \version $Id: SuperCluster.h,v 1.2 2006/04/12 15:19:15 rahatlou Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -72,10 +72,10 @@ namespace reco {
     const BasicClusterRef & seed() const { return seed_; }
 
     /// set reference to seed BasicCluster
-    //void setSeed( const BasicClusterRef & r ) { seed_ = r; }
+    void setSeed( const BasicClusterRef & r ) { seed_ = r; }
 
     /// add reference to constituent BasicCluster
-    //void add( const BasicClusterRef & r ) { clusters_.push_back( r ); }
+    void add( const BasicClusterRef & r ) { clusters_.push_back( r ); }
 
     /// fist iterator over BasicCluster constituents
     basicCluster_iterator clustersBegin() const { return clusters_.begin(); }
