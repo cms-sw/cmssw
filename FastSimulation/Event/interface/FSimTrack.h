@@ -1,5 +1,5 @@
-#ifndef FSimTrack_H
-#define FSimTrack_H
+#ifndef FastSimulation_Event_FSimTrack_H
+#define FastSimulation_Event_FSimTrack_H
 
 //CLHEP Headers
 #include "CLHEP/HepMC/GenParticle.h"

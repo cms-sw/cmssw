@@ -1,5 +1,5 @@
-#ifndef KINEPARTTICLEFILTER_H
-#define KINEEPARTTICLEFILTER_H
+#ifndef FastSimulation_Event_KineParticleFilter_H
+#define FastSimulation_Event_KineParticleFilter_H
 
 #include "FastSimulation/Particle/interface/BaseRawParticleFilter.h"
 

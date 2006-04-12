@@ -1,10 +1,14 @@
 //CLHEP Headers
 #include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/HepMC/GenEvent.h"
+#include "CLHEP/HepMC/GenVertex.h"
+#include "CLHEP/HepMC/GenParticle.h"
 
 //FAMOS Headers
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
+#include "FastSimulation/Event/interface/KineParticleFilter.h"
 
 // CMSSW headers
 #include "SimGeneral/HepPDT/interface/HepPDTable.h"
@@ -22,8 +26,6 @@ FBaseSimEvent::FBaseSimEvent() {
 
 
   // Initialize the vectors of particles and vertices
-  mySimTracks = new EmbdSimTrackContainer(); 
-  mySimVertices = new EmbdSimVertexContainer(); 
   myGenParticles = new vector<GenParticle*>(); 
 
   theSimTracks = new vector<FSimTrack>;
@@ -34,6 +36,9 @@ FBaseSimEvent::FBaseSimEvent() {
   mySimVertices->reserve(2048);
   theSimTracks->reserve(2048);
   theSimVertices->reserve(2048);
+
+  // Initialize the Particle filter
+  myFilter = new KineParticleFilter();
 
   // The vertex smearing (if needed)
   sigmaVerteX = 0.015;
@@ -53,21 +58,20 @@ FBaseSimEvent::~FBaseSimEvent(){
   delete myGenParticles;
   delete theSimTracks;
   delete theSimVertices;
+  delete myFilter;
 
 }
 
 void
 FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
   
+  // Clear old vectors
   clear();
 
+  // Create new vectors for the framework
+  mySimTracks = new EmbdSimTrackContainer(); 
+  mySimVertices = new EmbdSimVertexContainer(); 
 
-  // Set the event Id
-  //  Id = theId;
-  set_signal_process_id(myGenEvent.signal_process_id());
-  set_event_number(myGenEvent.event_number());
-
-  
   // printMCTruth(myGenEvent);
 
   // Fill the event with the stable particles of the GenEvent 
@@ -86,11 +90,14 @@ FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
 void
 FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
+  /// Some internal array to work with.
+  map<const GenParticle*,int> myGenVertices;
+
   // If no particles, no work to be done !
   if ( myGenEvent.particles_empty() ) return;
 
   // Are there particles in the FSimEvent already ? 
-  int offset = particles_size();
+  int offset = nGenParts();
 
   // Primary vertex
   GenVertex* primaryVertex = *(myGenEvent.vertices_begin());
@@ -103,12 +110,12 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 		      sigmaVerteY*RandGauss::shoot(),
 		      sigmaVerteZ*RandGauss::shoot(),
 		      0.);
-  myFilter.setMainVertex(primaryVertex->position()+smearedVertex);
+  myFilter->setMainVertex(primaryVertex->position()+smearedVertex);
 
   // This is the smeared main vertex
   //  GenVertex* mainVertex = new GenVertex(myFilter.vertex());
   //  addSimVertex(mainVertex);
-  int mainVertex = addSimVertex(myFilter.vertex());
+  int mainVertex = addSimVertex(myFilter->vertex());
 
   // Loop on the particles of the generated event
   for ( HepMC::GenEvent::particle_const_iterator 
@@ -198,7 +205,7 @@ int
 FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) { 
   
   // Check that the particle is in the Famos "acceptance"
-  if ( !myFilter.accept(p) ) return -1;
+  if ( !myFilter->accept(p) ) return -1;
 
   // An increasing barcode, corresponding to the list index
   //  part->suggest_barcode(nTracks()+1);
@@ -224,7 +231,7 @@ int
 FBaseSimEvent::addSimVertex(const HepLorentzVector& v,int im) {
   
   // Check that the vertex is in the Famos "acceptance"
-  if ( !myFilter.accept(RawParticle(HepLorentzVector(),v)) ) return -1;
+  if ( !myFilter->accept(RawParticle(HepLorentzVector(),v)) ) return -1;
 
   // An increasing -barcode, corresponding to the list index
   //  decayVertex->suggest_barcode(-nVertices()-1);
@@ -335,16 +342,7 @@ FBaseSimEvent::print() const {
 void 
 FBaseSimEvent::clear() {
 
-  // Clean memory
-  cout << "Nombre d'objets en memoire avant clean : " 
-       << counter() <<endl;
-  delete_all_vertices();
-  cout << "Nombre d'objets en memoire apres clean : " 
-       << counter() <<endl;
-
   // Clear the vectors
-  mySimTracks->clear();
-  mySimVertices->clear();
   myGenParticles->clear();
   
   theSimTracks->clear();

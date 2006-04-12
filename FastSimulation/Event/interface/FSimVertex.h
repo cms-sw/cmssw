@@ -1,5 +1,5 @@
-#ifndef FSimVertex_H
-#define FSimVertex_H
+#ifndef FastSimulation_Event_FSimVertex_H
+#define FastSimulation_Event_FSimVertex_H
 
 // CLHEP Headers
 #include <CLHEP/Vector/LorentzVector.h>

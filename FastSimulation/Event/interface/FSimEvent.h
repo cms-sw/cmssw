@@ -1,5 +1,5 @@
-#ifndef FSIMEVENT_H
-#define FSIMEVENT_H
+#ifndef FastSimulation_Event_FSimEvent_H
+#define FastSimulation_Event_FSimEvent_H
 
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
 

@@ -1,19 +1,16 @@
-#ifndef FBaseSimEvent_H
-#define FBaseSimEvent_H
+#ifndef FastSimulation_Event_FBaseSimEvent_H
+#define FastSimulation_Event_FBaseSimEvent_H
 
 //#include "DataFormats/Common/interface/EventID.h"
 
 // CLHEP Headers
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenVertex.h"
-#include "CLHEP/HepMC/GenParticle.h"
+//#include "CLHEP/HepMC/GenEvent.h"
 
 // CMSSW Headers
 #include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
 
-// FAMOS Headers
-#include "FastSimulation/Event/interface/KineParticleFilter.h"
+#include <map>
 
 /** FSimEvent special features for FAMOS
  *
@@ -21,11 +18,20 @@
  * \date: 9-Dec-2003
  */
 
+class FSimEvent;
 class FSimTrack;
 class FSimVertex;
+class RawParticle;
 class HepPDTable;
+class KineParticleFilter;
 
-class FBaseSimEvent : public HepMC::GenEvent {
+namespace HepMC {
+  class GenEvent;
+  class GenParticle;
+}
+
+class FBaseSimEvent  
+{
 
 public:
 
@@ -81,7 +87,7 @@ public:
   //  int addSimVertex(HepMC::GenVertex* decayVertex,int im=-1);
   int addSimVertex(const CLHEP::HepLorentzVector& decayVertex,int im=-1);
 
-  const KineParticleFilter filter() const { return myFilter; } 
+  const KineParticleFilter& filter() const { return *myFilter; } 
 
 
  protected:
@@ -96,11 +102,8 @@ public:
   std::vector<FSimTrack>* theSimTracks;
   std::vector<FSimVertex>* theSimVertices;
 
-  /// Some internal array to work with.
-  std::map<const HepMC::GenParticle*,int> myGenVertices;
-
   /// The particle filter
-  KineParticleFilter myFilter;
+  KineParticleFilter* myFilter;
 
   double sigmaVerteX;
   double sigmaVerteY;
