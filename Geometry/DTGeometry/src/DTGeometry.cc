@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/20 21:13:18 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/21 17:13:58 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -80,7 +80,9 @@ const GeomDetUnit* DTGeometry::idToDetUnit(DetId id) const{
 
 
 const GeomDet* DTGeometry::idToDet(DetId id) const{
-  DTDetMap::const_iterator i = theDetMap.find(id);
+  // Strip away wire#, if any!
+  DTLayerId lId(id.rawId());
+  DTDetMap::const_iterator i = theDetMap.find(lId);
   return (i != theDetMap.end()) ?
     i->second : 0 ;
 }
