@@ -1,0 +1,10 @@
+<export>
+ <lib name=RecoMuonMeasurementDet>
+ <use name=TrackingTools/MeasurementDet>
+ <use name=TrackingTools/TrajectoryState>
+ <use name=Geometry/CommonDetUnit>
+</export>
+
+<use name=TrackingTools/MeasurementDet>
+<use name=TrackingTools/TrajectoryState>
+<use name=Geometry/CommonDetUnit>
