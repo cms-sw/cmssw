@@ -68,6 +68,9 @@ SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) cons
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
 
+  edm::LogInfo("RecoVertex/KalmanVertexFitter") 
+    << "linearization point is " << linP << "\n";
+
   // Initial vertex state, with a very large error matrix
   AlgebraicSymMatrix we(3,1);
   GlobalError error(we*10000);
