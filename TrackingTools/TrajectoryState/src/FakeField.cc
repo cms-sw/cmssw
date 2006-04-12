@@ -1,3 +1,4 @@
 #include "TrackingTools/TrajectoryState/interface/FakeField.h"
 
-MagneticField* TrackingTools::FakeField::Field::theField = 0;
+// leaks memory... only for testing
+MagneticField* TrackingTools::FakeField::Field::theField = new ConcreteField;

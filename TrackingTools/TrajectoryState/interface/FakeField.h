@@ -5,6 +5,11 @@
 
 namespace  TrackingTools{
   namespace FakeField {
+    class ConcreteField : public MagneticField {
+      public:
+      GlobalVector inTesla( const GlobalPoint& pos) const 
+      	 {return GlobalVector(0, 0, 4);}
+    };
     class Field{
       public:
 //       Field( MagneticField* aField): theField(aField) {};
@@ -18,7 +23,7 @@ namespace  TrackingTools{
       static  GlobalVector inGeVPerCentimeter( const math::XYZPoint& pos)
        	 {return inTesla(pos) * 2.99792458e-3;}
      private:
-      static MagneticField* theField;
+      static MagneticField *theField;
     };
   }
 }
