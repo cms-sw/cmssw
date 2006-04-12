@@ -10,6 +10,7 @@
   <class pattern="ROOT::Math::PositionVector3D<*>" />
   <class pattern="ROOT::Math::SVector<*>" />
   <class pattern="ROOT::Math::MatRepSym<*>" />
+  <class pattern="ROOT::Math::RowOffsets<*>" />
 </selection>
 <exclusion>
   <class pattern="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<*>">
