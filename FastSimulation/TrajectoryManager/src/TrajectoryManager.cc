@@ -92,6 +92,7 @@ TrajectoryManager::reconstruct()
   for( int fsimi=0; fsimi < (int) mySimEvent->nTracks() ; ++fsimi) {
 
     FSimTrack& myTrack = mySimEvent->track(fsimi);
+    //    cout << myTrack << endl;
 
     // If the particle has decayed inside the beampipe, or decays 
     // immediately, there is nothing to do

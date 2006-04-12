@@ -46,8 +46,8 @@ FamosManager::~FamosManager()
 void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
 {
     // geometry
-  //    edm::ESHandle<DDCompactView> pDD;
-  //  es.get<IdealGeometryRecord>().get(pDD);
+  edm::ESHandle<DDCompactView> pDD;
+  es.get<IdealGeometryRecord>().get(pDD);
 
     // magnetic field
     if (m_pUseMagneticField)

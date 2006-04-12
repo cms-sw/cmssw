@@ -58,8 +58,9 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    std::auto_ptr<edm::EmbdSimTrackContainer> p1(fevt->tracks());
    std::auto_ptr<edm::EmbdSimVertexContainer> p2(fevt->vertices());
 
-   //   iEvent.put(p1);
-   //   iEvent.put(p2);
+   iEvent.put(p1);
+   iEvent.put(p2);
+
 
 }
 

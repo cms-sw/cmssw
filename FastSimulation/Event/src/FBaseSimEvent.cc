@@ -22,7 +22,10 @@ using namespace std;
 using namespace edm;
 using namespace HepMC;
 
-FBaseSimEvent::FBaseSimEvent() {
+FBaseSimEvent::FBaseSimEvent() : 
+  mySimTracks(0), 
+  mySimVertices(0) 
+{
 
 
   // Initialize the vectors of particles and vertices
@@ -32,8 +35,6 @@ FBaseSimEvent::FBaseSimEvent() {
   theSimVertices = new vector<FSimVertex>;
 
   // Reserve some size to avoid mutiple copies
-  mySimTracks->reserve(2048);
-  mySimVertices->reserve(2048);
   theSimTracks->reserve(2048);
   theSimVertices->reserve(2048);
 
@@ -53,8 +54,6 @@ FBaseSimEvent::FBaseSimEvent() {
 FBaseSimEvent::~FBaseSimEvent(){
 
   clear();
-  delete mySimTracks;
-  delete mySimVertices;
   delete myGenParticles;
   delete theSimTracks;
   delete theSimVertices;
@@ -342,6 +341,8 @@ FBaseSimEvent::print() const {
 void 
 FBaseSimEvent::clear() {
 
+  //  if ( mySimTracks) delete mySimTracks;
+  //  if ( mySimVertices) delete mySimVertices;
   // Clear the vectors
   myGenParticles->clear();
   
