@@ -1,7 +1,8 @@
 #include "RecoVertex/VertexTools/interface/SequentialVertexFitter.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 // #include "Utilities/UI/interface/SimpleConfigurable.h"
- 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <algorithm>
 using namespace std;
 
@@ -71,7 +72,16 @@ SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) cons
   AlgebraicSymMatrix we(3,1);
   GlobalError error(we*10000);
   VertexState state(linP, error);
+  
+
+  edm::LogInfo("RecoVertex/KalmanVertexFitter") 
+    << "Now linearizing tracks" << "\n";
+
   vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, state);
+
+  edm::LogInfo("RecoVertex/KalmanVertexFitter") 
+    << "Now fitting vertex" << "\n";
+
   return fit(vtContainer, state, false);
 }
 
@@ -165,8 +175,11 @@ SequentialVertexFitter::reLinearizeTracks(
   vector<RefCountedVertexTrack> finalTracks;
   for(vector<RefCountedVertexTrack>::const_iterator i = tracks.begin(); 
       i != tracks.end(); i++) {
+    //    RefCountedLinearizedTrackState lTrData = 
+    //    	(**i).linearizedTrack()->stateWithNewLinearizationPoint(linP);
     RefCountedLinearizedTrackState lTrData = 
-    	(**i).linearizedTrack()->stateWithNewLinearizationPoint(linP);
+      theLTrackFactory.linearizedTrackState(linP, 
+					    (**i).linearizedTrack()->track());
     RefCountedVertexTrack vTrData =
       theVTrackFactory.vertexTrack(lTrData,state, (**i).weight() );
     finalTracks.push_back(vTrData);
@@ -208,6 +221,10 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
     // update sequentially the vertex estimate
     for (vector<RefCountedVertexTrack>::const_iterator i 
 	   = globalVTracks.begin(); i != globalVTracks.end(); i++) {
+
+      edm::LogInfo("RecoVertex/KalmanVertexFitter") 
+	<< "Now updating vertex" << "\n";
+      
       fVertex = theUpdator->add(fVertex,*i);
     }
 

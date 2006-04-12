@@ -4,6 +4,7 @@
 #include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // #include "CommonReco/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 // #include "CommonDet/DetUtilities/interface/FastTimeMe.h"
@@ -94,13 +95,23 @@ void PerigeeLinearizedTrackState::computeJacobians() const
 //   cout << endl << allTimer.average().ticks() 
 //        << " All          time per event (in clock ticks)" << endl;
 
+  edm::LogInfo("RecoVertex/PerigeeLTS") 
+    << "about to build predstate" << "\n";
+  edm::LogInfo("RecoVertex/PerigeeLTS") 
+    << "initial state validity:" << theTSOS.isValid() << "\n";
   thePredState = builder(theTSOS, paramPt); 
+  edm::LogInfo("RecoVertex/PerigeeLTS") 
+    << "predstate built" << "\n";
   if (std::abs(theCharge)<1e-5) {
     //neutral track
     computeNeutralJacobians();
   } else {
     //charged track
+    edm::LogInfo("RecoVertex/PerigeeLTS") 
+      << "about to compute charged jac" << "\n";
     computeChargedJacobians();
+    edm::LogInfo("RecoVertex/PerigeeLTS") 
+      << "charged jac computed" << "\n";
   }
 
 
@@ -176,14 +187,18 @@ bool PerigeeLinearizedTrackState::operator ==(ReferenceCountingPointer<Linearize
   return (otherP->track() == theTrack);
 }
 
-
-RefCountedLinearizedTrackState
-PerigeeLinearizedTrackState::stateWithNewLinearizationPoint
-			(const GlobalPoint & newLP) const
-{
-  return RefCountedLinearizedTrackState(
-  		new PerigeeLinearizedTrackState(newLP, track(), theTSOS));
-}
+// ERROR-PRONE; use LTFactory instead
+//
+//RefCountedLinearizedTrackState
+//PerigeeLinearizedTrackState::stateWithNewLinearizationPoint
+//			(const GlobalPoint & newLP) const
+//{
+//  edm::LogInfo("RecoVertex/PerigeeLTS") 
+//    << "statewithnewLP" << "\n";
+//  
+//  return RefCountedLinearizedTrackState(
+//  		new PerigeeLinearizedTrackState(newLP, track(), theTSOS));
+//}
 
 RefCountedRefittedTrackState
 PerigeeLinearizedTrackState::createRefittedTrackState(
