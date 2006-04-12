@@ -170,7 +170,7 @@ double CSCSectorReceiverLUT::getGlobalPhiValue(const CSCLayer* thelayer, const u
       thegeom = const_cast<CSCLayerGeometry*>(thelayer->geometry());
       lp = thegeom->stripWireGroupIntersection(strip+1, wire_group+1);
       gp = thelayer->surface().toGlobal(lp);
-      result = gp.phi();
+      result = thelayer->centerOfStrip(strip+1).phi();//gp.phi();
       if (result < 0.) result += 2*M_PI;
     }
   catch(edm::Exception& e)
@@ -317,12 +317,12 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 	      if (halfstripWidth > M_PI/2.) halfstripWidth = M_PI - halfstripWidth;
 	      // Phi at the center of the strip.
 	      strip_phi = getGlobalPhiValue(thelayer, strip, wire_group);
-	      // Distance between the center of the strip and the phil position.
+	      	      // Distance between the center of the strip and the phil position.
 	      delta_phi = halfstripWidth*(((halfstrip%2)-0.5)+distFromHalfStripCenter);
 	      if (clockwiseOrder)
-		temp_phi = strip_phi + delta_phi;
+		temp_phi = strip_phi+ delta_phi;
 	      else
-		temp_phi = strip_phi - delta_phi;
+		temp_phi = strip_phi- delta_phi;
 	    }
 	  else 
 	    {
@@ -336,6 +336,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 
 	  // Finally, subtract the sector offset and convert to the scale of
 	  // the global phi.
+	  
 	  temp_phi -= sectorOffset;
 	  if (temp_phi < 0.) temp_phi += 2.*M_PI;
 	  temp_phi *= binPhiG;
