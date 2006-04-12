@@ -153,7 +153,7 @@ CPEFromDetPosition::localError( const SiPixelCluster& cluster, const GeomDetUnit
       " Edgex = " << edgex << 
       " Edgey = " << edgey ;
   }
-  if (sizex>0) return LocalError( sizex, 0, sizey );
+  //if (sizex>0) return LocalError( sizex, 0, sizey );
 
   return LocalError( err2X(edgex, sizex), 0, err2Y(edgey, sizey) );
 }
@@ -193,32 +193,41 @@ CPEFromDetPosition::err2X(bool& edgex, int& sizex) const
 // Assign maximum error
   // if edge cluster the maximum error is assigned: Pitch/sqrt(12)=43mu
   //  float xerr = 0.0043; 
-  float xerr = thePitchX/3.464; 
+  float xerr = thePitchX/3.464;
+  //
+  // Pixels not at the edge: errors parameterized as function of the cluster size
+  // V.Chiochia - 12/4/06
+  //
   if (!edgex){
-    if (fabs(thePitchX-0.010)<0.001){   // 100um pixel size
+    //    if (fabs(thePitchX-0.010)<0.001){   // 100um pixel size
       if (thePart == GeomDetType::PixelBarrel) {
-	if ( sizex == 1) xerr = 0.0010;     // 10um 
-	else if ( sizex == 2) xerr = 0.0009;   // 9um      
-	else xerr = 0.00055;   // 5.5um      
+	if ( sizex == 1) xerr = 0.00115;      // Size = 1 -> Sigma = 11.5 um 
+	else if ( sizex == 2) xerr = 0.0012;  // Size = 2 -> Sigma = 12 um      
+	else if ( sizex == 3) xerr = 0.00088; // Size = 3 -> Sigma = 8.8 um
+	else xerr = 0.0103;
       } else { //forward
 	if ( sizex == 1) {
-	  xerr = 0.001;
+	  xerr = 0.0020;
 	}  else if ( sizex == 2) {
-	  xerr = (0.005351 - atan(fabs(theDetZ/theDetR)) * 0.003291);  
+	  xerr = 0.0020;
+	  // xerr = (0.005351 - atan(fabs(theDetZ/theDetR)) * 0.003291);  
 	} else {
-	  xerr = (0.003094 - atan(fabs(theDetZ/theDetR)) * 0.001854);  
+	  xerr = 0.0020;
+	  //xerr = (0.003094 - atan(fabs(theDetZ/theDetR)) * 0.001854);  
 	}
       }
-    }else if (fabs(thePitchX-0.015)<0.001){  // 150 um pixel size
-      if (thePart == GeomDetType::PixelBarrel) {
-	if ( sizex == 1) xerr = 0.0014;     // 14um 
-	else xerr = 0.0008;   // 8um      
-      } else { //forward
-	if ( sizex == 1) 
-	  xerr = (-0.00385 + atan(fabs(theDetZ/theDetR)) * 0.00407);
-	else xerr = (0.00366 - atan(fabs(theDetZ/theDetR)) * 0.00209);  
-      }
-    }
+      //    }
+//     }else if (fabs(thePitchX-0.015)<0.001){  // 150 um pixel size
+//       if (thePart == GeomDetType::PixelBarrel) {
+// 	if ( sizex == 1) xerr = 0.0014;     // 14um 
+// 	else xerr = 0.0008;   // 8um      
+//       } else { //forward
+// 	if ( sizex == 1) 
+// 	  xerr = (-0.00385 + atan(fabs(theDetZ/theDetR)) * 0.00407);
+// 	else xerr = (0.00366 - atan(fabs(theDetZ/theDetR)) * 0.00209);  
+//       }
+//     }
+
   }
   return xerr*xerr;
 }
@@ -235,19 +244,31 @@ CPEFromDetPosition::err2Y(bool& edgey, int& sizey) const
 //  float yerr = 0.0043;
   float yerr = thePitchY/3.464; 
   if (!edgey){
-    if (thePart == GeomDetType::PixelBarrel) {
+    if (thePart == GeomDetType::PixelBarrel) { // Barrel
       if ( sizey == 1) {
-	yerr = 0.0030;     // 31um 
+	yerr = 0.00375;     // 37.5um 
       } else if ( sizey == 2) {
-	yerr = 0.0021;   // 18um      
+	yerr = 0.0023;   // 23 um      
       } else if ( sizey == 3) {
-	yerr = 0.0020; // 20um 
-      } else {
-	yerr = 0.0017;   // 17um
-      }      
-    } else { //forward
-      if ( sizey == 1) yerr = 0.0022; // 22um
-      else yerr = 0.0008;  // 7um
+	yerr = 0.0025; // 25 um
+      } else if ( sizey == 4) {
+	yerr = 0.0025; // 25um
+      } else if ( sizey == 5) {
+	yerr = 0.0023; // 23um
+      } else if ( sizey == 6) {
+	yerr = 0.0023; // 23um
+      } else if ( sizey == 7) {
+	yerr = 0.0021; // 21um
+      } else if ( sizey == 8) {
+	yerr = 0.0021; // 21um
+      } else if ( sizey == 9) {
+	yerr = 0.0024; // 24um
+      } else if ( sizey >= 10) {
+	yerr = 0.0021; // 21um
+      }
+    } else { // Endcaps
+      if ( sizey == 1)      yerr = 0.0021; // 21 um
+      else if ( sizey >= 2) yerr = 0.00075;// 7.5 um
     }
   }
   return yerr*yerr;
