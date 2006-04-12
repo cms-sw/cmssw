@@ -59,13 +59,12 @@ class prodname : public edm::EDProducer {
 prodname::prodname(const edm::ParameterSet& iConfig)
 {
    //register your products
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
+/* Examples
    produces<ExampleData2>();
 
    //if do put with a label
    produces<ExampleData2>("label");
-#endif
-
+*/
    //now do what ever other initialization is needed
 
 }
@@ -89,7 +88,7 @@ void
 prodname::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
+/* This is an event example
    //Read 'ExampleData' from the Event
    Handle<ExampleData> pIn;
    iEvent.getByLabel("example",pIn);
@@ -98,13 +97,13 @@ prodname::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // is put into the Event
    std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
    iEvent.put(pOut);
-#endif
+*/
 
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
+/* this is an EventSetup example
    //Read SetupData from the SetupRecord in the EventSetup
    ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get(pSetup);
-#endif
+*/
 }
 
 //define this as a plug-in
