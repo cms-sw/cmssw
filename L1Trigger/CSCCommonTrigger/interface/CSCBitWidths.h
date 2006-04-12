@@ -15,9 +15,9 @@ class CSCBitWidths
 
   enum corrlct_bits { kPatternBitWidth=CLCT_PATTERN_BITS, kQualityBitWidth = 4, kBendBitWidth = 1 };
 
-  enum addresses { kLocalPhiAddressWidth = 19, kGlobalEtaAddressWidth = kLocalPhiAddressWidth };
+  enum addresses { kLocalPhiAddressWidth = 19, kGlobalEtaAddressWidth = kLocalPhiAddressWidth, kGlobalPhiAddressWidth = kGlobalEtaAddressWidth };
 
-  enum data_sizes { kLocalPhiDataBitWidth = 10, kLocalPhiBendDataBitWidth = 6 , kGlobalEtaBitWidth = 7};
+  enum data_sizes { kLocalPhiDataBitWidth = 10, kLocalPhiBendDataBitWidth = 6 , kGlobalEtaBitWidth = 7, kGlobalPhiDataBitWidth = 12};
 };
 
 #endif
