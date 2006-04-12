@@ -7,9 +7,12 @@
 
 
   /** \class HcalTBTriggerData
+
+This class contains trigger information (mainly trigger type and time),
+and run information such as run, event, spill, bunch and orbit numbers.
       
-  $Date: 2005/08/23 01:07:18 $
-  $Revision: 1.1 $
+  $Date: 2005/10/06 22:21:33 $
+  $Revision: 1.2 $
   \author P. Dudero - Minnesota
   */
   class HcalTBTriggerData {
@@ -17,14 +20,24 @@
     HcalTBTriggerData();
 
     // Getter methods
+
     const std::string& runNumberSequenceId() const { return runNumberSequenceId_; }
+
+    /// Returns the current run number
     uint32_t runNumber()       const { return runNumber_;       }
+    /// Returns the entire packed trigger word
     uint32_t triggerWord()     const { return triggerWord_;     }
+    /// Returns the relative time of this trigger in microseconds
     uint32_t triggerTimeUsec() const { return triggerTimeUsec_; }
+    /// Returns the base time of the run (in seconds, from a time() call)
     uint32_t triggerTimeBase() const { return triggerTimeBase_; }
+    /// Returns the spill number of this trigger
     uint32_t spillNumber()     const { return spillNumber_;     }
+    /// Returns the orbit number of this trigger
     uint32_t orbitNumber()     const { return orbitNumber_;     }
+    /// Returns the bunch number of this trigger
     uint16_t bunchNumber()     const { return bunchNumber_;     }
+    /// Returns the event number of this trigger
     uint16_t eventNumber()     const { return eventNumber_;     }
     uint32_t flagsDaqTtype()   const { return flagsDaqTtype_;   }
     uint32_t algoBits3()       const { return algoBits3_;       }

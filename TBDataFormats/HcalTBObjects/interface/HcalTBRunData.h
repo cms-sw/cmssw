@@ -7,9 +7,12 @@
 
 
   /** \class HcalTBRunData
-      
-  $Date: 2005/08/23 01:07:18 $
-  $Revision: 1.1 $
+
+  This class contains data associated with a run, such as character
+  strings describing the run type, beam mode, and also the beam energy.
+
+  $Date: 2005/10/06 22:21:33 $
+  $Revision: 1.2 $
   \author P. Dudero - Minnesota
   */
   class HcalTBRunData {
@@ -17,9 +20,12 @@
     HcalTBRunData();
 
     // Getter methods
+    /// Returns the run type string
     const std::string& runType()       const { return runType_;       }
+    /// Returns the beam mode string
     const std::string& beamMode()      const { return beamMode_;      }
 
+    /// Returns the beam energy in GeV 
     double             beamEnergyGeV() const { return beamEnergyGeV_; }
 
     // Setter methods
