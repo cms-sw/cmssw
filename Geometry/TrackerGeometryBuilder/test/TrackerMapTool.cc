@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerMapTool.cc,v 1.2 2006/03/16 11:41:42 fambrogl Exp $
+// $Id: TrackerMapTool.cc,v 1.1 2006/04/07 14:54:37 fambrogl Exp $
 //
 //
 
@@ -232,6 +232,7 @@ TrackerMapTool::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
       }
       
       nmod=(int)((phi/(2.*M_PI))*spicchib[nlay-31]+.1)+1;
+      if(nlay==40)nmod=nmod-1;
       if(subdet==1)nmod=ringno;
     }else{ // endcap
       if (subdet==4||subdet==6) {
