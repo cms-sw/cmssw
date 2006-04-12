@@ -117,7 +117,7 @@ void EventProcessor::init(std::string &config)
   edm::ParameterSet trigger_paths =
     (*params_).getUntrackedParameter<edm::ParameterSet>("@trigger_paths");
   boost::shared_ptr<w_TNS> tnsptr
-    (new w_TNS( std::auto_ptr<TNS>(new TNS(trigger_paths,proc_name))));
+    (new w_TNS( std::auto_ptr<TNS>(new TNS(trigger_paths))));
   edm::ServiceToken tempToken2(edm::ServiceRegistry::createContaining(tnsptr, 
 							      tempToken, 
 							      edm::serviceregistry::kOverlapIsError));
