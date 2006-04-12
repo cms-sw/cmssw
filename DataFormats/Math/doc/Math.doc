@@ -12,7 +12,7 @@ Persistent classes for mathematical types. This package is based on ROOT/SEAL <a
 \subsection interface Public interface
 typedefs of commonly used <a href="http://seal.web.cern.ch/seal/MathLibs/MathCore/html/index.html">MathCore</a> and
 and <a href="http://seal.web.cern.ch/seal/MathLibs/SMatrix/html/index.html">Smatrix</a> types.
-In all cases, the elements are of type <tt>Double32_t</tt>, i.e.: are stored by default as <tt>float</tt> and represented in memory as <tt>double</tt>. Classes whose typedefs end by "<tt><b>D</b></tt>" store elements as <tt>double</tt>, and classes whose typedefs end by "<tt><b>F</b></tt>" store elements as <tt>float</tt>, 
+In all cases, the elements are of type <tt>Double32_t</tt>, i.e.: are stored by default as <tt>float</tt> and represented in memory as <tt>double</tt>. Classes whose typedefs end by <tt><b>D</b></tt> store elements as <tt>double</tt>, and classes whose typedefs end by <tt><b>F</b></tt> store elements as <tt>float</tt>, 
 - <b>Spatial Vectors:</b>
   - math::XYZVector, math::XYZVectorD, math::XYZVectorF: spatial vector with cartesian internal representation.
   - math::RhoEtaPhiVector, math::RhoEtaPhiVectorD, math::RhoEtaPhiVectorF: spatial vector with cylindrical internal representation using pseudorapidity.
@@ -42,5 +42,5 @@ Stable. The dictionary generation for this package can be replaced
 eventyally using the RELAX project.
 
 <hr>
-Last updated: @DATE@ L. Lista
+Last updated: 2006-04-10 L. Lista
 */
