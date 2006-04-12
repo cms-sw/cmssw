@@ -6,15 +6,16 @@
 /** Relevant constants are:
   4.5 photoelectrons per MeV (J. Nash's slides)
   APD gain 50, but analog signal stays in GeV
+  Account for excess noise factor
  */
  
 EcalSimParameterMap::EcalSimParameterMap() :
-  theBarrelParameters(4500., 1./4500., 
-                   1., 47., 
+  theBarrelParameters(2250., 1./2250., 
+                   1., 47.6683, 
                    10, 5, true),
-  theEndcapParameters( 4500., 1./4500., 
-                   1., 47., 
-	          10, 5, true),
+  theEndcapParameters( 1800., 1./1800., 
+                   1., 47.6683, 
+        	       10, 5, true),
   theESParameters(1., 1., 1., 20., 3, 2, false)
 {}
 
@@ -33,6 +34,5 @@ const CaloSimParameters & EcalSimParameterMap::simParameters(const DetId & detId
     return theEndcapParameters;
   else 
     return theESParameters;
-  // return (EcalSubdetector(detId.subdetId()) == EcalBarrel) ? theBarrelParameters : theEndcapParameters;
 }
   
