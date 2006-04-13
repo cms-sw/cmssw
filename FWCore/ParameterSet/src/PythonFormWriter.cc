@@ -336,10 +336,15 @@ namespace edm
         {
           header<<"'"<<n.class_<<"': {";
         }
+      else if(n.type()=="secsource")
+        {
+          header<<"'"<<n.name <<"': ('secsource', 'tracked', {";
+        }
       else
 	{
 	  header << "'" << n.name << "': {";
 	}
+
       header << "'@classname': ('string', 'tracked', '"
 	     << n.class_
 	     << "')";
@@ -360,7 +365,16 @@ namespace edm
 	  outputModuleNames_.push_back(n.name);
 	}
 
-      moduleStack_.push(header.str());
+      // secsource is the only kind of module that can exist inside another module
+      if(n.type() == "secsource") 
+      {
+        assert(!moduleStack_.empty());
+        moduleStack_.top() += header.str();
+      }
+      else 
+      {
+        moduleStack_.push(header.str());
+      }
 
       // We can't just call 'acceptForChildren', beacuse we have to
       // take action between children.
@@ -382,8 +396,17 @@ namespace edm
       moduleStack_.top() += '}'; // add trailer
 
       string section_label = n.type();
-      modules_[section_label].push_back(moduleStack_.top());
-      moduleStack_.pop();
+      // the only module that we expect to see inside
+      // another module is the secsource
+      if(section_label == "secsource") 
+      {
+        moduleStack_.top() += ')';
+      } 
+      else 
+      {
+        modules_[section_label].push_back(moduleStack_.top());
+        moduleStack_.pop();
+      }
     }
 
 
