@@ -153,6 +153,11 @@ public:
    */
   static bool lost( const TransientTrackingRecHit& hit);
 
+  /// Redundant method, returns the layer of lastMeasurement() .
+  const DetLayer* lastLayer() const {
+    check(); return theData.back().layer();
+  }
+
 private:
 
   DataContainer theData;
