@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.18 2006/04/04 22:19:16 wmtan Exp $
+$Id: PoolSource.h,v 1.19 2006/04/06 23:44:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -35,7 +35,7 @@ namespace edm {
     typedef input::EntryNumber EntryNumber;
     PoolRASource(PoolRASource const&); // disable copy construction
     PoolRASource & operator=(PoolRASource const&); // disable assignment
-    virtual std::auto_ptr<EventPrincipal> readOneEvent();
+    virtual std::auto_ptr<EventPrincipal> read();
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& id);
     virtual void skip(int offset);
     virtual void readMany_(int number, EventPrincipalVector& result);

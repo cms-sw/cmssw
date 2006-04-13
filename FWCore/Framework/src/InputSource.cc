@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.5 2006/01/07 20:41:12 wmtan Exp $
+$Id: InputSource.cc,v 1.6 2006/04/04 22:15:22 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert>
 
@@ -13,6 +13,8 @@ namespace edm {
   InputSource::InputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
       ProductRegistryHelper(),
       maxEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
+      remainingEvents_(maxEvents_),
+      unlimited_(maxEvents_ < 0),
       module_(),
       preg_(desc.preg_),
       process_(desc.processName_) {
@@ -25,19 +27,52 @@ namespace edm {
   InputSource::~InputSource() {}
 
   std::auto_ptr<EventPrincipal>
+  InputSource::readEvent_() {
+    if (unlimited_) {
+      return read();
+    }
+    std::auto_ptr<EventPrincipal> result(0);
+
+    if (remainingEvents_ != 0) {
+      result = read();
+      if (result.get() != 0) {
+        --remainingEvents_;
+      }
+    }
+    return result;
+  }
+
+  std::auto_ptr<EventPrincipal>
   InputSource::readEvent() {
     // Do we need any error handling (e.g. exception translation) here?
-    std::auto_ptr<EventPrincipal> ep(this->read());
+    std::auto_ptr<EventPrincipal> ep(readEvent_());
     if (ep.get()) {
 	ep->addToProcessHistory(process_);
     }
     return ep;
   }
 
+
+  std::auto_ptr<EventPrincipal>
+  InputSource::readEvent_(EventID const& eventID) {
+    if (unlimited_) {
+      return readIt(eventID);
+    }
+    std::auto_ptr<EventPrincipal> result(0);
+
+    if (remainingEvents_ != 0) {
+      result = readIt(eventID);
+      if (result.get() != 0) {
+        --remainingEvents_;
+      }
+    }
+    return result;
+  }
+
   std::auto_ptr<EventPrincipal>
   InputSource::readEvent(EventID const& eventID) {
     // Do we need any error handling (e.g. exception translation) here?
-    std::auto_ptr<EventPrincipal> ep(this->readIt(eventID));
+    std::auto_ptr<EventPrincipal> ep(readEvent_(eventID));
     if (ep.get()) {
 	ep->addToProcessHistory(process_);
     }

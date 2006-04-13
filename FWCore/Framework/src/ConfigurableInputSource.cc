@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.1 2006/01/18 00:38:44 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.2 2006/04/04 22:15:22 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,8 +15,7 @@ namespace edm {
   ConfigurableInputSource::ConfigurableInputSource(ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
     InputSource(pset, desc),
-    remainingEvents_(maxEvents()),
-    numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents_)),
+    numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
     presentTime_(pset.getUntrackedParameter<unsigned int>("firstTime", 0)),  //time in ns
     timeBetweenEvents_(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
     numberEventsInThisRun_(0),
@@ -27,7 +26,7 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  ConfigurableInputSource::readOneEvent() {
+  ConfigurableInputSource::read() {
     setRunAndEventInfo();
     if (eventID_ == EventID()) {
       return std::auto_ptr<EventPrincipal>(0); 
@@ -42,19 +41,6 @@ namespace edm {
     return result;
   }
 
-  std::auto_ptr<EventPrincipal>
-  ConfigurableInputSource::read() {
-    std::auto_ptr<EventPrincipal> result(0);
-    
-    if (remainingEvents_ != 0) {
-      result = readOneEvent();
-      if (result.get() != 0) {
-        ++numberEventsInThisRun_;
-        --remainingEvents_;
-      }
-    }
-    return result;
-  }
 
   std::auto_ptr<EventPrincipal>
   ConfigurableInputSource::readIt(EventID const& eventID) {

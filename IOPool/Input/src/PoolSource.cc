@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.25 2006/04/04 22:19:16 wmtan Exp $
+$Id: PoolSource.cc,v 1.26 2006/04/06 23:44:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -110,7 +110,7 @@ namespace edm {
   PoolRASource::~PoolRASource() {
   }
 
-  // readOneEvent() is responsible for creating, and setting up, the
+  // read() is responsible for creating, and setting up, the
   // EventPrincipal.
   //
   //   1. create an EventPrincipal with a unique EventID
@@ -124,7 +124,7 @@ namespace edm {
   //  when it is asked to do so.
   //
   std::auto_ptr<EventPrincipal>
-  PoolRASource::readOneEvent() {
+  PoolRASource::read() {
     if (!next()) {
       if (!mainInput_) {
 	repeat();

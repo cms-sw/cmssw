@@ -38,13 +38,14 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.4 2006/01/07 00:38:14 wmtan Exp $
+$Id: InputSource.h,v 1.5 2006/04/04 22:15:21 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include <string>
 
+#include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 
@@ -71,14 +72,25 @@ namespace edm {
     
     void skipEvents(int offset);
 
+    void setRunNumber(RunNumber_t r) {setRun(r);}
+
   protected:
 
     int maxEvents() const {return maxEvents_;}
 
+    int remainingEvents() const {return remainingEvents_;}
+
+    void repeat() {remainingEvents_ = maxEvents_;}
+
     ModuleDescription const& module() const {return module_;}
 
   private:
+
     int const maxEvents_;
+
+    int remainingEvents_;
+
+    bool const unlimited_;
 
     ModuleDescription module_;
 
@@ -90,11 +102,17 @@ namespace edm {
 
     // Indicate inability to get a new event by returning a null
     // auto_ptr.
+    std::auto_ptr<EventPrincipal> readEvent_();
+
+    std::auto_ptr<EventPrincipal> readEvent_(EventID const&);
+
     virtual std::auto_ptr<EventPrincipal> read() = 0;
 
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const&) {assert(0);}
 
     virtual void skip(int) {assert(0);}
+
+    virtual void setRun(RunNumber_t r) {assert(0);}
   };
 }
 

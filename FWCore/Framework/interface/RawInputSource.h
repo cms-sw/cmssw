@@ -2,7 +2,7 @@
 #define Framework_RawInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: RawInputSource.h,v 1.1 2006/01/18 00:38:44 wmtan Exp $
+$Id: RawInputSource.h,v 1.2 2006/04/04 22:15:21 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -23,13 +23,17 @@ namespace edm {
     int remainingEvents() const {return remainingEvents_;}
 
   protected:
-    std::auto_ptr<Event> makeEvent(EventID const& eventId, Timestamp const& tstamp);
+    std::auto_ptr<Event> makeEvent(EventID & eventId, Timestamp const& tstamp);
     virtual std::auto_ptr<Event> readOneEvent() = 0;
 
   private:
     virtual std::auto_ptr<EventPrincipal> read();
+    virtual std::auto_ptr<EventPrincipal> readIt(EventID const& eventID);
+    virtual void skip(int offset);
+    virtual void setRun(RunNumber_t r) {runNumber_ = r;}
     
     int remainingEvents_;
+    RunNumber_t runNumber_;
     std::auto_ptr<EventPrincipal> ep_;
   };
 }
