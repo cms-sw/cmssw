@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/28 08:59:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/04/10 12:15:28 $
+ *  $Revision: 1.1 $
  *  \author M. Zanetti
  */
 
@@ -61,44 +61,63 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
 
     // getting the data word by word from the file
     // do it until you get the DDU trailer
+
+    int counter=0;
+
     while ( !isTrailer(word) ) { 
 
       // get the first word
       inputFile.read(dataPointer<uint64_t>( &word ), dduWordLenght);
 
-      if ( !inputFile ) throw 1;
-
+//       if ( !inputFile ) throw 1;
+      if ( !inputFile ) {
+	counter=0;
+	break;
+      }
       // get the DDU header
       if (isHeader(word)) marked=true;
 
       // from now on fill the eventData with the ROS data
       if (marked) {
 	eventData.push_back(word);
-
+	counter++;
       }
     } 
 
-    // next event reading will start with meaningless trailer+header from DTLocalDAQ
-    // those will be skipped automatically when seeking for the DDU header
-
-    if (eventData.size() > estimatedEventDimension) throw 2;
+    if (counter) {
     
-    // Setting the Event ID
-    eID = EventID( runNumber, eventNumber);
+      if (false) {
+	FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
+	cout<<"[DTDDUFileReader]: Number of words. Pushed back: "<<counter
+	    <<" from DDU trailer: "<<candidate.lenght()<<endl;
+      }
+      
+      // next event reading will start with meaningless trailer+header from DTLocalDAQ
+      // those will be skipped automatically when seeking for the DDU header
+      if (eventData.size() > estimatedEventDimension) throw 2;
+      
+      // Setting the Event ID
+      eID = EventID( runNumber, eventNumber);
+      
+      // eventDataSize = (Number Of Words)* (Word Size)
+      int eventDataSize = eventData.size()*dduWordLenght;
+      // It has to be a multiple of 8 bytes. if not, adjust the size of the FED payload
+      int adjustment = (eventDataSize/4)%2 == 1 ? 4 : 0; 
+      
+      // The FED ID is always the first in the DT range
+      FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
+      fedRawData.resize(eventDataSize+adjustment);
+      
+      copy(reinterpret_cast<unsigned char*>(&eventData[0]),
+	   reinterpret_cast<unsigned char*>(&eventData[0]) + eventDataSize, fedRawData.data());
+      
+      return true;
+    }
 
-    // eventDataSize = (Number Of Words)* (Word Size)
-    int eventDataSize = eventData.size()*dduWordLenght;
-    // It has to be a multiple of 8 bytes. if not, adjust the size of the FED payload
-    int adjustment = (eventDataSize/4)%2 == 1 ? 4 : 0; 
+    else {
+      return false;
+    }
 
-    // The FED ID is always the first in the DT range
-    FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
-    fedRawData.resize(eventDataSize+adjustment);
-    
-    copy(reinterpret_cast<unsigned char*>(&eventData[0]),
-	 reinterpret_cast<unsigned char*>(&eventData[0]) + eventDataSize, fedRawData.data());
-
-    return true;
   }
 
   catch( int i ) {
