@@ -3,8 +3,8 @@
 
 //   base class for MuonBarrelNavigableLayer and MuonForwardNavigable. 
 //   TrackingRange defines an MuonEtaRange for an FTS, which is used for search compatible DetLayers.
-//   $Date: $
-//   $Revision: $
+//   $Date: 2006/04/01 21:46:06 $
+//   $Revision: 1.1 $
 //   \auther Chang Liu             Purdue University
 
 /* Collaborating Class Declarations */
@@ -42,7 +42,7 @@ class MuonNavigableLayer : public NavigableLayer {
     /// set DetLayer
     virtual void setDetLayer(DetLayer*)=0;
 
-    MuonEtaRange TrackingRange(const FreeTrajectoryState& fts) const;
+    MuonEtaRange trackingRange(const FreeTrajectoryState& fts) const;
 
 };
 #endif

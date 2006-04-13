@@ -1,8 +1,8 @@
 #include "RecoMuon/Navigation/interface/MuonNavigableLayer.h"
 //   Ported from ORCA.
 //   New methods compatibleLayers are added.
-//   $Date: 2006/04/01 21:50:28 $
-//   $Revision: 1.1 $
+//   $Date: 2006/04/06 10:57:49 $
+//   $Revision: 1.2 $
 
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -19,7 +19,7 @@ extern float calculateEta(float r, float z)  {
 
 }
 
-MuonEtaRange MuonNavigableLayer::TrackingRange(const FreeTrajectoryState& fts) const
+MuonEtaRange MuonNavigableLayer::trackingRange(const FreeTrajectoryState& fts) const
 {  
   float z = fts.position().z();
   float r = fts.position().perp();
@@ -34,8 +34,6 @@ MuonEtaRange MuonNavigableLayer::TrackingRange(const FreeTrajectoryState& fts) c
 
   MuonEtaRange range(eta+spread,eta-spread);
 
-  // @Chang from RB: I don't understand if the below correction is supposed only 
-  // for the two other cases or not. If not this line should go before the previous.
   if ( spread < 0.07 ) spread = 0.07; 
 
   if ( eta > 1.0 && eta < 1.1 )  range = MuonEtaRange(eta+3.0*spread,eta-spread);

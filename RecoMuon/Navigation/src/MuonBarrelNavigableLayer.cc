@@ -1,8 +1,8 @@
 #include "RecoMuon/Navigation/interface/MuonBarrelNavigableLayer.h"
 //   Ported from ORCA.
 //   New methods compatibleLayers are added.
-//   $Date: 2006/03/22 02:10:14 $
-//   $Revision: 1.1 $
+//   $Date: 2006/04/01 21:48:31 $
+//   $Revision: 1.2 $
 
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -133,7 +133,7 @@ void MuonBarrelNavigableLayer::pushResult(vector<const DetLayer*>& result,
 void MuonBarrelNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
                                           const MapB& map,
                                           const FreeTrajectoryState& fts) const {
-  MuonEtaRange range= TrackingRange(fts);
+  MuonEtaRange range= trackingRange(fts);
   for ( MapBI i = map.begin(); i != map.end(); i++ )
     if ((*i).second.isCompatible(range)) result.push_back((*i).first);
 }
@@ -141,7 +141,7 @@ void MuonBarrelNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& res
 void MuonBarrelNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
                                           const MapE& map,
                                           const FreeTrajectoryState& fts) const {
-  MuonEtaRange range= TrackingRange(fts);
+  MuonEtaRange range= trackingRange(fts);
   for (MapEI i = map.begin(); i != map.end(); i++)
     if ((*i).second.isCompatible(range)) result.push_back((*i).first);
 

@@ -2,8 +2,8 @@
 
 //   Ported from ORCA.
 //   Two new methods compatibleLayers are added.
-//   $Date: 2006/03/22 02:14:21 $
-//   $Revision: 1.1 $
+//   $Date: 2006/04/01 21:49:30 $
+//   $Revision: 1.2 $
 
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -137,7 +137,7 @@ void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result,
 void MuonForwardNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
                                           const MapB& map,
                                           const FreeTrajectoryState& fts) const {
-  MuonEtaRange range=TrackingRange(fts);
+  MuonEtaRange range=trackingRange(fts);
   for ( MapBI i = map.begin(); i != map.end(); i++ )
     if ((*i).second.isCompatible(range)) result.push_back((*i).first);
 }
@@ -145,7 +145,7 @@ void MuonForwardNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& re
 void MuonForwardNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
                                           const MapE& map,
                                           const FreeTrajectoryState& fts) const {
-  MuonEtaRange range=TrackingRange(fts);
+  MuonEtaRange range=trackingRange(fts);
   for (MapEI i = map.begin(); i != map.end(); i++)
     if ((*i).second.isCompatible(range)) result.push_back((*i).first);
 
