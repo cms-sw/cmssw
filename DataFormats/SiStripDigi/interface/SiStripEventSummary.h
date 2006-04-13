@@ -1,10 +1,7 @@
 #ifndef DataFormats_SiStripEventSummary_SiStripEventSummary_H
 #define DataFormats_SiStripEventSummary_SiStripEventSummary_H
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "boost/cstdint.hpp"
-#include <string>
-#include <vector>
 
 using namespace std;
 
@@ -35,15 +32,14 @@ class SiStripEventSummary {
       tuning, pulse shape tuning, laser driver bias and gain, relative
       apv synchronisation, coarse (25ns) apv latency scan for beam,
       fine (1ns) pll scan for beam, fine (1ns) ttc scan for beam,
-      multi mode operation, connection of apv pairs to fed channels
-      (obsolete), relative apv synchronisation using fed delays,
-      connection of apv pairs to fed channels, apv baseline scan,
-      scope mode readout (debugging purposes), unknown run type. */ 
+      multi mode operation, relative apv synchronisation using fed
+      delays, connection of apv pairs to fed channels, apv baseline
+      scan, scope mode readout (debugging purposes), unknown run
+      type. */ 
   enum Task { PHYSICS = 1, PEDESTALS = 2, PULSESHAPE_PEAK = 3, PULSESHAPE_DECON = 33,
               OPTO_SCAN = 4, APV_TIMING = 5, APV_LATENCY = 6, PLL_DELAY = 7,
-              TTC_DELAY = 8, APV_MULTI = 10, CONNECTION = 11, FED_TIMING = 12,
-              BARE_CONNECTION = 13, VPSP_SCAN = 14, SCOPE_MODE_READOUT = 66,
-              UNKNOWN_TASK = 0 };
+              TTC_DELAY = 8, APV_MULTI = 10, FED_TIMING = 12, FED_CABLING = 13, 
+	      VPSP_SCAN = 14, SCOPE_MODE_READOUT = 66, UNKNOWN_TASK = 0 };
   
   /** */
   enum FedReadoutMode { SCOPE_MODE = 0, VIRGIN_RAW = 1, PROC_RAW = 2, ZERO_SUPPR = 3, UNKNOWN_FED_MODE = 999 };
@@ -61,7 +57,8 @@ class SiStripEventSummary {
   // ----- Commissioning information -----
 
   /** Sets commissioning-related information. */
-  inline void commissioningInfo( const uint32_t* const buffer );
+  void commissioningInfo( const uint32_t* const buffer );
+  
   /** Returns commissioning task. */ 
   inline const SiStripEventSummary::Task& task() const { return task_; }
   /** Returns pair of PLL coarse and fine delay settings. */
@@ -122,70 +119,6 @@ class SiStripEventSummary {
   uint32_t nApvsErrors_;
   
 };
-
-// ----- inline methods -----
-
-void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
-
-  // Set commissioning task
-  task_ = static_cast<SiStripEventSummary::Task>( buffer[10] );
-
-  // Set FED readout mode
-  if ( buffer[15] == 0 || 
-       buffer[15] == 1 || 
-       buffer[15] == 2 || 
-       buffer[15] == 3 ) {
-    fedReadoutMode_ = static_cast<SiStripEventSummary::FedReadoutMode>( buffer[15] );
-  } else {
-    fedReadoutMode_ = SiStripEventSummary::UNKNOWN_FED_MODE;
-    edm::LogError("Commissioning") << "[SiStripEventSummary::commissioning]"
-				   << " Unknown FED readout mode! " 
-				   << buffer[15];
-  }
-  
-  // Set hardware parameters
-  if ( buffer[10] == 3  ||
-       buffer[10] == 33 ||
-       buffer[10] == 6  || // buffer[10] == 16 || 
-       buffer[10] == 26 ) { 
-    // Calibration or latency
-    param0_ = buffer[11]; // latency
-    param1_ = buffer[12]; // cal_chan
-    param2_ = buffer[13]; // cal_sel
-  } else if ( buffer[10] == 4 ) { 
-    // Laser drivers 
-    param0_ = buffer[11]; // opto gain
-    param1_ = buffer[12]; // opto bias
-  } else if ( buffer[10] == 7 ||
-	      buffer[10] == 8 ||
-	      buffer[10] == 5 ||
-	      buffer[10] == 12 ) { 
-    // Synchronisation and delay scans
-    param0_ = buffer[11]; // pll coarse delay
-    param1_ = buffer[12]; // pll fine delay
-    param2_ = buffer[13]; // ttcrx delay
-  } else if ( buffer[10] == 11 || 
-	      buffer[10] == 13 ) { 
-    // Connection loops 
-    param0_ = buffer[11]; // device id
-    param1_ = buffer[12]; // process id
-    param2_ = buffer[13]; // process ip
-    param3_ = buffer[14]; // dcu hard id
-  } else if ( buffer[10] == 14 ) { 
-    // VPSP
-    param0_ = buffer[11]; // vpsp
-  } else if (  buffer[10] == 1 ||
-	       buffer[10] == 2 ) { 
-    //@@ do anything?...
-  } else {
-    // Unknown commissioning task
-    task_ = static_cast<SiStripEventSummary::Task>( 0 );
-    edm::LogError("RawToDigi") << "[SiStripEventSummary::commissioning]"
-			       << " Unknown commissioning task! "
-			       << buffer[10];
-  }
-  
-}
 
 #endif // DataFormats_SiStripEventSummary_SiStripEventSummary_H
 
