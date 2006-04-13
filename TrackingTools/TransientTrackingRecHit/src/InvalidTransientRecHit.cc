@@ -4,7 +4,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 InvalidTransientRecHit::InvalidTransientRecHit( const GeomDet* geom) :
-  TransientTrackingRecHit( geom, new InvalidTrackingRecHit( geom == 0 ? 0 : geom->geographicalId()))
+  TransientTrackingRecHit( geom, new InvalidTrackingRecHit( geom == 0 ? DetId(0) : geom->geographicalId()))
 {
 }
 
