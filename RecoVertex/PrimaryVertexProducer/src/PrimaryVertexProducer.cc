@@ -66,14 +66,20 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection); // empty vertex collection,on the heap ??
   reco::VertexCollection vColl;
-    
+
   try {
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Reconstructing event number: " << iEvent.id() << "\n";
     
     // get RECO tracks from the event
     edm::Handle<reco::TrackCollection> trackCollection;
-    iEvent.getByType(trackCollection);
+    iEvent.getByLabel("Tracks", trackCollection);
+    //    iEvent.getByType(trackCollection);
+    //    iEvent.getByLabel("Tracks", "recoTracks", trackCollection);
+    //    std::vector< edm::Handle<reco::TrackCollection> > trackCollections;
+    //    iEvent.getManyByType(trackCollections);
+    //    trackCollection = trackCollections[1];
+
     reco::TrackCollection tks = *(trackCollection.product());
     
     // interface RECO tracks to vertex reconstruction
@@ -82,6 +88,8 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	 it != tks.end(); it++) {
       t_tks.push_back(*it);
     }
+    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+      << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
     
     // here call vertex reconstruction
     /*
@@ -100,19 +108,15 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     if (t_tks.size() > 1) {
       KalmanVertexFitter kvf;
       TransientVertex tv = kvf.vertex(t_tks);
-      Vertex v(Vertex::Point((tv).position()), 
-	       RecoVertex::convertError((tv).positionError()), 
+      Vertex v(Vertex::Point(tv.position()), 
+	       RecoVertex::convertError(tv.positionError()), 
 	       (tv).totalChiSquared(), 
 	       (tv).degreesOfFreedom() , 
 	       (tv).originalTracks().size());
       vColl.push_back(v);
-    }
-    
-    //  reco::Vertex v(pos, err, chi2, ndof, ntks);
-    //  tmpVColl.push_back(v);
-
-
+    }    
   }
+
   catch (std::exception & err) {
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Exception during event number: " << iEvent.id() 
