@@ -26,7 +26,8 @@ DEFINE_ANOTHER_FWK_SERVICE(Timing)
 #if defined(__linux__)
 DEFINE_ANOTHER_FWK_SERVICE(SimpleMemoryCheck)
 DEFINE_ANOTHER_FWK_SERVICE(SimpleProfiling)
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(EnableFloatingPointExceptions,edm::serviceregistry::ParameterSetMaker<EnableFloatingPointExceptions>)
+
+  DEFINE_ANOTHER_FWK_SERVICE_MAKER(EnableFloatingPointExceptions,edm::serviceregistry::AllArgsMaker<EnableFloatingPointExceptions>)
 #endif
 DEFINE_ANOTHER_FWK_SERVICE_MAKER(LoadAllDictionaries,edm::serviceregistry::ParameterSetMaker<LoadAllDictionaries>)
 typedef edm::serviceregistry::AllArgsMaker<edm::RandomNumberGenerator,RandomNumberGeneratorService> RandomMaker;
