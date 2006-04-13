@@ -51,7 +51,7 @@ namespace cms
 
 
     // Step B: create empty output collection
-    std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);
+    std::auto_ptr<reco::TrackCollection> output(new reco::TrackCollection);
     
     cosmicTrajectoryBuilder_.init(es);
 
@@ -68,7 +68,7 @@ namespace cms
       
       
       // Step D: write output to file
-      if ((*output).size()>0) e.put(output);
+      if ((*output).size()>0)	e.put(output);
     }
   }
   

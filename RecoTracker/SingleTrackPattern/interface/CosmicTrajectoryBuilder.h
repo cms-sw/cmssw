@@ -32,7 +32,9 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
-#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
+//MP
+//#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
  class CompareHitY {
  public:
    CompareHitY(const TrackerGeometry& tracker):_tracker(tracker){}
@@ -64,7 +66,7 @@ class CosmicTrajectoryBuilder
 	     const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
 	     const SiPixelRecHitCollection &collpixel,
 	     const edm::EventSetup& es,
-	     TrackCandidateCollection &output);
+	     reco::TrackCollection &output);
     void init(const edm::EventSetup& es);
  private:
     std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
@@ -82,6 +84,8 @@ class CosmicTrajectoryBuilder
     void AddHit(Trajectory traj,
 		edm::OwnVector<TransientTrackingRecHit> hits);
     bool qualityFilter(Trajectory traj);
+
+    reco::Track makeTrack(const Trajectory &traj);
  private:
    edm::ESHandle<MagneticField> magfield;
    edm::ESHandle<GeometricSearchTracker> track;
@@ -92,8 +96,10 @@ class CosmicTrajectoryBuilder
    KFUpdator *theUpdator;
    Chi2MeasurementEstimator *theEstimator;
    TkTransientTrackingRecHitBuilder *RHBuilder;
+   const KFTrajectorySmoother * theSmoother;
    const KFTrajectoryFitter * theFitter;
-   const LayerMeasurements*      theLayerMeasurements;
+   //MP
+   //   const LayerMeasurements*      theLayerMeasurements;
    Trajectory *cachetraj;
    vector<BarrelDetLayer*> bl;
    int theMinHits;

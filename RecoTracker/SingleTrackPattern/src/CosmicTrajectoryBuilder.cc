@@ -7,7 +7,6 @@
 #include <cmath>
 
 #include "RecoTracker/SingleTrackPattern/interface/CosmicTrajectoryBuilder.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
@@ -52,6 +51,9 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es){
   theFitter=        new KFTrajectoryFitter(*thePropagator,
 					   *theUpdator,	
 					   *theEstimator) ;
+  theSmoother=      new KFTrajectorySmoother(*thePropagator,
+					     *theUpdator,	
+					     *theEstimator); 
 
 }
 
@@ -61,42 +63,51 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 				  const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
 				  const SiPixelRecHitCollection &collpixel,
 				  const edm::EventSetup& es,
-				  TrackCandidateCollection &output)
+				  reco::TrackCollection &output)
 {
   //order all the hits
   vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collpixel);
   //create vector of transientrechit
   vector<const TrackingRecHit*>::iterator itrack;
   edm::OwnVector<TransientTrackingRecHit> hits;
+
   for(itrack=allHits.begin();itrack!=allHits.end();itrack++){
     //   GlobalPoint pippo =(&(*tracker))->idToDet((*itrack)->geographicalId())->surface().toGlobal((*itrack)->localPosition());
- 
-  
     hits.push_back(RHBuilder->build((*itrack) ));
   }
 
-  std::vector<Trajectory> trajVec;
+  std::vector<Trajectory> trajFit;
+  std::vector<Trajectory> trajSmooth;
   std::vector<Trajectory>::iterator trajIter;
-  // reco::Track * theTrack;
+
 
   TrajectorySeedCollection::const_iterator iseed;
   for(iseed=collseed.begin();iseed!=collseed.end();iseed++){
+
     //trajectory seed
     Trajectory startingTraj = createStartingTrajectory(*iseed);
-  
+
     TSOS startingState=startingTSOS(*iseed);
    
 
-    // AddHit(startingTraj,hits);
+//     AddHit(startingTraj,hits);
  
-    // if ( qualityFilter( startingTraj)){
-    //  trajVec = theFitter->fit(startingTraj);
-    // }
+//     if ( qualityFilter( startingTraj)){
+//       trajFit = theFitter->fit(startingTraj);
+//     }
 
 
-    trajVec = theFitter->fit((*iseed), hits,startingState);
-  
+    trajFit = theFitter->fit((*iseed), hits,startingState);
+
+    for (trajIter=trajFit.begin(); trajIter!=trajFit.end();trajIter++){
+      trajSmooth=theSmoother->trajectories((*trajIter));
     
+    }
+
+    for (trajIter= trajSmooth.begin(); trajIter!=trajSmooth.end();trajIter++){
+      reco::Track tk=makeTrack((*trajIter));
+      output.push_back(tk);
+    }
   }
  
 };
@@ -217,28 +228,28 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory traj,
     unsigned int subid=detid.subdetId();
     if    (subid==  PixelSubdetector::PixelBarrel){
       indexlayer=PXBDetId(detid).layer()-1;     
-      const  PixelBarrelLayer *pix_lay=dynamic_cast<PixelBarrelLayer*>(bl[indexlayer]);
-      meas=theLayerMeasurements->measurements(*pix_lay,currentState, 
-					      *thePropagator, 
-					      *theEstimator);
+      //      const  PixelBarrelLayer *pix_lay=dynamic_cast<PixelBarrelLayer*>(bl[indexlayer]);
+//       meas=theLayerMeasurements->measurements(*pix_lay,currentState, 
+// 					      *thePropagator, 
+// 					      *theEstimator);
     }
 
     if    (subid==  StripSubdetector::TIB){
       indexlayer=TIBDetId(detid).layer()+3;
-      const  TIBLayer *tib_lay=dynamic_cast<TIBLayer*>(bl[indexlayer]);
-      meas=theLayerMeasurements->measurements(*tib_lay,currentState, 
-					      *thePropagator, 
-					      *theEstimator);
+      //      const  TIBLayer *tib_lay=dynamic_cast<TIBLayer*>(bl[indexlayer]);
+//       meas=theLayerMeasurements->measurements(*tib_lay,currentState, 
+// 					      *thePropagator, 
+// 					      *theEstimator);
     }
 
 
     if    (subid== StripSubdetector::TOB){
       indexlayer=TOBDetId(detid).layer()+7;
     
-      const  TOBLayer *tob_lay=dynamic_cast<TOBLayer*>(bl[indexlayer]);
-      meas=theLayerMeasurements->measurements(*tob_lay,currentState, 
-					      *thePropagator, 
-					      *theEstimator);
+      //      const  TOBLayer *tob_lay=dynamic_cast<TOBLayer*>(bl[indexlayer]);
+//       meas=theLayerMeasurements->measurements(*tob_lay,currentState, 
+// 					      *thePropagator, 
+// 					      *theEstimator);
     }
 
     for( vector<TM>::const_iterator itm = meas.begin(); 
@@ -276,4 +287,39 @@ CosmicTrajectoryBuilder::qualityFilter(Trajectory traj){
   else {
     return false;
   }
+}
+reco::Track
+CosmicTrajectoryBuilder::makeTrack(const Trajectory &traj){
+  //MP must be checked
+  TSOS innertsos = traj.lastMeasurement().updatedState();
+  int charge = innertsos.charge();
+  //MP
+  int ndof =5;
+  const GlobalTrajectoryParameters& gp = innertsos.globalParameters();
+  GlobalPoint v = gp.position();
+  GlobalVector p = gp.momentum();
+  const CartesianTrajectoryError& cte = innertsos.cartesianError();
+  AlgebraicSymMatrix m = cte.matrix();
+  math::Error<6>::type cov;
+  for( int i = 0; i < 6; ++i )
+    for( int j = 0; j <= i; ++j )
+      cov( i, j ) = m.fast( i + 1 , j + 1 );
+  math::XYZVector mom( p.x(), p.y(), p.z() );
+  math::XYZPoint  vtx( v.x(), v.y(), v.z() );   
+  edm::LogInfo("RecoTracker/TrackProducer") << " RESULT Momentum "<< p<<"\n";
+  edm::LogInfo("RecoTracker/TrackProducer") << " RESULT Vertex "<< v<<"\n";
+  
+  //build the Track(chiSquared, ndof, found, invalid, lost, q, vertex, momentum, covariance)
+
+  reco::Track theTrack (traj.chiSquared(), 
+			int(ndof),//FIXME fix weight() in TrackingRecHit 
+			traj.foundHits(),//FIXME to be fixed in Trajectory.h
+			0, //FIXME no corresponding method in trajectory.h
+			traj.lostHits(),//FIXME to be fixed in Trajectory.h
+			charge, 
+			vtx,
+			mom,
+			cov);
+
+  return theTrack; 
 }
