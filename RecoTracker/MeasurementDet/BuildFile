@@ -15,6 +15,9 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/Surface>
 <use name=Geometry/Records>
+<use name=RecoLocalTracker/SiPixelRecHits>
+<use name=RecoLocalTracker/SiStripRecHitConverter>
+ <use name=RecoTracker/GeometryESProducer>
 </export>
 
 <use name=TrackingTools/MeasurementDet>
@@ -31,3 +34,6 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/Surface>
 <use name=Geometry/Records>
+<use name=RecoLocalTracker/SiPixelRecHits>
+<use name=RecoLocalTracker/SiStripRecHitConverter>
+ <use name=RecoTracker/GeometryESProducer>
