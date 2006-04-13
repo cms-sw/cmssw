@@ -1,6 +1,6 @@
 #------------------------------------------------------------
 #
-# $Id: cmsconfig.py,v 1.8 2005/12/22 20:30:39 chrjones Exp $
+# $Id: cmsconfig.py,v 1.9 2006/01/10 21:06:58 paterno Exp $
 #
 # cmsconfig: a class to provide convenient access to the Python form
 # of a parsed CMS configuration file.
@@ -45,6 +45,20 @@ def pset_dict_to_string(psetDict):
     stream.write('}\n')
     return stream.getvalue()
 
+
+def secsource_dict_to_string(secSourceDict):
+    """Make a string representing the secsource"""
+    stream = cStringIO.StringIO()
+    stream.write("%s\n{\n" %  secSourceDict["@classname"][2])
+    for name, value in secSourceDict.iteritems():
+        if name[0] != '@':
+            stream.write('%s' % printable_parameter(name, value))
+            stream.write('\n')
+
+    stream.write('}\n')
+    return stream.getvalue()
+
+
 class printable_parameter:
     """A class to provide automatic unpacking of the tuple (triplet)
     representation of a single parameter, suitable for printing.
@@ -75,6 +89,8 @@ class printable_parameter:
 
         if self.type == "PSet":
             self.value = pset_dict_to_string(self.value)
+        if self.type == "secsource":
+            self.value = secsource_dict_to_string(self.value)
         if self.type == "VPSet":
             temp = '{'
             tup = [ pset_dict_to_string(x) for x in self.value ]
