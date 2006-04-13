@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/03/24 16:17:22 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/10 12:30:06 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -44,8 +44,6 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) {
   edm::Service<MonitorDaemon> daemon;
   daemon.operator->();
 
-  bookHistos(string("ROS"));
-
 }
 
 
@@ -58,102 +56,217 @@ DTDataIntegrityTask::~DTDataIntegrityTask() {
 
 }
 
+/*
+Folder Structure:
+- One folder for each DDU, named FEDn
+- Inside each DDU folder the DDU histos and the ROSn folder
+- Inside each ROS folder the ROS histos and the ROBn folder
+- Inside each ROB folder one occupancy plot and the TimeBoxes
+  with the chosen granularity (simply change the histo name)
+*/
 
-void DTDataIntegrityTask::bookHistos(string folder, int index) {
 
+void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
+  stringstream dduID_s; dduID_s << code.getDDU();
+  stringstream rosID_s; rosID_s << code.getROS();
+  stringstream robID_s; robID_s << code.getROB();
+  string histoType;
+  string histoName;
+
+  // DDU Histograms
+  if ( folder == "DDU" ) {
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str());
+  }
 
   // ROS Histograms
   if ( folder == "ROS" ) {
-    dbe->setCurrentFolder("DT/ROS25Data/" + folder);
 
-    rosHistos[string("ROSTrailerBits")] = dbe->book1D("ROSTrailerBits","ROSTrailerBits",128,0,128);
-    rosHistos[string("ROSError")] = dbe->book2D("ROSError","ROSError",32,0,32,8,0,8);
-    rosHistos[string("ROSDebug_BunchNumber")] = 
-      dbe->book1D("ROSDebug_BunchNumber","ROSDebug_BunchNumber",2048,0,2048);
-    rosHistos[string("ROSDebug_BcntResCntLow")] = 
-      dbe->book1D("ROSDebug_BcntResCntLow","ROSDebug_BcntResCntLow",16348,0,16348);
-    rosHistos[string("ROSDebug_BcntResCntHigh")] = 
-      dbe->book1D("ROSDebug_BcntResCntHigh","ROSDebug_BcntResCntHigh",16348,0,16348);
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str() + "/" + folder + rosID_s.str());
+
+    histoType = "ROSTrailerBits";
+    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSTrailerBits";
+    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,128,0,128);
+
+    histoType = "ROSError";
+    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSError";
+    (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoName,32,0,32,8,0,8);
+
+    histoType = "ROSDebug_BunchNumber";
+    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSDebug_BunchNumber";
+    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,2048,0,2048);
+
+    histoType = "ROSDebug_BcntResCntLow";
+    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSDebug_BcntResCntLow";
+    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,16348,0,16348);
+
+    histoType = "ROSDebug_BcntResCntHigh";
+    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSDebug_BcntResCntHigh";
+    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,16348,0,16348);
   }  
 
   // ROB/TDC Histograms
-  if ( folder == "ROB") {
+  if ( folder == "ROB_O") {
     
-    stringstream robID; robID << index;
-    dbe->setCurrentFolder("DT/ROS25Data/ROB/" + folder + robID.str());
-    string histoName = folder + robID.str() + "_Occupancy";
-    (robHistos[histoName])[index] = dbe->book2D(histoName,histoName,32,0,32,4,0,4);
-    histoName = folder + robID.str() + "_TimeBox";
-    (robHistos[histoName])[index] = dbe->book1D(histoName,histoName,
-						(parameters.getUntrackedParameter<int>("timeBoxUpperBound",10000)-
-						parameters.getUntrackedParameter<int>("timeBoxLowerBound",0))/2,
-						parameters.getUntrackedParameter<int>("timeBoxLowerBound",0),
-						parameters.getUntrackedParameter<int>("timeBoxUpperBound",10000));
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
+
+    histoType = "Occupancy";
+    histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB"+robID_s.str()+"_Occupancy";
+    (robHistos[histoType])[code.getROBID()] = dbe->book2D(histoName,histoName,32,0,32,4,0,4);
 
   }
 
-  cout<<"[DTDataIntegrityTask]: Histograms booked "<<endl;
+  if ( folder == "ROB_T") {
+
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
+
+    histoType = "TimeBox";
+    histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB" + robID_s.str()+"_TimeBox";
+    int index;
+    switch (parameters.getUntrackedParameter<int>("TBhistoGranularity",1)) {
+    case 1: // ROB
+      index = code.getROBID();
+      break;
+    case 2: // TDC
+      index = code.getTDCID();
+      break;
+    case 3: // Ch
+      index = code.getChannelID();
+      break;
+    default: // ROB
+      index = code.getROBID();      
+    }
+    (robHistos[histoType])[index] = dbe->book1D(histoName,histoName,
+						(parameters.getUntrackedParameter<int>("timeBoxUpperBound",10000)-
+						 parameters.getUntrackedParameter<int>("timeBoxLowerBound",0))/2,
+						parameters.getUntrackedParameter<int>("timeBoxLowerBound",0),
+						parameters.getUntrackedParameter<int>("timeBoxUpperBound",10000));
+    
+  }
+  
 }
 
 
 
-void DTDataIntegrityTask::processROS25(DTROS25Data & data) {
+void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   
   nevents++;
-  if (nevents%100 == 0) 
+  if (nevents%1000 == 0) 
     cout<<"[DTDataIntegrityTask]: "<<nevents<<" events analyzed"<<endl;
   
-  for (vector<DTROSTrailerWord>::const_iterator trailer_it = data.getROSTrailers().begin();
-       trailer_it != data.getROSTrailers().end(); trailer_it++) {
-    int datum = (*trailer_it).TFF() << (23-16) 
-      | (*trailer_it).TPX() << (22-16) 
-      | (*trailer_it).ECHO() << (20-16) 
-      | (*trailer_it).ECLO() << (18-16) 
-      | (*trailer_it).BCO()<< (16-16);
-    (rosHistos.find(string("ROSTrailerBits"))->second)->Fill(datum);
-  }
+  DTROChainCoding code;
+  code.setDDU(ddu);
+  code.setROS(ros);
 
+  string histoType;
+
+  /// ROS Data
+  histoType = "ROSTrailerBits";
+  int datum = 
+    data.getROSTrailer().TFF() << (23-16) | 
+    data.getROSTrailer().TPX() << (22-16) |
+    data.getROSTrailer().ECHO() << (20-16) |
+    data.getROSTrailer().ECLO() << (18-16) |
+    data.getROSTrailer().BCO()<< (16-16);
+  if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()) {
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(datum);
+  }
+  else {
+    bookHistos( string("ROS"), code);
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(datum);
+  }
+  
+  histoType = "ROSError";
   for (vector<DTROSErrorWord>::const_iterator error_it = data.getROSErrors().begin();
        error_it != data.getROSErrors().end(); error_it++) {
-    (rosHistos.find(string("ROSError"))->second)->Fill((*error_it).robID(), (*error_it).errorType());
+    if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
+      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).robID(), 
+									      (*error_it).errorType());
+    else {
+      bookHistos( string("ROS"), code);
+      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).robID(), 
+									      (*error_it).errorType());
+    }
   }
   
   for (vector<DTROSDebugWord>::const_iterator debug_it = data.getROSDebugs().begin();
        debug_it != data.getROSDebugs().end(); debug_it++) {
-    (rosHistos.find(string("ROSDebug_BunchNumber"))->second)->Fill((*debug_it).debugMessage());
-    (rosHistos.find(string("ROSDebug_BcntResCntLow"))->second)->Fill((*debug_it).debugMessage());
-    (rosHistos.find(string("ROSDebug_BcntResCntHigh"))->second)->Fill((*debug_it).debugMessage());
+    histoType = "ROSDebug_BunchNumber";
+    if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
+      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
+    else {
+      bookHistos( string("ROS"), code);
+      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
+    }
+
+    histoType = "ROSDebug_BcntResCntLow";
+    if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
+      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
+    else {
+      bookHistos( string("ROS"), code);
+      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
+    }
+
+    histoType = "ROSDebug_BcntResCntHigh";
+    if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
+      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
+    else {
+      bookHistos( string("ROS"), code);
+      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
+    }
   }
   
-  
+  /// TDC Data  
   for (vector<DTTDCData>::const_iterator tdc_it = data.getTDCData().begin();
        tdc_it != data.getTDCData().end(); tdc_it++) {
 
-    stringstream robID; robID << (*tdc_it).first;
+
+    stringstream robID_s; robID_s << (*tdc_it).first;
     DTTDCMeasurementWord tdcDatum = (*tdc_it).second;
-
-    string histoName = "ROB" + robID.str() + "_Occupancy";
-    if (robHistos[histoName].find((*tdc_it).first) != robHistos[histoName].end())
-      (robHistos.find(histoName)->second).find((*tdc_it).first)->second->Fill(tdcDatum.tdcChannel(),tdcDatum.tdcID());
-    else {
-      bookHistos( string("ROB"), (*tdc_it).first);
-      (robHistos.find(histoName)->second).find((*tdc_it).first)->second->Fill(tdcDatum.tdcChannel(),tdcDatum.tdcID());
+    int index;
+    switch (parameters.getUntrackedParameter<int>("TBhistoGranularity",1)) {
+    case 1:
+      code.setROB((*tdc_it).first);
+      index = code.getROBID();
+      break;
+    case 2:
+      code.setTDC(tdcDatum.tdcID());
+      index = code.getTDCID();
+      break;
+    case 3:
+      code.setChannel(tdcDatum.tdcChannel());
+      index = code.getChannelID();
+      break;
+    default:
+      code.setROB((*tdc_it).first);
+      index = code.getROBID();
     }
 
-    histoName = "ROB" + robID.str() + "_TimeBox";
-    if (robHistos[histoName].find((*tdc_it).first) != robHistos[histoName].end())
-      (robHistos.find(histoName)->second).find((*tdc_it).first)->second->Fill(tdcDatum.tdcTime());
+
+    histoType = "Occupancy";
+    if (robHistos[histoType].find(code.getROBID()) != robHistos[histoType].end()) {
+      (robHistos.find(histoType)->second).find(code.getROBID())->second->Fill(tdcDatum.tdcChannel(),
+									      tdcDatum.tdcID());
+    }
     else {
-      bookHistos( string("ROB"), (*tdc_it).first);
-      (robHistos.find(histoName)->second).find((*tdc_it).first)->second->Fill(tdcDatum.tdcTime());
+      bookHistos( string("ROB_O"), code);
+      (robHistos.find(histoType)->second).find(code.getROBID())->second->Fill(tdcDatum.tdcChannel(),
+									      tdcDatum.tdcID());
     }
 
+    histoType = "TimeBox";
+    if (robHistos[histoType].find(index) != robHistos[histoType].end()) {
+      (robHistos.find(histoType)->second).find(index)->second->Fill(tdcDatum.tdcTime());
 
+    }
+    else {
+      bookHistos( string("ROB_T"), code);
+      (robHistos.find(histoType)->second).find(index)->second->Fill(tdcDatum.tdcTime());
+    }
   }
 
 }
 
-void DTDataIntegrityTask::processFED(DTDDUData & data) {
+void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
 
 }
