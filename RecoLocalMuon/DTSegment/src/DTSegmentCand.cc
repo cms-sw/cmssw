@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/12 15:15:48 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/13 07:23:16 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -40,7 +40,6 @@ DTSegmentCand::~DTSegmentCand() {
 
 /* Operations */ 
 bool DTSegmentCand::operator==(const DTSegmentCand& seg){
- std::cout<<"DTSegmentCand::operator=="<<std::endl;
   static const double epsilon=0.00001;
   if (nHits()!=seg.nHits()) return false;
   if (fabs(chi2()-seg.chi2())>epsilon) return false;
@@ -68,13 +67,15 @@ void DTSegmentCand::removeHit(AssPoint badHit) {
 
 int DTSegmentCand::nSharedHitPairs(const DTSegmentCand& seg) const{
   int result=0;
-  for (AssPointCont::const_iterator hit=hits().begin(); 
-       hit!=hits().end() ; ++hit) {
-    for (AssPointCont::const_iterator hit2=seg.hits().begin();
-         hit2!=seg.hits().end() ; ++hit2) {
+  for (AssPointCont::const_iterator hit=theHits.begin(); 
+       hit!=theHits.end() ; ++hit) {
+    AssPointCont hitsCont = seg.hits();
+    for (AssPointCont::const_iterator hit2=hitsCont.begin();
+         hit2!=hitsCont.end() ; ++hit2) {
+      //  if(result) return result ; // TODO, uncomm this line or move it in another func
       if ((*(*hit).first)==(*(*hit2).first)) {
         ++result;
-        continue;
+	continue;
       }
     }
   }
@@ -85,12 +86,13 @@ DTSegmentCand::AssPointCont
 DTSegmentCand::conflictingHitPairs(const DTSegmentCand& seg) const{
   AssPointCont result;
   if (nSharedHitPairs(seg)==0) return result;
-  for (AssPointCont::const_iterator hit=hits().begin(); 
-       hit!=hits().end() ; ++hit) {
-    for (AssPointCont::const_iterator hit2=seg.hits().begin();
-         hit2!=seg.hits().end() ; ++hit2) {
+  for (AssPointCont::const_iterator hit=theHits.begin(); 
+       hit!=theHits.end() ; ++hit) {
+    AssPointCont hitCont = seg.hits();
+    for (AssPointCont::const_iterator hit2 = hitCont.begin();
+         hit2!=hitCont.end() ; ++hit2) {
       if ((*(*hit).first)==(*(*hit2).first) &&
-          (*hit).second!=(*hit2).second) {
+          (*hit).second != (*hit2).second) {
         result.insert(*hit);
         continue;
       }
@@ -116,8 +118,8 @@ DTRecSegment2D* DTSegmentCand::convert(){
   AlgebraicSymMatrix seg2DCovMatrix = covMatrix();
   
   std::vector<DTRecHit1D> hits1D;
-  for(DTSegmentCand::AssPointCont::iterator assHit=hits().begin();
-      assHit!=hits().end(); ++assHit) {
+  for(DTSegmentCand::AssPointCont::iterator assHit=theHits.begin();
+      assHit!=theHits.end(); ++assHit) {
     DTRecHit1D hit( ((*assHit).first)->id(),
 		    (*assHit).second,
 		    ((*assHit).first)->digiTime(),

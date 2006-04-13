@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/12 15:15:48 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/13 07:23:16 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -386,7 +386,6 @@ DTCombinatorialPatternReco::buildPointsCollection(vector<AssPoint>& points,
 bool
 DTCombinatorialPatternReco::checkDoubleCandidates(vector<DTSegmentCand*>& cands,
                                                   DTSegmentCand* seg) {
-  cout<<"DTCombinatorialPatternReco::checkDoubleCandidates"<<endl;
   for (vector<DTSegmentCand*>::iterator cand=cands.begin();
        cand!=cands.end(); ++cand) 
     if (*(*cand)==*seg) return false;

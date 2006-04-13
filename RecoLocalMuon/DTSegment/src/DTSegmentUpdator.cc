@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/12 15:15:48 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/13 07:23:16 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -47,15 +47,13 @@ DTSegmentUpdator::~DTSegmentUpdator() {
 // }
 
 void DTSegmentUpdator::setES(const edm::EventSetup& setup){
-    setup.get<MuonGeometryRecord>().get(theGeom);
-    theAlgo->setES(setup);
+  setup.get<MuonGeometryRecord>().get(theGeom);
+  theAlgo->setES(setup);
 }
 
 void DTSegmentUpdator::update(DTRecSegment2D* seg)  {
-  if (theAlgo->canUpdate2D()) { // FIXME canUpdate2D to be implemented
-    updateHits(seg);
-    fit(seg);
-  }
+  updateHits(seg);
+  fit(seg);
 }
 
 bool DTSegmentUpdator::fit(DTSegmentCand* seg) {
@@ -193,22 +191,21 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
   // it is not necessary to have DTRecHit1D* to modify the obj in the container
   // but I have to be carefully, since I cannot make a copy before the iteration!
 
-  for (vector<DTRecHit1D>::iterator hit= seg->specificRecHits().begin(); 
-       hit!=seg->specificRecHits().end(); ++hit) {
+  vector<DTRecHit1D> toBeUpdatedRecHits = seg->specificRecHits();
+  vector<DTRecHit1D> updatedRecHits;
 
+  for (vector<DTRecHit1D>::iterator hit= toBeUpdatedRecHits.begin(); 
+       hit!=toBeUpdatedRecHits.end(); ++hit) {
     // LocalPoint leftPoint;
     // LocalPoint rightPoint;
     // LocalError error;
-
     // TODO needed?
     // TODO How do I get a DTDigi (or a drift time) from a DTRecHit1D???
-
     // build a DTDigi on the fly just to please the algo
     // DetUnit* du=(*hit)->det().detUnits().front();
     // DTDigi::ChannelType channel = (*hit)->channels().front();
     // int countTDC=du->readout().channelAdc(channel);
     // DTDigi digi(channel,countTDC);
-
     //    DTDigi digi;
 
     const DTLayer* layer = theGeom->layer( hit->wireId().layerId() );
@@ -241,7 +238,8 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
 
     if (ok) {
 
-      (*hit) = newHit1D;
+      updatedRecHits.push_back(newHit1D);
+      //      (*hit) = newHit1D;
 
       // RB,FIXME. was
       //      if (hit->lrSide()==DTEnums::Left ) hit->setPosition(leftPoint);
@@ -254,4 +252,5 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
       throw cms::Exception("DTSegmentUpdator")<<"updateHits failed update"<<endl;
     }
   }
+  seg->update(updatedRecHits);
 }

@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/11 16:59:01 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/12 15:15:48 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -10,7 +10,7 @@
 #include "RecoLocalMuon/DTSegment/src/DTHitPairForFit.h"
 
 /* Collaborating Class Header */
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 /* C++ Headers */
 #include <iostream>
@@ -48,11 +48,10 @@ DTHitPairForFit::~DTHitPairForFit() {
 LocalPoint DTHitPairForFit::localPosition(DTEnums::DTCellSide s) const {
   if (s==DTEnums::Left) return theLeftPos;
   else if (s==DTEnums::Right) return theRightPos;
-  // TODO how does this works?
-  // else throw edm::Exception("Error") << 
-  //   "DTHitPairForFit::localPosition called with undef LR code" << endl;
-  
-  //RB, FIXME the warning, return the a LocalPoint
+  else{ 
+    throw cms::Exception("DTHitPairForFit")<<" localPosition called with undef LR code"<<endl;
+    return LocalPoint();
+  }
 }
 
 GlobalPoint DTHitPairForFit::globalPosition(DTEnums::DTCellSide) const {
@@ -99,8 +98,7 @@ bool DTHitPairForFit::operator<(const DTHitPairForFit& hit) const {
 }
 
 bool DTHitPairForFit::operator==(const DTHitPairForFit& hit) const {
-  //TODO how do I implement this???
-  return false;
+  return  (id() == hit.id() && fabs(digiTime() - hit.digiTime()) < 0.1 );
 }
 
 ostream& operator<<(ostream& out, const DTHitPairForFit& hit) {
