@@ -3,7 +3,7 @@
    test file for DTChamberId, DTSuperLayerId, DTLayerId and DTWireId
 
    \author S. Argiro' & G. Cerminara
-   \version $Id: testDTDetIds.cc,v 1.1 2006/01/19 15:46:43 cerminar Exp $
+   \version $Id: testDTDetIds.cc,v 1.2 2006/04/12 17:52:40 namapane Exp $
    \date 27 Jul 2005
 */
 
@@ -305,7 +305,7 @@ void testDTDetIds::testMemberOperators(){
   int layer = 4;
   int wire = 15;  
 
-  // Test assignement operators
+  // Test assignement operators from same type
   DTChamberId chamber1(wheel, station, sector);
   DTChamberId chamber2;
   chamber2 = chamber1;
@@ -324,7 +324,8 @@ void testDTDetIds::testMemberOperators(){
   DTWireId wire1(wheel, station, sector, sl, layer, wire);
   DTWireId wire2;
   wire2=wire1;
-  CPPUNIT_ASSERT(wire2==wire1);
+  CPPUNIT_ASSERT(wire2==wire1);  
+
 
   // Test getter of base id
   DTChamberId chamber3 = superlayer1.chamberId();
@@ -345,6 +346,15 @@ void testDTDetIds::testMemberOperators(){
   DTLayerId layer3 = wire1.layerId();
   CPPUNIT_ASSERT(layer3 == layer1);
 
+  // Test assignement operators from derived objects
+  DTChamberId chamber6 = superlayer1;
+  CPPUNIT_ASSERT(chamber6 == chamber3);
+
+  DTSuperLayerId superlayer6 = layer1;
+  CPPUNIT_ASSERT(superlayer6 == superlayer3);
+
+  DTLayerId layer6 = wire1;
+  CPPUNIT_ASSERT(layer6 == layer3);
 
   // Forbidden constructors. None of these should be accepted by the compiler!!!
 
@@ -355,11 +365,18 @@ void testDTDetIds::testMemberOperators(){
   
   // It is not currently allowed to build any DT id directly from a Detid
   // (would allow the above ones)
-//   DetId d;
+//  DetId d;
 //   DTChamberId    c(d);
 //   DTSuperLayerId s1(d);
 //   DTLayerId      l1(d);
 //   DTWireId       w1(d);  
+
+  // It is not allowed to copy a derived to a base
+//   DTChamberId chamber7 = d;
+//   DTSuperLayerId superlayer7 = chamber1;
+//   DTLayerId layer7 = superlayer1;
+//   DTWireId wire7 = layer1;
+
 
 
 }
