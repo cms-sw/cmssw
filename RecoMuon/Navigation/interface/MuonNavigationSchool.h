@@ -5,11 +5,12 @@
 //   The MuonNavigationSchool will provide two kinds of maps. 
 //   One is for nextLayers(), one for compatibleLayers().
 //   Both are implemented in MuonBarrelNavigableLayer and MuonForwardNavigableLayer.
-//   $Date: $
-//   $Revision: $
+//   $Date: 2006/03/22 01:58:19 $
+//   $Revision: 1.1 $
 
 #include "RecoMuon/Navigation/interface/MuonLayerSort.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include <vector>
 #include <map>
 
@@ -23,7 +24,7 @@ class MuonNavigationSchool : public NavigationSchool {
 
   public:
     ///Constructor
-    MuonNavigationSchool();
+    MuonNavigationSchool(const MuonDetLayerGeometry *);
     // Destructor
     ~MuonNavigationSchool();
     /// return navigable layers, from base class
@@ -51,5 +52,7 @@ class MuonNavigationSchool : public NavigationSchool {
     vector<MuonForwardNavigableLayer*> theForwardNLC;
     vector<MuonForwardNavigableLayer*> theBackwardNLC;
 
+    const MuonDetLayerGeometry * theMuonDetLayerGeometry; 
+  
 };
 #endif

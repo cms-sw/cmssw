@@ -6,15 +6,15 @@
 //   It should contain the functionality of MuonGlobalNavigation in Muon/MuonTrackFinder of ORCA. 
 //   Except that now it move its interface to DetLayer. 
 
-//   $Date: $
-//   $Revision: $
+//   $Date: 2006/03/22 02:33:53 $
+//   $Revision: 1.1 $
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "Geometry/Surface/interface/BoundDisk.h"
-//#include "Muon/MuonLayout/interface/CmsMuon.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Navigation/interface/MuonBarrelNavigableLayer.h"
 #include "RecoMuon/Navigation/interface/MuonForwardNavigableLayer.h"
 #include "RecoMuon/Navigation/interface/MuonEtaRange.h"
@@ -25,29 +25,12 @@
 #include <algorithm>
 #include <iostream>
 using namespace std;
-class CmsMuon {
-  public:
-    CmsMuon() {}
-    vector<DetLayer*>  allBarrelLayers(){return vector<DetLayer*>();}
-    vector<DetLayer*>  allForwardLayers(){return vector<DetLayer*>();}
-    vector<DetLayer*>  allBackwardLayers(){return vector<DetLayer*>();}
-    vector<DetLayer*>  allEndcapLayers(){return vector<DetLayer*>();}
-    vector<DetLayer*>  allDTLayers(){return vector<DetLayer*>();}
-    vector<DetLayer*>  allCSCLayers(){return vector<DetLayer*>();}
-    vector<DetLayer*>  allRPCLayers(){return vector<DetLayer*>();}
-    vector<DetLayer*>  endcapRPCLayers(){return vector<DetLayer*>();}
-    vector<DetLayer*>  barrelRPCLayers(){return vector<DetLayer*>();}
 
-};//FIXME
 // Constructor
-//
-MuonNavigationSchool::MuonNavigationSchool() {
-
-  // first load all relevant DetLayers from the three sub-systems
-  CmsMuon muonLayout;
+MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout) : theMuonDetLayerGeometry(muonLayout) {
 
   // get all barrel DetLayers (DT + RPC)
-  vector<DetLayer*> barrel = muonLayout.allBarrelLayers();
+  vector<DetLayer*> barrel = muonLayout->allBarrelLayers();
   for ( vector<DetLayer*>::const_iterator i = barrel.begin(); i != barrel.end(); i++ ) {
     BarrelDetLayer* mbp = dynamic_cast<BarrelDetLayer*>(*i);
     if ( mbp == 0 ) throw Genexception("Bad BarrelDetLayer");
@@ -55,7 +38,7 @@ MuonNavigationSchool::MuonNavigationSchool() {
   }
 
   // get all endcap DetLayers (CSC + RPC)
-  vector<DetLayer*> csc = muonLayout.allEndcapLayers();
+  vector<DetLayer*> csc = muonLayout->allEndcapLayers();
   for ( vector<DetLayer*>::const_iterator i = csc.begin(); i != csc.end(); i++ ) {
     ForwardDetLayer* mep = dynamic_cast<ForwardDetLayer*>(*i);
     if ( mep == 0 ) throw Genexception("Bad ForwardDetLayer");
