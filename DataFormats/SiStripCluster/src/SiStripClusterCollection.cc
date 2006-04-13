@@ -40,6 +40,11 @@ const SiStripClusterCollection::Range SiStripClusterCollection::get(unsigned int
   // get RecHits of detID
 
   SiStripClusterCollection::RegistryIterator returnIndex = map_.find(detID);
+
+  if (returnIndex == map_.end()){
+    return Range (container_.end(), container_.end());
+  }
+
   SiStripClusterCollection::IndexRange returnIndexRange = returnIndex->second;
 
   SiStripClusterCollection::Range returnRange;
