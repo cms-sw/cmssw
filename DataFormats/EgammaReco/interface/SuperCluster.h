@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.2 2006/04/12 15:19:15 rahatlou Exp $
+ * \version $Id: SuperCluster.h,v 1.3 2006/04/12 16:21:02 rahatlou Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -32,8 +32,13 @@ namespace reco {
     /// constructor from values
     //SuperCluster( const Vector &, const Point &, double uE );
 
-    /// constructor defined by EcalCluster
+    /// constructor defined by EcalCluster - will have to use setSedd and add() separately
     SuperCluster( double energy, const math::XYZPoint& position );
+
+    SuperCluster( double energy, const math::XYZPoint& position,
+                  const BasicClusterRef & seed,
+                  const BasicClusterRefVector& clusters);
+
 
     /// momentum vector
     //const Vector & momentum() const { return momentum_; }
