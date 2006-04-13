@@ -1,15 +1,16 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/MeasurementDet/interface/CompositeDetMeasurements.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
 
 std::vector<TrajectoryMeasurement>
-LayerMeasurements::measurements( const GeometricSearchDet& layer, 
+LayerMeasurements::measurements( const DetLayer& layer, 
 				 const TrajectoryStateOnSurface& startingState,
 				 const Propagator& prop, 
 				 const MeasurementEstimator& est) const
 {
-  typedef GeometricSearchDet::DetWithState   DetWithState;
+  typedef DetLayer::DetWithState   DetWithState;
   vector<DetWithState> compatDets = layer.compatibleDets( startingState, prop, est);
 
   vector<TrajectoryMeasurement> result;
@@ -19,7 +20,8 @@ LayerMeasurements::measurements( const GeometricSearchDet& layer,
 
     if ( compat.first) {
       result.push_back( TrajectoryMeasurement( compat.second, 
-					       0, 0.F));
+					       new InvalidTransientRecHit(0), 0.F,
+					       &layer));
     }
     return result;
   }

@@ -4,12 +4,12 @@
 
 #include <vector>
 
-class GeometricSearchDet;
 class TrajectoryStateOnSurface;
 class Propagator;
 class MeasurementEstimator;
 class TrajectoryMeasurement;
 class MeasurementDetSystem;
+class DetLayer;
 
 class LayerMeasurements {
 public:
@@ -18,7 +18,7 @@ public:
     theDetSystem (detSysytem) {}
 
   std::vector<TrajectoryMeasurement>
-  measurements( const GeometricSearchDet& layer, 
+  measurements( const DetLayer& layer, 
 		const TrajectoryStateOnSurface& startingState,
 		const Propagator& prop, 
 		const MeasurementEstimator& est) const;
