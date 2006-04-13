@@ -26,6 +26,19 @@ my $ignoredpackages;
 my $wantedpackages;
 my $versionfile;
 my $packagelist;
+my $startdir=cwd();
+
+# Support for colours in messages:
+if ( -t STDIN && -t STDOUT && $^O !~ /MSWin32|cygwin/ )
+   {
+   $bold = "\033[1m";
+   $normal = "\033[0m";
+   $status = "\033[0;35;1m"; # Magenta
+   $fail = "\033[0;31;1m";   # Red
+   $pass = "\033[0;32;1m";   # Green
+   $good = $bold.$pass;      # Status messages ([OK])
+   $error = $bold.$fail;     #                 ([ERROR])
+   }
 
 # Getopt option variables:
 my %opts; $opts{VERBOSE} = 1; # Verbose by default;
@@ -221,11 +234,21 @@ sub do_checkout()
    my ($packagelist,$noversions)=@_;
    die "PackageManagement: No packages to check out!","\n", unless (scalar (my $nkeys = keys %$packagelist) > 0);
    print "PackageManagement: Checking out packages from HEAD of CVS repo.","\n", if ($noversions && $opts{VERBOSE});
+   my $check_existing=0;
    
    # Create the output directory if it doesn't already exist:
    if (! -d $outdir)
       {
       system("mkdir",$outdir);
+      }
+   else
+      {
+      # The source dir already exists so we have to check
+      # to see if there was already a check-out of the
+      # package with a different tag:
+      $check_existing=1;
+      print "PackageManagement: Checking existing source tree and will delete existing packages before re-checkout.","\n";
+      print "\n";
       }
    
    # Move to the output directory:
@@ -234,19 +257,40 @@ sub do_checkout()
    foreach my $pkg (sort keys %$packagelist)
       {
       chomp($pkg);
+      &check_existingtags($pkg,$packagelist->{$pkg}), if ($check_existing);
       $rv = system($cvs,"-Q","-d",$cvsroot,"co","-P","-r",$packagelist->{$pkg}, $pkg);
       
       # Check the status of the checkout and report if a package tag doesn't exist:
       if ($rv == 0)
 	 {
-	 printf ("Package %-45s version %-10s checkout SUCCESSFUL\n",$pkg, $packagelist->{$pkg}), if ($opts{VERBOSE});
+	 printf ("Package %-45s version %-10s checkout ".$good."SUCCESSFUL".$normal."\n",$pkg, $packagelist->{$pkg}), if ($opts{VERBOSE});
 	 }
       else
 	 {
-	 printf STDERR ("Package %-45s version %-10s checkout FAILED\n",$pkg, $packagelist->{$pkg});
+	 printf STDERR ("Package %-45s version %-10s checkout ".$error."FAILED".$normal."\n",$pkg, $packagelist->{$pkg});
 	 printf STDERR "Checkout ERROR: tag ".$packagelist->{$pkg}." for package $pkg is not correct!","\n";
 	 print "\n";
 	 exit(1);
+	 }
+      }
+   }
+
+sub check_existingtags()
+   {
+   my ($pack,$cvstag)=@_;
+   if (-d $pack && -f $pack."/CVS/Tag")
+      {
+      my $tagfile=$startdir."/".$outdir."/".$pack."/CVS/Tag";
+      open(TAGFILE,"$tagfile") || die "PackageManagement: Can't read CVS/Tag for package $pack","\n";
+      chomp(my ($CVSTAG)=(<TAGFILE>));
+      close(TAGFILE);
+      # Strip the "N" from the start of the tag:
+      $CVSTAG =~ s/^[A-Z](V.*?)/$1/g;
+      # Check to see if the tags match:
+      if ($cvstag ne $CVSTAG)
+	 {
+	 print "-> ".$status."Removing $pack for a clean re-checkout:".$normal."\n",if ($opts{VERBOSE});
+	 my $rv = system("rm","-rf",$pack);
 	 }
       }
    }
