@@ -84,7 +84,7 @@ else
    # Somewhere to store checked-out tags:
    $versionfile="PackageVersions.".$releaseid;
    # Checkout to current dir unless overridden:
-   $outdir||=cwd()."/src";   
+   $outdir||="src";   
 
    # Get the package list:
    $packagelist = &getpklistfromtc();
@@ -108,7 +108,7 @@ else
    
    # Now see if we have a file containing the developers packages or whether the user
    # specified packages on the command line. In either case, make copies of the wanted tags:
-   if ($opts{MYPACKAGES} && -f cwd()."/".$mypackagefile)
+   if ($opts{MYPACKAGES})
       {
       $mypfile = cwd()."/".$mypackagefile;
       if ($opts{QUERY})
@@ -118,7 +118,7 @@ else
 	 }
       else
 	 {
-	 print "PackageManagement: Checking out packages listed in $mypackagefile.","\n", if ($opts{VERBOSE});
+	 print "PackageManagement: Checking out packages listed in $mypackagefile.","\n\n", if ($opts{VERBOSE});
 	 if ($releaseid eq 'HEAD' || $releaseid eq 'head')
 	    {
 	    my $mypacklist=&getmypackages($mypfile,1);
@@ -188,7 +188,7 @@ sub getmypackages()
    my ($mypackagefile,$noversions)=@_;
    my $packlist={};
    # Open the file and copy tag info for selected packages:
-   open(MYPACKAGELIST,"$mypackagefile") || die "PackageManagement: $!","\n";
+   open(MYPACKAGELIST,"$mypackagefile") || die "PackageManagement: Unable to read packages from $mypackagefile: $!","\n";
    while (<MYPACKAGELIST>)
       {
       chomp;
@@ -233,9 +233,9 @@ sub do_checkout()
    {
    my ($packagelist,$noversions)=@_;
    die "PackageManagement: No packages to check out!","\n", unless (scalar (my $nkeys = keys %$packagelist) > 0);
-   print "PackageManagement: Checking out packages from HEAD of CVS repo.","\n", if ($noversions && $opts{VERBOSE});
-   my $check_existing=0;
-   
+   print "PackageManagement: Checking out packages from HEAD of CVS repo.","\n\n", if ($noversions && $opts{VERBOSE});
+   my $statmsg="";
+
    # Create the output directory if it doesn't already exist:
    if (! -d $outdir)
       {
@@ -243,56 +243,66 @@ sub do_checkout()
       }
    else
       {
-      # The source dir already exists so we have to check
-      # to see if there was already a check-out of the
-      # package with a different tag:
-      $check_existing=1;
-      print "PackageManagement: Checking existing source tree and will delete existing packages before re-checkout.","\n";
-      print "\n";
+      # The source dir already exists: each package directory will be checked to see
+      # if it exists:
+      $statmsg=" (up-to-date)";
       }
    
    # Move to the output directory:
    chdir $outdir;
-   
+
    foreach my $pkg (sort keys %$packagelist)
       {
       chomp($pkg);
-      &check_existingtags($pkg,$packagelist->{$pkg}), if ($check_existing);
-      $rv = system($cvs,"-Q","-d",$cvsroot,"co","-P","-r",$packagelist->{$pkg}, $pkg);
-      
-      # Check the status of the checkout and report if a package tag doesn't exist:
-      if ($rv == 0)
+      if (-d $pkg && -f $pkg."/CVS/Tag")
 	 {
-	 printf ("Package %-45s version %-10s checkout ".$good."SUCCESSFUL".$normal."\n",$pkg, $packagelist->{$pkg}), if ($opts{VERBOSE});
+	 my $tagfile=$pkg."/CVS/Tag";
+	 open(TAGFILE,"$tagfile") || die "PackageManagement: Can't read CVS/Tag for package $pkg","\n";
+	 chomp(my ($CVSTAG)=(<TAGFILE>));
+	 close(TAGFILE);
+	 # Strip any characters from the start of the tag (before "V"):
+	 $CVSTAG =~ s/^[A-Z](V.*?)/$1/g;
+	 # Check to see if the tags match:
+	 if ($packagelist->{$pkg} ne $CVSTAG)
+	    {
+	    $statmsg=" (updated)";
+	    print "-> ".$status."Removing $pkg for a clean re-checkout:".$normal."\n",if ($opts{VERBOSE});
+	    my $rv = system("rm","-rf",$pkg);
+	    $rv = system($cvs,"-Q","-d",$cvsroot,"co","-P","-r",$packagelist->{$pkg}, $pkg);      
+	    # Check the status of the checkout and report if a package tag doesn't exist:
+	    if ($rv == 0)
+	       {
+	       printf ("Package %-45s version %-10s checkout ".$good."SUCCESSFUL".$normal."\n",$pkg, $packagelist->{$pkg}), if ($opts{VERBOSE});
+	       }
+	    else
+	       {
+	       printf STDERR ("Package %-45s version %-10s checkout ".$error."FAILED".$normal."\n",$pkg, $packagelist->{$pkg});
+	       printf STDERR "Checkout ERROR: tag ".$packagelist->{$pkg}." for package $pkg is not correct!","\n";
+	       print "\n";
+	       exit(1);
+	       }	       	       	       	       
+	    }
 	 }
       else
 	 {
-	 printf STDERR ("Package %-45s version %-10s checkout ".$error."FAILED".$normal."\n",$pkg, $packagelist->{$pkg});
-	 printf STDERR "Checkout ERROR: tag ".$packagelist->{$pkg}." for package $pkg is not correct!","\n";
-	 print "\n";
-	 exit(1);
+	 $statmsg="";
+	 # A fresh area so do a complete checkout:
+	 $rv = system($cvs,"-Q","-d",$cvsroot,"co","-P","-r",$packagelist->{$pkg}, $pkg);      
+	 # Check the status of the checkout and report if a package tag doesn't exist:
+	 if ($rv == 0)
+	    {
+	    printf ("Package %-45s version %-10s checkout ".$good."SUCCESSFUL".$normal."\n",$pkg, $packagelist->{$pkg}), if ($opts{VERBOSE});
+	    }
+	 else
+	    {
+	    printf STDERR ("Package %-45s version %-10s checkout ".$error."FAILED".$normal."\n",$pkg, $packagelist->{$pkg});
+	    printf STDERR "Checkout ERROR: tag ".$packagelist->{$pkg}." for package $pkg is not correct!","\n";
+	    print "\n";
+	    exit(1);
+	    }
 	 }
       }
-   }
-
-sub check_existingtags()
-   {
-   my ($pack,$cvstag)=@_;
-   if (-d $pack && -f $pack."/CVS/Tag")
-      {
-      my $tagfile=$startdir."/".$outdir."/".$pack."/CVS/Tag";
-      open(TAGFILE,"$tagfile") || die "PackageManagement: Can't read CVS/Tag for package $pack","\n";
-      chomp(my ($CVSTAG)=(<TAGFILE>));
-      close(TAGFILE);
-      # Strip the "N" from the start of the tag:
-      $CVSTAG =~ s/^[A-Z](V.*?)/$1/g;
-      # Check to see if the tags match:
-      if ($cvstag ne $CVSTAG)
-	 {
-	 print "-> ".$status."Removing $pack for a clean re-checkout:".$normal."\n",if ($opts{VERBOSE});
-	 my $rv = system("rm","-rf",$pack);
-	 }
-      }
+   print "Done".$statmsg,"\n";
    }
 
 sub do_query()
