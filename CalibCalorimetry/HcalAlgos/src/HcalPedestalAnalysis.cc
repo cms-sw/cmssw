@@ -392,32 +392,32 @@ int HcalPedestalAnalysis::PedValidtn(map<HcalDetId, map<int,PEDBUNCH> > &toolT)
     if (pedCan) pedCan->addValue(_meot->first,cap_new[0],cap_new[1],cap_new[2],cap_new[3]);
     if (widthCan) {
       HcalPedestalWidth* widthsp = widthCan->setWidth(_meot->first);
-      widthsp->setSigma(1,1,sig_new[0][0]);
-      widthsp->setSigma(1,2,sig_new[0][1]);
-      widthsp->setSigma(1,3,sig_new[0][2]);
-      widthsp->setSigma(2,2,sig_new[1][1]);
-      widthsp->setSigma(2,3,sig_new[1][2]);
-      widthsp->setSigma(2,4,sig_new[1][3]);
-      widthsp->setSigma(3,3,sig_new[2][2]);
-      widthsp->setSigma(3,4,sig_new[2][3]);
-      widthsp->setSigma(4,4,sig_new[3][3]);
-      widthsp->setSigma(4,1,sig_new[3][0]);
+      widthsp->setSigma(0,0,sig_new[0][0]);
+      widthsp->setSigma(0,1,sig_new[0][1]);
+      widthsp->setSigma(0,2,sig_new[0][2]);
+      widthsp->setSigma(1,1,sig_new[1][1]);
+      widthsp->setSigma(1,2,sig_new[1][2]);
+      widthsp->setSigma(1,3,sig_new[1][3]);
+      widthsp->setSigma(2,2,sig_new[2][2]);
+      widthsp->setSigma(2,3,sig_new[2][3]);
+      widthsp->setSigma(3,3,sig_new[3][3]);
+      widthsp->setSigma(3,0,sig_new[3][0]);
     }
     if(pedValflag>0 && pedCan_nominal && widthCan_nominal){
-      cap_nom[0]=pedCan_nominal->getValue(_meot->first,1);
-      cap_nom[1]=pedCan_nominal->getValue(_meot->first,2);
-      cap_nom[2]=pedCan_nominal->getValue(_meot->first,3);
-      cap_nom[3]=pedCan_nominal->getValue(_meot->first,4);
-      sig_nom[0][0]=widthCan_nominal->getWidth(_meot->first,1);
-      sig_nom[0][1]=widthCan_nominal->getSigma(_meot->first,1,2);
-      sig_nom[0][2]=widthCan_nominal->getSigma(_meot->first,1,3);
-      sig_nom[1][1]=widthCan_nominal->getWidth(_meot->first,2);
-      sig_nom[1][2]=widthCan_nominal->getSigma(_meot->first,2,3);
-      sig_nom[1][3]=widthCan_nominal->getSigma(_meot->first,2,4);
-      sig_nom[2][2]=widthCan_nominal->getWidth(_meot->first,3);
-      sig_nom[2][3]=widthCan_nominal->getSigma(_meot->first,3,4);
-      sig_nom[3][3]=widthCan_nominal->getWidth(_meot->first,4);
-      sig_nom[3][0]=widthCan_nominal->getSigma(_meot->first,4,1);
+      cap_nom[0]=pedCan_nominal->getValue(_meot->first,0);
+      cap_nom[1]=pedCan_nominal->getValue(_meot->first,1);
+      cap_nom[2]=pedCan_nominal->getValue(_meot->first,2);
+      cap_nom[3]=pedCan_nominal->getValue(_meot->first,3);
+      sig_nom[0][0]=widthCan_nominal->getSigma(_meot->first,0,0);
+      sig_nom[0][1]=widthCan_nominal->getSigma(_meot->first,0,1);
+      sig_nom[0][2]=widthCan_nominal->getSigma(_meot->first,0,2);
+      sig_nom[1][1]=widthCan_nominal->getSigma(_meot->first,1,1);
+      sig_nom[1][2]=widthCan_nominal->getSigma(_meot->first,1,2);
+      sig_nom[1][3]=widthCan_nominal->getSigma(_meot->first,1,3);
+      sig_nom[2][2]=widthCan_nominal->getSigma(_meot->first,2,2);
+      sig_nom[2][3]=widthCan_nominal->getSigma(_meot->first,2,3);
+      sig_nom[3][3]=widthCan_nominal->getSigma(_meot->first,3,3);
+      sig_nom[3][0]=widthCan_nominal->getSigma(_meot->first,3,0);
     }
 // here compute and store the quantities useful for physics analysis:
 // means and widths in pairs of adjacent cap-ids; pairs are numbered

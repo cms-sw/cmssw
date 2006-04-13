@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.7 2006/02/20 23:24:53 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.8 2006/02/22 19:51:38 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -61,16 +61,16 @@ namespace {
     fOutput << "<CAPACITOR_1_VALUE>" << fValues [1] << "</CAPACITOR_1_VALUE> ";
     fOutput << "<CAPACITOR_2_VALUE>" << fValues [2] << "</CAPACITOR_2_VALUE> ";	
     fOutput << "<CAPACITOR_3_VALUE>" << fValues [3] << "</CAPACITOR_3_VALUE> ";
-    fOutput << "<SIGMA_0_0>" << fErrors.getSigma (1,1) << "</SIGMA_0_0> ";	
-    fOutput << "<SIGMA_1_1>" << fErrors.getSigma (2,2) << "</SIGMA_1_1> ";	
-    fOutput << "<SIGMA_2_2>" << fErrors.getSigma (3,3) << "</SIGMA_2_2> ";	
-    fOutput << "<SIGMA_3_3>" << fErrors.getSigma (4,4) << "</SIGMA_3_3> ";	
-    fOutput << "<SIGMA_0_1>" << fErrors.getSigma (2,1) << "</SIGMA_0_1> ";	
-    fOutput << "<SIGMA_0_2>" << fErrors.getSigma (3,1) << "</SIGMA_0_2> ";	
-    fOutput << "<SIGMA_0_3>" << fErrors.getSigma (4,1) << "</SIGMA_0_3> ";	
-    fOutput << "<SIGMA_1_2>" << fErrors.getSigma (3,2) << "</SIGMA_1_2> ";	
-    fOutput << "<SIGMA_1_3>" << fErrors.getSigma (4,2) << "</SIGMA_1_3> ";	
-    fOutput << "<SIGMA_2_3>" << fErrors.getSigma (4,3) << "</SIGMA_2_3> ";	
+    fOutput << "<SIGMA_0_0>" << fErrors.getSigma (0,0) << "</SIGMA_0_0> ";	
+    fOutput << "<SIGMA_1_1>" << fErrors.getSigma (1,1) << "</SIGMA_1_1> ";	
+    fOutput << "<SIGMA_2_2>" << fErrors.getSigma (2,2) << "</SIGMA_2_2> ";	
+    fOutput << "<SIGMA_3_3>" << fErrors.getSigma (3,3) << "</SIGMA_3_3> ";	
+    fOutput << "<SIGMA_0_1>" << fErrors.getSigma (1,0) << "</SIGMA_0_1> ";	
+    fOutput << "<SIGMA_0_2>" << fErrors.getSigma (2,0) << "</SIGMA_0_2> ";	
+    fOutput << "<SIGMA_0_3>" << fErrors.getSigma (3,0) << "</SIGMA_0_3> ";	
+    fOutput << "<SIGMA_1_2>" << fErrors.getSigma (2,1) << "</SIGMA_1_2> ";	
+    fOutput << "<SIGMA_1_3>" << fErrors.getSigma (3,1) << "</SIGMA_1_3> ";	
+    fOutput << "<SIGMA_2_3>" << fErrors.getSigma (3,2) << "</SIGMA_2_3> ";	
     fOutput << "</DATA> " << std::endl;
   }
 

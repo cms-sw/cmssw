@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store PedestalWidth values 4xCapId
 $Author: ratnikov
-$Date: 2005/12/15 23:38:04 $
-$Revision: 1.5 $
+$Date: 2006/02/22 19:51:41 $
+$Revision: 1.6 $
 */
 
 #include <iostream>
@@ -50,24 +50,24 @@ const HcalPedestalWidth* HcalPedestalWidths::getValues (HcalDetId fId) const {
 
 float HcalPedestalWidths::getWidth (HcalDetId fId, int fCapId) const {
   const HcalPedestalWidth* values;
-  if (fCapId > 0 && fCapId <= 4) {
+  if (fCapId >= 0 && fCapId < 4) {
     values = getValues (fId);
     if (values) return values->getWidth (fCapId);
   }
   else {
-    std::cerr << "HcalPedestalWidths::getWidth-> capId " << fCapId << " is out of range [1..4]" << std::endl;
+    std::cerr << "HcalPedestalWidths::getWidth-> capId " << fCapId << " is out of range [0..3]" << std::endl;
   }
   return -1;
 }
 
 float HcalPedestalWidths::getSigma (HcalDetId fId, int fCapId1, int fCapId2) const {
   const HcalPedestalWidth* values;
-  if (fCapId1 > 0 && fCapId1 <= 4 && fCapId2 > 0 && fCapId2 <= 4) {
+  if (fCapId1 >= 0 && fCapId1 < 4 && fCapId2 >= 0 && fCapId2 < 4) {
     values = getValues (fId);
     if (values) return values->getSigma (fCapId1, fCapId2);
   }
   else {
-    std::cerr << "HcalPedestalWidths::getSigma-> capId " << fCapId1 << " or " << fCapId2 << " is out of range [1..4]" << std::endl;
+    std::cerr << "HcalPedestalWidths::getSigma-> capId " << fCapId1 << " or " << fCapId2 << " is out of range [0..3]" << std::endl;
   }
   return -1;
 }

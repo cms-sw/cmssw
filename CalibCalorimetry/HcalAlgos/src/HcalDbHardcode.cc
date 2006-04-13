@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.4 2006/03/24 03:01:46 fedor Exp $
+// $Id: HcalDbHardcode.cc,v 1.5 2006/04/05 21:14:03 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -16,12 +16,12 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalDetId fId, bool fSmear) {
   HcalPedestalWidth width = makePedestalWidth (fId);
   float value0 = 0.75;
   float value [4] = {value0, value0, value0, value0};
-  if (fSmear) for (int i = 0; i < 4; i++) value [i] = RandGauss::shoot (value0, width.getWidth (i+1)); // ignore correlations 
+  if (fSmear) for (int i = 0; i < 4; i++) value [i] = RandGauss::shoot (value0, width.getWidth (i)); // ignore correlations 
   HcalPedestal result (fId.rawId (), 
-		       value[0] / gain.getValue (1),
-		       value[1] / gain.getValue (2),
-		       value[2] / gain.getValue (3),
-		       value[3] / gain.getValue (4)
+		       value[0] / gain.getValue (0),
+		       value[1] / gain.getValue (1),
+		       value[2] / gain.getValue (2),
+		       value[3] / gain.getValue (3)
 		       );
   return result;
 }
@@ -43,7 +43,7 @@ HcalGain HcalDbHardcode::makeGain (HcalDetId fId, bool fSmear) {
   HcalGainWidth width = makeGainWidth (fId);
   float value0 = fId.subdet () == HcalForward ? 0.48 : 0.177; // GeV/fC
   float value [4] = {value0, value0, value0, value0};
-  if (fSmear) for (int i = 0; i < 4; i++) value [i] = RandGauss::shoot (value0, width.getValue (i+1)); 
+  if (fSmear) for (int i = 0; i < 4; i++) value [i] = RandGauss::shoot (value0, width.getValue (i)); 
   HcalGain result (fId.rawId (), value[0], value[1], value[2], value[3]);
   return result;
 }

@@ -5,14 +5,16 @@
     
     Container for retrieved calibration constants for HCAL
    $Author: ratnikov
-   $Date: 2005/10/04 18:05:54 $
-   $Revision: 1.3 $
+   $Date: 2005/12/15 23:37:59 $
+   $Revision: 1.4 $
 */
 class HcalCalibrations {
  public:
   HcalCalibrations () {};
   HcalCalibrations (const float fGain [4], const float fPedestal [4]);
+  /// get gain for capid=0..3
   double gain (int fCapId) const {return mGain [fCapId];}
+  /// get pedestal for capid=0..3
   double pedestal (int fCapId) const {return mPedestal [fCapId];}
  private:
   double mGain [4];

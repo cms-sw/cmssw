@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 correlation matrix for pedestals
 $Author: ratnikov
-$Date: 2005/12/15 23:38:04 $
-$Revision: 1.5 $
+$Date: 2006/02/22 19:51:41 $
+$Revision: 1.1 $
 */
 
 #include <iostream>
@@ -17,12 +17,12 @@ namespace {
     if (fCapId1 < fCapId2) { // swap
       int tmp = fCapId1; fCapId1 = fCapId2; fCapId2 = tmp;
     }
-    return offsets [fCapId1-1] + (fCapId2-1);
+    return offsets [fCapId1] + fCapId2;
   }
 }
 
 HcalPedestalWidth::HcalPedestalWidth (int fId) : mId (fId) {
-  for (int i = 10; --i >= 0; *(&mSigma11 + i) = 0) {}
+  for (int i = 10; --i >= 0; *(&mSigma00 + i) = 0) {}
 }
 
 float HcalPedestalWidth::getWidth (int fCapId) const {

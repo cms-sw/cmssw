@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.10 2006/02/20 23:24:53 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.11 2006/02/22 19:51:38 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -77,7 +77,7 @@ bool getHcalObject (std::istream& fInput, T* fObject) {
 template <class T>
 bool dumpHcalObject (std::ostream& fOutput, const T& fObject) {
   char buffer [1024];
-  sprintf (buffer, "# %4s %4s %4s %4s %8s %8s %8s %8s %10s\n", "eta", "phi", "dep", "det", "cap1", "cap2", "cap3", "cap4", "HcalDetId");
+  sprintf (buffer, "# %4s %4s %4s %4s %8s %8s %8s %8s %10s\n", "eta", "phi", "dep", "det", "cap0", "cap1", "cap2", "cap3", "HcalDetId");
   fOutput << buffer;
   std::vector<HcalDetId> channels = fObject.getAllChannels ();
   for (std::vector<HcalDetId>::iterator channel = channels.begin ();
@@ -113,16 +113,16 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject
       continue;
     }
     HcalPedestalWidth* values = fObject->setWidth (getId (items));
-    values->setSigma (1, 1, atof (items [4].c_str()));
-    values->setSigma (2, 1, atof (items [5].c_str()));
-    values->setSigma (2, 2, atof (items [6].c_str()));
-    values->setSigma (3, 1, atof (items [7].c_str()));
-    values->setSigma (3, 2, atof (items [8].c_str()));
-    values->setSigma (3, 3, atof (items [9].c_str()));
-    values->setSigma (4, 1, atof (items [10].c_str()));
-    values->setSigma (4, 2, atof (items [11].c_str()));
-    values->setSigma (4, 3, atof (items [12].c_str()));
-    values->setSigma (4, 4, atof (items [13].c_str()));
+    values->setSigma (0, 0, atof (items [4].c_str()));
+    values->setSigma (1, 0, atof (items [5].c_str()));
+    values->setSigma (1, 1, atof (items [6].c_str()));
+    values->setSigma (2, 0, atof (items [7].c_str()));
+    values->setSigma (2, 1, atof (items [8].c_str()));
+    values->setSigma (2, 2, atof (items [9].c_str()));
+    values->setSigma (3, 0, atof (items [10].c_str()));
+    values->setSigma (3, 1, atof (items [11].c_str()));
+    values->setSigma (3, 2, atof (items [12].c_str()));
+    values->setSigma (3, 3, atof (items [13].c_str()));
   }
   fObject->sort ();
   return true;
@@ -132,7 +132,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestalWidths&
   char buffer [1024];
   sprintf (buffer, "# %4s %4s %4s %4s %8s %8s %8s %8s %8s %8s %8s %8s %8s %8s %10s\n", 
 	   "eta", "phi", "dep", "det", 
-	   "sig_1_1", "sig_2_1", "sig_2_2", "sig_3_1", "sig_3_2", "sig_3_3", "sig_4_1", "sig_4_2", "sig_4_3", "sig_4_4", 
+	   "sig_0_o", "sig_1_0", "sig_1_1", "sig_2_0", "sig_2_1", "sig_2_2", "sig_3_0", "sig_3_1", "sig_3_2", "sig_3_3", 
 	   "HcalDetId");
   fOutput << buffer;
   std::vector<HcalDetId> channels = fObject.getAllChannels ();
@@ -143,8 +143,8 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestalWidths&
     if (item) {
       dumpId (fOutput, *channel);
       sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
-	       item->getSigma (1,1), item->getSigma (2,1), item->getSigma (2,2), item->getSigma (3,1), item->getSigma (3,2), item->getSigma (3,3), 
-	       item->getSigma (4,1), item->getSigma (4,2), item->getSigma (4,3), item->getSigma (4,4), channel->rawId ());
+	       item->getSigma (0,0), item->getSigma (1,0), item->getSigma (1,1), item->getSigma (2,0), item->getSigma (2,1), item->getSigma (2,2), 
+	       item->getSigma (3,0), item->getSigma (3,1), item->getSigma (3,2), item->getSigma (3,3), channel->rawId ());
       fOutput << buffer;
     }
   }
@@ -205,8 +205,8 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObjec
   fOutput << "# QIE data" << std::endl;
   sprintf (buffer, "# %4s %4s %4s %4s %36s %36s %36s %36s %36s %36s %36s %36s\n", 
 	   "eta", "phi", "dep", "det", 
-	   "4 x offsets cap1", "4 x offsets cap2", "4 x offsets cap3", "4 x offsets cap4",
-	   "4 x slopes cap1", "4 x slopes cap2", "4 x slopes cap3", "4 x slopes cap4");
+	   "4 x offsets cap0", "4 x offsets cap1", "4 x offsets cap2", "4 x offsets cap3",
+	   "4 x slopes cap0", "4 x slopes cap1", "4 x slopes cap2", "4 x slopes cap3");
   fOutput << buffer;
   std::vector<HcalDetId> channels = fObject.getAllChannels ();
   for (std::vector<HcalDetId>::iterator channel = channels.begin ();

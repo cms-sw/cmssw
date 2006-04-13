@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.8 2005/12/27 23:50:27 fedor Exp $
+// $Id: HcalDbService.cc,v 1.9 2006/02/22 19:51:40 fedor Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -53,7 +53,7 @@ bool HcalDbService::makeHcalCalibrationWidth (const HcalDetId& fId, HcalCalibrat
     const HcalGainWidth* gain = getGainWidth (fId);
     if (pedestal && gain) {
       float pedestalWidth [4];
-      for (int i = 0; i < 4; i++) pedestalWidth [i] = pedestal->getWidth (i+1);
+      for (int i = 0; i < 4; i++) pedestalWidth [i] = pedestal->getWidth (i);
       *fObject = HcalCalibrationWidths (gain->getValues (), pedestalWidth);
       return true;
     }

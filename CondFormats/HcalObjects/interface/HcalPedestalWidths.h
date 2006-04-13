@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL container to store PedestalWidth values 4xCapId
 $Author: ratnikov
-$Date: 2005/12/15 23:38:04 $
-$Revision: 1.5 $
+$Date: 2006/02/22 19:51:41 $
+$Revision: 1.6 $
 */
 
 #include <vector>
@@ -27,9 +27,9 @@ class HcalPedestalWidths {
 #ifndef __REFLEX__ 
   /// get all values
   const HcalPedestalWidth* getValues (HcalDetId fId) const;
-  /// get value for given capId = 1..4
+  /// get value for given capId = 0..3
   float getWidth (HcalDetId fId, int fCapId) const;
-  /// get correlation for given capId1/2 = 1..4
+  /// get correlation for given capId1/2 = 0..3
   float getSigma (HcalDetId fId, int fCapId1, int fCapId2) const;
   /// get list of all available channels
   std::vector<HcalDetId> getAllChannels () const;
