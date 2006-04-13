@@ -1,8 +1,9 @@
 /** \file
  *
- * $Date: 2006/02/23 10:32:04 $
- * $Revision: 1.1 $
+ * $Date: 2006/03/20 12:42:29 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
 
 /* This Class Header */
@@ -23,6 +24,13 @@ DTRecSegment2D::DTRecSegment2D(const DetId& id) : theDetId(id){
 DTRecSegment2D::DTRecSegment2D(const DetId& id, const vector<DTRecHit1D>& hits) :
 theDetId(id), theChi2(0.0), theHits(hits){
 }
+
+DTRecSegment2D::DTRecSegment2D(const DetId &id, 
+	       LocalPoint &position, LocalVector &direction,
+	       AlgebraicSymMatrix & covMatrix, double &chi2, 
+	       std::vector<DTRecHit1D> &hits1D):
+  theDetId(id), thePosition(position),theDirection(direction),
+  theCovMatrix(covMatrix),theChi2(chi2), theHits(hits1D){}
 
 /// Destructor
 DTRecSegment2D::~DTRecSegment2D() {
@@ -53,11 +61,22 @@ std::vector<const TrackingRecHit*> DTRecSegment2D::recHits() const {
 }
 
 std::vector<TrackingRecHit*> DTRecSegment2D::recHits() {
-  return std::vector<TrackingRecHit*>();
+
+  std::vector<TrackingRecHit*> pointersOfRecHits; 
+    
+  for(std::vector<DTRecHit1D>::iterator rechit = theHits.begin();
+      rechit != theHits.end(); rechit++)
+    pointersOfRecHits.push_back( &(*rechit) );
+  
+  return pointersOfRecHits;
 }
 
 std::vector<DTRecHit1D> DTRecSegment2D::specificRecHits() const {
   return theHits;
+}
+
+void DTRecSegment2D::update(std::vector<DTRecHit1D> & updatedRecHits){
+  theHits = updatedRecHits;
 }
 
 void DTRecSegment2D::setPosition(const LocalPoint& pos){
