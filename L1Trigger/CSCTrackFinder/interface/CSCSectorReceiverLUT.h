@@ -29,16 +29,14 @@ class CSCSectorReceiverLUT
   lclphidat localPhi(int strip, int pattern, int quality, int lr) const;
   lclphidat localPhi(unsigned address) const;
   lclphidat localPhi(lclphiadd address) const;
-
   
   gblphidat globalPhiME(int phi_local, int wire_group, int cscid) const;
   gblphidat globalPhiME(unsigned address) const;
   gblphidat globalPhiME(gblphiadd address) const;
-
-  /*
+  
   gblphidat globalPhiMB(int phi_local,int wire_group, int cscid) const;
   gblphidat globalPhiMB(unsigned address) const;
-  */
+  gblphidat globalPhiMB(gblphiadd address) const;
 
   gbletadat globalEtaME(int phi_bend, int phi_local, int wire_group, int cscid) const;
   gbletadat globalEtaME(unsigned address) const;
@@ -55,6 +53,7 @@ class CSCSectorReceiverLUT
   
   /// Global Phi LUT
   gblphidat calcGlobalPhiME(const gblphiadd& address) const;
+  gblphidat calcGlobalPhiMB(const gblphidat& me_gphi_data) const;
   double getGlobalPhiValue(const CSCLayer* thelayer, const unsigned& strip, const unsigned& wire_group) const;
 
   /// Global Eta LUT

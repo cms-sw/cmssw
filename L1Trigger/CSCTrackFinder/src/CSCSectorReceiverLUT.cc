@@ -29,6 +29,7 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector
   lut_path = pset.getUntrackedParameter<std::string>("LUTPath","./");
   me_global_eta = NULL;
   me_global_phi = NULL;
+  mb_global_phi = NULL;
   if(LUTsFromFile) readLUTsFromFile();
 }
 
@@ -40,17 +41,24 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(const CSCSectorReceiverLUT& lut):_end
 									    LUTsFromFile(lut.LUTsFromFile),
 									    isBinary(lut.isBinary)
 {
+  if(lut.mb_global_phi)
+    {
+      mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
+      memcpy(mb_global_phi, lut.mb_global_phi, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(gblphidat));
+    }
+  else mb_global_phi = NULL;
   if(lut.me_global_phi)
     {
       me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
       memcpy(me_global_phi, lut.me_global_phi, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(gblphidat));
     }
-
+  else me_global_phi = NULL;
   if(lut.me_global_eta)
     {
       me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
       memcpy(me_global_eta, lut.me_global_eta, (1<<CSCBitWidths::kGlobalEtaAddressWidth)*sizeof(gbletadat));
     }
+  else me_global_eta = NULL;
 }
 										       
 CSCSectorReceiverLUT& CSCSectorReceiverLUT::operator=(const CSCSectorReceiverLUT& lut)
@@ -65,6 +73,19 @@ CSCSectorReceiverLUT& CSCSectorReceiverLUT::operator=(const CSCSectorReceiverLUT
       LUTsFromFile = lut.LUTsFromFile;
       isBinary = lut.isBinary;
 
+      if(lut.mb_global_phi)
+	{
+	  mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
+	  memcpy(mb_global_phi, lut.mb_global_phi, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(gblphidat));
+	}
+      else mb_global_phi = NULL;
+      
+      if(lut.me_global_phi)
+	{
+	  me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
+	  memcpy(me_global_phi, lut.me_global_phi, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(gblphidat));
+	}
+      else me_global_phi = NULL;
       
       if(lut.me_global_eta)
 	{
@@ -88,6 +109,16 @@ CSCSectorReceiverLUT::~CSCSectorReceiverLUT()
     {
       delete me_global_eta;
       me_global_eta = NULL;
+    }
+  if(me_global_phi)
+    {
+      delete me_global_phi;
+      me_global_phi = NULL;
+    }
+  if(mb_global_phi)
+    {
+      delete mb_global_phi;
+      mb_global_phi = NULL;
     }
 }
 
@@ -397,6 +428,65 @@ gblphidat CSCSectorReceiverLUT::globalPhiME(gblphiadd address) const
   return result;
 }
 
+gblphidat CSCSectorReceiverLUT::calcGlobalPhiMB(const gblphidat &csclut) const
+{
+  gblphidat dtlut;
+
+  //Number of global phi units per radian.
+  int    maxPhiG = 1<<CSCBitWidths::kGlobalPhiDataBitWidth;
+  double binPhiG = static_cast<double>(maxPhiG)/CSCConstants::SECTOR_RAD;
+  // get global phi in ME coordinates and get real ME sector == dt sector (1-12)
+  double csc_gphi_value = static_cast<double>(csclut.global_phi)/binPhiG;
+  int dt_sector = CSCTriggerNumbering::sectorFromTriggerLabels(_sector,_subsector,_station);
+
+  double dt_phi0 = dt_sector*M_PI/6.0;
+  double dt_gphi = fmod(csc_gphi_value - dt_phi0 + 3*M_PI, 2*M_PI) - M_PI;
+  int dt_gphi_int = static_cast<int>(dt_gphi*binPhiG);
+
+  if((_subsector == 1 && csclut.global_phi >= 2048) || (_subsector == 2 && csclut.global_phi <  2048))
+    dtlut.global_phi = 0x800;
+  else
+    dtlut.global_phi = 0x800 | static_cast<unsigned>(dt_gphi_int);  
+
+  return dtlut;
+}
+
+gblphidat CSCSectorReceiverLUT::globalPhiMB(int phi_local,int wire_group, int cscid) const
+{
+  gblphiadd address;
+  gblphidat result;
+
+  address.cscid = cscid;
+  address.wire_group = ((1<<5)-1)&(wire_group>>2);
+  address.phi_local = phi_local;
+
+  if(LUTsFromFile) result = mb_global_phi[address.toint()];
+  else result = calcGlobalPhiMB(globalPhiME(address));
+  
+  return result;
+}
+
+gblphidat CSCSectorReceiverLUT::globalPhiMB(unsigned address) const
+{
+  gblphidat result;
+  gblphiadd theadd(address);
+
+  if(LUTsFromFile) result = mb_global_phi[theadd.toint()];
+  else result = calcGlobalPhiMB(globalPhiME(address));  
+
+  return result;
+}
+
+gblphidat CSCSectorReceiverLUT::globalPhiMB(gblphiadd address) const
+{
+  gblphidat result;
+
+  if(LUTsFromFile) result = mb_global_phi[address.toint()];
+  else result = calcGlobalPhiMB(globalPhiME(address));
+
+  return result;
+}
+
 double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const unsigned& thewire_group, const unsigned& thephi_local) const
 {
   double result = 0.0;
@@ -671,8 +761,6 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
 
       fName += ((isBinary) ? ".bin" : ".dat");
 
-      std::cout << "OPENING " << lut_path + fName << std::endl;
-
       if(isBinary)
         {
           GlobalPhiLUT.open((lut_path + fName).c_str(),std::ios::binary);
@@ -696,6 +784,44 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
 	    {
 	      GlobalPhiLUT >> temp;
 	      me_global_phi[i++] = (*reinterpret_cast<gblphidat*>(&temp));
+	    }
+          GlobalPhiLUT.close();
+        }
+    }
+  if(!mb_global_phi)
+    {
+      mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
+      memset(mb_global_phi, 0, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(short));
+      std::string fName = std::string("GlobalPhiMB") + encodeFileIndex();
+      std::ifstream GlobalPhiLUT;
+
+      edm::LogInfo("CSCSectorReceiverLUT|loadLUT") << "Loading SR LUT: " << fName;
+
+      fName += ((isBinary) ? ".bin" : ".dat");
+
+      if(isBinary)
+        {
+          GlobalPhiLUT.open((lut_path + fName).c_str(),std::ios::binary);
+          GlobalPhiLUT.seekg(0,std::ios::end);
+          int length = GlobalPhiLUT.tellg();
+          if(length == (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(short))
+            {
+              GlobalPhiLUT.seekg(0,std::ios::beg);
+              GlobalPhiLUT.read(reinterpret_cast<char*>(mb_global_phi),length);
+            }
+          else
+            edm::LogError("CSCSectorReceiverLUT|loadLUT") << "File "<< fName << " is incorrect size!";
+          GlobalPhiLUT.close();
+        }
+      else
+        {
+          GlobalPhiLUT.open((lut_path + fName).c_str());
+          unsigned short temp = 0;
+          unsigned i = 0;
+          while(!GlobalPhiLUT.eof() && i < 1<<CSCBitWidths::kGlobalPhiAddressWidth)
+	    {
+	      GlobalPhiLUT >> temp;
+	      mb_global_phi[i++] = (*reinterpret_cast<gblphidat*>(&temp));
 	    }
           GlobalPhiLUT.close();
         }
