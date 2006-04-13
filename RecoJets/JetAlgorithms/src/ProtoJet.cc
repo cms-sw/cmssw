@@ -46,11 +46,8 @@ int ProtoJet::n90() const {
 }
 
 double ProtoJet::phi() const {
-  double px_pos=fabs(m_px);
-  double py_pos=fabs(m_py);
   double phi= 0.;
-
-  phi = atan2 (py_pos, (px_pos + 1.e-20));
+  if (px () != 0 || py () != 0) phi = atan2 (py(), px());
   if (phi < 0) phi += 2.*PI;
   return phi;
 }
