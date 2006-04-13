@@ -3,6 +3,7 @@
 
 void SiStripClusterCollection::put(SiStripClusterCollection::Range input, unsigned int detID) {
   // put in RecHits of detID
+  if (input.first == input.second) return ;
 
   // store size of vector before put
   SiStripClusterCollection::IndexRange inputRange;
