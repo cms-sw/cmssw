@@ -20,8 +20,8 @@ private:
 
   double thePixelROCRows;
   double thePixelROCCols;
-  double thePixelROCsInX;
-  double thePixelROCsInY;
+  double thePixelBarrelROCsInX;
+  double thePixelBarrelROCsInY;
   
 };
 
