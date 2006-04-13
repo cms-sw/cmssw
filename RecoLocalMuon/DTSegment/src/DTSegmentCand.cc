@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/03/30 16:53:18 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/12 15:15:48 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -40,6 +40,7 @@ DTSegmentCand::~DTSegmentCand() {
 
 /* Operations */ 
 bool DTSegmentCand::operator==(const DTSegmentCand& seg){
+ std::cout<<"DTSegmentCand::operator=="<<std::endl;
   static const double epsilon=0.00001;
   if (nHits()!=seg.nHits()) return false;
   if (fabs(chi2()-seg.chi2())>epsilon) return false;

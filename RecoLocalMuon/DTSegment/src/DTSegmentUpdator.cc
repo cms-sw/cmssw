@@ -1,8 +1,9 @@
 /** \file
  *
- * $Date: 2006/04/11 16:59:01 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/12 15:15:48 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
 
 /* This Class Header */
@@ -15,9 +16,12 @@
 #include "RecoLocalMuon/DTSegment/interface/DTLinearFit.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 /* C++ Headers */
 #include <string>
@@ -41,6 +45,11 @@ DTSegmentUpdator::~DTSegmentUpdator() {
 /* Operations */ 
 // bool DTSegmentUpdator::update(DTRecSegment* seg) {
 // }
+
+void DTSegmentUpdator::setES(const edm::EventSetup& setup){
+    setup.get<MuonGeometryRecord>().get(theGeom);
+    theAlgo->setES(setup);
+}
 
 void DTSegmentUpdator::update(DTRecSegment2D* seg)  {
   if (theAlgo->canUpdate2D()) { // FIXME canUpdate2D to be implemented
@@ -204,7 +213,7 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
 
     const DTLayer* layer = theGeom->layer( hit->wireId().layerId() );
 
-    DTRecHit1D newHit1D;
+    DTRecHit1D newHit1D=(*hit);
 
     bool ok=true;
 

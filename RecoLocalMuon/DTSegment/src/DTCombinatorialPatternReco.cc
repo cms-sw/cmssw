@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/11 16:59:01 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/12 15:15:48 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -50,17 +50,12 @@ DTCombinatorialPatternReco::~DTCombinatorialPatternReco() {
 /* Operations */ 
 edm::OwnVector<DTRecSegment2D>
 DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
-                                        const std::vector<DTRecHit1DPair>& pairs,
-                                        const edm::EventSetup& setup) {
-  // Get the DT Geometry
-  edm::ESHandle<DTGeometry> dtGeom;
-  setup.get<MuonGeometryRecord>().get(dtGeom);
-  theUpdator->setGeometry(dtGeom);
+                                        const std::vector<DTRecHit1DPair>& pairs){
 
   edm::OwnVector<DTRecSegment2D> result;
-  vector<DTHitPairForFit*> hitsForFit = initHits(sl, pairs, dtGeom);
+  vector<DTHitPairForFit*> hitsForFit = initHits(sl, pairs);
 
-  vector<DTSegmentCand*> candidates = buildSegments(sl, hitsForFit, setup);
+  vector<DTSegmentCand*> candidates = buildSegments(sl, hitsForFit);
 
   vector<DTSegmentCand*>::const_iterator cand=candidates.begin();
   while (cand<candidates.end()) {
@@ -82,19 +77,20 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
   return result;
 }
 
-// void DTCombinatorialPatternReco::setES(const edm::EventSetup& setup){
-//   theUpdator->setES(setup);
-// }
+void DTCombinatorialPatternReco::setES(const edm::EventSetup& setup){
+  // Get the DT Geometry
+  setup.get<MuonGeometryRecord>().get(theDTGeometry);
+  theUpdator->setES(setup);
+}
 
 vector<DTHitPairForFit*>
 DTCombinatorialPatternReco::initHits(const DTSuperLayer* sl,
-                                     const std::vector<DTRecHit1DPair>& hits,
-                                     const edm::ESHandle<DTGeometry> dtGeom){
-
+                                     const std::vector<DTRecHit1DPair>& hits){  
+  
   vector<DTHitPairForFit*> result;
   for (vector<DTRecHit1DPair>::const_iterator hit=hits.begin();
        hit!=hits.end(); ++hit) {
-    result.push_back(new DTHitPairForFit(*hit, *sl, dtGeom));
+    result.push_back(new DTHitPairForFit(*hit, *sl, theDTGeometry));
   }
   //TODO needed??
   //sort(theHits.begin(),theHits.end(), pHitSort());
@@ -103,8 +99,8 @@ DTCombinatorialPatternReco::initHits(const DTSuperLayer* sl,
 
 vector<DTSegmentCand*>
 DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
-                                          const std::vector<DTHitPairForFit*>& hits,
-                                          const edm::EventSetup& setup) {
+                                          const std::vector<DTHitPairForFit*>& hits){
+
   typedef vector<DTHitPairForFit*> hitCont;
   typedef hitCont::const_iterator  hitIter;
   vector<DTSegmentCand*> result;
@@ -126,10 +122,6 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
     }
     return result;
   }
-
-  // Get the DT Geometry
-  edm::ESHandle<DTGeometry> dtGeom;
-  setup.get<MuonGeometryRecord>().get(dtGeom);
 
   /// get two hits in different layers and see if there are other / hits
   //  compatible with them
@@ -394,6 +386,7 @@ DTCombinatorialPatternReco::buildPointsCollection(vector<AssPoint>& points,
 bool
 DTCombinatorialPatternReco::checkDoubleCandidates(vector<DTSegmentCand*>& cands,
                                                   DTSegmentCand* seg) {
+  cout<<"DTCombinatorialPatternReco::checkDoubleCandidates"<<endl;
   for (vector<DTSegmentCand*>::iterator cand=cands.begin();
        cand!=cands.end(); ++cand) 
     if (*(*cand)==*seg) return false;

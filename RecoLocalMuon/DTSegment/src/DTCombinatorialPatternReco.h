@@ -5,9 +5,10 @@
  *
  * Algo for reconstructing 2d segment in DT using a combinatorial approach
  *  
- * $Date: 2006/04/11 16:59:01 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/12 15:15:48 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */
 
@@ -50,12 +51,12 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
 /* Operations */ 
     virtual edm::OwnVector<DTRecSegment2D>
       reconstruct(const DTSuperLayer* sl,
-                  const std::vector<DTRecHit1DPair>& hits,
-		  const edm::EventSetup& setup);
+                  const std::vector<DTRecHit1DPair>& hits);
+	
     
     virtual std::string algoName() const { return theAlgoName; }
     
-    //    virtual void setES(const edm::EventSetup& setup);
+    virtual void setES(const edm::EventSetup& setup);
  protected:
 
  private:
@@ -63,14 +64,13 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
     
     // create the DTHitPairForFit from the pairs for easy use
     std::vector<DTHitPairForFit*> initHits(const DTSuperLayer* sl,
-                                           const std::vector<DTRecHit1DPair>& hits,
-                                           const edm::ESHandle<DTGeometry> dtGeom);
+                                           const std::vector<DTRecHit1DPair>& hits);
 
     // search for candidate, starting from pairs of hits in different layers
     std::vector<DTSegmentCand*> buildSegments(const DTSuperLayer* sl,
                                               const
-                                              std::vector<DTHitPairForFit*>& hits,
-                                              const edm::EventSetup& setup) ;
+                                              std::vector<DTHitPairForFit*>& hits);
+
 
     // find all the hits compatible with the candidate
     std::vector<AssPoint> findCompatibleHits(const LocalPoint& pos,
@@ -100,5 +100,6 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
     DTSegmentUpdator* theUpdator; // the updator and fitter
     DTSegmentCleaner* theCleaner; // the cleaner
     
+    edm::ESHandle<DTGeometry> theDTGeometry; // the DT geometry
 };
 #endif // DTSegment_DTCombinatorialPatternReco_h

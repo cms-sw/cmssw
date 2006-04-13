@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/11 16:59:01 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/12 15:15:48 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -69,8 +69,8 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
   ESHandle<DTGeometry> dtGeom;
   setup.get<MuonGeometryRecord>().get(dtGeom);
 
-  //theAlgo->setES(setup);
-
+  theAlgo->setES(setup);
+  
   // Get the digis from the event
   Handle<DTRecHitCollection> allHits; 
   event.getByLabel(theRecHits1DLabel, "DT1DRecHits", allHits);
@@ -112,7 +112,7 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
     // }
 
     cout << "Start Reco " << pairs.size() << endl;
-    OwnVector<DTRecSegment2D> segs = theAlgo->reconstruct(sl, pairs,setup);
+    OwnVector<DTRecSegment2D> segs = theAlgo->reconstruct(sl, pairs);
     cout << "Get segments " << segs.size() << endl;
 
     if (segs.size() >0 )

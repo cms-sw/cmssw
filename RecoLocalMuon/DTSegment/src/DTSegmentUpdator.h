@@ -8,9 +8,10 @@
  * impact angle and position (also along the wire) and perform linear fit on
  * improved hits.
  *
- * $Date: 14/03/2006 13:39:53 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:18 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */
 
@@ -23,6 +24,8 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 class DTLinearFit;
 class DTRecHitBaseAlgo;
+
+namespace edm{class EventSetup;}
 
 /* C++ Headers */
 #include <vector>
@@ -42,9 +45,6 @@ class DTSegmentUpdator{
     ~DTSegmentUpdator() ;
 
 /* Operations */ 
-    void setGeometry(edm::ESHandle<DTGeometry> dtGeom) {
-      theGeom = dtGeom;
-    }
 
     /** do the linear fit on the hits of the segment candidate and update it.
      * Returns false if the segment candidate is not good() */
@@ -67,12 +67,15 @@ class DTSegmentUpdator{
     /// recompute hits position and refit the segment2D
     void update(DTRecSegment2D* seg);
 
+    /// set the setup
+    void setES(const edm::EventSetup& setup);
+
   protected:
 
   private:
     DTLinearFit* theFitter; // the linear fitter
     DTRecHitBaseAlgo* theAlgo; // the algo for hit reconstruction
-    edm::ESHandle<DTGeometry> theGeom; // the geoemtry
+    edm::ESHandle<DTGeometry> theGeom; // the geometry
 
   private:
 
