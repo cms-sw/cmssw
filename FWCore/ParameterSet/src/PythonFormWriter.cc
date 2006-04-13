@@ -4,7 +4,7 @@
 
 #include "FWCore/ParameterSet/src/PythonFormWriter.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-
+#include <boost/tokenizer.hpp>
 #include "FWCore/Utilities/interface/EDMException.h"
 
 
@@ -338,6 +338,14 @@ namespace edm
         }
       else if(n.type()=="secsource")
         {
+          // we need to remember all modules with secsources
+          // we should be inside a module stack now, so the first word
+          // of the stack should be the top-level module name
+          assert( moduleStack_.size() > 0);
+          boost::char_separator<char> sep(":");
+          boost::tokenizer<boost::char_separator<char> > tok(moduleStack_.top(), sep);
+          modulesWithSecSources_.push_back(*(tok.begin()));
+
           header<<"'"<<n.name <<"': ('secsource', 'tracked', {";
         }
       else
@@ -551,6 +559,20 @@ namespace edm
 	  }
 	out << " ]\n" ;
       }
+
+      out << "# modules with secsources (names)\n";
+      {
+        out << ", 'modules_with_secsources': [ ";
+        list<string>::const_iterator i = modulesWithSecSources_.begin();
+        list<string>::const_iterator e = modulesWithSecSources_.end();
+        for ( bool first = true; i !=e; first=false, ++i)
+          {
+            if (!first) out << ", ";
+            out << *i;
+          }
+        out << " ]\n" ;
+      }
+
       out << "# sequences\n";
       {
          out <<", 'sequences': { \n";

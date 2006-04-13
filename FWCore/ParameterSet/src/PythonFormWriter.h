@@ -3,7 +3,7 @@
 
 
 //------------------------------------------------------------
-// $Id: PythonFormWriter.h,v 1.1 2005/12/17 01:55:54 paterno Exp $
+// $Id: PythonFormWriter.h,v 1.2 2005/12/18 20:26:38 chrjones Exp $
 //
 //
 // PythonFormWriter defines a class that is to be used to walk the
@@ -75,6 +75,7 @@ namespace edm
       std::stack<std::string> moduleStack_;
       ModuleCache             modules_;
       std::list<std::string>  outputModuleNames_;
+      std::list<std::string>  modulesWithSecSources_;
       
       bool                    processingVPSet_;
       unsigned int            nVPSetChildren_;
