@@ -1,6 +1,6 @@
 #------------------------------------------------------------
 #
-# $Id: cmsconfig.py,v 1.9 2006/01/10 21:06:58 paterno Exp $
+# $Id: cmsconfig.py,v 1.10 2006/04/13 16:48:13 rpw Exp $
 #
 # cmsconfig: a class to provide convenient access to the Python form
 # of a parsed CMS configuration file.
@@ -120,7 +120,7 @@ class cmsconfig:
         return len(self.psdata['modules'])
 
     def numberOfOutputModules(self):
-        return len(self.getOutputModuleNames())
+        return len(self.outputModuleNames())
 
     def moduleNames(self):
         """Return the names of modules. Returns a list."""
@@ -133,6 +133,9 @@ class cmsconfig:
 
     def outputModuleNames(self):
         return self.psdata['output_modules']
+
+    def moduleNamesWithSecSources(self):
+        return self.psdata['modules_with_secsources']
 
     def esSourceNames(self):
         """Return the names of all ESSources. Names are of the form '<C++ type>@<label>' where
