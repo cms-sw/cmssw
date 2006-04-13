@@ -21,13 +21,10 @@ DataFormat for links between digi from tracker and simhits
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-PixelDigiSimLinkCollectionfwd
+
 PixelDigiSimLinkCollection
-PixelDigiSimLinkfwd
 PixelDigiSimLink
-StripDigiSimLinkCollectionfwd
 StripDigiSimLinkCollection
-StripDigiSimLinkfwd
 StripDigiSimLink
 
 \subsection modules Modules
@@ -40,10 +37,11 @@ Unknown
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-Unknown
+Each link contains the digi channel, the index of the simtrack that generated it 
+and the fraction of charge released  by the simtrack.
 
 <hr>
 Last updated:
-@DATE@  Author: computer-generated.
+@DATE@  Author: Michele Pioppi.
 */
 
