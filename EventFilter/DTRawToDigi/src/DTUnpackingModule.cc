@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/21 19:15:55 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/04/10 12:20:40 $
+ *  $Revision: 1.15 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  */
 
@@ -58,6 +58,7 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) :
 }
 
 DTUnpackingModule::~DTUnpackingModule(){
+  cout<<"[DTUnpackingModule]: Destructor"<<endl;
   delete unpacker;
 }
 

@@ -4,8 +4,8 @@
 /** \class DTROS25Data
  *  The collection containing DT ROS25 status data.
  *
- *  $Date: 2006/03/24 16:14:07 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/04/10 12:20:39 $
+ *  $Revision: 1.1 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -34,7 +34,7 @@ public:
   /// Setters  ///////////////////////
   inline void setROSId(const int & ID) { theROSId = ID; } 
 
-  inline void addROSTrailer( const DTROSTrailerWord & word)  { theROSTrailers.push_back(word); }
+  inline void addROSTrailer( const DTROSTrailerWord & word)  { theROSTrailer = DTROSTrailerWord(word) ; }
   inline void addROSError( const DTROSErrorWord & word)  { theROSErrors.push_back(word); }
   inline void addROSDebug( const DTROSDebugWord & word)  { theROSDebugs.push_back(word); }
   inline void addROBTrailer( const DTROBTrailerWord & word)  { theROBTrailers.push_back(word); }
@@ -45,7 +45,7 @@ public:
   /// Getters ////////////////////////
   inline int getROSID() const { return theROSId; } 
 
-  inline const vector<DTROSTrailerWord>& getROSTrailers() const {return theROSTrailers;}
+  inline const DTROSTrailerWord & getROSTrailer() const {return theROSTrailer;}
   inline const vector<DTROSErrorWord>& getROSErrors() const {return theROSErrors;}
   inline const vector<DTROSDebugWord>& getROSDebugs() const {return theROSDebugs;}
   inline const vector<DTROBTrailerWord>& getROBTrailers() const {return theROBTrailers;}
@@ -56,7 +56,7 @@ private:
 
   int theROSId;
 
-  vector<DTROSTrailerWord> theROSTrailers;
+  DTROSTrailerWord theROSTrailer;
   vector<DTROSErrorWord> theROSErrors;
   vector<DTROSDebugWord> theROSDebugs;
   vector<DTROBTrailerWord> theROBTrailers;

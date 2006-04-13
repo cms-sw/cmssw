@@ -4,8 +4,8 @@
 /** \class DTDDUUnpacker
  *  The unpacker for DTs' FED.
  *
- *  $Date: 2006/04/07 15:36:04 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/04/10 12:21:48 $
+ *  $Revision: 1.7 $
  * \author M. Zanetti INFN Padova
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,6 +35,8 @@ class DTDDUUnpacker : public DTUnpacker {
  private:
 
   const edm::ParameterSet pset;
+
+  bool debug;
 
   DTROS25Unpacker* ros25Unpacker;
 

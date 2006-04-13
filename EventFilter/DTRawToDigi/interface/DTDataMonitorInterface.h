@@ -5,8 +5,8 @@
  *
  * Interface to the Data Quality Monitoring Module.
  *  
- *  $Date: 2006/02/21 19:14:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/10 12:20:39 $
+ *  $Revision: 1.2 $
  *
  * \author M. Zanetti - INFN Padova
  *
@@ -23,8 +23,8 @@ public:
 
   DTDataMonitorInterface(){}
   virtual ~DTDataMonitorInterface(){}
-  virtual void processROS25(DTROS25Data & data)=0;
-  virtual void processFED(DTDDUData & data)=0;
+  virtual void processROS25(DTROS25Data & data, int ddu, int ros)=0;
+  virtual void processFED(DTDDUData & data, int ddu)=0;
   
 
 private:

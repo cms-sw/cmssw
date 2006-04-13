@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/27 15:50:39 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/04/10 12:20:40 $
+ *  $Revision: 1.12 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -36,8 +36,14 @@ DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps): pset(ps) {
     dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
   }
 
+  debug = pset.getUntrackedParameter<bool>("debugMode",false);
+
 }
 
+
+DTROS25Unpacker::~DTROS25Unpacker() {
+  cout<<"[DTROS25Unpacker]: Destructor"<<endl;
+}
 
 void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
                                        int dduID,
@@ -67,11 +73,19 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
   while (wordCounter < numberOfWords) {
 
     rosID++; // to be mapped;
-    if ( !((rosList & int(pow(2., (rosID-1) )) ) >> (rosID-1) ) ) continue;      
+    
+    // matching the ROS number with the enabled DDU channel
+    if ( rosID <= 12 && !((rosList & int(pow(2., (rosID-1) )) ) >> (rosID-1) ) ) continue;      
 
+    if (debug) cout<<"[DTROS25Unpacker]: ros list: "<<rosList
+		   <<" ROS ID "<<rosID<<endl;
+    
+    
     // ROS Header; 
     if (DTROSWordType(word).type() == DTROSWordType::ROSHeader) {
       DTROSHeaderWord rosHeaderWord(word);
+
+      if (debug) cout<<"[DTROS25Unpacker]: ROSHeader "<<rosHeaderWord.TTCEventCounter()<<endl;
 
       // container for words to be sent to DQM
       controlData.setROSId(rosID);
@@ -84,26 +98,29 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
         if (DTROSWordType(word).type() == DTROSWordType::ROSError) {
           DTROSErrorWord dtROSErrorWord(word);
           controlData.addROSError(dtROSErrorWord);
+	  if (debug) cout<<"[DTROS25Unpacker]: ROSError, Error type "<<dtROSErrorWord.errorType()
+			 <<" robID "<<dtROSErrorWord.robID()<<endl;
         } 
 
         // Eventual ROS Debugging; 
         else if (DTROSWordType(word).type() == DTROSWordType::ROSDebug) {
           DTROSDebugWord rosDebugWord(word);
           controlData.addROSDebug(rosDebugWord);
+	  if (debug) cout<<"[DTROS25Unpacker]: ROSDebug, type "<<rosDebugWord.debugType()
+			 <<"  message "<<rosDebugWord.debugMessage()<<endl;
         }
 
         // Check ROB header       
         else if (DTROSWordType(word).type() == DTROSWordType::GroupHeader) {
           
           DTROBHeaderWord robHeaderWord(word);
-          // int eventID = robHeaderWord.eventID(); // from the TDCs
-          //cout<<"ROB Event Id "<<eventID<<endl;
-
-          // int bunchID = robHeaderWord.bunchID(); // from the TDCs
-          //cout<<"ROB bunch ID "<<bunchID<<endl;
-
+	  int eventID = robHeaderWord.eventID(); // from the TDCs
+	  int bunchID = robHeaderWord.bunchID(); // from the TDCs
           int robID = robHeaderWord.robID(); // to be mapped
-          //cout<<"ROB ID "<<robID<<endl;
+
+	  if (debug) cout<<"[DTROS25Unpacker] ROB: ID "<<eventID
+			 <<" Event ID "<<eventID
+			 <<" BXID "<<bunchID<<endl;
 
           // Loop on TDCs data (headers and trailers are not there)
           do {
@@ -117,7 +134,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
             }           
             // Eventual TDC Debug
             else if ( DTROSWordType(word).type() == DTROSWordType::TDCDebug) {
-              //cout<<"TDC Debugging"<<endl;
+              cout<<"TDC Debugging"<<endl;
             }
 
             // The TDC information
@@ -129,13 +146,12 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
               DTTDCData tdcData(robID,tdcMeasurementWord);
               controlData.addTDCData(tdcData);
               
-              // int tdcID = tdcMeasurementWord.tdcID(); 
-              //cout<<"TDC ID "<<tdcID<<endl;
+	      int tdcID = tdcMeasurementWord.tdcID(); 
+              int tdcChannel = tdcMeasurementWord.tdcChannel(); 
 
-              // int tdcChannel = tdcMeasurementWord.tdcChannel(); 
-              //cout<<"TDC Channel "<<tdcChannel<<endl;
-
-              //cout<<"TDC Time "<<tdcMeasurementWord.tdcTime()<<endl;
+	      if (debug) cout<<"[DTROS25Unpacker] TDC: ID "<<tdcID
+			     <<" Channel "<< tdcChannel
+			     <<" Time "<<tdcMeasurementWord.tdcTime()<<endl;
 
               // Map the RO channel to the DetId and wire
               // DTLayerId layer; int wire = 0;
@@ -152,8 +168,28 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
           if (DTROSWordType(word).type() == DTROSWordType::GroupTrailer) {
             DTROBTrailerWord robTrailerWord(word);
             controlData.addROBTrailer(robTrailerWord);
+	    if (debug) cout<<"[DTROS25Unpacker]: ROBTrailer, robID  "<<robTrailerWord.robID()
+			   <<" eventID  "<<robTrailerWord.eventID()
+			   <<" wordCount  "<<robTrailerWord.wordCount()<<endl;
           }
         }
+
+	// Check the eventual Sector Collector Header       
+        else if (DTROSWordType(word).type() == DTROSWordType::SCHeader) {
+	  // implement this
+	  do {
+            wordCounter++; word = index[wordCounter];
+	    
+	    if (DTROSWordType(word).type() == DTROSWordType::SCData) {
+	      // implement this
+	    }
+
+	  } while ( DTROSWordType(word).type() != DTROSWordType::GroupTrailer );
+
+	  if (DTROSWordType(word).type() == DTROSWordType::SCTrailer) {
+	    // implement this
+	  }
+	}
 
       } while ( DTROSWordType(word).type() != DTROSWordType::ROSTrailer );
 
@@ -161,7 +197,23 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
       if (DTROSWordType(word).type() == DTROSWordType::ROSTrailer){
         DTROSTrailerWord rosTrailerWord(word);
         controlData.addROSTrailer(rosTrailerWord);
+	if (debug) cout<<"[DTROS25Unpacker]: ROSTrailer "<<rosTrailerWord.EventWordCount()<<endl;
       }
+
+      // Perform dqm if requested:
+      // DQM IS PERFORMED FOR EACH ROS SEPARATELY
+      if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) {
+	dataMonitor->processROS25(controlData, dduID, rosID);
+      }
+
+    }
+
+    else if (index[wordCounter] == 0) {
+      // in the case of odd number of words of a given ROS the header of 
+      // the next one is postponed by 4 bytes word set to 0.
+      // rosID needs to be step back by 1 unit
+      if (debug) cout<<"[DTROS25Unpacker]: odd number of ROS words"<<endl;
+      rosID--;
     }
 
     else {
@@ -169,16 +221,10 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
     }
 
 
-    // (needed only if there are more than 1 ROS)
+    // (needed if there are more than 1 ROS)
     wordCounter++; word = index[wordCounter];
 
-    // Perform dqm if requested:
-    // DQM IS PERFORMED FOR EACH ROS SEPARATELY
-    if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) 
-      dataMonitor->processROS25(controlData);
-
   }  
-  
   
   
 }
