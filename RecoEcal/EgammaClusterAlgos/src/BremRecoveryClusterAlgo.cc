@@ -1,23 +1,25 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/BremRecoveryClusterAlgo.h"
 
-std::vector<SuperCluster> BremRecoveryClusterAlgo::makeSuperClusters(reco::BasicClusterCollection & clustersCollection)
+reco::SuperClusterCollection BremRecoveryClusterAlgo::makeSuperClusters(reco::BasicClusterRefVector & clustersCollection)
 {
+  std::cout << "makeSuperClusters got a reco::BasicClusterRefVector of " << clustersCollection.size() << " elements!" << std::endl;
+
   const float etaBorder = 1.479;
 
   superclusters_v.clear();
-
-  // create vectors of pointers to clusters of a specific origin...
-  std::vector<reco::BasicCluster *> islandClustersBarrel_v;
-  std::vector<reco::BasicCluster *> islandClustersEndCap_v;
-  std::vector<reco::BasicCluster *> hybridClusters_v;
+  
+  // create vectors of references to clusters of a specific origin...
+  reco::BasicClusterRefVector islandClustersBarrel_v;
+  reco::BasicClusterRefVector islandClustersEndCap_v;
+  reco::BasicClusterRefVector hybridClusters_v;
 
   // ...and populate them:
-  reco::BasicClusterCollection::iterator it;
+  reco::basicCluster_iterator it;
   for (it = clustersCollection.begin(); it != clustersCollection.end(); it++)
     {
-      reco::BasicCluster *cluster_p = &(*it);
+      reco::BasicClusterRef cluster_p = *it;
       if (cluster_p->algo() < 100) 
-	{
+      {
 	  if (cluster_p->position().eta() < etaBorder)
 	    {
 	      islandClustersBarrel_v.push_back(cluster_p);
@@ -26,65 +28,98 @@ std::vector<SuperCluster> BremRecoveryClusterAlgo::makeSuperClusters(reco::Basic
 	    {
 	      islandClustersEndCap_v.push_back(cluster_p);
 	    }
+      }
+      else
+	{
+	  hybridClusters_v.push_back(cluster_p);
 	}
-      else hybridClusters_v.push_back(cluster_p);
+      
     }
 
-  // add the superclusters from the Barrel clusters - Island
+  // make the superclusters from the Barrel clusters - Island
   makeIslandSuperClusters(islandClustersBarrel_v, eb_rdeta_, eb_rdphi_);
-  // add the superclusters from the EndCap clusters - Island
+  // make the superclusters from the EndCap clusters - Island
   makeIslandSuperClusters(islandClustersEndCap_v, ec_rdeta_, ec_rdphi_);
-  // add the superclusters from the Hybrid clusters
+  // make the superclusters from the Hybrid clusters
   makeHybridSuperClusters(hybridClusters_v);
  
   std::cout << "Finished superclustering" << std::endl;
 
-  islandClustersBarrel_v.clear();
-  islandClustersEndCap_v.clear();
-  hybridClusters_v.clear();
-
   return superclusters_v;
 }
 
+#include "DataFormats/Math/interface/Vector3D.h"
 
-void BremRecoveryClusterAlgo::makeIslandSuperClusters(std::vector<reco::BasicCluster *> &clusters_v, 
-					   double etaRoad, double phiRoad)
+void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVector &clusters_v, 
+						      double etaRoad, double phiRoad)
 {
-  std::vector<reco::BasicCluster *>::iterator currentSeed;
+
+  reco::basicCluster_iterator currentSeed;
   for (currentSeed = clusters_v.begin(); !clusters_v.empty(); clusters_v.erase(currentSeed))
     {
+      // Does our highest energy cluster have high enough energy?
       if ((*currentSeed)->energy() < seedEnergyThreshold) break;
-      SuperCluster newSuperCluster;
-      newSuperCluster.add(*currentSeed);
-      
-      std::vector<reco::BasicCluster *>::iterator currentCluster = currentSeed + 1;
 
+      // if yes, make it a seed for a new SuperCluster:
+      double energy_ = (*currentSeed)->energy();
+      math::XYZVector position_((*currentSeed)->position().X(), 
+				(*currentSeed)->position().Y(), 
+				(*currentSeed)->position().Z());
+      position_ *= energy_;
+
+      std::cout << "*****************************" << std::endl;
+      std::cout << "******NEW SUPERCLUSTER*******" << std::endl;
+      std::cout << "Seed R = " << (*currentSeed)->position().Rho() << std::endl;
+
+      // and add the matching clusters:
+      reco::BasicClusterRefVector constituentClusters;
+      reco::basicCluster_iterator currentCluster = currentSeed + 1;
       while (currentCluster != clusters_v.end())
 	{
 	  if (match(*currentSeed, *currentCluster, etaRoad, phiRoad))
 	    {
-	      newSuperCluster.add(*currentCluster);
+	      constituentClusters.push_back(*currentCluster);
+	      energy_   += (*currentCluster)->energy();
+	      position_ += (*currentCluster)->energy() * math::XYZVector((*currentCluster)->position().X(), 
+									 (*currentCluster)->position().Y(), 
+									 (*currentCluster)->position().Z()); 
+	      std::cout << "Cluster R = " << (*currentCluster)->position().Rho() << std::endl;
+
 	      clusters_v.erase(currentCluster);
 	    }
 	  else currentCluster++;
 	}
-      newSuperCluster.outputInfo();
+
+      position_ /= energy_;
+      std::cout << "Final SuperCluster R = " << position_.Rho() << std::endl;
+
+      reco::SuperCluster newSuperCluster(energy_, 
+					 math::XYZPoint(position_.X(), position_.Y(), position_.Z()), 
+					 (*currentSeed), 
+					 constituentClusters);
+
       superclusters_v.push_back(newSuperCluster);
+
+      std::cout << "created a new supercluster of: " << std::endl;
+      std::cout << "Energy = " << newSuperCluster.energy() << std::endl;
+      std::cout << "Position in (R, phi, theta) = (" 
+		<< newSuperCluster.position().Rho() << ", " 
+		<< newSuperCluster.position().phi() << ", "
+		<< newSuperCluster.position().theta() << ")" << std::endl;
     }
-  clusters_v.clear();
   currentSeed = clusters_v.end();
 }
 
 
-void BremRecoveryClusterAlgo::makeHybridSuperClusters(std::vector<reco::BasicCluster *> &clusters_v)
+void BremRecoveryClusterAlgo::makeHybridSuperClusters(reco::BasicClusterRefVector &clusters_v)
 {
 
 }
 
 
-bool BremRecoveryClusterAlgo::match(reco::BasicCluster *seed_p, 
-			 reco::BasicCluster *cluster_p,
-			 double dEtaMax, double dPhiMax)
+bool BremRecoveryClusterAlgo::match(reco::BasicClusterRef seed_p, 
+				    reco::BasicClusterRef cluster_p,
+				    double dEtaMax, double dPhiMax)
 {
   math::XYZPoint clusterPosition = cluster_p->position();
   math::XYZPoint seedPosition = seed_p->position();
