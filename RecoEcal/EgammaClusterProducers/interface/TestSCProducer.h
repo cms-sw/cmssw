@@ -1,5 +1,5 @@
-#ifndef RecoEcal_EgammaClusterProducers_TestClusterProducer_h_
-#define RecoEcal_EgammaClusterProducers_TestClusterProducer_h_
+#ifndef RecoEcal_EgammaClusterProducers_TestSCProducer_h_
+#define RecoEcal_EgammaClusterProducers_TestSCProducer_h_
 
 #include <memory>
 
@@ -10,20 +10,18 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoEcal/EgammaClusterAlgos/interface/IslandClusterAlgo.h"
-
 
 //
 
 
-class TestClusterProducer : public edm::EDProducer 
+class TestSCProducer : public edm::EDProducer 
 {
   
   public:
 
-      TestClusterProducer(const edm::ParameterSet& ps);
+      TestSCProducer(const edm::ParameterSet& ps);
 
-      ~TestClusterProducer();
+      ~TestSCProducer();
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
@@ -32,13 +30,10 @@ class TestClusterProducer : public edm::EDProducer
       int nMaxPrintout_; // max # of printouts
       int nEvt_;         // internal counter of events
  
-      std::string clusterCollection_;
-      IslandClusterAlgo * island_p;
+      std::string superclusterCollection_;
 
       bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
 };
 
 
 #endif
-
-
