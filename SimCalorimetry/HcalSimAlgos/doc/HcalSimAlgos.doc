@@ -1,0 +1,64 @@
+/*!
+<!-- Substitute SUBSYSTEM and PACKAGE with the proper names! -->
+
+\page SUBSYSTEM_PACKAGE Package SUBSYSTEM/PACKAGE
+
+<center>
+<small>
+
+
+<!-- @PROJ_VERS@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/SUBSYSTEM/PACKAGE/?cvsroot=CMSSW&only_with_tag=@PROJ_VERS@>CVS</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/SUBSYSTEM/PACKAGE/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+This package implements the electronics simulation for all HCAL
+subsystems: HB, HE, HO, & HF.
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+The parameters are mostly gotten from the calibration
+database.  As of this writing, the pedestal values are:
+HB, HE, HO:  X +- X
+HF:          x +- x
+
+and the gains are:
+HB, HE:  X GeV/LSB (+/- x %)
+
+
+The sampling factor, the ratio of incling energy to sim-hit energy
+is 117 in HB/HE, and 217 in HO.  In HF, the SimHit units are photoelectrons.
+
+The photostatistics factor is 200 pe/deposited GeV in HB/HE, and 400 in HF.
+
+The amplifier gain, which goes from photoelectrons to fC, is
+calculated using units: pe/fC = (pe/depositedGEV) * (depositedGeV/ inc GeV) * (GeV/fC),
+= photostat * sampling fraction * gain
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+
+The HcalDigitizerTest is meant to be a standalone
+test of the digitization chain.
+
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+
+ Stable
+
+<hr>
+Last updated:
+@DATE@ X. XXXX
+*/
