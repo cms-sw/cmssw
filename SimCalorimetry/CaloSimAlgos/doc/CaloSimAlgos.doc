@@ -23,7 +23,7 @@ subsystems.
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-The top-levbel class is the CaloTDigitizer, which exists
+The top-level class is the CaloTDigitizer, which exists
 to invoke first the CaloHitResponse, then the subdetector-specific ElectronicsSim.
 
 The CaloHitResponse converts the SimHits into an analog signal.
@@ -33,11 +33,25 @@ The CaloHitResponse applies photostatistics, makes
 a pulse shape, and sums up the signals from all pulses
 in the channel, for all channels.
 
+
 The CaloSimParameterMap is provides a channel-by-channel
 interface for some parameters which the digitization
-simulation expects.
+simulation expects.  These parameters include
+* conversion factors to go from
+  -energy to average number of photoelectrons
+  -photoelectrons to amplified signal amplitude
+  -particle energy to simhit energy (sampling fraction)
+* tuneable delay
+* properties of the data frame, size, bin of maximum
 
-The CaloVShape provides an interface for a pulse shape
+The CaloVShape provides an interface for a pulse shapes.
+
+The CaloVHitCorrection provides a way for users to 
+make corrections to the SimHits on an individual basis.
+Some examples of applications might be for delays,
+attenuation, smearing, etc.
+
+
 
 
 \subsection modules Modules
