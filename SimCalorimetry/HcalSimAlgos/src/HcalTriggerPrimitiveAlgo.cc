@@ -108,10 +108,7 @@ void HcalTriggerPrimitiveAlgo::transverseComponent(CaloSamples & samples,
   // the adc2fC overwrites the Samples' DetId with a DataFrame id.  We want a
   // trig tower ID.  so we need to make a copy and switch
   CaloSamples result(id, samples.size());
-  // CaloSampels doesnt have a *= method
-  for(int i = 0; i < samples.size(); ++i) {
-    result[i] = samples[i] * theSinThetaTable[abs(id.ieta())];
-  }
+  samples *= theSinThetaTable[abs(id.ieta())];
   // swap it in
   samples = result;
 }
