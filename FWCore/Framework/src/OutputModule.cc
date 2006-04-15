@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.11 2006/02/08 00:44:25 wmtan Exp $
+$Id: OutputModule.cc,v 1.12 2006/02/17 22:09:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <vector>
@@ -45,14 +45,18 @@ namespace edm {
     nextID_(), 
     descVec_(),
     process_name_(Service<service::TriggerNamesService>()->getProcessName()),
-    groupSelector_(pset,
-		   getAllBranchDescriptions()),
+    groupSelector_(pset),
     eventSelector_(pset,process_name_,
 		   getAllTriggerNames()),
     // use this temporarily - can only apply event selection to current
     // process name
     selectResult_(eventSelector_.getProcessName())
   {
+  }
+
+  void OutputModule::selectProducts() {
+    if (groupSelector_.initialized()) return;
+    groupSelector_.initialize(getAllBranchDescriptions());
     Service<ConstProductRegistry> reg;
     nextID_ = reg->nextID();
 
@@ -65,10 +69,9 @@ namespace edm {
     ProductRegistry::ProductList::const_iterator end = 
       reg->productList().end();
 
-    for ( ; it != end; ++it)
-      {
-	if (selected(it->second)) descVec_.push_back(&it->second);
-      }
+    for ( ; it != end; ++it) {
+      if (selected(it->second)) descVec_.push_back(&it->second);
+    }
   }
 
   OutputModule::~OutputModule() { }

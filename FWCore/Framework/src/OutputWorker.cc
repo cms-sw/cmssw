@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.14 2006/02/03 06:00:15 jbk Exp $
+$Id: OutputWorker.cc,v 1.15 2006/02/08 00:44:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -40,6 +40,7 @@ namespace edm {
 
   void 
   OutputWorker::implBeginJob(EventSetup const& es) {
+    mod_->selectProducts();
     mod_->beginJob(es);
   }
 

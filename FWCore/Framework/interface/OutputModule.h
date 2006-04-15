@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.19 2006/02/08 00:44:24 wmtan Exp $
+$Id: OutputModule.h,v 1.20 2006/03/06 01:20:02 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -38,6 +38,7 @@ namespace edm {
     bool selected(BranchDescription const& desc) const;
 
     unsigned long nextID() const;
+    void selectProducts();
   private:
     unsigned long nextID_;
 

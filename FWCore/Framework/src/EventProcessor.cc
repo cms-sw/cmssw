@@ -350,16 +350,16 @@ namespace edm {
     adjustForService(*(pServiceSets.get()), "JobReport");
 
     //create the services
-    serviceToken_ = ServiceRegistry::createSet(*pServiceSets,iToken,iLegacy);
-    serviceToken_.connectTo(*actReg_);
+    ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets,iToken,iLegacy));
+    tempToken.connectTo(*actReg_);
      
-    //add the ProductRegistry as a service ONLY for the construction phase
+    //add the ProductRegistry as a service
     typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
     shared_ptr<w_CPR>
       reg(new w_CPR( std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(preg_))));
-    ServiceToken tempToken(ServiceRegistry::createContaining(reg, 
-							     serviceToken_, 
-							     kOverlapIsError));
+    serviceToken_ = ServiceRegistry::createContaining(reg, 
+						     tempToken, 
+						     kOverlapIsError);
 
     // the next thing is ugly: pull out the trigger path pset and 
     // create a service and extra token for it
@@ -372,7 +372,7 @@ namespace edm {
       (new w_TNS( std::auto_ptr<TNS>(new TNS(*params_))));
     ServiceToken tempToken2
       (ServiceRegistry::createContaining(tnsptr, 
-					 tempToken, 
+					 serviceToken_, 
 					 kOverlapIsError));
     //make the services available
     ServiceRegistry::Operate operate(tempToken2);
