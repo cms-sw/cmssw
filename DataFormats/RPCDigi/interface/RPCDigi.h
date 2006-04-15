@@ -5,8 +5,8 @@
  *
  * Digi for Resistive Plate Chambers.
  *  
- *  $Date: 2005/11/06 16:23:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/04/06 07:54:01 $
+ *  $Revision: 1.5 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -63,13 +63,13 @@ public:
 private:
   
   uint16_t strip_;
-  uint16_t bx_;
+  int16_t bx_;
    
 
    /// The packed digi content  
   struct PackedDigiType {
     uint16_t theStrip; 
-    uint16_t theBx;    
+    int16_t theBx;    
   };
 
 
