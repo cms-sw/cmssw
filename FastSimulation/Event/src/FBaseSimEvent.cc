@@ -4,39 +4,39 @@
 #include "CLHEP/HepMC/GenVertex.h"
 #include "CLHEP/HepMC/GenParticle.h"
 
+// CMSSW headers
+#include "SimGeneral/HepPDT/interface/HepPDTable.h"
+#include "SimGeneral/HepPDT/interface/HepParticleData.h"
+#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
+#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
+
 //FAMOS Headers
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 
-// CMSSW headers
-#include "SimGeneral/HepPDT/interface/HepPDTable.h"
-#include "SimGeneral/HepPDT/interface/HepParticleData.h"
+using namespace std;
+//using namespace edm;
+using namespace HepMC;
+using namespace CLHEP;
 
 // system include
 #include <iostream>
 #include <iomanip>
 
-using namespace std;
-using namespace edm;
-using namespace HepMC;
-
-FBaseSimEvent::FBaseSimEvent() : 
-  mySimTracks(0), 
-  mySimVertices(0) 
-{
+FBaseSimEvent::FBaseSimEvent() {
 
 
   // Initialize the vectors of particles and vertices
-  myGenParticles = new vector<GenParticle*>(); 
-
+  theGenParticles = new vector<GenParticle*>(); 
   theSimTracks = new vector<FSimTrack>;
   theSimVertices = new vector<FSimVertex>;
 
   // Reserve some size to avoid mutiple copies
   theSimTracks->reserve(2048);
   theSimVertices->reserve(2048);
+  theGenParticles->reserve(2048);
 
   // Initialize the Particle filter
   myFilter = new KineParticleFilter();
@@ -54,7 +54,7 @@ FBaseSimEvent::FBaseSimEvent() :
 FBaseSimEvent::~FBaseSimEvent(){
 
   clear();
-  delete myGenParticles;
+  delete theGenParticles;
   delete theSimTracks;
   delete theSimVertices;
   delete myFilter;
@@ -66,10 +66,6 @@ FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
   
   // Clear old vectors
   clear();
-
-  // Create new vectors for the framework
-  mySimTracks = new EmbdSimTrackContainer(); 
-  mySimVertices = new EmbdSimVertexContainer(); 
 
   // printMCTruth(myGenEvent);
 
@@ -124,7 +120,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
     // This is the generated particle pointer
     GenParticle* p = *piter;
-    myGenParticles->push_back(p);
+    theGenParticles->push_back(p);
 
     // Keep only: 
     // 1) Stable particles
@@ -211,18 +207,20 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) {
   
   // Attach the particle to the origin vertex
   //  originVertex->add_particle_out(part);
-  vertex(iv).addDaughter(nTracks());
+  int trackId = nTracks();
+  vertex(iv).addDaughter(trackId);
   
   // Attach the vertex to the event (inoccuous if the vertex exists)
   // add_vertex(originVertex);
   
   // Some persistent information for the users
-  mySimTracks->push_back(EmbdSimTrack(p->pid(),*p,iv,ig)); 
+  //  mySimTracks->push_back(EmbdSimTrack(p->pid(),*p,iv,ig)); 
 
   // Some transient information for FAMOS internal use
-  theSimTracks->push_back(FSimTrack(mySimTracks->size()-1,this));
+  //  theSimTracks->push_back(FSimTrack(mySimTracks->size()-1,this));
+  theSimTracks->push_back(FSimTrack(p,iv,ig,trackId,this));
 
-  return nTracks()-1;
+  return trackId;
 
 }
 
@@ -240,15 +238,16 @@ FBaseSimEvent::addSimVertex(const HepLorentzVector& v,int im) {
 
   // Attach the end vertex to the particle (if accepted)
   //  if ( im!=-1 ) decayVertex->add_particle_in(track(im).me());
-  if ( im != -1 ) track(im).setEndVertex(nVertices());
+  int vertexId = nVertices();
+  if ( im != -1 ) track(im).setEndVertex(vertexId);
 
   // Some persistent information for the users
-  mySimVertices->push_back(EmbdSimVertex(v.vect(),v.e(),im));
+  //  mySimVertices->push_back(EmbdSimVertex(v.vect(),v.e(),im));
 
   // Some transient information for FAMOS internal use
-  theSimVertices->push_back(FSimVertex(mySimVertices->size()-1,this));
+  theSimVertices->push_back(FSimVertex(v,im,vertexId,this));
 
-  return nVertices()-1;
+  return vertexId;
 
 }
 
@@ -341,10 +340,8 @@ FBaseSimEvent::print() const {
 void 
 FBaseSimEvent::clear() {
 
-  //  if ( mySimTracks) delete mySimTracks;
-  //  if ( mySimVertices) delete mySimVertices;
   // Clear the vectors
-  myGenParticles->clear();
+  theGenParticles->clear();
   
   theSimTracks->clear();
   theSimVertices->clear();
@@ -375,13 +372,13 @@ FBaseSimEvent::nVertices() const {
 
 unsigned int 
 FBaseSimEvent::nGenParts() const {
-  return myGenParticles->size();
+  return theGenParticles->size();
 }
 static  const EmbdSimVertex zeroVertex;
 const EmbdSimVertex & 
 FBaseSimEvent::embdVertex(int i) const { 
-  if (i>=0 && i<(int)mySimVertices->size()) 
-    return (*mySimVertices)[i]; 
+  if (i>=0 && i<(int)theSimVertices->size()) 
+    return (*theSimVertices)[i]; 
   else 
     return zeroVertex;
 }
@@ -389,18 +386,27 @@ FBaseSimEvent::embdVertex(int i) const {
 static  const EmbdSimTrack zeroTrack;
 const EmbdSimTrack & 
 FBaseSimEvent::embdTrack(int i) const { 
-  if (i>=0 && i<(int)mySimTracks->size()) 
-    return (*mySimTracks)[i]; 
+  if (i>=0 && i<(int)theSimTracks->size()) 
+    return (*theSimTracks)[i]; 
   else 
     return zeroTrack;
 }
 
 const HepMC::GenParticle* 
 FBaseSimEvent::embdGenpart(int i) const { 
-  if (i>=0 && i<(int)myGenParticles->size()) 
-    return (*myGenParticles)[i]; 
+  if (i>=0 && i<(int)theGenParticles->size()) 
+    return (*theGenParticles)[i]; 
   else 
     return 0;
 }
+
+std::vector<FSimTrack>* 
+FBaseSimEvent::tracks() const { return theSimTracks; }
+
+std::vector<FSimVertex>*
+FBaseSimEvent::vertices() const { return theSimVertices; }
+
+std::vector<HepMC::GenParticle*>* 
+FBaseSimEvent::genparts() const { return theGenParticles; }
 
 

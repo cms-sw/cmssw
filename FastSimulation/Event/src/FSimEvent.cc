@@ -1,6 +1,3 @@
-#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
-
 //FAMOS Headers
 #include "FastSimulation/Event/interface/FSimEvent.h"
 
@@ -28,30 +25,38 @@ float FSimEvent::weight() const {
   return weight_; 
 }
 
-edm::EmbdSimTrackContainer*
-FSimEvent::tracks() const { return mySimTracks; }
-
-edm::EmbdSimVertexContainer*
-FSimEvent::vertices() const { return mySimVertices; }
-
-std::vector<HepMC::GenParticle*>* 
-FSimEvent::genparts() const { return myGenParticles; }
-
 unsigned int 
 FSimEvent::nTracks() const {
-  return mySimTracks->size();
+  return FBaseSimEvent::nTracks();
 }
 
 unsigned int 
 FSimEvent::nVertices() const { 
-  return mySimVertices->size();
+  return FBaseSimEvent::nVertices();
 }
 
 unsigned int 
 FSimEvent::nGenParts() const {
-  return myGenParticles->size();
+  return FBaseSimEvent::nGenParts();
 }
 
+void 
+FSimEvent::load(edm::EmbdSimTrackContainer & c) const
+{
+  for (unsigned int i=0; i<nTracks(); ++i) {
+    //    EmbdSimTrack t = EmbdSimTrack(ip,p,iv,ig);
+    c.push_back(embdTrack(i));
+  }
+}
+
+void 
+FSimEvent::load(edm::EmbdSimVertexContainer & c) const
+{
+  for (unsigned int i=0; i<nVertices(); ++i) {
+    //    EmbdSimTrack t = EmbdSimTrack(ip,p,iv,ig);
+    c.push_back(embdVertex(i));
+  }
+}
 
 
 

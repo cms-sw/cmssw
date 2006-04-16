@@ -1,26 +1,24 @@
 #ifndef FastSimulation_Event_FSimEvent_H
 #define FastSimulation_Event_FSimEvent_H
 
-#include "FastSimulation/Event/interface/FBaseSimEvent.h"
-
-#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
+// CMSSW Headers
 #include "DataFormats/Common/interface/EventID.h"
+#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+
+// FAMOS Headers
+#include "FastSimulation/Event/interface/FBaseSimEvent.h"
  
-#include "CLHEP/Vector/LorentzVector.h"
- 
-#include <vector>
- 
-/** The FAMOS SimEvent: inherits from TSimEvent and FBaseSimEvent,
+/** The FAMOS SimEvent: inherits from FBaseSimEvent,
  *  where the latter provides FAMOS-specific event features (splitting
  *  proposed by Maya STAVRIANAKOU)
  *
  * An FSimEvent contains, at filling time, only particles from the 
- * RawHepEvent it is being filled with. Material Effects then 
+ * GenEvent it is being filled with. Material Effects then 
  * update its content, so that it resembles the output of Geant
  * at the end of the material effect processing.
  *
- * Important : As in TSimEvent, all distances are in cm 
+ * Important : All distances are in mm 
  *
  * \author Patrick Janot, CERN
  * \date: 9-Dec-2003
@@ -51,14 +49,11 @@ public:
   /// Number of vertices
   virtual unsigned int nVertices() const;
   /// Number of MC particles
-  virtual unsigned int nGenParts() const;  
+  virtual unsigned int nGenParts() const;
 
-  /// return track container
-  edm::EmbdSimTrackContainer* tracks() const;
-  /// return vertex container
-  edm::EmbdSimVertexContainer* vertices() const;
-  /// return MC track container
-  std::vector<HepMC::GenParticle*>* genparts() const;
+  /// Load containers of tracks and vertices for the edm::Event
+  void load(edm::EmbdSimTrackContainer & c) const;
+  void load(edm::EmbdSimVertexContainer & c) const;
 
 private:
 

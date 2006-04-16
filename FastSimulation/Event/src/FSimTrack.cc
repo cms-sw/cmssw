@@ -17,13 +17,17 @@
 using namespace std;
 
 FSimTrack:: FSimTrack() : 
-  mom_(0), embd_(-1), id_(-1), endv_(-1),
+  EmbdSimTrack(), mom_(0), id_(-1), endv_(-1),
   layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) {;}
   
-FSimTrack::FSimTrack(int embd, FBaseSimEvent* mom) : 
-  mom_(mom), embd_(embd), id_(mom->nTracks()), endv_(-1),
-  layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) {;}
+//FSimTrack::FSimTrack(int embd, FBaseSimEvent* mom) : 
+//  mom_(mom), embd_(embd), id_(mom->nTracks()), endv_(-1),
+//  layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) {;}
   
+FSimTrack::FSimTrack(const RawParticle* p, int iv, int ig, int id, FBaseSimEvent* mom) :
+  EmbdSimTrack(p->pid(),*p,iv,ig), mom_(mom), id_(id), endv_(-1),
+  layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) {;}
+
 FSimTrack::~FSimTrack() {
   // Clear the maps 
   //  theRecHits.clear();
@@ -39,7 +43,7 @@ float
 FSimTrack::charge() const { return particleInfo()->charge();}
   
 const FSimVertex& 
-FSimTrack::vertex() const { return mom_->vertex(me().vertIndex()); }
+FSimTrack::vertex() const { return mom_->vertex(vertIndex()); }
 
 const FSimVertex& 
 FSimTrack::endVertex() const { return mom_->vertex(endv_); }
@@ -88,8 +92,8 @@ FSimTrack::noDaughter() const { return noEndVertex() || !nDaughters(); }
 const HepMC::GenParticle* 
 FSimTrack::genParticle() const { return mom_->embdGenpart(genpartIndex()); }
    
-const EmbdSimTrack& 
-FSimTrack::me() const { return mom_->embdTrack(embd_); } 
+//const EmbdSimTrack& 
+//FSimTrack::me() const { return mom_->embdTrack(embd_); } 
 
 /*
 double

@@ -1,9 +1,8 @@
 #ifndef FastSimulation_Event_FSimTrack_H
 #define FastSimulation_Event_FSimTrack_H
 
-//CLHEP Headers
-#include "CLHEP/HepMC/GenParticle.h"
-#include <CLHEP/Vector/LorentzVector.h>
+// CLHEP Headers
+#include "CLHEP/Vector/LorentzVector.h"
 
 // CMSSW Headers
 #include "SimDataFormats/Track/interface/EmbdSimTrack.h"
@@ -17,20 +16,24 @@ class FSimVertex;
 class FBaseSimEvent;
 class HepParticleData;
 
+namespace HepMC {
+  class GenParticle;
+}
+
 /** A class that mimics SimTrack, with enhanced features.
  *  Essentially an interface to EmbdSimTrack.
  * \author Patrick Janot, CERN 
  * $Date: 9-Dec-2003
  */
 
-class FSimTrack {
+class FSimTrack : public EmbdSimTrack {
 
  public:
   /// Default constructor
   FSimTrack();
   
   /// Constructor from the EmmbSimTrack index in the FBaseSimEvent
-  FSimTrack(int iembd, FBaseSimEvent* mom);
+  FSimTrack(const RawParticle* p, int iv, int ig, int id, FBaseSimEvent* mom);
   
   /// Destructor
   virtual ~FSimTrack();
@@ -39,10 +42,10 @@ class FSimTrack {
   const HepParticleData * particleInfo() const;
   
   /// four momentum
-  inline HepLorentzVector momentum() const { return me().momentum(); }
+  //inline HepLorentzVector momentum() const { return me().momentum(); }
 
   /// particle type (HEP PDT convension)
-  inline int type() const { return me().type(); }
+  //inline int type() const { return me().type(); }
 
   /// charge
   float charge() const; 
@@ -66,7 +69,7 @@ class FSimTrack {
   const std::vector<int>& daughters() const;
 
   /// no origin vertex...
-  inline bool  noVertex() const { return me().noVertex(); }
+  //inline bool  noVertex() const { return me().noVertex(); }
 
   /// no end vertex
   bool  noEndVertex() const; 
@@ -84,10 +87,10 @@ class FSimTrack {
   const HepMC::GenParticle* genParticle() const;
    
   /// The attached EmbdSimTrack
-  const EmbdSimTrack& me() const;
+  //const EmbdSimTrack& me() const;
 
   /// The original GenParticle in the original event
-  inline int genpartIndex() const { return me().genpartIndex(); }
+  //inline int genpartIndex() const { return me().genpartIndex(); }
 
   /// the generator particle index
   //  short int genpartIndex() const { return me().genpartIndex(); }
@@ -197,7 +200,7 @@ class FSimTrack {
   //  HepMC::GenParticle* me_;
 
   const FBaseSimEvent* mom_;
-  int embd_;   // The index in the EmbdSimTrack vector
+  //  int embd_;   // The index in the EmbdSimTrack vector
   int id_; // The index in the FSimTrackVector
   
   int endv_; // The index of the end vertex in FSimVertex

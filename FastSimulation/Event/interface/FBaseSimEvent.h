@@ -4,13 +4,10 @@
 //#include "DataFormats/Common/interface/EventID.h"
 
 // CLHEP Headers
-//#include "CLHEP/HepMC/GenEvent.h"
-
-// CMSSW Headers
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
+#include "CLHEP/Vector/LorentzVector.h"
 
 #include <map>
+#include <vector>
 
 /** FSimEvent special features for FAMOS
  *
@@ -24,6 +21,9 @@ class FSimVertex;
 class RawParticle;
 class HepPDTable;
 class KineParticleFilter;
+
+class EmbdSimTrack;
+class EmbdSimVertex;
 
 namespace HepMC {
   class GenEvent;
@@ -77,6 +77,15 @@ public:
   /// return MC track with a given id
   const HepMC::GenParticle* embdGenpart(int i) const;
 
+  /// The pointer to the vector of FSimTrack's 
+  std::vector<FSimTrack>* tracks() const; 
+  
+  /// The pointer to the vector of FSimVertex's 
+  std::vector<FSimVertex>* vertices() const;
+
+  /// The pointer to the vector of GenParticle's 
+  std::vector<HepMC::GenParticle*>* genparts() const;
+
   /// Add a new track to the Event and to the various lists
   //  int addSimTrack(HepMC::GenParticle* part, 
   //		  HepMC::GenVertex* originVertex, 
@@ -89,18 +98,11 @@ public:
 
   const KineParticleFilter& filter() const { return *myFilter; } 
 
-
- protected:
-
-  /// To have the same output as for OscarProducer (->FamosProducer)
-  edm::EmbdSimTrackContainer* mySimTracks;
-  edm::EmbdSimVertexContainer* mySimVertices;
-  std::vector<HepMC::GenParticle*>* myGenParticles;
-
  private:
 
   std::vector<FSimTrack>* theSimTracks;
   std::vector<FSimVertex>* theSimVertices;
+  std::vector<HepMC::GenParticle*>* theGenParticles;
 
   /// The particle filter
   KineParticleFilter* myFilter;
