@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.19 2006/03/24 14:16:56 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.20 2006/04/06 23:43:56 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -175,11 +175,6 @@ namespace edm {
 	ref.markWrite(i->second);
       } else {
 	eventProvenance.data_.push_back(g->provenance().event);
-	if (g->product() == 0) {
-	  // This is wasteful, as it de-serializes and re-serializes.
-	  // Replace it with something better.
-	  e.resolve_(*g);
-	}
 	pool::Ref<EDProduct const> ref(context(), g->product());
 	ref.markWrite(i->second);
       }
