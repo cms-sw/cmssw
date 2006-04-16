@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.34 2006/03/02 06:48:57 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.35 2006/03/06 01:23:12 chrjones Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -179,7 +179,9 @@ private:
     unsigned long slotNumber = i->second;
     assert(slotNumber < groups_.size());
 
-    return groups_[slotNumber];
+    SharedGroupPtr const& g = groups_[slotNumber];
+    this->resolve_(*g);
+    return g;
   }
 
   BasicHandle
@@ -193,7 +195,6 @@ private:
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "get by product ID: no product with given id\n";
     }
-    this->resolve_(*g);
     return BasicHandle(g->product(), &g->provenance());
   }
 
