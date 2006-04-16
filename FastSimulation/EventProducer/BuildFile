@@ -3,6 +3,7 @@
 <use name=Foundation/PluginManager>
 <use name=FastSimulation/Event>
 <use name=FastSimulation/TrajectoryManager>
+<use name=FastSimulation/ParticlePropagator>
 <use name=DetectorDescription/Core>
 <use name=DetectorDescription/Parser>
 <use name=GeometryReaders/XMLIdealGeometryESSource>
@@ -22,6 +23,7 @@
  <use name=Utilities/Notification>
  <use name=FastSimulation/Event>
  <use name=FastSimulation/TrajectoryManager>
+ <use name=FastSimulation/ParticlePropagator>
  <use name=DetectorDescription/Core>
  <use name=DetectorDescription/Parser>
  <use name=GeometryReaders/XMLIdealGeometryESSource>

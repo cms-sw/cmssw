@@ -19,6 +19,7 @@
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
+#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
   
 #include <iostream>
 #include <memory>
@@ -50,13 +51,16 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
   es.get<IdealGeometryRecord>().get(pDD);
 
     // magnetic field
-    if (m_pUseMagneticField)
-    {
-	edm::ESHandle<MagneticField> pMF;
-	es.get<IdealMagneticFieldRecord>().get(pMF);
-	const GlobalPoint g(0.,0.,0.);
-	std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;
-    }    
+  if (m_pUseMagneticField) {
+    edm::ESHandle<MagneticField> pMF;
+    es.get<IdealMagneticFieldRecord>().get(pMF);
+    const GlobalPoint g(0.,0.,0.);
+    std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;      
+    MagneticFieldMap::instance(pMF); 
+ }    
+  
+  // Pass the information to a singleton
+
 }
 
 /*

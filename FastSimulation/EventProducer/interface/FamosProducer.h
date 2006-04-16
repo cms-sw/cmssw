@@ -10,6 +10,9 @@
 
 #include "DataFormats/Common/interface/EDProduct.h"
 
+#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
+#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
+
 class FamosManager;
 
 namespace HepMC { 

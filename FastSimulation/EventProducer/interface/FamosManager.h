@@ -13,10 +13,12 @@ namespace HepMC {
 
 class FSimEvent;
 class TrajectoryManager;
+class MagneticField;
 
 namespace CLHEP {
   class HepLorentzVector;
 }
+
 // using trailing _ for private data members, m_p prefix for PSet variables (MSt)
 
 class FamosManager
@@ -48,6 +50,9 @@ class FamosManager
   const HepMC::GenEvent* myGenEvent;
   FSimEvent* mySimEvent;
   TrajectoryManager* myTrajectoryManager;
+
+ private:
+
   bool m_pUseMagneticField;
   CLHEP::HepLorentzVector * vtx_;
   double weight_;    
