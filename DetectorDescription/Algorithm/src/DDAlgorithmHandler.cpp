@@ -13,6 +13,13 @@ DDAlgorithmHandler::DDAlgorithmHandler()
 {
 }
 
+DDAlgorithmHandler::~DDAlgorithmHandler()
+{
+  if (algo_) {
+    delete algo_;
+  }
+}
+
 
 void DDAlgorithmHandler::initialize(const std::string & algoName,
 		  const DDLogicalPart & parent,

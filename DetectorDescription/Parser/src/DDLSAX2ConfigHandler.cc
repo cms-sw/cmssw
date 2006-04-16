@@ -17,6 +17,7 @@ namespace std{} using namespace std;
 //  Includes
 // ---------------------------------------------------------------------------
 #include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/StrX.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 
 // Xerces C++ dependencies.
@@ -63,7 +64,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
   elementCount_++;
   attrCount_ += attrs.getLength();
 
-  std::string myelemname = std::string(XMLString::transcode(qname));
+  std::string myelemname = StrX(qname).stringForm(); //std::string(XMLString::transcode(qname));
   DCOUT_V('P', "DDLSAX2ConfigHandler::startElement" << myelemname << " started...");
 
   unsigned int numAtts = attrs.getLength();
@@ -73,8 +74,8 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
       std::string name="", url="";
       while ( i < numAtts )
 	{
-          std::string myattname = std::string(XMLString::transcode(attrs.getLocalName(i)));
-          std::string myvalue = std::string(XMLString::transcode(attrs.getValue(i)));
+          std::string myattname = std::string(StrX(attrs.getLocalName(i)).localForm());
+          std::string myvalue = std::string(StrX(attrs.getValue(i)).localForm());
 
           if (myattname == "name")
 	    name=myvalue;
@@ -91,8 +92,8 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
       std::string fileName="", logicalPartName="";
       while ( i < numAtts )
 	{
-          std::string myattname = std::string(XMLString::transcode(attrs.getLocalName(i)));
-          std::string myvalue = std::string(XMLString::transcode(attrs.getValue(i)));
+          std::string myattname = std::string(StrX(attrs.getLocalName(i)).localForm());
+          std::string myvalue = std::string(StrX(attrs.getValue(i)).localForm());
 
 	  if (myattname == "fileName")
 	    fileName = myvalue;
@@ -113,8 +114,8 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
     {
       while ( i < numAtts )
 	{
-          std::string myattname = std::string(XMLString::transcode(attrs.getLocalName(i)));
-          std::string myvalue = std::string(XMLString::transcode(attrs.getValue(i)));
+          std::string myattname = std::string(StrX(attrs.getLocalName(i)).localForm());
+          std::string myvalue = std::string(StrX(attrs.getValue(i)).localForm());
 	  if (myattname == "schemaLocation")
 	    schemaLocation_ = myvalue;
           else if (myattname == "validation")

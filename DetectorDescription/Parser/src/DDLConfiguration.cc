@@ -47,13 +47,13 @@ DDLConfiguration::~DDLConfiguration()
 
 DDLConfiguration::DDLConfiguration() : configHandler_()
 { 
-  parser_ = DDLParser::instance();
+  //  parser_ = DDLParser::instance();
   //  std::cout << "Making a DDLConfiguration with configHandler_ at " << &configHandler_ << std::endl;
 }
 
 DDLConfiguration::DDLConfiguration(DDLParser * ip) : configHandler_()
 { 
-  parser_ = ip;
+  //  parser_ = ip; do NOTHING with the incomming pointer for now...
 }
 
 const std::vector<std::string>&  DDLConfiguration::getFileList(void) const
@@ -95,11 +95,37 @@ int DDLConfiguration::readConfig(const std::string& filename)
 //   parser_->getXMLParser()->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"),true);   // optional
 //   if (parser_->getXMLParser()->getFeature(XMLString::transcode("http://xml.org/sax/features/validation")) == true)
 //     parser_->getXMLParser()->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), true);
+  int toreturn(0);
+  try
+    {
+      XMLPlatformUtils::Initialize();
+      //      AlgoInit();
+    }
 
-  parser_->getXMLParser()->setContentHandler(&configHandler_);
+  catch (const XMLException& toCatch)
+    {
+      std::string e("\nDDLParser(): Error during initialization! Message:");
+      e += std::string(StrX(toCatch.getMessage()).localForm()) + std::string ("\n");
+      throw (DDException(e));
+    }
+
+  parser_  = XMLReaderFactory::createXMLReader();
+
+  // FIX: Temporarily set validation and namespaces to false always.
+  //      Due to ignorance, I did not realize that once set, these can not be
+  //      changed for a SAX2XMLReader.  I need to re-think the use of SAX2Parser.
+  parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"), false);   // optional
+  parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"), false);   // optional
+  //  SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/properties/scannerName"), XMLString::transcode("SGXMLScanner"));
+  //was not the problem, IGXML was fine!  SAX2Parser_->setProperty(XMLUni::fgXercesScannerName, (void *)XMLUni::fgSGXMLScanner);
+
+  // Specify other parser features, e.g.
+  //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
+
+  parser_->setContentHandler(&configHandler_);
 
   try {
-    parser_->getXMLParser()->parse(filename.c_str());
+    parser_->parse(filename.c_str());
   }
   catch (const XMLException& toCatch) {
     std::cout << "\nXMLException: parsing '" << filename << "'\n"

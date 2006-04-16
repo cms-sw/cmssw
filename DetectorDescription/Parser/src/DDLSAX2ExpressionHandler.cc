@@ -76,10 +76,13 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
       std::string varName, varValue;
       for (unsigned int i = 0; i < numAtts; i++)
 	{
-	  std::string myattname = std::string(XMLString::transcode(attrs.getLocalName(i)));
-	  std::string myvalue = std::string(XMLString::transcode(attrs.getValue(i)));
+// 	  std::string myattname = std::string(XMLString::transcode(attrs.getLocalName(i)));
+// 	  std::string myvalue = std::string(XMLString::transcode(attrs.getValue(i)));
+	  std::string myattname = std::string(StrX(attrs.getLocalName(i)).localForm());
+	  std::string myvalue = std::string(StrX(attrs.getValue(i)).localForm());
 
-	  std::string myQName = std::string(XMLString::transcode(attrs.getQName(i)));
+// 	  std::string myQName = std::string(XMLString::transcode(attrs.getQName(i)));
+	  std::string myQName = std::string(StrX(attrs.getQName(i)).localForm());
 	  DCOUT_V('P', std::string("DDLSAX2ExpressionHandler: ") + "getLocalName = " + myattname + "  getValue = " +  myvalue + "   getQName = " + myQName);
 
 	  // attributes unit and quantity are not used right now.

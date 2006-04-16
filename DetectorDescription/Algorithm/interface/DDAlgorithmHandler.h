@@ -15,7 +15,7 @@ class DDAlgorithmHandler
       its memory is NOT managed by DDAlgorithmHandler */
   DDAlgorithmHandler();
   
-  virtual  ~DDAlgorithmHandler() {}
+  virtual  ~DDAlgorithmHandler();
   
   //! initializes the wrapped algorithm algo_ and does some pre- and post-processing
   /** pre- and postprocessing mainly covers exception handling,

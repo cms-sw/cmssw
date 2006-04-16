@@ -7,6 +7,8 @@
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 
+#include <xercesc/sax2/SAX2XMLReader.hpp>
+
 class DDLParser;
 class DDLSAX2Handler;
 class DDLSAX2ConfigHandler;
@@ -56,7 +58,7 @@ class DDLConfiguration : public DDLDocumentProvider {
  protected:
 
  private:
-  DDLParser * parser_;
+  SAX2XMLReader*  parser_;
   DDLSAX2ConfigHandler configHandler_;
 };
 

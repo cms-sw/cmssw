@@ -13,6 +13,7 @@
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/util/XMLString.hpp>
+#include <string>
 #include <iostream>
 
 namespace xercesc_2_3 { } using namespace xercesc_2_3;
@@ -35,15 +36,30 @@ class StrX
     // -----------------------------------------------------------------------
     //  Constructors and Destructor
     // -----------------------------------------------------------------------
-    StrX(const XMLCh* const toTranscode)
+    StrX(const XMLCh* const toTranscode)// : fXMLChForm(toTranscode)
     {
-      // Call the private transcoding method
+      char * fLocalForm;
       fLocalForm = XMLString::transcode(toTranscode);
+      fStoredForm = std::string (fLocalForm);
+      delete [] fLocalForm;
+    }
+
+  StrX( const char* const toTranscode )// : fLocalForm(toTranscode) {
+    {
+      XMLCh * fXMLChForm;
+      fXMLChForm = XMLString::transcode(toTranscode);
+      fStoredForm = std::string(toTranscode);
+      delete [] fXMLChForm;
+    }
+
+  StrX( const std::string& toTranscode ) : fStoredForm(toTranscode)
+    {
+
     }
 
   ~StrX()
     {
-      delete [] fLocalForm;
+
     }
 
   // -----------------------------------------------------------------------
@@ -51,8 +67,17 @@ class StrX
   // -----------------------------------------------------------------------
   const char* localForm() const
     {
-      return fLocalForm;
+      return fStoredForm.c_str();
     }
+
+  const XMLCh* xmlChForm() const
+    {
+      return XMLString::transcode(fStoredForm.c_str());
+    }
+
+  const std::string& stringForm() const {
+    return fStoredForm;
+  }
 
   private :
     // -----------------------------------------------------------------------
@@ -61,7 +86,7 @@ class StrX
     //  fLocalForm
     //      This is the local code page form of the std::string.
     // -----------------------------------------------------------------------
-    char*   fLocalForm;
+    std::string fStoredForm;
 };
 
 inline std::ostream& operator<<(std::ostream& target, const StrX& toDump)
