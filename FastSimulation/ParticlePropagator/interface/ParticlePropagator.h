@@ -16,12 +16,11 @@
 * $Date : 19-Aug-2002, with subsequent modification for FAMOS
 * \version 15-Dec-2003 */
 
-//COBRA
-#include "FastSimulation/ParticlePropagator/interface/BaseParticlePropagator.h"
-//#include "MagneticField/BaseMagneticField/interface/MagneticField.h"
-
 //CLHEP
 #include "CLHEP/Units/PhysicalConstants.h" // for c_light
+
+// FAMOS Headers
+#include "FastSimulation/ParticlePropagator/interface/BaseParticlePropagator.h"
 
 class TrackerLayer;
 class FSimTrack;
@@ -33,7 +32,7 @@ public:
       half-height and magnetic field defining the cylinder for which 
       propagation is to be performed */
   ParticlePropagator(const RawParticle& myPart, double R, double Z, double B);
-
+  
   /** Constructor with only a RawParticle as argument for subsequent 
       propagation to known surfaces (ECAL, HCAL ...) */
   ParticlePropagator(const RawParticle& myPart);

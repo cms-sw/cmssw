@@ -4,6 +4,7 @@
 
 //FAMOS headers
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
+#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
@@ -12,20 +13,21 @@
 
 ParticlePropagator::ParticlePropagator(const RawParticle& myPart,
 				       double R, double Z, double B) :
-  BaseParticlePropagator(myPart,R,Z,B) 
+  BaseParticlePropagator(myPart,R,Z,B)
 {
   setMagneticField(fieldMap(x(),y(),z()));
 }
 
-ParticlePropagator::ParticlePropagator( const RawParticle& myPart ) :
-  BaseParticlePropagator(myPart,0.,0.,0.) 
+ParticlePropagator::ParticlePropagator( const RawParticle& myPart) : 
+  BaseParticlePropagator(myPart,0.,0.,0.)
+ 
 {
   setMagneticField(fieldMap(x(),y(),z()));
 }
 
 ParticlePropagator::ParticlePropagator(const HepLorentzVector& mom, 
 				       const HepLorentzVector& vert, float q) :
-  BaseParticlePropagator(RawParticle(mom,vert),0.,0.,0.) 
+  BaseParticlePropagator(RawParticle(mom,vert),0.,0.,0.)
 {
   setCharge(q);
   setMagneticField(fieldMap(x(),y(),z()));
@@ -33,7 +35,7 @@ ParticlePropagator::ParticlePropagator(const HepLorentzVector& mom,
 
 ParticlePropagator::ParticlePropagator(const HepLorentzVector& mom, 
 				       const Hep3Vector& vert, float q) :
-  BaseParticlePropagator(RawParticle(mom,HepLorentzVector(vert,0.0)),0.,0.,0.) 
+  BaseParticlePropagator(RawParticle(mom,HepLorentzVector(vert,0.0)),0.,0.,0.)
 {
   setCharge(q);
   setMagneticField(fieldMap(x(),y(),z()));
@@ -71,8 +73,10 @@ ParticlePropagator::propagated() const {
 }
 
 double
-ParticlePropagator::fieldMap(double x,double y, double z) {
-  return BaseParticlePropagator::getMagneticField();
+ParticlePropagator::fieldMap(double xx,double yy, double zz) {
+  // Arguments passed in mm, by the Map needs cm.
+  //  return MagneticFieldMap::instance()->inTesla(GlobalPoint(xx/10.,yy/10.,zz/10.)).z();
+  return MagneticFieldMap::instance()->inTeslaZ(GlobalPoint(xx/10.,yy/10.,zz/10.));
 }
 
 bool
@@ -101,7 +105,10 @@ ParticlePropagator::propagateToBoundSurface(const TrackerLayer& layer) {
 void 
 ParticlePropagator::setPropagationConditions(const TrackerLayer& layer, 
 					     bool firstLoop) { 
+  // Set the magentic field
+  setMagneticField(fieldMap(x(),y(),z()));
 
+  // Set R and Z according to the Tracker Layer characteristics.
   const Surface& surface = layer.surface();
 
   if( layer.forward() ) {
