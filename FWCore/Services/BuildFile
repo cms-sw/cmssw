@@ -1,7 +1,9 @@
 <flags SEAL_PLUGIN_NAME="FWCoreServices">
 <use name=boost>
+<use name=xerces-c>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
+
 <export>
  <lib name=FWCoreServices>
  <use name=boost>
