@@ -4,7 +4,7 @@
 <use name=FastSimulation/Utilities>
 <use name=TrackingTools/PatternTools>
 <use name=Geometry/Surface>
-<use name=Geometry/Vector>
+#<use name=Geometry/Vector>
 <export>
  <use name=clhep>
  <lib name=FastSimulationMaterialEffects>
@@ -13,5 +13,5 @@
  <use name=FastSimulation/Utilities>
  <use name=TrackingTools/PatternTools>
  <use name=Geometry/Surface>
- <use name=Geometry/Vector>
+# <use name=Geometry/Vector>
 </export>
