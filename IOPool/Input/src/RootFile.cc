@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.8 2006/03/18 22:38:15 wmtan Exp $
+$Id: RootFile.cc,v 1.9 2006/03/24 14:16:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -50,6 +50,7 @@ namespace edm {
     ProductRegistry *ppReg = productRegistry_.get();
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
     metaDataTree->GetEntry(0);
+    productRegistry().setFrozen();
 
     eventTree_ = dynamic_cast<TTree *>(filePtr_->Get(poolNames::eventTreeName().c_str()));
     assert(eventTree_ != 0);
@@ -62,7 +63,8 @@ namespace edm {
     std::string const wrapperEnd1(">");
     std::string const wrapperEnd2(" >");
 
-    ProductRegistry::ProductList const& prodList = productRegistry().productList(); for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
+    ProductRegistry::ProductList const& prodList = productRegistry().productList();
+    for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
         it != prodList.end(); ++it) {
       BranchDescription const& prod = it->second;
       prod.init();
