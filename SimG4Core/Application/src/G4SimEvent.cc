@@ -3,7 +3,21 @@
 G4SimEvent::G4SimEvent() : hepMCEvent(0),weight_(0),collisionPoint_(0),
 			   nparam_(0),param_(0) {}
 
-G4SimEvent::~G4SimEvent() {}
+G4SimEvent::~G4SimEvent() 
+{
+
+   while ( !g4tracks.empty() )
+   {
+      delete g4tracks.back() ;
+      g4tracks.pop_back() ;
+   }
+   while ( !g4vertices.empty() )
+   {
+      delete g4vertices.back() ;
+      g4vertices.pop_back() ;
+   }
+
+}
 
 void G4SimEvent::load(edm::EmbdSimTrackContainer & c) const
 {
