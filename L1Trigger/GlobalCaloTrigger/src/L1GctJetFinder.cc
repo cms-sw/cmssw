@@ -5,9 +5,9 @@
 #include <math.h>
 using namespace std;
 
-L1GctJetFinder::L1GctJetFinder()
+L1GctJetFinder::L1GctJetFinder():
+m_inputRegions(maxRegionsIn)
 {
-    m_inputRegions.resize(maxRegionsIn);
 }
 
 L1GctJetFinder::~L1GctJetFinder()
