@@ -168,7 +168,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	for (int fiberC=qie_work->fiberAndChan();
 	     qie_work!=qie_end && qie_work->fiberAndChan()==fiberC;
 	     qie_work++);
-      }    
+      }
     }
   }
 }
