@@ -7,7 +7,7 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.16 2006/01/24 16:46:02 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.1 2006/02/08 00:44:23 wmtan Exp $
    \date 19 Jul 2005
 */
 
@@ -21,7 +21,7 @@ namespace edm {
   /**
      \class ProductRegistry ProductRegistry.h "edm/ProductRegistry.h"
 
-     \brief 
+     \brief
 
      \author Stefano ARGIRO
      \co-author Bill Tanenbaum
@@ -33,7 +33,7 @@ namespace edm {
     ProductRegistry() : productList_(), nextID_(0), frozen_(false) {}
 
     virtual ~ProductRegistry() {}
-  
+
     typedef std::map<BranchKey, BranchDescription> ProductList;
 
     void addProduct(BranchDescription const& productdesc, bool iFromListener=false);
@@ -42,20 +42,27 @@ namespace edm {
 
     void setProductIDs();
 
-    ProductList const& productList() const {return productList_;}
-    
+    void setFrozen() const;
+
+    ProductList const& productList() const {
+      throwIfNotFrozen();
+      return productList_;
+    }
+
     unsigned long nextID() const {return nextID_;}
 
     void setNextID(unsigned long next) {nextID_ = next;}
 
+    ProductList::size_type size() const {return productList_.size();}
+
   private:
     virtual void addCalled(BranchDescription const&, bool iFromListener);
-    void setFrozen() {frozen_ = true;}
+    void throwIfNotFrozen() const;
     void throwIfFrozen() const;
 
     ProductList productList_;
     unsigned long nextID_;
-    bool frozen_;
+    bool mutable frozen_;
   };
 
   inline

@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.15 2006/01/24 16:46:03 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.1 2006/02/08 00:44:23 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.15 2006/01/24 16:46:03 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.1 2006/02/08 00:44:23 wmtan Exp $";
 
 
 #include "DataFormats/Common/interface/ProductRegistry.h"
@@ -42,14 +42,35 @@ namespace edm {
           it->second.productID_.id_ = ++nextID_;
        }
     }
-    setFrozen();
+    frozen_ = true;
+  }
+  
+  void
+  ProductRegistry::setFrozen() const {
+    if (frozen_) return;
+    for (ProductList::const_iterator it = productList_.begin(); it != productList_.end(); ++it) {
+      if (it->second.productID_.id_ == 0) {
+       throw cms::Exception("ProductRegistry", "setFrozen")
+          << "cannot read the ProductRegistry because it is not yet frozen.";
+      }
+    }
+    frozen_ = true;
   }
   
   void
   ProductRegistry::throwIfFrozen() const {
     if (frozen_) {
       throw cms::Exception("ProductRegistry", "throwIfFrozen")
-            << "cannot modify ProductRegistry becauseit is frozen";
+            << "cannot modify the ProductRegistry because it is frozen";
+    }
+  }
+  
+  void
+  ProductRegistry::throwIfNotFrozen() const {
+    if (!frozen_) {
+// FIX THIS: Temporarily disabled until the EDProducer callback problem is solved.
+//      throw cms::Exception("ProductRegistry", "throwIfNotFrozen")
+//            << "cannot read the ProductRegistry because it is not yet frozen";
     }
   }
   
