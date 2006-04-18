@@ -83,13 +83,6 @@ TIDLayer::~TIDLayer(){
 } 
 
   
-pair<bool, TrajectoryStateOnSurface>
-TIDLayer::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-		  const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of TIDLayer::compatible()!!" << endl;
-  return pair<bool,TrajectoryStateOnSurface>();
-}
-
 
 vector<DetWithState> 
 TIDLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,

@@ -60,13 +60,6 @@ TECLayer::components() const{
   return theComponents;
 }
   
-pair<bool, TrajectoryStateOnSurface>
-TECLayer::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-		  const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of TECLayer::compatible()!!" << endl;
-  return pair<bool,TrajectoryStateOnSurface>();
-}
-
 
 vector<DetWithState> 
 TECLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,

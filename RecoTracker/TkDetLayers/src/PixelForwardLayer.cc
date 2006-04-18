@@ -66,13 +66,6 @@ PixelForwardLayer::~PixelForwardLayer(){
 } 
 
   
-pair<bool, TrajectoryStateOnSurface>
-PixelForwardLayer::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-		  const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of PixelForwardLayer::compatible()!!" << endl;
-  return pair<bool,TrajectoryStateOnSurface>();
-}
-
 
 vector<DetWithState> 
 PixelForwardLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,

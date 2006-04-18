@@ -27,10 +27,6 @@ class TOBLayer : public RodBarrelLayer{
   virtual vector<const GeometricSearchDet*> components() const;
 
   
-  virtual pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const;
-
   virtual vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 

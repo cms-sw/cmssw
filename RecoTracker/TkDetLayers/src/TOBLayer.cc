@@ -61,14 +61,6 @@ TOBLayer::components() const{
 }
 
   
-pair<bool, TrajectoryStateOnSurface>
-TOBLayer::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-		      const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of TOBLayer::compatible()!!" << endl;
-  return pair<bool,TrajectoryStateOnSurface>();
-}
-
-
 vector<DetWithState> 
 TOBLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
 		      const Propagator& prop, 

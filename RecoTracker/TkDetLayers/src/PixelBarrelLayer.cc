@@ -65,14 +65,6 @@ PixelBarrelLayer::components() const{
 }
 
 
-pair<bool, TrajectoryStateOnSurface>
-PixelBarrelLayer::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-		  const MeasurementEstimator&) const{
-  cout << "temporary dummy implementation of PixelBarrelLayer::compatible()!!" << endl;
-  return pair<bool,TrajectoryStateOnSurface>();
-}
-
-
 vector<DetWithState> 
 PixelBarrelLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
 		      const Propagator& prop, 
