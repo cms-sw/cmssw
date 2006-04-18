@@ -8,8 +8,10 @@
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPedestalAnalysis.h"
+#include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalAnalyzer.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 #include <TFile.h>
+
 using namespace std;
 
 HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
@@ -157,21 +159,24 @@ void HcalPedestalAnalysis::GetPedConst(map<HcalDetId, map<int,PEDBUNCH> > &toolT
       rms = _meot->second[i+4].first->GetRMS();
       sigma = mean-param1[i]*param1[(i+1)%4];
       float stats = _meot->second[i+4].first->GetEntries();
-      dsigma = param1[i]*dparam1[(i+1)%4]*param1[i]*dparam1[(i+1)%4]+param1[(i+1)%4]*dparam1[i]*param1[(i+1)%4]*dparam1[i];      dsigma = 167./stats*sqrt(dsigma+rms/sqrt(stats)*rms/sqrt(stats));
+      dsigma = param1[i]*dparam1[(i+1)%4]*param1[i]*dparam1[(i+1)%4]+param1[(i+1)%4]*dparam1[i]*param1[(i+1)%4]*dparam1[i];
+      dsigma = 167./stats*sqrt(dsigma+rms/sqrt(stats)*rms/sqrt(stats));
       _meot->second[i].second.first[5].push_back(sigma);
       _meot->second[i].second.first[6].push_back(dsigma);
       mean = _meot->second[i+8].first->GetMean();
       rms = _meot->second[i+8].first->GetRMS();
       sigma = mean-param1[i]*param1[(i+2)%4];
       stats = _meot->second[i+8].first->GetEntries();
-      dsigma = param1[i]*dparam1[(i+2)%4]*param1[i]*dparam1[(i+2)%4]+param1[(i+2)%4]*dparam1[i]*param1[(i+2)%4]*dparam1[i];      dsigma = 167./stats*sqrt(dsigma+rms/sqrt(stats)*rms/sqrt(stats));
+      dsigma = param1[i]*dparam1[(i+2)%4]*param1[i]*dparam1[(i+2)%4]+param1[(i+2)%4]*dparam1[i]*param1[(i+2)%4]*dparam1[i];
+      dsigma = 167./stats*sqrt(dsigma+rms/sqrt(stats)*rms/sqrt(stats));
       _meot->second[i].second.first[7].push_back(sigma);
       _meot->second[i].second.first[8].push_back(dsigma);
       mean = _meot->second[i+12].first->GetMean();
       rms = _meot->second[i+12].first->GetRMS();
       sigma = mean-param1[i]*param1[(i+3)%4];
       stats = _meot->second[i+12].first->GetEntries();
-      dsigma = param1[i]*dparam1[(i+3)%4]*param1[i]*dparam1[(i+3)%4]+param1[(i+3)%4]*dparam1[i]*param1[(i+3)%4]*dparam1[i];      dsigma = 167./stats*sqrt(dsigma+rms/sqrt(stats)*rms/sqrt(stats));
+      dsigma = param1[i]*dparam1[(i+3)%4]*param1[i]*dparam1[(i+3)%4]+param1[(i+3)%4]*dparam1[i]*param1[(i+3)%4]*dparam1[i];
+      dsigma = 167./stats*sqrt(dsigma+rms/sqrt(stats)*rms/sqrt(stats));
       _meot->second[i].second.first[9].push_back(sigma);
       _meot->second[i].second.first[10].push_back(dsigma);
     }
@@ -308,8 +313,8 @@ TH1F* Chi2, TH1F* CapidAverage, TH1F* CapidChi2){
       }
     }
   }
-  CapidAverage= new TH1F("HB/HE constant fit: Pedestal Values",
-                         "HB/HE constant fit: Pedestal Values",
+  CapidAverage= new TH1F("Constant fit: Pedestal Values",
+                         "Constant fit: Pedestal Values",
                          AverageValues[0].size(),0.,AverageValues[0].size());
   std::vector<double>::iterator sample_it;
   int j=0;
@@ -322,8 +327,8 @@ TH1F* Chi2, TH1F* CapidAverage, TH1F* CapidChi2){
       sample_it!=AverageValues[1].end();sample_it++){
     CapidAverage->SetBinError(++j,*sample_it);
   }
-  CapidChi2= new TH1F("HB/HE constant fit: Chi2/ndf",
-                      "HB/HE constant fit: Chi2/ndf",
+  CapidChi2= new TH1F("Constant fit: Chi2/ndf",
+                      "Constant fit: Chi2/ndf",
                       AverageValues[2].size(),0.,AverageValues[2].size());
   j=0;
   for(sample_it=AverageValues[2].begin();
@@ -388,7 +393,55 @@ int HcalPedestalAnalysis::PedValidtn(map<HcalDetId, map<int,PEDBUNCH> > &toolT)
     sig_new[1][2]= _meot->second[5].first->GetMean()-cap_new[1]*cap_new[2];
     sig_new[1][3]= _meot->second[9].first->GetMean()-cap_new[1]*cap_new[3];
     sig_new[2][3]= _meot->second[6].first->GetMean()-cap_new[2]*cap_new[3];
-    sig_new[3][0]= _meot->second[7].first->GetMean()-cap_new[3]*cap_new[0];
+    sig_new[0][3]= _meot->second[7].first->GetMean()-cap_new[3]*cap_new[0];
+    if(pedValflag>0 && pedCan_nominal && widthCan_nominal){
+      cap_nom[0]=pedCan_nominal->getValue(_meot->first,0);
+      cap_nom[1]=pedCan_nominal->getValue(_meot->first,1);
+      cap_nom[2]=pedCan_nominal->getValue(_meot->first,2);
+      cap_nom[3]=pedCan_nominal->getValue(_meot->first,3);
+      sig_nom[0][0]=widthCan_nominal->getWidth(_meot->first,0);
+      sig_nom[0][1]=widthCan_nominal->getSigma(_meot->first,0,1);
+      sig_nom[0][2]=widthCan_nominal->getSigma(_meot->first,0,2);
+      sig_nom[1][1]=widthCan_nominal->getWidth(_meot->first,1);
+      sig_nom[1][2]=widthCan_nominal->getSigma(_meot->first,1,2);
+      sig_nom[1][3]=widthCan_nominal->getSigma(_meot->first,1,3);
+      sig_nom[2][2]=widthCan_nominal->getWidth(_meot->first,2);
+      sig_nom[2][3]=widthCan_nominal->getSigma(_meot->first,2,3);
+      sig_nom[3][3]=widthCan_nominal->getWidth(_meot->first,3);
+      sig_nom[0][3]=widthCan_nominal->getSigma(_meot->first,3,0);
+    }
+// here compute and store the quantities useful for physics analysis:
+// means and widths in pairs of adjacent cap-ids; pairs are numbered
+// after the first paired cap-id.
+//---> F.R. I believe it is not used, thus I've commented it out. Otherwise objects must be created first
+//   meansper2caps.addValue(_meot->first,cap_new[0]+cap_new[1],cap_new[1]+cap_new[2],cap_new[2]+cap_new[3],cap_new[3]+cap_new[0]);
+//   widthsper2caps.addValue(_meot->first,sqrt(sig_new[0][0]+sig_new[1][1]+2*sig_new[0][1]),sqrt(sig_new[1][1]+sig_new[2][2]+2*sig_new[1][2]),sqrt(sig_new[2][2]+sig_new[3][3]+2*sig_new[2][3]),sqrt(sig_new[3][3]+sig_new[0][0]+2*sig_new[3][0]));
+                                                                                
+// here should go code that compares new values against nominal ones,
+// in the present implementation this is still somewhat simplistic: an update
+// of the DB is deemed necessary if any mean pedestal from two adjacent caps
+// summed together deviates from its nominal value by more than 0.5 ADC counts
+// plus the statistical error on its current measurement (no need to update
+// if the new measurement is just junk!), or when any width or sigma 
+// coefficient deviates by more than 3 times its measurement error from 
+// its nominal value
+    if(pedValflag>0){
+      for(int i=0; i<4; i++){
+        int i2=(i+1)%4;
+        if(cap_new[i]>0 && cap_new[i2]>0 && abs(cap_new[i]+cap_new[i2]-cap_nom[i]-cap_nom[i2])>0.5+sqrt(dcap_new[i]*dcap_new[i]+dcap_new[i2]*dcap_new[i2]))PedsOK=0;
+// if consistency with nominal value is found, the new value is abandoned
+// at this point and the nominal value is restored - only the constants
+// that have changed significantly are remembered and will get updated
+        else cap_new[i]=cap_nom[i];
+        if(sig_new[i][i]>0 && abs(sig_new[i][i]-sig_nom[i][i])>3.*dsig_new[i][i])PedsOK=0;
+        else sig_new[i][i]=sig_nom[i][i];
+        for(int j=i+1; j<4; j++){
+// error on off-diagonal elements are assumed the same as for diagonal
+          if(abs(sig_new[i][j]-sig_nom[i][j])>3.*dsig_new[i][i])PedsOK=0;
+          else sig_new[i][j]=sig_nom[i][j];
+        }
+      }
+    }
     if (pedCan) pedCan->addValue(_meot->first,cap_new[0],cap_new[1],cap_new[2],cap_new[3]);
     if (widthCan) {
       HcalPedestalWidth* widthsp = widthCan->setWidth(_meot->first);
@@ -401,47 +454,7 @@ int HcalPedestalAnalysis::PedValidtn(map<HcalDetId, map<int,PEDBUNCH> > &toolT)
       widthsp->setSigma(2,2,sig_new[2][2]);
       widthsp->setSigma(2,3,sig_new[2][3]);
       widthsp->setSigma(3,3,sig_new[3][3]);
-      widthsp->setSigma(3,0,sig_new[3][0]);
-    }
-    if(pedValflag>0 && pedCan_nominal && widthCan_nominal){
-      cap_nom[0]=pedCan_nominal->getValue(_meot->first,0);
-      cap_nom[1]=pedCan_nominal->getValue(_meot->first,1);
-      cap_nom[2]=pedCan_nominal->getValue(_meot->first,2);
-      cap_nom[3]=pedCan_nominal->getValue(_meot->first,3);
-      sig_nom[0][0]=widthCan_nominal->getSigma(_meot->first,0,0);
-      sig_nom[0][1]=widthCan_nominal->getSigma(_meot->first,0,1);
-      sig_nom[0][2]=widthCan_nominal->getSigma(_meot->first,0,2);
-      sig_nom[1][1]=widthCan_nominal->getSigma(_meot->first,1,1);
-      sig_nom[1][2]=widthCan_nominal->getSigma(_meot->first,1,2);
-      sig_nom[1][3]=widthCan_nominal->getSigma(_meot->first,1,3);
-      sig_nom[2][2]=widthCan_nominal->getSigma(_meot->first,2,2);
-      sig_nom[2][3]=widthCan_nominal->getSigma(_meot->first,2,3);
-      sig_nom[3][3]=widthCan_nominal->getSigma(_meot->first,3,3);
-      sig_nom[3][0]=widthCan_nominal->getSigma(_meot->first,3,0);
-    }
-// here compute and store the quantities useful for physics analysis:
-// means and widths in pairs of adjacent cap-ids; pairs are numbered
-// after the first paired cap-id.
-//---> F.R. I believe it is not used, thus I've commented it out. Otherwise objects must be created first
-//   meansper2caps.addValue(_meot->first,cap_new[0]+cap_new[1],cap_new[1]+cap_new[2],cap_new[2]+cap_new[3],cap_new[3]+cap_new[0]);
-//   widthsper2caps.addValue(_meot->first,sqrt(sig_new[0][0]+sig_new[1][1]+2*sig_new[0][1]),sqrt(sig_new[1][1]+sig_new[2][2]+2*sig_new[1][2]),sqrt(sig_new[2][2]+sig_new[3][3]+2*sig_new[2][3]),sqrt(sig_new[3][3]+sig_new[0][0]+2*sig_new[3][0]));
-                                                                                
-// here should go code that compares new values against nominal ones,
-// in the present implementation this is somewhat simplistic: an update
-// of the DB is deemed necessary if any mean pedestal deviates from its
-// nominal by more than its nominal width plus the stat. error on its
-// current measurement (no need to update if the new measurement is just
-// junky!), or when a width or sigma coefficient deviates by more than 3
-// times its measurement error from its nominal value
-    if(pedValflag>0){
-      for(int i=0; i<4; i++){
-        if(cap_new[i]>0 && abs(cap_new[i]-cap_nom[i])>sig_nom[i][i]+dcap_new[i])PedsOK=0;
-        if(sig_new[i][i]>0 && abs(sig_new[i][i]-sig_nom[i][i])>3.*dsig_new[i][i])PedsOK=0;
-        for(int j=0; j<4; j++){
-// error on off-diagonal elements are assumed the same as for diagonal
-          if(abs(sig_new[i][j]-sig_nom[i][j])>3.*dsig_new[i][i])PedsOK=0;
-        }
-      }
+      widthsp->setSigma(3,0,sig_new[0][3]);
     }
   }
   return PedsOK;
@@ -451,7 +464,8 @@ int HcalPedestalAnalysis::PedValidtn(map<HcalDetId, map<int,PEDBUNCH> > &toolT)
 void HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals, 
 				const HcalPedestalWidths* fInputPedestalWidths,
 				HcalPedestals* fOutputPedestals, 
-				HcalPedestalWidths* fOutputPedestalWidths) {
+				HcalPedestalWidths* fOutputPedestalWidths)
+{
 //  char PedSampleNum[20];
   map<int, std::vector<double> > AverageValues;
 
@@ -481,7 +495,12 @@ void HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
   int HBPedsOK=PedValidtn(hbHists.PEDTRENDS);
   int HOPedsOK=PedValidtn(hoHists.PEDTRENDS);
   int HFPedsOK=PedValidtn(hfHists.PEDTRENDS);
-
+// if pedestal validation flag is not set, will write out new
+// pedestal constants anyway - to be used with text output option
+  int AllPedsOK=pedValflag*HBPedsOK*HOPedsOK*HFPedsOK;
+  if(AllPedsOK==1){
+    m_logFile<<"Pedestals found OK"<<std::endl;
+  }
   if (pedCan && widthCan) {
     pedCan->sort();
     widthCan->sort();
@@ -551,7 +570,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
       for (int i=m_startSample; i<digi.size() && i<m_endSample; i++) {	   
         for(int flag=0; flag<4; flag++){
           if(i+flag<digi.size() && i+flag<m_endSample){
-            per2CapsHists(flag,0,digi.id(),digi.sample(i),digi.sample(i+flag),hoHists.PEDTRENDS);
+            per2CapsHists(flag,1,digi.id(),digi.sample(i),digi.sample(i+flag),hoHists.PEDTRENDS);
           }
         }
       }
@@ -569,7 +588,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
       for (int i=m_startSample; i<digi.size() && i<m_endSample; i++) {
         for(int flag=0; flag<4; flag++){
           if(i+flag<digi.size() && i+flag<m_endSample){
-            per2CapsHists(flag,0,digi.id(),digi.sample(i),digi.sample(i+flag),hfHists.PEDTRENDS);
+            per2CapsHists(flag,2,digi.id(),digi.sample(i),digi.sample(i+flag),hfHists.PEDTRENDS);
           }
         }
       }
@@ -627,11 +646,11 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
 // unfortunately need to redo adc->fC every time,
 // this is not very intelligent
     if(flag>0){
-      getLinearizedADC(*m_shape,m_coder,bins,qie1.capid(),lo,hi);
+//      getLinearizedADC(*m_shape,m_coder,bins,qie1.capid(),lo,hi);
       slope[qie1.capid()]=(hi-lo)/bins;
       offset[qie1.capid()]=lo+0.5;
       float charge1=qie1.adc()*slope[qie1.capid()]+offset[qie1.capid()];
-      getLinearizedADC(*m_shape,m_coder,bins,qie2.capid(),lo2,hi2);
+//      getLinearizedADC(*m_shape,m_coder,bins,qie2.capid(),lo2,hi2);
       slope[qie2.capid()]=(hi2-lo2)/bins;
       offset[qie2.capid()]=lo2+0.5;
       float charge2=qie2.adc()*slope[qie2.capid()]+offset[qie2.capid()];
@@ -650,8 +669,9 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
     for(int i=0; i<4; i++){
       char name[1024];
       sprintf(name,"%s Pedestal Value, ieta=%d iphi=%d depth=%d CAPID=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);  
-      getLinearizedADC(*m_shape,m_coder,bins,i,lo,hi);
+//      getLinearizedADC(*m_shape,m_coder,bins,i,lo,hi);
            // printf("Linearized: lo: %f, hi: %f\n",lo,hi);
+//      m_logFile<<lo<<" "<<hi<<std::endl;
       insert[i].first =  new TH1F(name,name,bins,lo,hi);
       slope[i]=(hi-lo)/bins;
       offset[i]=lo+0.5;
