@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.20 2006/04/06 23:43:56 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.19 2006/03/24 14:16:56 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -13,6 +13,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Services/interface/JobReport.h"
 
 #include "DataSvc/Ref.h"
 #include "DataSvc/IDataSvc.h"
@@ -36,7 +38,9 @@ namespace edm {
     logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())),
     commitInterval_(pset.getUntrackedParameter<unsigned int>("commitInterval", 100U)),
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
-    fileCount_(0) {
+    moduleLabel_(pset.getParameter<std::string>("@module_label")),
+    fileCount_(0),
+    poolFile_() {
     // We need to set a custom streamer for edm::RefCore so that it will not be split.
     // even though a custom streamer is not otherwise necessary.
     ClassFiller();
@@ -62,7 +66,10 @@ namespace edm {
   }
 
   PoolOutputModule::PoolFile::PoolFile(PoolOutputModule *om) :
-      outputItemList_(), file_(), lfn_(), eventCount_(0), fileSizeCheckEvent_(100),
+    outputItemList_(), branchNames_(),
+      file_(), lfn_(),
+      reportToken_(0), eventCount_(0),
+      fileSizeCheckEvent_(100),
       provenancePlacement_(), auxiliaryPlacement_(), productDescriptionPlacement_(),
       om_(om) {
     std::string const suffix(".root");
@@ -89,15 +96,15 @@ namespace edm {
     makePlacement(poolNames::parameterSetTreeName(), poolNames::parameterSetBranchName(), parameterSetPlacement_);
     ProductRegistry pReg;
     pReg.setNextID(om->nextID());
+   
     for (Selections::const_iterator it = om->descVec_.begin();
       it != om->descVec_.end(); ++it) {
       pReg.copyProduct(**it);
       pool::Placement placement;
       makePlacement(poolNames::eventTreeName(), (*it)->branchName_, placement);
       outputItemList_.push_back(std::make_pair(*it, placement));
+      branchNames_.push_back((*it)->branchName_);
     }
-    LogInfo("FwkJob") << "Output file is about to be opened.";
-    LogInfo("FwkJob") << "PFN: " << file_;
     std::vector<boost::shared_ptr<ParameterSetBlob> > psets;
     startTransaction();
     pool::Ref<ProductRegistry const> rp(om->context(), &pReg);
@@ -112,7 +119,16 @@ namespace edm {
       rpsetid.markWrite(parameterSetIDPlacement_);
     }
     commitAndFlushTransaction();
-    LogInfo("FwkJob") << "Output file opened successfully.";
+    // Register the output file with the JobReport service
+    // and get back the token for it.
+    std::string moduleName = "PoolOutputModule";
+    Service<edm::service::JobReport> reportSvc;
+    reportToken_ = reportSvc->outputFileOpened(
+		      file_, lfn_,  // PFN and LFN
+		      om->catalog_.url(),  // catalog
+		      moduleName,   // module class name
+		      om->moduleLabel_,  // module label
+		      branchNames_); // branch names being written
     om->catalog_.registerFile(file_, lfn_);
   }
 
@@ -184,6 +200,9 @@ namespace edm {
     rp.markWrite(provenancePlacement_);
 
     commitTransaction();
+    // Report event written 
+    Service<edm::service::JobReport> reportSvc;
+    reportSvc->eventWrittenToFile(reportToken_, e.id());
 
     if (eventCount_ >= fileSizeCheckEvent_) {
 	size_t size = om_->context_.getFileSize(file_);
@@ -209,6 +228,9 @@ namespace edm {
     om_->catalog_.commitCatalog();
     context()->session().disconnectAll();
     setBranchAliases();
+    // report that file has been closed
+    Service<edm::service::JobReport> reportSvc;
+    reportSvc->outputFileClosed(reportToken_);
   }
 
 

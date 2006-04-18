@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.4 2006/03/11 00:15:13 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.5 2006/04/06 23:43:56 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -50,6 +50,7 @@ namespace edm {
     std::string const logicalFileName_;
     unsigned long commitInterval_;
     unsigned long maxFileSize_;
+    std::string const moduleLabel_;
     unsigned long fileCount_;
     boost::shared_ptr<PoolFile> poolFile_;
   };
@@ -74,8 +75,11 @@ namespace edm {
     typedef std::pair<BranchDescription const*, pool::Placement> OutputItem;
     typedef std::vector<OutputItem> OutputItemList;
     OutputItemList outputItemList_;
+    std::vector<std::string> branchNames_;
     std::string file_;
     std::string lfn_;
+    typedef std::size_t  Token;
+    Token reportToken_;
     unsigned long eventCount_;
     unsigned long fileSizeCheckEvent_;
     pool::Placement provenancePlacement_;
