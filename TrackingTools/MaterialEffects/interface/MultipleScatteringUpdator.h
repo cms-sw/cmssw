@@ -18,14 +18,6 @@ class MultipleScatteringUpdator : public MaterialEffectsUpdator
   }
 
 public:
-  /// default constructor (mass from configurable)
-  MultipleScatteringUpdator() :
-    MaterialEffectsUpdator(),
-    theLastDz(0.),
-    theLastP(0.),
-    theLastPropDir(alongMomentum),
-    theLastRadLength(0.) {}
-  /// constructor with explicit mass
   MultipleScatteringUpdator( float mass ) :
     MaterialEffectsUpdator(mass),
     theLastDz(0.),

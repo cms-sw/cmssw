@@ -25,14 +25,6 @@ class EnergyLossUpdator : public MaterialEffectsUpdator
   }
 
 public:
-  /// default constructor (mass from configurable)
-  EnergyLossUpdator() :
-    MaterialEffectsUpdator(),
-    theLastDz(0.),
-    theLastP(0.),
-    theLastPropDir(alongMomentum),
-    theLastXi(0.) {}
-  /// constructor with explicit mass value
   EnergyLossUpdator( float mass ) :
     MaterialEffectsUpdator(mass),
     theLastDz(0.),

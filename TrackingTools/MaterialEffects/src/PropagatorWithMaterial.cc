@@ -6,14 +6,8 @@
 
 #include <string>
 
-PropagatorWithMaterial::PropagatorWithMaterial (PropagationDirection dir, MagneticField * mf) :
-  Propagator(dir),
-  theGeometricalPropagator(new AnalyticalPropagator(mf,dir)),
-  theMEUpdator(new CombinedMaterialEffectsUpdator()),
-  theMaterialLocation(atDestination), field(mf) {}
-
 PropagatorWithMaterial::PropagatorWithMaterial (PropagationDirection dir,
-						const float mass, MagneticField * mf) :
+						const float mass, const MagneticField * mf) :
   Propagator(dir),
   theGeometricalPropagator(new AnalyticalPropagator(mf,dir)),
   theMEUpdator(new CombinedMaterialEffectsUpdator(mass)),
@@ -21,7 +15,7 @@ PropagatorWithMaterial::PropagatorWithMaterial (PropagationDirection dir,
 
 PropagatorWithMaterial::PropagatorWithMaterial (const Propagator& aPropagator,
 						const MaterialEffectsUpdator& aMEUpdator,
-						MagneticField * mf) :
+						const MagneticField * mf) :
   Propagator(aPropagator.propagationDirection()),
   theGeometricalPropagator(aPropagator.clone()),
   theMEUpdator(aMEUpdator.clone()),

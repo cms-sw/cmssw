@@ -22,11 +22,6 @@ class CombinedMaterialEffectsUpdator : public MaterialEffectsUpdator
   }
 
 public:
-  /// default constructor (mass from configurable)
-  CombinedMaterialEffectsUpdator() :
-    MaterialEffectsUpdator(),
-    theMSUpdator(mass()),
-    theELUpdator(mass()) {}
   /// constructor with explicit mass value
   CombinedMaterialEffectsUpdator( float mass ) :
     MaterialEffectsUpdator(mass),

@@ -20,20 +20,15 @@ using namespace std;
 class PropagatorWithMaterial : public Propagator {
   
 public:
-  /** Constructor with PropagationDirection.
-   *  Uses AnalyticalPropagator and CombinedMaterialEffectsUpdator 
-   *  with mass from configurable.
-   */
-  PropagatorWithMaterial (PropagationDirection dir = alongMomentum, MagneticField * mf=0);
   /** Constructor with PropagationDirection and mass hypothesis.
    *  Uses AnalyticalPropagator and CombinedMaterialEffectsUpdator 
    *  with explicit mass hypothesis.
    */
-  PropagatorWithMaterial (PropagationDirection dir, const float mass, MagneticField * mf=0);
+  PropagatorWithMaterial (PropagationDirection dir, const float mass,  const MagneticField * mf=0);
   /** Constructor with explicit propagator and material effects objects.
    */
   PropagatorWithMaterial(const Propagator& Propagator,
-			 const MaterialEffectsUpdator& MEUpdator, MagneticField * mf=0);
+			 const MaterialEffectsUpdator& MEUpdator,  const MagneticField * mf=0);
 
   ~PropagatorWithMaterial() {}
 
@@ -129,7 +124,7 @@ private:
   typedef pair<TrajectoryStateOnSurface,double> TsosWP;
   // Use material at source?
   MaterialLocation theMaterialLocation;
-  MagneticField * field;
+  const MagneticField * field;
 };
 
 #endif

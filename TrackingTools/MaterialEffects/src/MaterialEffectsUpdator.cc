@@ -1,18 +1,6 @@
 #include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
 //#include "Utilities/UI/interface/SimpleConfigurable.h"
-
-//
-// Default constructor (mass from configurable)
-//
-MaterialEffectsUpdator::MaterialEffectsUpdator () :
-    theDeltaP(0.),
-    theDeltaCov(5,0)
-{
-  //  SimpleConfigurable<float> massConf(0.1057,"MaterialEffects:defaultMass");
-  //  theMass = massConf.value();
-  theMass = 0.1057;
-}
 //
 // Update of the trajectory state (implemented in base class since general for
 //   all classes returning deltaP and deltaCov.

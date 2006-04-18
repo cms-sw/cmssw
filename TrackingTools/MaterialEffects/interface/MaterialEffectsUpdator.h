@@ -20,7 +20,7 @@ public:
     theDeltaCov(5,0) {}
   /** Default constructor (mass from configurable)
    */
-  MaterialEffectsUpdator ();
+  //  MaterialEffectsUpdator ();
 
   virtual ~MaterialEffectsUpdator () {}
 
