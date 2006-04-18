@@ -1,7 +1,7 @@
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
 
 #include <iostream>
-#include "TProfile.h"
+#include "TGraphErrors.h"
 
 TPedValues::TPedValues (double RMSmax, int bestPedestal) :
   m_bestPedestal (bestPedestal) ,
@@ -122,29 +122,48 @@ int TPedValues::checkEntries (const int & DACstart, const int & DACend) const
 
 
 //! create a plot of the DAC pedestal trend
-int TPedValues::makePlot (TFile & rootFile, const std::string & dirName) const 
+int TPedValues::makePlots (TFile & rootFile, const std::string & dirName) const 
 {
+  // prepare the ROOT file
   if (!rootFile.cd (dirName.c_str ())) 
     {
       rootFile.mkdir (dirName.c_str ()) ;
       rootFile.cd (dirName.c_str ()) ;
     }
+    
   // loop over the crystals
   for (int xtl=0 ; xtl<1700 ; ++xtl)
     // loop over the gains
     for (int gain=0 ; gain<1700 ; ++gain)
       {
+        double asseX[256] ;
+        double sigmaX[256] ;
+        double asseY[256] ;
+        double sigmaY[256] ;
+        // loop over DAC values
+        for (int dac=0 ; dac<256 ; ++dac)
+          {
+            asseX[dac] = dac ;
+            sigmaX[dac] = 0 ;
+            asseY[dac] = m_entries[gain][xtl][dac].average () ;
+            sigmaY[dac] = m_entries[gain][xtl][dac].RMS () ;
+            if (asseY[dac] < -100) sigmaY[dac] = asseY[dac] = 0 ;
+          } // loop over DAC values
+          
+        TGraphErrors graph (256,asseX,asseY,sigmaX,sigmaY);
+        char name[80] ;
+        sprintf (name,"XTL%d_GAIN%d",xtl,gain) ;      
+        graph.Write (name) ;
       } // loop over the gains
         // (loop over the crystals)
-    
-    
-   
-  
- // TProfile(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Double_t ylow, Double_t yup, Option_t* option = "")
-  
-  
+
   return 0 ;
 }
      
 
-
+//! create a plot of the DAC pedestal trend
+int TPedValues::makePlots (const std::string & rootFileName, const std::string & dirName) const 
+{
+  TFile saving (rootFileName.c_str (),"APPEND") ;
+  return makePlots (saving,dirName) ;  
+}
