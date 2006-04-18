@@ -530,6 +530,11 @@ vector<FedChannelConnectionDescription*>& SiStripConfigDb::fedConnections( bool 
     
     try {
       if ( fromXml_ ) { 
+	if ( xmlFile_ == "" ) {
+	  edm::LogError("ConfigDb") << "[SiStripConfigDb::fedConnections]"
+				    <<" No 'module.xml' specified!"
+				    << " Check 'xmlFileName' configurable is set!";
+	}
 	factory_->createInputFileAccess();
 	factory_->addFileName( xmlFile_ ); 
 	LogDebug("ConfigDb") << "[SiStripConfigDb::fedConnections]"
