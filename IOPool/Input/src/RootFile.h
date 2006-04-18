@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.4 2006/03/14 23:33:01 wmtan Exp $
+$Id: RootFile.h,v 1.5 2006/03/24 14:16:56 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -30,7 +30,7 @@ namespace edm {
     typedef input::EntryNumber EntryNumber;
     typedef std::map<ProductID, BranchDescription> ProductMap;
     BranchMap const& branches() const {return branches_;}
-    explicit RootFile(std::string const& fileName);
+    explicit RootFile(std::string const& fileName, std::string const& catalogName);
     ~RootFile();
     bool next() {return ++entryNumber_ < entries_;} 
     bool previous() {return --entryNumber_ >= 0;} 
@@ -50,6 +50,8 @@ namespace edm {
     RootFile(RootFile const&); // disable copy construction
     RootFile & operator=(RootFile const&); // disable assignment
     std::string const file_;
+    typedef std::size_t  Token;
+    Token reportToken_;
     EventID eventID_;
     EntryNumber entryNumber_;
     EntryNumber entries_;

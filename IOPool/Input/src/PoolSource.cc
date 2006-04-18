@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.26 2006/04/06 23:44:43 wmtan Exp $
+$Id: PoolSource.cc,v 1.27 2006/04/13 22:24:24 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -36,7 +36,7 @@ namespace edm {
 
     RootFileMap::const_iterator it = rootFiles_.find(file);
     if (it == rootFiles_.end()) {
-      rootFile_ = RootFileSharedPtr(new RootFile(file));
+      rootFile_ = RootFileSharedPtr(new RootFile(file, catalog().url()));
       rootFiles_.insert(std::make_pair(file, rootFile_));
       if (mainInput_) {
         rootFile_->fillParameterSetRegistry(*pset::Registry::instance());

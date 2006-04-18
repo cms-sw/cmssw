@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.9 2006/03/24 14:16:56 wmtan Exp $
+$Id: RootFile.cc,v 1.10 2006/04/17 23:45:13 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -14,7 +14,8 @@ $Id: RootFile.cc,v 1.9 2006/03/24 14:16:56 wmtan Exp $
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Services/interface/JobReport.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
@@ -22,8 +23,9 @@ $Id: RootFile.cc,v 1.9 2006/03/24 14:16:56 wmtan Exp $
 
 namespace edm {
 //---------------------------------------------------------------------
-  RootFile::RootFile(std::string const& fileName) :
+  RootFile::RootFile(std::string const& fileName, std::string const& catalogName) :
     file_(fileName),
+    reportToken_(0),
     eventID_(),
     entryNumber_(-1),
     entries_(0),
@@ -34,14 +36,11 @@ namespace edm {
     provBranch_(0),
     filePtr_(0) {
 
-    LogInfo("FwkJob") << "Input file is about to be opened.";
-    LogInfo("FwkJob") << "PFN: " << file_;
     filePtr_ = TFile::Open(file_.c_str());
     if (filePtr_ == 0) {
       throw cms::Exception("FileNotFound","RootFile::RootFile()")
         << "File " << file_ << " was not found.\n";
     }
-    LogInfo("FwkJob") << "Input file opened successfully.";
 
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     assert(metaDataTree != 0);
@@ -63,6 +62,7 @@ namespace edm {
     std::string const wrapperEnd1(">");
     std::string const wrapperEnd2(" >");
 
+    std::vector<std::string> branchNames;
     ProductRegistry::ProductList const& prodList = productRegistry().productList();
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
         it != prodList.end(); ++it) {
@@ -74,11 +74,26 @@ namespace edm {
       std::string const className = wrapperBegin + name + wrapperEnd;
       branches_.insert(std::make_pair(it->first, std::make_pair(className, branch)));
       productMap_.insert(std::make_pair(it->second.productID_, it->second));
+      branchNames.push_back(prod.branchName_);
     }
+    // Report file opened.
+    std::string moduleName = "PoolRASource";
+    std::string logicalFileName = "";
+    Service<edm::service::JobReport> reportSvc;
+    reportToken_ = reportSvc->inputFileOpened(fileName,
+               logicalFileName,
+               catalogName,
+               moduleName,
+               moduleName,
+               branchNames); 
+
   }
 
   RootFile::~RootFile() {
     filePtr_->Close();
+    // report file being closed
+    Service<edm::service::JobReport> reportSvc;
+    reportSvc->inputFileClosed(reportToken_);
   }
 
   void
@@ -153,6 +168,9 @@ namespace edm {
       // END These lines defer reading branches
       thisEvent->addGroup(g);
     }
+    // report event read from file
+    Service<edm::service::JobReport> reportSvc;
+    reportSvc->eventReadFromFile(reportToken_, eventID_);
     return thisEvent;
   }
 }
