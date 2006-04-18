@@ -1,23 +1,33 @@
 #ifndef L1GCTWHEELENERGYFPGA_H_
 #define L1GCTWHEELENERGYFPGA_H_
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+
 #include <bitset>
+#include <vector>
 
 using std::bitset;
+using std::vector;
 
-class L1GctWheelEnergyFpga
+class L1GctJetLeafCard;
+
+class L1GctWheelEnergyFpga : public L1GctProcessor
 {
 public:
 	L1GctWheelEnergyFpga();
+	L1GctWheelEnergyFpga(vector<L1GctJetLeafCard*> src);
 	~L1GctWheelEnergyFpga();
-	
-	// clear internal data
-	void reset();
-	
-	// process the event
-	void process();
-
-	// set input data
+	///
+	/// clear internal buffers
+	virtual void reset();
+	///
+	/// get input data from sources
+	virtual void fetchInput();
+	///
+	/// process the data, fill output buffers
+	virtual void process();
+	///
+	/// set input data
 	void setInputEnergy(int i, unsigned ex, unsigned ey);
 	
 	// get input data
@@ -30,6 +40,10 @@ public:
 	inline unsigned long getOutputHt() { return outputHt.to_ulong(); }
 
 private:
+
+	///
+	/// the jet leaf card
+	vector<L1GctJetLeafCard*> inputLeafCards;
 
 	// input data - need to confirm number of bits!
 	bitset<12> inputEx;

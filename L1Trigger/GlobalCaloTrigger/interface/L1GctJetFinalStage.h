@@ -2,10 +2,13 @@
 #define L1GCTJETFINALSTAGE_H_
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 
 #include <vector>
 
-using namespace std;
+using std::vector;
+
+class L1GctWheelJetFpga;
 
 /*
  * The GCT Jet classify and sort algorithms
@@ -14,18 +17,22 @@ using namespace std;
  * 
  */
 
-class L1GctJetFinalStage
+class L1GctJetFinalStage : public L1GctProcessor
 {
 public:
 	L1GctJetFinalStage();
+	L1GctJetFinalStage(vector<L1GctWheelJetFpga*> src);
 	~L1GctJetFinalStage();
-	
-	// clear internal data
-	void reset();
-	
-	// process the event
-	void process();
-
+	///
+	/// clear internal buffers
+	virtual void reset();
+	///
+	/// get input data from sources
+	virtual void fetchInput();
+	///
+	/// process the data, fill output buffers
+	virtual void process();
+	///	
 	// set input data		
 	void setInputJet(int i, L1GctJet jet);
 
@@ -39,6 +46,10 @@ public:
 
 private:
 
+	///
+	/// wheel jet FPGAs
+	vector<L1GctWheelJetFpga*> theWheelFpgas;
+	
 	// input data - need to confirm number of jets!
 	vector<L1GctJet> inputJets;
 

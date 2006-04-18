@@ -24,7 +24,18 @@ public:
 
 	void addSource(L1GctSourceCard* card);
 	
+	///
+	/// clear the buffers
+	void reset();
+	///
+	/// run the algorithms
 	void process();
+	
+	///
+	/// get the jet output
+	vector<L1GctJet> theJetOutput();
+	///
+	/// get the energy outputs
 
 private:
 

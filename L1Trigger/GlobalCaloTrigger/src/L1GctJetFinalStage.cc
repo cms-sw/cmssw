@@ -12,6 +12,10 @@ void L1GctJetFinalStage::reset()
 {
 }
 
+void L1GctJetFinalStage::fetchInput()
+{
+}
+
 void L1GctJetFinalStage::process()
 {
 }

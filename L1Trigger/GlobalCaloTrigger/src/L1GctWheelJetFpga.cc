@@ -7,3 +7,15 @@ L1GctWheelJetFpga::L1GctWheelJetFpga()
 L1GctWheelJetFpga::~L1GctWheelJetFpga()
 {
 }
+
+void L1GctWheelJetFpga::reset()
+{
+}
+
+void L1GctWheelJetFpga::fetchInput()
+{
+}
+
+void L1GctWheelJetFpga::process()
+{
+}

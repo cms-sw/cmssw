@@ -19,6 +19,18 @@ L1GctElectronFinalSort::~L1GctElectronFinalSort()
 {
 }
 
+void L1GctElectronFinalSort::reset() {
+	
+}
+
+void L1GctElectronFinalSort::fetchInput() {
+	
+}
+
+void L1GctElectronFinalSort::process() {
+	
+}
+
 void L1GctElectronFinalSort::setSortedInput(L1GctEmCand cand)
 {
   sortedCands.setInputEmCand(cand);
@@ -37,3 +49,4 @@ void L1GctElectronFinalSort::reset()
   inputCands.clear();
   outputCands.clear();
 }
+

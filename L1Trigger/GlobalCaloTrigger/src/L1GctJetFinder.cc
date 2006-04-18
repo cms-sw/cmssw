@@ -22,6 +22,10 @@ void L1GctJetFinder::reset()
     m_outputHt = 0;
 }
 
+void L1GctJetFinder::fetchInput()
+{
+}
+
 void L1GctJetFinder::setInputRegion(int i, L1GctRegion region)
 {
 /*    //First check that i isn't out of range - do we want an exception, or just ignore out of range data?

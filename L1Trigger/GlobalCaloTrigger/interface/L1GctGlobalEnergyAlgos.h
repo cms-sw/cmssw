@@ -1,6 +1,8 @@
 #ifndef L1GCTGLOBALENERGYALGOS_H_
 #define L1GCTGLOBALENERGYALGOS_H_
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+
 #include <bitset>
 #include <vector>
 
@@ -13,19 +15,22 @@ using namespace std;
  * 
  */
 
-class L1GctGlobalEnergyAlgos
+class L1GctGlobalEnergyAlgos : public L1GctProcessor
 {
 public:
 	L1GctGlobalEnergyAlgos();
 	~L1GctGlobalEnergyAlgos();
-
-	// clear internal data
-	void reset();
-	
-	// process the event
-	void process();
-
-	// set input data per wheel
+	///
+	/// clear internal buffers
+	virtual void reset();
+	///
+	/// get input data from sources
+	virtual void fetchInput();
+	///
+	/// process the data, fill output buffers
+	virtual void process();
+	///	
+	/// set input data per wheel
 /* 	void setInputWheelEx(unsigned wheel, int energy, bool overflow); */
 /* 	void setInputWheelEy(unsigned wheel, int energy, bool overflow); */
 	void setInputWheelEt(unsigned wheel, unsigned energy, bool overflow);
@@ -74,7 +79,7 @@ private:
 /* 	bitset<12> inputEyVlMinusWheel; */
 	bitset<12> inputEtVlMinusWheel;
 	bitset<12> inputHtVlMinusWheel;
-        bitset<12> inputHtBoundaryJets;
+    bitset<12> inputHtBoundaryJets;
 
 /*         bool ovfloExValPlusWheel; */
 /*         bool ovfloEyValPlusWheel; */
@@ -95,7 +100,7 @@ private:
 	bitset<6> outputEtMissPhi;
 	bitset<13> outputEtSum;
 	bitset<13> outputEtHad;
-        vector<JcFinalType> outputJetCounts;
+    vector<JcFinalType> outputJetCounts;
 
 };
 

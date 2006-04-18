@@ -33,6 +33,14 @@ void L1GctElectronSorter::setInputEmCand(L1GctEmCand cand){
   inputCands.push_back(cand);
 }
 
+void L1GctElectronSorter::reset() {
+	
+}
+
+void L1GctElectronSorter::fetchInput() {
+	
+}
+
 //Process sorts the electron candidates after rank and stores the highest four (in the outputCands vector)
 void L1GctElectronSorter::process(){
 

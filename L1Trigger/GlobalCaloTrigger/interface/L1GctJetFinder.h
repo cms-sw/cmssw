@@ -3,8 +3,11 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 
 #include <vector>
+
+class L1GctSourceCard;
 
 /*! \class testJetFinder.cpp
  * \brief 3*3 sliding window algorithm jet finder.
@@ -41,32 +44,31 @@
  * \date March 2006
  */
 
-//Typedefs
-typedef unsigned long int ULong;
-typedef unsigned short int UShort;
-
-//Constants
-//Controls the maximum number of input regions allowed
-const int maxRegionsIn = 48; // 2*11 search area, so 4*12=48 regions needed to run search.
-
-const int columnOffset = maxRegionsIn/4;  //The index offset between columns
 
 
-class L1GctJetFinder
+class L1GctJetFinder : public L1GctProcessor
 {
 public:
-	L1GctJetFinder();
-	~L1GctJetFinder();
+	//Typedefs
+	typedef unsigned long int ULong;
+	typedef unsigned short int UShort;
 
-	/// Clears internal data
-	void reset();
-    
+	L1GctJetFinder();
+	L1GctJetFinder(vector<L1GctSourceCard*> src);
+	~L1GctJetFinder();
+	///
+	/// clear internal buffers
+	virtual void reset();
+	///
+	/// get input data from sources
+	virtual void fetchInput();
+	///
+	/// process the data, fill output buffers
+	virtual void process();
+	///   
     /// Set input data
     void setInputRegion(int i, L1GctRegion region);
 	
-	/// Process the event (run jet algorithm)
-	void process();
-
 	// Return input data	
 	vector<L1GctRegion> getInputRegions() const { return m_inputRegions; }
 
@@ -78,6 +80,15 @@ public:
 		
 private:
 
+	//Constants
+	//Controls the maximum number of input regions allowed
+	static const int maxRegionsIn = 48; // 2*11 search area, so 4*12=48 regions needed to run search.
+	static const int columnOffset = maxRegionsIn/4;  //The index offset between columns
+
+	///
+	/// source cards
+	vector<L1GctSourceCard*> theSCs;
+	
 	// input data (this may need to go on the heap...)
 	vector<L1GctRegion> m_inputRegions;
 

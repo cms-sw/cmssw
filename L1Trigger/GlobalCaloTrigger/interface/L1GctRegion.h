@@ -44,6 +44,8 @@ private:
 	bool myQuiet;
     bool myTauVeto;
 	
+	
+	
 };
 
 #endif /*L1GCTREGION_H_*/

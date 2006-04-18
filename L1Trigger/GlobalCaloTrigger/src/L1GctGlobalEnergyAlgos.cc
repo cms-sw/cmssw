@@ -38,7 +38,11 @@ void L1GctGlobalEnergyAlgos::reset()
     outputJetCounts[i].reset();
   }
 }
+
+void L1GctGlobalEnergyAlgos::fetchInput() {
 	
+}
+
 // process the event
 void L1GctGlobalEnergyAlgos::process()
 {
