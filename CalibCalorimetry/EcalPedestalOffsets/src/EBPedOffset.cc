@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date:  $
- * $Revision:  $
+ * $Date: 2006/04/18 13:54:05 $
+ * $Revision: 1.1 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -302,6 +302,30 @@ void EBPedOffset::writeXMLFile (std::string fileName)
   xml_outfile.close () ;
 
 }
+
+
+//! create the plots of the DAC pedestal trend
+void EBPedOffset::makePlots (const std::string & rootFileName) 
+{
+  // create the ROOT file
+  TFile rootFile (rootFileName.c_str (),"RECREATE") ;
+
+  // loop over the supermodules
+  for (std::map<int,TPedValues*>::const_iterator smPeds = m_pedValues.begin () ;
+       smPeds != m_pedValues.end () ; 
+       ++smPeds)
+    {
+      // make a folder in the ROOT file
+      char folderName[80] ;
+      sprintf (folderName,"SM%d",smPeds->first) ;
+      rootFile.mkdir (folderName) ;
+      smPeds->second->makePlots (rootFile,folderName) ;
+
+    } // loop over the supermodules
+    
+  rootFile.Close () ;
+}
+
 
 
 void EBPedOffset::subscribe ()
