@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/13 15:43:06 $
- * $Revision: 1.5 $
+ * $Date: 2006/04/18 10:28:22 $
+ * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -10,18 +10,25 @@
 #include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
 
 /* Collaborating Class Header */
-#include "RecoLocalMuon/DTRecHit/interface/DTRecHitAlgoFactory.h"
+
+#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
+
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
+#include "RecoLocalMuon/DTRecHit/interface/DTRecHitAlgoFactory.h"
 #include "RecoLocalMuon/DTSegment/interface/DTLinearFit.h"
-#include "Geometry/DTGeometry/interface/DTLayer.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /* C++ Headers */
 #include <string>
@@ -51,10 +58,114 @@ void DTSegmentUpdator::setES(const edm::EventSetup& setup){
   theAlgo->setES(setup);
 }
 
+void DTSegmentUpdator::update(DTRecSegment4D* seg)  {
+
+  bool hasPhi=seg->hasPhi();
+  bool hasZed=seg->hasZed();
+  int step;
+
+  if (hasPhi && hasZed) step=3;
+  else step=2;
+
+  // TODO reorganize the following lines with the updateHits(DTRecSegment2D* seg) method
+  GlobalPoint pos =  (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localPosition());
+  GlobalVector dir = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localDirection());
+  
+  if(hasPhi) updateHits(seg->phiSegment(),
+                        pos,dir,step);
+
+  if(hasZed) updateHits(seg->zSegment(),
+                        pos,dir,step);
+
+  fit(seg);
+}
+
 void DTSegmentUpdator::update(DTRecSegment2D* seg)  {
   updateHits(seg);
   fit(seg);
 }
+
+void DTSegmentUpdator::fit(DTRecSegment4D* seg) {
+  if(seg->hasPhi()) fit(seg->phiSegment());
+  if(seg->hasZed()) fit(seg->zSegment());
+
+  if(seg->hasPhi() && seg->hasZed() ) {
+
+    DTRecSegment2DPhi *segPhi=seg->phiSegment();
+    DTRecSegment2D *segZed=seg->zSegment();
+
+    // NB Phi seg is already in chamber ref
+    LocalPoint posPhiInCh = segPhi->localPosition();
+    LocalVector dirPhiInCh= segPhi->localDirection();
+
+    // Zed seg is in SL one
+    GlobalPoint glbPosZ = ( theGeom->superLayer(segZed->superLayerId()) )->toGlobal(segZed->localPosition());
+    LocalPoint posZInCh = ( theGeom->chamber(segZed->superLayerId().chamberId()) )->toLocal(glbPosZ);
+
+    GlobalVector glbDirZ = (theGeom->superLayer(segZed->superLayerId()) )->toGlobal(segZed->localDirection());
+    LocalVector dirZInCh = (theGeom->chamber(segZed->superLayerId().chamberId()) )->toLocal(glbDirZ);
+
+    LocalPoint posZAt0 = posZInCh+
+      dirZInCh*(-posZInCh.z())/cos(dirZInCh.theta());
+
+    // given the actual definition of chamber refFrame, (with z poiniting to IP),
+    // the zed component of direction is negative.
+    LocalVector dir=LocalVector(dirPhiInCh.x()/fabs(dirPhiInCh.z()),
+                                dirZInCh.y()/fabs(dirZInCh.z()),
+                                -1.);
+
+    seg->setPosition(LocalPoint(posPhiInCh.x(),posZAt0.y(),0.));
+    seg->setDirection(dir.unit());
+
+    AlgebraicSymMatrix mat(4);
+
+    // set cov matrix
+    mat[0][0]=segPhi->parametersError()[0][0]; //sigma (dx/dz)
+    mat[0][2]=segPhi->parametersError()[0][1]; //cov(dx/dz,x)
+    mat[2][2]=segPhi->parametersError()[1][1]; //sigma (x)
+    
+    seg->setCovMatrix(mat);
+    //RB:FIXME!!!!
+    seg->setCovMatrixForZed(posZInCh);
+
+  }
+  else if (seg->hasPhi()) {
+    DTRecSegment2DPhi *segPhi=seg->phiSegment();
+
+    seg->setPosition(segPhi->localPosition());
+    seg->setDirection(segPhi->localDirection());
+
+    AlgebraicSymMatrix mat(4);
+    // set cov matrix
+    mat[0][0]=segPhi->parametersError()[0][0]; //sigma (dx/dz)
+    mat[0][2]=segPhi->parametersError()[0][1]; //cov(dx/dz,x)
+    mat[2][2]=segPhi->parametersError()[1][1]; //sigma (x)
+
+    seg->setCovMatrix(mat);
+  }
+  else if (seg->hasZed()) {
+    DTRecSegment2D *segZed=seg->zSegment();
+
+    // Zed seg is in SL one
+    GlobalPoint glbPosZ = ( theGeom->superLayer(segZed->superLayerId()) )->toGlobal(segZed->localPosition());
+    LocalPoint posZInCh = ( theGeom->chamber(segZed->superLayerId().chamberId()) )->toLocal(glbPosZ);
+
+    GlobalVector glbDirZ = (theGeom->superLayer(segZed->superLayerId()) )->toGlobal(segZed->localDirection());
+    LocalVector dirZInCh = (theGeom->chamber(segZed->superLayerId().chamberId()) )->toLocal(glbDirZ);
+
+    LocalPoint posZAt0 = posZInCh+
+      dirZInCh*(-posZInCh.z())/cos(dirZInCh.theta());
+
+    seg->setPosition(posZAt0);
+    seg->setDirection(dirZInCh);
+
+    AlgebraicSymMatrix mat(4);
+    // set cov matrix
+    seg->setCovMatrix(mat);
+    seg->setCovMatrixForZed(posZInCh);
+  }
+}
+
 
 bool DTSegmentUpdator::fit(DTSegmentCand* seg) {
   if (!seg->good()) return false;
@@ -92,6 +203,8 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg) {
 }
 
 void DTSegmentUpdator::fit(DTRecSegment2D* seg) {
+  // WARNING: since this method is called both with a 2D and a 2DPhi as argument
+  // seg->geographicalId() can be a superLayerId or a chamberId 
 
   vector<float> x;
   vector<float> y;
@@ -105,7 +218,7 @@ void DTSegmentUpdator::fit(DTRecSegment2D* seg) {
     // RB: is my transformation right? 
 
     // I have to get the hits position (the hit is in the layer rf) in SL frame...
-    GlobalPoint glbPos = ( theGeom->idToDet(hit->geographicalId()) )->toGlobal(hit->localPosition());
+    GlobalPoint glbPos = ( theGeom->layer( hit->wireId().layerId() ) )->toGlobal(hit->localPosition());
     LocalPoint pos = ( theGeom->idToDet(seg->geographicalId()) )->toLocal(glbPos);
 
     x.push_back(pos.z()); 
@@ -115,13 +228,13 @@ void DTSegmentUpdator::fit(DTRecSegment2D* seg) {
     //RB,FIXME: is it right in this way? 
     ErrorFrameTransformer tran;
     GlobalError glbErr =
-      tran.transform( hit->localPositionError(),(theGeom->idToDet(hit->geographicalId()))->surface());
+      tran.transform( hit->localPositionError(),(theGeom->layer( hit->wireId().layerId() ))->surface());
     // RB, I prefer:
     //  tran.transform( hit->localPositionError(),(theGeom->layer(hit->geographicalId()))->surface());
     LocalError slErr =
       tran.transform( glbErr, (theGeom->idToDet(seg->geographicalId()))->surface());
     // RB, I prefer:
-    // tran.transform( glbErr, (theGeom->superLayer(seg->geographicalId()))->surface());
+    // tran.transform( glbErr, (theGeom->idToDet(seg->geographicalId()))->surface());
     
     sigy.push_back(sqrt(slErr.xx()));
   }
@@ -182,19 +295,19 @@ void DTSegmentUpdator::fit(const vector<float>& x,
 
 void DTSegmentUpdator::updateHits(DTRecSegment2D* seg) {
 
-  //FIXME, RB: put a dynamic cast
-  GlobalPoint pos = (theGeom->idToDet(seg->geographicalId()))->surface().toGlobal(seg->localPosition());
-  GlobalVector dir = (theGeom->idToDet(seg->geographicalId()))->surface().toGlobal(seg->localDirection());
+  //FIXME, RB: put a dynamic cast?
+  GlobalPoint pos = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localPosition());
+  GlobalVector dir = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localDirection());
   updateHits(seg, pos, dir);
 }
 
 void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
-                                  GlobalPoint gpos,
-                                  GlobalVector gdir,
+                                  GlobalPoint &gpos,
+                                  GlobalVector &gdir,
                                   int step) {
   /// define impact angle
-  LocalPoint segPos=theGeom->idToDet(seg->geographicalId())->surface().toLocal(gpos);
-  LocalVector segDir=theGeom->idToDet(seg->geographicalId())->surface().toLocal(gdir);
+  LocalPoint segPos=theGeom->idToDet(seg->geographicalId())->toLocal(gpos);
+  LocalVector segDir=theGeom->idToDet(seg->geographicalId())->toLocal(gdir);
   LocalPoint segPosAtLayer=segPos+segDir*segPos.z()/cos(segDir.theta());
   const float angle = atan(segDir.x()/-segDir.z());
 
@@ -237,11 +350,11 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
       //GlobalPoint gpos=theGeom.idToDet(hit->id())->toGlobal(hitPos);
       
       //FIXME,RB: is it right?
-      GlobalPoint gpos= theGeom->layer( hit->wireId().layerId() )->surface().toGlobal(hitPos);
+      GlobalPoint glbpos= theGeom->layer( hit->wireId().layerId() )->toGlobal(hitPos);
 
       ok = theAlgo->compute(layer,
 			    (*hit),
-			    angle,gpos,
+			    angle,glbpos,
 			    newHit1D);
     } else {
       throw cms::Exception("DTSegmentUpdator")<<" updateHits called with wrong step"<<endl;

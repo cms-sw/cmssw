@@ -5,8 +5,8 @@
  *
  * Producer for DT segment in one projection.
  *  
- * $Date: 2006/03/30 16:53:18 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/12 15:15:48 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -21,10 +21,6 @@ namespace edm {
   class EventSetup;
 }
 
-/* Collaborating Class Declarations */
-namespace edm {
-  class ParameterSet;
-}
 class DTRecSegment2DBaseAlgo;
 
 /* C++ Headers */
@@ -54,8 +50,8 @@ class DTRecSegment2DProducer : public edm::EDProducer {
     static bool debug;
     // The reconstruction algorithm
     DTRecSegment2DBaseAlgo* theAlgo;
+
     //static std::string theAlgoName;
-    //
     std::string theRecHits1DLabel;
 
 };

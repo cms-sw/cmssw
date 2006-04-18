@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/12 15:15:48 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/13 07:23:16 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -43,7 +43,7 @@ DTRecSegment2DProducer::DTRecSegment2DProducer(const edm::ParameterSet& pset) {
   theRecHits1DLabel = pset.getParameter<string>("recHits1DLabel");
 
   if(debug)
-    cout << "[DTRecSegmentProducer] Constructor called" << endl;
+    cout << "[DTRecSegment2DProducer] Constructor called" << endl;
 
   produces<DTRecSegment2DCollection>();
 
@@ -57,7 +57,7 @@ DTRecSegment2DProducer::DTRecSegment2DProducer(const edm::ParameterSet& pset) {
 /// Destructor
 DTRecSegment2DProducer::~DTRecSegment2DProducer() {
   if(debug)
-    cout << "[DTRecSegmentProducer] Destructor called" << endl;
+    cout << "[DTRecSegment2DProducer] Destructor called" << endl;
 }
 
 /* Operations */ 
@@ -71,7 +71,7 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
 
   theAlgo->setES(setup);
   
-  // Get the digis from the event
+  // Get the 1D rechits from the event
   Handle<DTRecHitCollection> allHits; 
   event.getByLabel(theRecHits1DLabel, "DT1DRecHits", allHits);
 

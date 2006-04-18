@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/13 07:23:16 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/13 15:43:06 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -21,6 +21,8 @@ unsigned int DTSegmentCand::nHitsMin=3; // to be tuned!!
 DTSegmentCand::DTSegmentCand(AssPointCont& hits,
                              const DTSuperLayer* sl) :
 theSL(sl), theChi2(-1.) , theHits(hits){
+  // FIXME
+  // are the positions void?
 
 }
 

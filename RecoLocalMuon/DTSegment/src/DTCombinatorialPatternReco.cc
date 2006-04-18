@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/13 07:23:16 $
- * $Revision: 1.4 $
+ * $Date: 2006/04/13 15:43:06 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -146,9 +146,8 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
       DTEnums::DTCellSide codes[2]={DTEnums::Right, DTEnums::Left};
       for (int firstLR=0; firstLR<2; ++firstLR) {
         for (int lastLR=0; lastLR<2; ++lastLR) {
-
-	  GlobalPoint gposFirst=(*firstHit)->globalPosition(codes[firstLR]);
-	  GlobalPoint gposLast=(*lastHit)->globalPosition(codes[lastLR]);
+	  GlobalPoint gposFirst=sl->toGlobal( (*firstHit)->localPosition(codes[firstLR]) );
+	  GlobalPoint gposLast= sl->toGlobal( (*lastHit)->localPosition(codes[lastLR]) );
 	  
 	  // was:
           // const GeomDet* firstDet=dtGeom.idToDet((*firstHit)->id());

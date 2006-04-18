@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/12 15:15:48 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/13 15:43:06 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -56,6 +56,7 @@ LocalPoint DTHitPairForFit::localPosition(DTEnums::DTCellSide s) const {
 
 GlobalPoint DTHitPairForFit::globalPosition(DTEnums::DTCellSide) const {
   // LocalPoint pos = localPosition(s);
+  //FIXME!!!
   return GlobalPoint();
 }
 

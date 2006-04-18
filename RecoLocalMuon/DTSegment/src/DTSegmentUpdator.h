@@ -8,8 +8,8 @@
  * impact angle and position (also along the wire) and perform linear fit on
  * improved hits.
  *
- * $Date: 2006/03/30 16:53:18 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/13 07:23:16 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -18,18 +18,21 @@
 /* Base Class Headers */
 
 /* Collaborating Class Declarations */
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
-//#include "DataFormats/DTRecHit/interface/DTRecSegment.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
+
+class DTSegmentCand;
+class DTRecSegment2D;
+class DTRecSegment4D;
 class DTLinearFit;
 class DTRecHitBaseAlgo;
 
-namespace edm{class EventSetup;}
+namespace edm{class EventSetup; class ParameterSet;}
 
 /* C++ Headers */
 #include <vector>
-
+#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 /* ====================================================================== */
 
 /* Class DTSegmentUpdator Interface */
@@ -59,10 +62,10 @@ class DTSegmentUpdator{
      * the 4D direction and position is built. Since the fit is applied on a
      * true segment, by definition the segment is "good", while it's not the
      * case for just candidates */
-    //void fit(DTRecSegment* seg);
+    void fit(DTRecSegment4D* seg);
 
     /// recompute hits position and refit the segment4D
-    //void update(DTRecSegment* seg);
+    void update(DTRecSegment4D* seg);
 
     /// recompute hits position and refit the segment2D
     void update(DTRecSegment2D* seg);
@@ -82,8 +85,8 @@ class DTSegmentUpdator{
     void updateHits(DTRecSegment2D* seg);
 
     void updateHits(DTRecSegment2D* seg,
-                    GlobalPoint gpos,
-                    GlobalVector gdir,
+                    GlobalPoint &gpos,
+                    GlobalVector &gdir,
                     int step=2);
 
     /// interface to LinearFit
