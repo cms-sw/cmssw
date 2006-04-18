@@ -46,10 +46,14 @@ TransientTrack& TransientTrack::operator=(const TransientTrack & tt)
   if (this == &tt) return *this;
   //
   //  std::cout << tt.tk_ << std::endl;
+  std::cout << "assign base." << std::endl;
   Track::operator=(tt);
+  std::cout << "done assign base." << std::endl;
   //  tk_ = &(tt.persistentTrack());
   //  tk_ = tt.tk_;
+  std::cout << "assign ref." << std::endl;
   tkr_ = tt.persistentTrackRef();
+  std::cout << "done assign ref." << std::endl;
   originalTSCP = tt.originalTSCP;
   stateAtVertexAvailable = tt.stateAtVertexAvailable;
   theStateAtVertex = tt.theStateAtVertex;
