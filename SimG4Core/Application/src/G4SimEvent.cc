@@ -6,6 +6,7 @@ G4SimEvent::G4SimEvent() : hepMCEvent(0),weight_(0),collisionPoint_(0),
 G4SimEvent::~G4SimEvent() 
 {
 
+/*
    while ( !g4tracks.empty() )
    {
       delete g4tracks.back() ;
@@ -16,6 +17,26 @@ G4SimEvent::~G4SimEvent()
       delete g4vertices.back() ;
       g4vertices.pop_back() ;
    }
+*/
+
+   // per suggestion by Chris Jones, it's faster 
+   // that delete back() and pop_back() 
+   //
+   unsigned int i = 0 ;
+   
+   for ( i=0; i<g4tracks.size(); i++ )
+   {
+      delete g4tracks[i] ;
+      g4tracks[i] = 0 ;
+   }
+   g4tracks.clear() ;
+   
+   for ( i=0; i<g4vertices.size(); i++ )
+   {
+      delete g4vertices[i] ;
+      g4vertices[i] = 0 ;
+   }
+   g4vertices.clear() ;
 
 }
 
