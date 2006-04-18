@@ -58,17 +58,27 @@ void TBRUInputSource::openFile(const std::string& filename) {
   } 
   
   // Get the run number
-
-  int ipass = filename.find("RU");
-  int ipath = filename.find("_");
-  string run;
-  run.clear();
-  run=filename.substr(ipass+2,ipath-ipass-2);
-  LogDebug("TBRU") << run << " et " << run.c_str();
-  sscanf(run.c_str(),"%d",&n_run);
-  printf("%d\n",n_run);
-  //
-
+  if ( filename.find("RU") == string::npos ||
+       filename.find("_") == string::npos ) {
+    n_run = 1;
+    edm::LogWarning("TBRU") << "[TBRUInputSource::openFile]" 
+			    << " No run number found in 'fileNames' configurable!"
+			    << " Expected format is 'RU00xxxxx_yyy.root'"
+			    << " Setting run number to '1'";
+  } else { 
+    unsigned short ipass = filename.find("RU");
+    unsigned short ipath = filename.find("_");
+    string run;
+    run.clear();
+    run = filename.substr( ipass+2, ipath-ipass-2 );
+    sscanf( run.c_str(), "%d", &n_run );
+    edm::LogInfo("TBRU") << "[TBRUInputSource::openFile]" 
+			 << " Run number: " << run 
+			 << ", " << run.c_str() 
+			 << ", " << n_run;
+    // printf("%d\n",n_run);
+  }
+  
   m_tree=(TTree*)m_file->Get("TRU");
   
   if (m_tree==0) {
@@ -140,11 +150,12 @@ void TBRUInputSource::setRunAndEventInfo() {
   int* rud =r->fBuffer;
 
   I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block = ( I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*) rud;
-   if ( (!m_quiet) || block->eventNumber%100 == 0) 
+  if ( (!m_quiet) || block->eventNumber%100 == 0) 
     LogDebug("TBRU") << "Event number " << n_run <<":"<< block->eventNumber <<" is read ";
-    setRunNumber(n_run);
-    setEventNumber( block->eventNumber);
-
+  
+  setRunNumber(n_run);
+  setEventNumber( block->eventNumber);
+  
   // time is a hack
   edm::TimeValue_t present_time = presentTime();
   unsigned long time_between_events = timeBetweenEvents();

@@ -19,23 +19,23 @@ class TBRU;
     \author L. Mirabito CERN
 */
 class TBRUInputSource : public edm::ExternalInputSource {
-
- public:
-
+  
+public:
+  
   explicit TBRUInputSource( const edm::ParameterSet & pset, 
 			    edm::InputSourceDescription const& desc );
   virtual ~TBRUInputSource() {;}
-
- protected:
-
+  
+protected:
+  
   virtual void setRunAndEventInfo();
   virtual bool produce( edm::Event& e );
-
- private:
+  
+private:
   
   void unpackSetup( const std::vector<std::string>& ) {;}
   void openFile( const std::string& filename );
-
+  
   TTree* m_tree;
   TFile* m_file;
   int m_i, m_fileCounter;
