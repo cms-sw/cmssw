@@ -14,6 +14,13 @@ class EcalSimParameterMap : public CaloVSimParameterMap
 public:
   /// ctor
   EcalSimParameterMap();
+  EcalSimParameterMap(double simHitToPhotoelectronsBarrel, 
+                      double simHitToPhotoelectronsEndcap, 
+                      double photoelectronsToAnalogBarrel, 
+                      double photoelectronsToAnalogEndcap, 
+                      double samplingFactor, double timePhase,
+                      int readoutFrameSize, int binOfMaximum,
+                      bool doPhotostatistics);
   /// dtor
   virtual ~EcalSimParameterMap() {}
 

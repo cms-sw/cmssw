@@ -19,6 +19,22 @@ EcalSimParameterMap::EcalSimParameterMap() :
   theESParameters(1., 1., 1., 20., 3, 2, false)
 {}
 
+EcalSimParameterMap::EcalSimParameterMap(double simHitToPhotoelectronsBarrel, 
+                                         double simHitToPhotoelectronsEndcap, 
+                                         double photoelectronsToAnalogBarrel, 
+                                         double photoelectronsToAnalogEndcap, 
+                                         double samplingFactor, double timePhase,
+                                         int readoutFrameSize, int binOfMaximum,
+                                         bool doPhotostatistics) : 
+  theBarrelParameters(simHitToPhotoelectronsBarrel, photoelectronsToAnalogBarrel,
+                      samplingFactor, timePhase, 
+                      readoutFrameSize, binOfMaximum, doPhotostatistics),
+  theEndcapParameters(simHitToPhotoelectronsEndcap, photoelectronsToAnalogEndcap, 
+                      samplingFactor, timePhase, 
+                      readoutFrameSize, binOfMaximum, doPhotostatistics),
+  theESParameters(1., 1., 1., 20., 3, 2, false)
+{}
+
   /*
   CaloSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog, 
                  double samplingFactor, double timePhase,
@@ -35,4 +51,4 @@ const CaloSimParameters & EcalSimParameterMap::simParameters(const DetId & detId
   else 
     return theESParameters;
 }
-  
+
