@@ -51,7 +51,7 @@ FIPConfiguration::~FIPConfiguration()
 
 FIPConfiguration::FIPConfiguration() : configHandler_()
 { 
-  //  parser_ = DDLParser::instance(); ??
+  parser_ = DDLParser::instance();
   //  std::cout << "Making a FIPConfiguration with configHandler_ at " << &configHandler_ << std::endl;
 }
 
@@ -87,48 +87,15 @@ int FIPConfiguration::readConfig(const std::string& filename)
   // Set the parser to use the handler for the configuration file.
   // This makes sure the Parser is initialized and gets a handle to it.
   // Set these to the flags for the configuration file.
-  //parser_->getXMLParser()->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"),true);   // optional
-  //parser_->getXMLParser()->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"),true);   // optional
-  //if (parser_->getXMLParser()->getFeature(XMLString::transcode("http://xml.org/sax/features/validation")) == true)
-  // parser_->getXMLParser()->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), true);
-//   std::cout << " about to set handler" << std::endl;
-//   parser_->getXMLParser()->setContentHandler(&configHandler_);
-//   std::cout << " done set handler" << std::endl;
+  //parser_->getXMLParser()->setFeature(StrX("http://xml.org/sax/features/validation"),true);   // optional
+  //parser_->getXMLParser()->setFeature(StrX("http://xml.org/sax/features/namespaces"),true);   // optional
+  //if (parser_->getXMLParser()->getFeature(StrX("http://xml.org/sax/features/validation")) == true)
+  // parser_->getXMLParser()->setFeature(StrX("http://apache.org/xml/features/validation/dynamic"), true);
+  std::cout << " about to set handler" << std::endl;
+  parser_->getXMLParser()->setContentHandler(&configHandler_);
+  std::cout << " done set handler" << std::endl;
   std::string absoluteFileName (filename);
-//   std::cout << " absoluteFileName initialized. " << absoluteFileName << std::endl;
-  int toreturn(0);
-  try
-    {
-      XMLPlatformUtils::Initialize();
-      //      AlgoInit();
-    }
-
-  catch (const XMLException& toCatch)
-    {
-      std::string e("\nDDLParser(): Error during initialization! Message:");
-      e += StrX(toCatch.getMessage()).localForm() + std::string ("\n");
-      throw (DDException(e));
-    }
-
-  parser_  = XMLReaderFactory::createXMLReader();
-
-  // FIX: Temporarily set validation and namespaces to false always.
-  //      Due to ignorance, I did not realize that once set, these can not be
-  //      changed for a SAX2XMLReader.  I need to re-think the use of SAX2Parser.
-  const XMLCh * tempCh = StrX("http://xml.org/sax/features/validation").xmlChForm();
-  parser_->setFeature(tempCh, false);   // optional
-  //  delete tempCh[];
-  const XMLCh * temp2Ch = StrX("http://xml.org/sax/features/namespaces").xmlChForm();
-  parser_->setFeature(temp2Ch, false);   // optional
-  //  delete temp2Ch[];
-  //  SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/properties/scannerName"), XMLString::transcode("SGXMLScanner"));
-  //was not the problem, IGXML was fine!  SAX2Parser_->setProperty(XMLUni::fgXercesScannerName, (void *)XMLUni::fgSGXMLScanner);
-
-  // Specify other parser features, e.g.
-  //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
-
-  parser_->setContentHandler(&configHandler_);
-
+  std::cout << " absoluteFileName initialized. " << absoluteFileName << std::endl;
   try {
     edm::FileInPath fp(filename);
     absoluteFileName = fp.fullPath();
@@ -141,18 +108,18 @@ int FIPConfiguration::readConfig(const std::string& filename)
   }
   std::cout << "Absolute file name is: " << absoluteFileName << std::endl;
   try {
-    parser_->parse(absoluteFileName.c_str());
+    parser_->getXMLParser()->parse(absoluteFileName.c_str());
   }
   catch (const XMLException& toCatch) {
     std::cout << "\nXMLException: parsing '" << absoluteFileName << "'\n"
 	 << "Exception message is: \n"
 	 << std::string(StrX(toCatch.getMessage()).localForm()) << "\n" ;
-    toreturn = -1;
+    return -1;
   }
   catch (...)
     {
       std::cout << "\nUnexpected exception during parsing: '" << absoluteFileName << "'\n";
-      toreturn = 4;
+      return 4;
     }
   try {
     const std::vector<std::string>& vURLs = configHandler_.getURLs();
@@ -176,5 +143,5 @@ int FIPConfiguration::readConfig(const std::string& filename)
   //   std::cout << "there are " << fnames.size() << " files." << std::endl;
   //   for (size_t i = 0; i < fnames.size(); i++)
   //     std::cout << "url=" << configHandler_.getURLs()[i] << " file=" << configHandler_.getFileNames()[i] << std::endl;
-  return toreturn;
+  return 0;
 }

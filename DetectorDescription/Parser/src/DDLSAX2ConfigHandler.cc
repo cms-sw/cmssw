@@ -64,7 +64,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
   elementCount_++;
   attrCount_ += attrs.getLength();
 
-  std::string myelemname = StrX(qname).stringForm(); //std::string(XMLString::transcode(qname));
+  std::string myelemname = StrX(qname).stringForm();
   DCOUT_V('P', "DDLSAX2ConfigHandler::startElement" << myelemname << " started...");
 
   unsigned int numAtts = attrs.getLength();
@@ -74,8 +74,8 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
       std::string name="", url="";
       while ( i < numAtts )
 	{
-          std::string myattname = std::string(StrX(attrs.getLocalName(i)).localForm());
-          std::string myvalue = std::string(StrX(attrs.getValue(i)).localForm());
+          std::string myattname = StrX(attrs.getLocalName(i)).stringForm();
+          std::string myvalue = StrX(attrs.getValue(i)).stringForm();
 
           if (myattname == "name")
 	    name=myvalue;
@@ -92,8 +92,8 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
       std::string fileName="", logicalPartName="";
       while ( i < numAtts )
 	{
-          std::string myattname = std::string(StrX(attrs.getLocalName(i)).localForm());
-          std::string myvalue = std::string(StrX(attrs.getValue(i)).localForm());
+          std::string myattname = StrX(attrs.getLocalName(i)).stringForm();
+          std::string myvalue = StrX(attrs.getValue(i)).stringForm();
 
 	  if (myattname == "fileName")
 	    fileName = myvalue;
@@ -114,8 +114,8 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
     {
       while ( i < numAtts )
 	{
-          std::string myattname = std::string(StrX(attrs.getLocalName(i)).localForm());
-          std::string myvalue = std::string(StrX(attrs.getValue(i)).localForm());
+          std::string myattname = StrX(attrs.getLocalName(i)).stringForm();
+          std::string myvalue = StrX(attrs.getValue(i)).stringForm();
 	  if (myattname == "schemaLocation")
 	    schemaLocation_ = myvalue;
           else if (myattname == "validation")

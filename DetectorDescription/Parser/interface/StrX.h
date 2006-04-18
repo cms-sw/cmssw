@@ -16,14 +16,14 @@
 #include <string>
 #include <iostream>
 
-namespace xercesc_2_3 { } using namespace xercesc_2_3;
+namespace xercesc_2_7 { } using namespace xercesc_2_7;
 
 /** @class StrX
  * @author Apache Xerces C++ Example
  *
  *           DDDParser sub-component of DDD
  *
- *  This is taken from the Examples of Apache Xerces C++ and used 'as is'.
+ *  This is taken from the Examples of Apache Xerces C++ and modified.
  *
  */
 // ---------------------------------------------------------------------------
@@ -38,28 +38,26 @@ class StrX
     // -----------------------------------------------------------------------
     StrX(const XMLCh* const toTranscode)// : fXMLChForm(toTranscode)
     {
-      char * fLocalForm;
       fLocalForm = XMLString::transcode(toTranscode);
-      fStoredForm = std::string (fLocalForm);
-      delete [] fLocalForm;
+      fXMLChForm = XMLString::transcode(fLocalForm);
     }
 
-  StrX( const char* const toTranscode )// : fLocalForm(toTranscode) {
+  StrX( const char* const toTranscode )
     {
-      XMLCh * fXMLChForm;
       fXMLChForm = XMLString::transcode(toTranscode);
-      fStoredForm = std::string(toTranscode);
-      delete [] fXMLChForm;
+      fLocalForm = XMLString::transcode(fXMLChForm);
     }
 
-  StrX( const std::string& toTranscode ) : fStoredForm(toTranscode)
+  StrX( const std::string& toTranscode )
     {
-
+     fXMLChForm = XMLString::transcode(toTranscode.c_str());
+      fLocalForm = XMLString::transcode(fXMLChForm);
     }
 
   ~StrX()
     {
-
+      XMLString::release(&fLocalForm);
+      XMLString::release(&fXMLChForm);
     }
 
   // -----------------------------------------------------------------------
@@ -67,26 +65,22 @@ class StrX
   // -----------------------------------------------------------------------
   const char* localForm() const
     {
-      return fStoredForm.c_str();
+      return fLocalForm;
     }
 
   const XMLCh* xmlChForm() const
     {
-      return XMLString::transcode(fStoredForm.c_str());
+      return fXMLChForm;
     }
 
-  const std::string& stringForm() const {
-    return fStoredForm;
+  std::string stringForm() const {
+    return std::string(fLocalForm);
   }
 
   private :
-    // -----------------------------------------------------------------------
-    //  Private data members
-    //
-    //  fLocalForm
-    //      This is the local code page form of the std::string.
-    // -----------------------------------------------------------------------
-    std::string fStoredForm;
+    XMLCh * fXMLChForm;
+  char * fLocalForm;
+  
 };
 
 inline std::ostream& operator<<(std::ostream& target, const StrX& toDump)

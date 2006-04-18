@@ -71,8 +71,10 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
   t_.item("DDLSAX2FileHandler::startElement(...)").chrono().start();
   DCOUT_V('P', "DDLSAX2FileHandler::startElement started");
   
-  char * buf = XMLString::transcode(qname);
-  std::map<std::string, std::string*>::const_iterator namePtr = namesMap_.find(std::string(buf));
+  //***  char * buf = XMLString::transcode(qname);
+  StrX myName(qname);
+  //***  std::map<std::string, std::string*>::const_iterator namePtr = namesMap_.find(std::string(buf));
+  std::map<std::string, std::string*>::const_iterator namePtr = namesMap_.find(myName.stringForm());
   std::string* nameInt;
   if (namePtr != namesMap_.end())
     {
@@ -80,16 +82,16 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
     }
   else
     {
-      std::string * sp = new std::string(buf);
+      std::string * sp = new std::string(myName.stringForm());
       nameInt = sp;
       namesMap_[*sp] = nameInt;
     }
   names_.push_back(nameInt);
-  std::string myElementName = std::string(buf);
+  std::string myElementName = myName.stringForm();
 
   //  std::cout << "start: namesMap_ = " << *(names_.back()) << "  names_.back()= " << names_.back() << std::endl;
 
-  delete[] buf;
+  //***  delete[] buf;
 
 //    char * xmlc = XMLString::transcode(qname);
 //    std::string myElementName = std::string(xmlc);
@@ -106,14 +108,17 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
 
   for (unsigned int i = 0; i < numAtts; i++)
     {
-      char * buf = XMLString::transcode(attrs.getLocalName(i));
-      std::string myattname(buf); delete[] buf;
-      buf = XMLString::transcode(attrs.getValue(i));
-      std::string myvalue(buf); delete[] buf;
-      buf = XMLString::transcode(attrs.getQName(i));
-      std::string myQName(buf); delete[] buf;
-      attrNames.push_back(myattname);
-      attrValues.push_back(myvalue);
+      //***      char * buf = XMLString::transcode(attrs.getLocalName(i));
+      //***      std::string myattname(buf); delete[] buf;
+      //**** std::string myattname = StrX(attrs.getLocalName(i)).stringForm();
+      //***      buf = XMLString::transcode(attrs.getValue(i));
+      //***      std::string myvalue(buf); delete[] buf;
+      //****      std::string myvalue = StrX(attrs.getValue(i)).stringForm();
+      //***      buf = XMLString::transcode(attrs.getQName(i));
+      //***      std::string myQName(buf); delete[] buf;
+      //      std::string myQName = StrX(attrs.getQName(i)).stringForm();
+      attrNames.push_back(StrX(attrs.getLocalName(i)).stringForm());//myattname);
+      attrValues.push_back(StrX(attrs.getValue(i)).stringForm());//myvalue);
     }
 
   if (myElement != NULL)

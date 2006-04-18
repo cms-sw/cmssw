@@ -64,9 +64,9 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
   elementCount_++;
   attrCount_ += attrs.getLength();
 
-  char * tmpc = XMLString::transcode(qname);
-  pElementName = std::string(tmpc);
-  delete[] tmpc; tmpc=0;
+  //char * tmpc = XMLString::transcode(qname);
+  pElementName = StrX(qname).stringForm();//std::string(tmpc);
+  //  delete[] tmpc; tmpc=0;
 
   if (pElementName == "Constant") // && pInConstantsSection)
     {
@@ -76,13 +76,10 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
       std::string varName, varValue;
       for (unsigned int i = 0; i < numAtts; i++)
 	{
-// 	  std::string myattname = std::string(XMLString::transcode(attrs.getLocalName(i)));
-// 	  std::string myvalue = std::string(XMLString::transcode(attrs.getValue(i)));
-	  std::string myattname = std::string(StrX(attrs.getLocalName(i)).localForm());
-	  std::string myvalue = std::string(StrX(attrs.getValue(i)).localForm());
+	  std::string myattname = StrX(attrs.getLocalName(i)).stringForm();
+	  std::string myvalue = StrX(attrs.getValue(i)).stringForm();
 
-// 	  std::string myQName = std::string(XMLString::transcode(attrs.getQName(i)));
-	  std::string myQName = std::string(StrX(attrs.getQName(i)).localForm());
+	  std::string myQName = StrX(attrs.getQName(i)).stringForm();
 	  DCOUT_V('P', std::string("DDLSAX2ExpressionHandler: ") + "getLocalName = " + myattname + "  getValue = " +  myvalue + "   getQName = " + myQName);
 
 	  // attributes unit and quantity are not used right now.
