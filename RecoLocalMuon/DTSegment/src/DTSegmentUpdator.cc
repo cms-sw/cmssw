@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/13 07:23:16 $
- * $Revision: 1.4 $
+ * $Date: 2006/04/13 15:43:06 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -17,7 +17,7 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-
+#include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -92,46 +92,57 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg) {
 }
 
 void DTSegmentUpdator::fit(DTRecSegment2D* seg) {
-  //RB  return true;
 
-  // vector<float> x;
-  // vector<float> y;
-  // vector<float> sigy;
+  vector<float> x;
+  vector<float> y;
+  vector<float> sigy;
 
-  // // damn, I have to get the hits position in SL frame...
-  // vector<DTRecHit1D> hits=seg->specificRecHits();
-  // for (vector<DTRecHit1D>::const_iterator hit=hits.begin();
-  //      hit!=hits.end(); ++hit) {
-  //   // TODO move from hit frame to SL frame
-  //   LocalPoint pos = hit->localPosition();
-  //   //LocalPoint pos = seg->det().toLocal((*hit)->globalPosition());
-  //   x.push_back(pos.z()); 
-  //   y.push_back(pos.x());
-  //   // TODO get local error in SL frame
-  //   //ErrorFrameTransformer tran;
-  //   // LocalError err = 
-  //   //   tran.transform((*hit)->globalPositionError(),seg->det().surface());
-  //   LocalError err = hit->localPositionError();
-  //   sigy.push_back(sqrt(err.xx()));
-  // }
+  vector<DTRecHit1D> hits=seg->specificRecHits();
+  for (vector<DTRecHit1D>::const_iterator hit=hits.begin();
+       hit!=hits.end(); ++hit) {
 
-  // LocalPoint pos;
-  // LocalVector dir;
-  // AlgebraicSymMatrix covMat(2);
-  // double chi2=0;
-  // fit(x,y,sigy,pos,dir,covMat,chi2);
+    // TODO move from hit frame to SL frame
+    // RB: is my transformation right? 
 
-  // seg->setPosition(pos);
+    // I have to get the hits position (the hit is in the layer rf) in SL frame...
+    GlobalPoint glbPos = ( theGeom->idToDet(hit->geographicalId()) )->toGlobal(hit->localPosition());
+    LocalPoint pos = ( theGeom->idToDet(seg->geographicalId()) )->toLocal(glbPos);
 
-  // seg->setDirection(dir);
+    x.push_back(pos.z()); 
+    y.push_back(pos.x());
 
-  // //cout << "pos " << segPosition<< endl;
-  // //cout << "dir " << segDirection<< endl;
+    // Get local error in SL frame
+    //RB,FIXME: is it right in this way? 
+    ErrorFrameTransformer tran;
+    GlobalError glbErr =
+      tran.transform( hit->localPositionError(),(theGeom->idToDet(hit->geographicalId()))->surface());
+    // RB, I prefer:
+    //  tran.transform( hit->localPositionError(),(theGeom->layer(hit->geographicalId()))->surface());
+    LocalError slErr =
+      tran.transform( glbErr, (theGeom->idToDet(seg->geographicalId()))->surface());
+    // RB, I prefer:
+    // tran.transform( glbErr, (theGeom->superLayer(seg->geographicalId()))->surface());
+    
+    sigy.push_back(sqrt(slErr.xx()));
+  }
+  
+  LocalPoint pos;
+  LocalVector dir;
+  AlgebraicSymMatrix covMat(2);
+  double chi2=0;
+  fit(x,y,sigy,pos,dir,covMat,chi2);
 
-  // seg->setCovMatrix(covMat);
-  // // cout << "Mat " << mat << endl;
+  seg->setPosition(pos);
 
-  // seg->setChi2(chi2);
+  seg->setDirection(dir);
+
+  //cout << "pos " << segPosition<< endl;
+  //cout << "dir " << segDirection<< endl;
+
+  seg->setCovMatrix(covMat);
+  // cout << "Mat " << mat << endl;
+
+  seg->setChi2(chi2);
 }
 
 void DTSegmentUpdator::fit(const vector<float>& x,
