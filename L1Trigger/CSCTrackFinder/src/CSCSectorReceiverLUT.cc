@@ -432,21 +432,26 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiMB(const gblphidat &csclut) const
 {
   gblphidat dtlut;
 
-  //Number of global phi units per radian.
-  int    maxPhiG = 1<<CSCBitWidths::kGlobalPhiDataBitWidth;
-  double binPhiG = static_cast<double>(maxPhiG)/CSCConstants::SECTOR_RAD;
-  // get global phi in ME coordinates and get real ME sector == dt sector (1-12)
-  double csc_gphi_value = static_cast<double>(csclut.global_phi)/binPhiG;
-  int dt_sector = CSCTriggerNumbering::sectorFromTriggerLabels(_sector,_subsector,_station);
+  // The following method was ripped from D. Holmes' LUT conversion program
+  
+  int GlobalPhiMin = (_subsector == 1) ? 0x42 : 0x800;
+  int GlobalPhiMax = (_subsector == 1) ? 0x7ff : 0xfbd;
+  double GlobalPhiShift = (GlobalPhiMin + (GlobalPhiMax - GlobalPhiMin)/2.0); 
 
-  double dt_phi0 = dt_sector*M_PI/6.0;
-  double dt_gphi = fmod(csc_gphi_value - dt_phi0 + 3*M_PI, 2*M_PI) - M_PI;
-  int dt_gphi_int = static_cast<int>(dt_gphi*binPhiG);
+  double dt_out = static_cast<double>(csclut.global_phi) - GlobalPhiShift;
 
-  if((_subsector == 1 && csclut.global_phi >= 2048) || (_subsector == 2 && csclut.global_phi <  2048))
-    dtlut.global_phi = 0x800;
+  dt_out = (dt_out/1981)*2155;
+
+  if(dt_out >= 0) // msb != 1
+    {
+      dtlut.global_phi = 0x7ff&static_cast<unsigned>(dt_out);
+    }
   else
-    dtlut.global_phi = 0x800 | static_cast<unsigned>(dt_gphi_int);  
+    {
+      dtlut.global_phi = static_cast<unsigned>(-dt_out);
+      dtlut.global_phi = ~dtlut.global_phi;
+      dtlut.global_phi |= 0x800;
+    }
 
   return dtlut;
 }
