@@ -4,13 +4,14 @@
 
 
 
-RPCRollService::RPCRollService() : roll_(0)
+RPCRollService::RPCRollService() : roll_(0), top_(0)
 {
+
 }
 
 
 
-RPCRollService::RPCRollService(RPCRoll* roll) : roll_(roll)
+RPCRollService::RPCRollService(RPCRoll* roll) : roll_(roll), top_(0)
 {
 }
 
@@ -22,35 +23,38 @@ RPCRollService::~RPCRollService()
 int 
 RPCRollService::nstrips()
 {
-  int nstrs=0;
-  if (this->isBarrel()){
-    const RectangularStripTopology *top = 
-      dynamic_cast<const RectangularStripTopology*>(&roll_->topology());
-    nstrs=top->nstrips();
-  }else{
-    const TrapezoidalStripTopology *top = 
-      dynamic_cast<const TrapezoidalStripTopology*>(&roll_->topology());
-    nstrs=top->nstrips();
-  }
-  return nstrs;
+  return this->topology()->nstrips();
 }
 
 
 
-GlobalPoint 
-RPCRollService::GlobalToLocalPoint(const LocalPoint& lp)
+LocalPoint 
+RPCRollService::GlobalToLocalPoint(const GlobalPoint& gp)
 {
-  GlobalPoint gp;
-  return gp;
+  const BoundSurface& bSurface = roll_->surface();
+  return bSurface.toLocal( gp );
 }
 
 
 
-LocalPoint  
-RPCRollService::LocalToGlobalPoint(const GlobalPoint& gp)
+GlobalPoint  
+RPCRollService::LocalToGlobalPoint(const LocalPoint& lp)
 {
-  LocalPoint lp;
-  return lp;
+  const BoundSurface& bSurface = roll_->surface();
+  return bSurface.toGlobal( lp );
+}
+
+LocalPoint
+RPCRollService::CentreOfStrip(int strip)
+{
+  float s = static_cast<float>(strip)-0.5;
+  return this->topology()->localPosition(s);
+}
+
+LocalPoint
+RPCRollService::CentreOfStrip(float strip)
+{
+  return this->topology()->localPosition(strip);
 }
 
 
@@ -66,3 +70,17 @@ RPCRollService::isForward()
   return (!this->isBarrel());
 } 
 
+
+
+const StripTopology* 
+RPCRollService::topology()
+{
+  if(!top_){
+    if (this->isBarrel()){
+      top_ = dynamic_cast<const RectangularStripTopology*>(&roll_->topology());
+    }else{
+      top_ = dynamic_cast<const TrapezoidalStripTopology*>(&roll_->topology());
+    }
+  }
+  return top_;
+}
