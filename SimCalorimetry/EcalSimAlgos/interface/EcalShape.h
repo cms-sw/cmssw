@@ -13,7 +13,7 @@ class EcalShape : public CaloVShape
 public:
   
   /// ctor
-  EcalShape();
+  EcalShape(double timePhase);
   /// dtor
   ~EcalShape(){}
   

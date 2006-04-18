@@ -2,9 +2,9 @@
 #include <cmath>
 
 
-EcalShape::EcalShape()
+EcalShape::EcalShape(double timePhase)
 {
-  setTpeak(47.6683);
+  setTpeak(timePhase);
 
   // first create pulse shape over a range of time 0 ns to 255 ns in 1 ns steps
   // tconv give integer fraction of 1 ns
