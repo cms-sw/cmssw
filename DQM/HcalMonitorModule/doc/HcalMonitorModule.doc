@@ -26,7 +26,7 @@ the event monitoring process.
 - HcalMonitorModule : Access unpacked data from each event and pass event fragments to the monitoring tasks.  
 
 <pre>
-\htmlinclude hcal_dqm.cfi
+\htmlinclude hcal_dqm.cfg
 </pre>
 
 \subsection tests Unit tests and examples The test directory contains

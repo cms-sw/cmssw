@@ -1,4 +1,4 @@
 #!/bin/sh
 
-cmsRun monitor.cfi
+cmsRun monitor.cfg
 

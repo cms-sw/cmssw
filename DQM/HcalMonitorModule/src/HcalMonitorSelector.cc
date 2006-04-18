@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorSelector.cc
  * 
- * $Date: 2005/11/30 22:06:34 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/04 19:26:04 $
+ * $Revision: 1.2 $
  * \author W Fisher
  *
 */
@@ -23,7 +23,10 @@ void HcalMonitorSelector::processEvent(const edm::Event& e){
   m_eventMask = 0;
 
   edm::Handle<HcalTBTriggerData> triggerD;
-  e.getByType(triggerD);
+  try{
+    e.getByType(triggerD);
+  }
+  catch(...) { m_runNum=-1; return; }
   const HcalTBTriggerData trigger = *triggerD;
   
   m_runNum = trigger.runNumber();
