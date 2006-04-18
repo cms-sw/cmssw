@@ -5,7 +5,7 @@
  *
  *  RecHit for RPC 
  *
- *  $Date: 2006/04/10 08:40:53 $
+ *  $Date: 2006/04/12 20:49:06 $
  *  $Revision: 1.1 $
  *  \author M. Maggi -- INFN Bari 
  */
@@ -18,7 +18,7 @@ class RPCRecHit : public RecHit1D {
  public:
 
   RPCRecHit(const RPCDetId& rpcId,
-	      int bx);
+	    int bx);
 
   /// Default constructor
   RPCRecHit();
@@ -32,7 +32,7 @@ class RPCRecHit : public RecHit1D {
 	    const LocalPoint& pos);
   
 
-  /// Constructor from a local position and error, rpcId and digi time.
+  /// Constructor from a local position and error, rpcId and bx.
   RPCRecHit(const RPCDetId& rpcId,
 	    int bx,
 	    const LocalPoint& pos,
@@ -58,7 +58,7 @@ class RPCRecHit : public RecHit1D {
   virtual DetId geographicalId() const;
 
 
-  virtual  RPCRecHit* clone() const;
+  virtual RPCRecHit* clone() const;
 
   
   /// Access to component RecHits.
@@ -88,14 +88,17 @@ class RPCRecHit : public RecHit1D {
     theLocalPosition = pos;
     theLocalError = err;
   }
-
+  
 
   /// Return the rpcId
   RPCDetId rpcId() const {
     return theRPCId;
   }
+ 
+  int BunchX() const {
+    return theBx;
+  }
 
-  
   /// Comparison operator, based on the rpcId and the digi time
   bool operator==(const RPCRecHit& hit) const;
 
@@ -109,8 +112,5 @@ class RPCRecHit : public RecHit1D {
 };
 #endif
 
-
 /// The ostream operator
 std::ostream& operator<<(std::ostream& os, const RPCRecHit& hit);
-
- 
