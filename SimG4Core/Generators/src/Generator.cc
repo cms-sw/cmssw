@@ -69,19 +69,90 @@ const HepMC::GenEvent * Generator::generateEvent()
 }
 
 void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
-{	
-    if (vtx_ != 0) delete vtx_;
-    vtx_ = new HepLorentzVector((*(evt->vertices_begin()))->position());
+{
+
+   if (vtx_ != 0) delete vtx_;
+   vtx_ = new HepLorentzVector((*(evt->vertices_begin()))->position());
     
-    if (verbose > 0)
-    {
+   if (verbose > 0)
+   {
        evt->print();
        cout << " " << endl;
        cout << " Prim.Vtx : " << vtx_->x() << " " 
                               << vtx_->y() << " "
 			      << vtx_->z() << endl;
-    }
+   }
 
+   for(HepMC::GenEvent::vertex_const_iterator vitr= evt->vertices_begin();
+   vitr != evt->vertices_end(); ++vitr ) 
+   { // loop for vertex ...
+
+      // real vertex?
+      G4bool qvtx=false;
+      for (HepMC::GenVertex::particle_iterator 
+	   pitr= (*vitr)->particles_begin(HepMC::children);
+	 pitr != (*vitr)->particles_end(HepMC::children); ++pitr) 
+      {
+
+         if (!(*pitr)->end_vertex() && (*pitr)->status()==1) 
+	 {
+	    qvtx=true;
+	    break;
+         }
+      }
+      if (!qvtx) 
+      {
+	 continue;
+      }
+      
+      // std::cout << " Found good vertex " << std::endl ;
+
+      // check world boundary
+      //G4LorentzVector xvtx= (*vitr)-> position();
+      HepLorentzVector xvtx = (*vitr)->position() ;
+      // fix later
+      //if (! CheckVertexInsideWorld(xvtx.vect()*mm)) continue;
+
+      // create G4PrimaryVertex and associated G4PrimaryParticles
+      G4PrimaryVertex* g4vtx= 
+         new G4PrimaryVertex(xvtx.x()*mm, xvtx.y()*mm, xvtx.z()*mm, 
+			     xvtx.t()*mm/c_light);
+
+      for (HepMC::GenVertex::particle_iterator 
+	   vpitr= (*vitr)->particles_begin(HepMC::children);
+	   vpitr != (*vitr)->particles_end(HepMC::children); ++vpitr) 
+      {
+
+         if( (*vpitr)->status() != 1 ) continue;
+
+         //G4LorentzVector p= (*vpitr)-> momentum();
+	 HepLorentzVector p = (*vpitr)->momentum() ;
+	 
+	 if ( !particlePassesPrimaryCuts( p ) ) 
+	 {
+	    // std::cout << " Particle does NOT pass cuts " << std::endl ;
+	    continue ;
+	 }
+
+         G4int pdgcode= (*vpitr)-> pdg_id();
+	 
+         G4PrimaryParticle* g4prim= 
+	    new G4PrimaryParticle(pdgcode, p.x()*GeV, p.y()*GeV, p.z()*GeV);
+
+         if ( g4prim->GetG4code() != 0 ) 
+            g4prim->SetMass( g4prim->GetG4code()->GetPDGMass() ) ;	 
+	 g4prim->SetWeight( 10000*(*vpitr)->barcode() ) ;
+	 setGenId( g4prim, (*vpitr)->barcode() ) ;
+	 
+	 g4vtx-> SetPrimary(g4prim);
+      }
+      g4evt-> AddPrimaryVertex(g4vtx);
+   } 
+
+
+
+
+/*
     int i = 0; 
     for(HepMC::GenEvent::particle_const_iterator it = evt->particles_begin(); 
 	it != evt->particles_end(); ++it )
@@ -189,6 +260,25 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
     g4evt->AddPrimaryVertex(g4vtx);
 	
     pmap.clear();
+*/
+
+   return ;
+
+}
+
+//bool Generator::particlePassesPrimaryCuts( const G4LorentzVector& mom ) const
+bool Generator::particlePassesPrimaryCuts( const HepLorentzVector& mom ) const 
+{
+   double phi = mom.phi() + 180.* deg ;
+   double pt  = sqrt( mom.x()*mom.x() + mom.y()*mom.y() ) ;
+   pt *= GeV ;
+   double eta = -log( tan(mom.theta()/2.) ) ;
+   
+   if ( (fPtCuts)  && (pt  < theMinPtCut  || pt  > theMaxPtCut) )  return false ;
+   if ( (fEtaCuts) && (eta < theMinEtaCut || eta > theMaxEtaCut) ) return false ;
+   if ( (fPhiCuts) && (phi < theMinPhiCut || phi > theMaxPhiCut) ) return false ;
+   
+   return true;   
 }
 
 bool Generator::particlePassesPrimaryCuts(const G4PrimaryParticle * p) const

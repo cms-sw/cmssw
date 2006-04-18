@@ -40,6 +40,8 @@ public:
     virtual const int runNumber() const { return runNumber_; }
 private:
     bool particlePassesPrimaryCuts(const G4PrimaryParticle * p) const;
+    //bool particlePassesPrimaryCuts( const G4LorentzVector& mom ) const ;
+    bool particlePassesPrimaryCuts( const HepLorentzVector& mom ) const ;
     void setGenId(G4PrimaryParticle* p, int id) const 
     { p->SetUserInformation(new GenParticleInfo(id)); }
 private:
