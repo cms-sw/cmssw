@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.7 2006/04/13 22:24:08 wmtan Exp $
+$Id: InputSource.cc,v 1.8 2006/04/18 21:55:21 lsexton Exp $
 ----------------------------------------------------------------------*/
 #include <cassert>
 
@@ -34,17 +34,10 @@ namespace edm {
 
     std::auto_ptr<EventPrincipal> result(0);
 
-    if (unlimited_) {
+    if (remainingEvents_ != 0) {
       result = read();
       if (result.get() != 0) {
-	++readCount_;
-	issueReports(result->id());
-      }
-    }
-    else if (remainingEvents_ != 0) {
-      result = read();
-      if (result.get() != 0) {
-        --remainingEvents_;
+        if (!unlimited_) --remainingEvents_;
 	++readCount_;
 	issueReports(result->id());
       }
@@ -68,17 +61,10 @@ namespace edm {
 
     std::auto_ptr<EventPrincipal> result(0);
 
-    if (unlimited_) {
+    if (remainingEvents_ != 0) {
       result = readIt(eventID);
       if (result.get() != 0) {
-	++readCount_;
-	issueReports(result->id());
-      }
-    }
-    else if (remainingEvents_ != 0) {
-      result = readIt(eventID);
-      if (result.get() != 0) {
-        --remainingEvents_;
+        if (!unlimited_) --remainingEvents_;
 	++readCount_;
 	issueReports(result->id());
       }
@@ -110,7 +96,7 @@ namespace edm {
   }
   void
   InputSource::issueReports(EventID const& eventID) {
-    LogInfo("FwkReport") << "Begin processing the" << readCount_
+    LogInfo("FwkReport") << "Begin processing the " << readCount_
 			 << "th record. Run " <<  eventID.run()
 			 << ", Event " << eventID.event();
       // At some point we may want to initiate checkpointing here
