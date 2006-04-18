@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.6 2006/04/04 22:15:22 wmtan Exp $
+$Id: InputSource.cc,v 1.7 2006/04/13 22:24:08 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert>
 
@@ -7,6 +7,8 @@ $Id: InputSource.cc,v 1.6 2006/04/04 22:15:22 wmtan Exp $
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 namespace edm {
 
@@ -14,6 +16,7 @@ namespace edm {
       ProductRegistryHelper(),
       maxEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
       remainingEvents_(maxEvents_),
+      readCount_(0),
       unlimited_(maxEvents_ < 0),
       module_(),
       preg_(desc.preg_),
@@ -28,15 +31,22 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   InputSource::readEvent_() {
-    if (unlimited_) {
-      return read();
-    }
+
     std::auto_ptr<EventPrincipal> result(0);
 
-    if (remainingEvents_ != 0) {
+    if (unlimited_) {
+      result = read();
+      if (result.get() != 0) {
+	++readCount_;
+	issueReports(result->id());
+      }
+    }
+    else if (remainingEvents_ != 0) {
       result = read();
       if (result.get() != 0) {
         --remainingEvents_;
+	++readCount_;
+	issueReports(result->id());
       }
     }
     return result;
@@ -55,15 +65,22 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   InputSource::readEvent_(EventID const& eventID) {
-    if (unlimited_) {
-      return readIt(eventID);
-    }
+
     std::auto_ptr<EventPrincipal> result(0);
 
-    if (remainingEvents_ != 0) {
+    if (unlimited_) {
+      result = readIt(eventID);
+      if (result.get() != 0) {
+	++readCount_;
+	issueReports(result->id());
+      }
+    }
+    else if (remainingEvents_ != 0) {
       result = readIt(eventID);
       if (result.get() != 0) {
         --remainingEvents_;
+	++readCount_;
+	issueReports(result->id());
       }
     }
     return result;
@@ -90,5 +107,12 @@ namespace edm {
   void
   InputSource::skipEvents(int offset) {
     this->skip(offset);
+  }
+  void
+  InputSource::issueReports(EventID const& eventID) {
+    LogInfo("FwkReport") << "Begin processing the" << readCount_
+			 << "th record. Run " <<  eventID.run()
+			 << ", Event " << eventID.event();
+      // At some point we may want to initiate checkpointing here
   }
 }
