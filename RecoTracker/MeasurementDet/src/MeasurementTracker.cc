@@ -18,6 +18,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"  
 
 #include <iostream>
 
@@ -53,8 +54,12 @@ void MeasurementTracker::initialize(const edm::EventSetup& setup)
     setup.get<IdealMagneticFieldRecord>().get(magfield);
     pixelCPE = new CPEFromDetPosition(conf, &(*magfield));
    
-    cout << "pixelCPE: " << pixelCPE << endl;
-    cout << "typeid(*pixelCPE).name(): " << typeid(*pixelCPE).name() << endl;
+    //cout << "pixelCPE: " << pixelCPE << endl;
+    //cout << "typeid(*pixelCPE).name(): " << typeid(*pixelCPE).name() << endl;
+
+    edm::ParameterSet StripConf;
+    StripConf.addParameter("TanLorentzAnglePerTesla",0.106);
+    stripCPE = new StripCPE(StripConf,&(*magfield),&tracker);
 
     theHitMatcher = new SiStripRecHitMatcher();
 
@@ -83,13 +88,13 @@ void MeasurementTracker::addStripDets( const TrackingGeometry::DetContainer& det
 {
   for (TrackerGeometry::DetContainer::const_iterator gd=dets.begin();
        gd != dets.end(); gd++) {
-    StripSubdetector stripId( (**gd).geographicalId());
 
     const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(*gd);
 
-//     bool isDetUnit( gdu != 0);
-//     cout << "StripSubdetector glued? " << stripId.glued() 
-// 	 << " is DetUnit? " << isDetUnit << endl;
+    //    StripSubdetector stripId( (**gd).geographicalId());
+    //     bool isDetUnit( gdu != 0);
+    //     cout << "StripSubdetector glued? " << stripId.glued() 
+    // 	 << " is DetUnit? " << isDetUnit << endl;
 
     if (gdu != 0) {
       addStripDet(*gd, stripCPE);
@@ -120,7 +125,7 @@ void MeasurementTracker::addStripDet( const GeomDet* gd,
 void MeasurementTracker::addPixelDet( const GeomDet* gd,
 				      const PixelClusterParameterEstimator* cpe)
 {
-  cout << "pixelCPE in addPixelDet: " << cpe << endl; 
+  //cout << "pixelCPE in addPixelDet: " << cpe << endl; 
   TkPixelMeasurementDet* det = new TkPixelMeasurementDet( gd, cpe);
   thePixelDets.push_back(det);
   theDetMap[gd->geographicalId()] = det;
@@ -167,7 +172,7 @@ void MeasurementTracker::update( const edm::Event& event) const
   event.getByLabel(stripClusterProducer, clusterHandle);
   const SiStripClusterCollection* clusterCollection = clusterHandle.product();
 
-  cout << "--- siStripClusterColl got " << endl;
+  //cout << "--- siStripClusterColl got " << endl;
 
   // loop over all strip dets
   for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
@@ -177,7 +182,7 @@ void MeasurementTracker::update( const edm::Event& event) const
     // push cluster range in det
     (**i).update( range);
   }
-  cout << "--- end of loop over dets" << endl;
+  //cout << "--- end of loop over dets" << endl;
 
   // Pixel Clusters
   std::string pixelClusterProducer ("pixClust"); 
@@ -194,7 +199,7 @@ void MeasurementTracker::update( const edm::Event& event) const
     // push cluster range in det
     (**i).update( range);
   }
-  cout << "--- end of loop over dets" << endl;
+  //cout << "--- end of loop over dets" << endl;
 
   /// or maybe faster: loop over all strip dets and clear them
   /// loop over dets with clusters and set range
