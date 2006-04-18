@@ -32,7 +32,7 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
   theESResponse = new CaloHitResponse(theParameterMap, theESShape);
   
-  bool addNoise = params.getUntrackedParameter<bool>("doNoise" , false); 
+  bool addNoise = params.getUntrackedParameter<bool>("doNoise" , true); 
   theCoder = new EcalCoder(addNoise);
   theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder);
 
