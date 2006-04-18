@@ -42,7 +42,7 @@ class TPedValues
     int checkEntries (const int & DACstart = 0, const int & DACend = 256) const ;
      
     //! create a plot of the DAC pedestal trend
-    int makePlots (TFile & rootFile, const std::string & dirName) const ;
+    int makePlots (TFile * rootFile, const std::string & dirName) const ;
      
     //! create a plot of the DAC pedestal trend
     int makePlots (const std::string & rootFileName, const std::string & dirName) const ;

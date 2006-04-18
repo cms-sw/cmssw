@@ -5,8 +5,8 @@
  * \file EBPedOffset.h
  * \class EBPedOffset
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2006/04/18 13:54:05 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/18 15:06:13 $
+ * $Revision: 1.2 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
@@ -86,7 +86,7 @@ class EBPedOffset: public edm::EDAnalyzer
     void writeDb () ;
     
     //! create the plots of the DAC pedestal trend
-    void makePlots (const std::string & rootFileName) ;
+    void makePlots () ;
 
 
   private:
@@ -118,6 +118,9 @@ class EBPedOffset: public edm::EDAnalyzer
     std::string m_dbPassword ;
     //! run number
     int m_run ;
+    
+    //! the root file where to store the detail plots
+    std::string m_plotting ;
 
 } ; 
 

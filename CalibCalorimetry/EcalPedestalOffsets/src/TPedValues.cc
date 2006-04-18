@@ -122,19 +122,19 @@ int TPedValues::checkEntries (const int & DACstart, const int & DACend) const
 
 
 //! create a plot of the DAC pedestal trend
-int TPedValues::makePlots (TFile & rootFile, const std::string & dirName) const 
+int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const 
 {
   // prepare the ROOT file
-  if (!rootFile.cd (dirName.c_str ())) 
+  if (!rootFile->cd (dirName.c_str ())) 
     {
-      rootFile.mkdir (dirName.c_str ()) ;
-      rootFile.cd (dirName.c_str ()) ;
+      rootFile->mkdir (dirName.c_str ()) ;
+      rootFile->cd (dirName.c_str ()) ;
     }
     
   // loop over the crystals
   for (int xtl=0 ; xtl<1700 ; ++xtl)
     // loop over the gains
-    for (int gain=0 ; gain<1700 ; ++gain)
+    for (int gain=0 ; gain<3 ; ++gain)
       {
         double asseX[256] ;
         double sigmaX[256] ;
@@ -151,7 +151,7 @@ int TPedValues::makePlots (TFile & rootFile, const std::string & dirName) const
           } // loop over DAC values
           
         TGraphErrors graph (256,asseX,asseY,sigmaX,sigmaY);
-        char name[80] ;
+        char name[120] ;
         sprintf (name,"XTL%d_GAIN%d",xtl,gain) ;      
         graph.Write (name) ;
       } // loop over the gains
@@ -165,5 +165,5 @@ int TPedValues::makePlots (TFile & rootFile, const std::string & dirName) const
 int TPedValues::makePlots (const std::string & rootFileName, const std::string & dirName) const 
 {
   TFile saving (rootFileName.c_str (),"APPEND") ;
-  return makePlots (saving,dirName) ;  
+  return makePlots (&saving,dirName) ;  
 }

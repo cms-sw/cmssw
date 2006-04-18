@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2006/04/18 13:54:05 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/18 15:06:13 $
+ * $Revision: 1.2 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -22,6 +22,8 @@
 #include <fstream>
 #include <iostream>
 
+#include "TFile.h"
+
 //! ctor
 EBPedOffset::EBPedOffset (const ParameterSet& paramSet) :
   m_digiCollection (paramSet.getParameter<std::string> ("digiCollection")) ,
@@ -37,7 +39,8 @@ EBPedOffset::EBPedOffset (const ParameterSet& paramSet) :
   m_dbName (paramSet.getParameter<std::string> ("dbName")) ,
   m_dbUserName (paramSet.getParameter<std::string> ("dbUserName")) ,
   m_dbPassword (paramSet.getParameter<std::string> ("dbPassword")) ,
-  m_run (paramSet.getParameter<int> ("run"))    
+  m_run (paramSet.getParameter<int> ("run")) ,
+  m_plotting (paramSet.getParameter<std::string> ("plotting"))    
 {
   std::cout << "[EBPedOffSet][ctor] reading "
             << "\n[EBPedOffSet][ctor] m_DACmin: " << m_DACmin
@@ -128,12 +131,6 @@ void EBPedOffset::analyze (Event const& event,
                                        crystalId,
                                        DACvalues[smId],
                                        itdigi->sample (iSample).adc ()) ;
-/* FIXME
-            printf ("[pietro][input] %d %d %d %d\n", gainId,
-                                       crystalId,
-                                       DACvalues[smId],
-                                       itdigi->sample (iSample).adc ()) ;
-*/
          } // loop over the samples
     } // loop over the digis
 
@@ -153,8 +150,10 @@ void EBPedOffset::endJob ()
   std::cout << "[EBPedOffset][endJob] results map size " 
             << m_pedResult.size ()
             << std::endl ;
-  if (m_dbHostName != "0") writeDb () ;          
   writeXMLFile (m_xmlFile) ;
+
+  if (m_plotting != '0') makePlots () ;
+  if (m_dbHostName != '0') writeDb () ;          
 }
 
 
@@ -162,6 +161,8 @@ void EBPedOffset::endJob ()
 //!FIXME divide into sub-tasks
 void EBPedOffset::writeDb () 
 {
+  std::cout << "[EBPedOffset][writeDb] entering" << std::endl ;
+
   // connect to the database
   EcalCondDBInterface* DBconnection ;
   try {
@@ -305,10 +306,16 @@ void EBPedOffset::writeXMLFile (std::string fileName)
 
 
 //! create the plots of the DAC pedestal trend
-void EBPedOffset::makePlots (const std::string & rootFileName) 
+void EBPedOffset::makePlots () 
 {
+  std::cout << "[EBPedOffset][makePlots] entering" << std::endl ;
+
+  std::cout << "[EBPedOffset][makePlots] map size " 
+            << m_pedValues.size ()
+            << std::endl ;
+
   // create the ROOT file
-  TFile rootFile (rootFileName.c_str (),"RECREATE") ;
+  TFile * rootFile = new TFile (m_plotting.c_str (),"RECREATE") ;
 
   // loop over the supermodules
   for (std::map<int,TPedValues*>::const_iterator smPeds = m_pedValues.begin () ;
@@ -316,14 +323,17 @@ void EBPedOffset::makePlots (const std::string & rootFileName)
        ++smPeds)
     {
       // make a folder in the ROOT file
-      char folderName[80] ;
+      char folderName[120] ;
       sprintf (folderName,"SM%d",smPeds->first) ;
-      rootFile.mkdir (folderName) ;
+      rootFile->mkdir (folderName) ;
       smPeds->second->makePlots (rootFile,folderName) ;
 
     } // loop over the supermodules
-    
-  rootFile.Close () ;
+
+  rootFile->Close () ;
+  delete rootFile ;
+  
+  std::cout << "[EBPedOffset][makePlots] DONE" << std::endl ;
 }
 
 
