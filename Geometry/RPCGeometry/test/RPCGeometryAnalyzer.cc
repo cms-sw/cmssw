@@ -13,10 +13,11 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCRollService.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/Vector/interface/GlobalPoint.h>
-#include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
-#include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
+//#include <Geometry/Vector/interface/GlobalPoint.h>
+//#include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
+//#include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 
 #include <string>
 #include <cmath>
@@ -159,18 +160,21 @@ RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
        //        int iphiDeg = static_cast<int>( cphiDeg );
        //	std::cout << "phi(0,0,0) = " << iphiDeg << " degrees" << std::endl;
 
-       const RPCRollSpecs* s = roll->specs();
-       int nStrips=0;
-       if (detId.region() == 0){ 
-	 const RectangularStripTopology *top = 
-	   dynamic_cast<const RectangularStripTopology*>(&s->topology());
-	 nStrips = top->nstrips();
-       } else {
-	 const TrapezoidalStripTopology* top =
-	   dynamic_cast<const TrapezoidalStripTopology*>(&s->topology());
-	 nStrips = top->nstrips();
+       RPCRollService rollServ(roll);
+       int nStrips = rollServ.nstrips();
+       std::cout << "\nStrips =  "<<std::setw( 4 ) << nStrips<<"\n";
+       for(int is=0;is<nStrips;is++){
+	 std::cout <<"s="<<std::setw(3)<<is+1<<" pos="
+		   <<rollServ.CentreOfStrip(is+1);
+	 if ((is+1)%5==0){ 
+	   float str=is;
+	   std::cout <<"s="<<std::setw(6)<<str<<" pos="
+		     <<rollServ.CentreOfStrip(str)<<" gpos="<<
+	     rollServ.LocalToGlobalPoint(rollServ.CentreOfStrip(str));
+	   std::cout <<std::endl;
+	 }
        }
-       std::cout << std::setw( 4 ) << nStrips;
+       std::cout <<std::endl;
        
 //       double cstrip1  = layer->centerOfStrip(1).phi();
 //       double cstripN  = layer->centerOfStrip(nStrips).phi();
