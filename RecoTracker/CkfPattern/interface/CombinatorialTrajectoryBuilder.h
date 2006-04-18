@@ -9,10 +9,24 @@ class TrajectoryStateUpdator;
 class MeasurementEstimator;
 class NavigationSchool;
 class TrajectorySeed;
-class Trajectory;
 class TrajectoryStateOnSurface;
-class TrajectoryMeasurement;
-class LayerMeasurements;
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
+using namespace std;
 
 class CombinatorialTrajectoryBuilder {
 protected:
@@ -24,23 +38,32 @@ public:
 
   typedef std::vector<Trajectory>     TrajectoryContainer;
 
-  CombinatorialTrajectoryBuilder( const MeasurementTracker*,
-				  const Propagator*,
-				  const TrajectoryStateUpdator*,
-				  const MeasurementEstimator*,
-				  const NavigationSchool*);
+  CombinatorialTrajectoryBuilder( const edm::ParameterSet& conf);
+  
+  void init(const edm::EventSetup& es);
+  
+  /*
+  void run(const TrajectorySeedCollection &collseed,
+	   const edm::EventSetup& es,
+	   TrackCandidateCollection &output);
+  */
 
   /// trajectories building starting from a seed
-  TrajectoryContainer trajectories(const TrajectorySeed&);
+  TrajectoryContainer trajectories(const TrajectorySeed& seed,edm::Event& e);
 
 private:
+  edm::ESHandle<MagneticField> magfield;
+  edm::ESHandle<GeometricSearchTracker> theGeomSearchTracker;
 
-  const MeasurementTracker*     theTracker;
+  const MeasurementTracker*     theMeasurementTracker;
   Propagator*                   thePropagator;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator*   theEstimator;
   const NavigationSchool*       theNavigationSchool;
   const LayerMeasurements*      theLayerMeasurements;
+
+
+  double chi2cut;
 
   int theMaxCand;               /**< Maximum number of trajectory candidates 
 		                     to propagate to the next layer. */
