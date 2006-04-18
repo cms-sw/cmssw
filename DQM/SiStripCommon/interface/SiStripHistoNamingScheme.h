@@ -25,7 +25,7 @@ class SiStripHistoNamingScheme {
   
   /** Simple struct to hold control path parameters. */
   struct HistoName {
-    string      histoName_;
+    string      histoTitle_;
     HistoType   histoType_;
     KeyType     keyType_;
     uint32_t    histoKey_;
@@ -43,10 +43,10 @@ class SiStripHistoNamingScheme {
   /** Returns directory path in the form of a string, based on control
       params (FEC crate, slot and ring, CCU address and channel). */ 
   static string controlPath( uint16_t fec_crate = all_, 
-			     uint16_t fec_slot = all_, 
-			     uint16_t fec_ring = all_, 
-			     uint16_t ccu_addr = all_, 
-			     uint16_t ccu_chan = all_ );
+			     uint16_t fec_slot  = all_, 
+			     uint16_t fec_ring  = all_, 
+			     uint16_t ccu_addr  = all_, 
+			     uint16_t ccu_chan  = all_ );
 
   /** Returns control parameters in the form of a "ControlPath" struct,
       based on directory path string of the form

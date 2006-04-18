@@ -64,7 +64,7 @@ string SiStripHistoNamingScheme::controlPath( uint16_t fec_crate,
       }
     }
   }
-  LogDebug("DQM") << "[SiStripHistoNamingScheme::controlPath]" << folder.str();
+  LogDebug("DQM") << "[SiStripHistoNamingScheme::controlPath]  " << folder.str();
   return folder.str();
 }
 
@@ -203,7 +203,7 @@ string SiStripHistoNamingScheme::histoName( string      his_name,
 SiStripHistoNamingScheme::HistoName SiStripHistoNamingScheme::histoName( string histo_name ) {
   
   HistoName name;
-  name.histoName_   = "";
+  name.histoTitle_  = "";
   name.histoType_   = SiStripHistoNamingScheme::UNKNOWN_TYPE;
   name.keyType_     = SiStripHistoNamingScheme::UNKNOWN_KEY;
   name.histoKey_    = 0;
