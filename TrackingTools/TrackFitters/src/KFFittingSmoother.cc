@@ -6,6 +6,7 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 //#include "Utilities/UI/interface/SimpleConfigurable.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 KFFittingSmoother::~KFFittingSmoother() {
@@ -32,9 +33,9 @@ fit(const TrajectorySeed& aSeed,
   
   vector<Trajectory> fitted = 
     fitter()->fit(aSeed, hits, tsosWithError(firstPredTsos));
-  //    std::cout <<" ))))))))))))))))) IN KFFittingSmoother::fit "<<fitted.size()<<std::endl;
-    
-  return smoothingStep(fitted);
+  LogDebug("TrackingTools/TrackFitters") << "In KFFittingSmoother::fit "<<fitted.size();
+   
+   return smoothingStep(fitted);
 }
 
 
@@ -48,7 +49,7 @@ KFFittingSmoother::smoothingStep(vector<Trajectory>& fitted) const
     vector<Trajectory> smoothed = smoother()->trajectories(*it);
     result.insert(result.end(), smoothed.begin(), smoothed.end());
   }
-  //  std::cout <<" ))))))))))))))))) IN KFFittingSmoother::smoothingStep "<<result.size()<<std::endl;
+  LogDebug("TrackingTools/TrackFitters") << "In KFFittingSmoother::smoothingStep "<<result.size();
   return result;
 }
 vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
