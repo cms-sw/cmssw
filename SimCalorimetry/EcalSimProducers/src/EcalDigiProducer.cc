@@ -8,8 +8,23 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   produces<EEDigiCollection>();
   produces<ESDigiCollection>();
 
-  theParameterMap = new EcalSimParameterMap();
-  theEcalShape = new EcalShape();
+
+  // initialize the default valuer for hardcoded parameters and the EB/EE shape
+
+  double simHitToPhotoelectronsBarrel = params.getUntrackedParameter<double>("simHitToPhotoelectronsBarrel", 2250.);
+  double simHitToPhotoelectronsEndcap = params.getUntrackedParameter<double>("simHitToPhotoelectronsEndcap", 1800.);
+  double photoelectronsToAnalogBarrel = params.getUntrackedParameter<double>("photoelectronsToAnalogBarrel", 1./2250.);
+  double photoelectronsToAnalogEndcap = params.getUntrackedParameter<double>("photoelectronsToAnalogEndcap", 1./1800.);
+  double samplingFactor = params.getUntrackedParameter<double>("samplingFactor", 1.);
+  double timePhase = params.getUntrackedParameter<double>("timePhase", 47.6683);
+  int readoutFrameSize = params.getUntrackedParameter<int>("readoutFrameSize", 10);
+  int binOfMaximum = params.getUntrackedParameter<int>("binOfMaximum", 5);
+  bool doPhotostatistics = params.getUntrackedParameter<bool>("doPhotostatistics", true);
+  theParameterMap = new EcalSimParameterMap(simHitToPhotoelectronsBarrel, simHitToPhotoelectronsEndcap, 
+                                            photoelectronsToAnalogBarrel, photoelectronsToAnalogEndcap, 
+                                            samplingFactor, timePhase, readoutFrameSize, binOfMaximum,
+                                            doPhotostatistics);
+  theEcalShape = new EcalShape(timePhase);
 
   int ESGain = params.getUntrackedParameter<int>("ESGain", 1);
   theESShape = new ESShape(ESGain);
@@ -35,34 +50,6 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
 }
 
 
-
-void EcalDigiProducer::setupFakePedestals() 
-{
-  thePedestals.m_pedestals.clear();
-  // make pedestals for each of these
-  EcalPedestals::Item item;
-  item.mean_x1 = 201.0;
-  item.rms_x1 = 0.62;
-  item.mean_x6 = 199.4;
-  item.rms_x6 = 0.9;
-  item.mean_x12 = 198.8;
-  item.rms_x12 = 1.10;
-
-  // make one vector of all det ids
-  vector<DetId> detIds(theBarrelDets.begin(), theBarrelDets.end());
-  detIds.insert(detIds.end(), theEndcapDets.begin(), theEndcapDets.end());
-
-  // make a pedestal entry for each one 
-  for(std::vector<DetId>::const_iterator detItr = detIds.begin();
-       detItr != detIds.end(); ++detItr)
-  {
-    thePedestals.m_pedestals[detItr->rawId()] = item;
-  }
-
-  theCoder->setPedestals(&thePedestals);
-}
-
-
 EcalDigiProducer::~EcalDigiProducer() 
 {
   delete theParameterMap;
@@ -76,14 +63,11 @@ EcalDigiProducer::~EcalDigiProducer()
 
 void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) 
 {
-//  edm::ESHandle<EcalPedestals> pedHandle;
-//  eventSetup.get<EcalPedestalsRcd>().get( pedHandle );
-//  theCoder->setPedestals(pedHandle.product());
 
   // Step A: Get Inputs
 
-  checkCalibrations(eventSetup);
   checkGeometry(eventSetup);
+  checkCalibrations(eventSetup);
 
   // Get input
   edm::Handle<CrossingFrame> crossingFrame;
@@ -147,7 +131,13 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
 
 
 void  EcalDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup) 
-{}
+{
+
+  // Fake pedestals for initial tests
+
+  setupFakePedestals();
+
+}
 
 
 void EcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) 
@@ -162,7 +152,6 @@ void EcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup)
   if(pGeometry != theGeometry) {
     theGeometry = pGeometry;
     updateGeometry();
-    setupFakePedestals();
   }
 }
 
@@ -187,5 +176,32 @@ void EcalDigiProducer::updateGeometry() {
   theBarrelDigitizer->setDetIds(theBarrelDets);
   theEndcapDigitizer->setDetIds(theEndcapDets);
   theESDigitizer->setDetIds(theESDets);
+}
+
+
+void EcalDigiProducer::setupFakePedestals() 
+{
+  thePedestals.m_pedestals.clear();
+  // make pedestals for each of these
+  EcalPedestals::Item item;
+  item.mean_x1 = 201.0;
+  item.rms_x1 = 0.62;
+  item.mean_x6 = 199.4;
+  item.rms_x6 = 0.9;
+  item.mean_x12 = 198.8;
+  item.rms_x12 = 1.10;
+
+  // make one vector of all det ids
+  vector<DetId> detIds(theBarrelDets.begin(), theBarrelDets.end());
+  detIds.insert(detIds.end(), theEndcapDets.begin(), theEndcapDets.end());
+
+  // make a pedestal entry for each one 
+  for(std::vector<DetId>::const_iterator detItr = detIds.begin();
+       detItr != detIds.end(); ++detItr)
+  {
+    thePedestals.m_pedestals[detItr->rawId()] = item;
+  }
+
+  theCoder->setPedestals(&thePedestals);
 }
 
