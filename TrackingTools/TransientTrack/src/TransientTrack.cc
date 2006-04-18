@@ -16,7 +16,9 @@ TransientTrack::TransientTrack( const Track & tk ) :
 TransientTrack::TransientTrack( const TrackRef & tk ) : 
   Track(*tk), tk_(&(*tk)), tkr_(&tk), stateAtVertexAvailable(false) 
 {
-  tk->chi2();
+  originalTSCP = TrajectoryStateClosestToPoint
+    (parameters(), covariance(), GlobalPoint(0.,0.,0.));
+  //  tk->chi2();
 }
 
 
@@ -32,11 +34,14 @@ TransientTrack::TransientTrack( const TransientTrack & tt ) :
 TransientTrack& TransientTrack::operator=(const TransientTrack & tt)
 {
   if (this == &tt) return *this;
-  Track::operator=(*tk_);
-//   tk_ = tt.persistentTrack();
-// 
-//   originalTSCP = TrajectoryStateClosestToPoint
-//     (parameters(), covariance(), GlobalPoint(0.,0.,0.));
+  //
+  Track::operator=(tt.persistentTrack());
+  tk_ = &(tt.persistentTrack());
+  tkr_ = tt.persistentTrackRef();
+  originalTSCP = tt.originalTSCP;
+  stateAtVertexAvailable = tt.stateAtVertexAvailable;
+  theStateAtVertex = tt.theStateAtVertex;
+  
   return *this;
 }
 
