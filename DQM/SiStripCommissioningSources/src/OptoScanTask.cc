@@ -1,4 +1,4 @@
-#include "DQM/SiStripCommissioningSources/interface/OptoBiasAndGainScanTask.h"
+#include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -8,30 +8,29 @@
 
 // -----------------------------------------------------------------------------
 //
-OptoBiasAndGainScanTask::OptoBiasAndGainScanTask( DaqMonitorBEInterface* dqm,
+OptoScanTask::OptoScanTask( DaqMonitorBEInterface* dqm,
 						  const FedChannelConnection& conn ) :
-  CommissioningTask( dqm, conn ),
+  CommissioningTask( dqm, conn, "OptoScanTask" ),
   opto_()
 {
-  edm::LogInfo("Commissioning") << "[OptoBiasAndGainScanTask::OptoBiasAndGainScanTask] Constructing object...";
+  edm::LogInfo("Commissioning") << "[OptoScanTask::OptoScanTask] Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
-OptoBiasAndGainScanTask::~OptoBiasAndGainScanTask() {
-  edm::LogInfo("Commissioning") << "[OptoBiasAndGainScanTask::~OptoBiasAndGainScanTask] Destructing object...";
+OptoScanTask::~OptoScanTask() {
+  edm::LogInfo("Commissioning") << "[OptoScanTask::~OptoScanTask] Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
-void OptoBiasAndGainScanTask::book( const FedChannelConnection& conn ) {
-  edm::LogInfo("Commissioning") << "[OptoBiasAndGainScanTask::book]";
+void OptoScanTask::book() {
+  edm::LogInfo("Commissioning") << "[OptoScanTask::book]";
   
   uint16_t nbins = 51; //@@ correct?
   uint16_t gains = 4;
 
   string name;
-  uint32_t fed_key = SiStripGenerateKey::fed( conn.fedId(), conn.fedCh() );
 
   // Resize vector of "Histo sets" to accommodate the 4 different gain
   // settings and the two different digital levels ("0" and "1").
@@ -47,26 +46,26 @@ void OptoBiasAndGainScanTask::book( const FedChannelConnection& conn ) {
       name = SiStripHistoNamingScheme::histoName( ss.str(), 
 						  SiStripHistoNamingScheme::SUM2, 
 						  SiStripHistoNamingScheme::FED, 
-						  fed_key,
+						  fedKey(),
 						  SiStripHistoNamingScheme::LLD_CHAN, 
-						  conn.lldChannel() );
-      opto_[igain][ilevel].meSumOfSquares_  = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+						  connection().lldChannel() );
+      opto_[igain][ilevel].meSumOfSquares_  = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
 
       name = SiStripHistoNamingScheme::histoName( ss.str(), 
 						  SiStripHistoNamingScheme::SUM, 
 						  SiStripHistoNamingScheme::FED, 
-						  fed_key,
+						  fedKey(),
 						  SiStripHistoNamingScheme::LLD_CHAN, 
-						  conn.lldChannel() );
-      opto_[igain][ilevel].meSumOfContents_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+						  connection().lldChannel() );
+      opto_[igain][ilevel].meSumOfContents_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
 
       name = SiStripHistoNamingScheme::histoName( ss.str(), 
 						  SiStripHistoNamingScheme::NUM, 
 						  SiStripHistoNamingScheme::FED, 
-						  fed_key,
+						  fedKey(),
 						  SiStripHistoNamingScheme::LLD_CHAN, 
-						  conn.lldChannel() );
-      opto_[igain][ilevel].meNumOfEntries_  = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+						  connection().lldChannel() );
+      opto_[igain][ilevel].meNumOfEntries_  = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
 
       opto_[igain][ilevel].vSumOfSquares_.resize(nbins,0);
       opto_[igain][ilevel].vSumOfSquaresOverflow_.resize(nbins,0);
@@ -80,14 +79,14 @@ void OptoBiasAndGainScanTask::book( const FedChannelConnection& conn ) {
 
 // -----------------------------------------------------------------------------
 //
-void OptoBiasAndGainScanTask::fill( const SiStripEventSummary& summary,
-				    const edm::DetSet<SiStripRawDigi>& digis ) {
-  LogDebug("Commissioning") << "[OptoBiasAndGainScanTask::fill]";
+void OptoScanTask::fill( const SiStripEventSummary& summary,
+			 const edm::DetSet<SiStripRawDigi>& digis ) {
+  LogDebug("Commissioning") << "[OptoScanTask::fill]";
 
   //@@ if scope mode length is in trigger fed, then 
   //@@ can add check here on number of digis
   if ( digis.data.empty() ) {
-    edm::LogError("Commissioning") << "[OptoBiasAndGainScanTask::fill]" 
+    edm::LogError("Commissioning") << "[OptoScanTask::fill]" 
 				   << " Unexpected number of digis! " 
 				   << digis.data.size(); 
   } else {
@@ -101,10 +100,10 @@ void OptoBiasAndGainScanTask::fill( const SiStripEventSummary& summary,
       for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
 	if ( opto_[gain].size() != 2 ) { opto_[gain].resize( 2 ); }
       }
-      edm::LogWarning("Commissioning") << "[OptoBiasAndGainScanTask::fill]" 
+      edm::LogWarning("Commissioning") << "[OptoScanTask::fill]" 
 				       << "  Unexpected gain value! " << gain;
     }
-    LogDebug("Commissioning") << "[OptoBiasAndGainScanTask::fill]" 
+    LogDebug("Commissioning") << "[OptoScanTask::fill]" 
 			      << "  Gain: " << opto.first 
 			      << "  Bias: " << opto.second;
     
@@ -112,7 +111,7 @@ void OptoBiasAndGainScanTask::fill( const SiStripEventSummary& summary,
     // Find digital "0" and digital "1" levels from tick marks within scope mode data
     pair< uint16_t, uint16_t > digital_range;
     locateTicks( digis, digital_range, false );
-    LogDebug("Commissioning") << "[OptoBiasAndGainScanTask::fill]" 
+    LogDebug("Commissioning") << "[OptoScanTask::fill]" 
 			      << "  Digital \"0\" level: " << digital_range.first 
 			      << "  Digital \"1\" level: " << digital_range.second;
 
@@ -158,8 +157,8 @@ void OptoBiasAndGainScanTask::fill( const SiStripEventSummary& summary,
 
 // -----------------------------------------------------------------------------
 //
-void OptoBiasAndGainScanTask::update() {
-  LogDebug("Commissioning") << "[OptoBiasAndGainScanTask::update]";
+void OptoScanTask::update() {
+  LogDebug("Commissioning") << "[OptoScanTask::update]";
 
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
     for ( uint16_t ilevel = 0; ilevel < opto_[igain].size(); ilevel++ ) { 
@@ -176,10 +175,10 @@ void OptoBiasAndGainScanTask::update() {
 
 // -----------------------------------------------------------------------------
 //
-void OptoBiasAndGainScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis, 
-					   pair< uint16_t, uint16_t >& digital_range, 
-					   bool first_tick_only ) {
-
+void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis, 
+				pair< uint16_t, uint16_t >& digital_range, 
+				bool first_tick_only ) {
+  
   // Copy ADC values and sort
   vector<uint16_t> adc; adc.reserve( digis.data.size() ); 
   for ( uint16_t iadc = 0; iadc < digis.data.size(); iadc++ ) { adc.push_back( digis.data[iadc].adc() ); }

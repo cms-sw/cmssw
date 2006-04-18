@@ -1,22 +1,22 @@
-#ifndef DQM_SiStripCommissioningSources_OptoBiasAndGainScanTask_h
-#define DQM_SiStripCommissioningSources_OptoBiasAndGainScanTask_h
+#ifndef DQM_SiStripCommissioningSources_OptoScanTask_H
+#define DQM_SiStripCommissioningSources_OptoScanTask_H
 
 #include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
 #include <vector>
 
 /**
-   @class OptoBiasAndGainScanTask
+   @class OptoScanTask
 */
-class OptoBiasAndGainScanTask : public CommissioningTask {
+class OptoScanTask : public CommissioningTask {
 
  public:
   
-  OptoBiasAndGainScanTask( DaqMonitorBEInterface*, const FedChannelConnection& );
-  virtual ~OptoBiasAndGainScanTask();
+  OptoScanTask( DaqMonitorBEInterface*, const FedChannelConnection& );
+  virtual ~OptoScanTask();
   
  private: // ----- private methods -----
 
-  virtual void book( const FedChannelConnection& );
+  virtual void book();
   virtual void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
@@ -36,5 +36,5 @@ class OptoBiasAndGainScanTask : public CommissioningTask {
 
 };
 
-#endif // DQM_SiStripCommissioningSources_OptoBiasAndGainScanTask_h
+#endif // DQM_SiStripCommissioningSources_OptoScanTask_H
 

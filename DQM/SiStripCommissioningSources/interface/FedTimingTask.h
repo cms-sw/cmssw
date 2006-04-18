@@ -15,7 +15,7 @@ class FedTimingTask : public CommissioningTask {
   
  private:
 
-  virtual void book( const FedChannelConnection& );
+  virtual void book();
   virtual void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();

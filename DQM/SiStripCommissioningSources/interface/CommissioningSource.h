@@ -1,6 +1,8 @@
 #ifndef DQM_SiStripCommissioningSources_CommissioningSource_H
 #define DQM_SiStripCommissioningSources_CommissioningSource_H
 
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include <string>
@@ -34,8 +36,9 @@ class CommissioningSource : public edm::EDAnalyzer {
   /** Private default constructor. */
   CommissioningSource();
 
-  bool createTask( const edm::EventSetup& setup, SiStripEventSummary::Task task = SiStripEventSummary::UNKNOWN_TASK );
-
+  void createDirs();
+  void createTask( SiStripEventSummary::Task task );
+  
  private: // ----- data members -----
 
   string inputModuleLabel_;
@@ -47,7 +50,19 @@ class CommissioningSource : public edm::EDAnalyzer {
   TaskMap tasks_;
   /** */
   int updateFreq_;
-  
+  /** */
+  string filename_;
+  /** */
+  uint32_t run_;
+  /** */
+  bool firstEvent_;
+  /** */
+  SiStripFedCabling* fedCabling_;
+  /** */
+  SiStripFecCabling* fecCabling_;
+  /** */
+  bool cablingTask_;
+
 };
 
 #endif // DQM_SiStripCommissioningSources_CommissioningSource_H

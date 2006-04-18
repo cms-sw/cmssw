@@ -10,7 +10,7 @@
 //
 VpspScanTask::VpspScanTask( DaqMonitorBEInterface* dqm,
 			    const FedChannelConnection& conn ) :
-  CommissioningTask( dqm, conn ),
+  CommissioningTask( dqm, conn, "VpspScanTask" ),
   vpsp_()
 {
   edm::LogInfo("Commissioning") << "[VpspScanTask::VpspScanTask] Constructing object...";
@@ -24,41 +24,40 @@ VpspScanTask::~VpspScanTask() {
 
 // -----------------------------------------------------------------------------
 //
-void VpspScanTask::book( const FedChannelConnection& conn ) {
+void VpspScanTask::book() {
   edm::LogInfo("Commissioning") << "[VpspScanTask::book]";
   
   uint16_t nbins = 60;
-
+ 
   string name;
-  uint32_t fed_key = SiStripGenerateKey::fed( conn.fedId(), conn.fedCh() );
 
   vpsp_.resize(2);
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
-    if ( conn.i2cAddr(iapv) ) { 
+    if ( connection().i2cAddr(iapv) ) { 
       
       name = SiStripHistoNamingScheme::histoName( "VpspScan", 
 						  SiStripHistoNamingScheme::SUM2, 
 						  SiStripHistoNamingScheme::FED, 
-						  fed_key,
+						  fedKey(),
 						  SiStripHistoNamingScheme::APV, 
-						  conn.i2cAddr(iapv) );
-      vpsp_[iapv].meSumOfSquares_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+						  connection().i2cAddr(iapv) );
+      vpsp_[iapv].meSumOfSquares_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
       
       name = SiStripHistoNamingScheme::histoName( "VpspScan", 
 						  SiStripHistoNamingScheme::SUM, 
 						  SiStripHistoNamingScheme::FED, 
-						  fed_key,
+						  fedKey(),
 						  SiStripHistoNamingScheme::APV, 
-						  conn.i2cAddr(iapv) );
-      vpsp_[iapv].meSumOfContents_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+						  connection().i2cAddr(iapv) );
+      vpsp_[iapv].meSumOfContents_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
       
       name = SiStripHistoNamingScheme::histoName( "VpspScan", 
 						  SiStripHistoNamingScheme::NUM, 
 						  SiStripHistoNamingScheme::FED, 
-						  fed_key,
+						  fedKey(),
 						  SiStripHistoNamingScheme::APV, 
-						  conn.i2cAddr(iapv) );
-      vpsp_[iapv].meNumOfEntries_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+						  connection().i2cAddr(iapv) );
+      vpsp_[iapv].meNumOfEntries_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
       
       vpsp_[iapv].vSumOfSquares_.resize(nbins,0);
       vpsp_[iapv].vSumOfSquaresOverflow_.resize(nbins,0);

@@ -9,7 +9,7 @@
 //
 ApvTimingTask::ApvTimingTask( DaqMonitorBEInterface* dqm,
 			      const FedChannelConnection& conn ) :
-  CommissioningTask( dqm, conn ),
+  CommissioningTask( dqm, conn, "ApvTimingTask" ),
   timing_(),
   nBins_(40) //@@ this should be from number of scope mode samples (mean booking in event loop and putting scope mode length in trigger fed)
 {
@@ -24,37 +24,36 @@ ApvTimingTask::~ApvTimingTask() {
 
 // -----------------------------------------------------------------------------
 //
-void ApvTimingTask::book( const FedChannelConnection& conn ) {
+void ApvTimingTask::book() {
   edm::LogInfo("Commissioning") << "[ApvTimingTask::book]";
 
   uint16_t nbins = 24 * nBins_; // 24 "fine" pll skews possible
 
   string name;
-  uint32_t fed_key = SiStripGenerateKey::fed( conn.fedId(), conn.fedCh() );
   
   name = SiStripHistoNamingScheme::histoName( "ApvTiming", 
 					      SiStripHistoNamingScheme::SUM2, 
 					      SiStripHistoNamingScheme::FED, 
-					      fed_key,
+					      fedKey(),
 					      SiStripHistoNamingScheme::LLD_CHAN, 
-					      conn.lldChannel() );
-  timing_.meSumOfSquares_ = dqm_->book1D( name, name, nbins, -0.5, nBins_*25.-0.5 );
+					      connection().lldChannel() );
+  timing_.meSumOfSquares_ = dqm()->book1D( name, name, nbins, -0.5, nBins_*25.-0.5 );
   
   name = SiStripHistoNamingScheme::histoName( "ApvTiming", 
 					      SiStripHistoNamingScheme::SUM, 
 					      SiStripHistoNamingScheme::FED, 
-					      fed_key,
+					      fedKey(),
 					      SiStripHistoNamingScheme::LLD_CHAN, 
-					      conn.lldChannel() );
-  timing_.meSumOfContents_ = dqm_->book1D( name, name, nbins, -0.5, nBins_*25.-0.5 );
+					      connection().lldChannel() );
+  timing_.meSumOfContents_ = dqm()->book1D( name, name, nbins, -0.5, nBins_*25.-0.5 );
   
   name = SiStripHistoNamingScheme::histoName( "ApvTiming", 
 					      SiStripHistoNamingScheme::NUM, 
 					      SiStripHistoNamingScheme::FED, 
-					      fed_key,
+					      fedKey(),
 					      SiStripHistoNamingScheme::LLD_CHAN, 
-					      conn.lldChannel() );
-  timing_.meNumOfEntries_ = dqm_->book1D( name, name, nbins, -0.5, nBins_*25.-0.5 );
+					      connection().lldChannel() );
+  timing_.meNumOfEntries_ = dqm()->book1D( name, name, nbins, -0.5, nBins_*25.-0.5 );
   
   timing_.vSumOfSquares_.resize(nbins,0);
   timing_.vSumOfSquaresOverflow_.resize(nbins,0);

@@ -9,7 +9,7 @@
 //
 PedestalsTask::PedestalsTask( DaqMonitorBEInterface* dqm,
 			      const FedChannelConnection& conn ) :
-  CommissioningTask( dqm, conn ),
+  CommissioningTask( dqm, conn, "PedestalsTask" ),
   peds_()
 {
   edm::LogInfo("Commissioning") << "[PedestalsTask::PedestalsTask] Constructing object...";
@@ -23,37 +23,36 @@ PedestalsTask::~PedestalsTask() {
 
 // -----------------------------------------------------------------------------
 //
-void PedestalsTask::book( const FedChannelConnection& conn ) {
+void PedestalsTask::book() {
   edm::LogInfo("Commissioning") << "[PedestalsTask::book]";
   
   uint16_t nbins = 256;
   
   string name;
-  uint32_t fed_key = SiStripGenerateKey::fed( conn.fedId(), conn.fedCh() );
   
   name = SiStripHistoNamingScheme::histoName( "Pedestals", 
 					      SiStripHistoNamingScheme::SUM2, 
 					      SiStripHistoNamingScheme::FED, 
-					      fed_key,
+					      fedKey(),
 					      SiStripHistoNamingScheme::LLD_CHAN, 
-					      conn.lldChannel() );
-  peds_.meSumOfSquares_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+					      connection().lldChannel() );
+  peds_.meSumOfSquares_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
 
   name = SiStripHistoNamingScheme::histoName( "Pedestals", 
 					      SiStripHistoNamingScheme::SUM, 
 					      SiStripHistoNamingScheme::FED, 
-					      fed_key,
+					      fedKey(),
 					      SiStripHistoNamingScheme::LLD_CHAN, 
-					      conn.lldChannel() );
-  peds_.meSumOfContents_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+					      connection().lldChannel() );
+  peds_.meSumOfContents_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
 
   name = SiStripHistoNamingScheme::histoName( "Pedestals", 
 					      SiStripHistoNamingScheme::NUM, 
 					      SiStripHistoNamingScheme::FED, 
-					      fed_key,
+					      fedKey(),
 					      SiStripHistoNamingScheme::LLD_CHAN, 
-					      conn.lldChannel() );
-  peds_.meNumOfEntries_ = dqm_->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+					      connection().lldChannel() );
+  peds_.meNumOfEntries_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
 
   peds_.vSumOfSquares_.resize(nbins,0);
   peds_.vSumOfSquaresOverflow_.resize(nbins,0);

@@ -10,17 +10,30 @@ using namespace std;
 // -----------------------------------------------------------------------------
 //
 CommissioningTask::CommissioningTask( DaqMonitorBEInterface* dqm,
-				      const FedChannelConnection& conn ) :
+				      const FedChannelConnection& conn,
+				      const string& my_name ) :
   dqm_(dqm),
   updateFreq_(0),
   fillCntr_(0),
   connection_(conn),
-  booked_(false)
+  fedKey_(0),
+  fecKey_(0),
+  booked_(false),
+  fedChannel_(0,0),
+  myName_(my_name)
 {
   LogDebug("Commissioning") << "[CommissioningTask::CommissioningTask]" 
 			    << " Constructing object for FED id/ch " 
 			    << connection_.fedId() << "/" 
 			    << connection_.fedCh();
+  fedKey_ = SiStripGenerateKey::fedKey( connection_.fedId(), 
+					connection_.fedCh() );
+  fecKey_ = SiStripGenerateKey::controlKey( connection_.fecCrate(),
+					    connection_.fecSlot(),
+					    connection_.fecRing(),
+					    connection_.ccuAddr(),
+					    connection_.ccuChan(),
+					    connection_.lldChannel() );
 }
 
 // -----------------------------------------------------------------------------
@@ -34,7 +47,7 @@ CommissioningTask::~CommissioningTask() {
 
 // -----------------------------------------------------------------------------
 //
-void CommissioningTask::book( const FedChannelConnection& ) {
+void CommissioningTask::book() {
   edm::LogError("Commissioning") << "[CommissioningTask::book]"
 				 << " This virtual method should always be over-ridden!";
 }
@@ -46,7 +59,7 @@ void CommissioningTask::bookHistograms() {
 				<< " Booking histograms for FED id/ch: "
 				<< connection_.fedId() << "/"
 				<< connection_.fedCh();
-  book( connection_ );
+  book();
   booked_ = true;
 }
 
@@ -91,14 +104,20 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
   // Set squared contents (and overflow if necessary)
   if ( remaining <= squared_value ) { 
     histo_set.vSumOfSquaresOverflow_[bin] +=1;
-    histo_set.vSumOfSquares_[bin] = squared_value - remaining;
+    histo_set.vSumOfSquares_[bin] += (squared_value-remaining);
   } else { 
-    histo_set.vSumOfSquares_[bin] = squared_value;
+    histo_set.vSumOfSquares_[bin] += squared_value;
   }
-
+  
   // Set contents and entries
   histo_set.vSumOfContents_[bin] += value;
   histo_set.vNumOfEntries_[bin]++;
+
+//   cout << bin << " " 
+//        << histo_set.vSumOfSquaresOverflow_[bin] << " " 
+// 	 << histo_set.vSumOfSquares_[bin] << " " 
+// 	 << histo_set.vSumOfContents_[bin] << " " 
+// 	 << histo_set.vNumOfEntries_[bin] << endl;
   
 }
 
@@ -125,3 +144,4 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
   }
   
 }
+
