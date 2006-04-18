@@ -32,7 +32,6 @@ public:
 private:
 
   unsigned long eventCounter_;
-  int verbosity_; 
   std::string productLabel_;
   SiPixelFedCablingMap * fedCablingMap_;
 

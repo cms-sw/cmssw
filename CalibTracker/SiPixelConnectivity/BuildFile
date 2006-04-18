@@ -3,6 +3,8 @@
 <use name=Foundation/PluginManager>
 <use name=CondFormats/SiPixelObjects>
 <use name=CondFormats/DataRecord>
+<use name=Geometry/Records>
+<use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/FEDRawData> 
@@ -19,8 +21,10 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
-<use name=CondFormats/SiPixelObjects>
 <use name=CondFormats/DataRecord>
+<use name=CondFormats/SiPixelObjects>
+<use name=Geometry/Records>
+<use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/FEDRawData>

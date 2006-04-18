@@ -3,6 +3,7 @@ using namespace std;
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
@@ -22,16 +23,11 @@ using namespace std;
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 
 
-#include <iostream>
-
-
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf ) 
-  : eventCounter_(0), verbosity_(0),  fedCablingMap_(0)
+  : eventCounter_(0), fedCablingMap_(0)
 {
-  cout << " HERE ** SiPixelRawToDigi constructor!" << endl;
-  verbosity_ =  conf.getParameter<int>("Verbosity");
-  cout << " Verbosity is: " << verbosity_ << endl;
+  edm::LogInfo("SiPixelRawToDigi")<< " HERE ** constructor!" << endl;
   produces<PixelDigiCollection>();
 }
 
@@ -40,16 +36,13 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 SiPixelRawToDigi::~SiPixelRawToDigi() {
 //  delete formatter;
 //  delete connectivity;
-  cout << " HERE ** SiPixelRawToDigi destructor!" << endl;
+  edm::LogInfo("SiPixelRawToDigi")  << " HERE ** SiPixelRawToDigi destructor!";
 }
 
 
 // -----------------------------------------------------------------------------
 void SiPixelRawToDigi::beginJob(const edm::EventSetup& c) 
 {
-  cout << " HERE ** SiPixelRawToDigi beginJob" << endl;
-//  formatter = new PixelDataFormatter;
-//  connectivity = new PixelFEDConnectivity;
 }
 
 // -----------------------------------------------------------------------------
@@ -74,10 +67,10 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   typedef vector<PixelFEDCabling *>::iterator FI;
   for (FI it = cabling.begin(); it != cabling.end(); it++) {
      PixelDataFormatter::Digis digis;
-     cout << " PRODUCE DIGI FOR FED: " <<  (**it).id() << endl;
+     LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  (**it).id() << endl;
      
      const FEDRawData& fedRawData = buffers->FEDData( (**it).id() );
-     cout << "sizeof data buffer: " << fedRawData.size() << endl;
+     LogDebug("SiPixelRawToDigi")<< "sizeof data buffer: " << fedRawData.size() << endl;
      formatter.interpretRawData( **it, fedRawData, digis);
 
      typedef PixelDataFormatter::Digis::iterator ID;

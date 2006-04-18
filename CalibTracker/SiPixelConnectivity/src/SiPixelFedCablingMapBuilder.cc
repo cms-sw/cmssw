@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "CalibTracker/SiPixelConnectivity/interface/SiPixelFedCablingMapBuilder.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -50,11 +50,12 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
 
 
   cout << "read tracker geometry..." << endl;
-  edm::ESHandle<TrackingGeometry> pDD;
+  edm::ESHandle<TrackerGeometry> pDD;
   setup.get<TrackerDigiGeometryRecord>().get( pDD );
   cout <<" There are "<<pDD->dets().size() <<" detectors"<<endl;
 
-  typedef TrackingGeometry::DetContainer::const_iterator ITG;
+//  typedef TrackingGeometry::DetContainer::const_iterator ITG;
+  typedef TrackerGeometry::DetContainer::const_iterator ITG;
   int npxdets = 0;
   for (ITG it = pDD->dets().begin(); it != pDD->dets().end(); it++){
     if (dynamic_cast<PixelGeomDetUnit*>(*it) ==0 ) continue;

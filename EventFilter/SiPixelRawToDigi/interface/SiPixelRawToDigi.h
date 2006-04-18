@@ -33,12 +33,7 @@ public:
 
 private:
 
-  /// formatter does actual conversion
-//  PixelDataFormatter * formatter;
-//  PixelFEDConnectivity * connectivity;
   unsigned long eventCounter_;
-  int verbosity_; 
-
-    SiPixelFedCablingMap * fedCablingMap_;
+  SiPixelFedCablingMap * fedCablingMap_;
 };
 #endif

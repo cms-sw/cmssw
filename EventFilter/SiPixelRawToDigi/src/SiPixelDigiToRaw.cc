@@ -3,6 +3,7 @@ using namespace std;
 #include "EventFilter/SiPixelRawToDigi/interface/SiPixelDigiToRaw.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
@@ -16,22 +17,14 @@ using namespace std;
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 
-
-
-#include <iostream>
-
 SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
   eventCounter_(0),
-  verbosity_(0),
   productLabel_(""),
   fedCablingMap_(0)
 {
-  std::cout << " HERE ** SiPixelDigiToRaw::SiPixelDigiToRaw]"
-          << " Constructing object..." << std::endl;
 
   // Set some private data members
   productLabel_ = pset.getParameter<std::string>("DigiProducer");
-  verbosity_    = pset.getParameter<int>("Verbosity");
 
   // Define EDProduct type
   produces<FEDRawDataCollection>();
@@ -40,17 +33,11 @@ SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
 
 // -----------------------------------------------------------------------------
 SiPixelDigiToRaw::~SiPixelDigiToRaw() {
-//  delete formatter;
-//  delete connectivity;
-  cout << " HERE ** SiPixelDigiToRaw destructor!, events: "
-       <<eventCounter_ << endl;
 }
 
 // -----------------------------------------------------------------------------
 void SiPixelDigiToRaw::beginJob(const edm::EventSetup& setup)
 {
-  cout << " HERE ** SiPixelDigiToRaw beginJob" << endl;
-
 }
 
 // -----------------------------------------------------------------------------
@@ -58,9 +45,9 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
                               const edm::EventSetup& es)
 {
   eventCounter_++;
-  if (verbosity_>0) std::cout << "[SiPixelDigiToRaw::produce] "
+  edm::LogInfo("SiPixelDigiToRaw") << "[SiPixelDigiToRaw::produce] "
                         << "event number: "
-                        << eventCounter_ << std::endl;
+                        << eventCounter_;
 
 
   PixelDataFormatter formatter;
@@ -95,17 +82,14 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
 
   typedef vector<PixelFEDCabling *>::iterator FI;
   for (FI it = cabling.begin(); it != cabling.end(); it++) {
-    cout << " PRODUCE DATA FOR FED_id: " << (**it).id() << endl;
+    LogDebug("SiPixelDigiToRaw")<<" PRODUCE DATA FOR FED_id: " << (**it).id();
     FEDRawData * rawData = formatter.formatData( (**it), digis);
     FEDRawData& fedRawData = buffers->FEDData( (**it).id() ); 
-    cout << "** SiPixelDigiToRaw data size: " << sizeof(*rawData) << endl;
     fedRawData = *rawData;
-    cout << "size of data in fedRawData: " << fedRawData.size() << endl;
+    LogDebug("SiPixelDigiToRaw")<<"size of data in fedRawData: "<<fedRawData.size();
   }
   
-
   ev.put( buffers );
-  if (verbosity_>0) std::cout << "[SiPixelDigiToRaw::produce], after "<<endl;
   
 }
 

@@ -7,6 +7,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <bitset>
 #include <sstream>
@@ -32,12 +33,12 @@ PixelDataFormatter::PixelDataFormatter()
   int s64 = sizeof(Word64);
   int s8  = sizeof(char);
   if ( s8 != 1 || s32 != 4*s8 || s64 != 2*s32) {
-     cout << "**PixelDataFormatter**, unexpected sizes: "
+     edm::LogError("**PixelDataFormatter**")
+          <<" unexpected sizes: "
           <<"  size of char is: " << s8
           <<", size of Word32 is: " << s32
           <<", size of Word64 is: " << s64
-          <<", send exception" << endl;
-//     throw Genexception("** PixelDataFormatter, incorect sizes..");
+          <<", send exception" ;
   }
 }
 
@@ -46,14 +47,12 @@ void PixelDataFormatter::interpretRawData(const PixelFEDCabling& fed, const FEDR
 
   try {
     int nWords = rawData.size()/8;
-    cout <<"input size: "<<nWords<<" (8-bytes words)"<<endl;
+    LogDebug(" PixelDataFormatter ") <<"input size: "<<nWords<<" (8-bytes words)";
     if (nWords !=0) {
       const Word64 * word = reinterpret_cast<const Word64* >(rawData.data());
       for (int i=0; i<nWords; i++) {
-//        if(testOut)
-          if (true) {
-            cout<<"word64: "<<*reinterpret_cast<const bitset<64>*>(word)<<endl;
-          }
+        LogDebug("PixelDataFormatter") << "word64: " 
+            << *reinterpret_cast<const bitset<64>*>(word);
         static const Word64 WORD32_mask  = 0xffffffff;
         Word32 w1 =  *word >> 32 & WORD32_mask;
         Word32 w2 =  *word       & WORD32_mask;
@@ -64,7 +63,7 @@ void PixelDataFormatter::interpretRawData(const PixelFEDCabling& fed, const FEDR
     }
   }
   catch ( cms::Exception & err) {
-    cout << " **PixelDataFormatter, exception catched: "<< err.what() << endl;
+    edm::LogError("PixelDataFormatter, exception") <<err.what();
   }
 }
 
@@ -80,6 +79,7 @@ FEDRawData * PixelDataFormatter::formatData(
     for(int idxRoc = 0; idxRoc < numberOfRocs; idxRoc++) {
       PixelROC * roc = link->roc(idxRoc);
       Digis::const_iterator im= digis.find(roc->rawId());
+      if (im == digis.end() ) continue;
       Range range(im->second.begin(), im->second.end());
       roc2words(*roc, range, words);
     }
@@ -111,9 +111,11 @@ FEDRawData * PixelDataFormatter::formatData(
   int dataSize = words.size() * sizeof(Word32);
   if (dataSize == 0) return new FEDRawData(0);
   FEDRawData * rawData = new FEDRawData(dataSize);
-  cout << " ** PixelDataFormatter dataSize is: " << dataSize 
+/*
+  edm::LogDebug("kuku")<< " ** PixelDataFormatter dataSize is: " << dataSize 
                   <<"("<<words.size()<<"*"<<sizeof(Word32)<<")"
-                  <<" size of raw data: "<< sizeof(*rawData) << endl;
+                  <<" size of raw data: "<< sizeof(*rawData) ;
+*/
 
   //
   // write data
@@ -121,12 +123,10 @@ FEDRawData * PixelDataFormatter::formatData(
   Word64 * word = reinterpret_cast<Word64* >(rawData->data());
   for (unsigned int i=0; i < words.size(); i+=2) {
     *word = (Word64(words[i]) << 32 ) | words[i+1];
-//  if (uv.debugOut) {
-//    uv.debugOut <<"word1+2: "
 //                <<*reinterpret_cast<bitset<32>*>(&(words[i]))
 //                <<*reinterpret_cast<bitset<32>*>(&(words[i+1]))<<endl;
-      cout <<"word64:  "<< *reinterpret_cast<bitset<64>*> (word)<<endl;
-//    }
+      LogDebug("PixelDataFormatter")  <<"word64:  "
+       << *reinterpret_cast<bitset<64>*> (word);
     word++;
   }
 
@@ -135,12 +135,9 @@ FEDRawData * PixelDataFormatter::formatData(
   //
   if (word != reinterpret_cast<Word64* >(rawData->data()+dataSize)) {
     string s = "** PROBLEM in PixelDataFormatter !!!";
-    cout << s << ", send exception" << endl;
-//    throw Genexception(s);
+    throw cms::Exception(s);
   }
-  //
-  // end
-  //
+
   return rawData;
 }
  
@@ -155,10 +152,9 @@ void PixelDataFormatter::roc2words(
     PixelROC::GlobalPixel glo = { pd.row(), pd.column() };
     PixelROC::LocalPixel  loc = roc.toLocal(glo);
     if (! roc.inside(loc) ) continue;
-    cout << "DIGI: row: " << pd.row()
+    LogDebug("PixelDataFormatter")<< "DIGI: row: " << pd.row()
                <<", col: " << pd.column()
-               <<", adc: " << pd.adc()
-               <<endl;
+               <<", adc: " << pd.adc() ;
     Word32 word;
     word =   (roc.link()->id() << LINK_shift)
            | (roc.idInLink() << ROC_shift)
@@ -189,19 +185,16 @@ void PixelDataFormatter::word2digi(const PixelFEDCabling & fed,
   int adc   = (word >> ADC_shift) & ADC_mask;
 
 
-  throw cms::Exception("kuku");
   PixelFEDLink * link = fed.link(ilink);
   if (!link) {
-    ostringstream stm;
+    stringstream stm;
     stm << "FED shows no link of id= " << ilink;
-    cout << stm.str() << endl;
-//    throw Genexception(s);
+    throw cms::Exception(stm.str());
   }
   PixelROC * roc = link->roc(iroc);
   if (!roc) {
-    ostringstream stm;
+    stringstream stm;
     stm << "Link=" << ilink << " shows no ROC with id=" << iroc;
-    cout << stm.str() << endl;
     throw cms::Exception(stm.str());
   }
 
@@ -209,10 +202,9 @@ void PixelDataFormatter::word2digi(const PixelFEDCabling & fed,
   PixelDigi pd( glo.row, glo.col, adc);
 //
 //static bool testOut = uv.testOut;
-  cout << "DIGI: row: " << pd.row()
+  LogDebug("PixelDataFormatter")<< "DIGI: row: " << pd.row()
                           <<", col: " << pd.column()
-                          <<", adc: " << pd.adc()
-                          <<endl;
+                          <<", adc: " << pd.adc();
   //
   //
   uint32_t detid = roc->rawId();
