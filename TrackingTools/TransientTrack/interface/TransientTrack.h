@@ -38,7 +38,7 @@ namespace reco {
     TrajectoryStateOnSurface impactPointState() const;
 
     // access to original persistent track
-    const Track & persistentTrack() const { return *tk_; }
+    //    const Track & persistentTrack() const { return *tk_; }
     const TrackRef * persistentTrackRef() const { return tkr_; }
 
     TrackCharge charge() const {return Track::charge();}
@@ -51,7 +51,7 @@ namespace reco {
 
     void calculateStateAtVertex() const;
 
-    const Track * tk_;
+    //    const Track * tk_;
     const TrackRef * tkr_;
 
     TrajectoryStateClosestToPoint originalTSCP;
