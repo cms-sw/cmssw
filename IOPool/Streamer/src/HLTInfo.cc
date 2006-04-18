@@ -1,6 +1,8 @@
 
 #include "IOPool/Streamer/interface/BufferArea.h"
+#include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
+#include "IOPool/Streamer/interface/Utilities.h"
 
 namespace 
 {
@@ -33,6 +35,7 @@ namespace stor
     evtbuf_q_(edm::getEventBuffer(ptr_size,100)),
     frag_q_(edm::getEventBuffer(frag_size,200))
   {
+     prods_.setFrozen();
   }
 
   HLTInfo::~HLTInfo()
@@ -53,6 +56,35 @@ namespace stor
 	pr.copyProduct(pi->second);
       }
   }
+
+  void HLTInfo::declareStreamers(const edm::ProductRegistry& reg)
+  {
+    typedef edm::ProductRegistry::ProductList ProdList;
+    ProdList plist(reg.productList());
+    ProdList::const_iterator pi(plist.begin()),pe(plist.end());
+
+    for(;pi!=pe;++pi) {
+      //pi->second.init();
+      std::string real_name = edm::getTheRealName(pi->second.fullClassName_);
+      //FDEBUG(6) << "declare: " << real_name << std::endl;
+      edm::loadCap(real_name);
+    }
+  }
+
+  void HLTInfo::buildClassCache(const edm::ProductRegistry& reg)
+  {
+    typedef edm::ProductRegistry::ProductList ProdList;
+    ProdList plist(reg.productList());
+    ProdList::const_iterator pi(plist.begin()),pe(plist.end());
+
+    for(;pi!=pe;++pi) {
+      //pi->second.init();
+      std::string real_name = edm::getTheRealName(pi->second.fullClassName_);
+      //FDEBUG(6) << "BuildReadData: " << real_name << std::endl;
+      edm::doBuildRealData(real_name);
+    }
+  }
+
 
   boost::mutex HLTInfo::lock_;
 }

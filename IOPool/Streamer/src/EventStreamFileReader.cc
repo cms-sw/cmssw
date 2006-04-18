@@ -29,11 +29,12 @@ namespace edmtestp
       }
 
     std::auto_ptr<SendJobHeader> p = readHeaderFromStream(ist_);
-    edm::mergeWithRegistry(*p,productRegistry());
+    SendDescs & descs = p->descs_;
+    edm::mergeWithRegistry(descs, productRegistry());
 
     // jbk - the next line should not be needed
-    edm::declareStreamers(productRegistry());
-    edm::buildClassCache(productRegistry());
+    edm::declareStreamers(descs);
+    edm::buildClassCache(descs);
     loadExtraClasses();
   }
 

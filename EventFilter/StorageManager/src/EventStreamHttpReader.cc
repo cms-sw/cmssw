@@ -82,13 +82,14 @@ namespace edmtestp
     headerurl_[stlen] = '\0';
 
     std::auto_ptr<SendJobHeader> p = readHeader();
-    edm::mergeWithRegistry(*p,productRegistry());
+    SendDescs & descs = p->descs_;
+    edm::mergeWithRegistry(descs, productRegistry());
     prods_ = productRegistry(); // is this the one I want? Or pre-merge?
 
     // next taken from IOPool/Streamer/EventStreamFileReader
     // jbk - the next line should not be needed
-    edm::declareStreamers(productRegistry());
-    edm::buildClassCache(productRegistry());
+    edm::declareStreamers(descs);
+    edm::buildClassCache(descs);
     loadExtraClasses();
   }
 

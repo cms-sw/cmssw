@@ -14,12 +14,12 @@ namespace edm
 
   // this code is not design to be accessed in multiple threads
 
-  namespace 
+  namespace
   {
     void loadextrastuff()
     {
       static bool loaded = false;
-      if(loaded==false) 
+      if(loaded==false)
 	{
 	  loadExtraClasses();
 	  loaded=true;
@@ -31,15 +31,13 @@ namespace edm
     {
       static TClass* ans = 0;
       loadextrastuff();
-      if(!ans)
-	{
-	  if((ans = getTClass(typeid(T)))==0)
-	    {
-	      throw cms::Exception("gettclass")
-		<< "Could not get the TClass for "
-		<< typeid(T).name() << "\n";
-	    }
+      if(!ans) {
+	if((ans = getTClass(typeid(T)))==0) {
+	  throw cms::Exception("gettclass")
+	    << "Could not get the TClass for "
+	    << typeid(T).name() << "\n";
 	}
+      }
       return ans;
     }
   }
@@ -66,7 +64,7 @@ namespace edm
       throw cms::Exception("HeaderDecode","EventStreamerInput")
 	<< "received wrong message type: expected INIT, got "
 	<< msg.getCode() << "\n";
-    
+
     // This "SetBuffer" stuff does not appear to work or I don't understand
     // what needs to be done to actually make it go. (JBK)
     //buf_.SetBuffer((char*)msg.data(),msg.getDataSize(),kFALSE);
@@ -74,16 +72,15 @@ namespace edm
     RootDebug tracer(10,10);
     auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc_));
 
-    if(sd.get()==0)
-      {
+    if(sd.get()==0) {
 	throw cms::Exception("HeaderDecode","DecodeProductList")
 	  << "Could not read the initial product registry list\n";
-      }
+    }
 
     return sd;
   }
 
-  bool registryIsSubset(const SendJobHeader& sd, 
+  bool registryIsSubset(const SendJobHeader& sd,
 			const ProductRegistry& reg)
   {
     bool rc = true;
@@ -93,53 +90,50 @@ namespace edm
     // already there? it looks like I replace it.  maybe that it correct
 
     FDEBUG(6) << "registryIsSubset: Product List: " << endl;
-    for(;i!=e;++i)
-      {
+    for(;i!=e; ++i) {
 	typedef edm::ProductRegistry::ProductList plist;
 	// the new products must be contained in the old registry
 	// form a branchkey from the *i branchdescription,
 	// use the productlist from the product registry to locate
 	// the branchkey.  If not found, then error in this state
 	BranchKey key(*i);
-	if(reg.productList().find(key)==reg.productList().end())
-	  {
-	    rc = false;
-	    break;
+	if(reg.productList().find(key)==reg.productList().end()) {
+	  rc = false;
+	  break;
 #if 0
-	    throw cms::Exception("InconsistentRegistry","EventStreamer")
-	      << "A new product registry was received during the "
-	      << "running state with entries that were not present "
-	      << "in the original registry.\n"
-	      << "The new type is " << i->fullClassName_ << "\n";
+	  throw cms::Exception("InconsistentRegistry","EventStreamer")
+	    << "A new product registry was received during the "
+	    << "running state with entries that were not present "
+	    << "in the original registry.\n"
+	    << "The new type is " << i->fullClassName_ << "\n";
 #endif
-	    FDEBUG(6) << "Inconsistent Registry: new type is "
-		      << i->fullClassName_ << "\n";
-	  }
-      }
+	  FDEBUG(6) << "Inconsistent Registry: new type is "
+		    << i->fullClassName_ << "\n";
+	}
+    }
 
     return rc;
   }
 
-  void mergeWithRegistry(const SendJobHeader& sd,
+  void mergeWithRegistry(const SendDescs& descs,
 			 ProductRegistry& reg)
   {
-    SendDescs::const_iterator i(sd.descs_.begin()),e(sd.descs_.end());
+    SendDescs::const_iterator i(descs.begin()), e(descs.end());
 
     // the next line seems to be not good.  what if the productdesc is
     // already there? it looks like I replace it.  maybe that it correct
 
     FDEBUG(6) << "mergeWithRegistry: Product List: " << endl;
-    for(;i!=e;++i)
-      {
+    for(; i != e; ++i) {
 	reg.copyProduct(*i);
 	FDEBUG(6) << "StreamInput prod = " << i->fullClassName_ << endl;
-      }
+    }
 
     // not needed any more
     // fillStreamers(*pr_);
   }
 
-  // jbk - hopefully this function is not needed any more. 
+  // jbk - hopefully this function is not needed any more.
   // I'm leaving it in for debugging - it prints out a lot of
   // useful information about what classes have dictionaries and
   // what ones do not.
@@ -149,40 +143,34 @@ namespace edm
     static const string wrapBeg("edm::Wrapper<");
     static const string wrapEnd1(">");
     static const string wrapEnd2(" >");
-    
+
 	string real_name(wrapBeg+fullclassname);
 	real_name += *(real_name.rbegin()) == '>' ? wrapEnd2:wrapEnd1;
     return real_name;
   }
 
-  void declareStreamers(ProductRegistry& reg)
+  void declareStreamers(const SendDescs& descs)
   {
-    typedef edm::ProductRegistry::ProductList ProdList; 
-    ProdList plist(reg.productList());
-    ProdList::iterator pi(plist.begin()),pe(plist.end());
+    SendDescs::const_iterator i(descs.begin()), e(descs.end());
 
-    for(;pi!=pe;++pi)
-      {
-	//pi->second.init();
-	string real_name = getTheRealName(pi->second.fullClassName_);
+    for(; i != e; ++i) {
+	//pi->init();
+	string real_name = getTheRealName(i->fullClassName_);
 	FDEBUG(6) << "declare: " << real_name << endl;
 	edm::loadCap(real_name);
-      }    
+    }
   }
-  
-  void buildClassCache(ProductRegistry& reg)
-  {
-    typedef edm::ProductRegistry::ProductList ProdList; 
-    ProdList plist(reg.productList());
-    ProdList::iterator pi(plist.begin()),pe(plist.end());
 
-    for(;pi!=pe;++pi)
-      {
-	//pi->second.init();
-	string real_name = getTheRealName(pi->second.fullClassName_);
+  void buildClassCache(const SendDescs& descs)
+  {
+    SendDescs::const_iterator i(descs.begin()), e(descs.end());
+
+    for(; i != e; ++i) {
+	//pi->init();
+	string real_name = getTheRealName(i->fullClassName_);
 	FDEBUG(6) << "BuildReadData: " << real_name << endl;
 	edm::doBuildRealData(real_name);
-      }    
+    }
   }
 
   // ---------------------------------------
@@ -252,11 +240,11 @@ namespace edm
 	    throw cms::Exception("NoData","EmptyProduct");
 	  }
 
-	auto_ptr<EDProduct> 
+	auto_ptr<EDProduct>
 	  aprod(const_cast<EDProduct*>(spi->prod()));
-	auto_ptr<BranchEntryDescription> 
+	auto_ptr<BranchEntryDescription>
 	  aedesc(const_cast<BranchEntryDescription*>(spi->prov()));
-	auto_ptr<BranchDescription> 
+	auto_ptr<BranchDescription>
 	  adesc(const_cast<BranchDescription*>(spi->desc()));
 
 	auto_ptr<Provenance> aprov(new Provenance);
@@ -307,7 +295,7 @@ namespace edm
       }
 
     std::auto_ptr<SendJobHeader> p = readHeaderFromStream(ist);
-    mergeWithRegistry(*p,pr);
+    mergeWithRegistry(p->descs_,pr);
     return pr;
   }
 

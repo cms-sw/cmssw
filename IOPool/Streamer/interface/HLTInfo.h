@@ -49,6 +49,11 @@ namespace stor
     // merge my registry with reg (use "copyProduct")
     void mergeRegistry(edm::ProductRegistry& reg);
 
+    void declareStreamers(const edm::ProductRegistry& reg);
+    void buildClassCache(const edm::ProductRegistry& reg);
+
+    const edm::ProductRegistry& products() const { return prods_; }
+
     edm::EventBuffer& getEventQueue() const { return *evtbuf_q_; }
     edm::EventBuffer& getCommandQueue() const { return *cmd_q_; }
     edm::EventBuffer& getFragmentQueue() const { return *frag_q_; }

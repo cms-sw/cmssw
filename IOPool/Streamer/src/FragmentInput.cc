@@ -21,11 +21,12 @@ namespace stor
     extractor_(getInfo()->getEventQueue())
   {
     edm::Service<HLTInfo> info;
-    info->mergeRegistry(productRegistry());
 
     // jbk - hopefully the next line is not needed
-    edm::declareStreamers(productRegistry());
-    edm::buildClassCache(productRegistry());
+    info->declareStreamers(info->products());
+    info->buildClassCache(info->products());
+
+    info->mergeRegistry(productRegistry());
     edm::loadExtraClasses();
   }
 

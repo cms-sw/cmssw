@@ -27,11 +27,12 @@
 namespace edm
 {
   edm::ProductRegistry getRegFromFile(const std::string& filename);
+  std::string getTheRealName(const std::string& fullclassname);
   std::auto_ptr<SendJobHeader> readHeaderFromStream(std::ifstream& ist);
-  bool registryIsSubset(const SendJobHeader&, const ProductRegistry&);
-  void mergeWithRegistry(const SendJobHeader&, ProductRegistry&);
-  void declareStreamers(ProductRegistry& reg);
-  void buildClassCache(ProductRegistry& reg);
+  bool registryIsSubset(const SendJobHeader&, const ProductRegistry& reg);
+  void mergeWithRegistry(const SendDescs& descs, ProductRegistry& reg);
+  void declareStreamers(const SendDescs& descs);
+  void buildClassCache(const SendDescs& descs);
 
   class JobHeaderDecoder
   {
