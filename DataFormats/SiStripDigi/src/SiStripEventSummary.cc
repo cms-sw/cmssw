@@ -46,8 +46,11 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
     param1_ = buffer[12]; // pll fine delay
     param2_ = buffer[13]; // ttcrx delay
 
-  } else if ( // buffer[10] == 11 ||
-	     buffer[10] == 13 ) { // Connection loop 
+  } else if ( buffer[10] == 11 ||
+	      buffer[10] == 13 ) { // Connection loop 
+
+    //@@ TEMPORARY!
+    if ( buffer[10] == 11 ) { task_ = static_cast<SiStripEventSummary::Task>( 13 ); }
 
     param0_ = buffer[11]; // device id
     param1_ = buffer[12]; // process id
