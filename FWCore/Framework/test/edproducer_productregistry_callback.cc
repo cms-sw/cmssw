@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: edproducer_productregistry_callback.cc,v 1.4 2006/02/20 01:51:59 wmtan Exp $
+   \version $Id: edproducer_productregistry_callback.cc,v 1.5 2006/03/06 00:02:47 chrjones Exp $
    \date 21 July 2005
 */
 
@@ -187,8 +187,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    //       1 from 'l2' in response to 'l1'
    //    1 from 'l2' in response to 't2'
    //       1 from 'l1' in response to 'l2'
-   //std::cout <<"# products "<<preg.productList().size()<<std::endl;
-   CPPUNIT_ASSERT(10 == preg.productList().size());
+   //std::cout <<"# products "<<preg.size()<<std::endl;
+   CPPUNIT_ASSERT(10 == preg.size());
 }
 
 void  testEDProducerProductRegistryCallback::testCircularRef2(){
@@ -248,8 +248,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    //       1 from 'l2' in response to 'l1'
    //    1 from 'l2' in response to 't2'
    //       1 from 'l1' in response to 'l2'
-   //std::cout <<"# products "<<preg.productList().size()<<std::endl;
-   CPPUNIT_ASSERT(10 == preg.productList().size());
+   //std::cout <<"# products "<<preg.size()<<std::endl;
+   CPPUNIT_ASSERT(10 == preg.size());
 }
 
 void  testEDProducerProductRegistryCallback::testTwoListeners(){
@@ -308,6 +308,6 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    //    1 from 'l1' in response
    //       1 from 'l2' in response to 'l1'
    //    1 from 'l2' in response to 't2'
-   //std::cout <<"# products "<<preg.productList().size()<<std::endl;
-   CPPUNIT_ASSERT(8 == preg.productList().size());
+   //std::cout <<"# products "<<preg.size()<<std::endl;
+   CPPUNIT_ASSERT(8 == preg.size());
 }
