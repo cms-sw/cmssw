@@ -32,7 +32,6 @@ class SiStripRawToDigiModule : public edm::EDProducer {
   
   string inputModuleLabel_;
   SiStripRawToDigi* rawToDigi_;
-  uint32_t event_;
 
 };
 

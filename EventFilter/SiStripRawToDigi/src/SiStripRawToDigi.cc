@@ -58,7 +58,7 @@ SiStripRawToDigi::~SiStripRawToDigi() {
     Fed9UEvent object using current FEDRawData buffer, dumps FED
     buffer to stdout, retrieves data from various header fields
 */
-void SiStripRawToDigi::createDigis( uint32_t& event,
+void SiStripRawToDigi::createDigis( const uint32_t& event,
 				    edm::ESHandle<SiStripFedCabling>& cabling,
 				    edm::Handle<FEDRawDataCollection>& buffers,
 				    auto_ptr< edm::DetSetVector<SiStripRawDigi> >& scope_mode,
@@ -161,7 +161,7 @@ void SiStripRawToDigi::createDigis( uint32_t& event,
       const FedChannelConnection& conn = cabling->connection( *ifed, chan );
       
       // Determine whether DetId or FED key should be used to index digi containers
-      uint32_t fed_key = SiStripGenerateKey::fed( conn.fedId(), conn.fedCh() );
+      uint32_t fed_key = SiStripGenerateKey::fedKey( conn.fedId(), conn.fedCh() );
       uint32_t key     = (useFedKey_ || ev_type==1) ? fed_key : conn.detId();
       uint16_t ipair   = (useFedKey_ || ev_type==1) ? 0 : conn.apvPairNumber();
 //       stringstream ss; 
@@ -318,8 +318,8 @@ void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
 			    << "  getFedEventNumber: " << header->getFedEventNumber();
 
       // Write event-specific data to event
-      summary->event( static_cast<uint32_t>(header->getFedEventNumber()) );
-      summary->bx( static_cast<uint32_t>(header->getBunchCrossing()) );
+      summary->event( static_cast<uint32_t>( header->getFedEventNumber()) );
+      summary->bx( static_cast<uint32_t>( header->getBunchCrossing()) );
       
       // Write commissioning information to event 
       uint32_t hsize = sizeof(TFHeaderDescription)/sizeof(uint32_t);

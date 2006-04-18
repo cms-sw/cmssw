@@ -25,8 +25,7 @@
 */
 SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) :
   inputModuleLabel_( pset.getParameter<string>( "InputModuleLabel" ) ),
-  rawToDigi_(0),
-  event_(0)
+  rawToDigi_(0)
 {
   edm::LogInfo("RawToDigi") << "[SiStripRawToDigiModule::SiStripRawToDigiModule] Constructing object...";
   int16_t bytes  = pset.getUntrackedParameter<int>("AppendedBytes",0);
@@ -60,10 +59,9 @@ SiStripRawToDigiModule::~SiStripRawToDigiModule() {
 void SiStripRawToDigiModule::produce( edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup ) {
   
-  event_++; 
-  if ( !(event_%10) ) {
+  if ( !(iEvent.id().event()%10) ) {
     edm::LogInfo("RawToDigi") << "[SiStripRawToDigiModule::produce]"
-			      << " Processing event number: " << event_;
+			      << " Processing event number: " << iEvent.id().event();
   }
   
   edm::ESHandle<SiStripFedCabling> cabling;
@@ -78,7 +76,7 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
   auto_ptr< edm::DetSetVector<SiStripDigi> >    zs( new edm::DetSetVector<SiStripDigi> );
   auto_ptr<SiStripEventSummary> ev( new SiStripEventSummary );
   
-  rawToDigi_->createDigis( event_, cabling, buffers, sm, vr, pr, zs, ev );
+  rawToDigi_->createDigis( iEvent.id().event(), cabling, buffers, sm, vr, pr, zs, ev );
   
   iEvent.put( sm, "ScopeMode" );
   iEvent.put( vr, "VirginRaw" );

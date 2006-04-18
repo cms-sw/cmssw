@@ -35,9 +35,9 @@ class SiStripRawToDigi {
 		    uint16_t trigger_fed_id );
   ~SiStripRawToDigi();
   
-  //@@ pass-by-ref otherwise auto_ptr "sink"?! IMPROVE
-  void createDigis( uint32_t& event,
-		    edm::ESHandle<SiStripFedCabling>& cabling,
+  
+  void createDigis( const uint32_t& event,
+		    edm::ESHandle<SiStripFedCabling>& cabling, //@@ pass-by-ref otherwise auto_ptr "sink"?! 
 		    edm::Handle<FEDRawDataCollection>& buffers,
 		    auto_ptr< edm::DetSetVector<SiStripRawDigi> >& scope_mode,
 		    auto_ptr< edm::DetSetVector<SiStripRawDigi> >& virgin_raw,
