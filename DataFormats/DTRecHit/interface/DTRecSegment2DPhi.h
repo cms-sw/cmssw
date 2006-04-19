@@ -11,15 +11,18 @@
  * A DTRecSegment4D has one of these objects, and so can access the full
  * information of the two projections.
  *
- * $Date: 2006/02/23 10:32:04 $
- * $Revision: 1.1 $
+ * $Date: 2006/03/20 12:42:28 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */
 
 /* Base Class Headers */
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
+class DTChamber;
 /* Collaborating Class Declarations */
 
 /* C++ Headers */
@@ -30,19 +33,26 @@
 
 class DTRecSegment2DPhi : public DTRecSegment2D {
 
-  public:
+ public:
 
-/// Constructor
-    DTRecSegment2DPhi(const DetId& id) ;
+  /// Constructor
+  DTRecSegment2DPhi(const DetId& id) ;
 
-/// Destructor
-    virtual ~DTRecSegment2DPhi() ;
+  /// Destructor
+  virtual ~DTRecSegment2DPhi() ;
 
-/* Operations */ 
+  /* Operations */ 
 
-  protected:
+ private:
+  /// The id of the chamber on which reside the segment
+  DTChamberId chamberId() const {return DTChamberId(theDetId.rawId());}
+  
+  // in DTSegmentCand, setPosition and setDirection can be used
+  friend class DTSegmentCand; 
 
-  private:
+ protected:
+
+
 
 };
 #endif // DTRecHit_DTRecSegment2DPhi_h
