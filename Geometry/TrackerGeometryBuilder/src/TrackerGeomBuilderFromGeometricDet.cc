@@ -23,6 +23,8 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Surface/interface/MediumProperties.h"
+
 
 #include <cfloat>
 #include <vector>
@@ -98,6 +100,7 @@ void TrackerGeomBuilderFromGeometricDet::buildPixelBarrel(std::vector<const Geom
     }
     
     PlaneBuilderFromGeometricDet::ResultType plane = planeBuilder.plane(gdv[i]);
+    plane->setMediumProperties( new MediumProperties( 0.04, 1.0e-4));
     GeomDetUnit* temp = new PixelGeomDetUnit(&(*plane),detTypeMap[detName],gdv[i]);
 
     tracker->addDetUnit(temp);
@@ -134,6 +137,7 @@ void TrackerGeomBuilderFromGeometricDet::buildPixelForward(std::vector<const Geo
     }
 
     PlaneBuilderFromGeometricDet::ResultType plane = planeBuilder.plane(gdv[i]);
+    plane->setMediumProperties( new MediumProperties( 0.04, 1.0e-4));
     GeomDetUnit* temp =  new PixelGeomDetUnit(&(*plane),detTypeMap[detName],gdv[i]);
 
     tracker->addDetUnit(temp);
@@ -171,8 +175,9 @@ void TrackerGeomBuilderFromGeometricDet::buildSiliconBarrel(std::vector<const Ge
     }
 
     PlaneBuilderFromGeometricDet::ResultType plane = planeBuilder.plane(gdv[i]);  
+    plane->setMediumProperties( new MediumProperties( 0.02, 0.5e-4));
     GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), detTypeMap[detName],gdv[i]);
-
+    
     tracker->addDetUnit(temp);
     tracker->addDetUnitId(gdv[i]->geographicalID());
     
@@ -210,8 +215,9 @@ void TrackerGeomBuilderFromGeometricDet::buildSiliconForward(std::vector<const G
     }
 
     PlaneBuilderFromGeometricDet::ResultType plane = planeBuilder.plane(gdv[i]);  
+    plane->setMediumProperties( new MediumProperties( 0.02, 0.5e-4));
     GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), detTypeMap[detName],gdv[i]);
-
+    
     tracker->addDetUnit(temp);
     tracker->addDetUnitId(gdv[i]->geographicalID());
   }  
