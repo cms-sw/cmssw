@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.1 2006/02/08 00:44:23 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.2 2006/04/17 23:39:20 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.1 2006/02/08 00:44:23 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.2 2006/04/17 23:39:20 wmtan Exp $";
 
 
 #include "DataFormats/Common/interface/ProductRegistry.h"
@@ -68,9 +68,8 @@ namespace edm {
   void
   ProductRegistry::throwIfNotFrozen() const {
     if (!frozen_) {
-// FIX THIS: Temporarily disabled until the EDProducer callback problem is solved.
-//      throw cms::Exception("ProductRegistry", "throwIfNotFrozen")
-//            << "cannot read the ProductRegistry because it is not yet frozen";
+      throw cms::Exception("ProductRegistry", "throwIfNotFrozen")
+            << "cannot read the ProductRegistry because it is not yet frozen";
     }
   }
   
