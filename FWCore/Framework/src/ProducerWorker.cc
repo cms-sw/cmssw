@@ -1,6 +1,7 @@
 
+
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.18 2005/12/28 00:48:40 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.19 2006/02/08 00:44:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -86,12 +87,7 @@ namespace edm
     bool isListener = false;
     if(!(producer_->registrationCallback().empty())) {
        isListener=true;
-       //NOTE: If implementation changes from a map, need to check that iterators are still valid
-       // after an insert with the new container, else need to copy the container and iterate over the copy
-       for(ProductRegistry::ProductList::const_iterator itEntry=wp.reg_->productList().begin();
-           itEntry!=wp.reg_->productList().end(); ++itEntry){
-          producer_->registrationCallback()(itEntry->second);
-       }
+       wp.reg_->callForEachBranch(producer_->registrationCallback());
     }
     EDProducer::TypeLabelList const& plist = producer_->typeLabelList();
 
