@@ -4,6 +4,6 @@ if ! perl webPingXDAQ.pl .host .portn 10
 then
   echo "executive didn't start properly"
 else
-  perl sendCmdToApp.pl .host .portn WebTest.xml
+  perl sendCmdToApp.pl .host .portn SiStripClient.xml
 fi
 

@@ -12,7 +12,7 @@ MWC_LIB1="${LOCALRT}/lib/slc3_ia32_gcc323/libDQMSiStripMonitorClient.so"
 echo "Looking for the MonitorWebClient library... $MWC_LIB1"
 if [ ! -f $MWC_LIB1 ]; then
     echo "Not Found! Will pick it up from the release area..."
-    MWC_LIB1="/afs/cern.ch/cms/Releases/CMSSW/prerelease/${CMSSW_VERSION}/lib/slc3_ia32_gcc323/libDQMServicesWebComponents.so"
+    MWC_LIB1="/afs/cern.ch/cms/Releases/CMSSW/prerelease/${CMSSW_VERSION}/lib/slc3_ia32_gcc323/libDQMSiStripMonitorClient.so"
 else 
     echo "Found!"
 fi
@@ -24,18 +24,18 @@ if [ -e profile.xml ]; then
     rm profile.xml
 fi 
 if [ -e monClient.xml ]; then
-    rm WebTest.xml
+    rm ClientWithWebInterface.xml
 fi
 if [ -e startMonitorClient ]; then
     rm startMonitorClient
 fi
 
 sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g" .profile.xml > profile.xml
-sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g" .WebTest.xml > WebTest.xml 
+sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g" .SiStripClient.xml > SiStripClient.xml 
 sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g" .startMonitorClient > startMonitorClient
 
 chmod 751 profile.xml
-chmod 751 WebTest.xml
+chmod 751 SiStripClient.xml
 chmod 751 startMonitorClient
 
 

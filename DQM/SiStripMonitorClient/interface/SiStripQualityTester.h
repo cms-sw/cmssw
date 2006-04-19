@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiStrip Quality Tests
  * 
- *  $Date: 2006/03/01 15:48:59 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/03/31 18:10:43 $
+ *  $Revision: 1.1 $
  *  \author Suchandra Dutta
   */
 
@@ -22,7 +22,8 @@ class SiStripQualityTester
 {
  public:
   
-  typedef  map<string, vector<string> > TestMapType;
+  typedef  map<string, map<string, string> > QTestMapType;
+  typedef  map<string, vector<string> > MEAssotiateMapType;
 
 
   // Constructor
@@ -35,24 +36,23 @@ class SiStripQualityTester
   void setupQTests(MonitorUserInterface * mui) ;
 
   // Read up Quality Test Parameters from text file
-  void readFromFile(string fname) ;
+  void readQualityTests(string fname) ;
  
   // Attaches Quality Tests to ME's
-  void attachTests(MonitorUserInterface * mui, string path) ;
+  void attachTests(MonitorUserInterface * mui);
   
   // Configures Test of type ContentsXRangeROOT 
-  void setXRangeTest(MonitorUserInterface * mui, vector<string>& params) ;
+  void setXRangeTest(MonitorUserInterface * mui, string name,
+        map<string, string>& params);
 
   // Configures Test of type MeanWithinExpectedROOT
-  void setMeanWithinExpectedTest(MonitorUserInterface * mui, vector<string>& params) ;
-
-  /// Check Status of Quality Tests
-  void checkTestResults(MonitorUserInterface * mui);
-  
+  void setMeanWithinExpectedTest(MonitorUserInterface * mui, string name,
+            map<string, string>& params);  
 
  private:
-  void split(const string& str,vector<string>& tokens,const string& delimiters=" "); 
-  TestMapType theQTestMap;
+  QTestMapType theQTestMap;
+  MEAssotiateMapType theMeAssociateMap;
+
 };
 
 #endif
