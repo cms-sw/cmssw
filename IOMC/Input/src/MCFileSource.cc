@@ -2,8 +2,8 @@
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2006/02/23 20:51:04 $
-*  $Revision: 1.6 $
+*  $Date: 2006/04/07 04:04:19 $
+*  $Revision: 1.7 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 *  \author F.Moortgat - CERN, Ph Division
 */
@@ -27,7 +27,13 @@ reader_( HepMCFileReader::instance() ),
 evt(0) {
 	
 	cout << "MCFileSource:Reading HepMC file: " << fileNames()[0] << endl;
-	reader_->initialize(fileNames()[0]);  
+	string fileName = fileNames()[0];
+	// strip the file: 
+	if ( ! fileName.find("file:")){
+	  fileName.erase(0,5);
+	}  
+  
+	reader_->initialize(fileName);  
 	produces<HepMCProduct>();
 }
 
