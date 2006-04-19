@@ -124,6 +124,7 @@ vector <reco::TransientTrack> CrossingPtBasedLinearizationPointFinder::getBestTr
   unsigned int n_tracks = (2*(unsigned int) (theNPairs)) < tracks.size() ? 2*theNPairs : tracks.size();
 
   vector <reco::TransientTrack> newtracks; // FIXME ( n_tracks );
+  newtracks.reserve ( n_tracks );
 
   partial_sort_copy ( tracks.begin(), tracks.end(), newtracks.begin(),
       newtracks.begin() + n_tracks  , CompareTwoTracks() ); 
