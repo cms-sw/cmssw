@@ -13,6 +13,15 @@
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
+class DetZLess {
+public:
+  bool operator()(const GeomDet* a,const GeomDet* b) 
+  {
+    return (a->position().z() < b->position().z());
+  } 
+};
+
+
 TOBRod::TOBRod(vector<const GeomDet*>& innerDets,
 	       vector<const GeomDet*>& outerDets):
   theInnerDets(innerDets),theOuterDets(outerDets)
@@ -26,6 +35,10 @@ TOBRod::TOBRod(vector<const GeomDet*>& innerDets,
   theInnerPlane = planeBuilder( theInnerDets);
   theOuterPlane = planeBuilder( theOuterDets);
 
+
+  sort(theDets.begin(),theDets.end(),DetZLess());
+  sort(theInnerDets.begin(),theInnerDets.end(),DetZLess());
+  sort(theOuterDets.begin(),theOuterDets.end(),DetZLess());
   theInnerBinFinder = BinFinderType(theInnerDets.begin(), theInnerDets.end());
   theOuterBinFinder = BinFinderType(theOuterDets.begin(), theOuterDets.end());
 
