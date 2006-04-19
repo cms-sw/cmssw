@@ -24,7 +24,7 @@
    detector element?  
 */
 
-PlaneBuilderFromGeometricDet::ResultType PlaneBuilderFromGeometricDet::plane(const GeometricDet*& gd) const{
+PlaneBuilderFromGeometricDet::ResultType PlaneBuilderFromGeometricDet::plane(const GeometricDet* gd) const{
   return ResultType( new BoundPlane( gd->positionBounds(), gd->rotationBounds(),gd-> bounds())); 
 }	      
 

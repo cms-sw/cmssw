@@ -12,7 +12,7 @@ class PlaneBuilderFromGeometricDet {
 public:
   typedef ReferenceCountingPointer<BoundPlane>  ResultType;
   
-  ResultType plane( const GeometricDet*& gd) const;
+  ResultType plane( const GeometricDet* gd) const;
  private:
   
 };
