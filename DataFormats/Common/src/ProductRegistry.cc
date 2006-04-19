@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.2 2006/04/17 23:39:20 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.3 2006/04/19 01:44:05 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.2 2006/04/17 23:39:20 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.3 2006/04/19 01:44:05 wmtan Exp $";
 
 
 #include "DataFormats/Common/interface/ProductRegistry.h"
@@ -48,12 +48,14 @@ namespace edm {
   void
   ProductRegistry::setFrozen() const {
     if (frozen_) return;
+/*
     for (ProductList::const_iterator it = productList_.begin(); it != productList_.end(); ++it) {
       if (it->second.productID_.id_ == 0) {
        throw cms::Exception("ProductRegistry", "setFrozen")
           << "cannot read the ProductRegistry because it is not yet frozen.";
       }
     }
+*/
     frozen_ = true;
   }
   
@@ -67,10 +69,12 @@ namespace edm {
   
   void
   ProductRegistry::throwIfNotFrozen() const {
+/*
     if (!frozen_) {
       throw cms::Exception("ProductRegistry", "throwIfNotFrozen")
             << "cannot read the ProductRegistry because it is not yet frozen";
     }
+*/
   }
   
   void
