@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date:  $
- * $Revision: $
+ * $Date: 2006/04/19 15:00:33 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -64,15 +64,15 @@ DTCombinatorialPatternReco4D::reconstruct(const DTChamber* chamber,
 
   // has this chamber the Z-superlayer?
   if (segments2DTheta.size()){
-    hasZed = (segments2DTheta.size()>0);
+    hasZed = segments2DTheta.size()>0;
     if (debug) cout << "There are " << segments2DTheta.size() << " Theta cand" << endl;
   } else {
     if (debug) cout << "No Theta SL" << endl;
   }
 
-  // Now I want to build the concrete MuBarSegment.
+  // Now I want to build the concrete DTRecSegment4D.
   if (resultPhi.size()) {
-    for (vector<DTSegmentCand*>::iterator phi=resultPhi.begin();
+    for (vector<DTSegmentCand*>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
       
       //FIXME, check the converter and change its name
@@ -80,49 +80,47 @@ DTCombinatorialPatternReco4D::reconstruct(const DTChamber* chamber,
       
       theUpdator->update(superPhi);
       
-      /*
+      
       // << start
       if (hasZed) {
-        // TODO must create a DTRecSegment4D out of RecHit, not DTRecSegment2D
-        vector<RecHit> zeds=SLtheta->recHits();
-        for (vector<RecHit>::iterator zed=zeds.begin();
-             zed!=zeds.end(); ++zed) {
-          MuBarSegment* newSeg = new MuBarSegment(superPhi,*zed,chamber);
 
+	// Create all the 4D-segment combining the Z view with the Phi one
+	// loop over the Z segments
+	for(vector<DTRecSegment2D>::const_iterator zed = segments2DTheta.begin();
+	    zed != segments2DTheta.end(); ++zed){
+	  
+	  //FIXME:implement this constructor
+          DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi,*zed,chamber);
+	  
           /// 4d segment: I have the pos along the wire => further update!
-          theUpdator.update(newSeg);
-          if (coutUV.infoOut) cout << "Created a 4D seg " << endl;
-          chRecDet->add(RecHit(newSeg));
+          theUpdator->update(newSeg);
+          if (debug) cout << "Created a 4D seg " << endl;
+	  result.push_back(newSeg);
         }
       } else {
         // Only phi
-        //cout << "adding MuBarSegment(superPhi)" << endl;
-        MuBarSegment* newSeg = new MuBarSegment(superPhi,chamber);
-        if (coutUV.infoOut) cout << "Created a 2D seg (Phi)" << endl;
-        chRecDet->add(RecHit(newSeg));
+	// FIXME:implement this constructor
+        DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi,chamber);
+        if (debug) cout << "Created a 4D segment using only the 2D Phi segment" << endl;
+	result.push_back(newSeg);
       }
     }
   } else { 
-    // MuBarSegment from zed projection only (unlikely, not so useful, but...
+    // DTRecSegment4D from zed projection only (unlikely, not so useful, but...)
     if (hasZed) {
-      vector<RecHit> zeds=SLtheta->recHits();
-      for (vector<RecHit>::iterator zed=zeds.begin();
-           zed!=zeds.end(); ++zed) {
-        //cout << "adding MuBarSegment(*zed))" << endl;
-        MuBarSegment* newSeg= new MuBarSegment(*zed,chamber);
-        if (coutUV.infoOut) cout << "Created a 2D seg (Zed)" << endl;
-        chRecDet->add(RecHit(newSeg));
+      for(vector<DTRecSegment2D>::const_iterator zed = segments2DTheta.begin();
+	  zed != segments2DTheta.end(); ++zed){
+        
+	// FIXME:implement this constructor
+        DTRecSegment4D* newSeg = new DTRecSegment4D( *zed,chamber);
+        if (debug) cout << "Created a 4D segment using only the 2D Theta segment" << endl;
+	result.push_back(newSeg);
       }
     }
   }
   // finally delete the candidates!
-  for (vector<MuBarSegmentCand*>::iterator phi=resultPhi.begin();
-  phi!=resultPhi.end(); ++phi) delete *phi;
-
-  //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-  //stop
-  */
-    } // to be removed when uncomm
-  }
+  for (vector<DTSegmentCand*>::iterator phi=resultPhi.begin();
+       phi!=resultPhi.end(); ++phi) delete *phi;
+  
   return result;
 }
