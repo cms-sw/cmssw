@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.7 2006/02/17 22:09:53 wmtan Exp $
+$Id: Worker.cc,v 1.8 2006/04/04 16:55:37 lsexton Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -32,7 +32,7 @@ namespace edm
   
   Worker::Worker(const ModuleDescription& iMD, 
 		 const WorkerParams& iWP):
-    stopwatch_(new TStopwatch),
+    stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     timesRun_(),
     timesVisited_(),
     timesPassed_(),
@@ -43,7 +43,6 @@ namespace edm
     actions_(iWP.actions_),
     cached_exception_()
   {
-    stopwatch_->Stop();
   }
 
   Worker::~Worker()

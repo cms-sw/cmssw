@@ -156,7 +156,7 @@ namespace edm
     makeTriggerResults_(tns.makeTriggerResults()),
     total_events_(),
     total_passed_(),
-    stopwatch_(new TStopwatch),
+    stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     unscheduled_(new UnscheduledCallProducer)
   {
     ParameterSet defopts;
@@ -270,7 +270,6 @@ namespace edm
        }
     }
 
-    stopwatch_->Stop();
   }
 
   void Schedule::handleWronglyPlacedModules()

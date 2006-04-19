@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.6 2006/04/04 16:55:36 lsexton Exp $
+  $Id: Schedule.h,v 1.7 2006/04/10 22:35:43 jbk Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -142,7 +142,7 @@ namespace edm
     void endJob();
 
     std::pair<double,double> timeCpuReal() const {
-      return std::pair<double,double>(stopwatch_->CpuTime(),stopwatch_->RealTime());
+      return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
     }
 
   private:

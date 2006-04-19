@@ -1,5 +1,4 @@
 <use name=boost>
-<use name=rootcore>
 <use name=DataFormats/Common>
 <use name=FileCatalog>
 <use name=FWCore/ParameterSet>
@@ -9,7 +8,6 @@
 <export>
  <lib name=FWCoreFramework>
  <use name=boost>
- <use name=rootcore>
  <use name=DataFormats/Common>
  <use name=FileCatalog>
  <use name=FWCore/ParameterSet>

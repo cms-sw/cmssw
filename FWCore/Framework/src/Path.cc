@@ -39,7 +39,7 @@ namespace edm
 	     ParameterSet const& proc_pset,
 	     ActionTable& actions,
 	     ActivityRegistryPtr areg):
-    stopwatch_(new TStopwatch),
+  stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     timesRun_(),
     timesPassed_(),
     timesFailed_(),
@@ -53,7 +53,6 @@ namespace edm
     act_table_(&actions),
     workers_(workers)
   {
-    stopwatch_->Stop();
   }
 
 #if 0
