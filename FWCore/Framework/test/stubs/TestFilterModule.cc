@@ -102,15 +102,14 @@ namespace edmtest
 	     << endl;
       }
 
-    if(prod[0]->pass()) ++passed_;
-    else if(prod[0]->fail()) ++failed_;
+    if (prod[0]->accept()) ++passed_; else ++failed_;
 
     if(numbits_<0) return;
 
-    if(numbits_!=prod[0]->numBitsUsed())
+    if(numbits_!=prod[0]->size())
       {
 	cerr << "should have " << numbits_ 
-	     << ", got " << prod[0]->numBitsUsed() << " in TriggerResults\n";
+	     << ", got " << prod[0]->size() << " in TriggerResults\n";
 	abort();
       }
   }

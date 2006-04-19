@@ -12,7 +12,7 @@ namespace edm
 {
   namespace
   {
-    EventSelector::BitInfo makeBitInfo(int pos, bool value)
+    EventSelector::BitInfo makeBitInfo(unsigned int pos, bool value)
     {
       return EventSelector::BitInfo(pos,value);
     }
@@ -99,7 +99,9 @@ namespace edm
     Bits::const_iterator i(decision_bits_.begin()),e(decision_bits_.end());
     for(;i!=e;++i)
       {
-	if(tr.isSet(i->pos_) == i->accept_state_)
+        if ( ((tr[i->pos_].state()==hlt::Pass) &&  (i->accept_state_)) ||
+	     ((tr[i->pos_].state()==hlt::Fail) && !(i->accept_state_)) ||
+             ((tr[i->pos_].state()==hlt::Exception)) )
 	  return true;
       }
     return false;

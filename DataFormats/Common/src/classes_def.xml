@@ -28,6 +28,7 @@
  <class name="std::vector<unsigned short>"/>
  <class name="std::vector<char>"/>
  <class name="std::vector<unsigned char>"/>
+ <class name="std::vector<bool>"/>
  <class name="edm::Wrapper<std::basic_string<char> >"/>
  <class name="edm::Wrapper<float>"/>
  <class name="edm::Wrapper<double>"/>
@@ -48,6 +49,7 @@
  <class name="edm::Wrapper<std::vector<unsigned int> >"/>
  <class name="edm::Wrapper<std::vector<char> >"/>
  <class name="edm::Wrapper<std::vector<unsigned char> >"/>
+ <class name="edm::Wrapper<std::vector<bool> >"/>
  <class name="edm::EventAux"/>
  <class name="edm::EventProvenance"/>
  <class name="edm::ProductRegistry">
@@ -63,12 +65,13 @@
    <field name="branchName_" transient="true"/>
    <field name="productPtr_" transient="true"/>
  </class>
-  <class name="std::vector<bool>"/>
-  <class name="edm::TriggerResults">
-   <field name="bits_" transient="true"/>
-   <field name="vetobits_" transient="true"/>
-   <field name="insync_" transient="true"/>
-  </class>
-  <class name="edm::Wrapper<edm::TriggerResults>"/>
+ <class name="edm::HLTPathStatus"/>
+ <class name="edm::Wrapper<edm::HLTPathStatus>"/>
+ <class name="std::vector<edm::HLTPathStatus>"/>
+ <class name="edm::Wrapper<std::vector<edm::HLTPathStatus> >"/>
+ <class name="edm::HLTGlobalStatus"/>
+ <class name="edm::Wrapper<edm::HLTGlobalStatus>"/>
+ <class name="edm::TriggerResults"/>
+ <class name="edm::Wrapper<edm::TriggerResults>"/>
 
 </lcgdict>

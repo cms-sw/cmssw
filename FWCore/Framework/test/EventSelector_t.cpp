@@ -50,8 +50,10 @@ void testone(const Strings& paths,
   parent.addUntrackedParameter<ParameterSet>("SelectEvents",pset);
 
   EventSelector select(parent, "HLT", paths);
-  TriggerResults::BitMask bm;
-  for(unsigned int b=0;b<mask.size();++b) bm[b]=mask[b];
+  HLTGlobalStatus bm(mask.size());
+  const HLTPathStatus pass=HLTPathStatus(edm::hlt::Pass);
+  const HLTPathStatus fail=HLTPathStatus(edm::hlt::Fail);
+  for(unsigned int b=0;b<mask.size();++b) bm[b] = (mask[b]? pass : fail);
   TriggerResults results(bm,paths);
 
   bool a = select.acceptEvent(results);

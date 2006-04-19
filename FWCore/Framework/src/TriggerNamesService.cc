@@ -3,9 +3,10 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: TriggerNamesService.cc,v 1.3 2006/02/08 00:44:25 wmtan Exp $
+// $Id: TriggerNamesService.cc,v 1.4 2006/04/10 22:35:44 jbk Exp $
 //
 
+#include "DataFormats/Common/interface/HLTGlobalStatus.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -80,9 +81,9 @@ namespace edm {
     TriggerNamesService::TriggerNamesService(const ParameterSet& pset):
       process_name_(pset.getParameter<string>("@process_name")),
       trig_pset_(getTrigPSetFunc(pset)),
-      names_(trig_pset_.getUntrackedParameter<vstring>("@trigger_paths")),
-      paths_(trig_pset_.getParameter<vstring>("@paths")),
-      end_paths_(trig_pset_.getParameter<vstring>("@end_paths"))
+      trignames_(trig_pset_.getUntrackedParameter<vstring>("@trigger_paths")),
+      pathnames_(trig_pset_.getParameter<vstring>("@paths")),
+      end_names_(trig_pset_.getParameter<vstring>("@end_paths"))
     {
       ParameterSet defopts;
       ParameterSet opts = 
@@ -92,28 +93,33 @@ namespace edm {
       makeTriggerResults_ = 
 	opts.getUntrackedParameter("makeTriggerResults",false);
 
-      for(unsigned int i=0;i<names_.size();++i) pos_[names_[i]] = i;
-    }
+      loadPosMap(trigpos_,trignames_);
+      loadPosMap(pathpos_,pathnames_);
+      loadPosMap(end_pos_,end_names_);
 
+      const unsigned int n(trignames_.size());
+      for(unsigned int i=0;i!=n;++i) {
+        modulenames_.push_back(pset.getParameter<vstring>(trignames_[i]));
+      }
+    }
 
     TriggerNamesService::~TriggerNamesService()
     {
     }
 
-    TriggerNamesService::BitVector TriggerNamesService::getBitMask(const Strings& names) const
+    TriggerNamesService::Bools TriggerNamesService::getBitMask(const Strings& names) const
     {
-      BitVector bv(names_.size());
+      Bools bv(names.size());
       Strings::const_iterator i(names.begin()),e(names.end());
       for(;i!=e;++i)
 	{
-	  PosMap::const_iterator ipos(pos_.find(*i));
-	  if(ipos!=pos_.end())
+	  PosMap::const_iterator ipos(trigpos_.find(*i));
+	  if(ipos!=trigpos_.end())
 	    bv[ipos->second] = true;
 	  else
 	    throw cms::Exception("NotFound")
-	      << "Path name " << *i << " not found in trigger path\n";
+	      << "Path name " << *i << " not found in trigger paths\n";
 	}
-
       return bv;
     }
   }

@@ -35,7 +35,7 @@ namespace edm
 
   Path::Path(int bitpos, const std::string& path_name,
 	     const Workers& workers,
-	     BitMaskPtr bitmask,
+	     TrigResPtr trptr,
 	     ParameterSet const& proc_pset,
 	     ActionTable& actions,
 	     ActivityRegistryPtr areg):
@@ -45,10 +45,10 @@ namespace edm
     timesFailed_(),
     timesExcept_(),
     abortWorker_(),
-    state_(Ready),
+    state_(edm::hlt::Ready),
     bitpos_(bitpos),
     name_(path_name),
-    bitmask_(bitmask),
+    trptr_(trptr),
     act_reg_(areg),
     act_table_(&actions),
     workers_(workers)
@@ -68,7 +68,7 @@ namespace edm
   {
     RunStopwatch stopwatch(stopwatch_);
     ++timesRun_;
-    state_ = Ready;
+    state_ = edm::hlt::Ready;
     abortWorker_=0;
     CallPrePost cpp(act_reg_.get(),name_,bitpos_);
     Workers::iterator i(workers_.begin()),e(workers_.end());
@@ -110,7 +110,8 @@ namespace edm
 		  LogError(e.category())
 		    << "Exception going through path " << name_ << "\n";
                   ++timesExcept_;
-                  state_ = Exception;
+                  state_ = edm::hlt::Exception;
+                  (*trptr_)[bitpos_]=HLTPathStatus(state_,abortWorker_);
 		  throw edm::Exception(errors::ScheduleExecutionFailure,
 				       "ProcessingStopped", e)
 		    << "Exception going through path " << name_ << "\n";
@@ -122,7 +123,8 @@ namespace edm
 	    LogError("PassingThrough")
 	      << "Exception passing through path " << name_ << "\n";
             ++timesExcept_;
-            state_ = Exception;
+            state_ = edm::hlt::Exception;
+            (*trptr_)[bitpos_]=HLTPathStatus(state_,abortWorker_);
 	    throw;
 	  }
         ++abortWorker_;
@@ -131,15 +133,15 @@ namespace edm
     if(rc)
       {
         ++timesPassed_;
-        state_=Pass;
+        state_=edm::hlt::Pass;
       }
     else
       {
         ++timesFailed_;
-        state_=Fail;
+        state_=edm::hlt::Fail;
       }
 
-    (*bitmask_)[bitpos_]=rc;
+    (*trptr_)[bitpos_]=HLTPathStatus(state_,abortWorker_);
 
   }
 

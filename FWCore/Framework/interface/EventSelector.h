@@ -3,7 +3,7 @@
 
 /*
   Author: Jim Kowalkowski 01-02-06
-  $Id: EventSelector.h,v 1.1 2006/02/03 06:00:15 jbk Exp $
+  $Id: EventSelector.h,v 1.2 2006/02/08 00:44:24 wmtan Exp $
 
  */
 
@@ -20,10 +20,10 @@ namespace edm
   public:
     struct BitInfo
     {
-      BitInfo(int pos, bool state):pos_(pos),accept_state_(state) { }
+      BitInfo(unsigned int pos, bool state):pos_(pos),accept_state_(state) { }
       BitInfo():pos_(),accept_state_() { }
 
-      int pos_;
+      unsigned int pos_;
       bool accept_state_;
     };
 

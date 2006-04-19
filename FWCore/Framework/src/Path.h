@@ -5,7 +5,7 @@
 
   Author: Jim Kowalkowski 28-01-06
 
-  $Id: Path.h,v 1.4 2006/04/04 16:55:37 lsexton Exp $
+  $Id: Path.h,v 1.5 2006/04/19 19:48:48 chrjones Exp $
 
   An object of this type represents one path in a job configuration.
   It holds the assigned bit position and the list of workers that are
@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/src/Worker.h"
+#include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "boost/shared_ptr.hpp"
@@ -38,15 +39,15 @@ namespace edm
   class Path
   {
   public:
-    enum State { Ready, Pass, Fail, Exception };
+    typedef edm::hlt::HLTState State;
 
     typedef std::vector<WorkerInPath> Workers;
-    typedef boost::shared_ptr<TriggerResults::BitMask> BitMaskPtr;
+    typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef boost::shared_ptr<ActivityRegistry> ActivityRegistryPtr;
 
     Path(int bitpos, const std::string& path_name,
 	 const Workers& workers,
-	 BitMaskPtr bitmask,
+	 TrigResPtr trptr,
 	 ParameterSet const& proc_pset,
 	 ActionTable& actions,
 	 ActivityRegistryPtr reg);
@@ -89,7 +90,7 @@ namespace edm
 
     int bitpos_;
     std::string name_;
-    BitMaskPtr bitmask_;
+    TrigResPtr trptr_;
     ActivityRegistryPtr act_reg_;
     ActionTable* act_table_;
 

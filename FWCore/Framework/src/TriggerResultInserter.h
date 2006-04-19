@@ -28,20 +28,21 @@ namespace edm
   {
   public:
     typedef std::vector<std::string> Strings;
-    typedef boost::shared_ptr<TriggerResults::BitMask> BitMaskPtr;
+    typedef std::vector<bool> Bools;
+    typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     // standard constructor not supported for this module
     explicit TriggerResultInserter(edm::ParameterSet const& ps);
 
     // the pset needed here is the one that defines the trigger_path names
     // and the end_path names
-    TriggerResultInserter(ParameterSet const& ps, BitMaskPtr);
+    TriggerResultInserter(edm::ParameterSet const& ps, const TrigResPtr& trptr);
     virtual ~TriggerResultInserter();
 
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
 
   private:
-    BitMaskPtr bits_;
+    TrigResPtr trptr_;
     // pset_id needed until run data exists
     ParameterSetID pset_id_;
     // pset_as_string needed until psets are stored in the output files
@@ -61,17 +62,10 @@ namespace edm
   // information in the triggerresults object directly to answer the
   // questions.
 
-  int trigGetPosition(const Event& e,
-           const TriggerResult& t,
-                   const std::string& path_name);
+  unsigned int   trigGetPosition(const Event& e, const TriggerResults& tr, const std::string& path_name);
+  const std::string& trigGetName(const Event& e, const TriggerResults& tr, unsigned int bit_position);
+  Bools              trigGetMask(const Event& e, const TriggerResults& tr, const Strings& path_names);
 
-  std::string trigGetName(const Event& e,
-           const TriggerResult& t,
-                   int bit_position);
-
-  edm::TriggerResults::BitMask trigGetMask(const Event& e,
-           const TriggerResults& t,
-                   const std::vector<std::string>& path_names);
 #endif
 
 

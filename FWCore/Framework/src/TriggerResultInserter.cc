@@ -7,14 +7,13 @@ using namespace std;
 
 namespace edm
 {
-  TriggerResultInserter::TriggerResultInserter(ParameterSet const& pset,
-					       BitMaskPtr mask):
-    bits_(mask),
+  TriggerResultInserter::TriggerResultInserter(const ParameterSet& pset, const TrigResPtr& trptr) :
+    trptr_(trptr),
     pset_id_(pset.id()),
     path_names_(pset.getUntrackedParameter<Strings>("@trigger_paths"))
   {
     produces<TriggerResults>();
-    // calculate the number of bit used from the number of paths,
+    // calculate the number of bits used from the number of paths,
     // remember it so it can be passed on the TriggerResults ctor.
   }
 
@@ -30,7 +29,7 @@ namespace edm
     // this object into the event
 
     std::auto_ptr<TriggerResults>
-      results(new TriggerResults(*bits_,pset_id_,path_names_));
+      results(new TriggerResults(*trptr_,pset_id_,path_names_));
 
     e.put(results);
   }

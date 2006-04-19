@@ -13,6 +13,8 @@
 #include "DataFormats/Common/interface/RefItem.h"
 #include "DataFormats/Common/interface/RefVectorBase.h"
 #include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/Common/interface/HLTPathStatus.h"
+#include "DataFormats/Common/interface/HLTGlobalStatus.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
@@ -31,6 +33,7 @@ namespace { namespace {
   edm::Wrapper<std::vector<double> > dummy10;
   edm::Wrapper<std::vector<long double> > dummy11;
   edm::Wrapper<std::vector<float> > dummy12;
+  edm::Wrapper<std::vector<bool> > dummy13;
 
   edm::Wrapper<unsigned long> dummyw1;
   edm::Wrapper<unsigned int> dummyw2;
@@ -44,7 +47,12 @@ namespace { namespace {
   edm::Wrapper<double> dummyw10;
   edm::Wrapper<long double> dummyw11;
   edm::Wrapper<float> dummyw12;
-  edm::Wrapper<edm::TriggerResults> dummyw17;
+  edm::Wrapper<bool> dummyw13;
+
+  edm::Wrapper<edm::HLTPathStatus> dummyx16;
+  edm::Wrapper<std::vector<edm::HLTPathStatus> > dummyx17;
+  edm::Wrapper<edm::HLTGlobalStatus> dummyx18;
+  edm::Wrapper<edm::TriggerResults> dummyx19;
 
   edm::RefItem<unsigned int> dummyRefItem;
   edm::RefBase<std::vector<unsigned int>::size_type> dummRefBase;

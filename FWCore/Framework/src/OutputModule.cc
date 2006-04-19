@@ -29,12 +29,10 @@ namespace
     return reg->allBranchDescriptions();
   }
 
-  std::vector<std::string> getAllTriggerNames()
+  std::vector<std::string> const& getAllTriggerNames()
   {
-    edm::Service<edm::service::TriggerNamesService> trig_names;
-    std::vector<std::string> names;
-    trig_names->getNames(names);
-    return names;
+    edm::Service<edm::service::TriggerNamesService> tns;
+    return tns->getTrigPaths();
   }
 
 }

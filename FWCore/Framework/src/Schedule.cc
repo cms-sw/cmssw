@@ -44,7 +44,7 @@ namespace edm
 				     const string& proc_name,
 				     ProductRegistry& preg,
 				     ActionTable& actions,
-				     Schedule::BitMaskPtr bm)
+				     Schedule::TrigResPtr trptr)
     {
 #if 1
       WorkerParams work_args(trig_pset,preg,actions,proc_name);
@@ -56,7 +56,7 @@ namespace edm
       md.versionNumber_ = 0; // not set properly!!!
       md.pass = 0; // not set properly!!!
 
-      auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,bm));
+      auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,trptr));
 
       Schedule::WorkerPtr ptr(new ProducerWorker(producer,md,work_args));
 #else
@@ -141,13 +141,9 @@ namespace edm
     end_path_name_list_(tns.getEndPaths()),
     trig_name_set_(trig_name_list_.begin(),trig_name_list_.end()),
 
-    results_(new BitMask),
-    results_bit_count_(trig_name_list_.size()),
-    nontrig_results_(new BitMask),
-    nontrig_results_bit_count_(path_name_list_.size()),
-    endpath_results_(new BitMask),
-    // extra position in endpath_results is for wrongly-placed modules
-    endpath_results_bit_count_(end_path_name_list_.size()+1),
+    results_        (new HLTGlobalStatus(trig_name_list_.size())),
+    nontrig_results_(new HLTGlobalStatus(path_name_list_.size())),
+    endpath_results_(), // delay!
 
     results_inserter_(),
     trig_paths_(),
@@ -163,7 +159,6 @@ namespace edm
     ParameterSet opts = 
       pset_.getUntrackedParameter<ParameterSet>("options", defopts);
     
-    vstring& ends = end_path_name_list_;
     bool hasFilter = false;
     
     vstring::iterator ib(path_name_list_.begin()),ie(path_name_list_.end());
@@ -186,12 +181,21 @@ namespace edm
 	all_workers_.insert(results_inserter_.get());
     }
 
-    handleWronglyPlacedModules();
-
-    vstring::iterator eib(ends.begin()),eie(ends.end());
-    for(int bitpos=0;eib!=eie;++eib,++bitpos) {
-	fillEndPath(bitpos,*eib);
+    // check whether an endpath for wrongly placed modules is needed
+    if(tmp_wrongly_placed_.empty()) {
+      TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
+      endpath_results_ = epptr;
+    } else {
+      TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()+1));
+      endpath_results_ = epptr;
     }
+
+    // fill normal endpaths
+    vstring::iterator eib(end_path_name_list_.begin()),eie(end_path_name_list_.end());
+    for(int bitpos=0;eib!=eie;++eib,++bitpos) fillEndPath(bitpos,*eib);
+
+    // handle additional endpath containing wrongly placed modules
+    handleWronglyPlacedModules();
 
     //See if all modules were used
     std::set<std::string> usedWorkerLabels;
@@ -208,7 +212,6 @@ namespace edm
                         std::back_inserter(unusedLabels));
     //does the configuration say we should allow on demand?
     bool allowUnscheduled = opts.getUntrackedParameter<bool>("allowUnscheduled", false);
-    std::vector<Worker*> unscheduledWorkers;
     std::set<std::string> unscheduledLabels;
     if(!unusedLabels.empty()) {
        //Need to
@@ -230,7 +233,6 @@ namespace edm
                                  proc_name_, version, pass);
              Worker* newWorker(wreg.getWorker(params));
              if (dynamic_cast<ProducerWorker*>(newWorker)) {
-                unscheduledWorkers.push_back(newWorker);
                 unscheduled_->addWorker(newWorker);
                 //add to list so it gets reset each new event
                 all_workers_.insert(newWorker);
@@ -279,10 +281,12 @@ namespace edm
     // Here we do that path assignment.
 
     if(!tmp_wrongly_placed_.empty()) {
-	unsigned int pos = endpath_results_bit_count_-1;
-	Path p(pos,"WronglyPlaced",tmp_wrongly_placed_,
-	       endpath_results_,pset_,*act_table_,act_reg_);
-	end_paths_.push_back(p);
+      const string newname("WronglyPlaced");
+      const unsigned int pos(end_path_name_list_.size());
+      Path p(pos,newname,tmp_wrongly_placed_,
+	     endpath_results_,pset_,*act_table_,act_reg_);
+      end_paths_.push_back(p);
+      end_path_name_list_.push_back(newname);
     }
   }
 
@@ -315,7 +319,7 @@ namespace edm
     Worker* operator()(WorkerInPath& w) const { return w.getWorker(); }
   };
 
-  bool Schedule::fillTrigPath(int bitpos,const string& name, BitMaskPtr ptr)
+  bool Schedule::fillTrigPath(int bitpos,const string& name, TrigResPtr trptr)
   {
     PathWorkers tmpworkers;
     PathWorkers goodworkers;
@@ -349,7 +353,7 @@ namespace edm
 
     // an empty path will cause an extra bit that is not used
     if(!goodworkers.empty()) {
-        Path p(bitpos,name,goodworkers,ptr,pset_,*act_table_,act_reg_);
+        Path p(bitpos,name,goodworkers,trptr,pset_,*act_table_,act_reg_);
         trig_paths_.push_back(p);
     }
     all_workers_.insert(holder.begin(),holder.end());
@@ -403,7 +407,7 @@ namespace edm
 	    ti->runOneEvent(ep,es);
 	    if (trig_name_set_.find(ti->name())!=trig_name_set_.end())
 	      {
-		result = result || (*results_)[which_one];
+		result = result || ((*results_)[which_one]).accept();
 		++which_one;
 	      }
 	  }
