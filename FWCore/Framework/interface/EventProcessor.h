@@ -32,24 +32,55 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.14 2006/03/15 21:24:49 wmtan Exp $
+$Id: EventProcessor.h,v 1.15 2006/04/10 22:35:43 jbk Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <string>
+
 #include "boost/signal.hpp"
+#include "boost/shared_ptr.hpp"
+#include "boost/thread/thread.hpp"
+
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/Actions.h"
+#include "DataFormats/Common/interface/EventID.h"
 
 namespace edm {
 
-  class FwkImpl;
   class Event;
   class EventSetup;
   class EventID;
   class Timestamp;
-  class ServiceToken;
   class InputSource;
-  
+  class ActivityRegistry;
+  class Schedule;
+
+  namespace event_processor
+  {  
+    /*
+      ------------
+      cause events to be processed in a separate thread
+      and functions used in the online.  Several of these
+      state are likely to be tranitory in the offline
+      because they are completly driven by the data coming
+      from the input source.
+    */
+    enum State { sInit=0,sJobReady,sRunGiven,sRunning,sStopping,
+		 sShuttingDown,sDone,sJobEnded,sError,sEnd,sInvalid };
+    
+    enum Msg { mSetRun=0, mSkip, mRunAsync, mRunID, mRunCount, mBeginJob,
+	       mStopAsync, mShutdownAsync, mEndJob, mCountComplete,
+	       mInputExhausted, mStopSignal, mShutdownSignal, mFinished,
+	       mAny, mDtor, mException };
+
+    class StateSentry;
+  }
+    
   class EventProcessor
   {
   public:
@@ -62,6 +93,10 @@ namespace edm {
     //   0     successful completion
     //   1     exception of unknown type caught
     //   2     everything else
+    //   3     signal received
+    //   4     input complete
+    enum Status { epSuccess=0, epException=1, epOther=2, epSignal=3,
+    epInputComplete=4 };
 
 
     /// The input string contains the entire contents of a
@@ -70,15 +105,16 @@ namespace edm {
     /// access to no externally-created services.
     /// This should become pretty much useless when construction of
     /// services is moved outside of the EventProcessor.
-    explicit EventProcessor(const std::string& config);
+    /// explicit EventProcessor(const std::string& config);
 
 
     // The input string contains the entire contents of a
     // configuration file.  Same as previous constructor, except allow
     // attachement of pre-existing services.
-    EventProcessor(const std::string& config,
-		   const ServiceToken&,
-		   serviceregistry::ServiceLegacy);
+    explicit EventProcessor(const std::string& config,
+			    const ServiceToken& = ServiceToken(),
+			    serviceregistry::ServiceLegacy =
+			    serviceregistry::kOverlapIsError);
 
     ~EventProcessor();
 
@@ -93,33 +129,18 @@ namespace edm {
        */
     bool endJob();
 
-    /*
-      ------------
-      cause events to be processed in a separate thread
-      and functions used in the online.  Several of these
-      state are likely to be tranitory in the offline
-      because they are completly driven by the data coming from the 
-      input source.
 
-      sInit: ctor has completed
-      sJobStart: beginJob is active or complete
-      sRunStart: beginRun is active or complete
-      sRunning: event loop is actively processing events
-      sStopping: event loop is supposed to shut down after the current event
-      sIdle: no event loop is active
-      sError: event loop has encountered a bad error and stopped
-      sRunEnd: endRun is active or complete
-      sJobEnd: endJob is active or complete
-    */
-    enum State {sInit,sJobStart,sRunStart,sRunning,sStopping,
-		sIdle,sError,sRunEnd,sJobEnd };
-
-    State getState() const;
+    const char* currentStateName() const;
+    const char* stateName(event_processor::State s) const;
+    const char* msgName(event_processor::Msg m) const;
+    event_processor::State getState() const;
     void runAsync();
     StatusCode statusAsync() const;
     StatusCode stopAsync(); // wait for the completion
-    void beginRun();
-    void endRun();
+    StatusCode shutdownAsync(); // wait for the completion
+    StatusCode waitTillDoneAsync(); // wait until InputExhausted
+    void setRunNumber(RunNumber_t runNumber);
+
     // -------------
 
     // Invoke event processing.  We will process a total of
@@ -159,9 +180,78 @@ namespace edm {
     boost::signal<void (const Event&, const EventSetup&)> 
     postProcessEventSignal;
     
+    struct CommonParams
+    {
+      CommonParams():
+	version_(),
+	pass_()
+      { }
+
+      CommonParams(const std::string& name,
+		   unsigned long ver,
+		   unsigned long pass):
+	processName_(name),
+	version_(ver),
+	pass_(pass)
+      { }
+      
+      std::string             processName_;
+      unsigned long           version_;
+      unsigned long           pass_;
+    }; // struct CommonParams
+
   private:
-    FwkImpl* impl_;
+
+    StatusCode run_p(unsigned long numberToProcess,
+		     event_processor::Msg m);
+    StatusCode doneAsync(event_processor::Msg m);
+
+    ServiceToken   getToken();
+    void           connectSigs(EventProcessor* ep);
+
+    struct DoPluginInit
+    {
+      DoPluginInit();
+    };
+
+    // Are all these data members really needed? Some of them are used
+    // only during construction, and never again. If they aren't
+    // really needed, we should remove them.    
+    //shared_ptr<ParameterSet>        params_;
+
+    DoPluginInit plug_init_;
+    CommonParams common_;
+    boost::shared_ptr<ActivityRegistry> actReg_;
+    WorkerRegistry wreg_;
+    SignallingProductRegistry preg_;
+    ServiceToken serviceToken_;
+    boost::shared_ptr<InputSource> input_;
+    std::auto_ptr<Schedule> sched_;
+    std::auto_ptr<eventsetup::EventSetupProvider> esp_;    
+    ActionTable act_table_;
+    volatile event_processor::State state_;
+
+    void changeState(event_processor::Msg);
+    void errorState();
+    void setupSignal();
+
+    static void asyncRun(EventProcessor*);
+    boost::shared_ptr<boost::thread> event_loop_;
+
+    boost::mutex state_lock_;
+    boost::mutex stop_lock_;
+    boost::condition stopper_;
+    volatile int stop_count_;
+    volatile Status last_rc_;
+    std::string last_error_text_;
+    volatile bool id_set_;
+    volatile pthread_t event_loop_id_;
+    int my_sig_num_;
+
+    friend class event_processor::StateSentry;
   };
+
+  // ----- implementation details below ------
   
   inline
   EventProcessor::StatusCode

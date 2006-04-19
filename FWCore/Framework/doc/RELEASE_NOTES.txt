@@ -301,3 +301,16 @@ of the full path set in listOfTriggers and the pass/fail numbers can be
 verified (the run_trig*.sh script will need to be modified to include the
 new test case).
 
+19-04-06 jbk
+
+Added the state machine behavior to the event processor.  All tests run.
+There are a number of ugly things.  See the comments in the state table
+in EventProcessor.cc.  Right now the state does not go to "Error" if
+a "beginJob" of a module throws an exception (unlike "run").  There is
+also a check at the front of beginJob that makes sure we are coming from
+the correct state.  There is a state diagram at 
+ https://uimon.cern.ch/twiki/bin/view/CMS/EventProcessorStateHandlingProposal
+that is at this time up to date.  The "testFramework" test runs without
+modification.  The "Running" state should probably be "RunningAsync" and
+"RunningSync".  There is no checked-in test for "runAsync".
+Timing scenario are not complete.
