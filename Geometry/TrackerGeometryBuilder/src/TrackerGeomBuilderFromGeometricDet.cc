@@ -64,58 +64,23 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build(const DDCompactView* 
     }
     
   }
-  buildPixelBarrel(pixB,&ev,tracker,theDetIdToEnum.type(1)); //"PixelBarrel" 
-  buildPixelForward(pixF,&ev,tracker,theDetIdToEnum.type(2)); //"PixelEndcap" 
-  buildSiliconBarrel(tib,&ev,tracker,theDetIdToEnum.type(3));// "TIB"	
-  buildSiliconForward(tid,&ev,tracker,theDetIdToEnum.type(4));//"TID" 
-  buildSiliconBarrel(tob,&ev,tracker,theDetIdToEnum.type(5));//"TOB"	
-  buildSiliconForward(tec,&ev,tracker,theDetIdToEnum.type(6));//"TEC"        
+  buildPixel(pixB,&ev,tracker,theDetIdToEnum.type(1), "barrel"); //"PixelBarrel" 
+  buildPixel(pixF,&ev,tracker,theDetIdToEnum.type(2), "endcap"); //"PixelEndcap" 
+  buildSilicon(tib,&ev,tracker,theDetIdToEnum.type(3), "barrel");// "TIB"	
+  buildSilicon(tid,&ev,tracker,theDetIdToEnum.type(4), "endcap");//"TID" 
+  buildSilicon(tob,&ev,tracker,theDetIdToEnum.type(5), "barrel");//"TOB"	
+  buildSilicon(tec,&ev,tracker,theDetIdToEnum.type(6), "endcap");//"TEC"        
   buildGeomDet(tracker);//"GeomDet"
   return tracker;
 }
 
-void TrackerGeomBuilderFromGeometricDet::buildPixelBarrel(std::vector<const GeometricDet*> gdv, DDExpandedView* evtemp,TrackerGeometry* tracker,GeomDetType::SubDetector& det){
+void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricDet*> gdv, 
+						    DDExpandedView* ev,
+						    TrackerGeometry* tracker,
+						    GeomDetType::SubDetector& det,
+						    const std::string& part){ 
 
-  PlaneBuilderFromGeometricDet planeBuilder;
-  static std::map<string,PixelGeomDetType*> detTypeMap;
-  PixelGeomDetType* detType;
-  DDExpandedView* ev = evtemp;
-
-  for(u_int32_t i= 0;i<gdv.size();i++){
-    ev->goTo(gdv[i]->navType());
-    std::string detName = gdv[i]->name();
-
-    if (detTypeMap.find(detName) == detTypeMap.end()) {
-      PixelTopology* t;
-      t =  theTopologyBuilder->buildPixel(gdv[i]->bounds(),
-					  getDouble("PixelROCRows",ev),
-					  getDouble("PixelROCCols",ev),
-					  getDouble("PixelROC_X"  ,ev),
-					  getDouble("PixelROC_Y"  ,ev),
-					  "barrel");
-
-      detType =  new PixelGeomDetType(t,detName,det);
-      detTypeMap[detName]  =  detType;
-      tracker->addType(detType);
-    }
-    
-    PlaneBuilderFromGeometricDet::ResultType plane = planeBuilder.plane(gdv[i]);
-    plane->setMediumProperties( new MediumProperties( 0.04, 1.0e-4));
-    GeomDetUnit* temp = new PixelGeomDetUnit(&(*plane),detTypeMap[detName],gdv[i]);
-
-    tracker->addDetUnit(temp);
-    tracker->addDetUnitId(gdv[i]->geographicalID());
-
-  }
-  
-}
-    
-
-void TrackerGeomBuilderFromGeometricDet::buildPixelForward(std::vector<const GeometricDet*> gdv, DDExpandedView* evtemp,TrackerGeometry* tracker,GeomDetType::SubDetector& det){ 
-
-  PlaneBuilderFromGeometricDet planeBuilder;
   static std::map<std::string,PixelGeomDetType*> detTypeMap;
-  DDExpandedView* ev = evtemp;  
 
   for(u_int32_t i=0;i<gdv.size();i++){
 
@@ -123,74 +88,32 @@ void TrackerGeomBuilderFromGeometricDet::buildPixelForward(std::vector<const Geo
     std::string detName = gdv[i]->name();
     if (detTypeMap.find(detName) == detTypeMap.end()) {
 
-      PixelTopology* t;
-      t = theTopologyBuilder->buildPixel(gdv[i]->bounds(),
-					 getDouble("PixelROCRows",ev),
-					 getDouble("PixelROCCols",ev),
-					 getDouble("PixelROC_X"  ,ev),
-					 getDouble("PixelROC_Y"  ,ev),
-					 "endcap");
+      PixelTopology* t = 
+	theTopologyBuilder->buildPixel(gdv[i]->bounds(),
+				       getDouble("PixelROCRows",ev),
+				       getDouble("PixelROCCols",ev),
+				       getDouble("PixelROC_X"  ,ev),
+				       getDouble("PixelROC_Y"  ,ev),
+				       part);
       
       detTypeMap[detName]  = new  PixelGeomDetType(t,detName,det);
       tracker->addType(detTypeMap[detName]);
-    
     }
-
-    PlaneBuilderFromGeometricDet::ResultType plane = planeBuilder.plane(gdv[i]);
-    plane->setMediumProperties( new MediumProperties( 0.04, 1.0e-4));
+    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i], ev, true);
     GeomDetUnit* temp =  new PixelGeomDetUnit(&(*plane),detTypeMap[detName],gdv[i]);
 
     tracker->addDetUnit(temp);
     tracker->addDetUnitId(gdv[i]->geographicalID());
-
-
   }
 }
 
-void TrackerGeomBuilderFromGeometricDet::buildSiliconBarrel(std::vector<const GeometricDet*> gdv, DDExpandedView* evtemp,TrackerGeometry* tracker,GeomDetType::SubDetector& det){
-
-  PlaneBuilderFromGeometricDet planeBuilder;
+void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const GeometricDet*> gdv, 
+						      DDExpandedView* ev,
+						      TrackerGeometry* tracker,
+						      GeomDetType::SubDetector& det,
+						      const std::string& part)
+{ 
   static std::map<std::string,StripGeomDetType*> detTypeMap;
-  DDExpandedView* ev = evtemp;
-
-  for(u_int32_t i=0;i<gdv.size();i++){
-
-    ev->goTo(gdv[i]->navType());
-    std::string detName = gdv[i]->name();
-    if (detTypeMap.find(detName) == detTypeMap.end()) {
-
-      bool stereo = false;
-      if(getString("TrackerStereoDetectors",ev)=="true"){
-	stereo = true;
-      }
-
-      StripTopology* t;
-      t = theTopologyBuilder->buildStrip(gdv[i]->bounds(),
-					 getDouble("SiliconAPVNumber",ev),
-					 "barrel");
-
-      detTypeMap[detName] = new  StripGeomDetType( t,detName,det,
-						   stereo);
-      tracker->addType(detTypeMap[detName]);
-    }
-
-    PlaneBuilderFromGeometricDet::ResultType plane = planeBuilder.plane(gdv[i]);  
-    plane->setMediumProperties( new MediumProperties( 0.02, 0.5e-4));
-    GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), detTypeMap[detName],gdv[i]);
-    
-    tracker->addDetUnit(temp);
-    tracker->addDetUnitId(gdv[i]->geographicalID());
-    
-    
-
-  }
-}
-
-void TrackerGeomBuilderFromGeometricDet::buildSiliconForward(std::vector<const GeometricDet*> gdv, DDExpandedView* evtemp,TrackerGeometry* tracker,GeomDetType::SubDetector& det){ 
-
-  PlaneBuilderFromGeometricDet planeBuilder;
-  static std::map<std::string,StripGeomDetType*> detTypeMap;
-  DDExpandedView* ev = evtemp;
   
   for(u_int32_t i=0;i<gdv.size();i++){
 
@@ -202,20 +125,15 @@ void TrackerGeomBuilderFromGeometricDet::buildSiliconForward(std::vector<const G
       if(getString("TrackerStereoDetectors",ev)=="true"){
 	stereo = true;
       }
-
-      StripTopology* t;
-      t =  theTopologyBuilder->buildStrip(gdv[i]->bounds(),
-					  getDouble("SiliconAPVNumber",ev),
-					  "endcap");
-
-
+      StripTopology* t =
+	theTopologyBuilder->buildStrip(gdv[i]->bounds(),
+				       getDouble("SiliconAPVNumber",ev),
+				       part);
       detTypeMap[detName] = new  StripGeomDetType( t,detName,det,
 						   stereo);
       tracker->addType(detTypeMap[detName]);
     }
-
-    PlaneBuilderFromGeometricDet::ResultType plane = planeBuilder.plane(gdv[i]);  
-    plane->setMediumProperties( new MediumProperties( 0.02, 0.5e-4));
+    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i],ev,false);  
     GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), detTypeMap[detName],gdv[i]);
     
     tracker->addDetUnit(temp);
@@ -227,6 +145,8 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
   PlaneBuilderForGluedDet gluedplaneBuilder;
   std::vector<GeomDetUnit*> gdu= tracker->detUnits();
   std::vector<DetId> gduId = tracker->detUnitIds();
+  std::vector<const GeomDetUnit *> glued;
+
   for(u_int32_t i=0;i<gdu.size();i++){
     unsigned int subdet_id = gduId[i].subdetId();
     StripSubdetector sidet( gduId[i].rawId());
@@ -243,7 +163,7 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
 	abort();
       }
       const GeomDetUnit* dum = gdu[partner_pos];
-      std::vector<const GeomDetUnit *> glued;
+      glued.clear();
       glued.push_back(dum);
       glued.push_back(dus);
       std::string part = "barrel";
@@ -252,13 +172,13 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
       GluedGeomDet* gluedDet = new GluedGeomDet(&(*plane),dum,dus);
       tracker->addDet((GeomDet*) gluedDet);
       tracker->addDetId(DetId(sidet.glued()));
-      glued.clear();
     }
   }
 }
 
 
-std::string TrackerGeomBuilderFromGeometricDet::getString(const std::string s, DDExpandedView* ev){
+std::string TrackerGeomBuilderFromGeometricDet::getString(const std::string s, DDExpandedView* ev) const
+{
     vector<std::string> temp;
     DDValue val(s);
     vector<const DDsvalues_type *> result = ev->specifics();
@@ -283,7 +203,8 @@ std::string TrackerGeomBuilderFromGeometricDet::getString(const std::string s, D
     return "NotFound";
 }
 
-double TrackerGeomBuilderFromGeometricDet::getDouble(const std::string s,  DDExpandedView* ev){
+double TrackerGeomBuilderFromGeometricDet::getDouble(const std::string s,  DDExpandedView* ev) const 
+{
   vector<std::string> temp;
   DDValue val(s);
   vector<const DDsvalues_type *> result = ev->specifics();
@@ -305,4 +226,31 @@ double TrackerGeomBuilderFromGeometricDet::getDouble(const std::string s,  DDExp
       return double(atoi(temp[0].c_str())); 
     }
   return 0;
+}
+
+PlaneBuilderFromGeometricDet::ResultType
+TrackerGeomBuilderFromGeometricDet::buildPlaneWithMaterial(const GeometricDet* gd, 
+							   DDExpandedView* ev,
+							   bool isPixel) const
+{
+  PlaneBuilderFromGeometricDet planeBuilder;
+  PlaneBuilderFromGeometricDet::ResultType plane = planeBuilder.plane(gd);  
+  //
+  // set medium properties (if defined)
+  //
+  double radLength = getDouble("TkRadLength",ev);
+  double xi = getDouble("TkXi",ev);
+  if ( radLength>FLT_MIN || xi>FLT_MIN ) {
+    plane->setMediumProperties( new MediumProperties(radLength,xi) );
+  }
+  else {
+    // FIXME: temporary hard-wired values, used while the XML access does not work
+    if (isPixel) {
+      plane->setMediumProperties( new MediumProperties( 0.04, 1.0e-4));
+    }
+    else {
+      plane->setMediumProperties( new MediumProperties( 0.02, 0.5e-4));
+    }
+  }
+  return plane;
 }

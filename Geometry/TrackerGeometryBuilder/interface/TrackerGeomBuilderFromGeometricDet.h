@@ -16,15 +16,19 @@ public:
 
   TrackerGeometry* build(const DDCompactView* fv, const GeometricDet* gd);
 
- 
- private:
-  void buildPixelBarrel(std::vector<const GeometricDet*>,DDExpandedView*,TrackerGeometry*,GeomDetType::SubDetector& det);
-  void buildPixelForward(std::vector<const GeometricDet*>,DDExpandedView*,TrackerGeometry*,GeomDetType::SubDetector& det);
-  void buildSiliconBarrel(std::vector<const GeometricDet*>,DDExpandedView*,TrackerGeometry*,GeomDetType::SubDetector& det);
-  void buildSiliconForward(std::vector<const GeometricDet*>,DDExpandedView*,TrackerGeometry*,GeomDetType::SubDetector& det);
+private:
+
+  void buildPixel(std::vector<const GeometricDet*>,DDExpandedView*,
+		  TrackerGeometry*,GeomDetType::SubDetector& det, const std::string& part);
+  void buildSilicon(std::vector<const GeometricDet*>,DDExpandedView*,
+		    TrackerGeometry*,GeomDetType::SubDetector& det, const std::string& part);
   void buildGeomDet(TrackerGeometry*);
-  std::string getString(std::string,DDExpandedView*);
-  double getDouble(std::string,DDExpandedView*);
+
+  std::string getString(std::string,DDExpandedView*) const;
+  double getDouble(std::string,DDExpandedView*) const;
+
+  PlaneBuilderFromGeometricDet::ResultType
+  buildPlaneWithMaterial(const GeometricDet* gd, DDExpandedView* ev, bool isPixel) const;
 
   GeomDetTypeIdToEnum theDetIdToEnum;
   GeomTopologyBuilder* theTopologyBuilder;
