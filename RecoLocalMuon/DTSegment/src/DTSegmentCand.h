@@ -7,8 +7,8 @@
  * and store relative information. It must be transformed into a DTSegment
  * for further use.
  *
- * $Date: 2006/03/30 16:53:18 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/12 15:15:48 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -18,8 +18,6 @@
 
 /* Collaborating Class Declarations */
 #include "RecoLocalMuon/DTSegment/src/DTHitPairForFit.h"
-#include "Geometry/DTGeometry/interface/DTSuperLayer.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 
 /* C++ Headers */
 #include <vector>
@@ -29,6 +27,11 @@
 /* ====================================================================== */
 
 /* Class DTSegmentCand Interface */
+
+class DTRecSegment2D;
+class DTRecSegment2DPhi; 
+class DTChamber;
+class DTSuperLayer;
 
 class DTSegmentCand{
 
@@ -64,6 +67,9 @@ class DTSegmentCand{
 
     /// less operator based on nHits and chi2
     bool operator<(const DTSegmentCand& seg);
+
+    //  /// the super layer on which relies 
+    // const DTSuperLayer* superLayer() const {return theSL;}
 
     // in SL frame
     LocalPoint  position() const { return thePosition; }
@@ -107,9 +113,12 @@ class DTSegmentCand{
     /// the used hits
     AssPointCont hits() const { return theHits;}
 
-    /// convert this DTSegmentCand in a DTRecSegment2D
-    DTRecSegment2D* convert();
+    /// convert this DTSegmentCand into a DTRecSegment2D
+    DTRecSegment2D* convert() const;
 
+    /// convert this DTSegmentCand into a DTRecSegment2DPhi
+    DTRecSegment2DPhi* convert(const DTChamber *chamber) const;
+    
   protected:
 
   private:
