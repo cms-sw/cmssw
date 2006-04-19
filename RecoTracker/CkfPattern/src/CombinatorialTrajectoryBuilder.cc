@@ -16,7 +16,8 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+//#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
@@ -36,19 +37,20 @@ void CombinatorialTrajectoryBuilder::init(const edm::EventSetup& es)
   es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
 
   //trackingtools
-  thePropagator=        new AnalyticalPropagator(&(*magfield), alongMomentum);
+  //thePropagator=        new AnalyticalPropagator(&(*magfield), alongMomentum);
+  thePropagator=        new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield));
   theUpdator=           new KFUpdator();
   theEstimator=         new Chi2MeasurementEstimator(chi2cut);
   theNavigationSchool=  new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*magfield));
-  theMeasurementTracker=    new MeasurementTracker(es);
+  theMeasurementTracker=new MeasurementTracker(es);
   theLayerMeasurements= new LayerMeasurements(theMeasurementTracker);
 
 
   theMaxCand = 5;
   theMaxLostHit = 3;
-  theMaxConsecLostHit = 3;
+  theMaxConsecLostHit = 2;
   theLostHitPenalty = 30 ;
-  theMinHits = 4; 
+  theMinHits = 5; 
   theAlwaysUseInvalid = true;
 }
 
@@ -314,7 +316,11 @@ std::vector<TrajectoryMeasurement>
 CombinatorialTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj){
   cout << "start findCompMeas" << endl;
   cout << "traj.foundHits(): " << traj.foundHits() << endl;
-  cout << "traj.lastLayer(): " << traj.lastLayer() << endl;
+  cout << "traj.lostHits(): " << traj.lostHits() << endl;
+  const BarrelDetLayer* barrelPointer = dynamic_cast<const BarrelDetLayer*> (traj.lastLayer());
+  if(barrelPointer) 
+    cout << "lastLayer.specificSurface().radius(): "
+	 << barrelPointer->specificSurface().radius() << endl;
 
   TrajectoryStateOnSurface testState = traj.lastMeasurement().forwardPredictedState();
 
