@@ -860,7 +860,7 @@ namespace edm {
     changeState(mSetRun);
 
     // interface not correct yet
-    // getInputSource().setRunNumber(run);
+    getInputSource().setRunNumber(run);
 
     LogWarning("state")
       << "EventProcessor::setRunNumber not yet implemented\n";
