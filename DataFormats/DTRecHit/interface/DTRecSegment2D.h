@@ -7,8 +7,8 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *  
- * $Date: 2006/03/20 12:42:28 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/13 15:49:16 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -52,11 +52,13 @@ class DTRecSegment2D : public RecSegment2D {
   virtual ~DTRecSegment2D() ;
   
   /* Operations */ 
+  /// The clone method needed by the clone policy
   virtual DTRecSegment2D* clone() const { return new DTRecSegment2D(*this);}
-  /// local position in SL frame
-  
+
+  /// the id 
   virtual DetId geographicalId() const { return theDetId; }
 
+  /// local position in SL frame
   virtual LocalPoint localPosition() const {return thePosition; }
   
   /// local position error in SL frame
@@ -82,18 +84,24 @@ class DTRecSegment2D : public RecSegment2D {
 
   /// Access to specific components
   std::vector<DTRecHit1D> specificRecHits() const ;
-
+  
+ protected:
+  void setPosition(const LocalPoint& pos);
+  void setDirection(const LocalVector& dir);
+  
  private:
   friend class DTSegmentUpdator;
   void update(std::vector<DTRecHit1D> & updatedRecHits);
-  void setPosition(const LocalPoint& pos);
-  void setDirection(const LocalVector& dir);
   void setCovMatrix(const AlgebraicSymMatrix& cov);
   void setChi2(const double& chi2);
   void setT0(const double& t0);
 
- private:
+  /// The id of the superlayer on which reside the segment
+  DTSuperLayerId superLayerId() const{return DTSuperLayerId(theDetId.rawId());}
+  
+ protected:
   DetId theDetId;           // Id of the det this seg belongs
+ private:
   LocalPoint  thePosition;  // in SL frame
   LocalVector theDirection; // in SL frame
 
