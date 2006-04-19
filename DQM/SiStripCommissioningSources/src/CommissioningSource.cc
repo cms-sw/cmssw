@@ -144,7 +144,7 @@ void CommissioningSource::analyze( const edm::Event& event,
     for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
       // Create FED key and check if non-zero
       uint32_t fed_key = SiStripGenerateKey::fedKey( *ifed, ichan );
-      if ( fec_key ) { 
+      if ( fed_key ) { 
 	// Retrieve digis for given FED key and check if found
 	vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw->find( fed_key );
 	if ( digis != raw->end() ) { 
@@ -153,10 +153,24 @@ void CommissioningSource::analyze( const edm::Event& event,
 	    if ( tasks_.find(fec_key) != tasks_.end() ) { 
 	      tasks_[fec_key]->fedChannel( fed_key );
 	      tasks_[fec_key]->fillHistograms( *summary, *digis );
+	    } else {
+	      stringstream ss;
+	      ss << "[CommissioningSource::analyze]"
+		 << " Commissioning task with FEC key " 
+		 << hex << setfill('0') << setw(8) << fec_key << dec
+		 << " not found in list!"; 
+	      edm::LogError("Commissioning") << ss.str();
 	    }
 	  } else {
 	    if ( tasks_.find(fed_key) != tasks_.end() ) { 
 	      tasks_[fed_key]->fillHistograms( *summary, *digis );
+	    } else {
+	      stringstream ss;
+	      ss << "[CommissioningSource::analyze]"
+		 << " Commissioning task with FED key " 
+		 << hex << setfill('0') << setw(8) << fed_key << dec
+		 << " not found in list!"; 
+	      edm::LogError("Commissioning") << ss.str();
 	    }
 	  }
 	}
@@ -190,13 +204,13 @@ void CommissioningSource::createDirs() {
 	  dqm_->setCurrentFolder( dir );
 	  SiStripHistoNamingScheme::ControlPath path = SiStripHistoNamingScheme::controlPath( dir );
 	  edm::LogInfo("Commissioning") << "[CommissioningSource::createDirs]"
-					<< "  Creating directory: " << dir << " " 
+					<< "  Created directory: " << dir << " " 
 					<< " using params crate/slot/ring/ccu/chan: " 
-					<< path.fecCrate_ << "/" 
-					<< path.fecSlot_ << "/" 
-					<< path.fecRing_ << "/" 
-					<< path.ccuAddr_ << "/"  
-					<< path.ccuChan_; 
+					<< 0 << "/" 
+					<< (*ifec).fecSlot() << "/" 
+					<< (*iring).fecRing() << "/" 
+					<< (*iccu).ccuAddr() << "/"  
+					<< (*imodule).ccuChan(); 
 	}
       }
     }
@@ -263,7 +277,7 @@ void CommissioningSource::createTask( SiStripEventSummary::Task task ) {
 		//  Use data stream to determine which task objects are created!
 		if      ( task == SiStripEventSummary::FED_CABLING )  { tasks_[key] = new FedCablingTask( dqm_, conn ); }
 		else if ( task == SiStripEventSummary::PEDESTALS )    { tasks_[key] = new PedestalsTask( dqm_, conn ); }
-		else if ( task == SiStripEventSummary::APV_TIMING )   { tasks_[key] = new ApvTimingTask( dqm_, conn ); }
+		else if ( task == SiStripEventSummary::APV_TIMING )   { tasks_[key] = new ApvTimingTask( dqm_, conn ); } 
 		else if ( task == SiStripEventSummary::OPTO_SCAN )    { tasks_[key] = new OptoScanTask( dqm_, conn ); }
 		else if ( task == SiStripEventSummary::VPSP_SCAN )    { tasks_[key] = new VpspScanTask( dqm_, conn ); }
 		else if ( task == SiStripEventSummary::FED_TIMING )   { tasks_[key] = new FedTimingTask( dqm_, conn ); }
@@ -282,10 +296,16 @@ void CommissioningSource::createTask( SiStripEventSummary::Task task ) {
 		ss << "[CommissioningSource::createTask]"
 		   << " Created task '" << tasks_[key]->myName() << "' for key "
 		   << hex << setfill('0') << setw(8) << key << dec; 
-		LogDebug("Commissioning") << ss.str();
+		edm::LogInfo("Commissioning") << ss.str();
 		tasks_[key]->bookHistograms(); 
 		tasks_[key]->updateFreq( updateFreq_ ); 
 	      } else {
+		stringstream ss;
+		ss << "[CommissioningSource::createTask]"
+		   << " Commissioning task with key " 
+		   << hex << setfill('0') << setw(8) << key << dec
+		   << " not found in list!"; 
+		edm::LogError("Commissioning") << ss.str();
 	      }
 
 	    } else {
@@ -294,7 +314,6 @@ void CommissioningSource::createTask( SiStripEventSummary::Task task ) {
 		 << " Task '" << tasks_[key]->myName()
 		 << "' already exists for key "
 		 << hex << setfill('0') << setw(8) << key << dec; 
-	      LogDebug("Commissioning") << ss.str();
 	      edm::LogError("Commissioning") << ss.str();
 	    }
 	    
