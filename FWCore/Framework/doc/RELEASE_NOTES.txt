@@ -324,5 +324,6 @@ Still missing or incomplete:
   * Schedule features from EventFilter-land like global prescales and endpath
     disabling.
   * waiting up input sources that are blocking if a stop signal arrives
-
-li
+  * interface that gives out const module lists so that parameters and names
+    can  be inspected by applications.
+  * interface to get at statistics in the Schedule object

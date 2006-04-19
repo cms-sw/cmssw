@@ -918,12 +918,13 @@ namespace edm {
 	{
 	  // timeout occurred
 	  // if(id_set_) pthread_kill(event_loop_id_,my_sig_num_);
+	  // this is a temporary hack until we get the input source
+	  // upgraded to allow blocking input sources to be unblocked
+	  if(id_set_) pthread_cancel(event_loop_id_);
 	  // we will not do anything yet
 	  LogWarning("timeout")
 	    << "An asynchronous request was made to shut down the event loop "
-	    << "and the event loop did not shutdown after 2 minutes\n"
-	    << "No further action will occur as of now and we will just\n"
-	    << "wait forever for the event loop thread to complete\n";
+	    << "and the event loop did not shutdown after 2 minutes\n";
 	}
 
       event_loop_->join();
@@ -977,6 +978,16 @@ namespace edm {
     // set up signals to allow for interruptions
     // ignore all other signals
     // make sure no exceptions escape out
+
+    // temporary hack until we modify the input source to allow
+    // wakeup calls from other threads.  This mimics the solution
+    // in EventFilter/Processor, which I do not like.
+    // allowing cancels means that the thread just disappears at
+    // certain points.  This is bad for C++ stack variables.
+    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE,0);
+    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,0);
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
+
     me->setupSignal();
     {
       boost::mutex::scoped_lock(me->stop_lock_);
