@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/18 16:24:25 $
- * $Revision: 1.7 $
+ * $Date: 2006/04/19 17:39:12 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -40,9 +40,9 @@ using namespace edm;
 /// Constructor
 DTSegmentUpdator::DTSegmentUpdator(const ParameterSet& config) :
 theFitter(new DTLinearFit()) {  
-  string theAlgoName = config.getParameter<string>("Reco2DAlgoName");
+  string theAlgoName = config.getParameter<string>("recAlgo");
   theAlgo = DTRecHitAlgoFactory::get()->create(theAlgoName, 
-					       config.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+					       config.getParameter<ParameterSet>("recAlgoConfig"));
 }
 
 /// Destructor
