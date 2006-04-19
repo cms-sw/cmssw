@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/13 07:23:16 $
- * $Revision: 1.4 $
+ * $Date: 2006/04/18 16:24:25 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -48,10 +48,10 @@ DTRecSegment2DProducer::DTRecSegment2DProducer(const edm::ParameterSet& pset) {
   produces<DTRecSegment2DCollection>();
 
   // Get the concrete reconstruction algo from the factory
-  string theAlgoName = pset.getParameter<string>("recAlgo");
-  cout << "theAlgoName is " << theAlgoName << endl;
+  string theAlgoName = pset.getParameter<string>("Reco2DAlgoName");
+  cout << "the Reco2D AlgoName is " << theAlgoName << endl;
   theAlgo = DTRecSegment2DAlgoFactory::get()->create(theAlgoName,
-                                                     pset.getParameter<ParameterSet>("recAlgoConfig"));
+                                                     pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
 }
 
 /// Destructor
@@ -98,8 +98,11 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
     // // Get the iterators over the digis associated with this LayerId
     // const DTRecHitCollection::Range& range = (*dtLayerIt).second;
     
+    // Get all the rec hit in the same superLayer in which layerId relies 
     DTRecHitCollection::range range =
       allHits->get(layerId, DTSuperLayerIdComparator());
+    //FIXME: maybe I can use get(superLayerId) instead of the previous one
+
     
     // Loop over all digis in the given range
     vector<DTRecHit1DPair> pairs(range.first,range.second);

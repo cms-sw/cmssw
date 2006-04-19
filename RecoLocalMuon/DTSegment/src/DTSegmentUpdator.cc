@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/18 10:28:22 $
- * $Revision: 1.6 $
+ * $Date: 2006/04/18 16:24:25 $
+ * $Revision: 1.7 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -40,8 +40,9 @@ using namespace edm;
 /// Constructor
 DTSegmentUpdator::DTSegmentUpdator(const ParameterSet& config) :
 theFitter(new DTLinearFit()) {  
-  string theAlgoName = config.getParameter<string>("recAlgo");
-  theAlgo = DTRecHitAlgoFactory::get()->create(theAlgoName, config.getParameter<ParameterSet>("recAlgoConfig"));
+  string theAlgoName = config.getParameter<string>("Reco2DAlgoName");
+  theAlgo = DTRecHitAlgoFactory::get()->create(theAlgoName, 
+					       config.getParameter<ParameterSet>("Reco2DAlgoConfig"));
 }
 
 /// Destructor
@@ -86,8 +87,10 @@ void DTSegmentUpdator::update(DTRecSegment2D* seg)  {
 }
 
 void DTSegmentUpdator::fit(DTRecSegment4D* seg) {
+  //FIXME!!!I am not sure about these 2 refits...
   if(seg->hasPhi()) fit(seg->phiSegment());
   if(seg->hasZed()) fit(seg->zSegment());
+  //
 
   if(seg->hasPhi() && seg->hasZed() ) {
 
