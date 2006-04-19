@@ -4,6 +4,7 @@
 #include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
 #include "Geometry/Surface/interface/Surface.h"
 #include "Geometry/Surface/interface/BoundingBox.h"
+#include "Geometry/Surface/interface/MediumProperties.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <algorithm>
@@ -23,16 +24,17 @@ PlaneBuilderForGluedDet::ResultType PlaneBuilderForGluedDet::plane( const std::v
   //  Surface::RotationType rotation = computeRotation( dets, meanPos);
   BoundPlane tmpPlane( meanPos, rotation);
 
+  // Take the medium properties from the first DetUnit 
+  const MediumProperties* mp = dets.front()->surface().mediumProperties();
+  MediumProperties* newmp = 0; 
+  if (mp != 0) newmp = new MediumProperties( *mp);
+
   if(part=="barrel"){
     std::pair<RectangularPlaneBounds,GlobalVector> bo = computeRectBounds( dets, tmpPlane);
-    return new BoundPlane( meanPos+bo.second, 
-			   rotation,
-			   bo.first);
+    return new BoundPlane( meanPos+bo.second, rotation, bo.first, newmp);
   }else{
     std::pair<TrapezoidalPlaneBounds,GlobalVector> bo = computeTrapBounds( dets, tmpPlane);
-    return new BoundPlane( meanPos+bo.second, 
-			   rotation,
-			   bo.first);
+    return new BoundPlane( meanPos+bo.second, rotation, bo.first, newmp);
   }
 }
 
