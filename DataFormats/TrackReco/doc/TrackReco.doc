@@ -12,20 +12,51 @@ Persistent classes for Track Reco data format.
 
 \subsection interface Public interfaces
 - reco::helix::Parameters: parametrization of an helix with 5 parameters, according to 
-  the perigee convention. The conventions are documented in 
-  this <a href="http://www-jlc.kek.jp/subg/offl/lib/docs/helix_manip/main.html">page</a>.
+  the perigee convention (see \ref parms "below").
 - reco::helix::Covariance: non degenerate 5x5 covariance matrix for perigee parametrization.
 - reco::Track: reconstructed Track. Objects of this type are ment to be stored in the AOD.
    <br>Contains a reference to an object of type reco::TrackExtra.
 - reco::TrackExtra: Track extension. Objects of this type are ment to be stored in the RECO.
 
-A reco::Track object has two sets of methods:
-- inherited from the base class reco::TrackBase 
-- specific to reco::Track only
+\subsection interface_base Auxiliary base classes
+- reco::TrackBase: common base class to reco::Track and reco::Muon
+- reco::TrackExtraBase: common base class to reco::TrackExtra and reco::MuonExtra. 
+  Contains references to objects of type TrackingRecHit.
 
-The specific methods are implemented dereferencing the 
-reference to reco::TrackExtra and retrieving
-the corresponding information. For instance, the following methods 
+\subsection typedefs 
+- reco::TrackCollection: collection of reco::Track objects
+- reco::TrackRef: persistent reference to a reco::Track object
+- reco::TrackRefProd: reference to a reco::Track collection
+- reco::TrackRefVector: vector of references to reco::Track objects in the same collection
+- reco::track_iterator: iterator over a vector of references to reco::Track objects in the same collection
+
+- reco::TrackExtraCollection: collection of reco::TrackExtra objects
+- reco::TrackExtraRef: persistent reference to a reco::TrackExtra object
+- reco::TrackExtraRefProd: reference to a reco::TrackExtra collection
+- reco::TrackExtraRefVector: vector of references to reco::TrackExtra objects in the same collection
+- reco::trackExtra_iterator: iterator over a vector of references to reco::TrackExtra objects in the same collection
+
+\section tiers Track object "Tiers"
+
+The complete track information is stored in two different object:
+reco::Track and reco::TrackExtra, that are stored in two different
+collection, physically written to fine into two
+different ROOT branches. This modularity allows the freedom to "drop"
+the reco::TrackExtra component, if not needed, and leave only
+reco::Track, in order to save disk space. This could be done,
+for instance while writing only the AOD component of a RECO collection.
+ 
+A reco::Track has a reference (edm::Ref) to a reco::TrackExtra object that
+allows to access the information in the "extra" tier. Users don't
+necessarily have to dereference this persistent reference, since
+reco::Track has two sets of methods:
+- inherited from the base class reco::TrackBase, that only
+  access data stored in the reco::Track object
+- specific to reco::Track, that return quantities 
+  derived from reco::TrackExtra information, dereferencing
+  the corresponding reference.
+
+For instance, the following methods 
 will only access reco::TrackBase data members: 
 \htmlonly
 <pre>
@@ -56,23 +87,62 @@ and are equivalent to:
 So, if a reco::TrackExtra is not stored on disk dereferencing the reference contained in
 reco::Track may result in an exception.
 
-\subsection interface_base Auxiliary base classes
-- reco::TrackBase: common base class to reco::Track and reco::Muon
-- reco::TrackExtraBase: common base class to reco::TrackExtra and reco::MuonExtra. 
-  Contains references to objects of type TrackingRecHit.
+\section parms Track Parametrization
 
-\subsection typedefs 
-- reco::TrackCollection: collection of reco::Track objects
-- reco::TrackRef: persistent reference to a reco::Track object
-- reco::TrackRefProd: reference to a reco::Track collection
-- reco::TrackRefVector: vector of references to reco::Track objects in the same collection
-- reco::track_iterator: iterator over a vector of references to reco::Track objects in the same collection
+Track helix parametrization follows the perigee model described
+in the <a href="http://www-jlc.kek.jp/subg/offl/lib/docs/helix_manip/main.html">linked page</a>.
 
-- reco::TrackExtraCollection: collection of reco::TrackExtra objects
-- reco::TrackExtraRef: persistent reference to a reco::TrackExtra object
-- reco::TrackExtraRefProd: reference to a reco::TrackExtra collection
-- reco::TrackExtraRefVector: vector of references to reco::TrackExtra objects in the same collection
-- reco::trackExtra_iterator: iterator over a vector of references to reco::TrackExtra objects in the same collection
+The five parameters are:
+\htmlonly
+<ul>
+<li> <b><i><font face="Times New Roman, Times">d<sub>0</sub></font></i></b>: 
+     trajectory distance of closest approach to the beam line.
+<li> <b><i><font face="Symbol">f</font><sub>0</sub></i></b>: 
+     track azimuthal angle of point of closest approach to beamline.
+<li> <b><i><font face="Symbol">W</font></i></b>: 
+      ratio of electric charge and track transverse momentum:
+     <i><font face="Symbol">W</font></i> = <i><font face="Times New Roman, Times">e / p<sub>t</sub></font></i>.
+<li> <b><i><font face="Times New Roman, Times">d<sub>z</sub></font></i></b>: 
+     trajectory <i>z</i> coordinate at point of closest approach to the beam line.
+<li> <b><font face="Times New Roman, Times">tan</font><i><font face="Symbol">l</font></i></b>:
+     tangent of the dip angle: <font face="Times New Roman, Times">tan<i><font face="Symbol">l</font></i> = 
+     <i>p<sub>z</sub> / p<sub>t</sub></i></font>.
+</ul>
+\endhtmlonly
+
+The five parameters are stored internally in a vector whose index 
+varies from 0 to 4, in the order listed above. The indices are
+also defined as the enumerator <tt>index</tt> defined in the 
+namespace reco::helix:
+\htmlonly
+<pre>
+  enum index { i_d0 = 0, i_phi0, i_omega, i_dz, i_tanDip }; 
+</pre>
+\endhtmlonly
+
+So, for instance, in order to access specific track parameters a user
+can write the following code that requires no explicit numeric index:
+
+\htmlonly
+<pre>
+  using namespace reco::helix;
+  reco::TrackRef track = ... ; 
+  double d0 = track->parameter( i_d0 ); 
+  double covOmegaTanDip = track->covariance( i_omega, i_tanDip );
+</pre>
+\endhtmlonly
+
+\section utils Utility functions
+
+The following functions can be used to trasform from perigee
+parametrization to Cartesian coordinates and viceversa:
+- reco::helix::posMomError: return 6x6 position-momentum covariance
+  matrix in Cartesian coordinates from 5 parameters and 5x5 
+  covariance matrix.
+- reco::helix::setFromCartesian: set 5 parameters and 5x5 
+  covariance matrix from electric charge, position and momentum
+  at point of closest approach to the beamline, and 6x6 Cartesian
+  covariance matrix.
 
 \subsection modules Modules
 None.

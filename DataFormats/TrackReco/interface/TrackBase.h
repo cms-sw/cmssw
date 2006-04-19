@@ -1,6 +1,6 @@
 #ifndef TrackReco_TrackBase_h
 #define TrackReco_TrackBase_h
-/** \class reco::TrackBase
+/** \class reco::TrackBase TrackBase.h DataFormats/TrackReco/interface/TrackBase.h
  *
  * Common base class to all track types, including Muon.
  * It provides fit parameters, chi-square and n.d.o.f,
@@ -8,13 +8,13 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackBase.h,v 1.6 2006/04/03 07:47:36 llista Exp $
+ * \version $Id: TrackBase.h,v 1.7 2006/04/03 11:59:29 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "DataFormats/TrackReco/interface/HelixParameters.h"
+#include "DataFormats/TrackReco/interface/HelixUtils.h"
 
 namespace reco {
 
@@ -79,7 +79,7 @@ namespace reco {
     /// position of point of closest approach to the beamline
     Point vertex() const { return par_.vertex(); }
     /// position-momentum error matrix ( 6x6, degenerate )
-    PosMomError posMomError() const { return helix::posMomError( par_, cov_ ); }
+    PosMomError posMomError() const;
     /// number of hits found 
     unsigned short found() const { return found_; }
     /// number of hits lost
@@ -123,6 +123,10 @@ namespace reco {
     /// helix 5x5 covariance matrix
     Covariance cov_;
   };
+
+  inline TrackBase::PosMomError TrackBase::posMomError() const { 
+    return helix::posMomError( par_, cov_ ); 
+  }
 
 }
 

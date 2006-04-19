@@ -1,6 +1,6 @@
 #ifndef TrackReco_TrackExtra_h
 #define TrackReco_TrackExtra_h
-/** \class reco::TrackExtra
+/** \class reco::TrackExtra TrackExtra.h DataFormats/TrackReco/interface/TrackExtra.h
  *
  * Extension of a reconstructed Track. It is ment to be stored
  * in the RECO, and to be referenced by its corresponding
@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.6 2006/03/01 14:32:54 llista Exp $
+ * \version $Id: TrackExtra.h,v 1.7 2006/03/16 13:47:27 llista Exp $
  *
  */
 #include <Rtypes.h>

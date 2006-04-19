@@ -1,6 +1,6 @@
-// $Id: HelixParameters.cc,v 1.2 2005/11/24 11:58:21 llista Exp $
+// $Id: HelixParameters.cc,v 1.4 2005/12/11 22:26:46 llista Exp $
 // Author : Luca Lista, INFN
-#include "DataFormats/TrackReco/interface/HelixParameters.h"
+#include "DataFormats/TrackReco/interface/HelixUtils.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cmath>
 using namespace reco;

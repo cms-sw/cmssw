@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/TrackReco/interface/HelixParameters.h"
+#include "DataFormats/TrackReco/interface/HelixCovariance.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include <vector>

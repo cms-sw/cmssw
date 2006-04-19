@@ -1,13 +1,13 @@
 #ifndef TrackReco_TrackExtraBase_h
 #define TrackReco_TrackExtraBase_h
-/** \class reco::TrackExtraBase
+/** \class reco::TrackExtraBase TrackExtraBase.h DataFormats/TrackReco/interface/TrackExtraBase.h
  *
  * Basic extension of a reconstructed Track. 
  * Contains references to RecHits used in the fit.
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtraBase.h,v 1.1 2006/03/16 13:50:42 llista Exp $
+ * \version $Id: TrackExtraBase.h,v 1.2 2006/03/21 14:23:01 llista Exp $
  *
  */
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"

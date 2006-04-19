@@ -1,6 +1,6 @@
 #ifndef TrackReco_Track_h
 #define TrackReco_Track_h
-/** \class reco::Track
+/** \class reco::Track Track.h DataFormats/TrackReco/interface/Track.h
  *
  * Reconstructed Track. It is ment to be stored
  * in the AOD, with a reference to an extension
@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.14 2006/03/16 13:47:27 llista Exp $
+ * \version $Id: Track.h,v 1.15 2006/03/21 14:23:01 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"

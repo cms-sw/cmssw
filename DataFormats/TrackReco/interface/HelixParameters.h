@@ -1,18 +1,15 @@
 #ifndef TrackReco_HelixParameters_h
 #define TrackReco_HelixParameters_h
-/** \class reco::helix::Parameters
- *  
+/** \class reco::helix::Parameters HelixParameters.h DataFormats/TrackReco/interface/HelixParameters.h
+ *
  * Model of 5 helix parameters for Track fit 
  * according to how described in the following document:
  *
  *   http://www-jlc.kek.jp/subg/offl/lib/docs/helix_manip/main.html
- *
- * The class Covariance is a model of 5x5 covariance matrix 
- * for helix parameters
  * 
  * \author Luca Lista, INFN
  *
- * \version $Id: HelixParameters.h,v 1.9 2006/04/03 07:47:36 llista Exp $
+ * \version $Id: HelixParameters.h,v 1.10 2006/04/03 11:59:29 llista Exp $
  *
  */
 
@@ -26,22 +23,12 @@ namespace reco {
   namespace helix {
     /// enumerator provided indices to the five parameters
     enum index { i_d0 = 0, i_phi0, i_omega, i_dz, i_tanDip }; 
-    /// position-momentum covariance matrix (6x6).
-    /// This type will be replaced by a MathCore symmetric
-    /// matrix, as soon as available
-    typedef math::Error<6>::type PosMomError;
+    /// parameter vector
+    typedef math::Vector<5>::type ParameterVector;
     /// spatial vector
     typedef math::XYZVector Vector;
     /// point in the space
     typedef math::XYZPoint Point;
-    /// parameter vector.
-    /// This type has to be replaced by MathCore type
-    /// SVector<5, Double32_t>
-    typedef math::Vector<5>::type ParameterVector;
-    /// helix parameter covariance matrix (5x5)
-    /// This type will be replaced by a MathCore symmetric
-    /// matrix, as soon as available
-    typedef math::Error<5>::type ParameterError;
  
     class Parameters {
     public:
@@ -95,52 +82,6 @@ namespace reco {
       /// five parameters
       ParameterVector par_;
     };
-  
-    class Covariance {
-    public:
-      /// default constructor
-      Covariance() {} 
-      /// constructor from matrix
-      Covariance( const ParameterError & e ) : 
-	cov_( e ) { }
-      /// constructor from double * (15 parameters)
-      Covariance( const double * cov ) : cov_() { 
-	int k = 0;
-	for( int i = 0; i < ParameterError::kRows; ++i )
-	  for( int j = i; j < ParameterError::kCols; ++j )
-	    cov_( i, j ) = cov[ k++ ];
-      }
-      /// index type
-      typedef unsigned int index;
-      /// accessing (i, j)-th parameter, i, j = 0, ..., 4 (read only mode)
-      double operator()( index i, index j ) const { return cov_( i, j ); }
-      /// accessing (i, j)-th parameter, i, j = 0, ..., 4
-      double & operator()( index i, index j ) { return cov_ ( i, j ); }
-      /// error on d0
-      double d0Error() const { return sqrt( cov_( i_d0, i_d0 ) ); }
-      /// error on phi0
-      double phi0Error() const { return sqrt( cov_( i_phi0, i_phi0 ) ); }
-      /// error on omega
-      double omegaError() const { return sqrt( cov_( i_omega, i_omega ) ); }
-      /// error on dx
-      double dzError() const { return sqrt( cov_( i_dz, i_dz ) ); }
-      /// error on tanDip
-      double tanDipError() const { return sqrt( cov_( i_tanDip, i_tanDip ) ); }
-
-    private:
-      /// 5x5 matrix
-      ParameterError cov_;
-    };
-    
-    /// convert from cartesian coordinates to 5-helix parameters.
-    /// The point passed must be the point of closest approach to the beamline
-    void setFromCartesian( int q, const Point &, const Vector &, 
-			   const PosMomError & ,
-			   Parameters &, Covariance & ); 
-
-    /// compute position-momentum 6x6 degenerate covariance matrix
-    /// from 5 parameters and 5x5 covariance matrix
-    PosMomError posMomError( const Parameters &, const Covariance & );
 
     inline int Parameters::charge() const {
       return omega() > 0 ? +1 : -1;
@@ -161,6 +102,5 @@ namespace reco {
 
   }
 }
-
 
 #endif
