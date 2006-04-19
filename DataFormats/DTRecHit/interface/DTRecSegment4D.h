@@ -5,8 +5,8 @@
  *
  * 4 parameters RecHits for MuonBarrel DT
  *
- * $Date: 2006/02/23 10:32:04 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/19 15:07:45 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -17,8 +17,10 @@
 //#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 /* Collaborating Class Declarations */
-class DTRecSegment2DPhi;
-class DTRecSegment2D;
+#include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
+
+class DTChamber;
 
 /* C++ Headers */
 #include <iosfwd>
@@ -35,9 +37,9 @@ class DTRecSegment4D : public RecSegment4D{
   /// empty constructor
   DTRecSegment4D(){}
   
-  DTRecSegment4D(DTRecSegment2DPhi* phiSeg, DTRecSegment2D* zedSeg) ;
-  DTRecSegment4D(DTRecSegment2DPhi* phiSeg) ;
-  DTRecSegment4D(DTRecSegment2D* zedSeg) ;
+  DTRecSegment4D(const DTRecSegment2DPhi& phiSeg, const DTRecSegment2D& zedSeg, const DTChamber* chamber) ;
+  DTRecSegment4D(const DTRecSegment2DPhi& phiSeg, const DTChamber* chamber) ;
+  DTRecSegment4D(const DTRecSegment2D& zedSeg, const DTChamber* chamber) ;
 
   /// Destructor
   ~DTRecSegment4D() ;
@@ -78,17 +80,17 @@ class DTRecSegment4D : public RecSegment4D{
   /// the id 
   virtual DetId geographicalId() const { return theDetId; }
   
-  /// has the Phi projection?
-  bool hasPhi() const {return !(thePhiSeg==0);}
+  /// has the Phi projection? //FIXME, was right with the pointers
+  bool hasPhi() const {return (thePhiSeg.specificRecHits().size()!=0);}
+  
+  /// has the Z projection? //FIXME, was right with the pointers
+  bool hasZed() const {return (theZedSeg.specificRecHits().size()!=0);}
+  
+  /// the superPhi segment //FIXME, needed by DTSegmentUpdator::update(DTRecSegment4D* seg)
+  DTRecSegment2DPhi *phiSegment() const {return new DTRecSegment2DPhi(thePhiSeg);}
     
-  /// has the Z projection?
-  bool hasZed() const {return !(theZedSeg==0);}
-    
-  /// the superPhi segment
-  DTRecSegment2DPhi* phiSegment() const {return thePhiSeg;}
-    
-  /// the Z segment
-  DTRecSegment2D* zSegment() const {return theZedSeg;}
+  /// the Z segment //FIXME 
+  DTRecSegment2D *zSegment() const {return new DTRecSegment2D(theZedSeg);}
     
   /// set position
   void setPosition(LocalPoint pos) { thePosition = pos; }
@@ -116,8 +118,8 @@ class DTRecSegment4D : public RecSegment4D{
   /// mat[1][3]=cov(dy/dz,y)
   AlgebraicSymMatrix theCovMatrix; // the covariance matrix
 
-  DTRecSegment2DPhi* thePhiSeg;
-  DTRecSegment2D* theZedSeg;
+  DTRecSegment2DPhi thePhiSeg;
+  DTRecSegment2D theZedSeg;
 
   AlgebraicMatrix theProjMatrix;  // the projection matrix
   int theDimension; // the dimension of this rechit
