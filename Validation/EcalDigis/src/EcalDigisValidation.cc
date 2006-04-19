@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/04/03 14:06:41 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/10 08:50:50 $
+ * $Revision: 1.2 $
  * \author F. Cossutti
  *
 */
@@ -83,7 +83,7 @@ EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
     meGunEnergy_ = dbe_->book1D(histo, histo, 100, 0., 1000.);
   
     sprintf (histo, "EcalDigiTask Gun Eta" ) ;
-    meGunEta_ = dbe_->book1D(histo, histo, 500, -2.5, 2.5);
+    meGunEta_ = dbe_->book1D(histo, histo, 700, -3.5, 3.5);
   
     sprintf (histo, "EcalDigiTask Gun Phi" ) ;
     meGunPhi_ = dbe_->book1D(histo, histo, 360, 0., 360.);
