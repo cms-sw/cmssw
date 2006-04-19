@@ -3,6 +3,12 @@
 #include <iostream>
 #include "TGraphErrors.h"
 
+void reset (double vett[256]) 
+{
+   for (int i=0 ; i<256; ++i) vett[i] = 0. ; 
+}
+
+
 TPedValues::TPedValues (double RMSmax, int bestPedestal) :
   m_bestPedestal (bestPedestal) ,
   m_RMSmax (RMSmax) 
@@ -136,10 +142,10 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
     // loop over the gains
     for (int gain=0 ; gain<3 ; ++gain)
       {
-        double asseX[256] ;
-        double sigmaX[256] ;
-        double asseY[256] ;
-        double sigmaY[256] ;
+        double asseX[256] ;  reset (asseX) ;
+        double sigmaX[256] ; reset (sigmaX) ;
+        double asseY[256] ;  reset (asseY) ;
+        double sigmaY[256] ; reset (sigmaY) ;
         // loop over DAC values
         for (int dac=0 ; dac<256 ; ++dac)
           {
@@ -148,9 +154,8 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
             asseY[dac] = m_entries[gain][xtl][dac].average () ;
             sigmaY[dac] = m_entries[gain][xtl][dac].RMS () ;
             if (asseY[dac] < -100) sigmaY[dac] = asseY[dac] = 0 ;
-          } // loop over DAC values
-          
-        TGraphErrors graph (256,asseX,asseY,sigmaX,sigmaY);
+          } // loop over DAC values          
+        TGraphErrors graph (256,asseX,asseY,sigmaX,sigmaY) ;
         char name[120] ;
         sprintf (name,"XTL%d_GAIN%d",xtl,gain) ;      
         graph.Write (name) ;
@@ -167,3 +172,4 @@ int TPedValues::makePlots (const std::string & rootFileName, const std::string &
   TFile saving (rootFileName.c_str (),"APPEND") ;
   return makePlots (&saving,dirName) ;  
 }
+
