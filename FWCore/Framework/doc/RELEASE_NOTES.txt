@@ -314,3 +314,15 @@ that is at this time up to date.  The "testFramework" test runs without
 modification.  The "Running" state should probably be "RunningAsync" and
 "RunningSync".  There is no checked-in test for "runAsync".
 Timing scenario are not complete.
+
+This feature includes having the event loop run in its own thread and being
+able to ask it to shut it down.  Signal USR2 can be sent to cmsRun and have
+the event processor finished up its work and shut down cleanly.
+
+Still missing or incomplete: 
+  * total event timeout
+  * Schedule features from EventFilter-land like global prescales and endpath
+    disabling.
+  * waiting up input sources that are blocking if a stop signal arrives
+
+li
