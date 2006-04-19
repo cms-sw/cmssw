@@ -7,7 +7,7 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.1 2006/02/08 00:44:23 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.2 2006/04/17 23:39:20 wmtan Exp $
    \date 19 Jul 2005
 */
 
@@ -53,6 +53,18 @@ namespace edm {
 
     void setNextID(unsigned long next) {nextID_ = next;}
 
+
+    //NOTE: this is not const since we only want items that have non-const access to this class to be 
+    // able to call this internal iteration
+    template<class T>
+    void callForEachBranch(const T& iFunc)  {
+      //NOTE: If implementation changes from a map, need to check that iterators are still valid
+      // after an insert with the new container, else need to copy the container and iterate over the copy
+      for(ProductRegistry::ProductList::const_iterator itEntry=productList_.begin();
+          itEntry!=productList_.end(); ++itEntry){
+        iFunc(itEntry->second);
+      }
+    }
     ProductList::size_type size() const {return productList_.size();}
 
   private:
@@ -80,4 +92,3 @@ namespace edm {
 
 
 #endif
-
