@@ -6,7 +6,7 @@
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # (Tagcollector interface taken from CmsTCPackageList.pl (author D.Lange))
 # Update: 2006-04-10 16:15:32+0200
-# Revision: $Id: PackageManagement.pl,v 1.1 2006/04/11 13:33:48 sashby Exp $ 
+# Revision: $Id: PackageManagement.pl,v 1.5 2006/04/13 12:34:10 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -74,6 +74,7 @@ else
       {
       die "PackageManagement: \"--justtag\" only makes sense with \"--query\" and \"--pack X\" (i.e. one package on the cmd line).","\n";
       }
+
 
    # Check that MYPACKAGES option set if --rel HEAD option given:
    if (($releaseid eq 'HEAD' || $releaseid eq 'head') && !$opts{MYPACKAGES})
