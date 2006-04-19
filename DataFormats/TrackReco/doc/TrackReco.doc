@@ -103,7 +103,7 @@ The five parameters are:
       ratio of electric charge and track transverse momentum:
      <i><font face="Symbol">w</font></i> = <i><font face="Times New Roman, Times">e / p<sub>t</sub></font></i>.
 <li> <b><i><font face="Times New Roman, Times">d<sub>z</sub></font></i></b>: 
-     trajectory <i>z</i> coordinate at point of closest approach to the beam line.
+     trajectory <i><font face="Times New Roman, Times">z</font></i> coordinate at point of closest approach to the beam line.
 <li> <b><font face="Times New Roman, Times">tan</font><i><font face="Symbol">l</font></i></b>:
      tangent of the dip angle: <font face="Times New Roman, Times">tan<i><font face="Symbol">l</font></i> = 
      <i>p<sub>z</sub> / p<sub>t</sub></i></font>.
