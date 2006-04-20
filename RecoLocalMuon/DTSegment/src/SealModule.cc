@@ -17,7 +17,9 @@ DEFINE_SEAL_PLUGIN (DTRecSegment2DAlgoFactory, DTCombinatorialPatternReco, "DTCo
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment4DProducer.h"
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment4DAlgoFactory.h"
 #include "RecoLocalMuon/DTSegment/src/DTCombinatorialPatternReco4D.h"
+#include "RecoLocalMuon/DTSegment/src/DTRefitAndCombineReco4D.h"
 
 DEFINE_ANOTHER_FWK_MODULE(DTRecSegment4DProducer);
 DEFINE_SEAL_PLUGIN (DTRecSegment4DAlgoFactory, DTCombinatorialPatternReco4D, "DTCombinatorialPatternReco4D");
+DEFINE_SEAL_PLUGIN (DTRecSegment4DAlgoFactory, DTRefitAndCombineReco4D, "DTRefitAndCombineReco4D");
 //-------------------------------------------------------------------------------------------------------
