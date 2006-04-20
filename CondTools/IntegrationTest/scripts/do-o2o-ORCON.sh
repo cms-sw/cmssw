@@ -31,14 +31,14 @@ ONLINE_DB_PASSWORD=*********
 
 # Offline DB info
 OFFLINE_DB=orcon
-OFFLINE_DB_USER=cms_cond_ecal
-OFFLINE_DB_PASSWORD=*********
+OFFLINE_DB_USER=CMS_COND_ECAL # uppercase for connect string
+OFFLINE_DB_PASSWORD=*******
 OFFLINE_CONNECT=oracle://${OFFLINE_DB}/${OFFLINE_DB_USER}
 MVGRP=ECALGRP
 
 # POOL catalog info
-MY_CATALOG=xmlcatalog_file:${O2ODIR}/orcon-test-catalog.xml
-#MY_CATALOG=relationalcatalog_oracle://cms_cond_general/
+#MY_CATALOG=xmlcatalog_file:${O2ODIR}/orcon-test-catalog.xml
+MY_CATALOG=relationalcatalog_oracle://orcon/cms_cond_general
 
 # Log the date
 echo -n [`date "+%Y-%m-%d %H:%M:%S"`] >> $LOG;
@@ -67,8 +67,9 @@ export CORAL_AUTH_PASSWORD=$OFFLINE_DB_PASSWORD
 
 # Transform payload data
 T1=`date +%s`
-echo -n "Updating payload MVs..." >> $LOG;
-echo "exec dbms_refresh.refresh('${MVGRP}');" | sqlplus -S ${OFFLINE_DB_USER}/${OFFLINE_DB_PASSWORD}@${OFFLINE_DB} 2>> $LOG
+echo -n "Updating payload tables..." >> $LOG;
+#echo "exec dbms_refresh.refresh('${MVGRP}');" | sqlplus -S ${OFFLINE_DB_USER}/${OFFLINE_DB_PASSWORD}@${OFFLINE_DB} 2>> $LOG
+echo "call payload_o2o();" | sqlplus -S ${OFFLINE_DB_USER}/${OFFLINE_DB_PASSWORD}@${OFFLINE_DB} 2>> $LOG
 T2=`date +%s`
 T_JOB=$(($T2-$T1))
 echo -n "($T_JOB s)" >> $LOG;
