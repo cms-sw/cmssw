@@ -1,12 +1,12 @@
 #ifndef EgammaReco_ClusterPi0Discriminator_h
 #define EgammaReco_ClusterPi0Discriminator_h
-/** \class reco::ClusterPi0Discriminator
+/** \class reco::ClusterPi0Discriminator ClusterPi0Discriminator.h DataFormats/EgammaReco/interface/ClusterPi0Discriminator.h
  *  
  * pi0 discriminator variable set
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ClusterPi0Discriminator.h,v 1.5 2006/03/03 11:48:37 llista Exp $
+ * \version $Id: ClusterPi0Discriminator.h,v 1.1 2006/04/09 15:40:40 rahatlou Exp $
  *
  */
 #include <Rtypes.h>

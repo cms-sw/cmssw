@@ -1,12 +1,12 @@
 #ifndef EgammaReco_PreShowerCluster_h
 #define EgammaReco_PreShowerCluster_h
-/** \class reco::PreShowerCluster
+/** \class reco::PreShowerCluster PreShowerCluster.h DataFormats/EgammaReco/interface/PreShowerCluster.h
  *  
  * A cluster reconstructed in ECAL pre shower
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: PreShowerCluster.h,v 1.1 2006/03/16 09:17:07 llista Exp $
+ * \version $Id: PreShowerCluster.h,v 1.1 2006/04/09 15:40:40 rahatlou Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"

@@ -1,13 +1,13 @@
 #ifndef EgammaReco_BasicCluster_h
 #define EgammaReco_BasicCluster_h
-/** \class reco::BasicCluster
+/** \class reco::BasicCluster BasicCluster.h DataFormats/EgammaReco/interface/BasicCluster.h
  *  
  * A BasicCluster reconstructed in the Electromagnetic Calorimeter
  * contains references to constituent RecHits
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: BasicCluster.h,v 1.1 2006/04/09 15:40:40 rahatlou Exp $
+ * \version $Id: BasicCluster.h,v 1.2 2006/04/12 15:19:15 rahatlou Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"

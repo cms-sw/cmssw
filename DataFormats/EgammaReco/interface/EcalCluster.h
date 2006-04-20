@@ -1,43 +1,50 @@
-#ifndef DataFormats_EgammaReco_h
-#define DataFormats_EgammaReco_h
-
+#ifndef EgammaReco_EcalCluster_h
+#define EgammaReco_EcalCluster_h
+/** \class reco::EcalCluster EcalCluster.h DataFormats/EgammaReco/EcalCluster.h
+ *  
+ * Base class for all types of Ecal clusters
+ *
+ * \author Shahram Rahatlou, INFN
+ *
+ * \version $Id$
+ *
+ */
 #include <vector>
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 namespace reco {
 
-class EcalCluster {
+  class EcalCluster {
+  public:
+    /// default constructor. Sets energy and position to zero
+    EcalCluster() : energy_(0.), position_(math::XYZPoint(0.,0.,0.)) { }
+    /// constructor from values
+    EcalCluster(const double energy, const math::XYZPoint& position);
+    /// destructor
+    virtual ~EcalCluster();
+    /// cluster energy
+    double energy() const { return energy_; }
+    /// cluster centroid position
+    math::XYZPoint position() const { return position_; }
+    /// comparison >= operator
+    bool operator >=(const EcalCluster& rhs) const { return (energy_>=rhs.energy_); }
+    /// comparison > operator
+    bool operator > (const EcalCluster& rhs) const { return (energy_> rhs.energy_); }
+    /// comparison <= operator
+    bool operator <=(const EcalCluster& rhs) const { return (energy_<=rhs.energy_); }
+    /// comparison <= operator
+    bool operator < (const EcalCluster& rhs) const { return (energy_< rhs.energy_); }
+    /// vector of used hits
+    /// Myst be implemented in  all derived classes
+    virtual std::vector<DetId> getHitsByDetId() const = 0;
+  private:
+    /// cluster energy
+    double              energy_;
+    /// cluster centroid position
+    math::XYZPoint   position_;
+  };
 
- public:
-   EcalCluster() : energy_(0.), position_(math::XYZPoint(0.,0.,0.)) {}
-   EcalCluster(const double energy, const math::XYZPoint& position);
+}
 
-   // accessors
-   double energy() const { return energy_; }
-   math::XYZPoint position() const { return position_; }
-
-   // operators
-   bool operator >=(const EcalCluster& rhs) const { return (energy_>=rhs.energy_); }
-   bool operator > (const EcalCluster& rhs) const { return (energy_> rhs.energy_); }
-   bool operator <=(const EcalCluster& rhs) const { return (energy_<=rhs.energy_); }
-   bool operator < (const EcalCluster& rhs) const { return (energy_< rhs.energy_); }
-
-  // bool operator == // must use ids!
-
-
-  // virtual methods
-  virtual ~EcalCluster();
-  virtual std::vector<DetId> getHitsByDetId() const = 0; // vector of used hits
-                                                         // must be implemented by all
-                                                         // derived instances
-
- private:
-   double              energy_; // cluster energy
-   math::XYZPoint   position_; // cluster position
-
-}; // EcalCluster
-
-
-} // namespace
 #endif

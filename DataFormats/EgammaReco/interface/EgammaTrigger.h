@@ -1,12 +1,12 @@
 #ifndef EgammaReco_EgammaTrigger_h
 #define EgammaReco_EgammaTrigger_h
-/** \class reco::EgammaTrigger
+/** \class reco::EgammaTrigger EgammaTrigger.h DataFormats/EgammaReco/interface/EgammaTrigger.h
  *  
  * Egamma trigger bit set
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: $
+ * \version $Id: EgammaTrigger.h,v 1.1 2006/04/09 15:40:40 rahatlou Exp $
  *
  */
 #include "DataFormats/EgammaReco/interface/EgammaTriggerFwd.h"

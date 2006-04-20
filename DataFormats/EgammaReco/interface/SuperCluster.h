@@ -1,13 +1,13 @@
 #ifndef EgammaReco_SuperCluster_h
 #define EgammaReco_SuperCluster_h
-/** \class reco::SuperCluster
+/** \class reco::SuperCluster SuperCluster.h DataFormats/EgammaReco/interface/SuperCluster.h
  *  
  * A SuperCluster reconstructed in the Electromagnetic Calorimeter
  * contains references to seed and constituent BasicClusters
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.3 2006/04/12 16:21:02 rahatlou Exp $
+ * \version $Id: SuperCluster.h,v 1.4 2006/04/13 13:21:16 rahatlou Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
