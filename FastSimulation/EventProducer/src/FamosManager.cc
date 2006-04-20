@@ -31,7 +31,8 @@ using namespace std;
 FamosManager::FamosManager(edm::ParameterSet const & p)
     : iEvent(0),
       myGenEvent(0),
-      mySimEvent(new FSimEvent(p.getParameter<edm::ParameterSet>("VertexGenerator"))),
+      mySimEvent(new FSimEvent(p.getParameter<edm::ParameterSet>("VertexGenerator"),
+			       p.getParameter<edm::ParameterSet>("ParticleFilter"))),
       myTrajectoryManager(new TrajectoryManager(mySimEvent)),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),

@@ -3,8 +3,9 @@
 
 //C++ Headers
 
-FSimEvent::FSimEvent(const edm::ParameterSet& vtx) 
-    : FBaseSimEvent(vtx), id_(edm::EventID(0,0)), weight_(0)
+FSimEvent::FSimEvent(const edm::ParameterSet& vtx,
+		     const edm::ParameterSet& kine) 
+    : FBaseSimEvent(vtx,kine), id_(edm::EventID(0,0)), weight_(0)
 {}
  
 FSimEvent::~FSimEvent()

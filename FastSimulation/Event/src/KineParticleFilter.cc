@@ -5,18 +5,14 @@ using namespace std;
 #include <iostream>
 
 
-KineParticleFilter::KineParticleFilter() : BaseRawParticleFilter() {
+KineParticleFilter::KineParticleFilter(const edm::ParameterSet& kine) 
+  : BaseRawParticleFilter() 
+{
+
   // Set the kinematic cuts
-  vector<double> defaultCuts;
-  defaultCuts.push_back(5.0);   // Upper abs(eta) bound
-  defaultCuts.push_back(0.20);  // Lower pT  bound (charged, in GeV/c)
-  defaultCuts.push_back(0.10);  // Lower E  bound (all, in GeV)
-
-  //  ConfigurableVector<double> theCuts(defaultCuts,"Kine:Cuts");
-
-  etaMax = defaultCuts[0];
-  pTMin  = defaultCuts[1];
-  EMin   = defaultCuts[2];
+  etaMax = kine.getParameter<double>("etaMax"); // Upper abs(eta) bound
+  pTMin  = kine.getParameter<double>("pTMin");  // Lower pT  bound (charged, in GeV/c)
+  EMin   = kine.getParameter<double>("EMin");   // Lower E  bound (all, in GeV)
 
 }
 

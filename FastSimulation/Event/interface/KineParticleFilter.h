@@ -1,6 +1,10 @@
 #ifndef FastSimulation_Event_KineParticleFilter_H
 #define FastSimulation_Event_KineParticleFilter_H
 
+//Framework Headers
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+//FAMOS Headers
 #include "FastSimulation/Particle/interface/BaseRawParticleFilter.h"
 
 /**
@@ -10,7 +14,7 @@
 
 class KineParticleFilter : public BaseRawParticleFilter {
 public:
-  KineParticleFilter(); 
+  KineParticleFilter(const edm::ParameterSet& kine); 
   virtual ~KineParticleFilter(){;};
 
   void setMainVertex(const HepLorentzVector& mv) { mainVertex=mv; }

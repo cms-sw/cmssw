@@ -30,7 +30,10 @@ using namespace CLHEP;
 #include <iostream>
 #include <iomanip>
 
-FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx) : theVertexGenerator(0) {
+FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
+			     const edm::ParameterSet& kine) 
+  : theVertexGenerator(0) 
+{
 
 
   // Initialize the vertex generator
@@ -52,7 +55,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx) : theVertexGenerator(
   theGenParticles->reserve(2048);
 
   // Initialize the Particle filter
-  myFilter = new KineParticleFilter();
+  myFilter = new KineParticleFilter(kine);
 
   // The particle Data Table
   tab = & HepPDT::theTable();

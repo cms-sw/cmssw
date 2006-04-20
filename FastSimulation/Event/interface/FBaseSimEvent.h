@@ -39,7 +39,8 @@ class FBaseSimEvent
 public:
 
   /// Default constructor
-  FBaseSimEvent(const edm::ParameterSet& vtx);
+  FBaseSimEvent(const edm::ParameterSet& vtx,
+		const edm::ParameterSet& kine);
 
   ///  usual virtual destructor
   ~FBaseSimEvent();
