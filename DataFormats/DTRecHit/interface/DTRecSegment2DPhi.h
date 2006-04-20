@@ -11,8 +11,8 @@
  * A DTRecSegment4D has one of these objects, and so can access the full
  * information of the two projections.
  *
- * $Date: 2006/04/19 15:06:30 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/19 17:42:41 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -41,15 +41,16 @@ class DTRecSegment2DPhi : public DTRecSegment2D {
   /// Constructor
   DTRecSegment2DPhi(const DetId& id) ;
 
+  /// c'tor from hits
+  DTRecSegment2DPhi(const DTChamberId& id, const std::vector<DTRecHit1D>& hits) ;
+  
   /// Destructor
   virtual ~DTRecSegment2DPhi() ;
 
   /* Operations */ 
 
  private:
-  /// The id of the chamber on which reside the segment
-  DTChamberId chamberId() const {return DTChamberId(theDetId.rawId());}
-  
+
   // in DTSegmentCand, setPosition and setDirection can be used
   friend class DTSegmentCand; 
 
