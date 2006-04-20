@@ -191,11 +191,11 @@ ULong L1GctJetFinder::convertToRank(const ULong energy) const
 {
     const UShort energyBitSize = 10;
     const UShort rankBitSize = 6;
-    const ULong maxEnergy = static_cast<ULong>(pow(2,energyBitSize));
+    const ULong maxEnergy = 0x400; //static_cast<ULong>(pow(2,energyBitSize));
 
     if(energy < maxEnergy)
     {
-        return energy/static_cast<ULong>(pow(2,energyBitSize-rankBitSize));
+      return energy/0x10; //static_cast<ULong>(pow(2,energyBitSize-rankBitSize));
     }
     
     return maxEnergy-1;

@@ -19,34 +19,24 @@ L1GctElectronFinalSort::~L1GctElectronFinalSort()
 {
 }
 
-void L1GctElectronFinalSort::reset() {
-	
+void L1GctElectronFinalSort::reset()
+{
+  inputCands.clear();
+  outputCands.clear();
 }
 
 void L1GctElectronFinalSort::fetchInput() {
 	
 }
 
-void L1GctElectronFinalSort::process() {
-	
-}
-
-void L1GctElectronFinalSort::setSortedInput(L1GctEmCand cand)
-{
-  sortedCands.setInputEmCand(cand);
-  inputCands.push_back(cand);
-}
-
 void L1GctElectronFinalSort::process()
 {
-  sortedCands.process();
-  outputCands = sortedCands.getOutput();
+  //sortedCands.process();
+  //outputCands = sortedCands.getOutput();
 }
 
-void L1GctElectronFinalSort::reset()
+void L1GctElectronFinalSort::setInputEmCand(int i, L1GctEmCand cand)
 {
-  //sortedCands.
-  inputCands.clear();
-  outputCands.clear();
+  inputCands[i] = cand;
 }
 

@@ -9,8 +9,6 @@
 
 using std::vector;
 
-class L1GctElectronSorter;
-
 class L1GctElectronFinalSort : public L1GctProcessor
 {
 public:
@@ -27,13 +25,10 @@ public:
 	/// process the data, fill output buffers
 	virtual void process();
 	///
-	/// return input data
+	/// set input data
 	void setInputEmCand(int i, L1GctEmCand cand);
-
-	//set inputs
-	void setSortedInput(L1GctEmCand cand);
-
-	// return input data
+	///
+	/// return input data
 	inline vector<L1GctEmCand> getInputCands() { return inputCands; }
 	///
 	/// return output data
@@ -41,9 +36,6 @@ public:
 
 private:
 	
-	//Already sorted input objects
-	L1GctElectronSorter sortedCands;
-
 	///
 	/// the 1st stage electron sorters
 	vector<L1GctElectronSorter*> theEmSorters;

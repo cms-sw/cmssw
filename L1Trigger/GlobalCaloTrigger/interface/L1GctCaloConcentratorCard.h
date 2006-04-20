@@ -21,6 +21,8 @@ using namespace std;
  * 
  */
 
+class L1GctJetFinalStage;
+
 class L1GctCaloConcentratorCard
 {
 public:
@@ -28,34 +30,34 @@ public:
 	L1GctCaloConcentratorCard();
 	~L1GctCaloConcentratorCard();
 	
-	inline L1GctElectronLeafCard* getIsoElectronLeafCard() { return isoElectronLeafCard; }
-	inline L1GctElectronLeafCard* getNonIsoElectronLeafCard() { return nonIsoElectronLeafCard; }
+/* 	inline L1GctElectronLeafCard* getIsoElectronLeafCard() { return isoElectronLeafCard; } */
+/* 	inline L1GctElectronLeafCard* getNonIsoElectronLeafCard() { return nonIsoElectronLeafCard; } */
 
-	void process();
+/* 	void process(); */
 	
-	inline vector<L1GctEmCand> getIsoElectrons() { return isoElectronLeafCard->getOutput(); }
-	inline vector<L1GctEmCand> getNonIsoElectrons() { return nonIsoElectronLeafCard->getOutput(); }
-	inline vector<L1GctJet> getCentralJets() { return jetFinalStage.getCentralJets(); }
-	inline vector<L1GctJet> getForwardJets() { return jetFinalStage.getForwardJets(); }
-	inline vector<L1GctJet> getTauJets() { return jetFinalStage.getTauJets(); }
+/* 	inline vector<L1GctEmCand> getIsoElectrons() { return isoElectronLeafCard->getOutput(); } */
+/* 	inline vector<L1GctEmCand> getNonIsoElectrons() { return nonIsoElectronLeafCard->getOutput(); } */
+/* 	inline vector<L1GctJet> getCentralJets() { return jetFinalStage.getCentralJets(); } */
+/* 	inline vector<L1GctJet> getForwardJets() { return jetFinalStage.getForwardJets(); } */
+/* 	inline vector<L1GctJet> getTauJets() { return jetFinalStage.getTauJets(); } */
 	
-	unsigned getEtMiss() { return globalEnergyAlgos.getEtMiss(); }
-	unsigned getEtMissPhi(){ return globalEnergyAlgos.getEtMissPhi(); }
-	unsigned getEtSum() { return globalEnergyAlgos.getEtSum(); }
-	unsigned getEtHad() { return globalEnergyAlgos.getEtHad(); }
+/* 	unsigned getEtMiss() { return globalEnergyAlgos.getEtMiss(); } */
+/* 	unsigned getEtMissPhi(){ return globalEnergyAlgos.getEtMissPhi(); } */
+/* 	unsigned getEtSum() { return globalEnergyAlgos.getEtSum(); } */
+/* 	unsigned getEtHad() { return globalEnergyAlgos.getEtHad(); } */
 	
 private:
 
-	// internal processing
-	L1GctJetFinalStage jetFinalStage;
-	L1GctGlobalEnergyAlgos globalEnergyAlgos;
+/* 	// internal processing */
+/* 	L1GctJetFinalStage jetFinalStage; */
+/* 	L1GctGlobalEnergyAlgos globalEnergyAlgos; */
 
-	// pointers to upstream data sources
-	L1GctElectronLeafCard* isoElectronLeafCard;
-	L1GctElectronLeafCard* nonIsoElectronLeafCard;
+/* 	// pointers to upstream data sources */
+/* 	L1GctElectronLeafCard* isoElectronLeafCard; */
+/* 	L1GctElectronLeafCard* nonIsoElectronLeafCard; */
 	
-	L1GctWheelCard* plusWheelCard;
-	L1GctWheelCard* minusWheelCard;
+/* 	L1GctWheelCard* plusWheelCard; */
+/* 	L1GctWheelCard* minusWheelCard; */
 	
 	
 };
