@@ -11,8 +11,8 @@
 Persistent classes for Muon Reco data format.
 
 \subsection interface Public interface
-- reco::Muon: reconstructed Muon. Objects of this type are ment to be stored in the AOD
-- reco::MuonExtra: Muon extension. Objects of this type are ment to be stored in the RECO
+- reco::Muon: reconstructed Muon. Contains references to three fitted tracks: in muon detector standalone,
+  in tracker detector only, and a combined muon detector plus tracker fit.
 
 \subsection typedefs 
 - reco::MuonCollection: collection of reco::Muon objects
@@ -20,12 +20,6 @@ Persistent classes for Muon Reco data format.
 - reco::MuonRefProd: reference to a reco::Muon collection
 - reco::MuonRefVector: vector of references to reco::Muon objects in the same collection
 - reco::muon_iterator: iterator over a vector of references to reco::Muon objects in the same collection
-
-- reco::MuonExtraCollection: collection of reco::MuonExtra objects
-- reco::MuonExtraRef: persistent reference to a reco::MuonExtra object
-- reco::MuonExtraRefProd: reference to a reco::MuonExtra collection
-- reco::MuonExtraRefVector: vector of references to reco::MuonExtra objects in the same collection
-- reco::muonExtra_iterator: iterator over a vector of references to reco::MuonExtra objects in the same collection
 
 \subsection modules Modules
 None.
@@ -37,6 +31,5 @@ None.
 To be reviewed.
 
 <hr>
-Last updated:
-07-FEB-2006 L. Lista
+Last updated: @DATE@ L. Lista
 */
