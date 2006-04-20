@@ -5,7 +5,7 @@ in .cfg file:
           PSet UtilityActions =
           {
                string type = "SimG4Core/UtilityAction/PrintTrackNumberAction"
-               untracked int EachNTrack = -1
+               untracked int32 EachNTrack = -1
 	       untracked bool NoUserLimits = false
           }
  
