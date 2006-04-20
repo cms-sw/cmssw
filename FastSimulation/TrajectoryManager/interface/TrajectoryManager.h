@@ -1,7 +1,10 @@
 #ifndef TRAJECTORYMANAGER_H
 #define TRAJECTORYMANAGER_H
 
-//#include "FamosGeneric/FamosManager/interface/FamosSimulator.h"
+//Framework Headers
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+//FAMOS Headers
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
 
 /**
@@ -44,7 +47,7 @@ class TrajectoryManager
   TrajectoryManager() {;}
 
   /// Constructor from a FSimEvent
-  TrajectoryManager(FSimEvent* aSimEvent);
+  TrajectoryManager(FSimEvent* aSimEvent, const edm::ParameterSet& matEff);
 
   /// Default Destructor
   ~TrajectoryManager();
@@ -80,7 +83,7 @@ class TrajectoryManager
 
   TrackerGeometry* _theGeometry;
   
-  MaterialEffects theMaterialEffects;
+  MaterialEffects* theMaterialEffects;
 
   Pythia6Decays* myDecayEngine;
 

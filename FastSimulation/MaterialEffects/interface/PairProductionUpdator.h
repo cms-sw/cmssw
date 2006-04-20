@@ -25,7 +25,7 @@ class PairProductionUpdator : public MaterialEffectsUpdator
  public:
 
   /// Constructor
-  PairProductionUpdator();
+  PairProductionUpdator(double photonEnergyCut);
 
   /// Default Destructor
   ~PairProductionUpdator() {}

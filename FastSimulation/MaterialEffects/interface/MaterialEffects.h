@@ -1,3 +1,4 @@
+
 #ifndef MaterialEffects_h
 #define MaterialEffects_h
 
@@ -23,22 +24,22 @@
  * $Date: Last modification (after severe clean-up). 08-Jan-2004
  */
 
+//Framework Headers
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+// Geometry Headers
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
-
-// Famos Headers
-#include "FastSimulation/MaterialEffects/interface/PairProductionUpdator.h"
-#include "FastSimulation/MaterialEffects/interface/MultipleScatteringUpdator.h"
-#include "FastSimulation/MaterialEffects/interface/BremsstrahlungUpdator.h"
-#include "FastSimulation/MaterialEffects/interface/EnergyLossUpdator.h"
-
-
 
 #include <iostream>
 
 class FSimEvent;
 class TrackerLayer;
 class ParticlePropagator;
+class PairProductionUpdator;
+class MultipleScatteringUpdator;
+class BremsstrahlungUpdator;
+class EnergyLossUpdator;
 
 class MaterialEffects
 {
@@ -46,10 +47,10 @@ class MaterialEffects
  public:
 
   /// Constructor
-  MaterialEffects();
+  MaterialEffects(const edm::ParameterSet& matEff);
 
   /// Default destructor
-  ~MaterialEffects(){}
+  ~MaterialEffects();
 
   /// Steer the various interaction processes in the Tracker Material
   /// and update the FSimEvent
@@ -68,16 +69,10 @@ class MaterialEffects
 
  private:
 
-  PairProductionUpdator PairProduction;
-  BremsstrahlungUpdator Bremsstrahlung;
-  MultipleScatteringUpdator MultipleScattering;
-  EnergyLossUpdator EnergyLoss;
-
-
-  bool doPairProduction;
-  bool doBremsstrahlung;
-  bool doEnergyLoss;
-  bool doMultipleScattering;
+  PairProductionUpdator* PairProduction;
+  BremsstrahlungUpdator* Bremsstrahlung;
+  MultipleScatteringUpdator* MultipleScattering;
+  EnergyLossUpdator* EnergyLoss;
 
   double pTmin;
 

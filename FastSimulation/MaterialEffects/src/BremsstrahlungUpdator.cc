@@ -20,26 +20,13 @@
 
 using namespace std;
 
-BremsstrahlungUpdator::BremsstrahlungUpdator() : 
+BremsstrahlungUpdator::BremsstrahlungUpdator(double photonEnergyCut, double photonFractECut) : 
   MaterialEffectsUpdator() 
 {
 
   // Set the minimal photon energy for a Brem from e+/-
-
-  vector<double> defaultCuts;
-
-  defaultCuts.push_back(0.100);  // Lower photon energy bound (in GeV)
-  defaultCuts.push_back(0.005);  // Lower photon fractional energy bound
-
-  //  ConfigurableVector<double> theCuts(defaultCuts,"Bremsstrahlung:Cuts");
-
-  //  if ( theCuts.size() == 2 ) {
-  //    photonEnergy = theCuts[0];
-  //    photonFractE = theCuts[1];
-  //  } else {
-    photonEnergy = defaultCuts[0];
-    photonFractE = defaultCuts[1];
-    //  }
+  photonEnergy = photonEnergyCut;
+  photonFractE = photonFractECut;
 
 }
 

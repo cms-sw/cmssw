@@ -29,7 +29,7 @@ class BremsstrahlungUpdator : public MaterialEffectsUpdator
  public:
 
   /// Constructor
-  BremsstrahlungUpdator(); 
+  BremsstrahlungUpdator(double photonEnergyCut, double photonFractECut); 
 
   /// Default destructor
   ~BremsstrahlungUpdator() {}

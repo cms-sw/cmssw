@@ -33,7 +33,7 @@
 
 using namespace std;
 
-TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent) : 
+TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent, const edm::ParameterSet& matEff) : 
   mySimEvent(aSimEvent) {
   
   // Initialize the simplified tracker geometry
@@ -41,6 +41,9 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent) :
   
   // Initialize the stable particle decay engine 
   myDecayEngine = new Pythia6Decays();
+
+  // Initialize the Material Effects updator
+  theMaterialEffects = new MaterialEffects(matEff);
 
   //  SimpleConfigurable<bool> activeDecay(true,"FamosDecays:activate");
   //  SimpleConfigurable<double> cTauMin(10.,"FamosDecays:cTauMin");
@@ -67,6 +70,7 @@ TrajectoryManager::theGeometry() {
 TrajectoryManager::~TrajectoryManager() {
   delete _theGeometry;
   delete myDecayEngine;
+  delete theMaterialEffects;
   //Write the histograms
   //  myHistos->put("histos.root");
   //  delete myHistos;
@@ -170,7 +174,7 @@ TrajectoryManager::reconstruct()
       if( PP.getSuccess() > 0 && PP.onFiducial() ) {
 
 	// Material effects are simulated there
-	theMaterialEffects.interact(*mySimEvent,*cyliter,PP,fsimi); 
+	theMaterialEffects->interact(*mySimEvent,*cyliter,PP,fsimi); 
 
 	// Add a SimHit to the SimTrack for the first half loop...
 	// if the particle is charged, if the layer is sensitive,

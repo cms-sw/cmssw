@@ -1,10 +1,16 @@
 #include "TrackingTools/PatternTools/interface/MediumProperties.h"
 
+// Famos Headers
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
+
+#include "FastSimulation/MaterialEffects/interface/PairProductionUpdator.h"
+#include "FastSimulation/MaterialEffects/interface/MultipleScatteringUpdator.h"
+#include "FastSimulation/MaterialEffects/interface/BremsstrahlungUpdator.h"
+#include "FastSimulation/MaterialEffects/interface/EnergyLossUpdator.h"
 
 //#include "FastSimulation/Utilitiess/interface/FamosHistos.h"
 
@@ -14,39 +20,57 @@
 
 using namespace std;
 
-MaterialEffects::MaterialEffects()
+MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
+  : PairProduction(0), Bremsstrahlung(0), MultipleScattering(0), EnergyLoss(0), pTmin(999.)
 {
   // Set the minimal photon energy for a Brem from e+/-
 
-  vector<int> defaultProcesses;
-
-  defaultProcesses.push_back(1);  // Simulate Pair Production 
-  defaultProcesses.push_back(1);  // Simulate Bremsstrahlung
-  defaultProcesses.push_back(1);  // Simulate Energy Loss
-  defaultProcesses.push_back(1);  // Simulate Multiple Scattering 
-
-  //  ConfigurableVector<int> 
-  //    theProcesses(defaultProcesses,"MaterialEffects:Options");
-
-  //  if ( theProcesses.size() == 4 ) {
-  //    doPairProduction     = theProcesses[0];
-  //    doBremsstrahlung     = theProcesses[1];
-  //    doEnergyLoss         = theProcesses[2];
-  //    doMultipleScattering = theProcesses[3];
-  //  } else {
-    doPairProduction     = defaultProcesses[0];
-    doBremsstrahlung     = defaultProcesses[1];
-    doEnergyLoss         = defaultProcesses[2];
-    doMultipleScattering = defaultProcesses[3];
-    //  }
+  bool doPairProduction     = matEff.getParameter<bool>("PairProduction");
+  bool doBremsstrahlung     = matEff.getParameter<bool>("Bremsstrahlung");
+  bool doEnergyLoss         = matEff.getParameter<bool>("EnergyLoss");
+  bool doMultipleScattering = matEff.getParameter<bool>("MultipleScattering");
   
   // Set the minimal pT before giving up the dE/dx treatment
-  double defaultCut = 0.050; // Lower pT (in GeV/c)
-  //  SimpleConfigurable<double> theCut(defaultCut,"EnergyLoss:Cuts");
-  //  pTmin = theCut.value();
-  pTmin =defaultCut;
+
+  if ( doPairProduction ) { 
+
+    double photonEnergy = matEff.getParameter<double>("photonEnergy");
+    PairProduction = new PairProductionUpdator(photonEnergy);
+
+  }
+
+  if ( doBremsstrahlung ) { 
+
+    double bremEnergy = matEff.getParameter<double>("bremEnergy");
+    double bremEnergyFraction = matEff.getParameter<double>("bremEnergyFraction");
+    Bremsstrahlung = new BremsstrahlungUpdator(bremEnergy,bremEnergyFraction);
+
+  }
+
+  if ( doEnergyLoss ) { 
+
+    pTmin = matEff.getParameter<double>("pTmin");
+    EnergyLoss = new EnergyLossUpdator();
+
+  }
+
+  if ( doMultipleScattering ) { 
+
+    MultipleScattering = new MultipleScatteringUpdator();
+
+  }
+
 }
 
+
+MaterialEffects::~MaterialEffects() {
+
+  if ( PairProduction ) delete PairProduction;
+  if ( Bremsstrahlung ) delete Bremsstrahlung;
+  if ( EnergyLoss ) delete EnergyLoss;
+  if ( MultipleScattering ) delete MultipleScattering;
+
+}
 
 void MaterialEffects::interact(FSimEvent& mySimEvent, 
 			       const TrackerLayer& layer,
@@ -79,19 +103,19 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 //-------------------
 //  Photon Conversion
 //-------------------
-  if ( doPairProduction && myTrack.pid()==22 ) {
+  if ( PairProduction && myTrack.pid()==22 ) {
     
     radlen = radLengths(layer,myTrack);
-    PairProduction.updateState(myTrack,radlen);
+    PairProduction->updateState(myTrack,radlen);
 
-    if ( PairProduction.nDaughters() ) {	
+    if ( PairProduction->nDaughters() ) {	
       //add a vertex to the mother particle
       int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
       //Fill("h200",myTrack.vertex().z()*0.1,myTrack.vertex().perp()*0.1);
       
       // This was a photon that converted
-      for ( DaughterIter = PairProduction.beginDaughters();
-	    DaughterIter != PairProduction.endDaughters(); 
+      for ( DaughterIter = PairProduction->beginDaughters();
+	    DaughterIter != PairProduction->endDaughters(); 
 	    ++DaughterIter) {
 
 	mySimEvent.addSimTrack(*DaughterIter, ivertex);
@@ -109,9 +133,9 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 //  Bremsstrahlung
 //----------------
 
-  if ( doBremsstrahlung && abs(myTrack.pid())==11 ) {
+  if ( Bremsstrahlung && abs(myTrack.pid())==11 ) {
         
-    Bremsstrahlung.updateState(myTrack,radlen);
+    Bremsstrahlung->updateState(myTrack,radlen);
 
     /* For radiation length tuning */
     /*
@@ -123,15 +147,15 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
     }
     */
 
-    if ( Bremsstrahlung.nDaughters() ) {
+    if ( Bremsstrahlung->nDaughters() ) {
       
       // Add a vertex, but do not attach it to the electron, because it 
       // continues its way...
       int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
        //myHistos->fill("h200",myTrack.vertex().z()*0.1,myTrack.vertex().perp()*0.1);
 
-      for ( DaughterIter = Bremsstrahlung.beginDaughters();
-	    DaughterIter != Bremsstrahlung.endDaughters(); 
+      for ( DaughterIter = Bremsstrahlung->beginDaughters();
+	    DaughterIter != Bremsstrahlung->endDaughters(); 
 	    ++DaughterIter) {
 	mySimEvent.addSimTrack(*DaughterIter, ivertex);
       }
@@ -145,16 +169,16 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 ////  Energy loss 
 ///---------------
 
-  if ( doEnergyLoss )
-    EnergyLoss.updateState(myTrack,radlen);
+  if ( EnergyLoss )
+    EnergyLoss->updateState(myTrack,radlen);
 
 ////----------------------
 ////  Multiple scattering
 ///-----------------------
 
-  if ( doMultipleScattering && myTrack.perp() > pTmin ) {
-    MultipleScattering.setNormalVector(normalVector(layer,myTrack));
-    MultipleScattering.updateState(myTrack,radlen);
+  if ( MultipleScattering && myTrack.perp() > pTmin ) {
+    MultipleScattering->setNormalVector(normalVector(layer,myTrack));
+    MultipleScattering->updateState(myTrack,radlen);
   }
     
 }

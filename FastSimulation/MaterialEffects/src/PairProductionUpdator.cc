@@ -13,18 +13,12 @@
 
 using namespace std;
 
-PairProductionUpdator::PairProductionUpdator() :
+PairProductionUpdator::PairProductionUpdator(double photonEnergyCut) :
   MaterialEffectsUpdator() 
 {
 
   // Set the minimal photon energy for possible conversion 
-  //  double defaultCut = 2.*eMass(); // Lower photon energy bound (in GeV)
-  double defaultCut = 0.100; // Lower photon energy bound (in GeV)
-
-  //  SimpleConfigurable<double> theCut(defaultCut,"PairProduction:Cuts");
-
-  //  photonEnergy = max(theCut.value(),defaultCut);
-  photonEnergy = defaultCut;
+  photonEnergy = std::max(0.100,photonEnergyCut);
 
 }
 
