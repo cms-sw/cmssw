@@ -4,17 +4,22 @@
 #include "CLHEP/HepMC/GenVertex.h"
 #include "CLHEP/HepMC/GenParticle.h"
 
-// CMSSW headers
+// CMSSW Sim headers
 #include "SimGeneral/HepPDT/interface/HepPDTable.h"
 #include "SimGeneral/HepPDT/interface/HepParticleData.h"
 #include "SimDataFormats/Track/interface/EmbdSimTrack.h"
 #include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
+
+// CMSSW IOMC Headers
+#include "IOMC/GaussianEventVertexGenerator/interface/GaussianEventVertexGenerator.h"
+#include "IOMC/FlatEventVertexGenerator/interface/FlatEventVertexGenerator.h"
 
 //FAMOS Headers
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
+//#include "FastSimulation/Utilities/interface/Histos.h"
 
 using namespace std;
 //using namespace edm;
@@ -25,8 +30,16 @@ using namespace CLHEP;
 #include <iostream>
 #include <iomanip>
 
-FBaseSimEvent::FBaseSimEvent() {
+FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx) : theVertexGenerator(0) {
 
+
+  // Initialize the vertex generator
+  string vtxType = vtx.getParameter<string>("type");
+  long seed = 0;
+  if ( vtxType == "Gaussian" ) 
+    theVertexGenerator = new GaussianEventVertexGenerator(vtx,seed);
+  else if ( vtxType == "Flat" ) 
+    theVertexGenerator = new FlatEventVertexGenerator(vtx,seed);
 
   // Initialize the vectors of particles and vertices
   theGenParticles = new vector<GenParticle*>(); 
@@ -41,14 +54,18 @@ FBaseSimEvent::FBaseSimEvent() {
   // Initialize the Particle filter
   myFilter = new KineParticleFilter();
 
-  // The vertex smearing (if needed)
-  sigmaVerteX = 0.015;
-  sigmaVerteY = 0.015;
-  sigmaVerteZ = 53.0;
-
   // The particle Data Table
   tab = & HepPDT::theTable();
   
+  // Get the Famos Histos pointer
+  //  myHistos = Histos::instance();
+
+  // Initialize a few histograms
+  /*
+  myHistos->book("hvtx",100,-0.1,0.1);
+  myHistos->book("hvty",100,-0.1,0.1);
+  myHistos->book("hvtz",100,-500.,500.);
+  */
 }
  
 FBaseSimEvent::~FBaseSimEvent(){
@@ -59,6 +76,9 @@ FBaseSimEvent::~FBaseSimEvent(){
   delete theSimVertices;
   delete myFilter;
 
+  //Write the histograms
+  //  myHistos->put("histos.root");
+  //  delete myHistos;
 }
 
 void
@@ -99,12 +119,21 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
   // Set the main vertex with smearing
   HepLorentzVector smearedVertex = 
-     primaryVertex->point3d().mag() > 1E-10 ?
+     primaryVertex->point3d().mag() > 1E-10 || !theVertexGenerator ?
      HepLorentzVector(0.,0.,0.,0.) :
-     HepLorentzVector(sigmaVerteX*RandGauss::shoot(),
-		      sigmaVerteY*RandGauss::shoot(),
-		      sigmaVerteZ*RandGauss::shoot(),
+     HepLorentzVector(theVertexGenerator->newVertex()->x(),
+		      theVertexGenerator->newVertex()->y(),
+		      theVertexGenerator->newVertex()->z(),
 		      0.);
+
+  // Fill Histos
+  /* 
+  myHistos->fill("hvtx",smearedVertex.x());
+  myHistos->fill("hvty",smearedVertex.y());
+  myHistos->fill("hvtz",smearedVertex.z());
+  cout << smearedVertex << endl;
+  */
+
   myFilter->setMainVertex(primaryVertex->position()+smearedVertex);
 
   // This is the smeared main vertex

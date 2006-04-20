@@ -30,7 +30,7 @@ class FSimEvent : public FBaseSimEvent {
 public:
 
   /// Default constructor
-  FSimEvent();
+  FSimEvent(const edm::ParameterSet& vtx);
 
   ///  usual virtual destructor
   virtual ~FSimEvent();

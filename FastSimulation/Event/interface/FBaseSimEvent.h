@@ -1,7 +1,8 @@
 #ifndef FastSimulation_Event_FBaseSimEvent_H
 #define FastSimulation_Event_FBaseSimEvent_H
 
-//#include "DataFormats/Common/interface/EventID.h"
+//Framework Headers
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // CLHEP Headers
 #include "CLHEP/Vector/LorentzVector.h"
@@ -24,6 +25,8 @@ class KineParticleFilter;
 
 class EmbdSimTrack;
 class EmbdSimVertex;
+class BaseEventVertexGenerator;
+//class Histos;
 
 namespace HepMC {
   class GenEvent;
@@ -36,7 +39,7 @@ class FBaseSimEvent
 public:
 
   /// Default constructor
-  FBaseSimEvent();
+  FBaseSimEvent(const edm::ParameterSet& vtx);
 
   ///  usual virtual destructor
   ~FBaseSimEvent();
@@ -112,6 +115,10 @@ public:
   double sigmaVerteZ;
 
   HepPDTable * tab;
+
+  BaseEventVertexGenerator* theVertexGenerator;
+
+  //  Histos* myHistos;
 
 };
 

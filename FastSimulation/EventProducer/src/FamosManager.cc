@@ -31,7 +31,7 @@ using namespace std;
 FamosManager::FamosManager(edm::ParameterSet const & p)
     : iEvent(0),
       myGenEvent(0),
-      mySimEvent(new FSimEvent()),
+      mySimEvent(new FSimEvent(p.getParameter<edm::ParameterSet>("VertexGenerator"))),
       myTrajectoryManager(new TrajectoryManager(mySimEvent)),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
@@ -40,8 +40,8 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 
 FamosManager::~FamosManager()
 { 
-  if (!mySimEvent) delete mySimEvent; 
-  if (!myTrajectoryManager) delete myTrajectoryManager; 
+  if ( mySimEvent ) delete mySimEvent; 
+  if ( myTrajectoryManager ) delete myTrajectoryManager; 
 }
 
 void FamosManager::setupGeometryAndField(const edm::EventSetup & es)

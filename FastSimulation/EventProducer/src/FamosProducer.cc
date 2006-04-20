@@ -26,7 +26,7 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
 }
 
 FamosProducer::~FamosProducer() 
-{ if (famosManager_!=0) delete famosManager_; }
+{ if ( famosManager_ ) delete famosManager_; }
 
 void FamosProducer::beginJob(const edm::EventSetup & es)
 {
