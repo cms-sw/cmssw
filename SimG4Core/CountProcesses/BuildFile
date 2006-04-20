@@ -1,0 +1,15 @@
+<Flags SEAL_PLUGIN_NAME="SimG4CoreCountProcesses">
+<export>
+ <lib name=SimG4CoreCountProcesses>
+ <use name=SimG4Core/UtilityAction>
+ <use name=SimG4Core/Application>
+ <use name=Foundation/PluginManager>
+ <use name=FWCore/ParameterSet>
+</export>
+
+<use name=SimG4Core/UtilityAction>
+<use name=SimG4Core/Application>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=geant4>
+<use name=boost>
