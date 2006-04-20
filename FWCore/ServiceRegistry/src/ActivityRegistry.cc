@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep  6 10:26:49 EDT 2005
-// $Id: ActivityRegistry.cc,v 1.4 2006/03/21 20:35:49 chrjones Exp $
+// $Id: ActivityRegistry.cc,v 1.5 2006/03/21 22:11:34 paterno Exp $
 //
 
 // system include files
@@ -63,6 +63,9 @@ edm::ActivityRegistry::connect(ActivityRegistry& iOther)
 
    jobFailureSignal_.connect(iOther.jobFailureSignal_);
 
+   preSourceSignal_.connect(iOther.preSourceSignal_);
+   postSourceSignal_.connect(iOther.postSourceSignal_);
+   
    preProcessEventSignal_.connect(iOther.preProcessEventSignal_);
    postProcessEventSignal_.connect(iOther.postProcessEventSignal_);
 
