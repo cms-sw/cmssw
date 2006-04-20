@@ -1,4 +1,4 @@
-// $Id: RecoCandidate.cc,v 1.1 2006/02/28 10:59:15 llista Exp $
+// $Id: RecoCandidate.cc,v 1.2 2006/04/03 09:05:33 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 using namespace reco;
@@ -14,6 +14,10 @@ MuonRef RecoCandidate::muon() const {
 }
 
 TrackRef RecoCandidate::standAloneMuon() const {
+  return TrackRef();
+}
+
+TrackRef RecoCandidate::combinedMuon() const {
   return TrackRef();
 }
 
@@ -42,6 +46,8 @@ bool RecoCandidate::overlap( const Candidate & c ) const {
   if ( ! m1.isNull() && ! m2.isNull() && m1 == m2 ) return true;
   TrackRef st1 = standAloneMuon(), st2 = dstc->standAloneMuon();
   if ( ! st1.isNull() && ! st2.isNull() && st1 == st2 ) return true;
+  TrackRef cm1 = combinedMuon(), cm2 = dstc->combinedMuon();
+  if ( ! cm1.isNull() && ! cm2.isNull() && cm1 == cm2 ) return true;
   ElectronRef e1 = electron(), e2 = dstc->electron();
   if ( ! e1.isNull() && ! e2.isNull() && e1 == e2 ) return true;
   SuperClusterRef s1 = superCluster(), s2 = dstc->superCluster();

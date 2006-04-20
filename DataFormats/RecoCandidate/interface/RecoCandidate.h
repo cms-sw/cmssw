@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.5 2006/04/03 09:05:32 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.6 2006/04/10 08:05:31 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -36,10 +36,10 @@ namespace reco {
   private:
     /// reference to a Track
     virtual reco::TrackRef track() const;
-    /// reference to a Muon
-    virtual reco::MuonRef muon() const;
     /// reference to a stand-alone muon Track
     virtual reco::TrackRef standAloneMuon() const;
+    /// reference to a stand-alone muon Track
+    virtual reco::TrackRef combinedMuon() const;
     /// reference to a SuperCluster
     virtual reco::SuperClusterRef superCluster() const;
     /// reference to an Electron
@@ -48,13 +48,19 @@ namespace reco {
     virtual reco::PhotonRef photon() const;
     /// reference to a CaloTowe
     virtual CaloTowerRef caloTower() const;
-    template<typename T> friend struct component; 
+    /// reference to a Muon
+    virtual reco::MuonRef muon() const;
     /// check overlap with another candidate
     bool overlap( const Candidate & ) const;
+
+    template<typename T> friend struct component; 
   };
 
   /// stand alone muon component tag
   struct StandAloneMuonTag {
+  };
+
+  struct CombinedMuonTag {
   };
 
   /// get default Track component
@@ -63,6 +69,8 @@ namespace reco {
   GET_CANDIDATE_COMPONENT( RecoCandidate, MuonRef, DefaultComponentTag, muon );
   /// get stand-alone muon Track component
   GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, StandAloneMuonTag, standAloneMuon );
+  /// get combined muon Track component
+  GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, CombinedMuonTag, combinedMuon );
   /// get default Electron component
   GET_CANDIDATE_COMPONENT( RecoCandidate, ElectronRef, DefaultComponentTag, electron );
   /// get default SuperCluster component

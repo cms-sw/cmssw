@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoMuonCandidate.h,v 1.2 2006/03/01 16:31:47 llista Exp $
+ * \version $Id: RecoMuonCandidate.h,v 1.3 2006/04/03 09:05:32 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -32,9 +32,12 @@ namespace reco {
     virtual reco::TrackRef track() const;
     /// reference to a muon
     virtual reco::MuonRef muon() const;
-    /// reference to a muon
     /// reference to a stand-alone muon Track
     virtual reco::TrackRef standAloneMuon() const;
+    /// reference to a stand-alone muon Track
+    virtual reco::TrackRef combinedMuon() const;
+    /// reference to a SuperCluster
+    virtual reco::SuperClusterRef superCluster() const;
     reco::MuonRef muon_;
   };
   
