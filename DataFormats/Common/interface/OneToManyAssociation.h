@@ -1,6 +1,6 @@
 #ifndef Common_OneToManyAssociation_h
 #define Common_OneToManyAssociation_h
-/** \class edm::OneToManyAssociation
+/** \class edm::OneToManyAssociation OneToManyAssociation.h DataFormats/Common/interface/OneToManyAssociation.h
  *
  * one-to-many reference map using EDM references
  * 
@@ -9,24 +9,38 @@
  * $Id: OneToManyAssociation.h,v 1.8 2006/04/20 08:50:24 llista Exp $
  *
  */
-#include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/AssociationMapBase.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <map>
 #include <vector>
 
 namespace edm {
+
+  template<typename val_type, typename val_ref, typename index>
+  struct AssociationConstIteratorHelper<std::map<index, std::vector<index> >, val_type, val_ref> {
+    template<typename val_prod, typename idx_val>
+    static val_type val( const val_prod & vp, const idx_val & i ) {
+      val_type v( vp.id() );
+      const std::vector<index> & val = i;
+      for( typename std::vector<index>::const_iterator idx = val.begin(); idx != val.end(); ++ idx )
+	v.push_back( val_ref( vp, * idx ) );
+      return v;
+    }
+  };
+
   template<typename CKey, typename CVal, typename index = unsigned long>
-  struct OneToManyAssociation {
+  struct OneToManyAssociation : public AssociationMapBase<CKey, CVal, index> {
+    /// base class
+    typedef AssociationMapBase<CKey, CVal, index> base;
     /// reference to "key" collection
-    typedef edm::RefProd<CKey> KeyRefProd;
+    typedef typename base::KeyRefProd KeyRefProd;
     /// reference to "value" collection
-    typedef edm::RefProd<CVal> ValRefProd;
+    typedef typename base::ValRefProd ValRefProd;
     /// reference to an object in "key" collection
-    typedef edm::Ref<CKey> KeyRef;
+    typedef typename base::KeyRef KeyRef;
     /// reference to an object on "value" collection
-    typedef edm::Ref<CVal> ValRef;
+    typedef typename base::ValRef ValRef;
     /// reference to an object on "value" collection
     typedef edm::RefVector<CVal> ValRefVec;
     /// map type
@@ -37,7 +51,7 @@ namespace edm {
     OneToManyAssociation() { }
     /// constructor from product references
     OneToManyAssociation( const KeyRefProd & k, const ValRefProd & v ) :
-      keyRef_( k ), valRef_( v ) {
+      base( k, v ) {
     }
     /// map size
     size_type size() const { return map_.size(); }
@@ -56,52 +70,19 @@ namespace edm {
       index ik = index( k.index() ), iv = index( v.index() );
       map_[ ik ].push_back( iv );
     }
-
+    /// key/values pair structure
     struct keyVal {
+      typedef KeyRef key_type;
+      typedef ValRefVec val_type;
       keyVal() { }
-      keyVal( const KeyRef & k, const ValRefVec & v ) : key( k ), values( v ) { }
-      KeyRef key;
-      ValRefVec values;
+      keyVal( const key_type & k, const val_type & v ) : key( k ), values( v ) { }
+      key_type key;
+      val_type values;
     };
-
+    /// define value type for this collection
     typedef keyVal value_type;
-
-    struct const_iterator {
-      typedef ptrdiff_t difference_type;
-      typedef typename map_type::const_iterator::iterator_category iterator_category;
-      const_iterator() { }
-      const_iterator( const KeyRefProd & keyRef, const ValRefProd & valRef,
-		      typename map_type::const_iterator mi ) : 
-	keyRef_( keyRef ), valRef_( valRef ), i( mi ) { }
-      const_iterator & operator=( const const_iterator & it ) { 
-	keyRef_ = it.keyRef_; valRef_ = it.valRef_;
-	i = it.i; 
-	return *this; 
-      }
-      const_iterator& operator++() { ++i; return *this; }
-      const_iterator operator++( int ) { const_iterator ci = *this; ++i; return ci; }
-      const_iterator& operator--() { --i; return *this; }
-      const_iterator operator--( int ) { const_iterator ci = *this; --i; return ci; }
-      bool operator==( const const_iterator& ci ) const { 
-	return keyRef_ == ci.keyRef_ && valRef_ == ci.valRef_ && i == ci.i; 
-      }
-      bool operator!=( const const_iterator& ci ) const { return i != ci.i; }
-      KeyRef key() const { return KeyRef( keyRef_, i->first ); }
-      ValRefVec values() const {
-	ValRefVec v( valRef_.id() );
-	const std::vector<index> & val = i->second;
-	for( typename std::vector<index>::const_iterator idx = val.begin(); idx != val.end(); ++ idx )
-	  v.push_back( ValRef( valRef_, * idx ) );
-	return v;
-      }
-      keyVal operator *() const {
-	return keyVal( key(), values() );
-      }
-    private:
-      KeyRefProd keyRef_;
-      ValRefProd valRef_;
-      typename map_type::const_iterator i;
-    };
+    /// define const_iterator
+    typedef typename base::template const_iterator<map_type, keyVal> const_iterator;
 
     /// first iterator over the map (read only)
     const_iterator begin() const { return const_iterator( keyRef_, valRef_, map_.begin() );  }
@@ -124,20 +105,6 @@ namespace edm {
     } 
 
   private:
-    /// throw if k hasn't the same if as keyRef_
-    void checkKey( const KeyRef & k ) const {
-      if ( k.id() != keyRef_.id() )
-	throw edm::Exception( edm::errors::InvalidReference, "invalid key reference" );
-    }
-    /// throw if v hasn't the same if as valRef_
-    void checkVal( const ValRef & v ) const {
-      if ( v.id() != valRef_.id() )
-	throw edm::Exception( edm::errors::InvalidReference, "invalid value reference" );
-    }
-    /// reference to "key" collection
-    KeyRefProd keyRef_;
-    /// reference to "value" collection
-    ValRefProd valRef_;
     /// index map
     map_type map_;
   };
