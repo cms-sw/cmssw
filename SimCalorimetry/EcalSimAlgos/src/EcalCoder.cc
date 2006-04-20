@@ -78,6 +78,7 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
 {
   assert(thePedestals != 0);
   std::vector<EcalMGPASample> results;
+  results.reserve(caloSamples.size());
 
   DetId detId = caloSamples.id();
   double Emax = fullScaleEnergy(detId);
@@ -115,7 +116,7 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
      while (igain != 0) {
        --igain;
 
-       double ped = + pedestals[igain];
+       double ped = pedestals[igain];
        int tmpadc = int (ped + caloSamples[i] / LSB[igain]) ;
 
        // see if it's close enough to the boundary that we have to throw noise
