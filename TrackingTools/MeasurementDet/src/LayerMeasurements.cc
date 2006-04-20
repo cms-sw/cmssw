@@ -1,7 +1,7 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/MeasurementDet/interface/CompositeDetMeasurements.h"
+#include "TrackingTools/MeasurementDet/interface/GeometricSearchDetMeasurements.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
 
 std::vector<TrajectoryMeasurement>
