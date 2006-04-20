@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 correlation matrix for pedestals
 $Author: ratnikov
-$Date: 2006/02/22 19:51:41 $
-$Revision: 1.1 $
+$Date: 2006/04/13 22:40:42 $
+$Revision: 1.2 $
 */
 
 #include <iostream>
@@ -34,6 +34,6 @@ float HcalPedestalWidth::getSigma (int fCapId1, int fCapId2) const {
 }
 
 void HcalPedestalWidth::setSigma (int fCapId1, int fCapId2, float fSigma) {
-  *(&mSigma11 + offset (fCapId1, fCapId2)) = fSigma;
+  *(&mSigma00 + offset (fCapId1, fCapId2)) = fSigma;
 }
 
