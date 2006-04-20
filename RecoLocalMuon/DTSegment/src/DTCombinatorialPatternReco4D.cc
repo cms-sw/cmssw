@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/19 15:00:33 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/19 17:39:53 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -22,7 +22,7 @@ using namespace edm;
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& pset):
-DTRecSegment4DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco4D"){
+  DTRecSegment4DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco4D"){
 
   // debug parameter
   debug = pset.getUntrackedParameter<bool>("debug");
@@ -34,7 +34,7 @@ DTRecSegment4DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco4D"){
   string theReco2DAlgoName = pset.getParameter<string>("Reco2DAlgoName");
   cout << "the Reco2D AlgoName is " << theReco2DAlgoName << endl;
   the2DAlgo = DTRecSegment2DAlgoFactory::get()->create(theReco2DAlgoName,
-                                                     pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+						       pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
 }
 
 void DTCombinatorialPatternReco4D::setES(const EventSetup& setup){
@@ -89,9 +89,15 @@ DTCombinatorialPatternReco4D::reconstruct(const DTChamber* chamber,
 	for(vector<DTRecSegment2D>::const_iterator zed = segments2DTheta.begin();
 	    zed != segments2DTheta.end(); ++zed){
 	  
-	  //FIXME:implement this constructor
-          DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi,*zed,chamber);
+	  // Important!!
+	  DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
 	  
+	  const LocalPoint posZInCh  = chamber->toLocal( chamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition() )) ;
+	  const LocalVector dirZInCh = chamber->toLocal( chamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection() )) ;
+	
+          DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi,*zed,posZInCh,dirZInCh);
+	  //<<
+  
           /// 4d segment: I have the pos along the wire => further update!
           theUpdator->update(newSeg);
           if (debug) cout << "Created a 4D seg " << endl;
@@ -99,8 +105,8 @@ DTCombinatorialPatternReco4D::reconstruct(const DTChamber* chamber,
         }
       } else {
         // Only phi
-	// FIXME:implement this constructor
-        DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi,chamber);
+        DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi);
+	
         if (debug) cout << "Created a 4D segment using only the 2D Phi segment" << endl;
 	result.push_back(newSeg);
       }
@@ -111,8 +117,15 @@ DTCombinatorialPatternReco4D::reconstruct(const DTChamber* chamber,
       for(vector<DTRecSegment2D>::const_iterator zed = segments2DTheta.begin();
 	  zed != segments2DTheta.end(); ++zed){
         
-	// FIXME:implement this constructor
-        DTRecSegment4D* newSeg = new DTRecSegment4D( *zed,chamber);
+	// Important!!
+	DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
+	  
+	const LocalPoint posZInCh  = chamber->toLocal( chamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition() )) ;
+	const LocalVector dirZInCh = chamber->toLocal( chamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection() )) ;
+	
+        DTRecSegment4D* newSeg = new DTRecSegment4D( *zed,posZInCh,dirZInCh);
+	// <<
+	
         if (debug) cout << "Created a 4D segment using only the 2D Theta segment" << endl;
 	result.push_back(newSeg);
       }
@@ -124,3 +137,9 @@ DTCombinatorialPatternReco4D::reconstruct(const DTChamber* chamber,
   
   return result;
 }
+
+
+
+// vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegments(const vector<DTRecSegment2D>& segments2DPhi1,
+// 									   const vector<DTRecSegment2D>& segments2DPhi2){
+// }
