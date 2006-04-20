@@ -74,6 +74,7 @@ ESElectronicsSim::encode(const CaloSamples& timeframe) const
 {
 
   std::vector<ESSample> results;
+  results.reserve(timeframe.size());
 
   int adc = 0; 
   double ADCkeV = MIPADC_/MIPkeV_;
