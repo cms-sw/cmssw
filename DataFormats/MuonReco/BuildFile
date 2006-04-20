@@ -1,8 +1,10 @@
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/EgammaReco>
 <use name=DataFormats/Common>
 <flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsMuonReco>
  <use name=DataFormats/TrackReco>
+ <use name=DataFormats/EgammaReco>
  <use name=DataFormats/Common>
 </export>
