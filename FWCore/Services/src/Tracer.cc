@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
-// $Id: Tracer.cc,v 1.5 2006/02/08 00:44:27 wmtan Exp $
+// $Id: Tracer.cc,v 1.6 2006/03/05 16:42:27 chrjones Exp $
 //
 
 // system include files
@@ -44,6 +44,9 @@ depth_(0)
 
    iRegistry.watchPreModule(this,&Tracer::preModule);
    iRegistry.watchPostModule(this,&Tracer::postModule);
+   
+   iRegistry.watchPreSource(this,&Tracer::preSource);
+   iRegistry.watchPostSource(this,&Tracer::postSource);
 }
 
 // Tracer::Tracer(const Tracer& rhs)
@@ -79,6 +82,17 @@ void
 Tracer::postEndJob()
 {
    std::cout <<indention_<<" Job ended"<<std::endl;
+}
+
+void
+Tracer::preSource()
+{
+  std::cout <<indention_<<indention_<<"source"<<std::endl;
+}
+void
+Tracer::postSource()
+{
+  std::cout <<indention_<<indention_<<"finished: source"<<std::endl;
 }
 
 void 
