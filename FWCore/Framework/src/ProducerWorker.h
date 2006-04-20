@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: ProducerWorker.h,v 1.14 2005/12/14 01:35:44 chrjones Exp $
+$Id: ProducerWorker.h,v 1.15 2005/12/28 00:21:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,6 +23,7 @@ namespace edm
 {
   class ActionTable;
   class EDProducer;
+  class EventPRincipal;
   class ModuleDescription;
   class ParameterSet;
   class WorkerParams;
@@ -47,7 +48,6 @@ namespace edm
     virtual std::string workerType() const;
     
     boost::shared_ptr<EDProducer> producer_;
-    const ActionTable* actions_; // memory assumed to be managed elsewhere
   };
 
   template <> 

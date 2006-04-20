@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.28 2006/02/20 01:51:57 wmtan Exp $
+$Id: Event.h,v 1.29 2006/03/30 20:38:18 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -106,13 +106,14 @@ namespace edm {
     // Private functions.
     //
     // commit() is called to complete the transaction represented by
-    // this Event. The friendship required seems gross, but any
+    // this Event. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
     // public interface is asking for trouble
     void commit_();
-    friend class ProducerWorker;
     friend class ConfigurableInputSource;
     friend class RawInputSource;
+    friend class FilterWorker;
+    friend class ProducerWorker;
 
     // The following 'get' functions serve to isolate the Event class
     // from the EventPrincipal class.

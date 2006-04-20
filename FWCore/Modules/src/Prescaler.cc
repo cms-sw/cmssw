@@ -15,7 +15,7 @@ namespace edm
   {
   }
 
-  bool Prescaler::filter(edm::Event const& e,edm::EventSetup const&)
+  bool Prescaler::filter(edm::Event & e,edm::EventSetup const&)
   {
     ++count_;
     return count_%n_ ==0 ? true : false;

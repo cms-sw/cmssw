@@ -40,7 +40,7 @@ class fltrname : public edm::EDFilter {
       ~fltrname();
 
 
-      virtual bool filter(const edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
 };

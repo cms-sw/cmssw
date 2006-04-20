@@ -5,7 +5,7 @@
   
 ProductRegistryHelper: 
 
-$Id: ProductRegistryHelper.h,v 1.2 2006/02/20 01:51:57 wmtan Exp $
+$Id: ProductRegistryHelper.h,v 1.3 2006/03/05 00:36:37 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
@@ -35,6 +35,19 @@ namespace edm {
       boost::shared_ptr<EDProduct const> productPtr_; // pointer to a default constructed Wrapper<T>.
     };
 
+    typedef std::list<TypeLabelItem> TypeLabelList;
+
+    /// used by the fwk to register the list of products of this module 
+    TypeLabelList & typeLabelList();
+
+    static
+    void addToRegistry(TypeLabelList::const_iterator const& iBegin,
+                             TypeLabelList::const_iterator const& iEnd,
+                             ModuleDescription const& iDesc,
+                             ProductRegistry& iReg,
+                             bool iIsListener=false);
+
+  protected:
     /// declare what type of product will make and with which optional label 
     /** the statement
         \code
@@ -51,21 +64,9 @@ namespace edm {
     }
 
     template <class ProductType> 
-    void produces(){
+    void produces() {
       produces<ProductType>(std::string());
     }
-
-    typedef std::list<TypeLabelItem> TypeLabelList;
-
-    /// used by the fwk to register the list of products of this module 
-    TypeLabelList & typeLabelList();
-
-    static
-    void addToRegistry(TypeLabelList::const_iterator const& iBegin,
-                             TypeLabelList::const_iterator const& iEnd,
-                             ModuleDescription const& iDesc,
-                             ProductRegistry& iReg,
-                             bool iIsListener=false);
 
   private:
     TypeLabelList typeLabelList_;

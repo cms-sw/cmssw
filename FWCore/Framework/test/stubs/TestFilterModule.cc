@@ -48,7 +48,7 @@ namespace edmtest
     explicit TestFilterModule(edm::ParameterSet const&);
     virtual ~TestFilterModule();
 
-    virtual bool filter(edm::Event const& e, edm::EventSetup const& c);
+    virtual bool filter(edm::Event& e, edm::EventSetup const& c);
     void endJob();
 
   private:
@@ -96,22 +96,21 @@ namespace edmtest
     e.getManyByType(prod);
 
     if(prod.size() == 0) return;
-    if(prod.size() > 1)
-      {
+    if(prod.size() > 1) {
 	cerr << "More than one trigger result in the event, using first one"
 	     << endl;
-      }
+    }
 
     if (prod[0]->accept()) ++passed_; else ++failed_;
 
-    if(numbits_<0) return;
+    if(numbits_ < 0) return;
 
-    if(numbits_!=prod[0]->size())
-      {
-	cerr << "should have " << numbits_ 
+    unsigned int numbits = numbits_;
+    if(numbits != prod[0]->size()) {
+	cerr << "should have " << numbits
 	     << ", got " << prod[0]->size() << " in TriggerResults\n";
 	abort();
-      }
+    }
   }
 
   void TestResultAnalyzer::endJob()
@@ -133,7 +132,7 @@ namespace edmtest
   {
   }
 
-  bool TestFilterModule::filter(edm::Event const& e,edm::EventSetup const&)
+  bool TestFilterModule::filter(edm::Event& e,edm::EventSetup const&)
   {
     ++count_;
     if(onlyOne_)

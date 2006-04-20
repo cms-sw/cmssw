@@ -1,7 +1,7 @@
 
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.19 2006/02/08 00:44:25 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.20 2006/04/19 01:48:06 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -9,94 +9,17 @@ $Id: ProducerWorker.cc,v 1.19 2006/02/08 00:44:25 wmtan Exp $
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/src/WorkerParams.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-
-#include <string>
-#include <sstream>
-#include "boost/function.hpp"
-
-using namespace std;
 
 namespace edm
 {
-   namespace {
-     class CallbackWrapper {
-       public:  
-        CallbackWrapper(boost::shared_ptr<EDProducer> iProd,
-                        boost::function<void(const BranchDescription&)> iCallback,
-                        ProductRegistry* iReg,
-                        const ModuleDescription& iDesc):
-        prod_(&(*iProd)), callback_(iCallback), reg_(iReg), mdesc_(iDesc),
-        lastSize_(iProd->typeLabelList().size()) {}
-        
-        void operator()(const BranchDescription& iDesc){
-           callback_(iDesc);
-           addToRegistry();
-        }
-        
-        void addToRegistry() {
-           EDProducer::TypeLabelList const& plist = prod_->typeLabelList();
-           
-           if(lastSize_!=plist.size()){
-              EDProducer::TypeLabelList::const_iterator pStart = plist.begin();
-              advance(pStart,lastSize_);
-              ProductRegistryHelper::addToRegistry(pStart,plist.end(),mdesc_,*reg_);
-              lastSize_ = plist.size();
-           }
-        }
-
-      private:
-        EDProducer* prod_;
-        boost::function<void(const BranchDescription&)> callback_;
-        ProductRegistry* reg_;
-        ModuleDescription mdesc_;
-        unsigned int lastSize_;
-         
-     };
-  }
-   
   ProducerWorker::ProducerWorker(std::auto_ptr<EDProducer> ed,
 				 const ModuleDescription& md,
-				 const WorkerParams& wp):
+				 const WorkerParams& wp) :
     Worker(md,wp),
     producer_(ed) {
-    
-    if (producer_->typeLabelList().empty() && producer_->registrationCallback().empty()) {
-      throw edm::Exception(errors::NoProductSpecified,"Producer")
-        << "Module " << md.moduleName_
-        << " did not specify that it produces a product.\n"
-        << "The module constructor must call 'produces<T>(instanceName)'"
-        << " for each product it produces.\nT is the product type.\n"
-	<< "'instanceName' is an optional string used to distinguish" 
-        << " multiple products of the same type.";
-    }
-
-    //If we have a callback, first tell the callback about all the entries already in the
-    // product registry, then add any items this producer wants to add to the registry 
-    // and only after that do we register the callback. This is done so the callback does not
-    // get called for items registered by this producer (avoids circular reference problems)
-    bool isListener = false;
-    if(!(producer_->registrationCallback().empty())) {
-       isListener=true;
-       wp.reg_->callForEachBranch(producer_->registrationCallback());
-    }
-    EDProducer::TypeLabelList const& plist = producer_->typeLabelList();
-
-    ProductRegistryHelper::addToRegistry(plist.begin(),plist.end(),md,*(wp.reg_),isListener);
-    if(!(producer_->registrationCallback().empty())) {
-       Service<ConstProductRegistry> regService;
-       regService->watchProductAdditions(CallbackWrapper(producer_,producer_->registrationCallback(),
-                                                         wp.reg_,md));
-    }
+    producer_->registerProducts(producer_, wp.reg_, md, true);
   }
 
   ProducerWorker::~ProducerWorker() {
@@ -106,9 +29,9 @@ namespace edm
     bool rc = false;
 
     Event e(ep,description());
-    producer_->produce(e,c);
+    producer_->produce(e, c);
     e.commit_();
-    rc=true;
+    rc = true;
     return rc;
   }
 

@@ -3,48 +3,30 @@
 
 /*----------------------------------------------------------------------
   
-EDProducer: The base class of all "modules" that will insert new
+EDProducer: The base class of "modules" whose main purpose is to insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.11 2005/12/28 00:29:24 wmtan Exp $
-
+$Id: EDProducer.h,v 1.12 2006/02/20 01:51:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/ProductRegistryHelper.h"
-#include "FWCore/Framework/interface/TypeID.h"
-#include "boost/bind.hpp"
-#include "boost/function.hpp"
-#include <string>
-#include <utility>
+#include "FWCore/Framework/interface/ProducerBase.h"
+
 namespace edm {
-  class BranchDescription;
   class Event;
   class EventSetup;
   class ParameterSet;
-  class EDProducer : public ProductRegistryHelper {
+  class EDProducer : public ProducerBase {
   public:
     typedef EDProducer ModuleType;
 
-    EDProducer () : ProductRegistryHelper() {}
+    EDProducer ();
     virtual ~EDProducer();
     virtual void produce(Event& e, EventSetup const& c) = 0;
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
  
-    template<class TProducer, class TMethod>
-    void callWhenNewProductsRegistered(TProducer* iProd, TMethod iMethod){
-       callWhenNewProductsRegistered_ = boost::bind(iMethod,iProd,_1);
-    }
-          
-    /// used by the fwk to register list of products
-    boost::function<void(const BranchDescription&)> registrationCallback() const;
-
-  private:
-    boost::function<void(const BranchDescription&)> callWhenNewProductsRegistered_;
   };
-
-
 }
 
 #endif

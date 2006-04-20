@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.9 2005/12/14 01:35:44 chrjones Exp $
+$Id: FilterWorker.cc,v 1.10 2006/02/08 00:44:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <memory>
 
@@ -23,9 +23,10 @@ namespace edm
   FilterWorker::FilterWorker(std::auto_ptr<EDFilter> ed,
 			     const ModuleDescription& md,
 			     const WorkerParams& wp):
-   Worker(md,wp),
+   Worker(md, wp),
    filter_(ed)
   {
+    filter_->registerProducts(filter_, wp.reg_, md, false);
   }
 
   FilterWorker::~FilterWorker()
@@ -38,8 +39,7 @@ namespace edm
     bool rc = false;
     Event e(ep,description());
     rc = filter_->filter(e, c);
-    // a filter cannot write into the event, so commit is not needed
-    // although we do know about what it asked for
+    e.commit_();
     return rc;
   }
 
