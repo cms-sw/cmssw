@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: OneToManyAssociation.h,v 1.6 2006/03/29 12:50:47 llista Exp $
+ * $Id: OneToManyAssociation.h,v 1.7 2006/04/07 11:58:17 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -36,7 +36,7 @@ namespace edm {
     /// default constructor
     OneToManyAssociation() { }
     /// constructor from product references
-    OneToManyAssociation( const KeyRef & k, const ValRef & v ) :
+    OneToManyAssociation( const KeyRefProd & k, const ValRefProd & v ) :
       keyRef_( k ), valRef_( v ) {
     }
     /// map size
@@ -45,6 +45,13 @@ namespace edm {
     bool empty() const { return map_.empty(); }
     /// insert an association
     void insert( const KeyRef & k, const ValRef & v ) {
+      if ( k.isNull() || v.isNull() )
+	throw edm::Exception( edm::errors::InvalidReference )
+	  << "can't insert null references in OneToOneAssociation";
+      if ( keyRef_.isNull() ) {
+	keyRef_ = KeyRefProd( k ); 
+	valRef_ = ValRefProd( v );
+      }
       checkKey( k ); checkVal( v );
       index ik = index( k.index() ), iv = index( v.index() );
       map_[ ik ].push_back( iv );
@@ -101,7 +108,7 @@ namespace edm {
       typename map_type::const_iterator f = map_.find( k.index() );
       if ( f == map_.end() ) 
 	throw edm::Exception( edm::errors::InvalidReference )
-	  << "can't find reference in OneToManyAssociation at position " << i << endl;
+	  << "can't find reference in OneToManyAssociation at position " << i;
       const_iterator ci( f );
       return * ci;
     } 
