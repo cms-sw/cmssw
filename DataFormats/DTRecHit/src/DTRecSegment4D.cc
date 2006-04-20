@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/19 15:08:06 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/19 17:44:45 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -11,8 +11,6 @@
 
 /* Collaborating Class Header */
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "Geometry/DTGeometry/interface/DTChamber.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
 /* C++ Headers */
 #include <iosfwd>
@@ -23,7 +21,8 @@
 
 
 /// Constructor
-DTRecSegment4D::DTRecSegment4D(const DTRecSegment2DPhi& phiSeg, const DTRecSegment2D& zedSeg, const DTChamber* chamber):
+DTRecSegment4D::DTRecSegment4D(const DTRecSegment2DPhi& phiSeg, const DTRecSegment2D& zedSeg,  
+			       const LocalPoint& posZInCh, const LocalVector& dirZInCh):
   thePhiSeg(phiSeg),theZedSeg(zedSeg){
   
   if(zedSeg.specificRecHits().size()){ 
@@ -32,23 +31,81 @@ DTRecSegment4D::DTRecSegment4D(const DTRecSegment2DPhi& phiSeg, const DTRecSegme
 	<<"the z Segment and the phi segment have different chamber id"<<std::endl;
   }
   
-  theDetId = DTChamberId(phiSeg.geographicalId().rawId());
+  theDetId = phiSeg.chamberId();
 
-  // FIXME: do the porting of this c'tor!!!!
+  // The position of 2D segments are defined in the SL frame: I must first
+  // extrapolate that position at the Chamber reference plane
+
+  LocalPoint posZAt0 = posZInCh +
+    dirZInCh * (-posZInCh.z())/cos(dirZInCh.theta());
+
+
+  thePosition=LocalPoint(phiSeg.localPosition().x(),posZAt0.y(),0.);
+  LocalVector dirPhiInCh=phiSeg.localDirection();
+
+  // given the actual definition of chamber refFrame, (with z poiniting to IP),
+  // the zed component of direction is negative.
+  theDirection=LocalVector(dirPhiInCh.x()/fabs(dirPhiInCh.z()),
+                           dirZInCh.y()/fabs(dirZInCh.z()),
+                           -1.);
+  theDirection=theDirection.unit();
+
+  theCovMatrix=AlgebraicSymMatrix(4);
+
+  // set cov matrix
+  theCovMatrix[0][0]=phiSeg.covMatrix()[0][0]; //sigma (dx/dz)
+  theCovMatrix[0][2]=phiSeg.covMatrix()[0][1]; //cov(dx/dz,x)
+  theCovMatrix[2][2]=phiSeg.covMatrix()[1][1]; //sigma (x)
+  
+  setCovMatrixForZed(posZInCh);
+
+  // set the projection matrix and the dimension
+  theDimension=4;
+  theProjMatrix = RecSegment4D::projectionMatrix();
 }
 
-DTRecSegment4D::DTRecSegment4D(const DTRecSegment2DPhi& phiSeg, const DTChamber* chamber) :
+DTRecSegment4D::DTRecSegment4D(const DTRecSegment2DPhi& phiSeg) :
   thePhiSeg(phiSeg), theZedSeg( DTRecSegment2D() ){
-  theDetId = DTChamberId(phiSeg.geographicalId().rawId());
+  
+  theDetId = phiSeg.chamberId();
 
-  // FIXME: do the porting of this c'tor!!!!
+  thePosition=thePhiSeg.localPosition();
+  
+  theDirection=thePhiSeg.localDirection();
+
+  theCovMatrix=AlgebraicSymMatrix(4);
+  // set cov matrix
+  theCovMatrix[0][0]=phiSeg.covMatrix()[0][0]; //sigma (dx/dz)
+  theCovMatrix[0][2]=phiSeg.covMatrix()[0][1]; //cov(dx/dz,x)
+  theCovMatrix[2][2]=phiSeg.covMatrix()[1][1]; //sigma (x)
+
+  // set the projection matrix and the dimension
+  theDimension=2;
+  theProjMatrix=AlgebraicMatrix(2,5,0);
+  theProjMatrix[0][1] = 1;
+  theProjMatrix[1][3] = 1;
 }
 
-DTRecSegment4D::DTRecSegment4D(const DTRecSegment2D& zedSeg, const DTChamber* chamber) :
-thePhiSeg( DTRecSegment2DPhi() ), theZedSeg( zedSeg){
-  theDetId = DTChamberId(zedSeg.geographicalId().rawId());
+DTRecSegment4D::DTRecSegment4D(const DTRecSegment2D& zedSeg,
+			       const LocalPoint& posZInCh, const LocalVector& dirZInCh):
+  thePhiSeg( DTRecSegment2DPhi() ), theZedSeg( zedSeg){
+  theDetId = zedSeg.chamberId();
+  
+  LocalPoint posZAt0=posZInCh+
+    dirZInCh*(-posZInCh.z()/cos(dirZInCh.theta()));
+  
+  thePosition=posZAt0;
+  theDirection = dirZInCh;
 
-  // FIXME: do the porting of this c'tor!!!!
+  theCovMatrix=AlgebraicSymMatrix(4);
+  // set cov matrix
+  setCovMatrixForZed(posZInCh);
+
+  // set the projection matrix and the dimension
+  theDimension=2;
+  theProjMatrix=AlgebraicMatrix(2,5,0);
+  theProjMatrix[0][2] = 1;
+  theProjMatrix[1][4] = 1;
 }
 
 /// Destructor
