@@ -3,7 +3,7 @@
 # 
 # Simple script to install CMSSW from sources in one go
 #
-# Author $Id$
+# Author $Id: InstallFromSource.sh,v 1.4 2006/04/11 11:50:59 argiro Exp $
 
 
 cmssw_release_area=/afs/cern.ch/cms/Releases/CMSSW
@@ -45,10 +45,6 @@ if [ ! -f config/bootsrc ] ; then
   exit 1;
 fi
 
-# If we are building a prerelease, add debug symbols
-if [ $is_release -eq 0 ]; then 
-  echo "<flags CXXFLAGS=\"-g\">" >> config/BuildFile ;
-fi
 
 #boot the scram project
 scramv1 project -b config/bootsrc
@@ -61,6 +57,12 @@ export SCRAM_NOSYMCHECK=true
 
 #build
 cd $cmssw_version;
+
+# If we are building a prerelease, add debug symbols
+if [ $is_release -eq 0 ]; then 
+  echo "<flags CXXFLAGS=\"-g\">" >> config/BuildFile ;
+fi
+
 scramv1 b -v -k release-build > logs/slc3_ia32_gcc323/release-build.log 2> logs/slc3_ia32_gcc323/release-build-errors.log
 
 #check plugins
