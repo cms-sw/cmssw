@@ -3,6 +3,9 @@
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 #include <map>
@@ -32,7 +35,17 @@ namespace{
     // std::map<DTSuperLayerId,std::vector<DTRecSegment2D> > mv;
     // edm::ClonePolicy<DTRecSegment2D> clv;
     // edm::OwnVector<DTRecSegment2D,edm::ClonePolicy<DTRecSegment2D> > ovv;
-    // DTRecSegment2DCollection ds;
+    DTRecSegment2DCollection ds;
     edm::Wrapper<DTRecSegment2DCollection> dws;
+  }
+}
+
+
+namespace{
+  namespace {
+    DTRecSegment2DPhi phi;
+    DTRecSegment4D s4D;
+    DTRecSegment4DCollection c4D;
+    edm::Wrapper<DTRecSegment4DCollection> dws4D;
   }
 }
