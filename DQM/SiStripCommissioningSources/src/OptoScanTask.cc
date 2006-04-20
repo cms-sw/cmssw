@@ -9,7 +9,7 @@
 // -----------------------------------------------------------------------------
 //
 OptoScanTask::OptoScanTask( DaqMonitorBEInterface* dqm,
-						  const FedChannelConnection& conn ) :
+			    const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "OptoScanTask" ),
   opto_()
 {
@@ -30,7 +30,7 @@ void OptoScanTask::book() {
   uint16_t nbins = 51; //@@ correct?
   uint16_t gains = 4;
 
-  string name;
+  string title;
 
   // Resize vector of "Histo sets" to accommodate the 4 different gain
   // settings and the two different digital levels ("0" and "1").
@@ -41,38 +41,43 @@ void OptoScanTask::book() {
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
     for ( uint16_t ilevel = 0; ilevel < 2; ilevel++ ) { 
 
-      stringstream ss; ss << "Opto" << "Gain" <<igain << "Digital" << ilevel;
-  
-      name = SiStripHistoNamingScheme::histoName( ss.str(), 
-						  SiStripHistoNamingScheme::SUM2, 
-						  SiStripHistoNamingScheme::FED, 
-						  fedKey(),
-						  SiStripHistoNamingScheme::LLD_CHAN, 
-						  connection().lldChannel() );
-      opto_[igain][ilevel].meSumOfSquares_  = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
-
-      name = SiStripHistoNamingScheme::histoName( ss.str(), 
-						  SiStripHistoNamingScheme::SUM, 
-						  SiStripHistoNamingScheme::FED, 
-						  fedKey(),
-						  SiStripHistoNamingScheme::LLD_CHAN, 
-						  connection().lldChannel() );
-      opto_[igain][ilevel].meSumOfContents_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
-
-      name = SiStripHistoNamingScheme::histoName( ss.str(), 
-						  SiStripHistoNamingScheme::NUM, 
-						  SiStripHistoNamingScheme::FED, 
-						  fedKey(),
-						  SiStripHistoNamingScheme::LLD_CHAN, 
-						  connection().lldChannel() );
-      opto_[igain][ilevel].meNumOfEntries_  = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
-
+      stringstream ss; 
+      ss << SiStripHistoNamingScheme::gain() << igain 
+	 << SiStripHistoNamingScheme::digital() << ilevel;
+      
+      title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::OPTO_SCAN, 
+						    SiStripHistoNamingScheme::SUM2, 
+						    SiStripHistoNamingScheme::FED, 
+						    fedKey(),
+						    SiStripHistoNamingScheme::LLD_CHAN, 
+						    connection().lldChannel(),
+						    ss.str() );
+      opto_[igain][ilevel].meSumOfSquares_  = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
+      
+      title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::OPTO_SCAN, 
+						    SiStripHistoNamingScheme::SUM, 
+						    SiStripHistoNamingScheme::FED, 
+						    fedKey(),
+						    SiStripHistoNamingScheme::LLD_CHAN, 
+						    connection().lldChannel(),
+						    ss.str() );
+      opto_[igain][ilevel].meSumOfContents_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
+      
+      title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::OPTO_SCAN, 
+						    SiStripHistoNamingScheme::NUM, 
+						    SiStripHistoNamingScheme::FED, 
+						    fedKey(),
+						    SiStripHistoNamingScheme::LLD_CHAN, 
+						    connection().lldChannel(),
+						    ss.str() );
+      opto_[igain][ilevel].meNumOfEntries_  = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
+      
       opto_[igain][ilevel].vSumOfSquares_.resize(nbins,0);
       opto_[igain][ilevel].vSumOfSquaresOverflow_.resize(nbins,0);
       opto_[igain][ilevel].vSumOfContents_.resize(nbins,0);
       opto_[igain][ilevel].vNumOfEntries_.resize(nbins,0);
-      
-    }
+
+   }
   }
   
 }
@@ -202,7 +207,7 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
 
   // Identify samples belonging to "baseline" and "tick marks"
   float threshold = mean + sigma * 5.;
-  bool found_first_tick = false;
+  //bool found_first_tick = false;
   vector<uint32_t> baseline; 
   vector<uint32_t> tickmark; 
   for ( uint16_t iadc = 0; iadc < adc.size(); iadc++ ) { 

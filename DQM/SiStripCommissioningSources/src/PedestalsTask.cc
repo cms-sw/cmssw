@@ -21,6 +21,8 @@ PedestalsTask::~PedestalsTask() {
   edm::LogInfo("Commissioning") << "[PedestalsTask::PedestalsTask] Destructing object...";
 }
 
+#include <iomanip>
+
 // -----------------------------------------------------------------------------
 //
 void PedestalsTask::book() {
@@ -28,32 +30,32 @@ void PedestalsTask::book() {
   
   uint16_t nbins = 256;
   
-  string name;
+  string title;
   
-  name = SiStripHistoNamingScheme::histoName( "Pedestals", 
-					      SiStripHistoNamingScheme::SUM2, 
-					      SiStripHistoNamingScheme::FED, 
-					      fedKey(),
-					      SiStripHistoNamingScheme::LLD_CHAN, 
-					      connection().lldChannel() );
-  peds_.meSumOfSquares_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+  title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::PEDESTALS, 
+						SiStripHistoNamingScheme::SUM2, 
+						SiStripHistoNamingScheme::FED, 
+						fedKey(),
+						SiStripHistoNamingScheme::LLD_CHAN, 
+						connection().lldChannel() );
+  peds_.meSumOfSquares_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
+  
+  title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::PEDESTALS, 
+						SiStripHistoNamingScheme::SUM, 
+						SiStripHistoNamingScheme::FED, 
+						fedKey(),
+						SiStripHistoNamingScheme::LLD_CHAN, 
+						connection().lldChannel() );
+  peds_.meSumOfContents_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
 
-  name = SiStripHistoNamingScheme::histoName( "Pedestals", 
-					      SiStripHistoNamingScheme::SUM, 
-					      SiStripHistoNamingScheme::FED, 
-					      fedKey(),
-					      SiStripHistoNamingScheme::LLD_CHAN, 
-					      connection().lldChannel() );
-  peds_.meSumOfContents_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
-
-  name = SiStripHistoNamingScheme::histoName( "Pedestals", 
-					      SiStripHistoNamingScheme::NUM, 
-					      SiStripHistoNamingScheme::FED, 
-					      fedKey(),
-					      SiStripHistoNamingScheme::LLD_CHAN, 
-					      connection().lldChannel() );
-  peds_.meNumOfEntries_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
-
+  title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::PEDESTALS, 
+						SiStripHistoNamingScheme::NUM, 
+						SiStripHistoNamingScheme::FED, 
+						fedKey(),
+						SiStripHistoNamingScheme::LLD_CHAN, 
+						connection().lldChannel() );
+  peds_.meNumOfEntries_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
+  
   peds_.vSumOfSquares_.resize(nbins,0);
   peds_.vSumOfSquaresOverflow_.resize(nbins,0);
   peds_.vSumOfContents_.resize(nbins,0);

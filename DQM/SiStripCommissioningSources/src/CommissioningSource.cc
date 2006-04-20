@@ -20,13 +20,13 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 // tasks
-//#include "DQM/SiStripCommissioningSources/interface/PhysicsTask.h"
-#include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
-#include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
-#include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
-#include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
+#include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
+#include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
+#include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
+//#include "DQM/SiStripCommissioningSources/interface/PhysicsTask.h"
+#include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
 // std, utilities
 #include <boost/cstdint.hpp>
 #include <memory>
@@ -136,8 +136,21 @@ void CommissioningSource::analyze( const edm::Event& event,
 					      ((id>>16)&0x7F),   // CCU address
 					      ((id>> 8)&0xFF),   // CCU channel
 					      ((id>> 0)&0x03) ); // LLD channel
+    SiStripGenerateKey::ControlPath path = SiStripGenerateKey::controlPath( fec_key );
+    stringstream ss;
+    ss << "[CommissioningSource::analyze]"
+       << " Device id: " << setfill('0') << setw(8) << hex << id << dec
+       << " FEC key: " << setfill('0') << setw(8) << hex << fec_key << dec
+       << " crate/fec/ring/ccu/module/lld params: " 
+       << path.fecCrate_ << "/"
+       << path.fecSlot_ << "/"
+       << path.fecRing_ << "/"
+       << path.ccuAddr_ << "/"
+       << path.ccuChan_ << "/"
+       << path.lldChan_;
+    LogDebug("Commissioning") << ss.str();
   }    
-
+  
   // Iterate through FED ids and channels
   vector<uint16_t>::const_iterator ifed;
   for ( ifed = fedCabling_->feds().begin(); ifed != fedCabling_->feds().end(); ifed++ ) {
@@ -154,10 +167,18 @@ void CommissioningSource::analyze( const edm::Event& event,
 	      tasks_[fec_key]->fedChannel( fed_key );
 	      tasks_[fec_key]->fillHistograms( *summary, *digis );
 	    } else {
+	      SiStripGenerateKey::ControlPath path = SiStripGenerateKey::controlPath( fec_key );
 	      stringstream ss;
 	      ss << "[CommissioningSource::analyze]"
 		 << " Commissioning task with FEC key " 
-		 << hex << setfill('0') << setw(8) << fec_key << dec
+		 << setfill('0') << setw(8) << hex << fec_key << dec
+		 << " and crate/fec/ring/ccu/module/lld " 
+		 << path.fecCrate_ << "/"
+		 << path.fecSlot_ << "/"
+		 << path.fecRing_ << "/"
+		 << path.ccuAddr_ << "/"
+		 << path.ccuChan_ << "/"
+		 << path.lldChan_ 
 		 << " not found in list!"; 
 	      edm::LogError("Commissioning") << ss.str();
 	    }
@@ -165,10 +186,14 @@ void CommissioningSource::analyze( const edm::Event& event,
 	    if ( tasks_.find(fed_key) != tasks_.end() ) { 
 	      tasks_[fed_key]->fillHistograms( *summary, *digis );
 	    } else {
+	      pair<uint32_t,uint32_t> fed_ch = SiStripGenerateKey::fedChannel( fec_key );
 	      stringstream ss;
 	      ss << "[CommissioningSource::analyze]"
 		 << " Commissioning task with FED key " 
 		 << hex << setfill('0') << setw(8) << fed_key << dec
+		 << " and FED id/ch " 
+		 << fed_ch.first << "/"
+		 << fed_ch.second 
 		 << " not found in list!"; 
 	      edm::LogError("Commissioning") << ss.str();
 	    }
@@ -204,8 +229,8 @@ void CommissioningSource::createDirs() {
 	  dqm_->setCurrentFolder( dir );
 	  SiStripHistoNamingScheme::ControlPath path = SiStripHistoNamingScheme::controlPath( dir );
 	  edm::LogInfo("Commissioning") << "[CommissioningSource::createDirs]"
-					<< "  Created directory: " << dir << " " 
-					<< " using params crate/slot/ring/ccu/chan: " 
+					<< "  Created directory '" << dir 
+					<< "' using params crate/slot/ring/ccu/chan " 
 					<< 0 << "/" 
 					<< (*ifec).fecSlot() << "/" 
 					<< (*iring).fecRing() << "/" 
@@ -295,7 +320,8 @@ void CommissioningSource::createTask( SiStripEventSummary::Task task ) {
 		stringstream ss;
 		ss << "[CommissioningSource::createTask]"
 		   << " Created task '" << tasks_[key]->myName() << "' for key "
-		   << hex << setfill('0') << setw(8) << key << dec; 
+		   << hex << setfill('0') << setw(8) << key << dec 
+		   << " in directory " << dir; 
 		edm::LogInfo("Commissioning") << ss.str();
 		tasks_[key]->bookHistograms(); 
 		tasks_[key]->updateFreq( updateFreq_ ); 

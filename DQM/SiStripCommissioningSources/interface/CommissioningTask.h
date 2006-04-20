@@ -42,18 +42,18 @@ class CommissioningTask {
 		       const edm::DetSet<SiStripRawDigi>& );
   
   void updateHistograms();
-
+  
   /** Set histogram update frequency. */
   void updateFreq( const uint32_t& freq ) { updateFreq_ = freq; }
   
   /** Set FED id and channel (for FED cabling task). */
   inline void fedChannel( const uint32_t& fed_key );
-
+  
   /** Returns the name of this commissioning task. */
   const string& myName() const { return myName_; }
   
  protected: // ----- protected methods -----
-
+  
   /** Updates vectors of HistoSet. */
   void updateHistoSet( HistoSet&, const uint32_t& bin, const uint32_t& value );
   /** Updates histograms (ME's) of HistoSet. */

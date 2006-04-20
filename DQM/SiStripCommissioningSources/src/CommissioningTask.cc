@@ -61,6 +61,17 @@ void CommissioningTask::bookHistograms() {
 				<< connection_.fedCh();
   book();
   booked_ = true;
+
+//   SiStripHistoNamingScheme::HistoTitle histo_title = SiStripHistoNamingScheme::histoTitle( title );
+//   cout << "HistoTitle components: " 
+//        << SiStripHistoNamingScheme::task( histo_title.task_ ) << " " 
+//        << SiStripHistoNamingScheme::contents( histo_title.contents_ ) << " " 
+//        << SiStripHistoNamingScheme::keyType( histo_title.keyType_ ) << " " 
+//        << setfill('0') << setw(8) << hex << histo_title.keyValue_ << dec << " " 
+//        << SiStripHistoNamingScheme::granularity( histo_title.granularity_ ) << " " 
+//        << histo_title.channel_ << " " 
+//        << histo_title.extraInfo_ << endl;
+
 }
 
 // -----------------------------------------------------------------------------

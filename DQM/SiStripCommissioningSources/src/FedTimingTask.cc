@@ -29,31 +29,31 @@ void FedTimingTask::book() {
 
   uint16_t nbins = 24 * nBins_; // 24 "fine" pll skews possible
 
-  string name;
+  string title;
   
-  name = SiStripHistoNamingScheme::histoName( "FedTiming", 
-					      SiStripHistoNamingScheme::SUM2, 
-					      SiStripHistoNamingScheme::FED, 
-					      fedKey(),
-					      SiStripHistoNamingScheme::LLD_CHAN, 
-					      connection().lldChannel() );
-  timing_.meSumOfSquares_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+  title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::FED_TIMING, 
+						SiStripHistoNamingScheme::SUM2, 
+						SiStripHistoNamingScheme::FED, 
+						fedKey(),
+						SiStripHistoNamingScheme::LLD_CHAN, 
+						connection().lldChannel() );
+  timing_.meSumOfSquares_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
   
-  name = SiStripHistoNamingScheme::histoName( "FedTiming", 
-					      SiStripHistoNamingScheme::SUM, 
-					      SiStripHistoNamingScheme::FED, 
-					      fedKey(),
-					      SiStripHistoNamingScheme::LLD_CHAN, 
-					      connection().lldChannel() );
-  timing_.meSumOfContents_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+  title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::FED_TIMING, 
+						SiStripHistoNamingScheme::SUM, 
+						SiStripHistoNamingScheme::FED, 
+						fedKey(),
+						SiStripHistoNamingScheme::LLD_CHAN, 
+						connection().lldChannel() );
+  timing_.meSumOfContents_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
   
-  name = SiStripHistoNamingScheme::histoName( "FedTiming", 
-					      SiStripHistoNamingScheme::NUM, 
-					      SiStripHistoNamingScheme::FED, 
-					      fedKey(),
-					      SiStripHistoNamingScheme::LLD_CHAN, 
-					      connection().lldChannel() );
-  timing_.meNumOfEntries_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+  title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::FED_TIMING, 
+						SiStripHistoNamingScheme::NUM, 
+						SiStripHistoNamingScheme::FED, 
+						fedKey(),
+						SiStripHistoNamingScheme::LLD_CHAN, 
+						connection().lldChannel() );
+  timing_.meNumOfEntries_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
   
   timing_.vSumOfSquares_.resize(nbins,0);
   timing_.vSumOfSquaresOverflow_.resize(nbins,0);

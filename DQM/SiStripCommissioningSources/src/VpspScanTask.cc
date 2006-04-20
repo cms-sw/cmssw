@@ -29,35 +29,35 @@ void VpspScanTask::book() {
   
   uint16_t nbins = 60;
  
-  string name;
+  string title;
 
   vpsp_.resize(2);
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
     if ( connection().i2cAddr(iapv) ) { 
       
-      name = SiStripHistoNamingScheme::histoName( "VpspScan", 
-						  SiStripHistoNamingScheme::SUM2, 
-						  SiStripHistoNamingScheme::FED, 
-						  fedKey(),
-						  SiStripHistoNamingScheme::APV, 
-						  connection().i2cAddr(iapv) );
-      vpsp_[iapv].meSumOfSquares_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+      title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::VPSP_SCAN, 
+						    SiStripHistoNamingScheme::SUM2, 
+						    SiStripHistoNamingScheme::FED, 
+						    fedKey(),
+						    SiStripHistoNamingScheme::APV, 
+						    connection().i2cAddr(iapv) );
+      vpsp_[iapv].meSumOfSquares_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
       
-      name = SiStripHistoNamingScheme::histoName( "VpspScan", 
-						  SiStripHistoNamingScheme::SUM, 
-						  SiStripHistoNamingScheme::FED, 
-						  fedKey(),
-						  SiStripHistoNamingScheme::APV, 
-						  connection().i2cAddr(iapv) );
-      vpsp_[iapv].meSumOfContents_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+      title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::VPSP_SCAN, 
+						    SiStripHistoNamingScheme::SUM, 
+						    SiStripHistoNamingScheme::FED, 
+						    fedKey(),
+						    SiStripHistoNamingScheme::APV, 
+						    connection().i2cAddr(iapv) );
+      vpsp_[iapv].meSumOfContents_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
       
-      name = SiStripHistoNamingScheme::histoName( "VpspScan", 
-						  SiStripHistoNamingScheme::NUM, 
-						  SiStripHistoNamingScheme::FED, 
-						  fedKey(),
-						  SiStripHistoNamingScheme::APV, 
-						  connection().i2cAddr(iapv) );
-      vpsp_[iapv].meNumOfEntries_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+      title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::VPSP_SCAN, 
+						    SiStripHistoNamingScheme::NUM, 
+						    SiStripHistoNamingScheme::FED, 
+						    fedKey(),
+						    SiStripHistoNamingScheme::APV, 
+						    connection().i2cAddr(iapv) );
+      vpsp_[iapv].meNumOfEntries_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
       
       vpsp_[iapv].vSumOfSquares_.resize(nbins,0);
       vpsp_[iapv].vSumOfSquaresOverflow_.resize(nbins,0);

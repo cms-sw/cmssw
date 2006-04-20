@@ -31,42 +31,45 @@ void FedCablingTask::book() {
   
   cabling_.resize(2);
   
-  string name;
+  string title;
   uint16_t nbins = 0;
-  string title = "";
+  string info = "";
   for ( uint16_t iter = 0; iter < 2; iter++ ) {
     
     // Define number of histo bins and title
-    if ( iter == 0 )      { nbins = 1024; title = "FedId"; }
-    else if ( iter == 1 ) { nbins = 96; title = "FedChannel"; }
+    if ( iter == 0 )      { nbins = 1024; info = SiStripHistoNamingScheme::fedId(); }
+    else if ( iter == 1 ) { nbins = 96;   info = SiStripHistoNamingScheme::fedCh(); }
     else {
       edm::LogError("Commissioning") << "[FedCablingTask::book]"
 				     << " Unexpected number of HistoSets" << iter;
     }
     
-    name = SiStripHistoNamingScheme::histoName( title,
-						SiStripHistoNamingScheme::SUM2, 
-						SiStripHistoNamingScheme::FED, 
-						fedKey(),
-						SiStripHistoNamingScheme::LLD_CHAN, 
-						connection().lldChannel() );
-    cabling_[iter].meSumOfSquares_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+    title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::FED_CABLING,
+						  SiStripHistoNamingScheme::SUM2, 
+						  SiStripHistoNamingScheme::FED, 
+						  fedKey(),
+						  SiStripHistoNamingScheme::LLD_CHAN, 
+						  connection().lldChannel(),
+						  info );
+    cabling_[iter].meSumOfSquares_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
     
-    name = SiStripHistoNamingScheme::histoName( title,
-						SiStripHistoNamingScheme::SUM, 
-						SiStripHistoNamingScheme::FED, 
-						fedKey(),
-						SiStripHistoNamingScheme::LLD_CHAN, 
-						connection().lldChannel() );
-    cabling_[iter].meSumOfContents_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+    title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::FED_CABLING,
+						  SiStripHistoNamingScheme::SUM, 
+						  SiStripHistoNamingScheme::FED, 
+						  fedKey(),
+						  SiStripHistoNamingScheme::LLD_CHAN, 
+						  connection().lldChannel(),
+						  info );
+    cabling_[iter].meSumOfContents_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
     
-    name = SiStripHistoNamingScheme::histoName( title,
-						SiStripHistoNamingScheme::NUM, 
-						SiStripHistoNamingScheme::FED, 
-						fedKey(),
-						SiStripHistoNamingScheme::LLD_CHAN, 
-						connection().lldChannel() );
-    cabling_[iter].meNumOfEntries_ = dqm()->book1D( name, name, nbins, -0.5, nbins*1.-0.5 );
+    title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::FED_CABLING,
+						  SiStripHistoNamingScheme::NUM, 
+						  SiStripHistoNamingScheme::FED, 
+						  fedKey(),
+						  SiStripHistoNamingScheme::LLD_CHAN, 
+						  connection().lldChannel(),
+						  info );
+    cabling_[iter].meNumOfEntries_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
     
     cabling_[iter].vSumOfSquares_.resize(nbins,0);
     cabling_[iter].vSumOfSquaresOverflow_.resize(nbins,0);
