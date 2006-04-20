@@ -1,0 +1,10 @@
+TO USE:
+
+in .cfg file:
+
+	  PSet UtilityActions =
+	  {
+	       string type = "SimG4Core/UtilityAction/CountProcessesAction"
+	       untracked bool  DEBUG = false
+	  }
+

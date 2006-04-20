@@ -1,0 +1,19 @@
+TO USE:
+
+in .cfg file:
+
+	  PSet UtilityActions =
+	  {
+	       string type = "SimG4Core/UtilityAction/TrackingVerboseAction"
+	       untracked bool  DEBUG = false
+	       untracked bool  CheckForHighEtPhotons = false
+	       untracked int32 EventMin = 0
+	       untracked int32 EventMax = 0
+	       untracked int32 EventStep = 1
+	       untracked int32 TrackMin = 0
+	       untracked int32 TrackMax = 0
+	       untracked int32 TrackStep = 1
+	       untracked int32 VerboseLevel = 0 
+	  }
+
+Note that EventStep and TrackStep must not be 0.

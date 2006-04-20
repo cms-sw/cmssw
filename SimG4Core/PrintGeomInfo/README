@@ -1,0 +1,11 @@
+TO USE:
+ 
+in .cfg file:
+ 
+          PSet UtilityActions =
+          {
+               string type = "SimG4Core/UtilityAction/PrintGeomInfoAction"
+               untracked int32 VerboseLevel = 0
+	       untracked string Name = "*"
+          }
+ 
