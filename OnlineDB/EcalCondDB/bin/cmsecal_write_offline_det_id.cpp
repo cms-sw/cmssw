@@ -147,6 +147,7 @@ public:
     std::cout << "Looping over supermodule" << std::endl;
     EBDetId ebid;
     int SM = 0;
+    int offSM = 0; // SM slot in the offline
     int xtal = 0;
     id2 = id3 = 0;
     name = "Offline_det_id";
@@ -156,6 +157,15 @@ public:
       SM = cvCursor.currentRow()["ID1"].data<int>();
       xtal = cvCursor.currentRow()["ID2"].data<int>();
       logicId = cvCursor.currentRow()["LOGIC_ID"].data<int>();
+
+      // Both construction SM 0 and 36 are mapped to
+      // ECAL slot 36 in the offline
+      if (SM != 0) {
+	offSM = SM;
+      } else {
+	offSM = 36;
+      }
+
       ebid = EBDetId(SM, xtal, EBDetId::SMCRYSTALMODE);
       detId = ebid.rawId();
 
