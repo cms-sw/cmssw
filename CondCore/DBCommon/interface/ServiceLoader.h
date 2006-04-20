@@ -4,20 +4,22 @@
 #include "AuthenticationMethod.h"
 #include "MessageLevel.h"
 #include <string>
-#include <map>
+//#include <map>
 namespace seal{
-  class IMessageService;
+  //class IMessageService;
   class ComponentLoader;
   //class Handle;
   //class Component;
 }
-namespace coral{
+  namespace coral{
   class IRelationalService;
-  class IAuthenticationService;
-}
-namespace pool{
+  }
+/*class IAuthenticationService;
+  }
+  namespace pool{
   class IBlobStreamingService;
-}
+  }
+*/
 namespace cond{
   //
   //wrapper around loading LCG services
@@ -27,16 +29,16 @@ namespace cond{
     /// factory methold. hand over the ownership to user;
     ServiceLoader();
     ~ServiceLoader();
-    seal::IMessageService& loadMessageService( cond::MessageLevel level=cond::Error );
+    void loadMessageService( cond::MessageLevel level=cond::Error );
     bool hasMessageService() const;
-    coral::IAuthenticationService& loadAuthenticationService( cond::AuthenticationMethod method=cond::Env );
+    void loadAuthenticationService( cond::AuthenticationMethod method=cond::Env );
     bool hasAuthenticationService() const;
     coral::IRelationalService& loadRelationalService();
     void loadConnectionService();
     /// load the default streaming service
-    pool::IBlobStreamingService& loadBlobStreamingService();
+    void loadBlobStreamingService();
     /// load external streaming service
-    pool::IBlobStreamingService& loadBlobStreamingService( const std::string& componentName );
+    void loadBlobStreamingService( const std::string& componentName );
   private:
     seal::Context* m_context;
     seal::Handle<seal::ComponentLoader> m_loader;

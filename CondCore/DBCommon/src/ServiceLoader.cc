@@ -7,7 +7,8 @@
 #include "SealKernel/IMessageService.h"
 #include "RelationalAccess/IAuthenticationService.h"
 #include "RelationalAccess/IRelationalService.h"
-#include "CondCore/BlobStreamingService/interface/BlobStreamingService.h"
+#include "RelationalStorageService/IBlobStreamingService.h"
+//#include "CondCore/BlobStreamingService/interface/BlobStreamingService.h"
 #include "POOLCore/POOLContext.h"
 cond::ServiceLoader::ServiceLoader(){
   m_context=new seal::Context();
@@ -18,7 +19,7 @@ cond::ServiceLoader::ServiceLoader(){
 cond::ServiceLoader::~ServiceLoader(){
   delete m_context;
 }
-seal::IMessageService& cond::ServiceLoader::loadMessageService( cond::MessageLevel level ){
+void cond::ServiceLoader::loadMessageService( cond::MessageLevel level ){
   pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
   m_loader->load("SEAL/Services/MessageService");
   std::vector< seal::IHandle<seal::IMessageService> > v_msgSvc;
@@ -47,7 +48,7 @@ seal::IMessageService& cond::ServiceLoader::loadMessageService( cond::MessageLev
     v_msgSvc.front()->setOutputLevel( seal::Msg::Error );
     pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
   } 
-  return *(v_msgSvc.front());
+  return;
 }
 bool cond::ServiceLoader::hasMessageService() const{
   std::vector< seal::IHandle<seal::IMessageService> > v_msgSvc;
@@ -55,7 +56,7 @@ bool cond::ServiceLoader::hasMessageService() const{
   if( !v_msgSvc.empty() ) return true;
   return false;
 }
-coral::IAuthenticationService& cond::ServiceLoader::loadAuthenticationService( cond::AuthenticationMethod method){
+void cond::ServiceLoader::loadAuthenticationService( cond::AuthenticationMethod method){
   std::vector< seal::IHandle<coral::IAuthenticationService> > v_svc;
   switch ( method ) {
   case cond::Env :
@@ -82,7 +83,6 @@ coral::IAuthenticationService& cond::ServiceLoader::loadAuthenticationService( c
       throw cond::Exception( "could not locate the coral authentication service" );
     }
   }
-  return *(v_svc.front());
 }
 bool cond::ServiceLoader::hasAuthenticationService() const{
   std::vector< seal::IHandle<coral::IAuthenticationService> > v_svc;
@@ -101,7 +101,7 @@ coral::IRelationalService& cond::ServiceLoader::loadRelationalService(){
 }
 void cond::ServiceLoader::loadConnectionService(){
 }
-pool::IBlobStreamingService& cond::ServiceLoader::loadBlobStreamingService(){
+void cond::ServiceLoader::loadBlobStreamingService(){
   //m_loader->load( "COND/Services/DefaultBlobStreamingService" );
   pool::POOLContext::loadComponent( "COND/Services/DefaultBlobStreamingService" );  
   std::vector< seal::IHandle<pool::IBlobStreamingService> > v_svc;
@@ -109,9 +109,8 @@ pool::IBlobStreamingService& cond::ServiceLoader::loadBlobStreamingService(){
   if ( v_svc.empty() ) {
     throw cond::Exception( "could not locate the BlobStreamingService" );
   }
-  return *(v_svc.front());
 }
-pool::IBlobStreamingService& cond::ServiceLoader::loadBlobStreamingService( const std::string& componentName ){
+void cond::ServiceLoader::loadBlobStreamingService( const std::string& componentName ){
   //m_loader->load( componentName );
   pool::POOLContext::loadComponent( componentName );  
   std::vector< seal::IHandle<pool::IBlobStreamingService> > v_svc;
@@ -119,6 +118,5 @@ pool::IBlobStreamingService& cond::ServiceLoader::loadBlobStreamingService( cons
   if ( v_svc.empty() ) {
     throw cond::Exception( std::string("could not locate the BlobStreamingService ")+componentName );
   }
-  return *(v_svc.front());
 }
 
