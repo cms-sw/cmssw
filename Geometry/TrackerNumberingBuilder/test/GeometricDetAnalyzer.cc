@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: GeometricDetAnalyzer.cc,v 1.3 2005/10/18 19:50:54 fambrogl Exp $
+// $Id: GeometricDetAnalyzer.cc,v 1.1 2006/03/15 16:40:08 fambrogl Exp $
 //
 //
 
@@ -100,8 +100,23 @@ GeometricDetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    iSetup.get<IdealGeometryRecord>().get( pDD );     
    edm::LogInfo("GeometricDetAnalyzer")<< " Top node is  "<<&(*pDD);   
    edm::LogInfo("GeometricDetAnalyzer")<< " And Contains  Daughters: "<<(*pDD).deepComponents().size();   
-   CmsTrackerDebugNavigator nav;
-   nav.dump(&(*pDD));
+   std::vector<const GeometricDet*> det = (*pDD).deepComponents();   
+   for(std::vector<const GeometricDet*>::iterator it = det.begin();it!=det.end();it++){
+
+     DDRotationMatrix res = (*it)->rotation();
+
+     Hep3Vector colx(res.xx(),res.xy(),res.xz());
+     Hep3Vector coly(res.yx(),res.yy(),res.yz());
+     Hep3Vector colz(res.zx(),res.zy(),res.zz());
+
+     DDRotationMatrix result(colx,coly,colz);
+
+     if (result.colX().cross(result.colY()).dot(result.colZ()) < 0.5){
+       edm::LogInfo("GeometricDetAnalyzer") <<"Left Handed Rotation Matrix detected; making it right handed: "<<(*it)->name();
+     }
+   }
+
+
 }
 
 //define this as a plug-in
