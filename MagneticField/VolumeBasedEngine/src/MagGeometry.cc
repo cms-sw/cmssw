@@ -1,13 +1,12 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/10/26 18:33:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/12/12 18:22:44 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
 #include "MagneticField/VolumeBasedEngine/interface/MagGeometry.h"
-#include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/Layers/interface/MagBLayer.h"
