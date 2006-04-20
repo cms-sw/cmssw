@@ -3,4 +3,13 @@
  <use name=TrackingTools/DetLayers>
 </export>
 
- <use name=TrackingTools/DetLayers>
+<use name=TrackingTools/DetLayers>
+
+#needed for the ESProducer
+<use name=RecoMuon/Records>
+<use name=Geometry/Records>
+<use name=Geometry/DTGeometry>
+<use name=Geometry/CSCGeometry>
+<use name=Geometry/RPCGeometry>
+
+<flags SEAL_PLUGIN_NAME="RecoMuonDetLayers">
