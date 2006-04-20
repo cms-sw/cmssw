@@ -7,8 +7,8 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *  
- * $Date: 2006/04/13 15:49:16 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/19 15:05:25 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -35,7 +35,6 @@ class DTRecSegment2D : public RecSegment2D {
   /// Constructor
   /// empty c'tor needed by POOL (I guess)
   DTRecSegment2D() {}
-  
   /// c'tor with no hits
   DTRecSegment2D(const DetId& id) ;
   
@@ -85,15 +84,21 @@ class DTRecSegment2D : public RecSegment2D {
   /// Access to specific components
   std::vector<DTRecHit1D> specificRecHits() const ;
   
+  /// The id of the chamber on which reside the segment
+  DTChamberId chamberId() const {return superLayerId().chamberId();}
+
+  /// the Covariance Matrix 
+  AlgebraicSymMatrix covMatrix() const {return theCovMatrix;}
+
  protected:
   void setPosition(const LocalPoint& pos);
   void setDirection(const LocalVector& dir);
+  void setCovMatrix(const AlgebraicSymMatrix& cov);
+  void setChi2(const double& chi2);
   
  private:
   friend class DTSegmentUpdator;
   void update(std::vector<DTRecHit1D> & updatedRecHits);
-  void setCovMatrix(const AlgebraicSymMatrix& cov);
-  void setChi2(const double& chi2);
   void setT0(const double& t0);
 
   /// The id of the superlayer on which reside the segment
@@ -111,6 +116,8 @@ class DTRecSegment2D : public RecSegment2D {
   AlgebraicSymMatrix theCovMatrix; // the covariance matrix
 
   double theChi2;           // chi2 of the fit
+ 
+ private:
   double theT0;             // T0 as coming from the fit
   std::vector<DTRecHit1D> theHits; // the hits with defined R/L
 };
