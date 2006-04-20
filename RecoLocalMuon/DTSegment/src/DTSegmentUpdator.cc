@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/19 17:39:12 $
- * $Revision: 1.8 $
+ * $Date: 2006/04/19 18:00:01 $
+ * $Revision: 1.9 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -87,10 +87,9 @@ void DTSegmentUpdator::update(DTRecSegment2D* seg)  {
 }
 
 void DTSegmentUpdator::fit(DTRecSegment4D* seg) {
-  //FIXME!!!I am not sure about these 2 refits...
+  // after the update must refit the segments
   if(seg->hasPhi()) fit(seg->phiSegment());
   if(seg->hasZed()) fit(seg->zSegment());
-  //
 
   if(seg->hasPhi() && seg->hasZed() ) {
 
