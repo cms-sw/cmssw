@@ -10,8 +10,8 @@
  *  If the user wants map-like indexing of HLT triggers through their
  *  names as key, s/he must use the TriggerNamesService.
  *
- *  $Date: 2006/04/11 10:10:10 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/04/19 20:12:04 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -88,8 +88,9 @@ namespace edm
   };
 
   inline std::ostream& operator <<(std::ostream& ost, const HLTGlobalStatus& hlt) {
+    std::vector<std::string> text(4); text[0]="n"; text[1]="1"; text[2]="0"; text[3]="e";
     const unsigned int n(hlt.size());
-    for (unsigned int i=0; i!=n; i++) ost << (hlt.accept(i)==hlt::Pass) ;
+    for (unsigned int i=0; i!=n; i++) ost << text.at(hlt.state(i));
     return ost;
   }
 

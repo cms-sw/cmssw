@@ -15,8 +15,8 @@
  *  further processing of modules along this path, ie, path processing
  *  is aborted.
  *
- *  $Date: 2006/04/11 10:10:10 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/04/19 20:12:04 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -30,18 +30,18 @@ namespace edm
   class HLTPathStatus {
 
   private:
-    unsigned char item_; // packed data item: bits 0-1: state, 
-                         // bits 2-n: index of aborting module
+    unsigned char status_; // packed status: bits 0-1: state, 
+                           // bits 2-n: index of aborting module
 
   public:
 
     HLTPathStatus(const hlt::HLTState state = hlt::Ready, const unsigned int abort = 0)
-    : item_(abort*4+state) { assert(abort<64); }
+    : status_(abort*4+state) { assert(abort<64); }
 
-    hlt::HLTState state() const {return ((hlt::HLTState) (item_ % 4));}
-    unsigned int  abort() const {return ((unsigned int)  (item_ / 4));}
+    hlt::HLTState state() const {return ((hlt::HLTState) (status_ % 4));}
+    unsigned int  abort() const {return ((unsigned int)  (status_ / 4));}
 
-    void reset() {item_=0;}
+    void reset() {status_=0;}
 
     bool wasrun() const {return (state() != hlt::Ready);}
     bool accept() const {return (state() == hlt::Pass );}
