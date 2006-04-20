@@ -1,6 +1,6 @@
 /** 
- * Demo analyzer for reading digis
- * author A.Tumanov 2/22/06 
+ * Analyzer for reading CSC pedestals.
+ * author O.Boeriu 18/03/06 
  * ripped from Jeremy's and Rick's analyzers
  *   
  */
@@ -29,15 +29,14 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "CalibMuon/CSCCalibration/interface/CSCPedestalAnalyzer.h"
-#include "CalibMuon/CSCCalibration/interface/condbc.h"
-#include "CalibMuon/CSCCalibration/interface/cscmap.h"
+
 CSCPedestalAnalyzer::CSCPedestalAnalyzer(edm::ParameterSet const& conf) {
   
   eventNumber = 0;
   evt = 0;
   pedMean=0.0,time=0.0,max =-9999999.,max1=-9999999.;
   pedSum = 0, strip =-999,misMatch=0;
-  i_chamber=0,i_layer=0,reportedChambers =0;;
+  i_chamber=0,i_layer=0,reportedChambers =0;
   aPeak=0.0,sumFive=0.0;
   length = 1;
   
@@ -83,7 +82,6 @@ void CSCPedestalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iS
    for (int id=FEDNumbering::getCSCFEDIds().first;
 	id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
      
-     
      /// Take a reference to this FED's data
      const FEDRawData& fedData = rawdata->FEDData(id);
      
@@ -92,9 +90,9 @@ void CSCPedestalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iS
        
        ///get a pointer to data and pass it to constructor for unpacking
        CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
-      
+       
        const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
-
+       
        for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
 	 
 	 ///get a reference to chamber data
