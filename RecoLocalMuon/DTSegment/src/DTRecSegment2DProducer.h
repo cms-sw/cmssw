@@ -5,8 +5,8 @@
  *
  * Producer for DT segment in one projection.
  *  
- * $Date: 2006/04/12 15:15:48 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/18 16:24:25 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -31,29 +31,30 @@ class DTRecSegment2DBaseAlgo;
 
 class DTRecSegment2DProducer : public edm::EDProducer {
 
-  public:
+ public:
 
-/// Constructor
-    DTRecSegment2DProducer(const edm::ParameterSet&) ;
+  /// Constructor
+  DTRecSegment2DProducer(const edm::ParameterSet&) ;
 
-/// Destructor
-    virtual ~DTRecSegment2DProducer() ;
+  /// Destructor
+  virtual ~DTRecSegment2DProducer() ;
+    
+  // Operations
 
-/* Operations */ 
-    /// The method which produces the rec segments
-    virtual void produce(edm::Event& event, const edm::EventSetup& setup);
+  /// The method which produces the 2D-segments
+  virtual void produce(edm::Event& event, const edm::EventSetup& setup);
 
-  protected:
+ protected:
 
-  private:
-    // Switch on verbosity
-    static bool debug;
-    // The reconstruction algorithm
-    DTRecSegment2DBaseAlgo* theAlgo;
+ private:
+  // Switch on verbosity
+  static bool debug;
 
-    //static std::string theAlgoName;
-    std::string theRecHits1DLabel;
+  // The 2D-segments reconstruction algorithm
+  DTRecSegment2DBaseAlgo* theAlgo;
 
+  //static std::string theAlgoName;
+  std::string theRecHits1DLabel;
 };
 #endif // DTRecHit_DTRecSegment2DProducer_h
 
