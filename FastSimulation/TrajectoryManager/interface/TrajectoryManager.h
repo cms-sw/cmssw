@@ -47,7 +47,9 @@ class TrajectoryManager
   TrajectoryManager() {;}
 
   /// Constructor from a FSimEvent
-  TrajectoryManager(FSimEvent* aSimEvent, const edm::ParameterSet& matEff);
+  TrajectoryManager(FSimEvent* aSimEvent, 
+		    const edm::ParameterSet& matEff,
+		    bool activateDecays);
 
   /// Default Destructor
   ~TrajectoryManager();

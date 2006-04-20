@@ -35,7 +35,8 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 			       p.getParameter<edm::ParameterSet>("ParticleFilter"))),
       myTrajectoryManager(new TrajectoryManager
 			      (mySimEvent,
-			       p.getParameter<edm::ParameterSet>("MaterialEffects"))),
+			       p.getParameter<edm::ParameterSet>("MaterialEffects"),
+			       p.getParameter<bool>("ActivateDecays"))),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
       m_pVerbose(p.getUntrackedParameter<int>("Verbosity",1))

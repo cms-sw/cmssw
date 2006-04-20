@@ -33,17 +33,23 @@
 
 using namespace std;
 
-TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent, const edm::ParameterSet& matEff) : 
+TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent, 
+				     const edm::ParameterSet& matEff,
+				     bool activateDecays) : 
   mySimEvent(aSimEvent) {
   
   // Initialize the simplified tracker geometry
   _theGeometry = new TrackerGeometry();
   
   // Initialize the stable particle decay engine 
-  myDecayEngine = new Pythia6Decays();
+  if ( activateDecays ) myDecayEngine = new Pythia6Decays();
 
-  // Initialize the Material Effects updator
-  theMaterialEffects = new MaterialEffects(matEff);
+  // Initialize the Material Effects updator, if needed
+  if ( matEff.getParameter<bool>("PairProduction") || 
+       matEff.getParameter<bool>("Bremsstrahlung") ||
+       matEff.getParameter<bool>("EnergyLoss") || 
+       matEff.getParameter<bool>("MultipleScattering") )
+       theMaterialEffects = new MaterialEffects(matEff);
 
   //  SimpleConfigurable<bool> activeDecay(true,"FamosDecays:activate");
   //  SimpleConfigurable<double> cTauMin(10.,"FamosDecays:cTauMin");
@@ -69,8 +75,8 @@ TrajectoryManager::theGeometry() {
 
 TrajectoryManager::~TrajectoryManager() {
   delete _theGeometry;
-  delete myDecayEngine;
-  delete theMaterialEffects;
+  if ( myDecayEngine ) delete myDecayEngine;
+  if ( theMaterialEffects ) delete theMaterialEffects;
   //Write the histograms
   //  myHistos->put("histos.root");
   //  delete myHistos;
@@ -174,7 +180,7 @@ TrajectoryManager::reconstruct()
       if( PP.getSuccess() > 0 && PP.onFiducial() ) {
 
 	// Material effects are simulated there
-	theMaterialEffects->interact(*mySimEvent,*cyliter,PP,fsimi); 
+	if ( theMaterialEffects ) theMaterialEffects->interact(*mySimEvent,*cyliter,PP,fsimi); 
 
 	// Add a SimHit to the SimTrack for the first half loop...
 	// if the particle is charged, if the layer is sensitive,
@@ -354,6 +360,9 @@ TrajectoryManager::propagateToLayer(ParticlePropagator& PP, unsigned layer) {
 
 void
 TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
+
+  // Decays are not activated : do nothing
+  if ( !myDecayEngine ) return;
 
   // Invoke PYDECY to decay the particle and get the daughters
   DaughterParticleList daughters = myDecayEngine->particleDaughters(PP);
