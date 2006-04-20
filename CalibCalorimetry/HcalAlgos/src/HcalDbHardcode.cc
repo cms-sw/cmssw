@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.5 2006/04/05 21:14:03 fedor Exp $
+// $Id: HcalDbHardcode.cc,v 1.6 2006/04/13 22:40:39 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -30,9 +30,9 @@ HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalDetId fId) {
   HcalGain gain = HcalDbHardcode::makeGain (fId);
   float value = fId.subdet () == HcalForward ? 0.14 : 0.1;
   HcalPedestalWidth result (fId.rawId ());
-  for (int i = 1; i <= 4; i++) {
+  for (int i = 0; i < 4; i++) {
     double width = value / gain.getValue (i);
-    for (int j = 1; j <= i; j++) {
+    for (int j = 0; j <= i; j++) {
       result.setSigma (i, j, i == j ? width * width : 0);
     }
   } 
