@@ -179,7 +179,7 @@ sub define_EB_crystal_number {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $xtal (1..1700) {
       my $logic_id = sprintf "1011%02d%04d", $SM, $xtal;
       push @logic_ids, $logic_id;
@@ -201,7 +201,7 @@ sub define_EB_crystal_index {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $i (0..84) {
       foreach my $j (0..19) {
 	my $logic_id = sprintf "1012%02d%02d%02d", $SM, $i, $j;
@@ -223,7 +223,7 @@ sub define_EB_elec_crystal_number {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $xtal (0..1699) {
       my $logic_id = sprintf "1013%02d%04d", $SM, $xtal;
       push @logic_ids, $logic_id;
@@ -244,7 +244,7 @@ sub define_EB_trigger_tower {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $tt (1..68) {
       my $logic_id = sprintf "1021%02d00%02d", $SM, $tt;
       push @logic_ids, $logic_id;
@@ -266,7 +266,7 @@ sub define_EB_module {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $M (1..4) {
       my $logic_id = sprintf "1031%02d00%02d", $SM, $M;
       push @logic_ids, $logic_id;
@@ -288,7 +288,7 @@ sub define_EB_supermodule {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     my $logic_id = sprintf "1041%02d00%02d", $SM, $SM;
     push @logic_ids, $logic_id;
     push @channel_ids, [ $SM ];
@@ -308,7 +308,7 @@ sub define_EB_HV_channel {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $channel (1..34) {
       my $logic_id = sprintf "1051%02d00%02d", $SM, $channel;
       push @logic_ids, $logic_id;
@@ -329,7 +329,7 @@ sub define_EB_HV_board {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $board (0,2,4,6) {
       my $logic_id = sprintf "1061%02d00%02d", $SM, $board;
       push @logic_ids, $logic_id;
@@ -351,7 +351,7 @@ sub define_EB_LV_channel {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $channel (1..17) {
       my $logic_id = sprintf "1071%02d00%02d", $SM, $channel;
       push @logic_ids, $logic_id;
@@ -373,7 +373,7 @@ sub define_EB_ESS_temp {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $channel (0..7) {
       my $logic_id = sprintf "1081%02d00%02d", $SM, $channel;
       push @logic_ids, $logic_id;
@@ -395,7 +395,7 @@ sub define_EB_PTM_H_amb {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $channel (1..3) {
       my $logic_id = sprintf "1091%02d00%02d", $SM, $channel;
       push @logic_ids, $logic_id;
@@ -417,7 +417,7 @@ sub define_EB_PTM_T_amb {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $channel (1..2) {
       my $logic_id = sprintf "1101%02d00%02d", $SM, $channel;
       push @logic_ids, $logic_id;
@@ -439,7 +439,7 @@ sub define_EB_token_ring {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $channel (1..8) {
       my $logic_id = sprintf "1111%02d00%02d", $SM, $channel;
       push @logic_ids, $logic_id;
@@ -461,7 +461,7 @@ sub define_EB_LM_channel {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $channel (1..9) {
       my $logic_id = sprintf "1121%02d00%02d", $SM, $channel;
       push @logic_ids, $logic_id;
@@ -483,7 +483,7 @@ sub define_EB_LM_PN {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $channel (0..9) {
       my $logic_id = sprintf "1131%02d00%02d", $SM, $channel;
       push @logic_ids, $logic_id;
@@ -505,7 +505,7 @@ sub define_EB_T_capsule {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $channel (1..170) {
       my $logic_id = sprintf "1141%02d0%03d", $SM, $channel;
       push @logic_ids, $logic_id;
@@ -527,7 +527,7 @@ sub define_EB_VFE {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $TT (1..68) {
       foreach my $VFE (1..5) {
 	my $logic_id = sprintf "1151%02d%02d%02d", $SM, $TT, $VFE;
@@ -551,7 +551,7 @@ sub define_EB_LVRB_DCU {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $TT (1..68) {
       foreach my $DCU (1..3) {
 	my $logic_id = sprintf "1161%02d%02d%02d", $SM, $TT, $DCU;
@@ -575,7 +575,7 @@ sub define_EB_LVRB_T_sensor {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $TT (1..68) {
       foreach my $sens (1..3) {
 	my $logic_id = sprintf "1171%02d%02d%02d", $SM, $TT, $sens;
@@ -599,7 +599,7 @@ sub define_EB_mem_TT {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $TT (69..70) {
       my $logic_id = sprintf "1181%02d00%02d", $SM, $TT;
       push @logic_ids, $logic_id;
@@ -621,7 +621,7 @@ sub define_EB_mem_channel {
 
   my @logic_ids;
   my @channel_ids;
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $ch (1..50) {
       my $logic_id = sprintf "1191%02d00%02d", $SM, $ch;
       push @logic_ids, $logic_id;
@@ -654,7 +654,7 @@ sub define_EB_crystal_number_to_EB_trigger_tower {
   my @logic_ids;
   my @channel_ids;
 
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     for my $xtal (1..1700) {
       my $i = POSIX::floor(($xtal-1)/20.0);
       my $j = ($xtal-1) - 20*$i;
@@ -707,7 +707,7 @@ sub define_EB_crystal_number_to_EB_module {
   my @logic_ids;
   my @channel_ids;
 
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     for my $xtal (1..1700) {
       my $M;
       if ($xtal <= 500) {
@@ -757,7 +757,7 @@ sub define_EB_crystal_number_to_EB_elec_crystal_number {
   my @logic_ids;
   my @channel_ids;
 
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $cn (1..1700) {
       my $ecn = cn_to_ecn($cn);
       
@@ -798,7 +798,7 @@ sub define_EB_elec_crystal_number_to_EB_crystal_number {
   my @logic_ids;
   my @channel_ids;
 
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     foreach my $ecn (0..1699) {
       my $cn = ecn_to_cn($ecn);
       
@@ -839,7 +839,7 @@ sub define_EB_crystal_number_to_EB_HV_channel {
   my @logic_ids;
   my @channel_ids;
 
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     for my $xtal (1..1700) {
       my $i = POSIX::floor(($xtal-1)/20.0);
       my $j = ($xtal-1) - 20*$i;
@@ -890,7 +890,7 @@ sub define_EB_crystal_number_to_EB_LV_channel {
   my @logic_ids;
   my @channel_ids;
 
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     for my $xtal (1..1700) {
       my $i = POSIX::floor(($xtal-1)/20.0);
       my $j = ($xtal-1) - 20*$i;
@@ -945,7 +945,7 @@ sub define_EB_crystal_number_to_EB_LM_channel {
   my @logic_ids;
   my @channel_ids;
 
-  foreach my $SM (1..36) {
+  foreach my $SM (0..36) {
     for my $xtal (1..1700) {
       my $i = POSIX::floor(($xtal-1)/20.0);
       my $j = ($xtal-1) - 20*$i;
