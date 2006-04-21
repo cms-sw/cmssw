@@ -16,26 +16,32 @@ using namespace std;
  * 
  */
 
-class L1GctJetLeafCard
+class L1GctJetLeafCard : L1GctProcessor
 {
 public:
 	L1GctJetLeafCard();
 	~L1GctJetLeafCard();
-
+	///
+	/// add a Source Card
 	void addSource(L1GctSourceCard* card);
-	
 	///
-	/// clear the buffers
-	void reset();
+	/// clear internal buffers
+	virtual void reset();
 	///
-	/// run the algorithms
-	void process();
-	
+	/// set the input buffers
+	virtual void fetchInput();
+	/// 
+	/// process the data and set outputs
+	virtual void process();
+	///
+	/// get the input data
+	vector<L1GctRegion> getInputRegions();
 	///
 	/// get the jet output
-	vector<L1GctJet> theJetOutput();
+	vector<L1GctJet> getOutputJets();
 	///
 	/// get the energy outputs
+	/// getOutputEnergy();
 
 private:
 

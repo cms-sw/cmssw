@@ -56,6 +56,9 @@ public:
   /// clear the buffers
   void reset();
   ///
+  /// get the data from RCT/File/event/...
+  void fetchInput();
+  ///
   /// process the event
   void process();
   

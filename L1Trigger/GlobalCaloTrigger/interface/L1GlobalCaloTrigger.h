@@ -23,7 +23,7 @@ class L1GctSourceCard;
 class L1GctElectronSorter;
 class L1GctElectronFinalSort;
 
-class L1GctJetFinder;
+class L1GctJetLeafCard;
 class L1GctWheelJetFpga;
 class L1GctJetFinalStage;
 
@@ -32,58 +32,77 @@ class L1GctGlobalEnergyAlgos;
 
 class L1GlobalCaloTrigger {
 public:
-
+	///
+	/// destruct the GCT
 	~L1GlobalCaloTrigger();
-
+	///
+	/// get the GCT object
 	static L1GlobalCaloTrigger* theGct();
-	
+	///
+	/// process an event
 	void process();
-	
-	// outputs to Global Trigger
+	///
+	/// iso electron outputs to GT
 	vector<L1GctEmCand> getIsoElectrons();
+	///
+	/// non-iso electron outputs to GT
 	vector<L1GctEmCand> getNonIsoElectrons();
+	///
+	/// central jet outputs to GT
 	vector<L1GctJet> getCentralJets();
+	///
+	/// forward jet outputs to GT
 	vector<L1GctJet> getForwardJets();
+	///
+	/// tau jet outputs to GT
 	vector<L1GctJet> getTauJets();
-
+	///
+	/// Etmiss output to GT
 	unsigned getEtMiss();
+	///
+	/// Etmiss phi output to GT
 	unsigned getEtMissPhi();
+	///
+	/// Total Et output to GT
 	unsigned getEtSum();
+	///
+	/// Total hadronic Et output to GT
 	unsigned getEtHad();
-	
-	// DAQ output - what owns the produced event?
+	///
+	/// DAQ output - what owns the produced event?
 	L1GctEvent getEvent();
-
-	//vector<L1GctJetLeafCard*> getPlusJetLeafCards();
-	//vector<L1GctJetLeafCard*> getMinusJetLeafCards();
-
-	vector<L1GctSourceCard*> getSourceCards();
+	///
+	/// get the Source cards
+	vector<L1GctSourceCard*> getSourceCards() { return theSourceCards; }
+	///
+	/// get the Jet Leaf cards
+	vector<L1GctJetLeafCard*> getJetLeafCards() { return theJetLeafCards; }
 
 private:
-
-	// singleton private constructor
+	///
+	/// singleton private constructor
 	L1GlobalCaloTrigger();
-	
-	// move data around
-	void setupAlgoInputs();
+	///
+	/// instantiate the hardware & algo objects
+	void build();
+	///
+	/// wire up the hardware obejcts
+	void setup();
 
 private:
 
 	// instance of the GCT
 	static L1GlobalCaloTrigger* instance;
 
-	// pointers to the algorithms
-	vector<L1GctJetFinder*> theJetFinders;			
+	// pointers to the hardware/algos
+	vector<L1GctSourceCard*> theSourceCards;
+	vector<L1GctJetLeafCard*> theJetLeafCards;			
 	vector<L1GctElectronSorter*> theElectronSorters;	
 	vector<L1GctWheelJetFpga*> theWheelJetFpgas;		
 	vector<L1GctWheelEnergyFpga*> theWheelEnergyFpgas;	
 	L1GctJetFinalStage* theJetFinalStage;			
-	L1GctGlobalEnergyAlgos* theGlobalEnergyAlgos;		
-	L1GctElectronFinalSort* theElectronFinalSort;
-
-
-	// pointers to the modules
-	vector<L1GctSourceCard*> theSourceCards;
+	L1GctGlobalEnergyAlgos* theEnergyFinalStage;		
+	L1GctElectronFinalSort* theElectronFinalStage;
 	
 };
 
