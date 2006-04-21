@@ -8,6 +8,7 @@
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
 #include "Geometry/Surface/interface/SimpleCylinderBounds.h"
+#include "TrackingTools/DetLayers/src/DetLessZ.h"
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
@@ -19,6 +20,10 @@ TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
   theRings.assign(theInnerRings.begin(),theInnerRings.end());
   theRings.insert(theRings.end(),theOuterRings.begin(),theOuterRings.end());
   
+  sort(theRings.begin(),theRings.end(),DetLessZ());
+  sort(theInnerRings.begin(),theInnerRings.end(),DetLessZ());
+  sort(theOuterRings.begin(),theOuterRings.end(),DetLessZ());
+
   for(vector<const TIBRing*>::const_iterator it=theRings.begin();it!=theRings.end();it++){
     theComponents.push_back(*it);
     vector<const GeomDet*> basicCompsVector = (**it).basicComponents();
@@ -32,6 +37,27 @@ TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
   theInnerCylinder = cylinder( theInnerRings);
   theOuterCylinder = cylinder( theOuterRings);
   setSurface( cylinder(theRings) );
+
+  cout << "==== DEBUG TIBLayer =====" << endl; 
+  for (vector<const TIBRing*>::const_iterator i=theInnerRings.begin();
+       i != theInnerRings.end(); i++){
+    cout << "inner TIBRing pos z,perp,eta,phi: " 
+	 << (**i).position().z() << " , " 
+	 << (**i).position().perp() << " , " 
+	 << (**i).position().eta() << " , " 
+	 << (**i).position().phi() << endl;
+  }
+
+  for (vector<const TIBRing*>::const_iterator i=theInnerRings.begin();
+       i != theInnerRings.end(); i++){
+    cout << "outer TIBRing pos z,perp,eta,phi: " 
+	 << (**i).position().z() << " , " 
+	 << (**i).position().perp() << " , " 
+	 << (**i).position().eta() << " , " 
+	 << (**i).position().phi() << endl;
+  }
+  
+
 
   // initialise the bin finders
   vector<const GeometricSearchDet*> tmpIn;
