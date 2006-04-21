@@ -1,9 +1,10 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
+<use name=Foundation/PluginManager>
 <use name=DataFormats/Common>
 <use name=DataFormats/FEDRawData>
-#<use name=PluginManager>
+<use name=DQM/SiStripCommon>
 <use name=root>
 <use name=xdaq>
 <use name=Fed9UUtils>
@@ -15,9 +16,10 @@
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
+   <use name=Foundation/PluginManager>
    <use name=DataFormats/Common>
    <use name=DataFormats/FEDRawData>
-   #<use name=PluginManager>
+   <use name=DQM/SiStripCommon>
    <use name=root>
    <use name=xdaq>
    <use name=Fed9UUtils>
