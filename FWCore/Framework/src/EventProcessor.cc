@@ -936,7 +936,7 @@ namespace edm {
     changeState(m);
     {
       boost::mutex::scoped_lock sl(stop_lock_);
-      bool rc;
+      bool rc = true;
       while(stop_count_==0 && (rc=stopper_.timed_wait(sl,timeout))==true);
 
       if(rc==false)
