@@ -5,11 +5,9 @@
 #include <vector>
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCSample.h"
 
-
-
 /** \class EcalTBTDCRawInfo
       
-$Id: EcalTBTDCRawInfo.h,v 1.1 2005/10/07 20:54:07 meridian Exp $
+$Id: EcalTBTDCRawInfo.h,v 1.1 2006/03/28 13:52:06 meridian Exp $
 */
 
 class EcalTBTDCRawInfo {
@@ -30,13 +28,15 @@ class EcalTBTDCRawInfo {
   /// Set methods
   void setSize(unsigned int size)
     {
-      data_.reserve(size);
+      // data_.reserve(size);
+      data_.resize(size);
     };
   
   void setSample(unsigned int i, const EcalTBTDCSample& sam) 
     {
       if (data_.size() < i )
-	data_.reserve(i);
+	// data_.reserve(i);
+	data_.resize(i);
       data_[i]=sam; 
     };
   
