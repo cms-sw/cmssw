@@ -21,8 +21,14 @@ ExternalInputSource(pset, desc),
 evt(0),    
 reader_(  Ntuple2HepMCFiller::instance() ){
 	
+
 	cout << "H2RootNtplSource: Reading HepMC file: " << fileNames()[0] << endl;
-	reader_->initialize(fileNames()[0],101);  
+	string fileName = fileNames()[0];
+	// strip the file: 
+	if ( ! fileName.find("file:")){
+	  fileName.erase(0,5);
+	}  
+	reader_->initialize(fileName,101);  
 	produces<HepMCProduct>();
 
 }
