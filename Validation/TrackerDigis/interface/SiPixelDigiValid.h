@@ -38,92 +38,92 @@ class  SiPixelDigiValid: public EDAnalyzer {
 
   //////Barrel Pixel
   /* 1st Layer */
-  MonitorElement* meAdcLayer1Ladder1_;
-  MonitorElement* meAdcLayer1Ladder2_;
-  MonitorElement* meAdcLayer1Ladder3_;
-  MonitorElement* meAdcLayer1Ladder4_;
-  MonitorElement* meAdcLayer1Ladder5_;
-  MonitorElement* meAdcLayer1Ladder6_;
-  MonitorElement* meAdcLayer1Ladder7_;
-  MonitorElement* meAdcLayer1Ladder8_;
+  MonitorElement* meAdcLayer1Ring1_;
+  MonitorElement* meAdcLayer1Ring2_;
+  MonitorElement* meAdcLayer1Ring3_;
+  MonitorElement* meAdcLayer1Ring4_;
+  MonitorElement* meAdcLayer1Ring5_;
+  MonitorElement* meAdcLayer1Ring6_;
+  MonitorElement* meAdcLayer1Ring7_;
+  MonitorElement* meAdcLayer1Ring8_;
 
-  MonitorElement* meRowLayer1Ladder1_;
-  MonitorElement* meRowLayer1Ladder2_;
-  MonitorElement* meRowLayer1Ladder3_;
-  MonitorElement* meRowLayer1Ladder4_;
-  MonitorElement* meRowLayer1Ladder5_;
-  MonitorElement* meRowLayer1Ladder6_;
-  MonitorElement* meRowLayer1Ladder7_;
-  MonitorElement* meRowLayer1Ladder8_;
+  MonitorElement* meRowLayer1Ring1_;
+  MonitorElement* meRowLayer1Ring2_;
+  MonitorElement* meRowLayer1Ring3_;
+  MonitorElement* meRowLayer1Ring4_;
+  MonitorElement* meRowLayer1Ring5_;
+  MonitorElement* meRowLayer1Ring6_;
+  MonitorElement* meRowLayer1Ring7_;
+  MonitorElement* meRowLayer1Ring8_;
 
-  MonitorElement* meColLayer1Ladder1_;
-  MonitorElement* meColLayer1Ladder2_;
-  MonitorElement* meColLayer1Ladder3_;
-  MonitorElement* meColLayer1Ladder4_;
-  MonitorElement* meColLayer1Ladder5_;
-  MonitorElement* meColLayer1Ladder6_;
-  MonitorElement* meColLayer1Ladder7_;
-  MonitorElement* meColLayer1Ladder8_;
-  MonitorElement* meNdigiPerLadderL1_;
+  MonitorElement* meColLayer1Ring1_;
+  MonitorElement* meColLayer1Ring2_;
+  MonitorElement* meColLayer1Ring3_;
+  MonitorElement* meColLayer1Ring4_;
+  MonitorElement* meColLayer1Ring5_;
+  MonitorElement* meColLayer1Ring6_;
+  MonitorElement* meColLayer1Ring7_;
+  MonitorElement* meColLayer1Ring8_;
+  MonitorElement* meNdigiPerRingL1_;
 
   /* 2nd Layer */
-  MonitorElement* meAdcLayer2Ladder1_;
-  MonitorElement* meAdcLayer2Ladder2_;
-  MonitorElement* meAdcLayer2Ladder3_;
-  MonitorElement* meAdcLayer2Ladder4_;
-  MonitorElement* meAdcLayer2Ladder5_;
-  MonitorElement* meAdcLayer2Ladder6_;
-  MonitorElement* meAdcLayer2Ladder7_;
-  MonitorElement* meAdcLayer2Ladder8_;
+  MonitorElement* meAdcLayer2Ring1_;
+  MonitorElement* meAdcLayer2Ring2_;
+  MonitorElement* meAdcLayer2Ring3_;
+  MonitorElement* meAdcLayer2Ring4_;
+  MonitorElement* meAdcLayer2Ring5_;
+  MonitorElement* meAdcLayer2Ring6_;
+  MonitorElement* meAdcLayer2Ring7_;
+  MonitorElement* meAdcLayer2Ring8_;
 
-  MonitorElement* meRowLayer2Ladder1_;
-  MonitorElement* meRowLayer2Ladder2_;
-  MonitorElement* meRowLayer2Ladder3_;
-  MonitorElement* meRowLayer2Ladder4_;
-  MonitorElement* meRowLayer2Ladder5_;
-  MonitorElement* meRowLayer2Ladder6_;
-  MonitorElement* meRowLayer2Ladder7_;
-  MonitorElement* meRowLayer2Ladder8_;
+  MonitorElement* meRowLayer2Ring1_;
+  MonitorElement* meRowLayer2Ring2_;
+  MonitorElement* meRowLayer2Ring3_;
+  MonitorElement* meRowLayer2Ring4_;
+  MonitorElement* meRowLayer2Ring5_;
+  MonitorElement* meRowLayer2Ring6_;
+  MonitorElement* meRowLayer2Ring7_;
+  MonitorElement* meRowLayer2Ring8_;
 
-  MonitorElement* meColLayer2Ladder1_;
-  MonitorElement* meColLayer2Ladder2_;
-  MonitorElement* meColLayer2Ladder3_;
-  MonitorElement* meColLayer2Ladder4_;
-  MonitorElement* meColLayer2Ladder5_;
-  MonitorElement* meColLayer2Ladder6_;
-  MonitorElement* meColLayer2Ladder7_;
-  MonitorElement* meColLayer2Ladder8_;
-  MonitorElement* meNdigiPerLadderL2_;
+  MonitorElement* meColLayer2Ring1_;
+  MonitorElement* meColLayer2Ring2_;
+  MonitorElement* meColLayer2Ring3_;
+  MonitorElement* meColLayer2Ring4_;
+  MonitorElement* meColLayer2Ring5_;
+  MonitorElement* meColLayer2Ring6_;
+  MonitorElement* meColLayer2Ring7_;
+  MonitorElement* meColLayer2Ring8_;
+  MonitorElement* meNdigiPerRingL2_;
 
   /* 3rd Layer */
 
-  MonitorElement* meAdcLayer3Ladder1_;
-  MonitorElement* meAdcLayer3Ladder2_;
-  MonitorElement* meAdcLayer3Ladder3_;
-  MonitorElement* meAdcLayer3Ladder4_;
-  MonitorElement* meAdcLayer3Ladder5_;
-  MonitorElement* meAdcLayer3Ladder6_;
-  MonitorElement* meAdcLayer3Ladder7_;
-  MonitorElement* meAdcLayer3Ladder8_;
+  MonitorElement* meAdcLayer3Ring1_;
+  MonitorElement* meAdcLayer3Ring2_;
+  MonitorElement* meAdcLayer3Ring3_;
+  MonitorElement* meAdcLayer3Ring4_;
+  MonitorElement* meAdcLayer3Ring5_;
+  MonitorElement* meAdcLayer3Ring6_;
+  MonitorElement* meAdcLayer3Ring7_;
+  MonitorElement* meAdcLayer3Ring8_;
 
-  MonitorElement* meRowLayer3Ladder1_;
-  MonitorElement* meRowLayer3Ladder2_;
-  MonitorElement* meRowLayer3Ladder3_;
-  MonitorElement* meRowLayer3Ladder4_;
-  MonitorElement* meRowLayer3Ladder5_;
-  MonitorElement* meRowLayer3Ladder6_;
-  MonitorElement* meRowLayer3Ladder7_;
-  MonitorElement* meRowLayer3Ladder8_;
+  MonitorElement* meRowLayer3Ring1_;
+  MonitorElement* meRowLayer3Ring2_;
+  MonitorElement* meRowLayer3Ring3_;
+  MonitorElement* meRowLayer3Ring4_;
+  MonitorElement* meRowLayer3Ring5_;
+  MonitorElement* meRowLayer3Ring6_;
+  MonitorElement* meRowLayer3Ring7_;
+  MonitorElement* meRowLayer3Ring8_;
 
-  MonitorElement* meColLayer3Ladder1_;
-  MonitorElement* meColLayer3Ladder2_;
-  MonitorElement* meColLayer3Ladder3_;
-  MonitorElement* meColLayer3Ladder4_;
-  MonitorElement* meColLayer3Ladder5_;
-  MonitorElement* meColLayer3Ladder6_;
-  MonitorElement* meColLayer3Ladder7_;
-  MonitorElement* meColLayer3Ladder8_;
-  MonitorElement* meNdigiPerLadderL3_;
+  MonitorElement* meColLayer3Ring1_;
+  MonitorElement* meColLayer3Ring2_;
+  MonitorElement* meColLayer3Ring3_;
+  MonitorElement* meColLayer3Ring4_;
+  MonitorElement* meColLayer3Ring5_;
+  MonitorElement* meColLayer3Ring6_;
+  MonitorElement* meColLayer3Ring7_;
+  MonitorElement* meColLayer3Ring8_;
+  MonitorElement* meNdigiPerRingL3_;
 
 ///Forwar Pixel
   /* 1st Disk in ZPlus Side */

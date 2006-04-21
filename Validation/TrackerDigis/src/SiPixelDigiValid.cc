@@ -19,92 +19,92 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    dbe_ = Service<DaqMonitorBEInterface>().operator->();
    
   /////Barrel 
-   meAdcLayer1Ladder1_ = dbe_->book1D("adc_layer1ladder1","Digi charge",300, 0., 300.);
-   meAdcLayer1Ladder2_ = dbe_->book1D("adc_layer1ladder2","Digi charge",300, 0., 300.);
-   meAdcLayer1Ladder3_ = dbe_->book1D("adc_layer1ladder3","Digi charge",300, 0., 300.);
-   meAdcLayer1Ladder4_ = dbe_->book1D("adc_layer1ladder4","Digi charge",300, 0., 300.);
-   meAdcLayer1Ladder5_ = dbe_->book1D("adc_layer1ladder5","Digi charge",300, 0., 300.);
-   meAdcLayer1Ladder6_ = dbe_->book1D("adc_layer1ladder6","Digi charge",300, 0., 300.);
-   meAdcLayer1Ladder7_ = dbe_->book1D("adc_layer1ladder7","Digi charge",300, 0., 300.);
-   meAdcLayer1Ladder8_ = dbe_->book1D("adc_layer1ladder8","Digi charge",300, 0., 300.);
+   meAdcLayer1Ring1_ = dbe_->book1D("adc_layer1ring1","Digi charge",300, 0., 300.);
+   meAdcLayer1Ring2_ = dbe_->book1D("adc_layer1ring2","Digi charge",300, 0., 300.);
+   meAdcLayer1Ring3_ = dbe_->book1D("adc_layer1ring3","Digi charge",300, 0., 300.);
+   meAdcLayer1Ring4_ = dbe_->book1D("adc_layer1ring4","Digi charge",300, 0., 300.);
+   meAdcLayer1Ring5_ = dbe_->book1D("adc_layer1ring5","Digi charge",300, 0., 300.);
+   meAdcLayer1Ring6_ = dbe_->book1D("adc_layer1ring6","Digi charge",300, 0., 300.);
+   meAdcLayer1Ring7_ = dbe_->book1D("adc_layer1ring7","Digi charge",300, 0., 300.);
+   meAdcLayer1Ring8_ = dbe_->book1D("adc_layer1ring8","Digi charge",300, 0., 300.);
 
-   meRowLayer1Ladder1_ = dbe_->book1D("row_layer1ladder1","Digi row",200, 0., 200.);
-   meRowLayer1Ladder2_ = dbe_->book1D("row_layer1ladder2","Digi row",200, 0., 200.);
-   meRowLayer1Ladder3_ = dbe_->book1D("row_layer1ladder3","Digi row",200, 0., 200.);
-   meRowLayer1Ladder4_ = dbe_->book1D("row_layer1ladder4","Digi row",200, 0., 200.);
-   meRowLayer1Ladder5_ = dbe_->book1D("row_layer1ladder5","Digi row",200, 0., 200.);
-   meRowLayer1Ladder6_ = dbe_->book1D("row_layer1ladder6","Digi row",200, 0., 200.);
-   meRowLayer1Ladder7_ = dbe_->book1D("row_layer1ladder7","Digi row",200, 0., 200.);
-   meRowLayer1Ladder8_ = dbe_->book1D("row_layer1ladder8","Digi row",200, 0., 200.);
+   meRowLayer1Ring1_ = dbe_->book1D("row_layer1ring1","Digi row",200, 0., 200.);
+   meRowLayer1Ring2_ = dbe_->book1D("row_layer1ring2","Digi row",200, 0., 200.);
+   meRowLayer1Ring3_ = dbe_->book1D("row_layer1ring3","Digi row",200, 0., 200.);
+   meRowLayer1Ring4_ = dbe_->book1D("row_layer1ring4","Digi row",200, 0., 200.);
+   meRowLayer1Ring5_ = dbe_->book1D("row_layer1ring5","Digi row",200, 0., 200.);
+   meRowLayer1Ring6_ = dbe_->book1D("row_layer1ring6","Digi row",200, 0., 200.);
+   meRowLayer1Ring7_ = dbe_->book1D("row_layer1ring7","Digi row",200, 0., 200.);
+   meRowLayer1Ring8_ = dbe_->book1D("row_layer1ring8","Digi row",200, 0., 200.);
 
-   meColLayer1Ladder1_ = dbe_->book1D("col_layer1ladder1","Digi column",500, 0., 500.);
-   meColLayer1Ladder2_ = dbe_->book1D("col_layer1ladder2","Digi column",500, 0., 500.);
-   meColLayer1Ladder3_ = dbe_->book1D("col_layer1ladder3","Digi column",500, 0., 500.);
-   meColLayer1Ladder4_ = dbe_->book1D("col_layer1ladder4","Digi column",500, 0., 500.);
-   meColLayer1Ladder5_ = dbe_->book1D("col_layer1ladder5","Digi column",500, 0., 500.);
-   meColLayer1Ladder6_ = dbe_->book1D("col_layer1ladder6","Digi column",500, 0., 500.);
-   meColLayer1Ladder7_ = dbe_->book1D("col_layer1ladder7","Digi column",500, 0., 500.);
-   meColLayer1Ladder8_ = dbe_->book1D("col_layer1ladder8","Digi column",500, 0., 500.);
+   meColLayer1Ring1_ = dbe_->book1D("col_layer1ring1","Digi column",500, 0., 500.);
+   meColLayer1Ring2_ = dbe_->book1D("col_layer1ring2","Digi column",500, 0., 500.);
+   meColLayer1Ring3_ = dbe_->book1D("col_layer1ring3","Digi column",500, 0., 500.);
+   meColLayer1Ring4_ = dbe_->book1D("col_layer1ring4","Digi column",500, 0., 500.);
+   meColLayer1Ring5_ = dbe_->book1D("col_layer1ring5","Digi column",500, 0., 500.);
+   meColLayer1Ring6_ = dbe_->book1D("col_layer1ring6","Digi column",500, 0., 500.);
+   meColLayer1Ring7_ = dbe_->book1D("col_layer1ring7","Digi column",500, 0., 500.);
+   meColLayer1Ring8_ = dbe_->book1D("col_layer1ring8","Digi column",500, 0., 500.);
    
-   meNdigiPerLadderL1_ = dbe_->book2D("digi_multi_layer1","Digi Num. PerLadder",21,0.,21, 100,0., 100.);
+   meNdigiPerRingL1_ = dbe_->book2D("digi_multi_layer1","Digi Num. PerRing",21,0.,21, 100,0., 100.);
 
-   meAdcLayer2Ladder1_ = dbe_->book1D("adc_layer2ladder1","Digi charge",300, 0., 300.);
-   meAdcLayer2Ladder2_ = dbe_->book1D("adc_layer2ladder2","Digi charge",300, 0., 300.);
-   meAdcLayer2Ladder3_ = dbe_->book1D("adc_layer2ladder3","Digi charge",300, 0., 300.);
-   meAdcLayer2Ladder4_ = dbe_->book1D("adc_layer2ladder4","Digi charge",300, 0., 300.);
-   meAdcLayer2Ladder5_ = dbe_->book1D("adc_layer2ladder5","Digi charge",300, 0., 300.);
-   meAdcLayer2Ladder6_ = dbe_->book1D("adc_layer2ladder6","Digi charge",300, 0., 300.);
-   meAdcLayer2Ladder7_ = dbe_->book1D("adc_layer2ladder7","Digi charge",300, 0., 300.);
-   meAdcLayer2Ladder8_ = dbe_->book1D("adc_layer2ladder8","Digi charge",300, 0., 300.);
+   meAdcLayer2Ring1_ = dbe_->book1D("adc_layer2ring1","Digi charge",300, 0., 300.);
+   meAdcLayer2Ring2_ = dbe_->book1D("adc_layer2ring2","Digi charge",300, 0., 300.);
+   meAdcLayer2Ring3_ = dbe_->book1D("adc_layer2ring3","Digi charge",300, 0., 300.);
+   meAdcLayer2Ring4_ = dbe_->book1D("adc_layer2ring4","Digi charge",300, 0., 300.);
+   meAdcLayer2Ring5_ = dbe_->book1D("adc_layer2ring5","Digi charge",300, 0., 300.);
+   meAdcLayer2Ring6_ = dbe_->book1D("adc_layer2ring6","Digi charge",300, 0., 300.);
+   meAdcLayer2Ring7_ = dbe_->book1D("adc_layer2ring7","Digi charge",300, 0., 300.);
+   meAdcLayer2Ring8_ = dbe_->book1D("adc_layer2ring8","Digi charge",300, 0., 300.);
 
-   meRowLayer2Ladder1_ = dbe_->book1D("row_layer2ladder1","Digi row",200, 0., 200.);
-   meRowLayer2Ladder2_ = dbe_->book1D("row_layer2ladder2","Digi row",200, 0., 200.);
-   meRowLayer2Ladder3_ = dbe_->book1D("row_layer2ladder3","Digi row",200, 0., 200.);
-   meRowLayer2Ladder4_ = dbe_->book1D("row_layer2ladder4","Digi row",200, 0., 200.);
-   meRowLayer2Ladder5_ = dbe_->book1D("row_layer2ladder5","Digi row",200, 0., 200.);
-   meRowLayer2Ladder6_ = dbe_->book1D("row_layer2ladder6","Digi row",200, 0., 200.);
-   meRowLayer2Ladder7_ = dbe_->book1D("row_layer2ladder7","Digi row",200, 0., 200.);
-   meRowLayer2Ladder8_ = dbe_->book1D("row_layer2ladder8","Digi row",200, 0., 200.);
+   meRowLayer2Ring1_ = dbe_->book1D("row_layer2ring1","Digi row",200, 0., 200.);
+   meRowLayer2Ring2_ = dbe_->book1D("row_layer2ring2","Digi row",200, 0., 200.);
+   meRowLayer2Ring3_ = dbe_->book1D("row_layer2ring3","Digi row",200, 0., 200.);
+   meRowLayer2Ring4_ = dbe_->book1D("row_layer2ring4","Digi row",200, 0., 200.);
+   meRowLayer2Ring5_ = dbe_->book1D("row_layer2ring5","Digi row",200, 0., 200.);
+   meRowLayer2Ring6_ = dbe_->book1D("row_layer2ring6","Digi row",200, 0., 200.);
+   meRowLayer2Ring7_ = dbe_->book1D("row_layer2ring7","Digi row",200, 0., 200.);
+   meRowLayer2Ring8_ = dbe_->book1D("row_layer2ring8","Digi row",200, 0., 200.);
 
-   meColLayer2Ladder1_ = dbe_->book1D("col_layer2ladder1","Digi column",500, 0., 500.);
-   meColLayer2Ladder2_ = dbe_->book1D("col_layer2ladder2","Digi column",500, 0., 500.);
-   meColLayer2Ladder3_ = dbe_->book1D("col_layer2ladder3","Digi column",500, 0., 500.);
-   meColLayer2Ladder4_ = dbe_->book1D("col_layer2ladder4","Digi column",500, 0., 500.);
-   meColLayer2Ladder5_ = dbe_->book1D("col_layer2ladder5","Digi column",500, 0., 500.);
-   meColLayer2Ladder6_ = dbe_->book1D("col_layer2ladder6","Digi column",500, 0., 500.);
-   meColLayer2Ladder7_ = dbe_->book1D("col_layer2ladder7","Digi column",500, 0., 500.);
-   meColLayer2Ladder8_ = dbe_->book1D("col_layer2ladder8","Digi column",500, 0., 500.);
+   meColLayer2Ring1_ = dbe_->book1D("col_layer2ring1","Digi column",500, 0., 500.);
+   meColLayer2Ring2_ = dbe_->book1D("col_layer2ring2","Digi column",500, 0., 500.);
+   meColLayer2Ring3_ = dbe_->book1D("col_layer2ring3","Digi column",500, 0., 500.);
+   meColLayer2Ring4_ = dbe_->book1D("col_layer2ring4","Digi column",500, 0., 500.);
+   meColLayer2Ring5_ = dbe_->book1D("col_layer2ring5","Digi column",500, 0., 500.);
+   meColLayer2Ring6_ = dbe_->book1D("col_layer2ring6","Digi column",500, 0., 500.);
+   meColLayer2Ring7_ = dbe_->book1D("col_layer2ring7","Digi column",500, 0., 500.);
+   meColLayer2Ring8_ = dbe_->book1D("col_layer2ring8","Digi column",500, 0., 500.);
 
-   meNdigiPerLadderL2_ = dbe_->book2D("digi_multi_layer2","Digi Num. PerLadder",33,0.,33, 100,0., 100.);
+   meNdigiPerRingL2_ = dbe_->book2D("digi_multi_layer2","Digi Num. PerRing",33,0.,33, 100,0., 100.);
 
-   meAdcLayer3Ladder1_ = dbe_->book1D("adc_layer3ladder1","Digi charge",300, 0., 300.);
-   meAdcLayer3Ladder2_ = dbe_->book1D("adc_layer3ladder2","Digi charge",300, 0., 300.);
-   meAdcLayer3Ladder3_ = dbe_->book1D("adc_layer3ladder3","Digi charge",300, 0., 300.);
-   meAdcLayer3Ladder4_ = dbe_->book1D("adc_layer3ladder4","Digi charge",300, 0., 300.);
-   meAdcLayer3Ladder5_ = dbe_->book1D("adc_layer3ladder5","Digi charge",300, 0., 300.);
-   meAdcLayer3Ladder6_ = dbe_->book1D("adc_layer3ladder6","Digi charge",300, 0., 300.);
-   meAdcLayer3Ladder7_ = dbe_->book1D("adc_layer3ladder7","Digi charge",300, 0., 300.);
-   meAdcLayer3Ladder8_ = dbe_->book1D("adc_layer3ladder8","Digi charge",300, 0., 300.);
+   meAdcLayer3Ring1_ = dbe_->book1D("adc_layer3ring1","Digi charge",300, 0., 300.);
+   meAdcLayer3Ring2_ = dbe_->book1D("adc_layer3ring2","Digi charge",300, 0., 300.);
+   meAdcLayer3Ring3_ = dbe_->book1D("adc_layer3ring3","Digi charge",300, 0., 300.);
+   meAdcLayer3Ring4_ = dbe_->book1D("adc_layer3ring4","Digi charge",300, 0., 300.);
+   meAdcLayer3Ring5_ = dbe_->book1D("adc_layer3ring5","Digi charge",300, 0., 300.);
+   meAdcLayer3Ring6_ = dbe_->book1D("adc_layer3ring6","Digi charge",300, 0., 300.);
+   meAdcLayer3Ring7_ = dbe_->book1D("adc_layer3ring7","Digi charge",300, 0., 300.);
+   meAdcLayer3Ring8_ = dbe_->book1D("adc_layer3ring8","Digi charge",300, 0., 300.);
 
-   meRowLayer3Ladder1_ = dbe_->book1D("row_layer3ladder1","Digi row",200, 0., 200.);
-   meRowLayer3Ladder2_ = dbe_->book1D("row_layer3ladder2","Digi row",200, 0., 200.);
-   meRowLayer3Ladder3_ = dbe_->book1D("row_layer3ladder3","Digi row",200, 0., 200.);
-   meRowLayer3Ladder4_ = dbe_->book1D("row_layer3ladder4","Digi row",200, 0., 200.);
-   meRowLayer3Ladder5_ = dbe_->book1D("row_layer3ladder5","Digi row",200, 0., 200.);
-   meRowLayer3Ladder6_ = dbe_->book1D("row_layer3ladder6","Digi row",200, 0., 200.);
-   meRowLayer3Ladder7_ = dbe_->book1D("row_layer3ladder7","Digi row",200, 0., 200.);
-   meRowLayer3Ladder8_ = dbe_->book1D("row_layer3ladder8","Digi row",200, 0., 200.);
+   meRowLayer3Ring1_ = dbe_->book1D("row_layer3ring1","Digi row",200, 0., 200.);
+   meRowLayer3Ring2_ = dbe_->book1D("row_layer3ring2","Digi row",200, 0., 200.);
+   meRowLayer3Ring3_ = dbe_->book1D("row_layer3ring3","Digi row",200, 0., 200.);
+   meRowLayer3Ring4_ = dbe_->book1D("row_layer3ring4","Digi row",200, 0., 200.);
+   meRowLayer3Ring5_ = dbe_->book1D("row_layer3ring5","Digi row",200, 0., 200.);
+   meRowLayer3Ring6_ = dbe_->book1D("row_layer3ring6","Digi row",200, 0., 200.);
+   meRowLayer3Ring7_ = dbe_->book1D("row_layer3ring7","Digi row",200, 0., 200.);
+   meRowLayer3Ring8_ = dbe_->book1D("row_layer3ring8","Digi row",200, 0., 200.);
 
-   meColLayer3Ladder1_ = dbe_->book1D("col_layer3ladder1","Digi column",500, 0., 500.);
-   meColLayer3Ladder2_ = dbe_->book1D("col_layer3ladder2","Digi column",500, 0., 500.);
-   meColLayer3Ladder3_ = dbe_->book1D("col_layer3ladder3","Digi column",500, 0., 500.);
-   meColLayer3Ladder4_ = dbe_->book1D("col_layer3ladder4","Digi column",500, 0., 500.);
-   meColLayer3Ladder5_ = dbe_->book1D("col_layer3ladder5","Digi column",500, 0., 500.);
-   meColLayer3Ladder6_ = dbe_->book1D("col_layer3ladder6","Digi column",500, 0., 500.);
-   meColLayer3Ladder7_ = dbe_->book1D("col_layer3ladder7","Digi column",500, 0., 500.);
-   meColLayer3Ladder8_ = dbe_->book1D("col_layer3ladder8","Digi column",500, 0., 500.);
+   meColLayer3Ring1_ = dbe_->book1D("col_layer3ring1","Digi column",500, 0., 500.);
+   meColLayer3Ring2_ = dbe_->book1D("col_layer3ring2","Digi column",500, 0., 500.);
+   meColLayer3Ring3_ = dbe_->book1D("col_layer3ring3","Digi column",500, 0., 500.);
+   meColLayer3Ring4_ = dbe_->book1D("col_layer3ring4","Digi column",500, 0., 500.);
+   meColLayer3Ring5_ = dbe_->book1D("col_layer3ring5","Digi column",500, 0., 500.);
+   meColLayer3Ring6_ = dbe_->book1D("col_layer3ring6","Digi column",500, 0., 500.);
+   meColLayer3Ring7_ = dbe_->book1D("col_layer3ring7","Digi column",500, 0., 500.);
+   meColLayer3Ring8_ = dbe_->book1D("col_layer3ring8","Digi column",500, 0., 500.);
 
-   meNdigiPerLadderL3_ = dbe_->book2D("digi_multi_layer3","Digi Num. PerLadder",45,0.,45, 100,0., 10.);
+   meNdigiPerRingL3_ = dbe_->book2D("digi_multi_layer3","Digi Num. PerRing",45,0.,45, 100,0., 10.);
 
  //Forward Pixel
    /* ZMinus Side 1st Disk */
@@ -252,17 +252,17 @@ void SiPixelDigiValid::analyze(const Event& e, const EventSetup& c){
  if ( vec.size() > 0 ) 
  LogInfo("SiPixelDigiValid") <<"DetId Size = " <<vec.size();
 
- int ndigiperladderLayer1[20];
+ int ndigiperringLayer1[20];
  for(int i = 0; i< 20; i++ ) {
-    ndigiperladderLayer1[i] = 0;
+    ndigiperringLayer1[i] = 0;
  }
- int ndigiperladderLayer2[32];
+ int ndigiperringLayer2[32];
  for(int i = 0; i< 32; i++ ) {
-    ndigiperladderLayer2[i] = 0;
+    ndigiperringLayer2[i] = 0;
  }
- int ndigiperladderLayer3[44];
+ int ndigiperringLayer3[44];
  for(int i = 0; i< 44; i++ ) {
-    ndigiperladderLayer3[i] = 0;
+    ndigiperringLayer3[i] = 0;
  }
 
 int ndigiZpDisk1PerPanel1[24];
@@ -304,154 +304,154 @@ for ( int i =0 ; i< 24; i++) {
              for ( iter = begin ; iter != end; iter++ ) {
                 if( layer == 1 ) {
                    
-                      ++ndigiperladderLayer1[ladder-1]; 
+                      ++ndigiperringLayer1[ladder-1]; 
 
                      if (zindex == 1) { 
-                          meAdcLayer1Ladder1_->Fill((*iter).adc());
-                          meRowLayer1Ladder1_->Fill((*iter).row());
-                          meColLayer1Ladder1_->Fill((*iter).column());
+                          meAdcLayer1Ring1_->Fill((*iter).adc());
+                          meRowLayer1Ring1_->Fill((*iter).row());
+                          meColLayer1Ring1_->Fill((*iter).column());
                      }
                      if (zindex == 2) {
-                          meAdcLayer1Ladder2_->Fill((*iter).adc());
-                          meRowLayer1Ladder2_->Fill((*iter).row());
-                          meColLayer1Ladder2_->Fill((*iter).column());
+                          meAdcLayer1Ring2_->Fill((*iter).adc());
+                          meRowLayer1Ring2_->Fill((*iter).row());
+                          meColLayer1Ring2_->Fill((*iter).column());
                      }
 
                      if (zindex == 3) {
-                          meAdcLayer1Ladder3_->Fill((*iter).adc());
-                          meRowLayer1Ladder3_->Fill((*iter).row());
-                          meColLayer1Ladder3_->Fill((*iter).column());
+                          meAdcLayer1Ring3_->Fill((*iter).adc());
+                          meRowLayer1Ring3_->Fill((*iter).row());
+                          meColLayer1Ring3_->Fill((*iter).column());
                      }
 
                      if (zindex == 4)  {
-                         meAdcLayer1Ladder4_->Fill((*iter).adc());
-                         meRowLayer1Ladder4_->Fill((*iter).row());
-                         meColLayer1Ladder4_->Fill((*iter).column());
+                         meAdcLayer1Ring4_->Fill((*iter).adc());
+                         meRowLayer1Ring4_->Fill((*iter).row());
+                         meColLayer1Ring4_->Fill((*iter).column());
                      }
 
                      if (zindex == 5)  {
-                         meAdcLayer1Ladder5_->Fill((*iter).adc());
-                         meRowLayer1Ladder5_->Fill((*iter).row());
-                         meColLayer1Ladder5_->Fill((*iter).column());
+                         meAdcLayer1Ring5_->Fill((*iter).adc());
+                         meRowLayer1Ring5_->Fill((*iter).row());
+                         meColLayer1Ring5_->Fill((*iter).column());
                      }
 
                      if (zindex == 6)  {
-                         meAdcLayer1Ladder6_->Fill((*iter).adc());
-                         meRowLayer1Ladder6_->Fill((*iter).row());
-                         meColLayer1Ladder6_->Fill((*iter).column());
+                         meAdcLayer1Ring6_->Fill((*iter).adc());
+                         meRowLayer1Ring6_->Fill((*iter).row());
+                         meColLayer1Ring6_->Fill((*iter).column());
                      }
 
                      if (zindex == 7)  {
-                         meAdcLayer1Ladder7_->Fill((*iter).adc());
-                         meRowLayer1Ladder7_->Fill((*iter).row());
-                         meColLayer1Ladder7_->Fill((*iter).column());
+                         meAdcLayer1Ring7_->Fill((*iter).adc());
+                         meRowLayer1Ring7_->Fill((*iter).row());
+                         meColLayer1Ring7_->Fill((*iter).column());
                      }
                      if (zindex == 8)  {
-                         meAdcLayer1Ladder8_->Fill((*iter).adc());
-                         meRowLayer1Ladder8_->Fill((*iter).row());
-                         meColLayer1Ladder8_->Fill((*iter).column());
+                         meAdcLayer1Ring8_->Fill((*iter).adc());
+                         meRowLayer1Ring8_->Fill((*iter).row());
+                         meColLayer1Ring8_->Fill((*iter).column());
                      }
 
                 } 
                 if( layer == 2 ) {
 
-                    ++ndigiperladderLayer2[ladder-1];
+                    ++ndigiperringLayer2[ladder-1];
 
                     if (zindex == 1) {
-                          meAdcLayer2Ladder1_->Fill((*iter).adc());
-                          meRowLayer2Ladder1_->Fill((*iter).row());
-                          meColLayer2Ladder1_->Fill((*iter).column());
+                          meAdcLayer2Ring1_->Fill((*iter).adc());
+                          meRowLayer2Ring1_->Fill((*iter).row());
+                          meColLayer2Ring1_->Fill((*iter).column());
                      }
                      if (zindex == 2) {
-                          meAdcLayer2Ladder2_->Fill((*iter).adc());
-                          meRowLayer2Ladder2_->Fill((*iter).row());
-                          meColLayer2Ladder2_->Fill((*iter).column());
+                          meAdcLayer2Ring2_->Fill((*iter).adc());
+                          meRowLayer2Ring2_->Fill((*iter).row());
+                          meColLayer2Ring2_->Fill((*iter).column());
                      }
 
                      if (zindex == 3) {
-                          meAdcLayer2Ladder3_->Fill((*iter).adc());
-                          meRowLayer2Ladder3_->Fill((*iter).row());
-                          meColLayer2Ladder3_->Fill((*iter).column());
+                          meAdcLayer2Ring3_->Fill((*iter).adc());
+                          meRowLayer2Ring3_->Fill((*iter).row());
+                          meColLayer2Ring3_->Fill((*iter).column());
                      }
 
                      if (zindex == 4)  {
-                         meAdcLayer2Ladder4_->Fill((*iter).adc());
-                         meRowLayer2Ladder4_->Fill((*iter).row());
-                         meColLayer2Ladder4_->Fill((*iter).column());
+                         meAdcLayer2Ring4_->Fill((*iter).adc());
+                         meRowLayer2Ring4_->Fill((*iter).row());
+                         meColLayer2Ring4_->Fill((*iter).column());
                      }
 
                      if (zindex == 5)  {
-                         meAdcLayer2Ladder5_->Fill((*iter).adc());
-                         meRowLayer2Ladder5_->Fill((*iter).row());
-                         meColLayer2Ladder5_->Fill((*iter).column());
+                         meAdcLayer2Ring5_->Fill((*iter).adc());
+                         meRowLayer2Ring5_->Fill((*iter).row());
+                         meColLayer2Ring5_->Fill((*iter).column());
                      }
 
                      if (zindex == 6)  {
-                         meAdcLayer2Ladder6_->Fill((*iter).adc());
-                         meRowLayer2Ladder6_->Fill((*iter).row());
-                         meColLayer2Ladder6_->Fill((*iter).column());
+                         meAdcLayer2Ring6_->Fill((*iter).adc());
+                         meRowLayer2Ring6_->Fill((*iter).row());
+                         meColLayer2Ring6_->Fill((*iter).column());
                      }
 
                      if (zindex == 7)  {
-                         meAdcLayer2Ladder7_->Fill((*iter).adc());
-                         meRowLayer2Ladder7_->Fill((*iter).row());
-                         meColLayer2Ladder7_->Fill((*iter).column());
+                         meAdcLayer2Ring7_->Fill((*iter).adc());
+                         meRowLayer2Ring7_->Fill((*iter).row());
+                         meColLayer2Ring7_->Fill((*iter).column());
                      }
                      if (zindex == 8)  {
-                         meAdcLayer2Ladder8_->Fill((*iter).adc());
-                         meRowLayer2Ladder8_->Fill((*iter).row());
-                         meColLayer2Ladder8_->Fill((*iter).column());
+                         meAdcLayer2Ring8_->Fill((*iter).adc());
+                         meRowLayer2Ring8_->Fill((*iter).row());
+                         meColLayer2Ring8_->Fill((*iter).column());
                      }
 
                 }
                 if( layer == 3 ) {
       
-                    ++ndigiperladderLayer3[ladder-1];
+                    ++ndigiperringLayer3[ladder-1];
 
                     if (zindex == 1) {
-                          meAdcLayer3Ladder1_->Fill((*iter).adc());
-                          meRowLayer3Ladder1_->Fill((*iter).row());
-                          meColLayer3Ladder1_->Fill((*iter).column());
+                          meAdcLayer3Ring1_->Fill((*iter).adc());
+                          meRowLayer3Ring1_->Fill((*iter).row());
+                          meColLayer3Ring1_->Fill((*iter).column());
                      }
                      if (zindex == 2) {
-                          meAdcLayer3Ladder2_->Fill((*iter).adc());
-                          meRowLayer3Ladder2_->Fill((*iter).row());
-                          meColLayer3Ladder2_->Fill((*iter).column());
+                          meAdcLayer3Ring2_->Fill((*iter).adc());
+                          meRowLayer3Ring2_->Fill((*iter).row());
+                          meColLayer3Ring2_->Fill((*iter).column());
                      }
 
                      if (zindex == 3) {
-                          meAdcLayer3Ladder3_->Fill((*iter).adc());
-                          meRowLayer3Ladder3_->Fill((*iter).row());
-                          meColLayer3Ladder3_->Fill((*iter).column());
+                          meAdcLayer3Ring3_->Fill((*iter).adc());
+                          meRowLayer3Ring3_->Fill((*iter).row());
+                          meColLayer3Ring3_->Fill((*iter).column());
                      }
 
                      if (zindex == 4)  {
-                         meAdcLayer3Ladder4_->Fill((*iter).adc());
-                         meRowLayer3Ladder4_->Fill((*iter).row());
-                         meColLayer3Ladder4_->Fill((*iter).column());
+                         meAdcLayer3Ring4_->Fill((*iter).adc());
+                         meRowLayer3Ring4_->Fill((*iter).row());
+                         meColLayer3Ring4_->Fill((*iter).column());
                      }
 
                      if (zindex == 5)  {
-                         meAdcLayer3Ladder5_->Fill((*iter).adc());
-                         meRowLayer3Ladder5_->Fill((*iter).row());
-                         meColLayer3Ladder5_->Fill((*iter).column());
+                         meAdcLayer3Ring5_->Fill((*iter).adc());
+                         meRowLayer3Ring5_->Fill((*iter).row());
+                         meColLayer3Ring5_->Fill((*iter).column());
                      }
 
                      if (zindex == 6)  {
-                         meAdcLayer3Ladder6_->Fill((*iter).adc());
-                         meRowLayer3Ladder6_->Fill((*iter).row());
-                         meColLayer3Ladder6_->Fill((*iter).column());
+                         meAdcLayer3Ring6_->Fill((*iter).adc());
+                         meRowLayer3Ring6_->Fill((*iter).row());
+                         meColLayer3Ring6_->Fill((*iter).column());
                      }
 
                      if (zindex == 7)  {
-                         meAdcLayer3Ladder7_->Fill((*iter).adc());
-                         meRowLayer3Ladder7_->Fill((*iter).row());
-                         meColLayer3Ladder7_->Fill((*iter).column());
+                         meAdcLayer3Ring7_->Fill((*iter).adc());
+                         meRowLayer3Ring7_->Fill((*iter).row());
+                         meColLayer3Ring7_->Fill((*iter).column());
                      }
                      if (zindex == 8)  {
-                         meAdcLayer3Ladder8_->Fill((*iter).adc());
-                         meRowLayer3Ladder8_->Fill((*iter).row());
-                         meColLayer3Ladder8_->Fill((*iter).column());
+                         meAdcLayer3Ring8_->Fill((*iter).adc());
+                         meRowLayer3Ring8_->Fill((*iter).row());
+                         meColLayer3Ring8_->Fill((*iter).column());
                      }
                 }
  
@@ -659,13 +659,13 @@ for ( int i =0 ; i< 24; i++) {
     } 
 
     for(int i = 0 ; i< 20 ; i++) {
-       meNdigiPerLadderL1_->Fill(i,ndigiperladderLayer1[i]);
+       meNdigiPerRingL1_->Fill(i,ndigiperringLayer1[i]);
     } 
     for(int i = 0 ; i< 32 ; i++) {
-       meNdigiPerLadderL2_->Fill(i,ndigiperladderLayer2[i]);
+       meNdigiPerRingL2_->Fill(i,ndigiperringLayer2[i]);
     }
     for(int i = 0 ; i< 44 ; i++) {
-       meNdigiPerLadderL3_->Fill(i,ndigiperladderLayer3[i]);
+       meNdigiPerRingL3_->Fill(i,ndigiperringLayer3[i]);
     }
 
 

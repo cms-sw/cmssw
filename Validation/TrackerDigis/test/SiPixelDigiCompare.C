@@ -34,7 +34,7 @@ if (1) {
    TH1* newmeAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/adc_layer1ladder%d;1",i+1);
+      sprintf(histo,"DQMData/adc_layer1ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       sfile->GetObject(histo ,newmeAdcLadder_[i]); 
       meAdcLadder_[i];
@@ -59,7 +59,7 @@ if (1) {
    TH1* newmeAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/row_layer1ladder%d;1",i+1);
+      sprintf(histo,"DQMData/row_layer1ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       sfile->GetObject(histo ,newmeAdcLadder_[i]);
       meAdcLadder_[i];
@@ -85,7 +85,7 @@ if (1) {
    TH1* newmeAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/col_layer1ladder%d;1",i+1);
+      sprintf(histo,"DQMData/col_layer1ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       sfile->GetObject(histo ,newmeAdcLadder_[i]); 
       meAdcLadder_[i];
@@ -112,7 +112,7 @@ if (1) {
    TH1* meAdcLadder_[8];
    TH1* newmeAdcLadder_[8];
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/adc_layer2ladder%d;1",i+1);
+      sprintf(histo,"DQMData/adc_layer2ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       sfile->GetObject(histo ,newmeAdcLadder_[i]);
       meAdcLadder_[i];
@@ -137,7 +137,7 @@ if (1) {
    TH1* meAdcLadder_[8];
    TH1* newmeAdcLadder_[8];
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/row_layer2ladder%d;1",i+1);
+      sprintf(histo,"DQMData/row_layer2ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       sfile->GetObject(histo ,newmeAdcLadder_[i]);
       meAdcLadder_[i];
@@ -162,7 +162,7 @@ if (1) {
    TH1* meAdcLadder_[8];
    TH1* newmeAdcLadder_[8];
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/col_layer2ladder%d;1",i+1);
+      sprintf(histo,"DQMData/col_layer2ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       sfile->GetObject(histo ,newmeAdcLadder_[i]);
       meAdcLadder_[i];
@@ -188,7 +188,7 @@ if (1) {
    TH1* newmeAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/adc_layer3ladder%d;1",i+1);
+      sprintf(histo,"DQMData/adc_layer3ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       sfile->GetObject(histo ,newmeAdcLadder_[i]);
       meAdcLadder_[i];
@@ -213,7 +213,7 @@ if (1) {
    TH1* newmeAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/row_layer3ladder%d;1",i+1);
+      sprintf(histo,"DQMData/row_layer3ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       sfile->GetObject(histo ,newmeAdcLadder_[i]);
       meAdcLadder_[i];
@@ -239,7 +239,7 @@ if (1) {
    TH1* newmeAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/col_layer3ladder%d;1",i+1);
+      sprintf(histo,"DQMData/col_layer3ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       sfile->GetObject(histo ,newmeAdcLadder_[i]);
       meAdcLadder_[i];
