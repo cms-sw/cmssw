@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.3 2006/04/07 12:47:07 meridian Exp $
- *  $Date: 2006/04/07 12:47:07 $
- *  $Revision: 1.3 $
+ *  $Id: EcalRecHitProducer.cc,v 1.4 2006/04/21 10:32:35 meridian Exp $
+ *  $Date: 2006/04/21 10:32:35 $
+ *  $Revision: 1.4 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -120,7 +120,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	   icalconst = icalit->second;
 	   LogDebug("EcalRecHitDebug") << "Found intercalib for xtal " << EBDetId(it->id()).ic() << " " << icalconst ;
 	 } else {
-	   edm::LogError("EcalRecHitDebug") << "No intercalib const found for xtal " << EBDetId(it->id()) << "! something wrong with EcalIntercalibConstants in your DB? "
+	   edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EBDetId(it->id()) << "! something wrong with EcalIntercalibConstants in your DB? "
 	     ;
 	 }
 	 
@@ -132,7 +132,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	 
 	 if(it->amplitude()>0.) 
 	   {
-	     edm::LogInfo("EcalRecHitDebug") << "processed UncalibRecHit with rawId: "
+	     LogDebug("EcalRecHitDebug") << "processed UncalibRecHit with rawId: "
 					     << it->id().rawId() << "\n"
 					     << "uncalib rechit amplitude: " << it->amplitude()
 					     << " calib rechit energy: " << aHit.energy()
@@ -142,9 +142,9 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
      }
    // put the collection of recunstructed hits in the event
    
-   edm::LogInfo("EcalRecHitInfo") << "total # EB calibrated rechits: " << EBrechits->size()
+   LogDebug("EcalRecHitInfo") << "total # EB calibrated rechits: " << EBrechits->size()
      ;
-   edm::LogInfo("EcalRecHitInfo") << "total # EE calibrated rechits: " << EErechits->size()
+   LogDebug("EcalRecHitInfo") << "total # EE calibrated rechits: " << EErechits->size()
      ;
 
    evt.put( EBrechits, EBrechitCollection_ );
