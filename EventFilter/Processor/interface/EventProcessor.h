@@ -9,6 +9,9 @@
 //
 //  MODIFICATION:
 //    $Log: EventProcessor.h,v $
+//    Revision 1.10  2006/02/21 17:21:04  meschi
+//    fixes for MessageLogger
+//
 //    Revision 1.9  2006/02/21 15:27:18  meschi
 //    added toggle output and input/output prescale
 //
@@ -94,7 +97,7 @@ namespace evf
       
       void taskWebPage(xgi::Input *, xgi::Output *, const std::string &);
       void moduleWebPage(xgi::Input *, xgi::Output *, const std::string &);
-      void init(std::string &/*edm::ParameterSet &*/);
+      void init(const std::string &/*edm::ParameterSet &*/);
       void suspend(){paused_=true;}
       void resume(){paused_=false; wakeup();}
       inline int svc(){run();return 0;} //final
