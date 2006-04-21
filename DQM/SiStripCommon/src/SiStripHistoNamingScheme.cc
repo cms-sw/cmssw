@@ -331,7 +331,7 @@ SiStripHistoNamingScheme::HistoTitle SiStripHistoNamingScheme::histoTitle( strin
        title.granularity_ != SiStripHistoNamingScheme:: UNKNOWN_GRAN ) { 
     stringstream ss; 
     ss << histo_title.substr( position, histo_title.find( sep_, position ) - position );
-    ss >> hex >> title.channel_;
+    ss >> dec >> title.channel_;
     position += ss.str().size();
   } 
   
