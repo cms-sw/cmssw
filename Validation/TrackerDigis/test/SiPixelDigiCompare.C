@@ -43,6 +43,7 @@ if (1) {
       meAdcLadder_[i]->SetLineColor(2);
       meAdcLadder_[i]->Draw();
       newmeAdcLadder_[i]->SetLineColor(4);
+      newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames"); 
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
     }
@@ -68,6 +69,7 @@ if (1) {
       meAdcLadder_[i]->Draw();
       meAdcLadder_[i]->SetLineColor(2);
       newmeAdcLadder_[i]->SetLineColor(4);
+      newmeAdcLadder_[i]->SetLineStyle(2); 
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
     }
@@ -91,6 +93,8 @@ if (1) {
       Pixel->cd(i+1);
       meAdcLadder_[i]->SetLineColor(2);  
       meAdcLadder_[i]->Draw();
+      newmeAdcLadder_[i]->SetLineColor(4);
+      newmeAdcLadder_[i]->SetLineStyle(2);   
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
 
@@ -116,6 +120,8 @@ if (1) {
       Pixel->cd(i+1);
       meAdcLadder_[i]->SetLineColor(2);
       meAdcLadder_[i]->Draw();
+      newmeAdcLadder_[i]->SetLineColor(4);
+      newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
   
@@ -139,6 +145,8 @@ if (1) {
       Pixel->cd(i+1);
       meAdcLadder_[i]->SetLineColor(2);
       meAdcLadder_[i]->Draw();
+      newmeAdcLadder_[i]->SetLineColor(4);
+      newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
 
@@ -162,6 +170,8 @@ if (1) {
       Pixel->cd(i+1);
       meAdcLadder_[i]->SetLineColor(2);  
       meAdcLadder_[i]->Draw();
+      newmeAdcLadder_[i]->SetLineColor(4);
+      newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
     }
@@ -186,6 +196,8 @@ if (1) {
       Pixel->cd(i+1);
       meAdcLadder_[i]->SetLineColor(2);
       meAdcLadder_[i]->Draw();
+      newmeAdcLadder_[i]->SetLineColor(4);
+      newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
  
@@ -209,6 +221,8 @@ if (1) {
       Pixel->cd(i+1);
       meAdcLadder_[i]->SetLineColor(2);
       meAdcLadder_[i]->Draw();
+      newmeAdcLadder_[i]->SetLineColor(4);
+      newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
 
@@ -233,6 +247,8 @@ if (1) {
       Pixel->cd(i+1);
       meAdcLadder_[i]->SetLineColor(2);
       meAdcLadder_[i]->Draw();
+      newmeAdcLadder_[i]->SetLineColor(4);
+      newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
 
@@ -289,6 +305,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);  
@@ -311,6 +328,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -335,6 +353,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -359,6 +378,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -383,6 +403,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -406,6 +427,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -430,6 +452,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -452,6 +475,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -475,6 +499,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -499,6 +524,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -522,6 +548,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -545,6 +572,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -570,6 +598,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -594,6 +623,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -618,6 +648,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -642,6 +673,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -665,6 +697,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -689,6 +722,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -714,6 +748,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2); 
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -736,6 +771,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -760,6 +796,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -785,6 +822,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -809,6 +847,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
@@ -832,6 +871,7 @@ if (1) {
       Pixel->cd(i+1);
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
+      newmeAdc_[i]->SetLineStyle(2);
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
