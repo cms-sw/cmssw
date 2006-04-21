@@ -166,7 +166,7 @@ public:
 	offSM = 36;
       }
 
-      ebid = EBDetId(SM, xtal, EBDetId::SMCRYSTALMODE);
+      ebid = EBDetId(offSM, xtal, EBDetId::SMCRYSTALMODE);
       detId = ebid.rawId();
 
       std::cout << "SM " << SM
