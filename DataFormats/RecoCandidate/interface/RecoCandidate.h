@@ -6,15 +6,13 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.6 2006/04/10 08:05:31 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.7 2006/04/20 14:41:42 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 namespace reco {
@@ -42,11 +40,7 @@ namespace reco {
     virtual reco::TrackRef combinedMuon() const;
     /// reference to a SuperCluster
     virtual reco::SuperClusterRef superCluster() const;
-    /// reference to an Electron
-    virtual reco::ElectronRef electron() const;
-    /// reference to a Photon
-    virtual reco::PhotonRef photon() const;
-    /// reference to a CaloTowe
+    /// reference to a CaloTower
     virtual CaloTowerRef caloTower() const;
     /// reference to a Muon
     virtual reco::MuonRef muon() const;
@@ -71,12 +65,8 @@ namespace reco {
   GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, StandAloneMuonTag, standAloneMuon );
   /// get combined muon Track component
   GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, CombinedMuonTag, combinedMuon );
-  /// get default Electron component
-  GET_CANDIDATE_COMPONENT( RecoCandidate, ElectronRef, DefaultComponentTag, electron );
   /// get default SuperCluster component
   GET_CANDIDATE_COMPONENT( RecoCandidate, SuperClusterRef, DefaultComponentTag, superCluster );
-  /// get default Photon component
-  GET_CANDIDATE_COMPONENT( RecoCandidate, PhotonRef, DefaultComponentTag, photon );
   /// get default CaloTower component
   GET_CANDIDATE_COMPONENT( RecoCandidate, RecoCandidate::CaloTowerRef, DefaultComponentTag, caloTower );
   

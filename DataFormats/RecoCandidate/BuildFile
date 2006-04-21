@@ -1,5 +1,4 @@
 <use name=DataFormats/EgammaReco>
-<use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/TrackReco>
@@ -9,7 +8,6 @@
 <export>
  <lib name=DataFormatsRecoCandidate>
  <use name=DataFormats/EgammaReco>
- <use name=DataFormats/EgammaCandidates>
  <use name=DataFormats/MuonReco>
  <use name=DataFormats/VertexReco>
  <use name=DataFormats/TrackReco>

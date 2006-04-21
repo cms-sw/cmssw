@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Electron.h,v 1.7 2006/03/01 13:51:27 llista Exp $
+ * \version $Id: Electron.h,v 1.1 2006/04/09 15:39:24 rahatlou Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -31,8 +31,8 @@ namespace reco {
     Electron( const Vector & calo, const Vector & track, short charge,
 	      double eHadOverEcal, short isolation, short pixelLines );
     /// constructor from references to a SuperCluster and a Track
-    Electron( const SuperClusterRef & calo, TrackRef track,
-	      double eHadOverEcal, short isolation, short pixelLines );
+    //    Electron( const SuperClusterRef & calo, TrackRef track,
+    //	      double eHadOverEcal, short isolation, short pixelLines );
     /// momentum vector from calorimeter
     const Vector & caloMomentum() const { return caloMomentum_; }
     /// transverse energy from calorimeter

@@ -1,4 +1,7 @@
 <lcgdict>
+  <class name="reco::PhotonCandidate"/>
+  <class name="reco::ElectronCandidate"/>
+
   <class name="reco::Photon"/>
   <class name="std::vector<reco::Photon>"/>
   <class name="edm::Wrapper<std::vector<reco::Photon> >"/>

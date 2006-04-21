@@ -1,6 +1,8 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronCandidate.h"
 
 namespace {
   namespace {

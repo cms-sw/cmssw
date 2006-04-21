@@ -13,6 +13,10 @@ Persistent classes for high level Egamma Reco data format.
 \subsection interface Public interface
 - reco::Electron: Electron from associated reco::Track and reco::SuperCluster.
 - reco::Photon: Photon from an associated reco::SuperCluster.
+- reco::ElectronCandidate: Electron candidate with associated reco::Track and reco::SuperCluster. 
+  It is a subclass of reco::Candidate.
+- reco::PhotonCandidate: Photon candidate with an associated reco::SuperCluster. 
+  It is a subclass of reco::Candidate.
 
 
 \subsection typedefs 
