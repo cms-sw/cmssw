@@ -8,7 +8,6 @@ class CustomPhysics : public PhysicsList
 {
 public:
     CustomPhysics(const edm::ParameterSet & p);
-    virtual ~CustomPhysics();
 };
  
 #endif
