@@ -10,7 +10,7 @@
  *  Simple container for rawHits 
  *
  *
- *  $Id: $
+ *  $Id: EcalTBHodoscopePlaneRawHits.h,v 1.1 2006/03/28 13:51:43 meridian Exp $
  */
 
 class EcalTBHodoscopePlaneRawHits {
@@ -27,6 +27,16 @@ class EcalTBHodoscopePlaneRawHits {
   /// Get Methods
   unsigned int channels() const { return rawChannelHits_.size(); } 
   const std::vector<bool>& hits() const { return rawChannelHits_; }
+
+  unsigned int numberOfFiredHits() const 
+    {
+      int numberOfHits=0;
+      for (unsigned int i=0;i<rawChannelHits_.size();i++)
+	if (rawChannelHits_[i])
+	  numberOfHits++;
+      return numberOfHits;
+    }
+
   bool operator[](unsigned int i) const { return rawChannelHits_[i]; }
   bool isChannelFired(unsigned int i) const { return rawChannelHits_[i]; }
 
