@@ -11,14 +11,15 @@
 Persistent classes for Egamma Reco data format.
 
 \subsection interface Public interface
+- reco::EcalCluster: Base class for all types of Ecal clusters
 - reco::BasicCluster: BasicCluster reconstructed in Ecal from RecHits.
 - reco::SuperCluster: SuperCluster made of BasicCluster
 - reco::ClusterShape: Cluster shape variable set
-- reco::EgammaTrigger: Escal trigger information
+- reco::EgammaTrigger: Ecal trigger information
 - reco::ClusterPi0Discriminator: pi0 discriminator variable set.
 
 
-\subsection typedefs 
+\subsection typedefs
 - reco::BasicClusterCollection: collection of reco::BasicCluster objects
 - reco::BasicClusterRef: persistent reference to a reco::BasicCluster object
 - reco::BasicClusterRefProd: reference to a reco::BasicCluster collection
