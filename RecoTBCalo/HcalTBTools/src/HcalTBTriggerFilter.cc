@@ -12,7 +12,7 @@ HcalTBTriggerFilter::HcalTBTriggerFilter(const edm::ParameterSet& ps) :
 {
 }
 
-bool HcalTBTriggerFilter::filter(edm::Event const& e, edm::EventSetup const& c) {
+bool HcalTBTriggerFilter::filter(edm::Event& e, edm::EventSetup const& c) {
   edm::Handle<HcalTBTriggerData> h;
   e.getByType(h);
 

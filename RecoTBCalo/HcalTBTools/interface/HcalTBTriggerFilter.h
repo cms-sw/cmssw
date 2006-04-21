@@ -8,15 +8,15 @@
 
 /** \class HcalTBTriggerFilter
     
-   $Date: 2005/12/21 17:17:03 $
-   $Revision: 1.1 $
+   $Date: 2006/01/11 14:19:17 $
+   $Revision: 1.2 $
    \author J. Mans - Minnesota
 */
 class HcalTBTriggerFilter : public edm::EDFilter {
 public:
   HcalTBTriggerFilter(const edm::ParameterSet& ps);
   virtual ~HcalTBTriggerFilter() {}
-  virtual bool filter(edm::Event const& e, edm::EventSetup const& c);
+  virtual bool filter(edm::Event& e, edm::EventSetup const& c);
 private:
   bool allowPedestal_;
   bool allowPedestalInSpill_;

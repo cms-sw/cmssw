@@ -3,7 +3,7 @@
 // NB: the interval is inclusive! both firstEvent and lastEvent are selected OR rejected
 // Author: Shahram Rahatlou, University of Rome & INFN
 // Date:   16 Dec 2005
-// $Id: $
+// $Id: EcalEventFilter.cc,v 1.1 2006/01/02 14:43:57 rahatlou Exp $
 //
 #include "RecoTBCalo/EcalHVScan/src/EcalEventFilter.h"
 #include <iostream>
@@ -36,7 +36,7 @@ void EcalEventFilter::endJob() {
 }
 
 bool
-EcalEventFilter::filter(edm::Event const& evt, edm::EventSetup const& es) {
+EcalEventFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
   int thisEvt = evt.id().event();
 
