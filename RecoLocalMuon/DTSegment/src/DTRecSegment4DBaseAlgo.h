@@ -5,8 +5,8 @@
  *
  * Abstract algo class to reconstruct 4D-segments in chamber given a set of 2D-segment
  *
- * $Date:  $
- * $Revision: $
+ * $Date: 2006/04/19 14:59:33 $
+ * $Revision: 1.1 $
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
 
@@ -17,9 +17,12 @@ namespace edm {
 }
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
-class DTChamber;
+#include "FWCore/Framework/interface/Handle.h"
+
+class DTChamberId;
 
 // C++ Headers
 #include <vector>
@@ -40,15 +43,14 @@ class DTRecSegment4DBaseAlgo{
   virtual ~DTRecSegment4DBaseAlgo() {}
     
   // Operations
-  virtual edm::OwnVector<DTRecSegment4D>
-    reconstruct(const DTChamber* ch,
-		const std::vector<DTRecSegment2D>& recSegments2DPhi1,
-		const std::vector<DTRecSegment2D>& recSegments2DTheta,
-		const std::vector<DTRecSegment2D>& recSegments2DPhi2) = 0;
+  virtual edm::OwnVector<DTRecSegment4D> reconstruct() = 0;
     
   virtual std::string algoName() const = 0;
     
-  virtual  void setES(const edm::EventSetup& setup) = 0;
+  virtual void setES(const edm::EventSetup& setup) = 0;
+  virtual void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits, const DTChamberId &chId) = 0;
+  virtual void setDTRecSegment2DContainer(edm::Handle<DTRecSegment2DCollection> all2DSegments,const DTChamberId & chId) = 0;
+
     
  protected:
     

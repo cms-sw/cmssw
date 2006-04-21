@@ -4,8 +4,8 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/04/19 14:59:33 $
+ *  $Revision: 1.1 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -38,6 +38,8 @@ private:
 
   // Switch on verbosity
   bool debug;
+
+  std::string theRecHits1DLabel;
   //static std::string theAlgoName;
   std::string theRecHits2DLabel;
   // The 4D-segments reconstruction algorithm

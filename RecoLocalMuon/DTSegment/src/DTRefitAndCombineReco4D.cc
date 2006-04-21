@@ -3,7 +3,7 @@
  * Algo for reconstructing 4d segment in DT refitting the 2D phi SL hits and combining
  * the results with the theta view.
  *  
- * $Date: 2006/04/19 15:00:33 $
+ * $Date: 2006/04/20 17:58:53 $
  * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
@@ -24,6 +24,8 @@ using namespace edm;
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
+#include "DataFormats/MuonDetId/interface/DTDetIdAccessor.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -55,26 +57,51 @@ void DTRefitAndCombineReco4D::setES(const EventSetup& setup){
 }
 
 
+void
+DTRefitAndCombineReco4D::setDTRecSegment2DContainer(Handle<DTRecSegment2DCollection> allHits, const DTChamberId& chId) {
+
+    // Get the chamber
+  //    const DTChamber *chamber = theDTGeometry->chamber(chId);
+
+    //Extract the DTRecSegment2DCollection ranges for the three different SL
+    DTRecSegment2DCollection::range rangePhi1   = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,1)));
+    DTRecSegment2DCollection::range rangeTheta = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,2)));
+    DTRecSegment2DCollection::range rangePhi2   = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,3)));
+    
+    // Fill the DTRecSegment2D containers for the three different SL
+    vector<DTRecSegment2D> segments2DPhi1(rangePhi1.first,rangePhi1.second);
+    vector<DTRecSegment2D> segments2DTheta(rangeTheta.first,rangeTheta.second);
+    vector<DTRecSegment2D> segments2DPhi2(rangePhi2.first,rangePhi2.second);
+
+    if(debug)
+      cout << "Number of 2D-segments in the first  SL (Phi)" << segments2DPhi1.size() << endl
+	   << "Number of 2D-segments in the second SL (Theta)" << segments2DTheta.size() << endl
+	   << "Number of 2D-segments in the third  SL (Phi)" << segments2DPhi2.size() << endl;
+    
+    theChamber = theDTGeometry->chamber(chId); 
+    theSegments2DPhi1 = segments2DPhi1;
+    theSegments2DTheta = segments2DTheta;
+    theSegments2DPhi2 = segments2DPhi2;
+}
+
+
   
 OwnVector<DTRecSegment4D>
-DTRefitAndCombineReco4D::reconstruct(const DTChamber* chamber,
-					  const vector<DTRecSegment2D>& segments2DPhi1,
-					  const vector<DTRecSegment2D>& segments2DTheta,
-					  const vector<DTRecSegment2D>& segments2DPhi2){
+DTRefitAndCombineReco4D::reconstruct(){
   OwnVector<DTRecSegment4D> result;
   
-  if (debug) cout << "Segments in " << chamber->id() << endl;
+  if (debug) cout << "Segments in " << theChamber->id() << endl;
 
-  vector<DTRecSegment2DPhi> resultPhi = refitSuperSegments(segments2DPhi1,segments2DPhi2);
+  vector<DTRecSegment2DPhi> resultPhi = refitSuperSegments();
 
   if (debug) cout << "There are " << resultPhi.size() << " Phi cand" << endl;
   
   bool hasZed=false;
 
   // has this chamber the Z-superlayer?
-  if (segments2DTheta.size()){
-    hasZed = segments2DTheta.size()>0;
-    if (debug) cout << "There are " << segments2DTheta.size() << " Theta cand" << endl;
+  if (theSegments2DTheta.size()){
+    hasZed = theSegments2DTheta.size()>0;
+    if (debug) cout << "There are " << theSegments2DTheta.size() << " Theta cand" << endl;
   } else {
     if (debug) cout << "No Theta SL" << endl;
   }
@@ -88,14 +115,14 @@ DTRefitAndCombineReco4D::reconstruct(const DTChamber* chamber,
 
 	// Create all the 4D-segment combining the Z view with the Phi one
 	// loop over the Z segments
-	for(vector<DTRecSegment2D>::const_iterator zed = segments2DTheta.begin();
-	    zed != segments2DTheta.end(); ++zed){
+	for(vector<DTRecSegment2D>::const_iterator zed = theSegments2DTheta.begin();
+	    zed != theSegments2DTheta.end(); ++zed){
 
 	  //>> Important!!
 	  DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
 
-	  const LocalPoint posZInCh  = chamber->toLocal( chamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition() )) ;
-	  const LocalVector dirZInCh = chamber->toLocal( chamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection() )) ;
+	  const LocalPoint posZInCh  = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition() )) ;
+	  const LocalVector dirZInCh = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection() )) ;
 	  
 	  DTRecSegment4D* newSeg = new DTRecSegment4D(*phi,*zed,posZInCh,dirZInCh);
 	  //<<
@@ -116,14 +143,14 @@ DTRefitAndCombineReco4D::reconstruct(const DTChamber* chamber,
   } else { 
     // DTRecSegment4D from zed projection only (unlikely, not so useful, but...)
     if (hasZed) {
-      for(vector<DTRecSegment2D>::const_iterator zed = segments2DTheta.begin();
-	  zed != segments2DTheta.end(); ++zed){
+      for(vector<DTRecSegment2D>::const_iterator zed = theSegments2DTheta.begin();
+	  zed != theSegments2DTheta.end(); ++zed){
         
 	// Important!!
 	DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
 
-	const LocalPoint posZInCh  = chamber->toLocal( chamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition() )) ;
-	const LocalVector dirZInCh = chamber->toLocal( chamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection() )) ;
+	const LocalPoint posZInCh  = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition() )) ;
+	const LocalVector dirZInCh = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection() )) ;
 	
 	DTRecSegment4D* newSeg = new DTRecSegment4D( *zed,posZInCh,dirZInCh);
 	//<<
@@ -137,15 +164,14 @@ DTRefitAndCombineReco4D::reconstruct(const DTChamber* chamber,
   return result;
 }
 
-vector<DTRecSegment2DPhi> DTRefitAndCombineReco4D::refitSuperSegments(const vector<DTRecSegment2D>& segments2DPhi1,
-								      const vector<DTRecSegment2D>& segments2DPhi2){
+vector<DTRecSegment2DPhi> DTRefitAndCombineReco4D::refitSuperSegments(){
   vector<DTRecSegment2DPhi> result;
   
   //double-loop over all the DTRecSegment2D in order to make all the possible pairs
-  for(vector<DTRecSegment2D>::const_iterator segment2DPhi1 = segments2DPhi1.begin();
-      segment2DPhi1 != segments2DPhi1.end(); ++segment2DPhi1){
-    for(vector<DTRecSegment2D>::const_iterator segment2DPhi2 = segments2DPhi2.begin();
-	segment2DPhi2 != segments2DPhi2.end(); ++segment2DPhi2){
+  for(vector<DTRecSegment2D>::const_iterator segment2DPhi1 = theSegments2DPhi1.begin();
+      segment2DPhi1 != theSegments2DPhi1.end(); ++segment2DPhi1){
+    for(vector<DTRecSegment2D>::const_iterator segment2DPhi2 = theSegments2DPhi2.begin();
+	segment2DPhi2 != theSegments2DPhi2.end(); ++segment2DPhi2){
 
       // check the id
       if(segment2DPhi1->chamberId() !=  segment2DPhi2->chamberId())

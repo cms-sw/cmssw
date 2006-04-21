@@ -1,18 +1,18 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/04/19 14:59:33 $
+ *  $Revision: 1.1 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment4DProducer.h"
 
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "DataFormats/MuonDetId/interface/DTDetIdAccessor.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
@@ -34,9 +34,12 @@ DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset){
   if(debug)
     cout << "[DTRecSegment4DProducer] Constructor called" << endl;
   
+  // the name of the 1D rec hits collection
+  theRecHits1DLabel = pset.getParameter<string>("recHits1DLabel");
+  
   // the name of the 2D rec hits collection
   theRecHits2DLabel = pset.getParameter<string>("recHits2DLabel");
-    
+  
   // Get the concrete 4D-segments reconstruction algo from the factory
   string theReco4DAlgoName = pset.getParameter<string>("Reco4DAlgoName");
   cout << "the Reco4D AlgoName is " << theReco4DAlgoName << endl;
@@ -51,10 +54,14 @@ DTRecSegment4DProducer::~DTRecSegment4DProducer(){
 }
 
 void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
+
+  // Get the 1D rechits from the event
+  Handle<DTRecHitCollection> all1DHits; 
+  event.getByLabel(theRecHits1DLabel,"DT1DRecHits",all1DHits);
   
   // Get the 2D rechits from the event
-  Handle<DTRecSegment2DCollection> allHits; 
-  event.getByLabel(theRecHits2DLabel, allHits);
+  Handle<DTRecSegment2DCollection> all2DSegments; 
+  event.getByLabel(theRecHits2DLabel, all2DSegments);
 
   // Create the pointer to the collection which will store the rechits
   auto_ptr<DTRecSegment4DCollection> segments4DCollection(new DTRecSegment4DCollection());
@@ -70,7 +77,7 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
   DTRecSegment2DCollection::id_iterator dtSuperLayerIt;
   DTChamberId oldChId;
 
-  for (dtSuperLayerIt = allHits->id_begin(); dtSuperLayerIt != allHits->id_end(); ++dtSuperLayerIt){
+  for (dtSuperLayerIt = all2DSegments->id_begin(); dtSuperLayerIt != all2DSegments->id_end(); ++dtSuperLayerIt){
 
     // The superLayerId
     DTSuperLayerId superLayerId = (*dtSuperLayerIt);
@@ -81,30 +88,17 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
     oldChId = chId;
     if(debug) cout << "ChamberId: "<< chId << endl;
 
-    // Get the chamber
-    const DTChamber *chamber = theGeom->chamber(chId);
+    cout<<"Take the DTRecHits1D in the Phi-SLs and set them in the reconstructor"<<endl;
 
-    //Extract the DTRecSegment2DCollection ranges for the three different SL
-    DTRecSegment2DCollection::range rangePhi1   = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,1)));
-    DTRecSegment2DCollection::range rangeTheta = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,2)));
-    DTRecSegment2DCollection::range rangePhi2   = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,3)));
-    
-    // Fill the DTRecSegment2D containers for the three different SL
-    vector<DTRecSegment2D> segments2DPhi1(rangePhi1.first,rangePhi1.second);
-    vector<DTRecSegment2D> segments2DTheta(rangeTheta.first,rangeTheta.second);
-    vector<DTRecSegment2D> segments2DPhi2(rangePhi2.first,rangePhi2.second);
+    the4DAlgo->setDTRecHit1DContainer(all1DHits,chId);
 
-    if(debug)
-      cout << "Number of 2D-segments in the first  SL (Phi)" << segments2DPhi1.size() << endl
-	   << "Number of 2D-segments in the second SL (Theta)" << segments2DTheta.size() << endl
-	   << "Number of 2D-segments in the third  SL (Phi)" << segments2DPhi2.size() << endl;
-  
+    cout<<"Take the DTRecSegments2D and set them in the reconstructor"<<endl;
+
+    the4DAlgo->setDTRecSegment2DContainer(all2DSegments,chId);
 
     cout << "Start 4D-Segments Reco " << endl;
-    OwnVector<DTRecSegment4D> segments4D = the4DAlgo->reconstruct(chamber, 
-								  segments2DPhi1,
-								  segments2DTheta,
-								  segments2DPhi2);
+    
+    OwnVector<DTRecSegment4D> segments4D = the4DAlgo->reconstruct();
     
     cout << "Number of reconstructed 4D-segments" << segments4D.size() << endl;
 

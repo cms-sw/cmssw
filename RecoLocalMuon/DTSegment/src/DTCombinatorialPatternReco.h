@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a combinatorial approach
  *  
- * $Date: 2006/04/12 15:15:48 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/13 07:23:16 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -90,6 +90,14 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
                                std::deque<DTHitPairForFit* >& pointsNoLR,
                                std::vector<DTSegmentCand*>& candidates,
                                const DTSuperLayer* sl);
+
+
+    // FIXME it isnt't in the abstract interface!!
+    // builds the superPhi-segments candidates
+    //std::vector<DTSegmentCand*> buildPhiSuperSegments(const std::vector<DTRecSegment2DPhi>& segments2DPhi1,
+    //const std::vector<DTRecSegment2DPhi>& segments2DPhi2);
+    //friend class DTCombinatorialPatternReco4D;
+    //
 
   private:
     std::string theAlgoName;

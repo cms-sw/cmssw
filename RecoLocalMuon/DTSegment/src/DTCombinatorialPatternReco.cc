@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/13 15:43:06 $
- * $Revision: 1.5 $
+ * $Date: 2006/04/18 16:24:25 $
+ * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -97,6 +97,23 @@ DTCombinatorialPatternReco::initHits(const DTSuperLayer* sl,
   return result;
 }
 
+// TODO make a method buildPhiSuperSegments, which accepts a vector<DTRecSegment2D>
+// and unpacks it in a vector<DTHitPairForFit*>, then in it is possible to call
+// buildSegments(DTSuperLayer,vector<DTHitPairForFit*>). The DTSuperLayer will be
+// removed (the DTHitPairForFit has a id() method which can return the proper superLayerId,
+// need to properly set the max-angle request)
+
+// vector<DTSegmentCand*> buildPhiSuperSegments(const std::vector<DTRecSegment2DPhi>& segments2DPhi1,
+// 					     const std::vector<DTRecSegment2DPhi>& segments2DPhi2){
+//   // FIXME it isnt't in the abstract interface!! move it to the 4D algo!!!
+    
+//   //FIXME,  must the DTSegmentCand be in the chamber rf??
+//   return vector<DTSegmentCand*>();
+//   //FIXME
+// }
+
+
+
 vector<DTSegmentCand*>
 DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
                                           const std::vector<DTHitPairForFit*>& hits){
@@ -146,6 +163,9 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
       DTEnums::DTCellSide codes[2]={DTEnums::Right, DTEnums::Left};
       for (int firstLR=0; firstLR<2; ++firstLR) {
         for (int lastLR=0; lastLR<2; ++lastLR) {
+	  // TODO move the global transformation in the DTHitPairForFit class
+	  // when it will be moved I will able to remove the sl from the input parameter and
+	  // use this function for the super-Phi segments.
 	  GlobalPoint gposFirst=sl->toGlobal( (*firstHit)->localPosition(codes[firstLR]) );
 	  GlobalPoint gposLast= sl->toGlobal( (*lastHit)->localPosition(codes[lastLR]) );
 	  
