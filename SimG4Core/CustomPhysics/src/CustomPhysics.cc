@@ -1,5 +1,5 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPhysics.h"
-//#include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
+#include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
 #include "SimG4Core/CustomPhysics/src/DefaultHadronPhysicsQGSP.hh"
  
 #include "SimG4Core/Packaging/src/G4DataQuestionaire.hh"
@@ -18,5 +18,5 @@ CustomPhysics::CustomPhysics(const edm::ParameterSet & p) : PhysicsList(p)
     RegisterPhysics(new MuonPhysics("muon"));
     RegisterPhysics(new HadronPhysicsQGSP("hadron"));
     RegisterPhysics(new IonPhysics("ion"));
-    //    RegisterPhysics(new CustomPhysicsList("custom",p));
+    RegisterPhysics(new CustomPhysicsList("custom",p));
 }
