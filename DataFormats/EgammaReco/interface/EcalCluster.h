@@ -6,7 +6,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id$
+ * \version $Id: EcalCluster.h,v 1.3 2006/04/20 10:13:53 llista Exp $
  *
  */
 #include <vector>
@@ -17,30 +17,42 @@ namespace reco {
 
   class EcalCluster {
   public:
+
     /// default constructor. Sets energy and position to zero
     EcalCluster() : energy_(0.), position_(math::XYZPoint(0.,0.,0.)) { }
+
     /// constructor from values
     EcalCluster(const double energy, const math::XYZPoint& position);
+
     /// destructor
     virtual ~EcalCluster();
+
     /// cluster energy
     double energy() const { return energy_; }
+
     /// cluster centroid position
     math::XYZPoint position() const { return position_; }
+
     /// comparison >= operator
     bool operator >=(const EcalCluster& rhs) const { return (energy_>=rhs.energy_); }
+
     /// comparison > operator
     bool operator > (const EcalCluster& rhs) const { return (energy_> rhs.energy_); }
+
     /// comparison <= operator
     bool operator <=(const EcalCluster& rhs) const { return (energy_<=rhs.energy_); }
+
     /// comparison <= operator
     bool operator < (const EcalCluster& rhs) const { return (energy_< rhs.energy_); }
+
     /// vector of used hits
     /// Myst be implemented in  all derived classes
     virtual std::vector<DetId> getHitsByDetId() const = 0;
   private:
+
     /// cluster energy
     double              energy_;
+
     /// cluster centroid position
     math::XYZPoint   position_;
   };
