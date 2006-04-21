@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/13 15:43:06 $
- * $Revision: 1.4 $
+ * $Date: 2006/04/18 16:24:25 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -26,13 +26,15 @@ DTHitPairForFit::DTHitPairForFit(const DTRecHit1DPair& pair,
   theWireId = pair.wireId();
   theDigiTime = pair.digiTime();
   
-  //  const DTLayer* layer =dtGeom->layer(theLayId);
-  const DTLayer* layer = dynamic_cast< const DTLayer* >(dtGeom->idToDet(theWireId.layerId()));
+  const DTLayer* layer = dtGeom->layer(theWireId.layerId());
+  //  const DTLayer* layer = dynamic_cast< const DTLayer* >(dtGeom->(theWireId.layerId()));
 
+  // transform the Local position in Layer-rf in a SL local position
   theLeftPos =
-    layer->surface().toLocal(sl.surface().toGlobal(pair.componentRecHit(DTEnums::Left)->localPosition()));
+    sl.toLocal(layer->toGlobal(pair.componentRecHit(DTEnums::Left)->localPosition()));
   theRightPos =
-    layer->surface().toLocal(sl.surface().toGlobal(pair.componentRecHit(DTEnums::Right)->localPosition()));
+    sl.toLocal(layer->toGlobal(pair.componentRecHit(DTEnums::Right)->localPosition()));
+
   // TODO how do I transform an error from local to global?
   theError = pair.componentRecHit(DTEnums::Left)->localPositionError();
   // theError =

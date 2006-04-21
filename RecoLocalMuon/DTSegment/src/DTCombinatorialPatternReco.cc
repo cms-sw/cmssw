@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/18 16:24:25 $
- * $Revision: 1.6 $
+ * $Date: 2006/04/21 14:25:38 $
+ * $Revision: 1.7 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -96,23 +96,6 @@ DTCombinatorialPatternReco::initHits(const DTSuperLayer* sl,
   //sort(theHits.begin(),theHits.end(), pHitSort());
   return result;
 }
-
-// TODO make a method buildPhiSuperSegments, which accepts a vector<DTRecSegment2D>
-// and unpacks it in a vector<DTHitPairForFit*>, then in it is possible to call
-// buildSegments(DTSuperLayer,vector<DTHitPairForFit*>). The DTSuperLayer will be
-// removed (the DTHitPairForFit has a id() method which can return the proper superLayerId,
-// need to properly set the max-angle request)
-
-// vector<DTSegmentCand*> buildPhiSuperSegments(const std::vector<DTRecSegment2DPhi>& segments2DPhi1,
-// 					     const std::vector<DTRecSegment2DPhi>& segments2DPhi2){
-//   // FIXME it isnt't in the abstract interface!! move it to the 4D algo!!!
-    
-//   //FIXME,  must the DTSegmentCand be in the chamber rf??
-//   return vector<DTSegmentCand*>();
-//   //FIXME
-// }
-
-
 
 vector<DTSegmentCand*>
 DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,

@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a combinatorial approach
  *  
- * $Date: 2006/04/13 07:23:16 $
- * $Revision: 1.4 $
+ * $Date: 2006/04/21 14:25:38 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -60,6 +60,8 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
  protected:
 
  private:
+    friend class DTCombinatorialPatternReco4D;
+
     typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
     
     // create the DTHitPairForFit from the pairs for easy use
@@ -68,9 +70,7 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
 
     // search for candidate, starting from pairs of hits in different layers
     std::vector<DTSegmentCand*> buildSegments(const DTSuperLayer* sl,
-                                              const
-                                              std::vector<DTHitPairForFit*>& hits);
-
+                                              const std::vector<DTHitPairForFit*>& hits);
 
     // find all the hits compatible with the candidate
     std::vector<AssPoint> findCompatibleHits(const LocalPoint& pos,

@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/20 17:56:49 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/21 14:25:38 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -10,8 +10,15 @@
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DAlgoFactory.h"
 
 #include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
+
+// For the 2D reco I use thei reconstructor!
+#include "RecoLocalMuon/DTSegment/src/DTCombinatorialPatternReco.h"
+
 #include "RecoLocalMuon/DTSegment/src/DTCombinatorialPatternReco4D.h"
 #include "DataFormats/MuonDetId/interface/DTDetIdAccessor.h"
+#include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+
 
 using namespace std;
 using namespace edm;
@@ -32,10 +39,16 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
   theUpdator = new DTSegmentUpdator(pset);
   
   // Get the concrete 2D-segments reconstruction algo from the factory
-  string theReco2DAlgoName = pset.getParameter<string>("Reco2DAlgoName");
-  cout << "the Reco2D AlgoName is " << theReco2DAlgoName << endl;
-  the2DAlgo = DTRecSegment2DAlgoFactory::get()->create(theReco2DAlgoName,
-						       pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+
+  // For the 2D reco I use thei reconstructor!
+  
+  the2DAlgo = new DTCombinatorialPatternReco(pset);
+    
+//   string theReco2DAlgoName = pset.getParameter<string>("Reco2DAlgoName");
+//   cout << "the Reco2D AlgoName is " << theReco2DAlgoName << endl;
+//   the2DAlgo = DTRecSegment2DAlgoFactory::get()->create(theReco2DAlgoName,
+// 						       pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+
 }
 
 void DTCombinatorialPatternReco4D::setES(const EventSetup& setup){
@@ -45,6 +58,19 @@ void DTCombinatorialPatternReco4D::setES(const EventSetup& setup){
 
 void DTCombinatorialPatternReco4D::setDTRecHit1DContainer(Handle<DTRecHitCollection> all1DHits, const DTChamberId &chId){
 
+  // FIXME!!!
+  DTRecHitCollection::range rangeHitsFromPhi1 = all1DHits->get(DTLayerId(chId,1,1), DTSuperLayerIdComparator());
+  DTRecHitCollection::range rangeHitsFromPhi2 = all1DHits->get(DTLayerId(chId,3,1), DTSuperLayerIdComparator());
+  //
+
+  vector<DTRecHit1DPair> hitsFromPhi1(rangeHitsFromPhi1.first,rangeHitsFromPhi1.second);
+  vector<DTRecHit1DPair> hitsFromPhi2(rangeHitsFromPhi2.first,rangeHitsFromPhi2.second);
+  if(debug)
+    cout<< "Number of DTRecHit1DPair in the SL 1 (Phi 1): " << hitsFromPhi1.size()
+	<< "Number of DTRecHit1DPair in the SL 3 (Phi 2): " << hitsFromPhi2.size();
+  
+  theHitsFromPhi1 = hitsFromPhi1;
+  theHitsFromPhi2 = hitsFromPhi2;
 }
 
 void DTCombinatorialPatternReco4D::setDTRecSegment2DContainer(Handle<DTRecSegment2DCollection> all2DSegments,const DTChamberId & chId){
@@ -75,8 +101,8 @@ DTCombinatorialPatternReco4D::reconstruct(){
 
   
   // FIXME!! It isn't in the abstract interface!!
-  vector<DTSegmentCand*> resultPhi;
-  //  vector<DTSegmentCand*> resultPhi = the2DAlgo->buildPhiSuperSegments(segments2DPhi1,segments2DPhi2);
+  //vector<DTSegmentCand*> resultPhi;
+  vector<DTSegmentCand*> resultPhi = buildPhiSuperSegmentsCandidates();
   
   if (debug) cout << "There are " << resultPhi.size() << " Phi cand" << endl;
   
@@ -160,6 +186,29 @@ DTCombinatorialPatternReco4D::reconstruct(){
 
 
 
-// vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegments(const vector<DTRecSegment2D>& segments2DPhi1,
-// 									   const vector<DTRecSegment2D>& segments2DPhi2){
-// }
+vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandidates(){
+  
+  DTSuperLayerId slId;
+
+  if(theHitsFromPhi1.size())
+    slId = theHitsFromPhi1.front().wireId().superlayerId();
+  else
+    if(theHitsFromPhi2.size())
+      slId = theHitsFromPhi2.front().wireId().superlayerId();
+    else{
+      if(debug) cout<<"DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandidates: "
+		    <<"No Hits in the two Phi SL"<<endl;
+      return vector<DTSegmentCand*>();
+    }
+
+  const DTSuperLayer *sl = theDTGeometry->superLayer(slId);
+  
+  vector<DTHitPairForFit*> pairPhi1 = the2DAlgo->initHits(sl,theHitsFromPhi1);
+  // same sl!! Since the fit will be in the sl phi 1!
+  vector<DTHitPairForFit*> pairPhi2 = the2DAlgo->initHits(sl,theHitsFromPhi2);
+  // copy the pairPhi2 in the pairPhi1 vector 
+  copy(pairPhi2.begin(),pairPhi2.end(),back_inserter(pairPhi1));
+
+  // Build the segment candidate
+  return the2DAlgo->buildSegments(sl,pairPhi1);
+}
