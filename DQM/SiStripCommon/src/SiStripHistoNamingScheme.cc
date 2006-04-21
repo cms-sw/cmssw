@@ -329,9 +329,10 @@ SiStripHistoNamingScheme::HistoTitle SiStripHistoNamingScheme::histoTitle( strin
   }
   if ( title.granularity_ != SiStripHistoNamingScheme::MODULE &&
        title.granularity_ != SiStripHistoNamingScheme:: UNKNOWN_GRAN ) { 
-    stringstream ss; ss << histo_title.substr( position, 1 );
+    stringstream ss; 
+    ss << histo_title.substr( position, histo_title.find( sep_, position ) - position );
     ss >> hex >> title.channel_;
-    position += 1;
+    position += ss.str().size();
   } 
   
   // Extract any extra info
