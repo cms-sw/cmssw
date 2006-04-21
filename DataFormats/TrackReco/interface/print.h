@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.16 2006/04/19 13:35:05 llista Exp $
+ * \version $Id: print.h,v 1.1 2006/04/21 05:50:46 llista Exp $
  * 
  */
 #include <string>
@@ -13,9 +13,9 @@ namespace reco {
   class Track;
   /// Track print utility
 
-  enum verbosity { coincise, normal, detailed };
+  enum verbosity { concise, normal, detailed };
 
-  std::string print( const Track &, verbosity = detailed );
+  std::string print( const Track &, verbosity = concise );
 }
 
 #endif
