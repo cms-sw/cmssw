@@ -16,7 +16,7 @@
 //
 // Original Author:  Martin GRUNEWALD
 //         Created:  Thu Mar 23 10:00:22 CET 2006
-// $Id: HLTSimpleJet.h,v 1.2 2006/03/23 16:34:01 gruen Exp $
+// $Id: HLTSimpleJet.h,v 1.1 2006/03/28 08:24:45 gruen Exp $
 //
 //
 
@@ -36,7 +36,7 @@ class HLTSimpleJet : public edm::EDFilter {
       explicit HLTSimpleJet(const edm::ParameterSet&);
       ~HLTSimpleJet();
 
-      virtual bool filter(const edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
       std::string module_;  // module label for input jets

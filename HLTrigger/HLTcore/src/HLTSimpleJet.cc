@@ -2,7 +2,7 @@
 //
 // see header file for documentation
 //
-// $Id: HLTSimpleJet.cc,v 1.3 2006/03/27 14:42:42 gruen Exp $
+// $Id: HLTSimpleJet.cc,v 1.4 2006/04/04 09:55:19 gruen Exp $
 //
 
 #include "HLTrigger/HLTcore/interface/HLTSimpleJet.h"
@@ -37,7 +37,7 @@ HLTSimpleJet::~HLTSimpleJet()
 
 // ------------ method called to produce the data  ------------
 bool
-HLTSimpleJet::filter(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
