@@ -11,6 +11,7 @@
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
+#include "SimG4Core/Application/interface/SimTrackManager.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -52,7 +53,8 @@ void createWatchers(const edm::ParameterSet& iP, SimActivityRegistry& iReg,
 
 GeometryProducer::GeometryProducer(edm::ParameterSet const & p) : 
     m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
-    m_pField(p.getParameter<edm::ParameterSet>("MagneticField")), m_p(p)
+    m_pField(p.getParameter<edm::ParameterSet>("MagneticField")), 
+    m_pUseSensitiveDetectors(p.getParameter<bool>("UseSensitiveDetectors")),m_p(p)
 {
     //Look for an outside SimActivityRegistry
     //this is used by the visualization code
@@ -91,6 +93,26 @@ void GeometryProducer::beginJob(const edm::EventSetup & es)
 	    G4TransportationManager::GetTransportationManager();
 	m_fieldBuilder->configure
 	    ("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
+    }
+
+    if (m_pUseSensitiveDetectors)
+    {
+	std::cout << " instantiating sensitive detectors " << std::endl;
+	// instantiate and attach the sensitive detectors
+	m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
+	m_attach = new AttachSD;
+	{
+	    std::pair< std::vector<SensitiveTkDetector*>,
+		std::vector<SensitiveCaloDetector*> > 
+		sensDets = m_attach->create(*world,(*pDD),m_p,m_trackManager.get(),m_registry);
+      
+	    m_sensTkDets.swap(sensDets.first);
+	    m_sensCaloDets.swap(sensDets.second);
+	}
+
+	std::cout << " Sensitive Detector building finished; found " << m_sensTkDets.size()
+		  << " Tk type Producers, and " << m_sensCaloDets.size() 
+		  << " Calo type producers " << std::endl;
     }
 }
  
