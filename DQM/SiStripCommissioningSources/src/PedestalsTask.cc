@@ -21,8 +21,6 @@ PedestalsTask::~PedestalsTask() {
   edm::LogInfo("Commissioning") << "[PedestalsTask::PedestalsTask] Destructing object...";
 }
 
-#include <iomanip>
-
 // -----------------------------------------------------------------------------
 //
 void PedestalsTask::book() {
@@ -60,7 +58,7 @@ void PedestalsTask::book() {
   peds_.vSumOfSquaresOverflow_.resize(nbins,0);
   peds_.vSumOfContents_.resize(nbins,0);
   peds_.vNumOfEntries_.resize(nbins,0);
-  
+    
 }
 
 // -----------------------------------------------------------------------------

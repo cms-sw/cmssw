@@ -9,6 +9,7 @@
 #include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 #include "boost/cstdint.hpp"
 #include <string>
+#include <iomanip>
 
 class DaqMonitorBEInterface;
 class MonitorElement;
