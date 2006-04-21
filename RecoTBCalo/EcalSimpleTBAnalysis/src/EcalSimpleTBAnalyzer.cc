@@ -6,7 +6,7 @@
      <Notes on implementation>
 */
 //
-// $Id: $
+// $Id: EcalSimpleTBAnalyzer.cc,v 1.1 2006/04/21 09:19:17 meridian Exp $
 //
 //
 
@@ -97,7 +97,7 @@ EcalSimpleTBAnalyzer::beginJob(edm::EventSetup const&) {
 //========================================================================
 
   // Amplitude vs TDC offset
-  h_ampltdc = new TH2F("h_ampltdc","Max Amplitude vs TDC offset", 100,0.,1.,2000, 0., 20000.);
+  h_ampltdc = new TH2F("h_ampltdc","Max Amplitude vs TDC offset", 100,0.,1.,1500, 0., 150.);
 
   // Reconstructed energies
   h_e1x1 = new TH1F("h_e1x1","E1x1 energy", 1500, 0., 150.);
@@ -277,7 +277,7 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
        try
 	 {
 	   Xtals5x5[icry]=EBDetId(maxHitId.ism(),maxHitId.ic()-85*(row-2)+column-2,EBDetId::SMCRYSTALMODE);
-	   std::cout << "**** Xtal in the matrix **** row " << row  << ", column " << column << ", xtal " << Xtals5x5[icry].ic() << std::endl;
+	   //	   std::cout << "**** Xtal in the matrix **** row " << row  << ", column " << column << ", xtal " << Xtals5x5[icry].ic() << std::endl;
 	 }
        catch ( std::runtime_error &e )
 	 {
