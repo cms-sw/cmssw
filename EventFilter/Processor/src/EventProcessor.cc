@@ -75,7 +75,7 @@ EventProcessor::~EventProcessor()
 
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 
-void EventProcessor::init(std::string &config) 
+void EventProcessor::init(const std::string &config) 
 {
 
   edm::ServiceToken iToken;

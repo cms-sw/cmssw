@@ -9,6 +9,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s) : xdaq::Application
 outPut_(true), inputPrescale_(1), outputPrescale_(1),  outprev_(true), 
 proc_(0), group_(0), fsm_(0), ah_(0)
 {
+  std::cout << "FUEventProcessor constructor" << std::endl;
   ah_ = new edm::AssertHandler();
   fsm_ = new EPStateMachine(getApplicationLogger());
   fsm_->init<evf::FUEventProcessor>(this);
@@ -38,14 +39,18 @@ FUEventProcessor::~FUEventProcessor()
 }
 
 #include "EventFilter/Utilities/interface/Exception.h"
+#include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
 
 void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
   proc_ = new EventProcessor(getApplicationDescriptor()->getInstance());
   group_ = new TaskGroup();
   proc_->initTaskGroup(group_);
+  ParameterSetRetriever pr(offConfig_.value_);
+  std::string configString = pr.getAsString();
+  std::cout << "Using config string \n" << configString << std::endl;
   try{
-    proc_->init(offConfig_.value_);
+    proc_->init(configString);
   }
   catch(seal::Error& e)
     {
