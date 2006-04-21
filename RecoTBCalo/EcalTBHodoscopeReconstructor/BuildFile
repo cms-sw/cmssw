@@ -1,0 +1,16 @@
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=TBDataFormats/EcalTBObjects>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/MessageService>
+<flags SEAL_PLUGIN_NAME="RecoTBCaloEcalTBHodoscopeReconstructor">
+<export>
+  <lib name=RecoTBCaloEcalTBHodoscopeReconstructor>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=TBDataFormats/EcalTBObjects>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/MessageService>
+</export>
