@@ -42,7 +42,7 @@ const string SiStripHistoNamingScheme::unknownKey_ = "UnknownKey";
 const string SiStripHistoNamingScheme::sum2_ = "SumOfSquares";
 const string SiStripHistoNamingScheme::sum_ = "SumOfContents";
 const string SiStripHistoNamingScheme::num_ = "NumOfEntries";
-const string SiStripHistoNamingScheme::unknownContents_ = "UunknownContents";
+const string SiStripHistoNamingScheme::unknownContents_ = "UnknownContents";
 
 const string SiStripHistoNamingScheme::lldChan_ = "LldChan";
 const string SiStripHistoNamingScheme::apvPair_ = "ApvPair";
