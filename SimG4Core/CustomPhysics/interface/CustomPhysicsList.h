@@ -1,13 +1,21 @@
 #ifndef SimG4Core_CustomPhysicsList_H
 #define SimG4Core_CustomPhysicsList_H
  
-#include "SimG4Core/Physics/interface/PhysicsList.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
  
-class CustomPhysicsList : public PhysicsList
+#include "G4VPhysicsConstructor.hh"
+ 
+class CustomPhysicsList : public G4VPhysicsConstructor
 {
 public:
-    CustomPhysicsList(const edm::ParameterSet & p);
+    CustomPhysicsList(std::string name,const edm::ParameterSet & p);
+    virtual ~CustomPhysicsList();
+protected:
+    virtual void ConstructParticle();
+    virtual void ConstructProcess();
+    void addCustomPhysicsList();
+private:
+    edm::ParameterSet m_pCustomPhysicsList;
 };
  
 #endif

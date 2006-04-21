@@ -1,78 +1,24 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPhysics.h"
-#include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
-#include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
-#include "SimG4Core/CustomPhysics/interface/GenericHadronicProcess.h"
-
-#include "G4MultipleScattering.hh"
-#include "G4hIonisation.hh"
-#include "G4MuIonisation.hh"
-#include "G4ProcessManager.hh"
-
-#include "G4LeptonConstructor.hh"
-#include "G4MesonConstructor.hh"
-#include "G4BaryonConstructor.hh"
-#include "G4ShortLivedConstructor.hh"
-#include "G4IonConstructor.hh"
+#include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
+#include "SimG4Core/CustomPhysics/src/DefaultHadronPhysicsQGSP.hh"
  
-CustomPhysics::CustomPhysics(std::string name,const edm::ParameterSet & p) : 
-    G4VPhysicsConstructor(name), m_pCustomPhysics(p) {}
+#include "SimG4Core/Packaging/src/G4DataQuestionaire.hh"
+#include "SimG4Core/Packaging/src/GeneralPhysics.hh"
+#include "SimG4Core/Packaging/src/EMPhysics.hh"
+#include "SimG4Core/Packaging/src/MuonPhysics.hh"
+#include "SimG4Core/Packaging/src/IonPhysics.hh"
+ 
+CustomPhysics::CustomPhysics(const edm::ParameterSet & p) : PhysicsList(p)
+{
+    G4DataQuestionaire it(photon);
+    std::cout << "You are using the simulation engine: QGSP 2.8" << std::endl;
+   
+    RegisterPhysics(new GeneralPhysics("general"));
+    RegisterPhysics(new EMPhysics("EM"));
+    RegisterPhysics(new MuonPhysics("muon"));
+    RegisterPhysics(new HadronPhysicsQGSP("hadron"));
+    RegisterPhysics(new IonPhysics("ion"));
+    RegisterPhysics(new CustomPhysicsList("custom",p));
+}
 
 CustomPhysics::~CustomPhysics() {}
- 
-void CustomPhysics::ConstructParticle()
-{
-    CustomParticleFactory::loadCustomParticles();     
-
-    G4LeptonConstructor pLeptonConstructor;
-    pLeptonConstructor.ConstructParticle();
- 
-    G4MesonConstructor pMesonConstructor;
-    pMesonConstructor.ConstructParticle();
- 
-    G4BaryonConstructor pBaryonConstructor;
-    pBaryonConstructor.ConstructParticle();
- 
-    G4ShortLivedConstructor pShortLivedConstructor;
-    pShortLivedConstructor.ConstructParticle();
-     
-    G4IonConstructor pConstructor;
-    pConstructor.ConstructParticle();
-}
- 
-void CustomPhysics::ConstructProcess() { addCustomPhysics(); }
- 
-void CustomPhysics::addCustomPhysics()
-{
-    std::cout << " CustomPhysics: adding CustomPhysics processes  " 
-	      << std::endl;
-    theParticleIterator->reset();
-    while ((*theParticleIterator)())
-    {	
-	G4ParticleDefinition * particle = theParticleIterator->value();
-	if (CustomParticleFactory::isCustomParticle(particle))
-	{
-	    std::cout << particle->GetParticleName() 
-		      << " is Custom" << std::endl;
-	    G4ProcessManager * pmanager = particle->GetProcessManager();
-	    if (pmanager!=0)
-	    { 
-		int i=1;
-		if (particle->GetParticleType()=="rhadron")  
-		{
-		    if (m_pCustomPhysics.getParameter<bool>("RHadronDummyFlip"))
-			pmanager->AddProcess(new DummyChargeFlipProcess,-1, -1,i++);
-                    else
-			pmanager->AddProcess(new GenericHadronicProcess,-1, -1,i++);
-                
-                }
-		if (particle->GetPDGCharge()/eplus != 0)
-		{ 
-		    pmanager->AddProcess(new G4MultipleScattering,-1, 1,i++);
-		    pmanager->AddProcess(new G4hIonisation,       -1, 2,i++);
-		}
-                else std::cout << "   It is neutral!!" << std::endl;
-            }
-	    else std::cout << "   No pmanager " << std::endl;
-	}
-    }
-}
