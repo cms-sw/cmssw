@@ -63,7 +63,7 @@ namespace {
     math::ErrorF<5>::type ef5;
     math::ErrorF<6>::type ef6;
  
-   ROOT::Math::RowOffsets<1> ro1;
+    ROOT::Math::RowOffsets<1> ro1;
     ROOT::Math::RowOffsets<2> ro2;
     ROOT::Math::RowOffsets<3> ro3;
     ROOT::Math::RowOffsets<4> ro4;
