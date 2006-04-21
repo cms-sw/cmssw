@@ -155,16 +155,11 @@ namespace edmtest
     else
     {
       LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
-        "I2OConsumer: High threshold exceeded in memory pool, blocking on I2O output");
-      // instead of really blocking for a set amount of time
-      // we yield to other threads until low threshold is reached
-      // check the settings at the beginning
-      std::cout << " max committed size "
-                << worker_->pool_->getMemoryUsage().getCommitted() << std::endl;
-      std::cout << " mem size used (bytes) " 
-                << worker_->pool_->getMemoryUsage().getUsed() << std::endl;
-      std::cout << " max possible mem size " 
-                << worker_->pool_->getMemoryUsage().getMax() << std::endl;
+        "I2OConsumer: High threshold exceeded in memory pool, blocking on I2O output"
+		     << " max committed size "
+		     << worker_->pool_->getMemoryUsage().getCommitted() 
+		     << " mem size used (bytes) " 
+		     << worker_->pool_->getMemoryUsage().getUsed())
       while (worker_->pool_->isLowThresholdExceeded())
       {
         LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
