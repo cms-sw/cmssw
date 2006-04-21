@@ -1,0 +1,21 @@
+<use name=FWCore/Framework>
+<use name=boost>
+<use name=root>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/EcalDigi>
+<use name=TBDataFormats/EcalTBObjects>
+<use name=FWCore/MessageLogger>
+<flags SEAL_PLUGIN_NAME="IORawDataEcal2004TBInputService">
+
+<export>
+ <lib name=IORawDataEcal2004TBInputService>
+ <use name=FWCore/Framework>
+ <use name=FWCore/MessageLogger>
+ <use name=DataFormats/EcalDetId>
+ <use name=DataFormats/EcalDigi>
+ <use name=TBDataFormats/EcalTBObjects>
+ <use name=boost> 
+ <use name=root>
+</export>
+
+
