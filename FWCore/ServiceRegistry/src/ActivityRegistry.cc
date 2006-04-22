@@ -63,9 +63,6 @@ edm::ActivityRegistry::connect(ActivityRegistry& iOther)
 
    jobFailureSignal_.connect(iOther.jobFailureSignal_);
 
-   preSourceSignal_.connect(iOther.preSourceSignal_);
-   postSourceSignal_.connect(iOther.postSourceSignal_);
-   
    preProcessEventSignal_.connect(iOther.preProcessEventSignal_);
    postProcessEventSignal_.connect(iOther.postProcessEventSignal_);
 
