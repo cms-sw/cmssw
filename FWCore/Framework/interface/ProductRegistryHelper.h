@@ -5,7 +5,7 @@
   
 ProductRegistryHelper: 
 
-$Id: ProductRegistryHelper.h,v 1.3 2006/03/05 00:36:37 wmtan Exp $
+$Id: ProductRegistryHelper.h,v 1.4 2006/04/20 22:33:21 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
@@ -47,7 +47,6 @@ namespace edm {
                              ProductRegistry& iReg,
                              bool iIsListener=false);
 
-  protected:
     /// declare what type of product will make and with which optional label 
     /** the statement
         \code
