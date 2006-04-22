@@ -50,7 +50,7 @@ void TowerMETAlgo::run(const CaloTowerCollection *towers, TowerMETCollection &me
   TowerMET met;
   met.clearMET();
   // Set new TowerMET values
-  met.setLabel("");
+  //met.setLabel("");
   met.setMET(sqrt(sum_ex * sum_ex + sum_ey * sum_ey));
   met.setMEx(-sum_ex);
   met.setMEy(-sum_ey);

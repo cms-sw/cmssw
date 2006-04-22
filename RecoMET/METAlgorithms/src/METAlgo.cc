@@ -15,7 +15,7 @@ METAlgo::METAlgo() {}
 
 METAlgo::~METAlgo() {}
 
-void METAlgo::run(const InputCollection &input, TowerMETCollection &metvec) 
+void METAlgo::run(const InputCollection &input, METCollection &metvec) 
 {
   // Clean up the EDProduct, it should be empty
   metvec.clear();
@@ -39,7 +39,7 @@ void METAlgo::run(const InputCollection &input, TowerMETCollection &metvec)
   // Calculate the Resultant MET Angle
   double met_phi = atan2( -sum_ey, -sum_ex ); 
   // Create a holder for the MET object
-  TowerMET met;
+  MET met;
   met.clearMET();
   // Set new TowerMET values
   //met.setLabel("");

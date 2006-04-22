@@ -6,7 +6,7 @@
 //--------------------------------------------
 #include <memory>
 #include "RecoMET/METProducers/interface/METProducer.h"
-#include "DataFormats/METObjects/interface/TowerMETCollection.h"
+#include "DataFormats/METObjects/interface/METCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Framework/interface/Handle.h"
 
@@ -19,13 +19,13 @@ namespace cms
 
   METProducer::METProducer(const edm::ParameterSet& iConfig) : alg_() 
   {
-    produces<TowerMETCollection>(); 
+    produces<METCollection>(); 
     inputLabel = iConfig.getParameter<std::string>("src");
   }
 
   METProducer::METProducer() : alg_() 
   {
-    produces<TowerMETCollection>(); 
+    produces<METCollection>(); 
   }
 
   METProducer::~METProducer() {}
@@ -43,7 +43,7 @@ namespace cms
 	input.push_back( &*input_object );
       }
     // Step B: Create an empty output.
-    std::auto_ptr<TowerMETCollection> result(new TowerMETCollection);
+    std::auto_ptr<METCollection> result(new METCollection);
     // Step C: Invoke the algorithm. 
     alg_.run(input, *result);
     // Step D: Put output into the Event.

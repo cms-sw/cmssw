@@ -16,7 +16,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/METObjects/interface/TowerMETCollection.h"
+#include "DataFormats/METObjects/interface/METCollection.h"
 
 class METAlgo 
 {
@@ -25,7 +25,7 @@ class METAlgo
 
   METAlgo();
   virtual ~METAlgo();
-  virtual void run(const InputCollection &, TowerMETCollection &);
+  virtual void run(const InputCollection &, METCollection &);
  private:
 };
 
