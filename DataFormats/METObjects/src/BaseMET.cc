@@ -14,7 +14,7 @@ BaseMET::BaseMET()
 
 void BaseMET::clearMET() 
 {
-  data.label[0] = '\0';
+  //data.label[0] = '\0';
   data.met   = 0.0;
   data.mex   = 0.0;
   data.mey   = 0.0;

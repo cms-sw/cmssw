@@ -21,7 +21,7 @@ const int MET_LABEL_LEN = 24;
 
 struct CommonMETData {
 
-  char label[MET_LABEL_LEN];
+  //char label[MET_LABEL_LEN];
 
   double met;
   double mex;

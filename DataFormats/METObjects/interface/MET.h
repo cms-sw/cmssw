@@ -17,8 +17,8 @@
 class MET: public BaseMET {
 public:
 
-  // Methods
-  virtual void clearMET();
+  // Additional Methods
+  //virtual void clearMET();
 
 };
 

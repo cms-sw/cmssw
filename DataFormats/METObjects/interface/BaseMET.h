@@ -23,7 +23,7 @@ class BaseMET
 public:
   BaseMET();
   // Setters
-  void setLabel(const char *Label) { strcpy( data.label, Label ); }
+  //void setLabel(const char *Label) { strcpy( data.label, Label ); }
   void setMET(double MET)     { data.met = MET; } //derived quantity 
   void setMEx(double MEx)     { data.mex = MEx; }
   void setMEy(double MEy)     { data.mey = MEy; }
@@ -32,16 +32,16 @@ public:
   void setPhi(double Phi)     { data.phi = Phi; } //derived quantity
   void pushDelta() { corr.push_back( data ); }
   // Getters
-  char *getLabel()        { return data.label; }
-  double getMET()   const { return data.met; }
-  double getMEx()   const { return data.mex; }
-  double getMEy()   const { return data.mey; }
-  double getMEz()   const { return data.mez; }
-  double getSumET() const { return data.sumet; }
-  double getPhi()   const { return data.phi; }
+  //char *getLabel()        { return data.label; }
+  double MET()   const { return data.met; }
+  double MEx()   const { return data.mex; }
+  double MEy()   const { return data.mey; }
+  double MEz()   const { return data.mez; }
+  double SumET() const { return data.sumet; }
+  double phi()   const { return data.phi; }
   std::vector<CommonMETData> getAllCorr() const {return corr;}
   // Methods
-  virtual void clearMET();
+  void clearMET();
 private:
   CommonMETData data;
   std::vector<CommonMETData> corr;
