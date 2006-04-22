@@ -43,6 +43,9 @@ public:
          
          void preModule(const ModuleDescription&);
          void postModule(const ModuleDescription&);
+         
+         void preSource();
+         void postSource();
 private:
          std::string indention_;
          unsigned int depth_;

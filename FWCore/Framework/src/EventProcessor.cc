@@ -624,6 +624,20 @@ namespace edm {
     actReg_.reset();
   }
 
+  namespace {
+    class CallPrePost {
+    public:
+      CallPrePost(ActivityRegistry& a): a_(&a) { 
+        a_->preSourceSignal_(); }
+      ~CallPrePost() { 
+        a_->postSourceSignal_();
+      }
+    
+    private:
+      ActivityRegistry* a_;
+    };
+  }  
+  
   EventProcessor::StatusCode
   EventProcessor::run_p(unsigned long numberToProcess, Msg m)
   {
@@ -656,7 +670,11 @@ namespace edm {
 
 	++eventcount;
 	FDEBUG(1) << eventcount << std::endl;
-	auto_ptr<EventPrincipal> pep = input_->readEvent();
+        auto_ptr<EventPrincipal> pep;
+        {
+          CallPrePost holder(*actReg_);
+          pep = input_->readEvent();
+        }
         
 	if(pep.get()==0)
 	  {
@@ -691,7 +709,7 @@ namespace edm {
     changeState(mFinished);
     return rc;
   }
-
+  
   EventProcessor::StatusCode
   EventProcessor::run(const EventID& id)
   {
@@ -703,8 +721,12 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    auto_ptr<EventPrincipal> pep = input_->readEvent(id);
-        
+    auto_ptr<EventPrincipal> pep;
+    {
+      CallPrePost holder(*actReg_);
+      pep = input_->readEvent(id);
+    }
+
     if(pep.get()==0)
       {
 	changeState(mInputExhausted);
@@ -734,7 +756,10 @@ namespace edm {
       //make the services available
       ServiceRegistry::Operate operate(serviceToken_);
       
-      input_->skipEvents(numberToSkip);
+      {
+        CallPrePost holder(*actReg_);
+        input_->skipEvents(numberToSkip);
+      }
       changeState(mCountComplete);
       toerror.succeeded();
     }

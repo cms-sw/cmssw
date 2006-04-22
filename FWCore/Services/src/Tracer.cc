@@ -44,6 +44,9 @@ depth_(0)
 
    iRegistry.watchPreModule(this,&Tracer::preModule);
    iRegistry.watchPostModule(this,&Tracer::postModule);
+   
+   iRegistry.watchPreSource(this,&Tracer::preSource);
+   iRegistry.watchPostSource(this,&Tracer::postSource);
 }
 
 // Tracer::Tracer(const Tracer& rhs)
@@ -79,6 +82,17 @@ void
 Tracer::postEndJob()
 {
    std::cout <<indention_<<" Job ended"<<std::endl;
+}
+
+void
+Tracer::preSource()
+{
+  std::cout <<indention_<<indention_<<"source"<<std::endl;
+}
+void
+Tracer::postSource()
+{
+  std::cout <<indention_<<indention_<<"finished: source"<<std::endl;
 }
 
 void 

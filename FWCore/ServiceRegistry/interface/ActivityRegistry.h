@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:53:09 EDT 2005
-// $Id: ActivityRegistry.h,v 1.7 2006/03/21 22:11:34 paterno Exp $
+// $Id: ActivityRegistry.h,v 1.8 2006/04/20 16:53:16 chrjones Exp $
 //
 
 // system include files
@@ -69,7 +69,24 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_0(watchJobFailure)
       
-      typedef boost::signal<void (const edm::EventID&, const edm::Timestamp&)> PreProcessEvent;
+        /// signal is emitted before the source starts creating the Event
+        typedef boost::signal<void ()> PreSource;
+      PreSource preSourceSignal_;
+      void watchPreSource(const PreSource::slot_type& iSlot) {
+        preSourceSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_0(watchPreSource)
+
+        /// signal is emitted after the source starts creating the Event
+        typedef boost::signal<void ()> PostSource;
+      PostSource postSourceSignal_;
+      void watchPostSource(const PostSource::slot_type& iSlot) {
+        postSourceSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_0(watchPostSource)
+        
+        
+        typedef boost::signal<void (const edm::EventID&, const edm::Timestamp&)> PreProcessEvent;
       /// signal is emitted after the Event has been created by the InputSource but before any modules have seen the Event
       PreProcessEvent preProcessEventSignal_;
       void watchPreProcessEvent(const PreProcessEvent::slot_type& iSlot) {
