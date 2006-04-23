@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
-// $Id: SiStripFolderOrganizer.cc,v 1.3 2006/03/29 21:41:38 dkcira Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.4 2006/04/11 10:22:39 dkcira Exp $
 //
 
 #include <iostream>
@@ -38,11 +38,90 @@ SiStripFolderOrganizer::SiStripFolderOrganizer()
   sep ="/";
   // get a pointer to DaqMonitorBEInterface
   dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
+  // control structure
+//  CrateFolder="FecCrate";
+//  SlotFolder="FecSlot";
+//  RingFolder="FecRing";
+//  AddrFolder="CcuAddr";
+//  ChanFolder="CcuChan";
+//  I2CFolder="I2cAddr";
 }
+
 
 SiStripFolderOrganizer::~SiStripFolderOrganizer()
 {
 }
+
+
+string SiStripFolderOrganizer::getSiStripFolder(){
+   return TopFolderName;
+}
+
+
+void SiStripFolderOrganizer::setSiStripFolder(){
+   dbe_->setCurrentFolder(TopFolderName);
+   return;
+}
+
+
+string SiStripFolderOrganizer::getSiStripTopControlFolder(){
+   string lokal_folder = TopFolderName + ControlFolderName;
+   return lokal_folder;
+}
+
+
+void SiStripFolderOrganizer::setSiStripTopControlFolder(){
+   string lokal_folder = TopFolderName + ControlFolderName;
+   dbe_->setCurrentFolder(lokal_folder);
+   return;
+}
+
+
+string SiStripFolderOrganizer::getSiStripControlFolder(
+                                   // unsigned short crate,
+                                   unsigned short slot,
+                                   unsigned short ring,
+                                   unsigned short addr,
+                                   unsigned short chan
+                                   // unsigned short i2c
+                                   ) {
+  stringstream lokal_folder;
+  lokal_folder << getSiStripTopControlFolder();
+  //   if ( crate != all_ ) {// if ==all_ then remain in top control folder
+  //     lokal_folder << sep << "FecCrate" << crate;
+  if ( slot != all_ ) {
+    lokal_folder << sep << "FecSlot" << slot;
+    if ( ring != all_ ) {
+      lokal_folder << sep << "FecRing" << ring;
+      if ( addr != all_ ) {
+	lokal_folder << sep << "CcuAddr" << addr;
+	if ( chan != all_ ) {
+	  lokal_folder << sep << "CcuChan" << chan;
+	  // 	    if ( i2c != all_ ) {
+	  // 	      lokal_folder << sep << "I2cAddr" << i2c;
+	  // 	    }
+	}
+      }
+    }
+  }
+  //   }
+  return lokal_folder.str();
+}
+
+
+void SiStripFolderOrganizer::setSiStripControlFolder(
+                                   // unsigned short crate,
+                                   unsigned short slot,
+                                   unsigned short ring,
+                                   unsigned short addr,
+                                   unsigned short chan
+                                   // unsigned short i2c
+                                   ) {
+ string lokal_folder = getSiStripControlFolder(slot, ring, addr, chan);
+ dbe_->setCurrentFolder(lokal_folder);
+ return;
+}
+
 
 void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid){
   string lokal_folder = TopFolderName + sep + MechanicalFolderName;
@@ -88,30 +167,3 @@ void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid){
   dbe_->setCurrentFolder(lokal_folder);
 }
 
-
-// old methods
-// string SiStripFolderOrganizer::getSiStripFolder(){
-//   return TopFolderName;
-// }
-// 
-// string SiStripFolderOrganizer::getReadoutFolder(unsigned int fed_id){
-//   string lokal_folder;
-//   if (fed_id==99999) {
-//     lokal_folder = TopFolderName + sep + ReadoutFolderName;
-//   }else{
-//     ostringstream strfed;
-//     strfed<<"FED_"<<fed_id;
-//     lokal_folder = TopFolderName + sep + ReadoutFolderName + sep + strfed.str() ;
-//   }
-//   return lokal_folder;
-// }
-// 
-// string SiStripFolderOrganizer::getTOBFolder(){
-//   string lokal_folder = TopFolderName + sep + TOBFolderName;
-//   return lokal_folder;
-// }
-// 
-// string SiStripFolderOrganizer::getTIBFolder(){
-//   string lokal_folder = TopFolderName + sep + TIBFolderName;
-//   return lokal_folder;
-// }

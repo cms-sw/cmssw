@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
-// $Id: SiStripFolderOrganizer.h,v 1.1 2006/02/09 19:02:26 gbruno Exp $
+// $Id: SiStripFolderOrganizer.h,v 1.2 2006/04/11 10:22:31 dkcira Exp $
 //
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -26,19 +26,36 @@ class SiStripFolderOrganizer
 {
 
    public:
+      static unsigned short const all_ = 65535;
+
       SiStripFolderOrganizer();
       virtual ~SiStripFolderOrganizer();
 
-//      //old methods
-//      // get top folder
-//      std::string getSiStripFolder();
-//      // get Readout view top folder or, if fed_id!= 99999, to corresponding Fed folder
-//      std::string getReadoutFolder(unsigned int fed_id = 99999);
-//      // get TOB folders (specifying first parameters means going to underlying folder)
-//      std::string getTOBFolder();
-//      std::string getTIBFolder();
+      // top folder
+      std::string getSiStripFolder();
+      void setSiStripFolder();
 
-      //new methods
+      // control folder
+      std::string getSiStripTopControlFolder();
+      void setSiStripTopControlFolder();
+      std::string getSiStripControlFolder(
+              // unsigned short crate,
+              unsigned short slot = all_,
+              unsigned short ring = all_,
+              unsigned short addr = all_,
+              unsigned short chan = all_
+              // unsigned short i2c
+      );
+      void setSiStripControlFolder(
+              // unsigned short crate,
+              unsigned short slot = all_,
+              unsigned short ring = all_,
+              unsigned short addr = all_,
+              unsigned short chan = all_
+              // unsigned short i2c
+      );
+
+      // detector folders
       void setDetectorFolder(uint32_t rawdetid=0);
 
    private:
@@ -52,7 +69,5 @@ class SiStripFolderOrganizer
       std::string ControlFolderName;
       std::string sep;
       DaqMonitorBEInterface* dbe_;
-
 };
-
 #endif
