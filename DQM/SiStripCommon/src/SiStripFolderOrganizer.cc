@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
-// $Id: SiStripFolderOrganizer.cc,v 1.4 2006/04/11 10:22:39 dkcira Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.5 2006/04/23 13:24:29 dkcira Exp $
 //
 
 #include <iostream>
@@ -38,13 +38,6 @@ SiStripFolderOrganizer::SiStripFolderOrganizer()
   sep ="/";
   // get a pointer to DaqMonitorBEInterface
   dbe_  = edm::Service<DaqMonitorBEInterface>().operator->();
-  // control structure
-//  CrateFolder="FecCrate";
-//  SlotFolder="FecSlot";
-//  RingFolder="FecRing";
-//  AddrFolder="CcuAddr";
-//  ChanFolder="CcuChan";
-//  I2CFolder="I2cAddr";
 }
 
 
