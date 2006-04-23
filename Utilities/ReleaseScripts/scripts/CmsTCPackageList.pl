@@ -9,13 +9,16 @@
 
 use strict;
 use Getopt::Long;
+
 Getopt::Long::config('bundling_override');
  
 my %options;
 my @packs;
+my @subsys;
 my @ignoredPacks;
 
 GetOptions(\%options,'h','help','rel=s','pack=s'=>\@packs,
+	   'subsys=s'=>\@subsys,
 	   'file=s','listOnlyVersion','ignorepack=s'=>\@ignoredPacks);
 
 if ( !$options{'rel'} || $options{'h'} || $options{'help'} ) {
@@ -23,7 +26,8 @@ if ( !$options{'rel'} || $options{'h'} || $options{'help'} ) {
     print "    CmsTCPackageList.pl --rel <release>\n \n";
     print "Options:\n";
     print "  --pack <packages> Print only for specified package(s)\n";
-    print "         (Either space separated in quotes or use multiple --pack options for multiple packages)\n";
+    print "  --subsys <subsystems> Print only for specified subsystem(s)\n";
+    print "         (Either space separated in quotes or use multiple --pack/--subsys options for multiple packages or subsystems)\n";
     print "  --ignorepack <packages> Ignore specified package(s)\n";
     print "         (Either space separated in quotes or use multiple --ignorepack options for multiple packages)\n";
     print "  --listOnlyVersion   Output only the version, not the corresponding package name\n";
@@ -34,15 +38,30 @@ if ( !$options{'rel'} || $options{'h'} || $options{'help'} ) {
 
 my $rel= $options{'rel'} ? $options{'rel'} : die "Need a release (--rel)";
 
+# check that wget exists
+my @wgets=split(' ',`whereis -b wget`,9);
+die "wget does not seem to be in your current path. Exiting.\n" if ($#wgets == 1);
+
 my %packages;
 my $onlySpecifiedPackages=0;
-#if ( $options{'pack'} ) {
 if ( @packs ) {
     $onlySpecifiedPackages=1;
     foreach (@packs )  {
 	my @spTmp=split(' ',$_,999);
 	foreach (@spTmp) {
 	    $packages{$_}=1;
+	}
+    }
+}
+
+my %subsystems;
+my $onlySpecifiedSubsystems=0;
+if ( @subsys ) {
+    $onlySpecifiedSubsystems=1;
+    foreach (@subsys )  {
+	my @spTmp=split(' ',$_,999);
+	foreach (@spTmp) {
+	    $subsystems{$_}=1;
 	}
     }
 }
@@ -57,10 +76,12 @@ if ( @ignoredPacks ) {
     }
 }
 
+my $onlySpecified= $onlySpecifiedSubsystems + $onlySpecifiedPackages;
+
 
 #figure out what version of wget we have
 # --no-check-certificate needed for 1.10 and above
-my $wgetVers=`/usr/bin/wget --version`;
+my $wgetVers=`wget --version`;
 my @splitOutput=split(' ',$wgetVers,9);
 my @splitVers=split('\.',$splitOutput[2],9);
 my $wgetVersion=1000*$splitVers[0]+$splitVers[1];
@@ -71,7 +92,7 @@ $options="--no-check-certificate" if ( $wgetVersion>1009);
 my $user="cmstcreader";
 my $pass="CmsTC";
 
-open(CMSTCQUERY,"/usr/bin/wget ${options}  -nv -o /dev/null -O- 'http://${user}:${pass}\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=${rel}' |");
+open(CMSTCQUERY,"wget ${options}  -nv -o /dev/null -O- 'http://${user}:${pass}\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=${rel}' |");
 
 my %tags;
 while ( <CMSTCQUERY> ) {
@@ -90,7 +111,7 @@ open (OUTFILE,">$filename") or die "can not open output file $filename";
 
 my $hasAPackage=0;
 my $key;
-foreach $key (keys %tags) {
+foreach $key (sort keys %tags) {
     if ( $key eq "-1" ) {
 # error condition.. missing release	
 # should be a better way to catch this
@@ -99,7 +120,14 @@ foreach $key (keys %tags) {
 	exit;
     }
     $hasAPackage++;
-    if ( ($onlySpecifiedPackages==0) || ($packages{$key}==1) ) {
+    my @spTmp1=split('/',$key,2);
+    my $subsystem=$spTmp1[0];
+
+    my $includeKey=0;
+    $includeKey=1 if (($onlySpecified==0) || ($packages{$key}==1) ||
+		      ($subsystems{$subsystem}==1));
+
+    if ( $includeKey == 1 ) {
 	if ( !$ignorePackages{$key} ) {
 	    if ( $options{'listOnlyVersion'} ) {
 		print OUTFILE "$tags{$key} \n";
