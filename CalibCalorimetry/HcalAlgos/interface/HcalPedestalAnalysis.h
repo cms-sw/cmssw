@@ -22,6 +22,15 @@
 #include <vector>
 #include <string>
 
+// User switches for HcalPedestalAnalysis to set in cfg are:
+//   nevtsample - number of events per sample in which data will be divided
+//                for stability checks (default: 9999999),
+//   hiSaveflag - flag to save histos of charge per cap-id (default: 0),
+//   pedValflag - pedestal validation flag: 1 means tell to write/update 
+//                pedestal constants only if a change from nominal is found,
+//                0 means tell to write/update pedestal constants in any case
+//                (default: 0).
+
 class HcalPedestals;
 class HcalPedestalWidths;
 class HcalDbService;
@@ -77,8 +86,11 @@ private:
   std::string m_outputFileWidth;
   std::ofstream m_logFile;
   
-  int m_startSample;
-  int m_endSample;
+  int m_startTS;
+  int m_endTS;
+  int m_nevtsample;
+  int m_hiSaveflag;
+  int m_pedValflag;
   
   const HcalQIEShape* m_shape;
   const HcalQIECoder* m_coder;
@@ -89,7 +101,7 @@ private:
     TH1F* PEDMEAN;
     TH1F* CHI2;
     TH1F* CAPID_AVERAGE;
-    TH1F* CAPID_CHI2;//
+    TH1F* CAPID_CHI2;
   } hbHists, hfHists, hoHists;
   std::map<HcalDetId, std::map<int,TH1F*> >::iterator _meo;
   std::map<HcalDetId,std::map<int, PEDBUNCH > >::iterator _meot;
@@ -101,10 +113,11 @@ private:
   HcalPedestals* widthsper2caps;
   int evt;
   int sample;
-  static const int fitflag=1;
-  static const int nevt_ped=1000;
-  static const int pedValflag=0;
+  int evt_curr;
   std::vector<bool> state;
+
+// flag to make gaussian fits to charge dists
+  static const int fitflag=1;
 };
 
 #endif
