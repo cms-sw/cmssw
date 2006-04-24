@@ -185,9 +185,9 @@ std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId.rawId(),  1) << 
 
   HcalTrigPrimRecHitCollection trigPrims;
   HcalTriggerPrimitiveAlgo triggerPrimitiveAlgo(&coderFactory);
-  triggerPrimitiveAlgo.run(*hbheResult, *hfResult, trigPrims);
+  //  triggerPrimitiveAlgo.run(*hbheResult, *hfResult, trigPrims);
 
-  copy(trigPrims.begin(), trigPrims.end(),  std::ostream_iterator<HcalTriggerPrimitiveRecHit>(std::cout, "\n"));
+  // copy(trigPrims.begin(), trigPrims.end(),  std::ostream_iterator<HcalTriggerPrimitiveRecHit>(std::cout, "\n"));
 return 0;
 }
 

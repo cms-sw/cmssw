@@ -6,11 +6,14 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include "CalibFormats/CaloObjects/interface/IntegerCaloSamples.h"
+#include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
+#include "CalibFormats/CaloTPG/interface/HcalTPGSimpleTranscoder.h"
 
 #include <map>
 #include <vector>
 class CaloGeometry;
-class CaloSamples;
+class IntegerCaloSamples;
 
 class HcalCoderFactory;
 
@@ -21,30 +24,35 @@ public:
 
   void run(const HBHEDigiCollection & hbheDigis,
            const HFDigiCollection & hfDigis,
-           HcalTrigPrimRecHitCollection & result);
+           HcalTriggerPrimitiveDigi & result);
 
 private:
 
   /// adds the signal to the map
   void addSignal(const HBHEDataFrame & frame);
   void addSignal(const HFDataFrame & frame);
-  void addSignal(const CaloSamples & samples);
+  void addSignal(const IntegerCaloSamples & samples);
 
   /// changes the signal to be in ET instead of E
-  void transverseComponent(CaloSamples & samples, const  HcalTrigTowerDetId & id) const;
+  void transverseComponent(IntegerCaloSamples & samples, const  HcalTrigTowerDetId & id) const;
 
   /// adds the actual RecHits
-  void analyze(const CaloSamples & samples, HcalTrigPrimRecHitCollection & result) const;
+  void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
+  void outputMaker(const IntegerCaloSamples & samples, 
+		   HcalTriggerPrimitiveDigi & result, 
+		   const std::vector<bool> & finegrain);
 
   std::vector<HcalTrigTowerDetId> towerIds(const HcalDetId & id) const;
 
   HcalTrigTowerGeometry theTrigTowerGeometry;
+  const HcalTPGCoder * tcoder;
+  HcalTPGSimpleTranscoder * transcoder;
 
   const HcalCoderFactory * theCoderFactory;
   // counts from 1
   double theSinThetaTable[33];
 
-  typedef std::map<HcalTrigTowerDetId, CaloSamples> SumMap;
+  typedef std::map<HcalTrigTowerDetId, IntegerCaloSamples> SumMap;
   SumMap theSumMap;  
 
   double theThreshold;
@@ -54,4 +62,30 @@ private:
 
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

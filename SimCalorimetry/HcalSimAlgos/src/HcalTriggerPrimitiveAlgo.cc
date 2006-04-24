@@ -1,3 +1,7 @@
+
+
+
+
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
@@ -9,8 +13,8 @@
 inline double theta_from_eta(double eta){return (2.0*atan(exp(-eta)));}
 
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(const HcalCoderFactory * coderFactory)
-: theCoderFactory(coderFactory),
-  theThreshold(0.5)
+  : theCoderFactory(coderFactory),
+    theThreshold(0.5)
 {
   // set up the table of sin(theta) for fast ET calculations
   int nTowers = theTrigTowerGeometry.nTowers();
@@ -26,7 +30,7 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(const HcalCoderFactory * code
   theHBHECalibrationConstant = parameterMap.hbheParameters().calibrationConstant();
   theHFCalibrationConstant = parameterMap.hfParameters1().calibrationConstant();
   LogDebug("HcalTriggerPrimitiveAlgo") << " Calibration constants: " 
-   << theHBHECalibrationConstant << " " << theHFCalibrationConstant;
+				       << theHBHECalibrationConstant << " " << theHFCalibrationConstant;
 }
 
 
@@ -36,8 +40,8 @@ HcalTriggerPrimitiveAlgo::~HcalTriggerPrimitiveAlgo()
 
 
 void HcalTriggerPrimitiveAlgo::run(const HBHEDigiCollection & hbheDigis,
-                                const HFDigiCollection & hfDigis,
-                                HcalTrigPrimRecHitCollection & result)
+				   const HFDigiCollection & hfDigis,
+				   HcalTriggerPrimitiveDigi & result)
 {
 
   theSumMap.clear();
@@ -45,22 +49,24 @@ void HcalTriggerPrimitiveAlgo::run(const HBHEDigiCollection & hbheDigis,
   // do the HB/HE digis
   for(HBHEDigiCollection::const_iterator hbheItr = hbheDigis.begin();
       hbheItr != hbheDigis.end(); ++hbheItr)
-  {
-    addSignal(*hbheItr);
-  }
+    {
+      addSignal(*hbheItr);
+    }
 
   // and the HF digis
   for(HFDigiCollection::const_iterator hfItr = hfDigis.begin();
       hfItr != hfDigis.end(); ++hfItr)
-  {
-    addSignal(*hfItr);
-  }
+    {
+      addSignal(*hfItr);
+    }
 
 
-  for(SumMap::const_iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr)
-  {
-    analyze(mapItr->second, result);
-  }
+  for(SumMap::iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr)
+    {
+      analyze(mapItr->second, result);
+      
+      
+    }
   
   return;
 }
@@ -70,18 +76,23 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
 
   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(frame.id());
   assert(ids.size() == 1 || ids.size() == 2);
-  CaloSamples samples1(ids[0], frame.size());
-  theCoderFactory->coder(frame.id())->adc2fC(frame, samples1);
-  transverseComponent(samples1, ids[0]);
-
-
+  IntegerCaloSamples samples1(ids[0], int(frame.size()));
+  
+  //replaced by the transcoder
+  //theCoderFactory->coder(frame.id())->adc2fC(frame, samples1);
+  //transverseComponent(samples1, ids[0]);
+  //HcalTPGCoder::adc2ET(frame, samples1);
+  //  HcalTPGCoder tcoder;
+  tcoder->adc2ET(frame, samples1);
+  
   if(ids.size() == 2) {
     // make a second trigprim for the other one, and split the energy
-    CaloSamples samples2(ids[1], samples1.size());
-    for(int i = 0; i < samples1.size(); ++i) {
-      samples1[i] *= 0.5;
-      samples2[i] = samples1[i];
-     }
+    IntegerCaloSamples samples2(ids[1], samples1.size());
+    for(int i = 0; i < samples1.size(); ++i) 
+      {
+	samples1[i] = uint32_t(samples1[i]*0.5);
+	samples2[i] = samples1[i];
+      }
     addSignal(samples2);
   }
   addSignal(samples1);
@@ -94,27 +105,19 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
   if(frame.id().depth() == 1) {
     std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(frame.id());
     assert(ids.size() == 1);
-    CaloSamples samples(ids[0], frame.size());
-    theCoderFactory->coder(frame.id())->adc2fC(frame, samples);
-    transverseComponent(samples, ids[0]);
+    IntegerCaloSamples samples(ids[0], frame.size());
+    
+    //Replaced by transcoder
+    //theCoderFactory->coder(frame.id())->adc2fC(frame, samples);
+    //transverseComponent(samples, ids[0]);
+    tcoder->adc2ET(frame, samples);
+    
     addSignal(samples);
   }
 }
 
 
-void HcalTriggerPrimitiveAlgo::transverseComponent(CaloSamples & samples, 
-                                                   const HcalTrigTowerDetId & id) const 
-{
-  // the adc2fC overwrites the Samples' DetId with a DataFrame id.  We want a
-  // trig tower ID.  so we need to make a copy and switch
-  CaloSamples result(id, samples.size());
-  samples *= theSinThetaTable[abs(id.ieta())];
-  // swap it in
-  samples = result;
-}
-
-
-void HcalTriggerPrimitiveAlgo::addSignal(const CaloSamples & samples) {
+void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples & samples) {
   HcalTrigTowerDetId id(samples.id());
   SumMap::iterator itr = theSumMap.find(id);
   if(itr == theSumMap.end()) {
@@ -122,39 +125,92 @@ void HcalTriggerPrimitiveAlgo::addSignal(const CaloSamples & samples) {
   } else {
     // wish CaloSamples had a +=
     for(int i = 0; i < samples.size(); ++i) {
-
+      
       (itr->second)[i] += samples[i];
     }
   }
 }
 
+/* replaced by transcoder
+   void HcalTriggerPrimitiveAlgo::transverseComponent(IntegerCaloSamples & samples, 
+   const HcalTrigTowerDetId & id) const 
+   {
+   // the adc2fC overwrites the Samples' DetId with a DataFrame id.  We want a
+   // trig tower ID.  so we need to make a copy and switch
+   IntegerCaloSamples result(id, samples.size());
+   // CaloSampels doesnt have a *= method
+   for(int i = 0; i < samples.size(); ++i) {
+   result[i] = samples[i] * theSinThetaTable[abs(id.ieta())];
+   }
+   // swap it in
+   samples = result;
+   }
+   
+*/
 
-void HcalTriggerPrimitiveAlgo::analyze(const CaloSamples & samples, 
-                                    HcalTrigPrimRecHitCollection & result) const 
+
+void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, 
+				       HcalTriggerPrimitiveDigi & result)
 {
-  // look for local maxima over threshold
-  for(int ibin = 1; ibin < samples.size(); ++ibin) {
-    // number of trigprims from this sample
-    int n = 0; 
-    if(samples[ibin] > samples[ibin-1] && samples[ibin] > samples[ibin+1]) {
-      // now compare ET to threshold.  ET will be the sum of two bins in HB/HR/HO, and one bin in HF
-      HcalTrigTowerDetId detId(samples.id());
-      double et;
-      if(detId.ietaAbs() > theTrigTowerGeometry.firstHFTower()) {
-        et = samples[ibin] * theHFCalibrationConstant;
-      } else {
-        // correct for charge out of the time window
-        et = (samples[ibin] + samples[ibin+1]) * 1.139 * theHBHECalibrationConstant;
-      }
-      if(et > theThreshold) {
-        // signal should be in 5th time bin
-        int bunch = ibin-5;
-        ++n;
-        HcalTriggerPrimitiveRecHit trigPrim(detId, et, 0., bunch, 0, n);
-        LogDebug("HcalTriggerPrimitiveAlgo") << trigPrim;
-        result.push_back( trigPrim );
-      }
+  std::vector<bool> finegrain;
+  std::vector <uint32_t> sampEt;
+  // std::vector <bool> decision;
+  HcalTrigTowerDetId detId(samples.id());
+  
+  for(int ibin = 1; ibin < samples.size()-1; ++ibin)
+    {
+      if(detId.ietaAbs() > theTrigTowerGeometry.firstHFTower())
+	{sampEt[ibin] = samples[ibin];}
+      else
+	{sampEt[ibin] = samples[ibin]+samples[ibin+1];}
+      // sampEt[ibin] = samples[ibin]+samples[ibin+1];
     }
-  }
+  
+  for(int ibin2 = 2; ibin2 < (samples.size())-2; ++ibin2) 
+    {
+      if(sampEt[ibin2] > sampEt[ibin2-1] && sampEt[ibin2] > sampEt[ibin2+1] && sampEt[ibin2] > theThreshold) 
+	//	++n;
+	{
+	  samples[ibin2] = uint32_t(0);
+	  //decision[ibin2] = true;
+	}
+      //else{decision = false;}
+      
+    }
+  
+  outputMaker(samples, result, finegrain);
+  
 }
+
+
+void HcalTriggerPrimitiveAlgo::outputMaker(const IntegerCaloSamples & samples, 
+					   HcalTriggerPrimitiveDigi & result, 
+					   const std::vector<bool> & finegrain)
+{
+  for(int ibin = 1; ibin < samples.size()-1; ++ibin)
+    {
+      transcoder->htrCompress(samples, finegrain, result); 
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
