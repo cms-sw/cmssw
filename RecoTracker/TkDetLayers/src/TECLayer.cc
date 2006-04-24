@@ -42,7 +42,32 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
   theFrontBinFinder = BinFinderPhi(theFrontPetals.front()->position().phi(),
   				   theFrontPetals.size());
   theBackBinFinder  = BinFinderPhi(theBackPetals.front()->position().phi(),
-  			   theBackPetals.size());  
+				   theBackPetals.size());  
+
+  /*--------- DEBUG INFO --------------
+  cout << "DEBUG INFO for TECLayer" << endl;
+  cout << "TECLayer z,perp: " 
+       << this->position().z()    << " , "
+       << this->position().perp() << endl;
+
+  for(vector<const TECPetal*>::const_iterator it=theFrontPetals.begin(); 
+      it!=theFrontPetals.end(); it++){
+    cout << "frontPetal phi,z,r: " 
+	 << (*it)->surface().position().phi() << " , "
+	 << (*it)->surface().position().z() <<   " , "
+	 << (*it)->surface().position().perp() << endl;
+  }
+
+  for(vector<const TECPetal*>::const_iterator it=theBackPetals.begin(); 
+      it!=theBackPetals.end(); it++){
+    cout << "backPetal phi,z,r: " 
+	 << (*it)->surface().position().phi() << " , "
+	 << (*it)->surface().position().z() <<   " , "
+	 << (*it)->surface().position().perp() << endl;
+  }
+  ----------------------------------- */
+
+
 }
 
 
@@ -275,8 +300,8 @@ TECLayer::computeDisk( vector<const TECPetal*>& petals) const
   float theZmax(petals.front()->position().z());
   float theZmin(theZmax);
   for ( vector<const TECPetal*>::const_iterator i = petals.begin(); i != petals.end(); i++ ) {
-    float zmin = 0. - (**i).surface().bounds().thickness()/2.;
-    float zmax = (**i).surface().bounds().thickness()/2.;
+    float zmin = (**i).position().z() - (**i).surface().bounds().thickness()/2.;
+    float zmax = (**i).position().z() + (**i).surface().bounds().thickness()/2.;
     theZmax = max( theZmax, zmax);
     theZmin = min( theZmin, zmin);
   }

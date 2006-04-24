@@ -36,6 +36,28 @@ TIDRing::TIDRing(vector<const GeomDet*>& innerDets,
 				     theFrontDets.size());
   theBackBinFinder  = BinFinderType( theBackDets.front()->surface().position().phi(),
 				     theBackDets.size());  
+
+  /*--------- DEBUG INFO --------------
+  cout << "DEBUG INFO for TIDRing" << endl;
+
+  for(vector<const GeomDet*>::const_iterator it=theFrontDets.begin(); 
+      it!=theFrontDets.end(); it++){
+    cout << "frontDet phi,z,r: " 
+	 << (*it)->surface().position().phi() << " , "
+	 << (*it)->surface().position().z() <<   " , "
+	 << (*it)->surface().position().perp() << endl;
+  }
+
+  for(vector<const GeomDet*>::const_iterator it=theBackDets.begin(); 
+      it!=theBackDets.end(); it++){
+    cout << "backDet phi,z,r: " 
+	 << (*it)->surface().position().phi() << " , "
+	 << (*it)->surface().position().z() <<   " , "
+	 << (*it)->surface().position().perp() << endl;
+  }
+  ----------------------------------- */
+
+
 }
 
 TIDRing::~TIDRing(){

@@ -41,6 +41,8 @@ PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades):
 
   /*--------- DEBUG INFO --------------
   cout << "DEBUG INFO for PixelForwardLayer" << endl;
+  cout << "PixelForwardLayer.surfcace.phi(): " 
+       << this->surface().position().phi() << endl;
   cout << "PixelForwardLayer.surfcace.z(): " 
        << this->surface().position().z() << endl;
   cout << "PixelForwardLayer.surfcace.innerR(): " 
@@ -48,11 +50,15 @@ PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades):
   cout << "PixelForwardLayer.surfcace.outerR(): " 
        << this->specificSurface().outerRadius() << endl;
   //cout << "PixelForwardLayer.surfcace.thickness(): " << specificSurface().thickness << end
+
   for(vector<const PixelBlade*>::const_iterator it=theBlades.begin(); 
       it!=theBlades.end(); it++){
-    cout << "blades.phi: " << (*it)->surface().position().phi() << endl;
+    cout << "blades phi,z,r: " 
+	 << (*it)->surface().position().phi() << " , "
+	 << (*it)->surface().position().z() <<   " , "
+	 << (*it)->surface().position().perp() << endl;
   }
-  -----------------------------------*/
+  ----------------------------------- */
 
     
 }

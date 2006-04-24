@@ -26,13 +26,22 @@ PixelBlade::PixelBlade(vector<const GeomDet*>& frontDets,
 
   /*--------- DEBUG INFO --------------
   cout << "DEBUG INFO for PixelBlade" << endl;
-  cout << "this: " << this << endl;
-  cout << "PixelForwardLayer.surfcace.z(): " 
-       << this->surface().position().z() << endl;
-  cout << "PixelForwardLayer.surfcace.innerR(): " 
-       << this->specificSurface().innerRadius() << endl;
-  cout << "PixelForwardLayer.surfcace.outerR(): " 
-       << this->specificSurface().outerRadius() << endl;
+
+  for(vector<const GeomDet*>::const_iterator it=theFrontDets.begin(); 
+      it!=theFrontDets.end(); it++){
+    cout << "frontDet phi,z,r: " 
+	 << (*it)->position().phi() << " , "
+	 << (*it)->position().z()   << " , "
+	 << (*it)->position().perp() << endl;
+  }
+
+  for(vector<const GeomDet*>::const_iterator it=theBackDets.begin(); 
+      it!=theBackDets.end(); it++){
+    cout << "backDet phi,z,r: " 
+	 << (*it)->position().phi() << " , "
+	 << (*it)->position().z()   << " , "
+	 << (*it)->position().perp() << endl;
+  }
   -----------------------------------*/
 
 }

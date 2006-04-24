@@ -15,6 +15,19 @@
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
+// --------- Temporary solution. DetSorting.h has to be used.
+class DetPhiLess {
+public:
+  bool operator()(const GeomDet* a,const GeomDet* b) 
+  {
+    const float pi = 3.141592653592;
+    float diff = fmod(b->position().phi() - a->position().phi(), 2*pi);
+    if ( diff < 0) diff += 2*pi;
+    return diff < pi;
+  } 
+};
+// ---------------------
+
 CompositeTECWedge::CompositeTECWedge(vector<const GeomDet*>& innerDets,
 				     vector<const GeomDet*>& outerDets):
   theFrontDets(innerDets.begin(),innerDets.end()), theBackDets(outerDets.begin(),outerDets.end())
@@ -23,13 +36,35 @@ CompositeTECWedge::CompositeTECWedge(vector<const GeomDet*>& innerDets,
   theDets.insert(theDets.end(),theBackDets.begin(),theBackDets.end());
 
 
-  // We suppose that they are already phi orderd. To be checked!!
-  //sort( theFrontDets.begin(), theFrontDets.end(), DetLessPhiWedge() );
-  //sort( theBackDets.begin(),  theBackDets.end(),  DetLessPhiWedge() );
+  // 
+  sort( theFrontDets.begin(), theFrontDets.end(), DetPhiLess() );
+  sort( theBackDets.begin(),  theBackDets.end(),  DetPhiLess() );
   
   theFrontSector = ForwardDiskSectorBuilderFromDet()( theFrontDets );
   theBackSector  = ForwardDiskSectorBuilderFromDet()( theBackDets );
   theDiskSector = ForwardDiskSectorBuilderFromDet()( theDets );
+
+  /*--------- DEBUG INFO --------------
+  cout << "DEBUG INFO for CompositeTECWedge" << endl;
+
+  for(vector<const GeomDet*>::const_iterator it=theFrontDets.begin(); 
+      it!=theFrontDets.end(); it++){
+    cout << "frontDet phi,z,r: " 
+	 << (*it)->surface().position().phi() << " , "
+	 << (*it)->surface().position().z() <<   " , "
+	 << (*it)->surface().position().perp() << endl;
+  }
+
+  for(vector<const GeomDet*>::const_iterator it=theBackDets.begin(); 
+      it!=theBackDets.end(); it++){
+    cout << "backDet phi,z,r: " 
+	 << (*it)->surface().position().phi() << " , "
+	 << (*it)->surface().position().z() <<   " , "
+	 << (*it)->surface().position().perp() << endl;
+  }
+  ----------------------------------- */
+
+
 }
 
 CompositeTECWedge::~CompositeTECWedge(){

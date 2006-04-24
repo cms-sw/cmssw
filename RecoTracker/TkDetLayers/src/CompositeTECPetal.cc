@@ -40,6 +40,26 @@ CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges,
   theFrontSector = ForwardDiskSectorBuilderFromWedges()( theFrontWedges);
   theBackSector  = ForwardDiskSectorBuilderFromWedges()( theBackWedges);
 
+  /*--------- DEBUG INFO --------------
+  cout << "DEBUG INFO for CompositeTECPetal" << endl;
+
+  for(vector<const TECWedge*>::const_iterator it=theFrontWedges.begin(); 
+      it!=theFrontWedges.end(); it++){
+    cout << "frontWedge phi,z,r: " 
+	 << (*it)->surface().position().phi() << " , "
+	 << (*it)->surface().position().z() <<   " , "
+	 << (*it)->surface().position().perp() << endl;
+  }
+
+  for(vector<const TECWedge*>::const_iterator it=theBackWedges.begin(); 
+      it!=theBackWedges.end(); it++){
+    cout << "backWedge phi,z,r: " 
+	 << (*it)->surface().position().phi() << " , "
+	 << (*it)->surface().position().z() <<   " , "
+	 << (*it)->surface().position().perp() << endl;
+  }
+  ----------------------------------- */
+
 
 }
 
