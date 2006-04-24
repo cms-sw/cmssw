@@ -1,8 +1,21 @@
+/** \class MuonBarrelNavigableLayer
+ *
+ *  Navigable layer for Barrel Muon 
+ *
+ *  $Date: $
+ *  $Revision: $
+ *
+ * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
+ *
+ * Modification:
+ *
+ * Chang Liu:
+ * compatibleLayers(dir) and compatibleLayers(fts, dir) are added,
+ * which returns ALL DetLayers that are compatible with a given DetLayer.
+ *  
+ */
+ 
 #include "RecoMuon/Navigation/interface/MuonBarrelNavigableLayer.h"
-//   Ported from ORCA.
-//   New methods compatibleLayers are added.
-//   $Date: 2006/04/01 21:48:31 $
-//   $Revision: 1.2 $
 
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/DetLayer.h"

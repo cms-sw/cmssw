@@ -1,9 +1,19 @@
-#include "RecoMuon/Navigation/interface/MuonForwardNavigableLayer.h"
+/** \class MuonForwardNavigableLayer
+ *
+ *  Navigable layer for Forward Muon
+ *
+ * $Date: 2006/04/24 18:58:22 $
+ * $Revision: 1.3 $
+ *
+ * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
+ *
+ * Modification:
+ * Chang Liu:
+ *  compatibleLayers(dir) and compatibleLayers(fts, dir) are added,
+ *  which return ALL DetLayers that are compatible with a given DetLayer.
+ */
 
-//   Ported from ORCA.
-//   Two new methods compatibleLayers are added.
-//   $Date: 2006/04/01 21:49:30 $
-//   $Revision: 1.2 $
+#include "RecoMuon/Navigation/interface/MuonForwardNavigableLayer.h"
 
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/DetLayer.h"

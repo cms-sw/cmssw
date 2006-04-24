@@ -1,13 +1,24 @@
-#include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
-//   Ported from ORCA.
-//   Navigation School for the muon system
-//   This class defines which DetLayers are reacheable and compatible for
-//   each Muon DetLayer according to an eta range criteria.
-//   It should contain the functionality of MuonGlobalNavigation in Muon/MuonTrackFinder of ORCA. 
-//   Except that now it move its interface to DetLayer. 
+/** \class MuonNavigationSchool
+ *
+ * Description:
+ *  Navigation school for the muon system
+ *  This class defines which DetLayers are reacheable from each Muon DetLayer
+ *  (DT, CSC and RPC). The reacheableness is based on an eta range criteria.
+ *
+ * $Date: 2006/04/24 18:58:55 $
+ * $Revision: 1.3 $
+ *
+ * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
+ *
+ * Modification:
+ *
+ * Chang Liu:
+ * The class links maps for nextLayers and compatibleLayers in the same time.
+ *
+ */
 
-//   $Date: 2006/03/22 02:33:53 $
-//   $Revision: 1.1 $
+#include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
+
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
@@ -26,7 +37,7 @@
 #include <iostream>
 using namespace std;
 
-// Constructor
+/// Constructor
 MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout) : theMuonDetLayerGeometry(muonLayout) {
 
   // get all barrel DetLayers (DT + RPC)
@@ -56,17 +67,13 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
 }
 
 
-//
-// Destructor
-//
+/// Destructor
 MuonNavigationSchool::~MuonNavigationSchool() {
 
 }
 
 
-//
-// return all Navigable layers
-//
+/// return all Navigable layers
 MuonNavigationSchool::StateType 
 MuonNavigationSchool::navigableLayers() const {
 
@@ -92,9 +99,7 @@ MuonNavigationSchool::navigableLayers() const {
 }
 
 
-//
-// create barrel layer map
-//
+/// create barrel layer map
 void MuonNavigationSchool::addBarrelLayer(BarrelDetLayer* mbp) {
 
   BoundCylinder* bc = dynamic_cast<BoundCylinder*>(const_cast<BoundSurface*>(&(mbp->surface())));
@@ -109,9 +114,7 @@ void MuonNavigationSchool::addBarrelLayer(BarrelDetLayer* mbp) {
 }
 
 
-//
-// create forwrad/backward layer maps
-//
+/// create forwrad/backward layer maps
 void MuonNavigationSchool::addEndcapLayer(ForwardDetLayer* mep) {
 
   BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&(mep->surface())));
@@ -133,9 +136,7 @@ void MuonNavigationSchool::addEndcapLayer(ForwardDetLayer* mep) {
 }
 
 
-//
-// calculate pseudorapidity from r and z
-//
+/// calculate pseudorapidity from r and z
 float MuonNavigationSchool::calculateEta(const float& r, const float& z) const {
 
   if ( z > 0 ) return -log((tan(atan(r/z)/2.)));
@@ -143,9 +144,7 @@ float MuonNavigationSchool::calculateEta(const float& r, const float& z) const {
 
 }
 
-//
-// linking barrel layers outwards
-//
+/// linking barrel layers outwards
 void MuonNavigationSchool::linkBarrelLayers() {
 
   for (MapBI bl  = theBarrelLayers.begin();
@@ -207,9 +206,7 @@ void MuonNavigationSchool::linkBarrelLayers() {
   }
 
 }
-//
-// linking forward/backward layers outwards
-//
+/// linking forward/backward layers outwards
 void MuonNavigationSchool::linkEndcapLayers(const MapE& layers,
                                             vector<MuonForwardNavigableLayer*>& result) {
 
@@ -251,9 +248,7 @@ void MuonNavigationSchool::linkEndcapLayers(const MapE& layers,
 }
 
 
-//
-// create inverse links (i.e. inwards)
-//
+/// create inverse links (i.e. inwards)
 void MuonNavigationSchool::createInverseLinks() const {
 
   // set outward link
@@ -345,7 +340,7 @@ void MuonNavigationSchool::createInverseLinks() const {
     mbnl->setInwardCompatibleLinks(compatibleBarrelLayersMap[(*bli).first]);
 
   }
-//BACKWARD
+  //BACKWARD
   for ( MapEI eli  = theBackwardLayers.begin(); 
               eli != theBackwardLayers.end(); eli++ ) {
     MuonForwardNavigableLayer* mfnl =      
@@ -357,7 +352,7 @@ void MuonNavigationSchool::createInverseLinks() const {
     mfnl->setInwardCompatibleLinks(compatibleBarrelLayersMap[(*eli).first],
                          compatibleForwardLayersMap[(*eli).first]);
   }
-//FORWARD
+  //FORWARD
   for ( MapEI eli  = theForwardLayers.begin(); 
               eli != theForwardLayers.end(); eli++ ) {
     MuonForwardNavigableLayer* mfnl = 

@@ -1,8 +1,22 @@
+/** \class MuonNavigableLayer
+ *
+ *  base class for MuonBarrelNavigableLayer and MuonForwardNavigableLayer.
+ *  trackingRange defines an MuonEtaRange for an FTS, 
+ *  which is used for searching compatible DetLayers.
+ *
+ * $Date:  $
+ * $Revision: $
+ *
+ * \author : Chang Liu - Purdue University <Chang.Liu@cern.ch>
+ * with contributions from: R. Bellan - INFN Torino
+ *
+ * code of trackingRange is from MuonGlobalNavigation in ORCA
+ * whose author is Stefano Lacaprara - INFN Padova
+ * Modification:
+ *
+ */
+
 #include "RecoMuon/Navigation/interface/MuonNavigableLayer.h"
-//   Ported from ORCA.
-//   New methods compatibleLayers are added.
-//   $Date: 2006/04/06 10:57:49 $
-//   $Revision: 1.2 $
 
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
