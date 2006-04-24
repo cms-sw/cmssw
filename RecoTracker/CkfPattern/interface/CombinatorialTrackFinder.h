@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/CkfPattern/interface/CombinatorialTrajectoryBuilder.h"
-
+#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 
 
 namespace cms
@@ -28,6 +28,8 @@ namespace cms
 
   private:
     CombinatorialTrajectoryBuilder combinatorialTrajectoryBuilder_;
+    TrajectoryCleaner*    theTrajectoryCleaner;
+
     edm::ParameterSet conf_;
     int isInitialized;
 
