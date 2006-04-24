@@ -7,6 +7,21 @@ PixelRod::PixelRod(vector<const GeomDet*>& theInputDets):
   DetRodOneR(theInputDets.begin(),theInputDets.end())
 {
   theBinFinder = BinFinderType(theDets.begin(),theDets.end());
+
+  /*
+  cout << "==== DEBUG PixelRod =====" << endl; 
+  for (vector<const GeomDet*>::const_iterator i=theDets.begin();
+       i != theDets.end(); i++){
+    cout << "PixelRod's Det pos z,perp,eta,phi: " 
+	 << (**i).position().z() << " , " 
+	 << (**i).position().perp() << " , " 
+	 << (**i).position().eta() << " , " 
+	 << (**i).position().phi() << endl;
+  }
+  cout << "==== end DEBUG PixelRod =====" << endl; 
+  */
+
+
 }
 
 PixelRod::~PixelRod(){

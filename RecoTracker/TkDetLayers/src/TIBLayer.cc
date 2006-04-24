@@ -38,25 +38,26 @@ TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
   theOuterCylinder = cylinder( theOuterRings);
   setSurface( cylinder(theRings) );
 
+  /*
   cout << "==== DEBUG TIBLayer =====" << endl; 
   for (vector<const TIBRing*>::const_iterator i=theInnerRings.begin();
        i != theInnerRings.end(); i++){
-    cout << "inner TIBRing pos z,perp,eta,phi: " 
+    cout << "inner TIBRing pos z,radius,eta,phi: " 
 	 << (**i).position().z() << " , " 
-	 << (**i).position().perp() << " , " 
+	 << (**i).specificSurface().radius() << " , " 
 	 << (**i).position().eta() << " , " 
 	 << (**i).position().phi() << endl;
   }
 
-  for (vector<const TIBRing*>::const_iterator i=theInnerRings.begin();
-       i != theInnerRings.end(); i++){
-    cout << "outer TIBRing pos z,perp,eta,phi: " 
+  for (vector<const TIBRing*>::const_iterator i=theOuterRings.begin();
+       i != theOuterRings.end(); i++){
+    cout << "outer TIBRing pos z,radius,eta,phi: " 
 	 << (**i).position().z() << " , " 
-	 << (**i).position().perp() << " , " 
+	 << (**i).specificSurface().radius() << " , " 
 	 << (**i).position().eta() << " , " 
 	 << (**i).position().phi() << endl;
   }
-  
+  */
 
 
   // initialise the bin finders

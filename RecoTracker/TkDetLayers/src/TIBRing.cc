@@ -28,6 +28,20 @@ TIBRing::TIBRing(vector<const GeomDet*>& theGeomDets):
   theCylinder = CylinderBuilderFromDet()( theDets.begin(), theDets.end());
 
   computeHelicity();
+
+  /*
+  cout << "==== DEBUG TIBRing =====" << endl; 
+  for (vector<const GeomDet*>::const_iterator i=theDets.begin();
+       i != theDets.end(); i++){
+    cout << "Ring's Det pos z,perp,eta,phi: " 
+	 << (**i).position().z() << " , " 
+	 << (**i).position().perp() << " , " 
+	 << (**i).position().eta() << " , " 
+	 << (**i).position().phi() << endl;
+  }
+  cout << "==== end DEBUG TIBRing =====" << endl; 
+  */
+  
 }
 
 

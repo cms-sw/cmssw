@@ -44,6 +44,29 @@ TOBLayer::TOBLayer(vector<const TOBRod*>& innerRods,
 
   
   BarrelDetLayer::initialize();
+
+  /*
+  cout << "==== DEBUG TOBLayer =====" << endl; 
+  for (vector<const TOBRod*>::const_iterator i=theInnerRods.begin();
+       i != theInnerRods.end(); i++){
+    cout << "inner TOBRod pos z,perp,eta,phi: " 
+	 << (**i).position().z() << " , " 
+	 << (**i).position().perp() << " , " 
+	 << (**i).position().eta() << " , " 
+	 << (**i).position().phi() << endl;
+  }
+  
+  for (vector<const TOBRod*>::const_iterator i=theOuterRods.begin();
+       i != theOuterRods.end(); i++){
+    cout << "outer TOBRod pos z,perp,eta,phi: " 
+	 << (**i).position().z() << " , " 
+	 << (**i).position().perp() << " , " 
+	 << (**i).position().eta() << " , " 
+	 << (**i).position().phi() << endl;
+  }
+  cout << "==== end DEBUG TOBLayer =====" << endl; 
+  */
+
 }
 
 
@@ -87,11 +110,20 @@ TOBLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
 vector<DetGroup> 
 TOBLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 				 const Propagator& prop,
-				 const MeasurementEstimator& est) const{
-
-  SubLayerCrossings crossings = computeCrossings( tsos, prop.propagationDirection());
-
+				 const MeasurementEstimator& est) const
+{
   vector<DetGroup> closestResult;
+  SubLayerCrossings crossings;
+  try{
+    crossings = computeCrossings( tsos, prop.propagationDirection());
+  }
+  catch(Genexception& err){
+    cout << "Aie, got a Genexception in TOBLayer::groupedCompatibleDets:" 
+	 << err.what() << endl;
+    return closestResult;
+  }
+
+
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
   if (closestResult.empty()){
     vector<DetGroup> nextResult;

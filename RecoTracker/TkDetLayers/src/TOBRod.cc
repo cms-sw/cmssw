@@ -43,6 +43,29 @@ TOBRod::TOBRod(vector<const GeomDet*>& innerDets,
   theOuterBinFinder = BinFinderType(theOuterDets.begin(), theOuterDets.end());
 
 
+  /*
+  cout << "==== DEBUG TOBRod =====" << endl; 
+  for (vector<const GeomDet*>::const_iterator i=theInnerDets.begin();
+       i != theInnerDets.end(); i++){
+    cout << "inner TOBRod's Det pos z,perp,eta,phi: " 
+	 << (**i).position().z() << " , " 
+	 << (**i).position().perp() << " , " 
+	 << (**i).position().eta() << " , " 
+	 << (**i).position().phi() << endl;
+  }
+  
+  for (vector<const GeomDet*>::const_iterator i=theOuterDets.begin();
+       i != theOuterDets.end(); i++){
+    cout << "outer TOBRod's Det pos z,perp,eta,phi: " 
+	 << (**i).position().z() << " , " 
+	 << (**i).position().perp() << " , " 
+	 << (**i).position().eta() << " , " 
+	 << (**i).position().phi() << endl;
+  }
+  cout << "==== end DEBUG TOBRod =====" << endl; 
+  */
+
+
 }
 
 TOBRod::~TOBRod(){

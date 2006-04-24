@@ -43,12 +43,28 @@ PixelBarrelLayer::PixelBarrelLayer(vector<const PixelRod*>& innerRods,
   
   BarrelDetLayer::initialize();
 
-  /*--------- DEBUG INFO --------------
-  cout << "DEBUG INFO for PixelBarrelLayer" << endl;
-  cout << "specificSurface().radius(): " << specificSurface().radius() << endl;
-  cout << "surface().position().z(): " <<  specificSurface().position().z() << endl;
-  -----------------------------------*/
 
+  /*
+  cout << "==== DEBUG PixelBarrelLayer =====" << endl; 
+  for (vector<const PixelRod*>::const_iterator i=theInnerRods.begin();
+       i != theInnerRods.end(); i++){
+    cout << "inner PixelRod pos z,perp,eta,phi: " 
+	 << (**i).position().z() << " , " 
+	 << (**i).position().perp() << " , " 
+	 << (**i).position().eta() << " , " 
+	 << (**i).position().phi() << endl;
+  }
+  
+  for (vector<const PixelRod*>::const_iterator i=theOuterRods.begin();
+       i != theOuterRods.end(); i++){
+    cout << "outer PixelRod pos z,perp,eta,phi: " 
+	 << (**i).position().z() << " , " 
+	 << (**i).position().perp() << " , " 
+	 << (**i).position().eta() << " , " 
+	 << (**i).position().phi() << endl;
+  }
+  cout << "==== end DEBUG PixelBarrelLayer =====" << endl; 
+  */
 }
 
 PixelBarrelLayer::~PixelBarrelLayer(){
