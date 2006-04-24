@@ -11,7 +11,10 @@
 #include <memory>
 
 PUProducer::PUProducer(edm::ParameterSet const & p) :
-  input(edm::VectorInputSourceFactory::get()->makeVectorInputSource(p, edm::InputSourceDescription()).release())
+  input(edm::VectorInputSourceFactory::
+	  get()->makeVectorInputSource(
+	    p.getParameter<edm::ParameterSet>("input"), 
+	    edm::InputSourceDescription()).release())
 {    
     produces<edm::HepMCProductContainer>();
 }
