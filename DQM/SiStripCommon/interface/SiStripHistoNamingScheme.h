@@ -12,7 +12,7 @@ class SiStripHistoNamingScheme {
 
   // ----- STRUCTS AND ENUMS -----
 
-  enum Task        { UNKNOWN_TASK,     NO_TASK,  FED_CABLING, APV_TIMING, FED_TIMING, OPTO_SCAN, VPSP_SCAN, PEDESTALS, APV_LATENCY };
+  enum Task        { UNKNOWN_TASK,     NO_TASK,  PHYSICS, FED_CABLING, APV_TIMING, FED_TIMING, OPTO_SCAN, VPSP_SCAN, PEDESTALS, APV_LATENCY };
   enum Contents    { UNKNOWN_CONTENTS, COMBINED, SUM2, SUM, NUM };
   enum KeyType     { UNKNOWN_KEY,      NO_KEY,   FED, FEC, DET };
   enum Granularity { UNKNOWN_GRAN,     MODULE,   LLD_CHAN, APV_PAIR, APV };
