@@ -1,10 +1,21 @@
 #ifndef Navigation_MuonNavigationPrinter_H
 #define Navigation_MuonNavigationPrinter_H
 
-// Ported from ORCA
-// MuonNavigationPrinter prints out MuonNavigationSchool
-//   $Date: 2006/03/22 01:54:25 $
-//   $Revision: 1.1 $
+/** \class MuonNavigationPrinter
+ *
+ * Description:
+ *  class to print the MuonNavigationSchool
+ *
+ * $Date: $
+ * $Revision: $
+ *
+ * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
+ *
+ * Modification:
+ *
+ * Chang Liu:
+ * The class prints nextLayers and compatibleLayers
+ */
 
 class DetLayer;
 class MuonDetLayerGeometry;

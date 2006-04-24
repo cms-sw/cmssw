@@ -1,7 +1,18 @@
 #ifndef Navigation_MuonEtaRange_H
 #define Navigation_MuonEtaRange_H
 
-//Ported form ORCA 
+/** \class MuonEtaRange
+ *
+ *  a class to define eta range used in Muon Navigation
+ *
+ * $Date: $
+ * $Revision: $
+ *
+ * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
+ *
+ * Modification:
+ *
+ */
 
 class MuonEtaRange {
 

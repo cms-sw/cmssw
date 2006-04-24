@@ -1,23 +1,29 @@
 #ifndef Navigation_MuonNavigableLayer_H
 #define Navigation_MuonNavigableLayer_H
 
-//   base class for MuonBarrelNavigableLayer and MuonForwardNavigable. 
-//   TrackingRange defines an MuonEtaRange for an FTS, which is used for search compatible DetLayers.
-//   $Date: 2006/04/01 21:46:06 $
-//   $Revision: 1.1 $
-//   \auther Chang Liu             Purdue University
+/** \class MuonNavigableLayer
+ *
+ *  base class for MuonBarrelNavigableLayer and MuonForwardNavigable.
+ *  trackingRange defines an MuonEtaRange for an FTS, 
+ *  which is used for search compatible DetLayers.
+ *
+ * $Date: $
+ * $Revision: $
+ *
+ * \author : Chang Liu - Purdue University <Chang.Liu@cern.ch>
+ *
+ * Modification:
+ *
+ */
 
-/* Collaborating Class Declarations */
 #include "RecoMuon/Navigation/interface/MuonLayerSort.h"
 #include "RecoMuon/Navigation/interface/MuonEtaRange.h"
 
 class DetLayer;
 class BarrelDetLayer;
 
-/* Base Class Headers */
 #include "TrackingTools/DetLayers/interface/NavigableLayer.h"
 
-/* Class MuonNavigableLayer Interface */
 
 class MuonNavigableLayer : public NavigableLayer {
 

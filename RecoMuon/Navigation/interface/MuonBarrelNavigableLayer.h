@@ -1,11 +1,23 @@
 #ifndef Navigation_MuonBarrelNavigableLayer_H
 #define Navigation_MuonBarrelNavigableLayer_H
 
-//   Ported from ORCA. 
-//   compatibleLayers(dir) and compatibleLayers(fts, dir) are added, 
-//   which return ALL DetLayers that are compatible with a given DetLayer.
-//   $Date: 2006/03/22 01:17:39 $
-//   $Revision: 1.1 $
+/** \class MuonBarrelNavigableLayer
+ *
+ *  Navigable layer for Barrel Muon 
+ *
+ *  $Date: $
+ *  $Revision: $
+ *
+ * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
+ *
+ * Modification:
+ *
+ * Chang Liu:
+ * compatibleLayers(dir) and compatibleLayers(fts, dir) are added,
+ * which returns ALL DetLayers that are compatible with a given DetLayer.
+ *  
+ */
+
 
 /* Collaborating Class Declarations */
 #include "RecoMuon/Navigation/interface/MuonLayerSort.h"
@@ -113,7 +125,6 @@ class MuonBarrelNavigableLayer : public MuonNavigableLayer {
     /// set DetLayer
     virtual void setDetLayer(DetLayer*);
 
-    ///
     MapB getOuterBarrelLayers() const { return theOuterBarrelLayers; }
     MapB getInnerBarrelLayers() const { return theInnerBarrelLayers; }
     MapE getOuterBackwardLayers() const { return theOuterBackwardLayers; }

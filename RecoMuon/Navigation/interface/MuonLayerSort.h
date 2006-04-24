@@ -1,10 +1,18 @@
 #ifndef Navigation_MuonLayerSort_H
 #define Navigation_MuonLayerSort_H
 
-//   Ported from ORCA.
-
-//   $Date: $
-//   $Revision: $
+/** \class MuonLayerSort
+ *
+ *  class to create a map of DetLayers
+ *
+ * $Date: $
+ * $Revision: $
+ *
+ * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
+ *
+ * Modification:
+ *
+ */
 
 /* Collaborating Class Declarations */
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"

@@ -1,12 +1,25 @@
 #ifndef Navigation_MuonNavigationSchool_H
 #define Navigation_MuonNavigationSchool_H
 
-//   Ported from ORCA.
-//   The MuonNavigationSchool will provide two kinds of maps. 
-//   One is for nextLayers(), one for compatibleLayers().
-//   Both are implemented in MuonBarrelNavigableLayer and MuonForwardNavigableLayer.
-//   $Date: 2006/03/22 01:58:19 $
-//   $Revision: 1.1 $
+/** \class MuonNavigationSchool
+ *
+ * Description:
+ *  Navigation school for the muon system
+ *  This class defines which DetLayers are reacheable from each Muon DetLayer
+ *  (DT, CSC and RPC). The reacheableness is based on an eta range criteria.
+ *
+ * $Date: 2003/12/03 07:58:23 $
+ * $Revision: 1.5 $
+ *
+ * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
+ *
+ * Modification:
+ *
+ * Chang Liu:
+ * The class links maps for nextLayers and compatibleLayers in the same time.
+ *
+ */
+
 
 #include "RecoMuon/Navigation/interface/MuonLayerSort.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
@@ -25,7 +38,7 @@ class MuonNavigationSchool : public NavigationSchool {
   public:
     ///Constructor
     MuonNavigationSchool(const MuonDetLayerGeometry *);
-    // Destructor
+    /// Destructor
     ~MuonNavigationSchool();
     /// return navigable layers, from base class
     virtual StateType navigableLayers() const;
@@ -44,9 +57,9 @@ class MuonNavigationSchool : public NavigationSchool {
 
   private: 
   
-    MapB theBarrelLayers;    // barrel
-    MapE theForwardLayers;   // +z endcap
-    MapE theBackwardLayers;  // -z endcap 
+    MapB theBarrelLayers;    /// barrel
+    MapE theForwardLayers;   /// +z endcap
+    MapE theBackwardLayers;  /// -z endcap 
 
     vector<MuonBarrelNavigableLayer*> theBarrelNLC;
     vector<MuonForwardNavigableLayer*> theForwardNLC;

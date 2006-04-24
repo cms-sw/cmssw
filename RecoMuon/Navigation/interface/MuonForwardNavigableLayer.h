@@ -1,11 +1,20 @@
 #ifndef Navigation_MuonForwardNavigableLayer_H
 #define Navigation_MuonForwardNavigableLayer_H
 
-//   Ported from ORCA.
-//   compatibleLayers(dir) and compatibleLayers(fts, dir) are added,
-//   which return ALL DetLayers that are compatible with a given DetLayer.
-//   $Date: 2006/03/22 01:22:27 $
-//   $Revision: 1.1 $
+/** \class MuonForwardNavigableLayer
+ *
+ *  Navigable layer for Forward Muon
+ *
+ * $Date: 2003/11/27 11:11:55 $
+ * $Revision: 1.4 $
+ *
+ * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
+ *
+ * Modification:
+ * Chang Liu:
+ *  compatibleLayers(dir) and compatibleLayers(fts, dir) are added,
+ *  which return ALL DetLayers that are compatible with a given DetLayer.
+ */
 
 /* Collaborating Class Declarations */
 #include "RecoMuon/Navigation/interface/MuonLayerSort.h"
@@ -26,14 +35,6 @@ class ForwardDetLayer;
 class MuonForwardNavigableLayer : public MuonNavigableLayer {
 
   public:
-
-    /// Constructor 
-//    MuonForwardNavigableLayer(ForwardDetLayer* fdl,
-//                              const MapE& outerEndcap, 
-//                              const MapE& innerEndcap) :
-//      theDetLayer(fdl),
-//      theOuterEndcapLayers(outerEndcap),
-//      theInnerEndcapLayers(innerEndcap) {}
 
     MuonForwardNavigableLayer(ForwardDetLayer* fdl,
                               const MapE& outerEndcap,
