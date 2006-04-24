@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.14 2005/12/14 01:35:44 chrjones Exp $
+$Id: OutputWorker.h,v 1.15 2005/12/28 00:21:58 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -20,10 +20,8 @@ $Id: OutputWorker.h,v 1.14 2005/12/14 01:35:44 chrjones Exp $
 
 namespace edm
 {
-  class ActionTable;
   class ModuleDescription;
   class OutputModule;
-  class ParameterSet;
   class WorkerParams;
 
   class OutputWorker : public Worker

@@ -8,7 +8,7 @@ this object is to call the filter.
 According to our current definition, a single filter can only
 appear in one worker.
 
-$Id: FilterWorker.h,v 1.12 2005/12/14 01:35:44 chrjones Exp $
+$Id: FilterWorker.h,v 1.13 2005/12/28 00:32:04 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,11 +20,9 @@ $Id: FilterWorker.h,v 1.12 2005/12/14 01:35:44 chrjones Exp $
 
 namespace edm
 {
-  class ActionTable;
   class EDFilter;
   class EventPrincipal;
   class ModuleDescription;
-  class ParameterSet;
   class WorkerParams;
 
   class FilterWorker : public Worker
