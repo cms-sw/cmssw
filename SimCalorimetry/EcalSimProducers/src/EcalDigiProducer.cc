@@ -34,7 +34,9 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   
   bool addNoise = params.getUntrackedParameter<bool>("doNoise" , true); 
   theCoder = new EcalCoder(addNoise);
-  theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder);
+  bool applyConstantTerm = params.getUntrackedParameter<bool>("applyConstantTerm", true);
+  double rmsConstantTerm = params.getUntrackedParameter<double> ("ConstantTerm", 0.003);
+  theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder, applyConstantTerm, rmsConstantTerm);
 
   bool addESNoise = params.getUntrackedParameter<bool>("doESNoise" , true);
   double ESNoiseSigma = params.getUntrackedParameter<double> ("ESNoiseSigma", 3.);

@@ -2,11 +2,16 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 
+#include "CLHEP/Random/RandGaussQ.h"
 
 EcalElectronicsSim::EcalElectronicsSim(const EcalSimParameterMap * parameterMap, 
-                                       EcalCoder * coder)
+                                       EcalCoder * coder, 
+                                       bool applyConstantTerm, 
+                                       double rmsConstantTerm)
 : theParameterMap(parameterMap),
-  theCoder(coder)
+  theCoder(coder),
+  applyConstantTerm_(applyConstantTerm), 
+  rmsConstantTerm_(rmsConstantTerm)
 {
 }
 
@@ -14,8 +19,16 @@ EcalElectronicsSim::EcalElectronicsSim(const EcalSimParameterMap * parameterMap,
 void EcalElectronicsSim::amplify(CaloSamples & clf) const 
 {
   clf *= theParameterMap->simParameters(clf.id()).photoelectronsToAnalog();
+  if (applyConstantTerm_) {
+    clf *= (1.+constantTerm());
+  }
 }
 
+double EcalElectronicsSim::constantTerm() const
+{
+  double thisCT = rmsConstantTerm_;
+  return RandGaussQ::shoot(0.0,thisCT);
+}
 
 void EcalElectronicsSim::analogToDigital(CaloSamples& clf, EBDataFrame& df) const 
 {

@@ -20,7 +20,7 @@ class EcalElectronicsSim
 {
  public:
   /// ctor
-  EcalElectronicsSim(const EcalSimParameterMap * parameterMap, EcalCoder * coder) ;
+  EcalElectronicsSim(const EcalSimParameterMap * parameterMap, EcalCoder * coder, bool applyConstantTerm, double rmsConstantTerm) ;
 
   /// input signal is in pe.  Converted in GeV
   void amplify(CaloSamples & clf) const;
@@ -29,7 +29,9 @@ class EcalElectronicsSim
   void analogToDigital(CaloSamples& clf, EBDataFrame& df) const;
   /// from CaloSamples to EEDataFrame
   void analogToDigital(CaloSamples& clf, EEDataFrame& df) const;
- 
+  /// compute the event random constant term
+  double constantTerm() const;
+
   ///  anything that needs to be done once per event
   void newEvent() {}
 
@@ -39,6 +41,8 @@ class EcalElectronicsSim
   const EcalSimParameterMap * theParameterMap;
   /// Converts CaloDataFrame in CaloTimeSample and vice versa
   EcalCoder * theCoder;
+  const bool applyConstantTerm_;
+  const double rmsConstantTerm_;
 } ;
 
 
