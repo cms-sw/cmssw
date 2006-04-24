@@ -25,10 +25,10 @@ class VtxTester : public edm::EDAnalyzer
      //
      TFile* fOutputFile ;
      TH1D*  fVtxHist ;
-     TH1D*  fPhiHistO ;
-     TH1D*  fPhiHistS ;
-     TH1D*  fEtaHistO ;
-     TH1D*  fEtaHistS ; 
+     TH1D*  fPhiHistOrg ;
+     TH1D*  fPhiHistSmr ;
+     TH1D*  fEtaHistOrg ;
+     TH1D*  fEtaHistSmr ; 
      
 };
 
