@@ -283,9 +283,15 @@ class DaqMonitorBEInterface: public StringUtil
   // format: <dir pathname>:<obj1>,<obj2>,...
   // saved here by a downstream class, till ReceiverBase 
   // sends the request to the sender
-  std::list<std::string> request2add; 
-  std::list<std::string> request2remove; 
-  
+  struct SubcRequests_ {
+    LockMutex::Mutex mutex;
+    std::list<std::string> toAdd; 
+    std::list<std::string> toRemove; 
+  };
+  typedef SubcRequests_ SubcRequests;
+
+  SubcRequests requests;
+
   // new added & removed monitorable since last cycle; 
   // format: <dir pathname>:<obj1>,<obj2>,...
   // reset after all recipients have been informed (ie. in resetStuff)
