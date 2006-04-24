@@ -1,24 +1,56 @@
-#ifndef METReco_MET_h
-#define METReco_MET_h
+#ifndef METRECO_MET_H
+#define METRECO_MET_H
+
+/** \class MET
+ *
+ * The MET EDProduct type. Stores a few basic variables
+ * critical to all higher level MET products.
+ *
+ * \authors Michael Schmitt, Richard Cavanaugh The University of Florida
+ *
+ * \version   1st Version May 31st, 2005.
+ *
+ ************************************************************/
+
+#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/METReco/interface/CommonMETData.h"
 #include <Rtypes.h>
 #include <cmath>
-namespace reco {
+#include <vector>
+#include <cstring>
 
-  class MET {
-  public:
-    MET() { }
-    MET( double mex, double mey );
-    double mEx() const { return mEx_; }
-    double mEy() const { return mEy_; }
-    double mEt() const { return sqrt( mEx_ * mEx_ + mEy_ * mEy_ ); }
-    double phi() const { return atan2( mEy_, mEx_ ); }
-    double uncorrectedMEx() const { return uncorrectedMEx_; }
-    double uncorrectedMEy() const { return uncorrectedMEy_; }
-  private:
-    Double32_t mEx_, mEy_;
-    Double32_t uncorrectedMEx_, uncorrectedMEy_;
-  };
-
+namespace reco
+{
+  class MET 
+    {
+    public:
+      //Define different Constructors
+      MET();
+      MET( double mex, double mey );
+      MET( double mex, double mey, double sumet );
+      MET( double mex, double mey, double sumet, double mez );
+      MET( CommonMETData data_ );
+      MET( CommonMETData data_, std::vector<CommonMETData> corr_ );
+      //Define different methods to extract individual MET data elements
+      double mEt()   const { return data.met; }
+      double mEx()   const { return data.mex; }
+      double mEy()   const { return data.mey; }
+      double mEz()   const { return data.mez; }
+      double sumEt() const { return data.sumet; }
+      double phi()   const { return data.phi; }
+      //Define different methods to extract corrections to individual MET elements
+      std::vector<double> dmEt();
+      std::vector<double> dmEx();
+      std::vector<double> dmEy();
+      std::vector<double> dsumEt();
+      std::vector<double> dphi();
+      //Define different methods to extract MET block data & corrections
+      CommonMETData mEtData() const { return data; }
+      std::vector<CommonMETData> mEtCorr() const { return corr; }
+    private:
+      CommonMETData data;
+      std::vector<CommonMETData> corr;
+    };
 }
 
-#endif
+#endif // METRECO_MET_H
