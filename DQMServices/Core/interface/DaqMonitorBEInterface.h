@@ -192,9 +192,17 @@ class DaqMonitorBEInterface: public StringUtil
   void convert(std::vector<std::string> & put_here, 
 	       const dqm::me_util::monit_map & in) const;
   
-  // come here at end of monitoring cycle for all receivers;
-  // if reset=true, reset MEs that were updated (and have resetME = true)
-  void doneSending(bool reset);
+  /* come here at end of monitoring cycle for all receivers;
+     (a) call resetUpdate for modified contents
+
+     (b) if resetMEs=true, reset MEs that were updated (and have resetMe = true);
+     [flag resetMe is typically set by sources (false by default)];
+
+     (c) if callResetStuff = true, call resetStuff
+     (typical behaviour: Sources & Collector have callResetStuff = true, whereas
+     clients have callResetStuff = false, so GUI/WebInterface can access the 
+     modifications in monitorable & monitoring) */
+  void doneSending(bool resetMEs, bool callResetStuff);
  
   // ------------------- Booking ---------------------------
 
@@ -258,11 +266,9 @@ class DaqMonitorBEInterface: public StringUtil
   void add2UpdatedQReports(MonitorElement * me)
   {updatedQReports.insert(me);}
 
-  // (a) call resetUpdate for modified contents
-  // (b) reset modifications to monitorable since last cycle 
-  // (c) reset sets of added/removed/updated contents and updated QReports
-  // if reset=true, reset MEs that were updated (and have resetMe = true)
-  void resetStuff(bool reset = false);
+  // (a) reset modifications to monitorable since last cycle 
+  // (b) reset sets of added/removed/updated contents and updated QReports
+  void resetStuff(void);
 
   pthread_mutex_t mutex_;
 
@@ -282,11 +288,11 @@ class DaqMonitorBEInterface: public StringUtil
   
   // new added & removed monitorable since last cycle; 
   // format: <dir pathname>:<obj1>,<obj2>,...
-  // reset after all recipients have been informed (ie. in doneSending)
+  // reset after all recipients have been informed (ie. in resetStuff)
   std::vector<std::string> addedMonitorable;
   std::vector<std::string> removedMonitorable;
   // new added & removed contents since last cycle;
-  // reset after all recipients have been informed (ie. in doneSending);
+  // reset after all recipients have been informed (ie. in resetStuff);
   // Note: these do not include objects in subscriber's folders
   dqm::me_util::monit_map addedContents;
   dqm::me_util::monit_map removedContents;

@@ -98,41 +98,10 @@ void DaqMonitorBEInterface::getRemovedMonitorable(vector<string> & put_here) con
   put_here = removedMonitorable;
 }
 
-// (a) call resetUpdate for modified contents
-// (b) reset modifications to monitorable since last cycle 
-// (c) reset sets of added/removed/updated contents and updated QReports
-// if reset=true, reset MEs that were updated (and have resetMe = true)
-void DaqMonitorBEInterface::resetStuff(bool reset)
+// (a) reset modifications to monitorable since last cycle 
+// (b) reset sets of added/removed/updated contents and updated QReports
+void DaqMonitorBEInterface::resetStuff(void)
 {
-
-  // reset "update" flag for monitoring objects that have been updated/added
-  for(monit_it path = updatedContents.begin(); 
-      path != updatedContents.end(); ++path)
-    { // loop over all pathnames/directories
-      
-      string pathname = path->first;
-
-      for(sIt it = path->second.begin(); it != path->second.end(); ++it)
-	{ // loop over all ME names
-	  
-	  MonitorElement * me = findObject(*it, pathname);
-	  if(me)
-	    {
-	      // if reset, reset (ie. clear contents of) monitoring element
-	      if(reset && me->resetMe())me->Reset();
-	      me->resetUpdate();
-	    }
-	  
-	} // loop over all ME names
-      
-    }  // loop over all pathnames/directories
-
-  // reset "update" flag for QReports that have been updated/added
-  for(meIt it = updatedQReports.begin(); it != updatedQReports.end(); ++it)
-    {
-      if(*it)
-	(*it)->resetUpdate();
-    }
 
   // reset added, removed monitorable
   addedMonitorable.clear();
@@ -146,10 +115,51 @@ void DaqMonitorBEInterface::resetStuff(bool reset)
   updatedQReports.clear();
 }
 
-// come here at end of monitoring cycle for all receivers;
-void DaqMonitorBEInterface::doneSending(bool reset)
+/* come here at end of monitoring cycle for all receivers;
+   (a) call resetUpdate for modified contents
+   
+   (b) if resetMEs=true, reset MEs that were updated (and have resetMe = true);
+   [flag resetMe is typically set by sources (false by default)];
+   
+   (c) if callResetStuff = true, call resetStuff
+   (typical behaviour: Sources & Collector have callResetStuff = true, whereas
+   clients have callResetStuff = false, so GUI/WebInterface can access the 
+   modifications in monitorable & monitoring) */
+void DaqMonitorBEInterface::doneSending(bool resetMEs, bool callResetStuff)
 {
-  resetStuff(reset);
+
+  // reset "update" flag for monitoring objects that have been updated/added
+  for(monit_it path = updatedContents.begin(); 
+      path != updatedContents.end(); ++path)
+    { // loop over all pathnames/directories
+      
+      string pathname = path->first;
+      
+      for(sIt it = path->second.begin(); it != path->second.end(); ++it)
+	{ // loop over all ME names
+	  
+	  MonitorElement * me = findObject(*it, pathname);
+	  if(me)
+	    {
+	      // if reset, reset (ie. clear contents of) monitoring element
+	      if(resetMEs && me->resetMe())me->Reset();
+	      me->resetUpdate();
+	    }
+	  
+	} // loop over all ME names
+      
+    }  // loop over all pathnames/directories
+  
+  // reset "update" flag for QReports that have been updated/added
+  for(meIt it = updatedQReports.begin(); it != updatedQReports.end(); ++it)
+    {
+      if(*it)
+	(*it)->resetUpdate();
+    }
+  
+  // if flag=true, reset list of modified monitorable & monitoring
+  if(callResetStuff)resetStuff();
+
 }
 
 // reset ME contents 
