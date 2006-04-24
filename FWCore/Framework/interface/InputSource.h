@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.6 2006/04/13 22:24:07 wmtan Exp $
+$Id: InputSource.h,v 1.7 2006/04/18 21:55:21 lsexton Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -57,34 +57,78 @@ namespace edm {
   class ParameterSet;
   class InputSource : public ProductRegistryHelper {
   public:
+    /// Constructor
     explicit InputSource(ParameterSet const&, InputSourceDescription const&);
+
+    /// Destructor
     virtual ~InputSource();
+
+    /// Indicate inability to get a new event by returning a null auto_ptr.
+
+    /// Read next event
+    std::auto_ptr<EventPrincipal> readEvent();
+
+    /// Read a specific event
+    std::auto_ptr<EventPrincipal> readEvent(EventID const&);
+
+    /// Skip the number of events specified.
+    /// Offset may be negative.
+    void skipEvents(int offset);
+
+    /// Begin again at the first event
+    void rewind() {rewind_();}
+
+    /// Wake up the input source
+    void wakeUp() {wakeUp_();}
+
+    /// Set the run number
+    void setRunNumber(RunNumber_t r) {setRun(r);}
+
+    /// issue an event report
+    void issueReports(EventID const&);
+
+    /// Set the module description,
+    /// and register any products to be created.
+    // FIX THIS:  The module description should be
+    // set at construction time by being contained 
+    // the input source description.
+    void addToRegistry(ModuleDescription const& md);
+
+    /// Accessor for product registry.
+    ProductRegistry & productRegistry() const {return *preg_;}
+    
+    /// Reset the remaining number of events to the maximum number.
+    void repeat() {remainingEvents_ = maxEvents_;}
+
+    /// Accessor for maximum number of events to be read.
+    /// -1 is used for unlimited.
+    int maxEvents() const {return maxEvents_;}
+
+    /// Accessor for remaining number of events to be read.
+    int remainingEvents() const {return remainingEvents_;}
+
+    /// Accessor for 'module' description.
+    ModuleDescription const& module() const {return module_;}
+
+  private:
 
     // Indicate inability to get a new event by returning a null
     // auto_ptr.
-    std::auto_ptr<EventPrincipal> readEvent();
+    std::auto_ptr<EventPrincipal> readEvent_();
 
-    std::auto_ptr<EventPrincipal> readEvent(EventID const&);
+    std::auto_ptr<EventPrincipal> readEvent_(EventID const&);
 
-    void addToRegistry(ModuleDescription const& md);
+    virtual std::auto_ptr<EventPrincipal> read() = 0;
 
-    ProductRegistry & productRegistry() const {return *preg_;}
-    
-    void skipEvents(int offset);
+    virtual std::auto_ptr<EventPrincipal> readIt(EventID const&);
 
-    void setRunNumber(RunNumber_t r) {setRun(r);}
+    virtual void skip(int);
 
-    void issueReports(EventID const&);
+    virtual void setRun(RunNumber_t r);
 
-  protected:
+    virtual void rewind_();
 
-    int maxEvents() const {return maxEvents_;}
-
-    int remainingEvents() const {return remainingEvents_;}
-
-    void repeat() {remainingEvents_ = maxEvents_;}
-
-    ModuleDescription const& module() const {return module_;}
+    virtual void wakeUp_() {}
 
   private:
 
@@ -103,20 +147,6 @@ namespace edm {
 
     // The process name we add to each EventPrincipal.
     std::string const process_;
-
-    // Indicate inability to get a new event by returning a null
-    // auto_ptr.
-    std::auto_ptr<EventPrincipal> readEvent_();
-
-    std::auto_ptr<EventPrincipal> readEvent_(EventID const&);
-
-    virtual std::auto_ptr<EventPrincipal> read() = 0;
-
-    virtual std::auto_ptr<EventPrincipal> readIt(EventID const&) {assert(0);}
-
-    virtual void skip(int) {assert(0);}
-
-    virtual void setRun(RunNumber_t r) {assert(0);}
   };
 }
 
