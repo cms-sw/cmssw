@@ -15,9 +15,10 @@ class MonitorUserInterface : public StringUtil
 {
 
  public:
-  
-  MonitorUserInterface(const std::string & hostname, int port_no, 
-		       const std::string & client_name);
+  // Connect with monitoring server (DQM Collector) at <hostname> and <port_no>
+  // using <client_name>; if hostname ="", no connection will be attempted
+  MonitorUserInterface(const std::string hostname, int port_no, 
+		       const std::string client_name);
   virtual ~MonitorUserInterface();
   
   // ---------------- Getters -----------------------------

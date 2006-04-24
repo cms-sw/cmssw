@@ -8,8 +8,8 @@ using namespace std;
 using namespace dqm::me_util;
 using namespace dqm::qtests;
 
-MonitorUserInterface::MonitorUserInterface(const string & hostname, int port_no, 
-					   const string & client_name)
+MonitorUserInterface::MonitorUserInterface(const string hostname, int port_no, 
+					   const string client_name)
 {
   collate_mes.clear(); numUpdates_ = 0;
 }
@@ -132,13 +132,15 @@ void MonitorUserInterface::subscribeNew(const string & subsc_request)
 void MonitorUserInterface::finishSubscription(const vector<string> & monit, 
 					      bool add)
 {
+  LockMutex a(bei->requests.mutex);
+
   for(cvIt it = monit.begin(); it != monit.end(); ++it){
 
     // (un)subscribe to monitorable
     if(add)
-      bei->request2add.push_back(*it);
+      bei->requests.toAdd.push_back(*it);
     else
-      bei->request2remove.push_back(*it);
+      bei->requests.toRemove.push_back(*it);
   }
 }
 
