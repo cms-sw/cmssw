@@ -1,5 +1,6 @@
 #include "DQM/RPCMonitorClient/interface/DQMQualityTestsConfiguration.h"
 #include "DQM/RPCMonitorClient/interface/QTestConfigurationParser.h"
+#include "DQM/RPCMonitorClient/interface/QTestParameterNames.h"
           
 
 int QTestConfigurationParser::s_numberOfInstances = 0;
@@ -16,6 +17,8 @@ inline XMLCh*  _toDOMS( std::string temp ){
 
 
 QTestConfigurationParser::QTestConfigurationParser(){
+        
+	qtestParamNames=new QTestParameterNames();
 
 	try { 
 		std::cout << "Xerces-c initialization Number "
@@ -33,11 +36,15 @@ QTestConfigurationParser::QTestConfigurationParser(){
 	++s_numberOfInstances;
 }
 
+QTestConfigurationParser::~QTestConfigurationParser(){
+	delete qtestParamNames;
+	qtestParamNames = 0;
+}
 
 bool QTestConfigurationParser::parseQTestsConfiguration(std::string configFile){
 
 	std::cout<<" Begin Parsing File "<<configFile <<std::endl; 
-
+	
 	XercesDOMParser* parser = new XercesDOMParser;     
 	parser->setValidationScheme(XercesDOMParser::Val_Auto);
 	parser->setDoNamespaces(false);
@@ -52,13 +59,7 @@ bool QTestConfigurationParser::parseQTestsConfiguration(std::string configFile){
 }
 
 bool QTestConfigurationParser::qtestsConfig(DOMDocument* doc){
-
-
-	paramsMap[dqm::qtest_config::XRangeContent]=dqm::qtest_config::XRangeParams;
-	paramsMap[dqm::qtest_config::YRangeContent]=dqm::qtest_config::YRangeParams;
-	paramsMap[dqm::qtest_config::DeadChannel]=dqm::qtest_config::DeadChannelParams;
-	paramsMap[dqm::qtest_config::NoisyChannel]=dqm::qtest_config::NoisyChannelParams;
-
+	
 
 	unsigned int qtestTagsNum  = 
  	   doc->getElementsByTagName(_toDOMS("QTEST"))->getLength();
@@ -68,7 +69,7 @@ bool QTestConfigurationParser::qtestsConfig(DOMDocument* doc){
 
 	for (unsigned int i=0; i<qtestTagsNum; i++){
 		/// Get Node
- 		std::cout<<"***\n Test Number: "<<i <<std::endl;
+ 		//std::cout<<"***\n Test Number: "<<i <<std::endl;
 		DOMNode* qtestNode = 
 			doc->getElementsByTagName(_toDOMS("QTEST"))->item(i);
 	
@@ -84,7 +85,7 @@ bool QTestConfigurationParser::qtestsConfig(DOMDocument* doc){
 			return true;		 
 		}
 		std::string qtestName = _toString (qtestElement->getAttribute (_toDOMS ("name"))); 
-		std::cout<<"Name of i"<<i<<"-th test: "<< qtestName<<std::endl;
+		//std::cout<<"Name of i"<<i<<"-th test: "<< qtestName<<std::endl;
 	
 	
 		///Get Qtest TYPE
@@ -110,10 +111,16 @@ bool QTestConfigurationParser::qtestsConfig(DOMDocument* doc){
 		}
 	
 		std::string testTypeString = _toString (prefixText->getData ());
-		std::cout<<"Test Type= "<< testTypeString<<std::endl;
- 	
-	
-		testsRequested[qtestName]=  this->getParams(qtestElement, testTypeString);	
+		//std::cout<<"Test Type= "<< testTypeString<<std::endl;
+
+ 		paramNames.clear();		
+		paramNames=qtestParamNames->getTestParamNames(testTypeString);
+		if(paramNames.size() == 0) {
+			std::cout<<" Test Type "<< testTypeString<<" is not defined, please check .xml file"<<std::endl;
+			return true;
+		}
+		testsRequested[qtestName]=  this->getParams(qtestElement, testTypeString);
+		if( this->checkParameters(qtestName)) return true;
 	
  	} //loop on qtestTagsNum
  
@@ -126,7 +133,9 @@ std::map<std::string, std::string> QTestConfigurationParser::getParams(DOMElemen
 	std::map<std::string, std::string> paramNamesValues;
 	paramNamesValues[dqm::qtest_config::type]=prefix;
 	
-	unsigned int numberOfParams=paramsMap[prefix];
+	unsigned int numberOfParams=paramNames.size();
+	
+	
 	DOMNodeList *arguments = qtestElement->getElementsByTagName (_toDOMS ("PARAM"));
 		if (arguments->getLength() != numberOfParams){
 	 		 std::cout<<"Wrong numbers of parameters: "<<arguments->getLength()<<std::endl;
@@ -145,11 +154,26 @@ std::map<std::string, std::string> QTestConfigurationParser::getParams(DOMElemen
 			}
 		}
 
+	
+
+
+        
 	return paramNamesValues;
 
 }
 
+bool QTestConfigurationParser::checkParameters(std::string testNameString){
+	
+	std::map<std::string, std::string> namesMap=testsRequested[testNameString];
+	for(std::vector<std::string>::iterator namesItr=paramNames.begin(); namesItr!=paramNames.end(); ++namesItr){
+		if(namesMap.find(*namesItr)==namesMap.end()){
+			std::cout<<"Parameter ``"<<*namesItr<<"'' for test "<<testNameString<<" is not defined"<<std::endl;
+			return true;
+		}
+	}
 
+	return false;
+}
 
 bool QTestConfigurationParser::monitorElementTestsMap(DOMDocument* doc){
 	
@@ -159,11 +183,11 @@ bool QTestConfigurationParser::monitorElementTestsMap(DOMDocument* doc){
  	   doc->getElementsByTagName(_toDOMS("LINK"))->getLength();
 
 
-	std::cout<<"Number of Links: "<<linkTagsNum <<std::endl;
+	//std::cout<<"Number of Links: "<<linkTagsNum <<std::endl;
 
 	for (unsigned int i=0; i<linkTagsNum; i++){
 	
-		std::cout<<"***\n ME To Test Link Number: "<<i <<std::endl;
+		//std::cout<<"***\n ME To Test Link Number: "<<i <<std::endl;
 		DOMNode* linkNode = 
 			doc->getElementsByTagName(_toDOMS("LINK"))->item(i);
 		///Get ME name
@@ -177,7 +201,7 @@ bool QTestConfigurationParser::monitorElementTestsMap(DOMDocument* doc){
 			return true;		 
 		}
 		std::string linkName = _toString (linkElement->getAttribute (_toDOMS ("name"))); 
-		std::cout<<"Name of i"<<i<<"-th ME: "<< linkName<<std::endl;
+		//std::cout<<"Name of i"<<i<<"-th ME: "<< linkName<<std::endl;
 	
 		DOMNodeList *testList = linkElement->getElementsByTagName (_toDOMS ("TestName"));
 		unsigned int numberOfTests=testList->getLength();
@@ -191,18 +215,18 @@ bool QTestConfigurationParser::monitorElementTestsMap(DOMDocument* doc){
 			}
 		
 			std::string activate = _toString (testElement ->getAttribute (_toDOMS ("activate"))); 
-			std::cout<<"Test number"<<tt<<"activation: "<< activate<<std::endl;
+			//std::cout<<"Test number"<<tt<<"activation: "<< activate<<std::endl;
 			if(!std::strcmp(activate.c_str(),testON.c_str())) {
 				
 				DOMText *argText = dynamic_cast <DOMText *> (testElement ->getFirstChild());
 				if (!argText){
 					std::cout<<"Cannot get test name"<<std::endl;
-					return false;
+					return true;
 				}
 	   
 				std::string regExpValue = _toString (argText->getData());
 				qualityTestList.push_back(regExpValue);
-				std::cout<<"Test name"<<regExpValue<<std::endl;
+				//std::cout<<"Test name"<<regExpValue<<std::endl;
 			}
 		}
 	
