@@ -48,7 +48,7 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
   LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const ;
   LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const ;
   
- private:
+ protected:
   //members
   mutable const PixelGeomDetUnit* theDet;
   mutable const RectangularPixelTopology * theTopol;
