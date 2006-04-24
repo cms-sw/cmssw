@@ -16,11 +16,11 @@ class BoundDisk;
  *  The recommended use is: Inside the TrackerBounds
  *  tracker propagators are expected to work accurately.
  *  Outside of this volume use some kind of geane.
- */
 
-//Ported from ORCA
-//  $Date: $
-//  $Revision: $
+ *  Ported from ORCA
+ *  $Date: 2006/04/21 14:31:22 $
+ *  $Revision: 1.1 $
+ */
 
 class TrackerBounds {
 public:

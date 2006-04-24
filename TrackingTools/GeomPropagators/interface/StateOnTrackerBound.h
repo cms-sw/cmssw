@@ -8,13 +8,10 @@ class Propagator;
 /** Propagates to the Tracker bounds, i.e. either to the
  *  barrel cylinder or to one of the forward disks that 
  *  constitute the envelope of the sensitive Tracker volumes.
+ *  Ported from ORCA
+ *  $Date: 2006/04/21 14:31:49 $
+ *  $Revision: 1.1 $
  */
-
-
-//Ported from ORCA
-//  $Date: $
-//  $Revision: $
-
 class StateOnTrackerBound {
 public:
 
