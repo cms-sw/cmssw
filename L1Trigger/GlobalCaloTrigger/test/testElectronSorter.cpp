@@ -48,7 +48,7 @@ int main()
   L1GctElectronSorter* testSort = new L1GctElectronSorter();
   LoadFileData("dummyData.txt");
 
-  for(int i=0;i<data.size();i++){
+  for(unsigned int i=0;i<data.size();i++){
     testSort->setInputEmCand(data[i]);
   }
 
@@ -56,7 +56,7 @@ int main()
 
   //This part checks that the data read in is what is stored in the private vector of the sort algorithm
 
-  for(int i=0;i!=data.size();i++){
+  for(unsigned int i=0;i!=data.size();i++){
     if(data[i].getRank() != inputs[i].getRank()){
       cout << "Error in data: Discrepancy between Rank in file and input buffer!"<<endl;
       checkIn = true;
@@ -77,9 +77,9 @@ int main()
   //This part checks that the values returned by the getOutput() method are indeed the largest 4 electron candidates sorted by rank
 
   outputs = testSort->getOutput();
-  for(int n=0;n!=outputs.size();n++){
+  for(unsigned int n=0;n!=outputs.size();n++){
     int count = 0;
-    for(int i=0;i!=data.size();i++){
+    for(unsigned int i=0;i!=data.size();i++){
       if(data[i].getRank() > outputs[n].getRank()){
        count = count + 1;
        if(n==0 && count > 1){
@@ -150,7 +150,7 @@ void WriteFileData(EmCandidate outputs)
   EmCandidate writeThis;
   writeThis = outputs;
   ofile.open("sortOutput.txt",ios::out);
-  for(int i=0;i!=writeThis.size();i++){ 
+  for(unsigned int i=0;i!=writeThis.size();i++){ 
       ofile<<std::hex<<writeThis[i].getRank();
       ofile<<" ";
       ofile<<std::hex<<writeThis[i].getEta();
