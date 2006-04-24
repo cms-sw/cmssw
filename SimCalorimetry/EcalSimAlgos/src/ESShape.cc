@@ -14,17 +14,17 @@ ESShape::ESShape(int Gain):
   }
   else if (theGain==1) {
     // preliminary numbers, need to be approved by preshower group
-    A = 5.99994;
-    Qcf = 0.0114319;
-    omegac = 0.0736172;
-    norm = 0.111492;
-  }
-  else if (theGain==2) {
-    // preliminary numbers, need to be approved by preshower group
     A = 5.99912; 
     Qcf = 0.0114275;
     omegac = 0.086403;
     norm = 0.111449;
+  }
+  else if (theGain==2) {
+    // preliminary numbers, need to be approved by preshower group
+    A = 5.99994;
+    Qcf = 0.0114319;
+    omegac = 0.0736172;
+    norm = 0.111492;
   }
 }
 
