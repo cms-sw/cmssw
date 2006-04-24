@@ -275,8 +275,8 @@ TECLayer::computeDisk( vector<const TECPetal*>& petals) const
   float theZmax(petals.front()->position().z());
   float theZmin(theZmax);
   for ( vector<const TECPetal*>::const_iterator i = petals.begin(); i != petals.end(); i++ ) {
-    float zmin = (**i).position().z() - (**i).surface().bounds().thickness()/2.;
-    float zmax = (**i).position().z() + (**i).surface().bounds().thickness()/2.;
+    float zmin = 0. - (**i).surface().bounds().thickness()/2.;
+    float zmax = (**i).surface().bounds().thickness()/2.;
     theZmax = max( theZmax, zmax);
     theZmin = min( theZmin, zmin);
   }
