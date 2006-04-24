@@ -26,7 +26,6 @@ HcalQie::HcalQie(edm::ParameterSet const & p) {
   //static SimpleConfigurable<int>    p8(4,     "HcalQie:BaseLine");
 
   edm::ParameterSet m_HQ  = p.getParameter<edm::ParameterSet>("HcalQie");
-  verbosity     = m_HQ.getParameter<int>("Verbosity");
   qToPE         = m_HQ.getParameter<double>("qToPE");
   binOfMax      = m_HQ.getParameter<int>("BinOfMax");
   signalBuckets = m_HQ.getParameter<int>("SignalBuckets");
@@ -57,18 +56,18 @@ HcalQie::HcalQie(edm::ParameterSet const & p) {
   else 
     bmax_ = binOfMax+5;
 
-  if (verbosity > 0)
-    std::cout << "HcalQie: initialized with binOfMax " << binOfMax 
-	      << " sample from " << bmin_ << " to " << bmax_ 
-	      << "; signalBuckets " << signalBuckets 
-	      << " Baseline/Phase/Scale " << baseline << "/" << phase_ << "/"
-	      << rescale_ << std::endl <<"                          Noise "
-	      << sigma << "fC  fCToPE " << qToPE << " EDepPerPE " 
-	      << eDepPerPE << std::endl;
+  edm::LogInfo("HcalSim") << "HcalQie: initialized with binOfMax " << binOfMax 
+			  << " sample from " << bmin_ << " to " << bmax_ 
+			  << "; signalBuckets " << signalBuckets 
+			  << " Baseline/Phase/Scale " << baseline << "/" 
+			  << phase_ << "/" << rescale_ << "\n"
+			  <<"                          Noise " << sigma 
+			  << "fC  fCToPE " << qToPE << " EDepPerPE " 
+			  << eDepPerPE;
 }
 
 HcalQie::~HcalQie() {
-  if (verbosity > 0) std::cout << "HcalQie:: Deleting Qie" << std::endl;
+  edm::LogInfo("HcalSim") << "HcalQie:: Deleting Qie";
 }
 
 std::vector<double> HcalQie::shape() {
@@ -147,24 +146,14 @@ std::vector<double> HcalQie::shape() {
   }
   
   // normalize for 1 GeV pulse height
-#ifdef debug
-  if (verbosity > 0) 
-    std::cout << " Convoluted Shape ============== Normalisation " << norm 
-	      << std::endl;
-#endif
+  edm::LogInfo("HcalSim") << "HcalQie: Convoluted Shape ============== "
+			  << "Normalisation " << norm;
   for (i=0; i<nsiz; i++) {
     pulse[i] /= norm;
-#ifdef debug
-    if (verbosity > 0) {
-      std::cout << " " << std::setw(3) << i << " " << std::setw(8) << pulse[i];
-      if (i%8 == 7) std::cout << std::endl;
-    }
-#endif
+    LogDebug("HcalSim") << "HcalQie: Pulse[" << std::setw(3) << i << "] " 
+			<< std::setw(8) << pulse[i];
   }
-#ifdef debug
-  if (verbosity > 0) std::cout << std::endl;
-#endif
-
+  
   return pulse;
 }
 
@@ -190,17 +179,11 @@ std::vector<int> HcalQie::code() {
   for (i = 0; i < 122; i++) 
     temp[i] = (int)CodeFADCdata[i];
 
-#ifdef debug
-  if (verbosity > 1) {
-    int siz = temp.size();
-    std::cout << "Codes in array of size " << siz << std::endl;
-    for (i=0; i<siz; i++) {
-      std::cout << " " << std::setw(3) << i << " " << std::setw(6) << temp[i];
-      if (i%10 == 9) std::cout << std::endl;
-    }
-    std::cout << std::endl;
-  }
-#endif
+  int siz = temp.size();
+  LogDebug("HcalSim") << "HcalQie: Codes in array of size " << siz;
+  for (i=0; i<siz; i++)
+    LogDebug("HcalSim") << "HcalQie: Code[" << std::setw(3) << i << "] " 
+			<< std::setw(6) << temp[i];
 
   return temp;
 }
@@ -227,17 +210,11 @@ std::vector<double> HcalQie::charge() {
   for (i = 0; i < 122; i++)
     temp[i] = (double)(ChargeFADCdata[i]);
 
-#ifdef debug
-  if (verbosity > 1) {
-    int siz = temp.size();
-    std::cout << "Charges in array of size " << siz << std::endl;
-    for (i=0; i<siz; i++) {
-      std::cout << " " << std::setw(3) << i << " " << std::setw(8) << temp[i];
-      if (i%8 == 7) std::cout << std::endl;
-    }
-    std::cout << std::endl;
-  }
-#endif
+  int siz = temp.size();
+  LogDebug("HcalSim") << "HcalQie: Charges in array of size " << siz;
+  for (i=0; i<siz; i++)
+    LogDebug("HcalSim") << "HcalQie: Charge[" << std::setw(3) << i << "] " 
+			<< std::setw(8) << temp[i];
 
   return temp;
 }
@@ -256,16 +233,11 @@ std::vector<double> HcalQie::weight(int binOfMax, int mode, int npre,
     }
   }
 
-#ifdef debug
-  if (verbosity > 1) {
-    int siz = temp.size();
-    std::cout << "Weights in array of size " << siz << " and Npre " << npre 
-	      << std::endl;
-    for (i=0; i<siz; i++)
-      std::cout << " " << i << " " << temp[i];
-    std::cout << std::endl;
-  }
-#endif
+  int siz = temp.size();
+  LogDebug("HcalSim") << "HcalQie: Weights in array of size " << siz 
+		      << " and Npre " << npre;
+  for (i=0; i<siz; i++)
+    LogDebug("HcalSim") << "HcalQie: [Weight[" << i << "] = " << temp[i];
 
   return temp;
 }
@@ -324,16 +296,12 @@ std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
   // Noise in the channel
   for (int i=0; i<numOfBuckets; i++) 
     work[i] = G4RandGauss::shoot(baseline,sigma);
-#ifdef debug
-  if (verbosity > 2) {
-    std::cout << "HcalQie::getCode: Noise with baseline " << baseline 
-	      << " width " << sigma << " and " << nht << " hits" << std::endl;
-    for (int i=0; i<numOfBuckets; i++) 
-      std::cout << " " << i << " " << work[i];
-    std::cout << std::endl;
-  }
-#endif
 
+  LogDebug("HcalSim") << "HcalQie::getCode: Noise with baseline " << baseline 
+		      << " width " << sigma << " and " << nht << " hits";
+  for (int i=0; i<numOfBuckets; i++) 
+    LogDebug("HcalSim") << "HcalQie: Code[" << i << "] = " << work[i];
+  
   double etot=0, esum=0, photons=0;
   if (nht>0) {
   
@@ -361,20 +329,14 @@ std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
       double photo = G4Poisson(avpe);
       etot   += ehit;
       photons+= photo; 
-#ifdef debug
-      if (verbosity > 2)
-	std::cout << "HcalQie::getCode: Hit " << kk << ":" << kk+jump 
-		  << " Energy deposit " << ehit << " Time " << jitter
-		  << " Average and true no of PE " << avpe << " " << photo 
-		  << std::endl;
-#endif
+      LogDebug("HcalSim") << "HcalQie::getCode: Hit " << kk << ":" << kk+jump 
+			  << " Energy deposit " << ehit << " Time " << jitter
+			  << " Average and true no of PE " << avpe << " " 
+			  << photo;
 
       double bintime = jitter - phase_ - bunchSpace*(binOfMax-bmin_);
-#ifdef debug
-      if (verbosity > 2) 
-	std::cout << "HcalQie::getCode: phase " << phase_  << " binTime " 
-		  << bintime << std::endl;
-#endif
+      LogDebug("HcalSim") << "HcalQie::getCode: phase " << phase_  
+			  << " binTime " << bintime;
       std::vector<double> binsum(nmax,0);
       double norm=0, sum=0.;
       for (int i=bmin_; i<bmax_; i++) {
@@ -386,12 +348,10 @@ std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
 	}
 	sum += binsum[i];
       }
+
       if (sum>0) norm = (photo/(sum*qToPE));
-#ifdef debug
-      if (verbosity > 2)
-	std::cout << "HcalQie::getCode: PE " << photo << " Sum " << sum 
-		  << " Norm. " << norm << std::endl;
-#endif
+      LogDebug("HcalSim") << "HcalQie::getCode: PE " << photo << " Sum " << sum
+			  << " Norm. " << norm;
       for (int i=bmin_; i<bmax_; i++)
 	work[i] += binsum[i]*norm;
 
@@ -405,11 +365,8 @@ std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
     temp[i] = getCode(work[i]);
     esum   += work[i];
   }
-#ifdef debug
-  if (verbosity > 1)
-    std::cout << "HcalQie::getCode: Input " << etot << " GeV;   Photons " 
-	      << photons << ";  Output " << esum << " fc" << std::endl;
-#endif
+  LogDebug("HcalSim") << "HcalQie::getCode: Input " << etot << " GeV; Photons "
+		      << photons << ";  Output " << esum << " fc";
 
   return temp;
 }
@@ -419,20 +376,12 @@ double HcalQie::getEnergy(std::vector<int> code) {
 
   std::vector<double> work(numOfBuckets);
   double sum=0;
-#ifdef debug
-  if (verbosity > 2) std::cout << "HcalQie::getEnergy: ";
-#endif
   for (int i=0; i<numOfBuckets; i++) {
     work[i] = codeToQ (code[i]);
     sum += work[i]*weight_[i];
-#ifdef debug
-    if (verbosity > 2) 
-      std::cout << i << " code " << code[i] << " PE " << work[i];
-#endif
+    LogDebug("HcalSim") << "HcalQie::getEnergy: " << i << " code " << code[i] 
+			<< " PE " << work[i];
   }
-#ifdef debug
-  if (verbosity > 2) std::cout << std::endl;
-#endif
 
   double tmp;
   if (preSamples == 0) {
@@ -440,11 +389,8 @@ double HcalQie::getEnergy(std::vector<int> code) {
   } else {
     tmp = sum * rescale_ * qToPE;
   }
-#ifdef debug
-  if (verbosity > 1) 
-    std::cout << "HcalQie::getEnergy: PE " << sum*qToPE << " Energy " << tmp 
-	      << " GeV" << std::endl;
-#endif
+  LogDebug("HcalSim") << "HcalQie::getEnergy: PE " << sum*qToPE << " Energy " 
+		      << tmp << " GeV";
 
   return tmp;
 }

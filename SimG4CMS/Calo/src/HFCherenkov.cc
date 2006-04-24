@@ -20,7 +20,6 @@ HFCherenkov::HFCherenkov(edm::ParameterSet const & p) {
   //static SimpleConfigurable<double> p6(0.33,  "HFCherenkov:Gain");
   //static SimpleConfigurable<bool>   p7(false, "HFCherenkov:CheckSurvive");
 
-  verbosity    = m_HF.getParameter<int>("Verbosity");
   ref_index    = m_HF.getParameter<double>("RefIndex");
   lambda1      = ((m_HF.getParameter<double>("Lambda1"))/pow(double(10),7))*cm;
   lambda2      = ((m_HF.getParameter<double>("Lambda2"))/pow(double(10),7))*cm;
@@ -29,12 +28,12 @@ HFCherenkov::HFCherenkov(edm::ParameterSet const & p) {
   gain         = m_HF.getParameter<double>("Gain");
   checkSurvive = m_HF.getParameter<bool>("CheckSurvive");
 
-  if (verbosity > 0)
-    std::cout << "HFCherenkov:: initialised with ref_index " << ref_index
-	      << " lambda1/lambda2 (cm) " << lambda1/cm << "/" << lambda2/cm
-	      << " aperture(total/trapped) " << aperture << "/"
-	      << apertureTrap << " Check photon survival in HF " 
-	      << checkSurvive << " Gain " << gain << std::endl;
+  edm::LogInfo("HFShower") << "HFCherenkov:: initialised with ref_index " 
+			   << ref_index << " lambda1/lambda2 (cm) " 
+			   << lambda1/cm << "/" << lambda2/cm
+			   << " aperture(total/trapped) " << aperture << "/"
+			   << apertureTrap << " Check photon survival in HF " 
+			   << checkSurvive << " Gain " << gain;
 
   clearVectors();
 }
@@ -91,19 +90,18 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
   clearVectors();
   if (!isApplicable(pDef)) {return 0;}
   if (pBeta < (1/ref_index) || step_length < 0.0001) {
-    if (verbosity > 1)
-      std::cout << "HFCherenkov::computeNPE: pBeta " << pBeta << " 1/mu "
-		<< (1/ref_index) << " step_length " << step_length <<std::endl;
+    LogDebug("HFShower") << "HFCherenkov::computeNPE: pBeta " << pBeta 
+			 << " 1/mu " << (1/ref_index) << " step_length " 
+			 << step_length;
     return 0;
   }
    
   double uv = sqrt(u*u + v*v);
   int nbOfPhotons = computeNbOfPhotons(pBeta, step_length);
-  if (verbosity > 1)
-    std::cout << "HFCherenkov::computeNPE: pBeta " << pBeta << " u/v/w "
-	      << u << "/" << v << "/" << w << " step_length " << step_length 
-	      << " zFib " << zFiber << " nbOfPhotons " << nbOfPhotons 
-	      << std::endl;
+  LogDebug("HFShower") << "HFCherenkov::computeNPE: pBeta " << pBeta 
+		       << " u/v/w " << u << "/" << v << "/" << w 
+		       << " step_length " << step_length << " zFib " << zFiber 
+		       << " nbOfPhotons " << nbOfPhotons;
    
   if (nbOfPhotons < 0) {
     return 0;
@@ -132,9 +130,9 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
 					      (lambda2 - lambda1));
       double lambda  = (lambda0/cm) * pow(double(10),7); // lambda is in nm
       wlini.push_back(lambda);
-      if (verbosity > 2)
-	std::cout << "HFCherenkov::computeNPE: " << i << " lambda " << lambda 
-		  << " w_ph " << w_ph << " aperture " << aperture << std::endl;
+      LogDebug("HFShower") << "HFCherenkov::computeNPE: " << i << " lambda " 
+			   << lambda << " w_ph " << w_ph << " aperture " 
+			   << aperture;
       if (w_ph > aperture) { // phton trapped inside fiber
 	wltrap.push_back(lambda);
 	double prob_HF  = 1.0; //photon survived in HF
@@ -146,27 +144,23 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
 	  prob_HF  = exp(-z_meters * a_inv ); //photon survived in HF
 	}
 	rand = G4UniformRand();
-	if (verbosity > 2)
-	  std::cout << "HFCherenkov::computeNPE: probHF " << prob_HF
-		    << " prob_MX " << prob_MX << " Random " << rand 
-		    << " Survive? " << (rand < (prob_HF * prob_MX)) 
-		    << std::endl;
+	LogDebug("HFShower") << "HFCherenkov::computeNPE: probHF " << prob_HF
+			     << " prob_MX " << prob_MX << " Random " << rand 
+			     << " Survive? " << (rand < (prob_HF * prob_MX));
 	if (rand < (prob_HF * prob_MX)) { // survived and sent to light mixer
 	  wlatten.push_back(lambda);
 	  rand = G4UniformRand();
 	  double effHEM = computeHEMEff(lambda);
-	  if (verbosity > 2)
-	    std::cout << "HFCherenkov::computeNPE: w_ph " << w_ph << " effHEM "
-		      << effHEM << " Random " << rand << " Survive? " 
-		      << (w_ph>0.997||(rand<effHEM)) << std::endl;
+	  LogDebug("HFShower") << "HFCherenkov::computeNPE: w_ph " << w_ph 
+			       << " effHEM " << effHEM << " Random " << rand 
+			       << " Survive? " << (w_ph>0.997||(rand<effHEM));
 	  if (w_ph>0.997 || (rand<effHEM)) { // survived HEM
 	    wlhem.push_back(lambda);
 	    double qEffic = computeQEff(lambda);
 	    rand = G4UniformRand();
-	    if (verbosity > 2)
-	      std::cout << "HFCherenkov::computeNPE: qEffic " << qEffic
-			<< " Random " << rand << " Survive? " <<(rand < qEffic)
-			<< std::endl;
+	    LogDebug("HFShower") << "HFCherenkov::computeNPE: qEffic " 
+				 << qEffic << " Random " << rand 
+				 << " Survive? " <<(rand < qEffic);
 	    if (rand < qEffic) { // made photoelectron
 	      npe_Dose += 1;
 	      momZ.push_back(w_ph);
@@ -179,8 +173,7 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
     }// end of ++NbOfPhotons
   } // end of if(NbOfPhotons)}
   int npe =  npe_Dose; // Nb of photoelectrons
-  if (verbosity > 1)
-    std::cout << "HFCherenkov::computeNPE: npe " << npe << std::endl;
+  LogDebug("HFShower") << "HFCherenkov::computeNPE: npe " << npe;
   return npe;
 }
 
@@ -229,11 +222,11 @@ int HFCherenkov::computeNbOfPhotons(double beta, G4double stepL) {
   double cherenPhPerLength = 2 * M_PI * alpha * lambdaDiff*cm;
   double d_NOfPhotons = cherenPhPerLength * sin(theta_C)*sin(theta_C) *  (step_length/cm);
   int nbOfPhotons = int(d_NOfPhotons);
-  if (verbosity > 2)
-    std::cout << "HFCherenkov::computeNbOfPhotons: StepLength " <<step_length
-	      << " theta_C " << theta_C << " lambdaDiff " << lambdaDiff
-	      << " cherenPhPerLength " << cherenPhPerLength << " Photons "
-	      << d_NOfPhotons << " " << nbOfPhotons << std::endl;
+  LogDebug("HFShower") << "HFCherenkov::computeNbOfPhotons: StepLength " 
+		       << step_length << " theta_C " << theta_C 
+		       << " lambdaDiff " << lambdaDiff
+		       << " cherenPhPerLength " << cherenPhPerLength 
+		       << " Photons " << d_NOfPhotons << " " << nbOfPhotons;
   return nbOfPhotons;
 }
 
@@ -243,10 +236,8 @@ double HFCherenkov::computeQEff(double wavelength) {
   double func     = 1. / (1. + 250.*pow((y/5.),4));
   double qE_R7525 = 0.77 * y * exp(-y) * func ;
   double qeff     = qE_R7525;
-  if (verbosity > 2)
-    std::cout << "HFCherenkov::computeQEff: wavelength " << wavelength
-	      << " y/func " << y << "/" << func << " qeff " << qeff 
-	      << std::endl;
+  LogDebug("HFShower") << "HFCherenkov::computeQEff: wavelength " << wavelength
+		       << " y/func " << y << "/" << func << " qeff " << qeff;
   return qeff;
 }
 
@@ -273,9 +264,8 @@ double HFCherenkov::computeHEMEff(double wavelength) {
       hEMEff = (701.7268 / wavelength) - 0.186;
     }
   }
-  if (verbosity > 2)
-    std::cout << "HFCherenkov::computeHEMEff: wavelength " << wavelength
-	      << " hEMEff " << hEMEff << std::endl;
+  LogDebug("HFShower") << "HFCherenkov::computeHEMEff: wavelength " 
+		       << wavelength << " hEMEff " << hEMEff;
   return hEMEff;
 }
 
@@ -288,9 +278,7 @@ double HFCherenkov::smearNPE(int npe) {
       pe += (val/gain) + 0.001*G4UniformRand();
     }
   }
-  if (verbosity > 2)
-    std::cout << "HFCherenkov::smearNPE: npe " << npe << " pe " << pe
-	      << std::endl;
+  LogDebug("HFShower") << "HFCherenkov::smearNPE: npe " << npe << " pe " << pe;
   return pe;
 }
 
@@ -307,11 +295,9 @@ void HFCherenkov::clearVectors() {
 
 bool HFCherenkov::isApplicable(const G4ParticleDefinition* aParticleType) {
   bool tmp = (aParticleType->GetPDGCharge() != 0);
-  if (verbosity > 1)
-    std::cout << "HFCherenkov::isApplicable: aParticleType " 
-	      << aParticleType->GetParticleName() << " PDGCharge " 
-	      << aParticleType->GetPDGCharge() << " Result " << tmp 
-	      << std::endl;
+  LogDebug("HFShower") << "HFCherenkov::isApplicable: aParticleType " 
+		       << aParticleType->GetParticleName() << " PDGCharge " 
+		       << aParticleType->GetPDGCharge() << " Result " << tmp;
   return tmp;
 }
    

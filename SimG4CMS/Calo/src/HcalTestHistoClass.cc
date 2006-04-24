@@ -24,9 +24,8 @@ void HcalTestHistoClass::fillLayers(double* edepl, double edepHO,
   layers.resize(nLayersMAX);
   for (int i = 0; i < 20; i++) {
     double ed  = 0.001*edepl[i];
-    if (verbosity > 2)
-      std::cout << "HcalTestHistoClass:: fillLayer: nLayers, ed " << i 
-		<< " "  << ed  << std::endl;
+    LogDebug("HcalSim") << "HcalTestHistoClass:: fillLayer: nLayers, ed " << i 
+			<< " "  << ed;
     if (nLayers < nLayersMAX) {
       layers[i].e = ed;
       layers[i].muDist = muxy[i];
@@ -59,38 +58,33 @@ void HcalTestHistoClass::fillHits(std::vector<CaloHit> hitcache) {
     group += (iphi&127);
     itr->setId(group);
     lhits[i] = &hitcache[i];
-    if (verbosity > 2) {
-      std::cout << "HcalTestHistoClass::fillHits:Original " << i << " " 
-		<< hitcache[i] << std::endl;
-      std::cout << "HcalTestHistoClass::fillHits:Copied   " << i << " " 
-		<< *lhits[i]    << std::endl;
-    }
+    LogDebug("HcalSim") << "HcalTestHistoClass::fillHits:Original " << i 
+			<< " " << hitcache[i];
+    LogDebug("HcalSim") << "HcalTestHistoClass::fillHits:Copied   " << i 
+			<< " " << *lhits[i];
   }
   sort(lhits.begin(),lhits.end(),CaloHitIdMore());
   std::vector<CaloHit*>::iterator k1, k2;
-  if (verbosity > 2) {
-    for (i = 0, k1 = lhits.begin(); k1 != lhits.end(); i++, k1++)
-      std::cout << "HcalTestHistoClass::fillHits:Sorted " << i << " " 
-		<< **k1 << std::endl;
-  }
+  for (i = 0, k1 = lhits.begin(); k1 != lhits.end(); i++, k1++)
+    LogDebug("HcalSim") << "HcalTestHistoClass::fillHits:Sorted " << i << " " 
+			<< **k1;
+
   hits.resize(lhits.size());
   for (i = 0, k1 = lhits.begin(); k1 != lhits.end(); i++, k1++) {
     double       ehit  = (**k1).e();
     double       jitter= (**k1).t();
     unsigned int unitID= (**k1).id();
     int          jump  = 0;
-    if (verbosity > 2) 
-      std::cout << "HcalTestHistoClass::fillHits:Start " << i << " U/T/E 0x"
-		<< std::hex << unitID << std::dec << " "  << jitter << " " 
-		<< ehit;
+    LogDebug("HcalSim") << "HcalTestHistoClass::fillHits:Start " << i 
+			<< " U/T/E 0x" << std::hex << unitID << std::dec << " "
+			<< jitter << " "  << ehit;
     for (k2 = k1+1; k2 != lhits.end() && (jitter-(**k2).t())<1. &&
 	   (jitter-(**k2).t())>-1. && unitID==(**k2).id(); k2++) {
       ehit += (**k2).e();
-      if (verbosity > 2) std::cout << " + " << (**k2).e();
+      LogDebug("HcalSim") << " + " << (**k2).e();
       jump++;
     }
-    if (verbosity > 2) 
-      std::cout << " = " << ehit << " in " << jump << std::endl;
+    LogDebug("HcalSim") << " = " << ehit << " in " << jump;
 
     float eta   = itr->eta();
     float phi   = itr->phi();
@@ -111,20 +105,19 @@ void HcalTestHistoClass::fillHits(std::vector<CaloHit> hitcache) {
     int zside  = (unitID>>14)&1;
     int ieta   = (unitID>>7)&127;
     int iphi   = (unitID)&127;
-    if (verbosity > 1) 
-      std::cout << "HcalTestHistoClass::fillHits:Hit " << hit << " " << i 
-		<< " ID 0x" << std::hex << unitID << std::dec << " " << subdet 
-		<< " " << lay << " " << zside << " " << ieta << " " << iphi 
-		<< " Time " << jitter << " E " << ehit << std::endl;
+    LogDebug("HcalSim") << "HcalTestHistoClass::fillHits:Hit " << hit << " " 
+			<< i << " ID 0x" << std::hex << unitID << std::dec 
+			<< " " << subdet << " " << lay << " " << zside << " " 
+			<< ieta << " " << iphi << " Time " << jitter << " E " 
+			<< ehit;
 
     i  += jump;
     k1 += jump;
   }
 
-  if (verbosity > 1) 
-    std::cout << "HcalTestHistoClass::fillHits called with " << nHit 
-	      << " hits" << " and writes out " << nHits << '(' << hit 
-	      << ") hits" << std::endl;
+  LogDebug("HcalSim") << "HcalTestHistoClass::fillHits called with " << nHit 
+		      << " hits" << " and writes out " << nHits << '(' << hit 
+		      << ") hits";
 
 }
 
@@ -149,16 +142,13 @@ void HcalTestHistoClass::fillQie (int id, double esimtot, double eqietot,
     qie[id].id = id;
     nQIE++;
     
-    if (verbosity > 2) 
-      std::cout << "HcalTestHistoClass::fillQie: id, esimtot, eqietot = "
-		<< id << " " << esimtot << " " << eqietot  << std::endl;
-    
+    LogDebug("HcalSim") << "HcalTestHistoClass::fillQie: id, esimtot, eqietot"
+			<< " = " << id << " " << esimtot << " " << eqietot;
     
     for (int i=0; i<nGroup; i++) {
-      if (verbosity > 2) 
-	std::cout << "HcalTestHistoClass::fillQie: id, nGroupQIE, longs, "
-		  << "longq = " << id << " " << nGroupQIE << " " << longs[i]
-		  << " " << longq[i] << std::endl;
+      LogDebug("HcalSim") << "HcalTestHistoClass::fillQie: id, nGroupQIE, "
+			  << "longs, longq = " << id << " " << nGroupQIE 
+			  << " " << longs[i] << " " << longq[i];
       qie[id].lngs.push_back(longs[i]);
       qie[id].lngq.push_back(longq[i]);
       nGroupQIE++;
@@ -166,19 +156,17 @@ void HcalTestHistoClass::fillQie (int id, double esimtot, double eqietot,
 
     for (int i=0; i<nTower; i++) {
       int tow = (int)latphi[i];
-      if (verbosity > 2) 
-	std::cout << "HcalTestHistoClass::fillQie: id, nTowerQIE, tower, "
-		  << "latfs, latfq = " << id << " " << nTowerQIE << " " 
-		  << tow << " " << latfs[i] << " " << latfq[i] << std::endl;
+      LogDebug("HcalSim") << "HcalTestHistoClass::fillQie: id, nTowerQIE, "
+			  << "tower, latfs, latfq = " << id << " " << nTowerQIE
+			  << " "  << tow << " " << latfs[i] << " " << latfq[i];
       qie[id].lats.push_back(latfs[i]);
       qie[id].latq.push_back(latfq[i]);
       qie[id].tow.push_back(tow);
       nTowerQIE++;
     }
   }
-  if (verbosity > 1) 
-    std::cout << "HcalTestHistoClass::fillQie: Called with ID " << id
-	      << " nQIE " << nQIE << " nGroup " << nGroupQIE << " nTower "
-	      << nTowerQIE << std::endl;
+  LogDebug("HcalSim") << "HcalTestHistoClass::fillQie: Called with ID " << id
+		      << " nQIE " << nQIE << " nGroup " << nGroupQIE 
+		      << " nTower " << nTowerQIE;
 }
 

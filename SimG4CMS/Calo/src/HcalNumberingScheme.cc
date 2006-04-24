@@ -9,12 +9,12 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <iostream>
 
-HcalNumberingScheme::HcalNumberingScheme(int iv) : CaloNumberingScheme(iv) {
-  if (verbosity>0) std::cout << "Creating HcalNumberingScheme" << std::endl;
+HcalNumberingScheme::HcalNumberingScheme() : CaloNumberingScheme(0) {
+  edm::LogInfo("HcalSim") << "Creating HcalNumberingScheme";
 }
 
 HcalNumberingScheme::~HcalNumberingScheme() {
-  if (verbosity>0) std::cout << "Deleting HcalNumberingScheme" << std::endl;
+  edm::LogInfo("HcalSim") << "Deleting HcalNumberingScheme";
 }
 
 uint32_t HcalNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID id){
@@ -27,12 +27,11 @@ uint32_t HcalNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID id){
   // to be consistent with HcalDetId convention
   uint32_t index = HcalDetId(subdet,etaR,id.phis,id.depth).rawId();
 
-  if (verbosity>1) 
-    std::cout << "HcalNumberingScheme det = " << id.subdet << " depth/lay = " 
-	      << id.depth << "/" << id.lay << " zside = " << id.zside 
-	      << " eta/R = " << id.etaR << " phi = " << id.phis << " oldphi = " << id.phi
-	      << " packed index = 0x" << std::hex << index << std::dec 
-	      << std::endl;
+  LogDebug("HcalSim") << "HcalNumberingScheme det = " << id.subdet 
+		      << " depth/lay = " << id.depth << "/" << id.lay 
+		      << " zside = " << id.zside << " eta/R = " << id.etaR 
+		      << " phi = " << id.phis << " oldphi = " << id.phi
+		      << " packed index = 0x" << std::hex << index << std::dec;
 
   return index;
 

@@ -6,6 +6,7 @@
 #define HFFibre_h 1
 
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 #include <string>
@@ -17,7 +18,7 @@ class HFFibre {
 public:
   
   //Constructor and Destructor
-  HFFibre(int iv, const DDCompactView & cpv);
+  HFFibre(const DDCompactView & cpv);
   ~HFFibre();
 
   double              attLength(double lambda);
@@ -29,7 +30,6 @@ protected:
 
 private:
 
-  int                         verbosity;
   std::vector<double>         attL;
   int                         nBinAtt;
   double                      lambLim[2];

@@ -37,21 +37,15 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet &p):
   myqie(0), addTower(3), tuplesManager(0), tuples(0), numberingFromDDD(0), org(0) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTestAnalysis");
-  verbosity    = m_Anal.getParameter<int>("Verbosity");
   eta0         = m_Anal.getParameter<double>("Eta0");
   phi0         = m_Anal.getParameter<double>("Phi0");
   int laygroup = m_Anal.getParameter<int>("LayerGrouping");
   centralTower = m_Anal.getParameter<int>("CentralTower");
   names        = m_Anal.getParameter<std::vector<std::string> >("Names");
   fileName     = m_Anal.getParameter<std::string>("FileName");
-  verbosDDD    = (verbosity/1000)%10;
-  verbosHisto  = (verbosity/100)%10;
-  verbosNumber = (verbosity/10)%10;
-  verbosity   %= 10;
 
-  if (verbosity > 0)
-    std::cout << "HcalTestAnalysis:: Initialised as observer of begin/end "
-	      << "events and of G4step" << std::endl;
+  edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Initialised as observer of "
+			  << "begin/end events and of G4step";
 
   count  = 0;
   group_ = layerGrouping(laygroup);
@@ -61,29 +55,26 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet &p):
   tower_ = towersToAdd(centralTower, addTower);
   nTower = tower_.size()/2;
 
-  if (verbosity > 0)
-    std::cout << "HcalTestAnalysis:: initialised for " << nGroup 
-	      << " Longitudinal groups and " << nTower << " towers" 
-	      << std::endl;
+  edm::LogInfo("HcalSim") << "HcalTestAnalysis:: initialised for " << nGroup 
+			  << " Longitudinal groups and " << nTower 
+			  << " towers";
 
   // qie
   myqie  = new HcalQie(p);
 } 
    
 HcalTestAnalysis::~HcalTestAnalysis() {
-  if (verbosity > 0) {
-    std::cout << std::endl << " -------->  Total number of selected entries : "
-	      << count << std::endl; 
-    std::cout << "Pointers:: HcalQie " << myqie << ", HistoClass " << tuples
-	      << ", Numbering Scheme " << org << " and FromDDD " 
-	      << numberingFromDDD << std::endl;
-  }
+  edm::LogInfo("HcalSim") << "HcalTestAnalysis: -------->  Total number of "
+			  << "selected entries : " << count;
+  edm::LogInfo("HcalSim") << "HcalTestAnalysis: Pointers:: HcalQie " << myqie 
+			  << ", HistoClass " << tuples << ", Numbering Scheme "
+			  << org << " and FromDDD " << numberingFromDDD;
   if (myqie)  {
-    if (verbosity > 0) std::cout << "Delete HcalQie" << std::endl;
+    edm::LogInfo("HcalSim") << "HcalTestAnalysis: Delete HcalQie";
     delete myqie;
   }
   if (numberingFromDDD) {
-    if (verbosity > 0) std::cout << "Delete HcalNumberingFromDDD" << std::endl;
+    edm::LogInfo("HcalSim") << "HcalTestAnalysis: Delete HcalNumberingFromDDD";
     delete numberingFromDDD;
   }
 }
@@ -113,12 +104,10 @@ std::vector<int> HcalTestAnalysis::layerGrouping(int group) {
       temp[i] = grp[i];
   }
 
-  if (verbosity > 0) {
-    std::cout << "HcalTestAnalysis:: Layer Grouping ";
-    for (int i=0; i<19; i++)
-      std::cout << " " << temp[i];
-    std::cout << std::endl;
-  }
+  edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Layer Grouping ";
+  for (int i=0; i<19; i++)
+    edm::LogInfo("HcalSim") << "HcalTestAnalysis: Group[" << i << "] = "
+			      << temp[i];
   return temp;
 }
 
@@ -153,16 +142,12 @@ std::vector<int> HcalTestAnalysis::towersToAdd(int centre, int nadd) {
     }
   }
 
-  if (verbosity > 0) {
-    std::cout << "HcalTestAnalysis:: Towers to be considered for Central " 
-	      << centre << " and " << nadd << " on either side" << std::endl;
-    for (int i=0; i<nbuf; i++) {
-      std::cout << "\t" << setw(3) << i << " " << temp[i] << " " 
-		<< temp[nbuf+i];
-      if (i%6 == 5) std::cout << std::endl;
-    }
-    if (nbuf%6 != 5) std::cout << std::endl;
-  }
+  edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Towers to be considered for"
+			  << " Central " << centre << " and " << nadd 
+			  << " on either side";
+  for (int i=0; i<nbuf; i++)
+    edm::LogInfo("HcalSim") << "HcalTestAnalysis: Tower[" << setw(3) << i 
+			    << "] " << temp[i] << " " << temp[nbuf+i];
   return temp;
 }
 
@@ -172,16 +157,15 @@ void HcalTestAnalysis::update(const BeginOfJob * job) {
   // Numbering From DDD
   edm::ESHandle<DDCompactView> pDD;
   (*job)()->get<IdealGeometryRecord>().get(pDD);
-  if (verbosity > 0) 
-    std::cout << "HcalTestAnalysis:: Initialise HcalNumberingFromDDD for "
-	      << names[0] << std::endl;
-  numberingFromDDD = new HcalNumberingFromDDD(verbosDDD, names[0], (*pDD));
+  edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Initialise "
+			  << "HcalNumberingFromDDD for " << names[0];
+  numberingFromDDD = new HcalNumberingFromDDD(names[0], (*pDD));
 
   // Ntuples
-  tuplesManager.reset(new HcalTestHistoManager(verbosHisto, fileName));
+  tuplesManager.reset(new HcalTestHistoManager(fileName));
 
   // Numbering scheme
-  org    = new HcalTestNumberingScheme(verbosNumber);
+  org    = new HcalTestNumberingScheme();
 
 }
 
@@ -189,8 +173,7 @@ void HcalTestAnalysis::update(const BeginOfJob * job) {
 void HcalTestAnalysis::update(const BeginOfRun * run) {
 
   int irun = (*run)()->GetRunID();
-  if (verbosity > 0) 
-    std::cout <<" =====> Begin of Run = " << irun << std::endl;
+  edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Begin of Run = " << irun;
 
   bool loop = true, eta = true, phi = true;
   int  etac = (centralTower/100)%100;
@@ -219,35 +202,31 @@ void HcalTestAnalysis::update(const BeginOfRun * run) {
     }
   }
 
-  if (verbosity > 0) 
-    std::cout << "HcalTestAnalysis:: Central Tower " << centralTower 
-	      << " corresponds to eta0 = " << eta0 << " phi0 = " << phi0
-	      << std::endl;
+  edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Central Tower " 
+			  << centralTower << " corresponds to eta0 = " << eta0 
+			  << " phi0 = " << phi0;
  
   std::string sdname = names[0];
   G4SDManager* sd = G4SDManager::GetSDMpointerIfExist();
   if (sd != 0) {
     G4VSensitiveDetector* aSD = sd->FindSensitiveDetector(sdname);
     if (aSD==0) {
-      if (verbosity > 0) 
-	std::cout << "HcalTestAnalysis::beginOfRun: No SD with name " 
-		  << sdname << " in this Setup " << std::endl;  
+      edm::LogWarning("HcalSim") << "HcalTestAnalysis::beginOfRun: No SD with "
+				 << "name " << sdname << " in this Setup";
     } else {
       HCalSD* theCaloSD = dynamic_cast<HCalSD*>(aSD);
-      if (verbosity > 0) 
-	std::cout << "HcalTestAnalysis::beginOfRun: Finds SD with name " 
-		  << theCaloSD->GetName() << " in this Setup " << std::endl;
+      edm::LogInfo("HcalSim") << "HcalTestAnalysis::beginOfRun: Finds SD with "
+			      << "name " << theCaloSD->GetName() 
+			      << " in this Setup";
       if (org) {
         theCaloSD->setNumberingScheme(org);
-	if (verbosity > 0) 
-	  std::cout << "HcalTestAnalysis::beginOfRun: set a new numbering "
-		    << "scheme" << std::endl;
+	edm::LogInfo("HcalSim") << "HcalTestAnalysis::beginOfRun: set a new "
+				<< "numbering scheme";
       }
     }
   } else {
-    if (verbosity > 0) 
-      std::cout << "HcalTestAnalysis::beginOfRun: Could not get SD Manager!" 
-		<< std::endl;
+    edm::LogWarning("HcalSim") << "HcalTestAnalysis::beginOfRun: Could not get"
+			       << " SD Manager!";
   }
 
 }
@@ -256,7 +235,7 @@ void HcalTestAnalysis::update(const BeginOfRun * run) {
 void HcalTestAnalysis::update(const BeginOfEvent * evt) {
  
   // create tuple object
-  tuples = new HcalTestHistoClass(verbosHisto);
+  tuples = new HcalTestHistoClass();
   // Reset counters
   tuples->setCounters();
  
@@ -266,8 +245,7 @@ void HcalTestAnalysis::update(const BeginOfEvent * evt) {
   for (i = 0; i < 20; i++) mudist[i] = -1.;
 
   int iev = (*evt)()->GetEventID();
-  if (verbosity > 0) 
-    std::cout <<" =====> Begin of event = " << iev << std::endl;
+  LogDebug("HcalSim") <<"HcalTestAnalysis: Begin of event = " << iev;
 }
 
 //=================================================================== each STEP
@@ -288,9 +266,8 @@ void HcalTestAnalysis::update(const G4Step * aStep) {
       if (layer >= 0 && layer < 17) {
 	edepHB += edeposit;
       } else {
-	if (verbosity > 0) 
-	  std::cout << "Error " << curPV->GetName() << curPV->GetCopyNo() 
-		    << std::endl;
+	edm::LogWarning("HcalSim") << "HcalTestAnalysis::Error in HB "
+				   << curPV->GetName() << curPV->GetCopyNo();
 	layer = -1;
       }
     } else if (name == "HES") {
@@ -298,9 +275,8 @@ void HcalTestAnalysis::update(const G4Step * aStep) {
       if (layer >= 0 && layer < 19) {
 	edepHE += edeposit;
       } else {
-	if (verbosity > 0) 
-	  std::cout << "Error " << curPV->GetName() << curPV->GetCopyNo() 
-		    << std::endl;
+	edm::LogWarning("HcalSim") << "HcalTestAnalysis::Error in HE " 
+				   << curPV->GetName() << curPV->GetCopyNo();
 	layer = -1;
       }
     } else if (name == "HTS") {
@@ -308,9 +284,8 @@ void HcalTestAnalysis::update(const G4Step * aStep) {
       if (layer >= 17 && layer < 20) {
 	edepHO += edeposit;
        } else {
-	 if (verbosity > 0) 
-	   std::cout << "Error " << curPV->GetName() << curPV->GetCopyNo()
-		     << std::endl;
+	 edm::LogWarning("HcalSim") << "HcalTestAnalysis::Error in HO " 
+				    << curPV->GetName() << curPV->GetCopyNo();
 	layer = -1;
        }
     }
@@ -329,16 +304,13 @@ void HcalTestAnalysis::update(const G4Step * aStep) {
       }
     }
 
-#ifdef debugStep
-    if (layer >= 0 && layer < 20 && verbosity > 3) {
-      std::cout << "HcalTestAnalysis:: G4Step: " << name << " Layer " 
-		<< std::setw(3) << layer << " Edep " << std::setw(6) 
-		<< edeposit/MeV << " MeV" << std::endl;
+    if (layer >= 0 && layer < 20) {
+      LogDebug("HcalSim") << "HcalTestAnalysis:: G4Step: " << name << " Layer "
+			  << std::setw(3) << layer << " Edep " << std::setw(6) 
+			  << edeposit/MeV << " MeV";
     }
-#endif
   } else {
-    if (verbosity > 3)
-      std::cout << "HcalTestAnalysis:: G4Step: Null Step" << std::endl;
+    edm::LogInfo("HcalSim") << "HcalTestAnalysis:: G4Step: Null Step";
   }
 }
 
@@ -348,44 +320,28 @@ void HcalTestAnalysis::update(const EndOfEvent * evt) {
   count++;
   // Fill event input 
   fill(evt);
-
-#ifdef ddebug
-  if (verbosity > 1) 
-    std::cout << "HcalTestAnalysis:: ---  after Fill " << std::endl;
-#endif
+  LogDebug("HcalSim") << "HcalTestAnalysis:: ---  after Fill";
 
   // Qie analysis
   qieAnalysis();
-#ifdef ddebug
-  if (verbosity > 1) 
-    std::cout << "HcalTestAnalysis:: ---  after QieAnalysis " << std::endl;
-#endif
+  LogDebug("HcalSim") << "HcalTestAnalysis:: ---  after QieAnalysis";
 
   // Layers tuples filling
   layerAnalysis();
-#ifdef ddebug
-  if (verbosity > 1) 
-    std::cout << "HcalTestAnalysis:: ---  after LayerAnalysis " << std::endl;
-#endif
+  LogDebug("HcalSim") << "HcalTestAnalysis:: ---  after LayerAnalysis";
 
   // Writing the data to the Tree
   tuplesManager->fillTree(tuples); // (no need to delete it...)
   tuples = 0; // but avoid to reuse it...
-
-#ifdef ddebug
-  if (verbosity > 1) 
-    std::cout << "HcalTestAnalysis:: --- fillTree  " << std::endl;
-#endif
+  LogDebug("HcalSim") << "HcalTestAnalysis:: --- after fillTree";
 
 }
 
 //---------------------------------------------------
 void HcalTestAnalysis::fill(const EndOfEvent * evt) {
 
-#ifdef debugFill
-  if (verbosity > 1) 
-    std::cout << " Fill event " << (*evt)()->GetEventID() << std::endl;
-#endif
+  LogDebug("HcalSim") << "HcalTestAnalysis: Fill event " 
+		      << (*evt)()->GetEventID();
   
   // access to the G4 hit collections 
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
@@ -396,12 +352,8 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
   // Hcal
   int HCHCid = G4SDManager::GetSDMpointer()->GetCollectionID(names[0]);
   CaloG4HitCollection* theHCHC = (CaloG4HitCollection*) allHC->GetHC(HCHCid);
-#ifdef debugFill
-  if (verbosity > 1) 
-    std::cout << "HcalTestAnalysis :: Hit Collection for " << names[0] 
-	      << " of ID " << HCHCid << " is obtained at " << theHCHC 
-	      << std::endl;
-#endif
+  LogDebug("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names[0] 
+		      << " of ID " << HCHCid << " is obtained at " << theHCHC;
   if (HCHCid >= 0 && theHCHC > 0) {
     for (j = 0; j < theHCHC->entries(); j++) {
 
@@ -435,31 +387,20 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
 	}
       }
 
-#ifdef debugFill
-      if (verbosity > 2) 
-	std::cout << " " << det << "  layer " << std::setw(2) << layer 
-		  << " time " << std::setw(6) << time << " theta " 
-		  << std::setw(8) << theta << " eta " << std::setw(8) << eta  
-		  << " phi " << std::setw(8) << phi << " e " << std::setw(8) 
-		  << e << std::endl;   
-#endif      
+      LogDebug("HcalSim") << "HcalTest: " << det << "  layer " << std::setw(2) 
+			  << layer  << " time " << std::setw(6) << time 
+			  << " theta "  << std::setw(8) << theta << " eta " 
+			  << std::setw(8) << eta  << " phi " << std::setw(8) 
+			  << phi << " e " << std::setw(8) << e;
     }
   }
-#ifdef debugFill
-  if (verbosity > 1) 
-    std::cout << "HcalTestAnalysis::HCAL hits : " << nhc << std::endl 
-	      << std::endl; 
-#endif
+  LogDebug("HcalSim") << "HcalTestAnalysis::HCAL hits : " << nhc << "\n";
 
   // EB
   int EBHCid = G4SDManager::GetSDMpointer()->GetCollectionID(names[1]);
   CaloG4HitCollection* theEBHC = (CaloG4HitCollection*) allHC->GetHC(EBHCid);
-#ifdef debugFill
-  if (verbosity > 1) 
-    std::cout << "HcalTestAnalysis :: Hit Collection for " << names[1]
-	      << " of ID " << EBHCid << " is obtained at " << theEBHC 
-	      << std::endl;
-#endif
+  LogDebug("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names[1]
+		      << " of ID " << EBHCid << " is obtained at " << theEBHC;
   if (EBHCid >= 0 && theEBHC > 0) {
     for (j = 0; j < theEBHC->entries(); j++) {
 
@@ -484,31 +425,20 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
       CaloHit hit(subdet,lay,e,eta,phi,time,unitID);
       caloHitCache.push_back(hit);
       neb++;
-#ifdef debugFill    
-      if (verbosity > 2) 
-	std::cout << " " << det << "  layer " << std::setw(2) << layer 
-		  << " time " << std::setw(6) << time << " theta " 
-		  << std::setw(8) << theta << " eta " << std::setw(8) << eta 
-		  << " phi " << std::setw(8) << phi << " e " << std::setw(8) 
-		  << e << std::endl;   
-#endif
+      LogDebug("HcalSim") << "HcalTest: " << det << "  layer " << std::setw(2) 
+			  << layer << " time " << std::setw(6) << time 
+			  << " theta " << std::setw(8) << theta << " eta " 
+			  << std::setw(8) << eta << " phi " << std::setw(8) 
+			  << phi << " e " << std::setw(8) << e;
     }
   }
-#ifdef debugFill
-  if (verbosity > 1) 
-    std::cout << "HcalTestAnalysis::EB hits : " << neb << std::endl 
-	      << std::endl; 
-#endif
+  LogDebug("HcalSim") << "HcalTestAnalysis::EB hits : " << neb << "\n";
 
   // EE
   int EEHCid = G4SDManager::GetSDMpointer()->GetCollectionID(names[2]);
   CaloG4HitCollection* theEEHC = (CaloG4HitCollection*) allHC->GetHC(EEHCid);
-#ifdef debugFill
-  if (verbosity > 1) 
-    std::cout << "HcalTestAnalysis :: Hit Collection for " << names[2]
-	      << " of ID " << EEHCid << " is obtained at " << theEEHC 
-	      << std::endl;
-#endif
+  LogDebug("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names[2]
+		      << " of ID " << EEHCid << " is obtained at " << theEEHC;
   if (EEHCid >= 0 && theEEHC > 0) {
     for (j = 0; j < theEEHC->entries(); j++) {
 
@@ -533,21 +463,14 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
       CaloHit hit(subdet,lay,e,eta,phi,time,unitID);
       caloHitCache.push_back(hit);
       nef++;
-#ifdef debugFill
-      if (verbosity > 2) 
-	std::cout << " " << det << "  layer " << std::setw(2) << layer 
-		  << " time " << std::setw(6) << time << " theta " 
-		  << std::setw(8) << theta << " eta " << std::setw(8) << eta  
-		  << " phi " << std::setw(8) << phi << " e " << std::setw(8) 
-		  << e << std::endl;   
-#endif
+      LogDebug("HcalSim") << "HcalTest: " << det << "  layer " << std::setw(2)
+			  << layer << " time " << std::setw(6) << time 
+			  << " theta " << std::setw(8) << theta << " eta " 
+			  << std::setw(8) << eta  << " phi " << std::setw(8) 
+			  << phi << " e " << std::setw(8) << e;
     }
   }
-#ifdef debugFill
-  if (verbosity > 1) 
-    std::cout << "HcalTestAnalysis::EE hits : " << nef << std::endl 
-	      << std::endl; 
-#endif
+  LogDebug("HcalSim") << "HcalTestAnalysis::EE hits : " << nef << "\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -569,12 +492,9 @@ void HcalTestAnalysis::qieAnalysis() {
   } else if (subdet == static_cast<int>(HcalEndcap)) {
     laymax = 2; det = "HES";
   }
-#ifdef debugqie
-  if (verbosity > 1) 
-    std::cout << "HcalTestAnalysis::Qie: " << det << " Eta " << ieta << " Phi "
-	      << iphi << " Laymax " << laymax << " Hits " << hittot 
-	      << std::endl;
-#endif
+  LogDebug("HcalSim") << "HcalTestAnalysis::Qie: " << det << " Eta " << ieta 
+		      << " Phi " << iphi << " Laymax " << laymax << " Hits "
+		      << hittot;
 
   if (laymax>0 && hittot>0) {
     std::vector<CaloHit>  hits(hittot);
@@ -621,9 +541,7 @@ void HcalTestAnalysis::qieAnalysis() {
 	    }
 	    if (zsidec==zside && idx==tower_[it]) {
 	      hits[nhit] = hit;
-#ifdef debugqie
-	      if (verbosity > 2) std::cout << nhit << " " << hit << std::endl;
-#endif
+	      LogDebug("HcalSim") << "HcalTest: Hit " << nhit << " " << hit;
 	      nhit++;
 	      esim += hit.e();
 	    }
@@ -633,11 +551,8 @@ void HcalTestAnalysis::qieAnalysis() {
 	std::vector<int> cd = myqie->getCode(nhit,hits);
 	double         eqie = myqie->getEnergy(cd);
 
-#ifdef debugqie
-	if (verbosity > 1)
-	  std::cout << "HcalTestAnalysis::Qie: Energy in layer " << layr 
-		    << " Sim " << esim << " After QIE " << eqie << std::endl;
-#endif
+	LogDebug("HcalSim") << "HcalTestAnalysis::Qie: Energy in layer " 
+			    << layr << " Sim " << esim << " After QIE " <<eqie;
 	for (int i=0; i<4; i++) {
 	  if (tower_[nTower+it] <= i) {
 	    esimtot[i]         += esim;
@@ -650,11 +565,8 @@ void HcalTestAnalysis::qieAnalysis() {
 	}
       }
     }
-#ifdef debugqie
-    if (verbosity > 1)
-      std::cout << "HcalTestAnalysis::Qie: Total energy " << esimtot[3] 
-		<< " (SimHit) " << eqietot[3] << " (After QIE)" << std::endl;
-#endif
+    LogDebug("HcalSim") << "HcalTestAnalysis::Qie: Total energy " << esimtot[3]
+			<< " (SimHit) " << eqietot[3] << " (After QIE)";
 
     std::vector<double> latphi(10);
     int nt = 2*addTower + 1;
@@ -683,24 +595,17 @@ void HcalTestAnalysis::qieAnalysis() {
 //---------------------------------------------------
 void HcalTestAnalysis::layerAnalysis(){
 
-#ifdef debugLayer
-  if (verbosity > 1) {
-    int i = 0;
-    std::cout << std::endl
-	      << " ===>>> HcalTestAnalysis: Energy deposit in MeV " <<std::endl
-	      << " at EB : " << setw(6) << edepEB/MeV << std::endl
-	      << " at EE : " << setw(6) << edepEE/MeV << std::endl
-	      << " at HB : " << setw(6) << edepHB/MeV << std::endl
-	      << " at HE : " << setw(6) << edepHE/MeV << std::endl
-	      << " at HO : " << setw(6) << edepHO/MeV << std::endl
-	      << std::endl
-	      << " ---- HcalTestAnalysis: Energy deposit in Layers" 
-	      << std::endl;
-    for (i = 0; i < 20; i++) 
-      std::cout << " Layer " << std::setw(2) << i << " E " << std::setw(8) 
-		<< edepl[i]/MeV  << " MeV" << std::endl;
-  }
-#endif
+  int i = 0;
+  LogDebug("HcalSim") << "\n ===>>> HcalTestAnalysis: Energy deposit in MeV " 
+		      << "\n at EB : " << setw(6) << edepEB/MeV 
+		      << "\n at EE : " << setw(6) << edepEE/MeV 
+		      << "\n at HB : " << setw(6) << edepHB/MeV
+		      << "\n at HE : " << setw(6) << edepHE/MeV
+		      << "\n at HO : " << setw(6) << edepHO/MeV
+		      << "\n ---- HcalTestAnalysis: Energy deposit in Layers"; 
+  for (i = 0; i < 20; i++) 
+    LogDebug("HcalSim") << " Layer " << std::setw(2) << i << " E " 
+			<< std::setw(8) << edepl[i]/MeV  << " MeV";
 
   tuples->fillLayers(edepl, edepHO, edepHB+edepHE, mudist);  
 }
@@ -725,11 +630,9 @@ double HcalTestAnalysis::timeOfFlight(int det, int layer, double eta) {
     if (layer>0 && layer<20) dist += zLay[layer-1]*mm/cos(theta);
   }
   double tmp = dist/c_light/ns;
-#ifdef ddebug
-  if (verbosity > 2)
-    std::cout << "HcalTestAnalysis::timeOfFlight " << tmp << " for det/lay " 
-	      << det << " " << layer << " eta/theta " << eta << " " 
-	      << theta/deg << " dist " << dist << std::endl;
-#endif
+  LogDebug("HcalSim") << "HcalTestAnalysis::timeOfFlight " << tmp 
+		      << " for det/lay " << det << " " << layer 
+		      << " eta/theta " << eta << " " << theta/deg << " dist " 
+		      << dist;
   return tmp;
 }

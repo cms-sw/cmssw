@@ -23,15 +23,11 @@ HFShower::HFShower(const DDCompactView & cpv, edm::ParameterSet const & p) :
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   //static SimpleConfigurable<double> cf1(0.5, "HFShower:CFibre");
   //static SimpleConfigurable<float>  pPr(0.7268,"VCalShowerLibrary:ProbMax");
-  verbosity        = m_HF.getParameter<int>("Verbosity");
   cFibre           = c_light*(m_HF.getParameter<double>("CFibre"));
   probMax          = m_HF.getParameter<double>("ProbMax");
-  int iv           = verbosity/10;
-  verbosity       %= 10;
 
-  if (verbosity>0)
-    std::cout << "HFShower:: Speed of light in fibre " << cFibre
-	      << " m/ns  Maximum probability cut off " << probMax << std::endl;
+  edm::LogInfo("HFShower") << "HFShower:: Speed of light in fibre " << cFibre
+			   << " m/ns  Maximum probability cut off " << probMax;
 
   G4String attribute = "Volume";
   G4String value     = "HFFibre";
@@ -53,16 +49,15 @@ HFShower::HFShower(const DDCompactView & cpv, edm::ParameterSet const & p) :
     if (ok) { 
       tmp.push_back(name);
       fibreDz2.insert(std::pair<G4String,double>(name,paras[0]));
-      if (verbosity > 0) 
-	std::cout << "HFShower::initMap (for " << value << "): Solid " << name
-		  << " Shape " << sol.shape() << " Parameter 0 = "
-		  << paras[0] << std::endl;
+      edm::LogInfo("HFShower") << "HFShower::initMap (for " << value 
+			       << "): Solid " << name << " Shape " 
+			       << sol.shape() << " Parameter 0 = " << paras[0];
     }
     dodet = fv.next();
   }
 
   cherenkov = new HFCherenkov(p);
-  fibre     = new HFFibre(iv, cpv);
+  fibre     = new HFFibre(cpv);
   clearHits();
 }
 
@@ -82,8 +77,7 @@ int HFShower::getHits(G4Step * aStep) {
   if (aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.)
     stepl = aStep->GetStepLength();
   if ((edep == 0.) || (stepl == 0.)) {
-    if (verbosity > 2)
-      std::cout << "HFShower::getHits: Number of Hits " << nHit << std::endl;
+    LogDebug("HFShower") << "HFShower::getHits: Number of Hits " << nHit;
     return nHit;
   }
 
@@ -115,12 +109,11 @@ int HFShower::getHits(G4Step * aStep) {
   double zFibre   = (fibreLength(name)-zCoor);
   double tSlice   = (aStep->GetPostStepPoint()->GetGlobalTime());
 
-  if (verbosity > 1)
-    std::cout << "HFShower::getHits: in " << name << " Z " << zCoor << " "
-	      << fibreLength(name) << " " << zFibre << " Time " << tSlice 
-	      << " " << zFibre/cFibre << std::endl << "                  "
-	      << "Direction " << momentumDir << " Local " << localMom 
-	      << std::endl;
+  LogDebug("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor 
+		       << " " << fibreLength(name) << " " << zFibre << " Time "
+		       << tSlice  << " " << zFibre/cFibre 
+		       << "\n                  Direction " << momentumDir 
+		       << " Local " << localMom;
  
   int npe = cherenkov->computeNPE(particleDef, pBeta, u, v, w, stepl, zFibre, 
 				  dose, npeDose);
@@ -130,11 +123,10 @@ int HFShower::getHits(G4Step * aStep) {
     double p   = fibre->attLength(wavelength[i]);
     double r1  = RandFlat::shoot(0.0,1.0);
     double r2  = RandFlat::shoot(0.0,1.0);
-    if (verbosity > 2)
-      std::cout << "HFShower::getHits: " << i << " attenuation " << r1 <<":" 
-		<< exp(-p*zFibre) << " r2 " << r2 << ":" << probMax
-		<< " Survive: " << (r1 <= exp(-p*zFibre) && r2 <= probMax)
-		<< std::endl;
+    LogDebug("HFShower") << "HFShower::getHits: " << i << " attenuation " << r1
+			 <<":" << exp(-p*zFibre) << " r2 " << r2 << ":" 
+			 << probMax << " Survive: " 
+			 << (r1 <= exp(-p*zFibre) && r2 <= probMax);
     if (r1 <= exp(-p*zFibre) && r2 <= probMax) {
       nHit++;
       double time = zFibre / cFibre; // remaining part
@@ -142,12 +134,11 @@ int HFShower::getHits(G4Step * aStep) {
       timHit.push_back(tSlice+time);
     }
   }
-  if (verbosity > 1) {
-    std::cout << "HFShower::getHits: Number of Hits " << nHit << std::endl;
-    for (int i=0; i<nHit; i++)
-      std::cout << "        Hit " << i << " WaveLength " << wlHit[i] 
-		<< " Time " << timHit[i] << std::endl;
-  }
+
+  LogDebug("HFShower") << "HFShower::getHits: Number of Hits " << nHit;
+  for (int i=0; i<nHit; i++)
+    LogDebug("HFShower") << "HFShower::Hit " << i << " WaveLength " << wlHit[i]
+			 << " Time " << timHit[i];
 
   return nHit;
 
@@ -157,9 +148,7 @@ double HFShower::getTSlice(int i) {
    
   double tim = 0.;
   if (i < nHit) tim = timHit[i];
-  if (verbosity > 2) 
-    std::cout << " HFShower: Time (" << i << "/" << nHit << ") "
-	      << tim << std::endl;
+  LogDebug("HFShower") << "HFShower: Time (" << i << "/" << nHit << ") " <<tim;
   return tim;
 }
 

@@ -6,6 +6,7 @@
 #define HFCherenkov_h 1
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DynamicParticle.hh"
 #include "G4ParticleDefinition.hh"
@@ -51,7 +52,6 @@ private:
 
 private:
 
-   int                 verbosity;
    double              ref_index;
    double              lambda1, lambda2;
    double              aperture, apertureTrap;

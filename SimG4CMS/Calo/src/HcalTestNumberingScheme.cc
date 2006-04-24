@@ -6,15 +6,12 @@
 
 #include <iostream>
 
-HcalTestNumberingScheme::HcalTestNumberingScheme(int iv) : 
-  HcalNumberingScheme(iv) {
-  if (verbosity>0) 
-    std::cout << "Creating HcalTestNumberingScheme" << std::endl;
+HcalTestNumberingScheme::HcalTestNumberingScheme() : HcalNumberingScheme() {
+  edm::LogInfo("HcalSim") << "Creating HcalTestNumberingScheme";
 }
 
 HcalTestNumberingScheme::~HcalTestNumberingScheme() {
-  if (verbosity>0) 
-    std::cout << "Deleting HcalTestNumberingScheme" << std::endl;
+  edm::LogInfo("HcalSim") << "Deleting HcalTestNumberingScheme";
 }
 
 uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID 
@@ -24,12 +21,11 @@ uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID
   uint32_t index = packHcalIndex(id.subdet, id.zside, id.depth, id.etaR,
 				 id.phi, id.lay);
 
-  if (verbosity>1) 
-    std::cout << "HcalTestNumberingScheme det = " << id.subdet 
-	      << " depth/lay = " << id.depth << "/" << id.lay << " zside = " 
-	      << id.zside << " eta/R = " << id.etaR << " phi = " << id.phi 
-	      << " packed index = 0x" << std::hex << index << std::dec 
-	      << std::endl;
+  LogDebug("HcalSim") << "HcalTestNumberingScheme det = " << id.subdet 
+		      << " depth/lay = " << id.depth << "/" << id.lay 
+		      << " zside = " << id.zside << " eta/R = " << id.etaR 
+		      << " phi = " << id.phi << " packed index = 0x" 
+		      << std::hex << index << std::dec;
 
   return index;
 

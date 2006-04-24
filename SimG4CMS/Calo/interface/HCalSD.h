@@ -49,7 +49,6 @@ private:
   HcalNumberingScheme*  numberingScheme;
   HFShowerLibrary *     showerLibrary;
   HFShower *            hfshower;
-  int                   verbosity;
   bool                  useBirk;
   double                birk1, birk2;
   bool                  useShowerLibrary;

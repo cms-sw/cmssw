@@ -40,10 +40,7 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   //static SimpleConfigurable<float>  pProbmax(0.7268,"HFShowerLibrary:ProbMax");
 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
-  verbosity        = m_HF.getParameter<int>("Verbosity");
-  probMax          = m_HF.getParameter<double>("ProbMax");
-  int iv           = verbosity/10;
-  verbosity       %= 10;
+  probMax                 = m_HF.getParameter<double>("ProbMax");
 
   edm::ParameterSet m_HS= p.getParameter<edm::ParameterSet>("HFShowerLibrary");
   edm::FileInPath fp       = m_HS.getParameter<edm::FileInPath>("FileName");
@@ -59,71 +56,64 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   if (fp.relativePath() == "vcal5x5.root") format = false;
 
   if (!hf->IsOpen()) { 
-    if (verbosity > 0)
-      std::cout << "HFShowerLibrary: opening " << nTree << " failed " 
-		<< std::endl; 
-    throw cms::Exception("Unknown", "HFShowerLibrary")
-      << "Opening of " << pTreeName << " fails" <<"\n";
+    edm::LogError("HFShower") << "HFShowerLibrary: opening " << nTree 
+			      << " failed\n";
+    throw cms::Exception("Unknown", "HFShowerLibrary") 
+      << "Opening of " << pTreeName << " fails\n";
   } else {
-    if (verbosity > 0)
-      std::cout << "HFShowerLibrary: opening " << nTree << " successful " 
-		<< std::endl;
+    edm::LogInfo("HFShower") << "HFShowerLibrary: opening " << nTree 
+			     << " successfully\n"; 
   }
 
   emTree  = (TTree *) hf->Get(emTree_name.c_str());
   emTree->Print();
   hadTree = (TTree *) hf->Get(hadTree_name.c_str());
   hadTree->Print();
-  if (verbosity > 0)
-    std::cout << "HFShowerLibrary:Ntuple " << emTree_name << " has "
-	      << emTree->GetEntries() << " entries and Ntuple " 
-	      << hadTree_name << " has " << hadTree->GetEntries() 
-	      << " entries " << std::endl;
+  edm::LogInfo("HFShower") << "HFShowerLibrary:Ntuple " << emTree_name 
+			   << " has " << emTree->GetEntries() 
+			   << " entries and Ntuple "  << hadTree_name 
+			   << " has " << hadTree->GetEntries() << " entries\n";
 
   //Packing parameters
   TTree * packing = (TTree *) hf->Get("Packing");
   if (packing) {
     loadPacking(packing);
-    if (verbosity > 0)
-      std::cout << "HFShowerLibrary::XOffset: " << xOffset 
-		<< " XMultiplier: " << xMultiplier << " XScale: " << xScale 
-		<< " YOffset: " << yOffset << " YMultiplier: " << yMultiplier 
-		<< " YScale: " << yScale  << " ZOffset: " << zOffset 
-		<< " ZMultiplier: " << zMultiplier << " ZScale: " << zScale 
-		<< std::endl;
+    edm::LogInfo("HFShower") << "HFShowerLibrary::XOffset: " << xOffset 
+			     << " XMultiplier: " << xMultiplier << " XScale: " 
+			     << xScale << " YOffset: " << yOffset 
+			     << " YMultiplier: " << yMultiplier << " YScale: " 
+			     << yScale  << " ZOffset: " << zOffset 
+			     << " ZMultiplier: " << zMultiplier << " ZScale: " 
+			     << zScale << "\n";
   } else {
-    if (verbosity > 0)
-      std::cout << "HFShowerLibrary: Packing Branch does not exist" 
-		<< std::endl;
+    edm::LogError("HFShower") << "HFShowerLibrary: Packing Branch does not"
+			      << " exist\n" ;
     throw cms::Exception("Unknown", "HFShowerLibrary")
-      << "Packing information absent" <<"\n";
+      << "Packing information absent\n";
   } 
 
   TTree * evtinfo = (TTree *) hf->Get("EventInfo");
   if (evtinfo) {
     loadEventInfo(evtinfo, format);
-    if (verbosity > 0) {
-      std::cout << "HFShowerLibrary: Library " << libVers << " ListVersion "
-		<< listVersion << " Events Total " << totEvents << " and "
-		<< evtPerBin << " per bin" << std::endl;
-      std::cout << "HFShowerLibrary: Energies (GeV) with " << nMomBin
-		<< " bins" << std::endl << "                   ";
-      for (int i=0; i<nMomBin; i++)
-	std::cout << " " << pmom[i]/GeV;
-      std::cout << std::endl;
-    }
+    edm::LogInfo("HFShower") << "HFShowerLibrary: Library " << libVers 
+			     << " ListVersion "	<< listVersion 
+			     << " Events Total " << totEvents << " and "
+			     << evtPerBin << " per bin\n";
+    edm::LogInfo("HFShower") << "HFShowerLibrary: Energies (GeV) with " 
+			     << nMomBin	<< " bins";
+    for (int i=0; i<nMomBin; i++)
+      edm::LogInfo("HFShower") << " " << pmom[i]/GeV;
+    edm::LogInfo("HFShower") << "\n";
   } else {
-    if (verbosity > 0)
-      std::cout << "HFShowerLibrary: EvtInfo Branch does not exist" 
-		<< std::endl;
+    edm::LogError("HFShower") << "HFShowerLibrary: EvtInfo Branch does not"
+			      << " exist\n";
     throw cms::Exception("Unknown", "HFShowerLibrary")
-      << "Event information absent" <<"\n";
+      << "Event information absent\n";
   } 
 
-  if (verbosity > 0)
-    std::cout << "HFShowerLibrary: Maximum probability cut off " << probMax
-	      << std::endl;
-
+  edm::LogInfo("HFShower") << "HFShowerLibrary: Maximum probability cut off " 
+			   << probMax << "\n";
+  
   G4String attribute = "ReadOutName";
   G4String value     = name;
   DDSpecificsFilter filter;
@@ -139,9 +129,8 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   std::vector<double> rTable = getDDDArray("rTable",sv,nR);
   rMin = rTable[0];
   rMax = rTable[nR-1];
-  if (verbosity > 0)
-    std::cout << "HFShowerLibrary: rMIN " << rMin/cm << " cm and rMax "
-	      << rMax/cm << std::endl;
+  edm::LogInfo("HFShower") << "HFShowerLibrary: rMIN " << rMin/cm 
+			   << " cm and rMax " << rMax/cm << "\n";
 
   //Delta phi
   int nEta   = -1;
@@ -149,22 +138,18 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   int nPhi   = nEta + nR - 2;
   std::vector<double> phibin   = getDDDArray("phibin",sv,nPhi);
   dphi       = phibin[nEta-1];
-  if (verbosity > 0)
-    std::cout << "HFShowerLibrary: (Half) Phi Width of wedge " << dphi/deg
-	      << std::endl;
+  edm::LogInfo("HFShower") << "HFShowerLibrary: (Half) Phi Width of wedge " 
+			   << dphi/deg << "\n";
 
   //Special Geometry parameters
   int ngpar = 7;
   gpar      = getDDDArray("gparHF",sv,ngpar);
-  if (verbosity > 0) {
-    std::cout << "HFShowerLibrary: " << ngpar << " gpar (cm)";
-    for (int ig=0; ig<ngpar; ig++) {
-      std::cout << " " << gpar[ig]/cm;
-    }
-    std::cout << std::endl;
-  }
-
-  fibre = new HFFibre(iv, cpv);
+  edm::LogInfo("HFShower") << "HFShowerLibrary: " << ngpar << " gpar (cm)";
+  for (int ig=0; ig<ngpar; ig++)
+    edm::LogInfo("HFShower") << " " << gpar[ig]/cm;
+  edm::LogInfo("HFShower") << "\n";
+  
+  fibre = new HFFibre(cpv);
 }
 
 HFShowerLibrary::~HFShowerLibrary() {
@@ -199,9 +184,8 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
   double stheta = sin(hitPoint.theta());
 
 #ifdef debug
-  if (verbosity > 2)
-    std::cout << "HFShowerLibrary: Interpolate " << partType
-	      << " of energy " << pin/GeV << " GeV" << std::endl;
+  LogDebug("HFShower") << "HFShowerLibrary: Interpolate " << partType
+		       << " of energy " << pin/GeV << " GeV";
 #endif
   if (partType == "pi0" || partType == "eta" || partType == "nu_e" ||
       partType == "nu_mu" || partType == "nu_tau" || partType == "anti_nu_e" ||
@@ -230,10 +214,9 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
   }
   for (int i = 0; i < npe; i++) {
 #ifdef debug
-    if (verbosity > 2)
-      std::cout << "HFShowerLibrary: Hit " << i << " position " << xpe[i]
-		<< ", " << ype[i] << ", " << zpe[i] << " Lambda " << lpe[i]
-		<< " Time " << tpe[i] << std::endl;
+    LogDebug("HFShower") << "HFShowerLibrary: Hit " << i << " position " 
+			 << xpe[i] << ", " << ype[i] << ", " << zpe[i] 
+			 << " Lambda " << lpe[i] << " Time " << tpe[i];
 #endif
     double zv = (zpe[i] >= 0 ? zpe[i] : -zpe[i]);
     if (zv <= gpar[1] && lpe[i] > 0 &&
@@ -259,20 +242,20 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
       if (dfi < 0) dfi = -dfi;
       double dfir  = r * sin(dfi);
 #ifdef debug
-      if (verbosity > 2)
-	std::cout << "HFShowerLibrary: Position " << xx << ", " << yy << ", " 
-		  << zz << ": " << (*pos) << " R " << r << " Phi " << fi 
-		  << " Section " << isect << " R*Dfi " << dfir << std::endl;
+      LogDebug("HFShower") << "HFShowerLibrary: Position " << xx << ", " << yy 
+			   << ", "  << zz << ": " << (*pos) << " R " << r 
+			   << " Phi " << fi << " Section " << isect 
+			   << " R*Dfi " << dfir;
 #endif
       zz           = (pos->z() >= 0 ? pos->z() : -pos->z());
       double r1    = RandFlat::shoot(0.0,1.0);
       double r2    = RandFlat::shoot(0.0,1.0);
 #ifdef debug
-      if (verbosity > 2)
-	std::cout << "                   rLimits " << rInside(r)
-		  << " attenuation " << r1 <<":" << exp(-p*zv) << " r2 " << r2
-		  << " rDfi " << gpar[5] << " zz " << zz << " zLim " 
-		  << gpar[4] << ":" << gpar[4]+gpar[1] << std::endl;
+      LogDebug("HFShower") << "                   rLimits " << rInside(r)
+			   << " attenuation " << r1 <<":" << exp(-p*zv) 
+			   << " r2 " << r2 << " rDfi " << gpar[5] << " zz " 
+			   << zz << " zLim " << gpar[4] << ":" 
+			   << gpar[4]+gpar[1];
 #endif
       if (rInside(r) && r1 <= exp(-p*zv) && r2 <= probMax && dfir > gpar[5] &&
 	  zz >= gpar[4] && zz <= gpar[4]+gpar[1]) {
@@ -280,10 +263,9 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 	depHit[nHit] = depth;
 	timHit[nHit] = (tSlice + tpe[i]);
 #ifdef debug
-      if (verbosity > 2)
-	std::cout << "HFShowerLibrary: Final Hit " << nHit <<" position "
-		  << (*(posHit[nHit])) << " Depth " << depHit[nHit] 
-		  << " Time " << timHit[nHit] << std::endl;
+	LogDebug("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
+			     <<" position " << (*(posHit[nHit])) << " Depth " 
+			     << depHit[nHit] << " Time " << timHit[nHit];
 #endif
 	nHit++;
       }
@@ -291,12 +273,11 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
   }
 
 #ifdef debug
-  if (verbosity > 1)
-    std::cout << "HFShowerLibrary: Total Hits " << nHit << std::endl;
+  LogDebug("HFShower") << "HFShowerLibrary: Total Hits " << nHit;
 #endif
-  if (nHit > npe && verbosity > 0) 
-    std::cout << "HFShowerLibrary: Hit buffer " << npe << " smaller than "
-	      << nHit << " Hits" << std::endl;
+  if (nHit > npe)
+    edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
+				<< " smaller than " << nHit << " Hits\n";
   return nHit;
 
 }
@@ -306,9 +287,8 @@ G4ThreeVector HFShowerLibrary::getPosHit(int i) {
   G4ThreeVector pos;
   if (i < nHit) pos = (*(posHit[i]));
 #ifdef debug
-  if (verbosity > 2)
-    std::cout << " HFShowerLibrary: PosHit (" << i << "/" << nHit << ") "
-	      << pos << std::endl;
+  LogDebug("HFShower") << " HFShowerLibrary: PosHit (" << i << "/" << nHit 
+		       << ") " << pos;
 #endif
   return pos;
 }
@@ -318,9 +298,8 @@ int HFShowerLibrary::getDepth(int i) {
   int depth = 0;
   if (i < nHit) depth = depHit[i];
 #ifdef debug 
-  if (verbosity > 2)
-    std::cout << " HFShowerLibrary: Depth (" << i << "/" << nHit << ") " 
-	      << depth << std::endl;
+  LogDebug("HFShower") << " HFShowerLibrary: Depth (" << i << "/" << nHit 
+		       << ") "  << depth;
 #endif
   return depth;
 }
@@ -330,9 +309,8 @@ double HFShowerLibrary::getTSlice(int i) {
   double tim = 0.;
   if (i < nHit) tim = timHit[i];
 #ifdef debug  
-  if (verbosity > 2)
-    std::cout << " HFShowerLibrary: Time (" << i << "/" << nHit << ") "  
-	      << tim << std::endl; 
+  LogDebug("HFShower") << " HFShowerLibrary: Time (" << i << "/" << nHit 
+		       << ") "  << tim;
 #endif
   return tim;
 }
@@ -349,7 +327,7 @@ int HFShowerLibrary::getPhoton(TTree* tree, int record) {
   int nph = 0;
   if (tree && record > 0) {
     tree->SetBranchAddress("NPH", &nph);
-    tree->GetEntry(record);
+    tree->GetEntry(record-1);
   }
   return nph;
 }
@@ -365,23 +343,21 @@ void HFShowerLibrary::getRecord(TTree* tree, int record) {
     l    = new int[nPhoton];
     it   = new int[nPhoton];
 #ifdef debug
-    if (verbosity > 2)
-      std::cout << "HFShowerLibrary: Record " << record << " with "
-		<< nPhoton << " photons " << std::endl;
+    LogDebug("HFShower") << "HFShowerLibrary: Record " << record << " with "
+			 << nPhoton << " photons";
 #endif
     int coor[9000], wl[9000], time[9000];
     tree->SetBranchAddress("XYZ", &coor);
     tree->SetBranchAddress("L",   &wl);
     tree->SetBranchAddress("T",   &time);
-    tree->GetEntry(record);
+    tree->GetEntry(record-1);
     for (int j = 0; j < nPhoton; j++) {
       ixyz[j] = coor[j];
       l[j]    = wl[j];
       it[j]   = time[j];
 #ifdef debug
-      if (verbosity > 2)
-        std::cout << "Photon " << j << " xyz " << ixyz[j] << " L " << l[j]
-		  << " Time " << it[j] << std::endl;
+      LogDebug("HFShower") << "Photon " << j << " xyz " << ixyz[j] << " L " 
+			   << l[j] << " Time " << it[j];
 #endif
     }
   }
@@ -406,12 +382,11 @@ void HFShowerLibrary::loadPacking(TTree* tree) {
 void HFShowerLibrary::loadEventInfo(TTree* tree, bool format) {
 
   int v[200];
+  libVers     = -1;
+  listVersion = 0;
   if (format) {
     tree->SetBranchAddress("LIBVERS",     &libVers);
     tree->SetBranchAddress("PHYLISTVERS", &listVersion);
-  } else {
-    libVers     = -1;
-    listVersion = 0;
   }
   tree->SetBranchAddress("NUMBINS",     &nMomBin);
   tree->SetBranchAddress("EVTNUMPERBIN",&evtPerBin);
@@ -428,12 +403,12 @@ void HFShowerLibrary::loadEventInfo(TTree* tree, bool format) {
 
 void HFShowerLibrary::interpolate(TTree * tree, double pin) {
 
-  int nevent = int(tree->GetEntries())/nMomBin;
+  int nentry = int(tree->GetEntries());
+  int nevent = nentry/nMomBin;
 #ifdef debug
-  if (verbosity > 1)
-    std::cout << "HFShowerLibrary:: Interpolate for Energy " << pin/GeV
-	      << " GeV with " << nMomBin << " momentum bins and " << nevent 
-	      << " entries/bin -- total " << tree->GetEntries() << std::endl;
+  LogDebug("HFShower") << "HFShowerLibrary:: Interpolate for Energy " <<pin/GeV
+		       << " GeV with " << nMomBin << " momentum bins and " 
+		       << nevent << " entries/bin -- total " << nentry;
 #endif
   int irc[2], j;
   double w = 0.;
@@ -447,7 +422,7 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
     for (j=0; j<nMomBin-1; j++) {
       if (pin >= pmom[j] && pin < pmom[j+1]) {
 	w = (pin-pmom[j])/(pmom[j+1]-pmom[j]);
-	if (j == nMomBin-1) { 
+	if (j == nMomBin-2) { 
 	  irc[1] = int(nevent*0.5*r);
 	} else {
 	  irc[1] = int(nevent*r);
@@ -455,14 +430,33 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
 	irc[1] += (j+1)*nevent + 1;
 	r = RandFlat::shoot(0.0,1.0);
 	irc[0] = int(nevent*r) + 1 + j*nevent;
+	if (irc[0]<0) {
+	  edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[0] = "
+				      << irc[0] << " now set to 0\n";
+	  irc[0] = 0;
+	} else if (irc[0] > nentry) {
+	  edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[0] = "
+				      << irc[0] << " now set to "<< nentry 
+				      << "\n";
+	  irc[0] = nentry;
+	}
       }
     }
   }
+  if (irc[1]<1) {
+    edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[1] = " 
+				<< irc[1] << " now set to 1\n";
+    irc[1] = 1;
+  } else if (irc[1] > nentry) {
+    edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[1] = " 
+				<< irc[1] << " now set to "<< nentry << "\n";
+    irc[1] = nentry;
+  }
 
 #ifdef debug
-  if (verbosity > 2)
-    std::cout << "HFShowerLibrary:: Select records " << irc[0] << " and "
-	      << irc[1] << " with weights " << 1-w << " and " << w <<std::endl;
+  LogDebug("HFShower") << "HFShowerLibrary:: Select records " << irc[0] 
+		       << " and " << irc[1] << " with weights " << 1-w 
+		       << " and " << w;
 #endif
   int npold = getPhoton (tree, irc[1]);
   if (irc[0]>0) {
@@ -496,34 +490,32 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
     }
   }
 
-  if ((npe > npold || npold == 0) && verbosity > 0)
-    std::cout << "HFShowerLibrary: Interpolation error == buffer " 
-	      << npold << " filled " << npe << " *****" << std::endl;
+  if (npe > npold || npold == 0)
+    edm::LogWarning("HFShower") << "HFShowerLibrary: Interpolation error =="
+				<< " buffer " << npold << " filled " << npe 
+				<< " *****\n";
 #ifdef debug
-  if (verbosity > 2) {
-    std::cout << "HFShowerLibrary: Interpolation gives " << npe
-              << " Photons == buffer " << npold << std::endl;
-    for (j=0; j<npe; j++) {
-      std::cout << "Photon " << j << " X " << xpe[j] << " Y " << ype[j]
-	        << " Z " << zpe[j] << " Lam " << lpe[j] << " T " 
-		<< tpe[j] << std::endl;
-    }
-  }
+  LogDebug("HFShower") << "HFShowerLibrary: Interpolation gives " << npe
+		       << " Photons == buffer " << npold;
+  for (j=0; j<npe; j++)
+    LogDebug("HFShower") << "Photon " << j << " X " << xpe[j] << " Y " <<ype[j]
+			 << " Z " << zpe[j] << " Lam " << lpe[j] << " T " 
+			 << tpe[j];
 #endif
 }
 
 void HFShowerLibrary::extrapolate(TTree * tree, double pin) {
 
-  int nevent = int((tree)->GetEntries())/nMomBin;
+  int nentry = int(tree->GetEntries());
+  int nevent = nentry/nMomBin;
   int nrec   = int(pin/pmom[nMomBin-1]);
   double w   = (pin - pmom[nMomBin-1]*nrec)/pmom[nMomBin-1];
   nrec++;
 #ifdef debug
-  if (verbosity > 1)
-    std::cout << "HFShowerLibrary:: Extrapolate for Energy " << pin 
-	      << " GeV with " << nMomBin << " momentum bins and " << nevent 
-	      << " entries/bin -- total " << tree->GetEntries() << " using " 
-	      << nrec << " records"  << std::endl << " Records:";
+  LogDebug("HFShower") << "HFShowerLibrary:: Extrapolate for Energy " << pin 
+		       << " GeV with " << nMomBin << " momentum bins and " 
+		       << nevent << " entries/bin -- total " << nentry 
+		       << " using " << nrec << " records";
 #endif
   int * irc  = new int[nrec];
   int   j, ir;
@@ -534,13 +526,23 @@ void HFShowerLibrary::extrapolate(TTree * tree, double pin) {
   for (ir=0; ir<nrec; ir++) {
     r = RandFlat::shoot(0.0,1.0);
     irc[ir] = int(nevent*0.5*r) +(nMomBin-1)*nevent + 1;
+    if (irc[ir]<1) {
+      edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[" << ir 
+				  << "] = " << irc[ir] << " now set to 1\n";
+      irc[ir] = 1;
+    } else if (irc[ir] > nentry) {
+      edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[" << ir 
+				  << "] = " << irc[ir] << " now set to "
+				  << nentry << "\n";
+      irc[ir] = nentry;
+    }
 #ifdef debug
-    if (verbosity > 1) std::cout << " " << irc[ir];
+    LogDebug("HFShower") << "Record [" << ir << "] = " << irc[ir];
 #endif
     npold += getPhoton (tree, irc[ir]);
   }
 #ifdef debug
-  if (verbosity > 0) std::cout << " with " << npold << " photons" << std::endl;
+  LogDebug("HFShower") << "HFShowerLibrary:: uses " << npold << " photons";
 #endif
 
   if (npold <= 0) npold = 1;
@@ -561,19 +563,17 @@ void HFShowerLibrary::extrapolate(TTree * tree, double pin) {
     }
   }
 
-  if ((npe > npold || npold == 0) && verbosity > 0)
-    std::cout << "HFShowerLibrary: Extrapolation error == buffer " 
-	      << npold << " filled " << npe << " *****" << std::endl;
+  if (npe > npold || npold == 0)
+    edm::LogWarning("HFShower") << "HFShowerLibrary: Extrapolation error =="
+				<< " buffer " << npold << " filled " << npe 
+				<< " *****\n";
 #ifdef debug
-  if (verbosity > 2) {
-    std::cout << "HFShowerLibrary: Extrapolation gives " << npe
-	      << " Photons == buffer "  << npold  << std::endl;
-    for (j=0; j<npe; j++) {
-      std::cout << "Photon " << j << " X " << xpe[j] << " Y " << ype[j]
-		<< " Z " << zpe[j] << " Lam " << lpe[j] << " T " 
-		<< tpe[j] << std::endl; 
-    }
-  }
+  LogDebug("HFShower") << "HFShowerLibrary: Extrapolation gives " << npe
+		       << " Photons == buffer "  << npold;
+  for (j=0; j<npe; j++) 
+    LogDebug("HFShower") << "Photon " << j << " X " << xpe[j] << " Y " <<ype[j]
+			 << " Z " << zpe[j] << " Lam " << lpe[j] << " T " 
+			 << tpe[j];
 #endif
   delete[] irc;
 }
@@ -588,6 +588,12 @@ void HFShowerLibrary::storePhoton(int j) {
   zpe[npe] = (iz/zScale - zOffset)*cm;
   lpe[npe] = l[j];
   tpe[npe] = it[j]/100.;
+#ifdef debug
+  LogDebug("HFShower") << "HFShowerLibrary: storePhoton " << j << " npe " <<npe
+		       << " ixyz " << ixyz[j] << " x " << xpe[npe] << " y "
+		       << ype[npe] << " z " << zpe[npe] << " l " << lpe[npe]
+		       << " t " << tpe[npe];
+#endif
 }
 
 std::vector<double> HFShowerLibrary::getDDDArray(const std::string & str, 
@@ -595,30 +601,29 @@ std::vector<double> HFShowerLibrary::getDDDArray(const std::string & str,
 						 int & nmin) {
 
 #ifdef debug
-  if (verbosity > 1) 
-    std::cout << "HFShowerLibrary:getDDDArray called for " << str 
-	      << " with nMin " << nmin << std::endl;
+  LogDebug("HFShower") << "HFShowerLibrary:getDDDArray called for " << str 
+		       << " with nMin " << nmin;
 #endif
   DDValue value(str);
   if (DDfetch(&sv,value)) {
 #ifdef debug
-    if (verbosity > 3) std::cout << value << " " << std::endl;
+    LogDebug("HFShower") << value;
 #endif
     const std::vector<double> & fvec = value.doubles();
     int nval = fvec.size();
     if (nmin > 0) {
       if (nval < nmin) {
-	if (verbosity > 0) 
-	  std::cout << "HFShowerLibrary : # of " << str << " bins " << nval
-		    << " < " << nmin << " ==> illegal" << std::endl;
+	edm::LogError("HFShower") << "HFShowerLibrary : # of " << str 
+				  << " bins " << nval << " < " << nmin 
+				  << " ==> illegal\n";
 	throw cms::Exception("Unknown", "HFShowerLibrary")
 	  << "nval < nmin for array " << str << "\n";
       }
     } else {
       if (nval < 2) {
-	if (verbosity > 0) 
-	  std::cout << "HFShowerLibrary : # of " << str << " bins " << nval
-		    << " < 2 ==> illegal (nmin=" << nmin << ")" << std::endl;
+	edm::LogError("HFShower") << "HFShowerLibrary : # of " << str 
+				  << " bins " << nval << " < 2 ==> illegal"
+				  << " (nmin=" << nmin << ")\n";
 	throw cms::Exception("Unknown", "HFShowerLibrary")
 	  << "nval < 2 for array " << str << "\n";
       }
@@ -627,8 +632,8 @@ std::vector<double> HFShowerLibrary::getDDDArray(const std::string & str,
 
     return fvec;
   } else {
-    if (verbosity > 0) 
-      std::cout << "HFShowerLibrary : cannot get array " << str << std::endl;
+    edm::LogError("HFShower") << "HFShowerLibrary : cannot get array " << str 
+			      << "\n";
     throw cms::Exception("Unknown", "HFShowerLibrary") 
       << "cannot get array " << str << "\n";
   }

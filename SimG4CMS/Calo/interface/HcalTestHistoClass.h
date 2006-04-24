@@ -5,6 +5,7 @@
 #ifndef HcalTestHistoClass_H
 #define HcalTestHistoClass_H
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Calo/interface/CaloHit.h"
 
 #include <boost/cstdint.hpp>
@@ -16,7 +17,7 @@ class HcalTestHistoClass {
 
 public: 
 
-  HcalTestHistoClass(int i) : verbosity(i) {}
+  HcalTestHistoClass(int i)     {}
   explicit HcalTestHistoClass() {}
   virtual ~HcalTestHistoClass() {}
 
@@ -57,7 +58,6 @@ public:
 
 private:
 
-  int                verbosity;
   const static int   nLayersMAX = 20;
   int                nLayers;
   std::vector<Layer> layers;

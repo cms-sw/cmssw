@@ -17,8 +17,6 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 
-#define debug
-
 HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
                edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, p, manager), numberingFromDDD(0), numberingScheme(0), 
@@ -31,41 +29,31 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   //static SimpleConfigurable<bool> on2(true,"HCalSD:UseShowerLibrary");
 
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HCalSD");
-  verbosity  = m_HC.getParameter<int>("Verbosity");
   useBirk    = m_HC.getParameter<bool>("UseBirkLaw");
   birk1      = m_HC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
   birk2      = m_HC.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
   useShowerLibrary = m_HC.getParameter<bool>("UseShowerLibrary");
   bool testNumber  = m_HC.getParameter<bool>("TestNumberingScheme");
 
-  int verbddd = (verbosity/100)/10;
-  int verbn   = (verbosity/10)%10;
-  verbosity  %= 10;
+  LogDebug("HcalSim") << "***************************************************" 
+		      << "\n"
+		      << "*                                                 *"
+		      << "\n"
+		      << "* Constructing a HCalSD  with name " << name << "\n"
+		      << "*                                                 *"
+		      << "\n"
+		      << "***************************************************";
 
-#ifdef debug  
-  if (verbosity > 1)
-    std::cout << "***************************************************" 
-	      << std::endl
-	      << "*                                                 *"
-	      << std::endl
-	      << "* Constructing a HCalSD  with name " << name << std::endl
-	      << "*                                                 *"
-	      << std::endl
-	      << "***************************************************" 
-	      << std::endl;
-#endif
-
-  if (verbosity > 0)
-    std::cout << "HCalSD:: Use of shower library is set to " 
-	      << useShowerLibrary << std::endl 
-	      << "         Use of Birks law is set to      " 
-	      << useBirk << "         with the two constants C1 =     "
-	      << birk1 << ", C2 = " << birk2 << std::endl;
+  edm::LogInfo("HcalSim") << "HCalSD:: Use of shower library is set to " 
+			  << useShowerLibrary << "\n"
+			  << "         Use of Birks law is set to      " 
+			  << useBirk << "  with the two constants C1 = "
+			  << birk1 << ", C2 = " << birk2;
   
-  numberingFromDDD = new HcalNumberingFromDDD(verbddd, name, cpv);
+  numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
   HcalNumberingScheme* scheme;
-  if (testNumber) scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(verbn));
-  else            scheme = new HcalNumberingScheme(verbn);
+  if (testNumber) scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme);
+  else            scheme = new HcalNumberingScheme;
   setNumberingScheme(scheme);
   if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
   else                  hfshower      = new HFShower(cpv,p);
@@ -79,14 +67,11 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   DDFilteredView fv0(cpv);
   fv0.addFilter(filter0);
   hfNames = getNames(fv0);
-  if (verbosity > 0) {
-    std::cout << "HCalSD: Names to be tested for " << attribute << " = "
-	      << value << ":";
-    for (unsigned int i=0; i<hfNames.size(); i++)
-      std::cout << " (" << i << ") " << hfNames[i];
-    std::cout << std::endl;
-  }
-
+  edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
+			  << " = " << value << ":";
+  for (unsigned int i=0; i<hfNames.size(); i++)
+    edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << hfNames[i];
+  
   // HF Fibre volume names
   value     = "HFFibre";
   DDSpecificsFilter filter1;
@@ -95,13 +80,10 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   DDFilteredView fv1(cpv);
   fv1.addFilter(filter1);
   fibreNames = getNames(fv1);
-  if (verbosity > 0) {
-    std::cout << "HCalSD: Names to be tested for " << attribute << " = "
-	      << value << ":";
-    for (unsigned int i=0; i<fibreNames.size(); i++)
-      std::cout << " (" << i << ") " << fibreNames[i];
-    std::cout << std::endl;
-  }
+  edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
+			  << " = " << value << ":";
+  for (unsigned int i=0; i<fibreNames.size(); i++)
+    edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << fibreNames[i];
 
   //Material list for HB/HE/HO sensitive detectors
   attribute = "ReadOutName";
@@ -115,13 +97,9 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   DDsvalues_type sv(fv2.mergedSpecifics());
   //Layer0 Weight
   layer0wt = getDDDArray("Layer0Wt",sv);
-  if (verbosity > 0) {
-    std::cout << "HCalSD: " << layer0wt.size() << " Layer0Wt";
-    for (unsigned int it=0; it<layer0wt.size(); it++) {
-      std::cout << " " << layer0wt[it];
-    }
-    std::cout << std::endl;
-  }
+  edm::LogInfo("HcalSim") << "HCalSD: " << layer0wt.size() << " Layer0Wt";
+  for (unsigned int it=0; it<layer0wt.size(); it++)
+    edm::LogInfo("HcalSim") << "HCalSD: [" << it << "] " << layer0wt[it];
 
   while (dodet) {
     const DDLogicalPart & log = fv2.logicalPart();
@@ -136,13 +114,10 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     dodet = fv2.next();
   }
 
-  if (verbosity > 0) {
-    std::cout << "HCalSD: Material names for " << attribute << " = "
-	      << name << ":";
-    for (unsigned int i=0; i<matNames.size(); i++)
-      std::cout << " (" << i << ") " << matNames[i];
-    std::cout << std::endl;
-  }
+  edm::LogInfo("HcalSim") << "HCalSD: Material names for " << attribute 
+			  << " = " << name << ":";
+  for (unsigned int i=0; i<matNames.size(); i++)
+    edm::LogInfo("HcalSim") << "HCalSD: (" << i << ") " << matNames[i];
 }
 
 HCalSD::~HCalSD() { 
@@ -162,13 +137,11 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
       aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
     if (isItHF(nameVolume) || isItFibre(nameVolume)) {
       if (useShowerLibrary) {
-#ifdef debug
-	if (verbosity > 2) 
-	  std::cout << "HCalSD: Starts shower library from " << nameVolume
-		    << " for Track "<< aStep->GetTrack()->GetTrackID() <<" ("
-		    << aStep->GetTrack()->GetDefinition()->GetParticleName()
-		    << ")" << std::endl;
-#endif
+	LogDebug("HcalSim") << "HCalSD: Starts shower library from " 
+			    << nameVolume << " for Track "
+			    << aStep->GetTrack()->GetTrackID() <<" ("
+			    << aStep->GetTrack()->GetDefinition()->GetParticleName()
+			    << ")";
 	getFromLibrary(aStep);
       } else if (isItFibre(nameVolume)) {
 	hitForFibre(aStep);
@@ -190,19 +163,14 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
   int depth = (touch->GetReplicaNumber(0))%10;
   int det   = ((touch->GetReplicaNumber(1))/1000)-3;
   if (depth==0 && (det==0 || det==1)) weight = layer0wt[det];
-#ifdef debug
-  if (verbosity > 1) 
-    std::cout << "HCalSD: Detector " << det+3 << " Depth " << depth
-	      << " weight " << weight;
-#endif
+  double weight0 = weight;
   if (useBirk) {
     G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
     if (isItScintillator(mat->GetName()))
       weight *= getAttenuation(aStep, birk1, birk2);
   }
-#ifdef debug
-  if (verbosity > 1) std::cout << " " << weight << std::endl;
-#endif
+  LogDebug("HcalSim") << "HCalSD: Detector " << det+3 << " Depth " << depth
+		      << " weight " << weight0 << " " << weight;
   return weight*destep;
 }
 
@@ -221,8 +189,8 @@ uint32_t HCalSD::setDetUnitId(G4Step * aStep) {
 
 void HCalSD::setNumberingScheme(HcalNumberingScheme* scheme) {
   if (scheme != 0) {
-    std::cout << "HCalSD: updates numbering scheme for " << GetName() 
-              << std::endl;
+    edm::LogWarning("HcalSim") << "HCalSD: updates numbering scheme for " 
+			       << GetName();
     if (numberingScheme) delete numberingScheme;
     numberingScheme = scheme;
   }
@@ -245,31 +213,24 @@ uint32_t HCalSD::setDetUnitId (int det, G4ThreeVector pos, int depth,
 std::vector<double> HCalSD::getDDDArray(const std::string & str,
 					const DDsvalues_type & sv) {
 
-#ifdef debug
-  if (verbosity > 1) 
-    std::cout << "HCalSD:getDDDArray called for " << str << std::endl;
-#endif
+  LogDebug("HcalSim") << "HCalSD:getDDDArray called for " << str;
   DDValue value(str);
   if (DDfetch(&sv,value)) {
-#ifdef debug
-    if (verbosity > 3) std::cout << value << " " << std::endl;
-#endif
+    LogDebug("HcalSim") << value;
     const vector<double> & fvec = value.doubles();
     int nval = fvec.size();
     if (nval < 2) {
-      if (verbosity > 0) 
-	std::cout << "HCalSD : # of " << str << " bins " << nval
-		  << " < 2 ==> illegal " << std::endl;
+      edm::LogError("HcalSim") << "HCalSD : # of " << str << " bins " << nval
+			       << " < 2 ==> illegal";
       throw cms::Exception("Unknown", "HCalSD")
 	<< "nval < 2 for array " << str << "\n";
     }
     
     return fvec;
   } else {
-      if (verbosity > 0) 
-	std::cout << "HCalSD :  cannot get array " << str << std::endl;
-      throw cms::Exception("Unknown", "HCalSD")
-	<< "cannot get array " << str << "\n";
+    edm::LogError("HcalSim") << "HCalSD :  cannot get array " << str;
+    throw cms::Exception("Unknown", "HCalSD")
+      << "cannot get array " << str << "\n";
   }
 }
 
@@ -342,12 +303,9 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
     edepositEM  = 0.; edepositHAD = 1.*GeV;
   }
 
-#ifdef debug
-  if (verbosity > 1)
-    std::cout << "HCalSD: " << nhit << " hits for " << GetName() << " of " 
-	      << primaryID << " with " << particleType << " of " << etrack/GeV 
-	      << " GeV" << std::endl;
-#endif
+  LogDebug("HcalSim") << "HCalSD: " << nhit << " hits for " << GetName() 
+		      << " of " << primaryID << " with " << particleType 
+		      << " of " << etrack/GeV << " GeV";
 
   for (int i=0; i<nhit; i++) {
     G4ThreeVector hitPoint = showerLibrary->getPosHit(i);
@@ -379,11 +337,8 @@ void HCalSD::hitForFibre (G4Step* aStep) {
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
   int      primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) {
-#ifdef debug
-    if (verbosity > 1) 
-      std::cout << "HCalSD: Problem with primaryID **** set by force to TkID"
-		<< " **** " << theTrack->GetTrackID() << std::endl;
-#endif
+    LogDebug("HcalSim") << "HCalSD: Problem with primaryID **** set by force "
+			<< "to TkID **** " << theTrack->GetTrackID();
     primaryID = theTrack->GetTrackID();
   }
 
@@ -398,12 +353,10 @@ void HCalSD::hitForFibre (G4Step* aStep) {
     edepositEM  = 0.; edepositHAD = 1.*GeV;
   }
  
-#ifdef debug
-  if (verbosity > 1) 
-    std::cout << "HCalSD: " << nHit << " hits for " << GetName() << " of " 
-	      << primaryID << " with " << particleType << " of " << etrack/GeV 
-	      << " GeV" << " in detector type " << det << std::endl;
-#endif
+  LogDebug("HcalSim") << "HCalSD: " << nHit << " hits for " << GetName() 
+		      << " of " << primaryID << " with " << particleType 
+		      << " of " << etrack/GeV << " GeV" << " in detector type "
+		      << det;
  
   if (nHit > 0) {
     if (primaryID != previousID.trackID())

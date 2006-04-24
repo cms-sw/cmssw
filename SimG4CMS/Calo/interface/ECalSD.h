@@ -36,7 +36,6 @@ private:
   double crystalLength(G4String);
   EcalBaseNumber getBaseNumber(const G4Step* aStep) const; 
   EcalNumberingScheme *numberingScheme;
-  int                  verbosity;
   bool                 useWeight;
   bool                 useBirk;
   double               birk1, birk2;

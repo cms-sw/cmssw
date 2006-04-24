@@ -51,21 +51,20 @@ void CaloG4Hit::addEnergyDeposit(const CaloG4Hit& aHit) {
 
 
 void CaloG4Hit::Print() {
-  std::cout << (*this);
+  LogDebug("CaloSim") << (*this);
 }
 
 std::ostream& operator<<(std::ostream& os, const CaloG4Hit& hit) {
-  os << " Data of this CaloG4Hit are:" << std::endl
-     << " HitID: " << hit.getID() << std::endl
-     << " EnergyDeposit of EM particles = " << hit.getEM() << std::endl
-     << " EnergyDeposit of HD particles = " << hit.getHadr() << std::endl
+  os << " Data of this CaloG4Hit are:" << "\n"
+     << " HitID: " << hit.getID() << "\n"
+     << " EnergyDeposit of EM particles = " << hit.getEM() << "\n"
+     << " EnergyDeposit of HD particles = " << hit.getHadr() << "\n"
      << " Energy of primary particle    = " << hit.getIncidentEnergy()/MeV 
-     << " (MeV)"<< std::endl
+     << " (MeV)"<< "\n"
      << " Entry point in Calorimeter (global) : " << hit.getEntry() 
-     << "   (local) " << hit.getEntryLocal() << std::endl
-     << " Position of Hit (global) : " << hit.getPosition() << std::endl
-     << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-     << std::endl;
+     << "   (local) " << hit.getEntryLocal() << "\n"
+     << " Position of Hit (global) : " << hit.getPosition() << "\n"
+     << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
   return os;
 }
 

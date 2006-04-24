@@ -23,6 +23,7 @@
 #define CaloG4Hit_h 1
 
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "G4VHit.hh"
 #include <CLHEP/Vector/ThreeVector.h>
 #include <iostream>

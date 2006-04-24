@@ -2,7 +2,6 @@
 #define CaloMap_H
 
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <map>
@@ -20,7 +19,6 @@ public:
   void setTrack(const int id, TrackWithHistory* tk);
   TrackWithHistory* getTrack(const int id);
   typedef map<int,TrackWithHistory*> MapType;
-  void setVerbosity(const int iv);
 
 private:
 
@@ -28,7 +26,6 @@ private:
 
   static CaloMap* instance_; // For singleton behaviour
   MapType tkMap;
-  int     verbosity;
 
 };
 

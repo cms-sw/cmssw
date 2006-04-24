@@ -58,14 +58,7 @@ private:
 private:
 
   //Keep parameters to instantiate HcalTestHistoClass later
-  int                       verbosHisto;
   std::string               fileName;
-
-  //Keep parameters to instantiate HcalTestNumberingScheme later
-  int                       verbosNumber;
-
-  //Keep reference to instantiate HcalNumberingFromDDD later
-  int                       verbosDDD;
 
   // Qie Analysis
   HcalQie *                 myqie;
@@ -86,7 +79,6 @@ private:
   
   // to read from ParameterSet
   std::vector<std::string>  names;
-  int                       verbosity;
   double                    eta0, phi0;
   int                       centralTower;
 

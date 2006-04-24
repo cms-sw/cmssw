@@ -19,13 +19,12 @@ class HcalTestHistoManager {
 
 public: 
 
-  HcalTestHistoManager(int, const std::string &);
+  HcalTestHistoManager(const std::string &);
   virtual ~HcalTestHistoManager();
 
   void fillTree(HcalTestHistoClass *  histos);
 
 private:
-  int                           verbosity;
   pool::IFileCatalog            lcat;
   std::auto_ptr<pool::IDataSvc> svc;
   

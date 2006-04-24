@@ -6,6 +6,7 @@
 #define HFShower_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 
@@ -34,7 +35,6 @@ private:
   HFCherenkov*               cherenkov;
   HFFibre*                   fibre;
 
-  int                        verbosity;
   double                     cFibre;
   double                     probMax;
   std::map<G4String,double>  fibreDz2;

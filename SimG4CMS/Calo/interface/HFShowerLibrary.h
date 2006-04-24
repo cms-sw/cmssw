@@ -6,6 +6,7 @@
 #define HFShowerLibrary_h 1
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
@@ -66,7 +67,6 @@ private:
   float               libVers, listVersion; 
   std::vector<double> pmom;
 
-  int                 verbosity;
   double              probMax;
   double              dphi, rMin, rMax;
   std::vector<double> gpar;

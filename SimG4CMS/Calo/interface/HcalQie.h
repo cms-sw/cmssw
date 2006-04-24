@@ -6,6 +6,7 @@
 #define HcalQie_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Calo/interface/CaloHit.h"
 
 #include <vector>
@@ -32,7 +33,6 @@ private:
 
 private:
 
-  int                  verbosity;
   std::vector<double>  shape_;
   std::vector<int>     code_;
   std::vector<double>  charge_;

@@ -25,10 +25,10 @@
 #include <iostream>
 #include <cmath>
 
-HcalTestHistoManager::HcalTestHistoManager(int iv, const std::string & file) : 
-  verbosity(iv), svc(pool::DataSvcFactory::instance(&lcat)),
+HcalTestHistoManager::HcalTestHistoManager(const std::string & file) : 
+  svc(pool::DataSvcFactory::instance(&lcat)),
   placeH(file, pool::DatabaseSpecification::PFN, "HcalTestAnalysis", 
-	  ROOT::Reflex::Type(), pool::ROOTTREE_StorageType.type()), h(*svc) {
+	 ROOT::Reflex::Type(), pool::ROOTTREE_StorageType.type()), h(*svc) {
   
   pool::URIParser p("file:HcalTestHistoCatalog.cat");
   p.parse();
@@ -45,50 +45,37 @@ HcalTestHistoManager::HcalTestHistoManager(int iv, const std::string & file) :
   // policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
   svc->session().setDefaultConnectionPolicy(policy);
   
-  if (verbosity > 0)
-    std::cout << std::endl << "===>>>  Start booking user Root tree" 
-	      << std::endl;
-
-  if (verbosity > 0) {
-    std::cout << std::endl << "===>>> Done booking user histograms & Ntuples " 
-	      << std::endl;
-  }
+  edm::LogInfo("HcalSim") << "HcalTestHistoManager:===>>>  Book user"
+			  << " Histograms and Root tree";
 }
 
 HcalTestHistoManager::~HcalTestHistoManager() {
 
-  if (verbosity > 0) 
-    std::cout << "===========================================================" 
-	      << std::endl
-	      << "=== HcalTestHistoManager: Start writing user histograms ===" 
-	      << std::endl;
+  edm::LogInfo("HcalSim") << "============================================="
+			  << "==============\n"
+			  << "=== HcalTestHistoManager: Start writing user "
+			  << "histograms ===";
 
   svc->transaction().commit();
   svc->session().disconnectAll();
-  if (verbosity > 0) 
-    std::cout << "=== HcalTestHistoManager: cache size at end " 
-	      << svc->cacheSvc().cacheSize() << std::endl;
+  edm::LogInfo("HcalSim") << "=== HcalTestHistoManager: cache size at end " 
+			  << svc->cacheSvc().cacheSize();
   lcat.commit();
  
-  if (verbosity > 0) 
-    std::cout << std::endl 
-	      << "=== HcalTestHistoManager: End   writing user histograms ==="
-	      << std::endl
-	      << "===========================================================" 
-	      << std::endl;
+  edm::LogInfo("HcalSim") << "=== HcalTestHistoManager: End   writing user "
+			  << "histograms ===\n"
+			  << "============================================="
+			  << "==============";
 }
 
 void HcalTestHistoManager::fillTree(HcalTestHistoClass *  histos) {
 
-   svc->transaction().start(pool::ITransaction::UPDATE);
-   if (verbosity > 1) {
-     std::cout << " tree pointer = " << histos << std::endl;
-     std::cout << "cache size before assign " << svc->cacheSvc().cacheSize() 
-	       << std::endl;
-  }
+  svc->transaction().start(pool::ITransaction::UPDATE);
+  LogDebug("HcalSim") << "HcalTestHistoManager: tree pointer = " << histos;
+  LogDebug("HcalSim") << "HcalTestHistoManager: cache size before assign " 
+		      << svc->cacheSvc().cacheSize();
 
   h = histos;
   h.markWrite(placeH);
   svc->transaction().commitAndHold();
-
 }

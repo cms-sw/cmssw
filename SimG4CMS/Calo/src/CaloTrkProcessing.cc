@@ -28,12 +28,11 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   //Initialise the parameter set
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("CaloTrkProcessing");
-  verbosity = m_p.getParameter<int>("Verbosity");
   testBeam  = m_p.getParameter<bool>("TestBeam");
   eMin      = m_p.getParameter<double>("EminTrack")*MeV;
 
-  edm::LogInfo("CaloSimInfo") << "CaloTrkProcessing: Initailised with TestBeam = " << testBeam
-                              << " Emin = " << eMin << " MeV";
+  edm::LogInfo("CaloSim") << "CaloTrkProcessing: Initailised with TestBeam = " 
+			  << testBeam << " Emin = " << eMin << " MeV";
 
   //Get the names 
   G4String attribute = "ReadOutName"; 
@@ -47,19 +46,19 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   G4String value     = "Calorimeter";
   caloNames          = getNames (value, sv);
-  edm::LogInfo("CaloSimInfo") << "CaloTrkProcessing: Names for " << value << ":";
+  edm::LogInfo("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<caloNames.size(); i++)
-    edm::LogInfo("CaloSimInfo") << " (" << i << ") " << caloNames[i];
+    edm::LogInfo("CaloSim") << " (" << i << ") " << caloNames[i];
 
   value              = "Inside";
   insideNames        = getNames (value, sv);
-  edm::LogInfo("CaloSimInfo") << "CaloTrkProcessing: Names for " << value << ":";
+  edm::LogInfo("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<insideNames.size(); i++)
-    edm::LogInfo("CaloSimInfo") << " (" << i << ") " << insideNames[i];
+    edm::LogInfo("CaloSim") << " (" << i << ") " << insideNames[i];
 }
 
 CaloTrkProcessing::~CaloTrkProcessing() {
-    edm::LogInfo("CaloSimInfo") << "CaloTrkProcessing: Deleted";
+  edm::LogInfo("CaloSim") << "CaloTrkProcessing: Deleted";
 }
 
 void CaloTrkProcessing::update(const BeginOfEvent * evt) {
@@ -75,11 +74,11 @@ void CaloTrkProcessing::update(const EndOfTrack * trk) {
     const TrackContainer * trksForThisEvent = m_trackManager->trackContainer();
     if (trksForThisEvent != NULL) {
       int it = (int)(trksForThisEvent->size()) - 1;
-      LogDebug("CaloSimInfo") << "CaloTrkProcessing: get track " << it << " from "
-                              << "Container of size " << trksForThisEvent->size();
+      LogDebug("CaloSim") << "CaloTrkProcessing: get track " << it << " from "
+			  << "Container of size " << trksForThisEvent->size();
       if (it >= 0) {
 	TrackWithHistory * trkH = (*trksForThisEvent)[it];
-    LogDebug("CaloSimInfo") << " with ID " << trkH->trackID();
+	LogDebug("CaloSim") << " with ID " << trkH->trackID();
 	if (trkH->trackID() == (unsigned int)(id))
 	  CaloMap::instance()->setTrack(id, trkH);
       } 
@@ -98,25 +97,25 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
     (theTrack->GetUserInformation());
   
   if (trkInfo == 0) {
-    edm::LogInfo("CaloSimInfo") << "CaloTrkProcessing: No trk info !!!! abort ";
+    edm::LogError("CaloSim") << "CaloTrkProcessing: No trk info !!!! abort ";
     throw cms::Exception("Unknown", "CaloTrkProcessing")
       << "cannot get trkInfo for Track " << id << "\n";
   }
   
   if (testBeam) {
     if (trkInfo->getIDonCaloSurface() == 0) {
-      LogDebug("CaloSimInfo") << "CaloTrkProcessing set IDonCaloSurface to " << id 
-                              << " at stepNumber " << theTrack->GetCurrentStepNumber();
+      LogDebug("CaloSim") << "CaloTrkProcessing set IDonCaloSurface to " << id 
+			  << " at stepNumber " << theTrack->GetCurrentStepNumber();
       trkInfo->setIDonCaloSurface(id);
       lastTrackID = id;
       if (theTrack->GetKineticEnergy()/MeV > eMin)
 	trkInfo->putInHistory();
     } 
   } else {
-    LogDebug("CaloSimInfo") << "CaloTrkProcessing Entered for " << id 
-                            << " at stepNumber " << theTrack->GetCurrentStepNumber() 
-                            << " IDonCaloSur.. " << trkInfo->getIDonCaloSurface()
-                            << " CaloCheck " << trkInfo->caloIDChecked();
+    LogDebug("CaloSim") << "CaloTrkProcessing Entered for " << id 
+			<< " at stepNumber "<< theTrack->GetCurrentStepNumber()
+			<< " IDonCaloSur.. " << trkInfo->getIDonCaloSurface()
+			<< " CaloCheck " << trkInfo->caloIDChecked();
     if (trkInfo->getIDonCaloSurface() != 0) {
       if (trkInfo->caloIDChecked() == false) {
         G4StepPoint*        postStepPoint = aStep->GetPostStepPoint();   
@@ -124,8 +123,9 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
         int                 post_levels   = detLevels(post_touch);
         std::string         post_name     = "NotFound";
         if (post_levels > 1)post_name     = detName(post_touch,post_levels,3);
-        LogDebug("CaloSimInfo") << "CaloTrkProcessing: Post volume with " << post_levels 
-                                << " levels at Level 3 " << post_name;
+        LogDebug("CaloSim") << "CaloTrkProcessing: Post volume with " 
+			    << post_levels << " levels at Level 3 " 
+			    << post_name;
         if (isItInside(post_name)) {
           trkInfo->setIDonCaloSurface(0);
         } else {
@@ -139,13 +139,15 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
       int                 pre_levels   = detLevels(pre_touch);
       std::string         pre_name     = detName(pre_touch, pre_levels, 3);
     
-      LogDebug("CaloSimInfo") << "CaloTrkProcessing: Previous volume with " << pre_levels;
-        if (pre_levels > 0) {
-          G4String name1[20]; int copyno1[20];
-          detectorLevel(pre_touch, pre_levels, copyno1, name1);
-          for (int i1=0; i1<pre_levels; i1++) 
-            LogDebug("CaloSimInfo") << " " << i1 << " " << name1[i1] << " " << copyno1[i1];
-        }
+      LogDebug("CaloSim") << "CaloTrkProcessing: Previous volume with " 
+			  << pre_levels;
+      if (pre_levels > 0) {
+	G4String name1[20]; int copyno1[20];
+	detectorLevel(pre_touch, pre_levels, copyno1, name1);
+	for (int i1=0; i1<pre_levels; i1++) 
+	  LogDebug("CaloSim") << " " << i1 << " " << name1[i1] << " " 
+			      << copyno1[i1];
+      }
 
       G4StepPoint*        postStepPoint = aStep->GetPostStepPoint();   
       const G4VTouchable* post_touch    = postStepPoint->GetTouchable();
@@ -153,13 +155,14 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
       if (post_levels == 0) return;
       std::string         post_name     = detName(post_touch, post_levels, 3);
       
-      LogDebug("CaloSimInfo") << "CaloTrkProcessing: Post volume with " << post_levels 
-                              << " levels at Level 3 " << post_name;
+      LogDebug("CaloSim") << "CaloTrkProcessing: Post volume with " 
+			  << post_levels << " levels at Level 3 " << post_name;
       if (post_levels > 0) {
         G4String name2[20]; int copyno2[20];
         detectorLevel(post_touch, post_levels, copyno2, name2);
         for (int i2=0; i2<post_levels; i2++) 
-          LogDebug("CaloSimInfo") << " " << i2 << " " << name2[i2] << " " << copyno2[i2];
+          LogDebug("CaloSim") << " " << i2 << " " << name2[i2] << " " 
+			      << copyno2[i2];
       }
       
       if (isItCalo(post_name) && (isItInside(pre_name) || 
@@ -168,9 +171,9 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
         lastTrackID = id;
         if (theTrack->GetKineticEnergy()/MeV > eMin)
           trkInfo->putInHistory();
-        LogDebug("CaloSimInfo") << "CaloTrkProcessing: set ID on Calo surface to " << id 
-                                << " of a Track with Kinetic Energy " 
-                                << theTrack->GetKineticEnergy()/MeV << " MeV";
+        LogDebug("CaloSim") << "CaloTrkProcessing: set ID on Calo surface to " 
+			    << id << " of a Track with Kinetic Energy " 
+			    << theTrack->GetKineticEnergy()/MeV << " MeV";
       }
     }
   }
@@ -188,26 +191,26 @@ int CaloTrkProcessing::detLevels(const G4VTouchable* touch) const {
 std::vector<std::string> CaloTrkProcessing::getNames(const G4String str,
 						     const DDsvalues_type &sv){
 
-  LogDebug("CaloSimInfo") << "CaloTrkProcessing::getNames called for " << str;
+  LogDebug("CaloSim") << "CaloTrkProcessing::getNames called for " << str;
 
   DDValue value(str);
   if (DDfetch(&sv,value)) {
-    LogDebug("CaloSimInfo") << value;
+    LogDebug("CaloSim") << value;
     const std::vector<std::string> & fvec = value.strings();
     int nval = fvec.size();
     if (nval < 1) {
 
-	LogDebug("CaloSimInfo") << "CaloTrkProcessing: # of " << str << " bins " << nval
-		  << " < 1 ==> illegal ";
-      throw cms::Exception("Unknown", "CaloTrkProcessing")
-	<< "nval < 2 for array " << str << "\n";
+	edm::LogError("CaloSim") << "CaloTrkProcessing: # of " << str 
+				 << " bins " << nval << " < 1 ==> illegal ";
+	throw cms::Exception("Unknown", "CaloTrkProcessing")
+	  << "nval < 2 for array " << str << "\n";
     }
     
     return fvec;
   } else {
-edm::LogInfo("CaloSimInfo") << "CaloTrkProcessing:  cannot get array " << str ;
-      throw cms::Exception("Unknown", "CaloTrkProcessing")
-	<< "cannot get array " << str << "\n";
+    edm::LogError("CaloSim") << "CaloTrkProcessing: cannot get array " << str ;
+    throw cms::Exception("Unknown", "CaloTrkProcessing")
+      << "cannot get array " << str << "\n";
   }
 }
 

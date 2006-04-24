@@ -53,7 +53,6 @@ private:
   void                     detectorLevel(const G4VTouchable*, int&, int*,
 					 G4String*) const;
 
-  int                      verbosity;
   bool                     testBeam;
   double                   eMin;
   int                      lastTrackID;
