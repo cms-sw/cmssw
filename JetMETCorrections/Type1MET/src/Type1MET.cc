@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.1 2006/01/31 10:21:11 cavana Exp $
+// $Id: Type1MET.cc,v 1.2 2006/02/27 02:56:08 cavana Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 
 #include "JetMETCorrections/Type1MET/interface/Type1METAlgo.h"
-#include "DataFormats/METObjects/interface/TowerMETCollection.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 
 //using namespace std;
 
@@ -54,7 +54,7 @@ namespace cms
   // PRODUCER CONSTRUCTORS ------------------------------------------
   Type1MET::Type1MET( const edm::ParameterSet& iConfig ) : alg_() 
   {
-    produces<TowerMETCollection>();
+    produces<METCollection>();
     inputLabel = iConfig.getParameter<std::string>("inputLabel");
   }
   Type1MET::Type1MET() : alg_() {}
@@ -65,9 +65,9 @@ namespace cms
   void Type1MET::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
   {
     using namespace edm;
-    Handle<TowerMETCollection> pIn;                                //Define Inputs
+    Handle<METCollection> pIn;                                //Define Inputs
     iEvent.getByLabel(inputLabel, pIn);                       //Get Inputs
-    std::auto_ptr<TowerMETCollection> pOut( new TowerMETCollection() ); //Create empty output
+    std::auto_ptr<METCollection> pOut( new METCollection() ); //Create empty output
     alg_.run( pIn.product(), *pOut );                         //Invoke the algorithm
     iEvent.put( pOut );                                       //Put output into Event
   }

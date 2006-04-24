@@ -15,14 +15,14 @@
 #include <string>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/METObjects/interface/TowerMETCollection.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 
 class Type1METAlgo 
 {
  public:
   Type1METAlgo();
   virtual ~Type1METAlgo();
-  virtual void run(const TowerMETCollection*, TowerMETCollection &);
+  virtual void run(const METCollection*, METCollection &);
 };
 
 #endif // Type1METAlgo_h
