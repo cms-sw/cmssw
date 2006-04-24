@@ -1,7 +1,7 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2006/04/03 14:06:41 $
+ * $Date: 2006/04/10 08:50:50 $
  * $Revision: 1.1 $
  * \author F. Cossutti
  *
@@ -141,6 +141,13 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
 
   const EEDigiCollection * endcapDigi = EcalDigiEE.product () ;
 
+  std::vector<double> eeAnalogSignal ;
+  std::vector<double> eeADCCounts ;
+  std::vector<double> eeADCGains ;
+  eeAnalogSignal.reserve(EEDataFrame::MAXSAMPLES);
+  eeADCCounts.reserve(EEDataFrame::MAXSAMPLES);
+  eeADCGains.reserve(EEDataFrame::MAXSAMPLES);
+
   for (std::vector<EEDataFrame>::const_iterator digis = endcapDigi->begin () ;
        digis != endcapDigi->end () ;
        ++digis)
@@ -157,14 +164,18 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
       
       double Emax = 0. ;
       int Pmax = 0 ;
-      std::vector<double> eeAnalogSignal ;
-      std::vector<double> eeADCCounts ;
-      std::vector<double> eeADCGains ;
       double pedestalPreSample = 0.;
       double pedestalPreSampleAnalog = 0.;
       int countsAfterGainSwitch = -1;
       double higherGain = 2.;
       int higherGainSample = 0;
+
+      for (int sample = 0 ; sample < digis->size () ; ++sample) {
+        eeAnalogSignal[sample] = 0.;
+        eeADCCounts[sample] = 0.;
+        eeADCGains[sample] = 0.;
+      }
+
       for (int sample = 0 ; sample < digis->size () ; ++sample)
         {
           eeADCCounts.push_back (digis->sample (sample).adc ()) ;

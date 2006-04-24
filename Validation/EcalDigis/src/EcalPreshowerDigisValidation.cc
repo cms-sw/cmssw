@@ -1,7 +1,7 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2006/04/03 14:06:41 $
+ * $Date: 2006/04/10 08:50:50 $
  * $Revision: 1.1 $
  * \author F. Cossutti
  *
@@ -90,14 +90,20 @@ void EcalPreshowerDigisValidation::analyze(const Event& e, const EventSetup& c){
 
   const ESDigiCollection * preshowerDigi = EcalDigiES.product () ;
 
+  std::vector<double> esADCCounts ;
+  esADCCounts.reserve(ESDataFrame::MAXSAMPLES);
+
   for (std::vector<ESDataFrame>::const_iterator digis = preshowerDigi->begin () ;
        digis != preshowerDigi->end () ;
        ++digis)
     {
        
       ESDetId esid = digis->id () ;
+
+      for (int sample = 0 ; sample < digis->size () ; ++sample) {
+        esADCCounts[sample] = 0.;
+      }
        
-      std::vector<double> esADCCounts ;
       for (int sample = 0 ; sample < digis->size () ; ++sample)
         {
           esADCCounts.push_back (digis->sample (sample).adc ()) ;

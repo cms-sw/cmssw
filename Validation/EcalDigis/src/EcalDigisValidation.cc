@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/04/10 08:50:50 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/19 16:27:41 $
+ * $Revision: 1.3 $
  * \author F. Cossutti
  *
 */
@@ -204,6 +204,13 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
 
   const EBDigiCollection * barrelDigi = EcalDigiEB.product () ;
 
+  std::vector<double> ebAnalogSignal ;
+  std::vector<double> ebADCCounts ;
+  std::vector<double> ebADCGains ;
+  ebAnalogSignal.reserve(EBDataFrame::MAXSAMPLES);
+  ebADCCounts.reserve(EBDataFrame::MAXSAMPLES);
+  ebADCGains.reserve(EBDataFrame::MAXSAMPLES);
+
   for (std::vector<EBDataFrame>::const_iterator digis = barrelDigi->begin () ;
        digis != barrelDigi->end () ;
        ++digis)
@@ -213,11 +220,15 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
 
       double Emax = 0. ;
       int Pmax = 0 ;
-      std::vector<double> ebAnalogSignal ;
-      std::vector<double> ebADCCounts ;
-      std::vector<double> ebADCGains ;
       double pedestalPreSample = 0.;
       double pedestalPreSampleAnalog = 0.;
+
+      for (int sample = 0 ; sample < digis->size () ; ++sample) {
+        ebAnalogSignal[sample] = 0.;
+        ebADCCounts[sample] = 0.;
+        ebADCGains[sample] = 0.;
+      }
+
       for (int sample = 0 ; sample < digis->size () ; ++sample)
         {
           ebADCCounts.push_back (digis->sample (sample).adc ()) ;
@@ -275,6 +286,13 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
 
   const EEDigiCollection * endcapDigi = EcalDigiEE.product () ;
 
+  std::vector<double> eeAnalogSignal ;
+  std::vector<double> eeADCCounts ;
+  std::vector<double> eeADCGains ;
+  eeAnalogSignal.reserve(EEDataFrame::MAXSAMPLES);
+  eeADCCounts.reserve(EEDataFrame::MAXSAMPLES);
+  eeADCGains.reserve(EEDataFrame::MAXSAMPLES);
+
   for (std::vector<EEDataFrame>::const_iterator digis = endcapDigi->begin () ;
        digis != endcapDigi->end () ;
        ++digis)
@@ -284,14 +302,18 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
 
       double Emax = 0. ;
       int Pmax = 0 ;
-      std::vector<double> eeAnalogSignal ;
-      std::vector<double> eeADCCounts ;
-      std::vector<double> eeADCGains ;
       double pedestalPreSample = 0.;
       double pedestalPreSampleAnalog = 0.;
       int countsAfterGainSwitch = -1;
       double higherGain = 2.;
       int higherGainSample = 0;
+
+      for (int sample = 0 ; sample < digis->size () ; ++sample) {
+        eeAnalogSignal[sample] = 0.;
+        eeADCCounts[sample] = 0.;
+        eeADCGains[sample] = 0.;
+      }
+
       for (int sample = 0 ; sample < digis->size () ; ++sample)
         {
           eeADCCounts.push_back (digis->sample (sample).adc ()) ;
