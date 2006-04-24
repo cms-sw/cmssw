@@ -268,8 +268,10 @@ TIDLayer::orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
 int
 TIDLayer::findClosest(const vector<GlobalPoint>& ringCrossing ) const
 {
-  int theBin = -1;
-  float rDiff = 200.;
+  int theBin = 0;
+  float initialR = ( theRings.front()->specificSurface().innerRadius() +
+		     theRings.front()->specificSurface().outerRadius())/2.;
+  float rDiff = fabs( ringCrossing.front().perp() - initialR);
   for (int i = 0; i < 3 ; i++){
     float ringR = ( theRings[i]->specificSurface().innerRadius() + theRings[i]->specificSurface().outerRadius())/2.;
     float testDiff = fabs( ringCrossing[i].perp() - ringR);
@@ -284,8 +286,10 @@ TIDLayer::findClosest(const vector<GlobalPoint>& ringCrossing ) const
 int
 TIDLayer::findNextIndex(const vector<GlobalPoint>& ringCrossing, int closest ) const
 {
-  int theBin = -1;
-  float rDiff = 200.;
+  int theBin = 0;
+  float initialR = ( theRings.front()->specificSurface().innerRadius() +
+		     theRings.front()->specificSurface().outerRadius())/2.;	     
+  float rDiff = fabs( ringCrossing.front().perp() - initialR);
   for (int i = 0; i < 3 ; i++){
     if ( i != closest) {
       float ringR = ( theRings[i]->specificSurface().innerRadius() + theRings[i]->specificSurface().outerRadius())/2.;

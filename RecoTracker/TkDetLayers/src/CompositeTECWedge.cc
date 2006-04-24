@@ -289,8 +289,8 @@ CompositeTECWedge::findClosestDet( const GlobalPoint& startPos,int sectorId) con
 
   vector<const GeomDet*> myDets = sectorId==0 ? theFrontDets : theBackDets;
   
-  int close = -1;
-  float closeDist = 200.;
+  int close = 0;
+  float closeDist = fabs( (theDets.front()->toLocal(startPos)).x());
   for (unsigned int i = 0; i < myDets.size(); i++ ) {
     float dist = (myDets[i]->surface().toLocal(startPos)).x();
     if ( fabs(dist) < fabs(closeDist) ) {
@@ -302,22 +302,3 @@ CompositeTECWedge::findClosestDet( const GlobalPoint& startPos,int sectorId) con
 }
 
 
-/*
-int
-CompositeTECWedge::findClosestDet( const GlobalPoint& startPos) const
-{
-
-  int close = -1;
-  float closeDist = 200.;
-  for (unsigned int i = 0; i < theDets.size(); i++ ) {
-    float dist = (theDets[i]->surface().toLocal(startPos)).x();
-    if ( close==-1 || fabs(dist)<fabs(closeDist) ) {
-      close = i;
-      closeDist = dist;
-    }
-  }
-  return close;
-}
-
-
-*/

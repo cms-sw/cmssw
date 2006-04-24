@@ -264,8 +264,8 @@ int CompositeTECPetal::findBin( float R,int diskSectorType) const
 {
   vector<const TECWedge*> localWedges = diskSectorType==0 ? theFrontWedges : theBackWedges;
   
-  int theBin = -1;
-  float rDiff = 200.;
+  int theBin = 0;
+  float rDiff = fabs( R - theWedges.front()->position().perp() );
   for (vector<const TECWedge*>::const_iterator i=localWedges.begin(); i !=localWedges.end(); i++){
     float testDiff = fabs( R - (**i).position().perp());
     if ( testDiff < rDiff) {

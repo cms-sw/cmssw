@@ -265,8 +265,8 @@ PixelBlade::findBin( float R,int diskSectorIndex) const
 {
   vector<const GeomDet*> localDets = diskSectorIndex==0 ? theFrontDets : theBackDets;
   
-  int theBin = -1;
-  float rDiff = 200.;
+  int theBin = 0;
+  float rDiff = fabs( R - localDets.front()->surface().position().perp());;
   for (vector<const GeomDet*>::const_iterator i=localDets.begin(); i !=localDets.end(); i++){
     float testDiff = fabs( R - (**i).surface().position().perp());
     if ( testDiff < rDiff) {
