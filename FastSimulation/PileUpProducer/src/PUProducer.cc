@@ -4,17 +4,16 @@
 
 #include "FWCore/Framework/src/VectorInputSourceFactory.h"
 
-#include "FastSimulation/PileUpProducer/interface/HepMCProductContainer.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProductContainer.h"
 #include "FastSimulation/PileUpProducer/interface/PUProducer.h"
 
 #include <iostream>
 #include <memory>
 
 PUProducer::PUProducer(edm::ParameterSet const & p) :
-  input(edm::VectorInputSourceFactory::
-	  get()->makeVectorInputSource(
-	    p.getParameter<edm::ParameterSet>("input"), 
-	    edm::InputSourceDescription()).release())
+  input(edm::VectorInputSourceFactory::get()->makeVectorInputSource(
+				       p.getParameter<edm::ParameterSet>("input"), 
+				       edm::InputSourceDescription()).release())
 {    
     produces<edm::HepMCProductContainer>();
 }
@@ -41,5 +40,3 @@ void PUProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    iEvent.put(pu);
 
 }
-
-DEFINE_FWK_MODULE(PUProducer)

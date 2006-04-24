@@ -3,14 +3,26 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
+<use name=FWCore/Services>
 <use name=Foundation/PluginManager>
 <use name=SimDataFormats/HepMCProduct>
+<use name=IOPool/Common>
+<use name=IOPool/Input>
+<use name=boost>
+<use name=rootcore>
+<use name=DataFormats/Common>
 <export>
  <lib name=FastSimulationPUProducer>
  <use name=clhep>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Framework>
  <use name=FWCore/Utilities>
+ <use name=FWCore/Services>
  <use name=Foundation/PluginManager>
  <use name=SimDataFormats/HepMCProduct>
+ <use name=IOPool/Common>
+ <use name=IOPool/Input>
+ <use name=boost>
+ <use name=rootcore>
+ <use name=DataFormats/Common>
 </export>
