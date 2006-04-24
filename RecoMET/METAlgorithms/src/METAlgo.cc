@@ -6,10 +6,12 @@
 //--------------------------------------------
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/METReco/interface/CommonMETData.h"
 #include "RecoMET/METAlgorithms/interface/METAlgo.h"
 #include <iostream>
 
 using namespace std;
+using namespace reco;
 
 METAlgo::METAlgo() {}
 
@@ -19,38 +21,33 @@ void METAlgo::run(const InputCollection &input, METCollection &metvec)
 {
   // Clean up the EDProduct, it should be empty
   metvec.clear();
-  double sum_et = 0.;
-  double sum_ex = 0.;
-  double sum_ey = 0.;
-  double sum_ez = 0.;
-  // Loop over CaloTowers
-  METAlgo::InputCollection::const_iterator tower;
-  for( tower = input.begin(); tower != input.end(); tower++ )
+  double sum_et = 0.0;
+  double sum_ex = 0.0;
+  double sum_ey = 0.0;
+  double sum_ez = 0.0;
+  // Loop over Candidate Objects and calculate MET quantities
+  METAlgo::InputCollection::const_iterator candidate;
+  for( candidate = input.begin(); candidate != input.end(); candidate++ )
     {
-      double phi   = (*tower)->phi();
-      double theta = (*tower)->theta();
-      double e     = (*tower)->energy();
+      double phi   = (*candidate)->phi();
+      double theta = (*candidate)->theta();
+      double e     = (*candidate)->energy();
       double et    = e*sin(theta);
       sum_ez += e*cos(theta);
       sum_et += et;
       sum_ex += et*cos(phi);
       sum_ey += et*sin(phi);
     }
-  // Calculate the Resultant MET Angle
-  double met_phi = atan2( -sum_ey, -sum_ex ); 
-  // Create a holder for the MET object
-  MET met;
-  met.clearMET();
-  // Set new TowerMET values
-  //met.setLabel("");
-  met.setMET( sqrt( sum_ex*sum_ex + sum_ey*sum_ey ) );
-  met.setMEx(  -sum_ex  );
-  met.setMEy(  -sum_ey  );
-  met.setMEz(  -sum_ez  );
-  met.setPhi(   met_phi );
-  met.setSumET( sum_et  );
-  // Raw MET is pushed into the zero position
-  metvec.push_back(met);
-
+  // Create a holder for the "met" data
+  CommonMETData met;
+  met.mex   = -sum_ex;
+  met.mey   = -sum_ey;
+  met.mez   = -sum_ez;
+  met.met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
+  met.sumet = sum_et;
+  met.phi   = atan2( -sum_ey, -sum_ex );
+  // Save result: create MET object initialised with "met" data
+  MET result( met );
+  metvec.push_back(result);
 }
 

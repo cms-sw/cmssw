@@ -6,7 +6,8 @@
 //--------------------------------------------
 #include <memory>
 #include "RecoMET/METProducers/interface/METProducer.h"
-#include "DataFormats/METObjects/interface/METCollection.h"
+//#include "DataFormats/METObjects/interface/METCollection.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Framework/interface/Handle.h"
 
