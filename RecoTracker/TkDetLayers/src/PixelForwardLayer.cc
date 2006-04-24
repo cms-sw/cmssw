@@ -39,7 +39,6 @@ PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades):
   theBinFinder = BinFinderType( theBlades.front()->surface().position().phi(),
 				theBlades.size());
 
-  computeHelicity();
   /*--------- DEBUG INFO --------------
   cout << "DEBUG INFO for PixelForwardLayer" << endl;
   cout << "PixelForwardLayer.surfcace.z(): " 
@@ -126,16 +125,12 @@ PixelForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     vector<DetGroup> nextResult;
     if (adder.add( *theBlades[theBinFinder.binIndex(crossings.nextIndex)], 
 		   tsos, prop, est, nextResult)) {
-      int crossingSide = LayerCrossingSide().barrelSide( tsos, prop);
+      int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
       DetGroupMerger merger;
-      if (crossings.closestIndex < crossings.nextIndex) {
-	result = merger.orderAndMergeTwoLevels( closestResult, nextResult, 
-						theHelicity, crossingSide);
-      }
-      else {
-	result = merger.orderAndMergeTwoLevels( nextResult, closestResult, 
-						theHelicity, crossingSide);
-      }
+      int theHelicity = computeHelicity(theBlades[theBinFinder.binIndex(crossings.closestIndex)],
+					theBlades[theBinFinder.binIndex(crossings.nextIndex)] );
+      result = merger.orderAndMergeTwoLevels( closestResult, nextResult, 
+					      theHelicity, crossingSide);
     }
     else {
       result = closestResult;
@@ -160,7 +155,7 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				    vector<DetGroup>& result) const
 {
   CompatibleDetToGroupAdder adder;
-  int crossingSide = LayerCrossingSide().barrelSide( tsos, prop);
+  int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
   DetGroupMerger merger;
 
   int negStart = min( crossings.closestIndex, crossings.nextIndex) - 1;
@@ -173,6 +168,8 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     // maybe also add shallow crossing angle test here???
     vector<DetGroup> tmp;
     if (!adder.add( *neighbor, tsos, prop, est, tmp)) break;
+    int theHelicity = computeHelicity(theBlades[theBinFinder.binIndex(idet)],
+				      theBlades[theBinFinder.binIndex(idet+1)] );
     result = merger.orderAndMergeTwoLevels( tmp, result, theHelicity, crossingSide);
   }
   for (int idet=posStart; idet < posStart + quarter-1; idet++) {
@@ -181,15 +178,17 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     // maybe also add shallow crossing angle test here???
     vector<DetGroup> tmp;
     if (!adder.add( *neighbor, tsos, prop, est, tmp)) break;
+    int theHelicity = computeHelicity(theBlades[theBinFinder.binIndex(idet-1)],
+				      theBlades[theBinFinder.binIndex(idet)] );
     result = merger.orderAndMergeTwoLevels( result, tmp, theHelicity, crossingSide);
   }
 }
 
-void 
-PixelForwardLayer::computeHelicity()
+int 
+PixelForwardLayer::computeHelicity(const PixelBlade* firstBlade,const PixelBlade* secondBlade) const
 {  
-  theHelicity = 0; // smaller phi angles mean "inner" group
-  //TO BE CHECKED
+  if( fabs(firstBlade->position().z()) < fabs(secondBlade->position().z()) ) return 0;
+  return 1;
 }
 
 PixelForwardLayer::SubTurbineCrossings 

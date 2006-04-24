@@ -42,7 +42,7 @@ class PixelForwardLayer : public ForwardDetLayer{
  private:  
   virtual BoundDisk* computeDisk(const vector<const PixelBlade*>& blades) const;    
   // methods for groupedCompatibleDets implementation
-  void computeHelicity();
+  int computeHelicity(const PixelBlade* firstBlade,const PixelBlade* secondBlade) const;
 
   struct SubTurbineCrossings {
     SubTurbineCrossings(){};
@@ -76,7 +76,6 @@ class PixelForwardLayer : public ForwardDetLayer{
   vector<const PixelBlade*> theBlades;
   vector<const GeometricSearchDet*> theComps;
   vector<const GeomDet*> theBasicComps;
-  int              theHelicity;    
 };
 
 
