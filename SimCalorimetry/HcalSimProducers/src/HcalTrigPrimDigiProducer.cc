@@ -1,4 +1,4 @@
-#include "SimCalorimetry/HcalSimProducers/src/HcalTrigPrimRecHitProducer.h"
+#include "SimCalorimetry/HcalSimProducers/src/HcalTrigPrimDigiProducer.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -14,15 +14,15 @@
 
 
 
-HcalTrigPrimRecHitProducer::HcalTrigPrimRecHitProducer(const edm::ParameterSet& ps)
+HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
 : theCoderFactory(HcalCoderFactory::DB),
   theAlgo(&theCoderFactory)
 {
-  produces<HcalTriggerPrimitiveDigi>();
+  produces<HcalTrigPrimDigiCollection>();
 }
 
 
-void HcalTrigPrimRecHitProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
+void HcalTrigPrimDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
   edm::Handle<HBHEDigiCollection> hbheDigis;
   edm::Handle<HFDigiCollection>   hfDigis;
@@ -39,13 +39,12 @@ void HcalTrigPrimRecHitProducer::produce(edm::Event& e, const edm::EventSetup& e
 
 
   // Step B: Create empty output
-
-  std::auto_ptr<HcalTriggerPrimitiveDigi> result(new HcalTriggerPrimitiveDigi());
+  std::auto_ptr<HcalTrigPrimDigiCollection> result(new HcalTrigPrimDigiCollection());
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
   theAlgo.run(*hbheDigis,  *hfDigis, *result);
 
-  edm::LogInfo("HcalTrigPrimRecHitProducer") << "HcalTrigPrims: " << result->size();
+  edm::LogInfo("HcalTrigPrimDigiProducer") << "HcalTrigPrims: " << result->size();
 
   // Step D: Put outputs into event
   e.put(result);
