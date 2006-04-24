@@ -6,6 +6,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HFDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -15,7 +18,7 @@ HcalTrigPrimRecHitProducer::HcalTrigPrimRecHitProducer(const edm::ParameterSet& 
 : theCoderFactory(HcalCoderFactory::DB),
   theAlgo(&theCoderFactory)
 {
-  produces<HcalTrigPrimRecHitCollection>();
+  produces<HcalTriggerPrimitiveDigi>();
 }
 
 
@@ -37,7 +40,7 @@ void HcalTrigPrimRecHitProducer::produce(edm::Event& e, const edm::EventSetup& e
 
   // Step B: Create empty output
 
-  std::auto_ptr<HcalTrigPrimRecHitCollection> result(new HcalTrigPrimRecHitCollection());
+  std::auto_ptr<HcalTriggerPrimitiveDigi> result(new HcalTriggerPrimitiveDigi());
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
   theAlgo.run(*hbheDigis,  *hfDigis, *result);
