@@ -13,14 +13,15 @@ class L1GctSourceCard;
 ///
 /// Represents a GCT Electron Sort algorithm
 /// author: Maria Hansen
-/// date: 20/2/2006
-/// 
+/// date: 21/4/2006
+/// version: 1.1
 ///
 
 class L1GctElectronSorter : public L1GctProcessor
 {
 public:
-	L1GctElectronSorter();
+        L1GctElectronSorter();
+	L1GctElectronSorter(int inputType);
 	L1GctElectronSorter(vector<L1GctSourceCard*> src);	
 	~L1GctElectronSorter();
 	///
@@ -53,7 +54,9 @@ private:
 	///
 	/// output data
 	vector<L1GctEmCand> outputCands;
-	
+	///
+	/// input variable to set iso or non-iso electrons
+	int theInputType;
 };
 
 #endif /*L1GCTELECTRONSORTER_H_*/
