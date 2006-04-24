@@ -1,0 +1,16 @@
+<flags SEAL_PLUGIN_NAME="FastSimulationPileUpProducer">
+<use name=clhep>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
+<use name=Foundation/PluginManager>
+<use name=SimDataFormats/HepMCProduct>
+<export>
+ <lib name=FastSimulationPUProducer>
+ <use name=clhep>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/Framework>
+ <use name=FWCore/Utilities>
+ <use name=Foundation/PluginManager>
+ <use name=SimDataFormats/HepMCProduct>
+</export>
