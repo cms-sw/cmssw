@@ -15,6 +15,8 @@ namespace edm {
       EDM_MAP_ENTRY_NONS(trans_, Configuration);
       EDM_MAP_ENTRY_NONS(trans_, LogicError);
       EDM_MAP_ENTRY_NONS(trans_, InvalidReference);
+      EDM_MAP_ENTRY_NONS(trans_, EventTimeout);
+      EDM_MAP_ENTRY_NONS(trans_, EventCorruption);
       EDM_MAP_ENTRY_NONS(trans_, ModuleFailure);
       EDM_MAP_ENTRY_NONS(trans_, ScheduleExecutionFailure);
       EDM_MAP_ENTRY_NONS(trans_, EventProcessorFailure);

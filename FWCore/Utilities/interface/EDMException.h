@@ -21,12 +21,9 @@
 
 #include <string>
 
-namespace edm
-{
-namespace errors
- {
-   enum ErrorCodes
-     {
+namespace edm {
+  namespace errors {
+    enum ErrorCodes {
        Unknown=0,
        ProductNotFound,
        InsertFailure,
@@ -34,6 +31,8 @@ namespace errors
        LogicError,
        InvalidReference,
        NoProductSpecified,
+       EventTimeout,
+       EventCorruption,
 
        ModuleFailure,
        ScheduleExecutionFailure,
@@ -42,9 +41,9 @@ namespace errors
        FileInPathError,
 
        NotFound
-     };
+    };
 
- }
+  }
 
   typedef edm::CodedException<edm::errors::ErrorCodes> Exception;
 }

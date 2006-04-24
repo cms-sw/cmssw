@@ -100,6 +100,10 @@ namespace edm {
       actions::Rethrow;
     map_[edm::Exception::codeToString(errors::InvalidReference)]=
       actions::SkipEvent;
+    map_[edm::Exception::codeToString(errors::EventTimeout)]=
+      actions::SkipEvent;
+    map_[edm::Exception::codeToString(errors::EventCorruption)]=
+      actions::SkipEvent;
     map_[edm::Exception::codeToString(errors::NotFound)]=
       actions::SkipEvent;
 
