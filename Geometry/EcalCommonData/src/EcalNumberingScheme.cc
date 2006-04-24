@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-EcalNumberingScheme::EcalNumberingScheme(int iv) : CaloNumberingScheme(iv) {}
+EcalNumberingScheme::EcalNumberingScheme() : CaloNumberingScheme(0) {}
 
 EcalNumberingScheme::~EcalNumberingScheme() {}
 

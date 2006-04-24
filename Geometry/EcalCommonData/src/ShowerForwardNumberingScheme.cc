@@ -9,8 +9,8 @@
 #include <iostream>
 using namespace std;
 
-ShowerForwardNumberingScheme::ShowerForwardNumberingScheme(int iv) : 
-  EcalNumberingScheme(iv) {
+ShowerForwardNumberingScheme::ShowerForwardNumberingScheme() : 
+  EcalNumberingScheme() {
 
   int iquad_M[40] = {5,7,10,11,13,13,14,15,16,17,17,17,18,
 		     19,19,19,19,19,19,19,19,19,19,19,19,19,19,
@@ -33,17 +33,14 @@ ShowerForwardNumberingScheme::ShowerForwardNumberingScheme(int iv) :
     Ntot[i] = Ntot[i-1]+2*Ncols[i];
   }
   
-  if (verbosity>0) 
-    std::cout << "Creating ShowerForwardNumberingScheme" << std::endl;
+  edm::LogInfo("EcalGeom") << "Creating ShowerForwardNumberingScheme";
 }
 
 ShowerForwardNumberingScheme::~ShowerForwardNumberingScheme() {
-  if (verbosity>0) 
-    std::cout << "Deleting ShowerForwardNumberingScheme" << std::endl;
+  edm::LogInfo("EcalGeom") << "Deleting ShowerForwardNumberingScheme";
 }
 
-uint32_t ShowerForwardNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const 
-{
+uint32_t ShowerForwardNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const  {
   int level = baseNumber.getLevels();
   uint32_t intIndex = 0; 
   if (level > 0) {
@@ -55,8 +52,9 @@ uint32_t ShowerForwardNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
     } else if (baseNumber.getLevelName(0) == "SFSY") {
       layer = 2;
     } else {
-      std::cout << "ShowerForwardNumberingScheme: Wrong name of Presh. Si."
-		   << " Strip : " << baseNumber.getLevelName(0) << std::endl;
+      edm::LogWarning("EcalGeom") << "ShowerForwardNumberingScheme: Wrong name"
+				  << " of Presh. Si. Strip : " 
+				  << baseNumber.getLevelName(0);
     }
 
     // Z index +Z = 1 ; -Z = 2
@@ -68,29 +66,25 @@ uint32_t ShowerForwardNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
     findXY(layer, wafer, x, y);
     // strip number inside wafer
     int strip = baseNumber.getCopyNumber(0);
-    if (wafer>538) 
-      {
-	strip = 33 - strip;
-      }
+    if (wafer>538) {
+      strip = 33 - strip;
+    }
 
-    if ( zside < 0 ) 
-      {
-	x=41-x;
-	if (layer == 1)
-	  strip = 33 - strip;
-      }
+    if ( zside < 0 ) {
+      x=41-x;
+      if (layer == 1)
+	strip = 33 - strip;
+    }
     
     intIndex =  ESDetId(strip, x, y, layer, zside).rawId(); 
     
-    if (verbosity>1) {
-      std::cout << "ShowerForwardNumberingScheme : zside " 
-		<< zside << " layer " << layer << " wafer " << wafer << " X " << x << " Y "<< y
-		<< " strip " << strip << " UnitID 0x" << std::hex << intIndex 
-		<< std::dec << std::endl;
-      for (int ich = 0; ich < level; ich++) {
-	std::cout << "Name = " << baseNumber.getLevelName(ich) << " copy = " << baseNumber.getCopyNumber(ich)
-		  << std::endl;
-      }
+    LogDebug("EcalGeom") << "ShowerForwardNumberingScheme : zside " << zside 
+			 << " layer " << layer << " wafer " << wafer << " X " 
+			 << x << " Y "<< y << " strip " << strip 
+			 << " UnitID 0x" << std::hex << intIndex << std::dec;
+    for (int ich = 0; ich < level; ich++) {
+      LogDebug("EcalGeom") << "Name = " << baseNumber.getLevelName(ich) 
+			   << " copy = " << baseNumber.getCopyNumber(ich);
     }
   }
 

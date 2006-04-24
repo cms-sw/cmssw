@@ -20,7 +20,7 @@ class HcalNumberingFromDDD {
 
 public:
 
-  HcalNumberingFromDDD(int iv, std::string & name, const DDCompactView & cpv);
+  HcalNumberingFromDDD(std::string & name, const DDCompactView & cpv);
   ~HcalNumberingFromDDD();
 	 
   struct HcalID {
@@ -50,8 +50,6 @@ private:
 				  int&) const;
 
 private:
-
-  int                 verbosity;// Level of verbosity
 
   std::vector<double> phioff;   // Phi offset for barrel, endcap, forward
   std::vector<double> etaTable; // Eta table 

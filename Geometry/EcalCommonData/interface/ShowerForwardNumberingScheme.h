@@ -11,7 +11,7 @@ class ShowerForwardNumberingScheme : public EcalNumberingScheme {
 
  public:
 
-  ShowerForwardNumberingScheme(int);
+  ShowerForwardNumberingScheme();
   ~ShowerForwardNumberingScheme();
   virtual uint32_t getUnitID(const EcalBaseNumber& baseNumber) const ;
   void findXY(const int& layer, const int& waf, int& x, int& y) const;

@@ -8,12 +8,13 @@
 
 #include "Geometry/CaloGeometry/interface/CaloNumberingScheme.h"
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <boost/cstdint.hpp>
 
 class EcalNumberingScheme : public CaloNumberingScheme {
 
 public:
-  EcalNumberingScheme(int);
+  EcalNumberingScheme();
   virtual ~EcalNumberingScheme();
   virtual uint32_t getUnitID(const EcalBaseNumber& baseNumber) const = 0;
 

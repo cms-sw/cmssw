@@ -10,7 +10,7 @@
 class EcalEndcapNumberingScheme : public EcalNumberingScheme {
 
 public:
-  EcalEndcapNumberingScheme(int);
+  EcalEndcapNumberingScheme();
   ~EcalEndcapNumberingScheme();
   virtual uint32_t getUnitID(const EcalBaseNumber& baseNumber) const ;
 

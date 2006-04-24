@@ -7,26 +7,21 @@
 
 #include <iostream>
 
-EcalBarrelNumberingScheme::EcalBarrelNumberingScheme(int iv) : 
-  EcalNumberingScheme(iv) {
-  if (verbosity>0) 
-    std::cout << "Creating EcalBarrelNumberingScheme" << std::endl;
+EcalBarrelNumberingScheme::EcalBarrelNumberingScheme() : 
+  EcalNumberingScheme() {
+  edm::LogInfo("EcalGeom") << "Creating EcalBarrelNumberingScheme";
 }
 
 EcalBarrelNumberingScheme::~EcalBarrelNumberingScheme() {
-  if (verbosity>0) 
-    std::cout << "Deleting EcalBarrelNumberingScheme" << std::endl;
+  edm::LogInfo("EcalGeom") << "Deleting EcalBarrelNumberingScheme";
 }
 
-uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const 
-{
-  if (baseNumber.getLevels()<1)
-    {
-      if (verbosity>0) 
-	std::cout << "ECalBarrelNumberingScheme::getUnitID: No level found in EcalBaseNumber"
-		  << " Returning 0" << std::endl;
-      return 0;
-    }
+uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const {
+  if (baseNumber.getLevels()<1) {
+    edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID: No "
+				<< "level found in EcalBaseNumber Returning 0";
+    return 0;
+  }
 
   int PVid  = baseNumber.getCopyNumber(0);
   int MVid  = 1; 
@@ -35,16 +30,13 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
   if (baseNumber.getLevels() > 1) {
     MVid = baseNumber.getCopyNumber(1);
   } else { 
-    if (verbosity>0) 
-      std::cout << "ECalBarrelNumberingScheme::getUnitID: NullA pointer to "
-		<< "alveole ! Use default id=1 " << std::endl;
-  }
+    edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID: Null"
+				<< " pointer to alveole ! Use default id=1";  }
   if (baseNumber.getLevels() > 2) { 
     MMVid = baseNumber.getCopyNumber(2);
   } else { 
-    if (verbosity>0) 
-      std::cout << "ECalBarrelNumberingScheme::getUnitID: Null pointer to "
-		<< "module ! Use default id=1 " << std::endl;
+    edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID: Null"
+				<< " pointer to module ! Use default id=1";
   }
 
   // z side 
@@ -74,10 +66,10 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
   //  zside=2*(1-zside)+1;
   uint32_t intindex = EBDetId(zside*eta,phi).rawId();
 
-  if (verbosity>1) 
-    std::cout << "EcalBarrelNumberingScheme zside = "  << zside << " eta = " 
-	      << eta << " phi = " << phi << " packed index = 0x" << std::hex 
-	      << intindex << std::dec << std::endl;
+  LogDebug("EcalGeom") << "EcalBarrelNumberingScheme zside = "  << zside 
+		       << " eta = " << eta << " phi = " << phi 
+		       << " packed index = 0x" << std::hex << intindex 
+		       << std::dec;
   return intindex;
 
 }
