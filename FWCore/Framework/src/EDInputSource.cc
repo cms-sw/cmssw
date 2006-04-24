@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EDInputSource.cc,v 1.1 2006/04/06 23:26:29 wmtan Exp $
+$Id: EDInputSource.cc,v 1.2 2006/04/13 22:24:08 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,7 +20,8 @@ namespace edm {
 
   void
   EDInputSource::setRun(RunNumber_t) {
-      throw cms::Exception("LogicError","EDInputSource::setRun()")
+      throw edm::Exception(edm::errors::LogicError)
+        << "EDInputSource::setRun()\n"
         << "Run number cannot be modified for an EDInputSource\n"
         << "Contact a Framework Developer\n";
   }
