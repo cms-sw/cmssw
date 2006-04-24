@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/02/05 22:21:54 $
- * $Revision: 1.76 $
+ * $Date: 2006/03/05 09:50:41 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  *
 */
@@ -405,11 +405,12 @@ void EBIntegrityClient::subscribe(void){
 
       sprintf(histo, "EBIT gain switch SM%02d", ism);
       me_h03_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitch");
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
       mui_->add(me_h03_[ism-1], histo);
 
       sprintf(histo, "EBIT gain switch stay SM%02d", ism);
       me_h04_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitchStay");
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d", ism);
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d", ism);
       mui_->add(me_h04_[ism-1], histo);
 
       sprintf(histo, "EBIT TTId SM%02d", ism);
