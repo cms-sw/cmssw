@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestStatusChecker
  *
- *  $Date: 2006/03/13 15:51:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/04/07 12:07:07 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
  */
 
@@ -12,6 +12,8 @@
 #include <iostream>
 
 QTestStatusChecker::QTestStatusChecker(){
+	logFile.open("QTestStatusChecker.log");
+
 }
 
 QTestStatusChecker::~QTestStatusChecker(){
@@ -75,7 +77,7 @@ void QTestStatusChecker::searchDirectories(MonitorUserInterface * mui) {
         
 	#ifdef DEBUG
 		std::string currentDir=mui->pwd();
-		std::cout << "Searching ME's with quality tests in " << currentDir<<"\n"
+		logFile << "Searching ME's with quality tests in " << currentDir<<"\n"
 		      << "There are " << numberOfME <<" monitoring elements and "
 		      << numberOfDir<<" directories\n"<< std::endl;
 	#endif
@@ -110,23 +112,26 @@ void QTestStatusChecker::processAlarms(std::vector<std::string> meNames, std::st
 		sprintf(fullPath,"%s/%s",currentDir.c_str(),(*nameItr).c_str());
 		me= mui->get(fullPath);
 		std::vector<QReport *> report;
+		logFile <<"ME: "  <<(*nameItr)<<std::endl;
+
 		if(me){
+			logFile <<"is present and has ";
+			
 		 	if (me->hasError()){
 		 		colour="red";
 				report= me->getQErrors();
-        			std::cout<<"sonoqui1 "<<std::endl;
+        			logFile <<"errors: "<<report.size();
 		 	} 
 		 	if( me->hasWarning()){ 
 		 		colour="orange";
 				report= me->getQWarnings();
-        			std::cout<<"sonoqui2 "<< std::endl;
+        			logFile <<"warnings: "<<  report.size();
 		 	}
 		 	if(me->hasOtherReport()){
 		 		colour="black";
  				report= me->getQOthers();
-       				std::cout<<"sonoqui3 "<<std::endl;
+       				logFile <<"other messages: "<<  report.size();
 		 	}
-	
 		 	for(std::vector<QReport *>::iterator itr=report.begin(); itr!=report.end();++itr ){
 				sprintf(text,"%s:%s",(*nameItr).c_str(),((*itr)->getMessage()).c_str());
 				
@@ -144,6 +149,8 @@ void QTestStatusChecker::processAlarms(std::vector<std::string> meNames, std::st
 	    			}	    
 		 	}	
 		}
+		logFile <<"Is not present."<<std::endl;
+
 	}
 
 }
