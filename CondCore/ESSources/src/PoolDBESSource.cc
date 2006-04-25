@@ -284,7 +284,6 @@ PoolDBESSource::~PoolDBESSource()
   delete m_loader;
 }
 
-
 //
 // member functions
 //
@@ -304,17 +303,27 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     oInterval = edm::ValidityInterval::invalidInterval();
     return;
   }
-  typedef std::map<unsigned long, std::string> IOVMap;
+  typedef std::map<unsigned long long, std::string> IOVMap;
   typedef IOVMap::const_iterator iterator;
   pool::Ref<cond::IOV> myiov = itIOV->second;
   std::string payloadToken;
-  unsigned long abtime=iTime.eventID().run();
+  unsigned long long abtime;
+  unsigned long long endOftime;
+  if( m_timetype == "timestamp" ){
+    abtime=iTime.time().value();
+    endOftime=edm::IOVSyncValue::endOfTime().time().value();
+  }else{
+    abtime=(unsigned long long)iTime.eventID().run();
+    endOftime=(unsigned long long)edm::IOVSyncValue::endOfTime().eventID().run();
+  }
+  //std::cout<<"endOftime "<<endOftime<<std::endl;
   //valid time check
   //check if current run exceeds iov upperbound
-  unsigned long myendoftime=myiov->iov.rbegin()->first;
+  unsigned long long myendoftime=myiov->iov.rbegin()->first;
+  //std::cout<<"myendoftime "<<myendoftime<<std::endl;
   //std::cout<<"current time "<<abtime<<std::endl;
   //std::cout<<"myendoftime "<<myendoftime<<std::endl;
-  if( myendoftime!=edm::IOVSyncValue::endOfTime().eventID().run() && abtime>myendoftime ){
+  if( myendoftime!=endOftime && abtime>myendoftime ){
     std::ostringstream os;
     os<<abtime;
     throw cond::noDataForRequiredTimeException("PoolDBESSource::setIntervalFor",iKey.name(),os.str());
@@ -325,21 +334,38 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     //no valid data
     oInterval = edm::ValidityInterval(edm::IOVSyncValue::endOfTime(), edm::IOVSyncValue::endOfTime());
   } else {
-    unsigned long starttime=edm::IOVSyncValue::beginOfTime().eventID().run();
+    unsigned long long starttime;
+    unsigned long long beginOftime;
+    if( m_timetype == "timestamp" ){
+      beginOftime=edm::IOVSyncValue::beginOfTime().time().value();
+      starttime=beginOftime;
+    }else{
+      beginOftime=(unsigned long long)edm::IOVSyncValue::beginOfTime().eventID().run();
+      starttime=beginOftime;
+    }
     if (iEnd != myiov->iov.begin()) {
       iterator iStart(iEnd); iStart--;
-      starttime = (*iStart).first+edm::IOVSyncValue::beginOfTime().eventID().run();
-      //starttime = (*iStart).first;
+      starttime = (*iStart).first+beginOftime;
     }
     payloadToken = (*iEnd).second;
     //std::cout<<"valid time "<<(*iEnd).first<<std::endl;
     //std::cout<<"payloadToken "<<payloadToken<<std::endl;
     //edm::IOVSyncValue start( edm::EventID(0,0) );
-    edm::IOVSyncValue start( edm::EventID(starttime,0) );
+    edm::IOVSyncValue start;
+    if( m_timetype == "timestamp" ){
+      start=edm::IOVSyncValue( edm::Timestamp(starttime) );
+    }else{
+      start=edm::IOVSyncValue( edm::EventID(starttime,0) );
+    }
     //std::cout<<"starttime "<<edm::EventID(starttime,0)<<std::endl;
     //std::cout<<"stop time "<<edm::EventID((*iEnd).first,0)<<std::endl;
     //edm::IOVSyncValue stop ( edm::EventID((*iEnd).first+edm::IOVSyncValue::beginOfTime().eventID().run(),0) );
-    edm::IOVSyncValue stop ( edm::EventID((*iEnd).first).run(),0 );
+    edm::IOVSyncValue stop;
+    if( m_timetype == "timestamp" ){
+      stop=edm::IOVSyncValue( edm::Timestamp((*iEnd).first) );
+    }else{
+      stop=edm::IOVSyncValue( edm::EventID((*iEnd).first).run(),0 );
+    }
     oInterval = edm::ValidityInterval( start, stop );
   }
   m_proxyToToken[buildName(itRec->first ,itRec->second)]=payloadToken;  
