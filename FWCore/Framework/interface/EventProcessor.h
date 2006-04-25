@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.15 2006/04/10 22:35:43 jbk Exp $
+$Id: EventProcessor.h,v 1.16 2006/04/19 21:03:48 jbk Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -66,12 +66,12 @@ namespace edm {
       ------------
       cause events to be processed in a separate thread
       and functions used in the online.  Several of these
-      state are likely to be tranitory in the offline
+      state are likely to be transitory in the offline
       because they are completly driven by the data coming
       from the input source.
     */
     enum State { sInit=0,sJobReady,sRunGiven,sRunning,sStopping,
-		 sShuttingDown,sDone,sJobEnded,sError,sEnd,sInvalid };
+		 sShuttingDown,sDone,sJobEnded,sError,sErrorEnded,sEnd,sInvalid };
     
     enum Msg { mSetRun=0, mSkip, mRunAsync, mRunID, mRunCount, mBeginJob,
 	       mStopAsync, mShutdownAsync, mEndJob, mCountComplete,
@@ -125,9 +125,9 @@ namespace edm {
     void beginJob();
 
     /**This should be called before the EventProcessor is destroyed
-       returns false if any module's endJob throws an exception
+       throws if any module's endJob throws an exception.
        */
-    bool endJob();
+    void endJob();
 
 
     const char* currentStateName() const;

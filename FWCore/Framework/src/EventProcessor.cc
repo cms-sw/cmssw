@@ -198,7 +198,7 @@ namespace edm {
     };
 
 
-    // Note: many of the message generate the mBeginJob message first 
+    // Note: many of the messages generate the mBeginJob message first 
     //  mRunID, mRunCount, mSetRun
 
     volatile bool shutdown_flag = false;
@@ -795,7 +795,7 @@ namespace edm {
     // toerror.succeeded(); // should we add this?
   }
 
-  bool
+  void
   EventProcessor::endJob() 
   {
     // only allowed to run if state is sIdle,sJobReady,sRunGiven
@@ -803,31 +803,15 @@ namespace edm {
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);  
-    bool returnValue = false;
 
-    try
-      {
+    try {
 	sched_->endJob();
-	returnValue=true;
-      }
-    catch(cms::Exception& x)
-      {
-	LogError(x.category())
-	  << "Caught cms::Exception in endJob: "<< x.what() << "\n";
-      }
-    catch(std::exception& x)
-      {
-	LogError("std::exception")
-	  << "Caught std::exception in endJob: "<< x.what() << "\n";
-      }
-    catch(...)
-      {
-	LogError("ignored_exception")
-	  << "Caught unknown exception in endJob. (ignoring it!!!!)\n";
-      }
-    
+    }
+    catch(...) {
+      actReg_->postEndJobSignal_();
+      throw;
+    }
     actReg_->postEndJobSignal_();
-    return returnValue;
   }
 
   ServiceToken

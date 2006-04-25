@@ -468,8 +468,36 @@ namespace edm
 
   void Schedule::endJob()
   {
+    bool failure = false;
+    cms::Exception exception("endJob");
     AllWorkers::iterator ai(all_workers_.begin()),ae(all_workers_.end());
-    for(;ai!=ae;++ai) { (*ai)->endJob(); }
+    for(;ai!=ae;++ai) {
+      try {
+         (*ai)->endJob();
+      }
+      catch (seal::Error& e) {
+        exception << "seal::Exception caught in Schedule::endJob\n"
+                                << e.explainSelf();
+        failure = true;
+      }
+      catch (cms::Exception& e) {
+        exception << "cms::Exception caught in Schedule::endJob\n"
+                                << e.explainSelf();
+        failure = true;
+      }
+      catch (std::exception& e) {
+        exception << "Standard library exception caught in Schedule::endJob\n"
+                                << e.what();
+        failure = true;
+      }
+      catch (...) {
+        exception << "Unknown exception caught in Schedule::endJob\n";
+        failure = true;
+      }
+    }
+    if (failure) {
+      throw exception;
+    }
 
     //for_each(all_workers_.begin(),all_workers_.end(),
     //		    boost::bind(&Worker::endJob,_1));    

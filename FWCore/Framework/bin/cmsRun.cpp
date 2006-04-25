@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.15 2006/03/20 15:08:42 paterno Exp $
+$Id: cmsRun.cpp,v 1.16 2006/04/06 23:08:32 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -13,6 +13,7 @@ $Id: cmsRun.cpp,v 1.15 2006/03/20 15:08:42 paterno Exp $
 #include <fstream>
 #include <string>
 #include <vector>
+#include <memory>
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
 
@@ -31,6 +32,32 @@ static const char* const kHelpCommandOpt = "help,h";
 static const char* const kProgramName = "cmsRun";
 
 // -----------------------------------------------
+namespace {
+  class EventProcessorWithSentry {
+  public:
+    explicit EventProcessorWithSentry() : ep_(0), callEndJob_(false) { }
+    explicit EventProcessorWithSentry(std::auto_ptr<edm::EventProcessor> ep) :
+      ep_(ep),
+      callEndJob_(false) { }
+    ~EventProcessorWithSentry() {
+      if (callEndJob_ && ep_.get()) ep_->endJob();
+    }
+    void on() {
+      callEndJob_ = true;
+    }
+    void off() {
+      callEndJob_ = false;
+    }
+    
+    edm::EventProcessor* operator->() {
+      return ep_.get();
+    }
+  private:
+    std::auto_ptr<edm::EventProcessor> ep_;
+    bool callEndJob_;
+  };
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -106,18 +133,18 @@ int main(int argc, char* argv[])
   std::vector<edm::ParameterSet> serviceparams;
 
 
+  EventProcessorWithSentry proc;
   int rc = -1; // we should never return this value!
   try {
-      edm::EventProcessor proc(configstring);
-      proc.beginJob();
-      proc.run();
-      if(proc.endJob()) {
-        rc = 0;
-	// TODO: Put 'sucess' report to JobSummary here.
-      } else {
-        rc = 1;
-	// TODO: Put 'endJob failed' report to JobSummary here.
-      }
+      std::auto_ptr<edm::EventProcessor> procP(new edm::EventProcessor(configstring));
+      EventProcessorWithSentry procTmp(procP);
+      proc = procTmp;
+      proc->beginJob();
+      proc.on();
+      proc->run();
+      proc.off();
+      proc->endJob();
+      rc = 0;
   }
   catch (seal::Error& e) {
       edm::LogError("FwkJob") << "seal::Exception caught in " 
