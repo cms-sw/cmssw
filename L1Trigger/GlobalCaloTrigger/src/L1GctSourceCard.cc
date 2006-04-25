@@ -2,10 +2,10 @@
 
 
 //Use this for official CMSSW Exception usage
-#include "CMSSW/FWCore/Utilities/interface/Exception.h"
+//#include "CMSSW/FWCore/Utilities/interface/Exception.h"
 //OR: Use these if you aren't using CMSSW exceptions
-//#include <exception> //for exception handling
-//#include <stdexcept> //for std::runtime_error()
+#include <exception> //for exception handling
+#include <stdexcept> //for std::runtime_error()
 
 
 #include <iostream>
@@ -28,19 +28,19 @@ void L1GctSourceCard::openInputFile(string fileName)
     //Opens the file
     m_fin.open(fileName.c_str(), ios::in);
 
-  //Use this one for offical CMS exception handling
-    if(!m_fin.good())
-    {
-        throw cms::Exception("FileError")
-        << "Couldn't open the file " + fileName + " for reading!\n";
-    }
+//    //Use this one for offical CMS exception handling
+//    if(!m_fin.good())
+//    {
+//        throw cms::Exception("FileError")
+//        << "Couldn't open the file " + fileName + " for reading!\n";
+//    }
 
-/*    //Standard exception handling (to avoid local compilation of CMSSW exception class)
+    //Standard exception handling (to avoid local compilation of CMSSW exception class)
     if(!m_fin.good())
     {
         throw std::runtime_error("Couldn't open the file " + fileName + " for reading!");
     }
-*/
+
 }    
     
 void L1GctSourceCard::readBX()
@@ -61,12 +61,12 @@ void L1GctSourceCard::readBX()
         break;
 
     default:
-        //Use this one for offical CMS exception handling
-        throw cms::Exception("RangeError")
-        << "L1GctSourceCard instance has been passed invalid card type specifier\n";
+//        //Use this one for offical CMS exception handling
+//        throw cms::Exception("RangeError")
+//        << "L1GctSourceCard instance has been passed invalid card type specifier\n";
 
-//        //Standard exception handling (to avoid local compilation of CMSSW exception class)
-//        throw std::range_error("L1GctSourceCard instance has been passed invalid card type specifier");
+        //Standard exception handling (to avoid local compilation of CMSSW exception class)
+        throw std::range_error("L1GctSourceCard instance has been passed invalid card type specifier");
     }
 }
 
@@ -159,12 +159,12 @@ void L1GctSourceCard::setVectorSizes()
         break;
 
     default:
-        //Use this one for offical CMS exception handling
-        throw cms::Exception("RangeError")
-        << "L1GctSourceCard instance has been passed invalid card type specifier\n";
+//        //Use this one for offical CMS exception handling
+//        throw cms::Exception("RangeError")
+//        << "L1GctSourceCard instance has been passed invalid card type specifier\n";
 
-//        //Standard exception handling (to avoid local compilation of CMSSW exception class)
-//        throw std::range_error("L1GctSourceCard instance has been passed invalid card type specifier");
+        //Standard exception handling (to avoid local compilation of CMSSW exception class)
+        throw std::range_error("L1GctSourceCard instance has been passed invalid card type specifier");
     }    
 }
 

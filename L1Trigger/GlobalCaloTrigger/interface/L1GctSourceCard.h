@@ -48,6 +48,7 @@ NOTE:  CMS IN 2004/009 specifies that cable four provides 8 Quiet bits for the H
 
 /*TO DO: 1) Additional (file) error handling maybe? Currently done with some debug asserts.
  *       2) Currently doesn't like any whitespace after final entry in input file.
+ *       3) Need to sort out BuildFiles so the CMS Exception class can be used
 */
 
 class L1GctSourceCard
