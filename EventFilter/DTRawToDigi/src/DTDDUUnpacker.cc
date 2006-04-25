@@ -82,9 +82,18 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
     controlData.addROSStatusWord(DTDDUFirstStatusWord(index8[wordIndex8]));
   }
   
+  int theROSList;
   // [BITS] 2 words of 8 bytes + 4 bytes (half 64 bit word)
-  DTDDUSecondStatusWord dduStatusWord(index32[numberOf32Words - 2*wordSize_64/wordSize_32 + 1]);
-  controlData.addDDUStatusWord(dduStatusWord);
+  if (pset.getUntrackedParameter<bool>("isRaw",false)) {
+    DTDDUSecondStatusWord dduStatusWord(index32[numberOf32Words - 2*wordSize_64/wordSize_32]);
+    controlData.addDDUStatusWord(dduStatusWord);
+    theROSList =  dduStatusWord.rosList();
+  }
+  else {
+    DTDDUSecondStatusWord dduStatusWord(index32[numberOf32Words - 2*wordSize_64/wordSize_32 + 1]);
+    controlData.addDDUStatusWord(dduStatusWord);
+    theROSList =  dduStatusWord.rosList();
+  }
 
   // Perform dqm if requested
 //   if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) 
@@ -96,14 +105,14 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
   //////////////////////
 
   // Set the index to start looping on ROS data
-  // [BITS] one 8 bytes word and one 4 bytes
-  index32 += (wordSize_64+wordSize_32)/wordSize_32; 
+  // [BITS] one 8 bytes word
+  index32 += (wordSize_64)/wordSize_32; 
 
   // Set the datasize to look only at ROS data 
   // [BITS] header, trailer, 2 status words
   datasize -= 4*wordSize_64; 
 
   // unpacking the ROS payload
-  ros25Unpacker->interpretRawData(index32, datasize, dduID, mapping, product,dduStatusWord.rosList());
-
+  ros25Unpacker->interpretRawData(index32, datasize, dduID, mapping, product, theROSList);
+  
 }
