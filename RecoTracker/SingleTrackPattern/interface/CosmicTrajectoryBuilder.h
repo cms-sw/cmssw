@@ -33,8 +33,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
-//MP
-//#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
  class CompareHitY {
  public:
    CompareHitY(const TrackerGeometry& tracker):_tracker(tracker){}
@@ -75,13 +74,15 @@ class CosmicTrajectoryBuilder
     vector<const TrackingRecHit*> SortHits(const SiStripRecHit2DLocalPosCollection &collstereo,
 					   const SiStripRecHit2DLocalPosCollection &collrphi ,
 					   const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
-					   const SiPixelRecHitCollection &collpixel);
+					   const SiPixelRecHitCollection &collpixel,
+					   const TrajectorySeedCollection &collseed);
 
     TSOS startingTSOS(const TrajectorySeed& seed)const;
     void updateTrajectory( Trajectory& traj,
-			   const TM& tm) const;
+			   const TM& tm,
+			   const TransientTrackingRecHit& hit) const;
     
-    void AddHit(Trajectory traj,
+    void AddHit(Trajectory &traj,
 		edm::OwnVector<TransientTrackingRecHit> hits);
     bool qualityFilter(Trajectory traj);
 
@@ -99,13 +100,13 @@ class CosmicTrajectoryBuilder
    const KFTrajectorySmoother * theSmoother;
    const KFTrajectoryFitter * theFitter;
    //MP
-   //   const LayerMeasurements*      theLayerMeasurements;
-   Trajectory *cachetraj;
+   const LayerMeasurements*      theLayerMeasurements;
    vector<BarrelDetLayer*> bl;
    int theMinHits;
    bool chi2cut;
-
-
+   std::vector<Trajectory> trajFit;
+   unsigned int indexlayer; 
+   edm::OwnVector<TransientTrackingRecHit> goodhits;
 };
 
 #endif

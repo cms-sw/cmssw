@@ -9,11 +9,11 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
 namespace cms
 {
 
@@ -21,7 +21,8 @@ namespace cms
     cosmicTrajectoryBuilder_(conf) ,
     conf_(conf)
   {
-    produces<TrackCandidateCollection>();
+    //    produces<TrackCandidateCollection>();
+    produces<reco::TrackCollection>();
   }
 
 
@@ -68,7 +69,10 @@ namespace cms
       
       
       // Step D: write output to file
-      if ((*output).size()>0)	e.put(output);
+      if ((*output).size()>0)	{
+	std::cout<<"cumino "<<(*output).size()<<std::endl;
+	e.put(output);
+      }
     }
   }
   
