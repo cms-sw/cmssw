@@ -1,3 +1,23 @@
+/** \class SteppingHelixPropagator
+ *  Propagator implementation using steps along a helix.
+ *  Minimal geometry navigation.
+ *  Material effects (multiple scattering and energy loss) are based on tuning
+ *  to MC and (eventually) data. 
+ *  Implementation file contents follow.
+ *
+ *  $Date: 2005/07/26 10:13:49 $
+ *  $Revision: 1.1 $
+ *  \author Vyacheslav Krutelyov (slava77)
+ */
+
+//
+// Original Author:  Vyacheslav Krutelyov
+//         Created:  Fri Mar  3 16:01:24 CST 2006
+// $Id: SteppingHelixPropagator.cc,v 1.1 2006/04/14 21:45:18 slava77 Exp $
+//
+//
+
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Utilities/Timing/interface/TimingReport.h"
 
@@ -26,7 +46,6 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field, Pro
   noMaterialMode_ = false;
   for (int i = 0; i <= MAX_POINTS; i++){
     covLoc_[i] = HepSymMatrix(6,0);
-    cov_[i] = HepSymMatrix(6,0);
   }
 }
 
@@ -47,7 +66,9 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 
   int charge = ftsStart.charge();
 
-  setIState(p3, r3, charge, ftsStart.cartesianError().matrix(), propagationDirection());
+  setIState(p3, r3, charge, 
+	    ftsStart.hasError() ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0), 
+	    propagationDirection());
   Result result = propagateToPlane(pars);
 
   Vector p3F;
@@ -63,7 +84,8 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
   GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
   CartesianTrajectoryError tCovDest(covF);
 
-  TrajectoryStateOnSurface tsosDest(tParsDest, tCovDest, pDest, side);
+  TrajectoryStateOnSurface tsosDest = ftsStart.hasError() ? 
+    TrajectoryStateOnSurface(tParsDest, tCovDest, pDest, side) : TrajectoryStateOnSurface(tParsDest, pDest, side);
   int cInd = cIndex_(nPoints_-1);
   
   return TsosPP(tsosDest, path_[cInd]);
@@ -79,7 +101,9 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 
   int charge = ftsStart.charge();
 
-  setIState(p3, r3, charge, ftsStart.cartesianError().matrix(), propagationDirection());
+  setIState(p3, r3, charge,  
+	    ftsStart.hasError() ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0),
+	    propagationDirection());
   Result result = propagateToR(cDest.radius());
 
   Vector p3F;
@@ -95,7 +119,8 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
   GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
   CartesianTrajectoryError tCovDest(covF);
 
-  TrajectoryStateOnSurface tsosDest(tParsDest, tCovDest, cDest, side);
+  TrajectoryStateOnSurface tsosDest = ftsStart.hasError() ? 
+    TrajectoryStateOnSurface(tParsDest, tCovDest, cDest, side) : TrajectoryStateOnSurface(tParsDest, cDest, side);
   int cInd = cIndex_(nPoints_-1);
 
   return TsosPP(tsosDest, path_[cInd]);
@@ -125,7 +150,19 @@ void SteppingHelixPropagator::getFState(SteppingHelixPropagator::Vector& p3, Ste
   int cInd = cIndex_(nPoints_-1);
   p3 = p3_[cInd];
   r3 = r3_[cInd];
-  cov.assign(cov_[cInd]);
+  //update Emat only if it's valid
+  if (covLoc_[cInd].num_row() >=5 ){
+    Vector xRep(1., 0., 0.);
+    Vector yRep(0., 1., 0.);
+    Vector zRep(0., 0., 1.);
+    const Vector* repI[3] = {&reps_[cInd].lX, &reps_[cInd].lY, &reps_[cInd].lZ};
+    const Vector* repF[3] = {&xRep, &yRep, &zRep};
+    initCovRotation(repI, repF, covRot_);
+    cov = covLoc_[cInd].similarity(covRot_);
+  } else {
+    cov = covLoc_[cInd];
+  }
+
 }
 
 
@@ -296,7 +333,6 @@ void SteppingHelixPropagator::loadState(int ind,
   q_[cInd] = charge;
   p3_[cInd] = p3;
   r3_[cInd] = r3;
-  cov_[cInd].assign(cov);
   dir_[cInd] = dir == alongMomentum ? 1.: -1.;
 
   GlobalVector bf = field_->inTesla(GlobalPoint(r3.x(), r3.y(), r3.z()));
@@ -306,15 +342,19 @@ void SteppingHelixPropagator::loadState(int ind,
   setReps(ind);
   getLocBGrad(ind, 1e-1);
 
-  covLoc_[cInd].assign(cov_[cInd]);
+  covLoc_[cInd].assign(cov);
 
-  Vector xRep(1., 0., 0.);
-  Vector yRep(0., 1., 0.);
-  Vector zRep(0., 0., 1.);
-  const Vector* repI[3] = {&xRep, &yRep, &zRep};
-  const Vector* repF[3] = {&reps_[cInd].lX, &reps_[cInd].lY, &reps_[cInd].lZ};
-  initCovRotation(repI, repF, covRot_);
-  covLoc_[cInd] = covLoc_[cInd].similarity(covRot_);
+  
+  //update Emat only if it's valid
+  if (covLoc_[cInd].num_row() >=5 ){
+    Vector xRep(1., 0., 0.);
+    Vector yRep(0., 1., 0.);
+    Vector zRep(0., 0., 1.);
+    const Vector* repI[3] = {&xRep, &yRep, &zRep};
+    const Vector* repF[3] = {&reps_[cInd].lX, &reps_[cInd].lY, &reps_[cInd].lZ};
+    initCovRotation(repI, repF, covRot_);
+    covLoc_[cInd] = covLoc_[cInd].similarity(covRot_);
+  }
 
   //   std::cout<<"Load at "<<ind<<" path: "<<path_[cInd]
   //  	   <<" p3 "<<" pt: "<<p3_[cInd].perp()<<" phi: "<<p3_[cInd].phi()<<" eta: "<<p3_[cInd].eta()
@@ -343,7 +383,6 @@ void SteppingHelixPropagator::incrementState(int ind,
   r3_[cInd]+= tmpR3;
   tmpR3 = reps_[cPrev].lZ; tmpR3*=dZ;
   r3_[cInd]+= tmpR3;
-  //  cov_[cInd].assign(cov_[cPrev]); // do I need it here?
   path_[cInd] = path_[cPrev] + dS;
   
   GlobalVector bf = field_->inTesla(GlobalPoint(r3_[cInd].x(), r3_[cInd].y(), r3_[cInd].z()));
@@ -353,12 +392,18 @@ void SteppingHelixPropagator::incrementState(int ind,
   setReps(ind);
   getLocBGrad(ind, 1e-1);
   
-  const Vector* repI[3] = {&reps_[cPrev].lX, &reps_[cPrev].lY, &reps_[cPrev].lZ};
-  const Vector* repF[3] = {&reps_[cInd].lX, &reps_[cInd].lY, &reps_[cInd].lZ};
-  initCovRotation(repI, repF, covRot_);
-  covRot_ = covRot_*dCovTransform;
-  covLoc_[cInd] = covLoc_[cPrev].similarity(covRot_);
   
+  //update Emat only if it's valid
+  if (covLoc_[cPrev].num_row() >=5 ){
+    const Vector* repI[3] = {&reps_[cPrev].lX, &reps_[cPrev].lY, &reps_[cPrev].lZ};
+    const Vector* repF[3] = {&reps_[cInd].lX, &reps_[cInd].lY, &reps_[cInd].lZ};
+    initCovRotation(repI, repF, covRot_);
+    covRot_ = covRot_*dCovTransform;
+    covLoc_[cInd] = covLoc_[cPrev].similarity(covRot_);
+  } else {
+    covLoc_[cInd].assign(covLoc_[cPrev]);
+  }
+
   if (debug_){
     std::cout<<"Now at "<<ind<<" path: "<<path_[cInd]
 	     <<" p3 "<<" pt: "<<p3_[cInd].perp()<<" phi: "<<p3_[cInd].phi()<<" eta: "<<p3_[cInd].eta()
