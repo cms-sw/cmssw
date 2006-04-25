@@ -65,7 +65,7 @@ cat > $fileName <<@EOF
 @EOF
 
 # Include list of interface classes here, stripping of directory name and .h 
-ls -1 ../interface/*.h | awk -F/interface/ '{print $2}' | awk -F. '{print $1}' >> $fileName
+ls -1 ../interface/*.h | awk -F/interface/ '{print $2}' | awk -F. '{print "- " $1}' >> $fileName
 
 # Remainder of .doc file.
 
@@ -77,8 +77,10 @@ cat >> $fileName <<@EOF
 @EOF
 
 #Include list of modules here, stripping DEFINE_FWK_MODULE keyword.
-grep -h '^DEFINE_FWK_MODULE' ../src/*.cc | awk -F'(' '{print $2}' | awk -F ')' '{print $1}' >> $fileName
-grep -h '^DEFINE_ANOTHER_FWK_MODULE' ../src/*.cc | awk -F'(' '{print $2}' | awk -F ')' '{print $1}' >> $fileName
+grep -h '^DEFINE_FWK_MODULE' ../src/*.cc | awk -F'(' '{print $2}' | awk -F ')' '{print "- " $1}' >> $fileName
+grep -h '^DEFINE_ANOTHER_FWK_MODULE' ../src/*.cc | awk -F'(' '{print $2}' | awk -F ')' '{print "- " $1}' >> $fileName
+grep -h '^DEFINE_FWK_EVENTSETUP_MODULE' ../src/*.cc | awk -F'(' '{print $2}' | awk -F ')' '{print "- " $1}' >> $fileName
+grep -h '^DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE' ../src/*.cc | awk -F'(' '{print $2}' | awk -F ')' '{print "- " $1}' >> $fileName
 
 # Remainder of .doc file.
 
