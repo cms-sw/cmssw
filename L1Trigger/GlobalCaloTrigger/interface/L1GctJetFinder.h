@@ -9,7 +9,7 @@
 
 class L1GctSourceCard;
 
-/*! \class testJetFinder.cpp
+/*! \class L1GctJetFinder
  * \brief 3*3 sliding window algorithm jet finder.
  *
  *  Locates the jets from 48 inputted L1GctRegions.
