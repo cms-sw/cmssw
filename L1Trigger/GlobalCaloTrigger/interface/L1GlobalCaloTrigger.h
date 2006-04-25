@@ -44,7 +44,7 @@ public:
 	///
 	/// iso electron outputs to GT
 	vector<L1GctEmCand> getIsoElectrons();
-	///
+	/// 
 	/// non-iso electron outputs to GT
 	vector<L1GctEmCand> getNonIsoElectrons();
 	///
@@ -99,10 +99,17 @@ private:
 	vector<L1GctJetLeafCard*> theJetLeafCards;			
 	vector<L1GctElectronSorter*> theElectronSorters;	
 	vector<L1GctWheelJetFpga*> theWheelJetFpgas;		
-	vector<L1GctWheelEnergyFpga*> theWheelEnergyFpgas;	
+	vector<L1GctWheelEnergyFpga*> theWheelEnergyFpgas;
+
+	///
+	/// central barrel jet find & final sort
 	L1GctJetFinalStage* theJetFinalStage;			
-	L1GctGlobalEnergyAlgos* theEnergyFinalStage;		
-	L1GctElectronFinalSort* theElectronFinalStage;
+	///
+	/// energy final stage algos
+	L1GctGlobalEnergyAlgos* theEnergyFinalStage;	
+	///
+	/// electron final stage sorters (0 = iso, 1 = non-iso)
+	vector<L1GctElectronFinalSort*> theElectronFinalStage;
 	
 };
 

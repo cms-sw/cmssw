@@ -44,8 +44,8 @@ private:
 	vector<L1GctEmCand> inputCands;
 	///
 	/// output data
-
 	vector<L1GctEmCand> outputCands;
+
 };
 
 #endif /*L1GCTELECTRONFINALSORT_H_*/

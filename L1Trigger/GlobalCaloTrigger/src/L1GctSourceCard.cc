@@ -1,5 +1,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTCrate.h"
 
 //Use this for official CMSSW Exception usage
 //#include "CMSSW/FWCore/Utilities/interface/Exception.h"
@@ -13,8 +14,9 @@
 using namespace std;
 
 
-L1GctSourceCard::L1GctSourceCard(SourceCardType typeVal):
-m_cardType(typeVal)
+L1GctSourceCard::L1GctSourceCard(SourceCardType typeVal, L1RCTCrate* rc):
+  m_cardType(typeVal),
+  m_rctCrate(rc)
 {
     this->setVectorSizes();
 }

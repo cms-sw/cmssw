@@ -45,9 +45,10 @@ L1GlobalCaloTrigger* L1GlobalCaloTrigger::theGct() {
 // instantiate hardware/algorithms
 void L1GlobalCaloTrigger::build() {
 
-  for (int i=0; i<54; i++) {
-    L1GctSourceCard* sc = new L1GctSourceCard();
-    theSourceCards.push_back(sc);
+  for (int i=0; i<18; i++) {
+    theSourceCards[3*i] = new L1GctSourceCard(L1GctSourceCard::cardType1);
+    theSourceCards[3*i+1] = new L1GctSourceCard(L1GctSourceCard::cardType2);
+    theSourceCards[3*i+2] = new L1GctSourceCard(L1GctSourceCard::cardType3);
   }
 
   for (int i=0; i<6; i++) {
@@ -64,13 +65,22 @@ void L1GlobalCaloTrigger::build() {
   }
   
   theJetFinalStage = new L1GctJetFinalStage();
-  theElectronFinalStage = new L1GctElectronFinalSort();
   theEnergyFinalStage = new L1GctGlobalEnergyAlgos();
+
+  for (int i=0; i<2; i++) {
+    theElectronFinalStage[i] = new L1GctElectronFinalSort();
+  }
 
 }
 
 // wire up the hardware/algos
 void L1GlobalCaloTrigger::setup() {
+
+  // electron tree
+
+  for (int i=0; i<27; i++) {
+    
+  }
 
 }
 
@@ -113,8 +123,9 @@ void L1GlobalCaloTrigger::process() {
   }
 
   // Electron Final Stage
-  theElectronFinalStage->fetchInput();
-  theElectronFinalStage->process();
-
+  for (int i=0; i<2; i++) {
+    theElectronFinalStage[i]->fetchInput();
+    theElectronFinalStage[i]->process();
+  }
 	
 }

@@ -13,6 +13,8 @@
 typedef unsigned long int ULong;
 typedef unsigned short int UShort;
 
+class L1RCTCrate;
+
 /*
  * \author Jim Brooke & Robert Frazier
  * \date April 2006
@@ -62,7 +64,7 @@ public:
     typedef std::bitset<QUIET_BITWIDTH> QuietBits;
 
     /// typeVal determines which pairs of cables to read, according to the SourceCardType enumeration
-    L1GctSourceCard(SourceCardType typeVal); //(L1RctCrate* rc);
+    L1GctSourceCard(SourceCardType typeVal, L1RCTCrate* rc=0);
     ~L1GctSourceCard();
   
     /// Open input file
@@ -107,7 +109,7 @@ private:
 
     //PRIVATE MEMBER VARIABLES
     /// pointer to the RCT crate
-    //L1RctCrate* rctCrate;
+    L1RCTCrate* m_rctCrate;
     
     /// SourceCard type
     SourceCardType m_cardType;
