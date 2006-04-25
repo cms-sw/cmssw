@@ -9,7 +9,7 @@
      <Notes on implementation>
 */
 //
-// $Id: $
+// $Id: EcalSimpleTBAnalyzer.h,v 1.1 2006/04/21 09:19:18 meridian Exp $
 //
 
 
@@ -68,6 +68,10 @@ class EcalSimpleTBAnalyzer : public edm::EDAnalyzer {
       TH1F* h_e1x1;
       TH1F* h_e3x3; 
       TH1F* h_e5x5; 
+
+      TH1F* h_e1x1_center;
+      TH1F* h_e3x3_center; 
+      TH1F* h_e5x5_center; 
       
       TH1F* h_e1e9;
       TH1F* h_e1e25;
@@ -82,8 +86,8 @@ class EcalSimpleTBAnalyzer : public edm::EDAnalyzer {
       TH1F* h_slopex; 
       TH1F* h_slopey; 
       
-      TH2F* h_mapx; 
-      TH2F* h_mapy; 
+      TH2F* h_mapx[25]; 
+      TH2F* h_mapy[25]; 
 
       TH2F* h_e1e9_mapx;
       TH2F* h_e1e9_mapy;

@@ -6,7 +6,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimpleTBAnalyzer.cc,v 1.1 2006/04/21 09:19:17 meridian Exp $
+// $Id: EcalSimpleTBAnalyzer.cc,v 1.2 2006/04/21 13:07:10 meridian Exp $
 //
 //
 
@@ -100,9 +100,13 @@ EcalSimpleTBAnalyzer::beginJob(edm::EventSetup const&) {
   h_ampltdc = new TH2F("h_ampltdc","Max Amplitude vs TDC offset", 100,0.,1.,1500, 0., 150.);
 
   // Reconstructed energies
-  h_e1x1 = new TH1F("h_e1x1","E1x1 energy", 1500, 0., 150.);
-  h_e3x3 = new TH1F("h_e3x3","E3x3 energy", 1500, 0., 150.);
-  h_e5x5 = new TH1F("h_e5x5","E5x5 energy", 1500, 0., 150.);
+  h_e1x1 = new TH1F("h_e1x1","E1x1 energy", 2500, 0., 250.);
+  h_e3x3 = new TH1F("h_e3x3","E3x3 energy", 2500, 0., 250.);
+  h_e5x5 = new TH1F("h_e5x5","E5x5 energy", 2500, 0., 250.);
+
+  h_e1x1_center = new TH1F("h_e1x1_center","E1x1 energy", 2500, 0., 250.);
+  h_e3x3_center = new TH1F("h_e3x3_center","E3x3 energy", 2500, 0., 250.);
+  h_e5x5_center = new TH1F("h_e5x5_center","E5x5 energy", 2500, 0., 250.);
 
   h_e1e9 = new TH1F("h_e1e9","E1/E9 ratio", 600, 0., 1.2);
   h_e1e25 = new TH1F("h_e1e25","E1/E25 ratio", 600, 0., 1.2);
@@ -117,9 +121,18 @@ EcalSimpleTBAnalyzer::beginJob(edm::EventSetup const&) {
   h_slopex = new TH1F("h_slopex","Beam Slope X",500, -5e-4 , 5e-4 );
   h_slopey = new TH1F("h_slopey","Beam Slope Y",500, -5e-4 , 5e-4 );
 
-  h_mapx = new TH2F("h_mapx","Max Amplitude vs X",80,-20,20,1000,0.,200.);
-  h_mapy = new TH2F("h_mapy","Max Amplitude vs Y",80,-20,20,1000,0.,200.);
-
+  char hname[50];
+  char htitle[50];
+  for (unsigned int icry=0;icry<25;icry++)
+    {       
+      sprintf(hname,"h_mapx_%d",icry);
+      sprintf(htitle,"Max Amplitude vs X %d",icry);
+      h_mapx[icry] = new TH2F(hname,htitle,80,-20,20,1000,0.,200.);
+      sprintf(hname,"h_mapy_%d",icry);
+      sprintf(htitle,"Max Amplitude vs Y %d",icry);
+      h_mapy[icry] = new TH2F(hname,htitle,80,-20,20,1000,0.,200.);
+    }
+  
   h_e1e9_mapx = new TH2F("h_e1e9_mapx","E1/E9 vs X",80,-20,20,600,0.,1.2);
   h_e1e9_mapy = new TH2F("h_e1e9_mapy","E1/E9 vs Y",80,-20,20,600,0.,1.2);
 
@@ -145,6 +158,10 @@ EcalSimpleTBAnalyzer::endJob() {
   h_e3x3->Write(); 
   h_e5x5->Write(); 
 
+  h_e1x1_center->Write(); 
+  h_e3x3_center->Write(); 
+  h_e5x5_center->Write(); 
+
   h_e1e9->Write(); 
   h_e1e25->Write(); 
   h_e9e25->Write(); 
@@ -158,8 +175,11 @@ EcalSimpleTBAnalyzer::endJob() {
   h_slopex->Write(); 
   h_slopey->Write(); 
 
-  h_mapx->Write(); 
-  h_mapy->Write(); 
+  for (unsigned int icry=0;icry<25;icry++)
+    {       
+      h_mapx[icry]->Write(); 
+      h_mapy[icry]->Write(); 
+    }
 
   h_e1e9_mapx->Write(); 
   h_e1e9_mapy->Write(); 
@@ -248,35 +268,38 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    // Crystal hit by beam
    //   EBDetId maxHitId(1,evtHeader->crystalInBeam(),EBDetId::SMCRYSTALMODE);
 
-   EBDetId maxHitId(0); 
-   float maxHit= -999999.;
+//    EBDetId maxHitId(0); 
+//    float maxHit= -999999.;
 
 
-   for(EBRecHitCollection::const_iterator ithit = hits->begin(); ithit != hits->end(); ++ithit) 
-     {
-       if (ithit->energy()>=maxHit)
-	 {
-	   maxHit=ithit->energy();
-	   maxHitId=ithit->id();
-	 }
+//    for(EBRecHitCollection::const_iterator ithit = hits->begin(); ithit != hits->end(); ++ithit) 
+//      {
+//        if (ithit->energy()>=maxHit)
+// 	 {
+// 	   maxHit=ithit->energy();
+// 	   maxHitId=ithit->id();
+// 	 }
        
-     }   
+//      }   
 
-   if (maxHitId==EBDetId(0))
-     return;
+//    if (maxHitId==EBDetId(0))
+//      return;
+
+   EBDetId maxHitId(1,704,EBDetId::SMCRYSTALMODE); 
+
    //Find EBDetId in a 5x5 Matrix (to be substituted by the Selector code)
    // Something like 
    // EBFixedWindowSelector<EcalUncalibratedRecHit> Simple5x5Matrix(hits,maxHitId,5,5);
    // std::vector<EcalUncalibratedRecHit> Energies5x5 = Simple5x5Matrix.getHits();
 
    EBDetId Xtals5x5[25];
-   for (UInt_t icry=0;icry<25;icry++)
+   for (unsigned int icry=0;icry<25;icry++)
      {
-       UInt_t row = icry / 5;
-       Int_t column= icry %5;
+       unsigned int row = icry / 5;
+       unsigned int column= icry %5;
        try
 	 {
-	   Xtals5x5[icry]=EBDetId(maxHitId.ism(),maxHitId.ic()-85*(row-2)+column-2,EBDetId::SMCRYSTALMODE);
+	   Xtals5x5[icry]=EBDetId(maxHitId.ieta()+column-2,maxHitId.iphi()+row-2,EBDetId::ETAPHIMODE);
 	   //	   std::cout << "**** Xtal in the matrix **** row " << row  << ", column " << column << ", xtal " << Xtals5x5[icry].ic() << std::endl;
 	 }
        catch ( std::runtime_error &e )
@@ -291,7 +314,7 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    double amplitude3x3=0;  
    double amplitude5x5=0;  
 
-   for (Int_t icry=0;icry<25;icry++)
+   for (unsigned int icry=0;icry<25;icry++)
      {
        amplitude[icry]=(hits->find(Xtals5x5[icry]))->energy();
        amplitude5x5 += amplitude[icry];
@@ -303,6 +326,7 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
 	   amplitude3x3+=amplitude[icry];
 	 }
      }
+
 
    h_e1x1->Fill(amplitude[12]);
    h_e3x3->Fill(amplitude3x3);
@@ -331,9 +355,26 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
        h_qualy->Fill(yqual);
        h_slopex->Fill(xslope);
        h_slopey->Fill(yslope);
+
+       //Fill central events
+
        
-       h_mapx->Fill(x,amplitude[12]);
-       h_mapy->Fill(y,amplitude[12]);
+       if ( fabs(x + 2.5) < 2.5 && fabs(y + 0.5) < 2.5)
+	 {
+	   h_e1x1_center->Fill(amplitude[12]);
+	   h_e3x3_center->Fill(amplitude3x3);
+	   h_e5x5_center->Fill(amplitude5x5);
+	   
+	   h_e1e9->Fill(amplitude[12]/amplitude3x3);
+	   h_e1e25->Fill(amplitude[12]/amplitude5x5);
+	   h_e9e25->Fill(amplitude3x3/amplitude5x5);
+	 }
+
+       for (unsigned int icry=0;icry<25;icry++)
+	 {       
+	   h_mapx[icry]->Fill(x,amplitude[icry]);
+	   h_mapy[icry]->Fill(y,amplitude[icry]);
+	 }
 
        h_e1e9_mapx->Fill(x,amplitude[12]/amplitude3x3);
        h_e1e9_mapy->Fill(y,amplitude[12]/amplitude3x3);
