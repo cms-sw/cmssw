@@ -8,16 +8,24 @@ Packages listed in <i>italics</i> are not specific to muons, but are listed here
 For additional information on packaging rationale, existing and planned functionality, etc. please visit the <a href=https://uimon.cern.ch/twiki/bin/view/CMS/MuonSW>Wiki page</a> for Muon software. 
 
 
+- <b>Alignment</b><br>
+This subsystems contains both the software for processing the hw
+alignment data and the code to apply alignment corrections in reconstruction.
+Relevant packages for muon reconstruction:
+- <i>\ref Alignment_CommonAlignment "CommonAlignment"</i><br>
+- \ref Alignment_MuonAlignment "MuonAlignment"<br>
 
 - <b>CalibMuon</b><br>
 Calibration algorithms.
  - \ref CalibMuon_CSCCalibration "CSCCalibration"<br>
  - \ref CalibMuon_DTCalibration "DTCalibration"<br>
+ - \ref CalibMuon_Records "Records"<br>
 
 - <b>CondFormats</b><br>
 Channel mapping and calibration tables.
  - \ref CondFormats_CSCObjects "CSCObjects"<br>
  - \ref CondFormats_DTObjects "DTObjects"<br>
+ - \ref CondFormats_RPCObjects "RPCObjects"<br>
 
 - <b>DataFormats</b><br>
 Definition of classes modelling digis, hits, etc. (no algorithms).
@@ -34,9 +42,12 @@ Definition of classes modelling digis, hits, etc. (no algorithms).
 
 - <b>DQM</b><br>
 Data Quality Monitoring.
+ - \ref DQM_CSCMonitorClient "CSCMonitorClient"<br>
  - \ref DQM_CSCMonitorModule "CSCMonitorModule"<br>
+ - \ref DQM_DTMonitorClient  "DTMonitorClient"<br>	
  - \ref DQM_DTMonitorModule  "DTMonitorModule"<br>	
- - \ref DQM_DTMonitorTasks   "DTMonitorTasks"<br>
+ - \ref DQM_RPCMonitorClient "RPCMonitorClient"<br>
+ - \ref DQM_RPCMonitorDigi   "RPCMonitorDigi"<br>
  - \ref DQM_RPCMonitorModule "RPCMonitorModule"<br>
  
 
@@ -56,11 +67,11 @@ This subsystem contains both the xml geometry files and the code to model the ge
  - \ref Geometry_CSCGeometryBuilder "CSCGeometryBuilder"<br>
  - \ref Geometry_DTGeometry "DTGeometry"<br>
  - \ref Geometry_DTGeometryBuilder "DTGeometryBuilder"<br>
+ - \ref Geometry_RPCGeometry "RPCGeometry"<br>
+ - \ref Geometry_RPCGeometryBuilder "RPCGeometryBuilder"<br>
  - \ref Geometry_MuonNumbering "MuonNumbering"<br>
  - \ref Geometry_MuonCommonData "MuonCommonData"<br>
  - \ref Geometry_MuonSimData "MuonSimData"<br>
- - \ref Geometry_RPCGeometry "RPCGeometry"<br>
- - \ref Geometry_RPCGeometryBuilder "RPCGeometryBuilder"<br>
 
 
 - <b>IORawData</b><br>
@@ -68,9 +79,33 @@ Special input sources to read raw data files taken with local DAQ (commissioning
  - \ref IORawData_CSCCommissioning "CSCCommissioning"<br>
  - \ref IORawData_DTCommissioning "DTCommissioning"<br>
 
+- <b>L1Trigger</b><br>
+Packages for L1 trigger emulation/simulation
+
+- <b>RecoMuon</b><br>
+Muon track reconstruction.
+ - \ref RecoMuon_DetLayers               "DetLayers"              
+ - \ref RecoMuon_GlobalMuonProducer	"GlobalMuonProducer"<br>	 
+ - \ref RecoMuon_GlobalTrackFinder	"GlobalTrackFinder"<br>	 
+ - \ref RecoMuon_L2MuonProducer		"L2MuonProducer"<br>	 
+ - \ref RecoMuon_MeasurementDet		"MeasurementDet"<br> 
+ - \ref RecoMuon_MuonIdentification	"MuonIdentification"<br>	 
+ - \ref RecoMuon_MuonSeedGenerator	"MuonSeedGenerator"<br>	 
+ - \ref RecoMuon_Navigation		"Navigation"<br>		 
+ - \ref RecoMuon_Records			"Records"<br>
+ - \ref RecoMuon_SeedGenerator		"SeedGenerator"<br>		 
+ - \ref RecoMuon_StandAloneMuonProducer	"StandAloneMuonProducer"<br> 
+ - \ref RecoMuon_StandAloneTrackFinder	"StandAloneTrackFinder"<br>	 
+ - \ref RecoMuon_TrackerSeedGenerator	"TrackerSeedGenerator"<br>	 
+ - \ref RecoMuon_TrackingTools           "TrackingTools"<br>            
+
 - <b>RecoLocalMuon</b><br>
 Local reconstruction (RecHits, segments).
+ - \ref RecoLocalMuon_CSCRecHit "CSCRecHit"<br>
+ - \ref RecoLocalMuon_CSCSegment "CSCSegment"<br>
  - \ref RecoLocalMuon_DTRecHit "DTRecHit"<br>
+ - \ref RecoLocalMuon_DTSegment "DTSegment"<br>
+ - \ref RecoLocalMuon_RPCRecHit "RPCRecHit"<br>
 
 - <b>SimG4CMS</b><br>
 Geant simulation.
@@ -95,5 +130,5 @@ Visualization.
 
 <hr>
 Last updated:
-07-FEB-2006 N. Amapane
+@DATE@ N. Amapane
 */
