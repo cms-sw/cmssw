@@ -2,8 +2,8 @@
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2005/10/05 04:45:33 $
-*  $Revision: 1.1 $
+*  $Date: 2005/12/11 15:30:20 $
+*  $Revision: 1.2 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 */
 #include "IOMC/Input/interface/HepMCFileReader.h"
@@ -14,9 +14,11 @@
 #include<iostream>
 
 using namespace std;
+//-------------------------------------------------------------------------
 
 
 HepMCFileReader * HepMCFileReader::instance_=0;
+//-------------------------------------------------------------------------
 
 HepMCFileReader * HepMCFileReader::instance(){
 	
@@ -27,6 +29,7 @@ HepMCFileReader * HepMCFileReader::instance(){
 	return instance_;
 	
 }
+//-------------------------------------------------------------------------
 
 
 HepMCFileReader::HepMCFileReader(): initialized_(false), input_(0), index_to_particle(3996) { 
@@ -35,6 +38,7 @@ HepMCFileReader::HepMCFileReader(): initialized_(false), input_(0), index_to_par
 	if(instance_ == 0) instance_ = this;  
 	
 } 
+//-------------------------------------------------------------------------
 
 
 HepMCFileReader::~HepMCFileReader(){ 
@@ -48,49 +52,46 @@ HepMCFileReader::~HepMCFileReader(){
 	instance_=0;    
 	
 }
+//-------------------------------------------------------------------------
+
 void HepMCFileReader::setInitialized(bool value){initialized_=value;}
+//-------------------------------------------------------------------------
+
 
 void HepMCFileReader::initialize(const string & filename){
-	
 	
 	if (initialized_) {
 		cout << "HepMCFileReader was already initialized... reinitializing it " << endl;
 		if(input_) {
 			input_->close();
 			delete input_;
-		}
-		
+		}		
 	}
-	cout<<"HepMCFileReader::initialize : Opening file "<<filename<<endl;
-	
+	cout<<"HepMCFileReader::initialize : Opening file "<<filename<<endl;	
 	input_ = new ifstream(filename.c_str(), ios::in | ios::binary);
 	if(! (*input_)) {
-	      throw cms::Exception("FileNotFound", "HepMCFileReader::initialize()")
+		throw cms::Exception("FileNotFound", "HepMCFileReader::initialize()")
 		<< "File " << filename << " was not found.\n";
 	}
-	
-	initialized_ = true;   
-	
+       	initialized_ = true;   	
 }
-
+//-------------------------------------------------------------------------
 
 bool HepMCFileReader::isInitialized(){
-	
 	return initialized_;
 }
-
+//-------------------------------------------------------------------------
 
 
 bool  HepMCFileReader::readCurrentEvent() {
-  bool filter=false;
+	bool filter=false;
 	evt = HepMC::readGenEvent( *input_);
 	if (evt){ 
-	       cout <<"| --- HepMCFileReader: Event Nr. "  <<evt->event_number() <<" with " <<evt->particles_size()<<" particles --- !" <<endl;
-	
-	  nParticles= evt->particles_size();
-	ReadStats();
-	//	printHepMcEvent();
-	//          printEvent();
+		cout <<"| --- HepMCFileReader: Event Nr. "  <<evt->event_number() <<" with " <<evt->particles_size()<<" particles --- !" <<endl;	
+		nParticles= evt->particles_size();
+		ReadStats();
+		//	printHepMcEvent();
+		//          printEvent();
 		filter=true;
 	}
 	
@@ -101,25 +102,26 @@ bool  HepMCFileReader::readCurrentEvent() {
 	return filter;
 }
 
+//-------------------------------------------------------------------------
 
 bool HepMCFileReader::setEvent(int event){return true;}
+//-------------------------------------------------------------------------
 
 bool HepMCFileReader::printHepMcEvent() const{
 	if (evt!=0) evt->print();	
 	return true;
 }
+//-------------------------------------------------------------------------
 
 HepMC::GenEvent * HepMCFileReader::fillCurrentEventData(){
-  readCurrentEvent();
-  return evt;
-
+	readCurrentEvent();
+	return evt;
 }
-
-void HepMCFileReader::printEvent() const {// some variables:
-	int mo1=0,mo2=0,da1=0,da2=0,status=0,pid=0; 
-	
-	if (evt!=0) {
-		
+//-------------------------------------------------------------------------
+// Print out in old CMKIN style for comparisons
+void HepMCFileReader::printEvent() const {
+	int mo1=0,mo2=0,da1=0,da2=0,status=0,pid=0; 	
+	if (evt!=0) {		
 		cout << "---#-------pid--st---Mo1---Mo2---Da1---Da2------px------py------pz-------E-";
 		cout << "------m---------x---------y---------z---------t-";
 		cout << endl;
@@ -140,8 +142,7 @@ void HepMCFileReader::printEvent() const {// some variables:
 			cout << setw(8) << setprecision(2) << g->momentum().y();
 			cout << setw(10) << setprecision(2) << g->momentum().z();
 			cout << setw(8) << setprecision(2) << g->momentum().t();
-			cout << setw(8) << setprecision(2) << g->generatedMass();  
-			
+			cout << setw(8) << setprecision(2) << g->generatedMass();  			
 			// tau=L/(gamma*beta*c) 
 			if (g->production_vertex() !=0 && g->end_vertex() != 0 && status == 2){
 				cout << setw(10) << setprecision(2) <<g->production_vertex()->position().x();
@@ -173,13 +174,11 @@ void HepMCFileReader::printEvent() const {// some variables:
 	else cout <<  " HepMCFileReader: No event available !" << endl;
 }
 
-
 //-------------------------------------------------------------------------
 void HepMCFileReader::ReadStats(){
 	
-	int particle_counter=0;
-	index_to_particle[0] = 0;
-	
+	unsigned int particle_counter=0;
+	index_to_particle[0] = 0;	
 	for (HepMC::GenEvent::vertex_const_iterator v = evt->vertices_begin();
 	v != evt->vertices_end(); ++v ){
 		// making a list of incoming particles of the vertices
@@ -188,11 +187,14 @@ void HepMCFileReader::ReadStats(){
 		= (*v)->particles_in_const_begin();
 		p1 != (*v)->particles_in_const_end(); ++p1 ) {
 			++particle_counter;
-			//if ( particle_counter > 3995) throw exception ?;
+			//particle_counter can be very large for heavy ions
+			if(particle_counter > index_to_particle.size() ) {
+				//make it large enough to hold up to this index
+				 index_to_particle.resize(particle_counter+1);
+				} 					      
 			index_to_particle[particle_counter] = *p1;
 			particle_to_index[*p1] = particle_counter;
-		}
-		
+		}		
 		// daughters are entered only if they aren't a mother of
 		// another vertex
 		for (HepMC::GenVertex::particles_out_const_iterator p2
@@ -200,7 +202,11 @@ void HepMCFileReader::ReadStats(){
 		p2 != (*v)->particles_out_const_end(); ++p2) {
 			if (!(*p2)->end_vertex()) {
 				++particle_counter;
-				// if ( particle_counter > 3995) throw exception ?
+				//particle_counter can be very large for heavy ions
+				if(particle_counter  > index_to_particle.size() ) {				
+				  //make it large enough to hold up to this index
+				  index_to_particle.resize(particle_counter+1);
+       				} 									
 				index_to_particle[particle_counter] = *p2;
 				particle_to_index[*p2] = particle_counter;
 			}
@@ -238,9 +244,7 @@ int j) const {
 		else {
 			mo1 =0;
 			mo2 =0;
-		}
-		
-		
+		}		
 		if (index_to_particle[j]->hasChildren()) {
 			//find # of 1. daughter
 			int first_daughter = find_in_map( particle_to_index,
