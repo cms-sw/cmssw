@@ -43,11 +43,16 @@ public:
 	/// get phi bits
 	inline unsigned long getPhi() { return myPhi.to_ulong(); }
 
+    static const int RANK_BITWIDTH = 6;
+
 private:
 
-	bitset<6> myRank;
-	bitset<5> myEta;
-	bitset<4> myPhi;
+    static const int ETA_BITWIDTH = 5;
+    static const int PHI_BITWIDTH = 5;
+
+	bitset<RANK_BITWIDTH> myRank;
+	bitset<ETA_BITWIDTH> myEta;
+	bitset<PHI_BITWIDTH> myPhi;
       
 };
 
