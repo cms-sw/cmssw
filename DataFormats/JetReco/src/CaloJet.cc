@@ -10,18 +10,17 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 // Jet four-momentum
-double CaloJet::getPx() const {return m_data.px;}
-double CaloJet::getPy() const {return m_data.py;}
-double CaloJet::getPz() const {return m_data.pz;}
-double CaloJet::getE() const {return m_data.e;}
+double CaloJet::px() const {return m_data.px;}
+double CaloJet::py() const {return m_data.py;}
+double CaloJet::pz() const {return m_data.pz;}
+double CaloJet::energy() const {return m_data.e;}
 
 // Standard quantities derived from the Jet Lorentz vector
-double CaloJet::getP() const {return m_data.p;}
-double CaloJet::getPt() const {return m_data.pt;}
-double CaloJet::getEt() const {return m_data.et;}
-double CaloJet::getM() const {return m_data.m;}
-double CaloJet::getPhi() const {return m_data.phi;}
-double CaloJet::getEta() const {return m_data.eta;}
-double CaloJet::getY() const {return m_data.y;}
-int CaloJet::getNConstituents() const {return m_data.numberOfConstituents;}
+double CaloJet::p() const {return m_data.p;}
+double CaloJet::pt() const {return m_data.pt;}
+double CaloJet::et() const {return m_data.et;}
+double CaloJet::mass() const {return m_data.m;}
+double CaloJet::phi() const {return m_data.phi;}
+double CaloJet::eta() const {return m_data.eta;}
+int CaloJet::nConstituents() const {return m_data.numberOfConstituents;}
 

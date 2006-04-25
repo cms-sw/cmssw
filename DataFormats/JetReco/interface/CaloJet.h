@@ -71,31 +71,29 @@ public:
 
   /** The Jet four-vector as a true Lorentz vector
   \return the jet momentum component along the x axis */
-  virtual double getPx() const;
+  virtual double px() const;
   /** Returns the jet momentum component along the y axis */
-  virtual double getPy() const;
+  virtual double py() const;
   /** Returns the jet momentum component along the z axis */
-  virtual double getPz() const;
+  virtual double pz() const;
   /** Returns the total energy of the jet*/
-  virtual double getE() const;
+  virtual double energy () const;
 
   /** Standard quantities derived from the Jet Lorentz vector
   /\return the modulus of the momentum of the jet */
-  virtual double getP() const;
+  virtual double p() const;
   /** Returns the transverse momentum of the jet*/
-  virtual double getPt() const;
+  virtual double pt() const;
   /** Returns the transverse energy of the jet*/
-  virtual double getEt() const;
+  virtual double et() const;
   /** Returns the jet mass of the jet*/
-  virtual double getM() const;
+  virtual double mass() const;
   /** Returns the azimuthal angle of the jet, Phi*/
-  virtual double getPhi() const;
+  virtual double phi() const;
   /** Returns the pseudorapidity of the jet*/
-  virtual double getEta() const;
-  /** Returns the rapidity of the jet*/
-  virtual double getY() const;
+  virtual double eta() const;
   /** Returns the number of constituents of the jet*/
-  virtual int getNConstituents() const;
+  virtual int nConstituents() const;
 
 
   //These methods are specific to the CaloJet class
