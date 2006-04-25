@@ -1,0 +1,15 @@
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/EcalDetId>
+<use name=CondFormats/EcalObjects>
+<use name=CalibFormats/CaloObjects>
+<use name=boost>
+
+<export>
+  <lib name=SimCalorimetryEcalSelectiveReadoutAlgos>
+  <use name=DataFormats/EcalDigi>
+  <use name=DataFormats/EcalDetId>
+  <use name=CondFormats/EcalObjects>
+  <use name=CalibFormats/CaloObjects>
+  <use name=boost>
+</export>
+
