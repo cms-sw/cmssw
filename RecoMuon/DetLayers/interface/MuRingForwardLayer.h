@@ -2,9 +2,9 @@
 #define DetLayers_MuRingForwardLayer_H
 
 /** \class MuRingForwardLayer
- *  A plane composed of disks. Represents forward muon CSC/RPC stations.
+ *  A plane composed of disks (MuRingForwardDisk). Represents forward muon CSC/RPC stations.
  *
- *  $Date: 2004/02/09 14:43:27 $
+ *  $Date: 2006/04/12 13:23:53 $
  *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  *
@@ -50,7 +50,7 @@ class MuRingForwardLayer : public RingedForwardLayer {
 
   // DetLayer interface
 
-  virtual Module module();
+  virtual Module module() const;
 
 
   // Extension of the interface

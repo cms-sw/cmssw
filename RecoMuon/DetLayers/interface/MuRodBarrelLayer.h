@@ -4,7 +4,7 @@
 /** \class MuRodBarrelLayer
  *  A cylinder composed of rods. Represents barrel muon DT/RPC stations.
  *
- *  $Date: 2004/02/09 14:43:27 $
+ *  $Date: 2006/04/12 13:23:53 $
  *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  *
@@ -47,7 +47,7 @@ public:
 
   // DetLayer interface
 
-  virtual Module module();
+  virtual Module module() const;
 
 
   // Extension of the interface

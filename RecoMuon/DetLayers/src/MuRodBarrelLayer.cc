@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/04/12 13:23:53 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -63,7 +63,7 @@ bool MuRodBarrelLayer::hasGroups() const {
 }
 
 
-Module MuRodBarrelLayer::module() {
+Module MuRodBarrelLayer::module() const {
   // FIXME
   return Module();
 }

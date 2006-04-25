@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/04/12 13:23:53 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -64,7 +64,7 @@ bool MuRingForwardLayer::hasGroups() const {
 }
 
 
-Module MuRingForwardLayer::module() {
+Module MuRingForwardLayer::module() const {
   // FIXME
   return Module();
 }

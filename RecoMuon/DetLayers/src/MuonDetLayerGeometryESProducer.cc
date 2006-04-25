@@ -1,6 +1,6 @@
 /** \file
  *
- *  $Date: 2006/02/22 10:59:28 $
+ *  $Date: 2006/04/20 16:57:52 $
  *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
@@ -11,6 +11,8 @@
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+
+#include <RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.h>
 
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -31,12 +33,24 @@ MuonDetLayerGeometryESProducer::~MuonDetLayerGeometryESProducer(){}
 boost::shared_ptr<MuonDetLayerGeometry>
 MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
 
-  edm::ESHandle<DTGeometry>  dt;
-  record.getRecord<MuonGeometryRecord>().get(dt);
+  try {
+    edm::ESHandle<DTGeometry>  dt;
+    record.getRecord<MuonGeometryRecord>().get(dt);
+  } catch (...) {
+    // No DT geo available
+  }  
+
+  // Build CSC layers
   edm::ESHandle<CSCGeometry> csc;
   record.getRecord<MuonGeometryRecord>().get(csc);
+  if (csc.isValid()) {
+    vector<MuRingForwardLayer*> csclayers = MuonCSCDetLayerGeometryBuilder::buildLayers(*csc);
+  }
+  
   edm::ESHandle<RPCGeometry> rpc;
   record.getRecord<MuonGeometryRecord>().get(rpc);
+
+  
 
   return boost::shared_ptr<MuonDetLayerGeometry>(new MuonDetLayerGeometry());
 }

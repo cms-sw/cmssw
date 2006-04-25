@@ -4,6 +4,8 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
+#include <iostream>
+
 MuonCSCDetLayerGeometryBuilder::MuonCSCDetLayerGeometryBuilder() {
 }
 
@@ -13,27 +15,33 @@ MuonCSCDetLayerGeometryBuilder::~MuonCSCDetLayerGeometryBuilder() {
 vector<MuRingForwardLayer*> MuonCSCDetLayerGeometryBuilder::buildLayers(const CSCGeometry& geo) {
         
     vector<MuRingForwardLayer*> result;
-    const CSCDetId cscDetId;
         
-    for(int endcap = cscDetId.minEndcapId(); endcap != cscDetId.maxEndcapId(); endcap++) {
-        for(int station = cscDetId.minStationId(); station != cscDetId.maxStationId(); station++) {
+    for(int endcap = CSCDetId::minEndcapId(); endcap != CSCDetId::maxEndcapId(); endcap++) {
+        for(int station = CSCDetId::minStationId(); station != CSCDetId::maxStationId(); station++) {
                 
-            vector<MuDetRing> muDetRings;
-            for(int ring = cscDetId.minRingId(); ring != cscDetId.maxRingId(); ring++) {
+            vector<const ForwardDetRing*> muDetRings;
+            for(int ring = CSCDetId::minRingId(); ring != CSCDetId::maxRingId(); ring++) {
     
-                vector<GeomDet*> geomDets;
-                for(int chamber = cscDetId.minChamberId(); chamber != cscDetId.maxChamberId(); chamber++) {
-                    for(int layer = cscDetId.minLayerId(); layer != cscDetId.maxLayerId(); layer++) {
+                vector<const GeomDet*> geomDets;
+                for(int chamber = CSCDetId::minChamberId(); chamber != CSCDetId::maxChamberId(); chamber++) {
+		  //                    for(int layer = CSCDetId::minLayerId(); layer != CSCDetId::maxLayerId(); layer++) {
 
-                        GeomDet* geomDet = geo->idToDet(cscDetId.rawIdMaker(endcap, station, ring, chamber, layer));
-                        geomDets.push_back(geomDet);
-                    }    
-                }        
+		  
+		  const GeomDet* geomDet = geo.idToDet(CSCDetId(endcap, station, ring, chamber, 0));
+		  if (geomDet) {
+		    geomDets.push_back(geomDet);
+		    cout << "get CSC chamber " <<  CSCDetId(endcap, station, ring, chamber, 0) << " " << geomDet << endl;
+		  }
+                }
                 
+		if (geomDets.size()!=0) {
                 muDetRings.push_back(new MuDetRing(geomDets));
+		cout << "New ring with " << geomDets.size() << " chambers" << endl;
+		}
             }
                 
             result.push_back(new MuRingForwardLayer(muDetRings));    
+	    cout << "New layer with " << muDetRings.size() << " rings" << endl;
         }
     }    
     
