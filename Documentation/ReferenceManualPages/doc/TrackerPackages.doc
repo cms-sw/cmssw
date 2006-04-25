@@ -128,17 +128,17 @@ A set of tools used in track reconstruction
 
 - <b>RecoTracker</b><br>
   - \ref RecoTracker_CkfPattern "CkfPattern"<\br>   
-    - \ref RecoTracker_GeometryESProducer/  GeometryESProducer 
-    - \ref RecoTracker_MeasurementDet/ MeasurementDet  
-    - \ref RecoTracker_Record/   Record
-    - \ref RecoTracker_RoadMapESSource/ RoadMapESSource   
-    - \ref RecoTracker_RoadMapMakerESProducer/ RoadMapMakerESProducer  
-    - \ref RecoTracker_RoadMapRecord/ _RoadMapRecord  
-    - \ref RecoTracker_RoadSearchCloudCleaner/  RoadSearchCloudCleaner 
-    - \ref RecoTracker_RoadSearchCloudMaker/  RoadSearchCloudMaker 
-    - \ref RecoTracker_RoadSearchHelixMaker/  RoadSearchHelixMaker 
-    - \ref RecoTracker_RoadSearchSeedFinder/  RoadSearchSeedFinder 
-    - \ref RecoTracker_RoadSearchTrackCandidateMaker/ RoadSearchTrackCandidateMaker  
+    - \ref RecoTracker_GeometryESProducer/  "GeometryESProducer" 
+    - \ref RecoTracker_MeasurementDet/ "MeasurementDet"
+    - \ref RecoTracker_Record/   "Record"
+    - \ref RecoTracker_RoadMapESSource/ "RoadMapESSource"   
+    - \ref RecoTracker_RoadMapMakerESProducer/ "RoadMapMakerESProducer"  
+    - \ref RecoTracker_RoadMapRecord/ "RoadMapRecord"  
+    - \ref RecoTracker_RoadSearchCloudCleaner/  "RoadSearchCloudCleaner" 
+    - \ref RecoTracker_RoadSearchCloudMaker/  "RoadSearchCloudMaker" 
+    - \ref RecoTracker_RoadSearchHelixMaker/  "RoadSearchHelixMaker" 
+    - \ref RecoTracker_RoadSearchSeedFinder/  "RoadSearchSeedFinder" 
+    - \ref RecoTracker_RoadSearchTrackCandidateMaker/ "RoadSearchTrackCandidateMaker"  
     - \ref RecoTracker_SingleTrackPattern "SingleTrackPattern"<\br> 
     - \ref RecoTracker_TkDetLayers "TkDetLayers"<\br> 
     - \ref RecoTracker_TkHitPairs "TkHitPairs"<\br>
