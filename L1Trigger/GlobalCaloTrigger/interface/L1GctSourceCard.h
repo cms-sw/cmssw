@@ -7,17 +7,26 @@
 #include <vector>
 #include <bitset>
 #include <fstream>
+#include <string>
+#include <iostream>
 
-using std::vector;
-using std::bitset;
-using std::ifstream;
-using std::ofstream;
+typedef unsigned long int ULong;
+typedef unsigned short int UShort;
 
+/*
+ * \author Jim Brooke & Robert Frazier
+ * \date April 2006
+ */
+
+/*! \class L1GctSourceCard
+ * \brief Represents a GCT Source Card
+ *
+ *  Can be constructed to be one of three different variants of 
+ *  source card, depending on which pairs of RCT crate output
+ *  cables are being read in.
+ */
 
 /**
-  * Represents a GCT Source Card
-  * author: Jim Brooke
-  * date: 20/2/2006
   * 
   *RCT Input File Format 
   *Line 1: Crossing no as "Crossing x" (2)     
@@ -31,55 +40,106 @@ using std::ofstream;
   *Line 6: HF0eta0 HF0eta1 HF0eta2 HF0eta3 HF1eta0 HF1eta1 HF1eta2 HF1eta3 (8)
   *...
   *... 
+
+NOTE:  CMS IN 2004/009 specifies that cable four provides 8 Quiet bits for the HF.  These are not
+       detailed in the fileformat above, and are not currently dealt with in any way.
   */ 
 
+
+/*TO DO: 1) Additional (file) error handling maybe? Currently done with some debug asserts.
+ *       2) Currently doesn't like any whitespace after final entry in input file.
+*/
 
 class L1GctSourceCard
 {
 public:
-  L1GctSourceCard(); //(L1RctCrate* rc);
-  ~L1GctSourceCard();
+    /// cardType1 reads cables 1&2, cardType2 reads cables 3&4, cardType3 reads cables 5&6
+    enum SourceCardType{cardType1 =1, cardType2, cardType3};
+    static const int MIP_BITWIDTH = 14;
+    static const int QUIET_BITWIDTH = 14;
+    typedef std::bitset<MIP_BITWIDTH> MipBits;
+    typedef std::bitset<QUIET_BITWIDTH> QuietBits;
+
+    /// typeVal determines which pairs of cables to read, according to the SourceCardType enumeration
+    L1GctSourceCard(SourceCardType typeVal); //(L1RctCrate* rc);
+    ~L1GctSourceCard();
   
-  ///
-  /// open input file
-  void openInputFile(char file[256]);
-  ///
-  /// read next event and push data to Source Cards
-  void readBX();
-  ///
-  /// return true if current event is valid (false if EOF reached!)
-  bool dataValid() { return valid; }
-  ///
-  /// close input file
-  void closeInputFile();
-  ///
-  /// clear the buffers
-  void reset();
-  ///
-  /// get the data from RCT/File/event/...
-  void fetchInput();
-  ///
-  /// process the event
-  void process();
+    /// Open input file
+    void openInputFile(std::string fileName);
   
-  vector<L1GctEmCand> getIsoElectrons();
-  vector<L1GctEmCand> getNonIsoElectrons();
-  vector<L1GctRegion> getRegions();
-  bitset<14> getMipBits();
-  bitset<14> getQuietBits();
+    /// Read next event and push data into the relevant buffers
+    void readBX();
+
+    /// return true if current event is valid (false if EOF reached!)
+    bool dataValid() const { return !m_fin.eof(); }
+
+    /// close input file
+    void closeInputFile() { m_fin.close(); }
+
+    /// clear the buffers
+    void reset();
+    
+    /// get the data from RCT/File/event/...
+    void fetchInput();
+
+    /// process the event
+    void process();
+  
+    //Methods to read the BX data out from the class
+    std::vector<L1GctEmCand> getIsoElectrons() const;
+    std::vector<L1GctEmCand> getNonIsoElectrons() const;
+    MipBits getMipBits() const;
+    QuietBits getQuietBits() const;
+    std::vector<L1GctRegion> getRegions() const;
+        
+    /// Returns the value of the current bunch crossing number
+    long int getBxNum() const { return m_currentBX; }
 
 private:
 
-  ///
-  /// pointer to the RCT crate
-  //L1RctCrate* rctCrate;
-  ///
-  /// file handle
-  ifstream ifile;
-  ///
-  /// event data is valid	
-  bool valid;
+    //SYMBOLIC CONSTANTS
+    static const int NUM_ELEC = 4;
+    static const int NUM_REG_TYPE2 = 12;
+    static const int NUM_REG_TYPE3 = 10;
+    static const int DATA_OFFSET_TYPE3 = NUM_ELEC*2 + MIP_BITWIDTH + QUIET_BITWIDTH;
+    static const int DATA_OFFSET_TYPE2 = NUM_ELEC*2 + MIP_BITWIDTH + QUIET_BITWIDTH + NUM_REG_TYPE3;    
 
+    //PRIVATE MEMBER VARIABLES
+    /// pointer to the RCT crate
+    //L1RctCrate* rctCrate;
+    
+    /// SourceCard type
+    SourceCardType m_cardType;
+
+    /// file handle
+    std::ifstream m_fin;
+
+    /// Stores the current bunch crossing number
+    long int m_currentBX;
+
+    //Data buffers
+    std::vector<L1GctEmCand> m_isoElectrons;  
+    std::vector<L1GctEmCand> m_nonIsoElectrons;
+    MipBits m_mipBits;
+    QuietBits m_quietBits;
+    std::vector<L1GctRegion> m_regions;
+    
+    //PRIVATE MEMBER FUNCTIONS
+    ///Sets the appropriate sizes of vector depending on type of source card 
+    void setVectorSizes();
+    
+    void getCables1And2();  ///< Reads in data corresponding to RCT crate cables 1 & 2
+    void getCables3And4();  ///< Reads in data corresponding to RCT crate cables 3 & 4
+    void getCables5And6();  ///< Reads in data corresponding to RCT crate cables 5 & 6
+
+    /// Reads the Bunch Crossing number from the file
+    void readBxNum();   
+    
+    ///Changes an RCT output ULong into an EmCand with 6bits of rank, the 'region ID' stored in phi, and 'card ID' stored in eta
+    L1GctEmCand convertToEmCand(ULong& rawData) const;
+    
+    ///Changes an RCT output ULong into a Region with 10bits Et, overflow, and tauVeto.
+    L1GctRegion convertToCentralRegion(ULong& rawData) const;
 };
 
 #endif /*L1GCTSOURCECARD_H_*/
