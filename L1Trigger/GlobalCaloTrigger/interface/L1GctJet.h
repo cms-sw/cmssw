@@ -42,7 +42,7 @@ private:
 
 	bitset<6> myRank;
 	bitset<5> myEta;
-	bitset<4> myPhi;
+	bitset<5> myPhi;
     bool myTauVeto;
 		
 };
