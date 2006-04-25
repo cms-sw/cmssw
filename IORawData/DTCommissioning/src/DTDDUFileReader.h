@@ -4,8 +4,8 @@
 /** \class DTDDUFileReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2006/03/15 23:40:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/10 12:15:28 $
+ *  $Revision: 1.1 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -31,10 +31,15 @@ class DTDDUFileReader : public DaqBaseReader {
 
 
   /// check for a 64 bits word to be a DDU header
-  bool isHeader(uint64_t word);
+  bool isHeader(uint64_t word, bool dataTag);
 
   /// check for a 64 bits word to be a DDU trailer
-  bool isTrailer(uint64_t word);
+  bool isTrailer(uint64_t word, bool dataTag);
+
+  /// pre-unpack the data if read via DMA
+  //  std::pair<uint64_t,bool> dmaUnpack();
+  uint64_t dmaUnpack(bool & isData);
+
 
   /// swapping the lsBits with the msBits
   void swap(uint64_t & word);
@@ -49,6 +54,8 @@ class DTDDUFileReader : public DaqBaseReader {
 
   edm::RunNumber_t runNumber;
   edm::EventNumber_t eventNumber;
+
+  bool readFromDMA;
 
   static const int dduWordLenght = 8;
 

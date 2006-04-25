@@ -33,11 +33,17 @@ DTDDUFileReader::DTDDUFileReader(const edm::ParameterSet& pset) :
 
   const string & filename = pset.getParameter<string>("fileName");
 
+  readFromDMA = pset.getUntrackedParameter<bool>("isRaw",false);
+
   inputFile.open(filename.c_str(), ios::in | ios::binary );
   if( inputFile.fail() ) {
     throw cms::Exception("InputFileMissing") 
-      << "DTDDUFileReader: the input file: " << filename <<" is not present";
+      << "[DTDDUFileReader]: the input file: " << filename <<" is not present";
   }
+
+  //else if (readFromDMA) 
+  inputFile.ignore(4*7);
+
 }
 
 
@@ -54,70 +60,70 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
   size_t estimatedEventDimension = 1024; // dimensione hardcoded
   eventData.reserve(estimatedEventDimension); 
   uint64_t word = 0;
+
   
   try {   
 
-    bool marked = false;
+    bool haederTag = false;
+    bool dataTag = true;
 
     // getting the data word by word from the file
     // do it until you get the DDU trailer
-
-    int counter=0;
-
-    while ( !isTrailer(word) ) { 
-
-      // get the first word
-      inputFile.read(dataPointer<uint64_t>( &word ), dduWordLenght);
-
-//       if ( !inputFile ) throw 1;
-      if ( !inputFile ) {
-	counter=0;
-	break;
+    while ( !isTrailer(word,dataTag) ) {
+      //while ( !isTrailer(word) ) { 
+      
+      if (readFromDMA) {
+	word = dmaUnpack(dataTag);
       }
+      
+      else {
+	inputFile.read(dataPointer<uint64_t>( &word ), dduWordLenght);
+	dataTag = false;
+	if ( !inputFile ) throw 1;
+      }
+      
       // get the DDU header
-      if (isHeader(word)) marked=true;
-
+      if (isHeader(word,dataTag)) haederTag=true;
+      
       // from now on fill the eventData with the ROS data
-      if (marked) {
+      if (haederTag) {
+
+	if (readFromDMA) {
+	  // swapping only the 8 byte words
+	  if (dataTag) {
+	    swap(word);
+	  } // WARNING also the ddu status words have been swapped!
+	    // Control the correct interpretation in DDUUnpacker
+	}
+	
 	eventData.push_back(word);
-	counter++;
+
       }
+      
     } 
 
-    if (counter) {
+//     FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
+//     cout<<"EventSize: pushed back "<<eventData.size()
+// 	<<";  From trailer "<<candidate.lenght()<<endl;
+
+    // next event reading will start with meaningless trailer+header from DTLocalDAQ
+    // those will be skipped automatically when seeking for the DDU header
+    if (eventData.size() > estimatedEventDimension) throw 2;
+     
+    // Setting the Event ID
+    eID = EventID( runNumber, eventNumber);
     
-      if (false) {
-	FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
-	cout<<"[DTDDUFileReader]: Number of words. Pushed back: "<<counter
-	    <<" from DDU trailer: "<<candidate.lenght()<<endl;
-      }
-      
-      // next event reading will start with meaningless trailer+header from DTLocalDAQ
-      // those will be skipped automatically when seeking for the DDU header
-      if (eventData.size() > estimatedEventDimension) throw 2;
-      
-      // Setting the Event ID
-      eID = EventID( runNumber, eventNumber);
-      
-      // eventDataSize = (Number Of Words)* (Word Size)
-      int eventDataSize = eventData.size()*dduWordLenght;
-      // It has to be a multiple of 8 bytes. if not, adjust the size of the FED payload
-      int adjustment = (eventDataSize/4)%2 == 1 ? 4 : 0; 
-      
-      // The FED ID is always the first in the DT range
-      FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
-      fedRawData.resize(eventDataSize+adjustment);
-      
-      copy(reinterpret_cast<unsigned char*>(&eventData[0]),
-	   reinterpret_cast<unsigned char*>(&eventData[0]) + eventDataSize, fedRawData.data());
-      
-      return true;
-    }
-
-    else {
-      return false;
-    }
-
+    // eventDataSize = (Number Of Words)* (Word Size)
+    int eventDataSize = eventData.size()*dduWordLenght;
+    
+    // The FED ID is always the first in the DT range
+    FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
+    fedRawData.resize(eventDataSize);
+    
+    copy(reinterpret_cast<unsigned char*>(&eventData[0]),
+	 reinterpret_cast<unsigned char*>(&eventData[0]) + eventDataSize, fedRawData.data());
+    
+    return true;
   }
 
   catch( int i ) {
@@ -147,24 +153,53 @@ void DTDDUFileReader::swap(uint64_t & word) {
 }
 
 
-bool DTDDUFileReader::isHeader(uint64_t word) {
+uint64_t DTDDUFileReader::dmaUnpack(bool & isData) {
+  
+  uint64_t dduWord = 0;
+
+  uint32_t td[4];
+  // read 4 32-bits word from the file;
+  inputFile.read(dataPointer<uint32_t>( &td[0] ), 4);
+  inputFile.read(dataPointer<uint32_t>( &td[1] ), 4);
+  inputFile.read(dataPointer<uint32_t>( &td[2] ), 4);
+  inputFile.read(dataPointer<uint32_t>( &td[3] ), 4);
+
+  uint32_t data[2];
+  // adjust 4 32-bits words  into 2 32-bits words
+  data[0] |= td[3] & 0x3ffff;
+  data[0] |= (td[2] << 18 ) & 0xfffc0000;
+  data[1] |= (td[2] >> 14 ) & 0x0f;
+  data[1] |= (td[1] << 4 ) & 0x3ffff0;
+  data[1] |= (td[0] << 22 ) & 0xffc00000;
+
+  isData = ( td[0] >> 10 ) & 0x01;
+
+  // push_back to a 64 word
+  dduWord = (uint64_t(data[1]) << 32) | data[0];
+
+  return dduWord;
+}
+
+bool DTDDUFileReader::isHeader(uint64_t word, bool dataTag) {
 
   bool it_is = false;
   FEDHeader candidate(reinterpret_cast<const unsigned char*>(&word));
-  if ( candidate.check()) {
+  if ( candidate.check() ) {
+    // if ( candidate.check() && !dataTag) {
     it_is = true;
-    eventNumber++;
+   eventNumber++;
   }
  
   return it_is;
 }
 
 
-bool DTDDUFileReader::isTrailer(uint64_t word) {
+bool DTDDUFileReader::isTrailer(uint64_t word, bool dataTag) {
 
   bool it_is = false;
   FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
-  if ( candidate.check()) {
+  if ( candidate.check() ) {
+    //  if ( candidate.check() && !dataTag) {
     it_is = true;
   }
  
