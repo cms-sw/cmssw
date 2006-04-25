@@ -1,19 +1,21 @@
 // -*- C++ -*-
 //
-// Package:    SteppingHelixPropagatorAnalyzer
+// Package:    TrackPropagation/SteppingHelixPropagator
 // Class:      SteppingHelixPropagatorAnalyzer
 // 
-/**\class SteppingHelixPropagatorAnalyzer SteppingHelixPropagatorAnalyzer.cc TrackPropagation/SteppingHelixPropagator/src/SteppingHelixPropagatorAnalyzer.cc
-
-Description: <one line class summary>
+/**\class SteppingHelixPropagatorAnalyzer 
+Description: Analyzer of SteppingHelixPropagator performance
 
 Implementation:
-<Notes on implementation>
+Use simTracks and simVertices as initial points. For all  muon PSimHits in the event 
+extrapolate/propagate from the previous point (starting from a vertex) to the hit position (detector surface).
+Fill an nTuple (could've been an EventProduct) with expected (given by the propagator) and actual (PSimHits)
+positions of a muon in the detector.
 */
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id$
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.1 2006/04/14 21:45:18 slava77 Exp $
 //
 //
 
@@ -123,6 +125,7 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
   bool doneMapping_;
 
   bool noMaterialMode_;
+  bool noErrPropMode_;
 };
 
 //
@@ -157,6 +160,7 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
 
   debug_ = iConfig.getParameter<bool>("debug");
   noMaterialMode_ = iConfig.getParameter<bool>("noMaterialMode");
+  noErrPropMode_ = iConfig.getParameter<bool>("noErrorPropagationMode");
   
 }
 
@@ -287,7 +291,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     } else {
       r3T = (*simVertices)[vtxInd].position().vect()*0.1; //seems to be stored in mm --> convert to cm
     }
-    HepSymMatrix covT(6,1); covT *= 1e-6; // initialize to sigma=1e-3
+    HepSymMatrix covT = noErrPropMode_ ? HepSymMatrix(1,1) : HepSymMatrix(6,1); covT *= 1e-6; // initialize to sigma=1e-3
 
     Hep3Vector p3F,r3F; //propagated state
     Hep3Vector p3R,r3R; //reference (hit) state
@@ -496,7 +500,7 @@ void SteppingHelixPropagatorAnalyzer::loadNtVars(int ind, int eType, int pStatus
       p3R_[ind][0] = p3R.x();  p3R_[ind][1] = p3R.y();  p3R_[ind][2] = p3R.z();
       r3R_[ind][0] = r3R.x();  r3R_[ind][1] = r3R.y();  r3R_[ind][2] = r3R.z();
       int flatInd = 0;
-      for (int i =1; i <= 6; i++) 
+      for (int i =1; i <= cov.num_row(); i++) 
 	for (int j=1; j<=i;j++){
 	  covFlat_[ind][flatInd] = cov.fast(i,j);
 	  flatInd++;
@@ -518,7 +522,7 @@ SteppingHelixPropagatorAnalyzer::getFromCLHEP(const Hep3Vector& p3, const Hep3Ve
 
   CartesianTrajectoryError tCov(cov);
   
-  return FreeTrajectoryState(tPars, tCov);
+  return cov.num_row() == 6 ? FreeTrajectoryState(tPars, tCov) : FreeTrajectoryState(tPars) ;
 }
 
 void SteppingHelixPropagatorAnalyzer::getFromFTS(const FreeTrajectoryState& fts,
@@ -531,7 +535,7 @@ void SteppingHelixPropagatorAnalyzer::getFromFTS(const FreeTrajectoryState& fts,
   r3.set(r3GP.x(), r3GP.y(), r3GP.z());
   
   charge = fts.charge();
-  cov = fts.cartesianError().matrix();
+  cov = fts.hasError() ? fts.cartesianError().matrix() : HepSymMatrix(1,0);
 
 }
 
