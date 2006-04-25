@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/28 22:54:07 $
-// $Revision: 1.7 $
+// $Date: 2006/04/03 22:33:37 $
+// $Revision: 1.8 $
 //
 
 #include <vector>
@@ -150,24 +150,25 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
 
                   const TrajectoryStateOnSurface  innerState = thePropagator.propagate(fts,tracker->idToDet(innerSeedDetHit->geographicalId())->surface());
 
-                  //
-                  // create the OwnVector of TrackingRecHits
-                  //
-                  edm::OwnVector<TrackingRecHit> rh;
+		  if (innerState.isValid()){
+		    //
+		    // create the OwnVector of TrackingRecHits
+		    //
+		    edm::OwnVector<TrackingRecHit> rh;
 
-                  //
-                  // memory leak??? TB
-                  //
-                  rh.push_back(innerSeedDetHit->clone());
-                  rh.push_back(outerSeedDetHit->clone());
-                  TrajectoryStateTransform transformer;
-
-                  PTrajectoryStateOnDet * PTraj=  transformer.persistentState(innerState, innerSeedDetHit->geographicalId().rawId());
-                  TrajectorySeed ts(*PTraj,rh,alongMomentum);
-
-		  // add seed to collection
-		  output.push_back(ts);
-
+		    //
+		    // memory leak??? TB
+		    //
+		    rh.push_back(innerSeedDetHit->clone());
+		    rh.push_back(outerSeedDetHit->clone());
+		    TrajectoryStateTransform transformer;
+		    
+		    PTrajectoryStateOnDet * PTraj=  transformer.persistentState(innerState, innerSeedDetHit->geographicalId().rawId());
+		    TrajectorySeed ts(*PTraj,rh,alongMomentum);
+		    
+		    // add seed to collection
+		    output.push_back(ts);
+		  }
 		}
 	      }
 	    }
