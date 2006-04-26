@@ -16,7 +16,7 @@
 //
 // Original Author:  Martin GRUNEWALD
 //         Created:  Thu Mar 23 10:00:22 CET 2006
-// $Id: HLTSimpleJet.h,v 1.1 2006/03/28 08:24:45 gruen Exp $
+// $Id: HLTSimpleJet.h,v 1.2 2006/04/21 01:07:49 wmtan Exp $
 //
 //
 
@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include<string>
 //
 // class decleration
 //

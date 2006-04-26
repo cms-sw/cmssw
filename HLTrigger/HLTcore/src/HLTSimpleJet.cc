@@ -13,6 +13,8 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
+#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+
 //
 // constructors and destructor
 //
@@ -24,6 +26,9 @@ HLTSimpleJet::HLTSimpleJet(const edm::ParameterSet& iConfig)
    std::cout << "HLTSimpleJet input: " << module_ << std::endl;
    std::cout << "             PTcut: " << ptcut_  << std::endl;
    std::cout << "    Number of jets: " << njcut_  << std::endl;
+
+   //register your products
+   produces<reco::HLTFilterObjectWithRefs>();
 }
 
 HLTSimpleJet::~HLTSimpleJet()
@@ -40,22 +45,32 @@ bool
 HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+   using namespace std;
 
-   //   std::cout << "HLTSimpleJet::filter start:" << std::endl;
+   //   cout << "HLTSimpleJet::filter start:" << endl;
 
-   Handle<CaloJetCollection> jets;
-   iEvent.getByLabel (module_, jets);
+   Handle<CaloJetCollection>  jets;
+   iEvent.getByLabel (module_,jets);
 
-   CaloJetCollection::const_iterator jet = jets->begin ();
+   auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs);
 
    int n=0;
-   for (; jet != jets->end (); jet++) {
-     //     std::cout << (*jet).pt() << std::endl;
-     if ( (*jet).pt() >= ptcut_) n++;
+   CaloJetCollection::const_iterator jet(jets->begin());
+   for (; jet!=jets->end()&&n<njcut_; jet++) {
+     //     cout << (*jet).getPt() << endl;
+     if ( (jet->getPt()) >= ptcut_) {
+       n++;
+       filterproduct->putJet(Ref<CaloJetCollection>(jets,distance(jets->begin(),jet)));
+     }
    }
+
+   bool accept(n>=njcut_);
+   filterproduct->setAccept(accept);
+   iEvent.put(filterproduct);
+
    //   std::cout << "HLTSimpleJet::filter stop: " << n << std::endl;
 
-   return (n>=njcut_);
+   return accept;
 }
 
 //define this as a plug-in
