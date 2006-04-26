@@ -5,7 +5,7 @@
 
 PUSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.18 2006/04/04 22:19:16 wmtan Exp $
+$Id: PUSource.h,v 1.1 2006/04/24 17:02:16 pjanot Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,6 +31,7 @@ namespace edm {
     explicit PUSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~PUSource();
 
+
   private:
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     typedef std::map<std::string, RootFileSharedPtr> RootFileMap;
@@ -42,8 +43,10 @@ namespace edm {
     void init();
 
     RootFileSharedPtr rootFile_;
+    RootFileMap rootFiles_;
     std::map<RootFileSharedPtr,int> eventsInRootFiles; 
     int totalNbEvents;
+
   }; // class PUSource
 }
 #endif

@@ -1,8 +1,6 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.25 2006/04/04 22:19:16 wmtan Exp $
+$Id: PUSource.cc,v 1.1 2006/04/24 17:02:16 pjanot Exp $
 ----------------------------------------------------------------------*/
-
-#include "CLHEP/Random/RandFlat.h"
 
 #include "FastSimulation/PileUpProducer/interface/PUSource.h"
 #include "IOPool/Input/src/RootFile.h"
@@ -21,6 +19,7 @@ namespace edm {
 PUSource::PUSource(ParameterSet const& pset, InputSourceDescription const& desc) :
   VectorInputSource(pset, desc),
   rootFile_(),
+  rootFiles_(),
   eventsInRootFiles(),
   totalNbEvents(0)
 {
@@ -37,9 +36,6 @@ PUSource::init() {
   
   // To save the product registry from the current file
   boost::shared_ptr<ProductRegistry const> pReg; 
-  
-  // To store locally the file names and pointers
-  RootFileMap rootFiles_;
   RootFileMap::const_iterator it;
   
   // Loop over the files 
@@ -51,7 +47,7 @@ PUSource::init() {
     // Check if the file has already been mentioned and stored
     it = rootFiles_.find(*fileIter);
     
-    std::cout << "Fichier " << *fileIter << std::endl;
+    std::cout << "MinBias event file " << *fileIter << " open." << std::endl;
     // If not, store it. 
     // FIX : Shouldn't we check that the file indeed exists?
     if (it == rootFiles_.end()) {
@@ -84,7 +80,15 @@ PUSource::init() {
 
 }
 
-PUSource::~PUSource() {}
+PUSource::~PUSource() {
+
+  // close the files
+  RootFileMap::iterator it;
+  for (   it = rootFiles_.begin(); it != rootFiles_.end(); ++it ) {
+    it->second.reset();
+  }
+
+}
 
 std::auto_ptr<EventPrincipal> 
 PUSource::read() {
@@ -101,8 +105,11 @@ PUSource::readIt(int entry) {
   std::map<boost::shared_ptr<RootFile>,int>::const_iterator 
     it = eventsInRootFiles.begin();
   rootFile_ = it->first;
+
+  // Check that the entry is not beyond the total number of events 
+  entry -= entry/totalNbEvents*totalNbEvents;
   int localEntry = entry;
-  
+ 
   // Loop over the files to find the corresponding entry
   while ( entry > it->second ) {
     localEntry -= rootFile_->entries();
@@ -118,17 +125,21 @@ PUSource::readIt(int entry) {
 
 }
 
+
+// Warning - this readMany_ reads only one entry !
+// "number" just sets the location of this entry.
 void
 PUSource::readMany_(int number, EventPrincipalVector& result) {
-  for (int i = 0; i < number; ++i) {
-    int entry = (int) (CLHEP::RandFlat::shoot() * totalNbEvents);
-    std::auto_ptr<EventPrincipal> ev = readIt(entry);
-    if (ev.get() == 0) {
-      return;
-    }
-    EventPrincipalVectorElement e(ev.release());
-    result.push_back(e);
+
+  // Read that entry
+  std::auto_ptr<EventPrincipal> ev = readIt(number);
+  if (ev.get() == 0) {
+    return;
   }
+
+  // Return the event
+  EventPrincipalVectorElement e(ev.release());
+  result.push_back(e);
 }
 
 // end namespace edm
