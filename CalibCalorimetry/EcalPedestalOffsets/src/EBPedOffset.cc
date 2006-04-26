@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2006/04/18 15:06:13 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/18 18:15:19 $
+ * $Revision: 1.3 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -24,19 +24,20 @@
 
 #include "TFile.h"
 
+
 //! ctor
 EBPedOffset::EBPedOffset (const ParameterSet& paramSet) :
   m_digiCollection (paramSet.getParameter<std::string> ("digiCollection")) ,
   m_digiProducer (paramSet.getParameter<std::string> ("digiProducer")) ,
   m_headerProducer (paramSet.getParameter<std::string> ("headerProducer")) ,
   m_xmlFile (paramSet.getParameter<std::string> ("xmlFile")) ,
-  m_DACmin (paramSet.getParameter<int> ("DACmin")) ,
-  m_DACmax (paramSet.getParameter<int> ("DACmax")) ,
-  m_RMSmax (paramSet.getParameter<double> ("RMSmax")) ,
-  m_bestPed (paramSet.getParameter<int> ("bestPed")) , 
+  m_DACmin (paramSet.getUntrackedParameter<int> ("DACmin",0)) ,
+  m_DACmax (paramSet.getUntrackedParameter<int> ("DACmax",256)) ,
+  m_RMSmax (paramSet.getUntrackedParameter<double> ("RMSmax",2)) ,
+  m_bestPed (paramSet.getUntrackedParameter<int> ("bestPed",200)) , 
   m_SMnum (paramSet.getParameter<int> ("SMnum")) ,
-  m_dbHostName (paramSet.getParameter<std::string> ("dbHostName")) ,
-  m_dbName (paramSet.getParameter<std::string> ("dbName")) ,
+  m_dbHostName (paramSet.getUntrackedParameter<std::string> ("dbHostName","0")) ,
+  m_dbName (paramSet.getUntrackedParameter<std::string> ("dbName","0")) ,
   m_dbUserName (paramSet.getParameter<std::string> ("dbUserName")) ,
   m_dbPassword (paramSet.getParameter<std::string> ("dbPassword")) ,
   m_run (paramSet.getParameter<int> ("run")) ,
@@ -324,7 +325,7 @@ void EBPedOffset::makePlots ()
     {
       // make a folder in the ROOT file
       char folderName[120] ;
-      sprintf (folderName,"SM%d",smPeds->first) ;
+      sprintf (folderName,"SM%02d",smPeds->first) ;
       rootFile->mkdir (folderName) ;
       smPeds->second->makePlots (rootFile,folderName) ;
 
@@ -337,15 +338,6 @@ void EBPedOffset::makePlots ()
 }
 
 
-
-void EBPedOffset::subscribe ()
-{}
-
-void EBPedOffset::subscribeNew ()
-{}
-
-void EBPedOffset::unsubscribe ()
-{}
 
 
 /* various pieces of code here 

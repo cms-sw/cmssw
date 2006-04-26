@@ -5,8 +5,8 @@
  * \file EBPedOffset.h
  * \class EBPedOffset
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2006/04/18 15:06:13 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/18 18:15:18 $
+ * $Revision: 1.3 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
@@ -64,12 +64,7 @@ class EBPedOffset: public edm::EDAnalyzer
     
     //! Destructor
     virtual ~EBPedOffset () ;
-    
-    //! Subscribe/Unsubscribe to Monitoring Elements
-    void subscribe (void) ;
-    void subscribeNew (void) ;
-    void unsubscribe (void) ;
-    
+   
     ///! Analyze
     void analyze (Event const& event, EventSetup const& eventSetup) ;
     
