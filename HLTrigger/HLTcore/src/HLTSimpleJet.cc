@@ -2,7 +2,7 @@
 //
 // see header file for documentation
 //
-// $Id: HLTSimpleJet.cc,v 1.4 2006/04/04 09:55:19 gruen Exp $
+// $Id: HLTSimpleJet.cc,v 1.5 2006/04/21 01:07:49 wmtan Exp $
 //
 
 #include "HLTrigger/HLTcore/interface/HLTSimpleJet.h"
@@ -50,8 +50,8 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    int n=0;
    for (; jet != jets->end (); jet++) {
-     //     std::cout << (*jet).getPt() << std::endl;
-     if ( (*jet).getPt() >= ptcut_) n++;
+     //     std::cout << (*jet).pt() << std::endl;
+     if ( (*jet).pt() >= ptcut_) n++;
    }
    //   std::cout << "HLTSimpleJet::filter stop: " << n << std::endl;
 
