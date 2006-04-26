@@ -10,7 +10,7 @@ BasicCluster::BasicCluster( double energy, const Point& position, double chi2 ) 
 
 
 
-/**
+
 BasicCluster::BasicCluster( const std::vector<EcalRecHitData>& recHits,
                            int superClusterId, const Point & position ) :
     superClusterId_( superClusterId ), 
@@ -24,7 +24,7 @@ BasicCluster::BasicCluster( const std::vector<EcalRecHitData>& recHits,
   }
   chi2_/=energy;
 }
-**/
+
 
 bool BasicCluster::operator<(const reco::BasicCluster &otherCluster) const
 {
@@ -32,4 +32,13 @@ bool BasicCluster::operator<(const reco::BasicCluster &otherCluster) const
     return false;
   else
     return true;
+}
+
+bool BasicCluster::operator==(const BasicCluster& rhs) const  
+{
+  
+  float Ediff = fabs(rhs.energy() - energy());
+  if (Ediff < 0.00000001) return true;
+  else return false;
+
 }
