@@ -32,7 +32,8 @@ fit(const TrajectorySeed& aSeed,
   if(hits.empty()) return vector<Trajectory>();
   
   vector<Trajectory> fitted = 
-    fitter()->fit(aSeed, hits, tsosWithError(firstPredTsos));
+    //    fitter()->fit(aSeed, hits, tsosWithError(firstPredTsos));
+    fitter()->fit(aSeed, hits, firstPredTsos);
   LogDebug("TrackingTools/TrackFitters") << "In KFFittingSmoother::fit "<<fitted.size();
    
    return smoothingStep(fitted);
