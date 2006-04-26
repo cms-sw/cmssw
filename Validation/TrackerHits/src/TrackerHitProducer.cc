@@ -1,4 +1,5 @@
 #include "Validation/TrackerHits/interface/TrackerHitProducer.h"
+#include <cmath>
 
 TrackerHitProducer::TrackerHitProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), label(""), getAllProvenances(false),
@@ -210,9 +211,24 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
 
     ++i;
 
+    double etaInit =0, phiInit =0, pInit =0;
     const HepLorentzVector& G4Trk = itTrk->momentum();
+    pInit =sqrt(G4Trk[0]*G4Trk[0]+G4Trk[1]*G4Trk[1]+G4Trk[2]*G4Trk[2]);
+	  if ( pInit == 0) 
+		  edm::LogError("TrackerHitProducer::fillG4MC") 
+		  << "TrackerTest::INFO: Primary has p = 0 ";
+	  else {
+		  double costheta  = G4Trk[2]/pInit;
+	          double theta = acos(TMath::Min(TMath::Max(costheta, -1.),1.));
+		  etaInit = -log(tan(theta/2));
+		  
+		  if ( G4Trk[0] != 0 || G4Trk[1] != 0) 
+			  phiInit = atan2(G4Trk[1],G4Trk[0]);
+	  }
     G4TrkPt.push_back(sqrt(G4Trk[0]*G4Trk[0]+G4Trk[1]*G4Trk[1])); //GeV
     G4TrkE.push_back(G4Trk[3]);                                   //GeV
+    G4TrkEta.push_back(etaInit);                                   
+    G4TrkPhi.push_back(phiInit);                                   
   } 
 
   if (verbosity > 1) {
@@ -246,10 +262,14 @@ void TrackerHitProducer::storeG4MC(PTrackerSimHit& product)
     eventout += "\n       nG4Trk             = ";
     eventout += G4TrkPt.size();
     for (unsigned int i = 0; i < G4TrkPt.size(); ++i) {
-      eventout += "\n          (pt,e)          = (";
+      eventout += "\n          (pt,e,eta,phi)          = (";
       eventout += G4TrkPt[i];
       eventout += ", ";
       eventout += G4TrkE[i];
+      eventout += ")";
+      eventout += G4TrkEta[i];
+      eventout += ")";
+      eventout += G4TrkPhi[i];
       eventout += ")";
     }    
     edm::LogInfo("TrackerHitProducer::storeG4MC") << eventout;
@@ -257,7 +277,7 @@ void TrackerHitProducer::storeG4MC(PTrackerSimHit& product)
 
   product.putRawGenPart(nRawGenPart);
   product.putG4Vtx(G4VtxX, G4VtxY, G4VtxZ);
-  product.putG4Trk(G4TrkPt, G4TrkE);
+  product.putG4Trk(G4TrkPt, G4TrkE, G4TrkEta, G4TrkPhi);
 
   return;
 }
@@ -994,6 +1014,8 @@ void TrackerHitProducer::clear()
   G4VtxZ.clear();
   G4TrkPt.clear();
   G4TrkE.clear();
+  G4TrkEta.clear();
+  G4TrkPhi.clear();
   // reset tracker info
   HitsSysID.clear();
   HitsDuID.clear();

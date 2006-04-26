@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Provenance.h"
-#include "FWCore/Framework/interface/Provenance.h"
+//#include "FWCore/Framework/interface/Provenance.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -90,6 +90,8 @@ class TrackerHitProducer : public edm::EDProducer
   FloatVector G4VtxZ; 
   FloatVector G4TrkPt; 
   FloatVector G4TrkE;
+  FloatVector G4TrkEta;
+  FloatVector G4TrkPhi;
 
 
   // Tracker info
