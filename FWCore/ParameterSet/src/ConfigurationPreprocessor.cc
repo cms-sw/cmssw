@@ -5,8 +5,6 @@
 #include <sstream>
 #include "boost/regex.hpp"
 
-#include <iostream>
-
 
 namespace edm 
 {
@@ -123,9 +121,6 @@ namespace edm
             openFiles_.pop_back();
           } // not multiply included
          
-else {
-  std::cout << "DOUBL EINCLUDE IGNORE" << std::endl;
-}
         }
         else // not including a file
         {
