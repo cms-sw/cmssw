@@ -71,10 +71,13 @@ class TrackAnalyzer : public edm::EDAnalyzer {
       //
       cout <<"\t\tNumber of RecHits "<<track->recHitsSize()<<endl;
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
-	cout <<"\t\t\tRecHit on det "<<(*it)->geographicalId().rawId()<<endl;
-	cout <<"\t\t\tRecHit in LP "<<(*it)->localPosition()<<endl;
-	cout <<"\t\t\tRecHit in GP "<<theG->idToDet((*it)->geographicalId())->surface().toGlobal((*it)->localPosition()) <<endl;
-	
+	if ((*it)->isValid()){
+	  cout <<"\t\t\tRecHit on det "<<(*it)->geographicalId().rawId()<<endl;
+	  cout <<"\t\t\tRecHit in LP "<<(*it)->localPosition()<<endl;
+	  cout <<"\t\t\tRecHit in GP "<<theG->idToDet((*it)->geographicalId())->surface().toGlobal((*it)->localPosition()) <<endl;
+	}else{
+	  cout <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId()<<endl;
+	}
       }
     }
   }

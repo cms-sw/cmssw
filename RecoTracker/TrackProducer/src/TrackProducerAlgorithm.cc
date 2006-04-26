@@ -58,7 +58,9 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
       for (edm::OwnVector<TrackingRecHit>::const_iterator i=theTC->recHits().first;
 	   i!=theTC->recHits().second; i++){
 	hits.push_back(builder->build(&(*i) ));
-	ndof = ndof + (i->dimension())*(i->weight());
+	if ((*i).isValid()){
+	  ndof = ndof + (i->dimension())*(i->weight());
+	}
       }
       
       delete builder;
