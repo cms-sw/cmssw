@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.11 2006/04/20 13:06:32 llista Exp $
+ * $Id: AssociationMap.h,v 1.1 2006/04/21 13:13:55 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -102,7 +102,7 @@ namespace edm {
     void insert( const KeyRef & k, const ValRef & v ) {
       if ( k.isNull() || v.isNull() )
 	throw edm::Exception( edm::errors::InvalidReference )
-	  << "can't insert null references in OneToOneAssociation";
+	  << "can't insert null references in AssociationMap";
       if ( keyRef_.isNull() ) {
 	keyRef_ = KeyRefProd( k ); 
 	valRef_ = ValRefProd( v );
@@ -113,7 +113,10 @@ namespace edm {
     }
     /// const iterator
     struct const_iterator {
+      typedef KeyVal value_type;
       typedef ptrdiff_t difference_type;
+      typedef KeyVal * pointer;
+      typedef KeyVal & reference;
       typedef typename map_type::const_iterator::iterator_category iterator_category;
       const_iterator() { }
       const_iterator( const KeyRefProd & keyRef, const ValRefProd & valRef,
@@ -134,10 +137,14 @@ namespace edm {
       bool operator!=( const const_iterator& ci ) const { return i != ci.i; }
       KeyRef key() const { return KeyRef( keyRef_, i->first ); }
       typename Tag::val_type val() const {
-	return Tag::val( valRef_, i->second() );
+	return Tag::val( valRef_, i->second );
       }
       KeyVal operator *() const {
 	return KeyVal( key(), val() );
+      }
+      const KeyVal * operator->() const {  
+	throw edm::Exception( edm::errors::InvalidReference )
+	  << "can't use -> operator ininsert null references in AssociationMap::const_iterator";
       }
     private:
       KeyRefProd keyRef_;
@@ -157,7 +164,7 @@ namespace edm {
     }
     /// return element with key i
     KeyVal operator[]( size_type i ) const {
-      typename map_type::const_iterator f = map_.find( k.index() );
+      typename map_type::const_iterator f = map_.find( i );
       if ( f == map_.end() ) 
 	throw edm::Exception( edm::errors::InvalidReference )
 	  << "can't find reference in AssociationMap at position " << i;
