@@ -24,7 +24,7 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 				 const Propagator * thePropagator,
 				 AlgoProductCollection& algoResults)
 {
-  edm::LogInfo("RecoTracker/TrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
+  edm::LogInfo("TrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
 
   int cont = 0;
   for (TrackCandidateCollection::const_iterator i=theTCCollection.begin(); i!=theTCCollection.end();i++)
@@ -72,7 +72,7 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
       //perform the fit: the result's size is 1 if it succeded, 0 if fails
       trajVec = theFitter->fit(theTC->seed(), hits, theTSOS);
       
-       edm::LogInfo("RecoTracker/TrackProducer") <<" FITTER FOUND "<<trajVec.size()<<"\n";
+       edm::LogInfo("TrackProducer") <<" FITTER FOUND "<<trajVec.size()<<"\n";
 
       TransverseImpactPointExtrapolator * tipe;
       TrajectoryStateOnSurface tsos;
@@ -111,8 +111,8 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 	    cov( i, j ) = m.fast( i + 1 , j + 1 );
 	math::XYZVector mom( p.x(), p.y(), p.z() );
 	math::XYZPoint  vtx( v.x(), v.y(), v.z() );   
-	edm::LogInfo("RecoTracker/TrackProducer") << " RESULT Momentum "<< p<<"\n";
-	edm::LogInfo("RecoTracker/TrackProducer") << " RESULT Vertex "<< v<<"\n";
+	edm::LogInfo("TrackProducer") << " RESULT Momentum "<< p<<"\n";
+	edm::LogInfo("TrackProducer") << " RESULT Vertex "<< v<<"\n";
 
 	//build the Track(chiSquared, ndof, found, invalid, lost, q, vertex, momentum, covariance)
 	theTrack = new reco::Track(theTraj->chiSquared(), 
@@ -131,7 +131,7 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 	cont++;
       }
     }
-  edm::LogInfo("RecoTracker/TrackProducer") << "Number of Tracks found: " << cont << "\n";
+  edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
 
 }
 
