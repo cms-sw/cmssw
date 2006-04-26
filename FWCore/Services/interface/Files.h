@@ -2,7 +2,7 @@
 #define Services_Files_h
 
 // Original Author:  Marc Paterno
-// $Id: Files.h,v 1.1 2006/03/21 22:11:35 paterno Exp $
+// $Id: Files.h,v 1.2 2006/04/04 21:08:38 evansde Exp $
 
 // -*- C++ -*-
 //
@@ -97,10 +97,10 @@ namespace edm {
     {
 
       if (f.fileHasBeenClosed){
-	os << "\n<State  Value=\"closed\">";
+	os << "\n<State  Value=\"closed\"/>";
       }
       else{
-	os << "\n<State  Value=\"open\">";
+	os << "\n<State  Value=\"open\"/>";
       }
       os << "\n<LFN>" << f.logicalFileName << "</LFN>";
       os << "\n<PFN>" << f.physicalFileName << "</PFN>";
