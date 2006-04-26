@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.17 2006/04/04 22:37:57 rpw Exp $
+ * $Id: pset_parse.y,v 1.18 2006/04/05 23:00:50 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -139,6 +139,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token ENDPATH_tok
 %token USING_tok
 %token REPLACE_tok
+%token RENAME_tok
 %token MODULE_tok
 %token SERVICE_tok
 %token ES_MODULE_tok
@@ -625,12 +626,19 @@ procnode:        allpset
                    DBPRINT("procnode: REPLACEMODULE");
                    string name(toString($<str>2));
                    string type(toString($<str>4));
-                   DBPRINT(name);
-                   DBPRINT(type);
                    NodePtrListPtr nodelist($<_NodePtrList>5);
                    ModuleNode * moduleNode(new ModuleNode("replace",name,type,nodelist,lines));
                    NodePtr entryPtr(moduleNode);
                    ReplaceNode* wn(new ReplaceNode("replace", name, entryPtr, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 RENAME_tok LETTERSTART_tok LETTERSTART_tok
+                 {
+                   DBPRINT("procnode: RENAME");
+                   string from(toString($<str>2));
+                   string to(toString($<str>3));
+                   RenameNode * wn(new RenameNode("rename", from, to, lines));
                    $<_Node>$ = wn;
                  }
                |

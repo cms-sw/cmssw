@@ -124,6 +124,22 @@ namespace edm {
     } 
 
     //--------------------------------------------------
+    // RenameNode
+    //--------------------------------------------------
+                                                                                                          
+                                                                                                          
+    void RenameNode::print(ostream& ost) const
+    {
+      ost << name << " " << from_ << " " << to_;
+    }
+                                                                                                          
+    void RenameNode::accept(Visitor& v) const
+    {
+      throw edm::Exception(errors::LogicError,"Rename Nodes should always be processed by the postprocessor.  Please contact an EDM developer");
+    }
+                                                                                                          
+
+    //--------------------------------------------------
     // StringNode
     //--------------------------------------------------
 

@@ -130,6 +130,26 @@ namespace edm {
       NodePtr value_;
     };
 
+
+    /*
+     ------------------------------------------
+     Rename: change the name to a module.  Old name no longer valid
+    */
+
+    struct RenameNode : public Node
+    {
+      RenameNode(const std::string & type, const std::string& from,
+                 const std::string & to, int line=-1)
+      : Node(type, line), from_(from), to_(to) {}
+
+      virtual std::string type() const {return "rename";}
+      virtual void print(std::ostream& ost) const;
+      virtual void accept(Visitor& v) const;
+                                                                                                          
+      std::string from_;
+      std::string to_;
+    };
+
  
 
     /*
