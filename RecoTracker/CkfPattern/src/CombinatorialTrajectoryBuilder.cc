@@ -16,42 +16,40 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-//#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+
 
 CombinatorialTrajectoryBuilder::
 CombinatorialTrajectoryBuilder(const edm::ParameterSet& conf){
-  //minimum number of hits per tracks
-  //theMinHits=conf.getParameter<int>("MinHits");
-  //cut on chi2
-  chi2cut=conf.getParameter<double>("Chi2Cut");
+  //theChiSquarCut          = conf.getParameter<double>("chiSquarCut");
+  theMaxCand              = conf.getParameter<int>("maxCand");
+  theMaxLostHit           = conf.getParameter<int>("maxLostHit");
+  theMaxConsecLostHit     = conf.getParameter<int>("maxConsecLostHit");
+  theLostHitPenalty       = conf.getParameter<double>("lostHitPenalty");
+  theIntermediateCleaning = conf.getParameter<bool>("intermediateCleaning");
+  theMinimumNumberOfHits  = conf.getParameter<int>("minimumNumberOfHits");
+  //thePtCut                = conf.getParameter<int>("ptCut");
+  theAlwaysUseInvalidHits = conf.getParameter<bool>("alwaysUseInvalidHits");
 }
 
 
 void CombinatorialTrajectoryBuilder::init(const edm::EventSetup& es)
 {     
   //services
-  es.get<IdealMagneticFieldRecord>().get(magfield);
+  es.get<IdealMagneticFieldRecord>().get(theMagField);
   es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
 
   //trackingtools
-  //thePropagator=        new AnalyticalPropagator(&(*magfield), alongMomentum);
-  thePropagator=        new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield));
-  theUpdator=           new KFUpdator();
-  theEstimator=         new Chi2MeasurementEstimator(chi2cut);
-  theNavigationSchool=  new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*magfield));
-  theMeasurementTracker=new MeasurementTracker(es);
-  theLayerMeasurements= new LayerMeasurements(theMeasurementTracker);
+  es.get<TrackingComponentsRecord>().get("KFUpdator",theUpdator);
+  es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",thePropagator);
+  es.get<TrackingComponentsRecord>().get("PropagatorWithMaterialOpposite",thePropagatorOpposite);
+  es.get<TrackingComponentsRecord>().get("Chi2",theEstimator);
 
-
-  theMaxCand = 5;
-  theMaxLostHit = 3;
-  theMaxConsecLostHit = 2;
-  theLostHitPenalty = 30 ;
-  theMinHits = 5; 
-  theAlwaysUseInvalid = true;
+  theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
+  theMeasurementTracker = new MeasurementTracker(es);
+  theLayerMeasurements  = new LayerMeasurements(theMeasurementTracker);
 }
 
 
@@ -67,18 +65,17 @@ CombinatorialTrajectoryBuilder::trajectories(const TrajectorySeed& seed,edm::Eve
   NavigationSetter setter( *theNavigationSchool);
   
   // set the propagation direction
-  thePropagator->setPropagationDirection(seed.direction());
+  //thePropagator->setPropagationDirection(seed.direction());
 
   TrajectoryContainer result;
 
   // analyseSeed( seed);
 
-  //cout << "--- calling createStartingTrajectory" << endl;
   Trajectory startingTraj = createStartingTrajectory( seed);
 
   /// limitedCandidates( startingTraj, regionalCondition, result);
   /// FIXME: restore regionalCondition
-  //cout << "--- calling limitedCandidates" << endl;
+
   limitedCandidates( startingTraj, result);
 
   // analyseResult(result);
@@ -94,19 +91,7 @@ createStartingTrajectory( const TrajectorySeed& seed) const
   std::vector<TM> seedMeas = seedMeasurements(seed);
   if ( !seedMeas.empty()) {
     for (std::vector<TM>::const_iterator i=seedMeas.begin(); i!=seedMeas.end(); i++){
-      result.push(*i);
-      
-      /*   // DEBUG INFO
-      cout << "i->recHit()->globalPosition().perp(): " 
-	   <<  i->recHit()->globalPosition().perp() << endl;
-      cout << "i->recHit()->globalPosition().eta(): " 
-	   <<  i->recHit()->globalPosition().eta() << endl;
-      cout << "i->recHit()->globalPosition().phi(): " 
-	   <<  i->recHit()->globalPosition().phi() << endl;
-      cout << "i->recHit()->globalPosition().z(): " 
-	   <<  i->recHit()->globalPosition().z() << endl;
-      */
-      
+      result.push(*i);            
     }
   }
   return result;
@@ -131,7 +116,7 @@ limitedCandidates( Trajectory& startingTraj,
       }
       else {
 	std::vector<TM>::const_iterator last;
-	if ( theAlwaysUseInvalid) last = meas.end();
+	if ( theAlwaysUseInvalidHits) last = meas.end();
 	else {
 	  if (meas.front().recHit()->isValid()) {
 	    last = find_if( meas.begin(), meas.end(), RecHitIsInvalid());
@@ -146,7 +131,6 @@ limitedCandidates( Trajectory& startingTraj,
 
 	  if ( toBeContinued(newTraj)) {
 	    newCand.push_back(newTraj);
-	    cout << "newCand.size(): " << newCand.size() << endl;
 	  }
 	  else {
 	    if ( qualityFilter(newTraj)) addToResult( newTraj, result);
@@ -169,7 +153,7 @@ limitedCandidates( Trajectory& startingTraj,
     //} else {
     //cout << "calling candidates.swap(newCand) " << endl;
     candidates.swap(newCand);
-      //}
+    //}
   }
 }
 
@@ -211,7 +195,17 @@ CombinatorialTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) con
       result.push_back(TM( invalidState, updatedState, recHit, 0, hitLayer));
     }
     else {
-      result.push_back(TM( invalidState, recHit, 0, hitLayer));
+      //----------- just a test to make the Smoother to work -----------
+      PTrajectoryStateOnDet pState( seed.startingState());
+      TSOS outerState = tsTransform.transientState( pState, &(hitGeomDet->surface()), 
+						    thePropagator->magneticField());
+      TSOS innerState   = thePropagatorOpposite->propagate(outerState,hitGeomDet->surface());
+      TSOS innerUpdated = theUpdator->update(innerState,*recHit);
+
+      result.push_back(TM( invalidState, innerUpdated, recHit, 0, hitLayer));
+      //-------------------------------------------------------------
+
+      //result.push_back(TM( invalidState, recHit, 0, hitLayer));
     }
   }
   return result;
@@ -224,7 +218,7 @@ CombinatorialTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) con
 //         << traj.foundHits() << " found hits and Chi2 = "
 //         << traj.chiSquared() << endl;
 
-  if ( traj.foundHits() >= theMinHits) {
+  if ( traj.foundHits() >= theMinimumNumberOfHits) {
     return true;
   }
   else {
@@ -247,34 +241,9 @@ void CombinatorialTrajectoryBuilder::updateTrajectory( Trajectory& traj,
   TSOS predictedState = tm.predictedState();
   const TransientTrackingRecHit* hit = tm.recHit();
  
-  /* DEBUG INFO
-  cout << "before updateTraject: " << endl;
-  cout << "tm.predictedState().globalPosition().perp(): " 
-       << tm.predictedState().globalPosition().perp() << endl;
-  cout << "tm.predictedState().globalPosition().eta(): " 
-       << tm.predictedState().globalPosition().eta() << endl;
-  cout << "tm.predictedState().globalPosition().phi(): " 
-       << tm.predictedState().globalPosition().phi() << endl;
-  cout << "tm.predictedState().globalPosition().z(): " 
-       << tm.predictedState().globalPosition().z() << endl;
-
-  cout << "tm.predictedState().globalMomentum().perp(): " 
-       << tm.predictedState().globalMomentum().perp() << endl;
-  cout << "tm.predictedState().globalMomentum().eta(): " 
-       << tm.predictedState().globalMomentum().eta() << endl;
-  cout << "tm.predictedState().globalMomentum().phi(): " 
-       << tm.predictedState().globalMomentum().phi() << endl;
-  cout << "tm.predictedState().globalMomentum().z(): " 
-       << tm.predictedState().globalMomentum().z() << endl;
-  */
-
   if ( hit->isValid()) {
     TM tmp = TM( predictedState, theUpdator->update( predictedState, *hit),
 		 hit, tm.estimate(), tm.layer()); 
-
-    //cout << "updatedState.globalMomentum().perp(): " 
-    // << tmp.updatedState().globalMomentum().perp() << endl;
-
     traj.push(tmp );
   }
   else {
@@ -296,7 +265,7 @@ bool CombinatorialTrajectoryBuilder::toBeContinued (const Trajectory& traj)
   for( vector<TM>::const_iterator itm=tms.end()-1; itm>=tms.begin(); itm--) {
     if (itm->recHit()->isValid()) break;
     else if ( // FIXME: restore this:   !Trajectory::inactive(itm->recHit()->det()) &&
-	      Trajectory::lost(*itm->recHit())) consecLostHit++;
+	     Trajectory::lost(*itm->recHit())) consecLostHit++;
   }
   if (consecLostHit > theMaxConsecLostHit) return false; 
 
@@ -314,57 +283,16 @@ bool CombinatorialTrajectoryBuilder::toBeContinued (const Trajectory& traj)
 
 std::vector<TrajectoryMeasurement> 
 CombinatorialTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj){
-  cout << "start findCompMeas" << endl;
-  cout << "traj.foundHits(): " << traj.foundHits() << endl;
-  cout << "traj.lostHits(): " << traj.lostHits() << endl;
-  const BarrelDetLayer* barrelPointer = dynamic_cast<const BarrelDetLayer*> (traj.lastLayer());
-  if(barrelPointer) 
-    cout << "lastLayer.specificSurface().radius(): "
-	 << barrelPointer->specificSurface().radius() << endl;
-
   TrajectoryStateOnSurface testState = traj.lastMeasurement().forwardPredictedState();
-
-  /*  ------- DEBUG INFO ------------
-  if( traj.lastMeasurement().recHit()->isValid() ) {
-    AlgebraicVector parTS = traj.lastMeasurement().recHit()->parameters(testState) ;
-    AlgebraicVector par   = traj.lastMeasurement().recHit()->parameters() ;
-
-    cout << "parTS: " << parTS << endl;
-    cout << "par:   " << par << endl;
-
-    cout << "lastHit is valid and :" << endl;
-    cout << "traj.lastMeasurement().recHit().globalPosition().perp(): " 
-	 << traj.lastMeasurement().recHit()->globalPosition().perp() << endl;
-    cout << "traj.lastMeasurement().recHit().globalPosition().eta(): " 
-	 << traj.lastMeasurement().recHit()->globalPosition().eta() << endl;
-    cout << "traj.lastMeasurement().recHit().globalPosition().phi(): " 
-	 << traj.lastMeasurement().recHit()->globalPosition().phi() << endl;
-    cout << "traj.lastMeasurement().recHit().globalPosition().z(): " 
-	 << traj.lastMeasurement().recHit()->globalPosition().z() << endl;
-  }
-
-  cout << "traj.lastMeasurement().updatedState().globalMomentum().perp(): " 
-       << traj.lastMeasurement().updatedState().globalMomentum().perp() << endl;
-  cout << "traj.lastMeasurement().updatedState().globalMomentum().eta(): " 
-       << traj.lastMeasurement().updatedState().globalMomentum().eta() << endl;
-  cout << "traj.lastMeasurement().updatedState().globalMomentum().phi(): " 
-       << traj.lastMeasurement().updatedState().globalMomentum().phi() << endl;
-  cout << "traj.lastMeasurement().updatedState().globalMomentum().z(): " 
-       << traj.lastMeasurement().updatedState().globalMomentum().z() << endl;
-  */
-
 
   vector<TM> result;
   int invalidHits = 0;
 
-  // const FTS& currFts( *traj.lastFts());
   TSOS currentState( traj.lastMeasurement().updatedState());
 
   vector<const DetLayer*> nl = 
     traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction());
-
-  cout << "nlayer.size(): " << nl.size() << endl;
-
+  
   if (nl.empty()) return result;
 
   for (vector<const DetLayer*>::iterator il = nl.begin(); 
@@ -376,8 +304,6 @@ CombinatorialTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& tr
     for(vector<TM>::const_iterator tmpIt=tmpp.begin();tmpIt!=tmpp.end();tmpIt++){
       tmp.push_back(  TM(tmpIt->predictedState(),tmpIt->recHit(),tmpIt->estimate(),*il)  );
     }
-
-    cout << "in findCompatibleMeasurement found " << tmp.size()<< " measurements" << endl;
 
     //(**il).measurements( currentState, *thePropagator, *theEstimator);
     if ( !tmp.empty()) {
