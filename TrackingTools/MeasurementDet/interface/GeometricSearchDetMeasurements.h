@@ -158,7 +158,6 @@ GeometricSearchDetMeasurements::get( const GeometricSearchDet& det,
       addInvalidMeas( result, result.front().predictedState(), result.front().recHit()->det());
     }
     else {
-      cout << "no compatible meas found in mdet->fastMeasurements" << endl;
       // invalid state on first compatible Det
       addInvalidMeas( result, compatDets.front().second, compatDets.front().first);
     }

@@ -190,7 +190,7 @@ void MeasurementTracker::update( const edm::Event& event) const
   edm::Handle<SiPixelClusterCollection> pixelClusters;
   event.getByLabel(pixelClusterProducer, pixelClusters);
   const SiPixelClusterCollection * pixelCollection = pixelClusters.product();
-  cout << "--- siPixelClusterColl got " << endl;
+  //cout << "--- siPixelClusterColl got " << endl;
 
   for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
        i!=thePixelDets.end(); i++) {
