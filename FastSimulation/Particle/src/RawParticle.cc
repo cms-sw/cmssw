@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
 //  Prototype for a particle class
 // -----------------------------------------------------------------------------
-//  $Date: 2006/04/06 19:38:02 $
-//  $Revision: 1.3 $
+//  $Date: 2006/04/10 16:12:37 $
+//  $Revision: 1.4 $
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
 // -----------------------------------------------------------------------------
@@ -129,8 +129,10 @@ void RawParticle::init() {
 
 void RawParticle::setID(const int id) {
   myId = id;
-  myCharge = tab->getParticleData(myId)->charge();
-  myMass   = tab->getParticleData(myId)->mass();
+  if ( tab->getParticleData(myId) != 0 ) { 
+    myCharge = tab->getParticleData(myId)->charge();
+    myMass   = tab->getParticleData(myId)->mass();
+  }
 }
 
 void RawParticle::setID(const std::string name) {
