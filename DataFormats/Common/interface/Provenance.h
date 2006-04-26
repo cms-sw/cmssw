@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.2 2006/04/12 19:20:54 wmtan Exp $
+$Id: Provenance.h,v 1.3 2006/04/26 16:06:00 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 
@@ -39,10 +39,17 @@ namespace edm {
     std::string className() const {return product.className();}
     std::string moduleLabel() const {return product.moduleLabel();}
     std::string moduleName() const {return product.moduleName();}
+    PassID passID() const {return product.passID();}
     std::string processName() const {return product.processName();}
+    ProductID productID() const {return product.productID();}
     std::string productInstanceName() const {return product.productInstanceName();}
     std::string productType() const {return product.productType();}
     ParameterSetID psetID() const {return product.psetID();}
+    VersionNumber versionNumber() const {return product.versionNumber();}
+
+    ConditionsID conditionsID() const {return event.cid;}
+    BranchEntryDescription::CreatorStatus creatorStatus() const {return event.status;}
+    std::vector<ProductID> parents() const {return event.parents;}
 
     void write(std::ostream& os) const;
   };
