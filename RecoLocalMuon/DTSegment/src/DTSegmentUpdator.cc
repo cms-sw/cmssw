@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/19 18:00:01 $
- * $Revision: 1.9 $
+ * $Date: 2006/04/20 17:58:30 $
+ * $Revision: 1.10 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -127,7 +127,6 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg) {
     mat[2][2]=segPhi->parametersError()[1][1]; //sigma (x)
     
     seg->setCovMatrix(mat);
-    //RB:FIXME!!!!
     seg->setCovMatrixForZed(posZInCh);
 
   }
@@ -216,9 +215,6 @@ void DTSegmentUpdator::fit(DTRecSegment2D* seg) {
   for (vector<DTRecHit1D>::const_iterator hit=hits.begin();
        hit!=hits.end(); ++hit) {
 
-    // TODO move from hit frame to SL frame
-    // RB: is my transformation right? 
-
     // I have to get the hits position (the hit is in the layer rf) in SL frame...
     GlobalPoint glbPos = ( theGeom->layer( hit->wireId().layerId() ) )->toGlobal(hit->localPosition());
     LocalPoint pos = ( theGeom->idToDet(seg->geographicalId()) )->toLocal(glbPos);
@@ -296,8 +292,6 @@ void DTSegmentUpdator::fit(const vector<float>& x,
 }
 
 void DTSegmentUpdator::updateHits(DTRecSegment2D* seg) {
-
-  //FIXME, RB: put a dynamic cast?
   GlobalPoint pos = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localPosition());
   GlobalVector dir = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localDirection());
   updateHits(seg, pos, dir);
@@ -313,7 +307,6 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
   LocalPoint segPosAtLayer=segPos+segDir*segPos.z()/cos(segDir.theta());
   const float angle = atan(segDir.x()/-segDir.z());
 
-
   // it is not necessary to have DTRecHit1D* to modify the obj in the container
   // but I have to be carefully, since I cannot make a copy before the iteration!
 
@@ -322,17 +315,6 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
 
   for (vector<DTRecHit1D>::iterator hit= toBeUpdatedRecHits.begin(); 
        hit!=toBeUpdatedRecHits.end(); ++hit) {
-    // LocalPoint leftPoint;
-    // LocalPoint rightPoint;
-    // LocalError error;
-    // TODO needed?
-    // TODO How do I get a DTDigi (or a drift time) from a DTRecHit1D???
-    // build a DTDigi on the fly just to please the algo
-    // DetUnit* du=(*hit)->det().detUnits().front();
-    // DTDigi::ChannelType channel = (*hit)->channels().front();
-    // int countTDC=du->readout().channelAdc(channel);
-    // DTDigi digi(channel,countTDC);
-    //    DTDigi digi;
 
     const DTLayer* layer = theGeom->layer( hit->wireId().layerId() );
 
@@ -349,9 +331,6 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
       
       LocalPoint hitPos(hit->localPosition().x(),+segPosAtLayer.y(),0.);
       
-      //GlobalPoint gpos=theGeom.idToDet(hit->id())->toGlobal(hitPos);
-      
-      //FIXME,RB: is it right?
       GlobalPoint glbpos= theGeom->layer( hit->wireId().layerId() )->toGlobal(hitPos);
 
       ok = theAlgo->compute(layer,
@@ -363,16 +342,7 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
     }
 
     if (ok) {
-
       updatedRecHits.push_back(newHit1D);
-      //      (*hit) = newHit1D;
-
-      // RB,FIXME. was
-      //      if (hit->lrSide()==DTEnums::Left ) hit->setPosition(leftPoint);
-      // else if (hit->lrSide()==DTEnums::Right ) hit->setPosition(rightPoint);
-      //   hit->setError(error);
-      // is my line right?
-
     } else {
       LogError("DTSegmentUpdator")<<"DTSegmentUpdator::updateHits failed update" << endl;
       throw cms::Exception("DTSegmentUpdator")<<"updateHits failed update"<<endl;

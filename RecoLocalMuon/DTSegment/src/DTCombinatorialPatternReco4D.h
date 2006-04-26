@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 4d segment in DT using a combinatorial approach
  *  
- * $Date: 2006/04/21 14:25:38 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/21 16:01:05 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -54,9 +54,10 @@ class DTCombinatorialPatternReco4D : public DTRecSegment4DBaseAlgo {
   virtual std::string algoName() const { return theAlgoName; }
 
   virtual void setES(const edm::EventSetup& setup);
-  virtual void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits, const DTChamberId &chId);
-  virtual void setDTRecSegment2DContainer(edm::Handle<DTRecSegment2DCollection> all2DSegments,const DTChamberId & chId);
-  
+  virtual void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits);
+  virtual void setDTRecSegment2DContainer(edm::Handle<DTRecSegment2DCollection> all2DSegments);
+  virtual void setChamber(const DTChamberId &chId);
+
  protected:
 
  private:
@@ -78,9 +79,14 @@ class DTCombinatorialPatternReco4D : public DTRecSegment4DBaseAlgo {
   DTSegmentUpdator *theUpdator;
 
   const DTChamber *theChamber;
+
+  //the input type
+  bool allDTRecHits;
+
   //  std::vector<DTRecHit1D> the1DPhiHits;
   std::vector<DTRecSegment2D> theSegments2DTheta; 
   std::vector<DTRecHit1DPair> theHitsFromPhi1;
+  std::vector<DTRecHit1DPair> theHitsFromTheta;
   std::vector<DTRecHit1DPair> theHitsFromPhi2;
 };
 #endif

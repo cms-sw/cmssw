@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/21 14:25:38 $
- * $Revision: 1.7 $
+ * $Date: 2006/04/21 16:01:05 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -68,12 +68,6 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
     result.push_back(segment);
     delete *(cand++); // delete the candidate!
   }
-  // vector<DTRecHit1D> hits;
-  // for (vector<DTRecHit1DPair>::const_iterator pair=pairs.begin();
-  //      pair!=pairs.end(); ++pair) {
-  //   hits.push_back(*(*pair).componentRecHit(DTEnums::Right));
-  // }
-  // DTRecSegment2D*  seg = new DTRecSegment2D(sl->id(), hits);
   return result;
 }
 
@@ -92,8 +86,6 @@ DTCombinatorialPatternReco::initHits(const DTSuperLayer* sl,
        hit!=hits.end(); ++hit) {
     result.push_back(new DTHitPairForFit(*hit, *sl, theDTGeometry));
   }
-  //TODO needed??
-  //sort(theHits.begin(),theHits.end(), pHitSort());
   return result;
 }
 
@@ -104,7 +96,7 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
   typedef vector<DTHitPairForFit*> hitCont;
   typedef hitCont::const_iterator  hitIter;
   vector<DTSegmentCand*> result;
-
+  
   if(debug) {
     cout << "buildSegments: " << sl->id() << " nHits " << hits.size() << endl;
     for (vector<DTHitPairForFit*>::const_iterator hit=hits.begin();
@@ -116,7 +108,7 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
   // building could lead to infinite memory usage...
   if (hits.size() > theMaxAllowedHits ) {
     if(debug) {
-      cout << "Warning: this chamber " << sl->id() << " has too many hits : "
+      cout << "Warning: this SuperLayer " << sl->id() << " has too many hits : "
         << hits.size() << " max allowed is " << theMaxAllowedHits << endl;
       cout << "Skipping segment reconstruction... " << endl;
     }
@@ -147,11 +139,9 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
       for (int firstLR=0; firstLR<2; ++firstLR) {
         for (int lastLR=0; lastLR<2; ++lastLR) {
 	  // TODO move the global transformation in the DTHitPairForFit class
-	  // when it will be moved I will able to remove the sl from the input parameter and
-	  // use this function for the super-Phi segments.
+	  // when it will be moved I will able to remove the sl from the input parameter
 	  GlobalPoint gposFirst=sl->toGlobal( (*firstHit)->localPosition(codes[firstLR]) );
 	  GlobalPoint gposLast= sl->toGlobal( (*lastHit)->localPosition(codes[lastLR]) );
-	  
 	  // was:
           // const GeomDet* firstDet=dtGeom.idToDet((*firstHit)->id());
 	  // const GeomDet* lastDet=dtGeom.idToDet((*lastHit)->id());

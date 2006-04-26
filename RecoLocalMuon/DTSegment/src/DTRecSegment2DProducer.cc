@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/18 16:24:25 $
- * $Revision: 1.5 $
+ * $Date: 2006/04/19 17:39:12 $
+ * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -11,28 +11,28 @@
 
 /* Collaborating Class Header */
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 using namespace edm;
+
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
-#include "RecoLocalMuon/DTSegment/src/DTRecSegment2DAlgoFactory.h"
-
 #include "DataFormats/MuonDetId/interface/DTDetIdAccessor.h"
+
+#include "RecoLocalMuon/DTSegment/src/DTRecSegment2DAlgoFactory.h"
 
 /* C++ Headers */
 #include <string>
 using namespace std;
 
 /* ====================================================================== */
-// FIXME
-bool DTRecSegment2DProducer::debug = false;
 
 /// Constructor
 DTRecSegment2DProducer::DTRecSegment2DProducer(const edm::ParameterSet& pset) {
@@ -88,40 +88,27 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
     if (SLId==oldSlId) continue; // I'm on the same SL as before
     oldSlId = SLId;
 
-    cout << SLId << endl;
+    if(debug) cout <<"Reconstructing the 2D segments in "<< SLId << endl;
 
-    // // Get the GeomDet from the setup
-    // const DTLayer* layer = dtGeom->layer(layerId);
     const DTSuperLayer* sl = dtGeom->superLayer(SLId);
-    cout << sl->id() << endl;
 
-    // // Get the iterators over the digis associated with this LayerId
-    // const DTRecHitCollection::Range& range = (*dtLayerIt).second;
-    
     // Get all the rec hit in the same superLayer in which layerId relies 
     DTRecHitCollection::range range =
       allHits->get(layerId, DTSuperLayerIdComparator());
     //FIXME: maybe I can use get(superLayerId) instead of the previous one
 
-    
-    // Loop over all digis in the given range
+    // Fill the vector with the 1D RecHit
     vector<DTRecHit1DPair> pairs(range.first,range.second);
-    cout << "pairs " << pairs.size() << endl;
 
-    // vector<DTRecHit1D> hits;
-    // for (vector<DTRecHit1DPair>::const_iterator pair=pairs.begin();
-    //      pair!=pairs.end(); ++pair) {
-    //   hits.push_back(*(*pair).componentRecHit(DTEnums::Right));
-    // }
+    if(debug) cout << "Number of 1D-RecHit pairs " << pairs.size() << endl;
 
-    cout << "Start Reco " << pairs.size() << endl;
+    cout << "Start the 2D-segments Reco "<< endl;
     OwnVector<DTRecSegment2D> segs = theAlgo->reconstruct(sl, pairs);
-    cout << "Get segments " << segs.size() << endl;
+    cout << "Number of Reconstructed segments: " << segs.size() << endl;
 
-    if (segs.size() >0 )
+    if (segs.size() > 0 )
       segments->put(SLId, segs.begin(),segs.end());
   }
-
   event.put(segments);
 }
 

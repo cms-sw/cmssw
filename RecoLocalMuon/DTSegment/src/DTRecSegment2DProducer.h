@@ -5,8 +5,8 @@
  *
  * Producer for DT segment in one projection.
  *  
- * $Date: 2006/04/18 16:24:25 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/20 07:45:24 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -48,7 +48,7 @@ class DTRecSegment2DProducer : public edm::EDProducer {
 
  private:
   // Switch on verbosity
-  static bool debug;
+  bool debug;
 
   // The 2D-segments reconstruction algorithm
   DTRecSegment2DBaseAlgo* theAlgo;

@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/21 16:01:05 $
- * $Revision: 1.5 $
+ * $Date: 2006/04/26 09:55:08 $
+ * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -37,18 +37,22 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
   
   // the updator
   theUpdator = new DTSegmentUpdator(pset);
-  
+
+  // the input type. 
+  // If true the instructions in setDTRecSegment2DContainer will be schipped and the 
+  // theta segment will be recomputed from the 1D rechits
+  // If false the theta segment will be taken from the Event. Caveat: in this case the
+  // event must contain the 2D segments!
+  allDTRecHits = pset.getParameter<bool>("AllDTRecHits");
+ 
   // Get the concrete 2D-segments reconstruction algo from the factory
-
   // For the 2D reco I use this reconstructor!
-  
   the2DAlgo = new DTCombinatorialPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
-    
-//   string theReco2DAlgoName = pset.getParameter<string>("Reco2DAlgoName");
-//   cout << "the Reco2D AlgoName is " << theReco2DAlgoName << endl;
-//   the2DAlgo = DTRecSegment2DAlgoFactory::get()->create(theReco2DAlgoName,
-// 						       pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
-
+  
+  //   string theReco2DAlgoName = pset.getParameter<string>("Reco2DAlgoName");
+  //   cout << "the Reco2D AlgoName is " << theReco2DAlgoName << endl;
+  //   the2DAlgo = DTRecSegment2DAlgoFactory::get()->create(theReco2DAlgoName,
+  // 						       pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
 }
 
 void DTCombinatorialPatternReco4D::setES(const EventSetup& setup){
@@ -57,39 +61,59 @@ void DTCombinatorialPatternReco4D::setES(const EventSetup& setup){
   theUpdator->setES(setup);
 }
 
-void DTCombinatorialPatternReco4D::setDTRecHit1DContainer(Handle<DTRecHitCollection> all1DHits, const DTChamberId &chId){
+void DTCombinatorialPatternReco4D::setChamber(const DTChamberId &chId){
+  // Set the chamber
+  theChamber = theDTGeometry->chamber(chId); 
+}
+
+void DTCombinatorialPatternReco4D::setDTRecHit1DContainer(Handle<DTRecHitCollection> all1DHits){
+  theHitsFromPhi1.clear();
+  theHitsFromPhi2.clear();
+  theHitsFromTheta.clear();
 
   // FIXME!!!
-  DTRecHitCollection::range rangeHitsFromPhi1 = all1DHits->get(DTLayerId(chId,1,1), DTSuperLayerIdComparator());
-  DTRecHitCollection::range rangeHitsFromPhi2 = all1DHits->get(DTLayerId(chId,3,1), DTSuperLayerIdComparator());
+  DTRecHitCollection::range rangeHitsFromPhi1 = all1DHits->get(DTLayerId(theChamber->id(),1,1), DTSuperLayerIdComparator());
+  DTRecHitCollection::range rangeHitsFromPhi2 = all1DHits->get(DTLayerId(theChamber->id(),3,1), DTSuperLayerIdComparator());
   //
 
   vector<DTRecHit1DPair> hitsFromPhi1(rangeHitsFromPhi1.first,rangeHitsFromPhi1.second);
   vector<DTRecHit1DPair> hitsFromPhi2(rangeHitsFromPhi2.first,rangeHitsFromPhi2.second);
   if(debug)
-    cout<< "Number of DTRecHit1DPair in the SL 1 (Phi 1): " << hitsFromPhi1.size()
-	<< "Number of DTRecHit1DPair in the SL 3 (Phi 2): " << hitsFromPhi2.size();
+    cout<< "Number of DTRecHit1DPair in the SL 1 (Phi 1): " << hitsFromPhi1.size()<<endl
+	<< "Number of DTRecHit1DPair in the SL 3 (Phi 2): " << hitsFromPhi2.size()<<endl;
   
   theHitsFromPhi1 = hitsFromPhi1;
   theHitsFromPhi2 = hitsFromPhi2;
+
+  if(allDTRecHits){
+    // FIXME!!!
+    DTRecHitCollection::range rangeHitsFromTheta = all1DHits->get(DTLayerId(theChamber->id(),2,1), DTSuperLayerIdComparator());
+    //
+    
+    vector<DTRecHit1DPair> hitsFromTheta(rangeHitsFromTheta.first,rangeHitsFromTheta.second);
+    if(debug)
+      cout<< "Number of DTRecHit1DPair in the SL 2 (Theta): " << hitsFromTheta.size()<<endl;
+    theHitsFromTheta = hitsFromTheta;
+  }
+
 }
 
-void DTCombinatorialPatternReco4D::setDTRecSegment2DContainer(Handle<DTRecSegment2DCollection> all2DSegments,const DTChamberId & chId){
-  
-  // Get the chamber
-  //  const DTChamber *chamber = theDTGeometry->chamber(chId);
+void DTCombinatorialPatternReco4D::setDTRecSegment2DContainer(Handle<DTRecSegment2DCollection> all2DSegments){
+  theSegments2DTheta.clear();
 
-  //Extract the DTRecSegment2DCollection range for the theta SL
-  DTRecSegment2DCollection::range rangeTheta = all2DSegments->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,2)));
+  if(!allDTRecHits){
+
+    //Extract the DTRecSegment2DCollection range for the theta SL
+    DTRecSegment2DCollection::range rangeTheta = all2DSegments->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(theChamber->id(),2)));
     
-  // Fill the DTRecSegment2D container for the theta SL
-  vector<DTRecSegment2D> segments2DTheta(rangeTheta.first,rangeTheta.second);
-  
-  if(debug)
-    cout << "Number of 2D-segments in the second SL (Theta)" << segments2DTheta.size() << endl;
-  
-  theChamber = theDTGeometry->chamber(chId); 
-  theSegments2DTheta = segments2DTheta;
+    // Fill the DTRecSegment2D container for the theta SL
+    vector<DTRecSegment2D> segments2DTheta(rangeTheta.first,rangeTheta.second);
+    
+    if(debug)
+      cout << "Number of 2D-segments in the second SL (Theta)" << segments2DTheta.size() << endl;
+    theSegments2DTheta = segments2DTheta;
+  }
+
 }
 
   
@@ -100,15 +124,24 @@ DTCombinatorialPatternReco4D::reconstruct(){
   
   if (debug) cout << "Segments in " << theChamber->id() << endl;
 
-  
-  // FIXME!! It isn't in the abstract interface!!
-  //vector<DTSegmentCand*> resultPhi;
   vector<DTSegmentCand*> resultPhi = buildPhiSuperSegmentsCandidates();
   
   if (debug) cout << "There are " << resultPhi.size() << " Phi cand" << endl;
   
+  if (allDTRecHits){
+    // take the theta SL of this chamber
+    const DTSuperLayer* sl = theChamber->superLayer(2);
+    // sl points to 0 if the theta SL was not found
+    if(sl){
+      // reconstruct the theta segments
+      OwnVector<DTRecSegment2D> thetaSegs = the2DAlgo->reconstruct(sl, theHitsFromTheta);
+      vector<DTRecSegment2D> segments2DTheta(thetaSegs.begin(),thetaSegs.end());
+      theSegments2DTheta = segments2DTheta;
+    }
+  }
+  
   bool hasZed=false;
-
+  
   // has this chamber the Z-superlayer?
   if (theSegments2DTheta.size()){
     hasZed = theSegments2DTheta.size()>0;

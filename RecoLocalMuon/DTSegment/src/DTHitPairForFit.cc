@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/18 16:24:25 $
- * $Revision: 1.5 $
+ * $Date: 2006/04/21 16:01:05 $
+ * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -27,7 +27,6 @@ DTHitPairForFit::DTHitPairForFit(const DTRecHit1DPair& pair,
   theDigiTime = pair.digiTime();
   
   const DTLayer* layer = dtGeom->layer(theWireId.layerId());
-  //  const DTLayer* layer = dynamic_cast< const DTLayer* >(dtGeom->(theWireId.layerId()));
 
   // transform the Local position in Layer-rf in a SL local position
   theLeftPos =
@@ -39,7 +38,7 @@ DTHitPairForFit::DTHitPairForFit(const DTRecHit1DPair& pair,
   theError = pair.componentRecHit(DTEnums::Left)->localPositionError();
   // theError =
   //   layer->surface().toLocal(sl.surface().toGlobal(pair.componentRecHit(DTEnums::Left)->localPositionError()));
-
+  
 }
 
 /// Destructor
@@ -54,12 +53,6 @@ LocalPoint DTHitPairForFit::localPosition(DTEnums::DTCellSide s) const {
     throw cms::Exception("DTHitPairForFit")<<" localPosition called with undef LR code"<<endl;
     return LocalPoint();
   }
-}
-
-GlobalPoint DTHitPairForFit::globalPosition(DTEnums::DTCellSide) const {
-  // LocalPoint pos = localPosition(s);
-  //FIXME!!!
-  return GlobalPoint();
 }
 
 pair<bool,bool> 

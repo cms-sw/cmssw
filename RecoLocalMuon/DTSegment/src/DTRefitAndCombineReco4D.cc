@@ -3,8 +3,8 @@
  * Algo for reconstructing 4d segment in DT refitting the 2D phi SL hits and combining
  * the results with the theta view.
  *  
- * $Date: 2006/04/20 17:58:53 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/21 14:25:38 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -56,32 +56,40 @@ void DTRefitAndCombineReco4D::setES(const EventSetup& setup){
   //  the2DAlgo->setES(setup);
 }
 
+void DTRefitAndCombineReco4D::setChamber(const DTChamberId &chId){
+  // Set the chamber
+  theChamber = theDTGeometry->chamber(chId); 
+}
 
 void
-DTRefitAndCombineReco4D::setDTRecSegment2DContainer(Handle<DTRecSegment2DCollection> allHits, const DTChamberId& chId) {
+DTRefitAndCombineReco4D::setDTRecSegment2DContainer(Handle<DTRecSegment2DCollection> allHits) {
+  theSegments2DPhi1.clear();
+  theSegments2DTheta.clear();
+  theSegments2DPhi2.clear();
 
-    // Get the chamber
+  // Get the chamber
   //    const DTChamber *chamber = theDTGeometry->chamber(chId);
-
-    //Extract the DTRecSegment2DCollection ranges for the three different SL
-    DTRecSegment2DCollection::range rangePhi1   = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,1)));
-    DTRecSegment2DCollection::range rangeTheta = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,2)));
-    DTRecSegment2DCollection::range rangePhi2   = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,3)));
+  
+  const DTChamberId chId =  theChamber->id();
+  
+  //Extract the DTRecSegment2DCollection ranges for the three different SL
+  DTRecSegment2DCollection::range rangePhi1   = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,1)));
+  DTRecSegment2DCollection::range rangeTheta = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,2)));
+  DTRecSegment2DCollection::range rangePhi2   = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,3)));
     
-    // Fill the DTRecSegment2D containers for the three different SL
-    vector<DTRecSegment2D> segments2DPhi1(rangePhi1.first,rangePhi1.second);
-    vector<DTRecSegment2D> segments2DTheta(rangeTheta.first,rangeTheta.second);
-    vector<DTRecSegment2D> segments2DPhi2(rangePhi2.first,rangePhi2.second);
+  // Fill the DTRecSegment2D containers for the three different SL
+  vector<DTRecSegment2D> segments2DPhi1(rangePhi1.first,rangePhi1.second);
+  vector<DTRecSegment2D> segments2DTheta(rangeTheta.first,rangeTheta.second);
+  vector<DTRecSegment2D> segments2DPhi2(rangePhi2.first,rangePhi2.second);
 
-    if(debug)
-      cout << "Number of 2D-segments in the first  SL (Phi)" << segments2DPhi1.size() << endl
-	   << "Number of 2D-segments in the second SL (Theta)" << segments2DTheta.size() << endl
-	   << "Number of 2D-segments in the third  SL (Phi)" << segments2DPhi2.size() << endl;
+  if(debug)
+    cout << "Number of 2D-segments in the first  SL (Phi)" << segments2DPhi1.size() << endl
+	 << "Number of 2D-segments in the second SL (Theta)" << segments2DTheta.size() << endl
+	 << "Number of 2D-segments in the third  SL (Phi)" << segments2DPhi2.size() << endl;
     
-    theChamber = theDTGeometry->chamber(chId); 
-    theSegments2DPhi1 = segments2DPhi1;
-    theSegments2DTheta = segments2DTheta;
-    theSegments2DPhi2 = segments2DPhi2;
+  theSegments2DPhi1 = segments2DPhi1;
+  theSegments2DTheta = segments2DTheta;
+  theSegments2DPhi2 = segments2DPhi2;
 }
 
 
@@ -134,7 +142,6 @@ DTRefitAndCombineReco4D::reconstruct(){
         }
       } else {
         // Only phi
-	// FIXME:implement this constructor
         DTRecSegment4D* newSeg = new DTRecSegment4D(*phi);
         if (debug) cout << "Created a 4D segment using only the 2D Phi segment" << endl;
 	result.push_back(newSeg);
@@ -198,6 +205,7 @@ vector<DTRecSegment2DPhi> DTRefitAndCombineReco4D::refitSuperSegments(){
     }
   }
   // TODO clean the container!!!
+  // there are some possible repetition!
   // maybe using the cleaner, previous a conversion from DTRecSegment2DPhi to DTSegmentCandidate
   return result;
 }

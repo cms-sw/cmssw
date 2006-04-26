@@ -1,8 +1,8 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2006/04/19 14:59:33 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/21 14:25:38 $
+ *  $Revision: 1.2 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -87,20 +87,21 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
     if (chId==oldChId) continue; // I'm on the same Chamber as before
     oldChId = chId;
     if(debug) cout << "ChamberId: "<< chId << endl;
+    the4DAlgo->setChamber(chId);
 
     cout<<"Take the DTRecHits1D in the Phi-SLs and set them in the reconstructor"<<endl;
 
-    the4DAlgo->setDTRecHit1DContainer(all1DHits,chId);
+    the4DAlgo->setDTRecHit1DContainer(all1DHits);
 
     cout<<"Take the DTRecSegments2D and set them in the reconstructor"<<endl;
 
-    the4DAlgo->setDTRecSegment2DContainer(all2DSegments,chId);
+    the4DAlgo->setDTRecSegment2DContainer(all2DSegments);
 
     cout << "Start 4D-Segments Reco " << endl;
     
     OwnVector<DTRecSegment4D> segments4D = the4DAlgo->reconstruct();
     
-    cout << "Number of reconstructed 4D-segments" << segments4D.size() << endl;
+    cout << "Number of reconstructed 4D-segments " << segments4D.size() << endl;
 
     if (segments4D.size() > 0 )
       // convert the OwnVector into a Collection
