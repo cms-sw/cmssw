@@ -1,12 +1,11 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelErrorParametrization.h"
 
-//#include "Utilities/Configuration/interface/Architecture.h"
-//#include "Utilities/UI/interface/SimpleConfigurable.h"
 
 //#include "Utilities/GenUtil/interface/ioutils.h"
-//#include "Utilities/GenUtil/interface/FileInPath.h"
 //#include "CommonDet/DetUtilities/interface/DetExceptions.h"
 
+//#include "Utilities/General/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -536,29 +535,28 @@ void PixelErrorParametrization::readF( P3D& vec3D, const string& prefix,
 //-----------------------------------------------------------------------------
 vector<float> PixelErrorParametrization::readVec( const string& name) 
 {
-#if 0
-  static string path(getenv("ORCA_DATA_PATH"));
-  string partialName = "TrackerData/TkPixelClusterizer/vectors/";
+  string partialName = "RecoLocalTracker/SiPixelRecHits/data/";
   if (theParametrizationType == "cmsim") {
     partialName += theParametrizationType + "/";
   }
-  // string fullName = "TrackerData/TkPixelClusterizer/vectors/" + name;
   string fullName =  partialName + name;
-  FileInPath f1( path, fullName);
-  if ( f1() == 0) {
-    cout << "File " << fullName << " not found in " << path << endl;
-    throw DetLogicError("TkPixelClusterizer parameter file " + fullName + 
-			" not found");
-  } else {
-    cout << "Reading " << f1.name() << endl;
+  edm::FileInPath f1( fullName );
+  if ( ! f1.isLocal() ) {
+    LogDebug("PixelCPEParmError") << 
+      "File " << f1.fullPath() << " not found in " << fullName << endl;
+    assert(0);        // &&& throw a real exception!
+    //throw DetLogicError("TkPixelClusterizer parameter file " + fullName + 
+    // " not found");
   }
-  ifstream& invec( *f1());
-#endif
+  else {
+    cout << "Reading " << f1.fullPath() << endl;
+  }
+  ifstream invec( (f1.fullPath()).c_str() );
+
   vector<float> result;
-#if 0
   copy(istream_iterator<float>(invec), 
-       istream_iterator<float>(), back_inserter(result));
-#endif
+	    istream_iterator<float>(), back_inserter(result));
+
   return result;
 }
 
