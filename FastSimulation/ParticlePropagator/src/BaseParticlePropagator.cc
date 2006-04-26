@@ -320,7 +320,7 @@ BaseParticlePropagator::propagateToEcal(bool first) {
   //
   // First propagate to global barrel / endcap cylinder 
   //  setPropagationConditions(1290. , 3045 , first);
-  setPropagationConditions(1290. , 3031.6 , first);
+  setPropagationConditions(129.0 , 303.16 , first);
   return propagate();
 
 }
@@ -334,11 +334,11 @@ BaseParticlePropagator::propagateToPreshowerLayer1(bool first) {
   //
   // First propagate to global barrel / endcap cylinder 
   //  setPropagationConditions(1290., 3045 , first);
-  setPropagationConditions(1290., 3031.6 , first);
+  setPropagationConditions(129.0, 303.16 , first);
   bool done = propagate();
 
   // Check that were are on the Layer 1 
-  if ( done && (vertex().perp() > 1250. || vertex().perp() < 450.) ) 
+  if ( done && (vertex().perp() > 125.0 || vertex().perp() < 45.0) ) 
     success = 0;
   
   return done;
@@ -353,11 +353,11 @@ BaseParticlePropagator::propagateToPreshowerLayer2(bool first) {
   //
   // First propagate to global barrel / endcap cylinder 
   //  setPropagationConditions(1290. , 3090 , first);
-  setPropagationConditions(1290. , 3071.3 , first);
+  setPropagationConditions(129.0 , 307.13 , first);
   bool done = propagate();
 
   // Check that we are on Layer 2 
-  if ( done && (vertex().perp() > 1250. || vertex().perp() < 450. ))
+  if ( done && (vertex().perp() > 125.0 || vertex().perp() < 45.0 ))
     success = 0;
 
   return done;
@@ -372,7 +372,7 @@ BaseParticlePropagator::propagateToEcalEntrance(bool first) {
   // Geometry taken from CMS ECAL TDR
   //
   // First propagate to global barrel / endcap cylinder 
-  setPropagationConditions(1290. , 3170.,first);
+  setPropagationConditions(129.0 , 317.0,first);
   bool done = propagate();
 
   // Where are we ?
@@ -380,7 +380,7 @@ BaseParticlePropagator::propagateToEcalEntrance(bool first) {
 
   // Go to endcap cylinder in the "barrel cut corner" 
   if ( done && eta > 1.479 && success == 1 ) {
-    setPropagationConditions(1711. , 3170., first);
+    setPropagationConditions(171.1 , 317.0, first);
     done = propagate();
   }
 
@@ -399,7 +399,7 @@ BaseParticlePropagator::propagateToHcalEntrance(bool first) {
   //
 
   // First propagate to global barrel / endcap cylinder 
-  setPropagationConditions(1930. , 3880., first);
+  setPropagationConditions(193.0 , 388.0, first);
   propDir = 0;
   bool done = propagate();
   propDir = 1;
@@ -417,7 +417,7 @@ BaseParticlePropagator::propagateToVFcalEntrance(bool first) {
   // TODO: include proper geometry
   // Geometry taken from DAQ TDR Chapter 13
 
-  setPropagationConditions(2000. , 11100., first);
+  setPropagationConditions(200.0 , 1110.0, first);
   propDir = 0;
   bool done = propagate();
   propDir = 1;
@@ -438,7 +438,7 @@ BaseParticlePropagator::propagateToHcalExit(bool first) {
   //
 
   // Approximate it to a single cylinder as it is not that crucial.
-  setPropagationConditions(2850. , 5600., first);
+  setPropagationConditions(285.0 , 560.0, first);
   //  this->rawPart().setCharge(0.0); ?? Shower Propagation ??
   propDir = 0;
   bool done = propagate();
@@ -493,8 +493,8 @@ BaseParticlePropagator::helixRadius() const {
   // It signs the rotation of the (charged) particle around the z axis: 
   // Positive means anti-clockwise, negative means clockwise rotation.
   //
-  // The radius is returned in mm to match the units in RawParticle.
-  return charge() == 0 ? 0.0 : - perp() / ( c_light * 1e-6 * bField * charge() );
+  // The radius is returned in cm to match the units in RawParticle.
+  return charge() == 0 ? 0.0 : - perp() / ( c_light * 1e-5 * bField * charge() );
 }
 
 double 
@@ -541,18 +541,18 @@ BaseParticlePropagator::momentum() const {
 
 bool
 BaseParticlePropagator::inside() const {
-  return (position().perp()<rCyl-0.0001 && fabs(z())<zCyl-0.0001);}
+  return (position().perp()<rCyl-0.00001 && fabs(z())<zCyl-0.00001);}
 
 bool BaseParticlePropagator::onSurface() const {
   return ( onBarrel() || onEndcap() ); 
 }
 
 bool BaseParticlePropagator::onBarrel() const {
-  return ( fabs(position().perp()-rCyl) < 0.0001 && fabs(z()) <= zCyl );
+  return ( fabs(position().perp()-rCyl) < 0.00001 && fabs(z()) <= zCyl );
 }
 
 bool BaseParticlePropagator::onEndcap() const {
-  return ( fabs(fabs(z())-zCyl) < 0.0001 && position().perp() <= rCyl ); 
+  return ( fabs(fabs(z())-zCyl) < 0.00001 && position().perp() <= rCyl ); 
 }
 
 

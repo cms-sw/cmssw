@@ -41,16 +41,16 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
   double zed = fabs(position.z());
   double eta = fabs(position.eta());
   // Ecal entrance
-  bool ecalAcc = ( (radius<1290.1 && zed<3170.1) ||
-		(eta>1.479 && eta<1.594 && radius<1711.1 && zed<3170.1) );
+  bool ecalAcc = ( (radius<129.01 && zed<317.01) ||
+		(eta>1.479 && eta<1.594 && radius<171.11 && zed<317.01) );
   // Hcal entrance
-  bool hcalAcc = (radius<2850. && zed<5600.);
+  bool hcalAcc = (radius<285. && zed<560.);
   // The vertex position condition
   bool vertexCut = (hcalAcc && pId == 13) || ecalAcc;
 
   // Cut on kinematic properties
   // Cut on eta if the origin vertex is close to the beam
-  bool etaCut = (p->vertex()-mainVertex).perp()>50. || fabs(p->eta())<=etaMax;
+  bool etaCut = (p->vertex()-mainVertex).perp()>5. || fabs(p->eta())<=etaMax;
   // Cut on the energy of all particles
   bool eneCut = p->e() >= EMin;
   // Cut on the transverse momentum of charged particles

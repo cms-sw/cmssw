@@ -74,9 +74,9 @@ ParticlePropagator::propagated() const {
 
 double
 ParticlePropagator::fieldMap(double xx,double yy, double zz) {
-  // Arguments passed in mm, by the Map needs cm.
+  // Arguments now passed in cm.
   //  return MagneticFieldMap::instance()->inTesla(GlobalPoint(xx/10.,yy/10.,zz/10.)).z();
-  return MagneticFieldMap::instance()->inTeslaZ(GlobalPoint(xx/10.,yy/10.,zz/10.));
+  return MagneticFieldMap::instance()->inTeslaZ(GlobalPoint(xx,yy,zz));
 }
 
 bool
@@ -90,7 +90,7 @@ ParticlePropagator::propagateToBoundSurface(const TrackerLayer& layer) {
   if( disk ) {
     const Surface& surface = layer.surface();
     const BoundDisk & myDisk = dynamic_cast<const BoundDisk&>(surface);
-    innerradius=myDisk.innerRadius()*10.;	  
+    innerradius=myDisk.innerRadius();	  
   }
 
   bool done = propagate();
@@ -116,18 +116,18 @@ ParticlePropagator::setPropagationConditions(const TrackerLayer& layer,
     const BoundDisk & myDisk = dynamic_cast<const BoundDisk&>(surface);
     // ParticlePropagator works in mm, whereas the detector geometry is in cm
     BaseParticlePropagator::setPropagationConditions(
-                                  myDisk.outerRadius()*10.,
-				  fabs(myDisk.position().z())*10.,
+                                  myDisk.outerRadius(),
+				  fabs(myDisk.position().z()),
 				  firstLoop);       
 
   // ... or if it is a cylinder barrel 
   } else {
 
     const BoundCylinder & myCylinder = dynamic_cast<const BoundCylinder &>(surface);
-    // ParticlePropagator works in mm, whereas the detector geometry is in cm
+    // ParticlePropagator works now in cm
     BaseParticlePropagator::setPropagationConditions(
-					 myCylinder.radius()*10.,
-					 myCylinder.bounds().length()/2.*10.,
+					 myCylinder.radius(),
+					 myCylinder.bounds().length()/2.,
 					 firstLoop);
   }
 

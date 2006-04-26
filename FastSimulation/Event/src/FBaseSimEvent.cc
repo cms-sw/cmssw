@@ -137,7 +137,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   cout << smearedVertex << endl;
   */
 
-  myFilter->setMainVertex(primaryVertex->position()+smearedVertex);
+  myFilter->setMainVertex(primaryVertex->position()/10.+smearedVertex);
 
   // This is the smeared main vertex
   //  GenVertex* mainVertex = new GenVertex(myFilter.vertex());
@@ -212,7 +212,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
       // Add the vertex to the event and to the various lists
       HepLorentzVector decayVertex = 
-	p->end_vertex()->position() + vertex(mainVertex).position();
+	p->end_vertex()->position()/10. + vertex(mainVertex).position();
       int theVertex = addSimVertex(decayVertex,theTrack);
 
       // And record it for later use 

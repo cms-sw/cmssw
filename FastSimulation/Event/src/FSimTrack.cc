@@ -73,12 +73,12 @@ FSimTrack::notYetToEndVertex(const HepLorentzVector& pos) const {
   // If there is no end vertex, nothing to compare to
   if ( noEndVertex() ) return true;
   // If the particle immediately decays, no need to propagate
-  if ( (endVertex().position()-vertex().position()).vect().mag() < 0.1 )
+  if ( (endVertex().position()-vertex().position()).vect().mag() < 0.01 )
     return false;
   // If the end vertex has a larger radius, not yet there
-  if ( endVertex().position().perp() > pos.perp()+0.0001 ) return true;
+  if ( endVertex().position().perp() > pos.perp()+0.00001 ) return true;
   // If the end vertex has a larger z, not yet there
-  if ( fabs(endVertex().position().z()) > fabs(pos.z())+0.0001 ) return true;
+  if ( fabs(endVertex().position().z()) > fabs(pos.z())+0.00001 ) return true;
   // Otherwise, the end vertex is overtaken already
   return false;
 }
@@ -220,7 +220,7 @@ ostream& operator <<(ostream& o , const FSimTrack& t) {
 
   string name = t.particleInfo()->name();
   HepLorentzVector momentum1 = t.momentum();
-  Hep3Vector vertex1 = t.vertex().position().vect()*0.1;
+  Hep3Vector vertex1 = t.vertex().position().vect();
   int vertexId1 = t.vertex().id();
 
   o.setf(ios::fixed, ios::floatfield);
@@ -243,7 +243,7 @@ ostream& operator <<(ostream& o , const FSimTrack& t) {
     << setw(4) << t.mother().id() << " ";
   
   if ( !t.noEndVertex() ) {
-    HepLorentzVector vertex2 = t.endVertex().position()*0.1;
+    HepLorentzVector vertex2 = t.endVertex().position();
     int vertexId2 = t.endVertex().id();
     
     o << setw(4) << vertexId2 << " "
@@ -258,7 +258,7 @@ ostream& operator <<(ostream& o , const FSimTrack& t) {
 
     if ( t.onLayer1() ) {
 
-      HepLorentzVector vertex2 = t.layer1Entrance().vertex()*0.1;
+      HepLorentzVector vertex2 = t.layer1Entrance().vertex();
       
       o << setw(4) << -t.onLayer1() << " " 
 	<< setw(6) << setprecision(2) << vertex2.eta() << " " 
@@ -270,7 +270,7 @@ ostream& operator <<(ostream& o , const FSimTrack& t) {
       
     } else if ( t.onEcal() ) { 
 
-      HepLorentzVector vertex2 = t.ecalEntrance().vertex()*0.1;
+      HepLorentzVector vertex2 = t.ecalEntrance().vertex();
       
       o << setw(4) << -t.onEcal() << " " 
 	<< setw(6) << setprecision(2) << vertex2.eta() << " " 
