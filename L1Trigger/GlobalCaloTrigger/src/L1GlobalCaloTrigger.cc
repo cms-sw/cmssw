@@ -18,7 +18,8 @@ L1GlobalCaloTrigger* L1GlobalCaloTrigger::instance = 0;
 // constructor
 L1GlobalCaloTrigger::L1GlobalCaloTrigger() :
 	theJetLeafCards(6),
-	theElectronSorters(4),
+	theIsoEmSorters(4),
+	theNonIsoEmSorters(4),
 	theWheelJetFpgas(2),
 	theWheelEnergyFpgas(2)
 {
@@ -55,8 +56,14 @@ void L1GlobalCaloTrigger::build() {
     theJetLeafCards[i] = new L1GctJetLeafCard();
   }
   
+  // isolated electrons
   for (int i=0; i<4; i++) {
-    theElectronSorters[i] = new L1GctElectronSorter();
+    theIsoEmSorters[i] = new L1GctElectronSorter(true);
+  }		
+
+  // non-isolated electrons
+  for (int i=0; i<4; i++) {
+    theNonIsoEmSorters[i] = new L1GctElectronSorter(false);
   }		
   
   for (int i=0; i<2; i++) {
@@ -76,11 +83,28 @@ void L1GlobalCaloTrigger::build() {
 // wire up the hardware/algos
 void L1GlobalCaloTrigger::setup() {
 
-  // electron tree
-
-  for (int i=0; i<27; i++) {
-    
+  /// electron sorters
+  //
+  for (unsigned i=0; i<18; i++) {
+    if (i<4) {
+      theIsoEmSorters[0]->setInputSourceCard(0, theSourceCards[i*3]);
+      theNonIsoEmSorters[0]->setInputSourceCard(0, theSourceCards[i*3]);
+    }
+    else if (i<9) {
+      theIsoEmSorters[1]->setInputSourceCard(0, theSourceCards[i*3]);
+      theNonIsoEmSorters[1]->setInputSourceCard(0, theSourceCards[i*3]);
+    }
+    else if (i<13) {
+      theIsoEmSorters[2]->setInputSourceCard(0, theSourceCards[i*3]);
+      theNonIsoEmSorters[2]->setInputSourceCard(0, theSourceCards[i*3]);
+    }
+    else if (i<18) {
+      theIsoEmSorters[3]->setInputSourceCard(0, theSourceCards[i*3]);
+      theNonIsoEmSorters[3]->setInputSourceCard(0, theSourceCards[i*3]);
+    }
   }
+
+
 
 }
 
@@ -118,8 +142,11 @@ void L1GlobalCaloTrigger::process() {
   
   // Electron Sorters
   for (int i=0; i<4; i++) {
-    theElectronSorters[i]->fetchInput();
-    theElectronSorters[i]->process();
+    theIsoEmSorters[i]->fetchInput();
+    theIsoEmSorters[i]->process();
+
+    theNonIsoEmSorters[i]->fetchInput();
+    theNonIsoEmSorters[i]->process();
   }
 
   // Electron Final Stage

@@ -90,17 +90,27 @@ private:
 	void setup();
 
 private:
-
-	// instance of the GCT
+	///
+	/// instance of the GCT
 	static L1GlobalCaloTrigger* instance;
-
-	// pointers to the hardware/algos
+	///
+	/// pointers to the Source Cards
 	vector<L1GctSourceCard*> theSourceCards;
-	vector<L1GctJetLeafCard*> theJetLeafCards;			
-	vector<L1GctElectronSorter*> theElectronSorters;	
+	///
+	/// poitners to the Jet Leaf cards
+	vector<L1GctJetLeafCard*> theJetLeafCards;
+	///
+	/// isolated EM sorters
+	vector<L1GctElectronSorter*> theIsoEmSorters;	
+	///
+	/// non-isolated EM sorters
+	vector<L1GctElectronSorter*> theNonIsoEmSorters;
+	///
+	/// Wheel Card Jet Fpgas	
 	vector<L1GctWheelJetFpga*> theWheelJetFpgas;		
+	///
+	/// Wheel Card Energy Fpgas
 	vector<L1GctWheelEnergyFpga*> theWheelEnergyFpgas;
-
 	///
 	/// central barrel jet find & final sort
 	L1GctJetFinalStage* theJetFinalStage;			
