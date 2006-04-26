@@ -15,7 +15,7 @@ std::pair<float,float> RectangularPixelTopology::pixel(
   float py = p.y();
   float px = p.x();
   
-  if(DEBUG) {
+  if(TP_DEBUG) {
     // This will catch points which are outside the active sensor area.
     // In the digitizer during the early induce_signal phase non valid
     // location are passed here. They are cleaned later.
@@ -35,7 +35,7 @@ std::pair<float,float> RectangularPixelTopology::pixel(
       cout<<" wrong lp x "<<setprecision(7)<<px<<" "<<-m_xoffset<<endl;
       px = -m_xoffset - EPSCM;
     }
-  } // end DEBUG
+  } // end TP_DEBUG
 
   float newybin=(py - m_yoffset)/m_pitchy;
   int iybin = int(newybin);
@@ -47,7 +47,7 @@ std::pair<float,float> RectangularPixelTopology::pixel(
   int numROC = iybin/54;  // 0-7
   
   if (iybin0>53) {
-    if(DEBUG) {
+    if(TP_DEBUG) {
       cout<<" very bad, newbiny "<<iybin0<<setprecision(10)<<endl;
       cout<<py<<" "<<m_yoffset<<" "<<m_pitchy<<" "
 	  <<newybin<<" "<<iybin<<" "<<fractionY<<" "<<iybin0<<" "
@@ -68,7 +68,7 @@ std::pair<float,float> RectangularPixelTopology::pixel(
     iybin0=0;
     fractionY = fractionY/2.;
   } else {
-    if(DEBUG) {
+    if(TP_DEBUG) {
       cout<<" very bad, newbiny "<<newybin<<setprecision(10)<<endl;
       cout<<py<<" "<<m_yoffset<<" "<<m_pitchy<<" "
 	  <<newybin<<" "<<iybin<<" "<<fractionY<<" "
@@ -76,7 +76,7 @@ std::pair<float,float> RectangularPixelTopology::pixel(
     }
   }
   float mpY = float(numROC*52. + iybin0) + fractionY;
-  if(DEBUG && (mpY<0. || mpY>=416.)) {
+  if(TP_DEBUG && (mpY<0. || mpY>=416.)) {
     cout<<" bad pix y "<<setprecision(10)<<mpY<<endl;
     cout<<py<<" "<<m_yoffset<<" "<<m_pitchy<<" "
 	<<newybin<<" "<<iybin<<" "<<fractionY<<" "
@@ -94,7 +94,7 @@ std::pair<float,float> RectangularPixelTopology::pixel(
   // }
 
   if (ixbin>161) {
-    if(DEBUG) {
+    if(TP_DEBUG) {
       cout<<" very bad, newbinx "<<ixbin<<setprecision(10)<<endl;
       cout<<px<<" "<<m_xoffset<<" "<<m_pitchx<<" "
 	  <<newxbin<<" "<<ixbin<<" "<<fractionX<<endl;
@@ -114,7 +114,7 @@ std::pair<float,float> RectangularPixelTopology::pixel(
     ixbin=79;
     fractionX = fractionX/2.;
   } else if (ixbin<0) {   // outside range
-    if(DEBUG) {
+    if(TP_DEBUG) {
       cout<<" very bad, newbinx "<<ixbin<<setprecision(10)<<endl;
       cout<<px<<" "<<m_xoffset<<" "<<m_pitchx<<" "
 	  <<newxbin<<" "<<ixbin<<" "<<fractionX<<endl;
@@ -123,7 +123,7 @@ std::pair<float,float> RectangularPixelTopology::pixel(
   
   float mpX = float(ixbin) + fractionX;
   
-  if(DEBUG && (mpX<0. || mpX>=160.) ) {
+  if(TP_DEBUG && (mpX<0. || mpX>=160.) ) {
     cout<<" bad pix x "<<mpX<<" "<<setprecision(10)<<endl;
     cout<<px<<" "<<m_xoffset<<" "<<m_pitchx<<" "
 	<<newxbin<<" "<<ixbin<<" "<<fractionX<<endl;
@@ -141,7 +141,7 @@ LocalPoint RectangularPixelTopology::localPosition(
   float mpx = mp.x();
 
   // check limits
-  if(DEBUG) {
+  if(TP_DEBUG) {
     if( mpy<0.) { //  
       cout<<" wrong mp y, fix "<<setprecision(7)<<mpy<<" "
 	  <<0<<endl;
@@ -162,7 +162,7 @@ LocalPoint RectangularPixelTopology::localPosition(
 	  <<m_nrows<<endl;
       mpx = float(m_nrows) - EPS; // EPS is a small number
     }
-  } // if DEBUG
+  } // if TP_DEBUG
   
   // Start with Y
   int binoffy = int(mpy);             // truncate to int
@@ -171,7 +171,7 @@ LocalPoint RectangularPixelTopology::localPosition(
   //if(fractionY<0.) cout<<" fractiony m "<<fractionY<<" "<<mpy<<endl;
 
   if (binoffy>415) {   // too large
-    if(DEBUG) { 
+    if(TP_DEBUG) { 
       cout<<" very bad, biny "<<binoffy<<setprecision(10)<<endl;
       cout<<mpy<<" "<<binoffy<<" "
 	  <<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<endl;
@@ -248,7 +248,7 @@ LocalPoint RectangularPixelTopology::localPosition(
     binoffy=binoffy+0;
     local_pitchy = 2 * m_pitchy;
   } else { // too small
-    if(DEBUG) { 
+    if(TP_DEBUG) { 
       cout<<" very bad, biny "<<binoffy<<setprecision(10)<<endl;
       cout<<mpy<<" "<<binoffy<<" "
 	  <<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<endl;
@@ -258,7 +258,7 @@ LocalPoint RectangularPixelTopology::localPosition(
   // The final position in local coordinates 
   float lpY = float(binoffy*m_pitchy) + fractionY*local_pitchy + 
     m_yoffset;
-  if(DEBUG && (lpY<m_yoffset || lpY>(-m_yoffset)) ) {
+  if(TP_DEBUG && (lpY<m_yoffset || lpY>(-m_yoffset)) ) {
     cout<<" bad lp y "<<lpY<<setprecision(10)<<endl; 
     cout<<mpy<<" "<<binoffy<<" "
 	<<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<endl;
@@ -271,7 +271,7 @@ LocalPoint RectangularPixelTopology::localPosition(
   //if(fractionX<0.) cout<<" fractionx m "<<fractionX<<" "<<mpx<<endl;
   
   if (binoffx>159) {   // too large
-    if(DEBUG) { 
+    if(TP_DEBUG) { 
       cout<<" very bad, binx "<<binoffx<<setprecision(10)<<endl;
       cout<<mpx<<" "<<binoffx<<" "
 	  <<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<endl;
@@ -289,7 +289,7 @@ LocalPoint RectangularPixelTopology::localPosition(
     binoffx=binoffx+0;
     
   } else { // too small
-    if(DEBUG) { 
+    if(TP_DEBUG) { 
       cout<<" very bad, binx "<<binoffx<<setprecision(10)<<endl;
       cout<<mpx<<" "<<binoffx<<" "
 	  <<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<endl;
@@ -300,7 +300,7 @@ LocalPoint RectangularPixelTopology::localPosition(
   float lpX = float(binoffx*m_pitchx) + fractionX*local_pitchx + 
     m_xoffset;
   
-  if(DEBUG && (lpX<m_xoffset || lpX>(-m_xoffset)) ) {
+  if(TP_DEBUG && (lpX<m_xoffset || lpX>(-m_xoffset)) ) {
     cout<<" bad lp x "<<lpX<<setprecision(10)<<endl; 
     cout<<mpx<<" "<<binoffx<<" "
 	<<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<endl;

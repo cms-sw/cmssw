@@ -29,7 +29,7 @@ using namespace std;
 namespace {
   const float EPS = 0.001; // accuray in pixel units, so about 0.1 um
   const float EPSCM = 0.00001; // accuray in cm, so about 0.1 um
-  const bool DEBUG = false; // print flag
+  const bool TP_DEBUG = false; // print flag
 }
 
 class RectangularPixelTopology : public PixelTopology {
@@ -56,7 +56,7 @@ public:
     m_yoffset = -(m_ncols + BIG_PIX_PER_ROC_Y*m_ncols/COLS_PER_ROC)/2. * 
       m_pitchy;
 
-    if(DEBUG) cout<<" RectangularPixelTopology: "
+    if(TP_DEBUG) cout<<" RectangularPixelTopology: "
 		  <<m_nrows<<" "<<m_ncols<<" "
 		  <<m_pitchx<<" "<<m_pitchy<<" "<<m_xoffset<<" "<<m_yoffset
 		  <<BIG_PIX_PER_ROC_X<<" "<<BIG_PIX_PER_ROC_Y<<" "
