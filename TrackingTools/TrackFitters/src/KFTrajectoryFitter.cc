@@ -78,9 +78,9 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
     <<"  WITH LocError "<<(firsthit).localPositionError()<<"\n"
     <<"  HIT IS AT Glo "<<(firsthit).globalPosition()<<"\n"
     <<"SURFACE POSITION"<<"\n"
-    <<(firsthit).detUnit()->surface().position()<<"\n"
+    <<(firsthit).det()->surface().position()<<"\n"
     <<"SURFACE ROTATION"<<"\n"
-    <<(firsthit).detUnit()->surface().rotation()<<"\n"
+    <<(firsthit).det()->surface().rotation()<<"\n"
     <<" predTsos !"<<"\n"
     <<predTsos<<"\n"
     <<" currTsos !"<<"\n"
@@ -109,9 +109,9 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       <<"  WITH LocError "<<(*ihit).localPositionError()<<"\n"
       <<"  HIT IS AT Glo "<<(*ihit).globalPosition()<<"\n"
       <<"SURFACE POSITION"<<"\n"
-      <<(*ihit).detUnit()->surface().position()<<"\n"
+      <<(*ihit).det()->surface().position()<<"\n"
       <<"SURFACE ROTATION"<<"\n"
-      <<(*ihit).detUnit()->surface().rotation()<<"\n";
+      <<(*ihit).det()->surface().rotation()<<"\n";
     LogDebug("TrackingTools/TrackFitters") <<" GOING TO examine hit "<<(*ihit).geographicalId().rawId()<<"\n";
     if ((*ihit).geographicalId().subdetId() == StripSubdetector::TIB ) {
       LogDebug("TrackingTools/TrackFitters") <<" I am TIB "<<TIBDetId((*ihit).geographicalId()).layer()<<"\n";
@@ -127,7 +127,7 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 
 
     predTsos = propagator()->propagate(currTsos,
-				       (*ihit).detUnit()->surface());
+				       (*ihit).det()->surface());
 
     if(!predTsos.isValid()) {
       edm::LogError("TrackingTools/TrackFitters") 
@@ -136,7 +136,7 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 	<<"current TSOS: "<<currTsos<< "\n";
       if((*ihit).isValid())
 	edm::LogError("TrackingTools/TrackFitters")
-	  << "next Surface: "<<(*ihit).detUnit()->surface().position()<< "\n";
+	  << "next Surface: "<<(*ihit).det()->surface().position()<< "\n";
       return vector<Trajectory>();
     }
     
@@ -156,7 +156,7 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       <<predTsos<<"\n"
       <<" currTsos !"<<"\n"
       <<currTsos<<"\n";
-    //std::cout <<(*ihit).detUnit()->surface().position()<<std::endl;
+    //std::cout <<(*ihit).det()->surface().position()<<std::endl;
   }
   //
   // debug

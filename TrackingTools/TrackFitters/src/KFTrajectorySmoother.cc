@@ -55,7 +55,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       itm != avtm.rend() - 1; itm++) {
 
     predTsos = propagator()->propagate(currTsos,
-				       (*itm).recHit()->detUnit()->surface());
+				       (*itm).recHit()->det()->surface());
 
     if(!predTsos.isValid()) {
       LogDebug("TrackingTools/TrackFitters") << 
@@ -76,7 +76,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	  "KFTrajectorySmoother: combined tsos not valid!\n"<<
 	  "pred Tsos pos: "<<predTsos.globalPosition()<< "\n" <<
 	  "pred Tsos mom: "<<predTsos.globalMomentum()<< "\n" <<
-	  "TrackingRecHit: "<<(*itm).recHit()->detUnit()->surface().toGlobal((*itm).recHit()->localPosition())<< "\n" ;
+	  "TrackingRecHit: "<<(*itm).recHit()->det()->surface().toGlobal((*itm).recHit()->localPosition())<< "\n" ;
 	return vector<Trajectory>();
       }
 
@@ -116,7 +116,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   
   //last smoothed tm is last filtered
   predTsos = propagator()->propagate(currTsos,
-				     avtm.front().recHit()->detUnit()->surface());
+				     avtm.front().recHit()->det()->surface());
   
   if(!predTsos.isValid()) {
 	LogDebug("TrackingTools/TrackFitters") << 
