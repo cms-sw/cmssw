@@ -13,6 +13,7 @@ namespace HepMC {
 
 class FSimEvent;
 class TrajectoryManager;
+class PUProducer;
 class MagneticField;
 
 namespace CLHEP {
@@ -50,6 +51,7 @@ class FamosManager
   const HepMC::GenEvent* myGenEvent;
   FSimEvent* mySimEvent;
   TrajectoryManager* myTrajectoryManager;
+  PUProducer* myPileUpProducer;
 
  private:
 

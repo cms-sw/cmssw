@@ -18,6 +18,7 @@
 // FAMOS Header
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
+#include "FastSimulation/PileUpProducer/interface/PUProducer.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
   
@@ -37,6 +38,9 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 			      (mySimEvent,
 			       p.getParameter<edm::ParameterSet>("MaterialEffects"),
 			       p.getParameter<bool>("ActivateDecays"))),
+      myPileUpProducer(new PUProducer(
+			       mySimEvent,
+			       p.getParameter<edm::ParameterSet>("PUProducer"))),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
       m_pVerbose(p.getUntrackedParameter<int>("Verbosity",1))
@@ -46,6 +50,7 @@ FamosManager::~FamosManager()
 { 
   if ( mySimEvent ) delete mySimEvent; 
   if ( myTrajectoryManager ) delete myTrajectoryManager; 
+  if ( myPileUpProducer ) delete myPileUpProducer;
 }
 
 void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
@@ -78,7 +83,7 @@ void FamosManager::initEventReader()
 
 
 void 
-FamosManager::reconstruct(const GenEvent* evt) {
+FamosManager::reconstruct(const HepMC::GenEvent* evt) {
 
   myGenEvent = evt;
 
@@ -91,11 +96,16 @@ FamosManager::reconstruct(const GenEvent* evt) {
     mySimEvent->fill(*evt,id);
     //    mySimEvent->print();
 
+    // Get the pileup events and add the particles to the main event
+    myPileUpProducer->produce();
+    //    mySimEvent->print();
+
     // And propagate the particles through the detector
     myTrajectoryManager->reconstruct();
     //    mySimEvent->print();
 
-    }
+  }
+
   std::cout << " saved : Event  " << iEvent 
 	    << " of weight " << mySimEvent->weight()
 	    << " with " << mySimEvent->nTracks() 
