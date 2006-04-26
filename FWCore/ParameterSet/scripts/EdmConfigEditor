@@ -1,0 +1,315 @@
+#!/usr/bin/env python 
+import cmd
+import readline
+import os
+import sys
+import glob
+import re
+if "CMSSW_BASE" in os.environ.keys():
+    sys.path.append(os.environ["CMSSW_BASE"]+"/src/FWCore/ParameterSet/test")
+if "CMSSW_RELEASE_BASE" in os.environ.keys():
+    sys.path.append(os.environ["CMSSW_RELEASE_BASE"]+"/src/FWCore/ParameterSet/test")
+
+import cmsconfig
+
+class CmsBuilder(cmd.Cmd):
+
+    def __init__(self,fileName):
+        cmd.Cmd.__init__(self)
+        readline.set_completer_delims(readline.get_completer_delims()+'.')
+        self.prompt = "[no file]>"
+        self.cfg = None
+        self.addedCommands = list()
+        if 0 != len(fileName):
+            self.do__read(fileName)
+
+    def __print_modules(self,line):
+        """List module labels in the configuration"""
+        if(self.cfg):
+            names = self.cfg.moduleNames()
+            names.sort()
+            self.columnize(names)
+
+    def do_process(self,line):
+        """Description: Show the configuration for the process
+        Commands:
+        process    print summary of the configuration process"""
+        if 0 == len(line):
+            if(self.cfg):
+                self.__print_process_summary()
+            else:
+                print "no configuration loaded"
+
+    def do_module(self,line):
+        """Description: Show information about modules
+        Commands:
+        module         list the labels for all modules
+        module <label> print the configuration of the module"""
+        if 0 == len(line):
+            self.__print_modules(line)
+            return
+        if(self.cfg):
+            self.__print_module(line) 
+
+    def complete_module(self,text,line,begidx,endidx):
+        r = re.compile(text+'.*')
+        return [x for x in self.cfg.moduleNames() if r.match(x) ]
+
+
+    def do_source(self,line):
+        """Description: Show the configuration of the source
+        Commands:
+        source     print the configuration of the source"""
+        if 0 == len(line):
+            self.__print_source()
+
+    def do__read(self,line):
+        """Description: Read in the configuration file
+        Commands:
+        _read <filename>  reads the configuration file <filename>"""
+        try:
+            txt = file(line).read()
+            parsedTxt = os.popen("EdmConfigToPython < "+line).read()
+            #print txt
+        except Exception, e:
+            print e
+        else:
+            self.cfg = cmsconfig.cmsconfig(parsedTxt)
+            self.__remove_labels()
+            self.prompt = os.path.basename(line)+'>'
+            for label in self.cfg.moduleNames():
+                self.__add_module_label(label)
+            for label in self.cfg.pathNames():
+                self.__add_path_label(label)
+            self.__add_source_label(self.cfg.mainInputSource()['@classname'][2])
+            
+            self.__print_process_summary()
+        #print self.get_names()
+
+    def complete__read(self,text,line,begidx,endidx):
+        space = line.rfind(' ',0,begidx);
+        return [x[begidx-space-1:] for x in glob.glob(line[space+1:endidx]+"*")]
+        
+    def do_path(self,line,dummy=''):
+        """Description: Show the configuration of a path
+        Commands:
+        path         list all path labels in the configuration
+        path <pth>   prints the description of the path <pth> """
+        if not self.cfg:
+            print "no configuration has been read"
+            return
+        if 0 == len(line):
+            self.__print_paths()
+        else:
+            self.__print_path(line)
+
+    def __print_paths(self):
+        """Print the list of path labels"""
+        if self.cfg:
+            paths = self.cfg.pathNames()
+            paths.sort()
+            self.columnize(paths)
+            
+    def __print_path(self,pathName):
+        """Prints the configuration of just one path"""
+        if self.cfg:
+            print "path: "+self.cfg.path(pathName)
+            
+    def do_quit(self,line):
+        """Description: quit application"""
+        return True
+
+    def __print_process_summary(self):
+        """print a high level overview of the job configuration"""
+        print "---Process Summary---"
+        print "process: "+self.cfg.procName()
+        print "source: "+self.cfg.mainInputSource()['@classname'][2]
+        print "module:"
+        self.do_module('')
+        print "path:"
+        self.do_path('')
+        
+    def __print_pset(self,psetDict,indent):
+        """print the contents of a pset"""
+        keys = psetDict.keys()
+        keys.sort()
+        for key in keys:
+            param = psetDict[key]
+            if '@classname' == key: continue
+            value = param[2]
+            if 'VPSet' == param[0]:
+                print indent+param[1]+" "+param[0]+" "+key+" ="
+                for i in value:
+                    print indent+' {'
+                    self.__print_pset(i,indent+"  ")
+                    print indent+' }'
+                continue            
+            if 'v'==param[0][0]:
+                value = ''
+                for i in param[2]:
+                    value +=i+" "
+            if 'PSet' == param[0]:
+                print indent+param[1]+" "+param[0]+" "+key+" ="
+                self.__print_pset(param[2],indent+"  ")
+                continue
+            print indent+param[1]+" "+param[0]+" "+key+" = "+value
+
+    def __print_source(self,dummy='',line=''):
+        if 0 == len(line):
+            print "source: "+self.cfg.mainInputSource()['@classname'][2]
+            self.__print_pset(self.cfg.mainInputSource(),"  ")
+        else:
+            self.__print_pset_param(self.cfg.mainInputSource()['@classname'][2],line,self.cfg.mainInputSource())
+
+    def __print_module(self,label,line=''):
+        if 0 == len(line):
+            print "module: "+self.cfg.module(label)['@classname'][2]
+            self.__print_pset(self.cfg.module(label),"  ")
+        else:
+            self.__print_module_param(label,line)
+
+    def __print_param_value(self,param):
+        if param[0] == 'PSet':
+            print '('+param[1]+' '+param[0]+')'
+            self.__print_pset(param[2],'  ')
+            return
+        value = param[2]
+        if 'VPSet' == param[0]:
+            print '('+param[1]+" "+param[0]+")"
+            for i in value:
+                print ' {'
+                self.__print_pset(i,"  ")
+                print ' }'
+            return            
+        if param[0][0] == 'v':
+            value = ''
+            for i in param[2]:
+                value +=i+" "
+        print "("+param[1]+" "+param[0]+") "+value
+        
+    def __print_module_param(self,label,line):
+        self.__print_pset_param(label,line,self.cfg.module(label))
+        #labels = line.split('.')
+        #if 2 > len(labels):
+        #    return
+        #if not labels[1] in self.cfg.module(label):
+        #    print 'the module '+label+' has no parameter '+labels[1]
+        #    return
+        #param = self.cfg.module(label)[labels[1]]
+        #depth = label+'.'+labels[1]
+        #for x in labels[2:]:
+        #    if param[0] != 'PSet':
+        #        print 'the label '+depth+' is a '+param[0]+' not a PSet so has no sub labels'
+        #        return
+        #    if not x in param[2]:
+        #        print 'the label '+depth+' has no sub label '+x
+        #        return
+        #    param = param[2][x]            
+        #param = self.cfg.module(label)[labels[1]]
+        #self.__print_param_value(param)
+
+    def __print_pset_param(self,label,line,psetDict):
+        labels = line.split('.')
+        if 2 > len(labels):
+            return
+        if not labels[1] in psetDict:
+            print 'the module '+label+' has no parameter '+labels[1]
+            return
+        param = psetDict[labels[1]]
+        depth = label+'.'+labels[1]
+        for x in labels[2:]:
+            if param[0] != 'PSet':
+                print 'the label '+depth+' is a '+param[0]+' not a PSet so has no sub labels'
+                return
+            if not x in param[2]:
+                print 'the label '+depth+' has no sub label '+x
+                return
+            param = param[2][x]            
+        self.__print_param_value(param)
+        
+    def __add_module_label(self,label):
+        """create new commands for the new module label"""
+        self.__add_new_label(label,CmsBuilder.__module_help,CmsBuilder.__print_module,CmsBuilder.__module_complete)
+
+    def __module_complete(self,label,text,line,begidx,endidx):
+        """gives list of completions possible for this label"""
+        mod = self.cfg.module(label)
+        return self.__pset_complete(label,mod,text,line,begidx,endidx)
+
+    def __module_help(self,label):
+        self.__pset_help(label,'module')
+
+    def __add_source_label(self,label):
+        """create new commands for the new module label"""
+        self.__add_new_label(label,CmsBuilder.__source_help,CmsBuilder.__print_source,CmsBuilder.__source_complete)
+
+    def __source_complete(self,label,text,line,begidx,endidx):
+        """gives list of completions possible for this label"""
+        mod = self.cfg.mainInputSource()
+        return self.__pset_complete(label,mod,text,line,begidx,endidx)
+
+    def __source_help(self,label):
+        self.__pset_help(label,'source')
+
+    def __path_help(self,label):
+        print "Description: retrieve information about path "+label
+        print "Commands:"
+        print label+"    prints path description"
+    
+    def __pset_help(self,label,lType):
+        print "Description: retrieve information about "+lType+" "+label
+        print "Commands:"
+        print label+"          prints "+lType+" description"
+        print label+".<param>  prints value of parameter <param>"
+
+    def __pset_complete(self,label,paramDict,text,line,begidx,endidx):
+        labels = line[len(label)+1:begidx].split('.')
+        for x in labels:
+            if x == '':
+                continue
+            if not x in paramDict:
+                return []
+            paramDict = paramDict[x][2]
+        match = text
+        matchLen = len(match)
+        return [ x for x in paramDict.keys() if match==x[0:matchLen] and x[0]!='@']
+
+    def __add_new_label(self,label,helpType,doType,completeType):
+        """create new commands for the new label"""
+        def label_do(self,line): doType(self,label,line)
+        CmsBuilder.__dict__['do_'+label]=label_do
+        def label_help(self): helpType(self,label)
+        CmsBuilder.__dict__['help_'+label]=label_help
+        def label_complete(self,text,line,begidx,endidx): return completeType(self,label,text,line,begidx,endidx)
+        CmsBuilder.__dict__['complete_'+label]=label_complete
+        self.addedCommands.append(label)
+
+    def __remove_labels(self):
+        """removes commands that are no longer needed"""
+        for l in self.addedCommands:
+            del CmsBuilder.__dict__['do_'+l]
+            del CmsBuilder.__dict__['help_'+l]
+            del CmsBuilder.__dict__['complete_'+l]
+        self.addedCommands = list()
+
+    def __add_path_label(self,label):
+        """create new commands for the new path label"""
+        self.__add_new_label(label,CmsBuilder.__path_help,CmsBuilder.do_path,CmsBuilder.__path_complete)
+
+    def __path_complete(self,label,text,line,begidx,endidx):
+        #print '"'+text+'"'
+        return []
+    
+    def complete_path(self,text,line,begidx,endidx):
+        r = re.compile(text+'.*')
+        return [x for x in self.cfg.pathNames() if r.match(x) ]
+
+if __name__=="__main__":
+    import sys
+    fileName=""
+    print "Type 'help' or press 'TAB' twice to get a list of commands"
+    if 2 == len(sys.argv):
+        fileName=sys.argv[1]
+    else:
+        print "use '_read <filename>' to read a configuration file"
+    CmsBuilder(fileName).cmdloop()
