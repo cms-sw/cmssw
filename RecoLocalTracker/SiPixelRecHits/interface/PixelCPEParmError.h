@@ -1,8 +1,9 @@
-#ifndef PixelCPEParmError_H
-#define PixelCPEParmError_H
+#ifndef RecoLocalTracker_SiPixelRecHits_PixelCPEParmError_H
+#define RecoLocalTracker_SiPixelRecHits_PixelCPEParmError_H
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelErrorParametrization.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -39,12 +40,13 @@ class PixelCPEParmError : public PixelCPEBase
  public:
   // PixelCPEParmError( const DetUnit& det );
   PixelCPEParmError(edm::ParameterSet const& conf, const MagneticField*);
-    
+  ~PixelCPEParmError();
+
   LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const ;
   LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const ;
   
 
- protected:
+ private:
   //--------------------------------------------------------------------
   //  Methods.  For now (temporarily) they are all protected.
   //------------------------------------------------------------------
@@ -56,6 +58,11 @@ class PixelCPEParmError : public PixelCPEBase
   // Quantities needed to calculate xpos() and ypos()
   float chargeWidthX()const;
   float chargeWidthY()const;
+
+
+
+ private:
+  PixelErrorParametrization * pixelErrorParametrization_;
 };
 
 #endif

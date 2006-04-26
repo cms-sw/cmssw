@@ -33,9 +33,19 @@ const float degsPerRad = 57.29578;
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-PixelCPEParmError::PixelCPEParmError(edm::ParameterSet const & conf, const MagneticField *mag) 
+PixelCPEParmError::PixelCPEParmError(edm::ParameterSet const & conf, 
+				     const MagneticField *mag) 
   : PixelCPEBase(conf,mag)
 {
+  pixelErrorParametrization_ = new PixelErrorParametrization(conf);
+}
+
+//-----------------------------------------------------------------------------
+//  Clean up.
+//-----------------------------------------------------------------------------
+PixelCPEParmError::~PixelCPEParmError()
+{
+  delete pixelErrorParametrization_ ;
 }
 
 
@@ -84,14 +94,12 @@ PixelCPEParmError::localError( const SiPixelCluster& cluster, const GeomDetUnit 
     // return LocalError(xerr*xerr, 0,yerr*yerr);
   }
   else {
-#if 0
     pair<float,float> errPair = 
-      thePixelErrorParametrization->getError(thePart, 
-					     cluster.sizeX(), cluster.sizeY(), 
-					     alpha_         , beta_);
+      pixelErrorParametrization_->getError(thePart, 
+					   cluster.sizeX(), cluster.sizeY(), 
+					   alpha_         , beta_);
     if (!edgex) xerr = errPair.first;
     if (!edgey) yerr = errPair.second;
-#endif
   }       
 
   if (theVerboseLevel > 5) {

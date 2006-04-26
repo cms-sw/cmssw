@@ -11,6 +11,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelRecHitConverter.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEInitial.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEParmError.h"
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -118,6 +119,10 @@ namespace cms
     } 
     else if ( cpeName_ == "Initial" ) {
       cpe_ = new PixelCPEInitial(conf_,mag);
+      ready_ = true;
+    } 
+    else if ( cpeName_ == "ParmError" ) {
+      cpe_ = new PixelCPEParmError(conf_,mag);
       ready_ = true;
     } 
     else {
