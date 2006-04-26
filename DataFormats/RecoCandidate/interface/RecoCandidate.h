@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.7 2006/04/20 14:41:42 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.8 2006/04/21 06:28:48 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -14,6 +14,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 namespace reco {
 
@@ -26,12 +27,8 @@ namespace reco {
       LeafCandidate( q, p4, vtx ) { }
     /// destructor
     virtual ~RecoCandidate();
-    /// reference to CaloTower. 
-    /// Should better be defined in CaloTower package
-    /// defined here for the moment
-    typedef edm::Ref<CaloTowerCollection> CaloTowerRef;
-
-  private:
+    /// check overlap with another candidate
+    virtual bool overlap( const Candidate & ) const = 0;
     /// reference to a Track
     virtual reco::TrackRef track() const;
     /// reference to a stand-alone muon Track
@@ -44,9 +41,8 @@ namespace reco {
     virtual CaloTowerRef caloTower() const;
     /// reference to a Muon
     virtual reco::MuonRef muon() const;
-    /// check overlap with another candidate
-    bool overlap( const Candidate & ) const;
 
+  private:
     template<typename T> friend struct component; 
   };
 
@@ -68,7 +64,7 @@ namespace reco {
   /// get default SuperCluster component
   GET_CANDIDATE_COMPONENT( RecoCandidate, SuperClusterRef, DefaultComponentTag, superCluster );
   /// get default CaloTower component
-  GET_CANDIDATE_COMPONENT( RecoCandidate, RecoCandidate::CaloTowerRef, DefaultComponentTag, caloTower );
+  GET_CANDIDATE_COMPONENT( RecoCandidate, CaloTowerRef, DefaultComponentTag, caloTower );
   
 }
 

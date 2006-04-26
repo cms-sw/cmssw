@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ElectronCandidate.h,v 1.2 2006/03/01 16:31:47 llista Exp $
+ * \version $Id: ElectronCandidate.h,v 1.1 2006/04/21 06:28:46 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -34,6 +34,8 @@ namespace reco {
     void setTrack( const reco::TrackRef & r ) { track_ = r; }
 
   private:
+    /// check overlap with another candidate
+    virtual bool overlap( const Candidate & ) const;
     /// reference to a SuperCluster
     reco::SuperClusterRef superCluster_;
     /// reference to a Track

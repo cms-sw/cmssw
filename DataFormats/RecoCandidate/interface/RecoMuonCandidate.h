@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoMuonCandidate.h,v 1.3 2006/04/03 09:05:32 llista Exp $
+ * \version $Id: RecoMuonCandidate.h,v 1.4 2006/04/20 14:41:42 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -28,6 +28,8 @@ namespace reco {
     void setMuon( const reco::MuonRef & r ) { muon_ = r; }
 
   private:
+    /// check overlap with another candidate
+    virtual bool overlap( const Candidate & ) const;
     /// referente to a track
     virtual reco::TrackRef track() const;
     /// reference to a muon
