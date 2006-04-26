@@ -41,7 +41,7 @@ std::vector<const Track*> TauJetTag::tracksInRing( const Vector direction, const
 std::vector<const Track*> TauJetTag::tracksInMatchingCone()
 { 
   const Jet & j = jet();  
-  Vector jetVec( j.getPx(), j.getPy(), j.getPz() );
+  Vector jetVec( j.px(), j.py(), j.pz() );
   return tracksInCone( jetVec, matchingConeSize_ );
 }
 

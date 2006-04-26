@@ -7,17 +7,17 @@
 //
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include <vector>
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/OneToManyAssociation.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include <vector>
+
 namespace reco {
   typedef
-   edm::OneToManyAssociation<CaloJetCollection,
-			     reco::TrackCollection> JetTracksAssociationCollection;
+   edm::AssociationMap<CaloJetCollection, reco::TrackCollection,
+		       edm::OneToMany> JetTracksAssociationCollection;
   
   typedef
   JetTracksAssociationCollection::value_type JetTracksAssociation;

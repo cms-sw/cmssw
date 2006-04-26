@@ -35,7 +35,7 @@ struct SortByDescendingTrackPt
   class TauJetTag: public JetTag {
 
   public:
-
+    typedef edm::Ref<CaloJetCollection> JetRef;
 
     explicit TauJetTag() {}
     explicit TauJetTag( const JetTag & p ) : JetTag(p) {}    
@@ -44,7 +44,7 @@ struct SortByDescendingTrackPt
 	      float dRreco,
 	      float discriminator, 
 	      JetRef jet, 
-	      TrackRefs tracks) : 
+	      TrackRefVector tracks) : 
       matchingConeSize_ (dRmatch), 
       signalConeSize_ (dRsignal), 
       reconstructionConeSize_ (dRreco), 
@@ -59,7 +59,7 @@ struct SortByDescendingTrackPt
 
     virtual const Jet & jet() const { return *jet_; }
 
-    virtual TrackRefs selectedTracks() const { return selectedTracks_;}
+    virtual TrackRefVector selectedTracks() const { return selectedTracks_; }
 
     virtual TauJetTag* clone() const { return new TauJetTag( *this ); }
 
@@ -119,7 +119,7 @@ struct SortByDescendingTrackPt
 
     float discriminator_;    
     JetRef jet_;
-    TrackRefs selectedTracks_;
+    TrackRefVector selectedTracks_;
 		    
     
   };

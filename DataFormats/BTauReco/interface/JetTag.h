@@ -24,7 +24,7 @@ namespace reco {
     virtual JetTag* clone() const { return new JetTag( * this ); }
     double discriminator () { return m_discriminator; }  
     const Jet & jet() { return *m_jetTracksAssociation.key; }
-    const edm::RefVector<TrackCollection> & tracks() { return m_jetTracksAssociation.values; } 
+    const edm::RefVector<TrackCollection> & tracks() { return m_jetTracksAssociation.val; } 
 
   private:
     double m_discriminator;
