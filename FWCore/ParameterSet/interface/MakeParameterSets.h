@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------
 // Declare functions used to create ParameterSets.
 //
-// $Id: MakeParameterSets.h,v 1.2 2006/01/17 20:32:31 paterno Exp $
+// $Id: MakeParameterSets.h,v 1.3 2006/01/17 23:22:45 paterno Exp $
 //
 //----------------------------------------------------------------------
 
@@ -35,16 +35,6 @@ namespace edm
 		    boost::shared_ptr<std::vector<ParameterSet> >& serviceparams);
 
 
-  // The following are implementation details. The prototypes are here
-  // so that the functions may be tested.
-  namespace pset
-  {
-    bool read_whole_file(std::string const& filename, std::string& output);
-    bool is_include_line(std::string const& input, std::string& filename);
-    void preprocessConfigString(std::string const& input,
-				std::string& output,
-				std::vector<std::string>& openFileStack);    
-  }
 
 
 } // namespace edm
