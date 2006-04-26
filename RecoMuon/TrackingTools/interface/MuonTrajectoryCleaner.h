@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryCleaner
  *  No description available.
  *
- *  $Date: 2006/03/21 13:29:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/23 15:15:37 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -26,7 +26,9 @@ class MuonTrajectoryCleaner {
   virtual ~MuonTrajectoryCleaner(){};
 
   // Operations
-  void clean(TrajectoryContainer &muonTrajectories){}; //used by reference...
+
+  /// Clean the trajectories container, erasing the (worst) clone trajectory
+  void clean(TrajectoryContainer &muonTrajectories); //used by reference...
 
 protected:
 
