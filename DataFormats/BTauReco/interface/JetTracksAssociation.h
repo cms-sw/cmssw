@@ -6,11 +6,11 @@
 // 
 //
 
-#include "DataFormats/JetObjects/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include <vector>
-#include "FWCore/EDProduct/interface/Ref.h"
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/OneToManyAssociation.h"
 namespace reco {
   typedef

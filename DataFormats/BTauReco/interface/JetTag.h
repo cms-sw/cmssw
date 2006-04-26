@@ -10,7 +10,7 @@
 // \version first version on January 12, 2006
 
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
-#include "DataFormats/JetObjects/interface/Jet.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include <vector>
 
