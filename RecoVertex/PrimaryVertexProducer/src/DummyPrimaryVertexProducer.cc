@@ -57,7 +57,7 @@ DummyPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
    //   iEvent.getByLabel("example",pIn);
 
    reco::Vertex::Point pos(-1, -1, -1);
-   double e[6]; reco::Vertex::Error err(e);
+   reco::Vertex::Error err;
    double chi2 = -1; double ndof = 1; double ntks = 0;
 
    
