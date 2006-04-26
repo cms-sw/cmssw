@@ -50,9 +50,9 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
   theSimVertices = new vector<FSimVertex>;
 
   // Reserve some size to avoid mutiple copies
-  theSimTracks->reserve(2048);
-  theSimVertices->reserve(2048);
-  theGenParticles->reserve(2048);
+  theSimTracks->reserve(20000);
+  theSimVertices->reserve(20000);
+  theGenParticles->reserve(20000);
 
   // Initialize the Particle filter
   myFilter = new KineParticleFilter(kine);
@@ -150,10 +150,9 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 	  piter != myGenEvent.particles_end(); 
 	++piter ) {
 
-    // This is the generated particle pointer
+    // This is the generated particle pointer - for the signal event only
     GenParticle* p = *piter;
-    theGenParticles->push_back(p);
-
+    if  ( !offset && nGenParts() != 20000 ) theGenParticles->push_back(p);
     // Keep only: 
     // 1) Stable particles
     bool testStable = p->status()==1;
@@ -196,10 +195,12 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 	myGenVertices.find(p->mother()) != myGenVertices.end() ? 
       	myGenVertices[p->mother()] : mainVertex;
 
+
       RawParticle part(p->momentum(), vertex(originVertex).position());
       part.setID(p->pdg_id());
+
       // Add the particle to the event and to the various lists
-      int theTrack = addSimTrack(&part,originVertex,nGenParts()-1);
+      int theTrack = addSimTrack(&part,originVertex, nGenParts()-1-offset);
 
       // It there an end vertex ?
       if ( !p->end_vertex() ) continue; 
@@ -220,7 +221,6 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
       // There we are !
 
-
     }
   }
 
@@ -237,9 +237,14 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) {
   // An increasing barcode, corresponding to the list index
   //  part->suggest_barcode(nTracks()+1);
   
-  // Attach the particle to the origin vertex
-  //  originVertex->add_particle_out(part);
+  // Protection on the number of tracks
   int trackId = nTracks();
+  if ( trackId == 20000 ) {
+    cout << "FastSimulation:FBaseSimEvent - try to store more than 20000 tracks" << endl;
+    return -1;
+  }
+
+  // Attach the particle to the origin vertex
   vertex(iv).addDaughter(trackId);
   
   // Attach the vertex to the event (inoccuous if the vertex exists)
@@ -268,9 +273,14 @@ FBaseSimEvent::addSimVertex(const HepLorentzVector& v,int im) {
   // Attach the vertex to the event (inoccuous if the vertex exists)
   //  add_vertex(decayVertex);
 
-  // Attach the end vertex to the particle (if accepted)
   //  if ( im!=-1 ) decayVertex->add_particle_in(track(im).me());
   int vertexId = nVertices();
+  if ( vertexId == 20000 ) {
+    cout << "FastSimulation:FBaseSimEvent - try to store more than 20000 vertices" << endl;
+    return -1;
+  }
+
+  // Attach the end vertex to the particle (if accepted)
   if ( im != -1 ) track(im).setEndVertex(vertexId);
 
   // Some persistent information for the users
