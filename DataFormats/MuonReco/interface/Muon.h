@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.3 2006/04/12 11:44:15 llista Exp $
+ * \version $Id: Muon.h,v 1.15 2006/04/20 14:29:18 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -52,6 +52,18 @@ namespace reco {
       if ( default_ == i_standAlone ) return standAlone();
       throw edm::Exception( edm::errors::InvalidReference, "Invalid default muon reference" );
     }
+    /// fit chi-squared
+    double chi2() const { return defaultFit()->chi2(); }
+    /// number of degrees of freedom of the fit 
+    double ndof() const { return defaultFit()->ndof(); }
+    /// chi-squared divided by n.d.o.f. 
+    double normalizedChi2 () const { return defaultFit()->normalizedChi2(); }
+    /// number of hits found
+    unsigned short found() const { return defaultFit()->found(); }
+    ///  number of invalid hits
+    unsigned short invalid() const { return defaultFit()->invalid(); }
+    /// number of hits lost 
+    unsigned short lost() const { return defaultFit()->lost(); }
     /// electric charge
     int charge() const { return defaultFit()->charge(); }
     /// momentum vector
