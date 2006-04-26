@@ -19,8 +19,10 @@
  <Constant name="CalorBeamZ2"  value="5.541*m"/>
  <Constant name="CalorBeamR1"  value="8.00*cm"/>
  <Constant name="CalorBeamR2"  value="8.93*cm"/>
+ <Constant name="MuonBeamZ0"   value="6.50*m"/>
  <Constant name="MuonBeamZ1"   value="7.50*m"/>
  <Constant name="MuonBeamZ2"   value="10.86*m"/>
+ <Constant name="MuonBeamR0"   value="10.50*cm"/>
  <Constant name="MuonBeamR1"   value="11.785*cm"/>
  <Constant name="MuonBeamR2"   value="75.00*cm"/>
  <Constant name="TotemMuonZ1"  value="10.165*m"/>
@@ -80,7 +82,6 @@
  <Polycone name="Tracker" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="-[TrackBeamZ2]"  rMin="[TrackBeamR2]"  rMax="[TrackCalorR]" />
   <ZSection z="-[TrackBeamZ1]"  rMin="[TrackBeamR1]"  rMax="[TrackCalorR]" />
-
   <ZSection z="[TrackBeamZ1]"   rMin="[TrackBeamR1]"  rMax="[TrackCalorR]" />
   <ZSection z="[TrackBeamZ2]"   rMin="[TrackBeamR2]"  rMax="[TrackCalorR]" />
  </Polycone> 
@@ -100,10 +101,12 @@
   <ZSection z="-[TotemMuonZ1]" rMin="[TotemMuonR1]" rMax="[CMSR1]" />
   <ZSection z="-[MuonBeamZ1]"  rMin="[MuonBeamR2]"  rMax="[CMSR1]" />
   <ZSection z="-[MuonBeamZ1]"  rMin="[MuonBeamR1]"  rMax="[CMSR1]" />
+  <ZSection z="-[MuonBeamZ0]"  rMin="[MuonBeamR0]"  rMax="[CMSR1]" />
   <ZSection z="-[CalorBeamZ2]" rMin="[CalorBeamR2]" rMax="[CMSR1]" />
   <ZSection z="-[CalorBeamZ2]" rMin="[CalorMuonR]"  rMax="[CMSR1]" />
   <ZSection z="[CalorBeamZ2]"  rMin="[CalorMuonR]"  rMax="[CMSR1]" />
   <ZSection z="[CalorBeamZ2]"  rMin="[CalorBeamR2]" rMax="[CMSR1]" />
+  <ZSection z="[MuonBeamZ0]"   rMin="[MuonBeamR0]"  rMax="[CMSR1]" />
   <ZSection z="[MuonBeamZ1]"   rMin="[MuonBeamR1]"  rMax="[CMSR1]" />
   <ZSection z="[MuonBeamZ1]"   rMin="[MuonBeamR2]"  rMax="[CMSR1]" />
   <ZSection z="[TotemMuonZ1]"  rMin="[TotemMuonR1]" rMax="[CMSR1]" />

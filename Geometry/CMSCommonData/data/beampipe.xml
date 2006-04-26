@@ -65,7 +65,7 @@
  <Constant name="BeampipeRout26" value="7.8000*cm"/>
  <Constant name="BeampipeRout27" value="7.8500*cm"/>
  <Constant name="BeampipeRout28" value="10.4500*cm"/>
- <Constant name="BeampipeRout29" value="10.5000*cm"/>
+ <Constant name="BeampipeRout29" value="[cms:MuonBeamR0]"/>
  <Constant name="BeampipeRout30" value="14.8000*cm"/>
  <Constant name="BeampipeRout31" value="14.6000*cm"/>
  <Constant name="BeampipeRout32" value="14.3000*cm"/>
@@ -116,7 +116,7 @@
  <Constant name="BeampipeZ25"    value="3.4916*m"/>
  <Constant name="BeampipeZ26"    value="3.5000*m"/>
  <Constant name="BeampipeZ27"    value="5.0400*m"/>
- <Constant name="BeampipeZ28"    value="6.5000*m"/>
+ <Constant name="BeampipeZ28"    value="[cms:MuonBeamZ0]"/>
  <Constant name="BeampipeZ29"    value="10.5870*m"/>
  <Constant name="BeampipeZ30"    value="10.5950*m"/>
  <Constant name="BeampipeZ31"    value="10.6050*m"/>
@@ -152,6 +152,7 @@
   <ZSection z="[cms:TrackBeamZ1]" rMin="[cms:Rmin]" rMax="[cms:TrackBeamR1]"/>
   <ZSection z="[cms:TrackBeamZ2]" rMin="[cms:Rmin]" rMax="[cms:TrackBeamR2]"/>
   <ZSection z="[cms:CalorBeamZ2]" rMin="[cms:Rmin]" rMax="[cms:CalorBeamR2]"/>
+  <ZSection z="[cms:MuonBeamZ0]"  rMin="[cms:Rmin]" rMax="[cms:MuonBeamR0]" />
   <ZSection z="[cms:MuonBeamZ1]"  rMin="[cms:Rmin]" rMax="[cms:MuonBeamR1]" />
   <ZSection z="[cms:MuonBeamZ1]"  rMin="[cms:Rmin]" rMax="[cms:TotemBeamR1]"/>
   <ZSection z="[cms:TotemBeamZ1]" rMin="[cms:Rmin]" rMax="[cms:TotemBeamR2]"/>
