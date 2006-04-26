@@ -4,28 +4,26 @@
 /** \class MuonSeedGenerator
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/03/24 11:43:48 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-
-// FIXME!! It's dummy
-#include "DataFormats/TrackReco/interface/RecHit.h" 
-//was
-//#include "CommonDet/BasicDet/interface/RecHit.h"
 #include <vector>
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
+
+class TrackingRecHit;
+class MuonSeedFinder;
 
 class MuonSeedGenerator: public edm::EDProducer {
 
   //FIXME
  public:
-  typedef std::vector<RecHit>               RecHitContainer;
+  typedef std::vector<TrackingRecHit>       RecHitContainer;
   typedef RecHitContainer::const_iterator   RecHitIterator;
  public:
   /// Constructor
@@ -35,14 +33,14 @@ class MuonSeedGenerator: public edm::EDProducer {
   virtual ~MuonSeedGenerator();
   
   // Operations
-
   /// reconstruct muon's seeds
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  protected:
 
-
  private:
+  void complete(MuonSeedFinder& seed,RecHitContainer recHits, bool* used=0) const;
+  void checkAndFill(MuonSeedFinder& Theseed);
 
   TrajectorySeedCollection theSeeds;
 

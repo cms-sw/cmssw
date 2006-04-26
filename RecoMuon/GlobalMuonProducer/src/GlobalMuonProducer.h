@@ -1,16 +1,16 @@
-#ifndef RecoMuon_StandAloneMuonProducer_H
-#define RecoMuon_StandAloneMuonProducer_H
+#ifndef RecoMuon_GlobalMuonProducer_H
+#define RecoMuon_GlobalMuonProducer_H
 
-/**  \class StandAloneMuonProducer
+/**  \class GlobalMuonProducer
  * 
- *   StandAlone muon reconstructor:
- *   reconstructs muons using DT, CSC and RPC
+ *   Global muon reconstructor:
+ *   reconstructs muons using DT, CSC, RPC and tracker
  *   information,<BR>
- *   starting from internal seeds (L2 muon track segments).
+ *   starting from internal seeds (muon track segments).
  *
  *
- *   $Date:  $
- *   $Revision:  $
+ *   $Date: 2006/04/13 15:30:02 $
+ *   $Revision: 1.1 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -21,15 +21,15 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class MuonTrackFinder;
 
-class StandAloneMuonProducer : public edm::EDProducer {
+class GlobalMuonProducer : public edm::EDProducer {
 
  public:
 
   /// constructor with config
-  StandAloneMuonProducer(const edm::ParameterSet&);
+  GlobalMuonProducer(const edm::ParameterSet&);
   
   /// destructor
-  virtual ~StandAloneMuonProducer(); 
+  virtual ~GlobalMuonProducer(); 
   
   /// reconstruct muons
   virtual void produce(edm::Event&, const edm::EventSetup&);

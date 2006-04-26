@@ -2,7 +2,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoMuon/StandAloneMuonProducer/interface/StandAloneMuonProducer.h"
+#include "RecoMuon/StandAloneMuonProducer/src/StandAloneMuonProducer.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(StandAloneMuonProducer)
