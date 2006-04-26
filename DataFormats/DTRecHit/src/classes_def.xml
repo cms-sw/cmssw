@@ -9,7 +9,6 @@
 <class name="edm::Wrapper<edm::RangeMap <DTLayerId, edm::OwnVector<DTRecHit1DPair,edm::ClonePolicy<DTRecHit1DPair> >,edm::ClonePolicy<DTRecHit1DPair> > >"/>
 
 <class name="std::vector<DTRecHit1D>"/>
-<class name="CLHEP::HepSymMatrix"/>
 <class name="DTRecSegment2D"/>
 <class name="std::vector<DTRecSegment2D*>"/>
 <class name="std::map<DTSuperLayerId,std::pair<unsigned int,unsigned int> >"/>

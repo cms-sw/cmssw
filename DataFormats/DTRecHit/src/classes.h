@@ -26,7 +26,6 @@ namespace{
     LocalPoint lp;
     LocalVector lv;
     double c2;
-    AlgebraicSymMatrix as;
     DTRecSegment2D s;
 
     // std::vector<DTRecSegment2D>  vs;
