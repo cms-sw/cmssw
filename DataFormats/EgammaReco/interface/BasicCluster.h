@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: BasicCluster.h,v 1.2 2006/04/12 15:19:15 rahatlou Exp $
+ * \version $Id: BasicCluster.h,v 1.3 2006/04/20 10:13:53 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -49,9 +49,9 @@ namespace reco {
     BasicCluster() : EcalCluster(0., Point(0.,0.,0.)), chi2_(-1.) { }
 
     /// constructor from EcalRecHits
-    //BasicCluster( const std::vector<EcalRecHitData>& recHits,
-    //              int superClusterId,
-    //             const Point & position = Point( 0, 0, 0 ) );
+    BasicCluster( const std::vector<EcalRecHitData>& recHits,
+                  int superClusterId,
+		  const Point & position = Point( 0, 0, 0 ) );
 
     BasicCluster( const double energy, const Point& position, const double chi2 );
 
@@ -74,10 +74,11 @@ namespace reco {
 
     /// Access to ECAL RecHit information
     //std::vector<EcalRecHitData> recHits() const { return recHits_; }
-
+      
+ 
     /// this method is needed to sort the BasicClusters by energy
     bool operator<(const reco::BasicCluster &otherCluster) const;
-
+    bool operator==(const BasicCluster& rhs) const;
   private:
     /// cluster centroid position
     //Point position_;
@@ -91,7 +92,7 @@ namespace reco {
     int superClusterId_;
 
     /// ECAL RecHit information
-    //std::vector<EcalRecHitData> recHits_;
+    std::vector<EcalRecHitData> recHits_;
 
    /// used hits by detId
    std::vector<DetId> usedHits_;
