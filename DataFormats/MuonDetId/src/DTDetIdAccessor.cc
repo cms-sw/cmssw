@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/04/07 15:27:39 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -17,9 +17,9 @@ DTDetIdAccessor::DTDetIdAccessor(){}
 DTDetIdAccessor::~DTDetIdAccessor(){}
 
 
-std::pair<DTLayerId, DTSuperLayerIdComparator>
+std::pair<DTSuperLayerId, DTSuperLayerIdComparator>
 DTDetIdAccessor::bySuperLayer(const DTSuperLayerId& slId) {
-  return make_pair(DTLayerId(slId, 0), DTSuperLayerIdComparator());
+  return make_pair(slId, DTSuperLayerIdComparator());
 }
 
 
