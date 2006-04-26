@@ -5,4 +5,27 @@
   <class name="edm::Wrapper<reco::HLTResult< 8, unsigned short> >" />
   <class name="edm::Wrapper<reco::HLTResult<16, unsigned short> >" />
   <class name="edm::Wrapper<reco::HLTResult<24, unsigned short> >" />
+
+  <class name="CaloJet" />
+  <class name="std::vector<CaloJet>" />
+  <class name="std::map<edm::hlt::HLTScalar,float>" />
+  <class name="std::vector<reco::HLTParticleWithRef<std::vector<CaloJet> > >" />
+  <class name="edm::Ref<std::vector<CaloJet>,CaloJet,edm::refhelper::FindUsingAdvance<std::vector<CaloJet>,CaloJet> >"/>
+  <class name="reco::HLTParticle" />
+  <class name="reco::HLTParticleWithRef<std::vector<CaloJet> >" />
+  <class name="reco::HLTFilterObject" />
+  <class name="reco::HLTFilterObjectWithRefs" />
+  <class name="reco::HLTPathObject<reco::HLTFilterObject>" />
+  <class name="reco::HLTPathObject<reco::HLTFilterObjectWithRefs>" />
+  <class name="reco::HLTGlobalObject<reco::HLTPathObject<reco::HLTFilterObject> >" />
+  <class name="reco::HLTGlobalObject<reco::HLTPathObject<reco::HLTFilterObjectWithRefs> >" />
+
+  <class name="edm::Wrapper<reco::HLTParticle>" />
+  <class name="edm::Wrapper<reco::HLTParticleWithRef<std::vector<CaloJet> > >" />
+  <class name="edm::Wrapper<reco::HLTFilterObject>" />
+  <class name="edm::Wrapper<reco::HLTFilterObjectWithRefs>" />
+  <class name="edm::Wrapper<reco::HLTPathObject<reco::HLTFilterObject> >" />
+  <class name="edm::Wrapper<reco::HLTPathObject<reco::HLTFilterObjectWithRefs> >" />
+  <class name="edm::Wrapper<reco::HLTGlobalObject<reco::HLTPathObject<reco::HLTFilterObject> > >" />
+  <class name="edm::Wrapper<reco::HLTGlobalObject<reco::HLTPathObject<reco::HLTFilterObjectWithRefs> > >" />
 </lcgdict>
