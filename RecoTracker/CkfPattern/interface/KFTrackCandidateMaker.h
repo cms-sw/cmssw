@@ -10,7 +10,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/CkfPattern/interface/CombinatorialTrajectoryBuilder.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 
 namespace cms
 {
@@ -27,7 +26,6 @@ namespace cms
   private:
     CombinatorialTrajectoryBuilder   theCombinatorialTrajectoryBuilder;
     TrajectoryCleaner*               theTrajectoryCleaner;
-    edm::ESHandle<TrajectoryFitter>  theKFFittingSmoother;
 
     edm::ParameterSet conf_;
     int isInitialized;

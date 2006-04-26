@@ -46,8 +46,6 @@ namespace cms{
       isInitialized = 1;
     }
     
-    es.get<TrackingComponentsRecord>().get("KFFittingSmoother",theKFFittingSmoother);
-    
     
     // Step A: Retrieve seeds
     edm::Handle<TrajectorySeedCollection> collseed;
