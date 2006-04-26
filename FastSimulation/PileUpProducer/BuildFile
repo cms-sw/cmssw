@@ -11,8 +11,9 @@
 <use name=boost>
 <use name=rootcore>
 <use name=DataFormats/Common>
+<use name=FastSimulation/Event>
 <export>
- <lib name=FastSimulationPUProducer>
+ <lib name=FastSimulationPileUpProducer>
  <use name=clhep>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Framework>
@@ -25,4 +26,5 @@
  <use name=boost>
  <use name=rootcore>
  <use name=DataFormats/Common>
+ <use name=FastSimulation/Event>
 </export>
