@@ -102,7 +102,7 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt) {
 
     // And propagate the particles through the detector
     myTrajectoryManager->reconstruct();
-    mySimEvent->print();
+    //    mySimEvent->print();
 
   }
 
