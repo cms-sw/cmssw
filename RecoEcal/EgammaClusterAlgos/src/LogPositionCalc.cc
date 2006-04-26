@@ -1,9 +1,10 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/LogPositionCalc.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
-math::XYZPoint getECALposition(std::vector<reco::EcalRecHitData> recHits, const CaloSubdetectorGeometry & geometry)
+math::XYZPoint getECALposition(std::vector<reco::EcalRecHitData> recHits, const CaloSubdetectorGeometry geometry)
 {
   // Calculates position of cluster using the algorithm presented in
   // Awes et al., NIM A311, p130-138.  See also CMS Note 2001/034 p11
