@@ -5,6 +5,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoTracker/MeasurementDet/interface/NonPropagatingDetMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "RecoTracker/MeasurementDet/interface/ReferenceHitMatcher.h"
 
 TkGluedMeasurementDet::TkGluedMeasurementDet( const GluedGeomDet* gdet, 
 					      SiStripRecHitMatcher* matcher,
@@ -24,13 +25,15 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 
   RecHitContainer monoHits = theMonoDet->recHits( ts);
   RecHitContainer stereoHits = theStereoDet->recHits( ts);
+  LocalVector tkDir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
 
   if (monoHits.empty()) return stereoHits;
   else if (stereoHits.empty()) return monoHits;
   else {
+    ReferenceHitMatcher referenceMatcher;
+    result = referenceMatcher.match( monoHits, stereoHits, specificGeomDet(), tkDir);
 
-    LocalVector tkDir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
-
+    /*
     // convert stereo hits to type expected by matcher
     SiStripRecHitMatcher::SimpleHitCollection  vsStereoHits;
     for (RecHitContainer::const_iterator stereoHit = stereoHits.begin();
@@ -63,6 +66,7 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 	result.push_back( new TSiStripMatchedRecHit( &geomDet(), &(*i)));
       }
     }
+    */
   }
   return result;
 }
