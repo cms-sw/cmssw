@@ -40,9 +40,16 @@ public:
   /// MeasurementDetSystem interface
   virtual const MeasurementDet*       idToDet(const DetId& id) const;
 
+  typedef std::map<DetId,MeasurementDet*>   DetContainer;
+
+  /// For debug only 
+  const DetContainer& allDets() const {return theDetMap;}
+  const std::vector<TkStripMeasurementDet*>& stripDets() const {return theStripDets;}
+  const std::vector<TkPixelMeasurementDet*>& pixelDets() const {return thePixelDets;}
+  const std::vector<TkGluedMeasurementDet*>& gluedDets() const {return theGluedDets;}
+
 private:
 
-  typedef std::map<DetId,MeasurementDet*>   DetContainer;
 
   DetContainer                        theDetMap;
   std::vector<TkStripMeasurementDet*> theStripDets;
