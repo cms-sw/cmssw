@@ -20,6 +20,10 @@ class CSCCFEBData {
   const CSCCFEBTimeSlice * timeSlice(unsigned i) const;
 
   unsigned adcCounts(unsigned layer, unsigned channel, unsigned timeBin) const;
+  unsigned adcOverflow(unsigned layer, unsigned channel, unsigned timeBin) const;
+  unsigned controllerData(unsigned layer, unsigned channel, unsigned timeBin) const;
+  unsigned overlappedSampleFlag(unsigned layer, unsigned channel, unsigned timeBin) const;
+  unsigned errorstat(unsigned layer, unsigned channel, unsigned timeBin) const;
   
   void add(const CSCStripDigi &, int layer);
   /// WARNING: these digis have no comparator information.

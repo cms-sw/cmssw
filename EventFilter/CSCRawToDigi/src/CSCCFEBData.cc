@@ -5,6 +5,7 @@
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
+#include <boost/cstdint.hpp>
 
 CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf) 
 : theSize(0), boardNumber_(number), theNumberOfSamples(0) {
@@ -91,12 +92,47 @@ unsigned CSCCFEBData::adcCounts(unsigned layer, unsigned channel, unsigned timeB
   if(slice) result = slice->timeSample(layer, channel)->adcCounts;
   return result;
 }
+unsigned CSCCFEBData::adcOverflow(unsigned layer, unsigned channel, unsigned timeBin) const {
+  unsigned result = 0;
+  const CSCCFEBTimeSlice * slice = timeSlice(timeBin);
+  // zero is returned for bad slices
+  if(slice) result = slice->timeSample(layer, channel)->adcOverflow;
+  return result;
+}
+unsigned CSCCFEBData::controllerData(unsigned layer, unsigned channel, unsigned timeBin) const {
+  unsigned result = 0;
+  const CSCCFEBTimeSlice * slice = timeSlice(timeBin);
+  // zero is returned for bad slices
+  if(slice) result = slice->timeSample(layer, channel)->controllerData;
+  return result;
+}
+
+unsigned CSCCFEBData::overlappedSampleFlag(unsigned layer, unsigned channel, unsigned timeBin) const {
+  unsigned result = 0;
+  const CSCCFEBTimeSlice * slice = timeSlice(timeBin);
+  // zero is returned for bad slices
+  if(slice) result = slice->timeSample(layer, channel)->overlappedSampleFlag;
+  return result;
+}
+unsigned CSCCFEBData::errorstat(unsigned layer, unsigned channel, unsigned timeBin) const {
+  unsigned result = 0;
+  const CSCCFEBTimeSlice * slice = timeSlice(timeBin);
+  // zero is returned for bad slices
+  if(slice) result = slice->timeSample(layer, channel)->errorstat;
+  return result;
+}
 
 std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned layer) const {
+
   assert(layer>0 && layer <= 6);
   std::vector<CSCStripDigi> result;
   result.reserve(16);
   std::vector<int> sca(nTimeSamples());
+  std::vector<uint16_t> overflow(nTimeSamples());
+  std::vector<uint16_t> contrData(nTimeSamples());
+  std::vector<uint16_t> overlap(nTimeSamples());
+  std::vector<uint16_t> errorfl(nTimeSamples());
+
   for(unsigned ichannel = 1; ichannel <= 16; ++ichannel) {
     if (nTimeSamples()==0) {
       edm::LogError("CSCCFEBData") << "TimeSamples is Zero - CFEB Data Corrupt!";
@@ -104,13 +140,17 @@ std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned layer) const {
     }
     for(unsigned itime = 0; itime < nTimeSamples(); ++itime) {
       sca[itime] = adcCounts(layer, ichannel, itime);
+      overflow[itime] = adcOverflow(layer, ichannel, itime);
+      contrData[itime] = controllerData(layer, ichannel, itime);
+      overlap[itime] = overlappedSampleFlag(layer, ichannel, itime);
+      errorfl[itime] = errorstat(layer, ichannel, itime);
     }
     if (sca.size()==0) {
       edm::LogError("CSCCFEBData") << "ADC counts are empty - CFEB Data Corrupt!";
       break;
     }
     int strip = ichannel + 16*boardNumber_;
-    CSCStripDigi digi(strip, sca);
+    CSCStripDigi digi(strip, sca, overflow, contrData, overlap, errorfl); 
     result.push_back(digi);
   }
   return result;

@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2006/04/05 08:18:04 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/04/06 11:18:37 $
+ *  $Revision: 1.8 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -9,19 +9,31 @@
 #include <iostream>
 #include <bitset>
 #include <vector>
+#include <boost/cstdint.hpp>
+
 
 using namespace std;
 
 // Constructors
-CSCStripDigi::CSCStripDigi (int istrip, vector<int> vADCCounts){
+CSCStripDigi::CSCStripDigi (int istrip, vector<int> vADCCounts,  vector<uint16_t> vADCOverflow,
+			    vector<uint16_t> vContrData, vector<uint16_t> vOverlap, vector<uint16_t> vErrorstat ){
   strip = istrip;
   ADCCounts = vADCCounts;
+  ADCOverflow = vADCOverflow;
+  ControllerData = vContrData;
+  OverlappedSample = vOverlap;
+  Errorstat = vErrorstat;
 }
 
 CSCStripDigi::CSCStripDigi (){
   vector<int> ZeroCounts(8,0);
+  vector<uint16_t> ZeroVec(8,0);
   strip = 0;
   ADCCounts = ZeroCounts;
+  ADCOverflow =  ZeroVec;
+  ControllerData =  ZeroVec;
+  OverlappedSample = ZeroVec;
+  Errorstat =  ZeroVec;
 }
 
 // Comparison
@@ -36,6 +48,7 @@ CSCStripDigi::operator == (const CSCStripDigi& digi) const {
 // Getters
 int CSCStripDigi::getStrip() const { return strip; }
 std::vector<int> CSCStripDigi::getADCCounts() const { return ADCCounts; }
+
 
 // Setters
 void CSCStripDigi::setStrip(int istrip) {

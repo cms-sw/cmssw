@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2006/04/06 04:09:19 $
- * $Revision: 1.5 $
+ * $Date: 2006/04/06 11:18:44 $
+ * $Revision: 1.6 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.5 2006/04/06 04:09:19 teren Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.6 2006/04/06 11:18:44 tumanov Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -39,6 +39,7 @@ static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.5 2006/04/06 04:09:19 ter
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 
 #include <stdio.h>
+#include <boost/cstdint.hpp>
 
 class testCSCDigis: public CppUnit::TestFixture {
 
@@ -143,7 +144,10 @@ void testCSCDigis::fillCSCStripDigi(CSCStripDigiCollection & collection){
            someADCCounts[5] = 88;
            someADCCounts[6] = 48;
            someADCCounts[7] = 19;
-           CSCStripDigi digi(aStrip, someADCCounts);
+
+	   std::vector<uint16_t> someVec(8);
+
+	   CSCStripDigi digi(aStrip, someADCCounts, someVec, someVec, someVec, someVec);
            digivec.push_back(digi);
         }
  
