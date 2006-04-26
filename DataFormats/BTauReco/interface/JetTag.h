@@ -10,36 +10,26 @@
 // \version first version on January 12, 2006
 
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include <vector>
-
 
 namespace reco {
-   class JetTag {
-      public:
-        JetTag() : m_discriminator(0), m_jetTracksAssociation() {}
-        JetTag(double discriminator,JetTracksAssociation jetTracks) : 
-         m_discriminator(discriminator), m_jetTracksAssociation(jetTracks){ }
+  class JetTag {
+  public:
+    JetTag() : m_discriminator(0), m_jetTracksAssociation() {}
+    JetTag(double discriminator,JetTracksAssociation jetTracks) : 
+      m_discriminator(discriminator), m_jetTracksAssociation(jetTracks){ }
     virtual ~JetTag(){}
-
     virtual JetTag* clone() const { return new JetTag( * this ); }
-
-
     double discriminator () { return m_discriminator; }  
-
     const Jet & jet() { return *m_jetTracksAssociation.key; }
     const edm::RefVector<TrackCollection> & tracks() { return m_jetTracksAssociation.values; } 
 
-    
- private:
-        double m_discriminator;
-        JetTracksAssociation m_jetTracksAssociation;
-    
-   
-};
-
-typedef std::vector<JetTag> JetTagCollection;
-
+  private:
+    double m_discriminator;
+    JetTracksAssociation m_jetTracksAssociation;
+  };
+  
 }
 #endif

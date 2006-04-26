@@ -11,19 +11,28 @@
 
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/OneToManyAssociation.h"
 namespace reco {
   typedef
-      edm::OneToManyAssociation<CaloJetCollection,
-      reco::TrackCollection> JetTracksAssociationCollection;
-
- typedef
-      edm::OneToManyAssociation <CaloJetCollection,
-      reco::TrackCollection>::value_type JetTracksAssociation;
-
-   typedef
-     edm::Ref<edm::OneToManyAssociation<CaloJetCollection,
-       reco::TrackCollection> > JetTracksAssociationRef;
-
+   edm::OneToManyAssociation<CaloJetCollection,
+			     reco::TrackCollection> JetTracksAssociationCollection;
+  
+  typedef
+  JetTracksAssociationCollection::value_type JetTracksAssociation;
+  
+  typedef
+  edm::Ref<JetTracksAssociationCollection, JetTracksAssociation,
+	   edm::refhelper::FindUsingAdvance<JetTracksAssociationCollection, 
+					    JetTracksAssociation> > JetTracksAssociationRef;
+  
+  typedef
+  edm::RefProd<JetTracksAssociationCollection> JetTracksAssociationRefProd;
+  
+  typedef
+  edm::RefVector<JetTracksAssociationCollection, JetTracksAssociation,
+		 edm::refhelper::FindUsingAdvance<JetTracksAssociationCollection, 
+						  JetTracksAssociation> > JetTracksAssociationRefVector; 
 }
 #endif

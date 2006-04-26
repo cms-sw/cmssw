@@ -1,11 +1,10 @@
 #ifndef BTauReco_BJetTagTrackCounting_h
 #define BTauReco_BJetTagTrackCounting_h
- 
 
-#include <vector> 
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
 
 namespace reco {
  
@@ -35,7 +34,6 @@ class TrackCountingTagInfo
    std::vector<int> m_trackOrder;       // this  pair of vectors. 
  };
 
-typedef std::vector<TrackCountingTagInfo> TrackCountingExtCollection;
 //typedef edm::ExtCollection< TrackCountingTagInfo,JetTagCollection> TrackCountingExtCollection;
 //typedef edm::OneToOneAssociation<JetTagCollection, TrackCountingTagInfo> TrackCountingExtCollection;
  

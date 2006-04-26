@@ -1,25 +1,27 @@
 #include "DataFormats/Common/interface/Wrapper.h"
-
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
-
-#include <vector>
+#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 
 namespace {
   namespace {
+    reco::JetTagCollection v1;   
+    edm::Wrapper<reco::JetTagCollection> w1;
+    edm::Ref<reco::JetTagCollection> r1;
+    edm::RefProd<reco::JetTagCollection> rp1;
+    edm::RefVector<reco::JetTagCollection> rv1;
+    
+    reco::TrackCountingTagInfoCollection v2;
+    edm::Wrapper<reco::TrackCountingTagInfoCollection> w2;
+    edm::Ref<reco::TrackCountingTagInfoCollection> r2;
+    edm::RefProd<reco::TrackCountingTagInfoCollection> rp2;
+    edm::RefVector<reco::TrackCountingTagInfoCollection> rv2;
 
- reco::JetTag a;
-std::vector<reco::JetTag> b;
-edm::Wrapper<std::vector<reco::JetTag> > c;
-edm::Ref<std::vector<reco::JetTag> > d ;
-edm::RefVector<std::vector<reco::JetTag> > e;
-
-reco::TrackCountingTagInfo f;
-std::vector<reco::TrackCountingTagInfo> g;
-edm::Wrapper<std::vector<reco::TrackCountingTagInfo> > h;
-edm::Ref<std::vector<reco::TrackCountingTagInfo> > i;
-edm::RefVector<std::vector<reco::TrackCountingTagInfo> > j;
-
-
+    reco::JetTracksAssociationCollection v3;
+    edm::Wrapper<reco::JetTracksAssociationCollection> w3;
+    reco::JetTracksAssociation ra3;
+    reco::JetTracksAssociationRef r3;
+    reco::JetTracksAssociationRefProd rp3;
+    reco::JetTracksAssociationRefVector rv3;
   }
 }

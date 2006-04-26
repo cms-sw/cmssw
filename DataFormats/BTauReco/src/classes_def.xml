@@ -1,15 +1,22 @@
 <lcgdict>
-
   <class name="reco::JetTag" />
   <class name="std::vector<reco::JetTag>" />
   <class name="edm::Wrapper<std::vector<reco::JetTag> >" />
-  <class name="edm::Ref<std::vector<reco::JetTag> > " />
-  <class name="edm::RefVector<std::vector<reco::JetTag> > " />
+  <class name="edm::Ref<std::vector<reco::JetTag>, reco::JetTag, edm::refhelper::FindUsingAdvance<std::vector<reco::JetTag>, reco::JetTag> > " />
+  <class name="edm::RefProd<std::vector<reco::JetTag> > " />
+  <class name="edm::RefVector<std::vector<reco::JetTag>, reco::JetTag, edm::refhelper::FindUsingAdvance<std::vector<reco::JetTag>, reco::JetTag> > " />
 
   <class name="reco::TrackCountingTagInfo" />
   <class name="std::vector<reco::TrackCountingTagInfo>" />
   <class name="edm::Wrapper<std::vector<reco::TrackCountingTagInfo> >" />
-  <class name="edm::Ref<std::vector<reco::TrackCountingTagInfo> > " />
-  <class name="edm::RefVector<std::vector<reco::TrackCountingTagInfo> >" />
+  <class name="edm::Ref<std::vector<reco::TrackCountingTagInfo>, reco::TrackCountingTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TrackCountingTagInfo>, reco::TrackCountingTagInfo> > " />
+  <class name="edm::RefProd<std::vector<reco::TrackCountingTagInfo> > " />
+  <class name="edm::RefVector<std::vector<reco::TrackCountingTagInfo>, reco::TrackCountingTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TrackCountingTagInfo>, reco::TrackCountingTagInfo> >" />
 
+  <class name="edm::OneToManyAssociation<std::vector<CaloJet>, std::vector<reco::Track>, unsigned long>" />
+  <class name="edm::OneToManyAssociation<std::vector<CaloJet>, std::vector<reco::Track>, unsigned long>::keyVal" />
+  <class name="edm::Wrapper<edm::OneToManyAssociation<std::vector<CaloJet>, std::vector<reco::Track>, unsigned long> >" />
+  <class name="edm::Ref<edm::OneToManyAssociation<std::vector<CaloJet>, std::vector<reco::Track>, unsigned long>, edm::OneToManyAssociation<std::vector<CaloJet>, std::vector<reco::Track>, unsigned long>::keyVal, edm::refhelper::FindUsingAdvance<edm::OneToManyAssociation<std::vector<CaloJet>, std::vector<reco::Track>, unsigned long>, edm::OneToManyAssociation<std::vector<CaloJet>, std::vector<reco::Track>, unsigned long>::keyVal> >" />
+  <class name="edm::RefVector<edm::OneToManyAssociation<std::vector<CaloJet>, std::vector<reco::Track>, unsigned long>, edm::OneToManyAssociation<std::vector<CaloJet>, std::vector<reco::Track>, unsigned long>::keyVal, edm::refhelper::FindUsingAdvance<edm::OneToManyAssociation<std::vector<CaloJet>, std::vector<reco::Track>, unsigned long>, edm::OneToManyAssociation<std::vector<CaloJet>, std::vector<reco::Track>, unsigned long>::keyVal> >" />
+  <class name="edm::RefProd<edm::OneToManyAssociation<std::vector<CaloJet>, std::vector<reco::Track>, unsigned long>>" />
 </lcgdict>
