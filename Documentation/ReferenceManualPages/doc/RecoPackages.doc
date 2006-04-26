@@ -13,6 +13,7 @@ Definition of classes modelling Reco high level objects.
  - \ref DataFormats_EgammaReco "EgammaReco": ECAL Reco classes<br>
  - \ref DataFormats_EgammaCandidates "EgammaCandidates": Electron and photon definitions<br>
  - \ref DataFormats_JetReco "JetReco": Jet Reco classes<br>
+ - \ref DataFormats_METReco "METReco": Missign Transverse Energy Reco classes<br>
 
 - <b>DataFormats: "Low level" objects</b><br>
 Definition of classes modelling Reco low level objects.
