@@ -1,5 +1,5 @@
-#ifndef PixelCPEInitial_H
-#define PixelCPEInitial_H
+#ifndef RecoLocalTracker_SiPixelRecHits_PixelCPEInitial_H
+#define RecoLocalTracker_SiPixelRecHits_PixelCPEInitial_H 1
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"

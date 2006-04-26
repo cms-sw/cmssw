@@ -1,5 +1,5 @@
-#ifndef PixelCPEBase_H
-#define PixelCPEBase_H
+#ifndef RecoLocalTracker_SiPixelRecHits_PixelCPEBase_H
+#define RecoLocalTracker_SiPixelRecHits_PixelCPEBase_H 1
 
 //-----------------------------------------------------------------------------
 // \class        PixelCPEBase

@@ -1,5 +1,5 @@
-#ifndef CPEFromDetPosition_H
-#define CPEFromDetPosition_H
+#ifndef RecoLocalTracker_SiPixelRecHits_CPEFromDetPosition_H
+#define RecoLocalTracker_SiPixelRecHits_CPEFromDetPosition_H 1
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
