@@ -3,11 +3,11 @@
    Implementation of calss ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ProcessPSetBuilder.cc,v 1.11 2006/03/02 22:58:11 paterno Exp $
+   \version $Id: ProcessPSetBuilder.cc,v 1.12 2006/04/04 22:57:30 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.11 2006/03/02 22:58:11 paterno Exp $";
+static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.12 2006/04/04 22:57:30 rpw Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessPSetBuilder.h>
@@ -19,7 +19,6 @@ static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.11 2006/03/02 22:58:
 #include "FWCore/ParameterSet/interface/Entry.h"
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
-#include "FWCore/ParameterSet/src/ParseResultsTweaker.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
@@ -44,19 +43,7 @@ namespace edm
 
   ProcessPSetBuilder::ProcessPSetBuilder(const std::string& config)
   {
-    edm::pset::ParseResults parsetree = edm::pset::parse(config.c_str());
-
-    // The following test was not needed, because the edm::pset::parse
-    // either returns a well-formed ParseResults object, or throws.
-
-    //   if(0 == parsetree.get()) {
-    //     throw edm::Exception(errors::Configuration,"FileOpen")
-    //       << "Unable to parse configuration file.\n"
-    //       << "Please check the error message reported earlier.";
-    //   }
-    // process "replace" commands, inline using blocks, etc.
-    edm::pset::ParseResultsTweaker tweaker;
-    tweaker.process(parsetree);
+    edm::pset::ParseResults parsetree = edm::pset::fullParse(config.c_str());
 
     processDesc_= edm::pset::makeProcess(parsetree);
 
