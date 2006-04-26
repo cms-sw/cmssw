@@ -2,7 +2,7 @@
 //
 // see header file for documentation
 //
-// $Id: HLTSimpleJet.cc,v 1.5 2006/04/21 01:07:49 wmtan Exp $
+// $Id: HLTSimpleJet.cc,v 1.7 2006/04/26 09:55:34 gruen Exp $
 //
 
 #include "HLTrigger/HLTcore/interface/HLTSimpleJet.h"
@@ -57,8 +57,8 @@ HLTSimpleJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int n=0;
    CaloJetCollection::const_iterator jet(jets->begin());
    for (; jet!=jets->end()&&n<njcut_; jet++) {
-     //     cout << (*jet).getPt() << endl;
-     if ( (jet->getPt()) >= ptcut_) {
+     //     cout << (*jet).pt() << endl;
+     if ( (jet->pt()) >= ptcut_) {
        n++;
        filterproduct->putJet(Ref<CaloJetCollection>(jets,distance(jets->begin(),jet)));
      }
