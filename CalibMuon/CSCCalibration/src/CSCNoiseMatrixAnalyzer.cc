@@ -1,6 +1,6 @@
 /** 
  * Analyzer for reading CSC bin by bin ADC information.
- * author O.Boeriu 20/03/06 
+ * author S. Durkin, O.Boeriu 26/04/06 
  * ripped from Jeremy's and Rick's analyzers
  *   
  */
@@ -37,7 +37,6 @@ CSCNoiseMatrixAnalyzer::CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf) {
   strip=0,misMatch=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1;
-  Chamber_AutoCorrMat cam[5];
   for(int k=0;k<5;k++) cam[k].zero();
 
   for (int i=0;i<480;i++){
@@ -72,8 +71,6 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByLabel("DaqSource" , rawdata);
 
-  Chamber_AutoCorrMat cam[5];
-  
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
     
@@ -99,8 +96,6 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
 	std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
 	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++;}
 
-
-
 	for (int i_chamber=0; i_chamber<NChambers; i_chamber++) { 
 	  
 	  for(int i_layer = 1; i_layer <= LAYERS; ++i_layer) {
@@ -108,8 +103,8 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
 	    const CSCDMBHeader &thisDMBheader = cscData[i_chamber].dmbHeader();
 	    
 	    if (thisDMBheader.cfebAvailable()){
-	      dmbID[i_chamber]   = cscData[i_chamber].dmbHeader().dmbID(); //get DMB ID
-	      crateID[i_chamber] = cscData[i_chamber].dmbHeader().crateID(); //get crate ID
+	      dmbID[i_chamber]   = cscData[i_chamber].dmbHeader().dmbID(); 
+	      crateID[i_chamber] = cscData[i_chamber].dmbHeader().crateID();
 	      if(crateID[i_chamber] == 255) continue; 
 
 	      for (unsigned int i=0; i<digis.size(); i++){
@@ -122,18 +117,8 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
 	    }
 	  }
 	}
-	
-	float corrmat[12];
-	float *tmp;
 	tmp=corrmat; 
 		
-	int lay=4;int strip=10;
-	tmp=cam[0].autocorrmat(lay,strip);
-	for(int i=0;i<12;i++)printf(" %5.2f ",tmp[i]);printf("\n");
-	lay=4;strip=11;
-	tmp=cam[0].autocorrmat(lay,strip);
-	for(int i=0;i<12;i++)printf(" %5.2f ",tmp[i]);printf("\n");
-
 	eventNumber++;
 	edm::LogInfo ("CSCNoiseMatrixAnalyzer")  << "end of event number " << eventNumber;
       }

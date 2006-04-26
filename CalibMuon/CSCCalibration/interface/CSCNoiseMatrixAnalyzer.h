@@ -24,7 +24,7 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
   int fff,ret_code,length;
   std::string chamber_id;
   int strip,misMatch;
-  float *tmp;
+  float *tmp, corrmat[12];
  
   float newMatrix1[480];
   float newMatrix2[480];
@@ -64,7 +64,6 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
        for (int k=0; k<STRIPS; k++){
 	 for (int max=0; max<12;max++){
 	   fff = (j*80)+k;
-	   Chamber_AutoCorrMat cam[5];
 	   tmp=cam[i].autocorrmat(j,k);
 	   newMatrix1[fff] =tmp[0];
 	   newMatrix2[fff] =tmp[1];
@@ -121,5 +120,5 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
  private:
  // variables persistent across events should be declared here.
  int eventNumber;
-
+ Chamber_AutoCorrMat cam[5];
 };
