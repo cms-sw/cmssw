@@ -43,6 +43,7 @@ void FamosProducer::endJob()
 void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 {
    using namespace edm;
+   using namespace std;
 
    // Get the generated event from the edm::Event
    Handle<HepMCProduct> evt;
