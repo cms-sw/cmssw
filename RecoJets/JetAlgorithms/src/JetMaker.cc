@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.4 2006/04/27 00:38:19 fedor Exp $
+/// $Id: JetMaker.cc,v 1.5 2006/04/27 01:15:05 fedor Exp $
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -70,22 +70,26 @@ namespace {
     fJetSpecific->m_energyFractionInHF = eInHF / towerEnergy;
     fJetSpecific->m_energyFractionInHCAL = eInHad / towerEnergy;
     fJetSpecific->m_energyFractionInECAL = eInEm / towerEnergy;
+    fJetSpecific->m_maxEInEmTowers = 0;
+    fJetSpecific->m_maxEInHadTowers = 0;
+    fJetSpecific->m_n90 = 0;
     
     //Sort the arrays
     sort(eECal_i.begin(), eECal_i.end(), greater<double>());
     sort(eHCal_i.begin(), eHCal_i.end(), greater<double>());
     
-    //Highest value in the array is the first element of the array
-    fJetSpecific->m_maxEInEmTowers = eECal_i.front(); 
-    fJetSpecific->m_maxEInHadTowers = eHCal_i.front();
-    
-    //n90 using the sorted list
-    fJetSpecific->m_n90 = 0;
-    double ediff = (eInHad + eInEm) * 0.9;
-    for (unsigned i = 0; i < fTowerIds.size(); i++) {
-      ediff = ediff - eECal_i[i] - eHCal_i[i];
-      fJetSpecific->m_n90++;
-      if (ediff <= 0) break; 
+    if (!fTowerIds.empty ()) {  
+      //Highest value in the array is the first element of the array
+      fJetSpecific->m_maxEInEmTowers = eECal_i.front(); 
+      fJetSpecific->m_maxEInHadTowers = eHCal_i.front();
+      
+      //n90 using the sorted list
+      double ediff = (eInHad + eInEm) * 0.9;
+      for (unsigned i = 0; i < fTowerIds.size(); i++) {
+	ediff = ediff - eECal_i[i] - eHCal_i[i];
+	fJetSpecific->m_n90++;
+	if (ediff <= 0) break; 
+      }
     }
     return true;
   }
