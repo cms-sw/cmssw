@@ -46,6 +46,7 @@ void TouchableToHistory::buildAll(){
     myMap[st] = *it;
     myDirectMap[st] = dddToID.id(*it);
 
+    /*
 #ifdef DEBUG    
     LogDebug("TrackerSimDebugNumbering")<< " INSERTING "<<view.logicalPart().name()<<" "<<t<<" "<<hist->GetVolume()->GetLogicalVolume()->GetName();
     LogDebug("TrackerSimDebugNumbering")<<" Sensitive: "<<hist->GetVolume()->GetLogicalVolume()->GetSensitiveDetector()<<std::endl;
@@ -54,7 +55,7 @@ void TouchableToHistory::buildAll(){
       edm::LogError("TrackerSimInfoNumbering")<< "Touchable to History Error!!!!";
     dumpG4VPV(hist);
 #endif
-
+    */
     delete hist;
 
   }
