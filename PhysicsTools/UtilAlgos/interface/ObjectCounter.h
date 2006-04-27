@@ -72,10 +72,10 @@ void ObjectCounter<C>::analyze( const edm::Event& evt, const edm::EventSetup& ) 
     int n = h->size();
     nSum_ += n;
     n2Sum_ += ( n * n );
-    ++ n_;
   } catch ( ... ) {
     std::cerr << ">>> product: " << src_ << " not found" << std::endl;
   }
-}
+  ++ n_;
+ }
 
 #endif
