@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: component.h,v 1.1 2006/03/08 12:57:07 llista Exp $
+ * \version $Id: component.h,v 1.2 2006/04/03 09:05:31 llista Exp $
  *
  */
 #include <boost/static_assert.hpp>
@@ -21,6 +21,18 @@ namespace reco {
     /// fail non specialized instances
     BOOST_STATIC_ASSERT(false);
   };
+
+  class Candidate;
+  
+  template<typename T>
+  inline T get( const Candidate & c ) {
+    return component<T>::get( c );
+  }
+
+  template<typename T, typename Tag>
+  inline T get( const Candidate & c ) {
+    return component<T, Tag>::get( c );
+  }
 
 }
 
