@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/03/20 22:28:31 $
- *  $Revision: 1.22 $
+ *  $Date: 2006/04/08 23:17:55 $
+ *  $Revision: 1.23 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -473,7 +473,7 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
       EcalElectronicsId id(1, tower_id, 1);
       memttidcollection.push_back(id);
       ++ _expTowersIndex;
-      return;
+      return; // if NOT a mem tt block - do not build any Pn digis
     }
        
 
@@ -497,7 +497,7 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
       memblocksizecollection.push_back(id);
 
       ++ _expTowersIndex;
-      return;
+      return;  // if mem tt block size not ok - do not build any Pn digis
     }
   
 
@@ -590,7 +590,7 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
 	// gain in mem can be 1 or 16 encoded resp. with 0 ir 1 in the 13th bit.
 	// checking and reporting if there is any sample with gain==2,3
 	short sampleGain = (new_data &0x3000)/4096;
-	if (  sampleGain==2 || sampleGain==3   ) 
+	if (  sampleGain==2 || sampleGain==3) 
 	  {
 	    EcalElectronicsId id(1, tower_id, strip*5 + channel + 1);
 	    memgaincollection.push_back(id);
@@ -612,14 +612,48 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
     }// loop on strips
   }// loop on channels
   
-  
+
+
+
+  for (int pnId=0; pnId<kPnPerTowerBlock; pnId++) pnIsOkInBlock[pnId]=true;
+  // if anything was wrong with mem_tt_id or mem_tt_size: you would have already exited
+  // otherwise, if any problem with ch_gain or ch_id: must not produce digis for the pertaining Pn
+
+  if (!      (memgaincollection.size()==0 && memchidcollection.size()==0)          )
+    {
+      for ( EcalElectronicsIdCollection::const_iterator idItr = memgaincollection.begin();
+	    idItr != memgaincollection.end();
+	    ++ idItr ) {
+	int ch = (*idItr).channelId();
+	ch = (ch-1)/5;
+	pnIsOkInBlock [ch] = false;
+      }
+
+      for ( EcalElectronicsIdCollection::const_iterator idItr = memchidcollection.begin();
+	    idItr != memchidcollection.end();
+	    ++ idItr ) {
+	int ch = (*idItr).channelId();
+	ch = (ch-1)/5;
+	pnIsOkInBlock [ch] = false;
+      }
+
+    }// end: if any ch_gain or ch_id problems exclude the Pn's from digi production
+
+
+
+
   // looping on PN's of current mem box
   for (int pnId = 1;  pnId <  (kPnPerTowerBlock+1); pnId++){
-    
+
+    // if present Pn has any of its 5 channels with problems, do not produce digi for it
+    if (! pnIsOkInBlock [pnId-1] ) continue;
+
     // fixme giof: second argumenti is DCCId, to be determined
     EcalPnDiodeDetId PnId(1, 1, pnId +  kPnPerTowerBlock*mem_id);
     EcalPnDiodeDigi thePnDigi(PnId );
+
     thePnDigi.setSize(kSamplesPerPn);
+
     for (int sample =0; sample<kSamplesPerPn; sample++)
       {thePnDigi.setSample(sample, data_MEM[(mem_id)*250 + (pnId-1)*kSamplesPerPn + sample ] );  }
     pndigicollection.push_back(thePnDigi);
@@ -673,10 +707,13 @@ pair<int,int>  EcalTBDaqFormatter::cellIndex(int tower_id, int strip, int ch) {
 }
 
 
+
 int  EcalTBDaqFormatter::cryIc(int tower, int strip, int ch) {
   pair<int,int> cellInd= EcalTBDaqFormatter::cellIndex(tower, strip, ch); 
   return cellInd.second + (cellInd.first-1)*kCrystalsInPhi;
 }
+
+
 
 bool EcalTBDaqFormatter::rightTower(int tower) const {
   

@@ -2,8 +2,8 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2006/03/20 22:28:31 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/04/08 23:17:55 $
+ *  $Revision: 1.11 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -88,9 +88,9 @@ class EcalTBDaqFormatter   {
   unsigned _expTowersIndex;
 
   // used for mem boxes unpacking
-  int memRawSample_[kStripsPerTower][kChannelsPerStrip][ kSamplesPerChannel+1];            // store raw data for one mem
-  int data_MEM[500];      // collects unpacked data for both mems 
-
+  int    memRawSample_[kStripsPerTower][kChannelsPerStrip][ kSamplesPerChannel+1];       // store raw data for one mem
+  int    data_MEM[500];                                                                                                                  // collects unpacked data for both mems 
+  bool pnIsOkInBlock[kPnPerTowerBlock];
 
 };
 #endif
