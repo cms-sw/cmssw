@@ -42,6 +42,8 @@ void HybridClusterAlgo::makeClusters(EcalRecHitCollection & rechits, edm::ESHand
     // and high ET hits are also seeds:
     if (ET > eb_st){
       seeds.push_back(*it);
+      std::cout << "Seed ET: " << ET << std::endl;
+      std::cout << "Seed E: " << it->energy() << std::endl;
     }
   }
   
