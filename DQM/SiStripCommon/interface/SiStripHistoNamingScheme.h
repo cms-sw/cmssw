@@ -1,6 +1,7 @@
 #ifndef DQM_SiStripCommon_SiStripHistoNamingScheme_H
 #define DQM_SiStripCommon_SiStripHistoNamingScheme_H
 
+#include "DQM/SiStripCommon/interface/SiStripHistoNamingConstants.h"
 #include "boost/cstdint.hpp"
 #include <string>
 
@@ -39,26 +40,26 @@ class SiStripHistoNamingScheme {
   
   // ----- METHODS RETURNING SOME GENERIC STRINGS AND CONSTANTS -----
 
-  inline static string top() { return root_ + top_; }
-  inline static string controlView() { return top_ + dir_ + controlView_; }
-  inline static string readoutView() { return top_ + dir_ + readoutView_; }
+  inline static string top() { return sistrip::root_ + sistrip::top_; }
+  inline static string controlView() { return sistrip::top_ + sistrip::dir_ + sistrip::controlView_; }
+  inline static string readoutView() { return sistrip::top_ + sistrip::dir_ + sistrip::readoutView_; }
 
-  /** Returns reserved value (0xFFFF) to represent "NOT SPECIFIED". */
-  inline static const uint16_t& all()   { return all_; }
-  inline static const string& fedId()   { return fedId_; }
-  inline static const string& fedCh()   { return fedChannel_; }
-  inline static const string& gain()    { return gain_; }
-  inline static const string& digital() { return digital_; }
+/*   /\** Returns reserved value (0xFFFF) to represent "NOT SPECIFIED". *\/ */
+/*   inline static const uint16_t& all()   { return sistrip::all_; } */
+/*   inline static const string& fedId()   { return sistrip::fedId_; } */
+/*   inline static const string& fedCh()   { return sistrip::fedChannel_; } */
+/*   inline static const string& gain()    { return sistrip::gain_; } */
+/*   inline static const string& digital() { return sistrip::digital_; } */
   
   // ----- FORMULATION OF DIRECTORY PATHS -----
 
   /** Returns directory path in the form of a string, based on control
       params (FEC crate, slot and ring, CCU address and channel). */ 
-  static string controlPath( uint16_t fec_crate = all_, 
-			     uint16_t fec_slot  = all_, 
-			     uint16_t fec_ring  = all_, 
-			     uint16_t ccu_addr  = all_, 
-			     uint16_t ccu_chan  = all_ );
+  static string controlPath( uint16_t fec_crate = sistrip::all_, 
+			     uint16_t fec_slot  = sistrip::all_, 
+			     uint16_t fec_ring  = sistrip::all_, 
+			     uint16_t ccu_addr  = sistrip::all_, 
+			     uint16_t ccu_chan  = sistrip::all_ );
 
   /** Returns control parameters in the form of a "ControlPath" struct,
       based on directory path string of the form
@@ -67,8 +68,8 @@ class SiStripHistoNamingScheme {
   
   /** Returns directory path in the form of a string, based on readout
       parameters (FED id and channel). */ 
-  static string readoutPath( uint16_t fed_id = all_, 
-			     uint16_t fed_channel = all_ );
+  static string readoutPath( uint16_t fed_id = sistrip::all_, 
+			     uint16_t fed_channel = sistrip::all_ );
 
   /** Returns readout parameters in the form of a pair (FED
       id/channel), based on directory path string of the form
@@ -100,63 +101,6 @@ class SiStripHistoNamingScheme {
   static KeyType keyType( string key_type );
   static Granularity granularity( string granularity );
 
- private: // ----- private data members -----
-
-  // misc
-  static const string root_;
-  static const string top_;
-  static const string dir_;
-  static const string sep_;
-  static const uint16_t all_; // 0xFFFF
-
-  // control view
-  static const string controlView_;
-  static const string fecCrate_;
-  static const string fecSlot_;
-  static const string fecRing_;
-  static const string ccuAddr_;
-  static const string ccuChan_;
-  
-  // readout view
-  static const string readoutView_;
-  static const string fedId_;
-  static const string fedChannel_;
-
-  // detector view
-  static const string detectorView_; //@@ necessary?
-
-  // histo title
-  static const string fedCabling_;
-  static const string apvTiming_;
-  static const string fedTiming_;
-  static const string optoScan_;
-  static const string vpspScan_;
-  static const string pedestals_;
-  static const string apvLatency_;
-  static const string unknownTask_;
-  
-  // histo contents
-  static const string sum2_;
-  static const string sum_;
-  static const string num_;
-  static const string unknownContents_;
-
-  // histo keys
-  static const string fedKey_;
-  static const string fecKey_;
-  static const string detKey_; //@@ necessary?
-  static const string unknownKey_;
-
-  // granularity
-  static const string lldChan_;
-  static const string apvPair_;
-  static const string apv_;
-  static const string unknownGranularity_;
-  
-  // extra info
-  static const string gain_;       // Opto scan
-  static const string digital_;    // Opto scan
-  
 };
 
 #endif // DQM_SiStripCommon_SiStripHistoNamingScheme_H
