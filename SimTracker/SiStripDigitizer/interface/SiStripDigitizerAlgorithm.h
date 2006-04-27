@@ -16,7 +16,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
 #include "SimTracker/SiStripDigitizer/interface/SiLinearChargeCollectionDrifter.h"
 #include "SimTracker/SiStripDigitizer/interface/SiTrivialZeroSuppress.h"
 #include "SimTracker/SiStripDigitizer/interface/SiTrivialDigitalConverter.h"
@@ -27,11 +26,12 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "SimGeneral/HepPDT/interface/HepPDTable.h"
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
+#include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLinkCollection.h"
+
 using namespace std;
 
 class SiStripDigitizerAlgorithm 
@@ -44,16 +44,15 @@ class SiStripDigitizerAlgorithm
   typedef float Amplitude;
 
   //digisimlink
-  std::vector<StripDigiSimLink> link_coll;
-  std::vector<StripDigiSimLink>  make_link(){ return link_coll;}
+  edm::DetSet<StripDigiSimLink> link_coll;
+  edm::DetSet<StripDigiSimLink>  make_link(){ return link_coll;}
 
   
   SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det);
   ~SiStripDigitizerAlgorithm();
 
   // Runs the algorithm
-  //  void run(const std::vector<PSimHit*> &input, StripDigiCollection &output,StripGeomDetUnit *det,GlobalVector);
-  vector <StripDigi>  run(const std::vector<PSimHit> &input, StripGeomDetUnit *det,GlobalVector);
+  edm::DetSet<SiStripDigi>  run(const std::vector<PSimHit> &input, StripGeomDetUnit *det,GlobalVector);
 
  private:
   int ndigis; 
@@ -141,9 +140,9 @@ class SiStripDigitizerAlgorithm
   const StripGeomDetUnit* _detp;
   const StripTopology* topol;
 
-  std::vector<StripDigi> internal_coll; //empty vector of StripDigi used in digitize
-  std::vector<StripDigi> digis;
-  std::vector<StripDigi> digitize(StripGeomDetUnit *det);
+  edm::DetSet<SiStripDigi> internal_coll; //empty vector of StripDigi used in digitize
+  edm::DetSet<SiStripDigi> digis;
+  edm::DetSet<SiStripDigi> digitize(StripGeomDetUnit *det);
 
 
 

@@ -39,10 +39,6 @@ class SiHitDigitizer{
     theSiInduceChargeOnStrips = cd;
   }
   
-  //SiChargeDivider* getChargeDivider(){return theSiChargeDivider;}
-  //SiChargeCollectionDrifter* getChargeCollectionDrifter(){return theSiChargeCollectionDrifter;}
-  //SiInduceChargeOnStrips* getInduceChargeOnStrips(){return theSiInduceChargeOnStrips;}
-  
   hit_map_type processHit(const PSimHit&, const StripGeomDetUnit&, GlobalVector);
   
  private:

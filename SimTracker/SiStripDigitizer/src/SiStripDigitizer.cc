@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.13 2006/03/21 14:24:20 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.14 2006/03/23 09:42:55 fambrogl Exp $
 //
 //
 
@@ -21,8 +21,11 @@
 // system include files
 #include <memory>
 
-
 #include "SimTracker/SiStripDigitizer/interface/SiStripDigitizer.h"
+
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -32,10 +35,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLinkCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
@@ -64,9 +63,8 @@ namespace cms
     //   stripDigitizer_(conf) ,
     conf_(conf)
   {
-
-    produces<StripDigiCollection>();
-    produces<StripDigiSimLinkCollection>();
+    produces<edm::DetSetVector<SiStripDigi> >();
+    produces<edm::DetSetVector<StripDigiSimLink> >();
   }
 
   // Virtual destructor needed.
@@ -105,30 +103,16 @@ namespace cms
     theStripHits.insert(theStripHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
 
     // Step B: create empty output collection
-    std::auto_ptr<StripDigiCollection> output(new StripDigiCollection);
-    std::auto_ptr<StripDigiSimLinkCollection> outputlink(new StripDigiSimLinkCollection);
+    std::auto_ptr<edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi> );
+    std::auto_ptr<edm::DetSetVector<StripDigiSimLink> > outputlink(new edm::DetSetVector<StripDigiSimLink> );
 
     //Loop on PSimHit
     SimHitMap.clear();
     
     for (std::vector<PSimHit>::iterator isim = theStripHits.begin();
 	 isim != theStripHits.end(); ++isim){
-      /*
-	DetId detid=DetId((*isim).detUnitId());
-	unsigned int subid=detid.subdetId();
-	if ((subid==  StripSubdetector::TIB) || 
-	(subid== StripSubdetector::TOB)  ||
-	(subid==  StripSubdetector::TEC) || 
-	(subid== StripSubdetector::TID)) {
-      */
       SimHitMap[(*isim).detUnitId()].push_back((*isim));
-      //      }
     }
-    
-    
-    // Temporary: generate random collections of pseudo-hits:
-    //PseudoHitContainer pseudoHitContainer;// for some reason this class isn't recognized!!!
-    
     
     edm::ESHandle<TrackerGeometry> pDD;
  
@@ -147,9 +131,9 @@ namespace cms
       
       StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
       if (sgd != 0){
-	
-	collector.clear();
-	linkcollector.clear();
+
+	edm::DetSet<SiStripDigi> collector((*iu)->geographicalId().rawId());
+	edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
 	
 	if(theAlgoMap.find(&(sgd->type())) == theAlgoMap.end()) {
 	  theAlgoMap[&(sgd->type())] = new SiStripDigitizerAlgorithm(conf_, sgd);
@@ -157,25 +141,17 @@ namespace cms
 	
 	collector= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield);
 	
-	if (collector.size()>0){
-	  StripDigiCollection::Range outputRange;
+	if (collector.data.size()>0){
 	  
-	  outputRange.first = collector.begin();
-	  outputRange.second = collector.end();
-	  output->put(outputRange,(*iu)->geographicalId().rawId());
+	  output->insert(collector);
 	  
 	  //digisimlink
 	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
-	    StripDigiSimLinkCollection::Range outputlinkRange;
 	    linkcollector= ((theAlgoMap.find(&(sgd->type())))->second)->make_link();
-	    outputlinkRange.first = linkcollector.begin();	  
-	    outputlinkRange.second = linkcollector.end();
-	    outputlink->put(outputlinkRange,(*iu)->geographicalId().rawId());
+	    outputlink->insert(linkcollector);
 	  }
 	}	
-	
       }
-      
     }
     
     

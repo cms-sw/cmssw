@@ -8,7 +8,6 @@
  */
 class SiNoiseAdder{
  public:
-  //SiNoiseAdder(int,float,float);
   virtual ~SiNoiseAdder() { }
   virtual SiPileUpSignals::signal_map_type addNoise(SiPileUpSignals::signal_map_type) = 0;
 };

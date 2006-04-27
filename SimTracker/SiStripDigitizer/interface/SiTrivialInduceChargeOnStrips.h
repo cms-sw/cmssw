@@ -21,8 +21,7 @@ class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips{
 
  private:
   double clusterWidth;
-  //   static ConfigurableVector<float> signalCoupling; 
-  vector<float> signalCoupling; // AG
+  vector<float> signalCoupling; 
   double geVperElectron;
 };
 

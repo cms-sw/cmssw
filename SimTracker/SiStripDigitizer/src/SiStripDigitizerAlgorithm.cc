@@ -7,12 +7,12 @@
 #include <iostream>
 #include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
 
-#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-#include "DataFormats/SiStripDigi/interface/StripDigi.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLinkCollection.h"
 
 #include "SimTracker/SiStripDigitizer/interface/SiLinearChargeCollectionDrifter.h"
 #include "SimTracker/SiStripDigitizer/interface/SiLinearChargeDivider.h"
@@ -22,6 +22,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "Geometry/Surface/interface/BoundSurface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using namespace std;
 
 #define CBOLTZ (1.38E-23)
@@ -86,11 +87,9 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
 //  Run the algorithm
 //  ------------------
 
-vector <StripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
-						  StripGeomDetUnit *det,
-						  GlobalVector bfield)
-  
-{
+edm::DetSet<SiStripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
+							StripGeomDetUnit *det,
+							GlobalVector bfield){
   
   //  std::cout << "SiStripDigitizerAlgorithm is running!" << endl;
   
@@ -103,9 +102,9 @@ vector <StripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &in
   vector<PSimHit>::const_iterator simHitIter = input.begin();
   vector<PSimHit>::const_iterator simHitIterEnd = input.end();
   for (;simHitIter != simHitIterEnd; ++simHitIter) {
-      
+    
     const PSimHit ihit = *simHitIter;
-
+    
     if ( abs(ihit.tof()) < tofCut && ihit.energyLoss()>0) {
       SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(ihit,*det,bfield);
       theSiPileUpSignals->add(_temp,ihit);
@@ -122,7 +121,7 @@ vector <StripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &in
     afterNoise = theSiNoiseAdder->addNoise(theSignal);
   }
   
-  digis.clear();
+  digis.data.clear();
   push_digis(theSiZeroSuppress->zeroSuppress(theSiDigitalConverter->convert(afterNoise)),
 	     theLink,afterNoise,detID);
   
@@ -133,55 +132,50 @@ void SiStripDigitizerAlgorithm::push_digis(const DigitalMapType& dm,
 					   const HitToDigisMapType& htd,
 					   const SiPileUpSignals::signal_map_type& afterNoise,
 					   unsigned int detID){
-  
-  digis.reserve(50); 
-  digis.clear();
-  link_coll.clear();  
+  digis.data.reserve(50); 
+  digis.data.clear();
+  link_coll.data.clear();  
   
   for ( DigitalMapType::const_iterator i=dm.begin(); i!=dm.end(); i++) {
-    digis.push_back( StripDigi( (*i).first, (*i).second));
+    digis.data.push_back( SiStripDigi( (*i).first, (*i).second));
     ndigis++; 
   }
   
   // reworked to access the fraction of amplitude per simhit
   
   for ( HitToDigisMapType::const_iterator mi=htd.begin(); mi!=htd.end(); mi++) {
-
-    //    if ((*((const_cast<DigitalMapType * >(&dm))))[(*mi).first] != 0){ ////fai un find!
-    if ((*((const_cast<DigitalMapType * >(&dm)))).find((*mi).first) != (*((const_cast<DigitalMapType * >(&dm)))).end() ){ ////fai un find!
-           
+    
+    if ((*((const_cast<DigitalMapType * >(&dm)))).find((*mi).first) != (*((const_cast<DigitalMapType * >(&dm)))).end() ){           
       // --- For each channel, sum up the signals from a simtrack
-        
-       map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
-       for (vector < pair < const PSimHit*, Amplitude > >::const_iterator simul = 
-              (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
-         totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
-       }
-       
-       //--- include the noise as well
-       
-       SiPileUpSignals::signal_map_type& temp1 = const_cast<SiPileUpSignals::signal_map_type&>(afterNoise);
-       float totalAmplitude1 = temp1[(*mi).first];
-       
-       //--- digisimlink
-       
-       for (map<const PSimHit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin(); 
-	    iter != totalAmplitudePerSimHit.end(); iter++){
-	 
-	 float threshold = 0.;
-	 if (totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1 >= threshold) {
-	   float fraction = totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1;
-	   
-	   //Noise fluctuation could make fraction>1. Unphysical, set it by hand.
-	   if(fraction >1.) fraction = 1.;
-	   
-	   link_coll.push_back(StripDigiSimLink( (*mi).first,   //channel
-						 ((*iter).first)->trackId(), //simhit
-						 fraction));    //fraction
-	   //cout << " channel = " << (*mi).first << " simtrack = " << ((*iter).first)->trackId() << " frac = " << fraction << endl;
-	   
-	 }
-       }
+      
+      map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
+      for (vector < pair < const PSimHit*, Amplitude > >::const_iterator simul = 
+	     (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
+	totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
+      }
+      
+      //--- include the noise as well
+      
+      SiPileUpSignals::signal_map_type& temp1 = const_cast<SiPileUpSignals::signal_map_type&>(afterNoise);
+      float totalAmplitude1 = temp1[(*mi).first];
+      
+      //--- digisimlink
+      
+      for (map<const PSimHit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin(); 
+	   iter != totalAmplitudePerSimHit.end(); iter++){
+	
+	float threshold = 0.;
+	if (totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1 >= threshold) {
+	  float fraction = totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1;
+	  
+	  //Noise fluctuation could make fraction>1. Unphysical, set it by hand.
+	  if(fraction >1.) fraction = 1.;
+	  
+	  link_coll.data.push_back(StripDigiSimLink( (*mi).first,   //channel
+						     ((*iter).first)->trackId(), //simhit
+						     fraction));    //fraction
+	}
+      }
     }
   }
 }
