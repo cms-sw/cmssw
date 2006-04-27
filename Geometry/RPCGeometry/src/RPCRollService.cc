@@ -57,6 +57,26 @@ RPCRollService::CentreOfStrip(float strip)
   return this->topology()->localPosition(strip);
 }
 
+float
+RPCRollService::strip(const LocalPoint& lp)
+{ 
+  return this->topology()->strip(lp);
+
+}
+
+float
+RPCRollService::localPitch(const LocalPoint& lp)
+{ 
+  return this->topology()->localPitch(lp);
+
+}
+
+float
+RPCRollService::pitch()
+{ 
+  return this->topology()->pitch();
+
+}
 
 bool
 RPCRollService::isBarrel()
