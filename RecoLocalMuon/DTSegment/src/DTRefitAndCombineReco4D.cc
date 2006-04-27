@@ -3,8 +3,8 @@
  * Algo for reconstructing 4d segment in DT refitting the 2D phi SL hits and combining
  * the results with the theta view.
  *  
- * $Date: 2006/04/21 14:25:38 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/26 14:15:32 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -25,7 +25,6 @@ using namespace edm;
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
-#include "DataFormats/MuonDetId/interface/DTDetIdAccessor.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -40,14 +39,6 @@ DTRecSegment4DBaseAlgo(pset), theAlgoName("DTRefitAndCombineReco4D"){
 
   // the max allowd chi^2 for the fit of th combination of two phi segments
   theMaxChi2forPhi = pset.getParameter<double>("MaxChi2forPhi");
-  
-
-
-//   // Get the concrete 2D-segments reconstruction algo from the factory
-//   string theReco2DAlgoName = pset.getParameter<string>("Reco2DAlgoName");
-//   cout << "the Reco2D AlgoName is " << theReco2DAlgoName << endl;
-//   the2DAlgo = DTRecSegment2DAlgoFactory::get()->create(theReco2DAlgoName,
-//                                                      pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
 }
 
 void DTRefitAndCombineReco4D::setES(const EventSetup& setup){
@@ -73,9 +64,9 @@ DTRefitAndCombineReco4D::setDTRecSegment2DContainer(Handle<DTRecSegment2DCollect
   const DTChamberId chId =  theChamber->id();
   
   //Extract the DTRecSegment2DCollection ranges for the three different SL
-  DTRecSegment2DCollection::range rangePhi1   = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,1)));
-  DTRecSegment2DCollection::range rangeTheta = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,2)));
-  DTRecSegment2DCollection::range rangePhi2   = allHits->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(chId,3)));
+  DTRecSegment2DCollection::range rangePhi1   = allHits->get(DTSuperLayerId(chId,1));
+  DTRecSegment2DCollection::range rangeTheta = allHits->get(DTSuperLayerId(chId,2));
+  DTRecSegment2DCollection::range rangePhi2   = allHits->get(DTSuperLayerId(chId,3));
     
   // Fill the DTRecSegment2D containers for the three different SL
   vector<DTRecSegment2D> segments2DPhi1(rangePhi1.first,rangePhi1.second);

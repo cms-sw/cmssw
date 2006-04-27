@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/26 09:55:08 $
- * $Revision: 1.6 $
+ * $Date: 2006/04/26 14:15:31 $
+ * $Revision: 1.7 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -15,7 +15,7 @@
 #include "RecoLocalMuon/DTSegment/src/DTCombinatorialPatternReco.h"
 
 #include "RecoLocalMuon/DTSegment/src/DTCombinatorialPatternReco4D.h"
-#include "DataFormats/MuonDetId/interface/DTDetIdAccessor.h"
+#include "DataFormats/MuonDetId/interface/DTRangeMapAccessor.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
@@ -71,10 +71,10 @@ void DTCombinatorialPatternReco4D::setDTRecHit1DContainer(Handle<DTRecHitCollect
   theHitsFromPhi2.clear();
   theHitsFromTheta.clear();
 
-  // FIXME!!!
-  DTRecHitCollection::range rangeHitsFromPhi1 = all1DHits->get(DTLayerId(theChamber->id(),1,1), DTSuperLayerIdComparator());
-  DTRecHitCollection::range rangeHitsFromPhi2 = all1DHits->get(DTLayerId(theChamber->id(),3,1), DTSuperLayerIdComparator());
-  //
+  DTRecHitCollection::range rangeHitsFromPhi1 = 
+    all1DHits->get(DTRangeMapAccessor::layersBySuperLayer( DTSuperLayerId(theChamber->id(),1) ) );
+  DTRecHitCollection::range rangeHitsFromPhi2 = 
+    all1DHits->get(DTRangeMapAccessor::layersBySuperLayer( DTSuperLayerId(theChamber->id(),3) ) );
 
   vector<DTRecHit1DPair> hitsFromPhi1(rangeHitsFromPhi1.first,rangeHitsFromPhi1.second);
   vector<DTRecHit1DPair> hitsFromPhi2(rangeHitsFromPhi2.first,rangeHitsFromPhi2.second);
@@ -86,9 +86,8 @@ void DTCombinatorialPatternReco4D::setDTRecHit1DContainer(Handle<DTRecHitCollect
   theHitsFromPhi2 = hitsFromPhi2;
 
   if(allDTRecHits){
-    // FIXME!!!
-    DTRecHitCollection::range rangeHitsFromTheta = all1DHits->get(DTLayerId(theChamber->id(),2,1), DTSuperLayerIdComparator());
-    //
+    DTRecHitCollection::range rangeHitsFromTheta = 
+      all1DHits->get(DTRangeMapAccessor::layersBySuperLayer( DTSuperLayerId(theChamber->id(),2) ) );
     
     vector<DTRecHit1DPair> hitsFromTheta(rangeHitsFromTheta.first,rangeHitsFromTheta.second);
     if(debug)
@@ -104,7 +103,8 @@ void DTCombinatorialPatternReco4D::setDTRecSegment2DContainer(Handle<DTRecSegmen
   if(!allDTRecHits){
 
     //Extract the DTRecSegment2DCollection range for the theta SL
-    DTRecSegment2DCollection::range rangeTheta = all2DSegments->get(DTDetIdAccessor::bySuperLayer(DTSuperLayerId(theChamber->id(),2)));
+    DTRecSegment2DCollection::range rangeTheta = 
+      all2DSegments->get(DTSuperLayerId(theChamber->id(),2));
     
     // Fill the DTRecSegment2D container for the theta SL
     vector<DTRecSegment2D> segments2DTheta(rangeTheta.first,rangeTheta.second);
@@ -160,8 +160,6 @@ DTCombinatorialPatternReco4D::reconstruct(){
       
       theUpdator->update(superPhi);
       
-      
-      // << start
       if (hasZed) {
 
 	// Create all the 4D-segment combining the Z view with the Phi one

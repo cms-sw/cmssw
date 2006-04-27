@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/19 17:39:12 $
- * $Revision: 1.6 $
+ * $Date: 2006/04/26 14:15:32 $
+ * $Revision: 1.7 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -24,7 +24,7 @@ using namespace edm;
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
-#include "DataFormats/MuonDetId/interface/DTDetIdAccessor.h"
+#include "DataFormats/MuonDetId/interface/DTRangeMapAccessor.h"
 
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DAlgoFactory.h"
 
@@ -94,7 +94,8 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
 
     // Get all the rec hit in the same superLayer in which layerId relies 
     DTRecHitCollection::range range =
-      allHits->get(layerId, DTSuperLayerIdComparator());
+      allHits->get(DTRangeMapAccessor::layersBySuperLayer(SLId));
+
     //FIXME: maybe I can use get(superLayerId) instead of the previous one
 
     // Fill the vector with the 1D RecHit
