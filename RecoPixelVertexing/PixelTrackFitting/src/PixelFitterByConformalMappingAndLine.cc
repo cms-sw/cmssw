@@ -117,7 +117,7 @@ const reco::Track* PixelFitterByConformalMappingAndLine::run(
   cout <<"vertex: " << vtx << endl;
 
   // temporary fix!
-  vtx = math::XYZPoint(0.,0.,0.);
+  vtx = math::XYZPoint(0.,0.,vtx.z());
   //
   //errors (dummy)
   //
