@@ -139,8 +139,11 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
          G4PrimaryParticle* g4prim= 
 	    new G4PrimaryParticle(pdgcode, p.x()*GeV, p.y()*GeV, p.z()*GeV);
 
-         if ( g4prim->GetG4code() != 0 ) 
-            g4prim->SetMass( g4prim->GetG4code()->GetPDGMass() ) ;	 
+         if ( g4prim->GetG4code() != 0 )
+	 { 
+            g4prim->SetMass( g4prim->GetG4code()->GetPDGMass() ) ;
+	    g4prim->SetCharge( g4prim->GetG4code()->GetPDGCharge() ) ;	 
+	 }
 	 g4prim->SetWeight( 10000*(*vpitr)->barcode() ) ;
 	 setGenId( g4prim, (*vpitr)->barcode() ) ;
 	 
