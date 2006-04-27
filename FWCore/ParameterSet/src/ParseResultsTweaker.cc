@@ -33,7 +33,7 @@ namespace edm {
         sortNodes(contents);
 
         // maybe we don't have to do anything
-        if(!replaceNodes_.empty()) 
+        if(!replaceNodes_.empty() || !renameNodes_.empty()) 
         {
   
           // NOTE: We only bother inlining the Using blocks
@@ -42,6 +42,14 @@ namespace edm {
           processUsingBlocks();
  
           NodePtrList::const_iterator nodeItr;
+
+          // do renames before replaces
+          for(nodeItr = renameNodes_.begin();
+              nodeItr != renameNodes_.end(); ++nodeItr)
+          {
+            processRenameNode(*nodeItr);
+          }
+
 
           // now replace nodes
           for(nodeItr = replaceNodes_.begin();
@@ -59,6 +67,7 @@ namespace edm {
 
     void ParseResultsTweaker::clear() 
     {
+      renameNodes_.clear();
       replaceNodes_.clear();
       modulesAndSources_.clear();
       everythingElse_.clear();
@@ -104,8 +113,8 @@ namespace edm {
           replaceNodes_.push_back(*nodeItr);
         }
 
-        else if(type == "block") {
-          blocks_[name] = *nodeItr;
+        else if(type == "rename") {
+          renameNodes_.push_back(*nodeItr);
         }
 
         else {
@@ -168,6 +177,20 @@ namespace edm {
         // Might affect overwriting
         moduleNode->nodes_->push_front(*paramItr);
       } 
+    }
+
+
+    void ParseResultsTweaker::processRenameNode(const NodePtr & n)
+    {
+      const RenameNode * renameNode = dynamic_cast<const RenameNode*>(n.get());
+      assert(renameNode != 0);
+
+      NodePtr targetPtr = findModulePtr(renameNode->from());
+      targetPtr->name = renameNode->to();
+
+      // and replace it in the maps here
+      modulesAndSources_[renameNode->to()] = targetPtr;
+      modulesAndSources_.erase(renameNode->from());
     }
 
 

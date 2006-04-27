@@ -36,6 +36,8 @@ namespace edm {
       void processUsingBlock(NodePtrList::iterator & usingNodeItr, 
                              ModuleNode * moduleNode);
       
+      void processRenameNode(const NodePtr & n);
+
       void processReplaceNode(const NodePtr & n);
 
 
@@ -58,6 +60,9 @@ namespace edm {
 
       /// Nodes which represent top-level PSet blocks
       NodePtrMap blocks_;
+
+      /// Nodes which rename modules and sources
+      NodePtrList renameNodes_;
 
       /// Nodes which replace parameters, sets, or modules
       NodePtrList replaceNodes_;
