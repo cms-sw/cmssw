@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-26 17:51:03+0200
-# Revision: $Id$ 
+# Revision: $Id: InstallCMSSWFromSource.pl,v 1.1 2006/04/27 11:32:50 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -42,6 +42,7 @@ my $symcheck = 0; # No sym checks by default
 my $do_clean = 0; # Don't automatically remove the release ver if an area exists already
 # The default architecture:
 my $defarch="slc3_ia32_gcc323";
+
 
 my %options =
    ("version=s"  => sub { $releasever = $_[1] },
