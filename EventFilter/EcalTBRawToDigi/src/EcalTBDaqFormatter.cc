@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/04/08 23:17:55 $
- *  $Revision: 1.23 $
+ *  $Date: 2006/04/27 13:22:15 $
+ *  $Revision: 1.24 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -70,8 +70,14 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
   LogDebug("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
 			      << "size " << length;
  
-  theParser_->parseBuffer( reinterpret_cast<ulong*>(const_cast<unsigned char*>(pData)), static_cast<ulong>(length), shit );
 
+  // mean + 3sigma estimation needed when switching to 0suppressed data
+  digicollection.reserve(kCrystals);
+  pnAllocated = false;
+  
+
+  theParser_->parseBuffer( reinterpret_cast<ulong*>(const_cast<unsigned char*>(pData)), static_cast<ulong>(length), shit );
+  
   vector< DCCEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
 
   // Access each DCC block
@@ -402,7 +408,14 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	  
 	  LogDebug("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
 				      << "processing mem box num: " << (*itTowerBlock)->towerID();
-	  
+
+	  // if tt 69 or 70 found, allocate Pn digi collection
+	  if(! pnAllocated) 
+	    {
+	      pndigicollection.reserve(kPns);
+	      pnAllocated = true;
+	    }
+
 	  DecodeMEM( (*itTowerBlock),  pndigicollection , 
 		     memttidcollection,  memblocksizecollection,
 		     memgaincollection,  memchidcollection);

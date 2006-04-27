@@ -2,8 +2,8 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2006/04/08 23:17:55 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/04/27 13:22:15 $
+ *  $Revision: 1.12 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -65,6 +65,7 @@ class EcalTBDaqFormatter   {
      kTowersInPhi = 4,       // Number of trigger towers in phi
      kTowersInEta = 17,      // Number of trigger towers in eta
      kCrystals = 1700,       // Number of crystals per supermodule
+     kPns = 10,                  // Number of PN laser monitoring diodes per supermodule
      kCrystalsInPhi = 20,    // Number of crystals in phi
      kCrystalsInEta = 85,    // Number of crystals in eta
      kCrystalsPerTower = 25, // Number of crystals per trigger tower
@@ -90,6 +91,7 @@ class EcalTBDaqFormatter   {
   // used for mem boxes unpacking
   int    memRawSample_[kStripsPerTower][kChannelsPerStrip][ kSamplesPerChannel+1];       // store raw data for one mem
   int    data_MEM[500];                                                                                                                  // collects unpacked data for both mems 
+  bool pnAllocated;
   bool pnIsOkInBlock[kPnPerTowerBlock];
 
 };
