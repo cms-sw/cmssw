@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.20 2006/03/06 20:21:55 paterno Exp $
+// $Id: ParameterSet.h,v 1.21 2006/03/08 22:14:52 wmtan Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -44,8 +44,7 @@ namespace edm {
 
     Entry const* const retrieveUntracked(std::string const&) const;
     void insert(bool ok_to_replace, std::string const& , Entry const&);
-    void augment(ParameterSet const& from);
-
+    void augment(ParameterSet const& from); 
     // encode
     std::string toString() const;
     std::string toStringOfTracked() const;
@@ -476,6 +475,10 @@ private:
     void explode(edm::ParameterSet const& top,
 	       std::vector<edm::ParameterSet>& results);
   }
+
+  // Free function to retrieve a parameter set, given the parameter set ID.
+  ParameterSet
+  getParameterSet(ParameterSetID const& id);
 
 }  // namespace edm
 #endif
