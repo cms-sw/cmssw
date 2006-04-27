@@ -1,7 +1,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
-
+#include <algorithm> // for "max"
 HcalSimpleRecAlgo::HcalSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew) : firstSample_(firstSample), samplesToAdd_(samplesToAdd), correctForTimeslew_(correctForTimeslew) {
 }
 
@@ -56,7 +56,8 @@ namespace HcalSimpleRecAlgoImpl {
     float wpksamp = (maxA + 2.0*t2) / (t0 + maxA + t2);
     float time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
 
-    if (slewCorrect) time-=HcalTimeSlew::delay(fc_ampl,slewFlavor);
+    
+    if (slewCorrect) time-=HcalTimeSlew::delay(std::max(0.0,fc_ampl),slewFlavor);
     
     return RecHit(digi.id(),ampl,time);    
   }
