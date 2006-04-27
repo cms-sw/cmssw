@@ -6,8 +6,8 @@
  *  for t_trig computation, fits the rising edge and write results to DB.
  *  The time boxes are written to file.
  *
- *  $Date: 2006/03/13 12:17:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/28 10:46:48 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 

@@ -2,7 +2,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "CalibMuon/DTCalibration/interface/DTTTrigCalibration.h"
+#include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
 
 
 DEFINE_SEAL_MODULE();

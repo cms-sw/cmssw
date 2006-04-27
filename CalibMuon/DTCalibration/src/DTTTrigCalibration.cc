@@ -1,12 +1,12 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/28 10:46:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/28 16:27:03 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/interface/DTDBWriterInterface.h"
-#include "CalibMuon/DTCalibration/interface/DTTTrigCalibration.h"
+#include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
 #include "CalibMuon/DTCalibration/interface/DTTimeBoxFitter.h"
 #include "RecoLocalMuon/DTRecHit/interface/DTTTrigSyncFactory.h"
 #include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"
