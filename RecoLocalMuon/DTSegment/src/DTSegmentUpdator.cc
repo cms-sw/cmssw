@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/20 17:58:30 $
- * $Revision: 1.10 $
+ * $Date: 2006/04/26 14:15:32 $
+ * $Revision: 1.11 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -297,15 +297,12 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg) {
   updateHits(seg, pos, dir);
 }
 
+// The GlobalPoint and the GlobalVector can be either the glb position and the direction
+// of the 2D-segment itself or the glb position and direction of the 4D segment
 void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
                                   GlobalPoint &gpos,
                                   GlobalVector &gdir,
                                   int step) {
-  /// define impact angle
-  LocalPoint segPos=theGeom->idToDet(seg->geographicalId())->toLocal(gpos);
-  LocalVector segDir=theGeom->idToDet(seg->geographicalId())->toLocal(gdir);
-  LocalPoint segPosAtLayer=segPos+segDir*segPos.z()/cos(segDir.theta());
-  const float angle = atan(segDir.x()/-segDir.z());
 
   // it is not necessary to have DTRecHit1D* to modify the obj in the container
   // but I have to be carefully, since I cannot make a copy before the iteration!
@@ -317,7 +314,14 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
        hit!=toBeUpdatedRecHits.end(); ++hit) {
 
     const DTLayer* layer = theGeom->layer( hit->wireId().layerId() );
-
+    
+    LocalPoint segPos=layer->toLocal(gpos);
+    LocalVector segDir=layer->toLocal(gdir);
+    // define impact angle needed by the step 2
+    const float angle = atan(segDir.x()/-segDir.z());
+    // define the local position (extr.) of the segment. Needed by the third step 
+    LocalPoint segPosAtLayer=segPos+segDir*segPos.z()/cos(segDir.theta());
+    
     DTRecHit1D newHit1D=(*hit);
 
     bool ok=true;
