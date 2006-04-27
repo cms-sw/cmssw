@@ -38,7 +38,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
 
   // Initialize the vertex generator
   string vtxType = vtx.getParameter<string>("type");
-  long seed = 0;
+  long seed = vtx.getParameter<int>("seed");
   if ( vtxType == "Gaussian" ) 
     theVertexGenerator = new GaussianEventVertexGenerator(vtx,seed);
   else if ( vtxType == "Flat" ) 
