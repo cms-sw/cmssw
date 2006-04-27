@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-11 14:46:41+0200
-# Revision: $Id$ 
+# Revision: $Id: ProjectCVSStatus.pl,v 1.1 2006/04/26 15:41:56 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -475,7 +475,15 @@ sub get_taglist_for_revision()
 sub get_previous_tag()
    {
    my $self=shift;
-   # Return tag at index 2 of the tag index:
+   foreach my $tg_idx (sort { $a <=> $b } keys %{$self->{TAG_INDEX}})
+      {
+      # Return as soon as we find a tag with a V at the front:
+      if ($self->{TAG_INDEX}->{$tg_idx} =~ /^V.*/)
+	 {
+	 return $self->{TAG_INDEX}->{$tg_idx};
+	 }
+      }
+   # Otherwise just return the latest tag:
    return $self->{TAG_INDEX}->{1};
    }
 
