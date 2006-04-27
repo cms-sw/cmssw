@@ -1,6 +1,6 @@
 #ifndef CandAlgos_CandReducer_h
 #define CandAlgos_CandReducer_h
-/** \class candmodules::CandReducer
+/** \class cand::modules::CandReducer
  *
  * Given a collectin of candidates, produced a
  * collection of LeafCandidas identical to the
@@ -13,9 +13,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: CandReducer.h,v 1.2 2006/03/03 10:20:44 llista Exp $
+ * $Id: CandReducer.h,v 1.3 2006/04/04 11:12:48 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
