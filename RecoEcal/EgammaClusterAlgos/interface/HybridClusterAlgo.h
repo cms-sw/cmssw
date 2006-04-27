@@ -13,7 +13,7 @@
 #include <vector>
 
 struct less_mag : public std::binary_function<EcalRecHit, EcalRecHit, bool> {
-  bool operator()(EcalRecHit x, EcalRecHit y) { return x.energy() < y.energy() ; }
+  bool operator()(EcalRecHit x, EcalRecHit y) { return x.energy() > y.energy() ; }
 };
 
 class HybridClusterAlgo
