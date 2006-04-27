@@ -1,21 +1,21 @@
 // GenJet.cc
 // Fedor Ratnikov, UMd
-// $Id: GenJet.cc,v 1.1 2006/04/05 00:18:42 fedor Exp $
+// $Id: GenJet.cc,v 1.2 2006/04/25 03:43:56 fedor Exp $
 
 //Own header file
 #include "DataFormats/JetReco/interface/GenJet.h"
 
 // Jet four-momentum
-double GenJet::px() const {return m_data.px;}
-double GenJet::py() const {return m_data.py;}
-double GenJet::pz() const {return m_data.pz;}
-double GenJet::energy() const {return m_data.e;}
+double GenJet::px() const {return m_data.mP4.Px();}
+double GenJet::py() const {return m_data.mP4.Py();}
+double GenJet::pz() const {return m_data.mP4.Pz();}
+double GenJet::energy() const {return m_data.mP4.E();}
 
 // Standard quantities derived from the Jet Lorentz vector
-double GenJet::p() const {return m_data.p;}
-double GenJet::pt() const {return m_data.pt;}
-double GenJet::et() const {return m_data.et;}
-double GenJet::mass() const {return m_data.m;}
-double GenJet::phi() const {return m_data.phi;}
-double GenJet::eta() const {return m_data.eta;}
+double GenJet::p() const {return m_data.mP4.P();}
+double GenJet::pt() const {return m_data.mP4.Pt();}
+double GenJet::et() const {return m_data.mP4.Et();}
+double GenJet::mass() const {return m_data.mP4.M();}
+double GenJet::phi() const {return m_data.mP4.Phi();}
+double GenJet::eta() const {return m_data.mP4.Eta();}
 int GenJet::nConstituents() const {return m_data.numberOfConstituents;}

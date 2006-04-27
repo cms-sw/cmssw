@@ -12,27 +12,27 @@
  * \author Fernando Varela Rodriguez, Boston University
  *
  * \version   1st Version April 22, 2005.
+ * \version   2nd Version April 27, 2006. F.Ratnikov. Use ROOT's LorentzVector
  *
  ************************************************************/
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 struct CommonJetData {
 public:
+  /// Lorentz vector
+  typedef math::XYZTLorentzVector LorentzVector;
   /** Default Constructor */
-  CommonJetData() : px(0.), py(0.), pz(0.), e(0.), p(0.), pt(0.),
-    et(0.), m(0.), phi(0.), eta(0.), y(0.), numberOfConstituents(0) {
-  }
+  CommonJetData() : numberOfConstituents(0) {}
 
   /** Constructor from values*/
-  CommonJetData(double px_, double py_, double pz_, double e_, double p_, double pt_, double et_,
-    double m_, double phi_, double eta_, double y_, int n_) :
-    px(px_), py(py_), pz(pz_), e(e_), p(p_), pt(pt_), et(et_), m(m_), phi(phi_), eta(eta_), y(y_),
-    numberOfConstituents(n_) {
-  }
+  CommonJetData(const LorentzVector& p4, int n);
+
+  CommonJetData(double px, double py, double pz, double e, int n);
 
   /** Default Destructor*/
   ~CommonJetData() {}
 
-  // The Jet four-vector as a true Lorentz vector
+ // The Jet four-vector as a true Lorentz vector
   /** Jet momentum component along the x axis*/
   double px;
   /** Jet momentum component along the y axis*/
@@ -41,7 +41,7 @@ public:
   double pz;
   /** Total energy of the jet*/
   double e;
- 
+
   // Standard quantities derived from the Jet Lorentz vector
   /** Modulus of the momentum of the jet*/
   double p;
@@ -55,10 +55,13 @@ public:
   double phi;
   /** Pseudorapidity of the jet*/
   double eta;
-  /** Rapidity of the jet*/
-  double y;
+  /** 4-momentum of the jet*/
+  LorentzVector mP4;
   /** Number of constituents of the Jet*/
   int numberOfConstituents;
+
+private:
+  void init ();
 };
 
 #endif

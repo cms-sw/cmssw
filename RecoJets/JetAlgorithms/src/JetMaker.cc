@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.5 2006/04/27 01:15:05 fedor Exp $
+/// $Id: JetMaker.cc,v 1.6 2006/04/27 01:26:13 fedor Exp $
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -162,9 +162,7 @@ CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet) const {
   }
 
   CommonJetData common (fProtojet.px(), fProtojet.py(), fProtojet.pz(), 
-			fProtojet.e(), fProtojet.p(), fProtojet.pt(), fProtojet.et(), fProtojet.m(), 
-			fProtojet.phi(), fProtojet.eta(), fProtojet.y(), 
-			fProtojet.numberOfConstituents());
+			fProtojet.e(), fProtojet.numberOfConstituents());
   CaloJet::Specific specific;
   makeSpecific (*towerCollection, towerIds, &specific);
 
@@ -203,9 +201,7 @@ GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {
   }
 
   CommonJetData common (fProtojet.px(), fProtojet.py(), fProtojet.pz(), 
-			fProtojet.e(), fProtojet.p(), fProtojet.pt(), fProtojet.et(), fProtojet.m(), 
-			fProtojet.phi(), fProtojet.eta(), fProtojet.y(), 
-			fProtojet.numberOfConstituents());
+			fProtojet.e(), fProtojet.numberOfConstituents());
   GenJet::Specific specific;
   makeSpecific (mcParticles, &specific);
 

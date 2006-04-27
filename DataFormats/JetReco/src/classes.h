@@ -7,8 +7,8 @@
 #include <vector>
 namespace {
 namespace {
-	edm::Wrapper<CaloJetCollection> dummy1;
-	edm::Wrapper<GenJetCollection> dummy2;
+  edm::Wrapper<CaloJetCollection> o3;
+  edm::Wrapper<GenJetCollection> o4;
 }
 }
 #endif
