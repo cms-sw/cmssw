@@ -69,63 +69,67 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
   }
   const TransientTrackingRecHit & firsthit = (*(hits.begin()));
   
-  LogDebug("TrackingTools/TrackFitters")
-    <<" ----------------- FIRST HIT -----------------------\n"
-    <<"  HIT IS AT R   "<<(firsthit).globalPosition().perp()<<"\n"
-    <<"  HIT IS AT Z   "<<(firsthit).globalPosition().z()<<"\n"
-    <<"  HIT IS AT Phi "<<(firsthit).globalPosition().phi()<<"\n"
-    <<"  HIT IS AT Loc "<<(firsthit).localPosition()<<"\n"
-    <<"  WITH LocError "<<(firsthit).localPositionError()<<"\n"
-    <<"  HIT IS AT Glo "<<(firsthit).globalPosition()<<"\n"
-    <<"SURFACE POSITION"<<"\n"
-    <<(firsthit).det()->surface().position()<<"\n"
-    <<"SURFACE ROTATION"<<"\n"
-    <<(firsthit).det()->surface().rotation()<<"\n"
-    <<" predTsos !"<<"\n"
-    <<predTsos<<"\n"
-    <<" currTsos !"<<"\n"
-    <<currTsos<<"\n";
-  LogDebug("TrackingTools/TrackFitters") <<"  GOING TO examine hit "<<(firsthit).geographicalId().rawId()<<"\n";
-  if ((firsthit).geographicalId().subdetId() == StripSubdetector::TIB ) {
-    LogDebug("TrackingTools/TrackFitters") <<" I am TIB "<<TIBDetId((firsthit).geographicalId()).layer()<<"\n";
-  }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TOB ) { 
-    LogDebug("TrackingTools/TrackFitters") <<" I am TOB "<<TOBDetId((firsthit).geographicalId()).layer()<<"\n";
-  }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TEC ) { 
-    LogDebug("TrackingTools/TrackFitters") <<" I am TEC "<<TECDetId((firsthit).geographicalId()).wheel()<<"\n";
-  }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TID ) { 
-    LogDebug("TrackingTools/TrackFitters") <<" I am TID "<<TIDDetId((firsthit).geographicalId()).wheel()<<"\n";
-  }else{
-    LogDebug("TrackingTools/TrackFitters") <<" I am Pixel "<<"\n";
+  if (firsthit.isValid()){
+    
+    LogDebug("TrackingTools/TrackFitters")
+      <<" ----------------- FIRST HIT -----------------------\n"
+      <<"  HIT IS AT R   "<<(firsthit).globalPosition().perp()<<"\n"
+      <<"  HIT IS AT Z   "<<(firsthit).globalPosition().z()<<"\n"
+      <<"  HIT IS AT Phi "<<(firsthit).globalPosition().phi()<<"\n"
+      <<"  HIT IS AT Loc "<<(firsthit).localPosition()<<"\n"
+      <<"  WITH LocError "<<(firsthit).localPositionError()<<"\n"
+      <<"  HIT IS AT Glo "<<(firsthit).globalPosition()<<"\n"
+      <<"SURFACE POSITION"<<"\n"
+      <<(firsthit).det()->surface().position()<<"\n"
+      <<"SURFACE ROTATION"<<"\n"
+      <<(firsthit).det()->surface().rotation()<<"\n"
+      <<" predTsos !"<<"\n"
+      <<predTsos<<"\n"
+      <<" currTsos !"<<"\n"
+      <<currTsos<<"\n";
+    LogDebug("TrackingTools/TrackFitters") <<"  GOING TO examine hit "<<(firsthit).geographicalId().rawId()<<"\n";
+    if ((firsthit).geographicalId().subdetId() == StripSubdetector::TIB ) {
+      LogDebug("TrackingTools/TrackFitters") <<" I am TIB "<<TIBDetId((firsthit).geographicalId()).layer()<<"\n";
+    }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TOB ) { 
+      LogDebug("TrackingTools/TrackFitters") <<" I am TOB "<<TOBDetId((firsthit).geographicalId()).layer()<<"\n";
+    }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TEC ) { 
+      LogDebug("TrackingTools/TrackFitters") <<" I am TEC "<<TECDetId((firsthit).geographicalId()).wheel()<<"\n";
+    }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TID ) { 
+      LogDebug("TrackingTools/TrackFitters") <<" I am TID "<<TIDDetId((firsthit).geographicalId()).wheel()<<"\n";
+    }else{
+      LogDebug("TrackingTools/TrackFitters") <<" I am Pixel "<<"\n";
+    }
   }
 
   for(edm::OwnVector<TransientTrackingRecHit>::const_iterator ihit = hits.begin() + 1; 
       ihit != hits.end(); ihit++) {
-    LogDebug("TrackingTools/TrackFitters")
-      <<" ----------------- NEW HIT -----------------------"<<"\n"
-      <<"  HIT IS AT R   "<<(*ihit).globalPosition().perp()<<"\n"
-      <<"  HIT IS AT Z   "<<(*ihit).globalPosition().z()<<"\n"
-      <<"  HIT IS AT Phi "<<(*ihit).globalPosition().phi()<<"\n"
-      <<"  HIT IS AT Loc "<<(*ihit).localPosition()<<"\n"
-      <<"  WITH LocError "<<(*ihit).localPositionError()<<"\n"
-      <<"  HIT IS AT Glo "<<(*ihit).globalPosition()<<"\n"
-      <<"SURFACE POSITION"<<"\n"
-      <<(*ihit).det()->surface().position()<<"\n"
-      <<"SURFACE ROTATION"<<"\n"
-      <<(*ihit).det()->surface().rotation()<<"\n";
-    LogDebug("TrackingTools/TrackFitters") <<" GOING TO examine hit "<<(*ihit).geographicalId().rawId()<<"\n";
-    if ((*ihit).geographicalId().subdetId() == StripSubdetector::TIB ) {
-      LogDebug("TrackingTools/TrackFitters") <<" I am TIB "<<TIBDetId((*ihit).geographicalId()).layer()<<"\n";
-    }else if ((*ihit).geographicalId().subdetId() == StripSubdetector::TOB ) { 
-      LogDebug("TrackingTools/TrackFitters") <<" I am TOB "<<TOBDetId((*ihit).geographicalId()).layer()<<"\n";
-    }else if ((*ihit).geographicalId().subdetId() == StripSubdetector::TEC ) { 
-      LogDebug("TrackingTools/TrackFitters") <<" I am TEC "<<TECDetId((*ihit).geographicalId()).wheel()<<"\n";
-    }else if ((*ihit).geographicalId().subdetId() == StripSubdetector::TID ) { 
-      LogDebug("TrackingTools/TrackFitters") <<" I am TID "<<TIDDetId((*ihit).geographicalId()).wheel()<<"\n";
-    }else{
-      LogDebug("TrackingTools/TrackFitters") <<" I am Pixel "<<"\n";
+    if ((*ihit).isValid()){
+      LogDebug("TrackingTools/TrackFitters")
+	<<" ----------------- NEW HIT -----------------------"<<"\n"
+	<<"  HIT IS AT R   "<<(*ihit).globalPosition().perp()<<"\n"
+	<<"  HIT IS AT Z   "<<(*ihit).globalPosition().z()<<"\n"
+	<<"  HIT IS AT Phi "<<(*ihit).globalPosition().phi()<<"\n"
+	<<"  HIT IS AT Loc "<<(*ihit).localPosition()<<"\n"
+	<<"  WITH LocError "<<(*ihit).localPositionError()<<"\n"
+	<<"  HIT IS AT Glo "<<(*ihit).globalPosition()<<"\n"
+	<<"SURFACE POSITION"<<"\n"
+	<<(*ihit).det()->surface().position()<<"\n"
+	<<"SURFACE ROTATION"<<"\n"
+	<<(*ihit).det()->surface().rotation()<<"\n";
+      LogDebug("TrackingTools/TrackFitters") <<" GOING TO examine hit "<<(*ihit).geographicalId().rawId()<<"\n";
+      if ((*ihit).geographicalId().subdetId() == StripSubdetector::TIB ) {
+	LogDebug("TrackingTools/TrackFitters") <<" I am TIB "<<TIBDetId((*ihit).geographicalId()).layer()<<"\n";
+      }else if ((*ihit).geographicalId().subdetId() == StripSubdetector::TOB ) { 
+	LogDebug("TrackingTools/TrackFitters") <<" I am TOB "<<TOBDetId((*ihit).geographicalId()).layer()<<"\n";
+      }else if ((*ihit).geographicalId().subdetId() == StripSubdetector::TEC ) { 
+	LogDebug("TrackingTools/TrackFitters") <<" I am TEC "<<TECDetId((*ihit).geographicalId()).wheel()<<"\n";
+      }else if ((*ihit).geographicalId().subdetId() == StripSubdetector::TID ) { 
+	LogDebug("TrackingTools/TrackFitters") <<" I am TID "<<TIDDetId((*ihit).geographicalId()).wheel()<<"\n";
+      }else{
+	LogDebug("TrackingTools/TrackFitters") <<" I am Pixel "<<"\n";
+      }
     }
-
-
+    
     predTsos = propagator()->propagate(currTsos,
 				       (*ihit).det()->surface());
 
