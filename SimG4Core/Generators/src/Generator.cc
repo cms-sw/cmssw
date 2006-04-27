@@ -313,8 +313,11 @@ void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 	    int g_id = g->pdg_id();	    
 	    G4PrimaryParticle * g4p = 
 		new G4PrimaryParticle(g_id,mom.x()*GeV,mom.y()*GeV,mom.z()*GeV);
-	    if (g4p->GetG4code() != 0) 
+	    if (g4p->GetG4code() != 0)
+	    { 
 		g4p->SetMass(g4p->GetG4code()->GetPDGMass());
+		g4p->SetCharge(g4p->GetG4code()->GetPDGCharge()) ;
+	    }
 	    g4p->SetWeight(i*10000);
 	    setGenId(g4p,i);
             if (particlePassesPrimaryCuts(g4p))

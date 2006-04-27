@@ -13,6 +13,9 @@
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
+
 #include <iostream>
 
 OscarProducer::OscarProducer(edm::ParameterSet const & p) 
@@ -76,6 +79,8 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
     std::vector<SensitiveTkDetector*>& sTk = m_runManager->sensTkDetectors();
     std::vector<SensitiveCaloDetector*>& sCalo = m_runManager->sensCaloDetectors();
 
+    try
+    {
     m_runManager->produce(e,es);
 
     std::auto_ptr<edm::EmbdSimTrackContainer> p1(new edm::EmbdSimTrackContainer);
@@ -111,6 +116,15 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
 	itProd != m_producers.end();
 	++itProd) {
        (*itProd)->produce(e,es);
+    }
+    }
+    catch ( const SimG4Exception& simg4ex )
+    {
+       std::cout << " SimG4Exception caght !" << std::endl ;
+       std::cout << " " << simg4ex.what() << std::endl ;
+       m_runManager->abortEvent() ;
+       //throw edm::Exception( edm::errors::EventCorruption ) ;
+       throw edm::Exception( edm::errors::ProductNotFound ) ;
     }
 }
  
