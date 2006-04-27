@@ -1,12 +1,76 @@
 #ifndef Framework_Event_h
 #define Framework_Event_h
 
+// -*- C++ -*-
+//
+// Package:     Framework
+// Class  :     Event
+// 
+/**\class Event Event.h FWCore/Framework/interface/Event.h
+
+Description: This is the primary interface for accessing EDProducts from a single collision and inserting new derived products.
+
+Usage:
+
+Getting Data
+
+The edm::Event class provides many 'get*" methods for getting data it contains.  
+
+The primary method for getting data is to use getByLabel(). The labels are the label of the module assigned
+in the configuration file and the 'product instance label' (which can be omitted in the case the 'product instance label'
+is the default value).  The C++ type of the event product plus the two labels uniquely identify a product in the Event.
+
+/code
+  edm::Handle<AppleCollection> apples;
+  event.getByLabel("tree",apples);
+/endcode
+
+/code
+  edm::Handle<FruitCollection> fruits;
+  event.getByLabel("market", "apple", fruits);
+/endcode
+
+
+Putting Data
+
+/code
+  std::auto_ptr<AppleCollection> pApples( new AppleCollection );
+  
+  //fill the collection
+  ...
+  event.put(pApples);
+/endcode
+
+/code
+  std::auto_ptr<FruitCollection> pFruits( new FruitCollection );
+
+  //fill the collection
+  ...
+  event.put("apple", pFruits);
+/endcode
+
+
+Getting a reference to an event product before that product is put into the event
+/code
+  std::auto_ptr<AppleCollection> pApples( new AppleCollection);
+
+  edm::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
+
+  //do loop and fill collection
+  for( unsigned int index = 0; ..... ) {
+    ....
+    apples->push_back( Apple(...) );
+  
+    //create an edm::Ref to the new object
+    edm::Ref<AppleCollection> ref(refApples, index);
+    ....
+  }
+/endcode
+
+*/
 /*----------------------------------------------------------------------
 
-Event: This is the primary interface for accessing
-EDProducts from a single collision and inserting new derived products.
-
-$Id: Event.h,v 1.29 2006/03/30 20:38:18 wmtan Exp $
+$Id: Event.h,v 1.30 2006/04/20 22:33:21 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -15,6 +79,7 @@ $Id: Event.h,v 1.29 2006/03/30 20:38:18 wmtan Exp $
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/RefProd.h"
 
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/EventID.h"
@@ -51,14 +116,20 @@ namespace edm {
     const LuminositySection& getLuminositySection() const;
     const Run& getRun() const;
 
+    ///Put a new product into the event
     template <typename PROD>
     OrphanHandle<PROD>
     put(std::auto_ptr<PROD> product);
 
+    ///Put a new product into the event where the product is gotten using a 'product instance name'
     template <typename PROD>
     OrphanHandle<PROD>
     put(std::auto_ptr<PROD> product, const std::string& productInstanceName);
 
+    template <typename PROD>
+    RefProd<PROD>
+    getRefBeforePut(const std::string& productInstanceName = std::string());
+    
     template <typename PROD>
     void 
     get(ProductID const& id, Handle<PROD>& result) const;
@@ -315,6 +386,17 @@ namespace edm {
     return(OrphanHandle<PROD>(wp->product(), desc.productID_));
   }
 
+  template <typename PROD>
+  RefProd<PROD>
+  Event::getRefBeforePut(const std::string& iProductInstanceName) {
+    PROD* p = 0;
+    BranchDescription const& desc =
+    getBranchDescription(TypeID(*p).friendlyClassName(), iProductInstanceName);
+
+    //should keep track of what Ref's have been requested and make sure they are 'put'
+    return RefProd<PROD>(desc.productID_,&ep_);
+  }
+  
   template <typename PROD>
   void
   Event::get(ProductID const& id, Handle<PROD>& result) const
