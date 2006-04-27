@@ -143,6 +143,8 @@ namespace edm {
       : Node(type, line), from_(from), to_(to) {}
 
       virtual std::string type() const {return "rename";}
+      virtual std::string from() const {return from_;}
+      virtual std::string to() const {return to_;}
       virtual void print(std::ostream& ost) const;
       virtual void accept(Visitor& v) const;
                                                                                                           
