@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.3 2006/04/05 00:24:01 fedor Exp $
+/// $Id: JetMaker.cc,v 1.4 2006/04/27 00:38:19 fedor Exp $
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -48,23 +48,20 @@ namespace {
       while (--icell >= 0) {
 	DetId id = aTower->constituent (icell);
 	if (id.det () == DetId::Hcal) { // hcal cell
-	  switch (HcalDetId (id).subdet ()) {
-	  case HcalOuter:
-	  case HcalBarrel:
-	    eInHB += aTower->hadEnergy() - aTower->outerEnergy(); // assume UseHO = true for calotowermaker
+	  HcalSubdetector subdet = HcalDetId (id).subdet ();
+	  if (subdet == HcalBarrel || subdet == HcalOuter) {
+	    eInHB += aTower->hadEnergy() - aTower->outerEnergy(); // assume "UseHO = true" for calotowermaker
 	    eInHO += aTower->outerEnergy();
-	    break;
-	  case HcalEndcap:
+	  }
+	  else if (subdet == HcalEndcap) {
 	    eInHE += aTower->hadEnergy();
-	    break;
-	  case HcalForward:
+	  }
+	  else if (subdet == HcalForward) {
 	    eInHF += aTower->hadEnergy();
-	    break;
 	  }
 	  break; // do not need it anymore
 	}
       }
-      // have no data for eInHB eInHE eInHF
     }
     double towerEnergy = eInHad + eInEm;
     fJetSpecific->m_energyFractionInHO = eInHO / towerEnergy;
