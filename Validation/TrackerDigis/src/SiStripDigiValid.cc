@@ -8,7 +8,7 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
@@ -22,11 +22,13 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
    meAdcTIBLayer1_ = dbe_->book1D("adc_tib_1","Digis ADC",100,0.,100.);
    meAdcTIBLayer2_ = dbe_->book1D("adc_tib_2","Digis ADC",100,0.,100.);
    meAdcTIBLayer3_ = dbe_->book1D("adc_tib_3","Digis ADC",100,0.,100.);
+   meAdcTIBLayer4_ = dbe_->book1D("adc_tib_4","Digis ADC",100,0.,100.);
 
    meStripTIBLayer1_ = dbe_->book1D("strip_tib_1","Digis Strip Num.",200,0.,800.);
    meStripTIBLayer2_ = dbe_->book1D("strip_tib_2","Digis Strip Num.",200,0.,800.);
    meStripTIBLayer3_ = dbe_->book1D("strip_tib_3","Digis Strip Num.",200,0.,800.);
-  
+   meStripTIBLayer4_ = dbe_->book1D("strip_tib_4","Digis Strip Num.",200,0.,800.);  
+
    meAdcTOBLayer1_ = dbe_->book1D("adc_tob_1","Digis ADC",100,0.,100.);
    meAdcTOBLayer2_ = dbe_->book1D("adc_tob_2","Digis ADC",100,0.,100.);
    meAdcTOBLayer3_ = dbe_->book1D("adc_tob_3","Digis ADC",100,0.,100.);
@@ -97,6 +99,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
 int ndigitiblayer1=0;
 int ndigitiblayer2=0;
 int ndigitiblayer3=0;
+int ndigitiblayer4=0;
 int ndigitoblayer1=0;
 int ndigitoblayer2=0;
 int ndigitoblayer3=0;
@@ -117,7 +120,7 @@ int ndigitecwheel8=0;
 int ndigitecwheel9=0;
 
  LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
- ESHandle<TrackingGeometry> tracker;
+ ESHandle<TrackerGeometry> tracker;
  c.get<TrackerDigiGeometryRecord>().get( tracker );
 
  std::string digiProducer = "stripdigi";
@@ -134,7 +137,6 @@ int ndigitecwheel9=0;
     unsigned int id = vec[i];
     if( id != 999999999){ //if is valid detector
         DetId  detId(id);
-        const GeomDetUnit * stripdet=tracker->idToDet(detId);
         StripDigiCollection::Range  range = stripDigis->get(id);
         std::vector<StripDigi>::const_iterator begin = range.first;
         std::vector<StripDigi>::const_iterator end = range.second;
@@ -142,23 +144,16 @@ int ndigitecwheel9=0;
 
         if(detId.subdetId()==StripSubdetector::TIB){
              TIBDetId tibid(id);
-             const RectangularStripTopology& Rtopol=(RectangularStripTopology&)stripdet->topology();
              for ( iter = begin ; iter != end; iter++ ) { // loop digis
-                 GlobalPoint gpoint = stripdet->surface().toGlobal(LocalPoint(0,0,0));
-                 LogInfo("SiStripDigiValid")<<" Strip="<<(*iter).strip()<<" Adc="<< (*iter).adc()
-                                            <<" Gx="<<gpoint.x()<<" Gy="<<gpoint.y()<<" Gz="<<gpoint.z();
                  if( tibid.layer() == 1 ) { meAdcTIBLayer1_ -> Fill((*iter).adc()); meStripTIBLayer1_ ->Fill((*iter).strip()); ++ndigitiblayer1; }
                  if( tibid.layer() == 2 ) { meAdcTIBLayer2_ -> Fill((*iter).adc()); meStripTIBLayer2_ ->Fill((*iter).strip()); ++ndigitiblayer2;}
                  if( tibid.layer() == 3 ) { meAdcTIBLayer3_ -> Fill((*iter).adc()); meStripTIBLayer3_ ->Fill((*iter).strip()); ++ndigitiblayer3;} 
+                 if( tibid.layer() == 4 ) { meAdcTIBLayer4_ -> Fill((*iter).adc()); meStripTIBLayer4_ ->Fill((*iter).strip()); ++ndigitiblayer4;}
             } 
         } 
         if(detId.subdetId()==StripSubdetector::TOB){
              TOBDetId tobid(id); 
-             const RectangularStripTopology& Rtopol=(RectangularStripTopology&)stripdet->topology();
              for ( iter = begin ; iter != end; iter++ ) { // loop digis
-                 GlobalPoint gpoint = stripdet->surface().toGlobal(LocalPoint(0,0,0));
-                 LogInfo("SiStripDigiValid")<<" Strip="<<(*iter).strip()<<" Adc="<< (*iter).adc()
-                                            <<" Gx="<<gpoint.x()<<" Gy="<<gpoint.y()<<" Gz="<<gpoint.z();
                  if( tobid.layer() == 1 ) { meAdcTOBLayer1_ -> Fill((*iter).adc()); meStripTOBLayer1_ ->Fill((*iter).strip()); ++ndigitoblayer1;}
                  if( tobid.layer() == 2 ) { meAdcTOBLayer2_ -> Fill((*iter).adc()); meStripTOBLayer2_ ->Fill((*iter).strip()); ++ndigitoblayer2;}
                  if( tobid.layer() == 3 ) { meAdcTOBLayer3_ -> Fill((*iter).adc()); meStripTOBLayer3_ ->Fill((*iter).strip()); ++ndigitoblayer3;}
@@ -170,11 +165,7 @@ int ndigitecwheel9=0;
    
         if (detId.subdetId()==StripSubdetector::TID) {
             TIDDetId tidid(id);  
-            const TrapezoidalStripTopology& Ttopol=(TrapezoidalStripTopology&)stripdet->topology();
             for ( iter = begin ; iter != end; iter++ ) {
-                GlobalPoint gpoint = stripdet->surface().toGlobal(LocalPoint(0,0,0));
-                LogInfo("SiStripDigiValid")<<" Strip="<<(*iter).strip()<<" Adc="<< (*iter).adc()
-                                           <<" Gx="<<gpoint.x()<<" Gy="<<gpoint.y()<<" Gz="<<gpoint.z();
                 if( tidid.wheel() == 1 ) { meAdcTIDWheel1_ -> Fill((*iter).adc()); meStripTIDWheel1_ ->Fill((*iter).strip()); ++ndigitidwheel1;}
                 if( tidid.wheel() == 2 ) { meAdcTIDWheel2_ -> Fill((*iter).adc()); meStripTIDWheel2_ ->Fill((*iter).strip()); ++ndigitidwheel2;}
                 if( tidid.wheel() == 3 ) { meAdcTIDWheel3_ -> Fill((*iter).adc()); meStripTIDWheel3_ ->Fill((*iter).strip()); ++ndigitidwheel3;}
@@ -183,12 +174,7 @@ int ndigitecwheel9=0;
        }
         if (detId.subdetId()==StripSubdetector::TEC) {
             TECDetId tecid(id);
-            const TrapezoidalStripTopology& Ttopol=(TrapezoidalStripTopology&)stripdet->topology();
             for ( iter = begin ; iter != end; iter++ ) {
-                GlobalPoint gpoint = stripdet->surface().toGlobal(LocalPoint(0,0,0));
-                LogInfo("SiStripDigiValid")<<" Strip="<<(*iter).strip()<<" Adc="<< (*iter).adc()
-                                           <<" Gx="<<gpoint.x()<<" Gy="<<gpoint.y()<<" Gz="<<gpoint.z();
-
                 if( tecid.wheel() == 1 ) { meAdcTECWheel1_ -> Fill((*iter).adc()); meStripTECWheel1_ ->Fill((*iter).strip()); ++ndigitecwheel1;}
                 if( tecid.wheel() == 2 ) { meAdcTECWheel2_ -> Fill((*iter).adc()); meStripTECWheel2_ ->Fill((*iter).strip()); ++ndigitecwheel2;}
                 if( tecid.wheel() == 3 ) { meAdcTECWheel3_ -> Fill((*iter).adc()); meStripTECWheel3_ ->Fill((*iter).strip()); ++ndigitecwheel3;}

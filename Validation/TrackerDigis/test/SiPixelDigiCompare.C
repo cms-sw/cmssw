@@ -103,6 +103,33 @@ if (1) {
    Pixel->Print("ColOfPXBLayer1_compare.eps");
 }
 
+if (1) {
+  TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
+   Pixel->Divide(2,4);
+
+   TH1* meAdcLadder_[8];
+   TH1* newmeAdcLadder_[8];
+
+   for (Int_t i=0; i<8; i++){
+      sprintf(histo,"DQMData/digimulti_layer1ring%d;1",i+1);
+      rfile->GetObject(histo ,meAdcLadder_[i]);
+      sfile->GetObject(histo ,newmeAdcLadder_[i]);
+      meAdcLadder_[i];
+      newmeAdcLadder_[i];
+      Pixel->cd(i+1);
+      meAdcLadder_[i]->SetLineColor(2);
+      meAdcLadder_[i]->Draw();
+      newmeAdcLadder_[i]->SetLineColor(4);
+      newmeAdcLadder_[i]->SetLineStyle(2);
+      newmeAdcLadder_[i]->Draw("Sames");
+      myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+
+    }
+
+
+   Pixel->Print("DigiMultiPXBLayer1_compare.eps");
+}
+
 ///2nd Layer
 
 if (1) {
@@ -177,6 +204,32 @@ if (1) {
     }
   
    Pixel->Print("ColOfPXBLayer2_compare.eps");
+}
+if (1) {
+  TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
+   Pixel->Divide(2,4);
+
+   TH1* meAdcLadder_[8];
+   TH1* newmeAdcLadder_[8];
+
+   for (Int_t i=0; i<8; i++){
+      sprintf(histo,"DQMData/digimulti_layer2ring%d;1",i+1);
+      rfile->GetObject(histo ,meAdcLadder_[i]);
+      sfile->GetObject(histo ,newmeAdcLadder_[i]);
+      meAdcLadder_[i];
+      newmeAdcLadder_[i];
+      Pixel->cd(i+1);
+      meAdcLadder_[i]->SetLineColor(2);
+      meAdcLadder_[i]->Draw();
+      newmeAdcLadder_[i]->SetLineColor(4);
+      newmeAdcLadder_[i]->SetLineStyle(2);
+      newmeAdcLadder_[i]->Draw("Sames");
+      myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+
+    }
+
+
+   Pixel->Print("DigiMultiPXBLayer2_compare.eps");
 }
 
 ///3rd Layer
@@ -259,31 +312,30 @@ if (1) {
 
 /* digi multiplicity */
 if (1) {
-   TH2* meMultiLadder_[3]; 
-   TH2* newmeMultiLadder_[3];
-   TProfile* meMultiLayer_[3];
-   TProfile* newmeMultiLayer_[3];
+  TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
+   Pixel->Divide(2,4);
 
-   TCanvas * Pixel = new TCanvas("Pixel","Pixel",600,1000);
-   Pixel->Divide(1,3);
+   TH1* meAdcLadder_[8];
+   TH1* newmeAdcLadder_[8];
 
-   for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/digi_multi_layer%d;1",i+1);
-      rfile->GetObject(histo ,meMultiLadder_[i]);
-      sfile->GetObject(histo ,newmeMultiLadder_[i]);
-      meMultiLadder_[i];
-      newmeMultiLadder_[i];
+   for (Int_t i=0; i<8; i++){
+      sprintf(histo,"DQMData/digimulti_layer3ring%d;1",i+1);
+      rfile->GetObject(histo ,meAdcLadder_[i]);
+      sfile->GetObject(histo ,newmeAdcLadder_[i]);
+      meAdcLadder_[i];
+      newmeAdcLadder_[i];
       Pixel->cd(i+1);
-      meMultiLayer_[i] = meMultiLadder_[i]->ProfileX();
-      newmeMultiLayer_[i] = newmeMultiLadder_[i]->ProfileX();
-      meMultiLayer_[i]->SetLineColor(2);
-      meMultiLayer_[i]->Draw();
-      newmeMultiLayer_[i]->SetLineColor(4);
-      newmeMultiLayer_[i]->Draw("Sames");
-      myPV->PVCompute(meMultiLayer_[i] , newmeMultiLayer_[i] , te );
+      meAdcLadder_[i]->SetLineColor(2);
+      meAdcLadder_[i]->Draw();
+      newmeAdcLadder_[i]->SetLineColor(4);
+      newmeAdcLadder_[i]->SetLineStyle(2);
+      newmeAdcLadder_[i]->Draw("Sames");
+      myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+
     }
 
-   Pixel->Print("DigiNumOfBarrel_compare.eps");
+
+   Pixel->Print("DigiMultiPXBLayer3_compare.eps");
 }
 
 ///////////////////////////////////////////////////
@@ -885,10 +937,8 @@ if (1) {
    TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
-   TH2* meMulti_[8];
-   TH2* newmeMulti_[8];
-   TProfile*  pro_[8];
-   TProfile*  newpro_[8];
+   TH1* meMulti_[8];
+   TH1* newmeMulti_[8];
 
       rfile->GetObject("DQMData/digi_zp_disk1_panel1;1" ,meMulti_[0]);
       meMulti_[0];
@@ -926,13 +976,12 @@ if (1) {
 
    for(int i = 0; i< 8; i ++) {
       Pixel->cd(i+1);
-      pro_[i]=meMulti_[i]->ProfileX();
-      newpro_[i]=newmeMulti_[i]->ProfileX();
-      pro_[i]->SetLineColor(2);
-      newpro_[i]->SetLineColor(4);
-      pro_[i]->Draw();
-      newpro_[i]->Draw("sames");
-      myPV->PVCompute(pro_[i],newpro_[i],te);
+      meMulti_[i]->SetLineColor(2);
+      newmeMulti_[i]->SetLineColor(4);
+      newmeMulti_[i]->SetLineStyle(2);
+      meMulti_[i]->Draw();
+      newmeMulti_[i]->Draw("sames");
+      myPV->PVCompute(meMulti_[i],newmeMulti_[i],te);
    }
  
    Pixel->Print("DigiNumOfEndcap_compare.eps");

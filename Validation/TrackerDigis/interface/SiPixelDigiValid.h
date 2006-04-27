@@ -64,7 +64,16 @@ class  SiPixelDigiValid: public EDAnalyzer {
   MonitorElement* meColLayer1Ring6_;
   MonitorElement* meColLayer1Ring7_;
   MonitorElement* meColLayer1Ring8_;
-  MonitorElement* meNdigiPerRingL1_;
+
+  MonitorElement* meDigiMultiLayer1Ring1_;
+  MonitorElement* meDigiMultiLayer1Ring2_;
+  MonitorElement* meDigiMultiLayer1Ring3_;
+  MonitorElement* meDigiMultiLayer1Ring4_;
+  MonitorElement* meDigiMultiLayer1Ring5_;
+  MonitorElement* meDigiMultiLayer1Ring6_;
+  MonitorElement* meDigiMultiLayer1Ring7_;
+  MonitorElement* meDigiMultiLayer1Ring8_;
+
 
   /* 2nd Layer */
   MonitorElement* meAdcLayer2Ring1_;
@@ -93,7 +102,16 @@ class  SiPixelDigiValid: public EDAnalyzer {
   MonitorElement* meColLayer2Ring6_;
   MonitorElement* meColLayer2Ring7_;
   MonitorElement* meColLayer2Ring8_;
-  MonitorElement* meNdigiPerRingL2_;
+
+  MonitorElement* meDigiMultiLayer2Ring1_;
+  MonitorElement* meDigiMultiLayer2Ring2_;
+  MonitorElement* meDigiMultiLayer2Ring3_;
+  MonitorElement* meDigiMultiLayer2Ring4_;
+  MonitorElement* meDigiMultiLayer2Ring5_;
+  MonitorElement* meDigiMultiLayer2Ring6_;
+  MonitorElement* meDigiMultiLayer2Ring7_;
+  MonitorElement* meDigiMultiLayer2Ring8_;
+
 
   /* 3rd Layer */
 
@@ -123,7 +141,16 @@ class  SiPixelDigiValid: public EDAnalyzer {
   MonitorElement* meColLayer3Ring6_;
   MonitorElement* meColLayer3Ring7_;
   MonitorElement* meColLayer3Ring8_;
-  MonitorElement* meNdigiPerRingL3_;
+
+  MonitorElement* meDigiMultiLayer3Ring1_;
+  MonitorElement* meDigiMultiLayer3Ring2_;
+  MonitorElement* meDigiMultiLayer3Ring3_;
+  MonitorElement* meDigiMultiLayer3Ring4_;
+  MonitorElement* meDigiMultiLayer3Ring5_;
+  MonitorElement* meDigiMultiLayer3Ring6_;
+  MonitorElement* meDigiMultiLayer3Ring7_;
+  MonitorElement* meDigiMultiLayer3Ring8_;
+
 
 ///Forwar Pixel
   /* 1st Disk in ZPlus Side */

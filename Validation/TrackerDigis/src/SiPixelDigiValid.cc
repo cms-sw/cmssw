@@ -17,7 +17,34 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
   
    outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixeldigihisto.root");
    dbe_ = Service<DaqMonitorBEInterface>().operator->();
-   
+ 
+   meDigiMultiLayer1Ring1_ =  dbe_->book1D("digimulti_layer1ring1","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer1Ring2_ =  dbe_->book1D("digimulti_layer1ring2","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer1Ring3_ =  dbe_->book1D("digimulti_layer1ring3","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer1Ring4_ =  dbe_->book1D("digimulti_layer1ring4","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer1Ring5_ =  dbe_->book1D("digimulti_layer1ring5","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer1Ring6_ =  dbe_->book1D("digimulti_layer1ring6","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer1Ring7_ =  dbe_->book1D("digimulti_layer1ring7","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer1Ring8_ =  dbe_->book1D("digimulti_layer1ring8","Digi Multiplicity ",30, 0., 30.);
+
+   meDigiMultiLayer2Ring1_ =  dbe_->book1D("digimulti_layer2ring1","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer2Ring2_ =  dbe_->book1D("digimulti_layer2ring2","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer2Ring3_ =  dbe_->book1D("digimulti_layer2ring3","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer2Ring4_ =  dbe_->book1D("digimulti_layer2ring4","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer2Ring5_ =  dbe_->book1D("digimulti_layer2ring5","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer2Ring6_ =  dbe_->book1D("digimulti_layer2ring6","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer2Ring7_ =  dbe_->book1D("digimulti_layer2ring7","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer2Ring8_ =  dbe_->book1D("digimulti_layer2ring8","Digi Multiplicity ",30, 0., 30.);
+
+   meDigiMultiLayer3Ring1_ =  dbe_->book1D("digimulti_layer3ring1","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer3Ring2_ =  dbe_->book1D("digimulti_layer3ring2","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer3Ring3_ =  dbe_->book1D("digimulti_layer3ring3","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer3Ring4_ =  dbe_->book1D("digimulti_layer3ring4","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer3Ring5_ =  dbe_->book1D("digimulti_layer3ring5","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer3Ring6_ =  dbe_->book1D("digimulti_layer3ring6","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer3Ring7_ =  dbe_->book1D("digimulti_layer3ring7","Digi Multiplicity ",30, 0., 30.);
+   meDigiMultiLayer3Ring8_ =  dbe_->book1D("digimulti_layer3ring8","Digi Multiplicity ",30, 0., 30.);
+  
   /////Barrel 
    meAdcLayer1Ring1_ = dbe_->book1D("adc_layer1ring1","Digi charge",300, 0., 300.);
    meAdcLayer1Ring2_ = dbe_->book1D("adc_layer1ring2","Digi charge",300, 0., 300.);
@@ -46,7 +73,6 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    meColLayer1Ring7_ = dbe_->book1D("col_layer1ring7","Digi column",500, 0., 500.);
    meColLayer1Ring8_ = dbe_->book1D("col_layer1ring8","Digi column",500, 0., 500.);
    
-   meNdigiPerRingL1_ = dbe_->book2D("digi_multi_layer1","Digi Num. PerRing",21,0.,21, 100,0., 100.);
 
    meAdcLayer2Ring1_ = dbe_->book1D("adc_layer2ring1","Digi charge",300, 0., 300.);
    meAdcLayer2Ring2_ = dbe_->book1D("adc_layer2ring2","Digi charge",300, 0., 300.);
@@ -75,7 +101,6 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    meColLayer2Ring7_ = dbe_->book1D("col_layer2ring7","Digi column",500, 0., 500.);
    meColLayer2Ring8_ = dbe_->book1D("col_layer2ring8","Digi column",500, 0., 500.);
 
-   meNdigiPerRingL2_ = dbe_->book2D("digi_multi_layer2","Digi Num. PerRing",33,0.,33, 100,0., 100.);
 
    meAdcLayer3Ring1_ = dbe_->book1D("adc_layer3ring1","Digi charge",300, 0., 300.);
    meAdcLayer3Ring2_ = dbe_->book1D("adc_layer3ring2","Digi charge",300, 0., 300.);
@@ -104,8 +129,6 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    meColLayer3Ring7_ = dbe_->book1D("col_layer3ring7","Digi column",500, 0., 500.);
    meColLayer3Ring8_ = dbe_->book1D("col_layer3ring8","Digi column",500, 0., 500.);
 
-   meNdigiPerRingL3_ = dbe_->book2D("digi_multi_layer3","Digi Num. PerRing",45,0.,45, 100,0., 10.);
-
  //Forward Pixel
    /* ZMinus Side 1st Disk */
    meAdcZmDisk1Panel1Plaq1_ = dbe_->book1D("adc_zm_disk1_panel1_plaq1","Digi charge",300,0.,300.);
@@ -131,8 +154,8 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    meColZmDisk1Panel2Plaq1_ = dbe_->book1D("col_zm_disk1_panel2_plaq1","Digi column",500,0.,500.);
    meColZmDisk1Panel2Plaq2_ = dbe_->book1D("col_zm_disk1_panel2_plaq2","Digi column",500,0.,500.);
    meColZmDisk1Panel2Plaq3_ = dbe_->book1D("col_zm_disk1_panel2_plaq3","Digi column",500,0.,500.);
-   meNdigiZmDisk1PerPanel1_ = dbe_->book2D("digi_zm_disk1_panel1","Digi Num. Panel1 Of 1st Disk In ZMinus Side ",25,0.,25, 100,0., 10.);
-   meNdigiZmDisk1PerPanel2_ = dbe_->book2D("digi_zm_disk1_panel2","Digi Num. Panel2 Of 1st Disk In ZMinus Side ",25,0.,25, 100,0., 10.);
+   meNdigiZmDisk1PerPanel1_ = dbe_->book1D("digi_zm_disk1_panel1","Digi Num. Panel1 Of 1st Disk In ZMinus Side ",30,0.,30.);
+   meNdigiZmDisk1PerPanel2_ = dbe_->book1D("digi_zm_disk1_panel2","Digi Num. Panel2 Of 1st Disk In ZMinus Side ",30,0.,30.);
 
    /* ZMius Side 2nd disk */
    meAdcZmDisk2Panel1Plaq1_ = dbe_->book1D("adc_zm_disk2_panel1_plaq1","Digi charge",300,0.,300.);
@@ -158,8 +181,8 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    meColZmDisk2Panel2Plaq1_ = dbe_->book1D("col_zm_disk2_panel2_plaq1","Digi Column",500,0.,500.);
    meColZmDisk2Panel2Plaq2_ = dbe_->book1D("col_zm_disk2_panel2_plaq2","Digi Column",500,0.,500.);
    meColZmDisk2Panel2Plaq3_ = dbe_->book1D("col_zm_disk2_panel2_plaq3","Digi Column",500,0.,500.);
-   meNdigiZmDisk2PerPanel1_ = dbe_->book2D("digi_zm_disk2_panel1","Digi Num. Panel1 Of 2nd Disk In ZMinus Side ",25,0.,25, 100,0., 10.);
-   meNdigiZmDisk2PerPanel2_ = dbe_->book2D("digi_zm_disk2_panel2","Digi Num. Panel2 Of 2nd Disk In ZMinus Side ",25,0.,25, 100,0., 10.);
+   meNdigiZmDisk2PerPanel1_ = dbe_->book1D("digi_zm_disk2_panel1","Digi Num. Panel1 Of 2nd Disk In ZMinus Side ",30,0.,30.);
+   meNdigiZmDisk2PerPanel2_ = dbe_->book1D("digi_zm_disk2_panel2","Digi Num. Panel2 Of 2nd Disk In ZMinus Side ",30,0.,30.);
 
 
    /* ZPlus Side 1st Disk */
@@ -186,8 +209,8 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    meColZpDisk1Panel2Plaq1_ = dbe_->book1D("col_zp_disk1_panel2_plaq1","Digi column",500,0.,500.);
    meColZpDisk1Panel2Plaq2_ = dbe_->book1D("col_zp_disk1_panel2_plaq2","Digi column",500,0.,500.);
    meColZpDisk1Panel2Plaq3_ = dbe_->book1D("col_zp_disk1_panel2_plaq3","Digi column",500,0.,500.);
-   meNdigiZpDisk1PerPanel1_ = dbe_->book2D("digi_zp_disk1_panel1","Digi Num. Panel1 Of 1st Disk In ZPlus Side ",25,0.,25, 100,0., 10.);
-   meNdigiZpDisk1PerPanel2_ = dbe_->book2D("digi_zp_disk1_panel2","Digi Num. Panel2 Of 1st Disk In ZPlus Side ",25,0.,25, 100,0., 10.);
+   meNdigiZpDisk1PerPanel1_ = dbe_->book1D("digi_zp_disk1_panel1","Digi Num. Panel1 Of 1st Disk In ZPlus Side ",30,0.,30.);
+   meNdigiZpDisk1PerPanel2_ = dbe_->book1D("digi_zp_disk1_panel2","Digi Num. Panel2 Of 1st Disk In ZPlus Side ",30,0.,30.);
 
 
    /* ZPlus Side 2nd disk */
@@ -214,8 +237,8 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    meColZpDisk2Panel2Plaq1_ = dbe_->book1D("col_zp_disk2_panel2_plaq1","Digi column",500,0.,500.);
    meColZpDisk2Panel2Plaq2_ = dbe_->book1D("col_zp_disk2_panel2_plaq2","Digi column",500,0.,500.);
    meColZpDisk2Panel2Plaq3_ = dbe_->book1D("col_zp_disk2_panel2_plaq3","Digi column",500,0.,500.);
-   meNdigiZpDisk2PerPanel1_ = dbe_->book2D("digi_zp_disk2_panel1","Digi Num. Panel1 Of 2nd Disk In ZPlus Side ",25,0.,25, 100,0., 10.);
-   meNdigiZpDisk2PerPanel2_ = dbe_->book2D("digi_zp_disk2_panel2","Digi Num. Panel2 Of 2nd Disk In ZPlus Side ",25,0.,25, 100,0., 10.);
+   meNdigiZpDisk2PerPanel1_ = dbe_->book1D("digi_zp_disk2_panel1","Digi Num. Panel1 Of 2nd Disk In ZPlus Side ",30,0.,30.);
+   meNdigiZpDisk2PerPanel2_ = dbe_->book1D("digi_zp_disk2_panel2","Digi Num. Panel2 Of 2nd Disk In ZPlus Side ",30,0.,30.);
 
 
  
@@ -252,17 +275,13 @@ void SiPixelDigiValid::analyze(const Event& e, const EventSetup& c){
  if ( vec.size() > 0 ) 
  LogInfo("SiPixelDigiValid") <<"DetId Size = " <<vec.size();
 
- int ndigiperringLayer1[20];
- for(int i = 0; i< 20; i++ ) {
-    ndigiperringLayer1[i] = 0;
- }
- int ndigiperringLayer2[32];
- for(int i = 0; i< 32; i++ ) {
-    ndigiperringLayer2[i] = 0;
- }
- int ndigiperringLayer3[44];
- for(int i = 0; i< 44; i++ ) {
-    ndigiperringLayer3[i] = 0;
+ int ndigiperRingLayer1[8];
+ int ndigiperRingLayer2[8];
+ int ndigiperRingLayer3[8]; 
+ for(int i = 0; i< 8; i++ ) {
+    ndigiperRingLayer1[i] = 0;
+    ndigiperRingLayer2[i] = 0;
+    ndigiperRingLayer3[i] = 0;
  }
 
 int ndigiZpDisk1PerPanel1[24];
@@ -303,9 +322,7 @@ for ( int i =0 ; i< 24; i++) {
              LogInfo("SiPixelDigiValid")<<"Barrel:: Layer="<<layer<<" Ladder="<<ladder<<" zindex="<<zindex;
              for ( iter = begin ; iter != end; iter++ ) {
                 if( layer == 1 ) {
-                   
-                      ++ndigiperringLayer1[ladder-1]; 
-
+                     ++ndigiperRingLayer1[zindex-1];
                      if (zindex == 1) { 
                           meAdcLayer1Ring1_->Fill((*iter).adc());
                           meRowLayer1Ring1_->Fill((*iter).row());
@@ -354,9 +371,7 @@ for ( int i =0 ; i< 24; i++) {
 
                 } 
                 if( layer == 2 ) {
-
-                    ++ndigiperringLayer2[ladder-1];
-
+                    ++ndigiperRingLayer2[zindex-1];
                     if (zindex == 1) {
                           meAdcLayer2Ring1_->Fill((*iter).adc());
                           meRowLayer2Ring1_->Fill((*iter).row());
@@ -405,9 +420,7 @@ for ( int i =0 ; i< 24; i++) {
 
                 }
                 if( layer == 3 ) {
-      
-                    ++ndigiperringLayer3[ladder-1];
-
+                    ++ndigiperRingLayer3[zindex-1];
                     if (zindex == 1) {
                           meAdcLayer3Ring1_->Fill((*iter).adc());
                           meRowLayer3Ring1_->Fill((*iter).row());
@@ -647,26 +660,43 @@ for ( int i =0 ; i< 24; i++) {
        }//end if id.
     }
     
-    for(int i =0; i< 24; i++) {
-         meNdigiZmDisk1PerPanel1_->Fill(i,ndigiZmDisk1PerPanel1[i]);
-         meNdigiZmDisk1PerPanel2_->Fill(i,ndigiZmDisk1PerPanel2[i]);
-         meNdigiZmDisk2PerPanel1_->Fill(i,ndigiZmDisk2PerPanel1[i]);
-         meNdigiZmDisk2PerPanel2_->Fill(i,ndigiZmDisk2PerPanel2[i]);
-         meNdigiZpDisk1PerPanel1_->Fill(i,ndigiZpDisk1PerPanel1[i]);
-         meNdigiZpDisk1PerPanel2_->Fill(i,ndigiZpDisk1PerPanel2[i]);
-         meNdigiZpDisk2PerPanel1_->Fill(i,ndigiZpDisk2PerPanel1[i]);
-         meNdigiZpDisk2PerPanel2_->Fill(i,ndigiZpDisk2PerPanel2[i]);
-    } 
+    meDigiMultiLayer1Ring1_->Fill(ndigiperRingLayer1[0]);
+    meDigiMultiLayer1Ring2_->Fill(ndigiperRingLayer1[1]);
+    meDigiMultiLayer1Ring3_->Fill(ndigiperRingLayer1[2]);
+    meDigiMultiLayer1Ring4_->Fill(ndigiperRingLayer1[3]);
+    meDigiMultiLayer1Ring5_->Fill(ndigiperRingLayer1[4]);
+    meDigiMultiLayer1Ring6_->Fill(ndigiperRingLayer1[5]);
+    meDigiMultiLayer1Ring7_->Fill(ndigiperRingLayer1[6]);
+    meDigiMultiLayer1Ring8_->Fill(ndigiperRingLayer1[7]);
 
-    for(int i = 0 ; i< 20 ; i++) {
-       meNdigiPerRingL1_->Fill(i,ndigiperringLayer1[i]);
+    meDigiMultiLayer2Ring1_->Fill(ndigiperRingLayer2[0]);
+    meDigiMultiLayer2Ring2_->Fill(ndigiperRingLayer2[1]);
+    meDigiMultiLayer2Ring3_->Fill(ndigiperRingLayer2[2]);
+    meDigiMultiLayer2Ring4_->Fill(ndigiperRingLayer2[3]);
+    meDigiMultiLayer2Ring5_->Fill(ndigiperRingLayer2[4]);
+    meDigiMultiLayer2Ring6_->Fill(ndigiperRingLayer2[5]);
+    meDigiMultiLayer2Ring7_->Fill(ndigiperRingLayer2[6]);
+    meDigiMultiLayer2Ring8_->Fill(ndigiperRingLayer2[7]);
+
+    meDigiMultiLayer3Ring1_->Fill(ndigiperRingLayer3[0]);
+    meDigiMultiLayer3Ring2_->Fill(ndigiperRingLayer3[1]);
+    meDigiMultiLayer3Ring3_->Fill(ndigiperRingLayer3[2]);
+    meDigiMultiLayer3Ring4_->Fill(ndigiperRingLayer3[3]);
+    meDigiMultiLayer3Ring5_->Fill(ndigiperRingLayer3[4]);
+    meDigiMultiLayer3Ring6_->Fill(ndigiperRingLayer3[5]);
+    meDigiMultiLayer3Ring7_->Fill(ndigiperRingLayer3[6]);
+    meDigiMultiLayer3Ring8_->Fill(ndigiperRingLayer3[7]);
+
+    for(int i =0; i< 24; i++) {
+         meNdigiZmDisk1PerPanel1_->Fill(ndigiZmDisk1PerPanel1[i]);
+         meNdigiZmDisk1PerPanel2_->Fill(ndigiZmDisk1PerPanel2[i]);
+         meNdigiZmDisk2PerPanel1_->Fill(ndigiZmDisk2PerPanel1[i]);
+         meNdigiZmDisk2PerPanel2_->Fill(ndigiZmDisk2PerPanel2[i]);
+         meNdigiZpDisk1PerPanel1_->Fill(ndigiZpDisk1PerPanel1[i]);
+         meNdigiZpDisk1PerPanel2_->Fill(ndigiZpDisk1PerPanel2[i]);
+         meNdigiZpDisk2PerPanel1_->Fill(ndigiZpDisk2PerPanel1[i]);
+         meNdigiZpDisk2PerPanel2_->Fill(ndigiZpDisk2PerPanel2[i]);
     } 
-    for(int i = 0 ; i< 32 ; i++) {
-       meNdigiPerRingL2_->Fill(i,ndigiperringLayer2[i]);
-    }
-    for(int i = 0 ; i< 44 ; i++) {
-       meNdigiPerRingL3_->Fill(i,ndigiperringLayer3[i]);
-    }
 
 
 }
