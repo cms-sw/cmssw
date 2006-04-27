@@ -393,7 +393,16 @@ void DaqMonitorBEInterface::checkAddedElement(string pathname, string ME_name)
 	    {
 	      // this is a match!
 	      MonitorElement* me = findObject(ME_name, pathname);
-	      if(me)
+	      /* I need to double-check that qreport is not already added to "me";
+		 This is because there is a chance that users may
+		 1. define a ME after resetStuff has been called
+		 2. call MonitorUserInterface::useQTest
+		 3. and then call MonitorUserInterface::runQTests, which
+		 eventually calls this function
+		 In this case ME appears in addedContents and this call would
+		 give an error... (not sure of a better way right now)
+	      */
+	      if(me && !me->getQReport(qc->first))
 		addQReport(me, qc->second);
 	    
 	    } // this is a match!
