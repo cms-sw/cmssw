@@ -22,7 +22,7 @@ MuonSlaveSD::~MuonSlaveSD() {
 void MuonSlaveSD::clearHits()
 {
 #ifdef DEBUG
-    std::cout << " MuonSlaveSD::clearHits "<< detector->Name() << std::endl;
+    std::cout << " MuonSlaveSD::clearHits "<< detector->name() << std::endl;
 #endif
     hits_.clear();
 }
@@ -30,7 +30,7 @@ void MuonSlaveSD::clearHits()
 bool MuonSlaveSD::format()
 {
 #ifdef DEBUG
-  std::cout << " MuonSlaveSD "<<detector->Name()<<" formatting " << hits_.size() <<" hits."<< std::endl;
+  std::cout << " MuonSlaveSD "<<detector->name()<<" formatting " << hits_.size() <<" hits."<< std::endl;
 #endif
   if (detector->isBarrel()) {
     sort(hits_.begin(),hits_.end(), FormatBarrelHits());
