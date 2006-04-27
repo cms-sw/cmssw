@@ -47,7 +47,7 @@ void TouchableToHistory::buildAll(){
     myDirectMap[st] = dddToID.id(*it);
 
 #ifdef DEBUG    
-    LogDebug("TrackerSimDebugNumbering")<< " INSERTING "<<view.logicalPart().name()<<" "<<t<<" "<<*it<<" "<<hist->GetVolume()->GetLogicalVolume()->GetName();
+    LogDebug("TrackerSimDebugNumbering")<< " INSERTING "<<view.logicalPart().name()<<" "<<t<<" "<<hist->GetVolume()->GetLogicalVolume()->GetName();
     LogDebug("TrackerSimDebugNumbering")<<" Sensitive: "<<hist->GetVolume()->GetLogicalVolume()->GetSensitiveDetector()<<std::endl;
     LogDebug("TrackerSimDebugNumbering")<<"Now size is "<<myDirectMap.size()<<std::endl;
     if (oldsize == myDirectMap.size())
