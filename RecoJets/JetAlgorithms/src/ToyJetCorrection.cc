@@ -10,10 +10,10 @@
 using namespace std;
 
 CaloJet ToyJetCorrection::applyCorrection (const CaloJet& fJet) {
-  CommonJetData common (fJet.getPx()*mScale, fJet.getPy()*mScale, fJet.getPz()*mScale, 
-			fJet.getE()*mScale, fJet.getP()*mScale, fJet.getPt()*mScale, fJet.getEt()*mScale, fJet.getM()*mScale, 
-			fJet.getPhi(), fJet.getEta(), fJet.getY(), 
-			fJet.getNConstituents());
+  CommonJetData common (fJet.px()*mScale, fJet.py()*mScale, fJet.pz()*mScale, 
+			fJet.energy()*mScale, fJet.p()*mScale, fJet.pt()*mScale, fJet.et()*mScale, fJet.mass()*mScale, 
+			fJet.phi(), fJet.eta(), 0, 
+			fJet.nConstituents());
   CaloJet result (common, fJet.getSpecific (), fJet.getTowerIndices());
   return result;
 }
