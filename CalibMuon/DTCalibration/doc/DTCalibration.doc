@@ -1,0 +1,101 @@
+/*!
+<!-- Substitute CalibMuon and DTCalibration with the proper names! -->
+
+\page CalibMuon_DTCalibration Package CalibMuon/DTCalibration
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/CalibMuon/DTCalibration/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/CalibMuon/DTCalibration/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+This package contains the code for the DT calibration.
+
+
+
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- DTDBWriterInterface: utility class to write DT objects into DB.
+- DTTimeBoxFitter: class for the fit of the rising edge of the time box with the integral of a gaussian.
+This class is designed also for ROOT interactive usage throught the <i>stubs</i> library provided with the package.
+
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+\subsubsection  sync TDC Time Synchronization
+- DTTTrigCalibration: EDAnalyzer for the computation of the ttrig from the time box fit.
+It writes the results into DB.
+
+An example of configuration parameters for this module is:
+\verbatim
+	module ttrigcalib = DTTTrigCalibration {
+		# Switch on/off the verbosity
+		untracked bool debug = true
+		# Label to retrieve DT digis from the event
+		string digiLabel = "muondtdigi"
+		# Name of the ROOT file which will contain the time boxes
+		untracked string rootFileName = "DTTimeBoxes.root"
+		# Switch on/off the subtraction of t0 from pulses
+		bool doSubtractT0 = false
+		# Module for t0 subtraction
+#		string tTrigMode = 'DTTTrigSyncT0Only'
+		# Parameter set for t0 subtraction module
+#		PSet tTrigModeConfig = {
+#			untracked bool debug = true
+#		}
+		# The tag for ttrig DB objects
+		string tTrigTag = "ttrig_test"
+		# Parameter set for the DB Writer
+		PSet dtDBWriterConfig = {
+			untracked bool debug = true
+			# The env variables CORAL_AUTH_USER and CORAL_AUTH_PASSWORD
+			untracked string coralUser = ""
+			untracked string coralPasswd = ""
+			# The authenticatio method: 0 = env, 1 = xml
+			untracked int32 authMethod = 0
+			# The DB message level 0 = Error, 1 = Warning, 2 = Info, 3 = Debug
+			untracked int32 messageLevel = 0
+			# DB Name
+			string dbName = "sqlite_file:./dtttrig_test.db"
+			# Catalog
+			string dbCatalog = "file:dtttrig_test.xml"
+			# Tag to be used for the payload object
+			string tag = "ttrig_test"
+			untracked string containerName = "DTDBObject"
+		}
+	}	
+\endverbatim
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+
+Examples of configuration files for the ttrig computation from the fit of
+the rising edge of the time box are:
+
+- <b>DTTTrigCalibration.cfg</b>: ttrig computation from simulated digis.
+The output is written in a sqlite DB.
+- <b>DTTTrigCalibration_fromData.cfg</b>: ttrig computation from real data.
+
+A stubs library is available with the package for interactive plot and fit of the time boxes.
+It provides the following classes:
+- DTTimeBoxPlotter: for interactive plot of time boxes
+- DTTimeBoxFitter: for the fit of the time box rising edge using exactly the same code used by DTTTrigCalibration module.
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+
+- The DB objects are going to change and the calibration code will change accordigly...stay tuned!
+- The code for Vdrift calibration using TMaxes will be ported soon.
+
+<hr>
+Last updated:
+27-APR-2006 G. Cerminara
+*/
