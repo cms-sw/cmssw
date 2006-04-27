@@ -2,7 +2,9 @@
   <class name="PixelDigiSimLinkCollection"/>
   <class name="PixelDigiSimLink"/>
   <class name="edm::Wrapper<PixelDigiSimLinkCollection>"/>
-  <class name="StripDigiSimLinkCollection"/>
+ 
   <class name="StripDigiSimLink"/>
-  <class name="edm::Wrapper<StripDigiSimLinkCollection>"/>
+  <class name="edm::DetSet<StripDigiSimLink>"/>
+  <class name="edm::Wrapper< edm::DetSet<StripDigiSimLink> >"/>
+  <class name="edm::Wrapper< edm::DetSetVector<StripDigiSimLink> >"/>
 </lcgdict>

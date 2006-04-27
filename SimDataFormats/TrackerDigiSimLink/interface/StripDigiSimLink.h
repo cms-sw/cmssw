@@ -1,30 +1,26 @@
 #ifndef TRACKINGOBJECTS_STRIPDIGISIMLINK_H
 #define TRACKINGOBJECTS_STRIPDIGISIMLINK_H
 
-//typedef std::pair<unsigned int ,unsigned int > StripDigiSimLink;
+#include "boost/cstdint.hpp"
+
 class StripDigiSimLink {
  public:
-  StripDigiSimLink(unsigned int ch, unsigned int tkId, float a ){
-    chan=ch;
-    simTkId=tkId;
-    fract=a;
-  };
+  StripDigiSimLink(const uint16_t& ch, const uint16_t& tkId, const float& a ):chan(ch),simTkId(tkId),fract(a){;}
   
-  StripDigiSimLink(){
-    chan=0;
-    simTkId=0;
-    fract=0;
-  };
-  
-  ~StripDigiSimLink(){};
+  StripDigiSimLink():chan(0),simTkId(0),fract(0){;}
 
-  unsigned int channel(){return chan;};
-  unsigned int SimTrackId(){return simTkId;};
-  float fraction(){return fract;};
+  ~StripDigiSimLink(){;}
+
+  inline const uint16_t&  channel()     const {return chan;}
+  inline const uint16_t&  SimTrackId()  const {return simTkId;}
+  inline const float&   fraction()    const {return fract;}
+
+  inline bool operator< ( const StripDigiSimLink& other ) const { return fraction() < other.fraction(); }
+
  private:
-  unsigned int chan;
-  unsigned int simTkId;
-  float fract;
+  uint16_t chan;
+  uint16_t simTkId;
+  float    fract;
 };
 #endif 
   
