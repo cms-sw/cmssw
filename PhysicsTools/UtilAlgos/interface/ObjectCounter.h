@@ -10,9 +10,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: ObjectCounter.h,v 1.5 2006/03/03 10:45:48 llista Exp $
+ * $Id: ObjectCounter.h,v 1.6 2006/03/03 13:11:15 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -50,11 +50,14 @@ ObjectCounter<C>::ObjectCounter( const edm::ParameterSet& par ) :
 
 template<typename C>
 void ObjectCounter<C>::endJob() {
-  double n = double( nSum_ ) / n_, n2 = double ( n2Sum_ ) / n_;
-  double s = sqrt( n2 - n * n );
+  double n = 0, n2 = 0, s;
+  if ( n_!= 0 ) {
+    n = double( nSum_ ) / n_;
+    n2 = double ( n2Sum_ ) / n_;
+  }
+  s = sqrt( n2 - n * n );
   if ( verbose_ ) {
-    typename C::value_type t;
-    edm::TypeID id( typeid( t ) );
+    edm::TypeID id( typeid( typename C::value_type ) );
     std::cout << ">>> collection \"" << src_ << "\" contains (" 
 	      << n << " +/- " << s << ") "  
 	      << id.friendlyClassName() << " objects" << std::endl;
@@ -63,13 +66,16 @@ void ObjectCounter<C>::endJob() {
 
 template<typename C>
 void ObjectCounter<C>::analyze( const edm::Event& evt, const edm::EventSetup& ) {
-  std::auto_ptr<C> coll( new C );
   edm::Handle<C> h;
-  evt.getByLabel( src_, h );
-  int n = h->size();
-  nSum_ += n;
-  n2Sum_ += ( n * n );
-  ++ n_;
+  try {
+    evt.getByLabel( src_, h );
+    int n = h->size();
+    nSum_ += n;
+    n2Sum_ += ( n * n );
+    ++ n_;
+  } catch ( ... ) {
+    std::cerr << ">>> product: " << src_ << " not found" << std::endl;
+  }
 }
 
 #endif
