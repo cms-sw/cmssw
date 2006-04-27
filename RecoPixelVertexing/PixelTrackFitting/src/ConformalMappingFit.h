@@ -1,0 +1,90 @@
+#ifndef ConformalMappingFit_H
+#define ConformalMappingFit_H
+
+#include "Geometry/Vector/interface/Basic2DVector.h"
+#include "Geometry/Vector/interface/Basic3DVector.h"
+#include "Geometry/Surface/interface/TkRotation.h"
+#include "ParabolaFit.h"
+#include "Measurement1D.h"
+#include <vector>
+
+using namespace std;
+class ConformalMappingFit {
+public:
+  typedef TkRotation<double> Rotation;
+  typedef Basic2DVector<double> PointXY;
+
+  ConformalMappingFit(const vector<PointXY> & hits);
+
+//  ConformalMappingFit(const vector<RecHit>& hits,
+//      const Rotation * rot = 0,
+//      const vector<TrajectoryStateOnSurface> * tsos = 0,
+//      bool useMultScatt = false, float pt = 1., float zVtx = 0.);
+
+  ~ConformalMappingFit();
+
+  Measurement1D curvature() const;
+  Measurement1D directionPhi() const;
+  Measurement1D impactParameter() const;
+
+/*
+  double pT() const;
+  double errPT() const;
+  double phi() const;
+  double errPhi() const;
+  double tip() const; 
+  double errTip() const;
+*/
+  
+  int charge() const;
+  double chi2() const { return theFit.chi2(); }
+
+  const Rotation * rotation() const { return theRotation; }
+
+private:
+  void init( const vector<PointXY> & hits, 
+      const vector<float> & errRPhi2, const Rotation * rot = 0);
+  double phiRot() const;
+  void findRot( const PointXY &);
+
+private:
+  const Rotation *theRotation; bool myRotation;
+  ParabolaFit theFit;
+
+  template <class T> class MappedPoint {
+  public:
+    typedef Basic2DVector<T> PointXY;
+    MappedPoint() : theU(0), theV(0), theW(0), pRot(0) { }
+    MappedPoint( const T & aU, const T & aV, const T & aWeight, 
+        const TkRotation<T> * aRot)
+      : theU(aU), theV(aV), theW(aWeight), pRot(aRot) { }
+    MappedPoint(
+        const PointXY & point, const T & weight, const TkRotation<T> * aRot) 
+      : pRot(aRot) {
+      T radius2 = point.mag2();
+      Basic3DVector<T> rotated = (*pRot) * point;
+      theU = rotated.x() / radius2;
+      theV = rotated.y() / radius2;
+      theW = weight * radius2 * radius2; 
+    }
+    T u() const {return theU; }
+    T v() const {return theV; }
+    T weight() const {return theW; }
+    PointXY unmap () const {
+      T invRadius2 = theU*theU+theV*theV;
+      Basic3DVector<T> tmp
+          = (*pRot).multiplyInverse(Basic2DVector<T>(theU,theV));
+      return PointXY(tmp.x()/invRadius2, tmp.y()/invRadius2);
+    }
+    T unmappedWeight() const {
+      T invRadius2 = theU*theU+theV*theV;
+      return theW * invRadius2 * invRadius2;
+    }
+  private:
+    T theU, theV, theW;
+    const TkRotation<T> * pRot;
+  };
+
+};
+
+#endif
