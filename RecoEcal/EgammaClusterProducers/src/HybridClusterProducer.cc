@@ -73,14 +73,15 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   // create an auto_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > basicclusters_p(new reco::BasicClusterCollection);
   basicclusters_p->assign(basicClusters.begin(), basicClusters.end());
-  evt.put(basicclusters_p, basicclusterCollection_);
+  edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  evt.put(basicclusters_p, 
+                                                                       basicclusterCollection_);
   //Basic clusters now in the event.
   std::cout << "Basic Clusters now put into event." << std::endl;
   
   //Weird though it is, get the BasicClusters back out of the event.  We need the
   //edm::Ref to these guys to make our superclusters for Hybrid.
-  edm::Handle<reco::BasicClusterCollection> bccHandle;
-  evt.getByLabel(basicclusterCollection_, bccHandle);
+//  edm::Handle<reco::BasicClusterCollection> bccHandle;
+ // evt.getByLabel("clusterproducer",basicclusterCollection_, bccHandle);
   if (!(bccHandle.isValid())) {
     std::cout << "could not get a handle on the BasicClusterCollection!" << std::endl;
     return;
@@ -94,7 +95,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   }
 
   reco::SuperClusterCollection superClusters = hybrid_p->makeSuperClusters(clusterRefVector);
-  
+  std::cout << "Found: " << superClusters.size() << " superclusters." << std::endl;  
   std::auto_ptr< reco::SuperClusterCollection > superclusters_p(new reco::SuperClusterCollection);
   superclusters_p->assign(superClusters.begin(), superClusters.end());
   evt.put(superclusters_p, superclusterCollection_);
