@@ -6,7 +6,7 @@
 #include "SimTracker/SiStripDigitizer/interface/SiChargeDivider.h"
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-//#include "GeneratorInterface/HepPDT/interface/HepPDTable.h"
+#include "SimGeneral/HepPDT/interface/HepPDTable.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 /**
@@ -17,15 +17,14 @@ class SiLinearChargeDivider : public SiChargeDivider{
  public:
 
   SiLinearChargeDivider(){
-    //    particleTable = & HepPDT::theTable(); // aggiungere dopo (AG)
+    particleTable = & HepPDT::theTable(); 
   }
   SiLinearChargeDivider(const edm::ParameterSet& conf);
 
   virtual ~SiLinearChargeDivider(){
-    //    delete particleTable;
+    delete particleTable;
   }
 
-  //  SiChargeDivider::ionization_type divide(const SimHit&, const StripDet& det);
   SiChargeDivider::ionization_type divide(const PSimHit&, const StripGeomDetUnit& det);
   
  private:
@@ -35,16 +34,12 @@ class SiLinearChargeDivider : public SiChargeDivider{
   float DeconvolutionShape( const PSimHit&);
   float TimeResponse( const PSimHit&) ; 
   void fluctuateEloss(int particleId, float momentum, float eloss, float length, int NumberOfSegmentation, float elossVector[]);   
-  //  static SimpleConfigurable<bool> peakMode;
   bool peakMode;
-  //  static SimpleConfigurable<bool> fluctuateCharge;
   bool fluctuateCharge;
-  //  static SimpleConfigurable<int>  chargeDivisionsPerStrip;
   int  chargedivisionsPerStrip;
-  //  static SimpleConfigurable<double> deltaCut ;
   double deltaCut ;
   SiG4UniversalFluctuation fluctuate; 
-  //  HepPDTable * particleTable;
+  HepPDTable * particleTable;
 };
 
 #endif

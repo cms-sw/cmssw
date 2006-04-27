@@ -80,10 +80,10 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
   else dedx = eloss;
 
   double particleMass = 139.57; // Mass in MeV, Assume pion
-  //  if( particleTable->getParticleData(pid) ) {  // Get mass from the PDTable
-  //    particleMass = 1000. * particleTable->getParticleData(pid)->mass(); //Conv. GeV to MeV
-  //  }
-
+  if( particleTable->getParticleData(pid) ) {  // Get mass from the PDTable
+    particleMass = 1000. * particleTable->getParticleData(pid)->mass(); //Conv. GeV to MeV
+  }
+  
   float segmentLength = length/NumberOfSegs;
 
   // Generate charge fluctuations.
