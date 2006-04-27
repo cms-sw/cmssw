@@ -22,9 +22,7 @@ using namespace reco;
 */
 
 namespace {
-#ifndef DEBUG
   int DEBUG = 0;
-#endif
 }
 
 CMSKtJetAlgorithm::CMSKtJetAlgorithm()
