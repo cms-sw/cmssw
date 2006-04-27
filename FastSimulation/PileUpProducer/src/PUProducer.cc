@@ -16,6 +16,9 @@
 #include "FastSimulation/Event/interface/FSimEvent.h"
 
 #include "CLHEP/HepMC/GenEvent.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandPoissonQ.h"
+
 
 #include <iostream>
 #include <memory>
@@ -25,10 +28,10 @@ PUProducer::PUProducer(FSimEvent* aSimEvent, edm::ParameterSet const & p) :
 				       p.getParameter<edm::ParameterSet>("input"), 
 				       edm::InputSourceDescription()).release()),
   averageNumber_(p.getParameter<double>("averageNumber")),
-  seed_(p.getParameter<int>("seed")),
-  eng_(seed_),
-  poissonDistribution_(eng_, averageNumber_),
-  flatDistribution_(eng_,0.,1E8),
+  //  seed_(p.getParameter<int>("seed")),
+  //  eng_(seed_),
+  //  poissonDistribution_(eng_, averageNumber_),
+  //  flatDistribution_(eng_,0.,1E8),
   md_(),
   mySimEvent(aSimEvent)
 {
@@ -44,12 +47,14 @@ void PUProducer::produce()
   // Get N events randomly from files
   EventPrincipalVector result;
   Handle<HepMCProduct> evt;
-  int evts = poissonDistribution_.fire();
+  //  int evts = poissonDistribution_.fire();
+  int evts = RandPoissonQ::shoot(averageNumber_);
 
   for ( int ievt=0; ievt<evts; ++ievt ) { 
 
     // Select a minbias event
-    int entry = (int) (flatDistribution_.fire());
+    //    int entry = (int) (flatDistribution_.fire());
+    int entry = (int) (RandFlat::shoot() * 1E8);
     input->readMany(entry,result); // Warning! we read here only one entry !
     Event e(**(result.begin()),md_);
     e.getByType(evt);

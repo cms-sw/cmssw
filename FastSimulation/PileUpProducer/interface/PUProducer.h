@@ -9,10 +9,6 @@
 
 #include "FWCore/Framework/interface/VectorInputSource.h"
 
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandPoisson.h"
-#include "CLHEP/Random/TripleRand.h"
-
 namespace edm { 
   class ModuleDescription;
 }
@@ -44,10 +40,10 @@ class PUProducer
   typedef edm::VectorInputSource::EventPrincipalVector EventPrincipalVector;
   edm::VectorInputSource* const input;
   double averageNumber_;
-  int seed_;
-  TripleRand eng_;
-  RandPoisson poissonDistribution_;
-  RandFlat flatDistribution_;
+  //  int seed_;
+  //  TripleRand eng_;
+  //  RandPoisson poissonDistribution_;
+  //  RandFlat flatDistribution_;
   edm::ModuleDescription md_;
   FSimEvent* mySimEvent;
 
