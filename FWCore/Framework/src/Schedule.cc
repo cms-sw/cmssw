@@ -443,8 +443,6 @@ namespace edm
 	  }
 	  default:
 	  {
-	      LogError(e.category())
-		<< "an exception ocurred during current event processing\n";
 	      state_ = Ready;
 	      throw edm::Exception(errors::EventProcessorFailure,
 				   "EventProcessingStopped",e)
