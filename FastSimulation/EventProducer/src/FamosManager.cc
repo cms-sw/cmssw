@@ -14,6 +14,8 @@
 
 // CLHEP headers
 #include "CLHEP/HepMC/GenEvent.h"
+#include "CLHEP/Random/Random.h"
+#include "CLHEP/Random/JamesRandom.h"
 
 // FAMOS Header
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
@@ -41,10 +43,17 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
       myPileUpProducer(new PUProducer(
 			       mySimEvent,
 			       p.getParameter<edm::ParameterSet>("PUProducer"))),
+      m_FamosSeed(p.getParameter<int>("FamosSeed")),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
       m_pVerbose(p.getUntrackedParameter<int>("Verbosity",1))
-{}
+{
+
+  // Define the random generator engine for Famos
+  HepRandom::setTheEngine(new HepJamesRandom());
+  HepRandom::setTheSeeds(&m_FamosSeed,2);
+  HepRandom::showEngineStatus(); 
+}
 
 FamosManager::~FamosManager()
 { 

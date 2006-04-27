@@ -55,6 +55,7 @@ class FamosManager
 
  private:
 
+  long int m_FamosSeed;
   bool m_pUseMagneticField;
   CLHEP::HepLorentzVector * vtx_;
   double weight_;    
