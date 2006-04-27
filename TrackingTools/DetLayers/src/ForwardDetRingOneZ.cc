@@ -30,23 +30,21 @@ void ForwardDetRingOneZ::initialize()
   // assume the dets ARE in a ring AND phi ordered
   //precomputed_value_sort( theDets.begin(), theDets.end(), geomsort::DetPhi());
 
-  setDisk( ForwardRingDiskBuilderFromDet()( theDets));
-
+  setDisk(ForwardRingDiskBuilderFromDet()(theDets));
 }
 
-/*
-bool ForwardDetRingOneZ::add( int idet, vector<DetWithState>& result,
-			  const FreeTrajectoryState& fts,
-			  const Propagator& prop, 
-			  const MeasurementEstimator& est) const
-{
+
+bool ForwardDetRingOneZ::add(int idet, vector<DetWithState>& result,
+			     const TrajectoryStateOnSurface& tsos,
+			     const Propagator& prop, 
+			     const MeasurementEstimator& est) const {
   pair<bool,TrajectoryStateOnSurface> compat =
-    theDets[idet]->compatible( fts, prop, est);
+    theCompatibilityChecker.isCompatible(theDets[idet],tsos, prop, est);
 
   if (compat.first) {
-    result.push_back( DetWithState( theDets[idet], compat.second));
+    result.push_back(DetWithState(theDets[idet], compat.second));
   }
 
   return compat.first;
 }
-*/
+

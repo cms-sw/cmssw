@@ -19,7 +19,7 @@ class DetRodOneR : public DetRod {
   /// Dummy constructor
   DetRodOneR(){};
 
-  /// Construct from iterators on Det*
+  /// Construct from iterators on GeomDet*
   DetRodOneR( vector<const GeomDet*>::const_iterator first,
 	      vector<const GeomDet*>::const_iterator last);
 
