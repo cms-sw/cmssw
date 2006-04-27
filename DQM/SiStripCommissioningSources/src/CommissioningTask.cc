@@ -112,6 +112,12 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
   uint32_t remaining = 0xFFFFFFFF - histo_set.vSumOfSquares_[bin];
   uint32_t squared_value = value * value;
 
+  // Set entries
+  histo_set.vNumOfEntries_[bin]++;
+
+  // Set contents
+  histo_set.vSumOfContents_[bin] += value;
+
   // Set squared contents (and overflow if necessary)
   if ( remaining <= squared_value ) { 
     histo_set.vSumOfSquaresOverflow_[bin] +=1;
@@ -120,10 +126,6 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
     histo_set.vSumOfSquares_[bin] += squared_value;
   }
   
-  // Set contents and entries
-  histo_set.vSumOfContents_[bin] += value;
-  histo_set.vNumOfEntries_[bin]++;
-
 //   cout << bin << " " 
 //        << histo_set.vSumOfSquaresOverflow_[bin] << " " 
 // 	 << histo_set.vSumOfSquares_[bin] << " " 
@@ -140,14 +142,14 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
        !histo_set.meSumOfContents_ ||
        !histo_set.meNumOfEntries_ ) {
     edm::LogError("Commissioning") << "[CommissioningTask::updateHistoSet]" 
-				   << "  NULL pointer to ME!";
+				   << " NULL pointer to ME!";
     return;
   }
   
   for ( uint32_t ibin = 0; ibin < histo_set.vNumOfEntries_.size(); ibin++ ) {
-    histo_set.meSumOfSquares_->setBinContent( ibin+1, histo_set.vSumOfSquares_[ibin]*1. );
-    histo_set.meSumOfContents_->setBinContent( ibin+1, histo_set.vSumOfContents_[ibin]*1. );
     histo_set.meNumOfEntries_->setBinContent( ibin+1, histo_set.vNumOfEntries_[ibin]*1. );
+    histo_set.meSumOfContents_->setBinContent( ibin+1, histo_set.vSumOfContents_[ibin]*1. );
+    histo_set.meSumOfSquares_->setBinContent( ibin+1, histo_set.vSumOfSquares_[ibin]*1. );
     for ( uint32_t ientries = 0; ientries < histo_set.vSumOfSquaresOverflow_[ibin]; ientries++ ) {
       histo_set.meSumOfSquares_->Fill( ibin+1, (float)0xFFFFFFFF ); 
       histo_set.meSumOfSquares_->Fill( ibin+1, 1. );

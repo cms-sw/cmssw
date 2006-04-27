@@ -55,12 +55,14 @@ class CommissioningTask {
   
  protected: // ----- protected methods -----
   
-  /** Updates vectors of HistoSet. */
+  /** Updates the vectors of HistoSet. */
   void updateHistoSet( HistoSet&, const uint32_t& bin, const uint32_t& value );
-  /** Updates histograms (ME's) of HistoSet. */
+  /** Updates the MonitorElements of HistoSet. */
   void updateHistoSet( HistoSet& );
+
   /** Returns const pointer to DQM back-end interface object. */
   inline DaqMonitorBEInterface* const dqm() const;
+
   /** */
   inline const FedChannelConnection& connection() const;
   

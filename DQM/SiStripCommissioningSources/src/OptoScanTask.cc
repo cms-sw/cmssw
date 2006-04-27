@@ -42,8 +42,8 @@ void OptoScanTask::book() {
     for ( uint16_t ilevel = 0; ilevel < 2; ilevel++ ) { 
 
       stringstream ss; 
-      ss << SiStripHistoNamingScheme::gain() << igain 
-	 << SiStripHistoNamingScheme::digital() << ilevel;
+      ss << sistrip::gain_ << igain 
+	 << sistrip::digital_ << ilevel;
       
       title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::OPTO_SCAN, 
 						    SiStripHistoNamingScheme::SUM2, 
