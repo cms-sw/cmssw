@@ -108,7 +108,7 @@ bool MonitorElement::qreportExists(string qtname) const
 {
   if(getQReport(qtname))
    {
-     cerr << " **** Quality report " << qtname 
+     cerr << " *** Quality report " << qtname 
 	  << " already exists for MonitorElement " << getName() << endl;
      return true;
    }
