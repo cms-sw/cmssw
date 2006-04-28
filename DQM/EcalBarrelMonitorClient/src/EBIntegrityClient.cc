@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/03/05 09:50:41 $
- * $Revision: 1.77 $
+ * $Date: 2006/04/24 12:05:23 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  *
 */
@@ -44,6 +44,9 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  // MonitorDaemon switch
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 
 }
 
@@ -500,7 +503,11 @@ void EBIntegrityClient::analyze(void){
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/EBIT DCC size error");
   } else {
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/EBIT DCC size error");
+    if ( enableMonitorDaemon_ ) {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/EBIT DCC size error");
+    } else {
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/EBIT DCC size error");
+    }
   }
   me = mui_->get(histo);
   if ( me ) {
@@ -522,7 +529,11 @@ void EBIntegrityClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EcalOccupancy/EBMM occupancy SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EcalOccupancy/EBMM occupancy SM%02d", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EcalOccupancy/EBMM occupancy SM%02d", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EcalOccupancy/EBMM occupancy SM%02d", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -542,7 +553,11 @@ void EBIntegrityClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/Gain/EBIT gain SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/Gain/EBIT gain SM%02d", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/Gain/EBIT gain SM%02d", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBIntegrityTask/Gain/EBIT gain SM%02d", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -562,7 +577,11 @@ void EBIntegrityClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/ChId/EBIT ChId SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId SM%02d", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId SM%02d", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBIntegrityTask/ChId/EBIT ChId SM%02d", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -582,7 +601,11 @@ void EBIntegrityClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -602,7 +625,11 @@ void EBIntegrityClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -622,7 +649,11 @@ void EBIntegrityClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTId/EBIT TTId SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId SM%02d", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId SM%02d", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBIntegrityTask/TTId/EBIT TTId SM%02d", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -642,7 +673,11 @@ void EBIntegrityClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {

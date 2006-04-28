@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/02/13 09:46:57 $
- * $Revision: 1.67 $
+ * $Date: 2006/03/05 09:50:41 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -75,6 +75,9 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps, MonitorUserInterface*
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  // MonitorDaemon switch
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 
 }
 
@@ -686,7 +689,11 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -706,7 +713,11 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -726,7 +737,11 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -746,7 +761,11 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -766,7 +785,11 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) { 
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -786,7 +809,11 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) { 
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -806,7 +833,11 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -826,7 +857,11 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -846,7 +881,11 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -866,7 +905,11 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -886,7 +929,11 @@ void EBPedestalClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {

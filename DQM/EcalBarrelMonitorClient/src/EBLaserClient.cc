@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/02/20 09:18:01 $
- * $Revision: 1.64 $
+ * $Date: 2006/03/05 09:50:41 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  *
 */
@@ -83,6 +83,9 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  // MonitorDaemon switch
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 
 }
 
@@ -1295,7 +1298,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1315,7 +1322,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1335,7 +1346,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1355,7 +1370,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1375,7 +1394,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1395,7 +1418,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1415,7 +1442,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1435,7 +1466,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1455,7 +1490,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT timing SM%02d L1", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1475,7 +1514,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT timing SM%02d L2", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1495,7 +1538,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT timing SM%02d L3", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1515,7 +1562,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1535,7 +1586,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1555,7 +1610,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1575,7 +1634,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1595,7 +1658,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1615,7 +1682,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1635,7 +1706,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1655,7 +1730,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1675,7 +1754,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1695,7 +1778,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1715,7 +1802,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1735,7 +1826,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1755,7 +1850,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1775,7 +1874,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1795,7 +1898,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1815,7 +1922,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1835,7 +1946,11 @@ void EBLaserClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {

@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2006/03/05 09:50:40 $
- * $Revision: 1.6 $
+ * $Date: 2006/03/24 10:16:05 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -95,6 +95,8 @@ bool collateSources_;
 bool cloneME_;
 
 bool verbose_;
+
+bool enableMonitorDaemon_;
 
 MonitorUserInterface* mui_;
 

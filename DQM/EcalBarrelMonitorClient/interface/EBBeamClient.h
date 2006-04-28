@@ -4,8 +4,8 @@
 /*
  * \file EBBeamClient.h
  *
- * $Date: 2006/03/03 09:02:42 $
- * $Revision: 1.2 $
+ * $Date: 2006/03/05 09:50:40 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -96,6 +96,8 @@ bool collateSources_;
 bool cloneME_;
 
 bool verbose_;
+
+bool enableMonitorDaemon_;
 
 MonitorUserInterface* mui_;
 

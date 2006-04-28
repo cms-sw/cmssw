@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/03/25 08:39:01 $
- * $Revision: 1.11 $
+ * $Date: 2006/04/07 18:52:20 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,6 +44,9 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps, MonitorUs
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  // MonitorDaemon switch
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 
 }
 
@@ -320,7 +323,11 @@ void EBPedestalOnlineClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {

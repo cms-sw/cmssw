@@ -1,8 +1,8 @@
 /*
  * \file EBBeamClient.cc
  *
- * $Date: 2006/02/08 21:10:27 $
- * $Revision: 1.1 $
+ * $Date: 2006/03/05 09:50:41 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -22,6 +22,9 @@ EBBeamClient::EBBeamClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  // MonitorDaemon switch
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 
 }
 
