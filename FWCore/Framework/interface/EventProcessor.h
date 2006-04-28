@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.16 2006/04/19 21:03:48 jbk Exp $
+$Id: EventProcessor.h,v 1.17 2006/04/25 23:25:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -50,15 +50,9 @@ $Id: EventProcessor.h,v 1.16 2006/04/19 21:03:48 jbk Exp $
 #include "FWCore/Framework/interface/Actions.h"
 #include "DataFormats/Common/interface/EventID.h"
 
-namespace edm {
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
-  class Event;
-  class EventSetup;
-  class EventID;
-  class Timestamp;
-  class InputSource;
-  class ActivityRegistry;
-  class Schedule;
+namespace edm {
 
   namespace event_processor
   {  
@@ -170,6 +164,30 @@ namespace edm {
     T& 
     getSpecificInputSource();
 
+
+    /// Return a vector allowing const access to all the
+    /// ModuleDescriptions for this EventProccessor.
+
+    /// *** N.B. *** Ownership of the ModuleDescriptions is *not*
+    /// *** passed to the caller. Do not call delete on these
+    /// *** pointers!
+
+    std::vector<ModuleDescription const*>
+    getAllModuleDescriptions() const;
+
+    /// Return the number of events this EventProcessor has tried to process
+    /// (inclues both successes and failures, including failures due
+    /// to exceptions during processing).
+    int totalEvents() const;
+
+    /// Return the number of events processed by this EventProcessor
+    /// which have been passed by one or more trigger paths.
+    int totalEventsPassed() const;
+
+    //------------------------------------------------------------------
+    //
+    // Data members (and nested classes and structs) below.
+
     /// signal is emitted after the Event has been created by the
     /// InputSource but before any modules have seen the Event
     boost::signal<void (const EventID&, const Timestamp&)> 
@@ -179,7 +197,8 @@ namespace edm {
     /// the Event
     boost::signal<void (const Event&, const EventSetup&)> 
     postProcessEventSignal;
-    
+
+
     struct CommonParams
     {
       CommonParams():
@@ -214,43 +233,45 @@ namespace edm {
       DoPluginInit();
     };
 
-    // Are all these data members really needed? Some of them are used
-    // only during construction, and never again. If they aren't
-    // really needed, we should remove them.    
-    //shared_ptr<ParameterSet>        params_;
-
-    DoPluginInit plug_init_;
-    CommonParams common_;
-    boost::shared_ptr<ActivityRegistry> actReg_;
-    WorkerRegistry wreg_;
-    SignallingProductRegistry preg_;
-    ServiceToken serviceToken_;
-    boost::shared_ptr<InputSource> input_;
-    std::auto_ptr<Schedule> sched_;
-    std::auto_ptr<eventsetup::EventSetupProvider> esp_;    
-    ActionTable act_table_;
-    volatile event_processor::State state_;
-
     void changeState(event_processor::Msg);
     void errorState();
     void setupSignal();
 
     static void asyncRun(EventProcessor*);
-    boost::shared_ptr<boost::thread> event_loop_;
 
-    boost::mutex state_lock_;
-    boost::mutex stop_lock_;
-    boost::condition stopper_;
-    volatile int stop_count_;
-    volatile Status last_rc_;
-    std::string last_error_text_;
-    volatile bool id_set_;
-    volatile pthread_t event_loop_id_;
-    int my_sig_num_;
+    // Are all these data members really needed? Some of them are used
+    // only during construction, and never again. If they aren't
+    // really needed, we should remove them.    
+
+
+    DoPluginInit                                  plug_init_;
+    CommonParams                                  common_;
+    boost::shared_ptr<ActivityRegistry>           actReg_;
+    WorkerRegistry                                wreg_;
+    SignallingProductRegistry                     preg_;
+    ServiceToken                                  serviceToken_;
+    boost::shared_ptr<InputSource>                input_;
+    std::auto_ptr<Schedule>                       schedule_;
+    std::auto_ptr<eventsetup::EventSetupProvider> esp_;    
+    ActionTable                                   act_table_;
+
+    volatile event_processor::State               state_;
+    boost::shared_ptr<boost::thread>              event_loop_;
+
+    boost::mutex                                  state_lock_;
+    boost::mutex                                  stop_lock_;
+    boost::condition                              stopper_;
+    volatile int                                  stop_count_;
+    volatile Status                               last_rc_;
+    std::string                                   last_error_text_;
+    volatile bool                                 id_set_;
+    volatile pthread_t                            event_loop_id_;
+    int                                           my_sig_num_;
 
     friend class event_processor::StateSentry;
-  };
+  }; // class EventProcessor
 
+  //--------------------------------------------------------------------
   // ----- implementation details below ------
   
   inline

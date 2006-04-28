@@ -22,8 +22,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/Framework/interface/ScheduleBuilder.h"
-#include "FWCore/Framework/interface/ScheduleExecutor.h"
+//#include "FWCore/Framework/interface/ScheduleBuilder.h"
+//#include "FWCore/Framework/interface/ScheduleExecutor.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -311,8 +311,8 @@ namespace edm {
       // There is no module label for the unnamed input source, so 
       // just use the module name.
       md.moduleLabel_ = md.moduleName_;
-      md.processName_ = processName;
-      // warning version and pass are hardcoded
+      md.processName_ = processName; 
+     // warning version and pass are hardcoded
       md.versionNumber_ = 1;
       md.pass = 1; 
 
@@ -530,7 +530,7 @@ namespace edm {
     preg_(),
     serviceToken_(),
     input_(),
-    sched_(),
+    schedule_(),
     esp_(),
     act_table_(),
     state_(sInit),
@@ -587,7 +587,7 @@ namespace edm {
 			   0); // Where does it come from?
      
     input_= makeInput(*params_, common_, preg_,*actReg_);
-    sched_ = std::auto_ptr<Schedule>
+    schedule_ = std::auto_ptr<Schedule>
       (new Schedule(*params_,
 		    ServiceRegistry::instance().get<TNS>(),
 		    wreg_,
@@ -618,7 +618,7 @@ namespace edm {
     ServiceRegistry::Operate op(token); 
     // manually destroy all these thing that may need the services around
     esp_.reset();
-    sched_.reset();
+    schedule_.reset();
     input_.reset();
     wreg_ = WorkerRegistry();
     actReg_.reset();
@@ -686,7 +686,7 @@ namespace edm {
 	IOVSyncValue ts(pep->id(), pep->time());
 	EventSetup const& es = esp_->eventSetupForInstance(ts);
 	
-	sched_->runOneEvent(*pep.get(),es);
+	schedule_->runOneEvent(*pep.get(),es);
       }
 
     // check once more for shutdown signal
@@ -737,7 +737,7 @@ namespace edm {
 	IOVSyncValue ts(pep->id(), pep->time());
 	EventSetup const& es = esp_->eventSetupForInstance(ts);
 
-	sched_->runOneEvent(*pep.get(),es);
+	schedule_->runOneEvent(*pep.get(),es);
 	changeState(mCountComplete);
       }
 
@@ -790,7 +790,7 @@ namespace edm {
     // to be called.
     EventSetup const& es =
       esp_->eventSetupForInstance(IOVSyncValue::beginOfTime());
-    sched_->beginJob(es);
+    schedule_->beginJob(es);
     actReg_->postBeginJobSignal_();
     // toerror.succeeded(); // should we add this?
   }
@@ -805,7 +805,7 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);  
 
     try {
-	sched_->endJob();
+	schedule_->endJob();
     }
     catch(...) {
       actReg_->postEndJobSignal_();
@@ -835,6 +835,25 @@ namespace edm {
   {
     return *input_;
   }
+
+  std::vector<ModuleDescription const*>
+  EventProcessor::getAllModuleDescriptions() const
+  {
+    return schedule_->getAllModuleDescriptions();
+  }
+
+  int
+  EventProcessor::totalEvents() const
+  {
+    return schedule_->totalEvents();
+  }
+
+  int
+  EventProcessor::totalEventsPassed() const
+  {
+    return schedule_->totalEventsPassed();
+  }
+  
 
   const char* EventProcessor::currentStateName() const
   {

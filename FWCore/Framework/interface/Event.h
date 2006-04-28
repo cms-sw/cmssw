@@ -70,7 +70,7 @@ Getting a reference to an event product before that product is put into the even
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.30 2006/04/20 22:33:21 wmtan Exp $
+$Id: Event.h,v 1.31 2006/04/27 21:24:25 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -94,13 +94,9 @@ $Id: Event.h,v 1.30 2006/04/20 22:33:21 wmtan Exp $
 #include "FWCore/Framework/src/Group.h"
 #include "FWCore/Framework/interface/TypeID.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+
 namespace edm {
-  class EventPrincipal;
-  class LuminositySection;
-  class ModuleDescription;
-  class Provenance;
-  class Run;
-  class Selector;
 
   class Event
   {

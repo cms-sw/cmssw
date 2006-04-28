@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.20 2006/03/15 23:13:20 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.21 2006/04/06 23:26:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -43,6 +43,7 @@ namespace edm {
   class RawInputSource;
   class Run;
   class RunHandler;
+  class Schedule;
   class Selector;
   class TypeID;
   class VectorInputSource;

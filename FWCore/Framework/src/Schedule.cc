@@ -377,12 +377,13 @@ namespace edm
 
   void Schedule::runOneEvent(EventPrincipal& ep, EventSetup const& es)
   {
+    ++total_events_;
+
     RunStopwatch stopwatch(stopwatch_);
     resetWorkers();
     results_->reset();
     endpath_results_->reset();
     state_ = Running;
-    ++total_events_;
 
     //now setup the on-demand system
     // NOTE: who owns the productdescrption?  Just copied by value 
@@ -749,6 +750,24 @@ namespace edm
 
     //for_each(all_workers_.begin(),all_workers_.end(),
     //		    boost::bind(&Worker::beginJob,_1,es));    
+  }
+
+
+  vector<ModuleDescription const*>
+  Schedule::getAllModuleDescriptions() const
+  {
+    AllWorkers::const_iterator i(all_workers_.begin());
+    AllWorkers::const_iterator e(all_workers_.end());
+
+    vector<ModuleDescription const*> result;
+    result.reserve(all_workers_.size());
+    
+    for ( ; i!=e; ++i)
+      {
+	ModuleDescription const* p = (*i)->descPtr();
+	result.push_back( p );
+      }
+      return result;
   }
 
   void Schedule::resetWorkers()

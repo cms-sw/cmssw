@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.8 2006/04/19 19:48:51 chrjones Exp $
+  $Id: Schedule.h,v 1.9 2006/04/19 20:13:01 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -140,8 +140,32 @@ namespace edm
     void beginJob(EventSetup const&);
     void endJob();
 
-    std::pair<double,double> timeCpuReal() const {
+    std::pair<double,double> timeCpuReal() const 
+    {
       return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
+    }
+
+    /// Return a vector allowing const access to all the
+    /// ModuleDescriptions for this Schedule.
+
+    /// *** N.B. *** Ownership of the ModuleDescriptions is *not*
+    /// *** passed to the caller. Do not call delete on these
+    /// *** pointers!
+    std::vector<ModuleDescription const*> getAllModuleDescriptions() const;
+
+    /// Return the number of events this Schedule has tried to process
+    /// (inclues both successes and failures, including failures due
+    /// to exceptions during processing).
+    int totalEvents() const
+    {
+      return total_events_;
+    }
+
+    /// Return the number of events which have been passed by one or
+    /// more trigger paths.
+    int totalEventsPassed() const
+    {
+      return total_passed_;
     }
 
   private:
