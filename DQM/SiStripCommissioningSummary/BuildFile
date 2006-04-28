@@ -5,8 +5,6 @@
 <use name=Foundation/PluginManager>
 <use name=PluginManager>
 <use name=DataFormats/SiStripDigi>
-<use name=CondFormats/SiStripObjects>
-<use name=CalibFormats/SiStripObjects>
 <use name=PluginManager>
 <use name=DQM/SiStripCommissioningAnalysis>
 <use name=DQM/SiStripCommon>
@@ -22,8 +20,6 @@
 <use name=Foundation/PluginManager>
 <use name=PluginManager>
 <use name=DataFormats/SiStripDigi>
-<use name=CondFormats/SiStripObjects>
-<use name=CalibFormats/SiStripObjects>
 <use name=PluginManager>
 <use name=DQM/SiStripCommissioningAnalysis>
 <use name=DQM/SiStripCommon>

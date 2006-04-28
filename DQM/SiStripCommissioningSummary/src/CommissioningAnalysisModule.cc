@@ -10,14 +10,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 //data formats
 #include "DataFormats/Common/interface/DetSetVector.h"
-//conditions
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 ///analysis
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/FedTimingAnalysis.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/BiasGainAnalysis.h"
-#include "DQM/SiStripCommissioningAnalysis/interface/VPSPAnalysis.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/OptoScanAnalysis.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAnalysis.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvLatencyAnalysis.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/PedestalsAnalysis.h"
 
@@ -30,13 +27,15 @@ CommissioningAnalysisModule::CommissioningAnalysisModule( const edm::ParameterSe
   //initialise private data members
   c_summary_(0),
   c_summary2_(0),
-  fec_cabling_(0),
-  task_(SiStripHistoNamingScheme::task(pset.getUntrackedParameter<string>("CommissioningTask","Pedestals"))),
+  dirLevel_(pset.getUntrackedParameter<string>("summaryLevel","ControlView/")),
+  controlView_(pset.getUntrackedParameter<bool>("controlView",true)),
+  task_(SiStripHistoNamingScheme::task(pset.getUntrackedParameter<string>("commissioningTask","Pedestals"))),
   filename_(pset.getUntrackedParameter<string>("outputFilename","SUMMARY")),
   targetGain_(pset.getUntrackedParameter<double>("targetGain",0.8)),
   run_(0)
   
 {
+
   //Check Commissioning Task
   if (task_ == SiStripHistoNamingScheme::UNKNOWN_TASK) edm::LogWarning("Commissioning|AnalysisModule") << "Unknown commissioning task. Value used: " << pset.getUntrackedParameter<string>("CommissioningTask","Pedestals") << "; values accepted: Pedestals, ApvTiming, FedTiming, OptoScan, VpspScan, ApvLatency.";
 
@@ -45,12 +44,13 @@ CommissioningAnalysisModule::CommissioningAnalysisModule( const edm::ParameterSe
     c_summary_ = new CommissioningSummary(SiStripHistoNamingScheme::task(task_), SiStripHistoNamingScheme::APV);}
 
   else if (task_ == SiStripHistoNamingScheme::OPTO_SCAN) {
-  c_summary_ = new CommissioningSummary((string)("BIAS"), SiStripHistoNamingScheme::LLD_CHAN);
-  c_summary2_ = new CommissioningSummary((string)("GAIN"), SiStripHistoNamingScheme::LLD_CHAN);}
+  c_summary_ = new CommissioningSummary((string)("Bias"), SiStripHistoNamingScheme::LLD_CHAN);
+  c_summary2_ = new CommissioningSummary((string)("Gain"), SiStripHistoNamingScheme::LLD_CHAN);}
 
   else if (task_ == SiStripHistoNamingScheme::PEDESTALS) {
-  c_summary_ = new CommissioningSummary((string)("PEDESTALS"), SiStripHistoNamingScheme::LLD_CHAN);
-  c_summary2_ = new CommissioningSummary((string)("NOISE"), SiStripHistoNamingScheme::LLD_CHAN);}
+  c_summary_ = new CommissioningSummary((string)("Pedestals"), SiStripHistoNamingScheme::LLD_CHAN);
+  c_summary2_ = new CommissioningSummary((string)("Noise"), SiStripHistoNamingScheme::LLD_CHAN);
+}
 
   else {c_summary_ = new CommissioningSummary(SiStripHistoNamingScheme::task(task_), SiStripHistoNamingScheme::LLD_CHAN);}
 }
@@ -60,19 +60,13 @@ CommissioningAnalysisModule::CommissioningAnalysisModule( const edm::ParameterSe
 CommissioningAnalysisModule::~CommissioningAnalysisModule() {
 
   //clean-up
-if (c_summary_) delete c_summary_;
-if (c_summary2_) delete c_summary2_;
+  if (c_summary_) delete c_summary_;
+  if (c_summary2_) delete c_summary2_;
 }
 
 //-----------------------------------------------------------------------------
 
-void CommissioningAnalysisModule::beginJob(const edm::EventSetup& setup) {
-
-//Control view cabling
-  edm::ESHandle<SiStripFedCabling> fed_cabling;
-  setup.get<SiStripFedCablingRcd>().get( fed_cabling );
-  fec_cabling_ = new SiStripFecCabling( *fed_cabling );
-}
+void CommissioningAnalysisModule::beginJob() {;}
 
 //-----------------------------------------------------------------------------
 
@@ -82,15 +76,15 @@ void CommissioningAnalysisModule::endJob() {
   string name = filename_.substr( 0, filename_.find(".root",0));
   stringstream ss; ss << name << "_" << SiStripHistoNamingScheme::task(task_) << "_" << setfill('0') << setw(7) << run_ << ".root";
   TFile* output = new TFile(ss.str().c_str(), "RECREATE");
-  
+
   //write summary histogram(s) to file
   if (c_summary_) {
-    TH1F* summ = c_summary_->controlSummary("ControlView/",fec_cabling_);
+    TH1F* summ = (controlView_) ? c_summary_->controlSummary(dirLevel_) : c_summary_->summary(dirLevel_);
     summ->Write();
   }
-
+  
   if (c_summary2_) {
-    TH1F* summ2 = c_summary2_->controlSummary("ControlView/",fec_cabling_);
+    TH1F* summ2 = (controlView_) ? c_summary2_->controlSummary(dirLevel_) : c_summary2_->summary(dirLevel_);
     summ2->Write();
   }
   
@@ -98,7 +92,6 @@ void CommissioningAnalysisModule::endJob() {
 
   //clean-up
   if (output) delete output;
-  if(fec_cabling_) delete fec_cabling_;
 }
 
 //-----------------------------------------------------------------------------
@@ -109,28 +102,25 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
   if ( iEvent.id().run() != run_ ) { run_ = iEvent.id().run(); }
   
   //Get histograms from event
-  edm::Handle< edm::DetSetVector< Histo > > th1fs;
-  iEvent.getByType( th1fs );
+  edm::Handle< edm::DetSetVector< Profile > > profs;
+  iEvent.getByType( profs );
   
-  //storage tool for opto bias-gain analysis
-  map< unsigned int, vector< pair< TH1F*, TH1F* > > > bias_gain;
+  //storage tool for multi-histogram based analysis
+  map< unsigned int, vector< vector< TProfile* > > > histo_organizer;
 
   //loop over histograms
-  for (edm::DetSetVector<Histo>::const_iterator idetset = th1fs->begin(); idetset != th1fs->end(); idetset++) {
-    
-    for (edm::DetSet<Histo>::const_iterator th1f = idetset->data.begin(); th1f != idetset->data.end(); th1f++) {
-  
+  for (edm::DetSetVector<Profile>::const_iterator idetset = profs->begin(); idetset != profs->end(); idetset++) {
+    for (edm::DetSet<Profile>::const_iterator prof = idetset->data.begin(); prof != idetset->data.end(); prof++) {
+ 
       //extract histogram details from encoded histogram name.
-      std::string name(th1f->get().GetName());
+      std::string name(prof->get().GetName());
       SiStripHistoNamingScheme::HistoTitle h_title = SiStripHistoNamingScheme::histoTitle(name);
-
+ 
       //find control path from DetSetVector key
       SiStripGenerateKey::ControlPath path = SiStripGenerateKey::controlPath(idetset->id);
       
       //get module information for the summary
-      const FedChannelConnection conn(path.fecCrate_, path.fecSlot_, path.fecRing_, path.ccuAddr_, path.ccuChan_);
-      unsigned int dcu_id = fec_cabling_->module(conn).dcuId();
-      CommissioningSummary::ReadoutId readout(dcu_id, h_title.channel_);
+      CommissioningSummary::ReadoutId readout(idetset->id, h_title.channel_);
       
       //commissioning analysis
       
@@ -138,9 +128,8 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
 	
 	ApvTimingAnalysis anal;
 	
-	vector<const TH1F*> c_histos;
-	c_histos.reserve(1);
-	c_histos.push_back(&th1f->get());
+	vector<const TProfile*> c_histos;
+	c_histos.push_back(&prof->get());
 	vector<unsigned short> c_monitorables;
 	anal.analysis(c_histos, c_monitorables);
 	unsigned int val = c_monitorables[0] * 24 + c_monitorables[1];
@@ -148,19 +137,31 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
       }
       
       else if (task_ == SiStripHistoNamingScheme::PEDESTALS) {
-	
+
+	//fill map with module histograms using key
+	if (histo_organizer.find(h_title.channel_) == histo_organizer.end()) {
+	  histo_organizer[h_title.channel_] = vector< vector<TProfile*> >(1, vector<TProfile*>(2,(TProfile*)(0)));}
+
+	if (h_title.extraInfo_.find(sistrip::pedsAndRawNoise_) != string::npos) {histo_organizer[h_title.channel_][0][0] = const_cast<TProfile*>(&prof->get());}
+	else if (h_title.extraInfo_.find(sistrip::residualsAndNoise_)  != string::npos) {histo_organizer[h_title.channel_][0][1] = const_cast<TProfile*>(&prof->get());}
+
+	//if last histo in DetSet (i.e. for module) perform analysis and add to summary....
+	if (prof == (idetset->data.end() - 1)) {
+
+	  //define analysis object
 	PedestalsAnalysis anal;
-	
-	vector<const TH1F*> c_histos;
-	c_histos.reserve(1);
-	c_histos.push_back(&th1f->get());
+
+	//loop over lld channels
+	for (map< unsigned int, vector< vector< TProfile* > > >::iterator it = histo_organizer.begin(); it != histo_organizer.end(); it++) {
+	vector<const TProfile*> c_histos;
+	c_histos.push_back(it->second[0][0]); c_histos.push_back(it->second[0][1]);
 	vector< vector<float> > c_monitorables;
 	anal.analysis(c_histos, c_monitorables);
        
 	//ped == average pedestals, noise == average noise
 	float ped = 0, noise = 0;
 	
-	if (!c_monitorables[0].empty()) {
+	if (c_monitorables[0].size() == c_monitorables[1].size() != 0) {
 	  for (unsigned short istrip = 0; istrip < c_monitorables[0].size(); istrip++) {
 	    ped += c_monitorables[0][istrip];
 	    noise += c_monitorables[1][istrip];
@@ -168,17 +169,22 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
 	  ped = ped/c_monitorables[0].size();
 	  noise = noise/c_monitorables[0].size();
 	}
+	
+	//update summary
+	CommissioningSummary::ReadoutId readout(idetset->id, it->first);
 	c_summary_->update(readout, ped); 
 	c_summary2_->update(readout, noise);
+	}
+	histo_organizer.clear();//refresh the container
+	}
       }
       
       else if (task_ == SiStripHistoNamingScheme::VPSP_SCAN) {
 	
-	VPSPAnalysis anal;
+	VpspScanAnalysis anal;
 	
-	vector<const TH1F*> c_histos;
-	c_histos.reserve(1);
-	c_histos.push_back(&th1f->get());
+	vector<const TProfile*> c_histos;
+	c_histos.push_back(&prof->get());
 	vector<unsigned short> c_monitorables;
 	anal.analysis(c_histos, c_monitorables);
 	unsigned int val = c_monitorables[0];
@@ -190,9 +196,8 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
 	
 	FedTimingAnalysis anal;
 	
-	vector<const TH1F*> c_histos;
-	c_histos.reserve(1);
-	c_histos.push_back(&th1f->get());
+	vector<const TProfile*> c_histos;
+	c_histos.push_back(&prof->get());
 	vector<unsigned short> c_monitorables;
 	anal.analysis(c_histos, c_monitorables);
 	unsigned int val = c_monitorables[0] * 25 + c_monitorables[1];
@@ -203,52 +208,51 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
       else if (task_ == SiStripHistoNamingScheme::OPTO_SCAN) {
 
 	//find gain value + digital level.
-	string::size_type index = h_title.extraInfo_.find(SiStripHistoNamingScheme::gain());
+	string::size_type index = h_title.extraInfo_.find(sistrip::gain_);
 	unsigned short gain = atoi(h_title.extraInfo_.substr((index + 4),1).c_str());
 
-	index = h_title.extraInfo_.find(SiStripHistoNamingScheme::digital());
+	index = h_title.extraInfo_.find(sistrip::digital_);
 	unsigned short digital = atoi(h_title.extraInfo_.substr((index + 7),1).c_str());
 
 	//fill map with module histograms using key
-	if (bias_gain.find(h_title.channel_) == bias_gain.end()) {
-	  bias_gain[h_title.channel_] = vector< pair<TH1F*, TH1F*> >(4, pair<TH1F*,TH1F*>(0,0));}
+	if (histo_organizer.find(h_title.channel_) == histo_organizer.end()) {
+	  histo_organizer[h_title.channel_] = vector< vector<TProfile*> >(4, vector<TProfile*>(2,(TProfile*)(0)));}
 	
 	if (digital == 0) {
-	  bias_gain[h_title.channel_][gain].first = const_cast<TH1F*>(&th1f->get());}
+	  histo_organizer[h_title.channel_][gain][0] = const_cast<TProfile*>(&prof->get());}
 	
 	if (digital == 1) {
-	  bias_gain[h_title.channel_][gain].second = const_cast<TH1F*>(&th1f->get());}
+	  histo_organizer[h_title.channel_][gain][1] = const_cast<TProfile*>(&prof->get());}
 	
 	//if last histo in DetSet (i.e. for module) perform analysis....
-	if (th1f == (idetset->data.end() - 1)) {
+	if (prof == (idetset->data.end() - 1)) {
 	  
-	  BiasGainAnalysis anal;
+	  OptoScanAnalysis anal;
 	  vector<float> c_monitorables; c_monitorables.resize(2,0.);
 	  
-	  //loop over apvs
-	  for (map< unsigned int, vector< pair< TH1F*, TH1F* > > >::iterator it = bias_gain.begin(); it != bias_gain.end(); it++) {
+	  //loop over lld channels
+	  for (map< unsigned int, vector< vector< TProfile* > > >::iterator it = histo_organizer.begin(); it != histo_organizer.end(); it++) {
 	    
-	    //loop over histos for of a single apv (loop over gain)
+	    //loop over histos for of a single lld channel (loop over gain)
 	    for (unsigned short igain = 0; igain < it->second.size(); igain++) {
 	      
-	      if (it->second[igain].first && it->second[igain].second) {
-		vector<const TH1F*> c_histos; 
-		c_histos.reserve(2);
-		c_histos.push_back(it->second[igain].first);
-		c_histos.push_back(it->second[igain].second);
+	      if (it->second[igain][0] && it->second[igain][1]) {
+		vector<const TProfile*> c_histos; 
+		c_histos.push_back(it->second[igain][0]);
+		c_histos.push_back(it->second[igain][1]);
 		vector<float> temp_monitorables;
 		anal.analysis(c_histos, temp_monitorables);
 		
 		//store monitorables with gain nearest target.
-		if ((fabs(temp_monitorables[0] - targetGain_) < fabs(c_monitorables[0] - targetGain_)) || ((it == bias_gain.begin()) && igain == 0)) {c_monitorables = temp_monitorables;}
+		if ((fabs(temp_monitorables[0] - targetGain_) < fabs(c_monitorables[0] - targetGain_)) || ((it == histo_organizer.begin()) && igain == 0)) {c_monitorables = temp_monitorables;}
 	      }
 	    }
 	    
-	    CommissioningSummary::ReadoutId readout(dcu_id, it->first);
+	    CommissioningSummary::ReadoutId readout(idetset->id, it->first);
 	    c_summary_->update(readout, c_monitorables[1]);
 	    c_summary2_->update(readout, c_monitorables[0]); 
 	  }
-	  bias_gain.clear();
+	  histo_organizer.clear();
 	}
       }
       
@@ -256,9 +260,8 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
 	
 	ApvLatencyAnalysis anal;
 	
-	vector<const TH1F*> c_histos;
-	c_histos.reserve(1);
-	c_histos.push_back(&th1f->get());
+	vector<const TProfile*> c_histos;
+	c_histos.push_back(&prof->get());
 	vector<unsigned short> c_monitorables;
 	anal.analysis(c_histos, c_monitorables);
 	unsigned int val = c_monitorables[0];

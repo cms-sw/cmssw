@@ -9,10 +9,10 @@
 #include <string>
 #include <iostream>
 
-// calibrations
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 // DQM common
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
+
 
 using namespace std;
 
@@ -35,19 +35,19 @@ using namespace std;
 /**
 //@@ class ReadoutId
 //@@ author M.Wingham
-//@@ brief : This class is designed to contain dcu id and channel number of an SST device.
+//@@ brief : This class is designed to contain fec-key and channel number of an SST device.
 */
   class ReadoutId {
 
   public:
 
-    /** Constructor: dcu id and channel number. */
-    ReadoutId(unsigned int dcu, unsigned short chan = 0) {dcu_id = dcu; channel = chan;}
+    /** Constructor: fec-key and channel number. */
+    ReadoutId(unsigned int fecKey, unsigned short chan = 0) {fec_key = fecKey; channel = chan;}
 
     /** Destructor. */
     ~ReadoutId() {;}
 
-    unsigned int dcu_id;
+    unsigned int fec_key;
     unsigned short channel;
 
   private:
@@ -65,11 +65,11 @@ using namespace std;
   /** Returns the granularity of the readout devices being commissioned */
   SiStripHistoNamingScheme::Granularity granularity();
 
-  /** Loops through the map and fills a histogram of the stored commissioning values and their errors. Each bin corresponds to one device (defined by the granularity) and is labelled with its control path i.e. fec-slot|fec-ring|ccu-address|ccu-channel(|channel). Takes the control path string of the region to be histogrammed ( in the form ControlView/FecCrateA/FecSlotB/FecRingC/CcuAddrD/CcuChanE/ or any parent )and the control cabling as arguments.*/
-  TH1F* controlSummary(const string& dir, const SiStripFecCabling* cabling);
+  /** Loops through the map and fills a histogram of the stored commissioning values and their errors. Each bin corresponds to one device (defined by the granularity) and is labelled with its control path i.e. fec-slot|fec-ring|ccu-address|ccu-channel(|channel). Takes the control path string of the region to be histogrammed ( in the form ControlView/FecCrateA/FecSlotB/FecRingC/CcuAddrD/CcuChanE/ or any parent ) as the argument.*/
+  TH1F* controlSummary(const string& dir);
 
-  /** Loops through the map and fills a histogram of the stored commissioning values. Takes the control path string of the control region to be histogrammed ( in the form ControlView/FecCrateA/FecSlotB/FecRingC/CcuAddrD/CcuChanE/ or any parent ); the control cabling; and an optional string defining what to be histogrammed (default is "values", this can also be set to "errors"), as arguments. */
-  TH1F* summary(const string& dir,  const SiStripFecCabling* cabling, const string& option = "values");
+  /** Loops through the map and fills a histogram of the stored commissioning values. Takes the control path string of the control region to be histogrammed ( in the form ControlView/FecCrateA/FecSlotB/FecRingC/CcuAddrD/CcuChanE/ or any parent ) and an optional string defining what to be histogrammed (default is "values", this can also be set to "errors"), as arguments. */
+  TH1F* summary(const string& dir, const string& option = "values");
 
   /** Returns the map, storing the commissioning value and its corresponding error for each device.*/
   map<unsigned int, map< unsigned int, pair< float,float > > >& summaryMap();
@@ -82,7 +82,7 @@ using namespace std;
   /** Granularity of the devices being commissioned. */
   SiStripHistoNamingScheme::Granularity granularity_;
 
-  /** A map indexed by dcu id, which holds the relevent commissioning values and their errors for each module. The map containing these values is indexed by device number.*/  
+  /** A map indexed by fec-key, which holds the relevent commissioning values and their errors for each module. The map containing these values is indexed by channel number.*/  
   map<unsigned  int, map< unsigned int, pair< float,float > > > map_;
 
   /** Histogram of commissioning values (errors).*/ 

@@ -6,13 +6,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //Data Formats
 #include "DataFormats/SiStripDigi/interface/Profile.h"
-#include "DataFormats/SiStripDigi/interface/Histo.h"
+//#include "DataFormats/SiStripDigi/interface/Histo.h"
 //analysis
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAnalysis.h"
 //summary
 #include "DQM/SiStripCommissioningSummary/interface/CommissioningSummary.h"
-//calibrations
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 //root
 #include "TFile.h"
 
@@ -38,8 +36,8 @@ class CommissioningAnalysisModule : public edm::EDAnalyzer {
   /** Destructor */
   ~CommissioningAnalysisModule();
   
-  /** Extracts the fec cabling */
-  virtual void beginJob( const edm::EventSetup& );
+  /** Does nothing */
+  virtual void beginJob();
 
   /** Fills the summary histogram and writes it to file. */
   virtual void endJob();
@@ -52,9 +50,8 @@ class CommissioningAnalysisModule : public edm::EDAnalyzer {
   /** Summary objects */
   CommissioningSummary* c_summary_;
   CommissioningSummary* c_summary2_;
-
-  /** Control cabling */
-  SiStripFecCabling* fec_cabling_;
+  string dirLevel_;
+  bool controlView_;
 
   /** Commissioning task */
   SiStripHistoNamingScheme::Task task_;
