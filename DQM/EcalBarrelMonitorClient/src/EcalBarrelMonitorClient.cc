@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/04/28 09:13:39 $
- * $Revision: 1.103 $
+ * $Date: 2006/04/28 13:17:14 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -362,7 +362,7 @@ void EcalBarrelMonitorClient::beginRun(void){
 
 void EcalBarrelMonitorClient::endJob(void) {
 
-  if ( ! enableMonitorDaemon_ ) this->endRun();
+  if ( ! enableMonitorDaemon_ ) this->analyze();
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: endJob, ievt = " << ievt_ << endl;
 
@@ -449,7 +449,7 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   // this is an effective way to avoid ROOT memory leaks ...
 
-  if ( enableMonitorDaemon_ && enableExit_) {
+  if ( enableExit_ ) {
 
     cout << endl;
     cout << ">>> exit after End-Of-Run <<<" << endl;
@@ -1066,7 +1066,6 @@ void EcalBarrelMonitorClient::analyze(void){
       cout << endl;
       cout << "Too many 'unknown' states ..." << endl;
       cout << endl;
-      this->endJob();
       throw exception();
 
     }
