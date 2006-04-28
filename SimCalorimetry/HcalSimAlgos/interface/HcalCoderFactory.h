@@ -4,6 +4,8 @@
 #include <memory>
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
+#include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
+#include "CalibFormats/CaloTPG/interface/HcalTPGTranscoder.h"
 
 class HcalCoderFactory
 {
@@ -13,14 +15,24 @@ public:
   HcalCoderFactory(CoderType coderType);
 
   void setDbService(const HcalDbService * service) {theDbService = service;}
+  void setTPGCoder(const HcalTPGCoder* cc) { theTPGcoder=cc; }
+  void setCompressionLUTcoder(HcalTPGTranscoder* cc) { theCompressionCoder=cc; }
 
   /// user gets control of the pointer
   std::auto_ptr<HcalCoder> coder(const DetId & detId) const;
+
+  /// user does not get control of the pointer
+  const HcalTPGCoder* TPGcoder() const { return theTPGcoder; }
+
+  /// user does not get control of the pointer
+  HcalTPGTranscoder* compressionLUTcoder() const { return theCompressionCoder; }
 
 private:
 
   CoderType theCoderType;
   const HcalDbService * theDbService;
+  const HcalTPGCoder* theTPGcoder;
+  HcalTPGTranscoder* theCompressionCoder;
 };
 
 #endif

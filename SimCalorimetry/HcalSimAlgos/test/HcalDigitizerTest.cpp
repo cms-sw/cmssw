@@ -25,6 +25,10 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/HcalNominalTPGCoder.h"
+#include "CalibFormats/CaloTPG/interface/HcalTPGSimpleTranscoder.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 
 #include <vector>
 #include<iostream>
@@ -182,6 +186,23 @@ std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId.rawId(),  1) << 
   }
 
 */
+
+  HcalNominalTPGCoder nc(0.5);
+  HcalTPGSimpleTranscoder tcode(500,500,1000);
+  coderFactory.setTPGCoder(&nc);
+  coderFactory.setCompressionLUTcoder(&tcode);
+
+  HcalHardcodeGeometryLoader l;
+  const CaloSubdetectorGeometry* sg=l.load().release();
+  
+  CaloGeometry geom;
+  geom.setSubdetGeometry(DetId::Hcal,HcalBarrel,sg);
+  geom.setSubdetGeometry(DetId::Hcal,HcalEndcap,sg);
+  geom.setSubdetGeometry(DetId::Hcal,HcalForward,sg);
+  geom.setSubdetGeometry(DetId::Hcal,HcalOuter,sg);
+
+  nc.setupGeometry(geom);
+  nc.setupForAuto(&calibratorHandle);
 
   HcalTrigPrimDigiCollection trigPrims;
   HcalTriggerPrimitiveAlgo triggerPrimitiveAlgo(&coderFactory);

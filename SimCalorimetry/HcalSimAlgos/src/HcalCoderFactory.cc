@@ -6,7 +6,9 @@
 
 HcalCoderFactory::HcalCoderFactory(CoderType coderType) 
 : theCoderType(coderType),
-  theDbService(0)
+  theDbService(0),
+  theTPGcoder(0),
+  theCompressionCoder(0)
 {
 }
 

@@ -5,6 +5,7 @@
   <use name=CalibCalorimetry/HcalAlgos>
   <use name=CalibFormats/HcalObjects>
   <use name=DataFormats/HcalDigi>
+  <use name=CalibFormats/CaloTPG>
   <use name=Geometry/HcalTowerAlgo>
 </export>
 
@@ -13,6 +14,7 @@
 <use name=CalibCalorimetry/HcalAlgos>
 <use name=CalibFormats/HcalObjects>
 <use name=DataFormats/HcalDigi>
+<use name=CalibFormats/CaloTPG>
 <use name=Geometry/HcalTowerAlgo>
 <use name=clhep>
 
