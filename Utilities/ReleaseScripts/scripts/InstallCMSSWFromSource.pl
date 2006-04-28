@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-26 17:51:03+0200
-# Revision: $Id: InstallCMSSWFromSource.pl,v 1.2 2006/04/27 11:35:44 sashby Exp $ 
+# Revision: $Id: InstallCMSSWFromSource.pl,v 1.3 2006/04/28 09:31:37 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -132,9 +132,13 @@ sub build()
    die "$0: Error while building SCRAM project $releasever.","\n", if ($rv);
    $rv+=system("eval `$scram runt -sh`; SealPluginRefresh > logs/$architecture/SealPluginRefresh.log 2>&1");
    die "$0: Error when refreshing Plugin cache.","\n", if ($rv);
-   print ">>>> Building documentation for $releasever <<<<<<","\n";
-   $rv+=system($scram,"-arch",$architecture,"build","-v","-k","doc",">logs/$architecture/docgen.log","2>logs/$architecture/docgen.log");
-   die "$0: Error when generating documentation for $releasever.","\n", if ($rv);
+   # Only build the documentation if not donw already:
+   if (! -f $releasearea."/".$releasever."/doc/html/index.html")
+      {
+      print ">>>> Building documentation for $releasever <<<<<<","\n";
+      $rv+=system($scram,"-arch",$architecture,"build","-v","-k","doc",">logs/$architecture/docgen.log","2>logs/$architecture/docgen.log");
+      die "$0: Error when generating documentation for $releasever.","\n", if ($rv);
+      }
    $rv+=system($scram,"-arch",$architecture,"install");
    die "$0: Error when installing $releasever in the SCRAM database.","\n", if ($rv);
    return $rv;
