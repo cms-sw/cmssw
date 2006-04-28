@@ -3,7 +3,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.cc,v 1.7 2006/03/21 01:45:18 fedor Exp $
+   $Id: HcalDbPool.cc,v 1.8 2006/03/28 16:04:32 argiro Exp $
 */
 
 // pool
@@ -64,6 +64,8 @@
 namespace {
   pool::Ref<cond::IOV> iovCache;
 }
+
+typedef std::map<unsigned long long,std::string> IOVCollection;
 
 template <class T>
 bool HcalDbPool::storeObject (T* fObject, const std::string& fContainer, pool::Ref<T>* fRef) {
@@ -128,7 +130,7 @@ template <class T>
 bool HcalDbPool::getObject (const pool::Ref<cond::IOV>& fIOV, unsigned fRun, pool::Ref<T>* fObject) {
   if (!fIOV.isNull ()) {
     // scan IOV, search for valid data
-    for (std::map<unsigned long,std::string>::iterator iovi = fIOV->iov.begin (); iovi != fIOV->iov.end (); iovi++) {
+    for (IOVCollection::iterator iovi = fIOV->iov.begin (); iovi != fIOV->iov.end (); iovi++) {
       if (fRun <= iovi->first) {
 	std::string token = iovi->second;
 	return getObject (token, fObject);
