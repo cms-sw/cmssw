@@ -52,6 +52,8 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es){
   theSmoother=      new KFTrajectorySmoother(*thePropagator,
 					     *theUpdator,	
 					     *theEstimator); 
+  theMeasurementTracker = new MeasurementTracker(es);
+  theLayerMeasurements  = new LayerMeasurements(theMeasurementTracker);
 
 }
 
@@ -61,42 +63,40 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 				  const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
 				  const SiPixelRecHitCollection &collpixel,
 				  const edm::EventSetup& es,
-				  reco::TrackCollection &output)
+				  edm::Event& e,
+				  vector<AlgoProduct> &algooutput)
 {
-  goodhits.clear();
+
+
+  theMeasurementTracker->update(e);
+
+  hits.clear();
+  trajFit.clear();
+  Acc_Z=0;
+  Acc_Z2=0;
   //order all the hits
   vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collpixel,collseed);
-  //create vector of transientrechit
-  vector<const TrackingRecHit*>::iterator itrack;
-  edm::OwnVector<TransientTrackingRecHit> hits;
-
-
-
-  for(itrack=allHits.begin();itrack!=allHits.end();itrack++){
-    hits.push_back(RHBuilder->build((*itrack) ));
-  }
-
-
+  
+  
   std::vector<Trajectory> trajSmooth;
   std::vector<Trajectory>::iterator trajIter;
 
-
+  
   TrajectorySeedCollection::const_iterator iseed;
   for(iseed=collseed.begin();iseed!=collseed.end();iseed++){
-    
+ 
     Trajectory startingTraj = createStartingTrajectory(*iseed);
-
-    AddHit(startingTraj,hits);
+    AddHit(startingTraj,allHits);
   
-    
 
     for (trajIter=trajFit.begin(); trajIter!=trajFit.end();trajIter++){
       trajSmooth=theSmoother->trajectories((*trajIter));
     }
-    
+
     for (trajIter= trajSmooth.begin(); trajIter!=trajSmooth.end();trajIter++){
-      reco::Track tk=makeTrack((*trajIter));
-      output.push_back(tk);
+      AlgoProduct tk=makeTrack((*trajIter));
+      algooutput.push_back(tk);
+   
     }
   }
 };
@@ -184,11 +184,16 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &colls
     if (differenthit) allHits.push_back(&(*istrip)); 
     else  seedHits.push_back(&(*istrip)); 
   }
-
-  goodhits.push_back((RHBuilder->build(seedHits.back()))); 
-  goodhits.push_back((RHBuilder->build(seedHits.front()))); 
-
-
+  
+  hits.push_back((RHBuilder->build(seedHits.back()))); 
+  hits.push_back((RHBuilder->build(seedHits.front()))); 
+  float zz1=(RHBuilder->build(seedHits.back()))->globalPosition().z();
+  Acc_Z+=zz1;
+  Acc_Z2+=zz1*zz1;
+  float zz2=(RHBuilder->build(seedHits.front()))->globalPosition().z();
+  Acc_Z+=zz2;
+  Acc_Z2+=zz2*zz2;
+  nhits=2;
   for(istrip=collstereo.begin();istrip!=collstereo.end();istrip++){
     allHits.push_back(&(*istrip));
   }
@@ -197,8 +202,8 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &colls
   for(istripm=collmatched.begin();istripm!=collmatched.end();istripm++){
     
   }
+  
   stable_sort(allHits.begin(),allHits.end(),CompareHitY(*tracker));
-
   return allHits;
 };
 
@@ -218,19 +223,20 @@ CosmicTrajectoryBuilder::startingTSOS(const TrajectorySeed& seed)const
 }
 
 void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
-				edm::OwnVector<TransientTrackingRecHit> hits){
+				     vector<const TrackingRecHit*>Hits){
+				     //				edm::OwnVector<TransientTrackingRecHit> hits){
   
   TSOS pp( (&traj)->lastMeasurement().updatedState());
   //  Trajectory cachetraj=traj;
   TSOS currentState( traj.lastMeasurement().updatedState());
   bl=track->barrelLayers();
   
-  unsigned int icosmhit=0;
+  //  unsigned int icosmhit=0;
 
   vector<TM> meas;
-  while ( icosmhit<hits.size()) {
-    
-    DetId detid= hits[icosmhit].geographicalId();
+  //  while ( icosmhit<Hits.size()) {
+  for (unsigned int icosmhit=0;icosmhit<Hits.size();icosmhit++){
+    DetId detid= Hits[icosmhit]->geographicalId();
     unsigned int subid=detid.subdetId();
 
     if    (subid==  PixelSubdetector::PixelBarrel) indexlayer=PXBDetId(detid).layer()-1;     
@@ -238,33 +244,49 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
     if    (subid==  StripSubdetector::TIB)  indexlayer=TIBDetId(detid).layer()+2;
     
     if    (subid== StripSubdetector::TOB)  indexlayer=TOBDetId(detid).layer()+6;
-       
-    
 
     meas=theLayerMeasurements->measurements(*(bl[indexlayer]),currentState, 
 					    *thePropagator, 
 					    *theEstimator);
- 
-    for( vector<TM>::const_iterator itm = meas.begin(); 
-	 itm != meas.end(); itm++) {
+
+    if (meas.size()>0){
+      
+      //    for( vector<TM>::const_iterator itm = meas.begin(); 
+      //	 itm != meas.end(); itm++) {
       int hitsbef=traj.foundHits();
-      updateTrajectory( traj, *itm,hits[icosmhit]);
-      int hitsaft=traj.foundHits();
-      if (hitsaft>hitsbef) goodhits.push_back(&(hits[icosmhit]));
+      TransientTrackingRecHit* tmphit=RHBuilder->build(Hits[icosmhit]);
+
+
+      float tmpz=tmphit->globalPosition().z();
+      float medz=Acc_Z/nhits;
+      float devz=sqrt((Acc_Z2/nhits)-(medz*medz));
+      if (abs(tmpz-medz)<(15+(5*devz))){
+
+
+	Acc_Z= Acc_Z+tmpz;
+	Acc_Z2+=tmpz*tmpz;
+	nhits++;
+
+
+	updateTrajectory( traj, *(meas.begin()),*tmphit);
+	int hitsaft=traj.foundHits();
+	if (hitsaft>hitsbef){
+	  hits.push_back(&(*tmphit));
+	}
+      }
+
     }
-    cout<<"size "<<traj.lastMeasurement().updatedState().globalParameters().momentum()<<endl;   
     
-    icosmhit++;
+    //    icosmhit++;
   }
   
-
-
+  
 
   if ( qualityFilter( traj)){
     const TrajectorySeed& tmpseed=traj.seed();
     TSOS startingState=startingTSOS(tmpseed);
-    trajFit = theFitter->fit(tmpseed,goodhits, startingState );
-    cout<<"zozo"<<endl;
+    trajFit = theFitter->fit(tmpseed,hits, startingState );
+
   }
 
 }
@@ -276,8 +298,14 @@ void CosmicTrajectoryBuilder::updateTrajectory( Trajectory& traj,
 {
   TSOS predictedState = tm.predictedState();
 
-  traj.push( TM( predictedState, theUpdator->update( predictedState, hit),
-		 &hit, tm.estimate()));
+  TSOS prSt= thePropagator->propagate(predictedState,
+				      hit.det()->surface());
+  
+  
+  if (prSt.isValid()){
+    traj.push( TM( predictedState, theUpdator->update( predictedState, hit),
+		   &hit, tm.estimate()));  
+  }
 }
 
 bool 
@@ -289,8 +317,8 @@ CosmicTrajectoryBuilder::qualityFilter(Trajectory traj){
     return false;
   }
 }
-reco::Track
-CosmicTrajectoryBuilder::makeTrack(const Trajectory &traj){
+
+std::pair<Trajectory, reco::Track>  CosmicTrajectoryBuilder::makeTrack(const Trajectory &traj){
   //MP must be checked
   TSOS innertsos = traj.lastMeasurement().updatedState();
   int charge = innertsos.charge();
@@ -309,10 +337,8 @@ CosmicTrajectoryBuilder::makeTrack(const Trajectory &traj){
   math::XYZPoint  vtx( v.x(), v.y(), v.z() );   
   edm::LogInfo("RecoTracker/TrackProducer") << " RESULT Momentum "<< p<<"\n";
   edm::LogInfo("RecoTracker/TrackProducer") << " RESULT Vertex "<< v<<"\n";
-  cout<<"traccia "<<
-    traj.foundHits()<<" "<<endl;
-    //    traj.foundHits()<<" "<<
-    //    charge<<" "<<endl;
+  //    traj.foundHits()<<" "<<
+  //    charge<<" "<<endl;
   //build the Track(chiSquared, ndof, found, invalid, lost, q, vertex, momentum, covariance)
  
   reco::Track theTrack (traj.chiSquared(), 
@@ -325,5 +351,7 @@ CosmicTrajectoryBuilder::makeTrack(const Trajectory &traj){
 			mom,
 			cov);
 
-  return theTrack; 
+  AlgoProduct aProduct(traj,theTrack);
+  return aProduct;
+  //  return theTrack; 
 }

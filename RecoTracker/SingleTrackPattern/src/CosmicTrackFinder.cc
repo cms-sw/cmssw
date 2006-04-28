@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 namespace cms
 {
 
@@ -22,8 +23,10 @@ namespace cms
     conf_(conf)
   {
 
-    //    produces<TrackCandidateCollection>();
     produces<reco::TrackCollection>();
+    produces<TrackingRecHitCollection>();
+    //????
+    produces<reco::TrackExtraCollection>();
   }
 
 
@@ -58,10 +61,15 @@ namespace cms
 
     // Step B: create empty output collection
     std::auto_ptr<reco::TrackCollection> output(new reco::TrackCollection);
-    
+    std::auto_ptr<TrackingRecHitCollection> outputRHColl (new TrackingRecHitCollection);
+    std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
+
     cosmicTrajectoryBuilder_.init(es);
 
+    cout<<"Evento "<<e.id()<<endl;
     // Step C: Invoke the cloud cleaning algorithm
+    vector<AlgoProduct> algooutput;
+    edm::OrphanHandle<reco::TrackExtraCollection> ohTE;
 
     if ((*seed).size()>0){
       cosmicTrajectoryBuilder_.run(*seed,
@@ -70,11 +78,55 @@ namespace cms
 				   *matchedrecHits,
 				   *pixelHits,
 				   es,
-				   *output);
-      
-      
-      // Step D: write output to file
-      if ((*output).size()>0)	e.put(output);
+				   e,
+				   algooutput);
+  
+     
+      if(algooutput.size()>0){
+	int cc = 0;	
+	vector<AlgoProduct>::iterator ialgo;
+	for(ialgo=algooutput.begin();ialgo!=algooutput.end();ialgo++){
+
+	
+	  Trajectory  theTraj = (*ialgo).first;
+	  //RecHitCollection	
+	  const edm::OwnVector<TransientTrackingRecHit>& transHits = theTraj.recHits();
+	  for(edm::OwnVector<TransientTrackingRecHit>::const_iterator j=transHits.begin();
+	      j!=transHits.end(); j++){
+	    outputRHColl->push_back( ( (j->hit() )->clone()) );
+	  }
+
+	  edm::OrphanHandle <TrackingRecHitCollection> ohRH  = e.put( outputRHColl );
+
+	  //TrackExtra????
+
+	  reco::TrackExtra * theTrackExtra;
+	  TSOS outertsos = theTraj.lastMeasurement().updatedState();
+
+
+	  GlobalPoint v = outertsos.globalParameters().position();
+	  GlobalVector p = outertsos.globalParameters().momentum();
+	  math::XYZVector outmom( p.x(), p.y(), p.z() );
+	  math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
+	  theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
+	  for(edm::OwnVector<TransientTrackingRecHit>::const_iterator j=transHits.begin();
+	      j!=transHits.end(); j++){
+	    theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
+	    cc++;
+	  }
+	  outputTEColl->push_back(*theTrackExtra);
+	  ohTE = e.put(outputTEColl);
+	}
+	cc = 0;
+	reco::Track  theTrack = (*ialgo).second;
+	reco::TrackExtraRef  theTrackExtraRef(ohTE,cc);
+	theTrack.setExtra(theTrackExtraRef);
+	output->push_back(theTrack);
+    
+	cc++;
+	e.put(output);
+      }
+
     }
   }
   

@@ -34,6 +34,7 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
  class CompareHitY {
  public:
    CompareHitY(const TrackerGeometry& tracker):_tracker(tracker){}
@@ -49,7 +50,7 @@
  };
 class CosmicTrajectoryBuilder 
 {
-
+  typedef std::pair<Trajectory, reco::Track> AlgoProduct; 
   typedef TrajectoryStateOnSurface     TSOS;
   typedef TrajectoryMeasurement        TM;
 
@@ -65,7 +66,8 @@ class CosmicTrajectoryBuilder
 	     const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
 	     const SiPixelRecHitCollection &collpixel,
 	     const edm::EventSetup& es,
-	     reco::TrackCollection &output);
+	     edm::Event& e,
+	     vector<AlgoProduct> &algooutput);
     void init(const edm::EventSetup& es);
  private:
     std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
@@ -83,10 +85,12 @@ class CosmicTrajectoryBuilder
 			   const TransientTrackingRecHit& hit) const;
     
     void AddHit(Trajectory &traj,
-		edm::OwnVector<TransientTrackingRecHit> hits);
+		vector<const TrackingRecHit*>Hits);
+    //		edm::OwnVector<TransientTrackingRecHit> hits);
     bool qualityFilter(Trajectory traj);
 
-    reco::Track makeTrack(const Trajectory &traj);
+    
+    AlgoProduct  makeTrack(const Trajectory &traj);
  private:
    edm::ESHandle<MagneticField> magfield;
    edm::ESHandle<GeometricSearchTracker> track;
@@ -99,14 +103,21 @@ class CosmicTrajectoryBuilder
    TkTransientTrackingRecHitBuilder *RHBuilder;
    const KFTrajectorySmoother * theSmoother;
    const KFTrajectoryFitter * theFitter;
-   //MP
+   const MeasurementTracker*     theMeasurementTracker;
    const LayerMeasurements*      theLayerMeasurements;
+
    vector<BarrelDetLayer*> bl;
    int theMinHits;
    bool chi2cut;
    std::vector<Trajectory> trajFit;
    unsigned int indexlayer; 
    edm::OwnVector<TransientTrackingRecHit> goodhits;
+   edm::OwnVector<TransientTrackingRecHit> hits;
+   float Acc_Z;
+   float Acc_Z2;
+   int nhits;
+   // vector<TransientTrackingRecHit*> goodhits;
+   //edm::OwnVector<TransientTrackingRecHit> pippo;
 };
 
 #endif
