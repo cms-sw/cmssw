@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/03/25 08:39:01 $
- * $Revision: 1.101 $
+ * $Date: 2006/04/07 18:52:20 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -62,22 +62,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   last_update_ = 0;
 
   unknowns_ = 0;
-
-  // DQM default client name
-
-  clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
-
-  // DQM default collector host name
-
-  hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
-
-  // DQM default host port
-
-  hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);;
-
-  cout << " Client '" << clientName_ << "' " << endl
-       << " Collector on host '" << hostName_ << "'"
-       << " on port '" << hostPort_ << "'" << endl;
 
   // DQM ROOT output
 
@@ -154,9 +138,44 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " verbose switch is OFF" << endl;
   }
 
+  // MonitorDaemon switch
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  if ( enableMonitorDaemon_ ) {
+    cout << " enableMonitorDaemon switch is ON";
+  } else {
+    cout << " enableMonitorDaemon switch is OFF";
+  }
+
+  if ( enableMonitorDaemon_ ) {
+
+    // DQM default client name
+
+    clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
+
+    // DQM default collector host name
+
+    hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
+
+    // DQM default host port
+
+    hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);;
+
+    cout << " Client '" << clientName_ << "' " << endl
+         << " Collector on host '" << hostName_ << "'"
+         << " on port '" << hostPort_ << "'" << endl;
+
+  }
+
   // start DQM user interface instance
 
-  if ( ! mui_ ) mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_);
+  if ( ! mui_ ) {
+    if ( enableMonitorDaemon_ ) {
+      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_);
+    } else {
+      mui_ = new MonitorUIRoot();
+    }
+  }
 
   if ( verbose_ ) {
     mui_->setVerbose(1);
@@ -343,6 +362,8 @@ void EcalBarrelMonitorClient::beginRun(void){
 
 void EcalBarrelMonitorClient::endJob(void) {
 
+  if ( ! enableMonitorDaemon_ ) this->endRun();
+
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: endJob, ievt = " << ievt_ << endl;
 
   this->unsubscribe();
@@ -428,7 +449,7 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   // this is an effective way to avoid ROOT memory leaks ...
 
-  if ( enableExit_ ) {
+  if ( enableMonitorDaemon_ && enableExit_) {
 
     cout << endl;
     cout << ">>> exit after End-Of-Run <<<" << endl;
@@ -912,6 +933,11 @@ void EcalBarrelMonitorClient::analyze(void){
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
 
+  if ( ! enableMonitorDaemon_ ) {
+    stay_in_loop = true;
+    updates = last_update_ + 1;
+  }
+
   Char_t histo[150];
 
   MonitorElement* me;
@@ -921,7 +947,11 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( stay_in_loop && updates != last_update_ ) {
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/STATUS");
+    if ( enableMonitorDaemon_ ) {
+      sprintf(histo, "Collector/FU0/EcalBarrel/STATUS");
+    } else {
+      sprintf(histo, "EcalBarrel/STATUS");
+    }
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -932,7 +962,11 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/RUN");
+    if ( enableMonitorDaemon_ ) {
+      sprintf(histo, "Collector/FU0/EcalBarrel/RUN");
+    } else {
+      sprintf(histo, "EcalBarrel/RUN");
+    }
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -941,7 +975,11 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EVT");
+    if ( enableMonitorDaemon_ ) {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EVT");
+    } else {
+      sprintf(histo, "EcalBarrel/EVT");
+    }
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -953,7 +991,11 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EVTTYPE");
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EVTTYPE");
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EVTTYPE");
+      } else {
+        sprintf(histo, "EcalBarrel/EVTTYPE");
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -970,7 +1012,11 @@ void EcalBarrelMonitorClient::analyze(void){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/RUNTYPE");
+    if ( enableMonitorDaemon_ ) {
+      sprintf(histo, "Collector/FU0/EcalBarrel/RUNTYPE");
+    } else {
+      sprintf(histo, "EcalBarrel/RUNTYPE");
+    }
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
