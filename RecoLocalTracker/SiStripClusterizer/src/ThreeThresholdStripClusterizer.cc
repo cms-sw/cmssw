@@ -69,7 +69,7 @@ std::vector<SiStripCluster> ThreeThresholdStripClusterizer::clusterizeDetUnit( S
     //if the next digi after iend is an adiacent bad digi then insert into candidate cluster
     itest=iend+1;
     if ( itest != end && (itest->channel() - iend->channel() == 1) && vnoise[itest->channel()].getDisable() ) {    
-      std::cout << "Inserted bad strip at the end edge iend->channel()= " << iend->channel() << " itest->channel() = " << itest->channel() << std::endl;
+      //std::cout << "Inserted bad strip at the end edge iend->channel()= " << iend->channel() << " itest->channel() = " << itest->channel() << std::endl;
       iend++;
     }
 
@@ -91,7 +91,7 @@ std::vector<SiStripCluster> ThreeThresholdStripClusterizer::clusterizeDetUnit( S
     //if the next digi after ibeg is an adiacent bad digi then insert into candidate cluster
     itest=ibeg-1;
     if ( itest >= begin && (ibeg->channel() - itest->channel() == 1) && vnoise[itest->channel()].getDisable() ) {    
-      std::cout << "Inserted bad strip at the begin edge ibeg->channel()= " << ibeg->channel() << " itest->channel() = " << itest->channel() << std::endl;
+      //std::cout << "Inserted bad strip at the begin edge ibeg->channel()= " << ibeg->channel() << " itest->channel() = " << itest->channel() << std::endl;
       ibeg--;
     }
  
@@ -102,8 +102,8 @@ std::vector<SiStripCluster> ThreeThresholdStripClusterizer::clusterizeDetUnit( S
     for (i=ibeg; i<=iend; i++) {
       float channelNoise = vnoise[i->channel()].getNoise();  
       bool IsBadChannel = vnoise[i->channel()].getDisable();
-      std::cout << "Looking at cluster digis: detid " << detid << " digis " << i->channel()  
-		<< " adc " << i->adc() << " channelNoise " << channelNoise << " IsBadChannel  " << IsBadChannel << std::endl;
+      //std::cout << "Looking at cluster digis: detid " << detid << " digis " << i->channel()  
+      //	<< " adc " << i->adc() << " channelNoise " << channelNoise << " IsBadChannel  " << IsBadChannel << std::endl;
       
       //check for consecutive digis
       if (i!=ibeg && i->channel()-(i-1)->channel()!=1){
