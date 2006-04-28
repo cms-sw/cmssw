@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.11 2006/03/20 14:06:39 llista Exp $
+ * \version $Id: Vertex.h,v 1.12 2006/04/03 11:56:03 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -62,6 +62,8 @@ namespace reco {
     /// y coordinate 
     double z() const { return position_.Z(); }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
+    double error( int i, int j ) const { return error_( i, j ); }
+    /// FIXME do we need non-const method ?
     double error( int i, int j ) { return error_( i, j ); }
 
   private:
