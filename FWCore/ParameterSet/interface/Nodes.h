@@ -415,8 +415,6 @@ namespace edm {
     {
       WrapperNode(const std::string& type, const std::string& name,
 		  NodePtr w, int line=-1);
-      /// deep copy
-      WrapperNode(const WrapperNode &);
       virtual Node * clone() const { return new WrapperNode(*this);}
 
       virtual std::string type() const;

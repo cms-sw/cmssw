@@ -522,14 +522,6 @@ namespace edm {
       wrapped_(w)
     { }
 
-
-    WrapperNode::WrapperNode(const WrapperNode & n)
-    : Node(n),
-      type_(n.type_),
-      wrapped_( n.wrapped_->clone() )
-    {
-    }
-  
     string WrapperNode::type() const { return type_; }
 
     void WrapperNode::print(ostream& ost) const
