@@ -17,29 +17,7 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
 #define LAYERS 6
 #define STRIPS 80
 
-  int evt;
-  std::vector<int> adc;
-  int dmbID[CHAMBERS],crateID[CHAMBERS],chamber_num,sector;
-  int i_chamber,i_layer,reportedChambers ;
-  int fff,ret_code,length;
-  std::string chamber_id;
-  int strip,misMatch;
-  float *tmp, corrmat[12];
- 
-  float newMatrix1[480];
-  float newMatrix2[480];
-  float newMatrix3[480];
-  float newMatrix4[480];
-  float newMatrix5[480];
-  float newMatrix6[480];
-  float newMatrix7[480];
-  float newMatrix8[480];
-  float newMatrix9[480];
-  float newMatrix10[480];
-  float newMatrix11[480];
-  float newMatrix12[480];
-
- ~CSCNoiseMatrixAnalyzer(){
+  ~CSCNoiseMatrixAnalyzer(){
    
    condbc *cdb = new condbc();
    cscmap *map = new cscmap();
@@ -119,6 +97,24 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
  
  private:
  // variables persistent across events should be declared here.
- int eventNumber;
+ std::vector<int> adc; 
+ std::string chamber_id;
+ int eventNumber,evt,strip,misMatch;
+ int i_chamber,i_layer,reportedChambers,fff,ret_code,length,chamber_num,sector;
+ int dmbID[CHAMBERS],crateID[CHAMBERS];
+ float *tmp, corrmat[12];
+ float newMatrix1[480];
+ float newMatrix2[480];
+ float newMatrix3[480];
+ float newMatrix4[480];
+ float newMatrix5[480];
+ float newMatrix6[480];
+ float newMatrix7[480];
+ float newMatrix8[480];
+ float newMatrix9[480];
+ float newMatrix10[480];
+ float newMatrix11[480];
+ float newMatrix12[480];
+ 
  Chamber_AutoCorrMat cam[5];
 };

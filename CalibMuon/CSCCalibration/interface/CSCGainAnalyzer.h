@@ -30,29 +30,7 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
 #define NUMBERPLOTTED 10 
 #define NUMMODTEN 200
 
- int evt;
- std::vector<int> newadc;
- int dmbID[CHAMBERS],crateID[CHAMBERS],chamber_num,sector;
- int i_chamber,i_layer,reportedChambers ;
- int fff,ret_code,length;
- std::string chamber_id;
- int strip,misMatch;
- float gainSlope,gainIntercept;
- 
- //definition of arrays
- float adcMax[CHAMBERS][LAYERS][STRIPS];
- float adcMean_max[CHAMBERS][LAYERS][STRIPS];
- float arrayOfGain[CHAMBERS][LAYERS][STRIPS];
- float arrayOfGainSquare[CHAMBERS][LAYERS][STRIPS];
- float arrayOfIntercept[CHAMBERS][LAYERS][STRIPS];
- float arrayOfChi2[CHAMBERS][LAYERS][STRIPS];
- float arrayOfInterceptSquare[CHAMBERS][LAYERS][STRIPS];
- float newGain[480];
- float newIntercept[480];
- float newChi2[480];
- float maxmodten[NUMMODTEN][CHAMBERS][LAYERS][STRIPS];
- 
- ~CSCGainAnalyzer(){
+  ~CSCGainAnalyzer(){
    
    //create array (480 entries) for database transfer
    condbc *cdb = new condbc();
@@ -61,7 +39,7 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
    //root ntuple
 
    TCalibEvt calib_evt;
-   TFile calibfile("calibgain.root", "RECREATE");
+   TFile calibfile("ntuples/calibgain.root", "RECREATE");
    TTree calibtree("Calibration","Gain");
    calibtree.Branch("EVENT", &calib_evt, "slope/F:intercept/F:strip/I:layer/I:cham/I");
    
@@ -99,11 +77,12 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
 		 sumOfY  += maxmodten[ii][cham][j][k];
 		 sumOfXY += (charge[ii]*maxmodten[ii][cham][j][k]);
 		 sumx2   += (charge[ii]*charge[ii]);
+		 //std::cout <<"Maxmodten "<<maxmodten[ii][cham][j][k]<<std::endl;
 	       }
 	       
 	       //Fit parameters
-	       gainSlope     = ((10*sumOfXY) - (sumOfX * sumOfY))/((10*sumx2) - (sumOfX*sumOfX));//k
-	       gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((10*sumx2)-(sumOfX*sumOfX));//m
+	       gainSlope     = ((10.*sumOfXY) - (sumOfX * sumOfY))/((10.*sumx2) - (sumOfX*sumOfX));//k
+	       gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((10.*sumx2)-(sumOfX*sumOfX));//m
 	       
 	       for(int ii=0; ii<10; ii++){
 		 chi2  += (maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))*(maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))/100.;
@@ -115,12 +94,12 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
 	       arrayOfInterceptSquare[cham][j][k] = gainIntercept*gainIntercept; 
 	       arrayOfChi2[cham][j][k]            = chi2;
 	       
-	       fff = (j*80)+k; //this is for 480 entries in the array
-	       
 	       the_gain          = arrayOfGain[cham][j][k];
 	       the_gain_sq       = arrayOfGainSquare[cham][j][k];
 	       the_intercept     = arrayOfIntercept[cham][j][k];
 	       the_chi2          = arrayOfChi2[cham][j][k];
+	      
+	       fff = (j*80)+k; //this is for 480 entries in the array 
 	       
 	       newIntercept[fff] = the_intercept;
 	       newGain[fff]      = the_gain;
@@ -174,6 +153,23 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
     
  private:
  // variables persistent across events should be declared here.
- int eventNumber;
+ std::vector<int> newadc; 
+ std::string chamber_id;
+ int eventNumber,evt,chamber_num,sector,i_chamber,i_layer,reportedChambers;
+ int fff,ret_code,length,strip,misMatch;
+ int dmbID[CHAMBERS],crateID[CHAMBERS]; 
+ float gainSlope,gainIntercept;
+ float adcMax[CHAMBERS][LAYERS][STRIPS];
+ float adcMean_max[CHAMBERS][LAYERS][STRIPS];
+ float arrayOfGain[CHAMBERS][LAYERS][STRIPS];
+ float arrayOfGainSquare[CHAMBERS][LAYERS][STRIPS];
+ float arrayOfIntercept[CHAMBERS][LAYERS][STRIPS];
+ float arrayOfChi2[CHAMBERS][LAYERS][STRIPS];
+ float arrayOfInterceptSquare[CHAMBERS][LAYERS][STRIPS];
+ float maxmodten[NUMMODTEN][CHAMBERS][LAYERS][STRIPS];
+ float newGain[480];
+ float newIntercept[480];
+ float newChi2[480];
+ 
 };
   
