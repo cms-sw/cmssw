@@ -1,116 +1,116 @@
+#ifndef Alignment_CommonAlignment_AlignmentParameters_H
+#define Alignment_CommonAlignment_AlignmentParameters_H
 
-#ifndef Alignment_CommonAlignment_ALIGNMENTPARAMETERS_H
-#define Alignment_CommonAlignment_ALIGNMENTPARAMETERS_H
+#include <vector>
 
-#include "CommonDet/DetGeometry/interface/AlgebraicObjects.h"
+#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "Alignment/CommonAlignment/interface/AlignmentUserVariables.h"
 
-#include "CommonReco/DetAlignment/interface/AlignmentUserVariables.h"
-
-/** Base class for alignment parameters 
- *  It contains a parameter vector of size N and symmetric covariance 
- *  matrix of size N. There is a pointer to the Alignable to
- *  which the parameters belong. There is also a pointer to
- *  UserVariables. Parameters can be enabled/disabled using theSelector. 
- *  bValid declares if the parameters are 'valid'.  
- *  The methods *Selected* set/return only the active
- *  parameters/derivatives/covariance as subvector/submatrix
- *  of reduced size.
- */
+/// Base class for alignment parameters 
+///
+/// It contains a parameter vector of size N and a covariance matrix of size NxN. 
+/// There is a pointer to the Alignable to which the parameters belong. 
+/// There is also a pointer to UserVariables. 
+/// Parameters can be enabled/disabled using theSelector. 
+/// bValid declares if the parameters are 'valid'.  
+/// The methods *selected* set/return only the active
+/// parameters/derivatives/covariance as subvector/submatrix
+/// of reduced size.
 
 class Alignable;
 class AlignableDet;
 class TrajectoryStateOnSurface;
 class RecHit;
 
-class AlignmentParameters {
+class AlignmentParameters 
+{
 
-  public:
+public:
 
-  /** constructors */
+  /// Default constructor
   AlignmentParameters();
+
+  /// Constructor from given input
   AlignmentParameters(Alignable* object, const AlgebraicVector& par, 
                       const AlgebraicSymMatrix& cov);
-  AlignmentParameters(Alignable* object, const AlgebraicVector& par, 
-                      const AlgebraicSymMatrix& cov, const vector<bool>& sel);
 
-  /** destructor */
+  /// Constructor including selection of active parameters
+  AlignmentParameters(Alignable* object, const AlgebraicVector& par, 
+                      const AlgebraicSymMatrix& cov, const std::vector<bool>& sel);
+
+  /// Destructor
   virtual ~AlignmentParameters();
 
-  /** enforce clone methods in derived classes */
+  /// Enforce clone methods in derived classes
   virtual AlignmentParameters* clone(const AlgebraicVector& par,
-			     const AlgebraicSymMatrix& cov) const=0;
+									 const AlgebraicSymMatrix& cov) const = 0;
   virtual AlignmentParameters* cloneFromSelected(const AlgebraicVector& par,
-    const AlgebraicSymMatrix& cov) const =0;
+												 const AlgebraicSymMatrix& cov) const = 0;
  
-  /** get alignment parameter selector vector */
-  const vector<bool>& selector(void) const;
+  /// Get alignment parameter selector vector 
+  const std::vector<bool>& selector( void ) const;
 
-  /** get number of selected parameters */
-  int numSelected(void) const;
+  /// Get number of selected parameters 
+  const int numSelected( void ) const;
 
-  /** get selected parameters */
-  AlgebraicVector selectedParameters(void) const;
+  /// Get selected parameters
+  AlgebraicVector selectedParameters( void ) const;
 
-  /** get selected covariance matrix */
+  /// Get covariance matrix of selected parameters
   AlgebraicSymMatrix selectedCovariance(void) const;
 
-  /** get alignment parameters */
+  /// Get alignment parameters
   const AlgebraicVector& parameters(void) const;
 
-  /** get parameter covariance matrix */
+  /// Get parameter covariance matrix
   const AlgebraicSymMatrix& covariance(void) const;
 
-  /** get (selected) derivatives */
+  /// Get derivatives of selected parameters
   virtual AlgebraicMatrix derivatives(const TrajectoryStateOnSurface tsos,
-    AlignableDet* alidet) const = 0;
-  virtual AlgebraicMatrix selectedDerivatives(
-    const TrajectoryStateOnSurface tsos, AlignableDet* alidet) const = 0;
+									  AlignableDet* alidet) const = 0;
+  virtual AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface tsos, 
+											   AlignableDet* alidet) const = 0;
 
-  /** set/get pointer to user variables */
+  /// Set pointer to user variables
   void setUserVariables(AlignmentUserVariables* auv);
-  AlignmentUserVariables* userVariables(void) const;
+  /// Get pointer to user variables
+  AlignmentUserVariables* userVariables( void ) const;
 
-  /** get pointer to alignable (to be removed) */
-  Alignable* alignable(void) const;
+  /// Get pointer to corresponding alignable
+  Alignable* alignable( void ) const;
 
-  /** get number of parameters */
-  int size(void) const;
+  /// Get number of parameters
+  const int size(void) const;
 
-  /** get/set validity flag */
-  bool isValid(void) const;
+  /// Get validity flag
+  const bool isValid(void) const;
+  /// Set validity flag
   void setValid(bool v);
 
-  protected:
+protected:
 
-  /** private helper methods */
+  // private helper methods
   AlgebraicSymMatrix collapseSymMatrix(const AlgebraicSymMatrix& m, 
-    const vector<bool>& sel) const; 
+									   const std::vector<bool>& sel) const; 
   AlgebraicVector collapseVector(const AlgebraicVector& m, 
-    const vector<bool>& sel) const;
+								 const std::vector<bool>& sel) const;
   AlgebraicSymMatrix expandSymMatrix(const AlgebraicSymMatrix& m, 
-    const vector<bool>& sel) const;
+									 const std::vector<bool>& sel) const;
   AlgebraicVector expandVector(const AlgebraicVector& m, 
-    const vector<bool>& sel) const;
+							   const std::vector<bool>& sel) const;
 
   // data members
-
-  /** pointer to alignable (to be removed) */
+  
   Alignable* theAlignable;
 
-  /** alignment parameters */
   AlgebraicVector theParameters;
-
-  /** alignment parameter covariance matrix */
   AlgebraicSymMatrix theCovariance;
 
-  /** pointer to alignment user variables */
   AlignmentUserVariables* theUserVariables;
 
-  /** defines which parameters are used */
-  vector<bool> theSelector;
+  std::vector<bool> theSelector; ///< Bit mask of selected parameters
 
-  /** flag, true if parameters are valid */
-  bool bValid;
+  bool bValid; ///< True if parameters are valid
 
 
 };
