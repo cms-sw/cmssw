@@ -15,11 +15,15 @@
 //#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
-#include "DataFormats/TrackReco/interface/HelixParameters.h"
+//#include "DataFormats/TrackReco/interface/HelixParameters.h"
 
+#include "Measurement1D.h"
 #include "ConformalMappingFit.h"
 #include "LinearFit.h"
+#include "PixelTrackBuilder.h"
+
 template <class T> T sqr( T t) {return t*t;}
+
 
 PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine()
 {
@@ -78,18 +82,11 @@ const reco::Track* PixelFitterByConformalMappingAndLine::run(
   //
   // line fit (R-Z plane)
   //
-  float cotTheta, intercept, covss, covii, covsi;
-  LinearFit().fit( r,z, nhits, errZ, cotTheta, intercept, covss, covii, covsi);
-
-
+  float cottheta, intercept, covss, covii, covsi;
+  LinearFit().fit( r,z, nhits, errZ, cottheta, intercept, covss, covii, covsi);
 
 //
-// construct track, move elsewhere FIXME!!!!
-//
-  int charge = parabola.charge();
-
-//
-// momentum
+// parameters for track builder 
 //
   Measurement1D curv = parabola.curvature();
   float invPt = PixelRecoUtilities::inversePt( curv.value(), es);
@@ -99,42 +96,14 @@ const reco::Track* PixelFitterByConformalMappingAndLine::run(
   cout << " reconstructed momentum: " << pt.value() << endl;
   Measurement1D phi = parabola.directionPhi();
   Measurement1D tip = parabola.impactParameter();
+  Measurement1D zip(intercept, sqrt(covii));
+  Measurement1D cotTheta(cottheta, sqrt(covss));  
+  float chi2 = 0.;
+  int charge = parabola.charge();
 
-  //
-  //momentum
-  //
-  math::XYZVector mom( valPt*cos( phi.value()),
-                       valPt*sin( phi.value()),
-                       valPt*cotTheta);
 
-  //
-  // point of the closest approax to Beam line
-  //
-  cout << "TIP value: " <<  tip.value() << endl;
-  math::XYZPoint  vtx(  tip.value()*cos( phi.value()),
-                        tip.value()*sin( phi.value()),
-                        intercept);
-  cout <<"vertex: " << vtx << endl;
-
-  // temporary fix!
-  vtx = math::XYZPoint(0.,0.,vtx.z());
-  //
-  //errors (dummy)
-  //
-  math::Error<6>::type cov; //FIXME - feel
-
-  cout <<" momentum: " << mom << endl;
-//  return new reco::Track();
-
-  return new reco::Track( 0.,         // chi2
-                          2*nhits-5,  // dof
-                          nhits,      // foundHits
-                          0,
-                          0,          //lost hits
-                          charge,
-                          vtx,
-                          mom,
-                          cov);
+  PixelTrackBuilder builder;
+  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits);
 }
 
 
