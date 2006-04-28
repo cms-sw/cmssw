@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.18 2006/04/05 23:00:50 rpw Exp $
+ * $Id: pset_parse.y,v 1.19 2006/04/26 22:21:27 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -140,6 +140,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token USING_tok
 %token REPLACE_tok
 %token RENAME_tok
+%token COPY_tok
 %token MODULE_tok
 %token SERVICE_tok
 %token ES_MODULE_tok
@@ -639,6 +640,15 @@ procnode:        allpset
                    string from(toString($<str>2));
                    string to(toString($<str>3));
                    RenameNode * wn(new RenameNode("rename", from, to, lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 COPY_tok LETTERSTART_tok LETTERSTART_tok
+                 {
+                   DBPRINT("procnode: COPY");
+                   string from(toString($<str>2));
+                   string to(toString($<str>3));
+                   CopyNode * wn(new CopyNode("copy", from, to, lines));
                    $<_Node>$ = wn;
                  }
                |

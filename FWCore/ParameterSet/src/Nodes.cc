@@ -33,6 +33,18 @@ namespace edm {
     // CompositeNode
     //--------------------------------------------------
 
+    CompositeNode::CompositeNode(const CompositeNode & n)
+    : Node(n),
+      nodes_(new NodePtrList)   
+    {
+      NodePtrList::const_iterator i(n.nodes_->begin()),e(n.nodes_->end());
+      for(;i!=e;++i)
+      {
+         nodes_->push_back( NodePtr((**i).clone()) );
+      }
+    }
+
+
     void CompositeNode::acceptForChildren(Visitor& v) const
     {
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
@@ -111,7 +123,13 @@ namespace edm {
     //--------------------------------------------------
     // ReplaceNode
     //--------------------------------------------------
-
+    ReplaceNode::ReplaceNode(const ReplaceNode & n)
+    : Node(n), 
+      type_(n.type()),
+      value_( NodePtr(n.value_->clone()) )
+    {
+    }
+    
 
     void ReplaceNode::print(ostream& ost) const
     {
@@ -138,6 +156,22 @@ namespace edm {
       throw edm::Exception(errors::LogicError,"Rename Nodes should always be processed by the postprocessor.  Please contact an EDM developer");
     }
                                                                                                           
+
+    //--------------------------------------------------
+    // CopyNode
+    //--------------------------------------------------
+                                                                                                    
+                                                                                                    
+    void CopyNode::print(ostream& ost) const
+    {
+      ost << name << " " << from_ << " " << to_;
+    }
+                                                                                                    
+    void CopyNode::accept(Visitor& v) const
+    {
+      throw edm::Exception(errors::LogicError,"Rename Nodes should always be processed by the postprocessor.  Please contact an EDM developer");
+    }
+                                                                                                    
 
     //--------------------------------------------------
     // StringNode
@@ -211,6 +245,15 @@ namespace edm {
       tracked_(tr)
     { }
 
+    
+     VEntryNode::VEntryNode(const VEntryNode & n)
+     : Node(n),
+       type_(n.type_),
+       value_( new StringList(n.value_->begin() , n.value_->end()) ),
+       tracked_(n.tracked_)
+     {
+     }
+       
     string VEntryNode::type() const { return type_; }
 
 
@@ -304,6 +347,7 @@ namespace edm {
       tracked_(tracked)
     {}
 
+
     string PSetNode::type() const { return type_; }
 
     void PSetNode::print(ostream& ost) const
@@ -351,9 +395,8 @@ namespace edm {
 			 NodePtrListPtr value,
 			 bool tracked,
 			 int line) :
-      Node(name,line),
+      CompositeNode(name,value, line),
       type_(typ),
-      value_(value),
       tracked_(tracked)
     { }
 
@@ -362,14 +405,14 @@ namespace edm {
 
     void VPSetNode::print(ostream& ost) const
     {
-      if(value_==0) { cerr << "Badness" << endl; abort(); }
+      if(nodes()==0) { cerr << "Badness" << endl; abort(); }
 
       ost << type_ << " " << name << " = {\n";
-      if(!value_->empty())
+      if(!nodes()->empty())
 	{
 	  //copy(value_->begin(),value_->end(),
 	  //   ostream_iterator<NodePtr>(ost,",\n  "));
-	  NodePtrList::const_iterator ie(value_->end()),ib(value_->begin());
+	  NodePtrList::const_iterator ie(nodes()->end()),ib(nodes()->begin());
 	  --ie;
 	  copy(ib,ie,
 	       ostream_iterator<NodePtr>(ost,", "));
@@ -383,14 +426,6 @@ namespace edm {
       v.visitVPSet(*this);
     }
 
-    void VPSetNode::acceptForChildren(Visitor& v) const
-    {
-      NodePtrList::const_iterator i(value_->begin()),e(value_->end());
-      for(;i!=e;++i)
-	{
-	  (*i)->accept(v);
-	}
-    }
 
     // -------------------------
 
@@ -487,6 +522,14 @@ namespace edm {
       wrapped_(w)
     { }
 
+
+    WrapperNode::WrapperNode(const WrapperNode & n)
+    : Node(n),
+      type_(n.type_),
+      wrapped_( n.wrapped_->clone() )
+    {
+    }
+  
     string WrapperNode::type() const { return type_; }
 
     void WrapperNode::print(ostream& ost) const

@@ -33,7 +33,7 @@ namespace edm {
         sortNodes(contents);
 
         // maybe we don't have to do anything
-        if(!replaceNodes_.empty() || !renameNodes_.empty()) 
+        if(!copyNodes_.empty() || !replaceNodes_.empty() || !renameNodes_.empty()) 
         {
   
           // NOTE: We only bother inlining the Using blocks
@@ -42,6 +42,13 @@ namespace edm {
           processUsingBlocks();
  
           NodePtrList::const_iterator nodeItr;
+
+          // do copies
+          for(nodeItr = copyNodes_.begin();
+              nodeItr != copyNodes_.end(); ++nodeItr)
+          {
+            processCopyNode(*nodeItr);
+          }
 
           // do renames before replaces
           for(nodeItr = renameNodes_.begin();
@@ -67,6 +74,8 @@ namespace edm {
 
     void ParseResultsTweaker::clear() 
     {
+      blocks_.clear();
+      copyNodes_.clear();
       renameNodes_.clear();
       replaceNodes_.clear();
       modulesAndSources_.clear();
@@ -111,6 +120,10 @@ namespace edm {
 
         else if(string(type,0,7) == "replace") {
           replaceNodes_.push_back(*nodeItr);
+        }
+
+        else if(type == "copy") {
+          copyNodes_.push_back(*nodeItr);
         }
 
         else if(type == "rename") {
@@ -177,6 +190,20 @@ namespace edm {
         // Might affect overwriting
         moduleNode->nodes_->push_front(*paramItr);
       } 
+    }
+
+
+    void ParseResultsTweaker::processCopyNode(const NodePtr & n)
+    {
+      const CopyNode * copyNode = dynamic_cast<const CopyNode*>(n.get());
+      assert(copyNode != 0);
+
+      NodePtr fromPtr = findModulePtr(copyNode->from());
+      NodePtr toPtr(fromPtr->clone());
+      toPtr->name = copyNode->to();
+
+      // and add it in the maps here
+      modulesAndSources_[copyNode->to()] = toPtr;
     }
 
 
