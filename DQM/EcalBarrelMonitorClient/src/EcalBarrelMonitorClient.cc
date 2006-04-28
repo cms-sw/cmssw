@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/04/28 13:17:14 $
- * $Revision: 1.104 $
+ * $Date: 2006/04/28 19:06:45 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -447,15 +447,19 @@ void EcalBarrelMonitorClient::endRun(void) {
   last_jevt_ = -1;
   last_update_ = 0;
 
-  // this is an effective way to avoid ROOT memory leaks ...
+  if ( enableMonitorDaemon_ ) {
 
-  if ( enableExit_ ) {
+    // this is an effective way to avoid ROOT memory leaks ...
 
-    cout << endl;
-    cout << ">>> exit after End-Of-Run <<<" << endl;
-    cout << endl;
-    this->endJob();
-    throw exception();
+    if ( enableExit_ ) {
+
+      cout << endl;
+      cout << ">>> exit after End-Of-Run <<<" << endl;
+      cout << endl;
+      this->endJob();
+      throw exception();
+
+    }
 
   }
 
