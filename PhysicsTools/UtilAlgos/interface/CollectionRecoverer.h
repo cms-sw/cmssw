@@ -43,6 +43,7 @@ private:
 template<typename C, typename P>
 CollectionRecoverer<C, P>::CollectionRecoverer( const edm::ParameterSet& par ) : 
   src_( par.template getParameter<std::string>( "src" ) ) {
+  produces<C>();
 }
 
 template<typename C, typename P>
