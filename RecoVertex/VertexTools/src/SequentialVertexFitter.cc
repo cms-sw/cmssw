@@ -68,8 +68,8 @@ SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) cons
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
 
-  edm::LogInfo("RecoVertex/SequentialVertexFitter") 
-    << "linearization point is " << linP << "\n";
+  //  edm::LogInfo("RecoVertex/SequentialVertexFitter") 
+  //    << "linearization point is " << linP << "\n";
 
   // Initial vertex state, with a very large error matrix
   AlgebraicSymMatrix we(3,1);
@@ -77,13 +77,13 @@ SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) cons
   VertexState state(linP, error);
   
 
-  edm::LogInfo("RecoVertex/SequentialVertexFitter") 
-    << "Now linearizing tracks" << "\n";
+  //  edm::LogInfo("RecoVertex/SequentialVertexFitter") 
+  //    << "Now linearizing tracks" << "\n";
 
   vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, state);
 
-  edm::LogInfo("RecoVertex/SequentialVertexFitter") 
-    << "Now fitting vertex" << "\n";
+  //  edm::LogInfo("RecoVertex/SequentialVertexFitter") 
+  //    << "Now fitting vertex" << "\n";
 
   return fit(vtContainer, state, false);
 }
@@ -225,8 +225,8 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
     for (vector<RefCountedVertexTrack>::const_iterator i 
 	   = globalVTracks.begin(); i != globalVTracks.end(); i++) {
 
-      edm::LogInfo("RecoVertex/SequentialVertexFitter") 
-	<< "Now updating vertex" << "\n";
+      //      edm::LogInfo("RecoVertex/SequentialVertexFitter") 
+      //	<< "Now updating vertex" << "\n";
       
       fVertex = theUpdator->add(fVertex,*i);
     }

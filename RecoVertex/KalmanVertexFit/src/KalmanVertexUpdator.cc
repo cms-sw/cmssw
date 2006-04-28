@@ -89,12 +89,12 @@ KalmanVertexUpdator::positionUpdate (const VertexState & oldVertex,
 {
   int ifail;
   // Jacobians
-  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
-    << "Now updating position" << "\n";
+  //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
+  //    << "Now updating position" << "\n";
   AlgebraicMatrix a = linearizedTrack->positionJacobian();
   AlgebraicMatrix b = linearizedTrack->momentumJacobian();
-  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
-    << "got jacobians" << "\n";
+  //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
+  //    << "got jacobians" << "\n";
   
   //track information
   AlgebraicVector trackParameters =
@@ -103,8 +103,8 @@ KalmanVertexUpdator::positionUpdate (const VertexState & oldVertex,
   AlgebraicSymMatrix trackParametersWeight =
         linearizedTrack->predictedStateWeight();
 
-  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
-    << "got track parameters" << "\n";
+  //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
+  //    << "got track parameters" << "\n";
 
   //vertex information
   AlgebraicSymMatrix oldVertexWeight = oldVertex.weight().matrix();
@@ -119,20 +119,20 @@ KalmanVertexUpdator::positionUpdate (const VertexState & oldVertex,
 // Getting the new covariance matrix of the vertex.
 
   AlgebraicSymMatrix newVertexWeight =  oldVertexWeight + weight * sign * gB.similarityT(a);
-  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
-    << "weight matrix" << newVertexWeight << "\n";
+  //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
+  //    << "weight matrix" << newVertexWeight << "\n";
 
 
   AlgebraicVector newSwr =
                 oldVertex.weightTimesPosition() + weight * sign * a.T() * gB *
                 ( trackParameters - linearizedTrack->constantTerm());
-  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
-    << "weighttimespos" << newSwr << "\n";
+  //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
+  //    << "weighttimespos" << newSwr << "\n";
 
   VertexState newpos (newSwr, GlobalWeight(newVertexWeight), 1.0);
 
-  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
-    << "pos" << newpos.position() << "\n";
+  //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
+  //    << "pos" << newpos.position() << "\n";
 
   return newpos;
 }
