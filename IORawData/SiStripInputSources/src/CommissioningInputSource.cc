@@ -5,6 +5,7 @@
 //CondFormats
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
 
 #include <iostream>
 #include <iomanip>
@@ -67,7 +68,7 @@ bool CommissioningInputSource::produce(edm::Event& e) {
     comm_vec.data.reserve(6);
     
     //Change to relevent directory in output file for storage of "commissioning histogram"
-    SiStripGenerateKey::ControlPath c_path = SiStripGenerateKey::controlPath(idetset->id);
+    SiStripControlKey::ControlPath c_path = SiStripControlKey::path(idetset->id);
     string path = SiStripHistoNamingScheme::controlPath(c_path.fecCrate_, c_path.fecSlot_, c_path.fecRing_, c_path.ccuAddr_, c_path.ccuChan_);
     stringstream ss; ss << m_outputFile->GetName() << ":/" << "DQMData/" << path;
     TDirectory* mother = m_outputFile->GetDirectory(ss.str().c_str());
@@ -220,14 +221,14 @@ void CommissioningInputSource::dirHistos(TDirectory* dir, std::vector< TDirector
 	  string control = path.substr(index);
 
 	  SiStripHistoNamingScheme::ControlPath fec_path = SiStripHistoNamingScheme::controlPath(control);
-	  unsigned int fec_key = SiStripGenerateKey::controlKey(fec_path.fecCrate_, fec_path.fecSlot_, fec_path.fecRing_, fec_path.ccuAddr_, fec_path.ccuChan_);
+	  unsigned int fec_key = SiStripControlKey::key(fec_path.fecCrate_, fec_path.fecSlot_, fec_path.fecRing_, fec_path.ccuAddr_, fec_path.ccuChan_);
  
 	  //check histo key (fed id, channel) corresponds to its control path (directory path) using control cabling.
 	  /*
-	  pair< unsigned int,unsigned int > fed_channel = SiStripGenerateKey::fed(h_name.histoKey_);
+	  pair< unsigned int,unsigned int > fed_channel = SiStripReadoutKey::path(h_name.histoKey_);
 	  const vector<unsigned short>& feds = fed_cabling_->feds();
 	  const FedChannelConnection& connection = fed_cabling_->connection(fed_channel.first, fed_channel.second);
-	  unsigned int fec_key_confirm = SiStripGenerateKey::module(connection.fecCrate(), connection.fecSlot(), connection.fecRing(),connection.ccuAddr(), connection.ccuChan());
+	  unsigned int fec_key_confirm = SiStripControlKey::key(connection.fecCrate(), connection.fecSlot(), connection.fecRing(),connection.ccuAddr(), connection.ccuChan());
 
 	  if (fec_key_confirm != fec_key) {LogDebug("Commissioning|TBMonitorIS") << "[CommissioningInputSource::dirHistos]: Warning control path of histogram " << path << "does not correspond to fed key provided: " << h_name.histoKey_ << ". The control path is being used.";}
 	  */

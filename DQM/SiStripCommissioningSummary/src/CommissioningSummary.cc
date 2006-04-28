@@ -1,4 +1,5 @@
 #include "DQM/SiStripCommissioningSummary/interface/CommissioningSummary.h"
+#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
 
 #include <cmath>
 
@@ -61,7 +62,7 @@ SiStripHistoNamingScheme::ControlPath path = SiStripHistoNamingScheme::controlPa
 
  for ( map< unsigned int, map< unsigned int, pair< float,float > > >::const_iterator illd = map_.begin(); illd != map_.end(); illd++) {
    //unpack fec-key
-   SiStripGenerateKey::ControlPath lld_path = SiStripGenerateKey::controlPath(illd->first);
+   SiStripControlKey::ControlPath lld_path = SiStripControlKey::path(illd->first);
 
    if ((lld_path.fecCrate_ == path.fecCrate_) || (path.fecCrate_ == sistrip::all_) &&
        (lld_path.fecSlot_ == path.fecSlot_) || (path.fecSlot_ == sistrip::all_) &&
@@ -87,7 +88,7 @@ SiStripHistoNamingScheme::ControlPath path = SiStripHistoNamingScheme::controlPa
 for ( map< unsigned int, map< unsigned int, pair< float,float > > >::const_iterator illd = map_.begin(); illd != map_.end(); illd++) {
 
    //unpack fec-key
-   SiStripGenerateKey::ControlPath lld_path = SiStripGenerateKey::controlPath(illd->first);
+   SiStripControlKey::ControlPath lld_path = SiStripControlKey::path(illd->first);
    if ((lld_path.fecCrate_ == path.fecCrate_) || (path.fecCrate_ == sistrip::all_) &&
        (lld_path.fecSlot_ == path.fecSlot_) || (path.fecSlot_ == sistrip::all_) &&
        (lld_path.fecRing_ == path.fecRing_) || (path.fecRing_ == sistrip::all_) && 
@@ -153,7 +154,7 @@ SiStripHistoNamingScheme::ControlPath path = SiStripHistoNamingScheme::controlPa
 for ( map< unsigned int, map< unsigned int, pair< float,float > > >::const_iterator illd = map_.begin(); illd != map_.end(); illd++) {
 
    //unpack fec-key
-   SiStripGenerateKey::ControlPath lld_path = SiStripGenerateKey::controlPath(illd->first);
+   SiStripControlKey::ControlPath lld_path = SiStripControlKey::path(illd->first);
    if ((lld_path.fecCrate_ == path.fecCrate_) || (path.fecCrate_ == sistrip::all_) &&
        (lld_path.fecSlot_ == path.fecSlot_) || (path.fecSlot_ == sistrip::all_) &&
        (lld_path.fecRing_ == path.fecRing_) || (path.fecRing_ == sistrip::all_) && 

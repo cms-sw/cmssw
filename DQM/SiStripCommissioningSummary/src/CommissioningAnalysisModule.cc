@@ -2,7 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //common
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
+#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
 // edm
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -117,7 +117,7 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
       SiStripHistoNamingScheme::HistoTitle h_title = SiStripHistoNamingScheme::histoTitle(name);
  
       //find control path from DetSetVector key
-      SiStripGenerateKey::ControlPath path = SiStripGenerateKey::controlPath(idetset->id);
+      SiStripControlKey::ControlPath path = SiStripControlKey::path(idetset->id);
       
       //get module information for the summary
       CommissioningSummary::ReadoutId readout(idetset->id, h_title.channel_);

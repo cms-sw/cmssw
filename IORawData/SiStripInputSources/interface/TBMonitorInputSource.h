@@ -24,7 +24,7 @@
 
     @brief : An InputSource that reads in TBMonitor file(s), renames the TProfiles of interest (in accordance with the scheme in DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h) and attaches them to the event. 
 
-The DetSetVector container is indexed with a key representing the module control path. The key is described in : DQM/SiStripSources/interface/SiStripGenerateKey.h.
+The DetSetVector container is indexed with a key representing the module control path. The key is described in : DataFormats/SiStripDetId/interface/SiStripControlKey.h.
 */
 
 class TBMonitorInputSource : public edm::ExternalInputSource {

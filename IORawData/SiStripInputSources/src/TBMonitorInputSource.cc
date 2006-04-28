@@ -1,4 +1,3 @@
-
 #include "IORawData/SiStripInputSources/interface/TBMonitorInputSource.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PluginManager/PluginCapabilities.h"
@@ -294,7 +293,7 @@ SiStripHistoNamingScheme::HistoTitle TBMonitorInputSource::histoTitle(const stri
   
   unsigned int idlocal;
   os >> hex >> idlocal;
-  title.keyValue_ = (idlocal<<2) | (title.channel_ & 0x3);//updates key to the format defined in DQM/SiStripCommon/interface/SiStripGenerateKey.h
+  title.keyValue_ = (idlocal<<2) | (title.channel_ & 0x3);//updates key to the format defined in DataFormats/SiStripDetId/interface/SiStripControlKey.h
 
   return title;
 }

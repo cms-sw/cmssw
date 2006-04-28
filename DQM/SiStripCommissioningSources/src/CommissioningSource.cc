@@ -10,7 +10,6 @@
 // dqm
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 // conditions
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -19,6 +18,8 @@
 // data formats
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
+#include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
 // tasks
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
@@ -130,13 +131,13 @@ void CommissioningSource::analyze( const edm::Event& event,
   uint32_t fec_key = 0;
   if ( cablingTask_ ) {
     uint32_t id = summary->deviceId();
-    fec_key = SiStripGenerateKey::controlKey( 0,                 // FEC crate
-					      ((id>>27)&0x1F),   // FEC slot
-					      ((id>>23)&0x0F),   // FEC ring
-					      ((id>>16)&0x7F),   // CCU address
-					      ((id>> 8)&0xFF),   // CCU channel
-					      ((id>> 0)&0x03) ); // LLD channel
-    SiStripGenerateKey::ControlPath path = SiStripGenerateKey::controlPath( fec_key );
+    fec_key = SiStripControlKey::key( 0,                 // FEC crate
+				      ((id>>27)&0x1F),   // FEC slot
+				      ((id>>23)&0x0F),   // FEC ring
+				      ((id>>16)&0x7F),   // CCU address
+				      ((id>> 8)&0xFF),   // CCU channel
+				      ((id>> 0)&0x03) ); // LLD channel
+    SiStripControlKey::ControlPath path = SiStripControlKey::path( fec_key );
     stringstream ss;
     ss << "[CommissioningSource::analyze]"
        << " Device id: " << setfill('0') << setw(8) << hex << id << dec
@@ -156,7 +157,7 @@ void CommissioningSource::analyze( const edm::Event& event,
   for ( ifed = fedCabling_->feds().begin(); ifed != fedCabling_->feds().end(); ifed++ ) {
     for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
       // Create FED key and check if non-zero
-      uint32_t fed_key = SiStripGenerateKey::fedKey( *ifed, ichan );
+      uint32_t fed_key = SiStripReadoutKey::key( *ifed, ichan );
       if ( fed_key ) { 
 	// Retrieve digis for given FED key and check if found
 	vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw->find( fed_key );
@@ -167,7 +168,7 @@ void CommissioningSource::analyze( const edm::Event& event,
 	      tasks_[fec_key]->fedChannel( fed_key );
 	      tasks_[fec_key]->fillHistograms( *summary, *digis );
 	    } else {
-	      SiStripGenerateKey::ControlPath path = SiStripGenerateKey::controlPath( fec_key );
+	      SiStripControlKey::ControlPath path = SiStripControlKey::path( fec_key );
 	      stringstream ss;
 	      ss << "[CommissioningSource::analyze]"
 		 << " Commissioning task with FEC key " 
@@ -186,14 +187,14 @@ void CommissioningSource::analyze( const edm::Event& event,
 	    if ( tasks_.find(fed_key) != tasks_.end() ) { 
 	      tasks_[fed_key]->fillHistograms( *summary, *digis );
 	    } else {
-	      pair<uint32_t,uint32_t> fed_ch = SiStripGenerateKey::fedChannel( fec_key );
+	      SiStripReadoutKey::ReadoutPath path = SiStripReadoutKey::path( fec_key );
 	      stringstream ss;
 	      ss << "[CommissioningSource::analyze]"
 		 << " Commissioning task with FED key " 
 		 << hex << setfill('0') << setw(8) << fed_key << dec
 		 << " and FED id/ch " 
-		 << fed_ch.first << "/"
-		 << fed_ch.second 
+		 << path.fedId_ << "/"
+		 << path.fedCh_ 
 		 << " not found in list!"; 
 	      edm::LogError("Commissioning") << ss.str();
 	    }
@@ -282,13 +283,13 @@ void CommissioningSource::createTask( SiStripEventSummary::Task task ) {
 	    // Retrieve FED channel connection object in order to create key for task map
 	    FedChannelConnection conn = fedCabling_->connection( iconn->second.first,
 								 iconn->second.second );
-	    uint32_t fed_key = SiStripGenerateKey::fedKey( conn.fedId(), conn.fedCh() );
-	    uint32_t fec_key = SiStripGenerateKey::controlKey( conn.fecCrate(),
-							       conn.fecSlot(),
-							       conn.fecRing(),
-							       conn.ccuAddr(),
-							       conn.ccuChan(),
-							       conn.lldChannel() );
+	    uint32_t fed_key = SiStripReadoutKey::key( conn.fedId(), conn.fedCh() );
+	    uint32_t fec_key = SiStripControlKey::key( conn.fecCrate(),
+						       conn.fecSlot(),
+						       conn.fecRing(),
+						       conn.ccuAddr(),
+						       conn.ccuChan(),
+						       conn.lldChannel() );
 	    uint32_t key = cablingTask_ ? fec_key : fed_key;
 	    // Create commissioning task objects
 	    if ( tasks_.find( key ) == tasks_.end() ) {

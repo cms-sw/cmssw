@@ -14,7 +14,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 //common
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 //CondFormats
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 
@@ -26,9 +25,16 @@
     @class : CommissioningInputSource
     @author : M.Wingham
 
-    @brief : An InputSource that reads in Commissioning source-histogram file(s) and attaches all TH1Fs to the Event. Currently, due to the absense of a commissioning "client" to interpret the 3 "source" histograms per device, a temporary measure is in place to combine them appropriately. The combined "commissioning" histograms are written to a separate file.
+    @brief : An InputSource that reads in Commissioning
+    source-histogram file(s) and attaches all TH1Fs to the
+    Event. Currently, due to the absense of a commissioning "client"
+    to interpret the 3 "source" histograms per device, a temporary
+    measure is in place to combine them appropriately. The combined
+    "commissioning" histograms are written to a separate file.
 
-The DetSetVector container is indexed with a key representing the module control path. The key is described in : DQM/SiStripSources/interface/SiStripGenerateKey.h.
+    The DetSetVector container is indexed with a key representing the
+    module control path. The key is described in :
+    DataFormats/SiStripDetId/interface/SiStripControlKey.h.
 */
 
 class CommissioningInputSource : public edm::ExternalInputSource {

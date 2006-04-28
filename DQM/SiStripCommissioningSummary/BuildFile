@@ -4,6 +4,7 @@
 <use name=DataFormats/Common>
 <use name=Foundation/PluginManager>
 <use name=PluginManager>
+<use name=DataFormats/SiStripDetId>
 <use name=DataFormats/SiStripDigi>
 <use name=PluginManager>
 <use name=DQM/SiStripCommissioningAnalysis>
@@ -13,15 +14,16 @@
 
 <export>
    <lib name=DQMSiStripCommissioningSummary>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/MessageLogger>
-<use name=DataFormats/Common>
-<use name=Foundation/PluginManager>
-<use name=PluginManager>
-<use name=DataFormats/SiStripDigi>
-<use name=PluginManager>
-<use name=DQM/SiStripCommissioningAnalysis>
-<use name=DQM/SiStripCommon>
-<use name=root>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/MessageLogger>
+   <use name=DataFormats/Common>
+   <use name=Foundation/PluginManager>
+   <use name=PluginManager>
+   <use name=DataFormats/SiStripDetId>
+   <use name=DataFormats/SiStripDigi>
+   <use name=PluginManager>
+   <use name=DQM/SiStripCommissioningAnalysis>
+   <use name=DQM/SiStripCommon>
+   <use name=root>
 </export>

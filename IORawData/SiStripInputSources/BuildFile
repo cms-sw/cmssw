@@ -4,6 +4,7 @@
 <use name=Foundation/PluginManager>
 <use name=DataFormats/Common>
 <use name=DataFormats/FEDRawData>
+<use name=DataFormats/SiStripDetId>
 <use name=DQM/SiStripCommon>
 <use name=root>
 <use name=xdaq>
@@ -19,6 +20,7 @@
    <use name=Foundation/PluginManager>
    <use name=DataFormats/Common>
    <use name=DataFormats/FEDRawData>
+   <use name=DataFormats/SiStripDetId>
    <use name=DQM/SiStripCommon>
    <use name=root>
    <use name=xdaq>

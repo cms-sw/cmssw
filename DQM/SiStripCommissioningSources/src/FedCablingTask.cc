@@ -1,6 +1,5 @@
 #include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

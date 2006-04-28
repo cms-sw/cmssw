@@ -1,4 +1,3 @@
-
 #ifndef DQM_SiStripCommissioningSummary_CommissioningSummary_H
 #define DQM_SiStripCommissioningSummary_CommissioningSummary_H
 
@@ -11,8 +10,6 @@
 
 // DQM common
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
-
 
 using namespace std;
 
@@ -22,7 +19,7 @@ using namespace std;
 //@@ brief : This class is designed to contain SST commissioning values and their errors, and fill a "summary histogram" to display the information when required.
 */
 
-  class CommissioningSummary {
+class CommissioningSummary {
 
   public: // ----- public interface -----
 

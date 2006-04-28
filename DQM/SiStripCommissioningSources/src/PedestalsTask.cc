@@ -1,6 +1,5 @@
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -148,6 +147,14 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
   
   for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
     updateHistoSet( peds_[0], ibin, digis.data[ibin].adc() ); // peds
+//     if ( digis.data[ibin].adc()-cm[ibin/128] < 0 ) {
+//       cout << "bin/apv/digi/cm/result: " 
+// 	   << ibin << " " << ibin/128 << " " 
+// 	   << digis.data[ibin].adc() << " " 
+// 	   << cm[ibin/128] << " " 
+// 	   << digis.data[ibin].adc()-cm[ibin/128]
+// 	   << endl;
+//     }
     updateHistoSet( peds_[1], ibin, (digis.data[ibin].adc()-cm[ibin/128]) ); // noise
   }
   

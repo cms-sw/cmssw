@@ -8,6 +8,7 @@
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
 <use name=DataFormats/Common>
+<use name=DataFormats/SiStripDetId>
 <use name=DataFormats/SiStripDigi>
 <use name=boost>
 <flags CXXFLAGS="-g">
@@ -25,6 +26,7 @@
    <use name=CondFormats/SiStripObjects>
    <use name=CalibFormats/SiStripObjects>
    <use name=DataFormats/Common>
+   <use name=DataFormats/SiStripDetId>
    <use name=DataFormats/SiStripDigi>
    <use name=boost>
 </export>
