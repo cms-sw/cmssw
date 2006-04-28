@@ -1,12 +1,12 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvLatencyAnalysis.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TH1F.h"
+#include "TProfile.h"
 #include <vector>
 #include <cmath>
 
 // -----------------------------------------------------------------------------
 //
-void ApvLatencyAnalysis::analysis( const vector<const TH1F*>& histos, 
+void ApvLatencyAnalysis::analysis( const vector<const TProfile*>& histos, 
 			      vector<unsigned short>& monitorables ) {
     edm::LogInfo("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]";
 
@@ -14,9 +14,9 @@ void ApvLatencyAnalysis::analysis( const vector<const TH1F*>& histos,
     //check 
   if (histos.size() != 1) { edm::LogError("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
   
-  monitorables.reserve(1); monitorables.push_back(0);
+  monitorables.push_back(0);
   return; }
-  const TH1F* histo = histos[0];
+  const TProfile* histo = histos[0];
 
     //monitorable
     unsigned short latency;
@@ -66,6 +66,5 @@ void ApvLatencyAnalysis::analysis( const vector<const TH1F*>& histos,
 
  //set monitorables
  monitorables.clear();
- monitorables.reserve(1);
  monitorables.push_back(latency);
 }

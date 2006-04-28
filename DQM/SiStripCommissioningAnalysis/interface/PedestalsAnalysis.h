@@ -4,9 +4,6 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAnalysis.h"
 #include <vector>
 
-class PedestalsHistograms;
-class PedestalsMonitorables;
-
 /** 
     @file : DQM/SiStripCommissioningAnalysis/interface/PedestalsAnalysis.h
     @class : PedestalsAnalysis
@@ -24,8 +21,8 @@ class PedestalsAnalysis : public CommissioningAnalysis {
   virtual ~PedestalsAnalysis() {;}
   
 
-  /** Takes a vector containing one TH1F of pedestals and one of noise and fills the monitorables vector with 2 corresponding vectors. */
-  virtual void analysis( const vector<const TH1F*>& histos, 
+  /** Takes a vector containing one TH1F of pedestals (error bars - raw noise) and one of residuals(error bars - noise) and fills the monitorables vector with 2 vectors - the first of pedestals, the second of noise. */
+  virtual void analysis( const vector<const TProfile*>& histos, 
 			      vector< vector<float> >& monitorables );
 };
 

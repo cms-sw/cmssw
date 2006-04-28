@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-class TH1F;
+class TProfile;
 
 using namespace std;
 

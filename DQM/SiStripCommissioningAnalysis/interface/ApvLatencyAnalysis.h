@@ -20,7 +20,7 @@ class ApvLatencyAnalysis : public CommissioningAnalysis {
   virtual ~ApvLatencyAnalysis() {;}
   
   /** Takes a vector containing one TH1F of a scan through coarse (25ns) trigger latency settings, filled with the number of recorded hits per setting. The monitorables vector is filled with the latency for the largest number of recorded hits over 5*sigma of the noise. */
- virtual void analysis( const vector<const TH1F*>& histos, 
+ virtual void analysis( const vector<const TProfile*>& histos, 
 			      vector<unsigned short>& monitorables );
 
 };

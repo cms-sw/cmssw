@@ -1,13 +1,13 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/FedTimingAnalysis.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TH1F.h"
+#include "TProfile.h"
 #include <vector>
 #include <cmath>
 #include <sstream>
 
 // -----------------------------------------------------------------------------
 //
-void FedTimingAnalysis::analysis( const vector<const TH1F*>& histos, 
+void FedTimingAnalysis::analysis( const vector<const TProfile*>& histos, 
 			      vector<unsigned short>& monitorables ) {
   edm::LogInfo("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]";
 
@@ -15,19 +15,18 @@ void FedTimingAnalysis::analysis( const vector<const TH1F*>& histos,
   //check 
   if (histos.size() != 1) { edm::LogError("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
 
-  monitorables.reserve(2); monitorables.push_back(0); monitorables.push_back(0);
+  monitorables.clear(); monitorables.push_back(0); monitorables.push_back(0);
 return; }
 
-  const TH1F* histo = histos[0];
+  //containers
+  pair< unsigned short, unsigned short > coarse_fine = pair< unsigned short, unsigned short >(0,0);
+  const TProfile* histo = histos[0];
 
-    //temporary monitorables container
-    pair< unsigned short, unsigned short > coarse_fine;
+  //check
+  if ((unsigned short)histo->GetNbinsX() <= 2) { edm::LogError("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Too few bins in histogram. Number of bins: " << (unsigned short)histo->GetNbinsX() << " Minimum required: 2."; 
 
-  if ((unsigned short)histo->GetNbinsX() <= 2) { edm::LogError("Commissioning|Analysis") << "[FedTimingAnalysis::analysis]: Too few bins in histogram. Number of bins: " << (unsigned short)histo->GetNbinsX() << " Minimum required: 2.";}
-  
-  else {
-
-  vector<short> deriv; deriv.reserve(((unsigned short)histo->GetNbinsX() - 2)); deriv.resize(((unsigned short)histo->GetNbinsX() - 2),0);
+monitorables.clear(); monitorables.push_back(0); monitorables.push_back(0);
+return; }
 
   vector<unsigned short> binContent; binContent.reserve(((unsigned short)histo->GetNbinsX() - 2)); binContent.resize(((unsigned short)histo->GetNbinsX() - 2), 0);
   
@@ -40,17 +39,16 @@ return; }
 
     binContent.push_back((unsigned int)(histo->GetBinContent(k)));
     
-    //calculate the 2nd derivative of the readout...
+    //calculate the derivative of the readout...
     
-    deriv[k - 1] = (unsigned int)histo->GetBinContent(k+1) - (unsigned int)histo->GetBinContent(k-1);
-  	if (deriv[k-1]>maxderiv)
+    float deriv = (unsigned int)histo->GetBinContent(k+1) - (unsigned int)histo->GetBinContent(k-1);
+  	if (deriv>maxderiv)
 			  {
-			    maxderiv=deriv[k-1];
+			    maxderiv=deriv;
 			    ideriv=k;
 			  }
   }
 
-  
  //calculate median
   
   sort(binContent.begin(), binContent.end());
@@ -78,24 +76,46 @@ continue;
 
 }
 
-////Method 1: Take start of tick as the max derivative
-  
+  ////Method 1: Take start of tick as the max derivative
+  /*
   coarse_fine.first = (ideriv - 1)/25;
   coarse_fine.second = (ideriv - 1)%25;
- 
-  ////Method 2: Take start of tick as start of 35 bins above mean + 2*SD of noise.
-
-  // find tick positions..
+  */
 
   unsigned short counter = 0;
   vector<unsigned short> ticks; //records bin number of first position of tick > 2*sigma
+
+  ////Method 2: Take start of tick as start of 35 bins above mean + 2*SD of noise.
+  /*
+  // find tick positions..
 
   for (unsigned short k = 1; k < ((unsigned short)histo->GetNbinsX() + 1); k++) { // k is bin number
 
     if ((short)histo->GetBinContent(k) > (meanNoise + 2*sigmaNoise)) counter++;
     else {counter = 0;}
  
-    if (counter > 35) { ticks.reserve(ticks.size() +1); ticks.push_back(k-34); counter = 0; }
+    if (counter > 35) { ticks.push_back(k-35); counter = 0; }
+  }
+  */
+////Method 3: Take start of tick as position of max derivative within 35 bins above mean + 1*SD of noise.
+  
+  maxderiv = -9999.;
+  ideriv = 0;
+
+// find tick positions..
+
+  for (unsigned short k = 2; k < (unsigned short)histo->GetNbinsX(); k++) { // k is bin number
+
+    if ((short)histo->GetBinContent(k) > (meanNoise + 2.*sigmaNoise)) {
+      counter++;
+
+      //find the maximum derivative within the window...
+    float deriv = (unsigned int)histo->GetBinContent(k+1) - (unsigned int)histo->GetBinContent(k-1);
+      if (deriv>maxderiv) {maxderiv = deriv; ideriv = k;}
+    }
+    else {counter = 0; maxderiv = -9999.; ideriv = 0;}
+ 
+    if (counter > 35) { ticks.push_back(ideriv); counter = 0; maxderiv = -9999.; ideriv = 0; }
   }
 
   // notify user if more than one tick is present in sample
@@ -126,13 +146,11 @@ continue;
   coarse_fine.first = 0;
   coarse_fine.second = 0;
   }
-  }
 
   // set monitorables
-  monitorables.clear();
-  monitorables.reserve(2);
-  monitorables.push_back(coarse_fine.first);
-  monitorables.push_back(coarse_fine.second);
+  monitorables.resize(2,0);
+  monitorables[0] = coarse_fine.first;
+  monitorables[1] = coarse_fine.second;
   
 }
 

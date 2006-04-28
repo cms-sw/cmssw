@@ -20,8 +20,8 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   /** Destructor */
   virtual ~ApvTimingAnalysis() {;}
   
-  /** Takes a vector containing one TH1F of a tick mark and fills a vector of 2 unsigned shorts representing the rise time of the tick. The first is a coarse-time measurement (units of 25ns), the second a fine-time (units 1/24th of the coarse). */
-  virtual void analysis( const vector<const TH1F*>& histos, 
+  /** Takes a vector containing one TProfile of a tick mark and fills a vector of 2 unsigned shorts representing the rise time of the tick. The first is a coarse-time measurement (units of 25ns), the second a fine-time (units 1/24th of the coarse). */
+  virtual void analysis( const vector<const TProfile*>& histos, 
 			      vector<unsigned short>& monitorables);
 };
 
