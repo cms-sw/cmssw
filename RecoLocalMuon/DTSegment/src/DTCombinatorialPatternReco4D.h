@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 4d segment in DT using a combinatorial approach
  *  
- * $Date: 2006/04/21 16:01:05 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/26 14:15:31 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -84,7 +84,7 @@ class DTCombinatorialPatternReco4D : public DTRecSegment4DBaseAlgo {
   bool allDTRecHits;
 
   //  std::vector<DTRecHit1D> the1DPhiHits;
-  std::vector<DTRecSegment2D> theSegments2DTheta; 
+  std::vector<DTSLRecSegment2D> theSegments2DTheta; 
   std::vector<DTRecHit1DPair> theHitsFromPhi1;
   std::vector<DTRecHit1DPair> theHitsFromTheta;
   std::vector<DTRecHit1DPair> theHitsFromPhi2;

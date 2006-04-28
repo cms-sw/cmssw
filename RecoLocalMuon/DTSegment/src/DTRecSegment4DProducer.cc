@@ -1,27 +1,28 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2006/04/21 14:25:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/26 14:15:32 $
+ *  $Revision: 1.3 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment4DProducer.h"
 
-#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-
-#include "RecoLocalMuon/DTSegment/src/DTRecSegment4DAlgoFactory.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
+#include "RecoLocalMuon/DTSegment/src/DTRecSegment4DAlgoFactory.h"
+
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 using namespace edm;
 using namespace std;
 

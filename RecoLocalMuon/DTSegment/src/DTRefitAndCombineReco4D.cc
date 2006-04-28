@@ -3,30 +3,30 @@
  * Algo for reconstructing 4d segment in DT refitting the 2D phi SL hits and combining
  * the results with the theta view.
  *  
- * $Date: 2006/04/26 14:15:32 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/27 14:30:38 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */
 
-// #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DBaseAlgo.h"
-// #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DAlgoFactory.h"
+#include "RecoLocalMuon/DTSegment/src/DTRefitAndCombineReco4D.h"
 
 #include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
-#include "RecoLocalMuon/DTSegment/src/DTRefitAndCombineReco4D.h"
+#include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/DTRecHit/interface/DTChamberRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
+
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 using namespace std;
 using namespace edm;
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
-#include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
 
 DTRefitAndCombineReco4D::DTRefitAndCombineReco4D(const ParameterSet& pset):
 DTRecSegment4DBaseAlgo(pset), theAlgoName("DTRefitAndCombineReco4D"){
@@ -68,10 +68,10 @@ DTRefitAndCombineReco4D::setDTRecSegment2DContainer(Handle<DTRecSegment2DCollect
   DTRecSegment2DCollection::range rangeTheta = allHits->get(DTSuperLayerId(chId,2));
   DTRecSegment2DCollection::range rangePhi2   = allHits->get(DTSuperLayerId(chId,3));
     
-  // Fill the DTRecSegment2D containers for the three different SL
-  vector<DTRecSegment2D> segments2DPhi1(rangePhi1.first,rangePhi1.second);
-  vector<DTRecSegment2D> segments2DTheta(rangeTheta.first,rangeTheta.second);
-  vector<DTRecSegment2D> segments2DPhi2(rangePhi2.first,rangePhi2.second);
+  // Fill the DTSLRecSegment2D containers for the three different SL
+  vector<DTSLRecSegment2D> segments2DPhi1(rangePhi1.first,rangePhi1.second);
+  vector<DTSLRecSegment2D> segments2DTheta(rangeTheta.first,rangeTheta.second);
+  vector<DTSLRecSegment2D> segments2DPhi2(rangePhi2.first,rangePhi2.second);
 
   if(debug)
     cout << "Number of 2D-segments in the first  SL (Phi)" << segments2DPhi1.size() << endl
@@ -91,7 +91,7 @@ DTRefitAndCombineReco4D::reconstruct(){
   
   if (debug) cout << "Segments in " << theChamber->id() << endl;
 
-  vector<DTRecSegment2DPhi> resultPhi = refitSuperSegments();
+  vector<DTChamberRecSegment2D> resultPhi = refitSuperSegments();
 
   if (debug) cout << "There are " << resultPhi.size() << " Phi cand" << endl;
   
@@ -107,14 +107,14 @@ DTRefitAndCombineReco4D::reconstruct(){
 
   // Now I want to build the concrete DTRecSegment4D.
   if (resultPhi.size()) {
-    for (vector<DTRecSegment2DPhi>::const_iterator phi=resultPhi.begin();
+    for (vector<DTChamberRecSegment2D>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
       
       if (hasZed) {
 
 	// Create all the 4D-segment combining the Z view with the Phi one
 	// loop over the Z segments
-	for(vector<DTRecSegment2D>::const_iterator zed = theSegments2DTheta.begin();
+	for(vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin();
 	    zed != theSegments2DTheta.end(); ++zed){
 
 	  //>> Important!!
@@ -141,7 +141,7 @@ DTRefitAndCombineReco4D::reconstruct(){
   } else { 
     // DTRecSegment4D from zed projection only (unlikely, not so useful, but...)
     if (hasZed) {
-      for(vector<DTRecSegment2D>::const_iterator zed = theSegments2DTheta.begin();
+      for(vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin();
 	  zed != theSegments2DTheta.end(); ++zed){
         
 	// Important!!
@@ -162,13 +162,13 @@ DTRefitAndCombineReco4D::reconstruct(){
   return result;
 }
 
-vector<DTRecSegment2DPhi> DTRefitAndCombineReco4D::refitSuperSegments(){
-  vector<DTRecSegment2DPhi> result;
+vector<DTChamberRecSegment2D> DTRefitAndCombineReco4D::refitSuperSegments(){
+  vector<DTChamberRecSegment2D> result;
   
-  //double-loop over all the DTRecSegment2D in order to make all the possible pairs
-  for(vector<DTRecSegment2D>::const_iterator segment2DPhi1 = theSegments2DPhi1.begin();
+  //double-loop over all the DTSLRecSegment2D in order to make all the possible pairs
+  for(vector<DTSLRecSegment2D>::const_iterator segment2DPhi1 = theSegments2DPhi1.begin();
       segment2DPhi1 != theSegments2DPhi1.end(); ++segment2DPhi1){
-    for(vector<DTRecSegment2D>::const_iterator segment2DPhi2 = theSegments2DPhi2.begin();
+    for(vector<DTSLRecSegment2D>::const_iterator segment2DPhi2 = theSegments2DPhi2.begin();
 	segment2DPhi2 != theSegments2DPhi2.end(); ++segment2DPhi2){
 
       // check the id
@@ -185,7 +185,7 @@ vector<DTRecSegment2DPhi> DTRefitAndCombineReco4D::refitSuperSegments(){
       const DTChamberId chId = segment2DPhi1->chamberId();
 
       // create the super phi
-      DTRecSegment2DPhi superPhi(chId,recHitsSeg2DPhi1); 
+      DTChamberRecSegment2D superPhi(chId,recHitsSeg2DPhi1); 
       
       // refit it!
       theUpdator->fit(&superPhi);
@@ -197,6 +197,6 @@ vector<DTRecSegment2DPhi> DTRefitAndCombineReco4D::refitSuperSegments(){
   }
   // TODO clean the container!!!
   // there are some possible repetition!
-  // maybe using the cleaner, previous a conversion from DTRecSegment2DPhi to DTSegmentCandidate
+  // maybe using the cleaner, previous a conversion from DTChamberRecSegment2D to DTSegmentCandidate
   return result;
 }

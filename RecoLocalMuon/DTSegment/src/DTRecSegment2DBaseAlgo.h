@@ -5,9 +5,10 @@
  *
  * Abstract aglo class to reconstruct segments in SL given a set of hits
  *
- * $Date: 2006/04/12 15:15:48 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/13 07:23:16 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
 
 /* Base Class Headers */
@@ -18,7 +19,7 @@ namespace edm {
   class EventSetup;
 }
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 class DTSuperLayer;
 
@@ -41,7 +42,7 @@ class DTRecSegment2DBaseAlgo{
     virtual ~DTRecSegment2DBaseAlgo() {}
 
 /* Operations */ 
-    virtual edm::OwnVector<DTRecSegment2D>
+    virtual edm::OwnVector<DTSLRecSegment2D>
       reconstruct(const DTSuperLayer* sl,
                   const std::vector<DTRecHit1DPair>& hits) = 0;
     

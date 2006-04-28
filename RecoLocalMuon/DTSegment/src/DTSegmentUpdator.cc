@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/26 14:15:32 $
- * $Revision: 1.11 $
+ * $Date: 2006/04/27 10:51:49 $
+ * $Revision: 1.12 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -12,7 +12,8 @@
 /* Collaborating Class Header */
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
+#include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTChamberRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
 
@@ -93,8 +94,8 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg) {
 
   if(seg->hasPhi() && seg->hasZed() ) {
 
-    DTRecSegment2DPhi *segPhi=seg->phiSegment();
-    DTRecSegment2D *segZed=seg->zSegment();
+    DTChamberRecSegment2D *segPhi=seg->phiSegment();
+    DTSLRecSegment2D *segZed=seg->zSegment();
 
     // NB Phi seg is already in chamber ref
     LocalPoint posPhiInCh = segPhi->localPosition();
@@ -131,7 +132,7 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg) {
 
   }
   else if (seg->hasPhi()) {
-    DTRecSegment2DPhi *segPhi=seg->phiSegment();
+    DTChamberRecSegment2D *segPhi=seg->phiSegment();
 
     seg->setPosition(segPhi->localPosition());
     seg->setDirection(segPhi->localDirection());
@@ -145,7 +146,7 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg) {
     seg->setCovMatrix(mat);
   }
   else if (seg->hasZed()) {
-    DTRecSegment2D *segZed=seg->zSegment();
+    DTSLRecSegment2D *segZed=seg->zSegment();
 
     // Zed seg is in SL one
     GlobalPoint glbPosZ = ( theGeom->superLayer(segZed->superLayerId()) )->toGlobal(segZed->localPosition());

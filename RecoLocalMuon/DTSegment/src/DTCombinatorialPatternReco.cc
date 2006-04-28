@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/21 16:01:05 $
- * $Revision: 1.8 $
+ * $Date: 2006/04/26 14:15:31 $
+ * $Revision: 1.9 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -18,7 +18,7 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
 #include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCleaner.h"
 #include "RecoLocalMuon/DTSegment/src/DTHitPairForFit.h"
@@ -48,11 +48,11 @@ DTCombinatorialPatternReco::~DTCombinatorialPatternReco() {
 }
 
 /* Operations */ 
-edm::OwnVector<DTRecSegment2D>
+edm::OwnVector<DTSLRecSegment2D>
 DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
                                         const std::vector<DTRecHit1DPair>& pairs){
 
-  edm::OwnVector<DTRecSegment2D> result;
+  edm::OwnVector<DTSLRecSegment2D> result;
   vector<DTHitPairForFit*> hitsForFit = initHits(sl, pairs);
 
   vector<DTSegmentCand*> candidates = buildSegments(sl, hitsForFit);
@@ -61,11 +61,14 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
   while (cand<candidates.end()) {
 
     //RB:TODO put an implict converter instead of the explicit conversion below
-    DTRecSegment2D *segment = (*cand)->convert();
+    DTSLRecSegment2D *segment = (*cand)->convert();
 
     theUpdator->update(segment);
 
     result.push_back(segment);
+
+    if (debug) cout<<"Reconstructed 2D segments "<<*segment<<endl;
+
     delete *(cand++); // delete the candidate!
   }
   return result;

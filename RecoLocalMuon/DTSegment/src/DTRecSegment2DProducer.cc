@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/26 14:15:32 $
- * $Revision: 1.7 $
+ * $Date: 2006/04/27 14:30:38 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -22,7 +22,7 @@ using namespace edm;
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/MuonDetId/interface/DTRangeMapAccessor.h"
 
@@ -64,7 +64,7 @@ DTRecSegment2DProducer::~DTRecSegment2DProducer() {
 void DTRecSegment2DProducer::produce(edm::Event& event, const
                                      edm::EventSetup& setup) {
   if(debug)
-    cout << "[DTRecSegmentProducer] produce called" << endl;
+    cout << "[DTRecSegment2DProducer] produce called" << endl;
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
   setup.get<MuonGeometryRecord>().get(dtGeom);
@@ -96,15 +96,13 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
     DTRecHitCollection::range range =
       allHits->get(DTRangeMapAccessor::layersBySuperLayer(SLId));
 
-    //FIXME: maybe I can use get(superLayerId) instead of the previous one
-
     // Fill the vector with the 1D RecHit
     vector<DTRecHit1DPair> pairs(range.first,range.second);
 
     if(debug) cout << "Number of 1D-RecHit pairs " << pairs.size() << endl;
 
     cout << "Start the 2D-segments Reco "<< endl;
-    OwnVector<DTRecSegment2D> segs = theAlgo->reconstruct(sl, pairs);
+    OwnVector<DTSLRecSegment2D> segs = theAlgo->reconstruct(sl, pairs);
     cout << "Number of Reconstructed segments: " << segs.size() << endl;
 
     if (segs.size() > 0 )

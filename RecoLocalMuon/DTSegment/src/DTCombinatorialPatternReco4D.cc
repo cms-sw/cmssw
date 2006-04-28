@@ -1,33 +1,35 @@
 /** \file
  *
- * $Date: 2006/04/26 14:15:31 $
- * $Revision: 1.7 $
+ * $Date: 2006/04/27 14:30:38 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
+#include "RecoLocalMuon/DTSegment/src/DTCombinatorialPatternReco4D.h"
 
-#include "RecoLocalMuon/DTSegment/src/DTRecSegment2DBaseAlgo.h"
-#include "RecoLocalMuon/DTSegment/src/DTRecSegment2DAlgoFactory.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
-
 // For the 2D reco I use thei reconstructor!
 #include "RecoLocalMuon/DTSegment/src/DTCombinatorialPatternReco.h"
+#include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 
-#include "RecoLocalMuon/DTSegment/src/DTCombinatorialPatternReco4D.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/MuonDetId/interface/DTRangeMapAccessor.h"
-#include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
+#include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTChamberRecSegment2D.h"
 
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 using namespace std;
 using namespace edm;
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
-#include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+// TODO
+// Throw an exception if a theta segment container is requested and in the event
+// there isn't it. (Or launch a "lazy" reco on demand)
 
 DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& pset):
   DTRecSegment4DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco4D"){
@@ -107,7 +109,7 @@ void DTCombinatorialPatternReco4D::setDTRecSegment2DContainer(Handle<DTRecSegmen
       all2DSegments->get(DTSuperLayerId(theChamber->id(),2));
     
     // Fill the DTRecSegment2D container for the theta SL
-    vector<DTRecSegment2D> segments2DTheta(rangeTheta.first,rangeTheta.second);
+    vector<DTSLRecSegment2D> segments2DTheta(rangeTheta.first,rangeTheta.second);
     
     if(debug)
       cout << "Number of 2D-segments in the second SL (Theta)" << segments2DTheta.size() << endl;
@@ -134,8 +136,8 @@ DTCombinatorialPatternReco4D::reconstruct(){
     // sl points to 0 if the theta SL was not found
     if(sl){
       // reconstruct the theta segments
-      OwnVector<DTRecSegment2D> thetaSegs = the2DAlgo->reconstruct(sl, theHitsFromTheta);
-      vector<DTRecSegment2D> segments2DTheta(thetaSegs.begin(),thetaSegs.end());
+      OwnVector<DTSLRecSegment2D> thetaSegs = the2DAlgo->reconstruct(sl, theHitsFromTheta);
+      vector<DTSLRecSegment2D> segments2DTheta(thetaSegs.begin(),thetaSegs.end());
       theSegments2DTheta = segments2DTheta;
     }
   }
@@ -156,7 +158,7 @@ DTCombinatorialPatternReco4D::reconstruct(){
          phi!=resultPhi.end(); ++phi) {
       
       //FIXME, check the converter and change its name
-      DTRecSegment2DPhi* superPhi = (*phi)->convert(theChamber);
+      DTChamberRecSegment2D* superPhi = (*phi)->convert(theChamber);
       
       theUpdator->update(superPhi);
       
@@ -164,7 +166,7 @@ DTCombinatorialPatternReco4D::reconstruct(){
 
 	// Create all the 4D-segment combining the Z view with the Phi one
 	// loop over the Z segments
-	for(vector<DTRecSegment2D>::const_iterator zed = theSegments2DTheta.begin();
+	for(vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin();
 	    zed != theSegments2DTheta.end(); ++zed){
 	  
 	  // Important!!
@@ -192,7 +194,7 @@ DTCombinatorialPatternReco4D::reconstruct(){
   } else { 
     // DTRecSegment4D from zed projection only (unlikely, not so useful, but...)
     if (hasZed) {
-      for(vector<DTRecSegment2D>::const_iterator zed = theSegments2DTheta.begin();
+      for(vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin();
 	  zed != theSegments2DTheta.end(); ++zed){
         
 	// Important!!
