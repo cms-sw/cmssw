@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-26 17:51:03+0200
-# Revision: $Id: InstallCMSSWFromSource.pl,v 1.1 2006/04/27 11:32:50 sashby Exp $ 
+# Revision: $Id: InstallCMSSWFromSource.pl,v 1.2 2006/04/27 11:35:44 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -51,7 +51,7 @@ my %options =
     "nosrc"      => sub { $do_boot_src = 0; },
     "clean"      => sub { $do_clean = 1; },
     "symcheck"   => sub { $symcheck = 1 },
-    "arch=s"     => sub { $architecture = $_[1] },
+    "arch=s"     => sub { $architecture = $_[1]; $ENV{SCRAM_ARCH} = $architecture; },
     "debug"      => sub { $opts{DEBUG} = 1; },
     "help"       => sub { &usage(); exit(0) }
     );
