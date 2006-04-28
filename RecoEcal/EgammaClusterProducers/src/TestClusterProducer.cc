@@ -57,9 +57,11 @@ void TestClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   // get the barrel geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<IdealGeometryRecord>().get(geoHandle);
+  const CaloSubdetectorGeometry *geometry_p = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  CaloSubdetectorGeometry geometry = *geometry_p;
 
   // make the clusters!
-  reco::BasicClusterCollection clusters = island_p->makeClusters(hit_collection, geoHandle);
+  reco::BasicClusterCollection clusters = island_p->makeClusters(hit_collection, geometry);
   std::cout << "Finished clustering - BasicClusterCollection returned to producer..." << std::endl;
 
   // create an auto_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
