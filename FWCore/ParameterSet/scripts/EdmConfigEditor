@@ -306,10 +306,18 @@ class CmsBuilder(cmd.Cmd):
 
 if __name__=="__main__":
     import sys
+    import optparse
+    
+    usage = "%prog [options] [configuration file name]"
+    parser = optparse.OptionParser(usage=usage)
+    (options,args) = parser.parse_args()
     fileName=""
+    if 1 < len(args):
+        parser.error("incorrect number of arguments")
+
     print "Type 'help' or press 'TAB' twice to get a list of commands"
-    if 2 == len(sys.argv):
-        fileName=sys.argv[1]
+    if 1 == len(args):
+        fileName=args[0]
     else:
         print "use '_read <filename>' to read a configuration file"
     CmsBuilder(fileName).cmdloop()
