@@ -22,23 +22,32 @@ HFFibre::HFFibre(const DDCompactView & cpv) {
   filter.setCriteria(ddv,DDSpecificsFilter::equals);
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
-  fv.firstChild();
-  DDsvalues_type sv(fv.mergedSpecifics());
+  bool dodet = fv.firstChild();
 
-  // Attenuation length
-  nBinAtt      = -1;
-  attL         = getDDDArray("attl",sv,nBinAtt);
-  edm::LogInfo("HFShower") << "HFFibre: " << nBinAtt << " attL (1/cm)";
-  for (int it=0; it<nBinAtt; it++) 
-    edm::LogInfo("HFShower") << " " << it << " " << attL[it]*cm;
+  if (dodet) {
+    DDsvalues_type sv(fv.mergedSpecifics());
 
-  // Limits on Lambda
-  int             nbin = 2;
-  std::vector<double>  nvec = getDDDArray("lambLim",sv,nbin);
-  lambLim[0] = static_cast<int>(nvec[0]);
-  lambLim[1] = static_cast<int>(nvec[1]);
-  edm::LogInfo("HFShower") << "HFFibre: Limits on lambda " << lambLim[0]
-			   << " and " << lambLim[1];
+    // Attenuation length
+    nBinAtt      = -1;
+    attL         = getDDDArray("attl",sv,nBinAtt);
+    edm::LogInfo("HFShower") << "HFFibre: " << nBinAtt << " attL (1/cm)";
+    for (int it=0; it<nBinAtt; it++) 
+      edm::LogInfo("HFShower") << "HFFibre: attL[" << it << "] = " 
+			       << attL[it]*cm;
+
+    // Limits on Lambda
+    int             nbin = 2;
+    std::vector<double>  nvec = getDDDArray("lambLim",sv,nbin);
+    lambLim[0] = static_cast<int>(nvec[0]);
+    lambLim[1] = static_cast<int>(nvec[1]);
+    edm::LogInfo("HFShower") << "HFFibre: Limits on lambda " << lambLim[0]
+			     << " and " << lambLim[1];
+  } else {
+    edm::LogError("HFShower") << "HFFibre : cannot match " << value << " to " 
+			      << attribute;
+    throw cms::Exception("Unknown", "HFFibre")
+      << "cannot match " << value << " to " << attribute <<"\n";
+  }
 }
 
 HFFibre::~HFFibre() {}

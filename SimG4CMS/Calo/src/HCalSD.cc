@@ -66,7 +66,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   filter0.setCriteria(ddv0,DDSpecificsFilter::equals);
   DDFilteredView fv0(cpv);
   fv0.addFilter(filter0);
-  hfNames = getNames(fv0);
+  if (fv0.firstChild()) hfNames = getNames(fv0);
   edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
 			  << " = " << value << ":";
   for (unsigned int i=0; i<hfNames.size(); i++)
@@ -78,8 +78,10 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   DDValue           ddv1(attribute,value,0);
   filter1.setCriteria(ddv1,DDSpecificsFilter::equals);
   DDFilteredView fv1(cpv);
-  fv1.addFilter(filter1);
-  fibreNames = getNames(fv1);
+  if (fv1.firstChild()) {
+    fv1.addFilter(filter1);
+    fibreNames = getNames(fv1);
+  }
   edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
 			  << " = " << value << ":";
   for (unsigned int i=0; i<fibreNames.size(); i++)
