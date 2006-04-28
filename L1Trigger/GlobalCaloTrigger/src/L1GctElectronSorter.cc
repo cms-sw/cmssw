@@ -33,12 +33,6 @@ L1GctElectronSorter::L1GctElectronSorter(bool iso):
   theInputType = 1;
 }
 
-L1GctElectronSorter::L1GctElectronSorter(int inputType):inputCands(0),outputCands(4)
-{
-  //sat to iso electrons for now
-  theInputType = inputType;
-}
-
 L1GctElectronSorter::~L1GctElectronSorter()
 {
 
