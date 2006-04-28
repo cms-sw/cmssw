@@ -45,7 +45,7 @@ LOG=$O2ODIR/o2o-log.txt
 # General DB setup
 OFFLINE_DB=orcon
 GENERAL_DB_USER=CMS_COND_GENERAL
-GENERAL_DB_PASSWORD=******
+GENERAL_DB_PASSWORD=***
 MY_CATALOG=relationalcatalog_oracle://${OFFLINE_DB}/${GENERAL_DB_USER}
 
 # Subdetector-specific DB setup
@@ -64,9 +64,11 @@ source $OBJECT_SETUP
 echo -n [`date "+%Y-%m-%d %H:%M:%S"`] >> $LOG;
 T_START=`date +%s`
 
+# Log the object
+echo -n " (${OBJECT_NAME}) " >> $LOG
 
 # Set the CMSSW environment
-echo -n " Setting env..." >> $LOG;
+echo -n "Setting env..." >> $LOG;
 PATH=$PATH:$SCRAM_PATH
 cd $CMSSW_DIR;
 eval `scramv1 runtime -sh`;
