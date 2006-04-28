@@ -75,6 +75,16 @@ In case of multiple components of the same type, it is possible to specify an ex
 </pre>
 \endhtmlonly
 
+The following syntaxes are all equivalent:
+\htmlonly
+<pre>
+  const Candidate & cand = ...;
+  TrackRef track1 = component&lt;TrackRef&gt;::get( c );
+  TrackRef track2 = get&lt;TrackRef&gt;::get( c );
+  TrackRef track3 = c.get&lt;TrackRef&gt;::get( c );
+</pre>
+\endhtmlonly
+
 \subsection typedefs 
 - reco::CandidateCollection: collection of reco::Candidate objects
 - reco::CandidateRef: persistent reference to a reco::Candidate object
