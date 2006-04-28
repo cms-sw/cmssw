@@ -16,6 +16,10 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
+
+//#include "RecoTracker/CkfPattern/interface/FitTester.h"
 
 using namespace edm;
 
@@ -43,6 +47,7 @@ namespace cms{
     // Bad temporary solution!!!
     if(isInitialized == 0){
       theCombinatorialTrajectoryBuilder.init(es);
+      theInitialState = new TransientInitialStateEstimator( es);
       isInitialized = 1;
     }
     
@@ -66,12 +71,18 @@ namespace cms{
 	vector<Trajectory> theTmpTrajectories;
 	theTmpTrajectories = theCombinatorialTrajectoryBuilder.trajectories(*iseed,e);
 	
+	cout << "CombinatorialTrajectoryBuilder returned " << theTmpTrajectories.size()
+	     << " trajectories" << endl;
+
 	theTrajectoryCleaner->clean(theTmpTrajectories);
       
 	for(vector<Trajectory>::const_iterator it=theTmpTrajectories.begin();
 	    it!=theTmpTrajectories.end(); it++){
-	  if( it->isValid() ) rawResult.push_back(*it);
+	  if( it->isValid() ) {
+	    rawResult.push_back(*it);
+	  }
 	}
+	cout << "rawResult size after cleaning " << rawResult.size() << endl;
       }
       
       // Step D: Clean the result
@@ -97,9 +108,16 @@ namespace cms{
 	}
 	
 	TrajectorySeed seed         = *(it->seed().clone());
-	PTrajectoryStateOnDet state = *(it->seed().startingState().clone());
+
+	//PTrajectoryStateOnDet state = *(it->seed().startingState().clone());
+	std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = 
+	  theInitialState->innerState( *it);
+	PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first,
+										   initState.second->geographicalId().rawId());
+	//	FitTester fitTester(es);
+	//	fitTester.fit( *it);
 	
-	output->push_back(TrackCandidate(recHits,seed,state));
+	output->push_back(TrackCandidate(recHits,seed,*state));
       }
       
       
