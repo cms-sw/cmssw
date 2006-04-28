@@ -37,6 +37,10 @@ namespace edm {
     struct Node
     {
       Node(std::string const& n, int li) : name(n), line(li), modified_(false) { }
+      
+      /// needed for deep copies
+      virtual Node * clone() const = 0;
+
       typedef boost::shared_ptr<Node> Ptr;
 
       virtual std::string type() const = 0;
@@ -79,11 +83,15 @@ namespace edm {
       return ost;
     }
 
+
     /** CompositeNode is meant as a base class */
     struct CompositeNode : public Node {
       CompositeNode(const std::string& name, NodePtrListPtr nodes, int line=-1)
       : Node(name, line), nodes_(nodes) {}
-      // should have a copy ctor someday
+
+      /// deep copy
+      CompositeNode(const CompositeNode & n);
+     
       virtual void acceptForChildren(Visitor& v) const;
       virtual void print(std::ostream& ost) const;
       // if this is flagged as modified, all subnodes are
@@ -92,6 +100,10 @@ namespace edm {
       virtual bool isModified() const;
       /// finds a first-level subnode with this name
       NodePtr findChild(const std::string & child);
+
+      /// returns all sub-nodes
+      NodePtrListPtr nodes() const {return nodes_;}
+      
 
       NodePtrListPtr nodes_;
     };
@@ -106,6 +118,7 @@ namespace edm {
     struct UsingNode : public Node
     {
       explicit UsingNode(const std::string& name,int line=-1);
+      virtual Node * clone() const { return new UsingNode(*this);}
       virtual std::string type() const;
       virtual void print(std::ostream& ost) const;
       virtual void accept(Visitor& v) const;
@@ -122,6 +135,9 @@ namespace edm {
       ReplaceNode(const std::string & type, const std::string& name, 
                   NodePtr value, int line=-1)
       : Node(name, line), type_(type), value_(value) {}
+      /// deep copy
+      ReplaceNode(const ReplaceNode & n);
+      virtual Node * clone() const { return new ReplaceNode(*this);}
       virtual std::string type() const {return type_;}
       virtual void print(std::ostream& ost) const;
       virtual void accept(Visitor& v) const;
@@ -141,7 +157,7 @@ namespace edm {
       RenameNode(const std::string & type, const std::string& from,
                  const std::string & to, int line=-1)
       : Node(type, line), from_(from), to_(to) {}
-
+      virtual Node * clone() const { return new RenameNode(*this);}
       virtual std::string type() const {return "rename";}
       virtual std::string from() const {return from_;}
       virtual std::string to() const {return to_;}
@@ -155,6 +171,29 @@ namespace edm {
  
 
     /*
+     ------------------------------------------
+      CopyNode:  deep-copies an entire named node
+    */
+
+    struct CopyNode : public Node
+    {
+      CopyNode(const std::string & type, const std::string& from,
+                 const std::string & to, int line=-1)
+      : Node(type, line), from_(from), to_(to) {}
+      virtual Node * clone() const { return new CopyNode(*this);}
+      virtual std::string type() const {return "copy";}
+      virtual std::string from() const {return from_;}
+      virtual std::string to() const {return to_;}
+      virtual void print(std::ostream& ost) const;
+      virtual void accept(Visitor& v) const;
+                                                                                                    
+      std::string from_;
+      std::string to_;
+    };
+
+
+
+    /*
       -----------------------------------------
       Strings hold: a value without a name (used within VPSet)
     */
@@ -162,6 +201,7 @@ namespace edm {
     struct StringNode : public Node
     {
       explicit StringNode(const std::string& value, int line=-1);
+      virtual Node * clone() const { return new StringNode(*this);}
       virtual std::string type() const;
       virtual void print(std::ostream& ost) const;
       virtual void accept(Visitor& v) const;
@@ -180,6 +220,7 @@ namespace edm {
     {
       EntryNode(const std::string& type, const std::string& name,
 		const std::string& values, bool tracked, int line=-1);
+      virtual Node * clone() const { return new EntryNode(*this);}
       virtual std::string type() const;
       virtual void print(std::ostream& ost) const;
 
@@ -201,6 +242,10 @@ namespace edm {
     {
       VEntryNode(const std::string& typ, const std::string& name,
 		 StringListPtr values,bool tracked, int line=-1);
+      /// deep copy
+      VEntryNode(const VEntryNode & n);
+      virtual Node * clone() const { return new VEntryNode(*this);}
+
       virtual std::string type() const;
       virtual void print(std::ostream& ost) const;
 
@@ -225,6 +270,7 @@ namespace edm {
 		  const std::string& value,
 		  bool tracked,
 		  int line=-1);
+      virtual Node * clone() const { return new PSetRefNode(*this);}
       virtual std::string type() const;
       virtual void print(std::ostream& ost) const;
 
@@ -242,6 +288,7 @@ namespace edm {
     struct ContentsNode : public CompositeNode
     {
       explicit ContentsNode(NodePtrListPtr value, int line=-1);
+      virtual Node * clone() const { return new ContentsNode(*this);}
       virtual std::string type() const;
       virtual void accept(Visitor& v) const;
     };
@@ -260,6 +307,7 @@ namespace edm {
 	       NodePtrListPtr value,
 	       bool tracked,
 	       int line=-1);
+      virtual Node * clone() const { return new PSetNode(*this);}
       virtual std::string type() const;
       virtual void print(std::ostream& ost) const;
       virtual bool isModified() const;
@@ -287,21 +335,20 @@ namespace edm {
       VPSets hold: ParameterSet nodes or ParameterSet names/IDs stored in Entries
     */
 
-    struct VPSetNode : public Node
+    struct VPSetNode : public CompositeNode
     {
       VPSetNode(const std::string& typ, 
 		const std::string& name,
 		NodePtrListPtr value,
 		bool tracked,
 		int line=-1);
+      virtual Node * clone() const { return new VPSetNode(*this);}
       virtual std::string type() const;
       virtual void print(std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
-      void acceptForChildren(Visitor& v) const;
 
       std::string type_;
-      NodePtrListPtr value_;
       bool tracked_;
     };
 
@@ -321,7 +368,8 @@ namespace edm {
     struct OperatorNode : public Node
     {
       OperatorNode(const std::string& t, NodePtr left, NodePtr right, int line=-1);
-
+      /// doesn't deep-copy left & right
+      virtual Node * clone() const { return new OperatorNode(*this);}
       virtual std::string type() const;
       virtual void print(std::ostream& ost) const;
 
@@ -344,7 +392,7 @@ namespace edm {
     struct OperandNode : public Node
     {
       OperandNode(const std::string& type, const std::string& name, int line=-1);
-
+      virtual Node * clone() const { return new OperandNode(*this);}
       virtual std::string type() const;
       virtual void print(std::ostream& ost) const;
   
@@ -367,6 +415,9 @@ namespace edm {
     {
       WrapperNode(const std::string& type, const std::string& name,
 		  NodePtr w, int line=-1);
+      /// deep copy
+      WrapperNode(const WrapperNode &);
+      virtual Node * clone() const { return new WrapperNode(*this);}
 
       virtual std::string type() const;
       virtual void print(std::ostream& ost) const;
@@ -387,7 +438,7 @@ namespace edm {
       ModuleNode(const std::string& type, const std::string& instname,
 		 const std::string& classname,
 		 NodePtrListPtr nl,int line=-1);
-
+      virtual Node * clone() const { return new ModuleNode(*this);}
       virtual std::string type() const;
       virtual void print(std::ostream& ost) const;
 
