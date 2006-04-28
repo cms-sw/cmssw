@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/04/07 18:52:20 $
- * $Revision: 1.102 $
+ * $Date: 2006/04/28 09:13:39 $
+ * $Revision: 1.103 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -887,13 +887,7 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( verbose_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  bool stay_in_loop;
-
-  if ( enableStateMachine_ ) {
-    stay_in_loop = true;
-  } else {
-    stay_in_loop = mui_->update();
-  }
+  mui_->update();
 
   this->subscribeNew();
 
@@ -933,11 +927,6 @@ void EcalBarrelMonitorClient::analyze(void){
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
 
-  if ( ! enableMonitorDaemon_ ) {
-    stay_in_loop = true;
-    updates = last_update_ + 1;
-  }
-
   Char_t histo[150];
 
   MonitorElement* me;
@@ -945,7 +934,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   bool update = false;
 
-  if ( stay_in_loop && updates != last_update_ ) {
+  if ( updates != last_update_ || updates == -1 ) {
 
     if ( enableMonitorDaemon_ ) {
       sprintf(histo, "Collector/FU0/EcalBarrel/STATUS");
