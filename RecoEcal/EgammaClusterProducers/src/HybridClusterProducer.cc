@@ -38,6 +38,8 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
 
   basicclusterCollection_ = ps.getParameter<std::string>("basicclusterCollection");
   superclusterCollection_ = ps.getParameter<std::string>("superclusterCollection");
+  hitproducer_ = ps.getParameter<std::string>("ecalhitproducer");
+  hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
   produces< reco::BasicClusterCollection >(basicclusterCollection_);
   produces< reco::SuperClusterCollection >(superclusterCollection_);
   nEvt_ = 0;
@@ -53,7 +55,8 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   // get the hit collection from the event:
   edm::Handle<EcalRecHitCollection> rhcHandle;
-  evt.getByType(rhcHandle);
+  //  evt.getByType(rhcHandle);
+  evt.getByLabel(hitproducer_, hitcollection_, rhcHandle);
   if (!(rhcHandle.isValid())) 
     {
       std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
