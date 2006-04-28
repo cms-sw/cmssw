@@ -4,14 +4,15 @@
  * This class sorts the electron candidates by rank in 
  * ascending order.
  *
- * \author Maria Hansen
- * \date March 2006
+ * \author  Maria Hansen
+ * \date    21/04/06
+ * \version 1.1
  */
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
-#include <iostream>
+#include<iostream>
 #include <sort>
 
 using std::cout;
@@ -28,7 +29,14 @@ L1GctElectronSorter::L1GctElectronSorter(bool iso):
   inputCands(0),
   outputCands(4)
 {
+  //sat to iso electrons for now
+  theInputType = 1;
+}
 
+L1GctElectronSorter::L1GctElectronSorter(int inputType):inputCands(0),outputCands(4)
+{
+  //sat to iso electrons for now
+  theInputType = inputType;
 }
 
 L1GctElectronSorter::~L1GctElectronSorter()
@@ -38,18 +46,32 @@ L1GctElectronSorter::~L1GctElectronSorter()
 
 // clear buffers
 void L1GctElectronSorter::reset() {
+  theSCs.clear();
+  inputCands.clear();
+  outputCands.clear();	
   inputCands.clear();
   outputCands.clear();
 }
 
 // get the input data
 void L1GctElectronSorter::fetchInput() {
+  //  for(vector<L1GctSourceCard*>::iterator itSource = theSCs.begin();itSource!=theSCs.end();itSource++){ 
+  //  switch(theInputType)
+  //    {
+  //    case 1: //Choose iso electrons
+  //	inputCands = (*itSource)->getIsoElectrons();
+  //	break;
+  //    case 2: //Choose non iso electrons
+  //	inputCands = (*itSource)->getNonIsoElectrons();
+  //	break;
+  //    }
+  //}	
 
   // loop over Source Cards
-  for (unsigned i=0; i<theSCs.size(); i++) {
+  for (unsigned int i=0; i<theSCs.size(); i++) {
     
     // loop over 4 candidates per Source Card
-    for (unsigned j=0; j<4; j++) {
+    for (unsigned int j=0; j<4; j++) {
 
       // get EM candidates, depending on type
       if (getIsoEmCands) {
@@ -78,7 +100,7 @@ void L1GctElectronSorter::process() {
     }
 }
 
-void L1GctElectronSorter::setInputSourceCard(int i, L1GctSourceCard* sc) {
+void L1GctElectronSorter::setInputSourceCard(unsigned int i, L1GctSourceCard* sc) {
   if (i < theSCs.size()) {
     theSCs[i]=sc;
   }
