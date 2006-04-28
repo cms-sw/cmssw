@@ -11,40 +11,41 @@
 
 class AlignableDet: public AlignableComposite 
 {
- public:
 
+public:
+  
+  /// Constructor (copies  GeomDetUnits of GeomDet)
   AlignableDet( GeomDet* geomDet );
-
+  
+  /// Destructor
   ~AlignableDet();
   
+  /// Return vector of components
   virtual std::vector<Alignable*> components() const ;
 
+  /// Return given geomDetUnit
   AlignableDetUnit &geomDetUnit(int i);
  
+  /// Set alignment position error of all components to given error
   virtual void setAlignmentPositionError(const AlignmentPositionError& ape);
 
   /// Alignable object identifier
-  virtual int alignableObjectId () const 
-  {
-    return AlignableObjectId::AlignableDet;
-  }
+  virtual int alignableObjectId () const { return AlignableObjectId::AlignableDet; }
 
-  /// Movement with respect to the GLOBAL CMS reference frame. 
+  /// Movement with respect to the global reference frame. 
   /// The corresponding Det is not moved (done via the components = DetUnits) 
-  virtual void move( const GlobalVector& displacement) 
-  {
-    moveAlignableOnly(displacement);
-  }
+  virtual void move( const GlobalVector& displacement ) { moveAlignableOnly(displacement); }
 
-  /// Rotation with respect to the GLOBAL CMS reference frame. 
-  /// The corresponding Det is not rotated
-  /// (done via the components = DetUnits)
-  virtual void rotateInGlobalFrame( const RotationType& rotation) 
-  {
-    rotateAlignableOnly(rotation);
+  /// Rotation with respect to the global reference frame. 
+  /// The corresponding Det is not rotated (done via the components = DetUnits)
+  virtual void rotateInGlobalFrame( const RotationType& rotation ) 
+  { 
+	rotateAlignableOnly(rotation); 
   }
 
 private:
+
+  /// Container of components
   std::vector<AlignableDetUnit*> theDetUnits ;
 
 };

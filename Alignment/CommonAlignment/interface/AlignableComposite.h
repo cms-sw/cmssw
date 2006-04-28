@@ -10,8 +10,6 @@
 
 #include <vector>
 
-class GeomDet;
-
 /// Abstract base class for composites of Alignable objects.
 /// The AlignableComposite is itself Alignable.
 /// Apart from providing an interface to access components,
@@ -21,7 +19,7 @@ class GeomDet;
 /// providing a hierarchical view of the detector for alignment.
 ///
 /// This is similar to the GeomDetUnit - GeomDet hierarchy, but the two
-/// hierarchies are deliberately not coupled: The hierarchy for 
+/// hierarchies are deliberately not coupled: the hierarchy for 
 /// alignment is defined by the mechanical mounting of detectors
 /// in various structures, while the GeomDet hierarchy is
 /// optimised for pattern recognition.
@@ -32,73 +30,64 @@ class GeomDet;
 class AlignableComposite : public Alignable 
 {
 
- public:
+public:
 
+  /// Default constructor
   AlignableComposite();
 
+  /// Constructor from GeomDet
   explicit AlignableComposite( GeomDet* geomDet );
 
   virtual ~AlignableComposite() {}
   
-  // The global position of the object 
-  virtual GlobalPoint globalPosition() const { return theSurface.position(); }
+  /// Return the global position of the object 
+  virtual const GlobalPoint globalPosition() const { return theSurface.position(); }
+  
+  /// Return the global orientation of the object 
+  virtual const RotationType globalRotation() const { return theSurface.rotation(); }
 
-  // The global orientation of the object 
-  virtual RotationType globalRotation() const { return theSurface.rotation(); }
-
-  // The global Position+Orientation (Surface) of the object 
+  /// Return the Surface (global position and orientation) of the object 
   virtual const AlignableSurface& surface() const { return theSurface; }
 
-  /// movement with respect to the GLOBAL CMS reference frame
+  /// Move with respect to the global reference frame
   virtual void move( const GlobalVector& displacement ); 
 
-  /// Movement of components with respect to the local composite 
-  /// reference frame
-  virtual void moveComponentsLocal( const LocalVector& localDisplacement ) 
-  {
-    this->move ( this->surface().toGlobal(localDisplacement) ) ;
-  }
+  /// Move with respect to the local reference frame
+  virtual void moveComponentsLocal( const LocalVector& localDisplacement );
 
-  /// Movement of a single component with respect to the local composite 
-  /// reference frame
-  virtual void moveComponentLocal( int i, 
-				   const LocalVector& localDisplacement );
+  /// Move a single component with respect to the local reference frame
+  virtual void moveComponentLocal( const int i, const LocalVector& localDisplacement );
 
-  /// Rotation intepreted such, that the orientation of the rotation
-  /// axis is w.r.t. to the global coordinate system, however, this does NOT
-  /// mean the center of the rotation. This is simply taken as the center of
-  /// the Alignable-object 
+  /// Rotation interpreted in global reference frame
   virtual void rotateInGlobalFrame( const RotationType& rotation );
 
-  /// Set/add the AlignmentPositionError to all the components of the composite
+  /// Set the AlignmentPositionError to all the components of the composite
   virtual void setAlignmentPositionError( const AlignmentPositionError& ape );
+
+  /// Add the AlignmentPositionError to all the components of the composite
   virtual void addAlignmentPositionError( const AlignmentPositionError& ape );
 
-  /// Adds the AlignmentPositionError (in x,y,z coordinates) that would result
-  /// on the various components from a possible Rotation of a composite the 
-  /// rotation matrix is in interpreted in GLOBAL coordinates
+  /// Add position error to all components as resulting from global rotation
   virtual void addAlignmentPositionErrorFromRotation( const RotationType& rotation );
 
-  /// Adds the AlignmentPositionError (in x,y,z coordinates) that would result
-  /// on the various components from a possible Rotation of a composite the 
-  /// rotation matrix is in interpreted in LOCAL  coordinates of the composite
+  /// Add position error to all components as resulting from given local rotation
   virtual void addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation );
 
   /// Restore original position
   virtual void deactivateMisalignment ();
 
-  /// Redo misalignment
+  /// Restore misaligned position
   virtual void reactivateMisalignment ();
 
-  /// Access to the GeomDet
+  /// Return the associated GeomDet
   virtual GeomDet* geomDet() const { return theGeomDet; }
 
 
 protected:
   void setSurface( const AlignableSurface& s) { theSurface = s; }
-  /// Move Alignables in global frame without moving the associated Det
+  /// Move Alignables in global frame without moving the associated GeomDet
   virtual void moveAlignableOnly (const GlobalVector& displacement); 
-  /// Rotate Alignables in global frame without rotating the associated Det
+  /// Rotate Alignables in global frame without rotating the associated GeomDet
   virtual void rotateAlignableOnly (const RotationType& rotation);
   
 protected:

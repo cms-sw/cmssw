@@ -2,6 +2,7 @@
 #define Alignment_CommonAlignment_AlignableDetUnit_H
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CommonDetAlgo/interface/DeepCopyPointer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -17,6 +18,7 @@ class AlignableDetUnit : public Alignable
 
 public:
   
+  /// Constructor from GeomDetUnits
   AlignableDetUnit( GeomDetUnit* geomDetUnit ) : 
     theGeomDetUnit( geomDetUnit ),
     theOriginalPosition( geomDetUnit->surface().position() ), 
@@ -25,49 +27,42 @@ public:
   /// Returns a null vector (no components here)
   virtual std::vector<Alignable*> components() const { return std::vector<Alignable*>(); }
 
+  /// Move with respect to the global reference frame
   virtual void move( const GlobalVector& displacement);
-	
-  /// rotation intepreted such, that the orientation of the rotation
-  /// axis is w.r.t. to the global coordinate system, however, the
-  /// NOT the center of the rotation is simply taken as the center of
-  /// the Alignable-object 
+
+  /// Rotation with respect to the global reference frame
   virtual void rotateInGlobalFrame( const RotationType& rotation);
 
-  virtual GlobalVector displacement() const { return theDisplacement;}
+  /// Return change of global position since the creation of the object 
+  virtual const GlobalVector displacement() const { return theDisplacement;}
 
-  virtual GlobalPoint globalPosition() const 
-  { 
-    return theGeomDetUnit->surface().position();
-  }
+  /// Return position 
+  virtual const GlobalPoint globalPosition() const { return theGeomDetUnit->surface().position(); }
 
-  virtual RotationType globalRotation () const 
-  {
-    return theGeomDetUnit->surface().rotation();
-  }
+  /// Return orientation with respect to the global reference frame
+  virtual const RotationType globalRotation () const { return theGeomDetUnit->surface().rotation(); }
 
+  /// Return the Surface (global position and orientation) of the object
   virtual const Surface& surface() const { return theGeomDetUnit->surface(); }
 
-  virtual RotationType rotation() const { return theRotation; }
+  /// Return change of orientation since the creation of the object 
+  virtual const RotationType rotation() const { return theRotation; }
  
+  /// Return corresponding GeomDetUnit
   virtual GeomDetUnit* geomDetUnit() const { return theGeomDetUnit; }
 
-  virtual void 
-  setAlignmentPositionError(const AlignmentPositionError& ape)
-  {
-    // Interface only exists at GeomDet level 
-    // => static cast (we know GeomDetUnit inherits from GeomDet)
-    GeomDet* tmpGeomDet = static_cast<GeomDet*>( theGeomDetUnit );
-    DetPositioner::setAlignmentPositionError( *tmpGeomDet, ape );
-  }
+  /// Set the AlignmentPositionError
+  virtual void setAlignmentPositionError(const AlignmentPositionError& ape);
 
+  /// Add (or set if it does not exist yet) the AlignmentPositionError
   virtual void addAlignmentPositionError(const AlignmentPositionError& ape);
 
-  /// Well, any uncertainty in the GLOBAL rotation of a GeomDetUnit currently 
-  /// is just taken into acount by an average x,y,z AlignmentPositionError
+  /// Add (or set if it does not exist yet) the AlignmentPositionError
+  /// resulting from a rotation in the global reference frame
   virtual void addAlignmentPositionErrorFromRotation(const RotationType& rot);
 
-  /// well, any uncertainty in the LOCAL rotation of a GeomDetUnit currently 
-  /// is just taken into acount by an average x,y,z AlignmentPositionError
+  /// Add (or set if it does not exist yet) the AlignmentPositionError
+  /// resulting from a rotation in the global reference frame
   virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
 
   /// Restore original position
@@ -76,33 +71,25 @@ public:
   /// Restore misaligned position
   virtual void reactivateMisalignment ();
 
-  /// Alignable object identifier
-  virtual int alignableObjectId () const 
-  {
-    return AlignableObjectId::AlignableDetUnit; 
-  }
+  /// Return the alignable type identifier
+  virtual int alignableObjectId () const { return AlignableObjectId::AlignableDetUnit; }
 
 private:
 
-  GeomDetUnit* theGeomDetUnit;
+  GeomDetUnit* theGeomDetUnit;             ///< Associated GeomDetUnit
 
   GlobalVector theDisplacement;
   RotationType theRotation;
-  //
-  // information only available at construction time
-  //
+
   GlobalPoint theOriginalPosition;         ///< position at construction time
   RotationType theOriginalRotation;        ///< rotation at construction time
-  //
-  // only needed in case deactivation / reactivation is used
-  //
-  DeepCopyPointer<GlobalPoint> theModifiedPosition;         ///< position saved before deactivation
+
+  DeepCopyPointer<GlobalPoint>  theModifiedPosition;        ///< position saved before deactivation
   DeepCopyPointer<RotationType> theModifiedRotation;        ///< rotation saved before deactivation
-  //
-  // only needed in case deactivation / reactivation is used
-  //
-  DeepCopyPointer<GlobalPoint> theReactivatedPosition;      ///< position after reactivation
+
+  DeepCopyPointer<GlobalPoint>  theReactivatedPosition;     ///< position after reactivation
   DeepCopyPointer<RotationType> theReactivatedRotation;     ///< position after reactivation
+
 };
 
 #endif 

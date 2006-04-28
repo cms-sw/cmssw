@@ -4,7 +4,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
 
-/// Constructor: copy GeomDetUnits of GeomDet
+//__________________________________________________________________________________________________
 AlignableDet::AlignableDet( GeomDet* geomDet ) : AlignableComposite( geomDet )
 {
   
@@ -12,7 +12,7 @@ AlignableDet::AlignableDet( GeomDet* geomDet ) : AlignableComposite( geomDet )
   // Check if the AlignableDet is a CompositeDet or a DetUnit
   // In both cases, we have to down-cast these GeomDets to GeomDetUnits
   // and cast away the const...
-
+  
   if ( geomDet->components().size() == 0 ) // Is a DetUnit
 	{
 	  const GeomDetUnit* tmpGeomDetUnit = dynamic_cast<const GeomDetUnit*>( geomDet );
@@ -38,11 +38,11 @@ AlignableDet::AlignableDet( GeomDet* geomDet ) : AlignableComposite( geomDet )
 }
 
 
-/// Destructor
-AlignableDet::~AlignableDet(){};
+//__________________________________________________________________________________________________
+AlignableDet::~AlignableDet() {};
 
 
-/// Return vector of components
+//__________________________________________________________________________________________________
 std::vector<Alignable*> AlignableDet::components() const 
 {
 
@@ -55,20 +55,19 @@ std::vector<Alignable*> AlignableDet::components() const
 }
 
 
-/// Return given geomDetUnit
+//__________________________________________________________________________________________________
 AlignableDetUnit &AlignableDet::geomDetUnit(int i) 
 {
 
   if ( i >= size() ) 
-    throw cms::Exception("LogicError")
-      << "DetUnit index (" << i << ") out of range";
+    throw cms::Exception("LogicError") << "DetUnit index (" << i << ") out of range";
 
   return *theDetUnits[i];
 
 }
 
 
-/// Set alignment position error of all components to given error
+//__________________________________________________________________________________________________
 void AlignableDet::setAlignmentPositionError(const AlignmentPositionError& ape)
 {
 
