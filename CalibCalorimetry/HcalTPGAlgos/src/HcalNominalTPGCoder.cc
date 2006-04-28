@@ -53,7 +53,7 @@ void HcalNominalTPGCoder::adc2ET(const HBHEDataFrame& df, IntegerCaloSamples& ic
     p=pedestal_;
   }
 
-  ics=IntegerCaloSamples(df.id(),df.size());
+  //  ics.setSize(df.size());
   CaloSamples cs;
 
   coder_.adc2fC(df,cs); // convert to fC
@@ -79,7 +79,7 @@ void HcalNominalTPGCoder::adc2ET(const HFDataFrame& df, IntegerCaloSamples& ics)
     p=pedestal_;
   }
 
-  ics=IntegerCaloSamples(df.id(),df.size());
+  //  ics.setSize(df.size());
   CaloSamples cs;
 
   coder_.adc2fC(df,cs); // convert to fC

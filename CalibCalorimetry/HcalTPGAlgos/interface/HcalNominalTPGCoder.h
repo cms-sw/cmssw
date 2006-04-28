@@ -14,11 +14,11 @@ class CaloGeometry;
   * then uses the averaged gain and pedestal values to convert to GeV (Energy)
   * and the ideal geometry to apply Energy -> ET.
   *
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/04/03 16:37:39 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
-class HcalNominalTPGCoder {
+class HcalNominalTPGCoder : public HcalTPGCoder {
 public:
   HcalNominalTPGCoder(double LSB_GeV);
   virtual ~HcalNominalTPGCoder() {}
