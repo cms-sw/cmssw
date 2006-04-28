@@ -9,9 +9,9 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
+#include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
 // cabling
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 //
 #include "EventFilter/SiStripRawToDigi/interface/TFHeaderDescription.h"
 // fed exception handling 
@@ -161,7 +161,7 @@ void SiStripRawToDigi::createDigis( const uint32_t& event,
       const FedChannelConnection& conn = cabling->connection( *ifed, chan );
       
       // Determine whether DetId or FED key should be used to index digi containers
-      uint32_t fed_key = SiStripGenerateKey::fedKey( conn.fedId(), conn.fedCh() );
+      uint32_t fed_key = SiStripReadoutKey::key( conn.fedId(), conn.fedCh() );
       uint32_t key     = (useFedKey_ || ev_type==1) ? fed_key : conn.detId();
       uint16_t ipair   = (useFedKey_ || ev_type==1) ? 0 : conn.apvPairNumber();
 //       stringstream ss; 
