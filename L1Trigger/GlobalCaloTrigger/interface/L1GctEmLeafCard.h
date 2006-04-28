@@ -2,6 +2,7 @@
 #define L1GCTELECTRONLEAFCARD_H_
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
 #include <vector>
@@ -16,45 +17,38 @@ using namespace std;
 /// 
 ///
 
-class L1GctElectronLeafCard {
+class L1GctEmLeafCard : L1GctProcessor {
 public:
-	L1GctElectronLeafCard();
-	~L1GctElectronLeafCard();
-
-	///
-	/// add a source card as input
-	void addSource(L1GctSourceCard* card);
-
+	L1GctEmLeafCard();
+	~L1GctEmLeafCard();
 	///
 	/// clear buffers
-	void reset();
-
+	virtual void reset();
+	///
+	/// fetch input data
+	virtual void fetchInput();
 	///
 	/// process the event
-	void process();
-	
+	virtual void process();	
 	///
-	/// get the input candidates
-	vector<L1GctEmCand> getInput();
-
+	/// add a source card as input
+	void addInputSourceCard(L1GctSourceCard* card);
 	///
 	/// get the output candidates
-	vector<L1GctEmCand> getOutput();
+	vector<L1GctEmCand> getOutputIsoEmCands();
+	///
+	/// get the output candidates
+	vector<L1GctEmCand> getOutputNonIsoEmCands();
 	
 private:
 
 	///
 	/// processing
-	L1GctElectronSorter finalSort;
-
+	vector<L1GctElectronSorter*> theEmSorters;
 	///
 	/// pointers to data source
 	vector<L1GctSourceCard*> sourceCards;
-	
-	///
-	/// input data buffer
-	vector<L1GctEmCand> inputCands;
-	
+      
 };
 
 #endif /*L1GCTELECTRONLEAFCARD_H_*/

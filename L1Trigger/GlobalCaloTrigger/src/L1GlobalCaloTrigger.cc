@@ -17,11 +17,13 @@ L1GlobalCaloTrigger* L1GlobalCaloTrigger::instance = 0;
 
 // constructor
 L1GlobalCaloTrigger::L1GlobalCaloTrigger() :
+  theSourceCards(54),
 	theJetLeafCards(6),
 	theIsoEmSorters(4),
 	theNonIsoEmSorters(4),
 	theWheelJetFpgas(2),
-	theWheelEnergyFpgas(2)
+	theWheelEnergyFpgas(2),
+  theElectronFinalStage(2)
 {
   
   build();

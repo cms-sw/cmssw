@@ -9,3 +9,4 @@ L1GctCaloConcentratorCard::~L1GctCaloConcentratorCard() {
 // 	delete isoElectronLeafCard;
 // 	delete nonIsoElectronLeafCard;	
 }
+

@@ -1,7 +1,7 @@
 #ifndef L1GCTCALOCONCENTRATORCARD_H_
 #define L1GCTCALOCONCENTRATORCARD_H_
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
