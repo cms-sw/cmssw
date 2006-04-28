@@ -31,8 +31,8 @@ public:
 	virtual void process();
 	///	
 	/// set input data per wheel
-/* 	void setInputWheelEx(unsigned wheel, int energy, bool overflow); */
-/* 	void setInputWheelEy(unsigned wheel, int energy, bool overflow); */
+	void setInputWheelEx(unsigned wheel, int energy, bool overflow);
+	void setInputWheelEy(unsigned wheel, int energy, bool overflow);
 	void setInputWheelEt(unsigned wheel, unsigned energy, bool overflow);
 	void setInputWheelHt(unsigned wheel, unsigned energy, bool overflow);
 
@@ -44,11 +44,11 @@ public:
         void setInputWheelJc(unsigned wheel, unsigned jcnum, unsigned count);
         void setInputBoundaryJc(unsigned jcnum, unsigned count);
 
-/* 	// return input data */
-/*         long int getInputExValPlusWheel(); */
-/*         long int getInputEyValPlusWheel(); */
-/*         long int getInputExVlMinusWheel(); */
-/*         long int getInputEyVlMinusWheel(); */
+	// return input data
+        long int getInputExValPlusWheel();
+        long int getInputEyValPlusWheel();
+        long int getInputExVlMinusWheel();
+        long int getInputEyVlMinusWheel();
 	inline unsigned long getInputEtValPlusWheel() { return inputEtValPlusWheel.to_ulong();; }
 	inline unsigned long getInputHtValPlusWheel() { return inputHtValPlusWheel.to_ulong();; }
 	inline unsigned long getInputEtVlMinusWheel() { return inputEtVlMinusWheel.to_ulong();; }
@@ -71,22 +71,22 @@ private:
         typedef bitset<4> JcWheelType;
         typedef bitset<5> JcFinalType;
 	// input data - need to confirm number of bits!
-/* 	bitset<12> inputExValPlusWheel; */
-/* 	bitset<12> inputEyValPlusWheel; */
+	bitset<12> inputExValPlusWheel;
+	bitset<12> inputEyValPlusWheel;
 	bitset<12> inputEtValPlusWheel;
 	bitset<12> inputHtValPlusWheel;
-/* 	bitset<12> inputExVlMinusWheel; */
-/* 	bitset<12> inputEyVlMinusWheel; */
+	bitset<12> inputExVlMinusWheel;
+	bitset<12> inputEyVlMinusWheel;
 	bitset<12> inputEtVlMinusWheel;
 	bitset<12> inputHtVlMinusWheel;
-    bitset<12> inputHtBoundaryJets;
+        bitset<12> inputHtBoundaryJets;
 
-/*         bool ovfloExValPlusWheel; */
-/*         bool ovfloEyValPlusWheel; */
+        bool ovfloExValPlusWheel;
+        bool ovfloEyValPlusWheel;
         bool ovfloEtValPlusWheel;
         bool ovfloHtValPlusWheel;
-/*         bool ovfloExVlMinusWheel; */
-/*         bool ovfloEyVlMinusWheel; */
+        bool ovfloExVlMinusWheel;
+        bool ovfloEyVlMinusWheel;
         bool ovfloEtVlMinusWheel;
         bool ovfloHtVlMinusWheel;
         bool ovfloHtBoundaryJets;
@@ -94,13 +94,21 @@ private:
         vector<JcWheelType> inputJcValPlusWheel;
         vector<JcWheelType> inputJcVlMinusWheel;
         vector<JcBoundType> inputJcBoundaryJets;
+
+        // internal stuff for inputs and outputs
+        void checkUnsignedNatural(  unsigned E, bool O, int nbits, unsigned long &Eout, bool &Oout);
+	void checkIntegerTwosComplement( int E, bool O, int nbits, unsigned long &Eout, bool &Oout);
+        long int longIntegerFromTwosComplement (bitset<12> energyBits);
+        // internal stuff for the Etmiss algorithm
+        struct etmiss_vec { unsigned long mag; unsigned phi;};
+        etmiss_vec calculate_etmiss_vec (long int Ex, long int Ey) ;
 	
 	// output data
 	bitset<13> outputEtMiss;
-	bitset<6> outputEtMissPhi;
+	bitset<7> outputEtMissPhi;
 	bitset<13> outputEtSum;
 	bitset<13> outputEtHad;
-    vector<JcFinalType> outputJetCounts;
+        vector<JcFinalType> outputJetCounts;
 
 };
 
