@@ -456,16 +456,24 @@ void HcalNumberingFromDDD::initialize(std::string & name,
   filter.setCriteria(ddv,DDSpecificsFilter::equals);
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
-  fv.firstChild();
+  bool ok = fv.firstChild();
 
-  //Load the SpecPars
-  loadSpecPars(fv);
+  if (ok) {
+    //Load the SpecPars
+    loadSpecPars(fv);
 
-  //Load the Geometry parameters
-  loadGeometry(fv);
+    //Load the Geometry parameters
+    loadGeometry(fv);
+  } else {
+    edm::LogError("HcalGeom") << "HcalNumberingFromDDD: cannot get filtered "
+			      << " view for " << attribute << " matching "
+			      << name;
+    throw DDException("HcalNumberingFromDDD: cannot match "+attribute+" to "+name);
+  }
 }
 
 void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
+
   DDsvalues_type sv(fv.mergedSpecifics());
 
   // Phi Offset
