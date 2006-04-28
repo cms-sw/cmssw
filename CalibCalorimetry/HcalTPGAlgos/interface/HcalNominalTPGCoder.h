@@ -14,8 +14,8 @@ class CaloGeometry;
   * then uses the averaged gain and pedestal values to convert to GeV (Energy)
   * and the ideal geometry to apply Energy -> ET.
   *
-  * $Date: 2006/04/03 16:37:39 $
-  * $Revision: 1.1 $
+  * $Date: 2006/04/28 02:19:53 $
+  * $Revision: 1.2 $
   * \author J. Mans - Minnesota
   */
 class HcalNominalTPGCoder : public HcalTPGCoder {
@@ -23,7 +23,7 @@ public:
   HcalNominalTPGCoder(double LSB_GeV);
   virtual ~HcalNominalTPGCoder() {}
   void setupForChannel(const HcalCalibrations& calib);
-  void setupForAuto(HcalDbService* service=0);
+  void setupForAuto(const HcalDbService* service=0);
   void setupGeometry(const CaloGeometry& geom);
   virtual void adc2ET(const HBHEDataFrame& df, IntegerCaloSamples& ics) const;
   virtual void adc2ET(const HFDataFrame& df, IntegerCaloSamples& ics) const;  
@@ -34,7 +34,7 @@ private:
   double gain_;
   int pedestal_;
   std::vector<double> perpIeta_;
-  HcalDbService* service_;
+  const HcalDbService* service_;
 };
 
 #endif

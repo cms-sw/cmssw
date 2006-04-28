@@ -18,7 +18,7 @@ void HcalNominalTPGCoder::setupForChannel(const HcalCalibrations& calib) {
   determineGainPedestal(calib,gain_,pedestal_);
 }
 
-void HcalNominalTPGCoder::setupForAuto(HcalDbService* service) {
+void HcalNominalTPGCoder::setupForAuto(const HcalDbService* service) {
   service_=service;
 }
 
