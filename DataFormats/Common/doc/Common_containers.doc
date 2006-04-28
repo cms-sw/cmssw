@@ -37,8 +37,8 @@ type <tt><b>Ext</b></tt>.
   to one or many objects in a collection <tt>CVal</tt>. Stored indices are of type 
   <tt>index</tt>, that is by default <tt>unsigned long</tt>, but could be
   <tt>unsigned short</tt> for collections with less than 65535 objects.
-  The template <tt>Tag</tt> should be either <tt>edm::OneToOne</tt> for
-  one-to-one maps, or <tt>edm::OneToMany</tt> for one-to-many maps.
+  The template <tt>Tag</tt> should be either edm::OneToOne for
+  one-to-one maps, or edm::OneToMany for one-to-many maps.
 
 - edm::OwnVector <b>&lt;T, P = edm::ClonePolicy&lt;T&gt; &gt;</b>: container 
   with interface very similar to <tt>std::vector&lt;T&gt;</tt>, but 
