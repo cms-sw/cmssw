@@ -13,12 +13,12 @@ using namespace std;
 TBMonitorInputSource::TBMonitorInputSource(const edm::ParameterSet& pset, edm::InputSourceDescription const& desc) : 
   edm::ExternalInputSource(pset,desc),
   m_file(0),
-  m_task(SiStripHistoNamingScheme::task(pset.getUntrackedParameter<string>("CommissioningTask","Pedestals")))
+  m_task(SiStripHistoNamingScheme::task(pset.getUntrackedParameter<string>("commissioningTask","Pedestals")))
 {
   //Check Commissioning Task
   if (m_task == SiStripHistoNamingScheme::UNKNOWN_TASK) edm::LogWarning("Commissioning|TBMonitorIS") << "Unknown commissioning task. Value used: " << pset.getUntrackedParameter<string>("CommissioningTask","Pedestals") << "; values accepted: Pedestals, ApvTiming, FedTiming, OptoScan, VpspScan, ApvLatency.";
 
-  produces< edm::DetSetVector< Histo > >();
+  produces< edm::DetSetVector< Profile > >();
   m_taskId = taskId(m_task);
 }
 
@@ -38,9 +38,8 @@ bool TBMonitorInputSource::produce(edm::Event& e) {
 
   //create DetSetVectors to hold Histograms.
   edm::DetSetVector< Profile >* profile_collection = new edm::DetSetVector< Profile >();
-  edm::DetSetVector< Histo >* histo_collection = new edm::DetSetVector< Histo >();
 
-  //loop over files, find tprofiles.
+  //loop over files, find TProfiles.
   for (std::vector<std::string>::const_iterator file = fileNames().begin(); file != fileNames().end(); file++) {
   openFile(*file);
   if (!m_file) continue;
@@ -49,50 +48,53 @@ bool TBMonitorInputSource::produce(edm::Event& e) {
 
   if (profile_collection->empty()) return false;
 
-  //Loop DetSetVector and convert apv numbering scheme for 4-apv modules from 32,33,34,35 to 32,33,36,37. (only relevent for tasks conducted on the apv level).
+  //Loop DetSetVector and:
+  //1) On pedestal runs, split the module TProfile into 2 or 3 corresponding LLD channel TProfiles.
+  //2) Convert apv numbering scheme for 4-apv modules from 32,33,34,35 to 32,33,36,37. (only relevent for tasks conducted on the apv level).
 
- for (edm::DetSetVector<Profile>::const_iterator idetset = profile_collection->begin(); idetset != profile_collection->end(); idetset++) {
-   
-   edm::DetSet<Histo>& hist = histo_collection->find_or_insert(idetset->id);
-   hist.data.reserve(idetset->data.size());
+ for (edm::DetSetVector<Profile>::iterator idetset = profile_collection->begin(); idetset != profile_collection->end(); idetset++) {
 
-   for (edm::DetSet<Profile>::const_iterator prof = idetset->data.begin(); prof != idetset->data.end(); prof++) {
-       
+     if ((m_task == SiStripHistoNamingScheme::PEDESTALS) && (idetset->data.size() == 2)) {
+     
+       for (unsigned short ihisto = 0; ihisto < 2; ihisto++) {
+       //split pedestals Profile
+       vector<Profile> lld_peds;
+       lldPedestals(idetset->data[ihisto],lld_peds);
+       //update DetSetVector
+       copy(lld_peds.begin(), lld_peds.end(), back_inserter(idetset->data));}
+       //remove old Profiles
+       idetset->data.erase(idetset->data.begin(),idetset->data.begin()+2);
+}
+
+   for (unsigned int iprof = 0; iprof < idetset->data.size(); iprof++) {
      if (idetset->data.size() == 4) {
-       string name(prof->get().GetName());
-       //unpack name and find channel
-       SiStripHistoNamingScheme::HistoTitle h_title = SiStripHistoNamingScheme::histoTitle(name);
-       //fix channel numbers
-       if ((h_title.channel_ == 34) | (h_title.channel_ == 35)) h_title.channel_ +=2;
-     }
-   
-     string name(prof->get().GetName()); 
+
+    //unpack name
+     string name(idetset->data[iprof].get().GetName());
      SiStripHistoNamingScheme::HistoTitle h_title = SiStripHistoNamingScheme::histoTitle(name);
 
-  //convert to TH1Fs (temporary)//////////////////////
-  TH1F th1f;
-  convert(prof->get(), th1f);
-  hist.data.push_back(Histo(th1f));
-
+       //fix channel numbers
+       if ((h_title.channel_ == 34) | (h_title.channel_ == 35)) {
+	 h_title.channel_ +=2; 
+	 const_cast<TProfile&>(idetset->data[iprof].get()).SetName(SiStripHistoNamingScheme::histoTitle(h_title.task_, h_title.contents_,h_title.keyType_, h_title.keyValue_, h_title.granularity_, h_title.channel_, h_title.extraInfo_).c_str());
+     }
    }
  }
-
- //clean up
-  if (profile_collection) delete profile_collection;
- ///////////////////////////////////////////////////////
+}
 
   //update the event...
-  std::auto_ptr< edm::DetSetVector< Histo > > collection(histo_collection);
+  std::auto_ptr< edm::DetSetVector< Profile > > collection(profile_collection);
   e.put(collection);
 
   return true;
-}
+ }
 
 //-----------------------------------------------------------------------------
 
 void TBMonitorInputSource::findProfiles(TDirectory* dir, edm::DetSetVector< Profile >* histos) {
 
   std::vector< TDirectory* > dirs;
+  dirs.reserve(20000);
   dirs.push_back(dir);
 
   //loop through all directories and record tprofiles (matching label m_taskId) contained within them.
@@ -118,7 +120,7 @@ void TBMonitorInputSource::findProfiles(TDirectory* dir, edm::DetSetVector< Prof
 	while (loop) { 
 	  if (obj == keylist->Last()) {loop = false;}
  
-	  if (dynamic_cast<TDirectory*>(dir->Get(obj->GetName()))) {dirs->reserve(dirs->size() + 1); dirs->push_back((TDirectory*)dir->Get(obj->GetName()));}
+	  if (dynamic_cast<TDirectory*>(dir->Get(obj->GetName()))) {dirs->push_back((TDirectory*)dir->Get(obj->GetName()));}
 
 	  if (dynamic_cast<TProfile*>(dir->Get(obj->GetName()))) {
 	    const TProfile& tprof = *dynamic_cast<TProfile*>(dir->Get(obj->GetName()));
@@ -138,7 +140,7 @@ void TBMonitorInputSource::findProfiles(TDirectory* dir, edm::DetSetVector< Prof
 
 	      //update DetSetVector with updated profile using histo key (indicating control path) as the index.
 	      edm::DetSet<Profile>& prof = profs->find_or_insert(h_title.keyValue_);
-	      prof.data.reserve(prof.data.size() + 1); 
+	      prof.data.reserve(6); 
 	      prof.data.push_back(Profile(tprof_updated));
 	    }
 }
@@ -196,7 +198,7 @@ std::string TBMonitorInputSource::taskId(SiStripHistoNamingScheme::Task task) {
 
   std::string taskId("");
 
-  if (task == SiStripHistoNamingScheme::PEDESTALS) {taskId = "Profile_ped";}
+  if (task == SiStripHistoNamingScheme::PEDESTALS) {/* uses all TProfiles */}
   else if (task == SiStripHistoNamingScheme::FED_CABLING) {/* to be set*/}
   else if (task == SiStripHistoNamingScheme::VPSP_SCAN) {taskId = "vpsp_mean";}
   else if (task == SiStripHistoNamingScheme::OPTO_SCAN) {taskId = "_gain";}
@@ -208,21 +210,6 @@ std::string TBMonitorInputSource::taskId(SiStripHistoNamingScheme::Task task) {
 
   return taskId;
 
-}
-
-//-----------------------------------------------------------------------------
-
-void TBMonitorInputSource::convert( const TProfile& prof, TH1F& th1f) {
-  
-  th1f.SetTitle(prof.GetTitle());
-  th1f.SetName(prof.GetName());
-  th1f.SetBins(prof.GetNbinsX(), prof.GetXaxis()->GetXmin(), prof.GetXaxis()->GetXmax() );
-  
-  for (Int_t ibin = 0; ibin < th1f.GetNbinsX(); ibin++) {
-    
-    th1f.SetBinContent(ibin + 1, prof.GetBinContent(ibin + 1));
-    th1f.SetBinError(ibin + 1, prof.GetBinError(ibin + 1));
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -260,15 +247,21 @@ SiStripHistoNamingScheme::HistoTitle TBMonitorInputSource::histoTitle(const stri
 	((histo_name.find("tick") != std::string::npos) | (histo_name.find("base") != std::string::npos))) {
       
       stringstream nm;
-      nm << SiStripHistoNamingScheme::gain() << histo_name.substr((histo_name.size() - 1),1);
+      nm << sistrip::gain_ << histo_name.substr((histo_name.size() - 1),1);
       
       if (histo_name.find("tick") != std::string::npos) {
-	nm << SiStripHistoNamingScheme::digital() << 1;}
-      else {nm << SiStripHistoNamingScheme::digital() << 0;}
+	nm << sistrip::digital_ << 1;}
+      else {nm << sistrip::digital_ << 0;}
 
       title.extraInfo_ = nm.str();
     }
     else {edm::LogError("Commissioning|TBMonitorIS") << "Inconsistency in TBMonitor histogram name for the OPTO_SCAN task. One or more of the strings \"gain\", \"tick\" and \"base\" were not found.";}
+  }
+
+  if (m_task ==SiStripHistoNamingScheme::PEDESTALS) {
+  string label = histo_name.substr(0,start+1);
+    if (label == "Profile_ped") title.extraInfo_ = sistrip::pedsAndRawNoise_;
+    else if (label == "Profile_noi") title.extraInfo_ = sistrip::residualsAndNoise_;
   }
   
   // Set SiStripHistoNamingScheme::HistoTitle::channel_
@@ -306,3 +299,37 @@ SiStripHistoNamingScheme::HistoTitle TBMonitorInputSource::histoTitle(const stri
   return title;
 }
 
+//-----------------------------------------------------------------------------
+
+void TBMonitorInputSource::setBinStats(TProfile& prof, Int_t bin, Int_t entries, Double_t content, Double_t error) {
+
+  prof.SetBinEntries(bin,entries);
+  prof.SetBinContent(bin,content*entries);
+  prof.SetBinError(bin,sqrt(entries*entries*error*error + content*content*entries));
+
+}
+
+ void TBMonitorInputSource::lldPedestals(Profile& module, vector<Profile>& llds) {
+   
+   //unpack name
+   string name(module.get().GetName());
+   SiStripHistoNamingScheme::HistoTitle h_title = SiStripHistoNamingScheme::histoTitle(name);
+   
+   unsigned short numApvPairs = module.get().GetNbinsX()/256;
+   llds.reserve(numApvPairs);
+   
+   for (unsigned short ihisto = 0; ihisto < numApvPairs; ihisto++) {
+     
+     //get lld channel number
+     unsigned short illd = ((numApvPairs == 2) && (ihisto == 1)) ? illd = 2 : ihisto;
+     //create and format new TProfile
+     TProfile apvPeds;
+     apvPeds.SetBins(256, 0., 256.);
+     apvPeds.SetName(SiStripHistoNamingScheme::histoTitle(h_title.task_, h_title.contents_, h_title.keyType_, h_title.keyValue_, SiStripHistoNamingScheme::LLD_CHAN, illd, h_title.extraInfo_).c_str());
+     //fill new TProfile
+     for (unsigned short ibin = 0; ibin < apvPeds.GetNbinsX(); ibin++) {
+       setBinStats(apvPeds,(Int_t)(ibin+1), (Int_t)module.get().GetBinEntries((Int_t)(ihisto*256 + ibin + 1)), module.get().GetBinContent((Int_t)(ihisto*256 + ibin + 1)), module.get().GetBinError((Int_t)(ihisto*256 + ibin + 1)));
+     }
+     //add new Profile to llds vector
+     llds.push_back(Profile(apvPeds));}
+ }

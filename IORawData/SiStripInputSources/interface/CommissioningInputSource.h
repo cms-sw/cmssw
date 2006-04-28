@@ -9,8 +9,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ExternalInputSource.h"
 //Data Formats
-#include "DataFormats/SiStripDigi/interface/Histo.h"
 #include "DataFormats/SiStripDigi/interface/Profile.h"
+#include "DataFormats/SiStripDigi/interface/Histo.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 //common
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
@@ -64,7 +64,10 @@ class CommissioningInputSource : public edm::ExternalInputSource {
   void openFile( const string&);
 
   /** Combines 3 "source" histograms into 1 "commissioning" histogram*/
-  void combine(const TH1& sum, const TH1& sum2, const TH1& entries, TH1& commHist);
+  void combine(const TH1& sum, const TH1& sum2, const TH1& entries, TProfile& commHist);
+
+  /** Set values for a TProfile bin*/
+  void setBinStats(TProfile& prof, Int_t bin, Int_t entries, Double_t content, Double_t error);
   
   /** Input file */
   TFile* m_inputFile;

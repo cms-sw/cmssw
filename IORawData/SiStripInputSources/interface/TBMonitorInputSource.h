@@ -9,7 +9,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ExternalInputSource.h"
 //Data Formats
-#include "DataFormats/SiStripDigi/interface/Histo.h"
 #include "DataFormats/SiStripDigi/interface/Profile.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 //common
@@ -60,11 +59,14 @@ class TBMonitorInputSource : public edm::ExternalInputSource {
   /** Takes task name as the argument and updates the "task id" : a common sub-string of the names of histograms for storage.*/
   static std::string taskId(SiStripHistoNamingScheme::Task);
 
-  /** Updates the title, name, bins, bin contents and errors of the TH1F to mimic the TProfile.*/
-  void convert(const TProfile&, TH1F&);
-
   /** Unpacks TBMonitor histogram name into the module's control path */
   SiStripHistoNamingScheme::HistoTitle histoTitle(const string&);
+
+  /** Set values for a TProfile bin*/
+  void setBinStats(TProfile& prof, Int_t bin, Int_t entries, Double_t content, Double_t error);
+
+ /** Splits Pedestals Profile on the module-level into 2 or 3 Profiles on the LLD-channel-level. Renames accordingly.*/
+  void lldPedestals(Profile& module, vector<Profile>& llds);
 
   /** Input file. */
   TFile* m_file;

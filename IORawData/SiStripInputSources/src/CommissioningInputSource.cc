@@ -23,7 +23,7 @@ CommissioningInputSource::CommissioningInputSource(const edm::ParameterSet& pset
   m_outputFilename(pset.getUntrackedParameter<string>("outputFilename","Client")),
   m_run(0)
 {
-  produces< edm::DetSetVector< Histo > >();
+  produces< edm::DetSetVector< Profile > >();
 }
 
 //-----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ bool CommissioningInputSource::produce(edm::Event& e) {
 
   //create DetSetVectors to hold Histograms.
   edm::DetSetVector< Histo >* histo_collection = new edm::DetSetVector< Histo >();
-  edm::DetSetVector< Histo >* comm_collection = new edm::DetSetVector< Histo >();
+  edm::DetSetVector< Profile >* comm_collection = new edm::DetSetVector< Profile >();
 
   //loop over files, find TH1Fs
   for (std::vector<std::string>::const_iterator file = fileNames().begin(); file != fileNames().end(); file++) {
@@ -59,97 +59,111 @@ bool CommissioningInputSource::produce(edm::Event& e) {
   }
 
   if (histo_collection->empty()) return false;
+  
+  //combine TH1Fs into commissioning histogram
+  for (edm::DetSetVector<Histo>::const_iterator idetset = histo_collection->begin(); idetset != histo_collection->end(); idetset++) {
+    
+    edm::DetSet<Profile>& comm_vec = comm_collection->find_or_insert(idetset->id);
+    comm_vec.data.reserve(6);
+    
+    //Change to relevent directory in output file for storage of "commissioning histogram"
+    SiStripGenerateKey::ControlPath c_path = SiStripGenerateKey::controlPath(idetset->id);
+    string path = SiStripHistoNamingScheme::controlPath(c_path.fecCrate_, c_path.fecSlot_, c_path.fecRing_, c_path.ccuAddr_, c_path.ccuChan_);
+    stringstream ss; ss << m_outputFile->GetName() << ":/" << "DQMData/" << path;
+    TDirectory* mother = m_outputFile->GetDirectory(ss.str().c_str());
+    mother->cd();
 
- //combine TH1Fs into commissioning histogram
- for (edm::DetSetVector<Histo>::const_iterator idetset = histo_collection->begin(); idetset != histo_collection->end(); idetset++) {
-   
-   edm::DetSet<Histo>& comm_vec = comm_collection->find_or_insert(idetset->id);
-
-   //Change to relevent directory in output file for storage of "commissioning histogram"
-   SiStripGenerateKey::ControlPath c_path = SiStripGenerateKey::controlPath(idetset->id);
-   string path = SiStripHistoNamingScheme::controlPath(c_path.fecCrate_, c_path.fecSlot_, c_path.fecRing_, c_path.ccuAddr_, c_path.ccuChan_);
-   stringstream ss; ss << m_outputFile->GetName() << ":/" << "DQMData/" << path;
-   TDirectory* mother = m_outputFile->GetDirectory(ss.str().c_str());
-   mother->cd();
-
-   //for sorting module histograms
-   map< unsigned int, vector<const Histo*> > histo_map;
-   
-   for (edm::DetSet<Histo>::const_iterator hist = idetset->data.begin(); hist != idetset->data.end(); hist++) {
+    //for sorting module histograms
+    map< unsigned int, vector<const Histo*> > histo_map;
+    
+    for (edm::DetSet<Histo>::const_iterator hist = idetset->data.begin(); hist != idetset->data.end(); hist++) {
      
-     //unpack histogram name
-     const string name(hist->get().GetName());
-     SiStripHistoNamingScheme::HistoTitle h_title = SiStripHistoNamingScheme::histoTitle(name);
+      //unpack histogram name
+      const string name(hist->get().GetName());
+      SiStripHistoNamingScheme::HistoTitle h_title = SiStripHistoNamingScheme::histoTitle(name);
+      
+      //use channel as map key
+      unsigned int key = h_title.channel_;
+      
+      //if HistoTitle::extraInfo_ contains a gain value + digital level, update key.
+      if ((h_title.extraInfo_.find(sistrip::gain_) != string::npos) &&
+	  (h_title.extraInfo_.find(sistrip::digital_) != string::npos)) {
+	
+	string::size_type index = h_title.extraInfo_.find(sistrip::gain_);
+	unsigned short gain = atoi(h_title.extraInfo_.substr((index + 4),1).c_str());
+	index = h_title.extraInfo_.find(sistrip::digital_);
+	unsigned short digital = atoi(h_title.extraInfo_.substr((index + 7),1).c_str());
+	key = ((key & 3) << 7) | ((gain & 3) << 1) | (digital & 1);
+      }
 
-     //use channel as map key
-     unsigned int key = h_title.channel_;
+      //if HistoTitle::extraInfo_ contains Pedestal run information, update key (ignore common mode histograms)
+      if (h_title.extraInfo_.find(sistrip::pedsAndRawNoise_) != string::npos) {
+	key = ((key & 3) << 7) | 0x1;
+      }
 
-     //if HistoTitle::extraInfo_ contains a gain value + digital level, update key.
-     if ((h_title.extraInfo_.find(SiStripHistoNamingScheme::gain()) != string::npos) &&
-	 (h_title.extraInfo_.find(SiStripHistoNamingScheme::digital()) != string::npos)) {
+      if (h_title.extraInfo_.find(sistrip::residualsAndNoise_) != string::npos) {
+	key = ((key & 3) << 7) | 0x2;
+      }
 
-       string::size_type index = h_title.extraInfo_.find(SiStripHistoNamingScheme::gain());
-       unsigned short gain = atoi(h_title.extraInfo_.substr((index + 4),1).c_str());
-       index = h_title.extraInfo_.find(SiStripHistoNamingScheme::digital());
-       unsigned short digital = atoi(h_title.extraInfo_.substr((index + 7),1).c_str());
-       key = ((key & 3) << 7) | ((gain & 3) << 1) | (digital & 1);
-}
+      if (h_title.extraInfo_.find(sistrip::commonMode_) != string::npos) continue;
+      
+      //update map
+      if (histo_map[key].empty()) {
+	histo_map[key].reserve(3); histo_map[key].resize(3,0);}
 
-     //update map
-     if (histo_map[key].empty()) {
-       histo_map[key].reserve(3); histo_map[key].resize(3,0);}
+      if (h_title.contents_ == SiStripHistoNamingScheme::SUM) {
+	histo_map[key][0] = &(*hist);}
+      else if (h_title.contents_ == SiStripHistoNamingScheme::SUM2) {
+	histo_map[key][1] = &(*hist);}
+      else if (h_title.contents_ == SiStripHistoNamingScheme::NUM) {
+	histo_map[key][2] = &(*hist);}
+    }
+    
+    //loop through map and combine related histograms
+    for (map< unsigned int, vector<const Histo*> >::const_iterator it = histo_map.begin(); it != histo_map.end(); it++) {
+      
+      //find relevent histos and combine them here.
+      if (it->second[0] && it->second[1] && it->second[2]) {
+	TProfile commHist;
+	combine(it->second[0]->get(),it->second[1]->get(),it->second[2]->get(), commHist);
 
-     if (h_title.contents_ == SiStripHistoNamingScheme::SUM) {
-       histo_map[key][0] = &(*hist);}
-     else if (h_title.contents_ == SiStripHistoNamingScheme::SUM2) {
-       histo_map[key][1] = &(*hist);}
-     else if (h_title.contents_ == SiStripHistoNamingScheme::NUM) {
-       histo_map[key][2] = &(*hist);}
-   }
+	//unpack "number of entries" histogram name
+	SiStripHistoNamingScheme::HistoTitle h_title = SiStripHistoNamingScheme::histoTitle(it->second[2]->get().GetName());
+	
+	//set name of commissioning histogram using task_, keyType_, keyValue_, granularity_, channel_ and extraInfo_ from "number of entries" histogram 
+	string comm_name = SiStripHistoNamingScheme::histoTitle(h_title.task_, SiStripHistoNamingScheme::COMBINED, SiStripHistoNamingScheme::FED, h_title.keyValue_, h_title.granularity_, h_title.channel_, h_title.extraInfo_);
+	commHist.SetName(comm_name.c_str());
+	
+	//add commissioning histogram to DetSetVector
+	comm_vec.data.push_back(Profile(commHist));
+	
+	//add commissioning histogram to output file
+	mother->WriteTObject(&commHist);
+      }
 
-   //loop through map and combine related histograms
-   for (map< unsigned int, vector<const Histo*> >::const_iterator it = histo_map.begin(); it != histo_map.end(); it++) {
-     
-     //find relevent histos and combine them here.
-     if (it->second[0] && it->second[1] && it->second[2]) {
-       TH1F commHist;
-       combine(it->second[0]->get(),it->second[1]->get(),it->second[2]->get(), commHist);
-
-     //unpack "number of entries" histogram name
-     SiStripHistoNamingScheme::HistoTitle h_title = SiStripHistoNamingScheme::histoTitle(it->second[0]->get().GetName());
-
-     //set name of commissioning histogram using task_, keyType_, keyValue_, granularity_, channel_ and extraInfo_ from "number of entries" histogram 
-     string comm_name = SiStripHistoNamingScheme::histoTitle(h_title.task_, SiStripHistoNamingScheme::COMBINED, SiStripHistoNamingScheme::FED, h_title.keyValue_, h_title.granularity_, h_title.channel_, h_title.extraInfo_);
-     commHist.SetName(comm_name.c_str());
-
-     //add commissioning histogram to DetSetVector
-     comm_vec.data.reserve(comm_vec.data.size() + 1);
-     comm_vec.data.push_back(Histo(commHist));
-
-     //add commissioning histogram to output file
-     mother->WriteTObject(&commHist);
-     }
-     else {
-       SiStripHistoNamingScheme::HistoTitle h_title;
+      else {
+	SiStripHistoNamingScheme::HistoTitle h_title;
+	stringstream os("");
        if (it->second[0]) {
-	 h_title = SiStripHistoNamingScheme::histoTitle(it->second[0]->get().GetName());}
+	 h_title = SiStripHistoNamingScheme::histoTitle(it->second[0]->get().GetName()); os << h_title.keyValue_;}
        else if (it->second[1]) {
-	 h_title = SiStripHistoNamingScheme::histoTitle(it->second[1]->get().GetName());}
-       else { 
-	 h_title = SiStripHistoNamingScheme::histoTitle(it->second[1]->get().GetName());}
-       
-       LogDebug("Commissioning|TBMonitorIS") << "[CommissioningInputSource::produce]: 3 histograms (entries, sum and sum of squares) with otherwise identical names are required for each analysis. One or more are missing for module key: " << h_title.keyValue_ << ". Module being ignored....";}
-   }
- }
-
- //clean up
- if (histo_collection) delete histo_collection;
- 
- //update the event...
- std::auto_ptr< edm::DetSetVector< Histo > > collection(comm_collection);
- e.put(collection);
- 
- return true;
+	 h_title = SiStripHistoNamingScheme::histoTitle(it->second[1]->get().GetName()); os << h_title.keyValue_;}
+       else if (it->second[2]) { 
+	 h_title = SiStripHistoNamingScheme::histoTitle(it->second[2]->get().GetName()); os << h_title.keyValue_;}
+       else {os << "unknown";}
+   
+	LogDebug("Commissioning|TBMonitorIS") << "[CommissioningInputSource::produce]: 3 histograms (entries, sum and sum of squares) with otherwise identical names are required at the source for each device. One or more are missing for module key: " << os.str() << ". Module being ignored....";}
+    }
+  }
+  
+  //clean up
+  if (histo_collection) delete histo_collection;
+  
+  //update the event...
+  std::auto_ptr< edm::DetSetVector< Profile > > collection(comm_collection);
+  e.put(collection);
+  
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -157,6 +171,7 @@ bool CommissioningInputSource::produce(edm::Event& e) {
 void CommissioningInputSource::findHistos(TDirectory* dir, edm::DetSetVector< Histo >* histos) {
   
   std::vector< TDirectory* > dirs;
+  dirs.reserve(20000);
   dirs.push_back(dir);
   
   //loop through all directories and record th1fs contained within them.
@@ -186,10 +201,9 @@ void CommissioningInputSource::dirHistos(TDirectory* dir, std::vector< TDirector
 	  TDirectory* child = dynamic_cast<TDirectory*>(dir->Get(obj->GetName()));
 
 	  //update record of directories
-	  dirs->reserve(dirs->size() + 1); 
 	  dirs->push_back(child);
  
-	  //update output file to have identical TDirectory structure to input file.
+	  //update output file to have identical dir/child TDirectory structure to input file.
 	  addOutputDir(dir,child);
 	}
 	
@@ -221,7 +235,7 @@ void CommissioningInputSource::dirHistos(TDirectory* dir, std::vector< TDirector
 	  //update DetSetVector...
 
 	  edm::DetSet<Histo>& histo = histos->find_or_insert(fec_key);
-	  histo.data.reserve(histo.data.size() + 1); 
+	  histo.data.reserve(6); 
 	  histo.data.push_back(Histo(th1f));
 	}
 	obj = keylist->After(obj);
@@ -299,14 +313,11 @@ void CommissioningInputSource::setRunAndEventInfo() {
 
 //-----------------------------------------------------------------------------
 
-void CommissioningInputSource::combine(const TH1& sum, const TH1& sum2, const TH1& entries, TH1& commHist) {
+void CommissioningInputSource::combine(const TH1& sum, const TH1& sum2, const TH1& entries, TProfile& commHist) {
   
   if ((sum.GetNbinsX() != sum2.GetNbinsX()) | (sum2.GetNbinsX() != entries.GetNbinsX())) { edm::LogError("Commissioning|TBMonitorIS") << "[ClientForCommissioning::generateCommissioingHisto]: Warning: Number of bins for histograms not identical"; return;}
   
   commHist.SetBins(sum.GetNbinsX(), sum.GetXaxis()->GetXmin(),sum.GetXaxis()->GetXmax());
-  
-  //set bin content
-  commHist.Divide(&sum,&entries);
 
   TH1F meanSum2; //dummy container to calculate errors
   meanSum2.SetBins(sum.GetNbinsX(), sum.GetXaxis()->GetXmin(),sum.GetXaxis()->GetXmax());
@@ -314,10 +325,20 @@ void CommissioningInputSource::combine(const TH1& sum, const TH1& sum2, const TH
 
   for (unsigned int ii = 0; ii < (unsigned int)commHist.GetNbinsX(); ii++) {
     if (entries.GetBinContent((Int_t)(ii + 1))) {
-
-      Double_t error =  sqrt(fabs(meanSum2.GetBinContent((Int_t)(ii + 1)) - (commHist.GetBinContent((Int_t)(ii + 1)) * commHist.GetBinContent((Int_t)(ii + 1)))));
-      commHist.SetBinError((Int_t)(ii + 1), error );
+      Double_t entry = entries.GetBinContent((Int_t)(ii + 1));
+      Double_t content = sum.GetBinContent((Int_t)(ii + 1))/entries.GetBinContent((Int_t)(ii + 1));
+      Double_t error = sqrt(fabs(meanSum2.GetBinContent((Int_t)(ii + 1)) - content * content));
+      setBinStats(commHist,(Int_t)(ii+1),(Int_t)entry,content,error); 
     }
   }
 }
 
+//-----------------------------------------------------------------------------
+
+void CommissioningInputSource::setBinStats(TProfile& prof, Int_t bin, Int_t entries, Double_t content, Double_t error) {
+
+  prof.SetBinEntries(bin,entries);
+  prof.SetBinContent(bin,content*entries);
+  prof.SetBinError(bin,sqrt(entries*entries*error*error + content*content*entries));
+
+}
