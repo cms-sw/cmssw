@@ -3,7 +3,8 @@
 #include <vector>
 
 L1GctEmLeafCard::L1GctEmLeafCard() :
-  theEmSorters(4) 
+  m_sorters(4),
+  m_sourceCards(9)
 {
 }
 
@@ -13,36 +14,38 @@ L1GctEmLeafCard::~L1GctEmLeafCard() {
 
 /// clear buffers
 void L1GctEmLeafCard::reset() {
-  for (unsigned i=0; i<theEmSorters.size(); i++) {
-    theEmSorters[i]->reset();
+  for (unsigned i=0; i<m_sorters.size(); i++) {
+    m_sorters[i]->reset();
   }
 }
 
 /// fetch input data
 void L1GctEmLeafCard::fetchInput() {
-  for (unsigned i=0; i<theEmSorters.size(); i++) {
-    theEmSorters[i]->fetchInput();
+  for (unsigned i=0; i<m_sorters.size(); i++) {
+    m_sorters[i]->fetchInput();
   }
 }
 
 /// process the event
 void L1GctEmLeafCard::process() {
-  for (unsigned i=0; i<theEmSorters.size(); i++) {
-    theEmSorters[i]->process();
+  for (unsigned i=0; i<m_sorters.size(); i++) {
+    m_sorters[i]->process();
   }
 }
 
 /// add a source card as input
-void L1GctEmLeafCard::addInputSourceCard(L1GctSourceCard* card) {
-
+void L1GctEmLeafCard::setInputSourceCard(int i, L1GctSourceCard* sc) {
+  if (i < m_sourceCards.size()) {
+    m_sourceCards[i]=sc;
+  }
 }
 
 /// get the output candidates
 vector<L1GctEmCand> L1GctEmLeafCard::getOutputIsoEmCands() {
-   return theEmSorters[0]->getOutput();
+   return m_sorters[0]->getOutput();
 }
 
 /// get the output candidates
 vector<L1GctEmCand> L1GctEmLeafCard::getOutputNonIsoEmCands() {
-     return theEmSorters[1]->getOutput();
+     return m_sorters[1]->getOutput();
 }

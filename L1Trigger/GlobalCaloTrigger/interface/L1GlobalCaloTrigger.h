@@ -19,16 +19,15 @@ using std::vector;
   **/ 
 
 class L1GctSourceCard;
+class L1GctJetLeafCard;
+class L1GctEmLeafCard;
 
-class L1GctElectronSorter;
+class L1GctWheelJetFpga;
+class L1GctWheelEnergyFpga;
+class L1GctJetFinalStage;
+class L1GctGlobalEnergyAlgos;
 class L1GctElectronFinalSort;
 
-class L1GctJetLeafCard;
-class L1GctWheelJetFpga;
-class L1GctJetFinalStage;
-
-class L1GctWheelEnergyFpga;
-class L1GctGlobalEnergyAlgos;
 
 class L1GlobalCaloTrigger {
 public:
@@ -77,6 +76,9 @@ public:
 	///
 	/// get the Jet Leaf cards
 	vector<L1GctJetLeafCard*> getJetLeafCards() { return theJetLeafCards; }
+	///
+	/// get the Jet Leaf cards
+	vector<L1GctEmLeafCard*> getEmLeafCards() { return theEmLeafCards; }
 
 private:
 	///
@@ -97,14 +99,11 @@ private:
 	/// pointers to the Source Cards
 	vector<L1GctSourceCard*> theSourceCards;
 	///
-	/// poitners to the Jet Leaf cards
+	/// pointers to the Jet Leaf cards
 	vector<L1GctJetLeafCard*> theJetLeafCards;
 	///
-	/// isolated EM sorters
-	vector<L1GctElectronSorter*> theIsoEmSorters;	
-	///
-	/// non-isolated EM sorters
-	vector<L1GctElectronSorter*> theNonIsoEmSorters;
+	/// pointers to the EM Leaf cards
+	vector<L1GctEmLeafCard*> theEmLeafCards;
 	///
 	/// Wheel Card Jet Fpgas	
 	vector<L1GctWheelJetFpga*> theWheelJetFpgas;		

@@ -22,9 +22,6 @@ public:
 	L1GctJetLeafCard();
 	~L1GctJetLeafCard();
 	///
-	/// add a Source Card
-	void addSource(L1GctSourceCard* card);
-	///
 	/// clear internal buffers
 	virtual void reset();
 	///
@@ -33,6 +30,9 @@ public:
 	/// 
 	/// process the data and set outputs
 	virtual void process();
+	///
+	/// add a Source Card
+	void setInputSourceCard(int i, L1GctSourceCard* card);
 	///
 	/// get the input data
 	vector<L1GctRegion> getInputRegions();
@@ -51,7 +51,7 @@ private:
 	L1GctJetFinder* jetFinderC;	
 
 	// pointers to data source
-	vector<L1GctSourceCard*> sourceCards;
+	vector<L1GctSourceCard*> m_sourceCards;
 
 };
 

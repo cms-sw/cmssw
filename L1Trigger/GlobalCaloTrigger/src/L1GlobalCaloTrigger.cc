@@ -1,16 +1,13 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
-
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
-
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
-
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
 
 
 L1GlobalCaloTrigger* L1GlobalCaloTrigger::instance = 0;
@@ -19,8 +16,7 @@ L1GlobalCaloTrigger* L1GlobalCaloTrigger::instance = 0;
 L1GlobalCaloTrigger::L1GlobalCaloTrigger() :
   theSourceCards(54),
 	theJetLeafCards(6),
-	theIsoEmSorters(4),
-	theNonIsoEmSorters(4),
+  theEmLeafCards(2),
 	theWheelJetFpgas(2),
 	theWheelEnergyFpgas(2),
   theElectronFinalStage(2)
@@ -58,16 +54,10 @@ void L1GlobalCaloTrigger::build() {
     theJetLeafCards[i] = new L1GctJetLeafCard();
   }
   
-  // isolated electrons
-  for (int i=0; i<4; i++) {
-    theIsoEmSorters[i] = new L1GctElectronSorter(true);
-  }		
-
-  // non-isolated electrons
-  for (int i=0; i<4; i++) {
-    theNonIsoEmSorters[i] = new L1GctElectronSorter(false);
-  }		
-  
+  for (int i=0; i<2; i++) {
+    theEmLeafCards[i] = new L1GctEmLeafCard();
+  }
+    
   for (int i=0; i<2; i++) {
     theWheelJetFpgas[i] = new L1GctWheelJetFpga();
     theWheelEnergyFpgas[i] = new L1GctWheelEnergyFpga();
@@ -85,27 +75,20 @@ void L1GlobalCaloTrigger::build() {
 // wire up the hardware/algos
 void L1GlobalCaloTrigger::setup() {
 
-  /// electron sorters
-  //
-  for (unsigned i=0; i<18; i++) {
-    if (i<4) {
-      theIsoEmSorters[0]->setInputSourceCard(0, theSourceCards[i*3]);
-      theNonIsoEmSorters[0]->setInputSourceCard(0, theSourceCards[i*3]);
-    }
-    else if (i<9) {
-      theIsoEmSorters[1]->setInputSourceCard(0, theSourceCards[i*3]);
-      theNonIsoEmSorters[1]->setInputSourceCard(0, theSourceCards[i*3]);
-    }
-    else if (i<13) {
-      theIsoEmSorters[2]->setInputSourceCard(0, theSourceCards[i*3]);
-      theNonIsoEmSorters[2]->setInputSourceCard(0, theSourceCards[i*3]);
-    }
-    else if (i<18) {
-      theIsoEmSorters[3]->setInputSourceCard(0, theSourceCards[i*3]);
-      theNonIsoEmSorters[3]->setInputSourceCard(0, theSourceCards[i*3]);
+  // EM leaf cards
+  for (int i=0; i<2; i++) {
+    for (int j=0; j<9; j++) {
+      theEmLeafCards[i]->setInputSourceCard(0, theSourceCards[i*9+j]);
     }
   }
 
+  // Jet Leaf cards
+  for (int i=0; i<6; i++) {
+    for (int j=0; j<3; j++) {
+      theJetLeafCards[i]->setInputSourceCard(0, theSourceCards[i*6+j]);
+    }
+  }
+  
 
 
 }
@@ -142,13 +125,10 @@ void L1GlobalCaloTrigger::process() {
   theEnergyFinalStage->fetchInput();
   theEnergyFinalStage->process();
   
-  // Electron Sorters
+  // EM Leaf Card
   for (int i=0; i<4; i++) {
-    theIsoEmSorters[i]->fetchInput();
-    theIsoEmSorters[i]->process();
-
-    theNonIsoEmSorters[i]->fetchInput();
-    theNonIsoEmSorters[i]->process();
+    theEmLeafCards[i]->fetchInput();
+    theEmLeafCards[i]->process();
   }
 
   // Electron Final Stage

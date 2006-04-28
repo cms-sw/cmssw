@@ -32,7 +32,7 @@ public:
 	virtual void process();	
 	///
 	/// add a source card as input
-	void addInputSourceCard(L1GctSourceCard* card);
+	void setInputSourceCard(int i, L1GctSourceCard* sc);
 	///
 	/// get the output candidates
 	vector<L1GctEmCand> getOutputIsoEmCands();
@@ -44,10 +44,10 @@ private:
 
 	///
 	/// processing
-	vector<L1GctElectronSorter*> theEmSorters;
+	vector<L1GctElectronSorter*> m_sorters;
 	///
 	/// pointers to data source
-	vector<L1GctSourceCard*> sourceCards;
+	vector<L1GctSourceCard*> m_sourceCards;
       
 };
 
