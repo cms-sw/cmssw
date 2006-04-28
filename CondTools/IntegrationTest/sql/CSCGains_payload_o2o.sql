@@ -17,7 +17,8 @@ SELECT
  record_id iov_value_id,
  run_num time
 FROM GAINS@cmsomds
-WHERE iov_value_id > last_id;
+WHERE record_id > last_id
+;
 
 insert into "CSCGAINS_MAP"
 SELECT
@@ -25,8 +26,8 @@ SELECT
  record_id iov_value_id,
  layer_id csc_int_id
 FROM GAINS_MAP@cmsomds
-WHERE iov_value_id > last_id
-order by iov_value_id,map_id;
+WHERE record_id > last_id
+;
 
 
 insert into "CSCGAINS_DATA"
@@ -40,11 +41,8 @@ SELECT
 FROM GAINS_DATA@cmsomds, GAINS_MAP@cmsomds
 WHERE
  GAINS_DATA.map_id=GAINS_MAP.map_id
-AND iov_value_id > last_id
-ORDER BY
- iov_value_id,
- map_id,
- vec_index;
+AND record_id > last_id
+;
 
 END;
 /
