@@ -22,7 +22,6 @@
 
 SiStripControlDirPath
 SiStripFolderOrganizer
-SiStripGenerateKey
 SiStripHistoId
 SiStripHistoIdManager
 SiStripHistoNamingScheme
