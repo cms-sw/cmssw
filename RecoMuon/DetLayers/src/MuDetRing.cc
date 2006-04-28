@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/04/12 13:23:53 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -13,7 +13,7 @@
 #include <iostream>
 #include <vector>
 
-#define DEBUG false //FIXME!
+#define MDEBUG false //FIXME!
 
 MuDetRing::MuDetRing(vector<const GeomDet*>::const_iterator first,
 		     vector<const GeomDet*>::const_iterator last) : 
@@ -62,7 +62,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
 			   const Propagator& prop, 
 			   const MeasurementEstimator& est) const {
 
-  if ( DEBUG ) cout << "MuDetRing::compatibleDets, Surface at Z: " 
+  if ( MDEBUG ) cout << "MuDetRing::compatibleDets, Surface at Z: " 
 		    << surface().position().z()  << " R1: "
 		    << specificSurface().innerRadius()
 //FIXME		    << " TS at Z,R: " << startingState.position().z() << ","
@@ -77,7 +77,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
   pair<bool, TrajectoryStateOnSurface> compat =
     compatible(startingState, prop, est);
   if (compat.first) {
-    if ( DEBUG ) cout << "    MuDetRing::compatibleDets: not compatible"
+    if ( MDEBUG ) cout << "    MuDetRing::compatibleDets: not compatible"
 		      << "    (should not have been selected!)" <<endl;
     return result;
   }
@@ -87,7 +87,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
   GlobalPoint startPos = tsos.globalPosition();  
   int closest = theBinFinder.binIndex(startPos.phi());
   const vector<const GeomDet*> dets = basicComponents();
-  if ( DEBUG ) cout << "     MuDetRing::compatibleDets, closest det: " << closest 
+  if ( MDEBUG ) cout << "     MuDetRing::compatibleDets, closest det: " << closest 
 		    << " Phi: " << dets[closest]->surface().position().phi()
 		    << " impactPhi " << startPos.phi()
 		    << endl;  
@@ -96,7 +96,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
   // NOTE: add performs a null propagation
   add(closest, result, tsos, prop, est);
 
-  int nclosest = result.size(); int nnextdet=0; // DEBUG counters
+  int nclosest = result.size(); int nnextdet=0; // MDEBUG counters
 
   // Try the neighbors on each side until no more compatible.
   float dphi=0;
@@ -106,7 +106,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
       atan(sqrt(result.back().second.localError().positionError().xx())/
 	   result.back().second.globalPosition().perp());
   } else {
-    if ( DEBUG ) 
+    if ( MDEBUG ) 
       cout << "     MuDetRing::compatibleDets, closest not compatible!" <<endl;
     //FIXME:  if closest is not compatible the next cannot be either
   }
@@ -116,7 +116,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
     // Right now query until not compatible.
     int idetp = theBinFinder.binIndex(idet);
     {
-      if ( DEBUG ) 
+      if ( MDEBUG ) 
 	cout << "     next det:" << idetp
 	     << " at Z: " << dets[idetp]->position().z()
 	     << " phi: " << dets[idetp]->position().phi()
@@ -133,7 +133,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
     // Right now query until not compatible.
     int idetp = theBinFinder.binIndex(idet);
     {
-      if ( DEBUG ) 
+      if ( MDEBUG ) 
 	cout << "     previous det:" << idetp << " " << idet << " " << closest-dets.size()/4-1
 	     << " at Z: " << dets[idetp]->position().z()
 	     << " phi: " << dets[idetp]->position().phi()
@@ -145,12 +145,12 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
     }
   }
 
-  if ( DEBUG ) 
+  if ( MDEBUG ) 
     cout << "     MuDetRing::compatibleDets, size: " << result.size()
  	 << " on closest: " << nclosest << " # checked dets: " << nnextdet+1
  	 <<endl;
   if (result.size()==0) {
-    if ( DEBUG )
+    if ( MDEBUG )
       cout << "   ***Ring not compatible,should have been discarded before!!!"
  	   <<endl;
   }

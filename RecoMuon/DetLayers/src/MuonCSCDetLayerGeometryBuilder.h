@@ -5,13 +5,13 @@
  *
  *  No description available.
  *
- *  $Date: 2006/04/25 14:01:18 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/25 17:03:23 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
-#include "RecoMuon/DetLayers/interface/MuRingForwardLayer.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include <RecoMuon/DetLayers/interface/MuRingForwardLayer.h>
+#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 
 class MuonCSCDetLayerGeometryBuilder {
     public:
@@ -22,8 +22,8 @@ class MuonCSCDetLayerGeometryBuilder {
         virtual ~MuonCSCDetLayerGeometryBuilder();
   
         /// Operations
-        static vector<MuRingForwardLayer*> buildLayers(const CSCGeometry& geo);
-
+        //static pair<vector<MuRingForwardLayer*>, vector<MuRingForwardLayer*> > buildLayers(const CSCGeometry& geo);
+        static pair<vector<DetLayer*>, vector<DetLayer*> > buildLayers(const CSCGeometry& geo);
     private:
     
 };
