@@ -20,6 +20,21 @@
 //	never-specified values) by NO_VALUE_SET = -45654
 //	b) checking for values of -1 and substituting a very large integer  
 //
+//   3 - 4/28/06 mf  - in configure_dest()
+//	Mods to help deal with the fact that checking for an empty PSet is
+//	unwise when untracked parameters are involved:  The PSet will appear
+//	to be empty and if skipped, will result in limits not being applied.
+//	a) Replaced default values directly in getAparameter with variables
+//	which can be examined all in one place.
+//	b) Carefully checked that we are never comparing to the empty PSet
+//	
+//   4 - 4/28/06 mf  - in configure_dest()
+//	If a destination name does not have an extension, append .log 
+//	(or in the case of a FwkJobReport, .xml).
+//	[note for this change - the filename kept as an index to stream_ps
+//	can be kept as its original name; it is just a tool for assigning
+//	the right shared stream to statistics destinations]
+//
 // ----------------------------------------------------------------------
 
 
@@ -258,7 +273,12 @@ void
       stream_ps["cerr"] = &std::cerr;
     }
     else  {
-      std::ofstream * os_p = new std::ofstream(filename.c_str());
+      std::string actual_filename = filename;			// change log 4
+      const std::string::size_type npos = std::string::npos;
+      if ( filename.find('.') == npos ) {
+        actual_filename += ".log";
+      }  
+      std::ofstream * os_p = new std::ofstream(actual_filename.c_str());
       file_ps.push_back(os_p);
       dest_ctrl = admin_p->attach( ELoutput(*os_p) );
       stream_ps[filename] = os_p;
@@ -287,13 +307,18 @@ void
     // attach the current destination, keeping a control handle to it:
     ELdestControl dest_ctrl;
     String filename = *it;
-    std::ofstream * os_p = new std::ofstream(filename.c_str());
+    std::string actual_filename = filename;			// change log 4
+    const std::string::size_type npos = std::string::npos;
+    if ( filename.find('.') == npos ) {
+      actual_filename += ".log";
+    }  
+    std::ofstream * os_p = new std::ofstream(actual_filename.c_str());
     file_ps.push_back(os_p);
     dest_ctrl = admin_p->attach( ELfwkJobReport(*os_p) );
     stream_ps[filename] = os_p;
 
     // now configure this destination:
-    configure_dest(dest_ctrl, filename);
+    configure_dest(dest_ctrl, filename);	
 
   }  // for [it = fwkJobReports.begin() to end()]
 
@@ -325,7 +350,12 @@ void
       } else if ( filename == "cerr" ) {
         os_p = &std::cerr;
       } else {
-	std::ofstream * osf_p = new std::ofstream(filename.c_str());
+        std::string actual_filename = filename;			// change log 4
+        const std::string::size_type npos = std::string::npos;
+        if ( filename.find('.') == npos ) {
+          actual_filename += ".log";
+        }  
+        std::ofstream * osf_p = new std::ofstream(actual_filename.c_str());
         os_p = osf_p;
 	file_ps.push_back(osf_p);
       }
@@ -347,8 +377,7 @@ void
     // and suppress the desire to do an extra termination summary just because
     // of end-of-job info messages
     dest_ctrl.noTerminationSummary();
-    
-
+ 
   }  // for [it = statistics.begin() to end()]
 
   configure_external_dests();
@@ -362,10 +391,14 @@ void
 				     )
 {
   static const int NO_VALUE_SET = -45654;		// change log 2
-
   vString  empty_vString;
   PSet     empty_PSet;
   String   empty_String;
+
+  // Defaults:						// change log 3a
+  const std::string COMMON_DEFAULT_THRESHOLD = "INFO";
+  const         int COMMON_DEFAULT_LIMIT = NO_VALUE_SET; 
+  const         int COMMON_DEFAULT_IMESPAN = NO_VALUE_SET; 
 
   char *  severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
   vString const  severities(severity_array+0, severity_array+4);
@@ -388,16 +421,18 @@ void
 
   // grab default threshold common to all destinations
   String default_threshold
-     = getAparameter<String>(job_pset_p,"threshold", "INFO");
+     = getAparameter<String>(job_pset_p,"threshold", COMMON_DEFAULT_THRESHOLD);
+     						// change log 3a
 
   // grab default limit/timespan common to all destinations/categories:
   PSet  default_pset
      = getAparameter<PSet>(job_pset_p,"default", empty_PSet);
   int  default_limit
-    = getAparameter<int>(&default_pset,"limit", NO_VALUE_SET);
+    = getAparameter<int>(&default_pset,"limit", COMMON_DEFAULT_LIMIT);
   int  default_timespan
-    = getAparameter<int>(&default_pset,"timespan", NO_VALUE_SET);
+    = getAparameter<int>(&default_pset,"timespan", COMMON_DEFAULT_IMESPAN);
 						// change log 2a
+    						// change log 3a
 					
   // grab all of this destination's parameters:
   PSet  dest_pset = getAparameter<PSet>(job_pset_p,filename,empty_PSet);
