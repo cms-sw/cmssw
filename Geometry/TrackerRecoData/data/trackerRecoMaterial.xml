@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
+  <SpecParSection label="spec-pars2.xml">
+
+    <SpecPar name="TrackerRecMaterialPixelBarrel" eval="true">
+      <PartSelector path="//PixelBarrelActiveFull" />
+      <PartSelector path="//PixelBarrelActiveHalf" />
+      <Parameter name="TrackerRadLength" value="0.026" />
+      <Parameter name="TrackerXi" value="5.45e-05" />
+    </SpecPar>
+
+    <SpecPar name="TrackerRecMaterialTIBLayer0_1" eval="true">
+      <PartSelector path="//TIBActiveRphi0" />
+      <PartSelector path="//TIBActiveSter0" />
+      <Parameter name="TrackerRadLength" value="0.050" />
+      <Parameter name="TrackerXi" value="1.24e-04" />
+   </SpecPar>
+
+    <SpecPar name="TrackerRecMaterialTIBLayer2_3" eval="true">
+      <PartSelector path="//TIBActiveRphi2" />
+      <Parameter name="TrackerRadLength" value="0.035" />
+      <Parameter name="TrackerXi" value="7.e-05" />
+   </SpecPar>
+
+    <SpecPar name="TrackerRecMaterialTOBLayer0_1" eval="true">
+      <PartSelector path="//TOBActiveRphi0" />
+      <PartSelector path="//TOBActiveSter0" />
+      <Parameter name="TrackerRadLength" value="0.050" />
+      <Parameter name="TrackerXi" value="1.e-04" />
+    </SpecPar>
+
+    <SpecPar name="TrackerRecMaterialTOBLayer2_3" eval="true">
+      <PartSelector path="//TOBActiveRphi2" />
+      <Parameter name="TrackerRadLength" value="0.033" />
+      <Parameter name="TrackerXi" value="6.83e-05" />
+    </SpecPar>
+
+    <SpecPar name="TrackerRecMaterialTOBLayer4_5" eval="true">
+      <PartSelector path="//TOBActiveRphi4" />
+      <Parameter name="TrackerRadLength" value="0.023" />
+      <Parameter name="TrackerXi" value="5.01e-05" />
+    </SpecPar>
+
+    <SpecPar name="TrackerRecMaterialPixelEndcapr" eval="true">
+      <PartSelector path="//PixelForwardActive1x2Right" />
+      <PartSelector path="//PixelForwardActive1x2Left" />
+      <PartSelector path="//PixelForwardActive1x5Right" />
+      <PartSelector path="//PixelForwardActive1x5Left" />
+      <PartSelector path="//PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardActive2x5" />
+      <Parameter name="TrackerRadLength" value="0.04" />
+      <Parameter name="TrackerXi" value="1.e-04" />
+    </SpecPar>
+
+    <SpecPar name="TrackerRecMaterialTID" eval="true">
+      <PartSelector path="//TIDModule0RphiActive" />
+      <PartSelector path="//TIDModule0StereoActive" />
+      <PartSelector path="//TIDModule1RphiActive" />
+      <PartSelector path="//TIDModule1StereoActive" />
+      <PartSelector path="//TIDModule2RphiActive" />
+      <Parameter name="TrackerRadLength" value="0.02" />
+      <Parameter name="TrackerXi" value="0.5e-04" />
+    </SpecPar>
+
+    <SpecPar name="TrackerRecMaterialTEC" eval="true">
+      <PartSelector path="//TECModule0RphiActive" />
+      <PartSelector path="//TECModule0StereoActive" />
+      <PartSelector path="//TECModule1RphiActive" />
+      <PartSelector path="//TECModule1StereoActive" />
+      <PartSelector path="//TECModule2RphiActive" />
+      <PartSelector path="//TECModule3RphiActive" />
+      <PartSelector path="//TECModule4RphiActive" /> 
+      <PartSelector path="//TECModule4StereoActive" />
+      <PartSelector path="//TECModule5RphiActive" />
+      <PartSelector path="//TECModule6RphiActive" />
+      <Parameter name="TrackerRadLength" value="0.02" />
+      <Parameter name="TrackerXi" value="0.5e-04" />
+    </SpecPar>
+ 
+  </SpecParSection>
+</DDDefinition>
+

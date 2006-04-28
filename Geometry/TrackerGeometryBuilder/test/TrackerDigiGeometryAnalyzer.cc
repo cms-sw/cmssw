@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.2 2006/03/16 11:41:42 fambrogl Exp $
+// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.3 2006/03/22 14:33:46 fambrogl Exp $
 //
 //
 
@@ -42,7 +42,9 @@
 
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/Surface/interface/BoundSurface.h"
+#include "Geometry/Surface/interface/MediumProperties.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
 //
@@ -109,9 +111,16 @@ TrackerDigiGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
 
    for(TrackingGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
        if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
-	BoundSurface& p = (dynamic_cast<PixelGeomDetUnit*>((*it)))->surface();
-        edm::LogInfo("TrackerDigiGeometryAnalyzer")<<"    Thickness "<<p.bounds().thickness();
+	BoundPlane& p = (dynamic_cast<PixelGeomDetUnit*>((*it)))->specificSurface();
+	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" RadLeng Pixel "<<p.mediumProperties()->radLen();
+	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" Xi Pixel "<<p.mediumProperties()->xi();
        } 
+
+       if(dynamic_cast<StripGeomDetUnit*>((*it))!=0){
+	BoundPlane& s = (dynamic_cast<StripGeomDetUnit*>((*it)))->specificSurface();
+	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" RadLeng Strip "<<s.mediumProperties()->radLen();
+	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" Xi Strip "<<s.mediumProperties()->xi();
+       }
     }	
 
    for (TrackingGeometry::DetTypeContainer::const_iterator it = pDD->detTypes().begin(); it != pDD->detTypes().end(); it ++){
