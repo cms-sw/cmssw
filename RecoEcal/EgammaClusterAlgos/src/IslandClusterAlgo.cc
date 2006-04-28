@@ -6,7 +6,7 @@
 #include <iostream>
 #include <map>
 
-void IslandClusterAlgo::mainSearch(edm::ESHandle<CaloGeometry> geometry_h)
+void IslandClusterAlgo::mainSearch(const CaloSubdetectorGeometry &geometry)
 {
   std::cout << "IslandClusterAlgo Algorithm - looking for clusters" << std::endl;
   std::cout << "Found the following clusters:" << std::endl;
@@ -32,20 +32,16 @@ void IslandClusterAlgo::mainSearch(edm::ESHandle<CaloGeometry> geometry_h)
       reco::EcalRecHitData data(it->getEnergy(),0,it->getId());
       hitData_v.push_back(data);
 
-      EcalBarrelTopology topology(geometry_h);
-      const CaloSubdetectorGeometry *geometry_p = (*geometry_h).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-      CaloSubdetectorGeometry const geometry = *geometry_p;
+      EcalBarrelHardcodedTopology *topology_p = new EcalBarrelHardcodedTopology();
+      EcalBarrelNavigator navigator(it->getId(), topology_p);
 
-
-      // perform the search:
-      EcalBarrelNavigator navigator(it->getId(), &topology);
       searchNorth(navigator);
       navigator.home();
       searchSouth(navigator);
       navigator.home();
-      searchWest(navigator, topology);
+      searchWest(navigator, *topology_p);
       navigator.home();
-      searchEast(navigator, topology);
+      searchEast(navigator, *topology_p);
       Point pos = getECALposition(hitData_v, geometry);
       ClusterVars vars = computeClusterVars(hitData_v);
 
@@ -103,7 +99,7 @@ void IslandClusterAlgo::searchSouth(EcalBarrelNavigator &navigator)
   southern_it->second.use();
 }
 
-void IslandClusterAlgo::searchWest(EcalBarrelNavigator &navigator, EcalBarrelTopology &topology)
+void IslandClusterAlgo::searchWest(EcalBarrelNavigator &navigator, EcalBarrelHardcodedTopology &topology)
 {
   EBDetId eastern = navigator.pos();
   std::map<EBDetId, PositionAwareHit>::iterator eastern_it = rechits_m.find(eastern);
@@ -134,7 +130,7 @@ void IslandClusterAlgo::searchWest(EcalBarrelNavigator &navigator, EcalBarrelTop
   western_it->second.use();
 }
 
-void IslandClusterAlgo::searchEast(EcalBarrelNavigator &navigator, EcalBarrelTopology &topology)
+void IslandClusterAlgo::searchEast(EcalBarrelNavigator &navigator, EcalBarrelHardcodedTopology &topology)
 {
   EBDetId western = navigator.pos();
   std::map<EBDetId, PositionAwareHit>::iterator western_it = rechits_m.find(western);

@@ -6,7 +6,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
-#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
 
 
 class IslandClusterAlgo : public ClusteringAlgorithm
@@ -32,12 +32,12 @@ class IslandClusterAlgo : public ClusteringAlgorithm
 
     }
   
-  void mainSearch(edm::ESHandle<CaloGeometry> geometry_h);
+  void mainSearch(const CaloSubdetectorGeometry &geometry);
 
   void searchNorth(EcalBarrelNavigator &navigator);
   void searchSouth(EcalBarrelNavigator &navigator);
-  void searchWest (EcalBarrelNavigator &navigator, EcalBarrelTopology &topology);
-  void searchEast (EcalBarrelNavigator &navigator, EcalBarrelTopology &topology);
+  void searchWest (EcalBarrelNavigator &navigator, EcalBarrelHardcodedTopology &topology);
+  void searchEast (EcalBarrelNavigator &navigator, EcalBarrelHardcodedTopology &topology);
 
   ClusterVars computeClusterVars( const std::vector<reco::EcalRecHitData>& hits ) const;
 

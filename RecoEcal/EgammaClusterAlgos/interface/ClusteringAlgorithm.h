@@ -2,9 +2,6 @@
 #define RecoECAL_ECALClusters_ClusteringAlgorithm_h
 
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "DataFormats/Math/interface/Point3D.h"
@@ -22,7 +19,7 @@
 
 //
 
-const double defaultSeedThreshold = 2; // should we agree on a default value?
+const double defaultSeedThreshold = 2;
 
 class ClusteringAlgorithm 
 {
@@ -43,7 +40,7 @@ class ClusteringAlgorithm
 
   // this is the method that will start the clusterisation
   std::vector<reco::BasicCluster> makeClusters(EcalRecHitCollection & rechits,
-					       edm::ESHandle<CaloGeometry> geometry_h);
+					       const CaloSubdetectorGeometry &geometry);
   /// point in the space
     typedef math::XYZPoint Point;
 
@@ -61,8 +58,8 @@ class ClusteringAlgorithm
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters;
 
-  virtual void mainSearch(edm::ESHandle<CaloGeometry> geometry_h)=0; //the real clustering algorithm
-  Point getECALposition(std::vector<reco::EcalRecHitData> recHits, const CaloSubdetectorGeometry & geometry);//Position determination
+  virtual void mainSearch(const CaloSubdetectorGeometry &geometry) = 0; //the real clustering algorithm
+  Point getECALposition(std::vector<reco::EcalRecHitData> recHits, const CaloSubdetectorGeometry &geometry);//Position determination
 
 };
 

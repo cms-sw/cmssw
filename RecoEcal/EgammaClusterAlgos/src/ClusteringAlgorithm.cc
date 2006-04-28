@@ -4,23 +4,16 @@
 // Geometry
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
-//#include <algorithm>
 
 //
 
 // Return a vector of clusters from a collection of EcalRecHits:
 std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(EcalRecHitCollection & rechits,
-								  edm::ESHandle<CaloGeometry> geometry_h)
+								  const CaloSubdetectorGeometry &geometry)
 {
   rechits_m.clear();
   seeds.clear();
   clusters.clear();
-
-  const CaloSubdetectorGeometry *geometry_p = (*geometry_h).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
 
   std::cout << "Cleared vectors, starting clusterization..." << std::endl;
   std::cout << "Number of RecHits in event = " << rechits.size() << std::endl;
@@ -30,7 +23,7 @@ std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(EcalRecHitColl
   for (it = rechits.begin(); it != rechits.end(); it++)
     {
       // every hit should be position aware(?)
-      PositionAwareHit pah(*it, *geometry_p);
+      PositionAwareHit pah(*it, geometry);
 
       std::pair<EBDetId, PositionAwareHit> map_entry(pah.getId(), pah);
       rechits_m.insert(map_entry);
@@ -49,7 +42,7 @@ std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(EcalRecHitColl
   std::cout << "About to call mainSearch...";
 
 
-  mainSearch(geometry_h);
+  mainSearch(geometry);
   std::cout << "done" << std::endl;
 
   sort(clusters.begin(), clusters.end());
