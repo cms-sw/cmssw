@@ -8,222 +8,143 @@
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "Geometry/CommonDetUnit/interface/DetPositioner.h"
 
-// Headers in the same directory
+// Headers in the same package
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
-///
+
 ///  Abstract base class for alignable entities.
 ///  Any Alignable object can be moved and rotated.
 ///  Also an alignment uncertainty can be set.
 ///  The class derives from DetPositioner, a friend class of
-///  GeomDet, thus allowing to move the GeomDet.
+///  GeomDet, which allows to move the GeomDet. 
 
 class Alignable : public DetPositioner
 {  
   
- public:
+public:
   
   typedef Surface::RotationType    RotationType;
   typedef Surface::PositionType    PositionType;
   typedef AlignableObjectId::AlignableObjectIdType AlignableObjectIdType;
   
   /// Default constructor
-  Alignable() : theMisalignmentActive(true) {}
-  
-//FR   /// Methods to get/set AlignmentParameters
-//FR   void setAlignmentParameters(AlignmentParameters* dap) 
-//FR  {
-//FR     delete theAlignmentParameters;
-//FR     theAlignmentParameters = dap;
-//FR   }
-  
-  virtual ~Alignable() { 
-    //FR delete theAlignmentParameters; 
-  }
+  Alignable() : theMisalignmentActive(true), 
+				theAlignmentParameters(0) {}
+
+  /// Destructor
+  virtual ~Alignable() { delete theAlignmentParameters; }
+
+  /// Set the AlignmentParameters
+  void setAlignmentParameters( AlignmentParameters* dap );
+  /// Get the AlignmentParameters
+  AlignmentParameters* getAlignmentParameters() const;
 
   /// Return vector of all direct components
   virtual std::vector<Alignable*> components() const = 0;
-  inline int size() const { return components().size(); }
+  /// Return number of direct components
+  inline const int size() const { return components().size(); }
 
-
-  /// movement with respect to the GLOBAL CMS reference frame
+  /// Movement with respect to the global reference frame
   virtual void move( const GlobalVector& displacement) = 0;
-  
-  /// rotation intepreted such, that the orientation of the rotation
-  /// axis is w.r.t. to the global coordinate system, however, the
-  /// NOT the center of the rotation is simply taken as the center of
-  /// the Alignable-object 
-  ///
+
+  /// Rotation interpreted in global reference frame
   virtual void rotateInGlobalFrame( const RotationType& rotation) = 0;
   
-  /// rotation intepreted with respect to its local coordinate system
-  virtual void rotateInLocalFrame( const RotationType& rotation) 
-  {
-    // this is done by simply transforming the rotation from the
-    // local system O to the global one  O^-1 * Rot * O
-    // and then applying the global rotation  O * Rot
-    
-    rotateInGlobalFrame(
-	globalRotation().multiplyInverse(rotation*globalRotation()));
-  }   
+  /// Rotation intepreted in the local reference frame
+  virtual void rotateInLocalFrame( const RotationType& rotation);
   
+  /// Rotation around arbitratry global axis
+  virtual void rotateAroundGlobalAxis( const GlobalVector axis, const float radians );
 
-  /// rotate around arbitratry global axis by deltaPhi 
-  virtual void rotateAroundGlobalAxis( 
-				      const GlobalVector axis, 
-				      float deltaPhi
-				      )  
-  {
-    rotateInGlobalFrame(RotationType(axis.basicVector(), deltaPhi));
-  }
+  /// Rotation around arbitratry local axis
+  virtual void rotateAroundLocalAxis( const LocalVector axis, const float radians );
 
-  /// rotate around arbitratry local axis by deltaPhi
-  virtual void rotateAroundLocalAxis( const LocalVector axis,
-				      float deltaPhi )
-  {
-    rotateInLocalFrame(RotationType(axis.basicVector(), deltaPhi));
-  }
+  /// Rotation around global x-axis
+  virtual void rotateAroundGlobalX( const float radians );
 
-  ///  rotate around global x-axis by deltaPhi 
-  virtual void rotateAroundGlobalX( float deltaPhi)  
-  {
-    RotationType rot( 1., 0., 0. ,
-		      0., cos(deltaPhi),  sin(deltaPhi),
-		      0., -sin(deltaPhi),  cos(deltaPhi) );
-    rotateInGlobalFrame(rot);
-  }
+  /// Rotation around local x-axis
+  virtual void rotateAroundLocalX( const float radians );
 
-  /// rotate around local x-axis by deltaPhi
-  virtual void rotateAroundLocalX( float deltaPhi)  
-  {
-    RotationType rot( 1., 0., 0. ,
-		      0., cos(deltaPhi),  sin(deltaPhi),
-		      0., -sin(deltaPhi),  cos(deltaPhi) );
-    rotateInLocalFrame(rot);
-  }
+  /// Rotation around global y-axis
+  virtual void rotateAroundGlobalY( const float radians );
 
-  /// rotate around global y-axis by deltaPhi 
-  virtual void rotateAroundGlobalY( float deltaPhi)  
-  {
-    RotationType rot( cos(deltaPhi),  0., -sin(deltaPhi), 
-		      0.,              1.,             0.,
-		      sin(deltaPhi), 0.,  cos(deltaPhi) );
-    rotateInGlobalFrame(rot);
-  }
+  /// Rotation around local y-axis
+  virtual void rotateAroundLocalY( const float radians ); 
 
-  /// rotate around local y-axis by deltaPhi
-  virtual void rotateAroundLocalY( float deltaPhi)  
-  {
-    RotationType rot( cos(deltaPhi),  0., -sin(deltaPhi), 
-		      0.,             1.,             0.,
-		      sin(deltaPhi),  0.,  cos(deltaPhi) );
-    
-    rotateInLocalFrame(rot);
-  }
+  /// Rotation around global z-axis
+  virtual void rotateAroundGlobalZ( const float radians );
+
+  /// Rotation around local z-axis
+  virtual void rotateAroundLocalZ( const float radians);
 
 
+  /// Return the global position of the object
+  virtual const GlobalPoint globalPosition () const = 0;
 
-  /// rotate around global z-axis by deltaPhi
-  virtual void rotateAroundGlobalZ( float deltaPhi)  
-  {
-    RotationType rot( cos(deltaPhi),  sin(deltaPhi),  0. ,
-		      -sin(deltaPhi),  cos(deltaPhi), 0. ,
-		      0.,              0.,            1. );
-    rotateInGlobalFrame(rot);
-  }
+  /// Return the global orientation of the object
+  virtual const RotationType globalRotation () const = 0;
 
-  /// rotate around local z-axis by deltaPhi
-  virtual void rotateAroundLocalZ( float deltaPhi)  
-  {
-    RotationType rot( cos(deltaPhi),   sin(deltaPhi), 0. ,
-		      -sin(deltaPhi),  cos(deltaPhi), 0. ,
-		      0.,              0.,            1. );
-    rotateInLocalFrame(rot);
-  }
-
-
-  /// the global position of the object
-  virtual GlobalPoint globalPosition () const 
-  {
-    return surface().position();
-  }
-
-  /// the global orientation of the object
-  virtual RotationType globalRotation () const 
-  {
-    return surface().rotation();
-  }
-
-  /// the global Position+Orientation (Surface) of the object
+  /// Return the Surface (global position and orientation) of the object
   virtual const AlignableSurface& surface () const = 0;
 
-  /// change of the global position since the creation of the object
-  virtual GlobalVector displacement() const { return theDisplacement; }
+  /// Return change of the global position since the creation of the object
+  virtual const GlobalVector displacement() const { return theDisplacement; }
 
+  /// Return change of orientation since the creation of the object 
+  virtual const RotationType rotation() const { return theRotation; }
 
-  /// global rotation since the creation of the object 
-  virtual RotationType rotation() const { return theRotation; }
-
-  /// set the alignment position error
+  /// Set the alignment position error
   virtual void 
-  setAlignmentPositionError(const AlignmentPositionError& ape) = 0;
+  setAlignmentPositionError( const AlignmentPositionError& ape ) = 0;
 
-  /// add (or set if not already presnt) the AlignmentPositionError
+  /// Add (or set if not already present) the AlignmentPositionError
   virtual void 
-  addAlignmentPositionError(const AlignmentPositionError& ape) = 0;
+  addAlignmentPositionError( const AlignmentPositionError& ape ) = 0;
 
   /// add (or set if not already present) the AlignmentPositionError 
-  /// which would in x,y,z result from a rotation (given in the GLOBAL frame
-  /// of CMS)  of the alignable object, rather than its movement
-  ///
+  /// which would result from a rotation (given in the GLOBAL frame
+  /// of CMS) of the alignable object
   virtual void 
-  addAlignmentPositionErrorFromRotation(const RotationType& rotation) = 0;
+  addAlignmentPositionErrorFromRotation( const RotationType& rotation ) = 0;
 
   /// add (or set if not already present) the AlignmentPositionError 
-  /// which would in x,y,z result from a rotation (given in the LOCAL frame
-  /// of the Alignable)  of the alignable object, rather than it's movement
-  ///
+  /// which would result from a rotation (given in the LOCAL frame
+  /// of the Alignable)  of the alignable object
   virtual void 
-  addAlignmentPositionErrorFromLocalRotation(const RotationType& rotation) = 0;
+  addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation ) = 0;
 
   /// Restore original position
-  virtual void deactivateMisalignment () = 0;
+  virtual void deactivateMisalignment() = 0;
 
-  /// Redo misalignment
-  virtual void reactivateMisalignment () = 0;
+  /// Restore misaligned position
+  virtual void reactivateMisalignment() = 0;
 
-  /// Status
-  bool misalignmentActive () const { return theMisalignmentActive; }
+  /// Return true if the misalignment is active
+  bool misalignmentActive() const { return theMisalignmentActive; }
 
-  /// Object ID
-  virtual int alignableObjectId () const =0;
-
+  /// Return the alignable type identifier
+  virtual int alignableObjectId() const = 0;
   
- protected:
-  virtual void addDisplacement(const GlobalVector& displacement) 
-  {
-    theDisplacement += displacement;
-  }
-  
-  virtual void addRotation(const RotationType& rotation) 
-  {
-    theRotation *= rotation;
-  }
+protected:
 
- protected:
+  virtual void addDisplacement( const GlobalVector& displacement );
+  virtual void addRotation( const RotationType& rotation );
+
+protected:
   bool theMisalignmentActive;           ///< (de)activation flag
 
- private:
+private:
 
   GlobalVector theDisplacement;
   RotationType theRotation;
 
-  //FR AlignmentParameters* theAlignmentParameters;
+  AlignmentParameters* theAlignmentParameters;
 
 };
 
-std::ostream& operator << (std::ostream& os, const Alignable & a);
+
 
 
 #endif
