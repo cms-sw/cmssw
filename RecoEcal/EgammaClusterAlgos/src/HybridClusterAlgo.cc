@@ -287,7 +287,18 @@ void HybridClusterAlgo::mainSearch(const CaloSubdetectorGeometry geometry)
       std::cout << "total E: " << LumpEnergy[i] << std::endl;
       //Get Calorimeter position
       Point pos = getECALposition(recHits, geometry);
-      thisseedClusters.push_back(reco::BasicCluster(recHits,1,pos));
+      
+      double totChi2=0;
+      double totE=0;
+      for (int blarg=0;blarg<int(recHits.size());++blarg){
+	totChi2 +=recHits[blarg].energy()*recHits[blarg].chi2();
+	totE+=recHits[blarg].energy();
+      }
+      if (totE>0)
+	totChi2/=totE;
+      
+      //thisseedClusters.push_back(reco::BasicCluster(recHits,1,pos));
+      thisseedClusters.push_back(reco::BasicCluster(LumpEnergy[i],pos,totChi2));
     }
     _clustered.insert(std::make_pair(clustercounter, thisseedClusters));    
     clustercounter++;
