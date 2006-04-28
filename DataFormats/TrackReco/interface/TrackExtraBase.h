@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtraBase.h,v 1.2 2006/03/21 14:23:01 llista Exp $
+ * \version $Id: TrackExtraBase.h,v 1.3 2006/04/19 13:35:05 llista Exp $
  *
  */
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
@@ -25,6 +25,8 @@ namespace reco {
     trackingRecHit_iterator recHitsEnd() const { return recHits_.end(); }
     /// number of RecHits
     size_t recHitsSize() const { return recHits_.size(); }
+    /// get n-th recHit
+    TrackingRecHitRef recHit( size_t i ) const { return recHits_[ i ]; }
 
   private:
     /// references to RecHits
