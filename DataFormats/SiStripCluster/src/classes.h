@@ -11,4 +11,17 @@ namespace {
   }
 }
 
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+namespace {
+  namespace {
+    edm::Wrapper<SiStripCluster> dummy0;
+    edm::Wrapper< std::vector<SiStripCluster>  > dummy1;
+    edm::Wrapper< edm::DetSet<SiStripCluster> > dummy2;
+    edm::Wrapper< std::vector<edm::DetSet<SiStripCluster> > > dummy3;
+    edm::Wrapper< edm::DetSetVector<SiStripCluster> > dummy4;
+  }
+}
+
+
 #endif // SISTRIPCLUSTER_CLASSES_H
