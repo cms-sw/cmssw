@@ -86,13 +86,13 @@ namespace reco {
     // Cluster correction
     void Correct();
 
-    static const char * name() {return "PreshowerCluster";};
+    static const char * name() {return "PreshowerCluster";}
 
     // Comparisons
     int operator==(const PreshowerCluster&) const;
     int operator<(const PreshowerCluster&) const;
 
-    reco::BasicCluster * getBCPtr() {return bc_ptr;};
+    reco::BasicCluster * getBCPtr() {return bc_ptr;}
 
   protected:
 
