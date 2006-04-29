@@ -3,6 +3,7 @@
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -91,7 +92,11 @@ namespace reco {
     int operator==(const PreshowerCluster&) const;
     int operator<(const PreshowerCluster&) const;
 
+    reco::BasicCluster * getBCPtr() {return bc_ptr;};
+
   protected:
+
+
 
     double energy;
     double et;
@@ -115,6 +120,8 @@ namespace reco {
     CaloSubdetectorGeometry geometry;
  
     edm::ESHandle<CaloTopology> topology_h;
+
+    reco::BasicCluster *bc_ptr;
 
   private:
     
