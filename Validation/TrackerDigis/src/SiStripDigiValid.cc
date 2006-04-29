@@ -19,63 +19,146 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
    outputFile_ = ps.getUntrackedParameter<string>("outputFile", "stripdigihisto.root");
    dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
-   meAdcTIBLayer1_ = dbe_->book1D("adc_tib_1","Digis ADC",100,0.,100.);
-   meAdcTIBLayer2_ = dbe_->book1D("adc_tib_2","Digis ADC",100,0.,100.);
-   meAdcTIBLayer3_ = dbe_->book1D("adc_tib_3","Digis ADC",100,0.,100.);
-   meAdcTIBLayer4_ = dbe_->book1D("adc_tib_4","Digis ADC",100,0.,100.);
+   meAdcTIBLayer1zm_ = dbe_->book1D("adc_tib_1_zm","Digis ADC",100,0.,300.);
+   meAdcTIBLayer2zm_ = dbe_->book1D("adc_tib_2_zm","Digis ADC",100,0.,300.);
+   meAdcTIBLayer3zm_ = dbe_->book1D("adc_tib_3_zm","Digis ADC",100,0.,300.);
+   meAdcTIBLayer4zm_ = dbe_->book1D("adc_tib_4_zm","Digis ADC",100,0.,300.);
 
-   meStripTIBLayer1_ = dbe_->book1D("strip_tib_1","Digis Strip Num.",200,0.,800.);
-   meStripTIBLayer2_ = dbe_->book1D("strip_tib_2","Digis Strip Num.",200,0.,800.);
-   meStripTIBLayer3_ = dbe_->book1D("strip_tib_3","Digis Strip Num.",200,0.,800.);
-   meStripTIBLayer4_ = dbe_->book1D("strip_tib_4","Digis Strip Num.",200,0.,800.);  
+   meStripTIBLayer1zm_ = dbe_->book1D("strip_tib_1_zm","Digis Strip Num.",200,0.,800.);
+   meStripTIBLayer2zm_ = dbe_->book1D("strip_tib_2_zm","Digis Strip Num.",200,0.,800.);
+   meStripTIBLayer3zm_ = dbe_->book1D("strip_tib_3_zm","Digis Strip Num.",200,0.,800.);
+   meStripTIBLayer4zm_ = dbe_->book1D("strip_tib_4_zm","Digis Strip Num.",200,0.,800.);  
 
-   meAdcTOBLayer1_ = dbe_->book1D("adc_tob_1","Digis ADC",100,0.,100.);
-   meAdcTOBLayer2_ = dbe_->book1D("adc_tob_2","Digis ADC",100,0.,100.);
-   meAdcTOBLayer3_ = dbe_->book1D("adc_tob_3","Digis ADC",100,0.,100.);
-   meAdcTOBLayer4_ = dbe_->book1D("adc_tob_4","Digis ADC",100,0.,100.); 
-   meAdcTOBLayer5_ = dbe_->book1D("adc_tob_5","Digis ADC",100,0.,100.);
-   meAdcTOBLayer6_ = dbe_->book1D("adc_tob_6","Digis ADC",100,0.,100.);
+   meAdcTIBLayer1zp_ = dbe_->book1D("adc_tib_1_zp","Digis ADC",100,0.,300.);
+   meAdcTIBLayer2zp_ = dbe_->book1D("adc_tib_2_zp","Digis ADC",100,0.,300.);
+   meAdcTIBLayer3zp_ = dbe_->book1D("adc_tib_3_zp","Digis ADC",100,0.,300.);
+   meAdcTIBLayer4zp_ = dbe_->book1D("adc_tib_4_zp","Digis ADC",100,0.,300.);
 
-   meStripTOBLayer1_ = dbe_->book1D("strip_tob_1","Digis Strip Num.",200,0.,800.);
-   meStripTOBLayer2_ = dbe_->book1D("strip_tob_2","Digis Strip Num.",200,0.,800.);
-   meStripTOBLayer3_ = dbe_->book1D("strip_tob_3","Digis Strip Num.",200,0.,800.);
-   meStripTOBLayer4_ = dbe_->book1D("strip_tob_4","Digis Strip Num.",200,0.,800.);
-   meStripTOBLayer5_ = dbe_->book1D("strip_tob_5","Digis Strip Num.",200,0.,800.);
-   meStripTOBLayer6_ = dbe_->book1D("strip_tob_6","Digis Strip Num.",200,0.,800.);
+   meStripTIBLayer1zp_ = dbe_->book1D("strip_tib_1_zp","Digis Strip Num.",200,0.,800.);
+   meStripTIBLayer2zp_ = dbe_->book1D("strip_tib_2_zp","Digis Strip Num.",200,0.,800.);
+   meStripTIBLayer3zp_ = dbe_->book1D("strip_tib_3_zp","Digis Strip Num.",200,0.,800.);
+   meStripTIBLayer4zp_ = dbe_->book1D("strip_tib_4_zp","Digis Strip Num.",200,0.,800.);
+
+   meAdcTOBLayer1zm_ = dbe_->book1D("adc_tob_1_zm","Digis ADC",100,0.,300.);
+   meAdcTOBLayer2zm_ = dbe_->book1D("adc_tob_2_zm","Digis ADC",100,0.,300.);
+   meAdcTOBLayer3zm_ = dbe_->book1D("adc_tob_3_zm","Digis ADC",100,0.,300.);
+   meAdcTOBLayer4zm_ = dbe_->book1D("adc_tob_4_zm","Digis ADC",100,0.,300.); 
+   meAdcTOBLayer5zm_ = dbe_->book1D("adc_tob_5_zm","Digis ADC",100,0.,300.);
+   meAdcTOBLayer6zm_ = dbe_->book1D("adc_tob_6_zm","Digis ADC",100,0.,300.);
+
+   meStripTOBLayer1zm_ = dbe_->book1D("strip_tob_1_zm","Digis Strip Num.",200,0.,800.);
+   meStripTOBLayer2zm_ = dbe_->book1D("strip_tob_2_zm","Digis Strip Num.",200,0.,800.);
+   meStripTOBLayer3zm_ = dbe_->book1D("strip_tob_3_zm","Digis Strip Num.",200,0.,800.);
+   meStripTOBLayer4zm_ = dbe_->book1D("strip_tob_4_zm","Digis Strip Num.",200,0.,800.);
+   meStripTOBLayer5zm_ = dbe_->book1D("strip_tob_5_zm","Digis Strip Num.",200,0.,800.);
+   meStripTOBLayer6zm_ = dbe_->book1D("strip_tob_6_zm","Digis Strip Num.",200,0.,800.);
+
+   meAdcTOBLayer1zp_ = dbe_->book1D("adc_tob_1_zp","Digis ADC",100,0.,300.);
+   meAdcTOBLayer2zp_ = dbe_->book1D("adc_tob_2_zp","Digis ADC",100,0.,300.);
+   meAdcTOBLayer3zp_ = dbe_->book1D("adc_tob_3_zp","Digis ADC",100,0.,300.);
+   meAdcTOBLayer4zp_ = dbe_->book1D("adc_tob_4_zp","Digis ADC",100,0.,300.);
+   meAdcTOBLayer5zp_ = dbe_->book1D("adc_tob_5_zp","Digis ADC",100,0.,300.);
+   meAdcTOBLayer6zp_ = dbe_->book1D("adc_tob_6_zp","Digis ADC",100,0.,300.);
+
+   meStripTOBLayer1zp_ = dbe_->book1D("strip_tob_1_zp","Digis Strip Num.",200,0.,800.);
+   meStripTOBLayer2zp_ = dbe_->book1D("strip_tob_2_zp","Digis Strip Num.",200,0.,800.);
+   meStripTOBLayer3zp_ = dbe_->book1D("strip_tob_3_zp","Digis Strip Num.",200,0.,800.);
+   meStripTOBLayer4zp_ = dbe_->book1D("strip_tob_4_zp","Digis Strip Num.",200,0.,800.);
+   meStripTOBLayer5zp_ = dbe_->book1D("strip_tob_5_zp","Digis Strip Num.",200,0.,800.);
+   meStripTOBLayer6zp_ = dbe_->book1D("strip_tob_6_zp","Digis Strip Num.",200,0.,800.);
 
 
-   meAdcTIDWheel1_ = dbe_->book1D("adc_tid_1","Digis ADC",100,0.,100.);
-   meAdcTIDWheel2_ = dbe_->book1D("adc_tid_2","Digis ADC",100,0.,100.);
-   meAdcTIDWheel3_ = dbe_->book1D("adc_tid_3","Digis ADC",100,0.,100.);
+   meAdcTIDWheel1zp_ = dbe_->book1D("adc_tid_1_zp","Digis ADC",100,0.,300.);
+   meAdcTIDWheel2zp_ = dbe_->book1D("adc_tid_2_zp","Digis ADC",100,0.,300.);
+   meAdcTIDWheel3zp_ = dbe_->book1D("adc_tid_3_zp","Digis ADC",100,0.,300.);
+
+   meAdcTIDWheel1zm_ = dbe_->book1D("adc_tid_1_zm","Digis ADC",100,0.,300.);
+   meAdcTIDWheel2zm_ = dbe_->book1D("adc_tid_2_zm","Digis ADC",100,0.,300.);
+   meAdcTIDWheel3zm_ = dbe_->book1D("adc_tid_3_zm","Digis ADC",100,0.,300.);
   
-   meStripTIDWheel1_ = dbe_->book1D("strip_tid_1","Digis Strip Num.",200,0.,800.);
-   meStripTIDWheel2_ = dbe_->book1D("strip_tid_2","Digis Strip Num.",200,0.,800.);
-   meStripTIDWheel3_ = dbe_->book1D("strip_tid_3","Digis Strip Num.",200,0.,800.);
+   meStripTIDWheel1zp_ = dbe_->book1D("strip_tid_1_zp","Digis Strip Num.",200,0.,800.);
+   meStripTIDWheel2zp_ = dbe_->book1D("strip_tid_2_zp","Digis Strip Num.",200,0.,800.);
+   meStripTIDWheel3zp_ = dbe_->book1D("strip_tid_3_zp","Digis Strip Num.",200,0.,800.);
+
+   meStripTIDWheel1zm_ = dbe_->book1D("strip_tid_1_zm","Digis Strip Num.",200,0.,800.);
+   meStripTIDWheel2zm_ = dbe_->book1D("strip_tid_2_zm","Digis Strip Num.",200,0.,800.);
+   meStripTIDWheel3zm_ = dbe_->book1D("strip_tid_3_zm","Digis Strip Num.",200,0.,800.);
+
+  
+   meAdcTECWheel1zp_ = dbe_->book1D("adc_tec_1_zp","Digis ADC",100,0.,300.);
+   meAdcTECWheel2zp_ = dbe_->book1D("adc_tec_2_zp","Digis ADC",100,0.,300.);
+   meAdcTECWheel3zp_ = dbe_->book1D("adc_tec_3_zp","Digis ADC",100,0.,300.);
+   meAdcTECWheel4zp_ = dbe_->book1D("adc_tec_4_zp","Digis ADC",100,0.,300.);
+   meAdcTECWheel5zp_ = dbe_->book1D("adc_tec_5_zp","Digis ADC",100,0.,300.);
+   meAdcTECWheel6zp_ = dbe_->book1D("adc_tec_6_zp","Digis ADC",100,0.,300.);
+   meAdcTECWheel7zp_ = dbe_->book1D("adc_tec_7_zp","Digis ADC",100,0.,300.);
+   meAdcTECWheel8zp_ = dbe_->book1D("adc_tec_8_zp","Digis ADC",100,0.,300.);
+   meAdcTECWheel9zp_ = dbe_->book1D("adc_tec_9_zp","Digis ADC",100,0.,300.);
+
+   meAdcTECWheel1zm_ = dbe_->book1D("adc_tec_1_zm","Digis ADC",100,0.,300.);
+   meAdcTECWheel2zm_ = dbe_->book1D("adc_tec_2_zm","Digis ADC",100,0.,300.);
+   meAdcTECWheel3zm_ = dbe_->book1D("adc_tec_3_zm","Digis ADC",100,0.,300.);
+   meAdcTECWheel4zm_ = dbe_->book1D("adc_tec_4_zm","Digis ADC",100,0.,300.);
+   meAdcTECWheel5zm_ = dbe_->book1D("adc_tec_5_zm","Digis ADC",100,0.,300.);
+   meAdcTECWheel6zm_ = dbe_->book1D("adc_tec_6_zm","Digis ADC",100,0.,300.);
+   meAdcTECWheel7zm_ = dbe_->book1D("adc_tec_7_zm","Digis ADC",100,0.,300.);
+   meAdcTECWheel8zm_ = dbe_->book1D("adc_tec_8_zm","Digis ADC",100,0.,300.);
+   meAdcTECWheel9zm_ = dbe_->book1D("adc_tec_9_zm","Digis ADC",100,0.,300.);
+
+   meStripTECWheel1zp_ = dbe_->book1D("strip_tec_1_zp","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel2zp_ = dbe_->book1D("strip_tec_2_zp","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel3zp_ = dbe_->book1D("strip_tec_3_zp","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel4zp_ = dbe_->book1D("strip_tec_4_zp","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel5zp_ = dbe_->book1D("strip_tec_5_zp","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel6zp_ = dbe_->book1D("strip_tec_6_zp","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel7zp_ = dbe_->book1D("strip_tec_7_zp","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel8zp_ = dbe_->book1D("strip_tec_8_zp","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel9zp_ = dbe_->book1D("strip_tec_9_zp","Digis Strip Num.",200,0.,800.);
+
+   meStripTECWheel1zm_ = dbe_->book1D("strip_tec_1_zm","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel2zm_ = dbe_->book1D("strip_tec_2_zm","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel3zm_ = dbe_->book1D("strip_tec_3_zm","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel4zm_ = dbe_->book1D("strip_tec_4_zm","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel5zm_ = dbe_->book1D("strip_tec_5_zm","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel6zm_ = dbe_->book1D("strip_tec_6_zm","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel7zm_ = dbe_->book1D("strip_tec_7_zm","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel8zm_ = dbe_->book1D("strip_tec_8_zm","Digis Strip Num.",200,0.,800.);
+   meStripTECWheel9zm_ = dbe_->book1D("strip_tec_9_zm","Digis Strip Num.",200,0.,800.);
    
-   meAdcTECWheel1_ = dbe_->book1D("adc_tec_1","Digis ADC",100,0.,100.);
-   meAdcTECWheel2_ = dbe_->book1D("adc_tec_2","Digis ADC",100,0.,100.);
-   meAdcTECWheel3_ = dbe_->book1D("adc_tec_3","Digis ADC",100,0.,100.);
-   meAdcTECWheel4_ = dbe_->book1D("adc_tec_4","Digis ADC",100,0.,100.);
-   meAdcTECWheel5_ = dbe_->book1D("adc_tec_5","Digis ADC",100,0.,100.);
-   meAdcTECWheel6_ = dbe_->book1D("adc_tec_6","Digis ADC",100,0.,100.);
-   meAdcTECWheel7_ = dbe_->book1D("adc_tec_7","Digis ADC",100,0.,100.);
-   meAdcTECWheel8_ = dbe_->book1D("adc_tec_8","Digis ADC",100,0.,100.);
-   meAdcTECWheel9_ = dbe_->book1D("adc_tec_9","Digis ADC",100,0.,100.);
+   for(int i = 0 ;i<4 ; i++) {
+      Char_t histo[200];
+      sprintf(histo,"ndigi_tib_layer_%d_zm",i+1);
+      meNDigiTIBLayerzm_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+      sprintf(histo,"ndigi_tib_layer_%d_zp",i+1); 
+      meNDigiTIBLayerzp_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+   }
 
-   meStripTECWheel1_ = dbe_->book1D("strip_tec_1","Digis Strip Num.",200,0.,800.);
-   meStripTECWheel2_ = dbe_->book1D("strip_tec_2","Digis Strip Num.",200,0.,800.);
-   meStripTECWheel3_ = dbe_->book1D("strip_tec_3","Digis Strip Num.",200,0.,800.);
-   meStripTECWheel4_ = dbe_->book1D("strip_tec_4","Digis Strip Num.",200,0.,800.);
-   meStripTECWheel5_ = dbe_->book1D("strip_tec_5","Digis Strip Num.",200,0.,800.);
-   meStripTECWheel6_ = dbe_->book1D("strip_tec_6","Digis Strip Num.",200,0.,800.);
-   meStripTECWheel7_ = dbe_->book1D("strip_tec_7","Digis Strip Num.",200,0.,800.);
-   meStripTECWheel8_ = dbe_->book1D("strip_tec_8","Digis Strip Num.",200,0.,800.);
-   meStripTECWheel9_ = dbe_->book1D("strip_tec_9","Digis Strip Num.",200,0.,800.);
-  
-   meNDigiTIBLayer_ = dbe_->book2D("ndigi_tib_layer","Digi Multiplicity",5,0.,5.0,200,0.,500.);
-   meNDigiTOBLayer_ = dbe_->book2D("ndigi_tob_layer","Digi Multiplicity",8,0.,8.0,200,0.,500.);
-   meNDigiTIDWheel_ = dbe_->book2D("ndigi_tid_wheel","Digi Multiplicity",5,0.,5.0,200,0.,500.);
-   meNDigiTECWheel_ = dbe_->book2D("ndigi_tec_wheel","Digi Multiplicity",11,0.,11.0,200,0.,500.);
+   for(int i = 0 ;i<6 ; i++) {
+      Char_t histo[200];
+      sprintf(histo,"ndigi_tob_layer_%d_zm",i+1);
+      meNDigiTOBLayerzm_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+      sprintf(histo,"ndigi_tob_layer_%d_zp",i+1);
+      meNDigiTOBLayerzp_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+
+   }
+
+   for(int i = 0 ;i<3 ; i++) {
+      Char_t histo[200];
+      sprintf(histo,"ndigi_tid_wheel_%d_zm",i+1);
+      meNDigiTIDWheelzm_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+      sprintf(histo,"ndigi_tid_wheel_%d_zp",i+1);
+      meNDigiTIDWheelzp_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+   }
+
+  for(int i = 0 ;i<9 ; i++) {
+      Char_t histo[200];
+      sprintf(histo,"ndigi_tec_wheel_%d_zm",i+1);
+      meNDigiTECWheelzm_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+      sprintf(histo,"ndigi_tec_wheel_%d_zp",i+1);
+      meNDigiTECWheelzp_[i] = dbe_->book1D(histo, "Digi Multiplicity",200,0.,500.);
+
+   }
+
 
 }
 
@@ -96,28 +179,39 @@ void SiStripDigiValid::endJob() {
 
 void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
 
-int ndigitiblayer1=0;
-int ndigitiblayer2=0;
-int ndigitiblayer3=0;
-int ndigitiblayer4=0;
-int ndigitoblayer1=0;
-int ndigitoblayer2=0;
-int ndigitoblayer3=0;
-int ndigitoblayer4=0;
-int ndigitoblayer5=0;
-int ndigitoblayer6=0;
-int ndigitidwheel1=0;
-int ndigitidwheel2=0;
-int ndigitidwheel3=0;
-int ndigitecwheel1=0;
-int ndigitecwheel2=0;
-int ndigitecwheel3=0;
-int ndigitecwheel4=0;
-int ndigitecwheel5=0;
-int ndigitecwheel6=0;
-int ndigitecwheel7=0;
-int ndigitecwheel8=0;
-int ndigitecwheel9=0;
+ int ndigilayertibzp[4];
+ int ndigilayertibzm[4];
+ 
+ for( int i = 0; i< 4; i++ ) {
+    ndigilayertibzp[i] = 0;
+    ndigilayertibzm[i] = 0;
+ }
+
+ int ndigilayertobzp[6];
+ int ndigilayertobzm[6];
+
+ for( int i = 0; i< 6; i++ ) {
+    ndigilayertobzp[i] = 0;
+    ndigilayertobzm[i] = 0;
+ }
+
+ int ndigiwheeltidzp[3];
+ int ndigiwheeltidzm[3];
+
+ for( int i = 0; i< 3; i++ ) {
+   ndigiwheeltidzp[i] = 0;
+   ndigiwheeltidzm[i] = 0;
+ }
+
+ int ndigiwheelteczp[9];
+ int ndigiwheelteczm[9];
+
+ for( int i = 0; i< 9; i++ ) {
+   ndigiwheelteczp[i] = 0;
+   ndigiwheelteczm[i] = 0;
+ }
+
+
 
  LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
  ESHandle<TrackerGeometry> tracker;
@@ -145,71 +239,114 @@ int ndigitecwheel9=0;
         if(detId.subdetId()==StripSubdetector::TIB){
              TIBDetId tibid(id);
              for ( iter = begin ; iter != end; iter++ ) { // loop digis
-                 if( tibid.layer() == 1 ) { meAdcTIBLayer1_ -> Fill((*iter).adc()); meStripTIBLayer1_ ->Fill((*iter).strip()); ++ndigitiblayer1; }
-                 if( tibid.layer() == 2 ) { meAdcTIBLayer2_ -> Fill((*iter).adc()); meStripTIBLayer2_ ->Fill((*iter).strip()); ++ndigitiblayer2;}
-                 if( tibid.layer() == 3 ) { meAdcTIBLayer3_ -> Fill((*iter).adc()); meStripTIBLayer3_ ->Fill((*iter).strip()); ++ndigitiblayer3;} 
-                 if( tibid.layer() == 4 ) { meAdcTIBLayer4_ -> Fill((*iter).adc()); meStripTIBLayer4_ ->Fill((*iter).strip()); ++ndigitiblayer4;}
+               if( tibid.string()[0] == 0) {
+                 ++ndigilayertibzm[tibid.layer()-1];
+                 if( tibid.layer() == 1 ) { meAdcTIBLayer1zm_ -> Fill((*iter).adc()); meStripTIBLayer1zm_ ->Fill((*iter).strip()); }
+                 if( tibid.layer() == 2 ) { meAdcTIBLayer2zm_ -> Fill((*iter).adc()); meStripTIBLayer2zm_ ->Fill((*iter).strip()); }
+                 if( tibid.layer() == 3 ) { meAdcTIBLayer3zm_ -> Fill((*iter).adc()); meStripTIBLayer3zm_ ->Fill((*iter).strip()); } 
+                 if( tibid.layer() == 4 ) { meAdcTIBLayer4zm_ -> Fill((*iter).adc()); meStripTIBLayer4zm_ ->Fill((*iter).strip()); }
+               }else {
+                 ++ndigilayertibzp[tibid.layer()-1];
+                 if( tibid.layer() == 1 ) { meAdcTIBLayer1zp_ -> Fill((*iter).adc()); meStripTIBLayer1zp_ ->Fill((*iter).strip()); }
+                 if( tibid.layer() == 2 ) { meAdcTIBLayer2zp_ -> Fill((*iter).adc()); meStripTIBLayer2zp_ ->Fill((*iter).strip()); }
+                 if( tibid.layer() == 3 ) { meAdcTIBLayer3zp_ -> Fill((*iter).adc()); meStripTIBLayer3zp_ ->Fill((*iter).strip()); }
+                 if( tibid.layer() == 4 ) { meAdcTIBLayer4zp_ -> Fill((*iter).adc()); meStripTIBLayer4zp_ ->Fill((*iter).strip()); }
+              }
             } 
         } 
         if(detId.subdetId()==StripSubdetector::TOB){
              TOBDetId tobid(id); 
              for ( iter = begin ; iter != end; iter++ ) { // loop digis
-                 if( tobid.layer() == 1 ) { meAdcTOBLayer1_ -> Fill((*iter).adc()); meStripTOBLayer1_ ->Fill((*iter).strip()); ++ndigitoblayer1;}
-                 if( tobid.layer() == 2 ) { meAdcTOBLayer2_ -> Fill((*iter).adc()); meStripTOBLayer2_ ->Fill((*iter).strip()); ++ndigitoblayer2;}
-                 if( tobid.layer() == 3 ) { meAdcTOBLayer3_ -> Fill((*iter).adc()); meStripTOBLayer3_ ->Fill((*iter).strip()); ++ndigitoblayer3;}
-                 if( tobid.layer() == 4 ) { meAdcTOBLayer4_ -> Fill((*iter).adc()); meStripTOBLayer4_ ->Fill((*iter).strip()); ++ndigitoblayer4;}
-                 if( tobid.layer() == 5 ) { meAdcTOBLayer5_ -> Fill((*iter).adc()); meStripTOBLayer5_ ->Fill((*iter).strip()); ++ndigitoblayer5;}
-                 if( tobid.layer() == 6 ) { meAdcTOBLayer6_ -> Fill((*iter).adc()); meStripTOBLayer6_ ->Fill((*iter).strip()); ++ndigitoblayer6;} 
+               if( tobid.rod()[0] == 0 ) {
+                 ++ndigilayertobzm[tobid.layer()-1];  
+                 if( tobid.layer() == 1 ) { meAdcTOBLayer1zm_ -> Fill((*iter).adc()); meStripTOBLayer1zm_ ->Fill((*iter).strip()); }
+                 if( tobid.layer() == 2 ) { meAdcTOBLayer2zm_ -> Fill((*iter).adc()); meStripTOBLayer2zm_ ->Fill((*iter).strip()); }
+                 if( tobid.layer() == 3 ) { meAdcTOBLayer3zm_ -> Fill((*iter).adc()); meStripTOBLayer3zm_ ->Fill((*iter).strip()); }
+                 if( tobid.layer() == 4 ) { meAdcTOBLayer4zm_ -> Fill((*iter).adc()); meStripTOBLayer4zm_ ->Fill((*iter).strip()); }
+                 if( tobid.layer() == 5 ) { meAdcTOBLayer5zm_ -> Fill((*iter).adc()); meStripTOBLayer5zm_ ->Fill((*iter).strip()); }
+                 if( tobid.layer() == 6 ) { meAdcTOBLayer6zm_ -> Fill((*iter).adc()); meStripTOBLayer6zm_ ->Fill((*iter).strip()); } 
+               }else {
+                 ++ndigilayertobzp[tobid.layer()-1];
+                 if( tobid.layer() == 1 ) { meAdcTOBLayer1zp_ -> Fill((*iter).adc()); meStripTOBLayer1zp_ ->Fill((*iter).strip()); }
+                 if( tobid.layer() == 2 ) { meAdcTOBLayer2zp_ -> Fill((*iter).adc()); meStripTOBLayer2zp_ ->Fill((*iter).strip()); }
+                 if( tobid.layer() == 3 ) { meAdcTOBLayer3zp_ -> Fill((*iter).adc()); meStripTOBLayer3zp_ ->Fill((*iter).strip()); }
+                 if( tobid.layer() == 4 ) { meAdcTOBLayer4zp_ -> Fill((*iter).adc()); meStripTOBLayer4zp_ ->Fill((*iter).strip()); }
+                 if( tobid.layer() == 5 ) { meAdcTOBLayer5zp_ -> Fill((*iter).adc()); meStripTOBLayer5zp_ ->Fill((*iter).strip()); }
+                 if( tobid.layer() == 6 ) { meAdcTOBLayer6zp_ -> Fill((*iter).adc()); meStripTOBLayer6zp_ ->Fill((*iter).strip()); }
+               }
              }
         }
    
         if (detId.subdetId()==StripSubdetector::TID) {
             TIDDetId tidid(id);  
             for ( iter = begin ; iter != end; iter++ ) {
-                if( tidid.wheel() == 1 ) { meAdcTIDWheel1_ -> Fill((*iter).adc()); meStripTIDWheel1_ ->Fill((*iter).strip()); ++ndigitidwheel1;}
-                if( tidid.wheel() == 2 ) { meAdcTIDWheel2_ -> Fill((*iter).adc()); meStripTIDWheel2_ ->Fill((*iter).strip()); ++ndigitidwheel2;}
-                if( tidid.wheel() == 3 ) { meAdcTIDWheel3_ -> Fill((*iter).adc()); meStripTIDWheel3_ ->Fill((*iter).strip()); ++ndigitidwheel3;}
- 
+              if( tidid.side() == 1){
+                 ++ndigiwheeltidzm[tidid.wheel()-1];
+                if( tidid.wheel() == 1 ) { meAdcTIDWheel1zm_ -> Fill((*iter).adc()); meStripTIDWheel1zm_ ->Fill((*iter).strip());}
+                if( tidid.wheel() == 2 ) { meAdcTIDWheel2zm_ -> Fill((*iter).adc()); meStripTIDWheel2zm_ ->Fill((*iter).strip());}
+                if( tidid.wheel() == 3 ) { meAdcTIDWheel3zm_ -> Fill((*iter).adc()); meStripTIDWheel3zm_ ->Fill((*iter).strip());}
+              }else{
+                ++ndigiwheeltidzp[tidid.wheel()-1];
+                if( tidid.wheel() == 1 ) { meAdcTIDWheel1zp_ -> Fill((*iter).adc()); meStripTIDWheel1zp_ ->Fill((*iter).strip()); }
+                if( tidid.wheel() == 2 ) { meAdcTIDWheel2zp_ -> Fill((*iter).adc()); meStripTIDWheel2zp_ ->Fill((*iter).strip()); }
+                if( tidid.wheel() == 3 ) { meAdcTIDWheel3zp_ -> Fill((*iter).adc()); meStripTIDWheel3zp_ ->Fill((*iter).strip()); }
+              } 
             }
        }
         if (detId.subdetId()==StripSubdetector::TEC) {
             TECDetId tecid(id);
             for ( iter = begin ; iter != end; iter++ ) {
-                if( tecid.wheel() == 1 ) { meAdcTECWheel1_ -> Fill((*iter).adc()); meStripTECWheel1_ ->Fill((*iter).strip()); ++ndigitecwheel1;}
-                if( tecid.wheel() == 2 ) { meAdcTECWheel2_ -> Fill((*iter).adc()); meStripTECWheel2_ ->Fill((*iter).strip()); ++ndigitecwheel2;}
-                if( tecid.wheel() == 3 ) { meAdcTECWheel3_ -> Fill((*iter).adc()); meStripTECWheel3_ ->Fill((*iter).strip()); ++ndigitecwheel3;}
-                if( tecid.wheel() == 4 ) { meAdcTECWheel4_ -> Fill((*iter).adc()); meStripTECWheel4_ ->Fill((*iter).strip()); ++ndigitecwheel4;}
-                if( tecid.wheel() == 5 ) { meAdcTECWheel5_ -> Fill((*iter).adc()); meStripTECWheel5_ ->Fill((*iter).strip()); ++ndigitecwheel5;}
-                if( tecid.wheel() == 6 ) { meAdcTECWheel6_ -> Fill((*iter).adc()); meStripTECWheel6_ ->Fill((*iter).strip()); ++ndigitecwheel6;}
-                if( tecid.wheel() == 7 ) { meAdcTECWheel7_ -> Fill((*iter).adc()); meStripTECWheel7_ ->Fill((*iter).strip()); ++ndigitecwheel7;}
-                if( tecid.wheel() == 8 ) { meAdcTECWheel8_ -> Fill((*iter).adc()); meStripTECWheel8_ ->Fill((*iter).strip()); ++ndigitecwheel8;}
-                if( tecid.wheel() == 9 ) { meAdcTECWheel9_ -> Fill((*iter).adc()); meStripTECWheel9_ ->Fill((*iter).strip()); ++ndigitecwheel9;}     
-            }
+              if(tecid.side() == 1) {
+                ++ndigiwheelteczm[tecid.wheel()-1];
+                if( tecid.wheel() == 1 ) { meAdcTECWheel1zm_ -> Fill((*iter).adc()); meStripTECWheel1zm_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 2 ) { meAdcTECWheel2zm_ -> Fill((*iter).adc()); meStripTECWheel2zm_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 3 ) { meAdcTECWheel3zm_ -> Fill((*iter).adc()); meStripTECWheel3zm_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 4 ) { meAdcTECWheel4zm_ -> Fill((*iter).adc()); meStripTECWheel4zm_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 5 ) { meAdcTECWheel5zm_ -> Fill((*iter).adc()); meStripTECWheel5zm_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 6 ) { meAdcTECWheel6zm_ -> Fill((*iter).adc()); meStripTECWheel6zm_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 7 ) { meAdcTECWheel7zm_ -> Fill((*iter).adc()); meStripTECWheel7zm_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 8 ) { meAdcTECWheel8zm_ -> Fill((*iter).adc()); meStripTECWheel8zm_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 9 ) { meAdcTECWheel9zm_ -> Fill((*iter).adc()); meStripTECWheel9zm_ ->Fill((*iter).strip()); }     
+              }else {
+                ++ndigiwheelteczp[tecid.wheel()-1];
+                if( tecid.wheel() == 1 ) { meAdcTECWheel1zp_ -> Fill((*iter).adc()); meStripTECWheel1zp_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 2 ) { meAdcTECWheel2zp_ -> Fill((*iter).adc()); meStripTECWheel2zp_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 3 ) { meAdcTECWheel3zp_ -> Fill((*iter).adc()); meStripTECWheel3zp_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 4 ) { meAdcTECWheel4zp_ -> Fill((*iter).adc()); meStripTECWheel4zp_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 5 ) { meAdcTECWheel5zp_ -> Fill((*iter).adc()); meStripTECWheel5zp_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 6 ) { meAdcTECWheel6zp_ -> Fill((*iter).adc()); meStripTECWheel6zp_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 7 ) { meAdcTECWheel7zp_ -> Fill((*iter).adc()); meStripTECWheel7zp_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 8 ) { meAdcTECWheel8zp_ -> Fill((*iter).adc()); meStripTECWheel8zp_ ->Fill((*iter).strip()); }
+                if( tecid.wheel() == 9 ) { meAdcTECWheel9zp_ -> Fill((*iter).adc()); meStripTECWheel9zp_ ->Fill((*iter).strip()); }
+             }
+           }
        }
 
    }
 
  }
-            meNDigiTIBLayer_->Fill(1,ndigitiblayer1);
-            meNDigiTIBLayer_->Fill(2,ndigitiblayer2);
-            meNDigiTIBLayer_->Fill(3,ndigitiblayer3);
-            meNDigiTOBLayer_->Fill(1,ndigitoblayer1);
-            meNDigiTOBLayer_->Fill(2,ndigitoblayer2);
-            meNDigiTOBLayer_->Fill(3,ndigitoblayer3);
-            meNDigiTOBLayer_->Fill(4,ndigitoblayer4);
-            meNDigiTOBLayer_->Fill(5,ndigitoblayer5);
-            meNDigiTOBLayer_->Fill(6,ndigitoblayer6);
-            meNDigiTIDWheel_->Fill(1,ndigitidwheel1);
-            meNDigiTIDWheel_->Fill(2,ndigitidwheel2);
-            meNDigiTIDWheel_->Fill(3,ndigitidwheel3);          
-            meNDigiTECWheel_->Fill(1,ndigitecwheel1);
-            meNDigiTECWheel_->Fill(2,ndigitecwheel2);
-            meNDigiTECWheel_->Fill(3,ndigitecwheel3);
-            meNDigiTECWheel_->Fill(4,ndigitecwheel4);
-            meNDigiTECWheel_->Fill(5,ndigitecwheel5);
-            meNDigiTECWheel_->Fill(6,ndigitecwheel6);
-            meNDigiTECWheel_->Fill(7,ndigitecwheel7);
-            meNDigiTECWheel_->Fill(8,ndigitecwheel8);
-            meNDigiTECWheel_->Fill(9,ndigitecwheel9);
+  
+  for ( int i =0; i< 4; i++ ) {
+     meNDigiTIBLayerzm_[i]->Fill(ndigilayertibzm[i]);
+     meNDigiTIBLayerzp_[i]->Fill(ndigilayertibzp[i]);
+ }
+ 
+ for ( int i =0; i< 6; i++ ) {
+     meNDigiTOBLayerzm_[i]->Fill(ndigilayertobzm[i]);
+     meNDigiTOBLayerzp_[i]->Fill(ndigilayertobzp[i]);
+ }
+
+for ( int i =0; i< 3; i++ ) {
+     meNDigiTIDWheelzm_[i]->Fill(ndigiwheeltidzm[i]);
+     meNDigiTIDWheelzp_[i]->Fill(ndigiwheeltidzp[i]);
+ }
+
+for ( int i =0; i< 9; i++ ) {
+     meNDigiTECWheelzm_[i]->Fill(ndigiwheelteczm[i]);
+     meNDigiTECWheelzp_[i]->Fill(ndigiwheelteczp[i]);
+ }
+
+ 
+
 }
 

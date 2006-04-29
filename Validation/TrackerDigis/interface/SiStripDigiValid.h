@@ -38,64 +38,127 @@ class  SiStripDigiValid: public EDAnalyzer {
 
  
     //TIB  ADC
-    MonitorElement* meAdcTIBLayer1_;
-    MonitorElement* meAdcTIBLayer2_;
-    MonitorElement* meAdcTIBLayer3_;
-    MonitorElement* meAdcTIBLayer4_;
-    //TIB Strip
-    MonitorElement* meStripTIBLayer1_;
-    MonitorElement* meStripTIBLayer2_;
-    MonitorElement* meStripTIBLayer3_;
-    MonitorElement* meStripTIBLayer4_;
-    //TIB Mulitiplicity
-    MonitorElement* meNDigiTIBLayer_;
-    MonitorElement* meNDigiTOBLayer_;
-    MonitorElement* meNDigiTIDWheel_;
-    MonitorElement* meNDigiTECWheel_;
- 
-    //TOB ADC
-    MonitorElement* meAdcTOBLayer1_;
-    MonitorElement* meAdcTOBLayer2_;
-    MonitorElement* meAdcTOBLayer3_;
-    MonitorElement* meAdcTOBLayer4_;
-    MonitorElement* meAdcTOBLayer5_;
-    MonitorElement* meAdcTOBLayer6_; 
-    //TOB Strip
-    MonitorElement* meStripTOBLayer1_;
-    MonitorElement* meStripTOBLayer2_;
-    MonitorElement* meStripTOBLayer3_;
-    MonitorElement* meStripTOBLayer4_;
-    MonitorElement* meStripTOBLayer5_;
-    MonitorElement* meStripTOBLayer6_;
-    //TID  ADC
-    MonitorElement* meAdcTIDWheel1_;
-    MonitorElement* meAdcTIDWheel2_;
-    MonitorElement* meAdcTIDWheel3_;
-    //TID Strip
-    MonitorElement* meStripTIDWheel1_;
-    MonitorElement* meStripTIDWheel2_;
-    MonitorElement* meStripTIDWheel3_;
-    //TEC ADC
-    MonitorElement* meAdcTECWheel1_;
-    MonitorElement* meAdcTECWheel2_;
-    MonitorElement* meAdcTECWheel3_;
-    MonitorElement* meAdcTECWheel4_;
-    MonitorElement* meAdcTECWheel5_;
-    MonitorElement* meAdcTECWheel6_;
-    MonitorElement* meAdcTECWheel7_;
-    MonitorElement* meAdcTECWheel8_;
-    MonitorElement* meAdcTECWheel9_;
-    //TEC Strip
-    MonitorElement* meStripTECWheel1_;
-    MonitorElement* meStripTECWheel2_;
-    MonitorElement* meStripTECWheel3_;
-    MonitorElement* meStripTECWheel4_;
-    MonitorElement* meStripTECWheel5_;
-    MonitorElement* meStripTECWheel6_;
-    MonitorElement* meStripTECWheel7_;
-    MonitorElement* meStripTECWheel8_;
-    MonitorElement* meStripTECWheel9_;
+    MonitorElement* meAdcTIBLayer1zp_;
+    MonitorElement* meAdcTIBLayer2zp_;
+    MonitorElement* meAdcTIBLayer3zp_;
+    MonitorElement* meAdcTIBLayer4zp_;
 
+    MonitorElement* meAdcTIBLayer1zm_;
+    MonitorElement* meAdcTIBLayer2zm_;
+    MonitorElement* meAdcTIBLayer3zm_;
+    MonitorElement* meAdcTIBLayer4zm_;
+
+    //TIB Strip
+    MonitorElement* meStripTIBLayer1zp_;
+    MonitorElement* meStripTIBLayer2zp_;
+    MonitorElement* meStripTIBLayer3zp_;
+    MonitorElement* meStripTIBLayer4zp_;
+
+    MonitorElement* meStripTIBLayer1zm_;
+    MonitorElement* meStripTIBLayer2zm_;
+    MonitorElement* meStripTIBLayer3zm_;
+    MonitorElement* meStripTIBLayer4zm_;
+
+    //TOB ADC
+    MonitorElement* meAdcTOBLayer1zp_;
+    MonitorElement* meAdcTOBLayer2zp_;
+    MonitorElement* meAdcTOBLayer3zp_;
+    MonitorElement* meAdcTOBLayer4zp_;
+    MonitorElement* meAdcTOBLayer5zp_;
+    MonitorElement* meAdcTOBLayer6zp_; 
+
+    MonitorElement* meAdcTOBLayer1zm_;
+    MonitorElement* meAdcTOBLayer2zm_;
+    MonitorElement* meAdcTOBLayer3zm_;
+    MonitorElement* meAdcTOBLayer4zm_;
+    MonitorElement* meAdcTOBLayer5zm_;
+    MonitorElement* meAdcTOBLayer6zm_;
+
+    //TOB Strip
+    MonitorElement* meStripTOBLayer1zp_;
+    MonitorElement* meStripTOBLayer2zp_;
+    MonitorElement* meStripTOBLayer3zp_;
+    MonitorElement* meStripTOBLayer4zp_;
+    MonitorElement* meStripTOBLayer5zp_;
+    MonitorElement* meStripTOBLayer6zp_;
+
+    MonitorElement* meStripTOBLayer1zm_;
+    MonitorElement* meStripTOBLayer2zm_;
+    MonitorElement* meStripTOBLayer3zm_;
+    MonitorElement* meStripTOBLayer4zm_;
+    MonitorElement* meStripTOBLayer5zm_;
+    MonitorElement* meStripTOBLayer6zm_;
+
+
+    //TID  ADC
+    MonitorElement* meAdcTIDWheel1zp_;
+    MonitorElement* meAdcTIDWheel2zp_;
+    MonitorElement* meAdcTIDWheel3zp_;
+
+    MonitorElement* meAdcTIDWheel1zm_;
+    MonitorElement* meAdcTIDWheel2zm_;
+    MonitorElement* meAdcTIDWheel3zm_;
+
+    //TID Strip
+    MonitorElement* meStripTIDWheel1zp_;
+    MonitorElement* meStripTIDWheel2zp_;
+    MonitorElement* meStripTIDWheel3zp_;
+
+    MonitorElement* meStripTIDWheel1zm_;
+    MonitorElement* meStripTIDWheel2zm_;
+    MonitorElement* meStripTIDWheel3zm_;
+
+    //TEC ADC
+    MonitorElement* meAdcTECWheel1zp_;
+    MonitorElement* meAdcTECWheel2zp_;
+    MonitorElement* meAdcTECWheel3zp_;
+    MonitorElement* meAdcTECWheel4zp_;
+    MonitorElement* meAdcTECWheel5zp_;
+    MonitorElement* meAdcTECWheel6zp_;
+    MonitorElement* meAdcTECWheel7zp_;
+    MonitorElement* meAdcTECWheel8zp_;
+    MonitorElement* meAdcTECWheel9zp_;
+
+    MonitorElement* meAdcTECWheel1zm_;
+    MonitorElement* meAdcTECWheel2zm_;
+    MonitorElement* meAdcTECWheel3zm_;
+    MonitorElement* meAdcTECWheel4zm_;
+    MonitorElement* meAdcTECWheel5zm_;
+    MonitorElement* meAdcTECWheel6zm_;
+    MonitorElement* meAdcTECWheel7zm_;
+    MonitorElement* meAdcTECWheel8zm_;
+    MonitorElement* meAdcTECWheel9zm_;
+
+    //TEC Strip
+    MonitorElement* meStripTECWheel1zp_;
+    MonitorElement* meStripTECWheel2zp_;
+    MonitorElement* meStripTECWheel3zp_;
+    MonitorElement* meStripTECWheel4zp_;
+    MonitorElement* meStripTECWheel5zp_;
+    MonitorElement* meStripTECWheel6zp_;
+    MonitorElement* meStripTECWheel7zp_;
+    MonitorElement* meStripTECWheel8zp_;
+    MonitorElement* meStripTECWheel9zp_;
+
+    MonitorElement* meStripTECWheel1zm_;
+    MonitorElement* meStripTECWheel2zm_;
+    MonitorElement* meStripTECWheel3zm_;
+    MonitorElement* meStripTECWheel4zm_;
+    MonitorElement* meStripTECWheel5zm_;
+    MonitorElement* meStripTECWheel6zm_;
+    MonitorElement* meStripTECWheel7zm_;
+    MonitorElement* meStripTECWheel8zm_;
+    MonitorElement* meStripTECWheel9zm_;
+
+    MonitorElement* meNDigiTIBLayerzm_[4];
+    MonitorElement* meNDigiTOBLayerzm_[6];
+    MonitorElement* meNDigiTIDWheelzm_[3];
+    MonitorElement* meNDigiTECWheelzm_[9];
+
+    MonitorElement* meNDigiTIBLayerzp_[4];
+    MonitorElement* meNDigiTOBLayerzp_[6];
+    MonitorElement* meNDigiTIDWheelzp_[3];
+    MonitorElement* meNDigiTECWheelzp_[9];
 
 
     //Back-End Interface
