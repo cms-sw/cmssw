@@ -1339,6 +1339,8 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   string htmlName;
 
+  cout << endl;
+
   // Integrity check
 
   if ( integrity_client_ ) {
@@ -1433,8 +1435,6 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   htmlFile << "</html> " << endl;
 
   htmlFile.close();
-
-  cout << endl;
 
 }
 
