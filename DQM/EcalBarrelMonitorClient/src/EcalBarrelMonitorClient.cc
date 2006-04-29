@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/04/28 19:26:45 $
- * $Revision: 1.106 $
+ * $Date: 2006/04/28 19:31:19 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -362,7 +362,30 @@ void EcalBarrelMonitorClient::beginRun(void){
 
 void EcalBarrelMonitorClient::endJob(void) {
 
-  if ( ! enableMonitorDaemon_ ) this->analyze();
+  // first attempt
+
+  if ( ! end_run_done_ ) {
+
+    cout << "Forcing analyze() before endJob() ... " << endl;
+
+    this->analyze();
+
+  }
+
+  // second attempt
+
+  if ( ! end_run_done_ ) {
+
+    cout << "Forcing endRun() before endJob() ... " << endl;
+
+    begin_run_done_ = false;
+
+    status_ = "end-of-run";
+    this->endRun();
+    end_run_done_ = true;
+    forced_end_run_ = true;
+
+  }
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: endJob, ievt = " << ievt_ << endl;
 
@@ -454,7 +477,7 @@ void EcalBarrelMonitorClient::endRun(void) {
     if ( enableExit_ ) {
 
       cout << endl;
-      cout << ">>> exit after End-Of-Run <<<" << endl;
+      cout << ">>> endJob after endRun <<<" << endl;
       cout << endl;
       this->endJob();
       throw exception();
@@ -1096,9 +1119,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
       if ( run_ > 0 && evt_ > 0 && runtype_ != "UNKNOWN" ) {
 
-        cout << "Running with no begin_run ..." << endl;
-
-        cout << "Forcing begin-of-run ... NOW !" << endl;
+        cout << "Forcing beginRun() ... NOW !" << endl;
 
         status_ = "begin-of-run";
         this->beginRun();
@@ -1197,7 +1218,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
           }
 
-          cout << "Forcing end-of-run ... NOW !" << endl;
+          cout << "Forcing endRun() ... NOW !" << endl;
 
           begin_run_done_ = false;
 
