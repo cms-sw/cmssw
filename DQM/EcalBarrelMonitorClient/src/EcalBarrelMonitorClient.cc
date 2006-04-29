@@ -1303,6 +1303,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
 void EcalBarrelMonitorClient::htmlOutput(void){
 
+  cout << endl;
   cout << "Preparing EcalBarrelMonitorClient html output ..." << endl;
 
   char tmp[10];
@@ -1338,8 +1339,6 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   htmlFile << "<ul>" << endl;
 
   string htmlName;
-
-  cout << endl;
 
   // Integrity check
 
