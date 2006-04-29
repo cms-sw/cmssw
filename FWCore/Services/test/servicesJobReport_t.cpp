@@ -42,6 +42,11 @@ void work()
       inputTokens.push_back(t);
     }
 
+
+  jrs.reportSkippedEvent(edm::EventID(10001, 1002));
+  jrs.reportSkippedEvent(edm::EventID(10001, 1003));
+  jrs.reportSkippedEvent(edm::EventID(10001, 1004));
+
   try
     {
       jrs.eventReadFromFile(24, edm::EventID());

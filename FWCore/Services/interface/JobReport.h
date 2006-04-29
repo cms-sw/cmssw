@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.3 2006/03/05 16:42:27 chrjones Exp $
+// $Id: JobReport.h,v 1.1 2006/03/21 22:11:35 paterno Exp $
 //
 
 #include <cstddef>
@@ -86,6 +86,9 @@ namespace edm
       void outputFileClosed(Token fileToken);
 
       void frameworkShutdownOnFailure();
+      void reportSkippedEvent(edm::EventID const& id);
+
+
 
     private:
       struct JobReportImpl;

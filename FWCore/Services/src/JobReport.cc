@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:     Services
@@ -5,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.1 2006/03/21 22:11:35 paterno Exp $
+// $Id: JobReport.cc,v 1.2 2006/04/04 21:12:02 evansde Exp $
 //
 
 
@@ -327,6 +328,15 @@ namespace edm
       f.fileHasBeenClosed = true;
       impl->writeOutputFile(f);
 
+    }
+
+    void 
+    JobReport::reportSkippedEvent(edm::EventID const& id)
+    {
+      std::ostringstream msg;
+      msg << "<SkippedEvent Run=\"" << id.run() << "\"";
+      msg << " Event=\"" << id.event() << "\" </SkippedEvent>\n";
+      LogInfo("FwkJob") << msg.str();
     }
 
     void
