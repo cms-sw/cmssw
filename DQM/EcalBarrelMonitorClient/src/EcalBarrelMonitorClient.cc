@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/04/29 11:02:27 $
- * $Revision: 1.109 $
+ * $Date: 2006/04/29 12:15:23 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -421,9 +421,9 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( outputFile_.size() != 0 ) mui_->save(outputFile_);
 
-  this->writeDb();
-
   if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
+
+  this->writeDb();
 
   if ( integrity_client_ ) {
     integrity_client_->endRun();
