@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/04/28 19:31:19 $
- * $Revision: 1.107 $
+ * $Date: 2006/04/29 10:09:30 $
+ * $Revision: 1.108 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -306,6 +306,10 @@ void EcalBarrelMonitorClient::beginJob(void){
     beam_client_->beginJob();
   }
 
+  // check first event
+
+  if ( ! begin_run_done_ ) this->analyze();
+
 }
 
 void EcalBarrelMonitorClient::beginRun(void){
@@ -362,28 +366,16 @@ void EcalBarrelMonitorClient::beginRun(void){
 
 void EcalBarrelMonitorClient::endJob(void) {
 
-  // first attempt
+  // check last event
 
-  if ( ! end_run_done_ ) {
-
-    cout << "Forcing analyze() before endJob() ... " << endl;
-
-    this->analyze();
-
-  }
-
-  // second attempt
+  if ( ! end_run_done_ ) this->analyze();
 
   if ( ! end_run_done_ ) {
 
     cout << "Forcing endRun() before endJob() ... " << endl;
 
-    begin_run_done_ = false;
-
     status_ = "end-of-run";
     this->endRun();
-    end_run_done_ = true;
-    forced_end_run_ = true;
 
   }
 
