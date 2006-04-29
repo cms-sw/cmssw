@@ -1,10 +1,14 @@
 #ifndef RECOLOCALTRACKER_SISTRIPCLUSTERIZER_THREETHRESHOLDSTRIPCLUSTERIZER_H
 #define RECOLOCALTRACKER_SISTRIPCLUSTERIZER_THREETHRESHOLDSTRIPCLUSTERIZER_H
 
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-
+//Data Formats
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/SiStripDigi/interface/StripDigi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+//SiStripNoiseService
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripNoiseService.h"
 
 #include <vector>
 #include <algorithm>
@@ -14,31 +18,22 @@
 class ThreeThresholdStripClusterizer {
 public:
 
-  typedef std::vector<StripDigi>::const_iterator           StripDigiIter;
-
   ThreeThresholdStripClusterizer(float strip_thr, float seed_thr,float clust_thr, int max_holes) :
     theChannelThreshold(strip_thr), 
     theSeedThreshold(seed_thr),
     theClusterThreshold(clust_thr),
-    max_holes_(max_holes){};  
+    max_holes_(max_holes){};
+ 
+  void setSiStripNoiseService( SiStripNoiseService* in ){ SiStripNoiseService_=in;}
 
-//FIXME
-//In the future, with blobs, perhaps we will come back at this version
-/*   std::vector<SiStripCluster>  */
-/*     clusterizeDetUnit( DigiIterator begin, DigiIterator end, */
-/* 		       unsigned int detid, */
-/* 		       const std::vector<float>& noiseVec, */
-/* 		       const std::vector<short>& badChannels); */
-
-  std::vector<SiStripCluster> clusterizeDetUnit(StripDigiIter begin, StripDigiIter end,
-						unsigned int detid, const SiStripNoiseVector& vnoise);
-  
+  void clusterizeDetUnit(const edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripCluster>&);
 
   float channelThresholdInNoiseSigma() const { return theChannelThreshold;}
   float seedThresholdInNoiseSigma()    const { return theSeedThreshold;}
   float clusterThresholdInNoiseSigma() const { return theClusterThreshold;}
 
 private:
+  const SiStripNoiseService* SiStripNoiseService_; 
 
   float theChannelThreshold;
   float theSeedThreshold;
@@ -49,30 +44,19 @@ private:
 
 };
 
-//FIXME
-//In the future, with blobs, perhaps we will come back at this version
-/* class AboveSeed { */
-/* public: */
-/*   AboveSeed( float aseed,  const std::vector<float>& noiseVec) : seed(aseed), noiseVec_(noiseVec) {} */
-
-/*   // FIXME: uses boundary checking with at(), should be replaced with faster operator[] */
-/*   // when everything debugged */
-/*   bool operator()(const StripDigi& digi) { return digi.adc() >= seed * noiseVec_.at(digi.channel());} */
-/* private: */
-/*   float seed; */
-/*   const std::vector<float>& noiseVec_; */
-/* }; */
-
 class AboveSeed {
  public:
-  AboveSeed(float aseed,const SiStripNoiseVector& vnoise) : seed(aseed), vnoise_(vnoise) {};
+  AboveSeed(float aseed,const SiStripNoiseService* noise,const uint32_t& detID) : seed(aseed), noise_(noise),detID_(detID) {};
 
   // FIXME: uses boundary checking with at(), should be replaced with faster operator[]
   // when everything debugged
-  bool operator()(const StripDigi& digi) { return ( !vnoise_[digi.channel()].getDisable() && digi.adc() >= seed * vnoise_[digi.channel()].getNoise()) ;}
+  
+  // DA CORREGGERE 
+  bool operator()(const SiStripDigi& digi) { return ( !noise_->getDisable(detID_,digi.strip()) && digi.adc() >= seed * noise_->getNoise(detID_,digi.strip()));}
 private:
   float seed;
-  const SiStripNoiseVector& vnoise_;
+  const SiStripNoiseService* noise_;
+  const uint32_t& detID_;
 };
 
 #endif

@@ -13,22 +13,26 @@
  *
  ************************************************************/
 
+//edm
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerAlgorithm.h"
-
+#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//Data Formats
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+//Clusterizer
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerAlgorithm.h"
+//SiStripPedestalsService
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripNoiseService.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include <iostream> 
+#include <memory>
+#include <string>
 
 
 namespace cms
@@ -46,13 +50,9 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   private:
-    SiStripClusterizerAlgorithm siStripClusterizerAlgorithm_;
     edm::ParameterSet conf_;
-    edm::ESHandle<SiStripNoises> noise;
-    edm::ESHandle<TrackerGeometry> pDD;
-    bool UseNoiseBadStripFlagFromDB_;
-    std::string userEnv_;  
-    std::string passwdEnv_;
+    SiStripClusterizerAlgorithm SiStripClusterizerAlgorithm_;
+    SiStripNoiseService SiStripNoiseService_;  
   };
 }
 #endif

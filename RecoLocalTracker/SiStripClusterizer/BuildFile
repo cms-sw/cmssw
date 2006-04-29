@@ -1,3 +1,4 @@
+#<Flags CXXFLAGS="-DDEBUG">
 <flags SEAL_PLUGIN_NAME="RecoLocalTrackerSiStripClusterizer">
 <use name=DataFormats/Common>
 <use name=FWCore/Framework>
