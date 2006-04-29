@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/04/29 10:09:30 $
- * $Revision: 1.108 $
+ * $Date: 2006/04/29 11:02:27 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -50,6 +50,8 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   forced_begin_run_ = false;
   forced_end_run_   = false;
+
+  forced_update_    = false;
 
   h_ = 0;
 
@@ -368,7 +370,12 @@ void EcalBarrelMonitorClient::endJob(void) {
 
   // check last event
 
-  if ( ! end_run_done_ ) this->analyze();
+  if ( ! end_run_done_ ) {
+
+    forced_update_ = true;
+    this->analyze();
+
+  }
 
   if ( ! end_run_done_ ) {
 
@@ -376,6 +383,7 @@ void EcalBarrelMonitorClient::endJob(void) {
 
     status_ = "end-of-run";
     this->endRun();
+    end_run_done_ = true;
 
   }
 
@@ -906,7 +914,7 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( verbose_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  mui_->update();
+  mui_->doMonitoring();
 
   this->subscribeNew();
 
@@ -1126,7 +1134,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
     if ( begin_run_done_ && ! end_run_done_ ) {
 
-      if ( update && updates % 5 == 0 ) {
+      if ( ( update && updates % 5 == 0 ) || forced_update_ ) {
 
         if ( integrity_client_ ) {
           integrity_client_->analyze();
@@ -1288,6 +1296,8 @@ void EcalBarrelMonitorClient::analyze(void){
     }
 
   }
+
+  if ( forced_update_ ) forced_update_ = false;
 
 }
 
