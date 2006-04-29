@@ -3,8 +3,8 @@
  * Description:
  *  class to print the MuonNavigationSchool
  *
- * $Date:  $
- * $Revision: $
+ * $Date: 2006/04/24 20:03:36 $
+ * $Revision: 1.2 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -34,14 +34,17 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   edm::LogInfo ("MuonNavigationPrinter")<<"================================";
   edm::LogInfo ("MuonNavigationPrinter")<< "BARREL:";
   vector<DetLayer*> barrel = muonLayout->allBarrelLayers();
+  edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<barrel.size()<<" Barrel DetLayers";
   for ( iter = barrel.begin(); iter != barrel.end(); iter++ ) printLayer(*iter);
   edm::LogInfo ("MuonNavigationPrinter");
   edm::LogInfo ("MuonNavigationPrinter")  << "BACKWARD:";
   vector<DetLayer*> backward = muonLayout->allBackwardLayers();
+  edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<backward.size()<<" Backward DetLayers";
   for ( iter = backward.begin(); iter != backward.end(); iter++ ) printLayer(*iter);
   edm::LogInfo ("MuonNavigationPrinter") << "==============================";
   edm::LogInfo ("MuonNavigationPrinter") << "FORWARD:";
   vector<DetLayer*> forward = muonLayout->allForwardLayers();
+  edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<forward.size()<<" Forward DetLayers";
   for ( iter = forward.begin(); iter != forward.end(); iter++ ) printLayer(*iter);
 
 }
