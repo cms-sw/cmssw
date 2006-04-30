@@ -1,9 +1,10 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/03/13 09:54:45 $
- * $Revision: 1.84 $
+ * $Date: 2006/04/07 09:34:01 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
+ * \author G. Franzoni
  *
 */
 
@@ -117,7 +118,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   for (int i = 0; i < 36; i++) {
     meEvent_[i] = 0;
-    meOccupancy_[i] = 0;
+    meOccupancy_[i]    = 0;
+    meOccupancyMem_[i] = 0;
   }
 
   Char_t histo[20];
@@ -143,6 +145,10 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBMM occupancy SM%02d", i+1);
       meOccupancy_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    }
+    for (int i = 0; i < 36; i++) {
+      sprintf(histo, "EBMM MEM occupancy SM%02d", i+1);
+      meOccupancyMem_[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
     }
   }
 
@@ -222,7 +228,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( dccMap[dcch.id()].getRunType() != -1 ) evtType_ = dccMap[dcch.id()].getRunType();
 
     // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
-//    if ( ievt_ % 10 == 0 && ( runType_ == COSMIC || runType_ == BEAMH4 ) ) evtType_ = LASER_STD;
+    //    if ( ievt_ % 10 == 0 && ( runType_ == COSMIC || runType_ == BEAMH4 ) ) evtType_ = LASER_STD;
 
     if ( evtType_ < 0 || evtType_ > 9 ) {
       LogWarning("EcalBarrelMonitor") << "Unknown event type = " << evtType_;
@@ -285,6 +291,31 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill(xie, xip);
 
   }
+
+  
+
+  Handle<EcalPnDiodeDigiCollection>  PNs;
+  e.getByLabel("ecalEBunpacker", PNs);
+
+  // filling mem occupancy only for the 5 channels belonging to a fully reconstructed Pn's
+  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin();
+	pnItr != PNs->end();
+	++pnItr ) 
+    {
+      int   ism   = (*pnItr).id().iDCCId();
+      float PnId  = (*pnItr).id().iPnId();
+      PnId       -= 0.5;
+      float st    =0;
+      for (int chInStrip =1; chInStrip<=5; chInStrip++){
+	if ( meOccupancyMem_[ism-1] ){ 
+	  st   = chInStrip -0.5;
+	  meOccupancyMem_[ism-1] -> Fill(PnId, st);
+	}
+      }
+    }
+  
+
+
 
   // resume the shipping of monitoring elements
   dbe_->unlock();
