@@ -72,8 +72,7 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 
   hits.clear();
   trajFit.clear();
-  Acc_Z=0;
-  Acc_Z2=0;
+ 
   //order all the hits
   vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collpixel,collseed);
   
@@ -187,13 +186,7 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &colls
   
   hits.push_back((RHBuilder->build(seedHits.back()))); 
   hits.push_back((RHBuilder->build(seedHits.front()))); 
-  float zz1=(RHBuilder->build(seedHits.back()))->globalPosition().z();
-  Acc_Z+=zz1;
-  Acc_Z2+=zz1*zz1;
-  float zz2=(RHBuilder->build(seedHits.front()))->globalPosition().z();
-  Acc_Z+=zz2;
-  Acc_Z2+=zz2*zz2;
-  nhits=2;
+ 
   for(istrip=collstereo.begin();istrip!=collstereo.end();istrip++){
     allHits.push_back(&(*istrip));
   }
@@ -245,50 +238,40 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
     
     if    (subid== StripSubdetector::TOB)  indexlayer=TOBDetId(detid).layer()+6;
 
+
+    if ((subid== PixelSubdetector::PixelEndcap) || 
+	(subid==  StripSubdetector::TID) ||
+	(subid== StripSubdetector::TEC)) continue;
+
     meas=theLayerMeasurements->measurements(*(bl[indexlayer]),currentState, 
 					    *thePropagator, 
 					    *theEstimator);
-
+    
     if (meas.size()>0){
       
-      //    for( vector<TM>::const_iterator itm = meas.begin(); 
-      //	 itm != meas.end(); itm++) {
+  
       int hitsbef=traj.foundHits();
       TransientTrackingRecHit* tmphit=RHBuilder->build(Hits[icosmhit]);
-
-
-      float tmpz=tmphit->globalPosition().z();
-      float medz=Acc_Z/nhits;
-      float devz=sqrt((Acc_Z2/nhits)-(medz*medz));
-      if (abs(tmpz-medz)<(15+(5*devz))){
-
-
-	Acc_Z= Acc_Z+tmpz;
-	Acc_Z2+=tmpz*tmpz;
-	nhits++;
-
-
-	updateTrajectory( traj, *(meas.begin()),*tmphit);
-	int hitsaft=traj.foundHits();
-	if (hitsaft>hitsbef){
-	  hits.push_back(&(*tmphit));
-	}
+      
+      updateTrajectory( traj, *(meas.begin()),*tmphit);
+      int hitsaft=traj.foundHits();
+      if (hitsaft>hitsbef){
+	hits.push_back(&(*tmphit));
       }
-
     }
     
-    //    icosmhit++;
   }
-  
+    
+    
   
 
   if ( qualityFilter( traj)){
     const TrajectorySeed& tmpseed=traj.seed();
     TSOS startingState=startingTSOS(tmpseed);
     trajFit = theFitter->fit(tmpseed,hits, startingState );
-
+    
   }
-
+  
 }
 
 

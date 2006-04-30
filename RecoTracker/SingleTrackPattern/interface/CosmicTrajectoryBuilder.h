@@ -111,13 +111,8 @@ class CosmicTrajectoryBuilder
    bool chi2cut;
    std::vector<Trajectory> trajFit;
    unsigned int indexlayer; 
-   edm::OwnVector<TransientTrackingRecHit> goodhits;
-   edm::OwnVector<TransientTrackingRecHit> hits;
-   float Acc_Z;
-   float Acc_Z2;
-   int nhits;
-   // vector<TransientTrackingRecHit*> goodhits;
-   //edm::OwnVector<TransientTrackingRecHit> pippo;
+    edm::OwnVector<TransientTrackingRecHit> hits;
+
 };
 
 #endif
