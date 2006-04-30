@@ -1,11 +1,11 @@
-#ifndef EBBEAMClient_H
-#define EBBEAMClient_H
+#ifndef EBBeamClient_H
+#define EBBeamClient_H
 
 /*
  * \file EBBeamClient.h
  *
- * $Date: 2006/03/05 09:50:40 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/28 10:48:49 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
