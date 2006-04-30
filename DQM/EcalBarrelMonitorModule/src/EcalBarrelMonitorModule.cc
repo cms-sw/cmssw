@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/04/07 09:34:01 $
- * $Revision: 1.85 $
+ * $Date: 2006/04/30 14:53:14 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,17 +17,17 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   // this should come from the EcalBarrel run header
   string s = ps.getUntrackedParameter<string>("runType", "unknown");
 
-  if ( s == "cosmic" ) {
+  if ( s == "COSMIC" ) {
     runType_ = COSMIC;
-  } else if ( s == "laser" ) {
+  } else if ( s == "LASER" ) {
     runType_ = LASER_STD;
-  } else if ( s == "pedestal" ) {
+  } else if ( s == "PEDESTAL" ) {
     runType_ = PEDESTAL_STD;
-  } else if ( s == "testpulse" ) {
+  } else if ( s == "TEST_PULSE" ) {
     runType_ = TESTPULSE_MGPA;
-  } else if ( s == "electron" ) {
+  } else if ( s == "ELECTRON" ) {
     runType_ = BEAMH4;
-  } else if ( s == "electron2" ) {
+  } else if ( s == "ELECTRON2" ) {
     runType_ = BEAMH2;
   }
 
