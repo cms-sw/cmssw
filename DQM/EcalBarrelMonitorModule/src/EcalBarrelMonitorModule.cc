@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/04/30 14:53:14 $
- * $Revision: 1.86 $
+ * $Date: 2006/04/30 17:27:59 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -292,30 +292,26 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  
-
-  Handle<EcalPnDiodeDigiCollection>  PNs;
+  Handle<EcalPnDiodeDigiCollection> PNs;
   e.getByLabel("ecalEBunpacker", PNs);
 
-  // filling mem occupancy only for the 5 channels belonging to a fully reconstructed Pn's
-  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin();
-	pnItr != PNs->end();
-	++pnItr ) 
-    {
-      int   ism   = (*pnItr).id().iDCCId();
-      float PnId  = (*pnItr).id().iPnId();
-      PnId       -= 0.5;
-      float st    =0;
-      for (int chInStrip =1; chInStrip<=5; chInStrip++){
-	if ( meOccupancyMem_[ism-1] ){ 
-	  st   = chInStrip -0.5;
-	  meOccupancyMem_[ism-1] -> Fill(PnId, st);
-	}
+  // filling mem occupancy only for the 5 channels belonging
+  // to a fully reconstructed PN's
+  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
+
+    int   ism   = (*pnItr).id().iDCCId();
+    float PnId  = (*pnItr).id().iPnId();
+    PnId        = PnId - 0.5;
+    float st    = 0.0;
+
+    for (int chInStrip = 1; chInStrip <= 5; chInStrip++){
+      if ( meOccupancyMem_[ism-1] ) {
+         st = chInStrip - 0.5;
+	 meOccupancyMem_[ism-1]->Fill(PnId, st);
       }
     }
-  
 
-
+  }
 
   // resume the shipping of monitoring elements
   dbe_->unlock();
