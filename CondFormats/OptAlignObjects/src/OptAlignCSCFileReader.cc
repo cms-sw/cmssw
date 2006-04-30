@@ -71,12 +71,13 @@ bool OptAlignCSCFileReader::parse_strings(char const* str) const
   return parse(str,
 	       ((+(anychar_p - ','))[makeString] 
 		>> *(',' >> (+(anychar_p - ','))[makeString]))
-	       , space_p).full;
+	       , (space_p - ' ')).full;
 }
 
 void OptAlignCSCFileReader::do_makeString(char const* str, char const* end)
 {
   std::string ts(str, end);
+  std::cout << "string=|" << ts << std::endl;
   strVec_.push_back(ts);
 }
 

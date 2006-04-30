@@ -17,6 +17,7 @@
 
 class CSCZSensorData {
  public:
+  std::string sensorType_;
   int sensorNo_;
   std::string meLayer_;
   std::string logicalAlignmentName_;
