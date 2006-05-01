@@ -143,8 +143,8 @@ namespace cms{
       cout << "number of finalTrajectories: " << unsmoothedResult.size() << endl;
       for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	   it != unsmoothedResult.end(); it++) {
-	cout << "n valid and invalid hit: " 
-	     << it->foundHits() << " , " << it->lostHits() << endl;
+	cout << "n valid and invalid hit, chi2 : " 
+	     << it->foundHits() << " , " << it->lostHits() <<" , " <<it->chiSquared() << endl;
       }
       cout << " ========== DEBUG TRACKFINDER: end ========== " << endl;
       
