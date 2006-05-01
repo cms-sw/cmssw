@@ -300,7 +300,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlBrlLowContainer;
-  iEvent.getByLabel("r","TrackerHitsPixelBarrelLowTof",PxlBrlLowContainer);
+  iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelLowTof",PxlBrlLowContainer);
   if (!PxlBrlLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsPixelBarrelLowTof in event!";
@@ -357,7 +357,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
     
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlBrlHighContainer;
-  iEvent.getByLabel("r","TrackerHitsPixelBarrelHighTof",PxlBrlHighContainer);
+  iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelHighTof",PxlBrlHighContainer);
   if (!PxlBrlHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsPixelBarrelHighTof in event!";
@@ -412,7 +412,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   ////////////////////////////////
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlFwdLowContainer;
-  iEvent.getByLabel("r","TrackerHitsPixelEndcapLowTof",PxlFwdLowContainer);
+  iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapLowTof",PxlFwdLowContainer);
   if (!PxlFwdLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
@@ -463,7 +463,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlFwdHighContainer;
-  iEvent.getByLabel("r","TrackerHitsPixelEndcapHighTof",PxlFwdHighContainer);
+  iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapHighTof",PxlFwdHighContainer);
   if (!PxlFwdHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
@@ -517,7 +517,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   //////////////////////////////////
   // extract TIB low container
   edm::Handle<edm::PSimHitContainer> SiTIBLowContainer;
-  iEvent.getByLabel("r","TrackerHitsTIBLowTof",SiTIBLowContainer);
+  iEvent.getByLabel("SimG4Object","TrackerHitsTIBLowTof",SiTIBLowContainer);
   if (!SiTIBLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTIBLowTof in event!";
@@ -568,7 +568,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   
   // extract TIB high container
   edm::Handle<edm::PSimHitContainer> SiTIBHighContainer;
-  iEvent.getByLabel("r","TrackerHitsTIBHighTof",SiTIBHighContainer);
+  iEvent.getByLabel("SimG4Object","TrackerHitsTIBHighTof",SiTIBHighContainer);
   if (!SiTIBHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTIBHighTof in event!";
@@ -621,7 +621,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   //////////////////////////////////
   // extract TOB low container
   edm::Handle<edm::PSimHitContainer> SiTOBLowContainer;
-  iEvent.getByLabel("r","TrackerHitsTOBLowTof",SiTOBLowContainer);
+  iEvent.getByLabel("SimG4Object","TrackerHitsTOBLowTof",SiTOBLowContainer);
   if (!SiTOBLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTOBLowTof in event!";
@@ -671,7 +671,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
     
   // extract TOB high container
   edm::Handle<edm::PSimHitContainer> SiTOBHighContainer;
-  iEvent.getByLabel("r","TrackerHitsTOBHighTof",SiTOBHighContainer);
+  iEvent.getByLabel("SimG4Object","TrackerHitsTOBHighTof",SiTOBHighContainer);
   if (!SiTOBHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTOBHighTof in event!";
@@ -724,7 +724,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   ///////////////////////////////////
   // extract TID low container
   edm::Handle<edm::PSimHitContainer> SiTIDLowContainer;
-  iEvent.getByLabel("r","TrackerHitsTIDLowTof",SiTIDLowContainer);
+  iEvent.getByLabel("SimG4Object","TrackerHitsTIDLowTof",SiTIDLowContainer);
   if (!SiTIDLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTIDLowTof in event!";
@@ -774,7 +774,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
       
   // extract TID high container
   edm::Handle<edm::PSimHitContainer> SiTIDHighContainer;
-  iEvent.getByLabel("r","TrackerHitsTIDHighTof",SiTIDHighContainer);
+  iEvent.getByLabel("SimG4Object","TrackerHitsTIDHighTof",SiTIDHighContainer);
   if (!SiTIDHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTIDHighTof in event!";
@@ -827,7 +827,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   /////////////////////////////////// 
   // extract TEC low container
   edm::Handle<edm::PSimHitContainer> SiTECLowContainer;
-  iEvent.getByLabel("r","TrackerHitsTECLowTof",SiTECLowContainer);
+  iEvent.getByLabel("SimG4Object","TrackerHitsTECLowTof",SiTECLowContainer);
   if (!SiTECLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTECLowTof in event!";
@@ -878,7 +878,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   
   // extract TEC high container
   edm::Handle<edm::PSimHitContainer> SiTECHighContainer;
-  iEvent.getByLabel("r","TrackerHitsTECHighTof",SiTECHighContainer);
+  iEvent.getByLabel("SimG4Object","TrackerHitsTECHighTof",SiTECHighContainer);
   if (!SiTECHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTECHighTof in event!";
