@@ -1,4 +1,4 @@
-#include "RecoEcal/EgammaClusterAlgos/interface/PreshowerCluster.h"
+#include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 
 
 

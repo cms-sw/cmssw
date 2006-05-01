@@ -2,7 +2,7 @@
 #define PreshowerCluster_h
 
 #include "DataFormats/Math/interface/Point3D.h"
-#include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
