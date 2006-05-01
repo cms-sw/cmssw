@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/04/30 20:45:50 $
- * $Revision: 1.80 $
+ * $Date: 2006/05/01 08:45:31 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -229,7 +229,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
         float numTot = -1.;
 
-	// gio note devel: add here occupancy for mem
        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip));
 
         if ( h01_[ism-1] ) {
@@ -1128,16 +1127,25 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
   for( short i=0; i<2; i++ ) {
     int a = 2 + i*5;
     int b = 2;
-    dummy3.Fill( a, b, i+1 );
+    dummy3.Fill( a, b, i+1+68 );
   }
   dummy3.SetMarkerSize(2);
 
-  string imgNameDCC, imgNameOcc, imgNameQual, imgNameME[6], imgName, meName;
+  TH2C dummy4 ("dummy4", "dummy4 for sm mem", 2, 0, 2, 1, 0, 1 );
+  for( short i=0; i<2; i++ ) {
+    int a =  i;
+    int b = 0;
+    dummy4.Fill( a, b, i+1+68 );
+  }
+  dummy4.SetMarkerSize(2);
+
+  string imgNameDCC, imgNameOcc, imgNameQual,imgNameOccMem, imgNameQualMem, imgNameME[10], imgName, meName;
 
   TCanvas* cDCC = new TCanvas("cDCC", "Temp", 2*csize, csize);
   TCanvas* cOcc = new TCanvas("cOcc", "Temp", 2*csize, csize);
   TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
   TCanvas* cMe = new TCanvas("cMe", "Temp", 2*csize, csize);
+  TCanvas* cMeMem = new TCanvas("cMeMem", "Temp", csize, csize);
 
   TH1F* obj1f;
   TH2F* obj2f;
@@ -1319,17 +1327,135 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
 
     }
 
-    // gio: here need to add projection of 4 new ME's, draw dummy superimposed to them and
-    // add some xml like what follows:
-    //    <table border="0" cellspacing="0" 
-    //       cellpadding="10" align="center">
-    //       <tr align="left">
-    //       <td><img src="EBPOT_pedestal_mean_G12_SM01.png"></td>
-    //       <td><img src="EBPOT_pedestal_rms_G12_SM01.png"></td>
-    //       <td><img src="EBPOT_pedestal_mean_G12_SM01.png"></td>
-    //       <td><img src="EBPOT_pedestal_rms_G12_SM01.png"></td>
-    //       </tr>
-    //       </table>
+    // MEM Quality plots
+
+    imgNameQualMem = "";
+
+    obj2f = g02_[ism-1];
+
+    if ( obj2f ) {
+
+      meName = obj2f->GetName();
+
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1, "_");
+        }
+      }
+      imgNameQualMem = meName + ".png";
+      imgName = htmlDir + imgNameQualMem;
+
+      cMeMem->cd();
+      gStyle->SetOptStat(" ");
+      gStyle->SetPalette(3, pCol3);
+      obj2f->GetXaxis()->SetNdivisions(10);
+      obj2f->GetYaxis()->SetNdivisions(1);
+      cMeMem->SetGridx();
+      cMeMem->SetGridy();
+      obj2f->SetMinimum(-0.00000001);
+      obj2f->SetMaximum(2.0);
+      obj2f->Draw("col");
+      dummy3.Draw("text,same");
+      cMeMem->Update();
+      cMeMem->SaveAs(imgName.c_str());
+
+    }
+
+    // MEM Occupancy plots
+
+    imgNameOccMem = "";
+
+    obj2f = hmem_[ism-1];
+
+    if ( obj2f ) {
+
+      meName = obj2f->GetName();
+
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1, "_");
+        }
+      }
+
+      imgNameOccMem = meName + ".png";
+      imgName = htmlDir + imgNameOccMem;
+
+      cMeMem->cd();
+      gStyle->SetOptStat(" ");
+      gStyle->SetPalette(10, pCol4);
+      obj2f->GetXaxis()->SetNdivisions(10);
+      obj2f->GetYaxis()->SetNdivisions(1);
+      cMeMem->SetGridx();
+      cMeMem->SetGridy();
+      obj2f->SetMinimum(0.);
+      obj2f->Draw("colz");
+      dummy3.Draw("text,same");
+      cMeMem->Update();
+      cMeMem->SaveAs(imgName.c_str());
+
+    }
+
+    // MeM Monitoring elements plots
+
+    for ( int iCanvas = 7; iCanvas <= 10; iCanvas++ ) {
+
+      imgNameME[iCanvas-1] = "";
+
+      obj2f = 0;
+      switch ( iCanvas ) {
+      case 7:
+	obj2f = h07_[ism-1];
+	break;
+      case 8:
+	obj2f = h08_[ism-1];
+	break;
+      case 9:
+	obj2f = h09_[ism-1];
+	break;
+      case 10:
+	obj2f = h10_[ism-1];
+	break;
+      default:
+	break;
+      }
+
+      if ( obj2f ) {
+
+        meName = obj2f->GetName();
+
+        for ( unsigned int iMe = 0; iMe < meName.size(); iMe++ ) {
+          if ( meName.substr(iMe, 1) == " " )  {
+            meName.replace(iMe, 1, "_");
+          }
+        }
+        imgNameME[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameME[iCanvas-1];
+
+        cMeMem->cd();
+        gStyle->SetOptStat(" ");
+        gStyle->SetPalette(10, pCol4);
+        obj2f->SetMinimum(0.);
+        obj2f->Draw("colz");
+        if ( iCanvas < 9 ){
+          obj2f->GetXaxis()->SetNdivisions(10);
+          obj2f->GetYaxis()->SetNdivisions(1);
+          cMeMem->SetGridx();
+          cMeMem->SetGridy();
+          dummy3.Draw("text,same");
+	}
+        else{
+          obj2f->GetXaxis()->SetNdivisions(2);
+          obj2f->GetYaxis()->SetNdivisions(1);
+          cMeMem->SetGridx();
+          cMeMem->SetGridy();
+          dummy4.Draw("text,same");
+	}
+        cMeMem->Update();
+        cMeMem->SaveAs(imgName.c_str());
+
+      }
+
+    }
 
     htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
 
@@ -1400,6 +1526,42 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
 
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
+
+
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"75\"> " << endl;
+    htmlFile << "<tr align=\"left\">" << endl;
+
+    if ( imgNameQualMem.size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameQualMem << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    if ( imgNameOccMem.size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameOccMem << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+
+
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"5\" align=\"center\"> " << endl;
+    htmlFile << "<tr>" << endl;
+
+    for ( int iCanvas = 7 ; iCanvas <= 10 ; iCanvas++ ) {
+
+      if ( imgNameME[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    }
+
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
 
   }
@@ -1408,6 +1570,7 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
   delete cOcc;
   delete cQual;
   delete cMe;
+  delete cMeMem;
 
   // html page footer
   htmlFile << "</body> " << endl;
