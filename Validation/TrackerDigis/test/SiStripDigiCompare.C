@@ -24,7 +24,6 @@ void SiStripDigiCompare()
 
 
 // TIB
- 
  if (1) {
   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(2,2);
@@ -75,16 +74,47 @@ void SiStripDigiCompare()
    Strip->Print("NdigiTIBCompare_ZP.eps");
  }
 
-
+//TIB  1st Lyaer ADC of both sides
  if (1) {
   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
-   Strip->Divide(2,2);
+   Strip->Divide(3,4);
 
-   TH1* meAdcTIB_[4];
-   TH1* newmeAdcTIB_[4];
+   TH1* meAdcTIB_[12];
+   TH1* newmeAdcTIB_[12];
 
-   for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/adc_tib_%d_zm;1",i+1);
+   for (Int_t i=0; i<3; i++){
+      sprintf(histo,"DQMData/adc_tib_layer1_extmodule%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+  
+  for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/adc_tib_layer1_intmodule%d_zp;1",i-2);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+   for (Int_t i=6; i<9; i++){
+      sprintf(histo,"DQMData/adc_tib_layer1_extmodule%d_zm;1",i-5);
       rfile->GetObject(histo ,meAdcTIB_[i]);
       sfile->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
@@ -99,43 +129,8 @@ void SiStripDigiCompare()
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
    }
 
-   Strip->Print("AdcOfStripTIBCompare_ZM.eps"); 
- }
-
- if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
-   Strip->Divide(1,3);
-
-   TH1* meStripTIB_[3];
-   TH1* newmeStripTIB_[3];
-
-   for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/strip_tib_%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTIB_[i]);
-      sfile->GetObject(histo ,newmeStripTIB_[i]);
-      meStripTIB_[i];
-      newmeStripTIB_[i];
-      Strip->cd(i+1);
-      meStripTIB_[i]->SetLineColor(2);
-      newmeStripTIB_[i]->SetLineColor(4);
-      newmeStripTIB_[i]->SetLineStyle(2);
-      meStripTIB_[i]->Draw();
-      newmeStripTIB_[i]->Draw("sames");
-      myPV->PVCompute(meStripTIB_[i], newmeStripTIB_[i] , te );
-   }
-
-   Strip->Print("StripNumOfStripTIBCompare_ZM.eps");
- }
-
-if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
-   Strip->Divide(2,2);
-
-   TH1* meAdcTIB_[4];
-   TH1* newmeAdcTIB_[4];
-
-   for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/adc_tib_%d_zp;1",i+1);
+  for (Int_t i=9; i<12; i++){
+      sprintf(histo,"DQMData/adc_tib_layer1_intmodule%d_zm;1",i-8);
       rfile->GetObject(histo ,meAdcTIB_[i]);
       sfile->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
@@ -150,34 +145,528 @@ if (1) {
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
    }
 
-   Strip->Print("AdcOfStripTIBCompare_ZP.eps");
+ Strip->Print("AdcOfTIBLayer1Compare.eps"); 
+ }
+//TIB  1st Lyaer Strip of both sides
+ if (1) {
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTIB_[12];
+   TH1* newmeAdcTIB_[12];
+
+   for (Int_t i=0; i<3; i++){
+      sprintf(histo,"DQMData/strip_tib_layer1_extmodule%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+  for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/strip_tib_layer1_intmodule%d_zp;1",i-2);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+   for (Int_t i=6; i<9; i++){
+      sprintf(histo,"DQMData/strip_tib_layer1_extmodule%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+  for (Int_t i=9; i<12; i++){
+      sprintf(histo,"DQMData/strip_tib_layer1_intmodule%d_zm;1",i-8);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+ Strip->Print("StripOfTIBLayer1Compare.eps");
+
+ }
+//ITB  2nd Lyaer
+ if (1) {
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTIB_[12];
+   TH1* newmeAdcTIB_[12];
+
+   for (Int_t i=0; i<3; i++){
+      sprintf(histo,"DQMData/adc_tib_layer2_extmodule%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+  for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/adc_tib_layer2_intmodule%d_zp;1",i-2);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+   for (Int_t i=6; i<9; i++){
+      sprintf(histo,"DQMData/adc_tib_layer2_extmodule%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+  for (Int_t i=9; i<12; i++){
+      sprintf(histo,"DQMData/adc_tib_layer2_intmodule%d_zm;1",i-8);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+ Strip->Print("AdcOfTIBLayer2Compare.eps");
  }
 
  if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
-   Strip->Divide(1,3);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
 
-   TH1* meStripTIB_[3];
-   TH1* newmeStripTIB_[3];
+   TH1* meAdcTIB_[12];
+   TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/strip_tib_%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTIB_[i]);
-      sfile->GetObject(histo ,newmeStripTIB_[i]);
-      meStripTIB_[i];
-      newmeStripTIB_[i];
+      sprintf(histo,"DQMData/strip_tib_layer2_extmodule%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
       Strip->cd(i+1);
-      meStripTIB_[i]->SetLineColor(2);
-      newmeStripTIB_[i]->SetLineColor(4);
-      newmeStripTIB_[i]->SetLineStyle(2);
-      meStripTIB_[i]->Draw();
-      newmeStripTIB_[i]->Draw("sames");
-      myPV->PVCompute(meStripTIB_[i], newmeStripTIB_[i] , te );
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
    }
 
-   Strip->Print("StripNumOfStripTIBCompare_ZP.eps");
+  for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/strip_tib_layer2_intmodule%d_zp;1",i-2);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+   for (Int_t i=6; i<9; i++){
+      sprintf(histo,"DQMData/strip_tib_layer2_extmodule%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+  for (Int_t i=9; i<12; i++){
+      sprintf(histo,"DQMData/strip_tib_layer2_intmodule%d_zm;1",i-8);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+ Strip->Print("StripOfTIBLayer2Compare.eps");
+
+ }
+// TIB  3rd Layer
+ if (1) {
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTIB_[12];
+   TH1* newmeAdcTIB_[12];
+
+   for (Int_t i=0; i<3; i++){
+      sprintf(histo,"DQMData/adc_tib_layer3_extmodule%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+  for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/adc_tib_layer3_intmodule%d_zp;1",i-2);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+   for (Int_t i=6; i<9; i++){
+      sprintf(histo,"DQMData/adc_tib_layer3_extmodule%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+  for (Int_t i=9; i<12; i++){
+      sprintf(histo,"DQMData/adc_tib_layer3_intmodule%d_zm;1",i-8);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+ Strip->Print("AdcOfTIBLayer3Compare.eps");
  }
 
+ if (1) {
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTIB_[12];
+   TH1* newmeAdcTIB_[12];
+
+   for (Int_t i=0; i<3; i++){
+      sprintf(histo,"DQMData/strip_tib_layer3_extmodule%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+  for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/strip_tib_layer3_intmodule%d_zp;1",i-2);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+   for (Int_t i=6; i<9; i++){
+      sprintf(histo,"DQMData/strip_tib_layer3_extmodule%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+  for (Int_t i=9; i<12; i++){
+      sprintf(histo,"DQMData/strip_tib_layer3_intmodule%d_zm;1",i-8);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+ Strip->Print("StripOfTIBLayer3Compare.eps");
+ }
+
+
+// TIB  4th Layer
+ if (1) {
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTIB_[12];
+   TH1* newmeAdcTIB_[12];
+
+   for (Int_t i=0; i<3; i++){
+      sprintf(histo,"DQMData/adc_tib_layer4_extmodule%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+  for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/adc_tib_layer4_intmodule%d_zp;1",i-2);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+   for (Int_t i=6; i<9; i++){
+      sprintf(histo,"DQMData/adc_tib_layer4_extmodule%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+  for (Int_t i=9; i<12; i++){
+      sprintf(histo,"DQMData/adc_tib_layer4_intmodule%d_zm;1",i-8);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+ Strip->Print("AdcOfTIBLayer4Compare.eps");
+ }
+
+ if (1) {
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTIB_[12];
+   TH1* newmeAdcTIB_[12];
+
+   for (Int_t i=0; i<3; i++){
+      sprintf(histo,"DQMData/strip_tib_layer4_extmodule%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+  for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/strip_tib_layer4_intmodule%d_zp;1",i-2);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+   for (Int_t i=6; i<9; i++){
+      sprintf(histo,"DQMData/strip_tib_layer4_extmodule%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+  for (Int_t i=9; i<12; i++){
+      sprintf(histo,"DQMData/strip_tib_layer4_intmodule%d_zm;1",i-8);
+      rfile->GetObject(histo ,meAdcTIB_[i]);
+      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      meAdcTIB_[i];
+      newmeAdcTIB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTIB_[i]->SetLineColor(2);
+      newmeAdcTIB_[i]->SetLineColor(4);
+      newmeAdcTIB_[i]->SetLineStyle(2);
+      meAdcTIB_[i]->Draw();
+      newmeAdcTIB_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
+   }
+
+ Strip->Print("StripOfTIBLayer4Compare.eps");
+
+ }
+
+
+
+//////////////////////////////////////
 // TOB
 
  if (1) {
@@ -230,17 +719,17 @@ if (1) {
    Strip->Print("NdigiTOBCompare_ZP.eps");
  }
 
-
+//TOB 1st Layer
 
  if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
-   Strip->Divide(2,3);
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
 
-   TH1* meAdcTOB_[6];
-   TH1* newmeAdcTOB_[6];
+   TH1* meAdcTOB_[12];
+   TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/adc_tob_%d_zm;1",i+1);
+      sprintf(histo,"DQMData/adc_tob_layer1_module%d_zp;1",i+1);
       rfile->GetObject(histo ,meAdcTOB_[i]);
       sfile->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
@@ -254,42 +743,8 @@ if (1) {
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
    }
-   Strip->Print("AdcOfStripTOBCompare_ZM.eps");
- }
-
- if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
-   Strip->Divide(2,3);
-   TH1* meStripTOB_[6];
-   TH1* newmeStripTOB_[6];
-
-   for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/strip_tob_%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTOB_[i]);
-      sfile->GetObject(histo ,newmeStripTOB_[i]);
-      meStripTOB_[i];
-      newmeStripTOB_[i];
-      Strip->cd(i+1);
-      meStripTOB_[i]->SetLineColor(2);
-      newmeStripTOB_[i]->SetLineColor(4);
-      newmeStripTOB_[i]->SetLineStyle(2);
-      meStripTOB_[i]->Draw();
-      newmeStripTOB_[i]->Draw("sames");
-      myPV->PVCompute(meStripTOB_[i],newmeStripTOB_[i],te);
-   }
-
-   Strip->Print("StripNumOfStripTOBCompare_ZM.eps");
- }
-
- if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
-   Strip->Divide(2,3);
-
-   TH1* meAdcTOB_[6];
-   TH1* newmeAdcTOB_[6];
-
-   for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/adc_tob_%d_zp;1",i+1);
+   for (Int_t i=6; i<12; i++){
+      sprintf(histo,"DQMData/adc_tob_layer1_module%d_zm;1",i-5);
       rfile->GetObject(histo ,meAdcTOB_[i]);
       sfile->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
@@ -303,33 +758,463 @@ if (1) {
       newmeAdcTOB_[i]->Draw("sames");
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
    }
-   Strip->Print("AdcOfStripTOBCompare_ZP.eps");
+
+   Strip->Print("AdcOfTOBLayer1Compare_ZM.eps");
  }
 
- if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
-   Strip->Divide(2,3);
-   TH1* meStripTOB_[6];
-   TH1* newmeStripTOB_[6];
+ if(1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTOB_[12];
+   TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/strip_tob_%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTOB_[i]);
-      sfile->GetObject(histo ,newmeStripTOB_[i]);
-      meStripTOB_[i];
-      newmeStripTOB_[i];
+      sprintf(histo,"DQMData/strip_tob_layer1_module%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
       Strip->cd(i+1);
-      meStripTOB_[i]->SetLineColor(2);
-      newmeStripTOB_[i]->SetLineColor(4);
-      newmeStripTOB_[i]->SetLineStyle(2);
-      meStripTOB_[i]->Draw();
-      newmeStripTOB_[i]->Draw("sames");
-      myPV->PVCompute(meStripTOB_[i],newmeStripTOB_[i],te);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+   for (Int_t i=6; i<12; i++){
+      sprintf(histo,"DQMData/strip_tob_layer1_module%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
    }
 
-   Strip->Print("StripNumOfStripTOBCompare_ZP.eps");
+   Strip->Print("StripNumOfTOBLayer1Compare_ZM.eps");
+ }
+//TOB  2nd Layer
+ if(1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTOB_[12];
+   TH1* newmeAdcTOB_[12];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/adc_tob_layer2_module%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+   for (Int_t i=6; i<12; i++){
+      sprintf(histo,"DQMData/adc_tob_layer2_module%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+
+   Strip->Print("AdcOfTOBLayer2Compare.eps");
  }
 
+ if(1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTOB_[12];
+   TH1* newmeAdcTOB_[12];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/strip_tob_layer2_module%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+   for (Int_t i=6; i<12; i++){
+      sprintf(histo,"DQMData/strip_tob_layer2_module%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+
+   Strip->Print("StripNumOfTOBLayer2Compare.eps");
+ }
+//TOB  3rd Layer
+
+ if(1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTOB_[12];
+   TH1* newmeAdcTOB_[12];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/adc_tob_layer3_module%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+   for (Int_t i=6; i<12; i++){
+      sprintf(histo,"DQMData/adc_tob_layer3_module%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+
+   Strip->Print("AdcOfTOBLayer3Compare.eps");
+ }
+
+ if(1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTOB_[12];
+   TH1* newmeAdcTOB_[12];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/strip_tob_layer3_module%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+   for (Int_t i=6; i<12; i++){
+      sprintf(histo,"DQMData/strip_tob_layer3_module%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+
+   Strip->Print("StripNumOfTOBLayer3Compare.eps");
+ }
+//TOB  4th Layer
+
+ if(1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTOB_[12];
+   TH1* newmeAdcTOB_[12];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/adc_tob_layer4_module%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+   for (Int_t i=6; i<12; i++){
+      sprintf(histo,"DQMData/adc_tob_layer4_module%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+
+   Strip->Print("AdcOfTOBLayer4Compare.eps");
+ }
+
+ if(1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTOB_[12];
+   TH1* newmeAdcTOB_[12];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/strip_tob_layer4_module%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+   for (Int_t i=6; i<12; i++){
+      sprintf(histo,"DQMData/strip_tob_layer4_module%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+
+   Strip->Print("StripNumOfTOBLayer4Compare.eps");
+ }
+//TOB  5th Layer
+ if(1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTOB_[12];
+   TH1* newmeAdcTOB_[12];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/adc_tob_layer5_module%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+   for (Int_t i=6; i<12; i++){
+      sprintf(histo,"DQMData/adc_tob_layer5_module%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+
+   Strip->Print("AdcOfTOBLayer5Compare.eps");
+ }
+
+ if(1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTOB_[12];
+   TH1* newmeAdcTOB_[12];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/strip_tob_layer5_module%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+   for (Int_t i=6; i<12; i++){
+      sprintf(histo,"DQMData/strip_tob_layer5_module%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+
+   Strip->Print("StripNumOfTOBLayer5Compare.eps");
+ }
+//TOB  6th Layer
+
+ if(1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTOB_[12];
+   TH1* newmeAdcTOB_[12];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/adc_tob_layer6_module%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+   for (Int_t i=6; i<12; i++){
+      sprintf(histo,"DQMData/adc_tob_layer6_module%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+
+   Strip->Print("AdcOfTOBLayer6Compare.eps");
+ }
+
+ if(1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
+   Strip->Divide(3,4);
+
+   TH1* meAdcTOB_[12];
+   TH1* newmeAdcTOB_[12];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/strip_tob_layer6_module%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+   for (Int_t i=6; i<12; i++){
+      sprintf(histo,"DQMData/strip_tob_layer6_module%d_zm;1",i-5);
+      rfile->GetObject(histo ,meAdcTOB_[i]);
+      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      meAdcTOB_[i];
+      newmeAdcTOB_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTOB_[i]->SetLineColor(2);
+      newmeAdcTOB_[i]->SetLineColor(4);
+      newmeAdcTOB_[i]->SetLineStyle(2);
+      meAdcTOB_[i]->Draw();
+      newmeAdcTOB_[i]->Draw("sames");
+      myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
+   }
+
+   Strip->Print("StripNumOfTOBLayer6Compare.eps");
+ }
 //TID
 
  if (1) {
@@ -382,19 +1267,19 @@ if (1) {
    Strip->Print("NdigiTIDCompare_ZP.eps");
  }
 
+// TID  1 st Wheel
    if (1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
-   Strip->Divide(1,3);
-   TH1* meAdcTID_[3];
-   TH1* newmeAdcTID_[3];
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,800);
+   Strip->Divide(3,2);
+   TH1* meAdcTID_[6];
+   TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/adc_tid_%d_zm;1",i+1);
+      sprintf(histo,"DQMData/adc_tid_wheel1_ring%d_zp;1",i+1);
       rfile->GetObject(histo ,meAdcTID_[i]);
       sfile->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
-
       Strip->cd(i+1);
       gPad->SetLogy();
       meAdcTID_[i]->SetLineColor(2);
@@ -405,46 +1290,36 @@ if (1) {
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
    }
 
-   Strip->Print("AdcOfStripTIDCompare_ZM.eps");
-   }
-
-   if (1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
-   Strip->Divide(1,3);
-   TH1* meStripTID_[3];
-   TH1* newmeStripTID_[3];
-
-   for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/strip_tid_%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTID_[i]);
-      sfile->GetObject(histo ,newmeStripTID_[i]);
-      meStripTID_[i];
-      newmeStripTID_[i];
-
-      Strip->cd(i+1);
-      meStripTID_[i]->SetLineColor(2);
-      newmeStripTID_[i]->SetLineColor(4);
-      newmeStripTID_[i]->SetLineStyle(2);
-      meStripTID_[i]->Draw();
-      newmeStripTID_[i]->Draw("sames");
-      myPV->PVCompute(meStripTID_[i],newmeStripTID_[i],te);
-   }
-
-   Strip->Print("StripNumOfStripTIDCompare_ZM.eps");
-   }
-   if (1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
-   Strip->Divide(1,3);
-   TH1* meAdcTID_[3];
-   TH1* newmeAdcTID_[3];
-
-   for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/adc_tid_%d_zp;1",i+1);
+   for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/adc_tid_wheel1_ring%d_zm;1",i-2);
       rfile->GetObject(histo ,meAdcTID_[i]);
       sfile->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTID_[i]->SetLineColor(2);
+      newmeAdcTID_[i]->SetLineColor(4);
+      newmeAdcTID_[i]->SetLineStyle(2);
+      meAdcTID_[i]->Draw();
+      newmeAdcTID_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+   }
+   Strip->Print("AdcOfTIDWheel1Compare.eps");
+}
 
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,800);
+   Strip->Divide(3,2);
+   TH1* meAdcTID_[6];
+   TH1* newmeAdcTID_[6];
+
+   for (Int_t i=0; i<3; i++){
+      sprintf(histo,"DQMData/strip_tid_wheel1_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTID_[i]);
+      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      meAdcTID_[i];
+      newmeAdcTID_[i];
       Strip->cd(i+1);
       gPad->SetLogy();
       meAdcTID_[i]->SetLineColor(2);
@@ -455,36 +1330,185 @@ if (1) {
       myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
    }
 
-   Strip->Print("AdcOfStripTIDCompare_ZP.eps");
+   for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/strip_tid_wheel1_ring%d_zm;1",i-2);
+      rfile->GetObject(histo ,meAdcTID_[i]);
+      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      meAdcTID_[i];
+      newmeAdcTID_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTID_[i]->SetLineColor(2);
+      newmeAdcTID_[i]->SetLineColor(4);
+      newmeAdcTID_[i]->SetLineStyle(2);
+      meAdcTID_[i]->Draw();
+      newmeAdcTID_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
    }
-
-   if (1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
-   Strip->Divide(1,3);
-   TH1* meStripTID_[3];
-   TH1* newmeStripTID_[3];
+   Strip->Print("StripNumOfTIDWheel1Compare.eps");
+}
+//TID 2nd  Wheel
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,800);
+   Strip->Divide(3,2);
+   TH1* meAdcTID_[6];
+   TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/strip_tid_%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTID_[i]);
-      sfile->GetObject(histo ,newmeStripTID_[i]);
-      meStripTID_[i];
-      newmeStripTID_[i];
-
+      sprintf(histo,"DQMData/adc_tid_wheel2_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTID_[i]);
+      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      meAdcTID_[i];
+      newmeAdcTID_[i];
       Strip->cd(i+1);
-      meStripTID_[i]->SetLineColor(2);
-      newmeStripTID_[i]->SetLineColor(4);
-      newmeStripTID_[i]->SetLineStyle(2);
-      meStripTID_[i]->Draw();
-      newmeStripTID_[i]->Draw("sames");
-      myPV->PVCompute(meStripTID_[i],newmeStripTID_[i],te);
+      gPad->SetLogy();
+      meAdcTID_[i]->SetLineColor(2);
+      newmeAdcTID_[i]->SetLineColor(4);
+      newmeAdcTID_[i]->SetLineStyle(2);
+      meAdcTID_[i]->Draw();
+      newmeAdcTID_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
    }
 
-   Strip->Print("StripNumOfStripTIDCompare_ZP.eps");
+   for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/adc_tid_wheel2_ring%d_zm;1",i-2);
+      rfile->GetObject(histo ,meAdcTID_[i]);
+      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      meAdcTID_[i];
+      newmeAdcTID_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTID_[i]->SetLineColor(2);
+      newmeAdcTID_[i]->SetLineColor(4);
+      newmeAdcTID_[i]->SetLineStyle(2);
+      meAdcTID_[i]->Draw();
+      newmeAdcTID_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+   }
+   Strip->Print("AdcOfTIDWheel2Compare.eps");
+}
+
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,800);
+   Strip->Divide(3,2);
+   TH1* meAdcTID_[6];
+   TH1* newmeAdcTID_[6];
+
+   for (Int_t i=0; i<3; i++){
+      sprintf(histo,"DQMData/strip_tid_wheel2_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTID_[i]);
+      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      meAdcTID_[i];
+      newmeAdcTID_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTID_[i]->SetLineColor(2);
+      newmeAdcTID_[i]->SetLineColor(4);
+      newmeAdcTID_[i]->SetLineStyle(2);
+      meAdcTID_[i]->Draw();
+      newmeAdcTID_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
    }
 
+   for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/strip_tid_wheel2_ring%d_zm;1",i-2);
+      rfile->GetObject(histo ,meAdcTID_[i]);
+      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      meAdcTID_[i];
+      newmeAdcTID_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTID_[i]->SetLineColor(2);
+      newmeAdcTID_[i]->SetLineColor(4);
+      newmeAdcTID_[i]->SetLineStyle(2);
+      meAdcTID_[i]->Draw();
+      newmeAdcTID_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+   }
+   Strip->Print("StripNumOfTIDWheel2Compare.eps");
+}
+//TID 3rd  Wheel
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,800);
+   Strip->Divide(3,2);
+   TH1* meAdcTID_[6];
+   TH1* newmeAdcTID_[6];
+
+   for (Int_t i=0; i<3; i++){
+      sprintf(histo,"DQMData/adc_tid_wheel3_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTID_[i]);
+      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      meAdcTID_[i];
+      newmeAdcTID_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTID_[i]->SetLineColor(2);
+      newmeAdcTID_[i]->SetLineColor(4);
+      newmeAdcTID_[i]->SetLineStyle(2);
+      meAdcTID_[i]->Draw();
+      newmeAdcTID_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+   }
+
+   for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/adc_tid_wheel3_ring%d_zm;1",i-2);
+      rfile->GetObject(histo ,meAdcTID_[i]);
+      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      meAdcTID_[i];
+      newmeAdcTID_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTID_[i]->SetLineColor(2);
+      newmeAdcTID_[i]->SetLineColor(4);
+      newmeAdcTID_[i]->SetLineStyle(2);
+      meAdcTID_[i]->Draw();
+      newmeAdcTID_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+   }
+   Strip->Print("AdcOfTIDWheel3Compare.eps");
+}
+
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,800);
+   Strip->Divide(3,2);
+   TH1* meAdcTID_[6];
+   TH1* newmeAdcTID_[6];
+
+   for (Int_t i=0; i<3; i++){
+      sprintf(histo,"DQMData/strip_tid_wheel3_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTID_[i]);
+      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      meAdcTID_[i];
+      newmeAdcTID_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTID_[i]->SetLineColor(2);
+      newmeAdcTID_[i]->SetLineColor(4);
+      newmeAdcTID_[i]->SetLineStyle(2);
+      meAdcTID_[i]->Draw();
+      newmeAdcTID_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+   }
+
+   for (Int_t i=3; i<6; i++){
+      sprintf(histo,"DQMData/strip_tid_wheel3_ring%d_zm;1",i-2);
+      rfile->GetObject(histo ,meAdcTID_[i]);
+      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      meAdcTID_[i];
+      newmeAdcTID_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTID_[i]->SetLineColor(2);
+      newmeAdcTID_[i]->SetLineColor(4);
+      newmeAdcTID_[i]->SetLineStyle(2);
+      meAdcTID_[i]->Draw();
+      newmeAdcTID_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTID_[i],newmeAdcTID_[i],te);
+   }
+   Strip->Print("StripNumOfTIDWheel3Compare.eps");
+}
 //IEC
- if (1) {
+if (1) {
   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,3);
 
@@ -533,14 +1557,15 @@ if (1) {
    Strip->Print("NdigiTECCompare_ZP.eps");
  }
 
-   if (1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
-   Strip->Divide(3,3);
-   TH1* meAdcTEC_[9];
-   TH1* newmeAdcTEC_[9];
+//TEC 1st Wheel in ZMinus Side
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,4);
+   TH1* meAdcTEC_[7];
+   TH1* newmeAdcTEC_[7];
 
-   for (Int_t i=0; i<9; i++){
-      sprintf(histo,"DQMData/adc_tec_%d_zm;1",i+1);
+   for (Int_t i=0; i<7; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel1_ring%d_zm;1",i+1);
       rfile->GetObject(histo ,meAdcTEC_[i]);
       sfile->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
@@ -555,17 +1580,16 @@ if (1) {
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
    }
 
-   Strip->Print("AdcOfStripTECCompare_ZM.eps");
-   } 
-
-   if (1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
-   Strip->Divide(3,3);
-   TH1* meStripTEC_[9];
-   TH1* newmeStripTEC_[9];
+   Strip->Print("AdcOfTECWheel1Compare_ZM.eps");
+} 
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,4);
+   TH1* meStripTEC_[7];
+   TH1* newmeStripTEC_[7];
  
-   for (Int_t i=0; i<9; i++){
-      sprintf(histo,"DQMData/strip_tec_%d_zm;1",i+1);
+   for (Int_t i=0; i<7; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel1_ring%d_zm;1",i+1);
       rfile->GetObject(histo ,meStripTEC_[i]);
       sfile->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
@@ -579,16 +1603,17 @@ if (1) {
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
    }
 
-   Strip->Print("StripNumOfStripTECCompare_ZM.eps");
-   }
-  if (1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
-   Strip->Divide(3,3);
-   TH1* meAdcTEC_[9];
-   TH1* newmeAdcTEC_[9];
+   Strip->Print("StripNumOfTECWheel1Compare_ZM.eps");
+}
+//TEC 2nd Wheel in ZMinus Side
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,4);
+   TH1* meAdcTEC_[7];
+   TH1* newmeAdcTEC_[7];
 
-   for (Int_t i=0; i<9; i++){
-      sprintf(histo,"DQMData/adc_tec_%d_zp;1",i+1);
+   for (Int_t i=0; i<7; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel2_ring%d_zm;1",i+1);
       rfile->GetObject(histo ,meAdcTEC_[i]);
       sfile->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
@@ -603,22 +1628,21 @@ if (1) {
       myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
    }
 
-   Strip->Print("AdcOfStripTECCompare_ZP.eps");
-   }
-
-   if (1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
-   Strip->Divide(3,3);
-   TH1* meStripTEC_[9];
-   TH1* newmeStripTEC_[9];
-
-   for (Int_t i=0; i<9; i++){
-      sprintf(histo,"DQMData/strip_tec_%d_zp;1",i+1);
+   Strip->Print("AdcOfTECWheel2Compare_ZM.eps");
+} 
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,4);
+   TH1* meStripTEC_[7];
+   TH1* newmeStripTEC_[7];
+ 
+   for (Int_t i=0; i<7; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel2_ring%d_zm;1",i+1);
       rfile->GetObject(histo ,meStripTEC_[i]);
       sfile->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
-      Strip->cd(i+1);
+      Strip->cd(i+1); 
       meStripTEC_[i]->SetLineColor(2);
       newmeStripTEC_[i]->SetLineColor(4);
       newmeStripTEC_[i]->SetLineStyle(2);
@@ -627,8 +1651,790 @@ if (1) {
       myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
    }
 
-   Strip->Print("StripNumOfStripTECCompare_ZP.eps");
+   Strip->Print("StripNumOfTECWheel2Compare_ZM.eps");
+}
+
+//TEC 3rd Wheel in ZMinus Side
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,4);
+   TH1* meAdcTEC_[7];
+   TH1* newmeAdcTEC_[7];
+
+   for (Int_t i=0; i<7; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel3_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
    }
 
+   Strip->Print("AdcOfTECWheel3Compare_ZM.eps");
+} 
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,4);
+   TH1* meStripTEC_[7];
+   TH1* newmeStripTEC_[7];
+ 
+   for (Int_t i=0; i<7; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel3_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel3Compare_ZM.eps");
+}
+
+//TEC 4th Wheel in ZMinus Side
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meAdcTEC_[6];
+   TH1* newmeAdcTEC_[6];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel4_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel4Compare_ZM.eps");
+} 
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meStripTEC_[6];
+   TH1* newmeStripTEC_[6];
+ 
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel4_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel4Compare_ZM.eps");
+}
+
+//TEC 5th Wheel in ZMinus Side
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meAdcTEC_[6];
+   TH1* newmeAdcTEC_[6];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel5_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel5Compare_ZM.eps");
+} 
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meStripTEC_[6];
+   TH1* newmeStripTEC_[6];
+ 
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel5_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel5Compare_ZM.eps");
+}
+
+//TEC 6th Wheel in ZMinus Side
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meAdcTEC_[6];
+   TH1* newmeAdcTEC_[6];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel6_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel6Compare_ZM.eps");
+} 
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meStripTEC_[6];
+   TH1* newmeStripTEC_[6];
+ 
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel6_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel6Compare_ZM.eps");
+}
+
+//TEC 7th Wheel in ZMinus Side
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meAdcTEC_[5];
+   TH1* newmeAdcTEC_[5];
+
+   for (Int_t i=0; i<5; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel7_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel7Compare_ZM.eps");
+} 
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meStripTEC_[5];
+   TH1* newmeStripTEC_[5];
+ 
+   for (Int_t i=0; i<5; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel7_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel7Compare_ZM.eps");
+}
+
+//TEC 8th Wheel in ZMinus Side
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meAdcTEC_[5];
+   TH1* newmeAdcTEC_[5];
+
+   for (Int_t i=0; i<5; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel8_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel8Compare_ZM.eps");
+} 
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meStripTEC_[5];
+   TH1* newmeStripTEC_[5];
+ 
+   for (Int_t i=0; i<5; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel8_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel8Compare_ZM.eps");
+ }
+
+//TEC 9th Wheel in ZMinus Side
+if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,2);
+   TH1* meAdcTEC_[4];
+   TH1* newmeAdcTEC_[4];
+
+   for (Int_t i=0; i<4; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel9_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel9Compare_ZM.eps");
+   } 
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,2);
+   TH1* meStripTEC_[4];
+   TH1* newmeStripTEC_[4];
+ 
+   for (Int_t i=0; i<4; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel9_ring%d_zm;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel9Compare_ZM.eps");
+   }
+
+//TEC 1st Wheel in ZPlus  Side
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,4);
+   TH1* meAdcTEC_[7];
+   TH1* newmeAdcTEC_[7];
+
+   for (Int_t i=0; i<7; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel1_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel1Compare_ZP.eps");
+   } 
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,4);
+   TH1* meStripTEC_[7];
+   TH1* newmeStripTEC_[7];
+ 
+   for (Int_t i=0; i<7; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel1_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel1Compare_ZP.eps");
+   }
+//TEC 2nd Wheel in ZPlus  Side
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,4);
+   TH1* meAdcTEC_[7];
+   TH1* newmeAdcTEC_[7];
+
+   for (Int_t i=0; i<7; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel2_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel2Compare_ZP.eps");
+   } 
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,4);
+   TH1* meStripTEC_[7];
+   TH1* newmeStripTEC_[7];
+ 
+   for (Int_t i=0; i<7; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel2_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel2Compare_ZP.eps");
+   }
+
+//TEC 3rd Wheel in ZPlus  Side
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,4);
+   TH1* meAdcTEC_[7];
+   TH1* newmeAdcTEC_[7];
+
+   for (Int_t i=0; i<7; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel3_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel3Compare_ZP.eps");
+   } 
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,4);
+   TH1* meStripTEC_[7];
+   TH1* newmeStripTEC_[7];
+ 
+   for (Int_t i=0; i<7; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel3_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel3Compare_ZP.eps");
+   }
+
+//TEC 4th Wheel in ZPlus  Side
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meAdcTEC_[6];
+   TH1* newmeAdcTEC_[6];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel4_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel4Compare_ZP.eps");
+   } 
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meStripTEC_[6];
+   TH1* newmeStripTEC_[6];
+ 
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel4_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel4Compare_ZP.eps");
+   }
+
+//TEC 5th Wheel in ZPlus  Side
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meAdcTEC_[6];
+   TH1* newmeAdcTEC_[6];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel5_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel5Compare_ZP.eps");
+   } 
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meStripTEC_[6];
+   TH1* newmeStripTEC_[6];
+ 
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel5_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel5Compare_ZP.eps");
+   }
+
+//TEC 6th WPlus in ZMinus Side
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meAdcTEC_[6];
+   TH1* newmeAdcTEC_[6];
+
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel6_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel6Compare_ZP.eps");
+   } 
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meStripTEC_[6];
+   TH1* newmeStripTEC_[6];
+ 
+   for (Int_t i=0; i<6; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel6_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel6Compare_ZP.eps");
+   }
+
+//TEC 7th Wheel in ZPlus  Side
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meAdcTEC_[5];
+   TH1* newmeAdcTEC_[5];
+
+   for (Int_t i=0; i<5; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel7_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel7Compare_ZP.eps");
+   } 
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meStripTEC_[5];
+   TH1* newmeStripTEC_[5];
+ 
+   for (Int_t i=0; i<5; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel7_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel7Compare_ZP.eps");
+   }
+
+//TEC 8th Wheel in ZPlus  Side
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meAdcTEC_[5];
+   TH1* newmeAdcTEC_[5];
+
+   for (Int_t i=0; i<5; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel8_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel8Compare_ZP.eps");
+   } 
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,3);
+   TH1* meStripTEC_[5];
+   TH1* newmeStripTEC_[5];
+ 
+   for (Int_t i=0; i<5; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel8_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel8Compare_ZP.eps");
+   }
+
+//TEC 9th Wheel in ZPLUS  Side
+   if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,2);
+   TH1* meAdcTEC_[4];
+   TH1* newmeAdcTEC_[4];
+
+   for (Int_t i=0; i<4; i++){
+      sprintf(histo,"DQMData/adc_tec_wheel9_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meAdcTEC_[i]);
+      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      meAdcTEC_[i];
+      newmeAdcTEC_[i];
+      Strip->cd(i+1);
+      gPad->SetLogy();
+      meAdcTEC_[i]->SetLineColor(2);
+      newmeAdcTEC_[i]->SetLineColor(4);
+      newmeAdcTEC_[i]->SetLineStyle(2);
+      meAdcTEC_[i]->Draw();
+      newmeAdcTEC_[i]->Draw("sames");
+      myPV->PVCompute(meAdcTEC_[i],newmeAdcTEC_[i],te);
+   }
+
+   Strip->Print("AdcOfTECWheel9Compare_ZP.eps");
+   } 
+ if (1) {
+   TCanvas * Strip = new TCanvas("Strip","Strip",800,1000);
+   Strip->Divide(2,2);
+   TH1* meStripTEC_[4];
+   TH1* newmeStripTEC_[4];
+ 
+   for (Int_t i=0; i<4; i++){
+      sprintf(histo,"DQMData/strip_tec_wheel9_ring%d_zp;1",i+1);
+      rfile->GetObject(histo ,meStripTEC_[i]);
+      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      meStripTEC_[i];
+      newmeStripTEC_[i];
+      Strip->cd(i+1); 
+      meStripTEC_[i]->SetLineColor(2);
+      newmeStripTEC_[i]->SetLineColor(4);
+      newmeStripTEC_[i]->SetLineStyle(2);
+      meStripTEC_[i]->Draw();
+      newmeStripTEC_[i]->Draw("sames");
+      myPV->PVCompute(meStripTEC_[i],newmeStripTEC_[i],te);
+   }
+
+   Strip->Print("StripNumOfTECWheel9Compare_ZP.eps");
+ }
 }
 

@@ -40,6 +40,7 @@ if (1) {
       meAdcLadder_[i];
       newmeAdcLadder_[i];
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdcLadder_[i]->SetLineColor(2);
       meAdcLadder_[i]->Draw();
       newmeAdcLadder_[i]->SetLineColor(4);
@@ -145,6 +146,7 @@ if (1) {
       meAdcLadder_[i];
       newmeAdcLadder_[i]; 
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdcLadder_[i]->SetLineColor(2);
       meAdcLadder_[i]->Draw();
       newmeAdcLadder_[i]->SetLineColor(4);
@@ -247,6 +249,7 @@ if (1) {
       meAdcLadder_[i];
       newmeAdcLadder_[i];
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdcLadder_[i]->SetLineColor(2);
       meAdcLadder_[i]->Draw();
       newmeAdcLadder_[i]->SetLineColor(4);
@@ -355,6 +358,7 @@ if (1) {
       meAdc_[i];
       newmeAdc_[i];
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
       newmeAdc_[i]->SetLineStyle(2);
@@ -428,6 +432,7 @@ if (1) {
       meAdc_[i];
       newmeAdc_[i];
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
       newmeAdc_[i]->SetLineStyle(2);
@@ -502,6 +507,7 @@ if (1) {
       meAdc_[i];
       newmeAdc_[i];
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
       newmeAdc_[i]->SetLineStyle(2);
@@ -574,6 +580,7 @@ if (1) {
       meAdc_[i];
       newmeAdc_[i];
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
       newmeAdc_[i]->SetLineStyle(2);
@@ -648,6 +655,7 @@ if (1) {
       meAdc_[i];
       newmeAdc_[i];
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
       newmeAdc_[i]->SetLineStyle(2);
@@ -723,6 +731,7 @@ if (1) {
       meAdc_[i];
       newmeAdc_[i];
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
       newmeAdc_[i]->SetLineStyle(2);
@@ -798,6 +807,7 @@ if (1) {
       meAdc_[i];
       newmeAdc_[i];
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
       newmeAdc_[i]->SetLineStyle(2); 
@@ -872,6 +882,7 @@ if (1) {
       meAdc_[i];
       newmeAdc_[i];
       Pixel->cd(i+1);
+      gPad->SetLogy();
       meAdc_[i]->SetLineColor(2);
       newmeAdc_[i]->SetLineColor(4);
       newmeAdc_[i]->SetLineStyle(2);
