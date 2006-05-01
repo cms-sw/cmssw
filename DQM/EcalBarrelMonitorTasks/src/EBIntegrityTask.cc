@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/04/07 09:34:02 $
- * $Revision: 1.12 $
+ * $Date: 2006/04/19 13:21:40 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
  */
@@ -295,7 +295,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     float iTt = itt + 0.5 - 69;
     int ism = 1;
 
-    if ( meIntegrityMemTTId[ism-1] ) meIntegrityMemTTId[ism-1]->Fill(iTt,1);
+    if ( meIntegrityMemTTId[ism-1] ) meIntegrityMemTTId[ism-1]->Fill(iTt,0);
     
   }
 
@@ -312,7 +312,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     float iTt = itt + 0.5 -69;
     int ism = 1;
     
-    if ( meIntegrityMemTTBlockSize[ism-1] ) meIntegrityMemTTBlockSize[ism-1]->Fill(iTt,1);
+    if ( meIntegrityMemTTBlockSize[ism-1] ) meIntegrityMemTTBlockSize[ism-1]->Fill(iTt,0);
     
   }
 
@@ -328,8 +328,8 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     int ism = 1;
 
     int chid = id.channelId();
-    int ie = EBIntegrityTask::chMemAbscissa[chid];
-    int ip = EBIntegrityTask::chMemOrdinate[chid];
+    int ie = EBIntegrityTask::chMemAbscissa[chid-1];
+    int ip = EBIntegrityTask::chMemOrdinate[chid-1];
 
     int iTt = id.towerId();
     ie += (iTt-69)*5;
@@ -342,20 +342,6 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
   }
 
 
-
-
-// //=======
-//     float xiet = iet + 0.5;
-//     float xipt = ipt + 0.5;
-//     //>>>>>>> 1.12
-
-
-//     //<<<<<<< EBIntegrityTask.cc
-//     //=======
-//     if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xiet, xipt);
-//     //>>>>>>> 1.12
-
-
   Handle<EcalElectronicsIdCollection> ids10;
   e.getByLabel("ecalEBunpacker", "EcalIntegrityMemGainErrors", ids10);
 
@@ -366,9 +352,9 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     int ism = 1;
 
     int chid = id.channelId();
-    int ie = EBIntegrityTask::chMemAbscissa[chid];
-    int ip = EBIntegrityTask::chMemOrdinate[chid];
-
+    int ie = EBIntegrityTask::chMemAbscissa[chid-1];
+    int ip = EBIntegrityTask::chMemOrdinate[chid-1];
+    
     int iTt = id.towerId();
     ie += (iTt-69)*5;
 
