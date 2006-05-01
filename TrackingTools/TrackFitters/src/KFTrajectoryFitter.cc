@@ -103,6 +103,11 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 
   for(edm::OwnVector<TransientTrackingRecHit>::const_iterator ihit = hits.begin() + 1; 
       ihit != hits.end(); ihit++) {
+    if ((*ihit).isValid() == false && (*ihit).det() == 0) {
+      edm::LogError("TrackingTools/TrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
+      continue;
+    }
+
     if ((*ihit).isValid()){
       LogDebug("TrackingTools/TrackFitters")
 	<<" ----------------- NEW HIT -----------------------"<<"\n"
@@ -128,11 +133,6 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       }else{
 	LogDebug("TrackingTools/TrackFitters") <<" I am Pixel "<<"\n";
       }
-    }
-
-    if ((*ihit).isValid() == false && (*ihit).det() == 0) {
-      LogError("TrackingTools/TrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
-      continue;
     }
 
     predTsos = propagator()->propagate(currTsos,
