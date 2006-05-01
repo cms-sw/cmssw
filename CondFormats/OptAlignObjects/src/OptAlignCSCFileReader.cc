@@ -60,7 +60,8 @@ bool OptAlignCSCFileReader::next ( ) {
       toReturn = parse_strings(line_.c_str());
     }
   }
-  //  if ( toReturn ) std::cout << "about to return true from next() " << std::endl;
+  //  if ( toReturn ) std::cout << "about to return true from next() " << std::endl; 
+  //  if (toReturn) std::cout << "strVec_[0]  IS sensorType_ =|" << strVec_[0] << "|" << std::endl;
   return toReturn;
 }
 
@@ -77,7 +78,7 @@ bool OptAlignCSCFileReader::parse_strings(char const* str) const
 void OptAlignCSCFileReader::do_makeString(char const* str, char const* end)
 {
   std::string ts(str, end);
-  std::cout << "string=|" << ts << std::endl;
+  //  std::cout << "string=|" << ts << "|" << std::endl;
   strVec_.push_back(ts);
 }
 
