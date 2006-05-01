@@ -22,7 +22,7 @@ class CSCZSensorData {
   std::string meLayer_;
   std::string logicalAlignmentName_;
   std::string cernDesignator_;
-  long long cernBarcode_;
+  std::string cernBarcode_;
   float absSlope_;
   float absSlopeError_;
   float normSlope_;
