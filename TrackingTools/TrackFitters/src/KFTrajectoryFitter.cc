@@ -40,14 +40,15 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 					   const edm::OwnVector<TransientTrackingRecHit>& hits,
 					   const TSOS& firstPredTsos) const {
 
+
   if(hits.empty()) return vector<Trajectory>();
   LogDebug("TrackingTools/TrackFitters")
     <<" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
     <<" KFTrajectoryFitter::fit staring with "<<hits.size()<<" HITS \n"
     <<" INITIAL STATE "<<firstPredTsos<<"\n";
   
-
   Trajectory myTraj(aSeed, propagator()->propagationDirection());
+
 
   TSOS predTsos(firstPredTsos);
   if(!predTsos.isValid()) {
@@ -57,7 +58,6 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
     return vector<Trajectory>();
   } 
   TSOS currTsos;
-
   if((&*(hits.begin()))->isValid()) {
     //update
     currTsos = updator()->update(predTsos, *(hits.begin()));
@@ -129,10 +129,14 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 	LogDebug("TrackingTools/TrackFitters") <<" I am Pixel "<<"\n";
       }
     }
-    
+
+    if ((*ihit).isValid() == false && (*ihit).det() == 0) {
+      LogError("TrackingTools/TrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
+      continue;
+    }
+
     predTsos = propagator()->propagate(currTsos,
 				       (*ihit).det()->surface());
-
     if(!predTsos.isValid()) {
       edm::LogError("TrackingTools/TrackFitters") 
 	<<" SOMETHING WRONG !"<<"\n"
@@ -143,7 +147,6 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 	  << "next Surface: "<<(*ihit).det()->surface().position()<< "\n";
       return vector<Trajectory>();
     }
-    
     if((*ihit).isValid()) {
       //update
       LogDebug("TrackingTools/TrackFitters") <<"THE HIT IS VALID: updating predTsos"<<"\n";
