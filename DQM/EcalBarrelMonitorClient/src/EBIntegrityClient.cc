@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/04/28 10:48:50 $
- * $Revision: 1.79 $
+ * $Date: 2006/04/30 20:45:50 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -630,11 +630,15 @@ void EBIntegrityClient::analyze(void){
         }
       }
     }
-
+  
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EcalOccupancy/EBMM MEM occupancy SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EcalOccupancy/EBMM MEM occupancy SM%02d", ism);
+      if ( enableMonitorDaemon_ ) {
+	sprintf(histo, "Collector/FU0/EcalBarrel/EcalOccupancy/EBMM MEM occupancy SM%02d", ism);
+      } else {
+	sprintf(histo, "EcalBarrel/EcalOccupancy/EBMM MEM occupancy SM%02d", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -798,7 +802,11 @@ void EBIntegrityClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemChId/EBIT MemChId SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId SM%02d", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId SM%02d", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId SM%02d", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -818,7 +826,11 @@ void EBIntegrityClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemGain/EBIT MemGain SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain SM%02d", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain SM%02d", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain SM%02d", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -835,11 +847,14 @@ void EBIntegrityClient::analyze(void){
       }
     }
 
-
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemTTId/EBIT MemTTId SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId SM%02d", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId SM%02d", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId SM%02d", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -859,7 +874,11 @@ void EBIntegrityClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemSize/EBIT MemSize SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize SM%02d", ism);
+      if ( enableMonitorDaemon_ ) {
+        sprintf(histo, "Collector/FU0/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize SM%02d", ism);
+      } else {
+        sprintf(histo, "EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize SM%02d", ism);
+      }
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -875,7 +894,7 @@ void EBIntegrityClient::analyze(void){
         }
       }
     }
-
+  
 
     float num00;
 
@@ -894,7 +913,7 @@ void EBIntegrityClient::analyze(void){
     }
 
     float num01, num02, num03, num04, num05, num06;
-
+  
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
@@ -974,7 +993,7 @@ void EBIntegrityClient::analyze(void){
 
       }
     }// end of loop on crystals to fill summary plot
-
+  
 
 
     // summaries for mem channels
@@ -1104,6 +1123,14 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
     dummy2.Fill( a, b, i+1 );
   }
   dummy2.SetMarkerSize(2);
+
+  TH2C dummy3( "dummy3", "dummy3 for sm mem", 10, 0, 10, 5, 0, 5 );
+  for( short i=0; i<2; i++ ) {
+    int a = 2 + i*5;
+    int b = 2;
+    dummy3.Fill( a, b, i+1 );
+  }
+  dummy3.SetMarkerSize(2);
 
   string imgNameDCC, imgNameOcc, imgNameQual, imgNameME[6], imgName, meName;
 
@@ -1291,6 +1318,18 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
       }
 
     }
+
+    // gio: here need to add projection of 4 new ME's, draw dummy superimposed to them and
+    // add some xml like what follows:
+    //    <table border="0" cellspacing="0" 
+    //       cellpadding="10" align="center">
+    //       <tr align="left">
+    //       <td><img src="EBPOT_pedestal_mean_G12_SM01.png"></td>
+    //       <td><img src="EBPOT_pedestal_rms_G12_SM01.png"></td>
+    //       <td><img src="EBPOT_pedestal_mean_G12_SM01.png"></td>
+    //       <td><img src="EBPOT_pedestal_rms_G12_SM01.png"></td>
+    //       </tr>
+    //       </table>
 
     htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
 
