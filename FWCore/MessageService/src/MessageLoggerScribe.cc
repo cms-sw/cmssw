@@ -20,7 +20,7 @@
 //	never-specified values) by NO_VALUE_SET = -45654
 //	b) checking for values of -1 and substituting a very large integer  
 //
-//   3 - 4/28/06 mf  - in configure_dest()
+//   3 - 4/28/06  mf  - in configure_dest()
 //	Mods to help deal with the fact that checking for an empty PSet is
 //	unwise when untracked parameters are involved:  The PSet will appear
 //	to be empty and if skipped, will result in limits not being applied.
@@ -28,12 +28,17 @@
 //	which can be examined all in one place.
 //	b) Carefully checked that we are never comparing to the empty PSet
 //	
-//   4 - 4/28/06 mf  - in configure_dest()
+//   4 - 4/28/06  mf  - in configure_dest()
 //	If a destination name does not have an extension, append .log 
 //	(or in the case of a FwkJobReport, .xml).
 //	[note for this change - the filename kept as an index to stream_ps
 //	can be kept as its original name; it is just a tool for assigning
 //	the right shared stream to statistics destinations]
+//
+//   5 - 4/28/06  mf  - in configure_dest()
+//	Provision for an overall default affecting all categories, for 
+//	example, establishing a limit for all a specific category for
+//	every destination. 
 //
 // ----------------------------------------------------------------------
 
@@ -467,8 +472,10 @@ void
      )
   {
     String  msgID = *id_it;
+    PSet default_category_pset 
+       = getAparameter<PSet>(&default_pset,msgID, empty_PSet);	// change log 5
     PSet  category_pset
-       = getAparameter<PSet>(&dest_pset,msgID, empty_PSet);
+       = getAparameter<PSet>(&dest_pset,msgID, default_category_pset);
     int  limit
       = getAparameter<int>(&category_pset,"limit", dest_default_limit);
     int  timespan
@@ -492,7 +499,11 @@ void
   {
     String  sevID = *sev_it;
     ELseverityLevel  severity(sevID);
-    PSet  sev_pset = getAparameter<PSet>(&dest_pset,sevID, empty_PSet);
+    PSet  default_sev_pset 
+    	= getAparameter<PSet>(&default_pset,sevID, empty_PSet);
+    PSet  sev_pset 
+    	= getAparameter<PSet>(&dest_pset,sevID, default_sev_pset);
+						// change log 5
     int  limit     = getAparameter<int>(&sev_pset,"limit",    NO_VALUE_SET);
     int  timespan  = getAparameter<int>(&sev_pset,"timespan", NO_VALUE_SET);
     if( limit    != NO_VALUE_SET )  dest_ctrl.setLimit(severity, limit   );
@@ -501,20 +512,30 @@ void
   }  // for
 
   // establish this destination's linebreak policy:
-  bool noLineBreaks = getAparameter<bool> (&dest_pset,"noLineBreaks",false);
+  bool noLineBreaks_default 
+  	= getAparameter<bool> (&default_pset,"noLineBreaks",false);
+						// change log 5
+  bool noLineBreaks 
+  	= getAparameter<bool> (&dest_pset,"noLineBreaks",noLineBreaks_default);
   if (noLineBreaks) {
     dest_ctrl.setLineLength(32000);
   }
   else {
     int  lenDef = 80;
-    int  lineLen = getAparameter<int> (&dest_pset,"lineLength",lenDef);
+    int  lineLen_default
+    	 = getAparameter<int> (&default_pset,"lineLength",lenDef);
+						// change log 5
+    int  lineLen = getAparameter<int> (&dest_pset,"lineLength",lineLen_default);
     if (lineLen != lenDef) {
       dest_ctrl.setLineLength(lineLen);
     }
   }
 
   // if indicated, suppress time stamps in this destination's output
-  bool suppressTime = getAparameter<bool> (&dest_pset,"noTimeStamps",false);
+  bool suppressTime_default 
+  	= getAparameter<bool> (&default_pset,"noTimeStamps",false);
+  bool suppressTime 
+  	= getAparameter<bool> (&dest_pset,"noTimeStamps",suppressTime_default);
   if (suppressTime) {
     dest_ctrl.suppressTime();
   }
