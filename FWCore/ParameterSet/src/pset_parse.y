@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.19 2006/04/26 22:21:27 rpw Exp $
+ * $Id: pset_parse.y,v 1.20 2006/04/28 00:47:56 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -643,7 +643,7 @@ procnode:        allpset
                    $<_Node>$ = wn;
                  }
                |
-                 COPY_tok LETTERSTART_tok LETTERSTART_tok
+/*                 COPY_tok LETTERSTART_tok LETTERSTART_tok
                  {
                    DBPRINT("procnode: COPY");
                    string from(toString($<str>2));
@@ -651,7 +651,7 @@ procnode:        allpset
                    CopyNode * wn(new CopyNode("copy", from, to, lines));
                    $<_Node>$ = wn;
                  }
-               |
+               | */
                  MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: MODULE");
