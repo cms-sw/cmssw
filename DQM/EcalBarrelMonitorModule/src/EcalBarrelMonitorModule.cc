@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/04/30 17:27:59 $
- * $Revision: 1.87 $
+ * $Date: 2006/04/30 17:43:00 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -118,8 +118,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   for (int i = 0; i < 36; i++) {
     meEvent_[i] = 0;
-    meOccupancy_[i]    = 0;
-    meOccupancyMem_[i] = 0;
   }
 
   Char_t histo[20];
@@ -141,15 +139,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
       }
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EcalOccupancy");
-    for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBMM occupancy SM%02d", i+1);
-      meOccupancy_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-    }
-    for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBMM MEM occupancy SM%02d", i+1);
-      meOccupancyMem_[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
-    }
   }
 
   if ( dbe_ ) {
@@ -273,10 +262,10 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     int ie = (ic-1)/20 + 1;
     int ip = (ic-1)%20 + 1;
 
+    int ism = id.ism();
+
     float xie = ie - 0.5;
     float xip = ip - 0.5;
-
-    int ism = id.ism();
 
     LogDebug("EcalBarrelMonitor") << " det id = " << id;
     LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -286,29 +275,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
       LogWarning("EcalBarrelMonitor") << " xie, xip " << xie << " " << xip;
       return;
-    }
-
-    if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill(xie, xip);
-
-  }
-
-  Handle<EcalPnDiodeDigiCollection> PNs;
-  e.getByLabel("ecalEBunpacker", PNs);
-
-  // filling mem occupancy only for the 5 channels belonging
-  // to a fully reconstructed PN's
-  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
-
-    int   ism   = (*pnItr).id().iDCCId();
-    float PnId  = (*pnItr).id().iPnId();
-    PnId        = PnId - 0.5;
-    float st    = 0.0;
-
-    for (int chInStrip = 1; chInStrip <= 5; chInStrip++){
-      if ( meOccupancyMem_[ism-1] ) {
-         st = chInStrip - 0.5;
-	 meOccupancyMem_[ism-1]->Fill(PnId, st);
-      }
     }
 
   }
@@ -338,10 +304,10 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
+      int ism = id.ism();
+
       float xie = ie - 0.5;
       float xip = ip - 0.5;
-
-      int ism = id.ism();
 
       LogDebug("EcalBarrelMonitor") << " det id = " << id;
       LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -350,7 +316,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
         LogWarning("EcalBarrelMonitor") << " det id = " << id;
         LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
         LogWarning("EcalBarrelMonitor") << " xie, xip " << xie << " " << xip;
-        return;
       }
 
       float xval = hit.amplitude();

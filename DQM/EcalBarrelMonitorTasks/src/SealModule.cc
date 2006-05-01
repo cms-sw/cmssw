@@ -17,6 +17,9 @@ DEFINE_ANOTHER_FWK_MODULE(EBIntegrityTask)
 #include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBLaserTask)
 
+#include <DQM/EcalBarrelMonitorTasks/interface/EBOccupancyTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EBOccupancyTask)
+
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalOnlineTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBPedestalOnlineTask)
 
