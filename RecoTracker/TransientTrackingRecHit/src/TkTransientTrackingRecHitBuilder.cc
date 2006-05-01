@@ -20,7 +20,9 @@ TransientTrackingRecHit* TkTransientTrackingRecHitBuilder::build (const Tracking
   } else if (dynamic_cast<const SiPixelRecHit*>(p)) {
     return ( new TSiPixelRecHit(tGeometry_->idToDet(p->geographicalId()), p ) ); 
   }else if (dynamic_cast<const InvalidTrackingRecHit*>(p)){
-    return ( new InvalidTransientRecHit(tGeometry_->idToDet(p->geographicalId())) ); 
+    return ( new InvalidTransientRecHit((p->geographicalId().rawId() == 0 ? 0 : 
+					tGeometry_->idToDet(p->geographicalId())
+					) )); 
   }
   return 0;
 }
