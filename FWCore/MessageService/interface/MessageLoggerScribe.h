@@ -9,6 +9,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <iostream>
 #include <fstream>
 #include <vector>
 
@@ -53,6 +54,11 @@ private:
       t = p->template getUntrackedParameter<T>(id, def);
     } catch (...) {
       t = p->template getParameter<T>(id);
+      std::cerr << "Tracked parameter " << id 
+                << " used in MessageLogger configuration.\n"
+		<< "Use of tracked parameters for the message service "
+		<< "is deprecated.\n"
+		<< "The .cfg file should be modified to make this untracked.\n";
     }
     return t;
   }
