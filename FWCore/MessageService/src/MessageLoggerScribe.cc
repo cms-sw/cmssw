@@ -315,7 +315,7 @@ void
     std::string actual_filename = filename;			// change log 4
     const std::string::size_type npos = std::string::npos;
     if ( filename.find('.') == npos ) {
-      actual_filename += ".log";
+      actual_filename += ".xml";
     }  
     std::ofstream * os_p = new std::ofstream(actual_filename.c_str());
     file_ps.push_back(os_p);
