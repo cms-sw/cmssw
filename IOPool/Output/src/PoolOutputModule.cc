@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.19 2006/03/24 14:16:56 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.22 2006/04/18 20:28:26 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Services/interface/JobReport.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 
 #include "DataSvc/Ref.h"
 #include "DataSvc/IDataSvc.h"
@@ -122,7 +122,7 @@ namespace edm {
     // Register the output file with the JobReport service
     // and get back the token for it.
     std::string moduleName = "PoolOutputModule";
-    Service<edm::service::JobReport> reportSvc;
+    Service<JobReport> reportSvc;
     reportToken_ = reportSvc->outputFileOpened(
 		      file_, lfn_,  // PFN and LFN
 		      om->catalog_.url(),  // catalog
@@ -201,7 +201,7 @@ namespace edm {
 
     commitTransaction();
     // Report event written 
-    Service<edm::service::JobReport> reportSvc;
+    Service<JobReport> reportSvc;
     reportSvc->eventWrittenToFile(reportToken_, e.id());
 
     if (eventCount_ >= fileSizeCheckEvent_) {
@@ -229,7 +229,7 @@ namespace edm {
     context()->session().disconnectAll();
     setBranchAliases();
     // report that file has been closed
-    Service<edm::service::JobReport> reportSvc;
+    Service<JobReport> reportSvc;
     reportSvc->outputFileClosed(reportToken_);
   }
 

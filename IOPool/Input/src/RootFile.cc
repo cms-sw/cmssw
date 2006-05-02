@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.10 2006/04/17 23:45:13 wmtan Exp $
+$Id: RootFile.cc,v 1.11 2006/04/18 23:41:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -15,7 +15,7 @@ $Id: RootFile.cc,v 1.10 2006/04/17 23:45:13 wmtan Exp $
 #include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Common/interface/ParameterSetBlob.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Services/interface/JobReport.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
@@ -79,7 +79,7 @@ namespace edm {
     // Report file opened.
     std::string moduleName = "PoolRASource";
     std::string logicalFileName = "";
-    Service<edm::service::JobReport> reportSvc;
+    Service<JobReport> reportSvc;
     reportToken_ = reportSvc->inputFileOpened(fileName,
                logicalFileName,
                catalogName,
@@ -92,7 +92,7 @@ namespace edm {
   RootFile::~RootFile() {
     filePtr_->Close();
     // report file being closed
-    Service<edm::service::JobReport> reportSvc;
+    Service<JobReport> reportSvc;
     reportSvc->inputFileClosed(reportToken_);
   }
 
@@ -169,7 +169,7 @@ namespace edm {
       thisEvent->addGroup(g);
     }
     // report event read from file
-    Service<edm::service::JobReport> reportSvc;
+    Service<JobReport> reportSvc;
     reportSvc->eventReadFromFile(reportToken_, eventID_);
     return thisEvent;
   }

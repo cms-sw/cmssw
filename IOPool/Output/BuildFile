@@ -1,12 +1,10 @@
 <flags SEAL_PLUGIN_NAME="IOPoolOutput">
 <use name=FWCore/Framework>
-<use name=FWCore/Services>
 <use name=IOPool/Common>
 <use name=rootcore>
 <export>
  <lib name=IOPoolOutput>
  <use name=FWCore/Framework>
- <use name=FWCore/Services>
  <use name=IOPool/Common>
  <use name=rootcore>
 </export>
