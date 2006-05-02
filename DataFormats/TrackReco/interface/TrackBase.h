@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackBase.h,v 1.8 2006/04/19 13:35:05 llista Exp $
+ * \version $Id: TrackBase.h,v 1.9 2006/04/28 08:05:25 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -74,6 +74,18 @@ namespace reco {
     double dz() const { return par_.dz(); }
     /// tangent of the dip angle ( tanDip = pz / pt )
     double tanDip() const { return par_.tanDip(); }
+    /// error on specified element
+    double error( int i ) const { return cov_.error( i ); }
+    /// error on d0
+    double d0Error() const { return cov_.d0Error(); }
+    /// error on phi0
+    double phi0Error() const { return cov_.phi0Error(); }
+    /// error on omega
+    double omegaError() const { return cov_.omegaError(); }
+    /// error on dx
+    double dzError() const { return cov_.dzError(); }
+    /// error on tanDip
+    double tanDipError() const { return cov_.tanDipError(); }
     /// track momentum vector
     Vector momentum() const { return par_.momentum(); }
     /// position of point of closest approach to the beamline

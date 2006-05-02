@@ -9,7 +9,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Id: HelixParameters.h,v 1.10 2006/04/03 11:59:29 llista Exp $
+ * \version $Id: HelixCovariance.h,v 1.1 2006/04/19 13:35:05 llista Exp $
  *
  */
 
@@ -42,16 +42,18 @@ namespace reco {
       double operator()( index i, index j ) const { return cov_( i, j ); }
       /// accessing (i, j)-th parameter, i, j = 0, ..., 4
       double & operator()( index i, index j ) { return cov_ ( i, j ); }
+      /// error on specified element
+      double error( index i ) const { return sqrt( cov_( i, i ) ); }
       /// error on d0
-      double d0Error() const { return sqrt( cov_( i_d0, i_d0 ) ); }
+      double d0Error() const { return error( i_d0 ); }
       /// error on phi0
-      double phi0Error() const { return sqrt( cov_( i_phi0, i_phi0 ) ); }
+      double phi0Error() const { return error( i_phi0 ); }
       /// error on omega
-      double omegaError() const { return sqrt( cov_( i_omega, i_omega ) ); }
+      double omegaError() const { return error( i_omega ); }
       /// error on dx
-      double dzError() const { return sqrt( cov_( i_dz, i_dz ) ); }
+      double dzError() const { return error( i_dz ); }
       /// error on tanDip
-      double tanDipError() const { return sqrt( cov_( i_tanDip, i_tanDip ) ); }
+      double tanDipError() const { return error( i_tanDip ); }
 
     private:
       /// 5x5 matrix
