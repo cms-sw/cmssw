@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.9 2006/04/19 20:13:01 wmtan Exp $
+  $Id: Schedule.h,v 1.10 2006/04/28 17:01:17 paterno Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -168,6 +168,15 @@ namespace edm
       return total_passed_;
     }
 
+    /// Turn end_paths "off" if "active" is false;
+    /// turn end_paths "on" if "active" is true.
+    void enableEndPaths(bool active);
+
+    /// Return true if end_paths are active, and false if they are
+    /// inactive.
+    bool endPathsEnabled() const;
+
+
   private:
     void resetWorkers();
     void fillWorkers(const std::string& name, PathWorkers& out);
@@ -175,40 +184,41 @@ namespace edm
     void fillEndPath(int bitpos,const std::string& name);
     void handleWronglyPlacedModules();
 
-    ParameterSet pset_;
-    WorkerRegistry* worker_reg_;
-    ProductRegistry* prod_reg_;
-    ActionTable* act_table_;
-    std::string proc_name_;
-    ParameterSet trig_pset_;
+    ParameterSet        pset_;       // why is this kept?
+    WorkerRegistry*     worker_reg_;
+    ProductRegistry*    prod_reg_;
+    ActionTable*        act_table_;
+    std::string         proc_name_;
+    ParameterSet        trig_pset_;  // why is this kept?
     ActivityRegistryPtr act_reg_;
 
     State state_;
     vstring trig_name_list_;
     vstring path_name_list_;
-    vstring end_path_name_list_;
+    vstring               end_path_name_list_;
     std::set<std::string> trig_name_set_;
 
-    TrigResPtr results_;
-    TrigResPtr nontrig_results_;
-    TrigResPtr endpath_results_;
+    TrigResPtr   results_;
+    TrigResPtr   nontrig_results_;
+    TrigResPtr   endpath_results_;
 
-    WorkerPtr results_inserter_;
-    AllWorkers all_workers_;
-    TrigPaths trig_paths_;
-    TrigPaths end_paths_;
+    WorkerPtr   results_inserter_;
+    AllWorkers  all_workers_;
+    TrigPaths   trig_paths_;
+    TrigPaths   end_paths_;
 
     PathWorkers tmp_wrongly_placed_;
 
-    bool wantSummary_;
-    bool makeTriggerResults_;
-    int total_events_;
-    int total_passed_;
-    RunStopwatch::StopwatchPointer stopwatch_;
+    bool                             wantSummary_;
+    bool                             makeTriggerResults_;
+    int                              total_events_;
+    int                              total_passed_;
+    RunStopwatch::StopwatchPointer   stopwatch_;
 
     boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
-    std::vector<boost::shared_ptr<Group> > demandGroups_;
+    std::vector<boost::shared_ptr<Group> >     demandGroups_;
 
+    volatile bool       endpathsAreActive_;
   };
 }
 

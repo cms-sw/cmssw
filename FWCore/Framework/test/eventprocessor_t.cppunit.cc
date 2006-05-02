@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.15 2006/04/28 17:01:19 paterno Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.16 2006/05/01 16:59:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -35,6 +35,7 @@ class testeventprocessor: public CppUnit::TestFixture
   CPPUNIT_TEST(beginEndJobTest);
   CPPUNIT_TEST(activityRegistryTest);
   CPPUNIT_TEST(moduleFailureTest);
+  CPPUNIT_TEST(endpathTest);
   CPPUNIT_TEST_SUITE_END();
  public:
   void setUp(){m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());}
@@ -44,6 +45,7 @@ class testeventprocessor: public CppUnit::TestFixture
   void beginEndJobTest();
   void activityRegistryTest();
   void moduleFailureTest();
+  void endpathTest();
  private:
   std::auto_ptr<edm::AssertHandler> m_handler;
   void work()
@@ -349,4 +351,15 @@ testeventprocessor::moduleFailureTest()
     std::cout <<"Unexpected exception "<<iException.explainSelf()<<std::endl;
     throw;
   }
+}
+
+void
+testeventprocessor::endpathTest()
+{
+  std::string configuration("process p = {\n"
+			    "source = EmptySource { untracked int32 maxEvents = 5 }\n"
+			    "module m1 = TestMod { int32 ivalue = -3 }\n"
+			    "path p1 = { m1 }\n"
+			    "}\n");
+  
 }

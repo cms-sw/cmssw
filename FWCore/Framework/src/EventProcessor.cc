@@ -22,8 +22,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
-//#include "FWCore/Framework/interface/ScheduleBuilder.h"
-//#include "FWCore/Framework/interface/ScheduleExecutor.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -850,11 +848,22 @@ namespace edm {
   {
     return schedule_->totalEventsPassed();
   }
-  
+
+  void 
+  EventProcessor::enableEndPaths(bool active)
+  {
+    schedule_->enableEndPaths(active);
+  }
+
+  bool 
+  EventProcessor::endPathsEnabled() const
+  {
+    return schedule_->endPathsEnabled();
+  }
 
   const char* EventProcessor::currentStateName() const
   {
-    return stateNames[getState()];
+    return stateName(getState());
   }
 
   const char* EventProcessor::stateName(State s) const

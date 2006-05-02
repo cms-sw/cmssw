@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.18 2006/04/28 17:01:17 paterno Exp $
+$Id: EventProcessor.h,v 1.19 2006/05/02 14:52:13 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -183,6 +183,14 @@ namespace edm {
     /// Return the number of events processed by this EventProcessor
     /// which have been passed by one or more trigger paths.
     int totalEventsPassed() const;
+
+    /// Turn end_paths "off" if "active" is false;
+    /// turn end_paths "on" if "active" is true.
+    void enableEndPaths(bool active);
+
+    /// Return true if end_paths are active, and false if they are
+    /// inactive.
+    bool endPathsEnabled() const;
 
     //------------------------------------------------------------------
     //
