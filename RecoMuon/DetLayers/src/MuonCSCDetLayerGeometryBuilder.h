@@ -5,8 +5,8 @@
  *
  *  No description available.
  *
- *  $Date: 2006/04/25 17:03:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/28 11:53:12 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -22,7 +22,6 @@ class MuonCSCDetLayerGeometryBuilder {
         virtual ~MuonCSCDetLayerGeometryBuilder();
   
         /// Operations
-        //static pair<vector<MuRingForwardLayer*>, vector<MuRingForwardLayer*> > buildLayers(const CSCGeometry& geo);
         static pair<vector<DetLayer*>, vector<DetLayer*> > buildLayers(const CSCGeometry& geo);
     private:
     

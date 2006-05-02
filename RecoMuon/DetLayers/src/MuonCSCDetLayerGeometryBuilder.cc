@@ -1,8 +1,8 @@
-#include "RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.h"
+#include <RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.h>
 
-#include "RecoMuon/DetLayers/interface/MuDetRing.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include <RecoMuon/DetLayers/interface/MuDetRing.h>
+#include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
@@ -14,7 +14,6 @@ MuonCSCDetLayerGeometryBuilder::MuonCSCDetLayerGeometryBuilder() {
 MuonCSCDetLayerGeometryBuilder::~MuonCSCDetLayerGeometryBuilder() {
 }
 
-//pair<vector<MuRingForwardLayer*>, vector<MuRingForwardLayer*> > 
 pair<vector<DetLayer*>, vector<DetLayer*> > 
     MuonCSCDetLayerGeometryBuilder::buildLayers(const CSCGeometry& geo) {
         
@@ -65,7 +64,7 @@ pair<vector<DetLayer*>, vector<DetLayer*> >
         }
                 
         result[endcap].push_back(new MuRingForwardLayer(muDetRings));    
-	    cout << "New layer with " << muDetRings.size() << " rings" << endl;
+	    LogDebug("xxx") << "New layer with " << muDetRings.size() << " rings" << endl;
         muDetRings.clear();
     
         for(int station = 2; station <= CSCDetId::maxStationId(); station++) {
