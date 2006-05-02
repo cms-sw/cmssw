@@ -1,15 +1,5 @@
 // This is CSCSegmentizerTC.cc
 
-// #include "Utilities/Configuration/interface/Architecture.h"
-// #include "Utilities/UI/interface/Verbosity.h"
-// #include "Utilities/UI/interface/SimpleConfiguration.h"
-
-// #include "Muon/CSCSegmentizer/interface/CSCSegmentizerTC.h"
-// #include "Muon/MCommonData/interface/CSCSegment.h"
-// #include "Muon/CSCDetector/interface/CSCChamber.h"
-// #include "Muon/CSCDetector/interface/CSCLayer.h"
-
-// For copy etc
 #include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoTC.h>
 
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
@@ -59,7 +49,7 @@ CSCSegmentCollection CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
     LogDebug("CSC") << "*********************************************";
     LogDebug("CSC") << "Start segment building in the new chamber: " << theChamber->specs()->chamberTypeName();
     LogDebug("CSC") << "*********************************************";
-	
+        
     double z_det = theChamber->surface().position().z();
 
     for(unsigned int i = 0; i < rechits.size() - 1; i++) {
@@ -82,7 +72,8 @@ CSCSegmentCollection CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
         }
     }
 
-    if (debugInfo) {
+    if (debugInfo) 
+    {
         // dump after sorting
         dumpHits(rechits);
     }
@@ -124,12 +115,13 @@ CSCSegmentCollection CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
         
             int layer2 = i2->cscDetId().layer();
 				
-            if (layer2 - layer1 < minLayersApart) 
+            if (abs(layer2 - layer1) < minLayersApart)
                 break;
+
             const CSCRecHit2D& h2 = *i2;
 
             if (areHitsCloseInLocalX(h1, h2) && areHitsCloseInGlobalPhi(h1, h2)) {
-					
+
                 proto_segment.clear();
 					
                 const CSCLayer* l1 = theChamber->layer(h1.cscDetId().layer());
@@ -137,7 +129,7 @@ CSCSegmentCollection CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
                 const CSCLayer* l2 = theChamber->layer(h2.cscDetId().layer());
                 GlobalPoint gp2 = l2->surface().toGlobal(h2.localPosition());					
                 LogDebug("CSC") << "start new segment from hits " << "h1: " << gp1 << " - h2: " << gp2 << "\n";
-					
+				
                 if (!addHit(h1, layer1)) { 
                     LogDebug("CSC") << "  failed to add hit h1\n";
                     continue;
@@ -147,7 +139,7 @@ CSCSegmentCollection CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
                     LogDebug("CSC") << "  failed to add hit h2\n";
                     continue;
                 }
-					
+
                 tryAddingHitsToSegment(rechits, i1, i2); // changed seg 
                 
                 // if a segment has been found push back it into the segment collection
@@ -169,20 +161,14 @@ CSCSegmentCollection CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
                     LogDebug("CSC") << "Found a segment !!!\n";
                     segments.push_back(temp);	
                 }
-            }        
+            }
         }
     }
     
     // We've built all possible segments. Now pick the best, non-overlapping subset.
     pruneTheSegments(segments, rechits);
 
-    // Give them to the CSCChamber
-    //passToRecDet( segments, theChamber );
-
     // Give the segments to the CSCChamber
-    for(CSCSegmentCollection::iterator it = segments.begin(); it !=segments.end(); it++)
-        (*it).print();
-	
     return segments;
 }
 
@@ -211,12 +197,12 @@ void CSCSegAlgoTC::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
         const CSCRecHit2D& h = *i;
 
         if (isHitNearSegment(h)) {
+
             const CSCLayer* l1 = theChamber->layer(h.cscDetId().layer());
             GlobalPoint gp1 = l1->surface().toGlobal(h.localPosition());		
             LogDebug("CSC") << "    hit at global " << gp1 << " is near segment\n.";
      
             if (hasHitOnLayer(layer)) {
-                
                 if (proto_segment.size() <= 2) {
 	                LogDebug("CSC") << "    " << proto_segment.size() 
                         << " hits on segment...skip hit on same layer.\n";
@@ -533,19 +519,26 @@ void CSCSegAlgoTC::fillLocalDirection() {
     double dy = dz*dydz;
 
     LocalVector localDir(dx,dy,dz);
-    LocalPoint lp(theOrigin.x(), theOrigin.y(), 0);
+    //LocalPoint lp(theOrigin.x(), theOrigin.y(), 0);
 
     // localDir may need sign flip to ensure it points outward from IP
     // ptc: Examine its direction and origin in global z: to point outward
     // the localDir should always have same sign as global z...
 
-    const CSCLayer* l1 = theChamber->layer(proto_segment[0].cscDetId().layer());
-    GlobalPoint gp1 = l1->surface().toGlobal(lp);	
-    double globalZpos = gp1.z(); 				 
-    GlobalVector gv1 = theChamber->surface().toGlobal(localDir);	
-    double globalZdir = gv1.z();					
-    double directionSign = globalZpos * globalZdir * (globalZdir*localDir.z()/fabs(globalZdir*localDir.z()));
-    
+    //const CSCLayer* l1 = theChamber->layer(proto_segment[0].cscDetId().layer());
+    //GlobalPoint gp1 = l1->surface().toGlobal(lp);	
+    //double globalZpos = gp1.z(); 				 
+    //GlobalVector gv1 = theChamber->surface().toGlobal(localDir);	
+    //double globalZdir = gv1.z();						 	 	
+
+    GlobalPoint gpn = theChamber->layer(6)->surface().toGlobal(LocalPoint(0,0,0));	
+    GlobalPoint gpf = theChamber->layer(1)->surface().toGlobal(LocalPoint(0,0,0));	
+    double directionSign;    
+    if (fabs(gpn.z()) > fabs(gpf.z()))
+        directionSign = -1;
+    else
+        directionSign = +1;    
+     
     theDirection = (directionSign * localDir).unit();
 }
 
@@ -574,7 +567,7 @@ void CSCSegAlgoTC::compareProtoSegment(const CSCRecHit2D& h, int layer) {
     ChamberHitContainer oldSegment = proto_segment;
 	
     bool ok = replaceHit(h, layer);
-	
+
     if (ok) {
         LogDebug("CSC") << "    hit in same layer as a hit on segment; try replacing old one..." 
             << " chi2 new: " << theChi2 << " old: " << oldChi2 << "\n";
@@ -599,16 +592,16 @@ void CSCSegAlgoTC::increaseProtoSegment(const CSCRecHit2D& h, int layer) {
     ChamberHitContainer oldSegment = proto_segment;
 	
     bool ok = addHit(h, layer);
-	
+
     if (ok) {
         LogDebug("CSC") << "    hit in new layer: added to segment, new chi2: " 
             << theChi2 << "\n";
     }
 	
     int ndf = 2*proto_segment.size() - 4;
-    	
+
     if (ok && ((ndf <= 0) || (theChi2/ndf < chi2Max))) {
-        LogDebug("CSC") << "    segment with added hit is good.\n" ;		// FIX
+        LogDebug("CSC") << "    segment with added hit is good.\n" ;		
     }	
     else {
         proto_segment = oldSegment;
@@ -714,15 +707,17 @@ bool CSCSegAlgoTC::isSegmentGood(const CSCSegment& seg,
     // Apply any selection cuts to segment
 
     // 1) Require a minimum no. of hits
-    //   (@@ THESE VALUES SHOULD BECOME orcarc PARAMETERS?)
+    //   (@@ THESE VALUES SHOULD BECOME PARAMETERS?)
 
     // 2) Ensure no hits on segment are already assigned to another segment
     //    (typically of higher quality)
 
     int iadd = (rechitsInChamber.size() > 20 )? iadd = 1 : 0;  
 
-    if (seg.nRecHits() < 3+iadd) 
+    if (seg.nRecHits() < 3 + iadd)
         return false;
+
+
 
     ChamberHitContainer rechitsOnSegment = seg.specificRecHits();
     
@@ -736,10 +731,8 @@ bool CSCSegAlgoTC::isSegmentGood(const CSCSegment& seg,
         for(ChamberHitContainerCIt ic = ib; ic != rechitsInChamber.end(); ++ic) {
             int layer = (*ic).cscDetId().layer();;
             if((hol == layer) && (ish->localPosition().x() == ic->localPosition().x()) 
-                && (ish->localPosition().y() == ic->localPosition().y()) && used[ic-ib] ) {
-	            
-                return false;
-            }
+                && (ish->localPosition().y() == ic->localPosition().y()) && used[ic-ib] )
+                    return false;
         }
     }
 
@@ -756,6 +749,7 @@ void CSCSegAlgoTC::flagHitsAsUsed(const CSCSegment& seg,
   
     for(ChamberHitContainerCIt hi = rechitsOnSegment.begin();
                         hi != rechitsOnSegment.end();  ++hi) {
+        
         for( ChamberHitContainerCIt iu = ib; iu != rechitsInChamber.end(); ++iu)
             if(((*hi).localPosition().x() == (*iu).localPosition().x()) && 
                 ((*hi).localPosition().y() == (*iu).localPosition().y())) 
@@ -773,12 +767,13 @@ void CSCSegAlgoTC::pruneTheSegments(CSCSegmentCollection& segments,
         return;
 
     // Initialize flags that a given hit has been allocated to a segment
-    BoolContainer used(segments.size(), false);
+    BoolContainer used(rechitsInChamber.size(), false);
 
     // Sort by chi2/#hits
-    
     segmentSort(segments);
 
+    
+        
     // Select best quality segments, requiring hits are assigned to just one segment
     // Because I want to erase the bad segments, the iterator must be incremented
     // inside the loop, and only when the erase is not called
@@ -787,16 +782,16 @@ void CSCSegAlgoTC::pruneTheSegments(CSCSegmentCollection& segments,
 
         CSCSegment mes = *is;
         bool goodSegment = isSegmentGood(mes, rechitsInChamber, used);
-    
+
+        std::vector<CSCRecHit2D> rh = mes.specificRecHits();    
         if (goodSegment) {
             LogDebug("CSC") << "Accepting segment: ";
-            mes.print();
+            
             flagHitsAsUsed(mes, rechitsInChamber, used);
             ++is;
         }
         else {
             LogDebug("CSC") << "Rejecting segment: ";
-            mes.print();
             is = segments.erase(is);
         }
     }
@@ -821,7 +816,7 @@ void CSCSegAlgoTC::segmentSort(CSCSegmentCollection& segs) {
 
             int n1 = segs[i].nRecHits();
             int n2 = segs[j].nRecHits();
-            if ((segs[i].chi2()/n1) < (segs[j].chi2()/n2)) {
+            if ((segs[i].chi2()/n1) > (segs[j].chi2()/n2)) {
                 CSCSegment temp = segs[j];
                 segs[j] = segs[i];
                 segs[i] = temp;

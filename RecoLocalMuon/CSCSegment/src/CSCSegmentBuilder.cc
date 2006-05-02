@@ -6,7 +6,7 @@
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
-#include <RecoLocalMuon/CSCSegment/src/CSCDetIdAccessor.h>
+#include <DataFormats/CSCRecHit/interface/CSCRangeMapAccessor.h>
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentBuilderPluginFactory.h>
@@ -57,7 +57,7 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCo
     std::vector<CSCDetId>::const_iterator chIt;
     
     for(CSCRecHit2DCollection::const_iterator it2 = recHits->begin(); it2 != recHits->end(); it2++) {
-    
+        
         bool insert = true;
         for(chIt=chambers.begin(); chIt != chambers.end(); ++chIt) 
             if (((*it2).cscDetId().chamber() == (*chIt).chamber()) &&
@@ -66,7 +66,7 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCo
                 ((*it2).cscDetId().endcap() == (*chIt).endcap()))
                 insert = false;
 	
-        if (insert) 
+        if (insert)
             chambers.push_back((*it2).cscDetId());
     }
 
@@ -74,23 +74,41 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCo
 
         std::vector<CSCRecHit2D> cscRecHits;
         const CSCChamber* chamber = geom_->chamber(*chIt);
-       
-        CSCDetIdAccessor acc;
-        CSCRecHit2DCollection::range range = recHits->get(acc.cscChamber(*chIt));
-        for(CSCRecHit2DCollection::const_iterator rechit = range.first; rechit != range.second; rechit++)
-            cscRecHits.push_back(*rechit);
         
-        LogDebug("CSC") << "found " << cscRecHits.size() << " rechit in this chamber.";
-				
-        // given the chamber select the right algo...
-        CSCSegmentCollection rhv = algoMap[chamber->specs()->chamberTypeName()]->run(chamber, cscRecHits);
-	  
-        // Add the segments to master collection !!!
-        LogDebug("CSC") << "Total number of segments found: " << rhv.size() <<std::endl;
+        CSCRangeMapAccessor acc;
+        CSCRecHit2DCollection::range range = recHits->get(acc.cscChamber(*chIt));
+        
+        std::vector<int> hitPerLayer(6);
+        for(CSCRecHit2DCollection::const_iterator rechit = range.first; rechit != range.second; rechit++) {
+            
+            hitPerLayer[(*rechit).cscDetId().layer()-1]++;
+            cscRecHits.push_back(*rechit);
+        }    
+        
+        bool isOneHitPerLayer = true;
+        int layersWithTwoHits = 0;
+        
+        for(int i=0; i<6; i++)
+            if (hitPerLayer[i] > 1)
+                layersWithTwoHits++;
+
+        if (layersWithTwoHits >= 4)
+                isOneHitPerLayer = false;
+                    
+        //if (isOneHitPerLayer) {
+         {   
+            LogDebug("CSC") << "found " << cscRecHits.size() << " rechit in this chamber.";
+            
+            // given the chamber select the right algo...
+            CSCSegmentCollection rhv = algoMap[chamber->specs()->chamberTypeName()]->run(chamber, cscRecHits);
+
+            // Add the segments to master collection !!!
+            LogDebug("CSC") << "Total number of segments found: " << rhv.size() <<std::endl;
 		
-        CSCSegmentCollection::const_iterator segmIt;
-        for(segmIt = rhv.begin(); segmIt != rhv.end(); segmIt++)
-            oc.push_back(*segmIt);    
+            CSCSegmentCollection::const_iterator segmIt;
+            for(segmIt = rhv.begin(); segmIt != rhv.end(); segmIt++)
+                oc.push_back(*segmIt);    
+        }  
     }
 }
 
