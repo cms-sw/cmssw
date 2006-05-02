@@ -23,6 +23,9 @@ namespace edm{
 class TaskGroup;
 namespace evf
 {
+  /* to be filled in with summary from paths */
+  struct filter{
+  };
 
   class FUEventProcessor : public xdaq::Application, public xdata::ActionListener
     {
@@ -45,6 +48,7 @@ namespace evf
 
       void defaultWebPage
 	(xgi::Input  *in, xgi::Output *out) throw (xgi::exception::Exception);
+      void taskWebPage(xgi::Input *, xgi::Output *, const std::string &);
       void css(xgi::Input  *in,
 	       xgi::Output *out) throw (xgi::exception::Exception)
 	{css_.css(in,out);}

@@ -269,9 +269,9 @@ void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
   *out << "<tr valign=\"top\">"                                      << endl;
   *out << "  <td>"                                                   << endl;
 
-  //  if(proc_)
-    //    proc_->taskWebPage(in,out,urn);
-  //  else
+  if(proc_)
+    taskWebPage(in,out,urn);
+  else
     *out << "Unconfigured" << endl;
   *out << "  </td>"                                                  << endl;
   *out << "</table>"                                                 << endl;
@@ -293,6 +293,8 @@ void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
 #include "extern/cgicc/linuxx86/include/cgicc/FormEntry.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
 
 void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out, 
 				 const std::string &urn)
@@ -301,7 +303,7 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,
   evf::filter *filt = 0;
   ModuleWebRegistry *mwr = 0;
   edm::ServiceRegistry::Operate operate(proc_->getToken());
-  std::vector<ModuleDescription const*> descs_ = proc_->getAllModuleDescriptions();				
+  std::vector<edm::ModuleDescription const*> descs_ = proc_->getAllModuleDescriptions();				
   try{
     if(edm::Service<ModuleWebRegistry>().isAvailable())
       mwr = edm::Service<ModuleWebRegistry>().operator->();
@@ -371,7 +373,7 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,
   *out << "      " << "Application"                                  << endl;
   
   if(descs_.size()>0)
-    *out << " (Process name=" << descs_[0].processName_ << ")"       << endl;
+    *out << " (Process name=" << descs_[0]->processName_ << ")"       << endl;
   
   
   
@@ -394,17 +396,17 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,
     {
       *out << "<tr>" << std::endl;
       *out << "<td >" << std::endl;
-      if(mwr && mwr->checkWeb(descs_[idesc].moduleName_))
-	*out << "<a href=\"/" << urn << "/moduleWeb?module=" << descs_[idesc].moduleName_ << "\">" 
-	     << descs_[idesc].moduleName_ << "</a>" << std::endl;
+      if(mwr && mwr->checkWeb(descs_[idesc]->moduleName_))
+	*out << "<a href=\"/" << urn << "/moduleWeb?module=" << descs_[idesc]->moduleName_ << "\">" 
+	     << descs_[idesc]->moduleName_ << "</a>" << std::endl;
       else
-	*out << descs_[idesc].moduleName_ << std::endl;
+	*out << descs_[idesc]->moduleName_ << std::endl;
       *out << "</td>" << std::endl;
       *out << "<td >" << std::endl;
-      *out << descs_[idesc].moduleLabel_ << std::endl;
+      *out << descs_[idesc]->moduleLabel_ << std::endl;
       *out << "</td>" << std::endl;
       *out << "<td >" << std::endl;
-      *out << descs_[idesc].versionNumber_ << std::endl;
+      *out << descs_[idesc]->versionNumber_ << std::endl;
       *out << "</td>" << std::endl;
       *out << "</tr>" << std::endl;
     }
