@@ -31,6 +31,8 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
   island_p = new IslandClusterAlgo(ps.getParameter<double>("IslandBarrelSeedThr"), 
 				   ps.getParameter<double>("IslandEndcapSeedThr"));
 
+  hitProducer_       = ps.getParameter<std::string>("hitProducer");
+  hitCollection_     = ps.getParameter<std::string>("hitCollection");
   clusterCollection_ = ps.getParameter<std::string>("clusterCollection");
   produces< reco::BasicClusterCollection >(clusterCollection_);
   nEvt_ = 0;
@@ -46,13 +48,13 @@ void IslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   // get the hit collection from the event:
   edm::Handle<EcalRecHitCollection> rhcHandle;
-  evt.getByType(rhcHandle);
+  evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
   if (!(rhcHandle.isValid())) 
     {
       std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
       return;
     }
-  EcalRecHitCollection hit_collection = *rhcHandle;
+  EcalRecHitCollection hit_collection = *(rhcHandle.product());
 
   // get the barrel geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
