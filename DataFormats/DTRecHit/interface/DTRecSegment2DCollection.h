@@ -5,9 +5,10 @@
  *
  * Collection of DTRecSegment2D
  *  
- * $Date: 23/02/2006 13:08:28 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/20 12:42:28 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */
 
@@ -18,8 +19,7 @@
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/MuonData/interface/MuonDigiCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 
 /* C++ Headers */
@@ -27,7 +27,7 @@
 /* ====================================================================== */
 
 typedef edm::RangeMap<DTSuperLayerId,
-  edm::OwnVector<DTRecSegment2D,edm::ClonePolicy<DTRecSegment2D> >,
-  edm::ClonePolicy<DTRecSegment2D> > DTRecSegment2DCollection;
+  edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >,
+  edm::ClonePolicy<DTSLRecSegment2D> > DTRecSegment2DCollection;
 
 #endif // DTRecHit_DTRecSegment2DCollection_h

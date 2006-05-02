@@ -5,8 +5,8 @@
  *
  * 4 parameters RecHits for MuonBarrel DT
  *
- * $Date: 2006/04/19 17:44:45 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/20 17:10:31 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -17,8 +17,8 @@
 //#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 /* Collaborating Class Declarations */
-#include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTChamberRecSegment2D.h"
 
 /* C++ Headers */
 #include <iosfwd>
@@ -36,9 +36,9 @@ class DTRecSegment4D : public RecSegment4D{
   DTRecSegment4D(){}
   
   //FIXME do only one constructor!
-  DTRecSegment4D(const DTRecSegment2DPhi& phiSeg, const DTRecSegment2D& zedSeg, const LocalPoint& posZInCh, const LocalVector& dirZInCh);
-  DTRecSegment4D(const DTRecSegment2DPhi& phiSeg);
-  DTRecSegment4D(const DTRecSegment2D& zedSeg, const LocalPoint& posZInCh, const LocalVector& dirZInCh);
+  DTRecSegment4D(const DTChamberRecSegment2D& phiSeg, const DTSLRecSegment2D& zedSeg, const LocalPoint& posZInCh, const LocalVector& dirZInCh);
+  DTRecSegment4D(const DTChamberRecSegment2D& phiSeg);
+  DTRecSegment4D(const DTSLRecSegment2D& zedSeg, const LocalPoint& posZInCh, const LocalVector& dirZInCh);
   //
 
 
@@ -88,10 +88,10 @@ class DTRecSegment4D : public RecSegment4D{
   bool hasZed() const {return (theZedSeg.specificRecHits().size()!=0);}
   
   /// the superPhi segment 
-  const DTRecSegment2DPhi *phiSegment() const {return &thePhiSeg;}
+  const DTChamberRecSegment2D *phiSegment() const {return &thePhiSeg;}
     
   /// the Z segment
-  const DTRecSegment2D *zSegment() const {return &theZedSeg;}
+  const DTSLRecSegment2D *zSegment() const {return &theZedSeg;}
     
   /// set position
   void setPosition(LocalPoint pos) { thePosition = pos; }
@@ -108,10 +108,10 @@ class DTRecSegment4D : public RecSegment4D{
  private:
   
   /// the superPhi segment 
-  DTRecSegment2DPhi *phiSegment() {return &thePhiSeg;}
+  DTChamberRecSegment2D *phiSegment() {return &thePhiSeg;}
     
   /// the Z segment
-  DTRecSegment2D *zSegment() {return &theZedSeg;}
+  DTSLRecSegment2D *zSegment() {return &theZedSeg;}
 
   LocalPoint thePosition;   // in chamber frame
   LocalVector theDirection; // in chamber frame
@@ -126,8 +126,8 @@ class DTRecSegment4D : public RecSegment4D{
   /// mat[1][3]=cov(dy/dz,y)
   AlgebraicSymMatrix theCovMatrix; // the covariance matrix
 
-  DTRecSegment2DPhi thePhiSeg;
-  DTRecSegment2D theZedSeg;
+  DTChamberRecSegment2D thePhiSeg;
+  DTSLRecSegment2D theZedSeg;
 
   AlgebraicMatrix theProjMatrix;  // the projection matrix
   int theDimension; // the dimension of this rechit

@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/19 17:44:45 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/20 17:10:32 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -21,7 +21,7 @@
 
 
 /// Constructor
-DTRecSegment4D::DTRecSegment4D(const DTRecSegment2DPhi& phiSeg, const DTRecSegment2D& zedSeg,  
+DTRecSegment4D::DTRecSegment4D(const DTChamberRecSegment2D& phiSeg, const DTSLRecSegment2D& zedSeg,  
 			       const LocalPoint& posZInCh, const LocalVector& dirZInCh):
   thePhiSeg(phiSeg),theZedSeg(zedSeg){
   
@@ -64,8 +64,8 @@ DTRecSegment4D::DTRecSegment4D(const DTRecSegment2DPhi& phiSeg, const DTRecSegme
   theProjMatrix = RecSegment4D::projectionMatrix();
 }
 
-DTRecSegment4D::DTRecSegment4D(const DTRecSegment2DPhi& phiSeg) :
-  thePhiSeg(phiSeg), theZedSeg( DTRecSegment2D() ){
+DTRecSegment4D::DTRecSegment4D(const DTChamberRecSegment2D& phiSeg) :
+  thePhiSeg(phiSeg), theZedSeg( DTSLRecSegment2D() ){
   
   theDetId = phiSeg.chamberId();
 
@@ -86,10 +86,10 @@ DTRecSegment4D::DTRecSegment4D(const DTRecSegment2DPhi& phiSeg) :
   theProjMatrix[1][3] = 1;
 }
 
-DTRecSegment4D::DTRecSegment4D(const DTRecSegment2D& zedSeg,
+DTRecSegment4D::DTRecSegment4D(const DTSLRecSegment2D& zedSeg,
 			       const LocalPoint& posZInCh, const LocalVector& dirZInCh):
-  thePhiSeg( DTRecSegment2DPhi() ), theZedSeg( zedSeg){
-  theDetId = zedSeg.chamberId();
+  thePhiSeg( DTChamberRecSegment2D() ), theZedSeg( zedSeg){
+  theDetId = zedSeg.superLayerId().chamberId();
   
   LocalPoint posZAt0=posZInCh+
     dirZInCh*(-posZInCh.z()/cos(dirZInCh.theta()));
