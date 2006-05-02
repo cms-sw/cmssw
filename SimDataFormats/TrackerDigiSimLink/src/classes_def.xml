@@ -4,6 +4,9 @@
   <class name="edm::Wrapper<PixelDigiSimLinkCollection>"/>
  
   <class name="StripDigiSimLink"/>
+  <class name="std::vector<StripDigiSimLink>"/>
+  <class name="std::vector<edm::DetSet<StripDigiSimLink> >"/>
+  <class name="edm::Wrapper< std::vector<edm::DetSet<StripDigiSimLink> > >"/>
   <class name="edm::DetSet<StripDigiSimLink>"/>
   <class name="edm::Wrapper< edm::DetSet<StripDigiSimLink> >"/>
   <class name="edm::Wrapper< edm::DetSetVector<StripDigiSimLink> >"/>

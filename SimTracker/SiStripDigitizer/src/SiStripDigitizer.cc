@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.14 2006/03/23 09:42:55 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.15 2006/04/27 16:16:42 fambrogl Exp $
 //
 //
 
@@ -63,8 +63,8 @@ namespace cms
     //   stripDigitizer_(conf) ,
     conf_(conf)
   {
-    produces<edm::DetSetVector<SiStripDigi> >();
-    produces<edm::DetSetVector<StripDigiSimLink> >();
+    produces<edm::DetSetVector<SiStripDigi> >("stripdigi");
+    produces<edm::DetSetVector<StripDigiSimLink> >("stripdigi");
   }
 
   // Virtual destructor needed.
@@ -139,7 +139,7 @@ namespace cms
 	  theAlgoMap[&(sgd->type())] = new SiStripDigitizerAlgorithm(conf_, sgd);
 	}
 	
-	collector= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield);
+	collector.data= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield);
 	
 	if (collector.data.size()>0){
 	  
@@ -158,8 +158,8 @@ namespace cms
     
     
     // Step D: write output to file
-    iEvent.put(output);
-    iEvent.put(outputlink);
+    iEvent.put(output,"stripdigi");
+    iEvent.put(outputlink,"stripdigi");
     
   
   }

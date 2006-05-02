@@ -17,6 +17,8 @@ namespace {
 
 namespace {
   namespace {
+    edm::Wrapper< std::vector<StripDigiSimLink>  > StripDigiSimLinkVector;
+    edm::Wrapper< std::vector<edm::DetSet<StripDigiSimLink> > > StripDigiSimLinkVectorDetSet; 
     edm::Wrapper<StripDigiSimLink> StripDigiSimLinkWrapper;
     edm::Wrapper< edm::DetSet<StripDigiSimLink> > StripDigiSimLinkDetSetWrapper;
     edm::Wrapper< edm::DetSetVector<StripDigiSimLink> > StripDigiSimLinkDetSetVectorWrapper;

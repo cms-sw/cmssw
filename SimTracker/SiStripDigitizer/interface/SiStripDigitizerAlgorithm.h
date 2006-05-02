@@ -52,7 +52,7 @@ class SiStripDigitizerAlgorithm
   ~SiStripDigitizerAlgorithm();
 
   // Runs the algorithm
-  edm::DetSet<SiStripDigi>  run(const std::vector<PSimHit> &input, StripGeomDetUnit *det,GlobalVector);
+  edm::DetSet<SiStripDigi>::collection_type  run(const std::vector<PSimHit> &input, StripGeomDetUnit *det,GlobalVector);
 
  private:
   int ndigis; 

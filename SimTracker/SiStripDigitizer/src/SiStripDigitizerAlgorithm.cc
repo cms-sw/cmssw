@@ -87,9 +87,9 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
 //  Run the algorithm
 //  ------------------
 
-edm::DetSet<SiStripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
-							StripGeomDetUnit *det,
-							GlobalVector bfield){
+edm::DetSet<SiStripDigi>::collection_type SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
+									 StripGeomDetUnit *det,
+									 GlobalVector bfield){
   
   //  std::cout << "SiStripDigitizerAlgorithm is running!" << endl;
   
@@ -125,7 +125,7 @@ edm::DetSet<SiStripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHi
   push_digis(theSiZeroSuppress->zeroSuppress(theSiDigitalConverter->convert(afterNoise)),
 	     theLink,afterNoise,detID);
   
-  return digis;
+  return digis.data;
 }
 
 void SiStripDigitizerAlgorithm::push_digis(const DigitalMapType& dm,
