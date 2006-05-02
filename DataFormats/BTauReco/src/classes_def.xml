@@ -19,4 +19,11 @@
   <class pattern="edm::Ref<edm::AssociationMap<*>" />
   <class pattern="edm::RefProd<edm::AssociationMap<*>" />
   <class pattern="edm::RefVector<edm::AssociationMap<*>" />
+
+  <class name="reco::CombinedBTagInfo" />
+  <class name="std::vector<reco::CombinedBTagInfo>" />
+  <class name="edm::Wrapper<std::vector<reco::CombinedBTagInfo> >" />
+  <class name="edm::Ref<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo> > " />
+  <class name="edm::RefProd<std::vector<reco::CombinedBTagInfo> > " />
+  <class name="edm::RefVector<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo> >" />
 </lcgdict>

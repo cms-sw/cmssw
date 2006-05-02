@@ -1,0 +1,314 @@
+#ifndef BTauReco_BJetTagCombinedInfo_h
+#define BTauReco_BJetTagCombinedInfo_h
+
+
+#include <vector> 
+#include <map>
+
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "CLHEP/Vector/ThreeVector.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+#include "DataFormats/BTauReco/interface/CombinedBTagInfoFwd.h"
+
+// N.B. use TRACKREF as placeholder for edm::Ref<ReferenceToTrack> or so
+//      - have to figure out how to do it properly yet.
+
+
+namespace reco {
+
+  class CombinedBTagInfo : public reco::JetTag {
+
+  public:
+    ////////////////////////////////////////////////////
+    //
+    // typedef
+    //
+    ////////////////////////////////////////////////////
+
+
+    typedef int TRACKREF;  //just for now to compile
+    typedef int SECVERTEXREF;  //just for now to compile
+
+    /* mail from Chris Jones how TRACKREF could be done:
+     *       
+     *    The ProductID is a unique identifier only within one
+     *    edm::Event and only refers the the 'top level' object that has been
+     *    placed within the edm::Event. So if one placed a
+     *    std::vector<reco::Track> into the event, the std::vector<...> would
+     *    have a ProductID but the individual reco::Tracks within the
+     *    std::vector would not.  To uniquely (within one edm::Event) identify
+     *    an object within a container the framework provides an
+     *    edm::Ref<...>.  So it is possible to use an
+     *    edm::Ref<std::vector<reco::Track> > to refer to one particular
+     *    reco::Track within the std::vector<...>.  It is then possible to
+     *    embed an edm::Ref<...> as a member data into another object and then
+     *    store that other object into the edm::Event and the framework will
+     *    guarantee that the edm::Ref<...> 'points to' the proper object even
+     *    when read back from a file in a different job.
+     *
+     */
+
+
+    ////////////////////////////////////////////////////
+    //
+    // definitions
+    //
+    ////////////////////////////////////////////////////
+
+    /** Type of secondary vertex found in jet:
+     *  - RecoVertex   : a secondary vertex has been fitted from
+     *                   a selection of tracks
+     *  - PseudoVertex : no RecoVertex has been found but tracks
+     *                   with significant impact parameter could be 
+     *                   combined to a "pseudo" vertex
+     *  - NoVertex     : neither of the above attemps were successfull
+     *  - NotDefined   : if anything went wrong, set to this value
+     */
+
+    enum VertexType {RecoVertex,
+		     PseudoVertex,
+		     NoVertex,
+                     NotDefined};
+
+    //
+    // information regarding individual tracks
+    // used for tagging
+    //
+    struct TrackData {
+      // contains all track based information accessed 
+      // while running combined BTagging
+
+      // TRACKREF here as well
+      bool   usedInSVX;    // used to construct SVX?
+      double pt;
+      double rapidity;
+      int    nHitsTotal;
+      int    nHitsPixel;
+      double chi2;
+      double ip2D;          // 2D impact parameter
+      double ipSigni2D;     // 2D impact parameter significance
+      double ip3D;          // 3D impact parameter
+      double ipSigni3D;     // 3D impact parameter significance     
+
+      void init() {
+	usedInSVX  = false;
+	pt         = -999;
+	rapidity   = -999;
+	nHitsTotal = -999; 
+	nHitsPixel = -999;
+	chi2       = -999;
+	ip2D       = -999;
+	ipSigni2D  = -999;
+	ip3D       = -999;
+	ipSigni3D  = -999;
+      } //init
+    }; // struct   
+
+    //
+    // information regarding secondary vertices
+    // found in current jet
+    // (potentially, we can have more than one)
+    //
+    struct VertexData {
+      // refenence to vertex object
+      // reference to all tracks used at this vertex
+      double x;  // vertex position
+      double y;
+      double z;
+      double chi2;
+      int    ndof;
+      int    nTracks; // number of tracks associated 
+                      // with this vertex.
+      double flightDistance2D;
+      double flightDistanceSignificance2D;
+      double flightDistance3D;
+      double flightDistanceSignificance3D;
+    }; // struct
+
+    ////////////////////////////////////////////////////
+    //
+    // public
+    //
+    ////////////////////////////////////////////////////
+
+
+    //
+    // constructor and destructor
+    //
+
+    CombinedBTagInfo();
+    virtual ~CombinedBTagInfo(); 
+
+    //
+    // accessors
+    //
+
+    // also need to store
+    // - primary vertex
+    // - list of secondary vertices
+
+    // members of this class				     
+    double      getJetPt ()                                  {return jetPt_;}
+    double      getJetEta()                                  {return jetEta_;}
+    			
+    // get (ref to?) primary vertex
+    // get vector of secondary vertices
+    int         getNumSecVertex()                            {return secondaryVertices_.size();}
+    VertexType  getVertexType()                              {return vertexType_;}
+    double      getVertexMass()                              {return vertexMass_;}
+    int         getVertexMultiplicity()                      {return vertexMultiplicity_;}
+    double      getESVXOverE()                               {return eSVXOverE_;}
+	             		                             
+    Hep3Vector  getPAll()                                    {return pAll_;}
+    Hep3Vector  getPB()                                      {return pB_;}
+    double      getBPLong()                                  {return bPLong_;}
+    double      getBPt()                                     {return bPt_;}
+	             		                             
+    double      getMeanTrackRapidity()                       {return meanTrackY_;}
+    				                             
+    double      getAngleGeomKinJet()                         {return angleGeomKinJet_;}
+    double      getAngleGeomKinVertex()                      {return angleGeomKinVertex_;}
+				                             
+    //
+    // setters
+    //
+    void        setJetPt (double pt)                         { jetPt_                 = pt;}
+    void        setJetEta(double eta)                        { jetEta_                = eta;}
+    	
+    // pass (ref to?) primary vertex
+    void        addSecondaryVertex(reco::Vertex sv)          { secondaryVertices_.push_back(sv);}
+    void        setVertexType( VertexType type)              { vertexType_            = type;}
+    void        setVertexMass( double mass)                  { vertexMass_            = mass;}
+    void        setVertexMultiplicity(int mult)              { vertexMultiplicity_    = mult;}
+    void        setESVXOverE( double e)                      { eSVXOverE_             = e;}
+	             		                             			      
+    void        setPAll(Hep3Vector p)                        { pAll_                  = p;}
+    void        setPB(Hep3Vector p)                          { pB_                    = p;}
+    void        setBPLong(double pLong)                      { bPLong_                = pLong;}
+    void        setBPt(double pt)                            { bPt_                   = pt;}
+    void        setMeanTrackRapidity(double meanY)           { meanTrackY_            = meanY;}
+    				                        
+    void        setAngleGeomKinJet(double angle)             {angleGeomKinJet_        = angle;}
+    void        setAngleGeomKinVertex(double angle)          {angleGeomKinVertex_     = angle;}			                        
+
+
+
+
+    //
+    // map to access track map information
+    //
+    // maybe possible to use map tools here?
+    bool             existTrackData(TRACKREF trackRef);
+    void             flushTrackData();
+    void             storeTrackData(TRACKREF trackRef,
+				    const CombinedBTagInfo::TrackData& trackData);
+    int              sizeTrackData();
+    const TrackData* getTrackData(TRACKREF);
+
+
+    ////////////////////////////////////////////////////
+    //
+    // private
+    //
+    ////////////////////////////////////////////////////
+  private: 
+
+    // jet information
+    double      jetPt_;
+    double      jetEta_;
+
+    // vertex information
+    reco::Vertex primaryVertex_;  // reference?
+    std::vector<reco::Vertex> secondaryVertices_;
+    VertexType  vertexType_;      /** if at least one secondary vertex has been found,
+				   *  jet has type "RecoVertex", otherwise 
+				   *  "PseudoVertex" or "NoVertex"
+				   */
+	        
+    Hep3Vector  pAll_;       // 3-vec of all charged tracks
+
+    /** Store for easier access also
+     *  min, max, mean of
+     *  flightDistance{2D,3D} and significance
+     *  at present, the combined b-tagging alg.
+     *  uses the min flight distance (2D)
+     *  These quantities are computed per
+     *  reconstucted secondary vertex and hence
+     *  only different if there are more than one.
+     */
+
+    double flightDistance2DMin_;
+    double flightDistanceSignificance2DMin_;
+    double flightDistance3DMin_;
+    double flightDistanceSignificance3DMin_;
+
+    double flightDistance2DMax_;
+    double flightDistanceSignificance2DMax_;
+    double flightDistance3DMax_;
+    double flightDistanceSignificance3DMax_;
+
+    double flightDistance2DMean_;
+    double flightDistanceSignificance2DMean_;
+    double flightDistance3DMean_;
+    double flightDistanceSignificance3DMean_;
+
+    /** angle between vector connecting primary and secondary vertex
+     *  track selection
+     *  for Jet   : all tracks in jet
+     *  for Vertex: all tracks used at all secondary vertices
+     */
+    double      angleGeomKinJet_;     
+    double      angleGeomKinVertex_;
+
+    
+    /** The following quantities are omputed from all tracks at all
+     *  secondary vertices (in case there are several for type RecoVertex)
+     *  see comment at beginning of this header file.
+     */
+
+    Hep3Vector  pB_;
+    double      bPLong_;               /** longitudinal component of B momentum vector
+					*  pBLong =  pAll*pB
+					*           ---------
+					*             |pAll|
+					*/
+
+    double      bPt_;                  /**  transverse component of B momentum vector
+					*   pt     = sqrt(|pB|*|pB| - pBLong*pBLong)
+					*/
+    
+    double      vertexMass_;           /** all tracks are assumed to be pions,
+					*  m = sqrt(E**2 - p**2)
+					*/
+    int         vertexMultiplicity_;   /** number of all tracks at all 
+					*  secondary vertices
+					*/
+    double      eSVXOverE_;            /** energy of all tracks at all secondary
+					*  vertices divieded by energy of all tracks
+					*  tracks associated to jet, 
+					*  all tracks are assumed to be pions
+					*/
+    double      meanTrackY_;           /** mean track rapidity
+					*  Track rapidities are calculated w.r.t.
+					*  vector of all tracks at all secondary vertices
+					*  given by vector = (SumPx, SumPy, SumPz)
+					*  default value for rapidity: 5
+					*  mean is given by arithmentic mean
+					*/
+
+    //
+    // maps for detailed track and vertex information
+    //
+
+    // maybe easier/better to have templated class to handle the maps?
+    std::map <TRACKREF,     CombinedBTagInfo::TrackData>  trackDataMap_;
+    std::map <SECVERTEXREF, CombinedBTagInfo::VertexData> vertexDataMap_;
+
+  }; // class
+ 
+} // namespace reco
+
+#endif

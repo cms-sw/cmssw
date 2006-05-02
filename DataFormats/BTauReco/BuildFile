@@ -1,10 +1,12 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/VertexReco>
 <use name=DataFormats/Common>
 <flags LCGDICT_ARGS="--deep">
 <export>
   <lib name=DataFormatsBTauReco>
   <use name=DataFormats/JetReco>
   <use name=DataFormats/TrackReco>
+  <use name=DataFormats/VertexReco>
   <use name=DataFormats/Common>
 </export>

@@ -2,6 +2,7 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/BTauReco/interface/CombinedBTagInfo.h"
 
 namespace {
   namespace {
@@ -23,5 +24,11 @@ namespace {
     reco::JetTracksAssociationRef r3;
     reco::JetTracksAssociationRefProd rp3;
     reco::JetTracksAssociationRefVector rv3;
+
+    reco::CombinedBTagInfoCollection v4;
+    edm::Wrapper<reco::CombinedBTagInfoCollection> w4;
+    edm::Ref<reco::CombinedBTagInfoCollection> r4;
+    edm::RefProd<reco::CombinedBTagInfoCollection> rp4;
+    edm::RefVector<reco::CombinedBTagInfoCollection> rv4;
   }
 }
