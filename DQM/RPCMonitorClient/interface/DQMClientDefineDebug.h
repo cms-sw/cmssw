@@ -1,1 +1,1 @@
-#define DEBUG
+#define RPC_CLIENT_DEBUG
