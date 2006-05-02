@@ -306,9 +306,11 @@ std::pair<Trajectory, reco::Track>  CosmicTrajectoryBuilder::makeTrack(const Tra
   TSOS innertsos = traj.lastMeasurement().updatedState();
   int charge = innertsos.charge();
   //MP
-  int ndof =5;
+  int ndof =traj.foundHits()-5;
+  if (ndof<0) ndof=0;
   const GlobalTrajectoryParameters& gp = innertsos.globalParameters();
-  GlobalPoint v = gp.position();
+  //  GlobalPoint v = gp.position();
+  GlobalPoint v(0.,0.,0.);
   GlobalVector p = gp.momentum();
   const CartesianTrajectoryError& cte = innertsos.cartesianError();
   AlgebraicSymMatrix m = cte.matrix();
