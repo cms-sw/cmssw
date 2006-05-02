@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/05/01 08:45:31 $
- * $Revision: 1.81 $
+ * $Date: 2006/05/01 21:45:03 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -35,9 +35,11 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
   }
 
   for ( int ism = 1; ism <= 36; ism++ ) {
+
     // integrity summary histograms
     g01_[ism-1] = 0;
     g02_[ism-1] = 0;
+
   }
 
   threshCry_ = 0.;
@@ -122,6 +124,7 @@ void EBIntegrityClient::setup(void) {
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
+
         g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
 
       }
@@ -130,12 +133,11 @@ void EBIntegrityClient::setup(void) {
 
     for ( int ie = 1; ie <= 10; ie++ ) {
       for ( int ip = 1; ip <= 5; ip++ ) {
+
         g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
 
       }
     }
-
-
 
   }
 
@@ -602,8 +604,6 @@ void EBIntegrityClient::analyze(void){
     }
   }
 
-
-
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( collateSources_ ) {
@@ -629,14 +629,14 @@ void EBIntegrityClient::analyze(void){
         }
       }
     }
-  
+
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EcalOccupancy/EBMM MEM occupancy SM%02d", ism);
     } else {
       if ( enableMonitorDaemon_ ) {
-	sprintf(histo, "Collector/FU0/EcalBarrel/EcalOccupancy/EBMM MEM occupancy SM%02d", ism);
+        sprintf(histo, "Collector/FU0/EcalBarrel/EcalOccupancy/EBMM MEM occupancy SM%02d", ism);
       } else {
-	sprintf(histo, "EcalBarrel/EcalOccupancy/EBMM MEM occupancy SM%02d", ism);
+        sprintf(histo, "EcalBarrel/EcalOccupancy/EBMM MEM occupancy SM%02d", ism);
       }
     }
     me = mui_->get(histo);
@@ -893,7 +893,6 @@ void EBIntegrityClient::analyze(void){
         }
       }
     }
-  
 
     float num00;
 
@@ -912,7 +911,7 @@ void EBIntegrityClient::analyze(void){
     }
 
     float num01, num02, num03, num04, num05, num06;
-  
+
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
@@ -925,7 +924,7 @@ void EBIntegrityClient::analyze(void){
 
         float numTot    = -1.;
 
-	if ( h_[ism-1] )    numTot    = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip));
+        if ( h_[ism-1] )    numTot    = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip));
 
         if ( h01_[ism-1] ) {
           num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
@@ -965,8 +964,9 @@ void EBIntegrityClient::analyze(void){
           float val;
 
           val = 1.;
-          if ( numTot > 0 ) {// numer of events on a channel
-            float errorRate1 =  num00 / numTot; 
+          // numer of events on a channel
+          if ( numTot > 0 ) {
+            float errorRate1 =  num00 / numTot;
            if ( errorRate1 > threshCry_ )
               val = 0.;
             errorRate1 = ( num01 + num02 + num03 + num04 ) / numTot / 4.;
@@ -985,15 +985,13 @@ void EBIntegrityClient::analyze(void){
               val = 0.;
           }
 
-         // filling the summary for SM channels
+          // filling the summary for SM channels
           if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
 
         }
 
       }
     }// end of loop on crystals to fill summary plot
-  
-
 
     // summaries for mem channels
     float num07, num08, num09, num10;
@@ -1003,7 +1001,7 @@ void EBIntegrityClient::analyze(void){
 
         num07 = num08 = num09 = num10 = 0.;
 
-	// initialize summary histo for mem
+        // initialize summary histo for mem
         if ( g02_[ism-1] ) g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
 
         bool update_channel1 = false;
@@ -1024,7 +1022,7 @@ void EBIntegrityClient::analyze(void){
         }
 
         int iet = 1 + ((ie-1)/5);
-	int ipt = 1;
+        int ipt = 1;
 
         if ( h09_[ism-1] ) {
           num09  = h09_[ism-1]->GetBinContent(h09_[ism-1]->GetBin(iet, ipt));
@@ -1042,7 +1040,8 @@ void EBIntegrityClient::analyze(void){
           float val;
 
           val = 1.;
-          if ( numTotmem > 0 ) {// numer of events on a channel
+          // numer of events on a channel
+          if ( numTotmem > 0 ) {
             float errorRate1 = ( num07 + num08 ) / numTotmem / 2.;
             if ( errorRate1 > threshCry_ )
               val = 0.;
@@ -1057,9 +1056,9 @@ void EBIntegrityClient::analyze(void){
               val = 0.;
           }
 
-	  // filling summary for mem channels
+          // filling summary for mem channels
           if ( g02_[ism-1] ) g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
-	  
+
         }
 
       }
@@ -1274,25 +1273,25 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
       obj2f = 0;
       switch ( iCanvas ) {
       case 1:
-	obj2f = h01_[ism-1];
-	break;
+        obj2f = h01_[ism-1];
+        break;
       case 2:
-	obj2f = h02_[ism-1];
-	break;
+        obj2f = h02_[ism-1];
+        break;
       case 3:
-	obj2f = h03_[ism-1];
-	break;
+        obj2f = h03_[ism-1];
+        break;
       case 4:
-	obj2f = h04_[ism-1];
-	break;
+        obj2f = h04_[ism-1];
+        break;
       case 5:
-	obj2f = h05_[ism-1];
-	break;
+        obj2f = h05_[ism-1];
+        break;
       case 6:
-	obj2f = h06_[ism-1];
-	break;
+        obj2f = h06_[ism-1];
+        break;
       default:
-	break;
+        break;
       }
 
       if ( obj2f ) {
@@ -1404,19 +1403,19 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
       obj2f = 0;
       switch ( iCanvas ) {
       case 7:
-	obj2f = h07_[ism-1];
-	break;
+        obj2f = h07_[ism-1];
+        break;
       case 8:
-	obj2f = h08_[ism-1];
-	break;
+        obj2f = h08_[ism-1];
+        break;
       case 9:
-	obj2f = h09_[ism-1];
-	break;
+        obj2f = h09_[ism-1];
+        break;
       case 10:
-	obj2f = h10_[ism-1];
-	break;
+        obj2f = h10_[ism-1];
+        break;
       default:
-	break;
+        break;
       }
 
       if ( obj2f ) {
@@ -1442,14 +1441,14 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
           cMeMem->SetGridx();
           cMeMem->SetGridy();
           dummy3.Draw("text,same");
-	}
+        }
         else{
           obj2f->GetXaxis()->SetNdivisions(2);
           obj2f->GetYaxis()->SetNdivisions(1);
           cMeMem->SetGridx();
           cMeMem->SetGridy();
           dummy4.Draw("text,same");
-	}
+        }
         cMeMem->Update();
         cMeMem->SaveAs(imgName.c_str());
 
@@ -1526,7 +1525,6 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
 
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
-
 
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"75\"> " << endl;
