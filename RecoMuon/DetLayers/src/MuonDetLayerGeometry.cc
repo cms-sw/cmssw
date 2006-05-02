@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/12 16:49:57 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/28 11:53:42 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -9,99 +9,134 @@
 
 using namespace std;
 
-MuonDetLayerGeometry::MuonDetLayerGeometry(pair<vector<DetLayer*>, vector<DetLayer*> > csc):cscLayers_fw(csc.first), 
-    cscLayers_bg(csc.second) {}
-
+MuonDetLayerGeometry::MuonDetLayerGeometry() {}
 
 MuonDetLayerGeometry::~MuonDetLayerGeometry(){}
 
+void MuonDetLayerGeometry::addCSCLayers(pair<vector<DetLayer*>, vector<DetLayer*> > csclayers) {
+    
+    vector<DetLayer*>::const_iterator it;
+    for(it = csclayers.first.begin(); it!=csclayers.first.end(); it++) {
+        cscLayers_fw.push_back(*it);
+        cscLayers_all.push_back(*it);
+        allForward.push_back(*it);
+        allEndcap.push_back(*it);
+        allDetLayers.push_back(*it);
+    }
+    
+    for(it = csclayers.second.begin(); it!=csclayers.second.end(); it++) {
+        cscLayers_bk.push_back(*it);
+        cscLayers_all.push_back(*it);
+        allBackward.push_back(*it);
+        allEndcap.push_back(*it);
+        allDetLayers.push_back(*it);
+    }    
+}    
+
+/*
+void MuonDetLayerGeometry::addRPCLayers(pair<vector<DetLayer*>, vector<DetLayer*> > csclayers) {
+    
+    cscLayers_fw = csclayers.first;
+    cscLayers_bg = csclayers.second;
+}    
+
+void MuonDetLayerGeometry::addDTLayers(pair<vector<DetLayer*>, vector<DetLayer*> > csclayers) {
+    
+    cscLayers_fw = csclayers.first;
+    cscLayers_bg = csclayers.second;
+}    
+*/
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::allDTLayers() const {    
-    return cscLayers_fw; // FIXME !!!
+    return dtLayers; 
 }
 
-const vector<DetLayer*>& 
+const vector<DetLayer*>&
 MuonDetLayerGeometry::allCSCLayers() const {
     
-    vector<DetLayer*> temp;    
-    vector<DetLayer*>::const_iterator it;
-    for(it = cscLayers_fw.begin(); it!=cscLayers_fw.end(); it++)
-        temp.push_back(*it);
-
-    for(it = cscLayers_bg.begin(); it!=cscLayers_bg.end(); it++)
-        temp.push_back(*it);
-    
-    return temp;    
+    return cscLayers_all;
 }
 
 
 const vector<DetLayer*>&
 MuonDetLayerGeometry::forwardCSCLayers() const {
+
     return cscLayers_fw;
 }
 
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::backwardCSCLayers() const {
-    return cscLayers_bg;
+
+    return cscLayers_bk;
 }
 
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::allRPCLayers() const {
-    return cscLayers_fw; // FIXME !!!
+
+    return rpcLayers_all;    
 }
 
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::barrelRPCLayers() const {
-    return cscLayers_fw; // FIXME !!!
+
+    return rpcLayers_barrel; 
 }
 
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::endcapRPCLayers() const {
-     return cscLayers_fw; // FIXME !!!
+
+    return rpcLayers_endcap;    
 }
 
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::forwardRPCLayers() const {
-     return cscLayers_fw; // FIXME !!!
+
+     return rpcLayers_fw; 
 }
 
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::backwardRPCLayers() const {
-    return cscLayers_fw; // FIXME !!!
+
+    return rpcLayers_bk; 
 }
 
 
 const vector<DetLayer*> 
 MuonDetLayerGeometry::allLayers() const {
-    return cscLayers_fw; // FIXME !!!
+
+    return allDetLayers;    
 }    
 
 
 const vector<DetLayer*> 
 MuonDetLayerGeometry::allBarrelLayers() const {
-    return cscLayers_fw; // FIXME !!!
+
+    return allBarrel;    
 }    
 
 const vector<DetLayer*> 
 MuonDetLayerGeometry::allEndcapLayers() const {
-    return cscLayers_fw; // FIXME !!!
+
+    return allEndcap;    
 }    
 
 
 const vector<DetLayer*> 
 MuonDetLayerGeometry::allForwardLayers() const {
-    return cscLayers_fw; // FIXME !!!
+
+    return allForward;    
 }    
 
 
 const vector<DetLayer*> 
 MuonDetLayerGeometry::allBackwardLayers() const {
-    return cscLayers_fw; // FIXME !!!
+
+    return allBackward;    
 }    

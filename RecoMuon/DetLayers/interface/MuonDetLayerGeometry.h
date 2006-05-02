@@ -5,8 +5,8 @@
  *
  *  Provide access to the DetLayers of muon detectors.
  *
- *  $Date: 2006/04/12 16:49:57 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/28 11:54:16 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -18,7 +18,9 @@ class MuonDetLayerGeometry {
  public:
 
   /// Constructor
-  MuonDetLayerGeometry(std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > csclayers);
+  MuonDetLayerGeometry();
+
+  friend class MuonDetLayerGeometryESProducer;  
 
   /// Destructor
   virtual ~MuonDetLayerGeometry();
@@ -69,10 +71,25 @@ class MuonDetLayerGeometry {
 
  private:
     
+    void addCSCLayers(std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > csclayers);
+    //void addDTLayers(std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > csclayers);
+    //void addRPCLayers(std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > csclayers);
+       
     std::vector<DetLayer*> cscLayers_fw;
-    std::vector<DetLayer*> cscLayers_bg;
-    //std::vector<DetLayer*> dtLayers;
-    //std::vector<DetLayer*> rpcLayers;
+    std::vector<DetLayer*> cscLayers_bk;
+    std::vector<DetLayer*> cscLayers_all;
+    std::vector<DetLayer*> rpcLayers_all;
+    std::vector<DetLayer*> rpcLayers_endcap;
+    std::vector<DetLayer*> rpcLayers_fw;
+    std::vector<DetLayer*> rpcLayers_bk;
+    std::vector<DetLayer*> rpcLayers_barrel;
+    std::vector<DetLayer*> dtLayers;
+    std::vector<DetLayer*> allForward;
+    std::vector<DetLayer*> allBackward;
+    std::vector<DetLayer*> allEndcap;
+    std::vector<DetLayer*> allBarrel;
+    std::vector<DetLayer*> allDetLayers;
+
 };
 #endif
 
