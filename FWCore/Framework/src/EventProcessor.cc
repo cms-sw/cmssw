@@ -297,8 +297,6 @@ namespace edm {
     // find single source
     bool sourceSpecified = false;
     try {
-      const std::string& processName =
-	params.getParameter<string>("@process_name");
       ParameterSet main_input =
 	params.getParameter<ParameterSet>("@main_input");
       
@@ -311,16 +309,15 @@ namespace edm {
       // There is no module label for the unnamed input source, so 
       // just use the module name.
       md.moduleLabel_ = md.moduleName_;
-      md.processName_ = processName; 
+      md.processName_ = common.processName_; 
      // warning version and pass are hardcoded
       md.versionNumber_ = 1;
       md.pass = 1; 
 
       sourceSpecified = true;
-      InputSourceDescription isdesc(common.processName_,common.pass_,preg);
+      InputSourceDescription isdesc(md, preg);
       areg.preSourceConstructionSignal_(md);
       shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
-      input->addToRegistry(md);
       areg.postSourceConstructionSignal_(md);
       
       return input;
