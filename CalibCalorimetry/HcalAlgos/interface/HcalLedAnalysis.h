@@ -36,13 +36,13 @@ public:
   /// Destructor
   ~HcalLedAnalysis();
   void LedSetup(const std::string& m_outputFileROOT);
+  void doPeds(const HcalPedestals* fInputPedestals);
   void LedSampleAnalysis();
   void LedDone();
   void processLedEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
 		    const HcalDbService& cond);
-//                    const HcalPedestals* fInputPedestals);
 
 protected:
   
@@ -58,13 +58,13 @@ private:
   //#  vector contains some useful variables;
   //#  the second element is a vector of histos (pointers);
   //#  for the "trend" analysis the main histo (with ADC values) is reset every 
-  //#  nevt_led events and info is put in the other part of the LEDBUNCH;
+  //#  m_nevtsample events and info is put in the other part of the LEDBUNCH;
   //#  so at the end we have the trends for the variables in concern
   //#  which are written in THE vector<TH1F*>; 
   //###  
   typedef std::pair<TH1F*,std::pair<std::map<int, std::vector<double> >,std::vector<TH1F*> > > LEDBUNCH;
-  TFile* m_file; // Histogram file  
-  void LedTSHists(int id, const HcalDetId detid, int TS, const HcalQIESample& qie1, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT);
+  TFile* m_file;
+  void LedTSHists(int id, const HcalDetId detid, int TS, const HcalQIESample& qie1, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT, float pedestal);
   void GetLedConst(std::map<HcalDetId,std::map<int, LEDBUNCH > > &toolT);
   void LedTrendings(std::map<HcalDetId,std::map<int, LEDBUNCH > > &toolT);
   std::string m_outputFileROOT;
@@ -82,12 +82,14 @@ private:
   struct{
     std::map<HcalDetId,std::map<int, LEDBUNCH > > LEDTRENDS;
     TH1F* ALLLEDS;
-    TH1F* LEDRMS; // sigma
+    TH1F* LEDRMS;
     TH1F* LEDMEAN;
     TH1F* CHI2;
   } hbHists, hfHists, hoHists;
-  std::map<HcalDetId, std::map<int,TH1F*> >::iterator _meo;
   std::map<HcalDetId,std::map<int, LEDBUNCH > >::iterator _meol;
+  std::map<HcalDetId,std::map<int,float> > m_AllPedVals;
+  std::map<HcalDetId,std::map<int,float> >::iterator _meee;
+
   const HcalPedestals* pedCan;
   int evt;
   int sample;
