@@ -276,7 +276,7 @@ void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
   *out << "  </td>"                                                  << endl;
   *out << "</table>"                                                 << endl;
 
-  *out << "<textarea rows=" << 10 << " cols=30 scroll=yes>"          << endl;
+  *out << "<textarea rows=" << 10 << " cols=80 scroll=yes>"          << endl;
   *out << offConfig_.value_                                          << endl;
   *out << "</textarea><P>"                                           << endl;
   
@@ -284,10 +284,149 @@ void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
   *out << "</html>"                                                  << endl;
 
 }
+
+
+
+
 #include "extern/cgicc/linuxx86/include/cgicc/CgiDefs.h"
 #include "extern/cgicc/linuxx86/include/cgicc/Cgicc.h"
 #include "extern/cgicc/linuxx86/include/cgicc/FormEntry.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out, 
+				 const std::string &urn)
+{
+
+  evf::filter *filt = 0;
+  ModuleWebRegistry *mwr = 0;
+  edm::ServiceRegistry::Operate operate(proc_->getToken());
+  std::vector<ModuleDescription const*> descs_ = proc_->getAllModuleDescriptions();				
+  try{
+    if(edm::Service<ModuleWebRegistry>().isAvailable())
+      mwr = edm::Service<ModuleWebRegistry>().operator->();
+  }
+  catch(...)
+    { cout <<"exception when trying to get the service registry " << endl;}
+
+  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << std::endl;
+  *out << "<colgroup> <colgroup align=\"rigth\">"                    << std::endl;
+  *out << "  <tr>"                                                   << endl;
+  *out << "    <th colspan=2>"                                       << endl;
+  *out << "      " << "Configuration"                                << endl;
+  *out << "    </th>"                                                << endl;
+  *out << "  </tr>"                                                  << endl;
+  
+  *out << "<tr>" << std::endl;
+  *out << "<th >" << std::endl;
+  *out << "Parameter" << std::endl;
+  *out << "</th>" << std::endl;
+  *out << "<th>" << std::endl;
+  *out << "Value" << std::endl;
+  *out << "</th>" << std::endl;
+  *out << "</tr>" << std::endl;
+  *out << "<tr>" << std::endl;
+  *out << "<td >" << std::endl;
+  *out << "Processed Events" << std::endl;
+  *out << "</td>" << std::endl;
+  *out << "<td>" << std::endl;
+  *out << proc_->totalEvents() << std::endl;
+  *out << "</td>" << std::endl;
+  *out << "  </tr>"                                            << endl;
+  *out << "<tr>" << std::endl;
+  *out << "<td >" << std::endl;
+  *out << "Endpaths State" << std::endl;
+  *out << "</td>" << std::endl;
+  //  *out << "<td" << (sched_->inhibit_endpaths_ ? " bgcolor=\"red\">" : ">") << std::endl;
+  //  *out <<  (sched_->inhibit_endpaths_ ? "disabled" : "enabled") << std::endl;
+  *out << "N/A this version";
+  *out << "</td>" << std::endl;
+  *out << "  </tr>"                                            << endl;
+  *out << "<tr>" << std::endl;
+  *out << "<td >" << std::endl;
+  *out << "Global Input Prescale" << std::endl;
+  *out << "</td>" << std::endl;
+  //  *out << "<td" << (sched_->global_input_prescale_!=1 ? " bgcolor=\"red\">" : ">") << std::endl;
+  //  *out <<  sched_->global_input_prescale_ << std::endl;
+  *out << "N/A this version";
+  *out << "</td>" << std::endl;
+  *out << "  </tr>"                                            << endl;
+  *out << "<tr>" << std::endl;
+  *out << "<td >" << std::endl;
+  *out << "Global Output Prescale" << std::endl;
+  *out << "</td>" << std::endl;
+  //  *out << "<td" << (sched_->global_output_prescale_!=1 ? " bgcolor=\"red\">" : ">") << std::endl;
+  //  *out <<  sched_->global_output_prescale_ << std::endl;
+  *out << "N/A this version";
+  *out << "</td>" << std::endl;
+  *out << "  </tr>"                                            << endl;
+  
+  
+  
+  *out << "</table>" << std::endl;
+  
+  *out << "<table frame=\"void\" rules=\"rows\" class=\"modules\">" << std::endl;
+  *out << "  <tr>"                                                   << endl;
+  *out << "    <th colspan=3>"                                       << endl;
+  *out << "      " << "Application"                                  << endl;
+  
+  if(descs_.size()>0)
+    *out << " (Process name=" << descs_[0].processName_ << ")"       << endl;
+  
+  
+  
+  *out << "    </th>"                                                << endl;
+  *out << "  </tr>"                                                  << endl;
+  
+  *out << "<tr >" << std::endl;
+  *out << "<th >" << std::endl;
+  *out << "Module" << std::endl;
+  *out << "</th>" << std::endl;
+  *out << "<th >" << std::endl;
+  *out << "Label" << std::endl;
+  *out << "</th>" << std::endl;
+  *out << "<th >" << std::endl;
+  *out << "Version" << std::endl;
+  *out << "</th>" << std::endl;
+  *out << "</tr>" << std::endl;
+  
+  for(unsigned int idesc = 0; idesc < descs_.size(); idesc++)
+    {
+      *out << "<tr>" << std::endl;
+      *out << "<td >" << std::endl;
+      if(mwr && mwr->checkWeb(descs_[idesc].moduleName_))
+	*out << "<a href=\"/" << urn << "/moduleWeb?module=" << descs_[idesc].moduleName_ << "\">" 
+	     << descs_[idesc].moduleName_ << "</a>" << std::endl;
+      else
+	*out << descs_[idesc].moduleName_ << std::endl;
+      *out << "</td>" << std::endl;
+      *out << "<td >" << std::endl;
+      *out << descs_[idesc].moduleLabel_ << std::endl;
+      *out << "</td>" << std::endl;
+      *out << "<td >" << std::endl;
+      *out << descs_[idesc].versionNumber_ << std::endl;
+      *out << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+    }
+  *out << "</table>" << std::endl;
+  *out << "<table border=1 bgcolor=\"#CFCFCF\">" << std::endl;
+  *out << "<tr>" << std::endl;
+  if(filt)
+    {
+      //HLT summary status goes here
+    }
+  else
+    {      
+      *out << "<td >" << std::endl;
+      *out << "No Filter Module" << std::endl;
+      *out << "</td>" << std::endl;
+    }
+  *out << "</tr>" << std::endl;
+  *out << "</table>" << std::endl;
+  
+
+
+}
 void FUEventProcessor::moduleWeb(xgi::Input  *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
