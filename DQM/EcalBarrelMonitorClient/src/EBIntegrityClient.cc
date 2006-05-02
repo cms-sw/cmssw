@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/05/02 07:10:38 $
- * $Revision: 1.83 $
+ * $Date: 2006/05/02 10:01:13 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1563,7 +1563,7 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
     htmlFile << "<br>" << endl;
 
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-    htmlFile << "cellpadding=\"5\" align=\"center\"> " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr>" << endl;
 
     for ( int iCanvas = 9 ; iCanvas <= 10 ; iCanvas++ ) {
