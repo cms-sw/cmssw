@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/05/01 21:45:03 $
- * $Revision: 1.82 $
+ * $Date: 2006/05/02 07:10:38 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1144,7 +1144,7 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
   TCanvas* cOcc = new TCanvas("cOcc", "Temp", 2*csize, csize);
   TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
   TCanvas* cMe = new TCanvas("cMe", "Temp", 2*csize, csize);
-  TCanvas* cMeMem = new TCanvas("cMeMem", "Temp", csize, csize);
+  TCanvas* cMeMem = new TCanvas("cMeMem", "Temp", 2*csize, csize);
 
   TH1F* obj1f;
   TH2F* obj2f;
@@ -1348,9 +1348,9 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(3, pCol3);
       obj2f->GetXaxis()->SetNdivisions(10);
-      obj2f->GetYaxis()->SetNdivisions(1);
+      obj2f->GetYaxis()->SetNdivisions(5);
       cMeMem->SetGridx();
-      cMeMem->SetGridy();
+      cMeMem->SetGridy(0);
       obj2f->SetMinimum(-0.00000001);
       obj2f->SetMaximum(2.0);
       obj2f->Draw("col");
@@ -1383,9 +1383,9 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
       obj2f->GetXaxis()->SetNdivisions(10);
-      obj2f->GetYaxis()->SetNdivisions(1);
+      obj2f->GetYaxis()->SetNdivisions(5);
       cMeMem->SetGridx();
-      cMeMem->SetGridy();
+      cMeMem->SetGridy(0);
       obj2f->SetMinimum(0.);
       obj2f->Draw("colz");
       dummy3.Draw("text,same");
@@ -1437,9 +1437,9 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
         obj2f->Draw("colz");
         if ( iCanvas < 9 ){
           obj2f->GetXaxis()->SetNdivisions(10);
-          obj2f->GetYaxis()->SetNdivisions(1);
+          obj2f->GetYaxis()->SetNdivisions(5);
           cMeMem->SetGridx();
-          cMeMem->SetGridy();
+          cMeMem->SetGridy(0);
           dummy3.Draw("text,same");
         }
         else{
@@ -1527,7 +1527,7 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
     htmlFile << "</table>" << endl;
 
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-    htmlFile << "cellpadding=\"75\"> " << endl;
+    htmlFile << "cellpadding=\"10\"> " << endl;
     htmlFile << "<tr align=\"left\">" << endl;
 
     if ( imgNameQualMem.size() != 0 )
@@ -1546,10 +1546,27 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
 
 
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr>" << endl;
+
+    for ( int iCanvas = 7 ; iCanvas <= 8 ; iCanvas++ ) {
+
+      if ( imgNameME[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    }
+
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"5\" align=\"center\"> " << endl;
     htmlFile << "<tr>" << endl;
 
-    for ( int iCanvas = 7 ; iCanvas <= 10 ; iCanvas++ ) {
+    for ( int iCanvas = 9 ; iCanvas <= 10 ; iCanvas++ ) {
 
       if ( imgNameME[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
