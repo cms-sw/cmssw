@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/25 17:03:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/28 11:54:04 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -13,6 +13,8 @@
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 
 #include <RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.h>
+#include <RecoMuon/DetLayers/src/MuonRPCDetLayerGeometryBuilder.h>
+#include <RecoMuon/DetLayers/src/MuonDTDetLayerGeometryBuilder.h>
 
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -35,15 +37,14 @@ MuonDetLayerGeometryESProducer::~MuonDetLayerGeometryESProducer(){}
 boost::shared_ptr<MuonDetLayerGeometry>
 MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
 
-  //pair<vector<MuRingForwardLayer*>, vector<MuRingForwardLayer*> > csclayers; 
-  pair<vector<DetLayer*>, vector<DetLayer*> > csclayers; 
-  vector<MuRingForwardLayer*> dtlayers, rpclayers;
-  
+  MuonDetLayerGeometry* muonDetLayerGeometry = new MuonDetLayerGeometry();
+
+  // Build DT layers  
   try {
-    edm::ESHandle<DTGeometry>  dt;
+    edm::ESHandle<DTGeometry> dt;
     record.getRecord<MuonGeometryRecord>().get(dt);
     if (dt.isValid()) {
-        //dtlayers = MuonCSCDetLayerGeometryBuilder::buildLayers(*csc);
+        //muonDetLayerGeometry->addDTLayers(MuonDTDetLayerGeometryBuilder::buildLayers(*dt));
     }
   
   } catch (...) {
@@ -56,18 +57,19 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     edm::ESHandle<CSCGeometry> csc;
     record.getRecord<MuonGeometryRecord>().get(csc);
     if (csc.isValid()) {
-        csclayers = MuonCSCDetLayerGeometryBuilder::buildLayers(*csc);
+        muonDetLayerGeometry->addCSCLayers(MuonCSCDetLayerGeometryBuilder::buildLayers(*csc));
     }
   } catch(...) {
     // No CSC geo available
     LogInfo("xxx") << "No CSC geometry is available.";
   }
   
+  // Build RPC layers
   try {
     edm::ESHandle<RPCGeometry> rpc;
     record.getRecord<MuonGeometryRecord>().get(rpc);
     if (rpc.isValid()) {
-        //rpclayers = MuonCSCDetLayerGeometryBuilder::buildLayers(*csc);
+        //muonDetLayerGeometry->addRPCLayers(MuonRPCDetLayerGeometryBuilder::buildLayers(*rpc));
     }
   
   } catch (...) {
@@ -75,7 +77,7 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     LogInfo("xxx") << "No RPC geometry is available.";
   }  
 
-  return boost::shared_ptr<MuonDetLayerGeometry>(new MuonDetLayerGeometry(csclayers));
+  return boost::shared_ptr<MuonDetLayerGeometry>(muonDetLayerGeometry);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(MuonDetLayerGeometryESProducer)
