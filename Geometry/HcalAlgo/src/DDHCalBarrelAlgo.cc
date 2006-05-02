@@ -8,8 +8,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
@@ -27,7 +26,7 @@ DDHCalBarrelAlgo::DDHCalBarrelAlgo():
   layerWidth(0),layerD1(0),layerD2(0),layerAlpha(0),layerT(0),layerAbsorb(0),
   layerGap(0),absorbName(0),absorbMat(0),absorbD(0),absorbAlpha(0),absorbT(0),
   detType(0),detT1(0),detTsc(0),detT2(0),detWidth1(0),detWidth2(0),detPosY(0) {
-  DCOUT('a', "DDHCalBarrelAlgo info: Creating an instance");
+  edm::LogInfo("HCalGeom") << "DDHCalBarrelAlgo info: Creating an instance";
 }
 
 DDHCalBarrelAlgo::~DDHCalBarrelAlgo() {}
@@ -59,15 +58,20 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
   if (rzones > 3)
     rmax[2] = (zoff[3] - zoff[2]) / ttheta[2];
 
-  DCOUT('A', "DDHCalBarrelAlgo debug: General material " << genMaterial << "\tSectors " << nsectors << ", " << nsectortot <<"\tHalves "	<< nhalf << "\tRotation matrix " << rotns << ":" << rotHalf); 
-  DCOUT('A', "\t\t" << rin << "\t" << rout << "\t" << rzones);
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo debug: General material " 
+		       << genMaterial << "\tSectors " << nsectors << ", " 
+		       << nsectortot <<"\tHalves "	<< nhalf 
+		       << "\tRotation matrix " << rotns << ":" << rotHalf 
+		       << "\n\t\t" << rin << "\t" << rout << "\t" << rzones;
   for (i = 0; i < rzones; i++)
-    DCOUT('A', "\t" << i << " Theta " << theta[i] << " rmax " << rmax[i] << " zoff " << zoff[i]);
+    LogDebug("HCalGeom") << "\tTheta[" << i << "] = " << theta[i] << "\trmax["
+			 << i << "] = " << rmax[i] << "\tzoff[" << i << "] = "
+			 << zoff[i];
 
   ///////////////////////////////////////////////////////////////
   //Layers
   nLayers = int(nArgs["NLayers"]);
-  DCOUT('A', "DDHCalBarrelAlgo debug: Layer\t" << nLayers);
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo debug: Layer\t" << nLayers;
   layerId     = dbl_to_int (vArgs["Id"]);
   layerLabel  = vsArgs["LayerLabel"];
   layerMat    = vsArgs["LayerMat"];
@@ -79,7 +83,11 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
   layerAbsorb = dbl_to_int(vArgs["AbsL"]);
   layerGap    = vArgs["Gap"];
   for (i = 0; i < nLayers; i++) {
-    DCOUT('A', layerLabel[i] << "\t" << layerId[i] << "\t" << layerMat[i] << "\t" << layerWidth[i] << "\t" << layerD1[i] << "\t" << layerD2[i]  << "\t" << layerAlpha[i] << "\t" << layerT[i] << "\t" << layerAbsorb[i] << "\t" << layerGap[i]);
+    LogDebug("HCalGeom") << layerLabel[i] << "\t" << layerId[i] << "\t" 
+			 << layerMat[i] << "\t" << layerWidth[i] << "\t" 
+			 << layerD1[i] << "\t" << layerD2[i]  << "\t" 
+			 << layerAlpha[i] << "\t" << layerT[i] << "\t"
+			 << layerAbsorb[i] << "\t" << layerGap[i];
   }
   
   ///////////////////////////////////////////////////////////////
@@ -91,7 +99,9 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
   absorbT     = vArgs["AbsorbT"];
   int nAbs    = absorbName.size();
   for (i = 0; i < nAbs; i++) {
-    DCOUT('A', "DDHCalBarrelAlgo debug: " << absorbName[i] <<" Material " <<  absorbMat[i] << " d " << absorbD[i] << " Alpha "  << absorbAlpha[i] << " t " << absorbT[i]);
+    LogDebug("HCalGeom") << "DDHCalBarrelAlgo debug: " << absorbName[i]
+			 <<" Material " <<  absorbMat[i] << " d " << absorbD[i]
+			 << " Alpha "  << absorbAlpha[i] << " t " <<absorbT[i];
   }
 
   ///////////////////////////////////////////////////////////////
@@ -101,8 +111,10 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
   detRot   = sArgs["DetRot"];
   detMatPl = sArgs["DetMatPl"];
   detMatSc = sArgs["DetMatSc"];
-  DCOUT('A', "DDHCalBarrelAlgo debug: Detector (" <<  nLayers << ") Rotation matrix " << rotns << ":" << detRot);
-  DCOUT('A', "\t\t" << detMat << "\t" << detMatPl  << "\t" << detMatSc);
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo debug: Detector (" <<  nLayers 
+		       << ") Rotation matrix " << rotns << ":" << detRot
+		       << "\n\t\t" << detMat << "\t" << detMatPl  << "\t"
+		       << detMatSc;
 
   detType   = dbl_to_int(vArgs["DetType"]);
   detdP1    = vArgs["DetdP1"];
@@ -113,7 +125,10 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
   detWidth2 = vArgs["DetWidth2"];
   detPosY   = dbl_to_int(vArgs["DetPosY"]);
   for (i = 0; i < nLayers; i ++) {
-    DCOUT('A', i+1 << "\t" << detType[i] << "\t" << detdP1[i] << "\t"  << detT1[i] << "\t" << detTsc[i] << "\t" << detT2[i] << "\t" << detWidth1[i] << "\t" << detWidth2[i] << "\t" << detPosY[i]);
+    LogDebug("HCalGeom") << i+1 << "\t" << detType[i] << "\t" << detdP1[i]
+			 << "\t"  << detT1[i] << "\t" << detTsc[i] << "\t"
+			 << detT2[i] << "\t" << detWidth1[i] << "\t" 
+			 << detWidth2[i] << "\t" << detPosY[i];
   }
 
   //  idName = parentName.name();
@@ -121,7 +136,9 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
   idNameSpace = DDCurrentNamespace::ns();
   idOffset = int (nArgs["IdOffset"]); 
   DDName parentName = parent().name(); 
-  DCOUT('A', "DDHCalBarrelAlgo debug: Parent " << parentName <<" idName " << idName << " NameSpace " << idNameSpace << " Offset " << idOffset);
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo debug: Parent " << parentName
+		       <<" idName " << idName << " NameSpace " << idNameSpace
+		       << " Offset " << idOffset;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -130,16 +147,16 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
 
 void DDHCalBarrelAlgo::execute() {
 
-  DCOUT('a', "==>> Constructing DDHCalBarrelAlgo...");
+  LogDebug("HCalGeom") << "==>> Constructing DDHCalBarrelAlgo...";
   constructGeneralVolume();
-  DCOUT('a', "<<== End of DDHCalBarrelAlgo construction ...");
+  LogDebug("HCalGeom") << "<<== End of DDHCalBarrelAlgo construction ...";
 }
 
 //----------------------start here for DDD work!!! ---------------
 
 void DDHCalBarrelAlgo::constructGeneralVolume() {
   
-  DCOUT('a', "DDHCalBarrelAlgo test: General volume...");
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: General volume...";
   unsigned int i=0;
 
   DDRotation rot = DDRotation();
@@ -256,16 +273,28 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
     solid = DDSolidFactory::polyhedra(DDName(idName, idNameSpace),
 				      getNsectortot(), -alpha, dphi, pgonZ, 
 				      pgonRmin, pgonRmax);
-    DCOUT('a', "DDHCalBarrelAlgo test: " << DDName(idName, idNameSpace) << " Polyhedra made of " << getGenMaterial() << " with " << getNsectortot() << " sectors from " << -alpha/deg <<" to " << (-alpha+dphi)/deg << " and with " << nsec << " sections ");
+    LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: "
+			 << DDName(idName, idNameSpace) <<" Polyhedra made of "
+			 << getGenMaterial() << " with " << getNsectortot()
+			 << " sectors from " << -alpha/deg <<" to "
+			 << (-alpha+dphi)/deg << " and with " << nsec
+			 << " sections ";
     for (i = 0; i <pgonZ.size(); i++) 
-      DCOUT('a', "\t" << "\tZ = " << pgonZ[i] << "\tRmin = " <<pgonRmin[i] << "\tRmax = " << pgonRmax[i]);
+      LogDebug("HCalGeom") << "\t" << "\tZ = " << pgonZ[i] << "\tRmin = " 
+			   << pgonRmin[i] << "\tRmax = " << pgonRmax[i];
   } else {
     solid = DDSolidFactory::polyhedra(DDName(idName, idNameSpace),
 				      getNsectortot(), -alpha, dphi, pgonZHalf,
 				      pgonRminHalf, pgonRmaxHalf);
-    DCOUT('a', "DDHCalBarrelAlgo test: " << DDName(idName, idNameSpace) << " Polyhedra made of " << getGenMaterial() << " with " << getNsectortot() << " sectors from " << -alpha/deg << " to " << (-alpha+dphi)/deg << " and with " << nsec << " sections ");
+    LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " 
+			 << DDName(idName, idNameSpace) <<" Polyhedra made of "
+			 << getGenMaterial() << " with " << getNsectortot()
+			 << " sectors from " << -alpha/deg << " to " 
+			 << (-alpha+dphi)/deg << " and with " << nsec 
+			 << " sections ";
     for (i = 0; i < pgonZHalf.size(); i++) 
-      DCOUT('a', "\t" << "\tZ = " << pgonZHalf[i] << "\tRmin = " << pgonRminHalf[i] << "\tRmax = " << pgonRmaxHalf[i]);
+      LogDebug("HCalGeom") << "\t" << "\tZ = " << pgonZHalf[i] << "\tRmin = "
+			   << pgonRminHalf[i] << "\tRmax = " <<pgonRmaxHalf[i];
   }  
   
 
@@ -276,14 +305,21 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
   DDName parentName = parent().name(); 
   DDTranslation r0(0,0,0);
   DDpos(DDName(idName, idNameSpace), parentName, 1, r0, rot);
-  DCOUT('a', "DDHCalBarrelAlgo test: " << DDName(idName, idNameSpace) << " number 1 positioned in " << parentName << " at " << r0 << " with " << rot);
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " 
+		       << DDName(idName, idNameSpace) << " number 1 positioned"
+		       << " in " << parentName << " at " << r0 <<" with "<<rot;
 
   //Forward and backwards halfs
   name = idName + "Half";
   nf   = (ntot+1)/2;
-  DCOUT('a', "DDHCalBarrelAlgo test: " << DDName(name, idNameSpace) << " Polyhedra made of " << getGenMaterial() << " with " << getNsectortot() << " sectors from " << -alpha/deg << " to " << (-alpha+dphi)/deg << " and with " << nf << " sections "); 
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << DDName(name,idNameSpace)
+		       << " Polyhedra made of " << getGenMaterial() << " with "
+		       << getNsectortot() << " sectors from " << -alpha/deg 
+		       << " to " << (-alpha+dphi)/deg << " and with " << nf
+		       << " sections "; 
   for (i = 0; i < pgonZHalf.size(); i++) 
-    DCOUT('a', "\t" << "\tZ = " << pgonZHalf[i] << "\tRmin = " << pgonRminHalf[i] << "\tRmax = " << pgonRmaxHalf[i]);
+    LogDebug("HCalGeom") << "\t" << "\tZ = " << pgonZHalf[i] << "\tRmin = "
+			 << pgonRminHalf[i] << "\tRmax = " << pgonRmaxHalf[i];
 
   solid =   DDSolidFactory::polyhedra(DDName(name, idNameSpace),
 				      getNsectortot(), -alpha, dphi, pgonZHalf,
@@ -291,19 +327,27 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
   DDLogicalPart genlogich(DDName(name, idNameSpace), matter, solid);
 
   DDpos(genlogich, genlogic, 1, r0, rot);
-  DCOUT('a', "DDHCalBarrelAlgo test: "  << genlogich.name() << " number 1 positioned in " << genlogic.name() << " at " << r0 << " with " << rot);
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: "  << genlogich.name() 
+		       << " number 1 positioned in " << genlogic.name() 
+		       << " at " << r0 << " with " << rot;
 
   if (getNhalf() != 1) {
     rot = DDRotation(DDName(rotHalf, rotns));
     DDpos (genlogich, genlogic, 2, r0, rot);
-    DCOUT('a', "DDHCalBarrelAlgo test:  " << genlogich.name() << " number 2 positioned in " << genlogic.name() << " at " << r0 << " with " << rot);
+    LogDebug("HCalGeom") << "DDHCalBarrelAlgo test:  " << genlogich.name()
+			 << " number 2 positioned in " << genlogic.name()
+			 << " at " << r0 << " with " << rot;
   } //end if (getNhalf...
   
   //Construct sector (from -alpha to +alpha)
   name = idName + "Module";
-  DCOUT('a', "DDHCalBarrelAlgo test: " << DDName(name, idNameSpace) << " Polyhedra made of " << getGenMaterial() << " with 1 sector from " << -alpha/deg << " to "  << alpha/deg << " and with " << nf << " sections");
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << DDName(name,idNameSpace)
+		       << " Polyhedra made of " << getGenMaterial() 
+		       << " with 1 sector from " << -alpha/deg << " to "  
+		       << alpha/deg << " and with " << nf << " sections";
   for (i = 0; i < pgonZHalf.size(); i++) 
-    DCOUT('a', "\t" << "\tZ = " << pgonZHalf[i] << "\tRmin = " << pgonRminHalf[i] << "\tRmax = " << pgonRmaxHalf[i]);
+    LogDebug("HCalGeom") << "\t" << "\tZ = " << pgonZHalf[i] << "\tRmin = " 
+			 << pgonRminHalf[i] << "\tRmax = " << pgonRmaxHalf[i];
 
   solid =   DDSolidFactory::polyhedra(DDName(name, idNameSpace),
 				      1, -alpha, 2*alpha, pgonZHalf,
@@ -322,14 +366,19 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
       rotstr = rotstr + dbl_to_string(phideg);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
-	DCOUT('a', "DDHCalBarrelAlgo test: Creating a new rotation " << rotstr << "\t" << 90 << "," << phideg << ","  << 90 << "," << (phideg+90) << ","    << 0 << "," << 0);
+	LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: Creating a new rotat"
+			     << "ion " << rotstr << "\t" << 90 << "," << phideg
+			     << ","  << 90 << "," << (phideg+90) << ", 0, 0";
 	rotation = DDrot(DDName(rotstr, idNameSpace), 90*deg, phideg*deg, 
 			 90*deg, (90+phideg)*deg, 0*deg,  0*deg);
       } //if !rotation
     } //if phideg!=0
   
     DDpos (seclogic, genlogich, ii+1, r0, rotation);
-    DCOUT('a', "DDHCalBarrelAlgo test: " << seclogic.name() << " number " << ii+1 << " positioned in " << genlogich.name() << " at " << r0 << " with " << rotation);
+    LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << seclogic.name() 
+			 << " number " << ii+1 << " positioned in " 
+			 << genlogich.name() << " at " << r0 << " with "
+			 << rotation;
   }
   
   //Construct the things inside the sector
@@ -339,7 +388,8 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
 
 void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector) {
   
-  DCOUT('a', "DDHCalBarrelAlgo test: Layers (" << getNLayers() << ") ...");
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: Layers (" << getNLayers()
+		       << ") ...";
   
   double alpha = pi/getNsectors();
   double rin   = getRin();
@@ -420,11 +470,17 @@ void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector) {
       double rmid  = 0.5*(rin+rout);
       double width = rmid*tan(alpha) - getLayerGap(i);
       alpha1 = atan(width/rmid);
-      DCOUT('a', "\t" << "Alpha_1 modified from " << alpha/deg << " to " << alpha1/deg << " Rmid " << rmid << " Reduced width " << width);
+      LogDebug("HCalGeom") << "\t" << "Alpha_1 modified from " << alpha/deg 
+			   << " to " << alpha1/deg << " Rmid " << rmid
+			   << " Reduced width " << width;
     }
-    DCOUT('a', "DDHCalBarrelAlgo test: " << name << " (Layer " << i << ") Polyhedra made of " << getLayerMaterial(i) << " with 1 sector from " << -alpha1/deg << " to " << alpha1/deg << " and with " << nsec << " sections");
+    LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << name << " (Layer " 
+			 << i << ") Polyhedra made of " << getLayerMaterial(i)
+			 << " with 1 sector from " << -alpha1/deg << " to " 
+			 << alpha1/deg << " and with " << nsec << " sections";
     for (unsigned int k=0; k<pgonZ.size(); k++)
-      DCOUT('a', "\t" << "\t" << pgonZ[k] << "\t" << pgonRmin[k] << "\t" << pgonRmax[k]);
+      LogDebug("HCalGeom") << "\t" << "\t" << pgonZ[k] << "\t" << pgonRmin[k]
+			   << "\t" << pgonRmax[k];
     
     solid = DDSolidFactory::polyhedra(DDName(name, idNameSpace), 
 				      1, -alpha1, 2*alpha1,
@@ -433,7 +489,9 @@ void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector) {
 
     DDpos (glog, sector, getLayerId(i), DDTranslation(0.0, 0.0, 0.0), 
 	   DDRotation());
-    DCOUT('a', "DDHCalBarrelAlgo test: " << glog.name() << " number " << getLayerId(i) << " positioned in " << sector.name() << " at (0,0,0) with no rotation");
+    LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() 
+			 << " number " << getLayerId(i) << " positioned in " 
+			 << sector.name() << " at (0,0,0) with no rotation";
 
     constructInsideLayers(glog, getLayerLabel(i), getLayerId(i), 
 			  getLayerAbsorb(i), rin,  getLayerD1(i), alpha1, 
@@ -449,7 +507,8 @@ void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
 					     double alpha1, double d2, 
 					     double alpha2, double t) {
   
-  DCOUT('a', "DDHCalBarrelAlgo test: \t\tInside layer " << id << "...");
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: \t\tInside layer " << id 
+		       << "...";
 
   ///////////////////////////////////////////////////////////////
   //Pointers to the Rotation Matrices and to the Materials
@@ -480,13 +539,20 @@ void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
     DDTranslation r12(x, -y, dz);
 
     solid = DDSolidFactory::box(DDName(name+"1", idNameSpace), dx, dy, dz);
-    DCOUT('a', "DDHCalBarrelAlgo test: " << solid.name() <<" Box made of " << getDetMat() << " of dimensions " << dx << ", " << dy << ", " << dz);
+    LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
+			 <<" Box made of " << getDetMat() << " of dimensions "
+			 << dx << ", " << dy << ", " << dz;
     glog = DDLogicalPart(solid.ddname(), matter, solid);
 
     DDpos(glog, laylog, idOffset+1, r11, DDRotation());
     DDpos(glog, laylog, idOffset+2, r12, rot);
-    DCOUT('a', "DDHCalBarrelAlgo test: " << glog.name() << " Number " << idOffset+1 << " positioned in " << laylog.name() << " at " << r11 << " with no rotation");
-    DCOUT('a', "DDHCalBarrelAlgo test: " << glog.name() << " Number " << idOffset+2 << " positioned in " << laylog.name() << " at " << r12 << " with " << rot);
+    LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() 
+			 << " Number " << idOffset+1 << " positioned in " 
+			 << laylog.name() << " at " << r11 
+			 << " with no rotation\n"
+			 << "DDHCalBarrelAlgo test: " << glog.name() 
+			 << " Number " << idOffset+2 << " positioned in " 
+			 << laylog.name() << " at " << r12 << " with " << rot;
 
     //Constructin the plastics and scintillators inside
     constructInsideDetectors(glog, nam0+"1", id, dx, dy, dz, 1);
@@ -506,13 +572,19 @@ void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
   DDTranslation r22(x, -dy, dz);
   
   solid = DDSolidFactory::box(DDName(name+"2", idNameSpace), dx, dy, dz);
-  DCOUT('a', "DDHCalBarrelAlgo test: " << solid.name() << " Box made of " << getDetMat() << " of dimensions " << dx << ", " << dy << ", " << dz);
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
+		       << " Box made of " << getDetMat() << " of dimensions "
+		       << dx << ", " << dy << ", " << dz;
   glog = DDLogicalPart(solid.ddname(), matter, solid);
 
   DDpos (glog, laylog, idOffset+3, r21, DDRotation());
   DDpos (glog, laylog, idOffset+4, r22, rot);
-  DCOUT('a', "DDHCalBarrelAlgo test: " << glog.name() << " Number " << idOffset+3 << " positioned in " << laylog.name() << " at " << r21 << " with no rotation");
-  DCOUT('a', "DDHCalBarrelAlgo test: " << glog.name() << " Number " << idOffset+4 << " positioned in " << laylog.name() << " at " << r22 << " with " << rot);
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() <<" Number "
+		       << idOffset+3 << " positioned in " << laylog.name() 
+		       << " at " << r21 << " with no rotation\n"
+		       << "DDHCalBarrelAlgo test: " << glog.name() <<" Number "
+		       << idOffset+4 << " positioned in " << laylog.name()
+		       << " at " << r22 << " with " << rot;
 
   //Constructin the plastics and scintillators inside
   constructInsideDetectors(glog, nam0+"2", id, dx, dy, dz, 2);
@@ -542,16 +614,23 @@ void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
     solid = DDSolidFactory::polyhedra(DDName(namek, idNameSpace), 1,
 				      -getAbsorbAlpha(k), 2*getAbsorbAlpha(k),
 				      pgonZ, pgonRmin, pgonRmax);
-    DCOUT('a', "DDHCalBarrelAlgo test: " << solid.name() << " Polyhedra made of " << getAbsorbMat(k) << " with 1 sector from " << -getAbsorbAlpha(k)/deg << " to " << getAbsorbAlpha(k)/deg << " and with " << pgonZ.size() << " sections");
+    LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
+			 << " Polyhedra made of " << getAbsorbMat(k) 
+			 << " with 1 sector from " << -getAbsorbAlpha(k)/deg
+			 << " to " << getAbsorbAlpha(k)/deg << " and with "
+			 << pgonZ.size() << " sections";
     for (unsigned int ii=0; ii<pgonZ.size(); ii++)
-      DCOUT('a', "\t\tZ = " << pgonZ[ii] << "\tRmin = " << pgonRmin[ii] << "\tRmax = " << pgonRmax[ii]);
+      LogDebug("HCalGeom") << "\t\tZ = " << pgonZ[ii] << "\tRmin = " 
+			   << pgonRmin[ii] << "\tRmax = " << pgonRmax[ii];
 
     DDName matName(DDSplit(getAbsorbMat(k)).first, DDSplit(getAbsorbMat(k)).second);
     DDMaterial matter(matName);
     glog = DDLogicalPart(solid.ddname(), matter, solid);
 
     DDpos(glog, laylog, 1, DDTranslation(), DDRotation());
-    DCOUT('a', "DDHCalBarrelAlgo test: " << glog.name() << " Number 1 positioned in " << laylog.name() << " at (0,0,0) with no rotation");
+    LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() 
+			 << " Number 1 positioned in " << laylog.name()
+			 << " at (0,0,0) with no rotation";
   }
 }
 
@@ -561,7 +640,8 @@ void DDHCalBarrelAlgo::constructInsideDetectors(DDLogicalPart detector,
 						double dy, double dz,
 						int type) {
 
-  DCOUT('a', "DDHCalBarrelAlgo test: \t\tInside detector " << id << "...");
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: \t\tInside detector " << id 
+		       << "...";
   
   DDName plmatname(DDSplit(getDetMatPl()).first, DDSplit(getDetMatPl()).second);
   DDMaterial plmatter(plmatname);
@@ -585,30 +665,42 @@ void DDHCalBarrelAlgo::constructInsideDetectors(DDLogicalPart detector,
 
   solid = DDSolidFactory::box(DDName(plname+"1", idNameSpace), 
 			      0.5*getDetT1(id) , wid, dz);
-  DCOUT('a', "DDHCalBarrelAlgo test: " << solid.name() << " Box made of " << getDetMatPl() << " of dimensions " << 0.5*getDetT1(id) <<", " << wid << ", "  << dz);
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
+		       << " Box made of " << getDetMatPl() << " of dimensions "
+		       << 0.5*getDetT1(id) <<", " << wid << ", "  << dz;
   glog = DDLogicalPart(solid.ddname(), plmatter, solid); 
 
   double x = getDetdP1(id) + 0.5*getDetT1(id) - dx;
   DDpos(glog, detector, 1, DDTranslation(x,y,0), DDRotation());
-  DCOUT('a', "DDHCalBarrelAlgo test: " << glog.name() << " Number 1 positioned in " << detector.name() << " at (" << x << "," << y << ",0) with no rotation");
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() 
+		       << " Number 1 positioned in " << detector.name() 
+		       << " at (" << x << "," << y << ",0) with no rotation";
 
   solid = DDSolidFactory::box(DDName(scname, idNameSpace), 
 			      0.5*getDetTsc(id), wid, dz);
-  DCOUT('a', "DDHCalBarrelAlgo test: " << solid.name() << " Box made of " << getDetMatSc() << " of dimensions " << 0.5*getDetTsc(id) << ", " << wid << ", " << dz);
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
+		       << " Box made of " << getDetMatSc() << " of dimensions "
+		       << 0.5*getDetTsc(id) << ", " << wid << ", " << dz;
   glog = DDLogicalPart(solid.ddname(), scmatter, solid);
 
   x += 0.5*(getDetT1(id) + getDetTsc(id));
   int copyNo = id*10 + getDetType(id);
   DDpos(glog, detector, copyNo, DDTranslation(x, y, 0), DDRotation());
-  DCOUT('a', "DDHCalBarrelAlgo test: " << glog.name() << " Number " << copyNo << " positioned in " << detector.name() << " at (" << x << "," << y  << ",0) with no rotation");
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() <<" Number "
+		       << copyNo << " positioned in " << detector.name() 
+		       << " at (" << x << "," << y  << ",0) with no rotation";
 
   solid = DDSolidFactory::box(DDName(plname+"2", idNameSpace), 
 			      0.5*getDetT2(id) , wid, dz);
-  DCOUT('a', "DDHCalBarrelAlgo test: " << solid.name() << " Box made of " << getDetMatPl() << " of dimensions " << 0.5*getDetT2(id) <<", " << wid << ", "  << dz);
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
+		       << " Box made of " << getDetMatPl() << " of dimensions "
+		       << 0.5*getDetT2(id) <<", " << wid << ", "  << dz;
   glog = DDLogicalPart(solid.ddname(), plmatter, solid);
 
   x+=0.5*(getDetTsc(id) + getDetT2(id));
   DDpos (glog, detector, 1, DDTranslation(x, y, 0), DDRotation());
-  DCOUT('a', "DDHCalBarrelAlgo test: " << glog.name() << " Number 1 positioned in " << detector.name() << " at (" << x << "," << y << ",0) with no rotation");
+  LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() 
+		       << " Number 1 positioned in " << detector.name() 
+		       << " at (" << x << "," << y << ",0) with no rotation";
 
 }

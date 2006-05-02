@@ -7,8 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
@@ -22,7 +21,7 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDHCalForwardAlgo::DDHCalForwardAlgo(): number(0),size(0),type(0) {
-  DCOUT('a', "DDHCalForwardAlgo info: Creating an instance");
+  edm::LogInfo("HCalGeom") << "DDHCalForwardAlgo info: Creating an instance";
 }
 
 DDHCalForwardAlgo::~DDHCalForwardAlgo() {}
@@ -45,19 +44,26 @@ void DDHCalForwardAlgo::initialize(const DDNumericArguments & nArgs,
   size        = dbl_to_int(vArgs["Size"]);
   type        = dbl_to_int(vArgs["Type"]);
 
-  DCOUT('A', "DDHCalForwardAlgo debug: Cell material " << cellMat << "\tCell Size "  << cellDx << ", " << cellDy << ", " << cellDz << "\tStarting Y " << startY << "\tChildren " << childName[0] << ", " << childName[1]);
-  DCOUT('A', "                         Cell positioning done for " << number.size() << " times");
+  LogDebug("HCalGeom") << "DDHCalForwardAlgo debug: Cell material " << cellMat
+		       << "\tCell Size "  << cellDx << ", " << cellDy << ", "
+		       << cellDz << "\tStarting Y " << startY << "\tChildren "
+		       << childName[0] << ", " << childName[1] << "\n"
+		       << "                         Cell positioning done for "
+		       << number.size() << " times";
   for (unsigned int i = 0; i < number.size(); i++)
-    DCOUT('A', "\t" << i << " Number of children " << size[i] << " occurence " << number[i] << " first child index " << type[i]);
+    LogDebug("HCalGeom") << "\t" << i << " Number of children " << size[i] 
+			 << " occurence " << number[i] << " first child index "
+			 << type[i];
 
   idNameSpace = DDCurrentNamespace::ns();
   DDName parentName = parent().name(); 
-  DCOUT('A', "DDHCalForwardAlgo debug: Parent " << parentName << " NameSpace " << idNameSpace);
+  LogDebug("HCalGeom") << "DDHCalForwardAlgo debug: Parent " << parentName
+		       << " NameSpace " << idNameSpace;
 }
 
 void DDHCalForwardAlgo::execute() {
   
-  DCOUT('a', "==>> Constructing DDHCalForwardAlgo...");
+  LogDebug("HCalGeom") << "==>> Constructing DDHCalForwardAlgo...";
 
   DDName parentName = parent().name(); 
   string idName     = DDSplit(parentName).first;
@@ -72,7 +78,10 @@ void DDHCalForwardAlgo::execute() {
       string name = idName + dbl_to_string(box);
       DDSolid solid = DDSolidFactory::box(DDName(name, idNameSpace),
 					  dx, cellDy, cellDz);
-      DCOUT('a', "DDHCalForwardAlgo test: " << DDName(name, idNameSpace) << " Box made of " << cellMat << " of Size " << dx << ", " << cellDy << ", " << cellDz);
+      LogDebug("HCalGeom") << "DDHCalForwardAlgo test: " 
+			   << DDName(name, idNameSpace) << " Box made of " 
+			   << cellMat << " of Size " << dx << ", " << cellDy
+			   << ", " << cellDz;
   
       DDName matname(DDSplit(cellMat).first, DDSplit(cellMat).second); 
       DDMaterial matter(matname);
@@ -81,7 +90,9 @@ void DDHCalForwardAlgo::execute() {
       DDTranslation r0(0.0, ypos, 0.0);
       DDRotation rot;
       DDpos(solid.ddname(), parentName, box, r0, rot);
-      DCOUT('a', "DDHCalForwardAlgo test: " << solid.ddname() << " number " << box << " positioned in " << parentName << " at " << r0 << " with " << rot);
+      LogDebug("HCalGeom") << "DDHCalForwardAlgo test: " << solid.ddname() 
+			   << " number " << box << " positioned in " 
+			   << parentName << " at " << r0 << " with " << rot;
   
       DDName child(DDSplit(childName[indx]).first, 
 		   DDSplit(childName[indx]).second); 
@@ -92,10 +103,13 @@ void DDHCalForwardAlgo::execute() {
       for (int k=0; k<size[i]; k++) {
 	DDTranslation r1(xpos, 0.0, 0.0);
 	DDpos (child, solid.ddname(), k+1, r1, rot);
-	DCOUT('a', "DDHCalForwardAlgo test: " << child << " number " << k+1 << " positioned in " << solid.ddname() << " at " << r1 << " with " << rot);
+	LogDebug("HCalGeom") << "DDHCalForwardAlgo test: " << child 
+			     << " number " << k+1 << " positioned in " 
+			     << solid.ddname() << " at " << r1 << " with "
+			     << rot;
 	xpos += 2*cellDx;
       }
     }  
   }
-  DCOUT('a', "<<== End of DDHCalForwardAlgo construction ...");
+  LogDebug("HCalGeom") << "<<== End of DDHCalForwardAlgo construction ...";
 }

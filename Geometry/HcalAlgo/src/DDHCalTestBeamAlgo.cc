@@ -7,8 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -21,7 +20,7 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDHCalTestBeamAlgo::DDHCalTestBeamAlgo() {
-  DCOUT('a', "DDHCalTestBeamAlgo test: Creating an instance");
+  edm::LogInfo("HCalGeom") << "DDHCalTestBeamAlgo test: Creating an instance";
 }
 
 DDHCalTestBeamAlgo::~DDHCalTestBeamAlgo() {}
@@ -40,12 +39,18 @@ void DDHCalTestBeamAlgo::initialize(const DDNumericArguments & nArgs,
   dz         = nArgs["Dz"];
   copyNumber = int (nArgs["Number"]);
   dist       = (distance+distanceZ/sin(theta));
-  DCOUT('A', "DDHCalTestBeamAlgo debug: Parameters for positioning--" << " Eta " << eta << "\tPhi " << phi/deg << "\tTheta " << theta/deg << "\tDistance " << distance << "/" << distanceZ << "/" << dist << "\tDz " << dz << "\tcopyNumber " << copyNumber);
+  LogDebug("HCalGeom") << "DDHCalTestBeamAlgo debug: Parameters for position"
+		       << "ing--" << " Eta " << eta << "\tPhi " << phi/deg 
+		       << "\tTheta " << theta/deg << "\tDistance " << distance
+		       << "/" << distanceZ << "/" << dist << "\tDz " << dz 
+		       << "\tcopyNumber " << copyNumber;
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name(); 
-  DCOUT('A', "DDHCalTestBeamAlgo debug: Parent " << parentName << "\tChild " << childName << " NameSpace " << idNameSpace);
+  LogDebug("HCalGeom") << "DDHCalTestBeamAlgo debug: Parent " << parentName
+		       << "\tChild " << childName << " NameSpace "
+		       << idNameSpace;
 }
 
 void DDHCalTestBeamAlgo::execute() {
@@ -62,7 +67,10 @@ void DDHCalTestBeamAlgo::execute() {
   
   DDRotation rotation;
   string rotstr = childName;
-  DCOUT('a', "DDHCalTestBeamAlgo test: Creating a new rotation " << rotstr << "\t" << thetax/deg << "," << phix/deg << "," << thetay/deg << "," << phiy/deg <<"," << thetaz/deg <<"," << phiz/deg);
+  LogDebug("HCalGeom") << "DDHCalTestBeamAlgo test: Creating a new rotation "
+		       << rotstr << "\t" << thetax/deg << "," << phix/deg 
+		       << "," << thetay/deg << "," << phiy/deg << "," 
+		       << thetaz/deg <<"," << phiz/deg;
   rotation = DDrot(DDName(rotstr, idNameSpace), thetax, phix, thetay, phiy,
 		   thetaz, phiz);
 	
@@ -74,13 +82,17 @@ void DDHCalTestBeamAlgo::execute() {
   
   DDName parentName = parent().name(); 
   DDpos (DDName(childName,idNameSpace), parentName,copyNumber, tran,rotation);
-  DCOUT('a', "DDHCalTestBeamAlgo test: " << DDName(childName, idNameSpace) << " number " << copyNumber << " positioned in " << parentName << " at " << tran << " with " << rotation);
+  LogDebug("HCalGeom") << "DDHCalTestBeamAlgo test: " 
+		       << DDName(childName, idNameSpace) << " number " 
+		       << copyNumber << " positioned in " << parentName 
+		       << " at " << tran << " with " << rotation;
 
   xpos = (dist-dz)*sin(theta)*cos(phi);
   ypos = (dist-dz)*sin(theta)*sin(phi);
   zpos = (dist-dz)*cos(theta);
 
-  std::cout << "DDHCalTestBeamAlgo info: Suggested Beam position (" << xpos 
-	    << ", " << ypos << ", " << zpos << ") and (eta, phi) = (" << eta
-	    << ", " << phi << ")" << std::endl;
+  edm::LogInfo("HCalGeom") << "DDHCalTestBeamAlgo: Suggested Beam position "
+			   << "(" << xpos << ", " << ypos << ", " << zpos 
+			   << ") and (dist, eta, phi) = (" << (dist-dz) << ", "
+			   << eta << ", " << phi << ")";
 }

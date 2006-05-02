@@ -7,8 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
@@ -22,7 +21,7 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDHCalAngular::DDHCalAngular() {
-  DCOUT('a', "DDHCalAngular test: Creating an instance");
+  edm::LogInfo("HCalGeom") << "DDHCalAngular test: Creating an instance";
 }
 
 DDHCalAngular::~DDHCalAngular() {}
@@ -41,13 +40,20 @@ void DDHCalAngular::initialize(const DDNumericArguments & nArgs,
   n           = int (nArgs["n"]);
   startCopyNo = int (nArgs["startCopyNo"]);
   incrCopyNo  = int (nArgs["incrCopyNo"]);
-  DCOUT('A', "DDHCalAngular debug: Parameters for positioning-- " << n << " copies in " << rangeAngle/deg << " from " << startAngle/deg << "\tShifts " << shiftX << ", " << shiftY << " along x, y axes; \tZoffest " << zoffset << "\tStart and inremental copy nos " << startCopyNo << ", " << incrCopyNo);
+  LogDebug("HCalGeom") << "DDHCalAngular debug: Parameters for positioning-- "
+		       << n << " copies in " << rangeAngle/deg << " from " 
+		       << startAngle/deg << "\tShifts " << shiftX << ", " 
+		       << shiftY << " along x, y axes; \tZoffest " << zoffset
+		       << "\tStart and inremental copy nos " << startCopyNo 
+		       << ", " << incrCopyNo;
 
   rotns       = sArgs["RotNameSpace"];
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name(); 
-  DCOUT('A', "DDHCalAngular debug: Parent " << parentName << "\tChild " << childName << "\tNameSpace " << idNameSpace << "\tRotation Namespace " << rotns);
+  LogDebug("HCalGeom") << "DDHCalAngular debug: Parent " << parentName 
+		       << "\tChild " << childName << "\tNameSpace "
+		       << idNameSpace << "\tRotation Namespace " << rotns;
 }
 
 void DDHCalAngular::execute() {
@@ -71,7 +77,9 @@ void DDHCalAngular::execute() {
       rotstr = rotstr + dbl_to_string(phideg);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
-        DCOUT('a', "DDHCalAngular test: Creating a new rotation " << DDName(rotstr, idNameSpace) << "\t" << 90 << "," << phideg << ","  << 90 << "," << (phideg+90) << "," << 0 << "," << 0);
+        LogDebug("HCalGeom") << "DDHCalAngular test: Creating a new rotation "
+			     << DDName(rotstr, idNameSpace) << "\t90, " 
+			     << phideg << ", 90, " << (phideg+90) << ", 0, 0";
         rotation = DDrot(DDName(rotstr, idNameSpace), 90*deg, phideg*deg, 
                          90*deg, (90+phideg)*deg, 0*deg,  0*deg);
       } 
@@ -83,7 +91,10 @@ void DDHCalAngular::execute() {
   
     DDName parentName = parent().name(); 
     DDpos (DDName(childName,idNameSpace), parentName, copyNo, tran, rotation);
-    DCOUT('a', "DDHCalAngular test: " << DDName(childName, idNameSpace) << " number " << copyNo << " positioned in " << parentName << " at " << tran << " with " << rotation);
+    LogDebug("HCalGeom") << "DDHCalAngular test: " 
+			 << DDName(childName, idNameSpace) << " number " 
+			 << copyNo << " positioned in " << parentName << " at "
+			 << tran << " with " << rotation;
     phi    += dphi;
     copyNo += incrCopyNo;
   }
