@@ -290,15 +290,17 @@ void HybridClusterAlgo::mainSearch(const CaloSubdetectorGeometry geometry)
       
       double totChi2=0;
       double totE=0;
+      std::vector<DetId> usedHits;
       for (int blarg=0;blarg<int(recHits.size());++blarg){
 	totChi2 +=recHits[blarg].energy()*recHits[blarg].chi2();
 	totE+=recHits[blarg].energy();
+	usedHits.push_back(recHits[blarg].detId());
       }
       if (totE>0)
 	totChi2/=totE;
       
       //thisseedClusters.push_back(reco::BasicCluster(recHits,1,pos));
-      thisseedClusters.push_back(reco::BasicCluster(LumpEnergy[i],pos,totChi2));
+      thisseedClusters.push_back(reco::BasicCluster(LumpEnergy[i],pos,totChi2,usedHits));
     }
     _clustered.insert(std::make_pair(clustercounter, thisseedClusters));    
     clustercounter++;
