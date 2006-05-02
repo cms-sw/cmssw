@@ -339,27 +339,30 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,
   *out << "<td >" << std::endl;
   *out << "Endpaths State" << std::endl;
   *out << "</td>" << std::endl;
-  //  *out << "<td" << (sched_->inhibit_endpaths_ ? " bgcolor=\"red\">" : ">") << std::endl;
+  *out << "<td";
+  //*out << (sched_->inhibit_endpaths_ ? " bgcolor=\"red\">" : ">") << std::endl;
   //  *out <<  (sched_->inhibit_endpaths_ ? "disabled" : "enabled") << std::endl;
-  *out << "N/A this version";
+  *out << "> N/A this version" << std::endl;
   *out << "</td>" << std::endl;
   *out << "  </tr>"                                            << endl;
   *out << "<tr>" << std::endl;
   *out << "<td >" << std::endl;
   *out << "Global Input Prescale" << std::endl;
   *out << "</td>" << std::endl;
-  //  *out << "<td" << (sched_->global_input_prescale_!=1 ? " bgcolor=\"red\">" : ">") << std::endl;
+  *out << "<td";
+  //*out << (sched_->global_input_prescale_!=1 ? " bgcolor=\"red\">" : ">") << std::endl;
   //  *out <<  sched_->global_input_prescale_ << std::endl;
-  *out << "N/A this version";
+  *out << "> N/A this version" << std::endl;
   *out << "</td>" << std::endl;
   *out << "  </tr>"                                            << endl;
   *out << "<tr>" << std::endl;
   *out << "<td >" << std::endl;
   *out << "Global Output Prescale" << std::endl;
   *out << "</td>" << std::endl;
-  //  *out << "<td" << (sched_->global_output_prescale_!=1 ? " bgcolor=\"red\">" : ">") << std::endl;
+  *out << "<td";
+  //*out  << (sched_->global_output_prescale_!=1 ? " bgcolor=\"red\">" : ">") << std::endl;
   //  *out <<  sched_->global_output_prescale_ << std::endl;
-  *out << "N/A this version";
+  *out << ">N/A this version" << std::endl;
   *out << "</td>" << std::endl;
   *out << "  </tr>"                                            << endl;
   
@@ -436,11 +439,27 @@ void FUEventProcessor::moduleWeb(xgi::Input  *in, xgi::Output *out)
   Cgicc cgi(in);
   vector<FormEntry> el1;
   cgi.getElement("module",el1);
-  if(el1.size()!=0)
+  if(proc_)
     {
-      string modnam = el1[0].getValue();
-      //      if(proc_)
-	//proc_->moduleWebPage(in, out, modnam);
+      if(el1.size()!=0)
+	{
+	  string mod = el1[0].getValue();
+	  edm::ServiceRegistry::Operate operate(proc_->getToken());
+	  ModuleWebRegistry *mwr = 0;
+	  try{
+	    if(edm::Service<ModuleWebRegistry>().isAvailable())
+	      mwr = edm::Service<ModuleWebRegistry>().operator->();
+	  }
+	  catch(...)
+	    { 
+	      cout <<"exception when trying to get the service registry " << endl;
+	    }
+	  mwr->invoke(in,out,mod);
+	}
+    }
+  else
+    {
+      *out << "EventProcessor just disappeared " << endl;
     }
 }
 XDAQ_INSTANTIATOR_IMPL(evf::FUEventProcessor)
