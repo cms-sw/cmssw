@@ -26,6 +26,7 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
   evt=0;
   sample=0;
   m_file=0;
+  m_AllPedsOK=0;
   // output files
   for(int k=0;k<4;k++) state.push_back(true); // 4 capid
   m_outputFileMean = ps.getUntrackedParameter<string>("outputFileMeans", "");
@@ -48,7 +49,7 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
 //  m_pedValflag=0;
   m_startTS = ps.getUntrackedParameter<int>("firstTS", 0);
   if(m_startTS<0) m_startTS=0;
-  m_endTS = ps.getUntrackedParameter<int>("lastTS", 19);
+  m_endTS = ps.getUntrackedParameter<int>("lastTS", 9);
   m_logFile.open("HcalPedestalAnalysis.log");
 
   // histogram booking
@@ -411,15 +412,15 @@ int HcalPedestalAnalysis::PedValidtn(map<HcalDetId, map<int,PEDBUNCH> > &toolT)
       cap_nom[1]=pedCan_nominal->getValue(_meot->first,1);
       cap_nom[2]=pedCan_nominal->getValue(_meot->first,2);
       cap_nom[3]=pedCan_nominal->getValue(_meot->first,3);
-      sig_nom[0][0]=widthCan_nominal->getWidth(_meot->first,0);
+      sig_nom[0][0]=widthCan_nominal->getSigma(_meot->first,0,0);
       sig_nom[0][1]=widthCan_nominal->getSigma(_meot->first,0,1);
       sig_nom[0][2]=widthCan_nominal->getSigma(_meot->first,0,2);
-      sig_nom[1][1]=widthCan_nominal->getWidth(_meot->first,1);
+      sig_nom[1][1]=widthCan_nominal->getSigma(_meot->first,1,1);
       sig_nom[1][2]=widthCan_nominal->getSigma(_meot->first,1,2);
       sig_nom[1][3]=widthCan_nominal->getSigma(_meot->first,1,3);
-      sig_nom[2][2]=widthCan_nominal->getWidth(_meot->first,2);
+      sig_nom[2][2]=widthCan_nominal->getSigma(_meot->first,2,2);
       sig_nom[2][3]=widthCan_nominal->getSigma(_meot->first,2,3);
-      sig_nom[3][3]=widthCan_nominal->getWidth(_meot->first,3);
+      sig_nom[3][3]=widthCan_nominal->getSigma(_meot->first,3,3);
       sig_nom[0][3]=widthCan_nominal->getSigma(_meot->first,3,0);
     }
 // here compute and store the quantities useful for physics analysis:
@@ -440,16 +441,22 @@ int HcalPedestalAnalysis::PedValidtn(map<HcalDetId, map<int,PEDBUNCH> > &toolT)
     if(m_pedValflag>0){
       for(int i=0; i<4; i++){
         int i2=(i+1)%4;
-        if(cap_new[i]>0 && cap_new[i2]>0 && abs(cap_new[i]+cap_new[i2]-cap_nom[i]-cap_nom[i2])>0.5+sqrt(dcap_new[i]*dcap_new[i]+dcap_new[i2]*dcap_new[i2]))PedsOK=0;
+        if(cap_new[i]>0 && cap_new[i2]>0 && abs(cap_new[i]+cap_new[i2]-cap_nom[i]-cap_nom[i2])>0.5+sqrt(dcap_new[i]*dcap_new[i]+dcap_new[i2]*dcap_new[i2])){
+          PedsOK=0;
+        }
 // if consistency with nominal value is found, the new value is abandoned
 // at this point and the nominal value is restored - only the constants
 // that have changed significantly are remembered and will get updated
         else cap_new[i]=cap_nom[i];
-        if(sig_new[i][i]>0 && abs(sig_new[i][i]-sig_nom[i][i])>3.*dsig_new[i][i])PedsOK=0;
+        if(sig_new[i][i]>0 && abs(sig_new[i][i]-sig_nom[i][i])>3.*dsig_new[i][i]){
+          PedsOK=0;
+        }
         else sig_new[i][i]=sig_nom[i][i];
         for(int j=i+1; j<4; j++){
 // error on off-diagonal elements are assumed the same as for diagonal
-          if(abs(sig_new[i][j]-sig_nom[i][j])>3.*dsig_new[i][i])PedsOK=0;
+          if(abs(sig_new[i][j]-sig_nom[i][j])>3.*dsig_new[i][i]){
+            PedsOK=0;
+          }
           else sig_new[i][j]=sig_nom[i][j];
         }
       }
@@ -508,11 +515,11 @@ void HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
   int HBPedsOK=PedValidtn(hbHists.PEDTRENDS);
   int HOPedsOK=PedValidtn(hoHists.PEDTRENDS);
   int HFPedsOK=PedValidtn(hfHists.PEDTRENDS);
-// if pedestal validation flag is not set, will write out new
-// pedestal constants anyway - to be used with text output option
-  int AllPedsOK=m_pedValflag*HBPedsOK*HOPedsOK*HFPedsOK;
-  if(AllPedsOK==1){
-    m_logFile<<"Pedestals found OK"<<std::endl;
+// m_AllPedsOK says whether new pedestals are consistent with the ones
+// we read at input.  m_AllPedsOK=0 means not consistent or not checked.
+  m_AllPedsOK=m_pedValflag*HBPedsOK*HOPedsOK*HFPedsOK;
+  if(m_AllPedsOK==1){
+    m_logFile<<"Pedestals checked OK"<<std::endl;
   }
   if (pedCan && widthCan) {
     pedCan->sort();
@@ -566,9 +573,9 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
       for(int k=0; k<(int)state.size();k++) state[k]=true;
 // here we loop over pairs of time slices, it is more convenient
 // in order to extract the correlation matrix (Michal)
-      for (int i=m_startTS; i<digi.size() && i<m_endTS; i++) {
+      for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
         for(int flag=0; flag<4; flag++){
-          if(i+flag<digi.size() && i+flag<m_endTS){
+          if(i+flag<digi.size() && i+flag<=m_endTS){
             per2CapsHists(flag,0,digi.id(),digi.sample(i),digi.sample(i+flag),hbHists.PEDTRENDS);
           }
         }
@@ -584,9 +591,9 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
       const HODataFrame digi = (const HODataFrame)(*j);
       m_coder = cond.getHcalCoder(digi.id());
-      for (int i=m_startTS; i<digi.size() && i<m_endTS; i++) {	   
+      for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {	   
         for(int flag=0; flag<4; flag++){
-          if(i+flag<digi.size() && i+flag<m_endTS){
+          if(i+flag<digi.size() && i+flag<=m_endTS){
             per2CapsHists(flag,1,digi.id(),digi.sample(i),digi.sample(i+flag),hoHists.PEDTRENDS);
           }
         }
@@ -602,9 +609,9 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
       const HFDataFrame digi = (const HFDataFrame)(*j);
       m_coder = cond.getHcalCoder(digi.id());
-      for (int i=m_startTS; i<digi.size() && i<m_endTS; i++) {
+      for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
         for(int flag=0; flag<4; flag++){
-          if(i+flag<digi.size() && i+flag<m_endTS){
+          if(i+flag<digi.size() && i+flag<=m_endTS){
             per2CapsHists(flag,2,digi.id(),digi.sample(i),digi.sample(i+flag),hfHists.PEDTRENDS);
           }
         }
@@ -658,7 +665,6 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
       else if(qie1.adc()>=bins){
         _mei[qie1.capid()].first->AddBinContent(bins+1,1);
       }
-//      m_logFile << qie1.capid()<<" "<<qie1.adc() <<std::endl;
     }
 // unfortunately need to redo adc->fC every time,
 // this is not very intelligent
@@ -688,7 +694,6 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
       sprintf(name,"%s Pedestal Value, ieta=%d iphi=%d depth=%d CAPID=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);  
 //      getLinearizedADC(*m_shape,m_coder,bins,i,lo,hi);
            // printf("Linearized: lo: %f, hi: %f\n",lo,hi);
-//      m_logFile<<lo<<" "<<hi<<std::endl;
       insert[i].first =  new TH1F(name,name,bins,lo,hi);
       slope[i]=(hi-lo)/bins;
       offset[i]=lo+0.5;
@@ -713,7 +718,6 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
       else{
         insert[qie1.capid()].first->AddBinContent(bins+1,1);
       }
-//      m_logFile << qie1.capid()<<" "<<qie1.adc() <<" 2"<<std::endl;
     }
     if(flag>0){
       float charge1=qie1.adc()*slope[qie1.capid()]+offset[qie1.capid()];
