@@ -1,4 +1,4 @@
-// $Id: testParticle.cc,v 1.6 2006/02/21 10:37:33 llista Exp $
+// $Id: testParticle.cc,v 1.1 2006/02/28 10:43:30 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/Particle.h"
 
@@ -20,7 +20,7 @@ void testParticle::checkAll() {
   reco::Particle t( q, p );
   CPPUNIT_ASSERT( t.charge() == q );
   CPPUNIT_ASSERT( t.p4() == p );
-  CPPUNIT_ASSERT( t.momentum() == p.P() );
+  CPPUNIT_ASSERT( t.p() == p.P() );
   CPPUNIT_ASSERT( t.energy() == p.E() );
   CPPUNIT_ASSERT( t.px() == p.Px() );
   CPPUNIT_ASSERT( t.py() == p.Py() );

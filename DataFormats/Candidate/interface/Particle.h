@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.12 2006/03/01 12:23:40 llista Exp $
+ * \version $Id: Particle.h,v 1.2 2006/03/08 12:26:37 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -38,12 +38,12 @@ namespace reco {
     /// four-momentum Lorentz vector
     const LorentzVector & p4() const { return p4_; }
     /// spatial momentum vector
-    Vector p3() const { return p4_.Vect(); }
+    Vector momentum() const { return p4_.Vect(); }
     /// boost vector to boost a Lorentz vector 
     /// to the particle center of mass system
     Vector boostToCM() const { return p4_.BoostToCM(); }
     /// magnitude of momentum vector
-    double momentum() const { return p4_.P(); }
+    double p() const { return p4_.P(); }
     /// energy
     double energy() const { return p4_.E(); }  
     /// transverse energy
@@ -56,8 +56,6 @@ namespace reco {
     double mt() const { return p4_.Mt(); }
     /// transverse mass squared
     double mtSqr() const { return p4_.Mt2(); }
-    /// momentum magnitude ( same as momentum() )
-    double p() const { return momentum(); }
     /// x coordinate of momentum vector
     double px() const { return p4_.Px(); }
     /// y coordinate of momentum vector
