@@ -1,4 +1,4 @@
-// $Id: RecoCandidate.cc,v 1.5 2006/04/26 07:56:21 llista Exp $
+// $Id: RecoCandidate.cc,v 1.6 2006/05/02 09:48:47 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 using namespace reco;
@@ -24,21 +24,3 @@ SuperClusterRef RecoCandidate::superCluster() const {
 CaloTowerRef RecoCandidate::caloTower() const {
   return CaloTowerRef();
 }
-
-/*
-bool RecoCandidate::overlap( const Candidate & c ) const {
-  const RecoCandidate * dstc = dynamic_cast<const RecoCandidate *>( & c );
-  if ( dstc == 0 ) return false;
-  TrackRef t1 = track(), t2 = dstc->track();
-  if ( ! t1.isNull() && ! t2.isNull() && t1 == t2 ) return true;
-  TrackRef st1 = standAloneMuon(), st2 = dstc->standAloneMuon();
-  if ( ! st1.isNull() && ! st2.isNull() && st1 == st2 ) return true;
-  TrackRef cm1 = combinedMuon(), cm2 = dstc->combinedMuon();
-  if ( ! cm1.isNull() && ! cm2.isNull() && cm1 == cm2 ) return true;
-  SuperClusterRef s1 = superCluster(), s2 = dstc->superCluster();
-  if ( ! s1.isNull() && ! s2.isNull() && s1 == s2 ) return true;
-  CaloTowerRef c1 = caloTower(), c2 = dstc->caloTower();
-  if ( ! c1.isNull() && ! c2.isNull() && c1 == c2 ) return true;
-  return false;
-}
-*/
