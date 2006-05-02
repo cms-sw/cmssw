@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/02/23 10:32:05 $
- * $Revision: 1.1 $
+ * $Date: 2006/05/02 07:07:39 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -81,7 +81,14 @@ ostream& operator<<(ostream& os, const DTRecSegment2D& seg) {
 }
 
 std::vector<const TrackingRecHit*> DTRecSegment2D::recHits() const {
-  return std::vector<const TrackingRecHit*>();
+
+  std::vector<const TrackingRecHit*> pointersOfRecHits; 
+  
+  for(std::vector<DTRecHit1D>::const_iterator rechit = theHits.begin();
+      rechit != theHits.end(); rechit++)
+    pointersOfRecHits.push_back( &(*rechit) );
+  
+  return pointersOfRecHits;
 }
 
 std::vector<TrackingRecHit*> DTRecSegment2D::recHits() {
