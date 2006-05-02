@@ -1,4 +1,4 @@
-// $Id: RecoCandidate.cc,v 1.4 2006/04/21 06:28:49 llista Exp $
+// $Id: RecoCandidate.cc,v 1.5 2006/04/26 07:56:21 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 using namespace reco;
@@ -7,10 +7,6 @@ RecoCandidate::~RecoCandidate() { }
 
 TrackRef RecoCandidate::track() const {
   return TrackRef();
-}
-
-MuonRef RecoCandidate::muon() const {
-  return MuonRef();
 }
 
 TrackRef RecoCandidate::standAloneMuon() const {
@@ -35,8 +31,6 @@ bool RecoCandidate::overlap( const Candidate & c ) const {
   if ( dstc == 0 ) return false;
   TrackRef t1 = track(), t2 = dstc->track();
   if ( ! t1.isNull() && ! t2.isNull() && t1 == t2 ) return true;
-  MuonRef m1 = muon(), m2 = dstc->muon();
-  if ( ! m1.isNull() && ! m2.isNull() && m1 == m2 ) return true;
   TrackRef st1 = standAloneMuon(), st2 = dstc->standAloneMuon();
   if ( ! st1.isNull() && ! st2.isNull() && st1 == st2 ) return true;
   TrackRef cm1 = combinedMuon(), cm2 = dstc->combinedMuon();

@@ -6,12 +6,11 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.8 2006/04/21 06:28:48 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.9 2006/04/26 07:56:20 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
@@ -39,8 +38,6 @@ namespace reco {
     virtual reco::SuperClusterRef superCluster() const;
     /// reference to a CaloTower
     virtual CaloTowerRef caloTower() const;
-    /// reference to a Muon
-    virtual reco::MuonRef muon() const;
 
   private:
     template<typename T> friend struct component; 
@@ -55,8 +52,6 @@ namespace reco {
 
   /// get default Track component
   GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, DefaultComponentTag, track );
-  /// get default Muon component
-  GET_CANDIDATE_COMPONENT( RecoCandidate, MuonRef, DefaultComponentTag, muon );
   /// get stand-alone muon Track component
   GET_CANDIDATE_COMPONENT( RecoCandidate, TrackRef, StandAloneMuonTag, standAloneMuon );
   /// get combined muon Track component
