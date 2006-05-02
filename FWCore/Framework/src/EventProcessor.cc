@@ -615,7 +615,7 @@ namespace edm {
     esp_.reset();
     schedule_.reset();
     input_.reset();
-    wreg_ = WorkerRegistry();
+    wreg_.clear();
     actReg_.reset();
   }
 
