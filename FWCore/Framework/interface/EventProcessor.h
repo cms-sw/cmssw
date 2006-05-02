@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.17 2006/04/25 23:25:01 wmtan Exp $
+$Id: EventProcessor.h,v 1.18 2006/04/28 17:01:17 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -219,13 +219,16 @@ namespace edm {
       unsigned long           pass_;
     }; // struct CommonParams
 
+    // Really should not be public,
+    //   but the EventFilter needs it for now.    
+    ServiceToken getToken();
+
   private:
 
     StatusCode run_p(unsigned long numberToProcess,
 		     event_processor::Msg m);
     StatusCode doneAsync(event_processor::Msg m);
 
-    ServiceToken   getToken();
     void           connectSigs(EventProcessor* ep);
 
     struct DoPluginInit
