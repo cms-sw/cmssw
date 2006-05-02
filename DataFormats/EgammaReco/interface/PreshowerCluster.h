@@ -32,9 +32,10 @@ namespace reco {
     virtual ~PreshowerCluster();
 
     // Constructor from EcalRecHits
-    PreshowerCluster(std::vector<EcalRecHit*> rhits, int layer_, 
-		     edm::ESHandle<CaloGeometry> geometry_h,
-		     edm::ESHandle<CaloTopology> theCaloTopology);
+    PreshowerCluster(const std::vector<EcalRecHit*> &rhits,
+		     int layer_,
+		     const CaloSubdetectorGeometry *geometry_p,
+		     const CaloSubdetectorTopology *topology_p);
 
 
     // Constructor from cluster
@@ -119,7 +120,7 @@ namespace reco {
     
     CaloSubdetectorGeometry geometry;
  
-    edm::ESHandle<CaloTopology> topology_h;
+    CaloSubdetectorTopology topology;
 
     reco::BasicCluster *bc_ptr;
 

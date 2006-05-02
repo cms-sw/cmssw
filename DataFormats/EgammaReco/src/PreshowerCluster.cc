@@ -13,9 +13,10 @@ PreshowerCluster::PreshowerCluster() {
 
 PreshowerCluster::~PreshowerCluster() { }
 
-PreshowerCluster::PreshowerCluster(std::vector<EcalRecHit*> rhits, int layer_,
-				   edm::ESHandle<CaloGeometry> geometry_h,
-				   edm::ESHandle<CaloTopology> theCaloTopology)
+PreshowerCluster::PreshowerCluster(const std::vector<EcalRecHit*> &rhits, 
+				   int layer_,
+				   const CaloSubdetectorGeometry *geometry_p,
+				   const CaloSubdetectorTopology *topology_p)
 {
 
   
@@ -23,11 +24,11 @@ PreshowerCluster::PreshowerCluster(std::vector<EcalRecHit*> rhits, int layer_,
 
   
 
-  const CaloSubdetectorGeometry *geometry_p = 
-    (*geometry_h).getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  // const CaloSubdetectorGeometry *geometry_p = 
+  //  (*geometry_h).getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   geometry = *geometry_p;
 
-  topology_h = theCaloTopology;
+  topology = *topology_p;
   
   energy = 0.;
   theta = 0.;
@@ -199,7 +200,7 @@ void PreshowerCluster::Correct()
 
     ESDetId strip = max_hit->id();
     
-    EcalPreshowerNavigator theESNav(strip,topology_h->getSubdetectorTopology(DetId::Ecal,EcalPreshower));
+    EcalPreshowerNavigator theESNav(strip,topology);
     theESNav.setHome(strip);
 
     ESDetId strip_east = theESNav.east();
