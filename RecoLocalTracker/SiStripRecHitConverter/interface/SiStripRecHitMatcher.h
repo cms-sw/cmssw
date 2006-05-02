@@ -10,6 +10,8 @@
 
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 class GluedGeomDet;
 
 #include <cfloat>
@@ -20,51 +22,50 @@ public:
   typedef  SiStripRecHit2DLocalPosCollection::const_iterator RecHitIterator;
   typedef std::vector<const SiStripRecHit2DLocalPos *>       SimpleHitCollection;
   typedef SimpleHitCollection::const_iterator                SimpleHitIterator;
-
-  SiStripRecHitMatcher(){};
+  typedef std::pair<LocalPoint,LocalPoint>                   StripPosition; 
+  SiStripRecHitMatcher(const edm::ParameterSet& conf);
+  
+  const SiStripRecHit2DMatchedLocalPos& match(const SiStripRecHit2DLocalPos *monoRH, 
+					      const SiStripRecHit2DLocalPos *stereoRH,
+					      const GluedGeomDet* gluedDet,
+					      LocalVector trackdirection);
 
   edm::OwnVector<SiStripRecHit2DMatchedLocalPos> 
   match( const SiStripRecHit2DLocalPos *monoRH,
 	 RecHitIterator &begin, RecHitIterator &end, 
-	 const DetId &detId, 
-	 const StripTopology &topol,
-	 const GeomDetUnit* stripdet,
-	 const GeomDetUnit * partnerstripdet) {
-    return match(monoRH,begin, end, detId, topol, stripdet,partnerstripdet,LocalVector(0.,0.,0.));
+	 const GluedGeomDet* gluedDet) {
+    return match(monoRH,begin, end, gluedDet,LocalVector(0.,0.,0.));
   }
 
   edm::OwnVector<SiStripRecHit2DMatchedLocalPos> 
   match( const SiStripRecHit2DLocalPos *monoRH,
 	 RecHitIterator &begin, RecHitIterator &end, 
-	 const DetId &detId, 
-	 const StripTopology &topol,
-	 const GeomDetUnit* stripdet,
-	 const GeomDetUnit * partnerstripdet, 
+	 const GluedGeomDet* gluedDet,
 	 LocalVector trackdirection);
 
 
   /// More convenient interface with a GluedDet
 
-  edm::OwnVector<SiStripRecHit2DMatchedLocalPos> 
-  match( const SiStripRecHit2DLocalPos *monoRH, 
-	 SimpleHitIterator begin, SimpleHitIterator end,
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection);
+    //  edm::OwnVector<SiStripRecHit2DMatchedLocalPos> 
+    //match( const SiStripRecHit2DLocalPos *monoRH, 
+    //	 SimpleHitIterator begin, SimpleHitIterator end,
+    //	 const GluedGeomDet* gluedDet,
+    //	 LocalVector trackdirection);
 
+  // project strip coordinates on Glueddet
 
-private:
+  StripPosition project(const GeomDetUnit *det,const GluedGeomDet* glueddet,StripPosition strip,LocalVector trackdirection);
+
+  //private:
 
   /// the actual implementation
 
   edm::OwnVector<SiStripRecHit2DMatchedLocalPos> 
   match( const SiStripRecHit2DLocalPos *monoRH,
 	 SimpleHitIterator begin, SimpleHitIterator end,
-	 const DetId &detId, 
-	 const StripTopology &topol,
-	 const GeomDetUnit* stripdet,
-	 const GeomDetUnit * partnerstripdet,
+	 const GluedGeomDet* gluedDet,
 	 LocalVector trackdirection);
-
+  float scale_;
 
 };
 

@@ -18,13 +18,14 @@
 //Geometry
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 //messagelogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
 
 SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
-  clustermatch_=new SiStripRecHitMatcher();
+  clustermatch_=new SiStripRecHitMatcher(conf);
 }
 
 SiStripRecHitConverterAlgorithm::~SiStripRecHitConverterAlgorithm() {
@@ -110,54 +111,55 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
       id = specDetId.partnerDetId();
       std::vector<unsigned int>::const_iterator partnerdetiter=std::find(detIDs.begin(),detIDs.end(),id);
       if(partnerdetiter==detIDs.end()) id=0;	
-	const SiStripRecHit2DLocalPosCollection::range rhpartnerRange = outstereo.get(DetId(id));
-	SiStripRecHit2DLocalPosCollection::const_iterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
-	SiStripRecHit2DLocalPosCollection::const_iterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
-	
-	//	edm::OwnVector<SiStripRecHit2DMatchedLocalPos> tempCollector; 
-	//int numrechitstereo = rhpartnerRangeIteratorEnd - rhpartnerRangeIteratorBegin;
-	//cout<<"n rechit stereo= "<<numrechitstereo<<endl;
-
+      const SiStripRecHit2DLocalPosCollection::range rhpartnerRange = outstereo.get(DetId(id));
+      SiStripRecHit2DLocalPosCollection::const_iterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
+      SiStripRecHit2DLocalPosCollection::const_iterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
+      
+      //	edm::OwnVector<SiStripRecHit2DMatchedLocalPos> tempCollector; 
+      //int numrechitstereo = rhpartnerRangeIteratorEnd - rhpartnerRangeIteratorBegin;
+      //cout<<"n rechit stereo= "<<numrechitstereo<<endl;
+      
       if (id>0){
 	//	DetId partnerdetId(id);
 	const GeomDetUnit * monostripdet=tracker.idToDetUnit(*detunit_iterator);
 	const GeomDetUnit * stereostripdet=tracker.idToDetUnit(DetId(id));
-	
+	//const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*> tracker.idToDet(*detunit_iterator);
+	const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(DetId(specDetId.glued()));
 	const DetId theId(id);
 	const StripTopology& topol=(StripTopology&)stereostripdet->topology();
-	collectorMatchedSingleHit=clustermatch_->match(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,theId,topol,monostripdet,stereostripdet,trackdirection);
+	collectorMatchedSingleHit=clustermatch_->match(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,gluedDet,trackdirection);
 	if (collectorMatchedSingleHit.size()>0) {
 	  nmatch++;
 	}else{
 	  nunmatch++;
 	  //std::cout<<"unmatched!"<<std::endl;
-	}
+      }
 	//	SiStripRecHit2DMatchedLocalPosCollection::Range inputRangematched(collectorMatched.begin(),collectorMatched.end());
-
+	
 	if (collectorMatchedSingleHit.size() > 0) {
 	  for (    edm::OwnVector<SiStripRecHit2DMatchedLocalPos>::iterator itt = collectorMatchedSingleHit.begin();  itt != collectorMatchedSingleHit.end() ; itt++)
 	    collectorMatched.push_back(new SiStripRecHit2DMatchedLocalPos(*itt));
 	}
 	//	for (edm::OwnVector<SiStripRecHit2DMatchedLocalPos>::iterator itt = tempCollector.begin(); itt!= tempCollector.end(); itt++)
 	//	  collectorMatched.push_back(itt);
-
+	
 	//	copy(tempCollector.begin(), tempCollector.end(), back_inserter(collectorMatched.end()));
 	
-      
+	
       }
     }
-    if (collectorMatched.size()>0){
-      //      outmatched.put(inputRangematched, *detunit_iterator);
-      outmatched.put(DetId(*detunit_iterator),collectorMatched.begin(),collectorMatched.end());
-    }
+  if (collectorMatched.size()>0){
+    //      outmatched.put(inputRangematched, *detunit_iterator);
+    outmatched.put(DetId(*detunit_iterator),collectorMatched.begin(),collectorMatched.end());
   }
-
+  }
+  
   //  if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
   edm::LogInfo("SiStripRecHitConverter") << "found\n"
 					 << nmono << "  clusters in mono detectors\n"
 					 << nstereo << "  clusters in partners stereo detectors\n"
 					 << nmatch << "  matched RecHit\n"
 					 << nunmatch << "  unmatched clusters";
-  //}
+//}
 };
-  
+
