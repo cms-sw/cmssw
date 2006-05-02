@@ -11,13 +11,18 @@
 #include "EventFilter/Utilities/interface/EPStateMachine.h"
 #include "EventFilter/Utilities/interface/Css.h"
 #include "xdata/ActionListener.h"
+#include "FWCore/Utilities/interface/Presence.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/PresenceFactory.h"
 
+namespace edm{
+  class EventProcessor;
 
+}
 
 class TaskGroup;
 namespace evf
 {
-  class EventProcessor;
 
   class FUEventProcessor : public xdaq::Application, public xdata::ActionListener
     {
@@ -51,12 +56,14 @@ namespace evf
       xdata::UnsignedLong inputPrescale_;
       xdata::UnsignedLong outputPrescale_;
       bool outprev_;
-      EventProcessor *proc_;
+      edm::EventProcessor *proc_;
       TaskGroup *group_;
       EPStateMachine *fsm_;
       edm::AssertHandler *ah_;
       Css css_;
       friend class EPStateMachine;
+      boost::shared_ptr<edm::Presence> m_messageServicePresence;
+
     };
 }
 

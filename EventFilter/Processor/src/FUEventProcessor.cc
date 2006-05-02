@@ -1,8 +1,12 @@
-#include "EventFilter/Processor/interface/EventProcessor.h"
+#include "FWCore/Framework/interface/EventProcessor.h"
 #include "EventFilter/Processor/interface/FUEventProcessor.h"
 #include "toolbox/include/TaskGroup.h"
-#include "xgi/include/xgi/Method.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Presence.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/PresenceFactory.h"
+#include "xgi/include/xgi/Method.h"
 using namespace evf;
 
 FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s) : xdaq::Application(s), 
@@ -30,6 +34,19 @@ proc_(0), group_(0), fsm_(0), ah_(0)
   xgi::bind(this, &FUEventProcessor::css           , "styles.css");
   xgi::bind(this, &FUEventProcessor::defaultWebPage, "Default"   );
   xgi::bind(this, &FUEventProcessor::moduleWeb     , "moduleWeb"    );
+
+  // Load the message service plug-in
+  boost::shared_ptr<edm::Presence> theMessageServicePresence;
+  try {
+    m_messageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
+        makePresence("MessageServicePresence").release());
+  } catch(seal::Error& e) {
+    XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		 e.explainSelf());
+  }
+  //test it 
+  edm::LogInfo("FUEventProcessor") << "started MessageLogger Service ";
+
 }
 FUEventProcessor::~FUEventProcessor()
 {
@@ -43,14 +60,12 @@ FUEventProcessor::~FUEventProcessor()
 
 void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
-  proc_ = new EventProcessor(getApplicationDescriptor()->getInstance());
-  group_ = new TaskGroup();
-  proc_->initTaskGroup(group_);
+
   ParameterSetRetriever pr(offConfig_.value_);
   std::string configString = pr.getAsString();
   std::cout << "Using config string \n" << configString << std::endl;
   try{
-    proc_->init(configString);
+    proc_ = new edm::EventProcessor(configString);
   }
   catch(seal::Error& e)
     {
@@ -73,44 +88,40 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
       XCEPT_RAISE (toolbox::fsm::exception::Exception, 
 		   "Unknown Exception");
     }
-  if(!outPut_) proc_->toggleOutput();
-  proc_->prescaleInput(inputPrescale_);
-  proc_->prescaleOutput(outputPrescale_);
+  if(!outPut_) //proc_->toggleOutput();
+  //  proc_->prescaleInput(inputPrescale_);
+  //  proc_->prescaleOutput(outputPrescale_);
   outprev_=outPut_;
+  proc_->setRunNumber(1);
 }
 
 void FUEventProcessor::enableAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
-  try{
-    proc_->beginRun();
-  }
-  catch(seal::Error& e)
-    {
-      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		   e.explainSelf());
-    }
-  catch(std::exception &e)
-    {
-      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		   e.what());
-    }
-  catch(...)
-    {
-      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		   "Unknown Exception");
-    }
+  proc_->runAsync();
+  int sc = proc_->statusAsync();
 
-  proc_->activate();
+  if(sc != 0)
+    {
+      ostringstream errorString;
+      errorString << "EventProcessor::runAsync returned status code" << sc;
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   errorString.str());
+    }
 }
 
 void FUEventProcessor::suspendAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
-  proc_->suspend();
+  //  proc_->suspend();
+  LOG4CPLUS_WARN(this->getApplicationLogger(),
+		    "EP::suspend has no effect, please use FU::suspend instead");
 }
 
 void FUEventProcessor::resumeAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
-  proc_->resume();
+  //  proc_->resume();
+  LOG4CPLUS_WARN(this->getApplicationLogger(),
+		    "EP::resume has no effect, please use FU::resume to resume a run previously suspended using FU::suspend");
+
 }
 
 void FUEventProcessor::nullAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
@@ -123,11 +134,11 @@ void FUEventProcessor::nullAction(toolbox::Event::Reference e) throw (toolbox::f
 
 void FUEventProcessor::haltAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
-  proc_->stopEventLoop(2);
+  proc_->shutdownAsync();
   //  proc_->kill();
   //  group_->join();
 
-  proc_->endRun();
+  proc_->endJob();
 
   delete proc_;
 }
@@ -143,20 +154,20 @@ void FUEventProcessor::actionPerformed (xdata::Event& e)
 	    {
 	      LOG4CPLUS_WARN(this->getApplicationLogger(),
 			     (outprev_ ? "Disabling " : "Enabling ") << "global output");
-	      proc_->toggleOutput();
+	      //	      proc_->toggleOutput();
 	      outprev_ = outPut_;
 	    }
 	}
       if ( item == "globalInputPrescale")
 	{
-	  proc_->prescaleInput(inputPrescale_);
+	  //	  proc_->prescaleInput(inputPrescale_);
 	  LOG4CPLUS_WARN(this->getApplicationLogger(),
 			 "Setting global input prescale factor to" << inputPrescale_);
 
 	}
       if ( item == "globalOutputPrescale")
 	{
-	  proc_->prescaleOutput(outputPrescale_);
+	  //	  proc_->prescaleOutput(outputPrescale_);
 	  LOG4CPLUS_WARN(this->getApplicationLogger(),
 			 "Setting global output prescale factor to" << outputPrescale_);
 
@@ -258,9 +269,9 @@ void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
   *out << "<tr valign=\"top\">"                                      << endl;
   *out << "  <td>"                                                   << endl;
 
-  if(proc_)
-    proc_->taskWebPage(in,out,urn);
-  else
+  //  if(proc_)
+    //    proc_->taskWebPage(in,out,urn);
+  //  else
     *out << "Unconfigured" << endl;
   *out << "  </td>"                                                  << endl;
   *out << "</table>"                                                 << endl;
@@ -287,8 +298,8 @@ void FUEventProcessor::moduleWeb(xgi::Input  *in, xgi::Output *out)
   if(el1.size()!=0)
     {
       string modnam = el1[0].getValue();
-      if(proc_)
-	proc_->moduleWebPage(in, out, modnam);
+      //      if(proc_)
+	//proc_->moduleWebPage(in, out, modnam);
     }
 }
 XDAQ_INSTANTIATOR_IMPL(evf::FUEventProcessor)
