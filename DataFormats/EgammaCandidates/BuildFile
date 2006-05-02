@@ -1,9 +1,5 @@
 <use name=DataFormats/RecoCandidate>
-<use name=DataFormats/EgammaReco>
-<use name=DataFormats/TrackReco>
 <export>
  <lib name=DataFormatsEgammaCandidates>
  <use name=DataFormats/RecoCandidate>
- <use name=DataFormats/EgammaReco>
- <use name=DataFormats/TrackReco>
 </export>
