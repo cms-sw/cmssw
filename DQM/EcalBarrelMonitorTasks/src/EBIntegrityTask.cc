@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/05/01 21:38:18 $
- * $Revision: 1.14 $
+ * $Date: 2006/05/02 07:00:28 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
  */
@@ -253,7 +253,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     int iet = id.ieta();
     int ipt = id.iphi();
 
-//    int ismt = id.ism();
+    //    int ismt = id.iDCC();
     int ismt = 1;
 
     float xiet = iet + 0.5;
@@ -276,9 +276,8 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     //    int ismt = id.ism();
     int ismt = 1;
 
-    //     if ( meIntegrityTTBlockSize[ism-1] ) meIntegrityTTBlockSize[ism-1]->Fill(xie, xip);
      if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(iet, ipt);
-     // gio: here I am in doubt !!!!!!!
+
    }
 
   Handle<EcalElectronicsIdCollection> ids7;
@@ -290,7 +289,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     int itt   = id.towerId();
     float iTt = itt + 0.5 - 69;
-    int ism = 1;
+    int ism = id.dccId();
 
     if ( meIntegrityMemTTId[ism-1] ) meIntegrityMemTTId[ism-1]->Fill(iTt,0);
 
@@ -305,7 +304,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     int itt   = id.towerId();
     float iTt = itt + 0.5 - 69;
-    int ism = 1;
+    int ism = id.dccId();
 
     if ( meIntegrityMemTTBlockSize[ism-1] ) meIntegrityMemTTBlockSize[ism-1]->Fill(iTt,0);
 
@@ -318,7 +317,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     EcalElectronicsId id = (*idItr);
 
-    int ism = 1;
+    int ism = id.dccId();
 
     int chid = id.channelId();
     int ie = EBIntegrityTask::chMemAbscissa[chid-1];
@@ -341,7 +340,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     EcalElectronicsId id = (*idItr);
 
-    int ism = 1;
+    int ism = id.dccId();
 
     int chid = id.channelId();
     int ie = EBIntegrityTask::chMemAbscissa[chid-1];
