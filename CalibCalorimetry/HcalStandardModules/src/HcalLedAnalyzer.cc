@@ -13,7 +13,6 @@
 #include <iostream>
 #include <fstream>
 
-/*
 namespace {
   bool defaultsFile (const std::string fParam) {
     return fParam == "defaults";
@@ -52,16 +51,14 @@ namespace {
     }
   }
   
-} */
+}
 
 HcalLedAnalyzer::HcalLedAnalyzer(const edm::ParameterSet& ps){
-
   m_ledAnal = new HcalLedAnalysis(ps);
   m_ledAnal->LedSetup(ps.getUntrackedParameter<std::string>("outputFileHist", "HcalLedAnalyzer.root"));
-
 //  m_startSample = ps.getUntrackedParameter<int>("firstSample", 0);
 //  m_endSample = ps.getUntrackedParameter<int>("lastSample", 19);
-  m_inputPedestals_source = ps.getUntrackedParameter<std::string>("inputPedsSource", "");
+  m_inputPedestals_source = ps.getUntrackedParameter<std::string>("inputPedestalsSource", "");
   m_inputPedestals_tag = ps.getUntrackedParameter<std::string>("inputPedsTag", "");
   m_inputPedestals_run = ps.getUntrackedParameter<int>("inputPedsRun", 1);
 
@@ -77,14 +74,20 @@ HcalLedAnalyzer::~HcalLedAnalyzer(){
 void HcalLedAnalyzer::beginJob(const edm::EventSetup& c){
   m_ievt = 0;
   led_sample = 1;
+  HcalPedestals* inputPeds=0;
+// get pedestals
+  if (!m_inputPedestals_source.empty ()) {
+    inputPeds = new HcalPedestals ();
+    if (!getObject (inputPeds, m_inputPedestals_source, m_inputPedestals_tag, m_inputPedestals_run)) {
+      std::cerr << "HcalLedAnalyzer-> Failed to get pedestal values" << std::endl;
+    }
+    m_ledAnal->doPeds(inputPeds);
+    delete inputPeds;
+  }
 }
 
 void HcalLedAnalyzer::endJob(void) {
-
   m_ledAnal->LedDone();
-
-//  delete m_inputPeds;
-
   std::cout<<"Getting out"<<std::endl;
 }
 
@@ -101,23 +104,7 @@ void HcalLedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& eventS
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
 
-  // get pedestals
-/*  HcalPedestals* inputPeds=0;
-  if(m_ievt==1){
-    if (!m_inputPedestals_source.empty ()) {
-      m_inputPeds = new HcalPedestals ();
-      if (!getObject (m_inputPeds, m_inputPedestals_source, m_inputPedestals_tag, m_inputPedestals_run)) {
-        std::cerr << "HcalLedAnalyzer-> Failed to get pedestal values" << std::endl;
-      }
-    }
-  }
-  inputPeds = new HcalPedestals ();
-  inputPeds = m_inputPeds; */
-
-//  m_ledAnal->processLedEvent(*hbhe, *ho, *hf, *conditions, inputPeds);
   m_ledAnal->processLedEvent(*hbhe, *ho, *hf, *conditions);
-
-//  delete inputPeds;
 
   if(m_ievt%1000 == 0)
     std::cout << "HcalLedAnalyzer: analyzed " << m_ievt << " events" << std::endl;
