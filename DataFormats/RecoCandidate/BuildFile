@@ -1,14 +1,11 @@
 <use name=DataFormats/EgammaReco>
-<use name=DataFormats/MuonReco>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/Candidate>
-<flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsRecoCandidate>
  <use name=DataFormats/EgammaReco>
- <use name=DataFormats/MuonReco>
  <use name=DataFormats/VertexReco>
  <use name=DataFormats/TrackReco>
  <use name=DataFormats/CaloTowers>

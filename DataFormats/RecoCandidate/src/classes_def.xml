@@ -1,7 +1,6 @@
 <lcgdict>
   <class name="reco::RecoCandidate" />
   <class name="reco::RecoChargedCandidate" />
-  <class name="reco::RecoMuonCandidate" />
   <class name="reco::RecoCaloTowerCandidate"/> 
 </lcgdict>
  
