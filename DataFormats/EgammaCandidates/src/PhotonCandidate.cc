@@ -1,4 +1,4 @@
-// $Id: PhotonCandidate.cc,v 1.1 2006/04/21 06:28:47 llista Exp $
+// $Id: PhotonCandidate.cc,v 1.2 2006/04/26 07:56:20 llista Exp $
 #include "DataFormats/EgammaCandidates/interface/PhotonCandidate.h"
 
 using namespace reco;
@@ -16,7 +16,6 @@ reco::SuperClusterRef PhotonCandidate::superCluster() const {
 bool PhotonCandidate::overlap( const Candidate & c ) const {
   const RecoCandidate * dstc = dynamic_cast<const RecoCandidate *>( & c );
   if ( dstc == 0 ) return false;
-  SuperClusterRef s1 = superCluster(), s2 = dstc->superCluster();
-  if ( ! s1.isNull() && ! s2.isNull() && s1 == s2 ) return true;
+  if ( checkOverlap( superCluster(), dstc->superCluster() ) ) return true;
   return false;
 }

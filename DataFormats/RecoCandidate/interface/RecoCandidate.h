@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.9 2006/04/26 07:56:20 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.10 2006/05/02 09:48:46 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -38,6 +38,13 @@ namespace reco {
     virtual reco::SuperClusterRef superCluster() const;
     /// reference to a CaloTower
     virtual CaloTowerRef caloTower() const;
+
+  protected:
+    /// check if two components overlap
+    template<typename R>
+    bool checkOverlap( const R & r1, const R & r2 ) const {
+      return( ! r1.isNull() && ! r2.isNull() && r1 == r2 );
+    }
 
   private:
     template<typename T> friend struct component; 

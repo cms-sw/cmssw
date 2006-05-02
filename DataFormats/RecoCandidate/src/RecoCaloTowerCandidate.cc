@@ -1,4 +1,4 @@
-// $Id: RecoCaloTowerCandidate.cc,v 1.1 2006/02/28 10:59:15 llista Exp $
+// $Id: RecoCaloTowerCandidate.cc,v 1.2 2006/04/26 07:56:21 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 
 using namespace reco;
@@ -16,7 +16,6 @@ CaloTowerRef RecoCaloTowerCandidate::caloTower() const {
 bool RecoCaloTowerCandidate::overlap( const Candidate & c ) const {
   const RecoCandidate * dstc = dynamic_cast<const RecoCandidate *>( & c );
   if ( dstc == 0 ) return false;
-  CaloTowerRef c1 = caloTower(), c2 = dstc->caloTower();
-  if ( ! c1.isNull() && ! c2.isNull() && c1 == c2 ) return true;
+  if ( checkOverlap( caloTower(), dstc->caloTower() ) ) return true;
   return false;
 }
