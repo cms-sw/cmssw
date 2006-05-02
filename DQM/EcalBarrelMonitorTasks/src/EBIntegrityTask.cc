@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/04/19 13:21:40 $
- * $Revision: 1.13 $
+ * $Date: 2006/05/01 21:38:18 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
  */
@@ -26,7 +26,7 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
     meIntegrityMemTTId[i] = 0;
     meIntegrityMemTTBlockSize[i] = 0;
   }
-  
+
 }
 
 
@@ -116,7 +116,7 @@ void EBIntegrityTask::setup(void){
       sprintf(histo, "EBIT MemGain SM%02d", i+1);
       meIntegrityMemGain[i] = dbe->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
     }
-    
+
     // checking when mem tower block has unexpected ID
     dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemTTId");
     for (int i = 0; i < 36 ; i++) {
@@ -130,9 +130,9 @@ void EBIntegrityTask::setup(void){
       sprintf(histo, "EBIT MemSize SM%02d", i+1);
       meIntegrityMemTTBlockSize[i] = dbe->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
     }
-    
+
   }
-  
+
 }// end setup
 
 
@@ -263,7 +263,6 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
-
   Handle<EcalTrigTowerDetIdCollection> ids6;
   e.getByLabel("ecalEBunpacker", "EcalIntegrityBlockSizeErrors", ids6);
 
@@ -276,13 +275,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     //    int ismt = id.ism();
     int ismt = 1;
-    
+
     //     if ( meIntegrityTTBlockSize[ism-1] ) meIntegrityTTBlockSize[ism-1]->Fill(xie, xip);
      if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(iet, ipt);
      // gio: here I am in doubt !!!!!!!
    }
-
-
 
   Handle<EcalElectronicsIdCollection> ids7;
   e.getByLabel("ecalEBunpacker", "EcalIntegrityMemTtIdErrors", ids7);
@@ -296,10 +293,8 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     int ism = 1;
 
     if ( meIntegrityMemTTId[ism-1] ) meIntegrityMemTTId[ism-1]->Fill(iTt,0);
-    
+
   }
-
-
 
   Handle<EcalElectronicsIdCollection> ids8;
   e.getByLabel("ecalEBunpacker", "EcalIntegrityMemBlockSize", ids8);
@@ -307,17 +302,15 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
   for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++ idItr ) {
 
     EcalElectronicsId id = (*idItr);
-    
+
     int itt   = id.towerId();
-    float iTt = itt + 0.5 -69;
+    float iTt = itt + 0.5 - 69;
     int ism = 1;
-    
+
     if ( meIntegrityMemTTBlockSize[ism-1] ) meIntegrityMemTTBlockSize[ism-1]->Fill(iTt,0);
-    
+
   }
 
-  
-  
   Handle<EcalElectronicsIdCollection> ids9;
   e.getByLabel("ecalEBunpacker", "EcalIntegrityMemChIdErrors", ids9);
 
@@ -336,11 +329,10 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;
-        
-    if ( meIntegrityMemChId[ism-1] ) meIntegrityMemChId[ism-1]->Fill(xie,xip);
-    
-  }
 
+    if ( meIntegrityMemChId[ism-1] ) meIntegrityMemChId[ism-1]->Fill(xie,xip);
+
+  }
 
   Handle<EcalElectronicsIdCollection> ids10;
   e.getByLabel("ecalEBunpacker", "EcalIntegrityMemGainErrors", ids10);
@@ -354,36 +346,32 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     int chid = id.channelId();
     int ie = EBIntegrityTask::chMemAbscissa[chid-1];
     int ip = EBIntegrityTask::chMemOrdinate[chid-1];
-    
+
     int iTt = id.towerId();
     ie += (iTt-69)*5;
 
     float xie = ie - 0.5;
     float xip = ip - 0.5;
-        
-    
+
     if ( meIntegrityMemGain[ism-1] ) meIntegrityMemGain[ism-1]->Fill(xie,xip);
-    
+
   }
 
 }//  end analyze
 
-
-
-const	 int  EBIntegrityTask::chMemAbscissa [25] = 
-  {
+const int  EBIntegrityTask::chMemAbscissa [25] = {
     1,1, 1, 1, 1,
     2, 2, 2, 2, 2,
     3, 3, 3, 3, 3,
     4, 4, 4, 4, 4,
     5, 5, 5, 5, 5
-  };
+};
 
-const	 int  EBIntegrityTask::chMemOrdinate [25] = 
-  {
+const int  EBIntegrityTask::chMemOrdinate [25] = {
     1,2, 3, 4, 5,
     5, 4, 3, 2, 1,
     1, 2, 3, 4, 5,
     5, 4, 3, 2, 1,
     1, 2, 3,4, 5
-  };
+};
+
