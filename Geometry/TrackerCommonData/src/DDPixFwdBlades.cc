@@ -12,8 +12,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
@@ -37,10 +36,10 @@ std::map<std::string, int> DDPixFwdBlades::copyNumbers;
 // Initialization :  ---------------------------------------------------------------------
 
 void DDPixFwdBlades::initialize(const DDNumericArguments & nArgs,
-				  const DDVectorArguments & vArgs,
-				  const DDMapArguments & ,
-				  const DDStringArguments & sArgs,
-				  const DDStringVectorArguments & ) {
+				const DDVectorArguments & vArgs,
+				const DDMapArguments & ,
+				const DDStringArguments & sArgs,
+				const DDStringVectorArguments & ) {
 
   nBlades      = 24;
   
@@ -48,7 +47,9 @@ void DDPixFwdBlades::initialize(const DDNumericArguments & nArgs,
   zPlane       = nArgs["ZPlane"];
   bladeZShift  = nArgs["BladeZShift"];
 
-  DCOUT('A', "DDPixFwdBlades: nBlades " << nBlades << " bladeAngle " << bladeAngle/deg << " zPlane " << zPlane << " bladeZShift " << bladeZShift);
+  LogDebug("TrackerGeom") << "DDPixFwdBlades: nBlades " << nBlades 
+			  << " bladeAngle " << bladeAngle/deg << " zPlane " 
+			  << zPlane << " bladeZShift " << bladeZShift;
   try {
     flagString = sArgs["FlagString"];
     flagSelector = sArgs["FlagSelector"];
@@ -56,7 +57,8 @@ void DDPixFwdBlades::initialize(const DDNumericArguments & nArgs,
     flagString = "YYYYYYYYYYYYYYYYYYYYYYYY";
     flagSelector = "Y";
   }
-  DCOUT('A', "DDPixFwdBlades: flagString " << flagString << " flagSelector " << flagSelector);
+  LogDebug("TrackerGeom")  << "DDPixFwdBlades: flagString " << flagString 
+			   << " flagSelector " << flagSelector;
  
   childName   = sArgs["Child"]; 
 
@@ -70,7 +72,10 @@ void DDPixFwdBlades::initialize(const DDNumericArguments & nArgs,
   }
 
   idNameSpace = DDCurrentNamespace::ns();
-  DCOUT('A', "DDPixFwdBlades: childName " << childName << " Position ("	<< childX << ", " << childY << ", " << childZ << ") Rotation " << childRotationName << " NameSpace " << idNameSpace);
+  LogDebug("TrackerGeom") << "DDPixFwdBlades: childName " << childName 
+			  << " Position ("	<< childX << ", " << childY 
+			  << ", " << childZ << ") Rotation " 
+			  << childRotationName << " NameSpace " << idNameSpace;
 }
   
 // Execution :  --------------------------------------------------------------------------
@@ -139,7 +144,9 @@ void DDPixFwdBlades::execute() {
     // position the child :
 
     DDpos(child, mother, copy, translation, rotation);
-    DCOUT('a', "DDPixFwdBlades: " << child << " Copy " << copy << " positioned in " << mother << " at " << translation << " with rotation " << rotation);
+    LogDebug("TrackerGeom") << "DDPixFwdBlades: " << child << " Copy " << copy 
+			    << " positioned in " << mother << " at " 
+			    << translation << " with rotation " << rotation;
   }
 
   // End of cycle over Phi positions

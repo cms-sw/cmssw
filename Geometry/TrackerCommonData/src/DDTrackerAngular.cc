@@ -7,8 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -22,7 +21,7 @@ namespace std{} using namespace std;
 
 
 DDTrackerAngular::DDTrackerAngular() {
-  DCOUT('a', "DDTrackerAngular info: Creating an instance");
+  edm::LogInfo("TrackerGeom") << "DDTrackerAngular info: Creating an instance";
 }
 
 DDTrackerAngular::~DDTrackerAngular() {}
@@ -51,13 +50,19 @@ void DDTrackerAngular::initialize(const DDNumericArguments & nArgs,
     }
   }  
 
-  DCOUT('A', "DDTrackerAngular debug: Parameters for positioning:: n " << n << " Start, Range, Delta " << startAngle/deg << " " << rangeAngle/deg << " " << delta/deg << " Radius " << radius << " Centre " << center[0] << ", " << center[1] << ", " << center[2]);
+  LogDebug("TrackerGeom") << "DDTrackerAngular debug: Parameters for position"
+			  << "ing:: n " << n << " Start, Range, Delta " 
+			  << startAngle/deg << " " << rangeAngle/deg << " " 
+			  << delta/deg << " Radius " << radius << " Centre " 
+			  << center[0] << ", " << center[1] << ", "<<center[2];
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
 
   DDName parentName = parent().name();
-  DCOUT('A', "DDTrackerAngular debug: Parent " << parentName << "\tChild " << childName << " NameSpace " << idNameSpace);
+  LogDebug("TrackerGeom") << "DDTrackerAngular debug: Parent " << parentName 
+			  << "\tChild " << childName << " NameSpace "
+			  << idNameSpace;
 }
 
 void DDTrackerAngular::execute() {
@@ -77,7 +82,9 @@ void DDTrackerAngular::execute() {
       string rotstr = DDSplit(childName).first + dbl_to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
-	DCOUT('a', "DDTrackerAngular test: Creating a new rotation: " << rotstr << "\t90., " << phix/deg << ", 90.," << phiy/deg << ", 0, 0");
+	LogDebug("TrackerGeom") << "DDTrackerAngular test: Creating a new "
+				<< "rotation: " << rotstr << "\t90., " 
+				<< phix/deg << ", 90.," << phiy/deg <<", 0, 0";
 	rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
 			 0., 0.);
       }
@@ -89,7 +96,9 @@ void DDTrackerAngular::execute() {
     DDTranslation tran(xpos, ypos, zpos);
   
     DDpos (child, mother, copy, tran, rotation);
-    DCOUT('a', "DDTrackerAngular test " << child << " number " << copy << " positioned in " << mother << " at " << tran  << " with " << rotation);
+    LogDebug("TrackerGeom") << "DDTrackerAngular test " << child << " number " 
+			    << copy << " positioned in " << mother << " at "
+			    << tran  << " with " << rotation;
     copy += incrCopyNo;
     phi  += delta;
   }

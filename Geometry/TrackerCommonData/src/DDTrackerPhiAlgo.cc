@@ -7,8 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -22,7 +21,7 @@ namespace std{} using namespace std;
 
 
 DDTrackerPhiAlgo::DDTrackerPhiAlgo() {
-  DCOUT('a', "DDTrackerPhiAlgo info: Creating an instance");
+  edm::LogInfo("TrackerGeom") << "DDTrackerPhiAlgo info: Creating an instance";
 }
 
 DDTrackerPhiAlgo::~DDTrackerPhiAlgo() {}
@@ -38,14 +37,19 @@ void DDTrackerPhiAlgo::initialize(const DDNumericArguments & nArgs,
   phi        = vArgs["Phi"];
   zpos       = vArgs["ZPos"];
 
-  DCOUT('A', "DDTrackerPhiAlgo debug: Parameters for positioning:: " << " Radius " << radius << " Tilt " << tilt/deg << " Copies " << phi.size() << " at phi/z values:");
+  LogDebug("TrackerGeom") << "DDTrackerPhiAlgo debug: Parameters for position"
+			  << "ing:: " << " Radius " << radius << " Tilt " 
+			  << tilt/deg << " Copies " << phi.size() << " at";
   for (unsigned int i=0; i<phi.size(); i++)
-    DCOUT('A', "\t " << phi[i]/deg << " " << zpos[i]);
+    LogDebug("TrackerGeom") << "\t[" << i << "] phi = " << phi[i]/deg 
+			    << " z = " << zpos[i];
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
-  DCOUT('A', "DDTrackerPhiAlgo debug: Parent " << parentName <<"\tChild " << childName << " NameSpace " << idNameSpace);
+  LogDebug("TrackerGeom") <<  "DDTrackerPhiAlgo debug: Parent " << parentName
+			  <<"\tChild " << childName << " NameSpace " 
+			  << idNameSpace;
 }
 
 void DDTrackerPhiAlgo::execute() {
@@ -61,7 +65,9 @@ void DDTrackerPhiAlgo::execute() {
     string rotstr = DDSplit(childName).first + dbl_to_string(phideg);
     DDRotation rotation = DDRotation(DDName(rotstr, idNameSpace));
     if (!rotation) {
-      DCOUT('a', "DDTrackerPhiAlgo test: Creating a new rotation: " << rotstr << "\t" << "90., " << phix/deg << ", 90.," << phiy/deg << ", 0, 0");
+      LogDebug("TrackerGeom") << "DDTrackerPhiAlgo test: Creating a new "
+			      << "rotation: " << rotstr << "\t" << "90., "
+			      << phix/deg << ", 90.," << phiy/deg << ", 0, 0";
       rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
 		       0., 0.);
     }
@@ -71,6 +77,8 @@ void DDTrackerPhiAlgo::execute() {
     DDTranslation tran(xpos, ypos, zpos[i]);
   
     DDpos (child, mother, i+1, tran, rotation);
-    DCOUT('a', "DDTrackerPhiAlgo test: " << child << " number " << i+1 << " positioned in " << mother << " at " << tran  << " with " << rotation);
+    LogDebug("TrackerGeom") << "DDTrackerPhiAlgo test: " << child << " number "
+			    << i+1 << " positioned in " << mother << " at "
+			    << tran  << " with " << rotation;
   }
 }

@@ -7,8 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -21,7 +20,7 @@ namespace std{} using namespace std;
 
 
 DDTrackerZPosAlgo::DDTrackerZPosAlgo() {
-  DCOUT('a', "DDTrackerZPosAlgo info: Creating an instance");
+  edm::LogInfo("TrackerGeom") <<"DDTrackerZPosAlgo info: Creating an instance";
 }
 
 DDTrackerZPosAlgo::~DDTrackerZPosAlgo() {}
@@ -40,9 +39,14 @@ void DDTrackerZPosAlgo::initialize(const DDNumericArguments & nArgs,
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
-  DCOUT('A', "DDTrackerZPosAlgo debug: Parent " << parentName << "\tChild " << childName << " NameSpace " << idNameSpace << "\tCopyNo (Start/Increment) " << startCopyNo << ", " << incrCopyNo << "\tNumber " << zvec.size());
+  LogDebug("TrackerGeom") << "DDTrackerZPosAlgo debug: Parent " << parentName 
+			  << "\tChild " << childName << " NameSpace " 
+			  << idNameSpace << "\tCopyNo (Start/Increment) " 
+			  << startCopyNo << ", " << incrCopyNo << "\tNumber " 
+			  << zvec.size();
   for (unsigned int i = 0; i < zvec.size(); i++) {
-    DCOUT('A', "\tZ = " << zvec[i] << ", Rot.Matrix = " << rotMat[i] << "; ");
+    LogDebug("TrackerGeom") << "\t[" << i << "]\tZ = " << zvec[i] 
+			    << ", Rot.Matrix = " << rotMat[i];
   }
 }
 
@@ -62,7 +66,9 @@ void DDTrackerZPosAlgo::execute() {
       rot = DDRotation(DDName(rotstr, rotns));
     }
     DDpos (child, mother, copy, tran, rot);
-    DCOUT('a', "DDTrackerZPosAlgo test: " << child << " number " << copy << " positioned in " << mother << " at " << tran << " with " << rot);
+    LogDebug("TrackerGeom") << "DDTrackerZPosAlgo test: " << child <<" number "
+			    << copy << " positioned in " << mother << " at "
+			    << tran << " with " << rot;
     copy += incrCopyNo;
   }
 }

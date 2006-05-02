@@ -7,8 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -22,7 +21,7 @@ namespace std{} using namespace std;
 
 
 DDTECOptoHybAlgo::DDTECOptoHybAlgo(): angles(0) {
-  DCOUT('a', "DDTECOptoHybAlgo info: Creating an instance");
+  edm::LogInfo("TrackerGeom") << "DDTECOptoHybAlgo info: Creating an instance";
 }
 
 DDTECOptoHybAlgo::~DDTECOptoHybAlgo() {}
@@ -38,7 +37,9 @@ void DDTECOptoHybAlgo::initialize(const DDNumericArguments & nArgs,
 
   DDName parentName = parent().name(); 
 
-  DCOUT('A', "DDTECOptoHybAlgo debug: Parent " << parentName << " Child " << childName << " NameSpace " << idNameSpace);
+  LogDebug("TrackerGeom") << "DDTECOptoHybAlgo debug: Parent " << parentName 
+			  << " Child " << childName << " NameSpace " 
+			  << idNameSpace;
 
   rmin           = nArgs["Rmin"];
   rmax           = nArgs["Rmax"];
@@ -46,18 +47,21 @@ void DDTECOptoHybAlgo::initialize(const DDNumericArguments & nArgs,
   startCopyNo    = int (nArgs["StartCopyNo"]);
   angles         = vArgs["Angles"];
 
-  DCOUT('A', "DDTECOptoHybAlgo debug: Rmin " << rmin << " Rmax " << rmax << " Zpos " << zpos << " StartCopyNo " << startCopyNo << " Number " << angles.size());
+  LogDebug("TrackerGeom") << "DDTECOptoHybAlgo debug: Rmin " << rmin 
+			  << " Rmax " << rmax << " Zpos " << zpos 
+			  << " StartCopyNo " << startCopyNo << " Number " 
+			  << angles.size();
 
   for (unsigned int i = 0; i < angles.size(); i++)
-    DCOUT('A', "\t " << i << " " << angles[i]);
+    LogDebug("TrackerGeom") << "\tAngles[" << i << "] = " << angles[i];
 
 }
 
 void DDTECOptoHybAlgo::execute() {
   
-  DCOUT('a', "==>> Constructing DDTECOptoHybAlgo...");
+  LogDebug("TrackerGeom") << "==>> Constructing DDTECOptoHybAlgo...";
 
-  DDName mother = parent().name(); 
+  DDName mother = parent().name();
   DDName child  = DDName(DDSplit(childName).first, DDSplit(childName).second);
 
   int    copyNo = startCopyNo;
@@ -76,16 +80,20 @@ void DDTECOptoHybAlgo::execute() {
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
 	double theta = 90.*deg;
-	DCOUT('a', "DDTECOptoHybAlgo test: Creating a new rotation: " << rotstr << "\t90., " << phix/deg << ", 90.," << phiy/deg << ", 0, 0");
+	LogDebug("TrackerGeom") << "DDTECOptoHybAlgo test: Creating a new "
+				<< "rotation: " << rotstr << "\t90., " 
+				<< phix/deg << ", 90.," << phiy/deg <<", 0, 0";
 	rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
 			 0., 0.);
       }
     }
 
     DDpos (child, mother, copyNo, tran, rotation);
-    DCOUT('a', "DDTECOptoHybAlgo test " << child << " number " << copyNo << " positioned in " << mother << " at " << tran  << " with " << rotation);
+    LogDebug("TrackerGeom") << "DDTECOptoHybAlgo test " << child << " number " 
+			    << copyNo << " positioned in " << mother << " at "
+			    << tran  << " with " << rotation;
     copyNo++;
   }
   
-  DCOUT('a', "<<== End of DDTECOptoHybAlgo construction ...");
+  LogDebug("TrackerGeom") << "<<== End of DDTECOptoHybAlgo construction ...";
 }

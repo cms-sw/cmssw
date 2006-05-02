@@ -7,8 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -21,7 +20,8 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDTECAxialCableAlgo::DDTECAxialCableAlgo() {
-  DCOUT('a', "DDTECAxialCableAlgo info: Creating an instance");
+  edm::LogInfo("TrackerGeom") << "DDTECAxialCableAlgo info: Creating an "
+			      << "instance";
 }
 
 DDTECAxialCableAlgo::~DDTECAxialCableAlgo() {}
@@ -55,18 +55,30 @@ void DDTECAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
     }
   }  
 
-  DCOUT('A', "DDTECAxialCableAlgo debug: Parameters for creating " << startAngle.size() << " axial cables and positioning " << n << " copies in Service volume");
-  DCOUT('A', "                            zStart " << zStart << " zEnd " << zEnd << " rMin " << rMin << " rMax " << rMax << " Cable width " << width/deg << " thickness " << thickR << ", " << thickZ << " dZ " << dZ);
-  DCOUT('A', "                            Range, Delta " << rangeAngle/deg << ", " << delta/deg);
+  LogDebug("TrackerGeom") << "DDTECAxialCableAlgo debug: Parameters for "
+			  << "creating " << startAngle.size() 
+			  << " axial cables and positioning " << n 
+			  << " copies in Service volume\n"
+			  << "                            zStart " << zStart 
+			  << " zEnd " << zEnd << " rMin " << rMin << " rMax "
+			  << rMax << " Cable width " << width/deg 
+			  << " thickness " << thickR << ", " << thickZ 
+			  << " dZ " << dZ << "\n"
+			  << "                            Range, Delta " 
+			  << rangeAngle/deg << ", " << delta/deg;
   for (unsigned int i=0; i<startAngle.size(); i++)
-    DCOUT('A', "                          Cable " << i << " from Z " << zPos[i] << " startAngle " << startAngle[i]/deg);
+    LogDebug("TrackerGeom") << "                          Cable " << i 
+			    << " from Z " << zPos[i] << " startAngle " 
+			    << startAngle[i]/deg;
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   matName     = sArgs["Material"]; 
 
   DDName parentName = parent().name();
 
-  DCOUT('A', "DDTECAxialCableAlgo debug: Parent " << parentName << "\tChild " << childName << " NameSpace " << idNameSpace << "\tMaterial " << matName);
+  LogDebug("TrackerGeom") << "DDTECAxialCableAlgo debug: Parent " << parentName
+			  << "\tChild " << childName << " NameSpace " 
+			  << idNameSpace << "\tMaterial " << matName;
 }
 
 void DDTECAxialCableAlgo::execute() {
@@ -110,9 +122,15 @@ void DDTECAxialCableAlgo::execute() {
 					     -0.5*width, width, pconZ, 
 					     pconRmin, pconRmax);
 
-    DCOUT('a', "DDTECAxialCableAlgo test: " << DDName(name, idNameSpace) << " Polycone made of " << matName << " from " << -0.5*width/deg << " to " << 0.5*width/deg << " and with " << pconZ.size() << " sections ");
+    LogDebug("TrackerGeom") << "DDTECAxialCableAlgo test: " 
+			    << DDName(name, idNameSpace) <<" Polycone made of "
+			    << matName << " from " << -0.5*width/deg << " to "
+			    << 0.5*width/deg << " and with " << pconZ.size()
+			    << " sections ";
     for (unsigned int ii = 0; ii <pconZ.size(); ii++) 
-      DCOUT('a', "\t" << "\tZ = " << pconZ[ii] << "\tRmin = "<< pconRmin[ii] << "\tRmax = " << pconRmax[ii]);
+      LogDebug("TrackerGeom") << "\t" << "\tZ[" << ii << "] = " << pconZ[ii] 
+			      << "\tRmin[" << ii << "] = "<< pconRmin[ii] 
+			      << "\tRmax[" << ii << "] = " << pconRmax[ii];
     DDName mat(DDSplit(matName).first, DDSplit(matName).second); 
     DDMaterial matter(mat);
     DDLogicalPart genlogic(DDName(name, idNameSpace), matter, solid);
@@ -128,7 +146,10 @@ void DDTECAxialCableAlgo::execute() {
 	string rotstr = childName + dbl_to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
-	  DCOUT('a', "DDTECAxialCableAlgo test: Creating a new rotation: " << rotstr << "\t90., " << phix/deg << ", 90.," << phiy/deg << ", 0, 0");
+	  LogDebug("TrackerGeom") << "DDTECAxialCableAlgo test: Creating a new"
+				  << " rotation: " << rotstr << "\t90., " 
+				  << phix/deg << ", 90.," << phiy/deg 
+				  << ", 0, 0";
 	  rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, 
 			   phiy, 0., 0.);
 	}
@@ -136,7 +157,10 @@ void DDTECAxialCableAlgo::execute() {
 	
       DDTranslation tran(0,0,0);
       DDpos (DDName(name, idNameSpace), mother, i+1, tran, rotation);
-      DCOUT('a', "DDTECAxialCableAlgo test " << DDName(name, idNameSpace) << " number " << i+1 << " positioned in " << mother << " at " << tran  << " with "  << rotation);
+      LogDebug("TrackerGeom") << "DDTECAxialCableAlgo test " 
+			      << DDName(name, idNameSpace) << " number " << i+1
+			      << " positioned in " << mother << " at " << tran
+			      << " with "  << rotation;
 
       phi  += delta;
     }

@@ -7,8 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -22,7 +21,7 @@ namespace std{} using namespace std;
 
 
 DDTECCoolAlgo::DDTECCoolAlgo(): coolName(0),coolR(0),coolInsert(0) {
-  DCOUT('a', "DDTECCoolAlgo info: Creating an instance");
+  edm::LogInfo("TrackerGeom") << "DDTECCoolAlgo info: Creating an instance";
 }
 
 DDTECCoolAlgo::~DDTECCoolAlgo() {}
@@ -40,23 +39,32 @@ void DDTECCoolAlgo::initialize(const DDNumericArguments & nArgs,
   petalName      = vsArgs["PetalName"];
   petalRmax      = vArgs["PetalR"];
   petalWidth     = vArgs["PetalWidth"];
-  DCOUT('A', "DDTECCoolAlgo debug: Parent " << parentName <<" NameSpace " << idNameSpace << " with " << petalName.size() << " possible petals:");
+  LogDebug("TrackerGeom") << "DDTECCoolAlgo debug: Parent " << parentName 
+			  <<" NameSpace " << idNameSpace << " with " 
+			  << petalName.size() << " possible petals:";
   for (unsigned int i=0; i<petalName.size(); i++)
-    DCOUT('A', "\t " << petalName[i] << " R " << petalRmax[i] << " W " << petalWidth[i]/deg);
+    LogDebug("TrackerGeom") << "DDTECCoolAlgo debug: Petal[" << i << "]: "
+			    << petalName[i] << " R " << petalRmax[i] << " W " 
+			    << petalWidth[i]/deg;
   coolName       = vsArgs["CoolName"];
   coolR          = vArgs["CoolR"];
   coolInsert     = dbl_to_int (vArgs["CoolInsert"]);
 
-  DCOUT('A', "DDTECCoolAlgo debug: Start Copy Number " << startCopyNo << " with " << coolName.size() << " possible Cool pieces for " << coolInsert.size() << " modules");
+  LogDebug("TrackerGeom") << "DDTECCoolAlgo debug: Start Copy Number " 
+			  << startCopyNo << " with " << coolName.size() 
+			  << " possible Cool pieces for " << coolInsert.size() 
+			  << " modules";
   for (unsigned int i=0; i<coolName.size(); i++)
-    DCOUT('A', "                   Piece " << i << " " << coolName[i] << " R = " << coolR[i]);
-  DCOUT('A', "DDTECCoolAlgo debug: Inserts for modules:");
+    LogDebug("TrackerGeom") << "                   Piece " << i << " " 
+			    << coolName[i] << " R = " << coolR[i];
   for (unsigned int i=0; i<coolInsert.size(); i++)
-    DCOUT('A', "\t " << coolInsert[i]);
-
+    LogDebug("TrackerGeom") << "DDTECCoolAlgo debug: Inserts for module " << i
+			    << ": " << coolInsert[i];
   startAngle     = nArgs["StartAngle"];
   incrAngle      = nArgs["IncrAngle"];
-  DCOUT('A', "DDTECCoolAlgo debug: StartAngle " << startAngle/deg << " IncrementAngle " << incrAngle/deg);
+  LogDebug("TrackerGeom") << "DDTECCoolAlgo debug: StartAngle " 
+			  << startAngle/deg << " IncrementAngle "
+			  << incrAngle/deg;
   rmin           = nArgs["Rmin"];
   fullHeight     = nArgs["FullHeight"];
   dlTop          = nArgs["DlTop"];
@@ -68,11 +76,18 @@ void DDTECCoolAlgo::initialize(const DDNumericArguments & nArgs,
   hybridHeight   = nArgs["HybridHeight"];
   hybridWidth    = nArgs["HybridWidth"];
 
-  DCOUT('A', "DDTECCoolAlgo debug: Rmin " << rmin  << " FullHeight " << fullHeight << " DlTop " << dlTop << " DlBottom " << dlBottom << " DlHybrid " << dlHybrid << " Top Frame Height " << topFrameHeight << " Width " << frameWidth << " Overlap " << frameOver <<" Hybrid Height " << hybridHeight << " Width " << hybridWidth);
+  LogDebug("TrackerGeom") << "DDTECCoolAlgo debug: Rmin " << rmin  
+			  << " FullHeight " << fullHeight << " DlTop " << dlTop
+			  << " DlBottom " << dlBottom << " DlHybrid " 
+			  << dlHybrid << " Top Frame Height " << topFrameHeight
+			  << " Width " << frameWidth << " Overlap " 
+			  << frameOver <<" Hybrid Height " << hybridHeight
+			  << " Width " << hybridWidth;
 }
 
 void DDTECCoolAlgo::execute() {
-  DCOUT('a', "==>> Constructing DDTECCoolAlgo...");
+
+  LogDebug("TrackerGeom") << "==>> Constructing DDTECCoolAlgo...";
   int copyNo  = startCopyNo;
   double phi  = startAngle;
   double rr[4];
@@ -104,7 +119,9 @@ void DDTECCoolAlgo::execute() {
 	double xpsl = rp*cos(phi)-dy*sin(phi);
 	double ypsl = rp*sin(phi)+dy*cos(phi);
 	double phi1 = atan2(ypsl,xpsl);
-	DCOUT('a', "DDTECCoolAlgo debug: kk " << kk << " R " << rp << " DY " << yy << ", " << dy << " X, Y " << xpsl << ", " << ypsl);
+	LogDebug("TrackerGeom") << "DDTECCoolAlgo debug: kk " << kk << " R " 
+				<< rp << " DY " << yy << ", " << dy << " X, Y "
+				<< xpsl << ", " << ypsl;
 	DDName mother;
 	unsigned int mm = petalName.size();
 	for (unsigned int ii=petalName.size(); ii>0; ii--)
@@ -117,15 +134,26 @@ void DDTECCoolAlgo::execute() {
 	}
 	double xpos = rp*cos(phi)-yy*sin(phi);
 	double ypos = rp*sin(phi)+yy*cos(phi);
+	double phi2;
+	if (ypos >= 0) phi2 = atan2(ypos+coolR[cool],xpos);
+	else           phi2 = atan2(ypos-coolR[cool],xpos);
+	double rr1 = sqrt(xpos*xpos+ypos*ypos)-coolR[cool];
+	double rr2 = sqrt(xpos*xpos+ypos*ypos)+coolR[cool];
 	DDTranslation tran(xpos, ypos, 0.0);
 	DDRotation rotation;
 	DDpos (child, mother, copyNo, tran, rotation);
-	DCOUT('a', "DDTECCoolAlgo test " << child << " number " << copyNo << " positioned in " << mother << " at " << tran  << " with " << rotation << " phi " << phi1/deg);
+	LogDebug("TrackerGeom") << "DDTECCoolAlgo test " << child << "[" 
+				<< copyNo << "] positioned in " << mother 
+				<< " at " << tran << " with " << rotation 
+				<< " phi (" << phi1/deg << ":" << phi2/deg 
+				<< ") Limit" << 0.5*petalWidth[mm]/deg << " R "
+				<< rr1 << ":" << rr2 << " (" << petalRmax[mm] 
+				<< ")";
 	copyNo++;
       }
     }
     phi += incrAngle;
   }
 
-  DCOUT('a', "<<== End of DDTECCoolAlgo construction ...");
+  LogDebug("TrackerGeom") << "<<== End of DDTECCoolAlgo construction ...";
 }

@@ -7,6 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
@@ -21,7 +22,7 @@ namespace std{} using namespace std;
 
 
 DDTIDModuleAlgo::DDTIDModuleAlgo() {
-  DCOUT('a', "DDTIDModuleAlgo info: Creating an instance");
+  edm::LogInfo("TrackerGeom") << "DDTIDModuleAlgo info: Creating an instance";
 }
 
 DDTIDModuleAlgo::~DDTIDModuleAlgo() {}
@@ -37,7 +38,9 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
   detectorN    = (int)(nArgs["DetectorNumber"]);
   DDName parentName = parent().name(); 
 
-  DCOUT('A', "DDTIDModuleAlgo debug: Parent " << parentName << " General Material "	<< genMat << " Detector Planes " << detectorN);
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo debug: Parent " << parentName 
+			  << " General Material " << genMat 
+			  << " Detector Planes " << detectorN;
 
   moduleThick       = nArgs["ModuleThick"];
   detTilt           = nArgs["DetTilt"];
@@ -46,7 +49,11 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
   dlBottom          = nArgs["DlBottom"];
   dlHybrid          = nArgs["DlHybrid"];
 
-  DCOUT('A', "DDTIDModuleAlgo debug: ModuleThick " << moduleThick << " Detector Tilt " << detTilt/deg << " Height " << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) " << dlBottom << " dl(Hybrid) " << dlHybrid);
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo debug: ModuleThick " 
+			  << moduleThick << " Detector Tilt " << detTilt/deg
+			  << " Height " << fullHeight << " dl(Top) " << dlTop
+			  << " dl(Bottom) " << dlBottom << " dl(Hybrid) "
+			  << dlHybrid;
 
   topFrameName      = sArgs["TopFrameName"];
   topFrameMat       = sArgs["TopFrameMaterial"];
@@ -55,7 +62,12 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
   topFrameWidth     = nArgs["TopFrameWidth"];
   bottomFrameHeight = nArgs["BottomFrameHeight"];
   bottomFrameOver   = nArgs["BottomFrameOver"];
-  DCOUT('A', "DDTIDModuleAlgo debug: " << topFrameName << " Material " << topFrameMat << " Height " << topFrameHeight << " Thickness " << topFrameThick << " width " << topFrameWidth << " Extra Height at Bottom " << bottomFrameHeight << " Overlap " <<bottomFrameOver);
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo debug: " << topFrameName 
+			  << " Material " << topFrameMat << " Height " 
+			  << topFrameHeight << " Thickness " << topFrameThick 
+			  << " width " << topFrameWidth << " Extra Height at "
+			  << "Bottom " << bottomFrameHeight << " Overlap " 
+			  << bottomFrameOver;
 
   sideFrameName     = sArgs["SideFrameName"];
   sideFrameMat      = sArgs["SideFrameMaterial"];
@@ -63,43 +75,56 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
   sideFrameThick    = nArgs["SideFrameThick"];
   sideFrameOver     = nArgs["SideFrameOver"];
   dumyFrameName     = sArgs["DummyFrameName"];
-  DCOUT('A', "DDTIDModuleAlgo debug : " << sideFrameName << " Material " << sideFrameMat << " Width " << sideFrameWidth << " Thickness " << sideFrameThick  << " Overlap " << sideFrameOver << " Dummy " << dumyFrameName);
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo debug : " << sideFrameName 
+			  << " Material " << sideFrameMat << " Width " 
+			  << sideFrameWidth << " Thickness " << sideFrameThick
+			  << " Overlap " << sideFrameOver << " Dummy "
+			  << dumyFrameName;
 
   waferName         =vsArgs["WaferName"];
   waferMat          = sArgs["WaferMaterial"];
   sideWidth         = nArgs["SideWidth"];
-  DCOUT('A', "DDTIDModuleAlgo debug: Wafer Material " << waferMat << " Side Width " << sideWidth << " Names ");
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo debug: Wafer Material " 
+			  << waferMat << " Side Width " << sideWidth;
   for (i = 0; i < detectorN; i++)
-    DCOUT('A', "\t " << waferName[i]);
+    LogDebug("TrackerGeom") << "\twafrName[" << i << "] = " << waferName[i];
 
   activeName        =vsArgs["ActiveName"];
   activeMat         = sArgs["ActiveMaterial"];
   activeHeight      = nArgs["ActiveHeight"];
   activeThick       = vArgs["ActiveThick"];
   activeRot         = sArgs["ActiveRotation"];
-  DCOUT('A', "DDTIDModuleAlgo debug: Active Material " << activeMat << " Height " << activeHeight << " rotated by " << activeRot);
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo debug: Active Material " 
+			  << activeMat << " Height " << activeHeight 
+			  << " rotated by " << activeRot;
   for (i = 0; i < detectorN; i++)
-    DCOUT('A', "\t " << activeName[i] << " Thickness " << activeThick[i]);
+    LogDebug("TrackerGeom") << "\tactiveName[" << i << "] = " << activeName[i]
+			    << " of thickness " << activeThick[i];
 
   hybridName        = sArgs["HybridName"];
   hybridMat         = sArgs["HybridMaterial"];
   hybridHeight      = nArgs["HybridHeight"];
   hybridWidth       = nArgs["HybridWidth"];
   hybridThick       = nArgs["HybridThick"];
-  DCOUT('A', "DDTIDModuleAlgo debug: " << hybridName << " Material " << hybridMat << " Height " << hybridHeight << " Width " << hybridWidth << " Thickness " << hybridThick);
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo debug: " << hybridName 
+			  << " Material " << hybridMat << " Height " 
+			  << hybridHeight << " Width " << hybridWidth 
+			  << " Thickness " << hybridThick;
 
   pitchName         =vsArgs["PitchName"];
   pitchMat          = sArgs["PitchMaterial"];
   pitchHeight       = nArgs["PitchHeight"];
   pitchThick        = nArgs["PitchThick"];
-  DCOUT('A', "DDTIDModuleAlgo debug: Pitch Adapter Material " << pitchMat << " Height " << pitchHeight << " Thickness " << pitchThick << " Names");
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo debug: Pitch Adapter Material "
+			  << pitchMat << " Height " << pitchHeight
+			  << " Thickness " << pitchThick;
   for (i = 0; i < detectorN; i++)
-    DCOUT('A', "\t " << pitchName[i]);
+    LogDebug("TrackerGeom") <<  "\tpitchName[" << i << "] = " << pitchName[i];
 }
 
 void DDTIDModuleAlgo::execute() {
   
-  DCOUT('a', "==>> Constructing DDTIDModuleAlgo...");
+  LogDebug("TrackerGeom") << "==>> Constructing DDTIDModuleAlgo...";
 
   DDName parentName = parent().name(); 
   DDName name, matname;
@@ -125,7 +150,11 @@ void DDTIDModuleAlgo::execute() {
   
   DDSolid solid = DDSolidFactory::trap(parentName, dz, 0, 0,
 				       h1, bl1, bl1, 0, h1, bl2, bl2, 0);
-  DCOUT('a', "DDTIDModuleAlgo test:\t" << solid.name() << " Trapezoid " << " of dimensions " << dz << ", 0, 0, " << h1  << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2  << ", " << bl2 << ", 0");
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
+			  << " Trapezoid " << " of dimensions " << dz 
+			  << ", 0, 0, " << h1  << ", " << bl1 << ", " << bl1 
+			  << ", 0, " << h1 << ", " << bl2  << ", " << bl2 
+			  << ", 0";
 
   //Top of the frame
   name    = DDName(DDSplit(topFrameName).first, DDSplit(topFrameName).second);
@@ -141,7 +170,11 @@ void DDTIDModuleAlgo::execute() {
   h1 = 0.5 * topFrameThick;
   dz = 0.5 * topFrameHeight;
   solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bl1,bl1, 0, h1, bl2,bl2, 0);
-  DCOUT('a', "DDTIDModuleAlgo test:\t" << solid.name() << " Trap made of " << matname << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", "  << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0");
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
+			  << " Trap made of " << matname << " of dimensions "
+			  << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " 
+			  << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
+			  << ", 0";
   DDLogicalPart topFrame(solid.ddname(), matter, solid);
 
   //Frame Sides
@@ -158,7 +191,11 @@ void DDTIDModuleAlgo::execute() {
   h1 = 0.5 * sideFrameThick;
   dz = 0.5 * (fullHeight + topfr);
   solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bl1,bl1, 0, h1, bl2,bl2, 0);
-  DCOUT('a', "DDTIDModuleAlgo test:\t" << solid.name() << " Trap made of " << matname << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0");
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
+			  << " Trap made of " << matname << " of dimensions "
+			  << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " 
+			  << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
+			  << ", 0";
   DDLogicalPart sideFrame(solid.ddname(), matter, solid);
 
   name    = DDName(DDSplit(dumyFrameName).first,DDSplit(dumyFrameName).second);
@@ -177,10 +214,16 @@ void DDTIDModuleAlgo::execute() {
   }
   dz     /= 2.;
   solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bl1,bl1, 0, h1, bl2,bl2, 0);
-  DCOUT('a', "DDTIDModuleAlgo test:\t" << solid.name() << " Trap made of " << matname << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0");
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
+			  << " Trap made of " << matname << " of dimensions "
+			  << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " 
+			  << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
+			  << ", 0";
   DDLogicalPart frame(solid.ddname(), matter, solid);
   DDpos (frame, sideFrame, 1, DDTranslation(0.0, 0.0, zpos), DDRotation());
-  DCOUT('a', "DDTIDModuleAlgo test: " << frame.name() << " number 1 positioned in " << sideFrame.name() << " at (0,0," << zpos << ") with no rotation");
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo test: " << frame.name() 
+			  << " number 1 positioned in " << sideFrame.name()
+			  << " at (0,0," << zpos << ") with no rotation";
 
   name    = DDName(DDSplit(hybridName).first, DDSplit(hybridName).second);
   matname = DDName(DDSplit(hybridMat).first, DDSplit(hybridMat).second);
@@ -189,7 +232,9 @@ void DDTIDModuleAlgo::execute() {
   double dy = 0.5 * hybridThick;
   dz        = 0.5 * hybridHeight;
   solid = DDSolidFactory::box(name, dx, dy, dz);
-  DCOUT('a', "DDTIDModuleAlgo test:\t" << solid.name() << " Box made of " << matname << " of dimensions " << dx << ", " << dy << ", " << dz);
+  LogDebug("TrackerGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
+			  << " Box made of " << matname << " of dimensions " 
+			  << dx << ", " << dy << ", " << dz;
   DDLogicalPart hybrid(solid.ddname(), matter, solid);
 
   // Loop over detectors to be placed
@@ -205,7 +250,11 @@ void DDTIDModuleAlgo::execute() {
     dz      = 0.5 * fullHeight;
     solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2,
 				 0);
-    DCOUT('a', "DDTIDModuleAlgo test:\t" << solid.name() << " Trap made of " << matname << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0");
+    LogDebug("TrackerGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
+			    << " Trap made of " << matname << " of dimensions "
+			    << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " 
+			    << bl1 << ", 0, " << h1 << ", " << bl2 << ", "
+			    << bl2 << ", 0";
     DDLogicalPart wafer(solid.ddname(), matter, solid);
 
     // Active
@@ -219,7 +268,11 @@ void DDTIDModuleAlgo::execute() {
     h1      = 0.5 * activeHeight;
     solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bl1, bl2, 0, h1, bl1, bl2,
 				 0);
-    DCOUT('a', "DDTIDModuleAlgo test:\t" << solid.name() << " Trap made of " << matname << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", "  << bl2 << ", 0, " << h1 << ", " << bl1 << ", " << bl2 << ", 0");
+    LogDebug("TrackerGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
+			    << " Trap made of " << matname << " of dimensions "
+			    << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " 
+			    << bl2 << ", 0, " << h1 << ", " << bl1 << ", "
+			    << bl2 << ", 0";
     DDLogicalPart active(solid.ddname(), matter, solid);
     string rotstr = DDSplit(activeRot).first;
     DDRotation rot;
@@ -228,7 +281,9 @@ void DDTIDModuleAlgo::execute() {
       rot          = DDRotation(DDName(rotstr, rotns));
     }
     DDpos (active, wafer, 1, DDTranslation(0.0, 0.0, 0.0), rot);
-    DCOUT('a', "DDTIDModuleAlgo test: " << active.name() << " number 1 positioned in " << wafer.name() << " at (0, 0, 0) with " << rot);
+    LogDebug("TrackerGeom") << "DDTIDModuleAlgo test: " << active.name() 
+			    << " number 1 positioned in " << wafer.name() 
+			    << " at (0, 0, 0) with " << rot;
 
     //Pitch Adapter
     name    = DDName(DDSplit(pitchName[k]).first,DDSplit(pitchName[k]).second);
@@ -244,7 +299,9 @@ void DDTIDModuleAlgo::execute() {
       dy      = 0.5 * pitchThick;
       dz      = 0.5 * pitchHeight;
       solid   = DDSolidFactory::box(name, dx, dy, dz);
-      DCOUT('a', "DDTIDModuleAlgo test:\t" << solid.name() << " Box made of " << matname << " of dimensions " << dx << ", " << dy << ", " << dz);
+      LogDebug("TrackerGeom") << "DDTIDModuleAlgo test:\t" << solid.name()
+			      << " Box made of " << matname << " of dimensions"
+			      << " " << dx << ", " << dy << ", " << dz;
     } else {
       h1      = 0.5 * pitchThick;
       bl1     = 0.5 * pitchHeight + 0.5 * dz * sin(detTilt);
@@ -252,10 +309,15 @@ void DDTIDModuleAlgo::execute() {
       double thet = atan((bl1-bl2)/(2.*dz));
       solid   = DDSolidFactory::trap(name, dz, thet, 0, h1, bl1, bl1, 0, 
 				     h1, bl2, bl2, 0);
-      DCOUT('a', "DDTIDModuleAlgo test:\t" << solid.name() << " Trap made of " << matname << " of dimensions " << dz << ", " << thet/deg << ", 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0");
+      LogDebug("TrackerGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
+			      << " Trap made of " << matname << " of "
+			      << "dimensions " << dz << ", " << thet/deg 
+			      << ", 0, " << h1 << ", " << bl1 << ", " << bl1 
+			      << ", 0, " << h1 << ", " << bl2 << ", " << bl2 
+			      << ", 0";
     }
     DDLogicalPart pa(solid.ddname(), matter, solid);
   }
 
-  DCOUT('a', "<<== End of DDTIDModuleAlgo construction ...");
+  LogDebug("TrackerGeom") << "<<== End of DDTIDModuleAlgo construction ...";
 }

@@ -7,8 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -22,7 +21,7 @@ namespace std{} using namespace std;
 
 
 DDTIBRadCableAlgo::DDTIBRadCableAlgo(): layRin(0),cableMat(0),strucMat(0) {
-  DCOUT('a', "DDTIBRadCableAlgo info: Creating an instance");
+  edm::LogInfo("TrackerGeom") <<"DDTIBRadCableAlgo info: Creating an instance";
 }
 
 DDTIBRadCableAlgo::~DDTIBRadCableAlgo() {}
@@ -36,43 +35,52 @@ void DDTIBRadCableAlgo::initialize(const DDNumericArguments & nArgs,
   idNameSpace  = DDCurrentNamespace::ns();
   unsigned int i;
   DDName parentName = parent().name();
-  DCOUT('A', "DDTIBRadCableAlgo debug: Parent " << parentName << " NameSpace " << idNameSpace);
+  LogDebug("TrackerGeom") << "DDTIBRadCableAlgo debug: Parent " << parentName 
+			  << " NameSpace " << idNameSpace;
 
   rMin         = nArgs["RMin"];
   rMax         = nArgs["RMax"];
   layRin       = vArgs["RadiusLo"];    
   deltaR       = nArgs["DeltaR"];
-  DCOUT('A', "DDTIBRadCableAlgo debug: Disk Rmin " << rMin << "\tRMax " << rMax  << "\tSeparation of layers " << deltaR	<< " with " << layRin.size() << " layers at R =");
+  LogDebug("TrackerGeom") << "DDTIBRadCableAlgo debug: Disk Rmin " << rMin 
+			  << "\tRMax " << rMax  << "\tSeparation of layers "
+			  << deltaR	<< " with " << layRin.size() 
+			  << " layers at R =";
   for (i = 0; i < layRin.size(); i++)
-    DCOUT('A', "\t " << layRin[i]);
+    LogDebug("TrackerGeom") << "\tLayRin[" << i << "] = " << layRin[i];
 
   cylinderT    = nArgs["CylinderThick"];
   supportT     = nArgs["SupportThick"];
   supportDR    = nArgs["SupportDR"];
   supportMat   = sArgs["SupportMaterial"];
-  DCOUT('A', "DDTIBRadCableAlgo debug: SupportCylinder Thickness " << cylinderT << "\tSupportDisk Thickness " << supportT << "\tExtra width along R " << supportDR << "\tMaterial: " << supportMat);
+  LogDebug("TrackerGeom") << "DDTIBRadCableAlgo debug: SupportCylinder "
+			  << " Thickness " << cylinderT << "\tSupportDisk "
+			  << "Thickness " << supportT << "\tExtra width along "
+			  << "R " << supportDR << "\tMaterial: " << supportMat;
 
   cableT       = nArgs["CableThick"];     
   cableMat     = vsArgs["CableMaterial"];
-  DCOUT('A', "DDTIBRadCableAlgo debug: Cable Thickness " << cableT << " with materials: ");
+  LogDebug("TrackerGeom") << "DDTIBRadCableAlgo debug: Cable Thickness " 
+			  << cableT << " with materials: ";
   for (i = 0; i < cableMat.size(); i++)
-    DCOUT('A', "\t " << cableMat[i]);
+    LogDebug("TrackerGeom") << "\tcableMat[" << i << "] = " << cableMat[i];
 
   strucMat     = vsArgs["StructureMaterial"];
-  DCOUT('A', "DDTIBRadCableAlgo debug: " << strucMat.size() << " materials for open structure:");
+  LogDebug("TrackerGeom") << "DDTIBRadCableAlgo debug: " << strucMat.size()
+			  << " materials for open structure:";
   for (i=0; i<strucMat.size(); i++)
-    DCOUT('A', "\t " << strucMat[i]);
+    LogDebug("TrackerGeom") << "\tstrucMat[" << i << "] = " << strucMat[i];
 }
 
 void DDTIBRadCableAlgo::execute() {
   
-  DCOUT('a', "==>> Constructing DDTIBRadCableAlgo...");
+  LogDebug("TrackerGeom") << "==>> Constructing DDTIBRadCableAlgo...";
   DDName diskName = parent().name();
 
   DDSolid solid;
   string  name;
   double  rin, rout;
-
+  
   // Loop over sub disks
   DDName suppName(DDSplit(supportMat).first, DDSplit(supportMat).second);
   DDMaterial suppMatter(suppName);
@@ -87,12 +95,19 @@ void DDTIBRadCableAlgo::execute() {
     rout  = layRin[i]+0.5*(deltaR+cylinderT)+supportDR;
     solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, 
 				 rout, 0, twopi);
-    DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name, idNameSpace) << " Tubs made of " << supportMat << " from 0 to " << twopi/deg << " with Rin " << rin << " Rout " << rout << " ZHalf " << dz);
+    LogDebug("TrackerGeom") << "DDTIBRadCableAlgo test: " 
+			    << DDName(name, idNameSpace) << " Tubs made of "
+			    << supportMat << " from 0 to " << twopi/deg 
+			    << " with Rin " << rin << " Rout " << rout 
+			    << " ZHalf " << dz;
     DDLogicalPart suppLogic(DDName(name, idNameSpace), suppMatter, solid);
 
     DDTranslation r1(0, 0, (dz-diskDz));
     DDpos(DDName(name,idNameSpace), diskName, i+1, r1, DDRotation());
-    DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name,idNameSpace) << " number " << i+1 << " positioned in " << diskName << " at " << r1 << " with no rotation");
+    LogDebug("TrackerGeom") << "DDTIBRadCableAlgo test: " 
+			    << DDName(name,idNameSpace) << " number " << i+1
+			    << " positioned in " << diskName << " at " << r1 
+			    << " with no rotation";
     
     //Open Structure
     name  = "TIBOpenZone" + dbl_to_string(i);
@@ -101,14 +116,21 @@ void DDTIBRadCableAlgo::execute() {
     else        rin = layRin[i-1]+0.5*(deltaR+cylinderT)+supportDR;
     solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, 
 				 rout, 0, twopi);
-    DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name, idNameSpace) << " Tubs made of " << strucMat[i] << " from 0 to " << twopi/deg << " with Rin " << rin << " Rout " << rout << " ZHalf " << dz);
+    LogDebug("TrackerGeom") << "DDTIBRadCableAlgo test: "
+			    << DDName(name, idNameSpace) << " Tubs made of "
+			    << strucMat[i] << " from 0 to " << twopi/deg
+			    << " with Rin " << rin << " Rout " << rout 
+			    << " ZHalf " << dz;
     DDName strucName(DDSplit(strucMat[i]).first, DDSplit(strucMat[i]).second);
     DDMaterial strucMatter(strucName);
     DDLogicalPart strucLogic(DDName(name, idNameSpace), strucMatter, solid);
 
     DDTranslation r2(0, 0, (dz-diskDz));
     DDpos(DDName(name,idNameSpace), diskName, i+1, r2, DDRotation());
-    DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name,idNameSpace) << " number " << i+1 << " positioned in " << diskName << " at " << r2 << " with no rotation");
+    LogDebug("TrackerGeom") << "DDTIBRadCableAlgo test: "
+			    << DDName(name,idNameSpace) << " number " << i+1
+			    << " positioned in " << diskName << " at " << r2
+			    << " with no rotation";
 
     //Now the radial cable
     name  = "TIBRadCable" + dbl_to_string(i);
@@ -127,16 +149,23 @@ void DDTIBRadCableAlgo::execute() {
     pgonRmax.push_back(rv); 
     solid = DDSolidFactory::polycone(DDName(name, idNameSpace), 0, twopi,
 				     pgonZ, pgonRmin, pgonRmax);
-    DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name, idNameSpace) << " Polycone made of " << cableMat[i] << " from 0 to " << twopi/deg << " and with " << pgonZ.size() << " sections");
+    LogDebug("TrackerGeom") << "DDTIBRadCableAlgo test: "
+			    << DDName(name, idNameSpace) <<" Polycone made of "
+			    << cableMat[i] << " from 0 to " << twopi/deg
+			    << " and with " << pgonZ.size() << " sections";
     for (unsigned int ii = 0; ii <pgonZ.size(); ii++) 
-      DCOUT('a', "\t" << "\tZ = " << pgonZ[ii] << "\tRmin = " << pgonRmin[ii] << "\tRmax = " << pgonRmax[ii]);
+      LogDebug("TrackerGeom") << "\t" << "\tZ = " << pgonZ[ii] << "\tRmin = " 
+			      << pgonRmin[ii] << "\tRmax = " << pgonRmax[ii];
     DDName cableName(DDSplit(cableMat[i]).first, DDSplit(cableMat[i]).second);
     DDMaterial cableMatter(cableName);
     DDLogicalPart cableLogic(DDName(name, idNameSpace), cableMatter, solid);
 
     DDTranslation r3(0, 0, (diskDz-(i+0.5)*cableT));
     DDpos(DDName(name,idNameSpace), diskName, i+1, r3, DDRotation());
-    DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name,idNameSpace) << " number " <<i+1 << " positioned in " << diskName << " at " << r3 << " with no rotation");
+    LogDebug("TrackerGeom") << "DDTIBRadCableAlgo test: " 
+			    << DDName(name,idNameSpace) << " number " <<i+1
+			    << " positioned in " << diskName << " at " << r3 
+			    << " with no rotation";
     
   }
 
@@ -147,14 +176,21 @@ void DDTIBRadCableAlgo::execute() {
   name  = "TIBOpenZone" + dbl_to_string(i);
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, 
 			       rout, 0, twopi);
-  DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name, idNameSpace) << " Tubs made of " << strucMat[i] << " from 0 to " << twopi/deg << " with Rin " << rin << " Rout " << rout << " ZHalf " << dz);
+  LogDebug("TrackerGeom") << "DDTIBRadCableAlgo test: " 
+			  << DDName(name, idNameSpace) << " Tubs made of " 
+			  << strucMat[i] << " from 0 to " << twopi/deg
+			  << " with Rin " << rin << " Rout " << rout 
+			  << " ZHalf " << dz;
   DDName strucName(DDSplit(strucMat[i]).first, DDSplit(strucMat[i]).second);
   DDMaterial strucMatter(strucName);
   DDLogicalPart strucLogic(DDName(name, idNameSpace), strucMatter, solid);
 
   DDTranslation r2(0, 0, (dz-diskDz));
   DDpos(DDName(name,idNameSpace), diskName, i+1, r2, DDRotation());
-  DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name,idNameSpace) << " number " << i+1 << " positioned in " << diskName << " at " << r2 << " with no rotation");
+  LogDebug("TrackerGeom") << "DDTIBRadCableAlgo test: " 
+			  << DDName(name,idNameSpace) << " number " << i+1
+			  << " positioned in " << diskName << " at " << r2
+			  << " with no rotation";
 
-  DCOUT('a', "<<== End of DDTIBRadCableAlgo construction ...");
+  LogDebug("TrackerGeom") << "<<== End of DDTIBRadCableAlgo construction ...";
 }

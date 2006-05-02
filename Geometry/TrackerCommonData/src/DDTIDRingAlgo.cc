@@ -8,8 +8,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -23,7 +22,7 @@ namespace std{} using namespace std;
 
 
 DDTIDRingAlgo::DDTIDRingAlgo() {
-  DCOUT('a', "DDTIDRingAlgo info: Creating an instance");
+  edm::LogInfo("TrackerGeom") << "DDTIDRingAlgo info: Creating an instance";
 }
 
 DDTIDRingAlgo::~DDTIDRingAlgo() {}
@@ -39,7 +38,10 @@ void DDTIDRingAlgo::initialize(const DDNumericArguments & nArgs,
   iccName            = sArgs["ICCName"]; 
   coolName           = sArgs["CoolName"]; 
   DDName parentName = parent().name();
-  DCOUT('A', "DDTIDRingAlgo debug: Parent " << parentName << "\tModule " << moduleName[0] << ", " << moduleName[1] << "\tICC " << iccName << "\tCool " << coolName << "\tNameSpace " << idNameSpace);
+  LogDebug("TrackerGeom") << "DDTIDRingAlgo debug: Parent " << parentName 
+			  << "\tModule " << moduleName[0] << ", "
+			  << moduleName[1] << "\tICC " << iccName << "\tCool "
+			  << coolName << "\tNameSpace " << idNameSpace;
 
   number            = int (nArgs["Number"]);
   startAngle        = nArgs["StartAngle"];
@@ -50,27 +52,41 @@ void DDTIDRingAlgo::initialize(const DDNumericArguments & nArgs,
   rCool             = vArgs["CoolR"];
   zCool             = vArgs["CoolZ"];
 
-  DCOUT('A', "DDTIDRingAlgo debug: Parameters for positioning--" << " StartAngle " << startAngle/deg << " Copy Numbers " << number << " Modules at R " << rModule << " Z " << zModule[0] << ", " << zModule[1] << " ICCs at R " << rICC << " Z " << zICC[0] << ", " << zICC[1] << " Cools at R " << rCool[0] << ", " << rCool[1] << " Z " << zCool[0] << ", " << zCool[1]);
+  LogDebug("TrackerGeom") <<"DDTIDRingAlgo debug: Parameters for positioning--"
+			  << " StartAngle " << startAngle/deg<<" Copy Numbers "
+			  << number << " Modules at R " << rModule << " Z " 
+			  << zModule[0] << ", " << zModule[1] << " ICCs at R "
+			  << rICC << " Z " << zICC[0] << ", " << zICC[1] 
+			  << " Cools at R " << rCool[0] << ", " << rCool[1]
+			  << " Z " << zCool[0] << ", " << zCool[1];
 
   fullHeight        = nArgs["FullHeight"];
   dlTop             = nArgs["DlTop"];
   dlBottom          = nArgs["DlBottom"];
   dlHybrid          = nArgs["DlHybrid"];
 
-  DCOUT('A', "DDTIDRingAlgo debug: Height " << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) " << dlBottom << " dl(Hybrid) " << dlHybrid);
+  LogDebug("TrackerGeom") << "DDTIDRingAlgo debug: Height " << fullHeight 
+			  << " dl(Top) " << dlTop << " dl(Bottom) " << dlBottom
+			  << " dl(Hybrid) " << dlHybrid;
 
   topFrameHeight    = nArgs["TopFrameHeight"];
   bottomFrameHeight = nArgs["BottomFrameHeight"];
   bottomFrameOver   = nArgs["BottomFrameOver"];
   sideFrameWidth    = nArgs["SideFrameWidth"];
   sideFrameOver     = nArgs["SideFrameOver"];
-  DCOUT('A', "DDTIDRingAlgo debug: Top Frame Height " << topFrameHeight	<< " Extra Height at Bottom " << bottomFrameHeight << " Overlap " << bottomFrameOver << " Side Frame Width " << sideFrameWidth << " Overlap " << sideFrameOver);
+  LogDebug("TrackerGeom") << "DDTIDRingAlgo debug: Top Frame Height " 
+			  << topFrameHeight	<< " Extra Height at Bottom "
+			  << bottomFrameHeight << " Overlap " <<bottomFrameOver
+			  << " Side Frame Width " << sideFrameWidth
+			  << " Overlap " << sideFrameOver;
 
   hybridHeight      = nArgs["HybridHeight"];
   hybridWidth       = nArgs["HybridWidth"];
   coolWidth         = nArgs["CoolWidth"];
   coolSide          = int(nArgs["CoolSide"]);
-  DCOUT('A', "DDTIDRingAlgo debug: Hybrid Height " << hybridHeight << " Width " << hybridWidth << " Cool Width " << coolWidth << " on sides " << coolSide);
+  LogDebug("TrackerGeom") << "DDTIDRingAlgo debug: Hybrid Height " 
+			  << hybridHeight << " Width " << hybridWidth <<" Cool"
+			  << " Width " << coolWidth << " on sides " <<coolSide;
 }
 
 void DDTIDRingAlgo::execute() {
@@ -108,7 +124,12 @@ void DDTIDRingAlgo::execute() {
       (rr[i+1]-rModule)*(dxtop-dxbot)/(dzdif+topfr);
     fi[i+1] = atan((dlTop-dlBottom)/(2.*fullHeight));
   }
-  DCOUT('A', "DDTIDRingAlgo:: dy Calc " << dxbot << " " << dxtop << " " << sideFrameWidth << " " << sideFrameOver << " " << (dxtop-dxbot) << " " << dzdif << " " << topfr << " " << rModule << " R " << rr[0] << " " << rr[1] << " " << rr[2] << " Phi " << fi[0]/deg << " " << fi[1]/deg << " " << fi[2]/deg);
+  LogDebug("TrackerGeom") << "DDTIDRingAlgo:: dy Calc " << dxbot << " " <<dxtop
+			  << " " << sideFrameWidth << " " << sideFrameOver
+			  << " " << (dxtop-dxbot) << " " << dzdif << " " 
+			  << topfr << " " << rModule << " R " << rr[0] << " "
+			  << rr[1] << " " << rr[2] << " Phi " << fi[0]/deg 
+			  << " " << fi[1]/deg << " " << fi[2]/deg;
 
   //Loop over modules
   int copy = 0;
@@ -144,13 +165,18 @@ void DDTIDRingAlgo::execute() {
     string rotstr = DDSplit(mother).first + dbl_to_string(phideg*10.);
     rotation = DDRotation(DDName(rotstr, idNameSpace));
     if (!rotation) {
-      DCOUT('a', "DDTIDRingAlgo test: Creating a new rotation " << rotstr << "\t" << theta/deg << ", " << phix/deg << ", " << thetay/deg << ", " << phiy/deg << ", " << theta/deg << ", " << phiz/deg);
+      LogDebug("TrackerGeom") << "DDTIDRingAlgo test: Creating a new rotation "
+			      << rotstr << "\t" << theta/deg << ", " <<phix/deg
+			      << ", " << thetay/deg << ", " << phiy/deg << ", "
+			      << theta/deg << ", " << phiz/deg;
       rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, thetay, phiy,
 		       theta, phiz);
     }
   
     DDpos (module, mother, i+1, trmod, rotation);
-    DCOUT('a', "DDTIDRingAlgo test: " << module << " number " << i+1 << " positioned in " << mother << " at " << trmod << " with " << rotation);
+    LogDebug("TrackerGeom") << "DDTIDRingAlgo test: " << module << " number "
+			    << i+1 << " positioned in " << mother << " at "
+			    << trmod << " with " << rotation;
 
     //Now the ICC
     xpos = rICC*cos(phiz);
@@ -159,7 +185,9 @@ void DDTIDRingAlgo::execute() {
     else          zpos = zICC[1];
     DDTranslation tricc(xpos, ypos, zpos);
     DDpos (icc, mother, i+1, tricc, rotation);
-    DCOUT('a', "DDTIDRingAlgo test: " << icc << " number " << i+1 << " positioned in " << mother << " at " << tricc << " with " << rotation);
+    LogDebug("TrackerGeom") << "DDTIDRingAlgo test: " << icc << " number " 
+			    << i+1 << " positioned in " << mother << " at "
+			    << tricc << " with " << rotation;
 
     //and the Cooling inserts
     if (i%2 == 0) zpos = zCool[0];
@@ -182,14 +210,19 @@ void DDTIDRingAlgo::execute() {
 	  string rot = DDSplit(coolName).first+dbl_to_string(phideg*1000);
 	  rotcool = DDRotation(DDName(rot, idNameSpace));
 	  if (!rotcool) {
-	    DCOUT('a', "DDTIDRingAlgo test: Creating a new rotation: " << rot << "\t90., " << phideg << ", 90.," << 90.+phideg << ", 0, 0");
+	    LogDebug("TrackerGeom") << "DDTIDRingAlgo test: Creating a new "
+				    << "rotation: " << rot << "\t90., " 
+				    << phideg << ", 90.," << 90.+phideg 
+				    << ", 0, 0";
 	    rotcool = DDrot(DDName(rot, idNameSpace), 90.*deg, phi2, 
 			    90.*deg, 90.*deg+phi2, 0., 0.);
 	  }
 	}
 	copy++;
 	DDpos (cool, mother, copy, trcool, rotcool);
-	DCOUT('a', "DDTIDRingAlgo test: " << cool << " number " << copy << " positioned in " << mother << " at " << trcool << " with " << rotcool);
+	LogDebug("TrackerGeom") << "DDTIDRingAlgo test: " << cool << " number "
+				<< copy << " positioned in " << mother 
+				<< " at " << trcool << " with " << rotcool;
       }
     }
   }

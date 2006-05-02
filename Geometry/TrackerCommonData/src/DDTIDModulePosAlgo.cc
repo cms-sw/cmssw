@@ -7,8 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -21,7 +20,8 @@ namespace std{} using namespace std;
 
 
 DDTIDModulePosAlgo::DDTIDModulePosAlgo() {
-  DCOUT('a', "DDTIDModulePosAlgo info: Creating an instance");
+  edm::LogInfo("TrackerGeom") << "DDTIDModulePosAlgo info: Creating an "
+			      << "instance";
 }
 
 DDTIDModulePosAlgo::~DDTIDModulePosAlgo() {}
@@ -36,7 +36,8 @@ void DDTIDModulePosAlgo::initialize(const DDNumericArguments & nArgs,
   DDName parentName = parent().name(); 
   detectorN         = (int)(nArgs["DetectorNumber"]);
 
-  DCOUT('A', "DDTIDModulePosAlgo debug: Parent " << parentName << " Detector Planes " << detectorN);
+  LogDebug("TrackerGeom") << "DDTIDModulePosAlgo debug: Parent " << parentName
+			  << " Detector Planes " << detectorN;
 
   detTilt           = nArgs["DetTilt"];
   fullHeight        = nArgs["FullHeight"];
@@ -44,51 +45,61 @@ void DDTIDModulePosAlgo::initialize(const DDNumericArguments & nArgs,
   dlBottom          = nArgs["DlBottom"];
   dlHybrid          = nArgs["DlHybrid"];
 
-  DCOUT('A', "DDTIDModulePosAlgo debug: Detector Tilt " << detTilt/deg << " Height " << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) " << dlBottom << " dl(Hybrid) " << dlHybrid);
+  LogDebug("TrackerGeom") << "DDTIDModulePosAlgo debug: Detector Tilt " 
+			  << detTilt/deg << " Height " << fullHeight 
+			  << " dl(Top) " << dlTop << " dl(Bottom) " << dlBottom
+			  << " dl(Hybrid) " << dlHybrid;
 
   topFrameName      = sArgs["TopFrameName"];
   topFrameHeight    = nArgs["TopFrameHeight"];
   topFrameZ         = vArgs["TopFrameZ"];
   bottomFrameHeight = nArgs["BottomFrameHeight"];
   bottomFrameOver   = nArgs["BottomFrameOver"];
-  DCOUT('A', "DDTIDModulePosAlgo debug: " << topFrameName << " Height " << topFrameHeight << " positioned at Z");
+  LogDebug("TrackerGeom") << "DDTIDModulePosAlgo debug: " << topFrameName 
+			  << " Height " << topFrameHeight <<" positioned at Z";
   for (i = 0; i < detectorN; i++)
-    DCOUT('A', "\t " << topFrameZ[i]);
-  DCOUT('A', "\t Extra Height at Bottom " << bottomFrameHeight << " Overlap " <<bottomFrameOver);
+    LogDebug("TrackerGeom") << "\ttopFrameZ[" << i << "] = " << topFrameZ[i];
+  LogDebug("TrackerGeom") << "\t Extra Height at Bottom " << bottomFrameHeight
+			  << " Overlap " <<bottomFrameOver;
 
   sideFrameName     = sArgs["SideFrameName"];
   sideFrameZ        = vArgs["SideFrameZ"];
-  DCOUT('A', "DDTIDModulePosAlgo debug : " << sideFrameName << " positioned at Z");
+  LogDebug("TrackerGeom") << "DDTIDModulePosAlgo debug : " << sideFrameName
+			  << " positioned at Z";
   for (i = 0; i < detectorN; i++)
-    DCOUT('A', "\t " << sideFrameZ[i]);
+    LogDebug("TrackerGeom") << "\tsideFrameZ[" << i << "] = " << sideFrameZ[i];
 
   waferName         =vsArgs["WaferName"];
   waferZ            = vArgs["WaferZ"];
   waferRot          =vsArgs["WaferRotation"];
-  DCOUT('A', "DDTIDModulePosAlgo debug:");
   for (i = 0; i < detectorN; i++)
-    DCOUT('A', "\t " << waferName[i] << " positioned at Z " << waferZ[i] 
-		  << " with rotation " << waferRot[i]);
+    LogDebug("TrackerGeom") << "DDTIDModulePosAlgo debug: " << waferName[i]
+			    << " positioned at Z " << waferZ[i] 
+			    << " with rotation " << waferRot[i];
 
   hybridName        = sArgs["HybridName"];
   hybridHeight      = nArgs["HybridHeight"];
   hybridZ           = vArgs["HybridZ"];
-  DCOUT('A', "DDTIDModulePosAlgo debug: " << hybridName << " Height " << hybridHeight << " Z");
+  LogDebug("TrackerGeom") << "DDTIDModulePosAlgo debug: " << hybridName 
+			  << " Height " << hybridHeight << " Z";
   for (i = 0; i < detectorN; i++)
-    DCOUT('A', "\t " << hybridZ[i]);
+    LogDebug("TrackerGeom") << "\thybridZ[" << i <<"] = " << hybridZ[i];
 
   pitchName         =vsArgs["PitchName"];
   pitchHeight       = nArgs["PitchHeight"];
   pitchZ            = vArgs["PitchZ"];
   pitchRot          =vsArgs["PitchRotation"];
-  DCOUT('A', "DDTIDModulePosAlgo debug: Pitch Adapter Height " << pitchHeight);
+  LogDebug("TrackerGeom") << "DDTIDModulePosAlgo debug: Pitch Adapter Height " 
+			  << pitchHeight;
   for (i = 0; i < detectorN; i++)
-    DCOUT('A', "\t " << pitchName[i] << " position at Z " << pitchZ[i] << " with rotation " << pitchRot[i]);
+    LogDebug("TrackerGeom") << "DDTIDModulePosAlgo debug: " << pitchName[i]
+			    << " position at Z " << pitchZ[i] 
+			    << " with rotation " << pitchRot[i];
 }
 
 void DDTIDModulePosAlgo::execute() {
   
-  DCOUT('a', "==>> Constructing DDTIDModulePosAlgo...");
+  LogDebug("TrackerGeom") << "==>> Constructing DDTIDModulePosAlgo...";
 
   DDName parentName  = parent().name(); 
   double dzdif       = fullHeight + topFrameHeight;
@@ -116,7 +127,9 @@ void DDTIDModulePosAlgo::execute() {
       rot   = DDRotation(DDName(rotstr, rotns));
     }
     DDpos (name, parentName, k+1, tran, rot);
-    DCOUT('a', "DDTIDModulePosAlgo test: " << name << " number "  << k+1 << " positioned in " << parentName << " at " << tran << " with " << rot);
+    LogDebug("TrackerGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
+			    << k+1 << " positioned in " << parentName << " at "
+			    << tran << " with " << rot;
 
     //Pitch Adapter
     name = DDName(DDSplit(pitchName[k]).first, DDSplit(pitchName[k]).second);
@@ -140,7 +153,9 @@ void DDTIDModulePosAlgo::execute() {
     }
     tran = DDTranslation(xpos,ypos,zpos);
     DDpos (name, parentName, k+1, tran, rot);
-    DCOUT('a', "DDTIDModulePosAlgo test: " << name << " number " << k+1 << " positioned in " << parentName << " at " << tran << " with " << rot);
+    LogDebug("TrackerGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
+			    << k+1 << " positioned in " << parentName << " at "
+			    << tran << " with " << rot;
 
     // Position the hybrid now
     name = DDName(DDSplit(hybridName).first, DDSplit(hybridName).second);
@@ -153,7 +168,9 @@ void DDTIDModulePosAlgo::execute() {
     tran = DDTranslation(0,ypos,zpos);
     rot  = DDRotation();
     DDpos (name, parentName, k+1, tran, rot);
-    DCOUT('a', "DDTIDModulePosAlgo test: " << name << " number " << k+1 << " positioned in " << parentName << " at " << tran << " with " << rot);
+    LogDebug("TrackerGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
+			    << k+1 << " positioned in " << parentName << " at "
+			    << tran << " with " << rot;
 
     // Position the top frame
     name = DDName(DDSplit(topFrameName).first, DDSplit(topFrameName).second);
@@ -166,7 +183,9 @@ void DDTIDModulePosAlgo::execute() {
     tran = DDTranslation(0,ypos,zpos);
     rot  = DDRotation();
     DDpos (name, parentName, k+1, tran, rot);
-    DCOUT('a', "DDTIDModulePosAlgo test: " << name << " number " << k+1 << " positioned in " << parentName << " at " << tran << " with " << rot);
+    LogDebug("TrackerGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
+			    << k+1 << " positioned in " << parentName << " at "
+			    << tran << " with " << rot;
 
     // Position the side frame
     name = DDName(DDSplit(sideFrameName).first, DDSplit(sideFrameName).second);
@@ -179,8 +198,10 @@ void DDTIDModulePosAlgo::execute() {
     tran = DDTranslation(0,ypos,zpos);
     rot  = DDRotation();
     DDpos (name, parentName, k+1, tran, rot);
-    DCOUT('a', "DDTIDModulePosAlgo test: " << name << " number " << k+1 << " positioned in " << parentName << " at " << tran << " with " << rot);
+    LogDebug("TrackerGeom") << "DDTIDModulePosAlgo test: " << name <<" number "
+			    << k+1 << " positioned in " << parentName << " at "
+			    << tran << " with " << rot;
   }
 
-  DCOUT('a', "<<== End of DDTIDModulePosAlgo positioning ...");
+  LogDebug("TrackerGeom") << "<<== End of DDTIDModulePosAlgo positioning ...";
 }

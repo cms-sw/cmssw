@@ -7,8 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -21,7 +20,7 @@ namespace std{} using namespace std;
 
 
 DDTrackerLinearXY::DDTrackerLinearXY() {
-  DCOUT('a', "DDTrackerLinearXY info: Creating an instance");
+  edm::LogInfo("TrackerGeom") <<"DDTrackerLinearXY info: Creating an instance";
 }
 
 DDTrackerLinearXY::~DDTrackerLinearXY() {}
@@ -41,7 +40,12 @@ void DDTrackerLinearXY::initialize(const DDNumericArguments & nArgs,
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
-  DCOUT('A', "DDTrackerLinearXY debug: Parent " << parentName << "\tChild " << childName << " NameSpace " << idNameSpace << "\tNumber along X/Y " << numberX << "/" << numberY << "\tDelta along X/Y " << deltaX << "/" << deltaY << "\tCentre " << centre[0] << ", " << centre[1] << ", "	<< centre[2]);
+  LogDebug("TrackerGeom") << "DDTrackerLinearXY debug: Parent " << parentName
+			  << "\tChild " << childName << " NameSpace " 
+			  << idNameSpace << "\tNumber along X/Y " << numberX
+			  << "/" << numberY << "\tDelta along X/Y " << deltaX
+			  << "/" << deltaY << "\tCentre " << centre[0] << ", " 
+			  << centre[1] << ", "	<< centre[2];
 }
 
 void DDTrackerLinearXY::execute() {
@@ -59,7 +63,9 @@ void DDTrackerLinearXY::execute() {
       DDTranslation tran(xoff+i*deltaX,yoff+j*deltaY,centre[2]);
       copy++;
       DDpos (child, mother, copy, tran, rot);
-      DCOUT('a', "DDTrackerLinearXY test: " << child << " number " << copy << " positioned in " << mother << " at " << tran << " with " << rot);
+      LogDebug("TrackerGeom") << "DDTrackerLinearXY test: " << child 
+			      << " number " << copy << " positioned in "
+			      << mother << " at " << tran << " with " << rot;
     }
   }
 }

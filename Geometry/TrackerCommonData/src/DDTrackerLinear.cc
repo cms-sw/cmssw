@@ -7,8 +7,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -21,7 +20,7 @@ namespace std{} using namespace std;
 
 
 DDTrackerLinear::DDTrackerLinear() {
-  DCOUT('a', "DDTrackerLinear info: Creating an instance");
+  edm::LogInfo("TrackerGeom") << "DDTrackerLinear info: Creating an instance";
 }
 
 DDTrackerLinear::~DDTrackerLinear() {}
@@ -43,7 +42,14 @@ void DDTrackerLinear::initialize(const DDNumericArguments & nArgs,
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
-  DCOUT('A', "DDTrackerLinear debug: Parent " << parentName << "\tChild " << childName << " NameSpace " << idNameSpace << "\tNumber " << number << "\tAxis (theta/phi) " << theta/deg << ", " << phi/deg << "\t(Offset/Delta) " << offset << ", " << delta << "\tCentre " << centre[0] << ", " << centre[1] << ", " << centre[2] << "\tRotation " << rotMat);
+  LogDebug("TrackerGeom") << "DDTrackerLinear debug: Parent " << parentName 
+			  << "\tChild " << childName << " NameSpace " 
+			  << idNameSpace << "\tNumber " << number 
+			  << "\tAxis (theta/phi) " << theta/deg << ", "
+			  << phi/deg << "\t(Offset/Delta) " << offset << ", " 
+			  << delta << "\tCentre " << centre[0] << ", " 
+			  << centre[1] << ", " << centre[2] << "\tRotation "
+			  << rotMat;
 }
 
 void DDTrackerLinear::execute() {
@@ -63,6 +69,8 @@ void DDTrackerLinear::execute() {
 	
     DDTranslation tran = base + (offset + double(i)*delta)*direction;
     DDpos (child, mother, i+1, tran, rot);
-    DCOUT('a', "DDTrackerLinear test: " << child << " number " << i+1 << " positioned in " << mother << " at " << tran << " with " << rot);
+    LogDebug("TrackerGeom") << "DDTrackerLinear test: " << child << " number "
+			    << i+1 << " positioned in " << mother << " at "
+			    << tran << " with " << rot;
   }
 }
