@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/03/20 12:42:29 $
- * $Revision: 1.2 $
+ * $Date: 2006/02/23 10:32:05 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -14,8 +14,36 @@
 /* C++ Headers */
 #include <iostream>
 using namespace std;
-
 /* ====================================================================== */
+
+
+/* static member definition */
+bool DTRecSegment2D::isInitialized(false);
+
+AlgebraicMatrix DTRecSegment2D::theProjectionMatrix;
+
+/* Operations */ 
+AlgebraicSymMatrix DTRecSegment2D::parError( const LocalError& lp, 
+					     const LocalError& lv) const {
+  AlgebraicSymMatrix m(2);
+  /// mat[0][0]=sigma (dx/dz)
+  /// mat[1][1]=sigma (x)
+  /// mat[0][1]=cov(dx/dz,x)
+  // if ( det().alignmentPositionError()) {
+  //   LocalError lape = 
+  //     ErrorFrameTransformer().transform( det().alignmentPositionError()->globalError(), 
+  //                                        det().surface());
+  //   m[0][0] = lv.xx();
+  //   m[0][1] = 0.;
+  //   m[1][1] = lp.xx()+lape.xx();
+  // } else {
+    m[0][0] = lv.xx();
+    m[0][1] = 0.;
+    m[1][1] = lp.xx();
+  //};
+  return m;
+
+}
 
 /// Constructor
 DTRecSegment2D::DTRecSegment2D(const DetId& id) : theDetId(id){
@@ -31,10 +59,6 @@ DTRecSegment2D::DTRecSegment2D(const DetId &id,
 	       std::vector<DTRecHit1D> &hits1D):
   theDetId(id), thePosition(position),theDirection(direction),
   theCovMatrix(covMatrix),theChi2(chi2), theHits(hits1D){}
-
-/// Destructor
-DTRecSegment2D::~DTRecSegment2D() {
-}
 
 /* Operations */ 
 LocalError DTRecSegment2D::localPositionError() const {
