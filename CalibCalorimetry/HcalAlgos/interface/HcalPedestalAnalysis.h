@@ -26,10 +26,8 @@
 //   nevtsample - number of events per sample in which data will be divided
 //                for stability checks (default: 9999999),
 //   hiSaveflag - flag to save histos of charge per cap-id (default: 0),
-//   pedValflag - pedestal validation flag: 1 means tell to write/update 
-//                pedestal constants only if a change from nominal is found,
-//                0 means tell to write/update pedestal constants in any case
-//                (default: 0).
+//   pedValflag - pedestal validation flag: 1 - compare with nominal
+//                0 - do not compare, just write down new values (default)
 
 class HcalPedestals;
 class HcalPedestalWidths;
@@ -76,7 +74,7 @@ private:
   //#  which are written in THE vector<TH1F*>; 
   //###  
   typedef std::pair<TH1F*,std::pair<std::map<int, std::vector<double> >,std::vector<TH1F*> > > PEDBUNCH;
-  TFile* m_file; // Histogram file  
+  TFile* m_file;
   void per2CapsHists(int flag, int id, const HcalDetId detid, const HcalQIESample& qie1, const HcalQIESample& qie2, std::map<HcalDetId, std::map<int,PEDBUNCH> > &toolT);
   void GetPedConst(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT);
   void Trendings(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, TH1F* Chi2, TH1F* CapidAverage, TH1F* CapidChi2);
@@ -91,19 +89,22 @@ private:
   int m_nevtsample;
   int m_hiSaveflag;
   int m_pedValflag;
+
+// m_AllPedsOK says whether all new pedestals are consistent with nominal
+// values (e.g. from DB): m_AllPedsOK=0 if not consistent or not checked.
+  int m_AllPedsOK;
   
   const HcalQIEShape* m_shape;
   const HcalQIECoder* m_coder;
   struct{
     std::map<HcalDetId,std::map<int, PEDBUNCH > > PEDTRENDS;
     TH1F* ALLPEDS;
-    TH1F* PEDRMS; // sigma
+    TH1F* PEDRMS;
     TH1F* PEDMEAN;
     TH1F* CHI2;
     TH1F* CAPID_AVERAGE;
     TH1F* CAPID_CHI2;
   } hbHists, hfHists, hoHists;
-  std::map<HcalDetId, std::map<int,TH1F*> >::iterator _meo;
   std::map<HcalDetId,std::map<int, PEDBUNCH > >::iterator _meot;
   HcalPedestals* pedCan;
   HcalPedestalWidths* widthCan;
