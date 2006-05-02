@@ -2,15 +2,15 @@
 
 using namespace reco;
 
-BasicCluster::BasicCluster( double energy, const Point& position, double chi2 ) :
-   EcalCluster(energy,position), chi2_(chi2)
+BasicCluster::BasicCluster( double energy, const Point& position, double chi2, const std::vector<DetId> usedHits ) :
+   EcalCluster(energy,position), chi2_(chi2), usedHits_(usedHits)
 {
   superClusterId_ = 0;
 }
 
 
 
-
+/**
 BasicCluster::BasicCluster( const std::vector<EcalRecHitData>& recHits,
                            int superClusterId, const Point & position ) :
     superClusterId_( superClusterId ), 
@@ -21,10 +21,11 @@ BasicCluster::BasicCluster( const std::vector<EcalRecHitData>& recHits,
   for (it = recHits.begin(); it != recHits.end(); it++) {
     energy += it->energy() * it->fraction();
     chi2_ += it->energy() * it->chi2();
+    usedHits_.push_back(it->detId());
   }
   chi2_/=energy;
 }
-
+**/
 
 bool BasicCluster::operator<(const reco::BasicCluster &otherCluster) const
 {
