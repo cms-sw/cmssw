@@ -13,8 +13,7 @@
  * \version $Id: Muon.h,v 1.16 2006/04/26 07:16:44 llista Exp $
  *
  */
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/RecoCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 namespace reco {
  
@@ -24,33 +23,37 @@ namespace reco {
     /// constructor from values
     Muon(  Charge, const LorentzVector &, const Point & = Point( 0, 0, 0 ) );
     /// reference to Track reconstructed in the tracker only
-    const TrackRef & track() const { return track_; }
+    TrackRef track() const { return track_; }
     /// reference to Track reconstructed in the muon detector only
-    const TrackRef & standAlone() const { return standAlone_; }
+    TrackRef standAloneMuon() const { return standAloneMuon_; }
     /// reference to Track reconstructed in both tracked and muon detector
-    const TrackRef & combined() const { return combined_; }
+    TrackRef combinedMuon() const { return combinedMuon_; }
     /// reference to associated Ecal SuperCluster
-    const SuperClusterRef & superCluster() const { return superCluster_; }
+    SuperClusterRef superCluster() const { return superCluster_; }
     /// set reference to Track
     void setTrack( const TrackRef & t ) { track_ = t; }
     /// set reference to Track
-    void setStandAlone( const TrackRef & t ) { standAlone_ = t; }
+    void setStandAlone( const TrackRef & t ) { standAloneMuon_ = t; }
     /// set reference to Track
-    void setCombined( const TrackRef & t ) { combined_ = t; }
+    void setCombined( const TrackRef & t ) { combinedMuon_ = t; }
     /// set reference to associated Ecal SuperCluster
     void setSuperCluster( const SuperClusterRef & ref ) { superCluster_ = ref; }
 
   private:
+    /// check overlap with another candidate
+    virtual bool overlap( const Candidate & ) const;
     /// reference to Track reconstructed in the tracker only
     TrackRef track_;
     /// reference to Track reconstructed in the muon detector only
-    TrackRef standAlone_;
+    TrackRef standAloneMuon_;
     /// reference to Track reconstructed in both tracked and muon detector
-    TrackRef combined_;
+    TrackRef combinedMuon_;
     /// reference to associated Ecal SuperCluster
     SuperClusterRef superCluster_;
 };
 
 }
+
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #endif
