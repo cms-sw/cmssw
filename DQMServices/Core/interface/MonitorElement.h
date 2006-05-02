@@ -7,7 +7,7 @@
 #include <string>
 #include <map>
 
-#include "Utilities/Threads/interface/ThreadUtils.h"
+#include "Utilities/General/interface/MutexUtils.h"
 
 #include "DQMServices/Core/interface/DQMDefinitions.h"
 #include "DQMServices/Core/interface/QReport.h"

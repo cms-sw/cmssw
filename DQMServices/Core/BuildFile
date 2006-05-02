@@ -6,5 +6,5 @@
 </export>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
-<use name=Utilities/Threads>
+<use name=Utilities/General>
 <use name=boost>
