@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-26 17:51:03+0200
-# Revision: $Id: InstallCMSSWFromSource.pl,v 1.3 2006/04/28 09:31:37 sashby Exp $ 
+# Revision: $Id: InstallCMSSWFromSource.pl,v 1.4 2006/04/28 10:29:14 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -35,6 +35,8 @@ my $builddir;
 my $is_release=0; # Build a prerelease by default 
 my $scram="/afs/cern.ch/cms/utils/scramv1";
 my $packman="/afs/cern.ch/cms/utils/PackageManagement.pl";
+my $linkname="latest_prerelease";
+my $linkarea;
 
 # Boot with bootsrc (i.e. get the srcs) by default:
 my $do_boot_src = 1;
@@ -90,7 +92,11 @@ else
    # Change to the release area:
    $releasearea = $builddir; # Use the user-supplied build dir
    $releasearea ||= "/afs/cern.ch/cms/Releases"; # or default to AFS area
+   $linkarea = $releasearea."/CMSSW";
    $releasearea.= ($is_release) ? "/CMSSW" : "/CMSSW/prerelease";
+   # Set the link name if we're building a release:
+   $linkname = 'latest_release', if ($is_release);
+   
    print "Release area (build dir) is $releasearea","\n";
    chdir $releasearea;
    print "Current working dir is ",cwd(),"\n",if ($opts{DEBUG});
@@ -105,6 +111,8 @@ else
       print "Starting build at $starttime.","\n";      
       my $bstat=0;
       $bstat=&build($symcheck);
+      print "Making links in $releasearea","\n", if ($opts{DEBUG});
+      &mklinkinRA();      
       chomp(my $endtime = `date +%T-%F`);
       printf (">>>>>> Build of %-15s finished at $endtime [ status %-1d ] <<<<<<<\n",$releasever,$bstat);
       print "\n";
@@ -141,6 +149,10 @@ sub build()
       }
    $rv+=system($scram,"-arch",$architecture,"install");
    die "$0: Error when installing $releasever in the SCRAM database.","\n", if ($rv);
+   # Clean up in the tmp dir:
+   print "Cleaning up in /tmp: removing $releasearea/$releasever/tmp/$architecture/src","\n",if ($opts{DEBUG});
+   $rv+=system("rm","-r","-f",$releasearea."/".$releasever."/tmp/".$architecture."/src");
+   die "$0: Error when removing $releasearea/$releasever/tmp/$architecture/src.","\n", if ($rv);
    return $rv;
    }
 
@@ -194,6 +206,15 @@ sub setup_other_arch()
    return $rv;
    }
 
+sub mklinkinRA()
+   {
+   my ($from,$to);
+   $from = $releasearea."/".$releasever;
+   $to = $linkarea."/".$linkname; # Either "latest_prerelease" or "latest_release"
+   my $rv = system("ln","-s","-f",$from,$to);
+   die "$0: Unable to set up $linkname link in $releasearea.","\n", if ($rv);
+   }
+
 sub usage()
    {
    my $string.="\nUsage: InstallCMSSWFromSource.pl --version=<VERSION> [--arch=<ARCH>] [--release] [--builddir=<DIR>] [OPTIONS]\n";
@@ -206,7 +227,7 @@ sub usage()
    $string.="--builddir=<DIR>         Where to build. Default is /afs/cern.ch/cms/Releases/CMSSW [/pre-release].\n";
    $string.="                         The subdirectory \"prerelease\" is added automatically if current release is a pre-release.\n";
    $string.="--nosrc                  Do not use the boot file which includes source code download.\n";
-   $string.="--clean                  Remove the release area directory (and contents) it it already exists.\n";
+   $string.="--clean                  Remove the release area directory (and contents) if it already exists.\n";
    $string.="--symcheck               Turn on symbol checking in the build.\n";
    $string.="--debug| -d              Be more verbose.\n";
    $string.="--help | -h              Show help and return.\n";
