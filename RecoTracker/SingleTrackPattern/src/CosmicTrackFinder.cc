@@ -66,7 +66,7 @@ namespace cms
 
     cosmicTrajectoryBuilder_.init(es);
 
-    cout<<"Evento "<<e.id()<<endl;
+
     // Step C: Invoke the cloud cleaning algorithm
     vector<AlgoProduct> algooutput;
     edm::OrphanHandle<reco::TrackExtraCollection> ohTE;
