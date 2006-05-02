@@ -20,6 +20,7 @@ class IslandClusterAlgo : public ClusteringAlgorithm
   struct ClusterVars{
     double energy;
     double chi2;
+    std::vector<DetId> usedHits;
   };
 
   IslandClusterAlgo() : ClusteringAlgorithm()
