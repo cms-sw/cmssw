@@ -11,6 +11,14 @@
 Commonly used persistent containers.
 
 \subsection interface Public interface
+- edm::AssociationMap <b>&lt;CKey, CVal, Tag, index &gt;</b>: one-to-many
+  association based on edm::Ref, of objects in a <tt>CKey</tt> collection 
+  to one or many objects in a collection <tt>CVal</tt>. Stored indices are of type 
+  <tt>index</tt>, that is by default <tt>unsigned long</tt>, but could be
+  <tt>unsigned short</tt> for collections with less than 65535 objects.
+  The template <tt>Tag</tt> should be either edm::OneToOne for
+  one-to-one maps, or edm::OneToMany for one-to-many maps.
+
 - edm::EDCollection <b>&lt;T&gt;</b>: Functionally equivalent to <tt>std::vector&lt;T&gt;</tt>. 
   Still present for hystorical reason; will be probably removed in one of the next releases.
 
@@ -31,14 +39,6 @@ that allow to access, and possibly modify, the instance <tt><b>ext_</b></tt> of 
 type <tt><b>Ext</b></tt>.
 
 - edm::IDVectorMap <b>&lt;ID, C, P&gt;</b>:
-
-- edm::AssociationMap <b>&lt;CKey, CVal, Tag, index &gt;</b>: one-to-many
-  association based on edm::Ref, of objects in a <tt>CKey</tt> collection 
-  to one or many objects in a collection <tt>CVal</tt>. Stored indices are of type 
-  <tt>index</tt>, that is by default <tt>unsigned long</tt>, but could be
-  <tt>unsigned short</tt> for collections with less than 65535 objects.
-  The template <tt>Tag</tt> should be either edm::OneToOne for
-  one-to-one maps, or edm::OneToMany for one-to-many maps.
 
 - edm::OwnVector <b>&lt;T, P = edm::ClonePolicy&lt;T&gt; &gt;</b>: container 
   with interface very similar to <tt>std::vector&lt;T&gt;</tt>, but 
