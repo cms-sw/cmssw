@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2005/07/26 10:13:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/25 19:27:46 $
+ *  $Revision: 1.2 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.1 2006/04/14 21:45:18 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.2 2006/04/25 19:27:46 slava77 Exp $
 //
 //
 
@@ -35,7 +35,8 @@ SteppingHelixPropagator::SteppingHelixPropagator() :
   field_ = 0;
 }
 
-SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field, PropagationDirection dir):
+SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field, 
+						 PropagationDirection dir):
   Propagator(dir),
   unit66_(6,1)
 {
@@ -44,14 +45,28 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field, Pro
   dCTransform_ = unit66_;
   debug_ = false;
   noMaterialMode_ = false;
+  noErrorPropagation_ = false;
+  applyRadX0Correction_ = false;
   for (int i = 0; i <= MAX_POINTS; i++){
     covLoc_[i] = HepSymMatrix(6,0);
   }
 }
 
+TrajectoryStateOnSurface 
+SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const Plane& pDest) const {
+  return propagateWithPath(ftsStart, pDest).first;
+}
+
+TrajectoryStateOnSurface 
+SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const
+{
+  return propagateWithPath(ftsStart, cDest).first;
+}
+
 
 std::pair<TrajectoryStateOnSurface, double> 
-SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, const Plane& pDest) const {
+SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
+					   const Plane& pDest) const {
   GlobalPoint rPlane = pDest.toGlobal(LocalPoint(0,0,0));
   GlobalVector nPlane = pDest.toGlobal(LocalVector(0,0,1.)); nPlane = nPlane.unit();
 
@@ -67,7 +82,8 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
   int charge = ftsStart.charge();
 
   setIState(p3, r3, charge, 
-	    ftsStart.hasError() ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0), 
+	    (ftsStart.hasError() && !noErrorPropagation_) 
+	    ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0), 
 	    propagationDirection());
   Result result = propagateToPlane(pars);
 
@@ -84,15 +100,17 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
   GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
   CartesianTrajectoryError tCovDest(covF);
 
-  TrajectoryStateOnSurface tsosDest = ftsStart.hasError() ? 
-    TrajectoryStateOnSurface(tParsDest, tCovDest, pDest, side) : TrajectoryStateOnSurface(tParsDest, pDest, side);
+  TrajectoryStateOnSurface tsosDest = (ftsStart.hasError() && !noErrorPropagation_) 
+    ? TrajectoryStateOnSurface(tParsDest, tCovDest, pDest, side) 
+    : TrajectoryStateOnSurface(tParsDest, pDest, side);
   int cInd = cIndex_(nPoints_-1);
   
   return TsosPP(tsosDest, path_[cInd]);
 }
 
 std::pair<TrajectoryStateOnSurface, double> 
-SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const {
+SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
+					   const Cylinder& cDest) const {
   //need to get rid of these conversions .. later
   GlobalVector p3GV = ftsStart.momentum();
   GlobalPoint r3GP = ftsStart.position();
@@ -102,7 +120,8 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
   int charge = ftsStart.charge();
 
   setIState(p3, r3, charge,  
-	    ftsStart.hasError() ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0),
+	    (ftsStart.hasError() && !noErrorPropagation_) 
+	    ? ftsStart.cartesianError().matrix() : HepSymMatrix(1,0),
 	    propagationDirection());
   Result result = propagateToR(cDest.radius());
 
@@ -119,21 +138,12 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
   GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, charge, field_);
   CartesianTrajectoryError tCovDest(covF);
 
-  TrajectoryStateOnSurface tsosDest = ftsStart.hasError() ? 
-    TrajectoryStateOnSurface(tParsDest, tCovDest, cDest, side) : TrajectoryStateOnSurface(tParsDest, cDest, side);
+  TrajectoryStateOnSurface tsosDest = (ftsStart.hasError()  && !noErrorPropagation_) 
+    ? TrajectoryStateOnSurface(tParsDest, tCovDest, cDest, side) 
+    : TrajectoryStateOnSurface(tParsDest, cDest, side);
   int cInd = cIndex_(nPoints_-1);
 
   return TsosPP(tsosDest, path_[cInd]);
-}
-
-TrajectoryStateOnSurface 
-SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const Plane& pDest) const {
-  return propagateWithPath(ftsStart, pDest).first;
-}
-
-TrajectoryStateOnSurface 
-SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const {
-  return propagateWithPath(ftsStart, cDest).first;
 }
 
 
@@ -145,13 +155,23 @@ void SteppingHelixPropagator::setIState(const SteppingHelixPropagator::Vector& p
   nPoints_++;
 }
 
-void SteppingHelixPropagator::getFState(SteppingHelixPropagator::Vector& p3, SteppingHelixPropagator::Point& r3, 
+void SteppingHelixPropagator::getFState(SteppingHelixPropagator::Vector& p3, 
+					SteppingHelixPropagator::Point& r3, 
 					HepSymMatrix& cov) const{
   int cInd = cIndex_(nPoints_-1);
   p3 = p3_[cInd];
   r3 = r3_[cInd];
   //update Emat only if it's valid
-  if (covLoc_[cInd].num_row() >=5 ){
+  if (covLoc_[cInd].num_row() >=5){
+    if (applyRadX0Correction_ && covLoc_[cInd].num_row()==6 && fabs(radPath_[cInd]) > 1){
+      double radX0Corr = 1.0 + 0.036*log(fabs(radPath_[cInd]));
+      for (int i = 1; i<= 6; i++){//it is for the cartesian cov
+	for (int j = i; j<= 6; j++){//it is for the cartesian cov
+	  if (i != 1 && i != 4) covLoc_[cInd](i,j)*= radX0Corr;
+	  if (j != 1 && j != 4) covLoc_[cInd](i,j)*= radX0Corr;
+	}
+      }
+    }
     Vector xRep(1., 0., 0.);
     Vector yRep(0., 1., 0.);
     Vector zRep(0., 0., 1.);
@@ -166,7 +186,9 @@ void SteppingHelixPropagator::getFState(SteppingHelixPropagator::Vector& p3, Ste
 }
 
 
-SteppingHelixPropagator::Result SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type, const double pars[6])  const{
+SteppingHelixPropagator::Result 
+SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type, 
+				   const double pars[6])  const{
   Result result = NOT_IMPLEMENTED;
   switch (type) {
   case RADIUS_DT:
@@ -188,7 +210,8 @@ SteppingHelixPropagator::Result SteppingHelixPropagator::propagate(SteppingHelix
   return FAULT;
 }
   
-SteppingHelixPropagator::Result SteppingHelixPropagator::propagateToR(double rDest, double epsilon) const{
+SteppingHelixPropagator::Result 
+SteppingHelixPropagator::propagateToR(double rDest, double epsilon) const{
   Result result = OK;
   bool makeNextStep = true;
   double dStep = 1.;
@@ -201,28 +224,32 @@ SteppingHelixPropagator::Result SteppingHelixPropagator::propagateToR(double rDe
     double cosDPhiPR = cos((r3_[cInd].deltaPhi(p3_[cInd])));
     double cosecTheta = 1./p3_[cInd].perp()*p3_[cInd].mag();
 
-    dir = ((rDest-curR)*cosDPhiPR > 0 || curR < 2e-1 )? alongMomentum : oppositeToMomentum;
-    if (oldDir != dir ) nOsc++;
-    if ((fabs(curZ) > 1.5e3 || curR >800.) && dir == alongMomentum ) dStep = fabs((rDest-curR)*cosecTheta) -1e-9;
+    dir = ((rDest-curR)*cosDPhiPR > 0 || curR < 2e-1)? alongMomentum : oppositeToMomentum;
+    if (oldDir != dir) nOsc++;
+    if ((fabs(curZ) > 1.5e3 || curR >800.) && dir == alongMomentum) 
+      dStep = fabs((rDest-curR)*cosecTheta) -1e-9;
     if (fabs((rDest-curR)*cosecTheta) < dStep){ //change this to "line distance" at some point
       dStep = fabs((rDest-curR)*cosecTheta); 
     }
     makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
     nPoints_++;  cInd = cIndex_(nPoints_-1);
     oldDir = dir;
-    if (nPoints_ > MAX_STEPS || nOsc > 6  || curR > 20000 || fabs(rDest-curR)<fabs(epsilon)  || p3_[cInd].mag() < 0.1){
+    if (nPoints_ > MAX_STEPS || nOsc > 6  || curR > 20000 
+	|| fabs(rDest-curR)<fabs(epsilon)  || p3_[cInd].mag() < 0.1){
       makeNextStep = false ;
-      if ( nPoints_ > MAX_STEPS || nOsc > 6 ) result = FAULT;
+      if (nPoints_ > MAX_STEPS || nOsc > 6) result = FAULT;
       if (debug_){
 	std::cout<<"going to radius "<<rDest<<std::endl;
-	std::cout<<"Made "<<nPoints_-1<<" steps and stopped at(prev step) "<<curR<<" now at"<<r3_[cInd].perp()<<std::endl;
+	std::cout<<"Made "<<nPoints_-1<<" steps and stopped at(prev step) "<<curR
+		 <<" now at"<<r3_[cInd].perp()<<std::endl;
       }
     }
   }
   return result;
 }
 
-SteppingHelixPropagator::Result SteppingHelixPropagator::propagateToZ(double zDest, double epsilon)  const{
+SteppingHelixPropagator::Result 
+SteppingHelixPropagator::propagateToZ(double zDest, double epsilon)  const{
   Result result = OK;
   bool makeNextStep = true;
   double dStep = 1.;
@@ -236,28 +263,32 @@ SteppingHelixPropagator::Result SteppingHelixPropagator::propagateToZ(double zDe
     if (debug_){
       std::cout<<" current z "<<curZ<<" and p_z "<<p3_[cInd].z()<<std::endl;
     }
-    dir = (zDest - curZ)*p3_[cInd].z() > 0. ? alongMomentum : oppositeToMomentum;    
-    if (oldDir != dir ) nOsc++;
-    if ((fabs(curZ) > 1.5e3 || curR >800.) && dir == alongMomentum) dStep = fabs((zDest-curZ)*secTheta) -1e-9;
+    dir = (zDest - curZ)*p3_[cInd].z() > 0.0 ? alongMomentum : oppositeToMomentum;    
+    if (oldDir != dir) nOsc++;
+    if ((fabs(curZ) > 1.5e3 || curR >800.) && dir == alongMomentum) 
+      dStep = fabs((zDest-curZ)*secTheta) -1e-9;
     if (fabs((zDest-curZ)*secTheta) < dStep){
       dStep = fabs((zDest-curZ)*secTheta); 
     }
     makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
     nPoints_++;  cInd = cIndex_(nPoints_-1);
     oldDir = dir;
-    if (nPoints_ > MAX_STEPS || nOsc > 6 ||  fabs(curZ) > 20000 || fabs(zDest-curZ)<fabs(epsilon)  || p3_[cInd].mag() < 0.1){
+    if (nPoints_ > MAX_STEPS || nOsc > 6 ||  fabs(curZ) > 20000 || fabs(zDest-curZ)<fabs(epsilon)  
+	|| p3_[cInd].mag() < 0.1){
       makeNextStep = false ;
-      if ( nPoints_ > MAX_STEPS || nOsc > 6) result = FAULT;
+      if (nPoints_ > MAX_STEPS || nOsc > 6) result = FAULT;
       if (debug_){
 	std::cout<<"going to z "<<zDest<<std::endl;
-	std::cout<<"Made "<<nPoints_-1<<" steps and stopped at(prev step) "<<curZ<<" now at"<<r3_[cInd].z()<<std::endl;
+	std::cout<<"Made "<<nPoints_-1<<" steps and stopped at(prev step) "<<curZ
+		 <<" now at"<<r3_[cInd].z()<<std::endl;
       }
     }
   }
   return result;
 }
 
-SteppingHelixPropagator::Result SteppingHelixPropagator::propagateByPathLength(double sDest, double epsilon) const{
+SteppingHelixPropagator::Result 
+SteppingHelixPropagator::propagateByPathLength(double sDest, double epsilon) const{
   Result result = OK;
   bool makeNextStep = true;
   double dStep = 1.;
@@ -275,9 +306,10 @@ SteppingHelixPropagator::Result SteppingHelixPropagator::propagateByPathLength(d
     makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
     curS += dStep;
     nPoints_++;  cInd = cIndex_(nPoints_-1);
-    if (nPoints_ > MAX_STEPS || fabs(curS) > 20000 || fabs(sDest-curS)<fabs(epsilon) || p3_[cInd].mag() < 0.1){
+    if (nPoints_ > MAX_STEPS || fabs(curS) > 20000 || 
+	fabs(sDest-curS)<fabs(epsilon) || p3_[cInd].mag() < 0.1){
       makeNextStep = false ;
-      if ( nPoints_ > MAX_STEPS ) result = FAULT;
+      if (nPoints_ > MAX_STEPS) result = FAULT;
       if (debug_){
 	std::cout<<"going to pathL "<<sDest<<std::endl;
 	std::cout<<"Made "<<nPoints_-1<<" steps and stopped at "<<curS<<std::endl;
@@ -289,7 +321,8 @@ SteppingHelixPropagator::Result SteppingHelixPropagator::propagateByPathLength(d
 
 
 
-SteppingHelixPropagator::Result SteppingHelixPropagator::propagateToPlane(const double pars[6], double epsilon) const{
+SteppingHelixPropagator::Result 
+SteppingHelixPropagator::propagateToPlane(const double pars[6], double epsilon) const{
   Result result = OK;
   bool makeNextStep = true;
   double dStep = 1.;
@@ -297,6 +330,7 @@ SteppingHelixPropagator::Result SteppingHelixPropagator::propagateToPlane(const 
   int nOsc = 0;
   Point rPlane(pars[0], pars[1], pars[2]);
   Vector nPlane(pars[3], pars[4], pars[5]);
+
   while (makeNextStep){
     int cInd = cIndex_(nPoints_-1);
     double curZ = r3_[cInd].z();
@@ -305,7 +339,7 @@ SteppingHelixPropagator::Result SteppingHelixPropagator::propagateToPlane(const 
     bool isIncoming;
     refToPlane(nPoints_-1, pars, dist, isIncoming);
     dir = isIncoming ? alongMomentum : oppositeToMomentum;
-    if (oldDir != dir ) nOsc++;
+    if (oldDir != dir) nOsc++;
     if ((fabs(curZ) > 1.5e3 || curR >800.) && dir == alongMomentum) dStep = dist -1e-9;
     if (dist < dStep){
       dStep = dist; 
@@ -313,21 +347,37 @@ SteppingHelixPropagator::Result SteppingHelixPropagator::propagateToPlane(const 
     makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
     nPoints_++;   cInd = cIndex_(nPoints_-1);
     oldDir = dir;
-    if (nPoints_ > MAX_STEPS || nOsc > 6 || fabs(curZ) > 20000 || dist<fabs(epsilon)  || p3_[cInd].mag() < 0.1){
+    if (nPoints_ > MAX_STEPS || nOsc > 6 || fabs(curZ) > 20000 
+	|| dist<fabs(epsilon)  || p3_[cInd].mag() < 0.1){
       makeNextStep = false ;
-      if ( nPoints_ > MAX_STEPS || nOsc > 6 ) result = FAULT;
+      if (nPoints_ > MAX_STEPS || nOsc > 6) result = FAULT;
       if (debug_){
 	std::cout<<"going to plane r0:"<<rPlane<<" n:"<<nPlane<<std::endl;
 	std::cout<<"Made "<<nPoints_-1<<" steps and stopped at(cur step) "<<r3_[cInd]<<std::endl;
       }
     }
   }
+
+//   dir = alongMomentum;
+//   for (int iPoint = 0; iPoint < 500; iPoint++){
+//     makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
+//     nPoints_++;
+//   }
+//   std::cout<<"Now reverse direction "<<std::endl;
+//   dir = oppositeToMomentum;
+//   for (int iPoint = 0; iPoint < 500; iPoint++){
+//     makeAtomStep(nPoints_-1, dStep, dir, HEL_AS_F);
+//     nPoints_++;
+//   }
+//   std::cout<<"did I get to the original point? "<<std::endl;
+
   return result;
 }
 
 
 void SteppingHelixPropagator::loadState(int ind, 
-					const SteppingHelixPropagator::Vector& p3, const SteppingHelixPropagator::Point& r3, int charge,
+					const SteppingHelixPropagator::Vector& p3, 
+					const SteppingHelixPropagator::Point& r3, int charge,
 					const HepSymMatrix& cov, PropagationDirection dir) const{
   int cInd = cIndex_(ind);
   q_[cInd] = charge;
@@ -338,15 +388,16 @@ void SteppingHelixPropagator::loadState(int ind,
   GlobalVector bf = field_->inTesla(GlobalPoint(r3.x(), r3.y(), r3.z()));
   
   bf_[cInd].set(bf.x(), bf.y(), bf.z());
+  if (bf_[cInd].mag() < 1e-6) bf_[cInd].set(0., 0., 1e-6);
 
   setReps(ind);
-  getLocBGrad(ind, 1e-1);
+  //  getLocBGrad(ind, 1e-1);
 
   covLoc_[cInd].assign(cov);
 
   
   //update Emat only if it's valid
-  if (covLoc_[cInd].num_row() >=5 ){
+  if (covLoc_[cInd].num_row() >=5){
     Vector xRep(1., 0., 0.);
     Vector yRep(0., 1., 0.);
     Vector zRep(0., 0., 1.);
@@ -354,8 +405,21 @@ void SteppingHelixPropagator::loadState(int ind,
     const Vector* repF[3] = {&reps_[cInd].lX, &reps_[cInd].lY, &reps_[cInd].lZ};
     initCovRotation(repI, repF, covRot_);
     covLoc_[cInd] = covLoc_[cInd].similarity(covRot_);
+    //    for (int ii = 1; ii<= 6; ii++) covLoc_[cInd](1,ii) = 0;
   }
 
+  if (debug_){
+    std::cout<<"Loaded at "<<ind<<" path: "<<path_[cInd]<<" radPath: "<<radPath_[cInd]
+	     <<" p3 "<<" pt: "<<p3_[cInd].perp()<<" phi: "<<p3_[cInd].phi()
+	     <<" eta: "<<p3_[cInd].eta()
+	     <<" "<<p3_[cInd]
+	     <<" r3: "<<r3_[cInd]
+	     <<" bField: "<<bf_[cInd].mag()
+	     <<std::endl;
+    std::cout<<"Input Covariance in Global RF "<<cov<<std::endl;
+    std::cout<<"Covariance in Local RF "<<covLoc_[cInd]<<std::endl;
+    std::cout<<"Rotated by "<<covRot_<<std::endl;
+  }
   //   std::cout<<"Load at "<<ind<<" path: "<<path_[cInd]
   //  	   <<" p3 "<<" pt: "<<p3_[cInd].perp()<<" phi: "<<p3_[cInd].phi()<<" eta: "<<p3_[cInd].eta()
   // 	   <<" "<<p3_[cInd]
@@ -364,7 +428,7 @@ void SteppingHelixPropagator::loadState(int ind,
 
 void SteppingHelixPropagator::incrementState(int ind, 
 					     double dP, SteppingHelixPropagator::Vector tau,
-					     double dX, double dY, double dZ, double dS,
+					     double dX, double dY, double dZ, double dS, double dX0,
 					     const HepMatrix& dCovTransform) const{
   //  TimeMe locTimer("SteppingHelixPropagator::incrementState");
   if (ind ==0) return;
@@ -372,7 +436,7 @@ void SteppingHelixPropagator::incrementState(int ind,
   int cInd = cIndex_(ind);
   int cPrev = cIndex_(iPrev);
   q_[cInd] = q_[cPrev];
-  dir_[cInd] = dS > 0. ? 1.: -1.; 
+  dir_[cInd] = dS > 0.0 ? 1.: -1.; 
   //  std::cout<<tau.deltaPhi(p3_[cPrev])<<std::endl;
   p3_[cInd] = tau;  p3_[cInd]*=(p3_[cPrev].mag() - dir_[cInd]*fabs(dP));
 
@@ -384,17 +448,20 @@ void SteppingHelixPropagator::incrementState(int ind,
   tmpR3 = reps_[cPrev].lZ; tmpR3*=dZ;
   r3_[cInd]+= tmpR3;
   path_[cInd] = path_[cPrev] + dS;
-  
+  radPath_[cInd] = radPath_[cPrev] + dX0;
+
+
   GlobalVector bf = field_->inTesla(GlobalPoint(r3_[cInd].x(), r3_[cInd].y(), r3_[cInd].z()));
   
   bf_[cInd].set(bf.x(), bf.y(), bf.z());
+  if (bf_[cInd].mag() < 1e-6) bf_[cInd].set(0., 0., 1e-6);
   
   setReps(ind);
-  getLocBGrad(ind, 1e-1);
+  //  getLocBGrad(ind, 1e-1);
   
   
   //update Emat only if it's valid
-  if (covLoc_[cPrev].num_row() >=5 ){
+  if (covLoc_[cPrev].num_row() >=5){
     const Vector* repI[3] = {&reps_[cPrev].lX, &reps_[cPrev].lY, &reps_[cPrev].lZ};
     const Vector* repF[3] = {&reps_[cInd].lX, &reps_[cInd].lY, &reps_[cInd].lZ};
     initCovRotation(repI, repF, covRot_);
@@ -405,32 +472,43 @@ void SteppingHelixPropagator::incrementState(int ind,
   }
 
   if (debug_){
-    std::cout<<"Now at "<<ind<<" path: "<<path_[cInd]
-	     <<" p3 "<<" pt: "<<p3_[cInd].perp()<<" phi: "<<p3_[cInd].phi()<<" eta: "<<p3_[cInd].eta()
+    std::cout<<"Now at "<<ind<<" path: "<<path_[cInd]<<" radPath: "<<radPath_[cInd]
+	     <<" p3 "<<" pt: "<<p3_[cInd].perp()<<" phi: "<<p3_[cInd].phi()
+	     <<" eta: "<<p3_[cInd].eta()
 	     <<" "<<p3_[cInd]
 	     <<" r3: "<<r3_[cInd]
 	     <<" dPhi: "<<acos(p3_[cInd].unit().dot(p3_[cPrev].unit()))
 	     <<" bField: "<<bf_[cInd].mag()
 	     <<std::endl;
+    std::cout<<"Covariance in Local RF "<<covLoc_[cInd]<<std::endl;
+    std::cout<<"Transformed from prev by "<<covRot_<<std::endl;
+    std::cout<<"dCovTransform "<<dCovTransform<<std::endl;
+
+    Vector xRep(1., 0., 0.);
+    Vector yRep(0., 1., 0.);
+    Vector zRep(0., 0., 1.);
+    const Vector* repF[3] = {&xRep, &yRep, &zRep};
+    const Vector* repI[3] = {&reps_[cInd].lX, &reps_[cInd].lY, &reps_[cInd].lZ};
+    initCovRotation(repI, repF, covRot_);    
+    HepSymMatrix cov = covLoc_[cInd].similarity(covRot_);
+    std::cout<<"Covariance in Global RF "<<cov<<std::endl;
+    std::cout<<"Rotated by "<<covRot_<<std::endl;
   }
 }
 
 void SteppingHelixPropagator::setReps(int ind) const{
   int cInd = cIndex_(ind);
+
+  Vector zRep(0., 0., 1.);
   Vector tau = p3_[cInd]/(p3_[cInd].mag());
-  Vector bHat;
-  double bMag = bf_[cInd].mag();
-  if (bMag < 1e-3){
-    bHat.set(0., 0., 1.);
-  } else {
-    bHat = bf_[cInd]/bMag;
-  }
-  reps_[cInd].lZ = bHat;
-  reps_[cInd].lX = tau.cross(bHat); reps_[cInd].lX/=reps_[cInd].lX.mag();
-  reps_[cInd].lY = bHat.cross(reps_[cInd].lX);  reps_[cInd].lY/=reps_[cInd].lY.mag();
+  reps_[cInd].lX = tau;
+  reps_[cInd].lY = zRep.cross(tau); reps_[cInd].lY /= tau.perp();
+  reps_[cInd].lZ = reps_[cInd].lX.cross(reps_[cInd].lY);
 }
 
-bool SteppingHelixPropagator::makeAtomStep(int iIn, double dS, PropagationDirection dir, SteppingHelixPropagator::Fancy fancy) const{
+bool SteppingHelixPropagator::makeAtomStep(int iIn, double dS, 
+					   PropagationDirection dir, 
+					   SteppingHelixPropagator::Fancy fancy) const{
   //  TimeMe locTimer("SteppingHelixPropagator::makeAtomStep");
   int cInd = cIndex_(iIn);
   if (debug_){
@@ -442,108 +520,129 @@ bool SteppingHelixPropagator::makeAtomStep(int iIn, double dS, PropagationDirect
   Vector tau = p3_[cInd]; tau/=tau.mag();
 
   dS = dir == alongMomentum ? fabs(dS) : -fabs(dS);
-  double dX =0.;
-  double dY =0.;
-  double dZ =0.;
-  
 
   double p0 = p3_[cInd].mag();
   double b0 = bf_[cInd].mag();
   double kappa0 = 0.0029979*q_[cInd]*b0/p0;
   if (fabs(kappa0) < 1e-12) kappa0 = 1e-12;
 
-  double cosTheta = reps_[cInd].lZ.dot(tau);
+  double cosTheta = tau.z();
   double sinTheta = sin(acos(cosTheta));
   double cotTheta = fabs(sinTheta) > 1e-12 ? cosTheta/sinTheta : 1e12;
-  double tanTheta = fabs(cosTheta) > 1e-12 ? sinTheta/cosTheta : 1e12;
+  //  double tanTheta = fabs(cosTheta) > 1e-12 ? sinTheta/cosTheta : 1e12;
   double phi = kappa0*dS;
   double cosPhi = cos(phi);
+  double oneLessCosPhi = 1.-cosPhi;
   double sinPhi = sin(phi);
+  double phiLessSinPhi = phi - sinPhi;
+  double oneLessCpLessPSp = oneLessCosPhi - phi*sinPhi;
+  double pCpLessSp = phi*cosPhi - sinPhi;
+  Vector bHat = bf_[cInd]; bHat /= bHat.mag();
+  double bx = reps_[cInd].lX.dot(bHat);
+  double by = reps_[cInd].lY.dot(bHat);
+  double bz = reps_[cInd].lZ.dot(bHat);
+  double oneLessBx2 = (1.-bx*bx);
 
-  double bfLGL[3];// grad(log(B))
-  for (int i = 0; i < 3; i++){
-    if (b0 < 1e-6){
-      bfLGL[i] = 0.;
-    } else {
-      bfLGL[i] = bfGradLoc_[cInd][i]; bfLGL[i]/=b0;
-    }
-  }
+  //components in local rf
+  double dX =0.;
+  double dY =0.;
+  double dZ =0.;
+  double tauX =0.;
+  double tauY =0.;
+  double tauZ =0.;
+  
+//   double bfLGL[3];// grad(log(B))
+//   for (int i = 0; i < 3; i++){
+//     if (b0 < 1e-6){
+//       bfLGL[i] = 0.;
+//     } else {
+//       bfLGL[i] = bfGradLoc_[cInd][i]; bfLGL[i]/=b0;
+//     }
+//   }
 
   double dEdXPrime = 0;
-  double dEdx = getDeDx(iIn, dEdXPrime);
+  double radX0 = 1e24;
+  double dEdx = getDeDx(iIn, dEdXPrime, radX0);
+  double theta02 = 14.e-3/p0*sqrt(fabs(dS)/radX0); // .. drop log term (this is non-additive)
+  theta02 *=theta02;
+
   Vector tmpR3;
   
+  double epsilonP0 = 0;
+  double omegaP0 = 0;
+
   switch (fancy){
   case HEL_AS_F:
   case HEL_ALL_F:
-    tmpR3 = reps_[cInd].lX; tmpR3*=sinPhi; tmpR3*=sinTheta;
+    dP = dEdx*dS;
+    tauX = (1.0 - oneLessCosPhi*oneLessBx2);
+    tauY = (oneLessCosPhi*bx*by - sinPhi*bz);
+    tauZ = (oneLessCosPhi*bx*bz + sinPhi*by);
+
+    epsilonP0 = 1.+ dP/p0;
+    omegaP0 = 1.0 + dS*dEdXPrime;
+
+    tmpR3 = reps_[cInd].lX; tmpR3*=tauX;
     tau = tmpR3;
-    tmpR3 = reps_[cInd].lY;  tmpR3*=cosPhi; tmpR3*=sinTheta;
+    tmpR3 = reps_[cInd].lY;  tmpR3*=tauY;
     tau+=tmpR3;
-    tmpR3 = reps_[cInd].lZ;  tmpR3*=cosTheta;
+    tmpR3 = reps_[cInd].lZ;  tmpR3*=tauZ;
     tau+=tmpR3;
     //the stuff above is
-    //    tau = reps_[cInd].lX*sinPhi*sinTheta + reps_[cInd].lY*cosPhi*sinTheta + reps_[cInd].lZ*cosTheta;
 
-    dP = dEdx*dS;
-    dX = (1. - cosPhi)/kappa0*sinTheta;
-    dY = sinPhi/kappa0*sinTheta;
-    dZ = dS*cosTheta;
+    dX = dS - phiLessSinPhi/kappa0*oneLessBx2;
+    dY = 1./kappa0*(bx*by*phiLessSinPhi - oneLessCosPhi*bz);
+    dZ = 1./kappa0*(bx*bz*phiLessSinPhi + oneLessCosPhi*by);
 
     dCTransform_ = unit66_;
     //     //yuck
-    //     dCTr(1,1) = 0.;
-    //     dCTr(1,2) = sinPhi;
-    //     dCTr(1,3) = -cotTheta*sinPhi;
-    //     dCTr(1,4) = sinTheta*phi*cosPhi*bfLGL[0];
-    //     dCTr(1,5) = sinTheta*phi*cosPhi*bfLGL[1];
-    //     dCTr(1,6) = sinTheta*phi*cosPhi*bfLGL[2];
-    //     //    dCTr(1,7) = -sinTheta*phi*cosPhi/p0;
+    //case I: no "spatial" derivatives |--> dCtr({1,2,3,4,5,6}{1,2,3}) = 0    
+    dCTransform_(1,4) += -dS/(phi*p0)*pCpLessSp*oneLessBx2;
+    dCTransform_(1,5) += - dY/p0;
+    dCTransform_(1,6) +=   dZ/p0;
+
+    dCTransform_(2,4) += dS/phi/p0*(bx*by*pCpLessSp - bz*oneLessCpLessPSp);
+    dCTransform_(2,5) +=   dX/p0;
+    dCTransform_(2,6) += - cotTheta*dY/p0;
+
+    //    dCTransform_(3,4) += dS/phi/p0*(bx*by*pCpLessSp + by*oneLessCpLessPSp) - 2.*dZ/p0;
+    dCTransform_(3,4) += dS/phi/p0*(bx*by*pCpLessSp + by*oneLessCpLessPSp) - 3.*dZ/p0;
+    dCTransform_(3,5) += cotTheta*dY/p0;
+    dCTransform_(3,6) += dX/p0;
+
+
+    dCTransform_(4,4) += tauX*omegaP0 - 1.0 + phi*epsilonP0*oneLessBx2*sinPhi;
+    dCTransform_(4,5) += -tauY*epsilonP0;
+    dCTransform_(4,6) +=  tauZ*epsilonP0;
+
+    dCTransform_(5,4) += tauY*omegaP0 - phi*epsilonP0*(bx*by*sinPhi - bz*cosPhi);
+    dCTransform_(5,5) += tauX*epsilonP0 - 1.; 
+    dCTransform_(5,6) += - cotTheta*tauY*epsilonP0;
     
-    //     dCTr(2,1) = 0.;
-    //     dCTr(2,2) = cosPhi;
-    //     dCTr(2,3) = -cotTheta*cosPhi;
-    //     dCTr(2,4) = -sinTheta*phi*sinPhi*bfLGL[0];
-    //     dCTr(2,5) = -sinTheta*phi*sinPhi*bfLGL[1];
-    //     dCTr(2,6) = -sinTheta*phi*sinPhi*bfLGL[2];
-    //     //    dCTr(2,7) =  sinTheta*phi*sinPhi/p0;
+    //    dCTransform_(6,4) += tauZ*omegaP0 - phi*epsilonP0*(bx*bz*sinPhi + by*cosPhi) 
+    // - 2.*tauZ*epsilonP0;
+    dCTransform_(6,4) += tauZ*omegaP0 - phi*epsilonP0*(bx*bz*sinPhi + by*cosPhi) - 3.*tauZ*epsilonP0;
+    dCTransform_(6,5) += cotTheta*tauY*epsilonP0;
+    dCTransform_(6,6) += tauX*epsilonP0 - 1.;
     
-    //     dCTr(3,1) = 0.;
-    //     dCTr(3,2) = -tanTheta;
-    //     dCTr(3,3) = 1.;
-    //     dCTr(3,4) = 0.;
-    //     dCTr(3,5) = 0.;
-    //     dCTr(3,6) = 0.;
-    //     //    dCTr(3,7) = 0.;
-    
-    //     dCTr(4,1) = 0.;
-    //     dCTr(4,2) = (1.-cosPhi)/kappa0;
-    //     dCTr(4,3) = -cotTheta*(1.-cosPhi)/kappa0;
-    //     dCTr(4,4) = 1.+sinTheta*(phi*sinPhi - 1. + cosPhi)/kappa0*bfLGL[0];
-    //     dCTr(4,5) =    sinTheta*(phi*sinPhi - 1. + cosPhi)/kappa0*bfLGL[1];
-    //     dCTr(4,6) =    sinTheta*(phi*sinPhi - 1. + cosPhi)/kappa0*bfLGL[2];
-    //     //    dCTr(4,7) =   -sinTheta*(phi*sinPhi - 1. + cosPhi)/kappa0/p0;
-    
-    //     dCTr(5,1) = 0.;
-    //     dCTr(5,2) = sinPhi/kappa0;
-    //     dCTr(5,3) = -cotTheta*sinPhi/kappa0;
-    //     dCTr(5,4) =    sinTheta*(phi*cosPhi - sinPhi)/kappa0*bfLGL[0];
-    //     dCTr(5,5) = 1+ sinTheta*(phi*cosPhi - sinPhi)/kappa0*bfLGL[1];
-    //     dCTr(5,6) =    sinTheta*(phi*cosPhi - sinPhi)/kappa0*bfLGL[2];
-    //     //    dCTr(5,7) =   -sinTheta*(phi*cosPhi - sinPhi)/kappa0/p0;
-    
-    //     dCTr(6,1) = 0.;
-    //     dCTr(6,2) = -dS*tanTheta;
-    //     dCTr(6,3) = dS;
-    //     dCTr(6,4) = 0.;
-    //     dCTr(6,5) = 0.;
-    //     dCTr(6,6) = 1.;
-    //     //    dCTr(6,7) = 0.;
-    
+    covLoc_[cInd](2,2) += theta02*dS*dS/3.;
+    covLoc_[cInd](3,3) += theta02*dS*dS/3.;
+    covLoc_[cInd](5,5) += theta02*p0*p0;
+    covLoc_[cInd](6,6) += theta02*p0*p0;
+    covLoc_[cInd](2,5) += theta02*dS*p0/2.;
+    covLoc_[cInd](3,6) += theta02*dS*p0/2.;
+
+    covLoc_[cInd](4,4) += dP*dP*1.6/dS; 
+    //another guess .. makes sense for 1 cm steps 2./dS == 2 [cm] / dS [cm]
+    //not gaussian anyways
+    // derived from the fact that sigma_p/eLoss ~ 0.08 after ~ 200 steps
+
+
     break;
   case POL_1_F:
   case POL_2_F:
   case POL_M_F:
+    //FIXME: this is still in Bfield rf
     tau = reps_[cInd].lX*phi*sinTheta + reps_[cInd].lY*sinTheta + reps_[cInd].lZ*cosTheta;
     dP = dEdx*dS;
     dX = phi*dS/2.*sinTheta;
@@ -556,61 +655,119 @@ bool SteppingHelixPropagator::makeAtomStep(int iIn, double dS, PropagationDirect
 
   if (dir == oppositeToMomentum) dP = -fabs(dP);
   dP = dP > p0 ? p0-1e-5 : dP;
-  incrementState(iIn+1, dP, tau, dX, dY, dZ, dS, dCTransform_);
+  incrementState(iIn+1, dP, tau, dX, dY, dZ, dS, dS/radX0,
+		 dCTransform_);
   return true;
 }
 
-double SteppingHelixPropagator::getDeDx(int iIn, double& dEdXPrime) const{
+double SteppingHelixPropagator::getDeDx(int iIn, double& dEdXPrime, double& radX0) const{
+  radX0 = 1.e24;
+  dEdXPrime = 0.;
   if (noMaterialMode_) return 0;
   int cInd = cIndex_(iIn);
 
   double dEdx = 0.;
+
   double lR = r3_[cInd].perp();
   double lZ = fabs(r3_[cInd].z());
 
   //assume "Iron" .. seems to be quite the same for brass/iron/PbW04
   //will do proper Bethe-Bloch later
   double p0 = p3_[cInd].mag();
-  double dEdX_mat = -(11.4 + 2.4*fabs(log(p0*2.8)))*1e-3*0.935; //in GeV/cm .. 0.98 to get closer to the median or MPV
-  double dEdX_HCal = 0.805*dEdX_mat; //extracted from sim
-  double dEdX_ECal = 0.39*dEdX_mat;
-  double dEdX_coil = 0.298*dEdX_mat; //extracted from sim
+
+  double dEdX_mat = -(11.4 + 0.93*fabs(log(p0*2.7)))*1e-3; 
+  //in GeV/cm .. 0.8 to get closer to the median or MPV
+  double dEdX_HCal = 0.95*dEdX_mat; //extracted from sim
+  double dEdX_ECal = 0.45*dEdX_mat;
+  double dEdX_coil = 0.35*dEdX_mat; //extracted from sim
   double dEdX_Fe =   dEdX_mat;
   double dEdX_MCh =  0.053*dEdX_mat; //chambers on average
-  double dEdX_Trk =  0.0097*dEdX_mat;
+  double dEdX_Trk =  0.0114*dEdX_mat;
+
+  double radX0_HCal = 1.44/0.8; //guessing
+  double radX0_ECal = 0.89/0.7;
+  double radX0_coil = 25.; //
+  double radX0_Fe =   1.76;
+  double radX0_MCh =  1e3; //
+  double radX0_Trk =  500.;
+  double radX0_Air =  3.e4;
 
 
-  //this should roughly figure out where things are (numbers taken from Fig1.1.2 TDR)
+  //this should roughly figure out where things are 
+  //(numbers taken from Fig1.1.2 TDR and from geom xmls)
   if (lR < 129){
-    if (lZ < 294) dEdx = dEdx = dEdX_Trk;
-    else if (lZ < 390 ) dEdx = dEdX_ECal*0.8; //averaged out over a larger space
-    else if (lZ < 568 ) dEdx = dEdX_HCal; //endcap calor
-    else dEdx = dEdX_Fe; //iron .. don't care about no material in front of HF (too forward)
+    if (lZ < 294){ dEdx = dEdx = dEdX_Trk; radX0 = radX0_Trk; }
+    else if (lZ < 372){ dEdx = dEdX_ECal; radX0 = radX0_ECal; }//EE averaged out over a larger space
+    else if (lZ < 398){ dEdx = dEdX_HCal*0.05; radX0 = radX0_Air; }//betw EE and HE
+    else if (lZ < 555){ dEdx = dEdX_HCal*0.96; radX0 = radX0_HCal/0.96; } //HE calor abit less dense
+    else {
+      //iron .. don't care about no material in front of HF (too forward)
+      if (! (lZ > 568 && lZ < 625 && lR > 85 ) // HE support 
+	   && ! (lZ > 785 && lZ < 850 && lR > 118)) {dEdx = dEdX_Fe; radX0 = radX0_Fe; }
+      else  { dEdx = dEdX_MCh; radX0 = radX0_MCh; } //ME at eta > 2.2
+    }
   }
-  else if (lR < 285 ){
-    if (lZ < 390 && lR < 181 ) dEdx = dEdX_ECal;
-    else if (lZ < 568 ) dEdx = dEdX_HCal; //hcal
-    else if (lZ < 625) dEdx = dEdX_MCh;
-    else if (lZ < 785) dEdx = dEdX_Fe;//iron
-    else if (lZ < 850) dEdx = dEdX_MCh;
-    else if (lZ < 910) dEdx = dEdX_Fe; //iron
-    else if (lZ < 975) dEdx = dEdX_MCh;
-    else if (lZ < 1000) dEdx = dEdX_Fe; //iron
-    else dEdx = 0;
+  else if (lR < 287){
+    if (lZ < 372 && lR < 177){ 
+      if (!(lR > 134 && lZ <343 && lZ > 304 )
+	   && ! (lR > 156 && lZ < 372 && lZ > 343 && ((lZ-343.)< (lR-156.)*1.38)))
+	{
+	  //the crystals are the same length, but they are not 100% of material
+	  double cosThetaEquiv = 0.8/sqrt(1.+lZ*lZ/lR/lR) + 0.2;
+	  if (lZ > 343) cosThetaEquiv = 1.;
+	  dEdx = dEdX_ECal*cosThetaEquiv; radX0 = radX0_ECal/cosThetaEquiv; 
+	} //EB
+      else { 
+	if ( (lZ > 304 && lZ < 328 && lR < 177 && lR > 135) 
+	     && ! (lZ > 311 && lR < 172) ) {dEdx = dEdX_Fe; radX0 = radX0_Fe; } //Tk_Support
+	else {dEdx = dEdX_ECal*0.2; radX0 = radX0_Air;} //cables go here
+      }
+    }
+    else if (lZ < 554){ 
+      if ((lZ < 433 || lR < 264) && (lZ < 402 || lR < 275) && (lZ < 517 || lR < 246) //notches
+	  //I should've made HE and HF different .. now need to shorten HE to match
+	  && lZ < 548
+	  && ! (lZ < 389 && lZ > 335 && lR < 193 ) //not a gap
+	  && ! (lZ > 307 && lZ < 335 && lR < 193 && ((lZ - 307) > (lR - 177.)*1.739)) //not a gap
+	  && ! (lR < 177 && lZ < 398) //under the HE nose
+	  && ! (lR < 264 && lR > 175 && fabs(441.5 - lZ + (lR - 269.)/1.327) < 8.5) ) //not a gap
+	{ dEdx = dEdX_HCal; radX0 = radX0_HCal; }//hcal
+      else {dEdx = dEdX_HCal*0.05; radX0 = radX0_Air; }//endcap gap
+    }
+    else if (lZ < 564){
+      if (lR < 251) {dEdx = dEdX_Fe; radX0 = radX0_Fe; }//HE support
+      else { dEdx = dEdX_MCh; radX0 = radX0_MCh; }
+    }
+    else if (lZ < 625){ dEdx = dEdX_MCh; radX0 = radX0_MCh; }
+    else if (lZ < 785){
+      if (! (lR > 275 && lZ < 720)) { dEdx = dEdX_Fe; radX0 = radX0_Fe; }//iron
+      else { dEdx = dEdX_MCh; radX0 = radX0_MCh; }
+    }
+    else if (lZ < 850){ dEdx = dEdX_MCh; radX0 = radX0_MCh; }
+    else if (lZ < 910){ dEdx = dEdX_Fe; radX0 = radX0_Fe; }//iron
+    else if (lZ < 975){ dEdx = dEdX_MCh; radX0 = radX0_MCh; }
+    else if (lZ < 1000){ dEdx = dEdX_Fe; radX0 = radX0_Fe; }//iron
+    else { dEdx = 0; radX0 = radX0_Air;}
   }
-  else if (lR <380 && lZ < 645 ) dEdx = dEdX_coil;//a guess for the solenoid average
+  else if (lR <380 && lZ < 667){
+    if (lZ < 630) { dEdx = dEdX_coil; radX0 = radX0_coil; }//a guess for the solenoid average
+    else {dEdx = 0; radX0 = radX0_Air; }//endcap gap
+  }
   else {
     if (lZ < 667) {
-      if (bf_[cInd].mag()> 0.75) dEdx = dEdX_Fe; //iron
-      else dEdx = dEdX_MCh;
+      double bMag = bf_[cInd].mag();
+      if (bMag > 0.75 && ! (lZ > 500 && lR <500 && bMag < 1.15)
+	  && ! (lZ < 450 && lR > 420 && bMag < 1.15 ) )
+	{ dEdx = dEdX_Fe; radX0 = radX0_Fe; }//iron
+      else { dEdx = dEdX_MCh; radX0 = radX0_MCh; }
     } 
-    else if (lZ < 724) dEdx = dEdX_MCh;
-    else if (lZ < 785) dEdx = dEdX_Fe;//iron
-    else if (lZ < 850) dEdx = dEdX_MCh;
-    else if (lZ < 910) dEdx = dEdX_Fe; //iron
-    else if (lZ < 975) dEdx = dEdX_MCh;
-    else if (lZ < 1000) dEdx = dEdX_Fe; //iron
-    else dEdx = 0; //air
+    else if (lZ < 724){ dEdx = dEdX_MCh; radX0 = radX0_MCh; }
+    else if (lZ < 785){ dEdx = dEdX_Fe; radX0 = radX0_Fe; }//iron
+    else if (lZ < 850){ dEdx = dEdX_MCh; radX0 = radX0_MCh; }
+    else if (lZ < 910){ dEdx = dEdX_Fe; radX0 = radX0_Fe; }//iron
+    else if (lZ < 975){ dEdx = dEdX_MCh; radX0 = radX0_MCh; }
+    else if (lZ < 1000){ dEdx = dEdX_Fe; radX0 = radX0_Fe; }//iron
+    else {dEdx = 0; radX0 = radX0_Air; }//air
   }
   
   dEdXPrime = dEdx == 0 ? 0 : dEdx/dEdX_mat*(2.4/p0)*1e-3*0.935; //== d(dEdX)/dp
@@ -627,7 +784,8 @@ int SteppingHelixPropagator::cIndex_(int ind) const{
   return result;
 }
 
-void SteppingHelixPropagator::refToPlane(int ind, const double pars[6], double& dist, bool& isIncoming) const{
+void SteppingHelixPropagator::refToPlane(int ind, const double pars[6], double& dist, 
+					 bool& isIncoming) const{
   int cInd = cIndex_(ind);
   Point rPlane(pars[0], pars[1], pars[2]);
   Vector nPlane(pars[3], pars[4], pars[5]);
