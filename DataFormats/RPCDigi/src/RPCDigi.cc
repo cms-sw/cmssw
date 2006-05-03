@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2005/11/06 16:22:45 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/04/06 07:54:05 $
+ *  $Revision: 1.5 $
  *
  * \author Ilaria Segoni
  */
@@ -22,7 +22,7 @@ RPCDigi::RPCDigi(int strip, int bx){
 
 /// Copy constructor
 RPCDigi::RPCDigi(const RPCDigi& digi) {
-	this->setStripBx(digi.strip(), digi.bx());
+  this->setStripBx(digi.strip(), digi.bx());
 }
 
 
@@ -59,9 +59,9 @@ void RPCDigi::print() const {
 }
 
 /// Getter methods:
-int RPCDigi::strip() const { return this->strip(); }
+int RPCDigi::strip() const { return strip_; }
 
-int RPCDigi::bx() const { return this->bx(); }
+int RPCDigi::bx() const { return bx_; }
 
 
 /// Setter methods:
