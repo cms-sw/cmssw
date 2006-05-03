@@ -87,52 +87,52 @@ RPCGeometry* RPCGeometryBuilderFromDDD::build(const DDCompactView* cview)
 
 RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview)
 {
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
   std::cout <<"Building the geometry service"<<std::endl;
 #endif
   RPCGeometry* geometry = new RPCGeometry();
   
 
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
   std::cout << "About to run through the RPC structure" << std::endl;
   std::cout <<" First logical part "
   	    <<fview.logicalPart().name().name()<<std::endl;
 #endif
   bool doSubDets = fview.firstChild();
 
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
   std::cout << "doSubDets = " << doSubDets << std::endl;
 #endif
   while (doSubDets){
 
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     std::cout <<"start the loop"<<std::endl; 
 #endif
 
     // Get the Base Muon Number
     MuonDDDNumbering mdddnum;
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     std::cout <<"Getting the Muon base Number"<<std::endl;
 #endif
     MuonBaseNumber   mbn=mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
 
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     std::cout <<"Start the Rpc Numbering Schema"<<std::endl;
 #endif
     // Get the The Rpc det Id 
     RPCNumberingScheme rpcnum;
     int detid = 0;
 
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     std::cout <<"Getting the Unit Number"<<std::endl;
 #endif
     detid = rpcnum.baseNumberToUnitNumber(mbn);
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     std::cout <<"Getting the RPC det Id "<<detid <<std::endl;
 #endif
     RPCDetId rpcid(detid);
     //    rpcid.buildfromTrIndex(detid);
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     std::cout <<"The RPCDEtid is "<<detid<<" trigger index"<<rpcid.trIndex()<< std::endl;
 #endif
 
@@ -146,7 +146,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview)
 	nStrips=int(numbOfStrips.doubles()[0]);	
       }
     }
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     if (nStrips == 0 )
       std::cout <<"No strip found!!"<<std::endl;
 #endif
@@ -178,7 +178,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview)
       pars.push_back(dpar[1]);
       pars.push_back(numbOfStrips.doubles()[0]); //h/2;
       rollspecs = new RPCRollSpecs(GeomDetType::RPCBarrel,name,pars);
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
       std::cout <<"Barrel "<<name
 		<<" par "<<dpar[0]
 		<<" "<<dpar[1]<<" "<<dpar[2];
@@ -196,7 +196,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview)
       pars.push_back(dpar[0]); //h/2;
       pars.push_back(numbOfStrips.doubles()[0]); //h/2;
       
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
       std::cout <<"Forward "<<name
 		<<" par "<<dpar[4]
 		<<" "<<dpar[8]<<" "<<dpar[3]<<" "
@@ -214,7 +214,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview)
       rot.rotateAxes (newX, newY,newZ);
       
     }
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     std::cout <<"   Number of strips "<<nStrips<<std::endl;
 #endif  
 
