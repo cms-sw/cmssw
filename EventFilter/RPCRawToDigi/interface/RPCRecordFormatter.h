@@ -4,8 +4,8 @@
 
 /** \class Interprets the RPC record (16 bit) and fills the RPCDigiCollection
  *
- *  $Date: 2006/03/30 14:39:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/03/30 15:16:01 $
+ *  $Revision: 1.7 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -44,6 +44,7 @@ class RPCRecordFormatter{
 
 
       private:    
+    	 int currentBX;
     	 int currentRMB;
     	 int currentChannel;
 };
