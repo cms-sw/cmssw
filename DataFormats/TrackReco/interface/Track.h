@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.15 2006/03/21 14:23:01 llista Exp $
+ * \version $Id: Track.h,v 1.16 2006/04/19 13:35:05 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -41,6 +41,8 @@ namespace reco {
     trackingRecHit_iterator recHitsBegin() const { return extra_->recHitsBegin(); }
     /// last iterator to RecHits
     trackingRecHit_iterator recHitsEnd()   const { return extra_->recHitsEnd(); }
+    /// get n-th recHit
+    TrackingRecHitRef recHit( size_t i ) const { return extra_->recHit( i ); }
     /// number of RecHits
     size_t recHitsSize() const { return extra_->recHitsSize(); }
     /// x coordinate of momentum vector at the outermost point
