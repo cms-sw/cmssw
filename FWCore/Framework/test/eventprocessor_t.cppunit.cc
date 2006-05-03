@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.16 2006/05/01 16:59:10 wmtan Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.17 2006/05/02 15:50:52 paterno Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -33,6 +33,7 @@ class testeventprocessor: public CppUnit::TestFixture
   CPPUNIT_TEST(parseTest);
   CPPUNIT_TEST(prepostTest);
   CPPUNIT_TEST(beginEndJobTest);
+  CPPUNIT_TEST(cleanupJobTest);
   CPPUNIT_TEST(activityRegistryTest);
   CPPUNIT_TEST(moduleFailureTest);
   CPPUNIT_TEST(endpathTest);
@@ -43,6 +44,7 @@ class testeventprocessor: public CppUnit::TestFixture
   void parseTest();
   void prepostTest();
   void beginEndJobTest();
+  void cleanupJobTest();
   void activityRegistryTest();
   void moduleFailureTest();
   void endpathTest();
@@ -178,6 +180,38 @@ void testeventprocessor::beginEndJobTest()
   //In this case, endJob should not have been called since was not done explicitly
   CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
    
+}
+
+void testeventprocessor::cleanupJobTest()
+{
+  std::string configuration("process p = {\n"
+			    "source = EmptySource { untracked int32 maxEvents = 2 }\n"
+			    "module m1 = TestBeginEndJobAnalyzer { }\n"
+			    "path p1 = { m1 }\n"
+			    "}\n");
+  {
+    TestBeginEndJobAnalyzer::destructorCalled = false;
+    edm::EventProcessor proc(configuration);
+      
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
+    proc.beginJob();
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
+    proc.endJob();
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
+  }
+  CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::destructorCalled);
+  {
+    TestBeginEndJobAnalyzer::destructorCalled = false;
+    edm::EventProcessor proc(configuration);
+
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
+    proc.run(1);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
+    proc.run(1);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
+
+  }
+  CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::destructorCalled);
 }
 
 namespace {
