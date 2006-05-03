@@ -1,8 +1,9 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.6 2006/04/27 01:26:13 fedor Exp $
+/// $Id: JetMaker.cc,v 1.7 2006/04/27 18:44:03 fedor Exp $
 
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -29,8 +30,11 @@ namespace {
     double eInEm = 0.;
     double eInHO = 0.;
     double eInHB = 0.;
-    double eInHF = 0.;
     double eInHE = 0.;
+    double eHadInHF = 0.;
+    double eEmInHF = 0.;
+    double eInEB = 0.;
+    double eInEE = 0.;
     
     for(vector<CaloTowerDetId>::const_iterator i = fTowerIds.begin(); i != fTowerIds.end(); ++i) {
       const CaloTower* aTower =  &*fTowers.find(*i);
@@ -43,36 +47,53 @@ namespace {
       
       eInHO += aTower->outerEnergy();
 
-      // pick an HCAL cell
+      //  figure out contributions
+      bool hadIsDone = false;
+      bool emIsDone = false;
       int icell = aTower->constituentsSize();
-      while (--icell >= 0) {
+      while (--icell >= 0 && (!hadIsDone || !emIsDone)) {
 	DetId id = aTower->constituent (icell);
-	if (id.det () == DetId::Hcal) { // hcal cell
+	if (!hadIsDone && id.det () == DetId::Hcal) { // hcal cell
 	  HcalSubdetector subdet = HcalDetId (id).subdet ();
 	  if (subdet == HcalBarrel || subdet == HcalOuter) {
-	    eInHB += aTower->hadEnergy() - aTower->outerEnergy(); // assume "UseHO = true" for calotowermaker
+	    eInHB += aTower->hadEnergy(); 
 	    eInHO += aTower->outerEnergy();
 	  }
 	  else if (subdet == HcalEndcap) {
 	    eInHE += aTower->hadEnergy();
 	  }
 	  else if (subdet == HcalForward) {
-	    eInHF += aTower->hadEnergy();
+	    eHadInHF += aTower->hadEnergy();
+	    eEmInHF += aTower->emEnergy();
+	    emIsDone = true;
 	  }
-	  break; // do not need it anymore
+	  hadIsDone = true;
+	}
+	else if (!emIsDone && id.det () == DetId::Ecal) { // ecal cell
+	  EcalSubdetector subdet = EcalSubdetector (id.subdetId ());
+	  if (subdet == EcalBarrel) {
+	    eInEB += aTower->emEnergy();
+	  }
+	  else if (subdet == EcalEndcap) {
+	    eInEE += aTower->emEnergy();
+	  }
+	  emIsDone = true;
 	}
       }
     }
     double towerEnergy = eInHad + eInEm;
-    fJetSpecific->m_energyFractionInHO = eInHO / towerEnergy;
-    fJetSpecific->m_energyFractionInHB = eInHB / towerEnergy;
-    fJetSpecific->m_energyFractionInHE = eInHE / towerEnergy;
-    fJetSpecific->m_energyFractionInHF = eInHF / towerEnergy;
-    fJetSpecific->m_energyFractionInHCAL = eInHad / towerEnergy;
-    fJetSpecific->m_energyFractionInECAL = eInEm / towerEnergy;
-    fJetSpecific->m_maxEInEmTowers = 0;
-    fJetSpecific->m_maxEInHadTowers = 0;
-    fJetSpecific->m_n90 = 0;
+    fJetSpecific->mHadEnergyInHO = eInHO;
+    fJetSpecific->mHadEnergyInHB = eInHB;
+    fJetSpecific->mHadEnergyInHE = eInHE;
+    fJetSpecific->mHadEnergyInHF = eHadInHF;
+    fJetSpecific->mEmEnergyInHF = eEmInHF;
+    fJetSpecific->mEmEnergyInEB = eInEB;
+    fJetSpecific->mEmEnergyInEE = eInEE;
+    fJetSpecific->mEnergyFractionHadronic = eInHad / towerEnergy;
+    fJetSpecific->mEnergyFractionEm = eInEm / towerEnergy;
+    fJetSpecific->mMaxEInEmTowers = 0;
+    fJetSpecific->mMaxEInHadTowers = 0;
+    fJetSpecific->mN90 = 0;
     
     //Sort the arrays
     sort(eECal_i.begin(), eECal_i.end(), greater<double>());
@@ -80,14 +101,14 @@ namespace {
     
     if (!fTowerIds.empty ()) {  
       //Highest value in the array is the first element of the array
-      fJetSpecific->m_maxEInEmTowers = eECal_i.front(); 
-      fJetSpecific->m_maxEInHadTowers = eHCal_i.front();
+      fJetSpecific->mMaxEInEmTowers = eECal_i.front(); 
+      fJetSpecific->mMaxEInHadTowers = eHCal_i.front();
       
       //n90 using the sorted list
       double ediff = (eInHad + eInEm) * 0.9;
       for (unsigned i = 0; i < fTowerIds.size(); i++) {
 	ediff = ediff - eECal_i[i] - eHCal_i[i];
-	fJetSpecific->m_n90++;
+	fJetSpecific->mN90++;
 	if (ediff <= 0) break; 
       }
     }

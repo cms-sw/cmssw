@@ -1,10 +1,5 @@
 // CaloJet.cc
-// Initial Version From Fernando Varela Rodriguez
-// Revisions: R. Harris, 19-Oct-2005, modified to work with real 
-//            CaloTowers from Jeremy Mans.  Commented out energy
-//            fractions until we can figure out how to determine 
-//            composition of total energy, and the underlying HB, HE, 
-//            HF, HO and Ecal.
+// Fedor Ratnikov UMd
 
 //Own header file
 #include "DataFormats/JetReco/interface/CaloJet.h"
