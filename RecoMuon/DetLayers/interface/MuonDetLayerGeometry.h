@@ -5,8 +5,8 @@
  *
  *  Provide access to the DetLayers of muon detectors.
  *
- *  $Date: 2006/04/28 11:54:16 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/02 10:23:54 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -72,7 +72,7 @@ class MuonDetLayerGeometry {
  private:
     
     void addCSCLayers(std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > csclayers);
-    //void addDTLayers(std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > csclayers);
+    void addDTLayers(std::vector<DetLayer*> dtlayers);
     //void addRPCLayers(std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > csclayers);
        
     std::vector<DetLayer*> cscLayers_fw;
@@ -89,7 +89,6 @@ class MuonDetLayerGeometry {
     std::vector<DetLayer*> allEndcap;
     std::vector<DetLayer*> allBarrel;
     std::vector<DetLayer*> allDetLayers;
-
 };
 #endif
 
