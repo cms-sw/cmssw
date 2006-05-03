@@ -10,13 +10,6 @@
   <class name="edm::RefProd<std::vector<reco::BasicCluster> >"/>
   <class name="edm::RefVector<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> >"/>
 
-  <class name="reco::PreShowerCluster"/>
-  <class name="std::vector<reco::PreShowerCluster>"/>
-  <class name="edm::Wrapper<std::vector<reco::PreShowerCluster> >"/>
-  <class name="edm::Ref<std::vector<reco::PreShowerCluster>,reco::PreShowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreShowerCluster>,reco::PreShowerCluster> >"/>
-  <class name="edm::RefProd<std::vector<reco::PreShowerCluster> >"/>
-  <class name="edm::RefVector<std::vector<reco::PreShowerCluster>,reco::PreShowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreShowerCluster>,reco::PreShowerCluster> >"/>
-
   <class name="reco::SuperCluster"/>  
   <class name="std::vector<reco::SuperCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::SuperCluster> >"/>

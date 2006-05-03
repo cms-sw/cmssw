@@ -1,6 +1,5 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/PreShowerCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterPi0Discriminator.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/EcalCluster.h"
@@ -16,12 +15,6 @@ namespace {
     edm::Ref<reco::BasicClusterCollection> r1;
     edm::RefProd<reco::BasicClusterCollection> rp1;
     edm::RefVector<reco::BasicClusterCollection> rv1;
-
-    reco::PreShowerClusterCollection v2;
-    edm::Wrapper<reco::PreShowerClusterCollection> w2;
-    edm::Ref<reco::PreShowerClusterCollection> r2;
-    edm::RefProd<reco::PreShowerClusterCollection> rp2;
-    edm::RefVector<reco::PreShowerClusterCollection> rv2;
 
     std::vector<reco::SuperCluster> sv3;
     reco::SuperClusterCollection v3;
