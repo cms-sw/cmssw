@@ -13,7 +13,6 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-#<flags CXXFLAGS="-g -O0">
 <export>
    <lib name=TrackPropagationSteppingHelixPropagator>
 </export>
