@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.20 2006/04/28 00:47:56 rpw Exp $
+ * $Id: pset_parse.y,v 1.21 2006/05/01 18:38:22 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -287,6 +287,16 @@ allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
 		   bool tr = $<_bool>1;
                    string name(toString($<str>3));
                    NodePtrListPtr value($<_NodePtrList>6);
+                   VPSetNode* en(new VPSetNode("VPSet",name,value,tr,lines));
+                   $<_Node>$ = en;
+                 }
+               |
+                untracked VPSET_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok SCOPE_END_tok
+                 {
+                   DBPRINT("node: VPSET (empty)");
+                   bool tr = $<_bool>1;
+                   string name(toString($<str>3));
+                   NodePtrListPtr value(new NodePtrList());
                    VPSetNode* en(new VPSetNode("VPSet",name,value,tr,lines));
                    $<_Node>$ = en;
                  }
