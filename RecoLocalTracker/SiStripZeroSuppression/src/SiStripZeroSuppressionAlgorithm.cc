@@ -50,7 +50,6 @@ SiStripZeroSuppressionAlgorithm::~SiStripZeroSuppressionAlgorithm() {
 }
 
 void SiStripZeroSuppressionAlgorithm::configure( SiStripPedestalsService* in ) {
-
     SiStripPedestalsSubtractor_->setSiStripPedestalsService(in);
     SiStripZeroSuppressor_->setSiStripPedestalsService(in);
 } 
@@ -63,18 +62,6 @@ void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType,
   if ( validZeroSuppression_ && validCMNSubtraction_) {
     int number_detunits        = 0;
     int number_localstripdigis = 0;
-
-    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-    //FIXME
-    //patch to print all detid for mtcc
-    //remove it
-    {
-      edm::DetSetVector<SiStripRawDigi>::const_iterator DSViter=input.begin();
-      for (; DSViter!=input.end();DSViter++){
-	++number_detunits;
-	LogDebug("SiStripZeroSuppression") << "grep_this DetID " << DSViter->id << std::endl;
-      }
-    }
 
     //loop on all detset inside the input collection
     edm::DetSetVector<SiStripRawDigi>::const_iterator DSViter=input.begin();
