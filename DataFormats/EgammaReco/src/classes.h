@@ -3,6 +3,7 @@
 #include "DataFormats/EgammaReco/interface/PreShowerCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterPi0Discriminator.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/EcalCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/EgammaTrigger.h"
 
@@ -28,6 +29,8 @@ namespace {
     edm::Ref<reco::SuperClusterCollection> r3;
     edm::RefProd<reco::SuperClusterCollection> rp3;
     edm::RefVector<reco::SuperClusterCollection> rv3;
+
+    std::vector<reco::EcalCluster> tsv3;
 
     reco::EgammaTriggerCollection v4;
     edm::Wrapper<reco::EgammaTriggerCollection> w4;
