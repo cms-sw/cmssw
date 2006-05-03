@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.13 2006/04/26 22:21:21 rpw Exp $
+ * $Id: pset_lex.l,v 1.14 2006/04/28 00:47:56 rpw Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -37,7 +37,7 @@
 
   /*
      If we remove the ? from the comment rules, and require the newline,
-     out tests fail, complaining about a token #double.
+     our tests fail, complaining about a token #double.
      If we remove [\n]? from the comment rules, we obtain the same failure
      as when the [\n]? is there.
   */
@@ -107,6 +107,7 @@ comment2        "//".*[\n]?
 \{		{ return SCOPE_START_tok; }
 \}		{ return SCOPE_END_tok; }
 \n		{ ++lines; break; }
+\r              { break ; }
 \t              { break ; }
 [ ]+		{ break ; }
 

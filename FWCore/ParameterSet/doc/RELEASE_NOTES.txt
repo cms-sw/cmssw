@@ -1,3 +1,10 @@
+2006-05-03  Marc Paterno  <paterno@fnal.gov>
+
+	* Modified lexer to strip away "return" (\r) characters. This
+	allows configuration files represented in textual internet
+	protocols, as well as files created on operating system that use
+	\r\n as the line terminator, to be handled correctly.
+
 02-03-06 mfp. Add ability to get names of all parameters of a given type
     to ParameterSet, and tests for it.
 
