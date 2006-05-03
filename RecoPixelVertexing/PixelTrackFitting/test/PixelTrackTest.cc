@@ -24,9 +24,11 @@ public:
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
   virtual void endJob() { }
 private:
+  edm::ParameterSet conf_; 
 };
 
 PixelTrackTest::PixelTrackTest(const edm::ParameterSet& conf)
+  : conf_(conf)
 {
   edm::LogInfo("PixelTrackTest")<<" CTOR";
 }
@@ -41,9 +43,11 @@ void PixelTrackTest::analyze(
 {
   cout <<"*** PixelTrackTest, analyze event: " << ev.id() << endl;
   edm::Handle<reco::TrackCollection> trackCollection;
-  ev.getByType(trackCollection);
+  std::string trackCollName = conf_.getParameter<std::string>("TrackCollection");
+  ev.getByLabel(trackCollName,trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
 
+  std::cout << *(trackCollection.provenance()) << std::endl;
   cout << "Reconstructed "<< tracks.size() << " tracks" << std::endl;
   typedef reco::TrackCollection::const_iterator IT;
   for (IT track=tracks.begin(); track!=tracks.end(); track++){
