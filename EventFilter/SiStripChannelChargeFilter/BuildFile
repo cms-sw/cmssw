@@ -4,8 +4,6 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiStripCluster>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/TrackerGeometryBuilder>	
 
 <export>
 <lib name=EventFilterSiStripChannelChargeFilte>
