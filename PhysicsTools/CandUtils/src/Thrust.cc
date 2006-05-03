@@ -1,4 +1,4 @@
-// $Id$
+// $Id: Thrust.cc,v 1.12 2006/02/28 11:20:21 llista Exp $
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
 #include <cmath>
 using namespace reco;
@@ -10,7 +10,7 @@ Thrust::Thrust( const_iterator begin, const_iterator end ) :
   if ( n_ == 0 ) return;
   int i = 0;
   for( const_iterator t = begin; t != end; ++ t, ++ i )
-    pSum_ += ( p_[ i ] = t->p3() ).r();
+    pSum_ += ( p_[ i ] = t->momentum() ).r();
 
   axis_ = axis( finalAxis( initialAxis() ) );
   if ( axis_.z() < 0 ) axis_ *= -1;
