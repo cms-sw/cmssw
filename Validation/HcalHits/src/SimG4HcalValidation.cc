@@ -18,6 +18,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
@@ -36,7 +38,6 @@ SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p):
   jetf(0), numberingFromDDD(0), org(0) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("SimG4HcalValidation");
-  verbosity     = m_Anal.getParameter<int>("Verbosity");
   infolevel     = m_Anal.getParameter<int>("InfoLevel");
   hcalOnly      = m_Anal.getParameter<bool>("HcalClusterOnly");
   applySampling = m_Anal.getParameter<bool>("HcalSampling");
@@ -50,48 +51,39 @@ SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p):
   phi0          = m_Anal.getParameter<double>("Phi0");
   names         = m_Anal.getParameter<std::vector<std::string> >("Names");
 
-  verbosHit     = (verbosity/10000)%10;
-  verbosDDD     = (verbosity/1000)%10;
-  verbosJetf    = (verbosity/100)%10;
-  verbosNumber  = (verbosity/10)%10;
-  verbosity    %= 10;
-
   produces<PHcalValidInfoLayer>();
   if (infolevel > 0) produces<PHcalValidInfoNxN>();
   if (infolevel > 1) produces<PHcalValidInfoJets>();
 
-  if (verbosity > 0)
-    std::cout << "HcalTestAnalysis:: Initialised as observer of begin/end "
-	      << "events and of G4step" << " with Parameter values: " 
-	      << std::endl << "InfoLevel     = " << infolevel
-	      << std::endl << "hcalOnly      = " << hcalOnly 
-	      << std::endl << "applySampling = " << applySampling 
-	      << std::endl << "coneSize      = " << coneSize
-	      << std::endl << "ehitThreshold = " << ehitThreshold 
-	      << std::endl << "hhitThreshold = " << hhitThreshold
-	      << std::endl << "ttimeLowlim   = " << timeLowlim
-	      << std::endl << "ttimeUplim    = " << timeUplim
-	      << std::endl << "eta0          = " << eta0
-	      << std::endl << "phi0          = " << phi0 << std::endl;
+  edm::LogInfo("ValidHcal") << "HcalTestAnalysis:: Initialised as observer of "
+			    << "begin/end events and of G4step with Parameter "
+			    << "values: \n\tInfoLevel     = " << infolevel
+			    << "\n\thcalOnly      = " << hcalOnly 
+			    << "\n\tapplySampling = " << applySampling 
+			    << "\n\tconeSize      = " << coneSize
+			    << "\n\tehitThreshold = " << ehitThreshold 
+			    << "\n\thhitThreshold = " << hhitThreshold
+			    << "\n\tttimeLowlim   = " << timeLowlim
+			    << "\n\tttimeUplim    = " << timeUplim
+			    << "\n\teta0          = " << eta0
+			    << "\n\tphi0          = " << phi0;
 
   init();
 } 
    
 SimG4HcalValidation::~SimG4HcalValidation() {
 
-  if (verbosity > 0) {
-    std::cout << std::endl << " -------->  Total number of selected entries : "
-	      << count << std::endl; 
-    std::cout << "Pointers:: JettFinder " << jetf << ", Numbering Scheme " 
-	      << org << " and FromDDD " << numberingFromDDD << std::endl;
-  }
+  edm::LogInfo("ValidHcal") << "\n -------->  Total number of selected entries"
+			    << " : " << count << "\nPointers:: JettFinder " 
+			    << jetf << ", Numbering Scheme " << org 
+			    << " and FromDDD " << numberingFromDDD;
   if (jetf)   {
-    if (verbosity > 0) std::cout << "Delete Jetfinder" << std::endl;
+    edm::LogInfo("ValidHcal") << "Delete Jetfinder";
     delete jetf;
     jetf  = 0;
   }
   if (numberingFromDDD) {
-    if (verbosity > 0) std::cout << "Delete HcalNumberingFromDDD" << std::endl;
+    edm::LogInfo("ValidHcal") << "Delete HcalNumberingFromDDD";
     delete numberingFromDDD;
     numberingFromDDD = 0;
   }
@@ -144,7 +136,7 @@ void SimG4HcalValidation::init() {
   }
 
   // jetfinder conse size setting
-  jetf   = new SimG4HcalHitJetFinder(verbosJetf, coneSize);
+  jetf   = new SimG4HcalHitJetFinder(coneSize);
 
   // counter 
   count = 0;
@@ -156,13 +148,12 @@ void SimG4HcalValidation::update(const BeginOfJob * job) {
   // Numbering From DDD
   edm::ESHandle<DDCompactView> pDD;
   (*job)()->get<IdealGeometryRecord>().get(pDD);
-  if (verbosity > 0) 
-    std::cout << "HcalTestAnalysis:: Initialise HcalNumberingFromDDD for "
-              << names[0] << std::endl;
-  numberingFromDDD = new HcalNumberingFromDDD(verbosDDD, names[0], (*pDD));
+  edm::LogInfo("ValidHcal") << "HcalTestAnalysis:: Initialise "
+			    << "HcalNumberingFromDDD for " << names[0];
+  numberingFromDDD = new HcalNumberingFromDDD(names[0], (*pDD));
 
   // Numbering scheme
-  org              = new HcalTestNumberingScheme(verbosNumber);
+  org              = new HcalTestNumberingScheme();
 
 }
 
@@ -170,33 +161,30 @@ void SimG4HcalValidation::update(const BeginOfRun * run) {
 
   int irun = (*run)()->GetRunID();
   
-  if (verbosity > 0) 
-    std::cout <<" =====> Begin of Run = " << irun << std::endl;
+  edm::LogInfo("ValidHcal") <<" =====> Begin of Run = " << irun;
  
   std::string  sdname = names[0];
   G4SDManager* sd     = G4SDManager::GetSDMpointerIfExist();
   if (sd != 0) {
     G4VSensitiveDetector* aSD = sd->FindSensitiveDetector(sdname);
     if (aSD==0) {
-      if (verbosity > 0) 
-	std::cout << "SimG4HcalValidation::beginOfRun: No SD with name " 
-		  << sdname << " in this Setup " << std::endl;  
+      edm::LogWarning("ValidHcal") << "SimG4HcalValidation::beginOfRun: No SD"
+				   << " with name " << sdname << " in this "
+				   << "Setup";
     } else {
       HCalSD* theCaloSD = dynamic_cast<HCalSD*>(aSD);
-      if (verbosity > 0) 
-	std::cout << "SimG4HcalValidation::beginOfRun: Finds SD with name " 
-		  << theCaloSD->GetName() << " in this Setup " << std::endl;
+      edm::LogInfo("ValidHcal") << "SimG4HcalValidation::beginOfRun: Finds SD"
+				<< "with name " << theCaloSD->GetName() 
+				<< " in this Setup";
       if (org) {
         theCaloSD->setNumberingScheme(org);
-        if (verbosity > 0) 
-	  std::cout << "SimG4HcalValidation::beginOfRun: set a new numbering "
-		    << "scheme" << std::endl;
+        edm::LogInfo("ValidHcal") << "SimG4HcalValidation::beginOfRun: set a "
+				  << "new numbering scheme";
       }
     }
   } else {
-    if (verbosity > 0) 
-      std::cout << "SimG4HcalValidation::beginOfRun: Could not get SD "
-		<< "Manager!" << std::endl;
+    edm::LogWarning("ValidHcal") << "SimG4HcalValidation::beginOfRun: Could "
+				 << "not get SD Manager!";
   }
 
 }
@@ -213,8 +201,8 @@ void SimG4HcalValidation::update(const BeginOfEvent * evt) {
   clear();
 
   int iev = (*evt)()->GetEventID();
-  if (verbosity > 0) 
-    std::cout <<" =====> Begin of event = " << iev << std::endl;
+  edm::LogInfo("ValidHcal") << "SimG4HcalValidation: =====> Begin of event = "
+			    << iev;
 }
 
 //=================================================================== each STEP
@@ -238,9 +226,8 @@ void SimG4HcalValidation::update(const G4Step * aStep) {
       if (depth > 0 && depth < 4 && layer >= 0 && layer < 17) {
 	edepHB += edeposit;
       } else {
-	if (verbosity > 0)
-	  std::cout << "Error " << curPV->GetName() << curPV->GetCopyNo() 
-		    << std::endl;
+	edm::LogWarning("ValidHcal") << "SimG4HcalValidation:Error " 
+				     << curPV->GetName() << curPV->GetCopyNo();
 	depth = -1; layer = -1;
       }
     } else if (name == "HES") {
@@ -249,9 +236,8 @@ void SimG4HcalValidation::update(const G4Step * aStep) {
       if (depth > 0 && depth < 3 && layer >= 0 && layer < 19) {
 	edepHE += edeposit;
       } else {
-	if (verbosity > 0)
-	  std::cout << "Error " << curPV->GetName() << curPV->GetCopyNo() 
-		    << std::endl;
+	edm::LogWarning("ValidHcal") << "SimG4HcalValidation:Error " 
+				     << curPV->GetName() << curPV->GetCopyNo();
 	depth = -1; layer = -1;
       }
     } else if (name == "HTS") {
@@ -260,20 +246,19 @@ void SimG4HcalValidation::update(const G4Step * aStep) {
       if (depth > 3 && depth < 5 && layer >= 17 && layer < 20) {
 	edepHO += edeposit;
        } else {
-         if (verbosity > 0) 
-           std::cout << "Error " << curPV->GetName() << curPV->GetCopyNo()
-                     << std::endl;
+	 edm::LogWarning("ValidHcal") << "SimG4HcalValidation:Error " 
+				      << curPV->GetName() <<curPV->GetCopyNo();
 	 depth = -1; layer = -1;
        }
     }
     if (depth >= 0 && depth < 5)  edepd[depth] += edeposit;
     if (layer >= 0 && layer < 20) edepl[layer] += edeposit;
 
-    if (layer >= 0 && layer < 20 && verbosity > 3) {
-      std::cout << "SimG4HcalValidation:: G4Step: " << name << " Layer " 
-		<< std::setw(3) << layer << " Depth " << std::setw(2) << depth 
-		<< " Edep " << std::setw(6) << edeposit/MeV << " MeV" 
-		<< std::endl;
+    if (layer >= 0 && layer < 20) {
+      LogDebug("ValidHcal") << "SimG4HcalValidation:: G4Step: " << name 
+			    << " Layer " << std::setw(3) << layer << " Depth "
+			    << std::setw(2) << depth << " Edep " <<std::setw(6)
+			    << edeposit/MeV << " MeV";
     }
   }
 }
@@ -285,15 +270,14 @@ void SimG4HcalValidation::update(const EndOfEvent * evt) {
 
   // Fill hits cache for jetfinding etc.
   fill(evt);
-  if (verbosity > 0) 
-    std::cout << "SimG4HcalValidation:: ---  after Fill " << std::endl;
+  edm::LogInfo("ValidHcal") << "SimG4HcalValidation:: ---  after Fill ";
 }
 
 //---------------------------------------------------
 void SimG4HcalValidation::fill(const EndOfEvent * evt) {
 
-  if (verbosity > 1) 
-    std::cout << " Fill event " << (*evt)()->GetEventID() << std::endl;
+  LogDebug("ValidHcal") << "SimG4HcalValidation:Fill event " 
+			<< (*evt)()->GetEventID();
   
   // access to the G4 hit collections 
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
@@ -303,10 +287,9 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
   // Hcal
   int HCHCid = G4SDManager::GetSDMpointer()->GetCollectionID(names[0]);
   CaloG4HitCollection* theHCHC = (CaloG4HitCollection*) allHC->GetHC(HCHCid);
-  if (verbosity > 1) 
-    std::cout << "SimG4HcalValidation :: Hit Collection for " << names[0] 
-	      << " of ID " << HCHCid << " is obtained at " << theHCHC 
-	      << std::endl;
+  LogDebug("ValidHcal") << "SimG4HcalValidation :: Hit Collection for " 
+			<< names[0] << " of ID " << HCHCid <<" is obtained at "
+			<< theHCHC;
   if (HCHCid >= 0 && theHCHC > 0) {
     for (j = 0; j < theHCHC->entries(); j++) {
 
@@ -341,15 +324,14 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
 	  det = "HED";
 	}
       }
-      if (verbosity > 2)
-        std::cout << "SimG4HcalValidation::debugFill Hcal " 
-                  << det << " layer " 
-	          << std::setw(2) << layer << " lay " << std::setw(2) << lay 
-		  << " time " << std::setw(6) << time << " theta " 
-		  << std::setw(8) << theta << " eta " << std::setw(8) << eta  
-		  << " phi " << std::setw(8) << phi << " e " << std::setw(8) 
-		  << e << " ID 0x" << std::hex << unitID << " ID dec " 
-                  << std::dec << (int)unitID <<  std::endl; 
+      LogDebug("ValidHcal") << "SimG4HcalValidation::debugFill Hcal " 
+			    << det << " layer " << std::setw(2) << layer 
+			    << " lay " << std::setw(2) << lay << " time " 
+			    << std::setw(6) << time << " theta " 
+			    << std::setw(8) << theta << " eta " << std::setw(8)
+			    << eta << " phi " << std::setw(8) << phi << " e " 
+			    << std::setw(8) << e << " ID 0x" << std::hex
+			    << unitID << " ID dec " << std::dec << (int)unitID;
 
       // if desired, apply sampling factors in HCAL !!!
       if (applySampling) e *= getHcalScale(det,layer);    
@@ -363,9 +345,7 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
       }    
     }
   }
-  if (verbosity > 0) 
-    std::cout << "SimG4HcalValidation:: HCAL hits : " << nhc << std::endl 
-	      << std::endl; 
+  edm::LogInfo("ValidHcal") << "SimG4HcalValidation:: HCAL hits : " << nhc;
 
   if (!hcalOnly) { //--------------------------  ECAL hits --------------------
     int ndets = names.size();
@@ -378,10 +358,9 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
       int nec    = 0;
       int ECHCid = G4SDManager::GetSDMpointer()->GetCollectionID(names[idty]);
       CaloG4HitCollection* theECHC =(CaloG4HitCollection*)allHC->GetHC(ECHCid);
-      if (verbosity > 1) 
-	std::cout << "SimG4HcalValidation:: Hit Collection for " << names[idty]
-		  << " of ID " << ECHCid << " is obtained at " << theECHC 
-		  << std::endl;
+      LogDebug("ValidHcal") << "SimG4HcalValidation:: Hit Collection for "
+			    << names[idty] << " of ID " << ECHCid 
+			    << " is obtained at " << theECHC;
       if (ECHCid >= 0 && theECHC > 0) {
 	for (j = 0; j < theECHC->entries(); j++) {
 
@@ -410,23 +389,21 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
 	    ++nec;
 	  }
 
-	  if (verbosity > 2) 
-
-        std::cout << "SimG4HcalValidation::debugFill Ecal " 
-                  << det << " layer " 
-	          << std::setw(2) << layer << " lay " << std::setw(2) << lay 
-		  << " time " << std::setw(6) << time << " theta " 
-		  << std::setw(8) << theta << " eta " << std::setw(8) << eta  
-		  << " phi " << std::setw(8) << phi << " e " << std::setw(8) 
-		  << e << " ID 0x" << std::hex << unitID << " ID dec " 
-                  << std::dec << (int)unitID <<  std::endl;
+	  LogDebug("ValidHcal") << "SimG4HcalValidation::debugFill Ecal " 
+				<< det << " layer " << std::setw(2) << layer 
+				<< " lay " << std::setw(2) << lay << " time " 
+				<< std::setw(6) << time << " theta " 
+				<< std::setw(8) << theta << " eta " 
+				<< std::setw(8) << eta  << " phi " 
+				<< std::setw(8) << phi << " e " << std::setw(8)
+				<< e << " ID 0x" << std::hex << unitID 
+				<< " ID dec " << std::dec << (int)unitID;
 
 	}
       }
 
-      if (verbosity > 1) 
-	std::cout << "SimG4HcalValidation:: " << det << " hits : " << nec 
-		  << std::endl << std::endl; 
+      LogDebug("ValidHcal") << "SimG4HcalValidation:: " << det << " hits : "
+			    << nec;
     }
   } // end of if(!hcalOnly)
 
@@ -434,41 +411,36 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
 
 void SimG4HcalValidation::layerAnalysis(PHcalValidInfoLayer& product) {
 
-  if (verbosity > 1) {
-    int i = 0;
-    std::cout << std::endl
-	      << " ===>>> SimG4HcalValidation: Energy deposit in MeV " 
-	      << std::endl << " at EB : " << std::setw(6) << edepEB/MeV 
-	      << std::endl << " at EE : " << std::setw(6) << edepEE/MeV 
-	      << std::endl << " at HB : " << std::setw(6) << edepHB/MeV 
-	      << std::endl << " at HE : " << std::setw(6) << edepHE/MeV 
-	      << std::endl << " at HO : " << std::setw(6) << edepHO/MeV 
-	      << std::endl << std::endl
-	      << " ---- SimG4HcalValidation: Energy deposit in" << std::endl;
-    for (i = 0; i < 5; i++) 
-      std::cout << " Depth " << std::setw(2) << i << " E " << std::setw(8) 
-		<< edepd[i]/MeV << " MeV" << std::endl ;
-    std::cout << " ---- SimG4HcalValidation: Energy deposit in Layers" 
-	      << std::endl;
-    for (i = 0; i < 20; i++) 
-      std::cout << " Layer " << std::setw(2) << i << " E " << std::setw(8) 
-		<< edepl[i]/MeV  << " MeV" << std::endl;
-  }
+  int i = 0;
+  LogDebug("ValidHcal") << "\n ===>>> SimG4HcalValidation: Energy deposit "
+			<< "in MeV\n at EB : " << std::setw(6) << edepEB/MeV 
+			<< "\n at EE : " << std::setw(6) << edepEE/MeV 
+			<< "\n at HB : " << std::setw(6) << edepHB/MeV 
+			<< "\n at HE : " << std::setw(6) << edepHE/MeV 
+			<< "\n at HO : " << std::setw(6) << edepHO/MeV 
+			<< "\n ---- SimG4HcalValidation: Energy deposit in";
+  for (i = 0; i < 5; i++) 
+    LogDebug("ValidHcal") << " Depth " << std::setw(2) << i << " E " 
+			  << std::setw(8) << edepd[i]/MeV << " MeV";
+  LogDebug("ValidHcal") << " ---- SimG4HcalValidation: Energy deposit in"
+			<< "layers";
+  for (i = 0; i < 20; i++) 
+    LogDebug("ValidHcal") << " Layer " << std::setw(2) << i << " E " 
+			  << std::setw(8) << edepl[i]/MeV  << " MeV";
+
   product.fillLayers(edepl, edepd, edepHO, edepHB+edepHE, edepEB+edepEE);  
 
   // Hits in HF
   product.fillHF(vhitec, vhithc, enEcal, enHcal);
-  if (verbosity > 1)
-    std::cout << "SimG4HcalValidation::HF hits " << vhitec << " in EC and " 
-	      << vhithc << " in HC" << std::endl 
-	      << "                     HB/HE   " << enEcal << " in EC and "
-	      << enHcal << " in HC" << std::endl;
+  LogDebug("ValidHcal") << "SimG4HcalValidation::HF hits " << vhitec 
+			<< " in EC and " << vhithc << " in HC\n"
+			<< "                     HB/HE   " << enEcal 
+			<< " in EC and " << enHcal << " in HC";
 
   // Another HCAL hist to porcess and store separately (a bit more complicated)
   fetchHits(product);
 
-  if (verbosity > 1)
-    std::cout << " layerAnalysis ===> after fetchHits" << std::endl;
+  LogDebug("ValidHcal") << " layerAnalysis ===> after fetchHits";
 
 }
 
@@ -478,15 +450,13 @@ void SimG4HcalValidation::nxNAnalysis(PHcalValidInfoNxN& product) {
   std::vector<CaloHit> * hits = &hitcache;
   std::vector<CaloHit>::iterator hit_itr;
 
-  if (verbosity > 1)
-    std::cout << " NxNAnalysis : entrance " << std::endl;
+  LogDebug("ValidHcal") << "SimG4HcalValidation::NxNAnalysis : entrance ";
 
   collectEnergyRdir(eta0,phi0); // HCAL and ECAL energy in  SimHitCache
                                 // around (eta0,phi0)
 
-  if (verbosity > 1)
-    std::cout << " NxNAnalysis : coolectEnergyRdir - Ecal " << een 
-	      << "   Hcal " << hen << std::endl;
+  LogDebug("ValidHcal") << " NxNAnalysis : coolectEnergyRdir - Ecal " << een 
+			<< "   Hcal " << hen;
 
   double etot  = 0.;      // total e deposited     in "cluster"
   double ee    = 0.;      // ECAL  e deposited     in "cluster"
@@ -521,11 +491,11 @@ void SimG4HcalValidation::nxNAnalysis(PHcalValidInfoNxN& product) {
 	  if ((eta0-eta) <= dEta[i] && (eta0-eta) >= -dEta[i] &&
 	      (phi0-phi) <= dPhi[i] && (phi0-phi) >= -dPhi[i]) {
 
-	    if (verbosity > 1)
-	      std::cout << "SimG4HcalValidation:: nxNAnalysis eta0, phi0 = " 
-			<< eta0 << " " << phi0 
-			<< "   type, layer = " << type << "," << layer
-			<< "  eta, phi = " << eta << " " << phi << std::endl;
+	    LogDebug("ValidHcal") << "SimG4HcalValidation:: nxNAnalysis eta0,"
+				  << " phi0 = " << eta0 << " " << phi0 
+				  << "   type, layer = " << type << "," 
+				  << layer << "  eta, phi = " << eta << " " 
+				  << phi;
 
 	    product.fillTProfileNxN(e, i, t);  
 	    save_i = i;
@@ -540,8 +510,7 @@ void SimG4HcalValidation::nxNAnalysis(PHcalValidInfoNxN& product) {
   product.fillEcollectNxN(ee, he, hoe, etot);       
   product.fillHvsE(een, hen, hoen, een+hen);
 
-  if (verbosity > 1)
-    std::cout << " nxNAnalysis ===> after fillHvsE" << std::endl;
+  LogDebug("ValidHcal") << " nxNAnalysis ===> after fillHvsE";
 
 
 }
@@ -559,12 +528,10 @@ void SimG4HcalValidation::jetAnalysis(PHcalValidInfoJets& product) {
 
   std::vector<SimG4HcalHitCluster>::iterator clus_itr;
 
-  if (verbosity > 1) {
-    std::cout << std::endl << " ---------- Final list of " << (*result).size()
-	      << " clusters ---------------" << std::endl;
-    for (clus_itr = result->begin(); clus_itr < result->end(); clus_itr++) 
-      std::cout << (*clus_itr) << std::endl;
-  }
+  LogDebug("ValidHcal") << "\n ---------- Final list of " << (*result).size()
+			<< " clusters ---------------";
+  for (clus_itr = result->begin(); clus_itr < result->end(); clus_itr++) 
+    LogDebug("ValidHcal") << (*clus_itr);
 
   std::vector<double> enevec, etavec, phivec; 
 
@@ -583,19 +550,15 @@ void SimG4HcalValidation::jetAnalysis(PHcalValidInfoJets& product) {
       collectEnergyRdir(etac, phic);
       ecal_collect = een;
     }
-    if (verbosity > 1)
-      std::cout << " JetAnalysis ===> ecal_collect  = " << ecal_collect 
-		<< std::endl;
+    LogDebug("ValidHcal") << " JetAnalysis ===> ecal_collect  = " 
+			  << ecal_collect;
 
     // eta-phi deviation of the cluster from nominal (eta0, phi0) values
     double dist = jetf->rDist(eta0, phi0, etac, phic);
-    if (verbosity > 1)
-      std::cout << " JetAnalysis ===> eta phi deviation  = " << dist 
-		<< std::endl;
+    LogDebug("ValidHcal") << " JetAnalysis ===> eta phi deviation  = " << dist;
     product.fillEtaPhiProfileJet(eta0, phi0, etac, phic, dist);
    
-    if (verbosity > 1)
-      std::cout << " JetAnalysis ===> after fillEtaPhiProfileJet" << std::endl;
+    LogDebug("ValidHcal") << " JetAnalysis ===> after fillEtaPhiProfileJet";
     
     std::vector<CaloHit> * hits = clus_itr->getHits() ;
     std::vector<CaloHit>::iterator hit_itr;
@@ -630,9 +593,9 @@ void SimG4HcalValidation::jetAnalysis(PHcalValidInfoJets& product) {
     
     product.fillEcollectJet(ee, he, hoe, etot);       
 
-    if (verbosity > 1)
-      std::cout << " JetAnalysis ===> after fillEcollectJet: ee/he/hoe/etot "
-		<< ee << "/" << he << "/" << hoe << "/" << etot << std::endl;
+    LogDebug("ValidHcal") << " JetAnalysis ===> after fillEcollectJet: "
+			  << "ee/he/hoe/etot " << ee << "/" << he << "/" 
+			  << hoe << "/" << etot;
 
     // Loop over clusters
     for (clus_itr = result->begin(); clus_itr < result->end(); clus_itr++) {
@@ -644,24 +607,21 @@ void SimG4HcalValidation::jetAnalysis(PHcalValidInfoJets& product) {
     }
     product.fillJets(enevec, etavec, phivec);
 
-    if (verbosity > 1)
-      std::cout << " JetAnalysis ===> after fillJets" << std::endl
-		<< " JetAnalysis ===> (*result).size() "
-		<< (*result).size() << std::endl;
+    LogDebug("ValidHcal") << " JetAnalysis ===> after fillJets\n"
+			  << " JetAnalysis ===> (*result).size() "
+			  << (*result).size();
  
     // Di-jet mass
     if (etavec.size() > 1) {
       if (etavec[0] > -2.5 && etavec[0] < 2.5 && 
 	  etavec[1] > -2.5 && etavec[1] < 2.5) {
  
-	if (verbosity > 1) {
-	  std::cout << " JetAnalysis ===> Di-jet mass enter " << std::endl;
-	  std::cout << " JetAnalysis ===> Di-jet vectors " << std::endl;
-	  for (unsigned int i = 0; i < enevec.size(); i++) {
-	    std::cout << "   e, eta, phi = " << enevec[i] << " "
-		      <<  etavec[i] << " " << phivec[i]  << std::endl;
-	  }
-	}
+	LogDebug("ValidHcal") << " JetAnalysis ===> Di-jet mass enter\n"
+			      << " JetAnalysis ===> Di-jet vectors ";
+	for (unsigned int i = 0; i < enevec.size(); i++)
+	  LogDebug("ValidHcal") << "   e, eta, phi = " << enevec[i] << " "
+				<<  etavec[i] << " " << phivec[i];
+
         double et0 = enevec[0] / cosh(etavec[0]);
         double px0 = et0  * cos(phivec[0]);
         double py0 = et0  * sin(phivec[0]);
@@ -674,9 +634,8 @@ void SimG4HcalValidation::jetAnalysis(PHcalValidInfoJets& product) {
         double dijetmass2 = (enevec[0]+enevec[1])*(enevec[0]+enevec[1])
           - (px1+px0)*(px1+px0) - (py1+py0)*(py1+py0) - (pz1+pz0)*(pz1+pz0);
  
-	if (verbosity > 1)
-	  std::cout << " JetAnalysis ===> Di-jet massSQ " << dijetmass2 
-		    << std::endl;
+	LogDebug("ValidHcal") << " JetAnalysis ===> Di-jet massSQ "
+			      << dijetmass2;
 
         double dijetmass;
         if(dijetmass2 >= 0.) dijetmass = sqrt(dijetmass2);
@@ -684,8 +643,7 @@ void SimG4HcalValidation::jetAnalysis(PHcalValidInfoJets& product) {
 
         product.fillDiJets(dijetmass);
  
-	if (verbosity > 1)
-	  std::cout << " JetAnalysis ===> after fillDiJets" << std::endl;
+	LogDebug("ValidHcal") << " JetAnalysis ===> after fillDiJets";
       }
     }
   }
@@ -694,8 +652,8 @@ void SimG4HcalValidation::jetAnalysis(PHcalValidInfoJets& product) {
 //---------------------------------------------------
 void SimG4HcalValidation::fetchHits(PHcalValidInfoLayer& product) {
 
-  std::cout << "Enter SimG4HcalValidation::fetchHits with verbos " << verbosity
-	    << " and " << hitcache.size() << " hits " << std::endl;
+  edm::LogInfo("ValidHcal") << "Enter SimG4HcalValidation::fetchHits with "
+			    << hitcache.size() << " hits";
   int nHit = hitcache.size();
   int hit  = 0;
   int i;
@@ -715,38 +673,32 @@ void SimG4HcalValidation::fetchHits(PHcalValidInfoLayer& product) {
     group += (iphi&127);
     itr->setId(group);
     lhits[i] = &hitcache[i];
-    if (verbosity > 2) {
-      std::cout << "SimG4HcalValidation::fetchHits:Original " << i << " " 
-		<< hitcache[i] << std::endl;
-      std::cout << "SimG4HcalValidation::fetchHits:Copied   " << i << " " 
-		<< *lhits[i]    << std::endl;
-    }
+    LogDebug("ValidHcal") << "SimG4HcalValidation::fetchHits:Original " << i 
+			  << " "  << hitcache[i] << "\n"
+			  << "SimG4HcalValidation::fetchHits:Copied   " << i 
+			  << " " << *lhits[i];
   }
   sort(lhits.begin(),lhits.end(),CaloHitIdMore());
   std::vector<CaloHit*>::iterator k1, k2;
-  if (verbosity > 2) {
-    for (i = 0, k1 = lhits.begin(); k1 != lhits.end(); i++, k1++)
-      std::cout << "SimG4HcalValidation::fetchHits:Sorted " << i << " " 
-		<< **k1 << std::endl;
-  }
+  for (i = 0, k1 = lhits.begin(); k1 != lhits.end(); i++, k1++)
+    LogDebug("ValidHcal") << "SimG4HcalValidation::fetchHits:Sorted " << i 
+			  << " " << **k1;
   int nHits = 0;
   for (i = 0, k1 = lhits.begin(); k1 != lhits.end(); i++, k1++) {
     double       ehit  = (**k1).e();
     double       t     = (**k1).t();
     uint32_t     unitID= (**k1).id();
     int          jump  = 0;
-    if (verbosity > 2) 
-      std::cout << "SimG4HcalValidation::fetchHits:Start " << i << " U/T/E"
-		<< " 0x" << std::hex << unitID << std::dec << " "  << t
-		<< " " << ehit;
+    LogDebug("ValidHcal") << "SimG4HcalValidation::fetchHits:Start " << i 
+			  << " U/T/E" << " 0x" << std::hex << unitID 
+			  << std::dec << " "  << t << " " << ehit;
     for (k2 = k1+1; k2 != lhits.end() && (t-(**k2).t()) < 1 &&
 	   (t-(**k2).t()) > -1 && unitID == (**k2).id(); k2++) {
       ehit += (**k2).e();
-      if (verbosity > 2) std::cout << " + " << (**k2).e();
+      LogDebug("ValidHcal") << "\t + " << (**k2).e();
       jump++;
     }
-    if (verbosity > 2)
-      std::cout << " = " << ehit << " in " << jump << std::endl;
+    LogDebug("ValidHcal") << "\t = " << ehit << " in " << jump;
 
     double eta  = (*k1)->eta();
     double phi  = (*k1)->phi();
@@ -760,21 +712,19 @@ void SimG4HcalValidation::fetchHits(PHcalValidInfoLayer& product) {
     product.fillHits(nHits, lay, subdet, eta, phi, ehit, t);
     nHits++;
 
-    if (verbosity > 1) 
-      std::cout << "SimG4HcalValidation::fetchHits:Hit " << nHits << " " << i 
-                << " ID 0x" << std::hex << unitID 
-                << "   det " <<  std::dec  << subdet 
-                << " " << lay << " " << zside << " " << ieta << " " << iphi 
-                << " Time " << t << " E " << ehit << std::endl;
+    LogDebug("ValidHcal") << "SimG4HcalValidation::fetchHits:Hit " << nHits 
+			  << " " << i << " ID 0x" << std::hex << unitID 
+			  << "   det " <<  std::dec  << subdet << " " << lay 
+			  << " " << zside << " " << ieta << " " << iphi 
+			  << " Time " << t << " E " << ehit;
 
     i  += jump;
     k1 += jump;
   }
 
-  if (verbosity > 1) 
-    std::cout << "SimG4HcalValidation::fetchHits called with " << nHit 
-              << " hits" << " and writes out " << nHits << '(' << hit 
-              << ") hits" << std::endl;
+  LogDebug("ValidHcal") << "SimG4HcalValidation::fetchHits called with "
+			<< nHit << " hits" << " and writes out " << nHits
+			<< '(' << hit << ") hits";
 
 }
 //---------------------------------------------------

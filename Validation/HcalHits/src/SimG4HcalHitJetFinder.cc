@@ -4,16 +4,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "Validation/HcalHits/interface/SimG4HcalHitJetFinder.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <cmath>
 
-SimG4HcalHitJetFinder::SimG4HcalHitJetFinder(int iv, double cone):
-  verbosity(iv), jetcone(cone) {}
+SimG4HcalHitJetFinder::SimG4HcalHitJetFinder(double cone): jetcone(cone) {}
 
 SimG4HcalHitJetFinder::~SimG4HcalHitJetFinder() {
-  if (verbosity > 0)
-    std::cout << "SimG4HcalHitJetFinder:: Deleting" << std::endl;
+  edm::LogInfo("ValidHcal") << "SimG4HcalHitJetFinder:: Deleting";
 }
 
 void SimG4HcalHitJetFinder::setCone(double cone) { 
@@ -31,22 +30,18 @@ std::vector<SimG4HcalHitCluster>* SimG4HcalHitJetFinder::getClusters(bool hcal_o
   }
 
   std::vector<CaloHit>::iterator itr;
-  if (verbosity > 1) {
-    for (itr = input.begin(); itr != input.end(); itr++) {
-      std::cout << " getClusters_1 - input :  e " << itr->e() << "  eta " 
-		<< itr->eta() << "  phi " << itr->phi() << "  subdet " 
-		<< itr->det() << std::endl;
-    }
+  for (itr = input.begin(); itr != input.end(); itr++) {
+    LogDebug("ValidHcal") << "HcalHitJetFinder::getClusters_1 - input :  e " 
+			  << itr->e() << "  eta " << itr->eta() << "  phi " 
+			  << itr->phi() << "  subdet " << itr->det();
   }
 
   sort(input.begin(),input.end()); // sort input in descending order
  
-  if (verbosity > 1) {
-    for (itr = input.begin(); itr != input.end(); itr++) {
-      std::cout << " getClusters_2 - input :  e " << itr->e() << "  eta " 
-		<< itr->eta() << "  phi " << itr->phi() << "  subdet " 
-		<< itr->det() << std::endl;
-    }
+  for (itr = input.begin(); itr != input.end(); itr++) {
+    LogDebug("ValidHcal") << "HcalHitJetFinder::getClusters_2 - input :  e " 
+			  << itr->e() << "  eta " << itr->eta() << "  phi " 
+			  << itr->phi() << "  subdet " << itr->det();
   }
 
   std::vector<SimG4HcalHitCluster> temp;   // dummy container for clusters
@@ -67,9 +62,8 @@ std::vector<SimG4HcalHitCluster>* SimG4HcalHitJetFinder::getClusters(bool hcal_o
 	  h_type == static_cast<int>(HcalForward)) && hcal_only) || 
 	(!hcal_only)) {
       cluster += input[j];
-      if (verbosity > 2) 
-	std::cout << " First seed hit .................." << std::endl
-		  << (*itr_hits) << std::endl;
+      LogDebug("ValidHcal") << "HcalHitJetFinder:: First seed hit "
+			    << "..................\n" << (*itr_hits);
       first_seed = j;
       break;
     }
@@ -86,9 +80,8 @@ std::vector<SimG4HcalHitCluster>* SimG4HcalHitJetFinder::getClusters(bool hcal_o
 	   h_type == static_cast<int>(HcalEndcap) ||
 	   h_type == static_cast<int>(HcalForward)) && hcal_only) || 
 	 (!hcal_only)) && (j != first_seed)) {
-      if (verbosity > 2) 
-	std::cout << " ........... Consider hit .................." 
-		  << std::endl << (*itr_hits) << std::endl;
+      LogDebug("ValidHcal") << "HcalHitJetFinder:: ........... Consider hit"
+			    << " ..................\n" << (*itr_hits);
       
       int incl = 0; // if the hit is included in one of clusters
       
@@ -96,13 +89,12 @@ std::vector<SimG4HcalHitCluster>* SimG4HcalHitJetFinder::getClusters(bool hcal_o
       for (itr_clus = temp.begin(), iclus = 0; itr_clus != temp.end();
 	   itr_clus++, iclus++) { 
 	
-	if (verbosity > 2)
-	  std::cout << "=======> Cluster " << iclus << std::endl
-		    << (*itr_clus) << std::endl;
+	LogDebug("ValidHcal") << "HcalHitJetFinder::=======> Cluster " 
+			      << iclus << "\n" << (*itr_clus);
 	
 	double d = rDist(&(*itr_clus), &(*itr_hits));
 	if (d < jetcone) {
-	  if (verbosity > 2) std::cout << " -> associated ... " << std::endl;
+	  LogDebug("ValidHcal") << "HcalHitJetFinder:: -> associated ... ";
 	  temp[iclus] += *itr_hits;
 	  incl = 1;
 	  break;  
@@ -114,9 +106,8 @@ std::vector<SimG4HcalHitCluster>* SimG4HcalHitJetFinder::getClusters(bool hcal_o
 	SimG4HcalHitCluster cl;
 	cl += *itr_hits;
 	temp.push_back(cl);
-	if (verbosity > 2)
-	  std::cout << std::endl << " ************ NEW CLUSTER !" << std::endl
-		    << cl << std::endl;
+	LogDebug("ValidHcal") << "HcalHitJetFinder:: ************ NEW CLUSTER"
+			      << " !\n" << cl;
       }
     }
   }
@@ -147,13 +138,13 @@ double SimG4HcalHitJetFinder::rDist(const double etac,const double phic,
   if (phic < phih)      delta_phi = phih - phic;
   if (delta_phi > M_PI) delta_phi = 2*M_PI - delta_phi;
 
-  if (verbosity > 1)
-    std::cout << std::endl
-	      << " Clus. eta, phi = " << etac << " " << phic << std::endl 
-	      << " hit   eta, phi = " << etah << " " << phih << " rDist = "
-	      << sqrt(delta_eta * delta_eta + delta_phi * delta_phi)
-	      << std::endl;
+  double tmp = sqrt(delta_eta * delta_eta + delta_phi * delta_phi);
 
-  return sqrt(delta_eta * delta_eta + delta_phi * delta_phi);
+  LogDebug("ValidHcal") << "HcalHitJetFinder::rDist:\n"
+			<< " Clus. eta, phi = " << etac << " " << phic << "\n"
+			<< " hit   eta, phi = " << etah << " " << phih 
+			<< " rDist = " << tmp;
+
+  return tmp;
 }
 
