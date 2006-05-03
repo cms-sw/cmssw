@@ -13,28 +13,25 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.5 2006/04/11 10:27:55 dkcira Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.6 2006/04/11 12:22:21 dkcira Exp $
 //
 //
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
-#include "CalibFormats/SiStripObjects/interface/SiStripStructure.h" // these two will go away
 #include "CalibTracker/Records/interface/SiStripStructureRcd.h"     // these two will go away
+#include "CalibFormats/SiStripObjects/interface/SiStripStructure.h" // these two will go away
+
+#include "DataFormats/Common/interface/DetSetVector.h" // replaces SiStripDigiCollection
+#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripMonitorDigi/interface/SiStripMonitorDigi.h"
-
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 using namespace std;
 using namespace edm;
@@ -72,11 +69,9 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
     SiStripSubStructure substructure;
     vector<uint32_t> SelectedDetIds;
     substructure.getTIBDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
-    substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 2, 0);    // this adds rawDetIds to SelectedDetIds
-    substructure.getTIDDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
-    substructure.getTECDetectors(activeDets, SelectedDetIds, 1, 2, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
-
-
+//    substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 2, 0);    // this adds rawDetIds to SelectedDetIds
+//    substructure.getTIDDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
+//    substructure.getTECDetectors(activeDets, SelectedDetIds, 1, 2, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
 
      // use SistripHistoId for producing histogram id (and title)
      SiStripHistoId hidmanager;
@@ -127,56 +122,33 @@ SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    iSetup.get<SetupRecord>().get(pSetup);
 #endif
 
-  // Mechanical structure view. No need for condition here. If map is empty, nothing should happen.
-//  for (map<uint32_t, MonitorElement*>::const_iterator i = ADCsPerStrip.begin() ; i!=ADCsPerStrip.end() ; i++) {
-//    uint32_t detid = i->first;
-//    MonitorElement* local_me = i->second;
-//
-//    // retrieve producer name of input StripDigiCollection
-//    std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
-//    // get DigiCollection object from Event
-//    edm::Handle<StripDigiCollection> digi_collection;
-//    iEvent.getByLabel(digiProducer, digi_collection);
-//
-//    // get iterators for digis belonging to one DetId
-//    const StripDigiCollection::Range digiRange = digi_collection->get(detid);
-//    StripDigiCollection::ContainerIterator digiBegin = digiRange.first;
-//    StripDigiCollection::ContainerIterator digiEnd   = digiRange.second;
-//
-//    // loop over Digis belonging to detid
-//    for(StripDigiCollection::ContainerIterator digiIter = digiBegin; digiIter<digiEnd; digiIter++){
-//      // fill ME
-//      local_me->Fill(digiIter->strip(),digiIter->adc(),1.);
-//    }
-//  }
-
+  // retrieve producer name of input StripDigiCollection
+  std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
+  // get collection of DetSetVector of digis from Event
+  edm::Handle< edm::DetSetVector<SiStripDigi> > digi_detsetvektor;
+  iEvent.getByLabel(digiProducer, digi_detsetvektor);
   // loop over all MEs
-  for (map<uint32_t, ModMEs >::const_iterator i = DigiMEs.begin() ; i!=DigiMEs.end() ; i++) {
-    uint32_t detid = i->first; ModMEs local_modmes = i->second;
-
-    // retrieve producer name of input StripDigiCollection
-    std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
-    // get DigiCollection object from Event
-    edm::Handle<StripDigiCollection> digi_collection;
-    iEvent.getByLabel(digiProducer, digi_collection);
-    // get iterators for digis belonging to one DetId
-    const StripDigiCollection::Range digiRange = digi_collection->get(detid);
-    StripDigiCollection::ContainerIterator digiBegin = digiRange.first;
-    StripDigiCollection::ContainerIterator digiEnd   = digiRange.second;
-
+  for (map<uint32_t, ModMEs >::const_iterator iterMEs = DigiMEs.begin() ; iterMEs!=DigiMEs.end() ; iterMEs++) {
+    uint32_t detid = iterMEs->first; ModMEs local_modmes = iterMEs->second; // get detid and type of ME
+    // get from DetSetVector the DetSet of digis belonging to one detid - first make sure there exists digis with this id
+    edm::DetSetVector<SiStripDigi>::const_iterator isearch = digi_detsetvektor->find(detid); // search  digis of detid
+    if(isearch==digi_detsetvektor->end()) continue; // no digis for this detid => jump to next step of loop
+    //digi_detset is a structure, digi_detset.data is a std::vector<SiStripDigi>, digi_detset.id is uint32_t
+    edm::DetSet<SiStripDigi> digi_detset = (*digi_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
+    //
     if(local_modmes.DigisPerModule != NULL){ // nr. of digis per detector
-      (local_modmes.DigisPerModule)->Fill(static_cast<float>(digiEnd-digiBegin),1.);
+      (local_modmes.DigisPerModule)->Fill(static_cast<float>(digi_detset.data.size()),1.);
     }
     if(local_modmes.ADCsHottestStrip != NULL){ // nr. of adcs for hottest strip
-      int largest_adc=digiBegin->adc();
-      for(StripDigiCollection::ContainerIterator digiIter = digiBegin; digiIter<digiEnd; digiIter++){
+      int largest_adc=(digi_detset.data.begin())->adc();
+      for(edm::DetSet<SiStripDigi>::const_iterator digiIter = digi_detset.data.begin(); digiIter!= digi_detset.data.end(); digiIter++ ){
            if(digiIter->adc()>largest_adc) largest_adc = digiIter->adc(); 
       }
       (local_modmes.ADCsHottestStrip)->Fill(static_cast<float>(largest_adc),1.);
     }
     if(local_modmes.ADCsCoolestStrip){ // nr. of adcs for coolest strip
-      int smallest_adc=digiBegin->adc();
-      for(StripDigiCollection::ContainerIterator digiIter = digiBegin; digiIter<digiEnd; digiIter++){
+      int smallest_adc=(digi_detset.data.begin())->adc();
+      for(edm::DetSet<SiStripDigi>::const_iterator digiIter = digi_detset.data.begin(); digiIter!= digi_detset.data.end(); digiIter++ ){
            if(digiIter->adc()<smallest_adc) smallest_adc = digiIter->adc(); 
       }
       (local_modmes.ADCsCoolestStrip)->Fill(static_cast<float>(smallest_adc),1.);
