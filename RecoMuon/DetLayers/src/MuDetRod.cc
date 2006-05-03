@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/04/12 13:23:53 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#define DEBUG false //FIXME!
+#define MDEBUG false //FIXME!
 
 MuDetRod::MuDetRod(vector<const GeomDet*>::const_iterator first,
                    vector<const GeomDet*>::const_iterator last)
@@ -57,7 +57,7 @@ MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
 			  const Propagator& prop, 
 			  const MeasurementEstimator& est) const {
 
-  if ( DEBUG ) cout << "MuDetRod::compatibleDets, Surface at R,phi: " 
+  if ( MDEBUG ) cout << "MuDetRod::compatibleDets, Surface at R,phi: " 
 		    << surface().position().perp()  << ","
 		    << surface().position().phi() << endl
 // FIXME	    << " TS at R,phi: " << startingState.position().perp() << ","
@@ -74,7 +74,7 @@ MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
     compatible(startingState, prop, est);
   
   if (!compat.first) {
-    if ( DEBUG ) cout << "    MuDetRod::compatibleDets: not compatible"
+    if ( MDEBUG ) cout << "    MuDetRod::compatibleDets: not compatible"
 		      << "    (should not have been selected!)" <<endl;
     return result;
   }
@@ -84,7 +84,7 @@ MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
   GlobalPoint startPos = tsos.globalPosition();
   int closest = theBinFinder.binIndex(startPos.z());
   const vector<const GeomDet*> dets = basicComponents();
-  if ( DEBUG ) cout << "     MuDetRod::compatibleDets, closest det: " << closest 
+  if ( MDEBUG ) cout << "     MuDetRod::compatibleDets, closest det: " << closest 
 		    << " pos: " << dets[closest]->surface().position()
 		    << " impact " << startPos
 		    << endl;
@@ -109,7 +109,7 @@ MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
     for (unsigned int idet=closest+1; idet < dets.size(); idet++) {
       LocalPoint nextPos(dets[idet]->toLocal(startPos));
       if (fabs(nextPos.y()) < detHalfLen + maxDistance.y()) { 
-        if ( DEBUG ) cout << "     negativeZ: det:" << idet
+        if ( MDEBUG ) cout << "     negativeZ: det:" << idet
 			  << " pos " << nextPos.y()
 			  << " maxDistance " << maxDistance.y()
 			  << endl;
@@ -135,12 +135,12 @@ MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
     }
   }
 
-  if ( DEBUG ) cout << "     MuDetRod::compatibleDets, size: " << result.size()
+  if ( MDEBUG ) cout << "     MuDetRod::compatibleDets, size: " << result.size()
 		    << " on closest: " << nclosest
 		    << " # checked dets: " << nnextdet+1
 		    << endl;
   if (result.size()==0) {
-    if ( DEBUG ) cout << "   ***Rod not compatible---should have been discarded before!!!" <<endl;
+    if ( MDEBUG ) cout << "   ***Rod not compatible---should have been discarded before!!!" <<endl;
   }
   return result;
 }
