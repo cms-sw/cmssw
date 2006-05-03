@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.5 2006/03/24 14:16:56 wmtan Exp $
+$Id: RootFile.h,v 1.6 2006/04/18 23:41:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,6 +14,7 @@ $Id: RootFile.h,v 1.5 2006/03/24 14:16:56 wmtan Exp $
 
 #include "IOPool/Input/src/Inputfwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "TBranch.h"
 #include "TFile.h"
 
@@ -50,8 +51,7 @@ namespace edm {
     RootFile(RootFile const&); // disable copy construction
     RootFile & operator=(RootFile const&); // disable assignment
     std::string const file_;
-    typedef std::size_t  Token;
-    Token reportToken_;
+    JobReport::Token reportToken_;
     EventID eventID_;
     EntryNumber entryNumber_;
     EntryNumber entries_;
