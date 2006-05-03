@@ -8,14 +8,16 @@ Description: Analyzer of SteppingHelixPropagator performance
 
 Implementation:
 Use simTracks and simVertices as initial points. For all  muon PSimHits in the event 
-extrapolate/propagate from the previous point (starting from a vertex) to the hit position (detector surface).
-Fill an nTuple (could've been an EventProduct) with expected (given by the propagator) and actual (PSimHits)
+extrapolate/propagate from the previous point (starting from a vertex) 
+to the hit position (detector surface).
+Fill an nTuple (could've been an EventProduct) with expected (given by the propagator) 
+and actual (PSimHits)
 positions of a muon in the detector.
 */
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.1 2006/04/14 21:45:18 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.2 2006/04/25 19:24:39 slava77 Exp $
 //
 //
 
@@ -89,7 +91,8 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
   void beginJob(edm::EventSetup const&);
 
  protected:
-  void loadNtVars(int ind, int eType,  int pStatus, int id,//defs offset: 0 for R, 1*3 for Z and, 2*3 for P
+  void loadNtVars(int ind, int eType,  int pStatus, 
+		  int id,//defs offset: 0 for R, 1*3 for Z and, 2*3 for P
 		  const Hep3Vector& p3, const Hep3Vector& r3, 
 		  const Hep3Vector& p3R, const Hep3Vector& r3R, 
 		  int charge, const HepSymMatrix& cov);
@@ -126,6 +129,7 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
 
   bool noMaterialMode_;
   bool noErrPropMode_;
+  bool radX0CorrectionMode_;
 };
 
 //
@@ -151,7 +155,7 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
   tr_->Branch("pStatus", pStatus_, "pStatus[nPoints][3]/I");
   tr_->Branch("p3", p3_, "p3[nPoints][9]/F");
   tr_->Branch("r3", r3_, "r3[nPoints][9]/F");
-  tr_->Branch("id", id_, "id[nPoints][3]/I");
+  tr_->Branch("id", id_, "id[nPoints]/I");
   tr_->Branch("p3R", p3R_, "p3R[nPoints][3]/F");
   tr_->Branch("r3R", r3R_, "r3R[nPoints][3]/F");
   tr_->Branch("covFlat", covFlat_, "covFlat[nPoints][21]/F");
@@ -161,7 +165,7 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
   debug_ = iConfig.getParameter<bool>("debug");
   noMaterialMode_ = iConfig.getParameter<bool>("noMaterialMode");
   noErrPropMode_ = iConfig.getParameter<bool>("noErrorPropagationMode");
-  
+  radX0CorrectionMode_ = iConfig.getParameter<bool>("radX0CorrectionMode");
 }
 
 void SteppingHelixPropagatorAnalyzer::beginJob(const edm::EventSetup& es){
@@ -217,6 +221,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   ivProp_->setDebug(debug_);
 
   ivProp_->setMaterialMode(noMaterialMode_);
+  ivProp_->applyRadX0Correction(radX0CorrectionMode_);
   const double FPRP_MISMATCH = 150.;
   int pStatus = 0; //1 will be bad
 
@@ -289,9 +294,11 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     if (vtxInd < 0){
       std::cout<<"Track with no vertex, defaulting to (0,0,0)"<<std::endl;      
     } else {
-      r3T = (*simVertices)[vtxInd].position().vect()*0.1; //seems to be stored in mm --> convert to cm
+      r3T = (*simVertices)[vtxInd].position().vect()*0.1; 
+      //seems to be stored in mm --> convert to cm
     }
-    HepSymMatrix covT = noErrPropMode_ ? HepSymMatrix(1,1) : HepSymMatrix(6,1); covT *= 1e-6; // initialize to sigma=1e-3
+    HepSymMatrix covT = noErrPropMode_ ? HepSymMatrix(1,1) : HepSymMatrix(6,1); 
+    covT *= 1e-20; // initialize to sigma=1e-10 .. should get overwhelmed by MULS
 
     Hep3Vector p3F,r3F; //propagated state
     Hep3Vector p3R,r3R; //reference (hit) state
@@ -355,13 +362,15 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		 <<" p3Hit:"<<p3R
 		 <<std::endl;
       }
-      loadNtVars(nPoints_, 0, pStatus, muHitsDT_CI->detUnitId(), p3F, r3F, p3R, r3R, charge, covF); nPoints_++;
+      loadNtVars(nPoints_, 0, pStatus, muHitsDT_CI->detUnitId(), 
+		 p3F, r3F, p3R, r3R, charge, covF); nPoints_++;
     }
 
 
     PSimHitContainer::const_iterator muHitsRPC_CI = simHitsRPC->begin();
     for (; muHitsRPC_CI != simHitsRPC->end(); muHitsRPC_CI++){
-      if (muHitsRPC_CI->trackId() != trkInd || 1< 2) continue; // no use, RPCs are not working yet for me
+      if (muHitsRPC_CI->trackId() != trkInd || 1< 2) continue; 
+      // no use, RPCs are not working yet for me
       if (debug_){
 	std::cout<<" Doing RPC id "<<muHitsRPC_CI->detUnitId()<<std::endl;
       }
@@ -416,7 +425,8 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		 <<" p3Hit:"<<p3R
 		 <<std::endl;
       }
-      loadNtVars(nPoints_, 0, pStatus, muHitsRPC_CI->detUnitId(), p3F, r3F, p3R, r3R, charge, covF); nPoints_++;
+      loadNtVars(nPoints_, 0, pStatus, muHitsRPC_CI->detUnitId(), 
+		 p3F, r3F, p3R, r3R, charge, covF); nPoints_++;
     }
 
 
@@ -470,7 +480,8 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		 <<" p3Hit:"<<p3R
 		 <<std::endl;
       }
-      loadNtVars(nPoints_, 0, pStatus, muHitsCSC_CI->detUnitId(), p3F, r3F, p3R, r3R, charge, covF); nPoints_++;
+      loadNtVars(nPoints_, 0, pStatus, muHitsCSC_CI->detUnitId(), 
+		 p3F, r3F, p3R, r3R, charge, covF); nPoints_++;
 
     }
 
