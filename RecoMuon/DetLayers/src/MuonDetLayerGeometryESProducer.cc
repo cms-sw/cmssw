@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/28 11:54:04 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/02 10:26:10 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -44,12 +44,12 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     edm::ESHandle<DTGeometry> dt;
     record.getRecord<MuonGeometryRecord>().get(dt);
     if (dt.isValid()) {
-        //muonDetLayerGeometry->addDTLayers(MuonDTDetLayerGeometryBuilder::buildLayers(*dt));
+        muonDetLayerGeometry->addDTLayers(MuonDTDetLayerGeometryBuilder::buildLayers(*dt));
     }
   
   } catch (...) {
     // No DT geo available
-    LogInfo("xxx") << "No DT geometry is available.";
+    LogInfo("RecoMuonDetLayers") << "No DT geometry is available.";
   }  
 
   // Build CSC layers
@@ -61,7 +61,7 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     }
   } catch(...) {
     // No CSC geo available
-    LogInfo("xxx") << "No CSC geometry is available.";
+    LogInfo("RecoMuonDetLayers") << "No CSC geometry is available.";
   }
   
   // Build RPC layers
@@ -74,7 +74,7 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
   
   } catch (...) {
     // No RPC geo available
-    LogInfo("xxx") << "No RPC geometry is available.";
+    LogInfo("RecoMuonDetLayers") << "No RPC geometry is available.";
   }  
 
   return boost::shared_ptr<MuonDetLayerGeometry>(muonDetLayerGeometry);
