@@ -5,12 +5,12 @@
  *
  *  No description available.
  *
- *  $Date: 2006/04/28 11:53:12 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/02 10:23:02 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
-#include <RecoMuon/DetLayers/interface/MuRingForwardLayer.h>
+#include <RecoMuon/DetLayers/interface/MuRodBarrelLayer.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 
 class MuonDTDetLayerGeometryBuilder {
@@ -22,7 +22,7 @@ class MuonDTDetLayerGeometryBuilder {
         virtual ~MuonDTDetLayerGeometryBuilder();
   
         /// Operations
-        static pair<vector<DetLayer*>, vector<DetLayer*> > buildLayers(const DTGeometry& geo);
+        static vector<DetLayer*> buildLayers(const DTGeometry& geo);
     private:
     
 };
