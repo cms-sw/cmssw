@@ -43,7 +43,6 @@ const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int 
     eta2 = theHBHEEtaBounds[etaRing];
   }
   double eta = 0.5*(eta1+eta2);
-  if (ieta<0) eta=-eta;
   double deta = 0.5*(eta2-eta1);  
 
   // in radians
@@ -61,14 +60,12 @@ const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int 
     x=r * cos(phi);
     y=r * sin(phi);
     thickness=HFthick/tanh(eta);
-    z*=sign;
   } else if (etaRing>17) { // EE-containing
     z=EEz;
     double r=z/sinh(eta);
     x=r * cos(phi);
     y=r * sin(phi);
     thickness=(HEz-EEz)/tanh(eta);
-    z*=sign;
   } else { // EB-containing
     x=EBradius * cos(phi);
     y=EBradius * sin(phi);
@@ -77,6 +74,7 @@ const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int 
     thickness=(HOradius-EBradius) * cosh(eta);
   }
 
+  z*=sign;
   GlobalPoint point(x,y,z);
 
   return new calogeom::IdealObliquePrism(point, deta, dphi_half*2, thickness, alongZ);
