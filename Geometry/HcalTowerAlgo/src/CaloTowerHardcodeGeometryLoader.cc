@@ -33,6 +33,7 @@ const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int 
   // Tower 17 is the last EB tower
 
   int etaRing=abs(ieta);
+  int sign=(ieta>0)?(1):(-1);
   double eta1, eta2;
   if (etaRing>limits.lastHERing()) {
     eta1 = theHFEtaBounds[etaRing-limits.firstHFRing()];
@@ -73,7 +74,8 @@ const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int 
     z=EBradius * sinh(eta);
     thickness=(HOradius-EBradius) * cosh(eta);
   }
-  
+
+  z*=sign;  
   GlobalPoint point(x,y,z);
 
   return new calogeom::IdealObliquePrism(point, deta, dphi_half*2, thickness, alongZ);

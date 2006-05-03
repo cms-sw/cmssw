@@ -12,14 +12,15 @@ class HcalDetId;
  *
  * \note The HE geometry is not currently correct.  The z positions must be corrected.
  *   
- * $Date: 2005/10/06 00:45:02 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/28 18:10:13 $
+ * $Revision: 1.3 $
  * \author R. Wilkinson - Caltech
 */
 class HcalHardcodeGeometryLoader {
 public:
   HcalHardcodeGeometryLoader();
   explicit HcalHardcodeGeometryLoader(const HcalTopology& ht);
+  virtual ~HcalHardcodeGeometryLoader() {}
   
   virtual std::auto_ptr<CaloSubdetectorGeometry> load(DetId::Detector det, int subdet);
   /// Load all of HCAL
