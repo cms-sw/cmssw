@@ -3,6 +3,7 @@
 #include "DQM/SiStripMonitorClient/interface/TrackerMap.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "TText.h"
 #include <iostream>
 
 //
@@ -23,36 +24,43 @@ SiStripActionExecutor::~SiStripActionExecutor() {
 // -- Create Tracker Map
 //
 void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui,
-					std::string me_name) {
-  TrackerMap trackerMap(me_name);
+			std::vector<std::string> me_names) {
+  TrackerMap trackerMap("SiStrip Map");
   // Get the values for the Tracker Map
   mui->cd();
   SiStripActionExecutor::DetMapType valueMap;
-  getValuesForTkMap(mui, me_name, valueMap);  
-  std::string comment;
+  getValuesForTkMap(mui, me_names, valueMap);  
   int rval = 0;
   int gval = 0;
   int bval = 0;
   for (SiStripActionExecutor::DetMapType::const_iterator it = valueMap.begin();
        it != valueMap.end(); it++) {
-    if (it->second.size() < 2) continue;
-    cout << " Detector ID : " << it->first 
-	 << " Mean Value : " << it->second[1] 
-         << " Status : " << it->second[0]  << endl;
-    // Fill Tracker Map with color from the status
-    if (it->second[0] == "Ok") { 
+    if (it->second.size() < 1) continue;
+    int istat = 0;
+    ostringstream comment;
+    comment << "Mean Value(s) : ";
+    for (std::vector<std::pair <int,float> >::const_iterator iv = it->second.begin();
+	 iv != it->second.end();  iv++) {
+      if (iv->first > istat ) istat = iv->first;
+      comment <<   iv->second <<  " : " ;
+     // Fill Tracker Map with Mean Value of the first element
+      if (iv == it->second.begin()) trackerMap.fill_current_val(it->first, iv->first);
+    }
+
+   // Fill Tracker Map with color from the status
+    if (istat == dqm::qstatus::STATUS_OK) { 
       rval = 0;   gval = 255;   bval = 0; 
-    } else if (it->second[0] == "Warning") { 
+    } else if (istat == dqm::qstatus::WARNING) { 
       rval = 255; gval = 255; bval = 0;
-    } else if (it->second[0] == "Error") { 
+    } else if (istat == dqm::qstatus::ERROR) { 
       rval = 255; gval = 0;  bval = 0;
     }
+    cout << " Detector ID : " << it->first 
+	 << comment.str()
+         << " Status : " << istat << endl;
     trackerMap.fillc(it->first, rval, gval, bval);
-    // Fill Tracker Map with Mean Value
-    trackerMap.fill_current_val(it->first, atof(it->second[1].c_str()));
     // Fill Tracker Map with Mean Value as Comment
-    comment =  "Mean value of Digi " + it->second[1];
-    trackerMap.setText(it->first, comment);
+    trackerMap.setText(it->first, comment.str());
   }
   trackerMap.print(true);
   return;
@@ -61,52 +69,77 @@ void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui,
 // -- Browse through monitorable and get values need for TrackerMap
 //
 void SiStripActionExecutor::getValuesForTkMap(MonitorUserInterface* mui,
-         std::string me_name, SiStripActionExecutor::DetMapType & values) {
+ std::vector<std::string> me_names, SiStripActionExecutor::DetMapType & values) {
   std::string currDir = mui->pwd();
-  // browse through monitorable; check if MEs exist
-  if (currDir.find("detector") != std::string::npos)  {
+  // browse through monitorable; check  if MEs exist
+  if (currDir.find("module_") != std::string::npos)  {
+    // Geometric ID
+    int id = atoi((currDir.substr(currDir.find("module_")+7)).c_str());
     TCanvas canvas("display");
-    std::string status;
+    canvas.Clear();
+    if (me_names.size() == 2) canvas.Divide(1,2);
+    if (me_names.size() == 3) canvas.Divide(1,3);
+    if (me_names.size() == 4) canvas.Divide(2,2);
+    int idiv = 0;
+
+    int status;
+    int icol;
+    string tag;
     std::vector<std::string> contents = mui->getMEs();    
-    for (std::vector<std::string>::const_iterator it = contents.begin();
-	 it != contents.end(); it++) {
-      if ((*it).find(me_name) == 0) {
+
+    std::vector<std::pair <int, float> > vtemp;
+    for (std::vector<std::string>::const_iterator im = me_names.begin();
+	 im != me_names.end(); im++) {
+      idiv++;
+      
+      for (std::vector<std::string>::const_iterator it = contents.begin();
+	      it != contents.end(); it++) {
+	if ((*it).find((*im)) != 0) continue;
 	std::string fullpathname = currDir + "/" + (*it); 
         MonitorElement * me = mui->get(fullpathname);
         if (me) {
-          // Geometric ID
-	  int id = atoi((currDir.substr(currDir.find("detector_")+9)).c_str());
           // Mean Value
-	  ostringstream mean_str;
-	  mean_str << me->getMean();
+	  float mean_val = me->getMean();
           // Status after comparison to Referece 
-	  if (me->hasError()) status = "Error";
-	  else if (me->hasWarning()) status = "Warning";
-	  else  status = "Ok";
-          // creation of jpg file
-	  canvas.Clear();
-	  // Access the Root object
+	  if (me->hasError()) {
+            status = dqm::qstatus::ERROR;
+            tag = "Error";
+            icol = 2;
+	  } else if (me->hasWarning()) {
+            status = dqm::qstatus::WARNING;
+            tag = "Warning";
+            icol = 5;
+	  } else  {
+            status = dqm::qstatus::STATUS_OK;
+            tag = "Ok";
+            icol = 3;
+          }
+          // Access the Root object and plot
 	  MonitorElementT<TNamed>* ob = 
 	    dynamic_cast<MonitorElementT<TNamed>*>(me);
 	  if (ob) {
+            canvas.cd(idiv);
+            TText tt;
+            tt.SetTextSize(0.06);
+            tt.SetTextColor(icol);
 	    ob->operator->()->Draw();
-	    ostringstream name_str;
-	    name_str << id << ".jpg";
-	    canvas.SaveAs(name_str.str().c_str());
-	  }
-          vector<std::string> vtemp;
-          vtemp.push_back(status);
-          vtemp.push_back(mean_str.str());  
-	  values.insert(pair<int,std::vector <std::string> >(id, vtemp));
+            tt.DrawTextNDC(0.7, 0.5, tag.c_str());
+            canvas.Update();
+          }
+          vtemp.push_back(std::pair<int,float>(status, mean_val));
         }
       }
     }
+    values.insert(pair<int,std::vector <std::pair <int,float> > >(id, vtemp));
+    ostringstream name_str;
+    name_str << id << ".jpg";
+    canvas.SaveAs(name_str.str().c_str());    
   } else {
     std::vector<std::string> subdirs = mui->getSubdirs();
     for (std::vector<std::string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
       mui->cd(*it);
-      getValuesForTkMap(mui, me_name, values);
+      getValuesForTkMap(mui, me_names, values);
       mui->goUp();
     }
   } 
@@ -117,23 +150,23 @@ void SiStripActionExecutor::getValuesForTkMap(MonitorUserInterface* mui,
 void SiStripActionExecutor::fillSummary(MonitorUserInterface* mui,
                      std::string dir_name, std::string me_name) {
   std::string currDir = mui->pwd();
+
   if (currDir.find(dir_name) != std::string::npos)  {
-    std::string tag = "Summary" 
-                        + me_name 
-                        + currDir.substr(currDir.find(dir_name)+dir_name.size());
+    std::string tag = "Summary" + me_name + "_in_" 
+                                + currDir.substr(currDir.find(dir_name));
     MonitorElement* sum_me = getSummaryME(mui, tag);
     if (!sum_me) return;
     std::vector<std::string> subdirs = mui->getSubdirs();
     int ndet = 0;
     for (std::vector<std::string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
-      if ( (*it).find("detector") == std::string::npos) continue;
+      if ( (*it).find("module_") == std::string::npos) continue;
       mui->cd(*it);
       ndet++;
       std::vector<std::string> contents = mui->getMEs();    
       for (std::vector<std::string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
-	if ((*im).find("DigisPerDetector") == 0) {
+	if ((*im).find(me_name) == 0) {
 	  std::string fullpathname = mui->pwd() + "/" + (*im); 
 	  MonitorElement *  me = mui->get(fullpathname);
 	  if (me) sum_me->Fill(ndet*1.0, me->getMean());

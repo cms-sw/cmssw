@@ -2,8 +2,8 @@
  *
  *  Implementation of SiStripQualityTester
  *
- *  $Date: 2006/03/31 18:10:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/19 17:06:56 $
+ *  $Revision: 1.2 $
  *  \author Suchandra Dutta
  */
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
@@ -73,8 +73,7 @@ void SiStripQualityTester::attachTests(MonitorUserInterface * mui){
     
     for (SiStripQualityTester::MEAssotiateMapType::const_iterator ic = theMeAssociateMap.begin(); ic != theMeAssociateMap.end(); ic++) {
       string me_name = ic->first;
-      //      if ((*it).find(me_name) == 0) {
-      if ((*it) == me_name) {
+      if ((*it).find(me_name) == 0) {
 	std::string fullpathname = currDir + "/" + (*it); 
         for (vector<string>::const_iterator im = ic->second.begin();
              im !=  ic->second.end(); im++) {
@@ -130,4 +129,20 @@ void SiStripQualityTester::setMeanWithinExpectedTest(MonitorUserInterface* mui,
   // set Test Type
   if (params["useRMS"] == "1") me_qc->useRMS();
   else if (params["useSigma"] != "0") me_qc->useSigma(atof(params["useSigma"].c_str()));
+}
+//
+// -- Get names of MEs under Quality Test
+//
+int SiStripQualityTester::getMEsUnderTest(std::vector<std::string>& me_names){  
+  if (theMeAssociateMap.size() == 0) {
+    cout << " SiStripQualityTester::getMEsUnderTest ==> " << 
+      " ME association Map emptyis empty!!! " << endl;
+    return 0;
+  }
+  me_names.clear();
+  for (SiStripQualityTester::MEAssotiateMapType::const_iterator 
+	 it = theMeAssociateMap.begin(); it != theMeAssociateMap.end(); it++) {
+    me_names.push_back(it->first);
+  }
+  return me_names.size();
 }

@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiStrip Quality Tests
  * 
- *  $Date: 2006/03/31 18:10:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/19 17:06:55 $
+ *  $Revision: 1.2 $
  *  \author Suchandra Dutta
   */
 
@@ -49,6 +49,7 @@ class SiStripQualityTester
   void setMeanWithinExpectedTest(MonitorUserInterface * mui, string name,
             map<string, string>& params);  
 
+  int getMEsUnderTest(std::vector<std::string> & me_names);
  private:
   QTestMapType theQTestMap;
   MEAssotiateMapType theMeAssociateMap;

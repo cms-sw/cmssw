@@ -21,15 +21,15 @@ SiStripWebInterface::SiStripWebInterface(std::string theContextURL, std::string 
   theQualityTester = 0;
   theActionExecutor = 0;
 
-  Navigator * nav = new Navigator(getApplicationURL(), "210px", "50px");
-  ContentViewer * cont = new ContentViewer(getApplicationURL(), "340px", "50px");
-  GifDisplay * dis = new GifDisplay(getApplicationURL(), "50px","370px", "270px", "550px", "MyGifDisplay"); 
+  Navigator * nav = new Navigator(getApplicationURL(), "50px", "50px");
+  ContentViewer * cont = new ContentViewer(getApplicationURL(), "180px", "50px");
+  GifDisplay * dis = new GifDisplay(getApplicationURL(), "50px","370px", "270px", "570px", "MyGifDisplay"); 
 
-  Button * subcrBut = new Button(getApplicationURL(), "470px", "50px", "SubscribeAll", "Subscribe All");
-  Button * compBut = new Button(getApplicationURL(), "520px", "50px", "CompareWithRef", "Compare with Reference");
-  Button * tkMapBut = new Button(getApplicationURL(), "570px", "50px", "CreateTrackerMap", "Create TrackerMap");
-  Button * sumBut = new Button(getApplicationURL(), "620px", "50px", "CreateSummary", "Create Summary");
-  Button * saveBut = new Button(getApplicationURL(), "670px", "50px", "SaveToFile", "Save To File");
+  Button * subcrBut = new Button(getApplicationURL(), "320px", "50px", "SubscribeAll", "Subscribe All");
+  Button * compBut = new Button(getApplicationURL(), "360px", "50px", "CompareWithRef", "Compare with Reference");
+  Button * tkMapBut = new Button(getApplicationURL(), "400px", "50px", "CreateTrackerMap", "Create TrackerMap");
+  Button * sumBut = new Button(getApplicationURL(), "440px", "50px", "CreateSummary", "Create Summary");
+  Button * saveBut = new Button(getApplicationURL(), "480px", "50px", "SaveToFile", "Save To File");
 
 
   page_p = new WebPage(getApplicationURL());
@@ -114,8 +114,16 @@ void SiStripWebInterface::createTkMap(xgi::Input * in, xgi::Output *out) throw (
     return;
   }
   // Create the Quality Test
-  if (theQualityTester == 0) setupQTest(in, out);
-  theActionExecutor->createTkMap((*mui_p), "Test");
+  //  if (theQualityTester == 0) setupQTest(in, out);
+  std::vector<std::string> me_names;
+  int nval = theQualityTester->getMEsUnderTest(me_names);
+  if (nval != 0) theActionExecutor->createTkMap((*mui_p), me_names);
+  else {
+    me_names.clear();
+    me_names.push_back("ClustersPerDetector"); 
+    me_names.push_back("DigisPerDetector"); 
+    theActionExecutor->createTkMap((*mui_p), me_names);
+  }
   return;
 }
 //
@@ -123,7 +131,7 @@ void SiStripWebInterface::createTkMap(xgi::Input * in, xgi::Output *out) throw (
 //
 void SiStripWebInterface::createSummary(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception) {
   std::cout << "A createSummary request was received" << endl;
-  if (getUpdates() > 10) theActionExecutor->fillSummary((*mui_p), "module", "Digis");
+  if (getUpdates() > 10) theActionExecutor->fillSummary((*mui_p), "string_", "DigisPerDetector");
   return;
 }
 //
@@ -131,8 +139,8 @@ void SiStripWebInterface::createSummary(xgi::Input * in, xgi::Output *out) throw
 //
 void SiStripWebInterface::saveToFile(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception) {
   cout << " Saving Monitoring Elements " << endl;
-  (*mui_p)->save("SiStripWebInterface.root", "Collector/",90);
-  //  (*mui_p)->save("SiStripWebInterface.root");
+  (*mui_p)->save("SiStripWebInterface.root", "Collector",90);
+//  (*mui_p)->save("SiStripWebInterface.root");
   return;
 }
 //
