@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/03/31 07:47:18 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/04/07 09:18:44 $
+ *  $Revision: 1.8 $
  *
  * \author Ilaria Segoni
  */
@@ -27,7 +27,9 @@
 
 #include <vector>
 
-RPCRecordFormatter::RPCRecordFormatter():currentRMB(0),currentChannel(0){
+//#define RPCRECORFORMATTER_DEBUG_
+
+RPCRecordFormatter::RPCRecordFormatter():currentBX(0),currentRMB(0),currentChannel(0){
 }
 
 RPCRecordFormatter::~RPCRecordFormatter(){
@@ -38,15 +40,12 @@ RPCRecordFormatter::~RPCRecordFormatter(){
 void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 		std::auto_ptr<RPCDigiCollection> & prod, RPCFEDData & rawData){
     
-   int bx=0;
-   ///Temporary Phony RPCDetId
-
    enum RPCRecord::recordTypes typeOfRecord = theRecord.type();
    const unsigned int* recordIndexInt= theRecord.buf();
 
    if(typeOfRecord==RPCRecord::StartOfBXData)      {
-	bx = this->unpackBXRecord(recordIndexInt);
-        rawData.addBXData(bx);
+	currentBX = this->unpackBXRecord(recordIndexInt);
+        rawData.addBXData(currentBX);
    }	   
     
     if(typeOfRecord==RPCRecord::StartOfChannelData) {
@@ -90,7 +89,7 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 		/// Creating RPC digi
 		/// When channel mapping available calculate strip
 		///and replace bit with strip
-		RPCDigi digi(strip,bx);
+		RPCDigi digi(strip,currentBX);
 
 		/// Committing digi to the product
 		prod->insertDigi(detId,digi);
@@ -107,7 +106,9 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 int RPCRecordFormatter::unpackBXRecord(const unsigned int* recordIndexInt) {
     
     int bx= ( *recordIndexInt >> rpcraw::bx::BX_SHIFT )& rpcraw::bx::BX_MASK ;
+    #ifdef RPCRECORFORMATTER_DEBUG_
     edm::LogInfo ("RPCUnpacker")<<"Found BX record, BX= "<<bx;
+    #endif
     return bx;
 
 } 
@@ -118,8 +119,10 @@ void RPCRecordFormatter::unpackChannelRecord(const unsigned int* recordIndexInt)
     currentChannel= (*recordIndexInt>> rpcraw::channel::CHANNEL_SHIFT )& rpcraw::channel::CHANNEL_MASK;
     currentRMB=(*recordIndexInt>> rpcraw::channel::TB_RMB_SHIFT)  & rpcraw::channel::TB_RMB_MASK;
 
+    #ifdef RPCRECORFORMATTER_DEBUG_
     edm::LogInfo ("RPCUnpacker")<<"Found start of Channel Data Record, Channel: "<<currentChannel<<
  	 " Readout Mother Board: "<<currentRMB;
+    #endif
 } 
 
 RPCLinkBoardData RPCRecordFormatter::unpackLBRecord(const unsigned int* recordIndexInt) {
@@ -130,23 +133,21 @@ RPCLinkBoardData RPCRecordFormatter::unpackLBRecord(const unsigned int* recordIn
     int partitionNumber = (*recordIndexInt >> rpcraw::lb::PARTITION_NUMBER_SHIFT ) & rpcraw::lb::PARTITION_NUMBER_MASK;
     int lbNumber = (*recordIndexInt >> rpcraw::lb::LB_SHIFT ) & rpcraw::lb::LB_MASK ;
 
+    #ifdef RPCRECORFORMATTER_DEBUG_
     edm::LogInfo ("RPCUnpacker")<< "Found LB Data, LB Number: "<< lbNumber<<
  	" Partition Data "<< partitionData<<
  	" Half Partition " <<  halfP<<
  	" Data Truncated: "<< eod<<
  	" Partition Number " <<  partitionNumber;
+    #endif
+
     std::vector<int> bits;
     bits.clear();
     for(int bb=0; bb<8;++bb) {
 	if ((partitionData>>bb)& 0X1) bits.push_back( partitionNumber* rpcraw::bits::BITS_PER_PARTITION + bb); 
     }
     
-    RPCLinkBoardData lbData;
-    lbData.setBits(bits);
-    lbData.setHalfP(halfP);
-    lbData.setEod(eod);
-    lbData.setPartitionNumber(partitionNumber);
-    lbData.setLbNumber(lbNumber);
+    RPCLinkBoardData lbData(bits,halfP,eod,partitionNumber,lbNumber);
 
     return lbData ;
 }
