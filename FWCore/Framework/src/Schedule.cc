@@ -9,7 +9,9 @@
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 
@@ -71,11 +73,11 @@ namespace edm
     {
     public:
       CallPrePost(ActivityRegistry* a,
-		  EventPrincipal* ep, 
+		  EventPrincipal* ep,
 		  const EventSetup* es):
 	a_(a),ep_(ep),es_(es)
       { a_->preProcessEventSignal_(ep_->id(),ep_->time()); }
-      ~CallPrePost() { 
+      ~CallPrePost() {
 	ModuleDescription dummy;
 	Event evt(*ep_,dummy);
 	const Event& eref(evt);
@@ -88,10 +90,10 @@ namespace edm
       const EventSetup* es_;
     };
 
-     
+
   }
 
-  class UnscheduledCallProducer : public UnscheduledHandler 
+  class UnscheduledCallProducer : public UnscheduledHandler
   {
   public:
     UnscheduledCallProducer() {}
@@ -99,11 +101,11 @@ namespace edm
       assert(0 != aWorker);
       labelToWorkers_[aWorker->description().moduleLabel_]=aWorker;
     }
-  private: 
+  private:
     virtual bool tryToFillImpl(const Provenance& prov,
 			       EventPrincipal& event,
 			       const EventSetup& eventSetup) {
-      std::map<std::string, Worker*>::const_iterator itFound = 
+      std::map<std::string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(prov.product.module.moduleLabel_);
       if(itFound != labelToWorkers_.end()) {
 	itFound->second->doWork(event,eventSetup);
@@ -157,46 +159,39 @@ namespace edm
     endpathsAreActive_(true)
   {
     ParameterSet defopts;
-    ParameterSet opts = 
+    ParameterSet opts =
       pset_.getUntrackedParameter<ParameterSet>("options", defopts);
-    
+
     bool hasFilter = false;
-    
+
     vstring::iterator ib(path_name_list_.begin()),ie(path_name_list_.end());
     int trig_bitpos=0, non_bitpos=0;
 
-    for(;ib!=ie;++ib) 
-      {
+    for(;ib!=ie;++ib) {
 	if(trig_name_set_.find(*ib)!=trig_name_set_.end()) {
 	  hasFilter += fillTrigPath(trig_bitpos,*ib, results_);
 	  ++trig_bitpos;
-	} 
-	else
-	  {
+	} else {
 	    fillTrigPath(non_bitpos,*ib, nontrig_results_);
 	    ++non_bitpos;
-	  }
-      }
-    
+	}
+    }
+
     // the results inserter stands alone
-    if(hasFilter || makeTriggerResults_) 
-      {
+    if(hasFilter || makeTriggerResults_) {
 	results_inserter_=makeInserter(trig_pset_,proc_name_,
 				       preg,actions,results_);
 	all_workers_.insert(results_inserter_.get());
-      }
+    }
 
     // check whether an endpath for wrongly placed modules is needed
-    if(tmp_wrongly_placed_.empty()) 
-      {
+    if(tmp_wrongly_placed_.empty()) {
 	TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
 	endpath_results_ = epptr;
-      }
-    else 
-      {
+    } else {
 	TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()+1));
 	endpath_results_ = epptr;
-      }
+    }
 
     // fill normal endpaths
     vstring::iterator eib(end_path_name_list_.begin()),eie(end_path_name_list_.end());
@@ -209,10 +204,9 @@ namespace edm
     std::set<std::string> usedWorkerLabels;
     for(AllWorkers::iterator itWorker=all_workers_.begin();
         itWorker != all_workers_.end();
-        ++itWorker)
-      {
+        ++itWorker) {
 	usedWorkerLabels.insert((*itWorker)->description().moduleLabel_);
-      }
+    }
     std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string> >("@all_modules"));
     std::set<std::string> modulesInConfigSet(modulesInConfig.begin(),modulesInConfig.end());
     std::vector<std::string> unusedLabels;
@@ -222,8 +216,7 @@ namespace edm
     //does the configuration say we should allow on demand?
     bool allowUnscheduled = opts.getUntrackedParameter<bool>("allowUnscheduled", false);
     std::set<std::string> unscheduledLabels;
-    if(!unusedLabels.empty()) 
-      {
+    if(!unusedLabels.empty()) {
 	//Need to
 	// 1) create worker
 	// 2) if they are ProducerWorkers, add them to our list
@@ -233,36 +226,29 @@ namespace edm
 	for(std::vector<std::string>::iterator itLabel = unusedLabels.begin();
             itLabel != unusedLabels.end();
             ++itLabel) {
-          if (allowUnscheduled) 
-	    {
+          if (allowUnscheduled) {
 	      const unsigned long version=1, pass=1;
 	      unscheduledLabels.insert(*itLabel);
 	      //Need to hold onto the parameters long enough to make the call to getWorker
 	      ParameterSet workersParams(proc_pset.getParameter<ParameterSet>(*itLabel));
-	      WorkerParams params(workersParams, 
+	      WorkerParams params(workersParams,
 				  *prod_reg_, *act_table_,
 				  proc_name_, version, pass);
 	      Worker* newWorker(wreg.getWorker(params));
-	      if (dynamic_cast<ProducerWorker*>(newWorker)) 
-		{
+	      if (dynamic_cast<ProducerWorker*>(newWorker)) {
 		  unscheduled_->addWorker(newWorker);
 		  //add to list so it gets reset each new event
 		  all_workers_.insert(newWorker);
-		} 
-	      else 
-		{
+	      } else {
 		  //not a producer so should be marked as not used
 		  shouldBeUsedLabels.push_back(*itLabel);
-		}
-	    }
-	  else 
-	    {
+	      }
+	  } else {
 	      //everthing is marked are unused so no 'on demand' allowed
 	      shouldBeUsedLabels.push_back(*itLabel);
-	    }
+	  }
 	}
-	if(!shouldBeUsedLabels.empty()) 
-	  {
+	if(!shouldBeUsedLabels.empty()) {
 	    std::ostringstream unusedStream;
 	    unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
 	    for(std::vector<std::string>::iterator itLabel = shouldBeUsedLabels.begin()+1;
@@ -271,17 +257,17 @@ namespace edm
 	      unusedStream <<",'" << *itLabel<<"'";
 	    }
 	    LogWarning("path")
-	      << "The following module labels are not assigned to any path:\n" 
+	      << "The following module labels are not assigned to any path:\n"
 	      <<unusedStream.str()
 	      <<"\n";
-	  }
-      }
+	}
+    }
     prod_reg_->setProductIDs();
     //Now that these have been set, we can create the list of Groups we need for the 'on demand'
     const ProductRegistry::ProductList& prodsList = prod_reg_->productList();
     for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin();
         itProdInfo != prodsList.end();
-        ++itProdInfo) 
+        ++itProdInfo)
       {
 	if(unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.module.moduleLabel_)) {
           std::auto_ptr<Provenance> prov(new Provenance(itProdInfo->second));
@@ -350,7 +336,7 @@ namespace edm
       Worker* tworker = wi->getWorker();
       if(dynamic_cast<OutputWorker*>(tworker)!=0) {
 	LogWarning("path")
-	  << "OutputModule " 
+	  << "OutputModule "
 	  << tworker->description().moduleLabel_
 	  << " appears in path " << name << ".\n"
 	  << "This will not be allowed in future releases.\n"
@@ -386,7 +372,7 @@ namespace edm
 
     transform(tmpworkers.begin(),tmpworkers.end(),
 	      back_inserter(holder),ToWorker());
-    
+
     Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,act_reg_);
     end_paths_.push_back(p);
     all_workers_.insert(holder.begin(),holder.end());
@@ -403,7 +389,7 @@ namespace edm
     state_ = Running;
 
     //now setup the on-demand system
-    // NOTE: who owns the productdescrption?  Just copied by value 
+    // NOTE: who owns the productdescrption?  Just copied by value
     unscheduled_->setEventSetup(es);
     ep.setUnscheduledHandler(unscheduled_);
     for(std::vector<boost::shared_ptr<Group> >::iterator itGroup = demandGroups_.begin();
@@ -413,23 +399,20 @@ namespace edm
       std::auto_ptr<Group> theGroup(new Group(prov));
       ep.addGroup(theGroup);
     }
-    try 
-      {
+    try {
 	CallPrePost cpp(act_reg_.get(),&ep,&es);
 
 	// go through normal paths and check only trigger paths for accept
 	bool result = false;
 	int which_one = 0;
 	TrigPaths::iterator ti(trig_paths_.begin()),te(trig_paths_.end());
-	for(;ti!=te;++ti)
-	  {
+	for(;ti!=te;++ti) {
 	    ti->runOneEvent(ep,es);
-	    if (trig_name_set_.find(ti->name())!=trig_name_set_.end())
-	      {
+	    if (trig_name_set_.find(ti->name())!=trig_name_set_.end()) {
 		result = result || ((*results_)[which_one]).accept();
 		++which_one;
-	      }
-	  }
+	    }
+	}
 	
 	if(result) ++total_passed_;
 	state_ = Latched;
@@ -438,43 +421,38 @@ namespace edm
 	
 	// go through end paths next.  Note there is no state-checking
 	// safety controlling the activation/deactivation of endpaths.
-	if (endpathsAreActive_)
-	  {
+	if (endpathsAreActive_) {
 	    TrigPaths::iterator ei(end_paths_.begin()),ee(end_paths_.end());
 	    for( ; ei != ee; ++ei) { ei->runOneEvent(ep,es); }
-	  }
-      }
-    catch(cms::Exception& e) 
-      {
+	}
+    }
+    catch(cms::Exception& e) {
 	actions::ActionCodes code = act_table_->find(e.rootCause());
 
-	switch(code) 
-	  {
-	  case actions::IgnoreCompletely:
-	    {
+	switch(code) {
+	  case actions::IgnoreCompletely: {
 	      LogWarning(e.category())
 		<< "exception being ignored for current event:\n"
 		<< e.what();
 	      break;
-	    }
-	  case actions::SkipEvent:
-	    {
+	  }
+	  case actions::SkipEvent: {
 	      LogWarning(e.category())
 		<< "an exception occurred and event is being skipped: \n"
 		<< e.what();
+	      Service<JobReport> reportSvc;
+	      reportSvc->reportSkippedEvent(ep.id());
 	      break;
-	    }
-	  default:
-	    {
+	  }
+	  default: {
 	      state_ = Ready;
 	      throw edm::Exception(errors::EventProcessorFailure,
 				   "EventProcessingStopped",e)
 		<< "an exception ocurred during current event processing\n";
-	    }
 	  }
-      }
-    catch(...) 
-      {
+	}
+    }
+    catch(...) {
 	LogError("PassingThrough")
 	  << "an exception ocurred during current event processing\n";
 	state_ = Ready;
@@ -522,7 +500,7 @@ namespace edm
     }
 
     //for_each(all_workers_.begin(),all_workers_.end(),
-    //		    boost::bind(&Worker::endJob,_1));    
+    //		    boost::bind(&Worker::endJob,_1));
 
     if(wantSummary_ == false) return;
 
@@ -549,8 +527,7 @@ namespace edm
 	 << "Name" << "\n";
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
-    for(;pi!=pe;++pi)
-      {
+    for(;pi!=pe;++pi) {
 	cout << "TrigReport "
              << right << setw( 5) << (trig_name_set_.find(pi->name())!=trig_name_set_.end())
              << right << setw( 5) << pi->bitPosition() << " "
@@ -559,7 +536,7 @@ namespace edm
 	     << right << setw(10) << pi->timesFailed() << " "
 	     << right << setw(10) << pi->timesExcept() << " "
 	     << pi->name() << "\n";
-      }
+    }
 
     cout << endl;
     cout << "TrigReport " << "-------End-Path   Summary ------------\n";
@@ -572,8 +549,7 @@ namespace edm
 	 << "Name" << "\n";
     pi=end_paths_.begin();
     pe=end_paths_.end();
-    for(;pi!=pe;++pi)
-      {
+    for(;pi!=pe;++pi) {
 	cout << "TrigReport "
              << right << setw( 5) << (trig_name_set_.find(pi->name())!=trig_name_set_.end())
              << right << setw( 5) << pi->bitPosition() << " "
@@ -582,12 +558,11 @@ namespace edm
 	     << right << setw(10) << pi->timesFailed() << " "
 	     << right << setw(10) << pi->timesExcept() << " "
 	     << pi->name() << "\n";
-      }
+    }
 
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
-    for(;pi!=pe;++pi)
-      {
+    for(;pi!=pe;++pi) {
 	cout << endl;
 	cout << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------\n";
 	cout << "TrigReport "
@@ -598,8 +573,7 @@ namespace edm
 	     << right << setw(10) << "Error" << " "
 	     << "Name" << "\n";
 
-	for (unsigned int i=0; i<pi->size(); ++i)
-	  {
+	for (unsigned int i=0; i<pi->size(); ++i) {
 	    cout << "TrigReport "
 		 << right << setw( 5) << (trig_name_set_.find(pi->name())!=trig_name_set_.end())
 		 << right << setw( 5) << pi->bitPosition() << " "
@@ -608,12 +582,12 @@ namespace edm
 		 << right << setw(10) << pi->timesFailed(i) << " "
 		 << right << setw(10) << pi->timesExcept(i) << " "
 		 << pi->getWorker(i)->description().moduleLabel_ << "\n";
-	  }}
+	}
+    }
 
     pi=end_paths_.begin();
     pe=end_paths_.end();
-    for(;pi!=pe;++pi)
-      {
+    for(;pi!=pe;++pi) {
 	cout << endl;
 	cout << "TrigReport " << "------ Modules in End-Path: " << pi->name() << " ------------\n";
 	cout << "TrigReport "
@@ -624,8 +598,7 @@ namespace edm
 	     << right << setw(10) << "Error" << " "
 	     << "Name" << "\n";
 
-	for (unsigned int i=0; i<pi->size(); ++i)
-	  {
+	for (unsigned int i=0; i<pi->size(); ++i) {
 	    cout << "TrigReport "
 		 << right << setw( 5) << (trig_name_set_.find(pi->name())!=trig_name_set_.end())
 		 << right << setw( 5) << pi->bitPosition() << " "
@@ -634,7 +607,8 @@ namespace edm
 		 << right << setw(10) << pi->timesFailed(i) << " "
 		 << right << setw(10) << pi->timesExcept(i) << " "
 		 << pi->getWorker(i)->description().moduleLabel_ << "\n";
-	  }}
+	}
+    }
 
     cout << endl;
     cout << "TrigReport " << "---------- Module Summary ------------\n";
@@ -647,8 +621,7 @@ namespace edm
 	 << "Name" << "\n";
     ai=all_workers_.begin();
     ae=all_workers_.end();
-    for(;ai!=ae;++ai)
-      {
+    for(;ai!=ae;++ai) {
 	cout << "TrigReport "
 	     << right << setw(10) << (*ai)->timesVisited() << " "
 	     << right << setw(10) << (*ai)->timesRun() << " "
@@ -656,8 +629,8 @@ namespace edm
 	     << right << setw(10) << (*ai)->timesFailed() << " "
 	     << right << setw(10) << (*ai)->timesExcept() << " "
 	     << (*ai)->description().moduleLabel_ << "\n";
-	  
-      }
+
+    }
     cout << endl;
 
     // The timing report (CPU and Real Time):
@@ -677,13 +650,12 @@ namespace edm
 	 << "Name" << "\n";
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
-    for(;pi!=pe;++pi)
-      {
+    for(;pi!=pe;++pi) {
 	cout << "TimeReport "
 	     << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
 	     << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
 	     << pi->name() << "\n";
-      }
+    }
 
     cout << endl;
     cout << "TimeReport " << "-------End-Path   Summary ---[sec]----\n";
@@ -693,49 +665,46 @@ namespace edm
 	 << "Name" << "\n";
     pi=end_paths_.begin();
     pe=end_paths_.end();
-    for(;pi!=pe;++pi)
-      {
+    for(;pi!=pe;++pi) {
 	cout << "TimeReport "
 	     << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
 	     << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
 	     << pi->name() << "\n";
-      }
+    }
 
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
-    for(;pi!=pe;++pi)
-      {
+    for(;pi!=pe;++pi) {
 	cout << endl;
 	cout << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----\n";
 	cout << "TimeReport "
 	     << right << setw(10) << "CPU/event" << " "
 	     << right << setw(10) << "Real/event" << " "
 	     << "Name" << "\n";
-	for (unsigned int i=0; i<pi->size(); ++i)
-	  {
+	for (unsigned int i=0; i<pi->size(); ++i) {
 	    cout << "TimeReport "
 		 << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
 		 << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
 		 << pi->getWorker(i)->description().moduleLabel_ << "\n";
-	  }}
+	}
+    }
 
     pi=end_paths_.begin();
     pe=end_paths_.end();
-    for(;pi!=pe;++pi)
-      {
+    for(;pi!=pe;++pi) {
 	cout << endl;
 	cout << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----\n";
 	cout << "TimeReport "
 	     << right << setw(10) << "CPU/event" << " "
 	     << right << setw(10) << "Real/event" << " "
 	     << "Name" << "\n";
-	for (unsigned int i=0; i<pi->size(); ++i)
-	  {
+	for (unsigned int i=0; i<pi->size(); ++i) {
 	    cout << "TimeReport "
 		 << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
 		 << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
 		 << pi->getWorker(i)->description().moduleLabel_ << "\n";
-	  }}
+	}
+    }
 
     cout << endl;
     cout << "TimeReport " << "---------- Module Summary ---[sec]----\n";
@@ -746,20 +715,18 @@ namespace edm
 	 << right << setw(10) << "Real" << " "
 	 << "Name" << "\n";
     cout << "TimeReport "
-	 << right << setw(22) << "per visited event " 
+	 << right << setw(22) << "per visited event "
 	 << right << setw(22) << "per run event " << "\n";
     ai=all_workers_.begin();
     ae=all_workers_.end();
-    for(;ai!=ae;++ai)
-      {
+    for(;ai!=ae;++ai) {
 	cout << "TimeReport "
 	     << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesVisited()) << " "
 	     << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesVisited()) << " "
 	     << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesRun()) << " "
 	     << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesRun()) << " "
 	     << (*ai)->description().moduleLabel_ << "\n";
-	  
-      }
+    }
     cout << endl;
     cout << "T---Report end!" << endl;
     cout << endl;
@@ -772,7 +739,7 @@ namespace edm
     for(;i!=e;++i) { (*i)->beginJob(es); }
 
     //for_each(all_workers_.begin(),all_workers_.end(),
-    //		    boost::bind(&Worker::beginJob,_1,es));    
+    //		    boost::bind(&Worker::beginJob,_1,es));
   }
 
 
@@ -784,12 +751,11 @@ namespace edm
 
     vector<ModuleDescription const*> result;
     result.reserve(all_workers_.size());
-    
-    for ( ; i!=e; ++i)
-      {
+
+    for ( ; i!=e; ++i) {
 	ModuleDescription const* p = (*i)->descPtr();
 	result.push_back( p );
-      }
+    }
     return result;
   }
 
@@ -813,6 +779,4 @@ namespace edm
     //for_each(all_workers_.begin(),all_workers_.end(),
     //		    boost::bind(&Worker::reset,_1));
   }
-
-  
 }
