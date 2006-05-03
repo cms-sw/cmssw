@@ -175,10 +175,10 @@ namespace edm {
       // insert each node in the UsingBlock into the list
       PSetNode * psetNode = dynamic_cast<PSetNode *>(blockPtrItr->second.get());
       assert(psetNode != 0);
-      NodePtrListPtr params = psetNode->value_.nodes_;
+      NodePtrListPtr params = psetNode->value_.nodes();
       
       // find the contents of the Module
-      NodePtrListPtr moduleContents = moduleNode->nodes_;
+      NodePtrListPtr moduleContents = moduleNode->nodes();
 
       //@@ is it safe to delete the UsingNode now?
       moduleContents->erase(usingNodeItr);
@@ -187,8 +187,8 @@ namespace edm {
           paramItr != params->end(); ++paramItr)
       {
         // Using blocks get inserted at the beginning, just for convenience
-        // Might affect overwriting
-        moduleNode->nodes_->push_front(*paramItr);
+        // Make a copy of the node, so it can be modified
+        moduleContents->push_front( NodePtr((**paramItr).clone()) );
       } 
     }
 
