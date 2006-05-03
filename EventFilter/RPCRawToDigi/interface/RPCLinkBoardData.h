@@ -8,7 +8,7 @@
  *
  * 
  *
- *  $Date: 2005/12/12 17:26:10 $
+ *  $Date: 2006/03/30 15:13:58 $
  *  $Revision: 1.1 $
  * \author Ilaria Segoni - CERN
  */
@@ -21,7 +21,9 @@ public:
   
   /// Constructor
   RPCLinkBoardData();
-
+  /// Constructor with data
+  RPCLinkBoardData(std::vector<int> bits, int halfP, int eod, int partitionNumber, int lbNumber);
+  
   /// Destructor
   virtual ~RPCLinkBoardData() {};
 
