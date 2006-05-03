@@ -33,7 +33,13 @@ Unknown
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-Unknown
+Still in development.
+Muon swimming is working fine.
+Decent quality error propagation is also implemented.
+Radiation length non-additive (1+0.036*log(x)) effects relevant to multiple scattering 
+are not accounted for mostly due to missing interface of the basic class.
+This results in an underestimate of relevant errors, significant for large X/X0:
+15 to 20% if going from (0,0,0) to the outer muon chambers.
 
 <hr>
 Last updated:
