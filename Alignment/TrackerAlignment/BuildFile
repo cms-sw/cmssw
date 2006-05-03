@@ -1,10 +1,8 @@
 <export>
 <lib name=AlignmentTrackerAlignment>
 <use name=DetectorDescription/Core>
+<use name=FWCore/Framework>
 </export>
-
-<flags CXXFLAGS=-g>
-
 
 <use name=Alignment/CommonAlignment>
 <use name=Geometry/TrackerNumberingBuilder>
@@ -12,8 +10,10 @@
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/TrackerCommonData>
 <use name=DetectorDescription/Core>
+<use name=DataFormats/SiPixelDetId>
+<use name=DataFormats/SiStripDetId>
 <use name=Geometry/Records>
-<use name=DataFormats/DetId>
 <use name=DataFormats/SiPixelDigi>
+<use name=FWCore/Framework>
 <flags SEAL_PLUGIN_NAME="AlignmentTrackerAlignment">
 
