@@ -16,13 +16,13 @@ select dt_wheel_numbering.object_number as wheel,
        dt_cell_readout_map,dt_tdc_channel,dt_tdc,dt_rob,
        dt_rob_ros_connection,dt_ros_channel,dt_ros,dt_ddu,
        (select numbering_id from dt_numbering_master
-         where numbering_version='ORCA_NUMBERING') dt_num,
+         where numbering_version='CMSSW_NUMBERING') dt_num,
        (select connection_id from dt_connection_master 
          where connection_type='DT_CELL_READOUT_CONNECTION'
-           and mapping_version='FULL_CELL') rob_con,
+           and mapping_version='CMSSW_CELL') rob_con,
        (select connection_id from dt_connection_master 
          where connection_type='DT_ROB_ROS_CONNECTION'
-           and mapping_version='FULL_ROS') ros_con
+           and mapping_version='CMSSW_ROS') ros_con
   where dt_cell_readout_map.cell_id=dt_cell.cell_id
     and dt_cell.layer_id=dt_layer.layer_id
     and dt_layer.sl_id=dt_superlayer.sl_id
