@@ -14,7 +14,7 @@ namespace cms
   public:
     MTCCHLTrigger(const edm::ParameterSet& ps);
     virtual ~MTCCHLTrigger() {}
-    virtual bool filter(edm::Event const& e, edm::EventSetup const& c);
+    virtual bool filter(edm::Event& e, edm::EventSetup const& c);
 
   private:
     bool selOnClusterCharge;

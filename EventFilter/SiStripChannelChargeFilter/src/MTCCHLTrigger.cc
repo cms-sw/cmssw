@@ -15,7 +15,7 @@ MTCCHLTrigger::MTCCHLTrigger(const edm::ParameterSet& ps){
    digiChargeThreshold=ps.getParameter<int>("DigiChargeThreshold");
 }
 
-bool MTCCHLTrigger::filter(edm::Event const& e, edm::EventSetup const& c) {
+bool MTCCHLTrigger::filter(edm::Event& e, edm::EventSetup const& c) {
  
 
   //get data
