@@ -246,7 +246,7 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
 
 SiPixelDigiValid::~SiPixelDigiValid(){
  
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+ // if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
 
@@ -255,7 +255,7 @@ void SiPixelDigiValid::beginJob(const EventSetup& c){
 }
 
 void SiPixelDigiValid::endJob() {
-
+ if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
 

@@ -315,7 +315,7 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
 
 SiStripDigiValid::~SiStripDigiValid(){
 
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+  //if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
 
@@ -324,6 +324,7 @@ void SiStripDigiValid::beginJob(const EventSetup& c){
 }
 
 void SiStripDigiValid::endJob() {
+ if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 
 }
 
