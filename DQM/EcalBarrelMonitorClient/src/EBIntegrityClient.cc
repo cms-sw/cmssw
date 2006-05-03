@@ -1,8 +1,9 @@
+
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/05/02 10:01:13 $
- * $Revision: 1.84 $
+ * $Date: 2006/05/02 10:39:05 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -204,6 +205,10 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
   map<EcalLogicID, MonCrystalConsistencyDat> dataset1;
   MonTTConsistencyDat c2;
   map<EcalLogicID, MonTTConsistencyDat> dataset2;
+  MonMemChConsistencyDat c3;
+  map<EcalLogicID, MonMemChConsistencyDat> dataset3;
+  MonMemTTConsistencyDat c4; 
+  map<EcalLogicID, MonMemTTConsistencyDat> dataset4;
 
   cout << "Creating MonConsistencyDatObjects for the database ..." << endl;
 
@@ -384,19 +389,176 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
       }
     }
 
-  }
+    float num07, num08;
+
+    for ( int ie = 1; ie <= 10; ie++ ) {
+      for ( int ip = 1; ip <= 5; ip++ ) {
+
+        num07 = num08 = 0.;
+
+        bool update_channel1 = false;
+
+        float numTot = -1.;
+
+       if ( hmem_[ism-1] ) numTot = hmem_[ism-1]->GetBinContent(hmem_[ism-1]->GetBin(ie, ip));
+
+        if ( h07_[ism-1] ) {
+          num07  = h07_[ism-1]->GetBinContent(h07_[ism-1]->GetBin(ie, ip));
+          if ( num07 > 0 ) update_channel1 = true;
+        }
+
+        if ( h08_[ism-1] ) {
+          num08  = h08_[ism-1]->GetBinContent(h08_[ism-1]->GetBin(ie, ip));
+          if ( num08 > 0 ) update_channel1 = true;
+        }
+
+        if ( update_channel || update_channel1 ) {
+
+          if ( ie == 1 && ip == 1 ) {
+
+            cout << "Preparing dataset for mem of SM=" << ism << endl;
+
+            cout << "(" << ie << "," << ip << ") " << num07 << " " << num08 << endl;
+	    
+          }
+	  
+          c3.setProcessedEvents( int (numTot));
+          c3.setProblematicEvents(int (num07+num08));
+          c3.setProblemsID(int (num07) );
+          c3.setProblemsGainZero(int (num08));
+          // c3.setProblemsGainSwitch(int prob);
+
+
+          bool val;
+
+           val = true;
+           if ( numTot > 0 ) {
+             float errorRate1 = num00 / numTot;
+             if ( errorRate1 > threshCry_ )
+               val = false;
+             errorRate1 = ( num07 + num08 ) / numTot / 2.;
+             if ( errorRate1 > threshCry_ )
+               val = false;
+           } else {
+             if ( num00 > 0 )
+               val = false;
+             if ( ( num07 + num08 ) > 0 )
+               val = false;
+           }
+         c3. setTaskStatus(val);
+
+
+         int ic = EBIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
+
+           if ( econn ) {
+             try {
+               ecid = econn->getEcalLogicID("EB_mem_channel", ism, ic);
+               dataset3[ecid] = c3;
+             } catch (runtime_error &e) {
+               cerr << e.what() << endl;
+             }
+           }
+
+        }
+
+      }
+    }
+
+    float num09, num10;
+
+    for ( int iet = 1; iet <= 2; iet++ ) {
+
+        num09 = num10 = 0.;
+
+        bool update_channel1 = false;
+
+        float numTot = -1.;
+
+        if ( hmem_[ism-1] ) {
+          numTot = 0.;
+          for ( int ie = 1 + 5*(iet-1); ie <= 5*iet; ie++ ) {
+            for ( int ip = 1 ; ip <= 5; ip++ ) {
+              numTot += hmem_[ism-1]->GetBinContent(hmem_[ism-1]->GetBin(ie, ip));
+            }
+          }
+        }
+
+        if ( h09_[ism-1] ) {
+          num09  = h09_[ism-1]->GetBinContent(h09_[ism-1]->GetBin(iet, 1));
+          if ( num09 > 0 ) update_channel1 = true;
+        }
+
+        if ( h10_[ism-1] ) {
+          num10  = h10_[ism-1]->GetBinContent(h10_[ism-1]->GetBin(iet, 1));
+          if ( num10 > 0 ) update_channel1 = true;
+        }
+
+        if ( update_channel || update_channel1 ) {
+
+          if ( iet == 1 ) {
+
+            cout << "Preparing dataset for SM=" << ism << endl;
+
+            cout << "(" << iet <<  ") " << num09 << " " << num10 << endl;
+
+          }
+
+	  c4.setProcessedEvents( int(numTot) );
+	  c4.setProblematicEvents( int(num09 + num10) );
+	  c4.setProblemsID( int(num09) );
+	  c4.setProblemsSize(int (num10) );
+	  // setProblemsLV1(int LV1);
+	  // setProblemsBunchX(int bunchX);
+
+
+	  bool val;
+
+	  val = true;
+           if ( numTot > 0 ) {
+             float errorRate2 = num00 / numTot;
+             if ( errorRate2 > threshCry_ )
+               val = false;
+             errorRate2 = ( num09 + num10 ) / numTot / 2.;
+             if ( errorRate2 > threshCry_ )
+               val = false;
+           } else {
+             if ( num00 > 0 )
+               val = false;
+             if ( ( num09 + num10 ) > 0 )
+               val = false;
+           }
+           c4.setTaskStatus(val);
+
+           int itt = 68 + iet;
+
+           if ( econn ) {
+             try {
+               ecid = econn->getEcalLogicID("EB_mem_channel", ism, itt);
+               dataset4[ecid] = c4;
+             } catch (runtime_error &e) {
+               cerr << e.what() << endl;
+             }
+           }
+
+        }
+
+      }
+    }
+
 
   if ( econn ) {
     try {
-      cout << "Inserting dataset ... " << flush;
+      cout << "Inserting datasets ... " << flush;
       if ( dataset1.size() != 0 ) econn->insertDataSet(&dataset1, moniov);
-      if ( dataset1.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
+      if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
+      if ( dataset3.size() != 0 ) econn->insertDataSet(&dataset3, moniov);
+      if ( dataset4.size() != 0 ) econn->insertDataSet(&dataset3, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
-
+  
 }
 
 void EBIntegrityClient::subscribe(void){
@@ -1595,3 +1757,10 @@ void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string html
 
 }
 
+const int  EBIntegrityClient::chNum [5][5] = {
+  {1,2, 3, 4, 5},
+  {10, 9, 8, 7, 6},
+  {11, 12, 13, 14, 15},
+  {20, 19, 18, 17, 16},
+  {21, 22, 23, 24, 25}
+};

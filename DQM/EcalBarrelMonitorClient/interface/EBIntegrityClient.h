@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2006/04/28 10:48:49 $
- * $Revision: 1.26 $
+ * $Date: 2006/04/30 20:45:50 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -31,6 +31,8 @@
 
 #include "OnlineDB/EcalCondDB/interface/MonCrystalConsistencyDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonTTConsistencyDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonMemChConsistencyDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonMemTTConsistencyDat.h"
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -139,6 +141,8 @@ TH2F* hmem_[36];
 // Quality criteria for data integrity
 
 float threshCry_;
+
+const static int chNum [5][5];
 
 };
 
