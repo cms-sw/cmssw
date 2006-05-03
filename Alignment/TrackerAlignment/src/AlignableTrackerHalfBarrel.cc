@@ -1,7 +1,7 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerHalfBarrel.h"
 
 
-/// The constructor simply copies the vector of layers and computes the surface from them
+//__________________________________________________________________________________________________
 AlignableTrackerHalfBarrel::AlignableTrackerHalfBarrel
 ( const std::vector<AlignableTrackerBarrelLayer*> barrelLayers ) 
 {
@@ -13,7 +13,7 @@ AlignableTrackerHalfBarrel::AlignableTrackerHalfBarrel
 }
       
 
-/// Clean delete of the vector and its elements
+//__________________________________________________________________________________________________
 AlignableTrackerHalfBarrel::~AlignableTrackerHalfBarrel() 
 {
   for ( std::vector<AlignableTrackerBarrelLayer*>::iterator iter = theBarrelLayers.begin(); 
@@ -22,7 +22,19 @@ AlignableTrackerHalfBarrel::~AlignableTrackerHalfBarrel()
 
 }
 
-/// Return AlignableTrackerBarrelLayer at given index
+
+//__________________________________________________________________________________________________
+std::vector<Alignable*> AlignableTrackerHalfBarrel::components() const
+{
+  
+  std::vector<Alignable*> result; 
+  result.insert( result.end(), theBarrelLayers.begin(), theBarrelLayers.end() );
+  return result;
+  
+}
+
+
+//__________________________________________________________________________________________________
 AlignableTrackerBarrelLayer &AlignableTrackerHalfBarrel::layer(int i) 
 {
   
@@ -34,8 +46,19 @@ AlignableTrackerBarrelLayer &AlignableTrackerHalfBarrel::layer(int i)
 }
 
 
-/// Returns surface corresponding to current position
-/// and orientation, as given by average on all components
+//__________________________________________________________________________________________________
+void AlignableTrackerHalfBarrel::twist(float rad) 
+{
+
+  for ( std::vector<AlignableTrackerBarrelLayer*>::iterator iter = theBarrelLayers.begin();
+		iter != theBarrelLayers.end(); iter++ ) 
+	(*iter)->twist(rad);
+  
+}
+
+
+
+//__________________________________________________________________________________________________
 AlignableSurface AlignableTrackerHalfBarrel::computeSurface()
 {
 
@@ -44,8 +67,7 @@ AlignableSurface AlignableTrackerHalfBarrel::computeSurface()
 }
 
 
-
-/// Compute average z position from all components (x and y forced to 0)
+//__________________________________________________________________________________________________
 AlignableTrackerHalfBarrel::PositionType AlignableTrackerHalfBarrel::computePosition() 
 {
 
@@ -62,27 +84,14 @@ AlignableTrackerHalfBarrel::PositionType AlignableTrackerHalfBarrel::computePosi
 }
 
 
-/// Just initialize to default given by default constructor of a RotationType
+//__________________________________________________________________________________________________
 AlignableTrackerHalfBarrel::RotationType AlignableTrackerHalfBarrel::computeOrientation() 
 {
   return RotationType();
 }
 
 
-/// Twists all components by given angle
-void AlignableTrackerHalfBarrel::twist(float rad) 
-{
-
-  for ( std::vector<AlignableTrackerBarrelLayer*>::iterator iter = theBarrelLayers.begin();
-	   iter != theBarrelLayers.end(); iter++ ) 
-	(*iter)->twist(rad);
-  
-}
-
-
-
-
-/// Output Half Barrel information
+//__________________________________________________________________________________________________
 std::ostream &operator << (std::ostream& os, const AlignableTrackerHalfBarrel& b )
 {
 
@@ -95,7 +104,7 @@ std::ostream &operator << (std::ostream& os, const AlignableTrackerHalfBarrel& b
 }
 
 
-/// Recursive printout of whole Half Barrel structure
+//__________________________________________________________________________________________________
 void AlignableTrackerHalfBarrel::dump( void )
 {
 

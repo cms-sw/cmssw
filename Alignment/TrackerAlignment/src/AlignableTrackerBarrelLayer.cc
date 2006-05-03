@@ -2,7 +2,7 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
 
 
-/// The constructor simply copies the vector of rods and computes the surface from its elements.
+//--------------------------------------------------------------------------------------------------
 AlignableTrackerBarrelLayer::AlignableTrackerBarrelLayer( const std::vector<AlignableTrackerRod*> rods ) 
 {
 
@@ -13,7 +13,7 @@ AlignableTrackerBarrelLayer::AlignableTrackerBarrelLayer( const std::vector<Alig
 }
 
 
-/// Clean delete of the vector and its elements
+//--------------------------------------------------------------------------------------------------
 AlignableTrackerBarrelLayer::~AlignableTrackerBarrelLayer()
 {
 
@@ -24,7 +24,17 @@ AlignableTrackerBarrelLayer::~AlignableTrackerBarrelLayer()
 }
 
 
-/// Returns AlignableTrackerRod at given index
+
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableTrackerBarrelLayer::components() const
+{
+  std::vector<Alignable*> result; 
+  result.insert( result.end(), theRods.begin(), theRods.end());
+  return result;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 AlignableTrackerRod& AlignableTrackerBarrelLayer::rod(int i)
 {
 
@@ -36,8 +46,7 @@ AlignableTrackerRod& AlignableTrackerBarrelLayer::rod(int i)
 }
 
 
-/// Returns surface corresponding to current position
-/// and orientation, as given by average on all components
+//--------------------------------------------------------------------------------------------------
 AlignableSurface AlignableTrackerBarrelLayer::computeSurface()
 {
 
@@ -46,7 +55,7 @@ AlignableSurface AlignableTrackerBarrelLayer::computeSurface()
 }
 
 
-/// Compute average z position from all components (x and y forced to 0)
+//--------------------------------------------------------------------------------------------------
 AlignableTrackerBarrelLayer::PositionType AlignableTrackerBarrelLayer::computePosition() 
 {
 
@@ -63,7 +72,7 @@ AlignableTrackerBarrelLayer::PositionType AlignableTrackerBarrelLayer::computePo
 }
 
 
-/// Just initialize to default given by default constructor of a RotationType
+//--------------------------------------------------------------------------------------------------
 AlignableTrackerBarrelLayer::RotationType AlignableTrackerBarrelLayer::computeOrientation() 
 {
 
@@ -72,7 +81,16 @@ AlignableTrackerBarrelLayer::RotationType AlignableTrackerBarrelLayer::computeOr
 }
 
 
-/// Twist layer by given angle (in radians)
+//--------------------------------------------------------------------------------------------------
+/// A BarrelLayer ist twisted by rotating each Rod around the original center
+/// (before any "mis-alignment"... e.g. the nominal position...
+/// here you have to watch out! once the nominal position might include 
+/// already some "aligned" detector)
+/// and with the orientation of +/- its original local z-axis. Furthermore
+/// the rotation angle is calculated from the rod length... which currently 
+/// is simply calculated from the GeomDetUnits on the rod... and NOT from 
+/// the distance between the two supporting barrel disks... which would be 
+/// more correct...
 void AlignableTrackerBarrelLayer::twist(float rad) 
 {
 
@@ -104,7 +122,7 @@ void AlignableTrackerBarrelLayer::twist(float rad)
 }
 
 
-/// Output layer information
+//--------------------------------------------------------------------------------------------------
 std::ostream &operator << (std::ostream &os, const AlignableTrackerBarrelLayer & b ){
 
   os << "  This BarrelLayer contains " << b.theRods.size() << " Rods" << std::endl;
@@ -116,7 +134,7 @@ std::ostream &operator << (std::ostream &os, const AlignableTrackerBarrelLayer &
 }
 
 
-/// Recursive printout of whole layer structure
+//--------------------------------------------------------------------------------------------------
 void AlignableTrackerBarrelLayer::dump( void )
 {
 

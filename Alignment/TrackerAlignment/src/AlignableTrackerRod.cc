@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+//__________________________________________________________________________________________________
 /// The constructor gets all components and stores them as AlignableDets
 AlignableTrackerRod::AlignableTrackerRod( std::vector<GeomDet*>& geomDets ) 
 {
@@ -15,7 +16,7 @@ AlignableTrackerRod::AlignableTrackerRod( std::vector<GeomDet*>& geomDets )
 }
 
 
-/// Destructor: delete all AlignableDet objects
+//__________________________________________________________________________________________________
 AlignableTrackerRod::~AlignableTrackerRod() 
 {
 
@@ -27,6 +28,7 @@ AlignableTrackerRod::~AlignableTrackerRod()
 }
 
 
+//__________________________________________________________________________________________________
 /// Return all components of the rod (as Alignables)
 std::vector<Alignable*> AlignableTrackerRod::components() const 
 {
@@ -38,7 +40,7 @@ std::vector<Alignable*> AlignableTrackerRod::components() const
 }
 
 
-/// Return AlignableDet at given index
+//__________________________________________________________________________________________________
 AlignableDet& AlignableTrackerRod::det( int i )
 {
 
@@ -50,8 +52,27 @@ AlignableDet& AlignableTrackerRod::det( int i )
 }
 
 
-/// Returns surface corresponding to current position
-/// and orientation, as given by average on all components
+//__________________________________________________________________________________________________
+float AlignableTrackerRod::length() const 
+{
+
+  float zz, zmin=+10000., zmax=-10000.;
+  for ( std::vector<AlignableDet*>::const_iterator idet=theDets.begin();
+		idet != theDets.end(); idet++ )
+	{
+	  zz = (*idet)->globalPosition().z();
+	  if (zz < zmin) zmin = zz;
+	  if (zz > zmax) zmax = zz;
+	}
+
+  return zmax-zmin;
+
+}
+
+
+
+
+//__________________________________________________________________________________________________
 AlignableSurface AlignableTrackerRod::computeSurface() 
 {
 
@@ -60,7 +81,7 @@ AlignableSurface AlignableTrackerRod::computeSurface()
 }
 
 
-/// Compute average position from all components
+//__________________________________________________________________________________________________
 AlignableTrackerRod::PositionType AlignableTrackerRod::computePosition() 
 {
   
@@ -83,7 +104,7 @@ AlignableTrackerRod::PositionType AlignableTrackerRod::computePosition()
 }
 
 
-/// Compute orientation from position
+//__________________________________________________________________________________________________
 AlignableTrackerRod::RotationType AlignableTrackerRod::computeOrientation() {
 
   // Force the z-axis along the r-phi direction
@@ -105,25 +126,7 @@ AlignableTrackerRod::RotationType AlignableTrackerRod::computeOrientation() {
 }
 
 
-/// Return length calculated from components
-float AlignableTrackerRod::length() const 
-{
-
-  float zz, zmin=+10000., zmax=-10000.;
-  for ( std::vector<AlignableDet*>::const_iterator idet=theDets.begin();
-		idet != theDets.end(); idet++ )
-	{
-	  zz = (*idet)->globalPosition().z();
-	  if (zz < zmin) zmin = zz;
-	  if (zz > zmax) zmax = zz;
-	}
-
-  return zmax-zmin;
-
-}
-
-
-/// Printout the DetUnits in the rod
+//__________________________________________________________________________________________________
 std::ostream &operator << ( std::ostream &os, const AlignableTrackerRod & r )
 {
 

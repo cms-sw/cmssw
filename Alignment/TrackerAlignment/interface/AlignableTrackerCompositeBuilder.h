@@ -27,9 +27,13 @@ class AlignableTrackerCompositeBuilder
 
 public:
 
+  /// Constructor
   AlignableTrackerCompositeBuilder() {}
+
+  /// Desctructor
   ~AlignableTrackerCompositeBuilder() {}
 
+  /// Build alignable object from list of GeomDets
   C* buildAlignable( _DetContainer Dets,
 					 edm::ESHandle<TrackerGeometry>& geomDetGeometry
 					 ) const;
@@ -42,6 +46,7 @@ private:
 };
 
 
+//--------------------------------------------------------------------------------------------------
 template<class C> 
 C* AlignableTrackerCompositeBuilder<C>::buildAlignable( _DetContainer Dets,
 												 edm::ESHandle<TrackerGeometry>& geomDetGeometry
@@ -65,6 +70,7 @@ C* AlignableTrackerCompositeBuilder<C>::buildAlignable( _DetContainer Dets,
 }
 
 
+//--------------------------------------------------------------------------------------------------
 template<class C> 
 _DetContainer AlignableTrackerCompositeBuilder<C>::extractGeomDets( _DetContainer Dets ) const
 {

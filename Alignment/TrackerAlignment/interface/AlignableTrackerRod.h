@@ -29,26 +29,27 @@ class AlignableTrackerRod: public AlignableComposite
   /// Constructor from geomdets of the rod's components
   AlignableTrackerRod( std::vector<GeomDet*>& geomDets );
   
+  /// Destructor
   ~AlignableTrackerRod();
   
+  /// Return all components of the rod
   virtual std::vector<Alignable*> components() const ;
 
+  /// Return AlignableDet at given index
   AlignableDet &det(int i);
 
+  /// Return length calculated from components
   virtual float length() const;
 
   /// Alignable object identifier
-  virtual int alignableObjectId () const 
-  {
-    return AlignableObjectId::AlignableRod;
-  }
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableRod; }
 
  private:
-  // gets the global position as the average over all Dets in the Rod
+  // Return the global position as the average over all Dets in the Rod
   PositionType computePosition(); 
-  // get the global orientation
+  // Return the global orientation
   RotationType computeOrientation(); //see explanation for "theOrientation"
-  // get the Surface
+  // Return the Surface
   AlignableSurface computeSurface();
 
   std::vector<AlignableDet*> theDets;

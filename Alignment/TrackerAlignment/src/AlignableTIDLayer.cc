@@ -1,7 +1,7 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTIDLayer.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTIDRing.h"
 
-/// The constructor simply copies the vector of rings and computes the surface from them
+//--------------------------------------------------------------------------------------------------
 AlignableTIDLayer::AlignableTIDLayer( const std::vector<AlignableTIDRing*> rings )
 {
   
@@ -12,7 +12,7 @@ AlignableTIDLayer::AlignableTIDLayer( const std::vector<AlignableTIDRing*> rings
 }
 
 
-/// Clean delete of the vector and its elements
+//--------------------------------------------------------------------------------------------------
 AlignableTIDLayer::~AlignableTIDLayer()
 {
   for ( std::vector<AlignableTIDRing*>::iterator iter = theRings.begin(); 
@@ -22,7 +22,16 @@ AlignableTIDLayer::~AlignableTIDLayer()
 }
 
 
-/// Return AlignableRod at given index
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableTIDLayer::components() const 
+{
+  std::vector<Alignable*> result; 
+  result.insert( result.end(), theRings.begin(), theRings.end() );
+  return result;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 AlignableTIDRing &AlignableTIDLayer::ring(int i)
 {
 
@@ -34,8 +43,7 @@ AlignableTIDRing &AlignableTIDLayer::ring(int i)
 }
 
 
-/// Returns surface corresponding to current position
-/// and orientation, as given by average on all components
+//--------------------------------------------------------------------------------------------------
 AlignableSurface AlignableTIDLayer::computeSurface()
 {
 
@@ -44,7 +52,7 @@ AlignableSurface AlignableTIDLayer::computeSurface()
 }
 
 
-/// Compute average z position from all components (x and y forced to 0)
+//--------------------------------------------------------------------------------------------------
 AlignableTIDLayer::PositionType AlignableTIDLayer::computePosition() 
 {
 
@@ -62,7 +70,7 @@ AlignableTIDLayer::PositionType AlignableTIDLayer::computePosition()
 }
 
 
-/// Just initialize to default given by default constructor of a RotationType
+//--------------------------------------------------------------------------------------------------
 AlignableTIDLayer::RotationType AlignableTIDLayer::computeOrientation() 
 {
 
@@ -71,7 +79,7 @@ AlignableTIDLayer::RotationType AlignableTIDLayer::computeOrientation()
 }
 
 
-/// Output layer information
+//--------------------------------------------------------------------------------------------------
 std::ostream &operator << (std::ostream &os, const AlignableTIDLayer & b )
 {
 
@@ -84,7 +92,7 @@ std::ostream &operator << (std::ostream &os, const AlignableTIDLayer & b )
 }
 
 
-/// Recursive printout of whole layer structure
+//--------------------------------------------------------------------------------------------------
 void AlignableTIDLayer::dump( void )
 {
 

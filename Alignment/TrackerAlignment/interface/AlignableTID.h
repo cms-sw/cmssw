@@ -12,41 +12,41 @@
 class AlignableTID: public AlignableComposite 
 {
 
- public:
+public:
   
   typedef GlobalPoint           PositionType;
   typedef TkRotation<float>     RotationType;
 
+  /// Constructor from TID Layers
   AlignableTID( const std::vector<AlignableTIDLayer*> tidLayers  );
-  
+
+  /// Destructor
   ~AlignableTID();
 
-  virtual std::vector<Alignable*> components() const 
-  {
-	std::vector<Alignable*> result; 
-	result.insert( result.end(), theLayers.begin(), theLayers.end() );
-	return result;
-  } 
+  /// Return components of TID
+  virtual std::vector<Alignable*> components() const;
 
+  /// Return layer at given index
   AlignableTIDLayer &layer(int i);
 
   /// Alignable object identifier
-  virtual int alignableObjectId () const {return AlignableObjectId::AlignableTID;}
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableTID; }
 
-  /// Print out TID information (not recursive)
+  /// Printout TID information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableTID& ); 
+  
+  /// Recursive printout of TID structure
+  void dump( void ); 
 
-  void dump( void ); /// Dump the whole TID structure
-
- private:
-  // gets the global position as the average over all positions of the layers
-  // as the layers know there position, orientation etc.
+private:
+  
+  /// Get position from average position of components
   PositionType computePosition(); 
 
-  // get the global orientation 
-  RotationType computeOrientation(); //see explanation for "theOrientation"
+  // Get the global orientation (no rotation by default)
+  RotationType computeOrientation();
 
-  // get the Surface
+  // Get the Surface
   AlignableSurface computeSurface();
 
   std::vector<AlignableTIDLayer*> theLayers;

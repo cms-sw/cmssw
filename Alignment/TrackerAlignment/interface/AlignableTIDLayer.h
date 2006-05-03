@@ -16,39 +16,41 @@ class AlignableTIDLayer: public AlignableComposite
 {
   
 public:
+
   typedef GlobalPoint           PositionType;
   typedef TkRotation<float>     RotationType;
 
-  /// Print out layer information (not recursive)  
-  friend std::ostream& operator << ( std::ostream &, const AlignableTIDLayer & ); 
 
-  void dump(); /// Dump whole layer structure
-
+  /// Constructor from rings
   AlignableTIDLayer( const std::vector<AlignableTIDRing*> rings );
   
+  /// Destructor
   ~AlignableTIDLayer();
   
-  virtual std::vector<Alignable*> components() const 
-  {
-	std::vector<Alignable*> result; 
-	result.insert( result.end(), theRings.begin(), theRings.end() );
-	return result;
-  }
+  /// Return list of all components
+  virtual std::vector<Alignable*> components() const;
 
+  /// Return ring at given index
   AlignableTIDRing &ring (int i);
 
-  /// Alignable object identifier
-  virtual int alignableObjectId () const {return AlignableObjectId::AlignableTIDLayer;}
+  /// Return alignable object identifier
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableTIDLayer; }
 
- private:
-  // put the layer in on the beam Axis and at the average z of the Rings
+  /// Printout layer information (not recursive)  
+  friend std::ostream& operator << ( std::ostream &, const AlignableTIDLayer & ); 
+
+  /// Recursive printout of layer structure
+  void dump();
+
+private:
+
+  /// Get the layer position (on the beam Axis and at the average z of the rings)
   PositionType computePosition();
-  
-  // actually this is set to defaut... NO rotation, hence just the original
-  // orientation of the CMS frame...
+
+  /// Get the layer orientation (no rotation by default)
   RotationType computeOrientation();
 
-  // get the Surface
+  /// Get the Surface
   AlignableSurface computeSurface();
 
   std::vector<AlignableTIDRing*> theRings;

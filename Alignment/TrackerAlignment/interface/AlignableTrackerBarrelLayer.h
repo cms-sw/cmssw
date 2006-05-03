@@ -13,52 +13,43 @@
 class AlignableTrackerBarrelLayer: public AlignableComposite 
 {
 
- public:
+public:
+
   typedef GlobalPoint           PositionType;
   typedef TkRotation<float>     RotationType;
-  
-  friend std::ostream& operator << ( std::ostream &, const AlignableTrackerBarrelLayer & ); 
-  void dump( void );
 
+  /// Constructor from rods
   AlignableTrackerBarrelLayer( const std::vector<AlignableTrackerRod*> rods );
   
+  /// Destructor
   ~AlignableTrackerBarrelLayer();
   
-  virtual std::vector<Alignable*> components() const
-  {
-    std::vector<Alignable*> result; 
-	result.insert( result.end(), theRods.begin(), theRods.end());
-    return result;
-  }
+  /// Return all components
+  virtual std::vector<Alignable*> components() const;
 
-  AlignableTrackerRod &rod (int i);
+  /// Return rod at given index
+  AlignableTrackerRod &rod ( int i );
 
-  /// a BarrelLayer ist twisted by rotating each Rod around the original center
-  /// (before any "mis-alignment"... e.g. the nominal position...
-  /// here you have to watch out! once the nominal position might include 
-  /// already some "aligned" detector)
-  /// and with the orientation of +/- its original local z-axis. Furthermore
-  /// the rotation angle is calculated from the rod length... which currently 
-  /// is simply calculated from the GeomDetUnits on the rod... and NOT from 
-  /// the distance between the two supporting barrel disks... which would be 
-  /// more correct...
-  virtual void twist(float);
+  /// Twist layer by given angle
+  virtual void twist( float radians );
 
   /// Alignable object identifier
-  virtual int alignableObjectId () const 
-  { 
-    return AlignableObjectId::AlignableBarrelLayer; 
-  }
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableBarrelLayer; }
 
- private:
-  // put the layer in on the beam Axis and at the average z of the Rods
+  /// Printout layer information (not recursive)
+  friend std::ostream& operator << ( std::ostream &, const AlignableTrackerBarrelLayer & ); 
+
+  /// Recursive printout of layer structure
+  void dump( void );
+
+private:
+  /// Get layer position  (on the beam Axis and at the average z of the rods)
   PositionType computePosition();
-  
-  // actually this is set to defaut... NO rotation, hence just the original
-  // orientation of the CMS frame...
+
+  /// Get layer orientation (no rotation by default)
   RotationType computeOrientation();
 
-  // get the Surface
+  // Get the Surface
   AlignableSurface computeSurface();
 
   std::vector<AlignableTrackerRod*> theRods;

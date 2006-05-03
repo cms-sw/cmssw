@@ -21,41 +21,36 @@ public:
   typedef GlobalPoint           PositionType;
   typedef TkRotation<float>     RotationType;
 
-
+  /// Constructor from list of layers
   AlignableTrackerEndcap( const std::vector<AlignableTrackerEndcapLayer*> endcapLayers );
 
+  /// Destructor
   ~AlignableTrackerEndcap();
 
-  virtual std::vector<Alignable*> components() const 
-  {
 
-	std::vector<Alignable*> result; 
-	result.insert( result.end(), theEndcapLayers.begin(), theEndcapLayers.end() );
-	return result;
+  /// Return all components
+  virtual std::vector<Alignable*> components() const;
 
-  } 
-
+  /// Return layer at given index
   AlignableTrackerEndcapLayer &layer(int i);
 
-  /// Alignable object identifier
-  virtual int alignableObjectId () const 
-  {
-    return AlignableObjectId::AlignableEndcap;
-  }
+  /// Return alignable object identifier
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableEndcap; }
 
   /// Print out Endcap information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableTrackerEndcap& ); 
 
-  void dump( void ); /// Dump the whole Endcap structure
+  /// Recursive printout of the Endcap structure
+  void dump( void );
 
  private:
-  // gets the global position as the average over all positions of the layers
-  PositionType computePosition(); 
-  // get the global orientation 
-  RotationType computeOrientation(); //see explanation for "theOrientation"
-  // get the Surface
-  AlignableSurface computeSurface();
 
+  /// Get the global position as the average over all positions of the layers
+  PositionType computePosition(); 
+  /// Get the global orientation 
+  RotationType computeOrientation(); //see explanation for "theOrientation"
+  /// Get the Surface
+  AlignableSurface computeSurface();
 
   std::vector<AlignableTrackerEndcapLayer*> theEndcapLayers;
 

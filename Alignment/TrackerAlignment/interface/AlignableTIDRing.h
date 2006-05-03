@@ -18,30 +18,33 @@ public:
   typedef GlobalPoint           PositionType;
   typedef TkRotation<float>     RotationType;
 
-  friend std::ostream& operator << ( std::ostream &, const AlignableTIDRing & ); 
-  
-
+  /// Constructor from GeomDets
   AlignableTIDRing( std::vector<GeomDet*>& geomDets );
   
+  /// Destructor
   ~AlignableTIDRing();
   
+  /// Return all components
   virtual std::vector<Alignable*> components() const ;
 
+  /// Return AlignableDet at given index
   AlignableDet &det(int i);
 
-  /// Alignable object identifier
-  virtual int alignableObjectId () const 
-  {
-    return AlignableObjectId::AlignableTIDRing;
-  }
+  /// Return alignable object identifier
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableTIDRing; }
 
+  /// Printout of DetUnits in the ring
+  friend std::ostream& operator << ( std::ostream &, const AlignableTIDRing & ); 
+  
 private:
 
-  // gets the global position as the average over all Dets in the Ring
+  // Get the global position as the average over all Dets in the Ring
   PositionType computePosition(); 
-  // get the global orientation
+
+  // Get the global orientation
   RotationType computeOrientation(); //see explanation for "theOrientation"
-  // get the Surface
+
+  // Get the Surface
   AlignableSurface computeSurface();
 
   std::vector<AlignableDet*> theDets ;

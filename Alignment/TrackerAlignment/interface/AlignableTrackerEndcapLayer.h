@@ -14,43 +14,42 @@ class AlignableTrackerEndcapLayer: public AlignableComposite
 {
 
 public:
+
   typedef GlobalPoint           PositionType;
   typedef TkRotation<float>     RotationType;
-  
-  friend std::ostream& operator << ( std::ostream &, const AlignableTrackerEndcapLayer & ); 
-  void dump( void );
 
+  /// Constructor
   AlignableTrackerEndcapLayer( const std::vector<AlignableTrackerPetal*> petals );
   
+  /// Destructor
   ~AlignableTrackerEndcapLayer();
-  
-  virtual std::vector<Alignable*> components() const 
-  {
-    std::vector<Alignable*> result; 
-	result.insert( result.end(), thePetals.begin(), thePetals.end());
-    return result;
-  }
 
+  /// Return all components
+  virtual std::vector<Alignable*> components() const;
+
+  /// Return petal at given index
   AlignableTrackerPetal &petal (int i);
 
-  /// Alignable object identifier
-  virtual int alignableObjectId () const 
-  {
-	return AlignableObjectId::AlignableEndcapLayer;
-  }
+  /// Return alignable object identifier
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableEndcapLayer; }
+
+  /// Printout of the layer information (not recursive)
+  friend std::ostream& operator << ( std::ostream &, const AlignableTrackerEndcapLayer & ); 
+
+  /// Recursive printout of the layer structure
+  void dump( void );
 
  private:
-  // put the layer in on the beam Axis and at the average z of the Petals
+  /// Get layer position, on the beam Axis and at the average z of the Petals
   PositionType computePosition();
   
-  // actually this is set to defaut... NO rotation, hence just the original
-  // orientation of the CMS frame...
+  /// Get orientation (zero by default)
   RotationType computeOrientation();
 
-  // get the Surface
+  /// Get the Surface
   AlignableSurface computeSurface();
 
-  std::vector<AlignableTrackerPetal*> thePetals;  //collection of Petals...
+  std::vector<AlignableTrackerPetal*> thePetals;
 
 };
 

@@ -10,7 +10,6 @@
 
 /// An AlignableTrackerHalfBarrel is made of all Rods in the forward or backward
 /// half of the Barrel
-///
 
 class AlignableTrackerHalfBarrel: public AlignableComposite 
 {
@@ -20,46 +19,39 @@ public:
   typedef GlobalPoint           PositionType;
   typedef TkRotation<float>     RotationType;
   
-
+  /// Constructor from barrel layers
   AlignableTrackerHalfBarrel( const std::vector<AlignableTrackerBarrelLayer*> barrelLayers );
   
+  /// Desctructor
   ~AlignableTrackerHalfBarrel();
-  
-  virtual std::vector<Alignable*> components() const 
-  {
-	
-	std::vector<Alignable*> result; 
-	result.insert( result.end(), theBarrelLayers.begin(), theBarrelLayers.end() );
-	return result;
-	
-  }
-  
-  AlignableTrackerBarrelLayer &layer(int i);
-  
-  virtual void twist(float);
-  
-  /// Alignable object identifier
-  virtual int alignableObjectId () const 
-  {
-	return AlignableObjectId::AlignableHalfBarrel;
-  }
 
+  /// Return all components of half barrel
+  virtual std::vector<Alignable*> components() const;
+  
+  /// Return layer at given index
+  AlignableTrackerBarrelLayer &layer( int i );
+  
+  /// Twist all components by given angle
+  virtual void twist( float radians );
+  
+  /// Return alignable object identifier
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableHalfBarrel; }
 
-  /// Print out Half Barrel information (not recursive)
+  /// Printout half barrel information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableTrackerHalfBarrel& ); 
 
-  void dump( void ); /// Dump the whole Half Barrel structure
+  /// Recursive printout of the half barrel structure
+  void dump( void );
   
   
 private:
 
-  // gets the global position as the average over all DetUnits in the Rod
+  /// Get the global position as the average over all components
   PositionType computePosition(); 
-  // get the global orientation
-  RotationType computeOrientation(); //see explanation for "theOrientation"
-  // get the Surface
+  /// Get the global orientation
+  RotationType computeOrientation();
+  /// Get the Surface
   AlignableSurface computeSurface();
-  
   
   std::vector<AlignableTrackerBarrelLayer*> theBarrelLayers;
 

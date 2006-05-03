@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-/// The constructor gets all components and stores them as AlignableDets
+//--------------------------------------------------------------------------------------------------
 AlignableTIDRing::AlignableTIDRing( std::vector<GeomDet*>& geomDets ) 
 {
 
@@ -15,7 +15,7 @@ AlignableTIDRing::AlignableTIDRing( std::vector<GeomDet*>& geomDets )
 }
 
 
-/// Destructor: delete all AlignableDet objects
+//--------------------------------------------------------------------------------------------------
 AlignableTIDRing::~AlignableTIDRing() 
 {
 
@@ -26,7 +26,7 @@ AlignableTIDRing::~AlignableTIDRing()
 }
 
 
-/// Return all components of the ring (as Alignables)
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTIDRing::components() const 
 {
 
@@ -37,7 +37,7 @@ std::vector<Alignable*> AlignableTIDRing::components() const
 }
 
 
-/// Return AlignableDet at given index
+//--------------------------------------------------------------------------------------------------
 AlignableDet &AlignableTIDRing::det(int i) 
 {
 
@@ -48,8 +48,8 @@ AlignableDet &AlignableTIDRing::det(int i)
 }
 
 
-/// Returns surface corresponding to current position
-/// and orientation, as given by average on all components
+
+//--------------------------------------------------------------------------------------------------
 AlignableSurface AlignableTIDRing::computeSurface() 
 {
 
@@ -58,7 +58,7 @@ AlignableSurface AlignableTIDRing::computeSurface()
 }
 
 
-/// Compute average position from all components
+//--------------------------------------------------------------------------------------------------
 AlignableTIDRing::PositionType AlignableTIDRing::computePosition() 
 {
 
@@ -83,7 +83,7 @@ AlignableTIDRing::PositionType AlignableTIDRing::computePosition()
 }
 
 
-/// Compute orientation from first Det
+//--------------------------------------------------------------------------------------------------
 AlignableTIDRing::RotationType AlignableTIDRing::computeOrientation() 
 {
 
@@ -96,7 +96,7 @@ AlignableTIDRing::RotationType AlignableTIDRing::computeOrientation()
 }
 
 
-/// Printout the DetUnits in the ring
+//--------------------------------------------------------------------------------------------------
 std::ostream &operator << ( std::ostream &os, const AlignableTIDRing & r )
 {
 

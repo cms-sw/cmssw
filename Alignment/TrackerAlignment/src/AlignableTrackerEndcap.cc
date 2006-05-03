@@ -1,7 +1,7 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerEndcap.h"
 
 
-/// The constructor simply copies the vector of layers and computes the surface from them
+//--------------------------------------------------------------------------------------------------
 AlignableTrackerEndcap::AlignableTrackerEndcap( const std::vector<AlignableTrackerEndcapLayer*> endcapLayers )  
 {
 
@@ -12,7 +12,7 @@ AlignableTrackerEndcap::AlignableTrackerEndcap( const std::vector<AlignableTrack
 }
 
 
-/// Clean delete of the vector and its elements
+//--------------------------------------------------------------------------------------------------
 AlignableTrackerEndcap::~AlignableTrackerEndcap() 
 {
 
@@ -23,7 +23,18 @@ AlignableTrackerEndcap::~AlignableTrackerEndcap()
 }
 
 
-/// Return AlignableTrackerEndcapLayer at given index
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableTrackerEndcap::components() const
+{
+
+  std::vector<Alignable*> result; 
+  result.insert( result.end(), theEndcapLayers.begin(), theEndcapLayers.end() );
+  return result;
+  
+} 
+
+
+//--------------------------------------------------------------------------------------------------
 AlignableTrackerEndcapLayer &AlignableTrackerEndcap::layer(int i) 
 {
 
@@ -35,8 +46,7 @@ AlignableTrackerEndcapLayer &AlignableTrackerEndcap::layer(int i)
 }
 
 
-/// Returns surface corresponding to current position
-/// and orientation, as given by average on all components
+//--------------------------------------------------------------------------------------------------
 AlignableSurface AlignableTrackerEndcap::computeSurface()
 {
 
@@ -45,7 +55,7 @@ AlignableSurface AlignableTrackerEndcap::computeSurface()
 }
 
 
-/// Compute average z position from all components (x and y forced to 0)
+//--------------------------------------------------------------------------------------------------
 AlignableTrackerEndcap::PositionType AlignableTrackerEndcap::computePosition() 
 {
 
@@ -62,7 +72,7 @@ AlignableTrackerEndcap::PositionType AlignableTrackerEndcap::computePosition()
 }
 
 
-/// Just initialize to default given by default constructor of a RotationType
+//--------------------------------------------------------------------------------------------------
 AlignableTrackerEndcap::RotationType AlignableTrackerEndcap::computeOrientation() 
 {
 
@@ -71,7 +81,7 @@ AlignableTrackerEndcap::RotationType AlignableTrackerEndcap::computeOrientation(
 }
 
 
-/// Output Half Barrel information
+//--------------------------------------------------------------------------------------------------
 std::ostream &operator << (std::ostream& os, const AlignableTrackerEndcap& b )
 {
 
@@ -84,7 +94,7 @@ std::ostream &operator << (std::ostream& os, const AlignableTrackerEndcap& b )
 }
 
 
-/// Recursive printout of whole Half Endcap structure
+//--------------------------------------------------------------------------------------------------
 void AlignableTrackerEndcap::dump( void )
 {
 

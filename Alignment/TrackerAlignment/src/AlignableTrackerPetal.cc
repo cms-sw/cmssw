@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+//__________________________________________________________________________________________________
 /// The constructor gets all components and stores them as AlignableDets
 AlignableTrackerPetal::AlignableTrackerPetal( std::vector<GeomDet*>& geomDets) 
 {
@@ -15,7 +16,8 @@ AlignableTrackerPetal::AlignableTrackerPetal( std::vector<GeomDet*>& geomDets)
 }
 
 
-/// Destructor: delete all AlignableDet objects
+
+//__________________________________________________________________________________________________
 AlignableTrackerPetal::~AlignableTrackerPetal() 
 {
 
@@ -26,7 +28,7 @@ AlignableTrackerPetal::~AlignableTrackerPetal()
 }
 
 
-/// Return all components of the ring (as Alignables)
+//__________________________________________________________________________________________________
 std::vector<Alignable*> AlignableTrackerPetal::components() const 
 {
 
@@ -37,7 +39,7 @@ std::vector<Alignable*> AlignableTrackerPetal::components() const
 }
 
 
-/// Return AlignableDet at given index
+//__________________________________________________________________________________________________
 AlignableDet& AlignableTrackerPetal::det(int i) 
 {
 
@@ -48,8 +50,7 @@ AlignableDet& AlignableTrackerPetal::det(int i)
 }
 
 
-/// Returns surface corresponding to current position
-/// and orientation, as given by average on all components
+//__________________________________________________________________________________________________
 AlignableSurface AlignableTrackerPetal::computeSurface() 
 {
 
@@ -58,7 +59,7 @@ AlignableSurface AlignableTrackerPetal::computeSurface()
 }
 
 
-/// Compute average position from all components
+//__________________________________________________________________________________________________
 AlignableTrackerPetal::PositionType AlignableTrackerPetal::computePosition() {
   
 
@@ -81,7 +82,7 @@ AlignableTrackerPetal::PositionType AlignableTrackerPetal::computePosition() {
 }
 
 
-/// Compute orientation from first Det
+//__________________________________________________________________________________________________
 AlignableTrackerPetal::RotationType AlignableTrackerPetal::computeOrientation() {
 
   // simply take the orientation of the petal from the orientation of
@@ -93,7 +94,7 @@ AlignableTrackerPetal::RotationType AlignableTrackerPetal::computeOrientation() 
 }
 
 
-/// Printout the DetUnits in the petal
+//__________________________________________________________________________________________________
 std::ostream &operator << ( std::ostream &os, const AlignableTrackerPetal & r )
 {
 

@@ -1,7 +1,7 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTID.h"
 
 
-/// The constructor simply copies the vector of layers and computes the surface from them
+//--------------------------------------------------------------------------------------------------
 AlignableTID::AlignableTID( const std::vector<AlignableTIDLayer*> tidLayers )  
 {
 
@@ -12,7 +12,7 @@ AlignableTID::AlignableTID( const std::vector<AlignableTIDLayer*> tidLayers )
 }
 
 
-/// Clean delete of the vector and its elements
+//--------------------------------------------------------------------------------------------------
 AlignableTID::~AlignableTID() 
 {
 
@@ -23,7 +23,18 @@ AlignableTID::~AlignableTID()
 }
 
 
-/// Return AlignableLayer at given index
+
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableTID::components() const
+{
+  std::vector<Alignable*> result; 
+  result.insert( result.end(), theLayers.begin(), theLayers.end() );
+  return result;
+} 
+
+
+
+//--------------------------------------------------------------------------------------------------
 AlignableTIDLayer &AlignableTID::layer(int i) 
 {
 
@@ -35,8 +46,7 @@ AlignableTIDLayer &AlignableTID::layer(int i)
 }
 
 
-/// Returns surface corresponding to current position
-/// and orientation, as given by average on all components
+//--------------------------------------------------------------------------------------------------
 AlignableSurface AlignableTID::computeSurface()
 {
 
@@ -45,7 +55,7 @@ AlignableSurface AlignableTID::computeSurface()
 }
 
 
-/// Compute average z position from all components (x and y forced to 0)
+//--------------------------------------------------------------------------------------------------
 AlignableTID::PositionType AlignableTID::computePosition() 
 {
 
@@ -65,7 +75,7 @@ AlignableTID::PositionType AlignableTID::computePosition()
 }
 
 
-/// Just initialize to default given by default constructor of a RotationType
+//--------------------------------------------------------------------------------------------------
 AlignableTID::RotationType AlignableTID::computeOrientation() 
 {
 
@@ -74,7 +84,7 @@ AlignableTID::RotationType AlignableTID::computeOrientation()
 }
 
 
-/// Output TID information
+//--------------------------------------------------------------------------------------------------
 std::ostream &operator << (std::ostream& os, const AlignableTID& b )
 {
 
@@ -87,7 +97,7 @@ std::ostream &operator << (std::ostream& os, const AlignableTID& b )
 }
 
 
-/// Recursive printout of whole TID structure
+//--------------------------------------------------------------------------------------------------
 void AlignableTID::dump( void )
 {
 

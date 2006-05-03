@@ -1,7 +1,7 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerPetal.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerEndcapLayer.h"
 
-/// The constructor simply copies the vector of petals and computes the surface from its elements.
+//__________________________________________________________________________________________________
 AlignableTrackerEndcapLayer::AlignableTrackerEndcapLayer(  const std::vector<AlignableTrackerPetal*> petals ) 
 {
 
@@ -12,7 +12,7 @@ AlignableTrackerEndcapLayer::AlignableTrackerEndcapLayer(  const std::vector<Ali
 }
 
 
-/// Clean delete of the vector and its elements
+//__________________________________________________________________________________________________
 AlignableTrackerEndcapLayer::~AlignableTrackerEndcapLayer()
 {
 
@@ -23,7 +23,16 @@ AlignableTrackerEndcapLayer::~AlignableTrackerEndcapLayer()
 }
 
 
-/// Returns AlignableTrackerPetal at given index
+//__________________________________________________________________________________________________
+std::vector<Alignable*> AlignableTrackerEndcapLayer::components() const 
+{
+  std::vector<Alignable*> result; 
+  result.insert( result.end(), thePetals.begin(), thePetals.end());
+  return result;
+}
+
+
+//__________________________________________________________________________________________________
 AlignableTrackerPetal &AlignableTrackerEndcapLayer::petal(int i)
 {
 
@@ -35,7 +44,7 @@ AlignableTrackerPetal &AlignableTrackerEndcapLayer::petal(int i)
 }
 
 
-/// Returns surface corresponding to current position
+//__________________________________________________________________________________________________
 AlignableSurface AlignableTrackerEndcapLayer::computeSurface()
 {
 
@@ -45,7 +54,7 @@ AlignableSurface AlignableTrackerEndcapLayer::computeSurface()
 
 
 
-/// Compute average z position from all components (x and y forced to 0)
+//__________________________________________________________________________________________________
 AlignableTrackerEndcapLayer::PositionType AlignableTrackerEndcapLayer::computePosition() 
 {
 
@@ -62,7 +71,7 @@ AlignableTrackerEndcapLayer::PositionType AlignableTrackerEndcapLayer::computePo
 }
 
 
-/// Just initialize to default given by default constructor of a RotationType
+//__________________________________________________________________________________________________
 AlignableTrackerEndcapLayer::RotationType AlignableTrackerEndcapLayer::computeOrientation() 
 {
 
@@ -71,7 +80,7 @@ AlignableTrackerEndcapLayer::RotationType AlignableTrackerEndcapLayer::computeOr
 }
 
 
-/// Output layer information
+//__________________________________________________________________________________________________
 std::ostream &operator << ( std::ostream &os, const AlignableTrackerEndcapLayer & b )
 {
 
@@ -84,7 +93,7 @@ std::ostream &operator << ( std::ostream &os, const AlignableTrackerEndcapLayer 
 }
 
 
-/// Recursive printout of whole layer structure
+//__________________________________________________________________________________________________
 void AlignableTrackerEndcapLayer::dump( void )
 {
 
