@@ -19,8 +19,8 @@ namespace AlignableObjectId
 	  AlignableTIDRing,
 	  AlignableTIDLayer,
 	  AlignableTID,
-	  AlignablePxHalfBarrelLayer,
-	  AlignablePxHalfBarrel,
+	  AlignablePixelHalfBarrelLayer,
+	  AlignablePixelHalfBarrel,
 	  AlignableTracker,
 	  
 	  MuonAlignBM                = 20,
