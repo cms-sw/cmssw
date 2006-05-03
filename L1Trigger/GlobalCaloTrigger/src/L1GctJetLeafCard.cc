@@ -1,7 +1,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
-L1GctJetLeafCard::L1GctJetLeafCard()
+L1GctJetLeafCard::L1GctJetLeafCard(int iphi)
 {
+  phiPosition = iphi;
 }
 
 L1GctJetLeafCard::~L1GctJetLeafCard()

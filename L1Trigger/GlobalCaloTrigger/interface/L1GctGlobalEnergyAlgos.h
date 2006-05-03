@@ -8,6 +8,8 @@
 
 using namespace std;
 
+class L1GctWheelEnergyFpga;
+
 /*
  * Emulates the GCT global energy algorithms
  * author: Jim Brooke
@@ -29,6 +31,10 @@ public:
 	///
 	/// process the data, fill output buffers
 	virtual void process();
+	///
+	/// assign data sources
+	void setPlusWheelFpga (L1GctWheelEnergyFpga* fpga);
+	void setMinusWheelFpga(L1GctWheelEnergyFpga* fpga);
 	///	
 	/// set input data per wheel
 	void setInputWheelEx(unsigned wheel, int energy, bool overflow);
@@ -67,6 +73,10 @@ public:
 	
 private:
 	
+	// Here are the algorithm types we get our inputs from
+	L1GctWheelEnergyFpga* m_plusWheelFpga;
+	L1GctWheelEnergyFpga* m_minusWheelFpga;
+
         typedef bitset<3> JcBoundType;
         typedef bitset<4> JcWheelType;
         typedef bitset<5> JcFinalType;
@@ -98,6 +108,8 @@ private:
         // internal stuff for inputs and outputs
         void checkUnsignedNatural(  unsigned E, bool O, int nbits, unsigned long &Eout, bool &Oout);
 	void checkIntegerTwosComplement( int E, bool O, int nbits, unsigned long &Eout, bool &Oout);
+	void decodeUnsignedInput( unsigned long Ein, unsigned &Eout, bool &Oout);
+	void decodeIntegerInput ( unsigned long Ein, int &Eout, bool &Oout);
         long int longIntegerFromTwosComplement (bitset<12> energyBits);
         // internal stuff for the Etmiss algorithm
         struct etmiss_vec { unsigned long mag; unsigned phi;};

@@ -19,7 +19,7 @@ using namespace std;
 class L1GctJetLeafCard : L1GctProcessor
 {
 public:
-	L1GctJetLeafCard();
+	L1GctJetLeafCard(int iphi);
 	~L1GctJetLeafCard();
 	///
 	/// clear internal buffers
@@ -41,7 +41,9 @@ public:
 	vector<L1GctJet> getOutputJets();
 	///
 	/// get the energy outputs
-	/// getOutputEnergy();
+	inline unsigned long getOutputEx() { return outputEx.to_ulong(); }
+	inline unsigned long getOutputEy() { return outputEy.to_ulong(); }
+	inline unsigned long getOutputEt() { return outputEt.to_ulong(); }
 
 private:
 
@@ -53,6 +55,18 @@ private:
 	// pointers to data source
 	vector<L1GctSourceCard*> m_sourceCards;
 
+	// internal data (other than jets)
+	static const int NUM_BITS_ENERGY_DATA = 13;
+	static const int OVERFLOW_BIT = NUM_BITS_ENERGY_DATA - 1;
+
+        static const int Emax = (1<<NUM_BITS_ENERGY_DATA);
+        static const int signedEmax = (Emax>>1);
+
+	int phiPosition;
+
+	bitset<NUM_BITS_ENERGY_DATA> outputEx;
+	bitset<NUM_BITS_ENERGY_DATA> outputEy;
+	bitset<NUM_BITS_ENERGY_DATA> outputEt;
 };
 
 #endif /*L1GCTJETLEAFCARD_H_*/

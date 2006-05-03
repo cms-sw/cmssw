@@ -6,8 +6,10 @@
 #include <bitset>
 #include <vector>
 
-using std::bitset;
-using std::vector;
+using namespace std;
+
+/* using std::bitset; */
+/* using std::vector; */
 
 class L1GctJetLeafCard;
 
@@ -15,7 +17,6 @@ class L1GctWheelEnergyFpga : public L1GctProcessor
 {
 public:
 	L1GctWheelEnergyFpga();
-	L1GctWheelEnergyFpga(vector<L1GctJetLeafCard*> src);
 	~L1GctWheelEnergyFpga();
 	///
 	/// clear internal buffers
@@ -27,32 +28,44 @@ public:
 	/// process the data, fill output buffers
 	virtual void process();
 	///
+	/// assign data sources
+	void setInputLeafCard (int i, L1GctJetLeafCard* leaf);
+	///
 	/// set input data
-	void setInputEnergy(int i, unsigned ex, unsigned ey);
+	void setInputEnergy(int i, int ex, int ey, unsigned et);
 	
 	// get input data
-	inline unsigned long getInputEx() { return inputEx.to_ulong(); }
-	inline unsigned long getInputEy() { return inputEy.to_ulong(); }
+	inline unsigned long getInputEx(unsigned leafnum) { return inputEx[leafnum].to_ulong(); }
+	inline unsigned long getInputEy(unsigned leafnum) { return inputEy[leafnum].to_ulong(); }
+	inline unsigned long getInputEt(unsigned leafnum) { return inputEt[leafnum].to_ulong(); }
 	
 	// get output data
 	inline unsigned long getOutputEx() { return outputEx.to_ulong(); }
 	inline unsigned long getOutputEy() { return outputEy.to_ulong(); }
-	inline unsigned long getOutputHt() { return outputHt.to_ulong(); }
+	inline unsigned long getOutputEt() { return outputEt.to_ulong(); }
 
 private:
 
 	///
 	/// the jet leaf card
-	vector<L1GctJetLeafCard*> inputLeafCards;
+	vector<L1GctJetLeafCard*> m_inputLeafCards;
+
+	static const int NUM_BITS_ENERGY_DATA = 13;
+	static const int OVERFLOW_BIT = NUM_BITS_ENERGY_DATA - 1;
+
+        static const int Emax = (1<<NUM_BITS_ENERGY_DATA);
+        static const int signedEmax = (Emax>>1);
 
 	// input data - need to confirm number of bits!
-	bitset<12> inputEx;
-	bitset<12> inputEy;
+        typedef bitset<NUM_BITS_ENERGY_DATA> InputEnergyType;
+	vector<InputEnergyType> inputEx;
+	vector<InputEnergyType> inputEy;
+	vector<InputEnergyType> inputEt;
 	
 	// output data
-	bitset<13> outputEx;
-	bitset<13> outputEy;
-	bitset<13> outputHt;
+	bitset<NUM_BITS_ENERGY_DATA> outputEx;
+	bitset<NUM_BITS_ENERGY_DATA> outputEy;
+	bitset<NUM_BITS_ENERGY_DATA> outputEt;
 	
 	
 };

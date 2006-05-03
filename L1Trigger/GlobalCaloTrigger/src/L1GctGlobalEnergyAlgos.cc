@@ -1,5 +1,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
+
 L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() :
   inputJcValPlusWheel(12),
   inputJcVlMinusWheel(12),
@@ -50,7 +52,24 @@ void L1GctGlobalEnergyAlgos::reset()
 }
 
 void L1GctGlobalEnergyAlgos::fetchInput() {
-	
+  unsigned EinU;
+  int EinI;
+  bool EOvflo;
+  // input from WheelEnergyFpgas
+  decodeIntegerInput ( m_plusWheelFpga->getOutputEx(), EinI, EOvflo);
+  setInputWheelEx((unsigned) 0, EinI, EOvflo);
+  decodeIntegerInput ( m_plusWheelFpga->getOutputEy(), EinI, EOvflo);
+  setInputWheelEy((unsigned) 0, EinI, EOvflo);
+  decodeUnsignedInput( m_plusWheelFpga->getOutputEt(), EinU, EOvflo);
+  setInputWheelEt((unsigned) 0, EinU, EOvflo);
+  //
+  decodeIntegerInput ( m_minusWheelFpga->getOutputEx(), EinI, EOvflo);
+  setInputWheelEx((unsigned) 1, EinI, EOvflo);
+  decodeIntegerInput ( m_minusWheelFpga->getOutputEy(), EinI, EOvflo);
+  setInputWheelEy((unsigned) 1, EinI, EOvflo);
+  decodeUnsignedInput( m_minusWheelFpga->getOutputEt(), EinU, EOvflo);
+  setInputWheelEt((unsigned) 1, EinU, EOvflo);
+  //
 }
 
 
@@ -197,6 +216,19 @@ void L1GctGlobalEnergyAlgos::process()
     //
     outputJetCounts[i] = jcResult;
   }
+}
+
+//----------------------------------------------------------------------------------------------
+// set input data sources
+//
+void L1GctGlobalEnergyAlgos::setPlusWheelFpga (L1GctWheelEnergyFpga* fpga)
+{
+  m_plusWheelFpga = fpga;
+}
+
+void L1GctGlobalEnergyAlgos::setMinusWheelFpga(L1GctWheelEnergyFpga* fpga)
+{
+  m_minusWheelFpga = fpga;
 }
 
 //----------------------------------------------------------------------------------------------
@@ -421,6 +453,54 @@ void L1GctGlobalEnergyAlgos::checkIntegerTwosComplement( int E, bool O, int nbit
   }
   Eout = energyInput;
   Oout = energyOvflo;
+}
+
+//----------------------------------------------------------------------------------------------
+//
+// Decode 13-bit value to 12-bits unsigned plus overflow
+void L1GctGlobalEnergyAlgos::decodeUnsignedInput( unsigned long Ein, unsigned &Eout, bool &Oout)
+{
+  unsigned energyInput;
+  bool     energyOvflo;
+  const unsigned max=(1<<12);
+
+  energyInput = Ein;
+  if (energyInput>=max) {
+    energyInput = energyInput % max;
+    energyOvflo = true;
+  } else {
+    energyOvflo = false;
+  }
+  Eout = energyInput;
+  Oout = energyOvflo;
+
+}
+
+//
+// Decode 13-bit value to 12-bits 2's complement plus overflow
+void L1GctGlobalEnergyAlgos::decodeIntegerInput ( unsigned long Ein, int &Eout, bool &Oout)
+{
+  unsigned energyInput;
+  bool     energyOvflo;
+  int      energyValue;
+  const unsigned max=(1<<12);
+
+  energyInput = Ein;
+  if (energyInput>=max) {
+    energyInput = energyInput % max;
+    energyOvflo = true;
+  } else {
+    energyOvflo = false;
+  }
+  if (energyInput>=max/2) {
+    energyValue = (int) energyInput - (int) max;
+  } else {
+    energyValue = (int) energyInput;
+  }
+
+  Eout = energyValue;
+  Oout = energyOvflo;
+
 }
 
 //----------------------------------------------------------------------------------------------

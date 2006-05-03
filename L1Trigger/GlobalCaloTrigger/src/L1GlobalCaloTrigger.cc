@@ -51,7 +51,7 @@ void L1GlobalCaloTrigger::build() {
   }
 
   for (int i=0; i<6; i++) {
-    theJetLeafCards[i] = new L1GctJetLeafCard();
+    theJetLeafCards[i] = new L1GctJetLeafCard(i % 3);
   }
   
   for (int i=0; i<2; i++) {

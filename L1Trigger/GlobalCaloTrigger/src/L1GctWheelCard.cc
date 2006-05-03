@@ -3,7 +3,7 @@
 L1GctWheelCard::L1GctWheelCard() {
 		
 	for (int i=0; i<3; i++) {
-		L1GctJetLeafCard* lc = new L1GctJetLeafCard();
+		L1GctJetLeafCard* lc = new L1GctJetLeafCard(i);
 		jetLeafCards.push_back(lc);
 	}
 		
