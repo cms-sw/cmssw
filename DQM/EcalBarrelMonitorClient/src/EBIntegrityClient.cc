@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/05/02 10:39:05 $
- * $Revision: 1.85 $
+ * $Date: 2006/05/03 08:53:26 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -207,7 +207,7 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
   map<EcalLogicID, MonTTConsistencyDat> dataset2;
   MonMemChConsistencyDat c3;
   map<EcalLogicID, MonMemChConsistencyDat> dataset3;
-  MonMemTTConsistencyDat c4; 
+  MonMemTTConsistencyDat c4;
   map<EcalLogicID, MonMemTTConsistencyDat> dataset4;
 
   cout << "Creating MonConsistencyDatObjects for the database ..." << endl;
@@ -419,15 +419,14 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
             cout << "Preparing dataset for mem of SM=" << ism << endl;
 
             cout << "(" << ie << "," << ip << ") " << num07 << " " << num08 << endl;
-	    
+
           }
-	  
+
           c3.setProcessedEvents( int (numTot));
           c3.setProblematicEvents(int (num07+num08));
           c3.setProblemsID(int (num07) );
           c3.setProblemsGainZero(int (num08));
           // c3.setProblemsGainSwitch(int prob);
-
 
           bool val;
 
@@ -446,7 +445,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
                val = false;
            }
          c3. setTaskStatus(val);
-
 
          int ic = EBIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
 
@@ -503,17 +501,16 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
           }
 
-	  c4.setProcessedEvents( int(numTot) );
-	  c4.setProblematicEvents( int(num09 + num10) );
-	  c4.setProblemsID( int(num09) );
-	  c4.setProblemsSize(int (num10) );
-	  // setProblemsLV1(int LV1);
-	  // setProblemsBunchX(int bunchX);
+          c4.setProcessedEvents( int(numTot) );
+          c4.setProblematicEvents( int(num09 + num10) );
+          c4.setProblemsID( int(num09) );
+          c4.setProblemsSize(int (num10) );
+          // setProblemsLV1(int LV1);
+          // setProblemsBunchX(int bunchX);
 
+          bool val;
 
-	  bool val;
-
-	  val = true;
+          val = true;
            if ( numTot > 0 ) {
              float errorRate2 = num00 / numTot;
              if ( errorRate2 > threshCry_ )
@@ -548,7 +545,7 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
   if ( econn ) {
     try {
-      cout << "Inserting datasets ... " << flush;
+      cout << "Inserting dataset ... " << flush;
       if ( dataset1.size() != 0 ) econn->insertDataSet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
       if ( dataset3.size() != 0 ) econn->insertDataSet(&dataset3, moniov);
@@ -558,7 +555,7 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
       cerr << e.what() << endl;
     }
   }
-  
+
 }
 
 void EBIntegrityClient::subscribe(void){
@@ -1764,3 +1761,4 @@ const int  EBIntegrityClient::chNum [5][5] = {
   {20, 19, 18, 17, 16},
   {21, 22, 23, 24, 25}
 };
+
