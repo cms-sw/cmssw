@@ -75,7 +75,7 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParamet
 
   // ionisation length
    
-  float ionLen = std::min( trackDir.mag(), maxLength);
+  //float ionLen = std::min( trackDir.mag(), maxLength);
 
   float par1=38.07;
   float par2=0.3184; 

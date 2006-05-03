@@ -121,12 +121,12 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
       
       if (id>0){
 	//	DetId partnerdetId(id);
-	const GeomDetUnit * monostripdet=tracker.idToDetUnit(*detunit_iterator);
-	const GeomDetUnit * stereostripdet=tracker.idToDetUnit(DetId(id));
+	//	const GeomDetUnit * monostripdet=tracker.idToDetUnit(*detunit_iterator);
+	//const GeomDetUnit * stereostripdet=tracker.idToDetUnit(DetId(id));
 	//const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*> tracker.idToDet(*detunit_iterator);
 	const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(DetId(specDetId.glued()));
-	const DetId theId(id);
-	const StripTopology& topol=(StripTopology&)stereostripdet->topology();
+	//const DetId theId(id);
+	//const StripTopology& topol=(StripTopology&)stereostripdet->topology();
 	collectorMatchedSingleHit=clustermatch_->match(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,gluedDet,trackdirection);
 	if (collectorMatchedSingleHit.size()>0) {
 	  nmatch++;
