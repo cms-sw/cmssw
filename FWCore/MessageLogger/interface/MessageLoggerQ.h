@@ -13,7 +13,9 @@ namespace edm
 class ErrorObj;
 class ParameterSet;
 class ELdestination;
+namespace service {
 class NamedDestination;
+}
 
 
 class MessageLoggerQ
@@ -35,7 +37,7 @@ public:
   static  void  END();
   static  void  LOG( ErrorObj * p );
   static  void  CFG( ParameterSet * p );
-  static  void  EXT( NamedDestination* p );
+  static  void  EXT( service::NamedDestination* p );
   static  void  SUM();
 
   // ---  obtain a message from the queue:
