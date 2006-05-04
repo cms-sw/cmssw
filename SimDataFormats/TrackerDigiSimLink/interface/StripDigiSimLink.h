@@ -15,7 +15,7 @@ class StripDigiSimLink {
   inline const uint16_t&  SimTrackId()  const {return simTkId;}
   inline const float&   fraction()    const {return fract;}
 
-  inline bool operator< ( const StripDigiSimLink& other ) const { return fraction() < other.fraction(); }
+  inline bool operator< ( const StripDigiSimLink& other ) const { return channel() < other.channel(); }
 
  private:
   uint16_t chan;
