@@ -1,8 +1,8 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2006/04/28 15:21:52 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/04 09:13:07 $
+ *  $Revision: 1.5 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -75,17 +75,12 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
   // Percolate the setup
   the4DAlgo->setES(setup);
 
-  // Iterate over all hit collections ordered by SuperLayerId
-  //  DTRecSegment2DCollection::id_iterator dtSuperLayerIt;
+  // Iterate over all hit collections ordered by layerId
   DTRecHitCollection::id_iterator dtLayerIt;
 
   DTChamberId oldChId;
 
-  //  for (dtSuperLayerIt = all2DSegments->id_begin(); dtSuperLayerIt != all2DSegments->id_end(); ++dtSuperLayerIt){
   for (dtLayerIt = all1DHits->id_begin(); dtLayerIt != all1DHits->id_end(); ++dtLayerIt){
-
-    // The superLayerId
-    // DTSuperLayerId superLayerId = (*dtSuperLayerIt);
 
     // Check the DTChamberId
     const DTChamberId chId = (*dtLayerIt).chamberId();
