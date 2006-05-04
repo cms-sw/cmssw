@@ -20,6 +20,12 @@ void L1GctJetFinalStage::process()
 {
 }
 
+void L1GctJetFinalStage::setInputWheelJetFpga(int i, L1GctWheelJetFpga* wjf)
+{
+    assert(i >= 0);  //&& < some max number of wheelJetFpgas
+    m_wheelFpgas[i] = wjf;   
+}
+
 void L1GctJetFinalStage::setInputJet(int i, L1GctJet jet)
 {
 }

@@ -6,8 +6,6 @@
 
 #include <vector>
 
-using std::vector;
-
 class L1GctWheelJetFpga;
 
 /*
@@ -21,42 +19,43 @@ class L1GctJetFinalStage : public L1GctProcessor
 {
 public:
 	L1GctJetFinalStage();
-	L1GctJetFinalStage(vector<L1GctWheelJetFpga*> src);
 	~L1GctJetFinalStage();
-	///
+
 	/// clear internal buffers
 	virtual void reset();
-	///
+
 	/// get input data from sources
 	virtual void fetchInput();
-	///
+
 	/// process the data, fill output buffers
 	virtual void process();
-	///	
+    	
 	// set input data		
 	void setInputJet(int i, L1GctJet jet);
 
+    /// set the wheel jet fpga pointers
+    void setInputWheelJetFpga(int i, L1GctWheelJetFpga* wjf);
+
 	// return input data
-	inline vector<L1GctJet> getInputJets() { return inputJets; }
+	std::vector<L1GctJet> getInputJets() const { return m_inputJets; }
 
 	// return output data
-	inline vector<L1GctJet> getCentralJets() { return centralJets; }
-	inline vector<L1GctJet> getForwardJets() { return forwardJets; }
-	inline vector<L1GctJet> getTauJets() { return tauJets; }
+	std::vector<L1GctJet> getCentralJets() const { return m_centralJets; }
+	std::vector<L1GctJet> getForwardJets() const { return m_forwardJets; }
+	std::vector<L1GctJet> getTauJets() const { return m_tauJets; }
 
 private:
 
-	///
 	/// wheel jet FPGAs
-	vector<L1GctWheelJetFpga*> theWheelFpgas;
+	std::vector<L1GctWheelJetFpga*> m_wheelFpgas;
 	
 	// input data - need to confirm number of jets!
-	vector<L1GctJet> inputJets;
+	std::vector<L1GctJet> m_inputJets;
 
 	// output data
-	vector<L1GctJet> centralJets;
-	vector<L1GctJet> forwardJets;
-	vector<L1GctJet> tauJets;
+	std::vector<L1GctJet> m_centralJets;
+	std::vector<L1GctJet> m_forwardJets;
+	std::vector<L1GctJet> m_tauJets;
 	
 };
 
