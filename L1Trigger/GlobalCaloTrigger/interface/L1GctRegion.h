@@ -22,6 +22,9 @@ public:
 
 	L1GctRegion(ULong et=0, bool mip=false, bool quiet=false, bool tauVeto=true, bool overFlow=false);
 	~L1GctRegion();
+    
+    ///External access to the bitwidth of the region Et
+    static const int ET_BITWIDTH = 10;
 	
     // Getters
 	ULong getEt() const { return myEt.to_ulong(); }
@@ -31,7 +34,7 @@ public:
     bool getOverFlow() const { return myOverFlow; }
     
     // Setters
-    void setEt(ULong et) { myEt = et; } 
+    void setEt(ULong et) { /*assert(et < (1 << ET_BITWIDTH));*/ myEt = et; } 
     void setMip(bool mip) { myMip = mip; }
     void setQuiet(bool quiet) { myQuiet = quiet; }
     void setTauVeto(bool tauVeto) { myTauVeto = tauVeto; }
@@ -39,7 +42,7 @@ public:
 
     //	ostream& operator << (ostream& os, const L1GctRegion& s);
     
-    static const int ET_BITWIDTH = 10;
+
 		
 private:
 
