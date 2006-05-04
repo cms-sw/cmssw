@@ -272,7 +272,7 @@ void putRegionsInVector(ifstream &fin, RegionsVector &regions, const int numRegi
 L1GctRegion readSingleRegion(ifstream &fin)
 {   
     //Represents how many numbers there are per line for a region in the input file
-    const int numRegionComponents = 4; //4 since we have Et, Mip, Quiet & tauVeto.
+    const int numRegionComponents = 5; //4 since we have Et, Mip, Quiet, tauVeto & overFlow.
     
     ULong regionComponents[numRegionComponents];
     
@@ -293,7 +293,8 @@ L1GctRegion readSingleRegion(ifstream &fin)
     L1GctRegion tempRegion(regionComponents[0],
                            static_cast<bool>(regionComponents[1]),
                            static_cast<bool>(regionComponents[2]),
-                           static_cast<bool>(regionComponents[3]));
+                           static_cast<bool>(regionComponents[3]),
+                           static_cast<bool>(regionComponents[4]));
     
     return tempRegion;
 }
@@ -356,6 +357,7 @@ bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const
                 if(vector1[i].getMip() != vector2[i].getMip()) { testPass = false; break; }
                 if(vector1[i].getQuiet() != vector2[i].getQuiet()) {testPass = false; break; }
                 if(vector1[i].getTauVeto() != vector2[i].getTauVeto()) {testPass = false; break; }
+                if(vector1[i].getOverFlow() != vector2[i].getOverFlow()) {testPass = false; break; }
             }
         }
     }
@@ -422,7 +424,8 @@ void outputRegionsVector(ofstream &fout, RegionsVector &regions, string descript
             fout << regions[i].getEt() << "\t"
                  << regions[i].getMip() << "\t"
                  << regions[i].getQuiet() << "\t"
-                 << regions[i].getTauVeto() << endl;
+                 << regions[i].getTauVeto() << "\t"
+                 << regions[i].getOverFlow() << endl;
         }
     }
     fout << endl;  //write a blank line to separate data
