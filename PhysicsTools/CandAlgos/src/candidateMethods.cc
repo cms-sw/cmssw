@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Aug 11 18:56:23 EDT 2005
-// $Id: candidateMethods.cc,v 1.2 2006/02/21 10:37:28 llista Exp $
+// $Id: candidateMethods.cc,v 1.3 2006/02/28 11:29:19 llista Exp $
 //
 
 // system include files
@@ -23,7 +23,7 @@ const CandidateMethods&
 reco::candidateMethods() {
   static CandidateMethods s_methods;
   if( ! s_methods.size() ) {
-    s_methods[ "momentum" ] = &Candidate::momentum;
+    s_methods[ "p" ] = &Candidate::p;
     s_methods[ "energy" ] = &Candidate::energy;
     s_methods[ "et" ] = &Candidate::et;
     s_methods[ "mass" ] = &Candidate::mass;
