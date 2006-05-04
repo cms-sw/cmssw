@@ -19,6 +19,9 @@ namespace edm {
     class ParseResultsTweaker 
     {
     public:
+      /// for sorting NodePtrs by name
+      typedef std::map<std::string, NodePtr> NodePtrMap;
+
       ParseResultsTweaker() {}
 
       void process(ParseResults & parseResults);
@@ -36,32 +39,41 @@ namespace edm {
       void processUsingBlock(NodePtrList::iterator & usingNodeItr, 
                              ModuleNode * moduleNode);
       
-      void processCopyNode(const NodePtr & n);
+      /// targetMap will ordinarily be one of the data members
+      void processCopyNode(const NodePtr & n, NodePtrMap & targetMap);
 
-      void processRenameNode(const NodePtr & n);
+      void processRenameNode(const NodePtr & n, NodePtrMap & targetMap);
 
-      void processReplaceNode(const NodePtr & n);
+      void processReplaceNode(const NodePtr & n, NodePtrMap & targetMap);
 
+      /// parses the dot-delimited path string
+      std::vector<std::string> parsePath(const std::string & path);
 
       /// parameters are specified by dot-delimited names.
       /// this method walks the tree 
-      NodePtr findInPath(const std::string & path);
+      NodePtr findInPath(const std::string & path, NodePtrMap & nodeMap);
 
       /// throws a ConfigurationError if not found
-      NodePtr findModulePtr(const std::string & name);
+      NodePtr findPtr(const std::string & name, NodePtrMap & nodeMap);
   
-      /// calls findModulePtr, and does the cast
-      ModuleNode * findModule(const std::string & name);
-
       /// puts the parts back together to return the ParseResults
       void reassemble(NodePtrListPtr & parseResults);
 
+      /// utilities to modify a block before it's inlined
 
-      /// for sorting NodePtrs by name
-      typedef std::map<std::string, NodePtr> NodePtrMap;
+      /// pulls any modifier commands (rename, copy, replace, etc.)
+      /// out of the list they're in if they refer to an existing block
+      /// they're stored in blockModifiers and erased from the input.
+      void findBlockModifiers(NodePtrList & modifierNodes, 
+                              NodePtrList & blockModifiers);
 
       /// Nodes which represent top-level PSet blocks
       NodePtrMap blocks_;
+
+      /// Nodes which modify blocks.  These are processed first
+      NodePtrList blockCopyNodes_;
+      NodePtrList blockRenameNodes_;
+      NodePtrList blockReplaceNodes_;
 
       /// Nodes which copy modules and sources
       NodePtrList copyNodes_;
