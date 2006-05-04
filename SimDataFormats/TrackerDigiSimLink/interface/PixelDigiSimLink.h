@@ -21,6 +21,7 @@ public:
   float fraction() const{return fract;};
 
 
+  inline bool operator< ( const PixelDigiSimLink& other ) const { return fraction() < other.fraction(); }
 
  private:
   unsigned int chan;
