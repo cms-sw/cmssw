@@ -154,22 +154,28 @@ void FUEventProcessor::actionPerformed (xdata::Event& e)
 	    {
 	      LOG4CPLUS_WARN(this->getApplicationLogger(),
 			     (outprev_ ? "Disabling " : "Enabling ") << "global output");
-	      //	      proc_->toggleOutput();
+	      proc_->enableEndPaths(outPut_);
 	      outprev_ = outPut_;
 	    }
 	}
       if ( item == "globalInputPrescale")
 	{
 	  //	  proc_->prescaleInput(inputPrescale_);
+	  //	  LOG4CPLUS_WARN(this->getApplicationLogger(),
+	  //			 "Setting global input prescale factor to" << inputPrescale_);
+	  //
 	  LOG4CPLUS_WARN(this->getApplicationLogger(),
-			 "Setting global input prescale factor to" << inputPrescale_);
-
+			 "Setting global input prescale has no effect in this version of the code");
+	  
+	  
 	}
       if ( item == "globalOutputPrescale")
 	{
 	  //	  proc_->prescaleOutput(outputPrescale_);
+	  //LOG4CPLUS_WARN(this->getApplicationLogger(),
+	  //			 "Setting global output prescale factor to" << outputPrescale_);
 	  LOG4CPLUS_WARN(this->getApplicationLogger(),
-			 "Setting global output prescale factor to" << outputPrescale_);
+			 "Setting global output prescale has no effect in this version of the code");
 
 	}
     }
@@ -340,9 +346,9 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,
   *out << "Endpaths State" << std::endl;
   *out << "</td>" << std::endl;
   *out << "<td";
-  //*out << (sched_->inhibit_endpaths_ ? " bgcolor=\"red\">" : ">") << std::endl;
-  //  *out <<  (sched_->inhibit_endpaths_ ? "disabled" : "enabled") << std::endl;
-  *out << "> N/A this version" << std::endl;
+  *out << (proc_->endPathsEnabled() ?  "> enabled" : 
+	   " bgcolor=\"red\"> disabled" ) << std::endl;
+  //*out << "> N/A this version" << std::endl;
   *out << "</td>" << std::endl;
   *out << "  </tr>"                                            << endl;
   *out << "<tr>" << std::endl;
