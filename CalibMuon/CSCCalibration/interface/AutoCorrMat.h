@@ -4,7 +4,7 @@
 */
 
 #include <stdio.h>
-#include <math.h>
+#include <math.h> 
 
 class AutoCorrMat{
 
@@ -36,8 +36,8 @@ class AutoCorrMat{
     }
   }
 
-  double *mat(){
-    double *tmp;
+  float *mat(){
+    float *tmp;
     for(int i=0;i<12;i++)tMat[i]=Mat[i]/N[i];
     tmp=tMat;
     return tmp; 
@@ -45,9 +45,9 @@ class AutoCorrMat{
 
  private:
 
-  double Mat[12];
-  double N[12];
-  double tMat[12];
+  float Mat[12];
+  float N[12];
+  float tMat[12];
 
 };
 
@@ -69,8 +69,8 @@ class Chamber_AutoCorrMat{
     CMat[lay][strip].add(adc);
   } 
 
-  double *autocorrmat(int lay,int strip){
-    double *tmp;
+  float *autocorrmat(int lay,int strip){
+    float *tmp;
     tmp=m;
     tmp=CMat[lay][strip].mat();
     return tmp;
@@ -79,6 +79,6 @@ class Chamber_AutoCorrMat{
  private:
 
   AutoCorrMat CMat[6][80];
-  double m[12];
+  float m[12];
 
 };
