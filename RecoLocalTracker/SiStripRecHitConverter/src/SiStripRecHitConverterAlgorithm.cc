@@ -33,13 +33,13 @@ SiStripRecHitConverterAlgorithm::~SiStripRecHitConverterAlgorithm() {
     delete clustermatch_;
   }
 }
-void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator)
+void SiStripRecHitConverterAlgorithm::run(const edm::DetSetVector<SiStripCluster>& input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator)
 {
   run(input, outmatched,outrphi,outstereo,tracker,parameterestimator,LocalVector(0.,0.,0.));
 }
 
 
-void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator,LocalVector trackdirection)
+void SiStripRecHitConverterAlgorithm::run(const edm::DetSetVector<SiStripCluster>& input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator,LocalVector trackdirection)
 {
   //  const MagneticField *b=&BField;
   //const TrackerGeometry *geom=&tracker;
@@ -49,10 +49,11 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
   int nmatch=0;
   int nunmatch=0;
   // get vector of detunit ids
-  const std::vector<unsigned int> detIDs = input->detIDs();
-  for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); detunit_iterator++ ) {//loop over detectors
+  //const std::vector<unsigned int> detIDs = input->detIDs();
+  for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter=input.begin(); DSViter!=input.end();DSViter++ ) {//loop over detectors
     //    bool isstereo=0;
-    unsigned int id = *detunit_iterator;
+    unsigned int id = DSViter->id;
+
     edm::OwnVector<SiStripRecHit2DLocalPos> collectorrphi; 
     edm::OwnVector<SiStripRecHit2DLocalPos> collectorstereo; 
     if(id!=999999999){ //if is valid detector
@@ -61,12 +62,15 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
       const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tracker.idToDetUnit(detId);
       if(stripdet==0)edm::LogWarning("SiStripRecHitConverter")<<"Detid="<<id<<" not found, trying next one";
       else{
-	const SiStripClusterCollection::Range clusterRange = input->get(id);
-	SiStripClusterCollection::ContainerIterator clusterRangeIteratorBegin = clusterRange.first;
-	SiStripClusterCollection::ContainerIterator clusterRangeIteratorEnd   = clusterRange.second;
-	SiStripClusterCollection::ContainerIterator iter;
-	StripSubdetector specDetId=(StripSubdetector)(*detunit_iterator);
-	for(iter=clusterRangeIteratorBegin;iter!=clusterRangeIteratorEnd;++iter){
+	edm::DetSet<SiStripCluster>::const_iterator begin=DSViter->data.begin();
+	edm::DetSet<SiStripCluster>::const_iterator end  =DSViter->data.end();
+	
+	//const SiStripClusterCollection::Range clusterRange = input->get(id);
+	//SiStripClusterCollection::ContainerIterator clusterRangeIteratorBegin = clusterRange.first;
+	//SiStripClusterCollection::ContainerIterator clusterRangeIteratorEnd   = clusterRange.second;
+	//SiStripClusterCollection::ContainerIterator iter;
+	StripSubdetector specDetId=StripSubdetector(id);
+	for(edm::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter){
 	  StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*iter,*stripdet);
 	  std::vector<const SiStripCluster*> clusters;
 	  clusters.push_back(&(*iter));
@@ -95,8 +99,9 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
   // match the clusters
   //
   
-  const std::vector<DetId> detIDs2 = outrphi.ids();
-  for ( std::vector<DetId>::const_iterator detunit_iterator = detIDs2.begin(); detunit_iterator != detIDs2.end(); detunit_iterator++ ) {//loop over detectors
+  const std::vector<DetId> rphidetIDs = outrphi.ids();
+  const std::vector<DetId> stereodetIDs = outstereo.ids();
+  for ( std::vector<DetId>::const_iterator detunit_iterator = rphidetIDs.begin(); detunit_iterator != rphidetIDs.end(); detunit_iterator++ ) {//loop over detectors
     edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collectorMatched; 
     SiStripRecHit2DLocalPosCollection::range monoRecHitRange = outrphi.get((*detunit_iterator));
     SiStripRecHit2DLocalPosCollection::const_iterator rhRangeIteratorBegin = monoRecHitRange.first;
@@ -109,8 +114,9 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
       edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collectorMatchedSingleHit; 
       StripSubdetector specDetId(*detunit_iterator);
       id = specDetId.partnerDetId();
-      std::vector<unsigned int>::const_iterator partnerdetiter=std::find(detIDs.begin(),detIDs.end(),id);
-      if(partnerdetiter==detIDs.end()) id=0;	
+      const DetId theId(id);
+      std::vector<DetId>::const_iterator partnerdetiter=std::find(stereodetIDs.begin(),stereodetIDs.end(),theId);
+      if(partnerdetiter==stereodetIDs.end()) id=0;	
       const SiStripRecHit2DLocalPosCollection::range rhpartnerRange = outstereo.get(DetId(id));
       SiStripRecHit2DLocalPosCollection::const_iterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
       SiStripRecHit2DLocalPosCollection::const_iterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
@@ -125,7 +131,6 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 	//const GeomDetUnit * stereostripdet=tracker.idToDetUnit(DetId(id));
 	//const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*> tracker.idToDet(*detunit_iterator);
 	const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(DetId(specDetId.glued()));
-	//const DetId theId(id);
 	//const StripTopology& topol=(StripTopology&)stereostripdet->topology();
 	collectorMatchedSingleHit=clustermatch_->match(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,gluedDet,trackdirection);
 	if (collectorMatchedSingleHit.size()>0) {

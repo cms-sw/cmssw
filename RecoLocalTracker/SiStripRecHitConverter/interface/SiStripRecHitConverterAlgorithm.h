@@ -14,14 +14,20 @@
 #include <string>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
+
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
+
 class SiStripRecHitConverterAlgorithm 
 {
  public:
@@ -32,8 +38,8 @@ class SiStripRecHitConverterAlgorithm
 
   /// Runs the algorithm
 
-    void run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &stripcpe );
-    void run(const SiStripClusterCollection* input, SiStripRecHit2DMatchedLocalPosCollection&  output, SiStripRecHit2DLocalPosCollection&  outrphi,SiStripRecHit2DLocalPosCollection&  outstereo,const TrackerGeometry & tracker,const StripClusterParameterEstimator &stripcpe ,LocalVector trackdirection);
+    void run(const edm::DetSetVector<SiStripCluster>& input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &stripcpe );
+    void run(const edm::DetSetVector<SiStripCluster>& input, SiStripRecHit2DMatchedLocalPosCollection&  output, SiStripRecHit2DLocalPosCollection&  outrphi,SiStripRecHit2DLocalPosCollection&  outstereo,const TrackerGeometry & tracker,const StripClusterParameterEstimator &stripcpe ,LocalVector trackdirection);
  private:
 
   edm::ParameterSet conf_;
