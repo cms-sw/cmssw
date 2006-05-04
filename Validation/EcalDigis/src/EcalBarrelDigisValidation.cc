@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2006/04/10 08:50:50 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/24 16:14:30 $
+ * $Revision: 1.2 $
  * \author F. Cossutti
  *
 */
@@ -170,9 +170,9 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
 
       for (int sample = 0 ; sample < digis->size () ; ++sample)
         {
-          ebADCCounts.push_back (digis->sample (sample).adc ()) ;
-          ebADCGains.push_back (digis->sample (sample).gainId ()) ;
-          ebAnalogSignal.push_back (ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_);
+          ebADCCounts[sample] = (digis->sample (sample).adc ()) ;
+          ebADCGains[sample] = (digis->sample (sample).gainId ()) ;
+          ebAnalogSignal[sample] = (ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_);
           if (Emax < ebAnalogSignal[sample] ) {
             Emax = ebAnalogSignal[sample] ;
             Pmax = sample ;

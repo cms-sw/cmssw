@@ -1,8 +1,8 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2006/04/10 08:50:50 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/24 16:14:30 $
+ * $Revision: 1.2 $
  * \author F. Cossutti
  *
 */
@@ -106,7 +106,7 @@ void EcalPreshowerDigisValidation::analyze(const Event& e, const EventSetup& c){
        
       for (int sample = 0 ; sample < digis->size () ; ++sample)
         {
-          esADCCounts.push_back (digis->sample (sample).adc ()) ;
+          esADCCounts[sample] = (digis->sample (sample).adc ()) ;
         }
       if (verbose_) {
         LogDebug("DigiInfo") << "Preshower Digi for ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip();
