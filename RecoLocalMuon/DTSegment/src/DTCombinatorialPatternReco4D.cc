@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/28 15:21:52 $
- * $Revision: 1.9 $
+ * $Date: 2006/05/04 09:14:06 $
+ * $Revision: 1.10 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -16,7 +16,7 @@
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/MuonDetId/interface/DTRangeMapAccessor.h"
+#include "DataFormats/DTRecHit/interface/DTRangeMapAccessor.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"

@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/27 14:30:38 $
- * $Revision: 1.8 $
+ * $Date: 2006/04/28 15:21:52 $
+ * $Revision: 1.9 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -24,7 +24,7 @@ using namespace edm;
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
-#include "DataFormats/MuonDetId/interface/DTRangeMapAccessor.h"
+#include "DataFormats/DTRecHit/interface/DTRangeMapAccessor.h"
 
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DAlgoFactory.h"
 
