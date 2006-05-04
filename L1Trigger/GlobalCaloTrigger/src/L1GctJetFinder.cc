@@ -1,12 +1,14 @@
  #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinder.h"
-//#include "CMSSW/FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
-#include <math.h>
+//#include <math.h>
 using namespace std;
 
-L1GctJetFinder::L1GctJetFinder():
-m_inputRegions(maxRegionsIn)
+L1GctJetFinder::L1GctJetFinder(EtaHalf etaHalf):
+m_sourceCards(maxSourceCards),
+m_inputRegions(maxRegionsIn),
+m_outputJets(maxJets),
+m_etaHalf(etaHalf)
 {
 }
 
@@ -19,33 +21,165 @@ void L1GctJetFinder::reset()
     m_inputRegions.clear();
     m_inputRegions.resize(maxRegionsIn);
     m_outputJets.clear();
+    m_outputJets.resize(maxJets);
     m_outputHt = 0;
 }
 
+// Can't see a better way of doing this mapping...
 void L1GctJetFinder::fetchInput()
 {
+    vector<L1GctRegion> tempRegions;  //for temp local copy of region data
+    
+    switch(m_etaHalf)
+    {
+    case NEG_ETA_TYPE:
+        tempRegions = m_sourceCards[0]->getRegions();   assert(tempRegions.size() > 11);
+        m_inputRegions[27] = tempRegions[0];
+        m_inputRegions[26] = tempRegions[1];
+        m_inputRegions[13] = tempRegions[2];
+        m_inputRegions[25] = tempRegions[3];
+        m_inputRegions[20] = tempRegions[4];
+        m_inputRegions[21] = tempRegions[5];
+        m_inputRegions[22] = tempRegions[6];
+        m_inputRegions[23] = tempRegions[7];
+        m_inputRegions[32] = tempRegions[8];
+        m_inputRegions[33] = tempRegions[9];
+        m_inputRegions[34] = tempRegions[10];
+        m_inputRegions[35] = tempRegions[11];
+        
+        tempRegions = m_sourceCards[1]->getRegions();   assert(tempRegions.size() > 9);
+        m_inputRegions[19] = tempRegions[0];
+        m_inputRegions[18] = tempRegions[1];
+        m_inputRegions[17] = tempRegions[2];
+        m_inputRegions[16] = tempRegions[3];
+        m_inputRegions[15] = tempRegions[4];
+        m_inputRegions[14] = tempRegions[5];
+        m_inputRegions[31] = tempRegions[6];
+        m_inputRegions[30] = tempRegions[7];
+        m_inputRegions[29] = tempRegions[8];
+        m_inputRegions[28] = tempRegions[9];
+        
+        tempRegions = m_sourceCards[2]->getRegions();   assert(tempRegions.size() > 11);
+        m_inputRegions[3] = tempRegions[0];
+        m_inputRegions[2] = tempRegions[1];
+        m_inputRegions[1] = tempRegions[3];
+        m_inputRegions[8] = tempRegions[8];
+        m_inputRegions[9] = tempRegions[9];
+        m_inputRegions[10] = tempRegions[10];
+        m_inputRegions[11] = tempRegions[11];
+        
+        tempRegions = m_sourceCards[3]->getRegions();   assert(tempRegions.size() > 9);        
+        m_inputRegions[7] = tempRegions[6];
+        m_inputRegions[6] = tempRegions[7];
+        m_inputRegions[5] = tempRegions[8];
+        m_inputRegions[4] = tempRegions[9];
+        
+        tempRegions = m_sourceCards[4]->getRegions();   assert(tempRegions.size() > 6);
+        m_inputRegions[0] = tempRegions[6];
+        
+        tempRegions = m_sourceCards[5]->getRegions();   assert(tempRegions.size() > 6);
+        m_inputRegions[12] = tempRegions[0];
+        m_inputRegions[24] = tempRegions[6];
+        
+        tempRegions = m_sourceCards[6]->getRegions();   assert(tempRegions.size() > 0);
+        m_inputRegions[36] = tempRegions[0];
+        
+        tempRegions = m_sourceCards[7]->getRegions();   assert(tempRegions.size() > 7);
+        m_inputRegions[37] = tempRegions[2];
+        m_inputRegions[44] = tempRegions[4];
+        m_inputRegions[45] = tempRegions[5];
+        m_inputRegions[46] = tempRegions[6];
+        m_inputRegions[47] = tempRegions[7];
+        
+        tempRegions = m_sourceCards[8]->getRegions();   assert(tempRegions.size() > 5);
+        m_inputRegions[43] = tempRegions[0];
+        m_inputRegions[42] = tempRegions[1];
+        m_inputRegions[41] = tempRegions[2];
+        m_inputRegions[40] = tempRegions[3];
+        m_inputRegions[39] = tempRegions[4];
+        m_inputRegions[38] = tempRegions[5];
+        break;
+        
+    case POS_ETA_TYPE:
+        tempRegions = m_sourceCards[0]->getRegions();   assert(tempRegions.size() > 11);
+        m_inputRegions[29] = tempRegions[0];
+        m_inputRegions[30] = tempRegions[1];
+        m_inputRegions[19] = tempRegions[2];
+        m_inputRegions[31] = tempRegions[3];
+        m_inputRegions[20] = tempRegions[4];
+        m_inputRegions[21] = tempRegions[5];
+        m_inputRegions[22] = tempRegions[6];
+        m_inputRegions[23] = tempRegions[7];
+        m_inputRegions[32] = tempRegions[8];
+        m_inputRegions[33] = tempRegions[9];
+        m_inputRegions[34] = tempRegions[10];
+        m_inputRegions[35] = tempRegions[11];
+        
+        tempRegions = m_sourceCards[1]->getRegions();   assert(tempRegions.size() > 9);
+        m_inputRegions[13] = tempRegions[0];
+        m_inputRegions[14] = tempRegions[1];
+        m_inputRegions[15] = tempRegions[2];
+        m_inputRegions[16] = tempRegions[3];
+        m_inputRegions[17] = tempRegions[4];
+        m_inputRegions[18] = tempRegions[5];
+        m_inputRegions[25] = tempRegions[6];
+        m_inputRegions[26] = tempRegions[7];
+        m_inputRegions[27] = tempRegions[8];
+        m_inputRegions[28] = tempRegions[9];
+        
+        tempRegions = m_sourceCards[2]->getRegions();   assert(tempRegions.size() > 11);        
+        m_inputRegions[5] = tempRegions[0];
+        m_inputRegions[6] = tempRegions[1];
+        m_inputRegions[7] = tempRegions[3];
+        m_inputRegions[8] = tempRegions[8];
+        m_inputRegions[9] = tempRegions[9];
+        m_inputRegions[10] = tempRegions[10];
+        m_inputRegions[11] = tempRegions[11];
+        
+        tempRegions = m_sourceCards[3]->getRegions();   assert(tempRegions.size() > 9);
+        m_inputRegions[1] = tempRegions[6];
+        m_inputRegions[2] = tempRegions[7];
+        m_inputRegions[3] = tempRegions[8];
+        m_inputRegions[4] = tempRegions[9];
+        
+        tempRegions = m_sourceCards[4]->getRegions();   assert(tempRegions.size() > 3);
+        m_inputRegions[0] = tempRegions[3];
+        
+        tempRegions = m_sourceCards[5]->getRegions();   assert(tempRegions.size() > 3);
+        m_inputRegions[12] = tempRegions[2];
+        m_inputRegions[24] = tempRegions[3];
+        
+        tempRegions = m_sourceCards[6]->getRegions();   assert(tempRegions.size() > 2);
+        m_inputRegions[36] = tempRegions[2];
+        
+        tempRegions = m_sourceCards[7]->getRegions();   assert(tempRegions.size() > 7);
+        m_inputRegions[43] = tempRegions[2];
+        m_inputRegions[44] = tempRegions[4];
+        m_inputRegions[45] = tempRegions[5];
+        m_inputRegions[46] = tempRegions[6];
+        m_inputRegions[47] = tempRegions[7];
+        
+        tempRegions = m_sourceCards[8]->getRegions();   assert(tempRegions.size() > 5);
+        m_inputRegions[37] = tempRegions[0];
+        m_inputRegions[38] = tempRegions[1];
+        m_inputRegions[39] = tempRegions[2];
+        m_inputRegions[40] = tempRegions[3];
+        m_inputRegions[41] = tempRegions[4];
+        m_inputRegions[42] = tempRegions[5];
+        break;
+    }
+}
+
+void L1GctJetFinder::setInputSourceCard(unsigned i, L1GctSourceCard* sc)
+{
+    assert(i >= 0 && i < maxSourceCards);
+    m_sourceCards[i] = sc;
 }
 
 void L1GctJetFinder::setInputRegion(int i, L1GctRegion region)
 {
-/*    //First check that i isn't out of range - do we want an exception, or just ignore out of range data?
-    if(i > maxRegionsIn || i < 0)
-    {
-        throw cms::Exception("RangeError")
-         << "Region " << i << " is outside jet finder input region range of 0 to "
-         << maxRegionsIn << "\n";
-    }
-*/
-    if(i >= 0 || i < maxRegionsIn)
-    {
-        m_inputRegions[i] = region;
-    }
-    else
-    {
-        cout << "\nWarning! Inputted Calorimeter Region " << i
-             << " is outside jet finder input region range of 0 to " 
-             << maxRegionsIn << ".  This data will be ignored." << endl;
-    }
+    assert(i >= 0 && i < maxRegionsIn);
+    m_inputRegions[i] = region;
 }
 
 // For STL sorting... binary predicate for sorting jet ranks
@@ -56,6 +190,7 @@ bool rankGreaterThan (L1GctJet jet1, L1GctJet jet2)
 
 void L1GctJetFinder::process() 
 {
+    UShort jetNum = 0; //holds the number of jets currently found
     for(UShort column = 1; column <=2; ++column)  //Find jets in the central search region
     {
         //don't include row zero as it is not in the search region
@@ -74,13 +209,14 @@ void L1GctJetFinder::process()
                         
             if(detectJet(centreIndex, boundary))
             {
-                L1GctJet tempJet;
-                tempJet.setRank(calcJetRank(centreIndex, boundary));
-                tempJet.setEta(row-1);
-                tempJet.setPhi(column-1);
-                tempJet.setTauVeto(calcJetTauVeto(centreIndex,boundary));
+                assert(jetNum < maxJets);
                 
-                m_outputJets.push_back(tempJet);
+                m_outputJets[jetNum].setRank(calcJetRank(centreIndex, boundary));
+                m_outputJets[jetNum].setEta(row-1);
+                m_outputJets[jetNum].setPhi(column-1);
+                m_outputJets[jetNum].setTauVeto(calcJetTauVeto(centreIndex,boundary));
+
+                ++jetNum;
             }
         }
     }

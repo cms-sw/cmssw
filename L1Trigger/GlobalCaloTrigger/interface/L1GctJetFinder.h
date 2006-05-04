@@ -4,10 +4,9 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
 #include <vector>
-
-class L1GctSourceCard;
 
 /*! \class L1GctJetFinder
  * \brief 3*3 sliding window algorithm jet finder.
@@ -49,58 +48,67 @@ class L1GctSourceCard;
 class L1GctJetFinder : public L1GctProcessor
 {
 public:
-	//Typedefs
-	typedef unsigned long int ULong;
-	typedef unsigned short int UShort;
+    //Typedefs
+    typedef unsigned long int ULong;
+    typedef unsigned short int UShort;
+    
+    ///Type for telling the jet finder which half of the detector it is in, eta < 0 or eta > 0.
+    enum EtaHalf {NEG_ETA_TYPE=1, POS_ETA_TYPE};
 
-	L1GctJetFinder();
-	L1GctJetFinder(vector<L1GctSourceCard*> src);
-	~L1GctJetFinder();
-	///
-	/// clear internal buffers
-	virtual void reset();
-	///
-	/// get input data from sources
-	virtual void fetchInput();
-	///
-	/// process the data, fill output buffers
-	virtual void process();
-	///   
+    ///Jetfinder needs to know which half of the detector it is in to properly load data from sourcecards.
+    L1GctJetFinder(EtaHalf etaHalf);
+    ~L1GctJetFinder();
+   
+    /// clear internal buffers
+    virtual void reset();
+
+    /// get input data from sources
+    virtual void fetchInput();
+
+    /// process the data, fill output buffers
+    virtual void process();
+
+    /// set an input Source Card pointer 
+    void setInputSourceCard(unsigned i, L1GctSourceCard* sc);
+
     /// Set input data
     void setInputRegion(int i, L1GctRegion region);
-	
-	// Return input data	
-	vector<L1GctRegion> getInputRegions() const { return m_inputRegions; }
+    
+    /// Return input data   
+    std::vector<L1GctRegion> getInputRegions() const { return m_inputRegions; }
 
-	// Return output data
-	vector<L1GctJet> getJets() const { return m_outputJets; }
-	ULong getHt() const { return m_outputHt.to_ulong(); }
-	
-	// need method(s) to return jet counts - need to decide type!
-		
+    /// Return output data
+    std::vector<L1GctJet> getJets() const { return m_outputJets; }
+    ULong getHt() const { return m_outputHt.to_ulong(); }
+    
+    // need method(s) to return jet counts - need to decide type!
+        
 private:
 
-	//Constants
-	//Controls the maximum number of input regions allowed
-	static const int maxRegionsIn = 48; // 2*11 search area, so 4*12=48 regions needed to run search.
-	static const int columnOffset = maxRegionsIn/4;  //The index offset between columns
+    //Constants
+    static const int maxSourceCards = 9;  //need data from 9 separate source cards to find jets in the 2*11 search region.
+    static const int maxRegionsIn = 48; // 2*11 search area, so 4*12=48 regions needed to run search.
+    static const int columnOffset = maxRegionsIn/4;  //The index offset between columns
+    static const int maxJets = 6;  //max of 6 jets in a 2*11 search area
 
-	///
-	/// source cards
-	vector<L1GctSourceCard*> theSCs;
-	
-	// input data (this may need to go on the heap...)
-	vector<L1GctRegion> m_inputRegions;
+    ///Which half of the detector we are in
+    EtaHalf m_etaHalf;
 
-	// output jets
-	vector<L1GctJet> m_outputJets;  //6 maximum for 48 regions, but will use pushback
+    /// Store source card pointers
+    std::vector<L1GctSourceCard*> m_sourceCards;
+    
+    /// input data required for jet finding
+    std::vector<L1GctRegion> m_inputRegions;
 
-	// output Ht - need to confirm number of bits
-	bitset<12> m_outputHt;
-	
-	// jet count output - need to decide data type!
-	//vector<bitset<4>> outputJetCounts;
-	
+    /// output jets
+    std::vector<L1GctJet> m_outputJets;
+
+    /// output Ht - need to confirm number of bits
+    std::bitset<12> m_outputHt;
+    
+    // jet count output - need to decide data type!
+    //vector<bitset<4>> outputJetCounts;
+    
     
     //PRIVATE METHODS
     /// Returns true if region index is the centre of a jet. Set boundary = true if at edge of HCAL.
