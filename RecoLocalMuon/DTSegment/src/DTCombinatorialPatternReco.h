@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a combinatorial approach
  *  
- * $Date: 2006/04/21 16:01:05 $
- * $Revision: 1.6 $
+ * $Date: 2006/04/26 14:15:31 $
+ * $Revision: 1.7 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -51,7 +51,7 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
   /* Operations */
 
   /// this function is called in the producer
-  virtual edm::OwnVector<DTRecSegment2D>
+  virtual edm::OwnVector<DTSLRecSegment2D>
     reconstruct(const DTSuperLayer* sl,
 		const std::vector<DTRecHit1DPair>& hits);
 	

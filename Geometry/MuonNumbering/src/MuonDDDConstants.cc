@@ -5,7 +5,7 @@
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
-//#define DEBUG
+//#define LOCAL_DEBUG
 
 MuonDDDConstants::MuonDDDConstants(){
   theMuonNamespace = "muonNumbering";
@@ -13,12 +13,12 @@ MuonDDDConstants::MuonDDDConstants(){
 
 int MuonDDDConstants::getValue(const std::string constantName) {
   ExprEvalInterface & evaluator = ExprEval::instance();
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   std::cout << "MuonDDDConstants::GetValue "<<theMuonNamespace
        << " "<<constantName<<" "<<std::endl;
 #endif
   double result=evaluator.eval(theMuonNamespace,constantName);
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   std::cout << "MuonDDDConstants::GetValue "<<constantName<<" "<<
     result<<std::endl;
 #endif

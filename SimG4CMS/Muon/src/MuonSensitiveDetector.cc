@@ -28,6 +28,7 @@
 //#define DEBUG
 //#define DEBUGST
 
+
 MuonSensitiveDetector::MuonSensitiveDetector(std::string name, 
 					     const DDCompactView & cpv,
 					     edm::ParameterSet const & p,
@@ -49,7 +50,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
 #endif
   detector = new MuonSubDetector(name);
 #ifdef DEBUG 
-  cout << "create MuonFrameRotation"<<endl;
+  std::cout << "create MuonFrameRotation"<<std::endl;
 #endif
  if (detector->isEndcap()) {
    //    cout << "MuonFrameRotation create MuonEndcapFrameRotation"<<endl;

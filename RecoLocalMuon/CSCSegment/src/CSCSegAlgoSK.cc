@@ -46,7 +46,7 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
     LogDebug("CSC") << "*********************************************";
     LogDebug("CSC") << "Start segment building in the new chamber: " << theChamber->specs()->chamberTypeName();
     LogDebug("CSC") << "*********************************************";
-	
+
     double z_det = theChamber->surface().position().z();
 
     for(unsigned int i = 0; i < rechits.size() - 1; i++) {
@@ -69,7 +69,8 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
         }
     }
 
-    if (debugInfo) {
+    if (debugInfo) 
+    {
         // dump after sorting
         dumpHits(rechits);
     }
@@ -96,7 +97,7 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
 
     // Initialize flags that a given hit has been allocated to a segment
     BoolContainer used(rechits.size(), false);
-
+    
     // Define buffer for segments we build 
     CSCSegmentCollection segments;
 
@@ -192,9 +193,6 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
     }  //  ipass
 
     // Give the segments to the CSCChamber
-    for(CSCSegmentCollection::iterator it = segments.begin(); it !=segments.end(); it++)
-        (*it).print();
-	
     return segments;
 }
 
@@ -323,17 +321,17 @@ bool CSCSegAlgoSK::isSegmentGood(const ChamberHitContainer& rechitsInChamber) co
 
     // If the chamber has 20 hits or fewer, require at least 3 hits on segment
     // If the chamber has >20 hits require at least 4 hits
-    //@@ THESE VALUES SHOULD BECOME orcarc PARAMETERS?
+    //@@ THESE VALUES SHOULD BECOME PARAMETERS?
     bool ok = false;
 
-    int iadd = (rechitsInChamber.size() > 20 )? iadd = 1 : 0;  
+    unsigned int iadd = ( rechitsInChamber.size() > 20 )? iadd = 1 : 0;  
 
-    if (windowScale > 1.) {
-	
+    if (windowScale > 1.) 
         iadd = 1;
+
+    if (proto_segment.size() >= 3+iadd)
         ok = true;
-    }
-	
+   
     return ok;
 }
 
@@ -410,27 +408,20 @@ void CSCSegAlgoSK::updateParameters() {
         const CSCLayer* layer1 = theChamber->layer(il1);
         const CSCLayer* layer2 = theChamber->layer(il2);
 		
-        //std::cout << "Initial segment position:\n";
         GlobalPoint h1glopos = layer1->surface().toGlobal(h1.localPosition());
         GlobalPoint h2glopos = layer2->surface().toGlobal(h2.localPosition());
-        //std::cout << "GlobalPosition 1: " << h1glopos.x() << "  " << h1glopos.y() << "  " << h1glopos.z() << "  " << std::endl;
-        //std::cout << "GlobalPosition 2: " << h2glopos.x() << "  " << h2glopos.y() << "  " << h2glopos.z() << "  " << std::endl;        
+
         // localPosition is position of hit wrt layer (so local z = 0)
         theOrigin = h1.localPosition();
 		
         // We want hit wrt chamber (and local z will be != 0)
         LocalPoint h1pos = theChamber->surface().toLocal(h1glopos);  
         LocalPoint h2pos = theChamber->surface().toLocal(h2glopos);  
-
-        //std::cout << "ChamberPosition 1: " << h1pos.x() << "  " << h1pos.y() << "  " << h1pos.z() << "  " << std::endl;
-        //std::cout << "ChamberPosition 2: " << h2pos.x() << "  " << h2pos.y() << "  " << h2pos.z() << "  " << std::endl;        
 		
         float dz = h2pos.z()-h1pos.z();
         uz = (h2pos.x()-h1pos.x())/dz ;
         vz = (h2pos.y()-h1pos.y())/dz ;
         
-        //std::cout << "Direction: " << uz << "  " << vz << std::endl;
-		
         theChi2 = 0.;
     }
     else if (nh > 2) {
@@ -651,21 +642,26 @@ void CSCSegAlgoSK::fillLocalDirection() {
     double dy = dz*dydz;
 
     LocalVector localDir(dx,dy,dz);
-    LocalPoint lp(theOrigin.x(), theOrigin.y(), 0);
+    //LocalPoint lp(theOrigin.x(), theOrigin.y(), 0);
     
-    //std::cout << "Localpos: " << lp.x() << "  " << lp.y() << "  " << lp.z() << "  " << std::endl;
     // localDir may need sign flip to ensure it points outward from IP
     // ptc: Examine its direction and origin in global z: to point outward
     // the localDir should always have same sign as global z...
 
-//    const CSCLayer* l1 = theChamber->layer(1);
-    const CSCLayer* l1 = theChamber->layer(proto_segment[0].cscDetId().layer());
-    GlobalPoint gp1 = l1->surface().toGlobal(lp);	
-    double globalZpos = gp1.z(); 				 
-    GlobalVector gv1 = theChamber->surface().toGlobal(localDir);	
-    double globalZdir = gv1.z();						 	 	
-    double directionSign = globalZpos * globalZdir * (globalZdir*localDir.z()/fabs(globalZdir*localDir.z()));
-    
+    //const CSCLayer* l1 = theChamber->layer(proto_segment[0].cscDetId().layer());
+    //GlobalPoint gp1 = l1->surface().toGlobal(lp);	
+    //double globalZpos = gp1.z(); 				 
+    //GlobalVector gv1 = theChamber->surface().toGlobal(localDir);	
+    //double globalZdir = gv1.z();						 	 	
+
+    GlobalPoint gpn = theChamber->layer(6)->surface().toGlobal(LocalPoint(0,0,0));	
+    GlobalPoint gpf = theChamber->layer(1)->surface().toGlobal(LocalPoint(0,0,0));	
+    double directionSign;    
+    if (fabs(gpn.z()) > fabs(gpf.z()))
+        directionSign = -1;
+    else
+        directionSign = +1;    
+     
     theDirection = (directionSign * localDir).unit();
 }
 

@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/03/31 07:47:18 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/03/30 15:19:07 $
+ *  $Revision: 1.6 $
  *
  * \author Ilaria Segoni
  */
@@ -16,14 +16,11 @@
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 
-#include "DataFormats/FEDRawData/interface/FEDHeader.h"
-#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-
-#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+#include <DataFormats/FEDRawData/interface/FEDHeader.h>
+#include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 #include <vector>
 
@@ -40,6 +37,8 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
     
    int bx=0;
    ///Temporary Phony RPCDetId
+   int region=0, ring=-1, station=1, sector=1, layer =1, subsector =1, roll=2;
+   RPCDetId DetId(region, ring, station, sector, layer, subsector, roll);
 
    enum RPCRecord::recordTypes typeOfRecord = theRecord.type();
    const unsigned int* recordIndexInt= theRecord.buf();
@@ -58,42 +57,20 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
     /// Unpacking BITS With Hit (uniquely related to strips with hit)
     if(typeOfRecord==RPCRecord::LinkBoardData)	    {
 	RPCLinkBoardData lbData=this->unpackLBRecord(recordIndexInt);
-	int dccId=790;//fedNumber;
-	int tbId=currentRMB;
-	int lboxId=currentChannel/5;
-	int mbId=currentChannel%5;
-	int lboardId=lbData.lbNumber();
-	
-	 rawData.addRMBData(currentRMB,currentChannel, lbData);  
+    	rawData.addRMBData(currentRMB,currentChannel, lbData);  
 
 	std::vector<int> bits=lbData.bitsOn();
 	for(std::vector<int>::iterator pBit = bits.begin(); pBit !=
     		      bits.end(); ++pBit){
 
 		int bit = *(pBit);
-		RPCReadOutMapping rmap;
-		int region;
-		int ring;
-		int station;
-		int sector; 
-		int layer;
-		int subsector;
-		int roll;
-		int strip;
-		rmap.readOutToGeometry(dccId,tbId,lboxId,mbId,lboardId,bit,
-				       region,ring,station,sector,layer,
-				       subsector,roll,strip);
-
-		RPCDetId detId(region,ring,station,sector,
-			       layer,subsector,roll);
-
 		/// Creating RPC digi
 		/// When channel mapping available calculate strip
 		///and replace bit with strip
-		RPCDigi digi(strip,bx);
+		RPCDigi digi(bit,bx);
 
 		/// Committing digi to the product
-		prod->insertDigi(detId,digi);
+		prod->insertDigi(DetId,digi);
           }
     }
     

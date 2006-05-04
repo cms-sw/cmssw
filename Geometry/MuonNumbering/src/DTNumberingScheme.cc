@@ -4,7 +4,7 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include <iostream>
 
-//#define DEBUG
+//#define LOCAL_DEBUG
 
 DTNumberingScheme::DTNumberingScheme(){
   MuonDDDConstants muonConstants;
@@ -15,7 +15,7 @@ DTNumberingScheme::DTNumberingScheme(){
   theSuperLayerLevel=muonConstants.getValue("[mb_superlayer]")/theLevelPart;
   theLayerLevel=muonConstants.getValue("[mb_layer]")/theLevelPart;
   theWireLevel=muonConstants.getValue("[mb_wire]")/theLevelPart;
- #ifdef DEBUG
+ #ifdef LOCAL_DEBUG
    std::cout << "theRegionLevel " << theRegionLevel <<std::endl;
    std::cout << "theWheelLevel " << theWheelLevel <<std::endl;
    std::cout << "theStationLevel " << theStationLevel <<std::endl;
@@ -27,7 +27,7 @@ DTNumberingScheme::DTNumberingScheme(){
 
 int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
   
-#ifdef DEBUGDEBUG
+#ifdef LOCAL_DEBUG
   std::cout << "DTNumbering "<<num.getLevels()<<std::endl;
   for (int level=1;level<=num.getLevels();level++) {
     std::cout << level << " " << num.getSuperNo(level)
@@ -106,7 +106,7 @@ int DTNumberingScheme::getDetId(const MuonBaseNumber num) const {
     
   DTWireId id(wheel_id,station_id,sector_id,superlayer_id,layer_id,wire_id);
   
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   std::cout << "DTNumberingScheme: " << id << std::endl;
 #endif
   

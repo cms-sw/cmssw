@@ -1,5 +1,5 @@
-#ifndef Geometry_RPCSimAlgo_RPCRoll_H
-#define Geometry_RPCSimAlgo_RPCRoll_H
+#ifndef Geometry_RPCGeometry_RPCRoll_H
+#define Geometry_RPCGeometry_RPCRoll_H
 
 /** \class RPCRoll
  *

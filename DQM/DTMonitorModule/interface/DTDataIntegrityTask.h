@@ -5,16 +5,14 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2006/04/10 12:30:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/01/18 11:18:56 $
+ *  $Revision: 1.8 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
  */
 
 #include "EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h"
-
-#include "EventFilter/DTRawToDigi/interface/DTROChainCoding.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -30,7 +28,6 @@
 using namespace std;
 
 class DTROS25Data;
-class DTDDUData;
 
 
 class DTDataIntegrityTask : public DTDataMonitorInterface {
@@ -41,12 +38,9 @@ public:
   
   virtual ~DTDataIntegrityTask();
    
-  void bookHistos(string folder, DTROChainCoding code);
-
-  void processROS25(DTROS25Data & data, int dduID, int ros);
-  void processFED(DTDDUData & data, int dduID);
-
-
+ 
+  void process(DTROS25Data & data);
+ 
 private:
 
   edm::ParameterSet parameters;
@@ -54,16 +48,6 @@ private:
   // back-end interface
   DaqMonitorBEInterface * dbe;
   
-  DTROChainCoding coding;
-
-  // Monitor Elements
-  // <histoType, <index , histo> >    
-  map<string, map<int, MonitorElement*> > rosHistos;
-  // <histoType, <tdcID, histo> >   
-  map<string, map<int, MonitorElement*> > robHistos;
-
-  int nevents;
-  string outputFile;
 
 };
 

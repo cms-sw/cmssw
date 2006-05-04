@@ -1,7 +1,7 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include <iostream>
 
-//#define DEBUG
+//#define LOCAL_DEBUG
 
 void MuonBaseNumber::addBase(LevelBaseNumber num){
   basenumber_type::iterator cur=sortedBaseNumber.begin();
@@ -31,7 +31,7 @@ void MuonBaseNumber::addBase(LevelBaseNumber num){
   }
   sortedBaseNumber.insert(cur,num);
 
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   cur=sortedBaseNumber.begin();
   end=sortedBaseNumber.end();
   std::cout << "MuonBaseNumber::AddBase ";

@@ -23,6 +23,11 @@
 //			(that is, items no longer contain any space added
 //			by the MessageLogger stack)
 //
+// 4/28/06  mf		maxIDlength changed from 20 to 200
+//			If a category name exceeds that, then the 
+//			limit not taking effect bug will occur again... 
+//
+//
 // ErrorObj( const ELseverityLevel & sev, const ELstring & id )
 // ~ErrorObj()
 // set( const ELseverityLevel & sev, const ELstring & id )
@@ -66,7 +71,7 @@ namespace edm
 // ----------------------------------------------------------------------
 
 int  ErrorObj::ourSerial(  0 );
-const unsigned int  maxIDlength( 20 );
+const unsigned int  maxIDlength( 200 );		// changed 4/28/06 from 20
 
 
 // ----------------------------------------------------------------------

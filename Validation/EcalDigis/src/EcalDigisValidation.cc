@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/04/19 16:27:41 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/04 11:16:28 $
+ * $Revision: 1.5 $
  * \author F. Cossutti
  *
 */
@@ -226,14 +226,14 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
       for (int sample = 0 ; sample < digis->size () ; ++sample) {
         ebAnalogSignal[sample] = 0.;
         ebADCCounts[sample] = 0.;
-        ebADCGains[sample] = 0.;
+        ebADCGains[sample] = -1.;
       }
 
       for (int sample = 0 ; sample < digis->size () ; ++sample)
         {
-          ebADCCounts.push_back (digis->sample (sample).adc ()) ;
-          ebADCGains.push_back (digis->sample (sample).gainId ()) ;
-          ebAnalogSignal.push_back (ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_);
+          ebADCCounts[sample] = (digis->sample (sample).adc ()) ;
+          ebADCGains[sample] = (digis->sample (sample).gainId ()) ;
+          ebAnalogSignal[sample] = (ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_);
           if (Emax < ebAnalogSignal[sample] ) {
             Emax = ebAnalogSignal[sample] ;
             Pmax = sample ;
@@ -311,14 +311,14 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
       for (int sample = 0 ; sample < digis->size () ; ++sample) {
         eeAnalogSignal[sample] = 0.;
         eeADCCounts[sample] = 0.;
-        eeADCGains[sample] = 0.;
+        eeADCGains[sample] = -1.;
       }
 
       for (int sample = 0 ; sample < digis->size () ; ++sample)
         {
-          eeADCCounts.push_back (digis->sample (sample).adc ()) ;
-          eeADCGains.push_back (digis->sample (sample).gainId ()) ;
-          eeAnalogSignal.push_back (eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_);
+          eeADCCounts[sample] = (digis->sample (sample).adc ()) ;
+          eeADCGains[sample] = (digis->sample (sample).gainId ()) ;
+          eeAnalogSignal[sample] = (eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_);
           if (Emax < eeAnalogSignal[sample] ) {
             Emax = eeAnalogSignal[sample] ;
             Pmax = sample ;

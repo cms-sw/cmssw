@@ -181,10 +181,10 @@ CaloJet JetCalibratorJetParton::applyCorrection( const CaloJet& fJet)
 {
   if(parametrization.empty()) { return fJet; }
   
-  double et=fJet.getEt();
-  double eta=abs(fJet.getEta());
+  double et=fJet.et();
+  double eta=fabs(fJet.eta());
   
-  if(eta<10) { eta=abs(fJet.getY()); }
+  //if(eta<10) { eta=abs(fJet.getY()); }
 
   double etnew;
   std::map<double,ParametrizationJetParton*>::const_iterator ip=parametrization.upper_bound(eta);
@@ -210,16 +210,12 @@ CaloJet JetCalibratorJetParton::applyCorrection( const CaloJet& fJet)
   float mScale = 1000.;
    
   if( et > 0.001) mScale = etnew/et;
-         CommonJetData common (fJet.getPx()*mScale, fJet.getPy()*mScale, fJet.getPz()*mScale,
-                        fJet.getE()*mScale, fJet.getP()*mScale, fJet.getPt()*mScale, fJet.getEt()*mScale, fJet.getM()*mScale
-,
-                        fJet.getPhi(), fJet.getEta(), fJet.getY(),
-                        fJet.getNConstituents());
+  CommonJetData common (fJet.px()*mScale, fJet.py()*mScale, fJet.pz()*mScale,
+                        fJet.energy()*mScale, fJet.nConstituents());
+  CaloJet theJet (common, fJet.getSpecific (), fJet.getTowerIndices());
+  cout<<" JetParton::The new jet is created "<<endl;
 
-         CaloJet theJet (common, fJet.getSpecific (), fJet.getTowerIndices());
-         cout<<" JetParton::The new jet is created "<<endl;
-
-     return theJet;
+  return theJet;
   
   
 }

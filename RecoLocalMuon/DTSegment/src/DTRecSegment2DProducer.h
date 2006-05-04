@@ -1,12 +1,12 @@
-#ifndef DTRecHit_DTRecSegment2DProducer_h
-#define DTRecHit_DTRecSegment2DProducer_h
+#ifndef DTSegment_DTRecSegment2DProducer_h
+#define DTSegment_DTRecSegment2DProducer_h
 
 /** \class DTRecSegment2DProducer
  *
  * Producer for DT segment in one projection.
  *  
- * $Date: 2006/04/20 07:45:24 $
- * $Revision: 1.4 $
+ * $Date: 2006/04/26 14:15:32 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *

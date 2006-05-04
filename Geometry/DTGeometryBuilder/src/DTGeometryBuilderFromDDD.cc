@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/22 10:59:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/20 14:05:56 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN. 
  */
 
@@ -121,15 +121,10 @@ DTGeometry* DTGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv) const {
         LCounter++;
         DTLayer* layer = buildLayer(fv, sl, type);
         theGeometry->add(layer);
-        // pass ownership to superlayer
-        sl->add(layer);
 
         fv.parent();
         doL = fv.nextSibling(); // go to next layer
       } // layers
-
-      // pass ownership to chamber
-      chamber->add(sl);
 
       fv.parent();
       doSL = fv.nextSibling(); // go to next SL

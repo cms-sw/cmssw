@@ -13,7 +13,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.10 2006/03/08 16:58:09 fischler Exp $
+// $Id: MessageLogger.h,v 1.11 2006/03/22 21:07:23 fischler Exp $
 //
 
 // system include files
@@ -28,7 +28,6 @@
 #include "FWCore/MessageLogger/interface/MessageSender.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
-#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 
 namespace edm  {
 
@@ -107,10 +106,7 @@ onlyLowestDirectory(const std::string & file) {
   return file.substr(lastSlash+1, file.size()-lastSlash-1);
 }
 
-inline
-void LogStatistics() { 
-  edm::MessageLoggerQ::SUM ( ); // trigger summary info
-}
+void LogStatistics(); 
 
 class LogDebug_
 {

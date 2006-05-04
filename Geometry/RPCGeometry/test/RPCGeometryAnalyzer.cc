@@ -4,6 +4,7 @@
  */
 
 #include <memory>
+#include <fstream>
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -16,8 +17,8 @@
 #include "Geometry/RPCGeometry/interface/RPCRollService.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 //#include <Geometry/Vector/interface/GlobalPoint.h>
-//#include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
-//#include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
+#include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
+#include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 
 #include <string>
 #include <cmath>
@@ -41,14 +42,23 @@ class RPCGeometryAnalyzer : public edm::EDAnalyzer {
   const int dashedLineWidth_;
   const std::string dashedLine_;
   const std::string myName_;
+  std::ofstream ofos;
 };
 
 RPCGeometryAnalyzer::RPCGeometryAnalyzer( const edm::ParameterSet& iConfig )
   : dashedLineWidth_(104), dashedLine_( std::string(dashedLineWidth_, '-') ), 
-    myName_( "RPCGeometryAnalyzer" ) {}
+    myName_( "RPCGeometryAnalyzer" ) 
+{ 
+  ofos.open("MytestOutput.out"); 
+  std::cout <<"======================== Opening output file"<< std::endl;
+}
 
 
-RPCGeometryAnalyzer::~RPCGeometryAnalyzer() {}
+RPCGeometryAnalyzer::~RPCGeometryAnalyzer() 
+{
+  ofos.close();
+  std::cout <<"======================== Closing output file"<< std::endl;
+}
 
 void
 RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
@@ -78,6 +88,16 @@ RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
    const double radToDeg = 180. / dPi; //@@ Where to get pi from?
 
    std::set<RPCDetId> sids;
+   std::vector<LocalPoint> vlp;
+   vlp.push_back(LocalPoint(-1, 0, 0));
+   vlp.push_back(LocalPoint( 0, 0, 0));
+   vlp.push_back(LocalPoint( 1, 0, 0));
+   vlp.push_back(LocalPoint( 0,-1, 0));
+   vlp.push_back(LocalPoint( 0, 0, 0));
+   vlp.push_back(LocalPoint( 0, 1, 0));
+   vlp.push_back(LocalPoint( 0, 0,-1));
+   vlp.push_back(LocalPoint( 0, 0, 0));
+   vlp.push_back(LocalPoint( 0, 0, 1));
    for(TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
 
 
@@ -94,6 +114,9 @@ RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
        RPCDetId detId=roll->id();
        int id = detId(); // or detId.rawId()
 
+       const StripTopology* top_ = dynamic_cast<const StripTopology*>
+	 (&roll->topology());
+      
        if (sids.find(detId) != sids.end())
 	 std::cout<<"VERYBAD ";
        std::cout << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id;
@@ -162,6 +185,45 @@ RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 
        RPCRollService rollServ(roll);
        int nStrips = rollServ.nstrips();
+
+       if ( (detId.region()!=0 && detId.sector() == 1 
+	     && detId.subsector() == 1
+	     && detId.roll() == 1
+	     && detId.station() == 1
+	     //&& detId.ring()==3
+	     && roll->type().name() == "REA1")
+	    ||
+	    (detId.region() == 0 && detId.sector() == 1
+	     && detId.station() == 1 && detId.layer() == 1
+	     && detId.roll() == 1 
+	     && detId.ring() == 0)
+	    ) {
+	 std::cout <<"======================== Writing output file"<< std::endl;
+	 ofos<<"Forward Detector "<<roll->type().name()  <<" "<<detId.region()<<" z :"<<detId<<std::endl;
+	 for (unsigned int i=0;i<vlp.size();i++){
+	   ofos<< "lp="<<vlp[i]<<" gp="<<rollServ.LocalToGlobalPoint(vlp[i]) << " pitch="<<rollServ.localPitch(vlp[i]);
+	   if ( (i+1)%3 == 0 ) {
+	     ofos<<" "<<std::endl; 
+	   }
+	 }
+	 ofos<<"            Navigating "<<std::endl;
+	 LocalPoint edge1 = top_->localPosition(0.);
+	 LocalPoint edge2 = top_->localPosition((float)nStrips);
+	 float lsl1 = top_->localStripLength(edge1);
+	 float lsl2 = top_->localStripLength(edge2);
+	 ofos <<" Local Point edge1 = "<<edge1<<" StripLength="<<lsl1<<std::endl; 
+	 ofos <<" Local Point edge1 = "<<edge2<<" StripLength="<<lsl2<<std::endl; 
+	 float cslength = top_->localStripLength(lCentre);
+	 LocalPoint s1(0.,-cslength/2.,0.);
+	 LocalPoint s2(0.,cslength/2.,0.);
+	 float base1=top_->localPitch(s1)*nStrips;
+	 float base2=top_->localPitch(s2)*nStrips;
+	 LocalPoint  s11(-base1/2., -cslength/2,0.);
+	 LocalPoint  s12(base1/2., -cslength/2,0.);
+	 LocalPoint  s21(-base2/2., cslength/2,0.);
+	 LocalPoint  s22(base2/2.,  cslength/2,0.);
+	 ofos<<  "  First Base = "<<base1<<" Second Base ="<<base2<<std::endl;
+       }
        std::cout << "\nStrips =  "<<std::setw( 4 ) << nStrips<<"\n";
        for(int is=0;is<nStrips;is++){
 	 std::cout <<"s="<<std::setw(3)<<is+1<<" pos="
@@ -251,8 +313,7 @@ RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 //       std::cout << std::setprecision( ip ) << std::setw( iw );
   
        sids.insert(detId);
-     }
-    
+     }  
    }
 
 //   //   for (TrackingGeometry::DetTypeContainer::const_iterator it = pDD->detTypes().begin(); it != pDD->detTypes().end(); it ++){

@@ -3,12 +3,12 @@
 
 /** \class QTestEnabler
  * *
- *  Class thatattaches the quality tests to the monitoring Elements.
- *  It also subscribes to the ME's
+ *  Class that creates and defined quality tests based on
+ *  the xml configuration file parsed by QTestConfigurationParser.
  *
  * 
- *  $Date: 2006/04/05 15:44:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/05 08:04:04 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
   */
 
@@ -17,22 +17,35 @@
 #include<map>
 #include<vector>
 #include<iostream>
-#include <fstream>
 
 class QTestEnabler{
 
  public:
  
   ///Constructor
-  QTestEnabler(){logFile.open("QTEnabler.log");}
+  QTestEnabler(){}
   ///Destructor
   ~QTestEnabler(){}
+  ///Creates and defines quality tests
+  bool enableTests(std::map<std::string, std::map<std::string, std::string> > tests, MonitorUserInterface * mui); 
   ///Attaches the Tests to the Monitoring element
   void startTests(std::map<std::string, std::vector<std::string> > mapMeToTests, MonitorUserInterface * mui);
+  ///Returns the vector containing the names of the quality tests that have been created
+  std::vector<std::string> testsReady(){return testsEnabled;}
  
  private:
+  ///Creates ContentsXRangeROOT test
+  void EnableXRangeTest(std::string testName, std::map<std::string, std::string> params,MonitorUserInterface * mui); 
+  ///Creates ContentsYRangeROOT test
+  void EnableYRangeTest(std::string testName, std::map<std::string, std::string> params,MonitorUserInterface * mui); 
+   ///Creates DeadChannelROOT test
+  void EnableDeadChannelTest(std::string testName, std::map<std::string, std::string> params,MonitorUserInterface * mui); 
+   ///Creates NoisyChannelROOTtest
+  void EnableNoisyChannelTest(std::string testName, std::map<std::string, std::string> params,MonitorUserInterface * mui);
  
-  std::ofstream logFile;  
+  std::vector<std::string> testsEnabled;
+ 
+
 
 };
 

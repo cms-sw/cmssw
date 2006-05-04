@@ -5,8 +5,8 @@
  *  The unpacker for DTs' ROS8: 
  *  final version of Read Out Sector board with 25 channels.
  *
- *  $Date: 2006/04/07 15:36:04 $
- *  $Revision: 1.7 $
+ *  $Date: 2005/11/25 18:12:53 $
+ *  $Revision: 1.5 $
  * \author M. Zanetti INFN Padova
  */
 
@@ -26,12 +26,11 @@ public:
   /// Destructor
   virtual ~DTROS8Unpacker() {}
 
-  // Unpacking method
+  /// Unpacking method
   virtual void interpretRawData(const unsigned int* index, int datasize,
 				int dduID,
 				edm::ESHandle<DTReadOutMapping>& mapping, 
-				std::auto_ptr<DTDigiCollection>& product,
-				uint16_t rosList = 0);
+				std::auto_ptr<DTDigiCollection>& product);
 
 private:
 

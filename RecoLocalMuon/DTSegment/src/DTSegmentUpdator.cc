@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/20 17:58:30 $
- * $Revision: 1.10 $
+ * $Date: 2006/04/28 15:21:52 $
+ * $Revision: 1.13 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -12,7 +12,8 @@
 /* Collaborating Class Header */
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
+#include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTChamberRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
 
@@ -51,8 +52,6 @@ DTSegmentUpdator::~DTSegmentUpdator() {
 }
 
 /* Operations */ 
-// bool DTSegmentUpdator::update(DTRecSegment* seg) {
-// }
 
 void DTSegmentUpdator::setES(const edm::EventSetup& setup){
   setup.get<MuonGeometryRecord>().get(theGeom);
@@ -68,7 +67,6 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg)  {
   if (hasPhi && hasZed) step=3;
   else step=2;
 
-  // TODO reorganize the following lines with the updateHits(DTRecSegment2D* seg) method
   GlobalPoint pos =  (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localPosition());
   GlobalVector dir = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localDirection());
   
@@ -93,8 +91,8 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg) {
 
   if(seg->hasPhi() && seg->hasZed() ) {
 
-    DTRecSegment2DPhi *segPhi=seg->phiSegment();
-    DTRecSegment2D *segZed=seg->zSegment();
+    DTChamberRecSegment2D *segPhi=seg->phiSegment();
+    DTSLRecSegment2D *segZed=seg->zSegment();
 
     // NB Phi seg is already in chamber ref
     LocalPoint posPhiInCh = segPhi->localPosition();
@@ -131,7 +129,7 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg) {
 
   }
   else if (seg->hasPhi()) {
-    DTRecSegment2DPhi *segPhi=seg->phiSegment();
+    DTChamberRecSegment2D *segPhi=seg->phiSegment();
 
     seg->setPosition(segPhi->localPosition());
     seg->setDirection(segPhi->localDirection());
@@ -145,7 +143,7 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg) {
     seg->setCovMatrix(mat);
   }
   else if (seg->hasZed()) {
-    DTRecSegment2D *segZed=seg->zSegment();
+    DTSLRecSegment2D *segZed=seg->zSegment();
 
     // Zed seg is in SL one
     GlobalPoint glbPosZ = ( theGeom->superLayer(segZed->superLayerId()) )->toGlobal(segZed->localPosition());
@@ -223,17 +221,13 @@ void DTSegmentUpdator::fit(DTRecSegment2D* seg) {
     y.push_back(pos.x());
 
     // Get local error in SL frame
-    //RB,FIXME: is it right in this way? 
+    //RB: is it right in this way? 
     ErrorFrameTransformer tran;
     GlobalError glbErr =
       tran.transform( hit->localPositionError(),(theGeom->layer( hit->wireId().layerId() ))->surface());
-    // RB, I prefer:
-    //  tran.transform( hit->localPositionError(),(theGeom->layer(hit->geographicalId()))->surface());
     LocalError slErr =
       tran.transform( glbErr, (theGeom->idToDet(seg->geographicalId()))->surface());
-    // RB, I prefer:
-    // tran.transform( glbErr, (theGeom->idToDet(seg->geographicalId()))->surface());
-    
+
     sigy.push_back(sqrt(slErr.xx()));
   }
   
@@ -297,15 +291,12 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg) {
   updateHits(seg, pos, dir);
 }
 
+// The GlobalPoint and the GlobalVector can be either the glb position and the direction
+// of the 2D-segment itself or the glb position and direction of the 4D segment
 void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
                                   GlobalPoint &gpos,
                                   GlobalVector &gdir,
                                   int step) {
-  /// define impact angle
-  LocalPoint segPos=theGeom->idToDet(seg->geographicalId())->toLocal(gpos);
-  LocalVector segDir=theGeom->idToDet(seg->geographicalId())->toLocal(gdir);
-  LocalPoint segPosAtLayer=segPos+segDir*segPos.z()/cos(segDir.theta());
-  const float angle = atan(segDir.x()/-segDir.z());
 
   // it is not necessary to have DTRecHit1D* to modify the obj in the container
   // but I have to be carefully, since I cannot make a copy before the iteration!
@@ -317,7 +308,14 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
        hit!=toBeUpdatedRecHits.end(); ++hit) {
 
     const DTLayer* layer = theGeom->layer( hit->wireId().layerId() );
-
+    
+    LocalPoint segPos=layer->toLocal(gpos);
+    LocalVector segDir=layer->toLocal(gdir);
+    // define impact angle needed by the step 2
+    const float angle = atan(segDir.x()/-segDir.z());
+    // define the local position (extr.) of the segment. Needed by the third step 
+    LocalPoint segPosAtLayer=segPos+segDir*segPos.z()/cos(segDir.theta());
+    
     DTRecHit1D newHit1D=(*hit);
 
     bool ok=true;

@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackBase.h,v 1.7 2006/04/03 11:59:29 llista Exp $
+ * \version $Id: TrackBase.h,v 1.8 2006/04/19 13:35:05 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -106,6 +106,8 @@ namespace reco {
     double y() const { return vertex().Y(); }
     /// z coordinate of point of closest approach to the beamline
     double z() const { return vertex().Z(); }
+    /// x-y distance of closest approach to the beamline
+    double rho() const { return d0(); }
 
   private:
     /// chi-squared

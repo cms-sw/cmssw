@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2006/04/10 08:50:50 $
- * $Revision: 1.1 $
+ * $Date: 2006/05/04 11:16:28 $
+ * $Revision: 1.3 $
  * \author F. Cossutti
  *
 */
@@ -173,14 +173,14 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
       for (int sample = 0 ; sample < digis->size () ; ++sample) {
         eeAnalogSignal[sample] = 0.;
         eeADCCounts[sample] = 0.;
-        eeADCGains[sample] = 0.;
+        eeADCGains[sample] = -1.;
       }
 
       for (int sample = 0 ; sample < digis->size () ; ++sample)
         {
-          eeADCCounts.push_back (digis->sample (sample).adc ()) ;
-          eeADCGains.push_back (digis->sample (sample).gainId ()) ;
-          eeAnalogSignal.push_back (eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_);
+          eeADCCounts[sample] = (digis->sample (sample).adc ()) ;
+          eeADCGains[sample] = (digis->sample (sample).gainId ()) ;
+          eeAnalogSignal[sample] = (eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_);
           if (Emax < eeAnalogSignal[sample] ) {
             Emax = eeAnalogSignal[sample] ;
             Pmax = sample ;

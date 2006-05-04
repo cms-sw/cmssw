@@ -1,11 +1,11 @@
-#ifndef DTRecSegment4DProducer_H
-#define DTRecSegment4DProducer_H
+#ifndef DTSegment_DTRecSegment4DProducer_H
+#define DTSegment_DTRecSegment4DProducer_H
 
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2006/04/19 14:59:33 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/21 14:25:38 $
+ *  $Revision: 1.2 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

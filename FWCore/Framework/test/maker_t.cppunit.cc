@@ -73,26 +73,26 @@ void testmaker::makerTest()
     auto_ptr<Worker> w1 = f->makeWorker(*p1, preg, table, "PROD", 0, 0);
     auto_ptr<Worker> w2 = f->makeWorker(*p2, preg, table, "PROD", 0, 0);
   }
-  catch(std::exception& e)
-    {
+  catch(cms::Exception& e) {
+      std::cerr << "cms::Exception: " << e.explainSelf() << std::endl;
+      throw;
+  }
+  catch(std::exception& e) {
       std::cerr << "std::Exception: " << e.what() << std::endl;
       throw;
-    }
-  catch(seal::SharedLibraryError& e)
-    {
+  }
+  catch(seal::SharedLibraryError& e) {
       std::cerr << "sharedliberror\n" << e.explainSelf() << std::endl;
       throw;
-    }
-  catch(seal::Error& e)
-    {
+  }
+  catch(seal::Error& e) {
       std::cerr << "seal::Error\n" << e.explain() << std::endl;
       throw;
-    }
-  catch(...)
-    {
+  }
+  catch(...) {
       std::cerr << "weird exception" << endl;
       throw;
-    }
+  }
 
   return 0;*/
 }

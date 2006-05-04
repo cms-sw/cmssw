@@ -3,8 +3,7 @@
 
 #include <string>
 #include <map>
-
-#include "DQMServices/Core/interface/DQMDefinitions.h"
+#include "DQMServices/QualityTests/interface/QualTestBase.h"
 
 class QCriterion;
 class MonitorElement;

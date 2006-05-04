@@ -1,8 +1,9 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.h,v 1.2 2006/03/31 20:57:51 fedor Exp $
+/// $Id: JetMaker.cc,v 1.6 2006/04/27 01:26:13 fedor Exp $
 
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
@@ -41,7 +42,26 @@ namespace {
       eInHad += aTower->hadEnergy();
       
       eInHO += aTower->outerEnergy();
-      // have no data for eInHB eInHE eInHF
+
+      // pick an HCAL cell
+      int icell = aTower->constituentsSize();
+      while (--icell >= 0) {
+	DetId id = aTower->constituent (icell);
+	if (id.det () == DetId::Hcal) { // hcal cell
+	  HcalSubdetector subdet = HcalDetId (id).subdet ();
+	  if (subdet == HcalBarrel || subdet == HcalOuter) {
+	    eInHB += aTower->hadEnergy() - aTower->outerEnergy(); // assume "UseHO = true" for calotowermaker
+	    eInHO += aTower->outerEnergy();
+	  }
+	  else if (subdet == HcalEndcap) {
+	    eInHE += aTower->hadEnergy();
+	  }
+	  else if (subdet == HcalForward) {
+	    eInHF += aTower->hadEnergy();
+	  }
+	  break; // do not need it anymore
+	}
+      }
     }
     double towerEnergy = eInHad + eInEm;
     fJetSpecific->m_energyFractionInHO = eInHO / towerEnergy;
@@ -50,22 +70,26 @@ namespace {
     fJetSpecific->m_energyFractionInHF = eInHF / towerEnergy;
     fJetSpecific->m_energyFractionInHCAL = eInHad / towerEnergy;
     fJetSpecific->m_energyFractionInECAL = eInEm / towerEnergy;
+    fJetSpecific->m_maxEInEmTowers = 0;
+    fJetSpecific->m_maxEInHadTowers = 0;
+    fJetSpecific->m_n90 = 0;
     
     //Sort the arrays
     sort(eECal_i.begin(), eECal_i.end(), greater<double>());
     sort(eHCal_i.begin(), eHCal_i.end(), greater<double>());
     
-    //Highest value in the array is the first element of the array
-    fJetSpecific->m_maxEInEmTowers = eECal_i.front(); 
-    fJetSpecific->m_maxEInHadTowers = eHCal_i.front();
-    
-    //n90 using the sorted list
-    fJetSpecific->m_n90 = 0;
-    double ediff = (eInHad + eInEm) * 0.9;
-    for (unsigned i = 0; i < fTowerIds.size(); i++) {
-      ediff = ediff - eECal_i[i] - eHCal_i[i];
-      fJetSpecific->m_n90++;
-      if (ediff <= 0) break; 
+    if (!fTowerIds.empty ()) {  
+      //Highest value in the array is the first element of the array
+      fJetSpecific->m_maxEInEmTowers = eECal_i.front(); 
+      fJetSpecific->m_maxEInHadTowers = eHCal_i.front();
+      
+      //n90 using the sorted list
+      double ediff = (eInHad + eInEm) * 0.9;
+      for (unsigned i = 0; i < fTowerIds.size(); i++) {
+	ediff = ediff - eECal_i[i] - eHCal_i[i];
+	fJetSpecific->m_n90++;
+	if (ediff <= 0) break; 
+      }
     }
     return true;
   }
@@ -138,9 +162,7 @@ CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet) const {
   }
 
   CommonJetData common (fProtojet.px(), fProtojet.py(), fProtojet.pz(), 
-			fProtojet.e(), fProtojet.p(), fProtojet.pt(), fProtojet.et(), fProtojet.m(), 
-			fProtojet.phi(), fProtojet.eta(), fProtojet.y(), 
-			fProtojet.numberOfConstituents());
+			fProtojet.e(), fProtojet.numberOfConstituents());
   CaloJet::Specific specific;
   makeSpecific (*towerCollection, towerIds, &specific);
 
@@ -179,9 +201,7 @@ GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {
   }
 
   CommonJetData common (fProtojet.px(), fProtojet.py(), fProtojet.pz(), 
-			fProtojet.e(), fProtojet.p(), fProtojet.pt(), fProtojet.et(), fProtojet.m(), 
-			fProtojet.phi(), fProtojet.eta(), fProtojet.y(), 
-			fProtojet.numberOfConstituents());
+			fProtojet.e(), fProtojet.numberOfConstituents());
   GenJet::Specific specific;
   makeSpecific (mcParticles, &specific);
 

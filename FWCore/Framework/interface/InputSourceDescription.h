@@ -6,26 +6,24 @@
 InputSourceDescription : the stuff that is needed to configure an
 input source that does not come in through the ParameterSet  
 
-$Id: InputSourceDescription.h,v 1.1 2005/09/28 05:31:15 wmtan Exp $
+$Id: InputSourceDescription.h,v 1.2 2006/02/08 00:44:24 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
-#include "DataFormats/Common/interface/PassID.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
 
 namespace edm {
   class ProductRegistry;
 
   struct InputSourceDescription {
-    InputSourceDescription() : processName_(), pass(), preg_(0) { }
-    InputSourceDescription(std::string const& name, PassID pid, 
+    InputSourceDescription() : module_(), preg_(0) { }
+    InputSourceDescription(ModuleDescription & md,
 			    ProductRegistry& preg) :
-      processName_(name),
-      pass(pid),
+      module_(md),
       preg_(&preg)
 	 
     {}
 
-    std::string const processName_;
-    PassID      pass;
+    ModuleDescription module_;
     ProductRegistry * preg_;
   };
 }

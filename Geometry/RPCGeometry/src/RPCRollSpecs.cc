@@ -6,8 +6,8 @@
 
 
 
-RPCRollSpecs::RPCRollSpecs( SubDetector rss, const RPCSpecs& pars)
-  :  GeomDetType("RPC",rss),_p(pars)
+RPCRollSpecs::RPCRollSpecs( SubDetector rss, const std::string& name, const RPCSpecs& pars)
+  :  GeomDetType(name,rss),_p(pars),_n(name)
 {
   if (rss == RPCBarrel ){
     int nstrip =static_cast<int>( _p[2]);
@@ -51,3 +51,8 @@ RPCRollSpecs::topology() const
 }
 
 
+const std::string&
+RPCRollSpecs::detName() const
+{
+  return _n;
+}

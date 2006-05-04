@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.7 2006/04/18 21:55:21 lsexton Exp $
+$Id: InputSource.h,v 1.8 2006/04/24 22:34:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -87,12 +87,8 @@ namespace edm {
     /// issue an event report
     void issueReports(EventID const&);
 
-    /// Set the module description,
-    /// and register any products to be created.
-    // FIX THIS:  The module description should be
-    // set at construction time by being contained 
-    // the input source description.
-    void addToRegistry(ModuleDescription const& md);
+    /// Register any produced products
+    void registerProducts();
 
     /// Accessor for product registry.
     ProductRegistry & productRegistry() const {return *preg_;}
@@ -144,9 +140,6 @@ namespace edm {
 
     // A pointer to the ProductRegistry;
     ProductRegistry * preg_;
-
-    // The process name we add to each EventPrincipal.
-    std::string const process_;
   };
 }
 

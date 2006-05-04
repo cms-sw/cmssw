@@ -1,4 +1,4 @@
-// $Id: RecoCandidate.cc,v 1.4 2006/04/21 06:28:49 llista Exp $
+// $Id: RecoCandidate.cc,v 1.2 2006/04/03 09:05:33 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 using namespace reco;
@@ -25,11 +25,18 @@ SuperClusterRef RecoCandidate::superCluster() const {
   return SuperClusterRef();
 }
 
-CaloTowerRef RecoCandidate::caloTower() const {
+ElectronRef RecoCandidate::electron() const {
+  return ElectronRef();
+}
+
+PhotonRef RecoCandidate::photon() const {
+  return PhotonRef();
+}
+
+RecoCandidate::CaloTowerRef RecoCandidate::caloTower() const {
   return CaloTowerRef();
 }
 
-/*
 bool RecoCandidate::overlap( const Candidate & c ) const {
   const RecoCandidate * dstc = dynamic_cast<const RecoCandidate *>( & c );
   if ( dstc == 0 ) return false;
@@ -41,10 +48,11 @@ bool RecoCandidate::overlap( const Candidate & c ) const {
   if ( ! st1.isNull() && ! st2.isNull() && st1 == st2 ) return true;
   TrackRef cm1 = combinedMuon(), cm2 = dstc->combinedMuon();
   if ( ! cm1.isNull() && ! cm2.isNull() && cm1 == cm2 ) return true;
+  ElectronRef e1 = electron(), e2 = dstc->electron();
+  if ( ! e1.isNull() && ! e2.isNull() && e1 == e2 ) return true;
   SuperClusterRef s1 = superCluster(), s2 = dstc->superCluster();
   if ( ! s1.isNull() && ! s2.isNull() && s1 == s2 ) return true;
-  CaloTowerRef c1 = caloTower(), c2 = dstc->caloTower();
-  if ( ! c1.isNull() && ! c2.isNull() && c1 == c2 ) return true;
+  PhotonRef p1 = photon(), p2 = dstc->photon();
+  if ( ! p1.isNull() && ! p2.isNull() && p1 == p2 ) return true;
   return false;
 }
-*/

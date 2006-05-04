@@ -7,8 +7,8 @@
  * and store relative information. It must be transformed into a DTSegment
  * for further use.
  *
- * $Date: 2006/04/12 15:15:48 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/28 15:21:52 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -28,8 +28,8 @@
 
 /* Class DTSegmentCand Interface */
 
-class DTRecSegment2D;
-class DTRecSegment2DPhi; 
+class DTSLRecSegment2D;
+class DTChamberRecSegment2D; 
 class DTChamber;
 class DTSuperLayer;
 
@@ -114,11 +114,13 @@ class DTSegmentCand{
     AssPointCont hits() const { return theHits;}
 
     /// convert this DTSegmentCand into a DTRecSegment2D
-    DTRecSegment2D* convert() const;
+    //  DTSLRecSegment2D* convert() const;
+    operator DTSLRecSegment2D*() const;
 
-    /// convert this DTSegmentCand into a DTRecSegment2DPhi
-    DTRecSegment2DPhi* convert(const DTChamber *chamber) const;
-    
+
+    /// convert this DTSegmentCand into a DTChamberRecSegment2D
+    operator DTChamberRecSegment2D*() const;
+
   protected:
 
   private:

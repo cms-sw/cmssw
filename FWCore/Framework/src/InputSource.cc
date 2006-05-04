@@ -1,8 +1,7 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.9 2006/04/18 23:07:36 wmtan Exp $
+$Id: InputSource.cc,v 1.10 2006/04/24 22:34:25 wmtan Exp $
 ----------------------------------------------------------------------*/
-#include <cassert>
-
+#include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -18,16 +17,21 @@ namespace edm {
       remainingEvents_(maxEvents_),
       readCount_(0),
       unlimited_(maxEvents_ < 0),
-      module_(),
-      preg_(desc.preg_),
-      process_(desc.processName_) {
-    // Secondary input sources currently do not have a product registry or a process name.
-    // So, these asserts are commented out. for now.
+      module_(desc.module_),
+      preg_(desc.preg_) {
+    // Secondary input sources currently do not have a product registry.
+    // So, this assert is commented out. for now.
     // assert(preg_ != 0);
-    // assert(!process_.empty());
   }
 
   InputSource::~InputSource() {}
+
+  void
+  InputSource::registerProducts() {
+    if (!typeLabelList().empty()) {
+      addToRegistry(typeLabelList().begin(), typeLabelList().end(), module(), *preg_);
+    }
+  }
 
   std::auto_ptr<EventPrincipal>
   InputSource::readEvent_() {
@@ -50,7 +54,7 @@ namespace edm {
     // Do we need any error handling (e.g. exception translation) here?
     std::auto_ptr<EventPrincipal> ep(readEvent_());
     if (ep.get()) {
-	ep->addToProcessHistory(process_);
+	ep->addToProcessHistory(module().processName_);
     }
     return ep;
   }
@@ -77,17 +81,9 @@ namespace edm {
     // Do we need any error handling (e.g. exception translation) here?
     std::auto_ptr<EventPrincipal> ep(readEvent_(eventID));
     if (ep.get()) {
-	ep->addToProcessHistory(process_);
+	ep->addToProcessHistory(module().processName_);
     }
     return ep;
-  }
-
-  void
-  InputSource::addToRegistry(ModuleDescription const& md) {
-    module_ = md;
-    if (!typeLabelList().empty()) {
-      ProductRegistryHelper::addToRegistry(typeLabelList().begin(), typeLabelList().end(), md, productRegistry());
-    }
   }
 
   void

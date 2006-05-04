@@ -1,7 +1,6 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/EDProduct>
 <use name=Geometry/CaloEventSetup>
 <use name=CalibFormats/HcalObjects>
 <use name=root>
@@ -13,7 +12,6 @@
     <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
-   <use name=FWCore/EDProduct>	
    <use name=Geometry/CaloEventSetup>
    <use name=CalibFormats/HcalObjects>	
 <use name=root>	 	

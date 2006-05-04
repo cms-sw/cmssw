@@ -19,6 +19,8 @@
 #include "Geometry/Surface/interface/RectangularPlaneBounds.h"
 #include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
 
+#include "Geometry/Vector/interface/Basic3DVector.h"
+
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include <iostream>
@@ -85,53 +87,53 @@ RPCGeometry* RPCGeometryBuilderFromDDD::build(const DDCompactView* cview)
 
 RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview)
 {
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
   std::cout <<"Building the geometry service"<<std::endl;
 #endif
   RPCGeometry* geometry = new RPCGeometry();
   
 
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
   std::cout << "About to run through the RPC structure" << std::endl;
   std::cout <<" First logical part "
   	    <<fview.logicalPart().name().name()<<std::endl;
 #endif
   bool doSubDets = fview.firstChild();
 
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
   std::cout << "doSubDets = " << doSubDets << std::endl;
 #endif
   while (doSubDets){
 
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     std::cout <<"start the loop"<<std::endl; 
 #endif
 
     // Get the Base Muon Number
     MuonDDDNumbering mdddnum;
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     std::cout <<"Getting the Muon base Number"<<std::endl;
 #endif
     MuonBaseNumber   mbn=mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
 
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     std::cout <<"Start the Rpc Numbering Schema"<<std::endl;
 #endif
     // Get the The Rpc det Id 
     RPCNumberingScheme rpcnum;
     int detid = 0;
 
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     std::cout <<"Getting the Unit Number"<<std::endl;
 #endif
     detid = rpcnum.baseNumberToUnitNumber(mbn);
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     std::cout <<"Getting the RPC det Id "<<detid <<std::endl;
 #endif
     RPCDetId rpcid(detid);
     //    rpcid.buildfromTrIndex(detid);
-#ifdef DEBUG  
-    std::cout <<"The RPCDEtid is "<<detid<<std::endl;
+#ifdef LOCAL_DEBUG  
+    std::cout <<"The RPCDEtid is "<<detid<<" trigger index"<<rpcid.trIndex()<< std::endl;
 #endif
 
     DDValue numbOfStrips("nStrips");
@@ -144,15 +146,26 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview)
 	nStrips=int(numbOfStrips.doubles()[0]);	
       }
     }
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     if (nStrips == 0 )
       std::cout <<"No strip found!!"<<std::endl;
 #endif
     
     std::vector<double> dpar=fview.logicalPart().solid().parameters();
+    std::string name=fview.logicalPart().name().name();
+    DDTranslation tran    = fview.translation();
+    DDRotationMatrix rota = fview.rotation().inverse();
+    Surface::PositionType pos(tran.x()/cm,tran.y()/cm, tran.z()/cm);
+    Surface::RotationType rot(rota.xx(),rota.xy(),rota.xz(),
+			      rota.yx(),rota.yy(),rota.yz(),
+			      rota.zx(),rota.zy(),rota.zz());
+
+
     std::vector<float> pars;
     RPCRollSpecs* rollspecs= 0;
     Bounds* bounds = 0;
+
+
 
     if (dpar.size()==3){
       float width     = dpar[0]/cm;
@@ -164,10 +177,9 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview)
       pars.push_back(dpar[0]);
       pars.push_back(dpar[1]);
       pars.push_back(numbOfStrips.doubles()[0]); //h/2;
-      rollspecs = new RPCRollSpecs(GeomDetType::RPCBarrel,pars);
-
-#ifdef DEBUG  
-      std::cout <<"Barrel "<<fview.logicalPart().name().name()
+      rollspecs = new RPCRollSpecs(GeomDetType::RPCBarrel,name,pars);
+#ifdef LOCAL_DEBUG  
+      std::cout <<"Barrel "<<name
 		<<" par "<<dpar[0]
 		<<" "<<dpar[1]<<" "<<dpar[2];
 #endif
@@ -184,26 +196,30 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview)
       pars.push_back(dpar[0]); //h/2;
       pars.push_back(numbOfStrips.doubles()[0]); //h/2;
       
-#ifdef DEBUG  
-      std::cout <<"Forward "<<fview.logicalPart().name().name()<<" par "<<dpar[4]
+#ifdef LOCAL_DEBUG  
+      std::cout <<"Forward "<<name
+		<<" par "<<dpar[4]
 		<<" "<<dpar[8]<<" "<<dpar[3]<<" "
 		<<dpar[0];
 #endif      
 
-      rollspecs = new RPCRollSpecs(GeomDetType::RPCEndcap,pars);
+      rollspecs = new RPCRollSpecs(GeomDetType::RPCEndcap,name,pars);
+
+      //Change of axes for the forward
+      Basic3DVector<float> newX(1.,0.,0.);
+      Basic3DVector<float> newY(0.,0.,1.);
+      if (tran.z() > 0. )
+	newY *= -1;
+      Basic3DVector<float> newZ(0.,1.,0.);
+      rot.rotateAxes (newX, newY,newZ);
+      
     }
-#ifdef DEBUG  
+#ifdef LOCAL_DEBUG  
     std::cout <<"   Number of strips "<<nStrips<<std::endl;
 #endif  
 
-    DDTranslation tran    = fview.translation();
-    DDRotationMatrix rota = fview.rotation().inverse();
 
-    Surface::PositionType pos(tran.x()/cm,tran.y()/cm, tran.z()/cm);
-    Surface::RotationType rot(rota.xx(),rota.xy(),rota.xz(),
-			      rota.yx(),rota.yy(),rota.yz(),
-			      rota.zx(),rota.zy(),rota.zz());
-
+    
     BoundPlane* bp = new BoundPlane(pos,rot,bounds);
 
     

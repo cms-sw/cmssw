@@ -6,8 +6,8 @@
  * Algo for reconstructing 4d segment in DT refitting the 2D phi SL hits and combining
  * the results with the theta view.
  *  
- * $Date: 2006/04/21 14:25:38 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/28 15:21:52 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -59,11 +59,12 @@ class DTRefitAndCombineReco4D : public DTRecSegment4DBaseAlgo {
   virtual void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits) {};
   virtual void setDTRecSegment2DContainer(edm::Handle<DTRecSegment2DCollection> all2DSegments);
   virtual void setChamber(const DTChamberId &chId);
+  virtual bool wants2DSegments(){return true;}
 
  protected:
 
  private:
-  std::vector<DTRecSegment2DPhi> refitSuperSegments();
+  std::vector<DTChamberRecSegment2D> refitSuperSegments();
 
   std::string theAlgoName;
 
@@ -82,9 +83,9 @@ class DTRefitAndCombineReco4D : public DTRecSegment4DBaseAlgo {
   DTSegmentUpdator *theUpdator;
   
   const DTChamber *theChamber;
-  std::vector<DTRecSegment2D> theSegments2DPhi1;
-  std::vector<DTRecSegment2D> theSegments2DTheta; 
-  std::vector<DTRecSegment2D> theSegments2DPhi2;
+  std::vector<DTSLRecSegment2D> theSegments2DPhi1;
+  std::vector<DTSLRecSegment2D> theSegments2DTheta; 
+  std::vector<DTSLRecSegment2D> theSegments2DPhi2;
   
 };
 #endif

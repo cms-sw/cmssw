@@ -1,6 +1,0 @@
-<export>
- <lib name=RecoVertexKinematicFit>
- <use name=RecoVertex/KinematicFitPrimitives>
-</export>
-
-<use name=RecoVertex/KinematicFitPrimitives>

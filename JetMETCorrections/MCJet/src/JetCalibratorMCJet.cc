@@ -143,11 +143,11 @@ CaloJet JetCalibratorMCJet::applyCorrection( const CaloJet& fJet)
 {
   if(parametrization.empty()) { return fJet; }
   
-    double et=fJet.getEt();
-    double eta=abs(fJet.getEta());
+    double et=fJet.et();
+    double eta=fabs(fJet.eta());
     
 
-    if(eta<10) { eta=fabs(fJet.getY()); }
+    //if(eta<10) { eta=fabs(fJet.getY()); }
     
     cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
 
@@ -171,11 +171,8 @@ CaloJet JetCalibratorMCJet::applyCorrection( const CaloJet& fJet)
 	 cout<<" The new energy found "<<etnew<<" "<<et<<endl;
 
          float mScale = etnew/et;
-         CommonJetData common (fJet.getPx()*mScale, fJet.getPy()*mScale, fJet.getPz()*mScale,
-                        fJet.getE()*mScale, fJet.getP()*mScale, fJet.getPt()*mScale, fJet.getEt()*mScale, fJet.getM()*mScale,
-                        fJet.getPhi(), fJet.getEta(), fJet.getY(),
-                        fJet.getNConstituents());
-	 
+         CommonJetData common (fJet.px()*mScale, fJet.py()*mScale, fJet.pz()*mScale,
+                               fJet.energy()*mScale, fJet.nConstituents());
          CaloJet theJet (common, fJet.getSpecific (), fJet.getTowerIndices());
 	 cout<<" The new jet is created "<<endl;
 	 		

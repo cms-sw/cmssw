@@ -42,6 +42,8 @@
 #include "G4Event.hh"
 #include "G4TransportationManager.hh"
 
+#include "SimG4Core/Application/src/CurrentG4Track.h"
+
 #include "CLHEP/Random/JamesRandom.h"
 #include "Randomize.hh"
 
@@ -325,8 +327,38 @@ G4Event * RunManager::generateEvent(int i, edm::Event & inpevt)
 
 void RunManager::abortEvent()
 {
+
+    G4Track* t =
+    m_kernel->GetEventManager()->GetTrackingManager()->GetTrack();
+    t->SetTrackStatus(fStopAndKill) ;
+     
+    // CMS-specific act
+    //
+    TrackingAction* uta =
+    (TrackingAction*)m_kernel->GetEventManager()->GetUserTrackingAction() ;
+    uta->PostUserTrackingAction(t) ;
+
     m_currentEvent->SetEventAborted();
-    m_kernel->GetEventManager()->AbortCurrentEvent();
+    
+    // do NOT call this method for now
+    // because it'll set abortRequested=true (withing G4EventManager)
+    // this will make Geant4, in the event *next* after the aborted one
+    //  NOT to get and thus NOT to trace the primaries but to go stright
+    // to the end of G4Event::DoProcessing(G4Event*), where abortRequested
+    // will be reset to true again
+    //    
+    //m_kernel->GetEventManager()->AbortCurrentEvent();
+    //
+    // instead, mimic what it does, except (re)setting abortRequested
+    //
+    m_kernel->GetEventManager()->GetStackManager()->clear() ;
+    m_kernel->GetEventManager()->GetTrackingManager()->EventAborted() ;
+     
+    G4StateManager* stateManager = G4StateManager::GetStateManager();
+    stateManager->SetNewState(G4State_GeomClosed);
+
+    return ;
+
 }
 
 void RunManager::initializeUserActions()

@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.12 2006/03/20 08:24:52 namapane Exp $
+ * \version $Id: RPCDetId.cc,v 1.13 2006/03/30 21:25:48 mmaggi Exp $
  * \date 02 Aug 2005
  */
 
@@ -146,7 +146,7 @@ std::ostream& operator<<( std::ostream& os, const RPCDetId& id ){
      << " La "<<id.layer()
      << " Su "<<id.subsector()
      << " Ro "<<id.roll()
-     << " Tr "<<id.TrIndex()
+     << " Tr "<<id.trIndex()
      <<" ";
 
   return os;

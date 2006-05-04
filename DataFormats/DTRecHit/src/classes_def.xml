@@ -10,13 +10,14 @@
 
 <class name="std::vector<DTRecHit1D>"/>
 <class name="DTRecSegment2D"/>
-<class name="std::vector<DTRecSegment2D*>"/>
+<class name="DTSLRecSegment2D"/>
+<class name="std::vector<DTSLRecSegment2D*>"/>
 <class name="std::map<DTSuperLayerId,std::pair<unsigned int,unsigned int> >"/>
-<class name="edm::OwnVector<DTRecSegment2D,edm::ClonePolicy<DTRecSegment2D> >"/>
-<class name="edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTRecSegment2D,edm::ClonePolicy<DTRecSegment2D> >,edm::ClonePolicy<DTRecSegment2D> >"/>
-<class name="edm::Wrapper<edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTRecSegment2D,edm::ClonePolicy<DTRecSegment2D> >,edm::ClonePolicy<DTRecSegment2D> > >"/>
+<class name="edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >"/>
+<class name="edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >,edm::ClonePolicy<DTSLRecSegment2D> >"/>
+<class name="edm::Wrapper<edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >,edm::ClonePolicy<DTSLRecSegment2D> > >"/>
 
-<class name="DTRecSegment2DPhi"/>
+<class name="DTChamberRecSegment2D"/>
 <class name="DTRecSegment4D"/>
 <class name="std::vector<DTRecSegment4D*>"/>
 <class name="std::map<DTChamberId,std::pair<unsigned int,unsigned int> >"/>

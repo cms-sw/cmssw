@@ -1,37 +1,53 @@
-#ifndef DTRecHit_DTRecSegment2D_h
-#define DTRecHit_DTRecSegment2D_h
+#ifndef TrackingRecHit_DTRecSegment2D_h
+#define TrackingRecHit_DTRecSegment2D_h
 
 /** \class DTRecSegment2D
+ *
+ * Base class for 2-parameters segments measuring position and direction in X
+ * projection.
+ *  
+ * Implements the AbstractDetMeasurement part of the interface
+ * for 2D RecHits in terms of localPosition() and localPositionError() and
+ * Direction. This segment is measuring the position and the direction in just
+ * one projection, the "X". Typical use case is a segment reconstructed only in
+ * X projection.
+ * To be used as base class for all 2D positional-directional segments.
+ * The coordinate measured is assumend to be the local "x" and "dx/dz"
  *
  * 2D Segments for the muon barrel system.
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
- *  
- * $Date: 2006/04/19 15:05:25 $
- * $Revision: 1.4 $
+ *
+ * $Date: 2006/02/23 10:32:05 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */
 
 /* Base Class Headers */
-#include "DataFormats/TrackingRecHit/interface/RecSegment2D.h"
+#include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 
 /* Collaborating Class Declarations */
-#include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
-class DTSegmentUpdator;
+#include "Geometry/Surface/interface/LocalError.h"
+#include "Geometry/Vector/interface/LocalVector.h"
+#include "Geometry/Vector/interface/LocalPoint.h"
 
+#include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
 /* C++ Headers */
 #include <iosfwd>
+
+/* Fwd declaration */
+class DTSegmentUpdator;
 
 /* ====================================================================== */
 
 /* Class DTRecSegment2D Interface */
 
-class DTRecSegment2D : public RecSegment2D {
+class DTRecSegment2D : public RecSegment{
 
-  public:
-  
+ public:
+
   /// Constructor
   /// empty c'tor needed by POOL (I guess)
   DTRecSegment2D() {}
@@ -46,14 +62,33 @@ class DTRecSegment2D : public RecSegment2D {
 		 LocalPoint &position, LocalVector &direction,
 		 AlgebraicSymMatrix & covMatrix, double &chi2, 
 		 std::vector<DTRecHit1D> &hits1D);
-  
-  /// Destructor
-  virtual ~DTRecSegment2D() ;
-  
-  /* Operations */ 
-  /// The clone method needed by the clone policy
-  virtual DTRecSegment2D* clone() const { return new DTRecSegment2D(*this);}
 
+  /// Destructor
+  virtual ~DTRecSegment2D() {};
+
+  /* Operations */ 
+
+  /// the vector of parameters
+  virtual AlgebraicVector parameters() const {
+    return param( localPosition(), localDirection());
+  }
+
+  // The parameter error matrix
+  virtual AlgebraicSymMatrix parametersError() const {
+    return parError( localPositionError(), localDirectionError());
+  }
+
+  /** return the projection matrix, which must project a parameter vector,
+   * whose components are (q/p, dx/dz, dy/dz, x, y), into the vector returned
+   * by parameters() */
+  virtual AlgebraicMatrix projectionMatrix() const {
+    if ( !isInitialized) initialize();
+    return theProjectionMatrix;
+  }
+    
+  /// return 2. The dimension of the matrix
+  virtual int dimension() const { return 2;}
+    
   /// the id 
   virtual DetId geographicalId() const { return theDetId; }
 
@@ -84,45 +119,57 @@ class DTRecSegment2D : public RecSegment2D {
   /// Access to specific components
   std::vector<DTRecHit1D> specificRecHits() const ;
   
-  /// The id of the chamber on which reside the segment
-  DTChamberId chamberId() const {return superLayerId().chamberId();}
-
   /// the Covariance Matrix 
   AlgebraicSymMatrix covMatrix() const {return theCovMatrix;}
 
  protected:
+  friend class DTSegmentUpdator;
   void setPosition(const LocalPoint& pos);
   void setDirection(const LocalVector& dir);
   void setCovMatrix(const AlgebraicSymMatrix& cov);
   void setChi2(const double& chi2);
-  
- private:
-  friend class DTSegmentUpdator;
   void update(std::vector<DTRecHit1D> & updatedRecHits);
   void setT0(const double& t0);
 
-  /// The id of the superlayer on which reside the segment
-  DTSuperLayerId superLayerId() const{return DTSuperLayerId(theDetId.rawId());}
-  
- protected:
   DetId theDetId;           // Id of the det this seg belongs
- private:
+ 
   LocalPoint  thePosition;  // in SL frame
   LocalVector theDirection; // in SL frame
-
+  
   /// mat[0][0]=sigma (dx/dz)
   /// mat[1][1]=sigma (x)
   /// mat[0][1]=cov(dx/dz,x)
   AlgebraicSymMatrix theCovMatrix; // the covariance matrix
 
   double theChi2;           // chi2 of the fit
- 
- private:
   double theT0;             // T0 as coming from the fit
+  
   std::vector<DTRecHit1D> theHits; // the hits with defined R/L
+  
+
+ private:
+
+  static bool isInitialized;
+  static AlgebraicMatrix theProjectionMatrix;
+  
+  void initialize() const {
+    isInitialized=true;
+    theProjectionMatrix = AlgebraicMatrix( 2, 5, 0);
+    theProjectionMatrix[0][1]=1;
+    theProjectionMatrix[1][3]=1;
+  }
+  
+  AlgebraicVector param( const LocalPoint& lp, const LocalVector& lv) const {
+    AlgebraicVector result(2);
+    result[1]=lp.x();
+    result[0]=lv.x()/lv.z();
+    return result;
+  }
+
+  AlgebraicSymMatrix parError( const LocalError& lp,
+			       const LocalError& lv) const;
+
 };
-
 std::ostream& operator<<(std::ostream& os, const DTRecSegment2D& seg);
-
-#endif // DTRecHit_DTRecSegment2D_h
+#endif // TrackingRecHit_DTRecSegment2D_h
 

@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/04/11 10:10:10 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/04/26 09:27:44 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -67,7 +67,7 @@ namespace reco
 
     void putJet(const CaloJetRef& jetref) {
       // Construct our jet from jetref and save it!
-      Particle::LorentzVector p4(jetref->getPx(),jetref->getPy(),jetref->getPz(),jetref->getE());
+      Particle::LorentzVector p4(jetref->px(),jetref->py(),jetref->pz(),jetref->energy());
       HLTParticle             particle(0,p4);
       HLTCaloJet              jet(particle);
       jets_.push_back(jet);
@@ -118,7 +118,7 @@ namespace reco
 
     void putJet(const CaloJetRef& jetref) {
       // Construct our jet from jetref and save it!
-      Particle::LorentzVector p4(jetref->getPx(),jetref->getPy(),jetref->getPz(),jetref->getE());
+      Particle::LorentzVector p4(jetref->px(),jetref->py(),jetref->pz(),jetref->energy());
       HLTParticle             particle(0,p4);
       HLTCaloJetWithRef       jet(particle,jetref);
       jets_.push_back(jet);

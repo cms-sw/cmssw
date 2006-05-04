@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/18 16:24:25 $
- * $Revision: 1.5 $
+ * $Date: 2006/04/28 15:21:52 $
+ * $Revision: 1.7 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -10,8 +10,8 @@
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
+#include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
+#include "DataFormats/DTRecHit/interface/DTChamberRecSegment2D.h"
 
 /* Collaborating Class Header */
 
@@ -25,9 +25,6 @@ unsigned int DTSegmentCand::nHitsMin=3; // to be tuned!!
 DTSegmentCand::DTSegmentCand(AssPointCont& hits,
                              const DTSuperLayer* sl) :
 theSL(sl), theChi2(-1.) , theHits(hits){
-  // FIXME
-  // are the positions void?
-
 }
 
 DTSegmentCand::DTSegmentCand(AssPointCont hits,
@@ -116,7 +113,10 @@ int DTSegmentCand::nLayers() const {
   return 0;
 }
 
-DTRecSegment2D* DTSegmentCand::convert() const{
+DTSegmentCand::operator DTSLRecSegment2D*() const{
+  
+  // FIXME: comment out the output
+  std::cout<<"Convert DTSegmentCand in DTSLRecSegment2D"<<std::endl;
   
   LocalPoint seg2Dposition = position();
   LocalVector seg2DDirection = direction();
@@ -134,29 +134,45 @@ DTRecSegment2D* DTSegmentCand::convert() const{
     hits1D.push_back(hit);
   }
   
-  return new DTRecSegment2D(theSL->id(),
+  return new DTSLRecSegment2D(theSL->id(),
 			    seg2Dposition,seg2DDirection,seg2DCovMatrix,
 			    seg2DChi2,hits1D);
 }
 
-//FIXME change the name and check it!!
-DTRecSegment2DPhi* DTSegmentCand::convert(const DTChamber *chamber) const{
+DTSegmentCand::operator DTChamberRecSegment2D*() const{
+  
+  // FIXME: comment out the output
+  std::cout<<"Convert DTSegmentCand in DTChamberRecSegment2D"<<std::endl;
+  
   // input position and direction are in sl frame, while must be stored in
   // chamber one: so I have to extrapolate the position (along the direction) to
   // the chamber reference plane.
-  LocalPoint posInCh = chamber->toLocal(theSL->toGlobal( position() ));
-  LocalVector dirInCh= chamber->toLocal(theSL->toGlobal( direction() ));
+
+  LocalPoint posInCh = theSL->chamber()->toLocal(theSL->toGlobal( position() ));
+  LocalVector dirInCh= theSL->chamber()->toLocal(theSL->toGlobal( direction() ));
   
   LocalPoint pos=posInCh + dirInCh * posInCh.z()/cos(dirInCh.theta());
   
-  DTRecSegment2DPhi *segment2DPhi = static_cast<DTRecSegment2DPhi*>(convert());
-  segment2DPhi->setPosition(pos);
-  segment2DPhi->setDirection(dirInCh);
+  double seg2DChi2 = chi2();
+  AlgebraicSymMatrix seg2DCovMatrix = covMatrix();
+  
+  std::vector<DTRecHit1D> hits1D;
+  for(DTSegmentCand::AssPointCont::iterator assHit=theHits.begin();
+      assHit!=theHits.end(); ++assHit) {
+    DTRecHit1D hit( ((*assHit).first)->id(),
+		    (*assHit).second,
+		    ((*assHit).first)->digiTime(),
+		    ((*assHit).first)->localPosition((*assHit).second),
+		    ((*assHit).first)->localPositionError() );
+    hits1D.push_back(hit);
+  }
+  
+  return new DTChamberRecSegment2D(theSL->chamber()->id(),
+				   pos,dirInCh,seg2DCovMatrix,
+				   seg2DChi2,hits1D);
   
   // chamber and Phi SLs' frame are oriented in the same way, only a transaltion,
   // so the covariance matrix is the same!
-  
-  return segment2DPhi;
 }
 
 

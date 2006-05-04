@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-//#define DEBUG
+//#define LOCAL_DEBUG
 
 MuonDDDNumbering::MuonDDDNumbering(){
   MuonDDDConstants muonConstants;
@@ -32,7 +32,7 @@ MuonDDDNumbering::MuonDDDNumbering(){
 	 <<theStartCopyNo<<std::endl;
   }
 
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   std::cout << "MuonDDDNumbering configured with"<<std::endl;
   std::cout << "Level = "<<theLevelPart<<" ";
   std::cout << "Super = "<<theSuperPart<<" ";
@@ -45,7 +45,7 @@ MuonDDDNumbering::MuonDDDNumbering(){
 MuonBaseNumber MuonDDDNumbering::geoHistoryToBaseNumber(const DDGeoHistory & history){
   MuonBaseNumber num;
 
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   std::cout << "MuonDDDNumbering create MuonBaseNumber for"<<std::endl;
   std::cout << history <<std::endl;
 #endif
@@ -65,7 +65,7 @@ MuonBaseNumber MuonDDDNumbering::geoHistoryToBaseNumber(const DDGeoHistory & his
     cur++;
   }
 
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   std::cout << num.getLevels() <<std::endl;
   for (int i=1;i<=num.getLevels();i++) {
     std::cout << num.getSuperNo(i)<<" "<<num.getBaseNo(i)<<std::endl;

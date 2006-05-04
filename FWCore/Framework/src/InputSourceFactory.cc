@@ -44,7 +44,8 @@ namespace edm {
     auto_ptr<InputSource> wm;
     try {
       wm = auto_ptr<InputSource>(this->create(modtype,conf,desc));
-    } catch( cms::Exception& iException){
+      wm->registerProducts();
+    } catch( cms::Exception& iException) {
       edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating source ");
       toThrow<<modtype<<"\n";
       toThrow.append(iException);

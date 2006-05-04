@@ -29,9 +29,4 @@ struct twoNibble {
   uint16_t msBits;
 };
 
-struct twoNibble64 {
-  uint32_t lsBits;
-  uint32_t msBits;
-};
-
 #endif

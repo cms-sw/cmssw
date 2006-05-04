@@ -13,6 +13,9 @@ class RPCRollService{
   GlobalPoint LocalToGlobalPoint(const LocalPoint& lp);
   LocalPoint  CentreOfStrip(int strip);
   LocalPoint  CentreOfStrip(float strip);
+  float strip(const LocalPoint& lp);
+  float pitch();
+  float localPitch(const LocalPoint& lp);
   bool isBarrel();
   bool isForward();
 

@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-//#define DEBUG
+//#define LOCAL_DEBUG
 
 RPCNumberingScheme::RPCNumberingScheme(){
   MuonDDDConstants muonConstants;
@@ -18,7 +18,7 @@ RPCNumberingScheme::RPCNumberingScheme(){
   theEPlaneLevel=muonConstants.getValue("[mr_eplane]")/theLevelPart;
   theESectorLevel=muonConstants.getValue("[mr_esector]")/theLevelPart;
   theERollLevel=muonConstants.getValue("[mr_eroll]")/theLevelPart;
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   std::cout << "theRegionLevel " << theRegionLevel <<std::endl;
   std::cout << "theBWheelLevel " << theBWheelLevel <<std::endl;
   std::cout << "theBStationLevel " << theBStationLevel <<std::endl;
@@ -32,7 +32,7 @@ RPCNumberingScheme::RPCNumberingScheme(){
 
 int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
 
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   std::cout << "RPCNumbering "<<num.getLevels()<<std::endl;
   for (int level=1;level<=num.getLevels();level++) {
     std::cout << level << " " << num.getSuperNo(level)
@@ -182,7 +182,7 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
   int trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+
     roll_id;
   
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   if (barrel_muon) {
     std::cout << "RPCNumberingScheme (barrel): ";
   } else {
@@ -203,7 +203,7 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
   RPCDetId id;
   id.buildfromTrIndex(trIndex);
 
-#ifdef DEBUG
+#ifdef LOCAL_DEBUG
   std::cout << " DetId " << id;  
   std::cout << std::endl;
 #endif

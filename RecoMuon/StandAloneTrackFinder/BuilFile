@@ -1,6 +1,0 @@
-<use name=RecoMuon/TrackingTools>
-
-<export>
-   <lib name=RecoMuonStandAloneTrackFinder>
-   <use name=RecoMuon/TrackingTools>
-</export>

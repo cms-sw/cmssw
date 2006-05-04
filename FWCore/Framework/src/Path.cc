@@ -107,8 +107,6 @@ namespace edm
 		}
 	      default:
 		{
-		  LogError(e.category())
-		    << "Exception going through path " << name_ << "\n";
                   ++timesExcept_;
                   state_ = edm::hlt::Exception;
                   (*trptr_)[bitpos_]=HLTPathStatus(state_,abortWorker_);

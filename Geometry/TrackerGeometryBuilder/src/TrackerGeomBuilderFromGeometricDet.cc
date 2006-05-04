@@ -99,7 +99,7 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
       detTypeMap[detName]  = new  PixelGeomDetType(t,detName,det);
       tracker->addType(detTypeMap[detName]);
     }
-    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i], ev, true);
+    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i], ev);
     GeomDetUnit* temp =  new PixelGeomDetUnit(&(*plane),detTypeMap[detName],gdv[i]);
 
     tracker->addDetUnit(temp);
@@ -133,7 +133,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 						   stereo);
       tracker->addType(detTypeMap[detName]);
     }
-    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i],ev,false);  
+    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i],ev);  
     GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), detTypeMap[detName],gdv[i]);
     
     tracker->addDetUnit(temp);
@@ -223,34 +223,24 @@ double TrackerGeomBuilderFromGeometricDet::getDouble(const std::string s,  DDExp
 	  edm::LogError("TrackerGeomBuilderFromGeometricDet::getDouble") << "I need 1 "<< s << " tags";
 	  abort();
 	}
-      return double(atoi(temp[0].c_str())); 
+      return double(atof(temp[0].c_str())); 
     }
   return 0;
 }
 
 PlaneBuilderFromGeometricDet::ResultType
 TrackerGeomBuilderFromGeometricDet::buildPlaneWithMaterial(const GeometricDet* gd, 
-							   DDExpandedView* ev,
-							   bool isPixel) const
+							   DDExpandedView* ev) const
 {
   PlaneBuilderFromGeometricDet planeBuilder;
   PlaneBuilderFromGeometricDet::ResultType plane = planeBuilder.plane(gd);  
   //
   // set medium properties (if defined)
   //
-  double radLength = getDouble("TkRadLength",ev);
-  double xi = getDouble("TkXi",ev);
-  if ( radLength>FLT_MIN || xi>FLT_MIN ) {
-    plane->setMediumProperties( new MediumProperties(radLength,xi) );
-  }
-  else {
-    // FIXME: temporary hard-wired values, used while the XML access does not work
-    if (isPixel) {
-      plane->setMediumProperties( new MediumProperties( 0.04, 1.0e-4));
-    }
-    else {
-      plane->setMediumProperties( new MediumProperties( 0.02, 0.5e-4));
-    }
-  }
+  double radLength = getDouble("TrackerRadLength",ev);
+  double xi = getDouble("TrackerXi",ev);
+
+  plane->setMediumProperties( new MediumProperties(radLength,xi) );
+
   return plane;
 }

@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.8 2006/04/04 16:55:37 lsexton Exp $
+$Id: Worker.cc,v 1.9 2006/04/19 19:48:48 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -28,6 +28,12 @@ namespace edm
       Worker::Sigs* s_;
       ModuleDescription* md_;
     };
+    
+    cms::Exception& exceptionContext(const ModuleDescription& iMD, const EventPrincipal& iEp, cms::Exception& iEx) {
+      iEx << iMD.moduleName_ << "/" << iMD.moduleLabel_ 
+      << " " << iEp.id() << "\n";
+      return iEx;
+    }
   }
   
   Worker::Worker(const ModuleDescription& iMD, 
@@ -123,14 +129,16 @@ namespace edm
 	      ++timesPassed_;
 	      state_=Pass;
 	      LogWarning("IgnoreCompletely")
-		<< "Module ignored an exception\n";
+		<< "Module ignored an exception\n"
+                <<e.what()<<"\n";
 	      break;
 	    }
 
 	  case actions::FailModule:
 	    {
 	      LogWarning("FailModule")
-		<< "Module failed an event due to exception\n";
+              << "Module failed an event due to exception\n"
+              <<e.what()<<"\n";
 	      ++timesFailed_;
 	      state_=Fail;
 	      break;
@@ -138,9 +146,6 @@ namespace edm
 	    
 	  default:
 	    {
-	      // should event id be included?
-	      LogError("ModuleFailure")
-		<< "Module received cms::Exception.\n";
 
 	      // we should not need to include the event/run/module names
 	      // the exception because the error logger will pick this
@@ -149,86 +154,72 @@ namespace edm
 
 	      // here we simply add a small amount of data to the
 	      // exception to add some context, we could have rethrown
-	      // is as something else and embedded with this exception
+	      // it as something else and embedded with this exception
 	      // as an argument to the constructor.
 
 	      ++timesExcept_;
 	      state_ = Exception;
-	      e << "cms::Exception going through module\n"
-		<< md_.moduleName_ << "/" << md_.moduleLabel_ 
-		<< " " << ep.id() << "\n";
+	      e << "cms::Exception going through module";
+              exceptionContext(md_,ep,e);
 	      cached_exception_.reset(new cms::Exception(e));
 	      throw;
 	    }
 	  }
-	LogError(e.category()) << e.what() << "\n";
       }
     
     catch(seal::Error& e)
       {
-	LogError("ModuleFailure")
-	  << "Module received seal::Error.\n";
 	++timesExcept_;
 	state_ = Exception;
-	cached_exception_.reset(new cms::Exception("repeated"));
+	cached_exception_.reset(new cms::Exception("SealError"));
 	*cached_exception_
-	  << "A seal::Error occurred during a previous call to this "
-	  << "module and cannot be repropagated.\n"
+	  << "A seal::Error occurred during a call to the module ";
+        exceptionContext(md_,ep,*cached_exception_)<< "and cannot be repropagated.\n"
 	  << "Previous information:\n" << e.explainSelf();
 	throw *cached_exception_;
       }
     catch(std::exception& e)
       {
-	LogError("ModuleFailure")
-	  << "Module received std::exception.\n";
 	++timesExcept_;
 	state_ = Exception;
-	cached_exception_.reset(new cms::Exception("repeated"));
+	cached_exception_.reset(new cms::Exception("StdException"));
 	*cached_exception_
-	  << "An std::exception occurred during a previous call to this "
-	  << "module and cannot be repropagated.\n"
+	  << "An std::exception occurred during a call to the module ";
+        exceptionContext(md_,ep,*cached_exception_)<< "module and cannot be repropagated.\n"
 	  << "Previous information:\n" << e.what();
 	throw *cached_exception_;
       }
     catch(std::string& s)
       {
-	LogError("BadExceptionType")
-	  << "Module received std::string as an exception.\n"
-	  << "string = " << s << "\n";
 	++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new cms::Exception("BadExceptionType","std::string"));
 	*cached_exception_
-	  << "string = " << s << "\n"
-	  << md_.moduleName_ << "/" << md_.moduleLabel_ 
-	  << ep.id() << "\n";
+	  << "An std::string thrown as an exception occurred during a call to the module ";
+        exceptionContext(md_,ep,*cached_exception_)<< "and cannot be repropagated.\n"
+	  << "Previous information:\n string = " << s;
 	throw *cached_exception_;
       }
     catch(const char* c)
       {
-	LogError("BadExceptionType")
-	  << "Module received const char* as an exception.\n"
-	  << "const char* = " << c << "\n";
 	++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new cms::Exception("BadExceptionType","const char*"));
 	*cached_exception_
-	  << "cstring = " << c << "\n"
-	  << md_.moduleName_ << "/" << md_.moduleLabel_ 
-	  << ep.id() << "\n";
+	  << "A const char* thrown as an exception occurred during a call to the module ";
+        exceptionContext(md_,ep,*cached_exception_)<< "and cannot be repropagated.\n"
+	  << "Previous information:\n const char* = " << c<<"\n";
 	throw *cached_exception_;
       }
     catch(...)
       {
-	LogError("BadExceptionType")
-	  << "Module received an unknown exception.\n";
 	++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new cms::Exception("repeated"));
 	*cached_exception_
-	  << "An unknown exception occurred during a previous call to this "
-	  << "module and cannot be repropagated.\n";
-	throw;
+	  << "An unknown occurred during a previous call to the module ";
+        exceptionContext(md_,ep,*cached_exception_)<< " and cannot be repropagated.\n";
+        throw;
       }
 
     return rc;

@@ -11,6 +11,7 @@ Updater::Updater(MonitorUserInterface *the_mui) : mui(the_mui), observed(false),
   pthread_create(&worker, NULL, start, (void *)this);
 }
 
+
 void *Updater::start(void *pthis)
 {
   // We receive a pointer to the parent Updater object
@@ -25,7 +26,6 @@ void *Updater::start(void *pthis)
   
   return (void *)updater_pt;
 }
-
 void Updater::request_update()
 {
   mui->update();
@@ -36,6 +36,6 @@ void Updater::request_update()
 
 void Updater::registerObserver(UpdateObserver *obs)
 {
-  observed = true;
+  observed=true;
   obs_.push_back(obs);
 }

@@ -41,7 +41,16 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 
   // z side 
   int zside   = baseNumber.getCopyNumber("EREG");
-  zside=2*(1-zside)+1;
+  if ( zside == 1 || zside == 2 ) {
+    zside=2*(1-zside)+1;
+  }
+  else if ( zside == 0 ) {
+    // MTCC geometry
+    int zMTCC = baseNumber.getCopyNumber("EREG_P");
+    if ( zMTCC == 1 ) {
+      zside = 1;
+    }
+  }
 
   // eta index of in Lyon geometry
   int ieta = PVid%5;

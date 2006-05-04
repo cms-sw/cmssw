@@ -11,6 +11,8 @@
 #include "RecoTracker/CkfPattern/interface/CombinatorialTrajectoryBuilder.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 
+class TransientInitialStateEstimator;
+
 namespace cms
 {
   class KFTrackCandidateMaker : public edm::EDProducer
@@ -26,6 +28,7 @@ namespace cms
   private:
     CombinatorialTrajectoryBuilder   theCombinatorialTrajectoryBuilder;
     TrajectoryCleaner*               theTrajectoryCleaner;
+    TransientInitialStateEstimator*  theInitialState;
 
     edm::ParameterSet conf_;
     int isInitialized;

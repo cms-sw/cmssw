@@ -5,7 +5,7 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
 
-//#define DEBUG
+//#define LOCAL_DEBUG
 
 MuonSimHitNumberingScheme::MuonSimHitNumberingScheme(MuonSubDetector* d) {
   theDetector=d;

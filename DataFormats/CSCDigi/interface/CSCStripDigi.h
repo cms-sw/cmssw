@@ -5,8 +5,8 @@
  *
  * Digi for CSC Cathode Strips.
  *  
- *  $Date: 2006/04/06 11:18:25 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/04/05 10:06:51 $
+ *  $Revision: 1.8 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -20,9 +20,7 @@ class CSCStripDigi{
 public:
 
   // Construct from the strip number and the ADC readings.
-  explicit CSCStripDigi (int strip, std::vector<int> ADCCounts, std::vector<uint16_t> ADCOverflow,
-			 std::vector<uint16_t> ContrData,  std::vector<uint16_t> Overlap,
-			 std::vector<uint16_t> Errorstat);
+  explicit CSCStripDigi (int strip, std::vector<int> ADCCounts);
 
   // Default construction.
   CSCStripDigi ();
@@ -35,12 +33,6 @@ public:
 
   // Get ADC readings
   std::vector<int> getADCCounts() const;
-
-  /// Other getters
-  std::vector<uint16_t> getADCOverflow() const {return ADCOverflow;}
-  std::vector<uint16_t> getControllerData() const {return ControllerData;}
-  std::vector<uint16_t> getOverlappedSample() const {return OverlappedSample;}
-  std::vector<uint16_t> getErrorstat() const {return Errorstat;}
 
   // Set the strip number
   void setStrip(int strip);
@@ -56,10 +48,7 @@ private:
   
   uint16_t strip;
   std::vector<int> ADCCounts;
-  std::vector<uint16_t> ADCOverflow;
-  std::vector<uint16_t> ControllerData;
-  std::vector<uint16_t> OverlappedSample;
-  std::vector<uint16_t> Errorstat;
+
 };
 
 #include<iostream>

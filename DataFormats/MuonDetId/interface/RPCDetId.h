@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2006/03/09 00:22:29 $
- *  \version $Id: RPCDetId.h,v 1.10 2006/03/09 00:22:29 mmaggi Exp $
- *  $Revision: 1.10 $
+ *  $Date: 2006/03/17 18:00:16 $
+ *  \version $Id: RPCDetId.h,v 1.11 2006/03/17 18:00:16 namapane Exp $
+ *  $Revision: 1.11 $
  *  \author Ilaria Segoni
  */
 
@@ -100,7 +100,7 @@ class RPCDetId :public DetId {
   }
 
 
-  int TrIndex() const{
+  int trIndex() const{
     return trind;
   }
 

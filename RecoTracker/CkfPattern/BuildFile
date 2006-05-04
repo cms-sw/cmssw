@@ -19,7 +19,9 @@
  <use name=TrackingTools/PatternTools>
  <use name=TrackingTools/MaterialEffects>
  <use name=TrackingTools/TrajectoryCleaning>
+ <use name=TrackingTools/TrackFitters>
 </export>
+
 
 <flags SEAL_PLUGIN_NAME="RecoTrackerCkfPattern">
 <use name=FWCore/Framework>
@@ -40,3 +42,4 @@
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/MaterialEffects>
 <use name=TrackingTools/TrajectoryCleaning>
+<use name=TrackingTools/TrackFitters>

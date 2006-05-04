@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/04/04 20:06:06 $
- * $Revision: 1.8 $
+ * $Date: 2006/04/04 19:26:04 $
+ * $Revision: 1.7 $
  * \author W Fisher
  *
 */
@@ -96,7 +96,7 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   m_ievt = 0;
   if ( m_meStatus ) m_meStatus->Fill(0);
   if ( m_meEvtNum ) m_meEvtNum->Fill(m_ievt);
-  if ( m_monitorDaemon ) sleep(10);
+  if ( m_monitorDaemon ) sleep(15);
 
 }
 
@@ -107,7 +107,7 @@ void HcalMonitorModule::endJob(void) {
   if ( m_meStatus ) m_meStatus->Fill(2);
   if ( m_meRunNum) m_meRunNum->Fill(m_runNum); //???
   if ( m_meEvtNum ) m_meEvtNum->Fill(m_ievt);
-  if ( m_monitorDaemon ) sleep(10);
+  if ( m_monitorDaemon ) sleep(45);
 
   if(m_digiMon!=NULL) m_digiMon->done();
   if(m_dfMon!=NULL) m_dfMon->done();
@@ -126,13 +126,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   
   // To get information from the event setup, you must request the "Record"
   // which contains it and then extract the object you need
-  //  edm::ESHandle<CaloGeometry> geometry;
-  //  eventSetup.get<IdealGeometryRecord>().get(geometry);
-
-  // get the hcal mapping
-  edm::ESHandle<HcalDbService> pSetup;
-  eventSetup.get<HcalDbRecord>().get( pSetup );
-  const HcalElectronicsMap* readoutMap=pSetup->getHcalMapping();
+  edm::ESHandle<CaloGeometry> geometry;
+  eventSetup.get<IdealGeometryRecord>().get(geometry);
 
   if ( m_dbe ){ 
     m_meStatus->Fill(1);
@@ -146,9 +141,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     edm::Handle<HBHEDigiCollection> hbhe;
     edm::Handle<HODigiCollection> ho;
     edm::Handle<HFDigiCollection> hf;
-    try{e.getByType(hbhe);} catch(...){};
-    try{e.getByType(hf);} catch(...){};
-    try{e.getByType(ho);} catch(...){};
+    e.getByType(hbhe);
+    e.getByType(hf);
+    e.getByType(ho);
     m_digiMon->processEvent(*hbhe, *ho, *hf);
   }
 
@@ -156,9 +151,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     edm::Handle<HBHEDigiCollection> hbhe;
     edm::Handle<HODigiCollection> ho;
     edm::Handle<HFDigiCollection> hf;
-    try{e.getByType(hbhe);} catch(...){};
-    try{e.getByType(hf);} catch(...){};
-    try{e.getByType(ho);} catch(...){};
+    e.getByType(hbhe);
+    e.getByType(hf);
+    e.getByType(ho);
     // get conditions
     edm::ESHandle<HcalDbService> conditions;
     eventSetup.get<HcalDbRecord>().get(conditions);
@@ -169,8 +164,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   /////Daata Format monitor stuff
   if((m_dfMon != NULL) && (evtMask&DO_HCAL_DFMON)){
     edm::Handle<FEDRawDataCollection> rawraw;  
-    try{e.getByType(rawraw);} catch(...){};           
-    m_dfMon->processEvent(*rawraw,*readoutMap);
+    e.getByType(rawraw);           
+    m_dfMon->processEvent(*rawraw);
   }
 
   /////Rec Hit monitor stuff
@@ -178,9 +173,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     edm::Handle<HBHERecHitCollection> hb_hits;
     edm::Handle<HORecHitCollection> ho_hits;
     edm::Handle<HFRecHitCollection> hf_hits;
-    try{e.getByType(hb_hits);} catch(...){}; 
-    try{e.getByType(ho_hits);} catch(...){}; 
-    try{e.getByType(hf_hits);} catch(...){}; 
+    e.getByType(hb_hits);
+    e.getByType(ho_hits);
+    e.getByType(hf_hits);
     m_rhMon->processEvent(*hb_hits,*ho_hits,*hf_hits);
   }
 

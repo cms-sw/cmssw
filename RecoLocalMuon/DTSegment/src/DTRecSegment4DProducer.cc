@@ -1,27 +1,28 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2006/04/21 14:25:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/04 09:13:07 $
+ *  $Revision: 1.5 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment4DProducer.h"
 
-#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2DPhi.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-
-#include "RecoLocalMuon/DTSegment/src/DTRecSegment4DAlgoFactory.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
+#include "RecoLocalMuon/DTSegment/src/DTRecSegment4DAlgoFactory.h"
+
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 using namespace edm;
 using namespace std;
 
@@ -60,8 +61,9 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
   event.getByLabel(theRecHits1DLabel,"DT1DRecHits",all1DHits);
   
   // Get the 2D rechits from the event
-  Handle<DTRecSegment2DCollection> all2DSegments; 
-  event.getByLabel(theRecHits2DLabel, all2DSegments);
+  Handle<DTRecSegment2DCollection> all2DSegments;
+  if(the4DAlgo->wants2DSegments())
+    event.getByLabel(theRecHits2DLabel, all2DSegments);
 
   // Create the pointer to the collection which will store the rechits
   auto_ptr<DTRecSegment4DCollection> segments4DCollection(new DTRecSegment4DCollection());
@@ -73,23 +75,21 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
   // Percolate the setup
   the4DAlgo->setES(setup);
 
-  // Iterate over all hit collections ordered by SuperLayerId
-  DTRecSegment2DCollection::id_iterator dtSuperLayerIt;
+  // Iterate over all hit collections ordered by layerId
+  DTRecHitCollection::id_iterator dtLayerIt;
+
   DTChamberId oldChId;
 
-  for (dtSuperLayerIt = all2DSegments->id_begin(); dtSuperLayerIt != all2DSegments->id_end(); ++dtSuperLayerIt){
-
-    // The superLayerId
-    DTSuperLayerId superLayerId = (*dtSuperLayerIt);
+  for (dtLayerIt = all1DHits->id_begin(); dtLayerIt != all1DHits->id_end(); ++dtLayerIt){
 
     // Check the DTChamberId
-    const DTChamberId chId = superLayerId.chamberId();
+    const DTChamberId chId = (*dtLayerIt).chamberId();
     if (chId==oldChId) continue; // I'm on the same Chamber as before
     oldChId = chId;
     if(debug) cout << "ChamberId: "<< chId << endl;
     the4DAlgo->setChamber(chId);
 
-    cout<<"Take the DTRecHits1D in the Phi-SLs and set them in the reconstructor"<<endl;
+    cout<<"Take the DTRecHits1D and set them in the reconstructor"<<endl;
 
     the4DAlgo->setDTRecHit1DContainer(all1DHits);
 

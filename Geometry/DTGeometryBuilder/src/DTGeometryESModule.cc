@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/10/27 08:55:14 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/02/22 10:59:28 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -14,7 +14,6 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/ModuleFactory.h>
-#include <FWCore/Framework/interface/ESProducer.h>
 
 #include <memory>
 

@@ -34,6 +34,8 @@ class HybridClusterProducer : public edm::EDProducer
  
       std::string basicclusterCollection_;
       std::string superclusterCollection_;
+      std::string hitproducer_;
+      std:: string hitcollection_;
       HybridClusterAlgo * hybrid_p;
 
       bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}

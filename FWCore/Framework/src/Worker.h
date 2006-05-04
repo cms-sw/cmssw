@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.10 2006/04/04 16:55:37 lsexton Exp $
+$Id: Worker.h,v 1.11 2006/04/19 19:48:48 chrjones Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -50,7 +50,8 @@ namespace edm {
     void endJob();
     void reset() { state_ = Ready; }
     
-    const ModuleDescription& description() const {return md_;}
+    ModuleDescription const & description() const {return md_;}
+    ModuleDescription const * descPtr() const {return &md_; }
     void connect(ActivityRegistry::PreModule&, ActivityRegistry::PostModule&);
 
     std::pair<double,double> timeCpuReal() const {
