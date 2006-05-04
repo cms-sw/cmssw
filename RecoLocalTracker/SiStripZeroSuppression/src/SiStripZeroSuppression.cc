@@ -15,7 +15,7 @@ namespace cms
 
     edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppression::SiStripZeroSuppression] Constructing object...";
 
-    //produces< edm::DetSetVector<SiStripDigi> > (fromScopeMode");
+    produces< edm::DetSetVector<SiStripDigi> > ("fromScopeMode");
     produces< edm::DetSetVector<SiStripDigi> > ("fromVirginRaw");
     produces< edm::DetSetVector<SiStripDigi> > ("fromProcessedRaw");
   }
@@ -41,13 +41,13 @@ namespace cms
     std::string rawDigiProducer = conf_.getParameter<std::string>("RawDigiProducer");
     
     // Step A: Get Inputs 
-    //edm::Handle< edm::DetSetVector<SiStripRawDigi> > ScopeMode;
+    edm::Handle< edm::DetSetVector<SiStripRawDigi> > ScopeMode;
     edm::Handle< edm::DetSetVector<SiStripRawDigi> > VirginRaw;
     edm::Handle< edm::DetSetVector<SiStripRawDigi> > ProcessedRaw;    
-    //e.getByLabel(rawDigiProducer,"ScopeMode"   , ScopeMode);
-    e.getByLabel(rawDigiProducer,"VirginRaw"   , VirginRaw);
-    e.getByLabel(rawDigiProducer,"ProcessedRaw", ProcessedRaw);
-
+    
+    e.getByLabel(rawDigiProducer,"ScopeMode"     , ScopeMode);
+    e.getByLabel(rawDigiProducer,"VirginRaw"     , VirginRaw);
+    e.getByLabel(rawDigiProducer,"ProcessedRaw"  , ProcessedRaw);
     
     // Step B: create empty output collection
     std::auto_ptr< edm::DetSetVector<SiStripDigi> >    smDigis( new edm::DetSetVector<SiStripDigi> );
@@ -57,23 +57,16 @@ namespace cms
     
     // Step C: Invoke the strip clusterizer algorithm
     SiStripPedestalsService_.setESObjects(es);
-
-//     if ( ScopeMode->size() )
-//    SiStripZeroSuppressionAlgorithm_.run("ScopeMode"   ,*ScopeMode   ,*smDigis);
+    if ( ScopeMode->size() )
+      SiStripZeroSuppressionAlgorithm_.run("ScopeMode"   ,*ScopeMode   ,*smDigis);
     if ( VirginRaw->size() )
       SiStripZeroSuppressionAlgorithm_.run("VirginRaw"   ,*VirginRaw   ,*vrDigis);
     if ( ProcessedRaw->size() )
       SiStripZeroSuppressionAlgorithm_.run("ProcessedRaw",*ProcessedRaw,*prDigis);
-    
-    //FIXME for debug purpose -- remove it
-    //SiStripZeroSuppressionAlgorithm_.run("ProcessedRaw"   ,*VirginRaw   ,*vrDigis);
-
+   
     // Step D: write output to file
-    //if ( smDigis->size() )
-    // e.put(smDigis, "fromScopeMode");
-    if ( vrDigis->size() )
-      e.put(vrDigis, "fromVirginRaw");
-    if ( prDigis->size() )
-      e.put(prDigis, "fromProcessedRaw");
+    e.put(smDigis, "fromScopeMode");
+    e.put(vrDigis, "fromVirginRaw");
+    e.put(prDigis, "fromProcessedRaw");
   }
 }
