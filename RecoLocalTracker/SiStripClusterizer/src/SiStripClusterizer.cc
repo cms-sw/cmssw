@@ -51,14 +51,18 @@ namespace cms
     edm::Handle< edm::DetSetVector<SiStripDigi> >    zsDigis;
     edm::Handle< edm::DetSetVector<SiStripDigi> >    vrDigis;
     edm::Handle< edm::DetSetVector<SiStripDigi> >    prDigis;
+    edm::Handle< edm::DetSetVector<SiStripDigi> >    smDigis;
 
     if (digiProducer=="stripdigi"){
       e.getByLabel(digiProducer,"stripdigi",zsDigis);  //FIXME: fix this label
     }
-    else if (digiProducer=="DAQ"){
-      e.getByLabel(digiProducer,"fromZS",zsDigis);  //FIXME: fix this label
-      e.getByLabel(digiProducer,"fromVirginRaw",vrDigis);
+    else{
+      digiProducer="RawToDigi"; //FIXME: fix this label
+      e.getByLabel(digiProducer,"ZeroSuppressed",zsDigis);  //FIXME: fix this label
+      digiProducer="theSiStripZeroSuppression"; //FIXME: fix this label
+      e.getByLabel(digiProducer,"fromVirginRaw"   ,vrDigis);
       e.getByLabel(digiProducer,"fromProcessedRaw",prDigis);
+      e.getByLabel(digiProducer,"fromScopeMode"   ,smDigis);
     }
     
     // Step C: Get ESObject 
@@ -67,13 +71,12 @@ namespace cms
     // Step C: Invoke the strip clusterizer algorithm
     if (zsDigis->size())
       SiStripClusterizerAlgorithm_.run(*zsDigis,*output);
-    if (digiProducer=="DAQ"){
-      std::cout <<  "sono qui e nn ci dovrei essere" << std::endl;
-      if (vrDigis->size())
-	SiStripClusterizerAlgorithm_.run(*vrDigis,*output);
-      if (prDigis->size())
-	SiStripClusterizerAlgorithm_.run(*prDigis,*output);
-    }
+    if (vrDigis->size())
+      SiStripClusterizerAlgorithm_.run(*vrDigis,*output);
+    if (prDigis->size())
+      SiStripClusterizerAlgorithm_.run(*prDigis,*output);
+    if (smDigis->size())
+      SiStripClusterizerAlgorithm_.run(*smDigis,*output);
     
     // Step D: write output to file
     if ( output->size() )
