@@ -5,17 +5,17 @@
     <Primitive column="CELL_MAP_VERSION" name="cellMapVersion" />
     <Container table="DTREADOUTCONNECTION" id_columns="IOV_VALUE_ID" name="readOutChannelDriftTubeMap" position_column="CONNECTION_ID" >
       <Object table="DTREADOUTCONNECTION" id_columns="CONNECTION_ID IOV_VALUE_ID" name="DTReadOutGeometryLink" >
-        <Primitive column="CELL" name="cellId" />
-        <Primitive column="CHANNEL" name="channelId" />
         <Primitive column="DDU" name="dduId" />
-        <Primitive column="LAYER" name="layerId" />
-        <Primitive column="ROB" name="robId" />
         <Primitive column="ROS" name="rosId" />
-        <Primitive column="SECTOR" name="sectorId" />
-        <Primitive column="SUPERLAYER" name="slId" />
-        <Primitive column="STATION" name="stationId" />
+        <Primitive column="ROB" name="robId" />
         <Primitive column="TDC" name="tdcId" />
+        <Primitive column="CHANNEL" name="channelId" />
         <Primitive column="WHEEL" name="wheelId" />
+        <Primitive column="STATION" name="stationId" />
+        <Primitive column="SECTOR" name="sectorId" />
+        <Primitive column="LAYER" name="layerId" />
+        <Primitive column="SUPERLAYER" name="slId" />
+        <Primitive column="CELL" name="cellId" />
       </Object >
     </Container >
     <Primitive column="ROB_MAP_VERSION" name="robMapVersion" />
