@@ -31,7 +31,7 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
   strip=0,misMatch=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1;
-  pedMean=0.0,time=0.0;
+  pedMean=0.0,time=0.0,NChambers=0;
 
   for (int i=0;i<480;i++){
     new_xtalk_intercept_right[i] = -999.;
@@ -49,10 +49,10 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
       for (int k=0; k<STRIPS; k++){
         for (int l=0; l<TIMEBINS*20; l++){
           thetime[i][j][k][l]       = 0.0;
-          thebins[i][j][k][l]       = 0;
-          theadccountsc[i][j][k][l] = 0;
-          theadccountsl[i][j][k][l] = 0;
-          theadccountsr[i][j][k][l] = 0;
+          thebins[i][j][k][l]       = 0  ;
+          theadccountsc[i][j][k][l] = 0  ;
+          theadccountsl[i][j][k][l] = 0  ;
+          theadccountsr[i][j][k][l] = 0  ;
         }
       }
     }
@@ -67,8 +67,8 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
         xtalk_slope_right[i][j][k]     = -999.;
         xtalk_chi2_left[i][j][k]       = -999.;
         xtalk_chi2_right[i][j][k]      = -999.;
-        myPeakTime[i][j][k]            = 0.0;
-        myMeanPeakTime[i][j][k]        = 0.0;
+        myPeakTime[i][j][k]            =  0.0 ;
+        myMeanPeakTime[i][j][k]        =  0.0 ;
         array_meanPeakTime[i][j][k]    = -999.;
       }
     }
@@ -77,17 +77,8 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
 
 void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   
-  // These declarations create handles to the types of records that you want
-  // to retrieve from event "e".
-  //
   edm::Handle<CSCStripDigiCollection> strips;
-  
-  // Pass the handle to the method "getByType", which is used to retrieve
-  // one and only one instance of the type in question out of event "e". If
-  // zero or more than one instance exists in the event an exception is thrown.
-  //
   e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
-  
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByLabel("DaqSource" , rawdata);
 
@@ -111,10 +102,10 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
 	
 	reportedChambers += dduData[iDDU].header().ncsc();
-	int NChambers = cscData.size();
+	NChambers = cscData.size();
 	int repChambers = dduData[iDDU].header().ncsc();
 	std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
-	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++;}
+	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++; continue;}
 
 	for (int chamber = 0; chamber < NChambers; chamber++){
 	  
@@ -124,8 +115,8 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 	    const CSCDMBHeader &thisDMBheader = cscData[chamber].dmbHeader();
 	    
             if (thisDMBheader.cfebAvailable()){
-              dmbID[chamber] = cscData[chamber].dmbHeader().dmbID();//get DMB ID
-              crateID[chamber] = cscData[chamber].dmbHeader().crateID();//get crate ID
+              dmbID[chamber] = cscData[chamber].dmbHeader().dmbID();
+              crateID[chamber] = cscData[chamber].dmbHeader().crateID();
               if(crateID[chamber] == 255) continue;
 	      
               for (unsigned int i=0; i<digis.size(); i++){
@@ -172,8 +163,6 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
     }
   }
 }
-
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CSCCrossTalkAnalyzer)

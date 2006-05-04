@@ -13,7 +13,7 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
   explicit CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   
-#define CHAMBERS 5
+#define CHAMBERS 9
 #define LAYERS 6
 #define STRIPS 80
 
@@ -37,7 +37,7 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
    std::string test13="elem77";
    std::string answer;
    
-   for (int i=0; i<CHAMBERS; i++){
+   for (int i=0; i<NChambers; i++){
      for (int j=0; j<LAYERS; j++){
        for (int k=0; k<STRIPS; k++){
 	 for (int max=0; max<12;max++){
@@ -75,18 +75,18 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
      if(answer=="y"){
        //SEND CONSTANTS TO DB
        
-       cdb->cdb_write(test1,chamber_id,chamber_num,test2, 480, newMatrix1, 2, &ret_code);
-       cdb->cdb_write(test1,chamber_id,chamber_num,test3, 480, newMatrix2, 2, &ret_code);
-       cdb->cdb_write(test1,chamber_id,chamber_num,test4, 480, newMatrix3, 2, &ret_code);
-       cdb->cdb_write(test1,chamber_id,chamber_num,test5, 480, newMatrix4, 2, &ret_code);
-       cdb->cdb_write(test1,chamber_id,chamber_num,test6, 480, newMatrix5, 2, &ret_code);
-       cdb->cdb_write(test1,chamber_id,chamber_num,test7, 480, newMatrix6, 2, &ret_code);
-       cdb->cdb_write(test1,chamber_id,chamber_num,test8, 480, newMatrix7, 2, &ret_code);
-       cdb->cdb_write(test1,chamber_id,chamber_num,test9, 480, newMatrix8, 2, &ret_code);
-       cdb->cdb_write(test1,chamber_id,chamber_num,test10,480, newMatrix9, 2, &ret_code);
-       cdb->cdb_write(test1,chamber_id,chamber_num,test11,480, newMatrix10,2, &ret_code);
-       cdb->cdb_write(test1,chamber_id,chamber_num,test12,480, newMatrix11,2, &ret_code);
-       cdb->cdb_write(test1,chamber_id,chamber_num,test13,480, newMatrix12,2, &ret_code);
+       cdb->cdb_write(test1,chamber_id,chamber_num,test2, 480, newMatrix1, 6, &ret_code);
+       cdb->cdb_write(test1,chamber_id,chamber_num,test3, 480, newMatrix2, 6, &ret_code);
+       cdb->cdb_write(test1,chamber_id,chamber_num,test4, 480, newMatrix3, 6, &ret_code);
+       cdb->cdb_write(test1,chamber_id,chamber_num,test5, 480, newMatrix4, 6, &ret_code);
+       cdb->cdb_write(test1,chamber_id,chamber_num,test6, 480, newMatrix5, 6, &ret_code);
+       cdb->cdb_write(test1,chamber_id,chamber_num,test7, 480, newMatrix6, 6, &ret_code);
+       cdb->cdb_write(test1,chamber_id,chamber_num,test8, 480, newMatrix7, 6, &ret_code);
+       cdb->cdb_write(test1,chamber_id,chamber_num,test9, 480, newMatrix8, 6, &ret_code);
+       cdb->cdb_write(test1,chamber_id,chamber_num,test10,480, newMatrix9, 6, &ret_code);
+       cdb->cdb_write(test1,chamber_id,chamber_num,test11,480, newMatrix10,6, &ret_code);
+       cdb->cdb_write(test1,chamber_id,chamber_num,test12,480, newMatrix11,6, &ret_code);
+       cdb->cdb_write(test1,chamber_id,chamber_num,test13,480, newMatrix12,6, &ret_code);
      }else{
        std::cout<<" NO data was sent!!! "<<std::endl;
      }
@@ -99,7 +99,7 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
  // variables persistent across events should be declared here.
  std::vector<int> adc; 
  std::string chamber_id;
- int eventNumber,evt,strip,misMatch;
+ int eventNumber,evt,strip,misMatch,NChambers;
  int i_chamber,i_layer,reportedChambers,fff,ret_code,length,chamber_num,sector;
  int dmbID[CHAMBERS],crateID[CHAMBERS];
  float *tmp, corrmat[12];
@@ -116,5 +116,5 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
  float newMatrix11[480];
  float newMatrix12[480];
  
- Chamber_AutoCorrMat cam[5];
+ Chamber_AutoCorrMat cam[CHAMBERS];
 };

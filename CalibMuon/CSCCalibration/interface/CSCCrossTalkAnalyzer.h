@@ -14,7 +14,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   explicit CSCCrossTalkAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   
-#define CHAMBERS 6
+#define CHAMBERS 9
 #define LAYERS 6
 #define STRIPS 80
 #define TIMEBINS 8
@@ -33,15 +33,15 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
     float sum=0.0;
     float mean=0;
     
-    for (int i=0; i<CHAMBERS; i++){
+    for (int i=0; i<NChambers; i++){
       for (int j=0; j<LAYERS; j++){
 	mean=0.,sum=0.;
 	for (int s=0; s<STRIPS; s++) {
 	  //re-zero convd and nconvd
 	  for (int m=0; m<3; m++){
 	    for (int n=0; n<120; n++){
-	      convd[m][n]  = 0.;
-	      nconvd[m][n] = 0.;
+	      binsConv.convd[m][n]  = 0.;
+	      binsConv.nconvd[m][n] = 0.;
 	    }
 	  }
 	  
@@ -53,22 +53,22 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	    thebin=thebins[i][j][s][l];
 	    
 	    if (thebin >= 0 && thebin < 120){
-	      convd[0][thebin]  += adc_ped_sub_left;
-	      nconvd[0][thebin] += 1.0;
+	      binsConv.convd[0][thebin]  += adc_ped_sub_left;
+	      binsConv.nconvd[0][thebin] += 1.0;
 	      
-	      convd[1][thebin]  += adc_ped_sub;
-	      nconvd[1][thebin] += 1.0;
+	      binsConv.convd[1][thebin]  += adc_ped_sub;
+	      binsConv.nconvd[1][thebin] += 1.0;
 	      
-	      convd[2][thebin]  += adc_ped_sub_right;
-	      nconvd[2][thebin] += 1.0;
+	      binsConv.convd[2][thebin]  += adc_ped_sub_right;
+	      binsConv.nconvd[2][thebin] += 1.0;
 	      
 	    }
 	  } //loop over timebins
 	  
 	  for (int m=0; m<3; m++){
 	    for (int n=0; n<120; n++){
-	      if(nconvd[m][n]>1.0 && nconvd[m][n] !=0.){
-		convd[m][n] = convd[m][n]/nconvd[m][n];
+	      if(binsConv.nconvd[m][n]>1.0 && binsConv.nconvd[m][n] !=0.){
+		binsConv.convd[m][n] = binsConv.convd[m][n]/binsConv.nconvd[m][n];
 	      }
 	    }
 	  }
@@ -82,19 +82,19 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	  float minr_temp = 0.0;
 	  float pTime     = 0.0;
 	  
-	  makebins.mkbins(50.);
-	  makebins.convolution(&xl_temp_a, &xl_temp_b, &minl_temp, &xr_temp_a, &xr_temp_b, &minr_temp, &pTime);
+	  binsConv.mkbins(50.);
+	  binsConv.convolution(&xl_temp_a, &xl_temp_b, &minl_temp, &xr_temp_a, &xr_temp_b, &minr_temp, &pTime);
 	  myPeakTime[i][j][s] = pTime;
 	  sum=sum+myPeakTime[i][j][s];
-	  mean = sum/80;
+	  mean = sum/80.;
 	}
 	
 	for (int k=0; k<STRIPS; k++){
 	  // re-zero convd and nconvd 
 	  for (int m=0; m<3; m++){
 	    for (int n=0; n<120; n++){
-	      convd[m][n]  = 0.;
-	      nconvd[m][n] = 0.;
+	      binsConv.convd[m][n]  = 0.;
+	      binsConv.nconvd[m][n] = 0.;
 	    }
 	  }
 	  
@@ -106,22 +106,22 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	    thebin=thebins[i][j][k][l];
 	    
 	    if (thebin >= 0 && thebin < 120){
-	      convd[0][thebin]  += adc_ped_sub_left;
-	      nconvd[0][thebin] += 1.0;
+	      binsConv.convd[0][thebin]  += adc_ped_sub_left;
+	      binsConv.nconvd[0][thebin] += 1.0;
 	      
-	      convd[1][thebin]  += adc_ped_sub;
-	      nconvd[1][thebin] += 1.0;
+	      binsConv.convd[1][thebin]  += adc_ped_sub;
+	      binsConv.nconvd[1][thebin] += 1.0;
 	      
-	      convd[2][thebin]  += adc_ped_sub_right;
-	      nconvd[2][thebin] += 1.0;
+	      binsConv.convd[2][thebin]  += adc_ped_sub_right;
+	      binsConv.nconvd[2][thebin] += 1.0;
 	      
 	    }
 	  } //loop over timebins
 	  
 	  for (int m=0; m<3; m++){
 	    for (int n=0; n<120; n++){
-	      if(nconvd[m][n]>1.0 && nconvd[m][n] !=0.){
-		convd[m][n] = convd[m][n]/nconvd[m][n];
+	      if(binsConv.nconvd[m][n]>1.0 && binsConv.nconvd[m][n] !=0.){
+		binsConv.convd[m][n] = binsConv.convd[m][n]/binsConv.nconvd[m][n];
 	      }
 	    }
 	  }
@@ -134,10 +134,10 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	  float xr_temp_a = 0.;
 	  float xr_temp_b = 0.;
 	  float minr_temp = 0.;
-	  float pTime = 0.;
+	  float pTime     = 0.;
 	  
-	  makebins.mkbins(50.);
-	  makebins.convolution(&xl_temp_a, &xl_temp_b, &minl_temp, &xr_temp_a, &xr_temp_b, &minr_temp, &pTime);
+	  binsConv.mkbins(50.);
+	  binsConv.convolution(&xl_temp_a, &xl_temp_b, &minl_temp, &xr_temp_a, &xr_temp_b, &minr_temp, &pTime);
 	  
 	  if (k==0){
 	    xtalk_intercept_left[i][j][k]  = 0.0;
@@ -188,46 +188,50 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	  std::cout<<"Cham "<<i<<" Layer "<<j<<" strip "<<k<<" IntL "<<new_xtalk_intercept_left[fff]<<"   SlopeL "<<new_xtalk_slope_left[fff]<<"   IntR "<<new_xtalk_intercept_right[fff]<<"   SlopeR "<<new_xtalk_slope_right[fff]<<"   diff "<<newMeanPeakTime[fff]<<endl;
 	}//loop over strips
       }//loop over layers
+
+      int new_crateID = crateID[i];
+      int new_dmbID   = dmbID[i];
+      std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
+      map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
+      std::cout<<" Above data is for chamber:: "<< chamber_id<<" and sector:  "<<sector<<std::endl;
+      
+      std::string test1 = "CSC_slice";
+      std::string test2 = "xtalk_slope_left";
+      std::string test3 = "xtalk_intercept_left";
+      std::string test4 = "xtalk_chi2_left";
+      std::string test5 = "xtalk_slope_right";
+      std::string test6 = "xtalk_intercept_right";
+      std::string test7 = "xtalk_chi2_right";
+      std::string test8 = "time_spread";
+      std::string answer;
+      std::string bad_number = "nan";
+      
+      std::cout<<" DO you want to send constants to DB? "<<" Please answer y or n for EACH chamber present! "<<std::endl;
+      std::cin>>answer;
+      if(answer=="y"){
+	if(new_xtalk_slope_left[fff] != new_xtalk_slope_left[fff]) {
+	  std::cout<<"this is my xtalk left "<< new_xtalk_slope_left[fff]<<std::endl;
+	}
+	cdb->cdb_write(test1,chamber_id,chamber_num,test2,480, new_xtalk_slope_left,      4, &ret_code);
+	cdb->cdb_write(test1,chamber_id,chamber_num,test3,480, new_xtalk_intercept_left,  4, &ret_code);
+	cdb->cdb_write(test1,chamber_id,chamber_num,test4,480, new_lchi2,                 4, &ret_code);
+	cdb->cdb_write(test1,chamber_id,chamber_num,test5,480, new_xtalk_slope_right,     4, &ret_code);
+	cdb->cdb_write(test1,chamber_id,chamber_num,test6,480, new_xtalk_intercept_right, 4, &ret_code);
+	cdb->cdb_write(test1,chamber_id,chamber_num,test7,480, new_rchi2,                 4, &ret_code);
+	cdb->cdb_write(test1,chamber_id,chamber_num,test8,480, newMeanPeakTime,           4, &ret_code);
+	
+	std::cout<<" Data SENT to DB! "<<std::endl;
+      }else{
+	std::cout<<" NO data was sent!!! "<<std::endl;
+      }
     }//loop over chambers
-    
-    
-    std::string test1="CSC_slice";
-    std:: string test2="xtalk_slope_left";
-    std:: string test3="xtalk_intercept_left";
-    std::string test4="xtalk_chi2_left";
-    std::string test5="xtalk_slope_right";
-    std::string test6="xtalk_intercept_right";
-    std:: string test7="xtalk_chi2_right";
-    std:: string test8="time_spread";
-    std::string answer;
-
-    std::cout<<" DO you want to send constants to DB? "<<" Please answer y or n for EACH chamber present! "<<std::endl;
-
-
-
-    /*     std::cin>>answer; */
-    /*     if(answer=="y"){ */
-    /*       cdb->cdb_write(test1,chamber_id,chamber_num,test2,480, new_xtalk_slope_left,      4, &ret_code); */
-    /*       cdb->cdb_write(test1,chamber_id,chamber_num,test3,480, new_xtalk_intercept_left,  4, &ret_code); */
-    /*       cdb->cdb_write(test1,chamber_id,chamber_num,test4,480, new_lchi2,                 4, &ret_code); */
-    /*       cdb->cdb_write(test1,chamber_id,chamber_num,test5,480, new_xtalk_slope_right,     4, &ret_code); */
-    /*       cdb->cdb_write(test1,chamber_id,chamber_num,test6,480, new_xtalk_intercept_right, 4, &ret_code); */
-    /*       cdb->cdb_write(test1,chamber_id,chamber_num,test7,480, new_rchi2,                 4, &ret_code); */
-    /*       cdb->cdb_write(test1,chamber_id,chamber_num,test8,480, newMeanPeakTime,           4, &ret_code); */
-    
-    /*       std::cout<<" Data SENT to DB! "<<std::endl; */
-    /*     }else{ */
-    /*       std::cout<<" NO data was sent!!! "<<std::endl; */
-    /*     } */
-    
-    
   }
   
  private:
   // variables persistent across events should be declared here.
   int eventNumber,evt,strip,misMatch,fff,ret_code,length;
-  int i_chamber,i_layer,reportedChambers,chamber_num,sector ;
-  int dmbID[CHAMBERS],crateID[CHAMBERS];
+  int i_chamber,i_layer,reportedChambers,chamber_num,sector, NChambers ;
+  int dmbID[CHAMBERS],crateID[CHAMBERS] ;
   std::vector<int> adc;
   std::string chamber_id;
   int thebins[CHAMBERS][LAYERS][STRIPS][TIMEBINS*20];
@@ -253,9 +257,4 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   float new_lchi2[480];
   float newPeakTime[480];
   float newMeanPeakTime[480];
-  float convd[3][120];
-  float nconvd[3][120];
-  float conve[120];
-  float conv[3][120];
-  
 };

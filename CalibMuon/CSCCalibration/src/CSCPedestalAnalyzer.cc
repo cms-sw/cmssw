@@ -38,7 +38,7 @@ CSCPedestalAnalyzer::CSCPedestalAnalyzer(edm::ParameterSet const& conf) {
   pedSum = 0, strip =-999,misMatch=0;
   i_chamber=0,i_layer=0,reportedChambers =0;
   aPeak=0.0,sumFive=0.0;
-  length = 1;
+  length = 1, NChambers=0;
   
   for(int i=0;i<CHAMBERS;i++){
     for(int j=0; j<LAYERS; j++){
@@ -74,6 +74,7 @@ void CSCPedestalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iS
   // one and only one instance of the type in question out of event "e". If
   // zero or more than one instance exists in the event an exception is thrown.
   //
+
    e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
 
    edm::Handle<FEDRawDataCollection> rawdata;
@@ -99,7 +100,7 @@ void CSCPedestalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iS
 	 const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
 	 
 	 reportedChambers += dduData[iDDU].header().ncsc();
-	 int NChambers = cscData.size();
+	 NChambers = cscData.size();
 	 int repChambers = dduData[iDDU].header().ncsc();
 	 std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
 	 if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++;}

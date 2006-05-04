@@ -33,14 +33,14 @@
 CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
   
   eventNumber=0,evt=0;
-  strip=0,misMatch=0;
+  strip=0,misMatch=0,NChambers=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1,gainSlope=-999.0,gainIntercept=-999.0;
   
   for (int i=0; i<NUMMODTEN; i++){
     for (int j=0; j<CHAMBERS; j++){
       for (int k=0; k<LAYERS; k++){
-	for (int l=0;l<STRIPS;l++){
+	for (int l=0; l<STRIPS; l++){
 	  maxmodten[i][j][k][l] = 0.0;
 	}
       }
@@ -97,20 +97,19 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
       CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
       
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
-      
+
+      evt++;      
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
 	
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
 	
 	reportedChambers += dduData[iDDU].header().ncsc();
-	int NChambers = cscData.size();
+	NChambers = cscData.size();
 	int repChambers = dduData[iDDU].header().ncsc();
 	std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
 	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++;}
 	
-	evt++;
-
 	for (int i_chamber=0; i_chamber<NChambers; i_chamber++) {   
 	  
 	  for (int i_layer = 1; i_layer <=6; ++i_layer) {
@@ -127,7 +126,7 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 		std::vector<int> adc = digis[i].getADCCounts();
 		strip = digis[i].getStrip();
 		adcMax[i_chamber][i_layer-1][strip-1]=-99.0; 
-		for(unsigned int k=0;k<adc.size();k++){
+		for(unsigned int k=0; k<adc.size(); k++){
 		  float ped=(adc[0]+adc[1])/2.;
 		  if(adc[k]-ped > adcMax[i_chamber][i_layer-1][strip-1]) {
 		    adcMax[i_chamber][i_layer-1][strip-1]=adc[k]-ped;
@@ -136,8 +135,8 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 		adcMean_max[i_chamber][i_layer-1][strip-1] += adcMax[i_chamber][i_layer-1][strip-1]/20.;  
 		
 		//On the 10th event save
-		if (evt%20 == 0 && (strip-1)%16 == (evt-1)/200){
-		  int ten = int((evt-1)/20)%10 ;
+		if (evt%20 == 0 && (strip-1)%16 == (evt-1)/NUMMODTEN){
+		  int ten = int((evt-1)/20)%NUMBERPLOTTED ;
 		  maxmodten[ten][i_chamber][i_layer-1][strip-1] = adcMean_max[i_chamber][i_layer-1][strip-1];
 		}
 	      }//end digis loop
@@ -154,7 +153,7 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	    }
 	  }
 	}
-	eventNumber++;
+      	eventNumber++;
 	edm::LogInfo ("CSCGainAnalyzer")  << "end of event number " << eventNumber;
       }
     }

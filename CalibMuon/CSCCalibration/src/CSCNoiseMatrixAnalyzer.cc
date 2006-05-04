@@ -33,11 +33,11 @@
 
 CSCNoiseMatrixAnalyzer::CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf) {
   
-  eventNumber=0,evt=0;
+  eventNumber=0,evt=0,NChambers=0;
   strip=0,misMatch=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1;
-  for(int k=0;k<5;k++) cam[k].zero();
+  for(int k=0;k<CHAMBERS;k++) cam[k].zero();
 
   for (int i=0;i<480;i++){
     newMatrix1[i] = 0.0;
@@ -91,7 +91,7 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
 	
 	reportedChambers += dduData[iDDU].header().ncsc();
-	int NChambers = cscData.size();
+	NChambers = cscData.size();
 	int repChambers = dduData[iDDU].header().ncsc();
 	std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
 	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++;}

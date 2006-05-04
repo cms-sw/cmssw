@@ -28,7 +28,7 @@ class CSCPedestalAnalyzer : public edm::EDAnalyzer {
   explicit CSCPedestalAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   
-#define CHAMBERS 5
+#define CHAMBERS 9
 #define LAYERS 6
 #define STRIPS 80
 #define TOTALSTRIPS 480
@@ -182,7 +182,7 @@ class CSCPedestalAnalyzer : public edm::EDAnalyzer {
     TTree calibtree("Calibration","Pedestal");
     calibtree.Branch("EVENT", &calib_evt, "pedMean/F:pedRMS/F:strip/I:layer/I:cham/I");
 
-    for(int myChamber=0; myChamber<CHAMBERS; myChamber++){
+    for(int myChamber=0; myChamber<NChambers; myChamber++){
       meanPedestal = 0.0,meanPeak=0.0,meanPeakSquare=0.;
       meanPedestalSquare = 0.;
       theRMS      =0.0;
@@ -199,7 +199,7 @@ class CSCPedestalAnalyzer : public edm::EDAnalyzer {
       std::string test5="pulse_shape";
       std::string answer;
       
-      for (int i=0; i<CHAMBERS; i++){
+      for (int i=0; i<NChambers; i++){
 	if (myChamber !=i) continue;
 	
 	for (int j=0; j<LAYERS; j++){
@@ -395,10 +395,10 @@ class CSCPedestalAnalyzer : public edm::EDAnalyzer {
       std::cin>>answer;
       if(answer=="y"){
 	//SEND CONSTANTS TO DB
-	cdb->cdb_write(test1,chamber_id,chamber_num,test2,480, newPed,    2, &ret_code);
-	cdb->cdb_write(test1,chamber_id,chamber_num,test3,480, newRMS,    2, &ret_code);
-	cdb->cdb_write(test1,chamber_id,chamber_num,test4,480, newPeakRMS,2, &ret_code);
-	cdb->cdb_write(test1,chamber_id,chamber_num,test5,480, newSumFive,2, &ret_code);
+	cdb->cdb_write(test1,chamber_id,chamber_num,test2,480, newPed,    6, &ret_code);
+	cdb->cdb_write(test1,chamber_id,chamber_num,test3,480, newRMS,    6, &ret_code);
+	cdb->cdb_write(test1,chamber_id,chamber_num,test4,480, newPeakRMS,6, &ret_code);
+	cdb->cdb_write(test1,chamber_id,chamber_num,test5,480, newSumFive,6, &ret_code);
 	
 	std::cout<<" Your results were sent to DB !!! "<<std::endl;
       }else{
@@ -415,7 +415,7 @@ class CSCPedestalAnalyzer : public edm::EDAnalyzer {
   std::vector<int> newadc;
   std::vector<int> adc;
   std::string chamber_id;
-  int eventNumber,evt,pedSum, strip, misMatch,fff,ret_code;
+  int eventNumber,evt,pedSum, strip, misMatch,fff,ret_code,NChambers;
   int length,i_chamber,i_layer,reportedChambers,chamber_num,sector; 
   float ped,pedMean,time,max,max1,aPeak,sumFive;
   float meanPedestal,meanPeak,meanPeakSquare,meanPedestalSquare,theRMS;

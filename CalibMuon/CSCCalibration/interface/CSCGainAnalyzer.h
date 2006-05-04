@@ -24,7 +24,7 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
   explicit CSCGainAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   
-#define CHAMBERS 5
+#define CHAMBERS 9
 #define LAYERS 6
 #define STRIPS 80
 #define NUMBERPLOTTED 10 
@@ -44,14 +44,14 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
    calibtree.Branch("EVENT", &calib_evt, "slope/F:intercept/F:strip/I:layer/I:cham/I");
    
    //create array (480 entries) for database transfer
-   for(int chamberiter=0; chamberiter<CHAMBERS; chamberiter++){
+   for(int chamberiter=0; chamberiter<NChambers; chamberiter++){
      
     float the_gain_sq   = 0.;
     float the_gain      = 0.;
     float the_intercept = 0.; 
     float the_chi2      = 0.;
       
-     for (int cham=0;cham<CHAMBERS;cham++){
+     for (int cham=0;cham<NChambers;cham++){
        if (cham !=chamberiter) continue;
        
        for (int layeriter=0; layeriter<LAYERS; layeriter++){
@@ -70,9 +70,9 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
 	      float gainIntercept = 0.0;
 	      float chi2      = 0.0;
 		
-	       float charge[10]={22.4, 44.8, 67.2, 89.6, 112, 134.4, 156.8, 179.2, 201.6, 224.0};
+	      float charge[NUMBERPLOTTED]={22.4, 44.8, 67.2, 89.6, 112, 134.4, 156.8, 179.2, 201.6, 224.0};// 246.4, 268.8, 291.2, 313.6, 336.0, 358.4, 380.8, 403.2, 425.6, 448}
 	       
-	       for(int ii=0; ii<10; ii++){//numbers    
+	       for(int ii=0; ii<NUMBERPLOTTED; ii++){//numbers    
 		 sumOfX  += charge[ii];
 		 sumOfY  += maxmodten[ii][cham][j][k];
 		 sumOfXY += (charge[ii]*maxmodten[ii][cham][j][k]);
@@ -81,11 +81,11 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
 	       }
 	       
 	       //Fit parameters
-	       gainSlope     = ((10.*sumOfXY) - (sumOfX * sumOfY))/((10.*sumx2) - (sumOfX*sumOfX));//k
-	       gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((10.*sumx2)-(sumOfX*sumOfX));//m
+	       gainSlope     = ((NUMBERPLOTTED*sumOfXY) - (sumOfX * sumOfY))/((NUMBERPLOTTED*sumx2) - (sumOfX*sumOfX));//k
+	       gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((NUMBERPLOTTED*sumx2)-(sumOfX*sumOfX));//m
 	       
-	       for(int ii=0; ii<10; ii++){
-		 chi2  += (maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))*(maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))/100.;
+	       for(int ii=0; ii<NUMBERPLOTTED; ii++){
+		 chi2  += (maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))*(maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))/(NUMBERPLOTTED*NUMBERPLOTTED);
 	       }
 	       
 	       arrayOfGain[cham][j][k]            = gainSlope;
@@ -137,9 +137,9 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
        std::cin>>answer;
        if(answer=="y"){
 	 //SEND CONSTANTS TO DB
-	 cdb->cdb_write(test1,chamber_id,chamber_num,test2,480, newGain,     3, &ret_code);
-	 cdb->cdb_write(test1,chamber_id,chamber_num,test3,480, newIntercept,3, &ret_code);
-	 cdb->cdb_write(test1,chamber_id,chamber_num,test4,480, newChi2,     3, &ret_code);
+	 cdb->cdb_write(test1,chamber_id,chamber_num,test2,480, newGain,     6, &ret_code);
+	 cdb->cdb_write(test1,chamber_id,chamber_num,test3,480, newIntercept,6, &ret_code);
+	 cdb->cdb_write(test1,chamber_id,chamber_num,test4,480, newChi2,     6, &ret_code);
 	 
 	 std::cout<<" Data SENT to DB! "   <<std::endl;
        }else{
@@ -156,7 +156,7 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
  std::vector<int> newadc; 
  std::string chamber_id;
  int eventNumber,evt,chamber_num,sector,i_chamber,i_layer,reportedChambers;
- int fff,ret_code,length,strip,misMatch;
+ int fff,ret_code,length,strip,misMatch,NChambers;
  int dmbID[CHAMBERS],crateID[CHAMBERS]; 
  float gainSlope,gainIntercept;
  float adcMax[CHAMBERS][LAYERS][STRIPS];
