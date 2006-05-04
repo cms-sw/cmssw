@@ -108,6 +108,43 @@ CaloNavigationAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup
 	   }
 	 theEENav.home();
        }
+       {
+	 std::cout << "Testing Ecal Preshower Navigator" << std::endl;
+	 ESDetId startES(1,16,1,1,1);
+	 std::cout << "Starting at : " << startES << std::endl;
+	 EcalPreshowerNavigator theESNav(startES,theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalPreshower));
+	 theESNav.setHome(startES);
+	 
+	 ESDetId next;
+	 int steps=0;
+	 while (((next=theESNav.north())!=ESDetId(0) && next!=startES))
+	   {
+	     std::cout << "North " << steps << " : " << next << std::endl;
+	     ++steps;
+	   }
+	 theESNav.home();
+	 steps=0;
+	 while (((next=theESNav.south())!=ESDetId(0) && next!=startES))
+	   {
+	     std::cout << "South " << steps << " : "<< next << std::endl;
+	     ++steps;
+	   }
+	 theESNav.home();
+	 steps=0;
+	 while (((next=theESNav.west())!=ESDetId(0) && next!=startES))
+	   {
+	     std::cout << "West " << steps << " : "<< next << std::endl;
+	     ++steps;
+	   }
+	 theESNav.home();
+	 steps=0;
+	 while (((next=theESNav.east())!=ESDetId(0) && next!=startES))
+	   {
+	     std::cout << "East " << steps << " : " << next << std::endl;
+	     ++steps;
+	   }
+	 theESNav.home();
+       }
      }
    
    pass_++;
