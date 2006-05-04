@@ -114,6 +114,8 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
   dohmAuxT            = nArgs["DOHMAUXThickness"];
   dohmAuxMaterial     = sArgs["DOHMAUXMaterial"];
   dohmList            = vArgs["DOHMList"];
+  dohmRotPlus         = sArgs["DOHMRotstrPlus"];
+  dohmRotMinus        = sArgs["DOHMRotstrMinus"];
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo debug: DOHM PRIMary " << dohmN
 			  << " Material " << dohmPrimMaterial << " Width "
 			  << dohmPrimW << " Length " << dohmPrimL 
@@ -138,6 +140,9 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
   for (unsigned int i=0; i<dohmList.size(); i++) {
     if ((int)dohmList[i]==0) LogDebug("TrackerGeom") << "Position " << i+1;
   }
+  LogDebug("TrackerGeom") << "DDTIBLayerAlgo debug: DOHM placed in TIB+ with "
+			  << "rotation " << dohmRotPlus << " and in TIB- with"
+			  << " rotation " << dohmRotMinus;
   
 }
 
@@ -539,49 +544,53 @@ void DDTIBLayerAlgo::execute() {
 			  << DDName(name, idNameSpace) << " Box made of " 
 			  << dohmCableMaterial << " of dimensions " << dx_cable
 			  << ", " << dy_cable << ", " << dz_cable;
+  
+  DDRotation rotation_r, rotation_l;
+  string rotstr = DDSplit(dohmRotPlus).first;
+  if (rotstr != "NULL")
+    rotation_r = DDRotation(DDName(rotstr, DDSplit(dohmRotPlus).second));
+  rotstr = DDSplit(dohmRotMinus).first;
+  if (rotstr != "NULL")
+    rotation_l = DDRotation(DDName(rotstr, DDSplit(dohmRotMinus).second));
+  
   // TIB+ DOHM
   DDTranslation tran(rout_dohm+0.5*dohmPrimT, 0. , 0.);
-  DDpos (dohmPrim, dohmCarrierPrim_lo_r, 1, tran, DDRotation() );
+  DDpos (dohmPrim, dohmCarrierPrim_lo_r, 1, tran, rotation_r);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmPrim.name()
 			  << " z+ number " << 1	<< " positioned in " 
 			  << dohmCarrierPrim_lo_r.name() << " at " << tran
-			  << " with no rotation";
+			  << " with " << rotation_r;
   tran = DDTranslation(rout_dohm+dx_cable, 0.5*dohmPrimW , 0.);
-  DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 1, tran, DDRotation() );
+  DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 1, tran, rotation_r);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
 			  << " copy number 1 positioned in " 
 			  << dohmCarrierPrim_lo_r.name() << " at " << tran 
-			  << " with no rotation";
+			  << " with " << rotation_r;
   tran = DDTranslation(rout_dohm+dx_cable, -0.5*dohmPrimW , 0.);
-  DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 2, tran, DDRotation() );
+  DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 2, tran, rotation_r);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
 			  << " copy number 2 positioned in " 
 			  << dohmCarrierPrim_lo_r.name() << " at " << tran 
-			  << " with no rotation";
+			  << " with " << rotation_r;
   // TIB- DOHM
   tran = DDTranslation(rout_dohm+0.5*dohmPrimT, 0. , 0.);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: Creating a new rotation: "
-			  << "\t90., 0., 90., 270., 180., 0.";
-  string rotstr = "D180";
-  DDRotation rotation_l = DDrot(DDName(rotstr, idNameSpace), 90.*deg, 0., 
-				90.*deg, 270.*deg, 180.*deg, 0.);
-  DDpos (dohmPrim, dohmCarrierPrim_lo_l, 1, tran, rotation_l );
+  DDpos (dohmPrim, dohmCarrierPrim_lo_l, 1, tran, rotation_l);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmPrim.name() 
 			  << " z+ number 1 positioned in " 
 			  << dohmCarrierPrim_lo_l.name() << " at " << tran 
-			  << " with rotation " << rotation_l;
+			  << " with " << rotation_l;
   tran = DDTranslation(rout_dohm+dx_cable, 0.5*dohmPrimW , 0.);
-  DDpos (dohmCablePrim, dohmCarrierPrim_lo_l, 1, tran, rotation_l );
+  DDpos (dohmCablePrim, dohmCarrierPrim_lo_l, 1, tran, rotation_l);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
 			  << " copy number 1 positioned in " 
 			  << dohmCarrierPrim_lo_l.name() << " at " << tran 
-			  << " with rotation " << rotation_l;
+			  << " with " << rotation_l;
   tran = DDTranslation(rout_dohm+dx_cable, -0.5*dohmPrimW , 0.);
-  DDpos (dohmCablePrim, dohmCarrierPrim_lo_l, 2, tran, rotation_l );
+  DDpos (dohmCablePrim, dohmCarrierPrim_lo_l, 2, tran, rotation_l);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
 			  << " copy number 2 positioned in " 
 			  << dohmCarrierPrim_lo_l.name() << " at " << tran
-			  << " with rotation " << rotation_l;
+			  << " with " << rotation_l;
   
   // DOHM PRIMary + AUXiliary
   dx = 0.5*dohmPrimT;
@@ -627,75 +636,65 @@ void DDTIBLayerAlgo::execute() {
 			  << ", " << dy_cable << ", " << dz_cable;
   // TIB+ DOHM
   tran = DDTranslation(rout_dohm+0.5*dohmPrimT, -0.75*dohmPrimW , 0.);
-  DDpos (dohmPrim, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
+  DDpos (dohmPrim, dohmCarrierPrimAux_lo_r, 1, tran, rotation_r);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmAux.name() 
 			  << " z+ number 1 positioned in " 
 			  << dohmCarrierPrimAux_lo_r.name() << " at " << tran 
-			  << " with no rotation";
+			  << " with " << rotation_r;
   tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrimW+0.5*dohmPrimW , 0.);
-  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
+  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 1, tran, rotation_r);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
 			  << " copy number 1 positioned in " 
 			  << dohmCarrierPrimAux_lo_r.name() << " at " << tran 
-			  << " with no rotation";
+			  << " with " << rotation_r;
   tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrimW-0.5*dohmPrimW , 0.);
-  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 2, tran, DDRotation() );
+  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 2, tran, rotation_r);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
 			  << " copy number 2 positioned in " 
 			  << dohmCarrierPrimAux_lo_r.name() << " at " << tran 
-			  << " with no rotation";
+			  << " with " << rotation_r;
   tran = DDTranslation(rout_dohm+0.5*dohmAuxT, 0.75*dohmAuxW , 0.);
-  DDpos (dohmAux, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
+  DDpos (dohmAux, dohmCarrierPrimAux_lo_r, 1, tran, rotation_r);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmAux.name() 
 			  << " z+ number 1 positioned in " 
 			  << dohmCarrierPrimAux_lo_r.name()
-			  << " at (0,0,0) with no rotation";
+			  << " at " << tran << " with " << rotation_r;
   tran = DDTranslation(rout_dohm+dx_cable, 0.75*dohmAuxW+0.5*dohmPrimW , 0.);
-  DDpos (dohmCableAux, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
+  DDpos (dohmCableAux, dohmCarrierPrimAux_lo_r, 1, tran, rotation_r);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCableAux.name()
 			  << " copy number 1 positioned in " 
 			  << dohmCarrierPrimAux_lo_r.name() << " at " << tran
-			  << " with no rotation";
-  // TIB- DOHM
+			  << " with " << rotation_r;
+   // TIB- DOHM
   tran = DDTranslation(rout_dohm+0.5*dohmPrimT, 0.75*dohmPrimW , 0.);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: Creating a new rotation: " 
-			  << "\t90., 0., 90., 270., 180., 0.";
-  rotstr = "D180";
-  rotation_l = DDrot(DDName(rotstr, idNameSpace), 90.*deg, 0., 
-		     90.*deg, 270.*deg, 180.*deg, 0.);
-  DDpos (dohmPrim, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l );
+  DDpos (dohmPrim, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmPrim.name() 
 			  << " z+ number 1 positioned in " 
 			  << dohmCarrierPrimAux_lo_l.name() << " at "<< tran
-			  << " with rotation " << rotation_l;
+			  << " with " << rotation_l;
   tran = DDTranslation(rout_dohm+dx_cable, 0.75*dohmPrimW+0.5*dohmPrimW , 0.);
-  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l );
+  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
 			  << " copy number 1 positioned in " 
 			  << dohmCarrierPrimAux_lo_l.name() << " at " << tran 
-			  << " with rotation " << rotation_l;
+			  << " with " << rotation_l;
   tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrim+0.5*dohmPrimW , 0.);
-  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_l, 2, tran, rotation_l );
+  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_l, 2, tran, rotation_l);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
 			  << " copy number 2 positioned in " 
 			  << dohmCarrierPrimAux_lo_l.name() << " at " << tran 
-			  << " with rotation " << rotation_l;
+			  << " with " << rotation_l;
   tran = DDTranslation(rout_dohm+0.5*dohmAuxT, -0.75*dohmAuxW , 0.);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: Creating a new rotation: " 
-			  << "\t90., 0., 90., 270., 180., 0.";
-  rotstr = "D180";
-  rotation_l = DDrot(DDName(rotstr, idNameSpace), 90.*deg, 0., 
-		     90.*deg, 270.*deg, 180.*deg, 0.);
-  DDpos (dohmAux, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l );
+  DDpos (dohmAux, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmAux.name() 
 			  << " z+ number " << 1	<< " positioned in "
 			  << dohmCarrierPrimAux_lo_l.name()
-			  << " at " << tran << " with rotation " << rotation_l;
+			  << " at " << tran << " with " << rotation_l;
   tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmAuxW-0.5*dohmPrimW , 0.);
-  DDpos (dohmCableAux, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l );
+  DDpos (dohmCableAux, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l);
   LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCableAux.name()
 			  << " copy number 1 positioned in " 
 			  << dohmCarrierPrimAux_lo_l.name() << " at " << tran
-			  << " with rotation " << rotation_l;
+			  << " with " << rotation_l;
   
 }
