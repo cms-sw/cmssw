@@ -1,0 +1,7 @@
+<flags SEAL_PLUGIN_NAME="EventFilterMessage2log4cplus">
+<export>
+<lib name=EventFilterMessage2log4cplus>
+</export>
+<use name=xdaq>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/MessageService>
