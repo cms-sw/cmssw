@@ -42,11 +42,11 @@ namespace cms
     edm::ParameterSet conf_;
     SiPixelDigitizerAlgorithm  _pixeldigialgo;
     std::vector<PSimHit> thePixelHits;
-    std::vector<PixelDigi> collector;
+    //  std::vector<PixelDigi> collector;
     typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
     typedef simhit_map::iterator simhit_map_iterator;
     simhit_map SimHitMap;
-    std::vector<PixelDigiSimLink> linkcollector;
+    //   std::vector<PixelDigiSimLink> linkcollector;
   };
 }
 

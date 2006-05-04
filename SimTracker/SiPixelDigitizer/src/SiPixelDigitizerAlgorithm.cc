@@ -135,9 +135,9 @@ SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm(){
 
 }
 
-vector<PixelDigi>  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
-						  PixelGeomDetUnit *pixdet,
-						  GlobalVector bfield)
+edm::DetSet<PixelDigi>::collection_type SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
+								       PixelGeomDetUnit *pixdet,
+								       GlobalVector bfield)
 {
 
 
@@ -166,9 +166,8 @@ vector<PixelDigi>  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &in
 
  //Digitization of the SimHits of a given pixdet
   vector<PixelDigi> collector =digitize(pixdet);
-
-
-    LogDebug ("PixelDigitizer") << "[SiPixelDigitizerAlgorithm] converted " << collector.size() << " PixelDigis in DetUnit" << detID; 
+  // edm::DetSet<PixelDigi> collector;
+  LogDebug ("PixelDigitizer") << "[SiPixelDigitizerAlgorithm] converted " << collector.size() << " PixelDigis in DetUnit" << detID; 
 
    return collector;
 }

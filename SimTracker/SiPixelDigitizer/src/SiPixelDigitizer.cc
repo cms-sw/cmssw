@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.15 2006/03/21 13:47:13 pioppi Exp $
+// $Id: SiPixelDigitizer.cc,v 1.16 2006/03/22 10:31:45 pioppi Exp $
 //
 //
 
@@ -29,10 +29,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
-
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
@@ -81,9 +79,9 @@ namespace cms
     _pixeldigialgo(iConfig) 
   {
     edm::LogInfo ("PixelDigitizer ") <<"Enter the Pixel Digitizer";
-    produces<PixelDigiCollection>();
-    produces<PixelDigiSimLinkCollection>();
-
+    
+    produces<edm::DetSetVector<PixelDigi> >();
+    produces<edm::DetSetVector<PixelDigiSimLink> >();
   }
 
   
@@ -102,7 +100,7 @@ namespace cms
     // Step A: Get Inputs
     thePixelHits.clear();
 
-
+    cout<<"EVENTO "<<iEvent.id()<<endl;
     edm::Handle<edm::PSimHitContainer> PixelBarrelHitsLowTof;
     edm::Handle<edm::PSimHitContainer> PixelBarrelHitsHighTof;
     edm::Handle<edm::PSimHitContainer> PixelEndcapHitsLowTof;
@@ -118,10 +116,11 @@ namespace cms
     thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsLowTof->begin(), PixelEndcapHitsLowTof->end()); 
     thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsHighTof->begin(), PixelEndcapHitsHighTof->end());
     // Step B: create empty output collection
-    std::auto_ptr<PixelDigiCollection> output(new PixelDigiCollection);       
-
-    std::auto_ptr<PixelDigiSimLinkCollection> outputlink(new PixelDigiSimLinkCollection);
  
+    std::auto_ptr<edm::DetSetVector<PixelDigi> > output(new edm::DetSetVector<PixelDigi> );
+    std::auto_ptr<edm::DetSetVector<PixelDigiSimLink> > outputlink(new edm::DetSetVector<PixelDigiSimLink> );
+ 
+
     edm::ESHandle<TrackerGeometry> pDD;
     
     iSetup.get<TrackerDigiGeometryRecord> ().get(pDD);
@@ -143,7 +142,7 @@ namespace cms
 
     // Step C: LOOP on PixelGeomDetUnit //
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
-       DetId idet=DetId((*iu)->geographicalId().rawId());
+      DetId idet=DetId((*iu)->geographicalId().rawId());
        unsigned int isub=idet.subdetId();
        
        
@@ -156,36 +155,31 @@ namespace cms
 				     << pSetup->inTesla((*iu)->surface().position());
 	//
 
-	collector.clear();
-	linkcollector.clear();
+	edm::DetSet<PixelDigi> collector((*iu)->geographicalId().rawId());
+	edm::DetSet<PixelDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
+	
+	
+ 	collector.data=
+ 	  _pixeldigialgo.run(SimHitMap[(*iu)->geographicalId().rawId()],
+ 			     dynamic_cast<PixelGeomDetUnit*>((*iu)),
+ 			     bfield);
+	if (collector.data.size()>0){
+	  output->insert(collector);
 
-	collector= _pixeldigialgo.run(SimHitMap[(*iu)->geographicalId().rawId()],
-				      dynamic_cast<PixelGeomDetUnit*>((*iu)),
-				      bfield);
-	if (collector.size()>0){
-
-	  PixelDigiCollection::Range outputRange;	  
-	  outputRange.first = collector.begin();
-	  outputRange.second = collector.end();
-	  output->put(outputRange,(*iu)->geographicalId().rawId());
-	  
 	  //digisimlink
 	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
-	    PixelDigiSimLinkCollection::Range outputlinkRange;
-	    linkcollector=_pixeldigialgo.make_link();
-	    outputlinkRange.first = linkcollector.begin();
-	    outputlinkRange.second = linkcollector.end();
-	    outputlink->put(outputlinkRange,(*iu)->geographicalId().rawId());
-	  }
-
+	    linkcollector.data=_pixeldigialgo.make_link();
+	    if (linkcollector.data.size()>0) outputlink->insert(linkcollector);
+       	  }
+	
 	}
       }
 
     }
 
-    // Step D: write output to file
-    iEvent.put(outputlink);
+    // Step D: write output to file 
     iEvent.put(output);
+    iEvent.put(outputlink);
   }
 }
 

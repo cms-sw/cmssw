@@ -22,7 +22,7 @@
 #include "Geometry/Surface/interface/GloballyPositioned.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
-
+#include "DataFormats/Common/interface/DetSetVector.h"
 class SiPixelDigitizerAlgorithm 
 {
  public:
@@ -31,7 +31,7 @@ class SiPixelDigitizerAlgorithm
   ~SiPixelDigitizerAlgorithm();
   
   //run the algorithm to digitize a single det
-  std::vector<PixelDigi>   run(const std::vector<PSimHit> &input,PixelGeomDetUnit *pixdet,GlobalVector);
+  edm::DetSet<PixelDigi>::collection_type  run(const std::vector<PSimHit> &input,PixelGeomDetUnit *pixdet,GlobalVector);
 
 
  private:
@@ -259,7 +259,7 @@ class SiPixelDigitizerAlgorithm
   float missCalibrate(float amp) const;  
   LocalVector DriftDirection();
  public:
-  std::vector<PixelDigiSimLink>  make_link(){
+  std::vector<PixelDigiSimLink> make_link(){
     return link_coll;}
 };
 
