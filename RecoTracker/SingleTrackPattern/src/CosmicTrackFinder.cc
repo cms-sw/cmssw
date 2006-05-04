@@ -70,7 +70,6 @@ namespace cms
     // Step C: Invoke the cloud cleaning algorithm
     vector<AlgoProduct> algooutput;
     edm::OrphanHandle<reco::TrackExtraCollection> ohTE;
-
     if ((*seed).size()>0){
       cosmicTrajectoryBuilder_.run(*seed,
 				   *stereorecHits,

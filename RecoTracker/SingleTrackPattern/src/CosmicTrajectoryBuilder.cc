@@ -24,6 +24,8 @@ CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) 
   theMinHits=conf_.getParameter<int>("MinHits");
   //cut on chi2
   chi2cut=conf_.getParameter<double>("Chi2Cut");
+  crossVecCut=conf_.getUntrackedParameter<double>("CrossVecCut",0.1);  
+
 }
 
 
@@ -72,18 +74,18 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 
   hits.clear();
   trajFit.clear();
- 
+  
   //order all the hits
   vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collpixel,collseed);
   
   
   std::vector<Trajectory> trajSmooth;
   std::vector<Trajectory>::iterator trajIter;
-
+  
   
   TrajectorySeedCollection::const_iterator iseed;
   for(iseed=collseed.begin();iseed!=collseed.end();iseed++){
- 
+    
     Trajectory startingTraj = createStartingTrajectory(*iseed);
     AddHit(startingTraj,allHits);
   
@@ -246,13 +248,13 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
     meas=theLayerMeasurements->measurements(*(bl[indexlayer]),currentState, 
 					    *thePropagator, 
 					    *theEstimator);
-    
+
     if (meas.size()>0){
       
   
       int hitsbef=traj.foundHits();
       TransientTrackingRecHit* tmphit=RHBuilder->build(Hits[icosmhit]);
-      
+
       updateTrajectory( traj, *(meas.begin()),*tmphit);
       int hitsaft=traj.foundHits();
       if (hitsaft>hitsbef){
@@ -284,10 +286,17 @@ void CosmicTrajectoryBuilder::updateTrajectory( Trajectory& traj,
   TSOS prSt= thePropagator->propagate(predictedState,
 				      hit.det()->surface());
   
-  
+
   if (prSt.isValid()){
-    traj.push( TM( predictedState, theUpdator->update( predictedState, hit),
-		   &hit, tm.estimate()));  
+    float CrossVec=prSt.globalMomentum().cross(predictedState.globalMomentum()).mag();
+
+    if (CrossVec<0.1){
+
+      
+     traj.push( TM( predictedState, theUpdator->update( predictedState, hit),
+		    &hit, tm.estimate()));  
+
+    }
   }
 }
 
