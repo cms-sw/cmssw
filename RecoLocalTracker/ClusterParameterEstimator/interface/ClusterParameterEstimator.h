@@ -11,7 +11,7 @@ template <class T> class ClusterParameterEstimator {
  public:
    typedef std::pair<LocalPoint,LocalError>  LocalValues; 
    virtual LocalValues localParameters( const T&,const GeomDetUnit&) const = 0; 
-   virtual LocalValues localParameters( const T& cluster, const GeomDetUnit& gd, const LocalTrajectoryParameters & ltp) {
+   virtual LocalValues localParameters( const T& cluster, const GeomDetUnit& gd, const LocalTrajectoryParameters & ltp) const {
      return localParameters(cluster,gd);
    } 
 
