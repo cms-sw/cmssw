@@ -170,7 +170,7 @@ void L1GctJetFinder::fetchInput()
     }
 }
 
-void L1GctJetFinder::setInputSourceCard(unsigned i, L1GctSourceCard* sc)
+void L1GctJetFinder::setInputSourceCard(int i, L1GctSourceCard* sc)
 {
     assert(i >= 0 && i < maxSourceCards);
     m_sourceCards[i] = sc;
