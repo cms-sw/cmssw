@@ -4,7 +4,7 @@
 \page DataFormats_MuonDetId Package DataFormats/MuonDetId
 <center>
 <small>
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/MuonDetId/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/MuonDetId/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>CVS</a> - 
 <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/MuonDetId/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
@@ -41,5 +41,5 @@ Completed, stable.
 
 <hr>
 Last updated:
-07-JAN-2006 N. Amapane
+@DATE@ N. Amapane
 */
