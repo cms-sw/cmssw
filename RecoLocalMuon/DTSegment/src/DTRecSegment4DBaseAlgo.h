@@ -5,8 +5,8 @@
  *
  * Abstract algo class to reconstruct 4D-segments in chamber given a set of 2D-segment
  *
- * $Date: 2006/04/21 14:25:38 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/26 14:15:32 $
+ * $Revision: 1.3 $
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
 
@@ -51,6 +51,7 @@ class DTRecSegment4DBaseAlgo{
   virtual void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits) = 0;
   virtual void setDTRecSegment2DContainer(edm::Handle<DTRecSegment2DCollection> all2DSegments) = 0;
   virtual void setChamber(const DTChamberId &chId) = 0;
+  virtual bool wants2DSegments() = 0;
    
  protected:
 
