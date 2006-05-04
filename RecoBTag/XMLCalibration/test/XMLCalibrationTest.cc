@@ -21,6 +21,11 @@
  using namespace std;
 class TestCategory;
 
+///This is an example of how to use the AlgorithmCalibration stuff
+// to read the calibrated objects from a .xml file
+
+
+
 class XMLCalibrationTest : public edm::EDAnalyzer {
    public:
       explicit XMLCalibrationTest( const edm::ParameterSet& );
@@ -33,6 +38,12 @@ class XMLCalibrationTest : public edm::EDAnalyzer {
     AlgorithmCalibration<TestCategory,CalibratedHistogram> * m_calib;
 };
 
+
+//This class define calibration  "category" in this example 
+//the category is simply a range of float: i.e. the category match if
+//the calibrationInput (which is a float in that case) is min<= input < max
+//In the example .xml files I put two categories one with range 0..2.5 the other with
+// rang 2.5...5  
 class TestCategory : public CalibrationCategory<float>
 {
 public:
@@ -79,7 +90,15 @@ void
 XMLCalibrationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
    using namespace edm;
+ //ask the algorithm the calibrated object for an input value
+ // of 1.2
+ // this will search for the matching category and return the associated calibrated
+ // object.
+
+
  const CalibratedHistogram * histo = m_calib->fetch(1.2);
+
+
  cout << "Pointer of the histogram: " << histo << endl;
  cout << histo->value(2);
  cout << " " <<  histo->integral(2) << endl;
