@@ -15,8 +15,8 @@ using namespace std;
 
 
 L1GctSourceCard::L1GctSourceCard(SourceCardType typeVal, L1RCTCrate* rc):
-  m_cardType(typeVal),
-  m_rctCrate(rc)
+    m_rctCrate(rc),
+    m_cardType(typeVal)
 {
     this->setVectorSizes();
 }

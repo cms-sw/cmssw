@@ -69,7 +69,7 @@ public:
     virtual void process();
 
     /// set an input Source Card pointer 
-    void setInputSourceCard(unsigned i, L1GctSourceCard* sc);
+    void setInputSourceCard(int i, L1GctSourceCard* sc);
 
     /// Set input data
     void setInputRegion(int i, L1GctRegion region);

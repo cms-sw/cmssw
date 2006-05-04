@@ -5,10 +5,10 @@
 using namespace std;
 
 L1GctJetFinder::L1GctJetFinder(EtaHalf etaHalf):
+m_etaHalf(etaHalf),
 m_sourceCards(maxSourceCards),
 m_inputRegions(maxRegionsIn),
-m_outputJets(maxJets),
-m_etaHalf(etaHalf)
+m_outputJets(maxJets)
 {
 }
 
@@ -325,8 +325,8 @@ bool L1GctJetFinder::calcJetTauVeto(const UShort centreIndex, const bool boundar
 // into 6 by dividing the energy int by 16 (no rounding up).
 ULong L1GctJetFinder::convertToRank(const ULong energy) const
 {
-    const UShort energyBitSize = 10;
-    const UShort rankBitSize = 6;
+//    const UShort energyBitSize = 10;
+//    const UShort rankBitSize = 6;
     const ULong maxEnergy = 0x400; //static_cast<ULong>(pow(2,energyBitSize));
 
     if(energy < maxEnergy)
