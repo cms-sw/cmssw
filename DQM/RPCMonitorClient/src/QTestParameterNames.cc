@@ -2,7 +2,7 @@
  *
  *  Implementation of QTestParameterNames 
  *
- *  $Date: 2006/04/07 12:07:07 $
+ *  $Date: 2006/04/24 10:00:17 $
  *  $Revision: 1.1 $
  *  \author Ilaria Segoni
  */
@@ -10,15 +10,16 @@
 #include<iostream>
 
 #include "DQM/RPCMonitorClient/interface/QTestParameterNames.h"
-#include "DQM/RPCMonitorClient/interface/DQMQualityTestsConfiguration.h"
+#include "DQM/RPCMonitorClient/interface/QTestNames.h"
+#include "DQM/RPCMonitorClient/interface/QTestDefineDebug.h"
 
 QTestParameterNames::QTestParameterNames(){
 	
-	this->constructMap(dqm::qtest_config::XRangeContent, "error", "warning", "xmin", "xmax");
-	this->constructMap(dqm::qtest_config::YRangeContent, "error", "warning", "ymin", "ymax");
+	this->constructMap(dqm::qtest_config::XRangeContent, "xmin", "xmax");
+	this->constructMap(dqm::qtest_config::YRangeContent, "ymin", "ymax");
 	this->constructMap(dqm::qtest_config::DeadChannel,   "threshold");
 	this->constructMap(dqm::qtest_config::NoisyChannel,  "tolerance", "neighbours");
-	this->constructMap(dqm::qtest_config::MeanInExpectedValue, "error","warning","mean","useRMS","useSigma","useRange","xmin","xmax");
+	this->constructMap(dqm::qtest_config::MeanInExpectedValue, "mean","useRMS","useSigma","useRange","xmin","xmax");
 
 }
   
@@ -41,11 +42,13 @@ void QTestParameterNames::constructMap(std::string testType, std::string param1,
  	
 	configurationMap[testType]=paramNames;
 	
+	#ifdef QT_MANAGING_DEBUG
 	std::cout<<"For test: "<<testType<<" the parameters are: "<<std::endl;
 	for(std::vector<std::string>::iterator itr= paramNames.begin();itr!= paramNames.end(); ++ itr){
 		std::cout<<" "<<*itr<<" ";
 	}
-		std::cout<<std::endl;
+	std::cout<<std::endl;
+	#endif
 
 }
 
