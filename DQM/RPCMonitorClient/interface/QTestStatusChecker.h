@@ -3,12 +3,12 @@
 
 /** \class  QTestStatusChecker
  * *
- *  Class that check the staus of Quality tests (needs a pointer to the
- *  MonitorUserInterface)
+ *  Class that checks the staus of Quality tests (takes a pointer to the
+ *  MonitorUserInterface) and fills string maps containing the alarms
  *
  * 
- *  $Date: 2006/04/05 15:44:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/24 09:50:09 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
   */
 
@@ -16,7 +16,6 @@
 #include<map>
 #include<string>
 #include<vector>
-#include <fstream>
 
 class QTestStatusChecker{
  public:
@@ -28,6 +27,7 @@ class QTestStatusChecker{
 	std::pair<std::string,std::string> checkGlobalStatus(MonitorUserInterface * mui); 		 
 	/// Check status of quality tests for individual ME's
 	std::map< std::string, std::vector<std::string> > checkDetailedStatus(MonitorUserInterface * mui);
+ 
  private:
 
   /// Searches ME's with tests running in all the directories
@@ -37,10 +37,10 @@ class QTestStatusChecker{
   /// void ProcessAlarms(MonitorElement &)
   void processAlarms(std::vector<std::string> meNames, std::string dirName, MonitorUserInterface * mui);
  
+ private:
  
   std::map< std::string, std::vector<std::string> > detailedWarnings;
   
-  std::ofstream logFile;  
 
 };
 

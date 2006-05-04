@@ -3,12 +3,12 @@
 
 /** \class QTestEnabler
  * *
- *  Class thatattaches the quality tests to the monitoring Elements.
- *  It also subscribes to the ME's
+ *  Class that attaches the quality tests to the monitoring Elements.
+ *  It also subscribes to the ME's that have Quality Tests attached
  *
  * 
- *  $Date: 2006/04/05 15:44:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/24 09:54:22 $
+ *  $Revision: 1.3 $
  *  \author Ilaria Segoni
   */
 
@@ -17,14 +17,13 @@
 #include<map>
 #include<vector>
 #include<iostream>
-#include <fstream>
 
 class QTestEnabler{
 
  public:
  
   ///Constructor
-  QTestEnabler(){logFile.open("QTEnabler.log");}
+  QTestEnabler(){}
   ///Destructor
   ~QTestEnabler(){}
   ///Attaches the Tests to the Monitoring element
@@ -32,8 +31,6 @@ class QTestEnabler{
  
  private:
  
-  std::ofstream logFile;  
-
 };
 
 
