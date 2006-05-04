@@ -8,9 +8,11 @@
 <use name=DataFormats/Common>
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/CommonDetUnit>
+<use name=TrackingTools/Records>
 
 <export>
 <lib name=TrackingToolsTransientTrackingRecHit>
   <use name=FWCore/Framework>
 </export>
 
+<flags SEAL_PLUGIN_NAME="TrackingToolsTransientTrackingRecHit">
