@@ -1,8 +1,8 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2006/04/26 14:15:32 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/04/28 15:21:52 $
+ *  $Revision: 1.4 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -61,8 +61,9 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
   event.getByLabel(theRecHits1DLabel,"DT1DRecHits",all1DHits);
   
   // Get the 2D rechits from the event
-  Handle<DTRecSegment2DCollection> all2DSegments; 
-  event.getByLabel(theRecHits2DLabel, all2DSegments);
+  Handle<DTRecSegment2DCollection> all2DSegments;
+  if(the4DAlgo->wants2DSegments())
+    event.getByLabel(theRecHits2DLabel, all2DSegments);
 
   // Create the pointer to the collection which will store the rechits
   auto_ptr<DTRecSegment4DCollection> segments4DCollection(new DTRecSegment4DCollection());
@@ -75,22 +76,25 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
   the4DAlgo->setES(setup);
 
   // Iterate over all hit collections ordered by SuperLayerId
-  DTRecSegment2DCollection::id_iterator dtSuperLayerIt;
+  //  DTRecSegment2DCollection::id_iterator dtSuperLayerIt;
+  DTRecHitCollection::id_iterator dtLayerIt;
+
   DTChamberId oldChId;
 
-  for (dtSuperLayerIt = all2DSegments->id_begin(); dtSuperLayerIt != all2DSegments->id_end(); ++dtSuperLayerIt){
+  //  for (dtSuperLayerIt = all2DSegments->id_begin(); dtSuperLayerIt != all2DSegments->id_end(); ++dtSuperLayerIt){
+  for (dtLayerIt = all1DHits->id_begin(); dtLayerIt != all1DHits->id_end(); ++dtLayerIt){
 
     // The superLayerId
-    DTSuperLayerId superLayerId = (*dtSuperLayerIt);
+    // DTSuperLayerId superLayerId = (*dtSuperLayerIt);
 
     // Check the DTChamberId
-    const DTChamberId chId = superLayerId.chamberId();
+    const DTChamberId chId = (*dtLayerIt).chamberId();
     if (chId==oldChId) continue; // I'm on the same Chamber as before
     oldChId = chId;
     if(debug) cout << "ChamberId: "<< chId << endl;
     the4DAlgo->setChamber(chId);
 
-    cout<<"Take the DTRecHits1D in the Phi-SLs and set them in the reconstructor"<<endl;
+    cout<<"Take the DTRecHits1D and set them in the reconstructor"<<endl;
 
     the4DAlgo->setDTRecHit1DContainer(all1DHits);
 
