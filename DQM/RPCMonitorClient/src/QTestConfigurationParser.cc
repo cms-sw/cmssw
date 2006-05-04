@@ -1,19 +1,20 @@
-#include "DQM/RPCMonitorClient/interface/DQMQualityTestsConfiguration.h"
 #include "DQM/RPCMonitorClient/interface/QTestConfigurationParser.h"
+#include "DQM/RPCMonitorClient/interface/QTestNames.h"
 #include "DQM/RPCMonitorClient/interface/QTestParameterNames.h"
-          
+#include "DQM/RPCMonitorClient/interface/QTestDefineDebug.h"
+#include "DQM/RPCMonitorClient/interface/ParserFunctions.h"
+
+#include <stdexcept>         
+/** \file
+ *
+ *  Implementation of QTestConfigurationParser
+ *
+ *  $Date: 2006/04/24 10:04:31 $
+ *  $Revision: 1.2 $
+ *  \author Ilaria Segoni
+ */
 
 int QTestConfigurationParser::s_numberOfInstances = 0;
-
-inline std::string _toString(const XMLCh *toTranscode){
-	std::string tmp(XMLString::transcode(toTranscode));
-	return tmp;
-}
-
-inline XMLCh*  _toDOMS( std::string temp ){
-	XMLCh* buff = XMLString::transcode(temp.c_str());    
-	return  buff;
-}
 
 
 QTestConfigurationParser::QTestConfigurationParser(){
@@ -21,16 +22,20 @@ QTestConfigurationParser::QTestConfigurationParser(){
 	qtestParamNames=new QTestParameterNames();
 
 	try { 
+		#ifdef QT_MANAGING_DEBUG
 		std::cout << "Xerces-c initialization Number "
 		<< s_numberOfInstances<<std::endl;
+		#endif
 		if (s_numberOfInstances==0) 
 		XMLPlatformUtils::Initialize();  
 	}
 	catch (const XMLException& e) {
+		#ifdef QT_MANAGING_DEBUG
 		std::cout << "Xerces-c error in initialization \n"
 		<< "Exception message is:  \n"
-		<< _toString(e.getMessage()) <<std::endl;
-		///throw and exception here
+		<< qtxml::_toString(e.getMessage()) <<std::endl;
+		#endif
+		throw(std::runtime_error("Standard pool exception : Fatal Error on pool::TrivialFileCatalog"));
 	}
  
 	++s_numberOfInstances;
@@ -41,86 +46,75 @@ QTestConfigurationParser::~QTestConfigurationParser(){
 	qtestParamNames = 0;
 }
 
-bool QTestConfigurationParser::parseQTestsConfiguration(std::string configFile){
-
-	std::cout<<" Begin Parsing File "<<configFile <<std::endl; 
+bool QTestConfigurationParser::parseQTestsConfiguration(){
 	
-	XercesDOMParser* parser = new XercesDOMParser;     
-	parser->setValidationScheme(XercesDOMParser::Val_Auto);
-	parser->setDoNamespaces(false);
-	parser->parse(configFile.c_str()); 
-	DOMDocument* doc = parser->getDocument();
-	assert(doc);
-
-	bool qtErrors= this->qtestsConfig(doc);
-	bool meErrors= this->monitorElementTestsMap(doc);
+	bool qtErrors= this->qtestsConfig();
+	bool meErrors= this->monitorElementTestsMap();
 	return (qtErrors||meErrors);
 
 }
 
-bool QTestConfigurationParser::qtestsConfig(DOMDocument* doc){
+bool QTestConfigurationParser::qtestsConfig(){
 	
 
 	unsigned int qtestTagsNum  = 
- 	   doc->getElementsByTagName(_toDOMS("QTEST"))->getLength();
+ 	   doc->getElementsByTagName(qtxml::_toDOMS("QTEST"))->getLength();
 
-
-	std::cout<<"Number of Qtests: "<<qtestTagsNum <<std::endl;
-
-	for (unsigned int i=0; i<qtestTagsNum; i++){
+	for (unsigned int i=0; i<qtestTagsNum; ++i){
 		/// Get Node
- 		//std::cout<<"***\n Test Number: "<<i <<std::endl;
 		DOMNode* qtestNode = 
-			doc->getElementsByTagName(_toDOMS("QTEST"))->item(i);
+			doc->getElementsByTagName(qtxml::_toDOMS("QTEST"))->item(i);
 	
 	
 		///Get QTEST name
 		if (! qtestNode){
+			#ifdef QT_MANAGING_DEBUG
 			std::cout<<"Node QTEST does not exist, i="<<i<<std::endl;
+			#endif
 			return true;
 		}
 		DOMElement* qtestElement = static_cast<DOMElement *>(qtestNode);          
 		if (! qtestElement){
+			#ifdef QT_MANAGING_DEBUG
 			std::cout<<"Element QTEST does not exist, i="<<i<<std::endl;
+			#endif
 			return true;		 
 		}
-		std::string qtestName = _toString (qtestElement->getAttribute (_toDOMS ("name"))); 
-		//std::cout<<"Name of i"<<i<<"-th test: "<< qtestName<<std::endl;
-	
+		std::string qtestName = qtxml::_toString (qtestElement->getAttribute (qtxml::_toDOMS ("name"))); 
 	
 		///Get Qtest TYPE
 		DOMNodeList *typeNodePrefix 
-		  = qtestElement->getElementsByTagName (_toDOMS ("TYPE"));
+		  = qtestElement->getElementsByTagName (qtxml::_toDOMS ("TYPE"));
 	     	     
 		if (typeNodePrefix->getLength () != 1){
+			#ifdef QT_MANAGING_DEBUG
 			std::cout<<"TYPE is not uniquely defined!"<<std::endl;
+			#endif
 			return true;
 		}       
 	     
 		DOMElement *prefixNode = dynamic_cast <DOMElement *> (typeNodePrefix->item (0));
 		if (!prefixNode){
+			#ifdef QT_MANAGING_DEBUG
 			std::cout<<"TYPE does not have value!"<<std::endl;
+			#endif
 			return true;
 		}
  
 	     
 		DOMText *prefixText = dynamic_cast <DOMText *> (prefixNode->getFirstChild());
-		if (!prefixText){
+		if (!prefixText){	
+			#ifdef QT_MANAGING_DEBUG
 			std::cout<<"Cannot get TYPE!"<<std::endl;
+			#endif
 			return true;
 		}
 	
-		std::string testTypeString = _toString (prefixText->getData ());
-		//std::cout<<"Test Type= "<< testTypeString<<std::endl;
+		std::string qtestType = qtxml::_toString (prefixText->getData ());
 
- 		paramNames.clear();		
-		paramNames=qtestParamNames->getTestParamNames(testTypeString);
-		if(paramNames.size() == 0) {
-			std::cout<<" Test Type "<< testTypeString<<" is not defined, please check .xml file"<<std::endl;
-			return true;
-		}
-		testsRequested[qtestName]=  this->getParams(qtestElement, testTypeString);
-		if( this->checkParameters(qtestName)) return true;
+		testsRequested[qtestName]=  this->getParams(qtestElement, qtestType);
+		
+		if( this->checkParameters(qtestName, qtestType)) return true;
 	
  	} //loop on qtestTagsNum
  
@@ -128,46 +122,51 @@ bool QTestConfigurationParser::qtestsConfig(DOMDocument* doc){
  
 }
 
-std::map<std::string, std::string> QTestConfigurationParser::getParams(DOMElement* qtestElement, std::string prefix){
+std::map<std::string, std::string> QTestConfigurationParser::getParams(DOMElement* qtestElement, std::string qtestType){
 	
 	std::map<std::string, std::string> paramNamesValues;
-	paramNamesValues[dqm::qtest_config::type]=prefix;
+	paramNamesValues[dqm::qtest_config::type]=qtestType;
 	
-	unsigned int numberOfParams=paramNames.size();
+	DOMNodeList *arguments = qtestElement->getElementsByTagName (qtxml::_toDOMS ("PARAM"));
 	
-	
-	DOMNodeList *arguments = qtestElement->getElementsByTagName (_toDOMS ("PARAM"));
-		if (arguments->getLength() != numberOfParams){
-	 		 std::cout<<"Wrong numbers of parameters: "<<arguments->getLength()<<std::endl;
-		}else{	 
-			for (unsigned int i=0; i<numberOfParams; i++){
-				DOMElement *argNode = dynamic_cast <DOMElement *> ( arguments ->item(i));
-				std::string regExp = _toString (argNode->getAttribute (_toDOMS ("name"))); 
-				DOMText *argText = dynamic_cast <DOMText *> (argNode->getFirstChild());
-				if (!argText){
-					std::cout<<"Cannot get value of "<<regExp<<std::endl;
-					break;
-				}
-	   
-				std::string regExpValue = _toString (argText->getData());
-				paramNamesValues[regExp]=regExpValue;
-			}
+	for (unsigned int i=0; i<arguments->getLength(); ++i){
+		DOMElement *argNode = dynamic_cast <DOMElement *> ( arguments ->item(i));
+		std::string regExp = qtxml::_toString (argNode->getAttribute (qtxml::_toDOMS ("name"))); 
+		DOMText *argText = dynamic_cast <DOMText *> (argNode->getFirstChild());
+		if (!argText){
+			#ifdef QT_MANAGING_DEBUG
+			std::cout<<"Cannot get value of "<<regExp<<std::endl;
+			#endif
+			break;
 		}
-
-	
-
-
+	   
+		std::string regExpValue = qtxml::_toString (argText->getData());
+		paramNamesValues[regExp]=regExpValue;
+	}
         
 	return paramNamesValues;
 
 }
 
-bool QTestConfigurationParser::checkParameters(std::string testNameString){
+bool QTestConfigurationParser::checkParameters(std::string qtestName, std::string qtestType){
 	
-	std::map<std::string, std::string> namesMap=testsRequested[testNameString];
+	std::vector<std::string> paramNames=qtestParamNames->getTestParamNames(qtestType);
+	if(paramNames.size() == 0) {
+		#ifdef QT_MANAGING_DEBUG
+		std::cout<<"Parameters for test type "<< qtestType<<" are not defined, please check .xml file"<<std::endl;
+		#endif
+		return true;
+	}
+	paramNames.push_back("error");
+	paramNames.push_back("warning");
+	
+	std::map<std::string, std::string> namesMap=testsRequested[qtestName];
+	
 	for(std::vector<std::string>::iterator namesItr=paramNames.begin(); namesItr!=paramNames.end(); ++namesItr){
 		if(namesMap.find(*namesItr)==namesMap.end()){
-			std::cout<<"Parameter ``"<<*namesItr<<"'' for test "<<testNameString<<" is not defined"<<std::endl;
+			#ifdef QT_MANAGING_DEBUG
+			std::cout<<"Parameter ``"<<*namesItr<<"'' for test "<<qtestName<<" is not defined"<<std::endl;
+			#endif
 			return true;
 		}
 	}
@@ -175,58 +174,60 @@ bool QTestConfigurationParser::checkParameters(std::string testNameString){
 	return false;
 }
 
-bool QTestConfigurationParser::monitorElementTestsMap(DOMDocument* doc){
+bool QTestConfigurationParser::monitorElementTestsMap(){
 	
 	std::string testON="true";
 	
 	unsigned int linkTagsNum  = 
- 	   doc->getElementsByTagName(_toDOMS("LINK"))->getLength();
+ 	   doc->getElementsByTagName(qtxml::_toDOMS("LINK"))->getLength();
 
 
-	//std::cout<<"Number of Links: "<<linkTagsNum <<std::endl;
-
-	for (unsigned int i=0; i<linkTagsNum; i++){
+	for (unsigned int i=0; i<linkTagsNum; ++i){
 	
-		//std::cout<<"***\n ME To Test Link Number: "<<i <<std::endl;
 		DOMNode* linkNode = 
-			doc->getElementsByTagName(_toDOMS("LINK"))->item(i);
+			doc->getElementsByTagName(qtxml::_toDOMS("LINK"))->item(i);
 		///Get ME name
 		if (! linkNode){
+			#ifdef QT_MANAGING_DEBUG
 			std::cout<<"Node LINK does not exist, i="<<i<<std::endl;
+			#endif
 			return true;
 		}
 		DOMElement* linkElement = static_cast<DOMElement *>(linkNode);          
 		if (! linkElement){
+			#ifdef QT_MANAGING_DEBUG
 			std::cout<<"Element LINK does not exist, i="<<i<<std::endl;
+			#endif
 			return true;		 
 		}
-		std::string linkName = _toString (linkElement->getAttribute (_toDOMS ("name"))); 
-		//std::cout<<"Name of i"<<i<<"-th ME: "<< linkName<<std::endl;
+		std::string linkName = qtxml::_toString (linkElement->getAttribute (qtxml::_toDOMS ("name"))); 
 	
-		DOMNodeList *testList = linkElement->getElementsByTagName (_toDOMS ("TestName"));
+		DOMNodeList *testList = linkElement->getElementsByTagName (qtxml::_toDOMS ("TestName"));
 		unsigned int numberOfTests=testList->getLength();
 		
 		std::vector<std::string> qualityTestList;
 		for(unsigned int tt=0; tt<numberOfTests; ++tt){
 			DOMElement * testElement = dynamic_cast <DOMElement *> ( testList ->item(tt));		
 			if (!testElement ){
+				#ifdef QT_MANAGING_DEBUG
 				std::cout<<"Element TestName does not exist, i="<<i<<std::endl;
+				#endif
 				return true;		 
 			}
 		
-			std::string activate = _toString (testElement ->getAttribute (_toDOMS ("activate"))); 
-			//std::cout<<"Test number"<<tt<<"activation: "<< activate<<std::endl;
+			std::string activate = qtxml::_toString (testElement ->getAttribute (qtxml::_toDOMS ("activate"))); 
 			if(!std::strcmp(activate.c_str(),testON.c_str())) {
 				
 				DOMText *argText = dynamic_cast <DOMText *> (testElement ->getFirstChild());
 				if (!argText){
+					#ifdef QT_MANAGING_DEBUG
 					std::cout<<"Cannot get test name"<<std::endl;
+					#endif
 					return true;
 				}
 	   
-				std::string regExpValue = _toString (argText->getData());
+				std::string regExpValue = qtxml::_toString (argText->getData());
 				qualityTestList.push_back(regExpValue);
-				//std::cout<<"Test name"<<regExpValue<<std::endl;
 			}
 		}
 	
