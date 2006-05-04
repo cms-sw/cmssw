@@ -14,6 +14,9 @@
  *  Locates the jets from 48 inputted L1GctRegions.
  *  This uses the 3*3 sliding window algorithm.
  * 
+ *  SourceCard pointers should be set up according to:
+ *  http://frazier.home.cern.ch/frazier/wiki_resources/GCT/jetfinder_sourcecard_wiring.jpg
+ * 
  *  Inputted regions are expected in a certain order with respect
  *  to the index i:
  * 
@@ -35,7 +38,7 @@
  *       etc.
  * 
  *  In the event of neighbouring regions having the same energy, this
- *  will locate the jet in the region closest to eta=0 that has the
+ *  will locate the jet in the region furthest from eta=0 that has the
  *  lowest value of phi.
  */
 /*
@@ -117,7 +120,7 @@ private:
     /// Returns energy sum (rank) of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of HCAL.
     ULong calcJetRank(const UShort centreIndex, const bool boundary = false) const;
 
-    /// Returns combined tauVeto of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of HCAL.
+    /// Returns combined tauVeto of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of Endcap.
     bool calcJetTauVeto(const UShort centreIndex, const bool boundary = false) const;
     
     /// Converts a 10-bit energy to a 6-bit calibrated rank - rather arbitrarily at the mo.

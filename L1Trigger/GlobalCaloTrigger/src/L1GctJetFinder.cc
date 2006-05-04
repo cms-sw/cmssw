@@ -199,23 +199,31 @@ void L1GctJetFinder::process()
             //the region index of the center of our 3*3 window
             UShort centreIndex = (column*columnOffset) + row;
             
-            //Determine if we are at edge of the forward HCAL or not (so need 3*2 window)
-            bool boundary = (centreIndex % columnOffset == columnOffset-1);
+            //Determine if we are at end of the HF or not (so need 3*2 window)
+            bool hfBoundary = (row == columnOffset-1);
+            //Determine if we are at the end of the endcap HCAL regions, so need boundary condition tauveto
+            bool heBoundary = (row == columnOffset-5);
 
             //debug checks for improper input indices
             assert(centreIndex % columnOffset != 0);  //Don't want the 4 regions from other half of detector
             assert(centreIndex >= columnOffset);  //Don't want the shared column to left of jet finding area
             assert(centreIndex < (maxRegionsIn - columnOffset)); //Don't want column to the right either
                         
-            if(detectJet(centreIndex, boundary))
+            if(detectJet(centreIndex, hfBoundary))
             {
                 assert(jetNum < maxJets);
                 
-                m_outputJets[jetNum].setRank(calcJetRank(centreIndex, boundary));
+                m_outputJets[jetNum].setRank(calcJetRank(centreIndex, hfBoundary));
                 m_outputJets[jetNum].setEta(row-1);
                 m_outputJets[jetNum].setPhi(column-1);
-                m_outputJets[jetNum].setTauVeto(calcJetTauVeto(centreIndex,boundary));
-
+                if(row < columnOffset-4)  //if we are not in the HF, perform tauVeto analysis
+                {
+                    m_outputJets[jetNum].setTauVeto(calcJetTauVeto(centreIndex,heBoundary));
+                }
+                else //can't be a tau jet because we are in the HF
+                {
+                    m_outputJets[jetNum].setTauVeto(true);
+                }
                 ++jetNum;
             }
         }
@@ -232,34 +240,38 @@ void L1GctJetFinder::process()
 // Returns true if region index is the centre of a jet. Set boundary = true if at edge of HCAL.
 bool L1GctJetFinder::detectJet(const UShort centreIndex, const bool boundary) const
 {
-    ULong testEt = m_inputRegions[centreIndex].getEt();  // Get the energy of the central region
-    
     if(!boundary)  //Not at boundary, so use 3*3 window of regions to determine if a jet
     {
-        //Test if our region qualifies as a jet by comparing its energy with the energies
-        //of the surrounding eight regions.  In the event of neighbouring regions with
-        //identical energy, this will locate the jet in the upper-most, left-most region.
-        if(testEt >  m_inputRegions[centreIndex-1-columnOffset].getEt() &&
-           testEt >  m_inputRegions[centreIndex - columnOffset].getEt() &&
-           testEt >  m_inputRegions[centreIndex+1-columnOffset].getEt() &&
+        // Get the energy of the central region & OR the overflow bit to become the MSB
+        ULong testEt = (m_inputRegions[centreIndex].getEt() | (m_inputRegions[centreIndex].getOverFlow() << L1GctRegion::ET_BITWIDTH));
+        
+        //Test if our region qualifies as a jet by comparing its energy with the energies of the
+        //surrounding eight regions.  In the event of neighbouring regions with identical energy,
+        //this will locate the jet in the lower-most (furthest away from eta=0), left-most (least phi) region.
+        if(testEt >  (m_inputRegions[centreIndex-1-columnOffset].getEt() | (m_inputRegions[centreIndex-1-columnOffset].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+           testEt >  (m_inputRegions[centreIndex - columnOffset].getEt() | (m_inputRegions[centreIndex - columnOffset].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+           testEt >  (m_inputRegions[centreIndex+1-columnOffset].getEt() | (m_inputRegions[centreIndex+1-columnOffset].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
            
-           testEt >  m_inputRegions[centreIndex - 1].getEt() &&
-           testEt >= m_inputRegions[centreIndex + 1].getEt() &&
+           testEt >= (m_inputRegions[centreIndex - 1].getEt() | (m_inputRegions[centreIndex - 1].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+           testEt >  (m_inputRegions[centreIndex + 1].getEt() | (m_inputRegions[centreIndex + 1].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
            
-           testEt >= m_inputRegions[centreIndex-1+columnOffset].getEt() &&
-           testEt >= m_inputRegions[centreIndex + columnOffset].getEt() &&
-           testEt >= m_inputRegions[centreIndex+1+columnOffset].getEt())
+           testEt >= (m_inputRegions[centreIndex-1+columnOffset].getEt() | (m_inputRegions[centreIndex-1+columnOffset].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+           testEt >= (m_inputRegions[centreIndex + columnOffset].getEt() | (m_inputRegions[centreIndex + columnOffset].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+           testEt >= (m_inputRegions[centreIndex+1+columnOffset].getEt() | (m_inputRegions[centreIndex+1+columnOffset].getOverFlow() << L1GctRegion::ET_BITWIDTH)))
         {
             return true;
         }
     }
-    else 
-    {
-        //...so only test surround 5 regions in our jet testing
+    else    //...so only test surround 5 regions in our jet testing.
+    {    
+        // Get the energy of the central region
+        // Don't need all the overflow bit adjustments as above, since we are in the HF here
+        ULong testEt = m_inputRegions[centreIndex].getEt();        
+        
         if(testEt >  m_inputRegions[centreIndex-1-columnOffset].getEt() &&
            testEt >  m_inputRegions[centreIndex - columnOffset].getEt() &&
            
-           testEt >  m_inputRegions[centreIndex - 1].getEt() &&
+           testEt >= m_inputRegions[centreIndex - 1].getEt() &&
            
            testEt >= m_inputRegions[centreIndex-1+columnOffset].getEt() &&
            testEt >= m_inputRegions[centreIndex + columnOffset].getEt())
@@ -295,7 +307,7 @@ ULong L1GctJetFinder::calcJetRank(const UShort centreIndex, const bool boundary)
     return convertToRank(energy);                                      
 }
 
-// returns the combined tauveto of the nine regions centred (physically) about centreIndex
+// returns the combined tauveto of the nine regions centred (physically) about centreIndex. Set boundary = true if at edge of Endcap.
 bool L1GctJetFinder::calcJetTauVeto(const UShort centreIndex, const bool boundary) const
 {
     bool partial[3] = {false, false, false};
