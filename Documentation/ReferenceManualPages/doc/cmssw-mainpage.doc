@@ -119,6 +119,15 @@ This is main page of the CMSSW Reference Manual.
   <td class="contact"><a href="mailto:">Luca Lista</a>
   </td>
 </tr>
+<tr>
+  <td>
+  \endhtmlonly \ref MagneticField "Magnetic Field" \htmlonly
+  </td>
+  <td>Access to magnetic field maps</td>
+  <td class="contact"><a href="mailto:">Nicola Amapane</a>,
+       <a href="mailto:">Teddy Todorov</a>
+  </td>
+</tr>
 </table>
 
 \endhtmlonly

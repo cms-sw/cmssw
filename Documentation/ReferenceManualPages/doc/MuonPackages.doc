@@ -12,8 +12,8 @@ For additional information on packaging rationale, existing and planned function
 This subsystems contains both the software for processing the hw
 alignment data and the code to apply alignment corrections in reconstruction.
 Relevant packages for muon reconstruction:
-- <i>\ref Alignment_CommonAlignment "CommonAlignment"</i><br>
-- \ref Alignment_MuonAlignment "MuonAlignment"<br>
+ - <i>\ref Alignment_CommonAlignment "CommonAlignment"</i><br>
+ - \ref Alignment_MuonAlignment "MuonAlignment"<br>
 
 - <b>CalibMuon</b><br>
 Calibration algorithms.
@@ -60,6 +60,8 @@ Raw data unpackers.
 
 - <b>Geometry</b><br>
 This subsystem contains both the xml geometry files and the code to model the geometry of detectors.
+ - <i>\ref Geometry_Surface "Surface"</i><br>
+ - <i>\ref Geometry_Vector "Vector"</i><br>
  - <i>\ref Geometry_CMSCommonData "CMSCommonData"</i><br>
  - <i>\ref Geometry_CommonDetUnit "CommonDetUnit"</i><br>
  - <i>\ref Geometry_CommonTopologies "CommonTopologies"</i><br>
@@ -82,6 +84,15 @@ Special input sources to read raw data files taken with local DAQ (commissioning
 - <b>L1Trigger</b><br>
 Packages for L1 trigger emulation/simulation
 
+- <b>RecoLocalMuon</b><br>
+Local reconstruction (RecHits, segments).
+ - \ref RecoLocalMuon_CSCRecHit "CSCRecHit"<br>
+ - \ref RecoLocalMuon_CSCSegment "CSCSegment"<br>
+ - \ref RecoLocalMuon_DTRecHit "DTRecHit"<br>
+ - \ref RecoLocalMuon_DTSegment "DTSegment"<br>
+ - \ref RecoLocalMuon_RPCRecHit "RPCRecHit"<br>
+
+
 - <b>RecoMuon</b><br>
 Muon track reconstruction.
  - \ref RecoMuon_DetLayers               "DetLayers"              
@@ -92,20 +103,12 @@ Muon track reconstruction.
  - \ref RecoMuon_MuonIdentification	"MuonIdentification"<br>	 
  - \ref RecoMuon_MuonSeedGenerator	"MuonSeedGenerator"<br>	 
  - \ref RecoMuon_Navigation		"Navigation"<br>		 
- - \ref RecoMuon_Records			"Records"<br>
+ - \ref RecoMuon_Records		"Records"<br>
  - \ref RecoMuon_SeedGenerator		"SeedGenerator"<br>		 
  - \ref RecoMuon_StandAloneMuonProducer	"StandAloneMuonProducer"<br> 
  - \ref RecoMuon_StandAloneTrackFinder	"StandAloneTrackFinder"<br>	 
  - \ref RecoMuon_TrackerSeedGenerator	"TrackerSeedGenerator"<br>	 
  - \ref RecoMuon_TrackingTools           "TrackingTools"<br>            
-
-- <b>RecoLocalMuon</b><br>
-Local reconstruction (RecHits, segments).
- - \ref RecoLocalMuon_CSCRecHit "CSCRecHit"<br>
- - \ref RecoLocalMuon_CSCSegment "CSCSegment"<br>
- - \ref RecoLocalMuon_DTRecHit "DTRecHit"<br>
- - \ref RecoLocalMuon_DTSegment "DTSegment"<br>
- - \ref RecoLocalMuon_RPCRecHit "RPCRecHit"<br>
 
 - <b>SimG4CMS</b><br>
 Geant simulation.
@@ -120,7 +123,8 @@ Digitization.
 - <b>VisReco</b><br>
 Visualization.
  - \ref VisReco_VisMuonCSC "VisMuonCSC"<br>
- - \ref VisReco_VisMuonDT "VisMuonDT"<br>
+ - \ref VisReco_VisMuonDT  "VisMuonDT"<br>
+ - \ref VisReco_VisMuonRPC "VisMuonRPC"<br>
 
 
 \section contact Contact persons
