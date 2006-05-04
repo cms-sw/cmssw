@@ -18,7 +18,7 @@ class Conv{
       f=log(t+2.5)-log(t-50+2.5);
     }
     return f;
-  }//elec
+  }//end elec
   
   
   //calculate single electron distribution in 6.25 ns steps
@@ -32,7 +32,7 @@ class Conv{
 	conve[i]=conve[i]+elec(t,vs);
       }
     }
-  } //mkbins
+  } //end mkbins
   
 
   //convolution function
@@ -144,16 +144,19 @@ class Conv{
     *min_right = chi2_right;
     *pTime     = peakTime;
     
-  } //CONVOLUTION  
+  } //end CONVOLUTION  
   
   ~Conv(){}
 
- private:
-  
+
   float convd[3][120];
   float nconvd[3][120];
   float conve[120];
   float conv[3][120];
+ 
+private:
+  
+  
 
-} makebins ;
+} binsConv;
 
