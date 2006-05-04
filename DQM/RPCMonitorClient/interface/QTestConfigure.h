@@ -7,8 +7,8 @@
  *  the xml configuration file parsed by QTestConfigurationParser.
  *
  * 
- *  $Date: 2006/04/05 15:44:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/24 09:57:41 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
   */
 
@@ -17,7 +17,7 @@
 #include<map>
 #include<vector>
 #include<iostream>
-#include <fstream>
+
 
 class QTestConfigure{
 
@@ -33,6 +33,7 @@ class QTestConfigure{
   std::vector<std::string> testsReady(){return testsConfigured;}
  
  private:
+
   ///Creates ContentsXRangeROOT test
   void EnableXRangeTest(std::string testName, std::map<std::string, std::string> params,MonitorUserInterface * mui); 
   ///Creates ContentsYRangeROOT test
@@ -44,9 +45,10 @@ class QTestConfigure{
     ///Creates MeanWithinExpectedROOT test
   void EnableMeanWithinExpectedTest(std::string testName, std::map<std::string, std::string> params,MonitorUserInterface * mui);
 
+
+ private:
   std::vector<std::string> testsConfigured;
  
-  std::ofstream logFile;  
 
 };
 
