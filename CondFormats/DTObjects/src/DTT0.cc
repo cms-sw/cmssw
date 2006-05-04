@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/28 17:28:20 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/03/30 14:08:40 $
+ *  $Revision: 1.6 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -26,17 +26,19 @@
 //-------------------
 // Initializations --
 //-------------------
-int DTT0::rmsFactor = 1000;
+//int DTT0::rmsFactor = 1000;
 
 //----------------
 // Constructors --
 //----------------
 DTT0::DTT0():
- dataVersion( " " ) {
+ dataVersion( " " ),
+ nsPerCount( 25.0 / 32.0 ) {
 }
 
 DTT0::DTT0( const std::string& version ):
- dataVersion( version ) {
+ dataVersion( version ),
+ nsPerCount( 25.0 / 32.0 ) {
 }
 
 DTCellT0Data::DTCellT0Data() :
@@ -46,17 +48,18 @@ DTCellT0Data::DTCellT0Data() :
        slId( 0 ),
     layerId( 0 ),
      cellId( 0 ),
-     t0mean( 0 ),
-     t0rms(  0 ) {
+     t0mean( 0.0 ),
+     t0rms(  0.0 ) {
 }
 
 //--------------
 // Destructor --
 //--------------
 DTT0::~DTT0() {
-  std::string t0Version = dataVersion + "_t0";
-  DTDataBuffer<int,int  >::dropBuffer( t0Version );
-  DTDataBuffer<int,float>::dropBuffer( t0Version );
+  std::string t0VersionM = dataVersion + "_t0M";
+  std::string t0VersionR = dataVersion + "_t0R";
+  DTDataBuffer<int,float>::dropBuffer( t0VersionM );
+  DTDataBuffer<int,float>::dropBuffer( t0VersionR );
 }
 
 DTCellT0Data::~DTCellT0Data() {
@@ -65,79 +68,34 @@ DTCellT0Data::~DTCellT0Data() {
 //--------------
 // Operations --
 //--------------
-void DTT0::initSetup() const {
-
-  std::string t0Version = dataVersion + "_t0";
-
-  DTBufferTree<int,int  >* dataBuf =
-                           DTDataBuffer<int,int  >::openBuffer( t0Version );
-  DTBufferTree<int,float>* drmsBuf =
-                           DTDataBuffer<int,float>::openBuffer( t0Version );
-
-  std::vector<DTCellT0Data>::const_iterator iter = cellData.begin();
-  std::vector<DTCellT0Data>::const_iterator iend = cellData.end();
-  int   wheelId;
-  int stationId;
-  int  sectorId;
-  int      slId;
-  int   layerId;
-  int    cellId;
-  int   t0mean;
-  float t0rms;
-  while ( iter != iend ) {
-
-    const DTCellT0Data& data = *iter++;
-      wheelId = data.  wheelId;
-    stationId = data.stationId;
-     sectorId = data. sectorId;
-         slId = data.     slId;
-      layerId = data.  layerId;
-       cellId = data.   cellId;
-
-    std::vector<int> cellKey;
-    cellKey.push_back(   wheelId );
-    cellKey.push_back( stationId );
-    cellKey.push_back(  sectorId );
-    cellKey.push_back(      slId );
-    cellKey.push_back(   layerId );
-    cellKey.push_back(    cellId );
-
-    t0mean = data.t0mean;
-    dataBuf->insert( cellKey.begin(), cellKey.end(), t0mean );
-    t0rms  = data.t0rms / rmsFactor;
-    drmsBuf->insert( cellKey.begin(), cellKey.end(), t0rms );
-
-  }
-
-  return;
-
-}
-
-
 int DTT0::cellT0( int   wheelId,
                   int stationId,
                   int  sectorId,
                   int      slId,
                   int   layerId,
                   int    cellId,
-                  int&   t0mean,
-                  float& t0rms ) const {
+                  float& t0mean,
+                  float& t0rms,
+                  DTTimeUnits::type unit ) const {
 
-  t0mean    = 0;
+  t0mean    = 0.0;
   t0rms     = 0.0;
 
-  std::string t0Version = dataVersion + "_t0";
-  DTBufferTree<int,int  >* dataBuf =
-                           DTDataBuffer<int,int  >::findBuffer( t0Version );
+  std::string t0VersionM = dataVersion + "_t0M";
+  std::string t0VersionR = dataVersion + "_t0R";
+  DTBufferTree<int,float>* dataBuf =
+  DTDataBuffer<int,float>::findBuffer( t0VersionM );
   DTBufferTree<int,float>* drmsBuf =
-                           DTDataBuffer<int,float>::findBuffer( t0Version );
+  DTDataBuffer<int,float>::findBuffer( t0VersionR );
+
   if ( dataBuf == 0 ) {
     initSetup();
-    dataBuf = DTDataBuffer<int,int  >::findBuffer( t0Version );
+    dataBuf = DTDataBuffer<int,float>::findBuffer( t0VersionM );
   }
+
   if ( drmsBuf == 0 ) {
     initSetup();
-    drmsBuf = DTDataBuffer<int,float>::findBuffer( t0Version );
+    drmsBuf = DTDataBuffer<int,float>::findBuffer( t0VersionR );
   }
 
   std::vector<int> cellKey;
@@ -150,8 +108,32 @@ int DTT0::cellT0( int   wheelId,
   t0mean = dataBuf->find( cellKey.begin(), cellKey.end() );
   t0rms  = drmsBuf->find( cellKey.begin(), cellKey.end() );
 
+  if ( unit == DTTimeUnits::ns ) {
+    t0mean *= nsPerCount;
+    t0rms  *= nsPerCount;
+  }
+
   return 1;
 
+}
+
+
+int DTT0::cellT0( const DTWireId& id,
+                  float& t0mean,
+                  float& t0rms,
+                  DTTimeUnits::type unit ) const {
+  return cellT0( id.wheel(),
+                 id.station(),
+                 id.sector(),
+                 id.superLayer(),
+                 id.layer(),
+                 id.wire(),
+                 t0mean, t0rms, unit );
+}
+
+
+float DTT0::unit() const {
+  return nsPerCount;
 }
 
 
@@ -178,8 +160,14 @@ int DTT0::setCellT0( int   wheelId,
                      int      slId,
                      int   layerId,
                      int    cellId,
-                     int   t0mean,
-                     float t0rms ) {
+                     float t0mean,
+                     float t0rms,
+                     DTTimeUnits::type unit ) {
+
+  if ( unit == DTTimeUnits::ns ) {
+    t0mean /= nsPerCount;
+    t0rms  /= nsPerCount;
+  }
 
   DTCellT0Data data;
   data.  wheelId =   wheelId;
@@ -189,16 +177,17 @@ int DTT0::setCellT0( int   wheelId,
   data.  layerId =   layerId;
   data.   cellId =    cellId;
   data.t0mean = t0mean;
-  data.t0rms  = static_cast<int>( t0rms * rmsFactor );
+  data.t0rms  = t0rms;
 
   cellData.push_back( data );
 
-  std::string t0Version = dataVersion + "_t0";
+  std::string t0VersionM = dataVersion + "_t0M";
+  std::string t0VersionR = dataVersion + "_t0R";
 
-  DTBufferTree<int,int  >* dataBuf =
-                           DTDataBuffer<int,int  >::openBuffer( t0Version );
+  DTBufferTree<int,float>* dataBuf =
+  DTDataBuffer<int,float>::openBuffer( t0VersionM );
   DTBufferTree<int,float>* drmsBuf =
-                           DTDataBuffer<int,float>::openBuffer( t0Version );
+  DTDataBuffer<int,float>::openBuffer( t0VersionR );
 
   std::vector<int> cellKey;
   cellKey.push_back(   wheelId );
@@ -216,6 +205,25 @@ int DTT0::setCellT0( int   wheelId,
 }
 
 
+int DTT0::setCellT0( const DTWireId& id,
+                     float t0mean,
+                     float t0rms,
+                     DTTimeUnits::type unit ) {
+  return setCellT0( id.wheel(),
+                    id.station(),
+                    id.sector(),
+                    id.superLayer(),
+                    id.layer(),
+                    id.wire(),
+                    t0mean, t0rms, unit );
+}
+
+
+void DTT0::setUnit( float unit ) {
+  nsPerCount = unit;
+}
+
+
 DTT0::const_iterator DTT0::begin() const {
   return cellData.begin();
 }
@@ -223,5 +231,55 @@ DTT0::const_iterator DTT0::begin() const {
 
 DTT0::const_iterator DTT0::end() const {
   return cellData.end();
+}
+
+
+void DTT0::initSetup() const {
+
+  std::string t0VersionM = dataVersion + "_t0M";
+  std::string t0VersionR = dataVersion + "_t0R";
+
+  DTBufferTree<int,float>* dataBuf =
+  DTDataBuffer<int,float>::openBuffer( t0VersionM );
+  DTBufferTree<int,float>* drmsBuf =
+  DTDataBuffer<int,float>::openBuffer( t0VersionR );
+
+  std::vector<DTCellT0Data>::const_iterator iter = cellData.begin();
+  std::vector<DTCellT0Data>::const_iterator iend = cellData.end();
+  int   wheelId;
+  int stationId;
+  int  sectorId;
+  int      slId;
+  int   layerId;
+  int    cellId;
+  float t0mean;
+  float t0rms;
+  while ( iter != iend ) {
+
+    const DTCellT0Data& data = *iter++;
+      wheelId = data.  wheelId;
+    stationId = data.stationId;
+     sectorId = data. sectorId;
+         slId = data.     slId;
+      layerId = data.  layerId;
+       cellId = data.   cellId;
+
+    std::vector<int> cellKey;
+    cellKey.push_back(   wheelId );
+    cellKey.push_back( stationId );
+    cellKey.push_back(  sectorId );
+    cellKey.push_back(      slId );
+    cellKey.push_back(   layerId );
+    cellKey.push_back(    cellId );
+
+    t0mean = data.t0mean;
+    dataBuf->insert( cellKey.begin(), cellKey.end(), t0mean );
+    t0rms  = data.t0rms;
+    drmsBuf->insert( cellKey.begin(), cellKey.end(), t0rms );
+
+  }
+
+  return;
+
 }
 

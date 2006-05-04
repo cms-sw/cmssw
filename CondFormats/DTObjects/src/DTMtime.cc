@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/28 17:28:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/30 14:08:40 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -26,17 +26,19 @@
 //-------------------
 // Initializations --
 //-------------------
-int DTMtime::rmsFactor = 1000;
+//int DTMtime::rmsFactor = 1000;
 
 //----------------
 // Constructors --
 //----------------
 DTMtime::DTMtime():
- dataVersion( " " ) {
+ dataVersion( " " ),
+ nsPerCount( 25.0 / 32.0 ) {
 }
 
 DTMtime::DTMtime( const std::string& version ):
- dataVersion( version ) {
+ dataVersion( version ),
+ nsPerCount( 25.0 / 32.0 ) {
 }
 
 DTSLMtimeData::DTSLMtimeData() :
@@ -44,17 +46,18 @@ DTSLMtimeData::DTSLMtimeData() :
   stationId( 0 ),
    sectorId( 0 ),
        slId( 0 ),
-      mTime( 0 ),
-      mTrms( 0 ) {
+      mTime( 0.0 ),
+      mTrms( 0.0 ) {
 }
 
 //--------------
 // Destructor --
 //--------------
 DTMtime::~DTMtime() {
-  std::string mTimeVersion = dataVersion + "_mTime";
-  DTDataBuffer<int,int  >::dropBuffer( mTimeVersion );
-  DTDataBuffer<int,float>::dropBuffer( mTimeVersion );
+  std::string mTimeVersionM = dataVersion + "_mTimeM";
+  std::string mTimeVersionR = dataVersion + "_mTimeR";
+  DTDataBuffer<int,float>::dropBuffer( mTimeVersionM );
+  DTDataBuffer<int,float>::dropBuffer( mTimeVersionR );
 }
 
 DTSLMtimeData::~DTSLMtimeData() {
@@ -63,71 +66,30 @@ DTSLMtimeData::~DTSLMtimeData() {
 //--------------
 // Operations --
 //--------------
-void DTMtime::initSetup() const {
-
-  std::string mTimeVersion = dataVersion + "_mTime";
-
-  DTBufferTree<int,int  >* dataBuf =
-                           DTDataBuffer<int,int  >::openBuffer( mTimeVersion );
-  DTBufferTree<int,float>* drmsBuf =
-                           DTDataBuffer<int,float>::openBuffer( mTimeVersion );
-
-  std::vector<DTSLMtimeData>::const_iterator iter = slData.begin();
-  std::vector<DTSLMtimeData>::const_iterator iend = slData.end();
-  int   wheelId;
-  int stationId;
-  int  sectorId;
-  int      slId;
-  int   mTime;
-  float mTrms;
-  while ( iter != iend ) {
-
-    const DTSLMtimeData& data = *iter++;
-      wheelId = data.  wheelId;
-    stationId = data.stationId;
-     sectorId = data. sectorId;
-         slId = data.     slId;
-
-    std::vector<int> slKey;
-    slKey.push_back(   wheelId );
-    slKey.push_back( stationId );
-    slKey.push_back(  sectorId );
-    slKey.push_back(      slId );
-
-    mTime = data.mTime;
-    dataBuf->insert( slKey.begin(), slKey.end(), mTime );
-    mTrms = data.mTrms / rmsFactor;
-    drmsBuf->insert( slKey.begin(), slKey.end(), mTrms );
-
-  }
-
-  return;
-
-}
-
-
 int DTMtime::slMtime( int   wheelId,
                       int stationId,
                       int  sectorId,
                       int      slId,
-                      int&    mTime,
-                      float&  mTrms ) const {
+                      float&  mTime,
+                      float&  mTrms,
+                      DTTimeUnits::type unit ) const {
 
-  mTime = 0;
+  mTime = 0.0;
   mTrms = 0.0;
 
-  std::string mTimeVersion = dataVersion + "_mTime";
-  DTBufferTree<int,int  >* dataBuf =
-                           DTDataBuffer<int,int  >::findBuffer( mTimeVersion );
+  std::string mTimeVersionM = dataVersion + "_mTimeM";
+  std::string mTimeVersionR = dataVersion + "_mTimeR";
+  DTBufferTree<int,float>* dataBuf =
+  DTDataBuffer<int,float>::findBuffer( mTimeVersionM );
   DTBufferTree<int,float>* drmsBuf =
-                           DTDataBuffer<int,float>::findBuffer( mTimeVersion );
+  DTDataBuffer<int,float>::findBuffer( mTimeVersionR );
   if ( dataBuf == 0 ) {
     initSetup();
-    dataBuf = DTDataBuffer<int,int  >::findBuffer( mTimeVersion );
+    dataBuf = DTDataBuffer<int,float>::findBuffer( mTimeVersionM );
   }
   if ( drmsBuf == 0 ) {
     initSetup();
-    drmsBuf = DTDataBuffer<int,float>::findBuffer( mTimeVersion );
+    drmsBuf = DTDataBuffer<int,float>::findBuffer( mTimeVersionR );
   }
 
   std::vector<int> slKey;
@@ -138,8 +100,30 @@ int DTMtime::slMtime( int   wheelId,
   mTime = dataBuf->find( slKey.begin(), slKey.end() );
   mTrms = drmsBuf->find( slKey.begin(), slKey.end() );
 
+  if ( unit == DTTimeUnits::ns ) {
+    mTime *= nsPerCount;
+    mTrms *= nsPerCount;
+  }
+
   return 1;
 
+}
+
+
+int DTMtime::slMtime( const DTSuperLayerId& id,
+                      float&  mTime,
+                      float&  mTrms,
+                      DTTimeUnits::type unit ) const {
+  return slMtime( id.wheel(),
+                  id.station(),
+                  id.sector(),
+                  id.superLayer(),
+                  mTime, mTrms, unit );
+}
+
+
+float DTMtime::unit() const {
+  return nsPerCount;
 }
 
 
@@ -164,8 +148,14 @@ int DTMtime::setSLMtime( int   wheelId,
                          int stationId,
                          int  sectorId,
                          int      slId,
-                         int     mTime,
-                         float   mTrms ) {
+                         float   mTime,
+                         float   mTrms,
+                         DTTimeUnits::type unit ) {
+
+  if ( unit == DTTimeUnits::ns ) {
+    mTime /= nsPerCount;
+    mTrms /= nsPerCount;
+  }
 
   DTSLMtimeData data;
   data.  wheelId =   wheelId;
@@ -173,16 +163,17 @@ int DTMtime::setSLMtime( int   wheelId,
   data. sectorId =  sectorId;
   data.     slId =      slId;
   data.mTime = mTime;
-  data.mTrms = static_cast<int>( mTrms * rmsFactor );
+  data.mTrms = mTrms;
 
   slData.push_back( data );
 
-  std::string mTimeVersion = dataVersion + "_mTime";
+  std::string mTimeVersionM = dataVersion + "_mTimeM";
+  std::string mTimeVersionR = dataVersion + "_mTimeR";
 
-  DTBufferTree<int,int  >* dataBuf =
-                           DTDataBuffer<int,int  >::openBuffer( mTimeVersion );
+  DTBufferTree<int,float>* dataBuf =
+  DTDataBuffer<int,float>::openBuffer( mTimeVersionM );
   DTBufferTree<int,float>* drmsBuf =
-                           DTDataBuffer<int,float>::openBuffer( mTimeVersion );
+  DTDataBuffer<int,float>::openBuffer( mTimeVersionR );
 
   std::vector<int> slKey;
   slKey.push_back(   wheelId );
@@ -198,6 +189,22 @@ int DTMtime::setSLMtime( int   wheelId,
 }
 
 
+int DTMtime::setSLMtime( const DTSuperLayerId& id,
+                         float   mTime,
+                         float   mTrms,
+                         DTTimeUnits::type unit ) {
+  return setSLMtime( id.wheel(),
+                     id.station(),
+                     id.sector(),
+                     id.superLayer(),
+                     mTime, mTrms, unit );
+}
+
+void DTMtime::setUnit( float unit ) {
+  nsPerCount = unit;
+}
+
+
 DTMtime::const_iterator DTMtime::begin() const {
   return slData.begin();
 }
@@ -205,5 +212,49 @@ DTMtime::const_iterator DTMtime::begin() const {
 
 DTMtime::const_iterator DTMtime::end() const {
   return slData.end();
+}
+
+
+void DTMtime::initSetup() const {
+
+  std::string mTimeVersionM = dataVersion + "_mTimeM";
+  std::string mTimeVersionR = dataVersion + "_mTimeR";
+
+  DTBufferTree<int,float>* dataBuf =
+  DTDataBuffer<int,float>::openBuffer( mTimeVersionM );
+  DTBufferTree<int,float>* drmsBuf =
+  DTDataBuffer<int,float>::openBuffer( mTimeVersionR );
+
+  std::vector<DTSLMtimeData>::const_iterator iter = slData.begin();
+  std::vector<DTSLMtimeData>::const_iterator iend = slData.end();
+  int   wheelId;
+  int stationId;
+  int  sectorId;
+  int      slId;
+  float mTime;
+  float mTrms;
+  while ( iter != iend ) {
+
+    const DTSLMtimeData& data = *iter++;
+      wheelId = data.  wheelId;
+    stationId = data.stationId;
+     sectorId = data. sectorId;
+         slId = data.     slId;
+
+    std::vector<int> slKey;
+    slKey.push_back(   wheelId );
+    slKey.push_back( stationId );
+    slKey.push_back(  sectorId );
+    slKey.push_back(      slId );
+
+    mTime = data.mTime;
+    dataBuf->insert( slKey.begin(), slKey.end(), mTime );
+    mTrms = data.mTrms;
+    drmsBuf->insert( slKey.begin(), slKey.end(), mTrms );
+
+  }
+
+  return;
+
 }
 

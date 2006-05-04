@@ -7,10 +7,13 @@
   <class name="DTSLTtrigData" id="B0103027-415C-DA11-8831-000E0C5CE283"/>
   <class name="DTMtime" id="DE34E051-095D-DA11-86A8-000E0C5CE283"/>
   <class name="DTSLMtimeData" id="6A4F37E1-085D-DA11-95BC-000E0C5CE283"/>
+  <class name="DTRangeT0" id="C4574CFD-EDD9-DA11-8194-000E0C5CE283"/>
+  <class name="DTSLRangeT0Data" id="7E44AD27-EED9-DA11-88D9-000E0C5CE283"/>
   <class name="std::vector<DTReadOutGeometryLink>"/>
   <class name="std::vector<DTCellT0Data>"/>
   <class name="std::vector<DTSLTtrigData>"/>
   <class name="std::vector<DTSLMtimeData>"/>
+  <class name="std::vector<DTSLRangeT0Data>"/>
   <class name="std::basic_string<char>"/>
   <class pattern="*iterator*"/>
 </lcgdict>

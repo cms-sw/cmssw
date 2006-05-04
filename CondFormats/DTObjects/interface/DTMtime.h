@@ -6,8 +6,8 @@
  *       Class to hold drift tubes mean-times
  *             ( SL by SL mean-time calculation )
  *
- *  $Date: 2006/01/27 15:21:15 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/02/28 18:06:29 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -20,7 +20,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
+#include "CondFormats/DTObjects/interface/DTTimeUnits.h"
+#include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 
 //---------------
 // C++ Headers --
@@ -43,8 +44,8 @@ class DTSLMtimeData {
   int stationId;
   int  sectorId;
   int      slId;
-  int     mTime;
-  int     mTrms;
+  float mTime;
+  float mTrms;
 
 };
 
@@ -64,16 +65,19 @@ class DTMtime {
 
   /** Operations
    */
-  /// read and store full content
-  void initSetup() const;
-
   /// get content
   int slMtime( int   wheelId,
                int stationId,
                int  sectorId,
                int      slId,
-               int&    mTime,
-               float&  mTrms ) const;
+               float&  mTime,
+               float&  mTrms,
+               DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+  int slMtime( const DTSuperLayerId& id,
+               float&  mTime,
+               float&  mTrms,
+               DTTimeUnits::type unit = DTTimeUnits::counts ) const;
+  float unit() const;
 
   /// access version
   const
@@ -87,8 +91,14 @@ class DTMtime {
                   int stationId,
                   int  sectorId,
                   int      slId,
-                  int     mTime,
-                  float   mTrms );
+                  float   mTime,
+                  float   mTrms,
+                  DTTimeUnits::type unit = DTTimeUnits::counts );
+  int setSLMtime( const DTSuperLayerId& id,
+                  float   mTime,
+                  float   mTrms,
+                  DTTimeUnits::type unit = DTTimeUnits::counts );
+  void setUnit( float unit );
 
   /// Access methods to data
   typedef std::vector<DTSLMtimeData>::const_iterator const_iterator;
@@ -97,11 +107,15 @@ class DTMtime {
 
  private:
 
+  /// read and store full content
+  void initSetup() const;
+
   std::string dataVersion;
+  float nsPerCount;
 
   std::vector<DTSLMtimeData> slData;
 
-  static int rmsFactor;
+//  static int rmsFactor;
 
 };
 
