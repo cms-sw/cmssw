@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/19 15:03:29 $
- * $Revision: 1.6 $
+ * $Date: 2006/04/28 15:21:52 $
+ * $Revision: 1.7 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -25,9 +25,6 @@ unsigned int DTSegmentCand::nHitsMin=3; // to be tuned!!
 DTSegmentCand::DTSegmentCand(AssPointCont& hits,
                              const DTSuperLayer* sl) :
 theSL(sl), theChi2(-1.) , theHits(hits){
-  // FIXME
-  // are the positions void?
-
 }
 
 DTSegmentCand::DTSegmentCand(AssPointCont hits,
@@ -116,7 +113,10 @@ int DTSegmentCand::nLayers() const {
   return 0;
 }
 
-DTSLRecSegment2D* DTSegmentCand::convert() const{
+DTSegmentCand::operator DTSLRecSegment2D*() const{
+  
+  // FIXME: comment out the output
+  std::cout<<"Convert DTSegmentCand in DTSLRecSegment2D"<<std::endl;
   
   LocalPoint seg2Dposition = position();
   LocalVector seg2DDirection = direction();
@@ -139,9 +139,11 @@ DTSLRecSegment2D* DTSegmentCand::convert() const{
 			    seg2DChi2,hits1D);
 }
 
-//FIXME change the name and check it!!
-// put a cast operator and remove the DTChamber input
-DTChamberRecSegment2D* DTSegmentCand::convert(const DTChamber *chamber) const{
+DTSegmentCand::operator DTChamberRecSegment2D*() const{
+  
+  // FIXME: comment out the output
+  std::cout<<"Convert DTSegmentCand in DTChamberRecSegment2D"<<std::endl;
+  
   // input position and direction are in sl frame, while must be stored in
   // chamber one: so I have to extrapolate the position (along the direction) to
   // the chamber reference plane.

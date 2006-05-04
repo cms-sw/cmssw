@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/26 14:15:31 $
- * $Revision: 1.9 $
+ * $Date: 2006/04/28 15:21:52 $
+ * $Revision: 1.10 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -59,9 +59,8 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
 
   vector<DTSegmentCand*>::const_iterator cand=candidates.begin();
   while (cand<candidates.end()) {
-
-    //RB:TODO put an implict converter instead of the explicit conversion below
-    DTSLRecSegment2D *segment = (*cand)->convert();
+    
+    DTSLRecSegment2D *segment = (**cand);
 
     theUpdator->update(segment);
 
