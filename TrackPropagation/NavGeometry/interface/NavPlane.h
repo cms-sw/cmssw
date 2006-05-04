@@ -28,6 +28,7 @@ public:
     virtual const NavVolume* nextVolume( const NavSurface::LocalPoint& point, 
 					 SurfaceOrientation::Side side) const{
 	return theImpl.nextVolume( point,side);
+
     }
 
     virtual TrajectoryStateOnSurface 

@@ -8,6 +8,7 @@
 
 class Bounds;
 class Plane;
+class TrajectoryStateOnSurface;
 
 class NavVolume6Faces : public NavVolume {
 public:
@@ -19,12 +20,27 @@ public:
     /// A NavVolume6Faces that corresponds exactly to a MagVolume
     explicit NavVolume6Faces( const MagVolume& magvol);
 
+    /// Give a sorted list of possible surfaces to propagate to
     virtual Container nextSurface( const NavVolume::LocalPoint& pos, 
 				   const NavVolume::LocalVector& mom,
 				   double charge, PropagationDirection propDir=alongMomentum) const;
 
-  /// Access to volume faces
-  std::vector<VolumeSide> faces() const {return theFaces;}
+    /// Same, giving lowest priority to the surface we are on now (=NotThisSurface)
+    virtual Container nextSurface( const NavVolume::LocalPoint& pos, 
+				   const NavVolume::LocalVector& mom,
+				   double charge, PropagationDirection propDir,
+				   ConstReferenceCountingPointer<Surface> NotThisSurfaceP) const;
+
+    /// Cross this volume and point at the next
+    virtual VolumeCrossReturnType crossToNextVolume( const TrajectoryStateOnSurface& currentState,
+						     const Propagator& prop) const;
+
+    /// Access to volume faces
+    std::vector<VolumeSide> faces() const {
+
+
+    return theFaces;
+  }
 
   using MagVolume::inside;
   bool inside( const GlobalPoint& gp, double tolerance) const; 

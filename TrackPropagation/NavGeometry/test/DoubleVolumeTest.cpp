@@ -157,7 +157,7 @@ int main()
 	for (int i=0; i<200; i++) {
 	    GlobalVector gStartMomentum( momentumGenerator());
 
-	    cout << "************* " << endl;
+	    cout << "************* NEXT TEST 'EVENT' *****" << endl;
 	    //	    cout << "Start momentum is " << gStartMomentum << endl;;
 
 	    GlobalTrajectoryParameters gtp( GlobalPoint(xPos, yPos, zPos),
@@ -169,6 +169,42 @@ int main()
 	    FreeTrajectoryState fts(gtp);
 	    TSOS startingState( fts, sp);
 
+	    TSOS CurrentTestState = startingState;
+	    
+	    //
+	    ////
+	    ////// TEST CrossToNextVolume Function:
+	    ////
+	    //
+
+	    cout << "Starting position and momentum: " << CurrentTestState.globalPosition() << ", " << CurrentTestState.globalMomentum() << endl;	
+	    //
+	    ///	    VolumeCrossReturnType is std::pair<const NavVolume*, TrajectoryStateOnSurface> 
+	    //
+
+	    NavVolume::VolumeCrossReturnType VolumeCrossResult = vol.crossToNextVolume(startingState, propagator);
+	    if (VolumeCrossResult.first != 0) {
+	      cout << "YES !!! Found next volume with position: " << VolumeCrossResult.first->position() << endl;
+	      cout << "Do a second Iteration step !" << endl;
+
+	      NavVolume::VolumeCrossReturnType VolumeCrossResult2 = VolumeCrossResult.first->crossToNextVolume(VolumeCrossResult.second, propagator);
+	      if (VolumeCrossResult2.first != 0) {
+		cout << "crossToNextVolume: Succeeded to find THIRD volume with pos, mom, " << 
+		  VolumeCrossResult2.second.globalPosition() << ", " << VolumeCrossResult2.second.globalMomentum() << endl;
+	      } else {
+		cout << "crossToNextVolume: Failed to find THIRD volume " << endl;
+	      }
+	    } else {
+	      cout << "crossToNextVolume: NO !!!!!!!! Nothing on other side" << endl;
+	    }
+	    
+	    cout << " - - - - - - That was crossToNextVolume, now compare to conventional result: " << endl;
+
+	    //
+	    ////
+	    ////// OK 
+
+
 	    NavVolume::Container nsc = vol.nextSurface( vol.toLocal( gtp.position()), 
 							vol.toLocal( gtp.momentum()), -1);
 	    // cout << "nextSurface size " << nsc.size() << endl;
@@ -176,6 +212,7 @@ int main()
 
 	    int itry = 0;
 	    const NavVolume* nextVol = 0;
+	    const Surface* exitSurface = 0;
 
 	    for (NavVolume::Container::const_iterator isur = nsc.begin(); isur!=nsc.end(); isur++) {
 		TSOS state = isur->surface().propagate( propagator, startingState);
@@ -189,6 +226,7 @@ int main()
 
 		    cout << "Looking for next Volume on other side of surface with center " << isur->surface().surface().position() << endl;
 		    startingState = state;
+		    exitSurface = &( isur->surface().surface() );
 		    break;
 		}
 		else {
@@ -201,8 +239,10 @@ int main()
 	      cout << "YES !!! Found next volume with position: " << nextVol->position() << endl;
 	      cout << "Do a second Iteration step !" << endl;
 		
-	      NavVolume::Container nsc2 = nextVol->nextSurface( nextVol->toLocal( startingState.globalPosition()+0.01*startingState.globalMomentum()), 
-							nextVol->toLocal( startingState.globalMomentum()), -1);
+	      //	      NavVolume::Container nsc2 = nextVol->nextSurface( nextVol->toLocal( startingState.globalPosition()+0.01*startingState.globalMomentum()), 
+	      //					nextVol->toLocal( startingState.globalMomentum()), -1);
+	      NavVolume::Container nsc2 = nextVol->nextSurface( nextVol->toLocal( startingState.globalPosition()), 
+							nextVol->toLocal( startingState.globalMomentum()), -1, alongMomentum, exitSurface );
 
 	      
 	      for (NavVolume::Container::const_iterator isur = nsc2.begin(); isur!=nsc2.end(); isur++) {

@@ -11,6 +11,8 @@
 
 class NavSurface;
 class Bounds;
+class TrajectoryStateOnSurface;
+
 //class SurfaceAndBounds
 
 class NavVolume : public MagVolume {
@@ -20,13 +22,22 @@ public:
 	     DDSolidShape shape, const MagneticFieldProvider<float> * mfp) :
     MagVolume(pos,rot,shape,mfp) {}
 
-  //    typedef std::pair< const NavSurface*, const Bounds*>       SurfaceAndBounds;
-    typedef std::vector<SurfaceAndBounds>                      Container;
+  typedef std::vector<SurfaceAndBounds>                         Container;
+  typedef std::pair<const NavVolume*, TrajectoryStateOnSurface>  VolumeCrossReturnType;
 
-    virtual ~NavVolume() {} 
 
-    virtual Container nextSurface( const LocalPoint& pos, const LocalVector& mom, double charge, 
-				   PropagationDirection propDir = alongMomentum) const = 0;
+  virtual ~NavVolume() {} 
+
+  virtual Container nextSurface( const LocalPoint& pos, const LocalVector& mom, double charge, 
+				 PropagationDirection propDir = alongMomentum) const = 0;
+
+  /// Same, giving lowest priority to the surface we are on now (=NotThisSurface)
+  virtual Container nextSurface( const LocalPoint& pos, const LocalVector& mom, double charge, 
+				 PropagationDirection propDir,
+				 ConstReferenceCountingPointer<Surface> NotThisSurfaceP) const = 0;
+  
+  virtual VolumeCrossReturnType crossToNextVolume( const TrajectoryStateOnSurface& currentState, 
+						   const Propagator& prop) const = 0;
 
 };
 

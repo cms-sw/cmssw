@@ -6,8 +6,19 @@
 #include "Geometry/Surface/interface/GeneralNSurfaceDelimitedBounds.h"
 #include "TrackPropagation/NavGeometry/interface/NavSurface.h"
 #include "TrackPropagation/NavGeometry/interface/NavSurfaceBuilder.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include <map>
+
+SurfaceOrientation::Side oppositeSide( SurfaceOrientation::Side side = SurfaceOrientation::onSurface) {
+  if ( side == SurfaceOrientation::onSurface ) {
+    return side; 
+  } else {
+    SurfaceOrientation::Side oppositeSide = ( side ==SurfaceOrientation::positiveSide ? SurfaceOrientation::negativeSide : SurfaceOrientation::positiveSide);
+    return oppositeSide;
+  } 
+}
+
 
 NavVolume6Faces::NavVolume6Faces( const PositionType& pos,
 				  const RotationType& rot, 
@@ -90,7 +101,7 @@ void NavVolume6Faces::computeBounds(const std::vector<NavVolumeSide>& faces)
 // We would like to keep a pointer to the same Bounds in the NavVolume, so we have to ASK
 // the NavSurface for the Bounds* of the Bounds we just gave it!
 	std::cout << "Adding a Volume Side with center " << navSurf.surface().position() << " side "<< faces[i].surfaceSide() << " and face " << faces[i].globalFace()<< std::endl;
-	theNavSurfaces.push_back( SurfaceAndBounds(&navSurf, navSurf.bounds(this), faces[i].surfaceSide()));
+	theNavSurfaces.push_back( SurfaceAndBounds(&navSurf, navSurf.bounds(this), faces[i].surfaceSide(), faces[i].globalFace()));
     }
 }
 
@@ -172,8 +183,6 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
     Container       unreachableSurfaces;
 
     for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
-	// pair<bool,double> dist = linearDistance( *(i->first), gpos, gdir);
-      ////	std::pair<bool,double> dist = i->first->distanceAlongLine( gpos, gdir);
 	std::pair<bool,double> dist = i->surface().distanceAlongLine( gpos, gdir);
 	if (dist.first) sortedSurfaces[dist.second] = *i;
 	else unreachableSurfaces.push_back(*i);
@@ -184,6 +193,65 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
     }
     result.insert( result.end(), unreachableSurfaces.begin(), unreachableSurfaces.end());
     return result;
+}
+
+NavVolume::Container
+NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos, 
+			      const NavVolume::LocalVector& mom,
+			      double charge, PropagationDirection propDir,
+			      ConstReferenceCountingPointer<Surface> NotThisSurfaceP) const
+{
+    typedef std::map<double,SurfaceAndBounds>   SortedContainer;
+
+    GlobalPoint  gpos( toGlobal(pos));
+    GlobalVector gmom( toGlobal(mom));
+    GlobalVector gdir = (propDir == alongMomentum ? gmom : -gmom);
+
+    SortedContainer sortedSurfaces;
+    Container       unreachableSurfaces;
+
+    for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
+	std::pair<bool,double> dist = i->surface().distanceAlongLine( gpos, gdir);
+	if (dist.first && &(i->surface().surface()) != NotThisSurfaceP ) sortedSurfaces[dist.second] = *i;
+	else unreachableSurfaces.push_back(*i);
+    }
+    NavVolume::Container result;
+    for (SortedContainer::const_iterator i=sortedSurfaces.begin(); i!=sortedSurfaces.end(); ++i) {
+	result.push_back(i->second);
+    }
+    result.insert( result.end(), unreachableSurfaces.begin(), unreachableSurfaces.end());
+    return result;
+}
+
+NavVolume::VolumeCrossReturnType
+NavVolume6Faces::crossToNextVolume( const TrajectoryStateOnSurface& startingState, const Propagator& prop ) const
+{
+  typedef TrajectoryStateOnSurface TSOS;
+  
+  NavVolume::Container nsc = nextSurface( toLocal( startingState.globalPosition()), 
+					  toLocal( startingState.globalMomentum()), -1,
+					  alongMomentum, &(startingState.surface()));
+  int itry = 0;
+  VolumeCrossReturnType VolumeCrossResult;
+  for (NavVolume::Container::const_iterator isur = nsc.begin(); isur!=nsc.end(); isur++) {
+    TSOS state = isur->surface().propagate( prop, startingState);
+    if (!state.isValid()) {
+      ++itry;
+      continue;
+    }
+    if (isur->bounds().inside(state.localPosition())) {
+      std::cout << "crossToNextVolume: Surface containing destination point found at try " << itry << std::endl;
+      // Found the exit surface !! Get pointer to next volume and save exit state:
+      VolumeCrossResult.first = isur->surface().nextVolume(state.localPosition(),oppositeSide(isur->side()));
+      VolumeCrossResult.second = state;
+      //      exitSurface = &( isur->surface().surface() );
+      break;
+    }
+    else {
+      ++itry;
+    }
+  }
+  return VolumeCrossResult;
 }
 
 /*
