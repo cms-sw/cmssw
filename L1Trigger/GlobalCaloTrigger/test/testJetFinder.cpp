@@ -39,7 +39,7 @@ const string resultsFile = "testJetFinderOutput.txt";
 // Global constants to tell the program how many things to read in from file
 // THESE ARE TOTAL GUESSES!
 const int numInputRegions = 48;  //Num. calorimeter regions given as input
-const int numOutputJets = 5;     //Num. jets expected out
+const int numOutputJets = 6;     //Num. jets expected out
 //There will be Jet Counts to be added here at some point
 
 
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 
     try
     {
-        L1GctJetFinder * myJetFinder = new L1GctJetFinder(); //TEST OBJECT on heap;
+        L1GctJetFinder * myJetFinder = new L1GctJetFinder(L1GctJetFinder::POS_ETA_TYPE); //TEST OBJECT on heap;
         classTest(myJetFinder);
         delete myJetFinder;
     }
@@ -171,10 +171,12 @@ void classTest(L1GctJetFinder *myJetFinder)
     
     //an empty regions vector for reset comparison
     vector<L1GctRegion> blankRegionsVec(numInputRegions);
+    vector<L1GctJet> blankJetsVec(numOutputJets);
     
     //Test that all the vectors/values are empty/zero
     if(compareRegionsVectors(outputRegions, blankRegionsVec, "input regions reset") &&
-       outputJets.empty() && outputHt == 0)
+       compareJetsVectors(outputJets, blankJetsVec, "output jets reset") &&
+       outputHt == 0)
     { 
         cout << "\nTest class has passed reset method testing." << endl;
     }
