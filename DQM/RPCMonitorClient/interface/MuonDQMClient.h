@@ -5,8 +5,8 @@
  * *
  *  State machine DQM Client for Muons. Owns a web interface.
  *
- *  $Date: 2006/04/05 15:45:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/04/24 09:57:35 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
   */
 
@@ -22,11 +22,13 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <fstream>
 
 class QTestConfigurationParser;
 class QTestConfigure;
 class QTestEnabler;
 class QTestStatusChecker;
+class MESubscriptionParser;
 
 class MuonDQMClient : public DQMBaseClient, 
 			       public dqm::UpdateObserver
@@ -56,9 +58,16 @@ public:
 
   // this obligatory method is called by the Updater component, whenever there is an update 
   void onUpdate() const;
+  
 
+private:
 
-public:
+  void checkGolbalQTStatus() const;   
+  void checkDetailedQTStatus() const; 
+
+private:
+
+  
 
   /// MuonDQMClient has a web interface:  
   MuonWebInterface * webInterface_p;
@@ -67,6 +76,14 @@ public:
   QTestConfigure * qtConfigurer;
   QTestEnabler * qtEnabler;
   QTestStatusChecker * qtChecker;
+  MESubscriptionParser * meListParser;
+ 
+  bool qtestsConfigured;
+  bool meListConfigured;
+ 
+  mutable std::ofstream logFile;    
+  mutable unsigned int QTFailed;    
+  mutable unsigned int QTCritical;    
 
 };
 
