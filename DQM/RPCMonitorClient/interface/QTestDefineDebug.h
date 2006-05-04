@@ -1,0 +1,1 @@
+#define QT_MANAGING_DEBUG
