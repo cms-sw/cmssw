@@ -11,6 +11,7 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/print.h"
 
 #include <iostream>
 
@@ -24,11 +25,10 @@ public:
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
   virtual void endJob() { }
 private:
-  edm::ParameterSet conf_; 
+  void myprint(const reco::Track & track) const;
 };
 
 PixelTrackTest::PixelTrackTest(const edm::ParameterSet& conf)
-  : conf_(conf)
 {
   edm::LogInfo("PixelTrackTest")<<" CTOR";
 }
@@ -42,24 +42,38 @@ void PixelTrackTest::analyze(
     const edm::Event& ev, const edm::EventSetup& es)
 {
   cout <<"*** PixelTrackTest, analyze event: " << ev.id() << endl;
-  edm::Handle<reco::TrackCollection> trackCollection;
-  std::string trackCollName = conf_.getParameter<std::string>("TrackCollection");
-  ev.getByLabel(trackCollName,trackCollection);
-  const reco::TrackCollection tracks = *(trackCollection.product());
+//  edm::Handle<reco::TrackCollection> trackCollection1;
+// ev.getByType(trackCollection);
 
-  std::cout << *(trackCollection.provenance()) << std::endl;
-  cout << "Reconstructed "<< tracks.size() << " tracks" << std::endl;
   typedef reco::TrackCollection::const_iterator IT;
-  for (IT track=tracks.begin(); track!=tracks.end(); track++){
-    cout << "\tmomentum: " << track->momentum()
-         << "\tPT: " << track->pt()<< endl;
-    cout << "\tvertex: " << track->vertex()
-         << "\timpact parameter: " << track->d0()<< endl;
-    cout << "\tcharge: " << track->charge()<< endl;
-//    cout <<"\t\tNumber of RecHits "<<track->recHitsSize()<<endl;
+  edm::Handle<reco::TrackCollection> trackCollection1;
+  ev.getByLabel("tracks1",trackCollection1);
+  const reco::TrackCollection tracks1 = *(trackCollection1.product());
+
+  cout << "Reconstructed TRACKS1: "<< tracks1.size() << " tracks" << std::endl;
+  for (IT it=tracks1.begin(); it!=tracks1.end(); it++) myprint(*it);
+
+  edm::Handle<reco::TrackCollection> trackCollection2;
+  ev.getByLabel("tracks2",trackCollection2);
+  const reco::TrackCollection tracks2 = *(trackCollection2.product());
+  cout << "Reconstructed TRACKS2: "<< tracks2.size() << " tracks" << std::endl;
+  for (IT it=tracks2.begin(); it!=tracks2.end(); it++) myprint(*it);
+
   cout <<"------------------------------------------------"<<endl;
-  }
+}
+
+void PixelTrackTest::myprint(const reco::Track & track) const
+{
+    cout << "--- RECONSTRUCTED TRACK: " << endl;
+    cout << "\tmomentum: " << track.momentum()
+         << "\tPT: " << track.pt()<< endl;
+    cout << "\tvertex: " << track.vertex()
+         << "\timpact parameter: " << track.d0()<< endl;
+    cout << "\tcharge: " << track.charge()<< endl;
+//    cout <<"\t\tNumber of RecHits "<<track->recHitsSize()<<endl;
+//  cout <<"PRINT: " << print(*track) << endl;
 
 }
+
  
 DEFINE_FWK_MODULE(PixelTrackTest)

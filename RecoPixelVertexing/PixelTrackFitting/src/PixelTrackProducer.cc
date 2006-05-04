@@ -65,7 +65,7 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
     hits.push_back( (*it).middle() );
     hits.push_back( (*it).outer() );
     const reco::Track *track = fitter->run(es,hits,region); 
-    result->push_back(*track);
+    if (track) result->push_back(*track);
 //    delete track;
   } 
   
