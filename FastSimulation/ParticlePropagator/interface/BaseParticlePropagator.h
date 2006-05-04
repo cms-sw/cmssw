@@ -132,12 +132,16 @@ public:
 
   /// Is the vertex inside the cylinder ? (stricly inside : true) 
   bool           inside() const;
+  bool           inside(double rPos) const;
   /// Is the vertex already on the cylinder surface ? 
   bool           onSurface() const;
+  bool           onSurface(double rPos) const;
   /// Is the vertex already on the cylinder barrel ? 
   bool           onBarrel() const;
+  bool           onBarrel(double rPos) const;
   /// Is the vertex already on the cylinder endcap ? 
   bool           onEndcap() const;
+  bool           onEndcap(double rPos) const;
   /// Is the vertex on some material ?
   bool           onFiducial() const { return fiducial; }
   /// Has the particle decayed while propagated ?
@@ -185,16 +189,21 @@ private:
 private:
   /// The helix Radius
   double        helixRadius() const;
+  double        helixRadius(double pT) const;
   /// The azimuth of the momentum at the vertex
   double        helixStartPhi() const;
   /// The x coordinate of the helix axis
   double        helixCentreX() const;
+  double        helixCentreX(double radius, double phi) const;
   /// The y coordinate of the helix axis
   double        helixCentreY() const;
+  double        helixCentreY(double radius, double phi) const;
   /// The distance between the cylinder and the helix axes
   double        helixCentreDistToAxis() const;
+  double        helixCentreDistToAxis(double xC, double yC) const;
   /// The azimuth if the vector joining the cylinder and the helix axes
   double        helixCentrePhi() const;
+  double        helixCentrePhi(double xC, double yC) const;
 };
 
 #endif

@@ -51,6 +51,7 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
   // Cut on kinematic properties
   // Cut on eta if the origin vertex is close to the beam
   bool etaCut = (p->vertex()-mainVertex).perp()>5. || fabs(p->eta())<=etaMax;
+  if ( !etaCut ) return false;
   // Cut on the energy of all particles
   bool eneCut = p->e() >= EMin;
   // Cut on the transverse momentum of charged particles

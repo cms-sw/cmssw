@@ -84,14 +84,17 @@ ParticlePropagator::propagateToBoundSurface(const TrackerLayer& layer) {
 
 
   fiducial = true;
-  bool disk = layer.forward();
-  double innerradius=-999;
+  BoundDisk* disk = layer.disk();
+  //  bool disk = layer.forward();
+  //  double innerradius=-999;
+  double innerradius = disk ? disk->innerRadius() : -999. ;
 
-  if( disk ) {
-    const Surface& surface = layer.surface();
-    const BoundDisk & myDisk = dynamic_cast<const BoundDisk&>(surface);
-    innerradius=myDisk.innerRadius();	  
-  }
+  //  if( disk ) {
+    //    const Surface& surface = layer.surface();
+    //    const BoundDisk & myDisk = dynamic_cast<const BoundDisk&>(surface);
+    //    innerradius=myDisk.innerRadius();	  
+  //    innerradius=myDisk->innerRadius();	  
+  //  }
 
   bool done = propagate();
 
@@ -109,25 +112,25 @@ ParticlePropagator::setPropagationConditions(const TrackerLayer& layer,
   setMagneticField(fieldMap(x(),y(),z()));
 
   // Set R and Z according to the Tracker Layer characteristics.
-  const Surface& surface = layer.surface();
+  //  const Surface& surface = layer.surface();
 
   if( layer.forward() ) {
 
-    const BoundDisk & myDisk = dynamic_cast<const BoundDisk&>(surface);
+    //    const BoundDisk & myDisk = dynamic_cast<const BoundDisk&>(surface);
     // ParticlePropagator works in mm, whereas the detector geometry is in cm
     BaseParticlePropagator::setPropagationConditions(
-                                  myDisk.outerRadius(),
-				  fabs(myDisk.position().z()),
+                                  layer.disk()->outerRadius(),
+				  fabs(layer.disk()->position().z()),
 				  firstLoop);       
 
   // ... or if it is a cylinder barrel 
   } else {
 
-    const BoundCylinder & myCylinder = dynamic_cast<const BoundCylinder &>(surface);
+    //    const BoundCylinder & myCylinder = dynamic_cast<const BoundCylinder &>(surface);
     // ParticlePropagator works now in cm
     BaseParticlePropagator::setPropagationConditions(
-					 myCylinder.radius(),
-					 myCylinder.bounds().length()/2.,
+					 layer.cylinder()->radius(),
+					 layer.cylinder()->bounds().length()/2.,
 					 firstLoop);
   }
 

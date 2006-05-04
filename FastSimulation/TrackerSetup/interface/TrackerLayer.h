@@ -2,6 +2,8 @@
 #define _TrackerLayer_H_
 
 #include "Geometry/Surface/interface/BoundSurface.h"
+#include "Geometry/Surface/interface/BoundCylinder.h"
+#include "Geometry/Surface/interface/BoundDisk.h"
 
 /** A class that gives some properties of the Tracker Layers in FAMOS
  */
@@ -26,6 +28,14 @@ public:
      isSensitive = (theLayerNumber!=0);
      theFirstRing = 0;
      theLastRing = 0;
+     if ( isForward ) { 
+       theDisk = dynamic_cast<BoundDisk*>(theSurface);
+       theCylinder = 0;
+     } else {
+       theCylinder = dynamic_cast<BoundCylinder*>(theSurface);
+       theDisk = 0;
+     }
+
    }
 
   TrackerLayer(BoundSurface* theSurface,
@@ -42,6 +52,8 @@ public:
      theResolutionAlongX = 0.;
      theResolutionAlongY = 0.;
      theHitEfficiency = 1.;
+     theDisk = dynamic_cast<BoundDisk*>(theSurface);
+     theCylinder = 0;
    }
 
   /// Is the layer sensitive ?
@@ -52,6 +64,12 @@ public:
 
   /// Returns the surface
   inline const BoundSurface& surface() const { return *theSurface; }
+
+  /// Returns the cylinder
+  inline BoundCylinder* cylinder() const { return theCylinder; }
+
+  /// Returns the surface
+  inline BoundDisk* disk() const { return theDisk; }
 
   /// Returns the layer number  
   inline unsigned layerNumber() const { return theLayerNumber; }
@@ -74,6 +92,8 @@ public:
 private:
 
   BoundSurface* theSurface;
+  BoundDisk* theDisk;
+  BoundCylinder* theCylinder;
   bool isForward;
   unsigned theLayerNumber;
   unsigned theFirstRing;
