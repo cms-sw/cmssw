@@ -21,12 +21,13 @@ MuonWebInterface::MuonWebInterface(std::string theContextURL, std::string theApp
   	ContentViewer * cont = new ContentViewer(getApplicationURL(), "180px", "10px");
 
 	Button * butQTGlobal = new Button(getApplicationURL(), "310px", "10px", "QTGlobalStatus", "Check Quality Tests Global Status");
-  	Button * butQTDetailed = new Button(getApplicationURL(), "340px", "10px", "QTDetailedStatus ", "Check Quality Tests Detailed Status");
-	Button * butQTGlobalStop = new Button(getApplicationURL(), "310px", "400px", "QTGlobalStatusStop", "Stop Checking QT Global Status");
-  	Button * butQTDetailedStop = new Button(getApplicationURL(), "340px", "400px", "QTDetailedStatusStop", "Stop Checking QT Detailed Status");
+	Button * butQTGlobalStop = new Button(getApplicationURL(), "340px", "10px", "QTGlobalStatusStop", "Stop Checking QT Global Status");
 
-	GifDisplay * dis = new GifDisplay(getApplicationURL(), "50px","350px", "200px", "300px", "MyGifDisplay");
-	GifDisplay * dis2 = new GifDisplay(getApplicationURL(), "50px", "700px", "200px", "300px", "MyOtherGifDisplay");
+  	Button * butQTDetailed = new Button(getApplicationURL(), "390px", "10px", "QTDetailedStatus ", "Check Quality Tests Detailed Status");
+  	Button * butQTDetailedStop = new Button(getApplicationURL(), "420px", "10px", "QTDetailedStatusStop", "Stop Checking QT Detailed Status");
+
+	GifDisplay * dis = new GifDisplay(getApplicationURL(), "50px","630px", "500px", "800px", "MyGifDisplay");
+	GifDisplay * dis2 = new GifDisplay(getApplicationURL(), "650px", "10px", "500px", "800px", "MyOtherGifDisplay");
   
 	page_p = new WebPage(getApplicationURL());
  
@@ -61,18 +62,13 @@ void MuonWebInterface::handleCustomRequest(xgi::Input * in, xgi::Output * out ) 
 }
 
 
-
-
 void MuonWebInterface::CheckQTGlobalStatus(xgi::Input * in, xgi::Output * out, bool start ) throw (xgi::exception::Exception)
 {
-  std::cout << "Checking global status" << std::endl;
   checkQTGlobalStatus=start;
 }
 
 void MuonWebInterface::CheckQTDetailedStatus(xgi::Input * in, xgi::Output * out, bool start ) throw (xgi::exception::Exception)
 {
-  std::cout << "Checking Detailed Status" << std::endl;
   checkQTDetailedStatus=start;
-  
 }
 
