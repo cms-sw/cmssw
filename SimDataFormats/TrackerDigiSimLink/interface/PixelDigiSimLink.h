@@ -1,6 +1,8 @@
 #ifndef TRACKINGOBJECTS_PIXELDIGISIMLINK_H
 #define TRACKINGOBJECTS_PIXELDIGISIMLINK_H
 
+#include "boost/cstdint.hpp"
+
 //typedef std::pair<unsigned int ,unsigned int > PixelDigiSimLink;
 class PixelDigiSimLink {
 public:
@@ -17,6 +19,9 @@ public:
   unsigned int channel() const{return chan;};
   unsigned int SimTrackId() const{return simTkId;};
   float fraction() const{return fract;};
+
+
+
  private:
   unsigned int chan;
   unsigned int simTkId;

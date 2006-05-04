@@ -5,11 +5,18 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include <vector>
 
-#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 
 namespace {
   namespace {
-    edm::Wrapper<PixelDigiSimLinkCollection> PixelDigiSimLinkCollectionWrapper;
+   edm::Wrapper<PixelDigiSimLink> PixelLink1;
+    edm::Wrapper< std::vector<PixelDigiSimLink>  > PixelLink2;
+    edm::Wrapper< edm::DetSet<PixelDigiSimLink> > PixelLink3;
+    edm::Wrapper< std::vector<edm::DetSet<PixelDigiSimLink> > > PixelLink4;
+    edm::Wrapper< edm::DetSetVector<PixelDigiSimLink> > PixelLink5;
+
+
+
   }
 }
 
