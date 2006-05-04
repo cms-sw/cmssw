@@ -53,8 +53,11 @@ namespace cms{
     
     
     // Step A: Retrieve seeds
+    
+    std::string seedProducer = conf_.getParameter<std::string>("SeedProducer");
     edm::Handle<TrajectorySeedCollection> collseed;
-    e.getByType(collseed);
+    e.getByLabel(seedProducer, collseed);
+    //    e.getByType(collseed);
     TrajectorySeedCollection theSeedColl = *collseed;
     
     // Step B: Create empty output collection

@@ -41,7 +41,14 @@ void GlobalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
 
-  e.getByType(pixelHits);
+
+  //
+  // get the pixel Hits
+  //
+  std::string hitProducer = conf_.getParameter<std::string>("HitProducer");
+  e.getByLabel(hitProducer, pixelHits);
+
+  //  e.getByType(pixelHits);
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   //

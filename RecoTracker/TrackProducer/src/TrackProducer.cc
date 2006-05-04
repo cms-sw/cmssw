@@ -72,9 +72,9 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   //get the TrackCandidateCollection from the event
   //
   edm::LogInfo("TrackProducer") << 
-    "get the TrackCandidateCollection from the event" << "\n";
+    "get the TrackCandidateCollection from the event, source is " << src_<<"\n";
   edm::Handle<TrackCandidateCollection> theTCCollection;
-  theEvent.getByType(theTCCollection );
+  theEvent.getByLabel(src_,theTCCollection );
 
   //
   //run the algorithm  
