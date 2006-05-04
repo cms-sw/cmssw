@@ -1,7 +1,7 @@
 /** \file
  * Implementation of class RPCFEDData
  *
- *  $Date: 2005/12/15 17:49:02 $
+ *  $Date: 2006/03/30 15:18:34 $
  *  $Revision: 1.1 $
  *
  * \author Ilaria Segoni
@@ -33,7 +33,6 @@ void RPCFEDData::addRMBData(int rmb,int chn, RPCLinkBoardData lbData){
  if( rmbDataMap.find(rmb) != rmbDataMap.end() ){
 	channel_lb_map = rmbDataMap[rmb];
 	if(channel_lb_map.find(chn) != channel_lb_map.end()){
-    		edm::LogInfo ("RPCUnpacker")<<"sonoqui2 ";
 		data=channel_lb_map[chn];
 	}  
 	   
