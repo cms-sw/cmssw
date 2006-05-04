@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/04/24 16:14:30 $
- * $Revision: 1.4 $
+ * $Date: 2006/05/04 11:16:28 $
+ * $Revision: 1.5 $
  * \author F. Cossutti
  *
 */
@@ -226,7 +226,7 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
       for (int sample = 0 ; sample < digis->size () ; ++sample) {
         ebAnalogSignal[sample] = 0.;
         ebADCCounts[sample] = 0.;
-        ebADCGains[sample] = 0.;
+        ebADCGains[sample] = -1.;
       }
 
       for (int sample = 0 ; sample < digis->size () ; ++sample)
@@ -311,7 +311,7 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
       for (int sample = 0 ; sample < digis->size () ; ++sample) {
         eeAnalogSignal[sample] = 0.;
         eeADCCounts[sample] = 0.;
-        eeADCGains[sample] = 0.;
+        eeADCGains[sample] = -1.;
       }
 
       for (int sample = 0 ; sample < digis->size () ; ++sample)

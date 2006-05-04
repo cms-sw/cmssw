@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2006/04/24 16:14:30 $
- * $Revision: 1.2 $
+ * $Date: 2006/05/04 11:16:28 $
+ * $Revision: 1.3 $
  * \author F. Cossutti
  *
 */
@@ -165,7 +165,7 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
       for (int sample = 0 ; sample < digis->size () ; ++sample) {
         ebAnalogSignal[sample] = 0.;
         ebADCCounts[sample] = 0.;
-        ebADCGains[sample] = 0.;
+        ebADCGains[sample] = -1.;
       }
 
       for (int sample = 0 ; sample < digis->size () ; ++sample)
