@@ -2,17 +2,16 @@
  *
  *  Implementation of QTestStatusChecker
  *
- *  $Date: 2006/04/07 12:07:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/24 10:04:31 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni
  */
 
 #include "DQM/RPCMonitorClient/interface/QTestStatusChecker.h"
-#include "DQM/RPCMonitorClient/interface/DQMClientDefineDebug.h"
+#include "DQM/RPCMonitorClient/interface/QTestDefineDebug.h"
 #include <iostream>
 
 QTestStatusChecker::QTestStatusChecker(){
-	logFile.open("QTestStatusChecker.log");
 
 }
 
@@ -20,7 +19,7 @@ QTestStatusChecker::~QTestStatusChecker(){
 }
 
 std::pair<std::string,std::string> QTestStatusChecker::checkGlobalStatus(MonitorUserInterface * mui){
-        #ifdef DEBUG
+        #ifdef QT_MANAGING_DEBUG
 		std::cout << "In QTestStatusChecker::checkGlobalStatus" << std::endl;
 		std::cout <<"Possible states: successful "<< dqm::qstatus::STATUS_OK<<", error:  " 
 		<< dqm::qstatus::ERROR<<", warning:  "<< dqm::qstatus::WARNING<<
@@ -47,7 +46,7 @@ std::pair<std::string,std::string> QTestStatusChecker::checkGlobalStatus(Monitor
 	    		statement.second="green";
 	}
 
-        #ifdef DEBUG
+        #ifdef QT_MANAGING_DEBUG
 		std::cout << "In QTestStatusChecker::checkGlobalStatus" << std::endl;
 		std::cout <<"Possible states: successful "<< dqm::qstatus::STATUS_OK<<", error:  " 
 		<< dqm::qstatus::ERROR<<", warning:  "<< dqm::qstatus::WARNING<<
@@ -60,8 +59,8 @@ std::pair<std::string,std::string> QTestStatusChecker::checkGlobalStatus(Monitor
 }
 
 std::map< std::string, std::vector<std::string> > QTestStatusChecker::checkDetailedStatus(MonitorUserInterface * mui){ 
-        #ifdef DEBUG
-		std::cout << "In QTestStatusChecker::checkDetailedStatus" << std::endl;
+        #ifdef QT_MANAGING_DEBUG
+	std::cout << "In QTestStatusChecker::checkDetailedStatus" << std::endl;
 	#endif
 	detailedWarnings.clear();
 	this->searchDirectories(mui);
@@ -75,9 +74,9 @@ void QTestStatusChecker::searchDirectories(MonitorUserInterface * mui) {
 	int numberOfME=meNames.size();
 	int numberOfDir=dirNames.size();
         
-	#ifdef DEBUG
-		std::string currentDir=mui->pwd();
-		logFile << "Searching ME's with quality tests in " << currentDir<<"\n"
+	std::string currentDir=mui->pwd();
+	#ifdef QT_MANAGING_DEBUG
+	std::cout << "Searching ME's with quality tests in " << currentDir<<"\n"
 		      << "There are " << numberOfME <<" monitoring elements and "
 		      << numberOfDir<<" directories\n"<< std::endl;
 	#endif
@@ -112,31 +111,34 @@ void QTestStatusChecker::processAlarms(std::vector<std::string> meNames, std::st
 		sprintf(fullPath,"%s/%s",currentDir.c_str(),(*nameItr).c_str());
 		me= mui->get(fullPath);
 		std::vector<QReport *> report;
-		logFile <<"ME: "  <<(*nameItr)<<std::endl;
 
 		if(me){
-			logFile <<"is present and has ";
-			
 		 	if (me->hasError()){
 		 		colour="red";
 				report= me->getQErrors();
-        			logFile <<"errors: "<<report.size();
+				#ifdef QT_MANAGING_DEBUG
+        			std::cout<<"ME: "  <<(*nameItr) <<" has "<<report.size()<<" errors: "<<std::endl;
+				#endif
 		 	} 
 		 	if( me->hasWarning()){ 
 		 		colour="orange";
 				report= me->getQWarnings();
-        			logFile <<"warnings: "<<  report.size();
+				#ifdef QT_MANAGING_DEBUG
+        			std::cout<<"ME: "  <<(*nameItr) <<" has "<< report.size() <<" warnings: "<<std::endl;
+				#endif
 		 	}
 		 	if(me->hasOtherReport()){
 		 		colour="black";
  				report= me->getQOthers();
-       				logFile <<"other messages: "<<  report.size();
+				#ifdef QT_MANAGING_DEBUG
+       				std::cout <<"ME: "  <<(*nameItr) <<" has "<< report.size()<<" messages: "<<std::endl;
+				#endif
 		 	}
 		 	for(std::vector<QReport *>::iterator itr=report.begin(); itr!=report.end();++itr ){
 				sprintf(text,"%s:%s",(*nameItr).c_str(),((*itr)->getMessage()).c_str());
 				
-				#ifdef DEBUG
-					std::cout<<"MonitorElement "<<fullPath<<" has message: "<<(*itr)->getMessage()<<std::endl;
+				#ifdef QT_MANAGING_DEBUG
+				std::cout<<"MonitorElement "<<fullPath<<" has message: "<<(*itr)->getMessage()<<std::endl;
 				#endif
 	    		
 				std::vector<std::string> messageList;
@@ -149,7 +151,6 @@ void QTestStatusChecker::processAlarms(std::vector<std::string> meNames, std::st
 	    			}	    
 		 	}	
 		}
-		logFile <<"Is not present."<<std::endl;
 
 	}
 
