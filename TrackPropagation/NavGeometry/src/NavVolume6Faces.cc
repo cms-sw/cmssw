@@ -31,7 +31,7 @@ NavVolume6Faces::NavVolume6Faces( const PositionType& pos,
        i != faces.end(); i++) {
     theFaces.push_back( VolumeSide( const_cast<Surface*>(&(i->surface().surface())), 
 				    i->globalFace(), i->surfaceSide()));
-  std::cout << " or actually this is where we have side " << i->surfaceSide() << " and face " << i->globalFace() << std::endl;
+    //  std::cout << " or actually this is where we have side " << i->surfaceSide() << " and face " << i->globalFace() << std::endl;
   }
 
 
@@ -100,7 +100,7 @@ void NavVolume6Faces::computeBounds(const std::vector<NavVolumeSide>& faces)
 // a copy of Bounds for each touching Volume (instantiated in the call to addVolume).
 // We would like to keep a pointer to the same Bounds in the NavVolume, so we have to ASK
 // the NavSurface for the Bounds* of the Bounds we just gave it!
-	std::cout << "Adding a Volume Side with center " << navSurf.surface().position() << " side "<< faces[i].surfaceSide() << " and face " << faces[i].globalFace()<< std::endl;
+	//std::cout << "Adding a Volume Side with center " << navSurf.surface().position() << " side "<< faces[i].surfaceSide() << " and face " << faces[i].globalFace()<< std::endl;
 	theNavSurfaces.push_back( SurfaceAndBounds(&navSurf, navSurf.bounds(this), faces[i].surfaceSide(), faces[i].globalFace()));
     }
 }
@@ -240,7 +240,7 @@ NavVolume6Faces::crossToNextVolume( const TrajectoryStateOnSurface& startingStat
       continue;
     }
     if (isur->bounds().inside(state.localPosition())) {
-      std::cout << "crossToNextVolume: Surface containing destination point found at try " << itry << std::endl;
+      //std::cout << "crossToNextVolume: Surface containing destination point found at try " << itry << std::endl;
       // Found the exit surface !! Get pointer to next volume and save exit state:
       VolumeCrossResult.first = isur->surface().nextVolume(state.localPosition(),oppositeSide(isur->side()));
       VolumeCrossResult.second = state;
