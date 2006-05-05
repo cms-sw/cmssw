@@ -4,13 +4,14 @@
 #include "Geometry/Surface/interface/GloballyPositioned.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "MagneticField/VolumeGeometry/interface/VolumeSide.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include <vector>
 
 template <class T>
 class MagneticFieldProvider;
 
-class MagVolume : public GloballyPositioned<float> {
+class MagVolume : public GloballyPositioned<float>, public MagneticField {
 public:
 
   typedef GloballyPositioned<float>    Base;
@@ -37,6 +38,10 @@ public:
 
   /// Access to volume faces
   virtual std::vector<VolumeSide> faces() const = 0;
+
+  virtual ::GlobalVector inTesla ( const ::GlobalPoint& gp) const {
+    return fieldInTesla( gp);
+  }
 
 private:
 
