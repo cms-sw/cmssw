@@ -10,7 +10,7 @@ void SiPixelDigiCompare()
 
  TText* te = new TText();
  TFile * rfile = new TFile(rfilename);
- TFile * sfile = new TFile(rfilename);
+ TFile * sfile = new TFile(sfilename);
  Char_t histo[200];
 
  rfile->cd("DQMData");
