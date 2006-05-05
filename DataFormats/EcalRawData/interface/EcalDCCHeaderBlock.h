@@ -7,51 +7,55 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.4 2006/02/23 16:06:30 ghezzi Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.5 2006/02/23 18:58:47 ghezzi Exp $
  */
 
 #include <vector>
 
 #define MAX_TCC_SIZE 4
 #define MAX_TT_SIZE 70
-enum EcalDCCRuntype{
-  COSMIC = 0,
-  BEAMH4 =1, 
-  BEAMH2 = 2,  
-  MTCC =3,
-  LASER_STD = 4,
-  LASER_POWER_SCAN = 5,
-  LASER_DELAY_SCAN = 6,
-  TESTPULSE_SCAN_MEM = 7,
-  TESTPULSE_MGPA = 8,
-  PEDESTAL_STD = 9,
-  PEDESTAL_OFFSET_SCAN = 10,
-  PEDESTAL_25NS_SCAN = 11,
-  LED_STD= 12
-};
 
-enum EcalBasicTriggerType{
-  PHYSICS_TRIGGER = 1,
-  CALIBRATION_TRIGGER = 2,
-  TEST_TRIGGER = 3,
-  TECHNICAL_EXTERNAL_TRIGGER = 4
-};
 
-struct EcalDCCEventSettings{
- short LaserPower;
- short LaserFilter;
- short wavelength;
- short delay;
- short MEMVinj;
- short mgpa_content;
- short ped_offset;
-};
 
 class EcalDCCHeaderBlock
 {
 
  public:
+
   typedef int key_type; ///< For the sorted collection 
+
+  enum EcalDCCRuntype{
+    COSMIC = 0,
+    BEAMH4 =1, 
+    BEAMH2 = 2,  
+    MTCC =3,
+    LASER_STD = 4,
+    LASER_POWER_SCAN = 5,
+    LASER_DELAY_SCAN = 6,
+    TESTPULSE_SCAN_MEM = 7,
+    TESTPULSE_MGPA = 8,
+    PEDESTAL_STD = 9,
+    PEDESTAL_OFFSET_SCAN = 10,
+    PEDESTAL_25NS_SCAN = 11,
+    LED_STD= 12
+  };
+  
+  enum EcalBasicTriggerType{
+    PHYSICS_TRIGGER = 1,
+    CALIBRATION_TRIGGER = 2,
+    TEST_TRIGGER = 3,
+    TECHNICAL_EXTERNAL_TRIGGER = 4
+  };
+  
+  struct EcalDCCEventSettings{
+    short LaserPower;
+    short LaserFilter;
+    short wavelength;
+    short delay;
+    short MEMVinj;
+    short mgpa_content;
+    short ped_offset;
+  };
 
   EcalDCCHeaderBlock();
   EcalDCCHeaderBlock(const int& dccId);
