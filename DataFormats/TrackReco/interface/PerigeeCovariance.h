@@ -38,6 +38,9 @@ namespace reco {
       /// accessing (i, j)-th parameter, i, j = 0, ..., 4
       double & operator()( index i, index j ) { return cov_ ( i, j ); }
 
+      /// error on specified element
+      double error( index i ) const { return sqrt( cov_( i, i ) ); }
+
       /// error on the transverse curvature
       double transverseCurvatureError() const { return sqrt( cov_( i_tcurv, i_tcurv ) ); }
       /// error on theta
