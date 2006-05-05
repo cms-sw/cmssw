@@ -3,6 +3,8 @@
 
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
+#include "DataFormats/TrackReco/interface/PerigeeCovariance.h"
+
 /**
  *  Class providing access to the <i> Perigee</i> parameters of a trajectory.
  *  These parameters consist of <BR>
@@ -19,6 +21,8 @@ public:
 
   PerigeeTrajectoryError(AlgebraicSymMatrix aPerigeeError):
     thePerigeeError(aPerigeeError), weightIsAvailable(false) {}
+
+  PerigeeTrajectoryError(const reco::perigee::Covariance & perigeeCov);
 
   /**
    * The covariance matrix
@@ -41,6 +45,9 @@ public:
     }
     return thePerigeeWeight;
   }
+
+  operator reco::perigee::Covariance() const;
+
 
 private:
   AlgebraicSymMatrix thePerigeeError;

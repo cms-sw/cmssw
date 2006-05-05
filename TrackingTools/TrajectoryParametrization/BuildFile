@@ -2,11 +2,15 @@
 <export>
   <lib name=TrackingToolsTrajectoryParametrization>
   <use name=Geometry/CommonDetAlgo>
+  <use name=DataFormats/Math>
+  <use name=DataFormats/TrackReco>
   <use name=FWCore/Utilities>
   <use name=clhep>
   <use name=boost>
 </export>
 
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/Math>
 <use name=Geometry/CommonDetAlgo> 
 <use name=FWCore/Utilities>
 <use name=clhep>
