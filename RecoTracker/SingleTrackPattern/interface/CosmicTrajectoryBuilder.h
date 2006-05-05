@@ -109,6 +109,7 @@ class CosmicTrajectoryBuilder
    vector<BarrelDetLayer*> bl;
    int theMinHits;
    bool chi2cut;
+   bool crossVecCut;
    std::vector<Trajectory> trajFit;
    unsigned int indexlayer; 
     edm::OwnVector<TransientTrackingRecHit> hits;
