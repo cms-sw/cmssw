@@ -9,7 +9,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Id: HelixParameters.h,v 1.10 2006/04/03 11:59:29 llista Exp $
+ * \version $Id: HelixParameters.h,v 1.11 2006/04/19 13:35:05 llista Exp $
  *
  */
 
@@ -93,11 +93,11 @@ namespace reco {
     
     inline Vector Parameters::momentum() const {
       double p_t = pt();
-      return Vector( - p_t * sin( phi0() ), p_t * cos( phi0() ), p_t * tanDip() );
+      return Vector( pt() * cos( phi0() ), pt() * sin( phi0() ), p_t * tanDip() );
     }
     
     inline Point Parameters::vertex() const {
-      return Point( d0() * cos( phi0() ), d0() * sin( phi0() ), dz() );
+      return Point( d0() * sin( phi0() ), - d0() * cos( phi0() ), dz() );
     }
 
   }
