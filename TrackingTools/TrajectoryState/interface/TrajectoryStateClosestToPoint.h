@@ -8,7 +8,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
-#include "DataFormats/TrackReco/interface/HelixParameters.h"
+#include "DataFormats/TrackReco/interface/PerigeeParameters.h"
 
 /**
  * Trajectory state defined at a given point on the helix, which is 
@@ -45,12 +45,12 @@ public:
     const PerigeeTrajectoryError& perigeeError, const GlobalPoint& referencePoint);
 
 
-  TrajectoryStateClosestToPoint(const reco::helix::Parameters & helixPar, 
+  TrajectoryStateClosestToPoint(const reco::perigee::Parameters & perigeePar, 
 	const GlobalPoint& referencePoint);
 
 
-  TrajectoryStateClosestToPoint(const reco::helix::Parameters & helixPar, 
-	const reco::helix::Covariance & helixCov, const GlobalPoint& referencePoint);
+  TrajectoryStateClosestToPoint(const reco::perigee::Parameters & perigeePar, 
+	const reco::perigee::Covariance & perigeeCov, const GlobalPoint& referencePoint);
 
 
   /**

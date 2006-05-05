@@ -42,7 +42,7 @@ PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   theTrackParameters[2] = phi;
   theTrackParameters[3] = epsilon;
   theTrackParameters[4] = impactDistance.z();
-  return PerigeeTrajectoryParameters(theTrackParameters, isCharged);
+  return PerigeeTrajectoryParameters(theTrackParameters, pt, isCharged);
 }
 
 PerigeeTrajectoryParameters PerigeeConversions::helixToPerigeeParameters
@@ -55,7 +55,7 @@ PerigeeTrajectoryParameters PerigeeConversions::helixToPerigeeParameters
   theTrackParameters[2] = helixPar.phi0() - M_PI/2;
   theTrackParameters[3] = helixPar.d0();
   theTrackParameters[4] = helixPar.dz();
-  return PerigeeTrajectoryParameters(theTrackParameters, true);
+  return PerigeeTrajectoryParameters(theTrackParameters, helixPar.pt(), true);
 }
 
 PerigeeTrajectoryError PerigeeConversions::ftsToPerigeeError
@@ -90,7 +90,7 @@ PerigeeTrajectoryError PerigeeConversions::helixToPerigeeError
   helixCovMatrix(3,4) = helixCov(reco::helix::i_omega,reco::helix::i_dz);
   helixCovMatrix(3,5) = helixCov(reco::helix::i_omega,reco::helix::i_tanDip);
 
-  helixCovMatrix(5,5) = helixCov(reco::helix::i_dz,reco::helix::i_tanDip);
+  helixCovMatrix(4,5) = helixCov(reco::helix::i_dz,reco::helix::i_tanDip);
 
   AlgebraicMatrix helix2perigee = jacobianHelix2Perigee(helixPar, helixCov);
   return PerigeeTrajectoryError(helixCovMatrix.similarity(helix2perigee));
@@ -117,7 +117,9 @@ GlobalPoint PerigeeConversions::positionFromPerigee
 GlobalVector PerigeeConversions::momentumFromPerigee
   (const PerigeeTrajectoryParameters& parameters, const GlobalPoint& referencePoint) const
 {
-  return momentumFromPerigee(parameters.vector(), parameters.charge(), referencePoint);
+  return GlobalVector(cos(parameters.phi()) * parameters.pt(),
+  		      sin(parameters.phi()) * parameters.pt(),
+   		      parameters.pt()/tan(parameters.theta()));
 }
 
 GlobalVector PerigeeConversions::momentumFromPerigee

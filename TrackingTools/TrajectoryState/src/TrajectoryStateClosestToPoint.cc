@@ -19,21 +19,22 @@ TrajectoryStateClosestToPoint(const FTS& originalFTS, const GlobalPoint& referen
 
 
 TrajectoryStateClosestToPoint::
-TrajectoryStateClosestToPoint(const reco::helix::Parameters & helixPar, 
+TrajectoryStateClosestToPoint(const reco::perigee::Parameters & perigeePar, 
 	const GlobalPoint& referencePoint) :
-  theFTSavailable(false), theRefPoint(referencePoint), errorIsAvailable(false)
+  theFTSavailable(false), theRefPoint(referencePoint), theParameters(perigeePar), errorIsAvailable(false)
 {
-  theParameters = perigeeConversions.helixToPerigeeParameters(helixPar, referencePoint);
+//   theParameters = perigeeConversions.helixToPerigeeParameters(helixPar, referencePoint);
 }
 
 
 TrajectoryStateClosestToPoint::
-TrajectoryStateClosestToPoint(const reco::helix::Parameters & helixPar, 
-	const reco::helix::Covariance & helixCov, const GlobalPoint& referencePoint) :
-  theFTSavailable(false), theRefPoint(referencePoint), errorIsAvailable(true)
+TrajectoryStateClosestToPoint(const reco::perigee::Parameters & perigeePar, 
+	const reco::perigee::Covariance & perigeeCov, const GlobalPoint& referencePoint) :
+  theFTSavailable(false), theRefPoint(referencePoint), theParameters(perigeePar),
+  thePerigeeError(perigeeCov), errorIsAvailable(true)
 {
-  theParameters = perigeeConversions.helixToPerigeeParameters(helixPar, referencePoint);
-  thePerigeeError = perigeeConversions.helixToPerigeeError(helixPar, helixCov);
+//   theParameters = perigeeConversions.helixToPerigeeParameters(helixPar, referencePoint);
+//   thePerigeeError = perigeeConversions.helixToPerigeeError(helixPar, helixCov);
 }
 
   /**
