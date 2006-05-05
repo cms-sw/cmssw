@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/20 17:10:32 $
- * $Revision: 1.4 $
+ * $Date: 2006/05/02 07:08:42 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -219,10 +219,21 @@ std::ostream& operator<<(std::ostream& os, const DTRecSegment4D& seg) {
 
 /// Access to component RecHits (if any)
 std::vector<const TrackingRecHit*> DTRecSegment4D::recHits() const{
-  return std::vector<const TrackingRecHit*>();
+  std::vector<const TrackingRecHit*> pointersOfRecHits; 
+
+  pointersOfRecHits.push_back(phiSegment());
+  pointersOfRecHits.push_back(zSegment());
+
+  return pointersOfRecHits;
 }
 
 /// Non-const access to component RecHits (if any)
 std::vector<TrackingRecHit*> DTRecSegment4D::recHits(){
-  return std::vector<TrackingRecHit*>(); 
+
+  std::vector<TrackingRecHit*> pointersOfRecHits; 
+
+  pointersOfRecHits.push_back(phiSegment());
+  pointersOfRecHits.push_back(zSegment());
+  
+  return pointersOfRecHits;
 }
