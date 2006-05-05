@@ -2,8 +2,8 @@
  *
  *  Implementation of SiStripQualityTester
  *
- *  $Date: 2006/04/19 17:06:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/03 09:15:02 $
+ *  $Revision: 1.3 $
  *  \author Suchandra Dutta
  */
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
@@ -56,10 +56,12 @@ void SiStripQualityTester::setupQTests(MonitorUserInterface* mui) {
 void SiStripQualityTester::readQualityTests(string fname) {
   // Instantiate the parser and read tests 
   QTestConfigurationParser qTestParser;
-  qTestParser.parseQTestsConfiguration(fname);
+  qTestParser.getDocument(fname);
+  qTestParser.parseQTestsConfiguration();
   theQTestMap = qTestParser.testsList();
   theMeAssociateMap =  qTestParser.meToTestsList();
 }  
+//
 //
 // -- Attach Quality Tests to ME's
 //

@@ -40,11 +40,22 @@
 3. Running
 =================
 
-  - start the collector    (execute DQLCollector)
-  - start the source       (execute cmsRun -p DQM_digicluster.cfg in 
-                           DQM/SiStripMonitorCluster/test directory)
-  - start xdaq executable (execute startMonitorClient in 
-                           DQM/SiStripMonitorClient/test directory)
-  - in a web browser open the link
-      http://MACHINE_NAME:1972  (e.g http://lxplus020.cern.ch:1972)
-      
+  - do not forget to execute
+     eval `scramv1 runtime -csh`
+
+  - collector
+        execute DQLCollector from any directory 
+
+  - source
+        execute cmsRun -p DQM_digicluster.cfg in DQM/StripMonitorCluster/test directory
+
+
+  - client (start xdaq executable)
+       in DQM/SiStripMonitorClient/test directory
+
+        o execute setup.sh script to setup the machine name
+        o execute startMonitorClient script to start xdaq executable
+
+        o in a web browser open the link
+           http://MACHINE_NAME:1972  (e.g http://lxplus020.cern.ch:1972)
+
