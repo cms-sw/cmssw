@@ -19,7 +19,7 @@
 
 namespace reco {
 
-  class CombinedBTagInfo : public reco::JetTag {
+  class CombinedBTagInfo  {
 
   public:
     ////////////////////////////////////////////////////
@@ -122,6 +122,15 @@ namespace reco {
       int    ndof;
       int    nTracks; // number of tracks associated 
                       // with this vertex.
+      double sumPx;   // sum of x-component of momentum of all charged tracks at vertex
+      double sumPy;   //        y-
+      double sumPz;   //        z-
+      double mass;    /** mass computed from all charged tracks at this
+		       *  vertex assuming Pion mass hypothesis.
+		       *  For now, loop over all tracks and
+		       *  compute m^2 = Sum(E^2) - Sum(p^2)
+		       */
+      bool   isV0;     // has been tagged as V0 (true) or not (false);
       double flightDistance2D;
       double flightDistanceSignificance2D;
       double flightDistance3D;
@@ -228,8 +237,6 @@ namespace reco {
 				   *  "PseudoVertex" or "NoVertex"
 				   */
 	        
-    Hep3Vector  pAll_;       // 3-vec of all charged tracks
-
     /** Store for easier access also
      *  min, max, mean of
      *  flightDistance{2D,3D} and significance
@@ -269,7 +276,15 @@ namespace reco {
      *  see comment at beginning of this header file.
      */
 
-    Hep3Vector  pB_;
+    Hep3Vector  pB_;                   /** computed from all tracks all all
+					*  secondary vertices,
+					*  pX = Sum(pX), etc
+					*/
+
+    Hep3Vector  pAll_;                  /** same as above but computed from 
+					 *  all tracks in jet
+					 */
+    
     double      bPLong_;               /** longitudinal component of B momentum vector
 					*  pBLong =  pAll*pB
 					*           ---------
@@ -280,17 +295,32 @@ namespace reco {
 					*   pt     = sqrt(|pB|*|pB| - pBLong*pBLong)
 					*/
     
-    double      vertexMass_;           /** all tracks are assumed to be pions,
+    double      vertexMass_;           /** all tracks are assumed to be Pions,
 					*  m = sqrt(E**2 - p**2)
 					*/
-    int         vertexMultiplicity_;   /** number of all tracks at all 
-					*  secondary vertices
+
+    double      vertexEnergyCharged_;  /** energy calculated from all tracks
+					*  used at secondary vertices.
+					*  tracks are assumed to be Pions
 					*/
+
+    double      jetEnergyAll_;          /** energy calculated from all tracks
+					*  tracks associated to jet
+					*  Tracks are assumed to be Pions.
+					*/
+
     double      eSVXOverE_;            /** energy of all tracks at all secondary
 					*  vertices divieded by energy of all tracks
 					*  tracks associated to jet, 
-					*  all tracks are assumed to be pions
+					*  all tracks are assumed to be Pions
+					*  I.e.vertexEnergyCharged_/jetEnergyAll_
 					*/
+
+
+    int         vertexMultiplicity_;   /** number of all tracks at all 
+					*  secondary vertices
+					*/
+
     double      meanTrackY_;           /** mean track rapidity
 					*  Track rapidities are calculated w.r.t.
 					*  vector of all tracks at all secondary vertices
