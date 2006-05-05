@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/TrackReco/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"  
 #include "SimDataFormats/Track/interface/EmbdSimTrack.h"

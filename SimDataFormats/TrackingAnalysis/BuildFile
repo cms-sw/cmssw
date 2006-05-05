@@ -1,0 +1,16 @@
+<use name=DataFormats/Math>
+<use name=DataFormats/Common>
+<use name=DataFormats/TrackReco>
+<use name=SimDataFormats/Track>
+<use name=SimDataFormats/TrackingHit>
+<use name=SimG4Core/Generators>
+<flags LCGDICT_ARGS="--deep">
+<export>
+ <lib name=SimDataFormatsTrackingAnalysis>
+ <use name=DataFormats/Math>
+ <use name=DataFormats/Common>
+ <use name=DataFormats/TrackReco>
+ <use name=SimDataFormats/Track>
+ <use name=SimDataFormats/TrackingHit>
+ <use name=SimG4Core/Generators>
+</export>
