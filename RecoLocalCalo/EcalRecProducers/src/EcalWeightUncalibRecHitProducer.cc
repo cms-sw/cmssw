@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.10 2006/04/07 12:47:07 meridian Exp $
-  *  $Date: 2006/04/07 12:47:07 $
-  *  $Revision: 1.10 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.11 2006/04/21 10:32:35 meridian Exp $
+  *  $Date: 2006/04/21 10:32:35 $
+  *  $Revision: 1.11 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -77,7 +77,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
      EBdigis = pEBDigis.product(); // get a ptr to the produc
      edm::LogInfo("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size() ;
    } catch ( std::exception& ex ) {
-     edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
+     // edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
    }
 
    try {
@@ -86,7 +86,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
      EEdigis = pEEDigis.product(); // get a ptr to the product
      edm::LogInfo("EcalUncalibRecHitInfo") << "total # EEdigis: " << EEdigis->size() ;
    } catch ( std::exception& ex ) {
-     edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EEdigiCollection_.c_str() ;
+     //edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EEdigiCollection_.c_str() ;
    }
 
     // fetch map of groups of xtals
