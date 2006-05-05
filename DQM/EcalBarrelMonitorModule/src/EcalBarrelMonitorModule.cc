@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/04/30 17:43:00 $
- * $Revision: 1.88 $
+ * $Date: 2006/05/01 09:00:34 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -18,17 +18,17 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   string s = ps.getUntrackedParameter<string>("runType", "unknown");
 
   if ( s == "COSMIC" ) {
-    runType_ = COSMIC;
+    runType_ = EcalDCCHeaderBlock::COSMIC;
   } else if ( s == "LASER" ) {
-    runType_ = LASER_STD;
+    runType_ = EcalDCCHeaderBlock::LASER_STD;
   } else if ( s == "PEDESTAL" ) {
-    runType_ = PEDESTAL_STD;
+    runType_ = EcalDCCHeaderBlock::PEDESTAL_STD;
   } else if ( s == "TEST_PULSE" ) {
-    runType_ = TESTPULSE_MGPA;
+    runType_ = EcalDCCHeaderBlock::TESTPULSE_MGPA;
   } else if ( s == "ELECTRON" ) {
-    runType_ = BEAMH4;
+    runType_ = EcalDCCHeaderBlock::BEAMH4;
   } else if ( s == "ELECTRON2" ) {
-    runType_ = BEAMH2;
+    runType_ = EcalDCCHeaderBlock::BEAMH2;
   }
 
   LogInfo("EcalBarrelMonitor") << " Processing run type: " << runType_ << " (" << s << ")";
@@ -217,7 +217,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( dccMap[dcch.id()].getRunType() != -1 ) evtType_ = dccMap[dcch.id()].getRunType();
 
     // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
-    //    if ( ievt_ % 10 == 0 && ( runType_ == COSMIC || runType_ == BEAMH4 ) ) evtType_ = LASER_STD;
+    //    if ( ievt_ % 10 == 0 && ( runType_ == EcalDCCHeaderBlock::COSMIC || runType_ == EcalDCCEventHeaderBlock::BEAMH4 ) ) evtType_ = EcalDCCEventHeaderBlock::LASER_STD;
 
     if ( evtType_ < 0 || evtType_ > 9 ) {
       LogWarning("EcalBarrelMonitor") << "Unknown event type = " << evtType_;

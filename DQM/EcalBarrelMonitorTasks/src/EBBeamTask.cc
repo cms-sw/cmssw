@@ -1,8 +1,8 @@
 /*
  * \file EBBeamTask.cc
  *
- * $Date: 2006/02/21 20:32:48 $
- * $Revision: 1.2 $
+ * $Date: 2006/02/24 08:03:50 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -61,8 +61,8 @@ void EBBeamTask::analyze(const Event& e, const EventSetup& c){
 
     dccMap[dcch.id()] = dcch;
 
-    if ( dccMap[dcch.id()].getRunType() == BEAMH4 ) enable = true;
-    if ( dccMap[dcch.id()].getRunType() == BEAMH2 ) enable = true;
+    if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::BEAMH4 ) enable = true;
+    if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::BEAMH2 ) enable = true;
 
   }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2006/04/06 10:02:24 $
- * $Revision: 1.42 $
+ * $Date: 2006/04/07 09:34:02 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -130,7 +130,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     dccMap[dcch.id()] = dcch;
 
-    if ( dccMap[dcch.id()].getRunType() == TESTPULSE_MGPA ) enable = true;
+    if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ) enable = true;
 
   }
 
@@ -157,7 +157,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     int ism = id.ism();
 
-    if ( dccMap[ism-1].getRunType() != TESTPULSE_MGPA ) continue;
+    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
 
     LogDebug("EBTestPulseTask") << " det id = " << id;
     LogDebug("EBTestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -208,7 +208,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     int ism = id.ism();
 
-    if ( dccMap[ism-1].getRunType() != TESTPULSE_MGPA ) continue;
+    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
 
     LogDebug("EBTestPulseTask") << " det id = " << id;
     LogDebug("EBTestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -257,7 +257,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
     int num = id.iPnId();
 
-    if ( dccMap[ism-1].getRunType() != TESTPULSE_MGPA ) continue;
+    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
 
     LogDebug("EBTestPulseTask") << " det id = " << id;
     LogDebug("EBTestPulseTask") << " sm, num " << ism << " " << num;

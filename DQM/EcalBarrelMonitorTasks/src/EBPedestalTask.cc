@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/02/21 20:32:48 $
- * $Revision: 1.34 $
+ * $Date: 2006/04/07 09:34:02 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -120,7 +120,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     dccMap[dcch.id()] = dcch;
 
-    if ( dccMap[dcch.id()].getRunType() == PEDESTAL_STD ) enable = true;
+    if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ) enable = true;
 
   }
 
@@ -166,7 +166,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
     float xie = ie - 0.5;
     float xip = ip - 0.5;
 
-    if ( dccMap[ism-1].getRunType() != PEDESTAL_STD ) continue;
+    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
 
     LogDebug("EBPedestalTask") << " det id = " << id;
     LogDebug("EBPedestalTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -277,7 +277,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     int num = id.iPnId();
 
-    if ( dccMap[ism-1].getRunType() != PEDESTAL_STD ) continue;
+    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
 
     LogDebug("EBPedestalTask") << " det id = " << id;
     LogDebug("EBPedestalTask") << " sm, num " << ism << " " << num;

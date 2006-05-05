@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/04/06 10:02:24 $
- * $Revision: 1.44 $
+ * $Date: 2006/04/07 09:34:02 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -220,7 +220,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
     dccMap[dcch.id()] = dcch;
 
-    if ( dccMap[dcch.id()].getRunType() == LASER_STD ) enable = true;
+    if ( dccMap[dcch.id()].getRunType() == EcalDCCHeaderBlock::LASER_STD ) enable = true;
 
   }
 
@@ -247,7 +247,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
     int ism = id.ism();
 
-    if ( dccMap[ism-1].getRunType() != LASER_STD ) continue;
+    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
 
     LogDebug("EBLaserTask") << " det id = " << id;
     LogDebug("EBLaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -299,7 +299,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
     int num = id.iPnId();
 
-    if ( dccMap[ism-1].getRunType() != LASER_STD ) continue;
+    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
 
     LogDebug("EBLaserTask") << " det id = " << id;
     LogDebug("EBLaserTask") << " sm, num " << ism << " " << num;
@@ -392,7 +392,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
     float xie = ie - 0.5;
     float xip = ip - 0.5;
 
-    if ( dccMap[ism-1].getRunType() != LASER_STD ) continue;
+    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
 
     LogDebug("EBLaserTask") << " det id = " << id;
     LogDebug("EBLaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
