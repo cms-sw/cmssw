@@ -5,7 +5,7 @@
   
 ProductRegistryHelper: 
 
-$Id: ProductRegistryHelper.h,v 1.4 2006/04/20 22:33:21 wmtan Exp $
+$Id: ProductRegistryHelper.h,v 1.5 2006/04/22 14:46:33 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
@@ -29,9 +29,18 @@ namespace edm {
  
     struct TypeLabelItem {
       TypeLabelItem (TypeID const& tid, std::string const& pin, EDProduct const* edp) :
-        typeID_(tid), productInstanceName_(pin), productPtr_(edp) {}
+        typeID_(tid),
+        productInstanceName_(pin),
+#if 0
+        branchAlias_(),
+#endif
+        productPtr_(edp) {}
       TypeID typeID_;
       std::string productInstanceName_;
+#if 0
+      std::string mutable branchAlias_;
+      void setBranchAlias(std::string const& alias) const {branchAlias_ = alias;}
+#endif
       boost::shared_ptr<EDProduct const> productPtr_; // pointer to a default constructed Wrapper<T>.
     };
 
@@ -55,16 +64,31 @@ namespace edm {
         should be added to the producer ctor for every product */
 
     template <class ProductType> 
+#if 0
+    TypeLabelItem const& produces(std::string const& instanceName) {
+#else
     void produces(std::string const& instanceName) {
+#endif
       ProductType aproduct;
       TypeID tid(aproduct);
       TypeLabelItem tli(tid, instanceName, new Wrapper<ProductType>);
       typeLabelList_.push_back(tli);
+#if 0
+      return *typeLabelList_.rbegin();
+#endif
     }
 
     template <class ProductType> 
+#if 0
+    TypeLabelItem const& produces() {
+#else
     void produces() {
+#endif
+#if 0
+      return produces<ProductType>(std::string());
+#else
       produces<ProductType>(std::string());
+#endif
     }
 
   private:

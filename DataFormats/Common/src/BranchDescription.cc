@@ -4,7 +4,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.1 2006/02/08 00:44:23 wmtan Exp $
+$Id: BranchDescription.cc,v 1.2 2006/03/05 00:25:18 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -15,6 +15,9 @@ namespace edm {
     fullClassName_(),
     friendlyClassName_(),
     productInstanceName_(),
+#if 0
+    branchAlias_(),
+#endif
     productPtr_()
   { }
 
@@ -22,12 +25,18 @@ namespace edm {
 				       std::string const& name, 
 				       std::string const& fName, 
 				       std::string const& pin, 
+#if 0
+				       std::string const& alias, 
+#endif
 				       boost::shared_ptr<EDProduct const> edp) :
     module(md),
     productID_(),
     fullClassName_(name),
     friendlyClassName_(fName),
     productInstanceName_(pin),
+#if 0
+    branchAlias_(alias),
+#endif
     productPtr_(edp)  {
     init();
   }
