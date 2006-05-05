@@ -192,6 +192,8 @@ namespace edm {
       { sJobEnded,      mException,      sError },
       { sError,         mEndJob,         sError },   // funny one here
       { sError,         mDtor,           sError },   // funny one here
+      { sInit,          mDtor,           sEnd },     // for StorM dummy EP
+      { sStopping,      mShutdownAsync,  sShuttingDown }, // For FUEP tests
       { sInvalid,       mAny,            sInvalid }
     };
 
