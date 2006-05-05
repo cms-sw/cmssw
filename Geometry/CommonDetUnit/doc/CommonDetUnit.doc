@@ -6,8 +6,8 @@
 <small>
 
 
-<!-- @PROJ_VERS@ will be substituted at build time, no need to touch -->
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Geometry/CommonDetUnit/?cvsroot=CMSSW&only_with_tag=@PROJ_VERS@>CVS</a> - 
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Geometry/CommonDetUnit/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
 <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Geometry/CommonDetUnit/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
@@ -20,10 +20,19 @@ Base classes modelling tracking detectors and the entry point to the geometry.
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
+Detector model:
 - GeomDet
 - GeomDetUnit
 - GeomDetType
+
+Geometry of GeomDet and GeomDetUnit:
 - TrackingGeometry
+- GlobalTrackingGeometry
+
+Helper classes:
+- DetSorting
+- DetPositioner
+- ModifiedSurfaceGenerator
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
@@ -31,7 +40,7 @@ None
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-None.
+- testDetSort.cpp
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
@@ -39,5 +48,5 @@ Completed.
 
 <hr>
 Last updated:
-00-JAN-2006 X. XXXX
+@DATE@ Author: Nicola Amapane
 */

@@ -4,7 +4,7 @@
 \page EventFilter_DTRawToDigi Package EventFilter/DTRawToDigi
 <center>
 <small>
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/EventFilter/DTRawToDigi/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/EventFilter/DTRawToDigi/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
 <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/EventFilter/DTRawToDigi/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
@@ -40,5 +40,5 @@ DDU format is untested since no real data file has been available up to now.
 
 <hr>
 Last updated:
-07-FEB-2006 N. Amapane
+@DATE@ Author: Nicola Amapane
 */
