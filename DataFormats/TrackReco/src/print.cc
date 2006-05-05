@@ -12,7 +12,7 @@ namespace reco {
     for (int i = 0; i < 5; i++) {
       out.precision(6); out.width(13); out<<trk.parameter(i);
     }
-      out.precision(6); out.width(13); out<<trk.pt;
+    out.precision(6); out.width(13); out<<trk.pt();
     out << endl;
     if ( v >= normal ) {
       out << "covariance" << endl;
