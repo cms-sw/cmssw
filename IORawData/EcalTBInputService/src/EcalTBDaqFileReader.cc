@@ -58,9 +58,10 @@ bool EcalTBDaqFileReader::isInitialized(){
 
 
 
-void EcalTBDaqFileReader::initialize(const string & filename, bool isBinary){
-  
+void EcalTBDaqFileReader::initialize(const string & file, bool isBinary){
+
   isBinary_ = isBinary;
+  std::string filename=file.substr( file.find( ":" )+1, file.size());
 
   // case of ASCII input data file
   if (initialized_) {
@@ -73,7 +74,7 @@ void EcalTBDaqFileReader::initialize(const string & filename, bool isBinary){
   if ( isBinary_){
     // case of binary input data file
     LogInfo("EcalTBInputService") << "@SUB=EcalTBDaqFileReader::initialize" << "Opening binary data file " << filename;
-    inputFile.open(filename.c_str(), ios::binary );
+    inputFile.open( filename.c_str(), ios::binary );
     if( inputFile.fail() ) {
       LogError("EcalTBInputService") << "@SUB=EcalTBDaqFileReader::initialize" << "the input file: " << filename << " is not present. Exiting program... " ;
       exit(1);
