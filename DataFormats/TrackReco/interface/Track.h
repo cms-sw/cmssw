@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.16 2006/04/19 13:35:05 llista Exp $
+ * \version $Id: Track.h,v 1.17 2006/05/03 09:58:46 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -23,14 +23,10 @@ namespace reco {
     /// default constructor
     Track() { }
     /// constructor from fit parameters and error matrix
-    Track( float chi2, unsigned short ndof, int found, int invalid, int lost,
-	   const Parameters &, const Covariance & );
-    /// constructor from cartesian coordinates and covariance matrix.
-    /// notice that the vertex passed must be 
+    /// notice that the reference point must be 
     /// the point of closest approch to the beamline.    
     Track( float chi2, unsigned short ndof, int found, int invalid, int lost,
-	   int q, const Point & v, const Vector & p, 
-	   const PosMomError & err );
+	   const Parameters &, const Covariance & );
     /// return true if the outermost point is valid
     bool outerOk() const { return extra_->outerOk(); }
     /// position of the outermost point
