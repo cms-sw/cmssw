@@ -4,7 +4,8 @@
 //#include <math.h>
 using namespace std;
 
-L1GctJetFinder::L1GctJetFinder(EtaHalf etaHalf):
+L1GctJetFinder::L1GctJetFinder(int id, EtaHalf etaHalf):
+m_id(id),
 m_etaHalf(etaHalf),
 m_sourceCards(maxSourceCards),
 m_inputRegions(maxRegionsIn),

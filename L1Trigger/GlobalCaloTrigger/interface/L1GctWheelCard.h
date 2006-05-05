@@ -21,7 +21,7 @@ using namespace std;
 class L1GctWheelCard
 {
 public:
-	L1GctWheelCard();
+	L1GctWheelCard(int id);
 	~L1GctWheelCard();
 		
 	inline vector<L1GctJetLeafCard*> getJetLeafCards() { return jetLeafCards; }
@@ -31,6 +31,8 @@ public:
 	vector<L1GctJet> getOutput();
 	
 private:
+
+	int m_id;
 
 	vector<L1GctJetLeafCard*> jetLeafCards;
 	

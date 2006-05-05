@@ -45,22 +45,22 @@ L1GlobalCaloTrigger* L1GlobalCaloTrigger::theGct() {
 void L1GlobalCaloTrigger::build() {
 
   for (int i=0; i<18; i++) {
-    theSourceCards[3*i] = new L1GctSourceCard(L1GctSourceCard::cardType1);
-    theSourceCards[3*i+1] = new L1GctSourceCard(L1GctSourceCard::cardType2);
-    theSourceCards[3*i+2] = new L1GctSourceCard(L1GctSourceCard::cardType3);
+    theSourceCards[3*i] = new L1GctSourceCard(3*i, L1GctSourceCard::cardType1);
+    theSourceCards[3*i+1] = new L1GctSourceCard(3*i+1, L1GctSourceCard::cardType2);
+    theSourceCards[3*i+2] = new L1GctSourceCard(3*i+2, L1GctSourceCard::cardType3);
   }
 
   for (int i=0; i<6; i++) {
-    theJetLeafCards[i] = new L1GctJetLeafCard(i % 3);
+    theJetLeafCards[i] = new L1GctJetLeafCard(i, i % 3);
   }
   
   for (int i=0; i<2; i++) {
-    theEmLeafCards[i] = new L1GctEmLeafCard();
+    theEmLeafCards[i] = new L1GctEmLeafCard(i, );
   }
     
   for (int i=0; i<2; i++) {
-    theWheelJetFpgas[i] = new L1GctWheelJetFpga();
-    theWheelEnergyFpgas[i] = new L1GctWheelEnergyFpga();
+    theWheelJetFpgas[i] = new L1GctWheelJetFpga(i);
+    theWheelEnergyFpgas[i] = new L1GctWheelEnergyFpga(i);
   }
   
   theJetFinalStage = new L1GctJetFinalStage();
@@ -137,4 +137,38 @@ void L1GlobalCaloTrigger::process() {
     theElectronFinalStage[i]->process();
   }
 	
+}
+
+void L1GlobalCaloTrigger::print() {
+
+	cout << "===Global Calo Trigger===" << endl;
+	cout << "------Debug Output-------" << endl;
+	cout << endl;
+	cout << "N Source Cards " << theSourceCards.size() << endl;
+	cout << "N Jet Leaf Cards " << theJetLeafCards.size() << endl;
+	cout << "N Wheel Jet Fpgas " << theWheelJetFpgas.size() << endl;
+	cout << "N Wheel Energy Fpgas " << theWheelEnergyFpgas.size() << endl;
+	cout << "N Em Leaf Cards" << theEmLeafCards.size() << endl;
+	cout << "N Electron Final Sorts " << theElectronFinalStage.size() << endl;
+	cout << endl;
+	for (int i=0; i<theSourceCards.size(); i++) {
+		cout << theSourceCards[i];
+	}
+	for (int i=0; i<theJetLeafCards.size(); i++) {
+		cout << theJetLeafCards[i];
+	}
+	for (int i=0; i<theWheelJetFpgas.size(); i++) {
+		cout << theWheelJetFpgas[i];
+	}
+	for (int i=0; i<theWheelEnergyFpgas.size(); i++) {
+		cout << theWheelEnergyFpgas[i];
+	}
+	cout << theJetFinalStage;
+	cout << theEnergyFinalStage;
+	for (int i=0; i<theElectronFinalStage.size(); i++) {
+		cout << theElectronFinalStage[i];
+	}
+	cout << "===Global Calo Trigger===" << endl;
+	cout << "-----End Debug Output----" << endl;
+
 }

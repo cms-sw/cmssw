@@ -59,7 +59,7 @@ public:
     enum EtaHalf {NEG_ETA_TYPE=1, POS_ETA_TYPE};
 
     ///Jetfinder needs to know which half of the detector it is in to properly load data from sourcecards.
-    L1GctJetFinder(EtaHalf etaHalf);
+    L1GctJetFinder(int id, EtaHalf etaHalf);
     ~L1GctJetFinder();
    
     /// clear internal buffers
@@ -88,6 +88,10 @@ public:
         
 private:
 
+	///
+	/// algo ID
+	int m_id;
+	
     //Constants
     static const int maxSourceCards = 9;  //need data from 9 separate source cards to find jets in the 2*11 search region.
     static const int maxRegionsIn = 48; // 2*11 search area, so 4*12=48 regions needed to run search.

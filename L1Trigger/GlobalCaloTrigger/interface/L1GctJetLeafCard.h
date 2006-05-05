@@ -40,12 +40,19 @@ public:
 	/// get the jet output
 	vector<L1GctJet> getOutputJets();
 	///
-	/// get the energy outputs
+	/// get the Ex output
 	inline unsigned long getOutputEx() { return outputEx.to_ulong(); }
+	///
+	/// get the Ey output
 	inline unsigned long getOutputEy() { return outputEy.to_ulong(); }
+	///
+	/// get the Et output
 	inline unsigned long getOutputEt() { return outputEt.to_ulong(); }
 
 private:
+
+	// Leaf card ID
+	int m_id;
 
 	// internal algorithms
 	L1GctJetFinder* jetFinderA;
@@ -59,8 +66,8 @@ private:
 	static const int NUM_BITS_ENERGY_DATA = 13;
 	static const int OVERFLOW_BIT = NUM_BITS_ENERGY_DATA - 1;
 
-        static const int Emax = (1<<NUM_BITS_ENERGY_DATA);
-        static const int signedEmax = (Emax>>1);
+	static const int Emax = (1<<NUM_BITS_ENERGY_DATA);
+	static const int signedEmax = (Emax>>1);
 
 	int phiPosition;
 

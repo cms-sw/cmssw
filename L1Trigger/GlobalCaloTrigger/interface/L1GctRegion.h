@@ -19,14 +19,15 @@ typedef unsigned long int ULong;
 class L1GctRegion
 {
 public:
-
-	L1GctRegion(ULong et=0, bool mip=false, bool quiet=false, bool tauVeto=true, bool overFlow=false);
+	L1GctRegion(pair<int, int> loc, ULong et=0, bool mip=false, bool quiet=false, bool tauVeto=true, bool overFlow=false);
 	~L1GctRegion();
     
     ///External access to the bitwidth of the region Et
     static const int ET_BITWIDTH = 10;
 	
     // Getters
+	int phi() const { return m_loc.first; }
+	int eta() const { return m_loc.second; }
 	ULong getEt() const { return myEt.to_ulong(); }
 	bool getMip() const { return myMip; }
 	bool getQuiet() const { return myQuiet; }
@@ -45,6 +46,10 @@ public:
 
 		
 private:
+
+    ///
+    /// position
+	pair<int,int> m_loc;
 
 	bitset<ET_BITWIDTH> myEt;
 	bool myMip;

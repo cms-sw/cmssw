@@ -22,7 +22,7 @@ class L1GctElectronSorter : public L1GctProcessor
 public:
   ///
   /// constructor; set tyep (isolated or non-isolated)
-  L1GctElectronSorter(bool iso=true);
+  L1GctElectronSorter(int id, bool iso=true);
   ~L1GctElectronSorter();
   ///
   /// clear internal buffers
@@ -47,9 +47,17 @@ public:
   inline vector<L1GctEmCand> getOutput() { return outputCands; }
 	
 private:
-  ///
-  /// type of sorter (isolated or non isolated)
-  bool getIsoEmCands;
+	///
+	/// internal function for comparing two EmCands
+	bool compare(L1GctEmCand a, L1GctEmCand b);
+	
+private:
+	///
+	/// algo ID
+	int m_id;
+	///
+	/// type of sorter (isolated or non isolated)
+	bool getIsoEmCands;
   ///
   /// source card input
   vector<L1GctSourceCard*> theSCs;
@@ -62,6 +70,7 @@ private:
   ///
   /// input variable to set iso or non-iso electrons
   int theInputType;
+  
 };
 
 #endif /*L1GCTELECTRONSORTER_H_*/

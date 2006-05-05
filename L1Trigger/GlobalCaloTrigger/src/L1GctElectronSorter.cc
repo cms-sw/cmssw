@@ -19,11 +19,12 @@ using std::cout;
 using std::sort;
 
 //Overloading the less than operator to use EmCand's
-bool compare(L1GctEmCand a, L1GctEmCand b){
+bool L1GctElectronSorter::compare(L1GctEmCand a, L1GctEmCand b){
     return a.getRank() > b.getRank();
 }
 
-L1GctElectronSorter::L1GctElectronSorter(bool iso):
+L1GctElectronSorter::L1GctElectronSorter(int id, bool iso):
+  m_id(id),
   getIsoEmCands(iso),
   theSCs(5),
   inputCands(0),

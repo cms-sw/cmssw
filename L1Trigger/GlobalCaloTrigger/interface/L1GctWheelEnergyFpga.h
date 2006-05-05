@@ -16,7 +16,7 @@ class L1GctJetLeafCard;
 class L1GctWheelEnergyFpga : public L1GctProcessor
 {
 public:
-	L1GctWheelEnergyFpga();
+	L1GctWheelEnergyFpga(int id);
 	~L1GctWheelEnergyFpga();
 	///
 	/// clear internal buffers
@@ -46,6 +46,9 @@ public:
 
 private:
 
+	///
+	/// algo ID
+	int m_id;
 	///
 	/// the jet leaf card
 	vector<L1GctJetLeafCard*> m_inputLeafCards;

@@ -19,7 +19,7 @@ using namespace std;
 
 class L1GctEmLeafCard : L1GctProcessor {
 public:
-	L1GctEmLeafCard();
+	L1GctEmLeafCard(int id);
 	~L1GctEmLeafCard();
 	///
 	/// clear buffers
@@ -41,7 +41,9 @@ public:
 	vector<L1GctEmCand> getOutputNonIsoEmCands();
 	
 private:
-
+	///
+	/// card ID
+	int m_id;
 	///
 	/// processing
 	vector<L1GctElectronSorter*> m_sorters;

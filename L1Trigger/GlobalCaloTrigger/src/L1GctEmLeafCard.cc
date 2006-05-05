@@ -2,7 +2,8 @@
 
 #include <vector>
 
-L1GctEmLeafCard::L1GctEmLeafCard() :
+L1GctEmLeafCard::L1GctEmLeafCard(int id) :
+  m_id(id),
   m_sorters(4),
   m_sourceCards(9)
 {

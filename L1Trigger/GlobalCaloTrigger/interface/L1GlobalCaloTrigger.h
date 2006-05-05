@@ -68,9 +68,6 @@ public:
 	/// Total hadronic Et output to GT
 	unsigned getEtHad();
 	///
-	/// DAQ output - what owns the produced event?
-	L1GctEvent getEvent();
-	///
 	/// get the Source cards
 	vector<L1GctSourceCard*> getSourceCards() { return theSourceCards; }
 	///
@@ -79,7 +76,10 @@ public:
 	///
 	/// get the Jet Leaf cards
 	vector<L1GctEmLeafCard*> getEmLeafCards() { return theEmLeafCards; }
-
+	///
+	/// print setup info
+	void print();
+	
 private:
 	///
 	/// singleton private constructor
