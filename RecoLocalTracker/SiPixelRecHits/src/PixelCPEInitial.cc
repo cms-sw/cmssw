@@ -223,12 +223,12 @@ PixelCPEInitial::xpos(const SiPixelCluster& cluster) const
     xcluster = xcenter + (q2-q1) * effchargeWX / (q1+q2) / 2.;
 
 
-    float alpha = estimatedAlphaForBarrel(xcenter);
-    if (alpha < 1.53) {
+    //float alpha = estimatedAlphaForBarrel(xcenter); // done by base class now
+    if (alpha_ < 1.53) {
       float etashift=0;
       float charatio = q1/(q1+q2);
       etashift = theEtaFunc.xEtaShift(size, thePitchX, 
-				      charatio, alpha);
+				      charatio, alpha_);
       xcluster = xcluster - etashift;
     }
   }    
