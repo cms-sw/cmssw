@@ -23,41 +23,36 @@ Channel mapping and calibration tables.
 
 - <b>DataFormats</b><br>
 Definition of classes modelling objects from low level digis, hits, etc to tracks, vertices and tags   
-
  - \ref DataFormats_SiPixelDigi "SiPixelDigi"<br>
  - \ref DataFormats_SiPixelCluster "SiPixelCluster"<br>
  - \ref DataFormats_SiPixelDetID "SiPixelDetID"<br>
-
  - \ref DataFormats_SiStripDigi "SiStripDigi"<br>
  - \ref DataFormats_SiStripCluster "SiStripCluster"<br>
  - \ref DataFormats_SiStripDetID "SiStripDetID"<br>
-
  - \ref DataFormats_TrackerRecHit2D "TrackerRecHit2D"<br>
  - \ref DataFormats_TrackingRecHit "TrackingRecHit"<br>
  - \ref DataFormats_TrackingSeed "TrackingSeed"<br>
-
  - \ref DataFormats_TrajectoryParametrization "TrajectoryParametrization"<br>
  - \ref DataFormats_TrajectorySeed "TrajectorySeed"<br>
  - \ref DataFormats_TrajectoryState "TrajectoryState"<br>
-
  - \ref DataFormats_TrackReco "TrackReco"<br>
  - \ref DataFormats_VertexReco "VertexReco"<br>
  - \ref DataFormats_BTauReco "BTauReco"<br>
 
 - <b>DQM</b><br>
 Data Quality Monitoring.
+   Pixel Tracker
  - \ref DQM_SiPixelCommon "SiPixelCommon"<br>
  - \ref DQM_SiPixelMonitorCluster "SiPixelMonitorCluster"<br>
  - \ref DQM_SiPixelMonitorDigi "SiPixelMonitorDigi"<br>
  - \ref DQM_SiPixelMonitorRecHit "SiPixelMonitorRecHit"<br>
  - \ref DQM_SiPixelMonitorClient "SiPixelMonitorClient"<br>
-
+   Strip Tracker
  - \ref DQM_SiStripCommon "SiPixelCommon"<br>
  - \ref DQM_SiStripMonitorCluster "SiPixelMonitorCluster"<br>
  - \ref DQM_SiStripMonitorDigi "SiStripMonitorDigi"<br>
  - \ref DQM_SiStripMonitorRecHit "SiStripMonitorRecHit"<br>
  - \ref DQM_SiStripMonitorClient "SiStripMonitorClient"<br>
-
  - \ref DQM_SiStripCommissioningAnalysis "SiStripCommissioningAnalysis"<br>
  - \ref DQM_SiStripCommissioningClients "SiStripCommissioningClients"<br>
  - \ref DQM_SiStripCommissioningSources "SiStripCommissioningSources"<br>
@@ -76,16 +71,10 @@ This subsystem contains both the xml geometry files and the code to model the ge
  - \ref Geometry_TrackerNumberingBuilder "TrackerNumberingBuilder"<br>
  - \ref Geometry_TrackerCommonData "TrackerCommonData"<br>
  - \ref Geometry_TrackerTopology "TrackerTopology"<br>
-
-
  - \ref Geometry_TrackerRecoAlgo "TrackerRecoAlgo"<br>
  - \ref Geometry_TrackerRecoData "TrackerRecoData"<br>
-
-
  - \ref Geometry_TrackerSimAlgo "TrackerSimAlgo"<br>
  - \ref Geometry_TrackerSimData "TrackerSimData"<br>
-
-
  - \ref Geometry_RPCGeometry "RPCGeometry"<br>
  - \ref Geometry_RPCGeometryBuilder "RPCGeometryBuilder"<br>
 
@@ -110,63 +99,63 @@ Local reconstruction (RecHits, segments).
 
 - <b>TrackingTools</b><br>
 A set of tools used in track reconstruction
-  - \ref TrackingTools_AnalyticalJacobians "AnalyticalJacobians"<\br>
-  - \ref TrackingTools_DetLayers "DetLayers"<\br>
-  - \ref TrackingTools_GeomPropagators "GeomPropagators"<\br>
-  - \ref TrackingTools_KalmanUpdators "KalmanUpdators"<\br>
-  - \ref TrackingTools_MaterialEffects "MaterialEffects"<\br>
-  - \ref TrackingTools_MeasurementDet "MeasurementDet"<\br>
-  - \ref TrackingTools_PatternTools "PatternTools"<\br>
-  - \ref TrackingTools_Records "Records"<\br>
-  - \ref TrackingTools_TrackFitters "TrackFitters"<\br>
-  - \ref TrackingTools_TrajectoryCleaning "TrajectoryCleaning"<\br>
-  - \ref TrackingTools_TrajectoryParametrization "TrajectoryParametrization"<\br>
-  - \ref TrackingTools_TrajectoryState "TrajectoryState"<\br>
-  - \ref TrackingTools_TransientTrack "TransientTrack"<\br>
-  - \ref TrackingTools_TransientTrackingRecHit "TransientTrackingRecHit"<\br>
+ - \ref TrackingTools_AnalyticalJacobians "AnalyticalJacobians"<\br>
+ - \ref TrackingTools_DetLayers "DetLayers"<\br>
+ - \ref TrackingTools_GeomPropagators "GeomPropagators"<\br>
+ - \ref TrackingTools_KalmanUpdators "KalmanUpdators"<\br>
+ - \ref TrackingTools_MaterialEffects "MaterialEffects"<\br>
+ - \ref TrackingTools_MeasurementDet "MeasurementDet"<\br>
+ - \ref TrackingTools_PatternTools "PatternTools"<\br>
+ - \ref TrackingTools_Records "Records"<\br>
+ - \ref TrackingTools_TrackFitters "TrackFitters"<\br>
+ - \ref TrackingTools_TrajectoryCleaning "TrajectoryCleaning"<\br>
+ - \ref TrackingTools_TrajectoryParametrization "TrajectoryParametrization"<\br>
+ - \ref TrackingTools_TrajectoryState "TrajectoryState"<\br>
+ - \ref TrackingTools_TransientTrack "TransientTrack"<\br>
+ - \ref TrackingTools_TransientTrackingRecHit "TransientTrackingRecHit"<\br>
 
 
 - <b>RecoTracker</b><br>
-  - \ref RecoTracker_CkfPattern "CkfPattern"<\br>   
-    - \ref RecoTracker_GeometryESProducer/  "GeometryESProducer" 
-    - \ref RecoTracker_MeasurementDet/ "MeasurementDet"
-    - \ref RecoTracker_Record/   "Record"
-    - \ref RecoTracker_RoadMapESSource/ "RoadMapESSource"   
-    - \ref RecoTracker_RoadMapMakerESProducer/ "RoadMapMakerESProducer"  
-    - \ref RecoTracker_RoadMapRecord/ "RoadMapRecord"  
-    - \ref RecoTracker_RoadSearchCloudCleaner/  "RoadSearchCloudCleaner" 
-    - \ref RecoTracker_RoadSearchCloudMaker/  "RoadSearchCloudMaker" 
-    - \ref RecoTracker_RoadSearchHelixMaker/  "RoadSearchHelixMaker" 
-    - \ref RecoTracker_RoadSearchSeedFinder/  "RoadSearchSeedFinder" 
-    - \ref RecoTracker_RoadSearchTrackCandidateMaker/ "RoadSearchTrackCandidateMaker"  
-    - \ref RecoTracker_SingleTrackPattern "SingleTrackPattern"<\br> 
-    - \ref RecoTracker_TkDetLayers "TkDetLayers"<\br> 
-    - \ref RecoTracker_TkHitPairs "TkHitPairs"<\br>
-    - \ref RecoTracker_TkMSParametrization "TkMSParametrization"<\br>  
-    - \ref RecoTracker_TkNavigation "TkNavigation"<\br>
-    - \ref RecoTracker_TkSeedGenerator "TkSeedGenerator"<\br> 
-    - \ref RecoTracker_TkTrackingRegions "TkTrackingRegions"<\br>  
-    - \ref RecoTracker_TrackProducer "TrackProducer"<\br> 
-    - \ref RecoTracker_TransientTrackingRecHit "TransientTrackingRecHit"<\br>
+ - \ref RecoTracker_CkfPattern "CkfPattern"<\br>   
+ - \ref RecoTracker_GeometryESProducer  "GeometryESProducer" 
+ - \ref RecoTracker_MeasurementDet "MeasurementDet"
+ - \ref RecoTracker_Record   "Record"
+ - \ref RecoTracker_RoadMapESSource "RoadMapESSource"   
+ - \ref RecoTracker_RoadMapMakerESProducer "RoadMapMakerESProducer"  
+ - \ref RecoTracker_RoadMapRecord "RoadMapRecord"  
+ - \ref RecoTracker_RoadSearchCloudCleaner  "RoadSearchCloudCleaner" 
+ - \ref RecoTracker_RoadSearchCloudMaker  "RoadSearchCloudMaker" 
+ - \ref RecoTracker_RoadSearchHelixMaker  "RoadSearchHelixMaker" 
+ - \ref RecoTracker_RoadSearchSeedFinder  "RoadSearchSeedFinder" 
+ - \ref RecoTracker_RoadSearchTrackCandidateMaker "RoadSearchTrackCandidateMaker"  
+ - \ref RecoTracker_SingleTrackPattern "SingleTrackPattern"<\br> 
+ - \ref RecoTracker_TkDetLayers "TkDetLayers"<\br> 
+ - \ref RecoTracker_TkHitPairs "TkHitPairs"<\br>
+ - \ref RecoTracker_TkMSParametrization "TkMSParametrization"<\br>  
+ - \ref RecoTracker_TkNavigation "TkNavigation"<\br>
+ - \ref RecoTracker_TkSeedGenerator "TkSeedGenerator"<\br> 
+ - \ref RecoTracker_TkTrackingRegions "TkTrackingRegions"<\br>  
+ - \ref RecoTracker_TrackProducer "TrackProducer"<\br> 
+ - \ref RecoTracker_TransientTrackingRecHit "TransientTrackingRecHit"<\br>
   
- - <b>RecoVertex</b><br>
- vertexing algorithms
-   - \ref RecoVertex_KalmanVertexFit "KalmanVertexFit"<br> 
-   - \ref RecoVertex_KinematicFit "KinematicFit"<br>
-   - \ref RecoVertex_KinematicFitPrimitives "KinematicFitPrimitives"<br>
-   - \ref RecoVertex_LinearizationPointFinders "LinearizationPointFinders"<br> 
-   - \ref RecoVertex_PrimaryVertexProducer "PrimaryVertexProducer"<br> 
-   - \ref RecoVertex_TrimmedKalmanVertexFinder "TrimmedKalmanVertexFinder"<br> 
-   - \ref RecoVertex_VertexPrimitives "VertexPrimitives"<br> 
-   - \ref RecoVertex_VertexTools "VertexTools"<br> 
+- <b>RecoVertex</b><br>
+ Vertexing algorithms
+ - \ref RecoVertex_KalmanVertexFit "KalmanVertexFit"<br> 
+ - \ref RecoVertex_KinematicFit "KinematicFit"<br>
+ - \ref RecoVertex_KinematicFitPrimitives "KinematicFitPrimitives"<br>
+ - \ref RecoVertex_LinearizationPointFinders "LinearizationPointFinders"<br> 
+ - \ref RecoVertex_PrimaryVertexProducer "PrimaryVertexProducer"<br> 
+ - \ref RecoVertex_TrimmedKalmanVertexFinder "TrimmedKalmanVertexFinder"<br> 
+ - \ref RecoVertex_VertexPrimitives "VertexPrimitives"<br> 
+ - \ref RecoVertex_VertexTools "VertexTools"<br> 
 
- - <b>RecoPixelVertexing</b><br>
+- <b>RecoPixelVertexing</b><br>
  pixel stand-alone vertex reconstruction 
 
- - <b>RecoBTag</b><br>
+- <b>RecoBTag</b><br>
  b-tagging algorithms  
 
- - <b>RecoBTau</b><br>
+- <b>RecoBTau</b><br>
  Common tools for b- and tau-tagging
 
 
@@ -185,9 +174,9 @@ Data formats for simulated objects
 
 - <b>SimTracker</b><br> 
 digitization
-- \ref SimTracker_Common "Common"<br>
-- \ref SimTracker_SiPixelDigitizer "SiPixelDigitizer"<br>
-- \ref SimTracker_SiStripDigitizer "SiStripDigitizer"<br>
+ - \ref SimTracker_Common "Common"<br>
+ - \ref SimTracker_SiPixelDigitizer "SiPixelDigitizer"<br>
+ - \ref SimTracker_SiStripDigitizer "SiStripDigitizer"<br>
 
 
 
@@ -201,8 +190,10 @@ Visualization.
 - Simulation: F. Ambroglini
 - Reconstruction: T.Todorov
 - High level persistent objects: M.Vos 
+- Documentation: I.Tomalin
 
 <hr>
 Last updated:
 02-APR-2006 M. Vos
+05-MAY-2006 I. Tomalin
 */
