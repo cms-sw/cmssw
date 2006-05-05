@@ -32,16 +32,16 @@ bool EcalDCCHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* E
   EcalDCCHeaderInfos->setMemGain( int ((headerWord / GainModeOffSet)  & ThirdBitMask)/ThirdBitMask );
   //  EcalDCCHeaderInfos.Setting       = int ( headerWord / SettingOffSet);
 
-  if (type ==0 && sequence == 0){EcalDCCHeaderInfos->setRunType(COSMIC);}
-  else if (type ==1 && sequence == 0){EcalDCCHeaderInfos->setRunType(LASER_STD);}
-  else if (type ==1 && sequence == 1){EcalDCCHeaderInfos->setRunType(LASER_POWER_SCAN);}
-  else if (type ==1 && sequence == 2){EcalDCCHeaderInfos->setRunType(LASER_DELAY_SCAN);}
-  else if (type ==2 && sequence == 0){EcalDCCHeaderInfos->setRunType(TESTPULSE_SCAN_MEM);}
-  else if (type ==2 && sequence == 1){EcalDCCHeaderInfos->setRunType(TESTPULSE_MGPA);}
-  else if (type ==3 && sequence == 0){EcalDCCHeaderInfos->setRunType(PEDESTAL_STD);}
-  else if (type ==3 && sequence == 1){EcalDCCHeaderInfos->setRunType(PEDESTAL_OFFSET_SCAN);}
-  else if (type ==3 && sequence == 2){EcalDCCHeaderInfos->setRunType(PEDESTAL_25NS_SCAN);}
-  else if (type ==4 && sequence == 0){EcalDCCHeaderInfos->setRunType(LED_STD);}
+  if (type ==0 && sequence == 0){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::COSMIC);}
+  else if (type ==1 && sequence == 0){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::LASER_STD);}
+  else if (type ==1 && sequence == 1){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::LASER_POWER_SCAN);}
+  else if (type ==1 && sequence == 2){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::LASER_DELAY_SCAN);}
+  else if (type ==2 && sequence == 0){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::TESTPULSE_SCAN_MEM);}
+  else if (type ==2 && sequence == 1){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::TESTPULSE_MGPA);}
+  else if (type ==3 && sequence == 0){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::PEDESTAL_STD);}
+  else if (type ==3 && sequence == 1){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN);}
+  else if (type ==3 && sequence == 2){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::PEDESTAL_25NS_SCAN);}
+  else if (type ==4 && sequence == 0){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::LED_STD);}
   else {
     LogWarning("EcalTBRawToDigi") <<"@SUB=EcalDCCHeaderRuntypeDecoder::Decode unrecognized runtype and sequence: "<<type<<" "<<sequence;
     EcalDCCHeaderInfos->setRunType(-1);
@@ -57,38 +57,38 @@ bool EcalDCCHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* E
 
 void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBlock* theHeader )
 {
-  EcalDCCEventSettings theSettings;// = new EcalDCCEventSettings;
+  EcalDCCHeaderBlock::EcalDCCEventSettings theSettings;// = new EcalDCCEventSettings;
   CleanEcalDCCSettingsInfo(&theSettings);
 
-  if(theHeader->getRunType() == COSMIC){;}//no settings foreseen
-  else if(theHeader->getRunType() == LASER_STD){
+  if(theHeader->getRunType() == EcalDCCHeaderBlock::COSMIC){;}//no settings foreseen
+  else if(theHeader->getRunType() == EcalDCCHeaderBlock::LASER_STD){
     theSettings.LaserPower = (Setting & 8128)/64;
     theSettings.LaserFilter = (Setting & 56)/8;
     theSettings.wavelength = Setting & 7;
   }
-  else if(theHeader->getRunType() == LASER_POWER_SCAN){
+  else if(theHeader->getRunType() == EcalDCCHeaderBlock::LASER_POWER_SCAN){
     theSettings.LaserPower = (Setting & 8128)/64;
     theSettings.LaserFilter = (Setting & 56)/8;
     theSettings.wavelength = Setting & 7;
   }
-  else if(theHeader->getRunType() == LASER_DELAY_SCAN){
+  else if(theHeader->getRunType() == EcalDCCHeaderBlock::LASER_DELAY_SCAN){
     theSettings.wavelength = Setting & 7;  
     theSettings.delay = (Setting & 2040)/8;
   }
-  else if(theHeader->getRunType() == TESTPULSE_SCAN_MEM){
+  else if(theHeader->getRunType() == EcalDCCHeaderBlock::TESTPULSE_SCAN_MEM){
     theSettings.MEMVinj = Setting & 511;
   }
-  else if(theHeader->getRunType() == TESTPULSE_MGPA){
+  else if(theHeader->getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA){
       theSettings.mgpa_content =  Setting & 255;
   }
-  else if(theHeader->getRunType() == PEDESTAL_STD){;}//no settings foreseen
-  else if(theHeader->getRunType() == PEDESTAL_OFFSET_SCAN){
+  else if(theHeader->getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD){;}//no settings foreseen
+  else if(theHeader->getRunType() == EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN){
     theSettings.ped_offset  =  Setting;
   }
-  else if(theHeader->getRunType() == PEDESTAL_25NS_SCAN ){
+  else if(theHeader->getRunType() == EcalDCCHeaderBlock::PEDESTAL_25NS_SCAN ){
     theSettings.delay = (Setting & 255);  
   }
-  else if(theHeader->getRunType() == LED_STD){
+  else if(theHeader->getRunType() == EcalDCCHeaderBlock::LED_STD){
     theSettings.wavelength = Setting & 7;
   }
   else {
@@ -99,7 +99,7 @@ void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBl
   
 }
 
-void EcalDCCHeaderRuntypeDecoder::CleanEcalDCCSettingsInfo( EcalDCCEventSettings * dummySettings){
+void EcalDCCHeaderRuntypeDecoder::CleanEcalDCCSettingsInfo( EcalDCCHeaderBlock::EcalDCCEventSettings * dummySettings){
   dummySettings->LaserPower =-1;
   dummySettings->LaserFilter =-1;
   dummySettings->wavelength =-1;

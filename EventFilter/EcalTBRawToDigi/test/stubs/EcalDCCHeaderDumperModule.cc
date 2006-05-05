@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/02/20 16:44:44 $
- * $Revision: 1.2 $
+ * $Date: 2006/02/23 16:05:05 $
+ * $Revision: 1.3 $
  *
  * \author A. Ghezzi
  *
@@ -75,7 +75,7 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
       cout<<"Half: "<<headerItr->getRtHalf()<<"\n";
       cout<<"MGPA gain: "<<headerItr->getMgpaGain()<<"\n";
       cout<<"MEM gain: "<<headerItr->getMemGain()<<"\n";
-      EcalDCCEventSettings settings = headerItr->getEventSettings();
+      EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
       cout<<"LaserPower: "<<  settings.LaserPower<<"\n";
       cout <<"LAserFilter: "<<settings.LaserFilter<<"\n";
       cout<<"Wavelenght: "<<settings.wavelength<<"\n";

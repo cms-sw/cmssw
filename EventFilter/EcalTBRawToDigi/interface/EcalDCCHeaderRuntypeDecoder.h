@@ -12,6 +12,6 @@ class EcalDCCHeaderRuntypeDecoder
   protected:
   bool WasDecodingOk_;
   void DecodeSetting ( int settings,  EcalDCCHeaderBlock * theHeader );
-  void CleanEcalDCCSettingsInfo(  EcalDCCEventSettings * theEventSettings);// Re-initialize theEventSettings  before filling with the deocoded event
+  void CleanEcalDCCSettingsInfo(  EcalDCCHeaderBlock::EcalDCCEventSettings * theEventSettings);// Re-initialize theEventSettings  before filling with the deocoded event
 };
 #endif
