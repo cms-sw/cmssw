@@ -22,7 +22,9 @@ public:
 
   MagVolume( const PositionType& pos, const RotationType& rot, 
 	     DDSolidShape shape, const MagneticFieldProvider<float> * mfp) :
-    Base(pos,rot), theShape(shape), theProvider( mfp) {}
+    Base(pos,rot), MagneticField(), theShape(shape), theProvider( mfp) {}
+
+  virtual ~MagVolume() {}
 
   DDSolidShape shapeType() const {return theShape;}
 
