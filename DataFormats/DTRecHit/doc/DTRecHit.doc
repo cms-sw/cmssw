@@ -16,8 +16,25 @@ This package contains the definition of rechits and rechit collections for the D
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
-- RecHit1D 
+1D Hits:
+- DTRecHit1D
 - DTRecHit1DPair
+- DTRecHitCollection
+
+2D Hits:
+- DTRecSegment2DCollection
+- DTRecSegment2D
+- DTSLRecSegment2D
+
+4D Segments and ancillary classes:
+- DTRecSegment4D
+- DTChamberRecSegment2D
+- DTRecSegment4DCollection
+
+Other classes:
+- DTEnums
+- DTRangeMapAccessor
+
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->

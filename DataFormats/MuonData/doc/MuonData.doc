@@ -5,7 +5,7 @@
 <center>
 <small>
 <!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/MuonData/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>CVS</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/MuonData/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
 <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/MuonData/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
@@ -32,6 +32,6 @@ None.
 Completed, stable.
 
 <hr>
-Last updated:
-@DATE@ N. Amapane
+Last updated: @DATE@ 
+Author: N. Amapane
 */
