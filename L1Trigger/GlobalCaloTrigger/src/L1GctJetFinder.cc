@@ -242,7 +242,27 @@ bool L1GctJetFinder::detectJet(const UShort centreIndex, const bool boundary) co
 {
     if(!boundary)  //Not at boundary, so use 3*3 window of regions to determine if a jet
     {
-        // Get the energy of the central region & OR the overflow bit to become the MSB
+        // Get the energy of the central region
+        ULong testEt = m_inputRegions[centreIndex].getEt();
+        
+        //Test if our region qualifies as a jet by comparing its energy with the energies of the
+        //surrounding eight regions.  In the event of neighbouring regions with identical energy,
+        //this will locate the jet in the lower-most (furthest away from eta=0), left-most (least phi) region.
+        if(testEt >  m_inputRegions[centreIndex-1-columnOffset].getEt() &&
+           testEt >  m_inputRegions[centreIndex - columnOffset].getEt() &&
+           testEt >  m_inputRegions[centreIndex+1-columnOffset].getEt() &&
+           
+           testEt >= m_inputRegions[centreIndex - 1].getEt() &&
+           testEt >  m_inputRegions[centreIndex + 1].getEt() &&
+           
+           testEt >= m_inputRegions[centreIndex-1+columnOffset].getEt() &&
+           testEt >= m_inputRegions[centreIndex + columnOffset].getEt() &&
+           testEt >= m_inputRegions[centreIndex+1+columnOffset].getEt())
+        {
+            return true;
+        }
+//USE THIS BLOCK INSTEAD IF YOU WANT OVERFLOW BIT FUNCTIONALITY        
+/*        // Get the energy of the central region & OR the overflow bit to become the MSB
         ULong testEt = (m_inputRegions[centreIndex].getEt() | (m_inputRegions[centreIndex].getOverFlow() << L1GctRegion::ET_BITWIDTH));
         
         //Test if our region qualifies as a jet by comparing its energy with the energies of the
@@ -261,6 +281,7 @@ bool L1GctJetFinder::detectJet(const UShort centreIndex, const bool boundary) co
         {
             return true;
         }
+*/  //END OVERFLOW FUNCTIONALITY       
     }
     else    //...so only test surround 5 regions in our jet testing.
     {    
