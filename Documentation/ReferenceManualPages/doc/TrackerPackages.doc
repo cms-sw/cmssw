@@ -48,8 +48,8 @@ Data Quality Monitoring.
  - \ref DQM_SiPixelMonitorRecHit "SiPixelMonitorRecHit"<br>
  - \ref DQM_SiPixelMonitorClient "SiPixelMonitorClient"<br>
    Strip Tracker
- - \ref DQM_SiStripCommon "SiPixelCommon"<br>
- - \ref DQM_SiStripMonitorCluster "SiPixelMonitorCluster"<br>
+ - \ref DQM_SiStripCommon "SiStripCommon"<br>
+ - \ref DQM_SiStripMonitorCluster "SiStripMonitorCluster"<br>
  - \ref DQM_SiStripMonitorDigi "SiStripMonitorDigi"<br>
  - \ref DQM_SiStripMonitorRecHit "SiStripMonitorRecHit"<br>
  - \ref DQM_SiStripMonitorClient "SiStripMonitorClient"<br>
