@@ -2,7 +2,7 @@
 \page DataFormats_DTDigi Package DataFormats/DTDigi
 <center>
 <small>
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/DTDigi/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>CVS</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/DTDigi/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
 <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/DTDigi/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
@@ -32,6 +32,6 @@ This package does not provide any module.
 Stable; completed.
 
 <hr>
-Last updated:
-@DATE@ N. Amapane
+Last updated: @DATE@ 
+Author: N. Amapane
 */
