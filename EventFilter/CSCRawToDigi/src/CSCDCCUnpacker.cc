@@ -131,10 +131,21 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
     if (length){ ///unpack data 
 
+      goodEvent = true;
       if (useExaminer) {///examine event for integrity
+	std::cout<<"using Examiner"<< std::endl;
 	CSCDCCExaminer examiner;
-	goodEvent=examiner.examine((short unsigned int *) fedData.data(), length);
+	examiner.output1().hide();
+	examiner.output2().hide();
+	const short unsigned int *data = (short unsigned int *)fedData.data();
+	if( examiner.check(data,long(fedData.size()/2)) != -1 ){
+	  goodEvent=false;
+	} else {
+	  goodEvent=!(examiner.errors()&0xFB33F8);
+	}
       }
+      
+
       if (goodEvent) {
 	///get a pointer to data and pass it to constructor for unpacking
 	CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
