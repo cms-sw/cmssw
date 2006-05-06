@@ -63,7 +63,6 @@ std::vector<HcalDetId> undefinedCells (const T& fData) {
 	  for (int det = 1; det < 5; det++) {
 	    HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
 	    if (topology.valid(cell) && !fData.getValues (cell.rawId())) result.push_back (cell);
-	    // result.push_back (cell);
 	  }
 	}
       }
@@ -98,8 +97,30 @@ void fillDefaults (HcalGains*& fGains) {
   fGains->sort ();
 }
 
-void fillDefaults (HcalElectronicsMap* fMap) {
+void fillDefaults (HcalElectronicsMap*& fMap) {
   std::cerr << "ERROR: fillDefaults (HcalElectronicsMap* fMap) is not implemented. Ignore." << std::endl;
+}
+
+void fillDefaults (HcalQIEData*& fObject) {
+  if (!fObject) {
+    fObject = new HcalQIEData;
+    fObject->sort ();
+  }
+  HcalTopology topology;
+  for (int eta = -63; eta < 64; eta++) {
+    for (int phi = 0; phi < 128; phi++) {
+      for (int depth = 1; depth < 5; depth++) {
+	for (int det = 1; det < 5; det++) {
+	  HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
+	  if (topology.valid(cell)) {
+	    HcalQIECoder item = HcalDbHardcode::makeQIECoder (cell); 
+	    fObject->addCoder (cell, item);
+	  }
+	}
+      }
+    }
+  }
+  fObject->sort ();
 }
 
 void printHelp (const Args& args) {
@@ -109,7 +130,7 @@ void printHelp (const Args& args) {
   std::cout << "Use:" << std::endl;
   sprintf (buffer, " %s <what> <options> <parameters>\n", args.command ().c_str());
   std::cout << buffer;
-  std::cout << "  where <what> is: \n    pedestals\n    gains\n    emap\n" << std::endl;
+  std::cout << "  where <what> is: \n    pedestals\n    gains\n    emap\n    qie\n" << std::endl;
   args.printOptionsHelp ();
 }
 
@@ -151,7 +172,7 @@ template <class T> bool copyObject (T* fObject,
   unsigned traceCounter = 0;
   HcalDbPool* poolDb = 0;
   HcalDbOnline* onlineDb = 0;
-  HcalDbPoolOCCI* occiDb = 0;
+  //  HcalDbPoolOCCI* occiDb = 0;
   while (traceCounter < fNread) {
     delete fObject;
     // get input
@@ -179,12 +200,12 @@ template <class T> bool copyObject (T* fObject,
       fObject = new T;
       result = onlineDb->getObject (fObject, fInputTag);
     }
-    else if (occiFile (fInput)) {
-      if (!traceCounter) std::cout << "USE INPUT: OCCI" << std::endl;
-      if (!occiDb) occiDb = new HcalDbPoolOCCI (fInput);
-      fObject = new T;
-      result = occiDb->getObject (fObject, fInputTag, fInputRun);
-    }
+ //    else if (occiFile (fInput)) {
+//       if (!traceCounter) std::cout << "USE INPUT: OCCI" << std::endl;
+//       if (!occiDb) occiDb = new HcalDbPoolOCCI (fInput);
+//       fObject = new T;
+//       result = occiDb->getObject (fObject, fInputTag, fInputRun);
+//     }
     traceCounter++;
     fInputRun++;
     if (fNtrace && !(traceCounter % fNtrace)) {
@@ -293,6 +314,10 @@ int main (int argn, char* argv []) {
   }
   else if (what == "emap") {
     HcalElectronicsMap* object = 0;
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
+  }
+  else if (what == "qie") {
+    HcalQIEData* object = 0;
     copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
   }
 }

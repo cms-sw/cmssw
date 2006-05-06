@@ -11,7 +11,7 @@
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
-#include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 /**
@@ -38,6 +38,7 @@ class HcalDbOnline {
   bool getObject (HcalPedestals* fObject, const std::string& fTag);
   bool getObject (HcalGains* fObject, const std::string& fTag);
   bool getObject (HcalElectronicsMap* fObject, const std::string& fTag);
+  bool getObject (HcalQIEData* fObject, const std::string& fTag);
  private:
   oracle::occi::Environment* mEnvironment;
   oracle::occi::Connection* mConnect;

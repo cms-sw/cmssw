@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.11 2006/02/22 19:51:38 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.12 2006/04/13 22:40:39 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -164,7 +164,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
       float lowEdges [32];
       int i = 32;
       while (--i >= 0) lowEdges [i] = atof (items [i+1].c_str ());
-      fObject->setShape (lowEdges);
+      //      fObject->setShape (lowEdges);
     }
     else { // QIE parameters
       if (items.size () < 36) {
@@ -227,6 +227,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObjec
 	  fOutput << buffer;
 	}
       }
+      fOutput << std::endl;
     }
   }
   return true;

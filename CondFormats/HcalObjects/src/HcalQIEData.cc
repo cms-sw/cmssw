@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2005/10/18 23:34:56 $
-$Revision: 1.1 $
+$Date: 2005/12/15 23:38:04 $
+$Revision: 1.2 $
 */
 
 #include <iostream>
@@ -12,6 +12,8 @@ $Revision: 1.1 $
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 
 namespace {
+  HcalQIEShape shape_; // use one default set
+
   int index (int fCapId, int Range) {return fCapId*4+Range;}
 
   class compareItems {
@@ -32,9 +34,20 @@ namespace {
 }
 
 HcalQIEData::HcalQIEData() 
-  : mSorted (false) {}
+  : mSorted (true) {}
+
+HcalQIEData::HcalQIEData(const HcalQIEData& a) {
+  //std::cout << "HcalQIEData::HcalQIEData-> from:" << a.mItems.size () << std::endl;
+  mItems = a.mItems;
+  mSorted = a.mSorted;
+  //std::cout << "HcalQIEData::HcalQIEData-> to:" << mItems.size () << std::endl;
+}
 
 HcalQIEData::~HcalQIEData(){}
+
+const HcalQIEShape& HcalQIEData::getShape () const {
+  return shape_;
+}
 
 const HcalQIECoder* HcalQIEData::getCoder (HcalDetId fId) const {
   HcalQIECoder target (fId.rawId ());
@@ -58,10 +71,6 @@ std::vector<HcalDetId> HcalQIEData::getAllChannels () const {
   return result;
 }
 
-bool HcalQIEData::setShape (const float fLowEdges [32]) {
-  return mShape.setLowEdges (fLowEdges);
-}
-
 bool HcalQIEData::addCoder (HcalDetId fId, const HcalQIECoder& fCoder) {
   HcalQIECoder newCoder (fId.rawId ());
   for (int range = 0; range < 4; range++) { 
@@ -79,5 +88,6 @@ void HcalQIEData::sort () {
   if (!mSorted) {
     std::sort (mItems.begin(), mItems.end(), compareItems ());
     mSorted = true;
+    std::cout << "HcalQIEData::sort ()->" << mItems.size () << std::endl; 
   }
 }
