@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/04/07 09:34:02 $
- * $Revision: 1.45 $
+ * $Date: 2006/05/05 20:12:03 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  *
 */
@@ -373,7 +373,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EcalUncalibratedRecHitCollection> hits;
-  e.getByLabel("ecalUncalibHitMaker", "EcalUncalibRecHits", hits);
+  e.getByLabel("ecalUncalibHitMaker", "EcalUncalibRecHitsEB", hits);
 
   int neh = hits->size();
   LogDebug("EBLaserTask") << "event " << ievt_ << " hits collection size " << neh;

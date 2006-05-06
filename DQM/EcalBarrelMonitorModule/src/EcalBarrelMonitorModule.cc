@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/05/01 09:00:34 $
- * $Revision: 1.89 $
+ * $Date: 2006/05/05 20:12:02 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -283,7 +283,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   dbe_->unlock();
 
   Handle<EcalUncalibratedRecHitCollection> hits;
-  e.getByLabel("ecalUncalibHitMaker", "EcalUncalibRecHits", hits);
+  e.getByLabel("ecalUncalibHitMaker", "EcalUncalibRecHitsEB", hits);
 
   int nebh = hits->size();
   LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " hits collection size " << nebh;
