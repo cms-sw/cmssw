@@ -23,7 +23,6 @@ SiStripCluster::SiStripCluster( unsigned int detid, const SiStripDigiRange& rang
     lastStrip = i->strip();
 
     short amp = i->adc();       // FIXME: gain correction here
-    std::cout << "[SiStripCluster::SiStripCluster]: pinter " << &*i << " strip " << i->strip() << " amp " << amp <<  std::endl;
     amplitudes_.push_back( amp);
     sumx += i->strip()*amp;
     suma += amp;
