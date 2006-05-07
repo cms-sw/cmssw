@@ -22,22 +22,22 @@ class RPCRoll : public GeomDetUnit{
   
  public:
   
-  int nstrips();
+  int nstrips() const;
 
-  LocalPoint  centreOfStrip(int strip);
-  LocalPoint  centreOfStrip(float strip);
-  LocalError  localError(float strip);
+  LocalPoint  centreOfStrip(int strip) const;
+  LocalPoint  centreOfStrip(float strip) const;
+  LocalError  localError(float strip) const;
 
-  float strip(const LocalPoint& lp);
-  float pitch();
-  float localPitch(const LocalPoint& lp);
-  bool isBarrel();
-  bool isForward();
+  float strip(const LocalPoint& lp) const;
+  float pitch() const;
+  float localPitch(const LocalPoint& lp) const; 
+  bool isBarrel() const; 
+  bool isForward() const;
   
  private:
-  const StripTopology* striptopology();
+  const StripTopology* striptopology() const;
  private:
-  const StripTopology* top_; 
+  mutable const StripTopology* top_; 
  private:
   RPCDetId _id;
   RPCRollSpecs* _rrs;

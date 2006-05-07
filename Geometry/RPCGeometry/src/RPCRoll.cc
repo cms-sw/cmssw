@@ -47,59 +47,59 @@ RPCRoll::type() const
 
 
 int 
-RPCRoll::nstrips()
+RPCRoll::nstrips() const
 {
   return this->striptopology()->nstrips();
 }
 
 LocalPoint
-RPCRoll::centreOfStrip(int strip)
+RPCRoll::centreOfStrip(int strip) const
 {
   float s = static_cast<float>(strip)-0.5;
   return this->striptopology()->localPosition(s);
 }
 
 LocalPoint
-RPCRoll::centreOfStrip(float strip)
+RPCRoll::centreOfStrip(float strip) const
 {
   return this->striptopology()->localPosition(strip);
 }
 
 LocalError
-RPCRoll::localError(float strip)
+RPCRoll::localError(float strip) const
 {
   return this->striptopology()->localError(strip,1./sqrt(12.));
 }
 
 float
-RPCRoll::strip(const LocalPoint& lp)
+RPCRoll::strip(const LocalPoint& lp) const
 { 
   return this->striptopology()->strip(lp);
 
 }
 
 float
-RPCRoll::localPitch(const LocalPoint& lp)
+RPCRoll::localPitch(const LocalPoint& lp) const
 { 
   return this->striptopology()->localPitch(lp);
 
 }
 
 float
-RPCRoll::pitch()
+RPCRoll::pitch() const
 { 
   return this->striptopology()->pitch();
 
 }
 
 bool
-RPCRoll::isBarrel()
+RPCRoll::isBarrel() const
 {
   return ((this->id()).region()==0);
 }  
 
 bool 
-RPCRoll::isForward()
+RPCRoll::isForward() const
 
 {
   return (!this->isBarrel());
@@ -108,7 +108,7 @@ RPCRoll::isForward()
 
 
 const StripTopology* 
-RPCRoll::striptopology()
+RPCRoll::striptopology() const
 {
   if(!top_){
     if (this->isBarrel()){
