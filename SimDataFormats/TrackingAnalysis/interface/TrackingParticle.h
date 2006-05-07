@@ -5,13 +5,31 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
+//#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"  
 #include "SimDataFormats/Track/interface/EmbdSimTrack.h"
 #include "SimG4Core/Generators/interface/HepMCParticle.h"
 
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefVector.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+
+#include "DataFormats/TrajectoryState/interface/TrackCharge.h"
+
 #include <vector>
 
+class TrackingVertex;
+
+
+/** Concrete TrackingParticle. 
+ *  All track parameters are passed in the constructor and stored internally.
+ */
+
+class TrackingParticle : public reco::Track {
+
+public:
 typedef std::vector<TrackingParticle> TrackingParticleContainer;
 
 typedef edm::Ref< std::vector<TrackingVertex> > TrackingVertexRef;
@@ -19,14 +37,6 @@ typedef edm::Ref< std::vector<TrackingVertex> > TrackingVertexRef;
 typedef  edm::RefVector< std::vector<PSimHit> > PSimHitCollection;
 
 typedef edm::Ref< std::vector<HepMCParticle> > HepMCParticleRef; // link in HepMC
-
-/** Concrete TrackingParticle. 
- *  All track parameters are passed in the constructor and stored internally.
- */
-
-class TrackingParticle : public Track {
-
-public:
 
   TrackingParticle(const PSimHitCollection&,
 	     unsigned int number, 

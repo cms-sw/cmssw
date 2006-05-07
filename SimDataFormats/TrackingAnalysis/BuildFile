@@ -4,6 +4,7 @@
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimG4Core/Generators>
+<use name=geant4>
 <flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=SimDataFormatsTrackingAnalysis>
