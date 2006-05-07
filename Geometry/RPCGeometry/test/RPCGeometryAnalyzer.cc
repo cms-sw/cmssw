@@ -14,7 +14,6 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/RPCGeometry/interface/RPCRollService.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 //#include <Geometry/Vector/interface/GlobalPoint.h>
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
@@ -183,8 +182,7 @@ RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
        //        int iphiDeg = static_cast<int>( cphiDeg );
        //	std::cout << "phi(0,0,0) = " << iphiDeg << " degrees" << std::endl;
 
-       RPCRollService rollServ(roll);
-       int nStrips = rollServ.nstrips();
+       int nStrips = roll->nstrips();
 
        if ( (detId.region()!=0 && detId.sector() == 1 
 	     && detId.subsector() == 1
@@ -201,7 +199,7 @@ RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 	 std::cout <<"======================== Writing output file"<< std::endl;
 	 ofos<<"Forward Detector "<<roll->type().name()  <<" "<<detId.region()<<" z :"<<detId<<std::endl;
 	 for (unsigned int i=0;i<vlp.size();i++){
-	   ofos<< "lp="<<vlp[i]<<" gp="<<rollServ.LocalToGlobalPoint(vlp[i]) << " pitch="<<rollServ.localPitch(vlp[i]);
+	   ofos<< "lp="<<vlp[i]<<" gp="<<roll->toGlobal(vlp[i]) << " pitch="<<roll->localPitch(vlp[i]);
 	   if ( (i+1)%3 == 0 ) {
 	     ofos<<" "<<std::endl; 
 	   }
@@ -218,21 +216,21 @@ RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 	 LocalPoint s2(0.,cslength/2.,0.);
 	 float base1=top_->localPitch(s1)*nStrips;
 	 float base2=top_->localPitch(s2)*nStrips;
-	 LocalPoint  s11(-base1/2., -cslength/2,0.);
-	 LocalPoint  s12(base1/2., -cslength/2,0.);
-	 LocalPoint  s21(-base2/2., cslength/2,0.);
-	 LocalPoint  s22(base2/2.,  cslength/2,0.);
+	 //	 LocalPoint  s11(-base1/2., -cslength/2,0.);
+	 //	 LocalPoint  s12(base1/2., -cslength/2,0.);
+	 //	 LocalPoint  s21(-base2/2., cslength/2,0.);
+	 //	 LocalPoint  s22(base2/2.,  cslength/2,0.);
 	 ofos<<  "  First Base = "<<base1<<" Second Base ="<<base2<<std::endl;
        }
        std::cout << "\nStrips =  "<<std::setw( 4 ) << nStrips<<"\n";
        for(int is=0;is<nStrips;is++){
 	 std::cout <<"s="<<std::setw(3)<<is+1<<" pos="
-		   <<rollServ.CentreOfStrip(is+1);
+		   <<roll->centreOfStrip(is+1);
 	 if ((is+1)%5==0){ 
 	   float str=is;
 	   std::cout <<"s="<<std::setw(6)<<str<<" pos="
-		     <<rollServ.CentreOfStrip(str)<<" gpos="<<
-	     rollServ.LocalToGlobalPoint(rollServ.CentreOfStrip(str));
+		     <<roll->centreOfStrip(str)<<" gpos="<<
+	     roll->toGlobal(roll->centreOfStrip(str));
 	   std::cout <<std::endl;
 	 }
        }
