@@ -3,7 +3,7 @@ void SiPixelDigiCompare()
 
  gROOT ->Reset();
  char*  rfilename = "pixeldigihisto.root";
- char*  sfilename = "pixeldigihisto.root"; 
+ char*  sfilename = "data/pixeldigihisto.root"; 
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename);
@@ -14,10 +14,10 @@ void SiPixelDigiCompare()
  Char_t histo[200];
 
  rfile->cd("DQMData");
- gDirectory->ls();
+ //gDirectory->ls();
 
  sfile->cd("DQMData");
- gDirectory->ls();
+ //gDirectory->ls();
  gROOT->ProcessLine(".x HistoCompare.C");
  HistoCompare * myPV = new HistoCompare();
 

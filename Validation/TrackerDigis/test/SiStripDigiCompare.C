@@ -3,7 +3,7 @@ void SiStripDigiCompare()
 
  gROOT ->Reset();
  char*  rfilename = "stripdigihisto.root";
- char*  sfilename = "stripdigihisto.root";
+ char*  sfilename = "data/stripdigihisto.root";
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename); 
@@ -15,7 +15,7 @@ void SiStripDigiCompare()
  rfile->cd("DQMData");
  sfile->cd("DQMData");
 
- gDirectory->ls();
+ //gDirectory->ls();
 
  Char_t histo[200];
 
