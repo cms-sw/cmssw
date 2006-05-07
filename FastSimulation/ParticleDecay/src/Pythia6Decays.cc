@@ -42,8 +42,8 @@ Pythia6Decays::particleDaughters(ParticlePropagator& particle)
   pyjets->p(1,1) = particle.px();
   pyjets->p(1,2) = particle.py();
   pyjets->p(1,3) = particle.pz();
-  pyjets->p(1,4) = std::max(particle.PDGmass(),particle.e());
-  pyjets->p(1,5) = particle.PDGmass();
+  pyjets->p(1,4) = std::max(particle.mass(),particle.e());
+  pyjets->p(1,5) = particle.mass();
   pyjets->v(1,1) = particle.x();
   pyjets->v(1,2) = particle.y();
   pyjets->v(1,3) = particle.z();

@@ -98,10 +98,13 @@ TrajectoryManager::reconstruct()
 
   std::list<TrackerLayer>::iterator cyliter;
 
+  //  bool debug = mySimEvent->id().event() == 62;
+
   // Loop over the particles
   for( int fsimi=0; fsimi < (int) mySimEvent->nTracks() ; ++fsimi) {
 
     FSimTrack& myTrack = mySimEvent->track(fsimi);
+    //    if ( debug ) cout << myTrack << endl;
     //    cout << myTrack << endl;
 
     // If the particle has decayed inside the beampipe, or decays 

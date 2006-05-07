@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
 //  Prototype for a particle class
 // -----------------------------------------------------------------------------
-//  $Date: 2006/04/10 16:12:37 $
-//  $Revision: 1.4 $
+//  $Date: 2006/04/26 07:59:23 $
+//  $Revision: 1.5 $
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
 // -----------------------------------------------------------------------------
@@ -32,27 +32,27 @@ RawParticle::RawParticle() {
   //  cout << "Create RawParticle as default" << nParticles << endl;
 }
 
-RawParticle::RawParticle(HepLorentzVector p) 
+RawParticle::RawParticle(const HepLorentzVector& p) 
   : HepLorentzVector(p) {
   init();
   //  cout << "Create RawParticle from LV" << nParticles << endl;
 }
 
-RawParticle::RawParticle(const int id, const HepLorentzVector p) 
+RawParticle::RawParticle(const int id, const HepLorentzVector& p) 
   : HepLorentzVector(p) {
   this->init();
   this->setID(id);
   //  cout << "Create RawParticle from id,LV" << nParticles << endl;
 }
 
-RawParticle::RawParticle(const std::string name, const HepLorentzVector p) 
+RawParticle::RawParticle(const std::string name, const HepLorentzVector& p) 
   : HepLorentzVector(p) {
   this->init();
   this->setID(name);
   //  cout << "Create RawParticle from id,LV" << nParticles << endl;
 }
 
-RawParticle::RawParticle(HepLorentzVector p, HepLorentzVector xStart) {
+RawParticle::RawParticle(const HepLorentzVector& p, const HepLorentzVector& xStart) {
   init();
   this->setPx(p.px());
   this->setPy(p.py());
@@ -168,13 +168,13 @@ void RawParticle::setT(const double t) {
     myVertex.setT(t);
 }
 
-void RawParticle::setVertex(const HepLorentzVector vtx) {
+void RawParticle::setVertex(const HepLorentzVector& vtx) {
   myVertex = vtx;
   //  cout << this->vertex() << endl;
   //    { pidInfo a;}
 }
 
-HepLorentzVector  RawParticle::vertex() const { 
+const HepLorentzVector&  RawParticle::vertex() const { 
     return   myVertex ; 
 }
 

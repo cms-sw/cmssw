@@ -33,7 +33,7 @@ void EnergyLossUpdator::compute(ParticlePropagator &Particle)
   // Author : Patrick Janot - 8-Jan-2004
 
   double p    = Particle.vect().mag();
-  double mass = Particle.PDGmass();
+  double mass = Particle.mass();
   double e    = sqrt(p*p+mass*mass);
 
   double beta2 = p/e;

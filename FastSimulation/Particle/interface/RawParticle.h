@@ -26,22 +26,22 @@ public:
   /** Construct from a fourvector.
    *  The fourvector is taken for the particle, the vertex is set to 0. 
    */
-  RawParticle(HepLorentzVector p);
+  RawParticle(const HepLorentzVector& p);
 
   /** Construct from a fourvector and a PID.
    *  The fourvector and PID are taken for the particle, the vertex is set to 0.
    */
-  RawParticle(const int id, const HepLorentzVector p);
+  RawParticle(const int id, const HepLorentzVector& p);
 
   /** Construct from a fourvector and a name.
    *  The fourvector and name are taken for the particle, the vertex is set to 0.
    */
-  RawParticle(const std::string name, const HepLorentzVector p);
+  RawParticle(const std::string name, const HepLorentzVector& p);
 
   /** Construct from 2 fourvectors.
    *  The first fourvector is taken for the particle, the second for its vertex.
    */
-  RawParticle(HepLorentzVector p, HepLorentzVector xStart);
+  RawParticle(const HepLorentzVector& p, const HepLorentzVector& xStart);
 
   /** Construct from fourmomentum components.
    *  Vertex is set to 0.
@@ -85,7 +85,7 @@ public:
    void setT(const double t);
 
   ///  set the vertex
-   void setVertex(const HepLorentzVector vtx); 
+   void setVertex(const HepLorentzVector& vtx); 
 
   /***  methods to be overloaded to include vertex ***/
 
@@ -164,7 +164,7 @@ public:
 
    HepDouble t() const;  //!< vertex time
 
-   HepLorentzVector vertex() const;   //!< the vertex fourvector
+   const HepLorentzVector& vertex() const;   //!< the vertex fourvector
 
   /** Print the name of the particle.
    *  The name is deduced from the particle ID using a \ref HepPDT table.

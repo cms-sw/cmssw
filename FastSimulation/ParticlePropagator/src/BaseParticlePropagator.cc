@@ -98,7 +98,7 @@ BaseParticlePropagator::propagate() {
     //
     // Check the decay time
     //
-    double delTime = propDir * (zProp-z())*PDGmass()/pz();
+    double delTime = propDir * (zProp-z())*mass()/pz();
     double factor = 1.;
     properTime += delTime;
     if ( properTime > properDecayTime ) {
@@ -220,7 +220,7 @@ BaseParticlePropagator::propagate() {
     //
     // Check the decay time
     //
-    double delTime = propDir * (zProp-z())*PDGmass()/pz();
+    double delTime = propDir * (zProp-z())*mass()/pz();
     double factor = 1.;
     properTime += delTime;
     if ( properTime > properDecayTime ) {

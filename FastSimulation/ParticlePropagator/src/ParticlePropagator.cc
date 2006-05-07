@@ -76,7 +76,9 @@ double
 ParticlePropagator::fieldMap(double xx,double yy, double zz) {
   // Arguments now passed in cm.
   //  return MagneticFieldMap::instance()->inTesla(GlobalPoint(xx/10.,yy/10.,zz/10.)).z();
-  return MagneticFieldMap::instance()->inTeslaZ(GlobalPoint(xx,yy,zz));
+  // Return a dummy value for neutral particles!
+  return charge() == 0 ? 
+    4. : MagneticFieldMap::instance()->inTeslaZ(GlobalPoint(xx,yy,zz));
 }
 
 bool
