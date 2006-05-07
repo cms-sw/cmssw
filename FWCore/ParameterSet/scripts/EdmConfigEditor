@@ -12,6 +12,11 @@ if "CMSSW_RELEASE_BASE" in os.environ.keys():
 
 import cmsconfig
 
+class BadLabelException:
+    def __init__(self,label):
+        self.label = label
+        return
+
 class CmsBuilder(cmd.Cmd):
 
     def __init__(self,fileName):
@@ -19,17 +24,13 @@ class CmsBuilder(cmd.Cmd):
         readline.set_completer_delims(readline.get_completer_delims()+'.')
         self.prompt = "[no file]>"
         self.cfg = None
+        self._esModuleLabels = dict()
+        self._esSourceLabels = dict()
         self.addedCommands = list()
         if 0 != len(fileName):
             self.do__read(fileName)
-
-    def __print_modules(self,line):
-        """List module labels in the configuration"""
-        if(self.cfg):
-            names = self.cfg.moduleNames()
-            names.sort()
-            self.columnize(names)
-
+        
+   
     def do_process(self,line):
         """Description: Show the configuration for the process
         Commands:
@@ -40,6 +41,12 @@ class CmsBuilder(cmd.Cmd):
             else:
                 print "no configuration loaded"
 
+    def __print_modules(self,line):
+        """List module labels in the configuration"""
+        if(self.cfg):
+            names = self.cfg.moduleNames()
+            names.sort()
+            self.columnize(names)
     def do_module(self,line):
         """Description: Show information about modules
         Commands:
@@ -49,12 +56,104 @@ class CmsBuilder(cmd.Cmd):
             self.__print_modules(line)
             return
         if(self.cfg):
-            self.__print_module(line) 
+            try:
+                self.__print_module(line)
+            except BadLabelException,e:
+                print "no module named '"+e.label+"'"
 
     def complete_module(self,text,line,begidx,endidx):
+        #if the separator is not a space then no match
+        # note: 6 is the length of the string 'module'
+        if line[6] != ' ':
+            return []
         r = re.compile(text+'.*')
         return [x for x in self.cfg.moduleNames() if r.match(x) ]
 
+    def __print_es_modules(self,line):
+        """List es_module labels in the configuration"""
+        if(self.cfg):
+            names = self._esModuleLabels.keys()
+            names.sort()
+            self.columnize(names)
+ 
+    def do_es_module(self,line):
+        """Description: Show information about es_modules
+        Commands:
+        es_module         list the labels for all es_modules
+        es_module <label> print the configuration of the es_module"""
+        if 0 == len(line):
+            self.__print_es_modules(line)
+            return
+        if(self.cfg):
+            try:
+                self.__print_es_module(line) 
+            except BadLabelException,e:
+                print "no es_module named '"+e.label+"'"
+
+    def complete_es_module(self,text,line,begidx,endidx):
+        #if the separator is not a space then no match
+        # note: 6 is the length of the string 'es_module'
+        if line[9] != ' ':
+            return []
+        r = re.compile(text+'.*')
+        return [x for x in self._esModuleLabels.keys() if r.match(x) ]
+
+    def __print_es_module(self,label,line=''):
+        if 0 == len(line):
+            print "module: "+self.__find_es_module(label)['@classname'][2]
+            self.__print_pset(self.__find_es_module(label),"  ")
+        else:
+            self.__print_pset_param(label,line,self.__find_es_module(label))
+
+    def __find_es_module(self,label):
+        try:
+            internalLabel = self._esModuleLabels[label]
+        except KeyError:
+            raise BadLabelException(label)
+        return self.cfg.esModule(self._esModuleLabels[label])
+
+    def __print_es_sources(self,line):
+        """List es_module labels in the configuration"""
+        if(self.cfg):
+            names = self._esSourceLabels.keys()
+            names.sort()
+            self.columnize(names)
+ 
+    def do_es_source(self,line):
+        """Description: Show information about es_sources
+        Commands:
+        es_source         list the labels for all es_sources
+        es_sourcee <label> print the configuration of the es_source"""
+        if 0 == len(line):
+            self.__print_es_sources(line)
+            return
+        if(self.cfg):
+            try:
+                self.__print_es_source(line)
+            except BadLabelException, e:
+                print "no es_source named '"+e.label+"'"
+
+    def complete_es_source(self,text,line,begidx,endidx):
+        #if the separator is not a space then no match
+        # note: 9 is the length of the string 'es_source'
+        if line[9] != ' ':
+            return []
+        r = re.compile(text+'.*')
+        return [x for x in self._esSourceLabels.keys() if r.match(x) ]
+
+    def __print_es_source(self,label,line=''):
+        if 0 == len(line):
+            print "es_source: "+self.__find_es_source(label)['@classname'][2]
+            self.__print_pset(self.__find_es_source(label),"  ")
+        else:
+            self.__print_pset_param(label,line,self.__find_es_source(label))
+
+    def __find_es_source(self,label):
+        try:
+            internalLabel=self._esSourceLabels[label]
+        except KeyError:
+            raise BadLabelException(label)
+        return self.cfg.esSource(internalLabel)
 
     def do_source(self,line):
         """Description: Show the configuration of the source
@@ -63,6 +162,32 @@ class CmsBuilder(cmd.Cmd):
         if 0 == len(line):
             self.__print_source()
 
+    def __parse_pycfg(self,txt):
+        self.cfg = cmsconfig.cmsconfig(txt)
+        self.__remove_labels()
+        for label in self.cfg.moduleNames():
+            self.__add_module_label(label)
+        for label in self.cfg.pathNames():
+            self.__add_path_label(label)
+        self.__add_source_label(self.cfg.mainInputSource()['@classname'][2])
+        self._esModuleLabels=dict()
+        for label in self.cfg.esModuleNames():
+            parts = label.split('@')
+            newLabel = parts[0]
+            if len(parts[1]) != 0:
+                newLabel = parts[1]
+            self._esModuleLabels[newLabel]=label
+            self.__add_es_module_label(newLabel)
+        self._esSourceLabels=dict()
+        for label in self.cfg.esSourceNames():
+            parts = label.split('@')
+            newLabel = parts[0]
+            if len(parts[1]) != 0:
+                newLabel = parts[1]
+            self._esSourceLabels[newLabel]=label
+            self.__add_es_source_label(newLabel)
+
+
     def do__read(self,line):
         """Description: Read in the configuration file
         Commands:
@@ -70,19 +195,11 @@ class CmsBuilder(cmd.Cmd):
         try:
             txt = file(line).read()
             parsedTxt = os.popen("EdmConfigToPython < "+line).read()
-            #print txt
+            self.__parse_pycfg(parsedTxt)
+            self.prompt = os.path.basename(line)+'>'
         except Exception, e:
             print e
         else:
-            self.cfg = cmsconfig.cmsconfig(parsedTxt)
-            self.__remove_labels()
-            self.prompt = os.path.basename(line)+'>'
-            for label in self.cfg.moduleNames():
-                self.__add_module_label(label)
-            for label in self.cfg.pathNames():
-                self.__add_path_label(label)
-            self.__add_source_label(self.cfg.mainInputSource()['@classname'][2])
-            
             self.__print_process_summary()
         #print self.get_names()
 
@@ -101,7 +218,10 @@ class CmsBuilder(cmd.Cmd):
         if 0 == len(line):
             self.__print_paths()
         else:
-            self.__print_path(line)
+            try:
+                self.__print_path(line)
+            except BadLabelException, e:
+                print "no path named '"+e.label+"'"
 
     def __print_paths(self):
         """Print the list of path labels"""
@@ -113,7 +233,10 @@ class CmsBuilder(cmd.Cmd):
     def __print_path(self,pathName):
         """Prints the configuration of just one path"""
         if self.cfg:
-            print "path: "+self.cfg.path(pathName)
+            try:
+                print "path: "+self.cfg.path(pathName)
+            except KeyError:
+                raise BadLabelException(pathName)
             
     def do_quit(self,line):
         """Description: quit application"""
@@ -128,6 +251,12 @@ class CmsBuilder(cmd.Cmd):
         self.do_module('')
         print "path:"
         self.do_path('')
+        if len(self._esModuleLabels) != 0:
+            print "es_module:"
+            self.do_es_module('')
+        if len(self._esSourceLabels) != 0:
+            print "es_source:"
+            self.do_es_source('')
         
     def __print_pset(self,psetDict,indent):
         """print the contents of a pset"""
@@ -135,7 +264,8 @@ class CmsBuilder(cmd.Cmd):
         keys.sort()
         for key in keys:
             param = psetDict[key]
-            if '@classname' == key: continue
+            #do not print hidden framework values
+            if '@' == key[0]: continue
             value = param[2]
             if 'VPSet' == param[0]:
                 print indent+param[1]+" "+param[0]+" "+key+" ="
@@ -162,9 +292,14 @@ class CmsBuilder(cmd.Cmd):
             self.__print_pset_param(self.cfg.mainInputSource()['@classname'][2],line,self.cfg.mainInputSource())
 
     def __print_module(self,label,line=''):
+        try:
+            info = self.cfg.module(label)
+        except KeyError:
+            raise BadLabelException(label)
+
         if 0 == len(line):
-            print "module: "+self.cfg.module(label)['@classname'][2]
-            self.__print_pset(self.cfg.module(label),"  ")
+            print "module: "+info['@classname'][2]
+            self.__print_pset(info,"  ")
         else:
             self.__print_module_param(label,line)
 
@@ -189,25 +324,7 @@ class CmsBuilder(cmd.Cmd):
         
     def __print_module_param(self,label,line):
         self.__print_pset_param(label,line,self.cfg.module(label))
-        #labels = line.split('.')
-        #if 2 > len(labels):
-        #    return
-        #if not labels[1] in self.cfg.module(label):
-        #    print 'the module '+label+' has no parameter '+labels[1]
-        #    return
-        #param = self.cfg.module(label)[labels[1]]
-        #depth = label+'.'+labels[1]
-        #for x in labels[2:]:
-        #    if param[0] != 'PSet':
-        #        print 'the label '+depth+' is a '+param[0]+' not a PSet so has no sub labels'
-        #        return
-        #    if not x in param[2]:
-        #        print 'the label '+depth+' has no sub label '+x
-        #        return
-        #    param = param[2][x]            
-        #param = self.cfg.module(label)[labels[1]]
-        #self.__print_param_value(param)
-
+     
     def __print_pset_param(self,label,line,psetDict):
         labels = line.split('.')
         if 2 > len(labels):
@@ -239,6 +356,30 @@ class CmsBuilder(cmd.Cmd):
     def __module_help(self,label):
         self.__pset_help(label,'module')
 
+    def __add_es_module_label(self,label):
+        """create new commands for the new es_module label"""
+        self.__add_new_label(label,CmsBuilder.__es_module_help,CmsBuilder.__print_es_module,CmsBuilder.__es_module_complete)
+
+    def __es_module_complete(self,label,text,line,begidx,endidx):
+        """gives list of completions possible for this label"""
+        mod = self.__find_es_module(label)
+        return self.__pset_complete(label,mod,text,line,begidx,endidx)
+
+    def __es_module_help(self,label):
+        self.__pset_help(label,'es_module')
+
+    def __add_es_source_label(self,label):
+        """create new commands for the new es_source label"""
+        self.__add_new_label(label,CmsBuilder.__es_source_help,CmsBuilder.__print_es_source,CmsBuilder.__es_source_complete)
+
+    def __es_source_complete(self,label,text,line,begidx,endidx):
+        """gives list of completions possible for this label"""
+        mod = self.__find_es_source(label)
+        return self.__pset_complete(label,mod,text,line,begidx,endidx)
+
+    def __es_source_help(self,label):
+        self.__pset_help(label,'es_source')
+
     def __add_source_label(self,label):
         """create new commands for the new module label"""
         self.__add_new_label(label,CmsBuilder.__source_help,CmsBuilder.__print_source,CmsBuilder.__source_complete)
@@ -263,6 +404,8 @@ class CmsBuilder(cmd.Cmd):
         print label+".<param>  prints value of parameter <param>"
 
     def __pset_complete(self,label,paramDict,text,line,begidx,endidx):
+        if line[len(label)] != '.':
+            return []
         labels = line[len(label)+1:begidx].split('.')
         for x in labels:
             if x == '':
@@ -301,6 +444,10 @@ class CmsBuilder(cmd.Cmd):
         return []
     
     def complete_path(self,text,line,begidx,endidx):
+        #if the separator is not a space then no match
+        # note: 4 is the length of the string 'path'
+        if line[4] != ' ':
+            return []
         r = re.compile(text+'.*')
         return [x for x in self.cfg.pathNames() if r.match(x) ]
 
@@ -310,7 +457,16 @@ if __name__=="__main__":
     
     usage = "%prog [options] [configuration file name]"
     parser = optparse.OptionParser(usage=usage)
+    parser.add_option("--test", action="store_true", dest="test", default=False, help="run the builtin application tests")
     (options,args) = parser.parse_args()
+    if options.test :
+        print "run tests"
+        import unittest
+        
+        #class TestModuleCommand(unittest.TestCase):
+         #   def setUp(self):
+                #self.
+        sys.exit(0)
     fileName=""
     if 1 < len(args):
         parser.error("incorrect number of arguments")
