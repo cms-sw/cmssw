@@ -9,7 +9,6 @@ RPCCluster::RPCCluster(int fs, int ls, int bx) :
 {
 }
 
-
 RPCCluster::~RPCCluster()
 {
 }
@@ -19,7 +18,6 @@ RPCCluster::firstStrip() const
 {
   return fstrip;
 }
-
 
 int
 RPCCluster::lastStrip() const
@@ -39,14 +37,27 @@ RPCCluster::bx() const
   return bunchx;
 }
 
-bool RPCCluster::operator<(const RPCCluster& cl) const{
+bool RPCCluster::isAdjacent(const RPCCluster& cl) const{
+  
+  return ((cl.firstStrip() == this->lastStrip()+1) &&
+	  (cl.bx() == this->bx()));
+  
+}
 
+void RPCCluster::merge(const RPCCluster& cl){
+  
+  if(this->isAdjacent(cl))
+    { 
+      lstrip = lastStrip();      
+    }
+}
+
+bool RPCCluster::operator<(const RPCCluster& cl) const{
+  
 if(cl.bx() == this->bx())
  return cl.firstStrip()<this->firstStrip();
 else 
  return cl.bx()<this->bx();
- 
-
 }
 
 bool 
