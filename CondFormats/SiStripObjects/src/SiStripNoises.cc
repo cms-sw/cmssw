@@ -1,4 +1,5 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 SiStripNoises::SiStripNoises(){}
 SiStripNoises::~SiStripNoises(){}
@@ -7,7 +8,9 @@ const std::vector<SiStripNoises::SiStripData> & SiStripNoises::getSiStripNoiseVe
   SiStripNoiseMapIterator mapiter=m_noises.find(DetId);
   if (mapiter!=m_noises.end())
     return mapiter->second;
-  return SiStripNoiseVector();
+
+  throw cms::Exception("CorruptData")
+    << "[SiStripNoises::getSiStripNoiseVector] looking for SiStripNoise for a detid not existing in the DB... detid = " << DetId;
 };
 
 

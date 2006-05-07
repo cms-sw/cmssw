@@ -1,4 +1,5 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 SiStripPedestals::SiStripPedestals(){}
 SiStripPedestals::~SiStripPedestals(){}
@@ -7,7 +8,9 @@ const std::vector<SiStripPedestals::SiStripData> & SiStripPedestals::getSiStripP
   SiStripPedestalsMapIterator mapiter=m_pedestals.find(DetId);
   if (mapiter!=m_pedestals.end())
     return mapiter->second;
-  return SiStripPedestalsVector();
+
+  throw cms::Exception("CorruptData")
+    << "[SiStripPedestals::getSiStripPedestalsVector] looking for SiStripPedestals for a detid not existing in the DB... detid = " << DetId;
 };
 
 
