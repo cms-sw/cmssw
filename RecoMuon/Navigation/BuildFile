@@ -7,6 +7,7 @@
 <use name=Geometry/CommonDetUnit>
 <use name=TrackingTools/TrajectoryState>
 <use name=RecoMuon/DetLayers>
+<use name=RecoTracker/TkNavigation>
 <use name=rootrflx>
 <use name=root>
 <use name=boost>
@@ -23,6 +24,7 @@
    <use name=Geometry/CommonDetUnit>
    <use name=TrackingTools/TrajectoryState>
    <use name=RecoMuon/DetLayers >
+   <use name=RecoTracker/TkNavigation>
    <use name=rootrflx>
    <use name=root>
    <use name=boost>
