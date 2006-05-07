@@ -1,0 +1,12 @@
+<use name=DataFormats/TrackingRecHit>
+<use name=DataFormats/RPCDigi>
+<use name=DataFormats/Common>
+<use name=Geometry/RPCGeometry>
+
+<export>
+ <lib name=DataFormatsRPCRecHit>
+ <use name=DataFormats/TrackingRecHit>
+ <use name=DataFormats/RPCDigi>
+ <use name=DataFormats/Common>
+ <use name=Geometry/RPCGeometry>
+</export>
