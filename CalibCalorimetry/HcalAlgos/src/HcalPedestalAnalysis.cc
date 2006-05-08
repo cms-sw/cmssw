@@ -8,7 +8,7 @@
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPedestalAnalysis.h"
-#include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalAnalyzer.h"
+// F.R. #include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalAnalyzer.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 #include <TFile.h>
 
