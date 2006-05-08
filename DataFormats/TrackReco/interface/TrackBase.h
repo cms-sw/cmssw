@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackBase.h,v 1.10 2006/05/02 13:47:37 llista Exp $
+ * \version $Id: TrackBase.h,v 1.11 2006/05/05 14:39:52 speer Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -25,10 +25,6 @@ namespace reco {
     typedef perigee::Parameters Parameters;
     /// perigee parameters covariance matrix (5x5)
     typedef perigee::Covariance Covariance;
-    /// position-momentum covariance matrix (6x6).
-    /// This type will be replaced by a MathCore symmetric
-    /// matrix, as soon as available
-    typedef math::Error<6>::type PosMomError;
     /// spatial vector
     typedef math::XYZVector Vector;
     /// point in the space
@@ -90,8 +86,6 @@ namespace reco {
     Vector momentum() const { return par_.momentum(); }
     /// position of point of closest approach to the beamline
     Point vertex() const { return par_.vertex(); }
-//     /// position-momentum error matrix ( 6x6, degenerate )
-//     PosMomError posMomError() const;
     /// number of hits found 
     unsigned short found() const { return found_; }
     /// number of hits lost
@@ -135,10 +129,6 @@ namespace reco {
     /// perigee 5x5 covariance matrix
     Covariance cov_;
   };
-
-//   inline TrackBase::PosMomError TrackBase::posMomError() const { 
-//     return perigee::posMomError( par_, cov_ ); 
-//   }
 
 }
 

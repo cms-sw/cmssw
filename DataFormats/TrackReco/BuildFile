@@ -1,8 +1,10 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/Common>
+<use name=FWCore/Utilities>
 <flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsTrackReco>
  <use name=DataFormats/Math>
  <use name=DataFormats/Common>
+ <use name=FWCore/Utilities>
 </export>

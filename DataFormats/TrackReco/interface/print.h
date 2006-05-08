@@ -4,18 +4,16 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: print.h,v 1.1 2006/04/21 05:50:46 llista Exp $
+ * \version $Id: print.h,v 1.2 2006/04/21 07:17:24 llista Exp $
  * 
  */
+#include "FWCore/Utilities/interface/Verbosity.h"
 #include <string>
 
 namespace reco {
   class Track;
   /// Track print utility
-
-  enum verbosity { concise, normal, detailed };
-
-  std::string print( const Track &, verbosity = concise );
+  std::string print( const Track &, edm::Verbosity = edm::Concise );
 }
 
 #endif
