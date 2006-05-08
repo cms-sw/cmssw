@@ -25,7 +25,7 @@ class CSCSegment : public RecSegment4D {
 /* Operations */ 
     	const std::vector<CSCRecHit2D> specificRecHits() const { return theCSCRecHits; }  
 	virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
-	virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
+	virtual std::vector<const TrackingRecHit*> recHits() const;
 		
 	int nRecHits() const { return theCSCRecHits.size(); }
         

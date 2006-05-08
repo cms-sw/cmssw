@@ -9,6 +9,15 @@ CSCSegment::CSCSegment(std::vector<CSCRecHit2D> proto_segment, LocalPoint origin
 
 CSCSegment::~CSCSegment() {}
 
+std::vector<const TrackingRecHit*> CSCSegment::recHits() const{
+  std::vector<const TrackingRecHit*> pointersOfRecHits;
+  std::vector<CSCRecHit2D> cscRHs = specificRecHits();
+  for (std::vector<CSCRecHit2D>::const_iterator irh = cscRHs.begin(); irh!=cscRHs.end(); ++irh) {
+    pointersOfRecHits.push_back(&(*irh));
+  }
+  return pointersOfRecHits;
+}
+
 AlgebraicVector CSCSegment::parameters() const {
   AlgebraicVector result(4);
   
