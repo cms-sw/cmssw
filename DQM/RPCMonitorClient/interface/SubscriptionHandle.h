@@ -8,8 +8,8 @@
  *  std::vector<std::string> meSubscribe and
  *  std::vector<std::string> meUnubscribe;
  *
- *  $Date: 2006/04/24 09:54:22 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/04 10:27:17 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
   */
 
@@ -18,6 +18,8 @@
 #include<vector>
 #include<string>
 
+class MESubscriptionParser;
+
 class SubscriptionHandle{
 
  public:
@@ -25,14 +27,18 @@ class SubscriptionHandle{
 	SubscriptionHandle();
 	///Destructor
 	~SubscriptionHandle();
-	
+	///Parses the xml file
+	bool configure(std::string meListFile);
 	/// Performs the subscription
-	void setSubscriptions(std::vector<std::string> meSubscribe, std::vector<std::string> meUnubscribe, MonitorUserInterface *mui);
+	void enable(MonitorUserInterface * mui);
+ 	/// Performs the subscription
+	void onUpdate(MonitorUserInterface * mui);
 
- 
  private:
 
-
+	MESubscriptionParser * meListParser;
+	std::vector<std::string> subList;
+	std::vector<std::string> unsubList;
 };
 
 #endif
