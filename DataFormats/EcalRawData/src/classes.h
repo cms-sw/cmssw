@@ -6,6 +6,7 @@
 namespace {
   namespace {
     EcalDCCHeaderBlock ERDC_;
+    EcalDCCHeaderBlock::EcalDCCEventSettings ERDCSet_;
     std::vector< EcalDCCHeaderBlock > vERDC_;
     edm::SortedCollection<EcalDCCHeaderBlock> scERDC_;
     EcalRawDataCollection theERDC_;
