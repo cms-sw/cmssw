@@ -4,18 +4,16 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: print.h,v 1.2 2006/04/21 07:17:24 llista Exp $
+ * \version $Id: VertexPrint.h,v 1.1 2006/04/28 16:55:09 vanlaer Exp $
  * 
  */
+#include "FWCore/Utilities/interface/Verbosity.h"
 #include <string>
 
 namespace reco {
-
    class Vertex;
    /// Vertex print utility
-
-   //   std::string print( const Vertex &, verbosity = concise );
-   std::string print( const Vertex & );
+   std::string print( const Vertex &, edm::Verbosity = edm::Concise );
 }
 
 #endif
