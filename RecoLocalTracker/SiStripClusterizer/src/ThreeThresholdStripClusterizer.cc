@@ -101,6 +101,7 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit( const edm::DetSet<SiStri
     
     int charge = 0;
     float sigmaNoise2=0;
+    int counts=0;
     cluster_digis.clear();
     for (itest=ibeg; itest<=iend; itest++) {
       float channelNoise = SiStripNoiseService_->getNoise(detID,itest->strip());
@@ -122,7 +123,8 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit( const edm::DetSet<SiStri
       if (!IsBadChannel && itest->adc() >= static_cast<int>( channelThresholdInNoiseSigma()*channelNoise)) {
         charge += itest->adc();
         sigmaNoise2 += channelNoise*channelNoise;
-        cluster_digis.push_back(*itest);
+        counts++;
+	cluster_digis.push_back(*itest);
       } else {
 	cluster_digis.push_back(SiStripDigi(itest->strip(),0)); //if strip bad or under threshold set SiStripDigi.adc_=0
 #ifdef DEBUG
@@ -131,7 +133,7 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit( const edm::DetSet<SiStri
 #endif
       }
     }
-    float sigmaNoise = sqrt(sigmaNoise2);
+    float sigmaNoise = sqrt(sigmaNoise2/counts);
 
     if (charge >= static_cast<int>( clusterThresholdInNoiseSigma()*sigmaNoise)) {
       output.data.push_back( SiStripCluster( detID, SiStripCluster::SiStripDigiRange( cluster_digis.begin(),
