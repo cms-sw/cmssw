@@ -13,6 +13,7 @@ void SiStripCommonModeNoiseSubtractor::subtract(std::vector<int16_t>& digis){
     int nAPV = digis.size()/128;
     LogDebug("SiStripZeroSuppression") << "[SiStripCommonModeNoiseSubtractor::subtract] number of apvs: nAPV= " << nAPV;
     for (int iAPV=0; iAPV<nAPV; iAPV++){
+      APVdigis.clear(); //added verify
       fs = digis.begin()+iAPV*128;
       ls = digis.begin()+(iAPV+1)*128;
       APVdigis.insert(APVdigis.end(), fs, ls );
