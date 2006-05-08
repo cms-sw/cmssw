@@ -26,5 +26,6 @@ template std::vector< std::vector<FedChannelConnection> >::iterator;
 template std::vector< std::vector<FedChannelConnection> >::const_iterator;
 template std::vector<FedChannelConnection>::iterator;
 template std::vector<FedChannelConnection>::const_iterator;
-
+//template std::vector<uint16_t>::iterator;
+//template std::vector<uint16_t>::const_iterator;
 
