@@ -12,6 +12,9 @@
   <class pattern="ROOT::Math::MatRepSym<*>">
     <field name="fOff" transient="true"/>
   </class>
+  <class pattern="ROOT::Math::SMatrix<*>">
+    <field name="fOff" transient="true"/>
+  </class>
   <class pattern="ROOT::Math::RowOffsets<*>" />
 </selection>
 <exclusion>

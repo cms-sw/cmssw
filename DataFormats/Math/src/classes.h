@@ -62,6 +62,25 @@ namespace {
     math::ErrorF<4>::type ef4;
     math::ErrorF<5>::type ef5;
     math::ErrorF<6>::type ef6;
+
+    ROOT::Math::MatRepSym<Double32_t, 1> sm1;
+    ROOT::Math::MatRepSym<Double32_t, 2> sm2;
+    ROOT::Math::MatRepSym<Double32_t, 3> sm3;
+    ROOT::Math::MatRepSym<Double32_t, 4> sm4;
+    ROOT::Math::MatRepSym<Double32_t, 5> sm5;
+    ROOT::Math::MatRepSym<Double32_t, 6> sm6;
+    ROOT::Math::MatRepSym<double, 1> smd1;
+    ROOT::Math::MatRepSym<double, 2> smd2;
+    ROOT::Math::MatRepSym<double, 3> smd3;
+    ROOT::Math::MatRepSym<double, 4> smd4;
+    ROOT::Math::MatRepSym<double, 5> smd5;
+    ROOT::Math::MatRepSym<double, 6> smd6;
+    ROOT::Math::MatRepSym<float, 1> smf1;
+    ROOT::Math::MatRepSym<float, 2> smf2;
+    ROOT::Math::MatRepSym<float, 3> smf3;
+    ROOT::Math::MatRepSym<float, 4> smf4;
+    ROOT::Math::MatRepSym<float, 5> smf5;
+    ROOT::Math::MatRepSym<float, 6> smf6;
  
     ROOT::Math::RowOffsets<1> ro1;
     ROOT::Math::RowOffsets<2> ro2;
