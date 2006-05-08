@@ -1,8 +1,16 @@
-#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHitBuilderESProducer.h"
+/** \class GenericTransientTrackingRecHitBuilderESProducer
+ *  ESProducer for GenericTransientTrackingRecHitBuilder
+ *
+ *  $Date: $
+ *  $Revision:$
+ *  \author Chang Liu - Purdue University
+ */
+
+#include "TrackingTools/TransientTrackingRecHit/src/GenericTransientTrackingRecHitBuilderESProducer.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHitBuilder.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
