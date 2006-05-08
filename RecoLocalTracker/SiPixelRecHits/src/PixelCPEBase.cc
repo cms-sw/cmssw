@@ -157,7 +157,7 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
 void PixelCPEBase::
 computeAnglesFromTrajectory(const SiPixelCluster & cl,
 			    const GeomDetUnit    & det, 
-			    const LocalTrajectoryParameters & ltp)
+			    const LocalTrajectoryParameters & ltp) const
 {
   LocalVector localDir = ltp.momentum()/ltp.momentum().mag();
 

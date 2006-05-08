@@ -40,24 +40,41 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   // PixelCPEBase( const DetUnit& det );
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField*);
     
+  //--------------------------------------------------------------------------
+  // Obtain the angles from the position of the DetUnit.
   // LocalValues is typedef for pair<LocalPoint,LocalError> 
+  //--------------------------------------------------------------------------
   inline LocalValues localParameters( const SiPixelCluster & cl, 
-				       const GeomDetUnit    & det ) const {
+				      const GeomDetUnit    & det ) const {
     computeAnglesFromDetPosition(cl, det);
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
   }
 
-  // In principle we could use the track too.  Just override the
-  // computation of approximate angles from det position.
-  // &&& Why isn't this const?
+  //--------------------------------------------------------------------------
+  // In principle we could use the track too to obtain alpha and beta.
+  //--------------------------------------------------------------------------
   inline LocalValues localParameters( const SiPixelCluster & cl,
 				      const GeomDetUnit    & det, 
-				      const LocalTrajectoryParameters & ltp) {
+				      const LocalTrajectoryParameters & ltp) const {
     computeAnglesFromTrajectory(cl, det, ltp);
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
   } 
 
+  //--------------------------------------------------------------------------
+  // The third one, with the user-supplied alpha and beta
+  //--------------------------------------------------------------------------
+  inline LocalValues localParameters( const SiPixelCluster & cl,
+				      const GeomDetUnit    & det, 
+				      float alpha, float beta) const {
+    alpha_ = alpha;
+    beta_  = beta;
+    return std::make_pair( localPosition(cl,det), localError(cl,det) );
+  } 
 
+
+  //--------------------------------------------------------------------------
+  // This is where the action happens.
+  //--------------------------------------------------------------------------
   virtual LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const = 0;
   virtual LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const = 0;
   
@@ -123,7 +140,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
 				    const GeomDetUnit    & det ) const;
   void computeAnglesFromTrajectory (const SiPixelCluster & cl,
 				    const GeomDetUnit    & det, 
-				    const LocalTrajectoryParameters & ltp);
+				    const LocalTrajectoryParameters & ltp) const;
   LocalVector driftDirection( GlobalVector bfield ) const ;
 
   bool isFlipped() const;              // is the det flipped or not?
