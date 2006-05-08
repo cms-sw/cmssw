@@ -9,7 +9,7 @@
 
 // Return a vector of clusters from a collection of EcalRecHits:
 std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(EcalRecHitCollection & rechits,
-								  const CaloSubdetectorGeometry &geometry)
+								  const CaloSubdetectorGeometry *geometry)
 {
   rechits_m.clear();
   seeds.clear();
@@ -51,7 +51,7 @@ std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(EcalRecHitColl
 }
   
 math::XYZPoint ClusteringAlgorithm::getECALposition(std::vector<reco::EcalRecHitData> recHits, 
-						    const CaloSubdetectorGeometry & geometry)
+						    const CaloSubdetectorGeometry * geometry)
 {
   // Calculates position of cluster using the algorithm presented in
   // Awes et al., NIM A311, p130-138.  See also CMS Note 2001/034 p11
@@ -84,7 +84,7 @@ math::XYZPoint ClusteringAlgorithm::getECALposition(std::vector<reco::EcalRecHit
        
       // Find out what the physical location of the cell is
       DetId blerg = recHits[j].detId();
-      const CaloCellGeometry *this_cell = geometry.getGeometry(blerg);
+      const CaloCellGeometry *this_cell = geometry->getGeometry(blerg);
       GlobalPoint posi = this_cell->getPosition();
       
       // Get energy of the single hit

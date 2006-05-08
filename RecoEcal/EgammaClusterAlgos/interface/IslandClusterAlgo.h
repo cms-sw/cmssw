@@ -33,7 +33,7 @@ class IslandClusterAlgo : public ClusteringAlgorithm
 
     }
   
-  void mainSearch(const CaloSubdetectorGeometry &geometry);
+  void mainSearch(const CaloSubdetectorGeometry *geometry);
 
   void searchNorth(EcalBarrelNavigator &navigator);
   void searchSouth(EcalBarrelNavigator &navigator);

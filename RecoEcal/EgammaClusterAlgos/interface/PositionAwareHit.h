@@ -24,7 +24,7 @@ class PositionAwareHit
 
  public:
 
-  PositionAwareHit(EcalRecHit &the_rechit, const CaloSubdetectorGeometry &the_geometry);
+  PositionAwareHit(EcalRecHit &the_rechit, const CaloSubdetectorGeometry *the_geometry);
   
   int operator<(const PositionAwareHit &other_hit) const;
   

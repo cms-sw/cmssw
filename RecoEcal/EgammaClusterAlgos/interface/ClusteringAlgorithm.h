@@ -40,7 +40,7 @@ class ClusteringAlgorithm
 
   // this is the method that will start the clusterisation
   std::vector<reco::BasicCluster> makeClusters(EcalRecHitCollection & rechits,
-					       const CaloSubdetectorGeometry &geometry);
+					       const CaloSubdetectorGeometry *geometry);
   /// point in the space
     typedef math::XYZPoint Point;
 
@@ -58,8 +58,8 @@ class ClusteringAlgorithm
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters;
 
-  virtual void mainSearch(const CaloSubdetectorGeometry &geometry) = 0; //the real clustering algorithm
-  Point getECALposition(std::vector<reco::EcalRecHitData> recHits, const CaloSubdetectorGeometry &geometry);//Position determination
+  virtual void mainSearch(const CaloSubdetectorGeometry *geometry) = 0; //the real clustering algorithm
+  Point getECALposition(std::vector<reco::EcalRecHitData> recHits, const CaloSubdetectorGeometry *geometry);//Position determination
 
 };
 

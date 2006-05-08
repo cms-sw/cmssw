@@ -6,7 +6,7 @@
 #include <iostream>
 #include <map>
 
-void IslandClusterAlgo::mainSearch(const CaloSubdetectorGeometry &geometry)
+void IslandClusterAlgo::mainSearch(const CaloSubdetectorGeometry *geometry)
 {
   std::cout << "IslandClusterAlgo Algorithm - looking for clusters" << std::endl;
   std::cout << "Found the following clusters:" << std::endl;
