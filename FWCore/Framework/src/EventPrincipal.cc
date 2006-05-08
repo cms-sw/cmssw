@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.36 2006/04/16 00:26:22 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.37 2006/05/03 23:38:19 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -316,9 +316,9 @@ private:
     // We failed to find the product we're looking for, under *any*
     // process name... throw!
     throw edm::Exception(errors::ProductNotFound,"NoMatch")
-      << "getByLabel: could not find a required product " << label
-      << "\nof type " << id
-      << " with user tag " << (productInstanceName.empty() ? "\"\"" : productInstanceName) << '\n';
+      << "getByLabel: could not find a product with module label \"" << label
+      << "\"\nof type " << id
+      << " with product instance label \"" << (productInstanceName.empty() ? "" : productInstanceName) << "\"\n";
   }
 
   void 
