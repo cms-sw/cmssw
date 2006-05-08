@@ -57,7 +57,7 @@ class TBMonitorInputSource : public edm::ExternalInputSource {
   void openFile( const std::string&);
 
   /** Takes task name as the argument and updates the "task id" : a common sub-string of the names of histograms for storage.*/
-  static std::string taskId(SiStripHistoNamingScheme::Task);
+  static std::string taskId(sistrip::Task);
 
   /** Unpacks TBMonitor histogram name into the module's control path */
   SiStripHistoNamingScheme::HistoTitle histoTitle(const string&);
@@ -72,7 +72,7 @@ class TBMonitorInputSource : public edm::ExternalInputSource {
   TFile* m_file;
 
   /** Commissioning task. */
-  SiStripHistoNamingScheme::Task m_task;
+  sistrip::Task m_task;
 
   /** Task id found in TBMonitor histogram title */
   string m_taskId;

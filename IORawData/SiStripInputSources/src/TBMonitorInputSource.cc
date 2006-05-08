@@ -15,7 +15,7 @@ TBMonitorInputSource::TBMonitorInputSource(const edm::ParameterSet& pset, edm::I
   m_task(SiStripHistoNamingScheme::task(pset.getUntrackedParameter<string>("commissioningTask","Pedestals")))
 {
   //Check Commissioning Task
-  if (m_task == SiStripHistoNamingScheme::UNKNOWN_TASK) edm::LogWarning("Commissioning|TBMonitorIS") << "Unknown commissioning task. Value used: " << pset.getUntrackedParameter<string>("CommissioningTask","Pedestals") << "; values accepted: Pedestals, ApvTiming, FedTiming, OptoScan, VpspScan, ApvLatency.";
+  if (m_task == sistrip::UNKNOWN_TASK) edm::LogWarning("Commissioning|TBMonitorIS") << "Unknown commissioning task. Value used: " << pset.getUntrackedParameter<string>("CommissioningTask","Pedestals") << "; values accepted: Pedestals, ApvTiming, FedTiming, OptoScan, VpspScan, ApvLatency.";
 
   produces< edm::DetSetVector< Profile > >();
   m_taskId = taskId(m_task);
@@ -53,7 +53,7 @@ bool TBMonitorInputSource::produce(edm::Event& e) {
 
  for (edm::DetSetVector<Profile>::iterator idetset = profile_collection->begin(); idetset != profile_collection->end(); idetset++) {
 
-     if ((m_task == SiStripHistoNamingScheme::PEDESTALS) && (idetset->data.size() == 2)) {
+     if ((m_task == sistrip::PEDESTALS) && (idetset->data.size() == 2)) {
      
        for (unsigned short ihisto = 0; ihisto < 2; ihisto++) {
        //split pedestals Profile
@@ -193,17 +193,17 @@ void TBMonitorInputSource::setRunAndEventInfo() {
 
 //-----------------------------------------------------------------------------
 
-std::string TBMonitorInputSource::taskId(SiStripHistoNamingScheme::Task task) {
+std::string TBMonitorInputSource::taskId(sistrip::Task task) {
 
   std::string taskId("");
 
-  if (task == SiStripHistoNamingScheme::PEDESTALS) {/* uses all TProfiles */}
-  else if (task == SiStripHistoNamingScheme::FED_CABLING) {/* to be set*/}
-  else if (task == SiStripHistoNamingScheme::VPSP_SCAN) {taskId = "vpsp_mean";}
-  else if (task == SiStripHistoNamingScheme::OPTO_SCAN) {taskId = "_gain";}
-  else if (task == SiStripHistoNamingScheme::APV_TIMING) {taskId= "tick_chip";}
-  else if (task == SiStripHistoNamingScheme::FED_TIMING) {taskId = "tickfed_chip";}
-  else if (task == SiStripHistoNamingScheme::APV_LATENCY) {/* to be set*/}
+  if (task == sistrip::PEDESTALS) {/* uses all TProfiles */}
+  else if (task == sistrip::FED_CABLING) {/* to be set*/}
+  else if (task == sistrip::VPSP_SCAN) {taskId = "vpsp_mean";}
+  else if (task == sistrip::OPTO_SCAN) {taskId = "_gain";}
+  else if (task == sistrip::APV_TIMING) {taskId= "tick_chip";}
+  else if (task == sistrip::FED_TIMING) {taskId = "tickfed_chip";}
+  else if (task == sistrip::APV_LATENCY) {/* to be set*/}
 
   else {edm::LogWarning("Commissioning|TBMonitorIS") << "[TBMonitorInputSource::taskId]: Unknown Commissioning task, filling event with ALL TProfile's found in specified files.";}
 
@@ -218,11 +218,11 @@ SiStripHistoNamingScheme::HistoTitle TBMonitorInputSource::histoTitle(const stri
   //initialise SiStripHistoNamingScheme::HistoTitle object
   SiStripHistoNamingScheme::HistoTitle title;
   
-  title.task_   = SiStripHistoNamingScheme::UNKNOWN_TASK;
-  title.contents_   = SiStripHistoNamingScheme::COMBINED;
-  title.keyType_     = SiStripHistoNamingScheme::FEC;
+  title.task_   = sistrip::UNKNOWN_TASK;
+  title.contents_   = sistrip::COMBINED;
+  title.keyType_     = sistrip::FEC;
   title.keyValue_    = 0;
-  title.granularity_ = SiStripHistoNamingScheme::UNKNOWN_GRAN;
+  title.granularity_ = sistrip::UNKNOWN_GRAN;
   title.channel_     = 0;
   title.extraInfo_ = "";
   
@@ -241,7 +241,7 @@ SiStripHistoNamingScheme::HistoTitle TBMonitorInputSource::histoTitle(const stri
   // Set SiStripHistoNamingScheme::HistoTitle::extraInfo_
   
   //extract gain and digital level from histo name if task is BIASGAIN
-  if (m_task == SiStripHistoNamingScheme::OPTO_SCAN) {
+  if (m_task == sistrip::OPTO_SCAN) {
     if ((histo_name.find("_gain") != std::string::npos) &&
 	((histo_name.find("tick") != std::string::npos) | (histo_name.find("base") != std::string::npos))) {
       
@@ -257,7 +257,7 @@ SiStripHistoNamingScheme::HistoTitle TBMonitorInputSource::histoTitle(const stri
     else {edm::LogError("Commissioning|TBMonitorIS") << "Inconsistency in TBMonitor histogram name for the OPTO_SCAN task. One or more of the strings \"gain\", \"tick\" and \"base\" were not found.";}
   }
 
-  if (m_task ==SiStripHistoNamingScheme::PEDESTALS) {
+  if (m_task ==sistrip::PEDESTALS) {
   string label = histo_name.substr(0,start+1);
     if (label == "Profile_ped") title.extraInfo_ = sistrip::pedsAndRawNoise_;
     else if (label == "Profile_noi") title.extraInfo_ = sistrip::residualsAndNoise_;
@@ -271,16 +271,16 @@ SiStripHistoNamingScheme::HistoTitle TBMonitorInputSource::histoTitle(const stri
 
   // Set SiStripHistoNamingScheme::HistoTitle::granularity_
   
-  if (m_task == SiStripHistoNamingScheme::VPSP_SCAN) {
-    title.granularity_ = SiStripHistoNamingScheme::APV;
+  if (m_task == sistrip::VPSP_SCAN) {
+    title.granularity_ = sistrip::APV;
     title.channel_ += 32; // convert "apv number (0-5) to HW address (32-37).
   }
   
-  else if ((m_task == SiStripHistoNamingScheme::OPTO_SCAN) || (m_task == SiStripHistoNamingScheme::APV_TIMING) || (m_task == SiStripHistoNamingScheme::FED_TIMING)) { 
-    title.granularity_ = SiStripHistoNamingScheme::LLD_CHAN;}
+  else if ((m_task == sistrip::OPTO_SCAN) || (m_task == sistrip::APV_TIMING) || (m_task == sistrip::FED_TIMING)) { 
+    title.granularity_ = sistrip::LLD_CHAN;}
   
-  else if (m_task == SiStripHistoNamingScheme::PEDESTALS) {
-    title.granularity_ = SiStripHistoNamingScheme::MODULE;}
+  else if (m_task == sistrip::PEDESTALS) {
+    title.granularity_ = sistrip::MODULE;}
   
   else {edm::LogWarning("Commissioning|TBMonitorIS") << "[TBMonitorInputSource::histoName]: Unknown Commissioning task. Setting SiStripHistoNamingScheme::HistoName::granularity_ to \"UNKNOWN GRANULARITY\".";}
 
@@ -324,7 +324,7 @@ void TBMonitorInputSource::setBinStats(TProfile& prof, Int_t bin, Int_t entries,
      //create and format new TProfile
      TProfile apvPeds;
      apvPeds.SetBins(256, 0., 256.);
-     apvPeds.SetName(SiStripHistoNamingScheme::histoTitle(h_title.task_, h_title.contents_, h_title.keyType_, h_title.keyValue_, SiStripHistoNamingScheme::LLD_CHAN, illd, h_title.extraInfo_).c_str());
+     apvPeds.SetName(SiStripHistoNamingScheme::histoTitle(h_title.task_, h_title.contents_, h_title.keyType_, h_title.keyValue_, sistrip::LLD_CHAN, illd, h_title.extraInfo_).c_str());
      //fill new TProfile
      for (unsigned short ibin = 0; ibin < apvPeds.GetNbinsX(); ibin++) {
        setBinStats(apvPeds,(Int_t)(ibin+1), (Int_t)module.get().GetBinEntries((Int_t)(ihisto*256 + ibin + 1)), module.get().GetBinContent((Int_t)(ihisto*256 + ibin + 1)), module.get().GetBinError((Int_t)(ihisto*256 + ibin + 1)));

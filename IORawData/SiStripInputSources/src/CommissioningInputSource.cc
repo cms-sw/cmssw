@@ -1,4 +1,3 @@
-
 #include "IORawData/SiStripInputSources/interface/CommissioningInputSource.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PluginManager/PluginCapabilities.h"
@@ -112,11 +111,11 @@ bool CommissioningInputSource::produce(edm::Event& e) {
       if (histo_map[key].empty()) {
 	histo_map[key].reserve(3); histo_map[key].resize(3,0);}
 
-      if (h_title.contents_ == SiStripHistoNamingScheme::SUM) {
+      if (h_title.contents_ == sistrip::SUM) {
 	histo_map[key][0] = &(*hist);}
-      else if (h_title.contents_ == SiStripHistoNamingScheme::SUM2) {
+      else if (h_title.contents_ == sistrip::SUM2) {
 	histo_map[key][1] = &(*hist);}
-      else if (h_title.contents_ == SiStripHistoNamingScheme::NUM) {
+      else if (h_title.contents_ == sistrip::NUM) {
 	histo_map[key][2] = &(*hist);}
     }
     
@@ -132,7 +131,7 @@ bool CommissioningInputSource::produce(edm::Event& e) {
 	SiStripHistoNamingScheme::HistoTitle h_title = SiStripHistoNamingScheme::histoTitle(it->second[2]->get().GetName());
 	
 	//set name of commissioning histogram using task_, keyType_, keyValue_, granularity_, channel_ and extraInfo_ from "number of entries" histogram 
-	string comm_name = SiStripHistoNamingScheme::histoTitle(h_title.task_, SiStripHistoNamingScheme::COMBINED, SiStripHistoNamingScheme::FED, h_title.keyValue_, h_title.granularity_, h_title.channel_, h_title.extraInfo_);
+	string comm_name = SiStripHistoNamingScheme::histoTitle(h_title.task_, sistrip::COMBINED, sistrip::FED, h_title.keyValue_, h_title.granularity_, h_title.channel_, h_title.extraInfo_);
 	commHist.SetName(comm_name.c_str());
 	
 	//add commissioning histogram to DetSetVector
