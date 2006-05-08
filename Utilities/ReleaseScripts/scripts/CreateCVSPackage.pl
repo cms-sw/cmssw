@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-28 09:50:38+0200
-# Revision: $Id$ 
+# Revision: $Id: CreateCVSPackage.pl,v 1.1 2006/04/28 14:52:20 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -25,26 +25,42 @@ if ($ENV{CVSROOT})
    $cvsroot = $ENV{CVSROOT};
    }
 
-my ($subsystem,$packagename,$developernames,$padmin);
+my ($subsystem,$packagename);
 my ($adminrealname,$adminemail);
 my $subsystemadmin;
-my %developers;
-my $padmindat;
-my %opts; $opts{VERBOSE} = 0; # non-verbose by default;
+my $developers={};
+my $administrators=[];
+my $principaladmin;
+my $padmin;
 
+my %opts; $opts{VERBOSE} = 0; # non-verbose by default;
+$opts{DEBUG} = 0; # Debugging off by default;
 # Developers is a list of "Firstname Lastname:email,.. ", comma separated.
-# The admin is "FirstName Lastname:loginid:email":
+# The principal admin is "FirstName Lastname:loginid:email" but a list of
+# admins can be provided:
 my %options = (
 	       "packagename=s" => sub { $packagename = $_[1] },
 	       "developers=s"  => sub { my $dnamelist=[ split(",",$_[1]) ];
 					map
 					   {
-					   my ($realname, $email) = split(":",$_);
-					   $developers{$realname} = $email;
+					   # The developer info is Firstname Lastname:email@bb.cc:
+					   my ($firstname, $lastname, $email) = ($_ =~ /\s*?([a-zA-Z\-]*)\s*?([a-zA-Z\-]*):(.*?)$/);
+					   # Map the real name of the developer (or admin) to email address. 1/0 for
+					   # administrator too, or not:
+					   $developers->{$firstname." ".$lastname} = [ $email, 0 ];
 					   } @$dnamelist;					
 					},
-	       "admin=s"       => sub { $padmindat = [ split(":",$_[1]) ] },
+	       "admin=s"       => sub { my $adminnamelist=[ split(",",$_[1]) ];
+					map
+					   {
+					   my ($firstname, $lastname, $loginid, $email) = ( $_ =~ /\s*?([a-zA-Z\-]*)\s*?([a-zA-Z\-]*):(.*?):(.*?)$/);   
+					   # Add the admin to the stack (in fact, we only use an array so we can grab the first admin
+					   # in the list. All admins are added to the list of developers:
+					   push(@$administrators, [ $firstname." ".$lastname, $loginid, $email ]);
+					   } @$adminnamelist;
+					},
 	       "verbose"       => sub { $opts{VERBOSE} = 1; },
+	       "debug"         => sub { $opts{DEBUG} = 1; },
 	       "help"          => sub { &usage(); exit(0) }
 	       );
 
@@ -56,17 +72,40 @@ if (! Getopt::Long::GetOptions(\%opts, %options))
    print STDERR "$0: Error with arguments.","\n";
    }
 else
-   {
-   # Form the admin name and email and real name from the input data:
-   $adminrealname=$padmindat->[0];
-   $padmin=$padmindat->[1]; # Login id of the admin
-   $adminemail=$padmindat->[2];
+   {   
    # We must have a package name:
    die basename($0),": No package name given!\n", unless ($packagename);
    # We must have developer names as a list:
-   die basename($0),": No developers given!\n", unless ((scalar(keys %developers)) > 0);
+   die basename($0),": No developers given!\n", unless ((scalar(keys %$developers)) > 0);
    # We must have a package admin:
-   die basename($0),": No package admin given!\n", unless ($padmin);
+   die basename($0),": No package admin given!\n", unless ($#$administrators > -1);
+   # Form the admin name and email and real name from the input data. Take
+   # the first admin on the first pass (to create the package) then add the
+   # other admins when updating the list of developers:
+   $principaladmin = $administrators->[0]; # Take the first admin
+   $adminrealname = $principaladmin->[0];
+   $padmin = $principaladmin->[1]; # Login id of the admin
+   $adminemail = $principaladmin->[2];
+   # Also add the package admins to the developers data:
+   foreach my $adm (@$administrators)
+      {
+      $developers->{$adm->[0]} = [ $adm->[2], 1 ];
+      }
+   
+   if ($opts{DEBUG})
+      {
+      print "Principal admin is \"$adminrealname ($padmin, $adminemail)\"","\n";
+      print "Full list of developers and admins:\n";
+      map
+	 {
+	 printf("%-20s %-10s %-1d\n",$_,$developers->{$_}->[0],$developers->{$_}->[1]);
+	 } keys %$developers;
+      print "\n";
+      print &generate_developers($developers);
+      print "\n";
+      exit(0);
+      }
+   
    # Get subsystem and package parts:
    ($subsystem,$packagename) = split("/",$packagename);
    # Check out the .admin directory of the subsystem where the
@@ -77,25 +116,54 @@ else
    $subsystemadmin=$subsystem."/.admin";
    &get($subsystemadmin);
 
-   # Check to make sure that there's a NewLeaf file. Otherwise exit:
-   die basename($0),": Subsystem $subsystem does not contain a .admin/NewLeaf file. Bye bye.","\n", if (! -f $subsystemadmin."/NewLeaf");   
-   print "The name of the package to create is $packagename. Here we go.","\n",if ($opts{VERBOSE});
-   &UpdateNewLeaf(\%developers, $padmin, $packagename);
-   # Now commit the changed file:
-   &commit($subsystemadmin,"Adding new package $packagename to NewLeaf.");
+   # Check to make sure that there's a NewLeaf file. Otherwise create it:
+   my $nlmsg=".";
+   if (! -f $subsystemadmin."/NewLeaf")
+      {
+      print "No NewLeaf file found in subsystem $subsystem. Going to create one.\n",if ($opts{VERBOSE});
+      # Create, add and commit the NewLeaf file:
+      &CreateNewLeaf($padmin, $adminemail, $packagename);
+      $nlmsg=" (and NewLeaf file created).";
+      }
+   else
+      {
+      # Just update the existing file:      
+      print "The name of the package to create is $packagename. Here we go.","\n",if ($opts{VERBOSE});
+      &UpdateNewLeaf($padmin, $adminemail, $packagename);
+      }
+   
+   # Now commit the added/changed NewLeaf file:
+   &commit($subsystemadmin,"Adding new package $packagename to NewLeaf$nlmsg");
    # Now check out the new package:
    my $newpack=$subsystem."/".$packagename;
    &get($newpack);   
    # Generate the developers file for the new package:
-   &UpdateDevelopers($newpack,$adminrealname,$adminemail,\%developers);
+   &UpdateDevelopers($newpack,$developers);
    # Commit the changed developers file:
    &commit($newpack,"Updating developers file for $packagename.");
    print "Done\n";
    }
 
-sub UpdateNewLeaf(\%$$)
+sub CreateNewLeaf()
    {
-   my ($devhref,$padmin,$packagename)=@_;
+   my ($padmin,$adminemail,$packagename)=@_;
+   print "Going to create entry for new package \"$packagename\" with admin\n",if ($opts{VERBOSE});
+   print "(admin) \"$padmin\" in subsystem \"$subsystem\".\n",if ($opts{VERBOSE});
+   open(NEWLEAF,"> $subsystemadmin/NewLeaf") || die basename($0).": Unable to open $subsystemadmin/Newleaf for writing: $!","\n";
+   print NEWLEAF &generate_NewLeaf($padmin,$adminemail,$packagename),"\n";
+   close(NEWLEAF);
+   # Now add it to the repository:
+   my $rv = system($cvs,"-Q","-d",$cvsroot,"add", "$subsystemadmin/NewLeaf");
+   # Check the status of the add and report:
+   if ($rv != 0)
+      {
+      die basename($0).": Unable to add $subsystemadmin/NewLeaf.","\n";
+      }
+   }
+
+sub UpdateNewLeaf()
+   {
+   my ($padmin,$adminemail,$packagename)=@_;
    print "Going to create entry for new package \"$packagename\" with admin\n",if ($opts{VERBOSE});
    print "(admin) \"$padmin\" in subsystem \"$subsystem\".\n",if ($opts{VERBOSE});
    open(NEWLEAF,"> $subsystemadmin/NewLeaf") || die basename($0).": Unable to open $subsystemadmin/Newleaf for writing: $!","\n";
@@ -103,12 +171,12 @@ sub UpdateNewLeaf(\%$$)
    close(NEWLEAF);
    }
 
-sub UpdateDevelopers($$$\%)
+sub UpdateDevelopers()
    {
-   my ($newpack,$adminrealname,$adminemail,$devhref)=@_;
+   my ($newpack,$devhref)=@_;
    print "Going to create developers file for new package \"$newpack\".\n",if ($opts{VERBOSE});
    open(DEVELOPERS,"> $newpack/.admin/developers") || die basename($0).": Unable to open $newpack/.admin/developers for writing: $!","\n";
-   print DEVELOPERS &generate_developers($adminrealname,$adminemail,$devhref);
+   print DEVELOPERS &generate_developers($devhref);
    close(DEVELOPERS);
    }
 
@@ -166,9 +234,9 @@ sub generate_NewLeaf()
    return $newleaf;
    }
 
-sub generate_developers($$\%)
+sub generate_developers()
    {
-   my ($adminrealname,$adminemail,$devlist)=@_;
+   my ($devlist)=@_;
    my $developers="# Names of Developers with write access to this module\n";
    $developers.="# Names of Developers with write access to this module\n";
    $developers.="#\n";
@@ -198,11 +266,14 @@ sub generate_developers($$\%)
    $developers.=">Developers\n";
    map
       {
-      $developers.="$_ : ".$devlist->{$_}."\n";
+      $developers.="$_ : ".$devlist->{$_}->[0]."\n";
       } keys %$devlist;
    $developers.="\n";
    $developers.=">Administrators\n";
-   $developers.="$adminrealname : $adminemail\n";
+   map
+      {
+      $developers.="$_ : ".$devlist->{$_}->[0]."\n", if ($devlist->{$_}->[1]);
+      } keys %$devlist;
    return $developers;
    }
 
@@ -213,14 +284,17 @@ sub usage()
    $string.="\n";
    $string.="--packagename=<PACKAGE>       Name of package to be created (in full,i.e. <sub>/<package>).\n";   
    $string.="\n";
-   $string.="--admin=<ADMIN>               The administrator for this package. ADMIN should be given as:\n";
-   $string.="                              \"Firstname Lastname:LOGINID:Email\" (and quoted).\n";
+   $string.="--admin=<ADMIN>               The administrators for this package. ADMIN should be given as a\n";
+   $string.="                              quoted comma-separated list of individual administrators\n";
+   $string.="                              \"Firstname Lastname:LOGINID:Email,Firstname2 Lastname2:LOGINID2:Email2\".\n";
    $string.="\n";
    $string.="--developers=<DEVLIST>        The list of people to be registered as developers for this package.\n\n";
-   $string.="                              DEVLIST is a comma separated list of individual developers:\n";
+   $string.="                              DEVLIST is a quoted comma-separated list of individual developers:\n";
    $string.="                              \"Firstname1 Lastname1:Email1,Firstname2 Lastname2:email2\".\n";
    $string.="OPTIONS:\n";
    $string.="--verbose | -v                Be verbose.\n";
+   $string.="--debug   | -d                Debug mode. Show the info on admins and developers. Dump the generated\n";
+   $string.="                              developers file to STDOUT and exit. Doesn't modify any files.\n";
    $string.="--help    | -h                Show help and exit.\n";
    print $string,"\n";
    }
