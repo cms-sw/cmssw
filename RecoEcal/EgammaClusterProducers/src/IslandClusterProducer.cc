@@ -59,8 +59,7 @@ void IslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   // get the barrel geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<IdealGeometryRecord>().get(geoHandle);
-  const CaloSubdetectorGeometry *geometry_p = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  CaloSubdetectorGeometry geometry = *geometry_p;
+  const CaloSubdetectorGeometry *geometry = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
 
   // make the clusters!
   reco::BasicClusterCollection clusters = island_p->makeClusters(hit_collection, geometry);
