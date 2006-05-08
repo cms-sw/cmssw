@@ -759,7 +759,7 @@ void SiStripDigiCompare()
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
    }
 
-   Strip->Print("AdcOfTOBLayer1Compare_ZM.eps");
+   Strip->Print("AdcOfTOBLayer1Compare.eps");
  }
 
  if(1) {
@@ -800,7 +800,7 @@ void SiStripDigiCompare()
       myPV->PVCompute( meAdcTOB_[i],newmeAdcTOB_[i],te);
    }
 
-   Strip->Print("StripNumOfTOBLayer1Compare_ZM.eps");
+   Strip->Print("StripNumOfTOBLayer1Compare.eps");
  }
 //TOB  2nd Layer
  if(1) {
