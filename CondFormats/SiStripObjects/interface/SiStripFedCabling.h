@@ -14,6 +14,9 @@ class SiStripFedCabling {
   
  public:
   
+  /** Private default constructor. */
+  SiStripFedCabling() {;}
+
   /** Constructor taking FED channel connection objects as input. */
   SiStripFedCabling( const std::vector<FedChannelConnection>& connections );
   /** Virtual destructor. */
@@ -29,9 +32,6 @@ class SiStripFedCabling {
   
  private:
   
-  /** Private default constructor. */
-  SiStripFedCabling() {;}
-
   /** "Active" FEDs that have connected FE devices. */
   std::vector<uint16_t> feds_;
   /** 
