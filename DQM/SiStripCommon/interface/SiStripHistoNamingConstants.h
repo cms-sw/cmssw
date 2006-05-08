@@ -5,11 +5,17 @@
 #include <string>
 
 namespace sistrip { 
+
+  // enumerated types
+  enum View        { UNKNOWN_VIEW,     NO_VIEW,  READOUT, CONTROL, DETECTOR };
+  enum Task        { UNKNOWN_TASK,     NO_TASK,  PHYSICS, FED_CABLING, APV_TIMING, FED_TIMING, OPTO_SCAN, VPSP_SCAN, PEDESTALS, APV_LATENCY };
+  enum Contents    { UNKNOWN_CONTENTS, COMBINED, SUM2, SUM, NUM };
+  enum KeyType     { UNKNOWN_KEY,      NO_KEY,   FED, FEC, DET };
+  enum Granularity { UNKNOWN_GRAN,     MODULE,   LLD_CHAN, APV_PAIR, APV };
   
   // generic constants
   static const uint16_t all_     = 0xFFFF;
-  static const std::string root_ = "/";
-  static const std::string top_  = "SiStrip";
+  static const std::string root_ = "SiStrip";
   static const std::string dir_  = "/";
   static const std::string sep_  = "_";
   
