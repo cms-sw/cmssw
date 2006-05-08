@@ -306,7 +306,17 @@ namespace edm
       WorkerInPath::State state =
 	invert ? WorkerInPath::Veto : WorkerInPath::Normal;
 
-      ParameterSet modpset = pset_.getParameter<ParameterSet>(realname);
+      ParameterSet modpset;
+      try {
+        modpset= pset_.getParameter<ParameterSet>(realname);
+      } catch( cms::Exception& ) {
+        std::string pathType("endpath");
+        if(std::find( end_path_name_list_.begin(),end_path_name_list_.end(), name) == end_path_name_list_.end()) {
+          pathType = std::string("path");
+        }
+        throw edm::Exception(edm::errors::Configuration)<<"The unknown module label \""<<realname<<"\" appears in "<<pathType<<" \""<<name
+        <<"\"\n please check spelling or remove that label from the path.";
+      }
       unsigned long version=1, pass=1;
       WorkerParams params(modpset, *prod_reg_, *act_table_,
 			  proc_name_, version, pass);
