@@ -1,4 +1,4 @@
-#include "CommonTools/Clustering/interface/FsmwClusterizer.h"
+#include "CommonTools/Clustering1D/interface/FsmwClusterizer1D.h"
 #include "RecoVertex/VertexTools/interface/FsmwModeFinder3d.h"
 
 #include <cmath>
@@ -18,7 +18,7 @@ FsmwModeFinder3d::FsmwModeFinder3d( float fraction, float weightExp,
 GlobalPoint FsmwModeFinder3d::operator() (
     const std::vector< PointAndDistance> & values ) const
 {
-    typedef Cluster<void> SimpleCluster;
+    typedef Cluster1D<void> SimpleCluster;
     std::vector< SimpleCluster > vx, vy, vz;
     vx.reserve ( values.size() - 1 );
     vy.reserve ( values.size() - 1 );
@@ -47,7 +47,7 @@ GlobalPoint FsmwModeFinder3d::operator() (
         vz.push_back ( tmp_z );
     };
 
-    FsmwClusterizer<void> algo( theFraction );
+    FsmwClusterizer1D<void> algo( theFraction );
     std::vector < SimpleCluster > cresx = algo(vx).first;
     std::vector < SimpleCluster > cresy = algo(vy).first;
     std::vector < SimpleCluster > cresz = algo(vz).first;
