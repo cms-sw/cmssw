@@ -995,7 +995,7 @@ if (1) {
       myPV->PVCompute(meMulti_[i],newmeMulti_[i],te);
    }
  
-   Pixel->Print("DigiNumOfEndcap_compare.eps");
+   Pixel->Print("DigiMultiOfEndcap_compare.eps");
 }
 
 
