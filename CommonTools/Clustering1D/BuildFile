@@ -1,0 +1,6 @@
+<export>
+ <lib name=CommonToolsClustering1D>
+ <use name=Geometry/CommonDetAlgo>
+</export>
+
+<use name=Geometry/CommonDetAlgo>
