@@ -5,8 +5,8 @@
  * *
  *  State machine DQM Client for Muons. Owns a web interface.
  *
- *  $Date: 2006/04/24 09:57:35 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/04 10:27:22 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni
   */
 
@@ -24,11 +24,8 @@
 #include <iostream>
 #include <fstream>
 
-class QTestConfigurationParser;
-class QTestConfigure;
-class QTestEnabler;
-class QTestStatusChecker;
-class MESubscriptionParser;
+class SubscriptionHandle;
+class QTestHandle;
 
 class MuonDQMClient : public DQMBaseClient, 
 			       public dqm::UpdateObserver
@@ -72,12 +69,9 @@ private:
   /// MuonDQMClient has a web interface:  
   MuonWebInterface * webInterface_p;
 
-  QTestConfigurationParser * qtParser;
-  QTestConfigure * qtConfigurer;
-  QTestEnabler * qtEnabler;
-  QTestStatusChecker * qtChecker;
-  MESubscriptionParser * meListParser;
- 
+  SubscriptionHandle *subscriber;
+  QTestHandle * qtHandler;
+  
   bool qtestsConfigured;
   bool meListConfigured;
  
