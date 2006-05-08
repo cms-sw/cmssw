@@ -21,8 +21,9 @@
 //! The calibrations are not loaded at the moment (v1), although that is
 //! being planned for the near future.
 //!
-//! \author Petar Maksimovic (JHU) largely patterned after SiStripClusterizer
-//!         by Oliver Gutsche (Fermilab)
+//! \author porting from ORCA by Petar Maksimovic (JHU), 
+//! \author DetSetVector implementation by Vincenzo Chiochia (Uni Zurich)
+//!        
 //!
 //! \version v1, Oct 26, 2005  
 //!
@@ -34,15 +35,17 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollectionfwd.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigiCollectionfwd.h"
-
+//#include "DataFormats/SiPixelDigi/interface/PixelDigiCollectionfwd.h"
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
+
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -68,7 +71,7 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
     //--- Execute the algorithm(s).
-    void run(const PixelDigiCollection* input,
+    void run(const edm::DetSetVector<PixelDigi> &input,
 	     SiPixelClusterCollection &output,
 	     edm::ESHandle<TrackerGeometry> & geom);
 

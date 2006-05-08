@@ -78,8 +78,10 @@ PixelThresholdClusterizer::~PixelThresholdClusterizer() {}
 //!  Prepare the Clusterizer to work on a particular DetUnit.  Re-init the
 //!  size of the panel/plaquette (so update nrows and ncols), 
 //----------------------------------------------------------------------------
-bool PixelThresholdClusterizer::setup( unsigned int detid,
-				       const PixelGeomDetUnit * pixDet ) {
+bool PixelThresholdClusterizer::setup(const PixelGeomDetUnit * pixDet) {
+
+
+  //const GeomDetUnit *pixDet = 
   // Cache the topology.
   const PixelTopology & topol = pixDet->specificTopology();
   
@@ -100,36 +102,44 @@ bool PixelThresholdClusterizer::setup( unsigned int detid,
   return true;   
   // TO DO: is there really a scenario where we could fail? Why not return void?
 }
+
 //----------------------------------------------------------------------------
 //!  \brief Cluster pixels.
+//!  NEW METHOD USING THE DetSet CONTAINER
 //!  This method operates on a matrix of pixels
 //!  and finds the largest contiguous cluster around
 //!  each seed pixel.
 //----------------------------------------------------------------------------
 std::vector<SiPixelCluster>
-PixelThresholdClusterizer::clusterizeDetUnit( DigiIterator begin, DigiIterator end,
-					      unsigned int detid,
+PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,
 					      const PixelGeomDetUnit * pixDet,
 					      const std::vector<short>& badChannels) {
-  TimeMe tm1( *theClustersTimer, false);
-  theClusters.clear();
 
-  // Do not bother for empty detectors
-  if (begin == end)
-    return theClusters;
 
-  //  Set up the clusterization on this DetId.
-  if (!setup(detid, pixDet))
-    return theClusters;
 
-  //  Copy PixelDigis to the buffer array; select the seed pixels
-  //  on the way, and store them in theSeeds.
-  copy_to_buffer(begin, end);
+   TimeMe tm1( *theClustersTimer, false);
+   theClusters.clear();
+
+   //const uint32_t& detid = input.id;
+   DigiIterator begin = input.data.begin();
+   DigiIterator end   = input.data.end();
+
+   // Do not bother for empty detectors
+   if (begin == end)
+     return theClusters;
+
+   //  Set up the clusterization on this DetId.
+   if (!setup(pixDet))
+     return theClusters;
+
+   //    Copy PixelDigis to the buffer array; select the seed pixels
+   //  on the way, and store them in theSeeds.
+   copy_to_buffer(begin, end);
 
   //  At this point we know the number of seeds on this DetUnit, and thus
   //  also the maximal number of possible clusters, so resize theClusters
   //  in order to make vector<>::push_back() efficient.
-  theClusters.reserve( theSeeds.size() );
+   theClusters.reserve( theSeeds.size() );
     
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
   for (unsigned int i = 0; i < theSeeds.size(); i++) {
@@ -154,7 +164,6 @@ PixelThresholdClusterizer::clusterizeDetUnit( DigiIterator begin, DigiIterator e
 
   return theClusters;
 }
-
 //----------------------------------------------------------------------------
 //!  \brief Clear the internal buffer array.
 //!

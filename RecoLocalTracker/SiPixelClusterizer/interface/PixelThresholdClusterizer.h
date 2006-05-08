@@ -31,6 +31,7 @@
 //!
 //! \author Largely copied from NewPixelClusterizer in ORCA written by 
 //!     Danek Kotlinski (PSI).   Ported to CMSSW by Petar Maksimovic (JHU).
+//!     DetSetVector data container implemented by V.Chiochia (Uni Zurich)
 //!
 //! Sets the PixelArrayBuffer dimensions and pixel thresholds.
 //! Makes clusters and stores them in theCache if the option
@@ -40,6 +41,7 @@
 // Base class, defines SiPixelDigi and SiPixelCluster.  The latter includes
 // Pixel, PixelPos and Shift as inner classes.
 //
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/PixelClusterizerBase.h"
 
 // The private pixel buffer
@@ -61,9 +63,9 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   PixelThresholdClusterizer(edm::ParameterSet const& conf);
   ~PixelThresholdClusterizer();
 
-  std::vector<SiPixelCluster> 
-    clusterizeDetUnit( DigiIterator begin, DigiIterator end,
-		       unsigned int detid,
+  // new interface
+   std::vector<SiPixelCluster> 
+    clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,
 		       const PixelGeomDetUnit * pixDet,
 		       const std::vector<short>& badChannels);
   
@@ -96,7 +98,7 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
 
 
   //! Private helper methods:
-  bool setup( unsigned int detid, const PixelGeomDetUnit * pixDet );
+  bool setup(const PixelGeomDetUnit * pixDet);
   void copy_to_buffer( DigiIterator begin, DigiIterator end );   
   void clear_buffer( DigiIterator begin, DigiIterator end );   
   SiPixelCluster make_cluster( const SiPixelCluster::PixelPos& pix );
