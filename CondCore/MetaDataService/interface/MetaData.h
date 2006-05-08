@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include "DBCommon/interface/ConnectMode.h"
 #include "RelationalAccess/ISession.h"
 //namespace coral{
   //class ITable;

@@ -3,6 +3,7 @@
 #include "CondCore/MetaDataService/interface/MetaDataExceptions.h"
 #include "CondCore/DBCommon/interface/ServiceLoader.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "RelationalAccess/AccessMode.h"
 #include "RelationalAccess/IRelationalService.h"
 #include "RelationalAccess/RelationalServiceException.h"
 #include "RelationalAccess/IRelationalDomain.h"
@@ -37,9 +38,13 @@ cond::MetaData::MetaData(const std::string& connectionString, cond::ServiceLoade
 cond::MetaData::~MetaData(){
 }
 
-void cond::MetaData::connect(){
+void cond::MetaData::connect( cond::ConnectMode mod=cond::ReadWriteCreate ){
   try{
-    m_session->connect();
+    if( mod == cond::ReadWriteCreate || mod == cond::ReadWrite){
+      m_session->connect(coral::Update);
+    }else{
+      m_session->connect(coral::ReadOnly);
+    }
     m_session->startUserSession();
   }catch(std::exception& er){
     throw cond::Exception("MetaData::MetaData connect")<<er.what();
