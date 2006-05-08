@@ -11,9 +11,9 @@
 Persistent classes for Track Reco data format.
 
 \subsection interface Public interfaces
-- reco::helix::Parameters: parametrization of an helix with 5 parameters, according to 
+- reco::perigee::Parameters: parametrization of an helix with 5 parameters, according to 
   the perigee convention (see \ref parms "below").
-- reco::helix::Covariance: non degenerate 5x5 covariance matrix for perigee parametrization.
+- reco::perigee::Covariance: non degenerate 5x5 covariance matrix for perigee parametrization.
 - reco::Track: reconstructed Track. Objects of this type are ment to be stored in the AOD.
    <br>Contains a reference to an object of type reco::TrackExtra.
 - reco::TrackExtra: Track extension. Objects of this type are ment to be stored in the RECO.
@@ -90,23 +90,16 @@ reco::Track may result in an exception.
 \section parms Track Parametrization
 
 Track helix parametrization follows the perigee model described
-in the <a href="http://www-jlc.kek.jp/subg/offl/lib/docs/helix_manip/main.html">linked page</a>.
-
+in the internal CMS note <a href="https://cmsdoc.cern.ch/documents/03/in/in03_008.pdf">CMS IN-2003/008</a>.
 The five parameters are:
 \htmlonly
 <ul>
-<li> <b><i><font face="Times New Roman, Times">d<sub>0</sub></font></i></b>: 
-     trajectory distance of closest approach to the beam line.
-<li> <b><i><font face="Symbol">f</font><sub>0</sub></i></b>: 
-     track azimuthal angle of point of closest approach to beamline.
-<li> <b><i><font face="Symbol">w</font></i></b>: 
-      ratio of electric charge and track transverse momentum:
-     <i><font face="Symbol">w</font></i> = <i><font face="Times New Roman, Times">e / p<sub>t</sub></font></i>.
-<li> <b><i><font face="Times New Roman, Times">d<sub>z</sub></font></i></b>: 
-     trajectory <i><font face="Times New Roman, Times">z</font></i> coordinate at point of closest approach to the beam line.
-<li> <b><font face="Times New Roman, Times">tan</font><i><font face="Symbol">l</font></i></b>:
-     tangent of the dip angle: <font face="Times New Roman, Times">tan<i><font face="Symbol">l</font></i> = 
-     <i>p<sub>z</sub> / p<sub>t</sub></i></font>.
+<li> <b><i><font face="Symbol">r</font></i></b>: signed transverse curvature.
+<li> <b><i><font face="Symbol">j</font></i></b>: polar angle of the momentum vector.
+<li> <b><i><font face="Symbol">f</font><sub>0</sub></i></b>: azimuthal angle of the momentum vector at the PCA to the beam line.
+<li> <b><i><font face="Times New Roman, Times">d<sub>0</sub></font></i></b>: signed transverse distance of the PCA. By convention, the
+sign is positive if the reference point is at the left of the PCA.
+<li> <b><i><font face="Times New Roman, Times">d<sub>z</sub></font></i></b>: longitudinal distance of the PCA.
 </ul>
 \endhtmlonly
 
@@ -116,7 +109,7 @@ also defined as the enumerator <tt>index</tt> defined in the
 namespace reco::helix:
 \htmlonly
 <pre>
-  enum index { i_d0 = 0, i_phi0, i_omega, i_dz, i_tanDip }; 
+  enum index { i_tcurv = 0 , i_theta, i_phi0, i_d0, i_dz}; 
 </pre>
 \endhtmlonly
 
@@ -125,24 +118,12 @@ can write the following code that requires no explicit numeric index:
 
 \htmlonly
 <pre>
-  using namespace reco::helix;
+  using namespace reco::perigee;
   reco::TrackRef track = ... ; 
   double d0 = track->parameter( i_d0 ); 
-  double covOmegaTanDip = track->covariance( i_omega, i_tanDip );
+  double covThetaPhi = track->covariance( i_theta, i_phi0 );
 </pre>
 \endhtmlonly
-
-\section utils Utility functions
-
-The following functions can be used to trasform from perigee
-parametrization to Cartesian coordinates and viceversa:
-- reco::helix::posMomError: return 6x6 position-momentum covariance
-  matrix in Cartesian coordinates from 5 parameters and 5x5 
-  covariance matrix.
-- reco::helix::setFromCartesian: set 5 parameters and 5x5 
-  covariance matrix from electric charge, position and momentum
-  at point of closest approach to the beamline, and 6x6 Cartesian
-  covariance matrix.
 
 \subsection modules Modules
 None.
@@ -154,5 +135,5 @@ None.
 To be reviewed.
 
 <hr>
-Last updated: @DATE@ L. Lista
+Last updated: @DATE@ L. Lista, Th. Speer
 */
