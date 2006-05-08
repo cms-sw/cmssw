@@ -29,7 +29,7 @@ class CSCSegment : public RecSegment4D {
 		
 	int nRecHits() const { return theCSCRecHits.size(); }
         
-        CSCDetId cscDetId() const { return theCSCRecHits.begin()->cscDetId(); }
+        CSCDetId cscDetId() const { return theDetId; }
 		
 	void print() const;
 		
@@ -42,17 +42,17 @@ class CSCSegment : public RecSegment4D {
 	LocalVector localDirection() const { return theLocalDirection; }
     	LocalError localDirectionError() const ;
 	
-    	double chi2() const ;
+    	double chi2() const { return theChi2; };
 		
 	CSCSegment* clone() const { return new CSCSegment(*this); }
-	virtual DetId geographicalId() const { return theDetId; } //@@ FIX !!!
-	virtual int degreesOfFreedom()const { return 0;}	  //@@ FIX !!!
+	virtual DetId geographicalId() const { return theDetId; }  // Slice off the CSC part :)
+	virtual int degreesOfFreedom() const { return 2*nRecHits() - 4;}	 
 		
    
   	private:
     
 	//CSCChamber* theChamber;
-	DetId theDetId;
+	CSCDetId theDetId;
 	//CSCRecHit2DCollection* theCSCRecHits;
 	std::vector<CSCRecHit2D> theCSCRecHits;
 	LocalPoint theOrigin;   // in chamber frame - the GeomDet local coordinate system

@@ -5,6 +5,9 @@
 CSCSegment::CSCSegment(std::vector<CSCRecHit2D> proto_segment, LocalPoint origin, 
 	LocalVector direction, AlgebraicSymMatrix errors, double chi2) : theCSCRecHits(proto_segment),
 	theOrigin(origin), theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2) {
+	  //@@ Temporarily just set CSCDetId as layer id of first rechit
+	  //@@ Shoudl really mask out the layer bit so that it is a chamber id not a layer id.
+	theDetId = theCSCRecHits.begin()->cscDetId();
 }
 
 CSCSegment::~CSCSegment() {}
@@ -42,10 +45,6 @@ LocalError CSCSegment::localPositionError() const {
 
 LocalError CSCSegment::localDirectionError() const {
   return LocalError(theCovMatrix[0][0], theCovMatrix[0][1], theCovMatrix[1][1]); 
-}
-
-double CSCSegment::chi2() const {
-	return theChi2;
 }
 
 void CSCSegment::print() const {
