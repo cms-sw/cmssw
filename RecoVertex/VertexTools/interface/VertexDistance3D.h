@@ -19,6 +19,9 @@ public:
   virtual Measurement1D distance(const reco::Vertex &, 
 				 const reco::Vertex &) const;
 
+  virtual Measurement1D signedDistance(const reco::Vertex &primVtx , 
+				 const reco::Vertex &secVtx,
+				 const GlobalVector & momentum) const;
   virtual float compatibility (const reco::Vertex &, 
 			       const reco::Vertex &) const;
 

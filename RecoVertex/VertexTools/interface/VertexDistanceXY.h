@@ -27,6 +27,10 @@ public:
 
   virtual float compatibility (const VertexState &, const VertexState &) const;
 
+  virtual Measurement1D signedDistance(const reco::Vertex &primVtx , 
+				 const reco::Vertex &secVtx,
+				 const GlobalVector & momentum) const;
+
   virtual VertexDistanceXY * clone() const
   {
     return new VertexDistanceXY(*this);

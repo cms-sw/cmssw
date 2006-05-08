@@ -25,6 +25,19 @@ VertexDistance3D::distance(const Vertex & vtx1, const Vertex & vtx2) const
 		  RecoVertex::convertError(vtx2.error()));
 }
 
+Measurement1D
+VertexDistance3D::signedDistance(const Vertex& vtx1, const Vertex & vtx2,
+					 const GlobalVector & momentum) const
+{
+  Measurement1D unsignedDistance = distance(vtx1, vtx2);
+  Basic3DVector<float> diff = Basic3DVector<float> (vtx2.position()) - 
+    Basic3DVector<float> (vtx1.position());
+//   Basic3DVector<float> (vtx2 - vtx1);
+  if ((momentum.x()*diff.x() + momentum.y()*diff.y() * momentum.z()*diff.z()) < 0 )
+    return Measurement1D(-1.0*unsignedDistance.value(),unsignedDistance.error());
+  return unsignedDistance;
+}
+
 
 Measurement1D 
 VertexDistance3D::distance(const GlobalPoint & vtx1Position, 

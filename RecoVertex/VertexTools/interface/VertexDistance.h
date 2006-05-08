@@ -3,6 +3,7 @@
 
 #include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "Geometry/Vector/interface/GlobalVector.h"
 
 /** \class VertexDistance
  *  Abstact class which defines a distance and compatibility between vertices.
@@ -17,6 +18,10 @@ class VertexDistance {
 
   virtual Measurement1D distance(const reco::Vertex &, 
 				 const reco::Vertex &) const = 0;
+
+  virtual Measurement1D signedDistance(const reco::Vertex &primVtx , 
+				 const reco::Vertex &secVtx,
+				 const GlobalVector & momentum) const = 0;
 
   virtual float compatibility (const reco::Vertex &, 
 			       const reco::Vertex &) const = 0;
