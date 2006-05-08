@@ -9,7 +9,10 @@
  * For example, CSCSegmentizerSK inherits from this class,
  * and classes ported from ORCA local reco inherit from that.
  *
- * \author Matteo Sani
+ * $Date: 2006/04/03 10:10:10 $
+ * $Revision: 1.2 $
+ * \author M. Sani
+ *
  */
 
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
@@ -21,7 +24,9 @@
 
 class CSCSegmentAlgorithm {
 public:
+    /// Constructor
     explicit CSCSegmentAlgorithm(const edm::ParameterSet&) {};
+    /// Destructor
     virtual ~CSCSegmentAlgorithm() {};
 
     /** Run the algorithm = build the segments in this chamber

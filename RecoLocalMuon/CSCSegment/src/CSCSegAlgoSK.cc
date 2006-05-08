@@ -1,5 +1,12 @@
+/**
+ * \file CSCSegAlgoSK.cc
+ *
+ *  $Date: 2006/04/01 10:10:10 $
+ *  $Revision: 1.3 $
+ *  \author M. Sani
+ */
+ 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoSK.h>
-
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 #include <Geometry/Vector/interface/GlobalPoint.h>

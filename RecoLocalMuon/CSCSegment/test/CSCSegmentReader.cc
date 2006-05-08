@@ -1,32 +1,29 @@
-#include "CSCSegmentReader.h"
+/** \file CSCSegmentReader.cc
+ *
+ *  $Date: 2006/05/02 14:00:28 $
+ *  $Revision: 1.1 $
+ *  \author M. Sani
+ */
 
-#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
-#include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
-#include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
-#include <DataFormats/CSCRecHit/interface/CSCRangeMapAccessor.h>
+#include <RecoLocalMuon/CSCSegment/test/CSCSegmentReader.h>
 
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCChamber.h>
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include <FWCore/Framework/interface/MakerMacros.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h> 
+#include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
+
+#include <DataFormats/CSCRecHit/interface/CSCRangeMapAccessor.h>
+#include <Geometry/CSCGeometry/interface/CSCChamber.h>
 
 using namespace std;
 using namespace edm;
 
-#include "TAxis.h"
+//#include "TAxis.h"
 
 // Constructor
 CSCSegmentReader::CSCSegmentReader(const ParameterSet& pset) {
 
     filename = pset.getUntrackedParameter<string>("RootFileName");	
-    label1 = pset.getUntrackedParameter<string>("label1");
     minRechitChamber = pset.getUntrackedParameter<int>("minRechitPerChamber");
     minRechitSegment = pset.getUntrackedParameter<int>("minRechitPerSegment");
 	//label2 = pset.getUntrackedParameter<string>("label2");
@@ -37,53 +34,63 @@ CSCSegmentReader::CSCSegmentReader(const ParameterSet& pset) {
 		cout<<"file open!"<<endl;
     else 
 		cout<<"*** Error in opening file ***"<<endl;
-    
-    h2 = new TH1F("h2", "chi2", 120, 0, 60);    
-    h3 = new TH1I("h3", "nrechit", 6, 2, 8);       
+   
+    hchi2 = new TH1F("h2", "chi2", 120, 0, 60);    
+    hrechit = new TH1I("h3", "nrechit", 6, 2, 8);  
+    hsegment = new TH1I("h4", "segments multiplicity", 20, 0, 20);   
+    heta = new TH1F("h5", "eta sim muons", 50, -2.5, 2.5);  
+    hpt = new TH1F("h6", "pT sim muons", 120, 0, 60);
+    char a[3];
+    for(int i=0; i<4; i++) {
+
+        sprintf(a, "h7%d", i);
+        hphi[i] = new TH1F(a, "reso phi", 150, -0.03, 0.03);
+        sprintf(a, "h8%d", i);
+        htheta[i] = new TH1F(a, "reso theta", 150, -0.15, 0.15);
+    }    
 }
 
 // Destructor
 CSCSegmentReader::~CSCSegmentReader() {
 
     int ibin = 0;
-    h = new TH1F("h1", "efficiency", segMap.size()*2 + 2, 0, segMap.size()*2 + 2); 
+    heff = new TH1F("h1", "efficiency", segMap.size()*2 + 2, 0, segMap.size()*2 + 2); 
 
     for(map<string,int>::const_iterator it = segMap.begin(); it != segMap.end(); it++) {
         ibin++;
         float eff = (float)it->second/(float)chaMap[it->first]; 
-        h->SetBinContent(ibin*2, eff);
-   		h->GetXaxis()->SetBinLabel(ibin*2, (it->first).c_str());
+        heff->SetBinContent(ibin*2, eff);
+   		heff->GetXaxis()->SetBinLabel(ibin*2, (it->first).c_str());
         
         cout << it->first << ": " << it->second << " " << chaMap[it->first] 
-        << "  " << eff << "   " << recMap[it->first] << endl;
+        << "  " << eff << endl;
     }
 
     file->cd();
-    h->Write();
-    h2->Write();
-    h3->Write();
+    heff->Write();
+    hchi2->Write();
+    hrechit->Write();
+    hsegment->Write();
+    hpt->Write();
+    heta->Write();
+    for(int i=0; i<4; i++) {
+        
+        hphi[i]->Write();
+        htheta[i]->Write();
+    }    
     file->Close();
 }
 
-// The real analysis
-void CSCSegmentReader::analyze(const Event& event, const EventSetup& eventSetup){
+void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits, 
+            const edm::Handle<CSCRecHit2DCollection> recHits, const edm::Handle<CSCSegmentCollection> cscSegments,
+            const CSCGeometry* geom) {
     
-    edm::ESHandle<CSCGeometry> h;
-    eventSetup.get<MuonGeometryRecord>().get(h);
-    const CSCGeometry* geom = &*h;
-    
-    Handle<CSCSegmentCollection> cscSegments;
-    event.getByLabel("segmentproducer", cscSegments);
-    Handle<PSimHitContainer> simHits; 
-    event.getByLabel("SimG4Object","MuonCSCHits",simHits);    
-	Handle<CSCRecHit2DCollection> recHits; 
-    event.getByLabel("rechitproducer", recHits);    
-	
-    cout << cscSegments->end() - cscSegments->begin() << endl;
+    hsegment->Fill(cscSegments->end() - cscSegments->begin());
+
     for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
         
-        h2->Fill(((*it).chi2()/(2*(*it).nRecHits()-4)));
-        h3->Fill((*it).nRecHits());        
+        hchi2->Fill(((*it).chi2()/(2*(*it).nRecHits()-4)));
+        hrechit->Fill((*it).nRecHits());        
     }        
 
     std::vector<CSCDetId> cscChambers;
@@ -117,8 +124,6 @@ void CSCSegmentReader::analyze(const Event& event, const EventSetup& eventSetup)
         const CSCChamber* chamber = geom->chamber(*chIt); 
         CSCRecHit2DCollection::range range = recHits->get(acc.cscChamber(*chIt));
         
-        recMap[chamber->specs()->chamberTypeName()] += (range.second - range.first);
-        
         if ((range.second - range.first) >= minRechitChamber) {
         
             chaMap[chamber->specs()->chamberTypeName()]++;
@@ -146,6 +151,86 @@ void CSCSegmentReader::analyze(const Event& event, const EventSetup& eventSetup)
         }        
     }
 }
+
+void CSCSegmentReader::simInfo(const edm::Handle<EmbdSimTrackContainer> simTracks) {
+    for(EmbdSimTrackContainer::const_iterator it = simTracks->begin(); it != simTracks->end(); it++) {
+        
+        if (abs((*it).type()) == 13) {
+            hpt->Fill((*it).momentum().perp());
+            heta->Fill((*it).momentum().eta());
+        }    
+    }    
+}
+    
+void CSCSegmentReader::resolution(const Handle<PSimHitContainer> simHits, 
+        const Handle<CSCSegmentCollection> cscSegments, const CSCGeometry* geom) {
+
+	double minPhi = 1000., minTheta = 1000.;
+    double resoPhi, resoTheta;
+
+    for(PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+    
+        LocalVector lv = ith->momentumAtEntry();
+        CSCDetId cscDetId(ith->detUnitId());
+        const CSCLayer* layer = geom->layer(cscDetId);
+        GlobalVector simDir = layer->surface().toGlobal(lv);
+        
+        for(CSCSegmentCollection::const_iterator its = cscSegments->begin(); its != cscSegments->end(); its++) {
+    
+            const CSCChamber* chamber = geom->chamber((*its).cscDetId());
+            GlobalVector segDir = chamber->surface().toGlobal((*its).localDirection());
+            
+            double deltaTheta = fabs(segDir.theta()-simDir.theta());
+            double deltaPhi = fabs(segDir.phi()-simDir.phi());
+            
+            if ((deltaPhi < minPhi) && (deltaTheta < minTheta)) {
+                
+                minPhi = deltaPhi;
+                minTheta = deltaTheta;
+                resoTheta = (segDir.theta()-simDir.theta());
+                resoPhi = (segDir.phi()-simDir.phi());
+            }
+
+            string s = chamber->specs()->chamberTypeName();
+
+            int indice = 3;
+            if ((s == "ME1/a") || (s == "ME1/b"))        
+                indice = 0;
+            if ((s == "ME1/2") || (s == "ME1/3"))        
+                indice = 1;
+            if ((s == "ME2/1") || (s == "ME3/1") || (s == "ME4/1"))        
+                indice = 2;
+                
+            hphi[indice]->Fill(resoPhi);
+            htheta[indice]->Fill(resoTheta);
+        }
+    }       
+}
+
+// The real analysis
+void CSCSegmentReader::analyze(const Event& event, const EventSetup& eventSetup) {
+    
+    edm::ESHandle<CSCGeometry> h;
+    eventSetup.get<MuonGeometryRecord>().get(h);
+    const CSCGeometry* geom = &*h;
+    
+    Handle<EmbdSimTrackContainer> simTracks;
+    event.getByLabel("SimG4Object",simTracks);
+    
+    Handle<PSimHitContainer> simHits; 
+    event.getByLabel("SimG4Object","MuonCSCHits",simHits);    
+    
+    Handle<CSCRecHit2DCollection> recHits; 
+    event.getByLabel("rechitproducer", recHits);   
+    
+    Handle<CSCSegmentCollection> cscSegments;
+    event.getByLabel("segmentproducer", cscSegments);
+    
+    simInfo(simTracks);
+    resolution(simHits, cscSegments, geom);
+    recInfo(simHits, recHits, cscSegments, geom);
+}
+
 
 DEFINE_FWK_MODULE(CSCSegmentReader)
 

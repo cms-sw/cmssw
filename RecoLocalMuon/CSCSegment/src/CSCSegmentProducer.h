@@ -4,7 +4,9 @@
 /** \class CSCSegmentProducer 
  * Produces a collection of CSCSegment's in endcap muon CSCs. 
  *
- *  \author Matteo Sani
+ * $Date: 2006/04/03 10:10:10 $
+ * $Revision: 1.2 $
+ * \author M. Sani
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -16,9 +18,11 @@ class CSCSegmentBuilder;
 
 class CSCSegmentProducer : public edm::EDProducer {
 public:
+    /// Constructor
     explicit CSCSegmentProducer(const edm::ParameterSet&);
+    /// Destructor
     ~CSCSegmentProducer();
-
+    /// Produce the CSCSegment collection
     virtual void produce(edm::Event&, const edm::EventSetup&);
 
 private:

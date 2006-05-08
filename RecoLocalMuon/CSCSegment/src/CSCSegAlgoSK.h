@@ -21,6 +21,9 @@
  * Reimplemented in terms of layer index, and bug fix: Tim.Cox@cern.ch <BR>
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
+ *  $Date: 2006/04/01 10:10:10 $
+ *  $Revision: 1.3 $
+ *  \author M. Sani
  */
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
@@ -43,6 +46,7 @@ public:
     // to enforce the requirement that 'layer 1' is closest in the chamber
     // to the IP.
     
+    /// Typedefs
     typedef std::vector<CSCRecHit2D> ChamberHitContainer;
     typedef std::vector<CSCRecHit2D>::const_iterator ChamberHitContainerCIt;
 
@@ -52,8 +56,10 @@ public:
     // We don't need what it offers and it could lead to unexpected trouble in the future.
 
     typedef std::deque<bool> BoolContainer;
-
+    
+    /// Constructor
     explicit CSCSegAlgoSK(const edm::ParameterSet& ps);
+    /// Destructor
     virtual ~CSCSegAlgoSK() {};
 
     /**
@@ -69,7 +75,8 @@ public:
 
 private:
 
-    // Utility functions - could be static at the moment, but in principle one
+    /// Utility functions 
+    // Could be static at the moment, but in principle one
     // might like CSCSegmentizer-specific behaviour?
     bool areHitsCloseInLocalX(const CSCRecHit2D& h1, const CSCRecHit2D& h2) const;
     bool areHitsCloseInGlobalPhi(const CSCRecHit2D& h1, const CSCRecHit2D& h2) const;
@@ -97,7 +104,8 @@ private:
      * Flag hits on segment as used
      */
     void flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber, BoolContainer& used) const;
-		
+	
+    /// Utility functions 	
     bool addHit(const CSCRecHit2D& hit, int layer);
     void updateParameters(void);
     void fitSlopes(void);
@@ -115,7 +123,6 @@ private:
     // Member variables
     // ================
 
-    // Actual factor applied to cut windows
     const CSCChamber* theChamber;
     ChamberHitContainer proto_segment;
     const std::string myName; 

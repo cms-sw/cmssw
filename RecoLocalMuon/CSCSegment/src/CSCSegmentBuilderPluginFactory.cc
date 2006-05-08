@@ -1,4 +1,10 @@
-// This is CSCSegmentBuilderPluginFactory.cc
+/** \file CSCSegmentBuilderPluginFactory.cc
+ *
+ * $Date: 2006/04/03 10:10:10 $
+ * $Revision: 1.2 $
+ * \author M. Sani
+ * 
+ */
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentBuilderPluginFactory.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>

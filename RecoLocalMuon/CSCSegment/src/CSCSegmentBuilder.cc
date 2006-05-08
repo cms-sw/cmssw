@@ -1,4 +1,11 @@
-// This is CSCSegmentBuilder.cc
+/** \file CSCSegmentBuilder.cc
+ *
+ * $Date: 2006/04/03 10:10:10 $
+ * $Revision: 1.2 $
+ * \author M. Sani
+ *
+ *
+ */
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentBuilder.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>

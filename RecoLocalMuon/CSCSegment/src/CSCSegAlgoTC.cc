@@ -1,5 +1,12 @@
-// This is CSCSegmentizerTC.cc
-
+/**
+ * \file CSCSegAlgoTC.cc
+ *
+ * $Date: 2006/04/03 10:10:10 $
+ * $Revision: 1.1 $
+ * \author M. Sani
+ * 
+ */
+ 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoTC.h>
 
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>

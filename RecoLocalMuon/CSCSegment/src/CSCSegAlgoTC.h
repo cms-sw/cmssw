@@ -16,14 +16,13 @@
  * by writing classes like this, and then selecting which one is actually
  * used via the CSCSegmentizerBuilder in CSCDetector. <BR>
  *
- * \author Matteo Sani
- *  Porting of the original algorithm from ORCA to CMSSW 2006-04-03
+ * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
+ *
+ * $Date: 2006/04/03 10:10:10 $
+ * $Revision: 1.1 $
+ * \author M. Sani
+ * 
  */
-
-/* #include "Muon/MAbsAlgo/interface/AbsAlgorithm.h" */
-/* #include "CommonDet/BasicDet/interface/Det.h" */
-/* #include "Utilities/UI/interface/SimpleConfigurable.h" */
-/* #include "Utilities/UI/interface/Verbosity.h" */
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
 
@@ -31,11 +30,6 @@
 
 #include <deque>
 #include <vector>
-
-//class CSCChamber;
-//class CSCChamberSpecs;
-//class RecHit;
-//class CSCSegment;
 
 
 class CSCSegAlgoTC : public CSCSegmentAlgorithm {
@@ -51,7 +45,8 @@ public:
     // However a map is very painful to use when handling the original 'SK' algorithm,
     // particularly when we need to flag a hit as 'used'. Because of this I am now
     // favouring a pair of vectors, vector<RecHit> and vector<int> for the layer id.
-
+    
+    /// Typedefs
     typedef std::vector<CSCRecHit2D> ChamberHitContainer;
     typedef ChamberHitContainer::const_iterator ChamberHitContainerCIt;
 
@@ -62,7 +57,9 @@ public:
 
     typedef std::deque<bool> BoolContainer;
 
+    /// Constructor
     explicit CSCSegAlgoTC(const edm::ParameterSet& ps);
+    /// Destructor
     virtual ~CSCSegAlgoTC() {};
 
     /**
@@ -78,7 +75,7 @@ public:
 
 private:
 
-    // Utility functions 
+    /// Utility functions 
     
     bool addHit(const CSCRecHit2D& aHit, int layer);
     bool replaceHit(const CSCRecHit2D& h, int layer);
@@ -151,16 +148,8 @@ private:
     void fitSlopes();
     void updateParameters();
 
-    /**
-     * Pass final segments to RecDet (the CSCChamber)
-     */
-//    void passToRecDet(const SegmentContainer& segments, 
-//         const CSCChamber* theChamber ) const;
-
-
-    // Member variables
+    /// Member variables
     // ================
-
 
     const CSCChamber* theChamber;
     ChamberHitContainer proto_segment;

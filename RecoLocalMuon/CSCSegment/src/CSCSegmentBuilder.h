@@ -9,7 +9,10 @@
  * Configured via the Producer's ParameterSet. <BR>
  * Presume this might become an abstract base class one day. <BR>
  *
- * \author Matteo Sani
+ * $Date: 2006/04/03 10:10:10 $
+ * $Revision: 1.2 $
+ * \author M. Sani
+ *
  *
  */
 
@@ -29,7 +32,7 @@ public:
      * which owns this Builder.
      */
     explicit CSCSegmentBuilder(const edm::ParameterSet&);
-
+    /// Destructor
     ~CSCSegmentBuilder();
 
     /** Find rechits in each CSCChamber, build CSCSegment's in each chamber,

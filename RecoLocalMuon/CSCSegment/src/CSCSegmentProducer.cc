@@ -1,3 +1,10 @@
+/** \file CSCSegmentProducer.cc
+ *
+ * $Date: 2006/04/03 10:10:10 $
+ * $Revision: 1.2 $
+ * \author M. Sani
+ */
+
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentProducer.h>
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentBuilder.h>
 
