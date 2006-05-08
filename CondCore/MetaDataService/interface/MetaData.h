@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include "DBCommon/interface/ConnectMode.h"
+#include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "RelationalAccess/ISession.h"
 //namespace coral{
   //class ITable;
@@ -14,7 +14,7 @@ namespace cond{
   public:
     MetaData(const std::string& contact, ServiceLoader& loader);
     ~MetaData();
-    void connect();
+    void connect( cond::ConnectMode mod=cond::ReadWriteCreate );
     void disconnect();
     bool addMapping(const std::string& name, const std::string& token);
     bool replaceToken(const std::string& name, const std::string& newtoken);
