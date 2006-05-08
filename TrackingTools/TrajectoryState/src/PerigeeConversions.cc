@@ -45,18 +45,18 @@ PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   return PerigeeTrajectoryParameters(theTrackParameters, pt, isCharged);
 }
 
-PerigeeTrajectoryParameters PerigeeConversions::helixToPerigeeParameters
-  (const reco::helix::Parameters & helixPar, const GlobalPoint& referencePoint) const
-{
-  AlgebraicVector theTrackParameters = AlgebraicVector(5);
-  double field  = TrackingTools::FakeField::Field::inTesla(helixPar.vertex()).z() * 2.99792458e-3;
-  theTrackParameters[0] = - field*helixPar.omega();
-  theTrackParameters[1] = atan(1/helixPar.tanDip());
-  theTrackParameters[2] = helixPar.phi0() - M_PI/2;
-  theTrackParameters[3] = helixPar.d0();
-  theTrackParameters[4] = helixPar.dz();
-  return PerigeeTrajectoryParameters(theTrackParameters, helixPar.pt(), true);
-}
+// PerigeeTrajectoryParameters PerigeeConversions::helixToPerigeeParameters
+//   (const reco::helix::Parameters & helixPar, const GlobalPoint& referencePoint) const
+// {
+//   AlgebraicVector theTrackParameters = AlgebraicVector(5);
+//   double field  = TrackingTools::FakeField::Field::inTesla(helixPar.vertex()).z() * 2.99792458e-3;
+//   theTrackParameters[0] = - field*helixPar.omega();
+//   theTrackParameters[1] = atan(1/helixPar.tanDip());
+//   theTrackParameters[2] = helixPar.phi0() - M_PI/2;
+//   theTrackParameters[3] = helixPar.d0();
+//   theTrackParameters[4] = helixPar.dz();
+//   return PerigeeTrajectoryParameters(theTrackParameters, helixPar.pt(), true);
+// }
 
 PerigeeTrajectoryError PerigeeConversions::ftsToPerigeeError
   (const FTS& originalFTS) const
@@ -66,35 +66,35 @@ PerigeeTrajectoryError PerigeeConversions::ftsToPerigeeError
   return PerigeeTrajectoryError(errorMatrix.similarity(curv2perigee));
 }
 
-PerigeeTrajectoryError PerigeeConversions::helixToPerigeeError
-  (const reco::helix::Parameters & helixPar, 
-	const reco::helix::Covariance & helixCov) const
-{
-//FIXME: verify that the order of the parameters are correct
-  AlgebraicSymMatrix helixCovMatrix(5,0);
-  helixCovMatrix(1,1) = helixCov(reco::helix::i_d0,reco::helix::i_d0);
-  helixCovMatrix(2,2) = helixCov(reco::helix::i_phi0,reco::helix::i_phi0);
-  helixCovMatrix(3,3) = helixCov(reco::helix::i_omega,reco::helix::i_omega);
-  helixCovMatrix(4,4) = helixCov(reco::helix::i_dz,reco::helix::i_dz);
-  helixCovMatrix(5,5) = helixCov(reco::helix::i_tanDip,reco::helix::i_tanDip);
-
-  helixCovMatrix(1,2) = helixCov(reco::helix::i_d0,reco::helix::i_phi0);
-  helixCovMatrix(1,3) = helixCov(reco::helix::i_d0,reco::helix::i_omega);
-  helixCovMatrix(1,4) = helixCov(reco::helix::i_d0,reco::helix::i_dz);
-  helixCovMatrix(1,5) = helixCov(reco::helix::i_d0,reco::helix::i_tanDip);
-
-  helixCovMatrix(2,3) = helixCov(reco::helix::i_phi0,reco::helix::i_omega);
-  helixCovMatrix(2,4) = helixCov(reco::helix::i_phi0,reco::helix::i_dz);
-  helixCovMatrix(2,5) = helixCov(reco::helix::i_phi0,reco::helix::i_tanDip);
-
-  helixCovMatrix(3,4) = helixCov(reco::helix::i_omega,reco::helix::i_dz);
-  helixCovMatrix(3,5) = helixCov(reco::helix::i_omega,reco::helix::i_tanDip);
-
-  helixCovMatrix(4,5) = helixCov(reco::helix::i_dz,reco::helix::i_tanDip);
-
-  AlgebraicMatrix helix2perigee = jacobianHelix2Perigee(helixPar, helixCov);
-  return PerigeeTrajectoryError(helixCovMatrix.similarity(helix2perigee));
-}
+// PerigeeTrajectoryError PerigeeConversions::helixToPerigeeError
+//   (const reco::helix::Parameters & helixPar, 
+// 	const reco::helix::Covariance & helixCov) const
+// {
+// //FIXME: verify that the order of the parameters are correct
+//   AlgebraicSymMatrix helixCovMatrix(5,0);
+//   helixCovMatrix(1,1) = helixCov(reco::helix::i_d0,reco::helix::i_d0);
+//   helixCovMatrix(2,2) = helixCov(reco::helix::i_phi0,reco::helix::i_phi0);
+//   helixCovMatrix(3,3) = helixCov(reco::helix::i_omega,reco::helix::i_omega);
+//   helixCovMatrix(4,4) = helixCov(reco::helix::i_dz,reco::helix::i_dz);
+//   helixCovMatrix(5,5) = helixCov(reco::helix::i_tanDip,reco::helix::i_tanDip);
+// 
+//   helixCovMatrix(1,2) = helixCov(reco::helix::i_d0,reco::helix::i_phi0);
+//   helixCovMatrix(1,3) = helixCov(reco::helix::i_d0,reco::helix::i_omega);
+//   helixCovMatrix(1,4) = helixCov(reco::helix::i_d0,reco::helix::i_dz);
+//   helixCovMatrix(1,5) = helixCov(reco::helix::i_d0,reco::helix::i_tanDip);
+// 
+//   helixCovMatrix(2,3) = helixCov(reco::helix::i_phi0,reco::helix::i_omega);
+//   helixCovMatrix(2,4) = helixCov(reco::helix::i_phi0,reco::helix::i_dz);
+//   helixCovMatrix(2,5) = helixCov(reco::helix::i_phi0,reco::helix::i_tanDip);
+// 
+//   helixCovMatrix(3,4) = helixCov(reco::helix::i_omega,reco::helix::i_dz);
+//   helixCovMatrix(3,5) = helixCov(reco::helix::i_omega,reco::helix::i_tanDip);
+// 
+//   helixCovMatrix(4,5) = helixCov(reco::helix::i_dz,reco::helix::i_tanDip);
+// 
+//   AlgebraicMatrix helix2perigee = jacobianHelix2Perigee(helixPar, helixCov);
+//   return PerigeeTrajectoryError(helixCovMatrix.similarity(helix2perigee));
+// }
 
 
 CurvilinearTrajectoryError PerigeeConversions::curvilinearError
@@ -317,18 +317,18 @@ PerigeeConversions::jacobianPerigee2Curvilinear(const GlobalTrajectoryParameters
   return jac;
 }
 
-AlgebraicMatrix 
-PerigeeConversions::jacobianHelix2Perigee(const reco::helix::Parameters & helixPar, 
-	const reco::helix::Covariance & helixCov) const
-{
-  AlgebraicMatrix jac(5,5,0);
-
-  jac(4,1) = 1.;
-  jac(3,2) = 1.;
-//   jac(1,3) = - 1. / magField.inTesla(helixPar.vertex()).z() * 2.99792458e-3;
-  jac(1,3) = - 1. / (TrackingTools::FakeField::Field::inTesla(helixPar.vertex()).z() * 2.99792458e-3);
-  jac(5,4) = 1.;
-  jac(2,5) = -(1. + helixPar.tanDip()*helixPar.tanDip());
-std::cout << jac;
-  return jac;
-}
+// AlgebraicMatrix 
+// PerigeeConversions::jacobianHelix2Perigee(const reco::helix::Parameters & helixPar, 
+// 	const reco::helix::Covariance & helixCov) const
+// {
+//   AlgebraicMatrix jac(5,5,0);
+// 
+//   jac(4,1) = 1.;
+//   jac(3,2) = 1.;
+// //   jac(1,3) = - 1. / magField.inTesla(helixPar.vertex()).z() * 2.99792458e-3;
+//   jac(1,3) = - 1. / (TrackingTools::FakeField::Field::inTesla(helixPar.vertex()).z() * 2.99792458e-3);
+//   jac(5,4) = 1.;
+//   jac(2,5) = -(1. + helixPar.tanDip()*helixPar.tanDip());
+// std::cout << jac;
+//   return jac;
+// }

@@ -5,8 +5,8 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"
-#include "DataFormats/TrackReco/interface/HelixParameters.h"
-#include "DataFormats/TrackReco/interface/HelixCovariance.h"
+// #include "DataFormats/TrackReco/interface/HelixParameters.h"
+// #include "DataFormats/TrackReco/interface/HelixCovariance.h"
 
 class TrajectoryStateClosestToPoint;
 
@@ -31,11 +31,11 @@ public:
 
   PerigeeTrajectoryError ftsToPerigeeError(const FTS& originalFTS) const;
 
-  PerigeeTrajectoryParameters helixToPerigeeParameters
-    (const reco::helix::Parameters & helixPar, const GlobalPoint& referencePoint) const;
-
-  PerigeeTrajectoryError helixToPerigeeError(const reco::helix::Parameters & helixPar, 
-	const reco::helix::Covariance & helixCov) const;
+//   PerigeeTrajectoryParameters helixToPerigeeParameters
+//     (const reco::helix::Parameters & helixPar, const GlobalPoint& referencePoint) const;
+// 
+//   PerigeeTrajectoryError helixToPerigeeError(const reco::helix::Parameters & helixPar, 
+// 	const reco::helix::Covariance & helixCov) const;
 
 
 
@@ -106,8 +106,8 @@ public:
 
   AlgebraicMatrix jacobianPerigee2Curvilinear(const GlobalTrajectoryParameters& gtp) const;
 
-  AlgebraicMatrix jacobianHelix2Perigee(const reco::helix::Parameters & helixPar, 
-	const reco::helix::Covariance & helixCov) const;
+//   AlgebraicMatrix jacobianHelix2Perigee(const reco::helix::Parameters & helixPar, 
+// 	const reco::helix::Covariance & helixCov) const;
 
 
 };
