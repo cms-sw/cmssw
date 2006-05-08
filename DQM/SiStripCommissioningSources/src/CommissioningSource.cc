@@ -117,11 +117,11 @@ void CommissioningSource::analyze( const edm::Event& event,
   if ( summary->fedReadoutMode() == SiStripEventSummary::VIRGIN_RAW ) {
     event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
   } else if ( summary->fedReadoutMode() == SiStripEventSummary::PROC_RAW ) {
-    event.getByLabel( inputModuleLabel_, "ProcRaw", raw );
+    event.getByLabel( inputModuleLabel_, "ProcessedRaw", raw );
   } else if ( summary->fedReadoutMode() == SiStripEventSummary::SCOPE_MODE ) {
     event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
   } else if ( summary->fedReadoutMode() == SiStripEventSummary::ZERO_SUPPR ) {
-    //event.getByLabel( inputModuleLabel_, "ZeroSuppr", zs );
+    //event.getByLabel( inputModuleLabel_, "ZeroSuppressed", zs );
   } else {
     edm::LogError("CommissioningSource") << "[CommissioningSource::analyze]"
 					 << " Unknown FED readout mode!";

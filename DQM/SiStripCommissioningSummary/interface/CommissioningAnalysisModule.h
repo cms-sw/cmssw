@@ -1,4 +1,3 @@
-
 #ifndef DQM_SiStripCommissioningSummary_CommissioningAnalysisModule_H
 #define DQM_SiStripCommissioningSummary_CommissioningAnalysisModule_H
 
@@ -54,7 +53,7 @@ class CommissioningAnalysisModule : public edm::EDAnalyzer {
   bool controlView_;
 
   /** Commissioning task */
-  SiStripHistoNamingScheme::Task task_;
+  sistrip::Task task_;
 
   /** Output file name */
   std::string filename_;

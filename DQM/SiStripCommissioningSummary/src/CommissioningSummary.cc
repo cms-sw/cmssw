@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-CommissioningSummary::CommissioningSummary(string summary_title, SiStripHistoNamingScheme::Granularity gran) :
+CommissioningSummary::CommissioningSummary(string summary_title, sistrip::Granularity gran) :
 
 
   //initialise private data members

@@ -37,22 +37,22 @@ CommissioningAnalysisModule::CommissioningAnalysisModule( const edm::ParameterSe
 {
 
   //Check Commissioning Task
-  if (task_ == SiStripHistoNamingScheme::UNKNOWN_TASK) edm::LogWarning("Commissioning|AnalysisModule") << "Unknown commissioning task. Value used: " << pset.getUntrackedParameter<string>("CommissioningTask","Pedestals") << "; values accepted: Pedestals, ApvTiming, FedTiming, OptoScan, VpspScan, ApvLatency.";
+  if (task_ == sistrip::UNKNOWN_TASK) edm::LogWarning("Commissioning|AnalysisModule") << "Unknown commissioning task. Value used: " << pset.getUntrackedParameter<string>("CommissioningTask","Pedestals") << "; values accepted: Pedestals, ApvTiming, FedTiming, OptoScan, VpspScan, ApvLatency.";
 
   //construct summary objects as necessary
-  if (task_ == SiStripHistoNamingScheme::VPSP_SCAN) {
-    c_summary_ = new CommissioningSummary(SiStripHistoNamingScheme::task(task_), SiStripHistoNamingScheme::APV);}
+  if (task_ == sistrip::VPSP_SCAN) {
+    c_summary_ = new CommissioningSummary(SiStripHistoNamingScheme::task(task_), sistrip::APV);}
 
-  else if (task_ == SiStripHistoNamingScheme::OPTO_SCAN) {
-  c_summary_ = new CommissioningSummary((string)("Bias"), SiStripHistoNamingScheme::LLD_CHAN);
-  c_summary2_ = new CommissioningSummary((string)("Gain"), SiStripHistoNamingScheme::LLD_CHAN);}
+  else if (task_ == sistrip::OPTO_SCAN) {
+  c_summary_ = new CommissioningSummary((string)("Bias"), sistrip::LLD_CHAN);
+  c_summary2_ = new CommissioningSummary((string)("Gain"), sistrip::LLD_CHAN);}
 
-  else if (task_ == SiStripHistoNamingScheme::PEDESTALS) {
-  c_summary_ = new CommissioningSummary((string)("Pedestals"), SiStripHistoNamingScheme::LLD_CHAN);
-  c_summary2_ = new CommissioningSummary((string)("Noise"), SiStripHistoNamingScheme::LLD_CHAN);
+  else if (task_ == sistrip::PEDESTALS) {
+  c_summary_ = new CommissioningSummary((string)("Pedestals"), sistrip::LLD_CHAN);
+  c_summary2_ = new CommissioningSummary((string)("Noise"), sistrip::LLD_CHAN);
 }
 
-  else {c_summary_ = new CommissioningSummary(SiStripHistoNamingScheme::task(task_), SiStripHistoNamingScheme::LLD_CHAN);}
+  else {c_summary_ = new CommissioningSummary(SiStripHistoNamingScheme::task(task_), sistrip::LLD_CHAN);}
 }
 
 //-----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
       
       //commissioning analysis
       
-      if (task_ == SiStripHistoNamingScheme::APV_TIMING) {
+      if (task_ == sistrip::APV_TIMING) {
 	
 	ApvTimingAnalysis anal;
 	
@@ -136,7 +136,7 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
 	c_summary_->update(readout, val); 
       }
       
-      else if (task_ == SiStripHistoNamingScheme::PEDESTALS) {
+      else if (task_ == sistrip::PEDESTALS) {
 
 	//fill map with module histograms using key
 	if (histo_organizer.find(h_title.channel_) == histo_organizer.end()) {
@@ -179,7 +179,7 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
 	}
       }
       
-      else if (task_ == SiStripHistoNamingScheme::VPSP_SCAN) {
+      else if (task_ == sistrip::VPSP_SCAN) {
 	
 	VpspScanAnalysis anal;
 	
@@ -192,7 +192,7 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
 	
       }
       
-      else if (task_ == SiStripHistoNamingScheme::FED_TIMING) {
+      else if (task_ == sistrip::FED_TIMING) {
 	
 	FedTimingAnalysis anal;
 	
@@ -205,7 +205,7 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
 	
       }
       
-      else if (task_ == SiStripHistoNamingScheme::OPTO_SCAN) {
+      else if (task_ == sistrip::OPTO_SCAN) {
 
 	//find gain value + digital level.
 	string::size_type index = h_title.extraInfo_.find(sistrip::gain_);
@@ -256,7 +256,7 @@ void CommissioningAnalysisModule::analyze(const edm::Event& iEvent, const edm::E
 	}
       }
       
-      else if (task_ == SiStripHistoNamingScheme::APV_LATENCY) {
+      else if (task_ == sistrip::APV_LATENCY) {
 	
 	ApvLatencyAnalysis anal;
 	

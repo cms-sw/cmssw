@@ -43,29 +43,29 @@ void PedestalsTask::book() {
     else if ( ihisto == 1 ) { extra = sistrip::residualsAndNoise_; } // "ResidualsAndNoise"; }
     else { /**/ }
     
-    title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::PEDESTALS, 
-						  SiStripHistoNamingScheme::SUM2, 
-						  SiStripHistoNamingScheme::FED, 
+    title = SiStripHistoNamingScheme::histoTitle( sistrip::PEDESTALS, 
+						  sistrip::SUM2, 
+						  sistrip::FED, 
 						  fedKey(),
-						  SiStripHistoNamingScheme::LLD_CHAN, 
+						  sistrip::LLD_CHAN, 
 						  connection().lldChannel(),
 						  extra );
     peds_[ihisto].meSumOfSquares_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
   
-    title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::PEDESTALS, 
-						  SiStripHistoNamingScheme::SUM, 
-						  SiStripHistoNamingScheme::FED, 
+    title = SiStripHistoNamingScheme::histoTitle( sistrip::PEDESTALS, 
+						  sistrip::SUM, 
+						  sistrip::FED, 
 						  fedKey(),
-						  SiStripHistoNamingScheme::LLD_CHAN, 
+						  sistrip::LLD_CHAN, 
 						  connection().lldChannel(),
 						  extra );
     peds_[ihisto].meSumOfContents_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
   
-    title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::PEDESTALS, 
-						  SiStripHistoNamingScheme::NUM, 
-						  SiStripHistoNamingScheme::FED, 
+    title = SiStripHistoNamingScheme::histoTitle( sistrip::PEDESTALS, 
+						  sistrip::NUM, 
+						  sistrip::FED, 
 						  fedKey(),
-						  SiStripHistoNamingScheme::LLD_CHAN, 
+						  sistrip::LLD_CHAN, 
 						  connection().lldChannel(),
 						  extra );
     peds_[ihisto].meNumOfEntries_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
@@ -79,20 +79,20 @@ void PedestalsTask::book() {
  
   // Common mode histograms
   nbins = 1024;
-  title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::PEDESTALS, 
-						SiStripHistoNamingScheme::COMBINED, 
-						SiStripHistoNamingScheme::FED, 
+  title = SiStripHistoNamingScheme::histoTitle( sistrip::PEDESTALS, 
+						sistrip::COMBINED, 
+						sistrip::FED, 
 						fedKey(),
-						SiStripHistoNamingScheme::APV, 
+						sistrip::APV, 
 						connection().i2cAddr(0),
 						sistrip::commonMode_ );
   meCommonMode0_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
 
-  title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::PEDESTALS, 
-						SiStripHistoNamingScheme::COMBINED, 
-						SiStripHistoNamingScheme::FED, 
+  title = SiStripHistoNamingScheme::histoTitle( sistrip::PEDESTALS, 
+						sistrip::COMBINED, 
+						sistrip::FED, 
 						fedKey(),
-						SiStripHistoNamingScheme::APV, 
+						sistrip::APV, 
 						connection().i2cAddr(1),
 						sistrip::commonMode_ );
   meCommonMode1_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );

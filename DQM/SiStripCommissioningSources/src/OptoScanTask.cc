@@ -44,29 +44,29 @@ void OptoScanTask::book() {
       ss << sistrip::gain_ << igain 
 	 << sistrip::digital_ << ilevel;
       
-      title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::OPTO_SCAN, 
-						    SiStripHistoNamingScheme::SUM2, 
-						    SiStripHistoNamingScheme::FED, 
+      title = SiStripHistoNamingScheme::histoTitle( sistrip::OPTO_SCAN, 
+						    sistrip::SUM2, 
+						    sistrip::FED, 
 						    fedKey(),
-						    SiStripHistoNamingScheme::LLD_CHAN, 
+						    sistrip::LLD_CHAN, 
 						    connection().lldChannel(),
 						    ss.str() );
       opto_[igain][ilevel].meSumOfSquares_  = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
       
-      title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::OPTO_SCAN, 
-						    SiStripHistoNamingScheme::SUM, 
-						    SiStripHistoNamingScheme::FED, 
+      title = SiStripHistoNamingScheme::histoTitle( sistrip::OPTO_SCAN, 
+						    sistrip::SUM, 
+						    sistrip::FED, 
 						    fedKey(),
-						    SiStripHistoNamingScheme::LLD_CHAN, 
+						    sistrip::LLD_CHAN, 
 						    connection().lldChannel(),
 						    ss.str() );
       opto_[igain][ilevel].meSumOfContents_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
       
-      title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::OPTO_SCAN, 
-						    SiStripHistoNamingScheme::NUM, 
-						    SiStripHistoNamingScheme::FED, 
+      title = SiStripHistoNamingScheme::histoTitle( sistrip::OPTO_SCAN, 
+						    sistrip::NUM, 
+						    sistrip::FED, 
 						    fedKey(),
-						    SiStripHistoNamingScheme::LLD_CHAN, 
+						    sistrip::LLD_CHAN, 
 						    connection().lldChannel(),
 						    ss.str() );
       opto_[igain][ilevel].meNumOfEntries_  = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );

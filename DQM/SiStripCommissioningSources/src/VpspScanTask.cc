@@ -34,27 +34,27 @@ void VpspScanTask::book() {
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
     if ( connection().i2cAddr(iapv) ) { 
       
-      title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::VPSP_SCAN, 
-						    SiStripHistoNamingScheme::SUM2, 
-						    SiStripHistoNamingScheme::FED, 
+      title = SiStripHistoNamingScheme::histoTitle( sistrip::VPSP_SCAN, 
+						    sistrip::SUM2, 
+						    sistrip::FED, 
 						    fedKey(),
-						    SiStripHistoNamingScheme::APV, 
+						    sistrip::APV, 
 						    connection().i2cAddr(iapv) );
       vpsp_[iapv].meSumOfSquares_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
       
-      title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::VPSP_SCAN, 
-						    SiStripHistoNamingScheme::SUM, 
-						    SiStripHistoNamingScheme::FED, 
+      title = SiStripHistoNamingScheme::histoTitle( sistrip::VPSP_SCAN, 
+						    sistrip::SUM, 
+						    sistrip::FED, 
 						    fedKey(),
-						    SiStripHistoNamingScheme::APV, 
+						    sistrip::APV, 
 						    connection().i2cAddr(iapv) );
       vpsp_[iapv].meSumOfContents_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
       
-      title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::VPSP_SCAN, 
-						    SiStripHistoNamingScheme::NUM, 
-						    SiStripHistoNamingScheme::FED, 
+      title = SiStripHistoNamingScheme::histoTitle( sistrip::VPSP_SCAN, 
+						    sistrip::NUM, 
+						    sistrip::FED, 
 						    fedKey(),
-						    SiStripHistoNamingScheme::APV, 
+						    sistrip::APV, 
 						    connection().i2cAddr(iapv) );
       vpsp_[iapv].meNumOfEntries_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
       

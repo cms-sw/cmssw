@@ -30,27 +30,27 @@ void FedTimingTask::book() {
 
   string title;
   
-  title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::FED_TIMING, 
-						SiStripHistoNamingScheme::SUM2, 
-						SiStripHistoNamingScheme::FED, 
+  title = SiStripHistoNamingScheme::histoTitle( sistrip::FED_TIMING, 
+						sistrip::SUM2, 
+						sistrip::FED, 
 						fedKey(),
-						SiStripHistoNamingScheme::LLD_CHAN, 
+						sistrip::LLD_CHAN, 
 						connection().lldChannel() );
   timing_.meSumOfSquares_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
   
-  title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::FED_TIMING, 
-						SiStripHistoNamingScheme::SUM, 
-						SiStripHistoNamingScheme::FED, 
+  title = SiStripHistoNamingScheme::histoTitle( sistrip::FED_TIMING, 
+						sistrip::SUM, 
+						sistrip::FED, 
 						fedKey(),
-						SiStripHistoNamingScheme::LLD_CHAN, 
+						sistrip::LLD_CHAN, 
 						connection().lldChannel() );
   timing_.meSumOfContents_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
   
-  title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::FED_TIMING, 
-						SiStripHistoNamingScheme::NUM, 
-						SiStripHistoNamingScheme::FED, 
+  title = SiStripHistoNamingScheme::histoTitle( sistrip::FED_TIMING, 
+						sistrip::NUM, 
+						sistrip::FED, 
 						fedKey(),
-						SiStripHistoNamingScheme::LLD_CHAN, 
+						sistrip::LLD_CHAN, 
 						connection().lldChannel() );
   timing_.meNumOfEntries_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
   

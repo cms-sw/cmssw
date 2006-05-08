@@ -24,7 +24,7 @@ class CommissioningSummary {
   public: // ----- public interface -----
 
   /** Constructor. Takes the summary histogram title and the monitorable granularity as arguments. */
-  CommissioningSummary(string, SiStripHistoNamingScheme::Granularity);
+  CommissioningSummary(string, sistrip::Granularity);
 
   /** Destructor */
   virtual ~CommissioningSummary();
@@ -60,7 +60,7 @@ class CommissioningSummary {
   string title();
 
   /** Returns the granularity of the readout devices being commissioned */
-  SiStripHistoNamingScheme::Granularity granularity();
+  sistrip::Granularity granularity();
 
   /** Loops through the map and fills a histogram of the stored commissioning values and their errors. Each bin corresponds to one device (defined by the granularity) and is labelled with its control path i.e. fec-slot|fec-ring|ccu-address|ccu-channel(|channel). Takes the control path string of the region to be histogrammed ( in the form ControlView/FecCrateA/FecSlotB/FecRingC/CcuAddrD/CcuChanE/ or any parent ) as the argument.*/
   TH1F* controlSummary(const string& dir);
@@ -77,7 +77,7 @@ class CommissioningSummary {
   string title_; 
 
   /** Granularity of the devices being commissioned. */
-  SiStripHistoNamingScheme::Granularity granularity_;
+  sistrip::Granularity granularity_;
 
   /** A map indexed by fec-key, which holds the relevent commissioning values and their errors for each module. The map containing these values is indexed by channel number.*/  
   map<unsigned  int, map< unsigned int, pair< float,float > > > map_;
@@ -107,7 +107,7 @@ class CommissioningSummary {
 
 inline string CommissioningSummary::title() {return title_;}
 
-inline SiStripHistoNamingScheme::Granularity CommissioningSummary::granularity() {return granularity_;}
+inline sistrip::Granularity CommissioningSummary::granularity() {return granularity_;}
 
 inline map<unsigned  int, map< unsigned int, pair< float,float > > >& CommissioningSummary::summaryMap() {return map_;}
 

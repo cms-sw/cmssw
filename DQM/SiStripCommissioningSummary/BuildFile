@@ -3,10 +3,8 @@
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/Common>
 <use name=Foundation/PluginManager>
-<use name=PluginManager>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/SiStripDigi>
-<use name=PluginManager>
 <use name=DQM/SiStripCommissioningAnalysis>
 <use name=DQM/SiStripCommon>
 <use name=root>
@@ -19,10 +17,8 @@
    <use name=FWCore/MessageLogger>
    <use name=DataFormats/Common>
    <use name=Foundation/PluginManager>
-   <use name=PluginManager>
    <use name=DataFormats/SiStripDetId>
    <use name=DataFormats/SiStripDigi>
-   <use name=PluginManager>
    <use name=DQM/SiStripCommissioningAnalysis>
    <use name=DQM/SiStripCommon>
    <use name=root>
