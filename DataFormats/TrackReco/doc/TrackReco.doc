@@ -109,7 +109,7 @@ also defined as the enumerator <tt>index</tt> defined in the
 namespace reco::helix:
 \htmlonly
 <pre>
-  enum index { i_tcurv = 0 , i_theta, i_phi0, i_d0, i_dz}; 
+  enum index { i_tcurv = 0 , i_theta, i_phi0, i_d0, i_dz }; 
 </pre>
 \endhtmlonly
 
