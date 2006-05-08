@@ -4,7 +4,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsDetConstruction.h"
-#include "Geometry/TrackerNumberingBuilder/interface/precomputed_stable_sort.h"
+#include "Geometry/TrackerNumberingBuilder/interface/TrackerStablePhiSort.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
@@ -25,8 +25,8 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
   switch(det->components().front()->type()){
 
-  case GeometricDet::mergedDet: precomputed_stable_sort(comp.begin(), comp.end(), ExtractPhi()); break;
-  case GeometricDet::DetUnit:precomputed_stable_sort(comp.begin(), comp.end(), ExtractPhi()); break;
+  case GeometricDet::mergedDet: TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi()); break;
+  case GeometricDet::DetUnit:TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi()); break;
   default:
     edm::LogError("CmsTrackerRingBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
   }

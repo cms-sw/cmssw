@@ -5,7 +5,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerRodBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerLadderBuilder.h"
-#include "Geometry/TrackerNumberingBuilder/interface/precomputed_stable_sort.h"
+#include "Geometry/TrackerNumberingBuilder/interface/TrackerStablePhiSort.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
@@ -82,10 +82,10 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       }
     }
 
-    precomputed_stable_sort(extneg.begin(), extneg.end(), ExtractPhi());
-    precomputed_stable_sort(extpos.begin(), extpos.end(), ExtractPhi());
-    precomputed_stable_sort(intneg.begin(), intneg.end(), ExtractPhi());
-    precomputed_stable_sort(intpos.begin(), intpos.end(), ExtractPhi());
+    TrackerStablePhiSort(extneg.begin(), extneg.end(), ExtractPhi());
+    TrackerStablePhiSort(extpos.begin(), extpos.end(), ExtractPhi());
+    TrackerStablePhiSort(intneg.begin(), intneg.end(), ExtractPhi());
+    TrackerStablePhiSort(intpos.begin(), intpos.end(), ExtractPhi());
 
     for(uint32_t i=0;i<intneg.size();i++){
       intneg[i]->setGeographicalID(DetId(i+1));
@@ -131,8 +131,8 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       }
     }
 
-    precomputed_stable_sort(neg.begin(), neg.end(), ExtractPhi());
-    precomputed_stable_sort(pos.begin(), pos.end(), ExtractPhi());
+    TrackerStablePhiSort(neg.begin(), neg.end(), ExtractPhi());
+    TrackerStablePhiSort(pos.begin(), pos.end(), ExtractPhi());
 
     for(uint32_t i=0; i<neg.size();i++){      
       neg[i]->setGeographicalID(DetId(i+1));
@@ -150,7 +150,7 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     
   }else if(det->components().front()->type()== GeometricDet::ladder){
 
-    precomputed_stable_sort(comp.begin(), comp.end(), ExtractPhi());
+    TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi());
 	
     for(uint32_t i=0; i<comp.size();i++){
       comp[i]->setGeographicalID(DetId(i+1));

@@ -5,7 +5,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerRingBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerPetalBuilder.h"
-#include "Geometry/TrackerNumberingBuilder/interface/precomputed_stable_sort.h"
+#include "Geometry/TrackerNumberingBuilder/interface/TrackerStablePhiSort.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include<vector>
 
@@ -44,8 +44,8 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 	}
       }    
 
-      precomputed_stable_sort(compfw.begin(), compfw.end(), ExtractPhiModule());
-      precomputed_stable_sort(compbw.begin(), compbw.end(), ExtractPhiModule());
+      TrackerStablePhiSort(compfw.begin(), compfw.end(), ExtractPhiModule());
+      TrackerStablePhiSort(compbw.begin(), compbw.end(), ExtractPhiModule());
 
       for(uint32_t i=0; i<compbw.size(); i++){
 	compbw[i]->setGeographicalID(DetId(i+1));
