@@ -16,12 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:40:27 EDT 2005
-// $Id: DataProxy.h,v 1.6 2005/12/07 09:40:02 xiezhen Exp $
+// $Id: DataProxy.h,v 1.7 2006/03/25 17:06:03 xiezhen Exp $
 //
 
 // system include files
 //#include <memory>
 #include <iostream>
+#include <exception>
 // user include files
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 #include "DataSvc/Ref.h"
@@ -57,11 +58,14 @@ namespace cond{
       try{
 	*m_data;
       }catch( const pool::RefException& er){
-	std::cerr<<"caught RefException "<<er.what()<<std::endl;
+	//std::cerr<<"caught RefException "<<er.what()<<std::endl;
 	throw cms::Exception( er.what() );
       }catch( const pool::Exception& er ){
-	std::cerr<<"caught pool Exception "<<er.what()<<std::endl;
+	//std::cerr<<"caught pool Exception "<<er.what()<<std::endl;
 	throw cms::Exception( er.what() );
+      }catch( const std::exception& er ){
+        //std::cerr<<"caught std Exception "<<er.what()<<std::endl;
+        throw cms::Exception( er.what() );
       }catch( ... ){
 	throw cms::Exception( "Funny error" );
       }
