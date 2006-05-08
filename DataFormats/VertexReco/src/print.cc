@@ -1,4 +1,4 @@
-#include "DataFormats/VertexReco/interface/VertexPrint.h"
+#include "DataFormats/VertexReco/interface/print.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include <sstream>
 
