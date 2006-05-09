@@ -12,8 +12,8 @@
 #include "DQM/RPCMonitorClient/interface/MuonDQMClient.h"
 #include "DQM/RPCMonitorClient/interface/DQMClientDefineDebug.h"
 
-#include "DQM/RPCMonitorClient/interface/SubscriptionHandle.h"
-#include "DQM/RPCMonitorClient/interface/QTestHandle.h"
+#include "DQMServices/ClientConfig/interface/SubscriptionHandle.h"
+#include "DQMServices/ClientConfig/interface/QTestHandle.h"
 
 
 MuonDQMClient::MuonDQMClient(xdaq::ApplicationStub *stub) 
@@ -56,12 +56,12 @@ void MuonDQMClient::configure(){
 	meListConfigured=false;
 	qtestsConfigured=false;
 
-	#ifdef RPC_CLIENT_DEBUG
-	logFile << "Configuring MuonDQMClient" << std::endl;
-	#endif
+	//#ifdef RPC_CLIENT_DEBUG
+	//logFile << "Configuring MuonDQMClient" << std::endl;
+	//#endif
 	
-	if(!subscriber->configure("MESubscriptionList.xml")) meListConfigured=true; 
-	if(!qtHandler->configure("QualityTests.xml",mui_)) qtestsConfigured=true; 
+	if(!subscriber->getMEList("MESubscriptionList.xml")) meListConfigured=true; 
+	if(!qtHandler->configureTests("QualityTests.xml",mui_)) qtestsConfigured=true; 
 }
 
 void MuonDQMClient::newRun(){
@@ -69,17 +69,16 @@ void MuonDQMClient::newRun(){
 	
 	///ME's subscription
 	if(meListConfigured) {
-		subscriber->enable(mui_);
+		subscriber->makeSubscriptions(mui_);
 	}else{
 		logFile << "Cannot subscribe to ME's, error occurred in configuration." << std::endl;		
 	}
 	///QT's enabling
 	if(qtestsConfigured){
-		qtHandler->enable(mui_);	
+		qtHandler->attachTests(mui_);	
 	}else{
 		logFile << "Cannot run quality tests, error occurred in configuration." << std::endl;		
 	}
-
 
 }
 
@@ -92,19 +91,12 @@ void MuonDQMClient::onUpdate() const{
 	std::vector<std::string> uplist;
 	mui_->getUpdatedContents(uplist);
 	
-	if(meListConfigured) subscriber->onUpdate(mui_);
+	if(meListConfigured) subscriber->updateSubscriptions(mui_);
 	if(qtestsConfigured){	
-		QTestHandle::onUpdateAction action;
 		
-		if(webInterface_p->globalQTStatusRequest())   {
-			action=QTestHandle::checkGlobal;
-			qtHandler->onUpdate(action,mui_);
-		}	
+		if(webInterface_p->globalQTStatusRequest()) qtHandler->checkGolbalQTStatus(mui_);
+		if(webInterface_p->detailedQTStatusRequest()) qtHandler->checkDetailedQTStatus(mui_);
 		
-		if(webInterface_p->detailedQTStatusRequest()) {
-			action=QTestHandle::checkDetailed;
-			qtHandler->onUpdate(action,mui_);
-		}
 	}
 }
 
