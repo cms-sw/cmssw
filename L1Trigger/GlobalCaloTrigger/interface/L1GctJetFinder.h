@@ -40,6 +40,14 @@
  *  In the event of neighbouring regions having the same energy, this
  *  will locate the jet in the region furthest from eta=0 that has the
  *  lowest value of phi.
+ * 
+ *  The jet finder outputs jets with a local eta/phi co-ordinate system 
+ *  for the jets it finds in the 2*11 search area it is looking in.
+ *  Eta runs from 0 to 10, with 0 being the region closest to the central
+ *  eta=0 line, and 10 being the edge of which ever half of the detector
+ *  the jet finder is operating in at eta= +/-5.  Phi data is set to either 
+ *  0 or 1, to indicate increasing real-world phi co-ordinate.
+ *  
  */
 /*
  * \author Jim Brooke & Robert Frazier
@@ -55,11 +63,8 @@ public:
     typedef unsigned long int ULong;
     typedef unsigned short int UShort;
     
-    ///Type for telling the jet finder which half of the detector it is in, eta < 0 or eta > 0.
-    enum EtaHalf {NEG_ETA_TYPE=1, POS_ETA_TYPE};
-
-    ///Jetfinder needs to know which half of the detector it is in to properly load data from sourcecards.
-    L1GctJetFinder(int id, EtaHalf etaHalf);
+    /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
+    L1GctJetFinder(int id);
     ~L1GctJetFinder();
    
     /// clear internal buffers
@@ -85,21 +90,19 @@ public:
     ULong getHt() const { return m_outputHt.to_ulong(); }
     
     // need method(s) to return jet counts - need to decide type!
-        
+
+    ///Max. number of jets that can be found per jet finder
+    static const int MAX_JETS_OUT = 6;  //max of 6 jets in a 2*11 search area
+
 private:
 
-	///
 	/// algo ID
 	int m_id;
 	
     //Constants
-    static const int maxSourceCards = 9;  //need data from 9 separate source cards to find jets in the 2*11 search region.
-    static const int maxRegionsIn = 48; // 2*11 search area, so 4*12=48 regions needed to run search.
-    static const int columnOffset = maxRegionsIn/4;  //The index offset between columns
-    static const int maxJets = 6;  //max of 6 jets in a 2*11 search area
-
-    ///Which half of the detector we are in
-    EtaHalf m_etaHalf;
+    static const int MAX_SOURCE_CARDS = 9;  //need data from 9 separate source cards to find jets in the 2*11 search region.
+    static const int MAX_REGIONS_IN = 48; // 2*11 search area, so 4*12=48 regions needed to run search.
+    static const int COL_OFFSET = MAX_REGIONS_IN/4;  ///< The index offset between columns
 
     /// Store source card pointers
     std::vector<L1GctSourceCard*> m_sourceCards;
