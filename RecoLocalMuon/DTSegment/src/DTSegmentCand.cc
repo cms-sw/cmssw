@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/05/04 09:18:50 $
- * $Revision: 1.8 $
+ * $Date: 2006/05/09 13:20:16 $
+ * $Revision: 1.9 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -171,7 +171,9 @@ DTSegmentCand::operator DTChamberRecSegment2D*() const{
       theSL->toGlobal( (*assHit).first->localPosition((*assHit).second) );
     
     LocalPoint hitPosInLayer = 
-      theSL->layer( (*assHit).first->id().layerId() )->toLocal(hitGlobalPos);
+      theSL->chamber()
+      ->superLayer((*assHit).first->id().superlayerId())
+      ->layer( (*assHit).first->id().layerId() )->toLocal(hitGlobalPos);
     
     DTRecHit1D hit( ((*assHit).first)->id(),
 		    (*assHit).second,
