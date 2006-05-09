@@ -5,6 +5,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "Measurement1D.h"
 class TrackingRecHit;
+class MagneticField;
 
 class PixelTrackBuilder {
 public:
@@ -16,7 +17,8 @@ public:
       const Measurement1D & zip,              // z at closest approach in 2D
       float chi2,                             // chi2 
       int   charge,                           // chi2
-      const std::vector<const TrackingRecHit* >& hits) const;  // hits 
+      const std::vector<const TrackingRecHit* >& hits,
+      const MagneticField * mf) const;   
 };
 
 #endif

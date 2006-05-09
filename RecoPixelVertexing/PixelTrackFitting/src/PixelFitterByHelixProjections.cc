@@ -15,6 +15,8 @@
 //#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "Measurement1D.h"
 #include "CircleFromThreePoints.h"
@@ -34,6 +36,10 @@ const reco::Track* PixelFitterByHelixProjections::run(
   
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
+
+  edm::ESHandle<MagneticField> field;
+  es.get<IdealMagneticFieldRecord>().get(field);
+
 
   for ( vector<const TrackingRecHit *>::const_iterator
         ih = hits.begin();  ih != hits.end(); ih++) {
@@ -74,7 +80,7 @@ const reco::Track* PixelFitterByHelixProjections::run(
   Measurement1D tip(valTip, errTip);
   Measurement1D zip(valZip, errZip);
 
-  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits);
+  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits, field.product());
 }
 
 int PixelFitterByHelixProjections::charge(const vector<GlobalPoint> & points) const

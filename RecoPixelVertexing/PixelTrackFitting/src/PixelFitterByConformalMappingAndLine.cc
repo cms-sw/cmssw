@@ -103,7 +103,7 @@ const reco::Track* PixelFitterByConformalMappingAndLine::run(
 
 
   PixelTrackBuilder builder;
-  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits);
+  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits, 0);
 }
 
 
