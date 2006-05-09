@@ -2,15 +2,15 @@
  *
  *  Implementation of SiStripQualityTester
  *
- *  $Date: 2006/05/05 07:16:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/07 12:17:36 $
+ *  $Revision: 1.5 $
  *  \author Suchandra Dutta
  */
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQM/RPCMonitorClient/interface/QTestConfigurationParser.h"
-#include "DQM/RPCMonitorClient/interface/QTestNames.h"
+#include "DQMServices/ClientConfig/interface/QTestConfigurationParser.h"
+#include "DQMServices/ClientConfig/interface/QTestNames.h"
 
 #include<iostream>
 #include <fstream>
