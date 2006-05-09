@@ -1,32 +1,35 @@
-/** \file
+/** \file GlobalTrackingGeometry.cc
  *
- *  $Date: 2006/05/05 10:12:06 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/05 14:23:25 $
+ *  $Revision: 1.2 $
  *  \author M. Sani
  */
 
 #include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+
+using namespace edm;
 
 GlobalTrackingGeometry::GlobalTrackingGeometry() {}
 
 GlobalTrackingGeometry::~GlobalTrackingGeometry() {}
 
-const GeomDetUnit* idToDetUnit(DetId) const {
+const GeomDetUnit* GlobalTrackingGeometry::idToDetUnit(DetId id) const {
     
     TrackingGeometry* tg = slaveGeometry(id);
     
     if (tg != 0) {
-        return dynamic_cast<const GeomDetUnit*>tg->idToDet(id);
+        return tg->idToDetUnit(id);
     }
     else {
         // No Tracking Geometry available
         LogInfo("GeometryCommonDetUnit") << "No Tracking Geometry is available.";
-        return new GeomDetUnit();
+        return 0;
     }  
 }
 
 
-const GlobalTrackingGeometry::GeomDet* idToDet(DetId id) const{
+const GeomDet* GlobalTrackingGeometry::idToDet(DetId id) const{
   
     TrackingGeometry* tg = slaveGeometry(id);
     
@@ -36,15 +39,14 @@ const GlobalTrackingGeometry::GeomDet* idToDet(DetId id) const{
     else {
         // No Tracking Geometry available
         LogInfo("GeometryCommonDetUnit") << "No Tracking Geometry is available.";
-        return new GeomDetUnit();
-    }  
+        return 0;
+    }
 }
 
-
-TrackingGeometry* GlobalTrackingGeometry::slaveGeometry(DetId id) {  
+TrackingGeometry* GlobalTrackingGeometry::slaveGeometry(DetId id) const {  
   
     int idx = id.det()-1;
-    if (detector == Muon) {
+    if (id.det() == DetId::Muon) {
         
         idx+=id.subdetId()-1;
     }
@@ -52,27 +54,27 @@ TrackingGeometry* GlobalTrackingGeometry::slaveGeometry(DetId id) {
     return theGeometries[idx];
 }
 
-const DetTypeContainer& GlobalTrackingGeometry::detTypes() const {
+const TrackingGeometry::DetTypeContainer& GlobalTrackingGeometry::detTypes() const {
 
-    return new DetTypeContainer();
+    return DetTypeContainer();
 }
 
-const DetUnitContainer& GlobalTrackingGeometry::detUnits() const {
+const TrackingGeometry::DetUnitContainer& GlobalTrackingGeometry::detUnits() const {
 
-    return new DetUnitContainer();
+    return DetUnitContainer();
 }
 
-const DetContainer& GlobalTrackingGeometry::dets() const {
+const TrackingGeometry::DetContainer& GlobalTrackingGeometry::dets() const {
 
-    return new DetContainer();
+    return DetContainer();
 }
 
-const DetIdContainer& GlobalTrackingGeometry::detUnitIds() const {
+const TrackingGeometry::DetIdContainer& GlobalTrackingGeometry::detUnitIds() const {
 
-    return new DetIdContainer();
+    return DetIdContainer();
 }
 
-const DetIdContainer& GlobalTrackingGeometry::detIds() const {
+const TrackingGeometry::DetIdContainer& GlobalTrackingGeometry::detIds() const {
 
-    return new DetIdContainer();
+    return DetIdContainer();
 }

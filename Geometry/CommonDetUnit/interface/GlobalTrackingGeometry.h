@@ -5,8 +5,8 @@
  *
  *  No description available.
  *
- *  $Date: 2006/05/05 10:12:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/05 14:22:53 $
+ *  $Revision: 1.2 $
  *  \author M. Sani
  */
 
@@ -42,6 +42,8 @@ class GlobalTrackingGeometry : public TrackingGeometry {
         // Return the pointer to the GeomDet corresponding to a given DetId
         // (valid also for GeomDetUnits)
         virtual const GeomDet*           idToDet(DetId)     const; 
+        
+        TrackingGeometry* slaveGeometry(DetId id) const;
 
     private:
  
