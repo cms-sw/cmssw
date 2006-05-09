@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/28 15:21:52 $
- * $Revision: 1.7 $
+ * $Date: 2006/05/04 09:18:50 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -126,10 +126,17 @@ DTSegmentCand::operator DTSLRecSegment2D*() const{
   std::vector<DTRecHit1D> hits1D;
   for(DTSegmentCand::AssPointCont::iterator assHit=theHits.begin();
       assHit!=theHits.end(); ++assHit) {
+
+    GlobalPoint hitGlobalPos =
+      theSL->toGlobal( (*assHit).first->localPosition((*assHit).second) );
+
+    LocalPoint hitPosInLayer = 
+      theSL->layer( (*assHit).first->id().layerId() )->toLocal(hitGlobalPos);
+
     DTRecHit1D hit( ((*assHit).first)->id(),
 		    (*assHit).second,
 		    ((*assHit).first)->digiTime(),
-		    ((*assHit).first)->localPosition((*assHit).second),
+		    hitPosInLayer,
 		    ((*assHit).first)->localPositionError() );
     hits1D.push_back(hit);
   }
@@ -159,10 +166,17 @@ DTSegmentCand::operator DTChamberRecSegment2D*() const{
   std::vector<DTRecHit1D> hits1D;
   for(DTSegmentCand::AssPointCont::iterator assHit=theHits.begin();
       assHit!=theHits.end(); ++assHit) {
+
+    GlobalPoint hitGlobalPos =
+      theSL->toGlobal( (*assHit).first->localPosition((*assHit).second) );
+    
+    LocalPoint hitPosInLayer = 
+      theSL->layer( (*assHit).first->id().layerId() )->toLocal(hitGlobalPos);
+    
     DTRecHit1D hit( ((*assHit).first)->id(),
 		    (*assHit).second,
 		    ((*assHit).first)->digiTime(),
-		    ((*assHit).first)->localPosition((*assHit).second),
+		    hitPosInLayer,
 		    ((*assHit).first)->localPositionError() );
     hits1D.push_back(hit);
   }
