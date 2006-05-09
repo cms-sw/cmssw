@@ -102,7 +102,6 @@ void DaqMonitorBEInterface::getRemovedMonitorable(vector<string> & put_here) con
 // (b) reset sets of added/removed/updated contents and updated QReports
 void DaqMonitorBEInterface::resetStuff(void)
 {
-
   // reset added, removed monitorable
   addedMonitorable.clear();
   removedMonitorable.clear();
@@ -191,8 +190,7 @@ void DaqMonitorBEInterface::setAccumulate(MonitorElement * me, bool flag)
 }
 
 // add <name> to back-end interface's updatedContents
-void DaqMonitorBEInterface::add2UpdatedContents(const string & name, 
-						const string & pathname)
+void DaqMonitorBEInterface::add2UpdatedContents(string name, string pathname)
 {
   monit_it It = updatedContents.find(pathname);
   if(It == updatedContents.end())
@@ -424,6 +422,20 @@ DaqMonitorBEInterface::~DaqMonitorBEInterface(void)
   qtests_.clear();
 }
 
+
+// acquire lock
+void DaqMonitorBEInterface::lock()
+{
+  //  cout << "Called lock " << endl;
+  pthread_mutex_lock(&mutex_);  
+}
+
+// release lock
+void DaqMonitorBEInterface::unlock()
+{
+  //  cout << "Called unlock " << endl;
+  pthread_mutex_unlock(&mutex_);
+}
 
 const string DaqMonitorBEInterface::monitorDirName = "DQMData";
 const string DaqMonitorBEInterface::subscriberDirName = "Subscribers";

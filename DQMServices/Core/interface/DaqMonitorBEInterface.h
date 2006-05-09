@@ -33,40 +33,40 @@ class DaqMonitorBEInterface: public StringUtil
  
   // ---------------------- Booking ------------------------------------
   // book 1D histogram
-  virtual MonitorElement * book1D(const std::string name, 
-				  const std::string title, 
+  virtual MonitorElement * book1D(std::string name, 
+				  std::string title, 
 				  int nchX, double lowX, double highX)=0;
   // book 2D histogram
-  virtual MonitorElement * book2D(const std::string name, 
-				  const std::string title, 
+  virtual MonitorElement * book2D(std::string name, 
+				  std::string title, 
 				  int nchX, double lowX, double highX, 
 				  int nchY, double lowY, double highY)=0;
   // book 3D histogram
-  virtual MonitorElement * book3D(const std::string name, 
-				  const std::string title, 
+  virtual MonitorElement * book3D(std::string name, 
+				  std::string title, 
 				  int nchX, double lowX, double highX, 
 				  int nchY, double lowY, double highY, 
 				  int nchZ, double lowZ, double highZ)=0;
   // book profile
   // in a profile plot the number of channels in Y is disregarded
-  virtual MonitorElement * bookProfile(const std::string name, 
-				       const std::string title, 
+  virtual MonitorElement * bookProfile(std::string name, 
+				       std::string title, 
 				       int nchX, double lowX, double highX, 
 				       int nchY, double lowY,double highY)=0;
   // book 2-D profile
   // in a 2-D profile plot the number of channels in Z is disregarded
-  virtual MonitorElement * bookProfile2D(const std::string name, 
-					 const std::string title, 
+  virtual MonitorElement * bookProfile2D(std::string name, 
+					 std::string title, 
 					 int nchX, double lowX, double highX,
 					 int nchY, double lowY,double highY,
 					 int nchZ, double lowZ,double highZ)
     =0;
   // book float
-  virtual MonitorElement * bookFloat(const std::string ) = 0;
+  virtual MonitorElement * bookFloat(std::string ) = 0;
   // book int
-  virtual MonitorElement * bookInt(const std::string ) = 0;
+  virtual MonitorElement * bookInt(std::string ) = 0;
   // book string
-  virtual MonitorElement * bookString(const std::string, const std::string )=0;
+  virtual MonitorElement * bookString(std::string, std::string )=0;
   
   // ---------------- Navigation -----------------------
   
@@ -113,30 +113,24 @@ class DaqMonitorBEInterface: public StringUtil
   // (b) title (value) in the form: st.<status>.<the message here>
   // (where <status> is defined in Core/interface/QTestStatus.h)
   bool unpackQReport(std::string name, std::string value, 
-		     std::string & ME_name, std::string & qtest_name,
-		     int & status, std::string & message) const
+		     std::string ME_name, std::string qtest_name,
+		     int & status, std::string message) const
   {return StringUtil::unpackQReport(name, value, ME_name, qtest_name,
 				    status, message);}
   
   // -------------------- Deleting ----------------------------------
   
   // remove directory
-  virtual void rmdir(const std::string & fullpath) = 0;
+  virtual void rmdir(std::string fullpath) = 0;
   // erase monitoring element in current directory 
   // (opposite of book1D,2D,etc. action);
-  virtual void removeElement(const std::string & name) = 0;
+  virtual void removeElement(std::string name) = 0;
   // erase all monitoring elements in current directory (not including subfolders);
   virtual void removeContents(void) = 0;
   
   // acquire and release lock
-  void lock(){
-    //cout << "Called lock " << endl;
-    pthread_mutex_lock(&mutex_);
-  }
-  void unlock(){  
-    //cout << "Called unlock " << endl;
-    pthread_mutex_unlock(&mutex_);
-  }
+  void lock();
+  void unlock();
   
  protected:
   
@@ -177,7 +171,7 @@ class DaqMonitorBEInterface: public StringUtil
   virtual MonitorElement * getDirectory(std::string inpath) const = 0;
   
   // look for object <name> in current directory
-  virtual MonitorElement * findObject(std::string name) const = 0;
+  //  virtual MonitorElement * findObject(std::string name) const = 0;
   // look for object <name> in directory <pathname>
   virtual MonitorElement * findObject(std::string name, 
 				      std::string pathname) const = 0;
@@ -206,11 +200,56 @@ class DaqMonitorBEInterface: public StringUtil
  
   // ------------------- Booking ---------------------------
 
-  // add monitoring element to current folder
-  virtual void addElement(MonitorElement * me, std::string type = "") = 0;
+  // add monitoring element to directory <pathname>
+  virtual void addElement(MonitorElement * me, std::string pathname, 
+			  std::string type = "") = 0;
   // add null monitoring element to current folder (can NOT be folder);
   // used for registering monitorables before user has subscribed to <name>
-  virtual void addElement(const std::string name) = 0;
+  //virtual void addElement(std::string name) = 0;
+  // add null monitoring element to folder <pathname> (can NOT be folder);
+  // used for registering monitorables before user has subscribed to <name>
+  virtual void addElement(std::string name, std::string pathname) = 0;
+
+  // book 1D histogram
+  virtual MonitorElement * book1D(std::string name, std::string title, 
+			  int nchX, double lowX, double highX, 
+			  MonitorElement * folder) = 0;
+
+  // book 2D histogram
+  virtual MonitorElement * book2D(std::string name, std::string title,
+			  int nchX, double lowX, double highX, int nchY, 
+			  double lowY, double highY, 
+			  MonitorElement * folder) = 0;
+  // book 3D histogram
+  virtual MonitorElement * book3D(std::string name, std::string title,
+			  int nchX, double lowX, double highX, int nchY, 
+			  double lowY, double highY, int nchZ,
+			  double lowZ, double highZ, 
+			  MonitorElement * folder) = 0;
+  // book profile
+  // in a profile plot the number of channels in Y is disregarded
+  virtual MonitorElement * bookProfile(std::string name, 
+			       std::string title,int nchX, double lowX,
+			       double highX, int nchY, double lowY, 
+			       double highY, MonitorElement* folder) = 0;
+
+  // book 2-D profile
+  // in a 2-D profile plot the number of channels in Z is disregarded
+  virtual MonitorElement * bookProfile2D(std::string name, 
+				 std::string title, 
+				 int nchX, double lowX, double highX, 
+				 int nchY, double lowY,double highY,
+				 int nchZ, double lowZ,double highZ,
+				 MonitorElement * folder) = 0;
+
+  // book float
+  virtual MonitorElement * bookFloat(std::string s, MonitorElement * folder)=0;
+  // book int
+  virtual MonitorElement * bookInt(std::string s, MonitorElement * folder)=0;
+  // book string
+  virtual MonitorElement * bookString(std::string s, std::string v, 
+			      MonitorElement * folder) = 0;
+
 
   // ---------------- Checkers -----------------------------
   
@@ -220,8 +259,9 @@ class DaqMonitorBEInterface: public StringUtil
   bool checkElement(const MonitorElement * const me) const;
   // check if object is really a folder (true if it is)
   bool checkFolder(const MonitorElement * const dir) const;
-  // true if object <name> already belongs to current directory (fCurrentFolder)
-  virtual bool objectDefined(std::string name) const = 0;
+  // true if object <name> already belongs to directory <pathname>
+  virtual bool objectDefined(std::string name, std::string pathname) const 
+    = 0;
   
   // true if directory (or any subfolder at any level below it) contains
   // at least one valid (i.e. non-null) monitoring element
@@ -237,7 +277,7 @@ class DaqMonitorBEInterface: public StringUtil
   
   // remove monitoring element from directory;
   // if warning = true, print message if element does not exist
-  virtual void removeElement(MonitorElement * dir, const std::string & name,  
+  virtual void removeElement(MonitorElement * dir, std::string name,  
 			     bool warning = true) = 0;
   // remove all monitoring elements from directory;
   // if warning = true, print message if element does not exist
@@ -259,8 +299,8 @@ class DaqMonitorBEInterface: public StringUtil
   // -------------------- Misc ----------------------------------
 
   // add <name> to back-end interface's updatedContents
-  void add2UpdatedContents(const std::string & name, 
-			   const std::string & pathname);
+  void add2UpdatedContents(std::string name, 
+			   std::string pathname);
 
   // add (QReport) MonitorElement to back-end intereface's updatedQReports
   void add2UpdatedQReports(MonitorElement * me)
