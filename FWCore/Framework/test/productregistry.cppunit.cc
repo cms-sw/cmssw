@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.10 2006/04/18 00:06:06 wmtan Exp $
+   \version $Id: productregistry.cppunit.cc,v 1.11 2006/05/05 01:00:42 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -85,11 +85,7 @@ void  testProductRegistry:: testSignal(){
    reg.productAddedSignal_.connect(listening);
    
    ModuleDescription modDesc;
-#if 0
    BranchDescription prod(modDesc, "int", "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
-#else
-   BranchDescription prod(modDesc, "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
-#endif
    
    reg.addProduct(prod);
    CPPUNIT_ASSERT(1==hear);
@@ -108,17 +104,10 @@ void  testProductRegistry:: testWatch(){
    Responder one("one",constReg, reg);
                  
    ModuleDescription modDesc;
-#if 0
    BranchDescription prod(modDesc, "int", "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
-#else
-   BranchDescription prod(modDesc, "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
-#endif
    reg.addProduct(prod);
-#if 0
+
    BranchDescription prod2(modDesc, "float", "float", "float", "float", boost::shared_ptr<edm::EDProduct const>());
-#else
-   BranchDescription prod2(modDesc, "float", "float", "float", boost::shared_ptr<edm::EDProduct const>());
-#endif
    reg.addProduct(prod2);
    
    //Should be 4 products
@@ -143,11 +132,7 @@ void  testProductRegistry:: testCircular(){
    Responder two("two",constReg, reg);
    
    ModuleDescription modDesc;
-#if 0
    BranchDescription prod(modDesc, "int", "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
-#else
-   BranchDescription prod(modDesc, "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
-#endif
    
    reg.addProduct(prod);
    //Should be 5 products
