@@ -28,7 +28,8 @@ namespace cms
 
   IterativeConeJetProducer::IterativeConeJetProducer(edm::ParameterSet const& conf):
     alg_(conf.getParameter<double>("seedThreshold"),
-	 conf.getParameter<double>("coneRadius")),
+	 conf.getParameter<double>("coneRadius"),
+	 conf.getParameter<double>("towerThreshold")),
     src_(conf.getParameter<string>( "src" )),
     jetType_ (conf.getUntrackedParameter<string>( "jetType", "CaloJet"))
   {

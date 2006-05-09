@@ -25,11 +25,12 @@ class CMSIterativeConeAlgorithm{
   /** Constructor
   \param seed defines the minimum ET in GeV of a tower that can seed a jet.
   \param radius defines the maximum radius of a jet in eta-phi space.
-  \param recombination defines the recombination scheme to calculate the kinematical properties of a final jet. Values: 1 (E scheme), 4 (Et sheme)
+  \param towerThreshold defines the minimum ET in GeV for a tower to be inluded in a jet 
   */
-  CMSIterativeConeAlgorithm(double seed, double radius): 
+  CMSIterativeConeAlgorithm(double seed, double radius, double towerThreshold): 
     theSeedThreshold(seed),
-    theConeRadius(radius)
+    theConeRadius(radius),
+    theTowerThreshold(towerThreshold)
     { }
 
   /// Find the ProtoJets from the collection of input Candidates.
@@ -39,6 +40,7 @@ class CMSIterativeConeAlgorithm{
 
   double theSeedThreshold;
   double theConeRadius;
+  double theTowerThreshold;
 };
 
 #endif

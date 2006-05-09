@@ -38,9 +38,8 @@ void CMSIterativeConeAlgorithm::run(const InputCollection& fInput, OutputCollect
   list<const Candidate*> input;
   for (InputCollection::const_iterator towerIter = fInput.begin();
        towerIter != fInput.end(); ++towerIter) {
-    const Candidate* tower = *towerIter;
-    //the IC algo does not work nicely with negative energies 
-    if(tower->et() > 0){
+    const Candidate* tower = *towerIter; 
+    if(tower->et() > theTowerThreshold){
       input.push_back(tower);
     }
   }   
