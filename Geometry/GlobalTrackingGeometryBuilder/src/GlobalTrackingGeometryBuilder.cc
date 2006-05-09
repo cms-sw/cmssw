@@ -1,3 +1,10 @@
+/** \file GlobalTrackingGeometryBuilder.cc
+ * 
+ *  $Date: 2006/05/06 13:46:16 $
+ *  $Revision: 1.1 $
+ *  \author Matteo Sani
+ */
+ 
 #include <Geometry/GlobalTrackingGeometryBuilder/src/GlobalTrackingGeometryBuilder.h>
 #include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
 
