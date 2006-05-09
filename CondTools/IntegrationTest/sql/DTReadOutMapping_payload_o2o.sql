@@ -33,7 +33,7 @@ SELECT dt_wheel_numbering.object_number,
        dt_ros_channel.read_out_number,
        dt_tdc.read_out_number,
        dt_tdc_channel.read_out_number,
-       rownum, dtread_id_sq.CurVal
+       rownum, dtread_id_sq.CurrVal
   FROM dt_wheel_numbering@cmsomds       dt_wheel_numbering,
        dt_chamber_numbering@cmsomds     dt_chamber_numbering,    
        dt_superlayer_numbering@cmsomds  dt_superlayer_numbering, 
