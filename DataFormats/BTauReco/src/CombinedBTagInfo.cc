@@ -75,12 +75,11 @@ reco::CombinedBTagInfo::~CombinedBTagInfo() {
 // map related
 //
 
-bool reco::CombinedBTagInfo::existTrackData(TRACKREF trackRef) {
+bool reco::CombinedBTagInfo::existTrackData(TrackRef trackRef) {
 
   bool returnValue = false;
 
-  // create an iterator
-  std::map <TRACKREF, reco::CombinedBTagInfo::TrackData>::const_iterator iter;
+  std::map <TrackRef, reco::CombinedBTagInfo::TrackData>::const_iterator iter;
 
   // try to find element
   iter = reco::CombinedBTagInfo::trackDataMap_.find(trackRef);
@@ -98,7 +97,7 @@ void reco::CombinedBTagInfo::flushTrackData() {
 } // void flushTrackData
 // -------------------------------------------------------------------------------
 
-void reco::CombinedBTagInfo::storeTrackData(TRACKREF trackRef,
+void reco::CombinedBTagInfo::storeTrackData(TrackRef trackRef,
 					    const reco::CombinedBTagInfo::TrackData& trackData) {
   
   reco::CombinedBTagInfo::trackDataMap_[trackRef] = trackData;
@@ -115,10 +114,9 @@ int reco::CombinedBTagInfo::sizeTrackData() {
 } // int sizeTrackData
 // -------------------------------------------------------------------------------
 
-const reco::CombinedBTagInfo::TrackData* reco::CombinedBTagInfo::getTrackData(TRACKREF trackRef) {
+const reco::CombinedBTagInfo::TrackData* reco::CombinedBTagInfo::getTrackData(TrackRef trackRef) {
 
-  // create an iterator
-  std::map <TRACKREF, reco::CombinedBTagInfo::TrackData>::const_iterator iter;
+  std::map <TrackRef, reco::CombinedBTagInfo::TrackData>::const_iterator iter;
 
   // try to find element
   iter = reco::CombinedBTagInfo::trackDataMap_.find(trackRef);

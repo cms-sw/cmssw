@@ -13,7 +13,7 @@
 
 #include "DataFormats/BTauReco/interface/CombinedBTagInfoFwd.h"
 
-// N.B. use TRACKREF as placeholder for edm::Ref<ReferenceToTrack> or so
+// N.B. use SECVERTEXREF as placeholder for edm::Ref<ReferenceToTrack> or so
 //      - have to figure out how to do it properly yet.
 
 
@@ -28,8 +28,6 @@ namespace reco {
     //
     ////////////////////////////////////////////////////
 
-
-    typedef int TRACKREF;  //just for now to compile
     typedef int SECVERTEXREF;  //just for now to compile
 
     /* mail from Chris Jones how TRACKREF could be done:
@@ -73,30 +71,33 @@ namespace reco {
 		     NoVertex,
                      NotDefined};
 
-    //
-    // information regarding individual tracks
-    // used for tagging
-    //
+    
+    /**
+     * store all information regarding individual tracks
+     * used for tagging and additionally a reference
+     * to the track used.
+     */
     struct TrackData {
-      // contains all track based information accessed 
-      // while running combined BTagging
-
-      // TRACKREF here as well
-      bool   usedInSVX;    // used to construct SVX?
-      double pt;
-      double rapidity;
-      int    nHitsTotal;
-      int    nHitsPixel;
-      double chi2;
-      double ip2D;          // 2D impact parameter
-      double ipSigni2D;     // 2D impact parameter significance
-      double ip3D;          // 3D impact parameter
-      double ipSigni3D;     // 3D impact parameter significance     
+      TrackRef trackRef;     // reference to the track used
+      bool     usedInSVX;    // part of a secondary vertex?
+      double   pt;
+      double   rapidity;
+      double   eta;
+      double   d0;           // 2D impact parameter as given by track
+      int      nHitsTotal;
+      int      nHitsPixel;
+      double   chi2;
+      double   ip2D;          // lifetime-siged 2D impact parameter
+      double   ipSigni2D;     // lifetime-siged 2D impact parameter significance
+      double   ip3D;          // lifetime-siged 3D impact parameter
+      double   ipSigni3D;     // lifetime-siged 3D impact parameter significance     
 
       void init() {
 	usedInSVX  = false;
 	pt         = -999;
 	rapidity   = -999;
+	eta        = -999;
+	d0         = -999;
 	nHitsTotal = -999; 
 	nHitsPixel = -999;
 	chi2       = -999;
@@ -107,14 +108,20 @@ namespace reco {
       } //init
     }; // struct   
 
-    //
-    // information regarding secondary vertices
-    // found in current jet
-    // (potentially, we can have more than one)
-    //
+    /**
+     * Store all information regarding secondary vertices
+     * found in current jet
+     * N.B. in case of "RecoVertex" the inclusive
+     *      vertex finder may find more than one secondary vertex
+     */
     struct VertexData {
       // refenence to vertex object
+      //  or need real reco::Vertex as
+      //  secondary vertices found within B-tagging
+      //  are not "produced" and written to event record?
       // reference to all tracks used at this vertex
+      //  or will this be automatically there via
+      //  reference to vertex?
       double x;  // vertex position
       double y;
       double z;
@@ -131,10 +138,31 @@ namespace reco {
 		       *  compute m^2 = Sum(E^2) - Sum(p^2)
 		       */
       bool   isV0;     // has been tagged as V0 (true) or not (false);
+      int    fracPV;   // fraction of tracks also used to build primary vertex
       double flightDistance2D;
       double flightDistanceSignificance2D;
       double flightDistance3D;
       double flightDistanceSignificance3D;
+
+      void init() {
+      x                            = -999;
+      y                            = -999;
+      z                            = -999;
+      chi2                         = -999;
+      ndof                         = -999;
+      nTracks                      = -999; 
+      sumPx                        = -999;  
+      sumPy                        = -999;  
+      sumPz                        = -999;  
+      mass                         = -999;   
+      isV0                         = -999;     
+      fracPV                       = -999;    
+      flightDistance2D             = -999;
+      flightDistanceSignificance2D = -999;
+      flightDistance3D             = -999;
+      flightDistanceSignificance3D = -999;	
+	
+      } //init
     }; // struct
 
     ////////////////////////////////////////////////////
@@ -210,12 +238,12 @@ namespace reco {
     // map to access track map information
     //
     // maybe possible to use map tools here?
-    bool             existTrackData(TRACKREF trackRef);
+    bool             existTrackData(TrackRef trackRef);
     void             flushTrackData();
-    void             storeTrackData(TRACKREF trackRef,
+    void             storeTrackData(TrackRef trackRef,
 				    const CombinedBTagInfo::TrackData& trackData);
     int              sizeTrackData();
-    const TrackData* getTrackData(TRACKREF);
+    const TrackData* getTrackData(TrackRef);
 
 
     ////////////////////////////////////////////////////
@@ -230,8 +258,13 @@ namespace reco {
     double      jetEta_;
 
     // vertex information
-    reco::Vertex primaryVertex_;  // reference?
+    reco::Vertex primaryVertex_;  // reference? something like
+                                  // edm::Ref<std::vector<reco::Vertex> >  ?
+
     std::vector<reco::Vertex> secondaryVertices_;
+                                  // how to store best as this one is created
+                                  // as part of the combined b-tag alg?
+
     VertexType  vertexType_;      /** if at least one secondary vertex has been found,
 				   *  jet has type "RecoVertex", otherwise 
 				   *  "PseudoVertex" or "NoVertex"
@@ -334,7 +367,7 @@ namespace reco {
     //
 
     // maybe easier/better to have templated class to handle the maps?
-    std::map <TRACKREF,     CombinedBTagInfo::TrackData>  trackDataMap_;
+    std::map <TrackRef,     CombinedBTagInfo::TrackData>  trackDataMap_;
     std::map <SECVERTEXREF, CombinedBTagInfo::VertexData> vertexDataMap_;
 
   }; // class
