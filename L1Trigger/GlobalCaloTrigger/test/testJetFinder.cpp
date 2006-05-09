@@ -356,8 +356,8 @@ bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const
             //compare the vectors
             for(ULong i = 0; i < vector1.size(); ++i)
             {
-                if(vector1[i].eta() != vector2[i].eta()) { testPass = false; break; }
-                if(vector1[i].phi() != vector2[i].phi()) { testPass = false; break; }
+                if(vector1[i].getEta() != vector2[i].getEta()) { testPass = false; break; }
+                if(vector1[i].getPhi() != vector2[i].getPhi()) { testPass = false; break; }
                 if(vector1[i].getEt() != vector2[i].getEt()) { testPass = false; break; }
                 if(vector1[i].getMip() != vector2[i].getMip()) { testPass = false; break; }
                 if(vector1[i].getQuiet() != vector2[i].getQuiet()) {testPass = false; break; }
@@ -426,8 +426,8 @@ void outputRegionsVector(ofstream &fout, RegionsVector &regions, string descript
     {
         for (unsigned int i=0; i < regions.size(); ++i)
         {
-            fout << regions[i].eta() << "\t"
-                 << regions[i].phi() << "\t"
+            fout << regions[i].getEta() << "\t"
+                 << regions[i].getPhi() << "\t"
                  << regions[i].getEt() << "\t"
                  << regions[i].getMip() << "\t"
                  << regions[i].getQuiet() << "\t"
