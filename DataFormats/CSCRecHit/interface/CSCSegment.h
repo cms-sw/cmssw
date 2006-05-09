@@ -4,7 +4,7 @@
 /** \class CSCSegment
  *  Describes a 4-dim reconstructed segment in a CSC chamber. 
  *
- *  $Date: 2006/04/02 10:39:53 $
+ *  $Date: 2006/05/09 08:38:42 $
  *  \author Matteo Sani
  */
 
@@ -30,10 +30,10 @@ public:
     virtual ~CSCSegment();
 
     /* Operations */ 
-    const std::vector<CSCRecHit2D> specificRecHits() const { return theCSCRecHits; }  
-	virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
+    const std::vector<CSCRecHit2D>& specificRecHits() const { return theCSCRecHits; }  
 	virtual std::vector<const TrackingRecHit*> recHits() const;
-		
+	virtual std::vector<TrackingRecHit*> recHits();
+        
 	int nRecHits() const { return theCSCRecHits.size(); }
         
     CSCDetId cscDetId() const { return theDetId; }

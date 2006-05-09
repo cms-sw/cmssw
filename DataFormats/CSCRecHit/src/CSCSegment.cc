@@ -1,6 +1,6 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2006/04/02 10:39:53 $
+ *  $Date: 2006/05/09 08:38:52 $
  *  \author Matteo Sani
  */
 
@@ -23,6 +23,16 @@ std::vector<const TrackingRecHit*> CSCSegment::recHits() const{
   std::vector<const TrackingRecHit*> pointersOfRecHits;
   std::vector<CSCRecHit2D> cscRHs = specificRecHits();
   for (std::vector<CSCRecHit2D>::const_iterator irh = cscRHs.begin(); irh!=cscRHs.end(); ++irh) {
+    pointersOfRecHits.push_back(&(*irh));
+  }
+  return pointersOfRecHits;
+}
+
+std::vector<TrackingRecHit*> CSCSegment::recHits() {
+  
+  std::vector<TrackingRecHit*> pointersOfRecHits;
+  std::vector<CSCRecHit2D> cscRHs = specificRecHits();
+  for (std::vector<CSCRecHit2D>::iterator irh = cscRHs.begin(); irh!=cscRHs.end(); ++irh) {
     pointersOfRecHits.push_back(&(*irh));
   }
   return pointersOfRecHits;
