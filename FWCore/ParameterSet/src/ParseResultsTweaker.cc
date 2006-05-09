@@ -117,13 +117,13 @@ namespace edm {
         string type = (*nodeItr)->type();
         string name = (*nodeItr)->name;
 
-        if(type == "module" || type == "es_module"
-        || type == "source" || type == "es_source") 
+        // see if it's ont of the many types of ModuleNode first
+        ModuleNode * moduleNode = dynamic_cast<ModuleNode *>((*nodeItr).get());
+        if(moduleNode != 0) 
         {
           // unnamed modules are named after class
           if(name == "nameless" || name == "" || name=="main_es_input") 
           {
-            ModuleNode * moduleNode = dynamic_cast<ModuleNode *>((*nodeItr).get());
             name = moduleNode->class_;
           }
 
