@@ -112,7 +112,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   //
   //iAR.watchPreSourceConstruction(this,&cond::service::PoolDBOutputService::preSourceConstruction);
   //iAR.watchPostSourceConstruction(this,&cond::service::PoolDBOutputService::postSourceConstruction);
-  //iAR.watchPreProcessEvent(this,&cond::service::PoolDBOutputService::preEventProcessing);
+  iAR.watchPreProcessEvent(this,&cond::service::PoolDBOutputService::preEventProcessing);
   //iAR.watchPostProcessEvent(this,&cond::service::PoolDBOutputService::postEventProcessing);
   //iAR.watchPreModule(this,&cond::service::PoolDBOutputService::preModule);
   //iAR.watchPostModule(this,&cond::service::PoolDBOutputService::postModule);
