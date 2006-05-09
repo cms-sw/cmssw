@@ -14,8 +14,8 @@ AS
 
 BEGIN
 INSERT INTO dtreadoutmapping
-            (iov_value_id,cell_map_version,rob_map_version)
-     VALUES ( dtread_id_sq.NextVal, 'CMSSW_CELL','CMSSW_ROS' );
+            (iov_value_id,cell_map_version,rob_map_version,time)
+     VALUES ( dtread_id_sq.NextVal, 'CMSSW_CELL','CMSSW_ROS', NULL );
 ;
 
 INSERT INTO dtreadoutconnection
