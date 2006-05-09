@@ -1,18 +1,18 @@
 #ifndef GlobalTrackingGeometryBuilder_GlobalTrackingGeometryESProducer_h
 #define GlobalTrackingGeometryBuilder_GlobalTrackingGeometryESProducer_h
 
-/** \class CSCGeometryESModule
+/** \class GlobalTrackingGeometry
  * 
  *  ESProducer for GlobalTrackingGeometry in MuonGeometryRecord
  *
+ *  $Date: 2006/05/06 13:46:16 $
+ *  $Revision: 1.1 $
  *  \author Matteo Sani
  */
 
 #include <FWCore/Framework/interface/ESProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <Geometry/Records/interface/GlobalTrackingGeometryRecord.h>
-//#include <Geometry/CommonDetUnit/interface/TrackingGeometry.h>
-//#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <boost/shared_ptr.hpp>
 
 #include <string>
@@ -30,7 +30,6 @@ public:
 
   /// Produce GlobalTrackingGeometry
   boost::shared_ptr<GlobalTrackingGeometry> produce(const GlobalTrackingGeometryRecord& record);
-    //  boost::shared_ptr<TrackingGeometry>  produce(const MuonGeometryRecord & record);
 
 private:  
 
