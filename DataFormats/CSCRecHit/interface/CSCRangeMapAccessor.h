@@ -2,9 +2,9 @@
 #define DataFormats_CSCRecHit_CSCRangeMapAccessor_H
 
 /** \class CSCRangeMapAccessor
- *  Comparator to retrieve CSCrechits by chamber.
+ *  Comparator to retrieve CSCrechits by chamber. 
  *
- *  $Date: 2006/04/03 14:14:12 $
+ *  $Date: 2006/05/02 10:39:53 $
  *  \author Matteo Sani
  */
 
@@ -17,10 +17,11 @@ public:
 
 class CSCRangeMapAccessor {
 public:
-  //
-  // returns a valid DetId + a valid comaprator for the RangeMap
-  //
+
+  /// Constructor
   CSCRangeMapAccessor();
+  
+  /// Returns a valid DetId + a valid comparator for the RangeMap.
   std::pair<CSCDetId,CSCDetIdSameChamberComparator> cscChamber(CSCDetId chamber);
   
 private:

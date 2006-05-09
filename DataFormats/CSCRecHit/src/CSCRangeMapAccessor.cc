@@ -1,3 +1,9 @@
+/** \file CSCRangeMapAccessor.cc
+ *
+ *  $Date: 2006/05/02 10:39:53 $
+ *  \author Matteo Sani
+ */
+
 #include <DataFormats/CSCRecHit/interface/CSCRangeMapAccessor.h>
 
 CSCRangeMapAccessor::CSCRangeMapAccessor() {}
