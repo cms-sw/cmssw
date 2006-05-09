@@ -25,7 +25,7 @@ GlobalValProducer::GlobalValProducer(const edm::ParameterSet& iPSet) :
   produces<PGlobalSimHit>(label);
 
   // print out Parameter Set information being used
-  if (verbosity > 0) {
+  if (verbosity >= 0) {
     edm::LogInfo(MsgLoggerCat) 
       << "\n===============================\n"
       << "Initialized as EDProducer with parameter values:\n"
@@ -51,7 +51,7 @@ void GlobalValProducer::beginJob(const edm::EventSetup& iSetup)
 void GlobalValProducer::endJob()
 {
   std::string MsgLoggerCat = "GlobalValProducer.endJob";
-  if (verbosity > 0)
+  if (verbosity >= 0)
     edm::LogInfo(MsgLoggerCat) 
       << "Terminating having processed " << count << " events.";
   return;
@@ -72,6 +72,11 @@ void GlobalValProducer::produce(edm::Event& iEvent,
   if (verbosity > 0) {
     edm::LogInfo(MsgLoggerCat)
       << "Processing run " << nrun << ", event " << nevt;
+  } else if (verbosity == 0) {
+    if (nevt%100 == 0 || nevt == 1) {
+      edm::LogInfo(MsgLoggerCat)
+	<< "Processing run " << nrun << ", event " << nevt;
+    }
   }
 
   // clear event holders
