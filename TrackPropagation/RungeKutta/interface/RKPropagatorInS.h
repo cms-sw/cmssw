@@ -21,6 +21,10 @@ public:
   RKPropagatorInS( const MagVolume& vol, PropagationDirection dir = alongMomentum) : 
     Propagator(dir), theVolume( &vol) {}
 
+  ~RKPropagatorInS() {}
+
+  using Propagator::propagate;
+
   virtual TrajectoryStateOnSurface 
   propagate (const FreeTrajectoryState&, const Plane&) const;
 
