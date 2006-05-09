@@ -35,7 +35,6 @@ Local3DPoint MuonRpcFrameRotation::transformPoint(Local3DPoint & point,G4Step * 
     //new way with base number
     MuonBaseNumber num = g4numbering->PhysicalVolumeToBaseNumber(aStep);
     bool endcap_muon = (num.getSuperNo(theRegion)!=1);
-    std::cout <<"++++++++++++++++++MODID"<<std::endl;
     if (endcap_muon){
       if (trans.z()<0.) {
       //      return Local3DPoint(point.x(),point.y(),-point.z());
