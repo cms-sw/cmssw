@@ -10,7 +10,6 @@
 <use name=xdaq>
 <lib name=xgi>
 <lib name=xdata>
-<use name=xerces-c>
 <lib name=cgicc>
 <lib name=log4cplus>
 <lib name=xcept>
@@ -28,7 +27,6 @@
  <use name=DQMServices/UI>
  <use name=DQMServices/Components>
  <use name=DQMServices/WebComponents>
-<use name=DQMServices/ClientConfig>
+ <use name=DQMServices/ClientConfig> 
  <use name=xdaq>
- <use name=xerces-c>
 </export>
