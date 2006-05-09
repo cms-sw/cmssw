@@ -1,0 +1,10 @@
+<!===== ==========================================================
+ ! environment for HcalHits validation
+ !===============================================================>
+
+<environment name=testsuite>
+
+<executable name=testsuite.csh>validation suite</executable>
+
+</environment>
+
