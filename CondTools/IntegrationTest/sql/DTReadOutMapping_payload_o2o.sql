@@ -12,7 +12,7 @@ AS
 BEGIN
 INSERT INTO dtreadoutmapping
             (iov_value_id,cell_map_version,rob_map_version)
-     VALUES ( (SELECT max(iov_value_id)+1 FROM dtreadoutmapping@cmsomds),
+     VALUES ( (SELECT max(iov_value_id)+1 FROM dtreadoutmapping),
               'CMSSW_CELL','CMSSW_ROS';
 ;
 
