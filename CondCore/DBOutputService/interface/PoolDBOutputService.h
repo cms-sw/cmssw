@@ -15,13 +15,12 @@ namespace edm{
 namespace cond{
   class ServiceLoader;
   class MetaData;
-  //class IOV;
   namespace service {
     class PoolDBOutputService{
     public:
       //
       // accepted PSet 
-      // moduleToWatch
+      // connectMode
       // connect, connectMode, 
       // authenticationMethod, containerName,payloadCustomMappingFile
       // commitInterval, appendIOV, catalog,tag,
@@ -43,13 +42,13 @@ namespace cond{
       void postEventProcessing( const edm::Event & evt, 
 				const edm::EventSetup & iEvtSetUp);
       //
-      //
-      //
-      void preModule ( const edm::ModuleDescription & iDesc );
-      void postModule( const edm::ModuleDescription & iDesc );
       //no use
-      void preModuleConstruction ( const edm::ModuleDescription & iDesc );
-      void postModuleConstruction ( const edm::ModuleDescription & iDesc );
+      //
+      //void preModule ( const edm::ModuleDescription & iDesc );
+      //void postModule( const edm::ModuleDescription & iDesc );
+      //no use
+      //void preModuleConstruction ( const edm::ModuleDescription & iDesc );
+      //void postModuleConstruction ( const edm::ModuleDescription & iDesc );
       //no use
       //void preSourceConstruction ( const edm::ModuleDescription& );
       //void postSourceConstruction ( const edm::ModuleDescription& );
@@ -65,12 +64,18 @@ namespace cond{
 	std::string payloadTok=m_payloadWriter->markWrite(payloadObj);
 	if( m_appendIOV ){
 	  std::map<unsigned long long, std::string>::iterator 
-	    lastIOVit = (m_iov->iov.end())--;
-	  ////if(tillTime < m_currentTime ) throw exception
+	    lastIOVit=m_iov->iov.lower_bound(m_endOfTime);
+	  unsigned long long lastIOVval=lastIOVit->first;
 	  m_iov->iov.insert( std::make_pair(m_currentTime,lastIOVit->second) );
-	  m_iov->iov.erase(lastIOVit);
+	  if( lastIOVval==tillTime ){
+	    m_iov->iov[tillTime]=payloadTok;
+	  }else{
+	    m_iov->iov.insert(std::make_pair(tillTime,payloadTok));
+	    m_iov->iov[tillTime]="";
+	  }
+	}else{
+	  m_iov->iov.insert(std::make_pair(tillTime,payloadTok));
 	}
-	m_iov->iov.insert(std::make_pair(tillTime,payloadTok));
       }
       //
       // callback method
@@ -93,7 +98,7 @@ namespace cond{
       std::string m_connect;
       std::string m_tag;
       std::string m_timetype;
-      std::string m_clientmodule; //only one client is allowed for the moment
+      //std::string m_clientmodule; //only one client is allowed for the moment
       unsigned int m_connectMode;
       //unsigned int m_authenticationMethod;
       std::string m_containerName;
@@ -108,9 +113,11 @@ namespace cond{
       cond::IOV* m_iov;
       cond::DBSession* m_session;
       cond::DBWriter* m_payloadWriter;
-      bool m_transactionOn;
+      cond::DBWriter* m_iovWriter;
+      //bool m_transactionOn;
       unsigned long long m_endOfTime;
       unsigned long long m_currentTime;
+      std::string m_iovToken; //iov token cache
     };//PoolDBOutputService
   }//ns service
 }//ns cond
