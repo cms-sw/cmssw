@@ -38,6 +38,24 @@ namespace cond{
       }
       myref.markDelete();
     }  
+    template<typename ObjType>
+      ObjType* markUpdate(const std::string& objToken ){
+      pool::Ref<ObjType> myref(&(m_session.DataSvc()),objToken);
+      if(!myref){
+	throw cond::Exception( std::string("object with token")+objToken+" not found " );
+      }
+      try{
+	myref.markUpdate();
+      }catch( const pool::Exception& er){
+	throw cond::Exception( std::string("caught pool::Exception ")+ er.what() );
+      }catch ( const std::exception& er ) {
+	throw cond::Exception( std::string("caught std::exception ")+ er.what() );
+      }catch ( ... ) {
+	throw cond::Exception( std::string("caught unknown exception "));
+      }
+      ObjType* me=myref.ptr();
+      return me;
+    }  
   private:
     cond::DBSession& m_session;
     const std::string m_containerName;
