@@ -1,5 +1,5 @@
 <export>
-<lib name=DQMServices/ClientConfig>
+<lib name=DQMServicesClientConfig>
 <use name=root>
 <use name=boost>
 <use name=DQMServices/NodeROOT>
