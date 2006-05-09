@@ -6,11 +6,12 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/CommonDetAlgo>
 <use name=CommonTools/Clustering>
+<use name=DataFormats/TrackReco>
 <use name=RecoPixelVertexing/PixelTriplets>
 <use name=RecoPixelVertexing/PixelTrackFitting>
 
 <export>
- <lib name=RecoPixelVertexingPixelTrackFitting>
+ <lib name=RecoPixelVertexingPixelVertexFinding>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
  <use name=Foundation/PluginManager>
@@ -18,6 +19,7 @@
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=Geometry/CommonDetAlgo>
  <use name=CommonTools/Clustering>
+ <use name=DataFormats/TrackReco>
  <use name=RecoPixelVertexing/PixelTriplets>
  <use name=RecoPixelVertexing/PixelTrackFitting>
 </export>
