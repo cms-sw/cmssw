@@ -21,31 +21,33 @@ class L1GctJetLeafCard : L1GctProcessor
 public:
 	L1GctJetLeafCard(int iphi);
 	~L1GctJetLeafCard();
-	///
+
 	/// clear internal buffers
 	virtual void reset();
-	///
+
 	/// set the input buffers
 	virtual void fetchInput();
-	/// 
+ 
 	/// process the data and set outputs
 	virtual void process();
-	///
+
 	/// add a Source Card
 	void setInputSourceCard(int i, L1GctSourceCard* card);
-	///
+
 	/// get the input data
 	vector<L1GctRegion> getInputRegions();
-	///
-	/// get the jet output
-	vector<L1GctJet> getOutputJets();
-	///
+    
+	// get the jet output
+	vector<L1GctJet> getOutputJetsA() { jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
+    vector<L1GctJet> getOutputJetsB() { jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
+    vector<L1GctJet> getOutputJetsC() { jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
+    
 	/// get the Ex output
 	inline unsigned long getOutputEx() { return outputEx.to_ulong(); }
-	///
+	
 	/// get the Ey output
 	inline unsigned long getOutputEy() { return outputEy.to_ulong(); }
-	///
+	
 	/// get the Et output
 	inline unsigned long getOutputEt() { return outputEt.to_ulong(); }
 
@@ -55,9 +57,9 @@ private:
 	int m_id;
 
 	// internal algorithms
-	L1GctJetFinder* jetFinderA;
-	L1GctJetFinder* jetFinderB;
-	L1GctJetFinder* jetFinderC;	
+	L1GctJetFinder* jetFinderA;  ///< lowest jetFinder in phi
+	L1GctJetFinder* jetFinderB;  ///< middle jetFinder in phi
+	L1GctJetFinder* jetFinderC;	 ///< highest jetFinder in phi
 
 	// pointers to data source
 	vector<L1GctSourceCard*> m_sourceCards;
