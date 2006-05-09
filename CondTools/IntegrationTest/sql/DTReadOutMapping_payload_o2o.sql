@@ -3,6 +3,9 @@
  *
  *  DTReadOutMapping transform/transfer
  *  Parameters:  last_id:  The lower bounding IOV_VALUE_ID for objects to transfer
+ *
+ *  Note:  Uses sequence on ORCON for IOV_VALUE_ID
+ *         Transfers 1 object per call
  */
 CREATE OR REPLACE PROCEDURE DTReadOutMapping_payload_o2o (
   last_id IN NUMBER
@@ -12,8 +15,7 @@ AS
 BEGIN
 INSERT INTO dtreadoutmapping
             (iov_value_id,cell_map_version,rob_map_version)
-     VALUES ( (SELECT max(iov_value_id)+1 FROM dtreadoutmapping),
-              'CMSSW_CELL','CMSSW_ROS';
+     VALUES ( dtread_id_sq.NextVal, 'CMSSW_CELL','CMSSW_ROS' );
 ;
 
 INSERT INTO dtreadoutconnection
@@ -31,7 +33,7 @@ SELECT dt_wheel_numbering.object_number,
        dt_ros_channel.read_out_number,
        dt_tdc.read_out_number,
        dt_tdc_channel.read_out_number,
-       rownum,(SELECT max(iov_value_id) FROM dtreadoutmapping)
+       rownum, dtread_id_sq.CurVal
   FROM dt_wheel_numbering@cmsomds       dt_wheel_numbering,
        dt_chamber_numbering@cmsomds     dt_chamber_numbering,    
        dt_superlayer_numbering@cmsomds  dt_superlayer_numbering, 
