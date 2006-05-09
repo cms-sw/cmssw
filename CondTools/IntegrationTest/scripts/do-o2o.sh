@@ -88,6 +88,14 @@ then
   exit -1
 fi
 
+if [ $INFINITE = 1 ]
+then
+  INFINITE="-i"
+else
+  INFINITE=
+fi
+
+
 ###
 ### O2O happens here
 ###
@@ -119,7 +127,7 @@ cmscond_build_iov -c $OFFLINE_CONNECT \
                   -d $OBJECT_LIBRARY \
                   -t $OBJECT_TABLE \
                   -o $OBJECT_NAME \
-                  $APPEND $TAG 2>>$LOG
+                  $APPEND $INFINITE $TAG 2>>$LOG
 T2=`date +%s`
 T_JOB=$(($T2-$T1))
 echo -n "($T_JOB s)" >> $LOG;
