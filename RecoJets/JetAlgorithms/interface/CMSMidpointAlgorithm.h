@@ -17,7 +17,7 @@
  * \version   2nd Version Apr. 6, 2005  Modifications toward integration in new EDM.
  * \version   3rd Version Oct. 19, 2005 Modified to work with real CaloTowers from Jeremy Mans
  * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
- * $Id$
+ * $Id: CMSMidpointAlgorithm.h,v 1.3 2006/03/08 20:30:29 fedor Exp $
  *
  ************************************************************/
 
@@ -31,6 +31,7 @@ class CMSMidpointAlgorithm
 {
  public:
   typedef std::vector <const reco::Candidate*> InputCollection;
+  typedef std::vector<ProtoJet*> InternalCollection;
   typedef std::vector<ProtoJet> OutputCollection;
 
   /// Default constructor which defines the default values of the algorithm parameters
@@ -92,17 +93,17 @@ class CMSMidpointAlgorithm
  private:
   /// Find the list of proto-jets from the seeds.  
   /// Called by run, but public method to allow testing and studies.
-  void findStableConesFromSeeds(const InputCollection& fInput, OutputCollection* fOutput);
+  void findStableConesFromSeeds(const InputCollection& fInput, InternalCollection* fOutput);
 
   /// Iterate the proto-jet center until it is stable.  
   /// Called by findStableConesFromSeeds and findStableConesFromMidPoints but public method to allow testing and studies.
   void iterateCone(const InputCollection& fInput,
 		   double startRapidity, double startPhi, double startPt, bool reduceConeSize, 
-		   OutputCollection* fOutput);
+		   InternalCollection* fOutput);
 
   /// Add to the list of proto-jets the list of midpoints.
   /// Called by run but public method to allow testing and studies.
-  void findStableConesFromMidPoints(const InputCollection& fInput, OutputCollection* fOutput);
+  void findStableConesFromMidPoints(const InputCollection& fInput, InternalCollection* fOutput);
 
   /// Add proto-jets to pairs, triplets, etc, prior to finding their midpoints.
   /// Called by findStableConesFromMidPoints but public method to allow testing and studies.
@@ -113,7 +114,7 @@ class CMSMidpointAlgorithm
   /// Split and merge the proto-jets, assigning each tower in the protojets to one and only one final jet.
   ///  Called by run but public method to allow testing and studies.
   void splitAndMerge(const InputCollection& fInput,
-		     OutputCollection* fProtoJets, OutputCollection* fFinalJets);
+		     InternalCollection* fProtoJets, OutputCollection* fFinalJets);
 
 
   double theSeedThreshold;
