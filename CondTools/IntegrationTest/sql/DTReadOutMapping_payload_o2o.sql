@@ -15,7 +15,7 @@ AS
 BEGIN
 INSERT INTO dtreadoutmapping
             (iov_value_id,cell_map_version,rob_map_version,time)
-     VALUES ( dtread_id_sq.NextVal, 'CMSSW_CELL','CMSSW_ROS', NULL );
+     VALUES ( dtread_id_sq.NextVal, 'CMSSW_CELL','CMSSW_ROS', NULL )
 ;
 
 INSERT INTO dtreadoutconnection
@@ -86,8 +86,9 @@ SELECT dt_wheel_numbering.object_number,
     AND dt_chamber_numbering.numbering_id=dt_num.numbering_id
     AND dt_superlayer_numbering.numbering_id=dt_num.numbering_id
     AND dt_layer_numbering.numbering_id=dt_num.numbering_id
-    AND dt_cell_numbering.numbering_id=dt_num.numbering_id;  
+    AND dt_cell_numbering.numbering_id=dt_num.numbering_id
 ;
+
 END;
 /
 show errors;
