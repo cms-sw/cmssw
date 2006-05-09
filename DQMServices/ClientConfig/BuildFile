@@ -1,0 +1,12 @@
+<export>
+<lib name=DQMServices/ClientConfig>
+<use name=root>
+<use name=boost>
+<use name=DQMServices/NodeROOT>
+<use name=xerces-c>
+</export>
+<use name=root>
+<use name=boost>
+<use name=DQMServices/NodeROOT>
+<use name=xerces-c>
+
