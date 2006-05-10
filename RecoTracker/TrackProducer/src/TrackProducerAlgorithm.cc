@@ -71,11 +71,12 @@ void TrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       ndof = ndof - 5;
 
       //build Track
+      edm::LogInfo("TrackProducer") << "going to buildTrack"<< "\n";
       bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, seed, ndof);
+      edm::LogInfo("TrackProducer") << "buildTrack result: " << ok << "\n";
       if(ok) cont++;
     }
   edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
-
 }
 
 
@@ -146,16 +147,11 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
   trajVec = theFitter->fit(seed, hits, theTSOS);
   
-  edm::LogInfo("TrackProducer") <<" FITTER FOUND "<<trajVec.size()<<"\n";
+  edm::LogInfo("TrackProducer") <<" FITTER FOUND "<< trajVec.size() << " TRAJECTORIES" <<"\n";
   
-  //   TransverseImpactPointExtrapolator * tipe;
-  TrajectoryStateOnSurface tsos;
   TrajectoryStateOnSurface innertsos;
   
-  
   if (trajVec.size() != 0){
-    
-    //     tipe = new TransverseImpactPointExtrapolator(*thePropagator);
     
     theTraj = new Trajectory( trajVec.front() );
     
@@ -173,27 +169,27 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
     TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
 						     GlobalPoint(0,0,0) );
     
-    //
-    // TB: if the tsos is not valid, stop
-    //
+//     //
+//     // TB: if the tsos is not valid, stop
+//     //
+//     if (tscp.isValid() == false) {
+//       edm::LogInfo("TrackProducer") <<" Could not extrapolate a track to (0,0,0) - skipping it.\n";
+// 	  return false;//	  continue;
+//     }
     
-    if (tsos.isValid() == false) {
-	  edm::LogInfo("TrackProducer") <<" Could not extrapolate a track to (0,0,0) - skipping it.\n";
-	  return false;//	  continue;
-    }
-    
-    
-	
+    reco::perigee::Parameters param = tscp.perigeeParameters();
+ 
+    reco::perigee::Covariance covar = tscp.perigeeError();
 
-    
     theTrack = new reco::Track(theTraj->chiSquared(),
 			       int(ndof),//FIXME fix weight() in TrackingRecHit
 			       theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
 			       0, //FIXME no corresponding method in trajectory.h
 			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
-			       tscp.perigeeParameters(),
-			       tscp.perigeeError());
+			       param,
+			       covar);
 
+    edm::LogInfo("TrackProducer") <<"track done\n";
 
     //     //compute parameters needed to build a Track from a Trajectory    
     //     int charge = tsos.charge();
@@ -222,7 +218,9 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
     // 			       mom,
     // 			       cov);
     AlgoProduct aProduct(theTraj,theTrack);
+    edm::LogInfo("TrackProducer") <<"track done1\n";
     algoResults.push_back(aProduct);
+    edm::LogInfo("TrackProducer") <<"track done2\n";
     
     return true;
   } 
