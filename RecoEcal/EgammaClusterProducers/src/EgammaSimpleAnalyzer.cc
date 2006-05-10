@@ -8,7 +8,7 @@
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  10 May 2006
-// $Id: $
+// $Id: EgammaSimpleAnalyzer.cc,v 1.1 2006/05/10 21:25:07 rahatlou Exp $
 //
 
 #include "RecoEcal/EgammaClusterProducers/interface/EgammaSimpleAnalyzer.h"
@@ -26,6 +26,10 @@
 EgammaSimpleAnalyzer::EgammaSimpleAnalyzer( const edm::ParameterSet& ps )
 //========================================================================
 {
+
+  xMinHist_ = ps.getParameter<double>("xMinHist");
+  xMaxHist_ = ps.getParameter<double>("xMaxHist");
+  nbinHist_ = ps.getParameter<int>("nbinHist");
 
   islandBasicClusterCollection_ = ps.getParameter<std::string>("islandBasicClusterCollection");
   islandBasicClusterProducer_   = ps.getParameter<std::string>("islandBasicClusterProducer");
@@ -58,13 +62,12 @@ void
 EgammaSimpleAnalyzer::beginJob(edm::EventSetup const&) {
 //========================================================================
 
-  int nbins = 200;
-  h1_islandBCEnergy_ = TH1F("islandBCEnergy","Energy of basic clusters with island algo",nbins,0.,20.);
-  h1_islandSCEnergy_ = TH1F("islandSCEnergy","Energy of super clusters with island algo",nbins,0.,20.);
-  h1_corrIslandSCEnergy_ = TH1F("corrIslandSCEnergy","Corrected Energy of super clusters with island algo",nbins,0.,20.);
+  h1_islandBCEnergy_ = TH1F("islandBCEnergy","Energy of basic clusters with island algo",nbinHist_,xMinHist_,xMaxHist_);
+  h1_islandSCEnergy_ = TH1F("islandSCEnergy","Energy of super clusters with island algo",nbinHist_,xMinHist_,xMaxHist_);
+  h1_corrIslandSCEnergy_ = TH1F("corrIslandSCEnergy","Corrected Energy of super clusters with island algo",nbinHist_,xMinHist_,xMaxHist_);
 
-  h1_hybridSCEnergy_ = TH1F("hybridSCEnergy","Energy of super clusters with hybrid algo",nbins,0.,20.);
-  h1_corrHybridSCEnergy_ = TH1F("corrHybridSCEnergy","Corrected Energy of super clusters with hybrid algo",nbins,0.,20.);
+  h1_hybridSCEnergy_ = TH1F("hybridSCEnergy","Energy of super clusters with hybrid algo",nbinHist_,xMinHist_,xMaxHist_);
+  h1_corrHybridSCEnergy_ = TH1F("corrHybridSCEnergy","Corrected Energy of super clusters with hybrid algo",nbinHist_,xMinHist_,xMaxHist_);
 
 }
 

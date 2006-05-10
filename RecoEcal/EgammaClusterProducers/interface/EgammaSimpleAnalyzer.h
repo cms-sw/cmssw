@@ -8,7 +8,7 @@
      <Notes on implementation>
 */
 //
-// $Id: $
+// $Id: EgammaSimpleAnalyzer.h,v 1.1 2006/05/10 21:24:44 rahatlou Exp $
 //
 
 
@@ -59,6 +59,10 @@ class EgammaSimpleAnalyzer : public edm::EDAnalyzer {
 
       std::string correctedHybridSuperClusterCollection_;
       std::string correctedHybridSuperClusterProducer_;
+
+      double xMinHist_;
+      double xMaxHist_;
+      int    nbinHist_;
 
       TH1F h1_islandBCEnergy_;
 
