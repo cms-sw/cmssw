@@ -50,6 +50,7 @@ public:
 	
 	/// get the Et output
 	inline unsigned long getOutputEt() { return outputEt.to_ulong(); }
+	inline unsigned long getOutputHt() { return outputHt.to_ulong(); }
 
 private:
 
@@ -76,6 +77,7 @@ private:
 	bitset<NUM_BITS_ENERGY_DATA> outputEx;
 	bitset<NUM_BITS_ENERGY_DATA> outputEy;
 	bitset<NUM_BITS_ENERGY_DATA> outputEt;
+	bitset<NUM_BITS_ENERGY_DATA> outputHt;
 };
 
 #endif /*L1GCTJETLEAFCARD_H_*/

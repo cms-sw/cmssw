@@ -4,6 +4,7 @@
 
 L1GctWheelEnergyFpga::L1GctWheelEnergyFpga() :
 	m_id(id),
+        m_inputLeafCards(3),
 	inputEx(3),
 	inputEy(3),
 	inputEt(3)
@@ -169,7 +170,9 @@ void L1GctWheelEnergyFpga::process()
 /// assign data sources
 void L1GctWheelEnergyFpga::setInputLeafCard (int i, L1GctJetLeafCard* leaf)
 {
-  m_inputLeafCards[i] = leaf;
+  if (i>=0 && i<3) {
+    m_inputLeafCards[i] = leaf;
+  }
 }
 
 

@@ -44,6 +44,8 @@ public:
 	std::vector<L1GctJet> getForwardJets() const { return m_forwardJets; }
 	std::vector<L1GctJet> getTauJets() const { return m_tauJets; }
 
+	inline unsigned long getHtBoundaryJets()               { return outputHtBoundaryJets.to_ulong(); }
+        inline unsigned long getJcBoundaryJets(unsigned jcnum) { return outputJcBoundaryJets[jcnum].to_ulong(); }
 private:
 
 	/// wheel jet FPGAs
@@ -57,6 +59,10 @@ private:
 	std::vector<L1GctJet> m_forwardJets;
 	std::vector<L1GctJet> m_tauJets;
 	
+	// data sent to GlobalEnergyAlgos
+        typedef bitset<3> JcBoundType;
+	bitset<13> outputHtBoundaryJets;
+        vector<JcBoundType> outputJcBoundaryJets;
 };
 
 #endif /*L1GCTJETFINALSTAGE_H_*/

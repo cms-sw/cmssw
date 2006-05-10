@@ -9,6 +9,8 @@
 using namespace std;
 
 class L1GctWheelEnergyFpga;
+class L1GctWheelJetFpga;
+class L1GctJetFinalStage;
 
 /*
  * Emulates the GCT global energy algorithms
@@ -35,6 +37,9 @@ public:
 	/// assign data sources
 	void setPlusWheelFpga (L1GctWheelEnergyFpga* fpga);
 	void setMinusWheelFpga(L1GctWheelEnergyFpga* fpga);
+	void setPlusWheelJetFpga (L1GctWheelJetFpga* fpga);
+	void setMinusWheelJetFpga(L1GctWheelJetFpga* fpga);
+	void setBoundaryJetsFpga(L1GctJetFinalStage* fpga);
 	///	
 	/// set input data per wheel
 	void setInputWheelEx(unsigned wheel, int energy, bool overflow);
@@ -76,9 +81,12 @@ private:
 	// Here are the algorithm types we get our inputs from
 	L1GctWheelEnergyFpga* m_plusWheelFpga;
 	L1GctWheelEnergyFpga* m_minusWheelFpga;
+	L1GctWheelJetFpga* m_plusWheelJetFpga;
+	L1GctWheelJetFpga* m_minusWheelJetFpga;
+	L1GctJetFinalStage* m_boundaryJetsFpga;
 
         typedef bitset<3> JcBoundType;
-        typedef bitset<4> JcWheelType;
+        typedef bitset<3> JcWheelType;
         typedef bitset<5> JcFinalType;
 	// input data - need to confirm number of bits!
 	bitset<12> inputExValPlusWheel;

@@ -1,6 +1,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
 
 L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() :
   inputJcValPlusWheel(12),
@@ -70,6 +72,18 @@ void L1GctGlobalEnergyAlgos::fetchInput() {
   decodeUnsignedInput( m_minusWheelFpga->getOutputEt(), EinU, EOvflo);
   setInputWheelEt((unsigned) 1, EinU, EOvflo);
   //
+  decodeUnsignedInput( m_plusWheelJetFpga->getOutputHt(), EinU, EOvflo);
+  setInputWheelHt((unsigned) 0, EinU, EOvflo);
+  decodeUnsignedInput( m_minusWheelJetFpga->getOutputHt(), EinU, EOvflo);
+  setInputWheelHt((unsigned) 1, EinU, EOvflo);
+  //
+  decodeUnsignedInput( m_boundaryJetsFpga->getHtBoundaryJets(), EinU, EOvflo);
+  setInputBoundaryHt(EinU, EOvflo);
+  for (unsigned i=0; i<12; i++) {
+    setInputWheelJc((unsigned) 0, i, (unsigned) m_plusWheelJetFpga->getOutputJc(i));
+    setInputWheelJc((unsigned) 1, i, (unsigned) m_minusWheelJetFpga->getOutputJc(i));
+    setInputBoundaryJc(i, (unsigned) m_boundaryJetsFpga->getJcBoundaryJets(i));
+  }
 }
 
 
@@ -231,6 +245,21 @@ void L1GctGlobalEnergyAlgos::setMinusWheelFpga(L1GctWheelEnergyFpga* fpga)
   m_minusWheelFpga = fpga;
 }
 
+void L1GctGlobalEnergyAlgos::setPlusWheelJetFpga (L1GctWheelJetFpga* fpga)
+{
+  m_plusWheelJetFpga = fpga;
+}
+
+void L1GctGlobalEnergyAlgos::setMinusWheelJetFpga(L1GctWheelJetFpga* fpga)
+{
+  m_minusWheelJetFpga = fpga;
+}
+
+void L1GctGlobalEnergyAlgos::setBoundaryJetsFpga(L1GctJetFinalStage* fpga)
+{
+  m_boundaryJetsFpga = fpga;
+}
+
 //----------------------------------------------------------------------------------------------
 // set input data per wheel: x component of missing Et
 //
@@ -355,7 +384,7 @@ void L1GctGlobalEnergyAlgos::setInputWheelJc(unsigned wheel, unsigned jcnum, uns
 
 
 //----------------------------------------------------------------------------------------------
-// An extra contribution to Ht from jets at
+// Extra contributions to jet counts from jets at
 // the boundary between wheels
 //
 void L1GctGlobalEnergyAlgos::setInputBoundaryJc(unsigned jcnum, unsigned count)
