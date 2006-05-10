@@ -135,3 +135,66 @@ const reco::CombinedBTagInfo::TrackData* reco::CombinedBTagInfo::getTrackData(Tr
 
 } // TrackData* getTrackData
 // -------------------------------------------------------------------------------
+
+
+
+bool reco::CombinedBTagInfo::existVertexData(std::vector<reco::Vertex>::const_iterator vertexRef) {
+
+  bool returnValue = false;
+
+  std::map <std::vector<reco::Vertex>::const_iterator, reco::CombinedBTagInfo::VertexData>::const_iterator iter;
+
+  // try to find element
+  iter = reco::CombinedBTagInfo::vertexDataMap_.find(vertexRef);
+  if (iter != reco::CombinedBTagInfo::vertexDataMap_.end())
+    returnValue = true;
+
+  return returnValue;
+
+} // bool exitVertexData
+// -------------------------------------------------------------------------------
+
+void reco::CombinedBTagInfo::flushVertexData() {
+  reco::CombinedBTagInfo::vertexDataMap_.clear();
+  
+} // void flushVertexData
+// -------------------------------------------------------------------------------
+
+void reco::CombinedBTagInfo::storeVertexData(std::vector<reco::Vertex>::const_iterator vertexRef,
+					     const reco::CombinedBTagInfo::VertexData& vertexData) {
+  
+  reco::CombinedBTagInfo::vertexDataMap_[vertexRef] = vertexData;
+
+} //void storeVertexData
+// -------------------------------------------------------------------------------
+
+int reco::CombinedBTagInfo::sizeVertexData() {
+  
+  int size = reco::CombinedBTagInfo::vertexDataMap_.size();
+
+  return size;
+
+} // int sizeVertexData
+// -------------------------------------------------------------------------------
+
+const reco::CombinedBTagInfo::VertexData* reco::CombinedBTagInfo::getVertexData(std::vector<reco::Vertex>::const_iterator vertexRef) {
+
+  std::map <std::vector<reco::Vertex>::const_iterator, reco::CombinedBTagInfo::VertexData>::const_iterator iter;
+
+  // try to find element
+  iter = reco::CombinedBTagInfo::vertexDataMap_.find(vertexRef);
+
+  if (iter != reco::CombinedBTagInfo::vertexDataMap_.end()) {
+
+    // found element
+    return &reco::CombinedBTagInfo::vertexDataMap_[vertexRef];
+
+  } else {
+    
+    // element not found
+    return 0;
+
+  } //if iter != end
+
+} // VertexData* getVertexData
+// -------------------------------------------------------------------------------

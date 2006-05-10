@@ -13,10 +13,6 @@
 
 #include "DataFormats/BTauReco/interface/CombinedBTagInfoFwd.h"
 
-// N.B. use SECVERTEXREF as placeholder for edm::Ref<ReferenceToTrack> or so
-//      - have to figure out how to do it properly yet.
-
-
 namespace reco {
 
   class CombinedBTagInfo  {
@@ -27,28 +23,6 @@ namespace reco {
     // typedef
     //
     ////////////////////////////////////////////////////
-
-    typedef int SECVERTEXREF;  //just for now to compile
-
-    /* mail from Chris Jones how TRACKREF could be done:
-     *       
-     *    The ProductID is a unique identifier only within one
-     *    edm::Event and only refers the the 'top level' object that has been
-     *    placed within the edm::Event. So if one placed a
-     *    std::vector<reco::Track> into the event, the std::vector<...> would
-     *    have a ProductID but the individual reco::Tracks within the
-     *    std::vector would not.  To uniquely (within one edm::Event) identify
-     *    an object within a container the framework provides an
-     *    edm::Ref<...>.  So it is possible to use an
-     *    edm::Ref<std::vector<reco::Track> > to refer to one particular
-     *    reco::Track within the std::vector<...>.  It is then possible to
-     *    embed an edm::Ref<...> as a member data into another object and then
-     *    store that other object into the edm::Event and the framework will
-     *    guarantee that the edm::Ref<...> 'points to' the proper object even
-     *    when read back from a file in a different job.
-     *
-     */
-
 
     ////////////////////////////////////////////////////
     //
@@ -79,6 +53,8 @@ namespace reco {
      */
     struct TrackData {
       TrackRef trackRef;     // reference to the track used
+                             // or we don't need it here as the TrackRef is
+                             // used as access key for the map?
       bool     usedInSVX;    // part of a secondary vertex?
       double   pt;
       double   rapidity;
@@ -115,39 +91,27 @@ namespace reco {
      *      vertex finder may find more than one secondary vertex
      */
     struct VertexData {
-      // refenence to vertex object
-      //  or need real reco::Vertex as
-      //  secondary vertices found within B-tagging
-      //  are not "produced" and written to event record?
-      // reference to all tracks used at this vertex
-      //  or will this be automatically there via
-      //  reference to vertex?
-      double x;  // vertex position
-      double y;
-      double z;
-      double chi2;
-      int    ndof;
-      int    nTracks; // number of tracks associated 
-                      // with this vertex.
-      double sumPx;   // sum of x-component of momentum of all charged tracks at vertex
-      double sumPy;   //        y-
-      double sumPz;   //        z-
-      double mass;    /** mass computed from all charged tracks at this
-		       *  vertex assuming Pion mass hypothesis.
-		       *  For now, loop over all tracks and
-		       *  compute m^2 = Sum(E^2) - Sum(p^2)
-		       */
-      bool   isV0;     // has been tagged as V0 (true) or not (false);
-      int    fracPV;   // fraction of tracks also used to build primary vertex
-      double flightDistance2D;
-      double flightDistanceSignificance2D;
-      double flightDistance3D;
-      double flightDistanceSignificance3D;
+      reco::Vertex vertex;
+      double       chi2;
+      int          ndof;
+      int          nTracks; // number of tracks associated 
+                            // with this vertex.
+      double       sumPx;   // sum of x-component of momentum of all charged tracks at vertex
+      double       sumPy;   //        y-
+      double       sumPz;   //        z-
+      double       mass;    /** mass computed from all charged tracks at this
+	                     *  vertex assuming Pion mass hypothesis.
+	                     *  For now, loop over all tracks and
+	                     *  compute m^2 = Sum(E^2) - Sum(p^2)
+	                     */
+      bool         isV0;     // has been tagged as V0 (true) or not (false);
+      int          fracPV;   // fraction of tracks also used to build primary vertex
+      double       flightDistance2D;
+      double       flightDistanceSignificance2D;
+      double       flightDistance3D;
+      double       flightDistanceSignificance3D;
 
       void init() {
-      x                            = -999;
-      y                            = -999;
-      z                            = -999;
       chi2                         = -999;
       ndof                         = -999;
       nTracks                      = -999; 
@@ -188,26 +152,27 @@ namespace reco {
     // - list of secondary vertices
 
     // members of this class				     
-    double      getJetPt ()                                  {return jetPt_;}
-    double      getJetEta()                                  {return jetEta_;}
+    double                    jetPt ()                    {return jetPt_;}
+    double                    jetEta()                    {return jetEta_;}
     			
-    // get (ref to?) primary vertex
-    // get vector of secondary vertices
-    int         getNumSecVertex()                            {return secondaryVertices_.size();}
-    VertexType  getVertexType()                              {return vertexType_;}
-    double      getVertexMass()                              {return vertexMass_;}
-    int         getVertexMultiplicity()                      {return vertexMultiplicity_;}
-    double      getESVXOverE()                               {return eSVXOverE_;}
-	             		                             
-    Hep3Vector  getPAll()                                    {return pAll_;}
-    Hep3Vector  getPB()                                      {return pB_;}
-    double      getBPLong()                                  {return bPLong_;}
-    double      getBPt()                                     {return bPt_;}
-	             		                             
-    double      getMeanTrackRapidity()                       {return meanTrackY_;}
-    				                             
-    double      getAngleGeomKinJet()                         {return angleGeomKinJet_;}
-    double      getAngleGeomKinVertex()                      {return angleGeomKinVertex_;}
+    // edm::ref to primary vertex ?
+    reco::Vertex              primaryVertex()             {return primaryVertex_;}
+    std::vector<reco::Vertex> secVertices()               {return secondaryVertices_;}
+    int                       nSecVertices()              {return secondaryVertices_.size();}
+    VertexType                vertexType()                {return vertexType_;}
+    double                    vertexMass()                {return vertexMass_;}
+    int                       vertexMultiplicity()        {return vertexMultiplicity_;}
+    double                    eSVXOverE()                 {return eSVXOverE_;}
+	                          		               
+    Hep3Vector                pAll()                      {return pAll_;}
+    Hep3Vector                pB()                        {return pB_;}
+    double                    pBLong()                    {return bPLong_;}
+    double                    pBPt()                      {return bPt_;}
+	                          		               
+    double                    meanTrackRapidity()         {return meanTrackY_;}
+    		             		                  
+    double                    angleGeomKinJet()           {return angleGeomKinJet_;}
+    double                    angleGeomKinVertex()        {return angleGeomKinVertex_;}
 				                             
     //
     // setters
@@ -216,6 +181,7 @@ namespace reco {
     void        setJetEta(double eta)                        { jetEta_                = eta;}
     	
     // pass (ref to?) primary vertex
+    void        setPrimaryVertex(reco::Vertex pv)            { primaryVertex_         = pv;}
     void        addSecondaryVertex(reco::Vertex sv)          { secondaryVertices_.push_back(sv);}
     void        setVertexType( VertexType type)              { vertexType_            = type;}
     void        setVertexMass( double mass)                  { vertexMass_            = mass;}
@@ -238,12 +204,21 @@ namespace reco {
     // map to access track map information
     //
     // maybe possible to use map tools here?
-    bool             existTrackData(TrackRef trackRef);
-    void             flushTrackData();
-    void             storeTrackData(TrackRef trackRef,
-				    const CombinedBTagInfo::TrackData& trackData);
-    int              sizeTrackData();
-    const TrackData* getTrackData(TrackRef);
+    bool              existTrackData(TrackRef trackRef);
+    void              flushTrackData();
+    void              storeTrackData(TrackRef trackRef,
+				     const CombinedBTagInfo::TrackData& trackData);
+    int               sizeTrackData();
+    const TrackData*  getTrackData(TrackRef trackRef);
+
+
+    // is this the "best" way to do it?
+    bool              existVertexData(std::vector<reco::Vertex>::const_iterator vertexRef);
+    void              flushVertexData();
+    void              storeVertexData(std::vector<reco::Vertex>::const_iterator vertexRef,
+				      const CombinedBTagInfo::VertexData& vertexData);
+    int               sizeVertexData();
+    const VertexData* getVertexData(std::vector<reco::Vertex>::const_iterator vertexRef);
 
 
     ////////////////////////////////////////////////////
@@ -367,8 +342,8 @@ namespace reco {
     //
 
     // maybe easier/better to have templated class to handle the maps?
-    std::map <TrackRef,     CombinedBTagInfo::TrackData>  trackDataMap_;
-    std::map <SECVERTEXREF, CombinedBTagInfo::VertexData> vertexDataMap_;
+    std::map <TrackRef,                                  CombinedBTagInfo::TrackData>  trackDataMap_;
+    std::map <std::vector<reco::Vertex>::const_iterator, CombinedBTagInfo::VertexData> vertexDataMap_;
 
   }; // class
  
