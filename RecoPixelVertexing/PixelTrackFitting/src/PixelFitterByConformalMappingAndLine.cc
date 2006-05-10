@@ -15,7 +15,8 @@
 //#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
-//#include "DataFormats/TrackReco/interface/HelixParameters.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "Measurement1D.h"
 #include "ConformalMappingFit.h"
@@ -45,6 +46,10 @@ const reco::Track* PixelFitterByConformalMappingAndLine::run(
 
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
+
+  edm::ESHandle<MagneticField> field;
+  es.get<IdealMagneticFieldRecord>().get(field);
+
 
   for ( vector<const TrackingRecHit *>::const_iterator
         ih = hits.begin();  ih != hits.end(); ih++) {
@@ -103,7 +108,7 @@ const reco::Track* PixelFitterByConformalMappingAndLine::run(
 
 
   PixelTrackBuilder builder;
-  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits, 0);
+  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits,  field.product());
 }
 
 
