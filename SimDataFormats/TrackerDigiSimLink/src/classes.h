@@ -32,5 +32,12 @@ namespace {
   }
 }
 
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLinkCollection.h"
+namespace {
+  namespace {
+    edm::Wrapper<StripDigiSimLinkCollection> StripDigiSimLinkCollectionWrapper;
+  }
+}
+
 #endif // TRACKERDIGISIMLINK_CLASSES_H
 
