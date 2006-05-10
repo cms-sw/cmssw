@@ -5,8 +5,8 @@
  *
  *  No description available.
  *
- *  $Date: 2006/05/05 14:22:53 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/09 13:45:59 $
+ *  $Revision: 1.3 $
  *  \author M. Sani
  */
 
@@ -16,38 +16,38 @@
 class GlobalTrackingGeometry : public TrackingGeometry {
     public:
         /// Constructor
-        GlobalTrackingGeometry();
+        GlobalTrackingGeometry(std::vector<const TrackingGeometry*>& geos);
 
         /// Destructor
         virtual ~GlobalTrackingGeometry();  
 
-        // Return a vector of all det types.
+        /// Return a vector of all det types.
         virtual const DetTypeContainer&  detTypes()         const;
 
-        // Returm a vector of all GeomDetUnit
+        /// Returm a vector of all GeomDetUnit
         virtual const DetUnitContainer&  detUnits()         const;
 
-        // Returm a vector of all GeomDet (including all GeomDetUnits)
+        /// Returm a vector of all GeomDet (including all GeomDetUnits)
         virtual const DetContainer&      dets()             const;
 
-        // Returm a vector of all GeomDetUnit DetIds
+        /// Returm a vector of all GeomDetUnit DetIds
         virtual const DetIdContainer&    detUnitIds()       const;
 
-        // Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
+        /// Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
         virtual const DetIdContainer&    detIds()           const;
 
-        // Return the pointer to the GeomDetUnit corresponding to a given DetId
+        /// Return the pointer to the GeomDetUnit corresponding to a given DetId
         virtual const GeomDetUnit*       idToDetUnit(DetId) const;
 
-        // Return the pointer to the GeomDet corresponding to a given DetId
-        // (valid also for GeomDetUnits)
+        /// Return the pointer to the GeomDet corresponding to a given DetId
+        /// (valid also for GeomDetUnits)
         virtual const GeomDet*           idToDet(DetId)     const; 
         
-        TrackingGeometry* slaveGeometry(DetId id) const;
+        const TrackingGeometry* slaveGeometry(DetId id) const;
 
     private:
  
-        std::vector<TrackingGeometry*> theGeometries;
+        std::vector<const TrackingGeometry*> theGeometries;
 };
 #endif
 
