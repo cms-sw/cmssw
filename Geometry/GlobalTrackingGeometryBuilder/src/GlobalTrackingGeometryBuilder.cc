@@ -1,12 +1,17 @@
 /** \file GlobalTrackingGeometryBuilder.cc
  * 
- *  $Date: 2006/05/06 13:46:16 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/09 14:08:01 $
+ *  $Revision: 1.2 $
  *  \author Matteo Sani
  */
  
 #include <Geometry/GlobalTrackingGeometryBuilder/src/GlobalTrackingGeometryBuilder.h>
 #include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
+
+#include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
+#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/DTGeometry/interface/DTGeometry.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
@@ -22,7 +27,16 @@ GlobalTrackingGeometryBuilder::~GlobalTrackingGeometryBuilder(){}
 GlobalTrackingGeometry* GlobalTrackingGeometryBuilder::build(const TrackerGeometry* tk, 
     const DTGeometry* dt, const CSCGeometry* csc, const RPCGeometry* rpc){
 
-    return new GlobalTrackingGeometry();
-
+    // DO NOT CHANGE THE ORDER OF THE GEOMETRIES !!!!!!!  
+    
+    std::vector<const TrackingGeometry*> tkGeometries;
+    
+    tkGeometries.push_back(tk);
+    tkGeometries.push_back(dt);
+    tkGeometries.push_back(csc);
+    tkGeometries.push_back(rpc);
+    
+    
+    return new GlobalTrackingGeometry(tkGeometries);
 }
 
