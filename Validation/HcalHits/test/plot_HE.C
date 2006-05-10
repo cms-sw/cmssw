@@ -217,7 +217,7 @@
 
   for (int i = 0; i<nent; i++) { 
 
-    cout << "Ev. " << i << endl;
+    // cout << "Ev. " << i << endl;
 
     // -- get entries
     branchLayer ->GetEntry(i);
@@ -396,7 +396,7 @@
 
   }
 
-  cout << "After event cycle " << i << endl;
+  // cout << "After event cycle " << i << endl;
 
 
   //...Prepare the main canva 
