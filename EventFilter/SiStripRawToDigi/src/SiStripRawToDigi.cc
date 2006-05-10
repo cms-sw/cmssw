@@ -305,8 +305,8 @@ void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
        trigger_fed.size() > sizeof(fedh_t)  ) {
 
     uint8_t*  temp = const_cast<uint8_t*>( trigger_fed.data() );
-    uint32_t* data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(fedh_t)/sizeof(uint32_t) + 1;
-    uint32_t  size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
+    uint32_t* data_u32 = reinterpret_cast<uint32_t*>( temp );// + sizeof(fedh_t)/sizeof(uint32_t) + 1;
+    uint32_t  size_u32 = trigger_fed.size()/sizeof(uint32_t);// - sizeof(fedh_t)/sizeof(uint32_t) - 1;
 
     if ( size_u32 > sizeof(TFHeaderDescription)/sizeof(uint32_t) ) {
     
@@ -389,11 +389,11 @@ void SiStripRawToDigi::locateStartOfFedBuffer( uint16_t fed_id,
 	edm::LogInfo("RawToDigi") << "[SiStripRawToDigi::locateStartOfFedBuffer]" 
 				  << " Adjust the configurable 'AppendedHeaderBytes' to " << offset;
       }
-    } else if ( (input_u32[1]   & 0xF0000000) == 0x50000000 &&
-		//(input_u32[0]   & 0x0000000F) == 0x00000008 && 
-		//(input_u32[3]   & 0xFF000000) == 0xED000000 &&
-		(fed_trailer[1] & 0xF0000000) == 0xA0000000 &&
-		((fed_trailer[0] & 0x00FFFFFF) * 0x8) == (input.size() - offset) ) {
+    } else if ( (input_u32[1]    & 0xF0000000) == 0x50000000 &&
+		//(input_u32[0]    & 0x0000000F) == 0x00000008 && 
+		//(input_u32[3]    & 0xFF000000) == 0xED000000 &&
+		(fed_trailer[1]  & 0xF0000000) == 0xA0000000 &&
+		((fed_trailer[1] & 0x00FFFFFF) * 0x8) == (input.size() - offset) ) {
       // Found DAQ header (with MSB and LSB 32-bit words swapped) at byte position 'offset' 
       found = true;
       output.resize( input.size()-offset );
@@ -412,6 +412,7 @@ void SiStripRawToDigi::locateStartOfFedBuffer( uint16_t fed_id,
 				  << " Adjust the configurable 'AppendedHeaderBytes' to " << offset;
       }
     } else { headerBytes_ < 0 ? found = false : found = true; }
+    ichar++;
   }      
   
   // Check size of output buffer
