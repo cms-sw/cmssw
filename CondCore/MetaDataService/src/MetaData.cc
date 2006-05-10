@@ -33,17 +33,19 @@ cond::MetaData::MetaData(const std::string& connectionString, cond::ServiceLoade
   coral::IRelationalService& relationalService=m_loader.loadRelationalService();
   coral::IRelationalDomain& domain = relationalService.domainForConnection(m_con);
   m_session.reset( domain.newSession( m_con ) );
+  m_mode=cond::ReadWriteCreate;
 }
 
 cond::MetaData::~MetaData(){
 }
 
 void cond::MetaData::connect( cond::ConnectMode mod=cond::ReadWriteCreate ){
+  m_mode=mod;
   try{
-    if( mod == cond::ReadWriteCreate || mod == cond::ReadWrite){
-      m_session->connect(coral::Update);
-    }else{
+    if( m_mode == cond::ReadOnly){
       m_session->connect(coral::ReadOnly);
+    }else{
+      m_session->connect(coral::Update);
     }
     m_session->startUserSession();
   }catch(std::exception& er){
@@ -57,7 +59,7 @@ void cond::MetaData::disconnect(){
 }
 bool cond::MetaData::addMapping(const std::string& name, const std::string& iovtoken){
   try{
-    m_session->transaction().start();
+    m_session->transaction().start(false);
   }catch(std::exception& er){
     throw cond::Exception( std::string("MetaData::addMapping ")+ er.what());
   }catch(...){
@@ -86,7 +88,7 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
 }
 bool cond::MetaData::replaceToken(const std::string& name, const std::string& newtoken){
   try{
-    m_session->transaction().start();
+    m_session->transaction().start(false);
   }catch(std::exception& er){
     throw cond::Exception( std::string("MetaData::addMapping ")+ er.what());
   }catch(...){
@@ -120,7 +122,11 @@ bool cond::MetaData::replaceToken(const std::string& name, const std::string& ne
 }
 const std::string cond::MetaData::getToken( const std::string& name ){
   try{
-    m_session->transaction().start();
+    if( m_mode!=cond::ReadOnly ){
+      m_session->transaction().start(false);
+    }else{
+      m_session->transaction().start(true);
+    }
   }catch(const std::exception& er){
     throw cond::Exception( std::string("MetaData::getToken: Could not start a new transaction" )+er.what() );
   }catch(...){
@@ -164,7 +170,11 @@ void cond::MetaData::createTable(const std::string& tabname){
 bool cond::MetaData::hasTag( const std::string& name ) const{
   bool result=false;
   try{
-    m_session->transaction().start();
+    if( m_mode!=cond::ReadOnly ){
+      m_session->transaction().start(false);
+    }else{
+      m_session->transaction().start(true);
+    }
     coral::ITable& mytable=m_session->nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
     coral::AttributeList emptyBindVariableList;
@@ -185,7 +195,11 @@ bool cond::MetaData::hasTag( const std::string& name ) const{
 }
 void cond::MetaData::listAllTags( std::vector<std::string>& result ) const{
   try{
-    m_session->transaction().start();
+    if( m_mode!=cond::ReadOnly ){
+      m_session->transaction().start(false);
+    }else{
+      m_session->transaction().start(true);
+    }
     coral::ITable& mytable=m_session->nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
     query->addToOutputList( cond::MetaDataNames::tagColumn() );

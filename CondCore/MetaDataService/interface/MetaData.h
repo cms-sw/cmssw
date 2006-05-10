@@ -26,6 +26,7 @@ namespace cond{
     std::string m_con;
     std::auto_ptr< coral::ISession > m_session;
     ServiceLoader& m_loader;
+    cond::ConnectMode m_mode;
   };
 }
 #endif
