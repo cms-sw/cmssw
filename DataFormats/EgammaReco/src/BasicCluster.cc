@@ -2,10 +2,10 @@
 
 using namespace reco;
 
-BasicCluster::BasicCluster( double energy, const Point& position, double chi2, const std::vector<DetId> usedHits ) :
+BasicCluster::BasicCluster( double energy, const Point& position, double chi2, const std::vector<DetId> usedHits, AlgoId algoID) :
    EcalCluster(energy,position), chi2_(chi2), usedHits_(usedHits)
 {
-  superClusterId_ = 0;
+  algoId_ = algoID;
 }
 
 

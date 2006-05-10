@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: BasicCluster.h,v 1.4 2006/04/26 19:50:34 askew Exp $
+ * \version $Id: BasicCluster.h,v 1.5 2006/05/02 15:31:46 futyand Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -53,7 +53,7 @@ namespace reco {
     //              int superClusterId,
     //             const Point & position = Point( 0, 0, 0 ) );
 
-    BasicCluster( const double energy, const Point& position, const double chi2, const std::vector<DetId> usedHits);
+    BasicCluster( const double energy, const Point& position, const double chi2, const std::vector<DetId> usedHits, AlgoId algoID = hybrid);
 
     virtual std::vector<DetId> getHitsByDetId() const { return usedHits_; }
 
@@ -67,10 +67,10 @@ namespace reco {
     double chi2() const { return chi2_; }
 
     /// identifier of the algorithm
-    AlgoId algo() const { return superClusterId_ == -1 ? island : hybrid; }
+    AlgoId algo() const { return algoId_; }
 
     /// identifier of supercluster, or -1 in case of island algorithm
-    int superClusterId() const { return superClusterId_; }
+    int superClusterId() const { return algoId_; }
 
     /// Access to ECAL RecHit information
     //std::vector<EcalRecHitData> recHits() const { return recHits_; }
@@ -88,8 +88,8 @@ namespace reco {
     /// chi-squared
     Double32_t chi2_;
 
-    /// supercluster identifier, or -1 in case of island algorithm
-    int superClusterId_;
+    /// 0 in case of island algorithm, 1 in case of hybrid
+    AlgoId algoId_;
 
     /// ECAL RecHit information
     //std::vector<EcalRecHitData> recHits_;
