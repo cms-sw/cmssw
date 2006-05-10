@@ -14,6 +14,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 //
 #include "EventFilter/SiStripRawToDigi/interface/TFHeaderDescription.h"
+#include "interface/shared/include/fed_header.h"
 // fed exception handling 
 #include "ICException.hh"
 // std
@@ -70,10 +71,10 @@ void SiStripRawToDigi::createDigis( const uint32_t& event,
   anal_.addEvent();
  
   // Extract Trigger FED information
-  const uint16_t& trigger_fed_id = triggerFedId_; // cabling->triggerFedId(); //@@ from cabling?!
-  const FEDRawData& trigger_fed = buffers->FEDData( static_cast<int>(trigger_fed_id) );
-  if ( trigger_fed_id && trigger_fed.size() ) { triggerFed( trigger_fed, summary ); }
-  //dumpRawData( trigger_fed_id, trigger_fed ); 
+  // triggerFedId_ = cabling->triggerFedId(); //@@ from cabling?!
+  const FEDRawData& trigger_fed = buffers->FEDData( static_cast<int>(triggerFedId_) );
+  if ( triggerFedId_ && trigger_fed.size() ) { triggerFed( trigger_fed, summary ); }
+  //dumpRawData( triggerFedId_, trigger_fed ); 
 
   // Retrieve FED ids from cabling map and iterate through 
   const vector<uint16_t>& fed_ids = cabling->feds(); 
@@ -84,7 +85,7 @@ void SiStripRawToDigi::createDigis( const uint32_t& event,
 
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
-    //dumpRawData( *ifed, input );
+    //if ( dumpFrequency_ && !(event%dumpFrequency_) ) { dumpRawData( *ifed, input ); }
     
     // Locate start of FED buffer within raw data
     FEDRawData output; 
@@ -300,15 +301,16 @@ void SiStripRawToDigi::createDigis( const uint32_t& event,
 void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
 				   auto_ptr< SiStripEventSummary >& summary ) {
 
-  if ( trigger_fed.data() ) {
+  if ( trigger_fed.data() &&
+       trigger_fed.size() > sizeof(fedh_t)  ) {
 
     uint8_t*  temp = const_cast<uint8_t*>( trigger_fed.data() );
-    uint32_t* data = reinterpret_cast<uint32_t*>( temp );
-    uint32_t  size = trigger_fed.size() / sizeof(uint32_t);
+    uint32_t* data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(fedh_t)/sizeof(uint32_t) + 1;
+    uint32_t  size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
 
-    if ( size > sizeof(TFHeaderDescription) ) {
+    if ( size_u32 > sizeof(TFHeaderDescription)/sizeof(uint32_t) ) {
     
-      TFHeaderDescription* header = (TFHeaderDescription*) data;
+      TFHeaderDescription* header = (TFHeaderDescription*) data_u32;
       LogDebug("RawToDigi") << "[SiStripRawToDigi::triggerFed]"
 			    << "  getBunchCrossing: " << header->getBunchCrossing()
 			    << "  getNumberOfChannels: " << header->getNumberOfChannels() 
@@ -323,7 +325,7 @@ void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
       
       // Write commissioning information to event 
       uint32_t hsize = sizeof(TFHeaderDescription)/sizeof(uint32_t);
-      uint32_t* head = &data[hsize];
+      uint32_t* head = &data_u32[hsize];
       summary->commissioningInfo( head );
       
     }
@@ -333,61 +335,95 @@ void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
 
 //------------------------------------------------------------------------------
 /** 
-    Remove any data appended prior to FED buffer
+    Removes any data appended prior to FED buffer and reorders 32-bit words if swapped.
+    Pattern matches to find DAQ header:
+    DAQ header,  4 MSB, BEO1, with value 0x5
+    DAQ header,  4 LSB, Hx$$, with value 0x8 (or 0x0)
+    DAQ trailer, 4 MSB, EOE,  with value 0xA
 */
 void SiStripRawToDigi::locateStartOfFedBuffer( uint16_t fed_id,
 					       const FEDRawData& input,
 					       FEDRawData& output ) {
 
-  // Check on size of buffer
+  // Check size of input buffer
   if ( input.size() < 24 ) { 
+    output.resize( input.size() ); // Return UNadjusted buffer start position and size
+    memcpy( output.data(), input.data(), input.size() );
     stringstream ss; 
     ss << "[SiStripRawToDigi::locateStartOfFedBuffer] "
        << "Input FEDRawData with FED id " << fed_id << " has size " << input.size();
     edm::LogError("RawToDigi") << ss.str();
+    return;
   } 
-  
-  uint32_t BOE1; // DAQ header, 4 MSB, BEO_1, with value 0x5
-  uint32_t HxSS; // DAQ header, 4 LSB, Hx$$, with value 0x8 (or 0x0)
-  uint32_t Resv; // TK header,  8 MSB, with value 0xED (???)
-  
-  if ( headerBytes_ < 0 ) { // Use "search mode" to find DAQ header
-    
-    for ( uint16_t ichar = 0; ichar < input.size()-16; ichar++ ) { 
-      uint32_t* input_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + ichar );
-      BOE1 = input_u32[0] & 0xF0000000;
-      HxSS = input_u32[1] & 0x0000000F;
-      Resv = input_u32[2] & 0xFF000000;
-      if ( BOE1 == 0x50000000 &&
-	   HxSS == 0x00000008 ) { // && Resv == 0xED000000 ) {
+
+  // Iterator through buffer to find DAQ header 
+  bool found = false;
+  uint16_t ichar = 0;
+  while ( ichar < input.size()-16 && !found ) {
+    uint16_t offset = headerBytes_ < 0 ? ichar : headerBytes_; // Negative value means use "search mode" to find DAQ header
+    uint32_t* input_u32   = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + offset );
+    uint32_t* fed_trailer = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + input.size() - 8 );
+//     cout << "FED trailer" 
+// 	 << ":" << hex << setfill('0') << setw(0) << fed_trailer[0] << dec
+// 	 << ":" << hex << setfill('0') << setw(0) << fed_trailer[1] << dec
+// 	 << ":" << hex << setfill('0') << setw(0) << ((fed_trailer[0] & 0x00FFFFFF) * 0x8) << dec
+// 	 << ":" << hex << setfill('0') << setw(0) << ((fed_trailer[1] & 0x00FFFFFF) * 0x8) << dec
+// 	 << ":" << (input.size() - offset) 
+// 	 << ":" << (((fed_trailer[0] & 0x00FFFFFF) * 0x8) == (input.size() - offset)) 
+// 	 << ":" << (((fed_trailer[1] & 0x00FFFFFF) * 0x8) == (input.size() - offset)) << endl;
+    if ( (input_u32[0]    & 0xF0000000) == 0x50000000 &&
+	 //(input_u32[1]    & 0x0000000F) == 0x00000008 && 
+	 //(input_u32[2]    & 0xFF000000) == 0xED000000 &&
+	 (fed_trailer[0]  & 0xF0000000) == 0xA0000000 && 
+	 ((fed_trailer[0] & 0x00FFFFFF) * 0x8) == (input.size() - offset) ) {
+      // Found DAQ header at byte position 'offset'
+      found = true;
+      output.resize( input.size()-offset );
+      memcpy( output.data(),         // target
+	      input.data()+offset,   // source
+	      input.size()-offset ); // nbytes
+      if ( headerBytes_ < 0 ) {
 	edm::LogInfo("RawToDigi") << "[SiStripRawToDigi::locateStartOfFedBuffer]" 
 				  << " FED buffer has been found at byte position " 
-				  << ichar << " with a size of " << input.size()-ichar << " bytes";
+				  << offset << " with a size of " << input.size()-offset << " bytes";
 	edm::LogInfo("RawToDigi") << "[SiStripRawToDigi::locateStartOfFedBuffer]" 
-				  << " Adjust the configurable 'AppendedHeaderBytes' to " << ichar;
-	// Found DAQ header at byte position 'ichar' 
-	// Return adjusted buffer start position and size
-	output.resize( input.size()-ichar );
-	memcpy( output.data(),        // target
-		input.data()+ichar,   // source
-		input.size()-ichar ); // nbytes
+				  << " Adjust the configurable 'AppendedHeaderBytes' to " << offset;
       }
-    }
-    // Didn't find DAQ header after search
-    // Return UNadjusted buffer start position and size
-    output.resize( input.size() );
+    } else if ( (input_u32[1]   & 0xF0000000) == 0x50000000 &&
+		//(input_u32[0]   & 0x0000000F) == 0x00000008 && 
+		//(input_u32[3]   & 0xFF000000) == 0xED000000 &&
+		(fed_trailer[1] & 0xF0000000) == 0xA0000000 &&
+		((fed_trailer[0] & 0x00FFFFFF) * 0x8) == (input.size() - offset) ) {
+      // Found DAQ header (with MSB and LSB 32-bit words swapped) at byte position 'offset' 
+      found = true;
+      output.resize( input.size()-offset );
+      uint32_t* output_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( output.data() ) + offset );
+      uint16_t iter = 0; 
+      while ( iter < input.size() / sizeof(uint32_t) ) {
+	output_u32[iter] = input_u32[iter+1];
+	output_u32[iter+1] = input_u32[iter];
+	iter+=2;
+      }
+      if ( headerBytes_ < 0 ) {
+	edm::LogInfo("RawToDigi") << "[SiStripRawToDigi::locateStartOfFedBuffer]" 
+				  << " FED buffer (with MSB and LSB 32-bit words swapped) has been found at byte position " 
+				  << offset << " with a size of " << input.size()-offset << " bytes";
+	edm::LogInfo("RawToDigi") << "[SiStripRawToDigi::locateStartOfFedBuffer]" 
+				  << " Adjust the configurable 'AppendedHeaderBytes' to " << offset;
+      }
+    } else { headerBytes_ < 0 ? found = false : found = true; }
+  }      
+  
+  // Check size of output buffer
+  if ( output.size() == 0 ) { // Did not find DAQ header after search. 
+    output.resize( input.size() ); // Return UNadjusted buffer start position and size
     memcpy( output.data(), input.data(), input.size() );
-    
-  } else { 
-
-    // Adjust according to the 'AppendedHeaderBytes' configurable
-    uint32_t* input_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + headerBytes_ );
-    BOE1 = input_u32[0] & 0xF0000000;
-    HxSS = input_u32[1] & 0x0000000F;
-    Resv = input_u32[2] & 0xFF000000;
-    if ( !( BOE1 == 0x50000000 &&
-	    HxSS == 0x00000008 ) ) { 
-      stringstream ss;
+    stringstream ss;
+    if ( headerBytes_ < 0 ) {
+      ss << "[SiStripRawToDigi::locateStartOfFedBuffer]"
+	 << " DAQ header not found within data buffer!";
+    } else {
+      uint32_t* input_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) );
       ss << "[SiStripRawToDigi::locateStartOfFedBuffer]"
 	 << " DAQ header not found at expected location!"
 	 << " First 64-bit word of buffer is 0x"
@@ -397,30 +433,16 @@ void SiStripRawToDigi::locateStartOfFedBuffer( uint16_t fed_id,
 	 << dec
 	 << ". Adjust 'AppendedHeaderBytes' configurable"
 	 << " to negative value to activate 'search mode'";
-      edm::LogError("RawToDigi") << ss.str();
-      // DAQ header not found at expected location
-      // Return UNadjusted buffer start position and size
-      output.resize( output.size() );
-      memcpy( output.data(), input.data(), input.size() );
-    } else {
-      // DAQ header found at expected location
-      // Return adjusted buffer start position and size
-      output.resize( input.size()-headerBytes_ );
-      memcpy( output.data(), 
-	      input.data()+headerBytes_, 
-	      input.size()-headerBytes_ );
     }
-  }
-  
-  // Check on size of output buffer
-  if ( output.size() < 24 ) { 
+    edm::LogError("RawToDigi") << ss.str();
+  } else if ( output.size() < 24 ) { // Found DAQ header after search, but too few words
     stringstream ss; 
     ss << "[SiStripRawToDigi::locateStartOfFedBuffer]"
        << " Unexpected buffer size! FEDRawData with FED id " << fed_id 
        << " has size " << output.size();
     edm::LogError("RawToDigi") << ss.str();
   } 
-  
+ 
 }
 
 //------------------------------------------------------------------------------
@@ -428,7 +450,10 @@ void SiStripRawToDigi::locateStartOfFedBuffer( uint16_t fed_id,
     Dumps raw data to stdout (NB: payload is byte-swapped,
     headers/trailer are not).
 */
-void SiStripRawToDigi::dumpRawData( uint16_t fed_id, const FEDRawData& buffer ) {
+void SiStripRawToDigi::dumpRawData( uint16_t fed_id, 
+				    const FEDRawData& buffer,
+				    ostream& os ) {
+  //@@ need to pipe info to ostream!!
   LogDebug("RawToDigi") << "[SiStripRawToDigi::dumpRawData] "
 			<< "Dump of buffer from FED id " <<  fed_id 
 			<< " which contains " << buffer.size() <<" bytes";
@@ -456,6 +481,81 @@ void SiStripRawToDigi::dumpRawData( uint16_t fed_id, const FEDRawData& buffer ) 
 			<< "End of FED buffer";
 }
 
+
+
+
+
+
+//   if ( headerBytes_ < 0 ) { // Use "search mode" to find DAQ header
+    
+//     for ( uint16_t ichar = 0; ichar < input.size()-16; ichar++ ) { 
+//       uint32_t* input_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + ichar );
+//       uint32_t* trailer   = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + input.size() - 4 );
+//       if ( (input_u32[0] & 0xF0000000) == 0x50000000 &&
+// 	   (input_u32[1] & 0x0000000F) == 0x00000008 &&
+// 	   //(input_u32[2] & 0xFF000000) == 0xED000000 &&
+// 	   (*trailer     & 0x0000000F) == 0x0000000a ) {
+// 	edm::LogInfo("RawToDigi") << "[SiStripRawToDigi::locateStartOfFedBuffer]" 
+// 				  << " FED buffer has been found at byte position " 
+// 				  << ichar << " with a size of " << input.size()-ichar << " bytes";
+// 	edm::LogInfo("RawToDigi") << "[SiStripRawToDigi::locateStartOfFedBuffer]" 
+// 				  << " Adjust the configurable 'AppendedHeaderBytes' to " << ichar;
+// 	// Found DAQ header at byte position 'ichar' 
+// 	// Return adjusted buffer start position and size
+// 	output.resize( input.size()-ichar );
+// 	memcpy( output.data(),        // target
+// 		input.data()+ichar,   // source
+// 		input.size()-ichar ); // nbytes
+//       }
+//     }
+//     // Didn't find DAQ header after search
+//     // Return UNadjusted buffer start position and size
+//     output.resize( input.size() );
+//     memcpy( output.data(), input.data(), input.size() );
+    
+//   } else { 
+
+//     // Adjust according to the 'AppendedHeaderBytes' configurable
+//     uint32_t* input_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + headerBytes_ );
+//     BOE1 = input_u32[0] & 0xF0000000;
+//     HxSS = input_u32[1] & 0x0000000F;
+//     Resv = input_u32[2] & 0xFF000000;
+//     if ( !( BOE1 == 0x50000000 &&
+// 	    HxSS == 0x00000008 ) ) { 
+//       stringstream ss;
+//       ss << "[SiStripRawToDigi::locateStartOfFedBuffer]"
+// 	 << " DAQ header not found at expected location!"
+// 	 << " First 64-bit word of buffer is 0x"
+// 	 << hex 
+// 	 << setfill('0') << setw(8) << input_u32[0] 
+// 	 << setfill('0') << setw(8) << input_u32[1] 
+// 	 << dec
+// 	 << ". Adjust 'AppendedHeaderBytes' configurable"
+// 	 << " to negative value to activate 'search mode'";
+//       edm::LogError("RawToDigi") << ss.str();
+//       // DAQ header not found at expected location
+//       // Return UNadjusted buffer start position and size
+//       output.resize( output.size() );
+//       memcpy( output.data(), input.data(), input.size() );
+//     } else {
+//       // DAQ header found at expected location
+//       // Return adjusted buffer start position and size
+//       output.resize( input.size()-headerBytes_ );
+//       memcpy( output.data(), 
+// 	      input.data()+headerBytes_, 
+// 	      input.size()-headerBytes_ );
+//     }
+//   }
+  
+//   // Check on size of output buffer
+//   if ( output.size() < 24 ) { 
+//     stringstream ss; 
+//     ss << "[SiStripRawToDigi::locateStartOfFedBuffer]"
+//        << " Unexpected buffer size! FEDRawData with FED id " << fed_id 
+//        << " has size " << output.size();
+//     edm::LogError("RawToDigi") << ss.str();
+//   } 
+ 
 
 
 

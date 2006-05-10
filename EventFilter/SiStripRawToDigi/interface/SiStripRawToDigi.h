@@ -7,7 +7,8 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiAnalysis.h"
 #include "Fed9UUtils.hh"
 #include "boost/cstdint.hpp"
-
+#include <ostream>
+ 
 class FEDRawDataCollection;
 class FEDRawData;
 class SiStripDigi;
@@ -53,7 +54,7 @@ class SiStripRawToDigi {
   void triggerFed( const FEDRawData& trigger_fed,
 		   auto_ptr< SiStripEventSummary >& summary );
   void locateStartOfFedBuffer( uint16_t fed_id, const FEDRawData& input, FEDRawData& output );
-  void dumpRawData( uint16_t fed_id, const FEDRawData& buffer );
+  void dumpRawData( uint16_t fed_id, const FEDRawData&, std::ostream& );
   void digiInfo( vector<uint32_t>& det_ids, //@@ TEMPORARY!
 		 auto_ptr< edm::DetSetVector<SiStripRawDigi> >& scope_mode,
 		 auto_ptr< edm::DetSetVector<SiStripRawDigi> >& virgin_raw,

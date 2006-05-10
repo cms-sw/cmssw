@@ -11,6 +11,7 @@
 <use name=Fed9UUtils>
 <use name=ICUtils>
 <use name=clhep>
+<use name=xdaq>
 <flags SEAL_PLUGIN_NAME="EventFilterSiStripRawToDigi">
 
 <export>
@@ -28,5 +29,6 @@
    <use name=Fed9UUtils>
    <use name=ICUtils>
    <use name=clhep>
+   <use name=xdaq>
 </export>
 
