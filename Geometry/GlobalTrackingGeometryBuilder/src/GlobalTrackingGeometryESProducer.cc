@@ -1,7 +1,7 @@
 /** \file GlobalTrackingGeometryESProducer.cc
  *
- *  $Date: 2006/05/06 13:46:16 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/09 14:08:52 $
+ *  $Revision: 1.2 $
  *  \author Matteo Sani
  */
 
@@ -42,7 +42,7 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
       
   try {
   
-    record.getRecord<GlobalTrackingGeometryRecord>().get(tk);
+    record.getRecord<TrackerDigiGeometryRecord>().get(tk);
   } catch (...) {
     // No Tk geo available
     LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No Tracker geometry is available.";
@@ -50,7 +50,7 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
 
   try {
   
-    record.getRecord<GlobalTrackingGeometryRecord>().get(dt);
+    record.getRecord<MuonGeometryRecord>().get(dt);
   } catch (...) {
     // No DT geo available
     LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No DT geometry is available.";
@@ -58,7 +58,7 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
 
   try {
   
-    record.getRecord<GlobalTrackingGeometryRecord>().get(csc);
+    record.getRecord<MuonGeometryRecord>().get(csc);
   } catch (...) {
     // No CSC geo available
     LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No CSC geometry is available.";
@@ -66,7 +66,7 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
 
   try {
   
-    record.getRecord<GlobalTrackingGeometryRecord>().get(rpc);
+    record.getRecord<MuonGeometryRecord>().get(rpc);
   } catch (...) {
     // No RPC geo available
     LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No RPC geometry is available.";

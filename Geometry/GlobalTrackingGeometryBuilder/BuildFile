@@ -1,14 +1,12 @@
 <export>
- <lib name=GeometryCSCGeometryBuilder>
- <use name=Geometry/MuonNumbering>
- <use name=Geometry/Records>
- <use name=Geometry/CSCGeometry>
- <use name=DetectorDescription/Core>
+ <lib name=GeometryGlobalTrackingGeometryBuilder>
 </export>
 
- <use name=Geometry/MuonNumbering>
- <use name=Geometry/Records>
- <use name=Geometry/CSCGeometry>
- <use name=DetectorDescription/Core>
+<use name=Geometry/MuonNumbering>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/CSCGeometry>
+<use name=Geometry/DTGeometry>
+<use name=Geometry/RPCGeometry>
 
 <flags SEAL_PLUGIN_NAME="GeometryGlobalTrackingGeometryBuilder">
