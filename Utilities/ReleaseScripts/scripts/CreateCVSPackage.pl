@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-28 09:50:38+0200
-# Revision: $Id: CreateCVSPackage.pl,v 1.1 2006/04/28 14:52:20 sashby Exp $ 
+# Revision: $Id: CreateCVSPackage.pl,v 1.2 2006/05/08 14:21:30 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -13,6 +13,7 @@
 use Cwd;
 use Getopt::Long ();
 use File::Basename;
+use File::Path;
 
 # Fixed parameters:
 my $cvs = '/usr/bin/cvs';
@@ -35,11 +36,13 @@ my $padmin;
 
 my %opts; $opts{VERBOSE} = 0; # non-verbose by default;
 $opts{DEBUG} = 0; # Debugging off by default;
+$opts{CLEAN} = 1; # Remove the checked out directories by default;
 # Developers is a list of "Firstname Lastname:email,.. ", comma separated.
 # The principal admin is "FirstName Lastname:loginid:email" but a list of
 # admins can be provided:
 my %options = (
 	       "packagename=s" => sub { $packagename = $_[1] },
+
 	       "developers=s"  => sub { my $dnamelist=[ split(",",$_[1]) ];
 					map
 					   {
@@ -59,8 +62,10 @@ my %options = (
 					   push(@$administrators, [ $firstname." ".$lastname, $loginid, $email ]);
 					   } @$adminnamelist;
 					},
+
 	       "verbose"       => sub { $opts{VERBOSE} = 1; },
 	       "debug"         => sub { $opts{DEBUG} = 1; },
+	       "noclean"       => sub { $opts{CLEAN} = 0; },
 	       "help"          => sub { &usage(); exit(0) }
 	       );
 
@@ -141,6 +146,13 @@ else
    &UpdateDevelopers($newpack,$developers);
    # Commit the changed developers file:
    &commit($newpack,"Updating developers file for $packagename.");
+   # Clean up (skip if --noclean active):
+   if ($opts{CLEAN})
+      {
+      my $rv = rmtree($subsystem);
+      die basename($0).": Unable to clean up - error removing $subsystem!","\n";
+      }
+   
    print "Done\n";
    }
 
@@ -194,7 +206,7 @@ sub get()
       {
       die basename($0).": Unable to check out $item!","\n";
       }
-
+   
    return $rv;
    }
 
@@ -291,6 +303,9 @@ sub usage()
    $string.="--developers=<DEVLIST>        The list of people to be registered as developers for this package.\n\n";
    $string.="                              DEVLIST is a quoted comma-separated list of individual developers:\n";
    $string.="                              \"Firstname1 Lastname1:Email1,Firstname2 Lastname2:email2\".\n";
+   $string.="\n";
+   $string.="--noclean                     Don't remove the checked out directories from the working area.\n";
+   $string.="\n"; 
    $string.="OPTIONS:\n";
    $string.="--verbose | -v                Be verbose.\n";
    $string.="--debug   | -d                Debug mode. Show the info on admins and developers. Dump the generated\n";
