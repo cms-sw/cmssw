@@ -46,7 +46,7 @@ void IslandClusterAlgo::mainSearch(const CaloSubdetectorGeometry *geometry)
       ClusterVars vars = computeClusterVars(hitData_v);
 
       //clusters.push_back(reco::BasicCluster(hitData_v, 1, pos));
-      clusters.push_back(reco::BasicCluster(vars.energy, pos, vars.chi2, vars.usedHits, reco::island));
+      clusters.push_back(reco::BasicCluster(vars.energy, pos, vars.chi2, vars.usedHits));
 
       hitData_v.clear();
     }
