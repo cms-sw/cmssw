@@ -60,12 +60,18 @@ public:
   /// clear the FBaseSimEvent content before the next event
   void clear();
 
+
+  /// Add an id in the vector of charged tracks id's
+  void addChargedTrack(int id);
+
   /// Number of tracks
   unsigned int nTracks() const;
   /// Number of vertices
   unsigned int nVertices() const;
   /// Number of generator particles
   unsigned int nGenParts() const;
+  /// Number of "reconstructed" charged tracks
+  unsigned int nChargedTracks() const;
 
   /// Return track with given Id 
   FSimTrack& track(int id) const;
@@ -107,6 +113,8 @@ public:
   std::vector<FSimTrack>* theSimTracks;
   std::vector<FSimVertex>* theSimVertices;
   std::vector<HepMC::GenParticle*>* theGenParticles;
+
+  std::vector<unsigned>* theChargedTracks;
 
   /// The particle filter
   KineParticleFilter* myFilter;

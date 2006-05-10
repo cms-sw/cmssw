@@ -185,7 +185,9 @@ FSimTrack::addRecHit(const FamosBasicRecHit* hit, unsigned layer) {
 void 
 FSimTrack::addSimHit(const RawParticle& pp, unsigned layer) { 
   //    theSimHits[layer]=pp; 
+  if ( theSimHits.size() == 0 ) mom_->addChargedTrack(id_);
   theSimHits.insert(pair<unsigned,RawParticle>(layer,pp));
+
 }
     
 /*

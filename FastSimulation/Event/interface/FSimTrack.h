@@ -199,7 +199,7 @@ class FSimTrack : public EmbdSimTrack {
 
   //  HepMC::GenParticle* me_;
 
-  const FBaseSimEvent* mom_;
+  FBaseSimEvent* mom_;
   //  int embd_;   // The index in the EmbdSimTrack vector
   int id_; // The index in the FSimTrackVector
   
