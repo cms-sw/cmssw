@@ -1,14 +1,14 @@
-#include "RecoTracker/TrackProducer/interface/TrackProducer.h"
+#include "RecoTracker/TrackProducer/interface/TrackRefitter.h"
 // system include files
 #include <memory>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
+TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
   theAlgo(iConfig)
 {
   setConf(iConfig);
@@ -19,8 +19,7 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
   produces<reco::TrackExtraCollection>();
 }
 
-
-void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
+void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 {
   edm::LogInfo("TrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
   //
@@ -39,23 +38,22 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   getFromES(setup,theG,theMF,theFitter,thePropagator);
 
   //
-  //declare and get TrackColection to be retrieved from the event
+  //declare and get TrackCollection to be retrieved from the event
   //
-  edm::Handle<TrackCandidateCollection> theTCCollection;
-  getFromEvt(theEvent,theTCCollection);
+  edm::Handle<reco::TrackCollection> theTCollection;
+  getFromEvt(theEvent,theTCollection);
 
   //
   //run the algorithm  
   //
   edm::LogInfo("TrackProducer") << "run the algorithm" << "\n";
   AlgoProductCollection algoResults;
-  theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			   theFitter.product(), thePropagator.product(), algoResults);
+  theAlgo.runWithTrack(theG.product(), theMF.product(), *theTCollection, 
+		       theFitter.product(), thePropagator.product(), algoResults);
   
   //
   //put everything in th event
   putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, algoResults);
   edm::LogInfo("TrackProducer") << "end" << "\n";
 }
-
 
