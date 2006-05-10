@@ -8,7 +8,7 @@
 //
 
 // Return a vector of clusters from a collection of EcalRecHits:
-std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(EcalRecHitCollection & rechits,
+std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(const EcalRecHitCollection & rechits,
 								  const CaloSubdetectorGeometry *geometry)
 {
   rechits_m.clear();
@@ -19,11 +19,11 @@ std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(EcalRecHitColl
   std::cout << "Number of RecHits in event = " << rechits.size() << std::endl;
 
   // build the pahits and seeds vectors:
-  EcalRecHitCollection::iterator it;
+  EcalRecHitCollection::const_iterator it;
   for (it = rechits.begin(); it != rechits.end(); it++)
     {
       // every hit should be position aware(?)
-      PositionAwareHit pah(*it, geometry);
+      PositionAwareHit pah(&(*it), geometry);
 
       std::pair<EBDetId, PositionAwareHit> map_entry(pah.getId(), pah);
       rechits_m.insert(map_entry);
@@ -35,15 +35,9 @@ std::vector<reco::BasicCluster> ClusteringAlgorithm::makeClusters(EcalRecHitColl
 	}
     }
 
-  std::cout << "Built vector of seeds, about to sort them...";
   sort(seeds.begin(), seeds.end());
-  std::cout << "done" << std::endl;
-
-  std::cout << "About to call mainSearch...";
-
 
   mainSearch(geometry);
-  std::cout << "done" << std::endl;
 
   sort(clusters.begin(), clusters.end());
 

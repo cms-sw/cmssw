@@ -1,7 +1,6 @@
 #ifndef RecoECAL_ECALClusters_ClusteringAlgorithm_h
 #define RecoECAL_ECALClusters_ClusteringAlgorithm_h
 
-
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "DataFormats/Math/interface/Point3D.h"
@@ -11,7 +10,6 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 #include "RecoEcal/EgammaClusterAlgos/interface/PositionAwareHit.h"
-
 
 // C/C++ headers
 #include <string>
@@ -39,7 +37,7 @@ class ClusteringAlgorithm
     }
 
   // this is the method that will start the clusterisation
-  std::vector<reco::BasicCluster> makeClusters(EcalRecHitCollection & rechits,
+  std::vector<reco::BasicCluster> makeClusters(const EcalRecHitCollection & rechits,
 					       const CaloSubdetectorGeometry *geometry);
   /// point in the space
     typedef math::XYZPoint Point;

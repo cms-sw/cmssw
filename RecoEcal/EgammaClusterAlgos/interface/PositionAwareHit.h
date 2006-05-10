@@ -15,7 +15,7 @@ class PositionAwareHit
  private:
 
   // this position aware hit corresponds to a rec hit:
-  EcalRecHit rechit;
+  const EcalRecHit *rechit_p;
 
   // The position vector of the hit crystal::
   GlobalPoint position;
@@ -24,7 +24,7 @@ class PositionAwareHit
 
  public:
 
-  PositionAwareHit(EcalRecHit &the_rechit, const CaloSubdetectorGeometry *the_geometry);
+  PositionAwareHit(const EcalRecHit *theRechit_p, const CaloSubdetectorGeometry *the_geometry);
   
   int operator<(const PositionAwareHit &other_hit) const;
   
@@ -34,11 +34,11 @@ class PositionAwareHit
   double getEta() { return position.eta(); }
   double getTheta() { return position.theta(); }
   double getPhi() { return position.phi(); }
-  double getEnergy() const { return rechit.energy(); }
+  double getEnergy() const { return rechit_p->energy(); }
   double getET() { double ET = getEnergy() * sin(getTheta()); return ET; }
   
-  EBDetId getId() { return rechit.detid(); }
-  EcalRecHit getHit() { return rechit; }
+  EBDetId getId() { return rechit_p->detid(); }
+  const EcalRecHit *getHit() { return rechit_p; }
 };
 
 #endif

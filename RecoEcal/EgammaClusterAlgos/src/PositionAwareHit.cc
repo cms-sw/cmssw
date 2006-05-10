@@ -1,8 +1,8 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/PositionAwareHit.h"
 
-PositionAwareHit::PositionAwareHit(EcalRecHit &the_rechit, const CaloSubdetectorGeometry *the_geometry)
+PositionAwareHit::PositionAwareHit(const EcalRecHit *theRechit_p, const CaloSubdetectorGeometry *the_geometry)
 {
-  rechit = the_rechit;
+  rechit_p = theRechit_p;
   
   const CaloCellGeometry *this_cell = the_geometry->getGeometry(getId());
   position = this_cell->getPosition();

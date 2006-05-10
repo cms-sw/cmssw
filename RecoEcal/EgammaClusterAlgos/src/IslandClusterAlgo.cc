@@ -29,7 +29,7 @@ void IslandClusterAlgo::mainSearch(const CaloSubdetectorGeometry *geometry)
       std::cout << "*****************************************************" << std::endl;
       std::cout << "Included RecHits:" << std::endl;      
 
-      reco::EcalRecHitData data(it->getEnergy(),0,it->getId());
+      reco::EcalRecHitData data(it->getEnergy(), 0, it->getId());
       hitData_v.push_back(data);
 
       EcalBarrelHardcodedTopology *topology_p = new EcalBarrelHardcodedTopology();
@@ -46,7 +46,7 @@ void IslandClusterAlgo::mainSearch(const CaloSubdetectorGeometry *geometry)
       ClusterVars vars = computeClusterVars(hitData_v);
 
       //clusters.push_back(reco::BasicCluster(hitData_v, 1, pos));
-      clusters.push_back(reco::BasicCluster(vars.energy, pos, vars.chi2, vars.usedHits));
+      clusters.push_back(reco::BasicCluster(vars.energy, pos, vars.chi2, vars.usedHits, reco::island));
 
       hitData_v.clear();
     }
