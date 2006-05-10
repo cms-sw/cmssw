@@ -18,9 +18,9 @@
   <Constant name="MB4SmallPos_x" value="5804.61495805552568*mm"/>
   <Constant name="MB4SmallPos_y" value="-4350.11197427354182*mm"/>
 
+  <Constant name="MB4FeetPos_x" value="3561.43*mm"/>
+  <Constant name="MB4FeetPos_y" value="-6288.24*mm"/>
 
-  <Constant name="MB4FeetPos_x" value="3570.28*mm"/>
-  <Constant name="MB4FeetPos_y" value="-6303.92*mm+[mbCommon:MBSL_posDisp]"/>
 
   <Constant name="MB4FeetUnitRadius" value="sqrt([mb4:MB4FeetPos_x]*[mb4:MB4FeetPos_x]+[mb4:MB4FeetPos_y]*[mb4:MB4FeetPos_y])"/>
   <Constant name="MB4FeetPosAngle" value="60.4043*deg"/>
@@ -803,98 +803,98 @@
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4BigLeftN"/> 
   <rRotation name="rotations:MM401"/>
-  <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4BigRightP"/>
   <rRotation name="rotations:RM1882"/>
-  <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="3">
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4BigRightP"/>
   <rRotation name="rotations:RM1892"/>
-  <Translation x="[MB4BigUnitRadius]*cos(60.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(60.*deg+[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(60.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(60.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="4">
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4TopN"/>
   <rRotation name="rotations:MM404"/>
-  <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBPos_z]" /> 
+  <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]" /> 
  </PosPart>
  <PosPart copyNumber="13">
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4TopN"/>
   <rRotation name="rotations:MM404"/>
-  <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="5">
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4BigRightN"/>
   <rRotation name="rotations:MM405"/>
-  <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="6">
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4BigLeftP"/>
   <rRotation name="rotations:RM1922"/>
-  <Translation x="[MB4BigUnitRadius]*cos(150.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(150.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(150.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(150.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="7">
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4BigLeftP"/>
   <rRotation name="rotations:90XD"/>
-  <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="8">
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4SmallRightN"/>
   <rRotation name="rotations:MM408"/>
-  <Translation x="-[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="9">
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4FeetN"/>
   <rRotation name="rotations:MM409"/>
-  <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]" /> 
+  <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]" /> 
  </PosPart>
  <PosPart copyNumber="10">
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4BottomLeftP"/>
   <rRotation name="rotations:RM1842"/>
-  <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="14">
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4BottomRightP"/>
   <rRotation name="rotations:RM1842"/>
-  <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="11">
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4FeetP"/>
   <rRotation name="rotations:RM1852"/>
-  <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]" /> 
+  <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]" /> 
  </PosPart>
  <PosPart copyNumber="12">
    <rParent name="cms:MBWheel_0"/>
    <rChild name="mb4:MB4SmallLeftN"/>
   <rRotation name="rotations:MM412"/>
-  <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
 
  <PosPart copyNumber="1">
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4BigRightP"/>
   <rRotation name="rotations:RM1872"/>
-  <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4BigRightP"/>
   <rRotation name="rotations:RM1882"/>
-  <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="3">
    <rParent name="cms:MBWheel_1P"/>
@@ -906,31 +906,31 @@
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4TopChimP"/>
   <rRotation name="rotations:RM1902"/>
-  <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBChimPos_z]" />
+  <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBChimPos_z]" />
  </PosPart>
  <PosPart copyNumber="13">
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4TopChimP"/>
   <rRotation name="rotations:RM1902"/>
-  <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBChimPos_z]" />
+  <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBChimPos_z]" />
  </PosPart>
  <PosPart copyNumber="5">
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4BigLeftP"/>
   <rRotation name="rotations:RM1912"/>
-  <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="6">
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4BigLeftP"/>
   <rRotation name="rotations:RM1922"/>
-  <Translation x="[MB4BigUnitRadius]*cos(150.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(150.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(150.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(150.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="7">
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4BigLeftP"/>
   <rRotation name="rotations:90XD"/>
-  <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="8">
    <rParent name="cms:MBWheel_1P"/>
@@ -942,116 +942,116 @@
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4FeetP"/>
   <rRotation name="rotations:RM1832"/>
-  <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="10">
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4BottomLeftP"/>
   <rRotation name="rotations:RM1842"/>
-  <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="14">
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4BottomRightP"/>
   <rRotation name="rotations:RM1842"/>
-  <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="11">
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4FeetP"/>
   <rRotation name="rotations:RM1852"/>
-  <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="12">
    <rParent name="cms:MBWheel_1P"/>
    <rChild name="mb4:MB4SmallRightP"/>
   <rRotation name="rotations:RM1862"/>
-  <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
 
  <PosPart copyNumber="1">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4BigRightP"/>
   <rRotation name="rotations:RM1872"/>
-  <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4BigRightP"/>
   <rRotation name="rotations:RM1882"/>
-  <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="3">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4BigRightP"/>
   <rRotation name="rotations:RM1892"/>
-  <Translation x="[MB4BigUnitRadius]*cos(60.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(60.*deg+[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(60.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(60.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="4">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4TopP"/>
   <rRotation name="rotations:RM1902"/>
-  <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="13">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4TopP"/>
   <rRotation name="rotations:RM1902"/>
-  <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="5">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4BigLeftP"/>
   <rRotation name="rotations:RM1912"/>
-  <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="6">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4BigLeftP"/>
   <rRotation name="rotations:RM1922"/>
-  <Translation x="[MB4BigUnitRadius]*cos(150.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(150.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(150.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(150.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="7">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4BigLeftP"/>
   <rRotation name="rotations:90XD"/>
-  <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="8">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4SmallLeftP"/>
   <rRotation name="rotations:RM1822"/>
-  <Translation x="-[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="9">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4FeetP"/>
   <rRotation name="rotations:RM1832"/>
-  <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="10">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4BottomLeftP"/>
   <rRotation name="rotations:RM1842"/>
-  <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="14">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4BottomRightP"/>
   <rRotation name="rotations:RM1842"/>
-  <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="11">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4FeetP"/>
   <rRotation name="rotations:RM1852"/>
-  <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="12">
    <rParent name="cms:MBWheel_2P"/>
    <rChild name="mb4:MB4SmallRightP"/>
   <rRotation name="rotations:RM1862"/>
-  <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]" />
+  <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="-[mbCommon:MBPos_z]" />
  </PosPart>
 
 
@@ -1059,13 +1059,13 @@
    <rParent name="cms:MBWheel_1N"/>
    <rChild name="mb4:MB4BigLeftN"/>
   <rRotation name="rotations:MM401"/>
-  <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="cms:MBWheel_1N"/>
    <rChild name="mb4:MB4BigLeftN"/>
   <rRotation name="rotations:MM402"/>
-  <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="3">
    <rParent name="cms:MBWheel_1N"/>
@@ -1077,19 +1077,19 @@
    <rParent name="cms:MBWheel_1N"/>
    <rChild name="mb4:MB4TopN"/>
   <rRotation name="rotations:MM404"/>
-  <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="13">
    <rParent name="cms:MBWheel_1N"/>
    <rChild name="mb4:MB4TopN"/>
   <rRotation name="rotations:MM404"/>
-  <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="5">
    <rParent name="cms:MBWheel_1N"/>
    <rChild name="mb4:MB4BigRightN"/>
   <rRotation name="rotations:MM405"/>
-  <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="6">
    <rParent name="cms:MBWheel_1N"/>
@@ -1101,128 +1101,128 @@
    <rParent name="cms:MBWheel_1N"/>
    <rChild name="mb4:MB4BigRightN"/>
   <rRotation name="rotations:MM407"/>
-  <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="8">
    <rParent name="cms:MBWheel_1N"/>
    <rChild name="mb4:MB4SmallRightN"/>
   <rRotation name="rotations:MM408"/>
-  <Translation x="-[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="9">
    <rParent name="cms:MBWheel_1N"/>
    <rChild name="mb4:MB4FeetN"/>
   <rRotation name="rotations:MM409"/>
-  <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="10">
    <rParent name="cms:MBWheel_1N"/>
    <rChild name="mb4:MB4BottomRightN"/>
   <rRotation name="rotations:MM410"/>
-  <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="14">
    <rParent name="cms:MBWheel_1N"/>
    <rChild name="mb4:MB4BottomLeftN"/>
   <rRotation name="rotations:MM410"/>
-  <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="11">
    <rParent name="cms:MBWheel_1N"/>
    <rChild name="mb4:MB4FeetN"/>
   <rRotation name="rotations:MM411"/>
-  <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="12">
    <rParent name="cms:MBWheel_1N"/>
    <rChild name="mb4:MB4SmallLeftN"/>
   <rRotation name="rotations:MM412"/>
-  <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
 
  <PosPart copyNumber="1">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4BigLeftN"/>
   <rRotation name="rotations:MM401"/>
-  <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigPos_x]" y="[MB4BigPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4BigLeftN"/>
   <rRotation name="rotations:MM402"/>
-  <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(30.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(30.*deg+[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="3">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4BigLeftN"/>
   <rRotation name="rotations:MM403"/>
-  <Translation x="[MB4BigUnitRadius]*cos(60.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(60.*deg+[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(60.*deg+[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(60.*deg+[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="4">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4TopN"/>
   <rRotation name="rotations:MM404"/>
-  <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="13">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4TopN"/>
   <rRotation name="rotations:MM404"/>
-  <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4TopPos_x]" y="[MB4TopPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="5">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4BigRightN"/>
   <rRotation name="rotations:MM405"/>
-  <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(120.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(120.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="6">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4BigRightN"/>
   <rRotation name="rotations:MM406"/>
-  <Translation x="[MB4BigUnitRadius]*cos(150.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(150.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(150.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(150.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="7">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4BigRightN"/>
   <rRotation name="rotations:MM407"/>
-  <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BigUnitRadius]*cos(180.*deg-[MB4BigPosAngle])*mm" y="[MB4BigUnitRadius]*sin(180.*deg-[MB4BigPosAngle])*mm" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="8">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4SmallRightN"/>
   <rRotation name="rotations:MM408"/>
-  <Translation x="-[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="9">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4FeetN"/>
   <rRotation name="rotations:MM409"/>
-  <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="10">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4BottomRightN"/>
   <rRotation name="rotations:MM410"/>
-  <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="-[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="14">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4BottomLeftN"/>
   <rRotation name="rotations:MM410"/>
-  <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4BottomPos_x]" y="[MB4BottomPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="11">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4FeetN"/>
   <rRotation name="rotations:MM411"/>
-  <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4FeetPos_x]" y="[MB4FeetPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
  <PosPart copyNumber="12">
    <rParent name="cms:MBWheel_2N"/>
    <rChild name="mb4:MB4SmallLeftN"/>
   <rRotation name="rotations:MM412"/>
-  <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="-[mbCommon:MBPos_z]" />
+  <Translation x="[MB4SmallPos_x]" y="[MB4SmallPos_y]" z="[mbCommon:MBPos_z]" />
  </PosPart>
 
 
@@ -2019,16 +2019,6 @@
    <rChild name="mb4:MB4BottomHoneycombBox"/>
   <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]" />
  </PosPart>
-
-  <PosPart copyNumber="1">
-   <rParent name="mb4:MB4FeetP"/>
-   <rChild name="mb4:MB4FeetHoneycombBox"/>
- </PosPart>
-  <PosPart copyNumber="1">
-   <rParent name="mb4:MB4FeetN"/>
-   <rChild name="mb4:MB4FeetHoneycombBox"/>
- </PosPart>
-
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BigHoneycombBox"/>
    <rChild name="mb4:MB4BigHoneycomb"/> 
