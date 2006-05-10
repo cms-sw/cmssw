@@ -1,7 +1,7 @@
 /** \file GlobalTrackingGeometryESProducer.cc
  *
- *  $Date: 2006/05/09 14:08:52 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/10 12:56:25 $
+ *  $Revision: 1.3 $
  *  \author Matteo Sani
  */
 
@@ -24,8 +24,6 @@ using namespace edm;
 GlobalTrackingGeometryESProducer::GlobalTrackingGeometryESProducer(const edm::ParameterSet & p){
 
   setWhatProduced(this);
-  
-  // FIXME: set the parameters
 }
 
 GlobalTrackingGeometryESProducer::~GlobalTrackingGeometryESProducer(){}
@@ -33,8 +31,6 @@ GlobalTrackingGeometryESProducer::~GlobalTrackingGeometryESProducer(){}
 boost::shared_ptr<GlobalTrackingGeometry>
 GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& record) {
 
-  // DO NOT CHANGE THE ORDER OF THE GEOMETRIES !!!!!!!  
-  
   edm::ESHandle<TrackerGeometry> tk;
   edm::ESHandle<DTGeometry> dt;
   edm::ESHandle<CSCGeometry> csc;
@@ -43,6 +39,9 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
   try {
   
     record.getRecord<TrackerDigiGeometryRecord>().get(tk);
+    if (tk.isValid())
+        LogDebug("GeometryGlobalTrackingGeometryBuilder") << "No valid Tracker geometry is available.";
+
   } catch (...) {
     // No Tk geo available
     LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No Tracker geometry is available.";
@@ -51,6 +50,9 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
   try {
   
     record.getRecord<MuonGeometryRecord>().get(dt);
+    if (dt.isValid())
+        LogDebug("GeometryGlobalTrackingGeometryBuilder") << "No valid DT geometry is available.";
+
   } catch (...) {
     // No DT geo available
     LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No DT geometry is available.";
@@ -59,6 +61,9 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
   try {
   
     record.getRecord<MuonGeometryRecord>().get(csc);
+    if (csc.isValid())
+        LogDebug("GeometryGlobalTrackingGeometryBuilder") << "No valid CSC geometry is available.";
+
   } catch (...) {
     // No CSC geo available
     LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No CSC geometry is available.";
@@ -67,13 +72,16 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
   try {
   
     record.getRecord<MuonGeometryRecord>().get(rpc);
+    if (rpc.isValid())
+        LogDebug("GeometryGlobalTrackingGeometryBuilder") << "No valid RPC geometry is available.";
+
   } catch (...) {
     // No RPC geo available
     LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No RPC geometry is available.";
   }    
 
   GlobalTrackingGeometryBuilder builder;
-  return boost::shared_ptr<GlobalTrackingGeometry>(builder.build(&(*tk),&(*dt),&(*csc),&(*rpc)));
+  return boost::shared_ptr<GlobalTrackingGeometry>(builder.build(&(*tk), &(*dt), &(*csc), &(*rpc)));
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(GlobalTrackingGeometryESProducer)
