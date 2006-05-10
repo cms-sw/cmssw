@@ -57,11 +57,11 @@ SELECT dt_wheel_numbering.object_number,
          WHERE numbering_version='CMSSW_NUMBERING') dt_num,
        (SELECT connection_id FROM dt_connection_master@cmsomds
          WHERE connection_type='DT_CELL_READOUT_CONNECTION'
-           AND
-        mapping_version='CMSSW_CELL') rob_con,
+           AND mapping_version='CMSSW_CELL') rob_con,
        (SELECT connection_id FROM dt_connection_master@cmsomds
          WHERE connection_type='DT_ROB_ROS_CONNECTION'
-           AND mapping_version='CMSSW_ROS') ros_con
+           AND mapping_version='CMSSW_ROS') ros_con,
+        dual /* No idea why this is needed, but it is (sequence?) */
   WHERE dt_cell_readout_map.cell_id=dt_cell.cell_id
     AND dt_cell.layer_id=dt_layer.layer_id
     AND dt_layer.sl_id=dt_superlayer.sl_id
