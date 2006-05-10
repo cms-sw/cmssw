@@ -101,7 +101,7 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
   cond::MetaData meta(m_con, *m_loader);
   std::vector< std::pair<std::string, std::string> >::const_iterator it;
   try{
-    meta.connect();
+    meta.connect( cond::ReadOnly );
     for(it=recordToTag.begin(); it!=recordToTag.end(); ++it){
       std::string iovToken=meta.getToken(it->second);
       if( iovToken.empty() ){
