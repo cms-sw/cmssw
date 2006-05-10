@@ -1,3 +1,4 @@
+#!/bin/bash
 # A script to execute O2O for a given subdetector and POOL-ORA object
 
 # Check arguments
@@ -33,28 +34,14 @@ else
   APPEND=
 fi
 
-
-# Basic paths, files, and variables
-O2ODIR=$HOME/scratch0
-CMSSW_VER=CMSSW_0_6_0_pre4
-SCRAM_PATH=/afs/cern.ch/cms/utils
-SCRAM_ARCH=slc3_ia32_gcc323
-CMSSW_DIR=${O2ODIR}/${CMSSW_VER}
-LOG=$O2ODIR/o2o-log.txt
-
-# General DB setup
-OFFLINE_DB=orcon
-GENERAL_DB_USER=CMS_COND_GENERAL
-GENERAL_DB_PASSWORD=***
-MY_CATALOG=relationalcatalog_oracle://${OFFLINE_DB}/${GENERAL_DB_USER}
+# Get the general setup, CMSSW, paths, etc.
+echo "[INFO]   Setting up the environment"
+source general-runtime.sh
+echo
 
 # Subdetector-specific DB setup
-# Sets SUBDETECTOR_DB_USER SUBDETECTOR_DB_PASSWORD
+# Sets SUBDETECTOR_OFFLINE_USER SUBDETECTOR_OFFLINE_PASSWORD
 source $SUBDETECTOR_SETUP
-OFFLINE_CONNECT=oracle://${OFFLINE_DB}/${SUBDETECTOR_DB_USER}
-
-# General object setup
-MAPPING_PATH=${CMSSW_DIR}/src/CondTools/IntegrationTest/mappings
 
 # Subdetector-specific object setup
 # Sets MAPPING_FILE OBJECT_LIBRARY OBJECT_NAME OBJECT_TABLE TAG
@@ -66,20 +53,6 @@ T_START=`date +%s`
 
 # Log the object
 echo -n " (${OBJECT_NAME}) " >> $LOG
-
-# Set the CMSSW environment
-echo -n "Setting env..." >> $LOG;
-PATH=$PATH:$SCRAM_PATH
-cd $CMSSW_DIR;
-eval `scramv1 runtime -sh`;
-cd $O20DIR;
-
-COND_UTIL_PATH=${LOCALRT}/src/CondTools/Utilities/bin
-PATH=$PATH:$COND_UTIL_PATH
-
-export POOL_CATALOG=${MY_CATALOG}
-export CORAL_AUTH_USER=$SUBDETECTOR_DB_USER
-export CORAL_AUTH_PASSWORD=$SUBDETECTOR_DB_PASSWORD
 
 # Additional setup checks
 if [ ! -f "$MAPPING_FILE" ]
@@ -102,35 +75,46 @@ fi
 
 # Transform payload data
 T1=`date +%s`
-echo -n "Updating payload tables..." >> $LOG;
-echo "call master_payload_o2o('${OBJECT_NAME}');" | sqlplus -S ${GENERAL_DB_USER}/${GENERAL_DB_PASSWORD}@${OFFLINE_DB} 2>> $LOG
+echo "[INFO]   Transferring payload objects"
+echo -n "Transferring payload objects..." >> $LOG;
+SQL="call master_payload_o2o('${OBJECT_NAME}');"
+echo $SQL
+echo $SQL | sqlplus -S ${GENERAL_DB_USER}/${GENERAL_DB_PASSWORD}@${OFFLINE_DB} 2>> $LOG
 T2=`date +%s`
 T_JOB=$(($T2-$T1))
 echo -n "($T_JOB s)" >> $LOG;
-
+echo
 
 # Poolify offline objects
 T1=`date +%s`
+echo "[INFO]   Registering to POOL"
 echo -n "Registering to POOL..." >> $LOG;
-setup_pool_database $OBJECT_NAME \
-                    $OBJECT_LIBRARY \
-                    $OFFLINE_CONNECT \
-                    $MAPPING_FILE -o $O2ODIR 2>>$LOG
+CMD="setup_pool_database $OBJECT_NAME \
+                         $OBJECT_LIBRARY \
+                         $OFFLINE_CONNECT \
+                         $MAPPING_FILE -o $O2ODIR 2>>$LOG"
+echo $CMD
+$CMD
 T2=`date +%s`
 T_JOB=$(($T2-$T1))
 echo -n "($T_JOB s)" >> $LOG;
+echo
 
 # Assign iov
 T1=`date +%s`
+echo "[INFO]   Assigning IOV"
 echo -n "Assigning IOV..." >> $LOG;
-cmscond_build_iov -c $OFFLINE_CONNECT \
-                  -d $OBJECT_LIBRARY \
-                  -t $OBJECT_TABLE \
-                  -o $OBJECT_NAME \
-                  $APPEND $INFINITE $TAG 2>>$LOG
+CMD="cmscond_build_iov -c $OFFLINE_CONNECT \
+                       -d $OBJECT_LIBRARY \
+                       -t $OBJECT_TABLE \
+                       -o $OBJECT_NAME \
+                       $APPEND $INFINITE $TAG 2>>$LOG"
+echo $CMD
+$CMD
 T2=`date +%s`
 T_JOB=$(($T2-$T1))
 echo -n "($T_JOB s)" >> $LOG;
+echo
 
 # Log the duration of the O2O
 T_FINISH=`date +%s`;

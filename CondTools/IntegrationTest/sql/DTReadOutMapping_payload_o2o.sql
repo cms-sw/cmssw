@@ -7,6 +7,13 @@
  *  Note:  Uses sequence on ORCON for IOV_VALUE_ID
  *         Transfers 1 object per call
  */
+
+/* A sequence for the DTReadoutMapping object IOV_VALUE_ID */
+CREATE SEQUENCE dtread_id_sq
+START WITH 1
+INCREMENT BY 1
+;
+
 CREATE OR REPLACE PROCEDURE DTReadOutMapping_payload_o2o (
   last_id IN NUMBER
 )

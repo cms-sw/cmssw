@@ -1,0 +1,6 @@
+# General DB setup
+OFFLINE_DB=orcon
+ONLINE_DB=cmsomds
+GENERAL_DB_USER=CMS_COND_GENERAL
+GENERAL_DB_PASSWORD=__CHANGE_ME__
+export POOL_CATALOG=relationalcatalog_oracle://${OFFLINE_DB}/${GENERAL_DB_USER}
