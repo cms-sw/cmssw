@@ -8,6 +8,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -28,19 +30,23 @@
 
 IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
 {
-  island_p = new IslandClusterAlgo(ps.getParameter<double>("IslandBarrelSeedThr"), 
-				   ps.getParameter<double>("IslandEndcapSeedThr"));
-
   hitProducer_       = ps.getParameter<std::string>("hitProducer");
   hitCollection_     = ps.getParameter<std::string>("hitCollection");
   clusterCollection_ = ps.getParameter<std::string>("clusterCollection");
+  double barrelSeedThreshold = ps.getUntrackedParameter<double>("IslandBarrelSeedThr", 2);
+  double endcapSeedThreshold = ps.getUntrackedParameter<double>("IslandEndcapSeedThr", 2);
+
   produces< reco::BasicClusterCollection >(clusterCollection_);
+
+  island_p = new IslandClusterAlgo(barrelSeedThreshold, endcapSeedThreshold);
+
   nEvt_ = 0;
 }
 
 
 IslandClusterProducer::~IslandClusterProducer()
 {
+  delete island_p;
 }
 
 
@@ -48,29 +54,43 @@ void IslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   // get the hit collection from the event:
   edm::Handle<EcalRecHitCollection> rhcHandle;
-  evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
-  if (!(rhcHandle.isValid())) 
+  try
     {
-      std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
-      return;
+      evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
+      if (!(rhcHandle.isValid())) 
+	{
+	  std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
+	  return;
+	}
     }
-  EcalRecHitCollection hit_collection = *(rhcHandle.product());
+  catch ( cms::Exception& ex ) 
+    {
+      edm::LogError("IslandClusterProducerError") << "Error! can't get the product " << hitCollection_.c_str() ;
+    }
 
-  // get the barrel geometry:
+  const EcalRecHitCollection *hitCollection_p = rhcHandle.product();
+
+  // get the barrel geometry from the event setup:
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<IdealGeometryRecord>().get(geoHandle);
-  const CaloSubdetectorGeometry *geometry = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  const CaloSubdetectorGeometry *geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
 
-  // make the clusters!
-  reco::BasicClusterCollection clusters = island_p->makeClusters(hit_collection, geometry);
-  std::cout << "Finished clustering - BasicClusterCollection returned to producer..." << std::endl;
+  // Run the clusterization algorithm:
+  reco::BasicClusterCollection clusters;
+  clusters = island_p->makeClusters(*hitCollection_p, geometry_p);
+
+  edm::LogInfo("IslandClusterProducerInfo") 
+    << "Finished clustering - BasicClusterCollection returned to producer..." 
+    << std::endl;
 
   // create an auto_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
   clusters_p->assign(clusters.begin(), clusters.end());
   evt.put(clusters_p, clusterCollection_);
 
-  std::cout << "BasicClusterCollection added to the Event! :-)" << std::endl;
+  edm::LogInfo("IslandClusterProducerInfo") 
+    << "BasicClusterCollection added to the Event! :-)" 
+    << std::endl;
 
   nEvt_++;
 }

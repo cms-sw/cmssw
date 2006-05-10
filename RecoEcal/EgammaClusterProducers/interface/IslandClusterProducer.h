@@ -38,7 +38,7 @@ class IslandClusterProducer : public edm::EDProducer
 
       IslandClusterAlgo * island_p;
 
-      bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
+      bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
 };
 
 
