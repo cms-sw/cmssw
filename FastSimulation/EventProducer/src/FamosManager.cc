@@ -39,6 +39,7 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
       myTrajectoryManager(new TrajectoryManager
 			      (mySimEvent,
 			       p.getParameter<edm::ParameterSet>("MaterialEffects"),
+			       p.getParameter<edm::ParameterSet>("TrackerSimHits"),
 			       p.getParameter<bool>("ActivateDecays"))),
       myPileUpProducer(new PUProducer(
 			       mySimEvent,

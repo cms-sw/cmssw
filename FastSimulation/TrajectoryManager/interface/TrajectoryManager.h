@@ -4,6 +4,9 @@
 //Framework Headers
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+//DataFormats
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+
 //FAMOS Headers
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
 
@@ -30,7 +33,7 @@
  */
 
 class Pythia6Decays;
-class TrackerGeometry;
+class TrackerInteractionGeometry;
 class TrackerLayer;
 class ParticlePropagator;
 class FSimEvent;
@@ -49,6 +52,7 @@ class TrajectoryManager
   /// Constructor from a FSimEvent
   TrajectoryManager(FSimEvent* aSimEvent, 
 		    const edm::ParameterSet& matEff,
+		    const edm::ParameterSet& simHits,
 		    bool activateDecays);
 
   /// Default Destructor
@@ -56,6 +60,12 @@ class TrajectoryManager
   
   /// Does the real job
   void reconstruct();
+
+  /// Create a vector of PSimHits 
+  void createPSimHits(const TrackerLayer& layer,
+		      ParticlePropagator& P_before,
+		      ParticlePropagator& P_after,
+		      int TrackID);
 
 /// Propagate the particle through the calorimeters
   void propagateToCalorimeters(ParticlePropagator& PP, 
@@ -67,7 +77,7 @@ class TrajectoryManager
   bool propagateToLayer(ParticlePropagator& PP,unsigned layer);
 
   /// Returns the pointer to geometry
-  TrackerGeometry* theGeometry();
+  TrackerInteractionGeometry* theGeometry();
 
  private:
 
@@ -83,11 +93,15 @@ class TrajectoryManager
 
   FSimEvent* mySimEvent;
 
-  TrackerGeometry* _theGeometry;
+  TrackerInteractionGeometry* _theGeometry;
   
   MaterialEffects* theMaterialEffects;
 
   Pythia6Decays* myDecayEngine;
+
+  double pTmin;
+  bool firstLoop;
+  std::vector<PSimHit>* thePSimHits;
 
   //  Histos* myHistos;
 

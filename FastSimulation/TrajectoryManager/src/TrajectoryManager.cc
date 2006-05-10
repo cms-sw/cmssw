@@ -8,7 +8,7 @@
 //FAMOS Headers
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
-#include "FastSimulation/TrackerSetup/interface/TrackerGeometry.h"
+#include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/ParticleDecay/interface/Pythia6Decays.h"
 //#include "FastSimulation/FamosTracker/interface/FamosDummyDet.h"
@@ -35,11 +35,12 @@ using namespace std;
 
 TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent, 
 				     const edm::ParameterSet& matEff,
+				     const edm::ParameterSet& simHits,
 				     bool activateDecays) : 
   mySimEvent(aSimEvent) {
   
   // Initialize the simplified tracker geometry
-  _theGeometry = new TrackerGeometry();
+  _theGeometry = new TrackerInteractionGeometry();
   
   // Initialize the stable particle decay engine 
   if ( activateDecays ) myDecayEngine = new Pythia6Decays();
@@ -50,6 +51,14 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
        matEff.getParameter<bool>("EnergyLoss") || 
        matEff.getParameter<bool>("MultipleScattering") )
        theMaterialEffects = new MaterialEffects(matEff);
+
+  // Save SimHits according to Optiom
+  // Only the hits from first half loop is saved
+  firstLoop = simHits.getUntrackedParameter<bool>("firstLoop",true);
+  // Only if pT>pTmin are the hits saved
+  pTmin = simHits.getUntrackedParameter<double>("pTmin",0.5);
+
+  thePSimHits = new vector<PSimHit>();
 
   //  SimpleConfigurable<bool> activeDecay(true,"FamosDecays:activate");
   //  SimpleConfigurable<double> cTauMin(10.,"FamosDecays:cTauMin");
@@ -68,7 +77,7 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   */
 }
 
-TrackerGeometry*
+TrackerInteractionGeometry*
 TrajectoryManager::theGeometry() {
   return _theGeometry;
 }
@@ -77,6 +86,7 @@ TrajectoryManager::~TrajectoryManager() {
   delete _theGeometry;
   if ( myDecayEngine ) delete myDecayEngine;
   if ( theMaterialEffects ) delete theMaterialEffects;
+  if ( thePSimHits ) delete thePSimHits;
   //Write the histograms
   //  myHistos->put("histos.root");
   //  delete myHistos;
@@ -97,6 +107,8 @@ TrajectoryManager::reconstruct()
   HepLorentzVector myBeamPipe = HepLorentzVector(0.,25., 9999999.,0.);
 
   std::list<TrackerLayer>::iterator cyliter;
+
+  ParticlePropagator P_before;
 
   //  bool debug = mySimEvent->id().event() == 62;
 
@@ -182,28 +194,29 @@ TrajectoryManager::reconstruct()
       // Successful propagation to a cylinder, with some Material :
       if( PP.getSuccess() > 0 && PP.onFiducial() ) {
 
+	bool saveHit = 
+	  ( (loop==0 && sign>0) || !firstLoop ) &&   // Save only first half loop
+	  PP.charge()!=0. &&                         // Consider only charged particles
+	  cyliter->sensitive() &&                    // Consider only sensitive layers
+	  PP.perp()>pTmin;                           // Consider only pT > pTmin
+
+	// Save Particle before Material Effects
+	if ( saveHit ) P_before = ParticlePropagator(PP); 
+
 	// Material effects are simulated there
-	if ( theMaterialEffects ) theMaterialEffects->interact(*mySimEvent,*cyliter,PP,fsimi); 
+	if ( theMaterialEffects ) 
+	  theMaterialEffects->interact(*mySimEvent,*cyliter,PP,fsimi); 
 
-	// Add a SimHit to the SimTrack for the first half loop...
-	// if the particle is charged, if the layer is sensitive,
-	// and if the momentum is in excess of 0.85 GeV/c and if
-	// it has not stopped in the layer material
-	bool hits = 
-	  loop==0 && sign>0 &&
-	  PP.charge()!=0. && 
-	  cyliter->sensitive() && 
-	  PP.perp()>0.85 &&
-	  myTrack.notYetToEndVertex(PP.vertex());
+	if ( saveHit ) { 
 
-	if ( hits ) { 
 	  // The layer number
 	  unsigned layer = cyliter->layerNumber();
 	  // Check the ring number on the forward layers
 	  unsigned ringNr = ( cyliter->forward() && layer >= 10 ) ?
-	    _theGeometry->theRingNr(PP.vertex().perp()/10., 
+	    _theGeometry->theRingNr(PP.vertex().perp(), 
 				    cyliter->firstRing(),
 				    cyliter->lastRing()) : 99;
+
 
 	  if ( ringNr != 0 ) {
 	    //	    double hitEff = (ringNr == 99) ? 
@@ -215,6 +228,11 @@ TrajectoryManager::reconstruct()
 	    //	      FamosBasicRecHit* hit = oneHit(PP,*cyliter,ringNr);
 	    //	      if ( hit ) mySimEvent.addRecHit(fsimi,layer,hit);
 	    //	    }
+
+	    // Return one or two (for overlap regions) PSimHits in the full 
+	    // tracker geometry
+	    createPSimHits(*cyliter, P_before, PP, fsimi);
+
 	  }
 	}
 
@@ -381,6 +399,62 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
 	mySimEvent->addSimTrack(*daughter, ivertex);
     }
   }
+}
+
+
+void
+TrajectoryManager::createPSimHits(const TrackerLayer& layer,
+				  ParticlePropagator& P_before,
+				  ParticlePropagator& P_after,
+				  int trackID) {
+
+  thePSimHits->clear();
+
+  // These are the BoundSurface&, the BoundDisk* and the BoundCylinder* for that layer
+  const BoundSurface& theSurface = layer.surface();
+  BoundDisk* theDisk = layer.disk();  // non zero for endcaps
+  BoundCylinder* theCylinder = layer.cylinder(); // non zero for barrel
+  int theLayer = layer.layerNumber(); // 1->3 PixB, 4->5 PixD, 
+                                      // 6->9 TIB, 10->12 TID, 
+                                      // 13->18 TOB, 19->27 TEC
+  
+  // These are the magnetic field, and various interesting things from 
+  // ParticleProgator (actually one may propagate to the BoundPlanes 
+  // inside ParticlePropagator, where all these things are available.
+  // (Would save time)
+  double bField       = P_before.getMagneticField();
+
+  double pT_before     = P_before.perp();
+  double radius_before = P_before.helixRadius(pT_before);
+  double phi0_before   = P_before.helixStartPhi();
+  double xC_before     = P_before.helixCentreX(radius_before,phi0_before);
+  double yC_before     = P_before.helixCentreY(radius_before,phi0_before);
+  double dist_before   = P_before.helixCentreDistToAxis(xC_before,yC_before);
+
+  double pT_after      = P_after.perp();
+  double radius_after  = P_after.helixRadius(pT_after);
+  double phi0_after    = P_after.helixStartPhi();
+  double xC_after      = P_after.helixCentreX(radius_after,phi0_after);
+  double yC_after      = P_after.helixCentreY(radius_after,phi0_after);
+  double dist_after    = P_after.helixCentreDistToAxis(xC_after,yC_after);
+
+  // Propagate the particle coordinates to the closest tracker detector(s) in this layer
+  // and create the PSimHit(s)
+
+  // Teddy, your code goes here, but the possibility of using ParticlePropagator
+  // should be kept in mind for CPU reasons.
+
+  PSimHit myHit1;
+  PSimHit myHit2;
+
+
+  //
+  //
+
+  // Add the PSimHits to the vector
+  thePSimHits->push_back(myHit1);
+  thePSimHits->push_back(myHit2);
+
 }
 
 /*
