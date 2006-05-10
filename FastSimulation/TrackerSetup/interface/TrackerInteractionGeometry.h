@@ -1,5 +1,5 @@
-#ifndef TRACKERGEOMETRY_H
-#define TRACKERGEOMETRY_H
+#ifndef FastSimulation_TrackerSetup_TrackerInteractionGeometry_H
+#define FastSimulation_TrackerSetup_TrackerInteractionGeometry_H
 // v0  who ? when ? 
 // 11 Dec 2003 Florian Beaudette. Removed the surfaces corresponding to ECAL 
 //             This will carried out by the FamosTrajectoryManager
@@ -14,14 +14,14 @@
 
 class MediumProperties;
 
-class TrackerGeometry
+class TrackerInteractionGeometry
 {
 
  public:
 
-  TrackerGeometry();
+  TrackerInteractionGeometry();
 
-  ~TrackerGeometry();
+  ~TrackerInteractionGeometry();
 
   /// Returns the first pointer in the cylinder list
   inline std::list<TrackerLayer>::iterator cylinderBegin() 
@@ -52,6 +52,7 @@ class TrackerGeometry
 
   /// The list of tracker (sensistive or not) layers
   std::list<TrackerLayer> _theCylinders;
+
   /// A numbered list of ring
   std::map<unsigned,TrackerRing> _theRings;
 
