@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/05/02 07:08:42 $
- * $Revision: 1.5 $
+ * $Date: 2006/05/05 09:27:22 $
+ * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -236,4 +236,8 @@ std::vector<TrackingRecHit*> DTRecSegment4D::recHits(){
   pointersOfRecHits.push_back(zSegment());
   
   return pointersOfRecHits;
+}
+
+DTChamberId DTRecSegment4D::chamberId() const {
+  return DTChamberId(theDetId.rawId());
 }

@@ -5,8 +5,8 @@
  *
  * 4 parameters RecHits for MuonBarrel DT
  *
- * $Date: 2006/04/20 17:10:31 $
- * $Revision: 1.4 $
+ * $Date: 2006/05/02 07:08:42 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -102,8 +102,8 @@ class DTRecSegment4D : public RecSegment4D{
   /// set covariance matrix
   void setCovMatrix(AlgebraicSymMatrix mat) { theCovMatrix = mat; }
 
-  // /// The id of the chamber on which reside the segment
-  // DTChamberId chamberId() const;
+  /// The id of the chamber on which reside the segment
+  virtual DTChamberId chamberId() const;
     
  private:
   
