@@ -11,6 +11,10 @@
 
 using namespace std;
 
+BaseParticlePropagator::BaseParticlePropagator() :
+  RawParticle(), rCyl(0.), zCyl(0.), bField(0)
+{;}
+
 BaseParticlePropagator::BaseParticlePropagator( 
          const RawParticle& myPart,double R, double Z, double B ) :
   RawParticle(myPart), rCyl(R), zCyl(Z), bField(B) 

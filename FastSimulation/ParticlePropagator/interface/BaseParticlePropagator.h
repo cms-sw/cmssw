@@ -85,6 +85,10 @@
 class BaseParticlePropagator : public RawParticle {
   
 public:
+
+  /// Default c'tor
+  BaseParticlePropagator();
+
   /** Constructor taking as arguments a RawParticle, as well as the radius,
       half-height and magnetic field defining the cylinder for which 
       propagation is to be performed */
@@ -186,7 +190,7 @@ private:
   /// The propagation direction 
   int propDir;
 
-private:
+public:
   /// The helix Radius
   double        helixRadius() const;
   double        helixRadius(double pT) const;

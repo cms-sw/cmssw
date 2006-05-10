@@ -28,6 +28,9 @@ class FSimTrack;
 class ParticlePropagator : public BaseParticlePropagator {
   
 public:
+  /// Default c'tor
+  ParticlePropagator();
+
   /** Constructor taking as arguments a RawParticle, as well as the radius,
       half-height and magnetic field defining the cylinder for which 
       propagation is to be performed */
@@ -51,7 +54,7 @@ public:
   ParticlePropagator(const FSimTrack& simTrack);
 
   /** Constructor with a BaseParticlePropagator*/
-  ParticlePropagator(const BaseParticlePropagator& myPropPart);
+  ParticlePropagator(ParticlePropagator& myPropPart);
 
   /** Return a new instance, corresponding to the particle propagated
       to the surface of the cylinder */

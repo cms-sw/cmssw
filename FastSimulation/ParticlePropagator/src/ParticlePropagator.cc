@@ -11,6 +11,8 @@
 
 #include <iomanip>
 
+ParticlePropagator::ParticlePropagator() : BaseParticlePropagator() {;}
+
 ParticlePropagator::ParticlePropagator(const RawParticle& myPart,
 				       double R, double Z, double B) :
   BaseParticlePropagator(myPart,R,Z,B)
@@ -49,10 +51,10 @@ ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack) :
   setMagneticField(fieldMap(x(),y(),z()));
 }
 
-ParticlePropagator::ParticlePropagator(const BaseParticlePropagator& myPropPart) :
+ParticlePropagator::ParticlePropagator(ParticlePropagator& myPropPart) :
   BaseParticlePropagator(myPropPart)
 {  
-  setMagneticField(fieldMap(x(),y(),z()));
+  //  setMagneticField(fieldMap(x(),y(),z()));
 }
 
 bool
