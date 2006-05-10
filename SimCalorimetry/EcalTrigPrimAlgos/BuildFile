@@ -1,0 +1,21 @@
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/EcalDetId>
+<use name=Geometry/CaloTopology>
+<use name=Geometry/CaloGeometry>
+ <use name=Geometry/CaloEventSetup>
+<use name=Geometry/Records>
+<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
+<use name=clhep>
+<export>
+ <lib name=SimCalorimetryEcalTrigPrimAlgos>
+ <use name=DataFormats/EcalDigi>
+ <use name=DataFormats/EcalDetId>
+ <use name=Geometry/CaloTopology>
+ <use name=Geometry/CaloGeometry>
+ <use name=Geometry/CaloEventSetup>
+ <use name=Geometry/Records>
+ <use name=FWCore/Framework>
+ <use name=FWCore/Utilities>
+ <use name=clhep>
+</export>
