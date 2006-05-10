@@ -1,9 +1,10 @@
 <lcgdict>
- <class name="SiPixelPedestals" id="5bfc61c7aebd27b50882b745cb0d5365"/>
- <class name="SiPixelDbItem"/>
- <class name="std::vector<SiPixelDbItem>"/>
- <class name="std::pair<unsigned int, std::vector<SiPixelDbItem> >"/>
+  <class name="SiPixelPedestals" id="5bfc61c7aebd27b50882b745cb0d5365"/>
+  <class name="SiPixelDbItem"/>
+  <class name="std::vector<SiPixelDbItem>"/>
 
- <class pattern="*map*"/>
- <class pattern="*iterator*"/>
+  <class pattern="*pair*"/>
+  <class pattern="*vector*"/>
+  <class pattern="*map*"/>
+  <class pattern="*iterator*"/>
 </lcgdict>   
