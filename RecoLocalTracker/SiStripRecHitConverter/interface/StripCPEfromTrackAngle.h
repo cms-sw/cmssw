@@ -21,11 +21,6 @@ class StripCPEfromTrackAngle : public StripCPE
   }; 
   StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl, const LocalTrajectoryParameters & ltp) const; 
   
- private:
-  
-  const TrackerGeometry * geom_;
-  const MagneticField * magfield_ ;
-  float theTanLorentzAnglePerTesla;
 };
 
 #endif

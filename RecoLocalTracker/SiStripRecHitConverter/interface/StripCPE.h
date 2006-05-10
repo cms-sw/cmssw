@@ -24,10 +24,11 @@ class StripCPE : public StripClusterParameterEstimator
   
   LocalVector driftDirection(const StripGeomDetUnit* det)const;
 
- private:  
+ protected:  
   const TrackerGeometry * geom_;
   const MagneticField * magfield_ ;
-  float theTanLorentzAnglePerTesla;
+  float theTanLorentzAnglePerTesla_;
+  bool useMagneticField_;
 };
 
 #endif

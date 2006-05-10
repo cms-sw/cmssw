@@ -18,14 +18,14 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParamet
 
   LocalPoint position;
   LocalError eresult;
-
+  LocalVector drift=LocalVector(0,0,1);
   const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
   //  DetId detId(det.geographicalId());
   const StripTopology &topol=(StripTopology&)stripdet->topology();
   position = topol.localPosition(cl.barycenter());
   
   
-  LocalVector drift = driftDirection(stripdet);
+  if(useMagneticField_) drift= driftDirection(stripdet);
   float thickness=stripdet->surface().bounds().thickness();
 
   //  drift*=(thickness/2);
