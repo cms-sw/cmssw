@@ -5,9 +5,12 @@
 // Package:        Simcalorimetry/EcalTrigPrimProducer
 // Class:          EcaTtrigPrimProducer
 // 
-// Description:     Calls algorithms tio create EcalTriggerPrimitiveDigi-s
+// Authors: Stephanie Baffioni, Ursula berthon, LLR Palaiseau
+//          10/05/06
+// Description:     Calls algorithms to create EcalTriggerPrimitiveDigi-s
 //                  depending on configuration, 'simple' or 'functional' algorthm is used
-  
+//                  For the moment, only functional algorithm is implemented for the barrel
+//  
   
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"

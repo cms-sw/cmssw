@@ -3,8 +3,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimProducer.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -20,7 +20,6 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet& iConfig)
 }
 
 void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
-  //  algo_ = new EcalTrigPrimSimpleAlgo(setup);
   algo_ = new EcalTrigPrimFunctionalAlgo(setup);
 }
 
