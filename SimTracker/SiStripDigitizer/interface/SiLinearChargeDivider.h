@@ -6,7 +6,7 @@
 #include "SimTracker/SiStripDigitizer/interface/SiChargeDivider.h"
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimGeneral/HepPDT/interface/HepPDTable.h"
+//#include "SimGeneral/HepPDT/interface/HepPDTable.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 /**
@@ -17,12 +17,12 @@ class SiLinearChargeDivider : public SiChargeDivider{
  public:
 
   SiLinearChargeDivider(){
-    particleTable = & HepPDT::theTable(); 
+    //    particleTable = & HepPDT::theTable(); 
   }
   SiLinearChargeDivider(const edm::ParameterSet& conf);
 
   virtual ~SiLinearChargeDivider(){
-    delete particleTable;
+    //    delete particleTable;
   }
 
   SiChargeDivider::ionization_type divide(const PSimHit&, const StripGeomDetUnit& det);
@@ -39,7 +39,7 @@ class SiLinearChargeDivider : public SiChargeDivider{
   int  chargedivisionsPerStrip;
   double deltaCut ;
   SiG4UniversalFluctuation fluctuate; 
-  HepPDTable * particleTable;
+  //  HepPDTable * particleTable;
 };
 
 #endif

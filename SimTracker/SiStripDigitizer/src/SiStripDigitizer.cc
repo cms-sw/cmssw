@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.15 2006/04/27 16:16:42 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.16 2006/05/02 18:19:52 fambrogl Exp $
 //
 //
 
@@ -136,7 +136,7 @@ namespace cms
 	edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
 	
 	if(theAlgoMap.find(&(sgd->type())) == theAlgoMap.end()) {
-	  theAlgoMap[&(sgd->type())] = new SiStripDigitizerAlgorithm(conf_, sgd);
+	  theAlgoMap[&(sgd->type())] = boost::shared_ptr<SiStripDigitizerAlgorithm>(new SiStripDigitizerAlgorithm(conf_, sgd));
 	}
 	
 	collector.data= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield);
@@ -150,7 +150,7 @@ namespace cms
 	    linkcollector= ((theAlgoMap.find(&(sgd->type())))->second)->make_link();
 	    outputlink->insert(linkcollector);
 	  }
-	}	
+	}
       }
     }
     

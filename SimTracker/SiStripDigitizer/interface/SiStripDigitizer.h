@@ -9,6 +9,7 @@
 
  *
  ************************************************************/
+#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -38,7 +39,7 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   private:
-    std::map<GeomDetType* , SiStripDigitizerAlgorithm*> theAlgoMap; 
+    std::map<GeomDetType* , boost::shared_ptr<SiStripDigitizerAlgorithm> > theAlgoMap; 
 
 
     edm::ParameterSet conf_;

@@ -122,7 +122,7 @@ class SiStripDigitizerAlgorithm
   float theOffsetSmearing;      // The sigma of the offset fluct. (around 0)
 
   // The PDTable
-  HepPDTable *particleTable;
+  //  HepPDTable *particleTable;
 
   //-- charge fluctuation
   double tMax;  // The delta production cut, should be as in OSCAR = 30keV
