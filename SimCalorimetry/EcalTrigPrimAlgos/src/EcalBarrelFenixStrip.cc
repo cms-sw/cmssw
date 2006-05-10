@@ -11,7 +11,6 @@ namespace tpg {
     adder_ = new  EcalFenixEtStrip();
     amplitude_filter_ = new EcalFenixAmplitudeFilter();
     peak_finder_ = new  EcalFenixPeakFinder();
-    //    fenix_format_ = new EcalFenixStripFormat();
     formatter_= new EcalFenixStripFormat();
   }
 
@@ -25,14 +24,11 @@ namespace tpg {
   }
 
   // stripnr should be coded in CellID of EcalTrigPrim in the future
-  //UB  void EcalBarrelFenixStrip::process(std::vector<CaloDataFrame> df, EcalTrigPrim tp, int stripnr)
-  //  void EcalBarrelFenixStrip::process(std::vector<EBDataFrame> df, EcalTriggerPrimitiveSample tp, int stripnr)
   std::vector<int>  EcalBarrelFenixStrip::process(std::vector<EBDataFrame> df, int stripnr)
 
   { 
 
  // call linearizer
-    //CaloDataFrame * lin_out = new CaloDataFrame [df.size()];
     vector<EBDataFrame> lin_out;
     //this is a test:
     //    cout<<"EcalBarrelFenixStrip input is a vector of size: "<<df.size()<<endl;
@@ -99,7 +95,7 @@ namespace tpg {
 //     cout<<endl;
 
     // call formatter
-    vector<int> format_out;
+    vector<int> format_out(peak_out.size());
     format_out =this->getFormatter()->process(peak_out,filt_out);
      
     //this is a test:

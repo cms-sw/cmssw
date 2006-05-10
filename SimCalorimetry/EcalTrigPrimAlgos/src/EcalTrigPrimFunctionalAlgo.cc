@@ -73,7 +73,7 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol, EcalTrigPri
       }	
 	
    nhitsb++;
-    fillBarrel(coarser,(*ebdcol)[i]);
+   fillBarrel(coarser,(*ebdcol)[i]);
   }// loop over all CaloDataFrames
   std::cout << "[EcalTrigPrimFunctionalAlgo] (found " << nhitsb << " frames in " 
   	    << sumBarrel_.size() << " EBRY towers  "  << std::endl;
@@ -130,9 +130,8 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol, EcalTrigPri
 
 void EcalTrigPrimFunctionalAlgo::fillBarrel(const EcalTrigTowerDetId & coarser, const EBDataFrame& samples) 
 {
-  // here we store a vector of CaloDataFrames for each strip into a vector belonging to the corresponding tower
+  // here we store a vector of EBDataFrames for each strip into a vector belonging to the corresponding tower
  
-  //  int stripnr = createStripNr( samples.getMyCell());
   int stripnr = createStripNr( samples.id());
   SUMV::iterator it= sumBarrel_.find(coarser);
 
@@ -140,8 +139,8 @@ void EcalTrigPrimFunctionalAlgo::fillBarrel(const EcalTrigTowerDetId & coarser, 
     {
       for (int i=0;i<ecal_barrel_strips_per_trigger_tower;i++ ) {
  	std::vector<EBDataFrame>  truc;
-         sumBarrel_[coarser].push_back(truc);
-       } 
+	sumBarrel_[coarser].push_back(truc);
+      } 
     }
   (sumBarrel_[coarser])[stripnr-1].push_back(samples);
     

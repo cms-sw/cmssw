@@ -24,8 +24,8 @@ namespace tpg {
  
  void EcalBarrelFenixTcp:: process(std::vector<std::vector<int> > & tpframetow, EcalTriggerPrimitiveDigi & tptow) 
   { 
+
     //call bypasslin
-    //    std::cout<<"input is: "<<endl;    
     vector< vector<int> >  bypasslin_out;
     for (unsigned int istrip=0;istrip<tpframetow.size();istrip ++){
       vector<int> stripin= tpframetow[istrip];

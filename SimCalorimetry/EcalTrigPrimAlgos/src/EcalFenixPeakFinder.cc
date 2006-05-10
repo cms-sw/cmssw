@@ -39,11 +39,10 @@ namespace tpg {
 vector<int> EcalFenixPeakFinder::process(vector<int> filtout)
 {
   
-  // test
+  // FIXME: 3
   inputsAlreadyIn_=0;
-  for (unsigned int i =0;i<5;i++) buffer_[i]=0;
+  for (unsigned int i =0;i<3;i++) buffer_[i]=0;
 
-  // test end
   vector<int> output;
   
   // attention, we have to shift by one, because the peak is found one too late
