@@ -42,22 +42,13 @@ void PixelTrackTest::analyze(
     const edm::Event& ev, const edm::EventSetup& es)
 {
   cout <<"*** PixelTrackTest, analyze event: " << ev.id() << endl;
-//  edm::Handle<reco::TrackCollection> trackCollection1;
-// ev.getByType(trackCollection);
-
   typedef reco::TrackCollection::const_iterator IT;
-  edm::Handle<reco::TrackCollection> trackCollection1;
-  ev.getByLabel("tracks1",trackCollection1);
-  const reco::TrackCollection tracks1 = *(trackCollection1.product());
 
-  cout << "Reconstructed TRACKS1: "<< tracks1.size() << " tracks" << std::endl;
-  for (IT it=tracks1.begin(); it!=tracks1.end(); it++) myprint(*it);
-
-  edm::Handle<reco::TrackCollection> trackCollection2;
-  ev.getByLabel("tracks2",trackCollection2);
-  const reco::TrackCollection tracks2 = *(trackCollection2.product());
-  cout << "Reconstructed TRACKS2: "<< tracks2.size() << " tracks" << std::endl;
-  for (IT it=tracks2.begin(); it!=tracks2.end(); it++) myprint(*it);
+  edm::Handle<reco::TrackCollection> trackCollection;
+  ev.getByLabel("tracks",trackCollection);
+  const reco::TrackCollection tracks = *(trackCollection.product());
+  cout << "Number of tracks: "<< tracks.size() << " tracks" << std::endl;
+  for (IT it=tracks.begin(); it!=tracks.end(); it++) myprint(*it);
 
   cout <<"------------------------------------------------"<<endl;
 }

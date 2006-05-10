@@ -54,7 +54,7 @@ reco::Track * PixelTrackBuilder::build(
   BoundPlane * impPointPlane = new BoundPlane(GlobalPoint(0.,0.,0.), rot);
 
 
-  TrajectoryStateOnSurface impactPointState( lpar , error, *impPointPlane, 0, 1.0);
+  TrajectoryStateOnSurface impactPointState( lpar , error, *impPointPlane, mf, 1.0);
 
   
   
@@ -64,8 +64,6 @@ reco::Track * PixelTrackBuilder::build(
    for( int i = 0; i < 6; ++i )
      for( int j = 0; j <= i; ++j )
        cov( i, j ) = m6.fast( i + 1 , j + 1 );
-
-
 
 
   float valPt = pt.value();
@@ -79,20 +77,16 @@ reco::Track * PixelTrackBuilder::build(
   //
   // point of the closest approax to Beam line
   //
-  cout << "TIP value: " <<  tip.value() << endl;
+//  cout << "TIP value: " <<  tip.value() << endl;
   math::XYZPoint  vtx(  tip.value()*cos( phi.value()),
                         tip.value()*sin( phi.value()),
                         zip.value());
-  cout <<"vertex: " << vtx << endl;
+
+//  cout <<"vertex: " << vtx << endl;
+//  cout <<" momentum: " << mom << endl;
 
   // temporary fix!
-//  vtx = math::XYZPoint(0.,0.,vtx.z());
-  //
-  //errors (dummy)
-  //
-//  math::Error<6>::type cov; //FIXME - feel
-
-  cout <<" momentum: " << mom << endl;
+  vtx = math::XYZPoint(0.,0.,vtx.z());
 
   int nhits = hits.size();
 
