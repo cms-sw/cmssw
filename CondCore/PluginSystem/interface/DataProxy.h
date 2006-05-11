@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:40:27 EDT 2005
-// $Id: DataProxy.h,v 1.7 2006/03/25 17:06:03 xiezhen Exp $
+// $Id: DataProxy.h,v 1.8 2006/05/08 13:08:26 xiezhen Exp $
 //
 
 // system include files
@@ -27,13 +27,15 @@
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 #include "DataSvc/Ref.h"
 #include "DataSvc/RefException.h"
-
+#include "DataSvc/IDataSvc.h"
+#include "PersistencySvc/ISession.h"
+#include "PersistencySvc/ITransaction.h"
 // forward declarations
-
+/*
 namespace pool{
   class IDataSvc;
 }
-
+*/
 namespace cond{
   template< class RecordT, class DataT >
   class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT>{
@@ -53,7 +55,7 @@ namespace cond{
     
   protected:
     virtual const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) {
-      //m_data=*(new pool::Ref<DataT>(m_svc,m_pProxyToToken->second));
+      m_svc->session().transaction().start(pool::ITransaction::READ);
       m_data=pool::Ref<DataT>(m_svc,m_pProxyToToken->second);
       try{
 	*m_data;
@@ -69,9 +71,9 @@ namespace cond{
       }catch( ... ){
 	throw cms::Exception( "Funny error" );
       }
+      m_svc->session().transaction().commit();
       return &(*m_data);
     }
-    
     virtual void invalidateCache() {
       m_data.clear();
       //std::cout<<"end invalidateCache"<<std::endl;
