@@ -4,8 +4,8 @@
 /*
  * \file EBBeamTask.h
  *
- * $Date: 2006/02/21 20:32:47 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/30 18:00:37 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -23,12 +23,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
+
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

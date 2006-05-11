@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/05/05 20:12:02 $
- * $Revision: 1.90 $
+ * $Date: 2006/05/06 08:15:44 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -197,40 +197,65 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( enableMonitorDaemon_ && ievt_ == 0 ) sleep(120);
 
   map<int, EcalDCCHeaderBlock> dccMap;
-
   Handle<EcalRawDataCollection> dcchs;
-  e.getByLabel("ecalEBunpacker", dcchs);
 
-  int nebc = dcchs->size();
-  LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " DCC headers collection size " << nebc;
+   Handle<EcalTBEventHeader> pEvH;
+   const EcalTBEventHeader* EvHeader=0;
 
-  for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+   try{
+     e.getByLabel("ecalEBunpacker", dcchs);
 
-    EcalDCCHeaderBlock dcch = (*dcchItr);
+     int nebc = dcchs->size();
+     LogDebug("EcalBarrelMonitor") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
 
-    dccMap[dcch.id()] = dcch;
+     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-    meEBDCC_->Fill((dcch.id()+1)+0.5);
+       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-    if ( dccMap[dcch.id()].getRunNumber() != 0 ) irun_ = dccMap[dcch.id()].getRunNumber();
+       dccMap[dcch.id()] = dcch;
 
-    if ( dccMap[dcch.id()].getRunType() != -1 ) evtType_ = dccMap[dcch.id()].getRunType();
+       meEBDCC_->Fill((dcch.id()+1)+0.5);
 
-    // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
-    //    if ( ievt_ % 10 == 0 && ( runType_ == EcalDCCHeaderBlock::COSMIC || runType_ == EcalDCCEventHeaderBlock::BEAMH4 ) ) evtType_ = EcalDCCEventHeaderBlock::LASER_STD;
+       if ( dccMap[dcch.id()].getRunNumber() != 0 ) irun_ = dccMap[dcch.id()].getRunNumber();
 
-    if ( evtType_ < 0 || evtType_ > 9 ) {
-      LogWarning("EcalBarrelMonitor") << "Unknown event type = " << evtType_;
-      evtType_ = -1;
-    }
+       if ( dccMap[dcch.id()].getRunType() != -1 ) evtType_ = dccMap[dcch.id()].getRunType();
 
-    if ( meEvtType_ ) {
+       // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
+       //    if ( ievt_ % 10 == 0 && ( runType_ == EcalDCCHeaderBlock::COSMIC || runType_ == EcalDCCEventHeaderBlock::BEAMH4 ) ) evtType_ = EcalDCCEventHeaderBlock::LASER_STD;
 
-      meEvtType_->Fill(evtType_+0.5);
+       if ( evtType_ < 0 || evtType_ > 9 ) {
+	 LogWarning("EcalBarrelMonitor") << "Unknown event type = " << evtType_;
+	 evtType_ = -1;
+       }
 
-    }
+       if ( meEvtType_ ) {
 
-  }
+	 meEvtType_->Fill(evtType_+0.5);
+
+       }
+
+     }
+
+   }  catch ( std::exception& ex) {
+     LogWarning("EcalBarrelMonitorngModule") << " EcalRawDataCollection not present in event." << std::endl;
+     
+     try {
+       e.getByType(pEvH);
+       EvHeader = pEvH.product();
+       meEBDCC_->Fill(1);
+       irun_ =1;
+       evtType_ = EcalDCCHeaderBlock::BEAMH4;
+       LogWarning("EcalBarrelMonitorngModule") << " EcalTBEventHeader found, instead." << std::endl;
+     } catch ( std::exception& ex ) {
+       LogDebug("EBBeamTask") << "EcalTBEventHeader not present in event TOO!." << std::endl;
+       return;
+     }
+
+}
+
+
+
+
 
   ievt_++;
 
@@ -243,7 +268,8 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
   Handle<EBDigiCollection> digis;
-  e.getByLabel("ecalEBunpacker", digis);
+  //  e.getByLabel("ecalEBunpacker", digis);
+  e.getByType( digis );
 
   int nebd = digis->size();
   LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " digi collection size " << nebd;

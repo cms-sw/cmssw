@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2006/04/30 14:53:14 $
- * $Revision: 1.32 $
+ * $Date: 2006/05/01 09:00:33 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -19,10 +19,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"

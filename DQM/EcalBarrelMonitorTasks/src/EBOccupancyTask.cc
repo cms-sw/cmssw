@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2006/04/30 17:43:00 $
- * $Revision: 1.88 $
+ * $Date: 2006/05/01 09:00:35 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -71,7 +71,8 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
   ievt_++;
 
   Handle<EBDigiCollection> digis;
-  e.getByLabel("ecalEBunpacker", digis);
+  //  e.getByLabel("ecalEBunpacker", digis);
+  e.getByType(digis);
 
   int nebd = digis->size();
   LogDebug("EBOccupancyTask") << "event " << ievt_ << " digi collection size " << nebd;
@@ -104,7 +105,8 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EcalPnDiodeDigiCollection> PNs;
-  e.getByLabel("ecalEBunpacker", PNs);
+  //  e.getByLabel("ecalEBunpacker", PNs);
+  e.getByType(PNs);
 
   // filling mem occupancy only for the 5 channels belonging
   // to a fully reconstructed PN's
