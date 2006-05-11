@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "DataFormats/GctDigi/interface/L1GctCandidates.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCandidates.h"
 
 typedef std::vector<L1GctIsoEmCand> L1GctIsoEmCollection;
 typedef std::vector<L1GctNonIsoEmCand> L1GctNonIsoEmCollection;

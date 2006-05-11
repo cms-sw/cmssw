@@ -2,7 +2,7 @@
 <use name=boost>
 
 <export>
-   <lib name=DataFormatsGctDigi>
+   <lib name=DataFormatsL1GlobalCaloTrigger>
    <use name=DataFormats/Common>
    <use name=boost>
 </export>

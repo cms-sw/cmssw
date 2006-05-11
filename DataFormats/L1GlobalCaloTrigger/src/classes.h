@@ -1,8 +1,8 @@
 
 #include <vector>
-#include "DataFormats/GctDigi/interface/L1GctCollections.h"
-#include "DataFormats/GctDigi/interface/L1GctCandidates.h"
-#include "DataFormats/GctDigi/interface/L1GctEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCandidates.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
 
 namespace {

@@ -1,5 +1,5 @@
 
-#include "DataFormats/GctDigi/interface/L1GctEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 
 L1GctEtTotal::L1GctEtTotal() : theEtTotal(0) { } 
 L1GctEtTotal::L1GctEtTotal(uint16_t data) : theEtTotal(data) { }

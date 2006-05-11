@@ -1,5 +1,5 @@
 
-#include "DataFormats/GctDigi/interface/L1GctCandidates.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCandidates.h"
 
 
 L1GctCand::L1GctCand() : theCand(0) { }
