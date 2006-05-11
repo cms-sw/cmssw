@@ -1,0 +1,23 @@
+<lcgdict>
+  <class name="L1GctIsoEmCand"/>
+  <class name="L1GctNonIsoEmCand"/>
+  <class name="L1GctCenJetCand"/>
+  <class name="L1GctForJetCand"/>
+  <class name="L1GctTauJetCand"/>
+  <class name="L1GctEtTotal"/>
+  <class name="L1GctEtHad"/>
+  <class name="L1GctEtMiss"/>
+  <class name="std::vector<L1GctIsoEmCand>"/>
+  <class name="std::vector<L1GctNonIsoEmCand>"/>
+  <class name="std::vector<L1GctCenJetCand>"/>
+  <class name="std::vector<L1GctForJetCand>"/>
+  <class name="std::vector<L1GctTauJetCand>"/>
+  <class name="edm::Wrapper<std::vector<L1GctIsoEmCand>>"/>
+  <class name="edm::Wrapper<std::vector<L1GctNonIsoEmCand>>"/>
+  <class name="edm::Wrapper<std::vector<L1GctCenJetCand>>"/>
+  <class name="edm::Wrapper<std::vector<L1GctForJetCand>>"/>
+  <class name="edm::Wrapper<std::vector<L1GctTauJetCand>>"/>
+  <class name="edm::Wrapper<L1GctEtTotal>"/>
+  <class name="edm::Wrapper<L1GctEtHad>"/>
+  <class name="edm::Wrapper<L1GctEtMiss>"/>
+</lcgdict>
