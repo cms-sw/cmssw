@@ -102,16 +102,26 @@ namespace edm {
 
       static string withoutQuotes(const string& from)
       {
-       // remove the quotes that are left in for now (hack)
-       string::const_iterator ib(from.begin()),ie(from.end());
-       if(ib!=ie && (*ib=='"' || *ib=='\'')) ++ib;
-       if(ib!=ie)
-         {
-           string::const_iterator ii(ie-1);
-           if(ii!=ib && (*ii=='"' || *ii=='\'')) ie=ii;
-         }
-       string usethis(ib,ie);
-       return usethis;
+        string result = from;
+        if(!result.empty())
+        {
+        // get rid of leading quotes
+          if(result[0] == '"' || result[0] == '\'')
+          {
+            result.erase(0,1);
+          }
+        }
+
+        if(!result.empty())
+        {
+          // and trailing quotes
+          int lastpos = result.size()-1;
+          if(result[lastpos] == '"' || result[lastpos] == '\'')
+          {
+            result.erase(lastpos, 1);
+          }
+        }
+        return result;
       }
 
       void BuilderPSet::visitEntry(const EntryNode& n)
