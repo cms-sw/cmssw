@@ -15,6 +15,16 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   rHInputCollection_ = ps.getParameter<std::string>("recHitCollection");	
   sCInputProducer_ = ps.getParameter<std::string>("rawSuperClusterProducer");
   sCInputCollection_ = ps.getParameter<std::string>("rawSuperClusterCollection");
+  std::string sCAlgo_str = ps.getParameter<std::string>("superClusterAlgo");
+  if (sCAlgo_str=="Hybrid") {
+    sCAlgo_= reco::hybrid;
+  } else if (sCAlgo_str=="Island") {
+    sCAlgo_= reco::island;
+  } else {
+    edm::LogError("EgammaSCCorrectionMakerError") << "Error! SuperClusterAlgo in config file must be Hybrid or Island: " << sCAlgo_str << "  Using Hybrid by default";
+    sCAlgo_=reco::hybrid;
+  }
+  
   applyEnergyCorrection_ = ps.getParameter<bool>("applyEnergyCorrection");
   sigmaElectronicNoise_ =  ps.getParameter<double>("sigmaElectronicNoise");
 
@@ -65,7 +75,7 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
     {
   	  reco::SuperCluster newClus;
       if(applyEnergyCorrection_) {
-        newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection);
+        newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_);
       }
       corrClusters->push_back(newClus);
   }

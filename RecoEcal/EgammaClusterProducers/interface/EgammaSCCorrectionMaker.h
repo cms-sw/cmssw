@@ -14,7 +14,7 @@
 //
 // Original Author:  Dave Evans
 //         Created:  Thu Apr 13 15:50:17 CEST 2006
-// $Id$
+// $Id: EgammaSCCorrectionMaker.h,v 1.1 2006/05/02 12:38:57 futyand Exp $
 //
 //
 
@@ -25,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
 
@@ -41,7 +42,8 @@ class EgammaSCCorrectionMaker : public edm::EDProducer {
      bool applyEnergyCorrection_;
      double sigmaElectronicNoise_;
      std::string rHInputProducer_;
-     std::string rHInputCollection_;     
+     std::string rHInputCollection_;
+     reco::AlgoId sCAlgo_;
      std::string sCInputProducer_;
      std::string sCInputCollection_;
      std::string outputCollection_;
