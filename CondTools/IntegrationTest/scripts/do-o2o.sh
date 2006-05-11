@@ -89,12 +89,12 @@ echo
 T1=`date +%s`
 echo "[INFO]   Registering to POOL"
 echo -n "Registering to POOL..." >> $LOG;
-CMD="setup_pool_database $OBJECT_NAME \
-                         $OBJECT_LIBRARY \
-                         $OFFLINE_CONNECT \
-                         $MAPPING_FILE -o $O2ODIR 2>>$LOG"
+CMD="setup_pool_database $OBJECT_NAME
+                         $OBJECT_LIBRARY
+                         $OFFLINE_CONNECT
+                         $MAPPING_FILE -o $O2ODIR"
 echo $CMD
-$CMD
+$CMD 2>> $LOG
 T2=`date +%s`
 T_JOB=$(($T2-$T1))
 echo -n "($T_JOB s)" >> $LOG;
@@ -104,13 +104,13 @@ echo
 T1=`date +%s`
 echo "[INFO]   Assigning IOV"
 echo -n "Assigning IOV..." >> $LOG;
-CMD="cmscond_build_iov -c $OFFLINE_CONNECT \
-                       -d $OBJECT_LIBRARY \
-                       -t $OBJECT_TABLE \
-                       -o $OBJECT_NAME \
-                       $APPEND $INFINITE $TAG 2>>$LOG"
+CMD="cmscond_build_iov -c $OFFLINE_CONNECT
+                       -d $OBJECT_LIBRARY
+                       -t $OBJECT_TABLE
+                       -o $OBJECT_NAME
+                       $APPEND $INFINITE $TAG"
 echo $CMD
-$CMD
+$CMD 2>> $LOG
 T2=`date +%s`
 T_JOB=$(($T2-$T1))
 echo -n "($T_JOB s)" >> $LOG;
