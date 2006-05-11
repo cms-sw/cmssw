@@ -16,23 +16,29 @@ HcalDetId::HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int
 }
 
 HcalDetId::HcalDetId(const DetId& gen) {
-  HcalSubdetector subdet=(HcalSubdetector(gen.subdetId()));
-  if (gen.det()!=Hcal || 
-      (subdet!=HcalBarrel && subdet!=HcalEndcap && 
-       subdet!=HcalOuter && subdet!=HcalForward ))
-    {
-      throw new std::exception();
-    }  id_=gen.rawId();
+  if (!gen.null()) {
+    HcalSubdetector subdet=(HcalSubdetector(gen.subdetId()));
+    if (gen.det()!=Hcal || 
+	(subdet!=HcalBarrel && subdet!=HcalEndcap && 
+	 subdet!=HcalOuter && subdet!=HcalForward ))
+      {
+	throw new std::exception();
+      }  
+  }
+  id_=gen.rawId();
 }
 
 HcalDetId& HcalDetId::operator=(const DetId& gen) {
-  HcalSubdetector subdet=(HcalSubdetector(gen.subdetId()));
-  if (gen.det()!=Hcal || 
-      (subdet!=HcalBarrel && subdet!=HcalEndcap && 
-       subdet!=HcalOuter && subdet!=HcalForward ))
-    {
-      throw new std::exception();
-    }  id_=gen.rawId();
+  if (!gen.null()) {
+    HcalSubdetector subdet=(HcalSubdetector(gen.subdetId()));
+    if (gen.det()!=Hcal || 
+	(subdet!=HcalBarrel && subdet!=HcalEndcap && 
+	 subdet!=HcalOuter && subdet!=HcalForward ))
+      {
+	throw new std::exception();
+      }  
+  }
+  id_=gen.rawId();
   return (*this);
 }
 

@@ -15,14 +15,14 @@ HcalTrigTowerDetId::HcalTrigTowerDetId(int ieta, int iphi) : DetId(Hcal,HcalTrig
 }
 
 HcalTrigTowerDetId::HcalTrigTowerDetId(const DetId& gen) {
-  if (gen.det()!=Hcal || gen.subdetId()!=HcalTriggerTower) {
+  if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalTriggerTower)) {
     throw new std::exception();
   }
   id_=gen.rawId();
 }
 
 HcalTrigTowerDetId& HcalTrigTowerDetId::operator=(const DetId& gen) {
-  if (gen.det()!=Hcal || gen.subdetId()!=HcalTriggerTower) {
+  if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalTriggerTower)) {
     throw new std::exception();
   }
   id_=gen.rawId();

@@ -1,6 +1,6 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
-CaloTowerDetId::CaloTowerDetId() {
+CaloTowerDetId::CaloTowerDetId() : DetId() {
 }
   
 CaloTowerDetId::CaloTowerDetId(uint32_t rawid) : DetId(rawid) {
@@ -13,14 +13,14 @@ CaloTowerDetId::CaloTowerDetId(int ieta, int iphi) : DetId(Calo,SubdetId) {
 }
   
 CaloTowerDetId::CaloTowerDetId(const DetId& gen) {
-  if (gen.det()!=Calo || gen.subdetId()!=SubdetId) {
+  if (!gen.null() && (gen.det()!=Calo || gen.subdetId()!=SubdetId)) {
     throw new std::exception();
   }
   id_=gen.rawId();    
 }
   
 CaloTowerDetId& CaloTowerDetId::operator=(const DetId& gen) {
-  if (gen.det()!=Calo || gen.subdetId()!=SubdetId) {
+  if (!gen.null() && (gen.det()!=Calo || gen.subdetId()!=SubdetId)) {
     throw new std::exception();
   }
   id_=gen.rawId();
