@@ -82,8 +82,10 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
 void PoolDBESSource::initPool(const std::string& catcontact){
   m_session->setCatalog(catcontact);
   try{
+    //std::cout<<"PoolDBESSource::initPool connect ReadOnly"<<std::endl; 
     m_session->connect( cond::ReadOnly );
-    m_session->startReadOnlyTransaction();
+    //std::cout<<"PoolDBESSource::initPool start ReadOnlyTransaction"<<std::endl; 
+    //m_session->startReadOnlyTransaction();
   }catch( const cond::Exception& e){
     throw e;
   } catch(...) {
@@ -92,7 +94,8 @@ void PoolDBESSource::initPool(const std::string& catcontact){
 }
 
 void PoolDBESSource::closePool(){
-  m_session->commit();
+  //std::cout<<"PoolDBESSource::closePool disconnect"<<std::endl; 
+  //m_session->commit();
   m_session->disconnect();
 }
 
@@ -110,13 +113,13 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
       //std::cout<<"initIOV record: "<<it->first<<std::endl;
       //std::cout<<"initIOV tag: "<<it->second<<std::endl;
       //std::cout<<"initIOV iovToken: "<<iovToken<<std::endl;
+      m_session->startReadOnlyTransaction();
       pool::Ref<cond::IOV> iov(&(m_session->DataSvc()), iovToken);
+      *iov;//bring iov in memory
       m_recordToIOV.insert(std::make_pair(it->first,iov));
+      m_session->commit();
     }
     meta.disconnect();
-    //}catch( const coral::RelationalTableNotFound& e ){
-    //std::cerr<<"Caught pool::RelationalTableNotFound Exception"<<std::endl;
-    //throw cms::Exception( e.what() );
   }catch(const cond::Exception&e ){
     throw e;
   }catch(const cms::Exception&e ){
@@ -289,6 +292,7 @@ PoolDBESSource::~PoolDBESSource()
 //
 void 
 PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ) {
+  //std::cout<<"PoolDBESSource::setIntervalFor"<<std::endl;
   RecordToTypes::iterator itRec = m_recordToTypes.find( iKey.name() );
   //std::cout<<"setIntervalFor "<<iKey.name()<<std::endl;
   if( itRec == m_recordToTypes.end() ) {
@@ -320,7 +324,6 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   //valid time check
   //check if current run exceeds iov upperbound
   unsigned long long myendoftime=myiov->iov.rbegin()->first;
-  //std::cout<<"myendoftime "<<myendoftime<<std::endl;
   //std::cout<<"current time "<<abtime<<std::endl;
   //std::cout<<"myendoftime "<<myendoftime<<std::endl;
   if( myendoftime!=endOftime && abtime>myendoftime ){
@@ -329,7 +332,6 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     throw cond::noDataForRequiredTimeException("PoolDBESSource::setIntervalFor",iKey.name(),os.str());
   }
   iterator iEnd = myiov->iov.lower_bound( abtime );
-  //std::cout<<"current time "<<abtime<<std::endl;
   if( iEnd == myiov->iov.end() ||  (*iEnd).second.empty() ) {
     //no valid data
     oInterval = edm::ValidityInterval(edm::IOVSyncValue::endOfTime(), edm::IOVSyncValue::endOfTime());
@@ -389,13 +391,14 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
      eventsetup::TypeTag type = eventsetup::TypeTag::findType( itType->second );
      if( type != defaultType ) {
        pProxyToToken pos=m_proxyToToken.find(buildName(iRecordKey.name(), type.name()));
-       //m_svc->transaction().start(pool::ITransaction::READ);
+       // std::cout<<"about to start pool readl only transaction"<<std::endl;
        boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(iRecordKey.name(), type.name() ), &(m_session->DataSvc()), pos));
-       //m_svc->transaction().commit();
        if(0 != proxy.get()) {
 	 eventsetup::DataKey key( type, "");
 	 aProxyList.push_back(KeyedProxies::value_type(key,proxy));
-       }
+       }//else{
+	// throw cond::Exception("no valid payload found");
+       //}
      }else{
        //std::cout<<"IS default type "<<std::endl;
      }

@@ -9,15 +9,7 @@
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "DataSvc/Ref.h"
-/*namespace seal{
-  class Context;
-}
-*/
-/*namespace pool{
-  class IFileCatalog;
-  class IDataSvc;
-}
-*/
+
 namespace edm{
   class ParameterSet;
 }
@@ -55,9 +47,6 @@ private:
   std::string m_timetype;
   cond::ServiceLoader* m_loader;
   cond::DBSession* m_session;
-  //std::auto_ptr<pool::IFileCatalog> m_cat;
-  //pool::IDataSvc* m_svc;
-  //seal::Context* m_context;
 private:
   void initPool( const std::string& catcontact );
   void closePool();
