@@ -1,0 +1,89 @@
+// -*- C++ -*-
+//
+// Package:    CaloTowerConstituentsMapBuilder
+// Class:      CaloTowerConstituentsMapBuilder
+// 
+/**\class CaloTowerConstituentsMapBuilder CaloTowerConstituentsMapBuilder.h tmp/CaloTowerConstituentsMapBuilder/interface/CaloTowerConstituentsMapBuilder.h
+
+ Description: <one line class summary>
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Jeremiah Mans
+//         Created:  Mon Oct  3 11:35:27 CDT 2005
+// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.1 2005/12/01 16:29:24 mansj Exp $
+//
+//
+
+
+// user include files
+#include "Geometry/CaloEventSetup/src/CaloTowerConstituentsMapBuilder.h"
+#include <fstream>
+
+//
+// constructors and destructor
+//
+CaloTowerConstituentsMapBuilder::CaloTowerConstituentsMapBuilder(const edm::ParameterSet& iConfig) :
+  mapFile_(iConfig.getUntrackedParameter<std::string>("MapFile",""))
+  /*
+  doStandardHBHE_(iConfig.getParameter<bool>("standardHBHE","true")),
+  doStandardHF_(iConfig.getParameter<bool>("standardHF","true")),
+  doStandardEB_(iConfig.getParameter<bool>("standardEB","true"))  
+  */
+{
+   //the following line is needed to tell the framework what
+   // data is being produced
+   setWhatProduced(this);
+
+   //now do what ever other initialization is needed
+}
+
+
+CaloTowerConstituentsMapBuilder::~CaloTowerConstituentsMapBuilder()
+{ 
+}
+
+
+//
+// member functions
+//
+
+// ------------ method called to produce the data  ------------
+CaloTowerConstituentsMapBuilder::ReturnType
+CaloTowerConstituentsMapBuilder::produce(const IdealGeometryRecord& iRecord)
+{
+   using namespace edm::es;
+   std::auto_ptr<CaloTowerConstituentsMap> prod(new CaloTowerConstituentsMap());
+   prod->useStandardHB(true);
+   prod->useStandardHE(true);
+   prod->useStandardHF(true);
+   prod->useStandardEB(true);
+
+   if (!mapFile_.empty()) {
+     parseTextMap(mapFile_,*prod);
+   }
+   
+   return prod;
+}
+
+void CaloTowerConstituentsMapBuilder::parseTextMap(const std::string& filename, CaloTowerConstituentsMap& theMap) {
+  edm::FileInPath eff(filename);
+
+  std::ifstream fi(eff.fullPath().c_str());
+  
+  while (!fi.eof()) {
+    char line[1024];
+    int ieta, iphi, rawid;
+    fi.getline(line,1023);
+    if (index(line,'#')!=0)  *(index(line,'#'))=0;
+    int ct=sscanf(line,"%i %d %d",&rawid,&ieta,&iphi);
+    if (ct==3) {
+      DetId detid(rawid);
+      CaloTowerDetId tid(ieta,iphi);
+      theMap.assign(detid,tid);
+    }
+  }
+
+}
