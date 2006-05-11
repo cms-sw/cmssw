@@ -1,0 +1,84 @@
+   Design, operation and maintenance manual for MessageLogger/MessageService
+   -------------------------------------------------------------------------
+
+------------------------------
+General Work Flow of a Message
+------------------------------
+
+The effect of a user issuing a  LogInfo (for example) is that 
+an error object is formed and sent to the ErrorLog, which has
+been configured to filter these in some way and to dispatch 
+the messages to one or more destinations.  This section will 
+outline the steps involved.  
+
+The user code may be running in opne or more threads, each of 
+which might issue messages.  We will call these the client side.
+In any event, a single entity, the MessageLoggerScribe, picks 
+up on these messages and forwards them to the looger one at a time;
+this prevents interlacing of message information from different threads.
+We call the thread running MessageLoggerScribe -- see How the Message
+Service Starts Up -- the server side.  All user programatic interaction
+is on the client side, but the configuration (driven by the .cfg file)
+is dealt with on the server side. 
+
+LogInfo is a functor -- a class that has an operator() so that
+it can look like a function.   It has one  data member - an 
+auto_ptr to a MessageSender, which is named ap.  When you say
+
+LogInfo("myCategory") << x; 
+
+the constructor of LogInfo constructs a new MessageSender specifying that
+this is at severity level ELinfo, and that the category is myCategory.
+When the << x is encountered, that merely sends << x to the MessageSender.
+
+In the line        LogInfo("myCategory") << x; 
+one has created a **temporary** instance of LogInfo -- this gets 
+destructed upon completion of the statement.  The whole working of LogInfo 
+is in that destruction:  Since LogInfo has an auto_ptr to the Message
+Sender, when LogInfo goes away, the auto_ptr goes away, and this causes
+a delete of the MessageSender.  The destructor of MessageSender is where
+all the action -- at the client side -- happens.  
+
+The MessageSender instance owns an ErrorObj on the heap; this can be viewed
+as a receptacle for the severity and category information and a collection
+of items sent in by operator<<.   The ctor of MessageSender makes a new
+ErrorObj -- AND  MessageSender NEVER DELETES THAT ErrorObj!! --
+Instead, the destructor of MessageSender [which, we will remember, is
+invoked as soon as the LogInfo("myCategory") << x;  statement has been 
+executed] interacts with the servier side, placing in motion events that
+will lead to the pointer to this ErrorObj to be used and ultimately
+deleted by code on the server side.  The ErrorObj is on the heap, so this 
+pointer remains meaningful in the server side it will be used in. 
+
+The interaction of MessageSender with the server side consists of two steps.  
+
+First, it sees if there is a MessageDrop instance (normally there will
+ be unless this message was issued very early on) and supplies the module
+ and run/event context.  [Those pieces of information are provided by the
+ before-module and before-event callbacks of the message **service**, so
+ the information needed to cross the client/server boundary.] The module
+ and ocntext go into the ErrorObj.
+ 
+Second, it invokes the static LOG method of MessageLoggerQ, supplying the
+ pointer to the ErrorObj.
+
+
+
+
+ (if there is one) for 
+module name and (MessageDrop is a singleton
+
+
+
+
+bingo we need for messageDrop to be set up with debugDnabled.
+also LogDebug never tests whether MessageDrop is there yet, so 
+if it is not (if a Debug is sent before the setup is done) there
+will be a segv -- have to fix this! 
+I think I just did
+
+
+
+
+
+What happens at the 
