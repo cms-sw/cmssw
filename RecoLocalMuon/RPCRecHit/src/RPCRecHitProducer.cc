@@ -1,6 +1,6 @@
 /** \file
  *
- *  $Date: 2006/05/08 01:00:15 $
+ *  $Date: 2006/05/08 11:21:22 $
  *  $Revision: 1.1 $
  *  \author M. Maggi -- INFN Bari
 */
@@ -42,7 +42,7 @@ RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config){
   // Get the concrete reconstruction algo from the factory
   string theAlgoName = config.getParameter<string>("recAlgo");
   theAlgo = RPCRecHitAlgoFactory::get()->create(theAlgoName,
-					       config.getParameter<ParameterSet>("recAlgoConfig"));
+						config.getParameter<ParameterSet>("recAlgoConfig"));
 }
 
 RPCRecHitProducer::~RPCRecHitProducer(){
@@ -57,7 +57,7 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
   // Get the digis from the event
   Handle<RPCDigiCollection> digis; 
-  event.getByLabel(theRPCDigiLabel, digis);
+  event.getByType(digis);
 
   // Pass the EventSetup to the algo
   theAlgo->setES(setup);
