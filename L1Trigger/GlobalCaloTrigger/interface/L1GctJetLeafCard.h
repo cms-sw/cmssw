@@ -51,6 +51,8 @@ public:
 	/// get the Et output
 	inline unsigned long getOutputEt() { return outputEt.to_ulong(); }
 	inline unsigned long getOutputHt() { return outputHt.to_ulong(); }
+    
+    static const int MAX_JET_FINDERS = 3;
 
 private:
 
