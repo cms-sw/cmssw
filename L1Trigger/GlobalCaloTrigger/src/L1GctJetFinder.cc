@@ -307,23 +307,19 @@ bool L1GctJetFinder::calcJetTauVeto(const UShort centreIndex, const bool boundar
 // into 6 by dividing the energy int by 16 (no rounding up).
 ULong L1GctJetFinder::convertToRank(const ULong energy) const
 {
-//    const UShort energyBitSize = 10;
-//    const UShort rankBitSize = 6;
-    const ULong maxEnergy = 0x400; //static_cast<ULong>(pow(2,energyBitSize));
-
-    if(energy < maxEnergy)
+    if(energy < (1 << L1GctRegion::ET_BITWIDTH))
     {
-      return energy/0x10; //static_cast<ULong>(pow(2,energyBitSize-rankBitSize));
+      return energy/(1 << (L1GctRegion::ET_BITWIDTH-L1GctJet::RANK_BITWIDTH));
     }
     
-    return maxEnergy-1;
+    return ((1 << L1GctJet::RANK_BITWIDTH) -1);
 }
 
 // Calculates total calibrated energy in jets (Ht) sum
 ULong L1GctJetFinder::calcHt() const
 {    
     ULong ht = 0;
-    for(UShort i=0; i < m_outputJets.size(); ++i)
+    for(UShort i=0; i < MAX_JETS_OUT; ++i)
     {
         ht += m_outputJets[i].getRank();
     }
