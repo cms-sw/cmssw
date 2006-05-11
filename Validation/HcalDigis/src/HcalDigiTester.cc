@@ -61,83 +61,84 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
    dbe_->setCurrentFolder("HcalDigiTask");
    
    if (hcalselector_ == "HE" || hcalselector_ == "all" ) {
-   sprintf (histo, "HcalDigiTask Eta of digis HE" ) ;
+   sprintf (histo, "HcalDigiTask_Eta_of_digis_HE" ) ;
    meEtaHE = dbe_->book1D(histo, histo, 60 , -3. , 3.);
-   sprintf (histo, "HcalDigiTask Phi of digis HE" ) ;
+   sprintf (histo, "HcalDigiTask_Phi_of_digis_HE" ) ;
    mePhiHE = dbe_->book1D(histo, histo, 36 , -3.14159, 3.14159);
-   sprintf (histo, "HcalDigiTask energy digis vs simhits HE");
+   sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HE");
    meDigiSimhitHE = dbe_->book2D(histo, histo, 100, 0.,1.,  100, 0., 800.);
 
-   sprintf (histo, "HcalDigiTask Ratio energy digis vs simhits HE");
+   sprintf (histo, "HcalDigiTask_Ratio_energy_digis_vs_simhits_HE");
    meRatioDigiSimhitHE = dbe_->book1D(histo, histo,  200, 0., 1000.);   
 
-   sprintf (histo, "HcalDigiTask energy digis vs simhits HE(profile)");
+   sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HE(profile)");
    meDigiSimhitHEprofile = dbe_->bookProfile(histo, histo, 100, 0.,1.,  100, 0., 800.);
-   sprintf (histo, "HcalDigiTask number of digis HE");
+   sprintf (histo, "HcalDigiTask_number_of_digis_HE");
    menDigisHE = dbe_->book1D(histo, histo,  40, 0., 200.);  
 
-   sprintf (histo, "HcalDigiTask sum over digis(fC) HE");
+   sprintf (histo, "HcalDigiTask_sum_over_digis(fC)_HE");
    meSumDigisHE = dbe_->book1D(histo, histo,  100, 0., 800.);  
 
 
    }
    if (hcalselector_ == "HB" || hcalselector_ == "all"  ) {
-   sprintf (histo, "HcalDigiTask Eta of digis HB" ) ;
+   sprintf (histo, "HcalDigiTask_Eta_of_digis_HB" ) ;
    meEtaHB = dbe_->book1D(histo, histo, 40, -1.74 , 1.74);
-   sprintf (histo, "HcalDigiTask Phi of digis HB" ) ;
+   sprintf (histo, "HcalDigiTask_Phi_of_digis_HB" ) ;
    mePhiHB = dbe_->book1D(histo, histo, 72, -3.14159, 3.14159);
-   sprintf (histo, "HcalDigiTask energy digis vs simhits HB");
+   sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HB");
    meDigiSimhitHB = dbe_->book2D(histo, histo, 150, 0.,1.5,  100, 0., 800.);
 
-   sprintf (histo, "HcalDigiTask Ratio energy digis vs simhits HB");
+   sprintf (histo, "HcalDigiTask_Ratio_energy_digis_vs_simhits_HB");
    meRatioDigiSimhitHB = dbe_->book1D(histo, histo,  200, 0., 1000.);   
 
-   sprintf (histo, "HcalDigiTask energy digis vs simhits HB(profile)");
+   sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HB(profile)");
    meDigiSimhitHBprofile = dbe_->bookProfile(histo, histo, 150, 0.,1.5,  100, 0., 800.); 
-   sprintf (histo, "HcalDigiTask number of digis HB");
+
+   sprintf (histo, "HcalDigiTask_number_of_digis_HB");
    menDigisHB = dbe_->book1D(histo, histo,  40 , 0, 80);  
    
-   sprintf (histo, "HcalDigiTask sum over digis(fC) HB");
+   sprintf (histo, "HcalDigiTask_sum_over_digis(fC)_HB");
    meSumDigisHB = dbe_->book1D(histo, histo,  100, 0., 800.);  
 
    }
 
    if (hcalselector_ == "HF" || hcalselector_ == "all"  ) {
-   sprintf (histo, "HcalDigiTask Eta of digis HF" ) ;
+   sprintf (histo, "HcalDigiTask_Eta_of_digis_HF" ) ;
    meEtaHF = dbe_->book1D(histo, histo, 100, -5. , 5.);
-   sprintf (histo, "HcalDigiTask Phi of digis HF" ) ;
+   sprintf (histo, "HcalDigiTask_Phi_of_digis_HF" ) ;
    mePhiHF = dbe_->book1D(histo, histo, 36, -3.14159, 3.14159);
-   sprintf (histo, "HcalDigiTask energy digis vs simhits HF");
+   sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HF");
    meDigiSimhitHF = dbe_->book2D(histo, histo, 70, 0.,70.,  100, 0., 350.);
 
-   sprintf (histo, "HcalDigiTask Ratio energy digis vs simhits HF");
+   sprintf (histo, "HcalDigiTask_Ratio_energy_digis_vs_simhits_HF");
    meRatioDigiSimhitHF = dbe_->book1D(histo, histo,  40, 3., 7.);   
 
-   sprintf (histo, "HcalDigiTask energy digis vs simhits HF(profile)");
+   sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HF(profile)");
    meDigiSimhitHFprofile = dbe_->bookProfile(histo, histo, 70, 0.,70.,  100, 0., 350.);
-   sprintf (histo, "HcalDigiTask number of digis HF");
+   sprintf (histo, "HcalDigiTask_number_of_digis_HF");
    menDigisHF = dbe_->book1D(histo, histo,  20, 0., 20.);  
 
-  sprintf (histo, "HcalDigiTask sum over digis(fC) HF");
+  sprintf (histo, "HcalDigiTask_sum_over_digis(fC)_HF");
    meSumDigisHF = dbe_->book1D(histo, histo,  100, 0., 350.);  
    }  
 
    if (hcalselector_ == "HO" || hcalselector_ == "all"  ) {
-   sprintf (histo, "HcalDigiTask Eta of digis HO" ) ;
+   sprintf (histo, "HcalDigiTask_Eta_of_digis_HO" ) ;
    meEtaHO = dbe_->book1D(histo, histo, 40, -1.74 , 1.74);
-   sprintf (histo, "HcalDigiTask Phi of digis HO" ) ;
+   sprintf (histo, "HcalDigiTask_Phi_of_digis_HO" ) ;
    mePhiHO = dbe_->book1D(histo, histo, 72, -3.14159, 3.14159);
-   sprintf (histo, "HcalDigiTask energy digis vs simhits HO");
+   sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HO");
    meDigiSimhitHO = dbe_->book2D(histo, histo, 100, 0.,0.2,  100, 0., 150.);
 
-   sprintf (histo, "HcalDigiTask Ratio energy digis vs simhits HO");
+   sprintf (histo, "HcalDigiTask_Ratio_energy_digis_vs_simhits_HO");
    meRatioDigiSimhitHO = dbe_->book1D(histo, histo,  140, 0., 1400.);   
 
-   sprintf (histo, "HcalDigiTask energy digis vs simhits HO(profile)");
+   sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HO(profile)");
    meDigiSimhitHOprofile = dbe_->bookProfile(histo, histo, 100, 0.,0.2,  100, 0., 150.);
-   sprintf (histo, "HcalDigiTask number of digis HO");
+   sprintf (histo, "HcalDigiTask_number_of_digis_HO");
    menDigisHO = dbe_->book1D(histo, histo,  50, 0., 50.);  
-   sprintf (histo, "HcalDigiTask sum over digis(fC) HO");
+   sprintf (histo, "HcalDigiTask_sum_over_digis(fC)_HO");
    meSumDigisHO = dbe_->book1D(histo, histo,  100, 0., 150.);  
   
    }  
