@@ -58,7 +58,7 @@ namespace edm {
 	  << "InputSource Factory:\n"
 	  << "Cannot find source type from ParameterSet: "
 	  << modtype << "\n"
-	  << "Perhaps your source type is mispelled or is not a SEAL Plugin?\n"
+	  << "Perhaps your source type is misspelled or is not a SEAL Plugin?\n"
 	  << "Try running SealPluginDump to obtain a list of available Plugins.";
       }
 

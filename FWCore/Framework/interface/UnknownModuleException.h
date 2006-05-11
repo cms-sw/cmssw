@@ -6,7 +6,7 @@
    Declaration
 
    \author Stefano ARGIRO
-   \version $Id: UnknownModuleException.h,v 1.3 2005/07/20 03:00:36 jbk Exp $
+   \version $Id: UnknownModuleException.h,v 1.4 2005/09/01 23:30:49 wmtan Exp $
    \date 02 Jun 2005
 */
 
@@ -32,7 +32,7 @@ namespace edm {
       cms::Exception("UnknownModule")
     {
       (*this) << "Module " << moduletype << " was not registered \n"
-	"Perhaps your module type is mispelled or is not a "
+	"Perhaps your module type is misspelled or is not a "
 	"framework plugin \n"
 	"Try running SealPluginDump to obtain a list "
 	"of available Plugins\n";
