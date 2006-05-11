@@ -23,7 +23,7 @@
 
 
   <Constant name="MB4FeetUnitRadius" value="sqrt([mb4:MB4FeetPos_x]*[mb4:MB4FeetPos_x]+[mb4:MB4FeetPos_y]*[mb4:MB4FeetPos_y])"/>
-  <Constant name="MB4FeetPosAngle" value="60.4043*deg"/>
+  <Constant name="MB4FeetPosAngle" value="atan2(-[mb4:MB4FeetPos_y], [mb4:MB4FeetPos_x])*180./3.1415926535*deg"/>
 
 
 <!-- ### Top (MB3) and Bottom (MB4) chamers --> 
