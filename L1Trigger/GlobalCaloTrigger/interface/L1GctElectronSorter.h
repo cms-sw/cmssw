@@ -41,10 +41,10 @@ public:
   void setInputEmCand(L1GctEmCand cand);
   ///	
   /// get input candidates
-  inline vector<L1GctEmCand> getInput() { return inputCands; }
+  inline vector<L1GctEmCand> getInputCands() { return inputCands; }
   ///
   /// get output candidates
-  inline vector<L1GctEmCand> getOutput() { return outputCands; }
+  inline vector<L1GctEmCand> getOutputCands() { return outputCands; }
 	
 private:
 	///

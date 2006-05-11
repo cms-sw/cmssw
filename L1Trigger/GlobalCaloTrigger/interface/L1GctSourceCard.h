@@ -142,11 +142,6 @@ private:
     /// Reads the Bunch Crossing number from the file
     void readBxNum();   
     
-    ///Changes an RCT output ULong into an EmCand with 6bits of rank, the 'region ID' stored in phi, and 'card ID' stored in eta
-    L1GctEmCand convertToEmCand(ULong& rawData) const;
-    
-    ///Changes an RCT output ULong into a Region with 10bits Et, overflow, and tauVeto.
-    L1GctRegion convertToCentralRegion(ULong& rawData) const;
 };
 
 #endif /*L1GCTSOURCECARD_H_*/

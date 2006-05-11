@@ -16,12 +16,10 @@ typedef unsigned long int ULong;
 class L1GctRegion
 {
 public:
-	L1GctRegion(int eta=0, int phi=0, ULong et=0, bool mip=false, bool quiet=false, bool tauVeto=true, bool overFlow=false);
+	L1GctRegion(ULong data=0);
+	L1GctRegion(int eta, int phi, ULong et, bool mip, bool quiet, bool tauVeto, bool overFlow);
 	~L1GctRegion();
-    
-    ///External access to the bitwidth of the region Et
-    static const int ET_BITWIDTH = 10;
-	
+    	
     // Getters
     int getEta() const { return m_eta; }   ///< Get the eta number (0-21?) of the region
     int getPhi() const { return m_phi; }   ///< Get the phi number (0-17) of the region
@@ -45,6 +43,8 @@ public:
 
 		
 private:
+
+    static const int ET_BITWIDTH = 10;
 
     /// global eta position number of the region (0-21)
 	int m_eta;

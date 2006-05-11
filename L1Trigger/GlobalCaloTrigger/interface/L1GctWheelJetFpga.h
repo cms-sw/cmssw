@@ -25,10 +25,10 @@ public:
 	/// process the data, fill output buffers
 	virtual void process();
 	///
-	/// assign data sources
-	void setInputLeafCard (int i, L1GctJetLeafCard* leaf);
+	/// set input sources
+	void setInputLeafCard(int i, L1GctJetLeafCard* card);
 	///
-	/// set input data
+	/// set input data		
 	void setInputJet(int i, L1GctJet jet); 
 	void setInputHt (int i, unsigned ht);
 	

@@ -35,17 +35,17 @@ public:
 	void setInputSourceCard(int i, L1GctSourceCard* sc);
 	///
 	/// get the output candidates
-	vector<L1GctEmCand> getOutputIsoEmCands();
+	vector<L1GctEmCand> getOutputIsoEmCands(int fpga);
 	///
 	/// get the output candidates
-	vector<L1GctEmCand> getOutputNonIsoEmCands();
+	vector<L1GctEmCand> getOutputNonIsoEmCands(int fpga);
 	
 private:
 	///
 	/// card ID
 	int m_id;
 	///
-	/// processing
+	/// processing - 0,1 are iso sorters, 2,3 are non-iso
 	vector<L1GctElectronSorter*> m_sorters;
 	///
 	/// pointers to data source

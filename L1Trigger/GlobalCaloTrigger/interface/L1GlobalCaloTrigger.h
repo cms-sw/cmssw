@@ -3,7 +3,6 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEvent.h"
 
 #include <vector>
 
@@ -37,6 +36,9 @@ public:
 	///
 	/// get the GCT object
 	static L1GlobalCaloTrigger* theGct();
+	///
+	/// load files into Source Cards
+	void openSourceCardFiles(std::string fileBase);
 	///
 	/// process an event
 	void process();
@@ -117,8 +119,9 @@ private:
 	/// energy final stage algos
 	L1GctGlobalEnergyAlgos* theEnergyFinalStage;	
 	///
-	/// electron final stage sorters (0 = iso, 1 = non-iso)
-	vector<L1GctElectronFinalSort*> theElectronFinalStage;
+	/// electron final stage sorters
+	L1GctElectronFinalSort* theIsoEmFinalStage;
+	L1GctElectronFinalSort* theNonIsoEmFinalStage;
 	
 };
 

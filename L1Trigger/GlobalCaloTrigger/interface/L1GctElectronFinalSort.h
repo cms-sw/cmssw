@@ -9,11 +9,12 @@
 
 using std::vector;
 
+class L1GctEmLeafCard;
+
 class L1GctElectronFinalSort : public L1GctProcessor
 {
 public:
-	L1GctElectronFinalSort();
-	L1GctElectronFinalSort(vector<L1GctElectronSorter*> src);
+	L1GctElectronFinalSort(bool iso);
 	~L1GctElectronFinalSort();
 	///
 	/// clear internal buffers
@@ -25,6 +26,9 @@ public:
 	/// process the data, fill output buffers
 	virtual void process();
 	///
+	/// set input sources
+	void setInputLeafCard(int i, L1GctEmLeafCard* card);
+	///
 	/// set input data
 	void setInputEmCand(int i, L1GctEmCand cand);
 	///
@@ -35,10 +39,13 @@ public:
 	inline vector<L1GctEmCand> getOutputCands() { return outputCands; }
 
 private:
-	
+
+	///
+	/// type of em cand
+	bool getIsoEmCands;
 	///
 	/// the 1st stage electron sorters
-	vector<L1GctElectronSorter*> theEmSorters;
+	vector<L1GctEmLeafCard*> theLeafCards;
 	///
 	/// input data
 	vector<L1GctEmCand> inputCands;
