@@ -5,14 +5,32 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.1 2005/09/30 21:11:18 paterno Exp $
+$Id: traits.h,v 1.1 2006/02/07 07:01:51 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 namespace edm
 {
   //------------------------------------------------------------
+  //
+  // DoNotSortUponInsertion is a base class. Derive your own class X
+  // from DoNotSortUponInsertion when: 
+  //
+  // 1. You want to use DetSetVector<X> as an EDProduct, but
+  //
+  // 2. You do *not* want the Event::put member template to cause the
+  // DetSet<X> instances within the DetSetVector<X> to be sorted.
+  //
+  // DoNotSortUponInsertion has no behavior; it is used at compile
+  // time to influence the behavior of Event::put.
+  //
+  // Usage:
+  //    MyClass : public edm::DoNotSortUponInsertion { ... }
+  //
+  struct DoNotSortUponInsertion { };
 
+  //------------------------------------------------------------
+  //
   // The trait struct template has_postinsert_trait<T> is used to
   // indicate whether or not the type T has a member function
   //

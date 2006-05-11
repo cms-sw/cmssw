@@ -15,6 +15,8 @@ namespace { namespace {
   edm::Wrapper<edmtest::DoubleProduct> dummyw14;
   edm::Wrapper<edmtest::StringProduct> dummyw15;
   edm::Wrapper<edmtest::SCSimpleProduct> dummyw16;
+  edm::Wrapper<edmtest::DSVSimpleProduct> dummyw17;
+  edm::Wrapper<edmtest::DSVWeirdProduct> dummyw18;
 
   edmtest::ThingCollection dummy1;
   edmtest::OtherThingCollection dummy2;

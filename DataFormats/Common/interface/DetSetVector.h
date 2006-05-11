@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.2 2006/03/03 17:10:39 chrjones Exp $
+$Id: DetSetVector.h,v 1.3 2006/03/23 23:58:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,10 +31,16 @@ $Id: DetSetVector.h,v 1.2 2006/03/03 17:10:39 chrjones Exp $
 #include <vector>
 
 #include "boost/concept_check.hpp"
+#include "boost/type_traits.hpp"
 
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/Common/interface/RefItem.h"
+#include "DataFormats/Common/interface/Ref.h"
+
+
 #include "FWCore/Utilities/interface/EDMException.h"
+
 
 namespace edm {
 
@@ -52,8 +58,10 @@ namespace edm {
   // post_insert.
 
   template <class T>
-  struct has_postinsert_trait<edm::DetSetVector<T> > {
-    static bool const value = true;
+  struct has_postinsert_trait<edm::DetSetVector<T> > 
+  {
+    static bool const value = 
+      ! boost::is_base_of<edm::DoNotSortUponInsertion,T>::value;
   };
 
   //------------------------------------------------------------
@@ -308,8 +316,6 @@ namespace edm {
 
 
 //specialize behavior of edm::Ref to get access to the 'Det'
-#include "DataFormats/Common/interface/RefItem.h"
-#include "DataFormats/Common/interface/Ref.h"
 namespace edm {
 
   namespace refhelper {

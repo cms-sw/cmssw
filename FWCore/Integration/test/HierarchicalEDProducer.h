@@ -12,9 +12,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Integration/test/HierarchicalAlgorithms.h"
 
-namespace edm {
-  class ParameterSet;
-}
 
 namespace edmtest {
   class HierarchicalEDProducer : public edm::EDProducer {
