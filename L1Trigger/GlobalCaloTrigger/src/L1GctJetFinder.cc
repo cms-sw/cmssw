@@ -307,12 +307,12 @@ bool L1GctJetFinder::calcJetTauVeto(const UShort centreIndex, const bool boundar
 // into 6 by dividing the energy int by 16 (no rounding up).
 ULong L1GctJetFinder::convertToRank(const ULong energy) const
 {
-    if(energy < (1 << L1GctRegion::ET_BITWIDTH))
+    if(energy < 1024)
     {
-      return energy/(1 << (L1GctRegion::ET_BITWIDTH-L1GctJet::RANK_BITWIDTH));
+      return energy/16;
     }
     
-    return ((1 << L1GctJet::RANK_BITWIDTH) -1);
+    return 63;
 }
 
 // Calculates total calibrated energy in jets (Ht) sum
