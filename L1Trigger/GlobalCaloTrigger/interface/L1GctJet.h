@@ -1,9 +1,7 @@
 #ifndef L1GCTJET_H_
 #define L1GCTJET_H_
 
-#include <bitset>
-
-using std::bitset;
+#include <boost/cstdint.hpp> //for uint16_t
 
 /*
  * A GCT jet candidate
@@ -12,39 +10,52 @@ using std::bitset;
  * 
  */
 
-
-typedef unsigned long int ULong;
-
 class L1GctJet
 {
 
 public:
 
-	L1GctJet(ULong rank=0, ULong eta=0, ULong phi=0, bool tauVeto=true);
-//	L1GctJet(float et=0.; float eta=0.; float phi=0.);
+	L1GctJet(uint16_t rank=0, uint16_t eta=0, uint16_t phi=0, bool tauVeto=true);
 	~L1GctJet();
 
 	// set rank and position bits
-	inline void setRank(ULong rank) { myRank = rank; }
-	inline void setEta(ULong eta) { myEta = eta; }
-	inline void setPhi(ULong phi) { myPhi = phi; }
-    inline void setTauVeto(bool tauVeto) { myTauVeto = tauVeto; }
+	void setRank(uint16_t rank) { m_rank = rank; }
+	void setEta(uint16_t eta) { m_eta = eta; }
+	void setPhi(uint16_t phi) { m_phi = phi; }
+    void setTauVeto(bool tauVeto) { m_tauVeto = tauVeto; }
 
 	// get rank and position bits
-	inline ULong getRank()const { return myRank.to_ulong(); }
-	inline ULong getEta()const { return myEta.to_ulong(); }
-	inline ULong getPhi()const { return myPhi.to_ulong(); }
-    inline bool getTauVeto()const { return myTauVeto; }
+	uint16_t getRank()const { return m_rank; }
+	uint16_t getEta()const { return m_eta; }
+	uint16_t getPhi()const { return m_phi; }
+    bool getTauVeto()const { return m_tauVeto; }
 	
 	//ostream& operator << (ostream& os, const L1GctJet& s);
+    
+    ///Setup an existing jet all in one go
+    void setupJet(uint16_t rank, uint16_t eta, uint16_t phi, bool tauVeto=true);
+    
+    //! Converts a jet with local jetfinder co-ordinates (11*2) to GCT output global format
+    /*! 'jetFinderPhiIndex' is the vector index of the jetfinder in the wheel card,
+     *  running from 0-8. 'wheelId' is the wheelJetFPGA id number (0 or 1),
+     *  to determine which eta half of CMS we are in.*/
+    L1GctJet convertToGlobalJet(int jetFinderPhiIndex, int wheelId);
+    
+    ///start of the HF if we are using local jetfinder co-ordinates (11*2 in eta*phi)
+    static const int LOCAL_ETA_HF_START = 7;
+    ///External access to the rank bitwidth
+    static const int RANK_BITWIDTH = 6;
 
 private:
 
-	bitset<6> myRank;
-	bitset<4> myEta;
-	bitset<5> myPhi;
-    bool myTauVeto;
-		
+    static const int ETA_BITWIDTH = 4;
+    static const int PHI_BITWIDTH = 5;
+
+	uint16_t m_rank;
+	uint16_t m_eta;
+	uint16_t m_phi;
+    bool m_tauVeto;
+    
 };
 
 #endif /*L1GCTJET_H_*/
