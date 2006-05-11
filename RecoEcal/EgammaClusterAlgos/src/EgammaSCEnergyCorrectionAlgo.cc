@@ -18,7 +18,7 @@ EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()
   delete recHits_m;
 }
 
-reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, const EcalRecHitCollection &rhc)
+reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, const EcalRecHitCollection &rhc, reco::AlgoId theAlgo)
 {	
 	
   // Insert the recHits into map	
@@ -55,7 +55,6 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   std::cout << std::endl;
 
   // Find the algorithm used to construct the basic clusters making up the supercluster	
-  reco::AlgoId theAlgo = seedC->algo();
   std::cout << "   The seed cluster used algo " << theAlgo;  
   
   // Find the detector region of the supercluster

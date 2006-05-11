@@ -14,7 +14,7 @@ class EgammaSCEnergyCorrectionAlgo
   public:
     EgammaSCEnergyCorrectionAlgo(double noise);
     ~EgammaSCEnergyCorrectionAlgo();
-    reco::SuperCluster applyCorrection(const reco::SuperCluster &cl, const EcalRecHitCollection &rhc);
+    reco::SuperCluster applyCorrection(const reco::SuperCluster &cl, const EcalRecHitCollection &rhc, reco::AlgoId theAlgo);
   
   private:    
     float fNCrystals(int nCry, reco::AlgoId theAlgo, EcalSubdetector theBase);
