@@ -146,18 +146,16 @@ namespace reco {
     //
     // accessors
     //
-
-    // also need to store
-    // - primary vertex
-    // - list of secondary vertices
-
-    // members of this class				     
     double                    jetPt ()                    {return jetPt_;}
     double                    jetEta()                    {return jetEta_;}
     			
     // edm::ref to primary vertex ?
     reco::Vertex              primaryVertex()             {return primaryVertex_;}
     std::vector<reco::Vertex> secVertices()               {return secondaryVertices_;}
+    std::vector<reco::Vertex>::const_iterator secVerticesBegin() 
+    {return secondaryVertices_.begin();}
+    std::vector<reco::Vertex>::const_iterator secVerticesEnd() 
+    {return secondaryVertices_.end();}
     int                       nSecVertices()              {return secondaryVertices_.size();}
     VertexType                vertexType()                {return vertexType_;}
     double                    vertexMass()                {return vertexMass_;}
