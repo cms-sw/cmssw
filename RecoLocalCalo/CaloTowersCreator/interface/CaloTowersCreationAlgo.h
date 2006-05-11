@@ -10,14 +10,14 @@
 class HcalTopology;
 class CaloGeometry;
 class CaloSubdetectorGeometry;
-class CaloTowerTopology;
+class CaloTowerConstituentsMap;
 class CaloRecHit;
 class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2006/02/27 22:02:26 $
-  * $Revision: 1.6 $
+  * $Date: 2006/03/29 21:25:47 $
+  * $Revision: 1.7 $
   * \author R. Wilkinson - Caltech
   */
 class CaloTowersCreationAlgo {
@@ -32,7 +32,7 @@ public:
     double HOweight, double HF1weight, double HF2weight,
     double EcutTower, double EBSumThreshold, double EESumThreshold, bool useHO);
   
-  void setGeometry(const CaloTowerTopology* cttopo, const HcalTopology* htopo, const CaloGeometry* geo);
+  void setGeometry(const CaloTowerConstituentsMap* cttopo, const HcalTopology* htopo, const CaloGeometry* geo);
 
   void begin();
   void process(const HBHERecHitCollection& hbhe);
@@ -67,7 +67,7 @@ private:
 
   const HcalTopology* theHcalTopology;
   const CaloGeometry* theGeometry;
-  const CaloTowerTopology* theTowerTopology;
+  const CaloTowerConstituentsMap* theTowerConstituentsMap;
   const CaloSubdetectorGeometry* theTowerGeometry;
 
   /// only affects energy and ET calculation.  HO is still recorded in the tower

@@ -1,6 +1,6 @@
 #include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowersCreationAlgo.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -30,7 +30,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
    theEESumThreshold(-1000.),
    theHcalTopology(0),
    theGeometry(0),
-   theTowerTopology(0),
+   theTowerConstituentsMap(0),
    theHOIsUsed(true)
 {
 }
@@ -71,8 +71,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 }
 
 
-void CaloTowersCreationAlgo::setGeometry(const CaloTowerTopology* ctt, const HcalTopology* topo, const CaloGeometry* geo) {
-  theTowerTopology=ctt;
+void CaloTowersCreationAlgo::setGeometry(const CaloTowerConstituentsMap* ctt, const HcalTopology* topo, const CaloGeometry* geo) {
+  theTowerConstituentsMap=ctt;
   theHcalTopology = topo;
   theGeometry = geo;
   theTowerGeometry=geo->getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);
@@ -126,7 +126,8 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       HcalDetId(detId).depth()==3 &&
       HcalDetId(detId).ietaAbs()==28) {
 
-    CaloTowerDetId towerDetId = theTowerTopology->towerOf(detId);
+    CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+    if (towerDetId.null()) return;
     MetaTower & tower28 = find(towerDetId);    
     CaloTowerDetId towerDetId29 = CaloTowerDetId(towerDetId.ieta()+
 						 towerDetId.zside(),
@@ -147,7 +148,8 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       tower29.constituents.push_back(detId);    
     }
   } else {
-    CaloTowerDetId towerDetId = theTowerTopology->towerOf(detId);
+    CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+    if (towerDetId.null()) return;    
     MetaTower & tower = find(towerDetId);
 
 

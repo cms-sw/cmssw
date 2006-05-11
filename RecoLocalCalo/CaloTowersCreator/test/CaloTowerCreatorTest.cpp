@@ -1,6 +1,6 @@
 #include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowersCreationAlgo.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerHardcodeGeometryLoader.h"
@@ -11,7 +11,12 @@
 int main() {
 
   HcalTopology topology;
-  CaloTowerTopology ct_topo;
+  CaloTowerConstituentsMap ct_topo;
+  ct_topo.useStandardHB(true);
+  ct_topo.useStandardHE(true);
+  ct_topo.useStandardHF(true);
+  ct_topo.useStandardEB(true);
+
   HcalHardcodeGeometryLoader loader(topology);
   std::auto_ptr<CaloSubdetectorGeometry> hcalGeometry = loader.load();
 
