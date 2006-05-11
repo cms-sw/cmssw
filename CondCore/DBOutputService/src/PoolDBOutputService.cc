@@ -42,7 +42,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_iovWriter( 0 )
   //m_transactionOn(false)
 {
-  std::cout<<"PoolDBOutputService"<<std::endl;
+  //std::cout<<"PoolDBOutputService"<<std::endl;
   if( m_customMappingFile.empty() ){
     m_payloadWriter=new cond::DBWriter(*m_session,m_containerName);
   }else{
@@ -63,7 +63,6 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
     if( authenticationMethod==1 ){
       m_loader->loadAuthenticationService( cond::XML );
     }else{
-
       m_loader->loadAuthenticationService( cond::Env );
     }
     if( loadBlobStreamer ){
