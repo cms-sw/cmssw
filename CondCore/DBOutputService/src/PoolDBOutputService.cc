@@ -25,7 +25,6 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_connect( iConfig.getParameter< std::string > ("connect") ),
   m_tag( iConfig.getParameter< std::string >("tag") ),
   m_timetype( iConfig.getParameter< std::string >("timetype") ),
-  //m_clientmodule(iConfig.getUntrackedParameter< std::string >("moduleToWatch") ), 
   m_connectMode( iConfig.getUntrackedParameter< unsigned int >("connectMode" ,0) ),
   //m_authenticationMethod( iConfig.getUntrackedParameter< unsigned int >("authenticationMethod",0) ),
   m_containerName( iConfig.getUntrackedParameter< std::string >("containerName") ),
@@ -43,6 +42,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_iovWriter( 0 )
   //m_transactionOn(false)
 {
+  std::cout<<"PoolDBOutputService"<<std::endl;
   if( m_customMappingFile.empty() ){
     m_payloadWriter=new cond::DBWriter(*m_session,m_containerName);
   }else{
@@ -86,7 +86,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
       m_loader->loadMessageService();
     }
     if(m_appendIOV){
-      m_metadata->connect();
+      m_metadata->connect(cond::ReadOnly);
       m_iovToken=m_metadata->getToken(m_tag);
       m_metadata->disconnect();
     }else{
@@ -125,8 +125,11 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
 void 
 cond::service::PoolDBOutputService::postBeginJob()
 {
+  //std::cout<<"PoolDBOutputService::postBeginJob"<<std::endl;
   try{
+    //std::cout<<"Pool connect "<<std::endl;
     this->connect();
+    //std::cout<<"start pool update transaction "<<std::endl;
     m_session->startUpdateTransaction();
     if( m_appendIOV ){
       m_iov=m_iovWriter->markUpdate<cond::IOV>(m_iovToken);
@@ -148,6 +151,7 @@ cond::service::PoolDBOutputService::postBeginJob()
 void 
 cond::service::PoolDBOutputService::postEndJob()
 {
+  //std::cout<<"PoolDBOutputService::postEndJob"<<std::endl;
   //final commit of payloads in one go if commitInterval underflow
   //if( m_transactionOn ){
   // std::cout<<"about to do final commit "<<std::endl;
@@ -159,21 +163,25 @@ cond::service::PoolDBOutputService::postEndJob()
     if(m_iov->iov.size()!=0){
       m_iovToken=m_iovWriter->markWrite<cond::IOV>(m_iov); 
     }
-    // m_session->commit();
   }  
+  //std::cout<<"Pool commit"<<std::endl;
   m_session->commit();
+  //std::cout<<"Pool disconnect"<<std::endl;
   this->disconnect();
   if(!m_appendIOV){
-    m_metadata->connect();
+    if( m_connectMode==0 ){
+      //std::cout<<"metadata connection ReadWriteCreate"<<std::endl;
+      m_metadata->connect(cond::ReadWriteCreate);
+    }else{
+      //std::cout<<"metadata connection ReadWrite"<<std::endl;
+      m_session->connect( cond::ReadWrite );
+    }
     m_metadata->addMapping(m_tag, m_iovToken); 
+    //std::cout<<"metadata disconnect"<<std::endl;
     m_metadata->disconnect();
   }
 }
-/*void 
-cond::service::PoolDBOutputService::preModuleConstruction(const edm::ModuleDescription& iDesc)
-{
-}
-*/
+
 //
 //use these to control transaction interval
 //
@@ -195,11 +203,6 @@ cond::service::PoolDBOutputService::postEventProcessing(const edm::Event& iEvt, 
 {
 }
 
-/*void 
-cond::service::PoolDBOutputService::postModule(const edm::ModuleDescription& iDesc)
-{
-}
-*/
 void
 cond::service::PoolDBOutputService::newValidityForOldPayload( const std::string& payloadObjToken, unsigned long long tillTime )
 {
@@ -221,8 +224,10 @@ cond::service::PoolDBOutputService::connect()
 {
   try{
     if( m_connectMode==0 ){
+      //std::cout<<"PoolDBOutputService::connect ReadWriteCreate"<<std::endl;
       m_session->connect( cond::ReadWriteCreate );
     }else{
+      //std::cout<<"PoolDBOutputService::connect ReadWrite"<<std::endl;
       m_session->connect( cond::ReadWrite );
     }
   }catch( const cond::Exception& e){
@@ -237,6 +242,7 @@ cond::service::PoolDBOutputService::connect()
 void
 cond::service::PoolDBOutputService::disconnect()
 {
+  //std::cout<<"PoolDBOutputService::disconnect"<<std::endl;
   m_session->disconnect();
 }
 unsigned long long cond::service::PoolDBOutputService::endOfTime(){
