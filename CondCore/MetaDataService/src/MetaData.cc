@@ -39,7 +39,7 @@ cond::MetaData::MetaData(const std::string& connectionString, cond::ServiceLoade
 cond::MetaData::~MetaData(){
 }
 
-void cond::MetaData::connect( cond::ConnectMode mod=cond::ReadWriteCreate ){
+void cond::MetaData::connect( cond::ConnectMode mod ){
   m_mode=mod;
   try{
     if( m_mode == cond::ReadOnly){
