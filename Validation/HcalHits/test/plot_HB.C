@@ -1,6 +1,9 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
 {
 
+  // Option to draw or not (default = 0) histograms in gif.
+  int doDraw = 0; 
+
   //  char * filename = "simevent.root";
   char * filename = "simevent_HB.root";
   char * treename = "Events";        //The Title of Tree.
@@ -165,8 +168,8 @@
     else { 
       TH1F *h1[i] = new TH1F(hname,label1[i],100,1.,0.);  
     }
-
   }
+
 
   // Special : transverse profile 
   TH1F *h1[39] = new TH1F("h39",label1[39],4,0.,4.);  
@@ -182,14 +185,16 @@
 
   // Special : Longitudinal profile
   TH1F *h1[45] = new TH1F("h45",label1[45],20,0.,20.);
-  
+
+  for (int i = 0;  i < Nhist1; i++) {
+    h1[i]->Sumw2();
+  }
 
   for (int i = 0; i < Nhist2; i++) {
     char hname[3]; 
     sprintf(hname,"D%d",i);
     TH2F *h2[i] = new TH2F(hname,label2[i],150,0.,150.,150,0.,150.);
   }
-  //  h[i]->Sumw2();         // to get errors properly calculated
 
   // scint. layers
   for (int i = 0; i < nLayersMAX; i++) {
@@ -421,10 +426,9 @@
     }
   }
  
-  //...Prepare the main canva 
-  TCanvas *myc = new TCanvas("myc","",800,600);
-  gStyle->SetOptStat(1111);   // set stat         :0 - nothing 
-      
+  //...Prepare the main canva
+    TCanvas *myc = new TCanvas("myc","",800,600);
+    gStyle->SetOptStat(1111);   // set stat         :0 - nothing 
  
   // Cycle for 1D distributions
   for (int ihist = 0; ihist < Nhist1 ; ihist++) {
@@ -433,8 +437,10 @@
       h1[ihist]->SetLineColor(45);
       h1[ihist]->SetLineWidth(2); 
       
-      h1[ihist]->Draw("h");
-      myc->SaveAs(label1[ihist]);
+      if(doDraw == 1) {
+	h1[ihist]->Draw("h");
+	myc->SaveAs(label1[ihist]);
+      }
     }
   }
 
@@ -445,8 +451,11 @@
       h1l[ihist]->SetLineColor(45);
       h1l[ihist]->SetLineWidth(2); 
 
-      h1l[ihist]->Draw("h");
-      myc->SaveAs(label1l[ihist]);
+      
+      if(doDraw == 1) {
+	h1l[ihist]->Draw("h");
+	myc->SaveAs(label1l[ihist]);
+      }
     }
   }
 
@@ -463,9 +472,10 @@
       h2[ihist]->SetLineColor(45);
       h2[ihist]->SetLineWidth(2); 
       
-      h2[ihist]->Draw();
-      myc->SaveAs(label2[ihist]);
-      
+      if(doDraw == 1) {
+	h2[ihist]->Draw();
+	myc->SaveAs(label2[ihist]);
+      }
     }
   }
   
@@ -482,9 +492,11 @@
       h2g[ihist]->SetLineColor(41);
       h2g[ihist]->SetLineWidth(2); 
       
-      h2g[ihist]->Draw();
-      myc->SaveAs(label2g[ihist]);
-      
+
+      if(doDraw == 1) {
+	h2g[ihist]->Draw();
+	myc->SaveAs(label2g[ihist]);
+      }
     }
   }
  
@@ -494,7 +506,8 @@
   //-----------------------   
   // this is a temporary stuff that I've made
   // to create a reference ROOT histogram file
-  
+
+  /*   
   TFile OutFile("HB_ref.root","RECREATE") ;
   int ih = 0 ;
   for ( ih=0; ih<nLayersMAX; ih++ )
@@ -508,9 +521,10 @@
 
   OutFile.Write() ;
   OutFile.Close() ;
+  cout << "ref. histogram file created" << endl ; 
 
   return;
-
+*/
  
 
    // now perform Chi2 test for histograms that hold
@@ -520,7 +534,7 @@
    
    // open up ref. ROOT file
    //
-   TFile RefFile("HB_ref.root") ;
+   TFile RefFile("../data/HB_ref.root") ;
    
    // service variables
    //

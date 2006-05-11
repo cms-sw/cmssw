@@ -1,5 +1,7 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
 {
+  // Option to draw or not (default = 0) histograms in gif.
+  int doDraw = 0; 
 
   //  char * filename = "simevent.root";
   char * filename = "simevent_HF.root";
@@ -107,8 +109,9 @@
   // Special : signal in short fibers
   TH1F *h1[19] = new TH1F("h19",label1[19],50,0.,50.);
 
-  //  h[i]->Sumw2();         // to get errors properly calculated
-
+  for (int i = 0;  i < Nhist1; i++) {
+    h1[i]->Sumw2();
+  }
 
   // eta-phi grid (for muon samples)
   TH2F *h2g = new TH2F("Grid",label2g,1000,-5.,5.,576,-3.1415927,3.1415927);
@@ -238,8 +241,10 @@
       h1[ihist]->SetLineColor(45);
       h1[ihist]->SetLineWidth(2); 
       
-      h1[ihist]->Draw("h");
-      myc->SaveAs(label1[ihist]);
+      if(doDraw == 1) {
+	h1[ihist]->Draw("h");
+	myc->SaveAs(label1[ihist]);
+      }
     }
   }
 
@@ -253,8 +258,10 @@
     h2g->SetLineColor(41);
     h2g->SetLineWidth(2); 
     
-    h2g->Draw();
-    myc->SaveAs(label2g);      
+    if(doDraw == 1) {	
+      h2g->Draw();
+      myc->SaveAs(label2g);      
+    }
   }
   
 
@@ -262,7 +269,8 @@
   //-----------------------   
   // this is a temporary stuff that I've made
   // to create a reference ROOT histogram file
-  
+
+  /*  
   TFile OutFile("HF_ref.root","RECREATE") ;
   int ih = 0 ;
 
@@ -273,20 +281,20 @@
 
   OutFile.Write() ;
   OutFile.Close() ;
+  cout << "ref. histogram file created" << endl ; 
 
 
   return;
-
+*/
  
 
-   // now perform Chi2 test for histograms that hold
-   // energy deposition in the Hcal layers 1-6, using
+   // now perform Chi2 test for histograms using
    // "reference" and "current" histograms 
    
    
    // open up ref. ROOT file
    //
-   TFile RefFile("HF_ref.root") ;
+   TFile RefFile("../data/HF_ref.root") ;
    
    // service variables
    //
@@ -323,7 +331,7 @@
 	 
 	 // output Chi2 comparison results
 	 //
-	 cout << "[OVAL] : Edep in Layer " << ih << ", p-value= " << pval << endl ;
+	 cout << "[OVAL] : histo " << ih << ", p-value= " << pval << endl ;
       }
    }
 
