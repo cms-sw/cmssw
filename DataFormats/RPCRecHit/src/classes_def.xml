@@ -3,6 +3,7 @@
 
 <lcgdict>
 <class name="RPCRecHit"/>
+<class name="std::vector<RPCRecHit*>"/>
 <class name="std::vector<RPCRecHit>"/>
 <class name="std::pair<unsigned int, unsigned int>"/>
 <class name="std::map<RPCDetId, std::pair<unsigned int, unsigned int> >"/>
