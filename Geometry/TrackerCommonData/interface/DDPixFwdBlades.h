@@ -5,47 +5,50 @@
 
 == CMS Forward Pixels Geometry ==
 
- @version 2.01.01 Dec 06, 2005
+ @version 3.01.01 May 08, 2006
  @created Dmitry Onoprienko
 
 == ALGORITHM DESCRIPTION: ==
 
   Algorithm for placing one-per-blade components
+  Also computes parameters necessary for defining the "nipple" geometry.
+
+== Parameters : ==
+
+  "Endcap" - +1 if placing the child volume into +Z disk, -1 if placing into -Z disk.
+  "Child" - name of a child volume being places (shold be in the form "file:volume")
+            In no child name is given, the algorithm simply calculates Nipple parameters.
+  "ChildRotation" - rotation of the child volume with respect to the "blade frame". [OPTIONAL]
+  "ChildTranslation" - vector defining translation of the child volume with respect to the 
+                       "blade frame". [OPTIONAL]
+  "FlagString" - string of 24 characters, used to indicate blades into which the child volume 
+                 should be placed. [OPTIONAL]
+  "FlagSelector" - 1 character string, key to interpreting "FlagString".
+                   Positions in "BladeFlag" that have this character will get the child volume.
+                   
+  If "Child" parameter is omitted, the algorithm computes rotation needed for describing 
+  coolant "nipples" but does not do any placements.
+  
+  If "Child" is "PixelForwardNippleZPlus" or "PixelForwardNippleZMinus" and no rotation or translation
+  is supplied, correct rotations and translations are automatically computed.
+  
+  Blade frame: origin on the axis of the blade at a distance "ancorRadius" from the beam line
+  (it therefore coincides with the ancor point of a blade). 
+  Y along blade axis pointing away from beam line, Z perpendicular to blade plane and pointing away from IP.
+  (That assumes the axes of ZPlus disk are aligned with CMS global reference frame, and ZMinus disk
+  is rotated around Y by 180 degrees.)
 
 == Example of use : ==
 
 <Algorithm name="track:DDPixFwdBlades">
   <rParent name="pixfwdDisk:PixelForwardDiskZMinus"/>
-  <Numeric name="BladeAngle"    value="-[BladeAngle]" />
-  <Numeric name="ZPlane"        value="0." />
-  <Numeric name="BladeZShift"   value="-[BladeZShift]" />
-  <String  name="Child"         value="pixfwdPanel:PixelForwardPanel3Left"/>
-  <Numeric name="ChildX"        value="[radiusPanel]"/>
-  <Numeric name="ChildY"        value="0."/>
-  <Numeric name="ChildZ"        value="-[zPanel]"/>
-  <String  name="ChildRotation" value="pixfwdDisk:Y180"/>
-  <String  name="FlagString"     value="LRRRRLRRRRRLLRRRRLRRRRRL" />
+  <Numeric name="Endcap"        value="-1." />
+  <String  name="Child"         value="pixfwdPanel:PixelForwardPanel4Left"/>
+  <Vector  name="ChildTranslation" type="numeric" nEntries="3"> 0., -[pixfwdPanel:AncorY], [zPanel] </Vector>
+  <String  name="ChildRotation" value="pixfwdCommon:Y180"/>
+  <String  name="FlagString"    value="LRRRRLRRRRRRLRRRRLRRRRRR" />  <!-- Panel Layout ZMinus 4  -->
   <String  name="FlagSelector"  value="L" />
 </Algorithm>
-
-== Parameters : ==
-
-  "BladeAngle" - angle of blade rotation around its axis (20 degrees in current PixelForward design)
-  "ZPlane" - Z of of the disk central plane in the parent volume reference frame
-  "BladeZShift" - shift in Z between adjacent blades. 
-                  Positive if the first blade (lowest phi) is shifted in +Z direction
-  "Child" - name of a child volume being places (shold be in the form "file:volume")
-  "ChildX" - child X in the "blade frame"
-  "ChildY" - child Y in the "blade frame"
-  "ChildZ" - child Z in the "blade frame"
-  "ChildRotation" - rotation of the child volume with respect to the "blade frame". [OPTIONAL]
-  "FlagString" - string of 24 characters, used to indicate blades into which the child volume 
-                 should be placed. [OPTIONAL]
-  "FlagSelector" - 1 character string, key to interpreting "FlagString".
-                   Positions in "BladeFlag" that have this character will get the child volume.
-  
-  Blade frame: center at (0, 0, zPlane+k*bladeZShift) in disk frame, Z perpendicular to blade
-  plane and pointing away from IP, X along blade axis pointing away from beam line.
 
 */
 
@@ -54,6 +57,9 @@
 #include <vector>
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "CLHEP/Vector/ThreeVector.h"
+#include "CLHEP/Vector/Rotation.h"
 
 class DDPixFwdBlades : public DDAlgorithm {
  
@@ -78,32 +84,51 @@ public:
 
 private:
 
-  // -- Parameters :  --------------------------------------------------------------------
+  // -- Input geometry parameters :  -----------------------------------------------------
+ 
+  static const int     nBlades;            // Number of blades
+  static const double  bladeAngle;    // Angle of blade rotation around axis perpendicular to beam
+  static const double  zPlane;             // Common shift in Z for all blades (with respect to disk center plane)
+  static const double  bladeZShift;     // Shift in Z between the axes of two adjacent blades
+  
+  static const double  ancorRadius; // Distance from beam line to ancor point defining center of "blade frame"
+  
+      // Coordinates of Nipple ancor points J and K in "blade frame" :
 
-  int           nBlades;            // Number of blades
-  double        bladeAngle;         // Angle of blade rotation around axis perpendicular to beam
-  double        zPlane;             // Common shift in Z for all blades (with respect to disk center plane)
-  double        bladeZShift;        // Shift in Z between the axes of two adjacent blades
+  static const double jX;
+  static const double jY;
+  static const double jZ;
+  static const double kX;
+  static const double kY;
+  static const double kZ;
+
+  // -- Algorithm parameters :  ----------------------------------------------------------
+
+  double        endcap;          // +1 for Z Plus endcap disks, -1 for Z Minus endcap disks
 
   std::string   flagString;         // String of flags
   std::string   flagSelector;       // Character that means "yes" in flagString
   
   std::string   childName;          // Child volume name
   
-  double        childX;             // X of child volume center with respect to blade frame
-  double        childY;             // Y of child volume center with respect to blade frame
-  double        childZ;             // Z of child volume center with respect to blade frame
-  std::string   childRotationName;  // Child volume rotation with respect to blade frame
+  std::vector<double> childTranslationVector; // Child translation with respect to "blade frame"
+  std::string   childRotationName;            // Child rotation with respect to "blade frame"
 
   // -------------------------------------------------------------------------------------
 
   std::string   idNameSpace;    //Namespace of this and ALL sub-parts
   
   static std::map<std::string, int> copyNumbers;
+  
+  static HepRotation* nippleRotationZPlus;
+  static HepRotation* nippleRotationZMinus;
+  static double nippleTranslationX, nippleTranslationY, nippleTranslationZ;
 
   // -- Helper functions :  --------------------------------------------------------------
   
   int issueCopyNumber();
+  
+  void computeNippleParameters(double endcap);
   
   // -------------------------------------------------------------------------------------
 
