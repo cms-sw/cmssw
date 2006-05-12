@@ -1,7 +1,7 @@
 /** \file GlobalTrackingGeometry.cc
  *
- *  $Date: 2006/05/09 13:46:16 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/10 18:02:27 $
+ *  $Revision: 1.4 $
  *  \author M. Sani
  */
 
@@ -58,25 +58,30 @@ const TrackingGeometry* GlobalTrackingGeometry::slaveGeometry(DetId id) const {
 
 const TrackingGeometry::DetTypeContainer& GlobalTrackingGeometry::detTypes() const {
 
-    return DetTypeContainer();
+    static DetTypeContainer result;
+    return result;
 }
 
 const TrackingGeometry::DetUnitContainer& GlobalTrackingGeometry::detUnits() const {
 
-    return DetUnitContainer();
+    static DetUnitContainer result;
+    return result;
 }
 
 const TrackingGeometry::DetContainer& GlobalTrackingGeometry::dets() const {
 
-    return DetContainer();
+    static DetContainer result;
+    return result;
 }
 
 const TrackingGeometry::DetIdContainer& GlobalTrackingGeometry::detUnitIds() const {
 
-    return DetIdContainer();
+    static DetIdContainer result;
+    return result;
 }
 
 const TrackingGeometry::DetIdContainer& GlobalTrackingGeometry::detIds() const {
 
-    return DetIdContainer();
+    static DetIdContainer result;
+    return result;
 }
