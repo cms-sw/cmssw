@@ -8,13 +8,16 @@
 //
 // Original Author:  
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id$
+// $Id: SiStripDetCabling.cc,v 1.1 2006/03/22 18:14:18 dkcira Exp $
 //
 
 // system include files
 
 // user include files
+#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 using namespace std;
 
@@ -103,3 +106,4 @@ const unsigned int SiStripDetCabling::getDcuId( uint32_t det_id ) const{
   return default_zero_value;
 }
 
+EVENTSETUP_DATA_REG(SiStripDetCabling);

@@ -1,4 +1,5 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <iomanip>
@@ -114,7 +115,7 @@ const SiStripModule& SiStripFecCabling::module( const FedChannelConnection& conn
 
 // -----------------------------------------------------------------------------
 //
-void SiStripFecCabling::countDevices() {
+void SiStripFecCabling::countDevices() const {
   uint32_t nfecs, nrings, nccus, nmodules, napvs, ndcuids, ndetids;
   uint32_t npairs, nfedchans, ndcus, nmuxes, nplls, nllds;
   nfecs = nrings = nccus = nmodules = napvs = ndcuids = ndetids = 0;
@@ -451,9 +452,4 @@ void SiStripModule::print() const {
   LogDebug("FedCabling") << ss.str();
 }
 
-
-
-
-
-
-
+EVENTSETUP_DATA_REG(SiStripFecCabling);
