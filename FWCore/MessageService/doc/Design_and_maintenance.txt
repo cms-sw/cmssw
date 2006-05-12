@@ -53,14 +53,14 @@ pointer remains meaningful in the server side it will be used in.
 The interaction of MessageSender with the server side consists of two steps.  
 
 First, it sees if there is a MessageDrop instance (normally there will
- be unless this message was issued very early on) and supplies the module
- and run/event context.  [Those pieces of information are provided by the
- before-module and before-event callbacks of the message **service**, so
- the information needed to cross the client/server boundary.] The module
- and ocntext go into the ErrorObj.
+  be unless this message was issued very early on) and supplies the module
+  and run/event context.   [There is a separate discussion below about the
+  MessageDrop.]  The module and context go into the ErrorObj.
  
 Second, it invokes the static LOG method of MessageLoggerQ, supplying the
- pointer to the ErrorObj.
+  pointer to the ErrorObj.
+
+
 
 
 
@@ -78,7 +78,111 @@ will be a segv -- have to fix this!
 I think I just did
 
 
-
+[Those pieces of information are provided by the
+  before-module and before-event callbacks of the message **service**, so
+  this information had needed to cross the client/server boundary.]
 
 
 What happens at the 
+
+
+
+---------------
+The MessageDrop
+---------------
+
+The purpose of the message drop is to convey framework information to the
+point-of-invocation where a message is issued.  The functions issuing 
+messages may not naturally have access to the ModuleDescription or the
+EventID (which contains the run and event numbers) or the list (prepared
+by configuration in MessageLoggerScrivbe) of debug-enabled modules.  The
+process of preparing a message requires this information.
+
+In discussing how the MessageDrop works, we will pay attention to the facts
+that the MessageLoggerScript will be running in a distinct thread from the
+code issuing the message, and that there may be several threads processing
+events, each issuing messages independantly.  MessageDrop is a 
+thread-specific singleton.
+
+The following files interact with MessageDrop:
+    In the MessageLogger package:
+	MessageDrop.h		MessageDrop.cc
+	MessageLogger.h 	MessageSender.cc
+    In the MessageService package:
+    	MessageLogger.cc
+	
+MessageDrop.h defines a singleton pattern.  The (private) default ctor
+	      initializes the public data:
+		 ModuleName is ""
+		 runEvent is "pre-events"
+		 debugEnabled is true 
+	      There is a public instance() method
+	     
+MessageDrop.cc refines that to be a thread-specific singleton pattern.
+	       This is accomplished by replacing the static bare pointer
+	       to MessageDrop which would have been present in an ordinary
+	       singleton, with a boost::thread_specific_ptr<MessageDrop>.
+	       The latter is a object that may contain several pointers,
+	       but only one is accessible in this thread.
+	       The instance() method calls drops.get() to obtain that
+	       pointer.  Just as for a usual singleton, if the pointer
+	       is null, it sets the pointer to a new MessageDrop.  Thus
+	       instance() will always return a pointer to the unique 
+	       MessageDrop for this thread.
+	       
+	       Note that the server side has no way to influence or access
+	       the MessageDrop for a specific thread; thus any information
+	       present in the drop and needed by the server needs to be 
+	       added into the ErrorObject hat will cross the client/server
+	       boundary.    
+
+MessageLogger.h uses the MessageDrop in the LogDebug macro to learn the 
+		value of debugEnabled.  If debugEnabled is set to false, 
+		then the effect of LogDebug is to immediately return.
+
+MessageSender.cc gets the instance of MessageDrop to find out the 
+		 moduleName and the runEvent.  It then places these into
+		 the ErrorObject it is forming to pass over to the 
+		 server.  This is how the correct event number, for example,
+		 finds its way accurately into that other thread even if
+		 yet other threads are also issuing messages.
+
+MessageLogger.cc is responsible for filling the data fields of the 
+		 MessageDrop with needed information.  MessageLogger.cc
+		 is in the MessageService, to avoid introducing
+		 a dependency on ModuleDescription into MessageLogger.
+		 But it is not part of the MessageLoggerScribe thread; 
+		 it is part of the same thread as the issuing message.
+		 Thus when it sets up information, that info is available
+		 for stuffing into the ErrorObj or use in deciding whether
+		 to react to a LogDebug.  The information provided is:
+      In PostBeginJob it says that we are BeforeEvents and in no module.
+      In PreEventProcessing it fills in the run and event.
+      In PostEventProcessing it notes that we are between events.		 
+      In PreModule it fills in the module name, and sets debugEnabled. 
+		 To determine the value to set for debugEnabled, 
+		 two bools and a vector of module names come into play;
+		 these are all universal (that is, not thread-specific)
+		 and are established when the MessageLogger object in
+		 MessageService is constructed, by getting the vString 
+		 debugModules:
+		 anyDebugEnabled_     is a global scope variable instantiated
+		 		      as false in MessageLogger.cc.  In the 
+				      ctor of MessageLogger, this is set to
+				      true if debugModules is non-empty.
+		 everyDebugEnabled_   is a global scope variable instantiated
+		 		      as false in MessageLogger.cc.  In the 
+				      ctor of MessageLogger, this is set to
+				      true if nay one of debugModules is "*".
+		 debugEnabledModules_ contains the specified debugModules.
+		 If debugEnabled is set to false, then the effect of LogDebug
+		 is to immediately return.
+		
+A subtlety arose concerning the MessageDrop in circumstances where 
+the framework's event processing structure were not in play.  In 
+particular, if preModule were never called, then debugEnabled would
+remain whatever value it had on construction of the MessageDrop --
+originally, the value was left uninitialized.   Now it is initialized to 
+true.  Also, in the ctor for MessageLogger (in MessageLogger.cc) if
+debugModules is empty, we change debugEnabled MessageDrop's debugEnabled
+to false.
