@@ -1,7 +1,7 @@
 #ifndef L1GCTWHEELJETFPGA_H_
 #define L1GCTWHEELJETFPGA_H_
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 
 #include <vector>
@@ -31,17 +31,17 @@ public:
 	void setInputLeafCard(int i, L1GctJetLeafCard* card);
 	///
 	/// set input data		
-	void setInputJet(int i, L1GctJet jet); 
+	void setInputJet(int i, L1GctJetCand jet); 
 	void setInputHt (int i, unsigned ht);
 	
 	// get the input jets
-	inline vector<L1GctJet> getInputJets() { return inputJets; }
+	inline vector<L1GctJetCand> getInputJets() { return inputJets; }
 	
 	// get the input Ht
 	inline unsigned long getInputHt(unsigned leafnum) { return inputHt[leafnum].to_ulong(); }
 	
 	// get the output jets
-	inline vector<L1GctJet> getOutputJets() { return outputJets; }
+	inline vector<L1GctJetCand> getOutputJets() { return outputJets; }
 	
 	// get the output Ht and jet counts
 	inline unsigned long getOutputHt()               { return outputHt.to_ulong(); }
@@ -58,7 +58,7 @@ private:
 	// input data
 	// this should be a fixed size array!
 	// with meaning assigned to the positions
-	vector<L1GctJet> inputJets;
+	vector<L1GctJetCand> inputJets;
 
 	// input Ht sums from each leaf card
 	static const int NUM_BITS_ENERGY_DATA = 13;
@@ -76,7 +76,7 @@ private:
 	// this should be a fixed size array
 	// perhaps with meaning assigned to the positions
 	// (eg. central 0-3, forward 4-7, tau 8-11)
-	vector<L1GctJet> outputJets;
+	vector<L1GctJetCand> outputJets;
 
 	// data sent to GlobalEnergyAlgos
         typedef bitset<3> JcWheelType;

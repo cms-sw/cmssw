@@ -1,12 +1,15 @@
 #ifndef L1GCTJETLEAFCARD_H_
 #define L1GCTJETLEAFCARD_H_
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
 #include <vector>
+#include <bitset>
 
-using namespace std;
+using std::vector;
+using std::bitset;
 
 /*
  * Represents a GCT Leaf Card
@@ -38,9 +41,9 @@ public:
 	vector<L1GctRegion> getInputRegions();
     
 	// get the jet output
-	vector<L1GctJet> getOutputJetsA() { jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
-	vector<L1GctJet> getOutputJetsB() { jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
-	vector<L1GctJet> getOutputJetsC() { jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
+	vector<L1GctJetCand> getOutputJetsA() { jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
+	vector<L1GctJetCand> getOutputJetsB() { jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
+	vector<L1GctJetCand> getOutputJetsC() { jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
     
 	/// get the Ex output
 	inline unsigned long getOutputEx() { return outputEx.to_ulong(); }

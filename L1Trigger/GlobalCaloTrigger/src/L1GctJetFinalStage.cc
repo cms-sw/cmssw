@@ -26,6 +26,6 @@ void L1GctJetFinalStage::setInputWheelJetFpga(int i, L1GctWheelJetFpga* wjf)
     m_wheelFpgas[i] = wjf;   
 }
 
-void L1GctJetFinalStage::setInputJet(int i, L1GctJet jet)
+void L1GctJetFinalStage::setInputJet(int i, L1GctJetCand jet)
 {
 }

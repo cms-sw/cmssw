@@ -2,7 +2,7 @@
 #define L1GLOBALCALOTRIGGER_H_
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 
 #include <vector>
 
@@ -50,13 +50,13 @@ public:
 	vector<L1GctEmCand> getNonIsoElectrons();
 	///
 	/// central jet outputs to GT
-	vector<L1GctJet> getCentralJets();
+	vector<L1GctJetCand> getCentralJets();
 	///
 	/// forward jet outputs to GT
-	vector<L1GctJet> getForwardJets();
+	vector<L1GctJetCand> getForwardJets();
 	///
 	/// tau jet outputs to GT
-	vector<L1GctJet> getTauJets();
+	vector<L1GctJetCand> getTauJets();
 	///
 	/// Etmiss output to GT
 	unsigned getEtMiss();

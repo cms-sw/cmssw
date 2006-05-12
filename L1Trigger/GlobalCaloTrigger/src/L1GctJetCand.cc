@@ -1,9 +1,9 @@
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 
 #include <assert.h>
 
 
-L1GctJet::L1GctJet(uint16_t rank, uint16_t eta, uint16_t phi, bool tauVeto) :
+L1GctJetCand::L1GctJetCand(uint16_t rank, uint16_t eta, uint16_t phi, bool tauVeto) :
   m_rank(rank),
   m_eta(eta),
   m_phi(phi),
@@ -12,11 +12,11 @@ L1GctJet::L1GctJet(uint16_t rank, uint16_t eta, uint16_t phi, bool tauVeto) :
 
 }
 
-L1GctJet::~L1GctJet()
+L1GctJetCand::~L1GctJetCand()
 {
 }
 
-void L1GctJet::setupJet(uint16_t rank, uint16_t eta, uint16_t phi, bool tauVeto)
+void L1GctJetCand::setupJet(uint16_t rank, uint16_t eta, uint16_t phi, bool tauVeto)
 {
     m_rank = rank;
     m_eta = eta;
@@ -24,7 +24,7 @@ void L1GctJet::setupJet(uint16_t rank, uint16_t eta, uint16_t phi, bool tauVeto)
     m_tauVeto = tauVeto;    
 }
 
-L1GctJet L1GctJet::convertToGlobalJet(int jetFinderPhiIndex, int wheelId)
+L1GctJetCand L1GctJetCand::convertToGlobalJet(int jetFinderPhiIndex, int wheelId)
 {
     //Some debug checks...
     assert(jetFinderPhiIndex >= 0 && jetFinderPhiIndex < 9);
@@ -32,7 +32,7 @@ L1GctJet L1GctJet::convertToGlobalJet(int jetFinderPhiIndex, int wheelId)
     assert(m_eta < 11);  //Eta should run from 0 to 10 in local jetfinder co-ords
     assert(m_phi < 2);  //Phi should be either 0 or 1 in local jetfinder co-ords
 
-    L1GctJet outputJet = *this;  //copy this instance to a temporary jet.
+    L1GctJetCand outputJet = *this;  //copy this instance to a temporary jet.
 
     //remove the ability to distinguish between central and forward jets
     if(m_eta >= LOCAL_ETA_HF_START) { outputJet.setRank(m_rank - LOCAL_ETA_HF_START); }

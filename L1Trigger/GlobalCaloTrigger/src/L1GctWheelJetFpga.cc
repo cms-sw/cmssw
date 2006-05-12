@@ -98,7 +98,7 @@ void L1GctWheelJetFpga::setInputLeafCard (int i, L1GctJetLeafCard* card)
   }
 }
 
-void L1GctWheelJetFpga::setInputJet(int i, L1GctJet jet)
+void L1GctWheelJetFpga::setInputJet(int i, L1GctJetCand jet)
 {
 }
 

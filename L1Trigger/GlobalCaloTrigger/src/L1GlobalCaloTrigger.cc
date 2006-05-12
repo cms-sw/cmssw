@@ -200,3 +200,28 @@ void L1GlobalCaloTrigger::print() {
 	cout << "-----End Debug Output----" << endl;
 
 }
+
+// isolated EM outputs
+vector<L1GctEmCand> L1GlobalCaloTrigger::getIsoElectrons() { 
+  return theIsoEmFinalStage->getOutputCands();
+}	
+
+// non isolated EM outputs
+vector<L1GctEmCand> L1GlobalCaloTrigger::getNonIsoElectrons() {
+return theNonIsoEmFinalStage->getOutputCands(); 
+}
+
+// central jet outputs to GT
+vector<L1GctJetCand> L1GlobalCaloTrigger::getCentralJets() {
+ return theJetFinalStage->getCentralJets();
+}
+
+// forward jet outputs to GT
+vector<L1GctJetCand> L1GlobalCaloTrigger::getForwardJets() { 
+  return theJetFinalStage->getForwardJets(); 
+}
+
+// tau jet outputs to GT
+vector<L1GctJetCand> L1GlobalCaloTrigger::getTauJets() { 
+  return theJetFinalStage->getTauJets(); 
+}

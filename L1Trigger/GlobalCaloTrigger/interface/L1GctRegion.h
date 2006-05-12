@@ -21,8 +21,8 @@ public:
 	~L1GctRegion();
     	
     // Getters
-    int getEta() const { return m_eta; }   ///< Get the eta number (0-21?) of the region
-    int getPhi() const { return m_phi; }   ///< Get the phi number (0-17) of the region
+    int eta() const { return m_eta; }   ///< Get the eta number (0-21?) of the region
+    int phi() const { return m_phi; }   ///< Get the phi number (0-17) of the region
     ULong getEt() const { return myEt.to_ulong(); }
     bool getMip() const { return myMip; }
     bool getQuiet() const { return myQuiet; }

@@ -131,12 +131,6 @@ void L1GctJetFinder::setInputRegion(int i, L1GctRegion region)
     m_inputRegions[i] = region;
 }
 
-// For STL sorting... binary predicate for sorting jet ranks
-bool rankGreaterThan (L1GctJet jet1, L1GctJet jet2)
-{
-   return (jet1.rank() > jet2.rank());
-}
-
 void L1GctJetFinder::process() 
 {
     UShort jetNum = 0; //holds the number of jets currently found
@@ -178,7 +172,7 @@ void L1GctJetFinder::process()
         }
     }
     //presort the jets into decending order of energy
-    sort(m_outputJets.begin(), m_outputJets.end(), rankGreaterThan);
+    sort(m_outputJets.begin(), m_outputJets.end(), rankGreaterThan());
     
     //calculate the Ht
     m_outputHt = calcHt();

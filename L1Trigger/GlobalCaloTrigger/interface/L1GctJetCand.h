@@ -1,5 +1,5 @@
-#ifndef L1GCTJET_H_
-#define L1GCTJET_H_
+#ifndef L1GCTJETCAND_H_
+#define L1GCTJETCAND_H_
 
 #include <boost/cstdint.hpp> //for uint16_t
 
@@ -10,13 +10,13 @@
  * 
  */
 
-class L1GctJet
+class L1GctJetCand
 {
 
 public:
 
-  L1GctJet(uint16_t rank=0, uint16_t eta=0, uint16_t phi=0, bool tauVeto=true);
-  ~L1GctJet();
+  L1GctJetCand(uint16_t rank=0, uint16_t eta=0, uint16_t phi=0, bool tauVeto=true);
+  ~L1GctJetCand();
   
   // set rank and position bits
   void setRank(uint16_t rank) { m_rank = rank; }
@@ -30,7 +30,7 @@ public:
   uint16_t phi()const { return m_phi; }
   bool tauVeto()const { return m_tauVeto; }
 	
-  //ostream& operator << (ostream& os, const L1GctJet& s);
+  //ostream& operator << (ostream& os, const L1GctJetCand& s);
   
   ///Setup an existing jet all in one go
   void setupJet(uint16_t rank, uint16_t eta, uint16_t phi, bool tauVeto=true);
@@ -39,7 +39,7 @@ public:
   /*! 'jetFinderPhiIndex' is the vector index of the jetfinder in the wheel card,
    *  running from 0-8. 'wheelId' is the wheelJetFPGA id number (0 or 1),
    *  to determine which eta half of CMS we are in.*/
-  L1GctJet convertToGlobalJet(int jetFinderPhiIndex, int wheelId);
+  L1GctJetCand convertToGlobalJet(int jetFinderPhiIndex, int wheelId);
   
   ///start of the HF if we are using local jetfinder co-ordinates (11*2 in eta*phi)
   static const int LOCAL_ETA_HF_START = 7;
@@ -58,4 +58,4 @@ public:
   
 };
 
-#endif /*L1GCTJET_H_*/
+#endif /*L1GCTJETCAND_H_*/

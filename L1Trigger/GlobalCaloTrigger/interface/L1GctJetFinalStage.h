@@ -1,7 +1,7 @@
 #ifndef L1GCTJETFINALSTAGE_H_
 #define L1GCTJETFINALSTAGE_H_
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 
 #include <vector>
@@ -35,18 +35,18 @@ public:
 	virtual void process();
     	
 	// set input data		
-	void setInputJet(int i, L1GctJet jet);
+	void setInputJet(int i, L1GctJetCand jet);
 
     /// set the wheel jet fpga pointers
     void setInputWheelJetFpga(int i, L1GctWheelJetFpga* wjf);
 
 	// return input data
-	std::vector<L1GctJet> getInputJets() const { return m_inputJets; }
+	std::vector<L1GctJetCand> getInputJets() const { return m_inputJets; }
 
 	// return output data
-	std::vector<L1GctJet> getCentralJets() const { return m_centralJets; }
-	std::vector<L1GctJet> getForwardJets() const { return m_forwardJets; }
-	std::vector<L1GctJet> getTauJets() const { return m_tauJets; }
+	std::vector<L1GctJetCand> getCentralJets() const { return m_centralJets; }
+	std::vector<L1GctJetCand> getForwardJets() const { return m_forwardJets; }
+	std::vector<L1GctJetCand> getTauJets() const { return m_tauJets; }
 
 	inline unsigned long getHtBoundaryJets()               { return outputHtBoundaryJets.to_ulong(); }
         inline unsigned long getJcBoundaryJets(unsigned jcnum) { return outputJcBoundaryJets[jcnum].to_ulong(); }
@@ -56,12 +56,12 @@ private:
 	std::vector<L1GctWheelJetFpga*> m_wheelFpgas;
 	
 	// input data - need to confirm number of jets!
-	std::vector<L1GctJet> m_inputJets;
+	std::vector<L1GctJetCand> m_inputJets;
 
 	// output data
-	std::vector<L1GctJet> m_centralJets;
-	std::vector<L1GctJet> m_forwardJets;
-	std::vector<L1GctJet> m_tauJets;
+	std::vector<L1GctJetCand> m_centralJets;
+	std::vector<L1GctJetCand> m_forwardJets;
+	std::vector<L1GctJetCand> m_tauJets;
 	
 	// data sent to GlobalEnergyAlgos
         typedef bitset<3> JcBoundType;

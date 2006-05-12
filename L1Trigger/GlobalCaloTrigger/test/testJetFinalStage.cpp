@@ -12,7 +12,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"  //The class to be tested
 
 //Custom headers needed for this test
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 
 //Standard library headers
 #include <fstream>   //for file IO
@@ -21,11 +21,11 @@
 #include <iostream>
 #include <exception> //for exception handling
 #include <stdexcept> //for std::runtime_error()
+
 using namespace std;
 
-
 //Typedefs for the vector templates and other types used
-typedef vector<L1GctJet> JetsVector;
+typedef vector<L1GctJetCand> JetsVector;
 typedef unsigned long int ULong;
 
 
@@ -55,7 +55,7 @@ void safeOpenOutputFile(ofstream &fout, const string name);
 /// Reads jets from file and pushes the specified number into a vector of jets
 void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets);
 /// Gets the data of a single jet from the testDataFile (reasonably safely).  
-L1GctJet readSingleJet(ifstream &fin);
+L1GctJetCand readSingleJet(ifstream &fin);
 /// Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
 bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string description);
 /// Writes out the entire contents of a JetsVector to the given file output stream
@@ -238,7 +238,7 @@ void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets)
 }
 
 //Gets the data of a single jet from the testDataFile (reasonably safely). 
-L1GctJet readSingleJet(ifstream &fin)
+L1GctJetCand readSingleJet(ifstream &fin)
 {
     //This reperesents how many numbers there are per line for a jet in the input file
     const int numJetComponents = 4; //4 since we have rank, eta, phi & tauVeto.
@@ -260,7 +260,7 @@ L1GctJet readSingleJet(ifstream &fin)
     }
    
     //return object
-    L1GctJet tempJet(jetComponents[0], jetComponents[1],
+    L1GctJetCand tempJet(jetComponents[0], jetComponents[1],
                      jetComponents[2], static_cast<bool>(jetComponents[3]));
 
     return tempJet;
@@ -282,10 +282,10 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
             //compare the vectors
             for(ULong i = 0; i < vector1.size(); ++i)
             {
-                if(vector1[i].getRank() != vector2[i].getRank()) { testPass = false; break; }
-                if(vector1[i].getEta() != vector2[i].getEta()) { testPass = false; break; }
-                if(vector1[i].getPhi() != vector2[i].getPhi()) { testPass = false; break; }
-                if(vector1[i].getTauVeto() != vector2[i].getTauVeto()) { testPass = false; break; }
+                if(vector1[i].rank() != vector2[i].rank()) { testPass = false; break; }
+                if(vector1[i].eta() != vector2[i].eta()) { testPass = false; break; }
+                if(vector1[i].phi() != vector2[i].phi()) { testPass = false; break; }
+                if(vector1[i].tauVeto() != vector2[i].tauVeto()) { testPass = false; break; }
             }
         }
     }
@@ -312,10 +312,10 @@ void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
     {
         for(ULong i=0; i < jets.size(); ++i)
         {
-            fout << jets[i].getRank() << "\t" 
-                 << jets[i].getEta()  << "\t"
-                 << jets[i].getPhi()  << "\t"
-                 << jets[i].getTauVeto() << endl;
+            fout << jets[i].rank() << "\t" 
+                 << jets[i].eta()  << "\t"
+                 << jets[i].phi()  << "\t"
+                 << jets[i].tauVeto() << endl;
         }
     }
     fout << endl;  //write a blank line to separate data

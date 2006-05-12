@@ -1,12 +1,15 @@
 #ifndef L1GCTJETFINDER_H_
 #define L1GCTJETFINDER_H_
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
 #include <vector>
+#include <functional>
+
+using std::binary_function;
 
 /*! \class L1GctJetFinder
  * \brief 3*3 sliding window algorithm jet finder.
@@ -86,7 +89,7 @@ public:
     std::vector<L1GctRegion> getInputRegions() const { return m_inputRegions; }
 
     /// Return output data
-    std::vector<L1GctJet> getJets() const { return m_outputJets; }
+    std::vector<L1GctJetCand> getJets() const { return m_outputJets; }
     ULong getHt() const { return m_outputHt.to_ulong(); }
     
     // need method(s) to return jet counts - need to decide type!
@@ -111,7 +114,7 @@ private:
     std::vector<L1GctRegion> m_inputRegions;
 
     /// output jets
-    std::vector<L1GctJet> m_outputJets;
+    std::vector<L1GctJetCand> m_outputJets;
 
     /// output Ht - need to confirm number of bits
     std::bitset<12> m_outputHt;
@@ -135,7 +138,14 @@ private:
     
     /// Calculates total calibrated energy in jets (Ht) sum
     ULong calcHt() const;
-    
+  
+    // comparison operator for sort
+    struct rankGreaterThan : public binary_function<L1GctJetCand, L1GctJetCand, bool> {
+      bool operator()(const L1GctJetCand& x, const L1GctJetCand& y) { return x.rank() > y.rank(); }
+    };
+
+
+  
 };
 
 #endif /*L1GCTJETFINDER_H_*/
