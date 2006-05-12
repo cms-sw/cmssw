@@ -32,7 +32,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
  
   //---- Save histos to ROOT file 
   std::string saveToHistosFile = m_Anal.getParameter<std::string>("HistosFile");
-  if( saveToHistosFile != "" ) {
+  if( saveToHistosFile != "None" ) {
     saveToHistos = true;
     std::cout << "TestGeometry: saving histograms to " << saveToHistosFile << std::endl;
     theHistos = new MaterialBudgetHistos( theData, saveToHistosFile );
@@ -43,7 +43,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
 
   //---- Save material budget info to TEXT file
   std::string saveToTxtFile = m_Anal.getParameter<std::string>("TextFile");
-  if( saveToTxtFile != "" ) {
+  if( saveToTxtFile != "None" ) {
     saveToTxt = true;
     std::cout << "TestGeometry: saving text info to " << saveToTxtFile << std::endl;
     theTxt = new MaterialBudgetTxt( theData, saveToTxtFile );
@@ -54,7 +54,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   //---- Save tree to ROOT file
   std::string saveToTreeFile = m_Anal.getParameter<std::string>("TreeFile");
   //  std::string saveToTreeFile = ""; 
-  if( saveToTreeFile != "" ) {
+  if( saveToTreeFile != "None" ) {
     saveToTree = true;
     std::cout << "TestGeometry: saving ROOT TREE to " << saveToTreeFile << std::endl;
     theTree = new MaterialBudgetTree( theData, saveToTreeFile );
