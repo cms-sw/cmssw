@@ -75,7 +75,6 @@ bool HcalDbPool::storeObject (T* fObject, const std::string& fContainer, pool::R
   }
   try {
     service ()->transaction().start(pool::ITransaction::UPDATE);
-    
     *fRef = pool::Ref <T> (service (), fObject);
     mPlacement->setContainerName (fContainer);
     fRef->markWrite (*mPlacement);
@@ -83,6 +82,10 @@ bool HcalDbPool::storeObject (T* fObject, const std::string& fContainer, pool::R
   }
   catch (pool::Exception& e) {
     std::cerr << "storeObject->  POOL error: "  << e.what() << std::endl;
+    return false;
+  }
+  catch (const std::exception& e) {
+    std::cerr << "storeObject->  standard error: "  << e.what() << std::endl;
     return false;
   }
    catch (...) {
@@ -222,6 +225,8 @@ HcalDbPool::HcalDbPool (const std::string& fConnect)
   loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
   loader->load( "CORAL/Services/RelationalService");
   mTag.clear ();
+  if (!::getenv("CORAL_AUTH_USER")) ::putenv("CORAL_AUTH_USER=blah");
+  if (!::getenv("CORAL_AUTH_PASSWORD")) ::putenv("CORAL_AUTH_PASSWORD=blah"); 
   //std::cout << "HcalDbPool::HcalDbPool done..." << std::endl;
 }
 

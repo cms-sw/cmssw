@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.3 2006/01/21 01:35:39 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.4 2006/02/08 20:25:55 fedor Exp $
 //
 #include <string>
 #include <iostream>
@@ -98,6 +98,119 @@ bool HcalDbOnline::getObject (HcalGains* fObject, const std::string& fTag) {
 
 bool HcalDbOnline::getObject (HcalElectronicsMap* fObject, const std::string& fTag) {
   return false;
+}
+
+bool HcalDbOnline::getObject (HcalQIEData* fObject, const std::string& fTag) {
+  if (!fObject) return false;
+  std::string sql_query ("");
+  sql_query += "SELECT";         
+  sql_query += " DAT2.SIDE, DAT2.ETA, DAT2.PHI, DAT2.DEPTH, DAT2.SUBDETECTOR," ;
+  sql_query += " DAT.CAP0_RANGE0_OFFSET, DAT.CAP0_RANGE0_SLOPE," ;
+  sql_query += " DAT.CAP0_RANGE1_OFFSET, DAT.CAP1_RANGE0_SLOPE," ;
+  sql_query += " DAT.CAP0_RANGE2_OFFSET, DAT.CAP2_RANGE0_SLOPE," ;
+  sql_query += " DAT.CAP0_RANGE3_OFFSET, DAT.CAP3_RANGE0_SLOPE," ;
+  sql_query += " DAT.CAP1_RANGE0_OFFSET, DAT.CAP0_RANGE1_SLOPE," ;
+  sql_query += " DAT.CAP1_RANGE1_OFFSET, DAT.CAP1_RANGE1_SLOPE," ;
+  sql_query += " DAT.CAP1_RANGE2_OFFSET, DAT.CAP2_RANGE1_SLOPE," ;
+  sql_query += " DAT.CAP1_RANGE3_OFFSET, DAT.CAP3_RANGE1_SLOPE," ;
+  sql_query += " DAT.CAP2_RANGE0_OFFSET, DAT.CAP0_RANGE2_SLOPE," ;
+  sql_query += " DAT.CAP2_RANGE1_OFFSET, DAT.CAP1_RANGE2_SLOPE," ;
+  sql_query += " DAT.CAP2_RANGE2_OFFSET, DAT.CAP2_RANGE2_SLOPE," ;
+  sql_query += " DAT.CAP2_RANGE3_OFFSET, DAT.CAP3_RANGE2_SLOPE," ;
+  sql_query += " DAT.CAP3_RANGE0_OFFSET, DAT.CAP0_RANGE3_SLOPE," ;
+  sql_query += " DAT.CAP3_RANGE1_OFFSET, DAT.CAP1_RANGE3_SLOPE," ;
+  sql_query += " DAT.CAP3_RANGE2_OFFSET, DAT.CAP2_RANGE3_SLOPE," ;
+  sql_query += " DAT.CAP3_RANGE3_OFFSET, DAT.CAP3_RANGE3_SLOPE," ;
+  sql_query += " SLOT.NAME_LABEL, RM.RM_SLOT, QIE.QIE_SLOT, ADC.ADC_POSITION" ;
+  sql_query += " FROM " ;
+  sql_query += " CMS_HCL_HCAL_CONDITION_OWNER.QIECARD_ADC_NORMMODE DAT," ;
+  sql_query += " CMS_HCL_CORE_CONDITION_OWNER.COND_DATA_SETS DS," ;
+  sql_query += " CMS_HCL_CORE_CONDITION_OWNER.KINDS_OF_CONDITIONS KOC," ;
+  sql_query += " CMS_HCL_CORE_CONDITION_OWNER.COND_RUNS RN,";
+  sql_query += " CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_ADCS ADC,";
+  sql_query += " CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_QIECARDS QIE,";
+  sql_query += " CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_READOUTMODULES RM,";
+  sql_query += " CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_READOUTBOXS RBX,";
+  sql_query += " CMS_HCL_CORE_CONSTRUCT_OWNER.V_HCAL_READOUTBOX_SLOTS SLOT,";
+  sql_query += " CMS_HCL_HCAL_CONDITION_OWNER.HCAL_HARDWARE_LOGICAL_MAPS DAT2,";
+  sql_query += " CMS_HCL_CORE_CONDITION_OWNER.COND_DATA_SETS DS2,";
+  sql_query += " CMS_HCL_CORE_CONDITION_OWNER.KINDS_OF_CONDITIONS KOC2,";
+  sql_query += " CMS_HCL_CORE_CONDITION_OWNER.COND_RUNS RN2";
+  sql_query += " WHERE";
+  sql_query += " DS.CONDITION_DATA_SET_ID=DAT.CONDITION_DATA_SET_ID ";
+  sql_query += " AND DS.PART_ID=ADC.PART_ID";
+  sql_query += " AND ADC.PART_PARENT_ID=QIE.PART_ID";
+  sql_query += " AND QIE.PART_PARENT_ID=RM.PART_ID";
+  sql_query += " AND RM.PART_PARENT_ID=RBX.PART_ID";
+  sql_query += " AND RBX.PART_PARENT_ID=SLOT.PART_ID";
+  sql_query += " AND KOC.KIND_OF_CONDITION_ID = DS.KIND_OF_CONDITION_ID " ;       
+  sql_query += " AND RN.COND_RUN_ID=DS.COND_RUN_ID";
+  sql_query += " AND KOC.IS_RECORD_DELETED='F' AND DS.IS_RECORD_DELETED='F'";
+  sql_query += " AND KOC.NAME='QIE Responce Normal Mode' and DS.VERSION='2'";
+  sql_query += " AND";
+  sql_query += " DS2.CONDITION_DATA_SET_ID=DAT2.CONDITION_DATA_SET_ID AND";
+  sql_query += " KOC2.KIND_OF_CONDITION_ID=DS2.KIND_OF_CONDITION_ID AND";
+  sql_query += " RN2.COND_RUN_ID=DS2.COND_RUN_ID AND";
+  sql_query += " KOC2.IS_RECORD_DELETED='F' AND DS2.IS_RECORD_DELETED='F' AND";
+  sql_query += " KOC2.EXTENSION_TABLE_NAME='HCAL_HARDWARE_LOGICAL_MAPS' AND";
+  sql_query += " RN2.RUN_NAME='HCAL-LOGICAL-MAP-27APR06' AND";
+  sql_query += " DS2.VERSION='5'";
+  sql_query += " AND        ";
+  sql_query += " SLOT.NAME_LABEL=DAT2.RBX_SLOT AND";
+  sql_query += " RM.RM_SLOT=DAT2.RM_SLOT AND";
+  sql_query += " QIE.QIE_SLOT=DAT2.QIE_SLOT AND";
+  sql_query += " ADC.ADC_POSITION=DAT2.ADC";
+  
+  try {
+    // std::cout << "executing query: \n" << sql_query << std::endl;
+    //    oracle::occi::Statement* stmt = mConnect->createStatement ();
+    mStatement->setPrefetchRowCount (100);
+    mStatement->setSQL (sql_query);
+    oracle::occi::ResultSet* rset = mStatement->executeQuery ();
+    while (rset->next ()) {
+      int index = 1;
+      int z = rset->getInt (index++);
+      int eta = rset->getInt (index++);
+      int phi = rset->getInt (index++);
+      int depth = rset->getInt (index++);
+      std::string subdet = rset->getString (index++);
+      float offset [4][4];
+      float slope [4][4];
+      for (int capId = 0; capId < 4; capId++) {
+	for (int range = 0; range < 4; range++) {
+	  offset [capId][range] = rset->getFloat (index++);
+	  slope [capId][range] = rset->getFloat (index++);
+	}
+      }
+      std::string slot = rset->getString (index++);
+      int rm = rset->getInt (index++);
+      int qie = rset->getInt (index++);
+      int adc = rset->getInt (index++);
+
+      HcalQIECoder coder;
+      for (int capId = 0; capId < 4; capId++) {
+	for (int range = 0; range < 4; range++) {
+	  coder.setOffset (capId, range, offset [capId][range]);
+	  coder.setSlope (capId, range, slope [capId][range]);	   
+	}
+      }
+
+      HcalSubdetector sub = subdet == "HB" ? HcalBarrel : 
+	subdet == "HE" ? HcalEndcap :
+	subdet == "HO" ? HcalOuter :
+	subdet == "HF" ? HcalForward :  HcalSubdetector (0);
+      HcalDetId id (sub, z * eta, phi, depth);
+
+      fObject->addCoder (id, coder);
+    }
+    delete rset;
+    //    delete stmt;
+  }
+  catch (oracle::occi::SQLException& sqlExcp) {
+    std::cerr << "HcalDbOnline::getObject exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;
+  }
+  fObject->sort ();
+  return true;
 }
 
 
