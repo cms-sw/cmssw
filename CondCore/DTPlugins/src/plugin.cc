@@ -12,6 +12,8 @@
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
+#include "CondFormats/DTObjects/interface/DTRangeT0.h"
+#include "CondFormats/DataRecord/interface/DTRangeT0Rcd.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
