@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/28 16:27:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/04/27 13:49:10 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/interface/DTDBWriterInterface.h"
@@ -96,6 +96,9 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
   // Get the digis from the event
   Handle<DTDigiCollection> digis; 
   event.getByLabel(digiLabel, digis);
+
+  if(doSubtractT0)
+    theSync->setES(eventSetup);
 
   // Set the IOV of the objects FIXME: Where to put this?
   theDBWriter->setIOV(edm::IOVSyncValue::endOfTime().eventID().run());
