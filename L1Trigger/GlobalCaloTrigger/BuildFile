@@ -1,4 +1,7 @@
 <Flags CXXFLAGS="-g -O0">
+
+<use name=boost>
+
 <export>
 <lib name=L1TriggerGlobalCaloTrigger>
 </export>
