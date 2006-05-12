@@ -8,7 +8,7 @@
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  10 May 2006
-// $Id: EgammaSimpleAnalyzer.cc,v 1.1 2006/05/10 21:25:07 rahatlou Exp $
+// $Id: EgammaSimpleAnalyzer.cc,v 1.2 2006/05/10 21:53:47 rahatlou Exp $
 //
 
 #include "RecoEcal/EgammaClusterProducers/interface/EgammaSimpleAnalyzer.h"
@@ -68,6 +68,8 @@ EgammaSimpleAnalyzer::beginJob(edm::EventSetup const&) {
 
   h1_hybridSCEnergy_ = TH1F("hybridSCEnergy","Energy of super clusters with hybrid algo",nbinHist_,xMinHist_,xMaxHist_);
   h1_corrHybridSCEnergy_ = TH1F("corrHybridSCEnergy","Corrected Energy of super clusters with hybrid algo",nbinHist_,xMinHist_,xMaxHist_);
+  h1_corrHybridSCEta_ = TH1F("corrHybridSCEta","Eta of super clusters with hybrid algo",40,-3.,3.);
+  h1_corrHybridSCPhi_ = TH1F("corrHybridSCPhi","Phi of super clusters with hybrid algo",40,0.,6.28);
 
 }
 
@@ -91,7 +93,7 @@ EgammaSimpleAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   // loop over the Basic clusters and fill the histogram
   for(reco::BasicClusterCollection::const_iterator aClus = islandBasicClusters->begin();
                                                     aClus != islandBasicClusters->end(); aClus++) {
-    h1_islandBCEnergy_.Fill( aClus->energy() );
+    h1_islandBCEnergy_.Fill( aClus->energy()*sin(aClus->position().theta()) );
   }
 
   // Get island super clusters
@@ -106,7 +108,7 @@ EgammaSimpleAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   // loop over the super clusters and fill the histogram
   for(reco::SuperClusterCollection::const_iterator aClus = islandSuperClusters->begin();
                                                     aClus != islandSuperClusters->end(); aClus++) {
-    h1_islandSCEnergy_.Fill( aClus->energy() );
+    h1_islandSCEnergy_.Fill( aClus->energy()*sin(aClus->position().theta()) );
   }
 
 
@@ -122,7 +124,7 @@ EgammaSimpleAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   // loop over the super clusters and fill the histogram
   for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandSuperClusters->begin();
                                                            aClus != correctedIslandSuperClusters->end(); aClus++) {
-    h1_corrIslandSCEnergy_.Fill( aClus->energy() );
+    h1_corrIslandSCEnergy_.Fill( aClus->energy()*sin(aClus->position().theta()) );
   }
 
 
@@ -139,7 +141,7 @@ EgammaSimpleAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   // loop over the super clusters and fill the histogram
   for(reco::SuperClusterCollection::const_iterator aClus = hybridSuperClusters->begin();
                                                     aClus != hybridSuperClusters->end(); aClus++) {
-    h1_hybridSCEnergy_.Fill( aClus->energy() );
+    h1_hybridSCEnergy_.Fill( aClus->energy()*sin(aClus->position().theta()) );
   }
 
 
@@ -155,7 +157,9 @@ EgammaSimpleAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   // loop over the super clusters and fill the histogram
   for(reco::SuperClusterCollection::const_iterator aClus = correctedHybridSuperClusters->begin();
                                                            aClus != correctedHybridSuperClusters->end(); aClus++) {
-    h1_corrHybridSCEnergy_.Fill( aClus->energy() );
+    h1_corrHybridSCEnergy_.Fill( aClus->energy()*sin(aClus->position().theta()) );
+    h1_corrHybridSCEta_.Fill( aClus->position().eta() );
+    h1_corrHybridSCPhi_.Fill( aClus->position().phi() );
   }
 
 
@@ -176,4 +180,8 @@ EgammaSimpleAnalyzer::endJob() {
 
   h1_hybridSCEnergy_.Write();
   h1_corrHybridSCEnergy_.Write();
+  h1_corrHybridSCEta_.Write();
+  h1_corrHybridSCPhi_.Write();
+
+  f.Close();
 }
