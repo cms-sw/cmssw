@@ -1,5 +1,5 @@
 #ifndef GEOMETRY_CALOTOPOLOGY_CALOTOPOLOGY_H
-#define TOPOLOGY_CALOTOPOLOGY_CALOTOPOLOGY_H 1
+#define GEOMETRY_CALOTOPOLOGY_CALOTOPOLOGY_H 1
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include <map>
@@ -9,8 +9,8 @@ class CaloSubdetectorTopology;
 
 /** \class CaloTopology
       
-$Date: $
-$Revision: $
+$Date: 2006/03/30 14:43:28 $
+$Revision: 1.1 $
 
 \author J. Mans and P. Meridiani
 */
