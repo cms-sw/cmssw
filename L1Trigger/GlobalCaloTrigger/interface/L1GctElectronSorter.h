@@ -5,23 +5,18 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 
 #include <vector>
+#include <algorithm>
 
 using std::vector;
 
 class L1GctSourceCard;
 
-///
-/// Represents a GCT Electron Sort algorithm
-/// author: Maria Hansen
-/// date: 21/4/2006
-/// version: 1.1
-///
 
 class L1GctElectronSorter : public L1GctProcessor
 {
 public:
   ///
-  /// constructor; set tyep (isolated or non-isolated)
+  /// constructor; set type (isolated or non-isolated)
   L1GctElectronSorter(int id, bool iso=true);
   ~L1GctElectronSorter();
   ///
@@ -49,7 +44,7 @@ public:
 private:
 	///
 	/// internal function for comparing two EmCands
-	bool compare(L1GctEmCand a, L1GctEmCand b);
+	//bool compare(L1GctEmCand a, L1GctEmCand b);
 	
 private:
 	///

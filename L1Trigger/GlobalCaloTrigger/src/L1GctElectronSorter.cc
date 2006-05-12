@@ -12,14 +12,10 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
-#include<iostream>
-#include <sort>
 
-using std::cout;
-using std::sort;
 
 //Overloading the less than operator to use EmCand's
-bool L1GctElectronSorter::compare(L1GctEmCand a, L1GctEmCand b){
+bool compare(L1GctEmCand a, L1GctEmCand b){
     return a.getRank() > b.getRank();
 }
 
@@ -50,17 +46,17 @@ void L1GctElectronSorter::reset() {
 
 // get the input data
 void L1GctElectronSorter::fetchInput() {
-  //  for(vector<L1GctSourceCard*>::iterator itSource = theSCs.begin();itSource!=theSCs.end();itSource++){ 
-  //  switch(theInputType)
-  //    {
-  //    case 1: //Choose iso electrons
-  //	inputCands = (*itSource)->getIsoElectrons();
-  //	break;
-  //    case 2: //Choose non iso electrons
-  //	inputCands = (*itSource)->getNonIsoElectrons();
-  //	break;
-  //    }
-  //}	
+  for(vector<L1GctSourceCard*>::iterator itSource = theSCs.begin();itSource!=theSCs.end();itSource++){ 
+    switch(theInputType)
+      {
+      case 1: //Choose iso electrons
+  	inputCands = (*itSource)->getIsoElectrons();
+  	break;
+      case 2: //Choose non iso electrons
+  	inputCands = (*itSource)->getNonIsoElectrons();
+  	break;
+      }
+  }	
 
   // loop over Source Cards
   for (unsigned int i=0; i<theSCs.size(); i++) {

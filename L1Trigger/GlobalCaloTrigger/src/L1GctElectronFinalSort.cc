@@ -1,3 +1,4 @@
+
 /*! \file L1GctElectronFinalSort.cc
  * \Class that does the final sorting of electron candidates
  *
@@ -6,12 +7,14 @@
  * the leaf? cards
  *
  * \author  Maria Hansen
- * \date    21/04/06
- * \version 1.1
+ * \date    12/05/06
+ * \version 1.2
  */
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
+#include<iostream>
 
+using std::cout;
 
 //Overloading the less than operator to use EmCand's
 bool compareInputs(L1GctEmCand a, L1GctEmCand b){
@@ -19,12 +22,8 @@ bool compareInputs(L1GctEmCand a, L1GctEmCand b){
 }
 
 
-L1GctElectronFinalSort::L1GctElectronFinalSort():inputCands(0),outputCands(4)
-{
-}
-
-L1GctElectronFinalSort::L1GctElectronFinalSort(vector<L1GctElectronSorter*> src){
-  theEmSorters = src;
+L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso):inputCands(0),outputCands(4){
+  getIsoEmCands = iso;
 }
 
 L1GctElectronFinalSort::~L1GctElectronFinalSort(){
@@ -36,8 +35,21 @@ void L1GctElectronFinalSort::reset(){
 }
 
 void L1GctElectronFinalSort::fetchInput(){
-  for(vector<L1GctElectronSorter*>::iterator itSorted = theEmSorters.begin();itSorted!=theEmSorters.end();itSorted++){ 
-    inputCands = (*itSorted)->getOutput();
+  for(vector<L1GctEmLeafCard*>::iterator itLeafCard = theLeafCards.begin();
+                                         itLeafCard!=theLeafCards.end();itLeafCard++){ 
+    for(unsigned int i=0;i!=theLeafCards.size();i++){
+      if(getIsoEmCands){
+	vector<L1GctEmCand> isoCands = (*itLeafCard)->getOutputIsoEmCands(i);
+	for(unsigned int n=0;n!=isoCands.size();n++){
+	  inputCands[n] = isoCands[n];
+	}
+      }else{
+	vector<L1GctEmCand> nonIsoCands = (*itLeafCard)->getOutputNonIsoEmCands(i);
+     	for(unsigned int n=0;n!=nonIsoCands.size();n++){
+	  inputCands[n] =nonIsoCands[n];
+	}   
+      }
+    }
   }
 }
 
@@ -55,14 +67,10 @@ void L1GctElectronFinalSort::process(){
 }
 
 void L1GctElectronFinalSort::setInputEmCand(int i, L1GctEmCand cand){
-  // inputCands[i] = cand;
-  //using push_back for now until know how many to set the inputCands vector to in constructor
-  inputCands.push_back(cand);
+  inputCands[i] = cand;
 }
 
-
-
-
-
-
+void L1GctElectronFinalSort::setInputLeafCard(int i, L1GctEmLeafCard* card){
+  theLeafCards[i] = card;
+}
 

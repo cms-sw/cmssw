@@ -4,8 +4,10 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 
 #include <vector>
+#include <algorithm>
 
 using std::vector;
 
