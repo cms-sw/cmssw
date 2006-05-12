@@ -15,87 +15,81 @@
 *
  ************************************************************/
 
-#include "CLHEP/Vector/LorentzVector.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include <vector>
 #include <string>
-#include <cmath>
-
-int signum(double x);
 
 class ProtoJet {
 public:
+  typedef math::XYZTLorentzVector LorentzVector;
   typedef std::vector <const reco::Candidate*> Candidates;
   /** Default Constructor */
-  ProtoJet();
+  ProtoJet() {};
 
   //**Constructor. Runs off an array of CaloTower* */
   ProtoJet(const Candidates& theConstituents);
 
+ //**Full Constructor */
+    ProtoJet(const LorentzVector& fP4, const Candidates& fConstituents) : mP4 (fP4), mConstituents (fConstituents) {}
+
   /**  Destructor*/
-  ~ProtoJet();
+  ~ProtoJet() {}
 
-  /// The Jet four-vector as a true Lorentz vector
+
+  // The Jet four-vector as a true Lorentz vector
   /** Returns the jet momentum component along the x axis */
-  double px() const {return m_px;};
+  double px() const {return mP4.Px();}
   /**Returns the jet momentum component along the y axis */
-  double py() const {return m_py;};
+  double py() const {return mP4.Py();}
   /** Returns the jet momentum component along the z axis*/
-  double pz() const {return m_pz;};
+  double pz() const {return mP4.Pz();}
   /** Returns the total energy of the jet*/
-  double e() const {return m_e;};
-
-  /// Standard quantities derived from the Jet Lorentz vector
+  double e() const {return mP4.E();}
+  /** Returns the total energy of the jet*/
+  double energy() const {return e();}
+  
+  // Standard quantities derived from the Jet Lorentz vector
   /** Returns the modulus of the momentum of the jet */
-  double p() const {return sqrt(pow(m_px, 2) + pow(m_py, 2) + pow(m_pz, 2));};
+  double p() const {return mP4.P();}
   /** Returns the transverse momentum of the jet*/
-  double pt() const {return sqrt(pow(m_px, 2) + pow(m_py, 2));};
+  double pt() const {return mP4.Pt();}
   /** Returns the transverse energy of the jet*/
-  double et() const {return p()!=0. ? m_e * pt()/p() : 0.;};
+  double et() const {return mP4.Et();}
   /** Returns the jet mass of the jet*/
-  double m() const {return sqrt(pow(e(), 2) - pow(p(), 2));};
+  double m() const {return mP4.M();}
   /** Returns the azimuthal angle of the jet, Phi*/
-  double phi() const ;
+  double phi() const {return mP4.Phi();}
   /** Returns the pseudorapidity of the jet*/
-  double eta() const {return (p()-m_pz)!=0. ? 0.5*log((p() + m_pz)/(p() - m_pz)):9999.;};
+  double eta() const {return mP4.Eta();}
   /** Returns the rapidity of the jet*/
-  double y() const {return (m_e-m_pz)> 0. ? 0.5*log((m_e + m_pz)/(m_e - m_pz)):0.;};
+  double y() const {return mP4.Rapidity();}
   /** Returns the number of constituents of the Jet*/
-  int numberOfConstituents() const {return m_constituents.size();};
+  int numberOfConstituents() const {return mConstituents.size();};
 
-  /** Returns the number of constituents carring the 90% of the jet energy*/
-  int n90() const;
 
   /** Returns a Lorentz vector from the four-momentum components*/
-  HepLorentzVector getLorentzVector() const;
+  const LorentzVector& p4() const {return mP4;}
+  
+  
+  /** Returns the list of tower in a particular protojet */
+  const Candidates& getTowerList() const {return mConstituents;} 
+  
+  /** Sets the list of towers in a protojet */
+  void putTowers(const Candidates& towers) {mConstituents = towers;}
 
-
-   /** Returns the list of tower in a particular protojet */
-   const Candidates& getTowerList() const {return m_constituents;} 
-   /** Sets the list of towers in a protojet */
-   void putTowers(const Candidates& towers) {
-	m_constituents = towers;
-	calculateLorentzVector(); 
-   }
-
+  /** Make kinematics from constituents */
+  void calculateLorentzVector();
+  
+  
 
 
 private:
+  /** Jet kinematics */
+  LorentzVector mP4;
   /** Jet constituents */
-  Candidates m_constituents;
-
-  /** Jet energy */
-  double m_e;
-  //The Jet four-vector as a true Lorentz vector: Px, Py, Pz, E
-  /** Jet momentum component along the X axis */
-  double m_px;
-  /** Jet momentum component along the Y axis */
-  double m_py;
-  /** Jet momentum component along the Z axis */
-  double m_pz;
-  /** Private Method to calculate LorentzVector  */
-  void calculateLorentzVector();
+  Candidates mConstituents;
 };
 
 #endif
