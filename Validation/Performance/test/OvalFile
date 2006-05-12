@@ -1,0 +1,12 @@
+<!===== ==========================================================
+ ! environment for HcalDigis validation
+ !===============================================================>
+
+<config name="run tool" value="oval">
+
+<environment name=test_suite>
+
+<executable name=test_suite.csh>validation suite</executable>
+
+</environment>
+
