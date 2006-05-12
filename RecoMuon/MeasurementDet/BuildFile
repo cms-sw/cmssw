@@ -3,8 +3,10 @@
  <use name=TrackingTools/MeasurementDet>
  <use name=TrackingTools/TrajectoryState>
  <use name=Geometry/CommonDetUnit>
+ <use name=DataFormats/MuonDetId>
 </export>
 
 <use name=TrackingTools/MeasurementDet>
 <use name=TrackingTools/TrajectoryState>
 <use name=Geometry/CommonDetUnit>
+<use name=DataFormats/MuonDetId>
