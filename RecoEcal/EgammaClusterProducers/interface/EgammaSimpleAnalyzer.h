@@ -8,7 +8,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EgammaSimpleAnalyzer.h,v 1.1 2006/05/10 21:24:44 rahatlou Exp $
+// $Id: EgammaSimpleAnalyzer.h,v 1.2 2006/05/10 21:53:46 rahatlou Exp $
 //
 
 
@@ -71,5 +71,7 @@ class EgammaSimpleAnalyzer : public edm::EDAnalyzer {
 
       TH1F h1_hybridSCEnergy_;
       TH1F h1_corrHybridSCEnergy_;
+      TH1F h1_corrHybridSCEta_;
+      TH1F h1_corrHybridSCPhi_;
 };
 #endif
