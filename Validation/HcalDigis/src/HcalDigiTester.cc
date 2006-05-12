@@ -66,13 +66,13 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
    sprintf (histo, "HcalDigiTask_Phi_of_digis_HE" ) ;
    mePhiHE = dbe_->book1D(histo, histo, 36 , -3.14159, 3.14159);
    sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HE");
-   meDigiSimhitHE = dbe_->book2D(histo, histo, 100, 0.,1.,  100, 0., 800.);
+   meDigiSimhitHE = dbe_->book2D(histo, histo, 50, 0.,1.,  8000, 0., 800.);
 
    sprintf (histo, "HcalDigiTask_Ratio_energy_digis_vs_simhits_HE");
    meRatioDigiSimhitHE = dbe_->book1D(histo, histo,  200, 0., 1000.);   
 
    sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HE(profile)");
-   meDigiSimhitHEprofile = dbe_->bookProfile(histo, histo, 100, 0.,1.,  100, 0., 800.);
+   meDigiSimhitHEprofile = dbe_->bookProfile(histo, histo, 50, 0.,1.,  8000, 0., 800.);
    sprintf (histo, "HcalDigiTask_number_of_digis_HE");
    menDigisHE = dbe_->book1D(histo, histo,  40, 0., 200.);  
 
@@ -87,13 +87,13 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
    sprintf (histo, "HcalDigiTask_Phi_of_digis_HB" ) ;
    mePhiHB = dbe_->book1D(histo, histo, 72, -3.14159, 3.14159);
    sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HB");
-   meDigiSimhitHB = dbe_->book2D(histo, histo, 150, 0.,1.5,  100, 0., 800.);
+   meDigiSimhitHB = dbe_->book2D(histo, histo, 50, 0.,1.5,  8000, 0., 800.);
 
    sprintf (histo, "HcalDigiTask_Ratio_energy_digis_vs_simhits_HB");
    meRatioDigiSimhitHB = dbe_->book1D(histo, histo,  200, 0., 1000.);   
 
    sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HB(profile)");
-   meDigiSimhitHBprofile = dbe_->bookProfile(histo, histo, 150, 0.,1.5,  100, 0., 800.); 
+   meDigiSimhitHBprofile = dbe_->bookProfile(histo, histo, 50, 0.,1.5,  8000, 0., 800.); 
 
    sprintf (histo, "HcalDigiTask_number_of_digis_HB");
    menDigisHB = dbe_->book1D(histo, histo,  40 , 0, 80);  
@@ -109,13 +109,13 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
    sprintf (histo, "HcalDigiTask_Phi_of_digis_HF" ) ;
    mePhiHF = dbe_->book1D(histo, histo, 36, -3.14159, 3.14159);
    sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HF");
-   meDigiSimhitHF = dbe_->book2D(histo, histo, 70, 0.,70.,  100, 0., 350.);
+   meDigiSimhitHF = dbe_->book2D(histo, histo, 30, 0.,60.,  3500, 0., 350.);
 
    sprintf (histo, "HcalDigiTask_Ratio_energy_digis_vs_simhits_HF");
    meRatioDigiSimhitHF = dbe_->book1D(histo, histo,  40, 3., 7.);   
 
    sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HF(profile)");
-   meDigiSimhitHFprofile = dbe_->bookProfile(histo, histo, 70, 0.,70.,  100, 0., 350.);
+   meDigiSimhitHFprofile = dbe_->bookProfile(histo, histo, 30, 0.,60.,  3500, 0., 350.);
    sprintf (histo, "HcalDigiTask_number_of_digis_HF");
    menDigisHF = dbe_->book1D(histo, histo,  20, 0., 20.);  
 
@@ -129,13 +129,13 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
    sprintf (histo, "HcalDigiTask_Phi_of_digis_HO" ) ;
    mePhiHO = dbe_->book1D(histo, histo, 72, -3.14159, 3.14159);
    sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HO");
-   meDigiSimhitHO = dbe_->book2D(histo, histo, 100, 0.,0.2,  100, 0., 150.);
+   meDigiSimhitHO = dbe_->book2D(histo, histo, 50, 0.,0.2,  1500, 0., 150.);
 
    sprintf (histo, "HcalDigiTask_Ratio_energy_digis_vs_simhits_HO");
    meRatioDigiSimhitHO = dbe_->book1D(histo, histo,  140, 0., 1400.);   
 
    sprintf (histo, "HcalDigiTask_energy_digis_vs_simhits_HO(profile)");
-   meDigiSimhitHOprofile = dbe_->bookProfile(histo, histo, 100, 0.,0.2,  100, 0., 150.);
+   meDigiSimhitHOprofile = dbe_->bookProfile(histo, histo, 50, 0.,0.2,  1500, 0., 150.);
    sprintf (histo, "HcalDigiTask_number_of_digis_HO");
    menDigisHO = dbe_->book1D(histo, histo,  50, 0., 50.);  
    sprintf (histo, "HcalDigiTask_sum_over_digis(fC)_HO");
