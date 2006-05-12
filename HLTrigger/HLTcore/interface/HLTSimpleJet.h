@@ -1,24 +1,18 @@
 #ifndef HLTSimpleJet_h
 #define HLTSimpleJet_h
 
-// -*- C++ -*-
-//
-// Package:    HLTSimpleJet
-// Class:      HLTSimpleJet
-// 
-/**\class HLTSimpleJet
-
- Description: A very basic HLT trigger for jets
-
- Implementation:
-     A filter is provided cutting on the number of jets above a pt cut
-*/
-//
-// Original Author:  Martin GRUNEWALD
-//         Created:  Thu Mar 23 10:00:22 CET 2006
-// $Id: HLTSimpleJet.h,v 1.2 2006/04/21 01:07:49 wmtan Exp $
-//
-//
+/** \class HLTSimpleJet
+ *
+ *  
+ *  This class is an EDFilter implementing a very basic HLT trigger
+ *  for jets, cutting on the number of jets above a pt threshold
+ *
+ *  $Date: 2006/04/26 09:27:44 $
+ *  $Revision: 1.1 $
+ *
+ *  \author Martin Grunewald
+ *
+ */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -41,7 +35,7 @@ class HLTSimpleJet : public edm::EDFilter {
 
    private:
       std::string module_;  // module label for input jets
-      double ptcut_;        // pt cut in GeV 
+      double ptcut_;        // pt threshold in GeV 
       int    njcut_;        // number of jets required
 };
 

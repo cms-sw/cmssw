@@ -17,8 +17,14 @@
   <class name="reco::HLTFilterObjectWithRefs" />
   <class name="reco::HLTPathObject<reco::HLTFilterObject>" />
   <class name="reco::HLTPathObject<reco::HLTFilterObjectWithRefs>" />
+  <class name="edm::RefProd<reco::HLTPathObject<reco::HLTFilterObject> >" />
+  <class name="edm::RefProd<reco::HLTPathObject<reco::HLTFilterObjectWithRefs> >" />
+  <class name="std::map<unsigned char, reco::HLTFilterObject>" />
+  <class name="std::map<unsigned char, reco::HLTFilterObjectWithRefs>" />
   <class name="reco::HLTGlobalObject<reco::HLTPathObject<reco::HLTFilterObject> >" />
   <class name="reco::HLTGlobalObject<reco::HLTPathObject<reco::HLTFilterObjectWithRefs> >" />
+  <class name="std::map<unsigned int,edm::RefProd<reco::HLTPathObject<reco::HLTFilterObject> > >" />
+  <class name="std::map<unsigned int,edm::RefProd<reco::HLTPathObject<reco::HLTFilterObjectWithRefs> > >" />
 
   <class name="edm::Wrapper<reco::HLTParticle>" />
   <class name="edm::Wrapper<reco::HLTParticleWithRef<std::vector<CaloJet> > >" />
