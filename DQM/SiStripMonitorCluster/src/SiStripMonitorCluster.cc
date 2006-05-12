@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.6 2006/04/11 12:21:34 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.7 2006/05/03 08:39:10 dkcira Exp $
 //
 //
 
@@ -25,8 +25,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CalibTracker/Records/interface/SiStripStructureRcd.h"     // these two will go away
-#include "CalibFormats/SiStripObjects/interface/SiStripStructure.h" // these two will go away
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h" // replaces SiStripClusterCollection
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
@@ -62,11 +62,11 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
    LogInfo("SiStripTkDQM|ConfigParams")<<"show_control_view = "<<show_control_view;
 
   if ( show_mechanical_structure_view ){
-    // take from eventSetup the SiStripStructure object - here will use SiStripDetControl later on
-    edm::ESHandle<SiStripStructure> tkmechstruct;
-    es.get<SiStripStructureRcd>().get(tkmechstruct);
+    // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
+    edm::ESHandle<SiStripDetCabling> tkmechstruct;
+    es.get<SiStripDetCablingRcd>().get(tkmechstruct);
 
-    // get list of active detectors from SiStripStructure - this will change and be taken from a SiStripDetControl object
+    // get list of active detectors from SiStripDetCabling - this will change and be taken from a SiStripDetControl object
     const vector<uint32_t> & activeDets = tkmechstruct->getActiveDetectorsRawIds();
 
     // use SiStripSubStructure for selecting certain regions
