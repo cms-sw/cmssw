@@ -222,7 +222,7 @@ class SiStripFecCabling {
   inline void nApvPairs( const FedChannelConnection& conn );
 
   // misc
-  void countDevices();
+  void countDevices() const;
 
   const SiStripModule& module( const FedChannelConnection& conn ) const;
   
