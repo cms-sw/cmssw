@@ -3,13 +3,12 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 
 #include <vector>
-#include <algorithm>
+#include <functional>
 
 using std::vector;
+using std::binary_function;
 
 class L1GctEmLeafCard;
 
@@ -40,7 +39,14 @@ public:
 	/// return output data
 	inline vector<L1GctEmCand> getOutputCands() { return outputCands; }
 
-private:
+ private:
+
+	// comparison operator for sort
+	struct rank_gt : public binary_function<L1GctEmCand, L1GctEmCand, bool> {
+	  bool operator()(const L1GctEmCand& x, const L1GctEmCand& y) { return x.rank() > y.rank(); }
+	};
+
+ private:
 
 	///
 	/// type of em cand

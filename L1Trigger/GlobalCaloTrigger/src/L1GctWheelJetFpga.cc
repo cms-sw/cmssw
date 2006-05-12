@@ -91,10 +91,10 @@ void L1GctWheelJetFpga::process()
 
 }
 
-void L1GctWheelJetFpga::setInputLeafCard (int i, L1GctJetLeafCard* leaf)
+void L1GctWheelJetFpga::setInputLeafCard (int i, L1GctJetLeafCard* card)
 {
   if (i>=0 && i<3) {
-    m_inputLeafCards[i] = leaf;
+    m_inputLeafCards[i] = card;
   }
 }
 

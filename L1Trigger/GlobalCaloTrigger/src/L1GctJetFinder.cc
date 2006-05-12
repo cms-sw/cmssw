@@ -134,7 +134,7 @@ void L1GctJetFinder::setInputRegion(int i, L1GctRegion region)
 // For STL sorting... binary predicate for sorting jet ranks
 bool rankGreaterThan (L1GctJet jet1, L1GctJet jet2)
 {
-   return (jet1.getRank() > jet2.getRank());
+   return (jet1.rank() > jet2.rank());
 }
 
 void L1GctJetFinder::process() 
@@ -321,7 +321,7 @@ ULong L1GctJetFinder::calcHt() const
     ULong ht = 0;
     for(UShort i=0; i < MAX_JETS_OUT; ++i)
     {
-        ht += m_outputJets[i].getRank();
+        ht += m_outputJets[i].rank();
     }
     return ht;
 }

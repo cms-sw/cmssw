@@ -7,6 +7,10 @@ L1GctEmLeafCard::L1GctEmLeafCard(int id) :
   m_sorters(4),
   m_sourceCards(9)
 {
+  m_sorters[0] = new L1GctElectronSorter(true);
+  m_sorters[1] = new L1GctElectronSorter(true);
+  m_sorters[2] = new L1GctElectronSorter(false);
+  m_sorters[3] = new L1GctElectronSorter(false);
 }
 
 L1GctEmLeafCard::~L1GctEmLeafCard() {
@@ -36,17 +40,17 @@ void L1GctEmLeafCard::process() {
 
 /// add a source card as input
 void L1GctEmLeafCard::setInputSourceCard(int i, L1GctSourceCard* sc) {
-  if (i < m_sourceCards.size()) {
+  if ( i < m_sourceCards.size()) {
     m_sourceCards[i]=sc;
   }
 }
 
 /// get the output candidates
-vector<L1GctEmCand> L1GctEmLeafCard::getOutputIsoEmCands() {
-   return m_sorters[0]->getOutput();
+vector<L1GctEmCand> L1GctEmLeafCard::getOutputIsoEmCands(int fpga) {
+   return m_sorters[fpga]->getOutputCands();
 }
 
 /// get the output candidates
-vector<L1GctEmCand> L1GctEmLeafCard::getOutputNonIsoEmCands() {
-     return m_sorters[1]->getOutput();
+vector<L1GctEmCand> L1GctEmLeafCard::getOutputNonIsoEmCands(int fpga) {
+     return m_sorters[fpga+2]->getOutputCands();
 }

@@ -5,9 +5,10 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 
 #include <vector>
-#include <algorithm>
+#include <functional>
 
 using std::vector;
+using std::binary_function;
 
 class L1GctSourceCard;
 
@@ -42,17 +43,19 @@ public:
   inline vector<L1GctEmCand> getOutputCands() { return outputCands; }
 	
 private:
-	///
-	/// internal function for comparing two EmCands
-	//bool compare(L1GctEmCand a, L1GctEmCand b);
+
+  // comparison operator for sort
+  struct rank_gt : public binary_function<L1GctEmCand, L1GctEmCand, bool> {
+    bool operator()(const L1GctEmCand& x, const L1GctEmCand& y) { return x.rank() > y.rank(); }
+  };
 	
 private:
-	///
-	/// algo ID
-	int m_id;
-	///
-	/// type of sorter (isolated or non isolated)
-	bool getIsoEmCands;
+  ///
+  /// algo ID
+  int m_id;
+  ///
+  /// type of sorter (isolated or non isolated)
+  bool getIsoEmCands;
   ///
   /// source card input
   vector<L1GctSourceCard*> theSCs;
@@ -62,9 +65,6 @@ private:
   ///
   /// output data
   vector<L1GctEmCand> outputCands;
-  ///
-  /// input variable to set iso or non-iso electrons
-  int theInputType;
   
 };
 

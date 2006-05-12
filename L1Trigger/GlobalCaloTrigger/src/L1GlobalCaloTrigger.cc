@@ -18,8 +18,7 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger() :
 	theJetLeafCards(6),
   theEmLeafCards(2),
 	theWheelJetFpgas(2),
-	theWheelEnergyFpgas(2),
-  theElectronFinalStage(2)
+	theWheelEnergyFpgas(2)
 {
   
   build();
@@ -55,7 +54,7 @@ void L1GlobalCaloTrigger::build() {
   }
   
   for (int i=0; i<2; i++) {
-    theEmLeafCards[i] = new L1GctEmLeafCard(i, );
+    theEmLeafCards[i] = new L1GctEmLeafCard(i);
   }
     
   for (int i=0; i<2; i++) {
@@ -66,9 +65,8 @@ void L1GlobalCaloTrigger::build() {
   theJetFinalStage = new L1GctJetFinalStage();
   theEnergyFinalStage = new L1GctGlobalEnergyAlgos();
 
-  for (int i=0; i<2; i++) {
-    theElectronFinalStage[i] = new L1GctElectronFinalSort();
-  }
+  theIsoEmFinalStage = new L1GctElectronFinalSort(true);
+  theNonIsoEmFinalStage = new L1GctElectronFinalSort(false);
 
 }
 
@@ -78,18 +76,47 @@ void L1GlobalCaloTrigger::setup() {
   // EM leaf cards
   for (int i=0; i<2; i++) {
     for (int j=0; j<9; j++) {
-      theEmLeafCards[i]->setInputSourceCard(0, theSourceCards[i*9+j]);
+      theEmLeafCards[i]->setInputSourceCard(j, theSourceCards[i*9+j]);
     }
   }
 
   // Jet Leaf cards
   for (int i=0; i<6; i++) {
     for (int j=0; j<3; j++) {
-      theJetLeafCards[i]->setInputSourceCard(0, theSourceCards[i*6+j]);
+      theJetLeafCards[i]->setInputSourceCard(j, theSourceCards[i*6+j]);
     }
   }
   
+  // Wheel Fpgas
+  for (int i=0; i<2; i++) {
+    for (int j=0; j<3; j++) {
+      theWheelJetFpgas[i]->setInputLeafCard(j, theJetLeafCards[i*2+j]);
+      theWheelEnergyFpgas[i]->setInputLeafCard(j, theJetLeafCards[i*2+j]);
+    }
+  }
 
+  // Electron Final Sort
+  for (int i=0; i<2; i++) {
+    theIsoEmFinalStage->setInputLeafCard(i, theEmLeafCards[i]);
+    theNonIsoEmFinalStage->setInputLeafCard(i, theEmLeafCards[i]);
+  }
+
+  // Jet Final Stage
+  for (int i=0; i<2; i++) {
+    theJetFinalStage->setInputWheelJetFpga(i, theWheelJetFpgas[i]);
+  }
+
+  // Global Energy Algos
+  theEnergyFinalStage->setMinusWheelEnergyFpga(theWheelEnergyFpgas[0]);
+  theEnergyFinalStage->setPlusWheelEnergyFpga(theWheelEnergyFpgas[1]);
+  theEnergyFinalStage->setMinusWheelJetFpga(theWheelJetFpgas[0]);
+  theEnergyFinalStage->setPlusWheelJetFpga(theWheelJetFpgas[1]);
+  theEnergyFinalStage->setJetFinalStage(theJetFinalStage);
+
+  //  for (int i=0; i<2; i++) {
+  //    theEnergyFinalStage->setInputWheelEnergyFpga(i, theWheelEnergyFpgas[i]);
+  //    theEnergyFinalStage->setInputJetFinalStage(i, thejetFinalStage);
+  //  }
 
 }
 
@@ -98,6 +125,12 @@ void L1GlobalCaloTrigger::process() {
   // Source cards
   for (int i=0; i<54; i++) {
     theSourceCards[i]->fetchInput();
+  }
+
+  // EM Leaf Card
+  for (int i=0; i<4; i++) {
+    theEmLeafCards[i]->fetchInput();
+    theEmLeafCards[i]->process();
   }
 
   // Jet Leaf cards
@@ -117,25 +150,22 @@ void L1GlobalCaloTrigger::process() {
     theWheelEnergyFpgas[i]->process();
   }
 
+  // Electron Final Stage
+  theIsoEmFinalStage->fetchInput();
+  theIsoEmFinalStage->process();
+
+  theNonIsoEmFinalStage->fetchInput();
+  theNonIsoEmFinalStage->process();
+
+
   // Jet Final Stage
   theJetFinalStage->fetchInput();
   theJetFinalStage->process();
 
-  // Jet Final Stage
+  // Energy Final Stage
   theEnergyFinalStage->fetchInput();
   theEnergyFinalStage->process();
   
-  // EM Leaf Card
-  for (int i=0; i<4; i++) {
-    theEmLeafCards[i]->fetchInput();
-    theEmLeafCards[i]->process();
-  }
-
-  // Electron Final Stage
-  for (int i=0; i<2; i++) {
-    theElectronFinalStage[i]->fetchInput();
-    theElectronFinalStage[i]->process();
-  }
 	
 }
 
@@ -149,7 +179,6 @@ void L1GlobalCaloTrigger::print() {
 	cout << "N Wheel Jet Fpgas " << theWheelJetFpgas.size() << endl;
 	cout << "N Wheel Energy Fpgas " << theWheelEnergyFpgas.size() << endl;
 	cout << "N Em Leaf Cards" << theEmLeafCards.size() << endl;
-	cout << "N Electron Final Sorts " << theElectronFinalStage.size() << endl;
 	cout << endl;
 	for (int i=0; i<theSourceCards.size(); i++) {
 		cout << theSourceCards[i];
@@ -165,9 +194,8 @@ void L1GlobalCaloTrigger::print() {
 	}
 	cout << theJetFinalStage;
 	cout << theEnergyFinalStage;
-	for (int i=0; i<theElectronFinalStage.size(); i++) {
-		cout << theElectronFinalStage[i];
-	}
+	cout << theIsoEmFinalStage;
+	cout << theNonIsoEmFinalStage;
 	cout << "===Global Calo Trigger===" << endl;
 	cout << "-----End Debug Output----" << endl;
 

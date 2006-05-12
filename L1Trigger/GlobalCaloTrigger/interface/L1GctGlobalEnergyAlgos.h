@@ -81,13 +81,9 @@ private:
 	// Here are the algorithm types we get our inputs from
 	L1GctWheelEnergyFpga* m_plusWheelFpga;
 	L1GctWheelEnergyFpga* m_minusWheelFpga;
-<<<<<<< L1GctGlobalEnergyAlgos.h
-	L1GctJetFinalStage* m_jetFinalStage;
-=======
 	L1GctWheelJetFpga* m_plusWheelJetFpga;
 	L1GctWheelJetFpga* m_minusWheelJetFpga;
-	L1GctJetFinalStage* m_boundaryJetsFpga;
->>>>>>> 1.12
+	L1GctJetFinalStage* m_jetFinalStage;
 
         typedef bitset<3> JcBoundType;
         typedef bitset<3> JcWheelType;

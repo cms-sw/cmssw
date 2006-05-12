@@ -77,12 +77,12 @@ void L1GctGlobalEnergyAlgos::fetchInput() {
   decodeUnsignedInput( m_minusWheelJetFpga->getOutputHt(), EinU, EOvflo);
   setInputWheelHt((unsigned) 1, EinU, EOvflo);
   //
-  decodeUnsignedInput( m_boundaryJetsFpga->getHtBoundaryJets(), EinU, EOvflo);
+  decodeUnsignedInput( m_jetFinalStage->getHtBoundaryJets(), EinU, EOvflo);
   setInputBoundaryHt(EinU, EOvflo);
   for (unsigned i=0; i<12; i++) {
     setInputWheelJc((unsigned) 0, i, (unsigned) m_plusWheelJetFpga->getOutputJc(i));
     setInputWheelJc((unsigned) 1, i, (unsigned) m_minusWheelJetFpga->getOutputJc(i));
-    setInputBoundaryJc(i, (unsigned) m_boundaryJetsFpga->getJcBoundaryJets(i));
+    setInputBoundaryJc(i, (unsigned) m_jetFinalStage->getJcBoundaryJets(i));
   }
 }
 
@@ -235,12 +235,12 @@ void L1GctGlobalEnergyAlgos::process()
 //----------------------------------------------------------------------------------------------
 // set input data sources
 //
-void L1GctGlobalEnergyAlgos::setPlusWheelFpga (L1GctWheelEnergyFpga* fpga)
+void L1GctGlobalEnergyAlgos::setPlusWheelEnergyFpga (L1GctWheelEnergyFpga* fpga)
 {
   m_plusWheelFpga = fpga;
 }
 
-void L1GctGlobalEnergyAlgos::setMinusWheelFpga(L1GctWheelEnergyFpga* fpga)
+void L1GctGlobalEnergyAlgos::setMinusWheelEnergyFpga(L1GctWheelEnergyFpga* fpga)
 {
   m_minusWheelFpga = fpga;
 }
@@ -255,9 +255,9 @@ void L1GctGlobalEnergyAlgos::setMinusWheelJetFpga(L1GctWheelJetFpga* fpga)
   m_minusWheelJetFpga = fpga;
 }
 
-void L1GctGlobalEnergyAlgos::setBoundaryJetsFpga(L1GctJetFinalStage* fpga)
+void L1GctGlobalEnergyAlgos::setJetFinalStage(L1GctJetFinalStage* jfs)
 {
-  m_boundaryJetsFpga = fpga;
+    m_jetFinalStage = jfs;
 }
 
 //----------------------------------------------------------------------------------------------

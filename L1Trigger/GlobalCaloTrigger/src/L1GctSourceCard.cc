@@ -186,12 +186,12 @@ void L1GctSourceCard::getCables1And2()
     for(i=0; i < NUM_ELEC; ++i)
     {
         m_fin >> uLongBuffer;
-        m_isoElectrons[i] = convertToEmCand(uLongBuffer);
+        m_isoElectrons[i] = L1GctEmCand(uLongBuffer);
     }
     for(i=0; i < NUM_ELEC; ++i)
     {
         m_fin >> uLongBuffer;
-        m_nonIsoElectrons[i] = convertToEmCand(uLongBuffer);
+        m_nonIsoElectrons[i] = L1GctEmCand(uLongBuffer);
     }
 
     bool bitBuffer;        
@@ -238,7 +238,7 @@ void L1GctSourceCard::getCables3And4()
     for(i=0; i < 4; ++i)
     {
         m_fin >> uLongBuffer;
-        m_regions[i] = convertToCentralRegion(uLongBuffer);            
+        m_regions[i] = L1GctRegion(uLongBuffer);            
     }
 
     //get the 8 forward regions
@@ -273,7 +273,7 @@ void L1GctSourceCard::getCables5And6()
     for(i=0; i < NUM_REG_TYPE3; ++i)
     {
         m_fin >> uLongBuffer;
-        m_regions[i] = convertToCentralRegion(uLongBuffer);            
+        m_regions[i] = L1GctRegion(uLongBuffer);            
     }
     
     //Skip some more data
@@ -300,35 +300,3 @@ void L1GctSourceCard::readBxNum()
 }
    
 // Changes an RCT output ULong into an EmCand with 6bits of rank, the 'region ID' stored in phi, and 'card ID' stored in eta
-L1GctEmCand L1GctSourceCard::convertToEmCand(ULong& rawData) const
-{
-    assert(rawData < 1024); //Debug: shouldn't be more than 10 bits, or file error!
-    
-    L1GctEmCand outputCand;
-       
-    outputCand.setRank(rawData);  //will put the first 6 bits of rawData into the rank
-    
-    rawData >>= L1GctEmCand::RANK_BITWIDTH;   //shift the remaining bits down, to remove the rank info         
-  
-    outputCand.setPhi(rawData & 0x1);  //1 bit of Phi
-    outputCand.setEta((rawData & 0xE) >> 1);  //other 3 bits are eta
-  
-    return outputCand;
-}
-
-// Changes an RCT output ULong into a Region with 10bits Et, overflow, and tauVeto.
-L1GctRegion L1GctSourceCard::convertToCentralRegion(ULong& rawData) const
-{
-    assert(rawData < 4096); //Debug: shouldn't be more than 12 bits, or file error!
-    
-    L1GctRegion outputRegion;
-    
-    outputRegion.setEt(rawData);  //will put the first 10 bits of rawData into the Et
-    
-    rawData >>= L1GctRegion::ET_BITWIDTH;  //shift the remaining bits down to remove the 10 bits of Et
-    
-    outputRegion.setOverFlow(rawData & 0x1); //LSB is now overflow bit
-    outputRegion.setTauVeto((rawData & 0x2) >> 1); //2nd bit is tauveto
-    
-    return outputRegion;
-}

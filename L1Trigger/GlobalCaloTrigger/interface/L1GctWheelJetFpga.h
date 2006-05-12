@@ -5,8 +5,10 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 
 #include <vector>
+#include <bitset>
 
 using std::vector;
+using std::bitset;
 
 class L1GctJetLeafCard;
 

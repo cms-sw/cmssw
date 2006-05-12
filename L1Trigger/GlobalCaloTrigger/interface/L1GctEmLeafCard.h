@@ -7,8 +7,6 @@
 
 #include <vector>
 
-using namespace std;
-
 ///
 /// Represents a GCT Leaf Card
 /// programmed to sort EM candidates

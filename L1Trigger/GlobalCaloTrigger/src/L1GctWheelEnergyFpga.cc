@@ -2,7 +2,7 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
-L1GctWheelEnergyFpga::L1GctWheelEnergyFpga() :
+L1GctWheelEnergyFpga::L1GctWheelEnergyFpga(int id) :
 	m_id(id),
         m_inputLeafCards(3),
 	inputEx(3),
@@ -11,7 +11,7 @@ L1GctWheelEnergyFpga::L1GctWheelEnergyFpga() :
 {
 }
 
-L1GctWheelEnergyFpga::~L1GctWheelEnergyFpga
+L1GctWheelEnergyFpga::~L1GctWheelEnergyFpga()
 {
 }
 

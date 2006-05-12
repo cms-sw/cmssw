@@ -36,15 +36,17 @@ public:
   
   ///
   /// get rank bits
-  inline unsigned long getRank() { return myRank.to_ulong(); }
+  inline unsigned long rank() const { return myRank.to_ulong(); }
   ///
   /// get eta bits
-  inline unsigned long getEta() { return myEta.to_ulong(); }
+  inline unsigned long eta() const { return myEta.to_ulong(); }
   ///
   /// get phi bits
-  inline unsigned long getPhi() { return myPhi.to_ulong(); }
+  inline unsigned long phi() const { return myPhi.to_ulong(); }
 
-
+  ///
+  /// overloaded greater than operator for sorting
+  //  bool operator< (L1GctEmCand& c);
 
 private:
 

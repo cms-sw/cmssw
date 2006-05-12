@@ -12,18 +12,20 @@
  */
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
-#include<iostream>
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
+
+#include <iostream>
 
 using std::cout;
 
-//Overloading the less than operator to use EmCand's
-bool compareInputs(L1GctEmCand a, L1GctEmCand b){
-  return a.getRank() > b.getRank();
-}
 
 
-L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso):inputCands(0),outputCands(4){
-  getIsoEmCands = iso;
+L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso):
+  getIsoEmCands(iso),
+  theLeafCards(2),
+  inputCands(8),
+  outputCands(4)
+{
 }
 
 L1GctElectronFinalSort::~L1GctElectronFinalSort(){
@@ -34,23 +36,21 @@ void L1GctElectronFinalSort::reset(){
   outputCands.clear();
 }
 
-void L1GctElectronFinalSort::fetchInput(){
-  for(vector<L1GctEmLeafCard*>::iterator itLeafCard = theLeafCards.begin();
-                                         itLeafCard!=theLeafCards.end();itLeafCard++){ 
-    for(unsigned int i=0;i!=theLeafCards.size();i++){
-      if(getIsoEmCands){
-	vector<L1GctEmCand> isoCands = (*itLeafCard)->getOutputIsoEmCands(i);
-	for(unsigned int n=0;n!=isoCands.size();n++){
-	  inputCands[n] = isoCands[n];
+void L1GctElectronFinalSort::fetchInput() {
+
+  for (int i=0; i<2; i++) { /// loop over leaf cards
+    for (int j=0; j<2; j++) { /// loop over FPGAs
+      for (int k=0; k<4; k++) {  /// loop over candidates
+	if (getIsoEmCands) {
+	  setInputEmCand((i*4)+(j*2)+k, theLeafCards[i]->getOutputIsoEmCands(j)[k]);
 	}
-      }else{
-	vector<L1GctEmCand> nonIsoCands = (*itLeafCard)->getOutputNonIsoEmCands(i);
-     	for(unsigned int n=0;n!=nonIsoCands.size();n++){
-	  inputCands[n] =nonIsoCands[n];
-	}   
+	else {
+	  setInputEmCand((i*4)+(j*2)+k, theLeafCards[i]->getOutputNonIsoEmCands(j)[k]);
+	}
       }
-    }
+    }   
   }
+
 }
 
 void L1GctElectronFinalSort::process(){
@@ -58,7 +58,7 @@ void L1GctElectronFinalSort::process(){
     vector<L1GctEmCand> data = inputCands;
     
 //Then sort it
-    sort(data.begin(),data.end(),compareInputs);
+    sort(data.begin(),data.end(),rank_gt());
   
 //Copy data to output buffer
     for(int i = 0; i<4; i++){
@@ -66,11 +66,13 @@ void L1GctElectronFinalSort::process(){
     }
 }
 
-void L1GctElectronFinalSort::setInputEmCand(int i, L1GctEmCand cand){
-  inputCands[i] = cand;
+void L1GctElectronFinalSort::setInputLeafCard(int i, L1GctEmLeafCard* card) {
+  if (i<2) {
+    theLeafCards[i] = card;
+  }
 }
 
-void L1GctElectronFinalSort::setInputLeafCard(int i, L1GctEmLeafCard* card){
-  theLeafCards[i] = card;
+void L1GctElectronFinalSort::setInputEmCand(int i, L1GctEmCand cand){
+  inputCands[i] = cand;
 }
 
