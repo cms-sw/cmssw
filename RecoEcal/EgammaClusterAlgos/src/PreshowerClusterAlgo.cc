@@ -2,11 +2,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"  
+#include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"  // <===== Still does not exist!
-#include "RecoCaloTools/Navigation/interface/EcalEndcapNavigator.h" 
+#include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
+#include "RecoCaloTools/Navigation/interface/EcalEndcapNavigator.h"
 
 #include <vector>
 #include <map>
@@ -234,7 +234,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip, edm::
 
   // a cluster is created from vector clusterReco
   reco::PreshowerCluster cluster=reco::PreshowerCluster(clusterReco,plane) ;
-  cluster.correct();    // correction method from class PreshowerCluster should exist!
+  //cluster.correct();    // correction method from class PreshowerCluster should exist! absolutely no! (Shahram)
 
   // return the cluster if its energy is greater a threshold
   if( cluster.Energy() > PreshClusterEnergyCut_ ) 
