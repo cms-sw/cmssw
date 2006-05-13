@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.2 2006/03/10 18:31:12 rahatlou Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.3 2006/03/10 18:40:30 rahatlou Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -55,7 +55,8 @@ using namespace std;
     edm::ESHandle<EcalADCToGeVConstant> pAgc;
     context.get<EcalADCToGeVConstantRcd>().get(pAgc);
     const EcalADCToGeVConstant* agc = pAgc.product();
-    std::cout << "Global ADC->GeV scale: " << std::setprecision(6) << agc->getValue() << " GeV/ADC count" << std::endl;
+    std::cout << "Global ADC->GeV scale: EB " << std::setprecision(6) << agc->getEBValue() << " GeV/ADC count" 
+	      " EE " << std::setprecision(6) << agc->getEEValue() << " GeV/ADC count" << std::endl;
 
     // use a channel to fetch values from DB
     double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );

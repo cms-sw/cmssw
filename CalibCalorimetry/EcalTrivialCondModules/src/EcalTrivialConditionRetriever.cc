@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.1 2006/03/02 17:03:44 rahatlou Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.2 2006/03/10 18:31:12 rahatlou Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -10,6 +10,7 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 
 using namespace edm;
@@ -18,7 +19,8 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
 {
 
   // initilize parameters used to produce cond DB objects
-  adcToGeVEBConstant_ = ps.getUntrackedParameter<double>("adcToGeVEBConstant",0.037);
+  adcToGeVEBConstant_ = ps.getUntrackedParameter<double>("adcToGeVEBConstant",0.035);
+  adcToGeVEEConstant_ = ps.getUntrackedParameter<double>("adcToGeVEEConstant",0.060);
 
   intercalibConstantMean_ = ps.getUntrackedParameter<double>("intercalibConstantMean",1.0);
   intercalibConstantSigma_ = ps.getUntrackedParameter<double>("intercalibConstantSigma",0.0);
@@ -130,18 +132,42 @@ std::auto_ptr<EcalPedestals>
 EcalTrivialConditionRetriever::produceEcalPedestals( const EcalPedestalsRcd& ) {
   std::auto_ptr<EcalPedestals>  peds = std::auto_ptr<EcalPedestals>( new EcalPedestals() );
   EcalPedestals::Item item;
+  
+  item.mean_x1  = pedMeanX1_;
+  item.rms_x1   = pedRMSX1_;
+  item.mean_x6  = pedMeanX6_;
+  item.rms_x6   = pedRMSX6_;
+  item.mean_x12 = pedMeanX12_;
+  item.rms_x12  = pedRMSX1_;
+  
   for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
     if(iEta==0) continue;
     for(int iPhi=EBDetId::MIN_IPHI; iPhi<=EBDetId::MAX_IPHI; ++iPhi) {
-      item.mean_x1  = pedMeanX1_;
-      item.rms_x1   = pedRMSX1_;
-      item.mean_x6  = pedMeanX6_;
-      item.rms_x6   = pedRMSX6_;
-      item.mean_x12 = pedMeanX12_;
-      item.rms_x12  = pedRMSX1_;
       // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
-      EBDetId ebdetid(iEta,iPhi);
-      peds->m_pedestals.insert(std::make_pair(ebdetid.rawId(),item));
+      try 
+	{
+	  EBDetId ebdetid(iEta,iPhi);
+	  peds->m_pedestals.insert(std::make_pair(ebdetid.rawId(),item));
+	}
+      catch (...)
+	{
+	}
+    }
+  }
+  
+  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+      try 
+	{
+	  EEDetId eedetidpos(iX,iY,1);
+	  peds->m_pedestals.insert(std::make_pair(eedetidpos.rawId(),item));
+	  EEDetId eedetidneg(iX,iY,-1);
+	  peds->m_pedestals.insert(std::make_pair(eedetidneg.rawId(),item));
+	}
+      catch (...)
+	{
+	}
     }
   }
 
@@ -153,11 +179,35 @@ std::auto_ptr<EcalWeightXtalGroups>
 EcalTrivialConditionRetriever::produceEcalWeightXtalGroups( const EcalWeightXtalGroupsRcd& )
 {
   std::auto_ptr<EcalWeightXtalGroups> xtalGroups = std::auto_ptr<EcalWeightXtalGroups>( new EcalWeightXtalGroups() );
+  EcalXtalGroupId defaultGroupId(1);
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      EBDetId ebid(ieta,iphi);
-      xtalGroups->setValue(ebid.rawId(), EcalXtalGroupId(ieta) ); // define rings in eta
+      try
+	{
+	  EBDetId ebid(ieta,iphi);
+	  //	  xtalGroups->setValue(ebid.rawId(), EcalXtalGroupId(ieta) ); // define rings in eta
+	  xtalGroups->setValue(ebid.rawId(), defaultGroupId ); // define rings in eta
+	}
+      catch (...)
+	{
+	}
+    }
+  }
+
+  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+      try 
+	{
+	  EEDetId eedetidpos(iX,iY,1);
+	  xtalGroups->setValue(eedetidpos.rawId(), defaultGroupId ); 
+	  EEDetId eedetidneg(iX,iY,-1);
+	  xtalGroups->setValue(eedetidneg.rawId(), defaultGroupId ); 
+	}
+      catch (...)
+	{
+	}
     }
   }
   return xtalGroups;
@@ -170,13 +220,36 @@ EcalTrivialConditionRetriever::produceEcalIntercalibConstants( const EcalInterca
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      EBDetId ebid(ieta,iphi);
-      double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-      ical->setValue( ebid.rawId(), intercalibConstantMean_ + r*intercalibConstantSigma_ );
+      try
+	{
+	  EBDetId ebid(ieta,iphi);
+	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  ical->setValue( ebid.rawId(), intercalibConstantMean_ + r*intercalibConstantSigma_ );
+	}
+      catch (...)
+	{
+	}
     }
   }
 
-
+  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+      try 
+	{
+	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  EEDetId eedetidpos(iX,iY,1);
+	  ical->setValue( eedetidpos.rawId(), intercalibConstantMean_ + r*intercalibConstantSigma_ );
+	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  EEDetId eedetidneg(iX,iY,-1);
+	  ical->setValue( eedetidneg.rawId(), intercalibConstantMean_ + r1*intercalibConstantSigma_ );
+	}
+      catch (...)
+	{
+	}
+    }
+  }
+  
   return ical;
 }
 
@@ -184,14 +257,37 @@ std::auto_ptr<EcalGainRatios>
 EcalTrivialConditionRetriever::produceEcalGainRatios( const EcalGainRatiosRcd& )
 {
   std::auto_ptr<EcalGainRatios> gratio = std::auto_ptr<EcalGainRatios>( new EcalGainRatios() );
+  EcalMGPAGainRatio gr;
+  gr.setGain12Over6( gainRatio12over6_ );
+  gr.setGain6Over1( gainRatio6over1_ );
+
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      EBDetId ebid(ieta,iphi);
-      EcalMGPAGainRatio gr;
-      gr.setGain12Over6( gainRatio12over6_ );
-      gr.setGain6Over1( gainRatio6over1_ );
-      gratio->setValue( ebid.rawId(), gr );
+      try
+	{
+	  EBDetId ebid(ieta,iphi);
+	  gratio->setValue( ebid.rawId(), gr );
+	}
+      catch (...)
+	{
+	}
+    }
+  }
+  
+  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+      try 
+	{
+	  EEDetId eedetidpos(iX,iY,1);
+	  gratio->setValue( eedetidpos.rawId(), gr );
+	  EEDetId eedetidneg(iX,iY,-1);
+	  gratio->setValue( eedetidneg.rawId(), gr );
+	}
+      catch (...)
+	{
+	}
     }
   }
 
@@ -201,7 +297,7 @@ EcalTrivialConditionRetriever::produceEcalGainRatios( const EcalGainRatiosRcd& )
 std::auto_ptr<EcalADCToGeVConstant>
 EcalTrivialConditionRetriever::produceEcalADCToGeVConstant( const EcalADCToGeVConstantRcd& )
 {
-  return std::auto_ptr<EcalADCToGeVConstant>( new EcalADCToGeVConstant(adcToGeVEBConstant_) );
+  return std::auto_ptr<EcalADCToGeVConstant>( new EcalADCToGeVConstant(adcToGeVEBConstant_,adcToGeVEEConstant_) );
 }
 
 std::auto_ptr<EcalTBWeights>
@@ -212,73 +308,74 @@ EcalTrivialConditionRetriever::produceEcalTBWeights( const EcalTBWeightsRcd& )
 
   // create weights for each distinct group ID
   int nMaxTDC = 10;
-  for(int igrp=-EBDetId::MAX_IETA; igrp<=EBDetId::MAX_IETA; ++igrp) {
-    if(igrp==0) continue; 
-    for(int itdc=1; itdc<=nMaxTDC; ++itdc) {
-      // generate random number
-      double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-
-      // make a new set of weights
-      EcalWeightSet wgt;
-      //typedef std::vector< std::vector<EcalWeight> > EcalWeightSet::EcalWeightMatrix;
-      EcalWeightSet::EcalWeightMatrix& mat1 = wgt.getWeightsBeforeGainSwitch();
-      EcalWeightSet::EcalWeightMatrix& mat2 = wgt.getWeightsAfterGainSwitch();
-
-      if(verbose_>=1) {
-        std::cout << "initial size of mat1: " << mat1.size() << std::endl;
-        std::cout << "initial size of mat2: " << mat2.size() << std::endl;
-      }
-
-      // generate random numbers to use as weights
-      /**
-      for(size_t i=0; i<3; ++i) {
-      std::vector<EcalWeight> tv1, tv2;
-        for(size_t j=0; j<10; ++j) {
-          double ww = igrp*itdc*r + i*10. + j;
-          //std::cout << "row: " << i << " col: " << j << " -  val: " << ww  << std::endl;
-          tv1.push_back( EcalWeight(ww) );
-          tv2.push_back( EcalWeight(100+ww) );
-        }
-        mat1.push_back(tv1);
-        mat2.push_back(tv2);
-      }
-      **/
-
-      // use values provided by user
-      mat1.push_back(amplWeights_);
-      mat1.push_back(pedWeights_);
-      mat1.push_back(jittWeights_);
-
-      // use same wights after gain switch for now
-      mat2.push_back(amplWeights_);
-      mat2.push_back(pedWeights_);
-      mat2.push_back(jittWeights_);
-
-      // fill the chi2 matrcies with random numbers
-      r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-      EcalWeightSet::EcalWeightMatrix& mat3 = wgt.getChi2WeightsBeforeGainSwitch();
-      EcalWeightSet::EcalWeightMatrix& mat4 = wgt.getChi2WeightsAfterGainSwitch();
-      for(size_t i=0; i<10; ++i) {
-        std::vector<EcalWeight> tv1, tv2;
-        for(size_t j=0; j<10; ++j) {
-          double ww = igrp*itdc*r + i*10. + j;
-          tv1.push_back( EcalWeight(1000+ww) );
-          tv2.push_back( EcalWeight(1000+100+ww) );
-        }
-        mat3.push_back(tv1);
-        mat4.push_back(tv2);
-      }
-
-      if(verbose_>=1) {
-        std::cout << "group: " << igrp << " TDC: " << itdc 
-             << " mat1: " << mat1.size() << " mat2: " << mat2.size()
-             << " mat3: " << mat3.size() << " mat4: " << mat4.size()
-             << std::endl;
-      }
-
-      // put the weight in the container
-      tbwgt->setValue(std::make_pair(igrp,itdc), wgt);
+//   for(int igrp=-EBDetId::MAX_IETA; igrp<=EBDetId::MAX_IETA; ++igrp) {
+//     if(igrp==0) continue; 
+  int igrp=1;
+  for(int itdc=1; itdc<=nMaxTDC; ++itdc) {
+    // generate random number
+    double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+    
+    // make a new set of weights
+    EcalWeightSet wgt;
+    //typedef std::vector< std::vector<EcalWeight> > EcalWeightSet::EcalWeightMatrix;
+    EcalWeightSet::EcalWeightMatrix& mat1 = wgt.getWeightsBeforeGainSwitch();
+    EcalWeightSet::EcalWeightMatrix& mat2 = wgt.getWeightsAfterGainSwitch();
+    
+    if(verbose_>=1) {
+      std::cout << "initial size of mat1: " << mat1.size() << std::endl;
+      std::cout << "initial size of mat2: " << mat2.size() << std::endl;
     }
+    
+    // generate random numbers to use as weights
+    /**
+       for(size_t i=0; i<3; ++i) {
+       std::vector<EcalWeight> tv1, tv2;
+       for(size_t j=0; j<10; ++j) {
+       double ww = igrp*itdc*r + i*10. + j;
+       //std::cout << "row: " << i << " col: " << j << " -  val: " << ww  << std::endl;
+       tv1.push_back( EcalWeight(ww) );
+       tv2.push_back( EcalWeight(100+ww) );
+       }
+       mat1.push_back(tv1);
+       mat2.push_back(tv2);
+       }
+    **/
+    
+    // use values provided by user
+    mat1.push_back(amplWeights_);
+    mat1.push_back(pedWeights_);
+    mat1.push_back(jittWeights_);
+    
+    // use same wights after gain switch for now
+    mat2.push_back(amplWeights_);
+    mat2.push_back(pedWeights_);
+    mat2.push_back(jittWeights_);
+    
+    // fill the chi2 matrcies with random numbers
+    r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+    EcalWeightSet::EcalWeightMatrix& mat3 = wgt.getChi2WeightsBeforeGainSwitch();
+    EcalWeightSet::EcalWeightMatrix& mat4 = wgt.getChi2WeightsAfterGainSwitch();
+    for(size_t i=0; i<10; ++i) {
+      std::vector<EcalWeight> tv1, tv2;
+      for(size_t j=0; j<10; ++j) {
+	double ww = igrp*itdc*r + i*10. + j;
+	tv1.push_back( EcalWeight(1000+ww) );
+	tv2.push_back( EcalWeight(1000+100+ww) );
+      }
+      mat3.push_back(tv1);
+      mat4.push_back(tv2);
+    }
+    
+    if(verbose_>=1) {
+      std::cout << "group: " << igrp << " TDC: " << itdc 
+		<< " mat1: " << mat1.size() << " mat2: " << mat2.size()
+		<< " mat3: " << mat3.size() << " mat4: " << mat4.size()
+		<< std::endl;
+    }
+    
+    // put the weight in the container
+    tbwgt->setValue(std::make_pair(igrp,itdc), wgt);
   }
+  //   }
   return tbwgt;
 }
