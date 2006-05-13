@@ -39,8 +39,8 @@ public:
    * The thresholds are the Low Et and High Et 
    * threshold for selective readout trigger tower classification
    */
-  void initReadout(double lowThreshold, double highThreshold, int deltaEta, int deltaPhi);
-  void initThresholds(double lowInterest, double highInterest);
+  void initTowerThresholds(double lowThreshold, double highThreshold, int deltaEta, int deltaPhi);
+  void initCellThresholds(double barrelLowInterest, double endcapLowInterest);
 
   /** Sets endcap trigger tower map.
    */

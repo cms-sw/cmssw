@@ -11,43 +11,44 @@ int YSIZE = 300;
 EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor()
   :  tower(extents[nEndcaps][XSIZE][YSIZE][2])
 {
-  initReadout(2.5, 5.0, 2, 2);
-  initThresholds(0.09, 0.45);
+  initTowerThresholds(2.5, 5.0, 2, 2);
+  initCellThresholds(0.09, 0.45);
 }
 
 EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params) 
   :  tower(extents[nEndcaps][XSIZE][YSIZE][2])
 {
-  initReadout( params.getParameter<double>("srpLow"), 
-               params.getParameter<double>("srpHigh"),
+  initTowerThresholds( params.getParameter<double>("srpLowTowerThreshold"), 
+               params.getParameter<double>("srpHighTowerThreshold"),
                params.getParameter<int>("deltaEta"),
                params.getParameter<int>("deltaPhi") );
-  initThresholds(params.getParameter<double>("srpBarrelLowInterest"),
-                 params.getParameter<double>("srpEndcapLowInterest"));
+  initCellThresholds(params.getParameter<double>("srpBarrelLowInterest"),
+                     params.getParameter<double>("srpEndcapLowInterest"));
 }
 
 
-void EcalSelectiveReadoutSuppressor::initReadout(double lowThreshold, double highThreshold,
+void EcalSelectiveReadoutSuppressor::initTowerThresholds(double lowTowerThreshold, double highTowerThreshold,
                                                  int deltaEta, int deltaPhi) 
 {
   std::vector<double> srpThr(2);
-  srpThr[0]= lowThreshold;
-  srpThr[1]= highThreshold;
+  srpThr[0]= lowTowerThreshold;
+  srpThr[1]= highTowerThreshold;
   ecalSelectiveReadout = new EcalSelectiveReadout(srpThr,tower.data(),deltaEta,deltaPhi);
 }
 
 
-void EcalSelectiveReadoutSuppressor::initThresholds(double lowInterest, double highInterest)
+void EcalSelectiveReadoutSuppressor::initCellThresholds(double barrelLowInterest, double endcapLowInterest)
 { 
-  zsThreshold[0][0] = lowInterest;
-  zsThreshold[0][1] = -std::numeric_limits<float>::max();
-  zsThreshold[1][0] = highInterest;
-  zsThreshold[1][1] = -std::numeric_limits<float>::max();
+  float MINUS_INFINITY = -std::numeric_limits<float>::max();
+  zsThreshold[0][0] = barrelLowInterest;
+  zsThreshold[0][1] = MINUS_INFINITY;
+  zsThreshold[1][0] = endcapLowInterest;
+  zsThreshold[1][1] = MINUS_INFINITY;
   
-  zsThreshold[0][2]=zsThreshold[0][1];
-  zsThreshold[0][3]=zsThreshold[0][1];
-  zsThreshold[1][2]=zsThreshold[1][1];
-  zsThreshold[1][3]=zsThreshold[1][1];  
+  zsThreshold[0][2]=MINUS_INFINITY;
+  zsThreshold[0][3]=MINUS_INFINITY;
+  zsThreshold[1][2]=MINUS_INFINITY;
+  zsThreshold[1][3]=MINUS_INFINITY;
 }
 
 
