@@ -1,9 +1,9 @@
 /** \class EcalAnalFitUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes with the analytical fit method
  *
-  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.4 2006/04/07 12:47:07 meridian Exp $
-  *  $Date: 2006/04/07 12:47:07 $
-  *  $Revision: 1.4 $
+  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.5 2006/05/05 08:49:07 meridian Exp $
+  *  $Date: 2006/05/05 08:49:07 $
+  *  $Revision: 1.5 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -105,6 +105,24 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 	 
 	 if(aHit.amplitude()>0.) {
 	   LogDebug("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: processed EBDataFrame with id: "
+					     << itdg->id() << "\n"
+					     << "uncalib rechit amplitude: " << aHit.amplitude()
+	     ;
+	 }
+	 
+       }
+     }
+
+   if (EEdigis)
+     {
+       for(EEDigiCollection::const_iterator itdg = EEdigis->begin(); itdg != EEdigis->end(); ++itdg) {
+	 
+	 EcalUncalibratedRecHit aHit =
+	   EEalgo_.makeRecHit(*itdg, pedVec, weights, chi2mat);
+	 EEuncalibRechits->push_back( aHit );
+	 
+	 if(aHit.amplitude()>0.) {
+	   LogDebug("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: processed EEDataFrame with id: "
 					     << itdg->id() << "\n"
 					     << "uncalib rechit amplitude: " << aHit.amplitude()
 	     ;
