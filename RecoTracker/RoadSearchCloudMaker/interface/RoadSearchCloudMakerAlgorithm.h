@@ -51,8 +51,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/23 01:59:41 $
-// $Revision: 1.4 $
+// $Date: 2006/03/28 23:08:40 $
+// $Revision: 1.5 $
 //
 
 #include <string>
@@ -100,6 +100,7 @@ class RoadSearchCloudMakerAlgorithm
   double phiMax(const TrajectorySeed *seed, double phi0, double k0);
 
   double map_phi(double phi);
+  double map_phi2(double phi);
 
   void setLayerNumberArray(DetId id, std::vector<bool> &usedLayersArray, Roads::NumberOfLayersPerSubdetector &numberOfLayersPerSubdetector);
 

@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/28 23:08:40 $
-// $Revision: 1.11 $
+// $Date: 2006/04/03 22:39:12 $
+// $Revision: 1.12 $
 //
 
 #include <vector>
@@ -105,6 +105,16 @@ double RoadSearchCloudMakerAlgorithm::map_phi(double phi) {
   if ( result < -twopi ) result = result + twopi;
   if ( result < 0)       result = twopi + result;
   if ( result > twopi)   result = result - twopi;
+  return result;
+}
+
+double RoadSearchCloudMakerAlgorithm::map_phi2(double phi) {
+  // map phi to [-pi,pi]
+  double result = phi;
+  const double pi = 3.14159265358979312;
+  const double twopi = 2*pi;
+  if ( result < -pi ) result = result + twopi;
+  if ( result >= pi)  result = result - twopi;
   return result;
 }
 
@@ -202,7 +212,8 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 	  edm::LogWarning("RoadSearch") << "ZPhi road: seed Hits are less than .01 microns away in z, do not consider this seed.";
 	} else {
 	  // calculate z-phi extrapolation: phi = phi0 + k0 z
-	  k0 = map_phi(outerSeedHitGlobalPosition.phi() - innerSeedHitGlobalPosition.phi()) / dz;
+	  k0 = map_phi2(outerSeedHitGlobalPosition.phi() - innerSeedHitGlobalPosition.phi()) / dz;
+	  //k0 = (outerSeedHitGlobalPosition.phi() - innerSeedHitGlobalPosition.phi()) / dz;
 	  phi0 =  map_phi(innerSeedHitGlobalPosition.phi() - k0 * innerSeedHitGlobalPosition.z());
 	}
       }
@@ -237,6 +248,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 	      ringPhi = phiFromExtrapolation(phi0,k0,ringRadius,roadType);
 	    } else {
 	      ringPhi = phiFromExtrapolation(phi0,k0,ringZ,roadType);
+	      //std::cout<<"**** ZPHI ROAD WITH k = "<<k0<<" HAS phi0 = "<<phi0<<" and Ring z:phi = "<<ringZ<<" : "<<ringPhi<<std::endl;
 	    }
 
 	    // calculate range in phi around ringPhi
