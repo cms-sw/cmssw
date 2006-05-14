@@ -23,7 +23,7 @@ class LayerWithHits;
   
      float dist1=100*(ou1p.z()-in1p.z())+ou1p.y()+in1p.y();
      float dist2=100*(ou2p.z()-in2p.z())+ou2p.y()+in2p.y();
-     return dist1 < dist2;}
+     return dist1 > dist2;}
 
  private:
    edm::ESHandle<TrackerGeometry> tracker;

@@ -45,14 +45,13 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
   //MP
   GlobalError vtxerr( 100,0,100,0,0,100);
 
-  SeedHitPairs::const_iterator ip;
 
-  for (ip = HitPairs.begin(); ip != HitPairs.end(); ip++) {
- 
+
+  stable_sort(HitPairs.begin(),HitPairs.end(),CompareHitPairsY(iSetup));
+  if(HitPairs.size()>0){
     SeedFromConsecutiveHits *seedfromhits=
-      new SeedFromConsecutiveHits( ip->outer(), ip->inner(),
-				   region.origin(), vtxerr,iSetup);
+      new SeedFromConsecutiveHits( HitPairs[0].outer(), HitPairs[0].inner(),
+			      region.origin(), vtxerr,iSetup);    
     output.push_back(*(seedfromhits->TrajSeed()) );
   }
-
 }

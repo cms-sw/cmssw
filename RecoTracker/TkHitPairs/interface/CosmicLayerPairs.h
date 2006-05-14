@@ -31,15 +31,17 @@ private:
  
   SiStripRecHit2DLocalPosCollection::range rphi_range1;
   SiStripRecHit2DLocalPosCollection::range rphi_range2;
+  SiStripRecHit2DLocalPosCollection::range rphi_range3;
 
   SiStripRecHit2DLocalPosCollection::range stereo_range1;
   SiStripRecHit2DLocalPosCollection::range stereo_range2;
+  SiStripRecHit2DLocalPosCollection::range stereo_range3;
 
   TrackerLayerIdAccessor acc;
   
   LayerWithHits *lh1;
   LayerWithHits *lh2;
-
+  LayerWithHits *lh3;
 
 
    vector<BarrelDetLayer*> bl;
