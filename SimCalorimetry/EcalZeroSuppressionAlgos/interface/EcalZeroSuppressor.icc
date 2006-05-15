@@ -1,0 +1,36 @@
+template <class C> void EcalZeroSuppressor<C>::findGain12Pedestal(const DetId & detId, double & ped, double & width) 
+{
+  ped = 200.;
+  width = 1.;
+  EcalPedestalsMapIterator mapItr
+    = thePedestals->m_pedestals.find(detId.rawId());
+  // should I care if it doesn't get found?
+  if(mapItr == thePedestals->m_pedestals.end()) {
+    edm::LogError("SetupInfo") << "Could not find pedestal for " << detId.rawId() << " among the " << thePedestals->m_pedestals.size();
+  } else {
+    EcalPedestals::Item item = mapItr->second;
+    ped = item.mean_x12;
+    width = item.rms_x12;
+  }
+}
+ 
+
+template <class C> bool EcalZeroSuppressor<C>::accept(const C& frame, const double & threshold) 
+{
+
+  bool pass = true;
+
+  DetId  detId = frame.id();
+
+  double ped;
+  double width;
+  findGain12Pedestal(detId, ped, width);
+
+  double Erec = 0.;
+  Erec = theEnergy_.energy(frame);
+
+  if (Erec<=threshold*width) pass = false;
+  
+  return pass;
+
+}
