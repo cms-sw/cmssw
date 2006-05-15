@@ -172,7 +172,7 @@ void L1GctJetFinder::process()
         }
     }
     //presort the jets into decending order of energy
-    sort(m_outputJets.begin(), m_outputJets.end(), rankGreaterThan());
+    sort(m_outputJets.begin(), m_outputJets.end(), L1GctJetCand::rankGreaterThan());
     
     //calculate the Ht
     m_outputHt = calcHt();

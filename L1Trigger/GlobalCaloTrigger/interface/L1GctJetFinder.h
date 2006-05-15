@@ -7,7 +7,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
 #include <vector>
-#include <functional>
 
 using std::binary_function;
 
@@ -138,13 +137,6 @@ private:
     
     /// Calculates total calibrated energy in jets (Ht) sum
     ULong calcHt() const;
-  
-    // comparison operator for sort
-    struct rankGreaterThan : public binary_function<L1GctJetCand, L1GctJetCand, bool> {
-      bool operator()(const L1GctJetCand& x, const L1GctJetCand& y) { return x.rank() > y.rank(); }
-    };
-
-
   
 };
 
