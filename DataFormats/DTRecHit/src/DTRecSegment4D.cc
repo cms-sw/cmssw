@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/05/05 09:27:22 $
- * $Revision: 1.6 $
+ * $Date: 2006/05/10 20:48:03 $
+ * $Revision: 1.7 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -112,9 +112,11 @@ DTRecSegment4D::DTRecSegment4D(const DTSLRecSegment2D& zedSeg,
 DTRecSegment4D::~DTRecSegment4D() {}
 
 /* Operations */ 
+
+// returns the parameters for the KF: x,y,dx/dy,dy/dz
 AlgebraicVector DTRecSegment4D::parameters() const {
   AlgebraicVector result(2);
-  if (dimension()==4) return DTRecSegment4D::parameters();
+  if (dimension()==4) return RecSegment4D::parameters();
   else {
     if (thePhiSeg.specificRecHits().size()) {
       result[1] = localPosition().x();
