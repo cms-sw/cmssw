@@ -1,5 +1,6 @@
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
 
 // -----------------------------------------------------------------------------
 //
@@ -16,7 +17,7 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
     fedReadoutMode_ = static_cast<SiStripEventSummary::FedReadoutMode>( buffer[15] );
   } else {
     fedReadoutMode_ = SiStripEventSummary::UNKNOWN_FED_MODE;
-    edm::LogError("Commissioning") << "[SiStripEventSummary::commissioning]"
+    edm::LogError("Commissioning") << "[SiStripEventSummary::commissioningInfo]"
 				   << " Unknown FED readout mode! " 
 				   << buffer[15];
   }
@@ -69,7 +70,7 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
   } else { // Unknown commissioning task
 
     task_ = static_cast<SiStripEventSummary::Task>( 0 );
-    edm::LogError("RawToDigi") << "[SiStripEventSummary::commissioning]"
+    edm::LogError("RawToDigi") << "[SiStripEventSummary::commissioningInfo]"
 			       << " Unknown commissioning task! "
 			       << buffer[10];
   }

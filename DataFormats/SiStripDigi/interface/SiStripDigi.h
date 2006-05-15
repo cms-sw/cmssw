@@ -12,16 +12,19 @@ class SiStripDigi {
 
  public:
 
-  SiStripDigi() : strip_(0), adc_(0) {;}
   SiStripDigi( const uint16_t& strip, 
-	       const uint16_t& adc ) : strip_(strip), adc_(adc) {;}
+	     const uint16_t& adc ) : 
+    strip_(strip), 
+    adc_(adc) {;}
+  
+  SiStripDigi() : strip_(0), adc_(0) {;}
   ~SiStripDigi() {;}
   
-  inline const uint16_t& strip()   const { return strip_; }
-  inline const uint16_t& adc()     const { return adc_; }
-  inline const uint16_t& channel() const { return strip(); }
-  
-  inline bool operator< ( const SiStripDigi& other ) const { return strip() < other.strip(); }
+  inline const uint16_t& strip() const;
+  inline const uint16_t& adc() const;
+  inline const uint16_t& channel() const;
+
+  inline bool operator< ( const SiStripDigi& other ) const;
   
  private:
   
@@ -29,6 +32,12 @@ class SiStripDigi {
   uint16_t adc_;
   
 };
+
+// inline methods
+const uint16_t& SiStripDigi::strip() const { return strip_; }
+const uint16_t& SiStripDigi::adc() const { return adc_; }
+const uint16_t& SiStripDigi::channel() const { return strip(); }
+bool SiStripDigi::operator< ( const SiStripDigi& other ) const { return strip() < other.strip(); }
 
 #endif // DataFormats_SiStripDigi_SiStripDigi_H
 
