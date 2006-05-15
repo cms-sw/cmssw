@@ -5,6 +5,8 @@
 
 #include <stdio.h>
 #include <math.h> 
+#define LAYERS 6
+#define STRIPS 80
 
 class AutoCorrMat{
 
@@ -59,7 +61,7 @@ class Chamber_AutoCorrMat{
 
   void zero(){
     for(int lay=0;lay<6;lay++){
-      for(int strip=0;strip<80;strip++){
+      for(int strip=0;strip<STRIPS;strip++){
         CMat[lay][strip].zero();
       }
     }
@@ -78,7 +80,7 @@ class Chamber_AutoCorrMat{
 
  private:
 
-  AutoCorrMat CMat[6][80];
+  AutoCorrMat CMat[LAYERS][STRIPS];
   float m[12];
 
 };

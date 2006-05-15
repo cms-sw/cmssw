@@ -33,7 +33,7 @@
 
 CSCNoiseMatrixAnalyzer::CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf) {
   
-  eventNumber=0,evt=0,NChambers=0;
+  eventNumber=0,evt=0,NChambers=0,Nddu=0;
   strip=0,misMatch=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1;
@@ -52,8 +52,14 @@ CSCNoiseMatrixAnalyzer::CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf) {
     newMatrix10[i]= 0.0;
     newMatrix11[i]= 0.0;
     newMatrix12[i]= 0.0;
+  
+  }
+
+  for (int i=0; i< CHAMBERS; i++){
+    size[i]=0;
   }
 }
+
 
 void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   
@@ -74,7 +80,7 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
     
-    
+    evt++;      
     /// Take a reference to this FED's data
     const FEDRawData& fedData = rawdata->FEDData(id);
     if (fedData.size()){ ///unpack data 
@@ -83,13 +89,12 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
       CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
       
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
-      
-      evt++;      
+         
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
 	
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
-	
+	Nddu=dduData.size();
 	reportedChambers += dduData[iDDU].header().ncsc();
 	NChambers = cscData.size();
 	int repChambers = dduData[iDDU].header().ncsc();
@@ -108,6 +113,7 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
 	      if(crateID[i_chamber] == 255) continue; 
 
 	      for (unsigned int i=0; i<digis.size(); i++){
+		size[i_chamber]=digis.size();
 		int strip = digis[i].getStrip();
 		adc = digis[i].getADCCounts();
 		int tadc[8];
