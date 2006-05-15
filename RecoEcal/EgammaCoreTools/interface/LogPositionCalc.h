@@ -19,15 +19,14 @@ class LogPositionCalc
 
 {
  public:
-  LogPositionCalc() { };
+  LogPositionCalc();
 
-  virtual ~LogPositionCalc() { };
+  virtual ~LogPositionCalc();
 
   typedef math::XYZPoint Point;
 
-  Point getECALposition(std::vector<reco::EcalRecHitData> recHits, 
-			const CaloSubdetectorGeometry);
+  static Point getECALposition(std::vector<reco::EcalRecHitData> recHits, const CaloSubdetectorGeometry);
 
-}
+};
 
 #endif
