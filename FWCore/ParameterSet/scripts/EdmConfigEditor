@@ -462,10 +462,97 @@ if __name__=="__main__":
     if options.test :
         print "run tests"
         import unittest
+        import tempfile
         
-        #class TestModuleCommand(unittest.TestCase):
-         #   def setUp(self):
-                #self.
+        class PrintIntercept:
+            def __init__(self):
+                self.__lastPrint = ""
+            def lastPrint(self):
+                return self.__lastPrint
+            def write(self,info):
+                self.__lastPrint += info
+            def clear(self):
+                self.__lastPrint=""
+        
+        class TestModuleCommand(unittest.TestCase):
+            def setUp(self):
+                self.stdout = sys.stdout
+                self.__printIntercept = PrintIntercept()
+                sys.stdout = self.__printIntercept
+                testFile = tempfile.NamedTemporaryFile()
+                testFile.write("""process TEST = {
+                                 source = ASource { untracked int32 maxEvents = -1 }
+                                 module b = BProd { string st = "st" }
+                                 module c = CProd { }
+                                 module c2  = CProd {}
+                                 es_source = ESSource1 { }
+                                 es_source = ESSource2 {}
+                                 es_source ess1 = ESSource1 {}
+                                 es_module esm1 = ESProd {}
+                                 es_module = ESProd2 {}
+                               }""")
+                testFile.flush()
+                self.__names = {'source':('ASource'),
+                                'module':('b','c','c2'),
+                                'es_source':('ESSource1','ESSource2','ess1'),
+                                'es_module':('esm1','ESProd2')}
+                #self.stdout.write(testFile.name)
+                self.__builder = CmsBuilder("")
+                self.__builder.do__read(testFile.name)
+                return
+            def __reset(self):
+                self.__printIntercept.clear()
+            def testNoFile(self):
+                builder = CmsBuilder("")
+                fileName = "/bad/doesNotExist"
+                builder.do__read(fileName)
+                try:
+                    self.assertNotEqual(-1,self.__printIntercept.lastPrint().find(fileName))
+                finally:
+                    self.__reset()
+            def testdolist(self):
+                for type in self.__names.keys():
+                    exec ("self._TestModuleCommand__builder.do_"+type+"('')")
+                    try:
+                        for name  in self.__names[type]:
+                            self.assertNotEqual(-1,self.__printIntercept.lastPrint().find(name))
+                    finally:
+                        self.__reset()
+            def testcompletelist(self):
+                for type in self.__names.keys():
+                    if type == 'source':
+                        continue
+                    length = str(0)
+                    result = eval ("self._TestModuleCommand__builder.complete_"+type+"('','"+type+" ',"+length+","+length+")")
+                    try:
+                        for name  in self.__names[type]:
+                            success=False
+                            try:
+                                self.assert_(name in result)
+                                success=True
+                            finally:
+                                if not success :
+                                    sys.stderr.write("completions:"+str(result)+" type :"+type+" name: "+name)
+                    finally:
+                        self.__reset()
+                    #now try each one individual trying a different length for the text
+                    for name in self.__names[type]:
+                        for index in range(1,len(name)):
+                            length = str(index)
+                            result = eval( "self._TestModuleCommand__builder.complete_"+type+"('"+name[0:index]+"','"+type+" ',"+length+","+length+")")
+                            success= False
+                            try:
+                                self.assert_(name in result)
+                                success=True
+                            finally:
+                                if not success:
+                                    sys.stderr.write("prefix:"+name[0:index]+" completions:"+str(result)+" type :"+type+" name: "+name)
+                                self.__reset()
+
+        #the test system also reads the command line options so I must remove '--test'
+        sys.argv.remove("--test")
+        
+        unittest.main()
         sys.exit(0)
     fileName=""
     if 1 < len(args):
