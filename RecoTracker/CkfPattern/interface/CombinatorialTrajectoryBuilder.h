@@ -3,16 +3,11 @@
 
 #include <vector>
 
-class MeasurementTracker;
 class Propagator;
 class TrajectoryStateUpdator;
 class MeasurementEstimator;
-class NavigationSchool;
 class TrajectorySeed;
 class TrajectoryStateOnSurface;
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -27,6 +22,8 @@ class TrajectoryStateOnSurface;
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
 using namespace std;
 
@@ -40,24 +37,24 @@ public:
 
   typedef std::vector<Trajectory>     TrajectoryContainer;
 
-  CombinatorialTrajectoryBuilder( const edm::ParameterSet& conf);
-  
-  void init(const edm::EventSetup& es);
+  CombinatorialTrajectoryBuilder( const edm::ParameterSet& conf,
+				  const edm::EventSetup& es,
+				  const MeasurementTracker* theInputMeasurementTracker);
+
+  ~CombinatorialTrajectoryBuilder();
   
   /// trajectories building starting from a seed
   TrajectoryContainer trajectories(const TrajectorySeed& seed,edm::Event& e);
 
 private:
-  edm::ESHandle<MagneticField>                theMagField;
-  edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
   edm::ESHandle<TrajectoryStateUpdator>       theUpdator;
   edm::ESHandle<Propagator>                   thePropagator;
   edm::ESHandle<Propagator>                   thePropagatorOpposite;
   edm::ESHandle<Chi2MeasurementEstimatorBase> theEstimator;
 
   const MeasurementTracker*     theMeasurementTracker;
-  const NavigationSchool*       theNavigationSchool;
   const LayerMeasurements*      theLayerMeasurements;
+
 
 
   //float theChiSquarCut;

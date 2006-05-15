@@ -3,26 +3,24 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "RecoTracker/CkfPattern/interface/TrajCandLess.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 
 CombinatorialTrajectoryBuilder::
-CombinatorialTrajectoryBuilder(const edm::ParameterSet& conf){
+CombinatorialTrajectoryBuilder(const edm::ParameterSet& conf,
+			       const edm::EventSetup& es,
+			       const MeasurementTracker* theInputMeasurementTracker)
+{
   //theChiSquarCut          = conf.getParameter<double>("chiSquarCut");
   theMaxCand              = conf.getParameter<int>("maxCand");
   theMaxLostHit           = conf.getParameter<int>("maxLostHit");
@@ -32,41 +30,26 @@ CombinatorialTrajectoryBuilder(const edm::ParameterSet& conf){
   theMinimumNumberOfHits  = conf.getParameter<int>("minimumNumberOfHits");
   //thePtCut                = conf.getParameter<int>("ptCut");
   theAlwaysUseInvalidHits = conf.getParameter<bool>("alwaysUseInvalidHits");
-}
-
-
-void CombinatorialTrajectoryBuilder::init(const edm::EventSetup& es)
-{     
-  //services
-  es.get<IdealMagneticFieldRecord>().get(theMagField);
-  es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
 
   //trackingtools
   es.get<TrackingComponentsRecord>().get("KFUpdator",theUpdator);
   es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",thePropagator);
   es.get<TrackingComponentsRecord>().get("PropagatorWithMaterialOpposite",thePropagatorOpposite);
   es.get<TrackingComponentsRecord>().get("Chi2",theEstimator);
-
-  theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
-  theMeasurementTracker = new MeasurementTracker(es);
+  
+  theMeasurementTracker = theInputMeasurementTracker;
   theLayerMeasurements  = new LayerMeasurements(theMeasurementTracker);
 }
 
-
+CombinatorialTrajectoryBuilder::~CombinatorialTrajectoryBuilder()
+{
+  delete theLayerMeasurements;
+}
 
 
 CombinatorialTrajectoryBuilder::TrajectoryContainer 
 CombinatorialTrajectoryBuilder::trajectories(const TrajectorySeed& seed,edm::Event& e)
-{
-  // update theMeasDetTracker
-  theMeasurementTracker->update(e);
-
-  // set the correct navigation
-  NavigationSetter setter( *theNavigationSchool);
-  
-  // set the propagation direction
-  //thePropagator->setPropagationDirection(seed.direction());
-
+{  
   TrajectoryContainer result;
 
   // analyseSeed( seed);
@@ -297,13 +280,8 @@ CombinatorialTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& tr
 
   for (vector<const DetLayer*>::iterator il = nl.begin(); 
        il != nl.end(); il++) {
-    vector<TM> tmpp = 
+    vector<TM> tmp = 
       theLayerMeasurements->measurements((**il),currentState, *thePropagator, *theEstimator);
-
-    vector<TM> tmp;
-    for(vector<TM>::const_iterator tmpIt=tmpp.begin();tmpIt!=tmpp.end();tmpIt++){
-      tmp.push_back(  TM(tmpIt->predictedState(),tmpIt->recHit(),tmpIt->estimate(),*il)  );
-    }
 
     //(**il).measurements( currentState, *thePropagator, *theEstimator);
     if ( !tmp.empty()) {

@@ -19,6 +19,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 //#include "RecoTracker/CkfPattern/interface/FitTester.h"
 
 using namespace edm;
@@ -26,33 +27,47 @@ using namespace edm;
 
 namespace cms{
   KFTrackCandidateMaker::KFTrackCandidateMaker(edm::ParameterSet const& conf) : 
-    theCombinatorialTrajectoryBuilder(conf) ,
-    conf_(conf)
-  {
-    isInitialized = 0;
-    theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
-  
+    conf_(conf),isInitialized(0)
+  {  
     produces<TrackCandidateCollection>();  
   }
 
   
   // Virtual destructor needed.
   KFTrackCandidateMaker::~KFTrackCandidateMaker() {
-    delete theTrajectoryCleaner;
+    delete theInitialState;
+    delete theMeasurementTracker;
+    delete theNavigationSchool;
+    delete theCombinatorialTrajectoryBuilder;
+    delete theTrajectoryCleaner;    
   }  
   
   // Functions that gets called by framework every event
   void KFTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
-  {    
-    // Bad temporary solution!!!
-    if(isInitialized == 0){
-      theCombinatorialTrajectoryBuilder.init(es);
-      theInitialState = new TransientInitialStateEstimator( es);
+  {
+    if(!isInitialized){
+      //services
+      es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
+      es.get<IdealMagneticFieldRecord>().get(theMagField);
+      
+      theInitialState       = new TransientInitialStateEstimator( es);
+      theMeasurementTracker = new MeasurementTracker(es);
+      theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
+      
+      // set the correct navigation
+      NavigationSetter setter( *theNavigationSchool);
+
+      theCombinatorialTrajectoryBuilder = new CombinatorialTrajectoryBuilder(conf_,es,theMeasurementTracker);
+      theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
       isInitialized = 1;
     }
+
+        
+    // Step A: update MeasurementTracker
+    theMeasurementTracker->update(e);
+        
     
-    
-    // Step A: Retrieve seeds
+    // Step B: Retrieve seeds
     
     std::string seedProducer = conf_.getParameter<std::string>("SeedProducer");
     edm::Handle<TrajectorySeedCollection> collseed;
@@ -60,11 +75,11 @@ namespace cms{
     //    e.getByType(collseed);
     TrajectorySeedCollection theSeedColl = *collseed;
     
-    // Step B: Create empty output collection
+    // Step C: Create empty output collection
     std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
     
     
-    // Step C: Invoke the building algorithm
+    // Step D: Invoke the building algorithm
     if ((*collseed).size()>0){
       vector<Trajectory> theFinalTrajectories;
       TrajectorySeedCollection::const_iterator iseed;
@@ -72,7 +87,7 @@ namespace cms{
       vector<Trajectory> rawResult;
       for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
 	vector<Trajectory> theTmpTrajectories;
-	theTmpTrajectories = theCombinatorialTrajectoryBuilder.trajectories(*iseed,e);
+	theTmpTrajectories = theCombinatorialTrajectoryBuilder->trajectories(*iseed,e);
 	
 	cout << "CombinatorialTrajectoryBuilder returned " << theTmpTrajectories.size()
 	     << " trajectories" << endl;
@@ -88,7 +103,7 @@ namespace cms{
 	cout << "rawResult size after cleaning " << rawResult.size() << endl;
       }
       
-      // Step D: Clean the result
+      // Step E: Clean the result
       vector<Trajectory> unsmoothedResult;
       theTrajectoryCleaner->clean(rawResult);
       
@@ -99,7 +114,7 @@ namespace cms{
       //analyseCleanedTrajectories(unsmoothedResult);
       
 
-      // Step D: Convert to TrackCandidates
+      // Step F: Convert to TrackCandidates
       for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	   it != unsmoothedResult.end(); it++) {
 	
@@ -125,7 +140,7 @@ namespace cms{
       
       
       
-      cout << " ========== DEBUG TRACKFINDER: start  ========== " << endl;
+      cout << " ========== DEBUG KFTrackCandidateMaker: start  ========== " << endl;
       edm::ESHandle<TrackerGeometry> tracker;
       es.get<TrackerDigiGeometryRecord>().get(tracker);
       cout << "number of Seed: " << theSeedColl.size() << endl;
@@ -149,11 +164,11 @@ namespace cms{
 	cout << "n valid and invalid hit, chi2 : " 
 	     << it->foundHits() << " , " << it->lostHits() <<" , " <<it->chiSquared() << endl;
       }
-      cout << " ========== DEBUG TRACKFINDER: end ========== " << endl;
+      cout << " ========== DEBUG KFTrackCandidateMaker: end ========== " << endl;
       
 
       
-      // Step D: write output to file
+      // Step G: write output to file
       if ((*output).size()>0) e.put(output);
     }
   }
