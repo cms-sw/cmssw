@@ -3,6 +3,8 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include <vector>
 
 namespace {
   namespace {
@@ -25,24 +27,81 @@ namespace {
     math::XYZTLorentzVectorD ld2;
     math::XYZTLorentzVectorF lf2;
 
-    math::Vector<1>::type vv1;
-    math::Vector<2>::type vv2;
-    math::Vector<3>::type vv3;
-    math::Vector<4>::type vv4;
-    math::Vector<5>::type vv5;
-    math::Vector<6>::type vv6;
-    math::VectorD<1>::type vvd1;
-    math::VectorD<2>::type vvd2;
-    math::VectorD<3>::type vvd3;
-    math::VectorD<4>::type vvd4;
-    math::VectorD<5>::type vvd5;
-    math::VectorD<6>::type vvd6;
-    math::VectorF<1>::type vvf1;
-    math::VectorF<2>::type vvf2;
-    math::VectorF<3>::type vvf3;
-    math::VectorF<4>::type vvf4;
-    math::VectorF<5>::type vvf5;
-    math::VectorF<6>::type vvf6;
+    std::vector<math::XYZVector> vv1;
+    std::vector<math::XYZVectorD> vvd1; 
+    std::vector<math::XYZVectorF> vvf1; 
+    std::vector<math::RhoEtaPhiVector> vv2;
+    std::vector<math::RhoEtaPhiVectorD> vvd2;
+    std::vector<math::RhoEtaPhiVectorF> vvf2;
+    std::vector<math::RThetaPhiVector> vv3;
+    std::vector<math::RThetaPhiVectorD> vvd3;
+    std::vector<math::RThetaPhiVectorF> vvf3;
+    std::vector<math::XYZPoint> vp1;
+    std::vector<math::XYZPointD> vpd1;
+    std::vector<math::XYZPointF> vpf1;
+    std::vector<math::PtEtaPhiELorentzVector> vl1;
+    std::vector<math::PtEtaPhiELorentzVectorD> vld1;
+    std::vector<math::PtEtaPhiELorentzVectorF> vlf1;
+    std::vector<math::XYZTLorentzVector> vl2;
+    std::vector<math::XYZTLorentzVectorD> vld2;
+    std::vector<math::XYZTLorentzVectorF> vlf2;
+
+    edm::Wrapper<math::XYZVector> wv1;
+    edm::Wrapper<math::XYZVectorD> wvd1; 
+    edm::Wrapper<math::XYZVectorF> wvf1; 
+    edm::Wrapper<math::RhoEtaPhiVector> wv2;
+    edm::Wrapper<math::RhoEtaPhiVectorD> wvd2;
+    edm::Wrapper<math::RhoEtaPhiVectorF> wvf2;
+    edm::Wrapper<math::RThetaPhiVector> wv3;
+    edm::Wrapper<math::RThetaPhiVectorD> wvd3;
+    edm::Wrapper<math::RThetaPhiVectorF> wvf3;
+    edm::Wrapper<math::XYZPoint> wp1;
+    edm::Wrapper<math::XYZPointD> wpd1;
+    edm::Wrapper<math::XYZPointF> wpf1;
+    edm::Wrapper<math::PtEtaPhiELorentzVector> wl1;
+    edm::Wrapper<math::PtEtaPhiELorentzVectorD> wld1;
+    edm::Wrapper<math::PtEtaPhiELorentzVectorF> wlf1;
+    edm::Wrapper<math::XYZTLorentzVector> wl2;
+    edm::Wrapper<math::XYZTLorentzVectorD> wld2;
+    edm::Wrapper<math::XYZTLorentzVectorF> wlf2;
+
+    edm::Wrapper<std::vector<math::XYZVector> > wvv1;
+    edm::Wrapper<std::vector<math::XYZVectorD> > wvvd1; 
+    edm::Wrapper<std::vector<math::XYZVectorF> > wvvf1; 
+    edm::Wrapper<std::vector<math::RhoEtaPhiVector> > wvv2;
+    edm::Wrapper<std::vector<math::RhoEtaPhiVectorD> > wvvd2;
+    edm::Wrapper<std::vector<math::RhoEtaPhiVectorF> > wvvf2;
+    edm::Wrapper<std::vector<math::RThetaPhiVector> > wvv3;
+    edm::Wrapper<std::vector<math::RThetaPhiVectorD> > wvvd3;
+    edm::Wrapper<std::vector<math::RThetaPhiVectorF> > wvvf3;
+    edm::Wrapper<std::vector<math::XYZPoint> > wvp1;
+    edm::Wrapper<std::vector<math::XYZPointD> > wvpd1;
+    edm::Wrapper<std::vector<math::XYZPointF> > wvpf1;
+    edm::Wrapper<std::vector<math::PtEtaPhiELorentzVector> > wvl1;
+    edm::Wrapper<std::vector<math::PtEtaPhiELorentzVectorD> > wvld1;
+    edm::Wrapper<std::vector<math::PtEtaPhiELorentzVectorF> > wvlf1;
+    edm::Wrapper<std::vector<math::XYZTLorentzVector> > wvl2;
+    edm::Wrapper<std::vector<math::XYZTLorentzVectorD> > wvld2;
+    edm::Wrapper<std::vector<math::XYZTLorentzVectorF> > wvlf2;
+
+    math::Vector<1>::type vV1;
+    math::Vector<2>::type vV2;
+    math::Vector<3>::type vV3;
+    math::Vector<4>::type vV4;
+    math::Vector<5>::type vV5;
+    math::Vector<6>::type vV6;
+    math::VectorD<1>::type vVd1;
+    math::VectorD<2>::type vVd2;
+    math::VectorD<3>::type vVd3;
+    math::VectorD<4>::type vVd4;
+    math::VectorD<5>::type vVd5;
+    math::VectorD<6>::type vVd6;
+    math::VectorF<1>::type vVf1;
+    math::VectorF<2>::type vVf2;
+    math::VectorF<3>::type vVf3;
+    math::VectorF<4>::type vVf4;
+    math::VectorF<5>::type vVf5;
+    math::VectorF<6>::type vVf6;
 
     math::Error<1>::type e1;
     math::Error<2>::type e2;
@@ -62,6 +121,27 @@ namespace {
     math::ErrorF<4>::type ef4;
     math::ErrorF<5>::type ef5;
     math::ErrorF<6>::type ef6;
+
+    std::vector<math::Error<1>::type> ve1;
+    std::vector<math::Error<2>::type> ve2;
+    std::vector<math::Error<3>::type> ve3;
+    std::vector<math::Error<4>::type> ve4;
+    std::vector<math::Error<5>::type> ve5;
+    std::vector<math::Error<6>::type> ve6;
+
+    edm::Wrapper<math::Error<1>::type> we1;
+    edm::Wrapper<math::Error<2>::type> we2;
+    edm::Wrapper<math::Error<3>::type> we3;
+    edm::Wrapper<math::Error<4>::type> we4;
+    edm::Wrapper<math::Error<5>::type> we5;
+    edm::Wrapper<math::Error<6>::type> we6;
+
+    edm::Wrapper<std::vector<math::Error<1>::type> > wve1;
+    edm::Wrapper<std::vector<math::Error<2>::type> > wve2;
+    edm::Wrapper<std::vector<math::Error<3>::type> > wve3;
+    edm::Wrapper<std::vector<math::Error<4>::type> > wve4;
+    edm::Wrapper<std::vector<math::Error<5>::type> > wve5;
+    edm::Wrapper<std::vector<math::Error<6>::type> > wve6;
 
     ROOT::Math::MatRepSym<Double32_t, 1> sm1;
     ROOT::Math::MatRepSym<Double32_t, 2> sm2;
