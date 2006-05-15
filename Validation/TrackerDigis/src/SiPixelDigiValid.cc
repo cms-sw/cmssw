@@ -5,7 +5,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
@@ -261,23 +262,9 @@ void SiPixelDigiValid::endJob() {
 
 void SiPixelDigiValid::analyze(const Event& e, const EventSetup& c){
 
- LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
-
- edm::ESHandle<TrackerGeometry> tracker;
- c.get<TrackerDigiGeometryRecord>().get( tracker );     
-
- string digiProducer = "pixdigi";
- Handle<PixelDigiCollection> pixelDigis;
- e.getByLabel(digiProducer, pixelDigis);
- vector<unsigned int>  vec = pixelDigis->detIDs();
-
-
- if ( vec.size() > 0 ) 
- LogInfo("SiPixelDigiValid") <<"DetId Size = " <<vec.size();
-
  int ndigiperRingLayer1[8];
  int ndigiperRingLayer2[8];
- int ndigiperRingLayer3[8]; 
+ int ndigiperRingLayer3[8];
  for(int i = 0; i< 8; i++ ) {
     ndigiperRingLayer1[i] = 0;
     ndigiperRingLayer2[i] = 0;
@@ -304,16 +291,23 @@ for ( int i =0 ; i< 24; i++) {
    ndigiZmDisk2PerPanel2[i] = 0;
 }
 
- for (unsigned int i=0; i< vec.size(); i++) {
-       unsigned int id = vec[i];
-       if( id != 999999999){ //if is valid detector
+ LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
+
+ edm::ESHandle<TrackerGeometry> tracker;
+ c.get<TrackerDigiGeometryRecord>().get( tracker );     
+
+ string digiProducer = "pixdigi";
+ edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;
+ e.getByLabel(digiProducer, pixelDigis);
+
+ edm::DetSetVector<PixelDigi>::const_iterator DSViter = pixelDigis->begin();
+ for( ; DSViter != pixelDigis->end(); DSViter++) {
+          unsigned int id = DSViter->id;
           DetId  detId(id);
-          const GeomDetUnit * pixeldet=tracker->idToDet(detId);
-          PixelDigiCollection::Range  range = pixelDigis->get(id);
-          std::vector<PixelDigi>::const_iterator begin = range.first;
-          std::vector<PixelDigi>::const_iterator end = range.second;
-          std::vector<PixelDigi>::const_iterator iter;
-          
+          edm::DetSet<PixelDigi>::const_iterator  begin = DSViter->data.begin();
+          edm::DetSet<PixelDigi>::const_iterator  end   = DSViter->data.end();
+          edm::DetSet<PixelDigi>::const_iterator  iter;          
+
           if(detId.subdetId()==PixelSubdetector::PixelBarrel ) {
              PXBDetId  bdetid(id);
              unsigned int layer  = bdetid.layer();   // Layer:1,2,3.
@@ -472,10 +466,7 @@ for ( int i =0 ; i< 24; i++) {
            
           }
  
-////////////////////////////////////////////////////////////////
-//         ForWard Pixel Digi Validation Codes                //
-///////////////////////////////////////////////////////////////
-        if(detId.subdetId()==PixelSubdetector::PixelEndcap ){ //Endcap
+         if(detId.subdetId()==PixelSubdetector::PixelEndcap ){ //Endcap
            PXFDetId  fdetid(id);
            unsigned int side  = fdetid.side();
            unsigned int disk  = fdetid.disk();
@@ -657,8 +648,7 @@ for ( int i =0 ; i< 24; i++) {
 
           }//Endcap 
 
-       }//end if id.
-    }
+    } // end for loop
     
     meDigiMultiLayer1Ring1_->Fill(ndigiperRingLayer1[0]);
     meDigiMultiLayer1Ring2_->Fill(ndigiperRingLayer1[1]);
