@@ -13,13 +13,14 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.7 2006/05/03 08:39:10 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.8 2006/05/12 10:52:46 dkcira Exp $
 //
 //
 
 #include <vector>
 //#include <algorithm>
 #include <numeric>
+#include <iostream>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -28,7 +29,7 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h" // replaces SiStripClusterCollection
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 
@@ -67,7 +68,9 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
     es.get<SiStripDetCablingRcd>().get(tkmechstruct);
 
     // get list of active detectors from SiStripDetCabling - this will change and be taken from a SiStripDetControl object
-    const vector<uint32_t> & activeDets = tkmechstruct->getActiveDetectorsRawIds();
+    vector<uint32_t> activeDets;
+    activeDets.clear(); // just in case
+    tkmechstruct->addActiveDetectorsRawIds(activeDets);
 
     // use SiStripSubStructure for selecting certain regions
     SiStripSubStructure substructure;
@@ -137,6 +140,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   // get collection of DetSetVector of clusters from Event
   edm::Handle< edm::DetSetVector<SiStripCluster> > cluster_detsetvektor;
   iEvent.getByLabel(clusterProducer, cluster_detsetvektor);
+//  std::cout<<"cluster_detsetvektor.size()="<<cluster_detsetvektor->size()<<endl;
   // loop over MEs. Mechanical structure view. No need for condition here. If map is empty, nothing should happen.
   for (map<uint32_t, ModMEs>::const_iterator iterMEs = ClusterMEs.begin() ; iterMEs!=ClusterMEs.end() ; iterMEs++) {
     uint32_t detid = iterMEs->first;  ModMEs local_modmes = iterMEs->second;
@@ -147,10 +151,12 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     edm::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
 
     if(local_modmes.NrClusters != NULL){ // nr. of clusters per module
+//      std::cout<<"detid="<<detid<<" cluster_detset.data.size()="<<cluster_detset.data.size()<<endl;
       (local_modmes.NrClusters)->Fill(static_cast<float>(cluster_detset.data.size()),1.);
     }
     if(local_modmes.ClusterPosition != NULL){ // position of cluster
       for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
+//            std::cout<<"                  cluster_Iter->barycenter()"<<clusterIter->barycenter()<<endl;
             (local_modmes.ClusterPosition)->Fill(clusterIter->barycenter(),1.);
       }
     }
@@ -161,6 +167,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
         short local_size = ampls.size(); // width defined as nr. of strips that belong to cluster
         total_clusterized_strips = total_clusterized_strips + local_size; // add nr of strips of this cluster to total nr. of clusterized strips
         (local_modmes.ClusterWidth)->Fill(static_cast<float>(local_size),1.);
+//        std::cout<<"                  cluster_width"<<local_size<<endl;
       }
     }
     if(local_modmes.ClusterCharge != NULL){ // charge of cluster
@@ -171,6 +178,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
           local_charge += *iampls;
         }
         (local_modmes.ClusterCharge)->Fill(static_cast<float>(local_charge),1.);
+//        std::cout<<"                  cluster_charge"<<local_charge<<endl;
       }
     }
     if(local_modmes.NrOfClusterizedStrips != NULL){ // nr of clusterized strips
