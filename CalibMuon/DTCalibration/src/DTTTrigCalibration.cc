@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/04/27 13:49:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/12 07:59:20 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/interface/DTDBWriterInterface.h"
@@ -170,11 +170,14 @@ void DTTTrigCalibration::endJob() {
       slHisto != theHistoMap.end();
       slHisto++) {
     pair<double, double> meanAndSigma = theFitter->fitTimeBox((*slHisto).second);
+    //FIXME: should use tdc counts and sigma???
     tTrig->setSLTtrig((*slHisto).first.wheel(),
 		      (*slHisto).first.station(),
 		      (*slHisto).first.sector(),
 		      (*slHisto).first.superlayer(),
-			meanAndSigma.first); //FIXME: should use tdc counts and sigma???
+		      meanAndSigma.first - 1.3*meanAndSigma.second);
+    // FIXME: ttrig definition for commissioning data
+    
     if(debug) {
       cout << " SL: " << (*slHisto).first
 	   << " mean = " << meanAndSigma.first
