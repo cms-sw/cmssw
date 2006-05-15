@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="PHcalTB04Info"/>
+  <class name="std::vector<int>"/>
+  <class name="std::vector<float>"/>
+  <class name="edm::Wrapper<PHcalTB04Info>"/>
+</lcgdict>
