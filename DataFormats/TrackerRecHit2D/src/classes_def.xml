@@ -5,7 +5,7 @@
   <class name="SiStripCluster"/>
   <class name="LocalError"/>
   <class name="std::vector<const SiStripCluster*>"/>
-  <class name="BaseSiStripRecHit2DLocalPos"/>
+  <class name="BaseSiTrackerRecHit2DLocalPos"/>
   <class name="SiStripRecHit2DLocalPos"/>
   <class name="std::pair<unsigned int,unsigned int>"/>
   <class name="SiStripRecHit2DMatchedLocalPos"/>

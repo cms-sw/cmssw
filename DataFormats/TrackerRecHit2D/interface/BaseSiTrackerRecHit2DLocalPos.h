@@ -1,20 +1,20 @@
-#ifndef BaseSiStripRecHit2DLocalPos_H
-#define BaseSiStripRecHit2DLocalPos_H
+#ifndef BaseSiTrackerRecHit2DLocalPos_H
+#define BaseSiTrackerRecHit2DLocalPos_H
 
 #include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
-class BaseSiStripRecHit2DLocalPos : public RecHit2DLocalPos {
+class BaseSiTrackerRecHit2DLocalPos : public RecHit2DLocalPos {
 public:
 
-  BaseSiStripRecHit2DLocalPos(): id_(0) {}
+  BaseSiTrackerRecHit2DLocalPos(): id_(0) {}
 
-  ~BaseSiStripRecHit2DLocalPos() {}
+  ~BaseSiTrackerRecHit2DLocalPos() {}
 
-  BaseSiStripRecHit2DLocalPos( const LocalPoint& p, const LocalError&e,
+  BaseSiTrackerRecHit2DLocalPos( const LocalPoint& p, const LocalError&e,
 			       const DetId&id) : pos_(p), err_(e), id_(id){}
 
-  //  virtual BaseSiStripRecHit2DLocalPos * clone() const {return new BaseSiStripRecHit2DLocalPos( * this); }
+  //  virtual BaseSiTrackerRecHit2DLocalPos * clone() const {return new BaseSiTrackerRecHit2DLocalPos( * this); }
 
   virtual LocalPoint localPosition() const {return pos_;}
 
@@ -30,7 +30,7 @@ public:
 };
 
 // Comparison operators
-inline bool operator<( const BaseSiStripRecHit2DLocalPos& one, const BaseSiStripRecHit2DLocalPos& other) {
+inline bool operator<( const BaseSiTrackerRecHit2DLocalPos& one, const BaseSiTrackerRecHit2DLocalPos& other) {
   if ( one.geographicalId() < other.geographicalId() ) {
     return true;
   } else {

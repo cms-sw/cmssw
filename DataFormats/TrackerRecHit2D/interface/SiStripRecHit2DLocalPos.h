@@ -1,13 +1,13 @@
 #ifndef SiStripRecHit2DLocalPos_H
 #define SiStripRecHit2DLocalPos_H
 
-#include "DataFormats/TrackerRecHit2D/interface/BaseSiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
-class SiStripRecHit2DLocalPos : public  BaseSiStripRecHit2DLocalPos{
+class SiStripRecHit2DLocalPos : public  BaseSiTrackerRecHit2DLocalPos{
 public:
 
-  SiStripRecHit2DLocalPos(): BaseSiStripRecHit2DLocalPos() {}
+  SiStripRecHit2DLocalPos(): BaseSiTrackerRecHit2DLocalPos() {}
 
   ~SiStripRecHit2DLocalPos() {}
 
