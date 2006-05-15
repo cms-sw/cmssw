@@ -88,7 +88,7 @@ show errors;
 
 
 
-CREATE OR replace FUNCTION mon_summary RETURN mon_summary_t PIPELINED IS
+CREATE OR replace FUNCTION mon_summary (i_run NUMBER := NULL) RETURN mon_summary_t PIPELINED IS
   sql_stmt varchar2(4000);
   summary mon_summary_o := mon_summary_o(NULL);
   TYPE table_data_t IS TABLE OF NUMBER(10) INDEX BY VARCHAR2(32);
@@ -131,6 +131,7 @@ FOR result IN (select loc.location, rtype.run_type, rtype.config_tag, rtype.conf
                  join mon_run_iov miov on miov.run_iov_id = riov.iov_id
                  join mon_run_tag mtag on mtag.tag_id = miov.tag_id
                  join mon_version_def mver on mver.def_id = mtag.mon_ver_id
+                 where riov.run_num = i_run
                  order by loc.location asc, 
                           riov.run_num asc, rtype.run_type asc, rtype.config_tag asc, rtag.gen_tag asc, 
                           miov.subrun_num asc, mver.mon_ver asc, mtag.gen_tag asc)
@@ -184,6 +185,7 @@ LOOP
   summary.pn_green_cnt            := table_data('MON_PN_GREEN_DAT');
   summary.pn_red_cnt              := table_data('MON_PN_RED_DAT');
   summary.pn_ired_cnt             := table_data('MON_PN_IRED_DAT');
+  summary.pn_ped_cnt              := table_data('MON_PN_IRED_DAT');
   summary.pn_mgpa_cnt             := table_data('MON_PN_MGPA_DAT');
 
 
