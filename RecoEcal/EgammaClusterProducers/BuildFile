@@ -11,6 +11,7 @@
 <use name=Geometry/CaloTopology>
 <use name=RecoEcal/EgammaClusterAlgos>
 <use name=DataFormats/Math>
+<use name=RecoEcal/EgammaCoreTools>
 <use name=clhep>
 <flags SEAL_PLUGIN_NAME="RecoEcalEgammaClusterProducers">
 <export>
@@ -27,6 +28,7 @@
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
   <use name=RecoEcal/EgammaClusterAlgos>
+  <use name=RecoEcal/EgammaCoreTools>
   <use name=DataFormats/Math>
   <use name=clhep>
 </export>
