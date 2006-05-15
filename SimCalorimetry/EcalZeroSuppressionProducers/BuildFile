@@ -1,0 +1,21 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/EcalDetId>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/EcalObjects>
+
+<flags SEAL_PLUGIN_NAME="SimCalorimetryEcalZeroSuppressionProducers">
+<export>
+   <lib name=SimCalorimetryEcalZeroSuppressionProducers>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/MessageLogger>
+   <use name=DataFormats/EcalDigi>
+   <use name=DataFormats/EcalDetId>
+   <use name=CondFormats/DataRecord>
+   <use name=CondFormats/EcalObjects>
+</export>
