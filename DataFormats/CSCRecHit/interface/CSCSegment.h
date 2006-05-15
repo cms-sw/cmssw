@@ -2,10 +2,14 @@
 #define CSCRecHit_CSCSegment_h
 
 /** \class CSCSegment
- *  Describes a 4-dim reconstructed segment in a CSC chamber. 
+ *  Describes a reconstructed track segment in the 6 layers of a CSC chamber. 
+ *  This is 4-dimensional since it has an origin (x,y) and a direction (x,y)
+ *  in the local coordinate system of the chamber.
  *
- *  $Date: 2006/05/09 10:30:26 $
+ *  $Date: 2006/05/15 11:32:46 $
  *  \author Matteo Sani
+ *  \author Rick Wilkinson
+ *  \author Tim Cox
  */
 
 #include <DataFormats/TrackingRecHit/interface/RecSegment4D.h>
