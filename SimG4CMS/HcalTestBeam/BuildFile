@@ -1,18 +1,38 @@
-<use name=Foundation/PluginManager>
-<use name=SimG4Core/Watcher>
-<use name=SimG4Core/SensitiveDetector>
 <use name=SimG4Core/Notification> 
-<use name=SimG4Core/Application>
+<use name=SimG4Core/Watcher>
 <use name=SimG4CMS/Calo>
-<use name=SimDataFormats/SimHitMaker>
-<use name=SimDataFormats/CaloHit>
-<use name=DetectorDescription/Core>
+<use name=Geometry/EcalCommonData>
+<use name=Geometry/HcalCommonData>
+<use name=DataFormats/HcalDetId>
+<use name=SimDataFormats/HcalTestBeam>
+<use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=boost>
+<use name=FWCore/MessageLogger>
+<use name=Foundation/PluginManager>
 <use name=geant4>
+<use name=boost>
+<use name=root>
+<use name=DataSvc>
+<use name=rootrflx>
 
 <export>
  <lib name=SimG4CMSHcalTestBeam>
+ <use name=SimG4Core/Notification> 
+ <use name=SimG4Core/Watcher>
+ <use name=SimG4CMS/Calo>
+ <use name=Geometry/EcalCommonData>
+ <use name=Geometry/HcalCommonData>
+ <use name=DataFormats/HcalDetId>
+ <use name=SimDataFormats/HcalTestBeam>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/MessageLogger>
+ <use name=Foundation/PluginManager>
+ <use name=geant4>
+ <use name=boost>
+ <use name=root>
+ <use name=DataSvc>
+ <use name=rootrflx>
 </export>
 
 <Flags SEAL_PLUGIN_NAME="SimG4CMSHcalTestBeam">

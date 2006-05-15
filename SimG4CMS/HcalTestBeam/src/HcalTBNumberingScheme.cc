@@ -1,26 +1,30 @@
 ///////////////////////////////////////////////////////////////////////////////
-// File: TBHcalNumberingScheme.cc
+// File: HcalTBNumberingScheme.cc
 // Description: Numbering scheme for test beam hadron calorimeter
 ///////////////////////////////////////////////////////////////////////////////
-#include "SimG4CMS/HcalTestBeam/interface/TBHcalNumberingScheme.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTBNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 
-
-uint32_t TBHcalNumberingScheme::getUnitID(const uint32_t idHit,
+uint32_t HcalTBNumberingScheme::getUnitID(const uint32_t idHit,
 					  const int mode) {
 
   int   subdet, zside, group, ieta, iphi, lay;
   HcalTestNumberingScheme::unpackHcalIndex(idHit, subdet, zside, group,
 					   ieta, iphi, lay);
-  if (verbosity > 2)
-    std::cout << "TBHcalNumberingScheme: i/p ID 0x" << std::hex << idHit 
-	      << std::dec << " det " << zside << " group/layer " << group 
-	      << " " << lay << " eta/phi " << ieta << " " << iphi << std::endl;
+  LogDebug("HcalTBSim") << "HcalTBNumberingScheme: i/p ID 0x" << std::hex
+			<< idHit << std::dec << " det " << zside << " group "
+			<< group << " layer " << lay << " eta " << ieta 
+			<< " phi " << iphi;
 
   uint32_t idunit;
+  if (subdet == static_cast<int>(HcalBarrel)) {
+    if (lay <= 17) group = 1;
+    else           group = 2;
+  }
   if (mode > 0) {
     if (subdet == static_cast<int>(HcalBarrel) && iphi > 4) {
       if (lay <= 17) {
@@ -42,20 +46,19 @@ uint32_t TBHcalNumberingScheme::getUnitID(const uint32_t idHit,
     idunit = HcalTestNumberingScheme::packHcalIndex(0,0,1,ieta,iphi,group);
   }
 
-  if (verbosity > 1) {
-    std::cout << " TBHcalNumberingScheme: idHit 0x" << std::hex << idHit 
-	      << " idunit 0x" << idunit << std::dec << std::endl;
-    HcalTestNumberingScheme::unpackHcalIndex(idunit, subdet, zside, group,
-					     ieta, iphi, lay);
-    if (verbosity > 2)
-      std::cout << "TBHcalNumberingScheme: o/p ID 0x" << std::hex << idunit 
-		<< std::dec << " det " << zside << " group/layer " << group 
-		<< " " << lay << " eta/phi " << ieta << " " <<iphi <<std::endl;
-  }
+  HcalTestNumberingScheme::unpackHcalIndex(idunit, subdet, zside, group,
+					   ieta, iphi, lay);
+  LogDebug("HcalTBSim") << "HcalTBNumberingScheme: idHit 0x" << std::hex 
+			<< idHit << " idunit 0x" << idunit << std::dec << "\n"
+			<< "HcalTBNumberingScheme: o/p ID 0x" << std::hex 
+			<< idunit << std::dec << " det " << zside << " group " 
+			<< group << " layer " << lay << " eta " << ieta 
+			<< " phi " << iphi;
+  
   return idunit;
 }
 
-std::vector<uint32_t> TBHcalNumberingScheme::getUnitIDs(const int type,
+std::vector<uint32_t> HcalTBNumberingScheme::getUnitIDs(const int type,
 							const int mode) {
 
   std::vector<uint32_t> tmp;
