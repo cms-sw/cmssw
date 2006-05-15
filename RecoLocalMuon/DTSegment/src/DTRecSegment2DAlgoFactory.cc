@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date:  01/03/2006 16:46:15 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:18 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -19,9 +19,7 @@ DTRecSegment2DAlgoFactory DTRecSegment2DAlgoFactory::s_instance;
 
 /// Constructor
 DTRecSegment2DAlgoFactory::DTRecSegment2DAlgoFactory() :
-  seal::PluginFactory<DTRecSegment2DBaseAlgo*(const edm::ParameterSet&)>("DTRecSegment2DAlgoFactory"){
-    cout << "s_instance " << &s_instance << endl;
-}
+  seal::PluginFactory<DTRecSegment2DBaseAlgo*(const edm::ParameterSet&)>("DTRecSegment2DAlgoFactory"){}
 
 /// Destructor
 DTRecSegment2DAlgoFactory::~DTRecSegment2DAlgoFactory() {

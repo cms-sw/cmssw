@@ -3,8 +3,8 @@
  *  Factory of seal plugins for DT 4D segments reconstruction algorithms.
  *  The plugins are concrete implementations of DTRecSegment4DBaseAlgo base class.
  *
- * $Date:  $
- * $Revision:  $
+ * $Date: 2006/04/19 14:59:33 $
+ * $Revision: 1.1 $
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
 
@@ -22,9 +22,7 @@ DTRecSegment4DAlgoFactory DTRecSegment4DAlgoFactory::s_instance;
 
 /// Constructor
 DTRecSegment4DAlgoFactory::DTRecSegment4DAlgoFactory() :
-  seal::PluginFactory<DTRecSegment4DBaseAlgo*(const edm::ParameterSet&)>("DTRecSegment4DAlgoFactory"){
-    cout << "s_instance " << &s_instance << endl;
-}
+  seal::PluginFactory<DTRecSegment4DBaseAlgo*(const edm::ParameterSet&)>("DTRecSegment4DAlgoFactory"){}
 
 /// Destructor
 DTRecSegment4DAlgoFactory::~DTRecSegment4DAlgoFactory() {
