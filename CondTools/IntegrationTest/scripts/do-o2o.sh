@@ -27,7 +27,7 @@ do
   fi
 done
 
-if [ $APPEND = 1 ]
+if [ -n "$APPEND" ] && [ $APPEND = 1 ]
 then
   APPEND="-a"
 else
@@ -61,7 +61,7 @@ then
   exit -1
 fi
 
-if [ $INFINITE = 1 ]
+if [ -n "$INFINITE" ] && [ $INFINITE = 1 ]
 then
   INFINITE="-i"
 else
