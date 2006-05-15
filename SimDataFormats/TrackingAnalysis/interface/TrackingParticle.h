@@ -20,10 +20,14 @@ public:
   TrackingParticle( const HepMC::GenParticle * );
   /// pointer to generator particle
   GenParticleRef genParticle() const { return genParticle_; }
-  
+  /// PDG identifier  
+  int pdgId() const { return pdgId_; }
+
 private:
   /// pointer to generator particle
   GenParticleRef genParticle_;
+  /// PDG identifier
+  int pdgId_;
 };
 
 #endif // SimDataFormats_TrackingParticle_H
