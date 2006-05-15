@@ -2,8 +2,8 @@
  *
  *  Implementation of SiStripQualityTester
  *
- *  $Date: 2006/05/07 12:17:36 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/09 22:26:42 $
+ *  $Revision: 1.6 $
  *  \author Suchandra Dutta
  */
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
@@ -48,7 +48,9 @@ void SiStripQualityTester::setupQTests(MonitorUserInterface* mui) {
       setMeanWithinExpectedTest(mui, qTestName, qTestParams);
     }
   }
+  cout << " Attaching Quality Tests " << endl;
   attachTests(mui);
+  cout <<  " Quality Tests attached to MEs properly" << endl;
 }
 //
 // -- Read Test Name and Parameters
@@ -89,7 +91,7 @@ void SiStripQualityTester::attachTests(MonitorUserInterface * mui){
     mui->cd(*ip);
     attachTests(mui);
     mui->goUp();
-  }   
+ }   
 }
 //
 // -- Set up ContentsXRange test with it's parameters
