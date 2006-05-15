@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.7 2006/05/03 08:39:01 dkcira Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.8 2006/05/12 10:52:40 dkcira Exp $
 //
 //
 
@@ -24,7 +24,7 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h" // replaces SiStripDigiCollection
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 
@@ -63,7 +63,9 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
     es.get<SiStripDetCablingRcd>().get(tkmechstruct);
 
     // get list of active detectors from SiStripDetCabling
-    const vector<uint32_t> & activeDets = tkmechstruct->getActiveDetectorsRawIds();
+    vector<uint32_t> activeDets; 
+    activeDets.clear(); // just in case
+    tkmechstruct->addActiveDetectorsRawIds(activeDets);
 
     // use SiStripSubStructure for selecting certain regions
     SiStripSubStructure substructure;
@@ -124,9 +126,10 @@ SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // retrieve producer name of input StripDigiCollection
   std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
+  std::string digiLabel    = conf_.getParameter<std::string>("DigiLabel");
   // get collection of DetSetVector of digis from Event
   edm::Handle< edm::DetSetVector<SiStripDigi> > digi_detsetvektor;
-  iEvent.getByLabel(digiProducer, digi_detsetvektor);
+  iEvent.getByLabel(digiProducer, digiLabel, digi_detsetvektor);
   // loop over all MEs
   for (map<uint32_t, ModMEs >::const_iterator iterMEs = DigiMEs.begin() ; iterMEs!=DigiMEs.end() ; iterMEs++) {
     uint32_t detid = iterMEs->first; ModMEs local_modmes = iterMEs->second; // get detid and type of ME
