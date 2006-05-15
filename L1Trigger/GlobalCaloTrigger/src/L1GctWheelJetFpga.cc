@@ -35,7 +35,7 @@ void L1GctWheelJetFpga::reset()
     m_tauJets.clear();
     m_tauJets.resize(MAX_JETS_OUT);
     
-    for (int i=0; i<3; ++i) 
+    for (int i=0; i<MAX_LEAF_CARDS; ++i) 
     {
         m_inputHt[i].reset();
     }
@@ -49,7 +49,7 @@ void L1GctWheelJetFpga::reset()
 void L1GctWheelJetFpga::fetchInput()
 {
     //Get Jets
-    for(unsigned short iLeaf = 0; i < MAX_LEAF_CARDS; ++iLeaf)
+    for(unsigned short iLeaf = 0; iLeaf < MAX_LEAF_CARDS; ++iLeaf)
     {
         assert(m_inputLeafCards[iLeaf] != 0);  //check that the pointers have been set up!
 
@@ -64,24 +64,18 @@ void L1GctWheelJetFpga::fetchInput()
     }
 }
 
-// For STL sorting... binary predicate for sorting jet ranks
-bool rankGreaterThan (L1GctJetCand jet1, L1GctJetCand jet2)
-{
-   return (jet1.getRank() > jet2.getRank());
-}
-
 void L1GctWheelJetFpga::process()
 {
     classifyJets();
 
-    sort(m_rawCentralJets.begin(), m_rawCentralJets.end(), rankGreaterThan);
-    sort(m_rawForwardJets.begin(), m_rawForwardJets.end(), rankGreaterThan);
-    sort(m_rawTauJets.begin(), m_rawTauJets.end(), rankGreaterThan);
+    sort(m_rawCentralJets.begin(), m_rawCentralJets.end(), L1GctJetCand::rankGreaterThan());
+    sort(m_rawForwardJets.begin(), m_rawForwardJets.end(), L1GctJetCand::rankGreaterThan());
+    sort(m_rawTauJets.begin(), m_rawTauJets.end(), L1GctJetCand::rankGreaterThan());
     
-    for(UShort iJet = 0; iJet < MAX_JETS_OUT; ++i)
+    for(unsigned short iJet = 0; iJet < MAX_JETS_OUT; ++iJet)
     {
         m_centralJets[iJet] = m_rawCentralJets[iJet];
-        m_fowardJets[iJet] = m_rawFowardJets[iJet];
+        m_forwardJets[iJet] = m_rawForwardJets[iJet];
         m_tauJets[iJet] = m_rawTauJets[iJet];
     }
 
@@ -123,7 +117,7 @@ void L1GctWheelJetFpga::process()
     
 }
 
-void L1GctWheelJetFpga::setInputLeafCards(int i, L1GctJetLeafCard* card)
+void L1GctWheelJetFpga::setInputLeafCard(int i, L1GctJetLeafCard* card)
 {
     assert(i >= 0 && i < MAX_LEAF_CARDS);
     m_inputLeafCards[i] = card;
@@ -156,7 +150,7 @@ void L1GctWheelJetFpga::setInputHt (int i, unsigned ht)
         bitset<NUM_BITS_ENERGY_DATA> htBits(htVal);
         if (htOfl) {htBits.set(OVERFLOW_BIT);}
 
-        inputHt[i] = htBits;
+        m_inputHt[i] = htBits;
     }
 } 
 
@@ -185,13 +179,13 @@ void L1GctWheelJetFpga::classifyJets()
      
     for(currentJet = m_inputJets.begin(); currentJet != m_inputJets.end(); ++currentJet)
     {
-        if(currentJet->getEta() >= L1GctJetCand::LOCAL_ETA_HF_START)  //forward jet
+        if(currentJet->eta() >= L1GctJetCand::LOCAL_ETA_HF_START)  //forward jet
         {
             m_rawForwardJets.push_back(currentJet->convertToGlobalJet(jetFinderIndex, m_id));
         }
         else
         {
-            if(currentJet->getTauVeto() == true)  //central non-tau jet.
+            if(currentJet->tauVeto() == true)  //central non-tau jet.
             {
                 m_rawCentralJets.push_back(currentJet->convertToGlobalJet(jetFinderIndex, m_id));
             }

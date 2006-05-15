@@ -3,11 +3,10 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
 #include <vector>
 #include <bitset>
-
-class L1GctJetLeafCard;
 
 class L1GctWheelJetFpga : public L1GctProcessor
 {
