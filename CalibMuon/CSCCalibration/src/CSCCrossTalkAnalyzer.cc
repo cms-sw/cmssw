@@ -27,7 +27,7 @@
 
 CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
   
-  eventNumber=0,evt=0;
+  eventNumber=0,evt=0, Nddu=0;
   strip=0,misMatch=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1;
@@ -42,37 +42,47 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
     new_lchi2[i]                 = -999.;
     newPeakTime[i]               = -999.;
     newMeanPeakTime[i]           = -999.;
+   
   }
   
-  for (int i=0; i<CHAMBERS; i++){
-    for (int j=0; j<LAYERS; j++){
-      for (int k=0; k<STRIPS; k++){
-        for (int l=0; l<TIMEBINS*20; l++){
-          thetime[i][j][k][l]       = 0.0;
-          thebins[i][j][k][l]       = 0  ;
-          theadccountsc[i][j][k][l] = 0  ;
-          theadccountsl[i][j][k][l] = 0  ;
-          theadccountsr[i][j][k][l] = 0  ;
-        }
+
+  for (int i=0;i<CHAMBERS;i++){
+    size[i]                      = 0;
+  }
+
+  for (int iii=0;iii<DDU;iii++){
+    for (int i=0; i<CHAMBERS; i++){
+      for (int j=0; j<LAYERS; j++){
+	for (int k=0; k<STRIPS; k++){
+	  for (int l=0; l<TIMEBINS*20; l++){
+	    thetime[iii][i][j][k][l]       = 0.0;
+	    thebins[iii][i][j][k][l]       = 0  ;
+	    theadccountsc[iii][i][j][k][l] = 0  ;
+	    theadccountsl[iii][i][j][k][l] = 0  ;
+	    theadccountsr[iii][i][j][k][l] = 0  ;
+	  }
+	}
       }
     }
   }
-  
-  for (int i=0; i<CHAMBERS; i++){
-    for (int j=0; j<LAYERS; j++){
-      for (int k=0; k<STRIPS; k++){
-        xtalk_intercept_left[i][j][k]  = -999.;
-        xtalk_intercept_right[i][j][k] = -999.;
-        xtalk_slope_left[i][j][k]      = -999.;
-        xtalk_slope_right[i][j][k]     = -999.;
-        xtalk_chi2_left[i][j][k]       = -999.;
-        xtalk_chi2_right[i][j][k]      = -999.;
-        myPeakTime[i][j][k]            =  0.0 ;
-        myMeanPeakTime[i][j][k]        =  0.0 ;
-        array_meanPeakTime[i][j][k]    = -999.;
+
+  for (int iii=0;iii<DDU;iii++){
+    for (int i=0; i<CHAMBERS; i++){
+      for (int j=0; j<LAYERS; j++){
+	for (int k=0; k<STRIPS; k++){
+	  xtalk_intercept_left[iii][i][j][k]  = -999.;
+	  xtalk_intercept_right[iii][i][j][k] = -999.;
+	  xtalk_slope_left[iii][i][j][k]      = -999.;
+	  xtalk_slope_right[iii][i][j][k]     = -999.;
+	  xtalk_chi2_left[iii][i][j][k]       = -999.;
+	  xtalk_chi2_right[iii][i][j][k]      = -999.;
+	  myPeakTime[iii][i][j][k]            =  0.0 ;
+	  myMeanPeakTime[iii][i][j][k]        =  0.0 ;
+	  array_meanPeakTime[iii][i][j][k]    = -999.;
+	}
       }
-    }
-  }  
+    }  
+  }
 }
 
 void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
@@ -96,11 +106,11 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
       
       evt++;      
-      for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
+      for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) { 
 	
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
-	
+	Nddu = dduData.size();
 	reportedChambers += dduData[iDDU].header().ncsc();
 	NChambers = cscData.size();
 	int repChambers = dduData[iDDU].header().ncsc();
@@ -120,10 +130,11 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
               if(crateID[chamber] == 255) continue;
 	      
               for (unsigned int i=0; i<digis.size(); i++){
-                int strip = digis[i].getStrip();
+                size[chamber] = digis.size();
+		int strip = digis[i].getStrip();
                 std::vector<int> adc = digis[i].getADCCounts();
 		
-                int offset = evt / 20;
+		int offset = evt / 20;
                 int smain[5],splus[5],sminus[5]; //5 for CFEBs
                 for(int s=0;s<5;s++) smain[s]  = s*16+offset;
                 for(int s=0;s<5;s++) splus[s]  = s*16+offset+1;
@@ -142,12 +153,12 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 		    
                     int kk=8*k-evt%20+19;//19 to zero everything, for binning 120
 		    
-                    thebins[chamber][layer-1][strip-1][kk] = 8*k-evt%20+19;
-		    thetime[chamber][layer-1][strip-1][kk] = time;
+                    thebins[iDDU][chamber][layer-1][strip-1][kk] = 8*k-evt%20+19;
+		    thetime[iDDU][chamber][layer-1][strip-1][kk] = time;
 		    
-                    if(iuse==strip-1)  theadccountsc[chamber][layer-1][iuse][kk] = adc[k];
-                    if(iuse==strip)    theadccountsr[chamber][layer-1][iuse][kk] = adc[k];
-                    if(iuse==strip-2)  theadccountsl[chamber][layer-1][iuse][kk] = adc[k];
+                    if(iuse==strip-1)  theadccountsc[iDDU][chamber][layer-1][iuse][kk] = adc[k];
+                    if(iuse==strip)    theadccountsr[iDDU][chamber][layer-1][iuse][kk] = adc[k];
+                    if(iuse==strip-2)  theadccountsl[iDDU][chamber][layer-1][iuse][kk] = adc[k];
 		    
                   }//end loop over timebins
                 }//end iuse!=99
@@ -166,4 +177,3 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CSCCrossTalkAnalyzer)
-  
