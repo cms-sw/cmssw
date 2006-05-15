@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2006/04/18 18:15:19 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/26 13:11:21 $
+ * $Revision: 1.4 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -12,7 +12,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -97,7 +97,7 @@ void EBPedOffset::analyze (Event const& event,
          headerItr != DCCHeaders->end () ; 
 	     ++headerItr ) 
      {
-       EcalDCCEventSettings settings = headerItr->getEventSettings () ;
+       EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings () ;
        DACvalues[getHeaderSMId (headerItr->id ())] = settings.ped_offset ;
 //       std::cout << "DCCid: " << headerItr->id () << "\n" ;
 //       std::cout << "Ped offset DAC: " << settings.ped_offset << "\n" ;

@@ -1,8 +1,8 @@
 /**
  * \file testChannel.cc
  *
- * $Date:  $
- * $Revision:  $
+ * $Date: 2006/04/18 13:54:05 $
+ * $Revision: 1.1 $
  * \author P. Govoni (testChannel.govoni@cernNOSPAM.ch)
  *
 */
@@ -82,7 +82,7 @@ void testChannel::analyze (Event const& event,
          headerItr != DCCHeaders->end () ; 
 	     ++headerItr ) 
      {
-       EcalDCCEventSettings settings = headerItr->getEventSettings () ;
+       EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings () ;
        DACvalues[getHeaderSMId (headerItr->id ())] = settings.ped_offset ;
 //       std::cout << "DCCid: " << headerItr->id () << "\n" ;
 //       std::cout << "Ped offset DAC: " << settings.ped_offset << "\n" ;
