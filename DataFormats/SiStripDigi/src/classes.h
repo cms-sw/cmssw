@@ -49,13 +49,6 @@ namespace {
   }
 }
 
-#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-namespace {
-  namespace {
-    edm::Wrapper<StripDigiCollection> collection;
-  }
-}
-
 #endif // DataFormats_SiStripDigi_Classes_H
 
 
