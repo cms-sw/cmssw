@@ -7,7 +7,7 @@
    <PartSelector path="//HTS.*" />
    <PartSelector path="//.*HES.*" />
    <Parameter name="SensitiveDetector" value="HcalSensitiveDetector" eval="false"/>
-   <Parameter name="ReadOutName" value="TBHcal04Hits" eval="false"/>
+   <Parameter name="ReadOutName" value="HcalHits" eval="false"/>
    <Parameter name="phioff"   value="20.0*deg"/>
    <Parameter name="phioff"   value="20.0*deg"/>
    <Parameter name="phioff"   value="0.0*deg"/>
@@ -231,7 +231,7 @@
   <SpecPar name="ecal">
    <PartSelector path="//HcalTBXtalCrystal"/>
    <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
-   <Parameter name="ReadOutName" value="TBXtal04Hits" eval="false"/>
+   <Parameter name="ReadOutName" value="EcalHitsEB" eval="false"/>
   </SpecPar>  
 </SpecParSection>
 
