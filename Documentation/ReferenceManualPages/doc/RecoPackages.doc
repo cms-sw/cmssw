@@ -22,7 +22,6 @@ Definition of classes modelling Reco low level objects.
    - \ref DataFormats_CSCRecHit "CSCRecHit"
    - \ref DataFormats_DTRecHit "DTRecHit"
    - \ref DataFormats_RPCRecHit "RPCRecHit"
-
  - \ref DataFormats_CaloTowers "CaloTowers": Calorimetric projective towers for Jet and MET reconstruction.
 
 - <b>DataFormats: Candidate model</b><br>
