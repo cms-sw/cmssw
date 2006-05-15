@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoEcal/EgammaClusterAlgos/interface/HybridClusterAlgo.h"
-
+#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 
 //
 
