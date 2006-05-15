@@ -10,7 +10,9 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/LogPositionCalc.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoEcal/EgammaCoreTools/interface/LogPositionCalc.h"
 #include <vector>
+#include <set>
 
 struct less_mag : public std::binary_function<EcalRecHit, EcalRecHit, bool> {
   bool operator()(EcalRecHit x, EcalRecHit y) { return x.energy() > y.energy() ; }
@@ -26,8 +28,8 @@ class HybridClusterAlgo
   double Eseed;
   // Map of DetId, bool is if Det has been 
   // used already.
-  std::map<EBDetId, std::pair<EcalRecHit, bool> >  rechits_m;
-
+  std::map<EBDetId, EcalRecHit>  rechits_m;
+  std::set<EBDetId> useddetids;
   // The vector of seeds:
   std::vector<EcalRecHit> seeds;
   std::map<int, std::vector<reco::BasicCluster> > _clustered;
@@ -54,8 +56,8 @@ class HybridClusterAlgo
   }
   
   //  void makeClusters(EcalRecHitCollection & rechits, const CaloSubdetectorGeometry & geometry, reco::BasicClusterCollection &basicClusters);
-  void makeClusters(EcalRecHitCollection & rechits, edm::ESHandle<CaloGeometry> , reco::BasicClusterCollection &basicClusters);
-
+  //  void makeClusters(EcalRecHitCollection & rechits, edm::ESHandle<CaloGeometry> , reco::BasicClusterCollection &basicClusters);
+  void makeClusters(std::map<EBDetId, EcalRecHit>, edm::ESHandle<CaloGeometry> , reco::BasicClusterCollection &basicClusters);
   reco::SuperClusterCollection makeSuperClusters(reco::BasicClusterRefVector);
 
   void mainSearch( const CaloSubdetectorGeometry geometry);
