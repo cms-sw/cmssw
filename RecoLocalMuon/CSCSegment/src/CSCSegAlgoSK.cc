@@ -1,8 +1,8 @@
 /**
  * \file CSCSegAlgoSK.cc
  *
- *  $Date: 2006/04/01 10:10:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/08 17:45:13 $
+ *  $Revision: 1.6 $
  *  \author M. Sani
  */
  
@@ -60,10 +60,10 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
         for(unsigned int j=i+1; j < rechits.size(); j++) {
 			
             const CSCLayer* l1 = theChamber->layer(rechits[i].cscDetId().layer());
-            GlobalPoint gp1 = l1->surface().toGlobal(rechits[i].localPosition());	
+            GlobalPoint gp1 = l1->toGlobal(rechits[i].localPosition());	
 
             const CSCLayer* l2 = theChamber->layer(rechits[j].cscDetId().layer());
-            GlobalPoint gp2 = l2->surface().toGlobal(rechits[j].localPosition());	
+            GlobalPoint gp2 = l2->toGlobal(rechits[j].localPosition());	
             float zi = gp1.z();
             float zj = gp2.z();
 
@@ -140,9 +140,9 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
                     proto_segment.clear();
 					
                     const CSCLayer* l1 = theChamber->layer(h1.cscDetId().layer());
-                    GlobalPoint gp1 = l1->surface().toGlobal(h1.localPosition());					
+                    GlobalPoint gp1 = l1->toGlobal(h1.localPosition());					
                     const CSCLayer* l2 = theChamber->layer(h2.cscDetId().layer());
-                    GlobalPoint gp2 = l2->surface().toGlobal(h2.localPosition());					
+                    GlobalPoint gp2 = l2->toGlobal(h2.localPosition());					
                     LogDebug("CSC") << "start new segment from hits " << "h1: " << gp1 << " - h2: " << gp2 << "\n";
 					
                     if (!addHit(h1, layer1)) { 
@@ -174,12 +174,16 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
                             // calculate error matrix
                             AlgebraicSymMatrix errors = calculateError();	
                             
-                            // convert the coor. of the origin in the chamber reference frame
-                            const CSCLayer* l1 = theChamber->layer(proto_segment[0].cscDetId().layer());
-                            GlobalPoint gp1 = l1->surface().toGlobal(theOrigin);	
-                            LocalPoint lp = theChamber->surface().toLocal(gp1);	
+			    //@@ Tim: Surely it's ALREADY in the local frame of the chamber?
 
-                            CSCSegment temp(proto_segment, lp, theDirection, errors, theChi2); 
+                            // convert the coor. of the origin in the chamber reference frame
+			    // const CSCLayer* l1 = theChamber->layer(proto_segment[0].cscDetId().layer());
+			    // GlobalPoint gp1 = l1->toGlobal(theOrigin);	
+			    // LocalPoint lp = theChamber->toLocal(gp1);	
+			    // CSCSegment temp(proto_segment, lp, theDirection, errors, theChi2); 
+
+                            CSCSegment temp(proto_segment, theOrigin, theDirection, errors, theChi2); 
+
                             LogDebug("CSC") << "Found a segment !!!\n";
                             segments.push_back(temp);	
                         }
@@ -229,7 +233,7 @@ void CSCSegAlgoSK::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
 	    if (isHitNearSegment(h)) {
 			
 		    const CSCLayer* l1 = theChamber->layer(h.cscDetId().layer());
-            GlobalPoint gp1 = l1->surface().toGlobal(h.localPosition());		
+            GlobalPoint gp1 = l1->toGlobal(h.localPosition());		
             LogDebug("CSC") << "    hit at global " << gp1 << " is near segment\n.";
 
             // Don't consider alternate hits on layers holding the two starting points
@@ -259,9 +263,9 @@ bool CSCSegAlgoSK::areHitsCloseInLocalX(const CSCRecHit2D& h1, const CSCRecHit2D
 bool CSCSegAlgoSK::areHitsCloseInGlobalPhi(const CSCRecHit2D& h1, const CSCRecHit2D& h2) const {
 
     const CSCLayer* l1 = theChamber->layer(h1.cscDetId().layer());
-    GlobalPoint gp1 = l1->surface().toGlobal(h1.localPosition());	
+    GlobalPoint gp1 = l1->toGlobal(h1.localPosition());	
     const CSCLayer* l2 = theChamber->layer(h2.cscDetId().layer());
-    GlobalPoint gp2 = l2->surface().toGlobal(h2.localPosition());	
+    GlobalPoint gp2 = l2->toGlobal(h2.localPosition());	
   	
     float h1p = gp1.phi();
     float h2p = gp2.phi();
@@ -286,7 +290,7 @@ bool CSCSegAlgoSK::isHitNearSegment(const CSCRecHit2D& h) const {
     // phi range (-pi, +pi] not [0, 2pi
 
     const CSCLayer* l1 = theChamber->layer(h.cscDetId().layer());
-    GlobalPoint hp = l1->surface().toGlobal(h.localPosition());	
+    GlobalPoint hp = l1->toGlobal(h.localPosition());	
 
     float hphi = hp.phi();                  // in (-pi, +pi]
     if (hphi < 0.) 
@@ -308,14 +312,17 @@ bool CSCSegAlgoSK::isHitNearSegment(const CSCRecHit2D& h) const {
 }
 
 void CSCSegAlgoSK::dumpHits(const ChamberHitContainer& rechits) const {
-  	
+
+  //@@ Should this use LogInfo instead of LogDebug? The whole point of the function is output
+  //@@ so if it is called it should do something.
+
     // Dump positions of RecHit's in each CSCChamber
     ChamberHitContainerCIt it;
     LogDebug("CSC") << "CSCChamber rechit dump.\n";  	
     for(it=rechits.begin(); it!=rechits.end(); it++) {
 		
         const CSCLayer* l1 = theChamber->layer(it->cscDetId().layer());
-        GlobalPoint gp1 = l1->surface().toGlobal(it->localPosition());	
+        GlobalPoint gp1 = l1->toGlobal(it->localPosition());	
 
         LogDebug("CSC") << "Global pos.: " << gp1 << ", phi: " << gp1.phi() << ". Local position: "
             << (*it).localPosition() << ", phi: "
@@ -345,6 +352,9 @@ bool CSCSegAlgoSK::isSegmentGood(const ChamberHitContainer& rechitsInChamber) co
 void CSCSegAlgoSK::flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber, 
     BoolContainer& used ) const {
 
+  //@@ We need a robust way of testing for used hits. Checking floats for equality is not robust,
+  //@@ as was implicitly done in ORCA and explicitly here.
+
     // Flag hits on segment as used
     ChamberHitContainerCIt ib = rechitsInChamber.begin();
     ChamberHitContainerCIt hi, iu;
@@ -370,6 +380,7 @@ bool CSCSegAlgoSK::addHit(const CSCRecHit2D& aHit, int layer) {
     ChamberHitContainer::const_iterator it;
 	
     for(it = proto_segment.begin(); it != proto_segment.end(); it++)
+      //@@ We must replace tests of equality on floats
         if ((it->cscDetId().layer() == layer) && (aHit.localPosition().x() != it->localPosition().x())
             && (aHit.localPosition().y() != it->localPosition().y()))
             return false; 
@@ -415,15 +426,15 @@ void CSCSegAlgoSK::updateParameters() {
         const CSCLayer* layer1 = theChamber->layer(il1);
         const CSCLayer* layer2 = theChamber->layer(il2);
 		
-        GlobalPoint h1glopos = layer1->surface().toGlobal(h1.localPosition());
-        GlobalPoint h2glopos = layer2->surface().toGlobal(h2.localPosition());
+        GlobalPoint h1glopos = layer1->toGlobal(h1.localPosition());
+        GlobalPoint h2glopos = layer2->toGlobal(h2.localPosition());
 
         // localPosition is position of hit wrt layer (so local z = 0)
         theOrigin = h1.localPosition();
 		
         // We want hit wrt chamber (and local z will be != 0)
-        LocalPoint h1pos = theChamber->surface().toLocal(h1glopos);  
-        LocalPoint h2pos = theChamber->surface().toLocal(h2glopos);  
+        LocalPoint h1pos = theChamber->toLocal(h1glopos);  
+        LocalPoint h2pos = theChamber->toLocal(h2glopos);  
 		
         float dz = h2pos.z()-h1pos.z();
         uz = (h2pos.x()-h1pos.x())/dz ;
@@ -507,14 +518,14 @@ void CSCSegAlgoSK::fitSlopes() {
     // We solve this for the parameter vector, p.
     // The elements of M and B then involve sums over the hits
 
-  	// The 4 values in p are returned by 'CSCSegment::parameters()'
-  	// in the order uz, vz, u0, v0.
-  	// The error matrix of the parameters is obtained by 
-  	// (AT E A)^-1
-  	// calculated in 'CSCSegment::parametersErrors()'.
+    // The error matrix of the parameters is obtained by 
+    // (AT E A)^-1 calculated in 'calculateError()'.
+
+    // The 4 values in p can be accessed from 'CSCSegment::parameters()'
+    // in the order uz, vz, u0, v0.
 
   	// NOTE 1
-  	// It does the #hits = 2 case separately.
+  	// Do the #hits = 2 case separately.
   	// (I hope they're not on the same layer! They should not be, by construction.)
 
   	// NOTE 2
@@ -531,15 +542,17 @@ void CSCSegAlgoSK::fitSlopes() {
         
         const CSCRecHit2D& hit = (*ih);
         const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
-        GlobalPoint gp = layer->surface().toGlobal(hit.localPosition());
-        LocalPoint  lp  = theChamber->surface().toLocal(gp); 
+        GlobalPoint gp = layer->toGlobal(hit.localPosition());
+        LocalPoint  lp  = theChamber->toLocal(gp); 
 
         // ptc: Local position of hit w.r.t. chamber
         double u = lp.x();
         double v = lp.y();
         double z = lp.z();
 
-        // ptc: Covariance matrix of local errors MUST BE CHECKED IF COMAPTIBLE
+        // ptc: Covariance matrix of local errors 
+        // ptc: The following comment is from Matteo. What does it mean? Compatible with what?
+        // MUST BE CHECKED IF COMPATIBLE
         HepMatrix IC(2,2);
         IC(1,1) = hit.localPositionError().xx();
         IC(1,2) = hit.localPositionError().xy();
@@ -552,7 +565,8 @@ void CSCSegAlgoSK::fitSlopes() {
         if (ierr != 0) {
             LogDebug("CSC") << "CSCSegment::fitSlopes: failed to invert covariance matrix=\n" << IC << "\n";
      
-            // @@ NOW WHAT TO DO? Exception? Return? Ignore?
+            //@@ NOW WHAT TO DO? Exception? Return? Ignore?
+	    //@@ Implement throw
         }
 
         // ptc: Note that IC is no longer Cov but Cov^-1
@@ -586,6 +600,7 @@ void CSCSegAlgoSK::fitSlopes() {
     HepVector p = solve(M, B);
 
     // Update member variables uz, vz, theOrigin
+    // Note it has local z = 0
     theOrigin = LocalPoint(p(1), p(2), 0.);
     uz = p(3);
     vz = p(4);
@@ -606,8 +621,8 @@ void CSCSegAlgoSK::fillChiSquared() {
 
         const CSCRecHit2D& hit = (*ih);
         const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
-        GlobalPoint gp = layer->surface().toGlobal(hit.localPosition());
-        LocalPoint lp = theChamber->surface().toLocal(gp);  // FIX !!
+        GlobalPoint gp = layer->toGlobal(hit.localPosition());
+        LocalPoint lp = theChamber->toLocal(gp);  // FIX !!
 
         double hu = lp.x();
         double hv = lp.y();
@@ -637,52 +652,39 @@ void CSCSegAlgoSK::fillChiSquared() {
 }
 
 void CSCSegAlgoSK::fillLocalDirection() {
+  // Always enforce direction of segment to point from IP outwards
+  // (Incorrect for particles not coming from IP, of course.)
 
-    double dxdz = uz;
-    double dydz = vz;
-    
-    // We lose sign of z here
-    double dz = 1./sqrt(1. + dxdz*dxdz + dydz*dydz);
-  	
-    // x and y might also have to change sign
-    double dx = dz*dxdz;
-    double dy = dz*dydz;
+  double dxdz = uz;
+  double dydz = vz;
+  double dz = 1./sqrt(1. + dxdz*dxdz + dydz*dydz);
+  double dx = dz*dxdz;
+  double dy = dz*dydz;
+  LocalVector localDir(dx,dy,dz);
 
-    LocalVector localDir(dx,dy,dz);
-    //LocalPoint lp(theOrigin.x(), theOrigin.y(), 0);
-    
-    // localDir may need sign flip to ensure it points outward from IP
-    // ptc: Examine its direction and origin in global z: to point outward
-    // the localDir should always have same sign as global z...
+  // localDir may need sign flip to ensure it points outward from IP
+  // ptc: Examine its direction and origin in global z: to point outward
+  // the localDir should always have same sign as global z...
 
-    //const CSCLayer* l1 = theChamber->layer(proto_segment[0].cscDetId().layer());
-    //GlobalPoint gp1 = l1->surface().toGlobal(lp);	
-    //double globalZpos = gp1.z(); 				 
-    //GlobalVector gv1 = theChamber->surface().toGlobal(localDir);	
-    //double globalZdir = gv1.z();						 	 	
+  double globalZpos = ( theChamber->toGlobal( theOrigin ) ).z();
+  double globalZdir = ( theChamber->toGlobal( localDir ) ).z();
+  double directionSign = globalZpos * globalZdir;
 
-    GlobalPoint gpn = theChamber->layer(6)->surface().toGlobal(LocalPoint(0,0,0));	
-    GlobalPoint gpf = theChamber->layer(1)->surface().toGlobal(LocalPoint(0,0,0));	
-    double directionSign;    
-    if (fabs(gpn.z()) > fabs(gpf.z()))
-        directionSign = -1;
-    else
-        directionSign = +1;    
-     
-    theDirection = (directionSign * localDir).unit();
+  theDirection = (directionSign * localDir).unit();
+
 }
 
 float CSCSegAlgoSK::phiAtZ(float z) const {
   	
     // Returns a phi in [ 0, 2*pi )
     const CSCLayer* l1 = theChamber->layer(1);
-    GlobalPoint gp = l1->surface().toGlobal(theOrigin);	
-    GlobalVector gv = l1->surface().toGlobal(theDirection);	
+    GlobalPoint gp = l1->toGlobal(theOrigin);	
+    GlobalVector gv = l1->toGlobal(theDirection);	
   
     float x = gp.x() + (gv.x()/gv.z())*(z - gp.z());
     float y = gp.y() + (gv.y()/gv.z())*(z - gp.z());
     float phi = atan2(y, x);
-    if (phi < 0.f) 
+    if (phi < 0.f ) 
 	    phi += 2. * M_PI;
 
     return phi ;
@@ -778,8 +780,8 @@ HepMatrix CSCSegAlgoSK::derivativeMatrix() const {
         
         const CSCRecHit2D& hit = (*it);
         const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
-        GlobalPoint gp = layer->surface().toGlobal(hit.localPosition());    	
-        LocalPoint lp = theChamber->surface().toLocal(gp); 
+        GlobalPoint gp = layer->toGlobal(hit.localPosition());    	
+        LocalPoint lp = theChamber->toLocal(gp); 
         float z = lp.z();
         ++row;
         matrix(row, 1) = 1.;
