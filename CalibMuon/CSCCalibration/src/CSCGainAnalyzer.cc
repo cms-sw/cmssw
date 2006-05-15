@@ -1,6 +1,6 @@
 /** 
  * Analyzer for reading CSC pedestals.
- * author O.Boeriu 18/03/06 
+ * author S. Durkin, O.Boeriu 18/03/06 
  * ripped from Jeremy's and Rick's analyzers
  *   
  */
@@ -32,7 +32,7 @@
 
 CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
   
-  eventNumber=0,evt=0;
+  eventNumber=0,evt=0,Nddu=0;
   strip=0,misMatch=0,NChambers=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1,gainSlope=-999.0,gainIntercept=-999.0;
@@ -47,21 +47,28 @@ CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
     }
   }
   
+
   for (int i=0; i<CHAMBERS; i++){
-    for (int j=0; j<LAYERS; j++){
-      for (int k=0; k<STRIPS; k++){
-	arrayOfGain[i][j][k]       = -999.0;
-	arrayOfGainSquare[i][j][k] = -999.0;
-	arrayOfGain[i][j][k]       = -999.0;
-	arrayOfIntercept[i][j][k]  = -999.0;
-	arrayOfInterceptSquare[i][j][k]=-999.0;
-	arrayOfChi2[i][j][k]       = -999.0;
-	adcMax[i][j][k]            = -999.0;
-	adcMean_max[i][j][k]       = -999.0;
+    size[i]  = 0;
+  }
+
+  for (int iii=0;iii<DDU;iii++){
+    for (int i=0; i<CHAMBERS; i++){
+      for (int j=0; j<LAYERS; j++){
+	for (int k=0; k<STRIPS; k++){
+	  arrayOfGain[iii][i][j][k]       = -999.0;
+	  arrayOfGainSquare[iii][i][j][k] = -999.0;
+	  arrayOfGain[iii][i][j][k]       = -999.0;
+	  arrayOfIntercept[iii][i][j][k]  = -999.0;
+	  arrayOfInterceptSquare[iii][i][j][k]=-999.0;
+	  arrayOfChi2[iii][i][j][k]       = -999.0;
+	  adcMax[iii][i][j][k]            = -999.0;
+	  adcMean_max[iii][i][j][k]       = -999.0;
+	}
       }
     }
   }
-  
+
   for (int i=0; i<480; i++){
     newGain[i]     =0.0;
     newIntercept[i]=0.0;
@@ -103,7 +110,7 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
-	
+	Nddu = dduData.size();
 	reportedChambers += dduData[iDDU].header().ncsc();
 	NChambers = cscData.size();
 	int repChambers = dduData[iDDU].header().ncsc();
@@ -123,21 +130,22 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	      if(crateID[i_chamber] == 255) continue;
 	      
 	      for (unsigned int i=0; i<digis.size(); i++){
+		size[i_chamber] = digis.size();
 		std::vector<int> adc = digis[i].getADCCounts();
 		strip = digis[i].getStrip();
-		adcMax[i_chamber][i_layer-1][strip-1]=-99.0; 
+		adcMax[iDDU][i_chamber][i_layer-1][strip-1]=-99.0; 
 		for(unsigned int k=0; k<adc.size(); k++){
 		  float ped=(adc[0]+adc[1])/2.;
-		  if(adc[k]-ped > adcMax[i_chamber][i_layer-1][strip-1]) {
-		    adcMax[i_chamber][i_layer-1][strip-1]=adc[k]-ped;
+		  if(adc[k]-ped > adcMax[iDDU][i_chamber][i_layer-1][strip-1]) {
+		    adcMax[iDDU][i_chamber][i_layer-1][strip-1]=adc[k]-ped;
 		  }
 		}
-		adcMean_max[i_chamber][i_layer-1][strip-1] += adcMax[i_chamber][i_layer-1][strip-1]/20.;  
+		adcMean_max[iDDU][i_chamber][i_layer-1][strip-1] += adcMax[iDDU][i_chamber][i_layer-1][strip-1]/20.;  
 		
 		//On the 10th event save
 		if (evt%20 == 0 && (strip-1)%16 == (evt-1)/NUMMODTEN){
 		  int ten = int((evt-1)/20)%NUMBERPLOTTED ;
-		  maxmodten[ten][i_chamber][i_layer-1][strip-1] = adcMean_max[i_chamber][i_layer-1][strip-1];
+		  maxmodten[ten][i_chamber][i_layer-1][strip-1] = adcMean_max[iDDU][i_chamber][i_layer-1][strip-1];
 		}
 	      }//end digis loop
 	    }//end cfeb.available loop
@@ -145,14 +153,17 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	}//end chamber loop
 	
 	if((evt-1)%20==0){
-	  for(int ii=0; ii<CHAMBERS; ii++){
-	    for(int jj=0; jj<LAYERS; jj++){
-	      for(int kk=0; kk<STRIPS; kk++){
-		adcMean_max[ii][jj][kk]=0.0;
+	  for(int iii=0;iii<DDU;iii++){
+	    for(int ii=0; ii<CHAMBERS; ii++){
+	      for(int jj=0; jj<LAYERS; jj++){
+		for(int kk=0; kk<STRIPS; kk++){
+		  adcMean_max[iii][ii][jj][kk]=0.0;
+		}
 	      }
 	    }
 	  }
 	}
+
       	eventNumber++;
 	edm::LogInfo ("CSCGainAnalyzer")  << "end of event number " << eventNumber;
       }
@@ -162,3 +173,8 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CSCGainAnalyzer)
+
+
+
+
+
