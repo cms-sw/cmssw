@@ -11,7 +11,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.3 2005/10/06 11:02:55 meridian Exp $
+ *  $Id: EEDetId.h,v 1.4 2006/02/05 12:34:03 meridian Exp $
  */
 
 
@@ -67,6 +67,8 @@ class EEDetId : public DetId {
   static const int iYoffset[nCols+1];
   int ix(int iSC,int iCrys) const;
   int iy(int iSC,int iCrys) const;
+  /// check if a valid index combination
+  bool validDetId(int i, int j, int iz) const;
 };
 
 
