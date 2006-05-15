@@ -47,6 +47,12 @@ In all cases, the elements are of type <tt>Double32_t</tt>, i.e.: are stored by 
   - math::ErrorD<N>::type: same as above, with <tt>double</tt> elements.
   - math::ErrorF<N>::type: same as above, with <tt>float</tt> elements.
 
+\subsection dictionaries Dictionaries
+Reflex dictionaries are created for all of the above math types, in particular
+for matrices and vectors up to <b>N=6</b>. Dictionaries are also created
+for <tt>std::vector</tt> of the math types and for edm::Wrapper corresponding
+to the math types and <tt>std::vector</tt> of the math types.
+
 \subsection modules Modules
 None.
 
