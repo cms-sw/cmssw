@@ -21,8 +21,8 @@
  * Reimplemented in terms of layer index, and bug fix: Tim.Cox@cern.ch <BR>
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- *  $Date: 2006/04/01 10:10:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/08 17:45:13 $
+ *  $Revision: 1.4 $
  *  \author M. Sani
  */
 
@@ -110,6 +110,10 @@ private:
     void updateParameters(void);
     void fitSlopes(void);
     void fillChiSquared(void);
+    /**
+     * Always enforce direction of segment to point from IP outwards
+     * (Incorrect for particles not coming from IP, of course.)
+     */
     void fillLocalDirection(void);
     float phiAtZ(float z) const;
     bool hasHitOnLayer(int layer) const;
