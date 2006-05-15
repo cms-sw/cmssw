@@ -12,10 +12,16 @@
 // fec
 #include "deviceDescription.h"
 #include "apvDescription.h"
+#include "muxDescription.h"
+#include "pllDescription.h"
 #include "dcuDescription.h"
 #include "laserdriverDescription.h"
+//#include "TkDcuInfo.h"
+//#include "TkDcuConversionFactors.h"
+#include "deviceType.h"
 #include "tscTypes.h"
 #include "keyType.h"
+#include "FecExceptionHandler.h"
 // fed
 #include "Fed9UUtils.hh"
 // boost
@@ -23,8 +29,6 @@
 // std
 #include <vector>
 #include <string>
-
-using namespace std;
 
 /**	
    \class SiStripConfigDb
@@ -37,10 +41,10 @@ class SiStripConfigDb {
 
  public: // ----- PUBLIC INTERFACE -----
   
-  SiStripConfigDb( string user, 
-		   string passwd, 
-		   string path, 
-		   string partition = "" ); 
+  SiStripConfigDb( std::string user, 
+		   std::string passwd, 
+		   std::string path, 
+		   std::string partition = "" ); 
   ~SiStripConfigDb();
   
   // ----- TYPEDEFS AND STRUCTS -----
@@ -55,39 +59,48 @@ class SiStripConfigDb {
   };
 
   void fromXml( const bool& from_xml ) { fromXml_ = from_xml; }
-  void xmlFile( const string& xml_file ) { xmlFile_ = xml_file; }
+  void xmlFile( const std::string& xml_file ) { xmlFile_ = xml_file; }
 
-  // ----- PARTITION HANDLING -----
+  // ----- DATABASE AND PARTITIONS -----
+
+  /** Returns pointer to DeviceFactory object. */
+  inline DeviceFactory* deviceFactory() { return factory_; }
 
   /** Returns partition name. */
-  string partitionName();
+  std::string partitionName();
   /** Returns major/minor versions for given partition name. */
-  pair<int16_t,int16_t> partitionVersion( string partition_name );
+  pair<int16_t,int16_t> partitionVersion( std::string partition_name );
   
   // ----- FRONT-END <-> FED CONNECTIONS -----
   
-  vector<FedChannelConnectionDescription*>& fedConnections( bool clear_cache = false );
+  std::vector<FedChannelConnectionDescription*>& fedConnections( bool clear_cache = false );
   
-  // ----- FRONT END CONTROLLER AND FE DEVICES ----- 
+  // ----- FRONT END DEVICES ----- 
   
   /** Returns HW addresses uniquely identifying a device. */
   DeviceAddress hwAddresses( deviceDescription& description );
   /** Returns all devices correponding to a given device type. */
   void feDevices( enumDeviceType device_type, deviceVector& devices );
   /** Returns APV descriptions. */
-  void apvDescriptions( vector<apvDescription*>& apv_descriptions );
+  void apvDescriptions( std::vector<apvDescription*>& apv_descriptions );
   /** Returns DCU descriptions. */
-  void dcuDescriptions( vector<dcuDescription*>& dcu_descriptions );
+  void dcuDescriptions( std::vector<dcuDescription*>& dcu_descriptions );
   /** Returns laser driver (AOH) descriptions. */
-  void aohDescriptions( vector<laserdriverDescription*>& aoh_descriptions ) {;}
+  void aohDescriptions( std::vector<laserdriverDescription*>& aoh_descriptions ) {;}
   
   // ----- FRONT END DRIVER -----
   
   /** Returns FED descriptions. */
-  void fedDescriptions( vector<Fed9U::Fed9UDescription*>& fed_descriptions );
+  void fedDescriptions( std::vector<Fed9U::Fed9UDescription*>& fed_descriptions );
   /** Returns FED identifiers. */
-  void fedIds( vector<uint16_t>& fed_ids );
+  void fedIds( std::vector<uint16_t>& fed_ids );
   
+  // ----- DCUs ------
+
+/*   /\** *\/ */
+/*   void setDefaultDcuConversionFactors( const std::vector<TkDcuInfo*>&,  */
+/* 				       const std::string& partition_name ) throw (FecExceptionHandler); */
+
  private: // ----- PRIVATE METHODS -----
   
   bool openDbConnection();
@@ -102,22 +115,22 @@ class SiStripConfigDb {
   // ----- DATABASE-RELATED -----
   
   DeviceFactory* factory_; 
-  string user_;
-  string passwd_;
-  string path_;
+  std::string user_;
+  std::string passwd_;
+  std::string path_;
   bool fromXml_;
-  string xmlFile_;
+  std::string xmlFile_;
 
   // ----- PARTITIONS AND VERSIONING -----
 
-  string partition_;
+  std::string partition_;
   
   // ----- DEVICES AND DESCRIPTIONS -----
 
   deviceVector allDevices_;
   deviceVector apvDevices_; //@@ needed?
   deviceVector dcuDevices_; //@@ needed?
-  vector<FedChannelConnectionDescription*> fedConnections_;
+  std::vector<FedChannelConnectionDescription*> fedConnections_;
 
 };
 
