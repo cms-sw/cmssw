@@ -26,8 +26,12 @@ LayerMeasurements::measurements( const DetLayer& layer,
     return result;
   }
 
-  GeometricSearchDetMeasurements cdm( theDetSystem);
-  return cdm.get( layer, compatDets, startingState, prop, est);
+  GeometricSearchDetMeasurements gsdm( theDetSystem);
+  vector<TrajectoryMeasurement> tmpResult = gsdm.get( layer, compatDets, startingState, prop, est);
 
-  //return std::vector<TrajectoryMeasurement>();
+  for(vector<TrajectoryMeasurement>::const_iterator tmpIt=tmpResult.begin();tmpIt!=tmpResult.end();tmpIt++){
+    result.push_back(  TrajectoryMeasurement(tmpIt->predictedState(),tmpIt->recHit(),tmpIt->estimate(),&layer)  );
+  }
+  
+  return result;
 }
