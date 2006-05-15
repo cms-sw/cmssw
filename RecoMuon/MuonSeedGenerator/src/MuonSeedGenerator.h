@@ -4,7 +4,7 @@
 /** \class MuonSeedGenerator
  *  No description available.
  *
- *  $Date: 2006/03/24 11:43:48 $
+ *  $Date: 2006/04/26 07:06:05 $
  *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino
  */
@@ -16,14 +16,14 @@
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class TrackingRecHit;
 class MuonSeedFinder;
+class TransientTrackingRecHit;
 
 class MuonSeedGenerator: public edm::EDProducer {
 
   //FIXME
  public:
-  typedef std::vector<TrackingRecHit>       RecHitContainer;
+  typedef std::vector<TransientTrackingRecHit*>  RecHitContainer;
   typedef RecHitContainer::const_iterator   RecHitIterator;
  public:
   /// Constructor
@@ -39,10 +39,16 @@ class MuonSeedGenerator: public edm::EDProducer {
  protected:
 
  private:
-  void complete(MuonSeedFinder& seed,RecHitContainer recHits, bool* used=0) const;
+  void complete(MuonSeedFinder& seed,RecHitContainer &recHits, bool* used=0) const;
   void checkAndFill(MuonSeedFinder& Theseed);
 
-  TrajectorySeedCollection theSeeds;
+  // FIXME: change in OwnVector
+  std::vector<TrajectorySeed> theSeeds;
+
+  /// the name of the DT rec hits collection
+  std::string theDTRecSegmentLabel;
+  /// the name of the CSC rec hits collection
+  std::string theCSCRecSegmentLabel;
 
 };
 #endif

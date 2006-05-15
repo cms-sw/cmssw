@@ -1,11 +1,16 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=Foundation/PluginManager>
 <use name=DataFormats/Common>
+<use name=TrackingTools/TransientTrackingRecHit>
+<use name=TrackPropagation/SteppingHelixPropagator>
 <use name=RecoMuon/TrackingTools>
+<use name=RecoMuon/DetLayers>
+<use name=RecoMuon/MeasurementDet>
 
 <use name=CLHEP>
 <use name=root>
+<use name=gsl>
 
 <flags SEAL_PLUGIN_NAME="RecoMuonMuonSeedGenerator">
 
@@ -13,13 +18,16 @@
    <lib name=RecoMuonMuonSeedGenerator>
 
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
+   <use name=Foundation/PluginManager>
    <use name=DataFormats/Common>
+   <use name=TrackingTools/TransientTrackingRecHit>
+   <use name=TrackPropagation/SteppingHelixPropagator>
    <use name=RecoMuon/TrackingTools>
+   <use name=RecoMuon/DetLayers>
+   <use name=RecoMuon/MeasurementDet>
 
    <use name=CLHEP>
    <use name=root>
-
-
+   <use name=gsl>
 </export>

@@ -12,10 +12,7 @@
  *
  */
 
-// FIXME!! It's dummy
-#include "DataFormats/TrackReco/interface/RecHit.h" 
-//was
-//#include "CommonDet/BasicDet/interface/RecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 // was
@@ -25,22 +22,29 @@
 
 #include <vector>
 
+class TransientTrackingRecHit;
+
 class RecHit;
 class BoundPlane;
 
 class MuonSeedFromRecHits {
-  typedef std::vector<RecHit>               RecHitContainer;
+  typedef std::vector<TransientTrackingRecHit*>       RecHitContainer;
   typedef RecHitContainer::const_iterator   RecHitIterator;
 
   public:
+  MuonSeedFromRecHits(){
+    debug = true;
+  }
 
-  void add(const RecHit& hit) { theRhits.push_back(hit); }
+  void add(TransientTrackingRecHit* hit) { theRhits.push_back(hit); }
   TrajectorySeed seed() const;
-  const RecHit& rhit() const { return theRhits.front(); }
+  const TransientTrackingRecHit* firstRecHit() const { return theRhits.front(); }
   unsigned int nrhit() const { return  theRhits.size(); }
 
   private:
-  RecHit best_cand() const;
+  TransientTrackingRecHit *best_cand() const;
+  // was
+  // TrackingRecHit best_cand() const;
 
   void computePtWithVtx(double* pt, double* spt) const;
   void computePtWithoutVtx(double* pt, double* spt) const;
@@ -50,6 +54,7 @@ class MuonSeedFromRecHits {
 
   private:
   RecHitContainer theRhits;
+  bool debug;
 };
 
 #endif

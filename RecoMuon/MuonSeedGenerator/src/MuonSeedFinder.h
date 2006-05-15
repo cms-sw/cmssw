@@ -8,35 +8,31 @@
  *
  *  \author porting R. Bellan - INFN Torino
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/03/24 11:43:48 $
+ *  $Revision: 1.1 $
  *  
  */
-
-// FIXME!! It's dummy
-#include "DataFormats/TrackReco/interface/RecHit.h" 
-//was
-//#include "CommonDet/BasicDet/interface/RecHit.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 // was
 //#include "CommonDet/PatternPrimitives/interface/TrajectoryStateOnSurface.h"
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 // was a vector of
 //#include "Muon/MuonSeedGenerator/interface/MuonTrajectorySeed.h"
 
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+
 #include <vector>
-
-//class RecHit;
-//class BoundPlane;
-
 
 class MuonSeedFinder {
 
   //FIXME
 public:
-  typedef std::vector<RecHit>               RecHitContainer;
+  
+  typedef std::vector<TransientTrackingRecHit*>       RecHitContainer;
   typedef RecHitContainer::const_iterator   RecHitIterator;
 
 public:
@@ -44,24 +40,25 @@ public:
   MuonSeedFinder();
 
   /// Destructor
-  virtual ~MuonSeedFinder();
+  virtual ~MuonSeedFinder(){};
 
   // Operations
 
-  void add(const RecHit& hit) { theRhits.push_back(hit); }
+  void add(TransientTrackingRecHit* hit) { theRhits.push_back(hit); }
   
-  TrajectorySeedCollection seeds() const;
-  const RecHit& rhit() const { return theRhits.front(); }
+  std::vector<TrajectorySeed> seeds() const;
+  TransientTrackingRecHit *firstRecHit() const { return theRhits.front(); }
   unsigned int nrhit() const { return  theRhits.size(); }
   
 private:
-  RecHit best_cand(RecHit* rhit=0) const;
-  bool createEndcapSeed(RecHit me, TrajectorySeedCollection& theSeeds) const;
+  //  TrackingRecHit best_cand(TrackingRecHit* rhit=0) const;
+  bool createEndcapSeed(TransientTrackingRecHit *me, std::vector<TrajectorySeed>& theSeeds) const;
   
   RecHitContainer theRhits;
  
   // put a parameterSet instead of
   // static SimpleConfigurable<float> theMinMomentum;
   float theMinMomentum;
+  bool debug;
 };
 #endif
