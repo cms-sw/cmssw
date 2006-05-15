@@ -23,7 +23,6 @@ public:
 
 private:    
   double curve_Castor(G4String& , G4StepPoint*); 
-  int                     verbosity;
   CastorNumberingScheme * numberingScheme;
 };
 

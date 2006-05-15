@@ -1,21 +1,19 @@
 ///////////////////////////////////////////////////////////////////////////////
 // File: CastorNumberingScheme.h
-// Date: 02.04
 // Description: Numbering scheme for Castor
-// Modifications:
 ///////////////////////////////////////////////////////////////////////////////
 #ifndef CastorNumberingScheme_h
 #define CastorNumberingScheme_h
 
-#include "SimG4CMS/Calo/interface/CaloNumberingScheme.h"
+#include "G4Step.hh"
 #include <boost/cstdint.hpp>
 
-class CastorNumberingScheme : public CaloNumberingScheme {
+class CastorNumberingScheme {
 
 public:
 
-  CastorNumberingScheme(int);
-  ~CastorNumberingScheme();
+  CastorNumberingScheme();
+  virtual ~CastorNumberingScheme();
 
   virtual uint32_t getUnitID(const G4Step* aStep) const;
 
@@ -31,6 +29,10 @@ public:
   static uint32_t packIndex(int det, int z, int sector, int zmodule);
   static void   unpackIndex(const uint32_t& idx, int& det, int& z, 
 			    int& sector, int& zmodule);
+
+  // Utilities to get detector levels during a step
+  int  detectorLevel(const G4Step*) const;
+  void detectorLevel(const G4Step*, int&, int*, G4String*) const;
 
 private:
 

@@ -3,20 +3,19 @@
 // Description: Numbering scheme for Castor
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <iostream>
 
 #define debug
 
-CastorNumberingScheme::CastorNumberingScheme(int iv) : CaloNumberingScheme(iv){
-  if (verbosity>0) 
-    std::cout << "Creating CastorNumberingScheme" << std::endl;
+CastorNumberingScheme::CastorNumberingScheme() {
+  edm::LogInfo("ForwardSim") << "Creating CastorNumberingScheme";
 }
 
 CastorNumberingScheme::~CastorNumberingScheme() {
-  if (verbosity>0) 
-    std::cout << "Deleting CastorNumberingScheme" << std::endl;
+  edm::LogInfo("ForwardSim") << "Deleting CastorNumberingScheme";
 }
 
 uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
@@ -25,9 +24,7 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
   int      level = detectorLevel(aStep);
 
 #ifdef debug
-  if (verbosity>2) 
-    std::cout << "CastorNumberingScheme number of levels= " << level 
-	      << std::endl;
+  LogDebug("ForwardSim") << "CastorNumberingScheme number of levels= " <<level;
 #endif
 
   if (level > 0) {
@@ -56,9 +53,9 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
 	sector   = sector*2 ;
       }
 #ifdef debug
-      if (verbosity>2)
-	std::cout << "CastorNumberingScheme  " << "ich=" << ich  << "copyno" 
-		  << copyno[ich] << "name="  << name[ich] << std::endl;
+      LogDebug("ForwardSim") << "CastorNumberingScheme  " << "ich = " << ich  
+			     << "copyno" << copyno[ich] << "name = " 
+			     << name[ich];
 #endif
      }
     // use for Castor number 9 
@@ -70,14 +67,11 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
     int det = 9; 
     intindex = packIndex (det, zside, sector, zmodule);
     
-
 #ifdef debug
-    if (verbosity>1) 
-      std::cout << "CastorNumberingScheme : det " << det << " zside " 
-		<< zside << " sector " << sector << " zmodule " << zmodule
-		<< " UnitID 0x" << std::hex << intindex << std::dec 
-		<< std::endl;
-
+    LogDebug("ForwardSim") << "CastorNumberingScheme : det " << det <<" zside "
+			   << zside << " sector " << sector << " zmodule " 
+			   << zmodule << " UnitID 0x" << std::hex << intindex 
+			   << std::dec;
 #endif
 
     delete[] copyno;
@@ -104,4 +98,27 @@ void CastorNumberingScheme::unpackIndex(const uint32_t& idx, int& det, int& z,
   z  += 1;
   sector = (idx>>6)&15;
   zmodule= (idx&63);
+}
+
+int CastorNumberingScheme::detectorLevel(const G4Step* aStep) const {
+  
+  //Find number of levels
+  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
+  int level = 0;
+  if (touch) level = ((touch->GetHistoryDepth())+1);
+  return level;
+}
+  
+void CastorNumberingScheme::detectorLevel(const G4Step* aStep, int& level,
+					  int* copyno, G4String* name) const {
+ 
+  //Get name and copy numbers
+  if (level > 0) {
+    const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
+    for (int ii = 0; ii < level; ii++) {
+      int i      = level - ii - 1;
+      name[ii]   = touch->GetVolume(i)->GetName();
+      copyno[ii] = touch->GetReplicaNumber(i);
+    }
+  }
 }

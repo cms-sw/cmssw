@@ -6,6 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Forward/interface/CastorSD.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -27,22 +28,14 @@ CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
   CaloSD(name, cpv, p, manager), numberingScheme(0) {
   
   edm::ParameterSet m_CastorSD = p.getParameter<edm::ParameterSet>("CastorSD");
-  verbosity  = m_CastorSD.getParameter<int>("Verbosity");
-  int verbn  = verbosity/10;
-  verbosity %= 10;
 
-  setNumberingScheme(new CastorNumberingScheme(verbn));
-  if (verbosity > 0)
-    std::cout << "***************************************************" 
-	      << std::endl
-	      << "*                                                 *" 
-	      << std::endl
-	      << "* Constructing a CastorSD  with name " << GetName()
-	      << std::endl
-	      << "*                                                 *"
-	      << std::endl
-	      << "***************************************************"
-	      << std::endl;
+  setNumberingScheme(new CastorNumberingScheme());
+  edm::LogInfo("ForwardSim") 
+    << "***************************************************\n"
+    << "*                                                 *\n" 
+    << "* Constructing a CastorSD  with name " << GetName() << "\n"
+    << "*                                                 *\n"
+    << "***************************************************";
 }
 
 CastorSD::~CastorSD() {}
@@ -298,68 +291,57 @@ C3TF, C4TF - for third release of CASTOR
 
 
 #ifdef debug
-	
-	if (verbosity > 1) {
-	  std::cout <<" ==============================> start all information"
-		    <<":<========= " << std::endl; 
-
-
-	  std::cout <<" =====> for test:<===  " << std::endl;
-	  std::cout <<" variant = " << variant  << std::endl; 
-	  std::cout <<" thgrad = " << thgrad  << std::endl;
-	  std::cout <<" thchergrad = " << thchergrad  << std::endl;
-	  std::cout <<" DelFibPartgrad = " << DelFibPartgrad << std::endl;
-	  std::cout <<" d_qz = " << d_qz  << std::endl;
-
-	  std::cout <<" =====> Start Step Information <===  " << std::endl;
-	  std::cout <<" ===> calo preStepPoint info <===  " << std::endl;
-	  std::cout <<" hitPoint = " << hitPoint  << std::endl;
-	  std::cout <<" hitMom = " << hit_mom  << std::endl;
-	  std::cout <<" stepControlFlag = " << stepControlFlag  << std::endl;
-	  // std::cout <<" curprocess = " << curprocess << std::endl;
-	  // std::cout <<" nameProcess = " << nameProcess << std::endl;
-	  std::cout <<" charge = " << charge  << std::endl;
-	  std::cout <<" beta = " << beta << std::endl;
-	  std::cout <<" bThreshold = " << bThreshold << std::endl;
-	  std::cout <<" thgrad =" << thgrad << std::endl; 
-	  std::cout <<" effPMTandTransport=" << effPMTandTransport <<std::endl;
-	  //	 std::cout <<" volume = " << name << std::endl;
-	  std::cout <<" nameVolume = " << nameVolume << std::endl;
-	  std::cout <<" nMedium = " << nMedium << std::endl;
-	  //	 std::cout <<" rad length = " << rad << std::endl;
-	  //  std::cout <<" material = " << mat << std::endl;
-	  std::cout <<" stepl = " << stepl << std::endl; 
-	  std::cout <<" photEnSpectrDE = " << photEnSpectrDE << std::endl; 
-	  std::cout <<" edep = " << edep << std::endl;
-
-	  std::cout <<" ===> calo theTrack info <=== " << std::endl;
-	  std::cout <<" particleType = " << particleType << std::endl;
-	  std::cout <<" primaryID = " << primaryID << std::endl;
-	  std::cout <<" entot= " << entot << std::endl;
-	  std::cout <<" vert_eta= " << eta  << std::endl;
-	  std::cout <<" vert_phi= " << phi << std::endl;
-	  std::cout <<" vert_mom= " << vert_mom  << std::endl;
-
-	  std::cout <<" ===> calo hit preStepPointinfo <=== " << std::endl; 
-	  std::cout <<" local point = " << localPoint << std::endl;
-	  std::cout <<" ==============================> final info: <=== " 
-		    << std::endl;
-	  std::cout <<" meanNCherPhot = " << meanNCherPhot << std::endl;
-	  std::cout <<" poissNCherPhot = " << poissNCherPhot << std::endl;
-	  std::cout <<" NCherPhot = " << NCherPhot << std::endl;
-	}
- #endif 
+	LogDebug("ForwardSim") << " ==============================> start all "
+			       << "information:<========= \n" << " =====> for "
+			       << "test:<===  \n" << " variant = " << variant  
+			       << "\n thgrad = " << thgrad  << "\n thchergrad "
+			       << "= " << thchergrad  << "\n DelFibPartgrad = "
+			       << DelFibPartgrad << "\n d_qz = " << d_qz  
+			       << "\n =====> Start Step Information <===  \n"
+			       << " ===> calo preStepPoint info <===  \n" 
+			       << " hitPoint = " << hitPoint  << "\n"
+			       << " hitMom = " << hit_mom  << "\n"
+			       << " stepControlFlag = " << stepControlFlag 
+	  // << "\n curprocess = " << curprocess << "\n"
+	  // << " nameProcess = " << nameProcess 
+			       << "\n charge = " << charge << "\n"
+			       << " beta = " << beta << "\n"
+			       << " bThreshold = " << bThreshold << "\n"
+			       << " thgrad =" << thgrad << "\n"
+			       << " effPMTandTransport=" << effPMTandTransport 
+	  // << "\n volume = " << name 
+			       << "\n nameVolume = " << nameVolume << "\n"
+			       << " nMedium = " << nMedium << "\n"
+	  //  << " rad length = " << rad << "\n"
+	  //  << " material = " << mat << "\n"
+			       << " stepl = " << stepl << "\n"
+			       << " photEnSpectrDE = " << photEnSpectrDE <<"\n"
+			       << " edep = " << edep << "\n"
+			       << " ===> calo theTrack info <=== " << "\n"
+			       << " particleType = " << particleType << "\n"
+			       << " primaryID = " << primaryID << "\n"
+			       << " entot= " << entot << "\n"
+			       << " vert_eta= " << eta  << "\n"
+			       << " vert_phi= " << phi << "\n"
+			       << " vert_mom= " << vert_mom  << "\n"
+			       << " ===> calo hit preStepPointinfo <=== "<<"\n"
+			       << " local point = " << localPoint << "\n"
+			       << " ==============================> final info"
+			       << ":  <=== \n" 
+			       << " meanNCherPhot = " << meanNCherPhot << "\n"
+			       << " poissNCherPhot = " << poissNCherPhot <<"\n"
+			       << " NCherPhot = " << NCherPhot;
+#endif 
 	
       }
     }
 
 
 #ifdef debug
-    if (verbosity > 1) 
-      std::cout << "CastorSD:: " << nameVolume 
-	//      << " Light Collection Efficiency " << weight
-		<< " Weighted Energy Deposit " << edep/MeV << " MeV"
-		<< std::endl;
+    LogDebug("ForwardSim") << "CastorSD:: " << nameVolume 
+      //      << " Light Collection Efficiency " << weight
+			   << " Weighted Energy Deposit " << edep/MeV 
+			   << " MeV\n";
 #endif
     return NCherPhot;
   } 
@@ -370,9 +352,10 @@ uint32_t CastorSD::setDetUnitId(G4Step* aStep) {
 }
 
 void CastorSD::setNumberingScheme(CastorNumberingScheme* scheme) {
+
   if (scheme != 0) {
-    std::cout << "CastorSD: updates numbering scheme for " << GetName() 
-              << std::endl;
+    edm::LogWarning("ForwardSim") << "CastorSD: updates numbering scheme for " 
+				  << GetName();
     if (numberingScheme) delete numberingScheme;
     numberingScheme = scheme;
   }
@@ -394,20 +377,17 @@ double CastorSD::curve_Castor(G4String& nameVolume, G4StepPoint* stepPoint) {
     if (dapd <= 100.)
       weight = 1.05 - dapd * 0.0005;
   } else {
-    if (verbosity > 0) 
-      std::cout << "CastorSD, light collection curve: wrong distance " << dapd
-		<< " crlength = " << crlength
-		<< " crystal name = " << nameVolume 
-		<< " z of localPoint = " << localPoint.z() 
-		<< " take weight = " << weight << std::endl;
+    edm::LogInfo("ForwardSim") << "CastorSD, light collection curve: wrong "
+			       << "distance " << dapd << " crlength = " 
+			       << crlength << " crystal name = " << nameVolume 
+			       << " z of localPoint = " << localPoint.z() 
+			       << " take weight = " << weight;
   }
 #ifdef debug
-  if (verbosity > 2) 
-    std::cout << "CastorSD, light collection curve : " << dapd 
-	      << " crlength = " << crlength
-	      << " crystal name = " << nameVolume 
-	      << " z of localPoint = " << localPoint.z() 
-	      << " take weight = " << weight << std::endl;
+  LogDebug("ForwardSim") << "CastorSD, light collection curve : " << dapd 
+			 << " crlength = " << crlength << " crystal name = " 
+			 << nameVolume << " z of localPoint = " 
+			 << localPoint.z() << " take weight = " << weight;
 #endif
   return weight;
 }
