@@ -1,0 +1,12 @@
+<flags SEAL_PLUGIN_NAME="L1TriggerGlobalMuonTrigger">
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=Foundation/PluginManager>
+<use name=DataFormats/L1GlobalMuonTrigger>
+<export>
+ <lib name=L1TriggerGlobalMuonTrigger>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=Foundation/PluginManager>
+ <use name=DataFormats/L1GlobalMuonTrigger>
+</export>
