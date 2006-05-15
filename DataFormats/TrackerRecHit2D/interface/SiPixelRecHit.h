@@ -1,13 +1,13 @@
 #ifndef SiPixelRecHit_H
 #define SiPixelRecHit_H
 
-#include "DataFormats/TrackerRecHit2D/interface/BaseSiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
-class SiPixelRecHit : public  BaseSiStripRecHit2DLocalPos {
+class SiPixelRecHit : public  BaseSiTrackerRecHit2DLocalPos {
 public:
 
-  SiPixelRecHit(): BaseSiStripRecHit2DLocalPos () {}
+  SiPixelRecHit(): BaseSiTrackerRecHit2DLocalPos () {}
 
   ~SiPixelRecHit() {}
 
