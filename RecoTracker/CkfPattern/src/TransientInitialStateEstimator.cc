@@ -54,13 +54,13 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
   // cout << endl << "FitTester starts with state " << startingState << endl;
 
   KFTrajectoryFitter backFitter( *theReversePropagator, KFUpdator(), 
-			     Chi2MeasurementEstimator( 100., 3));
+				 Chi2MeasurementEstimator( 100., 3));
 
   vector<Trajectory> fitres = backFitter.fit( traj.seed(), firstHits, startingState);
 
   if (fitres.size() != 1) {
     // cout << "FitTester: first hits fit failed!" << endl;
-    return;
+    return std::pair<TrajectoryStateOnSurface, const GeomDet*>();
   }
 
   TrajectoryMeasurement firstMeas = fitres[0].lastMeasurement();
