@@ -4,7 +4,7 @@
 /** \class CSCSegment
  *  Describes a 4-dim reconstructed segment in a CSC chamber. 
  *
- *  $Date: 2006/05/09 08:38:42 $
+ *  $Date: 2006/05/09 10:30:26 $
  *  \author Matteo Sani
  */
 
@@ -38,33 +38,34 @@ public:
         
     CSCDetId cscDetId() const { return theDetId; }
 		
-	void print() const;
+    void print() const;
 		
-	AlgebraicVector parameters() const;
-    AlgebraicSymMatrix parametersError() const;
+    /// parameters() and parametersError() are already fine in the RecSegment4D
+    ///	   AlgebraicVector parameters() const;
+    /// But the Error version can be implemented MUCH more transparently directly... 
+    AlgebraicSymMatrix parametersError() const { return theCovMatrix; }
 		
-	LocalPoint localPosition() const { return theOrigin; }
-	LocalError localPositionError() const ;
+    LocalPoint localPosition() const { return theOrigin; }
+    LocalError localPositionError() const ;
 	
-	LocalVector localDirection() const { return theLocalDirection; }
+    LocalVector localDirection() const { return theLocalDirection; }
     LocalError localDirectionError() const ;
 	
     double chi2() const { return theChi2; };
 		
-	CSCSegment* clone() const { return new CSCSegment(*this); }
-	virtual DetId geographicalId() const { return theDetId; }  // Slice off the CSC part :)
-	virtual int degreesOfFreedom() const { return 2*nRecHits() - 4;}	 
+    CSCSegment* clone() const { return new CSCSegment(*this); }
+    virtual DetId geographicalId() const { return theDetId; }  // Slice off the CSC part :)
+    virtual int degreesOfFreedom() const { return 2*nRecHits() - 4;}	 
 		
    
-  	private:
+private:
     
-	CSCDetId theDetId;
-	
-	std::vector<CSCRecHit2D> theCSCRecHits;
-	LocalPoint theOrigin;   // in chamber frame - the GeomDet local coordinate system
+    CSCDetId theDetId;
+    std::vector<CSCRecHit2D> theCSCRecHits;
+    LocalPoint theOrigin;   // in chamber frame - the GeomDet local coordinate system
     LocalVector theLocalDirection; // in chamber frame - the GeomDet local coordinate system
     AlgebraicSymMatrix theCovMatrix; // the covariance matrix
-	double theChi2;
+    double theChi2;
 };
 
 std::ostream& operator<<(std::ostream& os, const CSCSegment& seg);

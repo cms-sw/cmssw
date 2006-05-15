@@ -1,6 +1,6 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2006/05/09 08:38:52 $
+ *  $Date: 2006/05/09 10:30:37 $
  *  \author Matteo Sani
  */
 
@@ -12,7 +12,7 @@ CSCSegment::CSCSegment(std::vector<CSCRecHit2D> proto_segment, LocalPoint origin
 	LocalVector direction, AlgebraicSymMatrix errors, double chi2) : theCSCRecHits(proto_segment),
 	theOrigin(origin), theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2) {
 
-	  // Get CSCDetId from one of the rechits, but then remove the layer part
+	// Get CSCDetId from one of the rechits, but then remove the layer part so it's a _chamber_ id
 	CSCDetId id = theCSCRecHits.begin()->cscDetId();
 	theDetId = CSCDetId(id.endcap(),id.station(),id.ring(),id.chamber(), 0);
 }
@@ -38,24 +38,23 @@ std::vector<TrackingRecHit*> CSCSegment::recHits() {
   return pointersOfRecHits;
 }
 
-AlgebraicVector CSCSegment::parameters() const {
-  AlgebraicVector result(4);
-  
-  if (dimension()==4) 
-  	return CSCSegment::parameters();
-  else {
-      result[0] = theLocalDirection.x();
-      result[1] = theLocalDirection.y();
-      result[2] = theOrigin.x();
-      result[3] = theOrigin.y();
-  }
-  
-  return result;
-}
 
-AlgebraicSymMatrix CSCSegment::parametersError() const { 
-	return theCovMatrix;
-} 
+// The base class version is fine.
+//@@ Beware that here we did NOT scale out z() from x(0 and y() of theLocalDirection
+//@@ wherease the base class version does.
+/*
+AlgebraicVector CSCSegment::parameters() const {
+   AlgebraicVector result(4);
+  
+   result[0] = theLocalDirection.x();
+   result[1] = theLocalDirection.y();
+   result[2] = theOrigin.x();
+   result[3] = theOrigin.y();
+  
+   return result;
+}
+*/
+
 LocalError CSCSegment::localPositionError() const {
   return LocalError(theCovMatrix[2][2], theCovMatrix[2][3], theCovMatrix[3][3]);
 }
