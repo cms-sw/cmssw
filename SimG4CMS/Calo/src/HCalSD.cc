@@ -33,6 +33,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   birk1      = m_HC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
   birk2      = m_HC.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
   useShowerLibrary = m_HC.getParameter<bool>("UseShowerLibrary");
+  useHF      = m_HC.getUntrackedParameter<bool>("UseHF",true);
   bool testNumber  = m_HC.getParameter<bool>("TestNumberingScheme");
 
   LogDebug("HcalSim") << "***************************************************" 
@@ -44,7 +45,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 		      << "\n"
 		      << "***************************************************";
 
-  edm::LogInfo("HcalSim") << "HCalSD:: Use of shower library is set to " 
+  edm::LogInfo("HcalSim") << "HCalSD:: Use of HF code is set to " << useHF
+			  << "\nUse of shower library is set to " 
 			  << useShowerLibrary << "\n"
 			  << "         Use of Birks law is set to      " 
 			  << useBirk << "  with the two constants C1 = "
@@ -55,37 +57,41 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   if (testNumber) scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme);
   else            scheme = new HcalNumberingScheme;
   setNumberingScheme(scheme);
-  if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
-  else                  hfshower      = new HFShower(cpv,p);
 
-  // HF volume names
-  std::string attribute = "Volume";
-  std::string value     = "HF";
-  DDSpecificsFilter filter0;
-  DDValue           ddv0(attribute,value,0);
-  filter0.setCriteria(ddv0,DDSpecificsFilter::equals);
-  DDFilteredView fv0(cpv);
-  fv0.addFilter(filter0);
-  if (fv0.firstChild()) hfNames = getNames(fv0);
-  edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
-			  << " = " << value << ":";
-  for (unsigned int i=0; i<hfNames.size(); i++)
-    edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << hfNames[i];
+  std::string attribute, value;
+  if (useHF) {
+    if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
+    else                  hfshower      = new HFShower(cpv,p);
+
+    // HF volume names
+    attribute = "Volume";
+    value     = "HF";
+    DDSpecificsFilter filter0;
+    DDValue           ddv0(attribute,value,0);
+    filter0.setCriteria(ddv0,DDSpecificsFilter::equals);
+    DDFilteredView fv0(cpv);
+    fv0.addFilter(filter0);
+    if (fv0.firstChild()) hfNames = getNames(fv0);
+    edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
+			    << " = " << value << ":";
+    for (unsigned int i=0; i<hfNames.size(); i++)
+      edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << hfNames[i];
   
-  // HF Fibre volume names
-  value     = "HFFibre";
-  DDSpecificsFilter filter1;
-  DDValue           ddv1(attribute,value,0);
-  filter1.setCriteria(ddv1,DDSpecificsFilter::equals);
-  DDFilteredView fv1(cpv);
-  if (fv1.firstChild()) {
-    fv1.addFilter(filter1);
-    fibreNames = getNames(fv1);
+    // HF Fibre volume names
+    value     = "HFFibre";
+    DDSpecificsFilter filter1;
+    DDValue           ddv1(attribute,value,0);
+    filter1.setCriteria(ddv1,DDSpecificsFilter::equals);
+    DDFilteredView fv1(cpv);
+    if (fv1.firstChild()) {
+      fv1.addFilter(filter1);
+      fibreNames = getNames(fv1);
+    }
+    edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
+			    << " = " << value << ":";
+    for (unsigned int i=0; i<fibreNames.size(); i++)
+      edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << fibreNames[i];
   }
-  edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
-			  << " = " << value << ":";
-  for (unsigned int i=0; i<fibreNames.size(); i++)
-    edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << fibreNames[i];
 
   //Material list for HB/HE/HO sensitive detectors
   attribute = "ReadOutName";

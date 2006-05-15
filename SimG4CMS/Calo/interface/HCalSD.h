@@ -51,7 +51,7 @@ private:
   HFShower *            hfshower;
   bool                  useBirk;
   double                birk1, birk2;
-  bool                  useShowerLibrary;
+  bool                  useHF, useShowerLibrary;
   std::vector<double>   layer0wt;
   std::vector<G4String> hfNames;
   std::vector<G4String> fibreNames;
