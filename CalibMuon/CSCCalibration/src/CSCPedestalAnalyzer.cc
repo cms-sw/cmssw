@@ -31,25 +31,28 @@
 #include "CalibMuon/CSCCalibration/interface/CSCPedestalAnalyzer.h"
 
 CSCPedestalAnalyzer::CSCPedestalAnalyzer(edm::ParameterSet const& conf) {
-  
+
   eventNumber = 0;
-  evt = 0;
+  evt = 0,Nddu=0;
   pedMean=0.0,time=0.0,max =-9999999.,max1=-9999999.;
   pedSum = 0, strip =-999,misMatch=0;
   i_chamber=0,i_layer=0,reportedChambers =0;
   aPeak=0.0,sumFive=0.0;
   length = 1, NChambers=0;
+  coinc01=0,coinc02=0,coinc12=0,coinc012=0;
   
-  for(int i=0;i<CHAMBERS;i++){
-    for(int j=0; j<LAYERS; j++){
-      for(int k=0; k<STRIPS; k++){
-	arrayOfPed[i][j][k]       = 0.;
-	arrayOfPedSquare[i][j][k] = 0.;
-	arrayPed[i][j][k]         = 0.;
-	arrayPeak[i][j][k]        = 0.;
-	arrayOfPeak[i][j][k]      = 0.; 
-	arrayOfPeakSquare[i][j][k]= 0.;
-	arraySumFive[i][j][k]     = 0.;
+  for (int ii=0;ii<DDU;ii++){
+    for(int i=0;i<CHAMBERS;i++){
+      for(int j=0; j<LAYERS; j++){
+	for(int k=0; k<STRIPS; k++){
+	  arrayOfPed[ii][i][j][k]       = 0.;
+	  arrayOfPedSquare[ii][i][j][k] = 0.;
+	  arrayPed[ii][i][j][k]         = 0.;
+	  arrayPeak[ii][i][j][k]        = 0.;
+	  arrayOfPeak[ii][i][j][k]      = 0.; 
+	  arrayOfPeakSquare[ii][i][j][k]= 0.;
+	  arraySumFive[ii][i][j][k]     = 0.;
+	}
       }
     }
   }
@@ -61,6 +64,11 @@ CSCPedestalAnalyzer::CSCPedestalAnalyzer(edm::ParameterSet const& conf) {
     newPeak[i]=0.;
     newSumFive[i]=0.;
   }
+
+  for(int i=0;i<CHAMBERS;i++){
+    size[i]=0;
+  }
+
 }
 
 void CSCPedestalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
@@ -79,7 +87,8 @@ void CSCPedestalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iS
 
    edm::Handle<FEDRawDataCollection> rawdata;
    e.getByLabel("DaqSource" , rawdata);
-
+   event = e.id().event();
+   //run   = e.id().run();
    for (int id=FEDNumbering::getCSCFEDIds().first;
 	id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
      
@@ -95,15 +104,14 @@ void CSCPedestalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iS
        const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
        
        for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
-	 
 	 ///get a reference to chamber data
 	 const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
-	 
+	 Nddu=dduData.size();
 	 reportedChambers += dduData[iDDU].header().ncsc();
 	 NChambers = cscData.size();
 	 int repChambers = dduData[iDDU].header().ncsc();
 	 std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
-	 if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++;}
+	 if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++;continue;}
 	 
 	 evt++;
 	 
@@ -118,9 +126,11 @@ void CSCPedestalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iS
 	       
 	       dmbID[i_chamber]   = cscData[i_chamber].dmbHeader().dmbID(); //get DMB ID
 	       crateID[i_chamber] = cscData[i_chamber].dmbHeader().crateID(); //get crate ID
+	       
 	       if(crateID[i_chamber] == 255) continue; //255 is reserved for old crate, present only 0 and 1
 	       
 	       for (unsigned int i=0; i<digis.size(); i++){//loop over digis
+		 size[i_chamber]=digis.size();
 		 strip = digis[i].getStrip();
 		 adc   = digis[i].getADCCounts();
 		 
@@ -141,15 +151,13 @@ void CSCPedestalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iS
 	    
 		 }//adc.size
 		 
-		 arrayPed[i_chamber][i_layer-1][strip-1] = pedMean;
-		 arrayOfPed[i_chamber][i_layer - 1][strip - 1] += pedMean;
-		 arrayOfPedSquare[i_chamber][i_layer - 1][strip - 1] += pedMean*pedMean ;
-		 
-		 arrayPeak[i_chamber][i_layer-1][strip-1] = max-pedMean;
-		 arrayOfPeak[i_chamber][i_layer - 1][strip - 1] += max-pedMean;
-		 arrayOfPeakSquare[i_chamber][i_layer - 1][strip - 1] += (max-pedMean)*(max-pedMean);
-		 
-		 arraySumFive[i_chamber][i_layer-1][strip-1] = (max1-pedMean)/(max-pedMean);
+		 arrayPed[iDDU][i_chamber][i_layer-1][strip-1] = pedMean;
+		 arrayOfPed[iDDU][i_chamber][i_layer - 1][strip - 1] += pedMean;
+		 arrayOfPedSquare[iDDU][i_chamber][i_layer - 1][strip - 1] += pedMean*pedMean ;
+		 arrayPeak[iDDU][i_chamber][i_layer-1][strip-1] = max-pedMean;
+		 arrayOfPeak[iDDU][i_chamber][i_layer - 1][strip - 1] += max-pedMean;
+		 arrayOfPeakSquare[iDDU][i_chamber][i_layer - 1][strip - 1] += (max-pedMean)*(max-pedMean);
+		 arraySumFive[iDDU][i_chamber][i_layer-1][strip-1] = (max1-pedMean)/(max-pedMean);
 		 
 	       }//end digis loop
 	     }//end if cfeb.available loop
@@ -158,15 +166,10 @@ void CSCPedestalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iS
 	 
 	 eventNumber++;
 	 edm::LogInfo ("CSCPedestalAnalyzer")  << "end of event number " << eventNumber;
-       }
+       }//end DDU loop
      }
    }
- 
-  
 }
-
-
- 
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CSCPedestalAnalyzer)
