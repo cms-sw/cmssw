@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.1 2006/03/22 18:14:18 dkcira Exp $
+// $Id: SiStripDetCabling.cc,v 1.2 2006/05/12 10:37:48 dkcira Exp $
 //
 
 // system include files
@@ -69,6 +69,14 @@ const std::vector<uint32_t> & SiStripDetCabling::getActiveDetectorsRawIds() cons
  }
  return local_active; // is empty if no elements in detCabling_
 }
+
+void SiStripDetCabling::addActiveDetectorsRawIds(std::vector<uint32_t> & return_container ) const{ // replace getActiveDetectorRawIds method - avoid use of static
+ for(map< uint32_t, vector<FedChannelConnection> >::const_iterator detcabl_it = detCabling_.begin(); detcabl_it!=detCabling_.end(); detcabl_it++){
+   return_container.push_back(detcabl_it->first);
+ }
+ // return_container is empty if no elements in detCabling_
+}
+
 
 
 const vector<FedChannelConnection>& SiStripDetCabling::getConnections(uint32_t det_id ) const{ // return all connections corresponding to one det_id
