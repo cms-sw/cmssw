@@ -9,6 +9,9 @@
 
 #include "interface/evb/include/i2oEVBMsgs.h"
 #include "interface/shared/include/i2oXFunctionCodes.h"
+#include "interface/shared/include/frl_header.h"
+#include "interface/shared/include/fed_header.h"
+#include "interface/shared/include/fed_trailer.h"
 #include "Fed9UUtils.hh"
 #include <iostream>
 #include <sstream>
@@ -36,7 +39,7 @@ TBRUInputSource::TBRUInputSource(const edm::ParameterSet & pset, edm::InputSourc
   for (int i=0;i<MAX_FED9U_BUFFER;i++)
     m_fed9ubufs[i]=0;
   nfeds = pset.getUntrackedParameter<int>("nFeds",-1); // R.B.
-  
+  triggerFedId = pset.getUntrackedParameter<int>("TriggerFedId",1023);
   produces<FEDRawDataCollection>();
 }
 
@@ -164,24 +167,130 @@ void TBRUInputSource::setRunAndEventInfo() {
   if (!m_quiet)
   	LogDebug("TBRU") <<"Event & run end";
 }
+#define FEDID_MASK 0x0003FF00
+int TBRUInputSource::getFedId(bool swap, unsigned int* dest) 
+{
+ if (swap)
+ {
+ 	fedh_t* fedHeader= (fedh_t*) dest;
+        return ((fedHeader->sourceid & FEDID_MASK) >>8);
+ }
+ else
+ {
+ unsigned int order[1024];
+ for (unsigned int i=0;i <sizeof(fedh_t)/sizeof(int);)
+ {
+   order[i]=dest[i+1];
+   order[i+1] = dest[i];
+   i+=2;
+ }
+ fedh_t* fedHeader= (fedh_t*) order;
+ return ((fedHeader->sourceid & FEDID_MASK)>>8);
+ }
+}
 
+bool TBRUInputSource::checkFedStructure(int i, unsigned int* dest,unsigned int &length) 
+{
+      size_t msgHeaderSize       = sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
+  I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block = ( I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*) m_fed9ubufs[i]->fBuffer;
+  unsigned char* cbuf        = (unsigned char*) block + msgHeaderSize;
+  int* ibuf = (int*) cbuf;
+  // Check old data structure
+  bool old = ( (unsigned int) ibuf[0] ==  (m_fed9ubufs[i]->fSize*sizeof(int) - msgHeaderSize));
+  bool slinkswap = false;
+  if (old)
+    {
+      // Trigger Fed
+      if (i == 0)
+	{
+	  // add fed header
+	  fedh_t* fedHeader= (fedh_t*) dest;
+          fedHeader->sourceid = triggerFedId<<8;
+          fedHeader->eventid  = 0x50000000 | block->eventNumber;
+	  // copy data
+	  memcpy(&dest[sizeof(fedh_t)/sizeof(int)],ibuf,ibuf[0]);
+	  // pay load
+	  int tlen = (sizeof(fedh_t) + sizeof(fedt_t)+ibuf[0]);
+	  int offset = (tlen%8 ==0)?0:1;
+	  // add fed trailer
+	  fedt_t* fedTrailer= (fedt_t*) &dest[(sizeof(fedh_t)+ibuf[0])/sizeof(int)+offset];
+          fedTrailer->conscheck = 0xDEADFACE;
+           fedTrailer->eventsize = 0xA0000000 |
+                            ((sizeof(fedh_t) + sizeof(fedt_t)+ibuf[0]+offset*sizeof(int) )>> 3);
+	  slinkswap = true;
+	  length=(sizeof(fedh_t) + sizeof(fedt_t)+ibuf[0])/sizeof(int)+offset;
+	}
+      else
+	{
+	  //copy data
+	  memcpy(&dest[0],&ibuf[1],ibuf[0]-2*sizeof(int));
+	  int fed_len = (ibuf[0]-2*sizeof(int))/sizeof(int);
+	  int blen=fed_len*sizeof(int);
+	  if ( dest[fed_len-1] ==   (0xa0000000 | (blen>>3)) )
+	    slinkswap = true;
+	  else
+	    if ( dest[fed_len-2] == (0xa0000000 | (blen>>3) ))
+	      slinkswap = false;
+	    else
+	      cout << " Not a FED structure " << i << endl;
+	  length =fed_len;
+	}
+    }
+  else
+    {
+      //copy data
+      if (i == 0)
+	{
+	  //skip the frl header
+	  unsigned char* fbuf = cbuf + sizeof(frlh_t);
+	  memcpy(&dest[0],fbuf,(m_fed9ubufs[i]->fSize*sizeof(int) - msgHeaderSize- sizeof(frlh_t)));	  
+	  slinkswap = true;
+	  length = (m_fed9ubufs[i]->fSize*sizeof(int) - msgHeaderSize- sizeof(frlh_t))/sizeof(int);
+	}
+      else
+	{
+
+	  memcpy(&dest[0],cbuf,(m_fed9ubufs[i]->fSize*sizeof(int) - msgHeaderSize));
+
+	  int fed_len = m_fed9ubufs[i]->fSize - msgHeaderSize/sizeof(int);
+	  if ( dest[fed_len-1] == (0xa0000000 | fed_len) )
+	    slinkswap = true;
+	  else
+	    if ( dest[fed_len-2] == (0xa0000000 | fed_len) )
+	      slinkswap = false;
+	    else
+	      cout << " Not a FED structure " << i << endl;
+	  length =fed_len;
+	}
+
+    }
+
+  return slinkswap;
+}
 bool TBRUInputSource::produce(edm::Event& e) {
 
+
+  static unsigned int output[96*1024];
   if (m_tree==0) return false;
   Fed9U::Fed9UEvent fedEvent;
   std::auto_ptr<FEDRawDataCollection> bare_product(new  FEDRawDataCollection());
   for (int i=0; i<n_fed9ubufs; i++) 
     {
+    	unsigned int fed_len;
+     	bool slinkswap = checkFedStructure(i,output,fed_len);
+	int fed_id = getFedId(slinkswap,output);
       if (!m_quiet) {
 	stringstream ss;
 	ss << "Reading bytes for FED " << i << " At address " <<hex<< m_fed9ubufs[i] << dec;
 	LogDebug("TBRU") << ss.str();
       }
+#ifdef OLDSTYLE
       I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block = ( I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*) m_fed9ubufs[i]->fBuffer;
       size_t msgHeaderSize       = sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
       
       // Find FED id
       unsigned char* cbuf        = (unsigned char*) block + msgHeaderSize;
+      
       int* ibuf = (int*) cbuf;
       int len = (ibuf[0]-8);
       int id=0;
@@ -216,15 +325,25 @@ bool TBRUInputSource::produce(edm::Event& e) {
 	  
 	}
       
-      const unsigned char* data=(const unsigned char*) &ibuf[1];
 
-      FEDRawData& fed=bare_product->FEDData(id);
-      int fulllen =(len%8)?len+8-len%8:len;
-      fed.resize(fulllen);
-      memcpy(fed.data(),data,len);
-
+      if (id!=1023)
+	{
+	  const unsigned char* data=(const unsigned char*) &ibuf[1]
+	  FEDRawData& fed=bare_product->FEDData(id);
+	  int fulllen =(len%8)?len+8-len%8:len;
+	  fed.resize(fulllen);
+	  memcpy(fed.data(),data,len);
+	}
+      else
+	{
+	}
+#else
+	FEDRawData& fed=bare_product->FEDData(fed_id);
+	  fed.resize(fed_len*sizeof(int));
+	  memcpy(fed.data(),output,fed_len*sizeof(int));
+#endif
       if (!m_quiet)
-	LogDebug("TBRU") << "Reading " << len << " bytes for FED " << id;
+	LogDebug("TBRU") << "Reading " << fed_len << " bytes for FED " << fed_id;
     }
 
 
