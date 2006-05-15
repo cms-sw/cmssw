@@ -57,10 +57,9 @@ echo $SQL | $SQLPLUS
 echo
 
 # Create the object payload_o2o procedure
-PAYLOAD_O2O=${SUBDETECTOR}_payload_o2o.sql
+PAYLOAD_O2O=${OBJECT_NAME}_payload_o2o
 echo "[INFO]   Creating ${PAYLOAD_O2O}"
-CMD="$SQLPLUS @${SQL_PATH}/${PAYLOAD_O2O}"
-$CMD
+cat ${SQL_PATH}/${PAYLOAD_O2O}.sql | $SQLPLUS
 echo
 
 # Grant the general schema access to the payload_o2o procedure

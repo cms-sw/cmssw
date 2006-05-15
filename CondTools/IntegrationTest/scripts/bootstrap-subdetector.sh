@@ -30,6 +30,7 @@ echo
 # Create a database link between the offline and the online subdetector DB schemas
 echo "[INFO]   Creating database link"
 SQLPLUS="sqlplus -S ${SUBDETECTOR_OFFLINE_USER}/${SUBDETECTOR_OFFLINE_PASSWORD}@${OFFLINE_DB}"
+echo $SQLPLUS
 SEDSWITCH="s/<NAME>/${ONLINE_DB}/; s/<USER>/${SUBDETECTOR_ONLINE_USER}/; s/<PASSWORD>/${SUBDETECTOR_ONLINE_PASSWORD}/; s/<DB>/${ONLINE_DB}/;"
 SQL=`cat ${SQL_PATH}/create_db_link.sql | sed -e "${SEDSWITCH}"`
 echo $SQL
@@ -49,6 +50,5 @@ echo
 
 # Create the metadata table
 echo "[INFO]   Creating METADATA"
-CMD="$SQLPLUS @${SQL_PATH}/create_metadata.sql"
-$CMD
+cat ${SQL_PATH}/create_metadata.sql | $SQLPLUS
 echo
