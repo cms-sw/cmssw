@@ -1,5 +1,4 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <iomanip>
@@ -108,6 +107,23 @@ const SiStripModule& SiStripFecCabling::module( const FedChannelConnection& conn
   } else { edm::LogError("FecCabling") << "[SiStripFecCabling::module]"
 				       << " FEC slot " << conn.fecSlot() 
 				       << " not found!"; }
+  static FedChannelConnection temp;
+  static const SiStripModule module(temp);
+  return module;
+}
+
+// -----------------------------------------------------------------------------
+//
+const SiStripModule& SiStripFecCabling::module( const uint32_t& dcu_id ) const {
+  for ( vector<SiStripFec>::const_iterator ifec = (*this).fecs().begin(); ifec != (*this).fecs().end(); ifec++ ) {
+    for ( vector<SiStripRing>::const_iterator iring = (*ifec).rings().begin(); iring != (*ifec).rings().end(); iring++ ) {
+      for ( vector<SiStripCcu>::const_iterator iccu = (*iring).ccus().begin(); iccu != (*iring).ccus().end(); iccu++ ) {
+	for ( vector<SiStripModule>::const_iterator imod = (*iccu).modules().begin(); imod != (*iccu).modules().end(); imod++ ) {
+	  if ( (*imod).dcuId() == dcu_id ) { return *imod; }
+	}
+      }
+    }
+  }
   static FedChannelConnection temp;
   static const SiStripModule module(temp);
   return module;
@@ -452,4 +468,7 @@ void SiStripModule::print() const {
   LogDebug("FedCabling") << ss.str();
 }
 
+// -----------------------------------------------------------------------------
+//
+#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 EVENTSETUP_DATA_REG(SiStripFecCabling);

@@ -225,6 +225,7 @@ class SiStripFecCabling {
   void countDevices() const;
 
   const SiStripModule& module( const FedChannelConnection& conn ) const;
+  const SiStripModule& module( const uint32_t& dcu_id ) const;
   
  private:
 
