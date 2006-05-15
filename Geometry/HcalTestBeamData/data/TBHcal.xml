@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="TBHcal.xml" eval="true">
+ <Constant name="Zmin"         value="0*fm"/>
+ <Constant name="Z0HBHE"       value="375.000*cm"/>
+ <Constant name="z6HB"         value="5.541*m"/>
+ <Constant name="CalorBeamR1"  value="8.00*cm"/>
+ <Constant name="CalorBeamR2"  value="8.93*cm"/>
+ <Constant name="rMin1"        value="1.775*m"/>
+ <Constant name="CalorMuonR"   value="2.950*m"/>
+ <Constant name="Eta"          value="0.5655"/>
+ <Constant name="Phi"          value="7.5*deg"/>
+</ConstantsSection>
+
+<SolidSection label="TBHcal.xml">
+ <Box name="TBHCal"   dx="4.5*m"   dy="3*m"   dz="7*m"/>
+ <Polycone name="HCal" startPhi="350*deg" deltaPhi="40*deg" >
+  <ZSection z="[Zmin]"     rMin="[rMin1]"       rMax="[CalorMuonR]" />
+  <ZSection z="[Z0HBHE]"   rMin="[rMin1]"       rMax="[CalorMuonR]" />
+  <ZSection z="[Z0HBHE]"   rMin="[CalorBeamR1]" rMax="[CalorMuonR]" />
+  <ZSection z="[z6HB]"     rMin="[CalorBeamR2]" rMax="[CalorMuonR]" />
+ </Polycone> 
+</SolidSection>
+
+<RotationSection label="TBHcal.xml">
+ <Rotation name="R1" phiX="-10*deg"  thetaX="90*deg" phiY="80*deg" 
+                     thetaY="90*deg" phiZ="0*deg"    thetaZ="0*deg" />
+</RotationSection>
+
+<LogicalPartSection label="TBHcal.xml">
+ <LogicalPart name="TBHCal" category="unspecified">
+  <rSolid name="TBHCal"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="HCal" category="unspecified">
+  <rSolid name="HCal"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="TBHcal.xml">
+ <PosPart copyNumber="1">
+   <rParent name="TBHcal:TBHCal"/>
+   <rChild name="TBHcal:HCal"/>
+  <rRotation name="TBHcal:R1"/>
+ </PosPart>
+</PosPartSection>
+
+</DDDefinition>
