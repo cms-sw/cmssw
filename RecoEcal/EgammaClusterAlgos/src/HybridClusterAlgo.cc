@@ -3,17 +3,19 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
+#include "RecoEcal/EgammaCoreTools/interface/LogPositionCalc.h"
 #include <iostream>
 #include <map>
 #include <vector>
+#include <set>
 
 // Return a vector of clusters from a collection of EcalRecHits:
-void HybridClusterAlgo::makeClusters(EcalRecHitCollection & rechits, edm::ESHandle<CaloGeometry> geometry_h,  reco::BasicClusterCollection &basicClusters)
+void HybridClusterAlgo::makeClusters(std::map<EBDetId, EcalRecHit> CorrMap, edm::ESHandle<CaloGeometry> geometry_h,  reco::BasicClusterCollection &basicClusters)
 {
   //Clear the vectors:
   //map that keeps track of used det hits
-  rechits_m.clear();
-
+  //  rechits_m.clear();
+  rechits_m = CorrMap;
   //vector of seeds
   seeds.clear();
 
@@ -21,27 +23,25 @@ void HybridClusterAlgo::makeClusters(EcalRecHitCollection & rechits, edm::ESHand
   _clustered.clear();
   
   std::cout << "Cleared vectors, starting clusterization..." << std::endl;
-  std::cout << "Number of RecHits in event = " << rechits.size() << std::endl;
+  //  std::cout << "Number of RecHits in event = " << rechits.size() << std::endl;
   const CaloSubdetectorGeometry *geometry_p = (*geometry_h).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   CaloSubdetectorGeometry const geometry = *geometry_p;
-  EcalRecHitCollection::iterator it;
-  for (it = rechits.begin(); it != rechits.end(); it++){
-    //Double purpose loop:
-    //Make the map of DetID, <EcalRecHit,used> pairs
+  //  EcalRecHitCollection::iterator it;
+  std::map<EBDetId, EcalRecHit>::iterator it;
+
+  for (it = CorrMap.begin(); it != CorrMap.end(); it++){
+    
     //Make the vector of seeds that we're going to use.
     //One of the few places position is used, needed for ET calculation.    
-    const CaloCellGeometry *this_cell = geometry.getGeometry(it->id());
+    const CaloCellGeometry *this_cell = geometry.getGeometry(it->first);
     GlobalPoint position = this_cell->getPosition();
-    
-    std::pair<EcalRecHit, bool> HitBool = std::make_pair(*it, false);
-    rechits_m.insert(std::make_pair(it->id(), HitBool));    
-
-    float ET = it->energy() * sin(position.theta());
+   
+    float ET = it->second.energy() * sin(position.theta());
     // and high ET hits are also seeds:
     if (ET > eb_st){
-      seeds.push_back(*it);
+      seeds.push_back(it->second);
       std::cout << "Seed ET: " << ET << std::endl;
-      std::cout << "Seed E: " << it->energy() << std::endl;
+      std::cout << "Seed E: " << it->second.energy() << std::endl;
     }
   }
   
@@ -68,6 +68,7 @@ void HybridClusterAlgo::makeClusters(EcalRecHitCollection & rechits, edm::ESHand
   //Yay more sorting.
   sort(basicClusters.begin(), basicClusters.end());
   //Done!
+  std::cout << "returning to producer. " << std::endl;
 }
 
 reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(reco::BasicClusterRefVector clustersCollection)
@@ -122,14 +123,14 @@ void HybridClusterAlgo::mainSearch(const CaloSubdetectorGeometry geometry)
     std::vector <reco::BasicCluster> thisseedClusters;
     EBDetId itID = it->id();
     // make sure the current seed has not been used/will not be used in the future:
-    std::map<EBDetId, std::pair<EcalRecHit, bool> >::iterator seed_in_rechits_it = rechits_m.find(itID);
-    std::pair <EcalRecHit, bool> thisSeed = seed_in_rechits_it->second;
+    std::set<EBDetId>::iterator seed_in_rechits_it = useddetids.find(itID);
+    if (seed_in_rechits_it != useddetids.end()) continue;
     //If this seed is already used, then don't use it again.
-    if (thisSeed.second) continue;
+    //    if (thisSeed.second) continue;
     
     // output some info on the hit:
     std::cout << "*****************************************************" << std::endl;
-    std::cout << "Seed of energy E = " << thisSeed.first.energy() 
+    std::cout << "Seed of energy E = " << it->energy() 
 	      << std::endl;
     std::cout << "*****************************************************" << std::endl;
 
@@ -286,7 +287,7 @@ void HybridClusterAlgo::mainSearch(const CaloSubdetectorGeometry geometry)
       std::cout << "Adding a cluster with: " << nhits << std::endl;
       std::cout << "total E: " << LumpEnergy[i] << std::endl;
       //Get Calorimeter position
-      Point pos = getECALposition(recHits, geometry);
+      Point pos = LogPositionCalc::getECALposition(recHits, geometry);
       
       double totChi2=0;
       double totE=0;
@@ -300,12 +301,14 @@ void HybridClusterAlgo::mainSearch(const CaloSubdetectorGeometry geometry)
 	totChi2/=totE;
       
       //thisseedClusters.push_back(reco::BasicCluster(recHits,1,pos));
+      //std::cout << "Ready to insert cluster. " << std::endl;
       thisseedClusters.push_back(reco::BasicCluster(LumpEnergy[i],pos,totChi2,usedHits));
     }
+    // std::cout << "Making association between basiccluster and super cluster. " << std::endl;
     _clustered.insert(std::make_pair(clustercounter, thisseedClusters));    
     clustercounter++;
   }//Seed loop
-  
+  //std::cout << "returning control." << std::endl;
 }
 
 double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector <EcalRecHit> &cells)
@@ -320,27 +323,27 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
 
   //Ready?  Get the starting cell.
   EBDetId center = navigator.pos();
-  std::map<EBDetId, std::pair<EcalRecHit, bool> >::iterator center_it = rechits_m.find(center);
+  std::map<EBDetId, EcalRecHit>::iterator center_it = rechits_m.find(center);
   
   if (center_it==rechits_m.end()) return 0; //Didn't find that ID.
-  std::pair <EcalRecHit, bool> SeedHit = center_it->second;
-  if (SeedHit.second) return 0; //Already used that ID.  Terminate either way.
+  EcalRecHit SeedHit = center_it->second;
+  if (useddetids.find(center_it->first) != useddetids.end()) return 0; //Already used that ID.  Terminate either way.
 
-  Etot += SeedHit.first.energy();
-  cells.push_back(SeedHit.first);
+  Etot += SeedHit.energy();
+  cells.push_back(SeedHit);
   //Mark cell as used.
-  center_it->second.second = true;
+  useddetids.insert(center);
 
   //One step upwards in Ieta:
   EBDetId ieta1 = navigator.west();
-  std::map<EBDetId, std::pair<EcalRecHit, bool> >::iterator eta1_it = rechits_m.find(ieta1);
+  std::map<EBDetId, EcalRecHit >::iterator eta1_it = rechits_m.find(ieta1);
   if (eta1_it !=rechits_m.end()){
-    std::pair <EcalRecHit, bool> UpEta = eta1_it->second;
-    if (!UpEta.second){
-      Etot+=UpEta.first.energy();
-      cells.push_back(UpEta.first);
+    EcalRecHit UpEta = eta1_it->second;
+    if (useddetids.find(ieta1) == useddetids.end()){
+      Etot+=UpEta.energy();
+      cells.push_back(UpEta);
       //Mark cell as used.
-      eta1_it->second.second = true;
+      useddetids.insert(ieta1);
     }
   }
 
@@ -349,14 +352,14 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
 
   //One step downwards in Ieta:
   EBDetId ieta2 = navigator.east();
-  std::map<EBDetId, std::pair<EcalRecHit, bool> >::iterator eta2_it = rechits_m.find(ieta2);
+  std::map<EBDetId, EcalRecHit >::iterator eta2_it = rechits_m.find(ieta2);
   if (eta2_it !=rechits_m.end()){
-    std::pair <EcalRecHit, bool> DownEta = eta2_it->second;
-    if (!DownEta.second){
-      Etot+=DownEta.first.energy();
-      cells.push_back(DownEta.first);
+    EcalRecHit DownEta = eta2_it->second;
+    if (useddetids.find(ieta2)==useddetids.end()){
+      Etot+=DownEta.energy();
+      cells.push_back(DownEta);
       //Mark cell as used.
-      eta2_it->second.second=true;
+      useddetids.insert(ieta2);
     }
   }
 
@@ -368,14 +371,14 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
   //we're still on the DownEta cell.
   if (eta2_it !=rechits_m.end()){
     EBDetId ieta3 = navigator.east(); //Take another step downward.
-    std::map<EBDetId, std::pair<EcalRecHit, bool> >::iterator eta3_it = rechits_m.find(ieta3);
+    std::map<EBDetId, EcalRecHit >::iterator eta3_it = rechits_m.find(ieta3);
     if (eta3_it != rechits_m.end()){
-      std::pair <EcalRecHit, bool> DownEta2 = eta3_it->second;
-      if (!DownEta2.second){
-	Etot+=DownEta2.first.energy();
-	cells.push_back(DownEta2.first);
+      EcalRecHit DownEta2 = eta3_it->second;
+      if (useddetids.find(ieta3)==useddetids.end()){
+	Etot+=DownEta2.energy();
+	cells.push_back(DownEta2);
 	//Mark cell as used.
-	eta3_it->second.second = true;
+	useddetids.insert(ieta3);
       }
     }
   }
@@ -386,13 +389,13 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
   if (eta1_it !=rechits_m.end()){
     navigator.west(); //Now you're on eta1_it
     EBDetId ieta4 = navigator.west(); //Take another step upward.
-    std::map<EBDetId, std::pair<EcalRecHit, bool> >::iterator eta4_it = rechits_m.find(ieta4);
+    std::map<EBDetId, EcalRecHit>::iterator eta4_it = rechits_m.find(ieta4);
     if (eta4_it != rechits_m.end()){
-      std::pair <EcalRecHit, bool> UpEta2 = eta4_it->second;
-      if (!UpEta2.second){
-	Etot+=UpEta2.first.energy();
-	cells.push_back(UpEta2.first);
-	eta4_it->second.second = true;
+      EcalRecHit UpEta2 = eta4_it->second;
+      if (useddetids.find(ieta4) == useddetids.end()){
+	Etot+=UpEta2.energy();
+	cells.push_back(UpEta2);
+	useddetids.insert(ieta4);
       }
     }
   }
