@@ -89,7 +89,7 @@ public:
    *  be thrown (DetLogicError).
    */
   template <class TrajectoryState>
-  std::vector<TrajectoryMeasurement> get( const GeometricSearchDet& det,
+  std::vector<TrajectoryMeasurement> get( const GeometricSearchDet& layer,
 					  const std::vector<DetWithState>& compatDets,
 					  const TrajectoryState& ts, 
 					  const Propagator& prop, 
@@ -125,7 +125,7 @@ private:
 
 template <class TrajectoryState>
 std::vector<TrajectoryMeasurement> 
-GeometricSearchDetMeasurements::get( const GeometricSearchDet& det,
+GeometricSearchDetMeasurements::get( const GeometricSearchDet& layer,
 				     const std::vector<DetWithState>& compatDets,
 				     const TrajectoryState& ts, 
 				     const Propagator& prop, 
