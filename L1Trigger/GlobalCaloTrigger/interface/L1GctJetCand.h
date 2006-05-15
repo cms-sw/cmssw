@@ -2,6 +2,7 @@
 #define L1GCTJETCAND_H_
 
 #include <boost/cstdint.hpp> //for uint16_t
+#include <functional>
 
 /*
  * A GCT jet candidate
@@ -40,6 +41,12 @@ public:
    *  running from 0-8. 'wheelId' is the wheelJetFPGA id number (0 or 1),
    *  to determine which eta half of CMS we are in.*/
   L1GctJetCand convertToGlobalJet(int jetFinderPhiIndex, int wheelId);
+  
+  // comparison operator for sorting jets in the Wheel Fpga, JetFinder, and JetFinalStage
+  struct rankGreaterThan : public std::binary_function<L1GctJetCand, L1GctJetCand, bool> 
+  {
+    bool operator()(const L1GctJetCand& x, const L1GctJetCand& y) { return x.rank() > y.rank(); }
+  };
   
   ///start of the HF if we are using local jetfinder co-ordinates (11*2 in eta*phi)
   static const int LOCAL_ETA_HF_START = 7;
