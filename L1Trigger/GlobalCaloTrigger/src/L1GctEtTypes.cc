@@ -58,8 +58,6 @@ std::ostream& operator<<(std::ostream& s, const L1GctTwosComplement data) {
 
 }
 
-/// fixed length types ///
-
 // construct from raw data
 L1GctEtComponent::L1GctEtComponent(uint32_t raw) :
   L1GctTwosComplement(N_BITS, raw) 
@@ -75,4 +73,53 @@ L1GctEtComponent::L1GctEtComponent(int value) :
 }
 
 L1GctEtComponent::~L1GctEtComponent() {
+}
+
+
+/* unsigned integer representations */
+
+L1GctUnsignedInt::L1GctUnsignedInt(int nBits) :
+  m_nBits(nBits) 
+{
+
+}
+
+L1GctUnsignedInt::L1GctUnsignedInt(int nBits, unsigned value) :
+  m_nBits(nBits),
+  m_value(value)
+{
+
+}
+
+L1GctUnsignedInt::~L1GctUnsignedInt()
+{
+
+}
+
+// set value, checking for overflow
+void L1GctUnsignedInt::setValue(unsigned value)
+{
+  // check for overflow
+  if (value >= (unsigned) 1<<(m_nBits-1) ) {
+    m_overFlow = true;
+  }
+
+  // set value with bitmask
+  m_value = value & (1<<(m_nBits-1) - 1);
+
+}
+
+// add two unsigneds
+L1GctUnsignedInt operator+ (const L1GctUnsignedInt lhs, const L1GctUnsignedInt rhs) {
+
+  // temporary variable for storing the result (need to set its size)
+  L1GctUnsignedInt temp(lhs.nBits() + 1);
+
+  // do the addition here
+  // setValue() will automatically set the overflow if required
+  temp.setValue( lhs.value() + rhs.value() );
+
+  // return the temporary
+  return temp;
+
 }

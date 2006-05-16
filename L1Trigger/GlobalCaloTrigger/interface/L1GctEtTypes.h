@@ -4,6 +4,9 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
+
+/* Signed integer representations */
+
 // class to store a 2s complement number
 // in the range -X to X-1
 // including overflow
@@ -67,6 +70,49 @@ class L1GctEtComponent : public L1GctTwosComplement {
   static const int N_BITS = 12;
 
 };
+
+
+
+/* unsigned integer representations */
+
+class L1GctUnsignedInt {
+
+ public:
+
+  L1GctUnsignedInt(int nBits);
+  L1GctUnsignedInt(int nBits, unsigned value);
+  ~L1GctUnsignedInt();
+
+  // Set value from unsigned
+  void setValue(unsigned value);
+
+  // set the overflow bit
+  void setOverFlow(bool oflow) { m_overFlow = oflow; }
+
+  // access value as unsigned
+  unsigned value() const { return m_value; }
+
+  // access overflow
+  bool overFlow() const { return m_overFlow; }
+
+  // return number of bits
+  int nBits() const { return m_nBits; }
+
+ private:
+
+  // number of bits
+  int m_nBits;
+
+  // value
+  unsigned m_value;
+
+  // overflow
+  bool m_overFlow;
+
+};
+
+std::ostream& operator<<(std::ostream& s, const L1GctUnsignedInt& data);
+
 
 
 #endif
