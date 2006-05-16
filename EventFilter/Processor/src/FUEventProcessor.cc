@@ -9,44 +9,49 @@
 #include "xgi/include/xgi/Method.h"
 using namespace evf;
 
+#include <stdlib.h>
+
 FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s) : xdaq::Application(s), 
 outPut_(true), inputPrescale_(1), outputPrescale_(1),  outprev_(true), 
 proc_(0), group_(0), fsm_(0), ah_(0)
 {
+  string xmlClass = getApplicationDescriptor()->getClassName();
+  unsigned long instance = getApplicationDescriptor()->getInstance();
+  LOG4CPLUS_INFO(this->getApplicationLogger(),
+		 xmlClass << instance << " constructor");
   std::cout << "FUEventProcessor constructor" << std::endl;
-  ah_ = new edm::AssertHandler();
+  LOG4CPLUS_INFO(this->getApplicationLogger(),
+		 "plugin path:" << getenv("SEAL_PLUGINS"));
+
   fsm_ = new EPStateMachine(getApplicationLogger());
   fsm_->init<evf::FUEventProcessor>(this);
   xdata::InfoSpace *ispace = getApplicationInfoSpace();
   // default configuration
   ispace->fireItemAvailable("parameterSet",&offConfig_);
+  ispace->fireItemAvailable("pluginPath",&seal_plugins_);
   ispace->fireItemAvailable("stateName",&fsm_->stateName_);
+  ispace->fireItemAvailable("runNumber",&runNumber_);
   ispace->fireItemAvailable("outputEnabled",&outPut_);
   ispace->fireItemAvailable("globalInputPrescale",&inputPrescale_);
   ispace->fireItemAvailable("globalOutputPrescale",&outputPrescale_);
-
   // Add infospace listeners for exporting data values
   getApplicationInfoSpace()->addItemChangedListener ("outputEnabled", this);
   getApplicationInfoSpace()->addItemChangedListener ("globalInputPrescale", this);
   getApplicationInfoSpace()->addItemChangedListener ("globalOutputPrescale", this);
+  //set sourceId_
+  string xmlClass_ = getApplicationDescriptor()->getClassName();
+  unsigned int instance_ = getApplicationDescriptor()->getInstance();
+  ostringstream sourcename;
+  sourcename << xmlClass_ << "_" << instance_;
+  sourceId_ = sourcename.str();
+
 
   // Bind web interface
   xgi::bind(this, &FUEventProcessor::css           , "styles.css");
   xgi::bind(this, &FUEventProcessor::defaultWebPage, "Default"   );
   xgi::bind(this, &FUEventProcessor::moduleWeb     , "moduleWeb"    );
 
-  // Load the message service plug-in
-  boost::shared_ptr<edm::Presence> theMessageServicePresence;
-  try {
-    m_messageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
-        makePresence("MessageServicePresence").release());
-  } catch(seal::Error& e) {
-    XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		 e.explainSelf());
-  }
-  //test it 
-  edm::LogInfo("FUEventProcessor") << "started MessageLogger Service ";
-
+  //  logger_ = this->getApplicationLogger();
 }
 FUEventProcessor::~FUEventProcessor()
 {
@@ -61,11 +66,70 @@ FUEventProcessor::~FUEventProcessor()
 void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
 
+  int retval = setenv("SEAL_PLUGINS",seal_plugins_.value_.c_str(),0);
+  if(retval != 0)
+    LOG4CPLUS_ERROR(this->getApplicationLogger(),
+		    "Failed to set SEAL_PLUGINS search path ");
+  LOG4CPLUS_INFO(this->getApplicationLogger(),
+		 "plugin path:" << getenv("SEAL_PLUGINS"));
+
+  // Load the message service plug-in
+  try {
+    ah_ = new edm::AssertHandler();   
+    LOG4CPLUS_INFO(this->getApplicationLogger(),
+		   "Trying to create message service presence ");
+    edm::PresenceFactory *pf = edm::PresenceFactory::get();
+    LOG4CPLUS_INFO(this->getApplicationLogger(),
+		   "presence factory pointer is " << (int) pf);
+    if(pf != 0)
+      m_messageServicePresence = boost::shared_ptr<edm::Presence>(pf->makePresence("MessageServicePresence").release());
+    else
+      LOG4CPLUS_ERROR(this->getApplicationLogger(),
+		     "Unable to create message service presence ");
+  } 
+  catch(seal::Error& e) 
+    {
+      LOG4CPLUS_ERROR(this->getApplicationLogger(),
+		      e.explainSelf());
+    }
+  catch(cms::Exception &e)
+    {
+      LOG4CPLUS_ERROR(this->getApplicationLogger(),
+		      e.explainSelf());
+    }    
+
+  catch(std::exception &e)
+    {
+      LOG4CPLUS_ERROR(this->getApplicationLogger(),
+		      e.what());
+    }
+  catch(...)
+    {
+      LOG4CPLUS_ERROR(this->getApplicationLogger(),
+		      "Unknown Exception");
+    }
+
+  LOG4CPLUS_INFO(this->getApplicationLogger(),
+		 "Finished with FUEventProcessor configuration ");
+
+  //test it 
+  edm::LogInfo("FUEventProcessor") << "started MessageLogger Service ";
+
+
+
   ParameterSetRetriever pr(offConfig_.value_);
   std::string configString = pr.getAsString();
   std::cout << "Using config string \n" << configString << std::endl;
   try{
     proc_ = new edm::EventProcessor(configString);
+  if(!outPut_) //proc_->toggleOutput();
+  //  proc_->prescaleInput(inputPrescale_);
+  //  proc_->prescaleOutput(outputPrescale_);
+    proc_->enableEndPaths(outPut_);
+
+  outprev_=outPut_;
+
+    proc_->setRunNumber(runNumber_.value_);
   }
   catch(seal::Error& e)
     {
@@ -88,18 +152,40 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
       XCEPT_RAISE (toolbox::fsm::exception::Exception, 
 		   "Unknown Exception");
     }
-  if(!outPut_) //proc_->toggleOutput();
-  //  proc_->prescaleInput(inputPrescale_);
-  //  proc_->prescaleOutput(outputPrescale_);
-  outprev_=outPut_;
-  proc_->setRunNumber(1);
+
 }
 
 void FUEventProcessor::enableAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
-  proc_->runAsync();
-  int sc = proc_->statusAsync();
-
+  int sc = 0;
+  try
+    {
+      proc_->runAsync();
+      sc = proc_->statusAsync();
+    }
+  
+  catch(seal::Error& e)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   e.explainSelf());
+    }
+  catch(cms::Exception &e)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   e.explainSelf());
+    }    
+  
+  catch(std::exception &e)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   e.what());
+    }
+  catch(...)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   "Unknown Exception");
+    }
+  
   if(sc != 0)
     {
       ostringstream errorString;
@@ -134,13 +220,40 @@ void FUEventProcessor::nullAction(toolbox::Event::Reference e) throw (toolbox::f
 
 void FUEventProcessor::haltAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
-  proc_->shutdownAsync();
-  //  proc_->kill();
-  //  group_->join();
+  try
+    {
+      proc_->shutdownAsync();
+      //  proc_->kill();
+      //  group_->join();
+      
+      proc_->endJob();
+      
+      delete proc_;
+    }
+  
+  catch(seal::Error& e)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   e.explainSelf());
+    }
+  catch(cms::Exception &e)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   e.explainSelf());
+    }    
 
-  proc_->endJob();
+  catch(std::exception &e)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   e.what());
+    }
+  catch(...)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   "Unknown Exception");
+    }
 
-  delete proc_;
+    proc_ = 0;
 }
 
 void FUEventProcessor::actionPerformed (xdata::Event& e)
@@ -335,10 +448,10 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,
   *out << "</tr>" << std::endl;
   *out << "<tr>" << std::endl;
   *out << "<td >" << std::endl;
-  *out << "Processed Events" << std::endl;
+  *out << "Processed Events/Accepted Events" << std::endl;
   *out << "</td>" << std::endl;
   *out << "<td>" << std::endl;
-  *out << proc_->totalEvents() << std::endl;
+  *out << proc_->totalEvents() << "/" << proc_->totalEventsPassed() << std::endl;
   *out << "</td>" << std::endl;
   *out << "  </tr>"                                            << endl;
   *out << "<tr>" << std::endl;
