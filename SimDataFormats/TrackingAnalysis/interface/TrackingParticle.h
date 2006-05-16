@@ -6,6 +6,7 @@
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/Candidate/interface/Particle.h"
+#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
 
 namespace HepMC {
   class GenParticle;
@@ -17,18 +18,29 @@ public:
   typedef const HepMC::GenParticle * GenParticleRef;
   /// default constructor
   TrackingParticle() { }
+  // destructor
+  ~TrackingParticle();
   /// constructor from pointer to generator particle
-  TrackingParticle( const HepMC::GenParticle * );
-  /// pointer to generator particle
-  GenParticleRef genParticle() const { return genParticle_; }
+  TrackingParticle( Charge q, const LorentzVector & p4, const Point & vtx,
+		    int pdgId );
   /// PDG identifier  
   int pdgId() const { return pdgId_; }
+  /// reference to G4 track
+  const  EmbdSimTrackRef & g4Track() const { return g4Track_; }
+  /// pointer to generator particle
+  GenParticleRef genParticle() const { return genParticle_; }
+  /// set reference to G4 track
+  void setG4Track( const EmbdSimTrackRef & r ) { g4Track_ = r; }
+  /// set pointer to generator particle
+  void setGenParticle( GenParticleRef r ) { genParticle_ = r; }
 
 private:
-  /// pointer to generator particle
-  GenParticleRef genParticle_;
   /// PDG identifier
   int pdgId_;
+  /// reference to G4 track
+  EmbdSimTrackRef g4Track_;
+  /// pointer to generator particle
+  GenParticleRef genParticle_;
 };
 
 #endif // SimDataFormats_TrackingParticle_H
