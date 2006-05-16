@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/25 17:03:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/16 09:43:00 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -11,19 +11,42 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 
-//#include "CommonReco/DetLayers/interface/RBorderFinder.h"
-//#include "CommonReco/DetLayers/interface/GeneralBinFinderInR.h"
+#include "RBorderFinder.h"
+#include "GeneralBinFinderInR.h"
 
 #include <algorithm>
 #include <iostream>
 #include <vector>
 
+#define MDEBUG false //FIXME!
 
 MuRingForwardLayer::MuRingForwardLayer(vector<const ForwardDetRing*>& rings) :
   theRings(rings),
-  isOverlapping(false) {
-    // FIXME init binfinder    
+  isOverlapping(false) 
+{
+
+  // Cache chamber pointers (the basic components_)
+  for (vector<const ForwardDetRing*>::const_iterator it=rings.begin();
+       it!=rings.end(); it++) {
+    vector<const GeomDet*> tmp2 = (*it)->basicComponents();
+    theBasicComps.insert(theBasicComps.end(),tmp2.begin(),tmp2.end());
   }
+
+  RBorderFinder bf(basicComponents());
+  isOverlapping = bf.isROverlapping();
+  theBinFinder = new GeneralBinFinderInR<double>(bf);
+
+  ForwardDetLayer::initialize(); // Compute surface
+
+  if ( MDEBUG ) 
+    cout << "Constructing MuRingForwardLayer: "
+	 << basicComponents().size() << " Dets " 
+	 << theRings.size() << " Rings "
+	 << " Z: " << specificSurface().position().z()
+	 << " Per.: " << bf.isRPeriodic()
+	 << " Overl.: " << isOverlapping
+	 << endl;
+}
 
 
 MuRingForwardLayer::~MuRingForwardLayer(){
