@@ -78,55 +78,88 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   // test access to SimHits
   const std::string barrelHitsName("EcalHitsEB");
   const std::string endcapHitsName("EcalHitsEE");
-  const std::string ESHitsName("EcalHitsES");
+  const std::string preshowerHitsName("EcalHitsES");
 
-  std::auto_ptr<MixCollection<PCaloHit> > 
-    barrelHits( new MixCollection<PCaloHit>(crossingFrame.product(), barrelHitsName) );
-  std::auto_ptr<MixCollection<PCaloHit> > 
-    endcapHits( new MixCollection<PCaloHit>(crossingFrame.product(),endcapHitsName) );
-  std::auto_ptr<MixCollection<PCaloHit> >
-    ESHits( new MixCollection<PCaloHit>(crossingFrame.product(), ESHitsName) ); 
+  bool isEB = true;
+  MixCollection<PCaloHit> * EBHits = 0 ;
+  try {
+    EBHits = new MixCollection<PCaloHit>(crossingFrame.product(), barrelHitsName);
+  } catch ( cms::Exception &e ) { isEB = false; }
+  
+  //  std::auto_ptr<MixCollection<PCaloHit> > 
+  //    barrelHits( new MixCollection<PCaloHit>(crossingFrame.product(), barrelHitsName) );
 
+  bool isEE = true;
+  MixCollection<PCaloHit> * EEHits = 0 ;
+  try {
+    EEHits = new MixCollection<PCaloHit>(crossingFrame.product(), endcapHitsName);
+  } catch ( cms::Exception &e ) { isEE = false; }
+
+  //  std::auto_ptr<MixCollection<PCaloHit> > 
+  //    endcapHits( new MixCollection<PCaloHit>(crossingFrame.product(),endcapHitsName) );
+
+  bool isES = true;
+  MixCollection<PCaloHit> * ESHits = 0 ;
+  try {
+    ESHits = new MixCollection<PCaloHit>(crossingFrame.product(), preshowerHitsName);
+  } catch ( cms::Exception &e ) { isES = false; }
+
+  //    std::auto_ptr<MixCollection<PCaloHit> >
+  //      preshowerHits( new MixCollection<PCaloHit>(crossingFrame.product(), preshowerHitsName) ); 
+  
   // Step B: Create empty output
   auto_ptr<EBDigiCollection> barrelResult(new EBDigiCollection());
   auto_ptr<EEDigiCollection> endcapResult(new EEDigiCollection());
-  auto_ptr<ESDigiCollection> ESResult(new ESDigiCollection());
+  auto_ptr<ESDigiCollection> preshowerResult(new ESDigiCollection());
 
   // run the algorithm
-  theBarrelDigitizer->run(*barrelHits, *barrelResult);
-  edm::LogInfo("DigiInfo") << "EB Digis: " << barrelResult->size();
-
-  theEndcapDigitizer->run(*endcapHits, *endcapResult);
-  edm::LogInfo("DigiInfo") << "EE Digis: " << endcapResult->size();
-
-  theESDigitizer->run(*ESHits, *ESResult);
-  edm::LogInfo("DigiInfo") << "ES Digis: " << ESResult->size();
 
   CaloDigiCollectionSorter sorter(5);
-  std::vector<EBDataFrame> sortedDigisEB = sorter.sortedVector(*barrelResult);
-  LogDebug("DigiDump") << "Top 10 EB digis";
-  for(int i = 0; i < std::min(10,(int) sortedDigisEB.size()); ++i) 
-    {
-      LogDebug("DigiDump") << sortedDigisEB[i];
-    }
-  std::vector<EEDataFrame> sortedDigisEE = sorter.sortedVector(*endcapResult);
-  LogDebug("DigiDump")  << "Top 10 EE digis";
-  for(int i = 0; i < std::min(10,(int) sortedDigisEE.size()); ++i) 
-    {
-      LogDebug("DigiDump") << sortedDigisEE[i];
-    }
+
+  if ( isEB ) {
+    std::auto_ptr<MixCollection<PCaloHit> >  barrelHits( EBHits );
+    theBarrelDigitizer->run(*barrelHits, *barrelResult);
+    edm::LogInfo("DigiInfo") << "EB Digis: " << barrelResult->size();
+
+    std::vector<EBDataFrame> sortedDigisEB = sorter.sortedVector(*barrelResult);
+    LogDebug("DigiDump") << "Top 10 EB digis";
+    for(int i = 0; i < std::min(10,(int) sortedDigisEB.size()); ++i) 
+      {
+        LogDebug("DigiDump") << sortedDigisEB[i];
+      }
+  }
+
+  if ( isEE ) {
+    std::auto_ptr<MixCollection<PCaloHit> >  endcapHits( EEHits );
+    theEndcapDigitizer->run(*endcapHits, *endcapResult);
+    edm::LogInfo("DigiInfo") << "EE Digis: " << endcapResult->size();
+
+    std::vector<EEDataFrame> sortedDigisEE = sorter.sortedVector(*endcapResult);
+    LogDebug("DigiDump")  << "Top 10 EE digis";
+    for(int i = 0; i < std::min(10,(int) sortedDigisEE.size()); ++i) 
+      {
+        LogDebug("DigiDump") << sortedDigisEE[i];
+      }
+  }
+
+  if ( isES ) {
+    std::auto_ptr<MixCollection<PCaloHit> >  preshowerHits( ESHits );
+    theESDigitizer->run(*preshowerHits, *preshowerResult);
+    edm::LogInfo("DigiInfo") << "ES Digis: " << preshowerResult->size();
+    
 //   CaloDigiCollectionSorter sorter_es(7);
-//   std::vector<ESDataFrame> sortedDigis_es = sorter_es.sortedVector(*ESResult);
+//   std::vector<ESDataFrame> sortedDigis_es = sorter_es.sortedVector(*preshowerResult);
 //   LogDebug("DigiDump") << "List all ES digis";
 //   for(int i = 0; i < sortedDigis_es.size(); ++i) 
 //     {
 //       LogDebug("DigiDump") << sortedDigis_es[i];
 //     }
-  
+  }
+
   // Step D: Put outputs into event
   event.put(barrelResult);
   event.put(endcapResult);
-  event.put(ESResult);
+  event.put(preshowerResult);
 
 }
 
