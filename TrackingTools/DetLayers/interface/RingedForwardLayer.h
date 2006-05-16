@@ -16,29 +16,25 @@ public:
   
   RingedForwardLayer() {};
 
-  RingedForwardLayer( vector<const Det*>::const_iterator first,
-		      vector<const Det*>::const_iterator last);
+//   RingedForwardLayer( std::vector<const GeomDet*>::const_iterator first,
+// 		         std::vector<const GeomDet*>::const_iterator last);
 
-  RingedForwardLayer( const vector<const Det*>& dets);
+//   RingedForwardLayer( const std::vector<const GeomDet*>& dets);
 
 
   virtual ~RingedForwardLayer();
 
 
   //--- GeometricSearchDet interface
-  virtual vector<const GeometricSearchDet*> components() const {return theDets;}
+//   virtual std::vector<const GeometricSearchDet*> components() const {return theDets;}
 
   //--- Extension of the interface
-  /*
-  virtual Module module() const;
+//   virtual GeomDet* operator()( double x, double phi) const =0;
 
-  virtual Det* operator()( double x, double phi) const {return 0;}
-
-  virtual void addDets( detunit_p_iter ifirst, detunit_p_iter ilast) {}
-  */
+//   virtual void addDets( detunit_p_iter ifirst, detunit_p_iter ilast) {}
   
 private:  
-  vector<const Det*> theDets;
+//   std::vector<const GeomDet*> theDets;
 
 };
 #endif
