@@ -1,8 +1,8 @@
 /** 
- * Analyzer for calculating CFEB cross-talk.
+ * Analyzer for calculating CFEB cross-talk & pedestal.
  * author S.Durkin, O.Boeriu 15/05/06 
  * runs over multiple DDUs
- * takes variable size chambers and layers  
+ * takes variable size chambers & layers  
  */
 
 #include <iostream>
@@ -27,6 +27,12 @@ class TCalibEvt {
   Int_t layer;
   Int_t cham;
   Int_t ddu;
+  Float_t pedMean;
+  Float_t pedRMS;
+  Float_t peakRMS;
+  Float_t maxADC;
+  Float_t sum;
+
 };
 
 
@@ -40,6 +46,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 #define STRIPS 80
 #define TIMEBINS 8
 #define DDU 2
+#define TOTALSTRIPS 480
 
   ~CSCCrossTalkAnalyzer(){
 
@@ -51,7 +58,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
    TCalibEvt calib_evt;
    TFile calibfile("ntuples/calibxtalk.root", "RECREATE");
    TTree calibtree("Calibration","Cross-talk");
-   calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I");
+   calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F");
    
     ////////////////////////////////////////////////////////////////////iuse==strip-1
     // Now that we have filled our array, extract convd and nconvd
@@ -64,6 +71,17 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
     
     for (int iii=0; iii<Nddu; iii++){
       for (int i=0; i<NChambers; i++){
+	meanPedestal = 0.0;
+	meanPeak     = 0.0;
+	meanPeakSquare=0.0;
+	meanPedestalSquare = 0.;
+	theRMS      =0.0;
+	thePedestal =0.0;
+	theRSquare  =0.0;
+	thePeak     =0.0;
+	thePeakRMS  =0.0;
+	theSumFive  =0.0;
+
 	for (int j=0; j<LAYERS; j++){
 	  mean=0.,sum=0.;
 	  for (int s=0; s<size[i]; s++) {
@@ -214,9 +232,32 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	    new_lchi2[fff]                 = the_chi2_left;
 	    newPeakTime[fff]               = the_peakTime;
 	    newMeanPeakTime[fff]           = the_peakTime-mean;
-	    
-	    std::cout<<"Cham "<<i<<" Layer "<<j<<" strip "<<k<<" IntL "<<new_xtalk_intercept_left[fff]<<"   SlopeL "<<new_xtalk_slope_left[fff]<<"   IntR "<<new_xtalk_intercept_right[fff]<<"   SlopeR "<<new_xtalk_slope_right[fff]<<"   diff "<<newMeanPeakTime[fff]<<endl;
 
+	    //pedestal info
+	    thePedestal  = arrayPed[iii][i][j][k];
+	    meanPedestal = arrayOfPed[iii][i][j][k]/evt;
+	    newPed[fff]  = meanPedestal;
+	    meanPedestalSquare = arrayOfPedSquare[iii][i][j][k] / evt;
+	    theRMS       = sqrt(abs(meanPedestalSquare - meanPedestal*meanPedestal));
+	    newRMS[fff]  = theRMS;
+	    theRSquare   = (thePedestal-meanPedestal)*(thePedestal-meanPedestal)/(theRMS*theRMS*theRMS*theRMS);
+	    thePeak      = arrayPeak[iii][i][j][k];
+	    meanPeak     = arrayOfPeak[iii][i][j][k] / evt;
+	    meanPeakSquare = arrayOfPeakSquare[iii][i][j][k] / evt;
+	    thePeakRMS   = sqrt(abs(meanPeakSquare - meanPeak*meanPeak));
+	    newPeakRMS[fff] = thePeakRMS;
+	    newPeak[fff] = thePeak;
+	    
+	    theSumFive = arraySumFive[iii][i][j][k];
+	    newSumFive[fff]=theSumFive;
+	    
+	    calib_evt.pedMean  = newPed[fff];
+	    calib_evt.pedRMS   = newRMS[fff];
+	    calib_evt.peakRMS  = newPeakRMS[fff];
+	    calib_evt.maxADC   = newPeak[fff];
+	    calib_evt.sum      = newSumFive[fff];
+	    
+	    std::cout <<"Ch "<<i<<" L "<<j<<" S "<<fff<<"  ped "<<newPed[fff]<<" RMS "<<newRMS[fff]<<" maxADC "<<newPeak[fff]<<" maxRMS "<<newPeakRMS[fff]<<" Sum/peak "<<newSumFive[fff]<<" IntL "<<new_xtalk_intercept_left[fff]<<" SL "<<new_xtalk_slope_left[fff]<<" IntR "<<new_xtalk_intercept_right[fff]<<" SR "<<new_xtalk_slope_right[fff]<<" diff "<<newMeanPeakTime[fff]<<std::endl;
 	    calib_evt.xtalk_slope_left     = xtalk_slope_left[iii][i][j][k];
 	    calib_evt.xtalk_slope_right    = xtalk_slope_right[iii][i][j][k];
 	    calib_evt.xtalk_int_left       = xtalk_intercept_left[iii][i][j][k];
@@ -238,7 +279,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	int new_dmbID   = dmbID[i];
 	std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
 	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
-	std::cout<<" Above data is for chamber:: "<< chamber_id<<" and sector:  "<<sector<<std::endl;
+	std::cout<<" Above data is for chamber:: "<< chamber_id<<" sector:  "<<sector<<std::endl;
 	
 	std::string test1 = "CSC_slice";
 	std::string test2 = "xtalk_slope_left";
@@ -248,6 +289,11 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	std::string test6 = "xtalk_intercept_right";
 	std::string test7 = "xtalk_chi2_right";
 	std::string test8 = "time_spread";
+	std::string test9 = "pedestal";
+	std::string test10= "ped_rms";
+	std::string test11= "peak_spread";
+	std::string test12= "pulse_shape";
+
 	std::string answer;
 	std::string bad_number = "nan";
 	
@@ -257,13 +303,17 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	  if(new_xtalk_slope_left[fff] != new_xtalk_slope_left[fff]) {
 	    std::cout<<"this is my xtalk left "<< new_xtalk_slope_left[fff]<<std::endl;
 	  }
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test2,size[i]*6, new_xtalk_slope_left,      4, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test3,size[i]*6, new_xtalk_intercept_left,  4, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test4,size[i]*6, new_lchi2,                 4, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test5,size[i]*6, new_xtalk_slope_right,     4, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test6,size[i]*6, new_xtalk_intercept_right, 4, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test7,size[i]*6, new_rchi2,                 4, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test8,size[i]*6, newMeanPeakTime,           4, &ret_code);
+	  cdb->cdb_write(test1,chamber_id,chamber_num,test2,size[i]*6, new_xtalk_slope_left,      7, &ret_code);
+	  cdb->cdb_write(test1,chamber_id,chamber_num,test3,size[i]*6, new_xtalk_intercept_left,  7, &ret_code);
+	  cdb->cdb_write(test1,chamber_id,chamber_num,test4,size[i]*6, new_lchi2,                 7, &ret_code);
+	  cdb->cdb_write(test1,chamber_id,chamber_num,test5,size[i]*6, new_xtalk_slope_right,     7, &ret_code);
+	  cdb->cdb_write(test1,chamber_id,chamber_num,test6,size[i]*6, new_xtalk_intercept_right, 7, &ret_code);
+	  cdb->cdb_write(test1,chamber_id,chamber_num,test7,size[i]*6, new_rchi2,                 7, &ret_code);
+	  cdb->cdb_write(test1,chamber_id,chamber_num,test8,size[i]*6, newMeanPeakTime,           7, &ret_code);
+	  cdb->cdb_write(test1,chamber_id,chamber_num,test9,size[i]*6, newPed,                    7, &ret_code);
+	  cdb->cdb_write(test1,chamber_id,chamber_num,test10,size[i]*6, newRMS,                   7, &ret_code);
+	  cdb->cdb_write(test1,chamber_id,chamber_num,test11,size[i]*6, newPeakRMS,               7, &ret_code);
+	  cdb->cdb_write(test1,chamber_id,chamber_num,test12,size[i]*6, newSumFive,               7, &ret_code);
 	  
 	  std::cout<<" Data SENT to DB! "<<std::endl;
 	}else{
@@ -285,7 +335,9 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   int theadccountsc[DDU][CHAMBERS][LAYERS][STRIPS][TIMEBINS*20];
   int theadccountsl[DDU][CHAMBERS][LAYERS][STRIPS][TIMEBINS*20];
   int theadccountsr[DDU][CHAMBERS][LAYERS][STRIPS][TIMEBINS*20];
-  float pedMean,time;
+  float pedMean,pedMean1,time,max1,max2,aPeak,sumFive;
+  float meanPedestal,meanPeak,meanPeakSquare,meanPedestalSquare,theRMS;
+  float thePeak,thePeakRMS,theSumFive,thePedestal,theRSquare;
   float thetime[DDU][CHAMBERS][LAYERS][STRIPS][TIMEBINS*20];
   float xtalk_intercept_left[DDU][CHAMBERS][LAYERS][STRIPS];
   float xtalk_intercept_right[DDU][CHAMBERS][LAYERS][STRIPS];
@@ -296,13 +348,25 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   float myPeakTime[DDU][CHAMBERS][LAYERS][STRIPS];
   float myMeanPeakTime[DDU][CHAMBERS][LAYERS][STRIPS];
   float array_meanPeakTime[DDU][CHAMBERS][LAYERS][STRIPS];
-  float new_xtalk_intercept_right[480];
-  float new_xtalk_intercept_left[480];
-  float new_xtalk_slope_right[480];
-  float new_xtalk_slope_left[480];
-  float new_rchi2[480];
-  float new_lchi2[480];
-  float newPeakTime[480];
-  float newMeanPeakTime[480];
+  float arrayOfPed[DDU][CHAMBERS][LAYERS][STRIPS];
+  float arrayOfPedSquare[DDU][CHAMBERS][LAYERS][STRIPS];
+  float arrayPed[DDU][CHAMBERS][LAYERS][STRIPS];
+  float arrayPeak[DDU][CHAMBERS][LAYERS][STRIPS];
+  float arrayOfPeak[DDU][CHAMBERS][LAYERS][STRIPS];
+  float arrayOfPeakSquare[DDU][CHAMBERS][LAYERS][STRIPS];
+  float arraySumFive[DDU][CHAMBERS][LAYERS][STRIPS];
+  float newPed[TOTALSTRIPS];
+  float newRMS[TOTALSTRIPS];
+  float newPeakRMS[TOTALSTRIPS];
+  float newPeak[TOTALSTRIPS];
+  float newSumFive[TOTALSTRIPS];
+  float new_xtalk_intercept_right[TOTALSTRIPS];
+  float new_xtalk_intercept_left[TOTALSTRIPS];
+  float new_xtalk_slope_right[TOTALSTRIPS];
+  float new_xtalk_slope_left[TOTALSTRIPS];
+  float new_rchi2[TOTALSTRIPS];
+  float new_lchi2[TOTALSTRIPS];
+  float newPeakTime[TOTALSTRIPS];
+  float newMeanPeakTime[TOTALSTRIPS];
 };
 

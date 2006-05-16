@@ -28,9 +28,10 @@
 CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
   
   eventNumber=0,evt=0, Nddu=0;
-  strip=0,misMatch=0;
+  strip=0,misMatch=0,max1 =-9999999.,max2=-9999999.;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1;
+  aPeak=0.0,sumFive=0.0;
   pedMean=0.0,time=0.0,NChambers=0;
 
   for (int i=0;i<480;i++){
@@ -42,7 +43,11 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
     new_lchi2[i]                 = -999.;
     newPeakTime[i]               = -999.;
     newMeanPeakTime[i]           = -999.;
-   
+    newPed[i]                    = 0  ;
+    newRMS[i]                    = 0.0;
+    newPeakRMS[i]                = 0.0;
+    newPeak[i]                   = 0.0;
+    newSumFive[i]                = 0.0;
   }
   
 
@@ -60,6 +65,13 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
 	    theadccountsc[iii][i][j][k][l] = 0  ;
 	    theadccountsl[iii][i][j][k][l] = 0  ;
 	    theadccountsr[iii][i][j][k][l] = 0  ;
+	    arrayOfPed[iii][i][j][k]       = 0.;
+	    arrayOfPedSquare[iii][i][j][k] = 0.;
+	    arrayPed[iii][i][j][k]         = 0.;
+	    arrayPeak[iii][i][j][k]        = 0.;
+	    arrayOfPeak[iii][i][j][k]      = 0.; 
+	    arrayOfPeakSquare[iii][i][j][k]= 0.;
+	    arraySumFive[iii][i][j][k]     = 0.;
 	  }
 	}
       }
@@ -133,7 +145,7 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
                 size[chamber] = digis.size();
 		int strip = digis[i].getStrip();
                 std::vector<int> adc = digis[i].getADCCounts();
-		
+		pedMean1 =(adc[0]+adc[1])/2;
 		int offset = evt / 20;
                 int smain[5],splus[5],sminus[5]; //5 for CFEBs
                 for(int s=0;s<5;s++) smain[s]  = s*16+offset;
@@ -150,7 +162,17 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 		    
                     time = (50. * k)-((evt%20)* 6.25)+116.5;
                     pedMean =(adc[0]+adc[1])/2;
+
+		    aPeak = adc[3];
+		    if (max1 < aPeak) {
+		      max1 = aPeak;
+		    }
+		    sumFive = adc[2]+adc[3]+adc[4];
 		    
+		    if (max2<sumFive){
+		      max2=sumFive;
+		    }
+
                     int kk=8*k-evt%20+19;//19 to zero everything, for binning 120
 		    
                     thebins[iDDU][chamber][layer-1][strip-1][kk] = 8*k-evt%20+19;
@@ -160,9 +182,16 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
                     if(iuse==strip)    theadccountsr[iDDU][chamber][layer-1][iuse][kk] = adc[k];
                     if(iuse==strip-2)  theadccountsl[iDDU][chamber][layer-1][iuse][kk] = adc[k];
 		    
-                  }//end loop over timebins
-                }//end iuse!=99
-              }//end loop over digis
+                  }//adc.size()
+		}//end iuse!=99
+		arrayPed[iDDU][chamber][layer-1][strip-1] = pedMean1;	
+		arrayOfPed[iDDU][chamber][layer-1][strip-1] += pedMean1;
+		arrayOfPedSquare[iDDU][chamber][layer-1][strip-1] += pedMean1*pedMean1 ;
+		arrayPeak[iDDU][chamber][layer-1][strip-1] = max1-pedMean1;
+		arrayOfPeak[iDDU][chamber][layer-1][strip-1] += max1-pedMean1;
+		arrayOfPeakSquare[iDDU][chamber][layer-1][strip-1] += (max1-pedMean1)*(max1-pedMean1);
+		arraySumFive[iDDU][chamber][layer-1][strip-1] = (max2-pedMean1)/(max1-pedMean1);
+	      }//end loop over digis
             }//end cfeb.available loop
           }//end loop over layers
         }//end loop over chambers
