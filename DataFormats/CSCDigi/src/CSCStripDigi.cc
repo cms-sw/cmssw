@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2006/04/06 11:18:37 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/04/26 20:30:40 $
+ *  $Revision: 1.9 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -24,6 +24,17 @@ CSCStripDigi::CSCStripDigi (int istrip, vector<int> vADCCounts,  vector<uint16_t
   OverlappedSample = vOverlap;
   Errorstat = vErrorstat;
 }
+
+CSCStripDigi::CSCStripDigi (int istrip, vector<int> vADCCounts){
+  strip = istrip;
+  ADCCounts = vADCCounts;
+  vector<uint16_t> ZeroVec(8,0);
+  ADCOverflow = ZeroVec;
+  ControllerData = ZeroVec;
+  OverlappedSample = ZeroVec;
+  Errorstat = ZeroVec;
+}
+
 
 CSCStripDigi::CSCStripDigi (){
   vector<int> ZeroCounts(8,0);
