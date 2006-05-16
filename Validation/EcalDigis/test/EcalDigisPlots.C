@@ -42,11 +42,11 @@ void EcalDigisPlots()
    
    
    Ecal->cd(1); 
-   meGunEnergy_->Draw(); 
+   if ( meGunEnergy_ ) meGunEnergy_->Draw(); 
    Ecal->cd(2); 
-   meGunEta_->Draw(); 
+   if ( meGunEta_ ) meGunEta_->Draw(); 
    Ecal->cd(3); 
-   meGunPhi_->Draw(); 
+   if ( meGunPhi_ ) meGunPhi_->Draw(); 
    Ecal->Print("ParticleGun.eps"); 
  }
 
@@ -60,7 +60,7 @@ void EcalDigisPlots()
    meEBDigiOccupancy_;
 
    Ecal->cd(1);
-   meEBDigiOccupancy_->Draw();
+   if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Draw();
    Ecal->Print("Barrel_Occupancy.eps");
  }
 
@@ -80,9 +80,9 @@ void EcalDigisPlots()
    meEEDigiOccupancyzm_;
 
    Ecal->cd(1);
-   meEEDigiOccupancyzp_->Draw();
+   if ( meEEDigiOccupancyzp_ ) meEEDigiOccupancyzp_->Draw();
    Ecal->cd(2);
-   meEEDigiOccupancyzm_->Draw();
+   if ( meEEDigiOccupancyzm_ ) meEEDigiOccupancyzm_->Draw();
    Ecal->Print("Endcap_Occupancy.eps");
  }
 
@@ -102,9 +102,9 @@ void EcalDigisPlots()
    meEEDigiADCGlobal_;
 
    Ecal->cd(1);
-   meEBDigiADCGlobal_->Draw();
+   if ( meEBDigiADCGlobal_ ) meEBDigiADCGlobal_->Draw();
    Ecal->cd(2);
-   meEEDigiADCGlobal_->Draw();
+   if ( meEEDigiADCGlobal_ ) meEEDigiADCGlobal_->Draw();
    Ecal->Print("Global_pulse_shape.eps");
  }
 
@@ -124,11 +124,11 @@ void EcalDigisPlots()
 
    Ecal->cd(1);
    gPad->SetLogy(0);
-   meEBDigiSimRatio_->Draw();
+   if ( meEBDigiSimRatio_ ) meEBDigiSimRatio_->Draw();
    gPad->SetLogy(1);
    Ecal->cd(2);
    gPad->SetLogy(0);
-   meEEDigiSimRatio_->Draw();
+   if ( meEEDigiSimRatio_ ) meEEDigiSimRatio_->Draw();
    gPad->SetLogy(1);
    Ecal->Print("MaxADC_over_Sim_Ratio.eps");
  } 
@@ -147,11 +147,11 @@ void EcalDigisPlots()
 
    Ecal->cd(1);
    gPad->SetLogy(0);
-   meEBDigiSimRatiogt10ADC_->Draw();
+   if ( meEBDigiSimRatiogt10ADC_ ) meEBDigiSimRatiogt10ADC_->Draw();
    gPad->SetLogy(1);
    Ecal->cd(2);
    gPad->SetLogy(0);
-   meEEDigiSimRatiogt10ADC_->Draw();
+   if ( meEEDigiSimRatiogt10ADC_ ) meEEDigiSimRatiogt10ADC_->Draw();
    gPad->SetLogy(1);
    Ecal->Print("MaxADC_over_Sim_Ratio_gt10ADC.eps");
  } 
@@ -170,11 +170,11 @@ void EcalDigisPlots()
 
    Ecal->cd(1);
    gPad->SetLogy(0);
-   meEBDigiSimRatiogt100ADC_->Draw();
+   if ( meEBDigiSimRatiogt100ADC_ ) meEBDigiSimRatiogt100ADC_->Draw();
    gPad->SetLogy(1);
    Ecal->cd(2);
    gPad->SetLogy(0);
-   meEEDigiSimRatiogt100ADC_->Draw();
+   if ( meEEDigiSimRatiogt100ADC_ ) meEEDigiSimRatiogt100ADC_->Draw();
    gPad->SetLogy(1);
    Ecal->Print("MaxADC_over_Sim_Ratio_gt100ADC.eps");
  } 
@@ -194,9 +194,9 @@ void EcalDigisPlots()
    meEEnADCafterSwitch_;
 
    Ecal->cd(1);
-   meEBnADCafterSwitch_->Draw();
+   if ( meEBnADCafterSwitch_ ) meEBnADCafterSwitch_->Draw();
    Ecal->cd(2);
-   meEEnADCafterSwitch_->Draw();
+   if ( meEEnADCafterSwitch_ ) meEEnADCafterSwitch_->Draw();
    Ecal->Print("Counts_after_gain_switch.eps");
  }
 
@@ -215,9 +215,9 @@ void EcalDigisPlots()
    meEEPedestal_;
 
    Ecal->cd(1);
-   meEBPedestal_->Draw();
+   if ( meEBPedestal_ ) meEBPedestal_->Draw();
    Ecal->cd(2);
-   meEEPedestal_->Draw();
+   if ( meEEPedestal_ ) meEEPedestal_->Draw();
    Ecal->Print("Presample_pedestal.eps");
  } 
 
@@ -237,9 +237,9 @@ void EcalDigisPlots()
    meEEMaximumgt100ADC_;
 
    Ecal->cd(1);
-   meEBMaximumgt100ADC_->Draw();
+   if ( meEBMaximumgt100ADC_ ) meEBMaximumgt100ADC_->Draw();
    Ecal->cd(2);
-   meEEMaximumgt100ADC_->Draw();
+   if ( meEEMaximumgt100ADC_ ) meEEMaximumgt100ADC_->Draw();
    Ecal->Print("Maximum_position_gt100ADC.eps");
  }
 
@@ -256,9 +256,9 @@ void EcalDigisPlots()
    meEEMaximumgt10ADC_;
 
    Ecal->cd(1);
-   meEBMaximumgt10ADC_->Draw();
+   if ( meEBMaximumgt10ADC_ ) meEBMaximumgt10ADC_->Draw();
    Ecal->cd(2);
-   meEEMaximumgt10ADC_->Draw();
+   if ( meEEMaximumgt10ADC_ ) meEEMaximumgt10ADC_->Draw();
    Ecal->Print("Maximum_position_gt10ADC.eps");
  }
 
@@ -276,7 +276,7 @@ void EcalDigisPlots()
    }
    for ( Int_t  i=0 ; i<3; i++ ) {
      Ecal->cd(i+1);
-     meESDigiADC_[i]->Draw();
+     if ( meESDigiADC_[i] ) meESDigiADC_[i]->Draw();
    }
    Ecal->Print("Preshower_ADC_counts.eps");
  }
@@ -296,7 +296,7 @@ void EcalDigisPlots()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEBDigiADCAnalog_[i]->Draw();
+     if ( meEBDigiADCAnalog_[i] ) meEBDigiADCAnalog_[i]->Draw();
      gPad->SetLogy(1);
    }
    Ecal->Print("Barrel_analog_ADC_counts.eps");
@@ -317,7 +317,7 @@ void EcalDigisPlots()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEBDigiADCg1_[i]->Draw();
+     if ( meEBDigiADCg1_[i] ) meEBDigiADCg1_[i]->Draw();
      gPad->SetLogy(1);
    }
    Ecal->Print("Barrel_ADC_counts_gain1.eps");
@@ -338,7 +338,7 @@ void EcalDigisPlots()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEBDigiADCg6_[i]->Draw();
+     if ( meEBDigiADCg6_[i] ) meEBDigiADCg6_[i]->Draw();
      gPad->SetLogy(1);
    }
    Ecal->Print("Barrel_ADC_counts_gain6.eps");
@@ -359,7 +359,7 @@ void EcalDigisPlots()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEBDigiADCg12_[i]->Draw();
+     if ( meEBDigiADCg12_[i] ) meEBDigiADCg12_[i]->Draw();
      gPad->SetLogy(1);
    }
    Ecal->Print("Barrel_ADC_counts_gain12.eps");
@@ -380,7 +380,7 @@ void EcalDigisPlots()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEBDigiGain_[i]->Draw();
+     if ( meEBDigiGain_[i] ) meEBDigiGain_[i]->Draw();
      gPad->SetLogy(1);
    }
    Ecal->Print("Barrel_ADC_gain.eps");
@@ -401,7 +401,7 @@ void EcalDigisPlots()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEEDigiADCAnalog_[i]->Draw();
+     if ( meEEDigiADCAnalog_[i] ) meEEDigiADCAnalog_[i]->Draw();
      gPad->SetLogy(1);
    }
    Ecal->Print("Endcap_analog_ADC_counts.eps");
@@ -422,7 +422,7 @@ void EcalDigisPlots()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEEDigiADCg1_[i]->Draw();
+     if ( meEEDigiADCg1_[i] ) meEEDigiADCg1_[i]->Draw();
      gPad->SetLogy(1);
    }
    Ecal->Print("Endcap_ADC_counts_gain1.eps");
@@ -443,7 +443,7 @@ void EcalDigisPlots()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEEDigiADCg6_[i]->Draw();
+     if ( meEEDigiADCg6_[i] ) meEEDigiADCg6_[i]->Draw();
      gPad->SetLogy(1);
    }
    Ecal->Print("Endcap_ADC_counts_gain6.eps");
@@ -464,7 +464,7 @@ void EcalDigisPlots()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEEDigiADCg12_[i]->Draw();
+     if ( meEEDigiADCg12_[i] ) meEEDigiADCg12_[i]->Draw();
      gPad->SetLogy(1);
    }
    Ecal->Print("Endcap_ADC_counts_gain12.eps");
@@ -485,7 +485,7 @@ void EcalDigisPlots()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEEDigiGain_[i]->Draw();
+     if ( meEEDigiGain_[i] ) meEEDigiGain_[i]->Draw();
      gPad->SetLogy(1);
    }
    Ecal->Print("Endcap_ADC_gain.eps");

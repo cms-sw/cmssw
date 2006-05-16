@@ -70,17 +70,23 @@ void EcalDigisPlotCompare()
    
    
    Ecal->cd(1); 
-   meGunEnergy_->Draw(); 
-   newmeGunEnergy_->Draw("same"); 
-   myPV->PVCompute( meGunEnergy_ , newmeGunEnergy_ , te );
+   if ( meGunEnergy_ && newmeGunEnergy_ ) {
+     meGunEnergy_->Draw(); 
+     newmeGunEnergy_->Draw("same"); 
+     myPV->PVCompute( meGunEnergy_ , newmeGunEnergy_ , te );
+   }
    Ecal->cd(2); 
-   meGunEta_->Draw(); 
-   newmeGunEta_->Draw("same"); 
-   myPV->PVCompute( meGunEta_ , newmeGunEta_ , te );
+   if ( meGunEta_ && newmeGunEta_ ) {
+     meGunEta_->Draw(); 
+     newmeGunEta_->Draw("same"); 
+     myPV->PVCompute( meGunEta_ , newmeGunEta_ , te );
+   }
    Ecal->cd(3); 
-   meGunPhi_->Draw(); 
-   newmeGunPhi_->Draw("same"); 
-   myPV->PVCompute( meGunPhi_ , newmeGunPhi_ , te );
+   if ( meGunPhi_ && newmeGunPhi_ ) {
+     meGunPhi_->Draw(); 
+     newmeGunPhi_->Draw("same"); 
+     myPV->PVCompute( meGunPhi_ , newmeGunPhi_ , te );
+   }
    Ecal->Print("ParticleGun_compare.eps"); 
  }
 
@@ -100,11 +106,13 @@ void EcalDigisPlotCompare()
    newmeEBDigiOccupancy_;
    newmeEBDigiOccupancy_->SetLineColor(2);
 
-   Ecal->cd(1);
-   meEBDigiOccupancy_->Draw();
-   Ecal->cd(2);
-   newmeEBDigiOccupancy_->Draw();
-   myPV->PVCompute(meEBDigiOccupancy_ , newmeEBDigiOccupancy_ , te);
+   if ( meEBDigiOccupancy_ && newmeEBDigiOccupancy_ ) {
+     Ecal->cd(1);
+     meEBDigiOccupancy_->Draw();
+     Ecal->cd(2);
+     newmeEBDigiOccupancy_->Draw();
+     myPV->PVCompute(meEBDigiOccupancy_ , newmeEBDigiOccupancy_ , te);
+   }
    Ecal->Print("Barrel_Occupancy_compare.eps");
  }
 
@@ -135,16 +143,18 @@ void EcalDigisPlotCompare()
    newmeEEDigiOccupancyzm_;
    newmeEEDigiOccupancyzm_->SetLineColor(2);
 
-   Ecal->cd(1);
-   meEEDigiOccupancyzp_->Draw();
-   Ecal->cd(3);
-   newmeEEDigiOccupancyzp_->Draw();
-   myPV->PVCompute(meEEDigiOccupancyzp_ , newmeEEDigiOccupancyzp_ , te);
-   Ecal->cd(2);
-   meEEDigiOccupancyzm_->Draw();
-   Ecal->cd(4);
-   newmeEEDigiOccupancyzm_->Draw();
-   myPV->PVCompute(meEEDigiOccupancyzm_ , newmeEEDigiOccupancyzm_ , te);
+   if ( meEEDigiOccupancyzp_ && newmeEEDigiOccupancyzp_ && meEEDigiOccupancyzm_ && newmeEEDigiOccupancyzm_ ) {
+     Ecal->cd(1);
+     meEEDigiOccupancyzp_->Draw();
+     Ecal->cd(3);
+     newmeEEDigiOccupancyzp_->Draw();
+     myPV->PVCompute(meEEDigiOccupancyzp_ , newmeEEDigiOccupancyzp_ , te);
+     Ecal->cd(2);
+     meEEDigiOccupancyzm_->Draw();
+     Ecal->cd(4);
+     newmeEEDigiOccupancyzm_->Draw();
+     myPV->PVCompute(meEEDigiOccupancyzm_ , newmeEEDigiOccupancyzm_ , te);
+   }
    Ecal->Print("Endcap_Occupancy_compare.eps");
  }
 
@@ -176,13 +186,17 @@ void EcalDigisPlotCompare()
    newmeEEDigiADCGlobal_->SetLineColor(2);
 
    Ecal->cd(1);
-   meEBDigiADCGlobal_->Draw();
-   newmeEBDigiADCGlobal_->Draw("same");
-   myPV->PVCompute(meEBDigiADCGlobal_ , newmeEBDigiADCGlobal_ , te);
+   if ( meEBDigiADCGlobal_ && newmeEBDigiADCGlobal_ ) {
+     meEBDigiADCGlobal_->Draw();
+     newmeEBDigiADCGlobal_->Draw("same");
+     myPV->PVCompute(meEBDigiADCGlobal_ , newmeEBDigiADCGlobal_ , te);
+   }
    Ecal->cd(2);
-   meEEDigiADCGlobal_->Draw();
-   newmeEEDigiADCGlobal_->Draw("same");
-   myPV->PVCompute(meEEDigiADCGlobal_ , newmeEEDigiADCGlobal_ , te);
+   if ( meEEDigiADCGlobal_ && newmeEEDigiADCGlobal_ ) { 
+     meEEDigiADCGlobal_->Draw();
+     newmeEEDigiADCGlobal_->Draw("same");
+     myPV->PVCompute(meEEDigiADCGlobal_ , newmeEEDigiADCGlobal_ , te);
+   }
    Ecal->Print("Global_pulse_shape_compare.eps");
  }
 
@@ -214,15 +228,19 @@ void EcalDigisPlotCompare()
 
    Ecal->cd(1);
    gPad->SetLogy(0);
-   meEBDigiSimRatio_->Draw();
-   newmeEBDigiSimRatio_->Draw("same");
-   myPV->PVCompute(meEBDigiSimRatio_ , newmeEBDigiSimRatio_ , te);
+   if ( meEBDigiSimRatio_ && newmeEBDigiSimRatio_ ) {
+     meEBDigiSimRatio_->Draw();
+     newmeEBDigiSimRatio_->Draw("same");
+     myPV->PVCompute(meEBDigiSimRatio_ , newmeEBDigiSimRatio_ , te);
+   }
    gPad->SetLogy(1);
    Ecal->cd(2);
    gPad->SetLogy(0);
-   meEEDigiSimRatio_->Draw();
-   newmeEEDigiSimRatio_->Draw("same");
-   myPV->PVCompute(meEEDigiSimRatio_ , newmeEEDigiSimRatio_ , te);
+   if ( meEEDigiSimRatio_ && newmeEEDigiSimRatio_ ) {
+     meEEDigiSimRatio_->Draw();
+     newmeEEDigiSimRatio_->Draw("same");
+     myPV->PVCompute(meEEDigiSimRatio_ , newmeEEDigiSimRatio_ , te);
+   }
    gPad->SetLogy(1);
    Ecal->Print("MaxADC_over_Sim_Ratio_compare.eps");
  } 
@@ -253,15 +271,19 @@ void EcalDigisPlotCompare()
 
    Ecal->cd(1);
    gPad->SetLogy(0);
-   meEBDigiSimRatiogt10ADC_->Draw();
-   newmeEBDigiSimRatiogt10ADC_->Draw("same");
-   myPV->PVCompute(meEBDigiSimRatiogt10ADC_ , newmeEBDigiSimRatiogt10ADC_ , te);
+   if ( meEBDigiSimRatiogt10ADC_ && newmeEBDigiSimRatiogt10ADC_ ) {
+     meEBDigiSimRatiogt10ADC_->Draw();
+     newmeEBDigiSimRatiogt10ADC_->Draw("same");
+     myPV->PVCompute(meEBDigiSimRatiogt10ADC_ , newmeEBDigiSimRatiogt10ADC_ , te);
+   }
    gPad->SetLogy(1);
    Ecal->cd(2);
    gPad->SetLogy(0);
-   meEEDigiSimRatiogt10ADC_->Draw();
-   newmeEEDigiSimRatiogt10ADC_->Draw("same");
-   myPV->PVCompute(meEEDigiSimRatiogt10ADC_ , newmeEEDigiSimRatiogt10ADC_ , te);
+   if ( meEEDigiSimRatiogt10ADC_ && newmeEEDigiSimRatiogt10ADC_ ) {
+     meEEDigiSimRatiogt10ADC_->Draw();
+     newmeEEDigiSimRatiogt10ADC_->Draw("same");
+     myPV->PVCompute(meEEDigiSimRatiogt10ADC_ , newmeEEDigiSimRatiogt10ADC_ , te);
+   }
    gPad->SetLogy(1);
    Ecal->Print("MaxADC_over_Sim_Ratio_gt10ADC_compare.eps");
  } 
@@ -292,15 +314,19 @@ void EcalDigisPlotCompare()
 
    Ecal->cd(1);
    gPad->SetLogy(0);
-   meEBDigiSimRatiogt100ADC_->Draw();
-   newmeEBDigiSimRatiogt100ADC_->Draw("same");
-   myPV->PVCompute(meEBDigiSimRatiogt100ADC_ , newmeEBDigiSimRatiogt100ADC_ , te );
+   if ( meEBDigiSimRatiogt100ADC_ && newmeEBDigiSimRatiogt100ADC_ ) {
+     meEBDigiSimRatiogt100ADC_->Draw();
+     newmeEBDigiSimRatiogt100ADC_->Draw("same");
+     myPV->PVCompute(meEBDigiSimRatiogt100ADC_ , newmeEBDigiSimRatiogt100ADC_ , te );
+   }
    gPad->SetLogy(1);
    Ecal->cd(2);
    gPad->SetLogy(0);
-   meEEDigiSimRatiogt100ADC_->Draw();
-   newmeEEDigiSimRatiogt100ADC_->Draw("same");
-   myPV->PVCompute(meEEDigiSimRatiogt100ADC_ , newmeEEDigiSimRatiogt100ADC_ , te );
+   if ( meEEDigiSimRatiogt100ADC_ && newmeEEDigiSimRatiogt100ADC_ ) {
+     meEEDigiSimRatiogt100ADC_->Draw();
+     newmeEEDigiSimRatiogt100ADC_->Draw("same");
+     myPV->PVCompute(meEEDigiSimRatiogt100ADC_ , newmeEEDigiSimRatiogt100ADC_ , te );
+   }
    gPad->SetLogy(1);
    Ecal->Print("MaxADC_over_Sim_Ratio_gt100ADC_compare.eps");
  } 
@@ -332,13 +358,17 @@ void EcalDigisPlotCompare()
    newmeEEnADCafterSwitch_->SetLineColor(2);
 
    Ecal->cd(1);
-   meEBnADCafterSwitch_->Draw();
-   newmeEBnADCafterSwitch_->Draw("same");
-   myPV->PVCompute(meEBnADCafterSwitch_ , newmeEBnADCafterSwitch_ , te );
+   if ( meEBnADCafterSwitch_ && newmeEBnADCafterSwitch_ ) {
+     meEBnADCafterSwitch_->Draw();
+     newmeEBnADCafterSwitch_->Draw("same");
+     myPV->PVCompute(meEBnADCafterSwitch_ , newmeEBnADCafterSwitch_ , te );
+   }
    Ecal->cd(2);
-   meEEnADCafterSwitch_->Draw();
-   newmeEEnADCafterSwitch_->Draw("same");
-   myPV->PVCompute(meEEnADCafterSwitch_ , newmeEEnADCafterSwitch_ , te );
+   if ( meEEnADCafterSwitch_ && newmeEEnADCafterSwitch_ ) {
+     meEEnADCafterSwitch_->Draw();
+     newmeEEnADCafterSwitch_->Draw("same");
+     myPV->PVCompute(meEEnADCafterSwitch_ , newmeEEnADCafterSwitch_ , te );
+   }
    Ecal->Print("Counts_after_gain_switch_compare.eps");
  }
 
@@ -369,13 +399,17 @@ void EcalDigisPlotCompare()
    newmeEEPedestal_->SetLineColor(2);
 
    Ecal->cd(1);
-   meEBPedestal_->Draw();
-   newmeEBPedestal_->Draw("same");
-   myPV->PVCompute(meEBPedestal_ , newmeEBPedestal_ , te );
+   if ( meEBPedestal_ && newmeEBPedestal_ ) {
+     meEBPedestal_->Draw();
+     newmeEBPedestal_->Draw("same");
+     myPV->PVCompute(meEBPedestal_ , newmeEBPedestal_ , te );
+   }
    Ecal->cd(2);
-   meEEPedestal_->Draw();
-   newmeEEPedestal_->Draw("same");
-   myPV->PVCompute(meEEPedestal_ , newmeEEPedestal_ , te );
+   if ( meEEPedestal_ && newmeEEPedestal_ ) {
+     meEEPedestal_->Draw();
+     newmeEEPedestal_->Draw("same");
+     myPV->PVCompute(meEEPedestal_ , newmeEEPedestal_ , te );
+   }
    Ecal->Print("Presample_pedestal_compare.eps");
  } 
 
@@ -407,13 +441,17 @@ void EcalDigisPlotCompare()
    newmeEEMaximumgt100ADC_->SetLineColor(2);
 
    Ecal->cd(1);
-   meEBMaximumgt100ADC_->Draw();
-   newmeEBMaximumgt100ADC_->Draw("same");
-   myPV->PVCompute(meEBMaximumgt100ADC_ , newmeEBMaximumgt100ADC_ , te );
+   if ( meEBMaximumgt100ADC_ && newmeEBMaximumgt100ADC_ ) { 
+     meEBMaximumgt100ADC_->Draw();
+     newmeEBMaximumgt100ADC_->Draw("same");
+     myPV->PVCompute(meEBMaximumgt100ADC_ , newmeEBMaximumgt100ADC_ , te );
+   }
    Ecal->cd(2);
-   meEEMaximumgt100ADC_->Draw();
-   newmeEEMaximumgt100ADC_->Draw("same");
-   myPV->PVCompute(meEEMaximumgt100ADC_ , newmeEEMaximumgt100ADC_ , te );
+   if ( meEEMaximumgt100ADC_ && newmeEEMaximumgt100ADC_ ) {
+     meEEMaximumgt100ADC_->Draw();
+     newmeEEMaximumgt100ADC_->Draw("same");
+     myPV->PVCompute(meEEMaximumgt100ADC_ , newmeEEMaximumgt100ADC_ , te );
+   }
    Ecal->Print("Maximum_position_gt100ADC_compare.eps");
  }
 
@@ -442,13 +480,17 @@ void EcalDigisPlotCompare()
    newmeEEMaximumgt10ADC_->SetLineColor(2);
 
    Ecal->cd(1);
-   meEBMaximumgt10ADC_->Draw();
-   newmeEBMaximumgt10ADC_->Draw("same");
-   myPV->PVCompute(meEBMaximumgt10ADC_ , newmeEBMaximumgt10ADC_ , te ); 
+   if ( meEBMaximumgt10ADC_ && newmeEBMaximumgt10ADC_ ) {
+     meEBMaximumgt10ADC_->Draw();
+     newmeEBMaximumgt10ADC_->Draw("same");
+     myPV->PVCompute(meEBMaximumgt10ADC_ , newmeEBMaximumgt10ADC_ , te ); 
+   }
    Ecal->cd(2);
-   meEEMaximumgt10ADC_->Draw();
-   newmeEEMaximumgt10ADC_->Draw("same");
-   myPV->PVCompute(meEEMaximumgt10ADC_ , newmeEEMaximumgt10ADC_ , te ); 
+   if ( meEEMaximumgt10ADC_ && newmeEEMaximumgt10ADC_ ) {
+     meEEMaximumgt10ADC_->Draw();
+     newmeEEMaximumgt10ADC_->Draw("same");
+     myPV->PVCompute(meEEMaximumgt10ADC_ , newmeEEMaximumgt10ADC_ , te ); 
+   }
    Ecal->Print("Maximum_position_gt10ADC_compare.eps");
  }
 
@@ -471,9 +513,11 @@ void EcalDigisPlotCompare()
    }
    for ( Int_t  i=0 ; i<3; i++ ) {
      Ecal->cd(i+1);
-     meESDigiADC_[i]->Draw();
-     newmeESDigiADC_[i]->Draw("same");
-     myPV->PVCompute(meESDigiADC_[i] , newmeESDigiADC_[i] , te );
+     if ( meESDigiADC_[i] && newmeESDigiADC_[i] ) { 
+       meESDigiADC_[i]->Draw();
+       newmeESDigiADC_[i]->Draw("same");
+       myPV->PVCompute(meESDigiADC_[i] , newmeESDigiADC_[i] , te );
+     }
    }
    Ecal->Print("Preshower_ADC_counts_compare.eps");
  }
@@ -498,9 +542,11 @@ void EcalDigisPlotCompare()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEBDigiADCAnalog_[i]->Draw();
-     newmeEBDigiADCAnalog_[i]->Draw("same");
-     myPV->PVCompute(meEBDigiADCAnalog_[i] , newmeEBDigiADCAnalog_[i] , te );
+     if ( meEBDigiADCAnalog_[i] && newmeEBDigiADCAnalog_[i] ) {
+       meEBDigiADCAnalog_[i]->Draw();
+       newmeEBDigiADCAnalog_[i]->Draw("same");
+       myPV->PVCompute(meEBDigiADCAnalog_[i] , newmeEBDigiADCAnalog_[i] , te );
+     }
      gPad->SetLogy(1);
    }
    Ecal->Print("Barrel_analog_ADC_counts_compare.eps");
@@ -526,9 +572,11 @@ void EcalDigisPlotCompare()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEBDigiADCg1_[i]->Draw();
-     newmeEBDigiADCg1_[i]->Draw("same");
-     myPV->PVCompute(meEBDigiADCg1_[i] , newmeEBDigiADCg1_[i] , te );
+     if ( meEBDigiADCg1_[i] && newmeEBDigiADCg1_[i] ) {
+       meEBDigiADCg1_[i]->Draw();
+       newmeEBDigiADCg1_[i]->Draw("same");
+       myPV->PVCompute(meEBDigiADCg1_[i] , newmeEBDigiADCg1_[i] , te );
+     }
      gPad->SetLogy(1);
    }
    Ecal->Print("Barrel_ADC_counts_gain1_compare.eps");
@@ -554,9 +602,11 @@ void EcalDigisPlotCompare()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEBDigiADCg6_[i]->Draw();
-     newmeEBDigiADCg6_[i]->Draw("same");
-     myPV->PVCompute(meEBDigiADCg6_[i] , newmeEBDigiADCg6_[i] , te );
+     if ( meEBDigiADCg6_[i] && newmeEBDigiADCg6_[i] ) {
+       meEBDigiADCg6_[i]->Draw();
+       newmeEBDigiADCg6_[i]->Draw("same");
+       myPV->PVCompute(meEBDigiADCg6_[i] , newmeEBDigiADCg6_[i] , te );
+     }
      gPad->SetLogy(1);
    }
    Ecal->Print("Barrel_ADC_counts_gain6_compare.eps");
@@ -582,9 +632,11 @@ void EcalDigisPlotCompare()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEBDigiADCg12_[i]->Draw();
-     newmeEBDigiADCg12_[i]->Draw("same");
-     myPV->PVCompute(meEBDigiADCg12_[i] , newmeEBDigiADCg12_[i] , te );
+     if ( meEBDigiADCg12_[i] && newmeEBDigiADCg12_[i] ) {
+       meEBDigiADCg12_[i]->Draw();
+       newmeEBDigiADCg12_[i]->Draw("same");
+       myPV->PVCompute(meEBDigiADCg12_[i] , newmeEBDigiADCg12_[i] , te );
+     }
      gPad->SetLogy(1);
    }
    Ecal->Print("Barrel_ADC_counts_gain12_compare.eps");
@@ -610,9 +662,11 @@ void EcalDigisPlotCompare()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEBDigiGain_[i]->Draw();
-     newmeEBDigiGain_[i]->Draw("same");
-     myPV->PVCompute(meEBDigiGain_[i] , newmeEBDigiGain_[i] , te );
+     if ( meEBDigiGain_[i] && newmeEBDigiGain_[i] ) {
+       meEBDigiGain_[i]->Draw();
+       newmeEBDigiGain_[i]->Draw("same");
+       myPV->PVCompute(meEBDigiGain_[i] , newmeEBDigiGain_[i] , te );
+     }
      gPad->SetLogy(1);
    }
    Ecal->Print("Barrel_ADC_gain_compare.eps");
@@ -638,9 +692,11 @@ void EcalDigisPlotCompare()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEEDigiADCAnalog_[i]->Draw();
-     newmeEEDigiADCAnalog_[i]->Draw("same");
-     myPV->PVCompute(meEEDigiADCAnalog_[i] , newmeEEDigiADCAnalog_[i] , te );
+     if ( meEEDigiADCAnalog_[i] && newmeEEDigiADCAnalog_[i] ) {
+       meEEDigiADCAnalog_[i]->Draw();
+       newmeEEDigiADCAnalog_[i]->Draw("same");
+       myPV->PVCompute(meEEDigiADCAnalog_[i] , newmeEEDigiADCAnalog_[i] , te );
+     }
      gPad->SetLogy(1);
    }
    Ecal->Print("Endcap_analog_ADC_counts_compare.eps");
@@ -666,9 +722,11 @@ void EcalDigisPlotCompare()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEEDigiADCg1_[i]->Draw();
-     newmeEEDigiADCg1_[i]->Draw("same");
-     myPV->PVCompute(meEEDigiADCg1_[i] , newmeEEDigiADCg1_[i] , te );
+     if ( meEEDigiADCg1_[i] && newmeEEDigiADCg1_[i] ) {
+       meEEDigiADCg1_[i]->Draw();
+       newmeEEDigiADCg1_[i]->Draw("same");
+       myPV->PVCompute(meEEDigiADCg1_[i] , newmeEEDigiADCg1_[i] , te );
+     }
      gPad->SetLogy(1);
    }
    Ecal->Print("Endcap_ADC_counts_gain1_compare.eps");
@@ -694,9 +752,11 @@ void EcalDigisPlotCompare()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEEDigiADCg6_[i]->Draw();
-     newmeEEDigiADCg6_[i]->Draw("same");
-     myPV->PVCompute(meEEDigiADCg6_[i] , newmeEEDigiADCg6_[i] , te );
+     if ( meEEDigiADCg6_[i] && newmeEEDigiADCg6_[i] ) {
+       meEEDigiADCg6_[i]->Draw();
+       newmeEEDigiADCg6_[i]->Draw("same");
+       myPV->PVCompute(meEEDigiADCg6_[i] , newmeEEDigiADCg6_[i] , te );
+     }
      gPad->SetLogy(1);
    }
    Ecal->Print("Endcap_ADC_counts_gain6_compare.eps");
@@ -722,9 +782,11 @@ void EcalDigisPlotCompare()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEEDigiADCg12_[i]->Draw();
-     newmeEEDigiADCg12_[i]->Draw("same");
-     myPV->PVCompute(meEEDigiADCg12_[i] , newmeEEDigiADCg12_[i] , te );
+     if ( meEEDigiADCg12_[i] && newmeEEDigiADCg12_[i] ) {
+       meEEDigiADCg12_[i]->Draw();
+       newmeEEDigiADCg12_[i]->Draw("same");
+       myPV->PVCompute(meEEDigiADCg12_[i] , newmeEEDigiADCg12_[i] , te );
+     }
      gPad->SetLogy(1);
    }
    Ecal->Print("Endcap_ADC_counts_gain12_compare.eps");
@@ -750,9 +812,11 @@ void EcalDigisPlotCompare()
    for ( Int_t  i=0 ; i<10; i++ ) {
      Ecal->cd(i+1);
      gPad->SetLogy(0);
-     meEEDigiGain_[i]->Draw();
-     newmeEEDigiGain_[i]->Draw("same");
-     myPV->PVCompute(meEEDigiGain_[i] , newmeEEDigiGain_[i] , te );
+     if ( meEEDigiGain_[i] && newmeEEDigiGain_[i] ) {
+       meEEDigiGain_[i]->Draw();
+       newmeEEDigiGain_[i]->Draw("same");
+       myPV->PVCompute(meEEDigiGain_[i] , newmeEEDigiGain_[i] , te );
+     }
      gPad->SetLogy(1);
    }
    Ecal->Print("Endcap_ADC_gain_compare.eps");
