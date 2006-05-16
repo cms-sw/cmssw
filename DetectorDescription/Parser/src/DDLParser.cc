@@ -185,7 +185,8 @@ bool DDLParser::parseOneFile(const std::string& filename, const std::string& url
 	{
 	  //myExpHandler = new DDLSAX2ExpressionHandler;
 	  SAX2Parser_->setContentHandler(expHandler_);
-	  edm::LogInfo ("DDLParser") << "Parsing: " << fileNames_[fIndex].second << std::endl;
+	  //	  edm::LogInfo ("DDLParser") << "Parsing: " << fileNames_[fIndex].second << std::endl;
+	  LogDebug ("DDLParser") << "Parsing: " << fileNames_[fIndex].second << std::endl;
 	  parseFile ( fIndex );
 
 	  //	  delete myExpHandler;
@@ -404,7 +405,8 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 	  parseFile(i);
 	  parsed_[i] = true;
 	  pair<std::string, std::string> namePair = fileNames_[i];
-	  edm::LogInfo ("DDLParser") << "Completed parsing file " << namePair.second << std::endl;
+	  //	  edm::LogInfo ("DDLParser") << "Completed parsing file " << namePair.second << std::endl;
+	  LogDebug ("DDLParser") << "Completed parsing file " << namePair.second << std::endl;
 	}
       //myFileHandler->dumpElementTypeCounter();
 
