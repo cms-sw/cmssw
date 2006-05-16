@@ -18,7 +18,7 @@
 #include "log4cplus/fileappender.h"
 #include "log4cplus/loglevel.h"
 
-
+#include "xdaq/include/xdaq/Application.h"
 
 // Possible Traces:
 // #define ELoutputCONSTRUCTOR_TRACE
@@ -96,6 +96,7 @@ ELlog4cplus::ELlog4cplus()
 , wantTimeSeparate    ( false      )
 , wantEpilogueSeparate( false      )
 , xxxxInt             ( 0          )
+, appl_               ( 0          )
 {
   //  makeFileAppender(); // this is not needed/wanted. An appender must be provided by the application itself
 
@@ -130,6 +131,7 @@ ELlog4cplus::ELlog4cplus( const ELlog4cplus & orig )
 , wantTimeSeparate    ( orig.wantTimeSeparate     )
 , wantEpilogueSeparate( orig.wantEpilogueSeparate )
 , xxxxInt             ( orig.xxxxInt              )
+, appl_               ( orig.appl_                ) 
 {
 
   #ifdef ELlog4cplusCONSTRUCTOR_TRACE
@@ -198,14 +200,20 @@ bool ELlog4cplus::log( const ErrorObj & msg )  {
   if ( msg.xid().severity < threshold  )  return false;
   if ( thisShouldBeIgnored(xid.module) )  return false;
   if ( ! limits.add( msg.xid() )       )  return false;
-
-  #ifdef ELlog4cplusTRACE_LOG
-    std::cerr << "    =:=:=: Limits table work done \n";
-  #endif
-
+  
+#ifdef ELlog4cplusTRACE_LOG
+  std::cerr << "    =:=:=: Limits table work done \n";
+#endif
+  
   // get log4cplus logger and establish (log4cplus) context 
-  log4cplus::Logger loghere = 
+  bool mustPop = false;
+  log4cplus::Logger loghere = appl_ ? appl_->getApplicationLogger() :
     log4cplus::Logger::getInstance(msg.xid().module.c_str());
+  if(appl_)
+    {
+      log4cplus::getNDC().push(msg.xid().module.c_str());
+      mustPop = true;
+    }
   log4cplus::getNDC().push(msg.context().c_str());
   
   // Output the prologue:
@@ -353,6 +361,7 @@ bool ELlog4cplus::log( const ErrorObj & msg )  {
 	  break;
 	}
       }
+    if(mustPop) log4cplus::getNDC().pop();
     log4cplus::getNDC().pop();
   return true;
 

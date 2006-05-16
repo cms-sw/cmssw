@@ -27,6 +27,11 @@
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 #include "FWCore/MessageService/interface/ELdestination.h"
 
+#include "EventFilter/Utilities/interface/RunBase.h"
+
+namespace xdaq {
+  class Application;
+}
 
 namespace edm {       
 
@@ -43,7 +48,7 @@ class ELdestControl;
 // ELoutput:
 // ----------------------------------------------------------------------
 
-class ELlog4cplus : public service::ELdestination  {
+class ELlog4cplus : public service::ELdestination, public evf::RunBase  {
 
   friend class service::ELdestControl;
 
@@ -67,6 +72,7 @@ public:
                 //-| ownership is passed to the new copy.
 
   virtual bool log( const ErrorObj & msg );
+
 
   // ---  Methods invoked through the ELdestControl handle:
   //
@@ -103,6 +109,7 @@ protected:
 public:
   void xxxxSet( int i );  // Testing only
   void xxxxShout();       // Testing only
+  void setAppl(xdaq::Application *a){appl_ = a;}
 
 protected:
   // --- member data:
@@ -132,6 +139,8 @@ protected:
   ELlog4cplus & operator=( const ELlog4cplus & orig );
 
  private:
+
+  xdaq::Application *appl_;
 
 };  // ELlog4cplus
 
