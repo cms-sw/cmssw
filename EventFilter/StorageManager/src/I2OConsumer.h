@@ -51,6 +51,9 @@ namespace edmtest
     // function used to block until memory pool is not full
     int i2oyield(unsigned int seconds);  // should really yield to other threads instead of blocking
 
+    unsigned long i2o_max_size_;
+    unsigned long max_i2o_sm_datasize_;
+    unsigned long max_i2o_registry_datasize_; 
   };
 }
 

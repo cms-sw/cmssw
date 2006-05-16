@@ -116,9 +116,19 @@ namespace edmtest
   I2OConsumer::I2OConsumer(edm::ParameterSet const& ps, 
 			     edm::EventBuffer* buf):
     worker_(new I2OWorker(ps.getParameter<string>("DestinationName"))),
-    bufs_(buf)
+    bufs_(buf),
+    i2o_max_size_(ps.getUntrackedParameter<int>("i2o_max_size",I2O_MAX_SIZE))
   {
     FDEBUG(10) << "I2OConsumer: Constructor" << std::endl;
+    // now don't have to hardwire use sizeof(frame) now gives header
+    //max_i2o_sm_datasize_ =  i2o_max_size_ - 28 - 136 ;
+    //max_i2o_registry_datasize_ = i2o_max_size_ - 28 - 116; 
+    max_i2o_sm_datasize_ =  i2o_max_size_ - sizeof(I2O_SM_DATA_MESSAGE_FRAME) ;
+    max_i2o_registry_datasize_ = i2o_max_size_ - sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME); 
+
+    FDEBUG(10) <<"I2OConsumer: Ctor i2o_max_size_: "<< i2o_max_size_ << std::endl;
+    FDEBUG(10) <<"I2OConsumer: Ctor max_i2o_sm_datasize_: "<< max_i2o_sm_datasize_ << std::endl;
+    FDEBUG(10) <<"I2OConsumer: Ctor max_i2o_registry_datasize_: "<< max_i2o_registry_datasize_ << std::endl;
   }
   
   I2OConsumer::~I2OConsumer()
@@ -156,10 +166,10 @@ namespace edmtest
     {
       LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
         "I2OConsumer: High threshold exceeded in memory pool, blocking on I2O output"
-		     << " max committed size "
-		     << worker_->pool_->getMemoryUsage().getCommitted() 
-		     << " mem size used (bytes) " 
-		     << worker_->pool_->getMemoryUsage().getUsed())
+                     << " max committed size "
+                     << worker_->pool_->getMemoryUsage().getCommitted()
+                     << " mem size used (bytes) "
+                     << worker_->pool_->getMemoryUsage().getUsed())
       while (worker_->pool_->isLowThresholdExceeded())
       {
         LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
@@ -298,8 +308,12 @@ namespace edmtest
     FDEBUG(10) << "writeI2ORegistry: size = " << size << std::endl;
     // should really get rid of this
     std::string temp4print(buffer,size);
-    FDEBUG(10) << "writeI2ORegistry data = " << temp4print << std::endl;
-    size_t msgSizeInBytes = sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME);
+    //FDEBUG(10) << "writeI2ORegistry data = " << temp4print << std::endl;
+    //size_t msgSizeInBytes = sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME);
+// This is supposed to be the maximum possible size
+    size_t msgSizeInBytes = i2o_max_size_ ;
+    //size_t msgSizeInBytes = max_i2o_registry_datasize_ ;
+    //size_t msgSizeInBytes = sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME) + max_i2o_registry_datasize_ ;
     FDEBUG(10) << "msgSizeInBytes registry frame size = " << msgSizeInBytes << std::endl;
     FDEBUG(10) << "I2O_MESSAGE_FRAME size = " << sizeof(I2O_MESSAGE_FRAME) << std::endl;
     FDEBUG(10) << "I2O_PRIVATE_MESSAGE_FRAME size = " << sizeof(I2O_PRIVATE_MESSAGE_FRAME) << std::endl;
@@ -372,12 +386,14 @@ namespace edmtest
       msg->hltTid = i2o::utils::getAddressMap()->getTid(worker_->app_->getApplicationDescriptor());
 
       for (unsigned int i=0; i<size; i++){
-        msg->data[i] = *(buffer+i);
+        msg->dataPtr()[i] = *(buffer+i);
+        //msg->data[i] = *(buffer+i);
       }
       // should really get rid of this
-      std::string temp4print(msg->data,size);
-      FDEBUG(10) << "I2OConsumer::WriteI2ORegistry: string msg_>data = " 
-                 << temp4print << std::endl;
+      //std::string temp4print(msg->data,size);
+      std::string temp4print(msg->dataPtr(),size);
+      //FDEBUG(10) << "I2OConsumer::WriteI2ORegistry: string msg_>data = " 
+      //           << temp4print << std::endl;
 
       bufRef->setDataSize(msgSizeInBytes);
 
@@ -406,6 +422,7 @@ namespace edmtest
       return;
     }
   }
+
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   void I2OConsumer::writeI2OData(const char* buffer, unsigned int size,
                                  edm::RunNumber_t runid, edm::EventNumber_t eventid)
@@ -416,7 +433,13 @@ namespace edmtest
     // should really test the size >0
     FDEBUG(10) << "I2OConsumer::writeI2OData: data size (in bytes) = " << size << std::endl;
     // must decide how many frames we need to use to send this message
-    unsigned int maxSizeInBytes = MAX_I2O_SM_DATASIZE;
+    // HEREHERE need to say should have used a different name here
+    // here I used the same name maxSizeInBytes when I should not have!
+    // This maxSizeInBytes here is for size for available data
+    // the maxSizeInBytes in the loop below is for the total size as
+    // posted to I2O
+    unsigned int maxSizeInBytes = max_i2o_sm_datasize_;
+    ///unsigned int maxSizeInBytes = MAX_I2O_SM_DATASIZE;
     unsigned int headerNeededSize = sizeof(MsgCode::Codes)+sizeof(EventMsg::Header);
     //std::cout << "headerNeededSize = " << headerNeededSize << std::endl;
     unsigned int maxEvMsgDataFragSizeInBytes = maxSizeInBytes - headerNeededSize;
@@ -436,7 +459,7 @@ namespace edmtest
     unsigned int thisSize = 0;
     toolbox::mem::Reference *head = 0;
     toolbox::mem::Reference *tail = 0;
-
+        
     for (int i=0; i<(int)numFramesNeeded; i++)
     {
       thisCount = i;
@@ -454,12 +477,14 @@ namespace edmtest
       int minlen = 50;
       if(minlen > (int)thisSize) minlen = thisSize;
       std::string temp4print(buffer+start,minlen);
-      FDEBUG(10) << "I2OConsumer::writeI2OData: data = " << temp4print << std::endl;
+      //FDEBUG(10) << "I2OConsumer::writeI2OData: data = " << temp4print << std::endl;
 
-      size_t msgSizeInBytes = sizeof(I2O_SM_DATA_MESSAGE_FRAME);
+      //size_t msgSizeInBytes = max_i2o_sm_datasize_;
+      //size_t msgSizeInBytes = thisSize+headerNeededSize;
+      size_t msgSizeInBytes = sizeof(I2O_SM_DATA_MESSAGE_FRAME)+max_i2o_sm_datasize_;
       FDEBUG(10) << "I2OConsumer::writeI2OData: msgSizeInBytes data frame size = " 
                  << msgSizeInBytes << std::endl;
-      if(thisSize > MAX_I2O_SM_DATASIZE)
+      if(thisSize > max_i2o_sm_datasize_) //MAX_I2O_SM_DATASIZE+MAX_I2O_SM_DATASIZE)
       {
         // this should never happen - get rid of this later?
         std::cerr << "I2OConsumer::writeI2OData: unexpected error! "
@@ -470,7 +495,6 @@ namespace edmtest
       {
         toolbox::mem::Reference* bufRef =
            toolbox::mem::getMemoryPoolFactory()->getFrame(worker_->pool_,msgSizeInBytes);
-
         I2O_MESSAGE_FRAME *stdMsg =
           (I2O_MESSAGE_FRAME*)bufRef->getDataLocation();
         I2O_PRIVATE_MESSAGE_FRAME*pvtMsg = (I2O_PRIVATE_MESSAGE_FRAME*)stdMsg;
@@ -478,6 +502,7 @@ namespace edmtest
           (I2O_SM_DATA_MESSAGE_FRAME*)stdMsg;
 
         stdMsg->MessageSize      = msgSizeInBytes >> 2;
+
         try
         {
           stdMsg->InitiatorAddress =
@@ -552,21 +577,24 @@ namespace edmtest
         {
           for (unsigned int i=0; i<thisSize; i++)
           {
-            msg->data[i+headerNeededSize] = *(buffer+headerNeededSize+i + start);
+            msg->dataPtr()[i+headerNeededSize] = *(buffer+headerNeededSize+i + start);
+            //msg->data[i+headerNeededSize] = *(buffer+headerNeededSize+i + start);
           }
           // remake header
-          char dummyBuffer[MAX_I2O_SM_DATASIZE];
+          char* dummyBuffer = new char[max_i2o_sm_datasize_];
+          //char dummyBuffer[MAX_I2O_SM_DATASIZE];
           EventMsg msgFrag(dummyBuffer, thisSize+headerNeededSize, 
             eventid, runid, thisCount+1, numFramesNeeded);
           for (unsigned int i=0; i<headerNeededSize; i++)
           {
-            msg->data[i] = dummyBuffer[i];
+            msg->dataPtr()[i] = dummyBuffer[i];
+            //msg->data[i] = dummyBuffer[i];
           }
-
+          delete [] dummyBuffer;
           // should get rid of this later - just used to create a dump for checking
           minlen = 50;
           if(minlen > (int)thisSize) minlen = thisSize;
-          std::string temp4print(msg->data,minlen);
+          std::string temp4print(msg->dataPtr(),minlen);
           FDEBUG(10) << "I2OConsumer::writeI2OData: msg data = " << temp4print << std::endl;
         } else {
           std::cout << "I2OConsumer::writeI2OData: Error! Sending zero size data!?" << std::endl;
@@ -574,7 +602,6 @@ namespace edmtest
 
 // need to set the actual buffer size that is being sent
         bufRef->setDataSize(msgSizeInBytes);
-
       }
       catch(toolbox::mem::exception::Exception e)
       {
@@ -597,7 +624,7 @@ namespace edmtest
         worker_->app_->getApplicationContext()->postFrame(head,
                        worker_->app_->getApplicationDescriptor(),worker_->destination_);
         // for performance measurements only using global variable!
-        addMyXDAQMeasurement((unsigned long)(numFramesNeeded * sizeof(I2O_SM_DATA_MESSAGE_FRAME)));
+        addMyXDAQMeasurement((unsigned long)(numFramesNeeded * i2o_max_size_));
       }
     else
       std::cerr << "I2OConsumer::writeI2OData: No " << worker_->destinationName_

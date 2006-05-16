@@ -2,6 +2,7 @@
 #define __i2oStorageManagerMsg_h__
 
 #include "i2o/i2o.h"
+#include <string.h>
 //#include "DataFormats/Common/interface/EventID.h"
 
 /*
@@ -32,15 +33,23 @@
 //
 // source (HLT) id could be compressed into fewer bytes!
 //
+// Default size of i20 packet.
+//max data I2O frame is (2**16 - 1) * 4 = 65535 * 4 = 262140
+//#define I2O_MAX_SIZE 262140
+//use max data I2O frame as (2**13 - 1) * 4 = 32764 (32KB for MTCC)
+#define I2O_MAX_SIZE 32764
 //max data I2O frame is (2**16 - 1) * 4 = 65535 * 4 = 262140
 //max data array size is then 262140 - 28 - 136 = 261976 bytes
-#define MAX_I2O_SM_DATASIZE 261976
+//#define MAX_I2O_SM_DATASIZE 261976
+#define MAX_I2O_SM_DATASIZE 32600
 // Not sure if Registry always fit in a single I2O frame??!
 // registry data array size is 262140 - 28 - 116 = 261996 bytes
-#define MAX_I2O_REGISTRY_DATASIZE 261996
+//#define MAX_I2O_REGISTRY_DATASIZE 261996
+#define MAX_I2O_REGISTRY_DATASIZE 32620
 // we want to define the maximum event data size?
 // max size is 20 x 262088 = about 5MB (used in testI2OReceiver only)
-#define MAX_I2O_SM_DATAFRAMES 20
+//#define MAX_I2O_SM_DATAFRAMES 20
+#define MAX_I2O_SM_DATAFRAMES 160
 // maximum characters for the source class name and url
 #define MAX_I2O_SM_URLCHARS 50
 
@@ -55,7 +64,9 @@ typedef struct _I2O_SM_PREAMBLE_MESSAGE_FRAME {
    unsigned long             hltLocalId;
    unsigned long             hltInstance;
    unsigned long             hltTid;
-   char                      data[MAX_I2O_REGISTRY_DATASIZE];
+   char                      data[];
+   //char                      data[MAX_I2O_REGISTRY_DATASIZE];
+   char* dataPtr()           { return (char*) data; }
 } I2O_SM_PREAMBLE_MESSAGE_FRAME, *PI2O_SM_PREAMBLE_MESSAGE_FRAME;
 
 /**
@@ -76,7 +87,9 @@ typedef struct _I2O_SM_DATA_MESSAGE_FRAME {
    unsigned long             numFrames;
    unsigned long             frameCount;
    unsigned long             originalSize;
-   char                      data[MAX_I2O_SM_DATASIZE];
+   char                      data[];
+   //char                      data[MAX_I2O_SM_DATASIZE];
+   char* dataPtr()           { return (char*) data; }
 } I2O_SM_DATA_MESSAGE_FRAME, *PI2O_SM_DATA_MESSAGE_FRAME;
 
 /**
