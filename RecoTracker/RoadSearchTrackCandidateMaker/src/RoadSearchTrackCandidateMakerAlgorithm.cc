@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/04/05 21:22:25 $
-// $Revision: 1.4 $
+// $Date: 2006/04/10 22:36:15 $
+// $Revision: 1.5 $
 //
 
 #include <vector>
@@ -43,6 +43,18 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
+#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+//nclude "RecoTracker/CkfPattern/interface/CombinatorialTrajectoryBuilder.h"
+
 RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
 }
 
@@ -66,6 +78,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
     // fill rechits from cloud into new OwnVector
     edm::OwnVector<TrackingRecHit> recHits;
+    edm::OwnVector<TrackingRecHit> goodHits;
 
     RoadSearchCloud::RecHitOwnVector hits = cloud->recHits();
     for ( RoadSearchCloud::RecHitOwnVector::const_iterator rechit = hits.begin(); rechit != hits.end(); ++rechit) {      
@@ -81,12 +94,16 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     edm::ESHandle<TrackerGeometry> tracker;
     es.get<TrackerDigiGeometryRecord>().get(tracker);
 
+    //const MeasurementTracker*  theMeasurementTracker = new MeasurementTracker(es); // will need this later
+
+
     recHits.sort(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(&(*tracker))),ref->direction()));
 
     // clone 
     TrajectorySeed seed = *((*ref).clone());
     PTrajectoryStateOnDet state = *((*ref).startingState().clone());
-  
+    TrajectoryStateOnSurface firstState;
+      
     // check if Trajectory from seed is on first hit of the cloud, if not, propagate
     // exclude if first state on first hit is not valid
     edm::ESHandle<MagneticField> magField_;
@@ -103,16 +120,74 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       
       TrajectoryStateTransform transformer;
       TrajectoryStateOnSurface before(transformer.transientState(state,  &(detState->surface()), magField));
-      TrajectoryStateOnSurface firstState = prop.propagate(before, det->surface());
+      firstState = prop.propagate(before, det->surface());
       
       if (firstState.isValid() == false){
 	valid=false;
       }
-      
       state = *(transformer.persistentState(firstState,recHits.begin()->geographicalId().rawId()));
     }
-    
-    if (valid == true) output.push_back(TrackCandidate(recHits,seed,state));
+    else{
+      const GeomDetUnit* det = geom->idToDetUnit(recHits.begin()->geographicalId());
+      const GeomDetUnit* detState = geom->idToDetUnit(DetId(state.detId())  );
+      TrajectoryStateTransform transformer;
+      TrajectoryStateOnSurface start(transformer.transientState(state,  &(detState->surface()), magField));
+      firstState = start;
+    }
+    //if (valid == true) output.push_back(TrackCandidate(recHits,seed,state));
+    if (!valid) continue;
+
+    //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
+    edm::OwnVector<TransientTrackingRecHit> transHits;
+    TransientTrackingRecHitBuilder * builder;
+    builder = new TkTransientTrackingRecHitBuilder((TrackingGeometry*)(&(*tracker)));
+
+
+    //Loop over RecHits and propagate trajectory to each hit
+
+    double chi2cut = 30;
+    Chi2MeasurementEstimator theEstimator(chi2cut);
+    KFUpdator theUpdator;
+
+    Trajectory traj(seed,ref->direction());
+    edm::LogInfo("RoadSearch") << "Loop over hits to check measurements...";
+    for (edm::OwnVector<TrackingRecHit>::const_iterator rhit=recHits.begin(); rhit!=recHits.end(); rhit++){
+
+      TransientTrackingRecHit* ihit = builder->build(&(*rhit));
+
+      //PropagatorWithMaterial thePropagator;
+      AnalyticalPropagator thePropagator(magField,anyDirection);
+
+      const GeomDetUnit* det = geom->idToDetUnit(rhit->geographicalId());
+
+      TrajectoryStateOnSurface predTsos;
+      TrajectoryStateOnSurface currTsos;
+
+      if (traj.measurements().empty()) {
+	predTsos = thePropagator.propagate(firstState, det->surface());
+      } else {
+	currTsos = traj.measurements().back().updatedState();
+	predTsos = thePropagator.propagate(currTsos, det->surface());
+      }
+      if (!predTsos.isValid()) continue;
+      TrajectoryMeasurement tm;
+
+      GlobalPoint p = det->surface().toGlobal(ihit->localPosition());
+      MeasurementEstimator::HitReturnType est = theEstimator.estimate(predTsos, *ihit);
+      //std::cout << "Hit "<<nhit<<" of "<<transHits.size()<<" chi2 = " << est.second 
+      //	<<"\t at r:z = "<<p.perp()<<":"<<p.z()<<std::endl;
+      //std::cout<<predTsos;
+
+      if (!est.first) continue;
+      currTsos = theUpdator.update(predTsos, *ihit);
+      tm = TrajectoryMeasurement((TrajectoryStateOnSurface)predTsos,(TrajectoryStateOnSurface)currTsos,&(*ihit));
+      traj.push(tm);
+      goodHits.push_back(rhit->clone());
+      
+    }
+    if (goodHits.size()>2) output.push_back(TrackCandidate(goodHits,seed,state));
+
+    delete builder;
   }
 
   edm::LogInfo("RoadSearch") << "Found " << output.size() << " track candidates.";
