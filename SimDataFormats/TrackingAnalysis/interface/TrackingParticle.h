@@ -22,7 +22,7 @@ public:
   ~TrackingParticle();
   /// constructor from pointer to generator particle
   TrackingParticle( Charge q, const LorentzVector & p4, const Point & vtx,
-		    int pdgId );
+		    double t, int pdgId );
   /// PDG identifier  
   int pdgId() const { return pdgId_; }
   /// reference to G4 track
@@ -35,6 +35,8 @@ public:
   void setGenParticle( GenParticleRef r ) { genParticle_ = r; }
 
 private:
+  /// production time
+  double t_;
   /// PDG identifier
   int pdgId_;
   /// reference to G4 track
