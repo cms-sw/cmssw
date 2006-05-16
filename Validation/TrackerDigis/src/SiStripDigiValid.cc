@@ -1,5 +1,6 @@
 #include "Validation/TrackerDigis/interface/SiStripDigiValid.h"
-#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
@@ -370,23 +371,15 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
  c.get<TrackerDigiGeometryRecord>().get( tracker );
 
  std::string digiProducer = "stripdigi";
- Handle<StripDigiCollection> stripDigis;
+ edm::Handle<edm::DetSetVector<SiStripDigi> > stripDigis;
  e.getByLabel(digiProducer, stripDigis);
- std::vector<unsigned int>  vec = stripDigis->detIDs();
-
- if ( vec.size() > 0 )
-    LogInfo("SiStripDigiValid")<<" DetId Size = "<< vec.size();
-
-
-   
- for (unsigned int i=0; i< vec.size(); i++) {
-    unsigned int id = vec[i];
-    if( id != 999999999){ //if is valid detector
-        DetId  detId(id);
-        StripDigiCollection::Range  range = stripDigis->get(id);
-        std::vector<StripDigi>::const_iterator begin = range.first;
-        std::vector<StripDigi>::const_iterator end = range.second;
-        std::vector<StripDigi>::const_iterator iter;
+ edm::DetSetVector<SiStripDigi>::const_iterator DSViter = stripDigis->begin();
+ for( ; DSViter != stripDigis->end(); DSViter++) {
+         unsigned int id = DSViter->id;
+         DetId  detId(id);
+         edm::DetSet<SiStripDigi>::const_iterator  begin = DSViter->data.begin();
+         edm::DetSet<SiStripDigi>::const_iterator  end   = DSViter->data.end();
+         edm::DetSet<SiStripDigi>::const_iterator  iter;
 
         if(detId.subdetId()==StripSubdetector::TIB){
              TIBDetId tibid(id);
@@ -791,8 +784,6 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
              }
            }
        }
-
-   }
 
  }
   
