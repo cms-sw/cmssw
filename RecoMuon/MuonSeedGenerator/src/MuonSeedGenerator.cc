@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date:  $
- *  $Revision: $
+ *  $Date: 2006/05/15 17:25:28 $
+ *  $Revision: 1.1 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -29,7 +29,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 // Geometry
-#include "RecoMuon/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
 //was
 //#include "CommonDet/DetLayout/interface/DetLayer.h"
 
