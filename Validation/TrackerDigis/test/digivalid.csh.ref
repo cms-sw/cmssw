@@ -1,0 +1,1670 @@
+
+[oval run] =================================================
+[oval run] USER : huangxt
+[oval run] HOST : cmswn069.fnal.gov
+[oval run] run tool: oval
+[oval run] final instruction: digivalid.csh
+[oval run] =================================================
+
+\033[1mWARNING: CMS environment is already set\033[0m
+	CMS_PATH=/uscmst1/prod/sw/cms
+Do nothing ...
+If you would like to change this environment,
+please start a new session and execute again:
+	source cshrc [ nightly | uaf | ibrix ]
+ 
+	nightly		CMSSW software built nightly
+			available on any desktop with AFS
+
+	uaf	    	CMSSW software releases
+ 			available on the UAF 
+			or Fermilab desktops with /uscmst1 mounted 
+
+	ibrix		CMS software releases
+ 			available on the UAF 
+			or Fermilab desktops with /uscms mounted
+ 
+	fnal		obsolete CMS software releases
+			available on any desktop with AFS
+ 			The use of this environment is depricated.
+\033[1mWARNING: CMS environment is already set\033[0m
+	CMS_PATH=/uscmst1/prod/sw/cms
+Do nothing ...
+If you would like to change this environment,
+please start a new session and execute again:
+	source cshrc [ nightly | uaf | ibrix ]
+ 
+	nightly		CMSSW software built nightly
+			available on any desktop with AFS
+
+	uaf	    	CMSSW software releases
+ 			available on the UAF 
+			or Fermilab desktops with /uscmst1 mounted 
+
+	ibrix		CMS software releases
+ 			available on the UAF 
+			or Fermilab desktops with /uscms mounted
+ 
+	fnal		obsolete CMS software releases
+			available on any desktop with AFS
+ 			The use of this environment is depricated.
+ DaqMonitorROOTBackEnd info: no directory has been 
+ specified to store monitoring objects; using root...
+ Adding new TH1F object adc_tib_layer1_extmodule1_zp to top directory 
+ Adding new TH1F object adc_tib_layer1_intmodule1_zp to top directory 
+ Adding new TH1F object adc_tib_layer2_extmodule1_zp to top directory 
+ Adding new TH1F object adc_tib_layer2_intmodule1_zp to top directory 
+ Adding new TH1F object adc_tib_layer3_extmodule1_zp to top directory 
+ Adding new TH1F object adc_tib_layer3_intmodule1_zp to top directory 
+ Adding new TH1F object adc_tib_layer4_extmodule1_zp to top directory 
+ Adding new TH1F object adc_tib_layer4_intmodule1_zp to top directory 
+ Adding new TH1F object strip_tib_layer1_extmodule1_zp to top directory 
+ Adding new TH1F object strip_tib_layer1_intmodule1_zp to top directory 
+ Adding new TH1F object strip_tib_layer2_extmodule1_zp to top directory 
+ Adding new TH1F object strip_tib_layer2_intmodule1_zp to top directory 
+ Adding new TH1F object strip_tib_layer3_extmodule1_zp to top directory 
+ Adding new TH1F object strip_tib_layer3_intmodule1_zp to top directory 
+ Adding new TH1F object strip_tib_layer4_extmodule1_zp to top directory 
+ Adding new TH1F object strip_tib_layer4_intmodule1_zp to top directory 
+ Adding new TH1F object adc_tib_layer1_extmodule1_zm to top directory 
+ Adding new TH1F object adc_tib_layer1_intmodule1_zm to top directory 
+ Adding new TH1F object adc_tib_layer2_extmodule1_zm to top directory 
+ Adding new TH1F object adc_tib_layer2_intmodule1_zm to top directory 
+ Adding new TH1F object adc_tib_layer3_extmodule1_zm to top directory 
+ Adding new TH1F object adc_tib_layer3_intmodule1_zm to top directory 
+ Adding new TH1F object adc_tib_layer4_extmodule1_zm to top directory 
+ Adding new TH1F object adc_tib_layer4_intmodule1_zm to top directory 
+ Adding new TH1F object strip_tib_layer1_extmodule1_zm to top directory 
+ Adding new TH1F object strip_tib_layer1_intmodule1_zm to top directory 
+ Adding new TH1F object strip_tib_layer2_extmodule1_zm to top directory 
+ Adding new TH1F object strip_tib_layer2_intmodule1_zm to top directory 
+ Adding new TH1F object strip_tib_layer3_extmodule1_zm to top directory 
+ Adding new TH1F object strip_tib_layer3_intmodule1_zm to top directory 
+ Adding new TH1F object strip_tib_layer4_extmodule1_zm to top directory 
+ Adding new TH1F object strip_tib_layer4_intmodule1_zm to top directory 
+ Adding new TH1F object adc_tib_layer1_extmodule2_zp to top directory 
+ Adding new TH1F object adc_tib_layer1_intmodule2_zp to top directory 
+ Adding new TH1F object adc_tib_layer2_extmodule2_zp to top directory 
+ Adding new TH1F object adc_tib_layer2_intmodule2_zp to top directory 
+ Adding new TH1F object adc_tib_layer3_extmodule2_zp to top directory 
+ Adding new TH1F object adc_tib_layer3_intmodule2_zp to top directory 
+ Adding new TH1F object adc_tib_layer4_extmodule2_zp to top directory 
+ Adding new TH1F object adc_tib_layer4_intmodule2_zp to top directory 
+ Adding new TH1F object strip_tib_layer1_extmodule2_zp to top directory 
+ Adding new TH1F object strip_tib_layer1_intmodule2_zp to top directory 
+ Adding new TH1F object strip_tib_layer2_extmodule2_zp to top directory 
+ Adding new TH1F object strip_tib_layer2_intmodule2_zp to top directory 
+ Adding new TH1F object strip_tib_layer3_extmodule2_zp to top directory 
+ Adding new TH1F object strip_tib_layer3_intmodule2_zp to top directory 
+ Adding new TH1F object strip_tib_layer4_extmodule2_zp to top directory 
+ Adding new TH1F object strip_tib_layer4_intmodule2_zp to top directory 
+ Adding new TH1F object adc_tib_layer1_extmodule2_zm to top directory 
+ Adding new TH1F object adc_tib_layer1_intmodule2_zm to top directory 
+ Adding new TH1F object adc_tib_layer2_extmodule2_zm to top directory 
+ Adding new TH1F object adc_tib_layer2_intmodule2_zm to top directory 
+ Adding new TH1F object adc_tib_layer3_extmodule2_zm to top directory 
+ Adding new TH1F object adc_tib_layer3_intmodule2_zm to top directory 
+ Adding new TH1F object adc_tib_layer4_extmodule2_zm to top directory 
+ Adding new TH1F object adc_tib_layer4_intmodule2_zm to top directory 
+ Adding new TH1F object strip_tib_layer1_extmodule2_zm to top directory 
+ Adding new TH1F object strip_tib_layer1_intmodule2_zm to top directory 
+ Adding new TH1F object strip_tib_layer2_extmodule2_zm to top directory 
+ Adding new TH1F object strip_tib_layer2_intmodule2_zm to top directory 
+ Adding new TH1F object strip_tib_layer3_extmodule2_zm to top directory 
+ Adding new TH1F object strip_tib_layer3_intmodule2_zm to top directory 
+ Adding new TH1F object strip_tib_layer4_extmodule2_zm to top directory 
+ Adding new TH1F object strip_tib_layer4_intmodule2_zm to top directory 
+ Adding new TH1F object adc_tib_layer1_extmodule3_zp to top directory 
+ Adding new TH1F object adc_tib_layer1_intmodule3_zp to top directory 
+ Adding new TH1F object adc_tib_layer2_extmodule3_zp to top directory 
+ Adding new TH1F object adc_tib_layer2_intmodule3_zp to top directory 
+ Adding new TH1F object adc_tib_layer3_extmodule3_zp to top directory 
+ Adding new TH1F object adc_tib_layer3_intmodule3_zp to top directory 
+ Adding new TH1F object adc_tib_layer4_extmodule3_zp to top directory 
+ Adding new TH1F object adc_tib_layer4_intmodule3_zp to top directory 
+ Adding new TH1F object strip_tib_layer1_extmodule3_zp to top directory 
+ Adding new TH1F object strip_tib_layer1_intmodule3_zp to top directory 
+ Adding new TH1F object strip_tib_layer2_extmodule3_zp to top directory 
+ Adding new TH1F object strip_tib_layer2_intmodule3_zp to top directory 
+ Adding new TH1F object strip_tib_layer3_extmodule3_zp to top directory 
+ Adding new TH1F object strip_tib_layer3_intmodule3_zp to top directory 
+ Adding new TH1F object strip_tib_layer4_extmodule3_zp to top directory 
+ Adding new TH1F object strip_tib_layer4_intmodule3_zp to top directory 
+ Adding new TH1F object adc_tib_layer1_extmodule3_zm to top directory 
+ Adding new TH1F object adc_tib_layer1_intmodule3_zm to top directory 
+ Adding new TH1F object adc_tib_layer2_extmodule3_zm to top directory 
+ Adding new TH1F object adc_tib_layer2_intmodule3_zm to top directory 
+ Adding new TH1F object adc_tib_layer3_extmodule3_zm to top directory 
+ Adding new TH1F object adc_tib_layer3_intmodule3_zm to top directory 
+ Adding new TH1F object adc_tib_layer4_extmodule3_zm to top directory 
+ Adding new TH1F object adc_tib_layer4_intmodule3_zm to top directory 
+ Adding new TH1F object strip_tib_layer1_extmodule3_zm to top directory 
+ Adding new TH1F object strip_tib_layer1_intmodule3_zm to top directory 
+ Adding new TH1F object strip_tib_layer2_extmodule3_zm to top directory 
+ Adding new TH1F object strip_tib_layer2_intmodule3_zm to top directory 
+ Adding new TH1F object strip_tib_layer3_extmodule3_zm to top directory 
+ Adding new TH1F object strip_tib_layer3_intmodule3_zm to top directory 
+ Adding new TH1F object strip_tib_layer4_extmodule3_zm to top directory 
+ Adding new TH1F object strip_tib_layer4_intmodule3_zm to top directory 
+ Adding new TH1F object adc_tob_layer1_module1_zp to top directory 
+ Adding new TH1F object strip_tob_layer1_module1_zp to top directory 
+ Adding new TH1F object adc_tob_layer2_module1_zp to top directory 
+ Adding new TH1F object strip_tob_layer2_module1_zp to top directory 
+ Adding new TH1F object adc_tob_layer3_module1_zp to top directory 
+ Adding new TH1F object strip_tob_layer3_module1_zp to top directory 
+ Adding new TH1F object adc_tob_layer4_module1_zp to top directory 
+ Adding new TH1F object strip_tob_layer4_module1_zp to top directory 
+ Adding new TH1F object adc_tob_layer5_module1_zp to top directory 
+ Adding new TH1F object strip_tob_layer5_module1_zp to top directory 
+ Adding new TH1F object adc_tob_layer6_module1_zp to top directory 
+ Adding new TH1F object strip_tob_layer6_module1_zp to top directory 
+ Adding new TH1F object adc_tob_layer1_module1_zm to top directory 
+ Adding new TH1F object strip_tob_layer1_module1_zm to top directory 
+ Adding new TH1F object adc_tob_layer2_module1_zm to top directory 
+ Adding new TH1F object strip_tob_layer2_module1_zm to top directory 
+ Adding new TH1F object adc_tob_layer3_module1_zm to top directory 
+ Adding new TH1F object strip_tob_layer3_module1_zm to top directory 
+ Adding new TH1F object adc_tob_layer4_module1_zm to top directory 
+ Adding new TH1F object strip_tob_layer4_module1_zm to top directory 
+ Adding new TH1F object adc_tob_layer5_module1_zm to top directory 
+ Adding new TH1F object strip_tob_layer5_module1_zm to top directory 
+ Adding new TH1F object adc_tob_layer6_module1_zm to top directory 
+ Adding new TH1F object strip_tob_layer6_module1_zm to top directory 
+ Adding new TH1F object adc_tob_layer1_module2_zp to top directory 
+ Adding new TH1F object strip_tob_layer1_module2_zp to top directory 
+ Adding new TH1F object adc_tob_layer2_module2_zp to top directory 
+ Adding new TH1F object strip_tob_layer2_module2_zp to top directory 
+ Adding new TH1F object adc_tob_layer3_module2_zp to top directory 
+ Adding new TH1F object strip_tob_layer3_module2_zp to top directory 
+ Adding new TH1F object adc_tob_layer4_module2_zp to top directory 
+ Adding new TH1F object strip_tob_layer4_module2_zp to top directory 
+ Adding new TH1F object adc_tob_layer5_module2_zp to top directory 
+ Adding new TH1F object strip_tob_layer5_module2_zp to top directory 
+ Adding new TH1F object adc_tob_layer6_module2_zp to top directory 
+ Adding new TH1F object strip_tob_layer6_module2_zp to top directory 
+ Adding new TH1F object adc_tob_layer1_module2_zm to top directory 
+ Adding new TH1F object strip_tob_layer1_module2_zm to top directory 
+ Adding new TH1F object adc_tob_layer2_module2_zm to top directory 
+ Adding new TH1F object strip_tob_layer2_module2_zm to top directory 
+ Adding new TH1F object adc_tob_layer3_module2_zm to top directory 
+ Adding new TH1F object strip_tob_layer3_module2_zm to top directory 
+ Adding new TH1F object adc_tob_layer4_module2_zm to top directory 
+ Adding new TH1F object strip_tob_layer4_module2_zm to top directory 
+ Adding new TH1F object adc_tob_layer5_module2_zm to top directory 
+ Adding new TH1F object strip_tob_layer5_module2_zm to top directory 
+ Adding new TH1F object adc_tob_layer6_module2_zm to top directory 
+ Adding new TH1F object strip_tob_layer6_module2_zm to top directory 
+ Adding new TH1F object adc_tob_layer1_module3_zp to top directory 
+ Adding new TH1F object strip_tob_layer1_module3_zp to top directory 
+ Adding new TH1F object adc_tob_layer2_module3_zp to top directory 
+ Adding new TH1F object strip_tob_layer2_module3_zp to top directory 
+ Adding new TH1F object adc_tob_layer3_module3_zp to top directory 
+ Adding new TH1F object strip_tob_layer3_module3_zp to top directory 
+ Adding new TH1F object adc_tob_layer4_module3_zp to top directory 
+ Adding new TH1F object strip_tob_layer4_module3_zp to top directory 
+ Adding new TH1F object adc_tob_layer5_module3_zp to top directory 
+ Adding new TH1F object strip_tob_layer5_module3_zp to top directory 
+ Adding new TH1F object adc_tob_layer6_module3_zp to top directory 
+ Adding new TH1F object strip_tob_layer6_module3_zp to top directory 
+ Adding new TH1F object adc_tob_layer1_module3_zm to top directory 
+ Adding new TH1F object strip_tob_layer1_module3_zm to top directory 
+ Adding new TH1F object adc_tob_layer2_module3_zm to top directory 
+ Adding new TH1F object strip_tob_layer2_module3_zm to top directory 
+ Adding new TH1F object adc_tob_layer3_module3_zm to top directory 
+ Adding new TH1F object strip_tob_layer3_module3_zm to top directory 
+ Adding new TH1F object adc_tob_layer4_module3_zm to top directory 
+ Adding new TH1F object strip_tob_layer4_module3_zm to top directory 
+ Adding new TH1F object adc_tob_layer5_module3_zm to top directory 
+ Adding new TH1F object strip_tob_layer5_module3_zm to top directory 
+ Adding new TH1F object adc_tob_layer6_module3_zm to top directory 
+ Adding new TH1F object strip_tob_layer6_module3_zm to top directory 
+ Adding new TH1F object adc_tob_layer1_module4_zp to top directory 
+ Adding new TH1F object strip_tob_layer1_module4_zp to top directory 
+ Adding new TH1F object adc_tob_layer2_module4_zp to top directory 
+ Adding new TH1F object strip_tob_layer2_module4_zp to top directory 
+ Adding new TH1F object adc_tob_layer3_module4_zp to top directory 
+ Adding new TH1F object strip_tob_layer3_module4_zp to top directory 
+ Adding new TH1F object adc_tob_layer4_module4_zp to top directory 
+ Adding new TH1F object strip_tob_layer4_module4_zp to top directory 
+ Adding new TH1F object adc_tob_layer5_module4_zp to top directory 
+ Adding new TH1F object strip_tob_layer5_module4_zp to top directory 
+ Adding new TH1F object adc_tob_layer6_module4_zp to top directory 
+ Adding new TH1F object strip_tob_layer6_module4_zp to top directory 
+ Adding new TH1F object adc_tob_layer1_module4_zm to top directory 
+ Adding new TH1F object strip_tob_layer1_module4_zm to top directory 
+ Adding new TH1F object adc_tob_layer2_module4_zm to top directory 
+ Adding new TH1F object strip_tob_layer2_module4_zm to top directory 
+ Adding new TH1F object adc_tob_layer3_module4_zm to top directory 
+ Adding new TH1F object strip_tob_layer3_module4_zm to top directory 
+ Adding new TH1F object adc_tob_layer4_module4_zm to top directory 
+ Adding new TH1F object strip_tob_layer4_module4_zm to top directory 
+ Adding new TH1F object adc_tob_layer5_module4_zm to top directory 
+ Adding new TH1F object strip_tob_layer5_module4_zm to top directory 
+ Adding new TH1F object adc_tob_layer6_module4_zm to top directory 
+ Adding new TH1F object strip_tob_layer6_module4_zm to top directory 
+ Adding new TH1F object adc_tob_layer1_module5_zp to top directory 
+ Adding new TH1F object strip_tob_layer1_module5_zp to top directory 
+ Adding new TH1F object adc_tob_layer2_module5_zp to top directory 
+ Adding new TH1F object strip_tob_layer2_module5_zp to top directory 
+ Adding new TH1F object adc_tob_layer3_module5_zp to top directory 
+ Adding new TH1F object strip_tob_layer3_module5_zp to top directory 
+ Adding new TH1F object adc_tob_layer4_module5_zp to top directory 
+ Adding new TH1F object strip_tob_layer4_module5_zp to top directory 
+ Adding new TH1F object adc_tob_layer5_module5_zp to top directory 
+ Adding new TH1F object strip_tob_layer5_module5_zp to top directory 
+ Adding new TH1F object adc_tob_layer6_module5_zp to top directory 
+ Adding new TH1F object strip_tob_layer6_module5_zp to top directory 
+ Adding new TH1F object adc_tob_layer1_module5_zm to top directory 
+ Adding new TH1F object strip_tob_layer1_module5_zm to top directory 
+ Adding new TH1F object adc_tob_layer2_module5_zm to top directory 
+ Adding new TH1F object strip_tob_layer2_module5_zm to top directory 
+ Adding new TH1F object adc_tob_layer3_module5_zm to top directory 
+ Adding new TH1F object strip_tob_layer3_module5_zm to top directory 
+ Adding new TH1F object adc_tob_layer4_module5_zm to top directory 
+ Adding new TH1F object strip_tob_layer4_module5_zm to top directory 
+ Adding new TH1F object adc_tob_layer5_module5_zm to top directory 
+ Adding new TH1F object strip_tob_layer5_module5_zm to top directory 
+ Adding new TH1F object adc_tob_layer6_module5_zm to top directory 
+ Adding new TH1F object strip_tob_layer6_module5_zm to top directory 
+ Adding new TH1F object adc_tob_layer1_module6_zp to top directory 
+ Adding new TH1F object strip_tob_layer1_module6_zp to top directory 
+ Adding new TH1F object adc_tob_layer2_module6_zp to top directory 
+ Adding new TH1F object strip_tob_layer2_module6_zp to top directory 
+ Adding new TH1F object adc_tob_layer3_module6_zp to top directory 
+ Adding new TH1F object strip_tob_layer3_module6_zp to top directory 
+ Adding new TH1F object adc_tob_layer4_module6_zp to top directory 
+ Adding new TH1F object strip_tob_layer4_module6_zp to top directory 
+ Adding new TH1F object adc_tob_layer5_module6_zp to top directory 
+ Adding new TH1F object strip_tob_layer5_module6_zp to top directory 
+ Adding new TH1F object adc_tob_layer6_module6_zp to top directory 
+ Adding new TH1F object strip_tob_layer6_module6_zp to top directory 
+ Adding new TH1F object adc_tob_layer1_module6_zm to top directory 
+ Adding new TH1F object strip_tob_layer1_module6_zm to top directory 
+ Adding new TH1F object adc_tob_layer2_module6_zm to top directory 
+ Adding new TH1F object strip_tob_layer2_module6_zm to top directory 
+ Adding new TH1F object adc_tob_layer3_module6_zm to top directory 
+ Adding new TH1F object strip_tob_layer3_module6_zm to top directory 
+ Adding new TH1F object adc_tob_layer4_module6_zm to top directory 
+ Adding new TH1F object strip_tob_layer4_module6_zm to top directory 
+ Adding new TH1F object adc_tob_layer5_module6_zm to top directory 
+ Adding new TH1F object strip_tob_layer5_module6_zm to top directory 
+ Adding new TH1F object adc_tob_layer6_module6_zm to top directory 
+ Adding new TH1F object strip_tob_layer6_module6_zm to top directory 
+ Adding new TH1F object adc_tid_wheel1_ring1_zp to top directory 
+ Adding new TH1F object adc_tid_wheel2_ring1_zp to top directory 
+ Adding new TH1F object adc_tid_wheel3_ring1_zp to top directory 
+ Adding new TH1F object strip_tid_wheel1_ring1_zp to top directory 
+ Adding new TH1F object strip_tid_wheel2_ring1_zp to top directory 
+ Adding new TH1F object strip_tid_wheel3_ring1_zp to top directory 
+ Adding new TH1F object adc_tid_wheel1_ring1_zm to top directory 
+ Adding new TH1F object adc_tid_wheel2_ring1_zm to top directory 
+ Adding new TH1F object adc_tid_wheel3_ring1_zm to top directory 
+ Adding new TH1F object strip_tid_wheel1_ring1_zm to top directory 
+ Adding new TH1F object strip_tid_wheel2_ring1_zm to top directory 
+ Adding new TH1F object strip_tid_wheel3_ring1_zm to top directory 
+ Adding new TH1F object adc_tid_wheel1_ring2_zp to top directory 
+ Adding new TH1F object adc_tid_wheel2_ring2_zp to top directory 
+ Adding new TH1F object adc_tid_wheel3_ring2_zp to top directory 
+ Adding new TH1F object strip_tid_wheel1_ring2_zp to top directory 
+ Adding new TH1F object strip_tid_wheel2_ring2_zp to top directory 
+ Adding new TH1F object strip_tid_wheel3_ring2_zp to top directory 
+ Adding new TH1F object adc_tid_wheel1_ring2_zm to top directory 
+ Adding new TH1F object adc_tid_wheel2_ring2_zm to top directory 
+ Adding new TH1F object adc_tid_wheel3_ring2_zm to top directory 
+ Adding new TH1F object strip_tid_wheel1_ring2_zm to top directory 
+ Adding new TH1F object strip_tid_wheel2_ring2_zm to top directory 
+ Adding new TH1F object strip_tid_wheel3_ring2_zm to top directory 
+ Adding new TH1F object adc_tid_wheel1_ring3_zp to top directory 
+ Adding new TH1F object adc_tid_wheel2_ring3_zp to top directory 
+ Adding new TH1F object adc_tid_wheel3_ring3_zp to top directory 
+ Adding new TH1F object strip_tid_wheel1_ring3_zp to top directory 
+ Adding new TH1F object strip_tid_wheel2_ring3_zp to top directory 
+ Adding new TH1F object strip_tid_wheel3_ring3_zp to top directory 
+ Adding new TH1F object adc_tid_wheel1_ring3_zm to top directory 
+ Adding new TH1F object adc_tid_wheel2_ring3_zm to top directory 
+ Adding new TH1F object adc_tid_wheel3_ring3_zm to top directory 
+ Adding new TH1F object strip_tid_wheel1_ring3_zm to top directory 
+ Adding new TH1F object strip_tid_wheel2_ring3_zm to top directory 
+ Adding new TH1F object strip_tid_wheel3_ring3_zm to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring1_zp to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring1_zp to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring1_zp to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring1_zp to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring1_zp to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring1_zp to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring1_zm to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring1_zm to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring1_zm to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring1_zm to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring1_zm to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring1_zm to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring2_zp to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring2_zp to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring2_zp to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring2_zp to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring2_zp to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring2_zp to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring2_zm to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring2_zm to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring2_zm to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring2_zm to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring2_zm to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring2_zm to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring3_zp to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring3_zp to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring3_zp to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring3_zp to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring3_zp to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring3_zp to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring3_zm to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring3_zm to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring3_zm to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring3_zm to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring3_zm to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring3_zm to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring4_zp to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring4_zp to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring4_zp to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring4_zp to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring4_zp to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring4_zp to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring4_zm to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring4_zm to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring4_zm to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring4_zm to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring4_zm to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring4_zm to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring5_zp to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring5_zp to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring5_zp to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring5_zp to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring5_zp to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring5_zp to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring5_zm to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring5_zm to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring5_zm to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring5_zm to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring5_zm to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring5_zm to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring6_zp to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring6_zp to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring6_zp to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring6_zp to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring6_zp to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring6_zp to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring6_zm to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring6_zm to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring6_zm to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring6_zm to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring6_zm to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring6_zm to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring7_zp to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring7_zp to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring7_zp to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring7_zp to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring7_zp to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring7_zp to top directory 
+ Adding new TH1F object adc_tec_wheel1_ring7_zm to top directory 
+ Adding new TH1F object adc_tec_wheel2_ring7_zm to top directory 
+ Adding new TH1F object adc_tec_wheel3_ring7_zm to top directory 
+ Adding new TH1F object strip_tec_wheel1_ring7_zm to top directory 
+ Adding new TH1F object strip_tec_wheel2_ring7_zm to top directory 
+ Adding new TH1F object strip_tec_wheel3_ring7_zm to top directory 
+ Adding new TH1F object adc_tec_wheel4_ring1_zp to top directory 
+ Adding new TH1F object adc_tec_wheel5_ring1_zp to top directory 
+ Adding new TH1F object adc_tec_wheel6_ring1_zp to top directory 
+ Adding new TH1F object strip_tec_wheel4_ring1_zp to top directory 
+ Adding new TH1F object strip_tec_wheel5_ring1_zp to top directory 
+ Adding new TH1F object strip_tec_wheel6_ring1_zp to top directory 
+ Adding new TH1F object adc_tec_wheel4_ring1_zm to top directory 
+ Adding new TH1F object adc_tec_wheel5_ring1_zm to top directory 
+ Adding new TH1F object adc_tec_wheel6_ring1_zm to top directory 
+ Adding new TH1F object strip_tec_wheel4_ring1_zm to top directory 
+ Adding new TH1F object strip_tec_wheel5_ring1_zm to top directory 
+ Adding new TH1F object strip_tec_wheel6_ring1_zm to top directory 
+ Adding new TH1F object adc_tec_wheel4_ring2_zp to top directory 
+ Adding new TH1F object adc_tec_wheel5_ring2_zp to top directory 
+ Adding new TH1F object adc_tec_wheel6_ring2_zp to top directory 
+ Adding new TH1F object strip_tec_wheel4_ring2_zp to top directory 
+ Adding new TH1F object strip_tec_wheel5_ring2_zp to top directory 
+ Adding new TH1F object strip_tec_wheel6_ring2_zp to top directory 
+ Adding new TH1F object adc_tec_wheel4_ring2_zm to top directory 
+ Adding new TH1F object adc_tec_wheel5_ring2_zm to top directory 
+ Adding new TH1F object adc_tec_wheel6_ring2_zm to top directory 
+ Adding new TH1F object strip_tec_wheel4_ring2_zm to top directory 
+ Adding new TH1F object strip_tec_wheel5_ring2_zm to top directory 
+ Adding new TH1F object strip_tec_wheel6_ring2_zm to top directory 
+ Adding new TH1F object adc_tec_wheel4_ring3_zp to top directory 
+ Adding new TH1F object adc_tec_wheel5_ring3_zp to top directory 
+ Adding new TH1F object adc_tec_wheel6_ring3_zp to top directory 
+ Adding new TH1F object strip_tec_wheel4_ring3_zp to top directory 
+ Adding new TH1F object strip_tec_wheel5_ring3_zp to top directory 
+ Adding new TH1F object strip_tec_wheel6_ring3_zp to top directory 
+ Adding new TH1F object adc_tec_wheel4_ring3_zm to top directory 
+ Adding new TH1F object adc_tec_wheel5_ring3_zm to top directory 
+ Adding new TH1F object adc_tec_wheel6_ring3_zm to top directory 
+ Adding new TH1F object strip_tec_wheel4_ring3_zm to top directory 
+ Adding new TH1F object strip_tec_wheel5_ring3_zm to top directory 
+ Adding new TH1F object strip_tec_wheel6_ring3_zm to top directory 
+ Adding new TH1F object adc_tec_wheel4_ring4_zp to top directory 
+ Adding new TH1F object adc_tec_wheel5_ring4_zp to top directory 
+ Adding new TH1F object adc_tec_wheel6_ring4_zp to top directory 
+ Adding new TH1F object strip_tec_wheel4_ring4_zp to top directory 
+ Adding new TH1F object strip_tec_wheel5_ring4_zp to top directory 
+ Adding new TH1F object strip_tec_wheel6_ring4_zp to top directory 
+ Adding new TH1F object adc_tec_wheel4_ring4_zm to top directory 
+ Adding new TH1F object adc_tec_wheel5_ring4_zm to top directory 
+ Adding new TH1F object adc_tec_wheel6_ring4_zm to top directory 
+ Adding new TH1F object strip_tec_wheel4_ring4_zm to top directory 
+ Adding new TH1F object strip_tec_wheel5_ring4_zm to top directory 
+ Adding new TH1F object strip_tec_wheel6_ring4_zm to top directory 
+ Adding new TH1F object adc_tec_wheel4_ring5_zp to top directory 
+ Adding new TH1F object adc_tec_wheel5_ring5_zp to top directory 
+ Adding new TH1F object adc_tec_wheel6_ring5_zp to top directory 
+ Adding new TH1F object strip_tec_wheel4_ring5_zp to top directory 
+ Adding new TH1F object strip_tec_wheel5_ring5_zp to top directory 
+ Adding new TH1F object strip_tec_wheel6_ring5_zp to top directory 
+ Adding new TH1F object adc_tec_wheel4_ring5_zm to top directory 
+ Adding new TH1F object adc_tec_wheel5_ring5_zm to top directory 
+ Adding new TH1F object adc_tec_wheel6_ring5_zm to top directory 
+ Adding new TH1F object strip_tec_wheel4_ring5_zm to top directory 
+ Adding new TH1F object strip_tec_wheel5_ring5_zm to top directory 
+ Adding new TH1F object strip_tec_wheel6_ring5_zm to top directory 
+ Adding new TH1F object adc_tec_wheel4_ring6_zp to top directory 
+ Adding new TH1F object adc_tec_wheel5_ring6_zp to top directory 
+ Adding new TH1F object adc_tec_wheel6_ring6_zp to top directory 
+ Adding new TH1F object strip_tec_wheel4_ring6_zp to top directory 
+ Adding new TH1F object strip_tec_wheel5_ring6_zp to top directory 
+ Adding new TH1F object strip_tec_wheel6_ring6_zp to top directory 
+ Adding new TH1F object adc_tec_wheel4_ring6_zm to top directory 
+ Adding new TH1F object adc_tec_wheel5_ring6_zm to top directory 
+ Adding new TH1F object adc_tec_wheel6_ring6_zm to top directory 
+ Adding new TH1F object strip_tec_wheel4_ring6_zm to top directory 
+ Adding new TH1F object strip_tec_wheel5_ring6_zm to top directory 
+ Adding new TH1F object strip_tec_wheel6_ring6_zm to top directory 
+ Adding new TH1F object adc_tec_wheel7_ring1_zp to top directory 
+ Adding new TH1F object adc_tec_wheel8_ring1_zp to top directory 
+ Adding new TH1F object strip_tec_wheel7_ring1_zp to top directory 
+ Adding new TH1F object strip_tec_wheel8_ring1_zp to top directory 
+ Adding new TH1F object adc_tec_wheel7_ring1_zm to top directory 
+ Adding new TH1F object adc_tec_wheel8_ring1_zm to top directory 
+ Adding new TH1F object strip_tec_wheel7_ring1_zm to top directory 
+ Adding new TH1F object strip_tec_wheel8_ring1_zm to top directory 
+ Adding new TH1F object adc_tec_wheel7_ring2_zp to top directory 
+ Adding new TH1F object adc_tec_wheel8_ring2_zp to top directory 
+ Adding new TH1F object strip_tec_wheel7_ring2_zp to top directory 
+ Adding new TH1F object strip_tec_wheel8_ring2_zp to top directory 
+ Adding new TH1F object adc_tec_wheel7_ring2_zm to top directory 
+ Adding new TH1F object adc_tec_wheel8_ring2_zm to top directory 
+ Adding new TH1F object strip_tec_wheel7_ring2_zm to top directory 
+ Adding new TH1F object strip_tec_wheel8_ring2_zm to top directory 
+ Adding new TH1F object adc_tec_wheel7_ring3_zp to top directory 
+ Adding new TH1F object adc_tec_wheel8_ring3_zp to top directory 
+ Adding new TH1F object strip_tec_wheel7_ring3_zp to top directory 
+ Adding new TH1F object strip_tec_wheel8_ring3_zp to top directory 
+ Adding new TH1F object adc_tec_wheel7_ring3_zm to top directory 
+ Adding new TH1F object adc_tec_wheel8_ring3_zm to top directory 
+ Adding new TH1F object strip_tec_wheel7_ring3_zm to top directory 
+ Adding new TH1F object strip_tec_wheel8_ring3_zm to top directory 
+ Adding new TH1F object adc_tec_wheel7_ring4_zp to top directory 
+ Adding new TH1F object adc_tec_wheel8_ring4_zp to top directory 
+ Adding new TH1F object strip_tec_wheel7_ring4_zp to top directory 
+ Adding new TH1F object strip_tec_wheel8_ring4_zp to top directory 
+ Adding new TH1F object adc_tec_wheel7_ring4_zm to top directory 
+ Adding new TH1F object adc_tec_wheel8_ring4_zm to top directory 
+ Adding new TH1F object strip_tec_wheel7_ring4_zm to top directory 
+ Adding new TH1F object strip_tec_wheel8_ring4_zm to top directory 
+ Adding new TH1F object adc_tec_wheel7_ring5_zp to top directory 
+ Adding new TH1F object adc_tec_wheel8_ring5_zp to top directory 
+ Adding new TH1F object strip_tec_wheel7_ring5_zp to top directory 
+ Adding new TH1F object strip_tec_wheel8_ring5_zp to top directory 
+ Adding new TH1F object adc_tec_wheel7_ring5_zm to top directory 
+ Adding new TH1F object adc_tec_wheel8_ring5_zm to top directory 
+ Adding new TH1F object strip_tec_wheel7_ring5_zm to top directory 
+ Adding new TH1F object strip_tec_wheel8_ring5_zm to top directory 
+ Adding new TH1F object adc_tec_wheel9_ring1_zp to top directory 
+ Adding new TH1F object strip_tec_wheel9_ring1_zp to top directory 
+ Adding new TH1F object adc_tec_wheel9_ring1_zm to top directory 
+ Adding new TH1F object strip_tec_wheel9_ring1_zm to top directory 
+ Adding new TH1F object adc_tec_wheel9_ring2_zp to top directory 
+ Adding new TH1F object strip_tec_wheel9_ring2_zp to top directory 
+ Adding new TH1F object adc_tec_wheel9_ring2_zm to top directory 
+ Adding new TH1F object strip_tec_wheel9_ring2_zm to top directory 
+ Adding new TH1F object adc_tec_wheel9_ring3_zp to top directory 
+ Adding new TH1F object strip_tec_wheel9_ring3_zp to top directory 
+ Adding new TH1F object adc_tec_wheel9_ring3_zm to top directory 
+ Adding new TH1F object strip_tec_wheel9_ring3_zm to top directory 
+ Adding new TH1F object adc_tec_wheel9_ring4_zp to top directory 
+ Adding new TH1F object strip_tec_wheel9_ring4_zp to top directory 
+ Adding new TH1F object adc_tec_wheel9_ring4_zm to top directory 
+ Adding new TH1F object strip_tec_wheel9_ring4_zm to top directory 
+ Adding new TH1F object ndigi_tib_layer_1_zm to top directory 
+ Adding new TH1F object ndigi_tib_layer_1_zp to top directory 
+ Adding new TH1F object ndigi_tib_layer_2_zm to top directory 
+ Adding new TH1F object ndigi_tib_layer_2_zp to top directory 
+ Adding new TH1F object ndigi_tib_layer_3_zm to top directory 
+ Adding new TH1F object ndigi_tib_layer_3_zp to top directory 
+ Adding new TH1F object ndigi_tib_layer_4_zm to top directory 
+ Adding new TH1F object ndigi_tib_layer_4_zp to top directory 
+ Adding new TH1F object ndigi_tob_layer_1_zm to top directory 
+ Adding new TH1F object ndigi_tob_layer_1_zp to top directory 
+ Adding new TH1F object ndigi_tob_layer_2_zm to top directory 
+ Adding new TH1F object ndigi_tob_layer_2_zp to top directory 
+ Adding new TH1F object ndigi_tob_layer_3_zm to top directory 
+ Adding new TH1F object ndigi_tob_layer_3_zp to top directory 
+ Adding new TH1F object ndigi_tob_layer_4_zm to top directory 
+ Adding new TH1F object ndigi_tob_layer_4_zp to top directory 
+ Adding new TH1F object ndigi_tob_layer_5_zm to top directory 
+ Adding new TH1F object ndigi_tob_layer_5_zp to top directory 
+ Adding new TH1F object ndigi_tob_layer_6_zm to top directory 
+ Adding new TH1F object ndigi_tob_layer_6_zp to top directory 
+ Adding new TH1F object ndigi_tid_wheel_1_zm to top directory 
+ Adding new TH1F object ndigi_tid_wheel_1_zp to top directory 
+ Adding new TH1F object ndigi_tid_wheel_2_zm to top directory 
+ Adding new TH1F object ndigi_tid_wheel_2_zp to top directory 
+ Adding new TH1F object ndigi_tid_wheel_3_zm to top directory 
+ Adding new TH1F object ndigi_tid_wheel_3_zp to top directory 
+ Adding new TH1F object ndigi_tec_wheel_1_zm to top directory 
+ Adding new TH1F object ndigi_tec_wheel_1_zp to top directory 
+ Adding new TH1F object ndigi_tec_wheel_2_zm to top directory 
+ Adding new TH1F object ndigi_tec_wheel_2_zp to top directory 
+ Adding new TH1F object ndigi_tec_wheel_3_zm to top directory 
+ Adding new TH1F object ndigi_tec_wheel_3_zp to top directory 
+ Adding new TH1F object ndigi_tec_wheel_4_zm to top directory 
+ Adding new TH1F object ndigi_tec_wheel_4_zp to top directory 
+ Adding new TH1F object ndigi_tec_wheel_5_zm to top directory 
+ Adding new TH1F object ndigi_tec_wheel_5_zp to top directory 
+ Adding new TH1F object ndigi_tec_wheel_6_zm to top directory 
+ Adding new TH1F object ndigi_tec_wheel_6_zp to top directory 
+ Adding new TH1F object ndigi_tec_wheel_7_zm to top directory 
+ Adding new TH1F object ndigi_tec_wheel_7_zp to top directory 
+ Adding new TH1F object ndigi_tec_wheel_8_zm to top directory 
+ Adding new TH1F object ndigi_tec_wheel_8_zp to top directory 
+ Adding new TH1F object ndigi_tec_wheel_9_zm to top directory 
+ Adding new TH1F object ndigi_tec_wheel_9_zp to top directory 
+ Adding new TH1F object digimulti_layer1ring1 to top directory 
+ Adding new TH1F object digimulti_layer1ring2 to top directory 
+ Adding new TH1F object digimulti_layer1ring3 to top directory 
+ Adding new TH1F object digimulti_layer1ring4 to top directory 
+ Adding new TH1F object digimulti_layer1ring5 to top directory 
+ Adding new TH1F object digimulti_layer1ring6 to top directory 
+ Adding new TH1F object digimulti_layer1ring7 to top directory 
+ Adding new TH1F object digimulti_layer1ring8 to top directory 
+ Adding new TH1F object digimulti_layer2ring1 to top directory 
+ Adding new TH1F object digimulti_layer2ring2 to top directory 
+ Adding new TH1F object digimulti_layer2ring3 to top directory 
+ Adding new TH1F object digimulti_layer2ring4 to top directory 
+ Adding new TH1F object digimulti_layer2ring5 to top directory 
+ Adding new TH1F object digimulti_layer2ring6 to top directory 
+ Adding new TH1F object digimulti_layer2ring7 to top directory 
+ Adding new TH1F object digimulti_layer2ring8 to top directory 
+ Adding new TH1F object digimulti_layer3ring1 to top directory 
+ Adding new TH1F object digimulti_layer3ring2 to top directory 
+ Adding new TH1F object digimulti_layer3ring3 to top directory 
+ Adding new TH1F object digimulti_layer3ring4 to top directory 
+ Adding new TH1F object digimulti_layer3ring5 to top directory 
+ Adding new TH1F object digimulti_layer3ring6 to top directory 
+ Adding new TH1F object digimulti_layer3ring7 to top directory 
+ Adding new TH1F object digimulti_layer3ring8 to top directory 
+ Adding new TH1F object adc_layer1ring1 to top directory 
+ Adding new TH1F object adc_layer1ring2 to top directory 
+ Adding new TH1F object adc_layer1ring3 to top directory 
+ Adding new TH1F object adc_layer1ring4 to top directory 
+ Adding new TH1F object adc_layer1ring5 to top directory 
+ Adding new TH1F object adc_layer1ring6 to top directory 
+ Adding new TH1F object adc_layer1ring7 to top directory 
+ Adding new TH1F object adc_layer1ring8 to top directory 
+ Adding new TH1F object row_layer1ring1 to top directory 
+ Adding new TH1F object row_layer1ring2 to top directory 
+ Adding new TH1F object row_layer1ring3 to top directory 
+ Adding new TH1F object row_layer1ring4 to top directory 
+ Adding new TH1F object row_layer1ring5 to top directory 
+ Adding new TH1F object row_layer1ring6 to top directory 
+ Adding new TH1F object row_layer1ring7 to top directory 
+ Adding new TH1F object row_layer1ring8 to top directory 
+ Adding new TH1F object col_layer1ring1 to top directory 
+ Adding new TH1F object col_layer1ring2 to top directory 
+ Adding new TH1F object col_layer1ring3 to top directory 
+ Adding new TH1F object col_layer1ring4 to top directory 
+ Adding new TH1F object col_layer1ring5 to top directory 
+ Adding new TH1F object col_layer1ring6 to top directory 
+ Adding new TH1F object col_layer1ring7 to top directory 
+ Adding new TH1F object col_layer1ring8 to top directory 
+ Adding new TH1F object adc_layer2ring1 to top directory 
+ Adding new TH1F object adc_layer2ring2 to top directory 
+ Adding new TH1F object adc_layer2ring3 to top directory 
+ Adding new TH1F object adc_layer2ring4 to top directory 
+ Adding new TH1F object adc_layer2ring5 to top directory 
+ Adding new TH1F object adc_layer2ring6 to top directory 
+ Adding new TH1F object adc_layer2ring7 to top directory 
+ Adding new TH1F object adc_layer2ring8 to top directory 
+ Adding new TH1F object row_layer2ring1 to top directory 
+ Adding new TH1F object row_layer2ring2 to top directory 
+ Adding new TH1F object row_layer2ring3 to top directory 
+ Adding new TH1F object row_layer2ring4 to top directory 
+ Adding new TH1F object row_layer2ring5 to top directory 
+ Adding new TH1F object row_layer2ring6 to top directory 
+ Adding new TH1F object row_layer2ring7 to top directory 
+ Adding new TH1F object row_layer2ring8 to top directory 
+ Adding new TH1F object col_layer2ring1 to top directory 
+ Adding new TH1F object col_layer2ring2 to top directory 
+ Adding new TH1F object col_layer2ring3 to top directory 
+ Adding new TH1F object col_layer2ring4 to top directory 
+ Adding new TH1F object col_layer2ring5 to top directory 
+ Adding new TH1F object col_layer2ring6 to top directory 
+ Adding new TH1F object col_layer2ring7 to top directory 
+ Adding new TH1F object col_layer2ring8 to top directory 
+ Adding new TH1F object adc_layer3ring1 to top directory 
+ Adding new TH1F object adc_layer3ring2 to top directory 
+ Adding new TH1F object adc_layer3ring3 to top directory 
+ Adding new TH1F object adc_layer3ring4 to top directory 
+ Adding new TH1F object adc_layer3ring5 to top directory 
+ Adding new TH1F object adc_layer3ring6 to top directory 
+ Adding new TH1F object adc_layer3ring7 to top directory 
+ Adding new TH1F object adc_layer3ring8 to top directory 
+ Adding new TH1F object row_layer3ring1 to top directory 
+ Adding new TH1F object row_layer3ring2 to top directory 
+ Adding new TH1F object row_layer3ring3 to top directory 
+ Adding new TH1F object row_layer3ring4 to top directory 
+ Adding new TH1F object row_layer3ring5 to top directory 
+ Adding new TH1F object row_layer3ring6 to top directory 
+ Adding new TH1F object row_layer3ring7 to top directory 
+ Adding new TH1F object row_layer3ring8 to top directory 
+ Adding new TH1F object col_layer3ring1 to top directory 
+ Adding new TH1F object col_layer3ring2 to top directory 
+ Adding new TH1F object col_layer3ring3 to top directory 
+ Adding new TH1F object col_layer3ring4 to top directory 
+ Adding new TH1F object col_layer3ring5 to top directory 
+ Adding new TH1F object col_layer3ring6 to top directory 
+ Adding new TH1F object col_layer3ring7 to top directory 
+ Adding new TH1F object col_layer3ring8 to top directory 
+ Adding new TH1F object adc_zm_disk1_panel1_plaq1 to top directory 
+ Adding new TH1F object adc_zm_disk1_panel1_plaq2 to top directory 
+ Adding new TH1F object adc_zm_disk1_panel1_plaq3 to top directory 
+ Adding new TH1F object adc_zm_disk1_panel1_plaq4 to top directory 
+ Adding new TH1F object adc_zm_disk1_panel2_plaq1 to top directory 
+ Adding new TH1F object adc_zm_disk1_panel2_plaq2 to top directory 
+ Adding new TH1F object adc_zm_disk1_panel2_plaq3 to top directory 
+ Adding new TH1F object row_zm_disk1_panel1_plaq1 to top directory 
+ Adding new TH1F object row_zm_disk1_panel1_plaq2 to top directory 
+ Adding new TH1F object row_zm_disk1_panel1_plaq3 to top directory 
+ Adding new TH1F object row_zm_disk1_panel1_plaq4 to top directory 
+ Adding new TH1F object row_zm_disk1_panel2_plaq1 to top directory 
+ Adding new TH1F object row_zm_disk1_panel2_plaq2 to top directory 
+ Adding new TH1F object row_zm_disk1_panel2_plaq3 to top directory 
+ Adding new TH1F object col_zm_disk1_panel1_plaq1 to top directory 
+ Adding new TH1F object col_zm_disk1_panel1_plaq2 to top directory 
+ Adding new TH1F object col_zm_disk1_panel1_plaq3 to top directory 
+ Adding new TH1F object col_zm_disk1_panel1_plaq4 to top directory 
+ Adding new TH1F object col_zm_disk1_panel2_plaq1 to top directory 
+ Adding new TH1F object col_zm_disk1_panel2_plaq2 to top directory 
+ Adding new TH1F object col_zm_disk1_panel2_plaq3 to top directory 
+ Adding new TH1F object digi_zm_disk1_panel1 to top directory 
+ Adding new TH1F object digi_zm_disk1_panel2 to top directory 
+ Adding new TH1F object adc_zm_disk2_panel1_plaq1 to top directory 
+ Adding new TH1F object adc_zm_disk2_panel1_plaq2 to top directory 
+ Adding new TH1F object adc_zm_disk2_panel1_plaq3 to top directory 
+ Adding new TH1F object adc_zm_disk2_panel1_plaq4 to top directory 
+ Adding new TH1F object adc_zm_disk2_panel2_plaq1 to top directory 
+ Adding new TH1F object adc_zm_disk2_panel2_plaq2 to top directory 
+ Adding new TH1F object adc_zm_disk2_panel2_plaq3 to top directory 
+ Adding new TH1F object row_zm_disk2_panel1_plaq1 to top directory 
+ Adding new TH1F object row_zm_disk2_panel1_plaq2 to top directory 
+ Adding new TH1F object row_zm_disk2_panel1_plaq3 to top directory 
+ Adding new TH1F object row_zm_disk2_panel1_plaq4 to top directory 
+ Adding new TH1F object row_zm_disk2_panel2_plaq1 to top directory 
+ Adding new TH1F object row_zm_disk2_panel2_plaq2 to top directory 
+ Adding new TH1F object row_zm_disk2_panel2_plaq3 to top directory 
+ Adding new TH1F object col_zm_disk2_panel1_plaq1 to top directory 
+ Adding new TH1F object col_zm_disk2_panel1_plaq2 to top directory 
+ Adding new TH1F object col_zm_disk2_panel1_plaq3 to top directory 
+ Adding new TH1F object col_zm_disk2_panel1_plaq4 to top directory 
+ Adding new TH1F object col_zm_disk2_panel2_plaq1 to top directory 
+ Adding new TH1F object col_zm_disk2_panel2_plaq2 to top directory 
+ Adding new TH1F object col_zm_disk2_panel2_plaq3 to top directory 
+ Adding new TH1F object digi_zm_disk2_panel1 to top directory 
+ Adding new TH1F object digi_zm_disk2_panel2 to top directory 
+ Adding new TH1F object adc_zp_disk1_panel1_plaq1 to top directory 
+ Adding new TH1F object adc_zp_disk1_panel1_plaq2 to top directory 
+ Adding new TH1F object adc_zp_disk1_panel1_plaq3 to top directory 
+ Adding new TH1F object adc_zp_disk1_panel1_plaq4 to top directory 
+ Adding new TH1F object adc_zp_disk1_panel2_plaq1 to top directory 
+ Adding new TH1F object adc_zp_disk1_panel2_plaq2 to top directory 
+ Adding new TH1F object adc_zp_disk1_panel2_plaq3 to top directory 
+ Adding new TH1F object row_zp_disk1_panel1_plaq1 to top directory 
+ Adding new TH1F object row_zp_disk1_panel1_plaq2 to top directory 
+ Adding new TH1F object row_zp_disk1_panel1_plaq3 to top directory 
+ Adding new TH1F object row_zp_disk1_panel1_plaq4 to top directory 
+ Adding new TH1F object row_zp_disk1_panel2_plaq1 to top directory 
+ Adding new TH1F object row_zp_disk1_panel2_plaq2 to top directory 
+ Adding new TH1F object row_zp_disk1_panel2_plaq3 to top directory 
+ Adding new TH1F object col_zp_disk1_panel1_plaq1 to top directory 
+ Adding new TH1F object col_zp_disk1_panel1_plaq2 to top directory 
+ Adding new TH1F object col_zp_disk1_panel1_plaq3 to top directory 
+ Adding new TH1F object col_zp_disk1_panel1_plaq4 to top directory 
+ Adding new TH1F object col_zp_disk1_panel2_plaq1 to top directory 
+ Adding new TH1F object col_zp_disk1_panel2_plaq2 to top directory 
+ Adding new TH1F object col_zp_disk1_panel2_plaq3 to top directory 
+ Adding new TH1F object digi_zp_disk1_panel1 to top directory 
+ Adding new TH1F object digi_zp_disk1_panel2 to top directory 
+ Adding new TH1F object adc_zp_disk2_panel1_plaq1 to top directory 
+ Adding new TH1F object adc_zp_disk2_panel1_plaq2 to top directory 
+ Adding new TH1F object adc_zp_disk2_panel1_plaq3 to top directory 
+ Adding new TH1F object adc_zp_disk2_panel1_plaq4 to top directory 
+ Adding new TH1F object adc_zp_disk2_panel2_plaq1 to top directory 
+ Adding new TH1F object adc_zp_disk2_panel2_plaq2 to top directory 
+ Adding new TH1F object adc_zp_disk2_panel2_plaq3 to top directory 
+ Adding new TH1F object row_zp_disk2_panel1_plaq1 to top directory 
+ Adding new TH1F object row_zp_disk2_panel1_plaq2 to top directory 
+ Adding new TH1F object row_zp_disk2_panel1_plaq3 to top directory 
+ Adding new TH1F object row_zp_disk2_panel1_plaq4 to top directory 
+ Adding new TH1F object row_zp_disk2_panel2_plaq1 to top directory 
+ Adding new TH1F object row_zp_disk2_panel2_plaq2 to top directory 
+ Adding new TH1F object row_zp_disk2_panel2_plaq3 to top directory 
+ Adding new TH1F object col_zp_disk2_panel1_plaq1 to top directory 
+ Adding new TH1F object col_zp_disk2_panel1_plaq2 to top directory 
+ Adding new TH1F object col_zp_disk2_panel1_plaq3 to top directory 
+ Adding new TH1F object col_zp_disk2_panel1_plaq4 to top directory 
+ Adding new TH1F object col_zp_disk2_panel2_plaq1 to top directory 
+ Adding new TH1F object col_zp_disk2_panel2_plaq2 to top directory 
+ Adding new TH1F object col_zp_disk2_panel2_plaq3 to top directory 
+ Adding new TH1F object digi_zp_disk2_panel1 to top directory 
+ Adding new TH1F object digi_zp_disk2_panel2 to top directory 
+MagneticFieldVolumes:MAGF is the ROOT
+======== Geometry Configuration read ==========
+Element: Constant (64)
+cms:OCMS is the ROOT
+======== Geometry Configuration read ==========
+Element: Constant (2229)
+Creating a new Timing Report
+StopWatch bias 4.54529e-08
+CPUWatch bias 0.000326
+
+         ___________________________________        
+      .-'                                   '-.     
+    .'      Magnetic Field Geometry built      `.   
+   /                                             \  
+  ;         Barrel volumes: 2436                  ; 
+  ;         Endcap volumes: 816                   ; 
+   \                                             /  
+    `.          Fasten your seatbelt.          .'   
+      `-.___________________________________.-'     
+
+ Saved file stripdigihisto.root with collection of monitoring objects 
+ Saved file pixeldigihisto.root with collection of monitoring objects 
+
+Main Thread CPU elapsed time 448391u 590s
+  *******************************************
+  *                                         *
+  *        W E L C O M E  to  R O O T       *
+  *                                         *
+  *   Version  5.10/00c     31 March 2006   *
+  *                                         *
+  *  You are welcome to visit our Web site  *
+  *          http://root.cern.ch            *
+  *                                         *
+  *******************************************
+
+Compiled on 31 March 2006 for linux with thread support.
+
+CINT/ROOT C/C++ Interpreter version 5.16.8, February 9, 2006
+Type ? for help. Commands must be C++ statements.
+Enclose multiple statements between { }.
+
+Processing SiPixelDigiCompare.C...
+Initializing HistoCompare... 
+(class HistoCompare)166186576
+Initializing HistoCompare... 
+[OVAL] adc_layer1ring1 PV = 1
+[OVAL] adc_layer1ring2 PV = 1
+[OVAL] adc_layer1ring3 PV = 1
+[OVAL] adc_layer1ring4 PV = 1
+[OVAL] adc_layer1ring5 PV = 1
+[OVAL] adc_layer1ring6 PV = 1
+[OVAL] adc_layer1ring7 PV = 1
+[OVAL] adc_layer1ring8 PV = 1
+Info in <TCanvas::Print>: eps file AdcOfPXBLayer1_compare.eps has been created
+[OVAL] row_layer1ring1 PV = 1
+[OVAL] row_layer1ring2 PV = 1
+[OVAL] row_layer1ring3 PV = 1
+[OVAL] row_layer1ring4 PV = 1
+[OVAL] row_layer1ring5 PV = 1
+[OVAL] row_layer1ring6 PV = 1
+[OVAL] row_layer1ring7 PV = 1
+[OVAL] row_layer1ring8 PV = 1
+Info in <TCanvas::Print>: eps file RowOfPXBLayer1_compare.eps has been created
+[OVAL] col_layer1ring1 PV = 1
+[OVAL] col_layer1ring2 PV = 1
+[OVAL] col_layer1ring3 PV = 1
+[OVAL] col_layer1ring4 PV = 1
+[OVAL] col_layer1ring5 PV = 1
+[OVAL] col_layer1ring6 PV = 1
+[OVAL] col_layer1ring7 PV = 1
+[OVAL] col_layer1ring8 PV = 1
+Info in <TCanvas::Print>: eps file ColOfPXBLayer1_compare.eps has been created
+[OVAL] digimulti_layer1ring1 PV = 1
+[OVAL] digimulti_layer1ring2 PV = 1
+[OVAL] digimulti_layer1ring3 PV = 1
+[OVAL] digimulti_layer1ring4 PV = 1
+[OVAL] digimulti_layer1ring5 PV = 1
+[OVAL] digimulti_layer1ring6 PV = 1
+[OVAL] digimulti_layer1ring7 PV = 1
+[OVAL] digimulti_layer1ring8 PV = 1
+Info in <TCanvas::Print>: eps file DigiMultiPXBLayer1_compare.eps has been created
+[OVAL] adc_layer2ring1 PV = 1
+[OVAL] adc_layer2ring2 PV = 1
+[OVAL] adc_layer2ring3 PV = 1
+[OVAL] adc_layer2ring4 PV = 1
+[OVAL] adc_layer2ring5 PV = 1
+[OVAL] adc_layer2ring6 PV = 1
+[OVAL] adc_layer2ring7 PV = 1
+[OVAL] adc_layer2ring8 PV = 1
+Info in <TCanvas::Print>: eps file AdcOfPXBLayer2_compare.eps has been created
+[OVAL] row_layer2ring1 PV = 1
+[OVAL] row_layer2ring2 PV = 1
+[OVAL] row_layer2ring3 PV = 1
+[OVAL] row_layer2ring4 PV = 1
+[OVAL] row_layer2ring5 PV = 1
+[OVAL] row_layer2ring6 PV = 1
+[OVAL] row_layer2ring7 PV = 1
+[OVAL] row_layer2ring8 PV = 1
+Info in <TCanvas::Print>: eps file RowOfPXBLayer2_compare.eps has been created
+[OVAL] col_layer2ring1 PV = 1
+[OVAL] col_layer2ring2 PV = 1
+[OVAL] col_layer2ring3 PV = 1
+[OVAL] col_layer2ring4 PV = 1
+[OVAL] col_layer2ring5 PV = 1
+[OVAL] col_layer2ring6 PV = 1
+[OVAL] col_layer2ring7 PV = 1
+[OVAL] col_layer2ring8 PV = 1
+Info in <TCanvas::Print>: eps file ColOfPXBLayer2_compare.eps has been created
+[OVAL] digimulti_layer2ring1 PV = 1
+[OVAL] digimulti_layer2ring2 PV = 1
+[OVAL] digimulti_layer2ring3 PV = 1
+[OVAL] digimulti_layer2ring4 PV = 1
+[OVAL] digimulti_layer2ring5 PV = 1
+[OVAL] digimulti_layer2ring6 PV = 1
+[OVAL] digimulti_layer2ring7 PV = 1
+[OVAL] digimulti_layer2ring8 PV = 1
+Info in <TCanvas::Print>: eps file DigiMultiPXBLayer2_compare.eps has been created
+[OVAL] adc_layer3ring1 PV = 1
+[OVAL] adc_layer3ring2 PV = 1
+[OVAL] adc_layer3ring3 PV = 1
+[OVAL] adc_layer3ring4 PV = 1
+[OVAL] adc_layer3ring5 PV = 1
+[OVAL] adc_layer3ring6 PV = 1
+[OVAL] adc_layer3ring7 PV = 1
+[OVAL] adc_layer3ring8 PV = 1
+Info in <TCanvas::Print>: eps file AdcOfPXBLayer3_compare.eps has been created
+[OVAL] row_layer3ring1 PV = 1
+[OVAL] row_layer3ring2 PV = 1
+[OVAL] row_layer3ring3 PV = 1
+[OVAL] row_layer3ring4 PV = 1
+[OVAL] row_layer3ring5 PV = 1
+[OVAL] row_layer3ring6 PV = 1
+[OVAL] row_layer3ring7 PV = 1
+[OVAL] row_layer3ring8 PV = 1
+Info in <TCanvas::Print>: eps file RowOfPXBLayer3_compare.eps has been created
+[OVAL] col_layer3ring1 PV = 1
+[OVAL] col_layer3ring2 PV = 1
+[OVAL] col_layer3ring3 PV = 1
+[OVAL] col_layer3ring4 PV = 1
+[OVAL] col_layer3ring5 PV = 1
+[OVAL] col_layer3ring6 PV = 1
+[OVAL] col_layer3ring7 PV = 1
+[OVAL] col_layer3ring8 PV = 1
+Info in <TCanvas::Print>: eps file ColOfPXBLayer3_compare.eps has been created
+[OVAL] digimulti_layer3ring1 PV = 1
+[OVAL] digimulti_layer3ring2 PV = 1
+[OVAL] digimulti_layer3ring3 PV = 1
+[OVAL] digimulti_layer3ring4 PV = 1
+[OVAL] digimulti_layer3ring5 PV = 1
+[OVAL] digimulti_layer3ring6 PV = 1
+[OVAL] digimulti_layer3ring7 PV = 1
+[OVAL] digimulti_layer3ring8 PV = 1
+Info in <TCanvas::Print>: eps file DigiMultiPXBLayer3_compare.eps has been created
+[OVAL] adc_zm_disk1_panel1_plaq1 PV = 1
+[OVAL] adc_zm_disk1_panel1_plaq2 PV = 1
+[OVAL] adc_zm_disk1_panel1_plaq3 PV = 1
+[OVAL] adc_zm_disk1_panel1_plaq4 PV = 1
+Info in <TCanvas::Print>: eps file AdcZmDisk1Panel1_compare.eps has been created
+[OVAL] row_zm_disk1_panel1_plaq1 PV = 1
+[OVAL] row_zm_disk1_panel1_plaq2 PV = 1
+[OVAL] row_zm_disk1_panel1_plaq3 PV = 1
+[OVAL] row_zm_disk1_panel1_plaq4 PV = 1
+Info in <TCanvas::Print>: eps file RowZmDisk1Panel1_compare.eps has been created
+[OVAL] col_zm_disk1_panel1_plaq1 PV = 1
+[OVAL] col_zm_disk1_panel1_plaq2 PV = 1
+[OVAL] col_zm_disk1_panel1_plaq3 PV = 1
+[OVAL] col_zm_disk1_panel1_plaq4 PV = 1
+Info in <TCanvas::Print>: eps file ColZmDisk1Panel1_compare.eps has been created
+[OVAL] adc_zm_disk1_panel2_plaq1 PV = 1
+[OVAL] adc_zm_disk1_panel2_plaq2 PV = 1
+[OVAL] adc_zm_disk1_panel2_plaq3 PV = 1
+Info in <TCanvas::Print>: eps file AdcZmDisk1Panel2_compare.eps has been created
+[OVAL] row_zm_disk1_panel2_plaq1 PV = 1
+[OVAL] row_zm_disk1_panel2_plaq2 PV = 1
+[OVAL] row_zm_disk1_panel2_plaq3 PV = 1
+Info in <TCanvas::Print>: eps file RowZmDisk1Panel2_compare.eps has been created
+[OVAL] col_zm_disk1_panel2_plaq1 PV = 1
+[OVAL] col_zm_disk1_panel2_plaq2 PV = 1
+[OVAL] col_zm_disk1_panel2_plaq3 PV = 1
+Info in <TCanvas::Print>: eps file ColZmDisk1Panel2_compare.eps has been created
+[OVAL] adc_zm_disk2_panel1_plaq1 PV = 1
+[OVAL] adc_zm_disk2_panel1_plaq2 PV = 1
+[OVAL] adc_zm_disk2_panel1_plaq3 PV = 1
+[OVAL] adc_zm_disk2_panel1_plaq4 PV = 1
+Info in <TCanvas::Print>: eps file AdcZmDisk2Panel1_compare.eps has been created
+[OVAL] row_zm_disk2_panel1_plaq1 PV = 1
+[OVAL] row_zm_disk2_panel1_plaq2 PV = 1
+[OVAL] row_zm_disk2_panel1_plaq3 PV = 1
+[OVAL] row_zm_disk2_panel1_plaq4 PV = 1
+Info in <TCanvas::Print>: eps file RowZmDisk2Panel1_compare.eps has been created
+[OVAL] col_zm_disk2_panel1_plaq1 PV = 1
+[OVAL] col_zm_disk2_panel1_plaq2 PV = 1
+[OVAL] col_zm_disk2_panel1_plaq3 PV = 1
+[OVAL] col_zm_disk2_panel1_plaq4 PV = 1
+Info in <TCanvas::Print>: eps file ColZmDisk2Panel1_compare.eps has been created
+[OVAL] adc_zm_disk2_panel2_plaq1 PV = 1
+[OVAL] adc_zm_disk2_panel2_plaq2 PV = 1
+[OVAL] adc_zm_disk2_panel2_plaq3 PV = 1
+Info in <TCanvas::Print>: eps file AdcZmDisk2Panel2_compare.eps has been created
+[OVAL] row_zm_disk2_panel2_plaq1 PV = 1
+[OVAL] row_zm_disk2_panel2_plaq2 PV = 1
+[OVAL] row_zm_disk2_panel2_plaq3 PV = 1
+Info in <TCanvas::Print>: eps file RowZmDisk2Panel2_compare.eps has been created
+[OVAL] col_zm_disk2_panel2_plaq1 PV = 1
+[OVAL] col_zm_disk2_panel2_plaq2 PV = 1
+[OVAL] col_zm_disk2_panel2_plaq3 PV = 1
+Info in <TCanvas::Print>: eps file ColZmDisk2Panel2_compare.eps has been created
+[OVAL] adc_zp_disk1_panel1_plaq1 PV = 1
+[OVAL] adc_zp_disk1_panel1_plaq2 PV = 1
+[OVAL] adc_zp_disk1_panel1_plaq3 PV = 1
+[OVAL] adc_zp_disk1_panel1_plaq4 PV = 1
+Info in <TCanvas::Print>: eps file AdcZpDisk1Panel1_compare.eps has been created
+[OVAL] row_zp_disk1_panel1_plaq1 PV = 1
+[OVAL] row_zp_disk1_panel1_plaq2 PV = 1
+[OVAL] row_zp_disk1_panel1_plaq3 PV = 1
+[OVAL] row_zp_disk1_panel1_plaq4 PV = 1
+Info in <TCanvas::Print>: eps file RowZpDisk1Panel1_compare.eps has been created
+[OVAL] col_zp_disk1_panel1_plaq1 PV = 1
+[OVAL] col_zp_disk1_panel1_plaq2 PV = 1
+[OVAL] col_zp_disk1_panel1_plaq3 PV = 1
+[OVAL] col_zp_disk1_panel1_plaq4 PV = 1
+Info in <TCanvas::Print>: eps file ColZpDisk1Panel1_compare.eps has been created
+[OVAL] adc_zp_disk1_panel2_plaq1 PV = 1
+[OVAL] adc_zp_disk1_panel2_plaq2 PV = 1
+[OVAL] adc_zp_disk1_panel2_plaq3 PV = 1
+Info in <TCanvas::Print>: eps file AdcZpDisk1Panel2_compare.eps has been created
+[OVAL] row_zp_disk1_panel2_plaq1 PV = 1
+[OVAL] row_zp_disk1_panel2_plaq2 PV = 1
+[OVAL] row_zp_disk1_panel2_plaq3 PV = 1
+Info in <TCanvas::Print>: eps file RowZpDisk1Panel2_compare.eps has been created
+[OVAL] col_zp_disk1_panel2_plaq1 PV = 1
+[OVAL] col_zp_disk1_panel2_plaq2 PV = 1
+[OVAL] col_zp_disk1_panel2_plaq3 PV = 1
+Info in <TCanvas::Print>: eps file ColZpDisk1Panel2_compare.eps has been created
+[OVAL] adc_zp_disk2_panel1_plaq1 PV = 1
+[OVAL] adc_zp_disk2_panel1_plaq2 PV = 1
+[OVAL] adc_zp_disk2_panel1_plaq3 PV = 1
+[OVAL] adc_zp_disk2_panel1_plaq4 PV = 1
+Info in <TCanvas::Print>: eps file AdcZpDisk2Panel1_compare.eps has been created
+[OVAL] row_zp_disk2_panel1_plaq1 PV = 1
+[OVAL] row_zp_disk2_panel1_plaq2 PV = 1
+[OVAL] row_zp_disk2_panel1_plaq3 PV = 1
+[OVAL] row_zp_disk2_panel1_plaq4 PV = 1
+Info in <TCanvas::Print>: eps file RowZpDisk2Panel1_compare.eps has been created
+[OVAL] col_zp_disk2_panel1_plaq1 PV = 1
+[OVAL] col_zp_disk2_panel1_plaq2 PV = 1
+[OVAL] col_zp_disk2_panel1_plaq3 PV = 1
+[OVAL] col_zp_disk2_panel1_plaq4 PV = 1
+Info in <TCanvas::Print>: eps file ColZpDisk2Panel1_compare.eps has been created
+[OVAL] adc_zp_disk2_panel2_plaq1 PV = 1
+[OVAL] adc_zp_disk2_panel2_plaq2 PV = 1
+[OVAL] adc_zp_disk2_panel2_plaq3 PV = 1
+Info in <TCanvas::Print>: eps file AdcZpDisk2Panel2_compare.eps has been created
+[OVAL] row_zp_disk2_panel2_plaq1 PV = 1
+[OVAL] row_zp_disk2_panel2_plaq2 PV = 1
+[OVAL] row_zp_disk2_panel2_plaq3 PV = 1
+Info in <TCanvas::Print>: eps file RowZpDisk2Panel2_compare.eps has been created
+[OVAL] col_zp_disk2_panel2_plaq1 PV = 1
+[OVAL] col_zp_disk2_panel2_plaq2 PV = 1
+[OVAL] col_zp_disk2_panel2_plaq3 PV = 1
+Info in <TCanvas::Print>: eps file ColZpDisk2Panel2_compare.eps has been created
+[OVAL] digi_zp_disk1_panel1 PV = 1
+[OVAL] digi_zp_disk1_panel2 PV = 1
+[OVAL] digi_zp_disk2_panel1 PV = 1
+[OVAL] digi_zp_disk2_panel2 PV = 1
+[OVAL] digi_zm_disk1_panel1 PV = 1
+[OVAL] digi_zm_disk1_panel2 PV = 1
+[OVAL] digi_zm_disk2_panel1 PV = 1
+[OVAL] digi_zm_disk2_panel2 PV = 1
+Info in <TCanvas::Print>: eps file DigiNumOfEndcap_compare.eps has been created
+  *******************************************
+  *                                         *
+  *        W E L C O M E  to  R O O T       *
+  *                                         *
+  *   Version  5.10/00c     31 March 2006   *
+  *                                         *
+  *  You are welcome to visit our Web site  *
+  *          http://root.cern.ch            *
+  *                                         *
+  *******************************************
+
+Compiled on 31 March 2006 for linux with thread support.
+
+CINT/ROOT C/C++ Interpreter version 5.16.8, February 9, 2006
+Type ? for help. Commands must be C++ statements.
+Enclose multiple statements between { }.
+
+Processing SiStripDigiCompare.C...
+Initializing HistoCompare... 
+(class HistoCompare)180729888
+Initializing HistoCompare... 
+[OVAL] ndigi_tib_layer_1_zm PV = 1
+[OVAL] ndigi_tib_layer_2_zm PV = 1
+[OVAL] ndigi_tib_layer_3_zm PV = 1
+[OVAL] ndigi_tib_layer_4_zm PV = 1
+Info in <TCanvas::Print>: eps file NdigiTIBCompare_ZM.eps has been created
+[OVAL] ndigi_tib_layer_1_zp PV = 1
+[OVAL] ndigi_tib_layer_2_zp PV = 1
+[OVAL] ndigi_tib_layer_3_zp PV = 1
+[OVAL] ndigi_tib_layer_4_zp PV = 1
+Info in <TCanvas::Print>: eps file NdigiTIBCompare_ZP.eps has been created
+[OVAL] adc_tib_layer1_extmodule1_zp PV = 1
+[OVAL] adc_tib_layer1_extmodule2_zp PV = 1
+[OVAL] adc_tib_layer1_extmodule3_zp PV = 1
+[OVAL] adc_tib_layer1_intmodule1_zp PV = 1
+[OVAL] adc_tib_layer1_intmodule2_zp PV = 1
+[OVAL] adc_tib_layer1_intmodule3_zp PV = 1
+[OVAL] adc_tib_layer1_extmodule1_zm PV = 1
+[OVAL] adc_tib_layer1_extmodule2_zm PV = 1
+[OVAL] adc_tib_layer1_extmodule3_zm PV = 1
+[OVAL] adc_tib_layer1_intmodule1_zm PV = 1
+[OVAL] adc_tib_layer1_intmodule2_zm PV = 1
+[OVAL] adc_tib_layer1_intmodule3_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTIBLayer1Compare.eps has been created
+[OVAL] strip_tib_layer1_extmodule1_zp PV = 1
+[OVAL] strip_tib_layer1_extmodule2_zp PV = 1
+[OVAL] strip_tib_layer1_extmodule3_zp PV = 1
+[OVAL] strip_tib_layer1_intmodule1_zp PV = 1
+[OVAL] strip_tib_layer1_intmodule2_zp PV = 1
+[OVAL] strip_tib_layer1_intmodule3_zp PV = 1
+[OVAL] strip_tib_layer1_extmodule1_zm PV = 1
+[OVAL] strip_tib_layer1_extmodule2_zm PV = 1
+[OVAL] strip_tib_layer1_extmodule3_zm PV = 1
+[OVAL] strip_tib_layer1_intmodule1_zm PV = 1
+[OVAL] strip_tib_layer1_intmodule2_zm PV = 1
+[OVAL] strip_tib_layer1_intmodule3_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTIBLayer1Compare.eps has been created
+[OVAL] adc_tib_layer2_extmodule1_zp PV = 1
+[OVAL] adc_tib_layer2_extmodule2_zp PV = 1
+[OVAL] adc_tib_layer2_extmodule3_zp PV = 1
+[OVAL] adc_tib_layer2_intmodule1_zp PV = 1
+[OVAL] adc_tib_layer2_intmodule2_zp PV = 1
+[OVAL] adc_tib_layer2_intmodule3_zp PV = 1
+[OVAL] adc_tib_layer2_extmodule1_zm PV = 1
+[OVAL] adc_tib_layer2_extmodule2_zm PV = 1
+[OVAL] adc_tib_layer2_extmodule3_zm PV = 1
+[OVAL] adc_tib_layer2_intmodule1_zm PV = 1
+[OVAL] adc_tib_layer2_intmodule2_zm PV = 1
+[OVAL] adc_tib_layer2_intmodule3_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTIBLayer2Compare.eps has been created
+[OVAL] strip_tib_layer2_extmodule1_zp PV = 1
+[OVAL] strip_tib_layer2_extmodule2_zp PV = 1
+[OVAL] strip_tib_layer2_extmodule3_zp PV = 1
+[OVAL] strip_tib_layer2_intmodule1_zp PV = 1
+[OVAL] strip_tib_layer2_intmodule2_zp PV = 1
+[OVAL] strip_tib_layer2_intmodule3_zp PV = 1
+[OVAL] strip_tib_layer2_extmodule1_zm PV = 1
+[OVAL] strip_tib_layer2_extmodule2_zm PV = 1
+[OVAL] strip_tib_layer2_extmodule3_zm PV = 1
+[OVAL] strip_tib_layer2_intmodule1_zm PV = 1
+[OVAL] strip_tib_layer2_intmodule2_zm PV = 1
+[OVAL] strip_tib_layer2_intmodule3_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTIBLayer2Compare.eps has been created
+[OVAL] adc_tib_layer3_extmodule1_zp PV = 1
+[OVAL] adc_tib_layer3_extmodule2_zp PV = 1
+[OVAL] adc_tib_layer3_extmodule3_zp PV = 1
+[OVAL] adc_tib_layer3_intmodule1_zp PV = 1
+[OVAL] adc_tib_layer3_intmodule2_zp PV = 1
+[OVAL] adc_tib_layer3_intmodule3_zp PV = 1
+[OVAL] adc_tib_layer3_extmodule1_zm PV = 1
+[OVAL] adc_tib_layer3_extmodule2_zm PV = 1
+[OVAL] adc_tib_layer3_extmodule3_zm PV = 1
+[OVAL] adc_tib_layer3_intmodule1_zm PV = 1
+[OVAL] adc_tib_layer3_intmodule2_zm PV = 1
+[OVAL] adc_tib_layer3_intmodule3_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTIBLayer3Compare.eps has been created
+[OVAL] strip_tib_layer3_extmodule1_zp PV = 1
+[OVAL] strip_tib_layer3_extmodule2_zp PV = 1
+[OVAL] strip_tib_layer3_extmodule3_zp PV = 1
+[OVAL] strip_tib_layer3_intmodule1_zp PV = 1
+[OVAL] strip_tib_layer3_intmodule2_zp PV = 1
+[OVAL] strip_tib_layer3_intmodule3_zp PV = 1
+[OVAL] strip_tib_layer3_extmodule1_zm PV = 1
+[OVAL] strip_tib_layer3_extmodule2_zm PV = 1
+[OVAL] strip_tib_layer3_extmodule3_zm PV = 1
+[OVAL] strip_tib_layer3_intmodule1_zm PV = 1
+[OVAL] strip_tib_layer3_intmodule2_zm PV = 1
+[OVAL] strip_tib_layer3_intmodule3_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTIBLayer3Compare.eps has been created
+[OVAL] adc_tib_layer4_extmodule1_zp PV = 1
+[OVAL] adc_tib_layer4_extmodule2_zp PV = 1
+[OVAL] adc_tib_layer4_extmodule3_zp PV = 1
+[OVAL] adc_tib_layer4_intmodule1_zp PV = 1
+[OVAL] adc_tib_layer4_intmodule2_zp PV = 1
+[OVAL] adc_tib_layer4_intmodule3_zp PV = 1
+[OVAL] adc_tib_layer4_extmodule1_zm PV = 1
+[OVAL] adc_tib_layer4_extmodule2_zm PV = 1
+[OVAL] adc_tib_layer4_extmodule3_zm PV = 1
+[OVAL] adc_tib_layer4_intmodule1_zm PV = 1
+[OVAL] adc_tib_layer4_intmodule2_zm PV = 1
+[OVAL] adc_tib_layer4_intmodule3_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTIBLayer4Compare.eps has been created
+[OVAL] strip_tib_layer4_extmodule1_zp PV = 1
+[OVAL] strip_tib_layer4_extmodule2_zp PV = 1
+[OVAL] strip_tib_layer4_extmodule3_zp PV = 1
+[OVAL] strip_tib_layer4_intmodule1_zp PV = 1
+[OVAL] strip_tib_layer4_intmodule2_zp PV = 1
+[OVAL] strip_tib_layer4_intmodule3_zp PV = 1
+[OVAL] strip_tib_layer4_extmodule1_zm PV = 1
+[OVAL] strip_tib_layer4_extmodule2_zm PV = 1
+[OVAL] strip_tib_layer4_extmodule3_zm PV = 1
+[OVAL] strip_tib_layer4_intmodule1_zm PV = 1
+[OVAL] strip_tib_layer4_intmodule2_zm PV = 1
+[OVAL] strip_tib_layer4_intmodule3_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTIBLayer4Compare.eps has been created
+[OVAL] ndigi_tob_layer_1_zm PV = 1
+[OVAL] ndigi_tob_layer_2_zm PV = 1
+[OVAL] ndigi_tob_layer_3_zm PV = 1
+[OVAL] ndigi_tob_layer_4_zm PV = 1
+[OVAL] ndigi_tob_layer_5_zm PV = 1
+[OVAL] ndigi_tob_layer_6_zm PV = 1
+Info in <TCanvas::Print>: eps file NdigiTOBCompare_ZM.eps has been created
+[OVAL] ndigi_tob_layer_1_zp PV = 1
+[OVAL] ndigi_tob_layer_2_zp PV = 1
+[OVAL] ndigi_tob_layer_3_zp PV = 1
+[OVAL] ndigi_tob_layer_4_zp PV = 1
+[OVAL] ndigi_tob_layer_5_zp PV = 1
+[OVAL] ndigi_tob_layer_6_zp PV = 1
+Info in <TCanvas::Print>: eps file NdigiTOBCompare_ZP.eps has been created
+[OVAL] adc_tob_layer1_module1_zp PV = 1
+[OVAL] adc_tob_layer1_module2_zp PV = 1
+[OVAL] adc_tob_layer1_module3_zp PV = 1
+[OVAL] adc_tob_layer1_module4_zp PV = 1
+[OVAL] adc_tob_layer1_module5_zp PV = 1
+[OVAL] adc_tob_layer1_module6_zp PV = 1
+[OVAL] adc_tob_layer1_module1_zm PV = 1
+[OVAL] adc_tob_layer1_module2_zm PV = 1
+[OVAL] adc_tob_layer1_module3_zm PV = 1
+[OVAL] adc_tob_layer1_module4_zm PV = 1
+[OVAL] adc_tob_layer1_module5_zm PV = 1
+[OVAL] adc_tob_layer1_module6_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTOBLayer1Compare_ZM.eps has been created
+[OVAL] strip_tob_layer1_module1_zp PV = 1
+[OVAL] strip_tob_layer1_module2_zp PV = 1
+[OVAL] strip_tob_layer1_module3_zp PV = 1
+[OVAL] strip_tob_layer1_module4_zp PV = 1
+[OVAL] strip_tob_layer1_module5_zp PV = 1
+[OVAL] strip_tob_layer1_module6_zp PV = 1
+[OVAL] strip_tob_layer1_module1_zm PV = 1
+[OVAL] strip_tob_layer1_module2_zm PV = 1
+[OVAL] strip_tob_layer1_module3_zm PV = 1
+[OVAL] strip_tob_layer1_module4_zm PV = 1
+[OVAL] strip_tob_layer1_module5_zm PV = 1
+[OVAL] strip_tob_layer1_module6_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTOBLayer1Compare_ZM.eps has been created
+[OVAL] adc_tob_layer2_module1_zp PV = 1
+[OVAL] adc_tob_layer2_module2_zp PV = 1
+[OVAL] adc_tob_layer2_module3_zp PV = 1
+[OVAL] adc_tob_layer2_module4_zp PV = 1
+[OVAL] adc_tob_layer2_module5_zp PV = 1
+[OVAL] adc_tob_layer2_module6_zp PV = 1
+[OVAL] adc_tob_layer2_module1_zm PV = 1
+[OVAL] adc_tob_layer2_module2_zm PV = 1
+[OVAL] adc_tob_layer2_module3_zm PV = 1
+[OVAL] adc_tob_layer2_module4_zm PV = 1
+[OVAL] adc_tob_layer2_module5_zm PV = 1
+[OVAL] adc_tob_layer2_module6_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTOBLayer2Compare.eps has been created
+[OVAL] strip_tob_layer2_module1_zp PV = 1
+[OVAL] strip_tob_layer2_module2_zp PV = 1
+[OVAL] strip_tob_layer2_module3_zp PV = 1
+[OVAL] strip_tob_layer2_module4_zp PV = 1
+[OVAL] strip_tob_layer2_module5_zp PV = 1
+[OVAL] strip_tob_layer2_module6_zp PV = 1
+[OVAL] strip_tob_layer2_module1_zm PV = 1
+[OVAL] strip_tob_layer2_module2_zm PV = 1
+[OVAL] strip_tob_layer2_module3_zm PV = 1
+[OVAL] strip_tob_layer2_module4_zm PV = 1
+[OVAL] strip_tob_layer2_module5_zm PV = 1
+[OVAL] strip_tob_layer2_module6_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTOBLayer2Compare.eps has been created
+[OVAL] adc_tob_layer3_module1_zp PV = 1
+[OVAL] adc_tob_layer3_module2_zp PV = 1
+[OVAL] adc_tob_layer3_module3_zp PV = 1
+[OVAL] adc_tob_layer3_module4_zp PV = 1
+[OVAL] adc_tob_layer3_module5_zp PV = 1
+[OVAL] adc_tob_layer3_module6_zp PV = 1
+[OVAL] adc_tob_layer3_module1_zm PV = 1
+[OVAL] adc_tob_layer3_module2_zm PV = 1
+[OVAL] adc_tob_layer3_module3_zm PV = 1
+[OVAL] adc_tob_layer3_module4_zm PV = 1
+[OVAL] adc_tob_layer3_module5_zm PV = 1
+[OVAL] adc_tob_layer3_module6_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTOBLayer3Compare.eps has been created
+[OVAL] strip_tob_layer3_module1_zp PV = 1
+[OVAL] strip_tob_layer3_module2_zp PV = 1
+[OVAL] strip_tob_layer3_module3_zp PV = 1
+[OVAL] strip_tob_layer3_module4_zp PV = 1
+[OVAL] strip_tob_layer3_module5_zp PV = 1
+[OVAL] strip_tob_layer3_module6_zp PV = 1
+[OVAL] strip_tob_layer3_module1_zm PV = 1
+[OVAL] strip_tob_layer3_module2_zm PV = 1
+[OVAL] strip_tob_layer3_module3_zm PV = 1
+[OVAL] strip_tob_layer3_module4_zm PV = 1
+[OVAL] strip_tob_layer3_module5_zm PV = 1
+[OVAL] strip_tob_layer3_module6_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTOBLayer3Compare.eps has been created
+[OVAL] adc_tob_layer4_module1_zp PV = 1
+[OVAL] adc_tob_layer4_module2_zp PV = 1
+[OVAL] adc_tob_layer4_module3_zp PV = 1
+[OVAL] adc_tob_layer4_module4_zp PV = 1
+[OVAL] adc_tob_layer4_module5_zp PV = 1
+[OVAL] adc_tob_layer4_module6_zp PV = 1
+[OVAL] adc_tob_layer4_module1_zm PV = 1
+[OVAL] adc_tob_layer4_module2_zm PV = 1
+[OVAL] adc_tob_layer4_module3_zm PV = 1
+[OVAL] adc_tob_layer4_module4_zm PV = 1
+[OVAL] adc_tob_layer4_module5_zm PV = 1
+[OVAL] adc_tob_layer4_module6_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTOBLayer4Compare.eps has been created
+[OVAL] strip_tob_layer4_module1_zp PV = 1
+[OVAL] strip_tob_layer4_module2_zp PV = 1
+[OVAL] strip_tob_layer4_module3_zp PV = 1
+[OVAL] strip_tob_layer4_module4_zp PV = 1
+[OVAL] strip_tob_layer4_module5_zp PV = 1
+[OVAL] strip_tob_layer4_module6_zp PV = 1
+[OVAL] strip_tob_layer4_module1_zm PV = 1
+[OVAL] strip_tob_layer4_module2_zm PV = 1
+[OVAL] strip_tob_layer4_module3_zm PV = 1
+[OVAL] strip_tob_layer4_module4_zm PV = 1
+[OVAL] strip_tob_layer4_module5_zm PV = 1
+[OVAL] strip_tob_layer4_module6_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTOBLayer4Compare.eps has been created
+[OVAL] adc_tob_layer5_module1_zp PV = 1
+[OVAL] adc_tob_layer5_module2_zp PV = 1
+[OVAL] adc_tob_layer5_module3_zp PV = 1
+[OVAL] adc_tob_layer5_module4_zp PV = 1
+[OVAL] adc_tob_layer5_module5_zp PV = 1
+[OVAL] adc_tob_layer5_module6_zp PV = 1
+[OVAL] adc_tob_layer5_module1_zm PV = 1
+[OVAL] adc_tob_layer5_module2_zm PV = 1
+[OVAL] adc_tob_layer5_module3_zm PV = 1
+[OVAL] adc_tob_layer5_module4_zm PV = 1
+[OVAL] adc_tob_layer5_module5_zm PV = 1
+[OVAL] adc_tob_layer5_module6_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTOBLayer5Compare.eps has been created
+[OVAL] strip_tob_layer5_module1_zp PV = 1
+[OVAL] strip_tob_layer5_module2_zp PV = 1
+[OVAL] strip_tob_layer5_module3_zp PV = 1
+[OVAL] strip_tob_layer5_module4_zp PV = 1
+[OVAL] strip_tob_layer5_module5_zp PV = 1
+[OVAL] strip_tob_layer5_module6_zp PV = 1
+[OVAL] strip_tob_layer5_module1_zm PV = 1
+[OVAL] strip_tob_layer5_module2_zm PV = 1
+[OVAL] strip_tob_layer5_module3_zm PV = 1
+[OVAL] strip_tob_layer5_module4_zm PV = 1
+[OVAL] strip_tob_layer5_module5_zm PV = 1
+[OVAL] strip_tob_layer5_module6_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTOBLayer5Compare.eps has been created
+[OVAL] adc_tob_layer6_module1_zp PV = 1
+[OVAL] adc_tob_layer6_module2_zp PV = 1
+[OVAL] adc_tob_layer6_module3_zp PV = 1
+[OVAL] adc_tob_layer6_module4_zp PV = 1
+[OVAL] adc_tob_layer6_module5_zp PV = 1
+[OVAL] adc_tob_layer6_module6_zp PV = 1
+[OVAL] adc_tob_layer6_module1_zm PV = 1
+[OVAL] adc_tob_layer6_module2_zm PV = 1
+[OVAL] adc_tob_layer6_module3_zm PV = 1
+[OVAL] adc_tob_layer6_module4_zm PV = 1
+[OVAL] adc_tob_layer6_module5_zm PV = 1
+[OVAL] adc_tob_layer6_module6_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTOBLayer6Compare.eps has been created
+[OVAL] strip_tob_layer6_module1_zp PV = 1
+[OVAL] strip_tob_layer6_module2_zp PV = 1
+[OVAL] strip_tob_layer6_module3_zp PV = 1
+[OVAL] strip_tob_layer6_module4_zp PV = 1
+[OVAL] strip_tob_layer6_module5_zp PV = 1
+[OVAL] strip_tob_layer6_module6_zp PV = 1
+[OVAL] strip_tob_layer6_module1_zm PV = 1
+[OVAL] strip_tob_layer6_module2_zm PV = 1
+[OVAL] strip_tob_layer6_module3_zm PV = 1
+[OVAL] strip_tob_layer6_module4_zm PV = 1
+[OVAL] strip_tob_layer6_module5_zm PV = 1
+[OVAL] strip_tob_layer6_module6_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTOBLayer6Compare.eps has been created
+[OVAL] ndigi_tid_wheel_1_zm PV = 1
+[OVAL] ndigi_tid_wheel_2_zm PV = 1
+[OVAL] ndigi_tid_wheel_3_zm PV = 1
+Info in <TCanvas::Print>: eps file NdigiTIDCompare_ZM.eps has been created
+[OVAL] ndigi_tid_wheel_1_zp PV = 1
+[OVAL] ndigi_tid_wheel_2_zp PV = 1
+[OVAL] ndigi_tid_wheel_3_zp PV = 1
+Info in <TCanvas::Print>: eps file NdigiTIDCompare_ZP.eps has been created
+[OVAL] adc_tid_wheel1_ring1_zp PV = 1
+[OVAL] adc_tid_wheel1_ring2_zp PV = 1
+[OVAL] adc_tid_wheel1_ring3_zp PV = 1
+[OVAL] adc_tid_wheel1_ring1_zm PV = 1
+[OVAL] adc_tid_wheel1_ring2_zm PV = 1
+[OVAL] adc_tid_wheel1_ring3_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTIDWheel1Compare.eps has been created
+[OVAL] strip_tid_wheel1_ring1_zp PV = 1
+[OVAL] strip_tid_wheel1_ring2_zp PV = 1
+[OVAL] strip_tid_wheel1_ring3_zp PV = 1
+[OVAL] strip_tid_wheel1_ring1_zm PV = 1
+[OVAL] strip_tid_wheel1_ring2_zm PV = 1
+[OVAL] strip_tid_wheel1_ring3_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTIDWheel1Compare.eps has been created
+[OVAL] adc_tid_wheel2_ring1_zp PV = 1
+[OVAL] adc_tid_wheel2_ring2_zp PV = 1
+[OVAL] adc_tid_wheel2_ring3_zp PV = 1
+[OVAL] adc_tid_wheel2_ring1_zm PV = 1
+[OVAL] adc_tid_wheel2_ring2_zm PV = 1
+[OVAL] adc_tid_wheel2_ring3_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTIDWheel2Compare.eps has been created
+[OVAL] strip_tid_wheel2_ring1_zp PV = 1
+[OVAL] strip_tid_wheel2_ring2_zp PV = 1
+[OVAL] strip_tid_wheel2_ring3_zp PV = 1
+[OVAL] strip_tid_wheel2_ring1_zm PV = 1
+[OVAL] strip_tid_wheel2_ring2_zm PV = 1
+[OVAL] strip_tid_wheel2_ring3_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTIDWheel2Compare.eps has been created
+[OVAL] adc_tid_wheel3_ring1_zp PV = 1
+[OVAL] adc_tid_wheel3_ring2_zp PV = 1
+[OVAL] adc_tid_wheel3_ring3_zp PV = 1
+[OVAL] adc_tid_wheel3_ring1_zm PV = 1
+[OVAL] adc_tid_wheel3_ring2_zm PV = 1
+[OVAL] adc_tid_wheel3_ring3_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTIDWheel3Compare.eps has been created
+[OVAL] strip_tid_wheel3_ring1_zp PV = 1
+[OVAL] strip_tid_wheel3_ring2_zp PV = 1
+[OVAL] strip_tid_wheel3_ring3_zp PV = 1
+[OVAL] strip_tid_wheel3_ring1_zm PV = 1
+[OVAL] strip_tid_wheel3_ring2_zm PV = 1
+[OVAL] strip_tid_wheel3_ring3_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTIDWheel3Compare.eps has been created
+[OVAL] ndigi_tec_wheel_1_zm PV = 1
+[OVAL] ndigi_tec_wheel_2_zm PV = 1
+[OVAL] ndigi_tec_wheel_3_zm PV = 1
+[OVAL] ndigi_tec_wheel_4_zm PV = 1
+[OVAL] ndigi_tec_wheel_5_zm PV = 1
+[OVAL] ndigi_tec_wheel_6_zm PV = 1
+[OVAL] ndigi_tec_wheel_7_zm PV = 1
+[OVAL] ndigi_tec_wheel_8_zm PV = 1
+[OVAL] ndigi_tec_wheel_9_zm PV = 1
+Info in <TCanvas::Print>: eps file NdigiTECCompare_ZM.eps has been created
+[OVAL] ndigi_tec_wheel_1_zp PV = 1
+[OVAL] ndigi_tec_wheel_2_zp PV = 1
+[OVAL] ndigi_tec_wheel_3_zp PV = 1
+[OVAL] ndigi_tec_wheel_4_zp PV = 1
+[OVAL] ndigi_tec_wheel_5_zp PV = 1
+[OVAL] ndigi_tec_wheel_6_zp PV = 1
+[OVAL] ndigi_tec_wheel_7_zp PV = 1
+[OVAL] ndigi_tec_wheel_8_zp PV = 1
+[OVAL] ndigi_tec_wheel_9_zp PV = 1
+Info in <TCanvas::Print>: eps file NdigiTECCompare_ZP.eps has been created
+[OVAL] adc_tec_wheel1_ring1_zm PV = 1
+[OVAL] adc_tec_wheel1_ring2_zm PV = 1
+[OVAL] adc_tec_wheel1_ring3_zm PV = 1
+[OVAL] adc_tec_wheel1_ring4_zm PV = 1
+[OVAL] adc_tec_wheel1_ring5_zm PV = 1
+[OVAL] adc_tec_wheel1_ring6_zm PV = 1
+[OVAL] adc_tec_wheel1_ring7_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel1Compare_ZM.eps has been created
+[OVAL] strip_tec_wheel1_ring1_zm PV = 1
+[OVAL] strip_tec_wheel1_ring2_zm PV = 1
+[OVAL] strip_tec_wheel1_ring3_zm PV = 1
+[OVAL] strip_tec_wheel1_ring4_zm PV = 1
+[OVAL] strip_tec_wheel1_ring5_zm PV = 1
+[OVAL] strip_tec_wheel1_ring6_zm PV = 1
+[OVAL] strip_tec_wheel1_ring7_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel1Compare_ZM.eps has been created
+[OVAL] adc_tec_wheel2_ring1_zm PV = 1
+[OVAL] adc_tec_wheel2_ring2_zm PV = 1
+[OVAL] adc_tec_wheel2_ring3_zm PV = 1
+[OVAL] adc_tec_wheel2_ring4_zm PV = 1
+[OVAL] adc_tec_wheel2_ring5_zm PV = 1
+[OVAL] adc_tec_wheel2_ring6_zm PV = 1
+[OVAL] adc_tec_wheel2_ring7_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel2Compare_ZM.eps has been created
+[OVAL] strip_tec_wheel2_ring1_zm PV = 1
+[OVAL] strip_tec_wheel2_ring2_zm PV = 1
+[OVAL] strip_tec_wheel2_ring3_zm PV = 1
+[OVAL] strip_tec_wheel2_ring4_zm PV = 1
+[OVAL] strip_tec_wheel2_ring5_zm PV = 1
+[OVAL] strip_tec_wheel2_ring6_zm PV = 1
+[OVAL] strip_tec_wheel2_ring7_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel2Compare_ZM.eps has been created
+[OVAL] adc_tec_wheel3_ring1_zm PV = 1
+[OVAL] adc_tec_wheel3_ring2_zm PV = 1
+[OVAL] adc_tec_wheel3_ring3_zm PV = 1
+[OVAL] adc_tec_wheel3_ring4_zm PV = 1
+[OVAL] adc_tec_wheel3_ring5_zm PV = 1
+[OVAL] adc_tec_wheel3_ring6_zm PV = 1
+[OVAL] adc_tec_wheel3_ring7_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel3Compare_ZM.eps has been created
+[OVAL] strip_tec_wheel3_ring1_zm PV = 1
+[OVAL] strip_tec_wheel3_ring2_zm PV = 1
+[OVAL] strip_tec_wheel3_ring3_zm PV = 1
+[OVAL] strip_tec_wheel3_ring4_zm PV = 1
+[OVAL] strip_tec_wheel3_ring5_zm PV = 1
+[OVAL] strip_tec_wheel3_ring6_zm PV = 1
+[OVAL] strip_tec_wheel3_ring7_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel3Compare_ZM.eps has been created
+[OVAL] adc_tec_wheel4_ring1_zm PV = 1
+[OVAL] adc_tec_wheel4_ring2_zm PV = 1
+[OVAL] adc_tec_wheel4_ring3_zm PV = 1
+[OVAL] adc_tec_wheel4_ring4_zm PV = 1
+[OVAL] adc_tec_wheel4_ring5_zm PV = 1
+[OVAL] adc_tec_wheel4_ring6_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel4Compare_ZM.eps has been created
+[OVAL] strip_tec_wheel4_ring1_zm PV = 1
+[OVAL] strip_tec_wheel4_ring2_zm PV = 1
+[OVAL] strip_tec_wheel4_ring3_zm PV = 1
+[OVAL] strip_tec_wheel4_ring4_zm PV = 1
+[OVAL] strip_tec_wheel4_ring5_zm PV = 1
+[OVAL] strip_tec_wheel4_ring6_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel4Compare_ZM.eps has been created
+[OVAL] adc_tec_wheel5_ring1_zm PV = 1
+[OVAL] adc_tec_wheel5_ring2_zm PV = 1
+[OVAL] adc_tec_wheel5_ring3_zm PV = 1
+[OVAL] adc_tec_wheel5_ring4_zm PV = 1
+[OVAL] adc_tec_wheel5_ring5_zm PV = 1
+[OVAL] adc_tec_wheel5_ring6_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel5Compare_ZM.eps has been created
+[OVAL] strip_tec_wheel5_ring1_zm PV = 1
+[OVAL] strip_tec_wheel5_ring2_zm PV = 1
+[OVAL] strip_tec_wheel5_ring3_zm PV = 1
+[OVAL] strip_tec_wheel5_ring4_zm PV = 1
+[OVAL] strip_tec_wheel5_ring5_zm PV = 1
+[OVAL] strip_tec_wheel5_ring6_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel5Compare_ZM.eps has been created
+[OVAL] adc_tec_wheel6_ring1_zm PV = 1
+[OVAL] adc_tec_wheel6_ring2_zm PV = 1
+[OVAL] adc_tec_wheel6_ring3_zm PV = 1
+[OVAL] adc_tec_wheel6_ring4_zm PV = 1
+[OVAL] adc_tec_wheel6_ring5_zm PV = 1
+[OVAL] adc_tec_wheel6_ring6_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel6Compare_ZM.eps has been created
+[OVAL] strip_tec_wheel6_ring1_zm PV = 1
+[OVAL] strip_tec_wheel6_ring2_zm PV = 1
+[OVAL] strip_tec_wheel6_ring3_zm PV = 1
+[OVAL] strip_tec_wheel6_ring4_zm PV = 1
+[OVAL] strip_tec_wheel6_ring5_zm PV = 1
+[OVAL] strip_tec_wheel6_ring6_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel6Compare_ZM.eps has been created
+[OVAL] adc_tec_wheel7_ring1_zm PV = 1
+[OVAL] adc_tec_wheel7_ring2_zm PV = 1
+[OVAL] adc_tec_wheel7_ring3_zm PV = 1
+[OVAL] adc_tec_wheel7_ring4_zm PV = 1
+[OVAL] adc_tec_wheel7_ring5_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel7Compare_ZM.eps has been created
+[OVAL] strip_tec_wheel7_ring1_zm PV = 1
+[OVAL] strip_tec_wheel7_ring2_zm PV = 1
+[OVAL] strip_tec_wheel7_ring3_zm PV = 1
+[OVAL] strip_tec_wheel7_ring4_zm PV = 1
+[OVAL] strip_tec_wheel7_ring5_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel7Compare_ZM.eps has been created
+[OVAL] adc_tec_wheel8_ring1_zm PV = 1
+[OVAL] adc_tec_wheel8_ring2_zm PV = 1
+[OVAL] adc_tec_wheel8_ring3_zm PV = 1
+[OVAL] adc_tec_wheel8_ring4_zm PV = 1
+[OVAL] adc_tec_wheel8_ring5_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel8Compare_ZM.eps has been created
+[OVAL] strip_tec_wheel8_ring1_zm PV = 1
+[OVAL] strip_tec_wheel8_ring2_zm PV = 1
+[OVAL] strip_tec_wheel8_ring3_zm PV = 1
+[OVAL] strip_tec_wheel8_ring4_zm PV = 1
+[OVAL] strip_tec_wheel8_ring5_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel8Compare_ZM.eps has been created
+[OVAL] adc_tec_wheel9_ring1_zm PV = 1
+[OVAL] adc_tec_wheel9_ring2_zm PV = 1
+[OVAL] adc_tec_wheel9_ring3_zm PV = 1
+[OVAL] adc_tec_wheel9_ring4_zm PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel9Compare_ZM.eps has been created
+[OVAL] strip_tec_wheel9_ring1_zm PV = 1
+[OVAL] strip_tec_wheel9_ring2_zm PV = 1
+[OVAL] strip_tec_wheel9_ring3_zm PV = 1
+[OVAL] strip_tec_wheel9_ring4_zm PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel9Compare_ZM.eps has been created
+[OVAL] adc_tec_wheel1_ring1_zp PV = 1
+[OVAL] adc_tec_wheel1_ring2_zp PV = 1
+[OVAL] adc_tec_wheel1_ring3_zp PV = 1
+[OVAL] adc_tec_wheel1_ring4_zp PV = 1
+[OVAL] adc_tec_wheel1_ring5_zp PV = 1
+[OVAL] adc_tec_wheel1_ring6_zp PV = 1
+[OVAL] adc_tec_wheel1_ring7_zp PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel1Compare_ZP.eps has been created
+[OVAL] strip_tec_wheel1_ring1_zp PV = 1
+[OVAL] strip_tec_wheel1_ring2_zp PV = 1
+[OVAL] strip_tec_wheel1_ring3_zp PV = 1
+[OVAL] strip_tec_wheel1_ring4_zp PV = 1
+[OVAL] strip_tec_wheel1_ring5_zp PV = 1
+[OVAL] strip_tec_wheel1_ring6_zp PV = 1
+[OVAL] strip_tec_wheel1_ring7_zp PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel1Compare_ZP.eps has been created
+[OVAL] adc_tec_wheel2_ring1_zp PV = 1
+[OVAL] adc_tec_wheel2_ring2_zp PV = 1
+[OVAL] adc_tec_wheel2_ring3_zp PV = 1
+[OVAL] adc_tec_wheel2_ring4_zp PV = 1
+[OVAL] adc_tec_wheel2_ring5_zp PV = 1
+[OVAL] adc_tec_wheel2_ring6_zp PV = 1
+[OVAL] adc_tec_wheel2_ring7_zp PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel2Compare_ZP.eps has been created
+[OVAL] strip_tec_wheel2_ring1_zp PV = 1
+[OVAL] strip_tec_wheel2_ring2_zp PV = 1
+[OVAL] strip_tec_wheel2_ring3_zp PV = 1
+[OVAL] strip_tec_wheel2_ring4_zp PV = 1
+[OVAL] strip_tec_wheel2_ring5_zp PV = 1
+[OVAL] strip_tec_wheel2_ring6_zp PV = 1
+[OVAL] strip_tec_wheel2_ring7_zp PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel2Compare_ZP.eps has been created
+[OVAL] adc_tec_wheel3_ring1_zp PV = 1
+[OVAL] adc_tec_wheel3_ring2_zp PV = 1
+[OVAL] adc_tec_wheel3_ring3_zp PV = 1
+[OVAL] adc_tec_wheel3_ring4_zp PV = 1
+[OVAL] adc_tec_wheel3_ring5_zp PV = 1
+[OVAL] adc_tec_wheel3_ring6_zp PV = 1
+[OVAL] adc_tec_wheel3_ring7_zp PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel3Compare_ZP.eps has been created
+[OVAL] strip_tec_wheel3_ring1_zp PV = 1
+[OVAL] strip_tec_wheel3_ring2_zp PV = 1
+[OVAL] strip_tec_wheel3_ring3_zp PV = 1
+[OVAL] strip_tec_wheel3_ring4_zp PV = 1
+[OVAL] strip_tec_wheel3_ring5_zp PV = 1
+[OVAL] strip_tec_wheel3_ring6_zp PV = 1
+[OVAL] strip_tec_wheel3_ring7_zp PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel3Compare_ZP.eps has been created
+[OVAL] adc_tec_wheel4_ring1_zp PV = 1
+[OVAL] adc_tec_wheel4_ring2_zp PV = 1
+[OVAL] adc_tec_wheel4_ring3_zp PV = 1
+[OVAL] adc_tec_wheel4_ring4_zp PV = 1
+[OVAL] adc_tec_wheel4_ring5_zp PV = 1
+[OVAL] adc_tec_wheel4_ring6_zp PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel4Compare_ZP.eps has been created
+[OVAL] strip_tec_wheel4_ring1_zp PV = 1
+[OVAL] strip_tec_wheel4_ring2_zp PV = 1
+[OVAL] strip_tec_wheel4_ring3_zp PV = 1
+[OVAL] strip_tec_wheel4_ring4_zp PV = 1
+[OVAL] strip_tec_wheel4_ring5_zp PV = 1
+[OVAL] strip_tec_wheel4_ring6_zp PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel4Compare_ZP.eps has been created
+[OVAL] adc_tec_wheel5_ring1_zp PV = 1
+[OVAL] adc_tec_wheel5_ring2_zp PV = 1
+[OVAL] adc_tec_wheel5_ring3_zp PV = 1
+[OVAL] adc_tec_wheel5_ring4_zp PV = 1
+[OVAL] adc_tec_wheel5_ring5_zp PV = 1
+[OVAL] adc_tec_wheel5_ring6_zp PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel5Compare_ZP.eps has been created
+[OVAL] strip_tec_wheel5_ring1_zp PV = 1
+[OVAL] strip_tec_wheel5_ring2_zp PV = 1
+[OVAL] strip_tec_wheel5_ring3_zp PV = 1
+[OVAL] strip_tec_wheel5_ring4_zp PV = 1
+[OVAL] strip_tec_wheel5_ring5_zp PV = 1
+[OVAL] strip_tec_wheel5_ring6_zp PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel5Compare_ZP.eps has been created
+[OVAL] adc_tec_wheel6_ring1_zp PV = 1
+[OVAL] adc_tec_wheel6_ring2_zp PV = 1
+[OVAL] adc_tec_wheel6_ring3_zp PV = 1
+[OVAL] adc_tec_wheel6_ring4_zp PV = 1
+[OVAL] adc_tec_wheel6_ring5_zp PV = 1
+[OVAL] adc_tec_wheel6_ring6_zp PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel6Compare_ZP.eps has been created
+[OVAL] strip_tec_wheel6_ring1_zp PV = 1
+[OVAL] strip_tec_wheel6_ring2_zp PV = 1
+[OVAL] strip_tec_wheel6_ring3_zp PV = 1
+[OVAL] strip_tec_wheel6_ring4_zp PV = 1
+[OVAL] strip_tec_wheel6_ring5_zp PV = 1
+[OVAL] strip_tec_wheel6_ring6_zp PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel6Compare_ZP.eps has been created
+[OVAL] adc_tec_wheel7_ring1_zp PV = 1
+[OVAL] adc_tec_wheel7_ring2_zp PV = 1
+[OVAL] adc_tec_wheel7_ring3_zp PV = 1
+[OVAL] adc_tec_wheel7_ring4_zp PV = 1
+[OVAL] adc_tec_wheel7_ring5_zp PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel7Compare_ZP.eps has been created
+[OVAL] strip_tec_wheel7_ring1_zp PV = 1
+[OVAL] strip_tec_wheel7_ring2_zp PV = 1
+[OVAL] strip_tec_wheel7_ring3_zp PV = 1
+[OVAL] strip_tec_wheel7_ring4_zp PV = 1
+[OVAL] strip_tec_wheel7_ring5_zp PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel7Compare_ZP.eps has been created
+[OVAL] adc_tec_wheel8_ring1_zp PV = 1
+[OVAL] adc_tec_wheel8_ring2_zp PV = 1
+[OVAL] adc_tec_wheel8_ring3_zp PV = 1
+[OVAL] adc_tec_wheel8_ring4_zp PV = 1
+[OVAL] adc_tec_wheel8_ring5_zp PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel8Compare_ZP.eps has been created
+[OVAL] strip_tec_wheel8_ring1_zp PV = 1
+[OVAL] strip_tec_wheel8_ring2_zp PV = 1
+[OVAL] strip_tec_wheel8_ring3_zp PV = 1
+[OVAL] strip_tec_wheel8_ring4_zp PV = 1
+[OVAL] strip_tec_wheel8_ring5_zp PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel8Compare_ZP.eps has been created
+[OVAL] adc_tec_wheel9_ring1_zp PV = 1
+[OVAL] adc_tec_wheel9_ring2_zp PV = 1
+[OVAL] adc_tec_wheel9_ring3_zp PV = 1
+[OVAL] adc_tec_wheel9_ring4_zp PV = 1
+Info in <TCanvas::Print>: eps file AdcOfTECWheel9Compare_ZP.eps has been created
+[OVAL] strip_tec_wheel9_ring1_zp PV = 1
+[OVAL] strip_tec_wheel9_ring2_zp PV = 1
+[OVAL] strip_tec_wheel9_ring3_zp PV = 1
+[OVAL] strip_tec_wheel9_ring4_zp PV = 1
+Info in <TCanvas::Print>: eps file StripNumOfTECWheel9Compare_ZP.eps has been created
+
+[oval run] ==========================================
+[oval run] result: OK
+[oval run] ==========================================
+
