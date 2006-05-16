@@ -133,7 +133,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
       goodEvent = true;
       if (useExaminer) {///examine event for integrity
-	std::cout<<"using Examiner"<< std::endl;
 	CSCDCCExaminer examiner;
 	examiner.output1().hide();
 	examiner.output2().hide();
@@ -187,7 +186,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 			     1, //chamber
 			     ilayer); //layer
  
-	      if (((vmecrate==0)||(vmecrate==1)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
+	      if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
 		layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,ilayer );
 	      }else {
 		edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
