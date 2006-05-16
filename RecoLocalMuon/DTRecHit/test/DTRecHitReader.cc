@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/14 13:09:12 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/22 16:15:36 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -85,7 +85,7 @@ void DTRecHitReader::analyze(const Event & event, const EventSetup& eventSetup){
 
   // Get the rechit collection from the event
   Handle<DTRecHitCollection> dtRecHits;
-  event.getByLabel(recHitLabel, "DT1DRecHits", dtRecHits);
+  event.getByLabel(recHitLabel, dtRecHits);
 
   // Get the SimHit collection from the event
   Handle<PSimHitContainer> simHits;

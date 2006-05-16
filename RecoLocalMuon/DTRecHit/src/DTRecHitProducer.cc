@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/03 11:29:42 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/14 13:06:15 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara
  */
 
@@ -39,7 +39,7 @@ DTRecHitProducer::DTRecHitProducer(const ParameterSet& config){
   if(debug)
     cout << "[DTRecHitProducer] Constructor called" << endl;
   
-  produces<DTRecHitCollection>("DT1DRecHits");
+  produces<DTRecHitCollection>();
 
   theDTDigiLabel = config.getParameter<string>("dtDigiLabel");
   
@@ -95,7 +95,7 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
       recHitCollection->put(layerId, recHits.begin(), recHits.end());
   }
 
-  event.put(recHitCollection, "DT1DRecHits");
+  event.put(recHitCollection);
 }
 
 
