@@ -1,16 +1,11 @@
 #ifndef DATAFORMATS_SISTRIPCLUSTER_H
 #define DATAFORMATS_SISTRIPCLUSTER_H
 
-#include <iostream>
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include <vector>
-class StripDigi;
-class SiStripDigi;
 
 class SiStripCluster {
 public:
-
-  typedef std::vector<StripDigi>::const_iterator   StripDigiIter;
-  typedef std::pair<StripDigiIter,StripDigiIter>   StripDigiRange;
 
   typedef std::vector<SiStripDigi>::const_iterator   SiStripDigiIter;
   typedef std::pair<SiStripDigiIter,SiStripDigiIter>   SiStripDigiRange;
@@ -21,7 +16,6 @@ public:
   
   SiStripCluster() : detId_(0) {}
 
-  SiStripCluster( unsigned int detid, const StripDigiRange& range);
   SiStripCluster( unsigned int detid, const SiStripDigiRange& range);
 
   /** The number of the first strip in the cluster
