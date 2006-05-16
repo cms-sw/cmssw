@@ -44,8 +44,8 @@ class SiStripDigitizerAlgorithm
   typedef float Amplitude;
 
   //digisimlink
-  edm::DetSet<StripDigiSimLink> link_coll;
-  edm::DetSet<StripDigiSimLink>  make_link(){ return link_coll;}
+  std::vector<StripDigiSimLink> link_coll;
+  std::vector<StripDigiSimLink> make_link(){ return link_coll;}
 
   
   SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det);
@@ -140,11 +140,7 @@ class SiStripDigitizerAlgorithm
   const StripGeomDetUnit* _detp;
   const StripTopology* topol;
 
-  edm::DetSet<SiStripDigi> internal_coll; //empty vector of StripDigi used in digitize
-  edm::DetSet<SiStripDigi> digis;
-  edm::DetSet<SiStripDigi> digitize(StripGeomDetUnit *det);
-
-
+  std::vector<SiStripDigi> digis;
 
 };
 

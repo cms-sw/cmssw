@@ -121,23 +121,23 @@ edm::DetSet<SiStripDigi>::collection_type SiStripDigitizerAlgorithm::run(const s
     afterNoise = theSiNoiseAdder->addNoise(theSignal);
   }
   
-  digis.data.clear();
+  digis.clear();
   push_digis(theSiZeroSuppress->zeroSuppress(theSiDigitalConverter->convert(afterNoise)),
 	     theLink,afterNoise,detID);
   
-  return digis.data;
+  return digis;
 }
 
 void SiStripDigitizerAlgorithm::push_digis(const DigitalMapType& dm,
 					   const HitToDigisMapType& htd,
 					   const SiPileUpSignals::signal_map_type& afterNoise,
 					   unsigned int detID){
-  digis.data.reserve(50); 
-  digis.data.clear();
-  link_coll.data.clear();  
+  digis.reserve(50); 
+  digis.clear();
+  link_coll.clear();  
   
   for ( DigitalMapType::const_iterator i=dm.begin(); i!=dm.end(); i++) {
-    digis.data.push_back( SiStripDigi( (*i).first, (*i).second));
+    digis.push_back( SiStripDigi( (*i).first, (*i).second));
     ndigis++; 
   }
   
@@ -171,7 +171,7 @@ void SiStripDigitizerAlgorithm::push_digis(const DigitalMapType& dm,
 	  //Noise fluctuation could make fraction>1. Unphysical, set it by hand.
 	  if(fraction >1.) fraction = 1.;
 	  
-	  link_coll.data.push_back(StripDigiSimLink( (*mi).first,   //channel
+	  link_coll.push_back(StripDigiSimLink( (*mi).first,   //channel
 						     ((*iter).first)->trackId(), //simhit
 						     fraction));    //fraction
 	}

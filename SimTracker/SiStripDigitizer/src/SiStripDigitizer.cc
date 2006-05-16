@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.16 2006/05/02 18:19:52 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.17 2006/05/10 11:14:48 fambrogl Exp $
 //
 //
 
@@ -147,8 +147,8 @@ namespace cms
 	  
 	  //digisimlink
 	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
-	    linkcollector= ((theAlgoMap.find(&(sgd->type())))->second)->make_link();
-	    outputlink->insert(linkcollector);
+	    linkcollector.data = ((theAlgoMap.find(&(sgd->type())))->second)->make_link();
+	    if (linkcollector.data.size()>0) outputlink->insert(linkcollector);
 	  }
 	}
       }
