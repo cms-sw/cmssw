@@ -6,7 +6,7 @@
 
 #include <vector>
 
-using std::vector;
+
 
 /**
   * Represents the GCT system
@@ -30,12 +30,11 @@ class L1GctElectronFinalSort;
 
 class L1GlobalCaloTrigger {
 public:
+	/// construct the GCT
+	L1GlobalCaloTrigger();
 	///
-	/// destruct the GCT
+	/// dismantle the GCT
 	~L1GlobalCaloTrigger();
-	///
-	/// get the GCT object
-	static L1GlobalCaloTrigger* theGct();
 	///
 	/// load files into Source Cards
 	void openSourceCardFiles(std::string fileBase);
@@ -44,19 +43,19 @@ public:
 	void process();
 	///
 	/// iso electron outputs to GT
-	vector<L1GctEmCand> getIsoElectrons();
+	std::vector<L1GctEmCand> getIsoElectrons();
 	/// 
 	/// non-iso electron outputs to GT
-	vector<L1GctEmCand> getNonIsoElectrons();
+	std::vector<L1GctEmCand> getNonIsoElectrons();
 	///
 	/// central jet outputs to GT
-	vector<L1GctJetCand> getCentralJets();
+	std::vector<L1GctJetCand> getCentralJets();
 	///
 	/// forward jet outputs to GT
-	vector<L1GctJetCand> getForwardJets();
+	std::vector<L1GctJetCand> getForwardJets();
 	///
 	/// tau jet outputs to GT
-	vector<L1GctJetCand> getTauJets();
+	std::vector<L1GctJetCand> getTauJets();
 	///
 	/// Etmiss output to GT
 	unsigned getEtMiss();
@@ -71,21 +70,18 @@ public:
 	unsigned getEtHad();
 	///
 	/// get the Source cards
-	vector<L1GctSourceCard*> getSourceCards() { return theSourceCards; }
+	std::vector<L1GctSourceCard*> getSourceCards() { return theSourceCards; }
 	///
 	/// get the Jet Leaf cards
-	vector<L1GctJetLeafCard*> getJetLeafCards() { return theJetLeafCards; }
+	std::vector<L1GctJetLeafCard*> getJetLeafCards() { return theJetLeafCards; }
 	///
 	/// get the Jet Leaf cards
-	vector<L1GctEmLeafCard*> getEmLeafCards() { return theEmLeafCards; }
+	std::vector<L1GctEmLeafCard*> getEmLeafCards() { return theEmLeafCards; }
 	///
 	/// print setup info
 	void print();
 	
 private:
-	///
-	/// singleton private constructor
-	L1GlobalCaloTrigger();
 	///
 	/// instantiate the hardware & algo objects
 	void build();
@@ -95,23 +91,20 @@ private:
 
 private:
 	///
-	/// instance of the GCT
-	static L1GlobalCaloTrigger* instance;
-	///
 	/// pointers to the Source Cards
-	vector<L1GctSourceCard*> theSourceCards;
+	std::vector<L1GctSourceCard*> theSourceCards;
 	///
 	/// pointers to the Jet Leaf cards
-	vector<L1GctJetLeafCard*> theJetLeafCards;
+	std::vector<L1GctJetLeafCard*> theJetLeafCards;
 	///
 	/// pointers to the EM Leaf cards
-	vector<L1GctEmLeafCard*> theEmLeafCards;
+	std::vector<L1GctEmLeafCard*> theEmLeafCards;
 	///
 	/// Wheel Card Jet Fpgas	
-	vector<L1GctWheelJetFpga*> theWheelJetFpgas;		
+	std::vector<L1GctWheelJetFpga*> theWheelJetFpgas;		
 	///
 	/// Wheel Card Energy Fpgas
-	vector<L1GctWheelEnergyFpga*> theWheelEnergyFpgas;
+	std::vector<L1GctWheelEnergyFpga*> theWheelEnergyFpgas;
 	///
 	/// central barrel jet find & final sort
 	L1GctJetFinalStage* theJetFinalStage;			
