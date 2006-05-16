@@ -2,6 +2,8 @@
  ! environment for MixingModule validation
  !===============================================================>
 
+<config name="run tool" value="oval">
+
 <environment name=testsuite>
 
 <executable name=testsuite.csh>validation suite</executable>
