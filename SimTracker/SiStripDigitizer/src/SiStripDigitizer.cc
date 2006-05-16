@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.17 2006/05/10 11:14:48 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.18 2006/05/16 09:00:09 fambrogl Exp $
 //
 //
 
@@ -63,8 +63,8 @@ namespace cms
     //   stripDigitizer_(conf) ,
     conf_(conf)
   {
-    produces<edm::DetSetVector<SiStripDigi> >("stripdigi");
-    produces<edm::DetSetVector<StripDigiSimLink> >("stripdigi");
+    produces<edm::DetSetVector<SiStripDigi> >();
+    produces<edm::DetSetVector<StripDigiSimLink> >();
   }
 
   // Virtual destructor needed.
@@ -158,8 +158,8 @@ namespace cms
     
     
     // Step D: write output to file
-    iEvent.put(output,"stripdigi");
-    iEvent.put(outputlink,"stripdigi");
+    iEvent.put(output);
+    iEvent.put(outputlink);
     
   
   }
