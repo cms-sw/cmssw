@@ -5,8 +5,8 @@
  *
  * Digi for CLCT trigger primitives. 
  *
- * $Date: 2006/04/06 04:10:55 $
- * $Revision: 1.4 $
+ * $Date: 2006/04/06 11:18:25 $
+ * $Revision: 1.5 $
  *
  * \author N. Terentiev, CMU
  */
@@ -19,8 +19,8 @@ public:
 
   /// Constructors
   /// for consistency with DQM
-  explicit CSCCLCTDigi (int valid, int quality, int patshape, int striptype,int bend,  int strip, int cfeb, int bx); 
-  explicit CSCCLCTDigi (int valid, int quality, int patshape, int striptype, int bend,  int strip, int cfeb, int bx, int trknmb);  
+  CSCCLCTDigi (int valid, int quality, int patshape, int striptype,int bend,  int strip, int cfeb, int bx); 
+  CSCCLCTDigi (int valid, int quality, int patshape, int striptype, int bend,  int strip, int cfeb, int bx, int trknmb);  
   /// default
   CSCCLCTDigi ();
 

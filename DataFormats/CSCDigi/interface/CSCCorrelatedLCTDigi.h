@@ -5,8 +5,8 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date: 2006/03/03 22:28:47 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/06 11:18:25 $
+ * $Revision: 1.4 $
  *
  * \author L. Gray, UF
  */
@@ -20,7 +20,7 @@ class CSCCorrelatedLCTDigi
 
   /// Constructors
 
-  explicit CSCCorrelatedLCTDigi(int trknmb, int valid, int quality,       /// from values
+  CSCCorrelatedLCTDigi(int trknmb, int valid, int quality,       /// from values
 				int keywire, int strip, int clct_pattern, /// clct pattern is 4 bit pattern! 
 				int bend, int bx);                        /// (pattern) | (strip_type << 3) 
    CSCCorrelatedLCTDigi         ();                                        /// default

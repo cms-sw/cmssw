@@ -17,7 +17,7 @@ public:
 
   /// Constructors
   
-  explicit CSCWireDigi (int wire, int tbin);  /// from the wiregroup#, tbin#
+  CSCWireDigi (int wire, int tbin);  /// from the wiregroup#, tbin#
   CSCWireDigi ();                             /// default
 
 

@@ -5,8 +5,8 @@
  *
  * Digi for RPC data coming thru RAT-ALCT-DDU. 
  *
- * $Date: 2006/04/05 10:06:51 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/06 11:18:25 $
+ * $Revision: 1.4 $
  *
  * \author N. Terentiev, CMU
  */
@@ -19,7 +19,7 @@ class CSCRPCDigi{
 public:
 
   /// Constructors
-  explicit CSCRPCDigi (int rpc, int pad, int bxn , int tbin);  /// from the rpc#, pad#, bxn#, tbin#
+  CSCRPCDigi (int rpc, int pad, int bxn , int tbin);  /// from the rpc#, pad#, bxn#, tbin#
   CSCRPCDigi ();                             /// default
 
   

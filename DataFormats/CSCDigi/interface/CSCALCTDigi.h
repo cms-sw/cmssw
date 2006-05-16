@@ -5,8 +5,8 @@
  *
  * Digi for ALCT trigger primitives. 
  *
- * $Date: 2006/04/06 04:10:46 $
- * $Revision: 1.5 $
+ * $Date: 2006/04/06 11:18:25 $
+ * $Revision: 1.6 $
  *
  * \author N. Terentiev, CMU
  */
@@ -19,8 +19,8 @@ public:
 
   /// Constructors
   /// for consistency with DQM
-  explicit CSCALCTDigi (int valid, int quality, int accel, int patternb, int keywire, int bx ); 
-  explicit CSCALCTDigi (int valid, int quality, int accel, int patternb, int keywire, int bx, int trknmb); 
+  CSCALCTDigi (int valid, int quality, int accel, int patternb, int keywire, int bx ); 
+  CSCALCTDigi (int valid, int quality, int accel, int patternb, int keywire, int bx, int trknmb); 
   /// default
   CSCALCTDigi ();
 

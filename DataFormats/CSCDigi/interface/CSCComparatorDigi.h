@@ -5,8 +5,8 @@
  *
  * Digi for CSC Comparators.
  *  
- *  $Date: 2006/01/08 19:15:22 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/04/06 11:18:25 $
+ *  $Revision: 1.5 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -18,7 +18,7 @@ class CSCComparatorDigi{
 public:
 
   // Construct from the strip number and the ADC readings.
-  explicit CSCComparatorDigi (int strip, int comparator, int timeBin);
+  CSCComparatorDigi (int strip, int comparator, int timeBin);
 
 
   // Default construction.
