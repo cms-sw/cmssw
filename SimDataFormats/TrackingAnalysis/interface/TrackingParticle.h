@@ -5,12 +5,13 @@
  */
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 
 namespace HepMC {
   class GenParticle;
 }
 
-class TrackingParticle  {
+class TrackingParticle : public reco::Particle {
 public:
   /// reference to HepMC::GenParticle
   typedef const HepMC::GenParticle * GenParticleRef;
