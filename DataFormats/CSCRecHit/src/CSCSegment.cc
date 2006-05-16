@@ -1,6 +1,6 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2006/05/09 10:30:37 $
+ *  $Date: 2006/05/15 11:32:56 $
  *  \author Matteo Sani
  */
 
@@ -37,23 +37,6 @@ std::vector<TrackingRecHit*> CSCSegment::recHits() {
   }
   return pointersOfRecHits;
 }
-
-
-// The base class version is fine.
-//@@ Beware that here we did NOT scale out z() from x(0 and y() of theLocalDirection
-//@@ wherease the base class version does.
-/*
-AlgebraicVector CSCSegment::parameters() const {
-   AlgebraicVector result(4);
-  
-   result[0] = theLocalDirection.x();
-   result[1] = theLocalDirection.y();
-   result[2] = theOrigin.x();
-   result[3] = theOrigin.y();
-  
-   return result;
-}
-*/
 
 LocalError CSCSegment::localPositionError() const {
   return LocalError(theCovMatrix[2][2], theCovMatrix[2][3], theCovMatrix[3][3]);
