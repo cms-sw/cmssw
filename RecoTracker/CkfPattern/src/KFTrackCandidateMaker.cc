@@ -51,7 +51,11 @@ namespace cms{
       es.get<IdealMagneticFieldRecord>().get(theMagField);
       
       theInitialState       = new TransientInitialStateEstimator( es);
-      theMeasurementTracker = new MeasurementTracker(es);
+
+      // get nested parameter set for the MeasurementTracker
+      ParameterSet mt_params = conf_.getParameter<ParameterSet>("MeasurementTrackerParameters") ;
+      theMeasurementTracker = new MeasurementTracker(es, mt_params);
+
       theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
       
       // set the correct navigation
