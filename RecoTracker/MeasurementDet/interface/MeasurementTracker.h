@@ -27,7 +27,7 @@ class MeasurementTracker : public MeasurementDetSystem {
 public:
 
   //B.M. MeasurementTracker( const edm::EventSetup&, const edm::Event&);
-  MeasurementTracker( const edm::EventSetup&);
+  MeasurementTracker( const edm::EventSetup&, const edm::ParameterSet& conf);
 
   virtual ~MeasurementTracker() {}
  
@@ -62,7 +62,7 @@ private:
   const PixelClusterParameterEstimator* pixelCPE;
   SiStripRecHitMatcher*           theHitMatcher;
 
-  void initialize(const edm::EventSetup&);
+  void initialize(const edm::EventSetup&, const edm::ParameterSet&);
 
   void addStripDet( const GeomDet* gd,
 		    const StripClusterParameterEstimator* cpe);

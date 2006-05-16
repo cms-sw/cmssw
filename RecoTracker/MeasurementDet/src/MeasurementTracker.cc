@@ -15,24 +15,31 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
+
+// #include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
+#include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
+
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"  
 
 #include <iostream>
+#include <typeinfo>
 
-MeasurementTracker::MeasurementTracker( const edm::EventSetup& setup) :
+MeasurementTracker::MeasurementTracker( const edm::EventSetup& setup, 
+					const edm::ParameterSet& conf) :
   theTrackerGeom(0), stripCPE(0)
 {
   using namespace std;
-  this->initialize( setup);
+  this->initialize( setup, conf);
 
   cout << "MeasurementTracker: initialize OK" << endl;
 
 }
 
-void MeasurementTracker::initialize(const edm::EventSetup& setup)
+void MeasurementTracker::initialize(const edm::EventSetup& setup, 
+				    const edm::ParameterSet& conf)
 {
   using namespace std;
     using namespace edm;
@@ -47,16 +54,27 @@ void MeasurementTracker::initialize(const edm::EventSetup& setup)
 
     std::cout << "got from TrackerGeometry " << dets.size() << std::endl; 
 
+
+    std::string cpeName = conf.getParameter<std::string>("PixelCPE");   
+    cout <<" Asking for the CPE with name "<<cpeName<<endl;
+
+    edm::ESHandle<PixelClusterParameterEstimator> pixelCPEHandle;
+    setup.get<TrackerCPERecord>().get(cpeName,pixelCPEHandle);
+    
+    std::cout << "Got a pixelCPE " << typeid(*pixelCPEHandle).name() 
+	      << std::endl;
+    pixelCPE = &(*pixelCPEHandle);
+
+    /*
     edm::ParameterSet conf;
     conf.addParameter("TanLorentzAnglePerTesla",0.106);
     conf.addUntrackedParameter("VerboseLevel",20);
+    pixelCPE = new CPEFromDetPosition(conf, &(*magfield));
+    */
+
     edm::ESHandle<MagneticField> magfield;
     setup.get<IdealMagneticFieldRecord>().get(magfield);
-    pixelCPE = new CPEFromDetPosition(conf, &(*magfield));
    
-    //cout << "pixelCPE: " << pixelCPE << endl;
-    //cout << "typeid(*pixelCPE).name(): " << typeid(*pixelCPE).name() << endl;
-
     edm::ParameterSet StripConf;
     StripConf.addParameter("TanLorentzAnglePerTesla",0.106);
     stripCPE = new StripCPE(StripConf,&(*magfield),&tracker);
