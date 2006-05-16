@@ -1,0 +1,57 @@
+
+/*!
+
+\page Geometry_TrackerGeometryBuilder Package Geometry/TrackerGeometryBuilder
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Geometry/TrackerGeometryBuilder/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Geometry/TrackerGeometryBuilder/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+Build the Tracker geometyry service based on GeomDetUNit and GeomDetType reading 
+the information form the GeometricDet. 
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- GeomDetLess
+- GeomDetTypeIdToEnum
+- GeomTopologyBuilder
+- GluedGeomDet
+- PixelGeomDetType
+- PixelGeomDetUnit
+- PixelTopologyBuilder
+- PlaneBuilderForGluedDet
+- PlaneBuilderFromGeometricDet
+- StripGeomDetType
+- StripGeomDetUnit
+- StripTopologyBuilder
+- TrackerDigiGeometryESModule
+- TrackerGeomBuilderFromGeometricDet
+- TrackerGeometry
+- TrackerLayerIdAccessor
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+- TrackerDigiGeometryESModule
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+None
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Stable
+
+<hr>
+Last updated:
+@DATE@  Author: Ambroglini Filippo.
+*/
+
