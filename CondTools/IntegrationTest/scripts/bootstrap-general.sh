@@ -2,9 +2,16 @@
 
 # A script to bootstrap the GENERAL schema for the CMS O2O setup
 
+if [ ! -n "$O2O_SETUP_DIR" ]
+then
+  O2O_SETUP_DIR=`pwd`
+fi
+
+GENERAL_SETUP=${O2O_SETUP_DIR}/general-runtime.sh
+
 # Get the general setup:  directories, offline-db login
 echo "[INFO]   Setting up the environment"
-source general-runtime.sh
+source $GENERAL_SETUP
 echo
 
 # Create O2O support tables

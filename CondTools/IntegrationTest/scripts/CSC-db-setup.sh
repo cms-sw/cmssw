@@ -1,4 +1,4 @@
-source general-db-setup.sh
+source ${OBJECT_SETUP_DIR}/general-db-setup.sh
 
 SUBDETECTOR_OFFLINE_USER=CMS_COND_CSC # uppercase for connect string
 SUBDETECTOR_OFFLINE_PASSWORD=__CHANGE_ME__

@@ -10,8 +10,14 @@ then
   exit -1
 fi
 
+if [ ! -n "$O2O_SETUP_DIR" ]
+then
+  O2O_SETUP_DIR=`pwd`
+fi
+
 SUBDETECTOR=$1
-SUBDETECTOR_SETUP=${SUBDETECTOR}-db-setup.sh
+SUBDETECTOR_SETUP=${O2O_SETUP_DIR}/${SUBDETECTOR}-db-setup.sh
+GENERAL_SETUP=${O2O_SETUP_DIR}/general-runtime.sh
 
 if [ ! -f "$SUBDETECTOR_SETUP" ]
   then
@@ -21,7 +27,7 @@ fi
 
 # Get the general setup:  directories, offline-db login
 echo "[INFO]   Setting up the environment"
-source general-runtime.sh
+source $GENERAL_SETUP
 
 # Get the subdetector setup:  online-db login, offline-db login
 source ${SUBDETECTOR_SETUP}
@@ -39,7 +45,7 @@ echo
 
 # Create the IOV object tables
 echo "[INFO]   Creating IOV object tables"
-source IOV-object-setup.sh
+source ${O2O_SETUP_DIR}/IOV-object-setup.sh
 CMD="setup_pool_database $OBJECT_NAME
                          $OBJECT_LIBRARY
                          $OFFLINE_CONNECT

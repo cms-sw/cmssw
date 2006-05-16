@@ -11,14 +11,20 @@ then
   exit -1
 fi
 
+if [ ! -n "$O2O_SETUP_DIR" ]
+then
+  O2O_SETUP_DIR=`pwd`
+fi
+
 SUBDETECTOR=$1
 OBJECT=$2
 APPEND=$3
 
-SUBDETECTOR_SETUP=${SUBDETECTOR}-db-setup.sh
-OBJECT_SETUP=${OBJECT}-object-setup.sh
+GENERAL_SETUP=${O2O_SETUP_DIR}/general-runtime.sh
+SUBDETECTOR_SETUP=${O2O_SETUP_DIR}/${SUBDETECTOR}-db-setup.sh
+OBJECT_SETUP=${O2O_SETUP_DIR}/${OBJECT}-object-setup.sh
 
-for file in $SUBDETECTOR_SETUP $OBJECT_SETUP
+for file in $GENERAL_SETUP $SUBDETECTOR_SETUP $OBJECT_SETUP
 do
   if [ ! -f "$file" ]
     then
@@ -36,7 +42,7 @@ fi
 
 # Get the general setup, CMSSW, paths, etc.
 echo "[INFO]   Setting up the environment"
-source general-runtime.sh
+source $GENERAL_SETUP
 echo
 
 # Subdetector-specific DB setup
