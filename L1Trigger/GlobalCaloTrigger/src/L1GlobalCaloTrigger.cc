@@ -102,11 +102,6 @@ void L1GlobalCaloTrigger::setup() {
   theEnergyFinalStage->setPlusWheelJetFpga(theWheelJetFpgas[1]);
   theEnergyFinalStage->setJetFinalStage(theJetFinalStage);
 
-  //  for (int i=0; i<2; i++) {
-  //    theEnergyFinalStage->setInputWheelEnergyFpga(i, theWheelEnergyFpgas[i]);
-  //    theEnergyFinalStage->setInputJetFinalStage(i, thejetFinalStage);
-  //  }
-
 }
 
 void L1GlobalCaloTrigger::process() {

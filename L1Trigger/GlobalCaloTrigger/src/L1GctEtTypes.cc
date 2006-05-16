@@ -36,10 +36,12 @@ int L1GctTwosComplement::value() const {
 }
 
 // add two numbers
-L1GctTwosComplement operator+ (const L1GctTwosComplement lhs, const L1GctTwosComplement rhs) {
+L1GctTwosComplement
+L1GctTwosComplement::operator+ (const L1GctTwosComplement &rhs) const {
 
   // temporary variable for storing the result (need to set its size)
-  L1GctTwosComplement temp(lhs.nBits() + 1);
+  int size = this->nBits() + 1;
+  L1GctTwosComplement temp(size);
 
   // do the addition here
 
@@ -49,10 +51,19 @@ L1GctTwosComplement operator+ (const L1GctTwosComplement lhs, const L1GctTwosCom
 
 }
 
-std::ostream& operator<<(std::ostream& s, const L1GctTwosComplement data) {
+// overload assignment by int
+L1GctTwosComplement& L1GctTwosComplement::operator= (int value) {
+  
+  this->setValue(value);
+  return *this;
 
-  s << "2s comp : " << data.raw() << ", " << "value : " << data.value();
-  if (data.overFlow()) { s << "Overflow set! "; }
+}
+
+// overload ostream<<
+std::ostream& operator<<(std::ostream& s, const L1GctTwosComplement& data) {
+
+  s << "L1GctTwosComplement raw : " << data.raw() << ", " << "value : " << data.value();
+  if (data.overFlow()) { s << " Overflow set! "; }
   s << std::endl;
   return s;
 
@@ -110,14 +121,16 @@ void L1GctUnsignedInt::setValue(unsigned value)
 }
 
 // add two unsigneds
-L1GctUnsignedInt operator+ (const L1GctUnsignedInt lhs, const L1GctUnsignedInt rhs) {
+L1GctUnsignedInt
+L1GctUnsignedInt::operator+ (const L1GctUnsignedInt &rhs) const {
 
   // temporary variable for storing the result (need to set its size)
-  L1GctUnsignedInt temp(lhs.nBits() + 1);
+  int size = this->nBits() + 1;
+  L1GctUnsignedInt temp(size);
 
   // do the addition here
   // setValue() will automatically set the overflow if required
-  temp.setValue( lhs.value() + rhs.value() );
+  temp.setValue( this->value() + rhs.value() );
 
   // return the temporary
   return temp;

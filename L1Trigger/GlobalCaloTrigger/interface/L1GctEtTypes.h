@@ -18,6 +18,9 @@ class L1GctTwosComplement {
   L1GctTwosComplement(int nBits, int value);
   ~L1GctTwosComplement();
 
+  // reset value and overflow to zero
+  void reset() { m_data = static_cast<uint32_t>(0); }
+
   // set the raw data
   void setRaw(uint32_t raw) { m_data = raw; }
 
@@ -38,6 +41,12 @@ class L1GctTwosComplement {
 
   // return number of bits
   int nBits() const { return m_nBits; }
+
+  // add two numbers
+  L1GctTwosComplement operator+ (const L1GctTwosComplement &rhs) const;
+
+  // overload = operator
+  L1GctTwosComplement& operator= (int value);
 
 
  private:
@@ -83,6 +92,9 @@ class L1GctUnsignedInt {
   L1GctUnsignedInt(int nBits, unsigned value);
   ~L1GctUnsignedInt();
 
+  // reset value and overflow to zero
+  void reset() { m_value = static_cast<unsigned>(0); m_overFlow = false; }
+
   // Set value from unsigned
   void setValue(unsigned value);
 
@@ -97,6 +109,9 @@ class L1GctUnsignedInt {
 
   // return number of bits
   int nBits() const { return m_nBits; }
+
+  // add two numbers
+  L1GctUnsignedInt operator+ (const L1GctUnsignedInt &rhs) const;
 
  private:
 
