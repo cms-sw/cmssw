@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/04/26 09:27:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/27 16:43:30 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -25,32 +25,36 @@
 #include "DataFormats/HLTReco/interface/HLTParticle.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include <cassert>
 #include <map>
 
 namespace reco
 {
   using namespace std;
 
-  class HLTFilterObject {
+  class HLTFilterObjectBase {
 
     typedef edm::hlt::HLTScalar HLTScalar;
 
-    typedef HLTParticle                           HLTCaloJet;
-    typedef HLTParticleWithRef<CaloJetCollection> HLTCaloJetWithRef;
-    typedef           edm::Ref<CaloJetCollection>    CaloJetRef;
-
   private:
     bool accept_;
+    unsigned char module_;
+    unsigned short int path_;
     map<HLTScalar,float> scalars_;
-    vector<HLTCaloJet> jets_;
-    // similar for electron/muon/gamma ...
 
   public:
 
-    HLTFilterObject(): accept_(), scalars_(), jets_() { }
+    HLTFilterObjectBase(): accept_(), module_(), path_(), scalars_() { }
 
     void setAccept(const bool accept) {accept_=accept;}
     bool getAccept() const { return accept_;}
+
+    void setModule(const unsigned int i) {assert(i<  256); module_=i;}
+    unsigned int getModule() const {return (unsigned int)(module_);}
+
+    void setPath  (const unsigned int i) {assert(i<65536); path_  =i;}
+    unsigned int getPath()   const {return (unsigned int)(path_  );}
+
 
     void putScalar(const HLTScalar scalar, const float value) {
       scalars_[scalar] = value;
@@ -64,6 +68,23 @@ namespace reco
         return true;
       }
     }
+
+  };
+
+
+  class HLTFilterObject : public HLTFilterObjectBase {
+
+    typedef HLTParticleWithRef<CaloJetCollection> HLTCaloJetWithRef;
+    typedef HLTParticle                       HLTCaloJet;
+    typedef    edm::Ref<CaloJetCollection>    CaloJetRef;
+
+  private:
+    vector<HLTCaloJet> jets_;
+    // similar for electron/muon/gamma ...
+
+  public:
+ 
+    HLTFilterObject(): HLTFilterObjectBase(), jets_() { }
 
     void putJet(const CaloJetRef& jetref) {
       // Construct our jet from jetref and save it!
@@ -83,38 +104,18 @@ namespace reco
   };
 
 
-  class HLTFilterObjectWithRefs {
-
-    typedef edm::hlt::HLTScalar HLTScalar;
+  class HLTFilterObjectWithRefs : public HLTFilterObjectBase {
 
     typedef HLTParticleWithRef<CaloJetCollection> HLTCaloJetWithRef;
     typedef           edm::Ref<CaloJetCollection>    CaloJetRef;
 
   private:
-    bool accept_;
-    map<HLTScalar,float> scalars_;
     vector<HLTCaloJetWithRef> jets_;
     // similar for electron/muon/gamma ...
 
   public:
 
-    HLTFilterObjectWithRefs(): accept_(), scalars_(), jets_() { }
-
-    void setAccept(const bool accept) {accept_=accept;}
-    bool getAccept() const { return accept_;}
-
-    void putScalar(const HLTScalar scalar, const float value) {
-      scalars_[scalar] = value;
-    }
-
-    bool getScalar(const HLTScalar scalar, float& value) const {
-      if (scalars_.find(scalar)==scalars_.end()) {
-        return false;
-      } else {
-        value = scalars_.find(scalar)->second;
-        return true;
-      }
-    }
+    HLTFilterObjectWithRefs(): HLTFilterObjectBase(), jets_() { }
 
     void putJet(const CaloJetRef& jetref) {
       // Construct our jet from jetref and save it!
