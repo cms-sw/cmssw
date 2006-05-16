@@ -14,6 +14,7 @@
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/PresenceFactory.h"
+#include "EventFilter/Utilities/interface/RunBase.h"
 
 namespace edm{
   class EventProcessor;
@@ -27,7 +28,7 @@ namespace evf
   struct filter{
   };
 
-  class FUEventProcessor : public xdaq::Application, public xdata::ActionListener
+  class FUEventProcessor : public xdaq::Application, public xdata::ActionListener, public evf::RunBase
     {
     public:
       XDAQ_INSTANTIATOR();
@@ -56,6 +57,7 @@ namespace evf
 	(xgi::Input  *in, xgi::Output *out) throw (xgi::exception::Exception);
 	  
       xdata::String offConfig_;
+      xdata::String seal_plugins_;
       xdata::Boolean outPut_;
       xdata::UnsignedLong inputPrescale_;
       xdata::UnsignedLong outputPrescale_;
