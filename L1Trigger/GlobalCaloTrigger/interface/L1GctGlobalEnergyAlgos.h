@@ -6,7 +6,10 @@
 #include <bitset>
 #include <vector>
 
-using namespace std;
+/* using namespace std; */
+
+/* using std::bitset; */
+/* using std::vector; */
 
 class L1GctWheelEnergyFpga;
 class L1GctWheelJetFpga;
@@ -85,19 +88,19 @@ private:
 	L1GctWheelJetFpga* m_minusWheelJetFpga;
 	L1GctJetFinalStage* m_jetFinalStage;
 
-        typedef bitset<3> JcBoundType;
-        typedef bitset<3> JcWheelType;
-        typedef bitset<5> JcFinalType;
+        typedef std::bitset<3> JcBoundType;
+        typedef std::bitset<3> JcWheelType;
+        typedef std::bitset<5> JcFinalType;
 	// input data - need to confirm number of bits!
-	bitset<12> inputExValPlusWheel;
-	bitset<12> inputEyValPlusWheel;
-	bitset<12> inputEtValPlusWheel;
-	bitset<12> inputHtValPlusWheel;
-	bitset<12> inputExVlMinusWheel;
-	bitset<12> inputEyVlMinusWheel;
-	bitset<12> inputEtVlMinusWheel;
-	bitset<12> inputHtVlMinusWheel;
-        bitset<12> inputHtBoundaryJets;
+	std::bitset<12> inputExValPlusWheel;
+	std::bitset<12> inputEyValPlusWheel;
+	std::bitset<12> inputEtValPlusWheel;
+	std::bitset<12> inputHtValPlusWheel;
+	std::bitset<12> inputExVlMinusWheel;
+	std::bitset<12> inputEyVlMinusWheel;
+	std::bitset<12> inputEtVlMinusWheel;
+	std::bitset<12> inputHtVlMinusWheel;
+        std::bitset<12> inputHtBoundaryJets;
 
         bool ovfloExValPlusWheel;
         bool ovfloEyValPlusWheel;
@@ -109,26 +112,26 @@ private:
         bool ovfloHtVlMinusWheel;
         bool ovfloHtBoundaryJets;
 
-        vector<JcWheelType> inputJcValPlusWheel;
-        vector<JcWheelType> inputJcVlMinusWheel;
-        vector<JcBoundType> inputJcBoundaryJets;
+        std::vector<JcWheelType> inputJcValPlusWheel;
+        std::vector<JcWheelType> inputJcVlMinusWheel;
+        std::vector<JcBoundType> inputJcBoundaryJets;
 
         // internal stuff for inputs and outputs
         void checkUnsignedNatural(  unsigned E, bool O, int nbits, unsigned long &Eout, bool &Oout);
 	void checkIntegerTwosComplement( int E, bool O, int nbits, unsigned long &Eout, bool &Oout);
 	void decodeUnsignedInput( unsigned long Ein, unsigned &Eout, bool &Oout);
 	void decodeIntegerInput ( unsigned long Ein, int &Eout, bool &Oout);
-        long int longIntegerFromTwosComplement (bitset<12> energyBits);
+        long int longIntegerFromTwosComplement (std::bitset<12> energyBits);
         // internal stuff for the Etmiss algorithm
         struct etmiss_vec { unsigned long mag; unsigned phi;};
         etmiss_vec calculate_etmiss_vec (long int Ex, long int Ey) ;
 	
 	// output data
-	bitset<13> outputEtMiss;
-	bitset<7> outputEtMissPhi;
-	bitset<13> outputEtSum;
-	bitset<13> outputEtHad;
-        vector<JcFinalType> outputJetCounts;
+	std::bitset<13> outputEtMiss;
+	std::bitset<7> outputEtMissPhi;
+	std::bitset<13> outputEtSum;
+	std::bitset<13> outputEtHad;
+        std::vector<JcFinalType> outputJetCounts;
 
 };
 

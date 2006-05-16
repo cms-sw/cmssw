@@ -98,10 +98,10 @@ void L1GctGlobalEnergyAlgos::process()
   unsigned long HtPlus, HtMinus, HtBound, HtSum;
   bool HtOvflo;
   bool EtOvflo;
-  bitset<13> magResult;
-  bitset<7>  phiResult;
-  bitset<13> EtResult;
-  bitset<13> HtResult;
+  std::bitset<13> magResult;
+  std::bitset<7>  phiResult;
+  std::bitset<13> EtResult;
+  std::bitset<13> HtResult;
 
   const unsigned Emax=(1<<12);
   const int signedEmax=Emax/2;
@@ -136,10 +136,10 @@ void L1GctGlobalEnergyAlgos::process()
   // Execute the missing Et algorithm
   EtMissing = calculate_etmiss_vec(ExSum, EySum);
   //
-  bitset<13> magBits(EtMissing.mag);
+  std::bitset<13> magBits(EtMissing.mag);
   magResult = magBits;
   if (ExOvflo or EyOvflo) {magResult.set(12);}
-  bitset<7> phiBits(EtMissing.phi);
+  std::bitset<7> phiBits(EtMissing.phi);
   phiResult = phiBits;
   //
   outputEtMiss = magResult;
@@ -159,7 +159,7 @@ void L1GctGlobalEnergyAlgos::process()
     EtOvflo = ovfloEtValPlusWheel or ovfloEtVlMinusWheel;
   }
   //
-  bitset<13> etBits(EtSum);
+  std::bitset<13> etBits(EtSum);
   EtResult = etBits;
   if (EtOvflo) {EtResult.set(12);}
   //
@@ -180,7 +180,7 @@ void L1GctGlobalEnergyAlgos::process()
     HtOvflo = ovfloHtValPlusWheel or ovfloHtVlMinusWheel or ovfloHtBoundaryJets;
   }
   //
-  bitset<13> htBits(HtSum);
+  std::bitset<13> htBits(HtSum);
   HtResult = htBits;
   if (HtOvflo) {HtResult.set(12);}
   //
@@ -189,7 +189,7 @@ void L1GctGlobalEnergyAlgos::process()
   //
   //-----------------------------------------------------------------------------
   // Add the jet counts.
-  // Use bitset operations to implement the addition.
+  // Use std::bitset operations to implement the addition.
   for (int i=0; i<12; i++) {
     JcFinalType jcResult;
     bool carry;
@@ -270,7 +270,7 @@ void L1GctGlobalEnergyAlgos::setInputWheelEx(unsigned wheel, int energy, bool ov
 
   checkIntegerTwosComplement(energy, overflow, (int) 12, energyInput, energyOvflo);
 
-  bitset<12> energyBits(energyInput);
+  std::bitset<12> energyBits(energyInput);
   if (wheel==0) {
     inputExValPlusWheel = energyBits;
     ovfloExValPlusWheel = energyOvflo;
@@ -290,7 +290,7 @@ void L1GctGlobalEnergyAlgos::setInputWheelEy(unsigned wheel, int energy, bool ov
 
   checkIntegerTwosComplement(energy, overflow, (int) 12, energyInput, energyOvflo);
 
-  bitset<12> energyBits(energyInput);
+  std::bitset<12> energyBits(energyInput);
   if (wheel==0) {
     inputEyValPlusWheel = energyBits;
     ovfloEyValPlusWheel = energyOvflo;
@@ -310,7 +310,7 @@ void L1GctGlobalEnergyAlgos::setInputWheelEt(unsigned wheel, unsigned energy, bo
 
   checkUnsignedNatural(energy, overflow, (int) 12, energyInput, energyOvflo);
 
-  bitset<12> energyBits(energyInput);
+  std::bitset<12> energyBits(energyInput);
   if (wheel==0) {
     inputEtValPlusWheel = energyBits;
     ovfloEtValPlusWheel = energyOvflo;
@@ -330,7 +330,7 @@ void L1GctGlobalEnergyAlgos::setInputWheelHt(unsigned wheel, unsigned energy, bo
 
   checkUnsignedNatural(energy, overflow, (int) 12, energyInput, energyOvflo);
 
-  bitset<12> energyBits(energyInput);
+  std::bitset<12> energyBits(energyInput);
   if (wheel==0) {
     inputHtValPlusWheel = energyBits;
     ovfloHtValPlusWheel = energyOvflo;
@@ -352,7 +352,7 @@ void L1GctGlobalEnergyAlgos::setInputBoundaryHt(unsigned energy, bool overflow)
 
   checkUnsignedNatural(energy, overflow, (int) 12, energyInput, energyOvflo);
 
-  bitset<12> energyBits(energyInput);
+  std::bitset<12> energyBits(energyInput);
   inputHtBoundaryJets = energyBits;
   ovfloHtBoundaryJets = energyOvflo;
 }
@@ -533,10 +533,10 @@ void L1GctGlobalEnergyAlgos::decodeIntegerInput ( unsigned long Ein, int &Eout, 
 }
 
 //----------------------------------------------------------------------------------------------
-// Converts a value stored in a bitset in two's complement format
+// Converts a value stored in a std::bitset in two's complement format
 // to a (signed) integer.
 //
-long int L1GctGlobalEnergyAlgos::longIntegerFromTwosComplement (bitset<12> energyBits)
+long int L1GctGlobalEnergyAlgos::longIntegerFromTwosComplement (std::bitset<12> energyBits)
 {
   long int e;
   const int max=(1<<(energyBits.size()-1));
@@ -578,7 +578,7 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (long int Ex, long int Ey)
   const unsigned corrFact[11] = {24, 39, 51, 60, 69, 77, 83, 89, 95, 101, 106};
   const unsigned corrDphi[11] = { 0,  1,  2,  2,  3,  3,  3,  3,  4,   4,   4};
 
-  vector<bool> s(3);
+  std::vector<bool> s(3);
   unsigned Mx, My, Mw;
 
   unsigned Dx, Dy;
