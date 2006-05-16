@@ -16,7 +16,7 @@
       
   // in.clear() ;
    
-   in.open("timing.log") ;
+   in.open("timing_minbias.log") ;
    
    TH1F* Vtx = new TH1F( "VtxSmeared", "VertexGenerator", 100, 0., 1. ) ;
    TH1F* OPr = new TH1F( "SimG4Object", "OscarProducer", 100, 0., 500. ) ;
@@ -25,7 +25,7 @@
    TH1F* SiS = new TH1F( "sistripdigi", "SiStripDigitizer", 100, 0., 1. ) ;
    TH1F* Eca = new TH1F( "ecaldigi", "EcalDigiProducer", 100, 0., 5. ) ;
    TH1F* Hca = new TH1F( "hcaldigi", "HcalDigiProcucer", 100, 0., 1. ) ;
-   TH1F* CSC = new TH1F( "muoncscdigi", "CSCDigiProducer", 100, 0., 1. ) ;
+   TH1F* CSC = new TH1F( "muoncscdigi", "CSCDigiProducer", 100, 0., 0.1 ) ;
    TH1F* DT  = new TH1F( "muondtdigi",  "DTDigitizer", 100, 0., 0.1 ) ;
    //
    // no PoolOutputModule in this chain 
@@ -49,11 +49,21 @@
    
    in.close() ;
    in.clear() ;
+
+   cout << "[OVAL] : OscarProducer - MEAN CPU = " << OPr->GetMean() << " sec/evt" << endl ;
+
+   cout << "[OVAL] : VertexGenerator - MEAN CPU = " << Vtx->GetMean() << " sec/evt" << endl ;
+   cout << "[OVAL] : SiPixelDigitizer - MEAN CPU = " << Pix->GetMean() << " sec/evt" << endl ;
+   cout << "[OVAL] : SiStripDigitizer - MEAN CPU = " << SiS->GetMean() << " sec/evt" << endl ;
+   cout << "[OVAL] : EcalDigiProducer - MEAN CPU = " << Eca->GetMean() << " sec/evt" << endl ;
+   cout << "[OVAL] : HcalDigiProducer - MEAN CPU = " << Hca->GetMean() << " sec/evt" << endl ;
+   cout << "[OVAL] : CSCDigiProducer - MEAN CPU = " << CSC->GetMean() << " sec/evt" << endl ;
+   cout << "[OVAL] : DTDigitizer - MEAN CPU = " << DT->GetMean() << " sec/evt" << endl ;
    
    TCanvas* c2 = new TCanvas("c2") ;
    OPr->Draw() ;
-   OPr->Print("OscarProducer.ps") ;
-   c2->SaveAs("OscarProducer.ps") ;
+   // OPr->Print("OscarProducer.ps") ;
+   c2->SaveAs("OscarProducer_minbias.ps") ;
    
    TCanvas* c3 = new TCanvas( "c3", " ", 900, 900 ) ;
    c3->Divide(2,4) ;
@@ -74,6 +84,6 @@
    c3->cd(8) ;
    Mix->Draw() ;
 
-   c3->SaveAs("Modules.ps")  ;
-   
+   c3->SaveAs("Modules_minbias.ps")  ;
+         
 }
