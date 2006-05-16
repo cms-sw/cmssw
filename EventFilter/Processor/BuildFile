@@ -5,6 +5,7 @@
 <use name=FWCore/MessageService>
 <use name=FWCore/MessageLogger>
 <use name=EventFilter/Utilities>
+<use name=DQMServices/Daemon>
 <export>
  <lib name=EventFilterProcessor>
  <use name=boost>

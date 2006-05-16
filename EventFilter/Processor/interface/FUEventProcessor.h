@@ -62,6 +62,16 @@ namespace evf
       xdata::UnsignedLong inputPrescale_;
       xdata::UnsignedLong outputPrescale_;
       bool outprev_;
+
+
+      // monitor thread configuration
+      xdata::String add_;
+      xdata::Integer port_;
+      xdata::Integer del_;
+      xdata::String nam_;
+
+
+
       edm::EventProcessor *proc_;
       TaskGroup *group_;
       EPStateMachine *fsm_;

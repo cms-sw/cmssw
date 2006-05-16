@@ -25,6 +25,14 @@ proc_(0), group_(0), fsm_(0), ah_(0)
 
   fsm_ = new EPStateMachine(getApplicationLogger());
   fsm_->init<evf::FUEventProcessor>(this);
+
+  add_ = "localhost";
+  port_ = 9090;
+  del_ = 5000000;
+  ostringstream ns;
+  ns << "FU" << instance;
+  nam_ = ns.str();
+
   xdata::InfoSpace *ispace = getApplicationInfoSpace();
   // default configuration
   ispace->fireItemAvailable("parameterSet",&offConfig_);
@@ -34,6 +42,11 @@ proc_(0), group_(0), fsm_(0), ah_(0)
   ispace->fireItemAvailable("outputEnabled",&outPut_);
   ispace->fireItemAvailable("globalInputPrescale",&inputPrescale_);
   ispace->fireItemAvailable("globalOutputPrescale",&outputPrescale_);
+  ispace->fireItemAvailable("collectorAddr",&add_);
+  ispace->fireItemAvailable("collectorPort",&port_);
+  ispace->fireItemAvailable("collSendUs",&del_);
+  ispace->fireItemAvailable("monSourceName",&nam_);
+
   // Add infospace listeners for exporting data values
   getApplicationInfoSpace()->addItemChangedListener ("outputEnabled", this);
   getApplicationInfoSpace()->addItemChangedListener ("globalInputPrescale", this);
@@ -62,6 +75,10 @@ FUEventProcessor::~FUEventProcessor()
 
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
+
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 
 void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
@@ -109,8 +126,6 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
 		      "Unknown Exception");
     }
 
-  LOG4CPLUS_INFO(this->getApplicationLogger(),
-		 "Finished with FUEventProcessor configuration ");
 
   //test it 
   edm::LogInfo("FUEventProcessor") << "started MessageLogger Service ";
@@ -122,14 +137,17 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
   std::cout << "Using config string \n" << configString << std::endl;
   try{
     proc_ = new edm::EventProcessor(configString);
-  if(!outPut_) //proc_->toggleOutput();
-  //  proc_->prescaleInput(inputPrescale_);
-  //  proc_->prescaleOutput(outputPrescale_);
-    proc_->enableEndPaths(outPut_);
-
-  outprev_=outPut_;
-
+    if(!outPut_) //proc_->toggleOutput();
+      //  proc_->prescaleInput(inputPrescale_);
+      //  proc_->prescaleOutput(outputPrescale_);
+      proc_->enableEndPaths(outPut_);
+    
+    outprev_=outPut_;
+    
     proc_->setRunNumber(runNumber_.value_);
+    edm::ServiceToken tok =  
+      edm::ServiceRegistry::instance().presentToken();
+    edm::Service<MonitorDaemon>()->rmt(add_, port_, del_, nam_);
   }
   catch(seal::Error& e)
     {
@@ -152,6 +170,8 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
       XCEPT_RAISE (toolbox::fsm::exception::Exception, 
 		   "Unknown Exception");
     }
+  LOG4CPLUS_INFO(this->getApplicationLogger(),
+		 "Finished with FUEventProcessor configuration ");
 
 }
 
