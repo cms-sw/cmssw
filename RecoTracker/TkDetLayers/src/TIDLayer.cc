@@ -325,3 +325,9 @@ TIDLayer::overlapInR( const TrajectoryStateOnSurface& tsos, int index, double ym
 
   return true;
 }
+
+
+vector<const GeometricSearchDet*> 
+TIDLayer::components() const {
+  return vector <const GeometricSearchDet*>(theRings.begin(),theRings.end());
+}

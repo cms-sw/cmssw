@@ -19,6 +19,8 @@ class TIDLayer : public RingedForwardLayer{
   
   virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
   
+  virtual vector<const GeometricSearchDet*> components() const;
+
   virtual vector<DetWithState> 
     compatibleDets( const TrajectoryStateOnSurface& startingState,
 		    const Propagator& prop, 

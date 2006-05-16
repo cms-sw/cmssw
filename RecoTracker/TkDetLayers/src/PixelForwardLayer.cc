@@ -169,7 +169,7 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
   int quarter = theBlades.size()/4;
   for (int idet=negStart; idet >= negStart - quarter+1; idet--) {
-    const Det* neighbor = theBlades[theBinFinder.binIndex(idet)];
+    const GeometricSearchDet* neighbor = theBlades[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
     vector<DetGroup> tmp;
@@ -179,7 +179,7 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     result = merger.orderAndMergeTwoLevels( tmp, result, theHelicity, crossingSide);
   }
   for (int idet=posStart; idet < posStart + quarter-1; idet++) {
-    const Det* neighbor = theBlades[theBinFinder.binIndex(idet)];
+    const GeometricSearchDet* neighbor = theBlades[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
     vector<DetGroup> tmp;
