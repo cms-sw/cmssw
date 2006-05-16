@@ -86,11 +86,17 @@ MaterialBudgetAction::produce(edm::Event& e, const edm::EventSetup&)
 void MaterialBudgetAction::update(const BeginOfTrack* trk)
 {
   const G4Track * aTrack = (*trk)(); // recover G4 pointer if wanted
+
+// that was a temporary action while we're sorting out
+// about # of secondaries (produced if CutsPerRegion=true)
+//
+/* 
   if( aTrack->GetParentID() != 0 ){
     G4Track * aTracknc = const_cast<G4Track*>(aTrack);
     aTracknc->SetTrackStatus(fStopAndKill);
     return;
   }
+*/
 
   //--------- start of track
   theData->dataStartTrack( aTrack );
