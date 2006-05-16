@@ -55,7 +55,7 @@ pair<vector<DetLayer*>, vector<DetLayer*> >
                 const GeomDet* geomDet = geo.idToDet(CSCDetId(endcap, 1, ring, chamber, 0));
 	            if (geomDet) {
 	                geomDets.push_back(geomDet);
-	                LogDebug("RecoMuonDetLayers") << "get CSC chamber " <<  CSCDetId(endcap, station, ring, chamber, 0) << " " << geomDet;
+	                LogDebug("RecoMuonDetLayers") << "get CSC chamber " <<  CSCDetId(endcap, 1, ring, chamber, 0) << " " << geomDet;
 	            }
             }
                 

@@ -18,7 +18,7 @@ MuonRPCDetLayerGeometryBuilder::~MuonRPCDetLayerGeometryBuilder() {
 pair<vector<DetLayer*>, vector<DetLayer*> > 
     MuonRPCDetLayerGeometryBuilder::buildLayers(const RPCGeometry& geo) {
         
-    vector<MuRingForwardLayer*> result[2];
+  //    vector<MuRingForwardLayer*> result[2];
     vector<DetLayer*> detlayers[2];
     vector<const ForwardDetRing*> muDetRings;
   /*          

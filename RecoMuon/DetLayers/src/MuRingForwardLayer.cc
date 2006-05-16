@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/12 13:23:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/25 17:03:23 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -67,4 +67,9 @@ bool MuRingForwardLayer::hasGroups() const {
 Module MuRingForwardLayer::module() const {
   // FIXME
   return Module();
+}
+
+vector<const GeometricSearchDet*> 
+MuRingForwardLayer::components() const {
+  return vector <const GeometricSearchDet*>(theRings.begin(),theRings.end());
 }

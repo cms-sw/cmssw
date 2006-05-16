@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/12 13:23:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/03 15:20:45 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -123,7 +123,7 @@ MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
     for (int idet=closest-1; idet >= 0; idet--) {
       LocalPoint nextPos( dets[idet]->toLocal(startPos));
       if (fabs(nextPos.y()) < detHalfLen + maxDistance.y()) {
-	if ( DEBUG ) cout << "     positiveZ: det:" << idet
+	if ( MDEBUG ) cout << "     positiveZ: det:" << idet
 			  << " pos " << nextPos.y()
 			  << " maxDistance " << maxDistance.y()
 			  << endl;
