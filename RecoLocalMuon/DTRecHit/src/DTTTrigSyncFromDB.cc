@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/21 17:44:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/23 15:31:11 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -101,7 +101,7 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
   // from the center of the wire to the frontend. Here we just have to correct for
   // the distance of the hit from the wire center.
   // NOTE: the FE is always at y<0
-  float wireCoord = layer->surface().toLocal(globPos).y();
+  float wireCoord = layer->toLocal(globPos).y();
   wirePropCorr = wireCoord/theVPropWire;
   // FIXME: What if hits used for the time box are not distributed uniformly along the wire?
 

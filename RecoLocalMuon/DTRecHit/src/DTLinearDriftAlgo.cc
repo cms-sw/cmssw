@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/04/06 12:40:52 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/04/07 08:29:32 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -56,7 +56,7 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
 
   // Get Wire position
   LocalPoint locWirePos(layer->specificTopology().wirePosition(digi.wire()), 0, 0);
-  const GlobalPoint globWirePos = layer->surface().toGlobal(locWirePos);
+  const GlobalPoint globWirePos = layer->toGlobal(locWirePos);
   
   return compute(layer, wireId, digi.time(), globWirePos, leftPoint, rightPoint, error, 1); 
 }

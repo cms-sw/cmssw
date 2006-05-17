@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/04/06 12:40:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/17 13:47:17 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -68,7 +68,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
   
   // Get Wire position
   LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
-  const GlobalPoint globWirePos = layer->surface().toGlobal(locWirePos);
+  const GlobalPoint globWirePos = layer->toGlobal(locWirePos);
   
   // impact angle on DT chamber
   // compute the impact angle using the centre of the wire,
@@ -78,7 +78,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
   if (layerId.superlayer() == 2 ) {
     //GlobalPoint lPos=layer->position();
     GlobalVector lDir=(GlobalPoint()-globWirePos).unit();
-    LocalVector lDirLoc=layer->surface().toLocal(lDir);
+    LocalVector lDirLoc=layer->toLocal(lDir);
 
     angle = atan(lDirLoc.x()/-lDirLoc.z());
   } 
@@ -98,7 +98,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
   
   // Get Wire position
   LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
-  const GlobalPoint globWirePos = layer->surface().toGlobal(locWirePos);
+  const GlobalPoint globWirePos = layer->toGlobal(locWirePos);
 
   return compute(layer, wireId, recHit1D.digiTime(), angle, globWirePos,
                  newHit1D, 2);
@@ -148,7 +148,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
   //----------------------------------------------------------------------
   // Magnetic Field in layer frame
   const LocalVector BLoc =
-    layer->surface().toLocal(magField->inTesla(globPos));
+    layer->toLocal(magField->inTesla(globPos));
 
   float By = BLoc.y();
   float Bz = BLoc.z();  
@@ -293,7 +293,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
     cout << setiosflags(ios::showpoint | ios::fixed) << setw(3)
          << "[DTParametrizedDriftAlgo]: step " << step << endl
          << "  Global Position  " << globPos << endl
-         << "  Local Position   " << layer->surface().toLocal(globPos) << endl
+         << "  Local Position   " << layer->toLocal(globPos) << endl
       //          << "  y along Wire     " << wireCoord << endl
          << "  Digi time        " << digiTime << endl
       //          << "  dpropDelay       " << propDelay << endl

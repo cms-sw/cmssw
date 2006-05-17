@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/14 13:02:42 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/23 15:38:26 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -50,7 +50,7 @@ double DTTTrigSyncTOFCorr::offset(const DTLayer* layer,
   //Compute the time spent in signal propagation along wire.
   // NOTE: the FE is always at y<0
   float halfL     = layer->specificTopology().cellLenght()/2;
-  float wireCoord = layer->surface().toLocal(globPos).y();
+  float wireCoord = layer->toLocal(globPos).y();
   float propgL    = halfL + wireCoord;
   wirePropCorr = propgL/theVPropWire;
 
@@ -78,7 +78,7 @@ double DTTTrigSyncTOFCorr::offset(const DTLayer* layer,
   case 2: {
     // TOF from 3D center of the wire to hit position
     float flightToWire =
-      layer->surface().toGlobal(LocalPoint(layer->specificTopology().wirePosition(wireId.wire()), 0., 0.)).mag();
+      layer->toGlobal(LocalPoint(layer->specificTopology().wirePosition(wireId.wire()), 0., 0.)).mag();
     tofCorr = (flightToWire-flightToHit)/cSpeed;
     break;
   }
