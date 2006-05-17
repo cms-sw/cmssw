@@ -6,10 +6,10 @@
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiStripDetId>
 <use name=DQM/SiStripCommon>
+<use name=TkOnlineSw>
+<use name=oracle>
 <use name=root>
 <use name=xdaq>
-<use name=Fed9UUtils>
-<use name=ICUtils>
 <flags SEAL_PLUGIN_NAME="IORawDataSiStripInputSources">
 
 <export>
@@ -22,8 +22,8 @@
    <use name=DataFormats/FEDRawData>
    <use name=DataFormats/SiStripDetId>
    <use name=DQM/SiStripCommon>
+   <use name=TkOnlineSw>
+   <use name=oracle>
    <use name=root>
    <use name=xdaq>
-   <use name=Fed9UUtils>
-   <use name=ICUtils>
 </export>

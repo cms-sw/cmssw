@@ -8,8 +8,8 @@
 <use name=DataFormats/SiStripDigi>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
-<use name=Fed9UUtils>
-<use name=ICUtils>
+<use name=TkOnlineSw>
+<use name=oracle>
 <use name=clhep>
 <use name=xdaq>
 <flags SEAL_PLUGIN_NAME="EventFilterSiStripRawToDigi">
@@ -26,8 +26,8 @@
    <use name=DataFormats/SiStripDigi>
    <use name=CondFormats/DataRecord>
    <use name=CondFormats/SiStripObjects>
-   <use name=Fed9UUtils>
-   <use name=ICUtils>
+   <use name=TkOnlineSw>
+   <use name=oracle>
    <use name=clhep>
    <use name=xdaq>
 </export>
