@@ -9,14 +9,14 @@
  * For example, CSCSegmentizerSK inherits from this class,
  * and classes ported from ORCA local reco inherit from that.
  *
- * $Date: 2006/05/08 17:45:31 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/17 14:38:50 $
+ * $Revision: 1.4 $
  * \author M. Sani
  *
  */
 
-#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
+#include <DataFormats/CSCRecHit/interface/CSCSegment.h>
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
