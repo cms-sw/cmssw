@@ -34,6 +34,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HFDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HODataFrame.h"
 
 
 #include <vector>
@@ -59,6 +62,10 @@ public:
   ~HcalDigiTester();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob(const edm::EventSetup&) ;
+  //  virtual void fill(const HBHEDataFrame& digi) const;
+  //  virtual void fill(const HODataFrame& digi) const;
+  // virtual void fill(const HFDataFrame& digi) const;
+ template<class Digi>  void reco(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
  
 
@@ -78,6 +85,7 @@ public:
   MonitorElement* meDigiSimhitHEprofile;
   MonitorElement* menDigisHE;
   MonitorElement* meSumDigisHE;
+  MonitorElement* meSumDigis_noise_HE;
 
  //  HE Monitor Elements
   MonitorElement* meEtaHB;
@@ -87,6 +95,7 @@ public:
   MonitorElement* meDigiSimhitHBprofile;
   MonitorElement* menDigisHB;
   MonitorElement* meSumDigisHB;
+  MonitorElement* meSumDigis_noise_HB;
 
   //   HF Monitor Elements
   MonitorElement* meEtaHF;
@@ -96,7 +105,7 @@ public:
   MonitorElement* meDigiSimhitHFprofile;
   MonitorElement* menDigisHF;
   MonitorElement* meSumDigisHF;
-
+  MonitorElement* meSumDigis_noise_HF;
  //   HO Monitor Elements
   MonitorElement* meEtaHO;
   MonitorElement* mePhiHO;
@@ -105,5 +114,8 @@ public:
   MonitorElement* meDigiSimhitHOprofile; 
   MonitorElement* menDigisHO;
   MonitorElement* meSumDigisHO;
-
+  MonitorElement* meSumDigis_noise_HO;
+ESHandle<CaloGeometry> geometry ;
+ESHandle<HcalDbService> conditions;
+ float pedvalue;
 };
