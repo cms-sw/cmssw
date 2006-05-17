@@ -34,7 +34,7 @@ None.
 <li> Enable automatic library loading of datafiles
      libraries:
 <pre>
-  gSystem->Load("libPhysicsToolsFWLite");
+  gSystem->Load("libFWCoreFWLite");
   AutoLibraryLoader::enable();
 </pre>
 <li> Prepair the chain (just a single file in this example):

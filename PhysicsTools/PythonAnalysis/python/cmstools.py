@@ -38,5 +38,5 @@ def all(container):
 ### (will be changed for ROOT 5.10)
 print 'Loading FWLite...'
 from ROOT import *
-gSystem.Load('libPhysicsToolsFWLite')
+gSystem.Load('libFWCoreFWLite')
 AutoLibraryLoader.enable()
