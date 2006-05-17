@@ -77,7 +77,7 @@ Event products of Reconstruction.
   <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
   <td> \endhtmlonly reco::BasicClusterCollection \htmlonly </td>
   <td>basicClusters</td>
-  <td>island;</td>
+  <td>island</td>
   <td>islandClusters</td>
   <td class="description">Collection of basic clusters reconstructed with island algorithm</td>
 </tr>
