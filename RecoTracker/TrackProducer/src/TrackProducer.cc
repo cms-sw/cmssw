@@ -41,17 +41,18 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   //
   //declare and get TrackColection to be retrieved from the event
   //
-  edm::Handle<TrackCandidateCollection> theTCCollection;
-  getFromEvt(theEvent,theTCCollection);
-
-  //
-  //run the algorithm  
-  //
-  edm::LogInfo("TrackProducer") << "run the algorithm" << "\n";
-  AlgoProductCollection algoResults;
-  theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			   theFitter.product(), thePropagator.product(), algoResults);
-  
+    AlgoProductCollection algoResults;
+  try{  
+    edm::Handle<TrackCandidateCollection> theTCCollection;
+    getFromEvt(theEvent,theTCCollection);
+    
+    //
+    //run the algorithm  
+    //
+    edm::LogInfo("TrackProducer") << "run the algorithm" << "\n";
+    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
+			     theFitter.product(), thePropagator.product(), algoResults);
+  } catch (cms::Exception &e){}
   //
   //put everything in th event
   putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, algoResults);

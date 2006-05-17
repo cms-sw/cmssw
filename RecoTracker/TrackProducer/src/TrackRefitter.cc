@@ -40,17 +40,18 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   //
   //declare and get TrackCollection to be retrieved from the event
   //
-  edm::Handle<reco::TrackCollection> theTCollection;
-  getFromEvt(theEvent,theTCollection);
-
-  //
-  //run the algorithm  
-  //
-  edm::LogInfo("TrackProducer") << "run the algorithm" << "\n";
   AlgoProductCollection algoResults;
-  theAlgo.runWithTrack(theG.product(), theMF.product(), *theTCollection, 
-		       theFitter.product(), thePropagator.product(), algoResults);
-  
+  try {
+    edm::Handle<reco::TrackCollection> theTCollection;
+    getFromEvt(theEvent,theTCollection);
+    
+    //
+    //run the algorithm  
+    //
+    edm::LogInfo("TrackProducer") << "run the algorithm" << "\n";
+    theAlgo.runWithTrack(theG.product(), theMF.product(), *theTCollection, 
+			 theFitter.product(), thePropagator.product(), algoResults);
+  } catch (cms::Exception &e){}
   //
   //put everything in th event
   putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, algoResults);
