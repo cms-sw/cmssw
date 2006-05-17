@@ -4,9 +4,10 @@
 /*
  * \file EBBeamTask.h
  *
- * $Date: 2006/04/30 18:00:37 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/11 19:46:09 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
+ * \author G. Franzoni
  *
 */
 
@@ -70,7 +71,23 @@ private:
 
 int ievt_;
 
+MonitorElement* meHodoOcc_[4];
+MonitorElement* meHodoRaw_[4];
+MonitorElement* meHodoPosRec_;
+MonitorElement* meHodoSloXRec_;
+MonitorElement* meHodoSloYRec_;
+MonitorElement* meHodoQuaXRec_;
+MonitorElement* meHodoQuaYRec_;
+MonitorElement* meTDCRec_;
+MonitorElement* meEvsXRec_;
+MonitorElement* meEvsYRec_;
+MonitorElement* meCaloVsHodoXPos_;
+MonitorElement* meCaloVsHodoYPos_;
+MonitorElement* meCaloVsTDCTime_;
+
 bool init_;
+
+int smId;
 
 };
 
