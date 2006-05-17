@@ -2,14 +2,15 @@
 <use name=DataSvc>
 <use name=StorageSvc>
 <use name=rootcore>
+<use name=rootcintex>
 <use name=FWCore/MessageLogger>
-<lib name=Cintex>
 <export>
  <lib name=IOPoolCommon>
  <use name=boost>
  <use name=DataSvc>
  <use name=StorageSvc>
  <use name=rootcore>
+ <use name=rootcintex>
  <use name=FWCore/MessageLogger>
 </export>
 
