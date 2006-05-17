@@ -408,7 +408,7 @@ BaseParticlePropagator::propagateToHcalEntrance(bool first) {
   //
 
   // First propagate to global barrel / endcap cylinder 
-  setPropagationConditions(193.0 , 388.0, first);
+  setPropagationConditions(183.0 , 388.0, first);
   propDir = 0;
   bool done = propagate();
   propDir = 1;
