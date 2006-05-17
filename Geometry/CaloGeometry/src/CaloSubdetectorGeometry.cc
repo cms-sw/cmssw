@@ -28,4 +28,8 @@ std::vector<DetId> CaloSubdetectorGeometry::getValidDetIds(DetId::Detector det, 
   return validIds_;    
 }
 
+const DetId CaloSubdetectorGeometry::getClosestCell(const GlobalPoint& r) const 
+{
+  return DetId(0);
+}
 
