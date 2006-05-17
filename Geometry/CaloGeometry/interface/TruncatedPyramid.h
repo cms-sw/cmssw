@@ -46,6 +46,22 @@ public:
   //! Access to data
   virtual const vector<GlobalPoint> & getCorners() const;  
 
+  /** Position corresponding to the center of the front face at a certain
+      depth (default is zero) along the crystal axis.
+      If "depth" is <=0, the nomial position of the cell is returned
+      (center of the front face).
+ */
+  virtual const GlobalPoint getPosition(float depth) const;
+
+  /** Returns position at a depth "depth" in direction "dir" projected
+      onto the crystal axis and along it (where the axis starts at the
+      center of the front face of the crystal).
+      The returned point will lie on the crystal axis.
+      If "depth" is <=0, the nomial position of the cell is returned
+      (center of the front face).
+  */
+  virtual const GlobalPoint getPosition(float depth, GlobalVector dir) const;
+
   /** Return thetaAxis polar angle of axis of the cristal */
   const float& getThetaAxis() const { return thetaAxis; }
 

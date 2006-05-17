@@ -143,7 +143,7 @@ TruncatedPyramid::hepTransform(const HepTransform3D &transformation)
     }
 
   //Updating reference position
-  const GlobalPoint& position_=getPosition();
+  const GlobalPoint& position_=CaloCellGeometry::getPosition();
   HepGeom::Point3D<float> newPosition(position_.x(),position_.y(),position_.z());
   newPosition.transform(transformation);
   setPosition(GlobalPoint(newPosition.x(),newPosition.y(),newPosition.z()));
@@ -173,12 +173,57 @@ TruncatedPyramid::trapeziumArea(double halfHeight, double
 }
 
 
+const GlobalPoint 
+TruncatedPyramid::getPosition(float depth) const 
+{
+  GlobalPoint point = CaloCellGeometry::getPosition();
+
+  if (depth <= 0)
+    return point;
+
+  // only add the vector if depth is positive
+  Hep3Vector move(1.,1.,1.); 
+  move.setMag(depth); // must do this first
+  move.setTheta(thetaAxis);
+  move.setPhi(phiAxis);
+
+  // Bart Van de Vyver 10/5/2002 explicit GlobalPoint constructor 
+  // to avoid compiler warning
+  point = point + GlobalVector(move.x(),move.y(),move.z());
+
+  return point;
+}
+
+//----------------------------------------------------------------------
+
+const GlobalPoint TruncatedPyramid::getPosition(float depth, GlobalVector dir) const 
+{
+  GlobalPoint point = CaloCellGeometry::getPosition();
+  
+  if (depth <= 0)
+    return point;
+
+  // only add the vector if depth is non-zero      
+  Hep3Vector move(1.,1.,1.); 
+  depth *= cos(thetaAxis - dir.theta()); // project onto crystal axis
+  move.setMag(depth); // must do this first
+  move.setTheta(thetaAxis);
+  move.setPhi(phiAxis);
+  // Bart Van de Vyver 10/5/2002 explicit GlobalPoint constructor 
+  // to avoid compiler warning
+  point = point + GlobalVector(move.x(),move.y(),move.z());
+  return point;
+}
+
+//----------------------------------------------------------------------
+
+
 
 void TruncatedPyramid::dump(const char * prefix="") const {
 
   // a crystal must have eight corners (not only the front face...)
   assert(getCorners().size() == 8);
-  cout << prefix << "Center: " <<  getPosition() << endl;
+  cout << prefix << "Center: " <<  CaloCellGeometry::getPosition() << endl;
   float thetaaxis_= getThetaAxis();
   float phiaxis_= getPhiAxis();
   cout << prefix << "Axis: " <<  thetaaxis_ << " " << phiaxis_ << endl;
