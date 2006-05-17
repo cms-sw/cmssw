@@ -33,11 +33,10 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& es);
 
   private:
-    CombinatorialTrajectoryBuilder*   theCombinatorialTrajectoryBuilder;
+    edm::ParameterSet conf_;
+    CombinatorialTrajectoryBuilder*  theCombinatorialTrajectoryBuilder;
     TrajectoryCleaner*               theTrajectoryCleaner;
     TransientInitialStateEstimator*  theInitialState;
-
-    edm::ParameterSet conf_;
 
     edm::ESHandle<MagneticField>                theMagField;
     edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;

@@ -27,7 +27,9 @@ using namespace edm;
 
 namespace cms{
   KFTrackCandidateMaker::KFTrackCandidateMaker(edm::ParameterSet const& conf) : 
-    conf_(conf),isInitialized(0)
+    conf_(conf),theCombinatorialTrajectoryBuilder(0),theTrajectoryCleaner(0),
+    theInitialState(0),theMeasurementTracker(0),theNavigationSchool(0),
+    isInitialized(0)   
   {  
     produces<TrackCandidateCollection>();  
   }
