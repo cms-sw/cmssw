@@ -15,7 +15,7 @@ namespace{
 
 namespace{ 
   namespace {
-    std::vector<CSCSegment> seg;    
-    edm::Wrapper<std::vector<CSCSegment> > dwc1;
+    CSCSegmentCollection seg;    
+    edm::Wrapper<CSCSegmentCollection> dwc1;
   }
 }
