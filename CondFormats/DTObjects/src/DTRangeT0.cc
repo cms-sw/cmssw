@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/11 08:31:46 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/17 10:34:24 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -156,9 +156,9 @@ int DTRangeT0::setSLRangeT0( int   wheelId,
   std::string rangeT0VersionMax = dataVersion + "_rangeT0Max";
 
   DTBufferTree<int,int>* minT0Buf =
-  DTDataBuffer<int,int>::findBuffer( rangeT0VersionMin );
+  DTDataBuffer<int,int>::openBuffer( rangeT0VersionMin );
   DTBufferTree<int,int>* maxT0Buf =
-  DTDataBuffer<int,int>::findBuffer( rangeT0VersionMax );
+  DTDataBuffer<int,int>::openBuffer( rangeT0VersionMax );
 
   std::vector<int> slKey;
   slKey.push_back(   wheelId );
@@ -201,9 +201,9 @@ void DTRangeT0::initSetup() const {
   std::string rangeT0VersionMax = dataVersion + "_rangeT0Max";
 
   DTBufferTree<int,int>* minT0Buf =
-  DTDataBuffer<int,int>::findBuffer( rangeT0VersionMin );
+  DTDataBuffer<int,int>::openBuffer( rangeT0VersionMin );
   DTBufferTree<int,int>* maxT0Buf =
-  DTDataBuffer<int,int>::findBuffer( rangeT0VersionMax );
+  DTDataBuffer<int,int>::openBuffer( rangeT0VersionMax );
 
   std::vector<DTSLRangeT0Data>::const_iterator iter = slData.begin();
   std::vector<DTSLRangeT0Data>::const_iterator iend = slData.end();

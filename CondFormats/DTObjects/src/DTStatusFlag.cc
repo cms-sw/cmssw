@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/16 12:00:00 $
+ *  $Date: 2006/05/17 10:34:24 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -189,11 +189,11 @@ int DTStatusFlag::setCellStatus( int   wheelId,
   std::string statusVersionT = dataVersion + "_StatusT";
 
   DTBufferTree<int,bool>* dataNBuf =
-  DTDataBuffer<int,bool>::findBuffer( statusVersionN );
+  DTDataBuffer<int,bool>::openBuffer( statusVersionN );
   DTBufferTree<int,bool>* dataFBuf =
-  DTDataBuffer<int,bool>::findBuffer( statusVersionF );
+  DTDataBuffer<int,bool>::openBuffer( statusVersionF );
   DTBufferTree<int,bool>* dataTBuf =
-  DTDataBuffer<int,bool>::findBuffer( statusVersionT );
+  DTDataBuffer<int,bool>::openBuffer( statusVersionT );
 
   std::vector<int> cellKey;
   cellKey.push_back(   wheelId );
@@ -243,11 +243,11 @@ void DTStatusFlag::initSetup() const {
   std::string statusVersionT = dataVersion + "_StatusT";
 
   DTBufferTree<int,bool>* dataNBuf =
-  DTDataBuffer<int,bool>::findBuffer( statusVersionN );
+  DTDataBuffer<int,bool>::openBuffer( statusVersionN );
   DTBufferTree<int,bool>* dataFBuf =
-  DTDataBuffer<int,bool>::findBuffer( statusVersionF );
+  DTDataBuffer<int,bool>::openBuffer( statusVersionF );
   DTBufferTree<int,bool>* dataTBuf =
-  DTDataBuffer<int,bool>::findBuffer( statusVersionT );
+  DTDataBuffer<int,bool>::openBuffer( statusVersionT );
 
   std::vector<DTCellStatusFlagData>::const_iterator iter = cellData.begin();
   std::vector<DTCellStatusFlagData>::const_iterator iend = cellData.end();
