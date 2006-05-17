@@ -54,7 +54,7 @@ void MeasurementTracker::initialize(const edm::EventSetup& setup,
 
     std::cout << "got from TrackerGeometry " << dets.size() << std::endl; 
 
-
+    // get pixelCPE
     std::string cpeName = conf.getParameter<std::string>("PixelCPE");   
     cout <<" Asking for the CPE with name "<<cpeName<<endl;
 
@@ -65,21 +65,20 @@ void MeasurementTracker::initialize(const edm::EventSetup& setup,
 	      << std::endl;
     pixelCPE = &(*pixelCPEHandle);
 
-    /*
-    edm::ParameterSet conf;
-    conf.addParameter("TanLorentzAnglePerTesla",0.106);
-    conf.addUntrackedParameter("VerboseLevel",20);
-    pixelCPE = new CPEFromDetPosition(conf, &(*magfield));
-    */
-
     edm::ESHandle<MagneticField> magfield;
     setup.get<IdealMagneticFieldRecord>().get(magfield);
-   
-    edm::ParameterSet StripConf;
-    StripConf.addParameter("TanLorentzAnglePerTesla",0.106);
-    stripCPE = new StripCPE(StripConf,&(*magfield),&tracker);
 
-    theHitMatcher = new SiStripRecHitMatcher();
+
+    // get stripCPE
+    edm::ESHandle<StripClusterParameterEstimator> stripCPEHandle;
+    setup.get<TrackerCPERecord>().get("StripCPEfromTrackAngle",stripCPEHandle);
+
+    std::cout << "Got a stripCPE " << typeid(*stripCPEHandle).name() 
+	      << std::endl;
+    stripCPE = &(*stripCPEHandle);
+
+   
+    theHitMatcher = new SiStripRecHitMatcher(conf);
 
     addPixelDets( tracker.detsPXB());
     addPixelDets( tracker.detsPXF());
