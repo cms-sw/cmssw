@@ -1,8 +1,8 @@
 /**
  * \file CSCSegAlgoTC.cc
  *
- * $Date: 2006/05/08 17:45:13 $
- * $Revision: 1.4 $
+ * $Date: 2006/05/15 16:20:48 $
+ * $Revision: 1.5 $
  * \author M. Sani
  * 
  */
@@ -44,12 +44,12 @@ CSCSegAlgoTC::CSCSegAlgoTC(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
    	   << "minLayersApart = " << minLayersApart << std::endl;
 }
 
-CSCSegmentCollection CSCSegAlgoTC::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoTC::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
     theChamber = aChamber; 
     return buildSegments(rechits); 
 }
 
-CSCSegmentCollection CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
 
     // Reimplementation of original algorithm of CSCSegmentizer, Mar-06
 	
@@ -88,7 +88,7 @@ CSCSegmentCollection CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
     if (rechits.size() < 2) {
         LogDebug("CSC") << myName << ": " << rechits.size() << 
             "	 hit(s) in chamber is not enough to build a segment.\n";
-        return CSCSegmentCollection(); 
+        return std::vector<CSCSegment>(); 
     }
 
   // We have at least 2 hits. We intend to try all possible pairs of hits to start 
@@ -108,7 +108,7 @@ CSCSegmentCollection CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
   // those which share hits with better-quality segments.
 
 
-    CSCSegmentCollection segments;
+    std::vector<CSCSegment> segments;
 
     ChamberHitContainerCIt ib = rechits.begin();
     ChamberHitContainerCIt ie = rechits.end();
@@ -746,7 +746,7 @@ void CSCSegAlgoTC::flagHitsAsUsed(const CSCSegment& seg,
     }
 }
 
-void CSCSegAlgoTC::pruneTheSegments(CSCSegmentCollection& segments, 
+void CSCSegAlgoTC::pruneTheSegments(std::vector<CSCSegment>& segments, 
   const ChamberHitContainer& rechitsInChamber) {
 
     // Sort the segment store according to segment 'quality' (chi2/#hits ?) and
@@ -767,7 +767,7 @@ void CSCSegAlgoTC::pruneTheSegments(CSCSegmentCollection& segments,
     // Because I want to erase the bad segments, the iterator must be incremented
     // inside the loop, and only when the erase is not called
 
-    for (CSCSegmentCollection::iterator is = segments.begin(); is != segments.end(); ) {
+    for (std::vector<CSCSegment>::iterator is = segments.begin(); is != segments.end(); ) {
 
         CSCSegment mes = *is;
         bool goodSegment = isSegmentGood(mes, rechitsInChamber, used);
@@ -786,7 +786,7 @@ void CSCSegAlgoTC::pruneTheSegments(CSCSegmentCollection& segments,
     }
 }
 
-void CSCSegAlgoTC::segmentSort(CSCSegmentCollection& segs) {
+void CSCSegAlgoTC::segmentSort(std::vector<CSCSegment>& segs) {
   
     // The segment collection is sorted according chi2/#hits 
 

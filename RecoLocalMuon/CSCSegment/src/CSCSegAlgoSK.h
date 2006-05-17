@@ -21,8 +21,8 @@
  * Reimplemented in terms of layer index, and bug fix: Tim.Cox@cern.ch <BR>
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- *  $Date: 2006/05/08 17:45:13 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/15 16:21:05 $
+ *  $Revision: 1.5 $
  *  \author M. Sani
  */
 
@@ -66,12 +66,12 @@ public:
      * Build track segments in this chamber (this is where the actual
      * segment-building algorithm hides.)
      */
-    CSCSegmentCollection buildSegments(ChamberHitContainer rechits);
+    std::vector<CSCSegment> buildSegments(ChamberHitContainer rechits);
 
     /**
      * Here we must implement the algorithm
      */
-    CSCSegmentCollection run(const CSCChamber* aChamber, ChamberHitContainer rechits); 
+    std::vector<CSCSegment> run(const CSCChamber* aChamber, ChamberHitContainer rechits); 
 
 private:
 

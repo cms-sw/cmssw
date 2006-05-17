@@ -1,7 +1,8 @@
+
 /** \file CSCSegmentBuilder.cc
  *
- * $Date: 2006/04/03 10:10:10 $
- * $Revision: 1.2 $
+ * $Date: 2006/05/08 17:45:31 $
+ * $Revision: 1.6 $
  * \author M. Sani
  *
  *
@@ -92,30 +93,19 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCo
             cscRecHits.push_back(*rechit);
         }    
         
-        bool isOneHitPerLayer = true;
-        int layersWithTwoHits = 0;
-        
-        for(int i=0; i<6; i++)
-            if (hitPerLayer[i] > 1)
-                layersWithTwoHits++;
-
-        if (layersWithTwoHits >= 4)
-                isOneHitPerLayer = false;
-                    
-        //if (isOneHitPerLayer) {
-         {   
-            LogDebug("CSC") << "found " << cscRecHits.size() << " rechit in this chamber.";
+        LogDebug("CSC") << "found " << cscRecHits.size() << " rechit in this chamber.";
             
-            // given the chamber select the right algo...
-            CSCSegmentCollection rhv = algoMap[chamber->specs()->chamberTypeName()]->run(chamber, cscRecHits);
+        // given the chamber select the right algo...
+        std::vector<CSCSegment> segv = algoMap[chamber->specs()->chamberTypeName()]->run(chamber, cscRecHits);
 
-            // Add the segments to master collection !!!
-            LogDebug("CSC") << "Total number of segments found: " << rhv.size() <<std::endl;
+        // Add the segments to master collection !!!
+        LogDebug("CSC") << "Total number of segments found: " << segv.size() <<std::endl;
 		
-            CSCSegmentCollection::const_iterator segmIt;
-            for(segmIt = rhv.begin(); segmIt != rhv.end(); segmIt++)
-                oc.push_back(*segmIt);    
-        }  
+        oc.put((*chIt), segv.begin(), segv.end());
+        
+        //CSCSegmentCollection::const_iterator segmIt;
+        //for(segmIt = rhv.begin(); segmIt != rhv.end(); segmIt++)
+        //   oc.push_back(*segmIt);    
     }
 }
 

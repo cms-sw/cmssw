@@ -18,8 +18,8 @@
  *
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- * $Date: 2006/04/03 10:10:10 $
- * $Revision: 1.1 $
+ * $Date: 2006/05/08 17:45:13 $
+ * $Revision: 1.2 $
  * \author M. Sani
  * 
  */
@@ -66,12 +66,12 @@ public:
      * Build track segments in this chamber (this is where the actual
      * segment-building algorithm hides.)
      */
-    CSCSegmentCollection buildSegments(ChamberHitContainer rechits);
+    std::vector<CSCSegment> buildSegments(ChamberHitContainer rechits);
 
     /**
      * Here we must implement the algorithm
      */
-    CSCSegmentCollection run(const CSCChamber* aChamber, ChamberHitContainer rechits);
+    std::vector<CSCSegment> run(const CSCChamber* aChamber, ChamberHitContainer rechits);
 
 private:
 
@@ -135,12 +135,12 @@ private:
      * Order segments by quality (chi2/#hits) and select the best,
      * requiring that they have unique hits.
      */
-    void pruneTheSegments(CSCSegmentCollection& segments, 
+    void pruneTheSegments(std::vector<CSCSegment>& segments, 
         const ChamberHitContainer& rechitsInChamber);
     /**
      * Sort criterion for segment quality, for use in pruneTheSegments.
      */   
-    void segmentSort(CSCSegmentCollection& segs);  
+    void segmentSort(std::vector<CSCSegment>& segs);  
     
     float phiAtZ(float z) const;  
     void fillLocalDirection();

@@ -1,14 +1,13 @@
 /**
  * \file CSCSegAlgoSK.cc
  *
- *  $Date: 2006/05/08 17:45:13 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/15 16:20:42 $
+ *  $Revision: 1.7 $
  *  \author M. Sani
  */
  
 #include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoSK.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 #include <Geometry/Vector/interface/GlobalPoint.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
@@ -43,17 +42,19 @@ CSCSegAlgoSK::CSCSegAlgoSK(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
    	   << "minLayersApart = " << minLayersApart << std::endl;
 }
 
-CSCSegmentCollection CSCSegAlgoSK::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoSK::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
     theChamber = aChamber; 
     return buildSegments(rechits); 
 }
 
-CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
 	
     LogDebug("CSC") << "*********************************************";
     LogDebug("CSC") << "Start segment building in the new chamber: " << theChamber->specs()->chamberTypeName();
     LogDebug("CSC") << "*********************************************";
 
+
+    // CAMBIARE MODO DI ORDINARE !!!!
     double z_det = theChamber->surface().position().z();
 
     for(unsigned int i = 0; i < rechits.size() - 1; i++) {
@@ -85,7 +86,7 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
     if (rechits.size() < 2) {
         LogDebug("CSC") << myName << ": " << rechits.size() << 
             "	 hit(s) in chamber is not enough to build a segment.\n";
-        return CSCSegmentCollection(); 
+        return std::vector<CSCSegment>(); 
     }
 	
     // We have at least 2 hits. We intend to try all possible pairs of hits to start 
@@ -106,7 +107,7 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
     BoolContainer used(rechits.size(), false);
     
     // Define buffer for segments we build 
-    CSCSegmentCollection segments;
+    std::vector<CSCSegment> segments;
 
     ChamberHitContainerCIt ib = rechits.begin();
     ChamberHitContainerCIt ie = rechits.end();
@@ -174,13 +175,13 @@ CSCSegmentCollection CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
                             // calculate error matrix
                             AlgebraicSymMatrix errors = calculateError();	
                             
-			    //@@ Tim: Surely it's ALREADY in the local frame of the chamber?
+			                //@@ Tim: Surely it's ALREADY in the local frame of the chamber?
 
                             // convert the coor. of the origin in the chamber reference frame
-			    // const CSCLayer* l1 = theChamber->layer(proto_segment[0].cscDetId().layer());
-			    // GlobalPoint gp1 = l1->toGlobal(theOrigin);	
-			    // LocalPoint lp = theChamber->toLocal(gp1);	
-			    // CSCSegment temp(proto_segment, lp, theDirection, errors, theChi2); 
+			                // const CSCLayer* l1 = theChamber->layer(proto_segment[0].cscDetId().layer());
+			                // GlobalPoint gp1 = l1->toGlobal(theOrigin);	
+			                // LocalPoint lp = theChamber->toLocal(gp1);	
+			                // CSCSegment temp(proto_segment, lp, theDirection, errors, theChi2); 
 
                             CSCSegment temp(proto_segment, theOrigin, theDirection, errors, theChi2); 
 
@@ -285,22 +286,22 @@ bool CSCSegAlgoSK::isHitNearSegment(const CSCRecHit2D& h) const {
 
     // Is hit near segment? 
     // Requires deltaphi and rxy*deltaphi within ranges specified
-    // in orcarc, or by default, where rxy=sqrt(x**2+y**2) of hit itself.
+    // in parameter set, where rxy=sqrt(x**2+y**2) of hit itself.
     // Note that to make intuitive cuts on delta(phi) one must work in
-    // phi range (-pi, +pi] not [0, 2pi
+    // phi range (-pi, +pi] not [0, 2pi)
 
     const CSCLayer* l1 = theChamber->layer(h.cscDetId().layer());
     GlobalPoint hp = l1->toGlobal(h.localPosition());	
 
-    float hphi = hp.phi();                  // in (-pi, +pi]
+    float hphi = hp.phi();          // in (-pi, +pi]
     if (hphi < 0.) 
-        hphi += 2.*M_PI;     // into range [0, 2pi)
-    float sphi = phiAtZ(hp.z());   // in [0, 2*pi)
+        hphi += 2.*M_PI;            // into range [0, 2pi)
+    float sphi = phiAtZ(hp.z());    // in [0, 2*pi)
     float phidif = sphi-hphi;
     if (phidif < 0.) 
-        phidif += 2.*M_PI; // into range [0, 2pi)
+        phidif += 2.*M_PI;          // into range [0, 2pi)
     if (phidif > M_PI) 
-        phidif -= 2.*M_PI; // into range (-pi, pi]
+        phidif -= 2.*M_PI;          // into range (-pi, pi]
 
     float dRPhi = fabs(phidif)*hp.perp();
     LogDebug("CSC") << "    is hit at phi_h= " << hphi << " near segment phi_seg= " << sphi 
@@ -309,6 +310,22 @@ bool CSCSegAlgoSK::isHitNearSegment(const CSCRecHit2D& h) const {
 	  
     return ((dRPhi < dRPhiFineMax*windowScale) && 
         (fabs(phidif) < dPhiFineMax*windowScale))? true:false;  // +v
+}
+
+float CSCSegAlgoSK::phiAtZ(float z) const {
+  	
+    // Returns a phi in [ 0, 2*pi )
+    const CSCLayer* l1 = theChamber->layer(proto_segment.begin()->cscDetId().layer());
+    GlobalPoint gp = l1->toGlobal(theOrigin);	
+    GlobalVector gv = l1->toGlobal(theDirection);	
+  
+    float x = gp.x() + (gv.x()/gv.z())*(z - gp.z());
+    float y = gp.y() + (gv.y()/gv.z())*(z - gp.z());
+    float phi = atan2(y, x);
+    if (phi < 0.f ) 
+	    phi += 2. * M_PI;
+
+    return phi ;
 }
 
 void CSCSegAlgoSK::dumpHits(const ChamberHitContainer& rechits) const {
@@ -672,22 +689,6 @@ void CSCSegAlgoSK::fillLocalDirection() {
 
   theDirection = (directionSign * localDir).unit();
 
-}
-
-float CSCSegAlgoSK::phiAtZ(float z) const {
-  	
-    // Returns a phi in [ 0, 2*pi )
-    const CSCLayer* l1 = theChamber->layer(1);
-    GlobalPoint gp = l1->toGlobal(theOrigin);	
-    GlobalVector gv = l1->toGlobal(theDirection);	
-  
-    float x = gp.x() + (gv.x()/gv.z())*(z - gp.z());
-    float y = gp.y() + (gv.y()/gv.z())*(z - gp.z());
-    float phi = atan2(y, x);
-    if (phi < 0.f ) 
-	    phi += 2. * M_PI;
-
-    return phi ;
 }
 
 bool CSCSegAlgoSK::hasHitOnLayer(int layer) const {

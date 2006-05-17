@@ -9,8 +9,8 @@
  * For example, CSCSegmentizerSK inherits from this class,
  * and classes ported from ORCA local reco inherit from that.
  *
- * $Date: 2006/04/03 10:10:10 $
- * $Revision: 1.2 $
+ * $Date: 2006/05/08 17:45:31 $
+ * $Revision: 1.3 $
  * \author M. Sani
  *
  */
@@ -31,7 +31,7 @@ public:
 
     /** Run the algorithm = build the segments in this chamber
     */
-    virtual CSCSegmentCollection run(const CSCChamber* chamber, std::vector<CSCRecHit2D> rechits) = 0;  
+    virtual std::vector<CSCSegment> run(const CSCChamber* chamber, std::vector<CSCRecHit2D> rechits) = 0;  
 
     private:
 };
