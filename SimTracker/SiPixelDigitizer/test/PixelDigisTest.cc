@@ -15,7 +15,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id$
+// $Id: PixelDigisTest.cc,v 1.1 2006/04/06 07:19:55 dkotlins Exp $
 //
 //
 // system include files
@@ -46,7 +46,7 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 
-#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
+//#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
 
 // For the big pixel recongnition
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
@@ -212,8 +212,8 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
   iEvent.getByLabel("pixdigi", pixelDigis);
 
   // Get simlink data
-  edm::Handle<PixelDigiSimLinkCollection> pixelSimLinks;
-  iEvent.getByLabel("pixdigi", pixelSimLinks);
+  //edm::Handle<PixelDigiSimLinkCollection> pixelSimLinks;
+  //iEvent.getByLabel("pixdigi", pixelSimLinks);
 
   // Get event setup (to get global transformation)
   edm::ESHandle<TrackerGeometry> geom;
@@ -325,23 +325,24 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 	numOfDigisPerDet3=0;
      }
  
-     const PixelDigiSimLinkCollection::Range simLinkRange = 
-       pixelSimLinks->get(detid);
-     int numberOfSimLinks = 0;
-     // Loop over DigisSimLink in this det unit
-     for(PixelDigiSimLinkCollection::ContainerIterator 
-	   it = simLinkRange.first; it != simLinkRange.second; ++it) { 
-       numberOfSimLinks++;
-       // these methods should be declared const, fixed by M.P.
-       // wait for next releasse and then uncomment
-       //unsigned int chan = it->channel();
-       //unsigned int simTrack = it->SimTrackId();
-       //float frac = it->fraction();
-       //cout<<" Sim link "<<numberOfSimLinks<<" "<<chan<<" "
-       //  <<simTrack<<" "<<frac<<endl;
-       // I should probably load it in a map so I can use it later
-       // (below) with the digis.
-     }
+     // Has to be changed 
+//      const PixelDigiSimLinkCollection::Range simLinkRange = 
+//        pixelSimLinks->get(detid);
+//      int numberOfSimLinks = 0;
+//      // Loop over DigisSimLink in this det unit
+//      for(PixelDigiSimLinkCollection::ContainerIterator 
+// 	   it = simLinkRange.first; it != simLinkRange.second; ++it) { 
+//        numberOfSimLinks++;
+//        // these methods should be declared const, fixed by M.P.
+//        // wait for next releasse and then uncomment
+//        //unsigned int chan = it->channel();
+//        //unsigned int simTrack = it->SimTrackId();
+//        //float frac = it->fraction();
+//        //cout<<" Sim link "<<numberOfSimLinks<<" "<<chan<<" "
+//        //  <<simTrack<<" "<<frac<<endl;
+//        // I should probably load it in a map so I can use it later
+//        // (below) with the digis.
+//      }
 
      unsigned int numberOfDigis = 0;
      // Look at digis now

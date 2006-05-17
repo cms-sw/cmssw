@@ -21,7 +21,7 @@
 #include "Geometry/Surface/interface/TkRotation.h"
 #include "Geometry/Surface/interface/GloballyPositioned.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
+//#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 class SiPixelDigitizerAlgorithm 
 {
