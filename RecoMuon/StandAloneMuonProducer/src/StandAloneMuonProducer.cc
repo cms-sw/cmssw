@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/03/21 13:24:10 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/03/23 15:15:35 $
+ *   $Revision: 1.2 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -19,7 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Handle.h"
 
-#include "RecoMuon/StandAloneMuonProducer/interface/StandAloneMuonProducer.h"
+#include "RecoMuon/StandAloneMuonProducer/src/StandAloneMuonProducer.h"
 
 // TrackFinder and Specific STA Trajectory Builder
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
@@ -28,15 +28,10 @@
 
 // Input and output collection
 
-//FIXME??
-//#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-//FIXME
-#include "DataFormats/MuonReco/interface/RecoMuonCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
-
-//FIXME check well the includes
 
 using namespace edm;
 
@@ -50,7 +45,7 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet));
 
 
-  produces<RecoMuonCollection>();  //FIXME fancy-name  
+  produces<reco::TrackCollection>();  //FIXME fancy-name  
 }
   
 /// destructor
@@ -69,7 +64,7 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
   event.getByLabel("MuonSeedsForStandAlone",seeds);
 
   // Reconstruct 
-  std::auto_ptr<RecoMuonCollection> recMuons
+  std::auto_ptr<reco::TrackCollection> recMuons
     = theTrackFinder->reconstruct(seeds,eventSetup);
 
   // the best would be 

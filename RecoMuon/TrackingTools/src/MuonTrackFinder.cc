@@ -1,20 +1,17 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/03/21 13:29:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/23 15:15:37 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Handle.h"
 
-//FIXME??
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-//#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
-//FIXME
-#include "DataFormats/MuonReco/interface/RecoMuonCollection.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
 
 
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
@@ -37,7 +34,7 @@ MuonTrackFinder::~MuonTrackFinder(){
 };
 
 /// Reconstruct tray
-auto_ptr<RecoMuonCollection> MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds, const edm::EventSetup& eSetup){
+auto_ptr<reco::TrackCollection> MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds, const edm::EventSetup& eSetup){
 
   // Traj container
   TrajectoryContainer muonTrajectories;
@@ -58,9 +55,9 @@ auto_ptr<RecoMuonCollection> MuonTrackFinder::reconstruct(const edm::Handle<Traj
   
 
 // Convert trajectory container in ...
-auto_ptr<RecoMuonCollection> MuonTrackFinder::convert(TrajectoryContainer &cont) const{
+auto_ptr<reco::TrackCollection> MuonTrackFinder::convert(TrajectoryContainer &cont) const{
   //...
-  return auto_ptr<RecoMuonCollection>();
+  return auto_ptr<reco::TrackCollection>();
 }
 
 

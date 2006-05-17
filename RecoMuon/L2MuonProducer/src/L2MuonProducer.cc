@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date:  $
- *   $Revision:  $
+ *   $Date: 2006/03/24 13:42:51 $
+ *   $Revision: 1.1 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -23,21 +23,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Handle.h"
 
-#include "RecoMuon/L2MuonProducer/interface/L2MuonProducer.h"
+#include "RecoMuon/L2MuonProducer/src/L2MuonProducer.h"
 
 // TrackFinder and Specific STA/L2 Trajectory Builder
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
 
-//FIXME??
-//#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-//FIXME
-#include "DataFormats/MuonReco/interface/RecoMuonCollection.h"
-
-//FIXME check well the includes
+#include "DataFormats/TrackReco/interface/Track.h"
 
 using namespace edm;
 
@@ -51,7 +46,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet));
 
 
-  produces<RecoMuonCollection>();  //FIXME fancy-name  
+  produces<reco::TrackCollection>();
 }
   
 /// destructor
@@ -70,7 +65,7 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
   event.getByLabel("MuonSeedsForL2",seeds);
 
   // Reconstruct 
-  std::auto_ptr<RecoMuonCollection> recMuons
+  std::auto_ptr<reco::TrackCollection> recMuons
     = theTrackFinder->reconstruct(seeds,eventSetup);
 
   // the best would be 

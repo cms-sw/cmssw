@@ -4,17 +4,14 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2006/03/21 13:29:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/23 15:15:37 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 
-//FIXME
-#include "DataFormats/MuonReco/interface/RecoMuonCollection.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-//FIXME??
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-//#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include <vector>
@@ -39,7 +36,7 @@ class MuonTrackFinder{
   virtual ~MuonTrackFinder();
   
   /// Reconstruct tracks
-  std::auto_ptr<RecoMuonCollection> reconstruct(const edm::Handle<TrajectorySeedCollection>&, const edm::EventSetup&);
+  std::auto_ptr<reco::TrackCollection> reconstruct(const edm::Handle<TrajectorySeedCollection>&, const edm::EventSetup&);
 
  private:
 
@@ -47,7 +44,7 @@ class MuonTrackFinder{
 
   MuonTrajectoryCleaner* theTrajCleaner;
 
-  std::auto_ptr<RecoMuonCollection> convert(TrajectoryContainer&) const;
+  std::auto_ptr<reco::TrackCollection> convert(TrajectoryContainer&) const;
  protected:
   
 };

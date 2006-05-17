@@ -6,8 +6,8 @@
  *   starting from internal seeds (muon track segments).
  *
  *
- *   $Date: 2006/03/23 15:15:35 $
- *   $Revision: 1.2 $
+ *   $Date: 2006/04/13 15:30:02 $
+ *   $Revision: 1.1 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -19,24 +19,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Handle.h"
 
-#include "RecoMuon/GlobalMuonProducer/interface/GlobalMuonProducer.h"
+#include "RecoMuon/GlobalMuonProducer/src/GlobalMuonProducer.h"
 
-// TrackFinder and Specific STA Trajectory Builder
+// TrackFinder and Specific GLB Trajectory Builder
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalTrajectoryBuilder.h"
 
-// Input and output collection
 
-//FIXME??
-//#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-//FIXME
-#include "DataFormats/MuonReco/interface/RecoMuonCollection.h"
-
-
-//FIXME check well the includes
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 using namespace edm;
 
@@ -50,7 +44,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet){
   theTrackFinder = new MuonTrackFinder(new GlobalMuonTrajectoryBuilder(GLB_pSet));
 
 
-  produces<RecoMuonCollection>();  //FIXME fancy-name  
+  produces<reco::TrackCollection>();  //FIXME fancy-name  
 }
   
 /// destructor
@@ -69,7 +63,7 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup){
   event.getByLabel("MuonSeedsForGlobal",seeds);
 
   // Reconstruct 
-  std::auto_ptr<RecoMuonCollection> recMuons
+  std::auto_ptr<reco::TrackCollection> recMuons
     = theTrackFinder->reconstruct(seeds,eventSetup);
 
   // the best would be 

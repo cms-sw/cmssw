@@ -1,11 +1,13 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=TrackingTools/PatternTools>
 <use name=CLHEP>
 
 <export>
    <lib name=RecoMuonTrackingTools>
 
 <use name=CLHEP>
+<use name=TrackingTools/PatternTools>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 
