@@ -1,0 +1,13 @@
+<export>
+ <lib name=FWCoreFWLite>
+ <use name=root>
+ <use name=boost>
+ <use name=Foundation/PluginManager>
+ <use name=rootrflx>
+</export>
+<lib name=Cintex>
+<lib name=boost_regex-gcc-mt>
+<use name=boost>
+<use name=Foundation/PluginManager>
+<use name=rootrflx>
+<use name=root>
