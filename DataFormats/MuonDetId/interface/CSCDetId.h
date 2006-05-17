@@ -52,8 +52,8 @@ public:
   /** Chamber CSCDetId from a Layer CSCDetId
    */
   CSCDetId chamberId() const {
-    // extract chamber id, then shift it back and subtract it off the whole id
-    return CSCDetId( id_ - (chamber()<<START_CHAMBER) ); }
+    // build chamber id by removing layer bits
+    return CSCDetId( id_ - layer() ) ; }
 
   /**
    * Return Layer label.
