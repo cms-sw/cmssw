@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/Vector/interface/GlobalPoint.h"
 
 class CaloCellGeometry;
 
@@ -13,8 +14,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2005/10/03 22:35:23 $
-$Revision: 1.2 $
+$Date: 2006/04/04 15:34:34 $
+$Revision: 1.3 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -33,7 +34,10 @@ public:
       a single subdetector at a time.  It does not look at the det and subdet arguments.
   */
   virtual std::vector<DetId> getValidDetIds(DetId::Detector det, int subdet) const;
-  // Eventually -- get closest cell, etc...
+
+  // Get closest cell, etc...
+  virtual const DetId getClosestCell(const GlobalPoint& r) const ;
+
 protected:
   mutable std::vector<DetId> validIds_;
   std::map<DetId, const CaloCellGeometry*> cellGeometries_;    
