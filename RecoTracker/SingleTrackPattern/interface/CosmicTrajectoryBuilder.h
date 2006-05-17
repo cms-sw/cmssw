@@ -68,7 +68,7 @@ class CosmicTrajectoryBuilder
 	     const edm::EventSetup& es,
 	     edm::Event& e,
 	     vector<AlgoProduct> &algooutput);
-    void init(const edm::EventSetup& es);
+    void init(const edm::EventSetup& es,edm::ParameterSet const& conf);
  private:
     std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
     Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;

@@ -64,7 +64,7 @@ namespace cms
     std::auto_ptr<TrackingRecHitCollection> outputRHColl (new TrackingRecHitCollection);
     std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
 
-    cosmicTrajectoryBuilder_.init(es);
+    cosmicTrajectoryBuilder_.init(es,conf_);
 
 
     // Step C: Invoke the cloud cleaning algorithm

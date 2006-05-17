@@ -32,7 +32,7 @@ CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) 
 CosmicTrajectoryBuilder::~CosmicTrajectoryBuilder() {
 }
 
-void CosmicTrajectoryBuilder::init(const edm::EventSetup& es){
+void CosmicTrajectoryBuilder::init(const edm::EventSetup& es,edm::ParameterSet const& conf){
 
 
   //services
@@ -54,7 +54,7 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es){
   theSmoother=      new KFTrajectorySmoother(*thePropagator,
 					     *theUpdator,	
 					     *theEstimator); 
-  theMeasurementTracker = new MeasurementTracker(es);
+  theMeasurementTracker = new MeasurementTracker(es,conf);
   theLayerMeasurements  = new LayerMeasurements(theMeasurementTracker);
 
 }
