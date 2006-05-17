@@ -1,8 +1,8 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2006/05/04 09:13:07 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/04 14:24:54 $
+ *  $Revision: 1.6 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -58,7 +58,7 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
 
   // Get the 1D rechits from the event
   Handle<DTRecHitCollection> all1DHits; 
-  event.getByLabel(theRecHits1DLabel,"DT1DRecHits",all1DHits);
+  event.getByLabel(theRecHits1DLabel,all1DHits);
   
   // Get the 2D rechits from the event
   Handle<DTRecSegment2DCollection> all2DSegments;

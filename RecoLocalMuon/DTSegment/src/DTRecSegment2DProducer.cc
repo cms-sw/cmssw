@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/28 15:21:52 $
- * $Revision: 1.9 $
+ * $Date: 2006/05/04 16:31:48 $
+ * $Revision: 1.10 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -73,7 +73,7 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
   
   // Get the 1D rechits from the event
   Handle<DTRecHitCollection> allHits; 
-  event.getByLabel(theRecHits1DLabel, "DT1DRecHits", allHits);
+  event.getByLabel(theRecHits1DLabel, allHits);
 
   // Create the pointer to the collection which will store the rechits
   auto_ptr<DTRecSegment2DCollection> segments(new DTRecSegment2DCollection());
