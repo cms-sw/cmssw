@@ -49,44 +49,50 @@ public:
   CSCDetId( const CSCDetId& id )
      : DetId(id.id_) { }  
 
-   /**
-    * Return Layer label.
-    *
-    */
-    int layer() const {
-     return (id_ & MASK_LAYER); } 
+  /** Chamber CSCDetId from a Layer CSCDetId
+   */
+  CSCDetId chamberId() const {
+    // extract chamber id, then shift it back and subtract it off the whole id
+    return CSCDetId( id_ - (chamber()<<START_CHAMBER) ); }
 
-   /**
-    * Return Chamber label.
-    *
-    */
-    int chamber() const {
+  /**
+   * Return Layer label.
+   *
+   */
+  int layer() const {
+    return (id_ & MASK_LAYER); } 
+
+  /**
+   * Return Chamber label.
+   *
+   */
+   int chamber() const {
      return (  (id_>>START_CHAMBER) & MASK_CHAMBER ); }
 
-   /**
-    * Return Ring label.
-    *
-    */
-    int ring() const {
+  /**
+   * Return %Ring label.
+   *
+   */
+   int ring() const {
      return (  (id_>>START_RING) & MASK_RING ); }
 
-   /**
-    * Return Station label.
-    *
-    */
-    int station() const {
+  /**
+   * Return Station label.
+   *
+   */
+   int station() const {
      return (  (id_>>START_STATION) & MASK_STATION ); }
 
-   /**
-    * Return Endcap label.
-    *
-    */
-    int endcap() const {
+  /**
+   * Return Endcap label.
+   *
+   */
+   int endcap() const {
      return (  (id_>>START_ENDCAP) & MASK_ENDCAP ); }
 
 
-   // static methods
-   // Used when we need information about subdetector labels.
+  // static methods
+  // Used when we need information about subdetector labels.
 
   /** 
    * Returns the unique integer 'rawId' which labels each CSC layer.
