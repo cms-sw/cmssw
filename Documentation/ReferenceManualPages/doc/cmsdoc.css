@@ -50,6 +50,24 @@ pre {
   vertical-align: top;
 }
 
+.reftable {
+  font-size: 10pt;
+  width: 800px;
+  vertical-align: top;
+}
+
+.reftable TD {
+  background-color: #fafafa;
+  vertical-align: top;
+}
+
+.reftable TH {
+  background-color: #B7CADE; 
+  text-align: center; 
+  font-weight: bold;
+  vertical-align: top;
+}
+
 .odd TD {
   background-color: #f8f8fa;
 }
@@ -59,6 +77,12 @@ pre {
 }
 
 .contact {
+  font-size: 10pt;
+  font-style: italic;
+  width: 200px;
+}
+
+.description {
   font-size: 10pt;
   font-style: italic;
   width: 200px;

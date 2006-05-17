@@ -1,0 +1,103 @@
+/*!
+\page RecoData RECO data tier
+
+\section event RECO Event content
+Event products of Reconstruction.
+
+\htmlonly
+
+<script type="text/javascript">
+<!--
+  function alternate() {
+    var i,t,row,table, tables;
+    tables = document.getElementsByTagName("table");
+    for( t = 0; t < tables.length; ++t ) {
+      table = tables[ t ];
+      if ( table.className == 'reftable' ) {
+        for(i = 1; (row = table.getElementsByTagName("tr")[i]); ++i) {
+          if(i % 2 == 1) { row.className='odd'; }
+          else { row.className='even'; }
+        }
+      }
+    }
+  }
+  window.onload = alternate;
+-->
+</script>
+
+<table class="reftable">
+<caption>
+</caption>
+<tr valign=top>
+  <th>Object type</th>
+  <th>Container type</th>
+  <th>module label</th>
+  <th>instance name</th>
+  <th>branch alias</th>
+  <th>description</th>
+</tr>
+<tr>
+  <td colspan=6><b>Track collections</b></td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::Track \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
+  <td>trackp</td>
+  <td>&nbsp;</td>
+  <td>tracks</td>
+  <td class="description">Collection of reconstructed tracks</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
+  <td>trackp</td>
+  <td>&nbsp;</td>
+  <td>trackExtras</td>
+  <td class="description">Collection of extra information associated to reconstructed tracks</td>
+</tr>
+<tr>
+  <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
+  <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
+  <td>trackp</td>
+  <td>&nbsp;</td>
+  <td>trackHits</td>
+  <td class="description">Collection of RecHits used by reconstructed tracks</td>
+</tr>
+<tr>
+  <td colspan=6><b>Ecal cluster collections</b></td>
+<tr>
+  <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
+  <td> \endhtmlonly reco::BasicClusterCollection \htmlonly </td>
+  <td>basicClsters</td>
+  <td>hybrid</td>
+  <td>hybridClusters</td>
+  <td class="description">Collection of basic clusters reconstructed with hybrid algorithm</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
+  <td> \endhtmlonly reco::BasicClusterCollection \htmlonly </td>
+  <td>basicClusters</td>
+  <td>island;</td>
+  <td>islandClusters</td>
+  <td class="description">Collection of basic clusters reconstructed with island algorithm</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::SuperCluster \htmlonly </rd>
+  <td> \endhtmlonly reco::SuperClusterCollection \htmlonly </td>
+  <td>superClusters
+  <td>&nbsp;</td>
+  <td>superClusters</td>
+  <td class="description">Collection of super clusters</td>
+</tr>
+</table>
+
+\endhtmlonly
+
+\section contact Contact persons
+- Luca Lista
+- Tommaso Boccali
+
+<hr>
+Last updated: @DATE@ L.Lista
+
+*/

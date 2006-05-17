@@ -5,6 +5,7 @@ This is main page of the CMSSW Reference Manual.
 <br><br>
 
 \section subdv SubDetector View
+Definition of packages by sub-system.
 
 \htmlonly
 
@@ -62,6 +63,7 @@ This is main page of the CMSSW Reference Manual.
 <br>
 
 \section funcv Functional View
+Definition of packages according to the different functionalities.
 
 \htmlonly
 
@@ -132,9 +134,49 @@ This is main page of the CMSSW Reference Manual.
 
 \endhtmlonly
 
+<br>
+
+\section datav Data View
+Definition of the event content.
+
+\htmlonly
+
+<table class="doctable">
+<caption>
+</caption>
+<tr valign=top><th class="domain">Data tier</th><th>Purpose</th><th class="contact">Contact</th></tr>
+<tr>
+  <td>
+  \endhtmlonly \ref RecoData "RECO Data"  \htmlonly
+  </td>
+  <td>Event products of Reconstruction
+  <td class="contact"> 
+    <a href="mailto:">Luca Lista</a>
+    <a href="mailto:">Luca Lista</a>
+</tr>
+<tr>
+  <td>
+  \endhtmlonly \ref AodData "AOD Data"  \htmlonly
+  </td>
+  <td>Event products for Analysis
+  <td class="contact"> 
+    <a href="mailto:">Luca Lista</a>
+</tr>
+<tr>
+  <td>
+  \endhtmlonly \ref SimData "SIM Data"  \htmlonly
+  </td>
+  <td>Event products of Simulation
+  <td class="contact"> 
+    <a href="mailto:">Daniel Elvira</a>,
+    <a href="mailto:">Maya Stavrianakou</a>
+</tr>
+</table>
+
+\endhtmlonly
+
 <br><br>
 Learn \ref ReferenceManual "how to contribute to this Reference Manual"
 <br>
-
 
 */
