@@ -24,8 +24,8 @@ void L1GctJetLeafCard::process() {
 }
 
 void L1GctJetLeafCard::setInputSourceCard(int i, L1GctSourceCard* sc) {
-  if (i << m_sourceCards.size()) {
-	m_sourceCards[i] = sc;
+  if (i < m_sourceCards.size()) {
+    m_sourceCards[i] = sc;
   }
 }
 

@@ -2,6 +2,11 @@
 
 <use name=boost>
 
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+
 <export>
-<lib name=L1TriggerGlobalCaloTrigger>
+  <lib name=L1TriggerGlobalCaloTrigger>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
 </export>
