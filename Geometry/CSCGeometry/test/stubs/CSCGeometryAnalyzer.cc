@@ -57,6 +57,7 @@ void
 
    std::cout << myName() << ": Analyzer..." << std::endl;
    std::cout << "start " << dashedLine_ << std::endl;
+   std::cout << "pi = " << dPi << ", radToDeg = " << radToDeg << std::endl;
 
    edm::ESHandle<CSCGeometry> pDD;
    iSetup.get<MuonGeometryRecord>().get( pDD );     
@@ -203,10 +204,10 @@ void
 
 	// Clean up some stupid floating decimal aesthetics
         cstrip1 = cstrip1 * radToDeg;
-        if ( cstrip1 < 0. ) cstrip1 = cstrip1 + 360.;
+        if ( cstrip1 < 0. ) cstrip1 += 360.;
         if ( fabs( cstrip1 ) < 1.e-06 ) cstrip1 = 0.;
         cstripN = cstripN * radToDeg;
-        if ( cstripN < 0. ) cstripN = cstrip1 + 360.;
+        if ( cstripN < 0. ) cstripN += 360.;
         if ( fabs( cstripN ) < 1.e-06 ) cstripN = 0.;
 
         if ( fabs( stripoff ) < 1.e-06 ) stripoff = 0.;
