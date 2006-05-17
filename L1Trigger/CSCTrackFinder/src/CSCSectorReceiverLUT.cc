@@ -199,9 +199,9 @@ double CSCSectorReceiverLUT::getGlobalPhiValue(const CSCLayer* thelayer, const u
   try
     {
       thegeom = const_cast<CSCLayerGeometry*>(thelayer->geometry());
-      lp = thegeom->stripWireGroupIntersection(strip+1, wire_group+1);
+      lp = thegeom->stripWireGroupIntersection(strip, wire_group);
       gp = thelayer->surface().toGlobal(lp);
-      result = thelayer->centerOfStrip(strip+1).phi();//gp.phi();
+      result = thelayer->centerOfStrip(strip).phi();//gp.phi();
       if (result < 0.) result += 2*M_PI;
     }
   catch(edm::Exception& e)
@@ -256,9 +256,10 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
       thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);
       if(thechamber)
 	{
-	  layergeom = const_cast<CSCLayerGeometry*>(thechamber->layer(3)->geometry());
-	  thelayer = const_cast<CSCLayer*>(thechamber->layer(3));
+	  layergeom = const_cast<CSCLayerGeometry*>(thechamber->layer(4)->geometry());
+	  thelayer = const_cast<CSCLayer*>(thechamber->layer(4));
 	  const int nStrips = layergeom->numberOfStrips();
+	  const int nWireGroups = layergeom->numberOfWireGroups();
 	  // PhiL is the strip number converted into some units between 0 and
 	  // 1023.  When we did the conversion in fillLocalPhiTable(), we did
 	  // not know for which chamber we do it (and, therefore, how many strips
@@ -276,12 +277,12 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 	  // (lower phi) edge (both in radians).
 	  // Phi positions of the centers of the first and of the last strips
 	  // in the chamber.
-	  const double phi_f = getGlobalPhiValue(thelayer, 0, wire_group);
+	  const double phi_f = getGlobalPhiValue(thelayer, 1, wire_group);
 	  const double phi_l = getGlobalPhiValue(thelayer, nStrips - 1, wire_group);
 	  // Phi widths of the half-strips at both ends of the chamber;
 	  // surprisingly, they are not the same.
-	  const double hsWidth_f = fabs(getGlobalPhiValue(thelayer, 1, wire_group) - phi_f)/2.;
-	  const double hsWidth_l = fabs(phi_l - getGlobalPhiValue(thelayer, nStrips-2, wire_group))/2.;
+	  const double hsWidth_f = fabs(getGlobalPhiValue(thelayer, 2, wire_group) - phi_f)/2.;
+	  const double hsWidth_l = fabs(phi_l - getGlobalPhiValue(thelayer, nStrips, wire_group))/2.;
 	  // The "natural" match between the strips and phi values -- when
 	  // a larger strip number corresponds to a larger phi value, i.e. strips
 	  // are counted clockwise if we look at them from the inside of the
@@ -521,38 +522,26 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
       const CSCChamber* thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);     
       if(thechamber) 
 	{
+	  layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(4)->geometry());
+	  const unsigned nWireGroups = layerGeom->numberOfWireGroups();
+
+	  if(wire_group > nWireGroups) // place a maximum limit on the wire group
+	    {
+	      LogDebug("CSCSectorReceiverLUT|getEtaValue") << "warning: wireGroup "
+							   << wire_group << " is out of bounds (0-"
+							   << nWireGroups;
+	      wire_group = nWireGroups;
+	    }
+
 	  if(_station != 1 && CSCTriggerNumbering::ringFromTriggerLabels(_station, cscid) != 1)
 	    {
-	      layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(3)->geometry());
-	      const unsigned nWireGroups = layerGeom->numberOfWireGroups();
-
-	      if(wire_group > nWireGroups)
-		{
-		  LogDebug("CSCSectorReceiverLUT|getEtaValue") << "warning: wireGroup "
-                                                               << wire_group << " is out of bounds (0-"
-                                                               << nWireGroups;
-                  wire_group = nWireGroups - 1;
-		}
-
-	      result = thechamber->layer(3)->centerOfWireGroup(wire_group+1).eta();
+	      result = thechamber->layer(4)->centerOfWireGroup(wire_group).eta();
 	    }
 	  else
-	    {
-	      layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(3)->geometry());
-	      
+	    {	      
 	      const unsigned nStrips = layerGeom->numberOfStrips();
-	      const unsigned nWireGroups = layerGeom->numberOfWireGroups();
 	      const unsigned nStripsPerBin = CSCConstants::MAX_NUM_STRIPS/numBins;
-	      
-	      
-	      if(wire_group > nWireGroups) // apply maximum limit
-		{
-		  LogDebug("CSCSectorReceiverLUT|getEtaValue") << "warning: wireGroup "
-							       << wire_group << " is out of bounds (0-"
-							       << nWireGroups;
-		  wire_group = nWireGroups - 1;
-		}
-	      
+	      	      	      
 	      /**
 	       * Calculate Eta correction
 	       */
@@ -587,8 +576,8 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
 		  correctionStrip = (nStrips+maxStripPrevBin)/2;
 		}
 	      
-	      lPoint = layerGeom->stripWireGroupIntersection(correctionStrip, wire_group+1);
-	      if(thechamber) gPoint = thechamber->layer(3)->surface().toGlobal(lPoint);
+	      lPoint = layerGeom->stripWireGroupIntersection(correctionStrip, wire_group);
+	      if(thechamber) gPoint = thechamber->layer(4)->surface().toGlobal(lPoint);
 	      
 	      // end calc of eta correction.
 	      result = gPoint.eta();
@@ -597,7 +586,7 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
     }
   catch (cms::Exception &e)
     {
-      LogDebug("CSCSectorReceiver:OutofBoundInput") << e.what();
+      LogDebug("CSCSectorReceiver|OutofBoundInput") << e.what();
     }
   
   return std::fabs(result);
@@ -793,7 +782,7 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
           GlobalPhiLUT.close();
         }
     }
-  if(!mb_global_phi)
+  if(!mb_global_phi && _station == 1) // MB lut only in station one.
     {
       mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
       memset(mb_global_phi, 0, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(short));
