@@ -6,7 +6,7 @@
  *  The two public methods act as an interface for the parametrization converting the reference frame
  *  and the units accordingly to CMSSW convention.
  *
- *  $Date: 2006/02/15 13:54:45 $
+ *  $Date: 2006/03/14 13:05:06 $
  *  $Revision: 1.1 $
  *  \author  Pablo Garcia-Abia and Jesus Puerta (CIEMAT, Madrid)
  */
@@ -39,7 +39,7 @@ public:
     /// for this particular time.
     /// This method takes care of the conversions of units and reference frame used by CMSSW and the 
     /// parametrization.
-    /// time is in ns, alpha (=atan(x/z)) in rad, by and bz are the magnetic field in the layer RF.
+    /// time is in ns, alpha (=atan(x/-z)) in rad, by and bz are the magnetic field in the layer RF.
     /// False is returned if the parametrization fails
   bool computeDriftDistance_mode(double time,
 				 double alpha,
@@ -53,7 +53,7 @@ public:
   /// for this particular time.
   /// This method takes care of the conversions of units and reference frame used by CMSSW and the 
   /// parametrization.
-  /// time is in ns, alpha (=atan(x/z))  in rad, by and bz are the magnetic field in the layer RF.
+  /// time is in ns, alpha (=atan(x/-z))  in rad, by and bz are the magnetic field in the layer RF.
   /// False is returned if the parametrization fails
   bool computeDriftDistance_mean(double time,
 				 double alpha,

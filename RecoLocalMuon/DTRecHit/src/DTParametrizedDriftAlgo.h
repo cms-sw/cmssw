@@ -6,8 +6,8 @@
  *  Compute drift distance using the CIEMAT (by P.Garcia Abia and J. Puerta)
  *  parametrization of the cell behavior obtained with GARFIELD
  *
- *  $Date: 2006/03/31 09:58:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/06 12:40:52 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -45,7 +45,7 @@ class DTParametrizedDriftAlgo : public DTRecHitBaseAlgo {
   /// The impact angle is given as input, and it's used to improve the hit
   /// position (and relative error). The angle is defined in radians, with
   /// respect to the perpendicular to the layer plane. Given the local direction,
-  /// angle=atan(dir.x()/dir.z()) . This can be used when a SL segment is
+  /// angle=atan(dir.x()/-dir.z()) . This can be used when a SL segment is
   /// built, so the impact angle is known but the position along wire is not.
   /// NOTE: Only position and error of the new hit are modified
   virtual bool compute(const DTLayer* layer,

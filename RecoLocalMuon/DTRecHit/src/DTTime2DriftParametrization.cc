@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/03/14 13:05:06 $
+ *  $Revision: 1.1 $
  *  \author Pablo Garcia-Abia and Jesus Puerta (CIEMAT, Madrid), G. Cerminara - INFN Torino -
  */
 
@@ -42,8 +42,8 @@ bool DTTime2DriftParametrization::computeDriftDistance_mode(double time,
   float By_par = bz;  // Bnorm
   float Bz_par = -by; // Bwire
  
-  // Express alpha in degrees  (alpha_par = atan(X_par/Z_par) = atan(X_CMSSW/-Z_CMSSW) = - alpha_CMSSW) 
-  float alpha_par = -alpha * 180./Geom::pi();
+  // Express alpha in degrees 
+  float alpha_par = alpha * 180./Geom::pi();
 
   //--------------------------------------------------------------------
   // Calculate the drift distance and the resolution from the parametrization
@@ -79,8 +79,8 @@ bool DTTime2DriftParametrization::computeDriftDistance_mean(double time,
   float By_par = bz;  // Bnorm
   float Bz_par = -by; // Bwire
  
-  // Express alpha in degrees (alpha_par = atan(X_par/Z_par) = atan(X_CMSSW/-Z_CMSSW) = - alpha_CMSSW)
-  float alpha_par = -alpha * 180./Geom::pi();
+  // Express alpha in degrees
+  float alpha_par = alpha * 180./Geom::pi();
 
   //--------------------------------------------------------------------
   // Calculate the drift distance and the resolution from the parametrization

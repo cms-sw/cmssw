@@ -5,8 +5,8 @@
  *  Abstract algorithmic class to compute drift distance and error 
  *  form a DT digi
  *
- *  $Date: 2006/03/31 09:58:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/04/06 12:40:51 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane & G. Cerminara - INFN Torino
  */
 
@@ -67,7 +67,7 @@ class DTRecHitBaseAlgo {
   /// The impact angle is given as input, and it's used to improve the hit
   /// position (and relative error). The angle is defined in radians, with
   /// respect to the perpendicular to the layer plane. Given the local direction,
-  /// angle=atan(dir.x()/dir.z()) . This can be used when a SL segment is
+  /// angle=atan(dir.x()/-dir.z()) . This can be used when a SL segment is
   /// built, so the impact angle is known but the position along wire is not.
   virtual bool compute(const DTLayer* layer,
                        const DTRecHit1D& recHit1D,

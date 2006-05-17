@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/31 09:58:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/06 12:40:52 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -80,7 +80,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
     GlobalVector lDir=(GlobalPoint()-globWirePos).unit();
     LocalVector lDirLoc=layer->surface().toLocal(lDir);
 
-    angle = atan(lDirLoc.x()/lDirLoc.z());
+    angle = atan(lDirLoc.x()/-lDirLoc.z());
   } 
   
   return compute(layer, wireId, digi.time(), angle, globWirePos,
