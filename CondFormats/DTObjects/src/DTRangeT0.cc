@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/02 16:00:00 $
+ *  $Date: 2006/05/11 08:31:46 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -96,10 +96,13 @@ int DTRangeT0::slRangeT0( int   wheelId,
   slKey.push_back( stationId );
   slKey.push_back(  sectorId );
   slKey.push_back(      slId );
-  t0min = minT0Buf->find( slKey.begin(), slKey.end() );
-  t0max = maxT0Buf->find( slKey.begin(), slKey.end() );
+//  t0min = minT0Buf->find( slKey.begin(), slKey.end() );
+//  t0max = maxT0Buf->find( slKey.begin(), slKey.end() );
+  int searchStatusMin = minT0Buf->find( slKey.begin(), slKey.end(), t0min );
+  int searchStatusMax = maxT0Buf->find( slKey.begin(), slKey.end(), t0max );
 
-  return 1;
+//  return 1;
+  return ( searchStatusMin || searchStatusMax );
 
 }
 

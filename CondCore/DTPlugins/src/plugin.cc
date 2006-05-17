@@ -18,10 +18,14 @@
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 
 
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(DTReadOutMappingRcd,DTReadOutMapping);
 REGISTER_PLUGIN(DTT0Rcd,DTT0);
+REGISTER_PLUGIN(DTRangeT0Rcd,DTRangeT0);
 REGISTER_PLUGIN(DTTtrigRcd,DTTtrig);
 REGISTER_PLUGIN(DTMtimeRcd,DTMtime);
+REGISTER_PLUGIN(DTStatusFlagRcd,DTStatusFlag);

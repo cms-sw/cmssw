@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/30 14:08:40 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/04 06:54:26 $
+ *  $Revision: 1.6 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -26,7 +26,7 @@
 //-------------------
 // Initializations --
 //-------------------
-//int DTMtime::rmsFactor = 1000;
+
 
 //----------------
 // Constructors --
@@ -97,15 +97,18 @@ int DTMtime::slMtime( int   wheelId,
   slKey.push_back( stationId );
   slKey.push_back(  sectorId );
   slKey.push_back(      slId );
-  mTime = dataBuf->find( slKey.begin(), slKey.end() );
-  mTrms = drmsBuf->find( slKey.begin(), slKey.end() );
+//  mTime = dataBuf->find( slKey.begin(), slKey.end() );
+//  mTrms = drmsBuf->find( slKey.begin(), slKey.end() );
+  int searchStatusM = dataBuf->find( slKey.begin(), slKey.end(), mTime );
+  int searchStatusR = drmsBuf->find( slKey.begin(), slKey.end(), mTrms );
 
   if ( unit == DTTimeUnits::ns ) {
     mTime *= nsPerCount;
     mTrms *= nsPerCount;
   }
 
-  return 1;
+//  return 1;
+  return ( searchStatusM || searchStatusR );
 
 }
 

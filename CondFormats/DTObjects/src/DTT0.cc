@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/30 14:08:40 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/04 06:54:26 $
+ *  $Revision: 1.7 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -26,7 +26,7 @@
 //-------------------
 // Initializations --
 //-------------------
-//int DTT0::rmsFactor = 1000;
+
 
 //----------------
 // Constructors --
@@ -105,15 +105,18 @@ int DTT0::cellT0( int   wheelId,
   cellKey.push_back(      slId );
   cellKey.push_back(   layerId );
   cellKey.push_back(    cellId );
-  t0mean = dataBuf->find( cellKey.begin(), cellKey.end() );
-  t0rms  = drmsBuf->find( cellKey.begin(), cellKey.end() );
+//  t0mean = dataBuf->find( cellKey.begin(), cellKey.end() );
+//  t0rms  = drmsBuf->find( cellKey.begin(), cellKey.end() );
+  int searchStatusM = dataBuf->find( cellKey.begin(), cellKey.end(), t0mean );
+  int searchStatusR = drmsBuf->find( cellKey.begin(), cellKey.end(), t0rms  );
 
   if ( unit == DTTimeUnits::ns ) {
     t0mean *= nsPerCount;
     t0rms  *= nsPerCount;
   }
 
-  return 1;
+//  return 1;
+  return ( searchStatusM || searchStatusR );
 
 }
 

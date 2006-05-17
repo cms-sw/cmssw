@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/28 17:28:20 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/03/30 14:08:40 $
+ *  $Revision: 1.8 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -36,14 +36,14 @@ DTReadOutMapping::DTReadOutMapping():
   robMapVersion( " " ) {
 }
 
+
 DTReadOutMapping::DTReadOutMapping( const std::string& cell_map_version,
                                     const std::string&  rob_map_version ):
  cellMapVersion( cell_map_version ),
   robMapVersion(  rob_map_version ) {
 
-//  initSetup();
-
 }
+
 
 DTReadOutGeometryLink::DTReadOutGeometryLink():
      dduId( 0 ),
@@ -77,85 +77,6 @@ DTReadOutGeometryLink::~DTReadOutGeometryLink() {
 //--------------
 // Operations --
 //--------------
-void DTReadOutMapping::initSetup() const {
-
-  std::string mapRtoG =
-       cellMapVersion + "_" + robMapVersion + "_map_RG";
-  std::string mapGtoR =
-       cellMapVersion + "_" + robMapVersion + "_map_GR";
-
-  DTBufferTree<int,int>* rgBuf =
-                         DTDataBuffer<int,int>::openBuffer( mapRtoG );
-  DTBufferTree<int,int>* grBuf =
-                         DTDataBuffer<int,int>::openBuffer( mapGtoR );
-
-  std::vector<DTReadOutGeometryLink>::const_iterator iter =
-              readOutChannelDriftTubeMap.begin();
-  std::vector<DTReadOutGeometryLink>::const_iterator iend =
-              readOutChannelDriftTubeMap.end();
-  int      dduId;
-  int      rosId;
-  int      robId;
-  int      tdcId;
-  int  channelId;
-  int  readoutId;
-  int    wheelId;
-  int  stationId;
-  int   sectorId;
-  int       slId;
-  int    layerId;
-  int     cellId;
-  int geometryId;
-  while ( iter != iend ) {
-
-    const DTReadOutGeometryLink& link = *iter++;
-        dduId = link.    dduId;
-        rosId = link.    rosId;
-        robId = link.    robId;
-        tdcId = link.    tdcId;
-    channelId = link.channelId;
-      wheelId = link.  wheelId + 5;
-    stationId = link.stationId;
-     sectorId = link. sectorId;
-         slId = link.     slId;
-      layerId = link.  layerId;
-       cellId = link.   cellId;
-   
-    std::vector<int> cellKey;
-    cellKey.push_back(   wheelId );
-    cellKey.push_back( stationId );
-    cellKey.push_back(  sectorId );
-    cellKey.push_back(      slId );
-    cellKey.push_back(   layerId );
-    cellKey.push_back(    cellId );
-    readoutId = (     dduId *  1000000 ) +
-                (     rosId *    10000 ) +
-                (     robId *     1000 ) +
-                (     tdcId *      100 ) +
-                  channelId;
-    grBuf->insert( cellKey.begin(), cellKey.end(), readoutId );
-
-    std::vector<int> chanKey;
-    chanKey.push_back(     dduId );
-    chanKey.push_back(     rosId );
-    chanKey.push_back(     robId );
-    chanKey.push_back(     tdcId );
-    chanKey.push_back( channelId );
-    geometryId = (   wheelId *  10000000 ) +
-                 ( stationId *   1000000 ) +
-                 (  sectorId *     10000 ) +
-                 (      slId *      1000 ) +
-                 (   layerId *       100 ) +
-                      cellId;
-    rgBuf->insert( chanKey.begin(), chanKey.end(), geometryId );
-
-  }
-
-  return;
-
-}
-
-
 DTWireId DTReadOutMapping::readOutToGeometry( int      dduId,
                                               int      rosId,
                                               int      robId,
@@ -218,8 +139,11 @@ void DTReadOutMapping::readOutToGeometry( int      dduId,
   chanKey.push_back(     robId );
   chanKey.push_back(     tdcId );
   chanKey.push_back( channelId );
-  int geometryId = rgBuf->find( chanKey.begin(), chanKey.end() );
-  if ( geometryId <= 0 ) return;
+//  int geometryId = rgBuf->find( chanKey.begin(), chanKey.end() );
+//  if ( geometryId <= 0 ) return;
+  int geometryId = 0;
+  int searchStatus = rgBuf->find( chanKey.begin(), chanKey.end(), geometryId );
+  if ( searchStatus ) return;
      cellId = geometryId %  100;
               geometryId /= 100;
     layerId = geometryId %  10;
@@ -271,8 +195,11 @@ void DTReadOutMapping::geometryToReadOut( int    wheelId,
   cellKey.push_back(      slId );
   cellKey.push_back(   layerId );
   cellKey.push_back(    cellId );
-  int readoutId = grBuf->find( cellKey.begin(), cellKey.end() );
-  if ( readoutId <= 0 ) return;
+//  int readoutId = grBuf->find( cellKey.begin(), cellKey.end() );
+//  if ( readoutId <= 0 ) return;
+  int readoutId = 0;
+  int searchStatus = grBuf->find( cellKey.begin(), cellKey.end(), readoutId );
+  if ( searchStatus ) return;
   channelId = readoutId %  100;
               readoutId /= 100;
       tdcId = readoutId %  10;
@@ -393,5 +320,84 @@ DTReadOutMapping::const_iterator DTReadOutMapping::begin() const {
 
 DTReadOutMapping::const_iterator DTReadOutMapping::end() const {
   return readOutChannelDriftTubeMap.end();
+}
+
+
+void DTReadOutMapping::initSetup() const {
+
+  std::string mapRtoG =
+       cellMapVersion + "_" + robMapVersion + "_map_RG";
+  std::string mapGtoR =
+       cellMapVersion + "_" + robMapVersion + "_map_GR";
+
+  DTBufferTree<int,int>* rgBuf =
+                         DTDataBuffer<int,int>::openBuffer( mapRtoG );
+  DTBufferTree<int,int>* grBuf =
+                         DTDataBuffer<int,int>::openBuffer( mapGtoR );
+
+  std::vector<DTReadOutGeometryLink>::const_iterator iter =
+              readOutChannelDriftTubeMap.begin();
+  std::vector<DTReadOutGeometryLink>::const_iterator iend =
+              readOutChannelDriftTubeMap.end();
+  int      dduId;
+  int      rosId;
+  int      robId;
+  int      tdcId;
+  int  channelId;
+  int  readoutId;
+  int    wheelId;
+  int  stationId;
+  int   sectorId;
+  int       slId;
+  int    layerId;
+  int     cellId;
+  int geometryId;
+  while ( iter != iend ) {
+
+    const DTReadOutGeometryLink& link = *iter++;
+        dduId = link.    dduId;
+        rosId = link.    rosId;
+        robId = link.    robId;
+        tdcId = link.    tdcId;
+    channelId = link.channelId;
+      wheelId = link.  wheelId + 5;
+    stationId = link.stationId;
+     sectorId = link. sectorId;
+         slId = link.     slId;
+      layerId = link.  layerId;
+       cellId = link.   cellId;
+   
+    std::vector<int> cellKey;
+    cellKey.push_back(   wheelId );
+    cellKey.push_back( stationId );
+    cellKey.push_back(  sectorId );
+    cellKey.push_back(      slId );
+    cellKey.push_back(   layerId );
+    cellKey.push_back(    cellId );
+    readoutId = (     dduId *  1000000 ) +
+                (     rosId *    10000 ) +
+                (     robId *     1000 ) +
+                (     tdcId *      100 ) +
+                  channelId;
+    grBuf->insert( cellKey.begin(), cellKey.end(), readoutId );
+
+    std::vector<int> chanKey;
+    chanKey.push_back(     dduId );
+    chanKey.push_back(     rosId );
+    chanKey.push_back(     robId );
+    chanKey.push_back(     tdcId );
+    chanKey.push_back( channelId );
+    geometryId = (   wheelId *  10000000 ) +
+                 ( stationId *   1000000 ) +
+                 (  sectorId *     10000 ) +
+                 (      slId *      1000 ) +
+                 (   layerId *       100 ) +
+                      cellId;
+    rgBuf->insert( chanKey.begin(), chanKey.end(), geometryId );
+
+  }
+
+  return;
+
 }
 

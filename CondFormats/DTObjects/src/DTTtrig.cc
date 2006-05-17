@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/30 14:08:40 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/04 06:54:26 $
+ *  $Revision: 1.6 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -99,15 +99,18 @@ int DTTtrig::slTtrig( int   wheelId,
   slKey.push_back( stationId );
   slKey.push_back(  sectorId );
   slKey.push_back(      slId );
-  tTrig = dataBuf->find( slKey.begin(), slKey.end() );
-  tTrms = drmsBuf->find( slKey.begin(), slKey.end() );
+//  tTrig = dataBuf->find( slKey.begin(), slKey.end() );
+//  tTrms = drmsBuf->find( slKey.begin(), slKey.end() );
+  int searchStatusM = dataBuf->find( slKey.begin(), slKey.end(), tTrig );
+  int searchStatusR = drmsBuf->find( slKey.begin(), slKey.end(), tTrms );
 
   if ( unit == DTTimeUnits::ns ) {
     tTrig *= nsPerCount;
     tTrms *= nsPerCount;
   }
 
-  return 1;
+//  return 1;
+  return ( searchStatusM || searchStatusR );
 
 }
 
