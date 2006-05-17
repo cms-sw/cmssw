@@ -8,9 +8,6 @@ DEFINE_SEAL_MODULE();
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBCosmicTask)
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBBeamTask.h>
-DEFINE_ANOTHER_FWK_MODULE(EBBeamTask)
-
 #include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBIntegrityTask)
 
@@ -28,4 +25,7 @@ DEFINE_ANOTHER_FWK_MODULE(EBPedestalTask)
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBTestPulseTask)
+
+#include <DQM/EcalBarrelMonitorTasks/interface/EBBeamHodoTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EBBeamHodoTask)
 
