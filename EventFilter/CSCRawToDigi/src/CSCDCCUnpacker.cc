@@ -161,8 +161,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	  const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
 	
 	  ///skip the DDU if its data has serious errors
-	  /// define a mask for serious errors  (currently DFFFEFFF)
-	  if (dduData[iDDU].trailer().errorstat()&0xDFFFEFFF) {
+	  /// define a mask for serious errors  (currently DFCFEFFF)
+	  if (dduData[iDDU].trailer().errorstat()&0xDFCFEFFF) {
 	    edm::LogError("CSCDCCUnpacker") << "DDU has errors - Digis are not stored! " <<
 	      std::hex << dduData[iDDU].trailer().errorstat();
 	    continue;
