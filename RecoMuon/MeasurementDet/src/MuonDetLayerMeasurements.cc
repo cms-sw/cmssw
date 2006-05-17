@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/05/12 18:45:51 $
+ *  $Revision: 1.1 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -36,61 +36,28 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
      edm::Handle<DTRecSegment4DCollection> dtRecHits;
      iEvent.getByLabel("recseg4dbuilder", dtRecHits);  //FIXME
 
-     DTRecSegment4DCollection::id_iterator detUnitIt;
-     for (detUnitIt = dtRecHits->id_begin();detUnitIt != dtRecHits->id_end();
-          ++detUnitIt){
-                 DTRecSegment4DCollection::range  range = dtRecHits->get((*detUnitIt));
-                 for (DTRecSegment4DCollection::const_iterator rechit = range.first;
-                      rechit!=range.second;++rechit){
-                          DetId id2 = rechit->geographicalId();
-                          bool idmatch= false;
-                          int i=0; 
-                          std::vector <const GeomDet*> gds = layer->basicComponents();
-                          for (std::vector<const GeomDet*>::const_iterator igd = gds.begin(); igd != gds.end(); igd++) {
-                              DetId id = (*igd)->geographicalId();
-                              i++; 
-                              if (id==id2) {
-                                    idmatch = true;
-                                    break;
-                              }
-                           }
-                          if (!idmatch) {
-                              continue;
-                            }  
-                          const GeomDet * oneGD = *(gds.begin()+i-1);   
-                          if (oneGD == 0) { 
-                              continue;
-                           }
-                          TransientTrackingRecHit* gttrh = new GenericTransientTrackingRecHit(oneGD, (&(*rechit)));
-                          rhs.push_back(gttrh);
-                }//for DTSegment4D
-       }// for detUnit
+     std::vector <const GeomDet*> gds = layer->basicComponents();
+     for (std::vector<const GeomDet*>::const_iterator igd = gds.begin(); igd != gds.end(); igd++) {
+               DTChamberId chamberId((*igd)->geographicalId().rawId());
+               DTRecSegment4DCollection::range  range = dtRecHits->get(chamberId);
+               for (DTRecSegment4DCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit){
+               TransientTrackingRecHit* gttrh = new GenericTransientTrackingRecHit((*igd), (&(*rechit)));
+               rhs.push_back(gttrh);
+                }//for DTRecSegment4DCollection
+       }// for GeomDet
   }else if (mtype == csc ) {
      edm::Handle<CSCSegmentCollection> cscSegments;
      iEvent.getByLabel("segmentbuilder", cscSegments); 
-     for (CSCSegmentCollection::const_iterator cscSeg = cscSegments->begin();cscSeg != cscSegments->end();
-          ++cscSeg){
-                          DetId id2 = cscSeg->geographicalId();
-                          bool idmatch= false;
-                          int i=0;
-                          std::vector <const GeomDet*> gds = layer->basicComponents();
-                          for (std::vector<const GeomDet*>::const_iterator igd = gds.begin(); igd != gds.end(); igd++) {
-                              DetId id = (*igd)->geographicalId();
-                              i++;
-                              if (id==id2) {
-                                    idmatch = true;
-                                    break;
-                              }
-                           }
-                          if (!idmatch) break;
-                          const GeomDet * oneGD = *(gds.begin()+i-1);
-                          std::vector<const TrackingRecHit*> trhs = cscSeg->recHits(); 
-                          for (std::vector<const TrackingRecHit*>::const_iterator itt= trhs.begin(); itt !=trhs.end(); itt++ ) {
-                          if (!(*itt)->isValid()) continue;
-                          TransientTrackingRecHit* gttrh = new GenericTransientTrackingRecHit(oneGD, (*itt));
-                          rhs.push_back(gttrh);
-                          }
-                }//for CSCSegment
+
+     std::vector <const GeomDet*> gds = layer->basicComponents();
+     for (std::vector<const GeomDet*>::const_iterator igd = gds.begin(); igd != gds.end(); igd++) {
+               CSCDetId id((*igd)->geographicalId().rawId());
+               CSCSegmentCollection::range  range = cscSegments->get(id);
+               for (CSCSegmentCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit){
+               TransientTrackingRecHit* gttrh = new GenericTransientTrackingRecHit((*igd), (&(*rechit)));
+               rhs.push_back(gttrh);
+                }//for CSCSegmentCollection
+       }// for GeomDet
   }else if (mtype == rpc ) {
 
   }else {
