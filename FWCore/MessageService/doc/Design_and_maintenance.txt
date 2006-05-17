@@ -21,6 +21,28 @@ Service Starts Up -- the server side.  All user programatic interaction
 is on the client side, but the configuration (driven by the .cfg file)
 is dealt with on the server side. 
 
+The path looks like this (each step is detailed below):
+
+------------------------------------------------
+Client side:						          MessageDrop
+  LogInfo						              |
+    --> MessageSender (owning ErrorObj)  <----------------- run/event +
+        operator << --> ErrorObj::operator<<
+        --> end of the LogInfo line
+            --> ~LogInfo --> ~MessageSender
+	                      --> MessageLoggerQ::LOG(ErrorObj)			      
+------------------------------------------------    |
+						MessageLoggerScribe::run()
+						consume(opcode, operand)  <--+ 
+				 log(ErrorObj)	<--  |                       |
+              errorlog(ErrorObj) <--                 |                       |
+     ELoutput <--	                             |                       |
+	      				        delete ErrorObj              |
+				 		     |                       |
+						     +-----------------------+
+Server side:
+------------------------------------------------
+						     
 LogInfo is a functor -- a class that has an operator() so that
 it can look like a function.   It has one  data member - an 
 auto_ptr to a MessageSender, which is named ap.  When you say
@@ -52,40 +74,38 @@ pointer remains meaningful in the server side it will be used in.
 
 The interaction of MessageSender with the server side consists of two steps.  
 
-First, it sees if there is a MessageDrop instance (normally there will
-  be unless this message was issued very early on) and supplies the module
+First, it uses the MessageDrop instance to supply the module
   and run/event context.   [There is a separate discussion below about the
   MessageDrop.]  The module and context go into the ErrorObj.
  
 Second, it invokes the static LOG method of MessageLoggerQ, supplying the
   pointer to the ErrorObj.
 
+Now we leave the client side and go to the server side, which picks up the 
+LOG_A_MESSAGE entry in the course of a consume(opcode,operand) call on the 
+MessageLoggerQ.  The run() method of MessageLoggerScribe has an eternal
+do, which continually tries to consume from this queue (consume() sleeps on 
+the queue being empty).
 
+The method log() is passed the pointer to the ErrorObj.  log() gets
+a reference to the ELcontextSupplier from the administrator, and sets
+the context to that context remembered in the ErrorObj.  (This is necessary
+since the run/event of the message issuer is known to the client thread, 
+having been provided by the before-module and before-event callbacks of the 
+message **service** running in the **client** thread, so this information had 
+needed to cross the client/server boundary.) 
 
+log() then parses the categories string and (if there are multiple categories)
+invokes the ErrorLog for this object for each category in the string.
 
-
-
- (if there is one) for 
-module name and (MessageDrop is a singleton
-
-
-
-
-bingo we need for messageDrop to be set up with debugDnabled.
-also LogDebug never tests whether MessageDrop is there yet, so 
-if it is not (if a Debug is sent before the setup is done) there
-will be a segv -- have to fix this! 
-I think I just did
-
-
-[Those pieces of information are provided by the
-  before-module and before-event callbacks of the message **service**, so
-  this information had needed to cross the client/server boundary.]
-
-
-What happens at the 
-
-
+ErrorLog is in the ErrorLogger code; we are not documenting this code here.
+The effect is to shop the ErrorObj to every destination; in each case the
+code for that destination (normally ELoutput) will apply the limits and
+thresholds, format the message, add header information, and output the message.
+ 
+Finally, the completion of the do in MessageLoggerScribe::run() deletes the
+ErrorObj -- completing the promise made when it was passed responsibility for
+this heap-resident object.
 
 ---------------
 The MessageDrop
@@ -159,7 +179,7 @@ MessageLogger.cc is responsible for filling the data fields of the
       In PostBeginJob it says that we are BeforeEvents and in no module.
       In PreEventProcessing it fills in the run and event.
       In PostEventProcessing it notes that we are between events.		 
-      In PreModule it fills in the module name, and sets debugEnabled. 
+      In PreModule it fills in the module name, and sets value of debugEnabled. 
 		 To determine the value to set for debugEnabled, 
 		 two bools and a vector of module names come into play;
 		 these are all universal (that is, not thread-specific)
@@ -176,7 +196,7 @@ MessageLogger.cc is responsible for filling the data fields of the
 				      true if nay one of debugModules is "*".
 		 debugEnabledModules_ contains the specified debugModules.
 		 If debugEnabled is set to false, then the effect of LogDebug
-		 is to immediately return.
+		 used during that module is to immediately return.
 		
 A subtlety arose concerning the MessageDrop in circumstances where 
 the framework's event processing structure were not in play.  In 
@@ -186,3 +206,16 @@ originally, the value was left uninitialized.   Now it is initialized to
 true.  Also, in the ctor for MessageLogger (in MessageLogger.cc) if
 debugModules is empty, we change debugEnabled MessageDrop's debugEnabled
 to false.
+
+==========
+purge_mode
+==========
+
+What happends if the act of logging a message (on the server side) throws
+an exception?  This logic is implemented in MessageLoggerScribe.cc.
+
+If the exception is a cms::Exception, then for the first 5 times, output
+is sent to cerr containing the explanation e.what().  After five such
+exceptions, or for any exception not inherited from cms::Exception, the
+system is placed into purge_mode, after which no further message
+processing will occur.
