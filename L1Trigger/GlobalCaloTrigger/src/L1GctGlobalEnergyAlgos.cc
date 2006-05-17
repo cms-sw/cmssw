@@ -19,12 +19,12 @@ L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos()
 // clear internal data
 void L1GctGlobalEnergyAlgos::reset()
 {
-  inputExValPlusWheel.reset();
-  inputExVlMinusWheel.reset();
-  inputEyValPlusWheel.reset();
-  inputEyVlMinusWheel.reset();
-  inputEtValPlusWheel.reset();
-  inputEtVlMinusWheel.reset();
+  m_exValPlusWheel.reset();
+  m_exVlMinusWheel.reset();
+  m_eyValPlusWheel.reset();
+  m_eyVlMinusWheel.reset();
+  m_etValPlusWheel.reset();
+  m_etVlMinusWheel.reset();
   inputHtValPlusWheel.reset();
   inputHtVlMinusWheel.reset();
   inputHtBoundaryJets.reset();
@@ -34,19 +34,13 @@ void L1GctGlobalEnergyAlgos::reset()
     inputJcBoundaryJets[i].reset();
   }
   //
-  ovfloExValPlusWheel = false;
-  ovfloEyVlMinusWheel = false;
-  ovfloExValPlusWheel = false;
-  ovfloEyVlMinusWheel = false;
-  ovfloEtValPlusWheel = false;
-  ovfloEtVlMinusWheel = false;
   ovfloHtValPlusWheel = false;
   ovfloHtVlMinusWheel = false;
   ovfloHtBoundaryJets = false;
   //
-  outputEtMiss.reset();
-  outputEtMissPhi.reset();
-  outputEtSum.reset();
+  m_outputEtMiss.reset();
+  m_outputEtMissPhi.reset();
+  m_outputEtSum.reset();
   outputEtHad.reset();
   for (int i=0; i<12; i++) {
     outputJetCounts[i].reset();
@@ -55,23 +49,16 @@ void L1GctGlobalEnergyAlgos::reset()
 
 void L1GctGlobalEnergyAlgos::fetchInput() {
   unsigned EinU;
-  int EinI;
   bool EOvflo;
   // input from WheelEnergyFpgas
-  decodeIntegerInput ( m_plusWheelFpga->getOutputEx(), EinI, EOvflo);
-  setInputWheelEx((unsigned) 0, EinI, EOvflo);
-  decodeIntegerInput ( m_plusWheelFpga->getOutputEy(), EinI, EOvflo);
-  setInputWheelEy((unsigned) 0, EinI, EOvflo);
-  decodeUnsignedInput( m_plusWheelFpga->getOutputEt(), EinU, EOvflo);
-  setInputWheelEt((unsigned) 0, EinU, EOvflo);
-  //
-  decodeIntegerInput ( m_minusWheelFpga->getOutputEx(), EinI, EOvflo);
-  setInputWheelEx((unsigned) 1, EinI, EOvflo);
-  decodeIntegerInput ( m_minusWheelFpga->getOutputEy(), EinI, EOvflo);
-  setInputWheelEy((unsigned) 1, EinI, EOvflo);
-  decodeUnsignedInput( m_minusWheelFpga->getOutputEt(), EinU, EOvflo);
-  setInputWheelEt((unsigned) 1, EinU, EOvflo);
-  //
+  m_exValPlusWheel = m_plusWheelFpga->outputEx();
+  m_eyValPlusWheel = m_plusWheelFpga->outputEy();
+  m_etValPlusWheel = m_plusWheelFpga->outputEt();
+  
+  m_exVlMinusWheel = m_minusWheelFpga->outputEx();
+  m_eyVlMinusWheel = m_minusWheelFpga->outputEy();
+  m_etVlMinusWheel = m_minusWheelFpga->outputEt();
+  // input from WheelJetFpgas and JetFinalStage
   decodeUnsignedInput( m_plusWheelJetFpga->getOutputHt(), EinU, EOvflo);
   setInputWheelHt((unsigned) 0, EinU, EOvflo);
   decodeUnsignedInput( m_minusWheelJetFpga->getOutputHt(), EinU, EOvflo);
@@ -90,80 +77,29 @@ void L1GctGlobalEnergyAlgos::fetchInput() {
 // process the event
 void L1GctGlobalEnergyAlgos::process()
 {
-  long int ExPlus, ExMinus, ExSum;
-  long int EyPlus, EyMinus, EySum;
-  bool ExOvflo, EyOvflo;
+  L1GctEtComponent ExSum, EySum;
   L1GctGlobalEnergyAlgos::etmiss_vec EtMissing;
-  unsigned long EtPlus, EtMinus, EtSum;
   unsigned long HtPlus, HtMinus, HtBound, HtSum;
   bool HtOvflo;
-  bool EtOvflo;
-  std::bitset<13> magResult;
-  std::bitset<7>  phiResult;
-  std::bitset<13> EtResult;
   std::bitset<13> HtResult;
 
   const unsigned Emax=(1<<12);
-  const int signedEmax=Emax/2;
-
+ 
   //
   //-----------------------------------------------------------------------------
   // Form the Ex and Ey sums
-  ExPlus  = longIntegerFromTwosComplement(inputExValPlusWheel);
-  ExMinus = longIntegerFromTwosComplement(inputExVlMinusWheel);
-  EyPlus  = longIntegerFromTwosComplement(inputEyValPlusWheel);
-  EyMinus = longIntegerFromTwosComplement(inputEyVlMinusWheel);
-  ExSum = ExPlus + ExMinus;
-  if (ExSum>=signedEmax) {
-    ExSum = ExSum - 2*signedEmax;
-    ExOvflo = true;
-  } else if (ExSum<-signedEmax) {
-    ExSum = ExSum + 2*signedEmax;
-    ExOvflo = true;
-  } else {
-    ExOvflo = ovfloExValPlusWheel or ovfloExVlMinusWheel;
-  }
-  EySum = EyPlus + EyMinus;
-  if (EySum>=signedEmax) {
-    EySum = EySum - 2*signedEmax;
-    EyOvflo = true;
-  } else if (EySum<-signedEmax) {
-    EySum = EySum + 2*signedEmax;
-    EyOvflo = true;
-  } else {
-    EyOvflo = ovfloEyValPlusWheel or ovfloEyVlMinusWheel;
-  }
+  ExSum = m_exValPlusWheel + m_exVlMinusWheel;
+  EySum = m_eyValPlusWheel + m_eyVlMinusWheel;
   // Execute the missing Et algorithm
   EtMissing = calculate_etmiss_vec(ExSum, EySum);
   //
-  std::bitset<13> magBits(EtMissing.mag);
-  magResult = magBits;
-  if (ExOvflo or EyOvflo) {magResult.set(12);}
-  std::bitset<7> phiBits(EtMissing.phi);
-  phiResult = phiBits;
-  //
-  outputEtMiss = magResult;
-  outputEtMissPhi = phiResult;
+  m_outputEtMiss    = EtMissing.mag;
+  m_outputEtMissPhi = EtMissing.phi;
 
   //
   //-----------------------------------------------------------------------------
   // Form the Et sum
-  EtPlus  = inputEtValPlusWheel.to_ulong();
-  EtMinus = inputEtVlMinusWheel.to_ulong();
-  //
-  EtSum = EtPlus + EtMinus;
-  if (EtSum>=Emax) {
-    EtSum = EtSum % Emax;
-    EtOvflo = true;
-  } else {
-    EtOvflo = ovfloEtValPlusWheel or ovfloEtVlMinusWheel;
-  }
-  //
-  std::bitset<13> etBits(EtSum);
-  EtResult = etBits;
-  if (EtOvflo) {EtResult.set(12);}
-  //
-  outputEtSum = EtResult;
+  m_outputEtSum = m_etValPlusWheel + m_etVlMinusWheel;
 
   //
   //-----------------------------------------------------------------------------
@@ -265,18 +201,12 @@ void L1GctGlobalEnergyAlgos::setJetFinalStage(L1GctJetFinalStage* jfs)
 //
 void L1GctGlobalEnergyAlgos::setInputWheelEx(unsigned wheel, int energy, bool overflow)
 {
-  unsigned long energyInput;
-  bool          energyOvflo;
-
-  checkIntegerTwosComplement(energy, overflow, (int) 12, energyInput, energyOvflo);
-
-  std::bitset<12> energyBits(energyInput);
   if (wheel==0) {
-    inputExValPlusWheel = energyBits;
-    ovfloExValPlusWheel = energyOvflo;
+    m_exValPlusWheel.setValue(energy);
+    m_exValPlusWheel.setOverFlow(overflow);
   } else if (wheel==1) {
-    inputExVlMinusWheel = energyBits;
-    ovfloExVlMinusWheel = energyOvflo;
+    m_exVlMinusWheel.setValue(energy);
+    m_exVlMinusWheel.setOverFlow(overflow);
   }
 }
 
@@ -285,18 +215,12 @@ void L1GctGlobalEnergyAlgos::setInputWheelEx(unsigned wheel, int energy, bool ov
 //
 void L1GctGlobalEnergyAlgos::setInputWheelEy(unsigned wheel, int energy, bool overflow)
 {
-  unsigned long energyInput;
-  bool          energyOvflo;
-
-  checkIntegerTwosComplement(energy, overflow, (int) 12, energyInput, energyOvflo);
-
-  std::bitset<12> energyBits(energyInput);
   if (wheel==0) {
-    inputEyValPlusWheel = energyBits;
-    ovfloEyValPlusWheel = energyOvflo;
+    m_eyValPlusWheel.setValue(energy);
+    m_eyValPlusWheel.setOverFlow(overflow);
   } else if (wheel==1) {
-    inputEyVlMinusWheel = energyBits;
-    ovfloEyVlMinusWheel = energyOvflo;
+    m_eyVlMinusWheel.setValue(energy);
+    m_eyVlMinusWheel.setOverFlow(overflow);
   }
 }
 
@@ -305,18 +229,12 @@ void L1GctGlobalEnergyAlgos::setInputWheelEy(unsigned wheel, int energy, bool ov
 //
 void L1GctGlobalEnergyAlgos::setInputWheelEt(unsigned wheel, unsigned energy, bool overflow)
 {
-  unsigned long energyInput;
-  bool          energyOvflo;
-
-  checkUnsignedNatural(energy, overflow, (int) 12, energyInput, energyOvflo);
-
-  std::bitset<12> energyBits(energyInput);
   if (wheel==0) {
-    inputEtValPlusWheel = energyBits;
-    ovfloEtValPlusWheel = energyOvflo;
+    m_etValPlusWheel.setValue(energy);
+    m_etValPlusWheel.setOverFlow(overflow);
   } else if (wheel==1) {
-    inputEtVlMinusWheel = energyBits;
-    ovfloEtVlMinusWheel = energyOvflo;
+    m_etVlMinusWheel.setValue(energy);
+    m_etVlMinusWheel.setOverFlow(overflow);
   }
 }
 
@@ -405,27 +323,6 @@ void L1GctGlobalEnergyAlgos::setInputBoundaryJc(unsigned jcnum, unsigned count)
 }
 
 //----------------------------------------------------------------------------------------------
-// Return the stored input values (for signed quantities,
-// i.e. Ex and Ey components) 
-//
-long int L1GctGlobalEnergyAlgos::getInputExValPlusWheel()
-{
-  return longIntegerFromTwosComplement(inputExValPlusWheel);
-}
-long int L1GctGlobalEnergyAlgos::getInputEyValPlusWheel()
-{
-  return longIntegerFromTwosComplement(inputEyValPlusWheel);
-}
-long int L1GctGlobalEnergyAlgos::getInputExVlMinusWheel()
-{
-  return longIntegerFromTwosComplement(inputExVlMinusWheel);
-}
-long int L1GctGlobalEnergyAlgos::getInputEyVlMinusWheel()
-{
-  return longIntegerFromTwosComplement(inputEyVlMinusWheel);
-}
-
-//----------------------------------------------------------------------------------------------
 // The following code is private.
 //
 // Functions to convert input energies and overflow bits
@@ -446,39 +343,6 @@ void L1GctGlobalEnergyAlgos::checkUnsignedNatural(  unsigned E, bool O, int nbit
     energyOvflo = true;
   } else {
     energyOvflo = O;
-  }
-  Eout = energyInput;
-  Oout = energyOvflo;
-}
-
-void L1GctGlobalEnergyAlgos::checkIntegerTwosComplement( int E, bool O, int nbits, unsigned long &Eout, bool &Oout)
-{
-  unsigned long energyInput;
-  bool          energyOvflo;
-  const unsigned max=(1<<(nbits-1));
-
-  if (E>=0) {
-    energyInput = E;
-    if (energyInput>=max) {
-      energyInput = energyInput % max;
-      energyOvflo = true;
-    } else {
-      energyOvflo = O; // this is input argument 'O', not zero!
-    }
-  } else {
-    int modE;
-    const unsigned shift=(1<<nbits);
-    modE = E + shift;
-    energyOvflo = O; // this is input argument 'O', not zero!
-    while (modE<0) {
-      modE = modE + shift;
-      energyOvflo = true;
-    }
-    energyInput=modE;
-    if (energyInput<max) {
-      energyInput = energyInput+max;
-      energyOvflo = true;
-    }
   }
   Eout = energyInput;
   Oout = energyOvflo;
@@ -505,55 +369,13 @@ void L1GctGlobalEnergyAlgos::decodeUnsignedInput( unsigned long Ein, unsigned &E
 
 }
 
-//
-// Decode 13-bit value to 12-bits 2's complement plus overflow
-void L1GctGlobalEnergyAlgos::decodeIntegerInput ( unsigned long Ein, int &Eout, bool &Oout)
-{
-  unsigned energyInput;
-  bool     energyOvflo;
-  int      energyValue;
-  const unsigned max=(1<<12);
-
-  energyInput = Ein;
-  if (energyInput>=max) {
-    energyInput = energyInput % max;
-    energyOvflo = true;
-  } else {
-    energyOvflo = false;
-  }
-  if (energyInput>=max/2) {
-    energyValue = (int) energyInput - (int) max;
-  } else {
-    energyValue = (int) energyInput;
-  }
-
-  Eout = energyValue;
-  Oout = energyOvflo;
-
-}
-
-//----------------------------------------------------------------------------------------------
-// Converts a value stored in a std::bitset in two's complement format
-// to a (signed) integer.
-//
-long int L1GctGlobalEnergyAlgos::longIntegerFromTwosComplement (std::bitset<12> energyBits)
-{
-  long int e;
-  const int max=(1<<(energyBits.size()-1));
-  e = energyBits.to_ulong();
-  if (e>=max) {
-    e = e - 2*max;
-  }
-  return e;
-}
-
 //-----------------------------------------------------------------------------------
 //
 // Here's the Etmiss calculation
 //
 //-----------------------------------------------------------------------------------
 L1GctGlobalEnergyAlgos::etmiss_vec
-L1GctGlobalEnergyAlgos::calculate_etmiss_vec (long int Ex, long int Ey)
+L1GctGlobalEnergyAlgos::calculate_etmiss_vec (L1GctEtComponent ex, L1GctEtComponent ey)
 {
   //---------------------------------------------------------------------------------
   //
@@ -589,12 +411,12 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (long int Ex, long int Ey)
 
   // Here's the coarse calculation, with just one multiply operation
   //
-  My = (unsigned) abs(Ey);
-  Mx = (unsigned) abs(Ex);
+  My = static_cast<unsigned>(abs(ey.value()));
+  Mx = static_cast<unsigned>(abs(ex.value()));
   Mw = ((Mx+My)*root2fact)>>8;
 
-  s[0] = (Ey<0);
-  s[1] = (Ex<0);
+  s[0] = (ey.value()<0);
+  s[1] = (ex.value()<0);
   s[2] = (My>Mx);
 
   phibin = 0; b = 0;
@@ -602,7 +424,7 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (long int Ex, long int Ey)
     if (s[i]) { b=1-b;} phibin = 2*phibin + b;
   }
 
-  eneCoarse = max(max(Mx, My), Mw);
+  eneCoarse = std::max(std::max(Mx, My), Mw);
   phiCoarse = phibin*9;
 
   // For the fine calculation we multiply both input components
@@ -624,8 +446,10 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (long int Ex, long int Ey)
 
   // Store the result of the calculation
   //
-  result.mag = eneCorect;
-  result.phi = phiCorect;
+  result.mag.setValue(eneCorect);
+  result.phi.setValue(phiCorect);
+
+  result.mag.setOverFlow( result.mag.overFlow() || ex.overFlow() || ey.overFlow() );
 
   return result;
 }

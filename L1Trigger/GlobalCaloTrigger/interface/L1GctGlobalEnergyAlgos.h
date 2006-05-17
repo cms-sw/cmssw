@@ -2,14 +2,10 @@
 #define L1GCTGLOBALENERGYALGOS_H_
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 
 #include <bitset>
 #include <vector>
-
-/* using namespace std; */
-
-/* using std::bitset; */
-/* using std::vector; */
 
 class L1GctWheelEnergyFpga;
 class L1GctWheelJetFpga;
@@ -59,13 +55,13 @@ public:
         void setInputBoundaryJc(unsigned jcnum, unsigned count);
 
 	// return input data
-        long int getInputExValPlusWheel();
-        long int getInputEyValPlusWheel();
-        long int getInputExVlMinusWheel();
-        long int getInputEyVlMinusWheel();
-	inline unsigned long getInputEtValPlusWheel() { return inputEtValPlusWheel.to_ulong();; }
+        inline L1GctEtComponent inputExValPlusWheel() const { return m_exValPlusWheel; }
+        inline L1GctEtComponent inputEyValPlusWheel() const { return m_eyValPlusWheel; }
+        inline L1GctEtComponent inputExVlMinusWheel() const { return m_exVlMinusWheel; }
+        inline L1GctEtComponent inputEyVlMinusWheel() const { return m_eyVlMinusWheel; }
+	inline L1GctScalarEtVal inputEtValPlusWheel() const { return m_etValPlusWheel; }
 	inline unsigned long getInputHtValPlusWheel() { return inputHtValPlusWheel.to_ulong();; }
-	inline unsigned long getInputEtVlMinusWheel() { return inputEtVlMinusWheel.to_ulong();; }
+	inline L1GctScalarEtVal inputEtVlMinusWheel() const { return m_etVlMinusWheel; }
 	inline unsigned long getInputHtVlMinusWheel() { return inputHtVlMinusWheel.to_ulong();; }
 	inline unsigned long getInputHtBoundaryJets() { return inputHtBoundaryJets.to_ulong();; }
         inline unsigned long getInputJcValPlusWheel(unsigned jcnum) {return inputJcValPlusWheel[jcnum].to_ulong();; }
@@ -73,9 +69,9 @@ public:
         inline unsigned long getInputJcBoundaryJets(unsigned jcnum) {return inputJcBoundaryJets[jcnum].to_ulong();; }
 
 	// return output data
-	inline unsigned long getEtMiss()    { return outputEtMiss.to_ulong(); }
-	inline unsigned long getEtMissPhi() { return outputEtMissPhi.to_ulong(); }
-	inline unsigned long getEtSum()     { return outputEtSum.to_ulong(); }
+	inline L1GctScalarEtVal etMiss()    { return m_outputEtMiss; }
+	inline L1GctEtAngleBin  etMissPhi() { return m_outputEtMissPhi; }
+	inline L1GctScalarEtVal etSum()     { return m_outputEtSum; }
 	inline unsigned long getEtHad()     { return outputEtHad.to_ulong(); }
 	inline unsigned long getJetCounts(unsigned jcnum) { return outputJetCounts[jcnum].to_ulong(); }
 	
@@ -92,23 +88,17 @@ private:
         typedef std::bitset<3> JcWheelType;
         typedef std::bitset<5> JcFinalType;
 	// input data - need to confirm number of bits!
-	std::bitset<12> inputExValPlusWheel;
-	std::bitset<12> inputEyValPlusWheel;
-	std::bitset<12> inputEtValPlusWheel;
+	L1GctEtComponent m_exValPlusWheel;
+        L1GctEtComponent m_eyValPlusWheel;
+	L1GctScalarEtVal m_etValPlusWheel;
 	std::bitset<12> inputHtValPlusWheel;
-	std::bitset<12> inputExVlMinusWheel;
-	std::bitset<12> inputEyVlMinusWheel;
-	std::bitset<12> inputEtVlMinusWheel;
+	L1GctEtComponent m_exVlMinusWheel;
+	L1GctEtComponent m_eyVlMinusWheel;
+	L1GctScalarEtVal m_etVlMinusWheel;
 	std::bitset<12> inputHtVlMinusWheel;
         std::bitset<12> inputHtBoundaryJets;
 
-        bool ovfloExValPlusWheel;
-        bool ovfloEyValPlusWheel;
-        bool ovfloEtValPlusWheel;
         bool ovfloHtValPlusWheel;
-        bool ovfloExVlMinusWheel;
-        bool ovfloEyVlMinusWheel;
-        bool ovfloEtVlMinusWheel;
         bool ovfloHtVlMinusWheel;
         bool ovfloHtBoundaryJets;
 
@@ -118,18 +108,18 @@ private:
 
         // internal stuff for inputs and outputs
         void checkUnsignedNatural(  unsigned E, bool O, int nbits, unsigned long &Eout, bool &Oout);
-	void checkIntegerTwosComplement( int E, bool O, int nbits, unsigned long &Eout, bool &Oout);
 	void decodeUnsignedInput( unsigned long Ein, unsigned &Eout, bool &Oout);
-	void decodeIntegerInput ( unsigned long Ein, int &Eout, bool &Oout);
-        long int longIntegerFromTwosComplement (std::bitset<12> energyBits);
         // internal stuff for the Etmiss algorithm
-        struct etmiss_vec { unsigned long mag; unsigned phi;};
-        etmiss_vec calculate_etmiss_vec (long int Ex, long int Ey) ;
+        struct etmiss_vec {
+	  L1GctScalarEtVal mag;
+	  L1GctEtAngleBin  phi;
+	};
+        etmiss_vec calculate_etmiss_vec (L1GctEtComponent ex, L1GctEtComponent ey) ;
 	
 	// output data
-	std::bitset<13> outputEtMiss;
-	std::bitset<7> outputEtMissPhi;
-	std::bitset<13> outputEtSum;
+	L1GctScalarEtVal m_outputEtMiss;
+	L1GctEtAngleBin  m_outputEtMissPhi;
+	L1GctScalarEtVal m_outputEtSum;
 	std::bitset<13> outputEtHad;
         std::vector<JcFinalType> outputJetCounts;
 

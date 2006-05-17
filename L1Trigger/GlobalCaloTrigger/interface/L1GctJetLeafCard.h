@@ -4,6 +4,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 
 #include <vector>
 #include <bitset>
@@ -46,13 +47,13 @@ public:
     vector<L1GctJetCand> getOutputJetsC() const { return jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
     
     /// get the Ex output
-    inline unsigned long getOutputEx() const { return outputEx.to_ulong(); }
+    inline L1GctEtComponent outputEx() const { return m_exSum; }
     
     /// get the Ey output
-    inline unsigned long getOutputEy() const { return outputEy.to_ulong(); }
+    inline L1GctEtComponent outputEy() const { return m_eySum; }
     
     /// get the Et output
-    inline unsigned long getOutputEt() const { return outputEt.to_ulong(); }
+    inline L1GctScalarEtVal outputEt() const { return m_etSum; }
     inline unsigned long getOutputHt() const { return outputHt.to_ulong(); }
     
     static const int MAX_JET_FINDERS = 3;
@@ -71,6 +72,8 @@ private:
     vector<L1GctSourceCard*> m_sourceCards;
 
     // internal data (other than jets)
+/*     typedef L1GctTwosComplement<12> L1GctEtComponent; */
+
     static const int NUM_BITS_ENERGY_DATA = 13;
     static const int OVERFLOW_BIT = NUM_BITS_ENERGY_DATA - 1;
 
@@ -79,9 +82,9 @@ private:
 
     int phiPosition;
 
-    bitset<NUM_BITS_ENERGY_DATA> outputEx;
-    bitset<NUM_BITS_ENERGY_DATA> outputEy;
-    bitset<NUM_BITS_ENERGY_DATA> outputEt;
+    L1GctEtComponent m_exSum;
+    L1GctEtComponent m_eySum;
+    L1GctScalarEtVal m_etSum;
     bitset<NUM_BITS_ENERGY_DATA> outputHt;
 };
 

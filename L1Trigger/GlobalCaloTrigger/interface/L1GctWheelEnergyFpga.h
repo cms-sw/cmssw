@@ -2,14 +2,10 @@
 #define L1GCTWHEELENERGYFPGA_H_
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 
 #include <bitset>
 #include <vector>
-
-using namespace std;
-
-/* using std::bitset; */
-/* using std::vector; */
 
 class L1GctJetLeafCard;
 
@@ -33,16 +29,16 @@ public:
 	///
 	/// set input data
 	void setInputEnergy(int i, int ex, int ey, unsigned et);
-	
-	// get input data
-	inline unsigned long getInputEx(unsigned leafnum) { return inputEx[leafnum].to_ulong(); }
-	inline unsigned long getInputEy(unsigned leafnum) { return inputEy[leafnum].to_ulong(); }
-	inline unsigned long getInputEt(unsigned leafnum) { return inputEt[leafnum].to_ulong(); }
-	
-	// get output data
-	inline unsigned long getOutputEx() { return outputEx.to_ulong(); }
-	inline unsigned long getOutputEy() { return outputEy.to_ulong(); }
-	inline unsigned long getOutputEt() { return outputEt.to_ulong(); }
+	///	
+	/// get input data
+	inline L1GctEtComponent inputEx(unsigned leafnum) const { return m_inputEx[leafnum]; }
+	inline L1GctEtComponent inputEy(unsigned leafnum) const { return m_inputEy[leafnum]; }
+	inline L1GctScalarEtVal inputEt(unsigned leafnum) const { return m_inputEt[leafnum]; }
+	///
+	/// get output data
+	inline L1GctEtComponent outputEx() const { return m_outputEx; }
+	inline L1GctEtComponent outputEy() const { return m_outputEy; }
+	inline L1GctScalarEtVal outputEt() const { return m_outputEt; }
 
 private:
 
@@ -51,24 +47,26 @@ private:
 	int m_id;
 	///
 	/// the jet leaf card
-	vector<L1GctJetLeafCard*> m_inputLeafCards;
+	std::vector<L1GctJetLeafCard*> m_inputLeafCards;
 
-	static const int NUM_BITS_ENERGY_DATA = 13;
-	static const int OVERFLOW_BIT = NUM_BITS_ENERGY_DATA - 1;
+/*         typedef L1GctTwosComplement<12> L1GctEtComponent; */
 
-        static const int Emax = (1<<NUM_BITS_ENERGY_DATA);
-        static const int signedEmax = (Emax>>1);
+/* 	static const int NUM_BITS_ENERGY_DATA = 13; */
+/* 	static const int OVERFLOW_BIT = NUM_BITS_ENERGY_DATA - 1; */
 
-	// input data - need to confirm number of bits!
-        typedef bitset<NUM_BITS_ENERGY_DATA> InputEnergyType;
-	vector<InputEnergyType> inputEx;
-	vector<InputEnergyType> inputEy;
-	vector<InputEnergyType> inputEt;
+/*         static const int Emax = (1<<NUM_BITS_ENERGY_DATA); */
+/*         static const int signedEmax = (Emax>>1); */
+
+/* 	// input data - need to confirm number of bits! */
+/*         typedef std::bitset<NUM_BITS_ENERGY_DATA> InputEnergyType; */
+	std::vector<L1GctEtComponent> m_inputEx;
+	std::vector<L1GctEtComponent> m_inputEy;
+	std::vector<L1GctScalarEtVal> m_inputEt;
 	
 	// output data
-	bitset<NUM_BITS_ENERGY_DATA> outputEx;
-	bitset<NUM_BITS_ENERGY_DATA> outputEy;
-	bitset<NUM_BITS_ENERGY_DATA> outputEt;
+	L1GctEtComponent m_outputEx;
+	L1GctEtComponent m_outputEy;
+	L1GctScalarEtVal m_outputEt;
 	
 	
 };
