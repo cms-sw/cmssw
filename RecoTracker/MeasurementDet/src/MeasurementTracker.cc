@@ -16,7 +16,7 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-// #include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
 
@@ -55,6 +55,8 @@ void MeasurementTracker::initialize(const edm::EventSetup& setup,
     std::cout << "got from TrackerGeometry " << dets.size() << std::endl; 
 
     // get pixelCPE
+    //  ---- TEMPORARY SOLUTION TO COMMIT CODE FOR 070pre2   ----
+    /*
     std::string cpeName = conf.getParameter<std::string>("PixelCPE");   
     cout <<" Asking for the CPE with name "<<cpeName<<endl;
 
@@ -67,7 +69,15 @@ void MeasurementTracker::initialize(const edm::EventSetup& setup,
 
     edm::ESHandle<MagneticField> magfield;
     setup.get<IdealMagneticFieldRecord>().get(magfield);
+    */
 
+    edm::ESHandle<MagneticField> magfield;
+    setup.get<IdealMagneticFieldRecord>().get(magfield);
+    edm::ParameterSet confPixelCPE;
+    confPixelCPE.addParameter("TanLorentzAnglePerTesla",0.106);
+    confPixelCPE.addUntrackedParameter("VerboseLevel",20);
+    pixelCPE = new CPEFromDetPosition(confPixelCPE, &(*magfield));
+    // -----------------------------------------------
 
     // get stripCPE
     edm::ESHandle<StripClusterParameterEstimator> stripCPEHandle;
