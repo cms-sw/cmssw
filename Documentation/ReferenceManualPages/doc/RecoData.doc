@@ -15,8 +15,9 @@ Event products of Reconstruction.
       table = tables[ t ];
       if ( table.className == 'reftable' ) {
         for(i = 1; (row = table.getElementsByTagName("tr")[i]); ++i) {
-          if(i % 2 == 1) { row.className='odd'; }
-          else { row.className='even'; }
+          if ( row.className != 'colgroup' )
+            if(i % 2 == 1) { row.className='odd'; }
+            else { row.className='even'; }
         }
       }
     }
@@ -36,8 +37,8 @@ Event products of Reconstruction.
   <th>branch alias</th>
   <th>description</th>
 </tr>
-<tr>
-  <td colspan=6><b>Track collections</b></td>
+<tr class="colgroup">
+  <td class="colgroup" colspan=6>Track collections</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::Track \htmlonly </rd>
@@ -63,8 +64,8 @@ Event products of Reconstruction.
   <td>trackHits</td>
   <td class="description">Collection of RecHits used by reconstructed tracks</td>
 </tr>
-<tr>
-  <td colspan=6><b>Ecal cluster collections</b></td>
+<tr class="colgroup">
+  <td class="colgroup" colspan=6>Ecal cluster collections</td>
 <tr>
   <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
   <td> \endhtmlonly reco::BasicClusterCollection \htmlonly </td>

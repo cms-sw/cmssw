@@ -52,6 +52,7 @@ pre {
 
 .reftable {
   font-size: 10pt;
+  font-weight: bold;
   width: 800px;
   vertical-align: top;
 }
@@ -85,7 +86,17 @@ pre {
 .description {
   font-size: 10pt;
   font-style: italic;
+  font-weight: normal;
+  color: #600030;
   width: 200px;
+}
+
+.colgroup TD {
+  font-size: 12pt;
+  font-weight: bold;
+  color: #2000b0;
+  background-color: #cfdbe9;
+  padding-left: 20px;
 }
 
 .domain {
