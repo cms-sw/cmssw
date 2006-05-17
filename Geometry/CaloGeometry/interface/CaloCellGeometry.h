@@ -2,6 +2,7 @@
 #define GEOMETRY_CALOGEOMETRY_CALOCELLGEOMETRY_H 1
 
 #include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Geometry/Vector/interface/GlobalVector.h"
 #include <vector>
 
 
@@ -9,8 +10,8 @@
 
   Abstract base class for an individual cell's geometry.
     
-$Date: 2005/10/27 17:46:06 $
-$Revision: 1.3 $
+$Date: 2006/04/04 15:34:34 $
+$Revision: 1.4 $
 \author J. Mans, P. Meridiani
 */
 class CaloCellGeometry {
@@ -24,6 +25,7 @@ public:
   
   /// Returns the position of reference for this cell 
   const GlobalPoint& getPosition() const { return refPoint_; }
+
   /// Setter function for the position of reference
   void setPosition(const GlobalPoint& refPoint) { refPoint_=refPoint; }
 
