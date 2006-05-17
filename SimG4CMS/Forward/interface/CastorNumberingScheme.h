@@ -1,9 +1,28 @@
-///////////////////////////////////////////////////////////////////////////////
-// File: CastorNumberingScheme.h
-// Description: Numbering scheme for Castor
-///////////////////////////////////////////////////////////////////////////////
-#ifndef CastorNumberingScheme_h
-#define CastorNumberingScheme_h
+#ifndef Forward_CastorNumberingScheme_h
+#define Forward_CastorNumberingScheme_h
+// -*- C++ -*-
+//
+// Package:     Forward
+// Class  :     CastorNumberingScheme
+//
+/**\class CastorNumberingScheme CastorNumberingScheme.h SimG4CMS/Forward/interface/CastorNumberingScheme.h
+ 
+ Description: This class manages the UnitID that labels Castor sensitive
+              volumes
+ 
+ Usage: Used in CastorSD to get unique ID of sensitive detector element
+ 
+*/
+//
+// Original Author: 
+//         Created:  Tue May 16 10:14:34 CEST 2006
+// $Id$
+//
+ 
+// system include files
+
+// user include files
+
 
 #include "G4Step.hh"
 #include <boost/cstdint.hpp>

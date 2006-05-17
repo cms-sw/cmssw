@@ -1,11 +1,27 @@
-///////////////////////////////////////////////////////////////////////////////
-// File: CastorSD.h
-// Description: Stores hits of Castor in appropriate  container
-// Use in your sensitive detector builder:
-//    CastorSD* castorSD = new CastorSD(SDname, new CaloNumberingScheme());
-///////////////////////////////////////////////////////////////////////////////
-#ifndef CastorSD_h
-#define CastorSD_h
+#ifndef Forward_CastorSD_h
+#define Forward_CastorSD_h
+// -*- C++ -*-
+//
+// Package:     Forward
+// Class  :     CastorSD
+//
+/**\class CastorSD CastorSD.h SimG4CMS/Forward/interface/CastorSD.h
+ 
+ Description: Stores hits of Castor in appropriate  container
+ 
+ Usage:
+    Used in sensitive detector builder 
+ 
+*/
+//
+// Original Author: 
+//         Created:  Tue May 16 10:14:34 CEST 2006
+// $Id$
+//
+ 
+// system include files
+
+// user include files
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
