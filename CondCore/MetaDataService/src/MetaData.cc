@@ -125,7 +125,6 @@ bool cond::MetaData::replaceToken(const std::string& name, const std::string& ne
   return true;
 }
 const std::string cond::MetaData::getToken( const std::string& name ){
-  std::cout<<"MetaData::getToken"<<std::endl;
   try{
     if( m_mode!=cond::ReadOnly ){
       m_session->transaction().start(false);
@@ -157,7 +156,6 @@ const std::string cond::MetaData::getToken( const std::string& name ){
   }catch(...){
     throw cond::Exception( "MetaData::getToken: Could not commit a transaction" );
   }
-  std::cout<<"MetaData::getToken about to get out"<<std::endl;
   return iovtoken;
 }
 void cond::MetaData::createTable(const std::string& tabname){
