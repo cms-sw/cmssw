@@ -5,7 +5,19 @@
 #include "Geometry/Surface/interface/BoundingBox.h"
 
 
-ForwardDetLayer::~ForwardDetLayer() {}
+ForwardDetLayer::ForwardDetLayer() : 
+  theDisk(0), theInitialPosition(0),
+  theRmin(0), theRmax(0), theZmin(0), theZmax(0)
+{}
+
+ForwardDetLayer::ForwardDetLayer( float initPos) : 
+  theDisk(0), theInitialPosition(initPos),
+  theRmin(0), theRmax(0), theZmin(0), theZmax(0)
+{}
+
+
+ForwardDetLayer::~ForwardDetLayer() {
+}
 
 
 //--- Extension of the interface
@@ -18,24 +30,23 @@ bool ForwardDetLayer::contains(const Local3DPoint& p) const {
 }
 
 
-void ForwardDetLayer::initialize() 
-{
+void ForwardDetLayer::initialize() {
   setSurface( computeSurface());
 }
 
 
-//typedef std::vector<const GeometricSearchDet*>  DetContainer;
-
 BoundDisk* ForwardDetLayer::computeSurface() {
 
-  vector<const GeometricSearchDet*>::const_iterator ifirst = components().begin();
-  vector<const GeometricSearchDet*>::const_iterator ilast  = components().end();
+  vector<const GeomDet*> comps= basicComponents();
+
+  vector<const GeomDet*>::const_iterator ifirst = comps.begin();
+  vector<const GeomDet*>::const_iterator ilast  = comps.end();
 
   // Find extension in R
   // float tolerance = 1.; // cm
-  float theRmin = (**ifirst).position().perp(); float theRmax = theRmin;
-  float theZmin = (**ifirst).position().z(); float theZmax = theZmin;
-  for ( vector<const GeometricSearchDet*>::const_iterator deti = ifirst;
+  float theRmin = basicComponents().front()->position().perp(); float theRmax = theRmin;
+  float theZmin = basicComponents().back()->position().z(); float theZmax = theZmin;
+  for ( vector<const GeomDet*>::const_iterator deti = ifirst;
 	deti != ilast; deti++) {
     vector<GlobalPoint> corners = 
       BoundingBox().corners( dynamic_cast<const BoundPlane&>((**deti).surface()));

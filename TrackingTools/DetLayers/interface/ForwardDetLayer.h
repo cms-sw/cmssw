@@ -19,11 +19,9 @@
 class ForwardDetLayer : public DetLayer {
 public:
 
-  ForwardDetLayer() : 
-    theDisk(0), theInitialPosition(0) {}
+  ForwardDetLayer();
 
-  ForwardDetLayer( float initPos) : 
-    theDisk(0), theInitialPosition(initPos) {}
+  ForwardDetLayer( float initPos);
 
   virtual ~ForwardDetLayer();
 
