@@ -1,15 +1,35 @@
-///////////////////////////////////////////////////////////////////////////////
-// File: HcalTB04Analysis.h
-// Analysis of 2004 Hcal Test beam simulation
-///////////////////////////////////////////////////////////////////////////////
-#ifndef HcalTB04Analysis_H
-#define HcalTB04Analysis_H
+#ifndef HcalTestBeam_HcalTB04Analysis_H
+#define HcalTestBeam_HcalTB04Analysis_H
+// -*- C++ -*-
+//
+// Package:     HcalTestBeam
+// Class  :     HcalTB04Analysis
+//
+/**\class HcalTB04Analysis HcalTB04Analysis.h SimG4CMS/HcalTestBeam/interface/HcalTB04Analysis.h
+  
+ Description: Analysis of 2004 Hcal Test beam simulation
+  
+ Usage: A Simwatcher class and can be activated from Oscarproducer module
+*/
+//
+// Original Author:  Sunanda Banerjee
+//         Created:  Thu May 18 10:14:34 CEST 2006
+// $Id$
+//
+  
+// system include files
+#include <iostream>
+#include <memory>
+#include <vector>
+#include <string>
  
+// user include files
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
  
 #include "SimG4CMS/Calo/interface/CaloHit.h"
 #include "SimG4CMS/Calo/interface/HcalQie.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB04Histo.h"
 
 #include "SimDataFormats/HcalTestBeam/interface/PHcalTB04Info.h"
 
@@ -18,10 +38,6 @@
 #include "G4ThreeVector.hh"
 
 #include <boost/cstdint.hpp>
-#include <iostream>
-#include <memory>
-#include <vector>
-#include <string>
 
 class BeginOfRun;
 class BeginOfEvent;
@@ -59,7 +75,8 @@ private:
   void fillBuffer(const EndOfEvent * evt);
   void qieAnalysis();
   void xtalAnalysis();
-  void finalAnalysis(PHcalTB04Info&);
+  void finalAnalysis();
+  void fillEvent(PHcalTB04Info&);
 
   void   clear();
   int    unitID(uint32_t id);
@@ -68,29 +85,32 @@ private:
 
 private:
 
-  HcalQie*               myQie;   
+  HcalQie*                   myQie;
+  HcalTB04Histo*             histo;
 
   // to read from parameter set
-  bool                     hcalOnly;
-  int                      mode, type;
-  double                   ecalNoise, beamOffset;
-  int                      iceta, icphi;
-  double                   scaleHB0, scaleHB16, scaleHO, scaleHE0;
-  std::vector<std::string> names;
-  G4RotationMatrix*        beamline_RM;
+  bool                       hcalOnly;
+  int                        mode, type;
+  double                     ecalNoise, beamOffset;
+  int                        iceta, icphi;
+  double                     scaleHB0, scaleHB16, scaleHO, scaleHE0;
+  std::vector<std::string>   names;
+  G4RotationMatrix*          beamline_RM;
 
   // Constants for the run
-  int                       count;
-  int                       nTower, nCrystal;
-  std::vector<int>          idHcal, idXtal;
-  std::vector<uint32_t>     idTower, idEcal;
+  int                        count;
+  int                        nTower, nCrystal;
+  std::vector<int>           idHcal, idXtal;
+  std::vector<uint32_t>      idTower, idEcal;
     
   // Constants for the event
-  int                       nPrimary, particleType;
-  double                    pInit, etaInit, phiInit;
-  std::vector<CaloHit>      ecalHitCache;
-  std::vector<CaloHit>      hcalHitCache, hcalHitLayer;
-  std::vector<double>       esimh, eqie, esime, enois;
+  int                        nPrimary, particleType;
+  double                     pInit, etaInit, phiInit;
+  std::vector<CaloHit>       ecalHitCache;
+  std::vector<CaloHit>       hcalHitCache, hcalHitLayer;
+  std::vector<double>        esimh, eqie, esime, enois;
+  std::vector<double>        eseta, eqeta, esphi, eqphi, eslay, eqlay;
+  double                     etots, eecals, ehcals, etotq, eecalq, ehcalq;
 
   bool                       pvFound;
   int                        evNum, pvType;
