@@ -1,6 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=TrackingTools/PatternTools>
+<use name=TrackingTools/DetLayers>
 <use name=CLHEP>
 
 <export>
@@ -10,5 +11,6 @@
 <use name=TrackingTools/PatternTools>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=TrackingTools/DetLayers>
 
 </export>
