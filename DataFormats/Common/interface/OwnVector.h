@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.3 2006/02/23 12:33:13 llista Exp $
+// $Id: OwnVector.h,v 1.4 2006/03/11 19:32:16 wmtan Exp $
 #include <vector>
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include <algorithm>
@@ -220,12 +220,14 @@ namespace edm {
   
   template<typename T, typename P> template<typename S>
   void OwnVector<T, P>::sort( S comp ) {
-    std::sort( data_.begin(), data_.end(), OwnVectorOrdering<value_type, S>( comp ) );
+    std::sort( data_.begin(), data_.end(), 
+	       OwnVectorOrdering<value_type, S>( comp ) );
   }
 
   template<typename T, typename P>
   void OwnVector<T, P>::sort() {
-    std::sort( data_.begin(), data_.end() );
+    std::sort( data_.begin(), data_.end(), 
+	       OwnVectorOrdering<value_type, std::less<value_type> >( std::less<value_type>() ) );
   }
 
 }

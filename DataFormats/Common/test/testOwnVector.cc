@@ -1,4 +1,4 @@
-// $Id: testOwnVector.cc,v 1.2 2006/02/07 07:01:52 wmtan Exp $
+// $Id: testOwnVector.cc,v 1.3 2006/02/23 12:33:13 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -22,12 +22,15 @@ namespace test {
     Dummy( int n, bool * r ) : value( n ), ref( r ) { }
     ~Dummy() { * ref = true; }
     int value;
+    bool operator<( const test::Dummy & o ) const {
+      return value < o.value;
+    }
   private:
     bool * ref;
   };
 
   struct DummyComp {
-    bool operator()( const Dummy& d1, const Dummy& d2 ) {
+    bool operator()( const Dummy& d1, const Dummy& d2 ) const {
       return d1.value < d2.value;
     } 
   };
@@ -69,7 +72,8 @@ void testOwnVector::checkAll() {
   i = v.begin();
   edm::OwnVector<test::Dummy>::const_iterator ci = i;
   * ci;
-  std::sort( v.begin(), v.end(), test::DummyComp() );
+  v.sort();
+  v.sort( test::DummyComp() );
   CPPUNIT_ASSERT( ! v.empty() );
   CPPUNIT_ASSERT( v[ 0 ].value == 0 );
   CPPUNIT_ASSERT( v[ 1 ].value == 1 );
