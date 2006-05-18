@@ -8,96 +8,85 @@
 
 #include <iostream>
 
-MuonCSCDetLayerGeometryBuilder::MuonCSCDetLayerGeometryBuilder() {
-}
-
-MuonCSCDetLayerGeometryBuilder::~MuonCSCDetLayerGeometryBuilder() {
-}
+using namespace std;
 
 pair<vector<DetLayer*>, vector<DetLayer*> > 
-    MuonCSCDetLayerGeometryBuilder::buildLayers(const CSCGeometry& geo) {
-        
-    vector<MuRingForwardLayer*> result[2];
-    vector<DetLayer*> detlayers[2];
-    vector<const ForwardDetRing*> muDetRings;
-            
-    for(int i=0; i<2; i++) {
-        
-        int endcap = i+1;
+MuonCSCDetLayerGeometryBuilder::buildLayers(const CSCGeometry& geo) {
 
-        for(int ring = 2; ring <= 3; ring++) {
-                
-            vector<const GeomDet*> geomDets;
-            for(int chamber = CSCDetId::minChamberId(); chamber <= CSCDetId::maxChamberId(); chamber++) {
-		  
-                const GeomDet* geomDet = geo.idToDet(CSCDetId(endcap, 1, ring, chamber, 0));
-	            if (geomDet) {
-		            geomDets.push_back(geomDet);
-		            LogDebug("RecoMuonDetLayers") << "get CSC chamber " <<  CSCDetId(endcap, 1, ring, chamber, 0) << " " << geomDet;
-		        }
-            }
-                
-		    if (geomDets.size()!=0) {
-                muDetRings.push_back(new MuDetRing(geomDets));
-		        LogDebug("RecoMuonDetLayers") << "New ring with " << geomDets.size() << " chambers";
-		    }
-        }
-                
-        result[i].push_back(new MuRingForwardLayer(muDetRings));  
-	    LogDebug("RecoMuonDetLayers") << "New layer with " << muDetRings.size() << " rings";
-        muDetRings.clear();  
-            
-        for(int ring = 1; ring <= 4; ring+=4) {
-                
-            vector<const GeomDet*> geomDets;
-            for(int chamber = CSCDetId::minChamberId(); chamber <= CSCDetId::maxChamberId(); chamber++) {
-		  
-                const GeomDet* geomDet = geo.idToDet(CSCDetId(endcap, 1, ring, chamber, 0));
-	            if (geomDet) {
-	                geomDets.push_back(geomDet);
-	                LogDebug("RecoMuonDetLayers") << "get CSC chamber " <<  CSCDetId(endcap, 1, ring, chamber, 0) << " " << geomDet;
-	            }
-            }
-                
-	        if (geomDets.size()!=0) {
-                muDetRings.push_back(new MuDetRing(geomDets));
-	            LogDebug("RecoMuonDetLayers") << "New ring with " << geomDets.size() << " chambers";
-	        }
-        }
-                
-        result[i].push_back(new MuRingForwardLayer(muDetRings));    
-	    LogDebug("RecoMuonDetLayers") << "New layer with " << muDetRings.size() << " rings" << endl;
-        muDetRings.clear();
+  vector<DetLayer*> result[2]; // one for each endcap
+     
+  for(int i=0; i<2; i++) {        
+
+    int endcap = i+1;
     
-        for(int station = 2; station <= CSCDetId::maxStationId(); station++) {
+    // ME/1/1a (= station 1, ring 4) and ME/1/1b (= station 1, ring 1)
+    {
+      vector<int> rings;
+      rings.push_back(4);
+      rings.push_back(1);
 
-            for(int ring = CSCDetId::minRingId(); ring <= CSCDetId::maxRingId(); ring++) {
-                
-                vector<const GeomDet*> geomDets;
-                for(int chamber = CSCDetId::minChamberId(); chamber <= CSCDetId::maxChamberId(); chamber++) {
-		  
-		            const GeomDet* geomDet = geo.idToDet(CSCDetId(endcap, station, ring, chamber, 0));
-		            if (geomDet) {
-		                geomDets.push_back(geomDet);
-		                LogDebug("RecoMuonDetLayers") << "get CSC chamber " <<  CSCDetId(endcap, station, ring, chamber, 0) << " " << geomDet;
-		            }
-                }
-                
-		        if (geomDets.size()!=0) {
-                    muDetRings.push_back(new MuDetRing(geomDets));
-		            LogDebug("RecoMuonDetLayers") << "New ring with " << geomDets.size() << " chambers";
-		        }
-            }
-                
-            result[i].push_back(new MuRingForwardLayer(muDetRings));    
-	        LogDebug("RecoMuonDetLayers") << "New layer with " << muDetRings.size() << " rings";
-            muDetRings.clear();
-        }
-        
-        for(vector<MuRingForwardLayer*>::const_iterator it = result[i].begin(); it != result[i].end(); it++)
-                detlayers[i].push_back((DetLayer*)(*it));
+      MuRingForwardLayer* layer = buildLayer(endcap, 1, rings, geo);          
+      if (layer) result[i].push_back(layer);  
+    }
+    
+    // ME/1/2 and 1/3 (= station 1, ring 2 and 3)
+    {
+      vector<int> rings;
+      rings.push_back(2);
+      rings.push_back(3);
+
+      MuRingForwardLayer* layer = buildLayer(endcap, 1, rings, geo);          
+      if (layer) result[i].push_back(layer);  
     }    
-    
-    pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(detlayers[0], detlayers[1]); 
-    return res_pair;
+
+    // Stations 2,3,4
+    for(int station = 2; station <= CSCDetId::maxStationId(); station++) {
+      vector<int> rings;      
+      for(int ring = CSCDetId::minRingId(); ring <= CSCDetId::maxRingId(); ring++) {
+	rings.push_back(ring);
+      }
+      MuRingForwardLayer* layer = buildLayer(endcap, station, rings, geo);          
+      if (layer) result[i].push_back(layer);
+    }
+  }
+  pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]); 
+  return res_pair;
+}
+
+MuRingForwardLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
+							       int station,
+							       vector<int>& rings,
+							       const CSCGeometry& geo) {
+  MuRingForwardLayer* result=0;
+  
+  vector<const ForwardDetRing*> muDetRings;
+
+  for (vector<int>::iterator ring = rings.begin(); ring!=rings.end(); ring++) {    
+    vector<const GeomDet*> geomDets;
+    for(int chamber = CSCDetId::minChamberId(); chamber <= CSCDetId::maxChamberId(); chamber++) {
+
+      const GeomDet* geomDet = geo.idToDet(CSCDetId(endcap, station, (*ring), chamber, 0));
+      if (geomDet) {
+	geomDets.push_back(geomDet);
+	LogDebug("Muon|CSC|RecoMuonDetLayers") << "get CSC chamber "
+					       <<  CSCDetId(endcap, station, (*ring), chamber, 0)
+					       << " at R=" << geomDet->position().perp()
+					       << ", phi=" << geomDet->position().phi();
+      }
+    }
+
+    if (geomDets.size()!=0) {
+      muDetRings.push_back(new MuDetRing(geomDets));
+      LogDebug("Muon|CSC|RecoMuonDetLayers") << "New ring with " << geomDets.size()
+					     << " chambers at z="<< muDetRings.back()->position().z();
+    }
+  }
+  
+  if (muDetRings.size()!=0) {
+    result = new MuRingForwardLayer(muDetRings);  
+    LogDebug("Muon|CSC|RecoMuonDetLayers") << "New layer with " << muDetRings.size() 
+					   << " rings, at Z " << result->position().z();
+  }
+
+  return result;
 }

@@ -46,7 +46,7 @@ MuonDTDetLayerGeometryBuilder::buildLayers(const DTGeometry& geo) {
 
     result.push_back(new MuRodBarrelLayer(muDetRods));  
     LogDebug("Muon|DT|RecoMuonDetLayers") << "    New MuRodBarrelLayer with " << muDetRods.size()
-				  << " rods, at R " << result.back()->specificSurface().radius();
+					  << " rods, at R " << result.back()->specificSurface().radius();
   }
 
   for(vector<MuRodBarrelLayer*>::const_iterator it = result.begin(); it != result.end(); it++)

@@ -1,15 +1,17 @@
 /** \file
  *
- *  $Date: 2006/05/16 09:43:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/16 10:38:43 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
-#include "RecoMuon/DetLayers/interface/MuRingForwardLayer.h"
-#include "RecoMuon/DetLayers/interface/MuDetRing.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include <RecoMuon/DetLayers/interface/MuRingForwardLayer.h>
+#include <RecoMuon/DetLayers/interface/MuDetRing.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <TrackingTools/GeomPropagators/interface/Propagator.h>
+#include <TrackingTools/PatternTools/interface/MeasurementEstimator.h>
+
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include "RBorderFinder.h"
 #include "GeneralBinFinderInR.h"
@@ -24,17 +26,16 @@ MuRingForwardLayer::MuRingForwardLayer(vector<const ForwardDetRing*>& rings) :
   theRings(rings),
   isOverlapping(false) 
 {
-
   // Cache chamber pointers (the basic components_)
   for (vector<const ForwardDetRing*>::const_iterator it=rings.begin();
        it!=rings.end(); it++) {
     vector<const GeomDet*> tmp2 = (*it)->basicComponents();
     theBasicComps.insert(theBasicComps.end(),tmp2.begin(),tmp2.end());
-  }
+  }  
 
-  RBorderFinder bf(basicComponents());
-  isOverlapping = bf.isROverlapping();
-  theBinFinder = new GeneralBinFinderInR<double>(bf);
+//   RBorderFinder bf(rings); // FIXME: change the iface of RBorderFinder...
+//   isOverlapping = bf.isROverlapping();
+//   theBinFinder = new GeneralBinFinderInR<double>(bf);
 
   ForwardDetLayer::initialize(); // Compute surface
 
@@ -43,8 +44,8 @@ MuRingForwardLayer::MuRingForwardLayer(vector<const ForwardDetRing*>& rings) :
 	 << basicComponents().size() << " Dets " 
 	 << theRings.size() << " Rings "
 	 << " Z: " << specificSurface().position().z()
-	 << " Per.: " << bf.isRPeriodic()
-	 << " Overl.: " << isOverlapping
+// 	 << " Per.: " << bf.isRPeriodic()
+// 	 << " Overl.: " << isOverlapping
 	 << endl;
 }
 
@@ -94,5 +95,6 @@ Module MuRingForwardLayer::module() const {
 
 vector<const GeometricSearchDet*> 
 MuRingForwardLayer::components() const {
-  return vector <const GeometricSearchDet*>(theRings.begin(),theRings.end());
+  vector <const GeometricSearchDet*> result(theRings.begin(),theRings.end());
+  return result;
 }
