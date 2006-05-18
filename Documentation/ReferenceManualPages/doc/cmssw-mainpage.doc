@@ -2,11 +2,6 @@
 
 This is main page of the CMSSW Reference Manual.
 
-<br><br>
-
-\section subdv SubDetector View
-Definition of packages by sub-system.
-
 \htmlonly
 
 <script type="text/javascript">
@@ -17,10 +12,10 @@ Definition of packages by sub-system.
     for( t = 0; t < tables.length; ++t ) {
       table = tables[ t ];
       if ( table.className == 'doctable' ) {
-        for(i = 1; (row = table.getElementsByTagName("tr")[i]); ++i) {
-          if(i % 2 == 1) { row.className='odd'; }
-          else { row.className='even'; }
-        }
+        for(i = 1; (row = table.getElementsByTagName("tr")[i]); ++i)
+         if ( row.className != 'colgroup' )
+           if(i % 2 == 1) { row.className='odd'; }
+           else { row.className='even'; }
       }
     }
   }
@@ -28,39 +23,91 @@ Definition of packages by sub-system.
 -->
 </script>
 
+\endhtmlonly
+
+\section datav Data View
+Definition of the event content.
+
+\htmlonly
+
 <table class="doctable">
 <caption>
 </caption>
 <tr valign=top><th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th></tr>
-<tr>
-  <td>
-  \endhtmlonly \ref MuonPackages "Muon"   \htmlonly
-  </td>
-  <td>Muon related simulation and reconstruction</td>
-  <td class="contact"><a href="mailto:">Nicola Amapane</a>,
-       <a href="mailto:">Tim Cox</a>
+<tr class="colgroup">
+  <td class="colgroup" colspan=3>Event Content by Data Tier</td>
 </tr>
 <tr>
   <td>
-  \endhtmlonly \ref CaloPackages "Calorimetry" \htmlonly
+  \endhtmlonly \ref RawData "RAW Data"  \htmlonly
   </td>
-  <td>Software for the calorimeters: ECAL, HCAL</td>
-  <td class="contact"><a href="mailto:Paolo.Meridiani@cern.ch">Paolo Meridiani</a>,
-   <a href="mailto:Jeremy.Mans@cern.ch">Jeremiah Mans</a>
+  <td>Raw detector output data
+  <td class="contact"> 
   </td>
 </tr>
 <tr>
   <td>
-  \endhtmlonly \ref TrackerPackages "Tracker"   \htmlonly
+  \endhtmlonly \ref RecoData "RECO Data"  \htmlonly
   </td>
-  <td>Tracker related simulation and reconstruction</td>
-  <td class="contact"><a href="mailto:Marcel.Vos@cern.ch">Marcel Vos</a>, <a href="mailto:Ian.Tomalin@cern.ch">Ian Tomalin</a>
+  <td>Event products of Reconstruction
+  <td class="contact"> 
+    <a href="mailto:">Luca Lista</a>
+    <a href="mailto:">Tommaso Boccali</a>
+  </td>
+</tr>
+<tr>
+  <td>
+  \endhtmlonly \ref AodData "AOD Data"  \htmlonly
+  </td>
+  <td>Event products for Analysis
+  <td class="contact"> 
+    <a href="mailto:">Luca Lista</a>
+    <a href="mailto:">Tommaso Boccali</a>
+  </td>
+</tr>
+<tr>
+  <td>
+  \endhtmlonly \ref SimData "SIM Data"  \htmlonly
+  </td>
+  <td>Event products of Simulation
+  <td class="contact"> 
+    <a href="mailto:">Daniel Elvira</a>,
+    <a href="mailto:">Maya Stavrianakou</a>
+  </td>
+</tr>
+<tr class="colgroup">
+  <td class="colgroup" colspan=3>Data Formats</td>
+</tr>
+<tr>
+  <td>
+  \endhtmlonly \ref CommonData "Common data formats"   \htmlonly
+  </td>
+  <td>Definition of commonly used persistent data types</td>
+  <td class="contact"> 
+    <a href="mailto:">Luca Lista</a>,
+    <a href="mailto:">William Tanenbaum</a>
+  </td>
+</tr>
+<tr>
+  <td>
+  \endhtmlonly \ref RecoPackages "Reco data format"   \htmlonly
+  </td>
+  <td>Definition of data types for reconstruction output</td>
+  <td class="contact"><a href="mailto:">Luca Lista</a>,
+       <a href="mailto:">Tommaso Boccali</a>
+  </td>
+</tr>
+<tr>
+  <td>
+  \endhtmlonly \ref SimPackages "Sim data format"   \htmlonly
+  </td>
+  <td>Definition of data types for simulation output</td>
+  <td class="contact">
+  </td>
 </tr>
 </table>
 
 \endhtmlonly
-
-<br>
 
 \section funcv Functional View
 Definition of packages according to the different functionalities.
@@ -78,36 +125,21 @@ Definition of packages according to the different functionalities.
   <td>Core Framework and Event Data Model components
   <td class="contact"> 
     <a href="mailto:">Liz Sexton Kennedy</a>
-</tr>
-<tr>
-  <td>
-  \endhtmlonly \ref CommonData "Common data formats"   \htmlonly
   </td>
-  <td>Definition of commonly used persistent data types</td>
-  <td class="contact"> 
-    <a href="mailto:">Luca Lista</a>,
-    <a href="mailto:">William Tanenbaum</a>
-</tr>
-<tr>
-  <td>
-  \endhtmlonly \ref RecoPackages "Reco data format"   \htmlonly
-  </td>
-  <td>Definition of data types for reconstruction output</td>
-  <td class="contact"><a href="mailto:">Luca Lista</a>,
-       <a href="mailto:">Tommaso Boccali</a>
 </tr>
 <tr>
   <td>
   \endhtmlonly \ref Reconstruction "Reconstruction"   \htmlonly
   </td>
-  <td>CMS reconstruction sofware</td>
+  <td>Reconstruction sofware</td>
   <td class="contact"><a href="mailto:">Tommaso Boccali</a>
+  </td>
 </tr>
 <tr>
   <td>
-  \endhtmlonly \ref Simulation "Simulation Software" \htmlonly
+  \endhtmlonly \ref Simulation "Simulation" \htmlonly
   </td>
-  <td>CMS Simulation Software</td>
+  <td>Simulation Software</td>
   <td class="contact">
     <a href="mailto:">Daniel Elvira</a>,
     <a href="mailto:">Maya Stavrianakou</a>
@@ -123,53 +155,49 @@ Definition of packages according to the different functionalities.
 </tr>
 <tr>
   <td>
-  \endhtmlonly \ref MagneticField "Magnetic Field" \htmlonly
+  \endhtmlonly \ref Services "Services" \htmlonly
   </td>
-  <td>Access to magnetic field maps</td>
-  <td class="contact"><a href="mailto:">Nicola Amapane</a>,
-       <a href="mailto:">Teddy Todorov</a>
+  <td>Common services</td>
+  <td class="contact">
   </td>
 </tr>
 </table>
 
 \endhtmlonly
 
-<br>
-
-\section datav Data View
-Definition of the event content.
+\section detv Detector View
+Definition of packages by detector.
 
 \htmlonly
 
 <table class="doctable">
 <caption>
 </caption>
-<tr valign=top><th class="domain">Data tier</th><th>Purpose</th><th class="contact">Contact</th></tr>
+<tr valign=top><th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th></tr>
 <tr>
   <td>
-  \endhtmlonly \ref RecoData "RECO Data"  \htmlonly
+  \endhtmlonly \ref TrackerPackages "Tracker"   \htmlonly
   </td>
-  <td>Event products of Reconstruction
-  <td class="contact"> 
-    <a href="mailto:">Luca Lista</a>
-    <a href="mailto:">Luca Lista</a>
+  <td>Tracker related simulation and reconstruction</td>
+  <td class="contact"><a href="mailto:Marcel.Vos@cern.ch">Marcel Vos</a>, <a href="mailto:Ian.Tomalin@cern.ch">Ian Tomalin</a>
 </tr>
 <tr>
   <td>
-  \endhtmlonly \ref AodData "AOD Data"  \htmlonly
+  \endhtmlonly \ref CaloPackages "Calorimetry" \htmlonly
   </td>
-  <td>Event products for Analysis
-  <td class="contact"> 
-    <a href="mailto:">Luca Lista</a>
+  <td>Software for the calorimeters: ECAL, HCAL</td>
+  <td class="contact"><a href="mailto:Paolo.Meridiani@cern.ch">Paolo Meridiani</a>,
+   <a href="mailto:Jeremy.Mans@cern.ch">Jeremiah Mans</a>
+  </td>
 </tr>
 <tr>
   <td>
-  \endhtmlonly \ref SimData "SIM Data"  \htmlonly
+  \endhtmlonly \ref MuonPackages "Muon"   \htmlonly
   </td>
-  <td>Event products of Simulation
-  <td class="contact"> 
-    <a href="mailto:">Daniel Elvira</a>,
-    <a href="mailto:">Maya Stavrianakou</a>
+  <td>Muon related simulation and reconstruction</td>
+  <td class="contact"><a href="mailto:">Nicola Amapane</a>,
+       <a href="mailto:">Tim Cox</a>
+  </td>
 </tr>
 </table>
 

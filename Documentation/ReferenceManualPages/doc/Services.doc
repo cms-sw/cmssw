@@ -1,0 +1,16 @@
+/*!
+\page Services Common services
+
+This page lists all packages related to common services to simulation and reconstruction.
+Links below point to the documentation of individual packages.
+
+- <b>Framework for the field access</b><br>
+ - \ref MagneticField             "Magnetic Field"
+ - \ref Geometry             "Geometry"
+
+
+\section contact Contact persons
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/

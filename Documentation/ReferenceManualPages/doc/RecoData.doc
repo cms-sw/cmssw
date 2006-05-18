@@ -14,11 +14,10 @@ Event products of Reconstruction.
     for( t = 0; t < tables.length; ++t ) {
       table = tables[ t ];
       if ( table.className == 'reftable' ) {
-        for(i = 1; (row = table.getElementsByTagName("tr")[i]); ++i) {
+        for(i = 1; (row = table.getElementsByTagName("tr")[i]); ++i) 
           if ( row.className != 'colgroup' )
             if(i % 2 == 1) { row.className='odd'; }
             else { row.className='even'; }
-        }
       }
     }
   }
