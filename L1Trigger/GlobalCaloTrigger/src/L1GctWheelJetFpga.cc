@@ -84,27 +84,6 @@ void L1GctWheelJetFpga::process()
     m_tauJets[iJet] = m_rawTauJets[iJet];
   }
 
-  //For use with Ht processing
-  vector<int> htVal(3);
-  unsigned long htSum;
-  bool htOfl = false;
-  int temp;
-
-  // Deal with the Ht summing
-  // Form the Ht sum from the inputs
-  // sent from the Leaf cards
-  for (int i = 0; i < MAX_LEAF_CARDS; ++i)
-  {
-    // Decode input Ht value with overflow bit
-    temp = (int) m_inputHt[i].to_ulong();
-    if (temp>=Emax)
-    {
-        htOfl = true;
-        temp = temp % Emax;
-    }
-    htVal[i] = temp;
-  }
-
   //Ht processing
   m_outputHt = m_inputHt[0] + m_inputHt[1] + m_inputHt[2];
 
