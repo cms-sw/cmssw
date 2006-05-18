@@ -21,7 +21,7 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const Track & aRecTrack,
   double theError=0.;
   bool   theIsValid;
 
-  TrajectoryStateOnSurface TSOS = TransientTrack(aRecTrack).innermostMeasurementState();
+  TrajectoryStateOnSurface TSOS = TransientTrack(aRecTrack).impactPointState();
   
   if ( !TSOS.isValid() ) {
     cout << "====>>>> SignedImpactParameter3D::apply : TSOS not valid = " << TSOS.isValid() << endl ;
@@ -112,7 +112,7 @@ pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const Tr
   double theDistanceAlongJetAxis(0.);
   double theDistanceToJetAxis(0.);
   double  theLDist_err(0.);
-  TrajectoryStateOnSurface TSOS = (aRecTrack).innermostMeasurementState();
+  TrajectoryStateOnSurface TSOS = (aRecTrack).impactPointState();
 
   if ( !TSOS.isValid() ) {
     cout << "====>>>> SignedImpactParameter3D::distanceWithJetAxis : TSOS not valid = " << TSOS.isValid() << endl ;
