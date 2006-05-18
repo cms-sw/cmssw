@@ -3,14 +3,10 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 
 #include <vector>
 #include <bitset>
-
-using std::vector;
-using std::bitset;
-
-class L1GctWheelJetFpga;
 
 /*
  * The GCT Jet classify and sort algorithms
@@ -25,48 +21,68 @@ public:
 	L1GctJetFinalStage();
 	~L1GctJetFinalStage();
 
-	/// clear internal buffers
-	virtual void reset();
+  typedef std::vector<L1GctJetCand> JetVector;
 
-	/// get input data from sources
-	virtual void fetchInput();
+  /// clear internal buffers
+  virtual void reset();
 
-	/// process the data, fill output buffers
-	virtual void process();
+  /// get input data from sources
+  virtual void fetchInput();
+
+  /// process the data, fill output buffers
+  virtual void process();
     	
-	// set input data		
-	void setInputJet(int i, L1GctJetCand jet);
+  // set input data
+  void setInputCentralJet(int i, L1GctJetCand jet);
+  void setInputForwardJet(int i, L1GctJetCand jet);
+  void setInputTauJet(int i, L1GctJetCand jet); 
 
-    /// set the wheel jet fpga pointers
-    void setInputWheelJetFpga(int i, L1GctWheelJetFpga* wjf);
+  /// set the wheel jet fpga pointers
+  void setInputWheelJetFpga(int i, L1GctWheelJetFpga* wjf);
 
-	// return input data
-	std::vector<L1GctJetCand> getInputJets() const { return m_inputJets; }
+  // return input data
+  JetVector getInputCentralJets() const { return m_inputCentralJets; }
+  JetVector getInputForwardJets() const { return m_inputForwardJets; }
+  JetVector getInputTauJets() const { return m_inputTauJets; }
 
-	// return output data
-	std::vector<L1GctJetCand> getCentralJets() const { return m_centralJets; }
-	std::vector<L1GctJetCand> getForwardJets() const { return m_forwardJets; }
-	std::vector<L1GctJetCand> getTauJets() const { return m_tauJets; }
+  // return output data
+  JetVector getCentralJets() const { return m_centralJets; }
+  JetVector getForwardJets() const { return m_forwardJets; }
+  JetVector getTauJets() const { return m_tauJets; }
 
-	inline unsigned long getHtBoundaryJets()               { return outputHtBoundaryJets.to_ulong(); }
-        inline unsigned long getJcBoundaryJets(unsigned jcnum) { return outputJcBoundaryJets[jcnum].to_ulong(); }
+  unsigned long getHtBoundaryJets() const { return outputHtBoundaryJets.to_ulong(); }
+  unsigned long getJcBoundaryJets(unsigned jcnum) const { return outputJcBoundaryJets[jcnum].to_ulong(); }
 private:
 
-	/// wheel jet FPGAs
-	std::vector<L1GctWheelJetFpga*> m_wheelFpgas;
-	
-	// input data - need to confirm number of jets!
-	std::vector<L1GctJetCand> m_inputJets;
+    /// Max number of wheel FPGA pointers
+    static const int MAX_WHEEL_FPGAS = 2;
+    /// Max number of jets of each type coming in
+    static const int MAX_JETS_IN = MAX_WHEEL_FPGAS*L1GctWheelJetFpga::MAX_JETS_OUT;
+    /// Max number of jets of each type going out
+    static const int MAX_JETS_OUT = 4;
+  
+  /// wheel jet FPGAs
+  std::vector<L1GctWheelJetFpga*> m_wheelFpgas;
 
-	// output data
-	std::vector<L1GctJetCand> m_centralJets;
-	std::vector<L1GctJetCand> m_forwardJets;
-	std::vector<L1GctJetCand> m_tauJets;
-	
-	// data sent to GlobalEnergyAlgos
-        typedef bitset<3> JcBoundType;
-	bitset<13> outputHtBoundaryJets;
-        vector<JcBoundType> outputJcBoundaryJets;
+  // input data
+  JetVector m_inputCentralJets;
+  JetVector m_inputForwardJets;
+  JetVector m_inputTauJets;
+
+  // output data
+  JetVector m_centralJets;
+  JetVector m_forwardJets;
+  JetVector m_tauJets;
+
+  // data sent to GlobalEnergyAlgos
+  typedef std::bitset<3> JcBoundType;
+  std::bitset<13> outputHtBoundaryJets;
+  std::vector<JcBoundType> outputJcBoundaryJets;
+  
+  //PRIVATE MEMBER FUNCTIONS
+  ///Enters jets into the specified storageVector, according to which wheel card we are taking them from.
+  void storeJets(JetVector& storageVector, JetVector jets, unsigned short iWheel);
+  
 };
 
 #endif /*L1GCTJETFINALSTAGE_H_*/
