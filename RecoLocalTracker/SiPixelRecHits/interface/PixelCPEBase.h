@@ -6,6 +6,7 @@
 // \description  Base class for pixel CPE's, with all the common code.
 // Perform the position and error evaluation of pixel hits using 
 // the Det angle to estimate the track impact angle.
+// 
 //-----------------------------------------------------------------------------
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
@@ -46,6 +47,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   //--------------------------------------------------------------------------
   inline LocalValues localParameters( const SiPixelCluster & cl, 
 				      const GeomDetUnit    & det ) const {
+    setTheDet( det );
     computeAnglesFromDetPosition(cl, det);
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
   }
@@ -56,6 +58,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   inline LocalValues localParameters( const SiPixelCluster & cl,
 				      const GeomDetUnit    & det, 
 				      const LocalTrajectoryParameters & ltp) const {
+    setTheDet( det );
     computeAnglesFromTrajectory(cl, det, ltp);
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
   } 
@@ -68,6 +71,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
 				      float alpha, float beta) const {
     alpha_ = alpha;
     beta_  = beta;
+    setTheDet( det );
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
   } 
 
