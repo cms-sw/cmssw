@@ -135,51 +135,55 @@ pool::TrivialFileCatalog::connect ()
 
 	seal::StringList tokens = seal::StringOps::split (m_url, "?"); 
 	m_filename = tokens[0];
-	std::string options = tokens[1];
-	seal::StringList optionTokens = seal::StringOps::split (options, "&");
 
-	for (seal::StringList::iterator option = optionTokens.begin ();
-	     option != optionTokens.end ();
-	     option++)
+	if (tokens.size () == 2)
 	{
-	    seal::StringList argTokens = seal::StringOps::split (*option, "=") ;
-	    if (argTokens.size () != 2)
+	    std::string options = tokens[1];
+	    seal::StringList optionTokens = seal::StringOps::split (options, "&");
+
+	    for (seal::StringList::iterator option = optionTokens.begin ();
+		 option != optionTokens.end ();
+		 option++)
 	    {
-		throw FCTransactionException
-		    ("TrivialFileCatalog::connect",
-		     ": Malformed url for file catalog configuration"); 
-	    }
-	    
-	    std::string key = argTokens[0];
-	    std::string value = argTokens[1];
-	    
-	    if (key == "protocol")
-	    {
-		m_protocols = seal::StringOps::split (value, ",");
-	    }
-	    else if (key == "destination")
-	    {
-		m_destination = value;
+		seal::StringList argTokens = seal::StringOps::split (*option, "=") ;
+		if (argTokens.size () != 2)
+		{
+		    throw FCTransactionException
+			("TrivialFileCatalog::connect",
+			 ": Malformed url for file catalog configuration"); 
+		}
+		
+		std::string key = argTokens[0];
+		std::string value = argTokens[1];
+		
+		if (key == "protocol")
+		{
+		    m_protocols = seal::StringOps::split (value, ",");
+		}
+		else if (key == "destination")
+		{
+		    m_destination = value;
+		}
 	    }
 	}
 	
 	if (find (m_protocols.begin (), m_protocols.end (), std::string ("direct")) == m_protocols.end ())
 	    m_protocols.push_back ("direct");
-       
+	
 	std::ifstream configFile;
 	configFile.open (m_filename.c_str ());
-
-    
+	
+	
 	trivialLog << seal::Msg::Info
 		   << "Using catalog configuration " 
 		   << m_filename << seal::endmsg;
-
+	
 	if (!configFile.good () || !configFile.is_open ())
 	{
 	    m_transactionsta = 0;
-            return;
+	    return;
 	}
-
+	
 	configFile.close ();
 	
 	XercesDOMParser* parser = new XercesDOMParser;     
