@@ -4,6 +4,7 @@
 <use name=Geometry/Records>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
+<use name=zlib>
 <flags SEAL_PLUGIN_NAME="GeometryCaloEventSetup">
 
 <export>
@@ -14,4 +15,5 @@
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
   <use name=Geometry/Records>
+  <use name=zlib>
 </export>

@@ -13,14 +13,14 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.1 2006/05/11 20:54:11 mansj Exp $
+// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.2 2006/05/11 21:00:43 mansj Exp $
 //
 //
 
 
 // user include files
 #include "Geometry/CaloEventSetup/src/CaloTowerConstituentsMapBuilder.h"
-#include <fstream>
+#include <zlib.h>
 
 //
 // constructors and destructor
@@ -72,19 +72,20 @@ CaloTowerConstituentsMapBuilder::produce(const IdealGeometryRecord& iRecord)
 void CaloTowerConstituentsMapBuilder::parseTextMap(const std::string& filename, CaloTowerConstituentsMap& theMap) {
   edm::FileInPath eff(filename);
 
-  std::ifstream fi(eff.fullPath().c_str());
+  gzFile gzed=gzopen(eff.fullPath().c_str(),"rb");
   
-  while (!fi.eof()) {
+  while (!gzeof(gzed)) {
     char line[1024];
     int ieta, iphi, rawid;
-    fi.getline(line,1023);
+    gzgets(gzed,line,1023);
     if (index(line,'#')!=0)  *(index(line,'#'))=0;
     int ct=sscanf(line,"%i %d %d",&rawid,&ieta,&iphi);
     if (ct==3) {
       DetId detid(rawid);
       CaloTowerDetId tid(ieta,iphi);
       theMap.assign(detid,tid);
-    }
+    }    
   }
+  gzclose(gzed);
 
 }
