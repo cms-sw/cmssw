@@ -2,11 +2,11 @@
 #define Common_AssociationMap_h
 /** \class edm::AssociationMap
  *
- * one-to-many reference map using EDM references
+ * one-to-many or one-to-one associative map using EDM references
  * 
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.1 2006/04/21 13:13:55 llista Exp $
+ * $Id: AssociationMap.h,v 1.2 2006/04/26 13:48:34 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
