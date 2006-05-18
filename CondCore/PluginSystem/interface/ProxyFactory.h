@@ -16,7 +16,7 @@ Usage:
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:14:06 EDT 2005
-// $Id: ProxyFactory.h,v 1.1 2005/08/29 08:52:52 xiezhen Exp $
+// $Id: ProxyFactory.h,v 1.2 2005/11/18 17:35:27 chrjones Exp $
 //
 
 // system include files
@@ -25,10 +25,10 @@ Usage:
 #include "PluginManager/PluginFactory.h"
 
 // forward declarations
-namespace pool{
+/*namespace pool{
   class IDataSvc;
 }
-
+*/
 namespace edm {
   namespace eventsetup {
     class DataProxy;
@@ -36,18 +36,19 @@ namespace edm {
 }
 
 namespace cond{
-  class ProxyFactory : public seal::PluginFactory< edm::eventsetup::DataProxy* ( pool::IDataSvc*, std::map<std::string,std::string>::iterator& ) >
-  {
+  class DBSession;
+  class ProxyFactory : public seal::PluginFactory< edm::eventsetup::DataProxy* ( cond::DBSession*, std::map<std::string,std::string>::iterator& ) >
+ {
+      
+ public:
+   ProxyFactory();
+   virtual ~ProxyFactory();
     
-  public:
-    ProxyFactory();
-    virtual ~ProxyFactory();
-    
-    // ---------- const member functions ---------------------
-    
-    // ---------- static member functions --------------------
-    static ProxyFactory* get();
-    static const char* pluginCategory();
+   // ---------- const member functions ---------------------
+   
+   // ---------- static member functions --------------------
+   static ProxyFactory* get();
+   static const char* pluginCategory();
     
     // ---------- member functions ---------------------------
 

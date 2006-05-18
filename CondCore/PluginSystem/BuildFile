@@ -1,10 +1,12 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
+<use name=CondCore/DBCommon>
 <use name=DataSvc>
 <export>
    <lib name=CondCorePluginSystem>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
+   <use name=CondCore/DBCommon>
    <use name=DataSvc>	
 </export>
 	

@@ -1,46 +1,26 @@
 #ifndef CONDCORE_PLUGINSYSTEM_DATAPROXY_H
 #define CONDCORE_PLUGINSYSTEM_DATAPROXY_H
-// -*- C++ -*-
-//
-// Package:     PluginSystem
-// Class  :     CondDataProxy
-// 
-/**\class CondDataProxy CondDataProxy.h CondCore/PluginSystem/interface/CondDataProxy.h
-
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
-*/
-//
-// Original Author:  Chris Jones
-//         Created:  Sat Jul 23 19:40:27 EDT 2005
-// $Id: DataProxy.h,v 1.8 2006/05/08 13:08:26 xiezhen Exp $
-//
-
-// system include files
 //#include <memory>
 #include <iostream>
-#include <exception>
 // user include files
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
+#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 #include "DataSvc/Ref.h"
 #include "DataSvc/RefException.h"
 #include "DataSvc/IDataSvc.h"
-#include "PersistencySvc/ISession.h"
-#include "PersistencySvc/ITransaction.h"
-// forward declarations
-/*
-namespace pool{
-  class IDataSvc;
-}
-*/
+
 namespace cond{
   template< class RecordT, class DataT >
   class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT>{
   public:
-    DataProxy( pool::IDataSvc* svc, std::map<std::string,std::string>::iterator& pProxyToToken ): m_svc(svc), m_pProxyToToken(pProxyToToken) { 
+    /*  DataProxy( pool::IDataSvc* svc, std::map<std::string,std::string>::iterator& pProxyToToken ): m_svc(svc), m_pProxyToToken(pProxyToToken) { 
+      //NOTE: We do this so that the type 'DataT' will get registered
+      // when the plugin is dynamically loaded
+      edm::eventsetup::DataKey::makeTypeTag<DataT>(); 
+    }
+    */
+    DataProxy( cond::DBSession* session, std::map<std::string,std::string>::iterator& pProxyToToken ): m_session(session), m_pProxyToToken(pProxyToToken) { 
       //NOTE: We do this so that the type 'DataT' will get registered
       // when the plugin is dynamically loaded
       edm::eventsetup::DataKey::makeTypeTag<DataT>(); 
@@ -55,23 +35,25 @@ namespace cond{
     
   protected:
     virtual const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) {
-      m_svc->session().transaction().start(pool::ITransaction::READ);
-      m_data=pool::Ref<DataT>(m_svc,m_pProxyToToken->second);
       try{
+	m_session->startReadOnlyTransaction();
+	m_data=pool::Ref<DataT>(&(m_session->DataSvc()),m_pProxyToToken->second);
 	*m_data;
-      }catch( const pool::RefException& er){
+	m_session->commit();
+      }catch( const cond::Exception& er ){
+	throw er;
+      }catch( const pool::RefException& er ){
 	//std::cerr<<"caught RefException "<<er.what()<<std::endl;
-	throw cms::Exception( er.what() );
+	throw cond::Exception( er.what() );
       }catch( const pool::Exception& er ){
 	//std::cerr<<"caught pool Exception "<<er.what()<<std::endl;
-	throw cms::Exception( er.what() );
+	throw cond::Exception( er.what() );
       }catch( const std::exception& er ){
         //std::cerr<<"caught std Exception "<<er.what()<<std::endl;
-        throw cms::Exception( er.what() );
+        throw cond::Exception( er.what() );
       }catch( ... ){
-	throw cms::Exception( "Funny error" );
+	throw cond::Exception( "Funny error" );
       }
-      m_svc->session().transaction().commit();
       return &(*m_data);
     }
     virtual void invalidateCache() {
@@ -82,7 +64,8 @@ namespace cond{
     //DataProxy(); // stop default
     const DataProxy& operator=( const DataProxy& ); // stop default
     // ---------- member data --------------------------------
-    pool::IDataSvc* m_svc;
+    //pool::IDataSvc* m_svc;
+    cond::DBSession* m_session;
     std::map<std::string,std::string>::iterator m_pProxyToToken;
     pool::Ref<DataT> m_data;
   };

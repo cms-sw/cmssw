@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:14:11 EDT 2005
-// $Id: ProxyFactory.cc,v 1.1 2005/08/29 08:52:52 xiezhen Exp $
+// $Id: ProxyFactory.cc,v 1.2 2005/11/18 17:35:27 chrjones Exp $
 //
 
 // system include files
@@ -28,11 +28,15 @@
 //
 // constructors and destructor
 //
-cond::ProxyFactory::ProxyFactory() 
+/*cond::ProxyFactory::ProxyFactory() 
   : seal::PluginFactory< edm::eventsetup::DataProxy*( pool::IDataSvc*, std::map<std::string,std::string>::iterator& ) >(pluginCategory())
 {
 }
-
+*/
+cond::ProxyFactory::ProxyFactory() 
+  : seal::PluginFactory< edm::eventsetup::DataProxy*( cond::DBSession* session, std::map<std::string,std::string>::iterator& ) >(pluginCategory())
+{
+}
 // TestCondProxyFactory::TestCondProxyFactory( const TestCondProxyFactory& rhs )
 // {
 //    // do actual copying here;
