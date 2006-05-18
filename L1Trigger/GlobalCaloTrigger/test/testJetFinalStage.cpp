@@ -36,17 +36,16 @@ const string resultsFile = "testJetFinalStageOutput.txt";
 
 // Global constants to tell the program how many jets to read in from file
 // THESE ARE TOTAL GUESSES!
-const int numInputJets = 12;  //Num. jets given as input
-const int numCentralJets = 4; //Num. central jets expected out
-const int numForwardJets = 4; //Num. forward jets expected out
-const int numTauJets = 4;     //Num. tau jets expected out
+const int numInputJets = 8;  //Num. jets of each type given as input
+const int numOutputJets = 4; //Num. Jets of each type outputted.
 
 
 //  FUNCTION PROTOTYPES
 /// Runs the test on the L1GctJetFinalStage instance passed into it.
 void classTest(L1GctJetFinalStage *myJetFinalStage);
 /// Loads test input and also the known results from a file.
-void loadTestData(JetsVector &inputJets, JetsVector &trueCentralJets,
+void loadTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
+                  JetsVector &inputTauJets, JetsVector &trueCentralJets,
                   JetsVector &trueForwardJets, JetsVector &trueTauJets);
 /// Function to safely open input files of any name, using a referenced return ifstream
 void safeOpenInputFile(ifstream &fin, const string name);
@@ -93,30 +92,49 @@ void classTest(L1GctJetFinalStage *myJetFinalStage)
     bool testPass = true; //flag to mark test failure
     
     // Vectors for reading in test data from the text file.
-    JetsVector inputJets;        //Size?
+    JetsVector inputCentralJets; //Size?
+    JetsVector inputForwardJets; //Size?
+    JetsVector inputTauJets;     //Size?
     JetsVector trueCentralJets;  //Size?
     JetsVector trueForwardJets;  //Size?
     JetsVector trueTauJets;      //Size?
     
     // Vectors for receiving the output from the object under test.
-    JetsVector outputJets;         //Size?
-    JetsVector outputCentralJets;  //Size?
-    JetsVector outputForwardJets;  //Size?
-    JetsVector outputTauJets;      //Size?
+    JetsVector outputInCentralJets;
+    JetsVector outputInForwardJets;
+    JetsVector outputInTauJets; 
+    JetsVector outputCentralJets; 
+    JetsVector outputForwardJets; 
+    JetsVector outputTauJets;     
     
     // Load our test input data and known results
-    loadTestData(inputJets, trueCentralJets, trueForwardJets, trueTauJets);
+    loadTestData(inputCentralJets, inputForwardJets, inputTauJets,
+                 trueCentralJets, trueForwardJets, trueTauJets);
     
-    //Fill the L1GctJetFinalStage with input data.
-    for(int i = 0; i < numInputJets; ++i)  //How many? See global constants at top of file
+    //Fill the L1GctJetFinalStage with input data. See me care that I'm doing this three times...
+    for(int i = 0; i < numInputJets; ++i)  
     {
-        myJetFinalStage->setInputJet(i, inputJets[i]);
+        myJetFinalStage->setInputCentralJet(i, inputCentralJets[i]);
+    }
+    
+    for(int i = 0; i < numInputJets; ++i) 
+    {
+        myJetFinalStage->setInputForwardJet(i, inputForwardJets[i]);
+    }
+    
+    for(int i = 0; i < numInputJets; ++i) 
+    {
+        myJetFinalStage->setInputTauJet(i, inputTauJets[i]);
     }
 
     // Test the getInputJets() method
-    outputJets = myJetFinalStage->getInputJets();
-    if(!compareJetsVectors(outputJets, inputJets, "initial data input/output")) { testPass = false; }
-    
+    outputInCentralJets = myJetFinalStage->getInputCentralJets();
+    if(!compareJetsVectors(outputInCentralJets, inputCentralJets, "central jets initial data input/output")) { testPass = false; }
+    outputInForwardJets = myJetFinalStage->getInputForwardJets();
+    if(!compareJetsVectors(outputInForwardJets, inputForwardJets, "forward jets initial data input/output")) { testPass = false; }
+    outputInTauJets = myJetFinalStage->getInputTauJets();
+    if(!compareJetsVectors(outputInTauJets, inputTauJets, "tau jets initial data input/output")) { testPass = false; }
+        
     myJetFinalStage->process();  //Run algorithm
     
     //Get the outputted jets and store locally
@@ -133,7 +151,9 @@ void classTest(L1GctJetFinalStage *myJetFinalStage)
     cout << "\nWriting results of processing to file " << resultsFile << "..." << endl;;
     ofstream fout;
     safeOpenOutputFile(fout, resultsFile);
-    outputJetsVector(fout, outputJets, "Inputted Jets");
+    outputJetsVector(fout, outputInCentralJets, "Inputted Central Jets");
+    outputJetsVector(fout, outputInForwardJets, "Inputted Forward Jets");
+    outputJetsVector(fout, outputInTauJets, "Inputted Tau Jets");
     outputJetsVector(fout, outputCentralJets, "Central Jets");
     outputJetsVector(fout, outputForwardJets, "Forward Jets");
     outputJetsVector(fout, outputTauJets, "Tau Jets");
@@ -144,22 +164,24 @@ void classTest(L1GctJetFinalStage *myJetFinalStage)
     myJetFinalStage->reset();
     
     //get all the data again - should all be empty
-    outputJets = myJetFinalStage->getInputJets();
+    outputInCentralJets = myJetFinalStage->getInputCentralJets();
+    outputInForwardJets = myJetFinalStage->getInputForwardJets();
+    outputInTauJets = myJetFinalStage->getInputTauJets();
     outputCentralJets = myJetFinalStage->getCentralJets();
     outputForwardJets = myJetFinalStage->getForwardJets();
     outputTauJets = myJetFinalStage->getTauJets();
     
+    //vectors just for reset comparison
+    JetsVector empty8JetVec(8);
+    JetsVector emtpy4JetVec(4);
+    
     //Test that all the outputted vectors are indeed empty
-    if(outputJets.empty() && outputCentralJets.empty() &&
-       outputForwardJets.empty() && outputTauJets.empty())
-    {   
-        cout << "\nTest class has passed reset method testing." << endl;
-    }
-    else
-    {
-        cout << "\nTest class has FAILED reset method testing!" << endl;
-        testPass = false;
-    }
+    if(!compareJetsVectors(outputInCentralJets, empty8JetVec, "input central jets reset")) { testPass = false; }
+    if(!compareJetsVectors(outputInForwardJets, empty8JetVec, "input forward jets reset")) { testPass = false; }
+    if(!compareJetsVectors(outputInTauJets, empty8JetVec, "input tau jets reset")) { testPass = false; }
+    if(!compareJetsVectors(outputCentralJets, emtpy4JetVec, "output central jets reset")) { testPass = false; }
+    if(!compareJetsVectors(outputForwardJets, emtpy4JetVec, "output forward jets reset")) { testPass = false; }
+    if(!compareJetsVectors(outputTauJets, emtpy4JetVec, "output tau jets reset")) { testPass = false; }
     
     //Print overall results summary to screen
     if(testPass)
@@ -180,7 +202,8 @@ void classTest(L1GctJetFinalStage *myJetFinalStage)
 
 
 /// Loads test input and also the known results from a file.
-void loadTestData(JetsVector &inputJets, JetsVector &trueCentralJets,
+void loadTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
+                  JetsVector &inputTauJets, JetsVector &trueCentralJets,
                   JetsVector &trueForwardJets, JetsVector &trueTauJets)
 {
     // File input stream
@@ -189,10 +212,12 @@ void loadTestData(JetsVector &inputJets, JetsVector &trueCentralJets,
     safeOpenInputFile(fin, testDataFile);  //open the file
     
     // Loads the input data, and the correct results of processing from the file
-    putJetsInVector(fin, inputJets, numInputJets);          //How many input jets? See global constants.
-    putJetsInVector(fin, trueCentralJets, numCentralJets);  //How many?? See global constants.
-    putJetsInVector(fin, trueForwardJets, numForwardJets);  //How many?? See global constants.
-    putJetsInVector(fin, trueTauJets, numTauJets);          //How many?? See global constants.   
+    putJetsInVector(fin, inputCentralJets, numInputJets);
+    putJetsInVector(fin, inputForwardJets, numInputJets);
+    putJetsInVector(fin, inputTauJets, numInputJets);
+    putJetsInVector(fin, trueCentralJets, numOutputJets);  
+    putJetsInVector(fin, trueForwardJets, numOutputJets);  
+    putJetsInVector(fin, trueTauJets, numOutputJets);          
 
     fin.close();    
         
