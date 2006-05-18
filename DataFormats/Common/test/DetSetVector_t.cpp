@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.4 2006/03/23 23:58:34 wmtan Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.5 2006/05/11 20:04:46 paterno Exp $
  *  CMSSW
  *
  */
@@ -146,6 +146,24 @@ void sanity_check(coll_type const& c)
     }
 }
 
+void check_ids(coll_type const& c)
+{
+  // Long way to get all ids...
+  std::vector<det_id_type> all_ids;
+  for (coll_type::const_iterator i = c.begin(),
+	 e = c.end();
+       i !=  e;
+       ++i)
+    {
+      all_ids.push_back( i->id );
+    }
+  assert( c.size() == all_ids.size() );
+
+  std::vector<det_id_type> nice_ids;
+  c.getIds(nice_ids);
+  assert( all_ids == nice_ids );
+}
+
 
 void detsetTest() 
 {
@@ -235,6 +253,7 @@ void refTest()
   MyHandle<coll_type> pc2(&c);
   RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(3),c[3].data.begin());
   assert(!(v1<*refDet)&&!(*refDet < v1));
+
 }
 
 void work() 
@@ -380,6 +399,35 @@ void work()
     r.data.push_back(Value(4.0));
     c.post_insert();
     sanity_check(c);
+  }
+  {
+    // Make sure we can swap in a vector.
+    const unsigned int numDetSets = 20;
+    const unsigned int detSetSize = 14;
+    std::vector<detset> v;
+    for (unsigned int i = 0; i < numDetSets; ++i)
+      {
+	detset    d(i);
+	for (unsigned int j = 0; j < detSetSize; ++j)
+	  {
+	    d.data.push_back(Value(100*i + 1.0/j));
+	  }
+	v.push_back(d);
+      }
+    assert( v.size() == numDetSets );
+    coll_type c(v);
+    c.post_insert();
+    assert( v.size() == 0 );
+    assert( c.size() == numDetSets );
+    sanity_check(c);
+
+    coll_type c2;
+    c2 = c;
+    assert( c2.size() == numDetSets );
+    sanity_check(c);
+    sanity_check(c2);
+
+    check_ids(c);
   }
 }
 

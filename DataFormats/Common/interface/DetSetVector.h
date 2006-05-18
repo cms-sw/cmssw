@@ -23,15 +23,18 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.3 2006/03/23 23:58:33 wmtan Exp $
+$Id: DetSetVector.h,v 1.4 2006/05/11 20:04:45 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
+#include <iterator>
 #include <vector>
 
 #include "boost/concept_check.hpp"
 #include "boost/type_traits.hpp"
+#include "boost/lambda/lambda.hpp"
+#include "boost/lambda/bind.hpp"
 
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -99,16 +102,22 @@ namespace edm {
     typedef typename collection_type::const_iterator const_iterator;
     typedef typename collection_type::size_type      size_type;
 
-    /// Compiler-generated default c'tor, copy c'tor, d'tor and
+    /// Compiler-generated copy c'tor, d'tor and
     /// assignment are correct.
 
-    // Add the following only if needed.
-    //template <class InputIterator>
-    //DetSetVector(InputIterator b, InputIterator e);
+    /// Create an empty DetSetVector
+    DetSetVector();
+
+    /// Create a DetSetVector by copying swapping in the given vector,
+    /// and then sorting the contents.
+    /// N.B.: Swapping in the vector *destructively modifies the input*.
+    /// Using swap here allows us to avoid copying the data.
+    explicit DetSetVector(std::vector<DetSet<T> > & input);
+
 
     void swap(DetSetVector& other);
 
-    //    DetSetVector& operator=(DetSetVector const& rhs);
+    DetSetVector& operator= (DetSetVector const& other);
 
     ///  Insert the given DetSet.
     // What should happen if there is already a DetSet with this
@@ -151,6 +160,10 @@ namespace edm {
     iterator       end();
     const_iterator end() const;
 
+    /// Push all the id for each DetSet stored in this DetSetVector
+    /// into the given vector 'result'.
+    void getIds(std::vector<det_id_type> & result) const;
+
     /// This function will be called by the edm::Event after the
     /// DetSetVector has been inserted into the Event.
     void post_insert();
@@ -165,9 +178,34 @@ namespace edm {
 
   template <class T>
   inline
+  DetSetVector<T>::DetSetVector() :
+    _sets()
+  { }
+
+  template <class T>
+  inline
+  DetSetVector<T>::DetSetVector(std::vector<DetSet<T> > & input) :
+    _sets()
+  {
+    _sets.swap(input);
+    _sort();
+  }
+
+  template <class T>
+  inline
   void
   DetSetVector<T>::swap(DetSetVector<T>& other) {
     _sets.swap(other._sets);
+  }
+
+  template <class T>
+  inline
+  DetSetVector<T>&
+  DetSetVector<T>::operator= (DetSetVector<T> const& other)
+  {
+    DetSetVector<T> temp(other);
+    swap(temp);
+    return *this;
   }
 
   template <class T>
@@ -291,6 +329,18 @@ namespace edm {
   typename DetSetVector<T>::const_iterator
   DetSetVector<T>::end() const {
     return _sets.end();
+  }
+
+
+  template <class T>
+  inline
+  void
+  DetSetVector<T>::getIds(std::vector<det_id_type> & result) const
+  {
+    using namespace boost::lambda;
+    std::transform(this->begin(), this->end(),
+		   std::back_inserter(result),
+		   bind(&DetSet<T>::id, _1));
   }
 
   template <class T>
