@@ -16,10 +16,10 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
   AlgebraicMatrix H(aRecHit.projectionMatrix());
 
   // Residuals of aPredictedState w.r.t. aRecHit, 
-  AlgebraicVector r(aRecHit.parameters(tsos) - me.measuredParameters(aRecHit));
+  AlgebraicVector r(aRecHit.parameters() - me.measuredParameters(aRecHit));
 
   // and covariance matrix of residuals
-  AlgebraicSymMatrix V(aRecHit.parametersError(tsos));
+  AlgebraicSymMatrix V(aRecHit.parametersError());
   AlgebraicSymMatrix R(V + me.measuredError(aRecHit));
   int ierr; R.invert(ierr); // if (ierr != 0) throw exception;
 

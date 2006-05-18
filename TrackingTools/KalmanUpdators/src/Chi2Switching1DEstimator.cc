@@ -1,5 +1,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2Switching1DEstimator.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 using namespace std;
 

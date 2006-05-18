@@ -1,4 +1,5 @@
 #include "TrackingTools/KalmanUpdators/interface/Strip1DMeasurementTransformator.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 Strip1DMeasurementTransformator::Strip1DMeasurementTransformator(const TSOS& tsos,
 							 const TransientTrackingRecHit& hit) : 

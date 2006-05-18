@@ -1,6 +1,7 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2StripEstimator.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 using namespace std;
 
