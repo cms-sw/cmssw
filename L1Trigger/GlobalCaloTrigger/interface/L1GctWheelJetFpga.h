@@ -4,9 +4,9 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 
 #include <vector>
-#include <bitset>
 
 class L1GctWheelJetFpga : public L1GctProcessor
 {
@@ -35,17 +35,17 @@ public:
   /// get the input jets. Jets 0-5 from leaf card 0, jetfinderA.  Jets 6-11 from leaf card 0, jetfinder B... etc.
   JetVector getInputJets() const { return m_inputJets; }
     
-  // get the input Ht
-  unsigned long getInputHt(unsigned leafnum) const { return m_inputHt[leafnum].to_ulong(); }
+  /// get the input Ht
+  L1GctScalarEtVal inputHt(unsigned leafnum) const { return m_inputHt[leafnum]; }
     
-  // get the output jets
+  /// get the output jets
   JetVector getCentralJets() const { return m_centralJets; }
   JetVector getForwardJets() const { return m_forwardJets; }
   JetVector getTauJets() const { return m_tauJets; }
     
-  // get the output Ht and jet counts
-  unsigned long getOutputHt() const { return m_outputHt.to_ulong(); }
-  unsigned long getOutputJc(unsigned jcnum) const { return m_outputJc[jcnum].to_ulong(); }
+  /// get the output Ht and jet counts
+  L1GctScalarEtVal outputHt() const { return m_outputHt; }
+  L1GctJcWheelType outputJc(unsigned jcnum) const { return m_outputJc[jcnum]; }
 
   /// Max number of jets of each type (central, foward, tau) we output.
   static const int MAX_JETS_OUT = 4;
@@ -75,15 +75,7 @@ private:
   JetVector m_rawTauJets; 
 
   // input Ht sums from each leaf card
-  static const int NUM_BITS_ENERGY_DATA = 13;
-  static const int OVERFLOW_BIT = NUM_BITS_ENERGY_DATA - 1;
-
-  static const int Emax = (1<<NUM_BITS_ENERGY_DATA);
-  static const int signedEmax = (Emax>>1);
-
-  // input data - need to confirm number of bits!
-  typedef std::bitset<NUM_BITS_ENERGY_DATA> InputEnergyType;
-  std::vector<InputEnergyType> m_inputHt;
+  std::vector<L1GctScalarEtVal> m_inputHt;
 
   // output data
   JetVector m_centralJets;
@@ -91,9 +83,8 @@ private:
   JetVector m_tauJets;
     
   // data sent to GlobalEnergyAlgos
-  typedef std::bitset<3> JcWheelType;
-  std::bitset<NUM_BITS_ENERGY_DATA> m_outputHt;
-  std::vector<JcWheelType> m_outputJc;
+  L1GctScalarEtVal m_outputHt;
+  std::vector<L1GctJcWheelType> m_outputJc;
       
   //PRIVATE METHODS
   /// Puts the output from a jetfinder into the correct index range of the m_inputJets array. 

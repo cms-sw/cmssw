@@ -2,9 +2,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-using std::vector;
-using std::bitset;
-
 L1GctJetFinalStage::L1GctJetFinalStage():
   m_wheelFpgas(MAX_WHEEL_FPGAS),
   m_inputCentralJets(MAX_JETS_IN),
@@ -12,7 +9,8 @@ L1GctJetFinalStage::L1GctJetFinalStage():
   m_inputTauJets(MAX_JETS_IN),
   m_centralJets(MAX_JETS_OUT),
   m_forwardJets(MAX_JETS_OUT),
-  m_tauJets(MAX_JETS_OUT)
+  m_tauJets(MAX_JETS_OUT),
+  m_outputJc(12)
 {
 }
 
@@ -35,7 +33,12 @@ void L1GctJetFinalStage::reset()
   m_inputTauJets.resize(MAX_JETS_IN);
   m_centralJets.resize(MAX_JETS_OUT);
   m_forwardJets.resize(MAX_JETS_OUT);
-  m_tauJets.resize(MAX_JETS_OUT);  
+  m_tauJets.resize(MAX_JETS_OUT);
+  //
+  m_outputHt.reset();
+  for (int i=0; i<12; ++i) {
+    m_outputJc[i].reset();
+  }
 }
 
 void L1GctJetFinalStage::fetchInput()

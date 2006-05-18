@@ -4,9 +4,9 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 
 #include <vector>
-#include <bitset>
 
 /*
  * The GCT Jet classify and sort algorithms
@@ -50,8 +50,8 @@ public:
   JetVector getForwardJets() const { return m_forwardJets; }
   JetVector getTauJets() const { return m_tauJets; }
 
-  unsigned long getHtBoundaryJets() const { return outputHtBoundaryJets.to_ulong(); }
-  unsigned long getJcBoundaryJets(unsigned jcnum) const { return outputJcBoundaryJets[jcnum].to_ulong(); }
+  inline L1GctScalarEtVal outputHt() const { return m_outputHt; }
+  inline L1GctJcBoundType outputJc(unsigned jcnum) const { return m_outputJc[jcnum]; }
 private:
 
     /// Max number of wheel FPGA pointers
@@ -75,9 +75,8 @@ private:
   JetVector m_tauJets;
 
   // data sent to GlobalEnergyAlgos
-  typedef std::bitset<3> JcBoundType;
-  std::bitset<13> outputHtBoundaryJets;
-  std::vector<JcBoundType> outputJcBoundaryJets;
+  L1GctScalarEtVal m_outputHt;
+  std::vector<L1GctJcBoundType> m_outputJc;
   
   //PRIVATE MEMBER FUNCTIONS
   ///Enters jets into the specified storageVector, according to which wheel card we are taking them from.

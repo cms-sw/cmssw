@@ -4,7 +4,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 
-#include <bitset>
 #include <vector>
 
 class L1GctJetLeafCard;
@@ -48,22 +47,13 @@ private:
 	///
 	/// the jet leaf card
 	std::vector<L1GctJetLeafCard*> m_inputLeafCards;
-
-/*         typedef L1GctTwosComplement<12> L1GctEtComponent; */
-
-/* 	static const int NUM_BITS_ENERGY_DATA = 13; */
-/* 	static const int OVERFLOW_BIT = NUM_BITS_ENERGY_DATA - 1; */
-
-/*         static const int Emax = (1<<NUM_BITS_ENERGY_DATA); */
-/*         static const int signedEmax = (Emax>>1); */
-
-/* 	// input data - need to confirm number of bits! */
-/*         typedef std::bitset<NUM_BITS_ENERGY_DATA> InputEnergyType; */
+	///
+	/// the input components from each input card
 	std::vector<L1GctEtComponent> m_inputEx;
 	std::vector<L1GctEtComponent> m_inputEy;
 	std::vector<L1GctScalarEtVal> m_inputEt;
-	
-	// output data
+	///
+	/// output data
 	L1GctEtComponent m_outputEx;
 	L1GctEtComponent m_outputEy;
 	L1GctScalarEtVal m_outputEt;

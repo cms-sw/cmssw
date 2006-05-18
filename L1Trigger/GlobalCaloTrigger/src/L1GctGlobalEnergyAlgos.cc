@@ -5,10 +5,10 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
 
 L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() :
-  inputJcValPlusWheel(12),
-  inputJcVlMinusWheel(12),
-  inputJcBoundaryJets(12),
-  outputJetCounts(12)
+  m_jcValPlusWheel(12),
+  m_jcVlMinusWheel(12),
+  m_jcBoundaryJets(12),
+  m_outputJetCounts(12)
 {
 }
 
@@ -25,51 +25,42 @@ void L1GctGlobalEnergyAlgos::reset()
   m_eyVlMinusWheel.reset();
   m_etValPlusWheel.reset();
   m_etVlMinusWheel.reset();
-  inputHtValPlusWheel.reset();
-  inputHtVlMinusWheel.reset();
-  inputHtBoundaryJets.reset();
+  m_htValPlusWheel.reset();
+  m_htVlMinusWheel.reset();
+  m_htBoundaryJets.reset();
   for (int i=0; i<12; i++) {
-    inputJcValPlusWheel[i].reset();
-    inputJcVlMinusWheel[i].reset();
-    inputJcBoundaryJets[i].reset();
+    m_jcValPlusWheel[i].reset();
+    m_jcVlMinusWheel[i].reset();
+    m_jcBoundaryJets[i].reset();
   }
-  //
-  ovfloHtValPlusWheel = false;
-  ovfloHtVlMinusWheel = false;
-  ovfloHtBoundaryJets = false;
   //
   m_outputEtMiss.reset();
   m_outputEtMissPhi.reset();
   m_outputEtSum.reset();
-  outputEtHad.reset();
+  m_outputEtHad.reset();
   for (int i=0; i<12; i++) {
-    outputJetCounts[i].reset();
+    m_outputJetCounts[i].reset();
   }
 }
 
 void L1GctGlobalEnergyAlgos::fetchInput() {
-  unsigned EinU;
-  bool EOvflo;
   // input from WheelEnergyFpgas
   m_exValPlusWheel = m_plusWheelFpga->outputEx();
   m_eyValPlusWheel = m_plusWheelFpga->outputEy();
   m_etValPlusWheel = m_plusWheelFpga->outputEt();
+  m_htValPlusWheel = m_plusWheelJetFpga->outputHt();
   
   m_exVlMinusWheel = m_minusWheelFpga->outputEx();
   m_eyVlMinusWheel = m_minusWheelFpga->outputEy();
   m_etVlMinusWheel = m_minusWheelFpga->outputEt();
-  // input from WheelJetFpgas and JetFinalStage
-  decodeUnsignedInput( m_plusWheelJetFpga->getOutputHt(), EinU, EOvflo);
-  setInputWheelHt((unsigned) 0, EinU, EOvflo);
-  decodeUnsignedInput( m_minusWheelJetFpga->getOutputHt(), EinU, EOvflo);
-  setInputWheelHt((unsigned) 1, EinU, EOvflo);
+  m_htVlMinusWheel = m_minusWheelJetFpga->outputHt();
+
+  m_htBoundaryJets = m_jetFinalStage->outputHt();
   //
-  decodeUnsignedInput( m_jetFinalStage->getHtBoundaryJets(), EinU, EOvflo);
-  setInputBoundaryHt(EinU, EOvflo);
   for (unsigned i=0; i<12; i++) {
-    setInputWheelJc((unsigned) 0, i, (unsigned) m_plusWheelJetFpga->getOutputJc(i));
-    setInputWheelJc((unsigned) 1, i, (unsigned) m_minusWheelJetFpga->getOutputJc(i));
-    setInputBoundaryJc(i, (unsigned) m_jetFinalStage->getJcBoundaryJets(i));
+    m_jcValPlusWheel[i] = m_plusWheelJetFpga->outputJc(i);
+    m_jcVlMinusWheel[i] = m_minusWheelJetFpga->outputJc(i);
+    m_jcBoundaryJets[i] = m_jetFinalStage->outputJc(i);
   }
 }
 
@@ -79,12 +70,7 @@ void L1GctGlobalEnergyAlgos::process()
 {
   L1GctEtComponent ExSum, EySum;
   L1GctGlobalEnergyAlgos::etmiss_vec EtMissing;
-  unsigned long HtPlus, HtMinus, HtBound, HtSum;
-  bool HtOvflo;
-  std::bitset<13> HtResult;
 
-  const unsigned Emax=(1<<12);
- 
   //
   //-----------------------------------------------------------------------------
   // Form the Ex and Ey sums
@@ -98,73 +84,18 @@ void L1GctGlobalEnergyAlgos::process()
 
   //
   //-----------------------------------------------------------------------------
-  // Form the Et sum
+  // Form the Et and Ht sums
   m_outputEtSum = m_etValPlusWheel + m_etVlMinusWheel;
-
-  //
-  //-----------------------------------------------------------------------------
-  // Form the Ht sum
-  HtPlus  = inputHtValPlusWheel.to_ulong();
-  HtMinus = inputHtVlMinusWheel.to_ulong();
-  HtBound = inputHtBoundaryJets.to_ulong();
-  //
-  HtSum = HtPlus + HtMinus + HtBound;
-  if (HtSum>=Emax) {
-    HtSum = HtSum % Emax;
-    HtOvflo = true;
-  } else {
-    HtOvflo = ovfloHtValPlusWheel or ovfloHtVlMinusWheel or ovfloHtBoundaryJets;
-  }
-  //
-  std::bitset<13> htBits(HtSum);
-  HtResult = htBits;
-  if (HtOvflo) {HtResult.set(12);}
-  //
-  outputEtHad = HtResult;
+  m_outputEtHad = m_htValPlusWheel + m_htVlMinusWheel + m_htBoundaryJets;
 
   //
   //-----------------------------------------------------------------------------
   // Add the jet counts.
-  // Use std::bitset operations to implement the addition.
   for (int i=0; i<12; i++) {
-    JcFinalType jcResult;
-    bool carry;
-    //
-    if ((inputJcValPlusWheel[i].count()==inputJcValPlusWheel[i].size()) ||
-	(inputJcVlMinusWheel[i].count()==inputJcVlMinusWheel[i].size()) ||
-	(inputJcBoundaryJets[i].count()==inputJcBoundaryJets[i].size())) {
-      jcResult.set();
-    } else {
-      // Add the inputs from the two wheels
-      jcResult.reset();
-      carry = false;
-      for (int j=0; j<4; j++) {
-        bool b1, b2;
-        b1 = inputJcValPlusWheel[i].test(j);
-        b2 = inputJcVlMinusWheel[i].test(j);
-        if ((b1 ^ b2) ^ carry) jcResult.set(j);
-        carry = (b1&b2) | (b1&carry) | (b2&carry);
-      }
-      if (carry) jcResult.set(4);
-      // Add the result to the boundary jet input
-      carry = false;
-      for (int j=0; j<3; j++) {
-        bool b1, b2;
-        b1 = inputJcBoundaryJets[i].test(j);
-        b2 = jcResult.test(j);
-        if ((b1 ^ b2) ^ carry) jcResult.set(j); else jcResult.reset(j);
-        carry = (b1&b2) | (b1&carry) | (b2&carry);
-      }
-      for (int j=3; j<5; j++) {
-	bool b;
-	b = jcResult.test(j);
-        if (carry ^ b) jcResult.set(j); else jcResult.reset(j);
-        carry = carry & b;
-      }
-      if (carry) jcResult.set();
-    }
-    //
-    outputJetCounts[i] = jcResult;
+    m_outputJetCounts[i] =
+      L1GctJcFinalType(m_jcValPlusWheel[i]) +
+      L1GctJcFinalType(m_jcVlMinusWheel[i]) +
+      L1GctJcFinalType(m_jcBoundaryJets[i]);
   }
 }
 
@@ -243,18 +174,12 @@ void L1GctGlobalEnergyAlgos::setInputWheelEt(unsigned wheel, unsigned energy, bo
 //
 void L1GctGlobalEnergyAlgos::setInputWheelHt(unsigned wheel, unsigned energy, bool overflow)
 {
-  unsigned long energyInput;
-  bool          energyOvflo;
-
-  checkUnsignedNatural(energy, overflow, (int) 12, energyInput, energyOvflo);
-
-  std::bitset<12> energyBits(energyInput);
   if (wheel==0) {
-    inputHtValPlusWheel = energyBits;
-    ovfloHtValPlusWheel = energyOvflo;
+    m_htValPlusWheel.setValue(energy);
+    m_htValPlusWheel.setOverFlow(overflow);
   } else if (wheel==1) {
-    inputHtVlMinusWheel = energyBits;
-    ovfloHtVlMinusWheel = energyOvflo;
+    m_htVlMinusWheel.setValue(energy);
+    m_htVlMinusWheel.setOverFlow(overflow);
   }
 }
 
@@ -265,14 +190,8 @@ void L1GctGlobalEnergyAlgos::setInputWheelHt(unsigned wheel, unsigned energy, bo
 //
 void L1GctGlobalEnergyAlgos::setInputBoundaryHt(unsigned energy, bool overflow)
 {
-  unsigned long energyInput;
-  bool          energyOvflo;
-
-  checkUnsignedNatural(energy, overflow, (int) 12, energyInput, energyOvflo);
-
-  std::bitset<12> energyBits(energyInput);
-  inputHtBoundaryJets = energyBits;
-  ovfloHtBoundaryJets = energyOvflo;
+  m_htBoundaryJets.setValue(energy);
+  m_htBoundaryJets.setOverFlow(overflow);
 }
 
 
@@ -281,21 +200,10 @@ void L1GctGlobalEnergyAlgos::setInputBoundaryHt(unsigned energy, bool overflow)
 //
 void L1GctGlobalEnergyAlgos::setInputWheelJc(unsigned wheel, unsigned jcnum, unsigned count)
 {
-  unsigned long valueInput;
-  JcWheelType countBits;
-
-  countBits.set();
-  if (jcnum>=0 && jcnum<12) {
-    valueInput = count;
-    if (valueInput<0x10) {
-     JcWheelType bits(valueInput);
-     countBits = bits;
-    }
-    if (wheel==0) {
-      inputJcValPlusWheel[jcnum] = countBits;
-    } else if (wheel==1) {
-      inputJcVlMinusWheel[jcnum] = countBits;
-    }
+  if (wheel==0) {
+    m_jcValPlusWheel[jcnum].setValue(count);
+  } else if (wheel==1) {
+    m_jcVlMinusWheel[jcnum].setValue(count);
   }
 
 }
@@ -307,69 +215,13 @@ void L1GctGlobalEnergyAlgos::setInputWheelJc(unsigned wheel, unsigned jcnum, uns
 //
 void L1GctGlobalEnergyAlgos::setInputBoundaryJc(unsigned jcnum, unsigned count)
 {
-  unsigned long valueInput;
-  JcBoundType countBits;
-
-  countBits.set();
-  if (jcnum>=0 && jcnum<12) {
-    valueInput = count;
-    if (valueInput<0x08) {
-     JcBoundType bits(valueInput);
-     countBits = bits;
-    }
-    inputJcBoundaryJets[jcnum] = countBits;
-  }
+  m_jcBoundaryJets[jcnum].setValue(count);
 
 }
 
 //----------------------------------------------------------------------------------------------
-// The following code is private.
 //
-// Functions to convert input energies and overflow bits
-// to unsigned quantities that can be stored in a given 
-// number of bits.
-//
-// Separate versions for unsigned and integer inputs.
-//
-void L1GctGlobalEnergyAlgos::checkUnsignedNatural(  unsigned E, bool O, int nbits, unsigned long &Eout, bool &Oout)
-{
-  unsigned long energyInput;
-  bool          energyOvflo;
-  const unsigned max=(1<<nbits);
-
-  energyInput = E;
-  if (energyInput>=max) {
-    energyInput = energyInput % max;
-    energyOvflo = true;
-  } else {
-    energyOvflo = O;
-  }
-  Eout = energyInput;
-  Oout = energyOvflo;
-}
-
-//----------------------------------------------------------------------------------------------
-//
-// Decode 13-bit value to 12-bits unsigned plus overflow
-void L1GctGlobalEnergyAlgos::decodeUnsignedInput( unsigned long Ein, unsigned &Eout, bool &Oout)
-{
-  unsigned energyInput;
-  bool     energyOvflo;
-  const unsigned max=(1<<12);
-
-  energyInput = Ein;
-  if (energyInput>=max) {
-    energyInput = energyInput % max;
-    energyOvflo = true;
-  } else {
-    energyOvflo = false;
-  }
-  Eout = energyInput;
-  Oout = energyOvflo;
-
-}
-
-//-----------------------------------------------------------------------------------
+// PRIVATE MEMBER FUNCTION
 //
 // Here's the Etmiss calculation
 //

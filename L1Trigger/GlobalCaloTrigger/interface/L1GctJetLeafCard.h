@@ -54,7 +54,7 @@ public:
     
   /// get the Et output
   inline L1GctScalarEtVal outputEt() const { return m_etSum; }
-  inline unsigned long getOutputHt() const { return outputHt.to_ulong(); }
+  inline L1GctScalarEtVal outputHt() const { return m_htSum; }
    
   static const int MAX_JET_FINDERS = 3;
 
@@ -75,18 +75,18 @@ private:
   // internal data (other than jets)
   /* typedef L1GctTwosComplement<12> L1GctEtComponent; */
 
-  static const int NUM_BITS_ENERGY_DATA = 13;
-  static const int OVERFLOW_BIT = NUM_BITS_ENERGY_DATA - 1;
+/*   static const int NUM_BITS_ENERGY_DATA = 13; */
+/*   static const int OVERFLOW_BIT = NUM_BITS_ENERGY_DATA - 1; */
 
-  static const int Emax = (1<<NUM_BITS_ENERGY_DATA);
-  static const int signedEmax = (Emax>>1);
+/*   static const int Emax = (1<<NUM_BITS_ENERGY_DATA); */
+/*   static const int signedEmax = (Emax>>1); */
 
   int phiPosition;
 
   L1GctEtComponent m_exSum;
   L1GctEtComponent m_eySum;
   L1GctScalarEtVal m_etSum;
-  bitset<NUM_BITS_ENERGY_DATA> outputHt;
+  L1GctScalarEtVal m_htSum;
 };
 
 #endif /*L1GCTJETLEAFCARD_H_*/

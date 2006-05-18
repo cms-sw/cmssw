@@ -210,6 +210,11 @@ class L1GctUnsignedInt {
   L1GctUnsignedInt(unsigned value);
   ~L1GctUnsignedInt();
 
+  // copy contructor to move data between
+  // representations with different numbers of bits
+  template <int mBits>
+  L1GctUnsignedInt(const L1GctUnsignedInt<mBits>& rhs);
+
   // reset value and overflow to zero
   void reset() { m_value = static_cast<unsigned>(0); m_overFlow = false; }
 
@@ -271,6 +276,16 @@ L1GctUnsignedInt<nBits>::~L1GctUnsignedInt()
 
 }
 
+// copy contructor to move data between
+// representations with different numbers of bits
+template <int nBits>
+template <int mBits>
+L1GctUnsignedInt<nBits>::L1GctUnsignedInt(const L1GctUnsignedInt<mBits>& rhs) {
+  m_nBits = nBits>0 && nBits<MAX_NBITS ? nBits : 16 ;
+  this->setValue( rhs.value() );
+  this->setOverFlow( this->overFlow() || rhs.overFlow() );
+}
+
 // set value, checking for overflow
 template <int nBits>
 void L1GctUnsignedInt<nBits>::setValue(unsigned value)
@@ -327,11 +342,21 @@ class L1GctJetCount : public L1GctUnsignedInt<nBits> {
   L1GctJetCount(unsigned value);
   ~L1GctJetCount();
 
+  // copy contructor to move data between
+  // representations with different numbers of bits
+  template <int mBits>
+  L1GctJetCount(const L1GctJetCount<mBits>& rhs);
+
   // Set value from unsigned
   void setValue(unsigned value);
 
   // set the overflow bit
   void setOverFlow(bool oflow);
+
+  // since this is a counter, we want
+  // increment operators
+  L1GctJetCount& operator++ ();
+  L1GctJetCount operator++ (int);
 
   // add two numbers
   L1GctJetCount operator+ (const L1GctJetCount &rhs) const;
@@ -350,11 +375,21 @@ L1GctJetCount<nBits>::L1GctJetCount(unsigned value) : L1GctUnsignedInt<nBits>(va
 template <int nBits>
 L1GctJetCount<nBits>::~L1GctJetCount() {}
 
+// copy contructor to move data between
+// representations with different numbers of bits
+template <int nBits>
+template <int mBits>
+L1GctJetCount<nBits>::L1GctJetCount(const L1GctJetCount<mBits>& rhs) {
+  m_nBits = nBits>0 && nBits<MAX_NBITS ? nBits : 16 ;
+  this->setValue( rhs.value() );
+  this->setOverFlow( this->overFlow() || rhs.overFlow() );
+}
+
 template <int nBits>
 void L1GctJetCount<nBits>::setValue(unsigned value)
 {
   // check for overflow
-  if (value >= (static_cast<unsigned>(1<<m_nBits)) ) {
+  if (value >= (static_cast<unsigned>((1<<m_nBits) - 1)) ) {
     m_overFlow = true;
     m_value = ((1<<m_nBits) - 1);
   } else {
@@ -368,6 +403,25 @@ void L1GctJetCount<nBits>::setOverFlow(bool oflow)
 {
   m_overFlow = oflow;
   if (oflow) { m_value = ((1<<m_nBits) - 1); }
+}
+
+// increment operators
+template <int nBits>
+L1GctJetCount<nBits>&
+L1GctJetCount<nBits>::operator++ () {
+
+  this->setValue(m_value+1);
+  return *this;
+}
+
+template <int nBits>
+L1GctJetCount<nBits>
+L1GctJetCount<nBits>::operator++ (int) {
+
+  L1GctJetCount<nBits> temp(m_value);
+  temp.setOverFlow(m_overFlow);
+  this->setValue(m_value+1);
+  return temp;
 }
 
 // add two jet counts
@@ -408,6 +462,9 @@ L1GctJetCount<nBits>& L1GctJetCount<nBits>::operator= (int value) {
 typedef L1GctTwosComplement<12> L1GctEtComponent;
 typedef L1GctUnsignedInt<12>    L1GctScalarEtVal;
 typedef L1GctUnsignedInt<7>     L1GctEtAngleBin;
+typedef L1GctJetCount<5>        L1GctJcFinalType;
+typedef L1GctJetCount<3>        L1GctJcWheelType;
+typedef L1GctJetCount<3>        L1GctJcBoundType;
 
 
 template <int nBits>

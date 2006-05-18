@@ -44,7 +44,7 @@ int main() {
   L1GctJetCount<4> i;
   L1GctJetCount<4> j;
   h = 13;
-  i.setValue(97);
+  i = h++;
   j = h + i;
   std::cout << h << std::endl;
   std::cout << i << std::endl;

@@ -3,7 +3,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 using std::vector;
-using std::bitset;
 
 L1GctWheelJetFpga::L1GctWheelJetFpga(int id):
   m_id(id),
@@ -64,11 +63,9 @@ void L1GctWheelJetFpga::fetchInput()
     storeJets(m_inputLeafCards[iLeaf]->getOutputJetsA(), iLeaf, 0);
     storeJets(m_inputLeafCards[iLeaf]->getOutputJetsB(), iLeaf, MAX_JETS_IN);
     storeJets(m_inputLeafCards[iLeaf]->getOutputJetsC(), iLeaf, 2*MAX_JETS_IN);
-
+        
     // Deal with the Ht inputs
-    // Fetch the output values from each of our input leaf cards.
-    // Use setInputHt() to fill the inputEx[i] variables.
-    setInputHt(iLeaf, m_inputLeafCards[iLeaf]->getOutputHt());
+    m_inputHt[iLeaf] = m_inputLeafCards[iLeaf]->outputHt();
   }
 }
 
@@ -108,21 +105,11 @@ void L1GctWheelJetFpga::process()
     htVal[i] = temp;
   }
 
-  // Form Et sum taking care of overflows
-  temp = htVal[0] + htVal[1] + htVal[2];
-  if(temp>=Emax)
-  {
-    htOfl = true;
-    temp -= Emax;
-  }
-  htSum = (unsigned long) temp;
+  //Ht processing
+  m_outputHt = m_inputHt[0] + m_inputHt[1] + m_inputHt[2];
 
-  // Convert output back to bitset format
-  bitset<NUM_BITS_ENERGY_DATA> htBits(htSum);
-  if(htOfl) { htBits.set(OVERFLOW_BIT); }
-
-  m_outputHt = htBits;
-
+  //Jet count processing (to be added)
+    
 }
 
 void L1GctWheelJetFpga::setInputLeafCard(int i, L1GctJetLeafCard* card)
@@ -154,29 +141,10 @@ void L1GctWheelJetFpga::setInputJet(int i, L1GctJetCand jet)
 }
 
 void L1GctWheelJetFpga::setInputHt (int i, unsigned ht)
-{
-  unsigned long htVal;
-  bool htOfl;
-
-  int temp;
-
-  if (i>=0 && i<MAX_LEAF_CARDS)
-  {
-    // Transform the input variables into the correct range,
-    // and set the overflow bit if they are out of range.
-    // The correct range is between 0 to (Emax-1).
-    // Then copy the inputs into an unsigned long variable.
-    temp = ((int) ht) % Emax;
-    htOfl = (temp != ((int) ht));
-    htVal = (unsigned long) temp;
-
-    // Copy the data into the internal bitset format.
-    bitset<NUM_BITS_ENERGY_DATA> htBits(htVal);
-    if (htOfl) {htBits.set(OVERFLOW_BIT);}
-
-    m_inputHt[i] = htBits;
-  }
-}
+{   
+  assert(i >= 0 && i < MAX_LEAF_CARDS);
+  m_inputHt[i].setValue(ht);
+} 
 
 void L1GctWheelJetFpga::storeJets(JetVector jets, unsigned short iLeaf, unsigned short offset)
 {
