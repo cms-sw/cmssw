@@ -1,6 +1,6 @@
 // GenJet.cc
 // Fedor Ratnikov, UMd
-// $Id: GenJet.cc,v 1.2 2006/04/25 03:43:56 fedor Exp $
+// $Id: GenJet.cc,v 1.3 2006/04/27 18:44:03 fedor Exp $
 
 //Own header file
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -19,3 +19,5 @@ double GenJet::mass() const {return m_data.mP4.M();}
 double GenJet::phi() const {return m_data.mP4.Phi();}
 double GenJet::eta() const {return m_data.mP4.Eta();}
 int GenJet::nConstituents() const {return m_data.numberOfConstituents;}
+Jet::LorentzVector GenJet::p4() const { return m_data.mP4; }
+Jet::Vector GenJet::momentum() const { return m_data.mP4.Vect(); }

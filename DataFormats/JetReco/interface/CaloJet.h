@@ -83,8 +83,11 @@ public:
   /** Default destructor*/
   virtual ~CaloJet() {};
 
-  /** The Jet four-vector as a true Lorentz vector
-  \return the jet momentum component along the x axis */
+  /// four-momentum Lorentz vector
+  virtual LorentzVector p4() const;
+  /// spatial momentum vector
+  virtual Vector momentum() const;
+  /** Rereturns the jet momentum component along the x axis */
   virtual double px() const;
   /** Returns the jet momentum component along the y axis */
   virtual double py() const;

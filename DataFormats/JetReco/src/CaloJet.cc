@@ -18,4 +18,6 @@ double CaloJet::mass() const {return m_data.mP4.M();}
 double CaloJet::phi() const {return m_data.mP4.Phi();}
 double CaloJet::eta() const {return m_data.mP4.Eta();}
 int CaloJet::nConstituents() const {return m_data.numberOfConstituents;}
+Jet::LorentzVector CaloJet::p4() const { return m_data.mP4; }
+Jet::Vector CaloJet::momentum() const { return m_data.mP4.Vect(); }
 

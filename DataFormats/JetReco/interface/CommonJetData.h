@@ -19,8 +19,9 @@
 
 struct CommonJetData {
 public:
-  /// Lorentz vector
+  /** Lorentz vector */
   typedef math::XYZTLorentzVector LorentzVector;
+
   /** Default Constructor */
   CommonJetData() : numberOfConstituents(0) {}
 
