@@ -8,6 +8,8 @@
 //              mf      ELcountTRACE made available
 //   99-06-11   mf      Corrected logic for suppressing output when n > limit
 //                      but not but a factor of 2**K
+//   06-05-16   mf      Added code to establish interval and to use skipped
+//			and interval when determinine in add() whehter to react
 //
 // ----------------------------------------------------------------------
 
@@ -27,9 +29,10 @@ namespace edm
 // LimitAndTimespan:
 // ----------------------------------------------------------------------
 
-LimitAndTimespan::LimitAndTimespan( int lim, int ts )
+LimitAndTimespan::LimitAndTimespan( int lim, int ts, int ivl )
 : limit   ( lim )
 , timespan( ts )
+, interval( ivl )
 { }
 
 
@@ -37,12 +40,14 @@ LimitAndTimespan::LimitAndTimespan( int lim, int ts )
 // CountAndLimit:
 // ----------------------------------------------------------------------
 
-CountAndLimit::CountAndLimit( int lim, int ts )
+CountAndLimit::CountAndLimit( int lim, int ts, int ivl )
 : n         ( 0 )
 , aggregateN( 0 )
 , lastTime  ( time(0) )
 , limit     ( lim )
-, timespan  ( ts )
+, timespan  ( ts  )
+, interval  ( ivl )
+, skipped   ( 0 )
 { }
 
 
@@ -64,31 +69,52 @@ bool  CountAndLimit::add()  {
             &&
         (difftime(now, lastTime) >= timespan) )  {
      n = 0;
+     if ( interval > 0 ) {
+       skipped = interval - 1; // So this message will be reacted to
+     } else {
+       skipped = 0;
+     }
   }
 
   lastTime = now;
 
-  ++n;  ++aggregateN;
+  ++n;  
+  ++aggregateN;
+  ++skipped;  
 
 #ifdef ELcountTRACE
-  std::cout << "&&&    n is " << n << "-- limit is " << limit << "\n";
+  std::cout << "&&&       n is " << n << "-- limit is    " << limit    << "\n";
+  std::cout << "&&& skipped is " << skipped 
+  	                              << "-- interval is " << interval << "\n";
 #endif
+  
+  if (skipped < interval) return false;
 
-  if ( limit == 0 ) return false;       // Zero limit - never react to this
-  if ( limit < 0  ) return true;        // No limit - always react
-  if ( n <= limit ) return true;        // Under the limit so react
-
+  if ( limit == 0 ) return false;        // Zero limit - never react to this
+  if ( (limit < 0)  || ( n <= limit )) {
+    skipped == 0;
+    return true;
+  }
+  
   // Now we are over the limit - have we exceeded limit by 2^N * limit?
   long  diff = n - limit;
   long  r = diff/limit;
-  if ( r*limit != diff ) return false;  // Not a multiple of limit - don't react
-  if ( r == 1 )          return true;   // Exactly twice limit - react
+  if ( r*limit != diff ) { // Not a multiple of limit - don't react
+    return false;
+  }  
+  if ( r == 1 )   {	// Exactly twice limit - react
+    skipped == 0;
+    return true;
+  }
+
   while ( r > 1 )  {
     if ( (r & 1) != 0 )  return false;  // Not 2**n times limit - don't react
     r >>= 1;
   }
-                         return true;   // If you never get an odd number till
-                                        // one, r is 2**n so react
+  // If you never get an odd number till one, r is 2**n so react
+  
+  skipped == 0;
+  return true;
 
 }  // add()
 

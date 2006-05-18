@@ -51,8 +51,9 @@ public:
 
   int limit;
   int timespan;
+  int interval;
 
-  LimitAndTimespan( int lim = -1, int ts = -1 );
+  LimitAndTimespan( int lim = -1, int ts = -1, int ivl = -1 );
 
 };  // LimitAndTimespan
 
@@ -66,8 +67,10 @@ public:
   time_t lastTime;
   int    limit;
   int    timespan;
+  int    interval;
+  int    skipped;
 
-  CountAndLimit( int lim = -1, int ts = -1 );
+  CountAndLimit( int lim = -1, int ts = -1, int ivl = -1 );
   bool add();
 
 };  // CountAndLimit

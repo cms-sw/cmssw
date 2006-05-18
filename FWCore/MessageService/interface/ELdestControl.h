@@ -60,6 +60,8 @@ public:
   virtual ELdestControl & setTraceThreshold( const ELseverityLevel & sv );
   virtual ELdestControl & setLimit( const ELstring & s, int n );
   virtual ELdestControl & setLimit( const ELseverityLevel & sv, int n );
+  virtual ELdestControl & setInterval( const ELstring & s, int interval );
+  virtual ELdestControl & setInterval( const ELseverityLevel& sv, int interval);
   virtual ELdestControl & setTimespan( const ELstring& s, int n );
   virtual ELdestControl & setTimespan( const ELseverityLevel & sv, int n );
 

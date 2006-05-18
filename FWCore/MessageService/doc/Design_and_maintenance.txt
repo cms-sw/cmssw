@@ -207,9 +207,9 @@ true.  Also, in the ctor for MessageLogger (in MessageLogger.cc) if
 debugModules is empty, we change debugEnabled MessageDrop's debugEnabled
 to false.
 
-==========
+----------
 purge_mode
-==========
+----------
 
 What happends if the act of logging a message (on the server side) throws
 an exception?  This logic is implemented in MessageLoggerScribe.cc.
@@ -219,3 +219,155 @@ is sent to cerr containing the explanation e.what().  After five such
 exceptions, or for any exception not inherited from cms::Exception, the
 system is placed into purge_mode, after which no further message
 processing will occur.
+
+====================
+ErrorLogger Workings
+====================
+
+Although for the most part the ErrorLogger is not a product of CMS-related
+work (it is instead taken to be a given starting point for the underpinning
+of MessageLogger) some tailoring was done in response to CMS-requested
+features.  The workings directly impacted by this tailoring are appropriate
+to dilscuss in this document. 
+
+------------------------------------
+Establishment and Checking of Limits
+------------------------------------
+
+Limits (and here, we also include intervals in the sense of skipping every N
+occurences of some type of message) are established in code involving
+  ELadminstrator.cc (just forwarding to ELdestinations)
+  ELdest_control.cc
+  ELdestination.cc
+and at the MessageLogger level, the establishing calls are initiated by 
+commands from the configure_dest() method in MessageLoggerScribe.cc.
+
+There is a wide variety of logical ways the limit and interval can be 
+determined.  Although in the ErrorLogger the concept of limits and thresholds
+is tied to individual distributions, the MessageLogger wrapping allows a
+configuratoin file to specify overall defaults - in each case, values
+specific to a destination take precedence over overall defaults.
+In order of precedence, the rules are:
+
+1) If for a particular destination the category has had a specific limit
+   (interval) set, then that limit (interval) is used.
+   
+2) If an overall default limit (interval) has been established for this 
+   specific category, then [unless (1) holds] the limit (interval) 
+   for this category is taken to be that default value. 
+   
+3) If for a particular destination the severity of the message has had 
+   a specific (interval) set, then that limit (interval) is used.  Note 
+   that for categories explicitly mentioned in the default, this case
+   is not applied, since case (2) would take precedence.
+
+4) If an overall default limit (interval) has been established for this 
+   severity level, then [unless (1), (2), or (3) holds] that limit (interval) 
+   is used.
+   
+5) If for a particular destination a wildcard catgory ("*") has been assigned
+   a limit (interval) and neither the the category nor the severity of this 
+   message has had a limit (interval) set, then the limit (interval) used
+   will be that wildcard value.
+   
+6) If (1) thru (5) do not hold for a particular destination, but a wildcard 
+   catgory has been assigned a limit (interval) in the overall default, then 
+   this is used as the wildcard limit (interval) for that destination.
+   
+7) If none of the above conditions hold, then the super-default is no limit,
+   and an inteval that causes no skipping.  Internally, a value of -1 indicates
+   an infinte limit, and also can indicate an interval that was never given 
+   a value.  
+
+The logic implementing these rules appears in ELmap.h and .cc (in the 
+MessageLogger module) and ELlimitTable.h and .cc (in MessageService).
+The rules for deciding -- given the limit, interval, timespan and then 
+number of messages in this category already issued -- whether to react to 
+a message are discussed below.
+
+ELlimitTable is responsible for holding three types of information:
+Established default-type (severity and wildcard) limits applicable 
+to a specific destination, limits applicable to specific categories 
+for this destination, and counts of how many times a category has been 
+sent to this destination (and how many have been skipped since the last 
+reaction).   Each destination owns its own ELlimitsTable,l named limits.  
+The third type of information is kept in a map of extended ID (that is, 
+severity and category combination) versus CountAndLimit -- the latter is 
+a class defined in ELmap.h holding the information that changes with each 
+new message.  (The ELstatistics destination also makes use of this class; 
+subtleties about methods such as wipe() and zero() apply to statistics and 
+we won't worry about them for now.)
+
+This third type of information is kept in a member of ELlimitsTable named
+counts, and this is the key information.  The static information of the first
+two types is established by calls to ELdestControl methods (for example, 
+setLimit()).   At first glance, it would appear that the information in
+ELlimitsTable's data members limits is a partial replicate of the limit
+(and timespan and interval) information in the counts data member.  This
+is not the case, however:  While counts is indexed by the full extended id,
+limits is accessed by just the id (the category, without regard to the
+severity level).  If different default limits for different severities have
+been set, then for categories not explicitly controlled, these values will be
+distinct.
+
+       {Unfortunately, the data member limits, which is an ELmap_limits, 
+       has the same name as the limits data member of ELdestination, which 
+       is an ELlimitsTable.  There is ample potential for confusion in that.
+       Here, we will try to enhance clarity by using the simple name limits
+       to always refer to the data member of ELlimitsTable -- when we need 
+       to talk about the data member of ELdestination we will always call it
+       ELdestination::limits.}
+
+The information in limits, and the static information in counts is established 
+gradually (one further complication is that both are limited in size to some
+large tableLimit; this is unimportant for CMS).  The wat this happens is that
+the destination derived classes (for example ELoutput) call, for each message,
+the add() method of their ELlimitsTable, in a line reading:
+
+  if ( ! limits.add( msg.xid() )       )  return false;
+
+This add method has three purposes:  It returns a bool telling whether or not
+to react to this particular message, it adds this message xid and id to the 
+appropriate tables, and it updates the dynamic information in counts.  
+The sequence is as follows:
+
+1) See if the xid is in counts -- if so, the apppropriate static limit, 
+   interval, and timespan will be in the mapped CountAndLimit struct,
+   and there will be no need to recompute them.
+   
+2) If this xid is not yet in counts, see if the category is in limits -- if so,
+   the appropriate counts struct can be formed by using the precedence rules
+   above to combine the limit and interval found in limits  along with the 
+   severityLimits and severityIntervals arrays found in the ELlimitsTable.  
+   Along the way, the limits map for this category is filled in; that won't
+   change even if a diffeerent severity i the same category is encountered.
+   And now the xid is in counts (unless counts has grown too large).
+   
+3) Now xid will normally be in counts:  invoke add for that xid to update
+   the dynamic information and find out whether to react to this message.
+   
+The rules for deciding whether to react to a message are implemented in 
+CountAndLimit::add(xid), and are as follows:
+
+0) If the timespan has been exceeded since the last message, reset both n 
+   (to 0) and the skipped value (to interval) because we want fresh outputs
+   reacting to this message.
+   
+1) See if the message is OK with regards to the interval:  If we have already
+   skipped interval messages, we want to react to this one.  (Note that this
+   implies skipped should be initialized to interval, so that the very first 
+   one will be reacted to.)  Assuming we are OK with regards to the interval...
+   
+2) See if the message is OK with regards to the limit:  If the limit is -1,
+   if n is below the limit, or if n is above the limit by 2**q times the limit,
+   we will possibly react to the message.
+   
+3) If we are OK on both accounts, we will react to this message.  In that case,
+   skipped should be reset to zero.
+   
+   
+
+   
+
+
+

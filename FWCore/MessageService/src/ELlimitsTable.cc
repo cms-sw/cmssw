@@ -10,6 +10,7 @@
 //                      and setTimespan(id,n) w/ setLimit(sev||"*",n)
 //   6/15/00    web     using -> USING
 //  11/01/01    web     Fixed mixed-type comparisons
+//   5/18/06	mf	setInterval
 //
 // ----------------------------------------------------------------------
 
@@ -34,6 +35,7 @@ namespace service {
 
 ELlimitsTable::ELlimitsTable()
 : wildcardLimit   ( -1 )
+, wildcardInterval( -1 )
 , wildcardTimespan( -1 )
 , tableLimit      ( -1 )
 , limits          (    )
@@ -193,6 +195,16 @@ void ELlimitsTable::setLimit( const ELstring & id, int n )  {
 
 void ELlimitsTable::setLimit( const ELseverityLevel & sev, int n )  {
   severityLimits[sev.getLevel()] = n;
+}
+
+void ELlimitsTable::setInterval( const ELstring & id, int interval )  {
+  if ( id[0] == '*' )  wildcardInterval    = interval;
+  else                 limits[id].interval = interval;
+}
+
+
+void ELlimitsTable::setInterval( const ELseverityLevel & sev, int interval )  {
+  severityIntervals[sev.getLevel()] = interval;
 }
 
 

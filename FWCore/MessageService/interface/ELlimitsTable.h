@@ -31,6 +31,7 @@
 // 6/14/00 web	Declare classes before granting friendship.
 // 6/15/01 mf	Grant friendship to ELoutput so that faithful copying of
 //		ELoutput destinations becomes possible.
+// 5/16/06 mf   Added wildcardInterval member, and severityIntervals
 //
 // ----------------------------------------------------------------------
 
@@ -50,6 +51,7 @@ namespace service {
 
 class ELdestination;
 class ELoutput;
+class ELfwkJobReport;
 
 
 // ----------------------------------------------------------------------
@@ -60,6 +62,7 @@ class ELlimitsTable  {
 
   friend class ELdestination;
   friend class ELoutput;
+  friend class ELfwkJobReport;
 
 public:
 
@@ -79,10 +82,12 @@ public:
   void wipe();  // Clears everything -- counts and limits established.
   void zero();  // Clears only counts.
 
-  void setLimit( const ELstring & id, int n );
-  void setLimit( const ELseverityLevel& sev, int n );
-  void setTimespan( const ELstring & id, int n );
-  void setTimespan( const ELseverityLevel& sev, int n );
+  void setLimit   ( const ELstring        & id,  int n        );
+  void setLimit   ( const ELseverityLevel & sev, int n        );
+  void setInterval( const ELstring        & id,  int interval );
+  void setInterval( const ELseverityLevel & sev, int interval );
+  void setTimespan( const ELstring        & id,  int n        );
+  void setTimespan( const ELseverityLevel & sev, int n        );
 
   ELlimitsTable & operator= (const ELlimitsTable & t);
 
@@ -92,13 +97,14 @@ protected:
 
   int severityLimits   [ELseverityLevel::nLevels];
   int severityTimespans[ELseverityLevel::nLevels];
+  int severityIntervals[ELseverityLevel::nLevels];
   int wildcardLimit;
+  int wildcardInterval;
   int wildcardTimespan;
 
   int tableLimit;
   ELmap_limits limits;
   ELmap_counts counts;
-
 
 };  // ELlimitsTable
 

@@ -121,10 +121,12 @@ public:
   // ---  apply the following actions to all attached destinations:
   //
   void setThresholds( const ELseverityLevel & sev );
-  void setLimits    ( const ELstring        & id,  int limit );
-  void setLimits    ( const ELseverityLevel & sev, int limit );
-  void setTimespans ( const ELstring        & id,  int seconds );
-  void setTimespans ( const ELseverityLevel & sev, int seconds );
+  void setLimits    ( const ELstring        & id,  int limit    );
+  void setLimits    ( const ELseverityLevel & sev, int limit    );
+  void setIntervals ( const ELstring        & id,  int interval );
+  void setIntervals ( const ELseverityLevel & sev, int interval );
+  void setTimespans ( const ELstring        & id,  int seconds  );
+  void setTimespans ( const ELseverityLevel & sev, int seconds  );
   void wipe();
   void finish();
   
