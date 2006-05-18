@@ -313,7 +313,7 @@ pool::TrivialFileCatalog::lookupFileByPFN (const std::string & pfn,
 {
     filetype = m_fileType;    
     fid = "";
-    std::string tmpPfn;
+    std::string tmpPfn = pfn;
     
     for (seal::StringList::const_iterator protocol = m_protocols.begin ();
 	 protocol != m_protocols.end ();
@@ -346,7 +346,7 @@ replaceWithRegexp (const seal::RegexpMatch matches,
 		   const std::string inputString,
 		   const std::string outputFormat)
 {
-    std::cerr << "InputString:" << inputString << std::endl;
+    //std::cerr << "InputString:" << inputString << std::endl;
     
     char buffer[8];
     std::string result = outputFormat;
@@ -363,7 +363,7 @@ replaceWithRegexp (const seal::RegexpMatch matches,
 	
 	seal::Regexp sustitutionToken (variableRegexp);
 	
-	std::cerr << "Current match: " << matchResult << std::endl;
+	//std::cerr << "Current match: " << matchResult << std::endl;
 	
 	result = seal::StringOps::replace (result, 
 					   sustitutionToken, 
@@ -380,7 +380,7 @@ pool::TrivialFileCatalog::applyRules (const ProtocolRules& protocolRules,
 				      bool direct,
 				      std::string name) const
 {
-    std::cerr << "Calling apply rules with protocol: " << protocol << "\n destination: " << destination << "\n " << " on name " << name << std::endl;
+    //std::cerr << "Calling apply rules with protocol: " << protocol << "\n destination: " << destination << "\n " << " on name " << name << std::endl;
     
     const ProtocolRules::const_iterator rulesIterator = protocolRules.find (protocol);
     if (rulesIterator == protocolRules.end ())
@@ -399,7 +399,7 @@ pool::TrivialFileCatalog::applyRules (const ProtocolRules& protocolRules,
 	if (! i->pathMatch.exactMatch (name))
 	    continue;
 	
-	std::cerr << "Rule " << i->pathMatch.pattern () << "matched! " << std::endl;	
+	//std::cerr << "Rule " << i->pathMatch.pattern () << "matched! " << std::endl;	
 	
 	std::string chain = i->chain;
 	if ((direct==true) && (chain != ""))
@@ -514,9 +514,12 @@ pool::TrivialFileCatalog::retrievePFN (const std::string& query,
 				    "Catalog not connected");
     // The only query supported is lfn='something' or pfn='something'
     // No spaces allowed in something.
-    seal::StringList tokens = seal::StringOps::split (query, "=");
+    seal::Regexp grammar ("(lfname|guid)='(.*)'");
+    seal::RegexpMatch grammarMatches;
     
-    if (tokens.size () != 2)
+    grammar.match (query, 0, 0, &grammarMatches);
+    
+    if (grammarMatches.numMatches () != 3)
     {
 	throw FCTransactionException
 	    ("TrivialFileCatalog::retrievePFN",
@@ -524,16 +527,7 @@ pool::TrivialFileCatalog::retrievePFN (const std::string& query,
 	     " or guid='something'");
     }
     
-    if (tokens[0] != "lfname" 
-	&& tokens[0] != "guid")
-    {
-	throw FCTransactionException
-	    ("TrivialFileCatalog::retrievePFN",
-	     "malformed query. the only supported one is lfname='something'"
-	     " or guid='something'");    
-    }
-    
-    std::string lfn = seal::StringOps::remove (tokens[1], "'");
+    std::string lfn = grammarMatches.matchString (query, 2);
     
     for (seal::StringList::iterator protocol = m_protocols.begin ();
 	 protocol != m_protocols.end ();
@@ -568,28 +562,25 @@ pool::TrivialFileCatalog::retrieveLFN (const std::string& query,
 				    "Catalog not connected");
     // The only query supported is lfn='something' or pfn='something'
     // No spaces allowed in something.
-    seal::StringList tokens = seal::StringOps::split (query, "=");
+
+    seal::Regexp grammar ("(pfname|guid)='(.*)'");
+    seal::RegexpMatch grammarMatches;
     
-    if (tokens.size () != 2)
+    grammar.match (query, 0, 0, &grammarMatches);
+    
+    if (grammarMatches.numMatches () != 3)
     {
 	throw FCTransactionException
 	    ("TrivialFileCatalog::retrieveLFN",
-	     "malformed query. the only supported one is lfname='something'"
+	     "malformed query. the only supported one is pfname='something'"
 	     " or guid='something'");
     }
-    
-    if (tokens[0] != "pfname" 
-	&& tokens[0] != "guid")
-    {
-	throw FCTransactionException
-	    ("TrivialFileCatalog::retrievePFN",
-	     "malformed query. the only supported one is pfname='something'"
-	     " or guid='something'");    
-    }
 
-    std::string pfn = seal::StringOps::remove (tokens[1], "'");
+    std::string selector = grammarMatches.matchString (query, 1);
+    std::string pfn = grammarMatches.matchString (query, 2);
 
-    if (tokens[0] == "guid")
+
+    if (selector == "guid")
     {
 	buf.push_back (LFNEntry (pfn,
 				 pfn));
@@ -602,7 +593,7 @@ pool::TrivialFileCatalog::retrieveLFN (const std::string& query,
 	 protocol++)
     {
 	std::string lfn = applyRules (m_inverseRules, *protocol, m_destination, false, pfn);
-	std::cerr << "LFN: " << lfn << std::endl;
+	//	std::cerr << "LFN: " << lfn << std::endl;
 	
 	if (! lfn.empty ())
 	{
