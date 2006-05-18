@@ -13,7 +13,7 @@
 <use name=TrackingTools/TransientTrack>
 <use name=TrackingTools/GeomPropagators>
 
-<use name=DataFromat/Common>
+<use name=DataFormats/Common>
 
 
 
