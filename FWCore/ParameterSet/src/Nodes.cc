@@ -99,6 +99,52 @@ namespace edm {
         << "Cannot find child " << child 
         << " in composite node " << name;
     }
+
+
+    void CompositeNode::resolveUsingNodes(const NodeMap & blocks) 
+    {
+      NodePtrList::iterator nodeItr(nodes_->begin()),e(nodes_->end());
+      for(;nodeItr!=e;++nodeItr)
+      {
+        if((**nodeItr).type() == "using") 
+        {
+          // find the block
+          string blockName = (**nodeItr).name;
+          NodeMap::const_iterator blockPtrItr = blocks.find(blockName);
+          if(blockPtrItr == blocks.end()) {
+             throw edm::Exception(errors::Configuration,"")
+               << "Cannot find parameter block " << blockName;
+          }
+
+          // insert each node in the UsingBlock into the list
+          PSetNode * psetNode = dynamic_cast<PSetNode *>(blockPtrItr->second.get());
+          assert(psetNode != 0);
+          NodePtrListPtr params = psetNode->value_.nodes();
+
+
+          //@@ is it safe to delete the UsingNode now?
+          nodes_->erase(nodeItr);
+
+          for(NodePtrList::const_iterator paramItr = params->begin();
+              paramItr != params->end(); ++paramItr)
+          {
+            // Using blocks get inserted at the beginning, just for convenience
+            // Make a copy of the node, so it can be modified
+            nodes_->push_front( NodePtr((**paramItr).clone()) );
+          }
+
+          // better start over, since list chnged,
+          // just to be safe
+          nodeItr = nodes_->begin();
+        }
+
+        else 
+        {
+          // if it isn't a using node, check the grandchildren
+          (**nodeItr).resolveUsingNodes(blocks);
+        }
+      } // loop over subnodes
+    }
     //--------------------------------------------------
     // UsingNode
     //--------------------------------------------------

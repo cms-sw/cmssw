@@ -30,7 +30,9 @@ namespace edm {
         sortNodes(contents);
 
         // maybe we don't have to do anything
-        if(!copyNodes_.empty() || !replaceNodes_.empty() || !renameNodes_.empty()) 
+//        if(!blocks_.empty() || !copyNodes_.empty() || !replaceNodes_.empty() || !renameNodes_.empty()) 
+        if( !copyNodes_.empty() || !replaceNodes_.empty() 
+         || !renameNodes_.empty())
         {
           // pull out the operations on shared blocks, and do them.
           findBlockModifiers(copyNodes_, blockCopyNodes_);
@@ -138,7 +140,7 @@ namespace edm {
           modulesAndSources_[name] = *nodeItr;
         }
 
-        else if(type == "block") {
+        else if(type == "block" || type == "PSet") {
           blocks_[name] = *nodeItr;
         }
 
@@ -163,59 +165,19 @@ namespace edm {
 
     void ParseResultsTweaker::processUsingBlocks()
     {
+      // look for blocks-within-blocks first
+      for(NodePtrMap::iterator blockItr = blocks_.begin();
+          blockItr != blocks_.end(); ++blockItr)
+      {
+        blockItr->second->resolveUsingNodes(blocks_);
+      }
+
       for(NodePtrMap::iterator moduleItr = modulesAndSources_.begin();
           moduleItr != modulesAndSources_.end();  ++moduleItr)
       {
-        ModuleNode * moduleNode = dynamic_cast<ModuleNode *>(moduleItr->second.get()); 
-        assert(moduleNode != 0);
-        NodePtrListPtr nodes = moduleNode->nodes_;
-
-        // look for a Using block in ithe top level of this module
-        for(NodePtrList::iterator nodeItr = nodes->begin();
-            nodeItr != nodes->end(); ++nodeItr)
-        {
-          if((*nodeItr)->type() == "using") {
-            processUsingBlock(nodeItr, moduleNode);
-            // better start over, since list chnged,
-            // just to be safe
-            nodeItr = nodes->begin();
-          }
-        }
+        moduleItr->second->resolveUsingNodes(blocks_);
       }  // loop over modules & sources
     }
-    
-
-    void ParseResultsTweaker::processUsingBlock(NodePtrList::iterator & usingNodeItr, 
-                                                ModuleNode * moduleNode) 
-    {
-      // find the block
-      string blockName = (*usingNodeItr)->name;
-      NodePtrMap::const_iterator blockPtrItr = blocks_.find(blockName);
-      if(blockPtrItr == blocks_.end()) {
-         throw edm::Exception(errors::Configuration,"")
-           << "Cannot find parameter block " << blockName;
-      }
-      
-      // insert each node in the UsingBlock into the list
-      PSetNode * psetNode = dynamic_cast<PSetNode *>(blockPtrItr->second.get());
-      assert(psetNode != 0);
-      NodePtrListPtr params = psetNode->value_.nodes();
-      
-      // find the contents of the Module
-      NodePtrListPtr moduleContents = moduleNode->nodes();
-
-      //@@ is it safe to delete the UsingNode now?
-      moduleContents->erase(usingNodeItr);
-
-      for(NodePtrList::const_iterator paramItr = params->begin();
-          paramItr != params->end(); ++paramItr)
-      {
-        // Using blocks get inserted at the beginning, just for convenience
-        // Make a copy of the node, so it can be modified
-        moduleContents->push_front( NodePtr((**paramItr).clone()) );
-      } 
-    }
-
 
     void ParseResultsTweaker::processCopyNode(const NodePtr & n,
                                 ParseResultsTweaker::NodePtrMap  & targetMap)

@@ -17,6 +17,7 @@
 #include <ostream>
 #include <sstream>
 #include <list>
+#include <map>
 #include <vector>
 #include <string>
 
@@ -57,6 +58,10 @@ namespace edm {
       virtual bool isModified() const {return modified_;}
       /// throws an exception if they're not the same type
       virtual void replaceWith(const ReplaceNode * replaceNode);
+
+      typedef std::map<std::string, Ptr> NodeMap;
+      /// most subclasses won't do anything
+      virtual void resolveUsingNodes(const NodeMap & blocks) {}
 
       std::string name;
       int         line;
@@ -104,6 +109,10 @@ namespace edm {
       /// returns all sub-nodes
       NodePtrListPtr nodes() const {return nodes_;}
       
+      /// if a direct descendant is a using block, inline it.
+      /// otherwise, pass the call to the child nodes
+      virtual void resolveUsingNodes(const NodeMap & blocks);
+
 
       NodePtrListPtr nodes_;
     };
@@ -315,6 +324,10 @@ namespace edm {
       virtual void accept(Visitor& v) const;
       void acceptForChildren(Visitor& v) const;
       virtual void replaceWith(const ReplaceNode * replaceNode);
+
+      virtual void resolveUsingNodes(const NodeMap & blocks) {
+        value_.resolveUsingNodes(blocks);
+      }
 
       std::string type_;
       ContentsNode value_;

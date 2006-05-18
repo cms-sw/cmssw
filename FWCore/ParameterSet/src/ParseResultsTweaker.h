@@ -32,13 +32,11 @@ namespace edm {
       /// pulls the names out and remembers the Nodes
       void sortNodes(const NodePtrListPtr & parseResults);
 
-      /// Only looks in top-level modules and sources
+      /// Only looks in top-level blocks, modules and sources
       /// inlines all parameters in the block
       /// and erases the UsingNode itself
       void processUsingBlocks();
-      void processUsingBlock(NodePtrList::iterator & usingNodeItr, 
-                             ModuleNode * moduleNode);
-      
+
       /// targetMap will ordinarily be one of the data members
       void processCopyNode(const NodePtr & n, NodePtrMap & targetMap);
 
