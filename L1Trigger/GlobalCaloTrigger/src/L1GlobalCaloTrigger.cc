@@ -165,7 +165,7 @@ void L1GlobalCaloTrigger::print() {
 	std::cout << "N Em Leaf Cards" << theEmLeafCards.size() << std::endl;
 	std::cout << std::endl;
 	for (int i=0; i<theSourceCards.size(); i++) {
-		std::cout << theSourceCards[i];
+          std::cout << (*theSourceCards[i]); 
 	}
 	for (int i=0; i<theJetLeafCards.size(); i++) {
 		std::cout << theJetLeafCards[i];

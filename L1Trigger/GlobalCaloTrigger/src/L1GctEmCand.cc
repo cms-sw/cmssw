@@ -22,7 +22,14 @@ L1GctEmCand::L1GctEmCand(ULong rawData) {
 L1GctEmCand::~L1GctEmCand(){
 }
 	
-	
+std::ostream& operator << (std::ostream& os, const L1GctEmCand& cand)
+{
+  os << "Rank " << cand.myRank;
+  os << " Eta " << cand.myEta;
+  os << " Phi " << cand.myPhi << std::endl;
+
+  return os;
+}	
 
 
 

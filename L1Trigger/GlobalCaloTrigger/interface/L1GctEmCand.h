@@ -23,6 +23,9 @@ public:
   L1GctEmCand(ULong data=0);
   L1GctEmCand(ULong rank, ULong eta, ULong phi);
   ~L1GctEmCand();
+
+  /// Overload << operator
+  friend std::ostream& operator << (std::ostream& os, const L1GctEmCand& cand);
 	
   ///
   /// set rank bits
@@ -59,5 +62,7 @@ private:
     bitset<PHI_BITWIDTH> myPhi;
       
 };
+
+std::ostream& operator << (std::ostream& os, const L1GctEmCand& cand);
 
 #endif /*L1GCTEMCAND_H_*/

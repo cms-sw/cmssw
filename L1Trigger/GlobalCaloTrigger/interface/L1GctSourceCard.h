@@ -66,6 +66,9 @@ public:
     L1GctSourceCard(int id, SourceCardType typeVal);
     ~L1GctSourceCard();
   
+    /// Overload << operator
+    friend std::ostream& operator << (std::ostream& os, const L1GctSourceCard& card);
+
     /// Open input file
     void openInputFile(std::string fileName);
   
@@ -139,5 +142,7 @@ private:
     void readBxNum();   
     
 };
+
+std::ostream& operator << (std::ostream& os, const L1GctSourceCard& card);
 
 #endif /*L1GCTSOURCECARD_H_*/

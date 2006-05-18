@@ -19,7 +19,9 @@ public:
 	L1GctRegion(ULong data=0);
 	L1GctRegion(int eta, int phi, ULong et, bool mip, bool quiet, bool tauVeto, bool overFlow);
 	~L1GctRegion();
-    	
+
+    	friend std::ostream& operator << (std::ostream& os, const L1GctRegion& reg);
+
     // Getters
     int eta() const { return m_eta; }   ///< Get the eta number (0-21?) of the region
     int phi() const { return m_phi; }   ///< Get the phi number (0-17) of the region
@@ -60,5 +62,7 @@ private:
 	
 	
 };
+
+std::ostream& operator << (std::ostream& os, const L1GctRegion& reg);
 
 #endif /*L1GCTREGION_H_*/

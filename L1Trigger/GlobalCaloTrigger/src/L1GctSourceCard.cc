@@ -25,6 +25,32 @@ L1GctSourceCard::~L1GctSourceCard()
 {
 }
 
+std::ostream& operator << (std::ostream& os, const L1GctSourceCard& card)
+{
+  os << "SC ID " << card.m_id;
+  os << " Type " << card.m_cardType;
+  os << " File handle " << card.m_fin;
+  os << " BX " << card.m_currentBX << std::endl;
+  os << "No. of IsoElec " << card.m_isoElectrons.size() << std::endl;
+  for(uint i=0; i < card.m_isoElectrons.size(); i++)
+    {
+      os << card.m_isoElectrons[i];
+    } 
+  os << "No. of NonIsoElec " << card.m_nonIsoElectrons.size() << std::endl;
+  for(uint i=0; i < card.m_nonIsoElectrons.size(); i++)
+    {
+      os << card.m_nonIsoElectrons[i];
+    }
+  os << "MIPS " << card.m_mipBits;
+  os << " QUIET " << card.m_quietBits << std::endl;
+  os << "No. of Regions " << card.m_regions.size() << std::endl;
+  for(uint i=0; i < card.m_regions.size(); i++)
+    {
+      os << card.m_regions[i];
+    }
+  return os;
+}
+
 void L1GctSourceCard::openInputFile(string fileName)
 {
     //Opens the file

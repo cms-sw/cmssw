@@ -29,3 +29,16 @@ L1GctRegion::L1GctRegion(ULong rawData)
 L1GctRegion::~L1GctRegion()
 {
 }
+
+std::ostream& operator << (std::ostream& os, const L1GctRegion& reg)
+{
+  os << "Et " << reg.myEt;
+  os << " Eta " << reg.m_eta;
+  os << " Phi " << reg.m_phi;
+  os << " MIP " << reg.myMip;
+  os << " QUIET " << reg.myQuiet;
+  os << " TAU " << reg.myTauVeto;
+  os << " OVF " << reg.myOverFlow << std::endl;
+
+  return os;
+}
