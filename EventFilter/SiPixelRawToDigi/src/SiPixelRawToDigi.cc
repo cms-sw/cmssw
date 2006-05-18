@@ -10,8 +10,8 @@ using namespace std;
 
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
@@ -28,7 +28,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   : eventCounter_(0), fedCablingMap_(0)
 {
   edm::LogInfo("SiPixelRawToDigi")<< " HERE ** constructor!" << endl;
-  produces<PixelDigiCollection>();
+  produces< edm::DetSetVector<PixelDigi> >();
 }
 
 
@@ -60,8 +60,8 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 //  ev.getByLabel("PixelDaqRawData", rawdata);
   ev.getByType(buffers);
 
-  // create producti (digis)
-  std::auto_ptr<PixelDigiCollection> collection( new PixelDigiCollection );
+  // create product (digis)
+  std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
 
   vector<PixelFEDCabling *> cabling = fedCablingMap_->cabling();
   typedef vector<PixelFEDCabling *>::iterator FI;
@@ -76,9 +76,8 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
      typedef PixelDataFormatter::Digis::iterator ID;
      for (ID it = digis.begin(); it != digis.end(); it++) {
        uint32_t detid = it->first;
-       PixelDigiCollection::ContainerIterator beg = it->second.begin(); 
-       PixelDigiCollection::ContainerIterator end = it->second.end(); 
-       collection->put( PixelDigiCollection::Range(beg,end), detid);
+       edm::DetSet<PixelDigi>& detSet = collection->find_or_insert(detid);
+       detSet.data = it->second;
      } 
   }
 

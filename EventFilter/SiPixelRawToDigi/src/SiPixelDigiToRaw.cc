@@ -5,8 +5,8 @@ using namespace std;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
@@ -52,18 +52,15 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
 
   PixelDataFormatter formatter;
 
-  edm::Handle<PixelDigiCollection> digiCollection;
+  edm::Handle< edm::DetSetVector<PixelDigi> > digiCollection;
   ev.getByLabel(productLabel_, digiCollection);
 
-  //FIXME - temporary solution
-  typedef std::vector<unsigned int> DetIDs;
-  DetIDs detIDs = digiCollection->detIDs();
   PixelDataFormatter::Digis digis;
-  for( DetIDs::const_iterator it=detIDs.begin(); it != detIDs.end(); it++) {
-   PixelDigiCollection::Range range = digiCollection->get(*it);
-   digis[*it] =  std::vector<PixelDigi>(range.first,range.second); 
-  }
+  typedef vector< edm::DetSet<PixelDigi> >::const_iterator DI;
   
+  for (DI di=digiCollection->begin(); di != digiCollection->end(); di++) {
+    digis[ di->id] = di->data;
+  }
 
   if( !fedCablingMap_) {
     fedCablingMap_ = SiPixelFedCablingMapBuilder().produce(es); 
@@ -77,7 +74,6 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   // create product (raw data)
   std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
 
-  
   vector<PixelFEDCabling *> cabling = fedCablingMap_->cabling();
 
   typedef vector<PixelFEDCabling *>::iterator FI;
