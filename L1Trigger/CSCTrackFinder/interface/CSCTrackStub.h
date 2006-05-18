@@ -19,8 +19,13 @@ class CSCTrackStub : public CSCTransientDataType
 {
  public:
   CSCTrackStub() {}
+  CSCTrackStub(const CSCCorrelatedLCTDigi&, const CSCDetId&);
   CSCTrackStub(const CSCCorrelatedLCTDigi&, const CSCDetId&, const unsigned& phi, const unsigned& eta);
   CSCTrackStub(const CSCTrackStub&);
+
+  /// set Eta and Phi from integer values.
+  void setEtaPacked(const unsigned& eta_) {theEta_ = eta_;}
+  void setPhiPacked(const unsigned& phi_) {thePhi_ = phi_;}
 
   /// return the Eta Value of this stub's position.
   double etaValue() const {return (theEta_*theEtaBinning);}

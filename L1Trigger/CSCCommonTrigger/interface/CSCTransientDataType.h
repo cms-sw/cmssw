@@ -22,7 +22,7 @@ class CSCTransientDataType
   virtual int subsector() const = 0;
 
   /// Returns the Trigger CscId this object is associated with.
-  virtual int CscId() const = 0;
+  virtual int cscid() const = 0;
   
   /// Returns the 25 ns bunch crossing this object is associated with.
   virtual int BX() const = 0;

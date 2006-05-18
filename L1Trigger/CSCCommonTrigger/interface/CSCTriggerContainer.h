@@ -35,10 +35,10 @@ class CSCTriggerContainer
   std::vector<T> get(int station, int tsector, int tsubsector, int BX = 0) const; /// for a specific station in a sector
   std::vector<T> get(int sector, int BX = 0) const; /// for objects which span multiple stations
 
-  void push_back(const T&);
+  void push_back(const T data) { _objs.push_back(data); }
 
  private:
-
+  
   std::vector<T> _objs;
 };
 

@@ -53,9 +53,3 @@ std::vector<T> CSCTriggerContainer<T>::get(int sector, int BX) const
 
   return result;
 }
-
-template<class T>
-void CSCTriggerContainer<T>::push_back(const T& info)
-{
-  _objs.push_back(info);
-}
