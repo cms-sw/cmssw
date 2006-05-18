@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigi.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctTestAnalyzer.h"
