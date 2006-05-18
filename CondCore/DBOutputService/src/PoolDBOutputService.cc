@@ -29,7 +29,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   //m_authenticationMethod( iConfig.getUntrackedParameter< unsigned int >("authenticationMethod",0) ),
   m_containerName( iConfig.getUntrackedParameter< std::string >("containerName") ),
   m_customMappingFile( iConfig.getUntrackedParameter< std::string >("customMappingFile","") ),
-  m_commitInterval( iConfig.getUntrackedParameter< unsigned int >("commitInterval",1) ),
+  //m_commitInterval( iConfig.getUntrackedParameter< unsigned int >("commitInterval",1) ),
   m_appendIOV( iConfig.getUntrackedParameter< bool >("appendIOV",false) ),
   //m_catalog( iConfig.getUntrackedParameter< std::string >("catalog","") ),
   //m_loadBlobStreamer( iConfig.getUntrackedParameter< bool >("loadBlobStreamer",false) ), 
@@ -40,7 +40,6 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_session( new cond::DBSession(m_connect) ),
   m_payloadWriter( 0 ),
   m_iovWriter( 0 )
-  //m_transactionOn(false)
 {
   //std::cout<<"PoolDBOutputService"<<std::endl;
   if( m_customMappingFile.empty() ){
@@ -101,20 +100,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   //std::cout<<"module to watch "<< m_clientmodule<<std::endl;
   iAR.watchPostBeginJob(this,&cond::service::PoolDBOutputService::postBeginJob);
   iAR.watchPostEndJob(this,&cond::service::PoolDBOutputService::postEndJob);
-  //iAR.watchPreModuleConstruction(this,&cond::service::PoolDBOutputService::preModuleConstruction);
-  //
-  // never get called, useless 
-  //
-  //iAR.watchPostModuleConstruction(this,&cond::service::PoolDBOutputService::postModuleConstruction);
-  //
-  // we don't care about sources, useless
-  //
-  //iAR.watchPreSourceConstruction(this,&cond::service::PoolDBOutputService::preSourceConstruction);
-  //iAR.watchPostSourceConstruction(this,&cond::service::PoolDBOutputService::postSourceConstruction);
   iAR.watchPreProcessEvent(this,&cond::service::PoolDBOutputService::preEventProcessing);
-  //iAR.watchPostProcessEvent(this,&cond::service::PoolDBOutputService::postEventProcessing);
-  //iAR.watchPreModule(this,&cond::service::PoolDBOutputService::preModule);
-  //iAR.watchPostModule(this,&cond::service::PoolDBOutputService::postModule);
 }
 //
 // member functions
@@ -150,14 +136,6 @@ cond::service::PoolDBOutputService::postBeginJob()
 void 
 cond::service::PoolDBOutputService::postEndJob()
 {
-  //std::cout<<"PoolDBOutputService::postEndJob"<<std::endl;
-  //final commit of payloads in one go if commitInterval underflow
-  //if( m_transactionOn ){
-  // std::cout<<"about to do final commit "<<std::endl;
-  //m_session->commit();
-  //std::cout<<"committed "<<std::endl;
-  //m_transactionOn=false;
-  // }
   if(!m_appendIOV ){
     if(m_iov->iov.size()!=0){
       m_iovToken=m_iovWriter->markWrite<cond::IOV>(m_iov); 

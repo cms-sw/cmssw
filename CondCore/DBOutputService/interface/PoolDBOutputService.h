@@ -23,7 +23,7 @@ namespace cond{
       // connectMode
       // connect, connectMode, 
       // authenticationMethod, containerName,payloadCustomMappingFile
-      // commitInterval, appendIOV, catalog,tag,
+      // appendIOV, catalog,tag,
       // loadBlobStreamer
       //
       PoolDBOutputService( const edm::ParameterSet & iConfig, 
@@ -93,8 +93,6 @@ namespace cond{
       //
       void connect();    
       void disconnect();
-      void flushIOV();
-      void appendIOV();
       std::string m_connect;
       std::string m_tag;
       std::string m_timetype;
@@ -103,7 +101,7 @@ namespace cond{
       //unsigned int m_authenticationMethod;
       std::string m_containerName;
       std::string m_customMappingFile;
-      unsigned int m_commitInterval; //the interval is per object
+      //unsigned int m_commitInterval; 
       bool m_appendIOV;
       std::string m_catalog;
       //bool m_loadBlobStreamer;
