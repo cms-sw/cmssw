@@ -46,14 +46,15 @@ public:
     // get the output Ht and jet counts
     unsigned long getOutputHt() const { return m_outputHt.to_ulong(); }
     unsigned long getOutputJc(unsigned jcnum) const { return m_outputJc[jcnum].to_ulong(); }
-    
+
+    /// Max number of jets of each type (central, foward, tau) we output.
+    static const int MAX_JETS_OUT = 4;
+   
 private:
     /// Max number of leaf card pointers
     static const int MAX_LEAF_CARDS = 3;
     /// Maximum number of jets we can have as input
     static const int MAX_JETS_IN = MAX_LEAF_CARDS * L1GctJetLeafCard::MAX_JET_FINDERS * L1GctJetFinder::MAX_JETS_OUT;
-    /// Max number of jets of each type (central, foward, tau) we output.
-    static const int MAX_JETS_OUT = 4;
     
     /// algo ID
     int m_id;
