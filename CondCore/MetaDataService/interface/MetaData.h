@@ -5,9 +5,9 @@
 #include <vector>
 #include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "RelationalAccess/ISession.h"
-//namespace coral{
-  //class ITable;
-//}
+namespace coral{
+  class IRelationalService;
+}
 namespace cond{
   class ServiceLoader;
   class MetaData {
@@ -24,8 +24,9 @@ namespace cond{
   private:
     void createTable(const std::string& tabname);
     std::string m_con;
-    std::auto_ptr< coral::ISession > m_session;
+    coral::ISession* m_session;
     ServiceLoader& m_loader;
+    coral::IRelationalService* m_service;
     cond::ConnectMode m_mode;
   };
 }

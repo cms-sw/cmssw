@@ -30,9 +30,9 @@ cond::MetaData::MetaData(const std::string& connectionString, cond::ServiceLoade
   if( !m_loader.hasAuthenticationService() ){
     m_loader.loadAuthenticationService();
   }
-  coral::IRelationalService& relationalService=m_loader.loadRelationalService();
-  coral::IRelationalDomain& domain = relationalService.domainForConnection(m_con);
-  m_session.reset( domain.newSession( m_con ) );
+  m_service=&(m_loader.loadRelationalService());
+  //coral::IRelationalDomain& domain = relationalService.domainForConnection(m_con);
+  m_session=0;
   m_mode=cond::ReadWriteCreate;
 }
 
@@ -40,6 +40,8 @@ cond::MetaData::~MetaData(){
 }
 
 void cond::MetaData::connect( cond::ConnectMode mod ){
+  coral::IRelationalDomain& domain = m_service->domainForConnection(m_con);
+  m_session=domain.newSession( m_con ) ;
   m_mode=mod;
   try{
     if( m_mode == cond::ReadOnly){
@@ -56,6 +58,8 @@ void cond::MetaData::connect( cond::ConnectMode mod ){
 }
 void cond::MetaData::disconnect(){
   m_session->disconnect();
+  delete m_session;
+  m_session=0;
 }
 bool cond::MetaData::addMapping(const std::string& name, const std::string& iovtoken){
   try{
@@ -121,6 +125,7 @@ bool cond::MetaData::replaceToken(const std::string& name, const std::string& ne
   return true;
 }
 const std::string cond::MetaData::getToken( const std::string& name ){
+  std::cout<<"MetaData::getToken"<<std::endl;
   try{
     if( m_mode!=cond::ReadOnly ){
       m_session->transaction().start(false);
@@ -152,6 +157,7 @@ const std::string cond::MetaData::getToken( const std::string& name ){
   }catch(...){
     throw cond::Exception( "MetaData::getToken: Could not commit a transaction" );
   }
+  std::cout<<"MetaData::getToken about to get out"<<std::endl;
   return iovtoken;
 }
 void cond::MetaData::createTable(const std::string& tabname){
