@@ -1,7 +1,7 @@
 #ifndef CalibratedHistogram_H
 #define CalibratedHistogram_H
 #include <xercesc/dom/DOM.hpp>
-#include "BReco/BTagCalibration/interface/CalibratedObject.h"
+#include "RecoBTag/XMLCalibration/interface/CalibratedObject.h"
 #include <vector>
 #include <xercesc/dom/DOMNode.hpp>
 
