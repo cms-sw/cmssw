@@ -541,11 +541,10 @@ pool::TrivialFileCatalog::retrievePFN (const std::string& query,
 	    buf.push_back (PFNEntry(pfn, 
 				    lfn, 
 				    m_fileType));    
+	    return true;    
 	}	
     }
 
-    if (! buf.empty ()) 
-	return true;    
 
     
     buf.push_back (PFNEntry(lfn, 
