@@ -23,69 +23,70 @@ using std::bitset;
 class L1GctJetLeafCard : L1GctProcessor
 {
 public:
-    L1GctJetLeafCard(int id, int iphi);
-    ~L1GctJetLeafCard();
+  L1GctJetLeafCard(int id, int iphi);
+  ~L1GctJetLeafCard();
 
-    /// clear internal buffers
-    virtual void reset();
+  /// clear internal buffers
+  virtual void reset();
 
-    /// set the input buffers
-    virtual void fetchInput();
+  /// set the input buffers
+  virtual void fetchInput();
  
-    /// process the data and set outputs
-    virtual void process();
+  /// process the data and set outputs
+  virtual void process();
 
-    /// add a Source Card
-    void setInputSourceCard(int i, L1GctSourceCard* card);
+  /// add a Source Card
+  void setInputSourceCard(int i, L1GctSourceCard* card);
 
-    /// get the input data
-    vector<L1GctRegion> getInputRegions() const;
+  /// get the input data
+  vector<L1GctRegion> getInputRegions() const;
     
-    // get the jet output
-    vector<L1GctJetCand> getOutputJetsA() const { return jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
-    vector<L1GctJetCand> getOutputJetsB() const { return jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
-    vector<L1GctJetCand> getOutputJetsC() const { return jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
+  // get the jet output
+  vector<L1GctJetCand> getOutputJetsA() const { return jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
+  vector<L1GctJetCand> getOutputJetsB() const { return jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
+  vector<L1GctJetCand> getOutputJetsC() const { return jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
     
-    /// get the Ex output
-    inline L1GctEtComponent outputEx() const { return m_exSum; }
+  /// get the Ex output
+  inline L1GctEtComponent outputEx() const { return m_exSum; }
+   
+  /// get the Ey output
+  inline L1GctEtComponent outputEy() const { return m_eySum; }
     
-    /// get the Ey output
-    inline L1GctEtComponent outputEy() const { return m_eySum; }
-    
-    /// get the Et output
-    inline L1GctScalarEtVal outputEt() const { return m_etSum; }
-    inline unsigned long getOutputHt() const { return outputHt.to_ulong(); }
-    
-    static const int MAX_JET_FINDERS = 3;
+  /// get the Et output
+  inline L1GctScalarEtVal outputEt() const { return m_etSum; }
+  inline unsigned long getOutputHt() const { return outputHt.to_ulong(); }
+   
+  static const int MAX_JET_FINDERS = 3;
 
 private:
 
-    // Leaf card ID
-    int m_id;
+  static const int MAX_SOURCE_CARDS = 15;
 
-    // internal algorithms
-    L1GctJetFinder* jetFinderA;  ///< lowest jetFinder in phi
-    L1GctJetFinder* jetFinderB;  ///< middle jetFinder in phi
-    L1GctJetFinder* jetFinderC;  ///< highest jetFinder in phi
+  // Leaf card ID
+  int m_id;
 
-    // pointers to data source
-    vector<L1GctSourceCard*> m_sourceCards;
+  // internal algorithms
+  L1GctJetFinder* jetFinderA;  ///< lowest jetFinder in phi
+  L1GctJetFinder* jetFinderB;  ///< middle jetFinder in phi
+  L1GctJetFinder* jetFinderC;  ///< highest jetFinder in phi
 
-    // internal data (other than jets)
-/*     typedef L1GctTwosComplement<12> L1GctEtComponent; */
+  // pointers to data source
+  vector<L1GctSourceCard*> m_sourceCards;
+  // internal data (other than jets)
+  /* typedef L1GctTwosComplement<12> L1GctEtComponent; */
 
-    static const int NUM_BITS_ENERGY_DATA = 13;
-    static const int OVERFLOW_BIT = NUM_BITS_ENERGY_DATA - 1;
+  static const int NUM_BITS_ENERGY_DATA = 13;
+  static const int OVERFLOW_BIT = NUM_BITS_ENERGY_DATA - 1;
 
-    static const int Emax = (1<<NUM_BITS_ENERGY_DATA);
-    static const int signedEmax = (Emax>>1);
+  static const int Emax = (1<<NUM_BITS_ENERGY_DATA);
+  static const int signedEmax = (Emax>>1);
 
-    int phiPosition;
+  int phiPosition;
 
-    L1GctEtComponent m_exSum;
-    L1GctEtComponent m_eySum;
-    L1GctScalarEtVal m_etSum;
-    bitset<NUM_BITS_ENERGY_DATA> outputHt;
+  L1GctEtComponent m_exSum;
+  L1GctEtComponent m_eySum;
+  L1GctScalarEtVal m_etSum;
+  bitset<NUM_BITS_ENERGY_DATA> outputHt;
 };
 
 #endif /*L1GCTJETLEAFCARD_H_*/
