@@ -1,0 +1,25 @@
+<export>
+ <lib name=BTagTools>
+<use name=CLHEP>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TransientTrack>
+<use name=TrackingTools/GeomPropagators>
+
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFromat/Common>
+
+</export>
+<use name=CLHEP>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TransientTrack>
+<use name=TrackingTools/GeomPropagators>
+
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFromat/Common>
+
+
+
