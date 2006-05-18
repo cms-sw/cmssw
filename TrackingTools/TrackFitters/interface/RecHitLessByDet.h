@@ -22,10 +22,10 @@ public:
   bool operator()(const TransientTrackingRecHit& aHit, const TransientTrackingRecHit& bHit) const{
 
     return (theDirection == alongMomentum ? 
-	    (aHit.detUnit()->surface().toGlobal(aHit.localPosition()).mag() < 
-	     bHit.detUnit()->surface().toGlobal(bHit.localPosition()).mag() ) :
-	    (aHit.detUnit()->surface().toGlobal(aHit.localPosition()).mag() >
-	     bHit.detUnit()->surface().toGlobal(bHit.localPosition()).mag()) );
+	    (aHit.det()->surface().toGlobal(aHit.localPosition()).mag() < 
+	     bHit.det()->surface().toGlobal(bHit.localPosition()).mag() ) :
+	    (aHit.det()->surface().toGlobal(aHit.localPosition()).mag() >
+	     bHit.det()->surface().toGlobal(bHit.localPosition()).mag()) );
   }
 
 private:

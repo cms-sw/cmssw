@@ -13,12 +13,14 @@ class RecHitSorter {
 
 public:
 
+  typedef edm::OwnVector< const TransientTrackingRecHit>  RecHitContainer;
+
   RecHitSorter() {}
 
   ~RecHitSorter() {}
 
-  edm::OwnVector<TransientTrackingRecHit> sortHits(const edm::OwnVector<TransientTrackingRecHit>& hits, 
-			  const PropagationDirection& dir) const;
+  RecHitContainer sortHits(const RecHitContainer& hits, 
+			   const PropagationDirection& dir) const;
 
 private:
 

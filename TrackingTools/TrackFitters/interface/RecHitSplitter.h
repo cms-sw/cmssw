@@ -12,11 +12,13 @@ class RecHitSplitter {
 
 public:
 
+  typedef edm::OwnVector<const TransientTrackingRecHit>      RecHitContainer;
+
   RecHitSplitter() {}
   
   ~RecHitSplitter() {}
 
-  edm::OwnVector<TransientTrackingRecHit> split(const edm::OwnVector<TransientTrackingRecHit>& hits) const;
+  RecHitContainer split(const RecHitContainer& hits) const;
 
 private:
   

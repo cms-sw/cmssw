@@ -15,13 +15,15 @@ class TrajectoryStateOnSurface;
 class TrajectoryFitter {
 public:
 
+  typedef Trajectory::RecHitContainer      RecHitContainer;
+
   virtual ~TrajectoryFitter() {}
 
   virtual vector<Trajectory> fit(const Trajectory&) const = 0;
   virtual vector<Trajectory> fit(const TrajectorySeed&,
-				 const edm::OwnVector<TransientTrackingRecHit>&) const = 0;
+				 const RecHitContainer&) const = 0;
   virtual vector<Trajectory> fit(const TrajectorySeed&,
-				 const edm::OwnVector<TransientTrackingRecHit>&, 
+				 const RecHitContainer&, 
 				 const TrajectoryStateOnSurface&) const = 0;
 
   virtual TrajectoryFitter* clone() const = 0;

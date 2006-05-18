@@ -37,7 +37,9 @@
 class Trajectory
 {
 public:
-  typedef vector<TrajectoryMeasurement> DataContainer;
+
+  typedef vector<TrajectoryMeasurement>                   DataContainer;
+  typedef edm::OwnVector< const TransientTrackingRecHit>  RecHitContainer;
 
   /** Default constructor of an empty trajectory with undefined direction.
    *  The direction will be defined at the moment of the push of a second
@@ -102,7 +104,7 @@ public:
 
   /** Return all RecHits in a container.
    */
-  edm::OwnVector<TransientTrackingRecHit> recHits() const;
+  RecHitContainer recHits() const;
 
   /** Number of valid RecHits used to determine the trajectory.
    *  Can be less than the number of measurements in data() since

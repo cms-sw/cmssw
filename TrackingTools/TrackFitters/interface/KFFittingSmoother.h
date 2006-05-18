@@ -24,10 +24,10 @@ public:
   
   virtual vector<Trajectory> fit(const Trajectory& t) const;
   virtual vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				 const edm::OwnVector<TransientTrackingRecHit>& hits, 
+				 const RecHitContainer& hits, 
 				 const TrajectoryStateOnSurface& firstPredTsos) const;
   virtual vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				 const edm::OwnVector<TransientTrackingRecHit>& hits) const;
+				 const RecHitContainer& hits) const;
 
   const TrajectoryFitter* fitter() const {return theFitter;}
   const TrajectorySmoother* smoother() const {return theSmoother;}

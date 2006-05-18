@@ -26,7 +26,7 @@ KFFittingSmoother::fit(const Trajectory& t) const {
 
 vector<Trajectory> KFFittingSmoother::
 fit(const TrajectorySeed& aSeed,
-	     const edm::OwnVector<TransientTrackingRecHit>& hits, 
+	     const RecHitContainer& hits, 
 	     const TrajectoryStateOnSurface& firstPredTsos) const 
 {
   if(hits.empty()) return vector<Trajectory>();
@@ -54,7 +54,7 @@ KFFittingSmoother::smoothingStep(vector<Trajectory>& fitted) const
   return result;
 }
 vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
-					   const edm::OwnVector<TransientTrackingRecHit>& hits) const{
+					   const RecHitContainer& hits) const{
 
   throw cms::Exception("TrackingTools/TrackFitters", 
 		       "KFFittingSmoother::fit(TrajectorySeed, <TransientTrackingRecHit>) not implemented"); 

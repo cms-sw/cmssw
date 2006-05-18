@@ -12,24 +12,26 @@
 
 vector<Trajectory> KFSplittingFitter::fit(const Trajectory& aTraj) const {
 
+  typedef RecHitSplitter::RecHitContainer        RecHitContainer;
+
   if(aTraj.empty()) return vector<Trajectory>();
   
   TM firstTM = aTraj.firstMeasurement();
   TSOS firstTsos = 
     TrajectoryStateWithArbitraryError()(firstTM.predictedState());
   
-  edm::OwnVector<TransientTrackingRecHit> hits = aTraj.recHits();
-  edm::OwnVector<TransientTrackingRecHit> result; 
+  RecHitContainer hits = aTraj.recHits();
+  RecHitContainer result; 
   result.reserve(hits.size());
-  for(edm::OwnVector<TransientTrackingRecHit>::iterator ihit = hits.begin(); ihit != hits.end();
+  for(RecHitContainer::iterator ihit = hits.begin(); ihit != hits.end();
       ihit++) {
     if(!(*ihit).isValid()) result.push_back(ihit.get());
     else if((*ihit).transientHits().size() == 1) result.push_back(ihit.get());
     else {
-      edm::OwnVector<TransientTrackingRecHit> splitted = RecHitSplitter().split((*ihit).transientHits());
-      edm::OwnVector<TransientTrackingRecHit> sorted = 
+      RecHitContainer splitted = RecHitSplitter().split((*ihit).transientHits());
+      RecHitContainer sorted = 
 	RecHitSorter().sortHits(splitted, propagator()->propagationDirection());
-      for (edm::OwnVector<TransientTrackingRecHit>::iterator srt = sorted.begin(); srt != sorted.end(); srt++) {
+      for (RecHitContainer::iterator srt = sorted.begin(); srt != sorted.end(); srt++) {
 	result.push_back(srt.get());
 	//      result.insert(result.end(), sorted.begin(), sorted.end());
       }
@@ -42,20 +44,20 @@ vector<Trajectory> KFSplittingFitter::fit(const Trajectory& aTraj) const {
 }
 
 vector<Trajectory> KFSplittingFitter::fit(const TrajectorySeed& aSeed,
-					  const edm::OwnVector<TransientTrackingRecHit>& hits, 
+					  const RecHitContainer& hits, 
 					  const TSOS& firstPredTsos) const {
 
-  edm::OwnVector<TransientTrackingRecHit> result;
+  RecHitContainer result;
   result.reserve(hits.size());
-  for(edm::OwnVector<TransientTrackingRecHit>::const_iterator ihit = hits.begin(); ihit != hits.end();
+  for(RecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end();
       ihit++) {
     if(!(*ihit).isValid()) result.push_back(ihit->clone());
     else if((*ihit).transientHits().size() == 1) result.push_back(ihit->clone());
     else {      
-      edm::OwnVector<TransientTrackingRecHit> splitted = RecHitSplitter().split(ihit->clone()->transientHits());
-      edm::OwnVector<TransientTrackingRecHit> sorted = 
+      RecHitContainer splitted = RecHitSplitter().split(ihit->clone()->transientHits());
+      RecHitContainer sorted = 
 	RecHitSorter().sortHits(splitted, propagator()->propagationDirection());
-      for (edm::OwnVector<TransientTrackingRecHit>::iterator srt = sorted.begin(); srt != sorted.end(); srt++) {
+      for (RecHitContainer::iterator srt = sorted.begin(); srt != sorted.end(); srt++) {
 	result.push_back(srt.get());
 	//      result.insert(result.end(), sorted.begin(), sorted.end());
       }

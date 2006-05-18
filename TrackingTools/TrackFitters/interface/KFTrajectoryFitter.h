@@ -41,9 +41,9 @@ public:
   
   virtual vector<Trajectory> fit(const Trajectory& aTraj) const;
   virtual vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				 const edm::OwnVector<TransientTrackingRecHit>& hits) const;
+				 const RecHitContainer& hits) const;
   virtual vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				 const edm::OwnVector<TransientTrackingRecHit>& hits, 
+				 const RecHitContainer& hits, 
 				 const TSOS& firstPredTsos) const;
 
   const Propagator* propagator() const {return thePropagator;}

@@ -3,10 +3,10 @@
 
 #include <algorithm>
 
-edm::OwnVector<TransientTrackingRecHit> RecHitSorter::sortHits(const edm::OwnVector<TransientTrackingRecHit>& hits, 
-				      const PropagationDirection& dir) const {
+RecHitSorter::RecHitContainer RecHitSorter::sortHits(const RecHitContainer& hits, 
+						     const PropagationDirection& dir) const {
 
-  edm::OwnVector<TransientTrackingRecHit> myHits(hits);
+  RecHitContainer myHits(hits);
 
   myHits.sort(/*myHits.begin(), myHits.end(),*/ RecHitLessByDet(dir));
 

@@ -11,7 +11,7 @@
 class TrajectorySmoother {
 public:
 
-  typedef vector<Trajectory> TrajectoryContainer;
+  typedef std::vector<Trajectory> TrajectoryContainer;
   typedef TrajectoryContainer::iterator TrajectoryIterator;
 
   virtual ~TrajectorySmoother() {}

@@ -58,8 +58,8 @@ void Trajectory::push( const TrajectoryMeasurement& tm, double chi2Increment)
   }
 }
 
-edm::OwnVector<TransientTrackingRecHit> Trajectory::recHits() const {
-  edm::OwnVector<TransientTrackingRecHit> hits;
+Trajectory::RecHitContainer Trajectory::recHits() const {
+  RecHitContainer hits;
   hits.reserve(theData.size());
 
   for (Trajectory::DataContainer::const_iterator itm
