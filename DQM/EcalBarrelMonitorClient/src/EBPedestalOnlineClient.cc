@@ -1,15 +1,15 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/04/28 10:48:50 $
- * $Revision: 1.13 $
+ * $Date: 2006/05/18 07:41:42 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
 */
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 
 EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
@@ -321,9 +321,6 @@ void EBPedestalOnlineClient::analyze(void){
   Char_t histo[150];
 
   MonitorElement* me;
-  MonitorElementT<TNamed>* ob;
-
-  
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -339,16 +336,18 @@ void EBPedestalOnlineClient::analyze(void){
     me = mui_->get(histo);
     if ( me ) {
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h03_[ism-1] ) delete h03_[ism-1];
-          sprintf(histo, "ME EBPOT pedestal SM%02d G12", ism);
-          h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
+      h03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D>( me, cloneME_ );
+
+      //ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      //if ( ob ) {
+        //if ( cloneME_ ) {
+          //if ( h03_[ism-1] ) delete h03_[ism-1];
+            //sprintf(histo, , ism);
+            //h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        //} else {
+          //h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        //}
+      //}
     }
     meh03_[ism-1] = me;
 
@@ -475,7 +474,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, const std::vector<int> & superM
 
     imgNameQual = "";
 
-    obj2f = getHisto( meg03_[ism-1], obj2f );
+    obj2f = EBMUtilsClient::getHisto<TH2F>( meg03_[ism-1] );
 
     if ( obj2f ) {
 
@@ -509,7 +508,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, const std::vector<int> & superM
 
     imgNameMean = "";
 
-    obj1f = getHisto( mep03_[ism-1], obj1f );
+    obj1f = EBMUtilsClient::getHisto<TH1F>( mep03_[ism-1] );
 
     if ( obj1f ) {
 
@@ -540,7 +539,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, const std::vector<int> & superM
 
     // RMS distributions
 
-    obj1f = getHisto( mer03_[ism-1], obj1f );
+    obj1f = EBMUtilsClient::getHisto<TH1F>( mer03_[ism-1] );
 
     imgNameRMS = "";
 
