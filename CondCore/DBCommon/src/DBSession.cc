@@ -41,9 +41,14 @@ void cond::DBSession::connect( cond::ConnectMode mode ){
   default:
     throw cond::Exception(std::string("DBSession::connect unknown connect mode"));
   }
-  pool::URIParser p(m_catalogcon);
-  p.parse();
-  m_cat->setWriteCatalog(p.contactstring());
+  //pool::URIParser p(m_catalogcon);
+  //p.parse();
+  //m_cat->setWriteCatalog(p.contactstring());
+  if(mode==cond::ReadOnly){
+    m_cat->addReadCatalog(m_catalogcon);
+  }else{
+    m_cat->setWriteCatalog(m_catalogcon);
+  }
   m_cat->connect();
   m_cat->start();
   m_svc->session().setDefaultConnectionPolicy(policy);
