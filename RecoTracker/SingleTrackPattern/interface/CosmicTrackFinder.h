@@ -10,11 +10,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "RecoTracker/SingleTrackPattern/interface/CosmicTrajectoryBuilder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 
 
 namespace cms
@@ -34,7 +32,6 @@ namespace cms
   private:
     CosmicTrajectoryBuilder cosmicTrajectoryBuilder_;
     edm::ParameterSet conf_;
-
   };
 }
 

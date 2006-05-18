@@ -26,8 +26,6 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -35,6 +33,8 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+
  class CompareHitY {
  public:
    CompareHitY(const TrackerGeometry& tracker):_tracker(tracker){}
@@ -44,6 +44,19 @@
      GlobalPoint gp1=_tracker.idToDet(rh1->geographicalId())->surface().toGlobal(rh1->localPosition());
      GlobalPoint gp2=_tracker.idToDet(rh2->geographicalId())->surface().toGlobal(rh2->localPosition());
      return gp1.y()<gp2.y();};
+ private:
+   //   edm::ESHandle<TrackerGeometry> _tracker;
+   const TrackerGeometry& _tracker;
+ };
+ class CompareHitY_plus {
+ public:
+   CompareHitY_plus(const TrackerGeometry& tracker):_tracker(tracker){}
+   bool operator()( const TrackingRecHit *rh1,
+		    const TrackingRecHit *rh2)
+   {
+     GlobalPoint gp1=_tracker.idToDet(rh1->geographicalId())->surface().toGlobal(rh1->localPosition());
+     GlobalPoint gp2=_tracker.idToDet(rh2->geographicalId())->surface().toGlobal(rh2->localPosition());
+     return gp1.y()>gp2.y();};
  private:
    //   edm::ESHandle<TrackerGeometry> _tracker;
    const TrackerGeometry& _tracker;
@@ -68,7 +81,9 @@ class CosmicTrajectoryBuilder
 	     const edm::EventSetup& es,
 	     edm::Event& e,
 	     vector<AlgoProduct> &algooutput);
-    void init(const edm::EventSetup& es,edm::ParameterSet const& conf);
+
+    void init(const edm::EventSetup& es,bool);
+
  private:
     std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
     Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
@@ -89,30 +104,28 @@ class CosmicTrajectoryBuilder
     //		edm::OwnVector<TransientTrackingRecHit> hits);
     bool qualityFilter(Trajectory traj);
 
-    
+
     AlgoProduct  makeTrack(const Trajectory &traj);
  private:
    edm::ESHandle<MagneticField> magfield;
-   edm::ESHandle<GeometricSearchTracker> track;
    edm::ESHandle<TrackerGeometry> tracker;
    edm::ParameterSet conf_;
    TrajectoryStateTransform tsTransform;
-   AnalyticalPropagator  *thePropagator;
+   PropagatorWithMaterial  *thePropagator;
+   PropagatorWithMaterial  *thePropagatorOp;
    KFUpdator *theUpdator;
    Chi2MeasurementEstimator *theEstimator;
    TkTransientTrackingRecHitBuilder *RHBuilder;
    const KFTrajectorySmoother * theSmoother;
    const KFTrajectoryFitter * theFitter;
-   const MeasurementTracker*     theMeasurementTracker;
-   const LayerMeasurements*      theLayerMeasurements;
+ 
+ 
 
-   vector<BarrelDetLayer*> bl;
    int theMinHits;
    bool chi2cut;
-   bool crossVecCut;
    std::vector<Trajectory> trajFit;
-   unsigned int indexlayer; 
-    edm::OwnVector<TransientTrackingRecHit> hits;
+   edm::OwnVector<TransientTrackingRecHit> hits;
+   bool seed_plus;
 
 };
 

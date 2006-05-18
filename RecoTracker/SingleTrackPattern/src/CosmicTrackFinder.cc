@@ -15,6 +15,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 namespace cms
 {
 
@@ -25,7 +26,6 @@ namespace cms
 
     produces<reco::TrackCollection>();
     produces<TrackingRecHitCollection>();
-    //????
     produces<reco::TrackExtraCollection>();
   }
 
@@ -39,8 +39,7 @@ namespace cms
 
     std::string hitProducer = conf_.getParameter<std::string>("HitProducer");
 
-    // Step A: Get Inputs 
-    
+  
     // retrieve seeds
     edm::Handle<TrajectorySeedCollection> seed;
     e.getByType(seed);
@@ -64,13 +63,28 @@ namespace cms
     std::auto_ptr<TrackingRecHitCollection> outputRHColl (new TrackingRecHitCollection);
     std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
 
-    cosmicTrajectoryBuilder_.init(es,conf_);
+
+    edm::ESHandle<TrackerGeometry> tracker;
+    es.get<TrackerDigiGeometryRecord>().get(tracker);
 
 
-    // Step C: Invoke the cloud cleaning algorithm
-    vector<AlgoProduct> algooutput;
-    edm::OrphanHandle<reco::TrackExtraCollection> ohTE;
-    if ((*seed).size()>0){
+  
+    if((*seed).size()>0){
+      unsigned int iraw=(*(*(*seed).begin()).recHits().first).geographicalId().rawId();
+      LocalPoint lp=(*(*(*seed).begin()).recHits().first).localPosition();
+      bool seedplus=(tracker->idToDet(DetId(iraw))->surface().toGlobal(lp).y()>0.);
+
+      if (seedplus)
+	LogDebug("CosmicTrackFinder")<<"Seed on the top part of the tracker";
+      else
+	LogDebug("CosmicTrackFinder")<<"Seed on the bottom part of the tracker";
+ 
+      cosmicTrajectoryBuilder_.init(es,seedplus);
+      
+      vector<AlgoProduct> algooutput;
+      edm::OrphanHandle<reco::TrackExtraCollection> ohTE;
+      
+      
       cosmicTrajectoryBuilder_.run(*seed,
 				   *stereorecHits,
 				   *rphirecHits,
@@ -101,10 +115,14 @@ namespace cms
 
 	  reco::TrackExtra * theTrackExtra;
 	  TSOS outertsos = theTraj.lastMeasurement().updatedState();
+	  TSOS Fitsos = theTraj.firstMeasurement().updatedState();
 
+	  GlobalPoint v(0.,0.,0.);
+	  GlobalVector p;
 
-	  GlobalPoint v = outertsos.globalParameters().position();
-	  GlobalVector p = outertsos.globalParameters().momentum();
+	  if (seedplus) p=outertsos.globalParameters().momentum();
+	  else p= Fitsos.globalParameters().momentum();
+
 	  math::XYZVector outmom( p.x(), p.y(), p.z() );
 	  math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
 	  theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
