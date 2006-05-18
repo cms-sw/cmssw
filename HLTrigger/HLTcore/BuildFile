@@ -1,3 +1,5 @@
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/EgammaCandidates>
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>

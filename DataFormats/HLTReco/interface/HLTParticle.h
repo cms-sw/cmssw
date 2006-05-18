@@ -9,14 +9,15 @@
  *  an HLT filter decision.
  *
  *
- *  $Date: 2006/04/11 10:10:10 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/04/26 09:27:44 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include <string>
 #include <map>
@@ -31,20 +32,6 @@ namespace reco
   public:
     HLTParticle(): Particle() { }
     HLTParticle(char q, const LorentzVector& p4): Particle(q, p4) { }
-
-  };
-
-  template <typename C>
-  class HLTParticleWithRef : public HLTParticle, public edm::Ref<C> {
-    // HLTParticle with persistent Ref into the original collection
-    // of reconstructed physics objects
-
-  public:
-    HLTParticleWithRef(): HLTParticle(), edm::Ref<C>() { }
-    HLTParticleWithRef(const HLTParticle& particle)
-      : HLTParticle(particle), edm::Ref<C>() { }
-    HLTParticleWithRef(const HLTParticle& particle, const edm::Ref<C>& ref)
-      : HLTParticle(particle), edm::Ref<C>(ref) { }
 
   };
 
