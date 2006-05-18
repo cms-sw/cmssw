@@ -19,6 +19,11 @@ class L1GctTwosComplement {
   L1GctTwosComplement(int value);
   ~L1GctTwosComplement() { }
 
+  // copy contructor to move data between
+  // representations with different numbers of bits
+  template <int mBits>
+  L1GctTwosComplement(const L1GctTwosComplement<mBits>& rhs);
+
   // reset value and overflow to zero
   void reset();
 
@@ -88,7 +93,17 @@ L1GctTwosComplement<nBits>::L1GctTwosComplement(int value) {
   this->setValue(value);
 }
 
-// construct from reset value and overflow to zero
+// copy contructor to move data between
+// representations with different numbers of bits
+template <int nBits>
+template <int mBits>
+L1GctTwosComplement<nBits>::L1GctTwosComplement(const L1GctTwosComplement<mBits>& rhs) {
+  m_nBits = nBits>0 && nBits<MAX_NBITS ? nBits : 16 ;
+  this->setRaw( rhs.raw() );
+  this->setOverFlow( this->overFlow() || rhs.overFlow() );
+}
+
+// reset value and overflow to zero
 template <int nBits>
 void L1GctTwosComplement<nBits>::reset() {
   m_data = static_cast<uint32_t>(0);
@@ -216,7 +231,10 @@ class L1GctUnsignedInt {
   // add two numbers
   L1GctUnsignedInt operator+ (const L1GctUnsignedInt &rhs) const;
 
- private:
+  // overload = operator
+  L1GctUnsignedInt& operator= (int value);
+
+ protected:
 
   // number of bits
   int m_nBits;
@@ -258,12 +276,12 @@ template <int nBits>
 void L1GctUnsignedInt<nBits>::setValue(unsigned value)
 {
   // check for overflow
-  if (value >= (unsigned) 1<<(m_nBits-1) ) {
+  if (value >= (static_cast<unsigned>(1<<m_nBits)) ) {
     m_overFlow = true;
   }
 
   // set value with bitmask
-  m_value = value & (1<<(m_nBits-1) - 1);
+  m_value = value & ((1<<m_nBits) - 1);
 
 }
 
@@ -273,7 +291,7 @@ L1GctUnsignedInt<nBits>
 L1GctUnsignedInt<nBits>::operator+ (const L1GctUnsignedInt<nBits> &rhs) const {
 
   // temporary variable for storing the result (need to set its size)
-  L1GctUnsignedInt temp(nBits);
+  L1GctUnsignedInt<nBits> temp;
 
   unsigned sum;
   bool ofl;
@@ -288,6 +306,100 @@ L1GctUnsignedInt<nBits>::operator+ (const L1GctUnsignedInt<nBits> &rhs) const {
 
   // return the temporary
   return temp;
+
+}
+
+// overload assignment by int
+template <int nBits>
+L1GctUnsignedInt<nBits>& L1GctUnsignedInt<nBits>::operator= (int value) {
+  
+  this->setValue(value);
+  return *this;
+
+}
+
+template <int nBits>
+class L1GctJetCount : public L1GctUnsignedInt<nBits> {
+
+ public:
+
+  L1GctJetCount();
+  L1GctJetCount(unsigned value);
+  ~L1GctJetCount();
+
+  // Set value from unsigned
+  void setValue(unsigned value);
+
+  // set the overflow bit
+  void setOverFlow(bool oflow);
+
+  // add two numbers
+  L1GctJetCount operator+ (const L1GctJetCount &rhs) const;
+
+  // overload = operator
+  L1GctJetCount& operator= (int value);
+
+};
+
+template <int nBits>
+L1GctJetCount<nBits>::L1GctJetCount() : L1GctUnsignedInt<nBits>() {}
+
+template <int nBits>
+L1GctJetCount<nBits>::L1GctJetCount(unsigned value) : L1GctUnsignedInt<nBits>(value) {}
+
+template <int nBits>
+L1GctJetCount<nBits>::~L1GctJetCount() {}
+
+template <int nBits>
+void L1GctJetCount<nBits>::setValue(unsigned value)
+{
+  // check for overflow
+  if (value >= (static_cast<unsigned>(1<<m_nBits)) ) {
+    m_overFlow = true;
+    m_value = ((1<<m_nBits) - 1);
+  } else {
+    m_value = value;
+  }
+
+}
+
+template <int nBits>
+void L1GctJetCount<nBits>::setOverFlow(bool oflow)
+{
+  m_overFlow = oflow;
+  if (oflow) { m_value = ((1<<m_nBits) - 1); }
+}
+
+// add two jet counts
+template <int nBits>
+L1GctJetCount<nBits>
+L1GctJetCount<nBits>::operator+ (const L1GctJetCount<nBits> &rhs) const {
+
+  // temporary variable for storing the result (need to set its size)
+  L1GctJetCount<nBits> temp;
+
+  unsigned sum;
+  bool ofl;
+
+  // do the addition here
+  sum = this->value() + rhs.value();
+  ofl = this->overFlow() || rhs.overFlow();
+
+  //fill the temporary argument
+  temp.setValue(sum);
+  temp.setOverFlow(temp.overFlow() || ofl);
+
+  // return the temporary
+  return temp;
+
+}
+
+// overload assignment by int
+template <int nBits>
+L1GctJetCount<nBits>& L1GctJetCount<nBits>::operator= (int value) {
+  
+  this->setValue(value);
+  return *this;
 
 }
 
@@ -318,7 +430,17 @@ std::ostream& operator<<(std::ostream& s, const L1GctTwosComplement<nBits>& data
 template <int nBits>
 std::ostream& operator<<(std::ostream& s, const L1GctUnsignedInt<nBits>& data) {
 
-  s << "L1GctUnsignedInt raw : " << data.raw() << ", " << "value : " << data.value();
+  s << "L1GctUnsignedInt value : " << data.value();
+  if (data.overFlow()) { s << " Overflow set! "; }
+  s << std::endl;
+  return s;
+
+}
+
+template <int nBits>
+std::ostream& operator<<(std::ostream& s, const L1GctJetCount<nBits>& data) {
+
+  s << "L1GctJetCount value : " << data.value();
   if (data.overFlow()) { s << " Overflow set! "; }
   s << std::endl;
   return s;
