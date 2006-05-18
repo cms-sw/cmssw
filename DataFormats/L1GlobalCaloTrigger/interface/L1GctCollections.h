@@ -4,12 +4,12 @@
 
 #include <vector>
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCandidates.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
 
-typedef std::vector<L1GctIsoEmCand> L1GctIsoEmCollection;
-typedef std::vector<L1GctNonIsoEmCand> L1GctNonIsoEmCollection;
-typedef std::vector<L1GctForJetCand> L1GctForJetCollection;
-typedef std::vector<L1GctCenJetCand> L1GctCenJetCollection;
-typedef std::vector<L1GctTauJetCand> L1GctTauJetCollection;
+typedef std::vector<L1GctIsoEm> L1GctIsoEmCollection;
+typedef std::vector<L1GctNonIsoEm> L1GctNonIsoEmCollection;
+typedef std::vector<L1GctForJet> L1GctForJetCollection;
+typedef std::vector<L1GctCenJet> L1GctCenJetCollection;
+typedef std::vector<L1GctTauJet> L1GctTauJetCollection;
 
 #endif

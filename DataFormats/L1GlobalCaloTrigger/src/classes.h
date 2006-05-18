@@ -1,9 +1,9 @@
 
 #include <vector>
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCandidates.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
   namespace {

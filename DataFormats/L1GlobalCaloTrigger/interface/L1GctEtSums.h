@@ -5,7 +5,7 @@
 #include <ostream>
 
 /*! \file L1GctEtSums.h
- * \Header file for the Gct energy sums 
+ * \Header file for the GCT energy sum output
  * 
  * \author: Jim Brooke
  *
