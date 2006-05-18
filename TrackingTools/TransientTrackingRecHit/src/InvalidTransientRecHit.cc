@@ -4,10 +4,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 InvalidTransientRecHit::InvalidTransientRecHit( const GeomDet* geom) :
-  TransientTrackingRecHit( geom, new InvalidTrackingRecHit( geom == 0 ? DetId(0) : geom->geographicalId()))
+  GenericTransientTrackingRecHit( geom, new InvalidTrackingRecHit( geom == 0 ? DetId(0) : geom->geographicalId()))
 {
 }
 
+/*
 AlgebraicVector InvalidTransientRecHit::parameters(const TrajectoryStateOnSurface& ts) const
 {
   throw cms::Exception("Invalid TransientTrackingRecHit used");
@@ -19,3 +20,4 @@ AlgebraicSymMatrix InvalidTransientRecHit::parametersError(const TrajectoryState
   throw cms::Exception("Invalid TransientTrackingRecHit used");
   return AlgebraicSymMatrix();
 }
+*/

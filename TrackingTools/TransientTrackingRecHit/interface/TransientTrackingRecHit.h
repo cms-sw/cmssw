@@ -2,80 +2,58 @@
 #define TransientTrackingRecHit_H
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include <Geometry/Vector/interface/GlobalPoint.h>
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h>
 #include <Geometry/CommonDetAlgo/interface/AlgebraicObjects.h>
 #include "DataFormats/Common/interface/OwnVector.h"
 
+class GeomDetUnit;
+
 class TransientTrackingRecHit : public TrackingRecHit {
 public:
 
-  TransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh) {
-    _geom = geom ;
-    _trackingRecHit = rh->clone();
-  }
-  TransientTrackingRecHit( const TransientTrackingRecHit & t ) {
-    _trackingRecHit = (t.hit())->clone();
-    _geom = t.det();
-  }
-  TransientTrackingRecHit & operator= (const TransientTrackingRecHit & t) {
-    _trackingRecHit = (t.hit())->clone();
-    _geom = t.det();
-    return *(this);
-  }
+  typedef edm::OwnVector<const TransientTrackingRecHit>   RecHitContainer;
 
-  virtual ~TransientTrackingRecHit() {delete _trackingRecHit;}
-
-//   virtual const GlobalPoint globalPoint() = 0;
-
-/*  void setDet() { */
-/*     _id = geographicalId(); */
-/*     _detMap[_id] = _geom->idToDet(_id); */
-/*   }; */
-
-  const GeomDetUnit * detUnit() const;
-  const GeomDet * det() const;
-
-  virtual AlgebraicVector parameters() const {return _trackingRecHit->parameters();}
-  virtual AlgebraicSymMatrix parametersError() const {return _trackingRecHit->parametersError();}
-  virtual DetId geographicalId() const {return _trackingRecHit->geographicalId();}
-  virtual AlgebraicMatrix projectionMatrix() const {return _trackingRecHit->projectionMatrix();}
-  virtual int dimension() const {return _trackingRecHit->dimension();}
-  virtual std::vector<const TrackingRecHit*> recHits() const {return ((const TrackingRecHit *)(_trackingRecHit))->recHits();}
-  virtual std::vector<TrackingRecHit*> recHits() {return _trackingRecHit->recHits();}
-  virtual LocalPoint localPosition() const {return _trackingRecHit->localPosition();}
-  virtual LocalError localPositionError() const {return _trackingRecHit->localPositionError();}
-
-
-  virtual GlobalPoint globalPosition() const ;
-
-  virtual GlobalError globalPositionError() const ;
-
-
-  virtual AlgebraicVector parameters(const TrajectoryStateOnSurface& ts) const  = 0;
-  virtual AlgebraicSymMatrix parametersError(const TrajectoryStateOnSurface& ts) const = 0;
-  TrackingRecHit * hit() const {return _trackingRecHit;};
-  
-  bool isValid() const{return _trackingRecHit->isValid();}
+  explicit TransientTrackingRecHit(const GeomDet * geom) : geom_(geom) {}
 
   virtual TransientTrackingRecHit * clone() const = 0;
-  virtual edm::OwnVector<const TransientTrackingRecHit> transientHits() const {
-    edm::OwnVector<const TransientTrackingRecHit> temp;
-    temp.push_back(this);
-    return temp;
-  }
-  virtual edm::OwnVector<TransientTrackingRecHit> transientHits() {
-    edm::OwnVector<TransientTrackingRecHit> temp;
-    temp.push_back(this);
-    return temp;
+
+  // Extension of the TrackingRecHit interface
+
+  /// The GomeDet* is always non-zero
+  const GeomDet * det() const {return geom_;}
+
+  /// CAUTION: the GeomDetUnit* is zero for composite hits 
+  /// (matched hits in the tracker, segments in the muon).
+  /// Always check this pointer before using it!
+  virtual const GeomDetUnit * detUnit() const = 0;
+
+  virtual GlobalPoint globalPosition() const ;
+  virtual GlobalError globalPositionError() const ;
+
+  /// Returns a copy of the hit with parameters and errors computed with respect 
+  /// to the TrajectoryStateOnSurface given as argument.
+  /// For concrete hits not capable to improve their parameters and errors
+  /// this method returns an exact copy, and is equivalent to clone() without arguments.
+  virtual TransientTrackingRecHit* clone (const TrajectoryStateOnSurface& ts) const {
+    return clone();
   }
 
-  private:
-  const GeomDet * _geom ;
-  TrackingRecHit * _trackingRecHit;
+  /// Returns true if the clone( const TrajectoryStateOnSurface&) method returns an
+  /// improved hit, false if it returns an identical copy.
+  /// In order to avoid redundent copies one should call canImproveWithTrack() before 
+  /// calling clone( const TrajectoryStateOnSurface&).
+  virtual bool canImproveWithTrack() const {return false;}
+
+  virtual const TrackingRecHit * hit() const = 0;
+  
+  /// Composite interface: returns the component hits, if any
+  virtual RecHitContainer transientHits() const;
+
+private:
+
+  const GeomDet * geom_ ;
+
 };
 
 #endif

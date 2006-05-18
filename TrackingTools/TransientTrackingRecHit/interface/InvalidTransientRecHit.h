@@ -1,19 +1,17 @@
 #ifndef InvalidTransientRecHit_H
 #define InvalidTransientRecHit_H
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 
-class InvalidTransientRecHit : public TransientTrackingRecHit {
+class InvalidTransientRecHit : public GenericTransientTrackingRecHit {
 public:
 
   /// invalid RecHit - has only GeomDet
   explicit InvalidTransientRecHit( const GeomDet* geom);
   
-  virtual AlgebraicVector parameters(const TrajectoryStateOnSurface& ts) const;
-
-  virtual AlgebraicSymMatrix parametersError(const TrajectoryStateOnSurface& ts) const;
-
   virtual InvalidTransientRecHit* clone() const {return new InvalidTransientRecHit(*this);}
+
+  virtual InvalidTransientRecHit* clone( const TrajectoryStateOnSurface&) const {return clone();}
 
 };
 

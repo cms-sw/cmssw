@@ -2,19 +2,16 @@
 #include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 
-const GeomDet * TransientTrackingRecHit::det() const 
-{
-  return _geom;
-}
-const GeomDetUnit * TransientTrackingRecHit::detUnit() const 
-{
-  return dynamic_cast<const GeomDetUnit*>(_geom);
+GlobalPoint TransientTrackingRecHit::globalPosition() const {
+  return  (geom_->surface().toGlobal(localPosition()));
 }
 
- GlobalPoint TransientTrackingRecHit::globalPosition() const {
-   return  (_geom->surface().toGlobal(localPosition()));
-}
- GlobalError TransientTrackingRecHit::globalPositionError() const {
-   return ErrorFrameTransformer().transform( localPositionError(), (_geom->surface()));
+GlobalError TransientTrackingRecHit::globalPositionError() const {
+  return ErrorFrameTransformer().transform( localPositionError(), (geom_->surface()));
 }   
 
+edm::OwnVector<const TransientTrackingRecHit> TransientTrackingRecHit::transientHits() const 
+{
+  // no components by default
+  return edm::OwnVector<const TransientTrackingRecHit>();
+}
