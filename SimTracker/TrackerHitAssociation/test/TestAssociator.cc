@@ -1,6 +1,7 @@
 // File: TestAssociator.cc
 // Author:  P. Azzi
 // Creation Date:  PA May 2006 Initial version.
+//                 Pixel RecHits added by V.Chiochia - 18/5/06
 //
 //--------------------------------------------
 #include <memory>
@@ -13,12 +14,16 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-//--- for RecHit
+//--- for Strip RecHit
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/Common/interface/OwnVector.h"
+
+//--- for Pixel RecHit
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollection.h"
 
 //--- for StripDigiSimLink
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
@@ -61,18 +66,21 @@ namespace cms
   void TestAssociator::analyze(const edm::Event& e, const edm::EventSetup& es) {
     
     using namespace edm;
-    
+    bool pixeldebug = true;
+    int pixelcounter = 0;
+
     //std::string rechitProducer = conf_.getParameter<std::string>("RecHitProducer");
     
     // Step A: Get Inputs 
     edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> rechitsmatched;
     edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsrphi;
     edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsstereo;
+    edm::Handle<SiPixelRecHitCollection> pixelrechits;
     std::string  rechitProducer = "LocalMeasurementConverter";
     e.getByLabel(rechitProducer,"matchedRecHit", rechitsmatched);
     e.getByLabel(rechitProducer,"rphiRecHit", rechitsrphi);
     e.getByLabel(rechitProducer,"stereoRecHit", rechitsstereo);
-
+    e.getByType(pixelrechits);
     
     //first instance tracking geometry
     edm::ESHandle<TrackerGeometry> pDD;
@@ -88,11 +96,28 @@ namespace cms
       
       edm::OwnVector<SiStripRecHit2DLocalPos> collector; 
       if(myid!=999999999){ //if is valid detector
+
 	SiStripRecHit2DLocalPosCollection::range rechitRange = (rechitsrphi.product())->get((detid));
 	SiStripRecHit2DLocalPosCollection::const_iterator rechitRangeIteratorBegin = rechitRange.first;
 	SiStripRecHit2DLocalPosCollection::const_iterator rechitRangeIteratorEnd   = rechitRange.second;
 	SiStripRecHit2DLocalPosCollection::const_iterator iter=rechitRangeIteratorBegin;
-	
+
+	SiPixelRecHitCollection::range pixelrechitRange = (pixelrechits.product())->get((detid));
+	SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
+	SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd   = pixelrechitRange.second;
+	SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
+
+	// Do the pixels
+	for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) {
+	  pixelcounter++;
+	  if(pixeldebug) {
+	    cout << pixelcounter <<") Pixel RecHit DetId " << detid.rawId() << " Pos = " << pixeliter->localPosition() << endl;
+	  }
+	  matched.clear();
+	  matched = associate.associateHit(*pixeliter);
+	}
+
+	// Do the strips
 	for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
 	  SiStripRecHit2DLocalPos const rechit=*iter;
 	  int i=0;
