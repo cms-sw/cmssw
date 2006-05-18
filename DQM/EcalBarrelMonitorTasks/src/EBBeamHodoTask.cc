@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/05/17 13:43:18 $
- * $Revision: 1.6 $
+ * $Date: 2006/05/17 18:31:39 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -65,43 +65,43 @@ void EBBeamHodoTask::setup(void){
 
     for (int i=0; i<4; i++)
       {
-	sprintf(histo, "EBBT hodo occ SM%02d, %02d", smId, i+1);
+	sprintf(histo, "EBBHT occup SM%02d, %02d", smId, i+1);
 	meHodoOcc_[i] = dbe->book1D(histo, histo, 64, 0., 64.);
-	sprintf(histo, "EBBT hodo raw SM%02d, %02d", smId, i+1);
+	sprintf(histo, "EBBHT raw SM%02d, %02d", smId, i+1);
 	meHodoRaw_[i] = dbe->book1D(histo, histo, 64, 0., 64.);
       }
     
-    sprintf(histo, "EBBT ho Po rec SM%02d", smId);
+    sprintf(histo, "EBBHT Pos rec SM%02d", smId);
     meHodoPosRec_ = dbe->book1D(histo, histo, 100, -20, 20);
     
-    sprintf(histo, "EBBT ho SloX SM%02d", smId);
+    sprintf(histo, "EBBHT SloX SM%02d", smId);
     meHodoSloXRec_ = dbe->book1D(histo, histo, 50, -0.005, 0.005);
     
-    sprintf(histo, "EBBT ho SloY SM%02d", smId);
+    sprintf(histo, "EBBHT SloY SM%02d", smId);
     meHodoSloYRec_ = dbe->book1D(histo, histo, 50, -0.005, 0.005);
     
-    sprintf(histo, "EBBT ho QualX SM%02d", smId);
+    sprintf(histo, "EBBHT QualX SM%02d", smId);
     meHodoQuaXRec_ = dbe->book1D(histo, histo, 50, 0, 3);
     
-    sprintf(histo, "EBBT ho QualY SM%02d", smId);
+    sprintf(histo, "EBBHT QualY SM%02d", smId);
     meHodoQuaYRec_ = dbe->book1D(histo, histo, 50, 0, 3);
     
-    sprintf(histo, "EBBT TDC rec SM%02d", smId);
+    sprintf(histo, "EBBHT TDC rec SM%02d", smId);
     meTDCRec_  = dbe->book1D(histo, histo, 25, 0, 1);
     
-    sprintf(histo, "EBBT E1vsX SM%02d", smId);
+    sprintf(histo, "EBBHT E1 vs X SM%02d", smId);
     meEvsXRec_    = dbe-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000);
 
-    sprintf(histo, "EBBT E1vsY SM%02d", smId);
+    sprintf(histo, "EBBHT E1 vs Y SM%02d", smId);
     meEvsYRec_    = dbe-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000);
 
-    sprintf(histo, "EBBT PosX: Hodo-Calo SM%02d", smId);
+    sprintf(histo, "EBBHT PosX: Hodo-Calo SM%02d", smId);
     meCaloVsHodoXPos_   = dbe->book1D(histo, histo, 40, -20, 20);
 
-    sprintf(histo, "EBBT PosY: Hodo-Calo SM%02d", smId);
+    sprintf(histo, "EBBHT PosY: Hodo-Calo SM%02d", smId);
     meCaloVsHodoYPos_   = dbe->book1D(histo, histo, 40, -20, 20);
 
-    sprintf(histo, "EBBT TimeMax: TDC-Calo SM%02d", smId);
+    sprintf(histo, "EBBHT TimeMax: TDC-Calo SM%02d", smId);
     meCaloVsTDCTime_  = dbe->book1D(histo, histo, 100, -1, 1);//tentative
 
   }
