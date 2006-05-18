@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/03/21 13:27:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/23 15:15:36 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -24,15 +24,15 @@ class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
 public:
 
   /** Constructor with Parameter set */
-  StandAloneMuonTrajectoryBuilder(const edm::ParameterSet& par){} ;
+  StandAloneMuonTrajectoryBuilder(const edm::ParameterSet& par);
           
   /** Destructor */
-  ~StandAloneMuonTrajectoryBuilder(){};
+  virtual ~StandAloneMuonTrajectoryBuilder();
 
   /** Returns a vector of the reconstructed trajectories compatible with
    * the given seed.
    */   
-  TrajectoryContainer trajectories(const TrajectorySeed&){ return TrajectoryContainer();}
+  TrajectoryContainer trajectories(const TrajectorySeed&);
 
   StandAloneMuonRefitter* refitter() const {return theRefitter;}
   StandAloneMuonBackwardFilter* bwfilter() const {return theBWFilter;}

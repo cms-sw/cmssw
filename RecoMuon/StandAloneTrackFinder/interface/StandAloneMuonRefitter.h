@@ -2,17 +2,19 @@
 #define RecoMuon_StandAloneTrackFinder_StandAloneMuonRefitter_H
 
 /** \class StandAloneMuonRefitter
- *  No description available.
+ *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/03/21 13:27:22 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino
  */
+
+namespace edm {class ParameterSet;}
 
 class StandAloneMuonRefitter {
 public:
   /// Constructor
-  StandAloneMuonRefitter();
+  StandAloneMuonRefitter(const edm::ParameterSet& par);
 
   /// Destructor
   virtual ~StandAloneMuonRefitter();

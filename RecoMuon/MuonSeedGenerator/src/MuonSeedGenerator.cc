@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/05/15 17:25:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/16 09:33:38 $
+ *  $Revision: 1.2 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -52,15 +52,6 @@
 #include <vector>
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-//>>Fake!!
-// class MuonDetLayerMeasurements{
-// public:
-//   MuonDetLayerMeasurements(const edm::EventSetup& eSetup){}
-//   std::vector<TransientTrackingRecHit*> recHits(const DetLayer* dl,edm::Event& event){
-//     return std::vector<TransientTrackingRecHit*>();
-//   }
-// };
-//<<
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 

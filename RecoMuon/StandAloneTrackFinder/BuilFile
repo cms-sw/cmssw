@@ -1,6 +1,10 @@
 <use name=RecoMuon/TrackingTools>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
 
 <export>
    <lib name=RecoMuonStandAloneTrackFinder>
    <use name=RecoMuon/TrackingTools>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
 </export>

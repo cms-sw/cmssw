@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/03/23 15:15:35 $
- *   $Revision: 1.2 $
+ *   $Date: 2006/05/17 13:05:14 $
+ *   $Revision: 1.3 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -45,7 +45,7 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet));
 
 
-  produces<reco::TrackCollection>();  //FIXME fancy-name  
+  produces<reco::TrackCollection>();
 }
   
 /// destructor
