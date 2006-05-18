@@ -29,6 +29,8 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 
 //--- for RecHit
@@ -64,6 +66,7 @@ namespace cms{
   private:
      const edm::Event& myEvent_;
      edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
+     edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
      //vector with the trackIds
      std::vector<unsigned int> simtrackid; 
      

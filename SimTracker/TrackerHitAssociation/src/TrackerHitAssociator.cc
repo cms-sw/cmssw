@@ -120,7 +120,19 @@ namespace cms{
 
  std::vector<unsigned int>  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit)
   {
-    //to be written
+    cout << " !---> associatePixelRecHit " << endl;
+    //
+    // Pixel associator: work in progress...
+    //
+    DetId detid=  pixelrechit->geographicalId();
+    uint32_t detID = detid.rawId();
+    edm::DetSetVector<PixelDigiSimLink>::const_iterator isearch = pixeldigisimlink->find(detID); 
+    if(isearch != pixeldigisimlink->end()) {  //if it is not empty
+    edm::DetSet<PixelDigiSimLink> link_detset = (*pixeldigisimlink)[detID];
+    const SiPixelCluster*  cluster = pixelrechit->cluster();
+    // ...to be completed... //
+    }
+   
     return simtrackid;
   }
   
@@ -133,6 +145,7 @@ namespace cms{
     //edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
     //    e.getByLabel("stripdigi", "stripdigi", stripdigisimlink);
     e.getByLabel("stripdigi", stripdigisimlink);
+    e.getByLabel("pixdigi",   pixeldigisimlink);
     //cout << "Associator : get digilink from the event" << endl;
     
     theStripHits.clear();
