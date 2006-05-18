@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/04/07 18:52:20 $
- * $Revision: 1.44 $
+ * $Date: 2006/04/28 10:48:50 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -373,7 +373,8 @@ void EBCosmicClient::analyze(void){
 
 }
 
-void EBCosmicClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
+//void EBCosmicClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
+void EBCosmicClient::htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName){
 
   cout << "Preparing EBCosmicClient html output ..." << endl;
 
@@ -430,9 +431,11 @@ void EBCosmicClient::htmlOutput(int run, int jsm, string htmlDir, string htmlNam
 
   // Loop on barrel supermodules
 
-  for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+  //for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+    //if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
+  for( unsigned int i=0; i<superModules.size(); i ++ ) {
+    int ism = superModules[i];
 
-    if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
 
     // Monitoring elements plots
 

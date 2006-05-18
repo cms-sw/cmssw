@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2006/03/05 09:50:40 $
- * $Revision: 1.23 $
+ * $Date: 2006/04/28 10:48:49 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -84,7 +84,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, int jsm, string htmlDir, string htmlName);
+void htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName);
 
 /// WriteDB
 void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov);

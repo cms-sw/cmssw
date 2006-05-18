@@ -1,8 +1,8 @@
 /*
  * \file EBBeamClient.cc
  *
- * $Date: 2006/03/05 09:50:41 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/28 10:48:50 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -141,7 +141,8 @@ void EBBeamClient::analyze(void){
 
 }
 
-void EBBeamClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
+//void EBBeamClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
+void EBBeamClient::htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName){
 
   cout << "Preparing EBBeamClient html output ..." << endl;
 

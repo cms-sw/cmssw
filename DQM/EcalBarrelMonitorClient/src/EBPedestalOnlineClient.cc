@@ -1,14 +1,15 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/04/07 18:52:20 $
- * $Revision: 1.12 $
+ * $Date: 2006/04/28 10:48:50 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
 */
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
 EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
@@ -24,11 +25,11 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps, MonitorUs
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    g03_[ism-1] = 0;
+    meg03_[ism-1] = 0;
 
-    p03_[ism-1] = 0;
+    mep03_[ism-1] = 0;
 
-    r03_[ism-1] = 0;
+    mer03_[ism-1] = 0;
 
   }
 
@@ -97,37 +98,41 @@ void EBPedestalOnlineClient::setup(void) {
 
   Char_t histo[50];
 
+  mui_->setCurrentFolder( "EBPedestalOnlineClient" );
+
+  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( g03_[ism-1] ) delete g03_[ism-1];
+    if ( meg03_[ism-1] ) delete meg03_[ism-1];
     sprintf(histo, "EBPOT pedestal quality G12 SM%02d", ism);
-    g03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-    if ( p03_[ism-1] ) delete p03_[ism-1];
+    if ( mep03_[ism-1] ) delete mep03_[ism-1];
     sprintf(histo, "EBPOT pedestal mean G12 SM%02d", ism);
-    p03_[ism-1] = new TH1F(histo, histo, 100, 150., 250.);
+    mep03_[ism-1] = bei->book1D(histo, histo, 100, 150., 250.);
 
-    if ( r03_[ism-1] ) delete r03_[ism-1];
+    if ( mer03_[ism-1] ) delete mer03_[ism-1];
     sprintf(histo, "EBPOT pedestal rms G12 SM%02d", ism);
-    r03_[ism-1] = new TH1F(histo, histo, 100, 0.,  10.);
+    mer03_[ism-1] = bei->book1D(histo, histo, 100, 0.,  10.);
 
   }
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    g03_[ism-1]->Reset();
+    dynamic_cast<MonitorElementT<TNamed>*>(meg03_[ism-1])->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
+        meg03_[ism-1]->setBinContent(ie, ip, 2.);
 
       }
     }
 
-    p03_[ism-1]->Reset();
+    dynamic_cast<MonitorElementT<TNamed>*>(mep03_[ism-1])->Reset();
 
-    r03_[ism-1]->Reset();
+    dynamic_cast<MonitorElementT<TNamed>*>(mer03_[ism-1])->Reset();
 
   }
 
@@ -149,14 +154,14 @@ void EBPedestalOnlineClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( g03_[ism-1] ) delete g03_[ism-1];
-    g03_[ism-1] = 0;
+    if ( meg03_[ism-1] ) delete meg03_[ism-1];
+    meg03_[ism-1] = 0;
 
-    if ( p03_[ism-1] ) delete p03_[ism-1];
-    p03_[ism-1] = 0;
+    if ( mep03_[ism-1] ) delete mep03_[ism-1];
+    mep03_[ism-1] = 0;
 
-    if ( r03_[ism-1] ) delete r03_[ism-1];
-    r03_[ism-1] = 0;
+    if ( mer03_[ism-1] ) delete mer03_[ism-1];
+    mer03_[ism-1] = 0;
 
   }
 
@@ -209,7 +214,7 @@ void EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
           p.setADCMeanG12(mean03);
           p.setADCRMSG12(rms03);
 
-          if ( g03_[ism-1]  && g03_[ism-1]->GetBinContent(g03_[ism-1]->GetBin(ie, ip)) == 1. ) {
+          if ( meg03_[ism-1]  && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
              p.setTaskStatus(true);
           } else {
              p.setTaskStatus(false);
@@ -318,6 +323,8 @@ void EBPedestalOnlineClient::analyze(void){
   MonitorElement* me;
   MonitorElementT<TNamed>* ob;
 
+  
+
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( collateSources_ ) {
@@ -352,11 +359,11 @@ void EBPedestalOnlineClient::analyze(void){
     float mean03;
     float rms03;
 
-    if ( g03_[ism-1] ) g03_[ism-1]->Reset();
+    if ( meg03_[ism-1] ) dynamic_cast<MonitorElementT<TNamed>*>(meg03_[ism-1])->Reset();
 
-    if ( p03_[ism-1] ) p03_[ism-1]->Reset();
+    if ( mep03_[ism-1] ) dynamic_cast<MonitorElementT<TNamed>*>(mep03_[ism-1])->Reset();
 
-    if ( r03_[ism-1] ) r03_[ism-1]->Reset();
+    if ( mer03_[ism-1] ) dynamic_cast<MonitorElementT<TNamed>*>(mer03_[ism-1])->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -365,7 +372,7 @@ void EBPedestalOnlineClient::analyze(void){
         mean03 = -1.;
         rms03  = -1.;
 
-        if ( g03_[ism-1] ) g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
+        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 2.);
 
         bool update_channel = false;
 
@@ -387,10 +394,10 @@ void EBPedestalOnlineClient::analyze(void){
             val = 0.;
           if ( rms03 > RMSThreshold_ )
             val = 0.;
-          if ( g03_[ism-1] ) g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val);
 
-          if ( p03_[ism-1] ) p03_[ism-1]->Fill(mean03);
-          if ( r03_[ism-1] ) r03_[ism-1]->Fill(rms03);
+          if ( mep03_[ism-1] ) mep03_[ism-1]->Fill(mean03);
+          if ( mer03_[ism-1] ) mer03_[ism-1]->Fill(rms03);
 
         }
 
@@ -401,7 +408,8 @@ void EBPedestalOnlineClient::analyze(void){
 
 }
 
-void EBPedestalOnlineClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
+//void EBPedestalOnlineClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
+void EBPedestalOnlineClient::htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName){
 
   cout << "Preparing EBPedestalOnlineClient html output ..." << endl;
 
@@ -453,20 +461,21 @@ void EBPedestalOnlineClient::htmlOutput(int run, int jsm, string htmlDir, string
   TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
   TCanvas* cRMS = new TCanvas("cRMS", "Temp", csize, csize);
 
-  TH2F* obj2f;
-  TH1F* obj1f;
+  TH2F* obj2f = 0;
+  TH1F* obj1f = 0;
 
   // Loop on barrel supermodules
 
-  for ( int ism = 1 ; ism <= 36 ; ism++ ) {
-
-    if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
+  //for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+    //if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
+  for( unsigned int i=0; i<superModules.size(); i ++ ) {
+    int ism = superModules[i];
 
     // Quality plots
 
     imgNameQual = "";
 
-    obj2f = g03_[ism-1];
+    obj2f = getHisto( meg03_[ism-1], obj2f );
 
     if ( obj2f ) {
 
@@ -500,7 +509,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, int jsm, string htmlDir, string
 
     imgNameMean = "";
 
-    obj1f = p03_[ism-1];
+    obj1f = getHisto( mep03_[ism-1], obj1f );
 
     if ( obj1f ) {
 
@@ -531,7 +540,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, int jsm, string htmlDir, string
 
     // RMS distributions
 
-    obj1f = r03_[ism-1];
+    obj1f = getHisto( mer03_[ism-1], obj1f );
 
     imgNameRMS = "";
 

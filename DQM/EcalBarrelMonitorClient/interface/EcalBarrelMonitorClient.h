@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/04/28 09:13:39 $
- * $Revision: 1.41 $
+ * $Date: 2006/04/29 12:15:23 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -173,8 +173,9 @@ int last_jevt_;
 
 int unknowns_;
 
-EBIntegrityClient* integrity_client_;
+std::vector<int> superModules_;
 
+EBIntegrityClient* integrity_client_;
 EBCosmicClient* cosmic_client_;
 EBLaserClient* laser_client_;
 EBPedestalClient* pedestal_client_;

@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2006/03/24 10:16:05 $
- * $Revision: 1.7 $
+ * $Date: 2006/04/28 10:48:49 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -81,7 +81,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, int jsm, string htmlDir, string htmlName);
+void htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName);
 
 /// WriteDB
 void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov);
@@ -106,11 +106,9 @@ MonitorElement* meh03_[36];
 
 TProfile2D* h03_[36];
 
-TH2F* g03_[36];
-
-TH1F* p03_[36];
-
-TH1F* r03_[36];
+MonitorElement* meg03_[36];
+MonitorElement* mep03_[36];
+MonitorElement* mer03_[36];
 
 // Quality check on crystals, one per each gain
 

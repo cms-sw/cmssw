@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/03/05 09:50:41 $
- * $Revision: 1.65 $
+ * $Date: 2006/04/28 10:48:50 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1135,7 +1135,8 @@ void EBTestPulseClient::analyze(void){
 
 }
 
-void EBTestPulseClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
+//void EBTestPulseClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
+void EBTestPulseClient::htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName){
 
   cout << "Preparing EBTestPulseClient html output ..." << endl;
 
@@ -1194,9 +1195,10 @@ void EBTestPulseClient::htmlOutput(int run, int jsm, string htmlDir, string html
 
   // Loop on barrel supermodules
 
-  for ( int ism = 1 ; ism <= 36 ; ism++ ) {
-
-    if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
+  //for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+    //if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
+  for( unsigned int i=0; i<superModules.size(); i ++ ) {
+    int ism = superModules[i];
 
     // Loop on gains
 

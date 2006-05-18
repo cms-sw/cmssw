@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2006/04/30 20:45:50 $
- * $Revision: 1.27 $
+ * $Date: 2006/05/03 08:53:25 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -84,7 +84,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, int jsm, string htmlDir, string htmlName);
+void htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName);
 
 /// WriteDB
 void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov);
