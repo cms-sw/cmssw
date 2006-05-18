@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/03/21 13:27:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/18 08:37:34 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -17,7 +17,7 @@ public:
   StandAloneMuonRefitter(const edm::ParameterSet& par);
 
   /// Destructor
-  virtual ~StandAloneMuonRefitter();
+  virtual ~StandAloneMuonRefitter(){};
 
   // Operations
 

@@ -4,8 +4,8 @@
 /** \class StandAloneMuonSmoother
  *  The outward-inward fitter (starts from StandAloneMuonBackwardFilter innermost state).
  *
- *  $Date: 2006/03/21 13:27:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/18 08:37:34 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -17,7 +17,7 @@ public:
   StandAloneMuonSmoother(const edm::ParameterSet& par);
 
   /// Destructor
-  virtual ~StandAloneMuonSmoother();
+  virtual ~StandAloneMuonSmoother(){};
 
   // Operations
 
