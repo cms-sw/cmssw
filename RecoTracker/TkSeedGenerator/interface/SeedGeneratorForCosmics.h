@@ -13,11 +13,18 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "RecoTracker/TkHitPairs/interface/CosmicHitPairGenerator.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 class PixelSeedLayerPairs;
 
 class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
  public:
- 
+  typedef TrajectoryStateOnSurface TSOS;
   SeedGeneratorForCosmics(const edm::ParameterSet& conf);
   virtual ~SeedGeneratorForCosmics(){};
   void init(const SiStripRecHit2DLocalPosCollection &collstereo,
@@ -35,7 +42,13 @@ class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
   edm::ParameterSet conf_;
   GlobalTrackingRegion region;
   CosmicHitPairGenerator* thePairGenerator; 
-
+  edm::ESHandle<MagneticField> magfield;
+  edm::ESHandle<TrackerGeometry> tracker;
+  TrajectoryStateTransform transformer;
+  KFUpdator *theUpdator;
+  PropagatorWithMaterial  *thePropagatorAl;
+  PropagatorWithMaterial  *thePropagatorOp;
+  TkTransientTrackingRecHitBuilder *TTTRHBuilder;
 };
 #endif
 
