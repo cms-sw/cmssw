@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/05/18 09:53:21 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -38,7 +38,8 @@ StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
 }
 
 
-TrajectoryContainer StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed&){ 
+MuonTrajectoryBuilder::TrajectoryContainer 
+StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed&){ 
 
   // FIXME out a flag
   TimeMe time_STABuilder_tot("StandAloneMuonTrajectoryBuilder:total",false);
