@@ -8,11 +8,8 @@
 #endif
 #include <list>
 #include <utility>
-
-namespace seal
-{
-    class Regexp;
-}
+#include <SealBase/Regexp.h>
+#include <xercesc/dom/DOM.hpp>
 
 namespace pool 
 {
@@ -176,23 +173,46 @@ public:
 			      FCBuf<FileCatalog::FileID>& buf, 
 			      const size_t& start );
 
+
 private:
     /** For the time being the only allowed configuration item is a
      *  prefix to be added to the GUID/LFN.
      */ 
     mutable bool 	m_connectionStatus;
     static int		s_numberOfInstances;    
+
     
-    /** Rules are a combination of a regular expression and a prefix.
-	When looking up for a pfn, the catalog tries to match all the
-	rules one after the other and if a match occurs, than the
-	prefix is preponed to the guid and returned as pfn. 
-    */
-    typedef std::pair <seal::Regexp *, std::string> Rule;
+    
+    typedef struct {
+	seal::Regexp pathMatch;
+	seal::Regexp destinationMatch;	
+	std::string result;
+	std::string chain;
+    } Rule;
+
     typedef std::list <Rule> Rules;
-        
-    Rules	 	m_rules;
-    std::string 	m_fileType;
+    typedef std::map <std::string, Rules> ProtocolRules;
+
+    void parseRule (xercesc::DOMNode *ruleNode, 
+		    ProtocolRules &rules);
+    
+    std::string applyRules (const ProtocolRules& protocolRules,
+			    const std::string & protocol,
+			    const std::string & destination,
+			    bool direct,
+			    std::string name) const;
+    
+
+            
+    /** Direct rules are used to do the mapping from LFN to PFN.*/
+    ProtocolRules	 	m_directRules;
+    /** Inverse rules are used to do the mapping from PFN to LFN*/
+    ProtocolRules		m_inverseRules;
+    
+    std::string 		m_fileType;
+    std::string			m_filename;
+    seal::StringList		m_protocols;
+    std::string			m_destination;    
 };    
     
 

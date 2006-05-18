@@ -46,7 +46,8 @@ inline XMLCh*  _toDOMS(std::string temp){
 
 pool::TrivialFileCatalog::TrivialFileCatalog ()
     : m_connectionStatus (false),
-      m_fileType ("ROOT_All")
+      m_fileType ("ROOT_All"),
+      m_destination ("any")
 {  
     PoolMessageStream trivialLog("TrivialFileCatalog", seal::Msg::Nil);
     try { 
@@ -67,6 +68,47 @@ pool::TrivialFileCatalog::TrivialFileCatalog ()
 
 pool::TrivialFileCatalog::~TrivialFileCatalog ()
 {
+}
+
+void
+pool::TrivialFileCatalog::parseRule (DOMNode *ruleNode, 
+				     ProtocolRules &rules)
+{
+    if (! ruleNode)
+    {
+	throw FCTransactionException
+	    ("TrivialFileCatalog::connect",
+	     ":Malformed trivial catalog"); 		
+    }
+	    
+    DOMElement* ruleElement = static_cast<DOMElement *>(ruleNode);	    
+
+    if (! ruleElement)
+    {
+	throw FCTransactionException
+	    ("TrivialFileCatalog::connect",
+	     ":Malformed trivial catalog"); 		
+    }
+	    
+    std::string protocol 
+	= _toString (ruleElement->getAttribute (_toDOMS ("protocol")));	    
+    std::string destinationMatchRegexp
+	= _toString (ruleElement->getAttribute (_toDOMS ("destination-match")));
+    std::string pathMatchRegexp 
+	= _toString (ruleElement->getAttribute (_toDOMS ("path-match")));
+    std::string result 
+	= _toString (ruleElement->getAttribute (_toDOMS ("result")));
+    std::string chain 
+	= _toString (ruleElement->getAttribute (_toDOMS ("chain")));
+    					    
+    Rule rule;
+    rule.pathMatch.setPattern (pathMatchRegexp);
+    rule.pathMatch.compile ();
+    rule.destinationMatch.setPattern (destinationMatchRegexp);
+    rule.destinationMatch.compile ();    
+    rule.result = result;
+    rule.chain = chain;
+    rules[protocol].push_back (rule);    
 }
 
 
@@ -91,13 +133,46 @@ pool::TrivialFileCatalog::connect ()
 		 ": Malformed url for file catalog configuration"); 
 	}
 
+	seal::StringList tokens = seal::StringOps::split (m_url, "?"); 
+	m_filename = tokens[0];
+	std::string options = tokens[1];
+	seal::StringList optionTokens = seal::StringOps::split (options, "&");
+
+	for (seal::StringList::iterator option = optionTokens.begin ();
+	     option != optionTokens.end ();
+	     option++)
+	{
+	    seal::StringList argTokens = seal::StringOps::split (*option, "=") ;
+	    if (argTokens.size () != 2)
+	    {
+		throw FCTransactionException
+		    ("TrivialFileCatalog::connect",
+		     ": Malformed url for file catalog configuration"); 
+	    }
+	    
+	    std::string key = argTokens[0];
+	    std::string value = argTokens[1];
+	    
+	    if (key == "protocol")
+	    {
+		m_protocols = seal::StringOps::split (value, ",");
+	    }
+	    else if (key == "destination")
+	    {
+		m_destination = value;
+	    }
+	}
+	
+	if (find (m_protocols.begin (), m_protocols.end (), std::string ("direct")) == m_protocols.end ())
+	    m_protocols.push_back ("direct");
+       
 	std::ifstream configFile;
-	configFile.open (m_url.c_str ());
+	configFile.open (m_filename.c_str ());
 
     
 	trivialLog << seal::Msg::Info
 		   << "Using catalog configuration " 
-		   << m_url << seal::endmsg;
+		   << m_filename << seal::endmsg;
 
 	if (!configFile.good () || !configFile.is_open ())
 	{
@@ -110,83 +185,47 @@ pool::TrivialFileCatalog::connect ()
 	XercesDOMParser* parser = new XercesDOMParser;     
 	parser->setValidationScheme(XercesDOMParser::Val_Auto);
 	parser->setDoNamespaces(false);
-	parser->parse(m_url.c_str());	
+	parser->parse(m_filename.c_str());	
 	DOMDocument* doc = parser->getDocument();
 	ASSERT (doc);
 	
 	/* trivialFileCatalog matches the following xml schema
 	   FIXME: write a proper DTD
-	    <trivialCatalog>
-	    <rule match="lfn/guid match regular expression">
-	    <prefix>/foo/bar</prefix>
-	    </rule>
-	    </trivialCatalog>
+	    <storage-mapping>
+	    <lfn-to-pfn protocol="direct" destination-match=".*" 
+	    path-match="lfn/guid match regular expression"
+	    result="/castor/cern.ch/cms/$1"/>
+	    <pfn-to-lfn protocol="srm" 
+	    path-match="lfn/guid match regular expression"
+	    result="$1"/>
+	    </storage-mapping>
 	 */
 
-	unsigned int ruleTagsNum  = 
-	    doc->getElementsByTagName(_toDOMS("rule"))->getLength();
+	/*first of all do the lfn-to-pfn bit*/
+	{
+	    DOMNodeList *rules =doc->getElementsByTagName(_toDOMS("lfn-to-pfn"));
+	    unsigned int ruleTagsNum  = 
+		rules->getLength();
 	
-	// FIXME: we should probably use a DTD for checking validity 
+	    // FIXME: we should probably use a DTD for checking validity 
 
-	for (unsigned int i=0; i<ruleTagsNum; i++){
-	    DOMNode* ruleNode = 
-		doc->getElementsByTagName(_toDOMS("rule"))->item(i);
-	    if (! ruleNode)
-	    {
-		throw FCTransactionException
-		    ("TrivialFileCatalog::connect",
-		     ":Malformed trivial catalog"); 		
+	    for (unsigned int i=0; i<ruleTagsNum; i++) {
+		DOMNode* ruleNode =	rules->item(i);
+		parseRule (ruleNode, m_directRules);
 	    }
-	    
-	    DOMElement* ruleElement = static_cast<DOMElement *>(ruleNode);	    
-
-	    if (! ruleElement)
-	    {
-		throw FCTransactionException
-		    ("TrivialFileCatalog::connect",
-		     ":Malformed trivial catalog"); 		
-	    }
-	    
-	    std::string regExp = _toString (ruleElement->getAttribute (_toDOMS ("match")));
-	    
-	    DOMNodeList *prefixes 
-		= ruleElement->getElementsByTagName (_toDOMS ("prefix"));
-	    
-	    
-	    if (prefixes->getLength () != 1)
-	    {
-		throw FCTransactionException
-		    ("TrivialFileCatalog::connect",
-		     ":Malformed trivial catalog"); 		
-	    }
-
-	    DOMElement *prefixNode = dynamic_cast <DOMElement *> (prefixes->item (0));
-	    if (!prefixNode)
-	    {
-		throw FCTransactionException
-		    ("TrivialFileCatalog::connect",
-		     ":Malformed trivial catalog"); 		
-	    }
-
-	    
-	    DOMText *prefixText = dynamic_cast <DOMText *> (prefixNode->getFirstChild ());
-	    if (!prefixText)
-	    {
-		throw FCTransactionException
-		    ("TrivialFileCatalog::connect",
-		     ":Malformed trivial catalog"); 		
-	    }
-	  
-	    std::string prefix = _toString (prefixText->getData ());
-	    
-	    Rule rule;
-	    rule.first = new seal::Regexp (regExp);
-	    rule.first->compile ();
-	    rule.second = prefix;
-	    m_rules.push_back (rule);
+	}
+	/*Then we handle the pfn-to-lfn bit*/
+	{
+	    DOMNodeList *rules =doc->getElementsByTagName(_toDOMS("pfn-to-lfn"));
+	    unsigned int ruleTagsNum  = 
+		rules->getLength();
+	
+	    for (unsigned int i=0; i<ruleTagsNum; i++){
+		DOMNode* ruleNode =	rules->item(i);
+		parseRule (ruleNode, m_inverseRules);
+	    }	    
 	}
 	
-    
 	m_transactionsta = 1;
     }
     catch(std::exception& er)
@@ -273,17 +312,16 @@ pool::TrivialFileCatalog::lookupFileByPFN (const std::string & pfn,
 					   std::string& filetype) const
 {
     filetype = m_fileType;    
+    fid = "";
+    std::string tmpPfn;
     
-    for (Rules::const_iterator i = m_rules.begin ();
-	 i != m_rules.end ();
-	 i++)
+    for (seal::StringList::const_iterator protocol = m_protocols.begin ();
+	 protocol != m_protocols.end ();
+	 protocol++)
     {
-	const std::string &prefix = i->second;
-	std::string prefixUsed = pfn.substr (0, prefix.size ());
-	ASSERT (prefixUsed.size () == prefix.size ());
-	if (prefixUsed == prefix)
+	fid = applyRules (m_inverseRules, *protocol, m_destination, false, tmpPfn);
+	if (! fid.empty ())
 	{
-	    fid = pfn.substr (prefix.size ());	    
 	    return;	    
 	}	
     }
@@ -303,6 +341,88 @@ pool::TrivialFileCatalog::lookupFileByLFN (const std::string& lfn,
     fid = lfn;    
 }
 
+std::string
+replaceWithRegexp (const seal::RegexpMatch matches, 
+		   const std::string inputString,
+		   const std::string outputFormat)
+{
+    
+    seal::StringList matchList = matches.matchStrings (inputString);
+    unsigned int j = 0;
+    char buffer[8];
+    std::string result = outputFormat;
+        
+    for (seal::StringList::iterator i = matchList.begin ();
+	 i != matchList.end ();
+	 i++)
+    {
+	j++;	
+	// If this is not true, man, we are in trouble...
+	ASSERT (j < 1000000);
+	sprintf (buffer, "%i", j);
+	std::string variableRegexp = std::string ("[$]") + buffer;
+	seal::Regexp sustitutionToken (variableRegexp);
+	
+	result = seal::StringOps::replace (result, 
+					   sustitutionToken, 
+					   *i);
+    }
+    return result;    
+}
+
+
+std::string 
+pool::TrivialFileCatalog::applyRules (const ProtocolRules& protocolRules,
+				      const std::string & protocol,
+				      const std::string & destination,
+				      bool direct,
+				      std::string name) const
+{
+    //    std::cerr << "Calling apply rules with protocol: " << protocol << "\n destination: " << destination << "\n " << " on name " << name << std::endl;
+    
+    const ProtocolRules::const_iterator rulesIterator = protocolRules.find (protocol);
+    if (rulesIterator == protocolRules.end ())
+	return "";
+    
+    const Rules &rules=(*(rulesIterator)).second;
+    
+    /* Look up for a matching rule*/
+    for (Rules::const_iterator i = rules.begin ();
+	 i != rules.end ();
+	 i++)
+    {
+	if (! i->destinationMatch.exactMatch (destination))
+	    continue;
+	
+	if (! i->pathMatch.exactMatch (name))
+	    continue;
+	
+	std::string chain = i->chain;
+	if ((direct==true) && (chain != ""))
+	{
+	    name = 
+		applyRules (protocolRules, chain, destination, direct, name);		
+	}
+	    
+	seal::RegexpMatch matches;
+	i->pathMatch.match (name, 0, 0, &matches);
+	
+	name = replaceWithRegexp (matches, 
+				  name,
+				  i->result); 
+	    
+	if ((direct == false) && (chain !=""))
+	{	
+	    name = 
+		applyRules (protocolRules, chain, destination, direct, name);		
+	}
+	
+	return name;
+    }
+    return "";
+}
+
+
 void
 pool::TrivialFileCatalog::lookupBestPFN (const FileCatalog::FileID& fid, 
 					 const FileCatalog::FileOpenMode& /*omode*/,
@@ -314,19 +434,24 @@ pool::TrivialFileCatalog::lookupBestPFN (const FileCatalog::FileID& fid,
 	throw FCconnectionException("TrivialFileCatalog::lookupBestPFN",
 				    "Catalog not connected");
     filetype = m_fileType;    
-    for (Rules::const_iterator i = m_rules.begin ();
-	 i != m_rules.end ();
-	 i++)
+    
+    pfn = "";
+    std::string lfn = fid;
+    
+    for (seal::StringList::const_iterator protocol = m_protocols.begin ();
+	 protocol != m_protocols.end ();
+	 protocol++)
     {
-	if (i->first->exactMatch (fid))
+	pfn = applyRules (m_directRules, 
+			  *protocol, 
+			  m_destination, 
+			  true, 
+			  lfn);
+	if (! pfn.empty ())
 	{
-	    pfn = i->second + fid; 
 	    return;
 	}
     }
-    throw FCTransactionException
-	("TrivialFileCatalog::lookupBestPFN",
-	 "No match found in the TrivialFileCatalog");    
 } 
 
 void
@@ -406,21 +531,23 @@ pool::TrivialFileCatalog::retrievePFN (const std::string& query,
     
     std::string lfn = seal::StringOps::remove (tokens[1], "'");
     
-    std::string fidCandidate;
-    
-    for (Rules::iterator i = m_rules.begin ();
-	 i != m_rules.end ();
-	 i++)
+    for (seal::StringList::iterator protocol = m_protocols.begin ();
+	 protocol != m_protocols.end ();
+	 protocol++)
     {
-	if (i->first->exactMatch (lfn))
+	std::string pfn = applyRules (m_directRules, *protocol, m_destination, true, lfn);
+	if (! pfn.empty ())
 	{
-	    buf.push_back (PFNEntry(i->second + lfn, 
+	    buf.push_back (PFNEntry(pfn, 
 				    lfn, 
 				    m_fileType));    
-	    return true;    
 	}	
     }
 
+    if (! buf.empty ()) 
+	return true;    
+
+    
     buf.push_back (PFNEntry(lfn, 
 			    lfn, 
 			    m_fileType));    
