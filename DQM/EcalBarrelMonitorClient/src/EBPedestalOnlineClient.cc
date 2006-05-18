@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/05/18 07:41:42 $
- * $Revision: 1.14 $
+ * $Date: 2006/05/18 15:21:48 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -104,15 +104,15 @@ void EBPedestalOnlineClient::setup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( meg03_[ism-1] ) delete meg03_[ism-1];
+    if ( meg03_[ism-1] ) bei->removeElement(meg03_[ism-1]->getName());
     sprintf(histo, "EBPOT pedestal quality G12 SM%02d", ism);
     meg03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-    if ( mep03_[ism-1] ) delete mep03_[ism-1];
+    if ( mep03_[ism-1] ) bei->removeElement(mep03_[ism-1]->getName());
     sprintf(histo, "EBPOT pedestal mean G12 SM%02d", ism);
     mep03_[ism-1] = bei->book1D(histo, histo, 100, 150., 250.);
 
-    if ( mer03_[ism-1] ) delete mer03_[ism-1];
+    if ( mer03_[ism-1] ) bei->removeElement(mer03_[ism-1]->getName());
     sprintf(histo, "EBPOT pedestal rms G12 SM%02d", ism);
     mer03_[ism-1] = bei->book1D(histo, histo, 100, 0.,  10.);
 
@@ -152,15 +152,19 @@ void EBPedestalOnlineClient::cleanup(void) {
 
   }
 
+  mui_->setCurrentFolder( "EBPedestalOnlineClient" );
+
+  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( meg03_[ism-1] ) delete meg03_[ism-1];
+    if ( meg03_[ism-1] ) bei->removeElement(meg03_[ism-1]->getName());
     meg03_[ism-1] = 0;
 
-    if ( mep03_[ism-1] ) delete mep03_[ism-1];
+    if ( mep03_[ism-1] ) bei->removeElement(mep03_[ism-1]->getName());
     mep03_[ism-1] = 0;
 
-    if ( mer03_[ism-1] ) delete mer03_[ism-1];
+    if ( mer03_[ism-1] ) bei->removeElement(mer03_[ism-1]->getName());
     mer03_[ism-1] = 0;
 
   }
