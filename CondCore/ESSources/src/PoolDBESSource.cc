@@ -9,13 +9,11 @@
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 #include "CondCore/IOVService/interface/IOV.h"
-//#include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondCore/MetaDataService/interface/MetaData.h"
 #include "POOLCore/Exception.h"
 #include <exception>
 #include <iostream>
 #include <sstream>
-#include "RelationalAccess/IMonitoringService.h"
-#include "RelationalAccess/IMonitoringReporter.h"
 //
 // static data member definitions
 //
@@ -82,11 +80,10 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
 }
 
 void PoolDBESSource::initPool(const std::string& catcontact){
-  m_session->setCatalog(catcontact);
   try{
-    std::cout<<"PoolDBESSource::initPool connect ReadOnly"<<std::endl; 
+    m_session->setCatalog(catcontact);
     m_session->connect( cond::ReadOnly );
-    std::cout<<"PoolDBESSource::initPool start ReadOnlyTransaction"<<std::endl; 
+    //std::cout<<"PoolDBESSource::initPool start ReadOnlyTransaction"<<std::endl; 
     //m_session->startReadOnlyTransaction();
   }catch( const cond::Exception& e){
     throw e;
@@ -103,13 +100,12 @@ void PoolDBESSource::closePool(){
 
 bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::string> >& recordToTag ){
   //std::cout<<"PoolDBESSource::initIOV"<<std::endl;
-  //cond::MetaData meta(m_con, *m_loader);
+  cond::MetaData meta(m_con, *m_loader);
   std::vector< std::pair<std::string, std::string> >::const_iterator it;
   try{
-    //meta.connect( cond::ReadOnly );
+    meta.connect( cond::ReadOnly );
     for(it=recordToTag.begin(); it!=recordToTag.end(); ++it){
-      //std::string iovToken=meta.getToken(it->second);
-      std::string iovToken="[DB=BC72E3D4-E2E5-DA11-B964-0016761581E6][CNT=IOV][CLID=2F16F0A9-79D5-4881-CE0B-A271DD84A7F1][TECH=00000B00][OID=00000004-00000000]";
+      std::string iovToken=meta.getToken(it->second);
       if( iovToken.empty() ){
 	return false;
       }
@@ -122,7 +118,7 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
       m_recordToIOV.insert(std::make_pair(it->first,iov));
       m_session->commit();
     }
-    //meta.disconnect();
+    meta.disconnect();
   }catch(const cond::Exception&e ){
     throw e;
   }catch(const cms::Exception&e ){
