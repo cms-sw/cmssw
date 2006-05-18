@@ -41,7 +41,7 @@ struct SortByDescendingTrackPt
     explicit IsolatedTauTagInfo( const JetTag & p ) : JetTag(p) {}    
     explicit IsolatedTauTagInfo(float discriminator, JetRef jet, TrackTagInfoRefs tracks, float matchingCone, float signalCone, float isolationCone,  float pt_min_tk, float pt_min_lt ) : discriminator_(discriminator), jet_(jet), selectedTracksWTI_(tracks), matchingConeSize_(matchingCone), signalConeSize_(signalCone), isolationConeSize_(isolationCone), pt_min_signal_(pt_min_tk), pt_min_isolation_(pt_min_tk), pt_min_lt_(pt_min_lt)   {}
     
-virtual TrackRefs selectedTracks() const { 
+   TrackRefs selectedTracks() const { 
       TrackRefs tracks; 
       for (trackTagInfo_iterator it = selectedTracksWTI_.begin() ; 
 	   it != selectedTracksWTI_.end() ; it++) 
@@ -49,15 +49,12 @@ virtual TrackRefs selectedTracks() const {
       return tracks;
       
 }
-  virtual JetRef jetRef() const { return jet_; }
-  virtual const Jet & jet() const { return *jet_; }
-  
+    
   virtual float discriminator() const { return discriminator_; }
 
   virtual IsolatedTauTagInfo* clone() const { return new IsolatedTauTagInfo( *this ); }
 
-  TrackTagInfoRefs selectedTracksTagInfo() const { return selectedTracksWTI_; }
-
+  
 
   // matchingConeSize_  centred on the jet direction
   TrackRef leadingSignalTrack(float rm_cone=matchingConeSize_, float pt_min = pt_min_lt_);
@@ -99,12 +96,11 @@ virtual TrackRefs selectedTracks() const {
     }
 
     
-   float getDummy() { return dummy_; }
-    void setDummy(float d) { dummy_ = d;}
+   
 
   private:
     
-
+    edm::Ref<JetTagCollection> m_jetTag;
 
     float matchingConeSize_;
     float signalConeSize_;
@@ -114,11 +110,7 @@ virtual TrackRefs selectedTracks() const {
     float pt_min_isolation_;
     float pt_min_lt_;
     float discriminator_;    
-    JetRef jet_;
-    TrackRefVector selectedTracks_;
-    TrackTagInfoRefs selectedTracksWTI_;		    
-
-
+   
     //typedef edm::ExtCollection< IsolatedTauTagInfo,JetTagCollection> IsolatedTauExtCollection;
     //typedef edm::OneToOneAssociation<JetTagCollection, IsolatedTauTagInfo> IsolatedTauExtCollection;
   };
