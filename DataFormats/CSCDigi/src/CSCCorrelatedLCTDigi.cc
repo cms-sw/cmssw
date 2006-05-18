@@ -2,8 +2,8 @@
  *
  * Digi for Correlated LCT trigger primitives.
  *
- * $Date: 2006/03/03 22:29:01 $
- * $Revision: 1.5 $
+ * $Date: 2006/04/06 11:18:37 $
+ * $Revision: 1.6 $
  *
  * \author L.Gray, UF
  */
@@ -54,6 +54,15 @@ int CSCCorrelatedLCTDigi::getStripType()   const { return ((pattern & 0x8) >> 3)
 int CSCCorrelatedLCTDigi::getBend()        const { return bend;   }
 int CSCCorrelatedLCTDigi::getBx()          const { return bx;     }
 int CSCCorrelatedLCTDigi::getBX()          const { return bx;     }
+
+/// Comparison
+bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi &rhs) const
+{
+  return ((trknmb == rhs.trknmb)   && (quality == rhs.quality) &&
+	  (keywire == rhs.keywire) && (strip == rhs.strip)     &&
+	  (pattern == rhs.pattern) && (bend == rhs.bend)       &&
+	  (bx == rhs.bx)           && (valid == rhs.valid)       );
+}
 
 /// Debug
 

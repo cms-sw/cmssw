@@ -5,8 +5,8 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date: 2006/04/06 11:18:25 $
- * $Revision: 1.4 $
+ * $Date: 2006/05/16 15:22:57 $
+ * $Revision: 1.5 $
  *
  * \author L. Gray, UF
  */
@@ -21,9 +21,9 @@ class CSCCorrelatedLCTDigi
   /// Constructors
 
   CSCCorrelatedLCTDigi(int trknmb, int valid, int quality,       /// from values
-				int keywire, int strip, int clct_pattern, /// clct pattern is 4 bit pattern! 
-				int bend, int bx);                        /// (pattern) | (strip_type << 3) 
-   CSCCorrelatedLCTDigi         ();                                        /// default
+		       int keywire, int strip, int clct_pattern, /// clct pattern is 4 bit pattern! 
+		       int bend, int bx);                        /// (pattern) | (strip_type << 3) 
+  CSCCorrelatedLCTDigi         ();                               /// default
 
 
   /// Gets
@@ -57,6 +57,10 @@ class CSCCorrelatedLCTDigi
 
   /// Print content of correlated LCT digi
   void print() const;
+
+  ///Comparison
+  bool operator == (const CSCCorrelatedLCTDigi &) const;
+  bool operator != (const CSCCorrelatedLCTDigi &rhs) const { return !(this->operator==(rhs)); }
 
  private:
 
