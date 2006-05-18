@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/05/18 15:21:48 $
- * $Revision: 1.15 $
+ * $Date: 2006/05/18 20:02:04 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -98,7 +98,7 @@ void EBPedestalOnlineClient::setup(void) {
 
   Char_t histo[50];
 
-  mui_->setCurrentFolder( "EBPedestalOnlineClient" );
+  mui_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
 
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
@@ -152,7 +152,7 @@ void EBPedestalOnlineClient::cleanup(void) {
 
   }
 
-  mui_->setCurrentFolder( "EBPedestalOnlineClient" );
+  mui_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
 
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
