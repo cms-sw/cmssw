@@ -37,6 +37,26 @@ EcalDBConnection::EcalDBConnection( string host,
   this->port = port;
 }
 
+EcalDBConnection::EcalDBConnection( string sid,
+				    string user,
+				    string pass )
+  throw(runtime_error)
+{
+  try {    
+    env = Environment::createEnvironment(Environment::OBJECT);
+    conn = env->createConnection(user, pass, sid);
+    stmt = conn->createStatement();
+  } catch (SQLException &e) {
+    throw(runtime_error("ERROR:  Connection Failed:  " + e.getMessage() ));
+  }
+
+  this->host = "";
+  this->sid = sid;
+  this->user = user;
+  this->pass = pass;
+  this->port = port;
+}
+
 EcalDBConnection::~EcalDBConnection() {
   //Close database conection and terminate environment
   try {

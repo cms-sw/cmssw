@@ -23,7 +23,11 @@ public:
   {
     try {
       cout << "Making connection..." << flush;
-      econn = new EcalCondDBInterface( host, sid, user, pass );
+      if (host != "?") {
+	econn = new EcalCondDBInterface( host, sid, user, pass );
+      } else {
+	econn = new EcalCondDBInterface( sid, user, pass );
+      }
       cout << "Done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -187,6 +191,10 @@ int main (int argc, char* argv[])
   numruns = atoi(argv[6]);
 
   try {
+    cout << "Host:  " << host << endl;
+    cout << "SID:   " << sid << endl;
+    cout << "User:  " << user << endl;
+    
     CondDBApp app(host, sid, user, pass);
 
     app.testWrite(startrun, numruns);

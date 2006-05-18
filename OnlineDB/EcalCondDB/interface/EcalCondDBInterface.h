@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.8 2006/02/10 21:59:42 egeland Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.1 2006/03/01 23:39:50 egeland Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -33,7 +33,7 @@ class EcalCondDBInterface : public EcalDBConnection {
   \******************/
 
   /**
-   *  Constructor, makes connection to DB
+   *  Constructor, makes connection to DB without TNS_ADMIN
    *  === Parameters ===
    *  host:    DB host machine
    *  sid:     DB SID (name)
@@ -53,6 +53,27 @@ class EcalCondDBInterface : public EcalDBConnection {
       // create a DateHandler
       dh = new DateHandler(env, conn);
     }
+
+
+
+  /**
+   *  Constructor, makes connection to DB with TNS_ADMIN
+   *  === Parameters ===
+   *  sid:     DB SID (name)
+   *  user:    User to connect
+   *  pass:    Password for user
+   */
+  EcalCondDBInterface( std::string sid,
+		       std::string user,
+		       std::string pass )
+    : EcalDBConnection( sid, user, pass )
+    {
+      // call the parent constructor
+
+      // create a DateHandler
+      dh = new DateHandler(env, conn);
+    }
+
 
   /**
    * Destructor

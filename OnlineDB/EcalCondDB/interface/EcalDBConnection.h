@@ -21,7 +21,7 @@ class EcalDBConnection {
 
   /**
    *  Constructor
-   *  Makes a connection to an oracle database
+   *  Makes a connection to an oracle database without TNS_ADMIN
    */
   EcalDBConnection( std::string host,
 		    std::string sid,
@@ -29,7 +29,20 @@ class EcalDBConnection {
 		    std::string pass,
 		    int port = 1521 )
     throw(std::runtime_error);
+
+
+
+  /**
+   *  Constructor
+   *  Makes a connection to an oracle database using TNS_ADMIN
+   */
+  EcalDBConnection( std::string sid,
+		    std::string user,
+		    std::string pass )
+    throw(std::runtime_error);
   
+
+
   /**
    *  Destructor
    */
