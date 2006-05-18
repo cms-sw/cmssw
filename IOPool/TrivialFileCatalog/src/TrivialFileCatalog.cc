@@ -346,26 +346,28 @@ replaceWithRegexp (const seal::RegexpMatch matches,
 		   const std::string inputString,
 		   const std::string outputFormat)
 {
+    std::cerr << "InputString:" << inputString << std::endl;
     
-    seal::StringList matchList = matches.matchStrings (inputString);
-    unsigned int j = 0;
     char buffer[8];
     std::string result = outputFormat;
         
-    for (seal::StringList::iterator i = matchList.begin ();
-	 i != matchList.end ();
+    for (int i = 1;
+	 i < matches.numMatches ();
 	 i++)
     {
-	j++;	
 	// If this is not true, man, we are in trouble...
-	ASSERT (j < 1000000);
-	sprintf (buffer, "%i", j);
+	ASSERT (i < 1000000);
+	sprintf (buffer, "%i", i);
 	std::string variableRegexp = std::string ("[$]") + buffer;
+	std::string matchResult = matches.matchString (inputString, i);
+	
 	seal::Regexp sustitutionToken (variableRegexp);
+	
+	std::cerr << "Current match: " << matchResult << std::endl;
 	
 	result = seal::StringOps::replace (result, 
 					   sustitutionToken, 
-					   *i);
+					   matchResult);
     }
     return result;    
 }
@@ -378,7 +380,7 @@ pool::TrivialFileCatalog::applyRules (const ProtocolRules& protocolRules,
 				      bool direct,
 				      std::string name) const
 {
-    //    std::cerr << "Calling apply rules with protocol: " << protocol << "\n destination: " << destination << "\n " << " on name " << name << std::endl;
+    std::cerr << "Calling apply rules with protocol: " << protocol << "\n destination: " << destination << "\n " << " on name " << name << std::endl;
     
     const ProtocolRules::const_iterator rulesIterator = protocolRules.find (protocol);
     if (rulesIterator == protocolRules.end ())
@@ -396,6 +398,8 @@ pool::TrivialFileCatalog::applyRules (const ProtocolRules& protocolRules,
 	
 	if (! i->pathMatch.exactMatch (name))
 	    continue;
+	
+	std::cerr << "Rule " << i->pathMatch.pattern () << "matched! " << std::endl;	
 	
 	std::string chain = i->chain;
 	if ((direct==true) && (chain != ""))
@@ -555,21 +559,84 @@ pool::TrivialFileCatalog::retrievePFN (const std::string& query,
 }
 
 bool
-pool::TrivialFileCatalog::retrieveLFN (const std::string& /*query*/, 
-				       FCBuf<LFNEntry>& /*buf*/, 
+pool::TrivialFileCatalog::retrieveLFN (const std::string& query, 
+				       FCBuf<LFNEntry>& buf, 
 				       const size_t& /*start*/)
 {    
-    throw FCTransactionException
-	("TrivialFileCatalog::retrieveGuid",
-	 "Cannot retrieve GUIDs with TrivialCatalogs");
+    if (m_transactionsta == 0)
+	throw FCconnectionException("TrivialFileCatalog::lookupBestPFN",
+				    "Catalog not connected");
+    // The only query supported is lfn='something' or pfn='something'
+    // No spaces allowed in something.
+    seal::StringList tokens = seal::StringOps::split (query, "=");
+    
+    if (tokens.size () != 2)
+    {
+	throw FCTransactionException
+	    ("TrivialFileCatalog::retrieveLFN",
+	     "malformed query. the only supported one is lfname='something'"
+	     " or guid='something'");
+    }
+    
+    if (tokens[0] != "pfname" 
+	&& tokens[0] != "guid")
+    {
+	throw FCTransactionException
+	    ("TrivialFileCatalog::retrievePFN",
+	     "malformed query. the only supported one is pfname='something'"
+	     " or guid='something'");    
+    }
+
+    std::string pfn = seal::StringOps::remove (tokens[1], "'");
+
+    if (tokens[0] == "guid")
+    {
+	buf.push_back (LFNEntry (pfn,
+				 pfn));
+	return true;	
+    }
+    
+
+    for (seal::StringList::iterator protocol = m_protocols.begin ();
+	 protocol != m_protocols.end ();
+	 protocol++)
+    {
+	std::string lfn = applyRules (m_inverseRules, *protocol, m_destination, false, pfn);
+	std::cerr << "LFN: " << lfn << std::endl;
+	
+	if (! lfn.empty ())
+	{
+	    buf.push_back (LFNEntry(lfn, 
+				    lfn));    
+	    return true;    
+	}	
+    }
+
+
+    
+    buf.push_back (LFNEntry(pfn, 
+			    pfn));    
+    
+    return false;    
 }
 
 bool
-pool::TrivialFileCatalog::retrieveGuid (const std::string& /*query*/, 
-					FCBuf<FileCatalog::FileID>& /*buf*/, 
-					const size_t& /*start*/)
+pool::TrivialFileCatalog::retrieveGuid (const std::string& query, 
+					FCBuf<FileCatalog::FileID>& buf, 
+					const size_t& start)
 {   
-    throw FCTransactionException
-	("TrivialFileCatalog::retrieveGuid",
-	 "Cannot retrieve GUIDs with TrivialCatalogs");
+    typedef FCBuf<LFNEntry> Buffer;
+    
+    Buffer tmpBuf (10);
+    bool result = retrieveLFN (query, tmpBuf, start);
+    std::vector<LFNEntry> tmpVect = tmpBuf.getData ();
+    
+    for (std::vector<LFNEntry>::iterator i = tmpVect.begin ();
+	 i != tmpVect.end ();
+	 i++)
+    {
+	buf.push_back (i->lfname ());	
+    }    
+
+    return result;    
 }
