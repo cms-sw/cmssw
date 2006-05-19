@@ -1,7 +1,7 @@
 /*!
-\page RecoPackages Reco Data Format Packages
+\page RecoPackages RECO and AOD Data Format Packages
 
-This page lists all packages related to Reco data format within the <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/?cvsroot=CMSSW>CMSSW repository</a>. Links point to the package documentation.
+This page lists all packages related to RECO and AOD data format within the <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/?cvsroot=CMSSW>CMSSW repository</a>. Links point to the package documentation.
 
 For additional information please visit the <a href="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsTools/reco/">Reco data format</a> for Reco data format under the <a href="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsTools/">Phisics Tools Web page</a> . 
 
