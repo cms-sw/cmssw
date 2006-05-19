@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/05/18 16:57:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/19 17:26:43 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -66,7 +66,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // fill collections with fake data
 
    for (unsigned int i=0; i!=n_; i++) {
-     math::XYZTLorentzVector p4(1.0*i,2.0*i,2.0*i,3.0*i);
+     math::XYZTLorentzVector p4(100.0*i,200.0*i,200.0*i,300.0*i);
      phot->push_back(  PhotonCandidate(0,p4));
      elec->push_back(ElectronCandidate(1,p4));
      muon->push_back(            Muon(-1,p4));
