@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/18 07:41:42 $
- * $Revision: 1.115 $
+ * $Date: 2006/05/19 08:16:29 $
+ * $Revision: 1.116 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -283,8 +283,6 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
   }
 
   this->cleanup();
-
-  if ( enableMonitorDaemon_ ) sleep(10);
 
   mui_->disconnect();
 
