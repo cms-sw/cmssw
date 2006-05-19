@@ -103,16 +103,16 @@ void L1GlobalCaloTrigger::print() {
 	std::cout << "N Wheel Energy Fpgas " << theWheelEnergyFpgas.size() << std::endl;
 	std::cout << "N Em Leaf Cards" << theEmLeafCards.size() << std::endl;
 	std::cout << std::endl;
-	for (int i=0; i<theSourceCards.size(); i++) {
+	for (unsigned i=0; i<theSourceCards.size(); i++) {
           std::cout << (*theSourceCards[i]); 
 	}
-	for (int i=0; i<theJetLeafCards.size(); i++) {
+	for (unsigned i=0; i<theJetLeafCards.size(); i++) {
 		std::cout << theJetLeafCards[i];
 	}
-	for (int i=0; i<theWheelJetFpgas.size(); i++) {
+	for (unsigned i=0; i<theWheelJetFpgas.size(); i++) {
 		std::cout << theWheelJetFpgas[i];
 	}
-	for (int i=0; i<theWheelEnergyFpgas.size(); i++) {
+	for (unsigned i=0; i<theWheelEnergyFpgas.size(); i++) {
 		std::cout << theWheelEnergyFpgas[i];
 	}
 	std::cout << theJetFinalStage;
@@ -126,12 +126,12 @@ void L1GlobalCaloTrigger::print() {
 
 // isolated EM outputs
 vector<L1GctEmCand> L1GlobalCaloTrigger::getIsoElectrons() { 
-  return theIsoEmFinalStage->getOutputCands();
+  return theIsoEmFinalStage->OutputCands();
 }	
 
 // non isolated EM outputs
 vector<L1GctEmCand> L1GlobalCaloTrigger::getNonIsoElectrons() {
-return theNonIsoEmFinalStage->getOutputCands(); 
+return theNonIsoEmFinalStage->OutputCands(); 
 }
 
 // central jet outputs to GT
