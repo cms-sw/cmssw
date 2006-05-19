@@ -37,42 +37,53 @@ void MonitorUserInterface::subscribe_base(const string & subsc_request, bool add
   // put here requests in format <dir pathname>:<h1>,<h2>,...
   vector<string> requests; requests.clear();
 
-  for(cglob_it path = bei->own.global_.begin(); 
-      path != bei->own.global_.end(); ++path)
-    { // loop over pathnames of global_map
-      
-      string new_request;
+  cglob_it start, end, parent_dir;
+  getSubRange<global_map>(subsc_request, bei->own.global_, 
+			  start, end, parent_dir);
+  
+  for(cglob_it path = start; path != end; ++path)
+    // loop over pathnames of global_map
+    subscribe_base(subsc_request, add, requests, path);
 
-      for(cME_it file = path->second->begin(); 
-	  file != path->second->end(); ++file)
-	{ // loop over files in directory <path->first>
-	  
-	  // "subscribe" should loop over "monitorable";
-	  // "unsubscribe" should loop over "contents" (only non-null MEs)
-	  
-	  // if unsubscribing, skip null monitoring elements
-	  if(!add && !file->second)continue;
-
-	  string fullname = getUnixName(path->first, file->first);
-	  
-	  if(matchit(fullname, subsc_request))
-	    { // this is a match!
-
-	      if(!new_request.empty())new_request += ",";
-	      new_request += file->first;
-	      
-	    } // this is a match!
-	  
-	}  // loop over files in directory <path->first>
-      
-      if(!new_request.empty())
-	requests.push_back(path->first + ":" + new_request);
-
-    } // loop over pathnames of global_map
+  if(parent_dir != bei->own.global_.end())
+    subscribe_base(subsc_request, add, requests, parent_dir);
 
   // (un)subscribe only if non-zero list has been found
   if(!requests.empty())
     finishSubscription(requests, add);
+  
+}
+
+// like subscribe_base above, for one path only
+void MonitorUserInterface::subscribe_base(const string & subsc_request, bool add,
+					  vector<string> & requests, 
+					  cglob_it path)
+{
+  string new_request;
+  for(cME_it file = path->second->begin(); file != path->second->end(); 
+      ++file)
+    { // loop over files in directory <path->first>
+	  
+      // "subscribe" should loop over "monitorable";
+      // "unsubscribe" should loop over "contents" (only non-null MEs)
+      
+      // if unsubscribing, skip null monitoring elements
+      if(!add && !file->second)continue;
+      
+      string fullname = getUnixName(path->first, file->first);
+	  
+      if(matchit(fullname, subsc_request))
+	{ // this is a match!
+	  
+	  if(!new_request.empty())new_request += ",";
+	  new_request += file->first;
+	  
+	} // this is a match!
+	  
+    }  // loop over files in directory <path->first>
+      
+  if(!new_request.empty())
+    requests.push_back(path->first + ":" + new_request);
   
 }
 
@@ -81,6 +92,7 @@ void MonitorUserInterface::subscribe_base(const string & subsc_request, bool add
 void MonitorUserInterface::subscribe(const string & subsc_request)
 {
   if(standaloneMode()) return;
+  if(subsc_request.empty())return;
   subscribe_base(subsc_request, true);
 }
 
@@ -89,6 +101,7 @@ void MonitorUserInterface::subscribe(const string & subsc_request)
 void MonitorUserInterface::unsubscribe(const string & subsc_request)
 {
   if(standaloneMode()) return;
+  if(subsc_request.empty())return;
   subscribe_base(subsc_request, false);
 }
 
@@ -96,6 +109,7 @@ void MonitorUserInterface::unsubscribe(const string & subsc_request)
 void MonitorUserInterface::subscribeNew(const string & subsc_request)
 {
   if(standaloneMode()) return;
+  if(subsc_request.empty())return;
 
   vector<string> put_here; put_here.clear();
   bei->getAddedMonitorable(put_here);
@@ -110,12 +124,10 @@ void MonitorUserInterface::subscribeNew(const string & subsc_request)
 	continue;
 
       string new_request;
-
       for(cvIt it = dir.contents.begin(); it != dir.contents.end(); ++it)
 	{ // loop over files in directory
 
 	  string fullname = getUnixName(dir.dir_path, *it);
-
 	  if(matchit(fullname, subsc_request))
 	    { // this is a match!
 
@@ -196,52 +208,67 @@ void MonitorUserInterface::setAccumulate(MonitorElement * me, bool flag)
 void MonitorUserInterface::add(CollateMonitorElement * cme, 
 			       const string & search_string) const
 {
+  if(search_string.empty())
+    return;
+
   if(!cme)
     {
       cerr << " *** Cannot use " << search_string 
 	   << " with null CollateMonitorElement! " << endl;
+      return;
     }
-  else
-    cme->add(search_string, bei->own.global_);
+
+  cme->add(search_string, bei->own.global_);
 }
 
 // new MEs have been added; check if need to update collate-MEs
 void MonitorUserInterface::checkAddedContents(void)
 {
-  typedef vector<CollateMonitorElement *>::const_iterator It;
   for(scmeIt cme = collate_mes.begin(); cme != collate_mes.end(); ++cme){
     // loop over collate-MEs
     for(csIt search_string = (*cme)->searchStrings.begin(); 
 	search_string != (*cme)->searchStrings.end(); ++search_string){
       // loop over search-strings for CME
       
-      for(cmonit_it path = bei->addedContents.begin(); 
-	  path != bei->addedContents.end(); ++path){
-	// loop over all pathnames of added contents
-	  
-	for(csIt it = path->second.begin(); it!= path->second.end(); ++it){
-	  // loop over all added MEs
-	      
-	  // get unix-like filename
-	  string fullname = getUnixName(path->first, *it);
-	  if(matchit(fullname, *search_string)){
-	    // this is a match!
-	    MonitorElement* me = bei->findObject(*it, path->first);
-	    bool didIt = (*cme)->addIt(me, path->first, *it);
-	    
-	    if(didIt && !(*cme)->canUse_)
-	      (*cme)->createCollateBase(me);
-	    
-	  } // this is a match!
-		      
-	}  // loop over all added MEs
-	      
-      } // loop over all pathnames of added contents
+      cmonit_it start, end, parent_dir;
+      getSubRange<monit_map>(*search_string, bei->addedContents, 
+			     start, end, parent_dir);
       
-
+      for(cmonit_it path = start; path != end; ++path)
+	// loop over all pathnames of added contents
+	checkAddedContents(*search_string, cme, path);
+      
+      if(parent_dir != bei->addedContents.end())
+	checkAddedContents(*search_string, cme, parent_dir);
+      
     } // loop over search-strings for CME
 	  
   } // loop over collate-MEs
+
+}
+
+// save as above for given search_string and path
+void MonitorUserInterface::checkAddedContents(const string & search_string, 
+					      scmeIt & cme,
+					      cmonit_it & path)
+{
+  for(csIt it = path->second.begin(); it!= path->second.end(); ++it){
+    // loop over all added MEs
+    
+    // get unix-like filename
+    string fullname = getUnixName(path->first, *it);
+
+    if(matchit(fullname, search_string)){
+      // this is a match!
+      MonitorElement* me = bei->findObject(*it, path->first);
+      bool didIt = (*cme)->addIt(me, path->first, *it);
+      
+      if(didIt && !(*cme)->canUse_)
+	(*cme)->createCollateBase(me);
+      
+    } // this is a match!
+		      
+  }  // loop over all added MEs
 
 }
 

@@ -58,6 +58,11 @@ class CollateMonitorElement : public StringUtil
   void scanContents(const std::string & search_string, const 
 		    dqm::me_util::global_map & look_here);
 
+  // same as scanContents above but for one path only
+  void scanContents(const std::string & search_string, const 
+		    dqm::me_util::global_map & look_here,
+		    dqm::me_util::cglob_it & path);
+
   // come here when the 1st ME (component of sum) has been obtained
   virtual void createCollateBase(MonitorElement * me) = 0;
 

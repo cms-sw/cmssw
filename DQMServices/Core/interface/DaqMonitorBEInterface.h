@@ -417,7 +417,11 @@ class DaqMonitorBEInterface: public StringUtil
 
   // look for all MEs matching <search_string> in own.global_;
   // if found, create QReport from QCriterion and add to ME
-  void scanContents(QCriterion * qc, std::string search_string) const;
+  void scanContents(QCriterion * qc, const std::string & search_string) const;
+
+  // same as scanContents above but for one path only
+  void scanContents(QCriterion * qc, const std::string & search_string,
+		    dqm::me_util::cglob_it & path) const;
 
  private:
 
@@ -425,13 +429,19 @@ class DaqMonitorBEInterface: public StringUtil
   // including newly added content) <-- to be called only by runQTests
   void runQualityTests(void);
 
-  // loop over addedContents, look for MEs that match QCriterion::searchStrings 
-  // (by looping over all quality tests); upon a match, add QReport to ME(s)
+  // loop over quality tests & addedContents: look for MEs that 
+  // match QCriterion::searchStrings; upon a match, add QReport to ME(s)
   void checkAddedElements(void);
  
-  // check if ME matches any of QCriterion::searchStrings;
-  // upon a match, add QReport to ME(s)
-  void checkAddedElement(std::string pathname, std::string ME_name);
+  // loop over addedContents: look for MEs that 
+  // match search_string; upon a match, add QReport to ME(s)
+  void checkAddedElements(const std::string & search_string, 
+			  dqm::qtests::cqc_it & qc);
+
+  // same as checkAddedElements above for only one path
+  void checkAddedElements(const std::string & search_string, 
+			  dqm::qtests::cqc_it & qc,
+			  dqm::me_util::cmonit_it & path);
  
   DaqMonitorBEInterface(const DaqMonitorBEInterface&);
   const DaqMonitorBEInterface& operator=(const DaqMonitorBEInterface&);

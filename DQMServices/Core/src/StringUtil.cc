@@ -271,3 +271,48 @@ bool StringUtil::unpackQReport(string name, string value, string & ME_name,
   return true;
 
 }
+
+// keep maximum pathname till first wildcard (?, *); put rest in chopped_part
+// Examples: 
+// "a/b/c/*"    -->  "a/b/c/", chopped_part = "*"
+// "a/b/c*"     -->  "a/b/c" , chopped_part = "*"
+// "a/b/c/d?/*" -->  "a/b/c/d", chopped_part = "?/*"
+string StringUtil::getMaxPathname(const string & search_string, 
+				       string & chopped_part) const
+{
+  string ret = search_string;
+  chopped_part.clear();
+  
+  unsigned i = ret.find("?");
+  if(i != string::npos)
+    {
+      chopped_part = ret.substr(i, ret.length()-1);
+      ret = ret.substr(0, i);
+    }
+  
+  i = ret.find("*");
+  if(i != string::npos)
+    {
+      chopped_part = ret.substr(i, ret.length()-1) + chopped_part;
+      ret = ret.substr(0, i);
+    }
+  return ret;    
+}
+
+/* get parent directory. 
+   Examples: 
+   (a) A/B/C --> A/B
+     (b) A/B/  --> A/B (because last slash implies subdirectories of A/B)
+     (c) C     --> .   (top folder)
+*/
+string StringUtil::getParentDirectory(const string & pathname) const
+{
+  string ret = pathname;
+  unsigned i = ret.rfind("/");
+  if(i != string::npos)
+    ret = ret.substr(0, i);
+  else
+    ret = ".";
+  
+  return ret;
+}

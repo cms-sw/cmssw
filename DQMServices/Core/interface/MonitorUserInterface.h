@@ -215,7 +215,10 @@ class MonitorUserInterface : public StringUtil
   // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*);
   // this action applies to all MEs already available or future ones
   void useQTest(std::string search_string, std::string qtname) const
-  {bei->useQTest(search_string, qtname);}
+  {
+    if(search_string.empty())return;
+    bei->useQTest(search_string, qtname);
+  }
   // get quality test with name <qtname> (null pointer if no such test)
   QCriterion * getQCriterion(std::string qtname) const
   {return bei->getQCriterion(qtname);}
@@ -247,11 +250,21 @@ class MonitorUserInterface : public StringUtil
   scme collate_mes;
   // new MEs have been added; check if need to update collate-MEs
   void checkAddedContents(void);
+  // save as above for given search_string, CollateMonitorElement and path
+  void checkAddedContents(const std::string & search_string,
+			  scmeIt & cme,
+			  dqm::me_util::cmonit_it & path);
   
  // use to get hold of structure with monitoring elements that class owns
   DaqMonitorBEInterface *bei;
   // # of monitoring packages received;
   int numUpdates_;
+  
+ private:
+  // like subscribe_base above, for one path only
+  void subscribe_base(const std::string & subsc_request, bool add,
+		      std::vector<std::string> & requests, 
+		      dqm::me_util::cglob_it path);
   
 };
 

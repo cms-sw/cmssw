@@ -31,34 +31,45 @@ void CollateMonitorElement::add2search(const string & search_string)
 void CollateMonitorElement::scanContents(const string & search_string, const 
 					 global_map & look_here)
 {
-  for(cglob_it path = look_here.begin(); 
-      path != look_here.end(); ++path)
-    { // loop over pathnames of global_map
+
+  cglob_it start, end, parent_dir;
+  getSubRange<global_map>(search_string, look_here, start, end, parent_dir);
+
+  for(cglob_it path = start; path != end; ++path)
+    // loop over pathnames of global_map subrange
+    scanContents(search_string, look_here, path);
+ 
+  if(parent_dir != look_here.end())
+    scanContents(search_string, look_here, parent_dir);
+}
+
+// same as scanContents above but for one path only
+void CollateMonitorElement::scanContents(const string & search_string, const 
+					 global_map & look_here,
+					 cglob_it & path)
+{
+  string pathname = path->first;
+  for(cME_it file = path->second->begin(); file != path->second->end(); 
+      ++file)
+    { // loop over files of <pathname>
       
-      string pathname = path->first;
-      for(cME_it file = path->second->begin(); 
-	  file != path->second->end(); ++file)
-	{ // loop over files of <pathname>
+      string fullname = getUnixName(pathname, file->first);
 	  
-	  string fullname = getUnixName(pathname, file->first);
+      if(matchit(fullname, search_string))
+	{ // this is a match!
+	  MonitorElement * me = (MonitorElement *)file->second;
 	  
-	  if(matchit(fullname, search_string))
-	    { // this is a match!
-	      MonitorElement * me = (MonitorElement *)file->second;
+	  if(addIt(me, pathname, file->first))
+	    {
+	      // check if we need to define histogram/profile
+	      if(!canUse_)
+		createCollateBase(me);
+	    }
 	      
-	      if(addIt(me, pathname, file->first))
-		{
-		  // check if we need to define histogram/profile
-		  if(!canUse_)
-		    createCollateBase(me);
-		}
-	      
-	    } // this is a match!
+	} // this is a match!
 	  
-	} // loop over files of <pathname>
+    } // loop over files of <pathname>
       
-    } // loop over pathnames of global_map
-  
 }
 
 // add <search_string> to cme's contents; look for match in global_map

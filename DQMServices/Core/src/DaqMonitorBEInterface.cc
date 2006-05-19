@@ -325,90 +325,108 @@ void DaqMonitorBEInterface::useQTest(string search_string, string qtname) const
 
 // look for all MEs matching <search_string> in own.global_;
 // if found, create QReport from QCriterion and add to ME
-void DaqMonitorBEInterface::scanContents(QCriterion * qc, string search_string) 
-  const
+void DaqMonitorBEInterface::scanContents(QCriterion * qc, const string & 
+					 search_string) const
 {
-  for(cglob_it path = own.global_.begin(); path != own.global_.end(); 
-      ++path)
-    { // loop over pathnames of global_map
-      
-      string pathname = path->first;
-      for(cME_it file = path->second->begin(); 
-	  file != path->second->end(); ++file)
-	{ // loop over files of <pathname>
-	  
-	  string fullname = getUnixName(pathname, file->first);
-	  
-	  if(matchit(fullname, search_string))
-	    { // this is a match!
-	      MonitorElement * me = (MonitorElement *)file->second;
-	      if(me)
-		addQReport(me, qc);
+  cglob_it start, end, parent_dir;
+  getSubRange<global_map>(search_string,own.global_,start,end, parent_dir);
 
-	    } // this is a match!
-	  
-	} // loop over files of <pathname>
+  for(cglob_it path = start; path != end; ++path)
+    // loop over pathnames of global_map subrange
+    scanContents(qc, search_string, path);
+
+  if(parent_dir != own.global_.end())
+    scanContents(qc, search_string, parent_dir);
+}
+
+// same as scanContents above but for one path only
+void DaqMonitorBEInterface::scanContents(QCriterion * qc, 
+					 const string & search_string,
+					 cglob_it & path) const
+{
+  string pathname = path->first;
+  for(cME_it file = path->second->begin(); file != path->second->end(); 
+      ++file)
+    { // loop over files of <pathname>
       
-    } // loop over pathnames of global_map
+      string fullname = getUnixName(pathname, file->first);
+      
+      if(matchit(fullname, search_string))
+	{ // this is a match!
+	  MonitorElement * me = (MonitorElement *)file->second;
+	  if(me)
+	    addQReport(me, qc);
+	  
+	} // this is a match!
+	  
+    } // loop over files of <pathname>
 
 }
 
-// loop over addedContents, look for MEs that match QCriterion::searchStrings 
-// (by looping over all quality tests); upon a match, add QReport to ME(s)
+// loop over quality tests & addedContents: look for MEs that 
+// match QCriterion::searchStrings; upon a match, add QReport to ME(s)
 void DaqMonitorBEInterface::checkAddedElements(void)
 {
-
-  if(qtests_.empty())return;
-  
-  for(cmonit_it path = addedContents.begin(); path != addedContents.end(); 
-      ++path)
-    {
-      // loop over all pathnames of added contents
-      
-      for(csIt it = path->second.begin(); it!= path->second.end(); ++it)
-	// loop over all added MEs
-	checkAddedElement(path->first, *it);
-      
-    } // loop over all pathnames of added contents
-    
-}
-
-// check if ME matches any of QCriterion::searchStrings;
-// upon a match, add QReport to ME(s)
-void DaqMonitorBEInterface::checkAddedElement(string pathname, string ME_name)
-{  
   for(cqc_it qc = qtests_.begin(); qc != qtests_.end(); ++qc)
     { // loop over quality tests
       
       for(csIt search_string = (qc->second)->searchStrings.begin(); 
 	  search_string != (qc->second)->searchStrings.end(); 
 	  ++search_string)
-	{ // loop over search-strings for quality test
-      
-	  // get unix-like filename
-	  string fullname = getUnixName(pathname, ME_name);
-	  if(matchit(fullname, *search_string))
-	    {
-	      // this is a match!
-	      MonitorElement* me = findObject(ME_name, pathname);
-	      /* I need to double-check that qreport is not already added to "me";
-		 This is because there is a chance that users may
-		 1. define a ME after resetStuff has been called
-		 2. call MonitorUserInterface::useQTest
-		 3. and then call MonitorUserInterface::runQTests, which
-		 eventually calls this function
-		 In this case ME appears in addedContents and this call would
-		 give an error... (not sure of a better way right now)
-	      */
-	      if(me && !me->getQReport(qc->first))
-		addQReport(me, qc->second);
-	    
-	    } // this is a match!
+	// loop over search-strings for quality test
+	checkAddedElements(*search_string, qc);
 
-	} // loop over search-strings for quality tests
-      
     } // loop over quality tests
+}
 
+// loop over addedContents: look for MEs that 
+// match search_string; upon a match, add QReport to ME(s)
+void DaqMonitorBEInterface::checkAddedElements(const string & search_string,
+					       cqc_it & qc)
+{  
+  cmonit_it start, end, parent_dir;
+  getSubRange<monit_map>(search_string, addedContents, start, end, 
+			 parent_dir);
+  
+  for(cmonit_it path = start; path != end; ++path)
+    // loop over specified range of added contents
+    checkAddedElements(search_string, qc, path);
+
+  if(parent_dir != addedContents.end())
+    checkAddedElements(search_string, qc, parent_dir);
+
+}
+
+// same as checkAddedElements above for only one path
+void DaqMonitorBEInterface::checkAddedElements(const string & search_string, 
+					       cqc_it & qc,
+					       cmonit_it & path)
+{
+  for(csIt it = path->second.begin(); it!= path->second.end(); ++it)
+    { // loop over all added MEs
+      
+      // get unix-like filename
+      string fullname = getUnixName(path->first, *it);
+      if(matchit(fullname, search_string))
+	{
+	  // this is a match!
+	  MonitorElement* me = findObject(*it, path->first);
+	  /* I need to double-check that qreport is not already added to "me";
+	     This is because there is a chance that users may
+	     1. define a ME after resetStuff has been called
+	     2. call MonitorUserInterface::useQTest
+	     3. and then call MonitorUserInterface::runQTests, which
+	     eventually calls this function
+	     In this case ME appears in addedContents and this call would
+	     give an error... (not sure of a better way right now)
+	  */
+	  if(me && !me->getQReport(qc->first))
+	    addQReport(me, qc->second);
+	      
+	} // this is a match!
+
+    } // loop over all added MEs
+      
 }
 
 DaqMonitorBEInterface::~DaqMonitorBEInterface(void)
