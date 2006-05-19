@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/05/18 20:02:04 $
- * $Revision: 1.16 $
+ * $Date: 2006/05/18 20:44:03 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -341,17 +341,6 @@ void EBPedestalOnlineClient::analyze(void){
     if ( me ) {
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       h03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D>( me, cloneME_ );
-
-      //ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      //if ( ob ) {
-        //if ( cloneME_ ) {
-          //if ( h03_[ism-1] ) delete h03_[ism-1];
-            //sprintf(histo, , ism);
-            //h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        //} else {
-          //h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        //}
-      //}
     }
     meh03_[ism-1] = me;
 
