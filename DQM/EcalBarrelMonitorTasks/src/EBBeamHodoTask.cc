@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/05/17 18:31:39 $
- * $Revision: 1.1 $
+ * $Date: 2006/05/18 19:41:43 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -23,13 +23,17 @@ EBBeamHodoTask::EBBeamHodoTask(const ParameterSet& ps){
   meTDCRec_      =0;
 
   // filled only when: the table does not move
-  meHodoPosRec_    =0;
+  meHodoPosRecX_    =0;
+  meHodoPosRecY_    =0;
+  meHodoPosRecXY_ =0;
   meHodoSloXRec_  =0;
   meHodoSloYRec_  =0;
   meHodoQuaXRec_ =0;
   meHodoQuaYRec_ =0;
-  meEvsXRec_     =0;
-  meEvsYRec_     =0;
+  meEvsXRecProf_     =0;
+  meEvsYRecProf_     =0;
+  meEvsXRecHis_     =0;
+  meEvsYRecHis_     =0;
 
   //                       and matrix 5x5 available
   meCaloVsHodoXPos_ =0;
@@ -71,8 +75,14 @@ void EBBeamHodoTask::setup(void){
 	meHodoRaw_[i] = dbe->book1D(histo, histo, 64, 0., 64.);
       }
     
-    sprintf(histo, "EBBHT Pos rec SM%02d", smId);
-    meHodoPosRec_ = dbe->book1D(histo, histo, 100, -20, 20);
+    sprintf(histo, "EBBHT PosX rec SM%02d", smId);
+    meHodoPosRecX_ = dbe->book1D(histo, histo, 100, -20, 20);
+    
+    sprintf(histo, "EBBHT PosY rec SM%02d", smId);
+    meHodoPosRecY_ = dbe->book1D(histo, histo, 100, -20, 20);
+    
+    sprintf(histo, "EBBHT PosYX rec SM%02d", smId);
+    meHodoPosRecXY_ = dbe->book2D(histo, histo, 100, -20, 20,100, -20, 20);
     
     sprintf(histo, "EBBHT SloX SM%02d", smId);
     meHodoSloXRec_ = dbe->book1D(histo, histo, 50, -0.005, 0.005);
@@ -89,11 +99,17 @@ void EBBeamHodoTask::setup(void){
     sprintf(histo, "EBBHT TDC rec SM%02d", smId);
     meTDCRec_  = dbe->book1D(histo, histo, 25, 0, 1);
     
-    sprintf(histo, "EBBHT E1 vs X SM%02d", smId);
-    meEvsXRec_    = dbe-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000);
+    sprintf(histo, "EBBHT prof E1 vs X SM%02d", smId);
+    meEvsXRecProf_    = dbe-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000);
 
-    sprintf(histo, "EBBHT E1 vs Y SM%02d", smId);
-    meEvsYRec_    = dbe-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000);
+    sprintf(histo, "EBBHT prof E1 vs Y SM%02d", smId);
+    meEvsYRecProf_    = dbe-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000);
+    
+    sprintf(histo, "EBBHT his E1 vs X SM%02d", smId);
+    meEvsXRecHis_    = dbe-> book2D(histo, histo, 100, -20, 20, 500, 0, 5000);
+
+    sprintf(histo, "EBBHT his E1 vs Y SM%02d", smId);
+    meEvsYRecHis_    = dbe-> book2D(histo, histo, 100, -20, 20, 500, 0, 5000);
 
     sprintf(histo, "EBBHT PosX: Hodo-Calo SM%02d", smId);
     meCaloVsHodoXPos_   = dbe->book1D(histo, histo, 40, -20, 20);
@@ -259,7 +275,9 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
      }
    LogDebug("EBBeamHodoTask") << " Hodo reco found." << std::endl;
 
-  meHodoPosRec_    ->Fill( recHodo->posX(), recHodo->posY() );
+  meHodoPosRecXY_    ->Fill( recHodo->posX(), recHodo->posY() );
+  meHodoPosRecX_       ->Fill( recHodo->posX());
+  meHodoPosRecY_       ->Fill( recHodo->posY() );
   meHodoSloXRec_  ->Fill( recHodo->slopeX());
   meHodoSloYRec_  ->Fill( recHodo->slopeY());
   meHodoQuaXRec_ ->Fill( recHodo->qualX());
@@ -277,8 +295,11 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     }
   }
   
-  meEvsXRec_ -> Fill(recHodo->posX(), maxE);
-  meEvsYRec_ -> Fill(recHodo->posY(), maxE);
+  meEvsXRecProf_ -> Fill(recHodo->posX(), maxE);
+  meEvsYRecProf_ -> Fill(recHodo->posY(), maxE);
+  meEvsXRecHis_ -> Fill(recHodo->posX(), maxE);
+  meEvsYRecHis_ -> Fill(recHodo->posY(), maxE);
+
   LogInfo("EcalBeamTask")<< " channel with max is " << maxHitId;
   
   bool mat5x5 =true;
@@ -329,7 +350,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 	  unsigned int row      = icry / 5;
 	  unsigned int column = icry %5;
 	  caloX +=  (column-2) * sideX * weight;
-	  caloY +=  (row-2) * sideY * weight;
+	  caloY -=  (row-2) * sideY * weight;
 	  sumWeight += weight;
 	}
     }

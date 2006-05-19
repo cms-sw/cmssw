@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2006/05/17 13:43:17 $
- * $Revision: 1.5 $
+ * $Date: 2006/05/17 18:31:38 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -68,19 +68,25 @@ void endJob(void);
 void setup(void);
 
 private:
-
+ 
+string outputFile_;
+ 
 int ievt_;
-
+ 
 MonitorElement* meHodoOcc_[4];
 MonitorElement* meHodoRaw_[4];
-MonitorElement* meHodoPosRec_;
+MonitorElement* meHodoPosRecXY_;
+MonitorElement* meHodoPosRecX_;
+MonitorElement* meHodoPosRecY_;
 MonitorElement* meHodoSloXRec_;
 MonitorElement* meHodoSloYRec_;
 MonitorElement* meHodoQuaXRec_;
 MonitorElement* meHodoQuaYRec_;
 MonitorElement* meTDCRec_;
-MonitorElement* meEvsXRec_;
-MonitorElement* meEvsYRec_;
+MonitorElement* meEvsXRecProf_;
+MonitorElement* meEvsYRecProf_;
+MonitorElement* meEvsXRecHis_;
+MonitorElement* meEvsYRecHis_;
 MonitorElement* meCaloVsHodoXPos_;
 MonitorElement* meCaloVsHodoYPos_;
 MonitorElement* meCaloVsTDCTime_;
