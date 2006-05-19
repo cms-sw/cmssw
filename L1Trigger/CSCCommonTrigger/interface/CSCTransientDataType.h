@@ -12,17 +12,20 @@ class CSCTransientDataType
 {
  public:
 
+  /// Returns the endcap this object is in.
+  virtual unsigned endcap() const = 0;
+
   /// Returns the station this object is in.
-  virtual int station() const = 0;
+  virtual unsigned station() const = 0;
   
   /// Returns the sector this object is in.
-  virtual int sector() const = 0;
+  virtual unsigned sector() const = 0;
 
   /// Returns the trigger subsector this object is in.
-  virtual int subsector() const = 0;
+  virtual unsigned subsector() const = 0;
 
   /// Returns the Trigger CscId this object is associated with.
-  virtual int cscid() const = 0;
+  virtual unsigned cscid() const = 0;
   
   /// Returns the 25 ns bunch crossing this object is associated with.
   virtual int BX() const = 0;

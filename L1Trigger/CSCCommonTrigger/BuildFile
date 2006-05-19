@@ -1,6 +1,7 @@
 <export>
  <lib name=L1TriggerCSCCommonTrigger>
  <use name=Geometry/CSCGeometry>
+ <use name=DataFormats/CSCDigi>
  <use name=boost>
 </export>
 
@@ -9,5 +10,6 @@
  <use name=Geometry/CommonTopologies>
  <use name=Geometry/Surface>
  <use name=DataFormats/MuonDetId>
+ <use name=DataFormats/CSCDigi>
  <use name=boost>
  <use name=clhep>

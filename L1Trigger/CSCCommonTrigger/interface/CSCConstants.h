@@ -26,6 +26,8 @@ class CSCConstants
 
   enum eta_into { etaBins = 1<<CSCBitWidths::kGlobalEtaBitWidth };
 
+  enum MPC_stubs { maxStubs = 3 };
+
   /**
    * We assume that the digis which bx times differ from the current bx by
    * more than six will not contribute to the LCT rates at the current bx,

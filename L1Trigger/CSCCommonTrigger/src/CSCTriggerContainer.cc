@@ -1,9 +1,10 @@
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerContainer.h>
+#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
 template<class T>
 CSCTriggerContainer<T>::CSCTriggerContainer(const std::vector<T>& parent)
 {
-  _objs.copy(parent.begin(), parent.end());
+  _objs = parent;
 }
 
 template<class T>
@@ -30,26 +31,49 @@ std::vector<T> CSCTriggerContainer<T>::get() const
 }
 
 template<class T>
-std::vector<T> CSCTriggerContainer<T>::get(int station, int tsector, int tsubsector, int BX) const
+std::vector<T> CSCTriggerContainer<T>::get(const unsigned& endcap, const unsigned& station, 
+					   const unsigned& tsector,const unsigned& tsubsector, 
+					   const unsigned& cscid, const int& BX) const
 {
   std::vector<T> result;  
 
   for(unsigned i = 0; i < _objs.size(); i++)
-    if(_objs[i].station() == station && _objs[i].sector() == tsector &&
-       (station != 1 || _objs[i].subsector() == tsubsector) && _objs[i].BX() == BX)
+    if(_objs[i].endcap() == endcap && _objs[i].station() == station && 
+       _objs[i].sector() == tsector && (station != 1 || _objs[i].subsector() == tsubsector) && 
+       _objs[i].cscid() == cscid && _objs[i].BX() == BX)
       result.push_back(_objs[i]);
   
   return result;
 }
 
 template<class T>
-std::vector<T> CSCTriggerContainer<T>::get(int sector, int BX) const
+std::vector<T> CSCTriggerContainer<T>::get(const unsigned& endcap, const unsigned& station, 
+					   const unsigned& tsector,const unsigned& tsubsector, 
+					   const int& BX) const
+{
+  std::vector<T> result;  
+
+  for(unsigned i = 0; i < _objs.size(); i++)
+    if(_objs[i].endcap() == endcap && _objs[i].station() == station && 
+       _objs[i].sector() == tsector && (station != 1 || _objs[i].subsector() == tsubsector) 
+       && _objs[i].BX() == BX)
+      result.push_back(_objs[i]);
+  
+  return result;
+}
+
+template<class T>
+std::vector<T> CSCTriggerContainer<T>::get(const unsigned& endcap, const unsigned& sector, 
+					   const int& BX) const
 {
   std::vector<T> result;
 
-  for(unsigned i = 0; curr < _objs.size(); i++)
-    if(_objs[i].sector() == sector && _objs[i].BX() == BX)
+  for(unsigned i = 0; i < _objs.size(); i++)
+    if(_objs[i].endcap() == endcap && _objs[i].sector() == sector && _objs[i].BX() == BX)
       result.push_back(_objs[i]);
 
   return result;
 }
+
+#include <L1Trigger/CSCCommonTrigger/interface/CSCTrackStub.h>
+template class CSCTriggerContainer<CSCTrackStub>;

@@ -32,10 +32,15 @@ class CSCTriggerContainer
   CSCTriggerContainer& operator=(const std::vector<T>&);
 
   std::vector<T> get() const;
-  std::vector<T> get(int station, int tsector, int tsubsector, int BX = 0) const; /// for a specific station in a sector
-  std::vector<T> get(int sector, int BX = 0) const; /// for objects which span multiple stations
+  std::vector<T> get(const unsigned& endcap, const unsigned& station, const unsigned& tsector, 
+		     const unsigned& tsubsector, const unsigned& cscid, const int& BX = 0) const; /// For a specific chamber 
+                                                                                                  /// in a station.
+  std::vector<T> get(const unsigned& endcap, const unsigned& station, const unsigned& tsector,    /// For a specific station in a sector.
+		     const unsigned& tsubsector, const int& BX = 0) const;
+  std::vector<T> get(const unsigned& endcap, const unsigned& sector, const int& BX = 0) const;    /// For objects which span multiple stations.
 
   void push_back(const T data) { _objs.push_back(data); }
+  void clear() { _objs.clear(); } 
 
  private:
   
