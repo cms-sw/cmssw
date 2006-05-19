@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.4 2006/05/11 20:04:45 paterno Exp $
+$Id: DetSetVector.h,v 1.5 2006/05/18 19:02:05 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -337,10 +337,10 @@ namespace edm {
   void
   DetSetVector<T>::getIds(std::vector<det_id_type> & result) const
   {
-    using namespace boost::lambda;
     std::transform(this->begin(), this->end(),
 		   std::back_inserter(result),
-		   bind(&DetSet<T>::id, _1));
+		   boost::lambda::bind(&DetSet<T>::id, 
+				       boost::lambda::_1));
   }
 
   template <class T>
