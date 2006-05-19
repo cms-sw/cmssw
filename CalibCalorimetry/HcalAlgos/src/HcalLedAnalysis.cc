@@ -7,7 +7,7 @@
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 
-#include "CalibCalorimetry/HcalStandardModules/interface/HcalLedAnalyzer.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLedAnalysis.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 #include <TFile.h>
 
@@ -32,7 +32,13 @@ HcalLedAnalysis::HcalLedAnalysis(const edm::ParameterSet& ps)
     cout << "Hcal LED histograms will be saved to " << m_outputFileROOT.c_str() << endl;
   } 
   m_nevtsample = ps.getUntrackedParameter<int>("nevtsample",9999999);
+  if(m_nevtsample<1)m_nevtsample=9999999;
   m_hiSaveflag = ps.getUntrackedParameter<int>("hiSaveflag",0);
+  if(m_hiSaveflag<0)m_hiSaveflag=0;
+  if(m_hiSaveflag>0)m_hiSaveflag=1;
+  m_fitflag = ps.getUntrackedParameter<int>("analysisflag",2);
+  if(m_fitflag<0)m_fitflag=0;
+  if(m_fitflag>4)m_fitflag=4;
   m_startTS = ps.getUntrackedParameter<int>("firstTS", 0);
   if(m_startTS<0) m_startTS=0;
   m_endTS = ps.getUntrackedParameter<int>("lastTS", 9);
@@ -59,13 +65,13 @@ HcalLedAnalysis::HcalLedAnalysis(const edm::ParameterSet& ps)
 HcalLedAnalysis::~HcalLedAnalysis(){
   ///All done, clean up!!
   for(_meol=hbHists.LEDTRENDS.begin(); _meol!=hbHists.LEDTRENDS.end(); _meol++){
-    for(int i=0; i<14; i++) _meol->second[i].first->Delete();
+    for(int i=0; i<15; i++) _meol->second[i].first->Delete();
   }
   for(_meol=hoHists.LEDTRENDS.begin(); _meol!=hoHists.LEDTRENDS.end(); _meol++){
-    for(int i=0; i<14; i++) _meol->second[i].first->Delete();
+    for(int i=0; i<15; i++) _meol->second[i].first->Delete();
   }
   for(_meol=hfHists.LEDTRENDS.begin(); _meol!=hfHists.LEDTRENDS.end(); _meol++){
-    for(int i=0; i<14; i++) _meol->second[i].first->Delete();
+    for(int i=0; i<15; i++) _meol->second[i].first->Delete();
   }
   hbHists.ALLLEDS->Delete();
   hbHists.LEDRMS->Delete();
@@ -117,34 +123,35 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
   double time2=0; double time1=0; double time3=0; double time4=0;
   double dtime2=0; double dtime1=0; double dtime3=0; double dtime4=0;
 
-//  m_logFile<<"Got to GetLedConst"<<std::endl;
   if (m_outputFileText!=""){
-    if(fitflag==0 || fitflag==2) m_outFile<<"Det Eta,Phi,D   Mean    Error"<<std::endl;
-    else if(fitflag==1 || fitflag==3) m_outFile<<"Det Eta,Phi,D   Peak    Error"<<std::endl;
-    else if(fitflag==4) m_outFile<<"Det Eta,Phi,D   Mean    Error      Peak    Error       MeanEv  Error       PeakEv  Error"<<std::endl;
+    if(m_fitflag==0 || m_fitflag==2) m_outFile<<"Det Eta,Phi,D   Mean    Error"<<std::endl;
+    else if(m_fitflag==1 || m_fitflag==3) m_outFile<<"Det Eta,Phi,D   Peak    Error"<<std::endl;
+    else if(m_fitflag==4) m_outFile<<"Det Eta,Phi,D   Mean    Error      Peak    Error       MeanEv  Error       PeakEv  Error"<<std::endl;
   }
   for(_meol=toolT.begin(); _meol!=toolT.end(); _meol++){
 // scale the LED pulse to 1 event
     _meol->second[10].first->Scale(1./evt_curr);
-    if(fitflag==0 || fitflag==4){
+    if(m_fitflag==0 || m_fitflag==4){
       time1 = _meol->second[10].first->GetMean();
       dtime1 = _meol->second[10].first->GetRMS()/sqrt((float)evt_curr*(m_endTS-m_startTS+1));
     }
-    if(fitflag==1 || fitflag==4){
+    if(m_fitflag==1 || m_fitflag==4){
 // put proper errors
       for(int j=0; j<10; j++) _meol->second[10].first->SetBinError(j+1,_meol->second[j].first->GetRMS()/sqrt((float)evt_curr));
     }
-    if(fitflag==1 || fitflag==3 || fitflag==4){
+    if(m_fitflag==1 || m_fitflag==3 || m_fitflag==4){
       _meol->second[10].first->Fit("landau","Q");
+//      _meol->second[10].first->Fit("gaus","Q");
       TF1 *fit = _meol->second[10].first->GetFunction("landau");
+//      TF1 *fit = _meol->second[10].first->GetFunction("gaus");
       time2=fit->GetParameter(1);
       dtime2=fit->GetParError(1);
     }
-    if(fitflag==2 || fitflag==4){
+    if(m_fitflag==2 || m_fitflag==4){
       time3 = _meol->second[12].first->GetMean();
       dtime3 = _meol->second[12].first->GetRMS()/sqrt((float)_meol->second[12].first->GetEntries());
     }
-    if(fitflag==3 || fitflag==4){
+    if(m_fitflag==3 || m_fitflag==4){
       time4 = _meol->second[13].first->GetMean();
       dtime4 = _meol->second[13].first->GetRMS()/sqrt((float)_meol->second[13].first->GetEntries());
     }
@@ -162,24 +169,29 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
     _meol->second[11].second.first[1].push_back(dtime2);
     _meol->second[12].first->GetXaxis()->SetTitle("Mean TS");
     _meol->second[12].first->GetYaxis()->SetTitle("Counts");
-    if(fitflag==2 && m_hiSaveflag>0)_meol->second[12].first->Write();
+    if(m_fitflag==2 && m_hiSaveflag>0)_meol->second[12].first->Write();
     _meol->second[12].second.first[0].push_back(time3);
     _meol->second[12].second.first[1].push_back(dtime3);
     _meol->second[13].first->GetXaxis()->SetTitle("Peak TS");
     _meol->second[13].first->GetYaxis()->SetTitle("Counts");
-    if(fitflag>2 && m_hiSaveflag>0)_meol->second[13].first->Write();
+    if(m_fitflag>2 && m_hiSaveflag>0)_meol->second[13].first->Write();
     _meol->second[13].second.first[0].push_back(time4);
     _meol->second[13].second.first[1].push_back(dtime4);
-    if(fitflag>2 && m_hiSaveflag>0)_meol->second[14].first->Write();
+    _meol->second[14].first->GetXaxis()->SetTitle("Peak TS error");
+    _meol->second[14].first->GetYaxis()->SetTitle("Counts");
+    if(m_fitflag>2 && m_hiSaveflag>0)_meol->second[14].first->Write();
+    _meol->second[15].first->GetXaxis()->SetTitle("Chi2/NDF");
+    _meol->second[15].first->GetYaxis()->SetTitle("Counts");
+    if(m_fitflag>2 && m_hiSaveflag>0)_meol->second[15].first->Write();
 
 // Ascii printout
     HcalDetId detid = _meol->first;
     if (m_outputFileText!=""){
-      if(fitflag==0) m_outFile<<detid<<"   "<<time1<<" "<<dtime1<<std::endl;
-      else if(fitflag==1) m_outFile<<detid<<"   "<<time2<<" "<<dtime2<<std::endl;
-      else if(fitflag==2) m_outFile<<detid<<"   "<<time3<<" "<<dtime3<<std::endl;
-      else if(fitflag==3) m_outFile<<detid<<"   "<<time4<<" "<<dtime4<<std::endl;
-      else if(fitflag==4) m_outFile<<detid<<"   "<<time1<<" "<<dtime1<<"   "<<time2<<" "<<dtime2<<"   "<<time3<<" "<<dtime3<<"   "<<time4<<" "<<dtime4<<std::endl;
+      if(m_fitflag==0) m_outFile<<detid<<"   "<<time1<<" "<<dtime1<<std::endl;
+      else if(m_fitflag==1) m_outFile<<detid<<"   "<<time2<<" "<<dtime2<<std::endl;
+      else if(m_fitflag==2) m_outFile<<detid<<"   "<<time3<<" "<<dtime3<<std::endl;
+      else if(m_fitflag==3) m_outFile<<detid<<"   "<<time4<<" "<<dtime4<<std::endl;
+      else if(m_fitflag==4) m_outFile<<detid<<"   "<<time1<<" "<<dtime1<<"   "<<time2<<" "<<dtime2<<"   "<<time3<<" "<<dtime3<<"   "<<time4<<" "<<dtime4<<std::endl;
     }
   }
 }
@@ -193,7 +205,6 @@ void HcalLedAnalysis::LedSampleAnalysis(){
   m_file->cd();
   m_file->mkdir(LedSampleNum);
   m_file->cd(LedSampleNum);
-//  m_logFile<<"Going to GetLedConst"<<std::endl;
 
 // Compute LED constants for each HB/HE, HO, HF
   GetLedConst(hbHists.LEDTRENDS);
@@ -209,27 +220,27 @@ void HcalLedAnalysis::LedTrendings(map<HcalDetId, map<int,LEDBUNCH> > &toolT)
     char name[1024];
     HcalDetId detid = _meol->first;
     sprintf(name,"LED timing trend, eta=%d phi=%d depth=%d",detid.ieta(),detid.iphi(),detid.depth());
-    int bins = _meol->second[10+fitflag].second.first[0].size();
+    int bins = _meol->second[10+m_fitflag].second.first[0].size();
     float lo =0.5;
     float hi = (float)bins+0.5;
-    _meol->second[10+fitflag].second.second.push_back(new TH1F(name,name,bins,lo,hi));
+    _meol->second[10+m_fitflag].second.second.push_back(new TH1F(name,name,bins,lo,hi));
 
     std::vector<double>::iterator sample_it;
 // LED timing - put content and errors
     int j=0;
-    for(sample_it=_meol->second[10+fitflag].second.first[0].begin();
-        sample_it!=_meol->second[10+fitflag].second.first[0].end();sample_it++){
-      _meol->second[10+fitflag].second.second[0]->SetBinContent(++j,*sample_it);
+    for(sample_it=_meol->second[10+m_fitflag].second.first[0].begin();
+        sample_it!=_meol->second[10+m_fitflag].second.first[0].end();sample_it++){
+      _meol->second[10+m_fitflag].second.second[0]->SetBinContent(++j,*sample_it);
     }
     j=0;
-    for(sample_it=_meol->second[10+fitflag].second.first[1].begin();
-        sample_it!=_meol->second[10+fitflag].second.first[1].end();sample_it++){
-      _meol->second[10+fitflag].second.second[0]->SetBinError(++j,*sample_it);
+    for(sample_it=_meol->second[10+m_fitflag].second.first[1].begin();
+        sample_it!=_meol->second[10+m_fitflag].second.first[1].end();sample_it++){
+      _meol->second[10+m_fitflag].second.second[0]->SetBinError(++j,*sample_it);
     }
     sprintf(name,"Sample (%d events)",m_nevtsample);
-    _meol->second[10+fitflag].second.second[0]->GetXaxis()->SetTitle(name);
-    _meol->second[10+fitflag].second.second[0]->GetYaxis()->SetTitle("Peak position");
-    _meol->second[10+fitflag].second.second[0]->Write();
+    _meol->second[10+m_fitflag].second.second[0]->GetXaxis()->SetTitle(name);
+    _meol->second[10+m_fitflag].second.second[0]->GetYaxis()->SetTitle("Peak position");
+    _meol->second[10+m_fitflag].second.second[0]->Write();
   }
 }
 
@@ -241,7 +252,7 @@ void HcalLedAnalysis::LedDone()
   if(evt%m_nevtsample!=0) LedSampleAnalysis();
 
 // Now do the end of run analysis: trending histos
-  if(sample>1 && fitflag!=4){
+  if(sample>1 && m_fitflag!=4){
     m_file->cd();
     m_file->cd("HB");
     LedTrendings(hbHists.LEDTRENDS);
@@ -386,41 +397,8 @@ void HcalLedAnalysis::LedTSHists(int id, const HcalDetId detid, int TS, const Hc
  7172., 7672., 8172., 8734.5, 9359.5, 9984.5};
 
   _meol = toolT.find(detid);
-  if (_meol!=toolT.end()){
-// if histos for this channel already exist, just fill them
-    _mei = _meol->second;
-    if((evt-1)%m_nevtsample==0 && state[0]){
-      for(int k=0; k<(int)state.size();k++) state[k]=false;
-      for(int i=0; i<13; i++) _mei[i].first->Reset();
-    }
-    _mei[TS].first->Fill(adc2fc[qie1.adc()]-pedestal);
-    _mei[10].first->AddBinContent(TS+1,adc2fc[qie1.adc()]-pedestal);
-    if(fitflag>1){
-      if(TS==m_startTS)_mei[11].first->Reset();
-      _mei[11].first->SetBinContent(TS+1,adc2fc[qie1.adc()]-pedestal);
-      float fcgap;
-      if(qie1.adc()==0)fcgap=0.3*(adc2fc[1]-adc2fc[0]);
-      else if(qie1.adc()==127)fcgap=0.3*(adc2fc[127]-adc2fc[126]);
-      else fcgap=0.15*(adc2fc[qie1.adc()+1]-adc2fc[qie1.adc()-1]);
-      _mei[11].first->SetBinError(TS+1,fcgap);
-      if(TS==m_endTS){
-        float sum=0.;
-        for(int i=0; i<10; i++)sum=sum+_mei[11].first->GetBinContent(i+1);
-        if(sum>100){
-          if(fitflag==2 || fitflag==4)_mei[12].first->Fill(_mei[11].first->GetMean());
-          if(fitflag==3 || fitflag==4){
-            _mei[11].first->Fit("landau","Q");
-            TF1 *fit = _mei[11].first->GetFunction("landau");
-            _mei[13].first->Fill(fit->GetParameter(1));
-            _mei[14].first->Fill(fit->GetParError(1));
-          }
-        }
-      }
-    }
-  }
-  else{
+  if (_meol==toolT.end()){
 // if histos for this channel do not exist, first create them
-// and then do all the same things - this is a bit silly as well
     map<int,LEDBUNCH> insert;
     char name[1024];
     for(int i=0; i<10; i++){
@@ -437,22 +415,90 @@ void HcalLedAnalysis::LedTSHists(int id, const HcalDetId detid, int TS, const Hc
     insert[13].first =  new TH1F(name,name,200,0.,10.);
     sprintf(name,"%s Peak TS error, eta=%d phi=%d depth=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth());  
     insert[14].first =  new TH1F(name,name,200,0.,0.05);
-
-    insert[TS].first->Fill(adc2fc[qie1.adc()]-pedestal);
-    insert[10].first->AddBinContent(TS+1,adc2fc[qie1.adc()]-pedestal);
-    if(fitflag>1){
-      insert[11].first->SetBinContent(TS+1,adc2fc[qie1.adc()]-pedestal);
-      float fcgap;
-      if(qie1.adc()==0)fcgap=0.3*(adc2fc[1]-adc2fc[0]);
-      else if(qie1.adc()==127)fcgap=0.3*(adc2fc[127]-adc2fc[126]);
-      else fcgap=0.15*(adc2fc[qie1.adc()+1]-adc2fc[qie1.adc()-1]);
-      insert[11].first->SetBinError(TS+1,fcgap);
-    }
+    sprintf(name,"%s Fit chi2, eta=%d phi=%d depth=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth());  
+    insert[15].first =  new TH1F(name,name,200,0.,400.);
 
     toolT[detid] = insert;
+    _meol = toolT.find(detid);
+  }
+  _mei = _meol->second;
+  if((evt-1)%m_nevtsample==0 && state[0]){
+    for(int k=0; k<(int)state.size();k++) state[k]=false;
+    for(int i=0; i<15; i++) _mei[i].first->Reset();
+  }
+  _mei[TS].first->Fill(adc2fc[qie1.adc()]-pedestal);
+  _mei[10].first->AddBinContent(TS+1,adc2fc[qie1.adc()]-pedestal);
+  if(m_fitflag>1){
+    if(TS==m_startTS)_mei[11].first->Reset();
+    _mei[11].first->SetBinContent(TS+1,adc2fc[qie1.adc()]-pedestal);
+    float fcgap;
+    if(qie1.adc()==0)fcgap=0.3*(adc2fc[1]-adc2fc[0]);
+    else if(qie1.adc()==127)fcgap=0.3*(adc2fc[127]-adc2fc[126]);
+    else fcgap=0.15*(adc2fc[qie1.adc()+1]-adc2fc[qie1.adc()-1]);
+    _mei[11].first->SetBinError(TS+1,fcgap);
+    if(TS==m_endTS){
+      float sum=0.;
+      for(int i=0; i<10; i++)sum=sum+_mei[11].first->GetBinContent(i+1);
+      if(sum>100){
+        if(m_fitflag==2 || m_fitflag==4){
+          float timmean=_mei[11].first->GetMean();
+          float timmeancorr=BinsizeCorr(timmean);
+          _mei[12].first->Fill(timmeancorr);
+        }
+        if(m_fitflag==3 || m_fitflag==4){
+          _mei[11].first->Fit("landau","Q");
+//          _mei[11].first->Fit("gaus","Q");
+          TF1 *fit = _mei[11].first->GetFunction("landau");
+//          TF1 *fit = _mei[11].first->GetFunction("gaus");
+            _mei[13].first->Fill(fit->GetParameter(1));
+            _mei[14].first->Fill(fit->GetParError(1));
+          _mei[15].first->Fill(fit->GetChisquare()/fit->GetNDF());
+        }
+      }
+    }
   }
 
   if(id==0) hbHists.ALLLEDS->Fill(qie1.adc());
   else if(id==1) hoHists.ALLLEDS->Fill(qie1.adc());
   else if(id==2) hfHists.ALLLEDS->Fill(qie1.adc());
+}
+
+//-----------------------------------------------------------------------------
+float HcalLedAnalysis::BinsizeCorr(float time) {
+
+// this is the bin size correction to be applied for laser data (from Andy),
+// it comes from a pulse shape measured from TB04 data (from Jordan)
+
+  float corrtime=0.;
+  static const float tstrue[32]={0.003, 0.03425, 0.06548, 0.09675, 0.128,
+ 0.15925, 0.1905, 0.22175, 0.253, 0.28425, 0.3155, 0.34675, 0.378, 0.40925,
+ 0.4405, 0.47175, 0.503, 0.53425, 0.5655, 0.59675, 0.628, 0.65925, 0.6905,
+ 0.72175, 0.753, 0.78425, 0.8155, 0.84675, 0.878, 0.90925, 0.9405, 0.97175};
+  static const float tsreco[32]={-0.00422, 0.01815, 0.04409, 0.07346, 0.09799,
+ 0.12192, 0.15072, 0.18158, 0.21397, 0.24865, 0.28448, 0.31973, 0.35449,
+ 0.39208, 0.43282, 0.47244, 0.5105, 0.55008, 0.58827, 0.62828, 0.6717, 0.70966,
+ 0.74086, 0.77496, 0.80843, 0.83472, 0.86044, 0.8843, 0.90674, 0.92982,
+ 0.95072, 0.9726};
+
+ int inttime=(int)time;
+ float restime=time-inttime;
+ for(int i=0; i<=32; i++) {
+   float lolim=0.; float uplim=1.; float tsdown; float tsup;
+   if(i>0){
+     lolim=tsreco[i-1];
+     tsdown=tstrue[i-1];
+   }
+   else tsdown=tstrue[31]-1.;
+   if(i<32){
+     uplim=tsreco[i];
+     tsup=tstrue[i];
+   }
+   else tsup=tstrue[0]+1.;
+   if(restime>=lolim && restime<uplim){
+      corrtime=(tsdown*(uplim-restime)+tsup*(restime-lolim)) / (uplim-lolim);
+    }
+  }
+  corrtime+=inttime;
+
+ return corrtime;
 }
