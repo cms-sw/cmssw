@@ -309,7 +309,7 @@ namespace edm
   			 std::string const& longDesc)
   {
    std::ostringstream msg;
-   msg << "<FramworkError ExitStatus=1 Type=\"" << shortDesc <<"\" >\n";
+   msg << "<FramworkError ExitStatus=\"1\" Type=\"" << shortDesc <<"\" >\n";
    msg << "  " << longDesc << "\n";
    msg << "</FramworkError>\n";
    LogError("FwkJob") << msg.str();
@@ -323,8 +323,8 @@ namespace edm
 			 int const& exitCode)
   {
     std::ostringstream msg;
-    msg << "<FramworkError ExitStatus="<< exitCode 
-    	<<" Type=\"" << shortDesc <<"\" >\n";
+    msg << "<FramworkError ExitStatus=\""<< exitCode 
+    	<<"\" Type=\"" << shortDesc <<"\" >\n";
     msg << "  " << longDesc << "\n";
     msg << "</FramworkError>\n";
     LogError("FwkJob") << msg.str();
