@@ -1,62 +1,47 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
+//#include "DataFormats/Common/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/Timestamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "DataSvc/IDataSvc.h"
-#include "DataSvc/ICacheSvc.h"
+//#include "DataSvc/IDataSvc.h"
+//#include "DataSvc/ICacheSvc.h"
 #include "DataSvc/RefException.h"
 
-//#include "CondCore/IOVService/interface/IOV.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-//#include "CondCore/DBCommon/interface/DBSession.h"
-//#include "CondCore/DBCommon/interface/DBWriter.h"
 #include "CondCore/DBCommon/interface/ServiceLoader.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include <iostream>
-#include <exception>
+//#include <exception>
 cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & iAR ): 
   m_connect( iConfig.getParameter< std::string > ("connect") ),
   m_tag( iConfig.getParameter< std::string >("tag") ),
   m_timetype( iConfig.getParameter< std::string >("timetype") ),
   m_connectMode( iConfig.getUntrackedParameter< unsigned int >("connectMode" ,0) ),
-  //m_authenticationMethod( iConfig.getUntrackedParameter< unsigned int >("authenticationMethod",0) ),
   m_containerName( iConfig.getUntrackedParameter< std::string >("containerName") ),
   m_customMappingFile( iConfig.getUntrackedParameter< std::string >("customMappingFile","") ),
-  //m_commitInterval( iConfig.getUntrackedParameter< unsigned int >("commitInterval",1) ),
   m_appendIOV( iConfig.getUntrackedParameter< bool >("appendIOV",false) ),
-  //m_catalog( iConfig.getUntrackedParameter< std::string >("catalog","") ),
-  //m_loadBlobStreamer( iConfig.getUntrackedParameter< bool >("loadBlobStreamer",false) ), 
-  //m_messageLevel( iConfig.getUntrackedParameter<unsigned int>("messagelevel",0) ),
   m_loader( new cond::ServiceLoader ),
-  m_metadata( new cond::MetaData(m_connect, *m_loader) ),
+  m_metadata( 0 ),
   m_iov( 0 ),
-  m_session( new cond::DBSession(m_connect) ),
+  m_session( 0 ),
   m_payloadWriter( 0 ),
   m_iovWriter( 0 )
 {
   //std::cout<<"PoolDBOutputService"<<std::endl;
-  if( m_customMappingFile.empty() ){
-    m_payloadWriter=new cond::DBWriter(*m_session,m_containerName);
-  }else{
-    m_payloadWriter=new cond::DBWriter(*m_session,m_containerName,m_customMappingFile);
-  }
   if( m_timetype=="runnumber" ){
     m_endOfTime=(unsigned long long)edm::IOVSyncValue::endOfTime().eventID().run();
   }else{
     m_endOfTime=edm::IOVSyncValue::endOfTime().time().value();
   }
-  m_iovWriter=new cond::DBWriter(*m_session,"IOV");
   std::string catalogcontact=iConfig.getUntrackedParameter< std::string >("catalog","");
-  m_session->setCatalog(catalogcontact);
-  unsigned int authenticationMethod=iConfig.getUntrackedParameter< unsigned int >("authenticationMethod",0);
   bool loadBlobStreamer=iConfig.getUntrackedParameter< bool >("loadBlobStreamer",false);
+  unsigned int authenticationMethod=iConfig.getUntrackedParameter< unsigned int >("authenticationMethod",0);
   unsigned int messageLevel=iConfig.getUntrackedParameter<unsigned int>("messagelevel",0);
   try{
     if( authenticationMethod==1 ){
@@ -64,9 +49,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
     }else{
       m_loader->loadAuthenticationService( cond::Env );
     }
-    if( loadBlobStreamer ){
-      m_loader->loadBlobStreamingService();
-    }
+    
     switch (messageLevel) {
     case 0 :
       m_loader->loadMessageService(cond::Error);
@@ -83,12 +66,8 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
     default:
       m_loader->loadMessageService();
     }
-    if(m_appendIOV){
-      m_metadata->connect(cond::ReadOnly);
-      m_iovToken=m_metadata->getToken(m_tag);
-      m_metadata->disconnect();
-    }else{
-      m_iov=new cond::IOV;
+    if( loadBlobStreamer ){
+      m_loader->loadBlobStreamingService();
     }
   }catch( const cond::Exception& e){
     throw e;
@@ -101,10 +80,23 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   iAR.watchPostBeginJob(this,&cond::service::PoolDBOutputService::postBeginJob);
   iAR.watchPostEndJob(this,&cond::service::PoolDBOutputService::postEndJob);
   iAR.watchPreProcessEvent(this,&cond::service::PoolDBOutputService::preEventProcessing);
+  m_metadata=new cond::MetaData(m_connect, *m_loader);
+  if(m_appendIOV){
+    m_metadata->connect(cond::ReadOnly);
+    m_iovToken=m_metadata->getToken(m_tag);
+    m_metadata->disconnect();
+  }else{
+    m_iov=new cond::IOV;
+  }
+  m_session=new cond::DBSession(m_connect);
+  m_session->setCatalog(catalogcontact);
+  if( m_customMappingFile.empty() ){
+    m_payloadWriter=new cond::DBWriter(*m_session,m_containerName);
+  }else{
+    m_payloadWriter=new cond::DBWriter(*m_session,m_containerName,m_customMappingFile);
+  }
+  m_iovWriter=new cond::DBWriter(*m_session,"IOV");
 }
-//
-// member functions
-//
 
 //do connect
 void 
