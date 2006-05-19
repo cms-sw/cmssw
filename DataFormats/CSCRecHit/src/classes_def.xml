@@ -1,21 +1,33 @@
 <lcgdict>
-<class name="CSCRecHit2D"/>
-<class name="std::vector<CSCRecHit2D*>"/>
-<class name="std::pair<unsigned int,unsigned int>"/>
-<class name="std::map<CSCDetId,std::pair<unsigned int,unsigned int> >"/>
-<class name="edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >"/>
-<class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> >"/>
-<class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> > >"/>
+<selection>
+  <class name="CSCRecHit2D"/>
+  <class name="std::vector<CSCRecHit2D*>"/>
+  <class name="std::pair<unsigned int,unsigned int>"/>
+  <class name="std::map<CSCDetId,std::pair<unsigned int,unsigned int> >"/>
+  <class name="edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >"/>
+  <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> >"/>
+  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> > >"/>
 
-<class name="RecSegment4D"/>
-<class name="RecSegment"/>
-<class name="std::vector<CSCSegment*>"/>
-<class name="CLHEP::HepSymMatrix"/>
-<class name="CLHEP::HepGenMatrix"/>
-<class name="CSCSegment"/>
-<class name="edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >"/>
-<class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >"/>
-<class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> > >"/>
+  <class name="RecSegment4D"/>
+  <class name="RecSegment"/>
+  <class name="std::vector<CSCSegment*>"/>
+  <class name="CLHEP::HepSymMatrix"/>
+  <class name="CLHEP::HepGenMatrix"/>
+  <class name="CSCSegment"/>
+  <class name="edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >"/>
+  <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >"/>
+  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> > >"/>
+</selection>
+
+<exclusion>
+  <class name="edm::OwnVector<CSCRecHit2D, edm::ClonePolicy<CSCRecHit2D> >">
+    <method name="sort"/>
+  </class>
+  <class name="edm::OwnVector<CSCSegment, edm::ClonePolicy<CSCSegment> >">
+    <method name="sort"/>
+  </class>
+</exclusion>
+
 </lcgdict>
 
 
