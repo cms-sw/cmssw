@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/05/16 16:52:12 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/18 17:00:05 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -25,6 +25,7 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/HLTReco/interface/HLTParticle.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include <cassert>
 #include <map>
@@ -89,7 +90,7 @@ namespace reco
       }
     }
 
-    void putParticle(std::auto_ptr<edm::RefToBase<Particle> >& ref) {
+    void putParticle(std::auto_ptr<edm::RefToBase<Candidate> >& ref) {
       Particle::LorentzVector p4((*ref)->px(),(*ref)->py(),(*ref)->pz(),(*ref)->energy());
       HLTParticle             particle(0,p4);
       particles_.push_back(particle);
@@ -101,13 +102,13 @@ namespace reco
   class HLTFilterObjectWithRefs : public HLTFilterObject {
 
   private:
-    edm::OwnVector< edm::RefToBase<Particle> > refs_;
+    edm::OwnVector<edm::RefToBase<Candidate> > refs_;
 
   public:
 
     HLTFilterObjectWithRefs(): HLTFilterObject(), refs_() { }
 
-    void putParticle(std::auto_ptr<edm::RefToBase<Particle> >& ref) {
+    void putParticle(std::auto_ptr<edm::RefToBase<Candidate> >& ref) {
       this->HLTFilterObject::putParticle(ref);
       refs_.push_back(ref.release());
     }

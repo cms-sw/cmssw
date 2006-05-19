@@ -3,6 +3,7 @@
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 #include "DataFormats/HLTReco/interface/HLTPathObject.h"
 #include "DataFormats/HLTReco/interface/HLTGlobalObject.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {

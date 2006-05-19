@@ -10,9 +10,8 @@
 
   <class name="reco::HLTParticle" />
   <class name="std::vector<reco::HLTParticle>" />
-  <class name="edm::RefToBase<reco::Particle>" />
-  <class name="std::vector<edm::RefToBase<reco::Particle> * >" />
-  <class name="edm::OwnVector<edm::RefToBase<reco::Particle>,edm::ClonePolicy<edm::RefToBase<reco::Particle> > >" />
+  <class pattern="edm::RefToBaseImpl<*>" />
+
   <class name="reco::HLTFilterObjectBase" />
   <class name="reco::HLTFilterObject" />
   <class name="reco::HLTFilterObjectWithRefs" />
