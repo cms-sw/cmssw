@@ -20,7 +20,6 @@ namespace cond{
     public:
       //
       // accepted PSet 
-      // connectMode
       // connect, connectMode, 
       // authenticationMethod, containerName,payloadCustomMappingFile
       // appendIOV, catalog,tag,
@@ -42,22 +41,16 @@ namespace cond{
       void postEventProcessing( const edm::Event & evt, 
 				const edm::EventSetup & iEvtSetUp);
       //
-      //no use
-      //
-      //void preModule ( const edm::ModuleDescription & iDesc );
-      //void postModule( const edm::ModuleDescription & iDesc );
-      //no use
-      //void preModuleConstruction ( const edm::ModuleDescription & iDesc );
-      //void postModuleConstruction ( const edm::ModuleDescription & iDesc );
-      //no use
-      //void preSourceConstruction ( const edm::ModuleDescription& );
-      //void postSourceConstruction ( const edm::ModuleDescription& );
-      //
-      // callback method
+      // Service Callback method
       // assign validity to a new payload object
-      // if in append mode, the service reassign the previous tilltime to 
-      // the current time and assign the current tilltime as
-      //
+      // The meaning of the tillTime argument:
+      // --if in append mode, it is the tillTime you assign to the last 
+      //    payload object in the IOV sequence you append to. 
+      //    If the tillTime argument value goes beyond the IOV 
+      // closing boundary(currently, EndOfTime), an exception is thrown  
+      // --if not in append mode, it is the tillTime you assign to the payload
+      //   object given in the first argument
+      // 
       template<typename T>
 	void newValidityForNewPayload( T* payloadObj, 
 				       unsigned long long tillTime){
@@ -65,26 +58,34 @@ namespace cond{
 	if( m_appendIOV ){
 	  std::map<unsigned long long, std::string>::iterator 
 	    lastIOVit=m_iov->iov.lower_bound(m_endOfTime);
-	  unsigned long long lastIOVval=lastIOVit->first;
+	  unsigned long long closeIOVval=lastIOVit->first;
 	  m_iov->iov.insert( std::make_pair(m_currentTime,lastIOVit->second) );
-	  if( lastIOVval==tillTime ){
-	    m_iov->iov[tillTime]=payloadTok;
+	  if( closeIOVval <= tillTime ){
+	    throw cond::Exception(std::string("PoolDBOutputService::newValidityForNewPayload cannot append beyond IOV boundary"));
 	  }else{
-	    m_iov->iov.insert(std::make_pair(tillTime,payloadTok));
-	    m_iov->iov[tillTime]="";
+	    m_iov->iov[tillTime]=payloadTok;
 	  }
 	}else{
 	  m_iov->iov.insert(std::make_pair(tillTime,payloadTok));
 	}
       }
       //
-      // callback method
+      // Service callback method
       // assign new validity to an existing payload object
       //
       void newValidityForOldPayload( const std::string& payloadObjToken,
 				     unsigned long long tillTime );
-      //time utilities
+      //
+      // Service time utility callback method 
+      // return the infinity value according to the given timetype
+      // It is the IOV closing boundary
+      //
       unsigned long long endOfTime();
+      //
+      // Service time utility callback method 
+      // return the current conditions time value according to the 
+      // given timetype
+      //
       unsigned long long currentTime();
       virtual ~PoolDBOutputService();
     private:
@@ -96,23 +97,17 @@ namespace cond{
       std::string m_connect;
       std::string m_tag;
       std::string m_timetype;
-      //std::string m_clientmodule; //only one client is allowed for the moment
       unsigned int m_connectMode;
-      //unsigned int m_authenticationMethod;
       std::string m_containerName;
       std::string m_customMappingFile;
-      //unsigned int m_commitInterval; 
       bool m_appendIOV;
       std::string m_catalog;
-      //bool m_loadBlobStreamer;
-      //unsigned int m_messageLevel;
       cond::ServiceLoader* m_loader;
       cond::MetaData* m_metadata;
       cond::IOV* m_iov;
       cond::DBSession* m_session;
       cond::DBWriter* m_payloadWriter;
       cond::DBWriter* m_iovWriter;
-      //bool m_transactionOn;
       unsigned long long m_endOfTime;
       unsigned long long m_currentTime;
       std::string m_iovToken; //iov token cache
