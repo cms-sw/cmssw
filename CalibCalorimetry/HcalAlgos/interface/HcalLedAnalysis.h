@@ -67,6 +67,7 @@ private:
   void LedTSHists(int id, const HcalDetId detid, int TS, const HcalQIESample& qie1, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT, float pedestal);
   void GetLedConst(std::map<HcalDetId,std::map<int, LEDBUNCH > > &toolT);
   void LedTrendings(std::map<HcalDetId,std::map<int, LEDBUNCH > > &toolT);
+  float BinsizeCorr(float time);
   std::string m_outputFileROOT;
   std::string m_outputFileText;
   std::ofstream m_outFile;
@@ -76,6 +77,15 @@ private:
   int m_endTS;
   int m_nevtsample;
   int m_hiSaveflag;
+// analysis flag:
+//  m_fitflag = 0  - take mean TS value of averaged pulse shape
+//              1  - take peak from landau fit to averaged pulse shape
+//              2  - take average of mean TS values per event
+//                     (preferred for laser)
+//              3  - take average of peaks from landau fits per event
+//                     (preferred for LED)
+//              4  - 0+1+2+3
+  int m_fitflag;
   
   const HcalQIEShape* m_shape;
   const HcalQIECoder* m_coder;
@@ -96,13 +106,6 @@ private:
   int evt_curr;
   std::vector<bool> state;
 
-// analysis flag:
-//  fitflag = 0  - take mean TS value of averaged pulse shape
-//            1  - take peak from landau fit to averaged pulse shape
-//            2  - take average of mean TS values per event
-//            3  - take average of peaks from landau fits per event
-//            4  - 0+1+2+3
-  static const int fitflag=3;
 };
 
 #endif
