@@ -43,9 +43,9 @@
 //#define MAX_I2O_SM_DATASIZE 261976
 #define MAX_I2O_SM_DATASIZE 32600
 // Not sure if Registry always fit in a single I2O frame??!
-// registry data array size is 262140 - 28 - 116 = 261996 bytes
-//#define MAX_I2O_REGISTRY_DATASIZE 261996
-#define MAX_I2O_REGISTRY_DATASIZE 32620
+// registry data array size is 262140 - 28 - 128 = 261984 bytes
+//#define MAX_I2O_REGISTRY_DATASIZE 261984
+#define MAX_I2O_REGISTRY_DATASIZE 32608
 // we want to define the maximum event data size?
 // max size is 20 x 262088 = about 5MB (used in testI2OReceiver only)
 //#define MAX_I2O_SM_DATAFRAMES 20
@@ -55,6 +55,7 @@
 
 /**
  * Storage Manager Preample Message
+ *   we want the run number if we knew it in this message
  */
 typedef struct _I2O_SM_PREAMBLE_MESSAGE_FRAME {
    I2O_PRIVATE_MESSAGE_FRAME PvtMessageFrame;
@@ -64,6 +65,9 @@ typedef struct _I2O_SM_PREAMBLE_MESSAGE_FRAME {
    unsigned long             hltLocalId;
    unsigned long             hltInstance;
    unsigned long             hltTid;
+   unsigned long             numFrames;
+   unsigned long             frameCount;
+   unsigned long             originalSize;
    char                      data[];
    //char                      data[MAX_I2O_REGISTRY_DATASIZE];
    char* dataPtr()           { return (char*) data; }

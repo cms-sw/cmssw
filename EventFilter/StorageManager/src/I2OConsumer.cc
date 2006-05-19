@@ -169,7 +169,7 @@ namespace edmtest
                      << " max committed size "
                      << worker_->pool_->getMemoryUsage().getCommitted()
                      << " mem size used (bytes) "
-                     << worker_->pool_->getMemoryUsage().getUsed())
+                     << worker_->pool_->getMemoryUsage().getUsed());
       while (worker_->pool_->isLowThresholdExceeded())
       {
         LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
@@ -307,120 +307,182 @@ namespace edmtest
   {
     FDEBUG(10) << "writeI2ORegistry: size = " << size << std::endl;
     // should really get rid of this
-    std::string temp4print(buffer,size);
+    //std::string temp4print(buffer,size);
     //FDEBUG(10) << "writeI2ORegistry data = " << temp4print << std::endl;
-    //size_t msgSizeInBytes = sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME);
-// This is supposed to be the maximum possible size
-    size_t msgSizeInBytes = i2o_max_size_ ;
-    //size_t msgSizeInBytes = max_i2o_registry_datasize_ ;
-    //size_t msgSizeInBytes = sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME) + max_i2o_registry_datasize_ ;
-    FDEBUG(10) << "msgSizeInBytes registry frame size = " << msgSizeInBytes << std::endl;
-    FDEBUG(10) << "I2O_MESSAGE_FRAME size = " << sizeof(I2O_MESSAGE_FRAME) << std::endl;
-    FDEBUG(10) << "I2O_PRIVATE_MESSAGE_FRAME size = " << sizeof(I2O_PRIVATE_MESSAGE_FRAME) << std::endl;
+    // work out the maximum bytes per frame for data
+    unsigned int maxSizePerFrame = max_i2o_registry_datasize_;
+    //unsigned int headerNeededSize = sizeof(MsgCode::Codes)+sizeof(InitMsg::Header);
+    //FDEBUG(10) << "headerNeededSize = " << headerNeededSize << std::endl;
+    //unsigned int maxInMsgDataFragSizeInBytes = maxSizePerFrame - headerNeededSize;
+    //int size4data = size - headerNeededSize;
+    // for the registry we do not need a header for each message fragment
+    // as only the Storage Manager takes care of reassembling frames without this
+    unsigned int maxInMsgDataFragSizeInBytes = maxSizePerFrame;
+    int size4data = size;
+    unsigned int numFramesNeeded = size4data/maxInMsgDataFragSizeInBytes;
+    unsigned int remainder = size4data%maxInMsgDataFragSizeInBytes;
 
-    try
+    if (remainder > 0) numFramesNeeded++;
+    FDEBUG(10) << "I2OConsumer::writeI2ORegistry: number of frames needed = " << numFramesNeeded 
+               << " remainder = " << remainder << std::endl;
+    // We need to set up a chain of frames and send this
+    // chains are sent together once we post the head frame
+    int start = 0;
+    int thisCount = 0;
+    unsigned int thisSize = 0;
+    toolbox::mem::Reference *head = 0;
+    toolbox::mem::Reference *tail = 0;
+
+    for (int i=0; i<(int)numFramesNeeded; i++)
     {
-      FDEBUG(10) << "I2OConsumer: getting memory pool frame" << std::endl;
-      toolbox::mem::Reference* bufRef =
-         toolbox::mem::getMemoryPoolFactory()->getFrame(worker_->pool_,msgSizeInBytes);
-
-      FDEBUG(10) << "I2OConsumer: setting up frame pointers" << std::endl;
-      I2O_MESSAGE_FRAME *stdMsg =
-        (I2O_MESSAGE_FRAME*)bufRef->getDataLocation();
-      I2O_PRIVATE_MESSAGE_FRAME*pvtMsg = (I2O_PRIVATE_MESSAGE_FRAME*)stdMsg;
-      I2O_SM_PREAMBLE_MESSAGE_FRAME *msg =
-        (I2O_SM_PREAMBLE_MESSAGE_FRAME*)stdMsg;
-
-      stdMsg->MessageSize      = msgSizeInBytes >> 2;
+      thisCount = i;
+      if (size != 0)  // should not be writing anything for size = 0!
+      {
+        start = i*maxInMsgDataFragSizeInBytes;
+        if (i < ((int)numFramesNeeded)-1 || remainder == 0)
+          thisSize = maxInMsgDataFragSizeInBytes;
+        else
+          thisSize = remainder;
+      }
+      // This is the actual size to be posted to I2O
+      size_t msgSizeInBytes = i2o_max_size_ ;
+      FDEBUG(10) << "msgSizeInBytes registry frame size = " << msgSizeInBytes << std::endl;
+      FDEBUG(10) << "I2O_MESSAGE_FRAME size = " << sizeof(I2O_MESSAGE_FRAME) << std::endl;
+      FDEBUG(10) << "I2O_PRIVATE_MESSAGE_FRAME size = " << sizeof(I2O_PRIVATE_MESSAGE_FRAME) 
+                 << std::endl;
+      if(thisSize > max_i2o_registry_datasize_) 
+      {
+        // this should never happen!
+        std::cerr << "I2OConsumer::writeI2ORegistry: unexpected error! "
+                  << "Data larger than one frame: abort " << std::endl;
+        return;
+      }
       try
       {
-            stdMsg->InitiatorAddress =
-                  i2o::utils::getAddressMap()->getTid(worker_->app_->getApplicationDescriptor());
-      }
-      catch(xdaq::exception::ApplicationDescriptorNotFound e)
-      {
+        FDEBUG(10) << "I2OConsumer: getting memory pool frame" << std::endl;
+        toolbox::mem::Reference* bufRef =
+           toolbox::mem::getMemoryPoolFactory()->getFrame(worker_->pool_,msgSizeInBytes);
+
+        FDEBUG(10) << "I2OConsumer: setting up frame pointers" << std::endl;
+        I2O_MESSAGE_FRAME *stdMsg =
+          (I2O_MESSAGE_FRAME*)bufRef->getDataLocation();
+        I2O_PRIVATE_MESSAGE_FRAME*pvtMsg = (I2O_PRIVATE_MESSAGE_FRAME*)stdMsg;
+        I2O_SM_PREAMBLE_MESSAGE_FRAME *msg =
+          (I2O_SM_PREAMBLE_MESSAGE_FRAME*)stdMsg;
+
+        stdMsg->MessageSize      = msgSizeInBytes >> 2;
+        try
+        {
+          stdMsg->InitiatorAddress =
+            i2o::utils::getAddressMap()->getTid(worker_->app_->getApplicationDescriptor());
+        }
+        catch(xdaq::exception::ApplicationDescriptorNotFound e)
+        {
           std::cerr << "I2OConsumer::WriteI2ORegistry: exception in getting source tid "
                <<  xcept::stdformat_exception_history(e) << endl;
-      }
-      try
-      {
-        stdMsg->TargetAddress    =
+        }
+        try
+        {
+          stdMsg->TargetAddress    =
                   i2o::utils::getAddressMap()->getTid(worker_->destination_);
-      }
-      catch(xdaq::exception::ApplicationDescriptorNotFound e)
-      {
+        }
+        catch(xdaq::exception::ApplicationDescriptorNotFound e)
+        {
           std::cerr << "I2OConsumer::WriteI2ORegistry: exception in getting destination tid "
                <<  xcept::stdformat_exception_history(e) << endl;
-      }
-
-      stdMsg->Function         = I2O_PRIVATE_MESSAGE;
-      stdMsg->VersionOffset    = 0;
-      stdMsg->MsgFlags         = 0;  // normal message (not multicast)
-
-      pvtMsg->XFunctionCode    = I2O_SM_PREAMBLE;
-      pvtMsg->OrganizationID   = XDAQ_ORGANIZATION_ID;
-      msg->dataSize = size;
-      // Fill in the long form of the source (HLT) identifier
-      std::string url = worker_->app_->getApplicationDescriptor()->getContextDescriptor()->getURL();
-      if(url.size() > MAX_I2O_SM_URLCHARS)
-      {
-        LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
-          "I2OConsumer: Error! Source URL truncated");
-        for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltURL[i] = url[i];
-      } else {
-        //for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltURL[i] = " ";
-        for(int i=0; i< (int)url.size(); i++) msg->hltURL[i] = url[i];
-      } 
-      std::string classname = worker_->app_->getApplicationDescriptor()->getClassName();
-      if(classname.size() > MAX_I2O_SM_URLCHARS)
-      {
-        LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
-          "I2OConsumer: Error! Source ClassName truncated");
-        for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltClassName[i] = classname[i];
-      } else {
-        //for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltClassName[i] = " ";
-        for(int i=0; i< (int)url.size(); i++) msg->hltClassName[i] = classname[i];
-      } 
-      msg->hltLocalId = worker_->app_->getApplicationDescriptor()->getLocalId();
-      msg->hltInstance = worker_->app_->getApplicationDescriptor()->getInstance();
-      msg->hltTid = i2o::utils::getAddressMap()->getTid(worker_->app_->getApplicationDescriptor());
-
-      for (unsigned int i=0; i<size; i++){
-        msg->dataPtr()[i] = *(buffer+i);
-        //msg->data[i] = *(buffer+i);
-      }
-      // should really get rid of this
-      //std::string temp4print(msg->data,size);
-      std::string temp4print(msg->dataPtr(),size);
-      //FDEBUG(10) << "I2OConsumer::WriteI2ORegistry: string msg_>data = " 
-      //           << temp4print << std::endl;
-
-      bufRef->setDataSize(msgSizeInBytes);
-
-      FDEBUG(10) << "I2OConsumer::WriteI2ORegistry: checking if destination exist" << std::endl;
-      if(worker_->destination_ !=0)
-        {
-          FDEBUG(10) << "I2OConsumer::WriteI2ORegistry: posting registry frame " << std::endl;
-          worker_->app_->getApplicationContext()->postFrame(bufRef,
-                         worker_->app_->getApplicationDescriptor(),worker_->destination_);
-          // for performance measurements only using global variable!
-          addMyXDAQMeasurement((unsigned long)msgSizeInBytes);
         }
-      else
-        std::cerr << "I2OConsumer::WriteI2ORegistry: No " << worker_->destinationName_
-                  << "destination in configuration" << std::endl;
-    }
-    catch(toolbox::mem::exception::Exception e)
+
+        stdMsg->Function         = I2O_PRIVATE_MESSAGE;
+        stdMsg->VersionOffset    = 0;
+        stdMsg->MsgFlags         = 0;  // normal message (not multicast)
+
+        pvtMsg->XFunctionCode    = I2O_SM_PREAMBLE;
+        pvtMsg->OrganizationID   = XDAQ_ORGANIZATION_ID;
+        //msg->dataSize = size;
+        //msg->dataSize = thisSize+headerNeededSize;
+        msg->dataSize = thisSize;
+        // Fill in the long form of the source (HLT) identifier
+        std::string url = worker_->app_->getApplicationDescriptor()->getContextDescriptor()->getURL();
+        if(url.size() > MAX_I2O_SM_URLCHARS)
+        {
+          LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
+            "I2OConsumer: Error! Source URL truncated");
+          for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltURL[i] = url[i];
+        } else {
+          //for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltURL[i] = " ";
+          for(int i=0; i< (int)url.size(); i++) msg->hltURL[i] = url[i];
+        } 
+        std::string classname = worker_->app_->getApplicationDescriptor()->getClassName();
+        if(classname.size() > MAX_I2O_SM_URLCHARS)
+        {
+          LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
+            "I2OConsumer: Error! Source ClassName truncated");
+          for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltClassName[i] = classname[i];
+        } else {
+          //for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltClassName[i] = " ";
+          for(int i=0; i< (int)url.size(); i++) msg->hltClassName[i] = classname[i];
+        } 
+        msg->hltLocalId = worker_->app_->getApplicationDescriptor()->getLocalId();
+        msg->hltInstance = worker_->app_->getApplicationDescriptor()->getInstance();
+        msg->hltTid = i2o::utils::getAddressMap()->getTid(worker_->app_->getApplicationDescriptor());
+        msg->numFrames = numFramesNeeded;
+        msg->frameCount = thisCount;
+        msg->originalSize = size;
+        // make the chain
+        if(thisCount == 0)  // This is the first frame
+        {
+          head = bufRef;
+          tail = bufRef;
+        }
+        else
+        {
+          tail->setNextReference(bufRef); // set nextref in last frame to be this one
+          tail = bufRef;
+        }
+        // fill in the data for this fragment
+        if(thisSize != 0)
+        {
+          for (unsigned int i=0; i<thisSize; i++){
+            msg->dataPtr()[i] = *(buffer+i + start);
+          }
+          // should really get rid of this
+          //std::string temp4print(msg->dataPtr(),size);
+          //FDEBUG(10) << "I2OConsumer::WriteI2ORegistry: string msg_>data = " 
+          //           << temp4print << std::endl;
+        } else {
+          std::cout << "I2OConsumer::writeI2ORegistry: Error! Sending zero size data!?" 
+                    << std::endl;
+        }
+        bufRef->setDataSize(msgSizeInBytes);
+        }
+      catch(toolbox::mem::exception::Exception e)
+      {
+        std::cout << "I2OConsumer::WriteI2ORegistry::exception in allocating frame "
+             <<  xcept::stdformat_exception_history(e) << endl;
+        return;
+      }
+      catch(...)
+      { 
+        std::cout << "I2OConsumer::WriteI2ORegistry: unknown exception in allocating frame " << endl;
+        return;
+      } // end try
+    } // end loop over frame fragments
+
+    // don't postFrame until all frames in chain are set up and there was no error!
+    // need to make a test here later
+    FDEBUG(10) << "I2OConsumer::WriteI2ORegistry: checking if destination exist" << std::endl;
+    if(worker_->destination_ !=0)
     {
-      std::cout << "I2OConsumer::WriteI2ORegistry::exception in allocating frame "
-           <<  xcept::stdformat_exception_history(e) << endl;
-      return;
+      FDEBUG(10) << "I2OConsumer::WriteI2ORegistry: posting registry frame " << std::endl;
+      worker_->app_->getApplicationContext()->postFrame(head,
+                   worker_->app_->getApplicationDescriptor(),worker_->destination_);
+      // for performance measurements only using global variable!
+      //addMyXDAQMeasurement((unsigned long)msgSizeInBytes);
+      addMyXDAQMeasurement((unsigned long)(numFramesNeeded * i2o_max_size_));
     }
-    catch(...)
-    { 
-      std::cout << "I2OConsumer::WriteI2ORegistry: unknown exception in allocating frame " << endl;
-      return;
-    }
+    else
+      std::cerr << "I2OConsumer::WriteI2ORegistry: No " << worker_->destinationName_
+                << "destination in configuration" << std::endl;
   }
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
