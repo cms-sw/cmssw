@@ -92,7 +92,7 @@ bool  CountAndLimit::add()  {
 
   if ( limit == 0 ) return false;        // Zero limit - never react to this
   if ( (limit < 0)  || ( n <= limit )) {
-    skipped == 0;
+    skipped = 0;
     return true;
   }
   
@@ -103,7 +103,7 @@ bool  CountAndLimit::add()  {
     return false;
   }  
   if ( r == 1 )   {	// Exactly twice limit - react
-    skipped == 0;
+    skipped = 0;
     return true;
   }
 
@@ -113,7 +113,7 @@ bool  CountAndLimit::add()  {
   }
   // If you never get an odd number till one, r is 2**n so react
   
-  skipped == 0;
+  skipped = 0;
   return true;
 
 }  // add()
