@@ -7,10 +7,11 @@ using namespace std;
 namespace edm
 {
   HLTPrescaler::HLTPrescaler(edm::ParameterSet const& ps):
-    n_(ps.getParameter<int>("prescaleFactor")),
+    b_(ps.getParameter<bool>("makeFilterObject")),
+    n_(ps.getParameter<int >("prescaleFactor"  )),
     count_()
   {
-    produces<reco::HLTFilterObjectWithRefs>();
+    if (b_) produces<reco::HLTFilterObjectWithRefs>();
   }
     
   HLTPrescaler::~HLTPrescaler()
@@ -24,10 +25,12 @@ namespace edm
     ++count_;
     bool accept(count_%n_ == 0);
 
-    // filter object
-    auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs);
-    filterproduct->setAccept(accept);
-    e.put(filterproduct);
+    // place filter object if requested
+    if (b_) {
+      auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs);
+      filterproduct->setAccept(accept);
+      e.put(filterproduct);
+    }
 
     return accept;
 

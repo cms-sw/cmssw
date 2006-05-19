@@ -16,6 +16,7 @@ namespace edm
     virtual bool filter(edm::Event& e, edm::EventSetup const& c);
 
   private:
+    bool         b_;     // to put a filterobject into the event?
     unsigned int n_;     // accept one in n_
     unsigned int count_;
   };
