@@ -232,7 +232,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
   int maxPhiL = 1<<CSCBitWidths::kLocalPhiDataBitWidth;
   const double binPhiL = static_cast<double>(maxPhiL)/(2.*CSCConstants::MAX_NUM_STRIPS);
 
-  if(cscid < CSCTriggerNumbering::minTriggerCscId() || cscid > CSCTriggerNumbering::maxTriggerCscId())
+  if(static_cast<unsigned>(cscid) < CSCTriggerNumbering::minTriggerCscId() || static_cast<unsigned>(cscid) > CSCTriggerNumbering::maxTriggerCscId())
     {
       LogDebug("CSCSectorReceiverLUT|getGlobalPhiValue") << " warning: cscId " << cscid
 							 << " is out of bounds (1-" << CSCTriggerNumbering::maxTriggerCscId();
@@ -259,14 +259,13 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 	  layergeom = const_cast<CSCLayerGeometry*>(thechamber->layer(4)->geometry());
 	  thelayer = const_cast<CSCLayer*>(thechamber->layer(4));
 	  const int nStrips = layergeom->numberOfStrips();
-	  const int nWireGroups = layergeom->numberOfWireGroups();
 	  // PhiL is the strip number converted into some units between 0 and
 	  // 1023.  When we did the conversion in fillLocalPhiTable(), we did
 	  // not know for which chamber we do it (and, therefore, how many strips
 	  // it has), and always used the maximum possible number of strips
 	  // per chamber, MAX_NUM_STRIPS=80.  Now, since we know the chamber id
 	  // and how many strips the chamber has, we can re-adjust the scale.
-	  const double scale = static_cast<double>(CSCConstants::MAX_NUM_STRIPS)/nStrips;
+	  //const double scale = static_cast<double>(CSCConstants::MAX_NUM_STRIPS)/nStrips;
 
 	  int strip = 0, halfstrip = 0;
 
@@ -318,7 +317,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 	      rightEdge = phi_f + hsWidth_f;
 	    }
 	  if (fabs(phi_f - phi_l) >= M_PI) {rightEdge += 2.*M_PI;}
-	  double chamberWidth = (rightEdge - leftEdge);
+	  //double chamberWidth = (rightEdge - leftEdge);
 
 	  // Chamber offset, relative to the edge of the sector.
 	  double chamberOffset = leftEdge - sectorOffset;
