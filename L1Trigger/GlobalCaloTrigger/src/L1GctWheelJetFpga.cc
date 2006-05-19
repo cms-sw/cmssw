@@ -115,7 +115,7 @@ void L1GctWheelJetFpga::setInputJet(int i, L1GctJetCand jet)
   {
     throw cms::Exception("RangeError")
     << "In L1GctWheelJetFpga, Jet Candidate " << i << " is outside input range of 0 to "
-    << (MAX_LEAF_CARDS-1) << "\n";
+    << (MAX_JETS_IN-1) << "\n";
   }
 }
 
