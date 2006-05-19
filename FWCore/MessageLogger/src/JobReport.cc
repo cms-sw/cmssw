@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.1 2006/05/02 02:39:06 wmtan Exp $
+// $Id: JobReport.cc,v 1.3 2006/05/19 18:50:11 evansde Exp $
 //
 
 
@@ -309,9 +309,9 @@ namespace edm
   			 std::string const& longDesc)
   {
    std::ostringstream msg;
-   msg << "<FramworkError ExitStatus=\"1\" Type=\"" << shortDesc <<"\" >\n";
+   msg << "<FrameworkError ExitStatus=\"1\" Type=\"" << shortDesc <<"\" >\n";
    msg << "  " << longDesc << "\n";
-   msg << "</FramworkError>\n";
+   msg << "</FrameworkError>\n";
    LogError("FwkJob") << msg.str();
   }
    
@@ -323,10 +323,10 @@ namespace edm
 			 int const& exitCode)
   {
     std::ostringstream msg;
-    msg << "<FramworkError ExitStatus=\""<< exitCode 
+    msg << "<FrameworkError ExitStatus=\""<< exitCode 
     	<<"\" Type=\"" << shortDesc <<"\" >\n";
     msg << "  " << longDesc << "\n";
-    msg << "</FramworkError>\n";
+    msg << "</FrameworkError>\n";
     LogError("FwkJob") << msg.str();
   }
 
