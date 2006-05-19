@@ -4,15 +4,15 @@
 /** \class MuonTrajectoryBuilder
  *  Base class for the Muon reco Trajectory Builder 
  *
- *  $Date: 2006/03/21 13:29:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/23 15:15:37 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include <vector>
 
-namespace edm {class ParameterSet;}
+namespace edm {class ParameterSet; class EventSetup;}
 class TrajectorySeed;
 
 
@@ -33,9 +33,13 @@ class MuonTrajectoryBuilder {
       
   virtual TrajectoryContainer trajectories(const TrajectorySeed&) = 0;
 
+  /// Pass the Event Setup to the algo at each event
+  virtual void setES(const edm::EventSetup& setup) = 0;
+
  private:
   
  protected:
+  
 
 };
 #endif

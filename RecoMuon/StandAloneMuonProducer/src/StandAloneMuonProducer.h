@@ -9,7 +9,7 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/03/21 13:24:09 $
+ *   $Date: 2006/04/26 07:00:55 $
  *   $Revision: 1.1 $
  *
  *   \author  R.Bellan - INFN TO
@@ -36,9 +36,11 @@ class StandAloneMuonProducer : public edm::EDProducer {
   // ex virtual void reconstruct();
   
  private:
-    
+  
+  // MuonSeed Collection Label
+  std::string theMuonSeedLabel;
+  
   MuonTrackFinder* theTrackFinder; //It isn't the same as in ORCA
- 
 };
 
 #endif

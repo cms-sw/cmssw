@@ -6,8 +6,8 @@
  *   starting from internal seeds (muon track segments).
  *
  *
- *   $Date: 2006/04/13 15:30:02 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/05/17 13:05:13 $
+ *   $Revision: 1.2 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -38,13 +38,16 @@ using namespace edm;
 GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet){
 
   // Parameter set for the Builder
-  ParameterSet GLB_pSet = parameterSet.getParameter<ParameterSet>("GLBTrajBuilder");
+  ParameterSet GLB_pSet = parameterSet.getParameter<ParameterSet>("GLBTrajBuilderParameters");
+
+  // MuonSeed Collection Label
+  theSeedCollectionLabel = parameterSet.getParameter<string>("MuonSeedCollectionLabel");
 
   // instantiate the concrete trajectory builder in the Track Finder
   theTrackFinder = new MuonTrackFinder(new GlobalMuonTrajectoryBuilder(GLB_pSet));
 
+  produces<reco::TrackCollection>();
 
-  produces<reco::TrackCollection>();  //FIXME fancy-name  
 }
   
 /// destructor
@@ -56,18 +59,16 @@ GlobalMuonProducer::~GlobalMuonProducer(){
 /// reconstruct muons
 void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup){
   
-  // ##### FIXME fancy-names  #####
-
   // Take the seeds container
   Handle<TrajectorySeedCollection> seeds; 
-  event.getByLabel("MuonSeedsForGlobal",seeds);
+  event.getByLabel(theSeedCollectionLabel,seeds);
 
+  // Percolate the event setup
+  theTrackFinder->setES(eventSetup);
+  
   // Reconstruct 
   std::auto_ptr<reco::TrackCollection> recMuons
-    = theTrackFinder->reconstruct(seeds,eventSetup);
-
-  // the best would be 
-  //   = theTrackFinder->reconstruct(seeds);
+    = theTrackFinder->reconstruct(seeds);
   
   // Load the RecMuon Container in the Event
   event.put(recMuons);

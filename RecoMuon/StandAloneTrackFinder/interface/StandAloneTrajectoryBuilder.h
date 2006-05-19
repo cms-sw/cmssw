@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/03/23 15:15:36 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/18 08:37:34 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -16,13 +16,16 @@ class StandAloneMuonRefitter;
 class StandAloneMuonBackwardFilter;
 class StandAloneMuonSmoother;
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 namespace edm {class ParameterSet;}
 
 class StandAloneMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
 
 public:
-
+    
   /** Constructor with Parameter set */
   StandAloneMuonTrajectoryBuilder(const edm::ParameterSet& par);
           
@@ -37,6 +40,12 @@ public:
   StandAloneMuonRefitter* refitter() const {return theRefitter;}
   StandAloneMuonBackwardFilter* bwfilter() const {return theBWFilter;}
   StandAloneMuonSmoother* smoother() const {return theSmoother;}
+
+  // Pass the Event Setup to the algo at each event
+  virtual void setES(const edm::EventSetup& setup);
+
+
+ protected:
   
  private:
   
@@ -44,8 +53,9 @@ public:
   StandAloneMuonBackwardFilter* theBWFilter;
   StandAloneMuonSmoother* theSmoother;
 
+  double theMaxEta;
 
-protected:
-
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  edm::ESHandle<MagneticField> theMGField;
 };
 #endif

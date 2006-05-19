@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/03/24 13:42:51 $
- *   $Revision: 1.1 $
+ *   $Date: 2006/05/17 13:05:14 $
+ *   $Revision: 1.2 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -40,10 +40,13 @@ using namespace edm;
 L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
 
   // Parameter set for the Builder
-  ParameterSet STA_pSet = parameterSet.getParameter<ParameterSet>("STATrajBuilder");
+  ParameterSet L2_pSet = parameterSet.getParameter<ParameterSet>("L2TrajBuilderParameters");
+
+  // MuonSeed Collection Label
+  theSeedCollectionLabel = parameterSet.getParameter<string>("MuonSeedCollectionLabel");
 
   // instantiate the concrete trajectory builder in the Track Finder
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(STA_pSet));
+  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(L2_pSet));
 
 
   produces<reco::TrackCollection>();
@@ -58,18 +61,16 @@ L2MuonProducer::~L2MuonProducer(){
 /// reconstruct muons
 void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
   
-  // ##### FIXME fancy-names  #####
-
   // Take the seeds container
   Handle<TrajectorySeedCollection> seeds; 
-  event.getByLabel("MuonSeedsForL2",seeds);
+  event.getByLabel(theSeedCollectionLabel,seeds);
 
+  // Percolate the event setup
+  theTrackFinder->setES(eventSetup);
+  
   // Reconstruct 
   std::auto_ptr<reco::TrackCollection> recMuons
-    = theTrackFinder->reconstruct(seeds,eventSetup);
-
-  // the best would be 
-  //   = theTrackFinder->reconstruct(seeds);
+    = theTrackFinder->reconstruct(seeds);
   
   // Load the RecMuon Container in the Event
   event.put(recMuons);
