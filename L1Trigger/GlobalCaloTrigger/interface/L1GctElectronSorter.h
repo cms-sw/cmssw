@@ -42,8 +42,6 @@ public:
   ///
   /// get output candidates
   inline std::vector<L1GctEmCand> OutputCands() { return m_outputCands; }
-  ///Prints size of vectors and values of pointers and internal variables
-  void print();	
 
 private:
 

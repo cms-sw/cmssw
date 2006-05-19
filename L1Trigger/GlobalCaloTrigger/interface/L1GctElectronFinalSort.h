@@ -39,8 +39,7 @@ public:
 	///
 	/// return output data
 	inline std::vector<L1GctEmCand> OutputCands() { return m_outputCands; }
-	///Prints size of vectors and values of pointers and internal variables
-	void print();
+
  private:
 
 	// comparison operator for sort

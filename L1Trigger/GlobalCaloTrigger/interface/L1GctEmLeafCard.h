@@ -39,8 +39,7 @@ public:
 	///
 	/// get the output candidates
 	std::vector<L1GctEmCand> getOutputNonIsoEmCands(int fpga);
-	///Prints size of vectors and values of pointers and internal variables
-	void print();
+
 private:
 	///
 	/// card ID
