@@ -92,7 +92,7 @@ void CSCAFEBdacAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSe
 	 for (i_chamber=0; i_chamber<NChambers; i_chamber++) {//loop over all DMBs
 	   
 	   for(i_layer = 1; i_layer <= 6; ++i_layer) {//loop over all layers in chambers
-	     int wire[64]=0;
+	     //int wire[64]=0;
 	     
 	     std::vector<CSCWireDigi> wire = cscData[i_chamber].wireDigis(i_layer) ;
 	     const CSCDMBHeader &thisDMBheader = cscData[i_chamber].dmbHeader();
