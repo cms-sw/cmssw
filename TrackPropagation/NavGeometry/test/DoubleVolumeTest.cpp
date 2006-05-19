@@ -8,10 +8,16 @@
 
 #include "TrackPropagation/NavGeometry/test/stubs/RandomPlaneGeneratorByAxis.h"
 #include "TrackPropagation/NavGeometry/test/stubs/UniformMomentumGenerator.h"
+#include "TrackPropagation/RungeKutta/interface/RKPropagatorInS.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TFile.h"
+
 
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/VolumeGeometry/interface/MagneticFieldProvider.h"
 #include <vector>
 
 using namespace std;
@@ -20,6 +26,23 @@ class MyMagneticField : public MagneticField
 {
  public:
   virtual GlobalVector inTesla ( const GlobalPoint& ) const {return GlobalVector(0,0,4);}
+};
+
+class ConstantMagneticFieldProvider4T : public MagneticFieldProvider<float> {
+public:
+  virtual LocalVectorType valueInTesla( const LocalPointType& p) const {return LocalVectorType(0,0,4.);}
+};
+
+class ConstantMagVolume4T : public MagVolume {
+public:
+  ConstantMagVolume4T( const PositionType& pos, const RotationType& rot, 
+		       DDSolidShape shape, const MagneticFieldProvider<float> * mfp) :
+    MagVolume( pos, rot, shape, mfp) {}
+ 
+  virtual bool inside( const GlobalPoint& gp, double tolerance=0.) const {return true;}
+
+  /// Access to volume faces
+  virtual std::vector<VolumeSide> faces() const {return std::vector<VolumeSide>();}
 };
 
 
@@ -42,10 +65,31 @@ SurfaceOrientation::Side oppositeSide( SurfaceOrientation::Side side = SurfaceOr
 
 int main() 
 {
+
+  
+  TFile* theFile;
+  TH1F* HistDx;
+  TH1F* HistDy;
+  TH1F* HistDz;
+  TH1F* HistDp;
+  TH2F* HistXY;
+  TH2F* HistXY2;
+
+  theFile = new TFile("DoubleVolumeTest.root","RECREATE");
+  theFile->SetCompressionLevel(2);
+  HistDx = new TH1F("Dx","",500,-.01,.01);
+  HistDy = new TH1F("Dy","",500,-.01,.01);
+  HistDz = new TH1F("Dz","",500,-.01,.01);
+  HistDp = new TH1F("Dp","",500,-.01,.01);
+  HistXY = new TH2F("XY","",500,-15.,15.,500,-15.,35.);
+  HistXY2 = new TH2F("XY2","",500,-15.,15.,500,-15.,35.);
+  //  HistNsuccesRK = new TH1F("DE","",,-1.,1.);
+  //  HistNsuccesOld = new TH1F("DE","",50,-1.,1.);
+
     typedef TrajectoryStateOnSurface  TSOS;
 
     RandomPlaneGeneratorByAxis planeGenerator;
-    planeGenerator.setTilt(0.00);
+    planeGenerator.setTilt(0.1);
 
     GlobalVector globalX(1,0,0);
     GlobalVector globalY(0,1,0);
@@ -142,6 +186,11 @@ int main()
     }
     
     try {
+        ConstantMagneticFieldProvider4T theProvider;
+	ConstantMagVolume4T theMagVolume( MagVolume::PositionType(0,0,0), MagVolume::RotationType(),
+				    ddshapeless, &theProvider);
+
+
 	NavVolume6Faces vol( volumePos, volumeRot, ddshapeless, MyNavVolumeSides, 0);
 	NavVolume6Faces vol2( volumePos2, volumeRot, ddshapeless, MyNavVolumeSides2, 0);
 	
@@ -154,7 +203,12 @@ int main()
 	MyMagneticField  MyTestField;
 	AnalyticalPropagator propagator ( &MyTestField, alongMomentum );
 
-	for (int i=0; i<200; i++) {
+	// Propagator* oldPropagator = new RKPropagatorInS( theMagVolume, alongMomentum);
+       	RKPropagatorInS RKprop ( theMagVolume, alongMomentum );
+
+
+
+	for (int i=0; i<1000; i++) {
 	    GlobalVector gStartMomentum( momentumGenerator());
 
 	    cout << "************* NEXT TEST 'EVENT' *****" << endl;
@@ -169,7 +223,8 @@ int main()
 	    FreeTrajectoryState fts(gtp);
 	    TSOS startingState( fts, sp);
 
-	    TSOS CurrentTestState = startingState;
+	    TSOS CurrentRKState = startingState;
+	    TSOS FinalAnalyticalState = startingState;
 	    
 	    //
 	    ////
@@ -177,28 +232,38 @@ int main()
 	    ////
 	    //
 
-	    cout << "Starting position and momentum: " << CurrentTestState.globalPosition() << ", " << CurrentTestState.globalMomentum() << endl;	
 	    //
 	    ///	    VolumeCrossReturnType is std::pair<const NavVolume*, TrajectoryStateOnSurface> 
 	    //
 
-	    NavVolume::VolumeCrossReturnType VolumeCrossResult = vol.crossToNextVolume(startingState, propagator);
+
+
+	    NavVolume::VolumeCrossReturnType VolumeCrossResult = vol.crossToNextVolume(startingState, RKprop);
+
+	    
+	    CurrentRKState = VolumeCrossResult.second;
+	    HistXY->Fill(CurrentRKState.globalPosition().x(),CurrentRKState.globalPosition().y());
+
 	    if (VolumeCrossResult.first != 0) {
 	      cout << "YES !!! Found next volume with position: " << VolumeCrossResult.first->position() << endl;
 	      cout << "Do a second Iteration step !" << endl;
 
-	      NavVolume::VolumeCrossReturnType VolumeCrossResult2 = VolumeCrossResult.first->crossToNextVolume(VolumeCrossResult.second, propagator);
+	      NavVolume::VolumeCrossReturnType VolumeCrossResult2 = VolumeCrossResult.first->crossToNextVolume(VolumeCrossResult.second, RKprop);
 	      if (VolumeCrossResult2.first != 0) {
 		cout << "crossToNextVolume: Succeeded to find THIRD volume with pos, mom, " << 
 		  VolumeCrossResult2.second.globalPosition() << ", " << VolumeCrossResult2.second.globalMomentum() << endl;
 	      } else {
 		cout << "crossToNextVolume: Failed to find THIRD volume " << endl;
 	      }
+	      CurrentRKState = VolumeCrossResult2.second;	      
+	      HistXY2->Fill(CurrentRKState.globalPosition().x(),CurrentRKState.globalPosition().y());
 	    } else {
 	      cout << "crossToNextVolume: NO !!!!!!!! Nothing on other side" << endl;
 	    }
 	    
 	    cout << " - - - - - - That was crossToNextVolume, now compare to conventional result: " << endl;
+
+
 
 	    //
 	    ////
@@ -226,6 +291,7 @@ int main()
 
 		    cout << "Looking for next Volume on other side of surface with center " << isur->surface().surface().position() << endl;
 		    startingState = state;
+		    FinalAnalyticalState = state;
 		    exitSurface = &( isur->surface().surface() );
 		    break;
 		}
@@ -259,7 +325,7 @@ int main()
 		  nextVol = isur->surface().nextVolume(state.localPosition(),oppositeSide(isur->side()));
 		  
 		  cout << "Looking for ** NEXT ** next Volume on other side of surface with center " << isur->surface().surface().position() << endl;
-		  //		  startingState = state;
+		  FinalAnalyticalState = state;
 		  break;
 		}
 		else {
@@ -273,16 +339,29 @@ int main()
 	      }
 	    } else {
 	      cout << "NO !!!!!!!! Nothing on other side" << endl;
+
+	      
 	    }
 	    
-	}
+	    HistDx->Fill(1000.*(CurrentRKState.globalPosition().x()-FinalAnalyticalState.globalPosition().x()));
+	    HistDy->Fill(1000.*(CurrentRKState.globalPosition().y()-FinalAnalyticalState.globalPosition().y()));
+	    HistDz->Fill(1000.*(CurrentRKState.globalPosition().z()-FinalAnalyticalState.globalPosition().z()));
+	    HistDp->Fill(1000.*(CurrentRKState.globalMomentum().mag()-FinalAnalyticalState.globalMomentum().mag()));
 
+
+	}
     }
     catch (std::exception& ex) {
 	cout << "Oops, got an exception: " << ex.what() << endl;
 	return 1;
     }
-
-    
+    HistDx->Write();
+    HistDy->Write();
+    HistDz->Write();
+    HistDp->Write();
+    HistXY->Write();
+    HistXY2->Write();
+    //    HistNsuccesOld->Write();
+    //    HistNsuccesRK->Write();
 }
 
