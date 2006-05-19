@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/04 06:54:26 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/17 10:34:24 $
+ *  $Revision: 1.7 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -168,7 +168,7 @@ int DTTtrig::setSLTtrig( int   wheelId,
   data. sectorId =  sectorId;
   data.     slId =      slId;
   data.    tTrig =     tTrig;
-  data.    tTrig =     tTrms;
+  data.    tTrms =     tTrms;
 
   slData.push_back( data );
 
