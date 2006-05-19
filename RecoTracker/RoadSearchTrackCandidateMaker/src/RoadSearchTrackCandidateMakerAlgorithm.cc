@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/04/10 22:36:15 $
-// $Revision: 1.5 $
+// $Author: burkett $
+// $Date: 2006/05/16 15:12:54 $
+// $Revision: 1.6 $
 //
 
 #include <vector>
@@ -115,8 +115,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     bool valid = true;
     if (recHits.begin()->geographicalId().rawId() != state.detId()) {
       AnalyticalPropagator prop(magField,anyDirection);
-      const GeomDetUnit* det = geom->idToDetUnit(recHits.begin()->geographicalId());
-      const GeomDetUnit* detState = geom->idToDetUnit(DetId(state.detId())  );
+      const GeomDet* det = geom->idToDet(recHits.begin()->geographicalId());
+      const GeomDet* detState = geom->idToDet(DetId(state.detId())  );
       
       TrajectoryStateTransform transformer;
       TrajectoryStateOnSurface before(transformer.transientState(state,  &(detState->surface()), magField));
@@ -128,8 +128,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       state = *(transformer.persistentState(firstState,recHits.begin()->geographicalId().rawId()));
     }
     else{
-      const GeomDetUnit* det = geom->idToDetUnit(recHits.begin()->geographicalId());
-      const GeomDetUnit* detState = geom->idToDetUnit(DetId(state.detId())  );
+      const GeomDet* det = geom->idToDet(recHits.begin()->geographicalId());
+      const GeomDet* detState = geom->idToDet(DetId(state.detId())  );
       TrajectoryStateTransform transformer;
       TrajectoryStateOnSurface start(transformer.transientState(state,  &(detState->surface()), magField));
       firstState = start;
