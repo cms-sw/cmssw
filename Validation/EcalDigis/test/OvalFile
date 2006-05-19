@@ -4,6 +4,11 @@
 
 <environment name=testsuite>
 
-<executable name=testsuite.csh>validation suite</executable>
+<executable name=Photon_E30GeV_all_testsuite.csh>validation suite</executable>
+<executable name=Photon_E30GeV_barrel_testsuite.csh>validation suite</executable>
+<executable name=Photon_E30GeV_endcap_testsuite.csh>validation suite</executable>
+<executable name=Photon_E200GeV_all_testsuite.csh>validation suite</executable>
+<executable name=Photon_E400GeV_all_testsuite.csh>validation suite</executable>
+<executable name=Pion_Pt60GeV_all_testsuite.csh>validation suite</executable>
 
 </environment>
