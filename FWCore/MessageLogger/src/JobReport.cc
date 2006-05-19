@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.3 2006/04/29 21:26:45 evansde Exp $
+// $Id: JobReport.cc,v 1.1 2006/05/02 02:39:06 wmtan Exp $
 //
 
 
@@ -171,24 +171,24 @@ namespace edm
     
     /*
      *  Flush all open files to logger in event of a problem.
-     */
+     *  Called from JobReport dtor to flush any remaining open files
+     */ 
     void JobReport::JobReportImpl::flushFiles(void) {
-	std::vector<JobReport::InputFile>::iterator ipos;
-	std::vector<JobReport::OutputFile>::iterator opos;
-
-	for (ipos = inputFiles_.begin(); ipos != inputFiles_.end(); ++ipos) {
-	    if (!(ipos->fileHasBeenClosed)) {
-	      writeInputFile(*ipos);
-	    }
+      std::vector<JobReport::InputFile>::iterator ipos;
+      std::vector<JobReport::OutputFile>::iterator opos;
+      for (ipos = inputFiles_.begin(); ipos != inputFiles_.end(); ++ipos) {
+          if (!(ipos->fileHasBeenClosed)) {
+            writeInputFile(*ipos);
+          }
+      }
+      for (opos = outputFiles_.begin(); opos != outputFiles_.end(); ++opos) {
+	if (!(opos->fileHasBeenClosed)) {
+	  writeOutputFile(*opos);
 	}
-	for (opos = outputFiles_.begin(); opos != outputFiles_.end(); ++opos) {
-	    if (!(opos->fileHasBeenClosed)) {
-	      writeOutputFile(*opos);
-	    }
-	}
+      }
     };
 
-    JobReport::~JobReport() {}
+  JobReport::~JobReport() {impl_->flushFiles();}
 
     JobReport::JobReport() :
       impl_(new JobReportImpl) {
@@ -303,4 +303,33 @@ namespace edm
       msg << " Event=\"" << id.event() << "\" </SkippedEvent>\n";
       LogInfo("FwkJob") << msg.str();
     }
+
+  void
+  JobReport::reportError(std::string const& shortDesc,
+  			 std::string const& longDesc)
+  {
+   std::ostringstream msg;
+   msg << "<FramworkError ExitStatus=1 Type=\"" << shortDesc <<"\" >\n";
+   msg << "  " << longDesc << "\n";
+   msg << "</FramworkError>\n";
+   LogError("FwkJob") << msg.str();
+  }
+   
+
+
+  void 
+  JobReport::reportError(std::string const& shortDesc,
+			 std::string const& longDesc,
+			 int const& exitCode)
+  {
+    std::ostringstream msg;
+    msg << "<FramworkError ExitStatus="<< exitCode 
+    	<<" Type=\"" << shortDesc <<"\" >\n";
+    msg << "  " << longDesc << "\n";
+    msg << "</FramworkError>\n";
+    LogError("FwkJob") << msg.str();
+  }
+
+  
+
 } //namspace edm
