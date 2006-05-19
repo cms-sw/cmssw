@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/04/03 22:39:12 $
-// $Revision: 1.12 $
+// $Author: burkett $
+// $Date: 2006/05/14 23:50:39 $
+// $Revision: 1.13 $
 //
 
 #include <vector>
@@ -163,7 +163,9 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
       const TrackingRecHit *outerSeedRingHit = &(*(--(seed->recHits().second)));
 
       // get RoadSeed from Roads
-      const Roads::RoadSeed *roadSeed = roads->getRoadSeed(innerSeedRingHit->geographicalId(),outerSeedRingHit->geographicalId());
+      DetId mono(innerSeedRingHit->geographicalId().rawId()+1);
+
+      const Roads::RoadSeed *roadSeed = roads->getRoadSeed(mono,outerSeedRingHit->geographicalId());
       const Roads::type roadType = roads->getRoadType(roadSeed);
 
       // get global positions of the hits
