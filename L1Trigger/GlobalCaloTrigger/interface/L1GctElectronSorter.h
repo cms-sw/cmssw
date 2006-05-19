@@ -16,8 +16,8 @@ class L1GctSourceCard;
 class L1GctElectronSorter : public L1GctProcessor
 {
 public:
-  friend std::ostream& operator<<(std::ostream& s,const L1GctElectronSorter& card);   
- ///
+  
+  ///
   /// constructor; set type (isolated or non-isolated)
   L1GctElectronSorter(int id, bool iso=true);
   ~L1GctElectronSorter();
@@ -42,7 +42,7 @@ public:
   ///
   /// get output candidates
   inline std::vector<L1GctEmCand> OutputCands() { return m_outputCands; }
-
+  friend std::ostream& operator<<(std::ostream& s,const L1GctElectronSorter& card);  
 private:
 
   // comparison operator for sort
@@ -69,5 +69,5 @@ private:
   
 };
 
-
+std::ostream& operator<<(std::ostream& s,const L1GctElectronSorter& card); 
 #endif /*L1GCTELECTRONSORTER_H_*/

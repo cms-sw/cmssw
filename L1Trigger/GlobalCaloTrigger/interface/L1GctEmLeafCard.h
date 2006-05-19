@@ -53,5 +53,5 @@ private:
       
 };
 
-
+std::ostream& operator<<(std::ostream& s,const L1GctEmLeafCard& card);
 #endif /*L1GCTELECTRONLEAFCARD_H_*/

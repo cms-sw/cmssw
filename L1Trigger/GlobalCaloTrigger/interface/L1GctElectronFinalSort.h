@@ -15,8 +15,9 @@ class L1GctEmLeafCard;
 class L1GctElectronFinalSort : public L1GctProcessor
 {
 public:
-  friend std::ostream& operator<<(std::ostream& s,const L1GctElectronFinalSort& cand); 
-	L1GctElectronFinalSort(bool iso);
+       
+	
+         L1GctElectronFinalSort(bool iso);
 	~L1GctElectronFinalSort();
 	///
 	/// clear internal buffers
@@ -39,6 +40,7 @@ public:
 	///
 	/// return output data
 	inline std::vector<L1GctEmCand> OutputCands() { return m_outputCands; }
+	friend std::ostream& operator<<(std::ostream& s,const L1GctElectronFinalSort& cand); 
 
  private:
 
@@ -64,5 +66,6 @@ public:
 
 };
 
+std::ostream& operator<<(std::ostream& s,const L1GctElectronFinalSort& cand); 
 
 #endif /*L1GCTELECTRONFINALSORT_H_*/
