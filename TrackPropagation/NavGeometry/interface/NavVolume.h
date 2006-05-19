@@ -6,14 +6,13 @@
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
 #include  "TrackPropagation/NavGeometry/interface/SurfaceAndBounds.h"
+#include  "TrackPropagation/NavGeometry/interface/VolumeCrossReturnType.h"
 
 #include <vector>
 
 class NavSurface;
 class Bounds;
 class TrajectoryStateOnSurface;
-
-//class SurfaceAndBounds
 
 class NavVolume : public MagVolume {
 public:
@@ -23,7 +22,7 @@ public:
     MagVolume(pos,rot,shape,mfp) {}
 
   typedef std::vector<SurfaceAndBounds>                         Container;
-  typedef std::pair<const NavVolume*, TrajectoryStateOnSurface>  VolumeCrossReturnType;
+  ////  typedef std::pair<const NavVolume*, TrajectoryStateOnSurface>  VolumeCrossReturnType;
 
 
   virtual ~NavVolume() {} 

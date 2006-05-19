@@ -11,6 +11,13 @@ NavPlane::propagate( const Propagator& prop,
     return prop.propagate( startingState, *theSurfaceP); 
 }
 
+std::pair<TrajectoryStateOnSurface,double>
+NavPlane::propagateWithPath( const Propagator& prop, 
+		     const TrajectoryStateOnSurface& startingState) const
+{
+    return prop.propagateWithPath( startingState, *theSurfaceP); 
+}
+
 std::pair<bool,double> 
 NavPlane::distanceAlongLine( const NavSurface::GlobalPoint& pos, 
 			     const NavSurface::GlobalVector& dir) const

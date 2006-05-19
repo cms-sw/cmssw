@@ -180,17 +180,24 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
     GlobalVector gdir = (propDir == alongMomentum ? gmom : -gmom);
 
     SortedContainer sortedSurfaces;
+    Container       verycloseSurfaces; // reachable surface with dist < epsilon !!
     Container       unreachableSurfaces;
+
+    double epsilon = 0.1; // should epsilon be hard-coded or a variable in NavVolume?
 
     for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
 	std::pair<bool,double> dist = i->surface().distanceAlongLine( gpos, gdir);
-	if (dist.first) sortedSurfaces[dist.second] = *i;
+	if (dist.first) {
+	  if (dist.second > epsilon) sortedSurfaces[dist.second] = *i;
+	  else verycloseSurfaces.push_back(*i);
+	} 
 	else unreachableSurfaces.push_back(*i);
     }
     NavVolume::Container result;
     for (SortedContainer::const_iterator i=sortedSurfaces.begin(); i!=sortedSurfaces.end(); ++i) {
 	result.push_back(i->second);
     }
+    result.insert( result.end(), verycloseSurfaces.begin(), verycloseSurfaces.end());
     result.insert( result.end(), unreachableSurfaces.begin(), unreachableSurfaces.end());
     return result;
 }
@@ -208,43 +215,62 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
     GlobalVector gdir = (propDir == alongMomentum ? gmom : -gmom);
 
     SortedContainer sortedSurfaces;
+    Container       verycloseSurfaces; // reachable surface with dist < epsilon (if 6-surface check fails)
     Container       unreachableSurfaces;
 
+    double epsilon = 0.1; // should epsilon be hard-coded or a variable in NavVolume?
+    bool surfaceMatched = false;
+
+    for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
+      if (&(i->surface().surface()) == NotThisSurfaceP) surfaceMatched = true;
+    }
+    
     for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
 	std::pair<bool,double> dist = i->surface().distanceAlongLine( gpos, gdir);
-	if (dist.first && &(i->surface().surface()) != NotThisSurfaceP ) sortedSurfaces[dist.second] = *i;
+	if (dist.first) { 
+	  if ( &(i->surface().surface()) == NotThisSurfaceP || !surfaceMatched && dist.second < epsilon) 
+	    verycloseSurfaces.push_back(*i);
+	  else sortedSurfaces[dist.second] = *i;
+	}
 	else unreachableSurfaces.push_back(*i);
     }
+
     NavVolume::Container result;
     for (SortedContainer::const_iterator i=sortedSurfaces.begin(); i!=sortedSurfaces.end(); ++i) {
 	result.push_back(i->second);
     }
+    result.insert( result.end(), verycloseSurfaces.begin(), verycloseSurfaces.end());
     result.insert( result.end(), unreachableSurfaces.begin(), unreachableSurfaces.end());
     return result;
 }
 
-NavVolume::VolumeCrossReturnType
+VolumeCrossReturnType
 NavVolume6Faces::crossToNextVolume( const TrajectoryStateOnSurface& startingState, const Propagator& prop ) const
 {
   typedef TrajectoryStateOnSurface TSOS;
-  
+  typedef std::pair<TSOS,double> TSOSwithPath;
+
   NavVolume::Container nsc = nextSurface( toLocal( startingState.globalPosition()), 
 					  toLocal( startingState.globalMomentum()), -1,
 					  alongMomentum, &(startingState.surface()));
   int itry = 0;
   VolumeCrossReturnType VolumeCrossResult;
+
   for (NavVolume::Container::const_iterator isur = nsc.begin(); isur!=nsc.end(); isur++) {
-    TSOS state = isur->surface().propagate( prop, startingState);
-    if (!state.isValid()) {
+    TSOSwithPath state = isur->surface().propagateWithPath( prop, startingState);
+    if (!state.first.isValid()) {
       ++itry;
       continue;
     }
-    if (isur->bounds().inside(state.localPosition())) {
+    if (isur->bounds().inside(state.first.localPosition())) {
       //std::cout << "crossToNextVolume: Surface containing destination point found at try " << itry << std::endl;
       // Found the exit surface !! Get pointer to next volume and save exit state:
-      VolumeCrossResult.first = isur->surface().nextVolume(state.localPosition(),oppositeSide(isur->side()));
-      VolumeCrossResult.second = state;
+      //VolumeCrossResult.first = isur->surface().nextVolume(state.localPosition(),oppositeSide(isur->side()));
+      //VolumeCrossResult.second = state;
       //      exitSurface = &( isur->surface().surface() );
+      return VolumeCrossReturnType ( isur->surface().nextVolume(state.first.localPosition(), oppositeSide(isur->side())),
+			    state.first, state.second );
+      
       break;
     }
     else {

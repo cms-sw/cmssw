@@ -30,6 +30,9 @@ public:
     virtual TrajectoryStateOnSurface 
     propagate( const Propagator& prop, const TrajectoryStateOnSurface& startingState) const;
 
+    virtual NavSurface::TSOSwithPath 
+    propagateWithPath( const Propagator& prop, const TrajectoryStateOnSurface& startingState) const;
+
     virtual const Bounds* bounds( const NavVolume* vol) { return theImpl.bounds(vol);}
 
     virtual void addVolume( const NavVolume* vol, const Bounds* bounds, 

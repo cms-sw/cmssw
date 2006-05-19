@@ -208,7 +208,7 @@ int main()
 
 
 
-	for (int i=0; i<1000; i++) {
+	for (int i=0; i<50000; i++) {
 	    GlobalVector gStartMomentum( momentumGenerator());
 
 	    cout << "************* NEXT TEST 'EVENT' *****" << endl;
@@ -238,25 +238,37 @@ int main()
 
 
 
-	    NavVolume::VolumeCrossReturnType VolumeCrossResult = vol.crossToNextVolume(startingState, RKprop);
+	    VolumeCrossReturnType VolumeCrossResult = vol.crossToNextVolume(startingState, RKprop);
 
 	    
-	    CurrentRKState = VolumeCrossResult.second;
-	    HistXY->Fill(CurrentRKState.globalPosition().x(),CurrentRKState.globalPosition().y());
+	    CurrentRKState = VolumeCrossResult.tsos();
+	    double TotalPathLength = VolumeCrossResult.path();
+	    cout << "Oh pathlenght was : " << TotalPathLength << endl;
+	    //	    if (TotalPathLength > 20) 
+	    //  HistXY->Fill(CurrentRKState.globalPosition().x(),CurrentRKState.globalPosition().y());
 
-	    if (VolumeCrossResult.first != 0) {
-	      cout << "YES !!! Found next volume with position: " << VolumeCrossResult.first->position() << endl;
+	    if (TotalPathLength > 20) 
+	      HistXY2->Fill(CurrentRKState.globalPosition().x(),CurrentRKState.globalPosition().y());
+	    else
+	      HistXY->Fill(CurrentRKState.globalPosition().x(),CurrentRKState.globalPosition().y());
+	    
+	    if (VolumeCrossResult.volume() != 0) {
+	      cout << "YES !!! Found next volume with position: " << VolumeCrossResult.volume()->position() << endl;
 	      cout << "Do a second Iteration step !" << endl;
 
-	      NavVolume::VolumeCrossReturnType VolumeCrossResult2 = VolumeCrossResult.first->crossToNextVolume(VolumeCrossResult.second, RKprop);
-	      if (VolumeCrossResult2.first != 0) {
+	      VolumeCrossReturnType VolumeCrossResult2 = VolumeCrossResult.volume()->crossToNextVolume(VolumeCrossResult.tsos(), RKprop);
+	      if (VolumeCrossResult2.volume() != 0) {
 		cout << "crossToNextVolume: Succeeded to find THIRD volume with pos, mom, " << 
-		  VolumeCrossResult2.second.globalPosition() << ", " << VolumeCrossResult2.second.globalMomentum() << endl;
+		  VolumeCrossResult2.tsos().globalPosition() << ", " << VolumeCrossResult2.tsos().globalMomentum() << endl;
 	      } else {
 		cout << "crossToNextVolume: Failed to find THIRD volume " << endl;
 	      }
-	      CurrentRKState = VolumeCrossResult2.second;	      
-	      HistXY2->Fill(CurrentRKState.globalPosition().x(),CurrentRKState.globalPosition().y());
+	      CurrentRKState = VolumeCrossResult2.tsos();	      
+	      TotalPathLength += VolumeCrossResult2.path();
+	      if (TotalPathLength > 20) 
+		HistXY2->Fill(CurrentRKState.globalPosition().x(),CurrentRKState.globalPosition().y());
+	      else
+		HistXY->Fill(CurrentRKState.globalPosition().x(),CurrentRKState.globalPosition().y());
 	    } else {
 	      cout << "crossToNextVolume: NO !!!!!!!! Nothing on other side" << endl;
 	    }

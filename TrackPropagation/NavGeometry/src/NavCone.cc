@@ -10,6 +10,13 @@ NavCone::propagate( const Propagator& prop,
     return prop.propagate( startingState, *theSurfaceP); 
 }
 
+std::pair<TrajectoryStateOnSurface,double>
+NavCone::propagateWithPath( const Propagator& prop, 
+		    const TrajectoryStateOnSurface& startingState) const
+{
+    return prop.propagateWithPath( startingState, *theSurfaceP); 
+}
+
 class NavConeNotImplementedDistanceAlongLine : public std::exception {
 public:
     NavConeNotImplementedDistanceAlongLine() throw() {}
