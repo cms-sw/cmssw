@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/05 20:12:02 $
- * $Revision: 1.114 $
+ * $Date: 2006/05/18 07:41:42 $
+ * $Revision: 1.115 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -141,12 +141,13 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   }
 
   // MonitorDaemon switch
+
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 
   if ( enableMonitorDaemon_ ) {
-    cout << " enableMonitorDaemon switch is ON";
+    cout << " enableMonitorDaemon switch is ON" << endl;
   } else {
-    cout << " enableMonitorDaemon switch is OFF";
+    cout << " enableMonitorDaemon switch is OFF" << endl;
   }
 
   if ( enableMonitorDaemon_ ) {
@@ -170,11 +171,19 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   }
 
   // vector of selected Super Modules (Defaults to all 36).
-  superModules_.reserve(36); for( int i=1; i<37; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<std::vector<int> >( "superModules", superModules_  ); 
-  std::cout << std::endl << "Selected Super Modules :";
-  for( unsigned int i=0; i<superModules_.size(); i++ ) std::cout << " " << superModules_[i];
-  std::cout << std::endl;
+
+  superModules_.reserve(36);
+  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+
+  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_); 
+
+  cout << "Selected Super Modules :" << endl;
+
+  for ( unsigned int i = 0; i < superModules_.size(); i++ ) {
+    cout << setw(2) << setfill('0') << superModules_[i] << " ";
+  }
+
+  cout << endl;
 
   // start DQM user interface instance
 
