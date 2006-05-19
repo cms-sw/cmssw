@@ -6,6 +6,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
 #include <vector>
+#include <ostream>
 
 ///
 /// Represents a GCT Leaf Card
@@ -17,6 +18,7 @@
 
 class L1GctEmLeafCard : L1GctProcessor {
 public:
+  friend std::ostream& operator<<(std::ostream& s,const L1GctEmLeafCard& card);
 	L1GctEmLeafCard(int id);
 	~L1GctEmLeafCard();
 	///
@@ -33,22 +35,24 @@ public:
 	void setInputSourceCard(int i, L1GctSourceCard* sc);
 	///
 	/// get the output candidates
-	vector<L1GctEmCand> getOutputIsoEmCands(int fpga);
+	std::vector<L1GctEmCand> getOutputIsoEmCands(int fpga);
 	///
 	/// get the output candidates
-	vector<L1GctEmCand> getOutputNonIsoEmCands(int fpga);
-	
+	std::vector<L1GctEmCand> getOutputNonIsoEmCands(int fpga);
+	///Prints size of vectors and values of pointers and internal variables
+	void print();
 private:
 	///
 	/// card ID
 	int m_id;
 	///
 	/// processing - 0,1 are iso sorters, 2,3 are non-iso
-	vector<L1GctElectronSorter*> m_sorters;
+	std::vector<L1GctElectronSorter*> m_sorters;
 	///
 	/// pointers to data source
-	vector<L1GctSourceCard*> m_sourceCards;
+	std::vector<L1GctSourceCard*> m_sourceCards;
       
 };
+
 
 #endif /*L1GCTELECTRONLEAFCARD_H_*/

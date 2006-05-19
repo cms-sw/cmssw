@@ -6,8 +6,8 @@
 
 #include <vector>
 #include <functional>
+#include <ostream>
 
-using std::vector;
 using std::binary_function;
 
 class L1GctSourceCard;
@@ -16,7 +16,8 @@ class L1GctSourceCard;
 class L1GctElectronSorter : public L1GctProcessor
 {
 public:
-  ///
+  friend std::ostream& operator<<(std::ostream& s,const L1GctElectronSorter& card);   
+ ///
   /// constructor; set type (isolated or non-isolated)
   L1GctElectronSorter(int id, bool iso=true);
   ~L1GctElectronSorter();
@@ -37,11 +38,13 @@ public:
   void setInputEmCand(L1GctEmCand cand);
   ///	
   /// get input candidates
-  inline vector<L1GctEmCand> getInputCands() { return inputCands; }
+  inline std::vector<L1GctEmCand> InputCands() { return m_inputCands; }
   ///
   /// get output candidates
-  inline vector<L1GctEmCand> getOutputCands() { return outputCands; }
-	
+  inline std::vector<L1GctEmCand> OutputCands() { return m_outputCands; }
+  ///Prints size of vectors and values of pointers and internal variables
+  void print();	
+
 private:
 
   // comparison operator for sort
@@ -54,18 +57,19 @@ private:
   /// algo ID
   int m_id;
   ///
-  /// type of sorter (isolated or non isolated)
-  bool getIsoEmCands;
+  /// type of electrons to sort (isolated or non isolated)
+  bool m_emCandType;
   ///
   /// source card input
-  vector<L1GctSourceCard*> theSCs;
+  std::vector<L1GctSourceCard*> m_theSCs;
   ///
   /// input data
-  vector<L1GctEmCand> inputCands;
+  std::vector<L1GctEmCand> m_inputCands;
   ///
   /// output data
-  vector<L1GctEmCand> outputCands;
+  std::vector<L1GctEmCand> m_outputCands;
   
 };
+
 
 #endif /*L1GCTELECTRONSORTER_H_*/

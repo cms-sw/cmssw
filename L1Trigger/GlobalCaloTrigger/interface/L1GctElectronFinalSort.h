@@ -6,8 +6,8 @@
 
 #include <vector>
 #include <functional>
+#include <ostream>
 
-using std::vector;
 using std::binary_function;
 
 class L1GctEmLeafCard;
@@ -15,6 +15,7 @@ class L1GctEmLeafCard;
 class L1GctElectronFinalSort : public L1GctProcessor
 {
 public:
+  friend std::ostream& operator<<(std::ostream& s,const L1GctElectronFinalSort& cand); 
 	L1GctElectronFinalSort(bool iso);
 	~L1GctElectronFinalSort();
 	///
@@ -34,11 +35,12 @@ public:
 	void setInputEmCand(int i, L1GctEmCand cand);
 	///
 	/// return input data
-	inline vector<L1GctEmCand> getInputCands() { return inputCands; }
+	inline std::vector<L1GctEmCand> InputCands() { return m_inputCands; }
 	///
 	/// return output data
-	inline vector<L1GctEmCand> getOutputCands() { return outputCands; }
-
+	inline std::vector<L1GctEmCand> OutputCands() { return m_outputCands; }
+	///Prints size of vectors and values of pointers and internal variables
+	void print();
  private:
 
 	// comparison operator for sort
@@ -50,17 +52,18 @@ public:
 
 	///
 	/// type of em cand
-	bool getIsoEmCands;
+	bool m_emCandsType;
 	///
 	/// the 1st stage electron sorters
-	vector<L1GctEmLeafCard*> theLeafCards;
+	std::vector<L1GctEmLeafCard*> m_theLeafCards;
 	///
 	/// input data
-	vector<L1GctEmCand> inputCands;
+	std::vector<L1GctEmCand> m_inputCands;
 	///
 	/// output data
-	vector<L1GctEmCand> outputCands;
+	std::vector<L1GctEmCand> m_outputCands;
 
 };
+
 
 #endif /*L1GCTELECTRONFINALSORT_H_*/
