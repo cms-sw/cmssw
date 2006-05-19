@@ -1,4 +1,5 @@
 <lcgdict>
+<selection>
   <class name="TrackingRecHit"/>
   <class name="RecHit1D"/>
   <class name="InvalidTrackingRecHit"/>
@@ -11,4 +12,10 @@
   <class name="edm::RefProd<edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> > >"/>
   <class name="edm::RefVector<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit> >"/>
   <class name="edm::Wrapper<edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> > >"/>
+</selection>
+<exclusion>
+  <class name="edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >">
+    <method name="sort" />
+  </class>
+</exclusion>
 </lcgdict>

@@ -1,4 +1,5 @@
 <lcgdict>
+<selection>
   <class name="reco::Particle" />
   <class name="reco::Candidate" />
   <class name="reco::Candidate::const_iterator_imp" />
@@ -25,4 +26,10 @@
   <class name="edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >"/>
   <class name="edm::RefProd<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> > >"/>
   <class name="edm::RefVector<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >"/>
+</selection>
+<exclusion>
+  <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >">
+    <method name="sort" />
+  </class>
+</exclusion>
 </lcgdict>
