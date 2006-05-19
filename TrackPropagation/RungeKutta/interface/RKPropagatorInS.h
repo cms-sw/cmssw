@@ -2,6 +2,7 @@
 #define RKPropagatorInS_H
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "Geometry/Vector/interface/Basic3DVector.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
@@ -12,6 +13,7 @@
 class GlobalTrajectoryParameters;
 class MagVolume;
 class RKLocalFieldProvider;
+class CartesianStateAdaptor;
 
 class RKPropagatorInS : public Propagator {
 public:
@@ -24,6 +26,7 @@ public:
   ~RKPropagatorInS() {}
 
   using Propagator::propagate;
+  using Propagator::propagateWithPath;
 
   virtual TrajectoryStateOnSurface 
   propagate (const FreeTrajectoryState&, const Plane&) const;
@@ -37,18 +40,29 @@ public:
   virtual std::pair< TrajectoryStateOnSurface, double> 
   propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const;
 
+  TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& ts, 
+                                     const Plane& plane) const {
+    return propagateWithPath( *ts.freeState(),plane).first;
+  }
+  
+
+
   virtual Propagator * clone() const;
 
   virtual const MagneticField* magneticField() const {return theVolume;}
 
 private:
 
+  typedef std::pair<TrajectoryStateOnSurface,double> TsosWP;
+
   const MagVolume* theVolume;
 
   GlobalTrajectoryParameters gtpFromLocal( const Basic3DVector<double>& lpos,
 					   const Basic3DVector<double>& lmom,
 					   TrackCharge ch, const Surface& surf) const;
-
+  GlobalTrajectoryParameters gtpFromVolumeLocal( const CartesianStateAdaptor& state, 
+						 TrackCharge charge) const;
+    
   RKLocalFieldProvider fieldProvider() const;
   RKLocalFieldProvider fieldProvider( const Cylinder& cyl) const;
 

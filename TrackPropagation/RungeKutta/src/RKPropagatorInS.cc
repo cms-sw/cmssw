@@ -1,5 +1,4 @@
 #include "TrackPropagation/RungeKutta/interface/RKPropagatorInS.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackPropagation/RungeKutta/interface/RKCartesianDistance.h"
 #include "TrackPropagation/RungeKutta/interface/CartesianLorentzForce.h"
 #include "TrackPropagation/RungeKutta/interface/RKLocalFieldProvider.h"
@@ -16,20 +15,22 @@
 #include "TrackPropagation/RungeKutta/interface/FrameChanger.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 
-TrajectoryStateOnSurface 
-RKPropagatorInS::propagate (const FreeTrajectoryState& ts, const Plane& plane) const
-{
+// TrajectoryStateOnSurface 
+// RKPropagatorInS::propagate (const FreeTrajectoryState& ts, const Plane& plane) const
 
+std::pair< TrajectoryStateOnSurface, double> 
+RKPropagatorInS::propagateWithPath (const FreeTrajectoryState& ts, const Plane& plane) const 
+{
   if (theVolume != 0) {
     std::cout << "RKPropagatorInS: starting prop to plane in volume with pos " << theVolume->position()
-	 << " Z axis " << theVolume->toGlobal( LocalVector(0,0,1)) << std::endl;
+	      << " Z axis " << theVolume->toGlobal( LocalVector(0,0,1)) << std::endl;
 
     std::cout << "The starting position is " << ts.position() << " (global) "
-	 << theVolume->toLocal(ts.position()) << " (local) " << std::endl;
+	      << theVolume->toLocal(ts.position()) << " (local) " << std::endl;
     FrameChanger changer;
     FrameChanger::PlanePtr localPlane = changer.transformPlane( plane, *theVolume);
     std::cout << "The plane position is " << plane.position() << " (global) "
-	 << localPlane->position() << " (local) " << std::endl;
+	      << localPlane->position() << " (local) " << std::endl;
 
     std::cout << "The initial distance to plane is " << plane.localZ( ts.position()) << std::endl;
 
@@ -38,85 +39,83 @@ RKPropagatorInS::propagate (const FreeTrajectoryState& ts, const Plane& plane) c
     std::cout << "straight line distance " << res3.first << " " << res3.second << std::endl;
   }
 
-    typedef RKAdaptiveSolver<double,RKOneCashKarpStep, 6>   Solver;
-    typedef Solver::Vector                                  RKVector;
+  typedef RKAdaptiveSolver<double,RKOneCashKarpStep, 6>   Solver;
+  typedef Solver::Vector                                  RKVector;
 
-    GlobalPoint gpos( ts.position());
-    GlobalVector gmom( ts.momentum());
-    double startZ = plane.localZ(gpos);
+  GlobalPoint gpos( ts.position());
+  GlobalVector gmom( ts.momentum());
+  double startZ = plane.localZ(gpos);
 
-    RKLocalFieldProvider field( fieldProvider());
-    PathToPlane2Order pathLength( field, &field.frame());
-    CartesianLorentzForce deriv(field, ts.charge());
+  RKLocalFieldProvider field( fieldProvider());
+  PathToPlane2Order pathLength( field, &field.frame());
+  CartesianLorentzForce deriv(field, ts.charge());
 
-    RKCartesianDistance dist;
-    double eps = 1.e-5;
-    Solver solver;
-    double stot = 0;
-    PropagationDirection currentDirection = propagationDirection();
+  RKCartesianDistance dist;
+  double eps = 1.e-5;
+  Solver solver;
+  double stot = 0;
+  PropagationDirection currentDirection = propagationDirection();
 
-    // in magVolume frame
-    RKVector start( CartesianStateAdaptor::rkstate( rkPosition(gpos), rkMomentum(gmom)));
-    while (true) {
-      CartesianStateAdaptor startState(start);
+  // in magVolume frame
+  RKVector start( CartesianStateAdaptor::rkstate( rkPosition(gpos), rkMomentum(gmom)));
+  while (true) {
+    CartesianStateAdaptor startState(start);
 
-      std::pair<bool,double> path = pathLength( plane, startState.position(), 
-					   startState.momentum(), 
-					   (double) ts.charge(), currentDirection);
-      if (!path.first) { 
-	std::cout << "RKPropagatorInS: Path length calculation to plane failed!" << std::endl;
-	std::cout << "...distance to plane " << plane.localZ( globalPosition(startState.position())) << std::endl;
-	std::cout << "...Local starting position in volume " << startState.position() << std::endl;
-	std::cout << "...Magnetic field " << field.inTesla( startState.position()) << std::endl;
+    std::pair<bool,double> path = pathLength( plane, startState.position(), 
+					      startState.momentum(), 
+					      (double) ts.charge(), currentDirection);
+    if (!path.first) { 
+      std::cout << "RKPropagatorInS: Path length calculation to plane failed!" << std::endl;
+      std::cout << "...distance to plane " << plane.localZ( globalPosition(startState.position())) << std::endl;
+      std::cout << "...Local starting position in volume " << startState.position() << std::endl;
+      std::cout << "...Magnetic field " << field.inTesla( startState.position()) << std::endl;
 
 
-	return TrajectoryStateOnSurface();
-      }
-      else {
-	//std::cout << "RKPropagatorInS: Path lenght to plane is " << path.second
-      }
-
-      double sstep = path.second;
-      if ( std::abs(sstep) < eps) {
-	std::cout << "On-surface accuracy not reached, but pathLength calculation says we are there! "
-	     << std::endl << "path " << path.second << " distance to plane is " << startZ << std::endl;
-	return TrajectoryStateOnSurface( GlobalTrajectoryParameters( globalPosition(startState.position()), 
-								     globalMomentum(startState.momentum()),
-								     ts.charge(),
-								     theVolume), plane);	
-      }
-
-      std::cout << "RKPropagatorInS: Solving for " << sstep 
-	   << " current distance to plane is " << startZ << std::endl;
-
-      RKVector rkresult = solver( 0, start, sstep, deriv, dist, eps);
-      CartesianStateAdaptor cur( rkresult);
-      double remainingZ = plane.localZ( globalPosition(cur.position()));
-      if ( fabs(remainingZ) < eps) {
-	std::cout << "On-surface accuracy reached! " << remainingZ << std::endl;
-	return TrajectoryStateOnSurface( GlobalTrajectoryParameters( globalPosition(cur.position()), 
-								     globalMomentum(cur.momentum()),
-								     ts.charge(),
-								     theVolume), plane);
-      }
-
-      start = rkresult;
-      stot += sstep;
-      if (remainingZ * startZ > 0) {
-	std::cout << "Accuracy not reached yet, trying in same direction again " 
-	     << remainingZ << std::endl;
-      }
-      else {
-	std::cout << "Accuracy not reached yet, trying in opposite direction " 
-	     << remainingZ << std::endl;
-	currentDirection = invertDirection( currentDirection);
-      }
-      startZ = remainingZ;
+      return TsosWP();
     }
+    else {
+      std::cout << "RKPropagatorInS: Path lenght to plane is " << path.second << std::endl;
+    }
+
+    double sstep = path.second;
+    if ( std::abs(sstep) < eps) {
+      std::cout << "On-surface accuracy not reached, but pathLength calculation says we are there! "
+		<< std::endl << "path " << path.second << " distance to plane is " << startZ << std::endl;
+      TrajectoryStateOnSurface res( gtpFromVolumeLocal( startState, ts.charge()), plane);
+      return TsosWP( res, stot);
+    }
+
+    std::cout << "RKPropagatorInS: Solving for " << sstep 
+	      << " current distance to plane is " << startZ << std::endl;
+
+    RKVector rkresult = solver( 0, start, sstep, deriv, dist, eps);
+    stot += sstep;
+    CartesianStateAdaptor cur( rkresult);
+    double remainingZ = plane.localZ( globalPosition(cur.position()));
+    if ( fabs(remainingZ) < eps) {
+      std::cout << "On-surface accuracy reached! " << remainingZ << std::endl;
+      TrajectoryStateOnSurface res( gtpFromVolumeLocal( cur, ts.charge()), plane);
+      return TsosWP( res, stot);
+    }
+
+    start = rkresult;
+    if (remainingZ * startZ > 0) {
+      std::cout << "Accuracy not reached yet, trying in same direction again " 
+		<< remainingZ << std::endl;
+    }
+    else {
+      std::cout << "Accuracy not reached yet, trying in opposite direction " 
+		<< remainingZ << std::endl;
+      currentDirection = invertDirection( currentDirection);
+    }
+    startZ = remainingZ;
+  }
 }
 
-TrajectoryStateOnSurface 
-RKPropagatorInS::propagate (const FreeTrajectoryState& ts, const Cylinder& cyl) const
+// TrajectoryStateOnSurface 
+// RKPropagatorInS::propagate (const FreeTrajectoryState& ts, const Cylinder& cyl) const
+std::pair< TrajectoryStateOnSurface, double> 
+RKPropagatorInS::propagateWithPath (const FreeTrajectoryState& ts, const Cylinder& cyl) const
 {
     typedef RKAdaptiveSolver<double,RKOneCashKarpStep, 6>   Solver;
     typedef Solver::Vector                                  RKVector;
@@ -145,38 +144,47 @@ RKPropagatorInS::propagate (const FreeTrajectoryState& ts, const Cylinder& cyl) 
       StraightLineCylinderCrossing pathLength( LocalPoint(startState.position()), 
 					       LocalVector(startState.momentum()), currentDirection);
 
-      std::pair<bool,double> path = 
-	pathLength.pathLength( cyl);
+      std::pair<bool,double> path = pathLength.pathLength( cyl);
       if (!path.first) { 
 	std::cout << "RKPropagatorInS: Path length calculation to cylinder failed!" << std::endl;
 	LocalPoint lpos( startState.position());
 	std::cout << "Radius " << cyl.radius() << " pos.perp() " << lpos.perp() << std::endl;
-	return TrajectoryStateOnSurface();
+	return TsosWP();
+      }
+      else {
+	std::cout << "RKPropagatorInS: Path lenght to cylinder is " << path.second 
+		  << " from point (R,z) " << startState.position().perp() 
+		  << ", " << startState.position().z()
+		  << " to R " << cyl.radius() 
+		  << std::endl;
       }
 
       double sstep = path.second;
       if ( std::abs(sstep) < eps) {
 	std::cout << "accuracy not reached, but pathLength calculation says we are there! "
 	     << path.second << std::endl;
-	return TrajectoryStateOnSurface( gtpFromLocal( startState.position(), 
-						       startState.momentum(), ts.charge(), cyl),
-					 cyl);	
+
+	TrajectoryStateOnSurface res( gtpFromLocal( startState.position(), 
+						    startState.momentum(), ts.charge(), cyl),
+				      cyl);	
+	return TsosWP( res, stot);
       }
 
       std::cout << "RKPropagatorInS: Solving for " << sstep 
 	   << " current distance to cylinder is " << startR << std::endl;
 
       RKVector rkresult = solver( 0, start, sstep, deriv, dist, eps);
+      stot += sstep;
       CartesianStateAdaptor cur( rkresult);
       double remainingR = cyl.radius() - cur.position().perp();
       if ( fabs(remainingR) < eps) {
 	std::cout << "Accuracy reached! " << remainingR << std::endl;
-	return TrajectoryStateOnSurface( gtpFromLocal( cur.position(), cur.momentum(), ts.charge(), cyl),
-					 cyl);
+	TrajectoryStateOnSurface res( gtpFromLocal( cur.position(), cur.momentum(), ts.charge(), cyl),
+				      cyl);
+	return TsosWP( res, stot);
       }
 
       start = rkresult;
-      stot += sstep;
       if (remainingR * startR > 0) {
 	std::cout << "Accuracy not reached yet, trying in same direction again " 
 	     << remainingR << std::endl;
@@ -190,16 +198,16 @@ RKPropagatorInS::propagate (const FreeTrajectoryState& ts, const Cylinder& cyl) 
     }
 }
 
-std::pair< TrajectoryStateOnSurface, double> 
-RKPropagatorInS::propagateWithPath (const FreeTrajectoryState&, const Plane&) const
+TrajectoryStateOnSurface 
+RKPropagatorInS::propagate(const FreeTrajectoryState& fts, const Plane& plane) const
 {
-    return std::pair< TrajectoryStateOnSurface, double>();
+  return propagateWithPath( fts, plane).first;
 }
 
-std::pair< TrajectoryStateOnSurface, double> 
-RKPropagatorInS::propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const
+TrajectoryStateOnSurface
+RKPropagatorInS::propagate( const FreeTrajectoryState& fts, const Cylinder& cyl) const
 {
-    return std::pair< TrajectoryStateOnSurface, double>();
+  return propagateWithPath( fts, cyl).first;
 }
 
 Propagator * RKPropagatorInS::clone() const
@@ -254,4 +262,13 @@ GlobalVector RKPropagatorInS::globalMomentum( const Basic3DVector<double>& mom) 
 {
   if (theVolume != 0) return theVolume->toGlobal( LocalVector(mom));
   else return GlobalVector(mom);
+}
+
+GlobalTrajectoryParameters 
+RKPropagatorInS::gtpFromVolumeLocal( const CartesianStateAdaptor& state, 
+				     TrackCharge charge) const
+{
+  return GlobalTrajectoryParameters( globalPosition(state.position()), 
+				     globalMomentum(state.momentum()), 
+				     charge, theVolume);
 }
