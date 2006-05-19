@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/19 08:16:29 $
- * $Revision: 1.116 $
+ * $Date: 2006/05/19 18:18:36 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1069,14 +1069,6 @@ void EcalBarrelMonitorClient::analyze(void){
             " location = " << location_ << flush;
 
     if ( h_ ) {
-//      cout << endl;
-//      for ( int i = 1; i <= 3; i++ ) {
-//        cout << " evttype " << i << " = " << flush;
-//        for ( int j = 1+10*(i-1); j <= 10*i; j++ ) {
-//          cout << setw(5) << h_->GetBinContent(j) << " " << flush;
-//        }
-//        cout << endl;
-//      }
       if ( h_->GetEntries() != 0 ) {
         cout << "  ( " << flush;
         if ( h_->GetBinContent(EcalDCCHeaderBlock::COSMIC+1) != 0 ) cout << "cosmic " << flush;
