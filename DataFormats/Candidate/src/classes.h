@@ -4,6 +4,7 @@
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 
 namespace {
   namespace {
@@ -13,5 +14,9 @@ namespace {
     reco::CandidateRef r1;
     reco::CandidateRefVector rv1;
     reco::CandidateRefProd rp1;
+
+    edm::RefToBase<reco::Candidate> * rb1;
+    std::vector<edm::RefToBase<reco::Candidate> * > vrb1;
+    edm::OwnVector<edm::RefToBase<reco::Candidate> > ovrb1;
   }
 }
