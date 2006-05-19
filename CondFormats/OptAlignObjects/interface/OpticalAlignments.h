@@ -19,9 +19,16 @@ std::ostream & operator<<(std::ostream &, const OpticalAlignments &);
  **/
 class OpticalAlignments {
 public:
-  OpticalAlignments() {}
-  virtual ~OpticalAlignments() {}
+  OpticalAlignments() { } //: opticalAlignments_() {}
+  virtual ~OpticalAlignments() { }
+  
+  // copy constructo
+/*   OpticalAlignments ( OpticalAlignments& rhs ); */
+/*   OpticalAlignments ( const OpticalAlignments& rhs ); */
 
+  std::vector<OpticalAlignInfo> opticalAlignments() const { return  opticalAlignments_; }
+
+ public:
   std::vector<OpticalAlignInfo> opticalAlignments_;
 };
 

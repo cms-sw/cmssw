@@ -5,6 +5,8 @@
 
 std::ostream & operator<<(std::ostream & os, const OpticalAlignInfo & r)
 {
+  os << "Name: " << r.objectName_ << std::endl;
+  os << "Parent Name: " << r.parentObjectName_ << std::endl; 
   os << "Type: " << r.objectType_ << "  ID: " << r.objectID_ << std::endl;
   int iw = os.width(); // save current width
   int ip = os.precision(); // save current precision
@@ -38,6 +40,8 @@ std::ostream & operator<<(std::ostream & os, const OpticalAlignParam & r)
   int ip = std::cout.precision(); // save current precision
   int now = 12;
   int nop = 5;
+  os << std::setw( now ) << std::setprecision( nop ) << r.name_;
+  os << std::setw( now ) << std::setprecision( nop ) << r.dimension_;
   os << std::setw( now ) << std::setprecision( nop ) << r.value_;
   os << std::setw( now ) << std::setprecision( nop ) << r.error_;
   os << std::setw( now ) << std::setprecision( nop ) << r.qual_ << std::endl;
@@ -46,3 +50,62 @@ std::ostream & operator<<(std::ostream & os, const OpticalAlignParam & r)
   std::cout << std::setprecision( ip ) << std::setw( iw );
   return os;
 }
+
+//   // copy constructor and assignment operator
+// OpticalAlignParam::OpticalAlignParam ( OpticalAlignParam& rhs ) {
+//   name_ = rhs.name_;
+//   value_ = rhs.value_;
+//   error_ = rhs.error_;
+//   qual_ = rhs.qual_;
+//   dimension_ = rhs.dimension_;
+// }
+
+// OpticalAlignParam::OpticalAlignParam ( const OpticalAlignParam& rhs ) {
+//   name_ = rhs.name_;
+//   value_ = rhs.value_;
+//   error_ = rhs.error_;
+//   qual_ = rhs.qual_;
+//   dimension_ = rhs.dimension_;
+// }
+
+// OpticalAlignInfo::OpticalAlignInfo ( OpticalAlignInfo& rhs ) {
+//   x_ = rhs.x_;
+//   y_ = rhs.y_;
+//   z_ = rhs.z_;
+//   angx_ = rhs.angx_;
+//   angy_ = rhs.angy_;
+//   angz_ = rhs.angz_;
+//   std::vector<OpticalAlignParam>::const_iterator oapit = rhs.extraEntries_.begin();
+//   std::vector<OpticalAlignParam>::const_iterator oapendit = rhs.extraEntries_.end();
+//   if ( oapit == oapendit ) {
+//     extraEntries_.clear();
+//   } else {
+//     for ( ; oapit != oapendit; ++oapit ) {
+//       extraEntries_.push_back (*oapit);
+//     }
+//   }
+//   objectType_ = rhs.objectType_;
+//   objectName_ = rhs.objectName_;
+//   parentObjectName_ = rhs.parentObjectName_;
+// }
+
+// OpticalAlignInfo::OpticalAlignInfo ( const OpticalAlignInfo& rhs ) {
+//   x_ = rhs.x_;
+//   y_ = rhs.y_;
+//   z_ = rhs.z_;
+//   angx_ = rhs.angx_;
+//   angy_ = rhs.angy_;
+//   angz_ = rhs.angz_;
+//   std::vector<OpticalAlignParam>::const_iterator oapit = rhs.extraEntries_.begin();
+//   std::vector<OpticalAlignParam>::const_iterator oapendit = rhs.extraEntries_.end();
+//   if ( oapit == oapendit ) {
+//     extraEntries_.clear();
+//   } else {
+//     for ( ; oapit != oapendit; ++oapit ) {
+//       extraEntries_.push_back (*oapit);
+//     }
+//   }
+//   objectType_ = rhs.objectType_;
+//   objectName_ = rhs.objectName_;
+//   parentObjectName_ = rhs.parentObjectName_;
+// }

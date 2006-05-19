@@ -12,3 +12,27 @@ std::ostream & operator<<(std::ostream & os, const OpticalAlignments & r)
   }
   return os;
 }
+
+// OpticalAlignments::OpticalAlignments ( OpticalAlignments& rhs ) {
+//   std::vector<OpticalAlignInfo>::const_iterator oait = rhs.opticalAlignments_.begin();
+//   std::vector<OpticalAlignInfo>::const_iterator oaendit = rhs.opticalAlignments_.end();
+//   if ( oait == oaendit ) {
+//     opticalAlignments_.clear();
+//   } else {
+//     for ( ; oait != oaendit; ++oait) {
+//       opticalAlignments_.push_back(*oait);
+//     }
+//   }
+// }
+
+// OpticalAlignments::OpticalAlignments ( const OpticalAlignments& rhs ) {
+//   std::vector<OpticalAlignInfo>::const_iterator oait = rhs.opticalAlignments_.begin();
+//   std::vector<OpticalAlignInfo>::const_iterator oaendit = rhs.opticalAlignments_.end();
+//   if ( oait == oaendit ) {
+//     opticalAlignments_.clear();
+//   } else {
+//     for ( ; oait != oaendit; ++oait) {
+//       opticalAlignments_.push_back(*oait);
+//     }
+//   }
+// }

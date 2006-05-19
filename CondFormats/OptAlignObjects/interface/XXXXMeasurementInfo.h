@@ -25,19 +25,19 @@ std::ostream & operator<<(std::ostream &, const XXXXMeasurementInfo &);
 
 class  XXXXMeasurementInfo {
  public:  
-  OpticalAlignParam x1_, x2_, x3_, x4_;
-  std::vector<OpticalAlignParam> extraEntries_;
+  std::string objectName_;
   std::string objectType_;
+  std::vector<std::string> measObjectNames_;
+  std::vector<OpticalAlignParam> values_;
   unsigned long objectID_;
-  void clear() {
-    x1_.clear();
-    x2_.clear();
-    x3_.clear();
-    x4_.clear();
-    extraEntries_.clear();
-    objectType_.clear();
-    objectID_ = 0;
-  }
+
+/*   void clear() { */
+/*     objectName_ = ""; */
+/*     objectType_ = ""; */
+/*     measObjectNames_.clear(); */
+/*     objectID_ = 0; */
+/*     values_.clear(); */
+/*   } */
 };
 
 #endif //XXXXMeasureInfo_H
