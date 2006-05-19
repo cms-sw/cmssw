@@ -65,10 +65,10 @@ void L1GctProducer::produce(edm::Event& e, const edm::EventSetup& c) {
   // fill the ED Products with data
   for (int i=0; i<4; i++) {
 
-    isoEmResult->push_back(L1GctIsoEm(0, 0, 0));
-    isoEmResult->push_back(L1GctIsoEm(1, 2, 3));
-    isoEmResult->push_back(L1GctIsoEm(10, 10, 10));
-    isoEmResult->push_back(L1GctIsoEm(9999, -9999, 999));
+    isoEmResult->push_back(L1GctIsoEm(0x0, 0x0, 0x0));
+    isoEmResult->push_back(L1GctIsoEm(0x1, 0x2, 0x3));
+    isoEmResult->push_back(L1GctIsoEm(0x10, 0x10, 0x10));
+    isoEmResult->push_back(L1GctIsoEm(0xff, 0xff, 0xff));
 
   }
 

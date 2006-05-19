@@ -46,11 +46,15 @@ L1GctTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 {
    using namespace edm;
 
-   Handle<L1GctIsoEmCollection> pIn;
-   iEvent.getByLabel("example",pIn);
-
    // get some GCT digis
-   
+
+   Handle<L1GctIsoEmCollection> isoEm;
+   L1GctIsoEmCollection::const_iterator e;
+   iEvent.getByType(isoEm);
+
+   for (e=isoEm->begin(); e!=isoEm->end(); e++) {
+     std::cout << e->rank() << std::endl;
+   } 
 
 }
 
