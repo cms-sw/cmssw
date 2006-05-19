@@ -4,8 +4,8 @@
 /** \class DTChamberId
  *  DetUnit identifier for DT chambers
  *
- *  $Date: 2006/01/23 22:43:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/04/12 17:52:39 $
+ *  $Revision: 1.4 $
  *  \author Stefano ARGIRO & G. Cerminara
  */
 
@@ -97,13 +97,14 @@ public:
   static const int layerStartBit_=  wireStartBit_ + wireNumBits_;
   static const int slayerNumBits_=  2;
   static const int slayerStartBit_= layerStartBit_+ layerNumBits_;
+  static const int wheelNumBits_  = 3;
+  static const int wheelStartBit_=  slayerStartBit_ + slayerNumBits_;
   static const int sectorNumBits_=  4;
-  static const int sectorStartBit_= slayerStartBit_+slayerNumBits_;
+  static const int sectorStartBit_= wheelStartBit_ + wheelNumBits_;
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const int stationNumBits_= 3;
-  static const int stationStartBit_=sectorStartBit_+sectorNumBits_;
-  static const int wheelNumBits_  = 3;
-  static const int wheelStartBit_=  stationStartBit_+stationNumBits_;
+  static const int stationStartBit_ = sectorStartBit_ + sectorNumBits_;
+
 
   static const uint32_t wheelMask_=    0x7;
   static const uint32_t stationMask_=  0x7;
