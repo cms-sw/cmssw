@@ -69,7 +69,7 @@ Definition of the event content.
   <td>
   \endhtmlonly \ref SimData "SIM Data"  \htmlonly
   </td>
-  <td>Simulation output</td>
+  <td>Simulation output and Monte Carlo truth</td>
   <td class="contact"> 
     <a href="mailto:">Daniel Elvira</a>,
     <a href="mailto:">Maya Stavrianakou</a>
@@ -79,7 +79,7 @@ Definition of the event content.
   <td>
   \endhtmlonly \ref CondData "COND Data"  \htmlonly
   </td>
-  <td>Alignment and Calibration data</td>
+  <td>Conditions data, including calibrations and alignments</td>
   <td class="contact"> 
   </td>
 </tr>
@@ -99,7 +99,7 @@ Definition of the event content.
 </tr>
 <tr>
   <td>
-  \endhtmlonly \ref RecoPackages "RECO and AOD data formats"   \htmlonly
+  \endhtmlonly \ref RecoPackages "RECO/AOD data formats"   \htmlonly
   </td>
   <td>Reconstruction data types</td>
   <td class="contact"><a href="mailto:">Luca Lista</a>,
@@ -118,7 +118,7 @@ Definition of the event content.
   <td>
   \endhtmlonly \ref CondPackages "COND data format"   \htmlonly
   </td>
-  <td>Calibrations and Alignments data types</td>
+  <td>Conditions data types</td>
   <td class="contact">
   </td>
 </tr>
@@ -174,7 +174,7 @@ Definition of packages according to the different functionalities.
   <td>
   \endhtmlonly \ref Conditions "Conditions" \htmlonly
   </td>
-  <td>Calibrations and Alignments</td>
+  <td>Conditions services including calibrations and alignments</td>
   <td class="contact">
   </td>
 </tr>
