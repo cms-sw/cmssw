@@ -111,7 +111,6 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
       }
       //std::cout<<"initIOV record: "<<it->first<<std::endl;
       //std::cout<<"initIOV tag: "<<it->second<<std::endl;
-      //std::cout<<"initIOV iovToken: "<<iovToken<<std::endl;
       m_session->startReadOnlyTransaction();
       pool::Ref<cond::IOV> iov(&(m_session->DataSvc()), iovToken);
       *iov;//bring iov in memory
@@ -143,22 +142,22 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_con(iConfig.getParameter<std::string>("connect") ),
   m_timetype(iConfig.getParameter<std::string>("timetype") ),
   m_loader(new cond::ServiceLoader),
-  m_session(new cond::DBSession(m_con))
+  m_session( 0 )
 {		
   /*parameter set parsing and pool environment setting
    */
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   unsigned int auth=iConfig.getUntrackedParameter<unsigned int>("authenticationMethod",0) ;
   bool loadblob=iConfig.getUntrackedParameter<bool>("loadBlobStreamer",false);
-  std::string catconnect;
+  std::string catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
+  unsigned int message_level=iConfig.getUntrackedParameter<unsigned int>("messagelevel",0);
   try{
     if( auth==1 ){
       m_loader->loadAuthenticationService( cond::XML );
     }else{
       m_loader->loadAuthenticationService( cond::Env );
     }
-    catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
-    unsigned int message_level=iConfig.getUntrackedParameter<unsigned int>("messagelevel",0);
+    
     switch (message_level) {
     case 0 :
       m_loader->loadMessageService(cond::Error);
@@ -189,6 +188,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   }catch ( ... ) {
     throw cond::Exception("PoolDBESSource::PoolDBESSource unknown error");
   }
+  m_session=new cond::DBSession(m_con);
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   using namespace std;
   using namespace edm;
