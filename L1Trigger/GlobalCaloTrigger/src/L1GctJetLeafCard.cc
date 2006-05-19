@@ -34,8 +34,8 @@ void L1GctJetLeafCard::setInputSourceCard(int i, L1GctSourceCard* sc)
   }
   else
   {
-    throw cms::Exception("RangeError")
-    << "In L1GctJetLeafCard, Source Card " << i << " is outside input range of 0 to "
+    throw cms::Exception("L1GctSetupError")
+    << "L1GctJetLeafCard::setInputSourceCard() : Source Card " << i << " is outside input range of 0 to "
     << (MAX_SOURCE_CARDS-1) << "\n";
   }
 }

@@ -34,12 +34,12 @@ L1GctProducer::L1GctProducer(const edm::ParameterSet& ps) {
   produces<L1GctEtMiss>();
 
   // instantiate the GCT
-  //  m_gct = new L1GlobalCaloTrigger();
+  m_gct = new L1GlobalCaloTrigger();
 
 }
 
 L1GctProducer::~L1GctProducer() {
-  // delete m_gct;
+  delete m_gct;
 }
 
 
