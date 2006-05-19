@@ -94,6 +94,10 @@ pool::TrivialFileCatalog::parseRule (DOMNode *ruleNode,
 	= _toString (ruleElement->getAttribute (_toDOMS ("protocol")));	    
     std::string destinationMatchRegexp
 	= _toString (ruleElement->getAttribute (_toDOMS ("destination-match")));
+
+    if (destinationMatchRegexp.empty ())
+	destinationMatchRegexp = ".*";
+
     std::string pathMatchRegexp 
 	= _toString (ruleElement->getAttribute (_toDOMS ("path-match")));
     std::string result 
@@ -167,9 +171,11 @@ pool::TrivialFileCatalog::connect ()
 	    }
 	}
 	
-	if (find (m_protocols.begin (), m_protocols.end (), std::string ("direct")) == m_protocols.end ())
-	    m_protocols.push_back ("direct");
-	
+	if (m_protocols.empty ())
+	    throw FCTransactionException
+		("TrivialFileCatalog::connect",
+		 ": protocol was not supplied in the contact string"); 
+		
 	std::ifstream configFile;
 	configFile.open (m_filename.c_str ());
 	
