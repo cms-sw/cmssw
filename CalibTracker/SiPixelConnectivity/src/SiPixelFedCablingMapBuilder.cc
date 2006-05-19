@@ -19,7 +19,9 @@
 #include "CalibTracker/SiPixelConnectivity/interface/TRange.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CalibTracker/SiPixelConnectivity/interface/PixelBarrelLinkMaker.h"
+#include "CalibTracker/SiPixelConnectivity/interface/PixelEndcapLinkMaker.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -37,7 +39,7 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
 //   cout << "pixel feds: " << fedIds.first<<" "<<fedIds.second << endl;
 
    TRange<int> fedIds = fednum.getSiPixelFEDIds();
-   cout << "pixel fedid range: " << fedIds << endl; 
+   edm::LogInfo("SiPixelFedCablingMapBuilder")<<"pixel fedid range: "<<fedIds;
 
    vector<FedSpec> fedSpecs(fedIds.max()-fedIds.min()+1); 
    for (int id=fedIds.first; id<=fedIds.second; id++) {
@@ -49,12 +51,11 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
    name2fed.init();
 
 
-  cout << "read tracker geometry..." << endl;
+//  cout << "read tracker geometry..." << endl;
   edm::ESHandle<TrackerGeometry> pDD;
   setup.get<TrackerDigiGeometryRecord>().get( pDD );
-  cout <<" There are "<<pDD->dets().size() <<" detectors"<<endl;
+//  cout <<" There are "<<pDD->dets().size() <<" detectors"<<endl;
 
-//  typedef TrackingGeometry::DetContainer::const_iterator ITG;
   typedef TrackerGeometry::DetContainer::const_iterator ITG;
   int npxdets = 0;
   for (ITG it = pDD->dets().begin(); it != pDD->dets().end(); it++){
@@ -67,15 +68,15 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
     } else {
       name = new PixelEndcapName(geomid);
     } 
-    if (! name->isBarrel() ) continue; // FIXME
     int fedId = name2fed( *name);
     if ( fedIds.inside(fedId) ) {
       int idx = fedId - fedIds.min();
       fedSpecs[idx].rawids.push_back(geomid.rawId());
       fedSpecs[idx].names.push_back(name);
-    } else cout <<"problem with numbering!" << endl;
+    } else edm::LogError("SiPixelFedCablingMapBuilder")
+          <<"problem with numbering! "<<fedId;
   }
-  cout << "here, pixels: " <<npxdets << endl;
+  //cout << "here, pixels: " <<npxdets << endl;
 
   // construct FEDs
   typedef vector<FedSpec>::iterator FI;
@@ -91,6 +92,10 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce(
           PixelBarrelLinkMaker(fed).links(names,units);
       fed->setLinks(links);
       result->addFed(fed);
+    } else {
+      PixelFEDCabling::Links links =
+          PixelEndcapLinkMaker(fed).links(names,units);
+      fed->setLinks(links);
     }
   }
 

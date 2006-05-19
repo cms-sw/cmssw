@@ -46,19 +46,19 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
     uint32_t d = u[idx];
     item.name = b;
     item.unit = d;
-/*
-    if (b->layerName() <= 2) {
+
+    if (! b->isFullModule()) {
+      item.rocIds = Range(0,7);      // half modules 
+      linkItems.push_back(item);
+    } else if(b->layerName() <= 2) {
       item.rocIds = Range(0,7);      // first link for modules in Layer=1,2
       linkItems.push_back(item);
       item.rocIds = Range(8,15);     // second link for modules in Layer=1,2
       linkItems.push_back(item);
-    } else  {
-      item.rocIds = Range(0,15);
-      linkItems.push_back(item);     // link for modules in layer = 3 
-    }
-*/
-      item.rocIds = Range(0,15);   // FIXME temporary!
+    } else {
+      item.rocIds = Range(0,15);    // one module per link 
       linkItems.push_back(item);     
+    }
   }
 
 
