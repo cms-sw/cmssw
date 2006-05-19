@@ -31,6 +31,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
+#include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -110,8 +111,12 @@ void CaloGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detector det, in
 	  }
 	if (subdetn == EcalEndcap)
 	  f << "  // " << EEDetId(*i) << std::endl;
-    if (subdetn == EcalPreshower) 
-      f << "  // " << ESDetId(*i) << std::endl;
+	if (subdetn == EcalPreshower) 
+	  {
+	    f << "  // " << ESDetId(*i) << std::endl;
+	    f << "  // Checking getClosestCell for position " << cell->getPosition() << std::endl;
+	    f << "  // Return position is " << ESDetId((dynamic_cast<const EcalPreshowerGeometry*>(geom))->getClosestCellInPlane(cell->getPosition(),ESDetId(*i).plane())) << std::endl;
+	  }
       }
     else if (det == DetId::Hcal)
       {
