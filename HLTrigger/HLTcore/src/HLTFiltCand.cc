@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/05/12 18:13:30 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/05/18 16:57:25 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -59,8 +59,8 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of products from Event
 
-   edm::Handle<PhotonCollection>   photons;
-   edm::Handle<ElectronCollection> electrons;
+   edm::Handle<PhotonCandidateCollection>   photons;
+   edm::Handle<ElectronCandidateCollection> electrons;
    edm::Handle<MuonCollection>     muons;
 
    iEvent.getByLabel(module_,photons);
@@ -73,15 +73,15 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // dummy "gem" filter - pass the event with the 3rd gamma, 6th electron, 9th muon
    //                      and record these as having fired the trigger!
 
-   auto_ptr<edm::RefToBase<Particle> > ref;
+   auto_ptr<edm::RefToBase<Candidate> > ref;
 
-   ref=edm::makeRefToBase<Particle>(edm::Ref<PhotonCollection>  (photons  ,3));
+   ref=edm::makeRefToBase<Candidate>(reco::PhotonCandidateRef(photons, 3));
    filterproduct->putParticle(ref);
 
-   ref=edm::makeRefToBase<Particle>(edm::Ref<ElectronCollection>(electrons,6));
+   ref=edm::makeRefToBase<Candidate>(reco::ElectronCandidateRef(electrons, 6));
    filterproduct->putParticle(ref);
 
-   ref=edm::makeRefToBase<Particle>(edm::Ref<MuonCollection>    (muons    ,9));
+   ref=edm::makeRefToBase<Candidate>(reco::MuonRef(muons, 9));
    filterproduct->putParticle(ref);
 
    bool accept(true);

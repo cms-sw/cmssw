@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/05/12 18:13:30 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/05/18 16:57:25 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -32,8 +32,8 @@ HLTProdCand::HLTProdCand(const edm::ParameterSet& iConfig)
 
    //register your products
 
-   produces<reco::PhotonCollection>();
-   produces<reco::ElectronCollection>();
+   produces<reco::PhotonCandidateCollection>();
+   produces<reco::ElectronCandidateCollection>();
    produces<reco::MuonCollection>();
 
 }
@@ -59,8 +59,8 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // produce dummy collections of photons, electrons, muons
 
-   auto_ptr<PhotonCollection>   phot (new PhotonCollection);
-   auto_ptr<ElectronCollection> elec (new ElectronCollection);
+   auto_ptr<PhotonCandidateCollection>   phot (new PhotonCandidateCollection);
+   auto_ptr<ElectronCandidateCollection> elec (new ElectronCandidateCollection);
    auto_ptr<MuonCollection>     muon (new MuonCollection);
 
    // fill collections with fake data
