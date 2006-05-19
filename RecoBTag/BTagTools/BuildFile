@@ -1,11 +1,11 @@
 <export>
- <lib name=BTagTools>
+ <lib name=RecoBTagBTagTools>
 <use name=CLHEP>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrack>
 <use name=TrackingTools/GeomPropagators>
 
-<use name=DataFromat/Common>
+<use name=DataFormats/Common>
 
 </export>
 <use name=CLHEP>
