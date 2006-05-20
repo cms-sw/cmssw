@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/05/19 17:26:43 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/19 19:34:55 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -25,7 +25,8 @@ HLTProdCand::HLTProdCand(const edm::ParameterSet& iConfig)
 {
    using namespace reco;
 
-   n_ = iConfig.getParameter< unsigned int > ("n");
+   n_      = iConfig.getParameter< unsigned int > ("n");
+   factor_ = iConfig.getParameter< double > ("scale");
 
    // should use message logger instead of cout!
    std::cout << "HLTProdCand created: " << n_ << std::endl;
@@ -61,15 +62,20 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    auto_ptr<PhotonCandidateCollection>   phot (new PhotonCandidateCollection);
    auto_ptr<ElectronCandidateCollection> elec (new ElectronCandidateCollection);
-   auto_ptr<MuonCollection>     muon (new MuonCollection);
+   auto_ptr<MuonCollection>              muon (new MuonCollection);
 
    // fill collections with fake data
 
+   math::XYZTLorentzVector p4;
    for (unsigned int i=0; i!=n_; i++) {
-     math::XYZTLorentzVector p4(100.0*i,200.0*i,200.0*i,300.0*i);
-     phot->push_back(  PhotonCandidate(0,p4));
-     elec->push_back(ElectronCandidate(1,p4));
-     muon->push_back(            Muon(-1,p4));
+     p4=math::XYZTLorentzVector(+factor_*i,+2.0*factor_*i,+2.0*factor_*i,3.0*factor_*i);
+     phot->push_back(  PhotonCandidate( 0,p4));
+
+     p4=math::XYZTLorentzVector(-factor_*i,-2.0*factor_*i,-2.0*factor_*i,3.0*factor_*i);
+     elec->push_back(ElectronCandidate( 1,p4));
+
+     p4=math::XYZTLorentzVector(+factor_*i,-2.0*factor_*i,+2.0*factor_*i,3.0*factor_*i);
+     muon->push_back(             Muon(-1,p4));
    }
 
    // put them into the event

@@ -5,10 +5,10 @@
  *
  *  
  *  This class is an EDFilter implementing a very basic HLT trigger
- *  acting on candidates
+ *  acting on candidates, requiring a gem triplet above pt cuts
  *
- *  $Date: 2006/05/12 18:13:01 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/18 16:57:45 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -34,7 +34,12 @@ class HLTFiltCand : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
-      std::string module_;  // module label for getting data from the event
+      std::string srcphot_;  // module label for getting photons from the event
+      std::string srcelec_;  // module label for getting electrons from the event
+      std::string srcmuon_;  // module label for getting muons from the event
+      double pt_phot_;       // pt cut for photon
+      double pt_elec_;       // pt cut for electron
+      double pt_muon_;       // pt cut for muons
 };
 
 #endif //HLTFiltCand_h
