@@ -1,6 +1,6 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Services/interface/SiteLocalConfig.h"
+#include "FWCore/Services/src/SiteLocalConfigService.h"
 #include "FWCore/Services/src/Tracer.h"
 
 #include "FWCore/Services/src/JobReportService.h"
@@ -19,13 +19,14 @@ using edm::service::SimpleMemoryCheck;
 using edm::service::SimpleProfiling;
 using edm::service::LoadAllDictionaries;
 using edm::service::RandomNumberGeneratorService;
-using edm::service::SiteLocalConfig;
+using edm::service::SiteLocalConfigService;
 using edm::service::EnableFloatingPointExceptions;
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_SERVICE(Tracer)
 DEFINE_ANOTHER_FWK_SERVICE(Timing)
-DEFINE_ANOTHER_FWK_SERVICE(SiteLocalConfig)
+typedef edm::serviceregistry::AllArgsMaker<edm::SiteLocalConfig,SiteLocalConfigService> SiteLocalConfigMaker;
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(SiteLocalConfigService,SiteLocalConfigMaker)
 #if defined(__linux__)
 DEFINE_ANOTHER_FWK_SERVICE(SimpleMemoryCheck)
 DEFINE_ANOTHER_FWK_SERVICE(SimpleProfiling)
