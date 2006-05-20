@@ -3,8 +3,8 @@
  * Description:
  *  class to print the MuonNavigationSchool
  *
- * $Date: 2006/04/24 20:03:36 $
- * $Revision: 1.2 $
+ * $Date: 2006/04/29 01:05:48 $
+ * $Revision: 1.3 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -12,6 +12,7 @@
  *
  * Chang Liu:
  * add compatibleLayers
+ * add constructor for MuonTkNavigation
  */
 
 #include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
@@ -21,6 +22,8 @@
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "Geometry/Surface/interface/BoundDisk.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -36,7 +39,7 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   vector<DetLayer*> barrel = muonLayout->allBarrelLayers();
   edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<barrel.size()<<" Barrel DetLayers";
   for ( iter = barrel.begin(); iter != barrel.end(); iter++ ) printLayer(*iter);
-  edm::LogInfo ("MuonNavigationPrinter");
+  edm::LogInfo ("MuonNavigationPrinter")<<"================================";
   edm::LogInfo ("MuonNavigationPrinter")  << "BACKWARD:";
   vector<DetLayer*> backward = muonLayout->allBackwardLayers();
   edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<backward.size()<<" Backward DetLayers";
@@ -49,16 +52,47 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
 
 }
 
+MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLayout, const GeometricSearchTracker * tracker) {
+
+  edm::LogInfo ("MuonNavigationPrinter")<< "MuonNavigationPrinter::MuonNavigationPrinter" ;
+  vector<DetLayer*>::const_iterator iter;
+  vector<BarrelDetLayer*>::const_iterator tkiter;
+  vector<ForwardDetLayer*>::const_iterator tkfiter;
+  edm::LogInfo ("MuonNavigationPrinter")<<"================================";
+  edm::LogInfo ("MuonNavigationPrinter")<< "BARREL:";
+  vector<BarrelDetLayer*> tkbarrel = tracker->barrelLayers();
+  edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<tkbarrel.size()<<" Tk Barrel DetLayers";
+  for ( tkiter = tkbarrel.begin(); tkiter != tkbarrel.end(); tkiter++ ) printLayer(*tkiter);
+  vector<DetLayer*> barrel = muonLayout->allBarrelLayers();
+  edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<barrel.size()<<" Mu Barrel DetLayers";
+  for ( iter = barrel.begin(); iter != barrel.end(); iter++ ) printLayer(*iter);
+  edm::LogInfo ("MuonNavigationPrinter")<<"================================";
+  edm::LogInfo ("MuonNavigationPrinter")  << "BACKWARD:";
+  vector<ForwardDetLayer*> tkbackward = tracker->negForwardLayers();
+  edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<tkbackward.size()<<" Tk Backward DetLayers";
+  for ( tkfiter = tkbackward.begin(); tkfiter != tkbackward.end(); tkfiter++ ) printLayer(*tkfiter);
+  vector<DetLayer*> backward = muonLayout->allBackwardLayers();
+  edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<backward.size()<<" Mu Backward DetLayers";
+  for ( iter = backward.begin(); iter != backward.end(); iter++ ) printLayer(*iter);
+  edm::LogInfo ("MuonNavigationPrinter") << "==============================";
+  edm::LogInfo ("MuonNavigationPrinter") << "FORWARD:";
+  vector<ForwardDetLayer*> tkforward =  tracker->posForwardLayers();
+  edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<tkforward.size()<<" Tk Forward DetLayers";
+  for ( tkfiter = tkforward.begin(); tkfiter != tkforward.end(); tkfiter++ ) printLayer(*tkfiter);
+
+  vector<DetLayer*> forward = muonLayout->allForwardLayers();
+  edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<forward.size()<<" Mu Forward DetLayers";
+  for ( iter = forward.begin(); iter != forward.end(); iter++ ) printLayer(*iter);
+
+}
 
 /// print layer
 void MuonNavigationPrinter::printLayer(DetLayer* layer) const {
-
   vector<const DetLayer*> nextLayers = layer->nextLayers(alongMomentum);
   vector<const DetLayer*> compatibleLayers = layer->compatibleLayers(alongMomentum);
-
   if (BarrelDetLayer* bdl = dynamic_cast<BarrelDetLayer*>(layer)) {
-    edm::LogInfo ("MuonNavigationPrinter") << endl
-         << layerPart(layer) << " " << layerModule(layer) << "layer at R: "
+    edm::LogInfo ("MuonNavigationPrinter") 
+         << layerPart(layer) << " " << layerModule(layer) << " layer at R: "
          << setiosflags(ios::showpoint | ios::fixed)
          << setw(8) << setprecision(2)
          << bdl->specificSurface().radius() << "  length: "
@@ -77,7 +111,6 @@ void MuonNavigationPrinter::printLayer(DetLayer* layer) const {
          << setw(6) << setprecision(2)
          << fdl->specificSurface().outerRadius();
   }
-  edm::LogInfo ("MuonNavigationPrinter");
   edm::LogInfo ("MuonNavigationPrinter") << " has " << nextLayers.size() << " next layers along momentum: ";
   printNextLayers(nextLayers);
 
@@ -138,11 +171,14 @@ void MuonNavigationPrinter::printNextLayers(vector<const DetLayer*> nextLayers) 
 /// determine whether the layer is forward or backward 
 string MuonNavigationPrinter::layerPart(const DetLayer* layer) const {
 
-  string result = "forward";
+  string result = "unknown";
   
   if ( layer->part() == barrel ) return "barrel";
   if ( layer->part() == forward && layer->surface().position().z() < 0 ) {
     result = "backward"; 
+  }
+  if ( layer->part() == forward && layer->surface().position().z() >= 0 ) {
+    result = "forward";
   }
   
   return result;    
