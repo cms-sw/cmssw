@@ -5,8 +5,8 @@
  *
  *  Navigable layer for Forward Muon
  *
- * $Date: 2003/11/27 11:11:55 $
- * $Revision: 1.4 $
+ * $Date: 2006/04/24 18:58:22 $
+ * $Revision: 1.3 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -37,13 +37,17 @@ class MuonForwardNavigableLayer : public MuonNavigableLayer {
   public:
 
     MuonForwardNavigableLayer(ForwardDetLayer* fdl,
+                              const MapB& innerBarrel, 
                               const MapE& outerEndcap,
                               const MapE& innerEndcap,
+                              const MapB& allInnerBarrel,
                               const MapE& allOuterEndcap,
                               const MapE& allInnerEndcap) :
       theDetLayer(fdl),
+      theInnerBarrelLayers(innerBarrel),
       theOuterEndcapLayers(outerEndcap),
       theInnerEndcapLayers(innerEndcap),
+      theAllInnerBarrelLayers(allInnerBarrel), 
       theAllOuterEndcapLayers(allOuterEndcap),
       theAllInnerEndcapLayers(allInnerEndcap)  {}
 
@@ -120,13 +124,12 @@ class MuonForwardNavigableLayer : public MuonNavigableLayer {
   private:
 
     ForwardDetLayer* theDetLayer;
+    MapB theInnerBarrelLayers;
     MapE theOuterEndcapLayers;
     MapE theInnerEndcapLayers;
-    MapB theInnerBarrelLayers;
+    MapB theAllInnerBarrelLayers;
     MapE theAllOuterEndcapLayers;
     MapE theAllInnerEndcapLayers;
-    MapB theAllInnerBarrelLayers;
-
 
 };
 #endif
