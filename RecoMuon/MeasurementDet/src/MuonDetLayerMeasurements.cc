@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/05/12 18:45:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/17 20:49:08 $
+ *  $Revision: 1.2 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -66,24 +66,38 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
   return rhs;
 }
 
-   MeasurementContainer
-   MuonDetLayerMeasurements::measurements( const DetLayer& layer,
-                 const TrajectoryStateOnSurface& startingState,
-                 const Propagator& prop,
-                 const MeasurementEstimator& est,
-                 const edm::Event& iEvent) const {
-      MeasurementContainer result;
-      return result;
+MeasurementContainer
+MuonDetLayerMeasurements::measurements( const DetLayer* layer,
+              const TrajectoryStateOnSurface& startingState,
+              const Propagator& prop,
+              const MeasurementEstimator& est,
+              const edm::Event& iEvent) const {
+   MeasurementContainer result;
+   std::vector<DetWithState> dss = layer->compatibleDets(startingState, prop, est);
+   RecHitContainer rhs = recHits(layer, iEvent);
+   for (std::vector<DetWithState>::const_iterator ids = dss.begin(); ids !=dss.end(); ids++){
+     for (RecHitContainer::const_iterator irh = rhs.begin(); irh!=rhs.end(); irh++) {
+      if (est.estimate((*ids).second, (**irh)).first)
+      result.push_back(TrajectoryMeasurement((*ids).second,(*irh),0,layer));  
+     }
+   }
+   return result;
+}
+
+MeasurementContainer
+MuonDetLayerMeasurements::fastMeasurements( const DetLayer* layer,
+              const TrajectoryStateOnSurface& theStateOnDet,
+              const TrajectoryStateOnSurface& startingState,
+              const Propagator& prop,
+              const MeasurementEstimator& est,
+              const edm::Event& iEvent) const {
+   MeasurementContainer result;
+   RecHitContainer rhs = recHits(layer, iEvent);
+   for (RecHitContainer::const_iterator irh = rhs.begin(); irh!=rhs.end(); irh++) {
+      if (est.estimate(theStateOnDet, (**irh)).first)
+      result.push_back(TrajectoryMeasurement(theStateOnDet,(*irh),0,layer));
    }
 
-  MeasurementContainer
-  MuonDetLayerMeasurements::fastMeasurements( const DetLayer& layer,
-                    const TrajectoryStateOnSurface& theStateOnDet,
-                    const TrajectoryStateOnSurface& startingState,
-                    const Propagator& prop,
-                    const MeasurementEstimator& est,
-                    const edm::Event& iEvent) const {
-      MeasurementContainer result;
-      return result;
-   }
+   return result;
+}
 
