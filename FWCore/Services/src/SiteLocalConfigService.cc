@@ -1,6 +1,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "FWCore/Services/interface/SiteLocalConfig.h"
+#include "FWCore/Services/src/SiteLocalConfigService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
@@ -42,7 +42,7 @@ inline XMLCh*  _toDOMS( std::string temp )
     return  buff;
 }
 
-edm::service::SiteLocalConfig::SiteLocalConfig (const edm::ParameterSet &pset,
+edm::service::SiteLocalConfigService::SiteLocalConfigService (const edm::ParameterSet &pset,
 						const edm::ActivityRegistry &activityRegistry)
 {
     std::string configURL = "/etc/site-local-config.xml";
@@ -55,25 +55,25 @@ edm::service::SiteLocalConfig::SiteLocalConfig (const edm::ParameterSet &pset,
 }
 
 const std::string
-edm::service::SiteLocalConfig::dataCatalog (void) const
+edm::service::SiteLocalConfigService::dataCatalog (void) const
 {
     return  m_dataCatalog;    
 }
 
 const std::string
-edm::service::SiteLocalConfig::calibCatalog (void) const
+edm::service::SiteLocalConfigService::calibCatalog (void) const
 {
     return  m_calibCatalog;    
 }
 
-edm::service::SiteLocalConfig::FrontierProxies::const_iterator
-edm::service::SiteLocalConfig::frontierProxyBegin (void) const
+edm::service::SiteLocalConfigService::FrontierProxies::const_iterator
+edm::service::SiteLocalConfigService::frontierProxyBegin (void) const
 {
     return m_frontierProxies.begin ();    
 }
 
-edm::service::SiteLocalConfig::FrontierProxies::const_iterator
-edm::service::SiteLocalConfig::frontierProxyEnd (void) const
+edm::service::SiteLocalConfigService::FrontierProxies::const_iterator
+edm::service::SiteLocalConfigService::frontierProxyEnd (void) const
 {
     return m_frontierProxies.end ();    
 }
@@ -81,7 +81,7 @@ edm::service::SiteLocalConfig::frontierProxyEnd (void) const
 
 
 void
-edm::service::SiteLocalConfig::parse (const std::string &url)
+edm::service::SiteLocalConfigService::parse (const std::string &url)
 {
     XercesDOMParser* parser = new XercesDOMParser;     
     parser->setValidationScheme(XercesDOMParser::Val_Auto);

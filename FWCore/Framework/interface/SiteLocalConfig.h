@@ -20,31 +20,22 @@ namespace edm
 
 namespace edm 
 {
-    namespace service 
-    {
-	class SiteLocalConfig
-	{
-	public:
-	    typedef std::list<std::string> FrontierProxies;	    
-	    SiteLocalConfig (const ParameterSet & pset,
-			     const ActivityRegistry &activityRegistry);
-	    
-	    const std::string dataCatalog (void) const;
-	    const std::string calibCatalog (void) const;
-	    FrontierProxies::const_iterator frontierProxyBegin (void) const;
-	    FrontierProxies::const_iterator frontierProxyEnd (void) const;
-	    
-	    // implicit copy constructor
-	    // implicit assignment operator
-	    // implicit destructor
-	private:
-	    void parse (const std::string &url);
-	    std::string m_url;	    
-	    std::string m_dataCatalog;
-	    std::string m_calibCatalog;
-	    FrontierProxies	m_frontierProxies;	    
-	};
-    }
+  class SiteLocalConfig
+  {
+  public:
+    typedef std::list<std::string> FrontierProxies;	    
+    SiteLocalConfig () {}
+    virtual ~SiteLocalConfig() {}
+    
+    virtual const std::string dataCatalog (void) const =0;
+    virtual const std::string calibCatalog (void) const =0;
+    virtual FrontierProxies::const_iterator frontierProxyBegin (void) const =0;
+    virtual FrontierProxies::const_iterator frontierProxyEnd (void) const =0;
+    
+    // implicit copy constructor
+    // implicit assignment operator
+  private:
+  };
 }
     
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
