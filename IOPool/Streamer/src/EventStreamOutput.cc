@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.14 2006/03/21 03:14:58 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.15 2006/04/10 21:11:23 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -72,7 +72,9 @@ namespace edm
   // -------------------------------------
 
   EventStreamerImpl::EventStreamerImpl(ParameterSet const&,
+				       Selections const* selections,
 				       EventBuffer* bufs):
+    selections_(selections),
     bufs_(bufs),
     tc_(),
     prod_reg_buf_(100 * 1000),
@@ -147,35 +149,35 @@ namespace edm
     // indirect stuff referenced from the product provenance structure.
     SendEvent se(e.id(),e.time());
 
-    EventPrincipal::const_iterator i(e.begin()),ie(e.end());
-    for(;i!=ie; ++i)
-      {
-	const Group* group = (*i).get();
-	if (true) // selected(group->provenance().product))
-	  {
-	    // necessary for now - will need to be improved
-	    if (group->product()==0)
-	      e.get(group->provenance().product.productID_);
+    Selections::const_iterator i(selections_->begin()),ie(selections_->end());
+    // Loop over EDProducts, fill the provenance, and write.
+    for(; i != ie; ++i) {
+      BranchDescription const& desc = **i;
+      ProductID const& id = desc.productID_;
 
-	    FDEBUG(11) << "Prov:"
-		 << " " << group->provenance().product.fullClassName_
-		 << " " << group->provenance().product.productID_
-		 << endl;
-
-	    if(group->product()==0)
-	      {
-		throw cms::Exception("Output")
-		  << "The product is null even though it is not supposed to be";
-	      }
-
-	    se.prods_.push_back(
-				ProdPair(group->product(),
-					 &group->provenance())
-				);
-
-
-	  }
-      }	
+      if (id == ProductID()) {
+        throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+          << "EventStreamOutput::serialize: invalid ProductID supplied in productRegistry\n";
+      }
+      EventPrincipal::SharedGroupPtr const group = e.getGroup(id);
+      if (group.get() == 0) {
+        // No product with this ID is in the event.  Add a null one.
+        Provenance provenance(desc);
+        provenance.event.status = BranchEntryDescription::CreatorNotRun;
+        provenance.event.productID_ = id;
+        if (desc.productPtr_.get() == 0) {
+           std::auto_ptr<EDProduct> edp(e.store()->get(BranchKey(desc), &e));
+           desc.productPtr_ = boost::shared_ptr<EDProduct>(edp.release());
+           if (desc.productPtr_.get() == 0) {
+            throw edm::Exception(edm::errors::ProductNotFound,"Invalid")
+              << "EventStreamOutput::serialize: invalid BranchDescription supplied in productRegistry\n";
+           }
+        }
+        se.prods_.push_back(ProdPair(desc.productPtr_.get(), &provenance));
+      } else {
+        se.prods_.push_back(ProdPair(group->product(), &group->provenance()));
+      }
+    }
 
 #if 0
     FDEBUG(11) << "-----Dump start" << endl;

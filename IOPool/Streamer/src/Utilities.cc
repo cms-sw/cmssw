@@ -228,6 +228,7 @@ namespace edm
 
 	FDEBUG(5) << "Prov:"
 	     << " " << spi->desc()->fullClassName_
+	     << " " << spi->desc()->productInstanceName_
 	  // << " " << spi->prod()->id()
 	     << " " << spi->desc()->productID_
 	     << " " << spi->prov()->productID_
