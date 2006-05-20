@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/19 18:50:41 $
- * $Revision: 1.118 $
+ * $Date: 2006/05/20 15:30:10 $
+ * $Revision: 1.119 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -187,7 +187,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // start DQM user interface instance
 
-  if ( ! mui_ ) {
+  if ( ! enableStateMachine_ ) {
     if ( enableMonitorDaemon_ ) {
       mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_);
     } else {
