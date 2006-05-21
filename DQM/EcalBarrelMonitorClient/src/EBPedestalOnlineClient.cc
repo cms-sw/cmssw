@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/05/18 20:44:03 $
- * $Revision: 1.17 $
+ * $Date: 2006/05/19 08:39:54 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -340,7 +340,7 @@ void EBPedestalOnlineClient::analyze(void){
     me = mui_->get(histo);
     if ( me ) {
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      h03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D>( me, cloneME_ );
+      h03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D>( me, cloneME_, h03_[ism-1] );
     }
     meh03_[ism-1] = me;
 
