@@ -4,22 +4,23 @@
 /** \class GlobalTrajectoryBuilder
  *  Concrete class for the GLB Muon reco 
  *
- *  $Date: 2006/03/23 15:15:36 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/17 13:05:13 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino
+ *  \author C. Liu - Purdue University
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 
-// class TrajectorySeed; 
-// class GlobalMuonRefitter; 
-// class GlobalMuonBackwardFilter; 
-// class GlobalMuonSmoother; 
-
+class TrajectoryBuilder;
+class TrajectorySmoother;
+class TrajectoryCleaner;
+class BasicTrajectorySeed; 
+class GlobalMuonReFitter; 
 
 namespace edm {class ParameterSet;}
 
-class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
+class GlobalTrajectoryBuilder : public MuonTrajectoryBuilder{
 
 public:
 
