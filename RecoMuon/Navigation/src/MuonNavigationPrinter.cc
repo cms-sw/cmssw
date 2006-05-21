@@ -3,8 +3,8 @@
  * Description:
  *  class to print the MuonNavigationSchool
  *
- * $Date: 2006/04/29 01:05:48 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/20 01:44:51 $
+ * $Revision: 1.4 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -56,13 +56,13 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
 
   edm::LogInfo ("MuonNavigationPrinter")<< "MuonNavigationPrinter::MuonNavigationPrinter" ;
   vector<DetLayer*>::const_iterator iter;
-  vector<BarrelDetLayer*>::const_iterator tkiter;
-  vector<ForwardDetLayer*>::const_iterator tkfiter;
+//  vector<BarrelDetLayer*>::const_iterator tkiter;
+//  vector<ForwardDetLayer*>::const_iterator tkfiter;
   edm::LogInfo ("MuonNavigationPrinter")<<"================================";
   edm::LogInfo ("MuonNavigationPrinter")<< "BARREL:";
   vector<BarrelDetLayer*> tkbarrel = tracker->barrelLayers();
   edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<tkbarrel.size()<<" Tk Barrel DetLayers";
-  for ( tkiter = tkbarrel.begin(); tkiter != tkbarrel.end(); tkiter++ ) printLayer(*tkiter);
+//  for ( tkiter = tkbarrel.begin(); tkiter != tkbarrel.end(); tkiter++ ) printLayer(*tkiter);
   vector<DetLayer*> barrel = muonLayout->allBarrelLayers();
   edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<barrel.size()<<" Mu Barrel DetLayers";
   for ( iter = barrel.begin(); iter != barrel.end(); iter++ ) printLayer(*iter);
@@ -70,7 +70,7 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   edm::LogInfo ("MuonNavigationPrinter")  << "BACKWARD:";
   vector<ForwardDetLayer*> tkbackward = tracker->negForwardLayers();
   edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<tkbackward.size()<<" Tk Backward DetLayers";
-  for ( tkfiter = tkbackward.begin(); tkfiter != tkbackward.end(); tkfiter++ ) printLayer(*tkfiter);
+///  for ( tkfiter = tkbackward.begin(); tkfiter != tkbackward.end(); tkfiter++ ) printLayer(*tkfiter);
   vector<DetLayer*> backward = muonLayout->allBackwardLayers();
   edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<backward.size()<<" Mu Backward DetLayers";
   for ( iter = backward.begin(); iter != backward.end(); iter++ ) printLayer(*iter);
@@ -78,7 +78,7 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   edm::LogInfo ("MuonNavigationPrinter") << "FORWARD:";
   vector<ForwardDetLayer*> tkforward =  tracker->posForwardLayers();
   edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<tkforward.size()<<" Tk Forward DetLayers";
-  for ( tkfiter = tkforward.begin(); tkfiter != tkforward.end(); tkfiter++ ) printLayer(*tkfiter);
+//  for ( tkfiter = tkforward.begin(); tkfiter != tkforward.end(); tkfiter++ ) printLayer(*tkfiter);
 
   vector<DetLayer*> forward = muonLayout->allForwardLayers();
   edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<forward.size()<<" Mu Forward DetLayers";
@@ -139,20 +139,18 @@ void MuonNavigationPrinter::printNextLayers(vector<const DetLayer*> nextLayers) 
      edm::LogInfo ("MuonNavigationPrinter") << " --> "; 
     if ( (*inext)->part() == barrel ) {
       const BarrelDetLayer* l = dynamic_cast<const BarrelDetLayer*>(&(**inext));
-       edm::LogInfo ("MuonNavigationPrinter") << layerPart(*inext) << "   "
-           << layerModule(*inext);
-      if ( (*inext)->module() == dt )  edm::LogInfo ("MuonNavigationPrinter") << " ";
-       edm::LogInfo ("MuonNavigationPrinter") << "layer at R: "
+       edm::LogInfo ("MuonNavigationPrinter") << layerPart(*inext) << " "
+           << layerModule(*inext)
+           << " layer at R: "
            << setiosflags(ios::showpoint | ios::fixed)
            << setw(8) << setprecision(2)
            << l->specificSurface().radius() << "   ";
     }
     else {
       const ForwardDetLayer* l = dynamic_cast<const ForwardDetLayer*>(&(**inext));
-       edm::LogInfo ("MuonNavigationPrinter") << layerPart(*inext) << " ";
-           if ( layerPart(*inext) == "forward" )  edm::LogInfo ("MuonNavigationPrinter") << " ";
-       edm::LogInfo ("MuonNavigationPrinter") << layerModule(*inext)
-           << "layer at z: "
+       edm::LogInfo ("MuonNavigationPrinter") << layerPart(*inext) << " "
+           << layerModule(*inext)
+           << " layer at z: "
            << setiosflags(ios::showpoint | ios::fixed)
            << setw(8) << setprecision(2)
            << l->surface().position().z() << "   ";
