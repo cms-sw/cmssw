@@ -29,7 +29,7 @@
   o setup.sh                         : creates necessary xml and other files needed
                                        for a given environment
 
-  o .SiStripClient.xm                : used by setup.sh to create real ones
+  o .SiStripClient.xml                : used by setup.sh to create real ones
     .profile.xml                      SiStripClient.xml profile.xml 
   
   o  .startMonitorClient             : used by  setup.sh to create start script 

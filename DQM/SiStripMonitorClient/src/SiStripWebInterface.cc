@@ -109,7 +109,7 @@ void SiStripWebInterface::createTkMap(xgi::Input * in, xgi::Output *out) throw (
   if (updates == 0) {
     subscribeAll(in, out);
     return;
-  } else if (updates < 10) {
+  } else if (updates < 5) {
     cout << " Not enough updates received !!" << endl;
     return;
   }

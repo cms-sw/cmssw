@@ -2,11 +2,12 @@
  *
  *  Implementation of SiStripQualityTester
  *
- *  $Date: 2006/05/09 22:26:42 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/15 20:09:47 $
+ *  $Revision: 1.7 $
  *  \author Suchandra Dutta
  */
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/ClientConfig/interface/QTestConfigurationParser.h"
@@ -49,6 +50,7 @@ void SiStripQualityTester::setupQTests(MonitorUserInterface* mui) {
     }
   }
   cout << " Attaching Quality Tests " << endl;
+  
   attachTests(mui);
   cout <<  " Quality Tests attached to MEs properly" << endl;
 }
@@ -69,9 +71,33 @@ void SiStripQualityTester::readQualityTests(string fname) {
 //
 void SiStripQualityTester::attachTests(MonitorUserInterface * mui){
   std::string currDir = mui->pwd();
-  // browse through monitorable; check if MEs exist
+  vector<string> contentVec;
+  mui->getContents(contentVec);
+  for (vector<string>::iterator it = contentVec.begin();
+       it != contentVec.end(); it++) {
+    vector<string> contents;
+    int nval = SiStripUtility::getMEList((*it), contents);
+    if (nval == 0) continue;
+    for (std::vector<std::string>::const_iterator im = contents.begin();
+	 im != contents.end(); im++) {
+    
+      for (SiStripQualityTester::MEAssotiateMapType::const_iterator ic = theMeAssociateMap.begin(); ic != theMeAssociateMap.end(); ic++) {
+        string me_name = ic->first;
+        if ((*im).find(me_name) != std::string::npos) {
+	  cout << " Test " << (*im) << endl;
+	  for (vector<string>::const_iterator iv = ic->second.begin();
+	       iv !=  ic->second.end(); iv++) {
+	    mui->useQTest((*im), (*iv));
+	  }
+        }
+      }
+    }
+  }
+
+  /*  // browse through monitorable; check if MEs exist
   std::vector<std::string> subdirs = mui->getSubdirs();
   std::vector<std::string> contents = mui->getMEs();
+  
   for (std::vector<std::string>::const_iterator it = contents.begin();
 	 it != contents.end(); it++) {
     
@@ -91,7 +117,7 @@ void SiStripQualityTester::attachTests(MonitorUserInterface * mui){
     mui->cd(*ip);
     attachTests(mui);
     mui->goUp();
- }   
+    }*/   
 }
 //
 // -- Set up ContentsXRange test with it's parameters

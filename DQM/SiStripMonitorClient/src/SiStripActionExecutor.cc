@@ -1,6 +1,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiStripMonitorClient/interface/TrackerMap.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TText.h"
@@ -71,33 +72,40 @@ void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui,
 void SiStripActionExecutor::getValuesForTkMap(MonitorUserInterface* mui,
  std::vector<std::string> me_names, SiStripActionExecutor::DetMapType & values) {
   std::string currDir = mui->pwd();
-  // browse through monitorable; check  if MEs exist
-  if (currDir.find("module_") != std::string::npos)  {
-    // Geometric ID
-    int id = atoi((currDir.substr(currDir.find("module_")+7)).c_str());
+  vector<string> contentVec;
+  mui->getContents(contentVec);
+  for (vector<string>::iterator it = contentVec.begin();
+       it != contentVec.end(); it++) {
+    if ((*it).find("module_") == std::string::npos) continue;
+    vector<string> contents;
+    int nval = SiStripUtility::getMEList((*it), contents);
+    if (nval == 0) continue;
+    // get module id
+    int id = atoi(((*it).substr((*it).find("module_")+7)).c_str());
     TCanvas canvas("display");
     canvas.Clear();
     if (me_names.size() == 2) canvas.Divide(1,2);
     if (me_names.size() == 3) canvas.Divide(1,3);
     if (me_names.size() == 4) canvas.Divide(2,2);
-    int idiv = 0;
-
+    int idiv;
     int status;
     int icol;
     string tag;
-    std::vector<std::string> contents = mui->getMEs();    
 
     std::vector<std::pair <int, float> > vtemp;
-    for (std::vector<std::string>::const_iterator im = me_names.begin();
-	 im != me_names.end(); im++) {
-      idiv++;
-      
-      for (std::vector<std::string>::const_iterator it = contents.begin();
-	      it != contents.end(); it++) {
-	if ((*it).find((*im)) != 0) continue;
-	std::string fullpathname = currDir + "/" + (*it); 
-        MonitorElement * me = mui->get(fullpathname);
-        if (me) {
+
+    //  browse through monitorable; check  if required MEs exist    
+    for (std::vector<std::string>::const_iterator ic = contents.begin();
+	      ic != contents.end(); ic++) {
+      idiv = 0;
+      for (std::vector<std::string>::const_iterator im = me_names.begin();
+	   im != me_names.end(); im++) {
+	idiv++;
+	if ((*ic).find((*im)) == std::string::npos) continue;
+
+
+        MonitorElement * me = mui->get((*ic));
+	if (me) {
           // Mean Value
 	  float mean_val = me->getMean();
           // Status after comparison to Referece 
@@ -120,7 +128,7 @@ void SiStripActionExecutor::getValuesForTkMap(MonitorUserInterface* mui,
 	  if (ob) {
             canvas.cd(idiv);
             TText tt;
-            tt.SetTextSize(0.06);
+            tt.SetTextSize(0.20);
             tt.SetTextColor(icol);
 	    ob->operator->()->Draw();
             tt.DrawTextNDC(0.7, 0.5, tag.c_str());
@@ -134,15 +142,7 @@ void SiStripActionExecutor::getValuesForTkMap(MonitorUserInterface* mui,
     ostringstream name_str;
     name_str << id << ".jpg";
     canvas.SaveAs(name_str.str().c_str());    
-  } else {
-    std::vector<std::string> subdirs = mui->getSubdirs();
-    for (std::vector<std::string>::const_iterator it = subdirs.begin();
-	 it != subdirs.end(); it++) {
-      mui->cd(*it);
-      getValuesForTkMap(mui, me_names, values);
-      mui->goUp();
-    }
-  } 
+  }
 }
 //
 // -- Browse through the Folder Structure
@@ -215,46 +215,44 @@ MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui,
 // Check Status of Quality Tests
 void SiStripActionExecutor::checkTestResults(MonitorUserInterface * mui) {
   string currDir = mui->pwd();
-  // browse through monitorables and check test results
-  std::vector<std::string> subdirs = mui->getSubdirs();
-  std::vector<string> contents = mui->getMEs();    
-  for (std::vector<string>::const_iterator it = contents.begin();
-	 it != contents.end(); it++) {
-    std::string fullpathname = currDir + "/" + (*it); 
-    MonitorElement * me = mui->get(fullpathname);
-    if (me) {
-      // get all warnings associated with me
-      vector<QReport*> warnings = me->getQWarnings();
-      for(vector<QReport *>::const_iterator it = warnings.begin();
-	  it != warnings.end(); ++it) {
-	edm::LogWarning("SiStripQualityTester::checkTestResults") << 
-	  " *** Warning for " << me->getName() << 
-	  "," << (*it)->getMessage() << "\n";
-	
-	cout <<  " *** Warning for " << me->getName() << "," 
-	     << (*it)->getMessage() << " " << me->getMean() 
-	     << " " << me->getRMS() << me->hasWarning() 
-	     << endl;
-      }
-      // get all errors associated with me
-      vector<QReport *> errors = me->getQErrors();
-      for(vector<QReport *>::const_iterator it = errors.begin();
-	  it != errors.end(); ++it) {
-	edm::LogError("SiStripQualityTester::checkTestResults") << 
-	  " *** Error for " << me->getName() << 
-	  "," << (*it)->getMessage() << "\n";
-	
-	cout  <<   " *** Error for " << me->getName() << ","
-	      << (*it)->getMessage() << " " << me->getMean() 
-	      << " " << me->getRMS() 
-	      << endl;
+  vector<string> contentVec;
+  mui->getContents(contentVec);
+  for (vector<string>::iterator it = contentVec.begin();
+       it != contentVec.end(); it++) {
+    vector<string> contents;
+    int nval = SiStripUtility::getMEList((*it), contents);
+    if (nval == 0) continue;
+    for (std::vector<std::string>::const_iterator im = contents.begin();
+	 im != contents.end(); im++) {
+      MonitorElement * me = mui->get((*im));
+      if (me) {
+	// get all warnings associated with me
+	vector<QReport*> warnings = me->getQWarnings();
+	for(vector<QReport *>::const_iterator it = warnings.begin();
+	    it != warnings.end(); ++it) {
+	  edm::LogWarning("SiStripQualityTester::checkTestResults") << 
+	    " *** Warning for " << me->getName() << 
+	    "," << (*it)->getMessage() << "\n";
+	  
+	  cout <<  " *** Warning for " << me->getName() << "," 
+	       << (*it)->getMessage() << " " << me->getMean() 
+	       << " " << me->getRMS() << me->hasWarning() 
+	       << endl;
+	}
+	// get all errors associated with me
+	vector<QReport *> errors = me->getQErrors();
+	for(vector<QReport *>::const_iterator it = errors.begin();
+	    it != errors.end(); ++it) {
+	  edm::LogError("SiStripQualityTester::checkTestResults") << 
+	    " *** Error for " << me->getName() << 
+	    "," << (*it)->getMessage() << "\n";
+	  
+	  cout  <<   " *** Error for " << me->getName() << ","
+		<< (*it)->getMessage() << " " << me->getMean() 
+		<< " " << me->getRMS() 
+		<< endl;
+	}
       }
     }
   }
-  for (std::vector<string>::const_iterator it = subdirs.begin();
-       it != subdirs.end(); it++) {
-    mui->cd(*it);
-    checkTestResults(mui);
-    mui->goUp();
-  } 
 }
