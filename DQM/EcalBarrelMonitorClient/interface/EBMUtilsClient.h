@@ -1,11 +1,11 @@
-// $Id: $
+// $Id: EBMUtilsClient.h,v 1.2 2006/05/18 15:21:47 benigno Exp $
 
 /*!
   \file EBMUtilsClient.h
   \brief Ecal Barrel Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.1 $
-  \date $Date: 2006/05/18 08:05:08 $
+  \version $Revision: 1.2 $
+  \date $Date: 2006/05/18 15:21:47 $
 */
 
 #ifndef EBMUtilsClient_H
@@ -31,9 +31,10 @@ class EBMUtilsClient {
       if( ob ) { 
 	if( clone ) {
 	  std::string s = "ME " + me->getName();
+          ret = (T*) gROOT->FindObject(s.c_str());
+          if( ret ) delete ret;
 	  ret = dynamic_cast<T*>((ob->operator->())->Clone(s.c_str())); 
-      }
-	else {
+        } else {
 	  ret = dynamic_cast<T*>( ob->operator->()); 
 	}
       }
