@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/20 16:23:35 $
- * $Revision: 1.120 $
+ * $Date: 2006/05/21 08:30:03 $
+ * $Revision: 1.121 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1110,10 +1110,12 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( ! begin_run_done_ ) {
 
       this->beginRun();
+
       begin_run_done_ = true;
       forced_begin_run_ = false;
 
       end_run_done_ = false;
+      forced_end_run_ = false;
 
     }
 
@@ -1129,10 +1131,12 @@ void EcalBarrelMonitorClient::analyze(void){
 
         status_ = "begin-of-run";
         this->beginRun();
+
         begin_run_done_ = true;
         forced_begin_run_ = true;
 
         end_run_done_ = false;
+        forced_end_run_ = false;
 
       }
 
@@ -1227,9 +1231,11 @@ void EcalBarrelMonitorClient::analyze(void){
           cout << "Forcing endRun() ... NOW !" << endl;
 
           begin_run_done_ = false;
+          forced_begin_run_ = false;
 
           status_ = "end-of-run";
           this->endRun();
+
           end_run_done_ = true;
           forced_end_run_ = true;
 
@@ -1294,8 +1300,10 @@ void EcalBarrelMonitorClient::analyze(void){
       }
 
       begin_run_done_ = false;
+      forced_begin_run_ = false;
 
       this->endRun();
+
       end_run_done_ = true;
       forced_end_run_ = false;
 
