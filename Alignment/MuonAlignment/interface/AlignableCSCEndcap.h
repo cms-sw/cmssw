@@ -1,5 +1,5 @@
-#ifndef Alignment_MuonAlignment_AlignableMuEndCap_H
-#define Alignment_MuonAlignment_AlignableMuEndCap_H
+#ifndef Alignment_MuonAlignment_AlignableCSCEndcap_H
+#define Alignment_MuonAlignment_AlignableCSCEndcap_H
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -15,19 +15,19 @@
 
 class GeomDet;
 
-/// Concrete class for muon CSC EndCap alignable.
+/// Concrete class for muon CSC Endcap alignable.
 ///
 /// Misalignment can be de-/reactivated (forwarded to components).
 ///
 
-class AlignableMuEndCap : public AlignableComposite 
+class AlignableCSCEndcap : public AlignableComposite 
 {
 
  public:
 
-  AlignableMuEndCap( const std::vector<AlignableCSCStation*> cscStations );
+  AlignableCSCEndcap( const std::vector<AlignableCSCStation*> cscStations );
 
-  ~AlignableMuEndCap();
+  ~AlignableCSCEndcap();
   
   virtual std::vector<Alignable*> components() const 
   {
@@ -52,8 +52,11 @@ class AlignableMuEndCap : public AlignableComposite
   
   virtual void twist(float);
 
+  /// Return alignable object identifier
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableCSCEndcap; }
+
   /// Printout muon End Cap information (not recursive)
-  friend std::ostream& operator << ( std::ostream&, const AlignableMuEndCap& );
+  friend std::ostream& operator << ( std::ostream&, const AlignableCSCEndcap& );
 
   /// Recursive printout of the muon End Cap structure
   void dump( void );

@@ -52,6 +52,9 @@ class AlignableDTStation : public AlignableComposite
   
   virtual void twist(float);
 
+  /// Return alignable object identifier
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTStation; }
+
   /// Printout muon DT Station information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableDTStation& );
 

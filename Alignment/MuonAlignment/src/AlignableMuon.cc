@@ -10,16 +10,17 @@
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
-// Tracker components
+#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+
+// Muon  components
 #include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
 #include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
 #include "Alignment/MuonAlignment/interface/AlignableDTStation.h"
 #include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
 #include "Alignment/MuonAlignment/interface/AlignableDTWheel.h"
-#include "Alignment/MuonAlignment/interface/AlignableMuBarrel.h"
-#include "Alignment/MuonAlignment/interface/AlignableMuEndCap.h"
+#include "Alignment/MuonAlignment/interface/AlignableDTBarrel.h"
+#include "Alignment/MuonAlignment/interface/AlignableCSCEndcap.h"
 
-#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -38,16 +39,16 @@ AlignableMuon::AlignableMuon( const edm::Event& iEvent, const edm::EventSetup& i
   iSetup.get<MuonGeometryRecord>().get( pDT );     
 
   // Build the muon barrel
-  buildMuBarrel( pDT );
+  buildDTBarrel( pDT );
 
   // Get CSCGeometry pointer
   iSetup.get<MuonGeometryRecord>().get( pCSC ); 
 
   // Get the vector of CSC chambers;
-  const std::vector<CSCChamber*> theCSCChambers = pCSC->chambers()
+  const std::vector<CSCChamber*> theCSCChambers = pCSC->chambers();
 
   // Build the muon end caps
-  buildMuEndCap( pCSC );
+  buildCSCEndcap( pCSC );
 
   edm::LogInfo("AlignableMuon") << "Constructing alignable muon objects DONE"; 
 
@@ -69,45 +70,40 @@ AlignableMuon::~AlignableMuon()
 
 
 //--------------------------------------------------------------------------------------------------
-void AlignableMuon::buildMuBarrel( edm::ESHandle<DTGeometry> pDT  )
+void AlignableMuon::buildDTBarrel( edm::ESHandle<DTGeometry> pDT  )
 {
   
- LogDebug("Position") << "Constructing AlignableMuBarrel"; 
-
-  // Get the vector of DT chambers;
-  const std::vector<DTChamber*> theDTChambers = pDT->chambers()
+ LogDebug("Position") << "Constructing AlignableDTBarrel"; 
 
   // Temporary container for chambers in a given station
   std::vector<AlignableDTChamber*>   tmpDTChambersInStation;
 
-  // Loop over wheels
-  for( int iwh = -2 ; iwh =< 2 ; iwh++ ){
+  // Loop over wheels ( -2..2 )
+  for( int iwh = -2 ; iwh < 3 ; iwh++ ){
 
-    // Loop over stations
-    for( int ist = 1 ; ist =< 4 ; ist++ ){
+    // Loop over stations ( 1..4 )
+    for( int ist = 1 ; ist < 5 ; ist++ ){
   
       // Loop over geom DT Chambers
-      for(vector<DTChamber*>::const_iterator det = pDT->chambers().begin(); 
-                                             det != pDT->chambers().end(); ++det){
+      for( std::vector<DTChamber*>::const_iterator det = pDT->chambers().begin(); 
+                                             det != pDT->chambers().end(); ++det ){
         // Get the chamber ID
         DTChamberId chamberId = (*det)->id(); 
 
         // Get wheel,station and sector of the chamber
         int wh = chamberId.wheel();
         int st = chamberId.station();
-        int se = chamberId.sector();
+//        int se = chamberId.sector();
 
         // Select the chambers in a given wheel in a given station
         if ( iwh == wh && ist == st ){
 
-          // Get the GeomDet chamber corresponding to this ID
-          const GeomDet* gdetc = det->idToDet(id);
-
           // Get the vector of super layers in this chamber
-          const std::vector<DTSuperLayer*> &theSL = det->superLayers();
+          std::vector<DTSuperLayer*> theSL = (*det)->superLayers();
+//          std::vector<GeomDet*> theSL = (*det)->superLayers();
       
           // Create the alignable DT chamber 
-          AlignableDTChamber* tmpDTChamber  = new AlignableDTChamber(theSL);
+          AlignableDTChamber* tmpDTChamber  = new AlignableDTChamber( theSL );
 
           // Store the DT chambers in a given DT Station
 	  tmpDTChambersInStation.push_back( tmpDTChamber );
@@ -144,10 +140,10 @@ void AlignableMuon::buildMuBarrel( edm::ESHandle<DTGeometry> pDT  )
   }    
           
   // Create the alignable Muon Barrel
-  theMuBarrel  = new AlignableMuBarrel( theDTWheels );  
+  theDTBarrel  = new AlignableDTBarrel( theDTWheels );  
   
   // Store the barrel 
-  theMuonComponents.push_back( theMuBarrel );
+  theMuonComponents.push_back( theDTBarrel );
 
 
 }
@@ -157,59 +153,54 @@ void AlignableMuon::buildMuBarrel( edm::ESHandle<DTGeometry> pDT  )
 //--------------------------------------------------------------------------------------------------
 
 
-void AlignableMuon::buildMuEndCap( edm::ESHandle<CSCGeometry> pCSC  )
+void AlignableMuon::buildCSCEndcap( edm::ESHandle<CSCGeometry> pCSC  )
 {
   
- LogDebug("Position") << "Constructing AlignableMuBarrel"; 
+ LogDebug("Position") << "Constructing AlignableDTBarrel"; 
 
-  // Get the vector of CSC chambers;
-  const std::vector<CSCChamber*> theCSCChambers = pCSC->chambers()
 
   // Temporary container for chambers in a given station
   std::vector<AlignableCSCChamber*>   tmpCSCChambersInStation;
 
-  // Loop over endcaps
-  for( int iec = 1 ; iec =< 2 ; iec++ ){
+  // Loop over endcaps ( 1..2 )
+  for( int iec = 1 ; iec < 3 ; iec++ ){
 
-    // Loop over stations
-    for( int ist = 1 ; ist =< 4 ; ist++ ){
+    // Loop over stations ( 1..4 )
+    for( int ist = 1 ; ist < 5 ; ist++ ){
   
       // Loop over geom CSC Chambers
-      for(vector<CSCChamber*>::const_iterator det = pCSC->chambers().begin(); 
-                                              det != pCSC->chambers().end(); ++det){
+      for( std::vector<CSCChamber*>::const_iterator det = pCSC->chambers().begin();  
+                                              det != pCSC->chambers().end(); ++det ){
+
+        // Get the CSCDet ID
+        CSCDetId cscId = (*det)->id();
+
+        // Get chamber, station, ring, layer and endcap labels of the CSC chamber
+        int ch = cscId.chamber();
+        int st = cscId.station();
+//        int ri = cscId.ring();
+//        int la = cscId.layer();
+        int ec = cscId.endcap();
+
 
         // Select the chambers in a given endcap in a given station
+        std::vector<CSCLayer*> theLayers;
+//        std::vector<GeomDet*> theLayers;
         if ( iec == ec && ist == st ){
-
-          // Get the CSCDet ID
-          CSCDetId cscId = (*det)->id(); 
-
-          // Get chamber, station, ring, layer and endcap labels of the CSC chamber
-          int ch = cscId.chamber();
-          int st = cscId.station();
-          int ri = cscId.ring();
-          int la = cscId.layer();
-          int ec = cscId.endcap();
 
 
           std::cout << "        " << std::endl ;
           std::cout << "        " << std::endl ;
           std::cout << "Chamber=" << ch << std::endl ;
           std::cout << "Station=" << st << std::endl ;
-          std::cout << "Ring   =" << ri << std::endl ;
-          std::cout << "Layer  =" << la << std::endl ;
-          std::cout << "Endcap =" << es << std::endl ;
+          std::cout << "Endcap =" << ec << std::endl ;
           std::cout << "        " << std::endl ;
           std::cout << "        " << std::endl ;
     
 
-          // Get the GeomDet chamber corresponding to this ID
-          const GeomDet* gdetc = det->idToDet(id);
-
           // Get the vector of layers(1..6) in this chamber
-          const std::vector<CSCLayer*> theLayers;
-          for( int ii = 1 ; ii=<6 ; ii++ ){
-            theLayers.push_back( (det*)->layer(ii) );
+          for( int ii = 1 ; ii < 7 ; ii++ ){
+            theLayers.push_back( (*det)->layer(ii) );
           } 
   
         // End If chamber selection
@@ -241,19 +232,69 @@ void AlignableMuon::buildMuEndCap( edm::ESHandle<CSCGeometry> pCSC  )
     }
 
     // Create the alignable CSC endcap 
-    AlignableCSCEndCap* tmpEndCap  = new AlignableCSCEndCap( theCSCStations );
+    AlignableCSCEndcap* tmpEndcap  = new AlignableCSCEndcap( theCSCStations );
      
     // Store the CSC stations in a given endcap  
-    theMuEndCaps.push_back( tmpEndCap );
+    theCSCEndcaps.push_back( tmpEndcap );
 
-  // End loop over wheels   
+  // End loop over endcaps  
   }
 
   // Store the encaps in the muon components  
-  theMuonComponents.insert(  theMuonComponents.end(), theMuEndCaps.begin(), theMuEndCaps.end() );    
+  theMuonComponents.insert(  theMuonComponents.end(), theCSCEndcaps.begin(), theCSCEndcaps.end() );    
 
     
 }
 
 
 //--------------------------------------------------------------------------------------------------
+std::vector<AlignableDTChamber*> AlignableMuon::DTChambers()
+{
+  return theDTChambers;
+}
+
+//--------------------------------------------------------------------------------------------------
+std::vector<AlignableDTStation*> AlignableMuon::DTStations()
+{
+  return theDTStations;
+}
+
+//--------------------------------------------------------------------------------------------------
+std::vector<AlignableDTWheel*> AlignableMuon::DTWheels()
+{
+  return theDTWheels;
+}
+
+//--------------------------------------------------------------------------------------------------
+alignable* AlignableMuon::DTBarrel()
+{
+  return theDTBarrel;
+}
+
+//--------------------------------------------------------------------------------------------------
+std::vector<AlignableCSCChamber*> AlignableMuon::CSCChambers()
+{
+  return theCSCChambers;
+}
+
+//--------------------------------------------------------------------------------------------------
+std::vector<AlignableCSCStation*> AlignableMuon::CSCStations()
+{
+  return theCSCStations;
+}
+
+//--------------------------------------------------------------------------------------------------
+std::vector<AlignableCSCEndcap*> AlignableMuon::CSCEndcaps()
+{
+  return theCSCEndcaps;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+virtual std::vector<Alignable*> AlignableMuon::components()
+{
+  return theMuonComponents;
+}
+
+
+

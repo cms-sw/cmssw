@@ -1,8 +1,8 @@
-#include "Alignment/MuonAlignment/interface/AlignableMuEndCap.h"
+#include "Alignment/MuonAlignment/interface/AlignableCSCEndcap.h"
 
 
 /// The constructor simply copies the vector of stations and computes the surface from them
-AlignableMuEndCap::AlignableMuEndCap( const std::vector<AlignableCSCStation*> cscStations ) 
+AlignableCSCEndcap::AlignableCSCEndcap( const std::vector<AlignableCSCStation*> cscStations ) 
 {
 
   theCSCStations.insert( theCSCStations.end(), cscStations.begin(), cscStations.end() );
@@ -13,7 +13,7 @@ AlignableMuEndCap::AlignableMuEndCap( const std::vector<AlignableCSCStation*> cs
       
 
 /// Clean delete of the vector and its elements
-AlignableMuEndCap::~AlignableMuEndCap() 
+AlignableCSCEndcap::~AlignableCSCEndcap() 
 {
   for ( std::vector<AlignableCSCStation*>::iterator iter = theCSCStations.begin(); 
 	iter != theCSCStations.end(); iter++)
@@ -21,8 +21,8 @@ AlignableMuEndCap::~AlignableMuEndCap()
 
 }
 
-/// Return AlignableMuEndCap station at given index
-AlignableCSCStation &AlignableMuEndCap::station(int i) 
+/// Return AlignableCSCEndcap station at given index
+AlignableCSCStation &AlignableCSCEndcap::station(int i) 
 {
   
   if (i >= size() ) 
@@ -35,7 +35,7 @@ AlignableCSCStation &AlignableMuEndCap::station(int i)
 
 /// Returns surface corresponding to current position
 /// and orientation, as given by average on all components
-AlignableSurface AlignableMuEndCap::computeSurface()
+AlignableSurface AlignableCSCEndcap::computeSurface()
 {
 
   return AlignableSurface( computePosition(), computeOrientation() );
@@ -45,7 +45,7 @@ AlignableSurface AlignableMuEndCap::computeSurface()
 
 
 /// Compute average z position from all components (x and y forced to 0)
-AlignableMuEndCap::PositionType AlignableMuEndCap::computePosition() 
+AlignableCSCEndcap::PositionType AlignableCSCEndcap::computePosition() 
 {
 
   float zz = 0.;
@@ -62,14 +62,14 @@ AlignableMuEndCap::PositionType AlignableMuEndCap::computePosition()
 
 
 /// Just initialize to default given by default constructor of a RotationType
-AlignableMuEndCap::RotationType AlignableMuEndCap::computeOrientation() 
+AlignableCSCEndcap::RotationType AlignableCSCEndcap::computeOrientation() 
 {
   return RotationType();
 }
 
 
 /// Twists all components by given angle
-void AlignableMuEndCap::twist(float rad) 
+void AlignableCSCEndcap::twist(float rad) 
 {
 
   for ( std::vector<AlignableCSCStation*>::iterator iter = theCSCStations.begin();
@@ -82,7 +82,7 @@ void AlignableMuEndCap::twist(float rad)
 
 
 /// Output Half Barrel information
-std::ostream &operator << (std::ostream& os, const AlignableMuEndCap& b )
+std::ostream &operator << (std::ostream& os, const AlignableCSCEndcap& b )
 {
 
   os << "This EndCap contains " << b.theCSCStations.size() << " CSC stations" << std::endl;
@@ -95,7 +95,7 @@ std::ostream &operator << (std::ostream& os, const AlignableMuEndCap& b )
 
 
 /// Recursive printout of whole Half Barrel structure
-void AlignableMuEndCap::dump( void )
+void AlignableCSCEndcap::dump( void )
 {
 
   std::cout << (*this);

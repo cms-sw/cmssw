@@ -1,8 +1,8 @@
-#include "Alignment/MuonAlignment/interface/AlignableMuBarrel.h"
+#include "Alignment/MuonAlignment/interface/AlignableDTBarrel.h"
 
 
 /// The constructor simply copies the vector of wheels and computes the surface from them
-AlignableMuBarrel::AlignableMuBarrel( const std::vector<AlignableDTWheel*> dtWheels ) 
+AlignableDTBarrel::AlignableDTBarrel( const std::vector<AlignableDTWheel*> dtWheels ) 
 {
 
   theDTWheels.insert( theDTWheels.end(), dtWheels.begin(), dtWheels.end() );
@@ -13,7 +13,7 @@ AlignableMuBarrel::AlignableMuBarrel( const std::vector<AlignableDTWheel*> dtWhe
       
 
 /// Clean delete of the vector and its elements
-AlignableMuBarrel::~AlignableMuBarrel() 
+AlignableDTBarrel::~AlignableDTBarrel() 
 {
   for ( std::vector<AlignableDTWheel*>::iterator iter = theDTWheels.begin(); 
 	iter != theDTWheels.end(); iter++)
@@ -22,7 +22,7 @@ AlignableMuBarrel::~AlignableMuBarrel()
 }
 
 /// Return AlignableBarrelLayer at given index
-AlignableDTWheel &AlignableMuBarrel::wheel(int i) 
+AlignableDTWheel &AlignableDTBarrel::wheel(int i) 
 {
   
   if (i >= size() ) 
@@ -35,7 +35,7 @@ AlignableDTWheel &AlignableMuBarrel::wheel(int i)
 
 /// Returns surface corresponding to current position
 /// and orientation, as given by average on all components
-AlignableSurface AlignableMuBarrel::computeSurface()
+AlignableSurface AlignableDTBarrel::computeSurface()
 {
 
   return AlignableSurface( computePosition(), computeOrientation() );
@@ -45,7 +45,7 @@ AlignableSurface AlignableMuBarrel::computeSurface()
 
 
 /// Compute average z position from all components (x and y forced to 0)
-AlignableMuBarrel::PositionType AlignableMuBarrel::computePosition() 
+AlignableDTBarrel::PositionType AlignableDTBarrel::computePosition() 
 {
 
   float zz = 0.;
@@ -62,14 +62,14 @@ AlignableMuBarrel::PositionType AlignableMuBarrel::computePosition()
 
 
 /// Just initialize to default given by default constructor of a RotationType
-AlignableMuBarrel::RotationType AlignableMuBarrel::computeOrientation() 
+AlignableDTBarrel::RotationType AlignableDTBarrel::computeOrientation() 
 {
   return RotationType();
 }
 
 
 /// Twists all components by given angle
-void AlignableMuBarrel::twist(float rad) 
+void AlignableDTBarrel::twist(float rad) 
 {
 
   for ( std::vector<AlignableDTWheel*>::iterator iter = theDTWheels.begin();
@@ -82,10 +82,10 @@ void AlignableMuBarrel::twist(float rad)
 
 
 /// Output Half Barrel information
-std::ostream &operator << (std::ostream& os, const AlignableMuBarrel& b )
+std::ostream &operator << (std::ostream& os, const AlignableDTBarrel& b )
 {
 
-  os << "This MuBarrel contains " << b.theDTWheels.size() << " Barrel wheels" << std::endl;
+  os << "This DTBarrel contains " << b.theDTWheels.size() << " Barrel wheels" << std::endl;
   os << "(phi, r, z) =  (" << b.globalPosition().phi() << "," 
      << b.globalPosition().perp() << "," << b.globalPosition().z();
   os << "),  orientation:" << std::endl<< b.globalRotation() << std::endl;
@@ -95,7 +95,7 @@ std::ostream &operator << (std::ostream& os, const AlignableMuBarrel& b )
 
 
 /// Recursive printout of whole Half Barrel structure
-void AlignableMuBarrel::dump( void )
+void AlignableDTBarrel::dump( void )
 {
 
   std::cout << (*this);

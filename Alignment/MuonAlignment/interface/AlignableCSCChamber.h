@@ -38,10 +38,7 @@ class AlignableCSCChamber: public AlignableComposite
   virtual float length() const;
 
   /// Alignable object identifier
-  virtual int alignableObjectId () const 
-  {
-    return AlignableObjectId::AlignableCSCChamber;
-  }
+  virtual int alignableObjectId () const { return AlignableObjectId::AlignableCSCChamber; }
 
   virtual void twist(float);
 

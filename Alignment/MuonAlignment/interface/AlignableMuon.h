@@ -3,19 +3,46 @@
 
 #include <vector>
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include <FWCore/Framework/interface/Frameworkfwd.h>
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/Event.h>
+#include <FWCore/Framework/interface/EventSetup.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
+
+#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
-#include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
+#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include <Geometry/Vector/interface/GlobalPoint.h>
+#include <Geometry/DTGeometry/interface/DTLayer.h>
+#include <Geometry/DTGeometry/interface/DTSuperLayer.h>
+#include <Geometry/CSCGeometry/interface/CSCLayer.h>
+
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
+
+//#include "Alignment/MuonAlignment/interface/AlignableDTBarrel.h"
+//#include "Alignment/MuonAlignment/interface/AlignableDTWheel.h"
+//#include "Alignment/MuonAlignment/interface/AlignableDTStation.h"
+//#include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
+//#include "Alignment/MuonAlignment/interface/AlignableCSCEndcap.h"
+//#include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
+//#include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
+
 
 #include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
 
 // Classes that will be used to construct the muon
-class AlignableMuBarrel;
-class AlignableMuEndCap;
+class AlignableDTBarrel;
+class AlignableDTWheel;
+class AlignableDTStation;
+class AlignableDTChamber;
+class AlignableCSCEndcap;
+class AlignableCSCStation;
+class AlignableCSCChamber;
+
+
+
 
 /// Constructor of the full muon geometry.
 /// This object is stored to the EventSetup for further retrieval
@@ -26,7 +53,7 @@ class AlignableMuon: public AlignableComposite
 public:
   
   /// Constructor from record (builds the full hierarchy)
-  AlignableMuon( const edm::Event& iEvent, const edm::EventSetup& iSetup ); 
+  AlignableMuon( const edm::Event& , const edm::EventSetup&  ); 
 
   /// Destructor
   ~AlignableMuon();
@@ -44,17 +71,14 @@ public:
   /// Return all components
   virtual std::vector<Alignable*> components() const { return theMuonComponents; }
 
-
-  std::vector<Alignable*> theDTChambers();
-
-  std::vector<Alignable*> theDTStations();
-  
-  std::vector<Alignable*> theDTWheels();
-
-  std::vector<Alignable*> theCSCChambers();
-   
-  std::vector<Alignable*> theCSCStations();
-  
+  // Methods to return specific of components
+  std::vector<Alignable*> DTChambers();
+  std::vector<Alignable*> DTStations();
+  std::vector<Alignable*> DTWheels();
+  Alignable* DTBarrel();
+  std::vector<Alignable*> CSCChambers();
+  std::vector<Alignable*> CSCStations();
+  std::vector<Alignable*> CSCEndcap();
 
 
 private:
@@ -66,6 +90,9 @@ private:
   /// Get the Surface
   AlignableSurface computeSurface();
 
+  /// Return alignable object identifier
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableMuon; }
+
    // Sub-structure builders 
 
 
@@ -76,10 +103,10 @@ private:
   edm::ESHandle<CSCGeometry> pCSC;
 
    // Build muon barrel
-   void buildMuBarrel( edm::ESHandle<DTGeometry> pDD );
+   void buildDTBarrel( edm::ESHandle<DTGeometry> pDD );
 
    // Build muon end caps
-   void buildMUEndCap( edm::ESHandle<CSCGeometry> pDD );
+   void buildCSCEndcap( edm::ESHandle<CSCGeometry> pDD );
 
 
 
@@ -87,20 +114,19 @@ private:
 //  std::vector<const GeometricDet*> getAllComponents( const GeometricDet* Det, const GeometricDet::GDEnumType type ) const;  
 
 
-  // Container of all components
-  std::vector<Alignable*> theMuonComponents;
 
   // Containers of separate components
 
   std::vector<AlignableDTChamber*>   theDTChambers;
-  std::vector<AlignableDTStation*>   theStations;
+  std::vector<AlignableDTStation*>   theDTStations;
   std::vector<AlignableDTWheel*>     theDTWheels;
-  AlignableMuBarrel*                 theMuBarrel;
+  AlignableDTBarrel*                 theDTBarrel;
   
   std::vector<AlignableCSCChamber*>   theCSCChambers;
   std::vector<AlignableCSCStation*>   theCSCStations;
-  std::vector<AlignableCSCStation*>   theMuEndCaps;
+  std::vector<AlignableCSCEndcap*>    theCSCEndcaps;
 
+  std::vector<Alignable*> theMuonComponents;
 
 };
 

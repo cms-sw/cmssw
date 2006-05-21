@@ -1,5 +1,5 @@
-#ifndef Alignment_MuonAlignment_AlignableMuBarrel_H
-#define Alignment_MuonAlignment_AlignableMuBarrel_H
+#ifndef Alignment_MuonAlignment_AlignableDTBarrel_H
+#define Alignment_MuonAlignment_AlignableDTBarrel_H
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -20,14 +20,14 @@ class GeomDet;
 /// Misalignment can be de-/reactivated (forwarded to components).
 ///
 
-class AlignableMuBarrel : public AlignableComposite 
+class AlignableDTBarrel : public AlignableComposite 
 {
 
  public:
 
-  AlignableMuBarrel( const std::vector<AlignableDTWheel*> dtWheels );
+  AlignableDTBarrel( const std::vector<AlignableDTWheel*> dtWheels );
 
-  ~AlignableMuBarrel();
+  ~AlignableDTBarrel();
   
   virtual std::vector<Alignable*> components() const 
   {
@@ -52,8 +52,11 @@ class AlignableMuBarrel : public AlignableComposite
   
   virtual void twist(float);
 
+  /// Return alignable object identifier
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTBarrel; }
+
   /// Printout muon Barrel information (not recursive)
-  friend std::ostream& operator << ( std::ostream&, const AlignableMuBarrel& );
+  friend std::ostream& operator << ( std::ostream&, const AlignableDTBarrel& );
 
   /// Recursive printout of the muon Barrel structure
   void dump( void );

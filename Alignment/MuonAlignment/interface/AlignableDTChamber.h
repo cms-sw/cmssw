@@ -27,7 +27,7 @@ class AlignableDTChamber: public AlignableComposite
   
 
   /// Constructor from geomdets of the DTChamber components
-  AlignableDTChamber( std::vector<GeomDet*>& geomDets );
+  AlignableDTChamber( std::vector<GeomDet*>& geomDets  );
   
   ~AlignableDTChamber();
   
@@ -38,10 +38,7 @@ class AlignableDTChamber: public AlignableComposite
   virtual float length() const;
 
   /// Alignable object identifier
-  virtual int alignableObjectId () const 
-  {
-    return AlignableObjectId::AlignableDTChamber;
-  }
+  virtual int alignableObjectId () const { return AlignableObjectId::AlignableDTChamber; }
 
   virtual void twist(float);
 

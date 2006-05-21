@@ -52,6 +52,9 @@ class AlignableDTWheel : public AlignableComposite
   
   virtual void twist(float);
 
+  /// Return alignable object identifier
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTWheel; }
+
   /// Printout muon DT wheel information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableDTWheel& );
 
