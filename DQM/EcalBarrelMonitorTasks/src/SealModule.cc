@@ -29,3 +29,6 @@ DEFINE_ANOTHER_FWK_MODULE(EBTestPulseTask)
 #include <DQM/EcalBarrelMonitorTasks/interface/EBBeamHodoTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBBeamHodoTask)
 
+#include <DQM/EcalBarrelMonitorTasks/interface/EBBeamCaloTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EBBeamCaloTask)
+
