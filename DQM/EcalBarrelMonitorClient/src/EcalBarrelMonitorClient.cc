@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/21 09:39:54 $
- * $Revision: 1.122 $
+ * $Date: 2006/05/21 17:24:17 $
+ * $Revision: 1.123 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -458,7 +458,12 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
-  if ( subrun_ != -1 ) this->writeDb();
+  if ( subrun_ != -1 ) {
+
+    this->writeDb();
+    this->endRunDb();
+
+  }
 
   if ( integrity_client_ ) {
     integrity_client_->endRun();
@@ -492,8 +497,6 @@ void EcalBarrelMonitorClient::endRun(void) {
       beam_client_->endRun();
     }
   }
-
-  if ( subrun_ != -1 ) this->endRunDb();
 
   this->cleanup();
 
