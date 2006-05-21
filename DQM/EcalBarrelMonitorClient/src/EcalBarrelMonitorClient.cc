@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/20 15:30:10 $
- * $Revision: 1.119 $
+ * $Date: 2006/05/20 16:23:35 $
+ * $Revision: 1.120 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -484,7 +484,7 @@ void EcalBarrelMonitorClient::endRun(void) {
   last_jevt_ = -1;
   last_update_ = 0;
 
-  if ( enableMonitorDaemon_ ) {
+  if ( ! enableStateMachine_ ) {
 
     // this is an effective way to avoid ROOT memory leaks ...
 
@@ -1099,7 +1099,7 @@ void EcalBarrelMonitorClient::analyze(void){
       cout << endl;
       cout << "Too many 'unknown' states ..." << endl;
       cout << endl;
-      throw exception();
+      if ( ! enableStateMachine_ ) throw exception();
 
     }
 
