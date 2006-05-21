@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/21 08:30:03 $
- * $Revision: 1.121 $
+ * $Date: 2006/05/21 09:39:54 $
+ * $Revision: 1.122 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -45,13 +45,12 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   testpulse_client_      = 0;
   beam_client_           = 0;
 
-  begin_run_done_ = false;
-  end_run_done_   = false;
+  begin_run_ = false;
+  end_run_   = false;
 
-  forced_begin_run_ = false;
-  forced_end_run_   = false;
+  forced_status_ = false;
 
-  forced_update_    = false;
+  forced_update_ = false;
 
   h_ = 0;
 
@@ -59,6 +58,8 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   run_     = -1;
   evt_     = -1;
   runtype_ = "UNKNOWN";
+
+  subrun_  = -1;
 
   last_jevt_   = -1;
   last_update_ = 0;
@@ -122,6 +123,8 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " cloneME switch is OFF" << endl;
   }
 
+  // enableExit switch
+
   enableExit_ = ps.getUntrackedParameter<bool>("enableExit", true);
 
   if ( enableExit_ ) {
@@ -177,7 +180,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_); 
 
-  cout << "Selected Super Modules :" << endl;
+  cout << " Selected Super Modules :" << endl;
 
   for ( unsigned int i = 0; i < superModules_.size(); i++ ) {
     cout << setw(2) << setfill('0') << superModules_[i] << " ";
@@ -324,11 +327,23 @@ void EcalBarrelMonitorClient::beginJob(void){
 
   // check first event
 
-  if ( ! begin_run_done_ ) this->analyze();
+  if ( ! begin_run_ ) {
+
+    cout << endl;
+    cout << "Checking first event at beginJob() ... " << endl;
+    cout << endl;
+
+    forced_update_ = true;
+    this->analyze();
+
+  }
 
 }
 
 void EcalBarrelMonitorClient::beginRun(void){
+
+  begin_run_ = true;
+  end_run_   = false;
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: beginRun" << endl;
 
@@ -384,20 +399,23 @@ void EcalBarrelMonitorClient::endJob(void) {
 
   // check last event
 
-  if ( ! end_run_done_ ) {
+  if ( ! end_run_ ) {
+
+    cout << endl;
+    cout << "Checking last event at endJob() ... " << endl;
+    cout << endl;
 
     forced_update_ = true;
     this->analyze();
 
-  }
+    if ( ! end_run_ ) {
 
-  if ( ! end_run_done_ ) {
+      cout << "Forcing endRun() ... " << endl;
 
-    cout << "Forcing endRun() before endJob() ... " << endl;
+      forced_status_ = true;
+      this->endRun();
 
-    status_ = "end-of-run";
-    this->endRun();
-    end_run_done_ = true;
+    }
 
   }
 
@@ -431,13 +449,16 @@ void EcalBarrelMonitorClient::endJob(void) {
 
 void EcalBarrelMonitorClient::endRun(void) {
 
+  begin_run_ = false;
+  end_run_   = true;
+
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: endRun, jevt = " << jevt_ << endl;
 
   if ( outputFile_.size() != 0 ) mui_->save(outputFile_);
 
   if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
-  this->writeDb();
+  if ( subrun_ != -1 ) this->writeDb();
 
   if ( integrity_client_ ) {
     integrity_client_->endRun();
@@ -472,7 +493,7 @@ void EcalBarrelMonitorClient::endRun(void) {
     }
   }
 
-  this->endRunDb();
+  if ( subrun_ != -1 ) this->endRunDb();
 
   this->cleanup();
 
@@ -481,17 +502,19 @@ void EcalBarrelMonitorClient::endRun(void) {
   evt_     = -1;
   runtype_ = "UNKNOWN";
 
-  last_jevt_ = -1;
+  subrun_ = -1;
+
+  last_jevt_   = -1;
   last_update_ = 0;
 
   if ( ! enableStateMachine_ ) {
 
-    // this is an effective way to avoid ROOT memory leaks ...
+    // in this way we avoid ROOT memory leaks ...
 
     if ( enableExit_ ) {
 
       cout << endl;
-      cout << ">>> endJob after endRun <<<" << endl;
+      cout << ">>> endJob() after endRun() <<<" << endl;
       cout << endl;
       this->endJob();
       throw exception();
@@ -693,7 +716,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
   int tasko = 0x0;
 
   if ( integrity_client_ ) {
-    if ( status_ == "end-of-run" || ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) ) {
+    if ( end_run_ || ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) ) {
       taskl |= 0x1;
       integrity_client_->writeDb(econn, &moniov_);
       tasko |= 0x0;
@@ -701,42 +724,42 @@ void EcalBarrelMonitorClient::writeDb(void) {
   }
 
   if ( cosmic_client_ ) {
-    if ( status_ == "end-of-run" || runtype_ == "COSMIC" ) {
+    if ( end_run_ || runtype_ == "COSMIC" ) {
       taskl |= 0x1 << 1;
       cosmic_client_->writeDb(econn, &moniov_);
       tasko |= 0x0 << 1;
     }
   }
   if ( laser_client_ ) {
-    if ( status_ == "end-of-run" && ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) ) {
+    if ( end_run_ && ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) ) {
       taskl |= 0x1 << 2;
       laser_client_->writeDb(econn, &moniov_);
       tasko |= 0x0 << 2;
     }
   }
   if ( pedestal_client_ ) {
-    if ( status_ == "end-of-run" && runtype_ == "PEDESTAL" ) {
+    if ( end_run_ && runtype_ == "PEDESTAL" ) {
       taskl |= 0x1 << 3;
       pedestal_client_->writeDb(econn, &moniov_);
       tasko |= 0x0 << 3;
     }
   }
   if ( pedestalonline_client_ ) {
-    if ( status_ == "end-of-run" || ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) ) {
+    if ( end_run_ || ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) ) {
       taskl |= 0x1 << 4;
       pedestalonline_client_->writeDb(econn, &moniov_);
       tasko |= 0x0 << 4;
     }
   }
   if ( testpulse_client_ ) {
-    if ( status_ == "end-of-run" && runtype_ == "TEST_PULSE" ) {
+    if ( end_run_ && runtype_ == "TEST_PULSE" ) {
       taskl |= 0x1 << 5;
       testpulse_client_->writeDb(econn, &moniov_);
       tasko |= 0x0 << 5;
     }
   }
   if ( beam_client_ ) {
-    if ( status_ == "end-of-run" || runtype_ == "BEAMH4" ) {
+    if ( end_run_ || runtype_ == "BEAMH4" ) {
       taskl |= 0x1 << 6;
       beam_client_->writeDb(econn, &moniov_);
       tasko |= 0x0 << 6;
@@ -924,6 +947,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   ievt_++;
   jevt_++;
+
   if ( ievt_ % 10 == 0 ) {
     if ( verbose_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
@@ -931,39 +955,6 @@ void EcalBarrelMonitorClient::analyze(void){
   if ( ! enableStateMachine_ ) mui_->doMonitoring();
 
   this->subscribeNew();
-
-  if ( integrity_client_ ) {
-    integrity_client_->subscribeNew();
-  }
-
-  if ( cosmic_client_ ) {
-    if ( runtype_ == "COSMIC" ) {
-      cosmic_client_->subscribeNew();
-    }
-  }
-  if ( laser_client_ ) {
-    if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) {
-      laser_client_->subscribeNew();
-    }
-  }
-  if ( pedestal_client_ ) {
-    if ( runtype_ == "PEDESTAL" ) {
-      pedestal_client_->subscribeNew();
-    }
-  }
-  if ( pedestalonline_client_ ) {
-    pedestalonline_client_->subscribeNew();
-  }
-  if ( testpulse_client_ ) {
-    if ( runtype_ == "TEST_PULSE" ) {
-      testpulse_client_->subscribeNew();
-    }
-  }
-  if ( beam_client_ ) {
-    if ( runtype_ == "BEAMH4" || runtype_ == "BEAMH2" ) {
-      beam_client_->subscribeNew();
-    }
-  }
 
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
@@ -1090,61 +1081,58 @@ void EcalBarrelMonitorClient::analyze(void){
 
   }
 
-  if ( status_ == "unknown" ) {
+  if ( integrity_client_ ) {
+    integrity_client_->subscribeNew();
+  }
 
-    if ( update ) unknowns_++;
-
-    if ( unknowns_ >= 10 ) {
-
-      cout << endl;
-      cout << "Too many 'unknown' states ..." << endl;
-      cout << endl;
-      if ( ! enableStateMachine_ ) throw exception();
-
+  if ( cosmic_client_ ) {
+    if ( runtype_ == "COSMIC" ) {
+      cosmic_client_->subscribeNew();
     }
-
+  }
+  if ( laser_client_ ) {
+    if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) {
+      laser_client_->subscribeNew();
+    }
+  }
+  if ( pedestal_client_ ) {
+    if ( runtype_ == "PEDESTAL" ) {
+      pedestal_client_->subscribeNew();
+    }
+  }
+  if ( pedestalonline_client_ ) {
+    pedestalonline_client_->subscribeNew();
+  }
+  if ( testpulse_client_ ) {
+    if ( runtype_ == "TEST_PULSE" ) {
+      testpulse_client_->subscribeNew();
+    }
+  }
+  if ( beam_client_ ) {
+    if ( runtype_ == "BEAMH4" || runtype_ == "BEAMH2" ) {
+      beam_client_->subscribeNew();
+    }
   }
 
   if ( status_ == "begin-of-run" ) {
 
-    if ( ! begin_run_done_ ) {
+    if ( ! begin_run_ ) {
 
       this->beginRun();
 
-      begin_run_done_ = true;
-      forced_begin_run_ = false;
-
-      end_run_done_ = false;
-      forced_end_run_ = false;
+      forced_status_ = false;
 
     }
 
   }
 
-  if ( status_ == "running" ) {
+  if ( status_ == "begin-of-run" || status_ == "running" || status_ == "end-of-run" ) {
 
-    if ( ! begin_run_done_ && ! end_run_done_ && ! forced_end_run_ ) {
+    if ( begin_run_ && ! end_run_ ) {
 
-      if ( run_ > 0 && evt_ > 0 && runtype_ != "UNKNOWN" ) {
+      if ( ( update && updates % 5 == 0 ) || status_ == "end-of-run" || forced_update_ ) {
 
-        cout << "Forcing beginRun() ... NOW !" << endl;
-
-        status_ = "begin-of-run";
-        this->beginRun();
-
-        begin_run_done_ = true;
-        forced_begin_run_ = true;
-
-        end_run_done_ = false;
-        forced_end_run_ = false;
-
-      }
-
-    }
-
-    if ( begin_run_done_ && ! end_run_done_ ) {
-
-      if ( ( update && updates % 5 == 0 ) || forced_update_ ) {
+        forced_update_ = false;
 
         if ( integrity_client_ ) {
           integrity_client_->analyze();
@@ -1205,113 +1193,79 @@ void EcalBarrelMonitorClient::analyze(void){
 
     }
 
-    if ( begin_run_done_ && ! forced_begin_run_ && ! end_run_done_ ) {
-
-      if ( run_ > 0 && evt_ > 0 && runtype_ != "UNKNOWN" ) {
-
-        if ( ( jevt_ - last_jevt_ ) > 200 ) {
-
-          cout << "Running with no updates since too long ..." << endl;
-
-          if ( enableSubRun_ ) {
-
-            if ( cosmic_client_ ) {
-              if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::COSMIC+1) != 0 ) {
-                if ( runtype_ == "COSMIC" ) {
-                  cosmic_client_->analyze();
-                }
-              }
-            }
-            if ( pedestalonline_client_ ) {
-              pedestalonline_client_->analyze();
-            }
-
-          }
-
-          cout << "Forcing endRun() ... NOW !" << endl;
-
-          begin_run_done_ = false;
-          forced_begin_run_ = false;
-
-          status_ = "end-of-run";
-          this->endRun();
-
-          end_run_done_ = true;
-          forced_end_run_ = true;
-
-        }
-
-      }
-
-    }
-
   }
 
   if ( status_ == "end-of-run" ) {
 
-    if ( begin_run_done_ && ! end_run_done_ ) {
-
-      if ( integrity_client_ ) {
-        integrity_client_->analyze();
-      }
-
-      if ( cosmic_client_ ) {
-        if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::COSMIC+1) != 0 ) {
-          if ( runtype_ == "COSMIC" ) {
-            cosmic_client_->analyze();
-          }
-        }
-      }
-      if ( laser_client_ ) {
-        if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) != 0 ) {
-          if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) {
-            laser_client_->analyze();
-          }
-        }
-      }
-      if ( pedestal_client_ ) {
-        if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::PEDESTAL_STD+1) != 0 ) {
-          if ( runtype_ == "PEDESTAL" ) {
-            pedestal_client_->analyze();
-          }
-        }
-      }
-      if ( pedestalonline_client_ ) {
-        pedestalonline_client_->analyze();
-      }
-      if ( testpulse_client_ ) {
-        if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::TESTPULSE_MGPA+1) != 0 ) {
-          if ( runtype_ == "TEST_PULSE" ) {
-            testpulse_client_->analyze();
-          }
-        }
-      }
-      if ( beam_client_ ) {
-        if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::BEAMH4+1) != 0 ) {
-          if ( runtype_ == "BEAMH4" ) {
-            beam_client_->analyze();
-          }
-        }
-        if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::BEAMH2+1) != 0 ) {
-          if ( runtype_ == "BEAMH2" ) {
-            beam_client_->analyze();
-          }
-        }
-      }
-
-      begin_run_done_ = false;
-      forced_begin_run_ = false;
+    if ( begin_run_ && ! end_run_ ) {
 
       this->endRun();
 
-      end_run_done_ = true;
-      forced_end_run_ = false;
+      forced_status_ = false;
 
     }
 
   }
 
-  if ( forced_update_ ) forced_update_ = false;
+  // BEGIN: run-time fixes for missing state trasitions
+
+  if ( status_ == "unknown" ) {
+
+    if ( update ) unknowns_++;
+
+    if ( unknowns_ >= 10 ) {
+
+      cout << endl;
+      cout << "Too many 'unknown' states ..." << endl;
+      cout << endl;
+
+      if ( ! enableStateMachine_ ) throw exception();
+
+    }
+
+  }
+
+  if ( status_ == "running" ) {
+
+    if ( ! forced_status_ ) {
+
+      if ( run_ > 0 && evt_ > 0 && runtype_ != "UNKNOWN" ) {
+
+        if ( ! begin_run_ ) {
+
+          cout << endl;
+          cout << "Forcing beginRun() ... NOW !" << endl;
+          cout << endl;
+
+          this->beginRun();
+
+          forced_status_ = true;
+
+        }
+
+        if ( begin_run_ ) {
+
+          if ( ( jevt_ - last_jevt_ ) > 200 ) {
+
+            cout << endl;
+            cout << "Forcing endRun() ... NOW !" << endl;
+            cout << endl;
+
+            this->endRun();
+
+            forced_status_ = true;
+
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
+  // END: run-time fixes for missing state trasitions
 
 }
 
