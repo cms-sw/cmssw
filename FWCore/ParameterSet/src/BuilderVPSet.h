@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 15:38:32 EDT 2005
-// $Id: BuilderVPSet.h,v 1.3 2005/09/01 03:43:38 wmtan Exp $
+// $Id: BuilderVPSet.h,v 1.4 2005/09/01 23:30:49 wmtan Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 // user include files
 #include "FWCore/ParameterSet/interface/Nodes.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Visitor.h"
 
 
 // forward declarations

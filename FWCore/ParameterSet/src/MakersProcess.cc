@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.19 2006/03/02 22:58:11 paterno Exp $
+// $Id: MakersProcess.cc,v 1.20 2006/04/04 22:57:57 rpw Exp $
 //
 
 // system include files
@@ -21,6 +21,7 @@
 
 #include "FWCore/ParameterSet/interface/Makers.h"
 #include "FWCore/ParameterSet/interface/Nodes.h"
+#include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/ParameterSet/src/BuilderVPSet.h"
 
 using namespace std;
@@ -92,7 +93,7 @@ namespace edm {
       {
 	static const std::string kPSet("PSet");
 	static const std::string kBlock("block");
-        NodePtrListPtr nodes = iNode.value_.nodes_;
+        NodePtrListPtr nodes = iNode.nodes();
 	if(iNode.type() == kPSet) 
 	  {
 	    boost::shared_ptr<edm::ParameterSet> tmp_pset = 

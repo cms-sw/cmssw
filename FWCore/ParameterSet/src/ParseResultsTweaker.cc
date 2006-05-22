@@ -25,8 +25,7 @@ namespace edm {
       if(processNode == 0) {
         edm::LogWarning("ParseResultsTweaker") << "Cannot find process node";
       } else {
-        // PSetNode -> ContentsNode -> NodePtrListPtr
-        NodePtrListPtr contents = processNode->value_.nodes_;
+        NodePtrListPtr contents = processNode->nodes();
         sortNodes(contents);
 
         // maybe we don't have to do anything
@@ -245,17 +244,11 @@ namespace edm {
 
       // top level should be the module
       NodePtr currentPtr = findPtr(*it, targetMap);
-      Node * currentNode = currentPtr.get(); 
       // dig deeper, if we have to
       ++it;
       while(it != end)
       {
-        //  if this is a PSetNode, move down to the Contents
-        PSetNode * psetNode = dynamic_cast<PSetNode*>(currentPtr.get());
-        if(psetNode != 0) {
-          currentNode = &(psetNode->value_);
-        }
-
+        Node * currentNode = currentPtr.get();
         CompositeNode * compositeNode = dynamic_cast<CompositeNode*>(currentNode);
         if(compositeNode == 0)
         {

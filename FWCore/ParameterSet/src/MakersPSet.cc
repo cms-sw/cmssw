@@ -1,6 +1,7 @@
 
 #include "FWCore/ParameterSet/interface/Makers.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/ParameterSet/interface/MakeProcessPSet.h"
 #include "FWCore/ParameterSet/src/BuilderVPSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -225,7 +226,7 @@ namespace edm {
 //               << "A parameter cannot be empty."
 //               << " name = " << n.name;
 //           }
-         boost::shared_ptr<ParameterSet> newPSet = makePSet(*(n.value_.nodes_),
+         boost::shared_ptr<ParameterSet> newPSet = makePSet(*(n.nodes()),
                                                         blocks_,
                                                         psets_);
          
