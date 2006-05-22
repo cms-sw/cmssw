@@ -59,7 +59,7 @@ the collection <tt><b>std::vector&lt;AAA&gt;</b></tt>
 <li>The collection of <tt><b>BBB</b></tt> will be now, instead of 
 <tt><b>std::vector&lt;BBB&gt;</b></tt>, the following:
 <pre>
-  typedef edm::ExtCollection&lt;std::vector&lt;BBB&gt;, BBBRefProds&gt; BBBCollection;
+  typedef edm::ExtCollection&lt;std::vector&lt;BBB&gt;, BBBRefProds&gt; &gt; BBBCollection;
 </pre>
 
 The association will be stored as a single reference, as specified by 
