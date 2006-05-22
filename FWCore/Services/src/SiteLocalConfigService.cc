@@ -3,6 +3,7 @@
 #include "FWCore/Services/src/SiteLocalConfigService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "SealBase/DebugAids.h"
 
@@ -16,6 +17,7 @@
 #include <xercesc/util/XMLString.hpp>
 
 #include <fstream>
+#include <exception>
 
 using namespace xercesc;
 
@@ -43,7 +45,8 @@ inline XMLCh*  _toDOMS( std::string temp )
 }
 
 edm::service::SiteLocalConfigService::SiteLocalConfigService (const edm::ParameterSet &pset,
-						const edm::ActivityRegistry &activityRegistry)
+							      const edm::ActivityRegistry &activityRegistry)
+    : m_connected (false)
 {
     std::string configURL = "/etc/site-local-config.xml";
     char * tmp = getenv ("CMS_PATH");
@@ -57,24 +60,40 @@ edm::service::SiteLocalConfigService::SiteLocalConfigService (const edm::Paramet
 const std::string
 edm::service::SiteLocalConfigService::dataCatalog (void) const
 {
+    if (! m_connected)
+	throw cms::Exception ("Incomplete configuration") 
+	    << "Valid site-local-config not found." ;
+
     return  m_dataCatalog;    
 }
 
 const std::string
 edm::service::SiteLocalConfigService::calibCatalog (void) const
 {
+    if (! m_connected)
+	throw cms::Exception ("Incomplete configuration") 
+	    << "Valid site-local-config not found." ;
+
     return  m_calibCatalog;    
 }
 
 edm::service::SiteLocalConfigService::FrontierProxies::const_iterator
 edm::service::SiteLocalConfigService::frontierProxyBegin (void) const
 {
+    if (! m_connected)
+	throw cms::Exception ("Incomplete configuration") 
+	    << "Valid site-local-config not found." ;
+    
     return m_frontierProxies.begin ();    
 }
 
 edm::service::SiteLocalConfigService::FrontierProxies::const_iterator
 edm::service::SiteLocalConfigService::frontierProxyEnd (void) const
 {
+    if (! m_connected)
+	throw cms::Exception ("Incomplete configuration") 
+	    << "Valid site-local-config not found." ;
+
     return m_frontierProxies.end ();    
 }
 
@@ -83,97 +102,105 @@ edm::service::SiteLocalConfigService::frontierProxyEnd (void) const
 void
 edm::service::SiteLocalConfigService::parse (const std::string &url)
 {
-    XercesDOMParser* parser = new XercesDOMParser;     
-    parser->setValidationScheme(XercesDOMParser::Val_Auto);
-    parser->setDoNamespaces(false);
-    parser->parse(url.c_str());	
-    DOMDocument* doc = parser->getDocument();
-    ASSERT (doc);
+    try 
+    {
+	XercesDOMParser* parser = new XercesDOMParser;     
+	parser->setValidationScheme(XercesDOMParser::Val_Auto);
+	parser->setDoNamespaces(false);
+
+	parser->parse(url.c_str());	
+	DOMDocument* doc = parser->getDocument();
+	ASSERT (doc);
     
-    // The Site Config has the following format
-    // <site-local-config>
-    // <site name="FNAL"/>
-    //   <event-data>
-    //     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
-    //   </event-data>
-    //   <calib-data>
-    //     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
-    //     <frontier-proxy url="http://localhost:3128"/>
-    //   </calib-data>
-    // </site-local-config>
+	// The Site Config has the following format
+	// <site-local-config>
+	// <site name="FNAL"/>
+	//   <event-data>
+	//     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
+	//   </event-data>
+	//   <calib-data>
+	//     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
+	//     <frontier-proxy url="http://localhost:3128"/>
+	//   </calib-data>
+	// </site-local-config>
     
-    // FIXME: should probably use the parser for validating the XML.
+	// FIXME: should probably use the parser for validating the XML.
     
-    DOMNodeList *sites = doc->getElementsByTagName (_toDOMS ("site"));
-    unsigned int numSites = sites->getLength ();
-    for (unsigned int i=0;
-	 i < numSites; 
-	 i++)
-    {	
-	DOMElement *site = static_cast <DOMElement *> (sites->item (i));
+	DOMNodeList *sites = doc->getElementsByTagName (_toDOMS ("site"));
+	unsigned int numSites = sites->getLength ();
+	for (unsigned int i=0;
+	     i < numSites; 
+	     i++)
+	{	
+	    DOMElement *site = static_cast <DOMElement *> (sites->item (i));
 	
-	// Parsing of the event data section
-	{
-	    DOMNodeList * eventDataList 
-		= site->getElementsByTagName (_toDOMS ("event-data"));
-	    if (	eventDataList->getLength () != 1)
+	    // Parsing of the event data section
 	    {
-		throw std::exception ();
+		DOMNodeList * eventDataList 
+		    = site->getElementsByTagName (_toDOMS ("event-data"));
+		if (	eventDataList->getLength () != 1)
+		{
+		    throw std::exception ();
+		}
+	    
+		DOMElement *eventData 
+		    = static_cast <DOMElement *> (eventDataList->item (0));
+	    
+		DOMNodeList *catalogs 
+		    = eventData->getElementsByTagName (_toDOMS ("catalog"));
+	    
+		if (catalogs->getLength () != 1)
+		{
+		    throw std::exception ();	    
+		}
+		DOMElement * catalog 
+		    = static_cast <DOMElement *> (catalogs->item (0));
+	    
+		m_calibCatalog = _toString (catalog->getAttribute (_toDOMS ("url")));
 	    }
-	    
-	    DOMElement *eventData 
-		= static_cast <DOMElement *> (eventDataList->item (0));
-	    
-	    DOMNodeList *catalogs 
-		= eventData->getElementsByTagName (_toDOMS ("catalog"));
-	    
-	    if (catalogs->getLength () != 1)
-	    {
-		throw std::exception ();	    
-	    }
-	    DOMElement * catalog 
-		= static_cast <DOMElement *> (catalogs->item (0));
-	    
-	    m_calibCatalog = _toString (catalog->getAttribute (_toDOMS ("url")));
-	}
 	
-	// Parsing of the calib-data section
-	{
-	    DOMNodeList * calibDataList 
-		= site->getElementsByTagName (_toDOMS ("calib-data"));
-	    
-	    if (calibDataList->getLength () != 1)
+	    // Parsing of the calib-data section
 	    {
-		throw std::exception ();
-	    }
+		DOMNodeList * calibDataList 
+		    = site->getElementsByTagName (_toDOMS ("calib-data"));
 	    
-	    DOMElement *calibData 
-		= static_cast <DOMElement *> (calibDataList->item (0));
+		if (calibDataList->getLength () != 1)
+		{
+		    throw std::exception ();
+		}
 	    
-	    DOMNodeList *catalogs = calibData->getElementsByTagName (_toDOMS ("catalog"));
+		DOMElement *calibData 
+		    = static_cast <DOMElement *> (calibDataList->item (0));
 	    
-	    if (catalogs->getLength () != 1)
-	    {
-		throw std::exception ();	    
-	    }
+		DOMNodeList *catalogs = calibData->getElementsByTagName (_toDOMS ("catalog"));
 	    
-	    DOMElement *catalog
-		= static_cast <DOMElement *> (catalogs->item (0));
+		if (catalogs->getLength () != 1)
+		{
+		    throw std::exception ();	    
+		}
+	    
+		DOMElement *catalog
+		    = static_cast <DOMElement *> (catalogs->item (0));
 	    
 
-	    m_calibCatalog = _toString (catalog->getAttribute (_toDOMS ("url")));
+		m_calibCatalog = _toString (catalog->getAttribute (_toDOMS ("url")));
 	    
-	    DOMNodeList *proxies 
-		= calibData->getElementsByTagName (_toDOMS ("frontier-proxy"));
-	    for (unsigned int i = 0;
-		 i < proxies->getLength ();
-		 i++)
-	    {
-		DOMElement *proxy 
-		    = static_cast <DOMElement *> (proxies->item (i));
+		DOMNodeList *proxies 
+		    = calibData->getElementsByTagName (_toDOMS ("frontier-proxy"));
+		for (unsigned int i = 0;
+		     i < proxies->getLength ();
+		     i++)
+		{
+		    DOMElement *proxy 
+			= static_cast <DOMElement *> (proxies->item (i));
 		
-		m_frontierProxies.push_back (_toString (proxy->getAttribute (_toDOMS ("url"))));		
-	    }	    	    
+		    m_frontierProxies.push_back (_toString (proxy->getAttribute (_toDOMS ("url"))));		
+		}	    	    
+	    }
 	}
-    }
+	m_connected = true;
+    } 
+    catch (xercesc::DOMException &e)
+    {
+    }       
 }	

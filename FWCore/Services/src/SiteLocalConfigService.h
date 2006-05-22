@@ -38,10 +38,11 @@ namespace edm
 	    // implicit destructor
 	private:
 	    void parse (const std::string &url);
-	    std::string m_url;	    
-	    std::string m_dataCatalog;
-	    std::string m_calibCatalog;
+	    std::string 	m_url;	    
+	    std::string 	m_dataCatalog;
+	    std::string 	m_calibCatalog;
 	    FrontierProxies	m_frontierProxies;	    
+	    bool		m_connected;	    
 	};
     }
 }
