@@ -34,5 +34,8 @@
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >">
     <method name="sort" />
   </class>
+  <class name="edm::OwnVector<edm::RefToBase<reco::Candidate>,edm::ClonePolicy<edm::RefToBase<reco::Candidate> > >">
+    <method name="sort" />
+  </class>
 </exclusion>
 </lcgdict>
