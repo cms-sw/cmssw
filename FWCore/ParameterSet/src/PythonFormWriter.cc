@@ -6,6 +6,7 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include <boost/tokenizer.hpp>
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/Nodes.h"
 
 
 //
