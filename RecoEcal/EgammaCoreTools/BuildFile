@@ -1,6 +1,3 @@
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/Math>
@@ -9,13 +6,9 @@
 <use name=clhep>
 
 <export>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=RecoEcal/EgammaClusterAlgos>
-  <use name=DataFormats/EcalDigi>
+  <lib name=RecoEcalEgammaCoreTools>
   <use name=DataFormats/EcalRecHit>
   <use name=DataFormats/EgammaReco>
-  <lib name=RecoEcal/EgammaCoreTools>
   <use name=DataFormats/Math>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>

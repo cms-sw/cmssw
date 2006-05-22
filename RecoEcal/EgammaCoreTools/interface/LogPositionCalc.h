@@ -8,8 +8,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-// CMSSW headers from this subsystem
 #include "DataFormats/Math/interface/Point3D.h"
 // C/C++ headers
 #include <string>
