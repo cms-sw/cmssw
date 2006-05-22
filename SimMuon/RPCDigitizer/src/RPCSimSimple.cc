@@ -1,10 +1,14 @@
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSimple.h"
-
-//NCA
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+
+
+
+RPCSimSimple::RPCSimSimple(const edm::ParameterSet& config) : RPCSim(config){
+}
+
 
 void
 RPCSimSimple::simulate(const RPCRoll* roll,
@@ -25,16 +29,4 @@ RPCSimSimple::simulate(const RPCRoll* roll,
   }
 }
 
-
-void
-RPCSimSimple::fillDigis(int rollDetId, RPCDigiCollection& digis)
-{
-  for (std::set<int>::iterator i=strips.begin();
-       i!=strips.end(); i++){
-    RPCDigi rpcDigi(*i,0);
-    //NCA
-    digis.insertDigi(RPCDetId(rollDetId),rpcDigi);
-  }
-  strips.clear();
-}
 
