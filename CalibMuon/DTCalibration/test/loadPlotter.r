@@ -1,7 +1,6 @@
 {
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gSystem->Load("../../../../lib/slc3_ia32_gcc323/libtestDTCalibration.so");
-
+  gSystem->Load("libtestDTCalibration.so");
   // Get the style
   TStyle * style = getStyle();
   // Style options
