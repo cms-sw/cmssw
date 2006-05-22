@@ -12,11 +12,10 @@
 class RPCSimSimple : public RPCSim
 {
  public:
-  RPCSimSimple(){}
+  RPCSimSimple(const edm::ParameterSet& config);
   ~RPCSimSimple(){}
   void simulate(const RPCRoll* roll,
 			const edm::PSimHitContainer& rpcHits );
-  void fillDigis(int rollDetId, RPCDigiCollection& digis);
  private:
   void init(){};
 };
