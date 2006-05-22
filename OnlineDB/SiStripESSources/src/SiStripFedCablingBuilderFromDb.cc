@@ -1,18 +1,12 @@
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 // fwk
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-// config db
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 // cabling
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 // data formats
 #include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
-// std
-#include <ostream>
-#include <string>
-#include <vector>
 
 // -----------------------------------------------------------------------------
 /** */
@@ -41,64 +35,97 @@ SiStripFedCablingBuilderFromDb::~SiStripFedCablingBuilderFromDb() {
 // -----------------------------------------------------------------------------
 /** */
 SiStripFedCabling* SiStripFedCablingBuilderFromDb::makeFedCabling() {
-  edm::LogInfo("FedCabling") << "[SiStripFedCablingBuilderFromDb::makeFedCabling] Building FED cabling...";
+  edm::LogInfo("FedCabling") << "[SiStripFedCablingBuilderFromDb::makeFedCabling]"
+			     << " Building FED cabling...";
   
-  // Build FEC cabling object 
+  // Create FEC cabling object 
   SiStripFecCabling fec_cabling;
+
+  // Populate FEC cabling object
+  const FedConnections connections = db_->fedConnections( true );
+  if ( connections.empty() ) { createFecCablingFromDevices( db_, fec_cabling ); }
+  else { createFecCablingFromConnections( connections, fec_cabling ); }
   
-  vector<FedChannelConnectionDescription*> fed_conns = db_->fedConnections( true );
+  // Some debug
+  fec_cabling.countDevices();
+
+  // Retrieve FedChannelConnections from FEC cabling
+  vector<FedChannelConnection> conns;
+  fec_cabling.connections( conns );
+
+  // Build FED cabling from FedChannelConnections
+  vector<FedChannelConnection>::iterator iconn;
+  for ( iconn = conns.begin(); iconn != conns.end(); iconn++ ) { iconn->print(); }
+  SiStripFedCabling* cabling = new SiStripFedCabling( conns );
+
+  edm::LogInfo("FedCabling") << "[SiStripFedCablingBuilderFromDb::makeFedCabling]" 
+			     << " Finished FED cabling map!";
+
+  return cabling;
   
-  if ( !fed_conns.empty() ) {
-    
-    vector<FedChannelConnectionDescription*>::iterator ifed;
-    for ( ifed = fed_conns.begin(); ifed != fed_conns.end(); ifed++ ) {
-      FedChannelConnection conn( static_cast<uint16_t>( 0 ), //@@ 
-				 static_cast<uint16_t>( (*ifed)->getSlot() ),
-				 static_cast<uint16_t>( (*ifed)->getRing() ),
-				 static_cast<uint16_t>( (*ifed)->getCcu() ),
-				 static_cast<uint16_t>( (*ifed)->getI2c() ),
-				 static_cast<uint16_t>( (*ifed)->getApv() ),
-				 static_cast<uint16_t>( (*ifed)->getApv()+1 ),
-				 static_cast<uint32_t>( 0 ), //@@ (*ifed)->getDcuHardId() ),
-				 static_cast<uint32_t>( 0 ), //@@ (*ifed)->getDcuHardId()+65536 ),
-				 static_cast<uint32_t>( 0 ), //@@ 
-				 static_cast<uint16_t>( (*ifed)->getFedId() ),
-				 static_cast<uint16_t>( (*ifed)->getFedChannel() ) );
-      fec_cabling.addDevices( conn );
-      //       LogDebug ("FecCabling") 
-      // 	<< conn.print(); 
-    }
-    
-    uint32_t cntr = 0;
-    for ( vector<SiStripFec>::const_iterator ifec = fec_cabling.fecs().begin(); ifec != fec_cabling.fecs().end(); ifec++ ) {
-      for ( vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
-	for ( vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
-	  for ( vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
-	    uint32_t module_key = SiStripControlKey::key( 0, // fec crate 
-							  ifec->fecSlot(), 
-							  iring->fecRing(), 
-							  iccu->ccuAddr(), 
-							  imod->ccuChan() );
-	    SiStripModule& module = const_cast<SiStripModule&>(*imod);
-	    module.dcuId( module_key );
-	    module.detId( cntr+1 );
-	    module.nApvPairs(0);
-	    LogDebug("FedCabling") << "[SiStripFedCablingTrivialBuilder::makeFedCabling]"
-				   << " Setting DcuId/DetId/nApvPairs = " 
-				   << module_key << "/" << cntr+1 << "/" << module.nApvPairs()
-				   << " for FEC/Ring/CCU/Module " 
-				   << ifec->fecSlot() << "/" 
-				   << iring->fecRing() << "/" 
-				   << iccu->ccuAddr() << "/" 
-				   << imod->ccuChan();
-	    cntr++;
-	  }
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripFedCablingBuilderFromDb::createFecCablingFromConnections( const FedConnections& conns,
+								      SiStripFecCabling& fec_cabling ) {
+  LogDebug("FedCabling") << "[SiStripFedCablingBuilderFromDb::createFecCablingFromConnections]";
+  
+  FedConnections::const_iterator ifed;
+  for ( ifed = conns.begin(); ifed != conns.end(); ifed++ ) {
+    FedChannelConnection conn( static_cast<uint16_t>( 0 ), //@@ 
+			       static_cast<uint16_t>( (*ifed)->getSlot() ),
+			       static_cast<uint16_t>( (*ifed)->getRing() ),
+			       static_cast<uint16_t>( (*ifed)->getCcu() ),
+			       static_cast<uint16_t>( (*ifed)->getI2c() ),
+			       static_cast<uint16_t>( (*ifed)->getApv() ),
+			       static_cast<uint16_t>( (*ifed)->getApv()+1 ),
+			       static_cast<uint32_t>( 0 ), //@@ (*ifed)->getDcuHardId() ),
+			       static_cast<uint32_t>( 0 ), //@@ (*ifed)->getDcuHardId()+65536 ),
+			       static_cast<uint32_t>( 0 ), //@@ 
+			       static_cast<uint16_t>( (*ifed)->getFedId() ),
+			       static_cast<uint16_t>( (*ifed)->getFedChannel() ) );
+    fec_cabling.addDevices( conn );
+    //       LogDebug ("FecCabling") 
+    // 	<< conn.print(); 
+  }
+  
+  uint32_t cntr = 0;
+  for ( vector<SiStripFec>::const_iterator ifec = fec_cabling.fecs().begin(); ifec != fec_cabling.fecs().end(); ifec++ ) {
+    for ( vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
+      for ( vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
+	for ( vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
+	  uint32_t module_key = SiStripControlKey::key( 0, // fec crate 
+							ifec->fecSlot(), 
+							iring->fecRing(), 
+							iccu->ccuAddr(), 
+							imod->ccuChan() );
+	  SiStripModule& module = const_cast<SiStripModule&>(*imod);
+	  module.dcuId( module_key );
+	  module.detId( cntr+1 );
+	  module.nApvPairs(0);
+	  LogDebug("FedCabling") << "[SiStripFedCablingTrivialBuilder::createFecCablingFromConnections]"
+				 << " Setting DcuId/DetId/nApvPairs = " 
+				 << module_key << "/" << cntr+1 << "/" << module.nApvPairs()
+				 << " for FEC/Ring/CCU/Module " 
+				 << ifec->fecSlot() << "/" 
+				 << iring->fecRing() << "/" 
+				 << iccu->ccuAddr() << "/" 
+				 << imod->ccuChan();
+	  cntr++;
 	}
       }
     }
+  }
 
-  } else {
-    
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripFedCablingBuilderFromDb::createFecCablingFromDevices( SiStripConfigDb* const database,
+								  SiStripFecCabling& fec_cabling ) {
+  LogDebug("FedCabling") << "[SiStripFedCablingBuilderFromDb::createFecCablingFromDevices]";
+  
 //     // Retrieve APV descriptions from DB and populate FEC cabling map 
 //     vector<apvDescription*> apv_desc; 
 //     db_->apvDescriptions( apv_desc );
@@ -149,22 +176,8 @@ SiStripFedCabling* SiStripFedCablingBuilderFromDb::makeFedCabling() {
 //       ichannel++;
 //     }
     
-  }
-  
-  // Debug
-  fec_cabling.countDevices();
-  
-  // Build FED cabling using FedChannelConnections
-  vector<FedChannelConnection> conns;
-  fec_cabling.connections( conns );
-  vector<FedChannelConnection>::iterator iconn;
-  for ( iconn = conns.begin(); iconn != conns.end(); iconn++ ) { iconn->print(); }
-  SiStripFedCabling* cabling = new SiStripFedCabling( conns );
-  edm::LogInfo("FedCabling") << "[SiStripFedCablingBuilderFromDb::makeFedCabling]" 
-			     << " Finished building FED cabling map!";
-  return cabling;
-  
 }
+  
 
 
 
