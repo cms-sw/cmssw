@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/12 07:59:20 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/15 10:08:42 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/interface/DTDBWriterInterface.h"
@@ -170,13 +170,10 @@ void DTTTrigCalibration::endJob() {
       slHisto != theHistoMap.end();
       slHisto++) {
     pair<double, double> meanAndSigma = theFitter->fitTimeBox((*slHisto).second);
-    //FIXME: should use tdc counts and sigma???
-    tTrig->setSLTtrig((*slHisto).first.wheel(),
-		      (*slHisto).first.station(),
-		      (*slHisto).first.sector(),
-		      (*slHisto).first.superlayer(),
-		      meanAndSigma.first - 1.3*meanAndSigma.second);
-    // FIXME: ttrig definition for commissioning data
+    tTrig->setSLTtrig((*slHisto).first,
+		      meanAndSigma.first,
+		      meanAndSigma.second,
+		      DTTimeUnits::ns);
     
     if(debug) {
       cout << " SL: " << (*slHisto).first
@@ -184,6 +181,9 @@ void DTTTrigCalibration::endJob() {
 	   << " sigma = " << meanAndSigma.second << endl;
     }
   }
+
+  // Print the ttrig map
+  dumpTTrigMap(tTrig);
 
   if(debug) 
    cout << "[DTTTrigCalibration]Writing ttrig object to DB!" << endl;
@@ -204,4 +204,18 @@ string DTTTrigCalibration::getTBoxName(const DTSuperLayerId& slId) const {
 	    << "_SL" << slId.superlayer() << "_hTimeBox";
   theStream >> histoName;
   return histoName;
+}
+
+
+void DTTTrigCalibration::dumpTTrigMap(const DTTtrig* tTrig) const {
+  static const double convToNs = 25./32.;
+  for(DTTtrig::const_iterator ttrig = tTrig->begin();
+      ttrig != tTrig->end(); ttrig++) {
+    cout << "Wh: " << (*ttrig).wheelId
+	 << " St: " << (*ttrig).stationId
+	 << " Sc: " << (*ttrig).sectorId
+	 << " Sl: " << (*ttrig).slId
+	 << " TTrig mean (ns): " << (*ttrig).tTrig * convToNs
+	 << " TTrig sigma (ns): " << (*ttrig).tTrms * convToNs<< endl;
+  }
 }

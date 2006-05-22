@@ -6,8 +6,8 @@
  *  for t_trig computation, fits the rising edge and write results to DB.
  *  The time boxes are written to file.
  *
- *  $Date: 2006/03/28 10:46:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/27 13:49:10 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -29,7 +29,7 @@ class TH1F;
 class DTTimeBoxFitter;
 class DTTTrigBaseSync;
 class DTDBWriterInterface;
-
+class DTTtrig;
 
 class DTTTrigCalibration : public edm::EDAnalyzer {
 public:
@@ -53,6 +53,9 @@ protected:
 private:
   // Generate the time box name
   std::string getTBoxName(const DTSuperLayerId& slId) const;
+
+  // Print computed ttrig
+  void dumpTTrigMap(const DTTtrig* tTrig) const;
 
   // Debug flag
   bool debug;
