@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/25 17:03:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/16 09:43:00 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -97,6 +97,7 @@ bool MuRodBarrelLayer::hasGroups() const {
 
 
 Module MuRodBarrelLayer::module() const {
+  // FIXME! will be used also for RPC
   return dt;
 }
 

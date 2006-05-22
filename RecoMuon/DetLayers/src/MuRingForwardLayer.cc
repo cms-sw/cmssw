@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/16 10:38:43 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/18 14:52:41 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -89,8 +89,8 @@ bool MuRingForwardLayer::hasGroups() const {
 
 
 Module MuRingForwardLayer::module() const {
-  // FIXME
-  return Module();
+  // FIXME! will be used also for RPC
+  return csc;
 }
 
 vector<const GeometricSearchDet*> 
