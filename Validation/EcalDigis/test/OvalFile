@@ -2,6 +2,8 @@
  ! environment for EcalDigis validation
  !===============================================================>
 
+<config name="run tool" value="oval">
+
 <environment name=testsuite>
 
 <executable name=Photon_E30GeV_all_testsuite.csh>validation suite</executable>
