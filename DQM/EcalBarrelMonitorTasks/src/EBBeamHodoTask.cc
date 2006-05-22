@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2006/05/18 19:41:43 $
- * $Revision: 1.2 $
+ * $Date: 2006/05/19 13:26:48 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -294,6 +294,11 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       maxHitId = (*uncalHitItr).id();
     }
   }
+  if (  maxHitId == EBDetId(0) )
+    { 
+      LogError("EBBeamHodoTask") << "No positive UncalRecHit found in ECAL in event " << ievt_ << " - returning." << std::endl;
+      return;
+    }
   
   meEvsXRecProf_ -> Fill(recHodo->posX(), maxE);
   meEvsYRecProf_ -> Fill(recHodo->posY(), maxE);
