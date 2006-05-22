@@ -14,109 +14,14 @@
 
 #include <algorithm>
 #include <iterator>
-#include <ostream>
 #include <sstream>
-#include <list>
-#include <map>
-#include <vector>
-#include <string>
+#include "FWCore/ParameterSet/interface/Node.h"
+#include "FWCore/ParameterSet/interface/CompositeNode.h"
+#include "FWCore/ParameterSet/interface/PSetNode.h"
+#include "FWCore/ParameterSet/interface/ReplaceNode.h"
 
-//RICK TEMP
-#include <iostream>
-
-#include "boost/shared_ptr.hpp"
 namespace edm {
   namespace pset {
-
-    struct Visitor;
-    struct ReplaceNode;
-    // Base type for all nodes.  All nodes have a type associated
-    // with them - this is basically the keyword that caused the
-    // generation of this node.  All nodes have a name - this is the
-    // name assigned to the entity
-
-    struct Node
-    {
-      Node(std::string const& n, int li) : name(n), line(li), modified_(false) { }
-      
-      /// needed for deep copies
-      virtual Node * clone() const = 0;
-
-      typedef boost::shared_ptr<Node> Ptr;
-
-      virtual std::string type() const = 0;
-
-      virtual void  setParent(Node* /* parent */) { } 
-      virtual Node* getParent() { return 0; } 
-      virtual void print(std::ostream& ost) const = 0;
-      virtual ~Node();
-      virtual void accept(Visitor& v) const = 0;
-
-      virtual void setModified(bool value) {modified_ = value;}
-      /// throw an exception if this node is flagged as modified
-      void assertNotModified() const; 
-      virtual bool isModified() const {return modified_;}
-      /// throws an exception if they're not the same type
-      virtual void replaceWith(const ReplaceNode * replaceNode);
-
-      typedef std::map<std::string, Ptr> NodeMap;
-      /// most subclasses won't do anything
-      virtual void resolveUsingNodes(const NodeMap & blocks) {}
-
-      std::string name;
-      int         line;
-      // nodes can only be modified once, so the config files can be order-independent
-      bool modified_;
-    };
-
-    typedef boost::shared_ptr<Node>        NodePtr;
-    typedef std::vector<std::string>       StringList;
-    typedef boost::shared_ptr<StringList>  StringListPtr;
-    typedef std::list<NodePtr>             NodePtrList;
-    typedef boost::shared_ptr<NodePtrList> NodePtrListPtr;
-    typedef NodePtrListPtr                 ParseResults;
-    
-    inline std::ostream& operator<<(std::ostream& ost, NodePtr p)
-    {
-      p->print(ost);
-      return ost;
-    }
-
-    inline std::ostream& operator<<(std::ostream& ost, const Node& p)
-    {
-      p.print(ost);
-      return ost;
-    }
-
-
-    /** CompositeNode is meant as a base class */
-    struct CompositeNode : public Node {
-      CompositeNode(const std::string& name, NodePtrListPtr nodes, int line=-1)
-      : Node(name, line), nodes_(nodes) {}
-
-      /// deep copy
-      CompositeNode(const CompositeNode & n);
-     
-      virtual void acceptForChildren(Visitor& v) const;
-      virtual void print(std::ostream& ost) const;
-      // if this is flagged as modified, all subnodes are
-      virtual void setModified(bool value);
-      /// if any subnodes are modified, this counts as modified
-      virtual bool isModified() const;
-      /// finds a first-level subnode with this name
-      NodePtr findChild(const std::string & child);
-
-      /// returns all sub-nodes
-      NodePtrListPtr nodes() const {return nodes_;}
-      
-      /// if a direct descendant is a using block, inline it.
-      /// otherwise, pass the call to the child nodes
-      virtual void resolveUsingNodes(const NodeMap & blocks);
-
-
-      NodePtrListPtr nodes_;
-    };
-
 
 
     /*
@@ -133,27 +38,6 @@ namespace edm {
       virtual void accept(Visitor& v) const;
     };
 
-
-   /*
-      -----------------------------------------
-      Replace : instructions for replacing the value of this node 
-    */
-
-    struct ReplaceNode : public Node
-    {
-      ReplaceNode(const std::string & type, const std::string& name, 
-                  NodePtr value, int line=-1)
-      : Node(name, line), type_(type), value_(value) {}
-      /// deep copy
-      ReplaceNode(const ReplaceNode & n);
-      virtual Node * clone() const { return new ReplaceNode(*this);}
-      virtual std::string type() const {return type_;}
-      virtual void print(std::ostream& ost) const;
-      virtual void accept(Visitor& v) const;
-
-      std::string type_;
-      NodePtr value_;
-    };
 
 
     /*
@@ -304,44 +188,6 @@ namespace edm {
 
     typedef boost::shared_ptr<ContentsNode> ContentsNodePtr;
 
-    /*
-      -----------------------------------------
-      PSets hold: Contents
-    */
-
-    struct PSetNode : public Node
-    {
-      PSetNode(const std::string& typ, 
-	       const std::string& name,
-	       NodePtrListPtr value,
-	       bool tracked,
-	       int line=-1);
-      virtual Node * clone() const { return new PSetNode(*this);}
-      virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
-      virtual bool isModified() const;
-
-      virtual void accept(Visitor& v) const;
-      void acceptForChildren(Visitor& v) const;
-      virtual void replaceWith(const ReplaceNode * replaceNode);
-
-      virtual void resolveUsingNodes(const NodeMap & blocks) {
-        value_.resolveUsingNodes(blocks);
-      }
-
-      std::string type_;
-      ContentsNode value_;
-      bool tracked_;
-    };
-
-    /*
-      -----------------------------------------
-      Extra things we need
-    */
-
-    typedef boost::shared_ptr<PSetNode> PSetNodePtr;
-    typedef std::list<PSetNodePtr> PSetNodePtrList;
-    typedef boost::shared_ptr<PSetNodePtrList> PSetNodePtrListPtr;
 
     /*
       -----------------------------------------
@@ -460,28 +306,6 @@ namespace edm {
       std::string class_;
     };
 
-    // ------------------------------------------------
-    // simple visitor
-    // only visits one level.  things that need to descend will call
-    // the "acceptForChildren" method
-
-    struct Visitor
-    {
-      virtual ~Visitor();
-
-      virtual void visitUsing(const UsingNode&);
-      virtual void visitString(const StringNode&);
-      virtual void visitEntry(const EntryNode&);
-      virtual void visitVEntry(const VEntryNode&);
-      virtual void visitPSetRef(const PSetRefNode&);
-      virtual void visitContents(const ContentsNode&);
-      virtual void visitPSet(const PSetNode&);
-      virtual void visitVPSet(const VPSetNode&);
-      virtual void visitModule(const ModuleNode&);
-      virtual void visitWrapper(const WrapperNode&);
-      virtual void visitOperator(const OperatorNode&); //may not be needed
-      virtual void visitOperand(const OperandNode&); //may not be needed
-    };
   }
 }
 #endif

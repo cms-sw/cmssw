@@ -1,5 +1,6 @@
 
 #include "FWCore/ParameterSet/interface/Nodes.h"
+#include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <iomanip>
@@ -13,138 +14,6 @@ namespace edm {
 
   namespace pset {
 
-    Node::~Node() { }
-
-    void Node::replaceWith(const ReplaceNode *) {
-       throw edm::Exception(errors::Configuration)
-          << "No way to replace node " << name;
-    }
-
-
-    void Node::assertNotModified() const
-    {
-      if(isModified()) {
-       throw edm::Exception(errors::Configuration)
-          << "Cannot replace a node that has already been modified: " << name;
-      }
-    }
-
-    //-------------------------------------------------
-    // CompositeNode
-    //--------------------------------------------------
-
-    CompositeNode::CompositeNode(const CompositeNode & n)
-    : Node(n),
-      nodes_(new NodePtrList)   
-    {
-      NodePtrList::const_iterator i(n.nodes_->begin()),e(n.nodes_->end());
-      for(;i!=e;++i)
-      {
-         nodes_->push_back( NodePtr((**i).clone()) );
-      }
-    }
-
-
-    void CompositeNode::acceptForChildren(Visitor& v) const
-    {
-      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
-        {
-          (*i)->accept(v);
-        }
-    }
-
-
-    void CompositeNode::print(ostream& ost) const
-    {
-      ost << "  {\n  ";
-      copy(nodes_->begin(),nodes_->end(),
-           ostream_iterator<NodePtr>(ost,"\n  "));
-      ost << "}\n";
-    }
-
-
-    void CompositeNode::setModified(bool value) {
-      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
-      {
-        (*i)->setModified(value);
-      }
-    }
-
-
-    bool CompositeNode::isModified() const {
-      // see if any child is modified
-      bool result = modified_;
-      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
-      for(;(i!=e) &&  !result;++i)
-      {
-        result = result || (*i)->isModified();
-      }
-      return result;
-    }
-
-    NodePtr CompositeNode::findChild(const string & child)
-    {
-      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
-      for(;i!=e;++i)
-      {
-         if((*i)->name == child) {
-           return *i;
-         }
-      }
-     
-      // uh oh.  Didn't find it. 
-      throw edm::Exception(errors::Configuration) 
-        << "Cannot find child " << child 
-        << " in composite node " << name;
-    }
-
-
-    void CompositeNode::resolveUsingNodes(const NodeMap & blocks) 
-    {
-      NodePtrList::iterator nodeItr(nodes_->begin()),e(nodes_->end());
-      for(;nodeItr!=e;++nodeItr)
-      {
-        if((**nodeItr).type() == "using") 
-        {
-          // find the block
-          string blockName = (**nodeItr).name;
-          NodeMap::const_iterator blockPtrItr = blocks.find(blockName);
-          if(blockPtrItr == blocks.end()) {
-             throw edm::Exception(errors::Configuration,"")
-               << "Cannot find parameter block " << blockName;
-          }
-
-          // insert each node in the UsingBlock into the list
-          PSetNode * psetNode = dynamic_cast<PSetNode *>(blockPtrItr->second.get());
-          assert(psetNode != 0);
-          NodePtrListPtr params = psetNode->value_.nodes();
-
-
-          //@@ is it safe to delete the UsingNode now?
-          nodes_->erase(nodeItr);
-
-          for(NodePtrList::const_iterator paramItr = params->begin();
-              paramItr != params->end(); ++paramItr)
-          {
-            // Using blocks get inserted at the beginning, just for convenience
-            // Make a copy of the node, so it can be modified
-            nodes_->push_front( NodePtr((**paramItr).clone()) );
-          }
-
-          // better start over, since list chnged,
-          // just to be safe
-          nodeItr = nodes_->begin();
-        }
-
-        else 
-        {
-          // if it isn't a using node, check the grandchildren
-          (**nodeItr).resolveUsingNodes(blocks);
-        }
-      } // loop over subnodes
-    }
     //--------------------------------------------------
     // UsingNode
     //--------------------------------------------------
@@ -166,26 +35,6 @@ namespace edm {
       v.visitUsing(*this);
     }
 
-    //--------------------------------------------------
-    // ReplaceNode
-    //--------------------------------------------------
-    ReplaceNode::ReplaceNode(const ReplaceNode & n)
-    : Node(n), 
-      type_(n.type()),
-      value_( NodePtr(n.value_->clone()) )
-    {
-    }
-    
-
-    void ReplaceNode::print(ostream& ost) const
-    {
-      value_->print(ost);
-    }
-
-    void ReplaceNode::accept(Visitor& v) const
-    {
-      throw edm::Exception(errors::LogicError,"Replace Nodes should always be processed by the postprocessor.  Please contact an EDM developer");
-    } 
 
     //--------------------------------------------------
     // RenameNode
@@ -377,60 +226,6 @@ namespace edm {
       v.visitContents(*this);
     }
 
-
-    //--------------------------------------------------
-    // PSetNode
-    //--------------------------------------------------
-
-    PSetNode::PSetNode(const string& t, 
-		       const string& n,
-		       NodePtrListPtr v,
-		       bool tracked,
-		       int line) :
-      Node(n, line),
-      type_(t),
-      value_(v,line),
-      tracked_(tracked)
-    {}
-
-
-    string PSetNode::type() const { return type_; }
-
-    void PSetNode::print(ostream& ost) const
-    {
-      // if(!name.empty())
-      ost << type_ << " " << name << " = ";
-
-      value_.print(ost);
-    }
-
-    void PSetNode::accept(Visitor& v) const
-    {
-      v.visitPSet(*this);
-      // value_.accept(v); // let the visitor for PSetNode do the children accept
-    }
-
-    void PSetNode::acceptForChildren(Visitor& v) const
-    {
-      //CDJ: should this be 'accept' or 'acceptForChildren' or both?
-      value_.accept(v);
-    }
-
-    bool PSetNode::isModified() const {
-      return modified_ || value_.isModified();
-    }
-
-    void PSetNode::replaceWith(const ReplaceNode * replaceNode)
-    {
-      assertNotModified();
-       // the ReplaceNode had better contain a ContentsNodes
-      NodePtr replacementPtr = replaceNode->value_;
-      PSetNode * replacement = dynamic_cast<PSetNode*>(replacementPtr.get());
-      assert(replacement != 0);
-
-      value_ = replacement->value_;
-      setModified(true);
-    }
 
     //--------------------------------------------------
     // VPSetNode
