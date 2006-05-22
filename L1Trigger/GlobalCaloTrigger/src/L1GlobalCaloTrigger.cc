@@ -95,7 +95,6 @@ void L1GlobalCaloTrigger::process() {
 void L1GlobalCaloTrigger::print() {
 
 	std::cout << "===Global Calo Trigger===" << std::endl;
-	std::cout << "------Debug Output-------" << std::endl;
 	std::cout << std::endl;
 	std::cout << "N Source Cards " << theSourceCards.size() << std::endl;
 	std::cout << "N Jet Leaf Cards " << theJetLeafCards.size() << std::endl;
@@ -103,49 +102,74 @@ void L1GlobalCaloTrigger::print() {
 	std::cout << "N Wheel Energy Fpgas " << theWheelEnergyFpgas.size() << std::endl;
 	std::cout << "N Em Leaf Cards" << theEmLeafCards.size() << std::endl;
 	std::cout << std::endl;
+	std::cout << "===Source Cards===" << std::endl;
+	std::cout << std::endl;
 	for (unsigned i=0; i<theSourceCards.size(); i++) {
+          std::cout << "Index=" << i <<std::endl;
           std::cout << (*theSourceCards[i]); 
 	}
+	std::cout << std::endl;
+	std::cout << "===Jet Leaf Cards===" << std::endl;
+	std::cout << std::endl;
 	for (unsigned i=0; i<theJetLeafCards.size(); i++) {
-		std::cout << theJetLeafCards[i];
+	  std::cout << "Index=" << i << std::endl;
+          std::cout << (*theJetLeafCards[i]);
 	}
-	for (unsigned i=0; i<theWheelJetFpgas.size(); i++) {
-		std::cout << theWheelJetFpgas[i];
-	}
-	for (unsigned i=0; i<theWheelEnergyFpgas.size(); i++) {
-		std::cout << theWheelEnergyFpgas[i];
-	}
-	std::cout << theJetFinalStage;
-	std::cout << theEnergyFinalStage;
-	std::cout << theIsoEmFinalStage;
-	std::cout << theNonIsoEmFinalStage;
+	std::cout << std::endl;
+	std::cout << "===Wheel Jet FPGAs===" << std::endl;
+	std::cout << std::endl;
+ 	for (unsigned i=0; i<theWheelJetFpgas.size(); i++) {
+          std::cout << "Index=" << i << std::endl; 
+          std::cout << (*theWheelJetFpgas[i]);
+ 	}
+	std::cout << std::endl;
+	std::cout << "===Wheel Energy FPGAs===" << std::endl;
+	std::cout << std::endl;
+ 	for (unsigned i=0; i<theWheelEnergyFpgas.size(); i++) {
+ 		std::cout << (*theWheelEnergyFpgas[i]);
+ 	}
+	std::cout << std::endl;
+	std::cout << "===Jet Final Stage===" << std::endl;
+	std::cout << std::endl;
+ 	std::cout << (*theJetFinalStage);
+	std::cout << std::endl;
+	std::cout << "===Energy Final Stage===" << std::endl;
+	std::cout << std::endl;
+ 	std::cout << (*theEnergyFinalStage);
+	std::cout << std::endl;
+	std::cout << "===Isolated Elec Final Stage===" << std::endl;
+	std::cout << std::endl;
+ 	std::cout << (*theIsoEmFinalStage);
+	std::cout << std::endl;
+	std::cout << "===Non-isolated Elec Final Stage===" << std::endl;
+	std::cout << std::endl;
+	std::cout << (*theNonIsoEmFinalStage);
 	std::cout << "===Global Calo Trigger===" << std::endl;
-	std::cout << "-----End Debug Output----" << std::endl;
-
+ 
 }
 
 // isolated EM outputs
-vector<L1GctEmCand> L1GlobalCaloTrigger::getIsoElectrons() { 
+std::vector<L1GctEmCand> L1GlobalCaloTrigger::getIsoElectrons() { 
   return theIsoEmFinalStage->OutputCands();
 }	
 
 // non isolated EM outputs
-vector<L1GctEmCand> L1GlobalCaloTrigger::getNonIsoElectrons() {
+std::vector<L1GctEmCand> L1GlobalCaloTrigger::getNonIsoElectrons() {
 return theNonIsoEmFinalStage->OutputCands(); 
 }
 
 // central jet outputs to GT
-vector<L1GctJetCand> L1GlobalCaloTrigger::getCentralJets() {
+std::vector<L1GctJetCand> L1GlobalCaloTrigger::getCentralJets() {
  return theJetFinalStage->getCentralJets();
 }
 
 // forward jet outputs to GT
-vector<L1GctJetCand> L1GlobalCaloTrigger::getForwardJets() { 
+std::vector<L1GctJetCand> L1GlobalCaloTrigger::getForwardJets() { 
   return theJetFinalStage->getForwardJets(); 
 }
 
 // tau jet outputs to GT
-vector<L1GctJetCand> L1GlobalCaloTrigger::getTauJets() { 
+std::vector<L1GctJetCand> L1GlobalCaloTrigger::getTauJets() { 
   return theJetFinalStage->getTauJets(); 
 }
 
