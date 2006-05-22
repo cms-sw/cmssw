@@ -11,9 +11,9 @@
 Commonly used persistent containers.
 
 \subsection interface Public interface
-- edm::AssociationMap <b>&lt;CKey, CVal, Tag, index &gt;</b>: one-to-many
-  association based on edm::Ref, of objects in a <tt>CKey</tt> collection 
-  to one or many objects in a collection <tt>CVal</tt>. Stored indices are of type 
+- edm::AssociationMap <b>&lt;CKey, CVal, Tag, index &gt;</b>: one-to-many or one-to-one
+  association based on edm::Ref. Objects in a <tt>CKey</tt> collection 
+  are associated to one or many objects in a collection <tt>CVal</tt>. Stored indices are of type 
   <tt>index</tt>, that is by default <tt>unsigned long</tt>, but could be
   <tt>unsigned short</tt> for collections with less than 65535 objects.
   The template <tt>Tag</tt> should be either edm::OneToOne for
@@ -56,6 +56,25 @@ type <tt><b>Ext</b></tt>.
   <br><br>Due to the polymorphic nature of contained objects, the STL <tt><b>std::sort</b></tt>
   functions do not work with edm::OwnVector. For this reason, functions to sort
   the collection are provided as class methods.
+  Please, note that for classes that do not provide a "<" operator, the function
+  sort has to be explicitly removed from the reflex dictionary generation.
+  So, you should add to your <tt>classes_def.xml</tt> the following lines:
+\htmlonly
+<pre>
+&lt;lcgdict&gt;
+&lt;selection&gt;
+  &lt;class name="MyBaseClass" /&gt;
+  &lt;class name="edm::OwnVector&lt;MyBaseClass, edm::ClonePolicy&lt;MyBaseClass&gt; &gt;" /&gt;
+  . . .
+&lt;/selection&gt;
+&lt;exclusion&gt;
+  &lt;class name="edm::OwnVector&lt;MyBaseClass, edm::ClonePolicy&lt;MyBaseClass&gt; &gt;"&gt;
+    &lt;method name="sort" /&gt;
+  &lt;/class&gt;
+&lt;/exclusion&gt;
+&lt;/lcgdict&gt;
+</pre>
+\endhtmlonly
 
 - edm::RangeMap <b>&lt;ID, C, P&gt;</b>: generic container of objects
   organized in a collection of type <tt><b>C</b></tt> and sorted 
@@ -68,6 +87,13 @@ type <tt><b>Ext</b></tt>.
   sorting phases can be specified as template parameter <tt><b>P</b></tt>.
 
 - edm::SortedCollection <b>&lt;T, SORT&gt;</b>:
+
+- edm::ValueMap <b>&lt;CKey, Val, index &gt;</b>: one-to-one
+  association based on edm::Ref, of objects in a <tt>CKey</tt> collection 
+  to values of type <tt>Val</tt> stored by value in the associatin map. 
+   Stored indices are of type 
+  <tt>index</tt>, that is by default <tt>unsigned long</tt>, but could be
+  <tt>unsigned short</tt> for collections with less than 65535 objects.
 
 \subsection modules Modules
 None.

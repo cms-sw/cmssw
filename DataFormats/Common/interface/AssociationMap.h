@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.2 2006/04/26 13:48:34 llista Exp $
+ * $Id: AssociationMap.h,v 1.3 2006/05/18 07:22:25 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -121,16 +121,15 @@ namespace edm {
       const_iterator() { }
       const_iterator( const KeyRefProd & keyRef, const ValRefProd & valRef,
 		      typename map_type::const_iterator mi ) : 
-	keyRef_( keyRef ), valRef_( valRef ), i( mi ) { }
+	keyRef_( keyRef ), valRef_( valRef ), i( mi ) { setKV(); }
       const_iterator & operator=( const const_iterator & it ) { 
 	keyRef_ = it.keyRef_; valRef_ = it.valRef_;
-	i = it.i; 
-	return *this; 
+	i = it.i; setKV(); return *this; 
       }
-      const_iterator& operator++() { ++i; return *this; }
-      const_iterator operator++( int ) { const_iterator ci = *this; ++i; return ci; }
-      const_iterator& operator--() { --i; return *this; }
-      const_iterator operator--( int ) { const_iterator ci = *this; --i; return ci; }
+      const_iterator& operator++() { ++i; setKV(); return *this; }
+      const_iterator operator++( int ) { const_iterator ci = *this; ++i; setKV(); return ci; }
+      const_iterator& operator--() { --i; setKV(); return *this; }
+      const_iterator operator--( int ) { const_iterator ci = *this; --i; setKV(); return ci; }
       bool operator==( const const_iterator& ci ) const { 
 	return keyRef_ == ci.keyRef_ && valRef_ == ci.valRef_ && i == ci.i; 
       }
@@ -139,17 +138,14 @@ namespace edm {
       typename Tag::val_type val() const {
 	return Tag::val( valRef_, i->second );
       }
-      KeyVal operator *() const {
-	return KeyVal( key(), val() );
-      }
-      const KeyVal * operator->() const {  
-	throw edm::Exception( edm::errors::InvalidReference )
-	  << "can't use -> operator ininsert null references in AssociationMap::const_iterator";
-      }
+      const KeyVal & operator *() const { return kv; }
+      const KeyVal * operator->() const { return & kv; } 
     private:
       KeyRefProd keyRef_;
       ValRefProd valRef_;
       typename map_type::const_iterator i;
+      KeyVal kv;
+      void setKV() { kv = KeyVal( key(), val() ); }
     };
 
     /// first iterator over the map (read only)
