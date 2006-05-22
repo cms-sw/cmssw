@@ -7,12 +7,13 @@
  * class is used by the pixel vertexing to make a PVCluster and is
  * used by other PVCluster-related classes
  *
- *  $Date: 2006/05/03 20:05:00 $
+ *  $Date: 2006/05/08 10:47:28 $
  *  $Revision: 1.1 $
  *  \author Aaron Dominguez (UNL)
  */
 #include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include <vector>
 
 class PVPositionBuilder {
@@ -20,10 +21,10 @@ class PVPositionBuilder {
   /// Constructor does nothing, no data members
   PVPositionBuilder();
    
-  /// Calculate unweighted average of Z of tracks
-  Measurement1D average(std::vector< const reco::Track* > & trks) const;
+  /// Calculate unweighted average of Z of tracks from const collection of track pointers
+    Measurement1D average(const std::vector< reco::TrackRef > & trks) const;
 
-  /// Calculate Error-Weighted average of Z of tracks
-  Measurement1D wtAverage(std::vector< const reco::Track* > & trks) const;
+  /// Calculate Error-Weighted average of Z of tracks from const collection of track pointers
+      Measurement1D wtAverage(const std::vector< reco::TrackRef > & trks) const;
 };
 #endif

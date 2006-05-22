@@ -49,19 +49,17 @@ void PixelVertexTest::analyze(
   ev.getByLabel(trackCollName,trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
 
-  std::vector<const reco::Track* >trks;
+  std::vector< reco::TrackRef >trks;
 
   std::cout << *(trackCollection.provenance()) << std::endl;
   cout << "Reconstructed "<< tracks.size() << " tracks" << std::endl;
-  typedef reco::TrackCollection::const_iterator IT;
-  for (IT track=tracks.begin(); track!=tracks.end(); track++){
-    cout << "\tmomentum: " << track->momentum()
-         << "\tPT: " << track->pt()<< endl;
-    cout << "\tvertex: " << track->vertex()
-         << "\timpact parameter: " << track->d0()<< endl;
-    cout << "\tcharge: " << track->charge()<< endl;
-//    cout <<"\t\tNumber of RecHits "<<track->recHitsSize()<<endl;
-    trks.push_back( &(*track) );
+  for (unsigned int i=0; i<tracks.size(); i++) {
+    cout << "\tmomentum: " << tracks[i].momentum()
+         << "\tPT: " << tracks[i].pt()<< endl;
+    cout << "\tvertex: " << tracks[i].vertex()
+         << "\timpact parameter: " << tracks[i].d0()<< endl;
+    cout << "\tcharge: " << tracks[i].charge()<< endl;
+    trks.push_back( tracks, i );
   cout <<"------------------------------------------------"<<endl;
   }
   PVPositionBuilder pos;  
