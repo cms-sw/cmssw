@@ -19,10 +19,10 @@ Commonly used persistent containers.
   The template <tt>Tag</tt> should be either edm::OneToOne for
   one-to-one maps, or edm::OneToMany for one-to-many maps.
 
+- edm::DetSet <b>&lt;T&gt;</b>:
+
 - edm::EDCollection <b>&lt;T&gt;</b>: Functionally equivalent to <tt>std::vector&lt;T&gt;</tt>. 
   Still present for hystorical reason; will be probably removed in one of the next releases.
-
-- edm::DetSet <b>&lt;T&gt;</b>:
 
 - edm::ExtCollection <b>&lt;C, Ext&gt;</b>:a collection providing 
   internally as instance of a collection of type 
@@ -41,23 +41,29 @@ type <tt><b>Ext</b></tt>.
 - edm::IDVectorMap <b>&lt;ID, C, P&gt;</b>:
 
 - edm::OwnVector <b>&lt;T, P = edm::ClonePolicy&lt;T&gt; &gt;</b>: container 
-  with interface very similar to <tt>std::vector&lt;T&gt;</tt>, but 
+  with interface very similar to <tt>std::vector&lt;T&gt;</tt>,  
   capable of storing polymorphic objects that are owned by the 
-  container to avoid memory leak. Has functionalities similar to 
-  <tt>boost::ptr_vector&lt;T&gt;</tt>, but also provides EDM persistent 
-  capabilities. 
+  container to avoid memory leak. 
+  edm::OwnVector has functionalities very similar to 
+  <a href="http://www.boost.org/libs/ptr_container/doc/ptr_vector.html"><tt>boost::ptr_vector&lt;T&gt;</tt></a>, 
+  providing also EDM persistent capabilities. 
   <br><br>The first template argument <tt><b>T</b></tt> is the common base class of
   polymorphic objects to be stored; the second parameter <tt><b>P</b></TT> specifies
   the  \ref DataFormats_Common_helpers "policy" required to allocate clones of 
   the stored object. By default, it
-  is equal to the type <b>edm::ClonePolicy&lt;T&gt;</b>, which assumes that the 
-  type <tt>T</tt> is equipped with a virtual method <tt><b>clone()</b></tt> that returns a cloned
+  is equal to the type <b>edm::ClonePolicy&lt;T&gt;</b> assuming the 
+  type <tt>T</tt> is equipped with a virtual method <tt><b>clone()</b></tt> that returning a cloned
   instance of the actual concrete object. Other user-provided policy implementations are possible.
-  <br><br>Due to the polymorphic nature of contained objects, the STL <tt><b>std::sort</b></tt>
-  functions do not work with edm::OwnVector. For this reason, functions to sort
-  the collection are provided as class methods.
+  <br><br>
+  As for <a href="http://www.boost.org/libs/ptr_container/doc/ptr_vector.html"><tt>boost::ptr_vector</tt></a>,
+  due to the polymorphic nature of contained objects, the STL <tt><b>std::sort</b></tt>
+  function and other mutating algorithms do not work with edm::OwnVector. For this reason, functions to sort
+  the collection are provided as class methods, using the same approach
+  taken by <a href="http://www.boost.org/libs/ptr_container/doc/ptr_vector.html"><tt>boost::ptr_vector</tt></a>.
+  See also this <a href="http://www.boost.org/libs/ptr_container/doc/tutorial.html#algorithms">documentation</a>
+  from <a href="http://www.boost.org">Boost library</a>.<br><br>
   Please, note that for classes that do not provide a "<" operator, the function
-  sort has to be explicitly removed from the reflex dictionary generation.
+  <tt>sort()</tt> has to be <b>explicitly removed</b> from the reflex dictionary generation.
   So, you should add to your <tt>classes_def.xml</tt> the following lines:
 \htmlonly
 <pre>
