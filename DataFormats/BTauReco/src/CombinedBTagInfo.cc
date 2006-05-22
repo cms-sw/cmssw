@@ -27,8 +27,6 @@ reco::CombinedBTagInfo::CombinedBTagInfo() {
   reco::CombinedBTagInfo::jetPt_                            = -999;
   reco::CombinedBTagInfo::jetEta_                           = -999;
   						            
-  reco::CombinedBTagInfo::pAll_.set(-999,-999,-999);        
-  reco::CombinedBTagInfo::pB_.set(-999,-999,-999);          
   reco::CombinedBTagInfo::bPLong_                           = -999;
   reco::CombinedBTagInfo::bPt_                              = -999;
   reco::CombinedBTagInfo::vertexMass_                       = -999;
@@ -114,7 +112,7 @@ int reco::CombinedBTagInfo::sizeTrackData() {
 } // int sizeTrackData
 // -------------------------------------------------------------------------------
 
-const reco::CombinedBTagInfo::TrackData* reco::CombinedBTagInfo::getTrackData(TrackRef trackRef) {
+reco::CombinedBTagInfo::TrackData* reco::CombinedBTagInfo::getTrackData(TrackRef trackRef) {
 
   std::map <TrackRef, reco::CombinedBTagInfo::TrackData>::const_iterator iter;
 
@@ -177,7 +175,7 @@ int reco::CombinedBTagInfo::sizeVertexData() {
 } // int sizeVertexData
 // -------------------------------------------------------------------------------
 
-const reco::CombinedBTagInfo::VertexData* reco::CombinedBTagInfo::getVertexData(std::vector<reco::Vertex>::const_iterator vertexRef) {
+reco::CombinedBTagInfo::VertexData* reco::CombinedBTagInfo::getVertexData(std::vector<reco::Vertex>::const_iterator vertexRef) {
 
   std::map <std::vector<reco::Vertex>::const_iterator, reco::CombinedBTagInfo::VertexData>::const_iterator iter;
 

@@ -6,7 +6,9 @@
 #include <map>
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "CLHEP/Vector/ThreeVector.h"
+
+#include "Geometry/Vector/interface/GlobalVector.h"
+
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -45,6 +47,23 @@ namespace reco {
 		     NoVertex,
                      NotDefined};
 
+    /** Type of parton from which the jet originated
+     */
+    enum PartonType {B,
+		     C,
+		     UDSG};
+
+    /** list of all variables used to construct the 
+     *  combined b-tagging discriminator
+     */
+    enum TaggingVariable{Category,
+			 JetMass,
+			 VertexMultiplicity,
+			 FlightDistance2DSignificance,
+			 ESVXOverE,
+			 TrackRapidity,
+			 TrackIP2DSignificance,
+			 TrackIP2DSignificanceAboveCharm};
     
     /**
      * store all information regarding individual tracks
@@ -60,27 +79,43 @@ namespace reco {
       double   rapidity;
       double   eta;
       double   d0;           // 2D impact parameter as given by track
+      double   jetDistance;
       int      nHitsTotal;
       int      nHitsPixel;
       double   chi2;
       double   ip2D;          // lifetime-siged 2D impact parameter
-      double   ipSigni2D;     // lifetime-siged 2D impact parameter significance
+      double   ip2DError;
+      double   ip2DSignificance;
       double   ip3D;          // lifetime-siged 3D impact parameter
-      double   ipSigni3D;     // lifetime-siged 3D impact parameter significance     
+      double   ip3DError;
+      double   ip3DSignificance;
+      bool     aboveCharmMass;  /**
+				 * tracks are sorted by lifetime-signed 2D impact 
+				 * parameter significance. Starting from the 
+				 * highest significance, the invariant mass
+				 * of the tracks is calculated (using Pion mass
+				 * hypothesis). If the mass exceeds a threshold,
+				 * this flag is set to true.
+				 */
+ 
 
       void init() {
-	usedInSVX  = false;
-	pt         = -999;
-	rapidity   = -999;
-	eta        = -999;
-	d0         = -999;
-	nHitsTotal = -999; 
-	nHitsPixel = -999;
-	chi2       = -999;
-	ip2D       = -999;
-	ipSigni2D  = -999;
-	ip3D       = -999;
-	ipSigni3D  = -999;
+	usedInSVX        = false;
+	aboveCharmMass   = false;
+	pt               = -999;
+	rapidity         = -999;
+	eta              = -999;
+	d0               = -999;
+	nHitsTotal       = -999; 
+	nHitsPixel       = -999;
+	chi2             = -999;
+	ip2D             = -999;
+	ip2DError        = -999;
+	ip2DSignificance = -999;
+	ip3D             = -999;
+	ip3DError        = -999;
+	ip3DSignificance = -999;
+
       } //init
     }; // struct   
 
@@ -93,38 +128,38 @@ namespace reco {
     struct VertexData {
       reco::Vertex vertex;
       double       chi2;
-      int          ndof;
-      int          nTracks; // number of tracks associated 
-                            // with this vertex.
-      double       sumPx;   // sum of x-component of momentum of all charged tracks at vertex
-      double       sumPy;   //        y-
-      double       sumPz;   //        z-
-      double       mass;    /** mass computed from all charged tracks at this
-	                     *  vertex assuming Pion mass hypothesis.
-	                     *  For now, loop over all tracks and
-	                     *  compute m^2 = Sum(E^2) - Sum(p^2)
-	                     */
-      bool         isV0;     // has been tagged as V0 (true) or not (false);
-      int          fracPV;   // fraction of tracks also used to build primary vertex
+      double       ndof;
+      int          nTracks;      /** number of tracks associated 
+                                  *  with this vertex.
+				  */
+      GlobalVector trackVector;  // sum of all tracks at this vertex
+      double       mass;        /** mass computed from all charged tracks at this
+				 *  vertex assuming Pion mass hypothesis.
+				 *  For now, loop over all tracks and
+				 *  compute m^2 = Sum(E^2) - Sum(p^2)
+				 */
+      bool         isV0;        // has been tagged as V0 (true) or not (false);
+      double       fracPV;      // fraction of tracks also used to build primary vertex
       double       flightDistance2D;
-      double       flightDistanceSignificance2D;
+      double       flightDistance2DError;
+      double       flightDistance2DSignificance;
       double       flightDistance3D;
-      double       flightDistanceSignificance3D;
+      double       flightDistance3DError;
+      double       flightDistance3DSignificance;
 
       void init() {
       chi2                         = -999;
       ndof                         = -999;
       nTracks                      = -999; 
-      sumPx                        = -999;  
-      sumPy                        = -999;  
-      sumPz                        = -999;  
       mass                         = -999;   
       isV0                         = -999;     
       fracPV                       = -999;    
       flightDistance2D             = -999;
-      flightDistanceSignificance2D = -999;
+      flightDistance2DError        = -999;
+      flightDistance2DSignificance = -999;
       flightDistance3D             = -999;
-      flightDistanceSignificance3D = -999;	
+      flightDistance3DError        = -999;
+      flightDistance3DSignificance = -999;	
 	
       } //init
     }; // struct
@@ -146,57 +181,96 @@ namespace reco {
     //
     // accessors
     //
-    double                    jetPt ()                    {return jetPt_;}
-    double                    jetEta()                    {return jetEta_;}
+    double                    jetPt ()                            {return jetPt_;}
+    double                    jetEta()                            {return jetEta_;}
     			
     // edm::ref to primary vertex ?
-    reco::Vertex              primaryVertex()             {return primaryVertex_;}
-    std::vector<reco::Vertex> secVertices()               {return secondaryVertices_;}
-    std::vector<reco::Vertex>::const_iterator secVerticesBegin() 
-    {return secondaryVertices_.begin();}
-    std::vector<reco::Vertex>::const_iterator secVerticesEnd() 
-    {return secondaryVertices_.end();}
-    int                       nSecVertices()              {return secondaryVertices_.size();}
-    VertexType                vertexType()                {return vertexType_;}
-    double                    vertexMass()                {return vertexMass_;}
-    int                       vertexMultiplicity()        {return vertexMultiplicity_;}
-    double                    eSVXOverE()                 {return eSVXOverE_;}
-	                          		               
-    Hep3Vector                pAll()                      {return pAll_;}
-    Hep3Vector                pB()                        {return pB_;}
-    double                    pBLong()                    {return bPLong_;}
-    double                    pBPt()                      {return bPt_;}
-	                          		               
-    double                    meanTrackRapidity()         {return meanTrackY_;}
-    		             		                  
-    double                    angleGeomKinJet()           {return angleGeomKinJet_;}
-    double                    angleGeomKinVertex()        {return angleGeomKinVertex_;}
+    reco::Vertex              primaryVertex()                     {return primaryVertex_;}
+    std::vector<reco::Vertex> secVertices()                       {return secondaryVertices_;}
+    std::vector<reco::Vertex>::const_iterator secVerticesBegin()  {return secondaryVertices_.begin();}
+    std::vector<reco::Vertex>::const_iterator secVerticesEnd()    {return secondaryVertices_.end();}
+    std::vector<TrackRef>     tracksAboveCharm()                  {return tracksAboveCharm_;}
+    
+    int                       nSecVertices()                      {return secondaryVertices_.size();}
+    VertexType                vertexType()                        {return vertexType_;}
+    double                    vertexMass()                        {return vertexMass_;}
+    int                       vertexMultiplicity()                {return vertexMultiplicity_;}
+    double                    eSVXOverE()                         {return eSVXOverE_;}
+	                          		                       
+    GlobalVector              pAll()                              {return pAll_;}
+    GlobalVector              pB()                                {return pB_;}
+    double                    pBLong()                            {return bPLong_;}
+    double                    pBPt()                              {return bPt_;}
+	                          		                       
+    double                    meanTrackRapidity()                 {return meanTrackY_;}
+    		             		                          
+    double                    angleGeomKinJet()                   {return angleGeomKinJet_;}
+    double                    angleGeomKinVertex()                {return angleGeomKinVertex_;}
+
+
+    double flightDistance2DMin()                                  {return flightDistance2DMin_              ;}
+    double flightDistanceSignificance2DMin ()                     {return flightDistanceSignificance2DMin_  ;}
+    double flightDistance3DMin()                                  {return flightDistance3DMin_              ;}
+    double flightDistanceSignificance3DMin()                      {return flightDistanceSignificance3DMin_  ;}
+						                  
+    double flightDistance2DMax()                                  {return flightDistance2DMax_              ;}
+    double flightDistanceSignificance2DMax()                      {return flightDistanceSignificance2DMax_  ;}
+    double flightDistance3DMax ()                                 {return flightDistance3DMax_              ;}
+    double flightDistanceSignificance3DMax()                      {return flightDistanceSignificance3DMax_  ;}
+						                  
+    double flightDistance2DMean()                                 {return flightDistance2DMean_             ;}
+    double flightDistanceSignificance2DMean()                     {return flightDistanceSignificance2DMean_ ;}
+    double flightDistance3DMean()                                 {return flightDistance3DMean_             ;}
+    double flightDistanceSignificance3DMean ()                    {return flightDistanceSignificance3DMean_ ;}
+
+    // possibly revisit this if calculation of lifetime-signed 2d IP
+    // is avaialable via Track itself
+    double                    first2DSignedIPSigniAboveCut()      {return first2DSignedIPSigniAboveCut_;}
 				                             
     //
     // setters
     //
-    void        setJetPt (double pt)                         { jetPt_                 = pt;}
-    void        setJetEta(double eta)                        { jetEta_                = eta;}
-    	
-    // pass (ref to?) primary vertex
-    void        setPrimaryVertex(reco::Vertex pv)            { primaryVertex_         = pv;}
-    void        addSecondaryVertex(reco::Vertex sv)          { secondaryVertices_.push_back(sv);}
-    void        setVertexType( VertexType type)              { vertexType_            = type;}
-    void        setVertexMass( double mass)                  { vertexMass_            = mass;}
-    void        setVertexMultiplicity(int mult)              { vertexMultiplicity_    = mult;}
-    void        setESVXOverE( double e)                      { eSVXOverE_             = e;}
-	             		                             			      
-    void        setPAll(Hep3Vector p)                        { pAll_                  = p;}
-    void        setPB(Hep3Vector p)                          { pB_                    = p;}
-    void        setBPLong(double pLong)                      { bPLong_                = pLong;}
-    void        setBPt(double pt)                            { bPt_                   = pt;}
-    void        setMeanTrackRapidity(double meanY)           { meanTrackY_            = meanY;}
-    				                        
-    void        setAngleGeomKinJet(double angle)             {angleGeomKinJet_        = angle;}
-    void        setAngleGeomKinVertex(double angle)          {angleGeomKinVertex_     = angle;}			                        
+    void setJetPt (double pt)                                   {jetPt_                           = pt;}
+    void setJetEta(double eta)                                  {jetEta_                          = eta;}
+    						                
+    // pass (ref to?) primary vertex		                
+    void setPrimaryVertex(reco::Vertex pv)                      {primaryVertex_                   = pv;}
+    void addSecondaryVertex(reco::Vertex sv)                    {secondaryVertices_.push_back(sv);}
+    void setVertexType( VertexType type)                        {vertexType_                      = type;}
+    void setVertexMass( double mass)                            {vertexMass_                      = mass;}
+    void setVertexMultiplicity(int mult)                        {vertexMultiplicity_              = mult;}
+    void setESVXOverE( double e)                                {eSVXOverE_                       = e;}
+	 					                  		               
+    void setEnergyBTracks(double energy)                        {energyBTracks_                   = energy;}
+    void setEnergyAllTracks(double energy)                      {energyAllTracks_                 = energy;}
+	      		                                          		               
+    void setPAll(GlobalVector p)                                {pAll_                            = p;}
+    void setPB(GlobalVector p)                                  {pB_                              = p;}
+    void setBPLong(double pLong)                                {bPLong_                          = pLong;}
+    void setBPt(double pt)                                      {bPt_                             = pt;}
+    void setMeanTrackRapidity(double meanY)                     {meanTrackY_                      = meanY;}
+    	 		                        			               
+    void setAngleGeomKinJet(double angle)                       {angleGeomKinJet_                  = angle;}
+    void setAngleGeomKinVertex(double angle)                    {angleGeomKinVertex_               = angle;}	
 
+    void addTrackAboveCharm(TrackRef trackRef)                  {tracksAboveCharm_.push_back(trackRef);}
 
+    void setFlightDistance2DMin(double value)                   {flightDistance2DMin_              = value;}
+    void setFlightDistanceSignificance2DMin (double value)      {flightDistanceSignificance2DMin_  = value;}
+    void setFlightDistance3DMin(double value)                   {flightDistance3DMin_              = value;}
+    void setFlightDistanceSignificance3DMin(double value)       {flightDistanceSignificance3DMin_  = value;}
 
+    void setFlightDistance2DMax(double value)                   {flightDistance2DMax_              = value;}
+    void setFlightDistanceSignificance2DMax(double value)       {flightDistanceSignificance2DMax_  = value;}
+    void setFlightDistance3DMax (double value)                  {flightDistance3DMax_              = value;}
+    void setFlightDistanceSignificance3DMax(double value)       {flightDistanceSignificance3DMax_  = value;}
+
+    void setFlightDistance2DMean(double value)                  {flightDistance2DMean_             = value;}
+    void setFlightDistanceSignificance2DMean(double value)      {flightDistanceSignificance2DMean_ = value;}
+    void setFlightDistance3DMean(double value)                  {flightDistance3DMean_             = value;}
+    void setFlightDistanceSignificance3DMean (double value)     {flightDistanceSignificance3DMean_ = value;}
+
+    void setFirst2DSignedIPSigniAboveCut(double ipSignificance) {first2DSignedIPSigniAboveCut_ = ipSignificance;}
 
     //
     // map to access track map information
@@ -207,7 +281,7 @@ namespace reco {
     void              storeTrackData(TrackRef trackRef,
 				     const CombinedBTagInfo::TrackData& trackData);
     int               sizeTrackData();
-    const TrackData*  getTrackData(TrackRef trackRef);
+    TrackData*        getTrackData(TrackRef trackRef);
 
 
     // is this the "best" way to do it?
@@ -216,7 +290,7 @@ namespace reco {
     void              storeVertexData(std::vector<reco::Vertex>::const_iterator vertexRef,
 				      const CombinedBTagInfo::VertexData& vertexData);
     int               sizeVertexData();
-    const VertexData* getVertexData(std::vector<reco::Vertex>::const_iterator vertexRef);
+    VertexData*       getVertexData(std::vector<reco::Vertex>::const_iterator vertexRef);
 
 
     ////////////////////////////////////////////////////
@@ -238,10 +312,29 @@ namespace reco {
                                   // how to store best as this one is created
                                   // as part of the combined b-tag alg?
 
-    VertexType  vertexType_;      /** if at least one secondary vertex has been found,
-				   *  jet has type "RecoVertex", otherwise 
-				   *  "PseudoVertex" or "NoVertex"
-				   */
+    /** 
+     * Type of vertex which is found in this jet:
+     * if at least one secondary vertex has been found, jet has type "RecoVertex", otherwise
+     * "PseudoVertex" or "NoVertex"
+     */
+    VertexType  vertexType_;     
+				 
+    /**
+     * Determine (lifetime-singed 2D) impact parameter of first track 
+     * above given mass threshold (reco::CombinedBTagAlg::vertexCharmCut_)
+     * Idea: if the secondary vertex is due to a charmed hadron,
+     *       there will be a distinct gap in the distribution of the
+     *       impact parameters:
+     *       see e.g. http://www-ekp.physik.uni-karlsruhe.de/~weiser/thesis/P108.html
+     */
+    std::vector<TrackRef> tracksAboveCharm_;   
+
+    /**
+     * 2D life-time signed impact parameter of first track
+     * to exceed mass threshold
+     */
+    double first2DSignedIPSigniAboveCut_;
+
 	        
     /** Store for easier access also
      *  min, max, mean of
@@ -282,12 +375,12 @@ namespace reco {
      *  see comment at beginning of this header file.
      */
 
-    Hep3Vector  pB_;                   /** computed from all tracks all all
+    GlobalVector  pB_;                 /** computed from all tracks all all
 					*  secondary vertices,
 					*  pX = Sum(pX), etc
 					*/
 
-    Hep3Vector  pAll_;                  /** same as above but computed from 
+    GlobalVector  pAll_;               /** same as above but computed from 
 					 *  all tracks in jet
 					 */
     
@@ -305,12 +398,12 @@ namespace reco {
 					*  m = sqrt(E**2 - p**2)
 					*/
 
-    double      vertexEnergyCharged_;  /** energy calculated from all tracks
+    double      energyBTracks_;        /** energy calculated from all tracks
 					*  used at secondary vertices.
 					*  tracks are assumed to be Pions
 					*/
 
-    double      jetEnergyAll_;          /** energy calculated from all tracks
+    double      energyAllTracks_;      /** energy calculated from all tracks
 					*  tracks associated to jet
 					*  Tracks are assumed to be Pions.
 					*/
