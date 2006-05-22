@@ -1,7 +1,7 @@
 #ifndef DQM_SiStripCommon_SiStripHistoNamingScheme_H
 #define DQM_SiStripCommon_SiStripHistoNamingScheme_H
 
-#include "DQM/SiStripCommon/interface/SiStripHistoNamingConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingConstants.h"
 #include "boost/cstdint.hpp"
 #include <string>
 
@@ -25,7 +25,8 @@ class SiStripHistoNamingScheme {
   };
   
   /** Simple struct to hold control path parameters. */
-  struct ControlPath {
+  class ControlPath {
+  public:
     uint16_t fecCrate_;
     uint16_t fecSlot_;
     uint16_t fecRing_;
@@ -50,17 +51,17 @@ class SiStripHistoNamingScheme {
   /** Returns control parameters in the form of a "ControlPath" struct,
       based on directory path string of the form
       ControlView/FecCrateA/FecSlotA/FecRingC/CcuAddrD/CcuChanE/. */
-  static ControlPath controlPath( string path );
+  static const ControlPath& controlPath( const string& path );
   
   /** Returns directory path in the form of a string, based on readout
       parameters (FED id and channel). */ 
   static string readoutPath( uint16_t fed_id = sistrip::all_, 
 			     uint16_t fed_channel = sistrip::all_ );
-
+  
   /** Returns readout parameters in the form of a pair (FED
       id/channel), based on directory path string of the form
       ReadoutView/FedIdX/FedChannelY/. */
-  static pair<uint16_t,uint16_t> readoutPath( string path ) { return pair<uint16_t,uint16_t>(0,0); } //@@ NO IMPLEMENTATION YET!
+  static pair<uint16_t,uint16_t> readoutPath( const string& path ) { return pair<uint16_t,uint16_t>(0,0); } //@@ NO IMPLEMENTATION YET!
   
   // ----- FORMULATION OF HISTOGRAM TITLES -----
 
