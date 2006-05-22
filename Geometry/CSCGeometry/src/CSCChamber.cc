@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/21 16:50:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/29 15:25:39 $
+ *  $Revision: 1.2 $
  */
 
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>
@@ -12,14 +12,20 @@
 
 CSCChamber::~CSCChamber(){
   // Delete all layers
-  for (std::vector<const GeomDet*>::const_iterator i=theComponents.begin();
+  for (std::vector<const CSCLayer*>::const_iterator i=theComponents.begin();
        i!=theComponents.end(); ++i){
     delete (*i);
   }
 }
 
 
-void CSCChamber::addComponent( int n, const GeomDet* gd ) { 
+std::vector<const GeomDet*> 
+CSCChamber::components() const {
+  return std::vector <const GeomDet*>(theComponents.begin(),theComponents.end());
+}
+
+
+void CSCChamber::addComponent( int n, const CSCLayer* gd ) { 
 	
   if ((n>0) && (n<7)) 
     theComponents[n-1] = gd; 
@@ -34,7 +40,7 @@ const CSCLayer* CSCChamber::layer(CSCDetId id) const {
 const CSCLayer* CSCChamber::layer(int ilay) const{
   	
   if ((ilay>0) && (ilay<7)) 
-    return dynamic_cast<const CSCLayer*> (theComponents[ilay-1]);
+    return theComponents[ilay-1];
   else {
     return 0;
   }

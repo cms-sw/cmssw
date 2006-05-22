@@ -25,7 +25,7 @@ public:
 
   CSCChamber( BoundPlane* bp, CSCDetId id, CSCChamberSpecs* specs ) :
   GeomDet( bp ), theId( id ), theChamberSpecs( specs ), 
-    theComponents(6,(const GeomDet*)0) {}
+    theComponents(6,(const CSCLayer*)0) {}
 
   ~CSCChamber();
 
@@ -38,9 +38,16 @@ public:
 
   const CSCChamberSpecs* specs() const { return theChamberSpecs; }
 
-  void addComponent( int n, const GeomDet* gd );
+  virtual std::vector< const GeomDet* > components() const;
 
-  virtual std::vector< const GeomDet* > components() const { return theComponents; }
+
+  // Extension of the interface
+
+  /// Add a layer
+  void addComponent( int n, const CSCLayer* gd );
+
+  /// Return all layers
+  const std::vector< const CSCLayer* >& layers() const { return theComponents; }
 
   /// Return the layer corresponding to the given id 
   const CSCLayer* layer(CSCDetId id) const;
@@ -53,7 +60,7 @@ private:
 
   CSCDetId theId;
   CSCChamberSpecs* theChamberSpecs;
-  std::vector< const GeomDet* > theComponents; // the 6 CSCLayers comprising a CSCChamber; are owned by this class
+  std::vector< const CSCLayer* > theComponents; // the 6 CSCLayers comprising a CSCChamber; are owned by this class
 };
 
 #endif // Geometry_CSCGeometry_CSCChamber_H
