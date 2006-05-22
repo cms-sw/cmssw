@@ -23,10 +23,14 @@ namespace reco {
     /// default constructor
     Track() { }
     /// constructor from fit parameters and error matrix
-    /// notice that the reference point must be 
-    /// the point of closest approch to the beamline.    
-    Track( float chi2, unsigned short ndof, int found, int invalid, int lost,
+    Track( float chi2, unsigned short ndof, 
 	   const Parameters &, const Covariance & );
+    /// constructor from cartesian coordinates and covariance matrix.
+    /// notice that the vertex passed must be 
+    /// the point of closest approch to the beamline.    
+    Track( float chi2, unsigned short ndof, 
+	   int q, const Point & v, const Vector & p, 
+	   const PosMomError & err );
     /// return true if the outermost point is valid
     bool outerOk() const { return extra_->outerOk(); }
     /// position of the outermost point
