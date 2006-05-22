@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestStatusChecker
  *
- *  $Date: 2006/05/04 10:27:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/09 21:28:37 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
  */
 
@@ -38,6 +38,7 @@ std::pair<std::string,std::string> QTestStatusChecker::checkGlobalStatus(Monitor
 	    		statement.second="green";
 	}
 
+			std::cout<<"In checkglobal"<<statement.first<<std::endl;
 	return statement;
 }
 
