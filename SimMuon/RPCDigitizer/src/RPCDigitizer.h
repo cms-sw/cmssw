@@ -13,15 +13,18 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-//#include "MagneticField/Engine/interface/MagneticField.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+
+namespace edm{
+  class ParameterSet;
+}
 
 class RPCRoll;
 class RPCSim;
-class RPCDigitizer 
+class RPCDigitizer
 {
 public:
-  RPCDigitizer();
+  RPCDigitizer(const edm::ParameterSet& config);
   ~RPCDigitizer();
 
   /**  digitize
