@@ -2,8 +2,8 @@
  *
  *  Implementation of  QTestHandle
  *
- *  $Date: 2006/05/04 10:27:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/09 21:28:37 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
  */
 
@@ -62,24 +62,15 @@ void QTestHandle::attachTests(MonitorUserInterface * mui){
 
 }
 
-void QTestHandle::checkGolbalQTStatus(MonitorUserInterface * mui) const{
+std::pair<std::string,std::string> QTestHandle::checkGolbalQTStatus(MonitorUserInterface * mui) const{
 
-	std::pair<std::string,std::string> globalStatus = qtChecker->checkGlobalStatus(mui);
-	std::cout <<"Quality Tests global status: " <<globalStatus.first<<std::endl;
+	return qtChecker->checkGlobalStatus(mui);
 
 }
 
 
-void QTestHandle::checkDetailedQTStatus(MonitorUserInterface * mui) const {
+std::map< std::string, std::vector<std::string> > QTestHandle::checkDetailedQTStatus(MonitorUserInterface * mui) const {
 
-		std::map< std::string, std::vector<std::string> > messages= qtChecker->checkDetailedStatus(mui);  
-
-		char alarm[128] ;
-		std::vector<std::string> errors = messages["red"];
-		sprintf(alarm,"Number of Errors :%d",errors.size());
-		std::cout<< alarm <<std::endl;
+		return qtChecker->checkDetailedStatus(mui);
 		
-		std::vector<std::string> warnings = messages["orange"];
-		sprintf(alarm,"Number of Warnings :%d", warnings.size());
-		std::cout<< alarm <<std::endl;
 }

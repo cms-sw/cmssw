@@ -6,12 +6,14 @@
  *  Handles quality tests (configuring, attaching to ME's, 
  *  subscribing to the ME's for which quality tests are requested).
  *
- *  $Date: 2006/05/04 10:27:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/09 21:28:24 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
   */
   
 #include<string>
+#include<vector>
+#include<map>
 
 class MonitorUserInterface;
 class QTestConfigurationParser;
@@ -29,9 +31,9 @@ class QTestHandle{
 	///Attaches the quality tests to the MonitorElement
 	void attachTests(MonitorUserInterface * mui);
 	///Checks global status of Quality Tests
-	void checkGolbalQTStatus(MonitorUserInterface * mui) const;
+	std::pair<std::string,std::string> checkGolbalQTStatus(MonitorUserInterface * mui) const;
 	///Checks alarms for single MonitorElements
-	void checkDetailedQTStatus(MonitorUserInterface * mui) const;
+	std::map< std::string, std::vector<std::string> > checkDetailedQTStatus(MonitorUserInterface * mui) const;
   
   private:
 
