@@ -7,6 +7,7 @@ class HcalGains;
 class HcalGainWidths;
 class HcalQIEShape;
 class HcalQIEData;
+class HcalCalibrationQIEData;
 class HcalChannelQuality;
 class HcalElectronicsMap;
 

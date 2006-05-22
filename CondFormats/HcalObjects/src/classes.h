@@ -3,6 +3,7 @@
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
+#include "CondFormats/HcalObjects/interface/HcalCalibrationQIEData.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 template std::vector< HcalPedestals::Item >::iterator;
@@ -15,6 +16,8 @@ template std::vector< HcalGainWidths::Item >::iterator;
 template std::vector< HcalGainWidths::Item >::const_iterator;
 template std::vector< HcalQIEData::Item >::iterator;
 template std::vector< HcalQIEData::Item >::const_iterator;
+template std::vector< HcalCalibrationQIEData::Item >::iterator;
+template std::vector< HcalCalibrationQIEData::Item >::const_iterator;
 template std::vector< HcalElectronicsMap::Item >::iterator;
 template std::vector< HcalElectronicsMap::Item >::const_iterator;
 template std::vector< HcalChannelQuality::Item >::iterator;
