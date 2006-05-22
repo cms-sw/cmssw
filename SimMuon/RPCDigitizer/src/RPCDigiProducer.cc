@@ -11,7 +11,7 @@
 
 
 RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
-  theDigitizer = new RPCDigitizer();
+  theDigitizer = new RPCDigitizer(ps);
   produces<RPCDigiCollection>("MuonRPCDigi");
 }
 
