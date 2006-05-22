@@ -16,6 +16,9 @@ public:
 
   typedef std::vector<L1GctJetCand> JetVector;
 
+  /// Overload << operator
+  friend std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga);
+
   /// clear internal buffers
   virtual void reset();
 
@@ -94,5 +97,7 @@ private:
   /// Sizes the m_rawTauJetsVec, and then sets all tauVeto bits to false.
   void setupRawTauJetsVec();
 };
+
+std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga);
 
 #endif /*L1GCTWHEELJETFPGA_H_*/

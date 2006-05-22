@@ -16,6 +16,22 @@ L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos()
 {
 }
 
+std::ostream& operator << (std::ostream& os, const L1GctGlobalEnergyAlgos& fpga)
+{
+
+  os << "Output Emiss " << fpga.m_outputEtMiss << std::endl;
+  os << "Output Emiss Phi " << fpga.m_outputEtMissPhi << std::endl;
+  os << "Output EtSum " << fpga.m_outputEtSum << std::endl;
+  os << "Output EtHad " << fpga.m_outputEtHad << std::endl;
+  os << "Output Jet counts " << std::endl;
+  for(unsigned i=0; i < fpga.m_outputJetCounts.size(); i++)
+    {
+      os << fpga.m_outputJetCounts[i];
+    } 
+
+  return os;
+}
+
 // clear internal data
 void L1GctGlobalEnergyAlgos::reset()
 {

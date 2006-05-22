@@ -23,6 +23,9 @@ public:
 
   typedef std::vector<L1GctJetCand> JetVector;
 
+  /// Overload << operator
+  friend std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga);
+
   /// clear internal buffers
   virtual void reset();
 
@@ -83,5 +86,7 @@ private:
   void storeJets(JetVector& storageVector, JetVector jets, unsigned short iWheel);
   
 };
+
+std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga);
 
 #endif /*L1GCTJETFINALSTAGE_H_*/

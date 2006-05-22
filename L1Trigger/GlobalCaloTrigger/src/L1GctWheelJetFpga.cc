@@ -23,6 +23,63 @@ L1GctWheelJetFpga::~L1GctWheelJetFpga()
 {
 }
 
+std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga)
+{
+  os << "Algo ID " << fpga.m_id << std::endl;
+  os << "No. of Input Leaf Cards " << fpga.m_inputLeafCards.size() << std::endl;
+  for(unsigned i=0; i < fpga.m_inputLeafCards.size(); i++)
+    {
+      os << (*fpga.m_inputLeafCards[i]);
+    } 
+  os << "No. of Input Jets " << fpga.m_inputJets.size() << std::endl;
+  for(unsigned i=0; i < fpga.m_inputJets.size(); i++)
+    {
+      os << fpga.m_inputJets[i];
+    } 
+  os << "Input Ht " << std::endl;
+  for(unsigned i=0; i < fpga.m_inputHt.size(); i++)
+    {
+      os << (fpga.m_inputHt[i]);
+    } 
+  os << "No. of raw central Jets " << fpga.m_rawCentralJets.size() << std::endl;
+  for(unsigned i=0; i < fpga.m_rawCentralJets.size(); i++)
+    {
+      os << fpga.m_rawCentralJets[i];
+    } 
+  os << "No. of raw forward Jets " << fpga.m_rawForwardJets.size() << std::endl;
+  for(unsigned i=0; i < fpga.m_rawForwardJets.size(); i++)
+    {
+      os << fpga.m_rawForwardJets[i];
+    } 
+  os << "No. of raw tau Jets " << fpga.m_rawTauJets.size() << std::endl;
+  for(unsigned i=0; i < fpga.m_rawTauJets.size(); i++)
+    {
+      os << fpga.m_rawTauJets[i];
+    } 
+  os << "Output Ht " << fpga.m_outputHt << std::endl;
+  os << "Output Jet count " << std::endl;
+  for(unsigned i=0; i < fpga.m_outputJc.size(); i++)
+    {
+      os << fpga.m_outputJc[i];
+    } 
+  os << "No. of output central Jets " << fpga.m_centralJets.size() << std::endl;
+  for(unsigned i=0; i < fpga.m_centralJets.size(); i++)
+    {
+      os << fpga.m_centralJets[i];
+    } 
+  os << "No. of output forward Jets " << fpga.m_forwardJets.size() << std::endl;
+  for(unsigned i=0; i < fpga.m_forwardJets.size(); i++)
+    {
+      os << fpga.m_forwardJets[i];
+    } 
+  os << "No. of output tau Jets " << fpga.m_tauJets.size() << std::endl;
+  for(unsigned i=0; i < fpga.m_tauJets.size(); i++)
+    {
+      os << fpga.m_tauJets[i];
+    } 
+  return os;
+}	
+
 void L1GctWheelJetFpga::reset()
 {
   m_inputJets.clear();

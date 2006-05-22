@@ -14,6 +14,10 @@ public:
 	L1GctWheelEnergyFpga(int id);
 	~L1GctWheelEnergyFpga();
 	///
+
+        /// Overload << operator
+        friend std::ostream& operator << (std::ostream& os, const L1GctWheelEnergyFpga& fpga);
+
 	/// clear internal buffers
 	virtual void reset();
 	///
@@ -60,5 +64,7 @@ private:
 	
 	
 };
+
+std::ostream& operator << (std::ostream& os, const L1GctWheelEnergyFpga& fpga);
 
 #endif /*L1GCTWHEELENERGYFPGA_H_*/

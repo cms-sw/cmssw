@@ -3,6 +3,7 @@
 
 #include <boost/cstdint.hpp> //for uint16_t
 #include <functional>
+#include <ostream>
 
 /*
  * A GCT jet candidate
@@ -31,7 +32,7 @@ public:
   uint16_t phi()const { return m_phi; }
   bool tauVeto()const { return m_tauVeto; }
 	
-  //ostream& operator << (ostream& os, const L1GctJetCand& s);
+  friend std::ostream& operator << (std::ostream& os, const L1GctJetCand& cand);
   
   ///Setup an existing jet all in one go
   void setupJet(uint16_t rank, uint16_t eta, uint16_t phi, bool tauVeto=true);
@@ -64,5 +65,7 @@ public:
   bool m_tauVeto;
   
 };
+
+std::ostream& operator << (std::ostream& os, const L1GctJetCand& cand);
 
 #endif /*L1GCTJETCAND_H_*/

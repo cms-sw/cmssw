@@ -16,6 +16,16 @@ L1GctJetCand::~L1GctJetCand()
 {
 }
 
+std::ostream& operator << (std::ostream& os, const L1GctJetCand& cand)
+{
+  os << "Rank " << cand.m_rank;
+  os << " Eta " << cand.m_eta;
+  os << " Phi " << cand.m_phi;
+  os << " Tau " << cand.m_tauVeto << std::endl;
+
+  return os;
+}	
+
 void L1GctJetCand::setupJet(uint16_t rank, uint16_t eta, uint16_t phi, bool tauVeto)
 {
     m_rank = rank;

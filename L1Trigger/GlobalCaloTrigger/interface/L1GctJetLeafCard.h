@@ -22,6 +22,9 @@ public:
   L1GctJetLeafCard(int id, int iphi);
   ~L1GctJetLeafCard();
 
+  /// Overload << operator
+  friend std::ostream& operator << (std::ostream& os, const L1GctJetLeafCard& card);
+
   /// clear internal buffers
   virtual void reset();
 
@@ -77,5 +80,7 @@ private:
   L1GctScalarEtVal m_etSum;
   L1GctScalarEtVal m_htSum;
 };
+
+std::ostream& operator << (std::ostream& os, const L1GctJetLeafCard& card);
 
 #endif /*L1GCTJETLEAFCARD_H_*/

@@ -70,6 +70,9 @@ public:
     L1GctJetFinder(int id);
     ~L1GctJetFinder();
    
+    /// Overload << operator
+    friend std::ostream& operator << (std::ostream& os, const L1GctJetFinder& algo);
+
     /// clear internal buffers
     virtual void reset();
 
@@ -136,5 +139,7 @@ private:
     L1GctScalarEtVal calcHt() const;
   
 };
+
+std::ostream& operator << (std::ostream& os, const L1GctJetFinder& algo);
 
 #endif /*L1GCTJETFINDER_H_*/

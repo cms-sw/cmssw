@@ -23,6 +23,10 @@ public:
 	L1GctGlobalEnergyAlgos();
 	~L1GctGlobalEnergyAlgos();
 	///
+
+        /// Overload << operator
+        friend std::ostream& operator << (std::ostream& os, const L1GctGlobalEnergyAlgos& fpga);
+
 	/// clear internal buffers
 	virtual void reset();
 	///
@@ -114,5 +118,7 @@ private:
         etmiss_vec calculate_etmiss_vec (L1GctEtComponent ex, L1GctEtComponent ey) ;
 	
 };
+
+std::ostream& operator << (std::ostream& os, const L1GctGlobalEnergyAlgos& fpga);
 
 #endif /*L1GCTGLOBALENERGYALGOS_H_*/

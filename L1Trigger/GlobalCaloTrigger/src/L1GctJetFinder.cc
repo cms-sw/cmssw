@@ -17,6 +17,30 @@ L1GctJetFinder::~L1GctJetFinder()
 {
 }
 
+std::ostream& operator << (std::ostream& os, const L1GctJetFinder& algo)
+{
+  os << "ALGO ID " << algo.m_id << std::endl;
+  os << "No. of Source cards " << algo.m_sourceCards.size() << std::endl;
+  for(unsigned i=0; i < algo.m_sourceCards.size(); i++)
+    {
+      if (algo.m_sourceCards[i]!=0) os << (*algo.m_sourceCards[i]); // These can be NULL!
+    }
+  os << "No. of input regions " << algo.m_inputRegions.size() << std::endl;
+  for(unsigned i=0; i < algo.m_inputRegions.size(); i++)
+    {
+      os << algo.m_inputRegions[i]; 
+    }
+  os << "No. of output jets " << algo.m_outputJets.size() << std::endl;
+  for(unsigned i=0; i < algo.m_outputJets.size(); i++)
+    {
+      os << algo.m_outputJets[i]; 
+    }
+  os << "Output Ht " << algo.m_outputHt << std::endl;
+
+  return os;
+}
+
+
 void L1GctJetFinder::reset()
 {
     m_inputRegions.clear();

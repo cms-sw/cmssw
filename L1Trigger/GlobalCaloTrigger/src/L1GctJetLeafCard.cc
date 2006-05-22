@@ -16,6 +16,24 @@ L1GctJetLeafCard::~L1GctJetLeafCard()
 {
 }
 
+std::ostream& operator << (std::ostream& os, const L1GctJetLeafCard& card)
+{
+  os << "JLC ID " << card.m_id << std::endl;
+  os << "JetFinder A " << (*card.jetFinderA) << std::endl;
+  os << "JetFinder B " << (*card.jetFinderB) << std::endl; 
+  os << "JetFinder C " << (*card.jetFinderC) << std::endl;
+  os << "Phi " << card.phiPosition << std::endl;;
+  os << "Ex " << card.m_exSum;
+  os << "Ey " << card.m_eySum;
+  os << "Et " << card.m_etSum;
+  os << "Ht " << card.m_htSum;
+  os << "No. of Source cards " << card.m_sourceCards.size() << std::endl;
+  for(unsigned i=0; i < card.m_sourceCards.size(); i++)
+    {
+      if (card.m_sourceCards[i]!=0) os << (*card.m_sourceCards[i]); // These can be NULL!
+    }
+  return os;
+}
 
 void L1GctJetLeafCard::reset() {
 
