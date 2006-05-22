@@ -5,7 +5,7 @@
 // 
 /**\class PrimaryVertexProducer PrimaryVertexProducer.cc RecoVertex/PrimaryVertexProducer/src/PrimaryVertexProducer.cc
 
- Description: <one line class summary>
+ Description: finds and stores primary vertices, compatible with the beam line
 
  Implementation:
      <Notes on implementation>
@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducer.h,v 1.1 2006/02/28 11:45:39 vanlaer Exp $
+// $Id: PrimaryVertexProducer.h,v 1.2 2006/03/13 17:16:16 vanlaer Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoVertex/VertexPrimitives/interface/VertexReconstructor.h"
+#include "RecoVertex/TrimmedKalmanVertexFinder/interface/KalmanTrimmedVertexFinder.h"
 
 //
 // class decleration
@@ -47,8 +47,7 @@ public:
 private:
   // ----------member data ---------------------------
   // vtx finding algorithm
-  VertexReconstructor* theFinder;
-
+  KalmanTrimmedVertexFinder theFinder;
+  edm::ParameterSet theConfig;
 
 };
-

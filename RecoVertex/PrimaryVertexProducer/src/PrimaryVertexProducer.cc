@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoVertex/TrimmedKalmanVertexFinder/interface/KalmanTrimmedVertexFinder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
@@ -28,7 +27,8 @@ using namespace reco;
 //
 // constructors and destructor
 //
-PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& iConfig)
+PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
+  : theConfig(conf)
 {
   edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
     << "Initializing PV producer " << "\n";
@@ -36,11 +36,20 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& iConfig)
   produces<VertexCollection>("PrimaryVertex");
   
   // initialization of vertex finder algorithm
-  theFinder = new KalmanTrimmedVertexFinder();
+  // configurable parameters
+  float ptMin = theConfig.getParameter<double>("TrackPtMin");
+  theFinder.setPtCut(ptMin);
+  float minTrackCompatibilityToMainVertex 
+    = theConfig.getParameter<double>("MinTrackCompatibilityToMainVertex");
+  theFinder.setTrackCompatibilityCut(minTrackCompatibilityToMainVertex);
+  float minTrackCompatibilityToOtherVertex 
+    = theConfig.getParameter<double>("MinTrackCompatibilityToOtherVertex");
+  theFinder.setTrackCompatibilityToSV(minTrackCompatibilityToOtherVertex);
+  int maxNbVertices = theConfig.getParameter<int>("MaxNbVertices");
+  theFinder.setMaxNbOfVertices(maxNbVertices);
 
-  // FIXME introduce nested configurable parameters
-
-  // FIXME introduce track selection and beam compatibility check
+  // FIXME introduce track selection, track clustering 
+  // and beam compatibility check
 
 }
 
@@ -50,7 +59,6 @@ PrimaryVertexProducer::~PrimaryVertexProducer()
  
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  delete theFinder;
 }
 
 
@@ -64,7 +72,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 {
   using namespace edm;
 
-  std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection); // empty vertex collection,on the heap ??
+  std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection);
   reco::VertexCollection vColl;
 
   try {
@@ -92,18 +100,19 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
     
     // here call vertex reconstruction
-    /*
-      vector<TransientVertex> t_vts = (*theFinder).vertices(t_tks);
-      for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
-      iv != t_vts.end(); iv++) {
+
+    vector<TransientVertex> t_vts = theFinder.vertices(t_tks);
+    for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
+	 iv != t_vts.end(); iv++) {
       Vertex v(Vertex::Point((*iv).position()), 
-      RecoVertex::convertError((*iv).positionError()), 
-      (*iv).totalChiSquared(), 
-      (*iv).degreesOfFreedom() , 
+	       RecoVertex::convertError((*iv).positionError()), 
+	       (*iv).totalChiSquared(), 
+	       (*iv).degreesOfFreedom() , 
       (*iv).originalTracks().size());
       vColl.push_back(v);
-      }
-    */
+    }
+    
+    /*
     // test with vertex fitter
     if (t_tks.size() > 1) {
       KalmanVertexFitter kvf;
@@ -114,7 +123,8 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	       (tv).degreesOfFreedom() , 
 	       (tv).originalTracks().size());
       vColl.push_back(v);
-    }    
+    }
+    */
   }
 
   catch (std::exception & err) {
