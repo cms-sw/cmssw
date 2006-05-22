@@ -13,6 +13,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
+//#include "DataFormats/SiStripDigi/interface/Fed9UEventLite.h"
 // cabling
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
@@ -39,6 +40,7 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
   produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
   produces< edm::DetSetVector<SiStripDigi> >   ("ZeroSuppressed");
   produces<SiStripEventSummary>();
+  //produces<Fed9UEventLite>();
   
 }
 
@@ -73,16 +75,18 @@ void SiStripRawToDigiModule::produce( edm::Event& iEvent,
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > vr( new edm::DetSetVector<SiStripRawDigi> );
   auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr( new edm::DetSetVector<SiStripRawDigi> );
-  auto_ptr< edm::DetSetVector<SiStripDigi> >    zs( new edm::DetSetVector<SiStripDigi> );
-  auto_ptr<SiStripEventSummary> ev( new SiStripEventSummary );
+  auto_ptr< edm::DetSetVector<SiStripDigi> > zs( new edm::DetSetVector<SiStripDigi> );
+  auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
+  //auto_ptr<Fed9UEventLite> fed9u( new Fed9UEventLite( buffers ) );
   
-  rawToDigi_->createDigis( iEvent.id().event(), cabling, buffers, sm, vr, pr, zs, ev );
+  rawToDigi_->createDigis( iEvent.id().event(), cabling, buffers, sm, vr, pr, zs, summary ); //, fed9u );
   
   iEvent.put( sm, "ScopeMode" );
   iEvent.put( vr, "VirginRaw" );
   iEvent.put( pr, "ProcessedRaw" );
   iEvent.put( zs, "ZeroSuppressed" );
-  iEvent.put( ev );
+  iEvent.put( summary );
+  //iEvent.put( fed9u );
   
 }
 

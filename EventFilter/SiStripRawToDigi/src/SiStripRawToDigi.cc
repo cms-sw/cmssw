@@ -305,8 +305,8 @@ void SiStripRawToDigi::triggerFed( const FEDRawData& trigger_fed,
        trigger_fed.size() > sizeof(fedh_t)  ) {
 
     uint8_t*  temp = const_cast<uint8_t*>( trigger_fed.data() );
-    uint32_t* data_u32 = reinterpret_cast<uint32_t*>( temp );// + sizeof(fedh_t)/sizeof(uint32_t) + 1;
-    uint32_t  size_u32 = trigger_fed.size()/sizeof(uint32_t);// - sizeof(fedh_t)/sizeof(uint32_t) - 1;
+    uint32_t* data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(fedh_t)/sizeof(uint32_t) + 1;
+    uint32_t  size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
 
     if ( size_u32 > sizeof(TFHeaderDescription)/sizeof(uint32_t) ) {
     
