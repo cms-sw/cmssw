@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.21 2006/05/01 18:38:22 rpw Exp $
+ * $Id: pset_parse.y,v 1.22 2006/05/03 22:01:34 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -88,7 +88,6 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
   edm::pset::PSetNode*        _PSetNode;
   edm::pset::EntryNode*       _EntryNode;
   edm::pset::NodePtrList*     _NodePtrList;
-  edm::pset::PSetNodePtrList* _PSetNodePtrList;
   edm::pset::Node*            _Node;
   std::string*                _String;
   edm::pset::StringList*      _StringList;
