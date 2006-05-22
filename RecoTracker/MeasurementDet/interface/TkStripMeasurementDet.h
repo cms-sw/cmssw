@@ -30,7 +30,8 @@ public:
 
   const StripGeomDetUnit& specificGeomDet() const {return *theStripGDU;}
 
-  TransientTrackingRecHit* buildRecHit( const SiStripCluster& cluster) const;
+  TransientTrackingRecHit* buildRecHit( const SiStripCluster& cluster,
+					const LocalTrajectoryParameters& ltp) const;
 
 private:
 

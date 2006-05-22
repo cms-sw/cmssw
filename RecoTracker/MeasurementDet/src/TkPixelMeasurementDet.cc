@@ -50,24 +50,21 @@ TkPixelMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
   return result;
 }
 
-TransientTrackingRecHit* TkPixelMeasurementDet::buildRecHit( const SiPixelCluster& cluster) const
+TransientTrackingRecHit* 
+TkPixelMeasurementDet::buildRecHit( const SiPixelCluster& cluster,
+				    const LocalTrajectoryParameters& ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  LocalValues lv = theCPE->localParameters( cluster, gdu);
-  return new TSiPixelRecHit( &geomDet(), new SiPixelRecHit( lv.first, lv.second,
-							    geomDet().geographicalId(),
-							    &cluster));
+  LocalValues lv = theCPE->localParameters( cluster, gdu, ltp);
+  return new TSiPixelRecHit( lv.first, lv.second, &geomDet(), cluster, theCPE);
 }
 
 TkPixelMeasurementDet::RecHitContainer 
-TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface&) const
+TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 {
   RecHitContainer result;
-
-  // FIXME: should get the angles from the TSOS and pass them to buildRecHit!
-
   for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
-    result.push_back( buildRecHit( *ci));
+    result.push_back( buildRecHit( *ci, ts.localParameters()));
   }
   return result;
 }

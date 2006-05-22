@@ -44,7 +44,8 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     // there are hits on the left of the utraj
     ClusterIterator leftCluster = rightCluster;
     while ( --leftCluster >= theClusterRange.first) {
-      TransientTrackingRecHit* recHit = buildRecHit( *leftCluster);
+      TransientTrackingRecHit* recHit = buildRecHit( *leftCluster, 
+						     stateOnThisDet.localParameters());
       std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
       if ( diffEst.first ) {
 	result.push_back( TrajectoryMeasurement( stateOnThisDet, recHit, 
@@ -55,7 +56,8 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   }
 
   for ( ; rightCluster != theClusterRange.second; rightCluster++) {
-    TransientTrackingRecHit* recHit = buildRecHit( *rightCluster);
+    TransientTrackingRecHit* recHit = buildRecHit( *rightCluster, 
+						   stateOnThisDet.localParameters());
     std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
     if ( diffEst.first) {
       result.push_back( TrajectoryMeasurement( stateOnThisDet, recHit, 
@@ -79,27 +81,27 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 }
 
 TransientTrackingRecHit* 
-TkStripMeasurementDet::buildRecHit( const SiStripCluster& cluster) const
+TkStripMeasurementDet::buildRecHit( const SiStripCluster& cluster,
+				    const LocalTrajectoryParameters& ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  LocalValues lv = theCPE->localParameters( cluster, gdu);
+  LocalValues lv = theCPE->localParameters( cluster, gdu, ltp);
   std::vector<const SiStripCluster*> clustvec(1, &cluster);
-  return new TSiStripRecHit2DLocalPos( &geomDet(), 
-				       new SiStripRecHit2DLocalPos( lv.first, lv.second,
-								    geomDet().geographicalId(),
-								    clustvec));
+  return new TSiStripRecHit2DLocalPos( lv.first, lv.second, &geomDet(), clustvec, theCPE);
+
+//   return new TSiStripRecHit2DLocalPos( &geomDet(), 
+// 				       new SiStripRecHit2DLocalPos( lv.first, lv.second,
+// 								    geomDet().geographicalId(),
+// 								    clustvec));
 								    
 }
 
 TkStripMeasurementDet::RecHitContainer 
-TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface&) const
+TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 {
   RecHitContainer result;
-
-  // FIXME: should get the angles from the TSOS and pass them to buildRecHit!
-
   for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
-    result.push_back( buildRecHit( *ci));
+    result.push_back( buildRecHit( *ci, ts.localParameters()));
   }
   return result;
 }

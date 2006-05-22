@@ -7,6 +7,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 class TransientTrackingRecHit;
+class LocalTrajectoryParameters;
 
 class TkPixelMeasurementDet : public MeasurementDet {
 public:
@@ -30,7 +31,8 @@ public:
 
   const PixelGeomDetUnit& specificGeomDet() const {return *thePixelGDU;}
 
-  TransientTrackingRecHit* buildRecHit( const SiPixelCluster& cluster) const;
+  TransientTrackingRecHit* buildRecHit( const SiPixelCluster& cluster,
+					const LocalTrajectoryParameters& ltp) const;
 
 private:
 
