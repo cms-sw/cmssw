@@ -2,6 +2,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=Utilities/Timing>
+<use name=RecoMuon/MeasurementDet>
 
 <export>
    <lib name=RecoMuonStandAloneTrackFinder>
@@ -9,4 +10,5 @@
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
    <use name=Utilities/Timing>
+   <use name=RecoMuon/MeasurementDet>
 </export>

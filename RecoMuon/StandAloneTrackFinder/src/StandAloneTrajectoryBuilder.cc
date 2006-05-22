@@ -1,9 +1,10 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/05/18 12:29:27 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/19 15:24:36 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino
+ *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
@@ -81,15 +82,15 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
   TrajectoryContainer trajL;
 
+  // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
   PTrajectoryStateOnDet pTSOD = seed.startingState();
+
+  // Transform it in a FreeTrajectoryState
   TrajectoryStateTransform tsTransform;
   const GeomDet* gdet = theTrackingGeometry->idToDet( DetId(pTSOD.detId()));
-  
-
   TrajectoryStateOnSurface tsos = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theMGField);
+
   FreeTrajectoryState ftk = *tsos.freeTrajectoryState();
-
-
   FreeTrajectoryState ftl(ftk);
   
   Trajectory theTraj(seed);
@@ -110,16 +111,18 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     return trajL;
   }
 
-  // refine the FTS given by the seed
+  // reset the refitter
   refitter()->reset();
   
+  // refine the FTS given by the seed
   static const string t1 = "StandAloneMuonTrajectoryBuilder::refitter";
   TimeMe timer1(t1,timing);
   refitter()->refit(ftl);
   
   int totalNofChamberUsed = refitter()->getTotalChamberUsed();
-  // Get the outermost FTS
-  ftl = refitter()->lastFTS();
+
+  // Get the last FTS
+  ftl = refitter()->lastUpdatedFTS();
 
   //@@SL 27-Jun-2002: sanity check for trajectory with very high eta, the true
   //problem is why we do reconstruct such problematics trajectories...

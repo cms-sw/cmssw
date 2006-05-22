@@ -4,12 +4,14 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/05/18 09:53:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/19 15:24:35 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino
  */
 
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 
 // FIXME
 // change FreeTrajectoryState in TSOS
@@ -28,8 +30,19 @@ public:
   
   /// Perform the inner-outward fitting
   void refit(FreeTrajectoryState& initialState);
-  FreeTrajectoryState lastFTS() const {return theLastFTS;}
+
+  /// the last free trajectory state
+  FreeTrajectoryState lastUpdatedFTS() const {return *theLastUpdatedTSOS.freeTrajectoryState();}
+
+  /// the last but one free trajectory state
+  FreeTrajectoryState lastButOneUpdatedFTS() const {return *theLastButOneUpdatedTSOS.freeTrajectoryState();}
   
+  /// the Trajectory state on the last surface of the fitting
+  TrajectoryStateOnSurface lastUpdatedTSOS() const {return theLastUpdatedTSOS;}
+
+  /// the Trajectory state on the last surface of the fitting
+  TrajectoryStateOnSurface lastButOneUpdatedTSOS() const {return theLastButOneUpdatedTSOS;}
+
   void reset();
   void setES(const edm::EventSetup& setup);
 
@@ -42,9 +55,22 @@ public:
 protected:
 
 private:
-  FreeTrajectoryState theLastFTS;
-  FreeTrajectoryState theLastBut1FTS;
+
+  /// Set the last TSOS
+  void setLastUpdatedTSOS(TrajectoryStateOnSurface tsos) { theLastUpdatedTSOS = tsos;}
   
+  /// Set the last but one TSOS
+  void setLastButOneUpdatedTSOS(TrajectoryStateOnSurface tsos) { theLastButOneUpdatedTSOS = tsos;}
+  
+
+  /// the trajectory state on the last available surface
+  TrajectoryStateOnSurface theLastUpdatedTSOS;
+  /// the trajectory state on the last but one available surface
+  TrajectoryStateOnSurface theLastButOneUpdatedTSOS;
+
+  // The Measurement extractor
+  MuonDetLayerMeasurements theMeasureExtractor;
+
   int totalChambers;
   int dtChambers;
   int cscChambers;
