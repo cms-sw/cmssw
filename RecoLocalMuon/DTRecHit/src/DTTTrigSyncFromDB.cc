@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/23 15:31:11 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/17 14:26:40 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -28,6 +28,8 @@ using namespace edm;
 
 DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config){
   debug = config.getUntrackedParameter<bool>("debug");
+  // The ttrig is defined as mean + kFactor * sigma
+  kFactor = config.getParameter<double>("kFactor");
   // The velocity of signal propagation along the wire (cm/ns)
   theVPropWire = config.getParameter<double>("vPropWire");
   // Switch on/off the TOF correction for particles from IP
@@ -70,32 +72,25 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
   // Correction for the float to int conversion while writeing the ttrig in ns into an int variable
   // (half a bin on average)
   // FIXME: this should disappear as soon as the ttrig object will become a float
-  static const float f2i_convCorr = (25./64.); // ns
+  //   static const float f2i_convCorr = (25./64.); // ns //FIXME: check how the conversion is performed
 
-  // Read the t0 from pulses for this wire
-  int t0 = 0; //FIXME: should become float
+  // Read the t0 from pulses for this wire (ns)
+  float t0 = 0;
   float t0rms = 0;
-  tZeroMap->cellT0(wireId.wheel(),
-		   wireId.station(),
-		   wireId.sector(),
-		   wireId.superlayer(),
-		   wireId.layer(),
-		   wireId.wire(),
+  tZeroMap->cellT0(wireId,
 		   t0,
-		   t0rms);
+		   t0rms,
+		   DTTimeUnits::ns);
 
   // Read the ttrig for this wire
-  int tt = 0; // FIXME: should become a float and should also read the sigma
-  tTrigMap->slTtrig(wireId.wheel(),
-		    wireId.station(),
-		    wireId.sector(),
-		    wireId.superlayer(),
-		    tt);
+  float ttrigMean = 0;
+  float ttrigSigma = 0;//FIXME: should use this!
+  tTrigMap->slTtrig(wireId.superlayerId(),
+		    ttrigMean,
+		    ttrigSigma,
+		    DTTimeUnits::ns);
 
-  // Convert from tdc counts to ns and sum
-  tTrig = t0 * 25./32. + tt + f2i_convCorr; //FIXME: move to ns
-
-
+  tTrig = t0 + ttrigMean + kFactor * ttrigSigma;
   // Compute the time spent in signal propagation along wire.
   // The ttrig computed from the timebox accounts on average for the signal propagation time
   // from the center of the wire to the frontend. Here we just have to correct for
@@ -125,7 +120,8 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
   if(debug) {
     cout << "[DTTTrigSyncFromDB] Offset (ns): " << tTrig + wirePropCorr - tofCorr << endl
 	 << "      various contributions are: " << endl
-	 << "      tTrig (ns):   " << tTrig << endl
+	 << "      tTrig + t0 (ns):   " << tTrig << endl
+	 << "      tZero (ns):   " << t0 << endl
 	 << "      Propagation along wire delay (ns): " <<  wirePropCorr << endl
 	 << "      TOF correction (ns): " << tofCorr << endl
 	 << endl;
