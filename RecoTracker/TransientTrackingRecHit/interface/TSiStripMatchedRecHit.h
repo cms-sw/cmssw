@@ -1,24 +1,24 @@
 #ifndef RECOTRACKER_TRANSIENTRACKINGRECHIT_TSiStripMatchedRecHit_H
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TSiStripMatchedRecHit_H
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 
-class TSiStripMatchedRecHit : public TransientTrackingRecHit{
- public:
+class TSiStripMatchedRecHit : public GenericTransientTrackingRecHit{
+public:
+
    TSiStripMatchedRecHit (const GeomDet * geom, const TrackingRecHit * rh) : 
-     TransientTrackingRecHit(geom, rh){}
+     GenericTransientTrackingRecHit(geom, rh){}
 
-  //
-  // fake for the moment
-  //
-  virtual AlgebraicVector parameters(const TrajectoryStateOnSurface& ts) const {return  hit()->parameters();}
-  virtual AlgebraicSymMatrix parametersError(const TrajectoryStateOnSurface& ts) const {  return hit()->parametersError();}
-  //
-  //
-  //
-  virtual TransientTrackingRecHit * clone() const {
+  virtual TSiStripMatchedRecHit* clone() const {
     return new TSiStripMatchedRecHit(*this);
   }
+
+  virtual TSiStripMatchedRecHit* clone (const TrajectoryStateOnSurface& ts) const {
+    return clone();
+  }
+
+  const GeomDetUnit* detUnit() const {return 0;}
+
 };
 
 

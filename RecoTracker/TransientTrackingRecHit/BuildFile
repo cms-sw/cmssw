@@ -1,9 +1,11 @@
 <use name=TrackingTools/TransientTrackingRecHit>
+<use name=DataFormats/TrackerRecHit2D>
 <use name=TrackingTools/Records>
 <use name=clhep>
 <export>
  <lib name=RecoTrackerTransientTrackingRecHit>
-<use name=TrackingTools/TransientTrackingRecHit>
+ <use name=TrackingTools/TransientTrackingRecHit>
+ <use name=DataFormats/TrackerRecHit2D>
 </export>
 
 <flags SEAL_PLUGIN_NAME="RecoTrackerTransientTrackingRecHit">
