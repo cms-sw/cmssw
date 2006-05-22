@@ -4,7 +4,7 @@
 /** \class RPCDigiReader
  *  Analyse the RPC digitizer (derived from R. Bellan DTDigiReader. 
  *  
- *  $Date: 2006/05/08 10:00:01 $
+ *  $Date: 2006/05/11 05:34:29 $
  *  $Revision: 1.1 $
  *  \authors: M. Maggi -- INFN Bari
  */
@@ -54,7 +54,7 @@ public:
      
       // RPCDetId print-out
       std::cout<<"--------------"<<std::endl;
-      std::cout<<"id: "<<id;
+      std::cout<<"id: "<<id<<std::endl;
       
       // Loop over the digis of this DetUnit
       for (RPCDigiCollection::const_iterator digiIt = range.first;
