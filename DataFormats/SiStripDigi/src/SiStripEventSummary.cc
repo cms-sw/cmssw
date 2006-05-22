@@ -7,16 +7,16 @@
 void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
 
   // Set commissioning task
-  task_ = static_cast<SiStripEventSummary::Task>( buffer[10] );
+  task_ = static_cast<sistrip::Task>( buffer[10] );
 
   // Set FED readout mode
   if ( buffer[15] == 0 || 
        buffer[15] == 1 || 
        buffer[15] == 2 || 
        buffer[15] == 3 ) {
-    fedReadoutMode_ = static_cast<SiStripEventSummary::FedReadoutMode>( buffer[15] );
+    fedReadoutMode_ = static_cast<sistrip::FedReadoutMode>( buffer[15] );
   } else {
-    fedReadoutMode_ = SiStripEventSummary::UNKNOWN_FED_MODE;
+    fedReadoutMode_ = sistrip::UNKNOWN_FED_MODE;
     edm::LogError("Commissioning") << "[SiStripEventSummary::commissioningInfo]"
 				   << " Unknown FED readout mode! " 
 				   << buffer[15];
@@ -51,7 +51,7 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
 	      buffer[10] == 13 ) { // Connection loop 
 
     //@@ TEMPORARY!
-    if ( buffer[10] == 11 ) { task_ = static_cast<SiStripEventSummary::Task>( 13 ); }
+    if ( buffer[10] == 11 ) { task_ = static_cast<sistrip::Task>( 13 ); }
 
     param0_ = buffer[11]; // device id
     param1_ = buffer[12]; // process id
@@ -69,7 +69,7 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer ) {
 
   } else { // Unknown commissioning task
 
-    task_ = static_cast<SiStripEventSummary::Task>( 0 );
+    task_ = static_cast<sistrip::Task>( 0 );
     edm::LogError("RawToDigi") << "[SiStripEventSummary::commissioningInfo]"
 			       << " Unknown commissioning task! "
 			       << buffer[10];

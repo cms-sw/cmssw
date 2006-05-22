@@ -1,6 +1,7 @@
 #ifndef DataFormats_SiStripEventSummary_SiStripEventSummary_H
 #define DataFormats_SiStripEventSummary_SiStripEventSummary_H
 
+#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "boost/cstdint.hpp"
 
 using namespace std;
@@ -15,8 +16,8 @@ class SiStripEventSummary {
   /** Default constructor. */
   SiStripEventSummary() : 
     event_(0), bx_(0),
-    task_(SiStripEventSummary::UNKNOWN_TASK), 
-    fedReadoutMode_(SiStripEventSummary::UNKNOWN_FED_MODE),
+    task_(sistrip::UNKNOWN_TASK), 
+    fedReadoutMode_(sistrip::UNKNOWN_FED_MODE),
     param0_(0), param1_(0), param2_(0), param3_(0),
     apveAddress_(0),
     nApvsInSync_(0),
@@ -25,24 +26,6 @@ class SiStripEventSummary {
   
   /** Default destructor. */
   ~SiStripEventSummary() {;}
-  
-  // ----- Enumerated types -----
-
-  /** Commissioning tasks: physics run, calibration run, pulse shape
-      tuning, pulse shape tuning, laser driver bias and gain, relative
-      apv synchronisation, coarse (25ns) apv latency scan for beam,
-      fine (1ns) pll scan for beam, fine (1ns) ttc scan for beam,
-      multi mode operation, relative apv synchronisation using fed
-      delays, connection of apv pairs to fed channels, apv baseline
-      scan, scope mode readout (debugging purposes), unknown run
-      type. */ 
-  enum Task { PHYSICS = 1, PEDESTALS = 2, PULSESHAPE_PEAK = 3, PULSESHAPE_DECON = 33,
-              OPTO_SCAN = 4, APV_TIMING = 5, APV_LATENCY = 6, PLL_DELAY = 7,
-              TTC_DELAY = 8, APV_MULTI = 10, FED_TIMING = 12, FED_CABLING = 13, 
-	      VPSP_SCAN = 14, SCOPE_MODE_READOUT = 66, UNKNOWN_TASK = 0 };
-  
-  /** */
-  enum FedReadoutMode { SCOPE_MODE = 0, VIRGIN_RAW = 1, PROC_RAW = 2, ZERO_SUPPR = 3, UNKNOWN_FED_MODE = 999 };
   
   // ----- Event-related -----
 
@@ -60,7 +43,7 @@ class SiStripEventSummary {
   void commissioningInfo( const uint32_t* const buffer );
   
   /** Returns commissioning task. */ 
-  inline const SiStripEventSummary::Task& task() const { return task_; }
+  inline const sistrip::Task& task() const { return task_; }
   /** Returns pair of PLL coarse and fine delay settings. */
   inline pair<uint32_t,uint32_t> pll() { return pair<uint32_t,uint32_t>(param0_,param1_); }
   inline const uint32_t& latency() const { return param0_; }
@@ -83,7 +66,7 @@ class SiStripEventSummary {
   
   // ----- FED-related -----
 
-  inline const SiStripEventSummary::FedReadoutMode& fedReadoutMode() const { return fedReadoutMode_; }
+  inline const sistrip::FedReadoutMode& fedReadoutMode() const { return fedReadoutMode_; }
 
   // ----- APV-related ----- 
 
@@ -102,9 +85,9 @@ class SiStripEventSummary {
   uint32_t bx_;
 
   /** Commissioning task */
-  Task task_;
+  sistrip::Task task_;
   /** FED readout mode (ZS, VR, PR, SM). */
-  FedReadoutMode fedReadoutMode_;
+  sistrip::FedReadoutMode fedReadoutMode_;
   
   // Parameters relating to commissioning tasks and used by analysis.
   uint32_t param0_;

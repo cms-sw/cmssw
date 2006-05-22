@@ -28,10 +28,11 @@ namespace {
 }
     
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 namespace {
   namespace {
-    edm::Wrapper<SiStripEventSummary::Task> task;
-    edm::Wrapper<SiStripEventSummary::FedReadoutMode> fed_mode;
+    edm::Wrapper<sistrip::Task> task;
+    edm::Wrapper<sistrip::FedReadoutMode> fed_mode;
     edm::Wrapper<SiStripEventSummary> summary;
 
   }
