@@ -60,9 +60,10 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
   TSOS currTsos;
   if((&*(hits.begin()))->isValid()) {
     //update
-    currTsos = updator()->update(predTsos, *(hits.begin()));
-    myTraj.push(TM(predTsos, currTsos, ((hits.begin())->clone() ),
-		   estimator()->estimate(predTsos, *(hits.begin()) ).second));
+    TransientTrackingRecHit* preciseHit = hits.begin()->clone(predTsos);
+    currTsos = updator()->update(predTsos, *preciseHit);
+    myTraj.push(TM(predTsos, currTsos, preciseHit,
+		   estimator()->estimate(predTsos, *preciseHit).second));
   } else {
     currTsos = predTsos;
     myTraj.push(TM(predTsos, hits.begin()->clone() ));
@@ -150,9 +151,10 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
     if((*ihit).isValid()) {
       //update
       LogDebug("TrackingTools/TrackFitters") <<"THE HIT IS VALID: updating predTsos"<<"\n";
-      currTsos = updator()->update(predTsos, *ihit);
-      myTraj.push(TM(predTsos, currTsos, (*ihit).clone(),
-		     estimator()->estimate(predTsos, *ihit).second));
+      TransientTrackingRecHit* preciseHit = hits.begin()->clone(predTsos);
+      currTsos = updator()->update(predTsos, *preciseHit);
+      myTraj.push(TM(predTsos, currTsos, preciseHit,
+		     estimator()->estimate(predTsos, *preciseHit).second));
     } else {
       LogDebug("TrackingTools/TrackFitters") <<"THE HIT IS NOT VALID: using currTsos"<<"\n";
       currTsos = predTsos;
