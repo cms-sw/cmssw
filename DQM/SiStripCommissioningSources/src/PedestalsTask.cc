@@ -166,12 +166,14 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
 // -----------------------------------------------------------------------------
 //
 void PedestalsTask::update() {
-  LogDebug("Commissioning") << "[PedestalsTask::update]";
-
+  LogDebug("Commissioning") << "[PedestalsTask::update]"
+			    << " Updating pedestal histograms for FEC key "
+			    << hex << setw(8) << setfill('0') << fecKey();
+  
   // Pedestals and noise
   updateHistoSet( peds_[0] );
   updateHistoSet( peds_[1] );
-
+  
   // Common mode
   if ( !meCommonMode0_ || 
        !meCommonMode1_ ) {
@@ -183,7 +185,7 @@ void PedestalsTask::update() {
     meCommonMode0_->setBinContent( ibin+1, vCommonMode0_[ibin]*1. );
     meCommonMode1_->setBinContent( ibin+1, vCommonMode1_[ibin]*1. );
   }
-  
+
 }
 
 

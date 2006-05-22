@@ -10,6 +10,13 @@
 // dqm
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
+#include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
+#include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
+#include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
+#include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
+//#include "DQM/SiStripCommissioningSources/interface/PhysicsTask.h"
+#include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
 // conditions
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -20,14 +27,6 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
 #include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
-// tasks
-#include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
-#include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
-#include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
-#include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
-#include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
-//#include "DQM/SiStripCommissioningSources/interface/PhysicsTask.h"
-#include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
 // std, utilities
 #include <boost/cstdint.hpp>
 #include <memory>
@@ -114,13 +113,13 @@ void CommissioningSource::analyze( const edm::Event& event,
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
   //edm::Handle< edm::DetSetVector<SiStripDigi> > zs;
   
-  if ( summary->fedReadoutMode() == SiStripEventSummary::VIRGIN_RAW ) {
+  if ( summary->fedReadoutMode() == sistrip::VIRGIN_RAW ) {
     event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
-  } else if ( summary->fedReadoutMode() == SiStripEventSummary::PROC_RAW ) {
+  } else if ( summary->fedReadoutMode() == sistrip::PROC_RAW ) {
     event.getByLabel( inputModuleLabel_, "ProcessedRaw", raw );
-  } else if ( summary->fedReadoutMode() == SiStripEventSummary::SCOPE_MODE ) {
+  } else if ( summary->fedReadoutMode() == sistrip::SCOPE_MODE ) {
     event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
-  } else if ( summary->fedReadoutMode() == SiStripEventSummary::ZERO_SUPPR ) {
+  } else if ( summary->fedReadoutMode() == sistrip::ZERO_SUPPR ) {
     //event.getByLabel( inputModuleLabel_, "ZeroSuppressed", zs );
   } else {
     edm::LogError("CommissioningSource") << "[CommissioningSource::analyze]"
@@ -213,7 +212,7 @@ void CommissioningSource::createDirs() {
   // Check DQM service is available
   dqm_ = edm::Service<DaqMonitorBEInterface>().operator->();
   if ( !dqm_ ) { 
-    edm::LogError("Commissioning") << "[CommissioningSource::createTask] Null pointer to DQM interface!"; 
+    edm::LogError("Commissioning") << "[CommissioningSource::createDirs] Null pointer to DQM interface!"; 
     return; 
   }
   
@@ -246,7 +245,7 @@ void CommissioningSource::createDirs() {
 
 // -----------------------------------------------------------------------------
 //
-void CommissioningSource::createTask( SiStripEventSummary::Task task ) {
+void CommissioningSource::createTask( sistrip::Task task ) {
   LogDebug("Commissioning") << "[CommissioningSource::createTask]";
   
   // Check DQM service is available
@@ -257,15 +256,24 @@ void CommissioningSource::createTask( SiStripEventSummary::Task task ) {
   }
 
   // Check commissioning task is known
-  if ( task == SiStripEventSummary::UNKNOWN_TASK && task_ == "UNKNOWN" ) {
+  if ( task == sistrip::UNKNOWN_TASK && task_ == "UNKNOWN" ) {
     edm::LogError("Commissioning") << "[CommissioningSource::createTask] Unknown commissioning task!"; 
     return; 
   }
 
   // Check if commissioning task is FED cabling 
-  if ( task_ == "FED_CABLING" || ( task_ == "UNDEFINED" && task == SiStripEventSummary::FED_CABLING ) ) { cablingTask_ = true; }
+  if ( task_ == "FED_CABLING" || ( task_ == "UNDEFINED" && task == sistrip::FED_CABLING ) ) { cablingTask_ = true; }
   else { cablingTask_ = false; }
 
+  // Create ME (string) that identifies commissioning task
+  dqm_->setCurrentFolder( sistrip::root_ );
+  if ( task_ != "UNDEFINED" ) { 
+    dqm_->bookString( sistrip::commissioningTask_ + sistrip::sep_ + task_, task_ ); 
+  } else { 
+    string temp = SiStripHistoNamingScheme::task( task );
+    dqm_->bookString( sistrip::commissioningTask_ + sistrip::sep_ + temp, temp ); 
+  }
+  
   // Iterate through FEC cabling and create commissioning task objects
   for ( vector<SiStripFec>::const_iterator ifec = fecCabling_->fecs().begin(); ifec != fecCabling_->fecs().end(); ifec++ ) {
     for ( vector<SiStripRing>::const_iterator iring = (*ifec).rings().begin(); iring != (*ifec).rings().end(); iring++ ) {
@@ -301,13 +309,13 @@ void CommissioningSource::createTask( SiStripEventSummary::Task task ) {
 	      else if ( task_ == "FED_TIMING" )  { tasks_[key] = new FedTimingTask( dqm_, conn ); }
 	      else if ( task_ == "UNDEFINED" )   {
 		//  Use data stream to determine which task objects are created!
-		if      ( task == SiStripEventSummary::FED_CABLING )  { tasks_[key] = new FedCablingTask( dqm_, conn ); }
-		else if ( task == SiStripEventSummary::PEDESTALS )    { tasks_[key] = new PedestalsTask( dqm_, conn ); }
-		else if ( task == SiStripEventSummary::APV_TIMING )   { tasks_[key] = new ApvTimingTask( dqm_, conn ); } 
-		else if ( task == SiStripEventSummary::OPTO_SCAN )    { tasks_[key] = new OptoScanTask( dqm_, conn ); }
-		else if ( task == SiStripEventSummary::VPSP_SCAN )    { tasks_[key] = new VpspScanTask( dqm_, conn ); }
-		else if ( task == SiStripEventSummary::FED_TIMING )   { tasks_[key] = new FedTimingTask( dqm_, conn ); }
-		else if ( task == SiStripEventSummary::UNKNOWN_TASK ) {
+		if      ( task == sistrip::FED_CABLING )  { tasks_[key] = new FedCablingTask( dqm_, conn ); }
+		else if ( task == sistrip::PEDESTALS )    { tasks_[key] = new PedestalsTask( dqm_, conn ); }
+		else if ( task == sistrip::APV_TIMING )   { tasks_[key] = new ApvTimingTask( dqm_, conn ); } 
+		else if ( task == sistrip::OPTO_SCAN )    { tasks_[key] = new OptoScanTask( dqm_, conn ); }
+		else if ( task == sistrip::VPSP_SCAN )    { tasks_[key] = new VpspScanTask( dqm_, conn ); }
+		else if ( task == sistrip::FED_TIMING )   { tasks_[key] = new FedTimingTask( dqm_, conn ); }
+		else if ( task == sistrip::UNKNOWN_TASK ) {
 		  edm::LogError("Commissioning") << "[CommissioningSource::createTask]"
 						 << " Unknown commissioning task in data stream! " << task_;
 		}

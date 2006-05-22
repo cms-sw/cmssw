@@ -4,6 +4,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include <string>
 #include <map>
@@ -21,7 +22,7 @@ class CommissioningSource : public edm::EDAnalyzer {
 
  public: // ----- public interface -----
   
-  /** May of task objects, identified through FedChanelId */
+  /** Map of task objects, identified through FedChanelId */
   typedef map<unsigned int, CommissioningTask*> TaskMap;
   
   CommissioningSource( const edm::ParameterSet& );
@@ -37,8 +38,8 @@ class CommissioningSource : public edm::EDAnalyzer {
   CommissioningSource();
 
   void createDirs();
-  void createTask( SiStripEventSummary::Task task );
-  
+  void createTask( sistrip::Task task );
+
  private: // ----- data members -----
 
   string inputModuleLabel_;
