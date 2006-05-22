@@ -48,8 +48,8 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
   int maxNbVertices = theConfig.getParameter<int>("MaxNbVertices");
   theFinder.setMaxNbOfVertices(maxNbVertices);
 
-  // FIXME introduce track selection, track clustering 
-  // and beam compatibility check
+  // FIXME introduce track selection (pt + i.p. cuts), track clustering 
+  // and vertex selection (beam compatibility check)
 
 }
 
