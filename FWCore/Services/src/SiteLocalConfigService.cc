@@ -48,7 +48,7 @@ edm::service::SiteLocalConfigService::SiteLocalConfigService (const edm::Paramet
 							      const edm::ActivityRegistry &activityRegistry)
     : m_connected (false)
 {
-    std::string configURL = "/SITECONF/JobConfig/site-local-config.xml";
+    std::string configURL = "/SITECONF/local/JobConfig/site-local-config.xml";
     char * tmp = getenv ("CMS_PATH");
     
     if (tmp)
