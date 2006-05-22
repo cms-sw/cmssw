@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/05/18 17:00:05 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/19 09:26:12 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -69,6 +69,9 @@ namespace reco
 
     HLTFilterObject(): HLTFilterObjectBase(), scalars_(), particles_() { }
 
+    unsigned int numberScalars  () const { return   scalars_.size();}
+    unsigned int numberParticles() const { return particles_.size();}
+
     bool getScalar(const HLTScalar scalar, float& value) const {
       if (scalars_.find(scalar)==scalars_.end()) {
         return false;
@@ -111,6 +114,15 @@ namespace reco
     void putParticle(std::auto_ptr<edm::RefToBase<Candidate> >& ref) {
       this->HLTFilterObject::putParticle(ref);
       refs_.push_back(ref.release());
+    }
+
+    bool getParticleRef(const unsigned int i, const Candidate* & candidate) const {
+      if (i<refs_.size()) {
+        candidate = (refs_[i]).get();
+	return true;
+      } else {
+	return false;
+      }
     }
  
   };
