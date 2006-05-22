@@ -550,6 +550,7 @@ namespace edm {
     adjustForDefaultService(*(pServiceSets.get()), "MessageLogger");
     adjustForService(*(pServiceSets.get()), "LoadAllDictionaries");
     adjustForService(*(pServiceSets.get()), "JobReportService");
+    adjustForService(*(pServiceSets.get()), "SiteLocalConfigService");
 
 
     //create the services
