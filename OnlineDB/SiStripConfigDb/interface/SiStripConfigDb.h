@@ -64,7 +64,7 @@ class SiStripConfigDb {
   // ----- DATABASE AND PARTITIONS -----
 
   /** Returns pointer to DeviceFactory object. */
-  inline DeviceFactory* deviceFactory() { return factory_; }
+  inline DeviceFactory* const deviceFactory() { return factory_; }
 
   /** Returns partition name. */
   std::string partitionName();

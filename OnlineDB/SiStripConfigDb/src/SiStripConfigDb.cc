@@ -61,7 +61,7 @@ bool SiStripConfigDb::openDbConnection() {
 			   << "  path_: " << path_;
   
   try {
-    // factory_ = new DeviceFactory( user_, passwd_, path_ );
+    //factory_ = new DeviceFactory( user_, passwd_, path_ );
     factory_ = new DeviceFactory();
     LogDebug("ConfigDb") << "[SiStripConfigDb::openDbConnection] "
 			 << "DeviceFactory created at address: " << factory_ << " "
