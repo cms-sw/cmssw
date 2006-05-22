@@ -102,16 +102,20 @@ edm::service::SiteLocalConfigService::frontierProxyEnd (void) const
 void
 edm::service::SiteLocalConfigService::parse (const std::string &url)
 {
+    XMLPlatformUtils::Initialize();  
+    XercesDOMParser* parser = new XercesDOMParser;
     try 
     {
-	XercesDOMParser* parser = new XercesDOMParser;     
 	parser->setValidationScheme(XercesDOMParser::Val_Auto);
 	parser->setDoNamespaces(false);
 
 	parser->parse(url.c_str());	
 	DOMDocument* doc = parser->getDocument();
-	ASSERT (doc);
-    
+	if (! doc)
+	{
+	    return;
+	}
+	
 	// The Site Config has the following format
 	// <site-local-config>
 	// <site name="FNAL"/>
@@ -140,7 +144,8 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 		    = site->getElementsByTagName (_toDOMS ("event-data"));
 		if (	eventDataList->getLength () != 1)
 		{
-		    throw std::exception ();
+		    throw cms::Exception ("Parse error") 
+			<< "Malformed site-local-config.xml." ;
 		}
 	    
 		DOMElement *eventData 
@@ -151,12 +156,13 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 	    
 		if (catalogs->getLength () != 1)
 		{
-		    throw std::exception ();	    
+		    throw cms::Exception ("Parse error") 
+			<< "Malformed site-local-config.xml." ;
 		}
 		DOMElement * catalog 
 		    = static_cast <DOMElement *> (catalogs->item (0));
 	    
-		m_calibCatalog = _toString (catalog->getAttribute (_toDOMS ("url")));
+		m_dataCatalog = _toString (catalog->getAttribute (_toDOMS ("url")));
 	    }
 	
 	    // Parsing of the calib-data section
@@ -166,7 +172,8 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 	    
 		if (calibDataList->getLength () != 1)
 		{
-		    throw std::exception ();
+		    throw cms::Exception ("Parse error") 
+			<< "Malformed site-local-config.xml." ;
 		}
 	    
 		DOMElement *calibData 
@@ -176,7 +183,8 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 	    
 		if (catalogs->getLength () != 1)
 		{
-		    throw std::exception ();	    
+		    throw cms::Exception ("Parse error") 
+			<< "Malformed site-local-config.xml." ;
 		}
 	    
 		DOMElement *catalog
