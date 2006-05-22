@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.12 2006/04/13 22:40:39 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.13 2006/05/06 00:33:28 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -226,6 +226,53 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObjec
 	  sprintf (buffer, " %8.5f", coder->slope (capid, range));
 	  fOutput << buffer;
 	}
+      }
+      fOutput << std::endl;
+    }
+  }
+  return true;
+}
+
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCalibrationQIEData* fObject) {
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size () < 36) {
+      std::cerr << "Bad line: " << buffer << "\n line must contain 36 items: eta, phi, depth, subdet, 32 bin values" << std::endl;
+      continue;
+    }
+    HcalDetId id = getId (items);
+    HcalCalibrationQIECoder coder (id.rawId ());
+    int index = 4;
+    float values [32];
+    for (unsigned bin = 0; bin < 32; bin++) {
+      values[bin] = atof (items [index++].c_str ());
+    }
+    coder.setMinCharges (values);
+    fObject->addCoder (id, coder);
+  }
+  fObject->sort ();
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationQIEData& fObject) {
+  char buffer [1024];
+  fOutput << "# QIE data in calibration mode" << std::endl;
+  sprintf (buffer, "# %4s %4s %4s %4s %288s\n", 
+	   "eta", "phi", "dep", "det", "32 x charges");
+  fOutput << buffer;
+  std::vector<HcalDetId> channels = fObject.getAllChannels ();
+  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    const HcalCalibrationQIECoder* coder = fObject.getCoder (*channel);
+    if (coder) {
+      dumpId (fOutput, *channel);
+      const float* lowEdge = coder->minCharges ();
+      for (unsigned bin = 0; bin < 32; bin++) {
+	sprintf (buffer, " %8.5f", lowEdge [bin]);
+	fOutput << buffer;
       }
       fOutput << std::endl;
     }

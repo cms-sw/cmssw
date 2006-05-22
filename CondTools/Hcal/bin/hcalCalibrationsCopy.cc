@@ -28,6 +28,7 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
+#include "CondFormats/HcalObjects/interface/HcalCalibrationQIEData.h"
 
 //using namespace cms;
 
@@ -123,6 +124,28 @@ void fillDefaults (HcalQIEData*& fObject) {
   fObject->sort ();
 }
 
+void fillDefaults (HcalCalibrationQIEData*& fObject) {
+  if (!fObject) {
+    fObject = new HcalCalibrationQIEData;
+    fObject->sort ();
+  }
+  HcalTopology topology;
+  for (int eta = -63; eta < 64; eta++) {
+    for (int phi = 0; phi < 128; phi++) {
+      for (int depth = 1; depth < 5; depth++) {
+	for (int det = 1; det < 5; det++) {
+	  HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
+	  if (topology.valid(cell)) {
+	    HcalCalibrationQIECoder item = HcalDbHardcode::makeCalibrationQIECoder (cell); 
+	    fObject->addCoder (cell, item);
+	  }
+	}
+      }
+    }
+  }
+  fObject->sort ();
+}
+
 void printHelp (const Args& args) {
   char buffer [1024];
   std::cout << "Tool to manipulate by Hcal Calibrations" << std::endl;
@@ -130,7 +153,7 @@ void printHelp (const Args& args) {
   std::cout << "Use:" << std::endl;
   sprintf (buffer, " %s <what> <options> <parameters>\n", args.command ().c_str());
   std::cout << buffer;
-  std::cout << "  where <what> is: \n    pedestals\n    gains\n    emap\n    qie\n" << std::endl;
+  std::cout << "  where <what> is: \n    pedestals\n    gains\n    emap\n    qie\n    calibqie" << std::endl;
   args.printOptionsHelp ();
 }
 
@@ -318,6 +341,10 @@ int main (int argn, char* argv []) {
   }
   else if (what == "qie") {
     HcalQIEData* object = 0;
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
+  }
+  else if (what == "calibqie") {
+    HcalCalibrationQIEData* object = 0;
     copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
   }
 }

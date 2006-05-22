@@ -11,6 +11,7 @@
 #include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
+#include "CondFormats/HcalObjects/interface/HcalCalibrationQIECoder.h"
 
 /**
 
@@ -25,6 +26,7 @@ namespace HcalDbHardcode {
   HcalGain makeGain (HcalDetId fId, bool fSmear = false);
   HcalGainWidth makeGainWidth (HcalDetId fId);
   HcalQIECoder makeQIECoder (HcalDetId fId);
+  HcalCalibrationQIECoder makeCalibrationQIECoder (HcalDetId fId);
   HcalQIEShape makeQIEShape ();
 }
 #endif

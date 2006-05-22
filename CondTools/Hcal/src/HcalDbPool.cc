@@ -3,7 +3,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.cc,v 1.8 2006/03/28 16:04:32 argiro Exp $
+   $Id: HcalDbPool.cc,v 1.10 2006/05/12 22:24:38 fedor Exp $
 */
 
 // pool
@@ -409,6 +409,8 @@ bool HcalDbPool::getObject (HcalGainWidths* fObject, const std::string& fTag, in
 bool HcalDbPool::putObject (HcalGainWidths* fObject, const std::string& fTag, int fRun) {return putObject_ (fObject, "HcalGainWidths", fTag, fRun);}
 bool HcalDbPool::getObject (HcalQIEData* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
 bool HcalDbPool::putObject (HcalQIEData* fObject, const std::string& fTag, int fRun) {return putObject_ (fObject, "HcalQIEData", fTag, fRun);}
+bool HcalDbPool::getObject (HcalCalibrationQIEData* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
+bool HcalDbPool::putObject (HcalCalibrationQIEData* fObject, const std::string& fTag, int fRun) {return putObject_ (fObject, "HcalQIEData", fTag, fRun);}
 bool HcalDbPool::getObject (HcalChannelQuality* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}
 bool HcalDbPool::putObject (HcalChannelQuality* fObject, const std::string& fTag, int fRun) {return putObject_ (fObject, "HcalChannelQuality", fTag, fRun);}
 bool HcalDbPool::getObject (HcalElectronicsMap* fObject, const std::string& fTag, int fRun) {return getObject_ (fObject, fTag, fRun);}

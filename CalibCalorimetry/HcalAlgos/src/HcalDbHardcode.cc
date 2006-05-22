@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.6 2006/04/13 22:40:39 fedor Exp $
+// $Id: HcalDbHardcode.cc,v 1.7 2006/04/20 16:51:19 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -64,6 +64,14 @@ HcalQIECoder HcalDbHardcode::makeQIECoder (HcalDetId fId) {
       result.setSlope (capid, range, slope);
     }
   }
+  return result;
+}
+
+HcalCalibrationQIECoder HcalDbHardcode::makeCalibrationQIECoder (HcalDetId fId) {
+  HcalCalibrationQIECoder result (fId.rawId ());
+  float lowEdges [32];
+  for (int i = 0; i < 32; i++) lowEdges[i] = -1.5 + i*0.35;
+  result.setMinCharges (lowEdges);
   return result;
 }
 
