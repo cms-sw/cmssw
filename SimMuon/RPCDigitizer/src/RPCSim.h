@@ -8,19 +8,19 @@
  */
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <set>
 
 class RPCRoll;
-//class RPCDigiCollection;
 class RPCSim
 {
  public:
   virtual ~RPCSim(){};
   virtual void simulate(const RPCRoll* roll,
 			const edm::PSimHitContainer& rpcHits )=0;
-  virtual void fillDigis(int rollDetId, RPCDigiCollection& digis)=0;
+  virtual void fillDigis(int rollDetId, RPCDigiCollection& digis);
  protected:
-  RPCSim(){};
+  RPCSim(const edm::ParameterSet& config);
   virtual void init()=0;
  protected:
   std::set<int> strips;
