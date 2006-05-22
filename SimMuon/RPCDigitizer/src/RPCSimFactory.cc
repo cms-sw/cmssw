@@ -1,8 +1,19 @@
 #include "SimMuon/RPCDigitizer/src/RPCSimFactory.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSimple.h"
 
-RPCSim* 
-RPCSimFactory::rpcSim()
+RPCSimFactory::RPCSimFactory() :
+  seal::PluginFactory<RPCSim*(const edm::ParameterSet&)>("RPCSimFactory")
 {
-  return new RPCSimSimple();
 }
+
+RPCSimFactory::~RPCSimFactory()
+{
+}
+
+RPCSimFactory* 
+RPCSimFactory::get()
+{
+  return &factory;
+}
+
+RPCSimFactory RPCSimFactory::factory;

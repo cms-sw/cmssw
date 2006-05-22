@@ -5,13 +5,12 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // default constructor allocates default wire and strip digitizers
-RPCDigitizer::RPCDigitizer() {
-  RPCSimFactory f;
-  theRPCSim = f.rpcSim();
+RPCDigitizer::RPCDigitizer(const edm::ParameterSet& config) {
+  std::string name = config.getParameter<std::string>("digiModel");
+  theRPCSim = RPCSimFactory::get()->create(name,config.getParameter<ParameterSet>("digiModelConfig"));
 }
 
 RPCDigitizer::~RPCDigitizer() {
