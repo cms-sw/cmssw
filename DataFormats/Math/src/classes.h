@@ -142,7 +142,7 @@ namespace {
     edm::Wrapper<std::vector<math::Error<4>::type> > wve4;
     edm::Wrapper<std::vector<math::Error<5>::type> > wve5;
     edm::Wrapper<std::vector<math::Error<6>::type> > wve6;
-
+    /*
     ROOT::Math::MatRepSym<Double32_t, 1> sm1;
     ROOT::Math::MatRepSym<Double32_t, 2> sm2;
     ROOT::Math::MatRepSym<Double32_t, 3> sm3;
@@ -168,5 +168,6 @@ namespace {
     ROOT::Math::RowOffsets<4> ro4;
     ROOT::Math::RowOffsets<5> ro5;
     ROOT::Math::RowOffsets<6> ro6;
+    */
    }
 }
