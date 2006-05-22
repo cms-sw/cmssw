@@ -7,10 +7,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 
 #include <vector>
-#include <bitset>
-
-using std::vector;
-using std::bitset;
 
 /*
  * Represents a GCT Leaf Card
@@ -39,12 +35,12 @@ public:
   void setInputSourceCard(int i, L1GctSourceCard* card);
 
   /// get the input data
-  vector<L1GctRegion> getInputRegions() const;
+  std::vector<L1GctRegion> getInputRegions() const;
     
   // get the jet output
-  vector<L1GctJetCand> getOutputJetsA() const { return jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
-  vector<L1GctJetCand> getOutputJetsB() const { return jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
-  vector<L1GctJetCand> getOutputJetsC() const { return jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
+  std::vector<L1GctJetCand> getOutputJetsA() const { return jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
+  std::vector<L1GctJetCand> getOutputJetsB() const { return jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
+  std::vector<L1GctJetCand> getOutputJetsC() const { return jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
     
   /// get the Ex output
   inline L1GctEtComponent outputEx() const { return m_exSum; }
@@ -71,15 +67,8 @@ private:
   L1GctJetFinder* jetFinderC;  ///< highest jetFinder in phi
 
   // pointers to data source
-  vector<L1GctSourceCard*> m_sourceCards;
+  std::vector<L1GctSourceCard*> m_sourceCards;
   // internal data (other than jets)
-  /* typedef L1GctTwosComplement<12> L1GctEtComponent; */
-
-/*   static const int NUM_BITS_ENERGY_DATA = 13; */
-/*   static const int OVERFLOW_BIT = NUM_BITS_ENERGY_DATA - 1; */
-
-/*   static const int Emax = (1<<NUM_BITS_ENERGY_DATA); */
-/*   static const int signedEmax = (Emax>>1); */
 
   int phiPosition;
 

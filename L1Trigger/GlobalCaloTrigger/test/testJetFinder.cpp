@@ -130,8 +130,7 @@ void classTest(L1GctJetFinder *myJetFinder)
     
     //Get the outputted data and store locally
     outputJets = myJetFinder->getJets();
-    outputHt = myJetFinder->getHt();
-    //Will need to add a line here for jet counts eventually
+    outputHt = myJetFinder->ht().value();
 
     //Test the outputted jets against the known results
     if(!compareJetsVectors(outputJets, trueJets, "outputted jets")) { testPass = false; }
@@ -147,8 +146,6 @@ void classTest(L1GctJetFinder *myJetFinder)
         cout << "\nTest class has passed Ht comparison." << endl;
     }
         
-    //Will have to add a jet counts comparison section here eventually
-
     //Write out all outputtable information to file
     cout << "\nWriting results of processing to file " << resultsFile << "..." << endl;;
     ofstream fout;
@@ -167,8 +164,7 @@ void classTest(L1GctJetFinder *myJetFinder)
     //get all the data again - should all be empty
     outputRegions = myJetFinder->getInputRegions();
     outputJets = myJetFinder->getJets();
-    outputHt = myJetFinder->getHt();
-    //will need to and jets counts line here eventually
+    outputHt = myJetFinder->ht().value();
     
     //an empty regions vector for reset comparison
     vector<L1GctRegion> blankRegionsVec(numInputRegions);

@@ -5,6 +5,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 
 #include <vector>
 
@@ -89,10 +90,8 @@ public:
 
     /// Return output data
     std::vector<L1GctJetCand> getJets() const { return m_outputJets; }
-    ULong getHt() const { return m_outputHt.to_ulong(); }
+    L1GctScalarEtVal ht() const { return m_outputHt; }
     
-    // need method(s) to return jet counts - need to decide type!
-
     ///Max. number of jets that can be found per jet finder
     static const int MAX_JETS_OUT = 6;  //max of 6 jets in a 2*11 search area
 
@@ -115,12 +114,10 @@ private:
     /// output jets
     std::vector<L1GctJetCand> m_outputJets;
 
-    /// output Ht - need to confirm number of bits
-    std::bitset<12> m_outputHt;
+    /// output Ht
+    L1GctScalarEtVal m_outputHt;
     
-    // jet count output - need to decide data type!
-    //vector<bitset<4>> outputJetCounts;
-    
+
     
     //PRIVATE METHODS
     /// Returns true if region index is the centre of a jet. Set boundary = true if at edge of HCAL.
@@ -136,7 +133,7 @@ private:
     ULong convertToRank(const ULong energy) const;
     
     /// Calculates total calibrated energy in jets (Ht) sum
-    ULong calcHt() const;
+    L1GctScalarEtVal calcHt() const;
   
 };
 

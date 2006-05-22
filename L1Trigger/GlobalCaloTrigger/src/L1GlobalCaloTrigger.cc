@@ -189,14 +189,52 @@ void L1GlobalCaloTrigger::setup() {
   // EM leaf cards
   for (int i=0; i<2; i++) {
     for (int j=0; j<9; j++) {
-      theEmLeafCards[i]->setInputSourceCard(j, theSourceCards[i*9+j]);
+      theEmLeafCards[i]->setInputSourceCard(j, theSourceCards[(i*9+j)*3]);
     }
   }
 
   // Jet Leaf cards
   for (int i=0; i<6; i++) {
     for (int j=0; j<3; j++) {
-      theJetLeafCards[i]->setInputSourceCard(j, theSourceCards[i*6+j]);
+      for (int k=1; k<3; k++) {
+	theJetLeafCards[i]->setInputSourceCard(j, theSourceCards[(i*3+j)*3+k]);
+      }
+      // Neighbour connections
+      int iup = (i*3+3) % 9;
+      int idn = (i*3+8) % 9;
+      int ii, i0, i1, i2, i3, i4, i5;
+      if (i<3) {
+	ii = iup;
+	// Remaining connections for the TDR jetfinder only
+	i0 = idn;
+	i1 = idn+9;
+	i2 = i*3+9;
+	i3 = i*3+10;
+	i4 = i*3+11;
+	i5 = iup+9;
+      } else {
+	ii = iup+9;
+	// Remaining connections for the TDR jetfinder only
+	i0 = idn+9;
+	i1 = idn;
+	i2 = i*3-9;
+	i3 = i*3-8;
+	i4 = i*3-7;
+	i5 = iup;
+      }
+      theJetLeafCards[i]->setInputSourceCard( 6, theSourceCards[ii*3+1]);
+      theJetLeafCards[i]->setInputSourceCard( 7, theSourceCards[ii*3+2]);
+      // Remaining connections for the TDR jetfinder only
+      theJetLeafCards[i]->setInputSourceCard( 8, theSourceCards[i0*3+1]);
+      theJetLeafCards[i]->setInputSourceCard( 9, theSourceCards[i0*3+2]);
+      theJetLeafCards[i]->setInputSourceCard(10, theSourceCards[i1*3+1]);
+      theJetLeafCards[i]->setInputSourceCard(11, theSourceCards[i2*3+1]);
+      theJetLeafCards[i]->setInputSourceCard(12, theSourceCards[i3*3+1]);
+      theJetLeafCards[i]->setInputSourceCard(13, theSourceCards[i4*3+1]);
+      theJetLeafCards[i]->setInputSourceCard(14, theSourceCards[i5*3+1]);
+      //
+
+
     }
   }
   

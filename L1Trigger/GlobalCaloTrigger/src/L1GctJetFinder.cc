@@ -310,12 +310,13 @@ ULong L1GctJetFinder::convertToRank(const ULong energy) const
 }
 
 // Calculates total calibrated energy in jets (Ht) sum
-ULong L1GctJetFinder::calcHt() const
+L1GctScalarEtVal L1GctJetFinder::calcHt() const
 {    
-    ULong ht = 0;
+    unsigned ht = 0;
     for(UShort i=0; i < MAX_JETS_OUT; ++i)
     {
         ht += m_outputJets[i].rank();
     }
-    return ht;
+    L1GctScalarEtVal temp(ht);
+    return temp;
 }
