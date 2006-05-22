@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/05/19 17:26:43 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/20 15:33:35 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -91,8 +91,9 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (iphot=aphot; (iphot!=ophot)&&(!bphot); iphot++) {
      if (iphot->pt() >= pt_phot_) {
        bphot=true;
-       ref=edm::makeRefToBase<Candidate>(reco::PhotonCandidateRef(photons,distance(iphot,aphot)));
+       ref=edm::makeRefToBase<Candidate>(reco::PhotonCandidateRef(photons,distance(aphot,iphot)));
        filterproduct->putParticle(ref);
+       // at this point ref has released and is no longer valid!
      }
    }
 
@@ -104,8 +105,9 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (ielec=aelec; (ielec!=oelec)&&(!belec); ielec++) {
      if (ielec->pt() >= pt_elec_) {
        belec=true;
-       ref=edm::makeRefToBase<Candidate>(reco::ElectronCandidateRef(electrons,distance(ielec,aelec)));
+       ref=edm::makeRefToBase<Candidate>(reco::ElectronCandidateRef(electrons,distance(aelec,ielec)));
        filterproduct->putParticle(ref);
+       // at this point ref has released and is no longer valid!
      }
    }
 
@@ -118,8 +120,9 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (imuon=amuon; (imuon!=omuon)&&(!bmuon); imuon++) {
      if (imuon->pt() >= pt_muon_) {
        bmuon=true;
-       ref=edm::makeRefToBase<Candidate>(reco::MuonRef(muons,distance(imuon,amuon)));
+       ref=edm::makeRefToBase<Candidate>(reco::MuonRef(muons,distance(amuon,imuon)));
        filterproduct->putParticle(ref);
+       // at this point ref has released and is no longer valid!
      }
    }
 
