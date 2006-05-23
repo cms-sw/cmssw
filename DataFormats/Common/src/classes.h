@@ -17,7 +17,7 @@
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-
+#include <map>
 #include <vector>
 
 namespace { namespace {
@@ -34,6 +34,16 @@ namespace { namespace {
   edm::Wrapper<std::vector<long double> > dummy11;
   edm::Wrapper<std::vector<float> > dummy12;
   edm::Wrapper<std::vector<bool> > dummy13;
+
+  edm::Wrapper<std::pair<unsigned long, unsigned long> > dymmywp1;
+  edm::Wrapper<std::pair<unsigned int, unsigned int> > dymmywp2;
+  edm::Wrapper<std::pair<unsigned short, unsigned short> > dymmywp3;
+  edm::Wrapper<std::map<unsigned long, unsigned long> > dymmywm1;
+  edm::Wrapper<std::map<unsigned int, unsigned int> > dymmywm2;
+  edm::Wrapper<std::map<unsigned short, unsigned short> > dymmypwm3;
+  edm::Wrapper<std::map<unsigned long, std::vector<unsigned long> > > dymmywmv1;
+  edm::Wrapper<std::map<unsigned int, std::vector<unsigned int> > > dymmywmv2;
+  edm::Wrapper<std::map<unsigned short, std::vector<unsigned short> > > dymmypwmv3;
 
   edm::Wrapper<unsigned long> dummyw1;
   edm::Wrapper<unsigned int> dummyw2;
