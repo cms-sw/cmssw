@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.15 2006/04/10 21:11:23 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.16 2006/05/20 00:01:33 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -145,6 +145,7 @@ namespace edm
 
   void EventStreamerImpl::serialize(EventPrincipal const& e)
   {
+    std::list<Provenance> provenances; // Use list so push_back does not invalidate iterators.
     // all provenance data needs to be transferred, including the
     // indirect stuff referenced from the product provenance structure.
     SendEvent se(e.id(),e.time());
@@ -156,26 +157,28 @@ namespace edm
       ProductID const& id = desc.productID_;
 
       if (id == ProductID()) {
-        throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-          << "EventStreamOutput::serialize: invalid ProductID supplied in productRegistry\n";
+	throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+	  << "EventStreamOutput::serialize: invalid ProductID supplied in productRegistry\n";
       }
       EventPrincipal::SharedGroupPtr const group = e.getGroup(id);
       if (group.get() == 0) {
-        // No product with this ID is in the event.  Add a null one.
-        Provenance provenance(desc);
-        provenance.event.status = BranchEntryDescription::CreatorNotRun;
-        provenance.event.productID_ = id;
-        if (desc.productPtr_.get() == 0) {
-           std::auto_ptr<EDProduct> edp(e.store()->get(BranchKey(desc), &e));
-           desc.productPtr_ = boost::shared_ptr<EDProduct>(edp.release());
-           if (desc.productPtr_.get() == 0) {
-            throw edm::Exception(edm::errors::ProductNotFound,"Invalid")
-              << "EventStreamOutput::serialize: invalid BranchDescription supplied in productRegistry\n";
-           }
-        }
-        se.prods_.push_back(ProdPair(desc.productPtr_.get(), &provenance));
+	std::string const wrapperBegin("edm::Wrapper<");
+	std::string const wrapperEnd1(">");
+	std::string const wrapperEnd2(" >");
+	std::string const& name = desc.fullClassName_;
+	std::string const& wrapperEnd = (name[name.size()-1] == '>' ? wrapperEnd2 : wrapperEnd1);
+	std::string const className = wrapperBegin + name + wrapperEnd;
+	TClass *cp = gROOT->GetClass(className.c_str());
+	EDProduct *p = static_cast<EDProduct *>(cp->New());
+
+	Provenance prov(desc);
+	prov.event.status = BranchEntryDescription::CreatorNotRun;
+	prov.event.productID_ = id;
+	provenances.push_back(prov);
+	Provenance & provenance = *provenances.rbegin();
+	se.prods_.push_back(ProdPair(p, &provenance));
       } else {
-        se.prods_.push_back(ProdPair(group->product(), &group->provenance()));
+	se.prods_.push_back(ProdPair(group->product(), &group->provenance()));
       }
     }
 
