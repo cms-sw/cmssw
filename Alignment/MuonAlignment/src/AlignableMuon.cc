@@ -44,9 +44,6 @@ AlignableMuon::AlignableMuon( const edm::Event& iEvent, const edm::EventSetup& i
   // Get CSCGeometry pointer
   iSetup.get<MuonGeometryRecord>().get( pCSC ); 
 
-  // Get the vector of CSC chambers;
-  const std::vector<CSCChamber*> theCSCChambers = pCSC->chambers();
-
   // Build the muon end caps
   buildCSCEndcap( pCSC );
 
@@ -85,6 +82,7 @@ void AlignableMuon::buildDTBarrel( edm::ESHandle<DTGeometry> pDT  )
     for( int ist = 1 ; ist < 5 ; ist++ ){
   
       // Loop over geom DT Chambers
+      std::vector<GeomDet*> theSLs;
       for( std::vector<DTChamber*>::const_iterator det = pDT->chambers().begin(); 
                                              det != pDT->chambers().end(); ++det ){
         // Get the chamber ID
@@ -98,12 +96,16 @@ void AlignableMuon::buildDTBarrel( edm::ESHandle<DTGeometry> pDT  )
         // Select the chambers in a given wheel in a given station
         if ( iwh == wh && ist == st ){
 
-          // Get the vector of super layers in this chamber
-          std::vector<DTSuperLayer*> theSL = (*det)->superLayers();
-//          std::vector<GeomDet*> theSL = (*det)->superLayers();
-      
+          // Get the vector of super layers in this chamber. Here one needs const_cast
+          std::vector<const GeomDet*> tmpSLs = (*det)->components();
+          for ( std::vector<const GeomDet*>::const_iterator it = tmpSLs.begin(); 
+                                                           it != tmpSLs.end() ; it++ ){    
+            GeomDet* tmpSL = const_cast< GeomDet* > ( *it ) ;
+            theSLs.push_back( tmpSL );
+          }
+
           // Create the alignable DT chamber 
-          AlignableDTChamber* tmpDTChamber  = new AlignableDTChamber( theSL );
+          AlignableDTChamber* tmpDTChamber  = new AlignableDTChamber( theSLs );
 
           // Store the DT chambers in a given DT Station
 	  tmpDTChambersInStation.push_back( tmpDTChamber );
@@ -169,6 +171,7 @@ void AlignableMuon::buildCSCEndcap( edm::ESHandle<CSCGeometry> pCSC  )
     for( int ist = 1 ; ist < 5 ; ist++ ){
   
       // Loop over geom CSC Chambers
+      std::vector<GeomDet*> theLayers;
       for( std::vector<CSCChamber*>::const_iterator det = pCSC->chambers().begin();  
                                               det != pCSC->chambers().end(); ++det ){
 
@@ -184,8 +187,6 @@ void AlignableMuon::buildCSCEndcap( edm::ESHandle<CSCGeometry> pCSC  )
 
 
         // Select the chambers in a given endcap in a given station
-        std::vector<CSCLayer*> theLayers;
-//        std::vector<GeomDet*> theLayers;
         if ( iec == ec && ist == st ){
 
 
@@ -198,11 +199,14 @@ void AlignableMuon::buildCSCEndcap( edm::ESHandle<CSCGeometry> pCSC  )
           std::cout << "        " << std::endl ;
     
 
-          // Get the vector of layers(1..6) in this chamber
-          for( int ii = 1 ; ii < 7 ; ii++ ){
-            theLayers.push_back( (*det)->layer(ii) );
-          } 
-  
+          // Get the vector of layers in this chamber. Here one needs const_cast
+          std::vector<const GeomDet*> tmpLs = (*det)->components();
+          for ( std::vector<const GeomDet*>::const_iterator it = tmpLs.begin();
+                                                           it != tmpLs.end() ; it++ ){
+            GeomDet* tmpL = const_cast< GeomDet* > ( *it ) ;
+            theLayers.push_back( tmpL );
+          }
+
         // End If chamber selection
 	}
 
@@ -266,7 +270,7 @@ std::vector<AlignableDTWheel*> AlignableMuon::DTWheels()
 }
 
 //--------------------------------------------------------------------------------------------------
-alignable* AlignableMuon::DTBarrel()
+AlignableDTBarrel* AlignableMuon::DTBarrel()
 {
   return theDTBarrel;
 }
@@ -291,10 +295,6 @@ std::vector<AlignableCSCEndcap*> AlignableMuon::CSCEndcaps()
 
 
 //--------------------------------------------------------------------------------------------------
-virtual std::vector<Alignable*> AlignableMuon::components()
-{
-  return theMuonComponents;
-}
 
 
 

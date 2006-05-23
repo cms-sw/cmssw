@@ -2,7 +2,7 @@
 
 
 /// The constructor gets all components and stores them as AlignableDets
-AlignableDTChamber::AlignableDTChamber( std::vector<GeomDet*>& geomDets  ) 
+AlignableDTChamber::AlignableDTChamber( std::vector<GeomDet*>& geomDets ) 
 {
 
   for ( std::vector<GeomDet*>::iterator iGeomDet=geomDets.begin(); 

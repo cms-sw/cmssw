@@ -27,7 +27,7 @@ class AlignableDTChamber: public AlignableComposite
   
 
   /// Constructor from geomdets of the DTChamber components
-  AlignableDTChamber( std::vector<GeomDet*>& geomDets  );
+  AlignableDTChamber( std::vector<GeomDet*>& gmDets  );
   
   ~AlignableDTChamber();
   

@@ -72,13 +72,13 @@ public:
   virtual std::vector<Alignable*> components() const { return theMuonComponents; }
 
   // Methods to return specific of components
-  std::vector<Alignable*> DTChambers();
-  std::vector<Alignable*> DTStations();
-  std::vector<Alignable*> DTWheels();
-  Alignable* DTBarrel();
-  std::vector<Alignable*> CSCChambers();
-  std::vector<Alignable*> CSCStations();
-  std::vector<Alignable*> CSCEndcap();
+  std::vector<AlignableDTChamber*> DTChambers();
+  std::vector<AlignableDTStation*> DTStations();
+  std::vector<AlignableDTWheel*> DTWheels();
+  AlignableDTBarrel* DTBarrel();
+  std::vector<AlignableCSCChamber*> CSCChambers();
+  std::vector<AlignableCSCStation*> CSCStations();
+  std::vector<AlignableCSCEndcap*> CSCEndcaps();
 
 
 private:
