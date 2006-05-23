@@ -14,7 +14,7 @@ class SimG4HcalHitJetFinder {
 
 public:
 
-  SimG4HcalHitJetFinder(int iv=0, double cone=0.5);
+  SimG4HcalHitJetFinder(double cone=0.5);
   virtual ~SimG4HcalHitJetFinder();
 
   void setCone(double);   
@@ -25,7 +25,6 @@ public:
 
 private :
 
-  int                              verbosity;
   double                           jetcone;
   std::vector<CaloHit>             input;
   std::vector<SimG4HcalHitCluster> clusvector; 

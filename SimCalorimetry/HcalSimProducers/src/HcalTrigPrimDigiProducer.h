@@ -21,8 +21,6 @@ private:
 
   HcalCoderFactory theCoderFactory;
   HcalTriggerPrimitiveAlgo theAlgo;
-  std::string inputLabel_;
-  int hcalScale_, emScale_, jetScale_;
 };
 
 #endif

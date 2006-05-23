@@ -8,8 +8,15 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.3 2006/02/17 22:15:35 fischler Exp $
+// $Id: MessageLogger.cc,v 1.4 2006/03/16 02:23:20 wmtan Exp $
 //
+// Change log
+//
+// 1  mf  5/12/06	In ctor, MessageDrop::debugEnabled is set to a
+//			sensible value in case action happens before modules
+//			are entered.  If any modules enable debugs, such
+//			LogDebug messages are not immediately discarded
+//			(though they might be filtered at the server side).
 
 // system include files
 
@@ -61,7 +68,14 @@ MessageLogger( ParameterSet const & iPS
     	iPS.getParameter<vString>("debugModules");
   }
   // set up for tracking whether current module is debug-enabled
-  if (!debugModules.empty()) anyDebugEnabled_ = true;
+  if ( debugModules.empty()) {
+    MessageDrop::instance()->debugEnabled = false;	// change log 2
+  } else {
+    anyDebugEnabled_ = true;
+    MessageDrop::instance()->debugEnabled = true;
+    // this will be over-ridden when specific modules are entered
+  }
+  if ( debugModules.empty()) anyDebugEnabled_ = true;
   for( vString::const_iterator it  = debugModules.begin();
                                it != debugModules.end(); ++it ) {
     if (*it == "*") { 

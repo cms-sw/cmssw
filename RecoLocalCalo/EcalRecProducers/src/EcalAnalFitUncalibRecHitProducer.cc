@@ -1,9 +1,9 @@
 /** \class EcalAnalFitUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes with the analytical fit method
  *
-  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.3 2006/01/10 11:28:43 meridian Exp $
-  *  $Date: 2006/01/10 11:28:43 $
-  *  $Revision: 1.3 $
+  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.5 2006/05/05 08:49:07 meridian Exp $
+  *  $Date: 2006/05/05 08:49:07 $
+  *  $Revision: 1.5 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -56,27 +56,33 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
    Handle< EBDigiCollection > pEBDigis;
    Handle< EEDigiCollection > pEEDigis;
 
+   const EBDigiCollection* EBdigis =0;
+   const EEDigiCollection* EEdigis =0;
+   
    try {
      //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
      evt.getByLabel( digiProducer_, pEBDigis);
+     EBdigis = pEBDigis.product(); // get a ptr to the produc
+     edm::LogInfo("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: total # EBdigis: " << EBdigis->size() ;
    } catch ( std::exception& ex ) {
-     edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
+     //     edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
    }
 
    try {
      //     evt.getByLabel( digiProducer_, EEdigiCollection_, pEEDigis);
      evt.getByLabel( digiProducer_, pEEDigis);
+     EEdigis = pEEDigis.product(); // get a ptr to the product
+     edm::LogInfo("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: total # EEdigis: " << EEdigis->size() ;
    } catch ( std::exception& ex ) {
-     edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EEdigiCollection_.c_str() ;
+     //     edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EEdigiCollection_.c_str() ;
    }
 
-   const EBDigiCollection* EBdigis = pEBDigis.product(); // get a ptr to the produc
-   const EEDigiCollection* EEdigis = pEEDigis.product(); // get a ptr to the product
+
 
 //    if(!counterExceeded()) 
 //      {
-   edm::LogInfo("EcalUncalibRecHitInfo") << "EcalWeightUncalibRecHitProducer: total # EBdigis: " << EBdigis->size() ;
-   edm::LogInfo("EcalUncalibRecHitInfo") << "EcalWeightUncalibRecHitProducer: total # EEdigis: " << EEdigis->size() ;
+
+
 //      }
 
 
@@ -89,20 +95,41 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
    std::vector<HepMatrix> weights;
    std::vector<HepSymMatrix> chi2mat;
 
-   for(EBDigiCollection::const_iterator itdg = EBdigis->begin(); itdg != EBdigis->end(); ++itdg) {
-
-     EcalUncalibratedRecHit aHit =
-          EBalgo_.makeRecHit(*itdg, pedVec, weights, chi2mat);
-     EBuncalibRechits->push_back( aHit );
-     
-     if(aHit.amplitude()>0.) {
-        LogDebug("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: processed EBDataFrame with id: "
-                  << itdg->id() << "\n"
-                  << "uncalib rechit amplitude: " << aHit.amplitude()
-	  ;
+   if (EBdigis)
+     {
+       for(EBDigiCollection::const_iterator itdg = EBdigis->begin(); itdg != EBdigis->end(); ++itdg) {
+	 
+	 EcalUncalibratedRecHit aHit =
+	   EBalgo_.makeRecHit(*itdg, pedVec, weights, chi2mat);
+	 EBuncalibRechits->push_back( aHit );
+	 
+	 if(aHit.amplitude()>0.) {
+	   LogDebug("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: processed EBDataFrame with id: "
+					     << itdg->id() << "\n"
+					     << "uncalib rechit amplitude: " << aHit.amplitude()
+	     ;
+	 }
+	 
+       }
      }
 
-   }
+   if (EEdigis)
+     {
+       for(EEDigiCollection::const_iterator itdg = EEdigis->begin(); itdg != EEdigis->end(); ++itdg) {
+	 
+	 EcalUncalibratedRecHit aHit =
+	   EEalgo_.makeRecHit(*itdg, pedVec, weights, chi2mat);
+	 EEuncalibRechits->push_back( aHit );
+	 
+	 if(aHit.amplitude()>0.) {
+	   LogDebug("EcalUncalibRecHitInfo") << "EcalAnalFitUncalibRecHitProducer: processed EEDataFrame with id: "
+					     << itdg->id() << "\n"
+					     << "uncalib rechit amplitude: " << aHit.amplitude()
+	     ;
+	 }
+	 
+       }
+     }
 
    // put the collection of recunstructed hits in the event
    evt.put( EBuncalibRechits, EBhitCollection_ );

@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.9 2006/03/29 21:51:54 wmtan Exp $
+   \version $Id: productregistry.cppunit.cc,v 1.11 2006/05/05 01:00:42 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -85,7 +85,7 @@ void  testProductRegistry:: testSignal(){
    reg.productAddedSignal_.connect(listening);
    
    ModuleDescription modDesc;
-   BranchDescription prod(modDesc, "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
+   BranchDescription prod(modDesc, "int", "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
    
    reg.addProduct(prod);
    CPPUNIT_ASSERT(1==hear);
@@ -104,9 +104,10 @@ void  testProductRegistry:: testWatch(){
    Responder one("one",constReg, reg);
                  
    ModuleDescription modDesc;
-   BranchDescription prod(modDesc, "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
+   BranchDescription prod(modDesc, "int", "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
    reg.addProduct(prod);
-   BranchDescription prod2(modDesc, "float", "float", "float", boost::shared_ptr<edm::EDProduct const>());
+
+   BranchDescription prod2(modDesc, "float", "float", "float", "float", boost::shared_ptr<edm::EDProduct const>());
    reg.addProduct(prod2);
    
    //Should be 4 products
@@ -131,7 +132,7 @@ void  testProductRegistry:: testCircular(){
    Responder two("two",constReg, reg);
    
    ModuleDescription modDesc;
-   BranchDescription prod(modDesc, "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
+   BranchDescription prod(modDesc, "int", "int", "int", "int", boost::shared_ptr<edm::EDProduct const>());
    
    reg.addProduct(prod);
    //Should be 5 products

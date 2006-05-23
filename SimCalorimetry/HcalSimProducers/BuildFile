@@ -5,7 +5,6 @@
 <use name=SimDataFormats/CrossingFrame>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/HcalTowerAlgo>
-<use name=CalibCalorimetry/HcalTPGAlgos>
 <flags SEAL_PLUGIN_NAME="SimCalorimetryHcalSimProducers">
 <export>
    <lib name=SimCalorimetryHcalSimProducers>
@@ -16,5 +15,4 @@
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
-   <use name=CalibCalorimetry/HcalTPGAlgos>
 </export>

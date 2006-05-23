@@ -4,11 +4,11 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2006/02/21 20:32:47 $
- * $Revision: 1.9 $
+ * $Date: 2006/02/05 22:19:22 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
- */
+*/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -38,48 +38,41 @@ using namespace std;
 
 class EBIntegrityTask: public EDAnalyzer{
 
- public:
+public:
 
-  /// Constructor
-   EBIntegrityTask(const ParameterSet& ps);
+/// Constructor
+EBIntegrityTask(const ParameterSet& ps);
 
-   /// Destructor
-     virtual ~EBIntegrityTask();
+/// Destructor
+virtual ~EBIntegrityTask();
 
- protected:
+protected:
 
-     /// Analyze
-   void analyze(const Event& e, const EventSetup& c);
+/// Analyze
+void analyze(const Event& e, const EventSetup& c);
 
-   /// BeginJob
-     void beginJob(const EventSetup& c);
+/// BeginJob
+void beginJob(const EventSetup& c);
 
-     /// EndJob
-       void endJob(void);
+/// EndJob
+void endJob(void);
 
-       /// Setup
-	 void setup(void);
+/// Setup
+void setup(void);
 
- private:
+private:
 
-	 int ievt_;
+int ievt_;
 
-	 MonitorElement* meIntegrityChId[36];
-	 MonitorElement* meIntegrityGain[36];
-	 MonitorElement* meIntegrityGainSwitch[36];
-	 MonitorElement* meIntegrityGainSwitchStay[36];
-	 MonitorElement* meIntegrityTTId[36];
-	 MonitorElement* meIntegrityTTBlockSize[36];
-	 MonitorElement* meIntegrityMemChId[36];
-	 MonitorElement* meIntegrityMemGain[36];
-	 MonitorElement* meIntegrityMemTTId[36];
-	 MonitorElement* meIntegrityMemTTBlockSize[36];
-	 MonitorElement* meIntegrityDCCSize;
+MonitorElement* meIntegrityChId[36];
+MonitorElement* meIntegrityGain[36];
+MonitorElement* meIntegrityGainSwitch[36];
+MonitorElement* meIntegrityGainSwitchStay[36];
+MonitorElement* meIntegrityTTId[36];
+MonitorElement* meIntegrityTTBlockSize[36];
+MonitorElement* meIntegrityDCCSize;
 
-	 bool init_;
-	 
-	 const static int chMemAbscissa[25];
-	 const static int chMemOrdinate[25];
+bool init_;
 
 };
 

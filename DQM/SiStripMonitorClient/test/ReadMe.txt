@@ -1,12 +1,9 @@
 1. Description of Classes :
 =============================
 
-    SiStripWebInterface (web interface  for the SiStrip, inherited from WebInterface)
+    SiStripWebClient (web client for the SiStrip, inherited from DQMWbClient)
     SiStripQualityTester (defines and attaches QualityTests to the MEs. the
-                         tests are defined in test/sistrip_qualitytest_config.xml)
-    SiStripActionExecutor (performs various actions as requested by WebInterface)
-   
-    SiStripWebClient [OBSOLETE] (web client for the SiStrip, inherited from DQMWbClient)
+                         test can be defined in test.txt file [for the moment])
 
 
     TrackerMap & TmModule (creates the TrackerMap SVG file)
@@ -16,26 +13,25 @@
 2. Auxiliary files in test directory
 =====================================
 
-  o sistrip_qualitytest_config.xml   : Quality tests and the association of tests with ME 
-                                        is defined here
+  o test.txt   : Quality test of ME is defined here  which has the following 
+                 format
+                 QTest  Title of QTest  Error Pro. Warning Prob  Parameters)
   
-  o tracker.dat                      : needed to create TrackerMap
-    trackermap.txt                   : header of the SVG file to be created
+  o tracker.dat            : needed to create TrackerMap
+    trackermap.txt         : header of the SVG file to be created
 
-  o sendCmdToApp.pl                  : scripts needed to start the xdaq.exe
+  o sendCmdToApp.pl        : scripts needed to start the xdaq.exe
     webPingXDAQ.pl       
     WebLib.js               
    
-  o setup.sh                         : creates necessary xml and other files needed
-                                       for a given environment
+  o setup.sh               : creates necessary xml and other files needed
+                             for a given environment
 
-  o .SiStripClient.xm                : used by setup.sh to create real ones
-    .profile.xml                      SiStripClient.xml profile.xml 
+  o .WebTest.xml           : used by setup.sh to create real ones
+    .profile.xml            WebTest.xml profile.xml 
   
-  o  .startMonitorClient             : used by  setup.sh to create start script 
-                                       startMonitorClient
-
-  o  style.css                       : color, border... etc
+  o  .startMonitorClient   : used by  setup.sh to create start script 
+                             startMonitorClient
 
 3. Running
 =================

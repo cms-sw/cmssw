@@ -1,8 +1,6 @@
 <export>
    <lib name=DataFormatsSiStripDetId>
    <use name=DataFormats/DetId>
-   <use name=boost>
 </export>
 
 <use name=DataFormats/DetId>
-<use name=boost>

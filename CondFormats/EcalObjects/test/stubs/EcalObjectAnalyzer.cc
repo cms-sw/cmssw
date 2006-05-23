@@ -77,7 +77,8 @@ using namespace std;
     edm::ESHandle<EcalADCToGeVConstant> pAgc;
     context.get<EcalADCToGeVConstantRcd>().get(pAgc);
     const EcalADCToGeVConstant* agc = pAgc.product();
-    std::cout << "Global ADC->GeV scale: " << agc->getValue() << " GeV/ADC count" << std::endl;
+    std::cout << "Global ADC->GeV scale: EB " << agc->getEBValue() << " GeV/ADC count" 
+	      << " EE " << agc->getEEValue() << " GeV/ADC count" <<std::endl; 
 
     // use a channel to fetch values from DB
     double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );

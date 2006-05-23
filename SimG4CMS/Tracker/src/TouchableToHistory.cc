@@ -46,7 +46,6 @@ void TouchableToHistory::buildAll(){
     myMap[st] = *it;
     myDirectMap[st] = dddToID.id(*it);
 
-    /*
 #ifdef DEBUG    
     LogDebug("TrackerSimDebugNumbering")<< " INSERTING "<<view.logicalPart().name()<<" "<<t<<" "<<hist->GetVolume()->GetLogicalVolume()->GetName();
     LogDebug("TrackerSimDebugNumbering")<<" Sensitive: "<<hist->GetVolume()->GetLogicalVolume()->GetSensitiveDetector()<<std::endl;
@@ -55,7 +54,7 @@ void TouchableToHistory::buildAll(){
       edm::LogError("TrackerSimInfoNumbering")<< "Touchable to History Error!!!!";
     dumpG4VPV(hist);
 #endif
-    */
+
     delete hist;
 
   }
@@ -85,7 +84,7 @@ TouchableToHistory::nav_type TouchableToHistory::getNavType(const G4VTouchable& 
 TouchableToHistory::Nav_Story TouchableToHistory::getNavStory(DDFilteredView& i){
   if (alreadySet == false) buildAll();
   DDTranslation t = i.translation();
-
+  //  G4Navigator theNavigator;
   G4Navigator* theStdNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
   G4Navigator* theNavigator = new G4Navigator();
   theNavigator->SetWorldVolume(theStdNavigator->GetWorldVolume());

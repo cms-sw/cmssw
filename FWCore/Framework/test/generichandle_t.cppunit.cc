@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.6 2006/03/29 21:51:54 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.7 2006/05/01 16:59:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -47,7 +47,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testGenericHandle);
 
 void testGenericHandle::failWrongType() {
    try {
-      //intentionally mispelled type
+      //intentionally misspelled type
       edm::GenericHandle h("edmtest::DmmyProduct");
       CPPUNIT_ASSERT("Failed to thow"==0);
    }

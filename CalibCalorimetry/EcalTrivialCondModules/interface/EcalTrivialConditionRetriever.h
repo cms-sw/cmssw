@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.1 2006/03/02 17:03:43 rahatlou Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.2 2006/03/10 18:31:37 rahatlou Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -74,6 +74,7 @@ private:
 
   // data members
   double adcToGeVEBConstant_;      // ADC -> GeV scale for barrel
+  double adcToGeVEEConstant_;      // ADC -> GeV scale for endcap
 
   double intercalibConstantMean_;  // mean of intercalib constant. default: 1.0
   double intercalibConstantSigma_; // sigma of intercalib constant

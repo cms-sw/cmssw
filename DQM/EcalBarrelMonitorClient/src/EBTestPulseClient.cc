@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/03/05 09:50:41 $
- * $Revision: 1.65 $
+ * $Date: 2006/02/09 13:37:56 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -59,9 +59,6 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps, MonitorUserInterfac
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // MonitorDaemon switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 
 }
 
@@ -696,11 +693,7 @@ void EBTestPulseClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -720,11 +713,7 @@ void EBTestPulseClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -744,11 +733,7 @@ void EBTestPulseClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -768,11 +753,7 @@ void EBTestPulseClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTPT shape SM%02d G01", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM%02d G01", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM%02d G01", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM%02d G01", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -792,11 +773,7 @@ void EBTestPulseClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTPT shape SM%02d G06", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM%02d G06", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM%02d G06", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM%02d G06", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -816,11 +793,7 @@ void EBTestPulseClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTPT shape SM%02d G12", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM%02d G12", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM%02d G12", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM%02d G12", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -840,11 +813,7 @@ void EBTestPulseClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTPT amplitude error SM%02d G01", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM%02d G01", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM%02d G01", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM%02d G01", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -864,11 +833,7 @@ void EBTestPulseClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTPT amplitude error SM%02d G06", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM%02d G06", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM%02d G06", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM%02d G06", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -888,11 +853,7 @@ void EBTestPulseClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTPT amplitude error SM%02d G12", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM%02d G12", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM%02d G12", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM%02d G12", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -912,11 +873,7 @@ void EBTestPulseClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM%02d G01", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM%02d G01", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM%02d G01", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs amplitude SM%02d G01", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -936,11 +893,7 @@ void EBTestPulseClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM%02d G16", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM%02d G16", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM%02d G16", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs amplitude SM%02d G16", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -960,11 +913,7 @@ void EBTestPulseClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -984,11 +933,7 @@ void EBTestPulseClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
     }
     me = mui_->get(histo);
     if ( me ) {

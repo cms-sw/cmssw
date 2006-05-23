@@ -3,7 +3,7 @@ void SiStripDigiCompare()
 
  gROOT ->Reset();
  char*  rfilename = "stripdigihisto.root";
- char*  sfilename = "stripdigihisto.root";
+ char*  sfilename = "data/stripdigihisto.root";
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename); 
@@ -15,7 +15,7 @@ void SiStripDigiCompare()
  rfile->cd("DQMData");
  sfile->cd("DQMData");
 
- gDirectory->ls();
+ //gDirectory->ls();
 
  Char_t histo[200];
 
@@ -218,7 +218,7 @@ void SiStripDigiCompare()
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
    }
 
- Strip->Print("StripOfTIBLayer1Compare.eps");
+ Strip->Print("StripNumOfTIBLayer1Compare.eps");
 
  }
 //ITB  2nd Lyaer
@@ -365,7 +365,7 @@ void SiStripDigiCompare()
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
    }
 
- Strip->Print("StripOfTIBLayer2Compare.eps");
+ Strip->Print("StripNumOfTIBLayer2Compare.eps");
 
  }
 // TIB  3rd Layer
@@ -512,7 +512,7 @@ void SiStripDigiCompare()
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
    }
 
- Strip->Print("StripOfTIBLayer3Compare.eps");
+ Strip->Print("StripNumOfTIBLayer3Compare.eps");
  }
 
 
@@ -660,7 +660,7 @@ void SiStripDigiCompare()
       myPV->PVCompute(meAdcTIB_[i] , newmeAdcTIB_[i] , te );
    }
 
- Strip->Print("StripOfTIBLayer4Compare.eps");
+ Strip->Print("StripNumOfTIBLayer4Compare.eps");
 
  }
 

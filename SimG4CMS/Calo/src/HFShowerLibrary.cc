@@ -57,12 +57,12 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 
   if (!hf->IsOpen()) { 
     edm::LogError("HFShower") << "HFShowerLibrary: opening " << nTree 
-			      << " failed";
+			      << " failed\n";
     throw cms::Exception("Unknown", "HFShowerLibrary") 
       << "Opening of " << pTreeName << " fails\n";
   } else {
     edm::LogInfo("HFShower") << "HFShowerLibrary: opening " << nTree 
-			     << " successfully"; 
+			     << " successfully\n"; 
   }
 
   emTree  = (TTree *) hf->Get(emTree_name.c_str());
@@ -72,7 +72,7 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   edm::LogInfo("HFShower") << "HFShowerLibrary:Ntuple " << emTree_name 
 			   << " has " << emTree->GetEntries() 
 			   << " entries and Ntuple "  << hadTree_name 
-			   << " has " << hadTree->GetEntries() << " entries";
+			   << " has " << hadTree->GetEntries() << " entries\n";
 
   //Packing parameters
   TTree * packing = (TTree *) hf->Get("Packing");
@@ -84,10 +84,10 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 			     << " YMultiplier: " << yMultiplier << " YScale: " 
 			     << yScale  << " ZOffset: " << zOffset 
 			     << " ZMultiplier: " << zMultiplier << " ZScale: " 
-			     << zScale;
+			     << zScale << "\n";
   } else {
     edm::LogError("HFShower") << "HFShowerLibrary: Packing Branch does not"
-			      << " exist" ;
+			      << " exist\n" ;
     throw cms::Exception("Unknown", "HFShowerLibrary")
       << "Packing information absent\n";
   } 
@@ -98,21 +98,21 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
     edm::LogInfo("HFShower") << "HFShowerLibrary: Library " << libVers 
 			     << " ListVersion "	<< listVersion 
 			     << " Events Total " << totEvents << " and "
-			     << evtPerBin << " per bin";
+			     << evtPerBin << " per bin\n";
     edm::LogInfo("HFShower") << "HFShowerLibrary: Energies (GeV) with " 
 			     << nMomBin	<< " bins";
     for (int i=0; i<nMomBin; i++)
-      edm::LogInfo("HFShower") << "HFShowerLibrary: pmom[" << i << "] = "
-			       << pmom[i]/GeV << " GeV";
+      edm::LogInfo("HFShower") << " " << pmom[i]/GeV;
+    edm::LogInfo("HFShower") << "\n";
   } else {
     edm::LogError("HFShower") << "HFShowerLibrary: EvtInfo Branch does not"
-			      << " exist";
+			      << " exist\n";
     throw cms::Exception("Unknown", "HFShowerLibrary")
       << "Event information absent\n";
   } 
 
   edm::LogInfo("HFShower") << "HFShowerLibrary: Maximum probability cut off " 
-			   << probMax;
+			   << probMax << "\n";
   
   G4String attribute = "ReadOutName";
   G4String value     = name;
@@ -121,41 +121,33 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   filter.setCriteria(ddv,DDSpecificsFilter::equals);
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
-  bool dodet = fv.firstChild();
-  if (dodet) {
-    DDsvalues_type sv(fv.mergedSpecifics());
+  fv.firstChild();
+  DDsvalues_type sv(fv.mergedSpecifics());
 
-    //Radius (minimum and maximum)
-    int nR     = -1;
-    std::vector<double> rTable = getDDDArray("rTable",sv,nR);
-    rMin = rTable[0];
-    rMax = rTable[nR-1];
-    edm::LogInfo("HFShower") << "HFShowerLibrary: rMIN " << rMin/cm 
-			     << " cm and rMax " << rMax/cm;
+  //Radius (minimum and maximum)
+  int nR     = -1;
+  std::vector<double> rTable = getDDDArray("rTable",sv,nR);
+  rMin = rTable[0];
+  rMax = rTable[nR-1];
+  edm::LogInfo("HFShower") << "HFShowerLibrary: rMIN " << rMin/cm 
+			   << " cm and rMax " << rMax/cm << "\n";
 
-    //Delta phi
-    int nEta   = -1;
-    std::vector<double> etaTable = getDDDArray("etaTable",sv,nEta);
-    int nPhi   = nEta + nR - 2;
-    std::vector<double> phibin   = getDDDArray("phibin",sv,nPhi);
-    dphi       = phibin[nEta-1];
-    edm::LogInfo("HFShower") << "HFShowerLibrary: (Half) Phi Width of wedge " 
-			     << dphi/deg;
+  //Delta phi
+  int nEta   = -1;
+  std::vector<double> etaTable = getDDDArray("etaTable",sv,nEta);
+  int nPhi   = nEta + nR - 2;
+  std::vector<double> phibin   = getDDDArray("phibin",sv,nPhi);
+  dphi       = phibin[nEta-1];
+  edm::LogInfo("HFShower") << "HFShowerLibrary: (Half) Phi Width of wedge " 
+			   << dphi/deg << "\n";
 
-    //Special Geometry parameters
-    int ngpar = 7;
-    gpar      = getDDDArray("gparHF",sv,ngpar);
-    edm::LogInfo("HFShower") << "HFShowerLibrary: " << ngpar << " gpar (cm)";
-    for (int ig=0; ig<ngpar; ig++)
-      edm::LogInfo("HFShower") << "HFShowerLibrary: gpar[" << ig << "] = "
-			       << gpar[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShowerLibrary: cannot get filtered "
-			      << " view for " << attribute << " matching "
-			      << name;
-    throw cms::Exception("Unknown", "HFShowerLibrary")
-      << "cannot match " << attribute << " to " << name <<"\n";
-  }
+  //Special Geometry parameters
+  int ngpar = 7;
+  gpar      = getDDDArray("gparHF",sv,ngpar);
+  edm::LogInfo("HFShower") << "HFShowerLibrary: " << ngpar << " gpar (cm)";
+  for (int ig=0; ig<ngpar; ig++)
+    edm::LogInfo("HFShower") << " " << gpar[ig]/cm;
+  edm::LogInfo("HFShower") << "\n";
   
   fibre = new HFFibre(cpv);
 }
@@ -285,7 +277,7 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 #endif
   if (nHit > npe)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
-				<< " smaller than " << nHit << " Hits";
+				<< " smaller than " << nHit << " Hits\n";
   return nHit;
 
 }
@@ -440,11 +432,12 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
 	irc[0] = int(nevent*r) + 1 + j*nevent;
 	if (irc[0]<0) {
 	  edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[0] = "
-				      << irc[0] << " now set to 0";
+				      << irc[0] << " now set to 0\n";
 	  irc[0] = 0;
 	} else if (irc[0] > nentry) {
 	  edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[0] = "
-				      << irc[0] << " now set to "<< nentry;
+				      << irc[0] << " now set to "<< nentry 
+				      << "\n";
 	  irc[0] = nentry;
 	}
       }
@@ -452,11 +445,11 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
   }
   if (irc[1]<1) {
     edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[1] = " 
-				<< irc[1] << " now set to 1";
+				<< irc[1] << " now set to 1\n";
     irc[1] = 1;
   } else if (irc[1] > nentry) {
     edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[1] = " 
-				<< irc[1] << " now set to "<< nentry;
+				<< irc[1] << " now set to "<< nentry << "\n";
     irc[1] = nentry;
   }
 
@@ -500,7 +493,7 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
   if (npe > npold || npold == 0)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Interpolation error =="
 				<< " buffer " << npold << " filled " << npe 
-				<< " *****";
+				<< " *****\n";
 #ifdef debug
   LogDebug("HFShower") << "HFShowerLibrary: Interpolation gives " << npe
 		       << " Photons == buffer " << npold;
@@ -535,12 +528,12 @@ void HFShowerLibrary::extrapolate(TTree * tree, double pin) {
     irc[ir] = int(nevent*0.5*r) +(nMomBin-1)*nevent + 1;
     if (irc[ir]<1) {
       edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[" << ir 
-				  << "] = " << irc[ir] << " now set to 1";
+				  << "] = " << irc[ir] << " now set to 1\n";
       irc[ir] = 1;
     } else if (irc[ir] > nentry) {
       edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[" << ir 
 				  << "] = " << irc[ir] << " now set to "
-				  << nentry;
+				  << nentry << "\n";
       irc[ir] = nentry;
     }
 #ifdef debug
@@ -573,7 +566,7 @@ void HFShowerLibrary::extrapolate(TTree * tree, double pin) {
   if (npe > npold || npold == 0)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Extrapolation error =="
 				<< " buffer " << npold << " filled " << npe 
-				<< " *****";
+				<< " *****\n";
 #ifdef debug
   LogDebug("HFShower") << "HFShowerLibrary: Extrapolation gives " << npe
 		       << " Photons == buffer "  << npold;
@@ -622,7 +615,7 @@ std::vector<double> HFShowerLibrary::getDDDArray(const std::string & str,
       if (nval < nmin) {
 	edm::LogError("HFShower") << "HFShowerLibrary : # of " << str 
 				  << " bins " << nval << " < " << nmin 
-				  << " ==> illegal";
+				  << " ==> illegal\n";
 	throw cms::Exception("Unknown", "HFShowerLibrary")
 	  << "nval < nmin for array " << str << "\n";
       }
@@ -630,7 +623,7 @@ std::vector<double> HFShowerLibrary::getDDDArray(const std::string & str,
       if (nval < 2) {
 	edm::LogError("HFShower") << "HFShowerLibrary : # of " << str 
 				  << " bins " << nval << " < 2 ==> illegal"
-				  << " (nmin=" << nmin << ")";
+				  << " (nmin=" << nmin << ")\n";
 	throw cms::Exception("Unknown", "HFShowerLibrary")
 	  << "nval < 2 for array " << str << "\n";
       }
@@ -639,7 +632,8 @@ std::vector<double> HFShowerLibrary::getDDDArray(const std::string & str,
 
     return fvec;
   } else {
-    edm::LogError("HFShower") << "HFShowerLibrary : cannot get array " << str;
+    edm::LogError("HFShower") << "HFShowerLibrary : cannot get array " << str 
+			      << "\n";
     throw cms::Exception("Unknown", "HFShowerLibrary") 
       << "cannot get array " << str << "\n";
   }

@@ -26,5 +26,5 @@ while ( $i < $bcrend )
 end
    
 echo "===================> Step3: rereading histos with root"
-root -q testsuite.C
+root -b -q testsuite.C
 

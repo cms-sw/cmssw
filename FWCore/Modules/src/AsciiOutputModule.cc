@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.3 2005/12/12 22:23:16 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.4 2006/02/08 00:44:27 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -45,7 +45,7 @@ namespace edm {
     // ... list of process-names
     std::copy(e.beginProcess(),
 	      e.endProcess(),
-	      std::ostream_iterator<EventPrincipal::ProcessNameList::value_type>(*pout_, " "));
+	      std::ostream_iterator<ProcessNameList::value_type>(*pout_, " "));
 
     // ... collision id
     *pout_ << '\n' << e.id() << '\n';

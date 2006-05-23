@@ -20,27 +20,15 @@ class DQMBaseClient : public dqm::StateMachine
 
 public:
 
-  DQMBaseClient(xdaq::ApplicationStub *s, 
-		std::string name = "DQMBaseClient", 
-		std::string server = "localhost", 
-		int port = 9090);
-  void fireConfiguration(std::string name, std::string server, int port);
+  DQMBaseClient(xdaq::ApplicationStub *s, std::string name = "Client");
   virtual ~DQMBaseClient(){finalize();}
   void Default(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
-  virtual void general(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
+  void general(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
   virtual void configure()=0;
   virtual void newRun()=0;
   virtual void endRun()=0;
   virtual void finalize(){};
 
-  std::string getApplicationURL() 
-    {
-      return applicationURL;
-    }
-  std::string getContextURL()
-    {
-      return contextURL;
-    }
 
 protected:
 
@@ -67,10 +55,9 @@ private:
   void nullAction(toolbox::Event::Reference e) 
     throw (toolbox::fsm::exception::Exception);
 
-  std::string contextURL;
-  std::string applicationURL;
-
+  
   std::string name_;
+
 
   xdata::String server_;
   xdata::UnsignedLong port_;

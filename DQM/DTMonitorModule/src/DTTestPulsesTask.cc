@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2006/03/24 16:18:29 $
- * $Revision: 1.5 $
+ * $Date: 2006/02/21 19:04:14 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -71,7 +71,7 @@ void DTTestPulsesTask::beginJob(const edm::EventSetup& context){
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
-  // Get the pedestals tTrig (always get it, even if the tTrig_TP is taken from conf)
+  // Get the pedestals tTrig
   context.get<DTTtrigRcd>().get(tTrig_TPMap);
 
 }
@@ -88,11 +88,9 @@ void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, strin
 
   cout<<"[DTTestPulseTask]: booking"<<endl;
 
-  dbe->setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
+  dbe->setCurrentFolder("DT/DTTestPulseTask/Wheel" + wheel.str() +
 			"/Station" + station.str() +
-			"/Sector" + sector.str() + 
-			"/SuperLayer" + superLayer.str() + 
-			"/" +folder);
+			"/Sector" + sector.str() + "/" + folder);
 
   string histoName = histoTag 
     + "_W" + wheel.str() 
@@ -101,24 +99,17 @@ void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, strin
     + "_SL" + superLayer.str() 
     + "_L" + layer.str();
 
-
-  if ( parameters.getUntrackedParameter<bool>("readDB", false) ) {
-    if ( ! tTrig_TPMap->slTtrig( dtLayer.wheel(),
-				 dtLayer.station(),
-				 dtLayer.sector(),
-				 dtLayer.superlayer(), tTrig_TP)) 
-      tTrig_TP = parameters.getParameter<int>("defaultTtrig_TP");
-  }
-  else tTrig_TP = parameters.getParameter<int>("defaultTtrig_TP");
+  // To be un-commented once the pedestal DB will work
+//   if ( ! tTrigMap->slTtrig( dtLayer.wheel(),
+// 			    dtLayer.station(),
+// 			    dtLayer.sector(),
+// 			    dtLayer.superlayer(), tTrig)) 
+  tTrig_TP = parameters.getParameter<int>("defaultTtrig_TP");
   
-
-  // keep the Range around the tTrig in order to keep track of it in the histos
-  t0sPeakRange = make_pair( parameters.getUntrackedParameter<int>("t0sRangeLowerBound", -100) + tTrig_TP, 
-			    parameters.getUntrackedParameter<int>("t0sRangeUpperBound", 100) + tTrig_TP);
+  if (!parameters.getUntrackedParameter<bool>("t0sMeanFromDB",true))
+    t0sPeakRange = make_pair( parameters.getUntrackedParameter<int>("t0sRangeLowerBound", -100) + tTrig_TP, 
+			      parameters.getUntrackedParameter<int>("t0sRangeUpperBound", 100) + tTrig_TP);
   
-
-  cout<<"t0sRangeLowerBound "<<t0sPeakRange.first<<"; "
-      <<"t0sRangeUpperBound "<<t0sPeakRange.second<<endl;
   
   if ( folder == "TPOccupancies" ) {
 
@@ -128,23 +119,23 @@ void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, strin
 						 dtLayer.superlayer(),
 						 dtLayer.layer()))->specificTopology().channels();
     
+    
     testPulsesHistos[int(DTLayerId(dtLayer.wheel(),
 				   dtLayer.station(),
 				   dtLayer.sector(),
 				   dtLayer.superlayer(),
 				   dtLayer.layer()).rawId())] =
-      dbe->bookProfile(histoName,histoName,
-		       nWires, 0, nWires, // Xaxis: channels
-		       t0sPeakRange.first - t0sPeakRange.second, t0sPeakRange.first, t0sPeakRange.second); // Yaxis: times
+      dbe->book2D(histoName,histoName,
+		  nWires, 0, nWires, 
+		  t0sPeakRange.first - t0sPeakRange.second, t0sPeakRange.first, t0sPeakRange.second);
   }
   else if ( folder == "TPTimeBox" ) {
-    // Time Box per Chamber
     testPulsesTimeBoxes[int( DTLayerId(dtLayer.wheel(),
 				       dtLayer.station(),
 				       dtLayer.sector(),
 				       dtLayer.superlayer(),
 				       dtLayer.layer()).chamberId().rawId())] = 
-      dbe->book1D(histoName,histoName, 10000, 0, 10000); // Overview of the TP (and noise) times
+      dbe->book1D(histoName,histoName, 2*tTrig_TP, 0, 2*tTrig_TP);
   }
 }
 
@@ -163,14 +154,14 @@ void DTTestPulsesTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
       
       // for clearness..
-      int layerIndex = ((*dtLayerId_It).first).rawId();
+      int index = ((*dtLayerId_It).first).rawId();
       int chIndex = ((*dtLayerId_It).first).chamberId().rawId();
 
-      if (testPulsesHistos.find(layerIndex) != testPulsesHistos.end())
-	testPulsesHistos.find(layerIndex)->second->Fill((*digiIt).channel(),(*digiIt).countsTDC());
+      if (testPulsesTimeBoxes.find(index) != testPulsesTimeBoxes.end())
+	testPulsesHistos.find(index)->second->Fill(index,(*digiIt).countsTDC());
       else {
 	bookHistos( (*dtLayerId_It).first , string("TPOccupancies"), string("TestPulses2D") );
-	testPulsesHistos.find(layerIndex)->second->Fill((*digiIt).channel(),(*digiIt).countsTDC());
+	testPulsesHistos.find(index)->second->Fill(index,(*digiIt).countsTDC());
       }
 	
       if (testPulsesTimeBoxes.find(chIndex) != testPulsesTimeBoxes.end())

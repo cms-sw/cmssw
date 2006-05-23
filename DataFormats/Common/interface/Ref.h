@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.4 2006/03/28 13:52:21 chrjones Exp $
+$Id: Ref.h,v 1.3 2006/03/23 23:58:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -159,9 +159,7 @@ namespace edm {
     Ref(RefProd<C> const& refProd, size_type itemIndex) :
       ref_(refProd.id(), refProd.product().productPtr(), itemIndex, 0, refProd.product().productGetter()) {
         assert(ref_.item().index() == itemIndex);
-        if(0!=refProd.product().productPtr()) {
-          ref_.item().setPtr(getPtr_<C, T, F>(ref_.product(), ref_.item()));
-        }
+        ref_.item().setPtr(getPtr_<C, T, F>(ref_.product(), ref_.item()));
     }
 
     /// Destructor

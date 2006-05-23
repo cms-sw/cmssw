@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.2 2006/04/29 21:26:45 evansde Exp $
+// $Id: JobReport.h,v 1.1 2006/05/02 02:39:05 wmtan Exp $
 //
 
 #include <cstddef>
@@ -195,6 +195,20 @@ namespace edm {
       void outputFileClosed(Token fileToken);
 
       void reportSkippedEvent(edm::EventID const& id);
+
+
+      ///
+      /// Report an exception, providing details of the problem as
+      /// a short description (Eg "SEALError") and a long description 
+      /// (Eg "Seal crashed because...")
+      /// Also overload this method to accept an optional standard exit code
+      void  reportError(std::string const& shortDesc,
+			std::string const& longDesc);
+      
+      void reportError(std::string const& shortDesc,
+		       std::string const& longDesc,
+		       int const& exitCode);
+      
 
 
    protected:

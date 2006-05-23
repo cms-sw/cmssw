@@ -27,13 +27,16 @@ public:
 
 protected:
 
+  /// Query detector idet for compatible and add the output to result.
+  /*
   bool add( int idet, vector<DetWithState>& result,
-	    const TrajectoryStateOnSurface& tsos,
-	    const Propagator& prop,
+ 	    const FreeTrajectoryState& fts,
+ 	    const Propagator& prop, 
  	    const MeasurementEstimator& est) const;
+  */
 
 private:
-  vector<const GeomDet*> theDets;
+  vector<const GeomDet*>     theDets;
 
   void initialize();
 

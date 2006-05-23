@@ -29,8 +29,7 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
   int cont = 0;
   for (TrackCandidateCollection::const_iterator i=theTCCollection.begin(); i!=theTCCollection.end();i++)
     {
-
-
+      
       const TrackCandidate * theTC = &(*i);
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
       TrajectoryStateTransform transformer;
@@ -97,6 +96,15 @@ void TrackProducerAlgorithm::run(const TrackingGeometry * theG,
 	//extrapolate the innermost state to the point of closest approach to the beamline
 	tsos = tipe->extrapolate(*(innertsos.freeState()), 
 				 GlobalPoint(0,0,0) );//FIXME Correct?
+
+	//
+	// TB: if the tsos is not valid, stop
+	//
+
+	if (tsos.isValid() == false) {
+	  edm::LogInfo("TrackProducer") <<" Could not extrapolate a track to (0,0,0) - skipping it.\n";
+	  continue;
+	}
 
 
 	

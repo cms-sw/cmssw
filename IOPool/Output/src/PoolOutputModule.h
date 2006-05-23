@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.5 2006/04/06 23:43:56 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.6 2006/04/18 20:28:26 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -17,9 +17,10 @@
 #include <iosfwd>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
-#include "IOPool/Common/interface/PoolNames.h"
 #include "FWCore/Framework/interface/FileCatalog.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
+#include "IOPool/Common/interface/PoolNames.h"
 #include "PersistencySvc/Placement.h"
 
 namespace pool {
@@ -78,8 +79,7 @@ namespace edm {
     std::vector<std::string> branchNames_;
     std::string file_;
     std::string lfn_;
-    typedef std::size_t  Token;
-    Token reportToken_;
+    JobReport::Token reportToken_;
     unsigned long eventCount_;
     unsigned long fileSizeCheckEvent_;
     pool::Placement provenancePlacement_;

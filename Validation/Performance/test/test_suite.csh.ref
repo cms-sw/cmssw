@@ -1,0 +1,42 @@
+
+[oval run] =================================================
+[oval run] USER : yarba_j
+[oval run] HOST : cmswn065.fnal.gov
+[oval run] run tool: oval
+[oval run] final instruction: test_suite.csh
+[oval run] =================================================
+
+rm: No match.
+  *******************************************
+  *                                         *
+  *        W E L C O M E  to  R O O T       *
+  *                                         *
+  *   Version  5.10/00c     31 March 2006   *
+  *                                         *
+  *  You are welcome to visit our Web site  *
+  *          http://root.cern.ch            *
+  *                                         *
+  *******************************************
+
+Compiled on 31 March 2006 for linux with thread support.
+
+CINT/ROOT C/C++ Interpreter version 5.16.8, February 9, 2006
+Type ? for help. Commands must be C++ statements.
+Enclose multiple statements between { }.
+
+Processing timing.C...
+[OVAL] : OscarProducer - MEAN CPU = 74.9367 sec/evt
+[OVAL] : VertexGenerator - MEAN CPU = 0.00262931 sec/evt
+[OVAL] : SiPixelDigitizer - MEAN CPU = 0.10844 sec/evt
+[OVAL] : SiStripDigitizer - MEAN CPU = 0.953533 sec/evt
+[OVAL] : EcalDigiProducer - MEAN CPU = 1.68015 sec/evt
+[OVAL] : HcalDigiProducer - MEAN CPU = 0.130937 sec/evt
+[OVAL] : CSCDigiProducer - MEAN CPU = 0.000422421 sec/evt
+[OVAL] : DTDigitizer - MEAN CPU = 0.000164389 sec/evt
+Info in <TCanvas::Print>: ps file OscarProducer_minbias.ps has been created
+Info in <TCanvas::Print>: ps file Modules_minbias.ps has been created
+
+[oval run] ==========================================
+[oval run] result: OK
+[oval run] ==========================================
+

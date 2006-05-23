@@ -6,7 +6,7 @@
 BranchDescription: The full description of a product and how it came into
 existence.
 
-$Id: BranchDescription.h,v 1.5 2006/04/26 16:06:00 wmtan Exp $
+$Id: BranchDescription.h,v 1.7 2006/05/05 01:00:39 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -33,6 +33,7 @@ namespace edm {
 			       std::string const& name, 
 			       std::string const& fName, 
 			       std::string const& pin, 
+			       std::string const& alias, 
 			       boost::shared_ptr<EDProduct const> edp);
 
     ~BranchDescription() {}
@@ -50,6 +51,9 @@ namespace edm {
     // a user-supplied name to distinguish multiple products of the same type
     // that are produced by the same producer
     std::string productInstanceName_;
+
+    // The branch ROOT alias , which is settable by the user.
+    mutable std::string branchAlias_;
 
     // A pointer to a default constructed Wrapper<T>, where T is the
     // product type.  If T is a user-defined class, the Wrapper
@@ -79,6 +83,8 @@ namespace edm {
     std::string const& productType() const {return friendlyClassName_;}
     ParameterSetID const& psetID() const {return module.pid;}
     VersionNumber versionNumber() const {return module.versionNumber_;}
+
+    std::string branchAlias() const {return branchAlias_;}
   };
   
   inline

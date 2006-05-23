@@ -2,9 +2,11 @@
 #define _QCRITERION_H_
 
 #include <string>
+#include <vector>
+#include <set>
 #include <map>
 
-#include "DQMServices/Core/interface/DQMDefinitions.h"
+#include "DQMServices/QualityTests/interface/QualTestBase.h"
 
 class MonitorElement;
 

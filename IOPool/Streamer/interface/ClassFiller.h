@@ -9,6 +9,8 @@
 #include "TBuffer.h"
 
 #include <typeinfo>
+#include <string>
+#include <set>
 
 namespace edm
 {
@@ -27,9 +29,9 @@ namespace edm
     int old_;
   };
 
-  void loadExtraClasses(bool do_children=true);
+  void loadExtraClasses();
   TClass* getTClass(const std::type_info& ti);
-  void loadCap(const std::string& name,bool do_children=true);
+  void loadCap(const std::string& name);
   void doBuildRealData(const std::string& name);
 }
 

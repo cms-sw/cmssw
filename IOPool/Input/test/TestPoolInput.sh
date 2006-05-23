@@ -8,7 +8,7 @@ rm -f ${LOCAL_TMP_DIR}/PrePoolInputTest.cfg ${LOCAL_TMP_DIR}/PoolInputTest.cfg
 
 cat > ${LOCAL_TMP_DIR}/PrePoolInputTest.cfg << !
 # Configuration file for PrePoolInputTest 
-process TEST = {
+process TESTPROD = {
 	path p = {Thing, OtherThing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 1}
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
@@ -28,7 +28,7 @@ cp ${LOCAL_TMP_DIR}/PoolInputTest.root ${LOCAL_TMP_DIR}/PoolInputOther.root
 
 cat > ${LOCAL_TMP_DIR}/PoolInputTest.cfg << !
 # Configuration file for PoolInputTest
-process TEST = {
+process TESTRECO = {
 	path p = {Analysis}
 	module Analysis = OtherThingAnalyzer {untracked int32 debugLevel = 1}
 	source = PoolRASource {

@@ -73,15 +73,12 @@ private:
 
 private:
   //Keep parameters to instantiate Jet finder later 
-  int                       verbosJetf, verbosHit;
   SimG4HcalHitJetFinder *   jetf;
 
   //Keep reference to instantiate HcalNumberingFromDDD later
-  int                       verbosDDD;
   HcalNumberingFromDDD *    numberingFromDDD;
 
   //Keep parameters to instantiate HcalTestNumberingScheme later
-  int                       verbosNumber;
   HcalTestNumberingScheme * org;
 
   // Hit cache for cluster analysis
@@ -97,7 +94,7 @@ private:
   double                    coneSize, ehitThreshold, hhitThreshold;
   float                     timeLowlim, timeUplim, eta0, phi0, jetThreshold; 
   bool                      applySampling, hcalOnly;
-  int                       verbosity, infolevel;
+  int                       infolevel;
 
   // eta and phi size of windows around eta0, phi0
   std::vector<double>       dEta;

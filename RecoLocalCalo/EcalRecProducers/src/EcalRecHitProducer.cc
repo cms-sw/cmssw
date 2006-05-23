@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.4 2006/04/21 10:32:35 meridian Exp $
- *  $Date: 2006/04/21 10:32:35 $
- *  $Revision: 1.4 $
+ *  $Id: EcalRecHitProducer.cc,v 1.5 2006/04/21 10:45:54 meridian Exp $
+ *  $Date: 2006/04/21 10:45:54 $
+ *  $Revision: 1.5 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -28,6 +28,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 
@@ -99,10 +100,10 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
        edm::ESHandle<EcalADCToGeVConstant> pAgc;
        es.get<EcalADCToGeVConstantRcd>().get(pAgc);
        const EcalADCToGeVConstant* agc = pAgc.product();
-       LogDebug("EcalRecHitDebug") << "Global ADC->GeV scale: " << agc->getValue() << " GeV/ADC count" ;
+       LogDebug("EcalRecHitDebug") << "Global EB ADC->GeV scale: " << agc->getEBValue() << " GeV/ADC count" ;
        //
        // use this value in the algorithm
-       EBalgo_->setADCToGeVConstant(float(agc->getValue()));
+       EBalgo_->setADCToGeVConstant(float(agc->getEBValue()));
        
        // Intercalib constants
        edm::ESHandle<EcalIntercalibConstants> pIcal;
@@ -118,7 +119,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	 EcalIntercalibConstants::EcalIntercalibConstant icalconst;
 	 if( icalit!=ical->getMap().end() ){
 	   icalconst = icalit->second;
-	   LogDebug("EcalRecHitDebug") << "Found intercalib for xtal " << EBDetId(it->id()).ic() << " " << icalconst ;
+	   //	   LogDebug("EcalRecHitDebug") << "Found intercalib for xtal " << EBDetId(it->id()).ic() << " " << icalconst ;
 	 } else {
 	   edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EBDetId(it->id()) << "! something wrong with EcalIntercalibConstants in your DB? "
 	     ;
@@ -128,6 +129,53 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	 // must implement op= for EcalRecHit
 	 EcalRecHit aHit( EBalgo_->makeRecHit(*it, icalconst ) );
 	 EBrechits->push_back( aHit );
+	 
+	 
+	 if(it->amplitude()>0.) 
+	   {
+	     LogDebug("EcalRecHitDebug") << "processed UncalibRecHit with rawId: "
+					     << it->id().rawId() << "\n"
+					     << "uncalib rechit amplitude: " << it->amplitude()
+					     << " calib rechit energy: " << aHit.energy()
+	       ;
+	   }
+       }
+     }
+
+   if (EEuncalibRecHits)
+     {
+       edm::ESHandle<EcalADCToGeVConstant> pAgc;
+       es.get<EcalADCToGeVConstantRcd>().get(pAgc);
+       const EcalADCToGeVConstant* agc = pAgc.product();
+       LogDebug("EcalRecHitDebug") << "Global ADC->GeV scale: " << agc->getEEValue() << " GeV/ADC count" ;
+       //
+       // use this value in the algorithm
+       EEalgo_->setADCToGeVConstant(float(agc->getEEValue()));
+       
+       // Intercalib constants
+       edm::ESHandle<EcalIntercalibConstants> pIcal;
+       es.get<EcalIntercalibConstantsRcd>().get(pIcal);
+       const EcalIntercalibConstants* ical = pIcal.product();
+       
+       // loop over uncalibrated rechits to make calibrated ones
+       for(EEUncalibratedRecHitCollection::const_iterator it  = EEuncalibRecHits->begin();
+	   it != EEuncalibRecHits->end(); ++it) {
+	 
+	 // find intercalib constant for this xtal
+	 EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(it->id().rawId());
+	 EcalIntercalibConstants::EcalIntercalibConstant icalconst;
+	 if( icalit!=ical->getMap().end() ){
+	   icalconst = icalit->second;
+	   // LogDebug("EcalRecHitDebug") << "Found intercalib for xtal " << EEDetId(it->id()).ic() << " " << icalconst ;
+	 } else {
+	   edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EEDetId(it->id()) << "! something wrong with EcalIntercalibConstants in your DB? "
+	     ;
+	 }
+	 
+	 // make the rechit and put in the output collection
+	 // must implement op= for EcalRecHit
+	 EcalRecHit aHit( EEalgo_->makeRecHit(*it, icalconst ) );
+	 EErechits->push_back( aHit );
 	 
 	 
 	 if(it->amplitude()>0.) 

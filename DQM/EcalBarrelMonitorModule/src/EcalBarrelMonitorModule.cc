@@ -1,10 +1,9 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/04/30 17:43:00 $
- * $Revision: 1.88 $
+ * $Date: 2006/03/13 09:54:45 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
- * \author G. Franzoni
  *
 */
 
@@ -17,17 +16,17 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   // this should come from the EcalBarrel run header
   string s = ps.getUntrackedParameter<string>("runType", "unknown");
 
-  if ( s == "COSMIC" ) {
+  if ( s == "cosmic" ) {
     runType_ = COSMIC;
-  } else if ( s == "LASER" ) {
+  } else if ( s == "laser" ) {
     runType_ = LASER_STD;
-  } else if ( s == "PEDESTAL" ) {
+  } else if ( s == "pedestal" ) {
     runType_ = PEDESTAL_STD;
-  } else if ( s == "TEST_PULSE" ) {
+  } else if ( s == "testpulse" ) {
     runType_ = TESTPULSE_MGPA;
-  } else if ( s == "ELECTRON" ) {
+  } else if ( s == "electron" ) {
     runType_ = BEAMH4;
-  } else if ( s == "ELECTRON2" ) {
+  } else if ( s == "electron2" ) {
     runType_ = BEAMH2;
   }
 
@@ -118,6 +117,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   for (int i = 0; i < 36; i++) {
     meEvent_[i] = 0;
+    meOccupancy_[i] = 0;
   }
 
   Char_t histo[20];
@@ -139,6 +139,11 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
       }
     }
 
+    dbe_->setCurrentFolder("EcalBarrel/EcalOccupancy");
+    for (int i = 0; i < 36; i++) {
+      sprintf(histo, "EBMM occupancy SM%02d", i+1);
+      meOccupancy_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    }
   }
 
   if ( dbe_ ) {
@@ -217,7 +222,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( dccMap[dcch.id()].getRunType() != -1 ) evtType_ = dccMap[dcch.id()].getRunType();
 
     // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
-    //    if ( ievt_ % 10 == 0 && ( runType_ == COSMIC || runType_ == BEAMH4 ) ) evtType_ = LASER_STD;
+//    if ( ievt_ % 10 == 0 && ( runType_ == COSMIC || runType_ == BEAMH4 ) ) evtType_ = LASER_STD;
 
     if ( evtType_ < 0 || evtType_ > 9 ) {
       LogWarning("EcalBarrelMonitor") << "Unknown event type = " << evtType_;
@@ -262,10 +267,10 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     int ie = (ic-1)/20 + 1;
     int ip = (ic-1)%20 + 1;
 
-    int ism = id.ism();
-
     float xie = ie - 0.5;
     float xip = ip - 0.5;
+
+    int ism = id.ism();
 
     LogDebug("EcalBarrelMonitor") << " det id = " << id;
     LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -276,6 +281,8 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       LogWarning("EcalBarrelMonitor") << " xie, xip " << xie << " " << xip;
       return;
     }
+
+    if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill(xie, xip);
 
   }
 
@@ -304,10 +311,10 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
-
       float xie = ie - 0.5;
       float xip = ip - 0.5;
+
+      int ism = id.ism();
 
       LogDebug("EcalBarrelMonitor") << " det id = " << id;
       LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -316,6 +323,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
         LogWarning("EcalBarrelMonitor") << " det id = " << id;
         LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
         LogWarning("EcalBarrelMonitor") << " xie, xip " << xie << " " << xip;
+        return;
       }
 
       float xval = hit.amplitude();

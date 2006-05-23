@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.9 2006/04/19 19:48:48 chrjones Exp $
+$Id: Worker.cc,v 1.10 2006/04/27 02:24:46 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -159,7 +159,7 @@ namespace edm
 
 	      ++timesExcept_;
 	      state_ = Exception;
-	      e << "cms::Exception going through module";
+	      e << "cms::Exception going through module ";
               exceptionContext(md_,ep,e);
 	      cached_exception_.reset(new cms::Exception(e));
 	      throw;

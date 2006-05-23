@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/04/29 12:15:23 $
- * $Revision: 1.110 $
+ * $Date: 2006/03/25 08:39:01 $
+ * $Revision: 1.101 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -51,8 +51,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   forced_begin_run_ = false;
   forced_end_run_   = false;
 
-  forced_update_    = false;
-
   h_ = 0;
 
   status_  = "unknown";
@@ -64,6 +62,22 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   last_update_ = 0;
 
   unknowns_ = 0;
+
+  // DQM default client name
+
+  clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
+
+  // DQM default collector host name
+
+  hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
+
+  // DQM default host port
+
+  hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);;
+
+  cout << " Client '" << clientName_ << "' " << endl
+       << " Collector on host '" << hostName_ << "'"
+       << " on port '" << hostPort_ << "'" << endl;
 
   // DQM ROOT output
 
@@ -140,44 +154,9 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " verbose switch is OFF" << endl;
   }
 
-  // MonitorDaemon switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
-
-  if ( enableMonitorDaemon_ ) {
-    cout << " enableMonitorDaemon switch is ON";
-  } else {
-    cout << " enableMonitorDaemon switch is OFF";
-  }
-
-  if ( enableMonitorDaemon_ ) {
-
-    // DQM default client name
-
-    clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
-
-    // DQM default collector host name
-
-    hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
-
-    // DQM default host port
-
-    hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);;
-
-    cout << " Client '" << clientName_ << "' " << endl
-         << " Collector on host '" << hostName_ << "'"
-         << " on port '" << hostPort_ << "'" << endl;
-
-  }
-
   // start DQM user interface instance
 
-  if ( ! mui_ ) {
-    if ( enableMonitorDaemon_ ) {
-      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_);
-    } else {
-      mui_ = new MonitorUIRoot();
-    }
-  }
+  if ( ! mui_ ) mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_);
 
   if ( verbose_ ) {
     mui_->setVerbose(1);
@@ -268,7 +247,7 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   this->cleanup();
 
-  if ( enableMonitorDaemon_ ) sleep(10);
+  sleep(10);
 
   mui_->disconnect();
 
@@ -307,10 +286,6 @@ void EcalBarrelMonitorClient::beginJob(void){
   if ( beam_client_ ) {
     beam_client_->beginJob();
   }
-
-  // check first event
-
-  if ( ! begin_run_done_ ) this->analyze();
 
 }
 
@@ -368,25 +343,6 @@ void EcalBarrelMonitorClient::beginRun(void){
 
 void EcalBarrelMonitorClient::endJob(void) {
 
-  // check last event
-
-  if ( ! end_run_done_ ) {
-
-    forced_update_ = true;
-    this->analyze();
-
-  }
-
-  if ( ! end_run_done_ ) {
-
-    cout << "Forcing endRun() before endJob() ... " << endl;
-
-    status_ = "end-of-run";
-    this->endRun();
-    end_run_done_ = true;
-
-  }
-
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: endJob, ievt = " << ievt_ << endl;
 
   this->unsubscribe();
@@ -421,9 +377,9 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( outputFile_.size() != 0 ) mui_->save(outputFile_);
 
-  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
-
   this->writeDb();
+
+  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
   if ( integrity_client_ ) {
     integrity_client_->endRun();
@@ -470,19 +426,15 @@ void EcalBarrelMonitorClient::endRun(void) {
   last_jevt_ = -1;
   last_update_ = 0;
 
-  if ( enableMonitorDaemon_ ) {
+  // this is an effective way to avoid ROOT memory leaks ...
 
-    // this is an effective way to avoid ROOT memory leaks ...
+  if ( enableExit_ ) {
 
-    if ( enableExit_ ) {
-
-      cout << endl;
-      cout << ">>> endJob after endRun <<<" << endl;
-      cout << endl;
-      this->endJob();
-      throw exception();
-
-    }
+    cout << endl;
+    cout << ">>> exit after End-Of-Run <<<" << endl;
+    cout << endl;
+    this->endJob();
+    throw exception();
 
   }
 
@@ -914,7 +866,13 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( verbose_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  mui_->doMonitoring();
+  bool stay_in_loop;
+
+  if ( enableStateMachine_ ) {
+    stay_in_loop = true;
+  } else {
+    stay_in_loop = mui_->update();
+  }
 
   this->subscribeNew();
 
@@ -961,13 +919,9 @@ void EcalBarrelMonitorClient::analyze(void){
 
   bool update = false;
 
-  if ( updates != last_update_ || updates == -1 ) {
+  if ( stay_in_loop && updates != last_update_ ) {
 
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "Collector/FU0/EcalBarrel/STATUS");
-    } else {
-      sprintf(histo, "EcalBarrel/STATUS");
-    }
+    sprintf(histo, "Collector/FU0/EcalBarrel/STATUS");
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -978,11 +932,7 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "Collector/FU0/EcalBarrel/RUN");
-    } else {
-      sprintf(histo, "EcalBarrel/RUN");
-    }
+    sprintf(histo, "Collector/FU0/EcalBarrel/RUN");
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -991,11 +941,7 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EVT");
-    } else {
-      sprintf(histo, "EcalBarrel/EVT");
-    }
+    sprintf(histo, "Collector/FU0/EcalBarrel/EVT");
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -1007,11 +953,7 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EVTTYPE");
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EVTTYPE");
-      } else {
-        sprintf(histo, "EcalBarrel/EVTTYPE");
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EVTTYPE");
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -1028,11 +970,7 @@ void EcalBarrelMonitorClient::analyze(void){
       }
     }
 
-    if ( enableMonitorDaemon_ ) {
-      sprintf(histo, "Collector/FU0/EcalBarrel/RUNTYPE");
-    } else {
-      sprintf(histo, "EcalBarrel/RUNTYPE");
-    }
+    sprintf(histo, "Collector/FU0/EcalBarrel/RUNTYPE");
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
@@ -1093,6 +1031,7 @@ void EcalBarrelMonitorClient::analyze(void){
       cout << endl;
       cout << "Too many 'unknown' states ..." << endl;
       cout << endl;
+      this->endJob();
       throw exception();
 
     }
@@ -1119,7 +1058,9 @@ void EcalBarrelMonitorClient::analyze(void){
 
       if ( run_ > 0 && evt_ > 0 && runtype_ != "UNKNOWN" ) {
 
-        cout << "Forcing beginRun() ... NOW !" << endl;
+        cout << "Running with no begin_run ..." << endl;
+
+        cout << "Forcing begin-of-run ... NOW !" << endl;
 
         status_ = "begin-of-run";
         this->beginRun();
@@ -1134,7 +1075,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
     if ( begin_run_done_ && ! end_run_done_ ) {
 
-      if ( ( update && updates % 5 == 0 ) || forced_update_ ) {
+      if ( update && updates % 5 == 0 ) {
 
         if ( integrity_client_ ) {
           integrity_client_->analyze();
@@ -1218,7 +1159,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
           }
 
-          cout << "Forcing endRun() ... NOW !" << endl;
+          cout << "Forcing end-of-run ... NOW !" << endl;
 
           begin_run_done_ = false;
 
@@ -1297,13 +1238,10 @@ void EcalBarrelMonitorClient::analyze(void){
 
   }
 
-  if ( forced_update_ ) forced_update_ = false;
-
 }
 
 void EcalBarrelMonitorClient::htmlOutput(void){
 
-  cout << endl;
   cout << "Preparing EcalBarrelMonitorClient html output ..." << endl;
 
   char tmp[10];
@@ -1434,6 +1372,8 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   htmlFile << "</html> " << endl;
 
   htmlFile.close();
+
+  cout << endl;
 
 }
 

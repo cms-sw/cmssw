@@ -73,6 +73,8 @@ private:
   double                   dohmAuxL;           //DOHM AUXiliary Length
   double                   dohmAuxT;           //DOHM AUXiliary Thickness
   std::string              dohmAuxMaterial;    //DOHM AUXiliary Material
+  std::string              dohmRotPlus;        //DOHM Rotation matrix for TIB+
+  std::string              dohmRotMinus;       //DOHM Rotation matrix for TIB-
 
 };
 

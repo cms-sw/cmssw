@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -41,8 +42,8 @@ void OptoScanTask::book() {
     for ( uint16_t ilevel = 0; ilevel < 2; ilevel++ ) { 
 
       stringstream ss; 
-      ss << sistrip::gain_ << igain 
-	 << sistrip::digital_ << ilevel;
+      ss << SiStripHistoNamingScheme::gain() << igain 
+	 << SiStripHistoNamingScheme::digital() << ilevel;
       
       title = SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::OPTO_SCAN, 
 						    SiStripHistoNamingScheme::SUM2, 

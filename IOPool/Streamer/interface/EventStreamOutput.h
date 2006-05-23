@@ -43,6 +43,7 @@ namespace edm
     typedef OutputModule::Selections Selections;
 
     EventStreamerImpl(ParameterSet const& ps,
+		      Selections const* selections,
 		      EventBuffer* bufs);
     ~EventStreamerImpl();
 
@@ -54,6 +55,7 @@ namespace edm
 
   private:
 
+    Selections const* selections_;
     EventBuffer* bufs_;
     TClass* tc_; // for SendEvent
     ProdRegBuf prod_reg_buf_;
@@ -93,7 +95,7 @@ namespace edm
     OutputModule(ps),
     bufs_(getEventBuffer(ps.template getParameter<int>("max_event_size"),
 			 ps.template getParameter<int>("max_queue_depth"))),
-    es_(ps,bufs_),
+    es_(ps,&descVec_,bufs_),
     c_(ps.template getParameter<ParameterSet>("consumer_config"),bufs_)
   {
     // temporary hack

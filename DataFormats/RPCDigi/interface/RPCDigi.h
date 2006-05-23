@@ -3,76 +3,40 @@
 
 /** \class RPCDigi
  *
- * Digi for Resistive Plate Chambers.
+ * Digi for Rsisitive Plate Chamber
  *  
- *  $Date: 2006/04/15 09:23:35 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/04/05 15:03:07 $
+ *  $Revision: 1.7 $
  *
- * \author Ilaria Segoni (CERN)
+ * \author I. Segoni -- CERN & M. Maggi -- INFN Bari
  *
  */
-
 
 #include <boost/cstdint.hpp>
 
 class RPCDigi{
 
 public:
- 
-  ///Default constructor
-  RPCDigi(){}
- 
-  ///Constructor from Strip and BX
-  explicit RPCDigi(int strip,int bx);
-  
-  /// Copy constructor
-  RPCDigi (const RPCDigi& digi);
+  explicit RPCDigi (int strip, int bx);
+  RPCDigi ();
 
-  ///Destructor
-  ~RPCDigi(){}
-  
-
-  /// Assignment operator
-  RPCDigi& operator=(const RPCDigi& digi);
-
-  /// Precedence operator
-   bool operator<(const  RPCDigi& d)const;
-   
-  ///Comparison operator
   bool operator==(const RPCDigi& digi) const;
+  bool operator<(const RPCDigi& digi) const;
 
-  ///Print content of Digi
+  int strip() const ;
+  int bx() const;
   void print() const;
 
-  /// Get Strip
-  int strip() const;
-  
-  /// Get BX
-  int bx() const;
-
-  /// Set strip and bx
-  void setStripBx(int strip, int bx);  
-
-  ///Set strip
-  void setStrip(int strip);  
-
-  ///Set bx
-  void setBx(int bx);
-
-
 private:
-  
   uint16_t strip_;
-  int16_t bx_;
-   
-
+  int32_t  bx_; 
 };
+
 
 #include<iostream>
 inline std::ostream & operator<<(std::ostream & o, const RPCDigi& digi) {
-  return o << digi.strip()
-         << " " << digi.bx();
+  return o << " " << digi.strip()
+	   << " " << digi.bx();
 }
-
 #endif
 

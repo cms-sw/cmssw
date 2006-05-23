@@ -2,8 +2,8 @@
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/SiStripConnectivity>
-<use name=DataFormats/SiStripDetId>
 <use name=OnlineDB/SiStripConfigDb>
+<use name=DQM/SiStripCommon>
 <use name=boost>
 <flags SEAL_PLUGIN_NAME="OnlineDBSiStripESSources">
 
@@ -13,8 +13,8 @@
    <use name=CondFormats/SiStripObjects>
    <use name=CalibFormats/SiStripObjects>
    <use name=CalibTracker/SiStripConnectivity>
-   <use name=DataFormats/SiStripDetId>
    <use name=OnlineDB/SiStripConfigDb>
+   <use name=DQM/SiStripCommon>
    <use name=boost>
 </export>
 

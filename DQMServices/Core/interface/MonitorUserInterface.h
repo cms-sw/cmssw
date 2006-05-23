@@ -14,24 +14,12 @@ class CollateMonitorElement;
 class MonitorUserInterface : public StringUtil
 {
 
- protected:
-  /* Connect with monitoring server (DQM Collector) at <hostname> and <port_no>
-     using <client_name>; if hostname ="", no connection will be attempted
-     MonitorUserInterface(const std::string hostname, int port_no, 
-                          const std::string client_name,
-		        // use delay < 0 for no reconnection attempts
-		        int reconnect_delay_secs = 5); */
-
-  // Use the default constructor for running in standalone mode (ie. no collector)
-  MonitorUserInterface(void);
-  // when in standalone mode, there is no client
-  virtual bool standaloneMode(void) const = 0;
-
  public:
-
+  
+  MonitorUserInterface(const std::string & hostname, int port_no, 
+		       const std::string & client_name);
   virtual ~MonitorUserInterface();
   
-
   // ---------------- Getters -----------------------------
   // get ME from full pathname (e.g. "my/long/dir/my_histo")
   virtual MonitorElement * get(const std::string & fullpath) const = 0;
@@ -47,7 +35,7 @@ class MonitorUserInterface : public StringUtil
   virtual bool doMonitoring(void) = 0;
   // 2. run quality tests on all MonitorElements that have been updated (or added)
   // since last monitoring cycle
-  virtual void runQTests(void)
+  void runQTests(void)
   {bei->runQTests();}
   // *****************  NOTE ******************************************
 

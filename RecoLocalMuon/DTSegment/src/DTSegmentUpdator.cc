@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/27 10:51:49 $
- * $Revision: 1.12 $
+ * $Date: 2006/04/28 15:21:52 $
+ * $Revision: 1.13 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -52,8 +52,6 @@ DTSegmentUpdator::~DTSegmentUpdator() {
 }
 
 /* Operations */ 
-// bool DTSegmentUpdator::update(DTRecSegment* seg) {
-// }
 
 void DTSegmentUpdator::setES(const edm::EventSetup& setup){
   setup.get<MuonGeometryRecord>().get(theGeom);
@@ -69,7 +67,6 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg)  {
   if (hasPhi && hasZed) step=3;
   else step=2;
 
-  // TODO reorganize the following lines with the updateHits(DTRecSegment2D* seg) method
   GlobalPoint pos =  (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localPosition());
   GlobalVector dir = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localDirection());
   
@@ -224,17 +221,13 @@ void DTSegmentUpdator::fit(DTRecSegment2D* seg) {
     y.push_back(pos.x());
 
     // Get local error in SL frame
-    //RB,FIXME: is it right in this way? 
+    //RB: is it right in this way? 
     ErrorFrameTransformer tran;
     GlobalError glbErr =
       tran.transform( hit->localPositionError(),(theGeom->layer( hit->wireId().layerId() ))->surface());
-    // RB, I prefer:
-    //  tran.transform( hit->localPositionError(),(theGeom->layer(hit->geographicalId()))->surface());
     LocalError slErr =
       tran.transform( glbErr, (theGeom->idToDet(seg->geographicalId()))->surface());
-    // RB, I prefer:
-    // tran.transform( glbErr, (theGeom->idToDet(seg->geographicalId()))->surface());
-    
+
     sigy.push_back(sqrt(slErr.xx()));
   }
   

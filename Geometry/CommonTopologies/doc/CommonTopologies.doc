@@ -4,7 +4,7 @@
 \page Geometry_CommonTopologies Package Geometry/CommonTopologies
 <center>
 <small>
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Geometry/CommonTopologies/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Geometry/CommonTopologies/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
 <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Geometry/CommonTopologies/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
@@ -17,6 +17,8 @@ Base classes for channel topologies used in tracking detectors.
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 - Topology
+- PixelTopology
+- StripTopology
 - RectangularPixelTopology
 - RectangularStripTopology
 - TrapezoidalStripTopology
@@ -31,9 +33,9 @@ None.
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-Completed; concrete topologies should be moved to more specific places.
+Stable.
 
 <hr>
 Last updated:
-07-FEB-2006 N. Amapane
+@DATE@ Author: N. Amapane
 */

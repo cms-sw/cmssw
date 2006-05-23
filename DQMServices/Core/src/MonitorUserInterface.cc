@@ -8,17 +8,10 @@ using namespace std;
 using namespace dqm::me_util;
 using namespace dqm::qtests;
 
-// Connect with monitoring server (DQM Collector) at <hostname> and <port_no>
-// using <client_name>; if hostname ="", no connection will be attempted
-//MonitorUserInterface::MonitorUserInterface(const string hostname, int port_no, 
-//					   const string client_name) 
-//{
-//}
-
-// Use the default constructor for running in standalone mode (ie. no collector)
-MonitorUserInterface::MonitorUserInterface(void)
+MonitorUserInterface::MonitorUserInterface(const string & hostname, int port_no, 
+					   const string & client_name)
 {
-  collate_mes.clear(); numUpdates_ = 0; bei = 0;
+  collate_mes.clear(); numUpdates_ = 0;
 }
 
 MonitorUserInterface::~MonitorUserInterface(void)
@@ -80,7 +73,6 @@ void MonitorUserInterface::subscribe_base(const string & subsc_request, bool add
 // (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
 void MonitorUserInterface::subscribe(const string & subsc_request)
 {
-  if(standaloneMode()) return;
   subscribe_base(subsc_request, true);
 }
 
@@ -88,15 +80,12 @@ void MonitorUserInterface::subscribe(const string & subsc_request)
 // (b) or with wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
 void MonitorUserInterface::unsubscribe(const string & subsc_request)
 {
-  if(standaloneMode()) return;
   subscribe_base(subsc_request, false);
 }
 
 // similar to method subscribe; use only additions to monitorable in last cycle
 void MonitorUserInterface::subscribeNew(const string & subsc_request)
 {
-  if(standaloneMode()) return;
-
   vector<string> put_here; put_here.clear();
   bei->getAddedMonitorable(put_here);
   
@@ -143,15 +132,13 @@ void MonitorUserInterface::subscribeNew(const string & subsc_request)
 void MonitorUserInterface::finishSubscription(const vector<string> & monit, 
 					      bool add)
 {
-  LockMutex a(bei->requests.mutex);
-
   for(cvIt it = monit.begin(); it != monit.end(); ++it){
 
     // (un)subscribe to monitorable
     if(add)
-      bei->requests.toAdd.push_back(*it);
+      bei->request2add.push_back(*it);
     else
-      bei->requests.toRemove.push_back(*it);
+      bei->request2remove.push_back(*it);
   }
 }
 

@@ -1,11 +1,11 @@
-#ifndef EBBeamTask_H
-#define EBBeamTask_H
+#ifndef EBBEAMTask_H
+#define EBBEAMTask_H
 
 /*
  * \file EBBeamTask.h
  *
- * $Date: 2006/02/21 20:32:47 $
- * $Revision: 1.2 $
+ * $Date: 2006/02/08 21:10:27 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */

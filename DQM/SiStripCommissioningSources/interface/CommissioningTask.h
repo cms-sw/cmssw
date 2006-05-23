@@ -6,7 +6,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "DataFormats/SiStripDetId/interface/SiStripReadoutKey.h"
+#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 #include "boost/cstdint.hpp"
 #include <string>
 #include <iomanip>
@@ -27,10 +27,10 @@ class CommissioningTask {
     MonitorElement* meSumOfSquares_;
     MonitorElement* meSumOfContents_;
     MonitorElement* meNumOfEntries_;
-    vector<int32_t> vSumOfSquares_;
-    vector<int32_t> vSumOfSquaresOverflow_;
-    vector<int32_t> vSumOfContents_;
-    vector<int32_t> vNumOfEntries_;
+    vector<uint32_t> vSumOfSquares_;
+    vector<uint32_t> vSumOfSquaresOverflow_;
+    vector<uint32_t> vSumOfContents_;
+    vector<uint32_t> vNumOfEntries_;
   };
   
   CommissioningTask( DaqMonitorBEInterface*, 
@@ -55,14 +55,12 @@ class CommissioningTask {
   
  protected: // ----- protected methods -----
   
-  /** Updates the vectors of HistoSet. */
+  /** Updates vectors of HistoSet. */
   void updateHistoSet( HistoSet&, const uint32_t& bin, const uint32_t& value );
-  /** Updates the MonitorElements of HistoSet. */
+  /** Updates histograms (ME's) of HistoSet. */
   void updateHistoSet( HistoSet& );
-
   /** Returns const pointer to DQM back-end interface object. */
   inline DaqMonitorBEInterface* const dqm() const;
-
   /** */
   inline const FedChannelConnection& connection() const;
   
@@ -72,9 +70,9 @@ class CommissioningTask {
   inline const uint32_t& fedKey() const;
 
   /** Returns FED id. */
-  inline const uint16_t& fedId() const;
+  inline const uint32_t& fedId() const;
   /** Returns FED channel. */
-  inline const uint16_t& fedCh() const;
+  inline const uint32_t& fedCh() const;
   
  private: // ----- private methods -----
   
@@ -94,8 +92,7 @@ class CommissioningTask {
   uint32_t fedKey_;
   uint32_t fecKey_;
   bool booked_;
-  uint16_t fedId_;
-  uint16_t fedCh_;
+  pair<uint32_t,uint32_t> fedChannel_;
   string myName_;
   
 };
@@ -107,12 +104,10 @@ const FedChannelConnection& CommissioningTask::connection() const { return conne
 
 const uint32_t& CommissioningTask::fecKey() const { return fecKey_; }
 const uint32_t& CommissioningTask::fedKey() const { return fedKey_; }
-void CommissioningTask::fedChannel( const uint32_t& fed_key ) { 
-  SiStripReadoutKey::ReadoutPath path = SiStripReadoutKey::path( fed_key ); 
-  fedId_ = path.fedId_; fedCh_ = path.fedCh_;
-}
-const uint16_t& CommissioningTask::fedId() const { return fedId_; }
-const uint16_t& CommissioningTask::fedCh() const { return fedCh_; }
+
+void CommissioningTask::fedChannel( const uint32_t& fed_key ) { fedChannel_ = SiStripGenerateKey::fedChannel( fed_key ); }
+const uint32_t& CommissioningTask::fedId() const { return fedChannel_.first; }
+const uint32_t& CommissioningTask::fedCh() const { return fedChannel_.second; }
 
 #endif // DQM_SiStripCommissioningSources_CommissioningTask_H
 

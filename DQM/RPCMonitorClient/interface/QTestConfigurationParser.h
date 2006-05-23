@@ -6,8 +6,8 @@
  *  Parses the xml file with the configuration of quality tests
  *  and the map between quality tests and MonitorElement
  * 
- *  $Date: 2006/04/05 15:43:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/05 08:03:13 $
+ *  $Revision: 1.3 $
  *  \author Ilaria Segoni
   */
 
@@ -26,8 +26,6 @@
 #include<vector>
 #include<map>
 
-class QTestParameterNames;
-
 
 using namespace xercesc;
 
@@ -37,7 +35,7 @@ class QTestConfigurationParser{
 	 ///Creator
 	 QTestConfigurationParser();
 	 ///Destructor
-	 ~QTestConfigurationParser();
+	 ~QTestConfigurationParser(){}
 	 ///Methor that parses the xml file configFile, returns false if no errors are encountered
 	 bool parseQTestsConfiguration(std::string configFile);
 	 /// Returns the Quality Tests list with their parameters obtained from the xml file
@@ -51,17 +49,12 @@ class QTestConfigurationParser{
 	 bool monitorElementTestsMap(DOMDocument* doc);
 	 std::map<std::string, std::string> getParams(DOMElement* qtestElement, std::string test);
 	 int instances(){return s_numberOfInstances;}
-	 bool checkParameters(std::string testTypeString);
-	 
 	 static int s_numberOfInstances;
 	 std::map<std::string, unsigned int>   paramsMap;
-	 std::vector<std::string>   paramNames;
 	 
 	 
 	 std::map<std::string, std::map<std::string, std::string> > testsRequested;	 
 	 std::map<std::string, std::vector<std::string> >   mapMonitorElementTests;
-	 
-	 QTestParameterNames * qtestParamNames;
 
 
 };

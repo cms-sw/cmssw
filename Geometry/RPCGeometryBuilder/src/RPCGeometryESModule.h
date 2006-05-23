@@ -1,5 +1,5 @@
-#ifndef RPCSimAlgo_RPCGeometryESModule_h
-#define RPCSimAlgo_RPCGeometryESModule_h
+#ifndef RPCGeometry_RPCGeometryESModule_h
+#define RPCGeometry_RPCGeometryESModule_h
 
 /** \class RPCGeometryESModule
  * 

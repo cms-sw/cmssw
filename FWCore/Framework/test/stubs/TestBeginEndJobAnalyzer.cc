@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 13:54:17 EDT 2005
-// $Id: TestBeginEndJobAnalyzer.cc,v 1.1 2005/09/02 19:26:08 chrjones Exp $
+// $Id: TestBeginEndJobAnalyzer.cc,v 1.2 2005/09/07 19:54:36 wmtan Exp $
 //
 //
 
@@ -59,6 +59,7 @@ TestBeginEndJobAnalyzer::~TestBeginEndJobAnalyzer()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+   destructorCalled = true;
 
 }
 
@@ -71,6 +72,9 @@ TestBeginEndJobAnalyzer::beginJobCalled = false;
 
 bool
 TestBeginEndJobAnalyzer::endJobCalled = false;
+
+bool
+TestBeginEndJobAnalyzer::destructorCalled = false;
 
 // ------------ method called to produce the data  ------------
 void 

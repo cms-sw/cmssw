@@ -54,8 +54,7 @@
 
 #define TDC_CHANNEL_MASK 0xF80000
 #define TDC_CHANNEL_SHIFT 19
-#define TDC_TIME_MASK 0x7FFFC // First two bits are excluded
-#define TDC_TIME_SHIFT 2
+#define TDC_TIME_MASK 0x7FFFF
 
 #define TDC_ERROR_MASK 0x7FFF
 
@@ -76,8 +75,8 @@ using namespace std;
 /** \class DTROSWordType
  *  Enumeration of DT Read Out Sector (ROS) word types.
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSWordType {
@@ -143,11 +142,9 @@ public:
     if ( ((word_ & WORDCONTROLMASK) >> WORDCONTROLSHIFT) == tdcTrailerControlWord ) 
       wordType = TDCTrailer;
 
-    // TDC/SC Data
-    if ( ((word_ & WORDCONTROLMASK) >> WORDCONTROLSHIFT) == tdcDataControlWord ) {
-      if ( ((word_ & WORDTYPEMASK) >> WORDTYPESHIFT) == scTypeWord ) wordType = SCData;
-      else wordType = TDCMeasurement;
-    }
+    // TDC Measurement
+    if ( ((word_ & WORDCONTROLMASK) >> WORDCONTROLSHIFT) == tdcDataControlWord ) 
+      wordType = TDCMeasurement;
 
     // Errors
     if ( ((word_ & WORDCONTROLMASK) >> WORDCONTROLSHIFT) == errorControlWord ) {
@@ -161,6 +158,10 @@ public:
       if ( ((word_ & WORDTYPEMASK) >> WORDTYPESHIFT) < scTypeWord ) wordType = TDCDebug;
     }
 
+    /// FIXME >>>>
+    // No Implementation so far for Trigger data!!!! (ambiguos..)
+    // No Implementation for Debugging data too
+    /// >>>>>>>>>>
 
     return wordType;
   }
@@ -192,8 +193,8 @@ private:
  *  DT ROS Header interpreter. 
  *  It interprets the TTC Event counter (24 bits).
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSHeaderWord {
@@ -240,8 +241,8 @@ private:
  *  - BCO: Bunch Counter FIFO occupancy (2 bits)
  *  - Event Word count (16 bits)
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSTrailerWord {
@@ -297,8 +298,8 @@ private:
  *  DT ROS Error interpreter. 
  *  It interprets the Error type and the ROB_ID (2 bits) 
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSErrorWord {
@@ -343,8 +344,8 @@ private:
  *  It interprets the Debug type (3 bits) and the debug message 
  *  (in the first 15 bits) 
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSDebugWord {
@@ -387,8 +388,8 @@ private:
  *  It interprets the ROB_ID (5 bits), the Event ID (12 bits) 
  *  and the Bunch ID (12 bits).
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROBHeaderWord {
@@ -436,8 +437,8 @@ private:
  *  It interprets the ROB_ID (5 bits), the Event ID (12 bits) 
  *  and the Word ID (12 bits).
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROBTrailerWord {
@@ -485,8 +486,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the Event ID (12 bits) and the Bunch ID (12 bits).
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCHeaderWord {
@@ -541,8 +542,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the Event ID (12 bits) and the Word ID (12 bits).
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCTrailerWord {
@@ -596,8 +597,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the TDC channel (5 bits), and the TDC time (19 bits)
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCMeasurementWord {
@@ -620,7 +621,7 @@ public:
   int HU() const { return (word_ & PAF_MASK) >> PAF_SHIFT;} /// <== OBSOLETE!!
   int tdcID() const { return (word_ & TDC_ID_MASK) >> TDC_ID_SHIFT;} 
   int tdcChannel() const { return (word_ & TDC_CHANNEL_MASK) >> TDC_CHANNEL_SHIFT;} 
-  int tdcTime() const { return (word_ & TDC_TIME_MASK) >> TDC_TIME_SHIFT;} 
+  int tdcTime() const { return (word_ & TDC_TIME_MASK);} 
 
 
   static void set(uint32_t &word,
@@ -654,8 +655,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits) and the TDC error flag (15 bits)
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCErrorWord {
@@ -706,8 +707,8 @@ private:
  *  DT Sector Collector header interpreter. 
  *  It interprets ROS event ID (12 bits) and the Sector Collector FIFO occupancy (8 bits)
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerHeaderWord {
@@ -750,8 +751,8 @@ private:
  *  DT Sector Collector trailer interpreter. 
  *  It interprets the word count (16 bits)
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerTrailerWord {
@@ -791,8 +792,8 @@ private:
  *  DT Sector Collector data interpreter. 
  *  It interprets the Sector Collector data (16 bits)
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerDataWord {
@@ -832,8 +833,8 @@ private:
  *  DT DDU status 1 interpreter (8 bits word). 
  *  It interprets the error messages from each DDU channel
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTDDUFirstStatusWord {
@@ -845,7 +846,7 @@ public:
 
   DTDDUFirstStatusWord(const DTDDUFirstStatusWord& obj) { *this = obj; }
 
-  DTDDUFirstStatusWord(const unsigned char index) : 
+  DTDDUFirstStatusWord(const uint32_t index) : 
     word_(index) {}
 
   /// Destructor
@@ -863,7 +864,7 @@ public:
 
 private:
 
-  unsigned char word_;
+  uint32_t word_;
 };
 
 
@@ -872,8 +873,8 @@ private:
  *  It interprets the (16 bits)
  *  WARNING!! : It interprets the second part of a 64 bits word!
  *
- *  $Date: 2006/04/10 12:20:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/21 19:55:35 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  */
 class DTDDUSecondStatusWord {
@@ -897,15 +898,11 @@ public:
   int inputFifoFull() const { return (word_ & 0xE0) >> 5; }
   int fifoAlmostFull() const { return (word_ & 0x700) >> 8; }
   int inputFifoAlmostFull() const { return (word_ & 0x3800) >> 11; }
-  int outputFifoFull() const { return (word_ & 0x4000) >> 14; }
-  int outputFifoAlmostFull() const { return (word_ & 0x8000) >> 15; }
-  int rosList() const {return (word_ & 0xFFF0000) >> 16; }
-
-//   int fifoAlmostEmpty() const { return (word_ & 0x1C000) >> 14; }
-//   int inputFifoAlmostEmpty() const { return (word_ & 0xE0000) >> 17; }
-//   int outputFifoFull() const { return (word_ & 0x100000) >> 20; }
-//   int outputFifoAlmostFull() const { return (word_ & 0x200000) >> 21; }
-//   int outputFifoAlmostEmpty() const { return (word_ & 0x400000) >> 22; }
+  int fifoAlmostEmpty() const { return (word_ & 0x1C000) >> 14; }
+  int inputFifoAlmostEmpty() const { return (word_ & 0xE0000) >> 17; }
+  int outputFifoFull() const { return (word_ & 0x100000) >> 20; }
+  int outputFifoAlmostFull() const { return (word_ & 0x200000) >> 21; }
+  int outputFifoAlmostEmpty() const { return (word_ & 0x400000) >> 22; }
 
 private:
   

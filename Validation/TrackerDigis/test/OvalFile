@@ -1,0 +1,3 @@
+<config name="run tool" value="oval">
+<executable name="digivalid.csh"></executable>
+

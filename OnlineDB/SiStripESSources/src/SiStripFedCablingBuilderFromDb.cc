@@ -7,8 +7,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
-// data formats
-#include "DataFormats/SiStripDetId/interface/SiStripControlKey.h"
+#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 // std
 #include <ostream>
 #include <string>
@@ -74,11 +73,11 @@ SiStripFedCabling* SiStripFedCablingBuilderFromDb::makeFedCabling() {
       for ( vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
 	for ( vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
 	  for ( vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
-	    uint32_t module_key = SiStripControlKey::key( 0, // fec crate 
-							  ifec->fecSlot(), 
-							  iring->fecRing(), 
-							  iccu->ccuAddr(), 
-							  imod->ccuChan() );
+	    uint32_t module_key = SiStripGenerateKey::controlKey( 0, // fec crate 
+								  ifec->fecSlot(), 
+								  iring->fecRing(), 
+								  iccu->ccuAddr(), 
+								  imod->ccuChan() );
 	    SiStripModule& module = const_cast<SiStripModule&>(*imod);
 	    module.dcuId( module_key );
 	    module.detId( cntr+1 );

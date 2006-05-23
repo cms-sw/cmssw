@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/27 14:30:38 $
- * $Revision: 1.8 $
+ * $Date: 2006/04/28 15:21:52 $
+ * $Revision: 1.9 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -50,11 +50,6 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
   // Get the concrete 2D-segments reconstruction algo from the factory
   // For the 2D reco I use this reconstructor!
   the2DAlgo = new DTCombinatorialPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
-  
-  //   string theReco2DAlgoName = pset.getParameter<string>("Reco2DAlgoName");
-  //   cout << "the Reco2D AlgoName is " << theReco2DAlgoName << endl;
-  //   the2DAlgo = DTRecSegment2DAlgoFactory::get()->create(theReco2DAlgoName,
-  // 						       pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
 }
 
 void DTCombinatorialPatternReco4D::setES(const EventSetup& setup){
@@ -112,7 +107,7 @@ void DTCombinatorialPatternReco4D::setDTRecSegment2DContainer(Handle<DTRecSegmen
     vector<DTSLRecSegment2D> segments2DTheta(rangeTheta.first,rangeTheta.second);
     
     if(debug)
-      cout << "Number of 2D-segments in the second SL (Theta)" << segments2DTheta.size() << endl;
+      cout << "Number of 2D-segments in the second SL (Theta): " << segments2DTheta.size() << endl;
     theSegments2DTheta = segments2DTheta;
   }
 
@@ -124,8 +119,10 @@ DTCombinatorialPatternReco4D::reconstruct(){
 
   OwnVector<DTRecSegment4D> result;
   
-  if (debug) cout << "Segments in " << theChamber->id() << endl;
-
+  if (debug){ 
+    cout << "Segments in " << theChamber->id() << endl;
+    cout<<"Reconstructing of the Phi segments"<<endl;
+  }
   vector<DTSegmentCand*> resultPhi = buildPhiSuperSegmentsCandidates();
   
   if (debug) cout << "There are " << resultPhi.size() << " Phi cand" << endl;
@@ -136,6 +133,7 @@ DTCombinatorialPatternReco4D::reconstruct(){
     // sl points to 0 if the theta SL was not found
     if(sl){
       // reconstruct the theta segments
+      if(debug) cout<<"Reconstructing of the Theta segments"<<endl;
       OwnVector<DTSLRecSegment2D> thetaSegs = the2DAlgo->reconstruct(sl, theHitsFromTheta);
       vector<DTSLRecSegment2D> segments2DTheta(thetaSegs.begin(),thetaSegs.end());
       theSegments2DTheta = segments2DTheta;
@@ -153,12 +151,12 @@ DTCombinatorialPatternReco4D::reconstruct(){
   }
 
   // Now I want to build the concrete DTRecSegment4D.
+  if(debug) cout<<"Building of the concrete DTRecSegment4D"<<endl;
   if (resultPhi.size()) {
     for (vector<DTSegmentCand*>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
       
-      //FIXME, check the converter and change its name
-      DTChamberRecSegment2D* superPhi = (*phi)->convert(theChamber);
+      DTChamberRecSegment2D* superPhi = (**phi);
       
       theUpdator->update(superPhi);
       

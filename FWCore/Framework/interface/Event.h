@@ -20,38 +20,38 @@ The primary method for getting data is to use getByLabel(). The labels are the l
 in the configuration file and the 'product instance label' (which can be omitted in the case the 'product instance label'
 is the default value).  The C++ type of the event product plus the two labels uniquely identify a product in the Event.
 
-/code
+\code
   edm::Handle<AppleCollection> apples;
   event.getByLabel("tree",apples);
-/endcode
+\endcode
 
-/code
+\code
   edm::Handle<FruitCollection> fruits;
   event.getByLabel("market", "apple", fruits);
-/endcode
+\endcode
 
 
 Putting Data
 
-/code
+\code
   std::auto_ptr<AppleCollection> pApples( new AppleCollection );
   
   //fill the collection
   ...
   event.put(pApples);
-/endcode
+\endcode
 
-/code
+\code
   std::auto_ptr<FruitCollection> pFruits( new FruitCollection );
 
   //fill the collection
   ...
   event.put("apple", pFruits);
-/endcode
+\endcode
 
 
 Getting a reference to an event product before that product is put into the event
-/code
+\code
   std::auto_ptr<AppleCollection> pApples( new AppleCollection);
 
   edm::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
@@ -65,12 +65,12 @@ Getting a reference to an event product before that product is put into the even
     edm::Ref<AppleCollection> ref(refApples, index);
     ....
   }
-/endcode
+\endcode
 
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.31 2006/04/27 21:24:25 chrjones Exp $
+$Id: Event.h,v 1.32 2006/04/28 17:01:17 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>

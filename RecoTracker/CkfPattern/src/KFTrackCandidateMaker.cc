@@ -54,7 +54,9 @@ namespace cms{
     
     // Step A: Retrieve seeds
     edm::Handle<TrajectorySeedCollection> collseed;
-    e.getByType(collseed);
+    std::string seedProducer = conf_.getParameter<std::string>("SeedProducer");
+    e.getByLabel(seedProducer, collseed);
+    //    e.getByType(collseed);
     TrajectorySeedCollection theSeedColl = *collseed;
     
     // Step B: Create empty output collection
@@ -96,7 +98,7 @@ namespace cms{
       //analyseCleanedTrajectories(unsmoothedResult);
       
 
-      // Step D: Convert to TrackCandidates
+      // Step E: Convert to TrackCandidates
       for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	   it != unsmoothedResult.end(); it++) {
 	
@@ -150,8 +152,8 @@ namespace cms{
       
 
       
-      // Step D: write output to file
-      if ((*output).size()>0) e.put(output);
+      // Step F: write output to file
+      e.put(output);
     }
   }
 }

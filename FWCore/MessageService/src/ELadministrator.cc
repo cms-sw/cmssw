@@ -59,6 +59,8 @@
 // ELadministrator::setThresholds( const ELseverityLevel & sev )
 // ELadministrator::setLimits( const ELstring & id, int limit )
 // ELadministrator::setLimits( const ELseverityLevel & sev, int limit )
+// ELadministrator::setIntervals( const ELstring & id, int interval )
+// ELadministrator::setIntervals( const ELseverityLevel & sev, int interval )
 // ELadministrator::setTimespans( const ELstring & id, int seconds )
 // ELadministrator::setTimespans( const ELseverityLevel & sev, int seconds )
 // ELadministrator::wipe()
@@ -386,6 +388,24 @@ void ELadministrator::setLimits( const ELstring & id, int limit )  {
     (*d)->limits.setLimit( id, limit );
 
 }  // setLimits()
+
+
+void ELadministrator::setIntervals
+			( const ELseverityLevel & sev, int interval )  {
+
+  std::list<ELdestination *>::iterator d;
+  for ( d = sinks().begin();  d != sinks().end();  ++d )
+    (*d)->limits.setInterval( sev, interval );
+
+}  // setIntervals()
+
+void ELadministrator::setIntervals( const ELstring & id, int interval )  {
+
+  std::list<ELdestination *>::iterator d;
+  for ( d = sinks().begin();  d != sinks().end();  ++d )
+    (*d)->limits.setInterval( id, interval );
+
+}  // setIntervals()
 
 
 void ELadministrator::setLimits( const ELseverityLevel & sev, int limit )  {

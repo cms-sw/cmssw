@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/04/07 18:52:20 $
- * $Revision: 1.44 $
+ * $Date: 2006/03/25 08:39:01 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,9 +34,6 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps, MonitorUserInterface* mui
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
-  // MonitorDaemon switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 
 }
 
@@ -297,11 +294,7 @@ void EBCosmicClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -322,11 +315,7 @@ void EBCosmicClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -347,11 +336,7 @@ void EBCosmicClient::analyze(void){
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
-      } else {
-        sprintf(histo, "EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
-      }
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
     }
     me = mui_->get(histo);
     if ( me ) {

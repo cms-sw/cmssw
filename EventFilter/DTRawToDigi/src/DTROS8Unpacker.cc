@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/15 13:06:21 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/03/02 17:44:42 $
+ *  $Revision: 1.10 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -24,8 +24,7 @@ using namespace cms;
 void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
 				      int dduID,
 				      edm::ESHandle<DTReadOutMapping>& mapping, 
-				      std::auto_ptr<DTDigiCollection>& product,
-				      uint16_t rosList) {
+				      std::auto_ptr<DTDigiCollection>& product) {
  
 
   /// CopyAndPaste from P. Ronchese unpacker

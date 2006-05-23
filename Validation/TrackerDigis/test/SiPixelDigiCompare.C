@@ -3,21 +3,21 @@ void SiPixelDigiCompare()
 
  gROOT ->Reset();
  char*  rfilename = "pixeldigihisto.root";
- char*  sfilename = "pixeldigihisto.root"; 
+ char*  sfilename = "data/pixeldigihisto.root"; 
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename);
 
  TText* te = new TText();
  TFile * rfile = new TFile(rfilename);
- TFile * sfile = new TFile(rfilename);
+ TFile * sfile = new TFile(sfilename);
  Char_t histo[200];
 
  rfile->cd("DQMData");
- gDirectory->ls();
+ //gDirectory->ls();
 
  sfile->cd("DQMData");
- gDirectory->ls();
+ //gDirectory->ls();
  gROOT->ProcessLine(".x HistoCompare.C");
  HistoCompare * myPV = new HistoCompare();
 
@@ -995,7 +995,7 @@ if (1) {
       myPV->PVCompute(meMulti_[i],newmeMulti_[i],te);
    }
  
-   Pixel->Print("DigiNumOfEndcap_compare.eps");
+   Pixel->Print("DigiMultiOfEndcap_compare.eps");
 }
 
 

@@ -4,7 +4,7 @@
 \page DataFormats_FEDRawData Package DataFormats/FEDRawData
 <center>
 <small>
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/FEDRawData/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/FEDRawData/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
 <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/FEDRawData/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
@@ -43,6 +43,6 @@ Stable.
 FEDHeader and FEDTrailer should be modified use the implementation of XDAQ, including CRC check, etc.
 
 <hr>
-Last updated:
-07-FEB-2006 N. Amapane
+Last updated: @DATE@ 
+Author: N. Amapane
 */

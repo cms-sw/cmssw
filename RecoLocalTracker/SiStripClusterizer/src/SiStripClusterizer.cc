@@ -4,35 +4,85 @@
 // Creation Date:  OGU Aug. 1 2005 Initial version.
 //
 //--------------------------------------------
+#include <memory>
+#include <string>
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizer.h"
+#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
+#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+#include "FWCore/Framework/interface/Handle.h"
 
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h" //@@ To assure backward compatibility
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+
+//Added by D. Giordano
+//FIXME: the first 2 include are needed??
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+
+#include <iostream> 
 
 namespace cms
 {
   SiStripClusterizer::SiStripClusterizer(edm::ParameterSet const& conf) : 
+    siStripClusterizerAlgorithm_(conf) ,
     conf_(conf),
-    SiStripClusterizerAlgorithm_(conf) ,
-    SiStripNoiseService_(conf){
+    userEnv_("CORAL_AUTH_USER=" + conf.getUntrackedParameter<std::string>("userEnv","me")),
+    passwdEnv_("CORAL_AUTH_PASSWORD="+ conf.getUntrackedParameter<std::string>("passwdEnv","mypass")){
 
-    edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizer::SiStripClusterizer] Constructing object...";
+    ::putenv( const_cast<char*>( userEnv_.c_str() ) );
+    ::putenv( const_cast<char*>( passwdEnv_.c_str() ) );
 
-    produces< edm::DetSetVector<SiStripCluster> > ();
-    produces<SiStripClusterCollection>(); //@@ To assure backward compatibility
+    produces<SiStripClusterCollection>();
   }
 
   // Virtual destructor needed.
-  SiStripClusterizer::~SiStripClusterizer() { 
-    edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizer::~SiStripClusterizer] Destructing object...";
-  }  
+  SiStripClusterizer::~SiStripClusterizer() { }  
 
   //Get at the beginning
-  void SiStripClusterizer::beginJob( const edm::EventSetup& es ) {
-    edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizer::beginJob]";
-    
-    SiStripNoiseService_.configure(es);
-    SiStripClusterizerAlgorithm_.configure(&SiStripNoiseService_);
+  void SiStripClusterizer::beginJob( const edm::EventSetup& iSetup ) {
+    std::cout << "BeginJob method " << std::endl;
+
+    //Getting Geometry
+    iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
+    std::cout <<" There are "<<pDD->dets().size() <<" detectors"<<std::endl;
+
+    //Getting Calibration data (Noises and BadStrips Flag)
+    bool UseNoiseBadStripFlagFromDB_=conf_.getParameter<bool>("UseNoiseBadStripFlagFromDB");  
+    if (UseNoiseBadStripFlagFromDB_==true){
+      iSetup.get<SiStripNoisesRcd>().get(noise);
+      //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+      // FIXME
+      // Debug: show noise for DetIDs
+//       SiStripNoiseMapIterator mapit = noise->m_noises.begin();
+//       for (;mapit!=noise->m_noises.end();mapit++)
+// 	{
+// 	  unsigned int detid = (*mapit).first;
+// 	  std::cout << "detid " <<  detid << " # Strip " << (*mapit).second.size()<<std::endl;
+// 	  //SiStripNoiseVector theSiStripVector =  (*mapit).second;     
+// 	  const SiStripNoiseVector theSiStripVector =  noise->getSiStripNoiseVector(detid);
+	  
+	  
+// 	  int strip=0;
+// 	  SiStripNoiseVectorIterator iter=theSiStripVector.begin();
+// 	  //for(; iter!=theSiStripVector.end(); iter++)
+// 	  {
+// 	    std::cout << " strip " << strip++ << " =\t"
+// 		      << iter->getNoise()     << " \t" 
+// 		      << iter->getDisable()   << " \t" 
+// 		      << std::endl; 	    
+// 	  } 
+//       }
+      //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+    }
   }
 
   // Functions that gets called by framework every event
@@ -41,58 +91,19 @@ namespace cms
     // retrieve producer name of input StripDigiCollection
     std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
 
-    // Step A: create empty output collection
-    std::auto_ptr< edm::DetSetVector<SiStripCluster> > output(new edm::DetSetVector<SiStripCluster> );
-    std::auto_ptr<SiStripClusterCollection> output_old(new SiStripClusterCollection);//@@ To assure backward compatibility
+    // Step A: Get Inputs 
+    edm::Handle<StripDigiCollection> stripDigis;
+    e.getByLabel(digiProducer, stripDigis);
 
-
-
-    // Step B: Get Inputs 
-    edm::Handle< edm::DetSetVector<SiStripDigi> >    zsDigis;
-    edm::Handle< edm::DetSetVector<SiStripDigi> >    vrDigis;
-    edm::Handle< edm::DetSetVector<SiStripDigi> >    prDigis;
-
-    if (digiProducer=="stripdigi"){
-      e.getByLabel(digiProducer,"stripdigi",zsDigis);  //FIXME: fix this label
-    }
-    else if (digiProducer=="DAQ"){
-      e.getByLabel(digiProducer,"fromZS",zsDigis);  //FIXME: fix this label
-      e.getByLabel(digiProducer,"fromVirginRaw",vrDigis);
-      e.getByLabel(digiProducer,"fromProcessedRaw",prDigis);
-    }
-    
-    // Step C: Get ESObject 
-    SiStripNoiseService_.setESObjects(es);
+    // Step B: create empty output collection
+    std::auto_ptr<SiStripClusterCollection> output(new SiStripClusterCollection);
 
     // Step C: Invoke the strip clusterizer algorithm
-    if (zsDigis->size())
-      SiStripClusterizerAlgorithm_.run(*zsDigis,*output);
-    if (digiProducer=="DAQ"){
-      std::cout <<  "sono qui e nn ci dovrei essere" << std::endl;
-      if (vrDigis->size())
-	SiStripClusterizerAlgorithm_.run(*vrDigis,*output);
-      if (prDigis->size())
-	SiStripClusterizerAlgorithm_.run(*prDigis,*output);
-    }
-    
+    siStripClusterizerAlgorithm_.run(stripDigis.product(),*output,noise,pDD);
+
     // Step D: write output to file
-    if ( output->size() )
-      {
-	//@@ To assure backward compatibility
-	for (edm::DetSetVector<SiStripCluster>::const_iterator iter=output->begin();iter!=output->end();iter++)
-	  {
-	    std::vector<SiStripCluster> collector;
-	    for (edm::DetSet<SiStripCluster>::const_iterator jter=iter->data.begin();jter!=iter->data.end();jter++)
-	      collector.push_back(*jter);
-	    SiStripClusterCollection::Range inputRange;
-	    inputRange.first = collector.begin();
-	    inputRange.second = collector.end();
-	    output_old->put(inputRange,iter->id);
-	  }
-	e.put(output_old);
-	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-	e.put(output);
-      }
+    e.put(output);
+
   }
 
 }

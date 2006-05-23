@@ -1,0 +1,12 @@
+** V02-00-01  [Wed Jan 25 03:59:30 2006]
+remove unneeded #includes
+
+** V02-00-00  [Thu Jan 19 21:07:52 2006]
+Adapted for ExternalInputSource
+
+** V01-00-00  [Thu Nov  3 15:27:19 2005]
+Memory leak removed
+
+** V00-00-00  [Wed Oct 26 18:08:17 2005]
+Base tag on CMSSW_0_2_0_pre5
+

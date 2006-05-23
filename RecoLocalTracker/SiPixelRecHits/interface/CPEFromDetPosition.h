@@ -1,5 +1,5 @@
-#ifndef RecoLocalTracker_SiPixelRecHits_CPEFromDetPosition_H
-#define RecoLocalTracker_SiPixelRecHits_CPEFromDetPosition_H 1
+#ifndef CPEFromDetPosition_H
+#define CPEFromDetPosition_H
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
@@ -48,7 +48,7 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
   LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const ;
   LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const ;
   
- protected:
+ private:
   //members
   mutable const PixelGeomDetUnit* theDet;
   mutable const RectangularPixelTopology * theTopol;

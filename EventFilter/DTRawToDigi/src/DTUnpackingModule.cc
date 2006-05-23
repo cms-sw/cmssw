@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/10 12:20:40 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/02/14 17:10:18 $
+ *  $Revision: 1.13 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  */
 
@@ -58,7 +58,6 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) :
 }
 
 DTUnpackingModule::~DTUnpackingModule(){
-  cout<<"[DTUnpackingModule]: Destructor"<<endl;
   delete unpacker;
 }
 
@@ -71,7 +70,7 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 
   // Get the mapping from the setup
   ESHandle<DTReadOutMapping> mapping;
-  //context.get<DTReadOutMappingRcd>().get(mapping);
+  context.get<DTReadOutMappingRcd>().get(mapping);
   
   // Create the result i.e. the collection of MB Digis
   auto_ptr<DTDigiCollection> product(new DTDigiCollection);

@@ -5,7 +5,7 @@ BaseDecoratedSB::BaseDecoratedSB(std::streambuf * isb) : me(0), sb_(isb) {
 }
 BaseDecoratedSB::~BaseDecoratedSB(){}
   
-#include "Utilities/General/interface/MutexUtils.h"
+#include "Utilities/Threads/interface/ThreadUtils.h"
   
 int BaseDecoratedSB::sync() {
   static LockMutex::Mutex mutex;

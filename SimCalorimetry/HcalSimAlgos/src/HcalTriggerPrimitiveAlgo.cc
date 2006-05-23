@@ -19,9 +19,6 @@ void HcalTriggerPrimitiveAlgo::run(const HBHEDigiCollection & hbheDigis,
 				   HcalTrigPrimDigiCollection & result)
 {
 
-  incoder_=theCoderFactory->TPGcoder();
-  outcoder_=theCoderFactory->compressionLUTcoder();
-
   theSumMap.clear();
 
   // do the HB/HE digis
@@ -55,8 +52,7 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(frame.id());
   assert(ids.size() == 1 || ids.size() == 2);
   IntegerCaloSamples samples1(ids[0], int(frame.size()));
-
-  samples1.setPresamples(frame.presamples());
+  
   incoder_->adc2ET(frame, samples1);
   
   if(ids.size() == 2) {
@@ -67,7 +63,6 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
 	samples1[i] = uint32_t(samples1[i]*0.5);
 	samples2[i] = samples1[i];
       }
-    samples2.setPresamples(frame.presamples());
     addSignal(samples2);
   }
   addSignal(samples1);
@@ -106,33 +101,33 @@ void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples & samples) {
 void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, 
 				       HcalTriggerPrimitiveDigi & result)
 {
-  int outlen=samples.size()-2; // cannot calculate for
-  std::vector<bool> finegrain(outlen,false);
-  IntegerCaloSamples sum(samples.id(),samples.size());
-  IntegerCaloSamples output(samples.id(),outlen);
-  output.setPresamples(samples.presamples()-1); // one fewer presample...
+  std::vector<bool> finegrain;
+  std::vector <uint32_t> sampEt;
 
   HcalTrigTowerDetId detId(samples.id());
   
-  for(int ibin = 0; ibin < samples.size()-1; ++ibin)
+  for(int ibin = 1; ibin < samples.size()-1; ++ibin)
     {
-      if(detId.ietaAbs() >= theTrigTowerGeometry.firstHFTower())
-	sum[ibin]=samples[ibin];
+      if(detId.ietaAbs() > theTrigTowerGeometry.firstHFTower())
+	{sampEt[ibin] = samples[ibin];}
       else
-	{sum[ibin] = samples[ibin]+samples[ibin+1];}
+	{sampEt[ibin] = samples[ibin]+samples[ibin+1];}
       // sampEt[ibin] = samples[ibin]+samples[ibin+1];
     }
   
-  for(int ibin2 = 1; ibin2 < (samples.size())-1; ++ibin2) 
+  for(int ibin2 = 2; ibin2 < (samples.size())-2; ++ibin2) 
     {
-      if ( sum[ibin2] > sum[ibin2-1] && 
-	   sum[ibin2] >= sum[ibin2+1] && 
-	   sum[ibin2] > theThreshold) 
-	output[ibin2-1]=sum[ibin2];
-      else output[ibin2-1]=0;
+      if(sampEt[ibin2] > sampEt[ibin2-1] && sampEt[ibin2] > sampEt[ibin2+1] && sampEt[ibin2] > theThreshold) 
+	//	++n;
+	{
+	  samples[ibin2] = uint32_t(0);
+	  //decision[ibin2] = true;
+	}
+      //else{decision = false;}
+      
     }
 
-  outputMaker(output, result, finegrain);
+  outputMaker(samples, result, finegrain);
   
 }
 

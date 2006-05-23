@@ -21,11 +21,8 @@
 // system include files
 #include <memory>
 
-#include "SimTracker/SiStripDigitizer/interface/SiStripDigitizer.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimTracker/SiStripDigitizer/interface/SiStripDigitizer.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -35,6 +32,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLinkCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
@@ -63,8 +64,9 @@ namespace cms
     //   stripDigitizer_(conf) ,
     conf_(conf)
   {
-    produces<edm::DetSetVector<SiStripDigi> >();
-    produces<edm::DetSetVector<StripDigiSimLink> >();
+
+    produces<StripDigiCollection>();
+    produces<StripDigiSimLinkCollection>();
   }
 
   // Virtual destructor needed.
@@ -103,8 +105,8 @@ namespace cms
     theStripHits.insert(theStripHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
 
     // Step B: create empty output collection
-    std::auto_ptr<edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi> );
-    std::auto_ptr<edm::DetSetVector<StripDigiSimLink> > outputlink(new edm::DetSetVector<StripDigiSimLink> );
+    std::auto_ptr<StripDigiCollection> output(new StripDigiCollection);
+    std::auto_ptr<StripDigiSimLinkCollection> outputlink(new StripDigiSimLinkCollection);
 
     //Loop on PSimHit
     SimHitMap.clear();
@@ -131,31 +133,35 @@ namespace cms
       
       StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
       if (sgd != 0){
-
-	edm::DetSet<SiStripDigi> collector((*iu)->geographicalId().rawId());
-	edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
+	
+	collector.clear();
+	linkcollector.clear();
 	
 	if(theAlgoMap.find(&(sgd->type())) == theAlgoMap.end()) {
-	  theAlgoMap[&(sgd->type())] = new SiStripDigitizerAlgorithm(conf_, sgd);
+	  theAlgoMap[&(sgd->type())] = boost::shared_ptr<SiStripDigitizerAlgorithm>(new SiStripDigitizerAlgorithm(conf_, sgd));
 	}
 	
 	collector= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield);
 	
-	if (collector.data.size()>0){
+	if (collector.size()>0){
+	  StripDigiCollection::Range outputRange;
 	  
-	  output->insert(collector);
+	  outputRange.first = collector.begin();
+	  outputRange.second = collector.end();
+	  output->put(outputRange,(*iu)->geographicalId().rawId());
 	  
-	  //digisimlink
 	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
+	    StripDigiSimLinkCollection::Range outputlinkRange;
 	    linkcollector= ((theAlgoMap.find(&(sgd->type())))->second)->make_link();
-	    outputlink->insert(linkcollector);
+	    outputlinkRange.first = linkcollector.begin();	  
+	    outputlinkRange.second = linkcollector.end();
+	    outputlink->put(outputlinkRange,(*iu)->geographicalId().rawId());
 	  }
 	}	
+	
       }
+      
     }
-    
-    
-    
     
     // Step D: write output to file
     iEvent.put(output);

@@ -1,4 +1,0 @@
-<Flags CXXFLAGS="-g -O0">
-<export>
-<lib name=L1TriggerGlobalCaloTrigger>
-</export>

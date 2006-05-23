@@ -3,7 +3,7 @@
 
 const unsigned int pidInfo::pagesz=4;
 
-#include "Utilities/General/interface/MutexUtils.h"
+#include "Utilities/Threads/interface/ThreadUtils.h"
 
 pidInfo::pidInfo(const std::string & s) {
   std::ostream & co = TSafeOstream();

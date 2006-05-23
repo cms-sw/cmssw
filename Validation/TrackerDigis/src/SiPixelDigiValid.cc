@@ -246,7 +246,7 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
 
 SiPixelDigiValid::~SiPixelDigiValid(){
  
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+ // if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
 
@@ -255,13 +255,13 @@ void SiPixelDigiValid::beginJob(const EventSetup& c){
 }
 
 void SiPixelDigiValid::endJob() {
-
+ if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
 
 void SiPixelDigiValid::analyze(const Event& e, const EventSetup& c){
 
- LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
+ //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
  edm::ESHandle<TrackerGeometry> tracker;
  c.get<TrackerDigiGeometryRecord>().get( tracker );     
@@ -272,8 +272,8 @@ void SiPixelDigiValid::analyze(const Event& e, const EventSetup& c){
  vector<unsigned int>  vec = pixelDigis->detIDs();
 
 
- if ( vec.size() > 0 ) 
- LogInfo("SiPixelDigiValid") <<"DetId Size = " <<vec.size();
+ //if ( vec.size() > 0 ) 
+ //LogInfo("SiPixelDigiValid") <<"DetId Size = " <<vec.size();
 
  int ndigiperRingLayer1[8];
  int ndigiperRingLayer2[8];
@@ -308,18 +308,18 @@ for ( int i =0 ; i< 24; i++) {
        unsigned int id = vec[i];
        if( id != 999999999){ //if is valid detector
           DetId  detId(id);
-          const GeomDetUnit * pixeldet=tracker->idToDet(detId);
+          //const GeomDetUnit * pixeldet=tracker->idToDet(detId);
           PixelDigiCollection::Range  range = pixelDigis->get(id);
           std::vector<PixelDigi>::const_iterator begin = range.first;
           std::vector<PixelDigi>::const_iterator end = range.second;
           std::vector<PixelDigi>::const_iterator iter;
           
-          if(detId.subdetId()==PixelSubdetector::PixelBarrel ) {
+          if(detId.subdetId()==(unsigned int) PixelSubdetector::PixelBarrel ) {
              PXBDetId  bdetid(id);
              unsigned int layer  = bdetid.layer();   // Layer:1,2,3.
-             unsigned int ladder = bdetid.ladder();  // Ladeer: 1-20, 32, 44. 
+             //unsigned int ladder = bdetid.ladder();  // Ladeer: 1-20, 32, 44. 
              unsigned int zindex = bdetid.module();  // Z-index: 1-8.
-             LogInfo("SiPixelDigiValid")<<"Barrel:: Layer="<<layer<<" Ladder="<<ladder<<" zindex="<<zindex;
+             //LogInfo("SiPixelDigiValid")<<"Barrel:: Layer="<<layer<<" Ladder="<<ladder<<" zindex="<<zindex;
              for ( iter = begin ; iter != end; iter++ ) {
                 if( layer == 1 ) {
                      ++ndigiperRingLayer1[zindex-1];
@@ -475,14 +475,14 @@ for ( int i =0 ; i< 24; i++) {
 ////////////////////////////////////////////////////////////////
 //         ForWard Pixel Digi Validation Codes                //
 ///////////////////////////////////////////////////////////////
-        if(detId.subdetId()==PixelSubdetector::PixelEndcap ){ //Endcap
+        if(detId.subdetId()==(unsigned int)PixelSubdetector::PixelEndcap ){ //Endcap
            PXFDetId  fdetid(id);
            unsigned int side  = fdetid.side();
            unsigned int disk  = fdetid.disk();
            unsigned int blade = fdetid.blade();
            unsigned int panel = fdetid.panel();
            unsigned int mod   = fdetid.module();
-           LogInfo("SiPixelDigiValid")<<"EndcaP="<<side<<" Disk="<<disk<<" Blade="<<blade<<" Panel="<<panel<<" Module="<<mod;
+           //LogInfo("SiPixelDigiValid")<<"EndcaP="<<side<<" Disk="<<disk<<" Blade="<<blade<<" Panel="<<panel<<" Module="<<mod;
            for ( iter = begin ; iter != end; iter++ ) {
              if(side == 1 && disk == 1 && panel ==1 ){
                      if ( mod == 1 ) {

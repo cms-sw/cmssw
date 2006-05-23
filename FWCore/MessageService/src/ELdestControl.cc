@@ -19,6 +19,7 @@
 //              default ELdestControl has no effect on anything.  Needed for
 //              good behavior for handle recovery.
 //  6/23/03 mf  changeFile(), flush()
+//  5/18/06 mf  setInterval
 // ----------------------------------------------------------------------
 
 
@@ -82,6 +83,18 @@ ELdestControl & ELdestControl::setTraceThreshold( const ELseverityLevel & sv )  
 
 ELdestControl & ELdestControl::setLimit( const ELstring & s, int n )  {
   if (d) d->limits.setLimit( s, n );
+  return  * this;
+}
+
+
+ELdestControl & ELdestControl::setInterval
+				( const ELseverityLevel & sv, int interval )  {
+  if (d) d->limits.setInterval( sv, interval );
+  return  * this;
+}
+
+ELdestControl & ELdestControl::setInterval( const ELstring & s, int interval )  {
+  if (d) d->limits.setInterval( s, interval );
   return  * this;
 }
 

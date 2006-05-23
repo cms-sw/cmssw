@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.35 2006/03/06 01:23:12 chrjones Exp $
+$Id: EventPrincipal.cc,v 1.37 2006/05/03 23:38:19 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -133,7 +133,15 @@ private:
 
   void
   EventPrincipal::addToProcessHistory(string const& processName) {
-    aux_.process_history_.push_back(processName);
+    ProcessNameList& ph = aux_.process_history_;
+#if 0
+    if (find(ph.begin(), ph.end(), processName) != ph.end()) {
+      throw edm::Exception(errors::Configuration, "Duplicate Process")
+        << "The process name " << processName << " was previously used on these events.\n"
+        << "Please modify the configuration file to use a distinct process name.";
+    }
+#endif
+    ph.push_back(processName);
   }
 
   ProcessNameList const&
@@ -308,9 +316,9 @@ private:
     // We failed to find the product we're looking for, under *any*
     // process name... throw!
     throw edm::Exception(errors::ProductNotFound,"NoMatch")
-      << "getByLabel: could not find a required product " << label
-      << "\nof type " << id
-      << " with user tag " << (productInstanceName.empty() ? "\"\"" : productInstanceName) << '\n';
+      << "getByLabel: could not find a product with module label \"" << label
+      << "\"\nof type " << id
+      << " with product instance label \"" << (productInstanceName.empty() ? "" : productInstanceName) << "\"\n";
   }
 
   void 

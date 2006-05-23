@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.7 2006/03/31 18:53:05 elmer Exp $
+// $Id: FileCatalog.cc,v 1.1 2006/04/06 23:26:29 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -14,6 +14,8 @@
 #include "FileCatalog/URIParser.h"
 #include "FileCatalog/IFCAction.h"
 #include "FileCatalog/IFCContainer.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/SiteLocalConfig.h"
 
 #include <fstream>
 
@@ -38,40 +40,11 @@ namespace edm {
     FileCatalog(pset),
     logicalFileNames_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames")),
     fileNames_(logicalFileNames_) {
+
     if (url().empty()) {
-      // For reading use the catalog specified in the site-local
-      // config file if that config file exists, otherwise default
-      // to file:PoolFileCatalog.xml for now.
-      if (0 == getenv("CMS_PATH")) {
-        throw cms::Exception("CMSPATHNotFound", 
-                             "FileCatalog::FileCatalog()\n")
-        << "CMS_PATH envvar is not set, this is required to find the \n"
-        << "site-local data management configuration. \n";
-      }
-      std::string const configDir = getenv("CMS_PATH");
-      if (!configDir.empty()) {
-        std::string const configFileName = configDir 
-                               + "/SITECONF/JobConfig/site-local.cfg";
-        std::ifstream configFile(configFileName.c_str());
-        if (configFile) {
-          char buffer[1024];
-          configFile.get(buffer, 1024);
-          if (configFile) {
-            url() = buffer;
-            std::cout << "CATALOG: " << url() << std::endl;
-          }
-          configFile.close();
-        } else {
-          // Use the default catalog until the site-local config is
-          // really deployed and can be made a required default - PE
-          url() = "file:PoolFileCatalog.xml";
-          //throw cms::Exception("SiteLocalConfigNotFound", 
-          //                 "FileCatalog::FileCatalog()\n")
-          //<< "The site-local data management configuration file was\n";
-          //<< "not found. This should be located at:\n";
-          //<< "  $CMSPATH/SITECONF/JobConfig/site-local.cfg\n";
-        }
-      } 
+      // For reading use the catalog specified in the site-local config file
+      url() = Service<edm::SiteLocalConfig>()->dataCatalog();
+      std::cout << "Using the site default catalog: " << url() << std::endl;
     } else {
       url() = toPhysical(url());
     }

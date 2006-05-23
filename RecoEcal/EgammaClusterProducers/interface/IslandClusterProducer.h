@@ -33,6 +33,9 @@ class IslandClusterProducer : public edm::EDProducer
       int nEvt_;         // internal counter of events
  
       std::string clusterCollection_;
+      std::string hitProducer_;
+      std::string hitCollection_;
+
       IslandClusterAlgo * island_p;
 
       bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}

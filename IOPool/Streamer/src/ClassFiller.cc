@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "Reflex/Type.h"
 #include "Reflex/Member.h"
+#include "Reflex/Base.h"
 #include "PluginManager/PluginCapabilities.h"
 #include "StorageSvc/IOODatabaseFactory.h"
 #include "StorageSvc/IClassLoader.h"
@@ -13,6 +14,7 @@
 #include "TClass.h"
 
 #include <string>
+#include <set>
 
 using namespace std;
 
@@ -50,96 +52,105 @@ namespace {
 
 
   // ---------------------
-  void fillChildren(pool::IClassLoader* cl, ROOT::Reflex::Type cc, int rcnt)
+  void fillChildren(pool::IClassLoader* cl, ROOT::Reflex::Type cc, int rcnt, std::set<std::string>& classes)
   {
     rcnt--;
     FDEBUG(9) << "JBK: parent - " << getName(cc) << endl;
 
-    while(cc.IsPointer() == true || cc.IsArray() == true)
-      {
+    while(cc.IsPointer() == true || cc.IsArray() == true) {
 	//seal::Reflex::Pointer rp(*cc);
 	cc = cc.ToType();
-      }
+    }
 
     if(cc.IsFundamental()) return;
 
     // this probably need to be corrected also (JBK)
     if(getName(cc).find("std::basic_string<char>")==0 ||
-       getName(cc).find("basic_string<char>")==0)
-      {
+       getName(cc).find("basic_string<char>")==0) {
 	static bool has_printed = false;
-	if(has_printed == false)
-	  {
+	if(has_printed == false) {
 	    FDEBUG(6) << "JBK: leaving " << getName(cc) << " alone\n";
 	    has_printed = true;
-	  }
+	}
 	return;
-      }
+    }
 
-    if(rcnt)
-      {
-	if(cc.IsTemplateInstance())
-	  {
+    if(classes.find(getName(cc)) != classes.end()) {
+	FDEBUG(6) << "WMT: skipping " << getName(cc) << ", because already processed\n";
+	return;
+    }
+
+    classes.insert(getName(cc));
+
+    if(rcnt) {
+	if(cc.IsTemplateInstance()) {
 	    FDEBUG(9) << "JBK: Got template instance " << getName(cc) << endl;
 	    int cnt = cc.TemplateArgumentSize();
-	    for(int i=0;i<cnt;++i)
-	      {
+	    for(int i=0; i<cnt; ++i) {
 		ROOT::Reflex::Type t = cc.TemplateArgumentAt(i);
-		fillChildren(cl,t,rcnt);
-	      }
-	  }
+		fillChildren(cl, t, rcnt, classes);
+	    }
+	}
 
 	FDEBUG(9) << "JBK: declare members " << getName(cc) << endl;
-
-	int cnt = cc.MemberSize();
-	for(int i=0;i<cnt;++i)
-	  {
+	int mcnt = cc.MemberSize();
+	for(int i=0; i<mcnt; ++i) {
 	    ROOT::Reflex::Member m = cc.MemberAt(i);
 	    if(m.IsTransient() || m.IsStatic()) continue;
 	    if(!m.IsDataMember()) continue;
 
 	    ROOT::Reflex::Type t = m.TypeOf();
-	    fillChildren(cl,t,rcnt);
-	  }
+	    fillChildren(cl, t, rcnt, classes);
+	}
       }
 	    
     FDEBUG(9) << "JBK: after field loop " << getName(cc) << endl;
     
-    if(cl->loadClass(getName(cc)) != pool::DbStatus::SUCCESS)
-      {
+    if(cl->loadClass(getName(cc)) != pool::DbStatus::SUCCESS) {
 	FDEBUG(1) << "Error: could not loadClass for " << getName(cc) << endl;
 	return;
-      }
+    }
 
     TClass* ttest = TClass::GetClass(getName(cc).c_str());
 
-    if(ttest == 0) 
-      {
+    if(ttest == 0) {
 	FDEBUG(1) << "EventStreamImpl: "
 		  << "Could not get the TClass for " << getName(cc)
 		  << endl;
 	return;
-      }
+    }
 
     FDEBUG(9) << "JBK: parent complete loadClass - " << getName(cc) << endl;
-    if(ttest->GetClassInfo()==0)
-      {
+    if(ttest->GetClassInfo()==0) {
 	FDEBUG(8) << "JBK: " << getName(cc) << " has no class info!\n";
-      }
-    if(ttest->GetStreamerInfo(1)==0)
-      {
+    }
+    if(ttest->GetStreamerInfo(1)==0) {
 	FDEBUG(8) << "JBK: " << getName(cc)
 		  << " has no streamer info version 1!\n";
-      }
+    }
+
+    if (rcnt) {
+        if(getName(cc).find("std::")!=0) {
+	    int cnt = cc.BaseSize();
+            if (cnt) {
+	      FDEBUG(9) << "WMT: declare bases " << getName(cc) << endl;
+	      for(int i=0; i<cnt; ++i) {
+	        ROOT::Reflex::Base b = cc.BaseAt(i);
+
+	        ROOT::Reflex::Type t = b.ToType();
+	        fillChildren(cl, t, rcnt, classes);
+	      }
+	    }
+	}
+    }
 #if 0
     else
       ttest->GetStreamerInfo(1)->ls();
 
-    if(ttest->GetStreamer()==0)
-      {
+    if(ttest->GetStreamer()==0) {
 	FDEBUG(8) << "JBK: " << getName(cc)
 		  << " has no streamer!\n";
-      }
+    }
 #endif
   }
 
@@ -148,7 +159,7 @@ namespace {
 
 namespace edm {
 
-  void loadCap(const std::string& name,bool do_children)
+  void loadCap(const std::string& name)
   {
     std::string fname("LCGReflex/");
     fname += name;
@@ -161,9 +172,11 @@ namespace edm {
       // next two lines are for explicitly causing every object to get defined
       pool::IClassLoader* cl = getClassLoader();
 
+      std::set<std::string> classes;
+
 	  // jbk - I'm leaving this out unless we really need it -
 	  // its job is to declare each of the types to ROOT
-      fillChildren(cl,cc,do_children==true?10000:1);
+      fillChildren(cl,cc,10000,classes);
 
 
       TClass* ttest = TClass::GetClass(getName(cc).c_str());
@@ -193,16 +206,15 @@ namespace edm {
   }
   // ---------------------
 
-  void loadExtraClasses(bool do_children) {
+  void loadExtraClasses() {
     static bool done = false;
-    if(done==false)
-      {
-	loadCap(std::string("edm::ProdPair"),do_children);
-	loadCap(std::string("edm::SendProds"),do_children);
-	loadCap(std::string("edm::SendEvent"),do_children);
-	loadCap(std::string("edm::SendDescs"),do_children);
-	loadCap(std::string("edm::SendJobHeader"),do_children);
-      }
+    if(done==false) {
+	loadCap(std::string("edm::ProdPair"));
+	loadCap(std::string("edm::SendProds"));
+	loadCap(std::string("edm::SendEvent"));
+	loadCap(std::string("edm::SendDescs"));
+	loadCap(std::string("edm::SendJobHeader"));
+    }
     ClassFiller();
     done=true;
   }

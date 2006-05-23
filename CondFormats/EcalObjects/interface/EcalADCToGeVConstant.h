@@ -3,7 +3,7 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: $
+ * $Id: EcalADCToGeVConstant.h,v 1.3 2006/02/23 16:56:34 rahatlou Exp $
  **/
 
 #include <iostream>
@@ -11,15 +11,18 @@
 class EcalADCToGeVConstant {
   public:
     EcalADCToGeVConstant();
-    EcalADCToGeVConstant(const float & value);
+    EcalADCToGeVConstant(const float & EBvalue, const float & EEvalue);
     ~EcalADCToGeVConstant();
-    void  setValue(const float& value) { value_ = value; }
-    float getValue() const { return value_; }
+    void  setEBValue(const float& value) { EBvalue_ = value; }
+    void  setEEValue(const float& value) { EEvalue_ = value; }
+    float getEBValue() const { return EBvalue_; }
+    float getEEValue() const { return EEvalue_; }
     void print(std::ostream& s) const {
-      s << "EcalADCToGeVConstant: " << value_ << " GeV/ADC count";
+      s << "EcalADCToGeVConstant: EB " << EBvalue_ << "; EE " << EEvalue_ << " [GeV/ADC count]";
     }
   private:
-    float value_;
+    float EBvalue_;
+    float EEvalue_;
 };
 
 /**

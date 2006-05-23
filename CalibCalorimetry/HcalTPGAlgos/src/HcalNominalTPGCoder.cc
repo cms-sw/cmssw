@@ -18,7 +18,7 @@ void HcalNominalTPGCoder::setupForChannel(const HcalCalibrations& calib) {
   determineGainPedestal(calib,gain_,pedestal_);
 }
 
-void HcalNominalTPGCoder::setupForAuto(const HcalDbService* service) {
+void HcalNominalTPGCoder::setupForAuto(HcalDbService* service) {
   service_=service;
 }
 
@@ -53,7 +53,7 @@ void HcalNominalTPGCoder::adc2ET(const HBHEDataFrame& df, IntegerCaloSamples& ic
     p=pedestal_;
   }
 
-  //  ics.setSize(df.size());
+  ics=IntegerCaloSamples(df.id(),df.size());
   CaloSamples cs;
 
   coder_.adc2fC(df,cs); // convert to fC
@@ -79,7 +79,7 @@ void HcalNominalTPGCoder::adc2ET(const HFDataFrame& df, IntegerCaloSamples& ics)
     p=pedestal_;
   }
 
-  //  ics.setSize(df.size());
+  ics=IntegerCaloSamples(df.id(),df.size());
   CaloSamples cs;
 
   coder_.adc2fC(df,cs); // convert to fC

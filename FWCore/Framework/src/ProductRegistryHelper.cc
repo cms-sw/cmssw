@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: ProductRegistryHelper.cc,v 1.4 2006/03/16 22:06:02 wmtan Exp $
+$Id: ProductRegistryHelper.cc,v 1.6 2006/05/05 01:00:41 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -26,6 +26,7 @@ namespace edm {
                               p->typeID_.userClassName(),
                               p->typeID_.friendlyClassName(), 
                               p->productInstanceName_,
+                              p->branchAlias_,
                               p->productPtr_);
       iReg.addProduct(pdesc, iIsListener);
     }//for

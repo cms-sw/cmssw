@@ -1,6 +1,0 @@
-<export>
- <lib name=CommonToolsStatistics>
- <use name=clhep>
-</export>
-
-<use name=clhep>

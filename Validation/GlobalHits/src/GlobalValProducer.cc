@@ -4,6 +4,8 @@ GlobalValProducer::GlobalValProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), label(""), getAllProvenances(false),
   printProvenanceInfo(false), nRawGenPart(0), count(0)
 {
+  std::string MsgLoggerCat = "GlobalValProducer.GlobalValProducer";
+
   // get information from parameter set
   fName = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
@@ -23,8 +25,8 @@ GlobalValProducer::GlobalValProducer(const edm::ParameterSet& iPSet) :
   produces<PGlobalSimHit>(label);
 
   // print out Parameter Set information being used
-  if (verbosity > 0) {
-    edm::LogInfo ("GlobalValProducer::GlobalValProducer") 
+  if (verbosity >= 0) {
+    edm::LogInfo(MsgLoggerCat) 
       << "\n===============================\n"
       << "Initialized as EDProducer with parameter values:\n"
       << "    Name      = " << fName << "\n"
@@ -48,8 +50,9 @@ void GlobalValProducer::beginJob(const edm::EventSetup& iSetup)
 
 void GlobalValProducer::endJob()
 {
-  if (verbosity > 0)
-    edm::LogInfo ("GlobalValProducer::endJob") 
+  std::string MsgLoggerCat = "GlobalValProducer.endJob";
+  if (verbosity >= 0)
+    edm::LogInfo(MsgLoggerCat) 
       << "Terminating having processed " << count << " events.";
   return;
 }
@@ -57,6 +60,8 @@ void GlobalValProducer::endJob()
 void GlobalValProducer::produce(edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup)
 {
+  std::string MsgLoggerCat = "GlobalValProducer.produce";
+
   // keep track of number of events processed
   ++count;
 
@@ -65,8 +70,13 @@ void GlobalValProducer::produce(edm::Event& iEvent,
   int nevt = iEvent.id().event();
 
   if (verbosity > 0) {
-    edm::LogInfo ("GlobalValProducer::produce")
+    edm::LogInfo(MsgLoggerCat)
       << "Processing run " << nrun << ", event " << nevt;
+  } else if (verbosity == 0) {
+    if (nevt%100 == 0 || nevt == 1) {
+      edm::LogInfo(MsgLoggerCat)
+	<< "Processing run " << nrun << ", event " << nevt;
+    }
   }
 
   // clear event holders
@@ -79,7 +89,7 @@ void GlobalValProducer::produce(edm::Event& iEvent,
     iEvent.getAllProvenance(AllProv);
 
     if (verbosity > 0)
-      edm::LogInfo ("GlobalValProducer::produce")
+      edm::LogInfo(MsgLoggerCat)
 	<< "Number of Provenances = " << AllProv.size();
 
     if (printProvenanceInfo && (verbosity > 0)) {
@@ -99,7 +109,7 @@ void GlobalValProducer::produce(edm::Event& iEvent,
 	eventout += (AllProv[i]->product).branchName_;
       }
       eventout += "       ******************************\n";
-      edm::LogInfo("GlobalValProducer::produce") << eventout << "\n";
+      edm::LogInfo(MsgLoggerCat) << eventout << "\n";
     }
   }
 
@@ -116,14 +126,14 @@ void GlobalValProducer::produce(edm::Event& iEvent,
   fillHCal(iEvent, iSetup);
 
   if (verbosity > 0)
-    edm::LogInfo ("GlobalValProducer::produce")
+    edm::LogInfo (MsgLoggerCat)
       << "Done gathering data from event.";
 
   // produce object to put into event
   std::auto_ptr<PGlobalSimHit> pOut(new PGlobalSimHit);
 
   if (verbosity > 2)
-    edm::LogInfo ("GlobalValProducer::produce")
+    edm::LogInfo (MsgLoggerCat)
       << "Saving event contents:";
 
   // call store functions
@@ -147,6 +157,8 @@ void GlobalValProducer::produce(edm::Event& iEvent,
 //==================fill and store functions================================
 void GlobalValProducer::fillG4MC(edm::Event& iEvent)
 {
+
+  std::string MsgLoggerCat = "GlobalValProducer.fillG4MC";
  
   TString eventout;
   if (verbosity > 0)
@@ -168,7 +180,7 @@ void GlobalValProducer::fillG4MC(edm::Event& iEvent)
   }
 
   if (!HepMCEvt.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillG4MC")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find HepMCProduct in event!";
     return;
   } else {
@@ -189,7 +201,7 @@ void GlobalValProducer::fillG4MC(edm::Event& iEvent)
   edm::Handle<edm::EmbdSimVertexContainer> G4VtxContainer;
   iEvent.getByType(G4VtxContainer);
   if (!G4VtxContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillG4MC")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find EmbdSimVertex in event!";
     return;
   }
@@ -217,7 +229,7 @@ void GlobalValProducer::fillG4MC(edm::Event& iEvent)
   edm::Handle<edm::EmbdSimTrackContainer> G4TrkContainer;
   iEvent.getByType(G4TrkContainer);
   if (!G4TrkContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillG4MC")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find EmbdSimTrack in event!";
     return;
   }
@@ -239,13 +251,14 @@ void GlobalValProducer::fillG4MC(edm::Event& iEvent)
   }  
 
   if (verbosity > 0)
-    edm::LogInfo("GlobalValProducer::fillG4MC") << eventout << "\n";
+    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
 
   return;
 }
 
 void GlobalValProducer::storeG4MC(PGlobalSimHit& product)
 {
+  std::string MsgLoggerCat = "GlobalValProducer.storeG4MC";
 
   if (verbosity > 2) {
     TString eventout("\n       nRawGenPart        = ");
@@ -270,7 +283,7 @@ void GlobalValProducer::storeG4MC(PGlobalSimHit& product)
       eventout += G4TrkE[i];
       eventout += ")";
     }    
-    edm::LogInfo("GlobalValProducer::storeG4MC") << eventout << "\n";
+    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
   } // end verbose output
 
   product.putRawGenPart(nRawGenPart);
@@ -283,6 +296,8 @@ void GlobalValProducer::storeG4MC(PGlobalSimHit& product)
 void GlobalValProducer::fillTrk(edm::Event& iEvent, 
 				const edm::EventSetup& iSetup)
 {
+  std::string MsgLoggerCat = "GlobalValProducer.fillTrk";
+
   TString eventout;
   if (verbosity > 0)
     eventout = "\nGathering info:";  
@@ -291,7 +306,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
   iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
   if (!theTrackerGeometry.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillTrk")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerDigiGeometryRecord in event!";
     return;
   }
@@ -309,7 +324,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelLowTof",
 		    PxlBrlLowContainer);
   if (!PxlBrlLowContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillTrk")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsPixelBarrelLowTof in event!";
     return;
   }
@@ -318,7 +333,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelHighTof",
 		    PxlBrlHighContainer);
   if (!PxlBrlHighContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillTrk")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsPixelBarrelHighTof in event!";
     return;
   }
@@ -346,7 +361,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
       const GeomDetUnit *theDet = theTracker.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
-	edm::LogWarning("GlobalValProducer::fillTrk")
+	edm::LogWarning(MsgLoggerCat)
 	  << "Unable to get GeomDetUnit from PxlBrlHits for Hit " << i;
 	continue;
       }
@@ -363,7 +378,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
       PxlBrlEta.push_back(bSurface.toGlobal(itHit->localPosition()).eta());
 
     } else {
-      edm::LogWarning("GlobalValProducer::fillTrk")
+      edm::LogWarning(MsgLoggerCat)
 	<< "PxlBrl PSimHit " << i 
 	<< " is expected to be (det,subdet) = (" 
 	<< dTrk << "," << sdPxlBrl
@@ -387,7 +402,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapLowTof",
 		    PxlFwdLowContainer);
   if (!PxlFwdLowContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillTrk")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
     return;
   }
@@ -396,7 +411,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   iEvent.getByLabel("SimG4Object","TrackerHitsPixelEndcapHighTof",
 		    PxlFwdHighContainer);
   if (!PxlFwdHighContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillTrk")
+    edm::LogWarning("GlobalValProducer.fillTrk")
       << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
     return;
   }
@@ -424,7 +439,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
       const GeomDetUnit *theDet = theTracker.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
-	edm::LogWarning("GlobalValProducer::fillTrk")
+	edm::LogWarning(MsgLoggerCat)
 	  << "Unable to get GeomDetUnit from PxlFwdHits for Hit " << i;;
 	continue;
       }
@@ -440,7 +455,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
       PxlFwdPhi.push_back(bSurface.toGlobal(itHit->localPosition()).phi());
       PxlFwdEta.push_back(bSurface.toGlobal(itHit->localPosition()).eta());
     } else {
-      edm::LogWarning("GlobalValProducer::fillTrk")
+      edm::LogWarning(MsgLoggerCat)
 	<< "PxlFwd PSimHit " << i 
 	<< " is expected to be (det,subdet) = (" 
 	<< dTrk << "," << sdPxlFwd
@@ -463,7 +478,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::Handle<edm::PSimHitContainer> SiTIBLowContainer;
   iEvent.getByLabel("SimG4Object","TrackerHitsTIBLowTof",SiTIBLowContainer);
   if (!SiTIBLowContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillTrk")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTIBLowTof in event!";
     return;
   }
@@ -471,7 +486,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::Handle<edm::PSimHitContainer> SiTIBHighContainer;
   iEvent.getByLabel("SimG4Object","TrackerHitsTIBHighTof",SiTIBHighContainer);
   if (!SiTIBHighContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillTrk")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTIBHighTof in event!";
     return;
   }
@@ -479,7 +494,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::Handle<edm::PSimHitContainer> SiTOBLowContainer;
   iEvent.getByLabel("SimG4Object","TrackerHitsTOBLowTof",SiTOBLowContainer);
   if (!SiTOBLowContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillTrk")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTOBLowTof in event!";
     return;
   }
@@ -487,7 +502,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::Handle<edm::PSimHitContainer> SiTOBHighContainer;
   iEvent.getByLabel("SimG4Object","TrackerHitsTOBHighTof",SiTOBHighContainer);
   if (!SiTOBHighContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillTrk")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTOBHighTof in event!";
     return;
   }
@@ -521,7 +536,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
       const GeomDetUnit *theDet = theTracker.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
-	edm::LogWarning("GlobalValProducer::fillTrk")
+	edm::LogWarning(MsgLoggerCat)
 	  << "Unable to get GeomDetUnit from SiBrlHits for Hit " << i;
 	continue;
       }
@@ -537,7 +552,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
       SiBrlPhi.push_back(bSurface.toGlobal(itHit->localPosition()).phi());
       SiBrlEta.push_back(bSurface.toGlobal(itHit->localPosition()).eta());
     } else {
-      edm::LogWarning("GlobalValProducer::fillTrk")
+      edm::LogWarning(MsgLoggerCat)
 	<< "SiBrl PSimHit " << i 
 	<< " is expected to be (det,subdet) = (" 
 	<< dTrk << "," << sdSiTIB
@@ -560,7 +575,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::Handle<edm::PSimHitContainer> SiTIDLowContainer;
   iEvent.getByLabel("SimG4Object","TrackerHitsTIDLowTof",SiTIDLowContainer);
   if (!SiTIDLowContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillTrk")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTIDLowTof in event!";
     return;
   }
@@ -568,7 +583,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::Handle<edm::PSimHitContainer> SiTIDHighContainer;
   iEvent.getByLabel("SimG4Object","TrackerHitsTIDHighTof",SiTIDHighContainer);
   if (!SiTIDHighContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillTrk")
+    edm::LogWarning("GlobalValProducer.fillTrk")
       << "Unable to find TrackerHitsTIDHighTof in event!";
     return;
   }
@@ -576,7 +591,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::Handle<edm::PSimHitContainer> SiTECLowContainer;
   iEvent.getByLabel("SimG4Object","TrackerHitsTECLowTof",SiTECLowContainer);
   if (!SiTECLowContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillTrk")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTECLowTof in event!";
     return;
   }
@@ -584,7 +599,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   edm::Handle<edm::PSimHitContainer> SiTECHighContainer;
   iEvent.getByLabel("SimG4Object","TrackerHitsTECHighTof",SiTECHighContainer);
   if (!SiTECHighContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillTrk")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find TrackerHitsTECHighTof in event!";
     return;
   }
@@ -618,7 +633,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
       const GeomDetUnit *theDet = theTracker.idToDetUnit(theDetUnitId);
       
       if (!theDet) {
-	edm::LogWarning("GlobalValProducer::fillTrk")
+	edm::LogWarning(MsgLoggerCat)
 	  << "Unable to get GeomDetUnit from SiFwdHits Hit " << i;
 	return;
       }
@@ -634,7 +649,7 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
       SiFwdPhi.push_back(bSurface.toGlobal(itHit->localPosition()).phi());
       SiFwdEta.push_back(bSurface.toGlobal(itHit->localPosition()).eta());
     } else {
-      edm::LogWarning("GlobalValProducer::fillTrk")
+      edm::LogWarning(MsgLoggerCat)
 	<< "SiFwd PSimHit " << i 
 	<< " is expected to be (det,subdet) = (" 
 	<< dTrk << "," << sdSiTOB
@@ -650,13 +665,15 @@ void GlobalValProducer::fillTrk(edm::Event& iEvent,
   }  
 
   if (verbosity > 0)
-    edm::LogInfo("GlobalValProducer::fillTrk") << eventout << "\n";
+    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
 
   return;
 }
 
 void GlobalValProducer::storeTrk(PGlobalSimHit& product)
 {
+  std::string MsgLoggerCat = "GlobalValProducer.storeTrk";
+
   if (verbosity > 2) {
     TString eventout("\n       nPxlBrlHits        = ");
     eventout += PxlBrlToF.size();
@@ -710,7 +727,7 @@ void GlobalValProducer::storeTrk(PGlobalSimHit& product)
       eventout += SiFwdEta[i];
       eventout += ")";      
     } // end SiFwd output
-    edm::LogInfo("GlobalValProducer::storeTrk") << eventout << "\n";
+    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
   } // end verbose output
 
   product.putPxlBrlHits(PxlBrlToF,PxlBrlR,PxlBrlPhi,PxlBrlEta);
@@ -724,6 +741,8 @@ void GlobalValProducer::storeTrk(PGlobalSimHit& product)
 void GlobalValProducer::fillMuon(edm::Event& iEvent, 
 				 const edm::EventSetup& iSetup)
 {
+  std::string MsgLoggerCat = "GlobalValProducer.fillMuon";
+
   TString eventout;
   if (verbosity > 0)
     eventout = "\nGathering info:";  
@@ -739,7 +758,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
   edm::ESHandle<CSCGeometry> theCSCGeometry;
   iSetup.get<MuonGeometryRecord>().get(theCSCGeometry);
   if (!theCSCGeometry.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillMuon")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find MuonGeometryRecord for the CSCGeometry in event!";
     return;
   }
@@ -749,7 +768,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
   edm::Handle<edm::PSimHitContainer> MuonCSCContainer;
   iEvent.getByLabel("SimG4Object","MuonCSCHits",MuonCSCContainer);
   if (!MuonCSCContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillMuon")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find MuonCSCHits in event!";
     return;
   }
@@ -774,7 +793,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
       const GeomDetUnit *theDet = theCSCMuon.idToDetUnit(theDetUnitId);
     
       if (!theDet) {
-	edm::LogWarning("GlobalValProducer::fillMuon")
+	edm::LogWarning(MsgLoggerCat)
 	  << "Unable to get GeomDetUnit from theCSCMuon for hit " << i;
 	continue;
       }
@@ -790,7 +809,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
       MuonCscPhi.push_back(bSurface.toGlobal(itHit->localPosition()).phi());
       MuonCscEta.push_back(bSurface.toGlobal(itHit->localPosition()).eta());
     } else {
-      edm::LogWarning("GlobalValProducer::fillMuon")
+      edm::LogWarning(MsgLoggerCat)
         << "MuonCsc PSimHit " << i 
         << " is expected to be (det,subdet) = (" 
         << dMuon << "," << sdMuonCSC
@@ -813,7 +832,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
   edm::ESHandle<DTGeometry> theDTGeometry;
   iSetup.get<MuonGeometryRecord>().get(theDTGeometry);
   if (!theDTGeometry.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillMuon")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find MuonGeometryRecord for the DTGeometry in event!";
     return;
   }
@@ -823,7 +842,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
   edm::Handle<edm::PSimHitContainer> MuonDtContainer;
   iEvent.getByLabel("SimG4Object","MuonDTHits",MuonDtContainer);
   if (!MuonDtContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillMuon")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find MuonDTHits in event!";
     return;
   }
@@ -852,7 +871,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
       const DTLayer *theDet = theDTMuon.layer(wireId.layerId());
 
       if (!theDet) {
-	edm::LogWarning("GlobalValProducer::fillMuon")
+	edm::LogWarning(MsgLoggerCat)
 	  << "Unable to get GeomDetUnit from theDtMuon for hit " << i;
 	continue;
       }
@@ -868,7 +887,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
       MuonDtPhi.push_back(bSurface.toGlobal(itHit->localPosition()).phi());
       MuonDtEta.push_back(bSurface.toGlobal(itHit->localPosition()).eta());
     } else {
-      edm::LogWarning("GlobalValProducer::fillMuon")
+      edm::LogWarning(MsgLoggerCat)
         << "MuonDt PSimHit " << i 
         << " is expected to be (det,subdet) = (" 
         << dMuon << "," << sdMuonDT
@@ -892,7 +911,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
   edm::ESHandle<RPCGeometry> theRPCGeometry;
   iSetup.get<MuonGeometryRecord>().get(theRPCGeometry);
   if (!theRPCGeometry.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillMuon")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find MuonGeometryRecord for the RPCGeometry in event!";
     return;
   }
@@ -902,7 +921,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
   edm::Handle<edm::PSimHitContainer> MuonRPCContainer;
   iEvent.getByLabel("SimG4Object","MuonRPCHits",MuonRPCContainer);
   if (!MuonRPCContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillMuon")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find MuonRPCHits in event!";
     return;
   }
@@ -934,7 +953,7 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
       const GeomDetUnit *theDet = theRPCMuon.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
-	edm::LogWarning("GlobalValProducer::fillMuon")
+	edm::LogWarning(MsgLoggerCat)
 	  << "Unable to get GeomDetUnit from theRPCMuon for hit " << i;
 	continue;
       }
@@ -965,12 +984,12 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
 	MuonRpcBrlEta.
 	  push_back(bSurface.toGlobal(itHit->localPosition()).eta());	
       } else {
-	edm::LogWarning("GlobalValProducer::fillMuon")
+	edm::LogWarning(MsgLoggerCat)
 	  << "Invalid region for RPC Muon hit" << i;
 	continue;
       } // end check of region
     } else {
-      edm::LogWarning("GlobalValProducer::fillMuon")
+      edm::LogWarning(MsgLoggerCat)
         << "MuonRpc PSimHit " << i 
         << " is expected to be (det,subdet) = (" 
         << dMuon << "," << sdMuonRPC
@@ -990,13 +1009,15 @@ void GlobalValProducer::fillMuon(edm::Event& iEvent,
   }  
 
   if (verbosity > 0)
-    edm::LogInfo("GlobalValProducer::fillMuon") << eventout << "\n";
+    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
 
   return;
 }
 
 void GlobalValProducer::storeMuon(PGlobalSimHit& product)
 {
+  std::string MsgLoggerCat = "GlobalValProducer.storeMuon";
+
   if (verbosity > 2) {
     TString eventout("\n       nMuonCSCHits       = ");
     eventout += MuonCscToF.size();
@@ -1050,7 +1071,7 @@ void GlobalValProducer::storeMuon(PGlobalSimHit& product)
       eventout += MuonRpcFwdEta[i]; 
       eventout += ")";      
     } // end MuonRpcFwd output
-    edm::LogInfo("GlobalValProducer::storeMuon") << eventout << "\n";
+    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
   } // end verbose output
 
   product.putMuonCscHits(MuonCscToF,MuonCscZ,MuonCscPhi,MuonCscEta);
@@ -1066,6 +1087,8 @@ void GlobalValProducer::storeMuon(PGlobalSimHit& product)
 void GlobalValProducer::fillECal(edm::Event& iEvent, 
 				const edm::EventSetup& iSetup)
 {
+  std::string MsgLoggerCat = "GlobalValProducer.fillECal";
+
   TString eventout;
   if (verbosity > 0)
     eventout = "\nGathering info:";  
@@ -1074,7 +1097,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
   edm::ESHandle<CaloGeometry> theCaloGeometry;
   iSetup.get<IdealGeometryRecord>().get(theCaloGeometry);
   if (!theCaloGeometry.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillECal")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find IdealGeometryRecord in event!";
     return;
   }
@@ -1091,7 +1114,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
   edm::Handle<edm::PCaloHitContainer> EBContainer;
   iEvent.getByLabel("SimG4Object","EcalHitsEB",EBContainer);
   if (!EBContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillECal")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalHitsEB in event!";
     return;
   }
@@ -1099,7 +1122,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
   edm::Handle<edm::PCaloHitContainer> EEContainer;
   iEvent.getByLabel("SimG4Object","EcalHitsEE",EEContainer);
   if (!EEContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillECal")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalHitsEE in event!";
     return;
   }
@@ -1130,7 +1153,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
 	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
 
       if (!theDet) {
-	edm::LogWarning("GlobalValProducer::fillECal")
+	edm::LogWarning(MsgLoggerCat)
 	  << "Unable to get CaloCellGeometry from ECalHits for Hit " << i;
 	continue;
       }
@@ -1147,7 +1170,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
       ECalEta.push_back(globalposition.eta());
 
     } else {
-      edm::LogWarning("GlobalValProducer::fillECal")
+      edm::LogWarning(MsgLoggerCat)
 	<< "ECal PCaloHit " << i 
 	<< " is expected to be (det,subdet) = (" 
 	<< dEcal << "," << sdEcalBrl
@@ -1169,7 +1192,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
   edm::Handle<edm::PCaloHitContainer> PreShContainer;
   iEvent.getByLabel("SimG4Object","EcalHitsES",PreShContainer);
   if (!PreShContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillECal")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalHitsES in event!";
     return;
   }
@@ -1195,7 +1218,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
 	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
 
       if (!theDet) {
-	edm::LogWarning("GlobalValProducer::fillECal")
+	edm::LogWarning(MsgLoggerCat)
 	  << "Unable to get CaloCellGeometry from PreShContainer for Hit " 
 	  << i;
 	continue;
@@ -1213,7 +1236,7 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
       PreShEta.push_back(globalposition.eta());
 
     } else {
-      edm::LogWarning("GlobalValProducer::fillECal")
+      edm::LogWarning(MsgLoggerCat)
 	<< "PreSh PCaloHit " << i 
 	<< " is expected to be (det,subdet) = (" 
 	<< dEcal << "," << sdEcalPS
@@ -1229,13 +1252,15 @@ void GlobalValProducer::fillECal(edm::Event& iEvent,
   }  
 
   if (verbosity > 0)
-    edm::LogInfo("GlobalValProducer::fillECal") << eventout << "\n";
+    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
 
   return;
 }
 
 void GlobalValProducer::storeECal(PGlobalSimHit& product)
 {
+  std::string MsgLoggerCat = "GlobalValProducer.storeECal";
+
   if (verbosity > 2) {
     TString eventout("\n       nECalHits          = ");
     eventout += ECalE.size();
@@ -1263,7 +1288,7 @@ void GlobalValProducer::storeECal(PGlobalSimHit& product)
       eventout += PreShEta[i]; 
       eventout += ")";    
     } // end PreShower output
-    edm::LogInfo("GlobalValProducer::storeECal") << eventout << "\n";
+    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
   } // end verbose output
 
   product.putECalHits(ECalE,ECalToF,ECalPhi,ECalEta);
@@ -1275,6 +1300,8 @@ void GlobalValProducer::storeECal(PGlobalSimHit& product)
 void GlobalValProducer::fillHCal(edm::Event& iEvent, 
 				const edm::EventSetup& iSetup)
 {
+  std::string MsgLoggerCat = "GlobalValProducer.fillHCal";
+
   TString eventout;
   if (verbosity > 0)
     eventout = "\nGathering info:";  
@@ -1283,7 +1310,7 @@ void GlobalValProducer::fillHCal(edm::Event& iEvent,
   edm::ESHandle<CaloGeometry> theCaloGeometry;
   iSetup.get<IdealGeometryRecord>().get(theCaloGeometry);
   if (!theCaloGeometry.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillECal")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find IdealGeometryRecord in event!";
     return;
   }
@@ -1299,7 +1326,7 @@ void GlobalValProducer::fillHCal(edm::Event& iEvent,
   edm::Handle<edm::PCaloHitContainer> HCalContainer;
   iEvent.getByLabel("SimG4Object","HcalHits",HCalContainer);
   if (!HCalContainer.isValid()) {
-    edm::LogWarning("GlobalValProducer::fillHCal")
+    edm::LogWarning(MsgLoggerCat)
       << "Unable to find HCalHits in event!";
     return;
   }
@@ -1328,7 +1355,7 @@ void GlobalValProducer::fillHCal(edm::Event& iEvent,
 	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
 
       if (!theDet) {
-	edm::LogWarning("GlobalValProducer::fillHCal")
+	edm::LogWarning(MsgLoggerCat)
 	  << "Unable to get CaloCellGeometry from HCalContainer for Hit " << i;
 	continue;
       }
@@ -1345,7 +1372,7 @@ void GlobalValProducer::fillHCal(edm::Event& iEvent,
       HCalEta.push_back(globalposition.eta());
 
     } else {
-      edm::LogWarning("GlobalValProducer::fillHCal")
+      edm::LogWarning(MsgLoggerCat)
 	<< "HCal PCaloHit " << i 
 	<< " is expected to be (det,subdet) = (" 
 	<< dHcal << "," << sdHcalBrl
@@ -1362,13 +1389,15 @@ void GlobalValProducer::fillHCal(edm::Event& iEvent,
   }  
 
   if (verbosity > 0)
-    edm::LogInfo("GlobalValProducer::fillHCal") << eventout << "\n";
+    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
 
   return;
 }
 
 void GlobalValProducer::storeHCal(PGlobalSimHit& product)
 {
+  std::string MsgLoggerCat = "GlobalValProducer.storeHCal";
+
   if (verbosity > 2) {
     TString eventout("\n       nHCalHits          = ");
     eventout += HCalE.size();
@@ -1383,7 +1412,7 @@ void GlobalValProducer::storeHCal(PGlobalSimHit& product)
       eventout += HCalEta[i];  
       eventout += ")";      
     } // end HCal output
-    edm::LogInfo("GlobalValProducer::storeHCal") << eventout << "\n";
+    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
   } // end verbose output
 
   product.putHCalHits(HCalE,HCalToF,HCalPhi,HCalEta);
@@ -1393,8 +1422,10 @@ void GlobalValProducer::storeHCal(PGlobalSimHit& product)
 
 void GlobalValProducer::clear()
 {
+  std::string MsgLoggerCat = "GlobalValProducer.clear";
+
   if (verbosity > 0)
-    edm::LogInfo("GlobalValProducer::clear")
+    edm::LogInfo(MsgLoggerCat)
       << "Clearing event holders"; 
 
   // reset G4MC info

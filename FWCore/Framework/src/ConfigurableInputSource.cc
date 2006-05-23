@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.2 2006/04/04 22:15:22 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.3 2006/04/13 22:24:08 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -61,6 +61,7 @@ namespace edm {
   void
   ConfigurableInputSource::setRunAndEventInfo() {
     if (numberEventsInThisRun_ < numberEventsInRun_) {
+      ++numberEventsInThisRun_;
       eventID_ = eventID_.next();
     } else {
       eventID_ = eventID_.nextRunFirstEvent();

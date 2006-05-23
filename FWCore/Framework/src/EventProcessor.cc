@@ -192,6 +192,8 @@ namespace edm {
       { sJobEnded,      mException,      sError },
       { sError,         mEndJob,         sError },   // funny one here
       { sError,         mDtor,           sError },   // funny one here
+      { sInit,          mDtor,           sEnd },     // for StorM dummy EP
+      { sStopping,      mShutdownAsync,  sShuttingDown }, // For FUEP tests
       { sInvalid,       mAny,            sInvalid }
     };
 
@@ -305,8 +307,12 @@ namespace edm {
       md.moduleName_ =
 	main_input.template getParameter<std::string>("@module_type");
       // There is no module label for the unnamed input source, so 
-      // just use the module name.
+      // just use "source".
+#if 0
+      md.moduleLabel_ = "source";
+#else
       md.moduleLabel_ = md.moduleName_;
+#endif
       md.processName_ = common.processName_; 
      // warning version and pass are hardcoded
       md.versionNumber_ = 1;
@@ -544,6 +550,7 @@ namespace edm {
     adjustForDefaultService(*(pServiceSets.get()), "MessageLogger");
     adjustForService(*(pServiceSets.get()), "LoadAllDictionaries");
     adjustForService(*(pServiceSets.get()), "JobReportService");
+    adjustForService(*(pServiceSets.get()), "SiteLocalConfigService");
 
 
     //create the services
@@ -615,7 +622,7 @@ namespace edm {
     esp_.reset();
     schedule_.reset();
     input_.reset();
-    wreg_ = WorkerRegistry();
+    wreg_.clear();
     actReg_.reset();
   }
 

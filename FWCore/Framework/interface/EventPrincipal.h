@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.28 2006/03/06 01:23:15 chrjones Exp $
+$Id: EventPrincipal.h,v 1.29 2006/04/16 00:26:21 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -50,7 +50,6 @@ namespace edm {
   public:
     typedef std::vector<boost::shared_ptr<Group> > GroupVec;
     typedef GroupVec::const_iterator               const_iterator;
-    typedef std::vector<std::string>               ProcessNameList;
     typedef ProcessNameList::const_iterator        ProcessNameConstIterator;
     typedef boost::shared_ptr<Group>               SharedGroupPtr;
     typedef std::vector<BasicHandle>               BasicHandleVec;

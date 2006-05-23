@@ -1,6 +1,9 @@
 #ifndef Tracker_SiChargeDivider_H
 #define Tracker_SiChargeDivider_H
 
+//#include "Tracker/SiStripDet/interface/SiStripDet.h"
+//#include "CommonDet/BasicDet/interface/SimHit.h"
+//#include "Utilities/UI/interface/SimpleConfigurable.h"
 #include "SimTracker/SiStripDigitizer/interface/EnergyDepositUnit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -16,6 +19,7 @@ class SiChargeDivider{
   typedef vector< EnergyDepositUnit > ionization_type;
   
   virtual ~SiChargeDivider() { }
+  //  virtual ionization_type divide(const SimHit&, const StripDet& det) = 0;
   virtual ionization_type divide(const PSimHit&, const StripGeomDetUnit& det) = 0;
 };
 

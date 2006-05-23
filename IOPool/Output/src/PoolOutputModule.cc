@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.22 2006/04/18 20:28:26 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.25 2006/05/09 03:19:12 lsexton Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -179,15 +179,16 @@ namespace edm {
 	event.status = BranchEntryDescription::CreatorNotRun;
 	event.productID_ = id;
 	eventProvenance.data_.push_back(event);
-	if (i->first->productPtr_.get() == 0) {
-	   std::auto_ptr<EDProduct> edp(e.store()->get(BranchKey(*i->first), &e));
-	   i->first->productPtr_ = boost::shared_ptr<EDProduct>(edp.release());
-	   if (i->first->productPtr_.get() == 0) {
-	    throw edm::Exception(edm::errors::ProductNotFound,"Invalid")
-	      << "PoolOutputModule::write: invalid BranchDescription supplied in productRegistry\n";
-	   }
-	}
-	pool::Ref<EDProduct const> ref(context(), i->first->productPtr_.get());
+
+	std::string const wrapperBegin("edm::Wrapper<");
+	std::string const wrapperEnd1(">");
+	std::string const wrapperEnd2(" >");
+	std::string const& name = i->first->fullClassName_;
+	std::string const& wrapperEnd = (name[name.size()-1] == '>' ? wrapperEnd2 : wrapperEnd1);
+	std::string const className = wrapperBegin + name + wrapperEnd;
+	TClass *cp = gROOT->GetClass(className.c_str());
+	EDProduct *p = static_cast<EDProduct *>(cp->New());
+	pool::Ref<EDProduct const> ref(context(), p);
 	ref.markWrite(i->second);
       } else {
 	eventProvenance.data_.push_back(g->provenance().event);
@@ -246,7 +247,9 @@ namespace edm {
 	it != om_->descVec_.end(); ++it) {
 	BranchDescription const& pd = **it;
 	std::string const& full = pd.branchName_ + "obj";
-	std::string const& alias = (pd.productInstanceName_.empty() ? pd.module.moduleLabel_ : pd.productInstanceName_);
+	std::string const& alias = (pd.branchAlias_.empty() ?
+        (pd.productInstanceName_.empty() ? pd.module.moduleLabel_ : pd.productInstanceName_)
+        : pd.branchAlias_);
 	t->SetAlias(alias.c_str(), full.c_str());
       }
       t->Write(t->GetName(), TObject::kWriteDelete);

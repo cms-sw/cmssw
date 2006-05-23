@@ -315,7 +315,7 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
 
 SiStripDigiValid::~SiStripDigiValid(){
 
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+  //if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
 
@@ -324,6 +324,7 @@ void SiStripDigiValid::beginJob(const EventSetup& c){
 }
 
 void SiStripDigiValid::endJob() {
+ if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 
 }
 
@@ -364,7 +365,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
 
 
 
- LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
+ //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
  ESHandle<TrackerGeometry> tracker;
  c.get<TrackerDigiGeometryRecord>().get( tracker );
 
@@ -373,8 +374,8 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
  e.getByLabel(digiProducer, stripDigis);
  std::vector<unsigned int>  vec = stripDigis->detIDs();
 
- if ( vec.size() > 0 )
-    LogInfo("SiStripDigiValid")<<" DetId Size = "<< vec.size();
+// if ( vec.size() > 0 )
+//    LogInfo("SiStripDigiValid")<<" DetId Size = "<< vec.size();
 
 
    
@@ -671,48 +672,48 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
                    if ( tecid.ring() == 7 ) { meAdcTECWheel3zm_[6] -> Fill((*iter).adc()); meStripTECWheel3zm_[6] ->Fill((*iter).strip()); }
                 }
                 if( tecid.wheel() == 4 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel4zm_[0] -> Fill((*iter).adc()); meStripTECWheel4zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel4zm_[1] -> Fill((*iter).adc()); meStripTECWheel4zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel4zm_[2] -> Fill((*iter).adc()); meStripTECWheel4zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel4zm_[3] -> Fill((*iter).adc()); meStripTECWheel4zm_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel4zm_[4] -> Fill((*iter).adc()); meStripTECWheel4zm_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel4zm_[5] -> Fill((*iter).adc()); meStripTECWheel4zm_[5] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 2 ) { meAdcTECWheel4zm_[0] -> Fill((*iter).adc()); meStripTECWheel4zm_[0] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 3 ) { meAdcTECWheel4zm_[1] -> Fill((*iter).adc()); meStripTECWheel4zm_[1] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 4 ) { meAdcTECWheel4zm_[2] -> Fill((*iter).adc()); meStripTECWheel4zm_[2] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 5 ) { meAdcTECWheel4zm_[3] -> Fill((*iter).adc()); meStripTECWheel4zm_[3] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 6 ) { meAdcTECWheel4zm_[4] -> Fill((*iter).adc()); meStripTECWheel4zm_[4] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 7 ) { meAdcTECWheel4zm_[5] -> Fill((*iter).adc()); meStripTECWheel4zm_[5] ->Fill((*iter).strip()); }
                 }
                 if( tecid.wheel() == 5 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel5zm_[0] -> Fill((*iter).adc()); meStripTECWheel5zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel5zm_[1] -> Fill((*iter).adc()); meStripTECWheel5zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel5zm_[2] -> Fill((*iter).adc()); meStripTECWheel5zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel5zm_[3] -> Fill((*iter).adc()); meStripTECWheel5zm_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel5zm_[4] -> Fill((*iter).adc()); meStripTECWheel5zm_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel5zm_[5] -> Fill((*iter).adc()); meStripTECWheel5zm_[5] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 2 ) { meAdcTECWheel5zm_[0] -> Fill((*iter).adc()); meStripTECWheel5zm_[0] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 3 ) { meAdcTECWheel5zm_[1] -> Fill((*iter).adc()); meStripTECWheel5zm_[1] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 4 ) { meAdcTECWheel5zm_[2] -> Fill((*iter).adc()); meStripTECWheel5zm_[2] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 5 ) { meAdcTECWheel5zm_[3] -> Fill((*iter).adc()); meStripTECWheel5zm_[3] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 6 ) { meAdcTECWheel5zm_[4] -> Fill((*iter).adc()); meStripTECWheel5zm_[4] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 7 ) { meAdcTECWheel5zm_[5] -> Fill((*iter).adc()); meStripTECWheel5zm_[5] ->Fill((*iter).strip()); }
                 }
                 if( tecid.wheel() == 6 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel6zm_[0] -> Fill((*iter).adc()); meStripTECWheel6zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel6zm_[1] -> Fill((*iter).adc()); meStripTECWheel6zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel6zm_[2] -> Fill((*iter).adc()); meStripTECWheel6zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel6zm_[3] -> Fill((*iter).adc()); meStripTECWheel6zm_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel6zm_[4] -> Fill((*iter).adc()); meStripTECWheel6zm_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel6zm_[5] -> Fill((*iter).adc()); meStripTECWheel6zm_[5] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 2 ) { meAdcTECWheel6zm_[0] -> Fill((*iter).adc()); meStripTECWheel6zm_[0] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 3 ) { meAdcTECWheel6zm_[1] -> Fill((*iter).adc()); meStripTECWheel6zm_[1] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 4 ) { meAdcTECWheel6zm_[2] -> Fill((*iter).adc()); meStripTECWheel6zm_[2] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 5 ) { meAdcTECWheel6zm_[3] -> Fill((*iter).adc()); meStripTECWheel6zm_[3] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 6 ) { meAdcTECWheel6zm_[4] -> Fill((*iter).adc()); meStripTECWheel6zm_[4] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 7 ) { meAdcTECWheel6zm_[5] -> Fill((*iter).adc()); meStripTECWheel6zm_[5] ->Fill((*iter).strip()); }
                 }
                 if( tecid.wheel() == 7 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel7zm_[0] -> Fill((*iter).adc()); meStripTECWheel7zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel7zm_[1] -> Fill((*iter).adc()); meStripTECWheel7zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel7zm_[2] -> Fill((*iter).adc()); meStripTECWheel7zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel7zm_[3] -> Fill((*iter).adc()); meStripTECWheel7zm_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel7zm_[4] -> Fill((*iter).adc()); meStripTECWheel7zm_[4] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 3 ) { meAdcTECWheel7zm_[0] -> Fill((*iter).adc()); meStripTECWheel7zm_[0] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 4 ) { meAdcTECWheel7zm_[1] -> Fill((*iter).adc()); meStripTECWheel7zm_[1] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 5 ) { meAdcTECWheel7zm_[2] -> Fill((*iter).adc()); meStripTECWheel7zm_[2] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 6 ) { meAdcTECWheel7zm_[3] -> Fill((*iter).adc()); meStripTECWheel7zm_[3] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 7 ) { meAdcTECWheel7zm_[4] -> Fill((*iter).adc()); meStripTECWheel7zm_[4] ->Fill((*iter).strip()); }
                 }
                 if( tecid.wheel() == 8 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel8zm_[0] -> Fill((*iter).adc()); meStripTECWheel8zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel8zm_[1] -> Fill((*iter).adc()); meStripTECWheel8zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel8zm_[2] -> Fill((*iter).adc()); meStripTECWheel8zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel8zm_[3] -> Fill((*iter).adc()); meStripTECWheel8zm_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel8zm_[4] -> Fill((*iter).adc()); meStripTECWheel8zm_[4] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 3 ) { meAdcTECWheel8zm_[0] -> Fill((*iter).adc()); meStripTECWheel8zm_[0] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 4 ) { meAdcTECWheel8zm_[1] -> Fill((*iter).adc()); meStripTECWheel8zm_[1] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 5 ) { meAdcTECWheel8zm_[2] -> Fill((*iter).adc()); meStripTECWheel8zm_[2] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 6 ) { meAdcTECWheel8zm_[3] -> Fill((*iter).adc()); meStripTECWheel8zm_[3] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 7 ) { meAdcTECWheel8zm_[4] -> Fill((*iter).adc()); meStripTECWheel8zm_[4] ->Fill((*iter).strip()); }
                 }
                 if( tecid.wheel() == 9 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel9zm_[0] -> Fill((*iter).adc()); meStripTECWheel9zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel9zm_[1] -> Fill((*iter).adc()); meStripTECWheel9zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel9zm_[2] -> Fill((*iter).adc()); meStripTECWheel9zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel9zm_[3] -> Fill((*iter).adc()); meStripTECWheel9zm_[3] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 4 ) { meAdcTECWheel9zm_[0] -> Fill((*iter).adc()); meStripTECWheel9zm_[0] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 5 ) { meAdcTECWheel9zm_[1] -> Fill((*iter).adc()); meStripTECWheel9zm_[1] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 6 ) { meAdcTECWheel9zm_[2] -> Fill((*iter).adc()); meStripTECWheel9zm_[2] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 7 ) { meAdcTECWheel9zm_[3] -> Fill((*iter).adc()); meStripTECWheel9zm_[3] ->Fill((*iter).strip()); }
                 }
               }else {
                 ++ndigiwheelteczp[tecid.wheel()-1];
@@ -744,48 +745,48 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
                    if ( tecid.ring() == 7 ) { meAdcTECWheel3zp_[6] -> Fill((*iter).adc()); meStripTECWheel3zp_[6] ->Fill((*iter).strip()); }
                 }
                 if( tecid.wheel() == 4 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel4zp_[0] -> Fill((*iter).adc()); meStripTECWheel4zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel4zp_[1] -> Fill((*iter).adc()); meStripTECWheel4zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel4zp_[2] -> Fill((*iter).adc()); meStripTECWheel4zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel4zp_[3] -> Fill((*iter).adc()); meStripTECWheel4zp_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel4zp_[4] -> Fill((*iter).adc()); meStripTECWheel4zp_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel4zp_[5] -> Fill((*iter).adc()); meStripTECWheel4zp_[5] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 2 ) { meAdcTECWheel4zp_[0] -> Fill((*iter).adc()); meStripTECWheel4zp_[0] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 3 ) { meAdcTECWheel4zp_[1] -> Fill((*iter).adc()); meStripTECWheel4zp_[1] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 4 ) { meAdcTECWheel4zp_[2] -> Fill((*iter).adc()); meStripTECWheel4zp_[2] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 5 ) { meAdcTECWheel4zp_[3] -> Fill((*iter).adc()); meStripTECWheel4zp_[3] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 6 ) { meAdcTECWheel4zp_[4] -> Fill((*iter).adc()); meStripTECWheel4zp_[4] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 7 ) { meAdcTECWheel4zp_[5] -> Fill((*iter).adc()); meStripTECWheel4zp_[5] ->Fill((*iter).strip()); }
                 }
                 if( tecid.wheel() == 5 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel5zp_[0] -> Fill((*iter).adc()); meStripTECWheel5zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel5zp_[1] -> Fill((*iter).adc()); meStripTECWheel5zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel5zp_[2] -> Fill((*iter).adc()); meStripTECWheel5zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel5zp_[3] -> Fill((*iter).adc()); meStripTECWheel5zp_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel5zp_[4] -> Fill((*iter).adc()); meStripTECWheel5zp_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel5zp_[5] -> Fill((*iter).adc()); meStripTECWheel5zp_[5] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 2 ) { meAdcTECWheel5zp_[0] -> Fill((*iter).adc()); meStripTECWheel5zp_[0] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 3 ) { meAdcTECWheel5zp_[1] -> Fill((*iter).adc()); meStripTECWheel5zp_[1] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 4 ) { meAdcTECWheel5zp_[2] -> Fill((*iter).adc()); meStripTECWheel5zp_[2] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 5 ) { meAdcTECWheel5zp_[3] -> Fill((*iter).adc()); meStripTECWheel5zp_[3] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 6 ) { meAdcTECWheel5zp_[4] -> Fill((*iter).adc()); meStripTECWheel5zp_[4] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 7 ) { meAdcTECWheel5zp_[5] -> Fill((*iter).adc()); meStripTECWheel5zp_[5] ->Fill((*iter).strip()); }
                 }
                 if( tecid.wheel() == 6 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel6zp_[0] -> Fill((*iter).adc()); meStripTECWheel6zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel6zp_[1] -> Fill((*iter).adc()); meStripTECWheel6zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel6zp_[2] -> Fill((*iter).adc()); meStripTECWheel6zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel6zp_[3] -> Fill((*iter).adc()); meStripTECWheel6zp_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel6zp_[4] -> Fill((*iter).adc()); meStripTECWheel6zp_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel6zp_[5] -> Fill((*iter).adc()); meStripTECWheel6zp_[5] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 2 ) { meAdcTECWheel6zp_[0] -> Fill((*iter).adc()); meStripTECWheel6zp_[0] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 3 ) { meAdcTECWheel6zp_[1] -> Fill((*iter).adc()); meStripTECWheel6zp_[1] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 4 ) { meAdcTECWheel6zp_[2] -> Fill((*iter).adc()); meStripTECWheel6zp_[2] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 5 ) { meAdcTECWheel6zp_[3] -> Fill((*iter).adc()); meStripTECWheel6zp_[3] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 6 ) { meAdcTECWheel6zp_[4] -> Fill((*iter).adc()); meStripTECWheel6zp_[4] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 7 ) { meAdcTECWheel6zp_[5] -> Fill((*iter).adc()); meStripTECWheel6zp_[5] ->Fill((*iter).strip()); }
                 }
                 if( tecid.wheel() == 7 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel7zp_[0] -> Fill((*iter).adc()); meStripTECWheel7zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel7zp_[1] -> Fill((*iter).adc()); meStripTECWheel7zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel7zp_[2] -> Fill((*iter).adc()); meStripTECWheel7zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel7zp_[3] -> Fill((*iter).adc()); meStripTECWheel7zp_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel7zp_[4] -> Fill((*iter).adc()); meStripTECWheel7zp_[4] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 3 ) { meAdcTECWheel7zp_[0] -> Fill((*iter).adc()); meStripTECWheel7zp_[0] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 4 ) { meAdcTECWheel7zp_[1] -> Fill((*iter).adc()); meStripTECWheel7zp_[1] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 5 ) { meAdcTECWheel7zp_[2] -> Fill((*iter).adc()); meStripTECWheel7zp_[2] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 6 ) { meAdcTECWheel7zp_[3] -> Fill((*iter).adc()); meStripTECWheel7zp_[3] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 7 ) { meAdcTECWheel7zp_[4] -> Fill((*iter).adc()); meStripTECWheel7zp_[4] ->Fill((*iter).strip()); }
                 }
                 if( tecid.wheel() == 8 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel8zp_[0] -> Fill((*iter).adc()); meStripTECWheel8zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel8zp_[1] -> Fill((*iter).adc()); meStripTECWheel8zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel8zp_[2] -> Fill((*iter).adc()); meStripTECWheel8zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel8zp_[3] -> Fill((*iter).adc()); meStripTECWheel8zp_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel8zp_[4] -> Fill((*iter).adc()); meStripTECWheel8zp_[4] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 3 ) { meAdcTECWheel8zp_[0] -> Fill((*iter).adc()); meStripTECWheel8zp_[0] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 4 ) { meAdcTECWheel8zp_[1] -> Fill((*iter).adc()); meStripTECWheel8zp_[1] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 5 ) { meAdcTECWheel8zp_[2] -> Fill((*iter).adc()); meStripTECWheel8zp_[2] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 6 ) { meAdcTECWheel8zp_[3] -> Fill((*iter).adc()); meStripTECWheel8zp_[3] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 7 ) { meAdcTECWheel8zp_[4] -> Fill((*iter).adc()); meStripTECWheel8zp_[4] ->Fill((*iter).strip()); }
                 }
                 if( tecid.wheel() == 9 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel9zp_[0] -> Fill((*iter).adc()); meStripTECWheel9zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel9zp_[1] -> Fill((*iter).adc()); meStripTECWheel9zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel9zp_[2] -> Fill((*iter).adc()); meStripTECWheel9zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel9zp_[3] -> Fill((*iter).adc()); meStripTECWheel9zp_[3] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 4 ) { meAdcTECWheel9zp_[0] -> Fill((*iter).adc()); meStripTECWheel9zp_[0] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 5 ) { meAdcTECWheel9zp_[1] -> Fill((*iter).adc()); meStripTECWheel9zp_[1] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 6 ) { meAdcTECWheel9zp_[2] -> Fill((*iter).adc()); meStripTECWheel9zp_[2] ->Fill((*iter).strip()); }
+                   if ( tecid.ring() == 7 ) { meAdcTECWheel9zp_[3] -> Fill((*iter).adc()); meStripTECWheel9zp_[3] ->Fill((*iter).strip()); }
                 }
              }
            }

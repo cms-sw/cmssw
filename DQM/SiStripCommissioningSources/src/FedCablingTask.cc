@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -36,8 +37,8 @@ void FedCablingTask::book() {
   for ( uint16_t iter = 0; iter < 2; iter++ ) {
     
     // Define number of histo bins and title
-    if ( iter == 0 )      { nbins = 1024; info = sistrip::fedId_; }
-    else if ( iter == 1 ) { nbins = 96;   info = sistrip::fedChannel_; }
+    if ( iter == 0 )      { nbins = 1024; info = SiStripHistoNamingScheme::fedId(); }
+    else if ( iter == 1 ) { nbins = 96;   info = SiStripHistoNamingScheme::fedCh(); }
     else {
       edm::LogError("Commissioning") << "[FedCablingTask::book]"
 				     << " Unexpected number of HistoSets" << iter;

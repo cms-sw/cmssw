@@ -1,14 +1,16 @@
+
 /*!
-<!-- Substitute Geometry and DTGeometry with the proper names! -->
 
 \page Geometry_DTGeometry Package Geometry/DTGeometry
+
 <center>
 <small>
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Geometry/DTGeometry/?cvsroot=CMSSW>CVS head for this package</a> - 
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Geometry/DTGeometry/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
 <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Geometry/DTGeometry/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
-
 
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
@@ -29,13 +31,15 @@ None.
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-None.
+-testDTGeometry.cfg
+-testDTTopology.cpp
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
 Completed.
 
 <hr>
-Last updated:
-07-FEB-2006 N. Amapane
+Last updated: @DATE@ 
+Author: N. Amapane
 */
+

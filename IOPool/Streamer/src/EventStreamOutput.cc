@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.14 2006/03/21 03:14:58 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.16 2006/05/20 00:01:33 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -72,7 +72,9 @@ namespace edm
   // -------------------------------------
 
   EventStreamerImpl::EventStreamerImpl(ParameterSet const&,
+				       Selections const* selections,
 				       EventBuffer* bufs):
+    selections_(selections),
     bufs_(bufs),
     tc_(),
     prod_reg_buf_(100 * 1000),
@@ -143,39 +145,42 @@ namespace edm
 
   void EventStreamerImpl::serialize(EventPrincipal const& e)
   {
+    std::list<Provenance> provenances; // Use list so push_back does not invalidate iterators.
     // all provenance data needs to be transferred, including the
     // indirect stuff referenced from the product provenance structure.
     SendEvent se(e.id(),e.time());
 
-    EventPrincipal::const_iterator i(e.begin()),ie(e.end());
-    for(;i!=ie; ++i)
-      {
-	const Group* group = (*i).get();
-	if (true) // selected(group->provenance().product))
-	  {
-	    // necessary for now - will need to be improved
-	    if (group->product()==0)
-	      e.get(group->provenance().product.productID_);
+    Selections::const_iterator i(selections_->begin()),ie(selections_->end());
+    // Loop over EDProducts, fill the provenance, and write.
+    for(; i != ie; ++i) {
+      BranchDescription const& desc = **i;
+      ProductID const& id = desc.productID_;
 
-	    FDEBUG(11) << "Prov:"
-		 << " " << group->provenance().product.fullClassName_
-		 << " " << group->provenance().product.productID_
-		 << endl;
+      if (id == ProductID()) {
+	throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+	  << "EventStreamOutput::serialize: invalid ProductID supplied in productRegistry\n";
+      }
+      EventPrincipal::SharedGroupPtr const group = e.getGroup(id);
+      if (group.get() == 0) {
+	std::string const wrapperBegin("edm::Wrapper<");
+	std::string const wrapperEnd1(">");
+	std::string const wrapperEnd2(" >");
+	std::string const& name = desc.fullClassName_;
+	std::string const& wrapperEnd = (name[name.size()-1] == '>' ? wrapperEnd2 : wrapperEnd1);
+	std::string const className = wrapperBegin + name + wrapperEnd;
+	TClass *cp = gROOT->GetClass(className.c_str());
+	EDProduct *p = static_cast<EDProduct *>(cp->New());
 
-	    if(group->product()==0)
-	      {
-		throw cms::Exception("Output")
-		  << "The product is null even though it is not supposed to be";
-	      }
-
-	    se.prods_.push_back(
-				ProdPair(group->product(),
-					 &group->provenance())
-				);
-
-
-	  }
-      }	
+	Provenance prov(desc);
+	prov.event.status = BranchEntryDescription::CreatorNotRun;
+	prov.event.productID_ = id;
+	provenances.push_back(prov);
+	Provenance & provenance = *provenances.rbegin();
+	se.prods_.push_back(ProdPair(p, &provenance));
+      } else {
+	se.prods_.push_back(ProdPair(group->product(), &group->provenance()));
+      }
+    }
 
 #if 0
     FDEBUG(11) << "-----Dump start" << endl;

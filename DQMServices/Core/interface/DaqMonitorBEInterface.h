@@ -95,7 +95,7 @@ class DaqMonitorBEInterface: public StringUtil
   // (defined in Core/interface/QTestStatus.h);
   // if directory="", save full monitoring structure
   virtual void save(std::string filename, std::string directory="",
-		    int minimum_status=dqm::qstatus::STATUS_OK) = 0;
+		    int minimum_status=dqm::qstatus::STATUS_OK) const = 0;
   // cycle through all monitoring objects, draw one at time
   virtual void drawAll(void) = 0;
   // get list of subdirectories of current directory
@@ -192,17 +192,9 @@ class DaqMonitorBEInterface: public StringUtil
   void convert(std::vector<std::string> & put_here, 
 	       const dqm::me_util::monit_map & in) const;
   
-  /* come here at end of monitoring cycle for all receivers;
-     (a) call resetUpdate for modified contents
-
-     (b) if resetMEs=true, reset MEs that were updated (and have resetMe = true);
-     [flag resetMe is typically set by sources (false by default)];
-
-     (c) if callResetStuff = true, call resetStuff
-     (typical behaviour: Sources & Collector have callResetStuff = true, whereas
-     clients have callResetStuff = false, so GUI/WebInterface can access the 
-     modifications in monitorable & monitoring) */
-  void doneSending(bool resetMEs, bool callResetStuff);
+  // come here at end of monitoring cycle for all receivers;
+  // if reset=true, reset MEs that were updated (and have resetME = true)
+  void doneSending(bool reset);
  
   // ------------------- Booking ---------------------------
 
@@ -266,9 +258,11 @@ class DaqMonitorBEInterface: public StringUtil
   void add2UpdatedQReports(MonitorElement * me)
   {updatedQReports.insert(me);}
 
-  // (a) reset modifications to monitorable since last cycle 
-  // (b) reset sets of added/removed/updated contents and updated QReports
-  void resetStuff(void);
+  // (a) call resetUpdate for modified contents
+  // (b) reset modifications to monitorable since last cycle 
+  // (c) reset sets of added/removed/updated contents and updated QReports
+  // if reset=true, reset MEs that were updated (and have resetMe = true)
+  void resetStuff(bool reset = false);
 
   pthread_mutex_t mutex_;
 
@@ -283,22 +277,16 @@ class DaqMonitorBEInterface: public StringUtil
   // format: <dir pathname>:<obj1>,<obj2>,...
   // saved here by a downstream class, till ReceiverBase 
   // sends the request to the sender
-  struct SubcRequests_ {
-    LockMutex::Mutex mutex;
-    std::list<std::string> toAdd; 
-    std::list<std::string> toRemove; 
-  };
-  typedef SubcRequests_ SubcRequests;
-
-  SubcRequests requests;
-
+  std::list<std::string> request2add; 
+  std::list<std::string> request2remove; 
+  
   // new added & removed monitorable since last cycle; 
   // format: <dir pathname>:<obj1>,<obj2>,...
-  // reset after all recipients have been informed (ie. in resetStuff)
+  // reset after all recipients have been informed (ie. in doneSending)
   std::vector<std::string> addedMonitorable;
   std::vector<std::string> removedMonitorable;
   // new added & removed contents since last cycle;
-  // reset after all recipients have been informed (ie. in resetStuff);
+  // reset after all recipients have been informed (ie. in doneSending);
   // Note: these do not include objects in subscriber's folders
   dqm::me_util::monit_map addedContents;
   dqm::me_util::monit_map removedContents;

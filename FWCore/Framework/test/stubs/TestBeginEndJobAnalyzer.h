@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 14:17:17 EDT 2005
-// $Id$
+// $Id: TestBeginEndJobAnalyzer.h,v 1.1 2005/09/02 19:26:08 chrjones Exp $
 //
 
 // system include files
@@ -37,6 +37,7 @@ public:
    
    static bool beginJobCalled;
    static bool endJobCalled;
+   static bool destructorCalled;
 private:
       // ----------member data ---------------------------
 };

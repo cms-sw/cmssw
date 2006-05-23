@@ -1,5 +1,0 @@
-MAPPING_FILE=${MAPPING_PATH}/CSCPedestals-mapping-custom_1.0.xml
-OBJECT_LIBRARY=CondFormatsCSCObjects
-OBJECT_NAME=CSCPedestals
-OBJECT_TABLE=CSCPEDESTALS
-TAG=${OBJECT_NAME}_from_online
