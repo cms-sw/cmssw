@@ -6,7 +6,7 @@
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
 
@@ -120,9 +120,7 @@ TOBRod::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   try{
     crossings = computeCrossings( tsos, prop.propagationDirection());  
   }
-  catch(Genexception& err){ //In ORCA, it was a DetLogicError exception
-    cout << "Aie, got an exception in DetRodTwoR::groupedCompatibleDets:" 
-	 << err.what() << endl;
+  catch(DetLayerException& err){ 
     return closestResult;
   }    
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
@@ -169,9 +167,7 @@ TOBRod::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
   pair<bool,double> innerPath = crossing.pathLength( *theInnerPlane);
   if (!innerPath.first) {
-    cout << "ERROR in DetRodTwoR: inner subRod not crossed by track" << endl;
-    //throw DetLogicError("DetRodTwoR: inner subRod not crossed by track");
-    throw Genexception("DetRodTwoR: inner subRod not crossed by track");
+    throw DetLayerException("DetRodTwoR: inner subRod not crossed by track");
   }
   GlobalPoint gInnerPoint( crossing.position(innerPath.second));
   int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.z());
@@ -180,9 +176,7 @@ TOBRod::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
   pair<bool,double> outerPath = crossing.pathLength( *theOuterPlane);
   if (!outerPath.first) {
-    cout << "ERROR in DetRodTwoR: outer subRod not crossed by track" << endl;
-    //throw DetLogicError("DetRodTwoR: outer subRod not crossed by track");
-    throw Genexception("DetRodTwoR: outer subRod not crossed by track");
+    throw DetLayerException("DetRodTwoR: outer subRod not crossed by track");
   }
   GlobalPoint gOuterPoint( crossing.position(outerPath.second));
   int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.z());

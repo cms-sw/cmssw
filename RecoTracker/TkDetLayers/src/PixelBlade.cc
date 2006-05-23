@@ -5,7 +5,7 @@
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 
@@ -94,9 +94,9 @@ PixelBlade::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   try{
     crossings = computeCrossings( tsos, prop.propagationDirection());  
   }
-  catch(Genexception& err){ //In ORCA, it was a DetLogicError exception
-    cout << "Aie, got an exception in PixelBlade::groupedCompatibleDets:" 
-	 << err.what() << endl;
+  catch(DetLayerException& err){ //In ORCA, it was a DetLogicError exception
+    //cout << "Aie, got an exception in PixelBlade::groupedCompatibleDets:" 
+    //	 << err.what() << endl;
     return closestResult;
   }    
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
@@ -143,9 +143,8 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
   pair<bool,double> innerPath = crossing.pathLength( *theFrontDiskSector);
   if (!innerPath.first) {
-    cout << "ERROR in PixelBlade: inner subBlade not crossed by track" << endl;
-    //throw DetLogicError("PixelBlade: inner subBlade not crossed by track");
-    throw Genexception("PixelBlade: inner subBlade not crossed by track");
+    //cout << "ERROR in PixelBlade: inner subBlade not crossed by track" << endl;
+    throw DetLayerException("PixelBlade: inner subBlade not crossed by track");
   }
   GlobalPoint gInnerPoint( crossing.position(innerPath.second));
   //Code for use of binfinder
@@ -157,9 +156,8 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
   pair<bool,double> outerPath = crossing.pathLength( *theBackDiskSector);
   if (!outerPath.first) {
-    cout << "ERROR in PixelBlade: outer subBlade not crossed by track" << endl;
-    //throw DetLogicError("PixelBlade: outer subBlade not crossed by track");
-    throw Genexception("PixelBlade: outer subBlade not crossed by track");
+    //cout << "ERROR in PixelBlade: outer subBlade not crossed by track" << endl;
+    throw DetLayerException("PixelBlade: outer subBlade not crossed by track");
   }
   GlobalPoint gOuterPoint( crossing.position(outerPath.second));
   //Code for use of binfinder

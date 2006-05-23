@@ -4,7 +4,7 @@
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
@@ -106,9 +106,9 @@ TIDRing::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   try{
     crossings = computeCrossings( tsos, prop.propagationDirection());  
   }
-  catch(Genexception& err){
-    cout << "Aie, got a Genexception in TIDRing::groupedCompatibleDets:" 
-	 << err.what() << endl;
+  catch(DetLayerException& err){
+    //cout << "Aie, got a DetLayerException in TIDRing::groupedCompatibleDets:" 
+    // << err.what() << endl;
     return closestResult;
   }
 
@@ -144,8 +144,8 @@ TIDRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
 
   pair<bool,double> frontPath = crossing.pathLength( *theFrontDisk);
   if (!frontPath.first) {
-    cout << "ERROR in TIDRing: front disk not crossed by track" << endl;
-    throw Genexception("TIDRing: front disk not crossed by track");
+    //cout << "ERROR in TIDRing: front disk not crossed by track" << endl;
+    throw DetLayerException("TIDRing: front disk not crossed by track");
   }
 
   GlobalPoint gFrontPoint(crossing.position(frontPath.second));
@@ -158,8 +158,8 @@ TIDRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
 
   pair<bool,double> backPath = crossing.pathLength( *theBackDisk);
   if (!backPath.first) {
-    cout << "ERROR in TIDRing: back disk not crossed by track" << endl;
-    throw Genexception("TIDRing: back disk not crossed by track");
+    //cout << "ERROR in TIDRing: back disk not crossed by track" << endl;
+    throw DetLayerException("TIDRing: back disk not crossed by track");
   }
 
 
@@ -303,7 +303,7 @@ TIDRing::computeDetPhiRange( const BoundPlane& plane) const
   
   if (myBounds == 0) {
     string errmsg="TkForwardRing: problems with dynamic cast to trapezoidal bounds for Det";
-    throw Genexception(errmsg);
+    throw DetLayerException(errmsg);
     cout << errmsg << endl;
   }
   vector<float> parameters = (*myBounds).parameters();

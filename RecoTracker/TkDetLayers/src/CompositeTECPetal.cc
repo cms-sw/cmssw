@@ -6,7 +6,7 @@
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 
@@ -97,9 +97,9 @@ CompositeTECPetal::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   try{
     crossings = computeCrossings( tsos, prop.propagationDirection());  
   }
-  catch(Genexception& err){
-    cout << "Aie, got a Genexception in CompositeTECPetal::groupedCompatibleDets:" 
-	 << err.what() << endl;
+  catch(DetLayerException& err){
+    //cout << "Aie, got a DetLayerException in CompositeTECPetal::groupedCompatibleDets:" 
+    // << err.what() << endl;
     return closestResult;
   } 
   addClosest( tsos, prop, est, crossings.closest(), closestResult); 
@@ -147,8 +147,8 @@ CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingStat
   pair<bool,double> frontPath = crossing.pathLength( *theFrontSector);
 
   if (!frontPath.first) {
-    cout << "ERROR in TkPetal: frontSector not crossed by track" << endl;
-    throw Genexception("TkPetal: frontSector not crossed by track");
+    //cout << "ERROR in TkPetal: frontSector not crossed by track" << endl;
+    throw DetLayerException("TkPetal: frontSector not crossed by track");
   }
 
   GlobalPoint gFrontPoint(crossing.position(frontPath.second));
@@ -162,8 +162,8 @@ CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingStat
   pair<bool,double> backPath = crossing.pathLength( *theBackSector);
 
   if (!backPath.first) {
-    cout << "ERROR in TkPetal: backSector not crossed by track" << endl;
-    throw Genexception("TkPetal: backSector not crossed by track");
+    //cout << "ERROR in TkPetal: backSector not crossed by track" << endl;
+    throw DetLayerException("TkPetal: backSector not crossed by track");
   }
   
 

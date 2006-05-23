@@ -5,7 +5,7 @@
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
@@ -98,9 +98,9 @@ CompositeTECWedge::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     crossings = computeCrossings( tsos, prop.propagationDirection());  
   }
   //catch(DetLogicError& err){
-  catch(Genexception& err){
-    cout << "Aie, got a DetLogicError in CompositeTkPetalWedge::groupedCompatibleDets:" 
-	 << err.what() << endl;
+  catch(DetLayerException& err){
+    //cout << "Aie, got a DetLogicError in CompositeTkPetalWedge::groupedCompatibleDets:" 
+    // << err.what() << endl;
     return closestResult;
   }
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
@@ -140,8 +140,8 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
   pair<bool,double> frontPath = crossing.pathLength( *theFrontSector);
   if (!frontPath.first) {
-    cout << "ERROR in CompositeTECWedge: front sector not crossed by track" << endl;
-    throw Genexception("CompositeTECWedge: front sector not crossed by track");
+    //cout << "ERROR in CompositeTECWedge: front sector not crossed by track" << endl;
+    throw DetLayerException("CompositeTECWedge: front sector not crossed by track");
   }
   GlobalPoint gFrontPoint( crossing.position(frontPath.second));
   int frontIndex = findClosestDet(gFrontPoint,0); 
@@ -150,8 +150,8 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
   pair<bool,double> backPath = crossing.pathLength( *theBackSector);
   if (!backPath.first) {
-    cout << "ERROR in CompositeTECWedge: back sector not crossed by track" << endl;
-    throw Genexception("CompositeTECWedge: back sector not crossed by track");
+    //cout << "ERROR in CompositeTECWedge: back sector not crossed by track" << endl;
+    throw DetLayerException("CompositeTECWedge: back sector not crossed by track");
   }
   GlobalPoint gBackPoint( crossing.position(backPath.second));
   int backIndex = findClosestDet(gBackPoint,1);
@@ -284,7 +284,7 @@ CompositeTECWedge::computeDetPhiRange( const BoundPlane& plane) const
   
   if (myBounds == 0) {
     string errmsg="CompositeTkPetalWedge: problems with dynamic cast to trapezoidal bounds for Det";
-    throw Genexception(errmsg);
+    throw DetLayerException(errmsg);
     cout << errmsg << endl;
   }
   vector<float> parameters = (*myBounds).parameters();

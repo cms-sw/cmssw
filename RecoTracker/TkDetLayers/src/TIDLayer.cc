@@ -3,7 +3,7 @@
 
 //#include "CommonDet/DetLayout/src/DetLessR.h"
 #include "Geometry/Surface/interface/SimpleDiskBounds.h"
-#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 
 
@@ -31,7 +31,7 @@ TIDLayer::TIDLayer(vector<const TIDRing*>& rings):
   //sort( theRings.begin(), theRings.end(), DetLessR());
   setSurface( computeDisk( theRings ) );
 
-  if ( theRings.size() != 3) throw Genexception("Number of rings in TID layer is not equal to 3 !!");
+  if ( theRings.size() != 3) throw DetLayerException("Number of rings in TID layer is not equal to 3 !!");
 
   for(vector<const TIDRing*>::const_iterator it=theRings.begin();
       it!=theRings.end();it++){
@@ -182,13 +182,13 @@ TIDLayer::ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startin
       ringXDirections.push_back( GlobalVector( myXing.direction(pathlen.second )));
     } else {
       // TO FIX.... perhaps there is something smarter to do
-      //throw Genexception("trajectory doesn't cross TID rings");
+      //throw DetLayerException("trajectory doesn't cross TID rings");
       ringCrossings.push_back( GlobalPoint( 0.,0.,0.));
       ringXDirections.push_back( GlobalVector( 0.,0.,0.));
     }
   }
   if (ringCrossings.size() != 3 )  
-    throw Genexception("TIDLayer::groupedCompDets => Problem with crossing size, not equal 3 !");
+    throw DetLayerException("TIDLayer::groupedCompDets => Problem with crossing size, not equal 3 !");
   
 
   int closestIndex = findClosest(ringCrossings);
@@ -259,7 +259,7 @@ TIDLayer::orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
   }
   else{ //  momentum points inwards
     // I don't know what to do 
-    throw Genexception("TIDLayer::orderAndMergeLevels() inward implementation still to do");
+    throw DetLayerException("TIDLayer::orderAndMergeLevels() inward implementation still to do");
   }
   
   return result;

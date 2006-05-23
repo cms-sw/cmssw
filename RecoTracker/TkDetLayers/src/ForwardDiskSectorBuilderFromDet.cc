@@ -2,7 +2,7 @@
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
 // Warning, remember to assign this pointer to a ReferenceCountingPointer!
 BoundDiskSector* 
@@ -114,7 +114,7 @@ ForwardDiskSectorBuilderFromDet::computeTrapezoidalCorners( const GeomDet* det) 
   
   if (myBounds == 0) {
     string errmsg="ForwardDiskSectorBuilderFromDet: problems with dynamic cast to trapezoidal bounds for DetUnits";
-    throw Genexception(errmsg);
+    throw DetLayerException(errmsg);
     cout << errmsg << endl;
   }
   vector<float> parameters = (*myBounds).parameters();

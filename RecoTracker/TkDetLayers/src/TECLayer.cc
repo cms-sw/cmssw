@@ -3,7 +3,7 @@
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
@@ -119,9 +119,9 @@ TECLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   try{
     crossings = computeCrossings( tsos, prop.propagationDirection());  
   }
-  catch(Genexception& err){
-    cout << "Aie, got a Genexception in TECLayer::groupedCompatibleDets:" 
-	 << err.what() << endl;
+  catch(DetLayerException& err){
+    //cout << "Aie, got a DetLayerException in TECLayer::groupedCompatibleDets:" 
+    // << err.what() << endl;
     return closestResult;
   }    
   addClosest( tsos, prop, est, crossings.closest(), closestResult); 
@@ -166,8 +166,8 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
 
   pair<bool,double> frontPath = crossing.pathLength( *theFrontDisk);
   if (!frontPath.first) {
-    cout << "ERROR in TECLayer: front disk not crossed by track" << endl;
-    throw Genexception("TECLayer: front disk not crossed by track");
+    //cout << "ERROR in TECLayer: front disk not crossed by track" << endl;
+    throw DetLayerException("TECLayer: front disk not crossed by track");
   }
 
   GlobalPoint gFrontPoint(crossing.position(frontPath.second));
@@ -180,8 +180,8 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
 
   pair<bool,double> backPath = crossing.pathLength( *theBackDisk);
   if (!backPath.first) {
-    cout << "ERROR in TECLayer: back disk not crossed by track" << endl;
-    throw Genexception("TECLayer: back disk not crossed by track");
+    //cout << "ERROR in TECLayer: back disk not crossed by track" << endl;
+    throw DetLayerException("TECLayer: back disk not crossed by track");
   }
 
 

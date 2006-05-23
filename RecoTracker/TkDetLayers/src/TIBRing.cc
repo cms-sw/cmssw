@@ -1,6 +1,6 @@
 #include "RecoTracker/TkDetLayers/interface/TIBRing.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
 #include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
 #include "TrackingTools/DetLayers/interface/simple_stat.h"
@@ -57,7 +57,7 @@ void TIBRing::checkRadius(vector<const GeomDet*>::const_iterator first,
     if (r < rMin) rMin = r;
     if (r > rMax) rMax = r;
   }
-  if (rMax - rMin > 0.1) throw Genexception(
+  if (rMax - rMin > 0.1) throw DetLayerException(
     "TIBRing construction failed: detectors not at constant radius");
 }
 
@@ -82,7 +82,7 @@ void TIBRing::checkPeriodicity(vector<const GeomDet*>::const_iterator first,
 	   << "," << theDets[j]->surface().position().phi() << ") " << endl;
     }
     cout << endl;
-    throw Genexception( "Error: TIBRing is not periodic");
+    throw DetLayerException( "Error: TIBRing is not periodic");
   }
 }
 
@@ -149,9 +149,9 @@ TIBRing::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   try{
     crossings = computeCrossings( tsos, prop.propagationDirection());
   }
-  catch(Genexception& err){
-    cout << "Aie, got a Genexception in TIBRing::groupedCompatibleDets:" 
-	 << err.what() << endl;
+  catch(DetLayerException& err){
+    //cout << "Aie, got a DetLayerException in TIBRing::groupedCompatibleDets:" 
+    // << err.what() << endl;
     return closestResult;
   }
   CompatibleDetToGroupAdder adder;
@@ -245,8 +245,8 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
   HelixBarrelCylinderCrossing cylCrossing( startPos, startDir, rho,
 					   propDir,specificSurface());
   if (!cylCrossing.hasSolution()) {
-    cout << "ERROR in TIBRing: cylinder not crossed by track" << endl;
-    throw Genexception("TIBRing: inner subRod not crossed by track");
+    //cout << "ERROR in TIBRing: cylinder not crossed by track" << endl;
+    throw DetLayerException("TIBRing: inner subRod not crossed by track");
   }
 
   GlobalPoint  cylPoint( cylCrossing.position());

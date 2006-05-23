@@ -2,7 +2,6 @@
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "Geometry/Surface/interface/BoundingBox.h"
 
-#include "Utilities/General/interface/CMSexception.h"
 #include <iomanip>
 
 BoundDiskSector* 

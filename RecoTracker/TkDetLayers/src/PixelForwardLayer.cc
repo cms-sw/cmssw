@@ -2,8 +2,7 @@
 #include "Geometry/Surface/interface/BoundingBox.h"
 #include "Geometry/Surface/interface/SimpleDiskBounds.h"
 
-#include "Utilities/General/interface/CMSexception.h"
-
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/simple_stat.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing2Order.h"
@@ -106,9 +105,9 @@ PixelForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   try{
     crossings = computeCrossings( tsos, prop.propagationDirection());
   }
-  catch(Genexception& err){
-    cout << "Aie, got a Genexception in PixelForwardLayer::groupedCompatibleDets:" 
-	 << err.what() << endl;
+  catch(DetLayerException& err){
+    //cout << "Aie, got a DetLayerException in PixelForwardLayer::groupedCompatibleDets:" 
+    //	 << err.what() << endl;
     return closestResult;
   }
   CompatibleDetToGroupAdder adder;
@@ -213,8 +212,8 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
   pair<bool,double> thePath = turbineCrossing.pathLength( specificSurface() );
   
   if (!thePath.first) {
-    cout << "ERROR in PixelForwardLayer: disk not crossed by track" << endl;
-    throw Genexception("PixelForwardLayer: disk not crossed by track");
+    //cout << "ERROR in PixelForwardLayer: disk not crossed by track" << endl;
+    throw DetLayerException("PixelForwardLayer: disk not crossed by track");
   }
 
   HelixPlaneCrossing::PositionType  turbinePoint( turbineCrossing.position(thePath.second));

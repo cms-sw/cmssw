@@ -4,7 +4,7 @@
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
 #include "Geometry/Surface/interface/SimpleCylinderBounds.h"
@@ -144,9 +144,9 @@ TIBLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   try{
     crossings = computeCrossings( tsos, prop.propagationDirection());  
   }
-  catch(Genexception& err){
-    cout << "Aie, got a Genexception in TIBLayer::groupedCompatibleDets:" 
-	 << err.what() << endl;
+  catch(DetLayerException& err){
+    //cout << "Aie, got a DetLayerException in TIBLayer::groupedCompatibleDets:" 
+    //	 << err.what() << endl;
     return closestResult;
   }
 
@@ -184,8 +184,8 @@ SubLayerCrossings TIBLayer::computeCrossings( const TrajectoryStateOnSurface& st
   HelixBarrelCylinderCrossing innerCrossing( startPos, startDir, rho,
 					     propDir,*theInnerCylinder);
   if (!innerCrossing.hasSolution()) {
-    cout << "ERROR in TIBLayer: inner cylinder not crossed by track" << endl;
-    throw Genexception("TIBLayer: inner subRod not crossed by track");
+    //cout << "ERROR in TIBLayer: inner cylinder not crossed by track" << endl;
+    throw DetLayerException("TIBLayer: inner cylinder not crossed by track");
   }
 
   GlobalPoint gInnerPoint( innerCrossing.position());
@@ -197,8 +197,8 @@ SubLayerCrossings TIBLayer::computeCrossings( const TrajectoryStateOnSurface& st
   HelixBarrelCylinderCrossing outerCrossing( startPos, startDir, rho,
 					     propDir,*theOuterCylinder);
   if (!outerCrossing.hasSolution()) {
-    cout << "ERROR in TIBLayer: outer cylinder not crossed by track" << endl;
-    throw Genexception("TIBLayer: inner subRod not crossed by track");
+    //cout << "ERROR in TIBLayer: outer cylinder not crossed by track" << endl;
+    throw DetLayerException("TIBLayer: inner cylinder not crossed by track");
   }
 
   GlobalPoint gOuterPoint( outerCrossing.position());

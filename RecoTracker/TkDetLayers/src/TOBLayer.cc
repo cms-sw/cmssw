@@ -4,7 +4,7 @@
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
 #include "RecoTracker/TkDetLayers/interface/GlobalDetRodRangeZPhi.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
 #include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
@@ -117,9 +117,9 @@ TOBLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   try{
     crossings = computeCrossings( tsos, prop.propagationDirection());
   }
-  catch(Genexception& err){
-    cout << "Aie, got a Genexception in TOBLayer::groupedCompatibleDets:" 
-	 << err.what() << endl;
+  catch(DetLayerException& err){
+    //cout << "Aie, got a DetLayerException in TOBLayer::groupedCompatibleDets:" 
+    //	 << err.what() << endl;
     return closestResult;
   }
 
@@ -161,8 +161,8 @@ SubLayerCrossings TOBLayer::computeCrossings( const TrajectoryStateOnSurface& st
   HelixBarrelCylinderCrossing innerCrossing( startPos, startDir, rho,
 					     propDir,*theInnerCylinder);
   if (!innerCrossing.hasSolution()) {
-    cout << "ERROR in TOBLayer: inner cylinder not crossed by track" << endl;
-    //throw DetLogicError("TkRodBarrelLayer: inner subRod not crossed by track");
+    //cout << "ERROR in TOBLayer: inner cylinder not crossed by track" << endl;
+    throw DetLayerException("TkRodBarrelLayer: inner subRod not crossed by track");
   }
 
   GlobalPoint gInnerPoint( innerCrossing.position());
@@ -173,7 +173,7 @@ SubLayerCrossings TOBLayer::computeCrossings( const TrajectoryStateOnSurface& st
   HelixBarrelCylinderCrossing outerCrossing( startPos, startDir, rho,
 					     propDir,*theOuterCylinder);
   if (!outerCrossing.hasSolution()) {
-    throw Genexception("TOBLayer: inner subRod not crossed by track");
+    throw DetLayerException("TOBLayer: inner subRod not crossed by track");
   }
 
   GlobalPoint gOuterPoint( outerCrossing.position());
