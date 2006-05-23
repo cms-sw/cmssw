@@ -12,6 +12,7 @@
 
 #include "RecoEcal/EgammaClusterAlgos/interface/HybridClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
 //
 
@@ -35,7 +36,12 @@ class HybridClusterProducer : public edm::EDProducer
       std::string basicclusterCollection_;
       std::string superclusterCollection_;
       std::string hitproducer_;
-      std:: string hitcollection_;
+      std::string hitcollection_;
+      std::string clustershapecollection_;
+      bool clustershape_logweighted;
+      float clustershape_x0;
+      float clustershape_t0;
+      float clustershape_w0;
       HybridClusterAlgo * hybrid_p;
 
       bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
