@@ -47,6 +47,9 @@ void MuonPatternRecoDumper::dumpFTS(FreeTrajectoryState& fts) const {
     " phi: " << fts.momentum().phi() << endl;
 }
 
+void MuonPatternRecoDumper::dumpTSOS(TrajectoryStateOnSurface& tsos) const{
+  dumpFTS(tsos.freeTrajectoryState());
+}
 
 void MuonPatternRecoDumper::dumpLayer(const DetLayer* layer, std::string &where) const {
   BoundSurface* sur=0;
@@ -73,5 +76,9 @@ void MuonPatternRecoDumper::dumpFTS(FreeTrajectoryState& fts,std::string &where)
     " charge*pt: " << fts.momentum().perp()*fts.parameters().charge() <<
     " eta: " << fts.momentum().eta() <<
     " phi: " << fts.momentum().phi() << endl;
+}
+
+void MuonPatternRecoDumper::dumpTSOS(TrajectoryStateOnSurface& tsos,std::string &where) const{
+  dumpFTS(tsos.freeTrajectoryState(),where);
 }
 
