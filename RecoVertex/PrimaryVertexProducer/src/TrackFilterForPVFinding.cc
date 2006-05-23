@@ -1,6 +1,5 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
-
-using namespace std;
+#include <cmath>
 
 TrackFilterForPVFinding::TrackFilterForPVFinding(const edm::ParameterSet& conf)
   : theConfig(conf) {}
@@ -9,8 +8,8 @@ TrackFilterForPVFinding::TrackFilterForPVFinding(const edm::ParameterSet& conf)
 bool 
 TrackFilterForPVFinding::operator() (const reco::TransientTrack & tk) const
 {
-  return (tk.pt() > minPt() 
-	  && abs(tk.d0() / tk.d0Error()) < maxD0Significance());
+  return ( (tk.pt() > minPt())
+	  && (std::abs(tk.d0() / tk.d0Error()) < maxD0Significance()));
 }
 
 

@@ -3,7 +3,7 @@
 
 /**\class TrackFilterForPVFinding 
  
-  Description: separates event tracks into clusters along the beam line
+  Description: selects tracks for primary vertex reconstruction
 
 */
 
