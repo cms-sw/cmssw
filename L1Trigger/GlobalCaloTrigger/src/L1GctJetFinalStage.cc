@@ -120,9 +120,9 @@ void L1GctJetFinalStage::setInputWheelJetFpga(int i, L1GctWheelJetFpga* wjf)
   }
   else
   {
-    throw cms::Exception("RangeError")
-    << "In L1GctJetFinalStage, Wheel Jet FPGA " << i << " is outside input range of 0 to "
-    << (MAX_WHEEL_FPGAS-1) << "\n";
+    throw cms::Exception("L1GctSetupError")
+    << "In L1GctJetFinalStage::setInputWheelJetFpga() : Wheel Jet FPGA " << i
+    << " is outside input range of 0 to " << (MAX_WHEEL_FPGAS-1) << "\n";
   }
 }
 
@@ -134,9 +134,9 @@ void L1GctJetFinalStage::setInputCentralJet(int i, L1GctJetCand jet)
   }
   else
   {
-    throw cms::Exception("RangeError")
-    << "In L1GctJetFinalStage, Central Jet " << i << " is outside input range of 0 to "
-    << (MAX_JETS_IN-1) << "\n";
+    throw cms::Exception("L1GctInputError")
+    << "In L1GctJetFinalStage::setInputCentralJet() : Central Jet " << i
+    << " is outside input range of 0 to " << (MAX_JETS_IN-1) << "\n";
   }
 }
 
@@ -148,9 +148,9 @@ void L1GctJetFinalStage::setInputForwardJet(int i, L1GctJetCand jet)
   }
   else
   {
-    throw cms::Exception("RangeError")
-    << "In L1GctJetFinalStage, Forward Jet " << i << " is outside input range of 0 to "
-    << (MAX_JETS_IN-1) << "\n";
+    throw cms::Exception("L1GctInputError")
+    << "In L1GctJetFinalStage::setInputForwardJet() : Forward Jet " << i
+    << " is outside input range of 0 to " << (MAX_JETS_IN-1) << "\n";
   }
 }
 
@@ -162,9 +162,9 @@ void L1GctJetFinalStage::setInputTauJet(int i, L1GctJetCand jet)
   }
   else
   {
-    throw cms::Exception("RangeError")
-    << "In L1GctJetFinalStage, Tau Jet " << i << " is outside input range of 0 to "
-    << (MAX_JETS_IN-1) << "\n";
+    throw cms::Exception("L1GctInputError")
+    << "In L1GctJetFinalStage::setInputTauJet() : Tau Jet " << i
+    << " is outside input range of 0 to " << (MAX_JETS_IN-1) << "\n";
   }
 }
 

@@ -57,12 +57,12 @@ public:
   inline L1GctJcBoundType outputJc(unsigned jcnum) const { return m_outputJc[jcnum]; }
 private:
 
-    /// Max number of wheel FPGA pointers
-    static const int MAX_WHEEL_FPGAS = 2;
-    /// Max number of jets of each type coming in
-    static const int MAX_JETS_IN = MAX_WHEEL_FPGAS*L1GctWheelJetFpga::MAX_JETS_OUT;
-    /// Max number of jets of each type going out
-    static const int MAX_JETS_OUT = 4;
+  /// Max number of wheel FPGA pointers
+  static const int MAX_WHEEL_FPGAS = 2;
+  /// Max number of jets of each type coming in
+  static const int MAX_JETS_IN = MAX_WHEEL_FPGAS*L1GctWheelJetFpga::MAX_JETS_OUT;
+  /// Max number of jets of each type going out
+  static const int MAX_JETS_OUT = 4;
   
   /// wheel jet FPGAs
   std::vector<L1GctWheelJetFpga*> m_wheelFpgas;
