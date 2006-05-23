@@ -41,19 +41,19 @@ public:
   std::vector<L1GctRegion> getInputRegions() const;
     
   // get the jet output
-  std::vector<L1GctJetCand> getOutputJetsA() const { return jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
-  std::vector<L1GctJetCand> getOutputJetsB() const { return jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
-  std::vector<L1GctJetCand> getOutputJetsC() const { return jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
+  std::vector<L1GctJetCand> getOutputJetsA() const { return m_jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
+  std::vector<L1GctJetCand> getOutputJetsB() const { return m_jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
+  std::vector<L1GctJetCand> getOutputJetsC() const { return m_jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
     
   /// get the Ex output
-  inline L1GctEtComponent outputEx() const { return m_exSum; }
+  L1GctEtComponent outputEx() const { return m_exSum; }
    
   /// get the Ey output
-  inline L1GctEtComponent outputEy() const { return m_eySum; }
+  L1GctEtComponent outputEy() const { return m_eySum; }
     
   /// get the Et output
-  inline L1GctScalarEtVal outputEt() const { return m_etSum; }
-  inline L1GctScalarEtVal outputHt() const { return m_htSum; }
+  L1GctScalarEtVal outputEt() const { return m_etSum; }
+  L1GctScalarEtVal outputHt() const { return m_htSum; }
    
   static const int MAX_JET_FINDERS = 3;
 
@@ -65,9 +65,9 @@ private:
   int m_id;
 
   // internal algorithms
-  L1GctJetFinder* jetFinderA;  ///< lowest jetFinder in phi
-  L1GctJetFinder* jetFinderB;  ///< middle jetFinder in phi
-  L1GctJetFinder* jetFinderC;  ///< highest jetFinder in phi
+  L1GctJetFinder* m_jetFinderA;  ///< lowest jetFinder in phi
+  L1GctJetFinder* m_jetFinderB;  ///< middle jetFinder in phi
+  L1GctJetFinder* m_jetFinderC;  ///< highest jetFinder in phi
 
   // pointers to data source
   std::vector<L1GctSourceCard*> m_sourceCards;
