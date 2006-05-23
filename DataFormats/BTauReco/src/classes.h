@@ -30,5 +30,9 @@ namespace {
     edm::Ref<reco::CombinedBTagInfoCollection> r4;
     edm::RefProd<reco::CombinedBTagInfoCollection> rp4;
     edm::RefVector<reco::CombinedBTagInfoCollection> rv4;
+
+    std::pair<unsigned int, unsigned int> pp1;
+    std::map<unsigned long, std::vector<unsigned long> > m1;
+    edm::RefProd<CaloJetCollection> rpj1;
   }
 }

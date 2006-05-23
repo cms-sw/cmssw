@@ -26,4 +26,8 @@
   <class name="edm::Ref<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo> > " />
   <class name="edm::RefProd<std::vector<reco::CombinedBTagInfo> > " />
   <class name="edm::RefVector<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo> >" />
+
+  <class name="std::pair<unsigned int, unsigned int>" />
+  <class name="std::map<unsigned long, std::vector<unsigned long> >" />
+  <class name="edm::RefProd<std::vector<CaloJet> > " />
 </lcgdict>

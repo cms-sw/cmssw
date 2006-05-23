@@ -16,23 +16,19 @@
 
 namespace reco {
   typedef
-   edm::AssociationMap<CaloJetCollection, reco::TrackCollection,
-		       edm::OneToMany> JetTracksAssociationCollection;
+  edm::AssociationMap<CaloJetCollection, TrackCollection,
+		      edm::OneToMany> JetTracksAssociationCollection;
   
   typedef
   JetTracksAssociationCollection::value_type JetTracksAssociation;
   
   typedef
-  edm::Ref<JetTracksAssociationCollection, JetTracksAssociation,
-	   edm::refhelper::FindUsingAdvance<JetTracksAssociationCollection, 
-					    JetTracksAssociation> > JetTracksAssociationRef;
+  edm::Ref<JetTracksAssociationCollection> JetTracksAssociationRef;
   
   typedef
   edm::RefProd<JetTracksAssociationCollection> JetTracksAssociationRefProd;
   
   typedef
-  edm::RefVector<JetTracksAssociationCollection, JetTracksAssociation,
-		 edm::refhelper::FindUsingAdvance<JetTracksAssociationCollection, 
-						  JetTracksAssociation> > JetTracksAssociationRefVector; 
+  edm::RefVector<JetTracksAssociationCollection> JetTracksAssociationRefVector; 
 }
 #endif
