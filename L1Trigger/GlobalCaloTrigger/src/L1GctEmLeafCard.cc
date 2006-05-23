@@ -16,7 +16,12 @@ L1GctEmLeafCard::L1GctEmLeafCard(int id) :
   m_sorters[3] = new L1GctElectronSorter(false);
 }
 
-L1GctEmLeafCard::~L1GctEmLeafCard() {
+L1GctEmLeafCard::~L1GctEmLeafCard() 
+{
+  delete m_sorters[0];
+  delete m_sorters[1];
+  delete m_sorters[2];
+  delete m_sorters[3];
 }
 
 
