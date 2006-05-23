@@ -9,8 +9,6 @@
 
 #include <vector>
 
-using std::binary_function;
-
 /*! \class L1GctJetFinder
  * \brief 3*3 sliding window algorithm jet finder.
  *
