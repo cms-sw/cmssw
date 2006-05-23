@@ -1,53 +1,32 @@
-#include <cmath>
-#include <iostream> // **For testing only remove in final**
+#include <iostream>
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
 
 
-//Set Default Values 
-bool       ClusterShapeAlgo::param_LogWeighted_(false);
-Double32_t ClusterShapeAlgo::param_X0_(0.89);
-Double32_t ClusterShapeAlgo::param_T0_(6.2);
-Double32_t ClusterShapeAlgo::param_W0_(4.0);
+//Temp Protyping...
+//Removeal Pending CaloNavigator Update
+void offsetBy(int deltaX, int deltaY, EcalBarrelNavigator &posCurrent);
 
-std::map<EBDetId,EcalRecHit> *ClusterShapeAlgo::storedRecHitsMap_ = NULL ;
 
-void ClusterShapeAlgo::Initialize(std::map<std::string,double> providedParameters,
-			 std::map<EBDetId,EcalRecHit> *passedRecHitsMap)
+std::string ClusterShapeAlgo::param_CollectionType_ = "";
+const std::map<EBDetId,EcalRecHit> *ClusterShapeAlgo::storedRecHitsMap_ = NULL;
+
+void ClusterShapeAlgo::Initialize(const std::map<EBDetId,EcalRecHit> *passedRecHitsMap,
+				  std::string passedCollectionType)
 {
-  std::map<std::string,double>::iterator posCurrent = providedParameters.begin();
- 
-  if((posCurrent = providedParameters.find("Log_Weighted")) != providedParameters.end())
-    param_LogWeighted_ = posCurrent->second;
-  if((posCurrent = providedParameters.find("X0")) != providedParameters.end())
-     param_X0_ = posCurrent->second;
-  if((posCurrent = providedParameters.find("T0")) != providedParameters.end())
-     param_T0_ = posCurrent->second;
-  if((posCurrent = providedParameters.find("W0")) != providedParameters.end())
-     param_W0_ = posCurrent->second;
- 
-  /*
-  if(providedParameters.count("LogWeighted") != 0) 
-     param_LogWeighted_ = providedParameters.find("Log_Weighted")->second;
-  if(providedParameters.count("X0") != 0) 
-     param_X0_ = providedParameters.find("X0")->second;
-  if(providedParameters.count("T0") != 0) 
-     param_T0_ = providedParameters.find("T0")->second;
-  if(providedParameters.count("W0") != 0) 
-     param_W0_ = providedParameters.find("W0")->second;
-  */
-
-   storedRecHitsMap_ = passedRecHitsMap;
+  storedRecHitsMap_ = passedRecHitsMap;
+  param_CollectionType_ = passedCollectionType;
 }
 
 reco::ClusterShape ClusterShapeAlgo::Calculate(reco::BasicCluster passedCluster)
 {
-  if(storedRecHitsMap_ == NULL)
-    throw(std::runtime_error("Oh No! ClusterShapeAlgo::Calculate called unitialized."));
+  if(storedRecHitsMap_ == NULL || param_CollectionType_ == "")
+    throw(std::runtime_error("\n\nOh No! ClusterShapeAlgo::Calculate called unitialized.\n\n"));
    
   ClusterShapeAlgo dataHolder;
-
+  
   dataHolder.Calculate_TopEnergy(passedCluster);
   dataHolder.Calculate_2ndEnergy(passedCluster);
   dataHolder.Create_Map();
@@ -55,19 +34,16 @@ reco::ClusterShape ClusterShapeAlgo::Calculate(reco::BasicCluster passedCluster)
   dataHolder.Calculate_e3x2();
   dataHolder.Calculate_e3x3();
   dataHolder.Calculate_e5x5();
-  dataHolder.Calculate_Weights();
-  dataHolder.Calculate_eta25phi25();
+  dataHolder.Calculate_Location();
   dataHolder.Calculate_Covariances();
-  dataHolder.Calculate_hadOverEcal();
-  
+   
   return reco::ClusterShape( dataHolder.covEtaEta_, 
-		  dataHolder.covEtaPhi_,dataHolder.covPhiPhi_, 
-                  dataHolder.eMax_, dataHolder.eMaxId_, 
-		  dataHolder.e2nd_, dataHolder.e2ndId_,
-		  dataHolder.e2x2_, dataHolder.e3x2_, 
-		  dataHolder.e3x3_, dataHolder.e5x5_,
-                  dataHolder.eta25_,  dataHolder.phi25_,
-		  dataHolder.hadOverEcal_ );
+			     dataHolder.covEtaPhi_,dataHolder.covPhiPhi_, 
+			     dataHolder.eMax_, dataHolder.eMaxId_, 
+			     dataHolder.e2nd_, dataHolder.e2ndId_,
+			     dataHolder.e2x2_, dataHolder.e3x2_, 
+			     dataHolder.e3x3_, dataHolder.e5x5_,
+			     dataHolder.e3x2Ratio_, dataHolder.location_);
 }
 
 void ClusterShapeAlgo::Calculate_TopEnergy(reco::BasicCluster passedCluster)
@@ -82,7 +58,7 @@ void ClusterShapeAlgo::Calculate_TopEnergy(reco::BasicCluster passedCluster)
 
   for(posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
   {
-    testEcalRecHit = ClusterShapeAlgo::storedRecHitsMap_->find(*posCurrent)->second;
+    testEcalRecHit = storedRecHitsMap_->find(*posCurrent)->second;
 
     if(testEcalRecHit.energy() > eMax)
     {
@@ -90,7 +66,7 @@ void ClusterShapeAlgo::Calculate_TopEnergy(reco::BasicCluster passedCluster)
       eMaxId = testEcalRecHit.id();
     } 
   }
-
+ 
   eMax_ = eMax;
   eMaxId_ = eMaxId;
 }
@@ -107,7 +83,7 @@ void ClusterShapeAlgo::Calculate_2ndEnergy(reco::BasicCluster passedCluster)
 
   for(posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
   {
-    testEcalRecHit = ClusterShapeAlgo::storedRecHitsMap_->find(*posCurrent)->second;
+    testEcalRecHit = storedRecHitsMap_->find(*posCurrent)->second;
 
     if(testEcalRecHit.energy() > e2nd && testEcalRecHit.energy() < eMax_)
     {
@@ -115,95 +91,124 @@ void ClusterShapeAlgo::Calculate_2ndEnergy(reco::BasicCluster passedCluster)
       e2ndId = testEcalRecHit.id();
     } 
   }
-
+ 
   e2nd_ = e2nd;
   e2ndId_ = e2ndId;  
 }
 
 void ClusterShapeAlgo::Create_Map()
 {
+
+  //In future this will be a switch statement that chooses which hardcoded geometry to use
+  //At Presest the barrel is the only one implemented. 
   EcalBarrelHardcodedTopology *barrelTopology = new EcalBarrelHardcodedTopology();
   EcalBarrelNavigator posCurrent(eMaxId_, barrelTopology);
 
-  //Creates Default energyMap_
-  for(int i = 0; i <= 4; i++)
-    for(int j = 0; j <= 4; j++)
-      energyMap_[i][j] = std::make_pair(EBDetId(0), 0);  
+  EcalRecHit tempEcalRecHit;
 
-  //Fills energyMap_[2][2]
-  EcalRecHit tempEcalRecHit = ClusterShapeAlgo::storedRecHitsMap_->find(posCurrent.pos())->second;
-  energyMap_[2][2] =  std::make_pair(tempEcalRecHit.id(),tempEcalRecHit.energy());
-  
-  //Fills energyMap_ along center + 
-  for(int direction = 1; direction <= 4; direction++)
-  {
-    posCurrent.home();
-
-    for(int position = 1; position <=2; position++)
+  for(int x = 0; x < 5; x++)
+    for(int y = 0; y < 5; y++)
     {
-      int x = 0, y=0;
+      posCurrent.home();
+      offsetBy(-2+x,-2+y, posCurrent);
+      //offsetBy will be replaced by similiar function in CaloNavigator
+      //pending next update      
 
-      switch(direction)
+      if(posCurrent.pos() != DetId(0))
       {
-        case 1: posCurrent.north(); x=0; y=-position; break;
-	case 2: posCurrent.east();  x=position; y=0;  break;
-	case 3: posCurrent.south(); x=0; y=position;  break;
-        case 4: posCurrent.west();  x=-position; y=0; break;  
+	tempEcalRecHit = storedRecHitsMap_->find(posCurrent.pos())->second;
+	energyMap_[y][x] =  std::make_pair(tempEcalRecHit.id(),tempEcalRecHit.energy());
       }
+      else
+	energyMap_[y][x] = std::make_pair(DetId(0), 0);  
+    }
 
-      if(posCurrent.pos() == EBDetId(0)) break;
+/*  
+  //Prints map for testing purposes, remove in final. 
+  std::cout << "\n\n\n";
 
-      tempEcalRecHit = ClusterShapeAlgo::storedRecHitsMap_->find(posCurrent.pos())->second;
-      energyMap_[2+x][2+y] =  std::make_pair(tempEcalRecHit.id(),tempEcalRecHit.energy());
+  for(int i = 0; i <= 4; i++)
+  {
+      std::cout << std::endl;
+    for(int j = 0; j <= 4; j++)
+    {
+      std::cout.width(10);
+      std::cout << std::left << energyMap_[i][j].second;
     }
   }
 
-  //CREATES A TEST MAP -- FUNCTION NOT IMPLEMENTED 
-
-  for(int i = 0; i <= 4; i++)
-    for(int j = 0; j <= 4; j++)
-      energyMap_[i][j] = std::make_pair(EBDetId(0), i+j);  
+  std::cout << "\n\n\n" << std::endl;
+*/
   
 }
 
 void ClusterShapeAlgo::Calculate_e2x2()
 {
-  Double32_t e2x2Max = 0;
-  Double32_t e2x2Test = 0;
+  double e2x2Max = 0;
+  double e2x2Test = 0;
 
-  e2x2Test  = energyMap_[1][1].second;
-  e2x2Test += energyMap_[1][2].second;
-  e2x2Test += energyMap_[2][1].second;
-  e2x2Test += energyMap_[2][2].second;
+  int deltaX=0, deltaY=0;
 
-  e2x2Max = (e2x2Test > e2x2Max) ? e2x2Test : e2x2Max;
+  for(int corner = 0; corner < 4; corner++)
+  {
+    switch(corner)
+    {
+      case 0: deltaX = -1; deltaY = -1; break;
+      case 1: deltaX = -1; deltaY =  1; break;
+      case 2: deltaX =  1; deltaY = -1; break;
+      case 3: deltaX =  1; deltaY =  1; break;
+    }
+    e2x2Test  = energyMap_[2][2].second;
+    e2x2Test += energyMap_[2+deltaY][2].second;
+    e2x2Test += energyMap_[2][2+deltaX].second;
+    e2x2Test += energyMap_[2+deltaY][2+deltaX].second;
 
-  e2x2Test  = energyMap_[2][1].second;
-  e2x2Test += energyMap_[3][1].second;
-  e2x2Test += energyMap_[2][2].second;
-  e2x2Test += energyMap_[3][2].second;
-
-  e2x2Max = (e2x2Test > e2x2Max) ? e2x2Test : e2x2Max;
-
-  e2x2Test  = energyMap_[1][2].second;
-  e2x2Test += energyMap_[2][2].second;
-  e2x2Test += energyMap_[1][3].second;
-  e2x2Test += energyMap_[2][3].second;
-
-  e2x2Max = (e2x2Test > e2x2Max) ? e2x2Test : e2x2Max;
-
-  e2x2Test  = energyMap_[2][2].second;
-  e2x2Test += energyMap_[3][2].second;
-  e2x2Test += energyMap_[2][3].second;
-  e2x2Test += energyMap_[3][3].second;
-
-  e2x2Max = (e2x2Test > e2x2Max) ? e2x2Test : e2x2Max;
+    e2x2Max = std::max(e2x2Test, e2x2Max);
+  }
 
   e2x2_ = e2x2Max;
 
 }
 
-void ClusterShapeAlgo::Calculate_e3x2(){} 
+void ClusterShapeAlgo::Calculate_e3x2()
+{
+  double e3x2 = 0;
+  double e3x2Ratio=0, e3x2RatioNumerator, e3x2RatioDenominator;
+
+  int e2ndX = 2, e2ndY=2; 
+  bool e2ndInX = false;
+
+  int deltaY = 0, deltaX = 0;
+
+  for(deltaX = -1; deltaX <= 1 && e2ndX == 2 && e2ndY == 2; deltaX++)
+  {
+    if(deltaX == 0)
+      for(deltaY = -1; deltaY <= 1 && e2ndX == 2 && e2ndY == 2; deltaY+=2)
+	{if(e2ndId_ == energyMap_[2+deltaY][2].first) e2ndY += deltaY; e2ndInX = false;}
+    else 
+     	{if(e2ndId_ == energyMap_[2][2+deltaX].first) e2ndX += deltaX; e2ndInX = true;} 
+  }
+
+  switch(e2ndInX)
+  {
+    case true:  deltaY = 1; deltaX = 0; break;
+    case false: deltaY = 0; deltaX = 1; break; 
+  }
+
+  for(int sign = -1; sign <= 1; sign++)
+      e3x2 += (energyMap_[2+deltaY*sign][2+deltaX*sign].second 
+	      + std::max(0.0,energyMap_[e2ndY+deltaY*sign][e2ndX+deltaX*sign].second));
+  
+  e3x2RatioNumerator   = (std::max(0.0,energyMap_[e2ndY+deltaY][e2ndX+deltaX].second)
+			  + std::max(0.0,energyMap_[e2ndY-deltaY][e2ndX-deltaX].second));
+  e3x2RatioDenominator = (0.5 + energyMap_[2+deltaY][2+deltaX].second 
+			  + energyMap_[2-deltaY][2-deltaX].second);
+  e3x2Ratio = e3x2RatioNumerator /e3x2RatioDenominator;
+
+  e3x2_ = e3x2;
+  e3x2Ratio_ = e3x2Ratio;
+
+} 
 
 void ClusterShapeAlgo::Calculate_e3x3()
 {
@@ -229,37 +234,49 @@ void ClusterShapeAlgo::Calculate_e5x5()
 
 }
 
-void ClusterShapeAlgo::Calculate_Weights()
+void ClusterShapeAlgo::Calculate_Location()
 {
-  //NOT CHECKED FOR CORRECTNESS AT THIS POINT
+  std::vector<DetId> usedDetIds;
 
+  for(int i = 0; i <= 4; i++)
+    for(int j = 0; j <= 4; j++)
+      usedDetIds.push_back(energyMap_[i][j].first);
 
-  weightsTotal_ = 0;
-  
-  if(param_LogWeighted_)
-  {
-    for(int i = 0; i <= 4; i++)
-      for(int j = 0; j <= 4; j++)
-	{
-	  weightsMap_[i][j] = (energyMap_[i][j].second == 0) 
-	    ? 0 : (param_W0_ + log(energyMap_[i][j].second/e5x5_) <= 0) 
-	    ? 0 : param_W0_ + log(energyMap_[i][j].second/e5x5_);
-	  weightsTotal_ += weightsMap_[i][j];
-	} 
-  }
-  else
-  {
-    weightsTotal_ = 1;
-
-    for(int i = 0; i <= 4; i++)
-      for(int j = 0; j <= 4; j++)
-	weightsMap_[i][j] = energyMap_[i][j].second/e5x5_;
-  }
-
+  location_ = PositionCalc::Calculate_Location(usedDetIds);
 }
 
-void ClusterShapeAlgo::Calculate_eta25phi25(){}
 
-void ClusterShapeAlgo::Calculate_Covariances(){}
+void ClusterShapeAlgo::Calculate_Covariances()
+{
+  std::vector<DetId> usedDetIds;
 
-void ClusterShapeAlgo::Calculate_hadOverEcal(){}
+  for(int i = 0; i <= 4; i++)
+    for(int j = 0; j <= 4; j++)
+      usedDetIds.push_back(energyMap_[i][j].first);
+
+  std::map<std::string,double> covReturned = 
+    PositionCalc::Calculate_Covariances(location_,usedDetIds);
+
+  covEtaEta_ = covReturned.find("covEtaEta")->second;
+  covEtaPhi_ = covReturned.find("covEtaPhi")->second;
+  covPhiPhi_ = covReturned.find("covPhiPhi")->second;
+}
+
+
+//Temp Global Function to Move Around the 5x5
+//Removeal Pending CaloNavigator Update
+
+void offsetBy(int deltaX, int deltaY, EcalBarrelNavigator &posCurrent)
+{
+  for(int x=0; x < fabs(deltaX) && posCurrent.pos() != DetId(0); x++)
+  {
+    if(deltaX > 0) posCurrent.east();
+    else           posCurrent.west();
+  }
+
+  for(int y=0; y < fabs(deltaY) && posCurrent.pos() != DetId(0); y++)
+  {
+    if(deltaY > 0) posCurrent.south();
+    else           posCurrent.north();
+  }
+}
