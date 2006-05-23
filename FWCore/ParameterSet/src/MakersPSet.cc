@@ -2,8 +2,8 @@
 #include "FWCore/ParameterSet/interface/Makers.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Visitor.h"
-#include "FWCore/ParameterSet/interface/MakeProcessPSet.h"
 #include "FWCore/ParameterSet/src/BuilderVPSet.h"
+#include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 
@@ -99,30 +99,6 @@ namespace edm {
         // the pset would have already been built, so go locate it
         // to get its ID to store in the current pset array. huh?
         cout << n.value_ << endl;
-      }
-
-      static string withoutQuotes(const string& from)
-      {
-        string result = from;
-        if(!result.empty())
-        {
-        // get rid of leading quotes
-          if(result[0] == '"' || result[0] == '\'')
-          {
-            result.erase(0,1);
-          }
-        }
-
-        if(!result.empty())
-        {
-          // and trailing quotes
-          int lastpos = result.size()-1;
-          if(result[lastpos] == '"' || result[lastpos] == '\'')
-          {
-            result.erase(lastpos, 1);
-          }
-        }
-        return result;
       }
 
       void BuilderPSet::visitEntry(const EntryNode& n)
