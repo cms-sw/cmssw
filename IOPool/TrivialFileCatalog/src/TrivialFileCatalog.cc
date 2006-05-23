@@ -187,7 +187,9 @@ pool::TrivialFileCatalog::connect ()
 	if (!configFile.good () || !configFile.is_open ())
 	{
 	    m_transactionsta = 0;
-	    return;
+	    throw FCTransactionException
+		("TrivialFileCatalog::connect",
+		 ": Unable to open file"); 
 	}
 	
 	configFile.close ();
