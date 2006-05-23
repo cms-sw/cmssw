@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2006/04/28 10:48:49 $
- * $Revision: 1.24 $
+ * $Date: 2006/05/18 07:41:42 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -127,13 +127,13 @@ TH2F* he01_[36];
 TH2F* he02_[36];
 TH2F* he03_[36];
 
-TH2F* g01_[36];
-TH2F* g02_[36];
-TH2F* g03_[36];
+MonitorElement* meg01_[36];
+MonitorElement* meg02_[36];
+MonitorElement* meg03_[36];
 
-TH1F* a01_[36];
-TH1F* a02_[36];
-TH1F* a03_[36];
+MonitorElement* mea01_[36];
+MonitorElement* mea02_[36];
+MonitorElement* mea03_[36];
 
 CollateMonitorElement* me_i01_[36];
 CollateMonitorElement* me_i02_[36];

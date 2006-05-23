@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2006/04/28 10:48:49 $
- * $Revision: 1.28 $
+ * $Date: 2006/05/18 07:41:42 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -126,25 +126,25 @@ TProfile2D* k01_[36];
 TProfile2D* k02_[36];
 TProfile2D* k03_[36];
 
-TH2F* g01_[36];
-TH2F* g02_[36];
-TH2F* g03_[36];
+MonitorElement* meg01_[36];
+MonitorElement* meg02_[36];
+MonitorElement* meg03_[36];
 
-TH1F* p01_[36];
-TH1F* p02_[36];
-TH1F* p03_[36];
+MonitorElement* mep01_[36];
+MonitorElement* mep02_[36];
+MonitorElement* mep03_[36];
 
-TH1F* r01_[36];
-TH1F* r02_[36];
-TH1F* r03_[36];
+MonitorElement* mer01_[36];
+MonitorElement* mer02_[36];
+MonitorElement* mer03_[36];
 
-TH2F* s01_[36];
-TH2F* s02_[36];
-TH2F* s03_[36];
+MonitorElement* mes01_[36];
+MonitorElement* mes02_[36];
+MonitorElement* mes03_[36];
 
-TH2F* t01_[36];
-TH2F* t02_[36];
-TH2F* t03_[36];
+MonitorElement* met01_[36];
+MonitorElement* met02_[36];
+MonitorElement* met03_[36];
 
 CollateMonitorElement* me_i01_[36];
 CollateMonitorElement* me_i02_[36];

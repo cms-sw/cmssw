@@ -1,14 +1,15 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/04/28 10:48:50 $
- * $Revision: 1.69 $
+ * $Date: 2006/05/18 07:41:42 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
 */
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
 EBPedestalClient::EBPedestalClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
@@ -35,25 +36,25 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps, MonitorUserInterface*
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    g01_[ism-1] = 0;
-    g02_[ism-1] = 0;
-    g03_[ism-1] = 0;
+    meg01_[ism-1] = 0;
+    meg02_[ism-1] = 0;
+    meg03_[ism-1] = 0;
 
-    p01_[ism-1] = 0;
-    p02_[ism-1] = 0;
-    p03_[ism-1] = 0;
+    mep01_[ism-1] = 0;
+    mep02_[ism-1] = 0;
+    mep03_[ism-1] = 0;
 
-    r01_[ism-1] = 0;
-    r02_[ism-1] = 0;
-    r03_[ism-1] = 0;
+    mer01_[ism-1] = 0;
+    mer02_[ism-1] = 0;
+    mer03_[ism-1] = 0;
 
-    s01_[ism-1] = 0;
-    s02_[ism-1] = 0;
-    s03_[ism-1] = 0;
+    mes01_[ism-1] = 0;
+    mes02_[ism-1] = 0;
+    mes03_[ism-1] = 0;
 
-    t01_[ism-1] = 0;
-    t02_[ism-1] = 0;
-    t03_[ism-1] = 0;
+    met01_[ism-1] = 0;
+    met02_[ism-1] = 0;
+    met03_[ism-1] = 0;
 
   }
 
@@ -128,102 +129,105 @@ void EBPedestalClient::setup(void) {
 
   Char_t histo[50];
 
+  mui_->setCurrentFolder( "EcalBarrel/EBPedestalClient" );
+  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( g01_[ism-1] ) delete g01_[ism-1];
+    if ( meg01_[ism-1] ) bei->removeElement(  meg01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality G01 SM%02d", ism);
-    g01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( g02_[ism-1] ) delete g02_[ism-1];
+    meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality G06 SM%02d", ism);
-    g02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( g03_[ism-1] ) delete g03_[ism-1];
+    meg02_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( meg03_[ism-1] ) bei->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal quality G12 SM%02d", ism);
-    g03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-    if ( p01_[ism-1] ) delete p01_[ism-1];
+    if ( mep01_[ism-1] ) bei->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal mean G01 SM%02d", ism);
-    p01_[ism-1] = new TH1F(histo, histo, 100, 150., 250.);
-    if ( p02_[ism-1] ) delete p02_[ism-1];
+    mep01_[ism-1] = bei->book1D(histo, histo, 100, 150., 250.);
+    if ( mep02_[ism-1] ) bei->removeElement( mep02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal mean G06 SM%02d", ism);
-    p02_[ism-1] = new TH1F(histo, histo, 100, 150., 250.);
-    if ( p03_[ism-1] ) delete p03_[ism-1];
+    mep02_[ism-1] = bei->book1D(histo, histo, 100, 150., 250.);
+    if ( mep03_[ism-1] ) bei->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal mean G12 SM%02d", ism);
-    p03_[ism-1] = new TH1F(histo, histo, 100, 150., 250.);
+    mep03_[ism-1] = bei->book1D(histo, histo, 100, 150., 250.);
 
-    if ( r01_[ism-1] ) delete r01_[ism-1];
+    if ( mer01_[ism-1] ) bei->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal rms G01 SM%02d", ism);
-    r01_[ism-1] = new TH1F(histo, histo, 100, 0., 10.);
-    if ( r02_[ism-1] ) delete r02_[ism-1];
+    mer01_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mer02_[ism-1] ) bei->removeElement( mer02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal rms G06 SM%02d", ism);
-    r02_[ism-1] = new TH1F(histo, histo, 100, 0., 10.);
-    if ( r03_[ism-1] ) delete r03_[ism-1];
+    mer02_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mer03_[ism-1] ) bei->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal rms G12 SM%02d", ism);
-    r03_[ism-1] = new TH1F(histo, histo, 100, 0., 10.);
+    mer03_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
 
-    if ( s01_[ism-1] ) delete s01_[ism-1];
+    if ( mes01_[ism-1] ) bei->removeElement( mes01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 3sum G01 SM%02d", ism);
-    s01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( s02_[ism-1] ) delete s02_[ism-1];
+    mes01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( mes02_[ism-1] ) bei->removeElement( mes02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 3sum G06 SM%02d", ism);
-    s02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( s03_[ism-1] ) delete s03_[ism-1];
+    mes02_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( mes03_[ism-1] ) bei->removeElement( mes03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 3sum G12 SM%02d", ism);
-    s03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    mes03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-    if ( t01_[ism-1] ) delete t01_[ism-1];
+    if ( met01_[ism-1] ) bei->removeElement( met01_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 5sum G01 SM%02d", ism);
-    t01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( t02_[ism-1] ) delete t02_[ism-1];
+    met01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( met02_[ism-1] ) bei->removeElement( met02_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 5sum G06 SM%02d", ism);
-    t02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( t03_[ism-1] ) delete t03_[ism-1];
+    met02_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( met03_[ism-1] ) bei->removeElement( met03_[ism-1]->getName() );
     sprintf(histo, "EBPT pedestal 5sum G12 SM%02d", ism);
-    t03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    met03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
   }
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    g01_[ism-1]->Reset();
-    g02_[ism-1]->Reset();
-    g03_[ism-1]->Reset();
+    EBMUtilsClient::resetHisto( met01_[ism-1] );
+    EBMUtilsClient::resetHisto( met02_[ism-1] );
+    EBMUtilsClient::resetHisto( met03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
-        g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
-        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
+        meg01_[ism-1]->setBinContent( ie, ip, 2. );
+        meg02_[ism-1]->setBinContent( ie, ip, 2. );
+        meg03_[ism-1]->setBinContent( ie, ip, 2. );
 
       }
     }
 
-    p01_[ism-1]->Reset();
-    p02_[ism-1]->Reset();
-    p03_[ism-1]->Reset();
+    EBMUtilsClient::resetHisto( mep01_[ism-1] );
+    EBMUtilsClient::resetHisto( mep02_[ism-1] );
+    EBMUtilsClient::resetHisto( mep03_[ism-1] );
 
-    r01_[ism-1]->Reset();
-    r02_[ism-1]->Reset();
-    r03_[ism-1]->Reset();
+    EBMUtilsClient::resetHisto( mer01_[ism-1] );
+    EBMUtilsClient::resetHisto( mer02_[ism-1] );
+    EBMUtilsClient::resetHisto( mer03_[ism-1] );
 
-    s01_[ism-1]->Reset();
-    s02_[ism-1]->Reset();
-    s03_[ism-1]->Reset();
+    EBMUtilsClient::resetHisto( mes01_[ism-1] );
+    EBMUtilsClient::resetHisto( mes02_[ism-1] );
+    EBMUtilsClient::resetHisto( mes03_[ism-1] );
 
-    t01_[ism-1]->Reset();
-    t02_[ism-1]->Reset();
-    t03_[ism-1]->Reset();
+    EBMUtilsClient::resetHisto( met01_[ism-1] );
+    EBMUtilsClient::resetHisto( met02_[ism-1] );
+    EBMUtilsClient::resetHisto( met03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        s01_[ism-1]->SetBinContent(s01_[ism-1]->GetBin(ie, ip), -999.);
-        s02_[ism-1]->SetBinContent(s02_[ism-1]->GetBin(ie, ip), -999.);
-        s03_[ism-1]->SetBinContent(s03_[ism-1]->GetBin(ie, ip), -999.);
+        mes01_[ism-1]->setBinContent( ie, ip, -999. );
+        mes02_[ism-1]->setBinContent( ie, ip, -999. );
+        mes03_[ism-1]->setBinContent( ie, ip, -999. );
 
-        t01_[ism-1]->SetBinContent(t01_[ism-1]->GetBin(ie, ip), -999.);
-        t02_[ism-1]->SetBinContent(t02_[ism-1]->GetBin(ie, ip), -999.);
-        t03_[ism-1]->SetBinContent(t03_[ism-1]->GetBin(ie, ip), -999.);
+        met01_[ism-1]->setBinContent( ie, ip, -999. );
+        met02_[ism-1]->setBinContent( ie, ip, -999. );
+        met03_[ism-1]->setBinContent( ie, ip, -999. );
 
       }
     }
@@ -270,42 +274,45 @@ void EBPedestalClient::cleanup(void) {
 
   }
 
+  mui_->setCurrentFolder( "EcalBarrel/EBPedestalClient" );
+  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( g01_[ism-1] ) delete g01_[ism-1];
-    g01_[ism-1] = 0;
-    if ( g02_[ism-1] ) delete g02_[ism-1];
-    g02_[ism-1] = 0;
-    if ( g03_[ism-1] ) delete g03_[ism-1];
-    g03_[ism-1] = 0;
+    if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
+    meg01_[ism-1] = 0;
+    if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
+    meg02_[ism-1] = 0;
+    if ( meg03_[ism-1] ) bei->removeElement( meg03_[ism-1]->getName() );
+    meg03_[ism-1] = 0;
 
-    if ( p01_[ism-1] ) delete p01_[ism-1];
-    p01_[ism-1] = 0;
-    if ( p02_[ism-1] ) delete p02_[ism-1];
-    p02_[ism-1] = 0;
-    if ( p03_[ism-1] ) delete p03_[ism-1];
-    p03_[ism-1] = 0;
+    if ( mep01_[ism-1] ) bei->removeElement( mep01_[ism-1]->getName() );
+    mep01_[ism-1] = 0;
+    if ( mep02_[ism-1] ) bei->removeElement( mep02_[ism-1]->getName() );
+    mep02_[ism-1] = 0;
+    if ( mep03_[ism-1] ) bei->removeElement( mep03_[ism-1]->getName() );
+    mep03_[ism-1] = 0;
 
-    if ( r01_[ism-1] ) delete r01_[ism-1];
-    r01_[ism-1] = 0;
-    if ( r02_[ism-1] ) delete r02_[ism-1];
-    r02_[ism-1] = 0;
-    if ( r03_[ism-1] ) delete r03_[ism-1];
-    r03_[ism-1] = 0;
+    if ( mer01_[ism-1] ) bei->removeElement( mer01_[ism-1]->getName() );
+    mer01_[ism-1] = 0;
+    if ( mer02_[ism-1] ) bei->removeElement( mer02_[ism-1]->getName() );
+    mer02_[ism-1] = 0;
+    if ( mer03_[ism-1] ) bei->removeElement( mer03_[ism-1]->getName() );
+    mer03_[ism-1] = 0;
 
-    if ( s01_[ism-1] ) delete s01_[ism-1];
-    s01_[ism-1] = 0;
-    if ( s02_[ism-1] ) delete s02_[ism-1];
-    s02_[ism-1] = 0;
-    if ( s03_[ism-1] ) delete s03_[ism-1];
-    s03_[ism-1] = 0;
+    if ( mes01_[ism-1] ) bei->removeElement( mes01_[ism-1]->getName() );
+    mes01_[ism-1] = 0;
+    if ( mes02_[ism-1] ) bei->removeElement( mes02_[ism-1]->getName() );
+    mes02_[ism-1] = 0;
+    if ( mes03_[ism-1] ) bei->removeElement( mes03_[ism-1]->getName() );
+    mes03_[ism-1] = 0;
 
-    if ( t01_[ism-1] ) delete t01_[ism-1];
-    t01_[ism-1] = 0;
-    if ( t02_[ism-1] ) delete t02_[ism-1];
-    t02_[ism-1] = 0;
-    if ( t03_[ism-1] ) delete t03_[ism-1];
-    t03_[ism-1] = 0;
+    if ( met01_[ism-1] ) bei->removeElement( met01_[ism-1]->getName() );
+    met01_[ism-1] = 0;
+    if ( met02_[ism-1] ) bei->removeElement( met02_[ism-1]->getName() );
+    met02_[ism-1] = 0;
+    if ( met03_[ism-1] ) bei->removeElement( met03_[ism-1]->getName() );
+    met03_[ism-1] = 0;
 
   }
 
@@ -385,9 +392,9 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
           p.setPedMeanG12(mean03);
           p.setPedRMSG12(rms03);
 
-          if ( g01_[ism-1] && g01_[ism-1]->GetBinContent(g01_[ism-1]->GetBin(ie, ip)) == 1. &&
-               g02_[ism-1] && g02_[ism-1]->GetBinContent(g02_[ism-1]->GetBin(ie, ip)) == 1. &&
-               g03_[ism-1] && g03_[ism-1]->GetBinContent(g03_[ism-1]->GetBin(ie, ip)) == 1. ) {
+          if ( meg01_[ism-1] && meg01_[ism-1]->getBinContent( ie, ip ) == 1. &&
+               meg02_[ism-1] && meg02_[ism-1]->getBinContent( ie, ip ) == 1. &&
+               meg03_[ism-1] && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
             p.setTaskStatus(true);
           } else {
             p.setTaskStatus(false);
@@ -682,7 +689,7 @@ void EBPedestalClient::analyze(void){
   Char_t histo[150];
 
   MonitorElement* me;
-  MonitorElementT<TNamed>* ob;
+  //MonitorElementT<TNamed>* ob;
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -696,19 +703,7 @@ void EBPedestalClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h01_[ism-1] ) delete h01_[ism-1];
-          sprintf(histo, "ME EBPT pedestal SM%02d G01", ism);
-          h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          h01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
-    }
+    h01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
@@ -720,19 +715,7 @@ void EBPedestalClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h02_[ism-1] ) delete h02_[ism-1];
-          sprintf(histo, "ME EBPT pedestal SM%02d G06", ism);
-          h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          h02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
-    }
+    h02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
@@ -744,19 +727,7 @@ void EBPedestalClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h03_[ism-1] ) delete h03_[ism-1];
-          sprintf(histo, "ME EBPT pedestal SM%02d G12", ism);
-          h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
-    }
+    h03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
@@ -768,19 +739,7 @@ void EBPedestalClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( j01_[ism-1] ) delete j01_[ism-1];
-          sprintf(histo, "ME EBPT pedestal 3sum SM%02d G01", ism);
-          j01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          j01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
-    }
+    j01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
 
     if ( collateSources_ ) { 
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
@@ -792,19 +751,7 @@ void EBPedestalClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( j02_[ism-1] ) delete j02_[ism-1];
-          sprintf(histo, "ME EBPT pedestal 3sum SM%02d G06", ism);
-          j02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          j02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
-    }
+    j02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j02_[ism-1] );
 
     if ( collateSources_ ) { 
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
@@ -816,19 +763,7 @@ void EBPedestalClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( j03_[ism-1] ) delete j03_[ism-1];
-          sprintf(histo, "ME EBPT pedestal 3sum SM%02d G12", ism);
-          j03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          j03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
-    }
+    j03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
@@ -840,19 +775,7 @@ void EBPedestalClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( k01_[ism-1] ) delete k01_[ism-1];
-          sprintf(histo, "ME EBPT pedestal 5sum SM%02d G01", ism);
-          k01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          k01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
-    }
+    k01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, k01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
@@ -864,19 +787,7 @@ void EBPedestalClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( k02_[ism-1] ) delete k02_[ism-1];
-          sprintf(histo, "ME EBPT pedestal 5sum SM%02d G06", ism);
-          k02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          k02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
-    }
+    k02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, k02_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
@@ -888,19 +799,7 @@ void EBPedestalClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( k03_[ism-1] ) delete k03_[ism-1];
-          sprintf(histo, "ME EBPT pedestal 5sum SM%02d G12", ism);
-          k03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          k03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
-    }
+    k03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, k03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
@@ -912,19 +811,7 @@ void EBPedestalClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( i01_[ism-1] ) delete i01_[ism-1];
-          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01", ism);
-          i01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          i01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
-    }
+    i01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
@@ -936,19 +823,7 @@ void EBPedestalClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( i02_[ism-1] ) delete i02_[ism-1];
-          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16", ism);
-          i02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          i02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
-    }
+    i02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
 
     const float n_min_tot = 1000.;
     const float n_min_bin = 50.;
@@ -957,25 +832,25 @@ void EBPedestalClient::analyze(void){
     float mean01, mean02, mean03;
     float rms01, rms02, rms03;
 
-    if ( g01_[ism-1] ) g01_[ism-1]->Reset();
-    if ( g02_[ism-1] ) g02_[ism-1]->Reset();
-    if ( g03_[ism-1] ) g03_[ism-1]->Reset();
+    EBMUtilsClient::resetHisto( meg01_[ism-1] );
+    EBMUtilsClient::resetHisto( meg02_[ism-1] );
+    EBMUtilsClient::resetHisto( meg03_[ism-1] );
 
-    if ( p01_[ism-1] ) p01_[ism-1]->Reset();
-    if ( p02_[ism-1] ) p02_[ism-1]->Reset();
-    if ( p03_[ism-1] ) p03_[ism-1]->Reset();
+    EBMUtilsClient::resetHisto( mep01_[ism-1] );
+    EBMUtilsClient::resetHisto( mep02_[ism-1] );
+    EBMUtilsClient::resetHisto( mep03_[ism-1] );
 
-    if ( r01_[ism-1] ) r01_[ism-1]->Reset();
-    if ( r02_[ism-1] ) r02_[ism-1]->Reset();
-    if ( r03_[ism-1] ) r03_[ism-1]->Reset();
+    EBMUtilsClient::resetHisto( mer01_[ism-1] );
+    EBMUtilsClient::resetHisto( mer02_[ism-1] );
+    EBMUtilsClient::resetHisto( mer03_[ism-1] );
 
-    if ( s01_[ism-1] ) s01_[ism-1]->Reset();
-    if ( s02_[ism-1] ) s02_[ism-1]->Reset();
-    if ( s03_[ism-1] ) s03_[ism-1]->Reset();
+    EBMUtilsClient::resetHisto( mes01_[ism-1] );
+    EBMUtilsClient::resetHisto( mes02_[ism-1] );
+    EBMUtilsClient::resetHisto( mes03_[ism-1] );
 
-    if ( t01_[ism-1] ) t01_[ism-1]->Reset();
-    if ( t02_[ism-1] ) t02_[ism-1]->Reset();
-    if ( t03_[ism-1] ) t03_[ism-1]->Reset();
+    EBMUtilsClient::resetHisto( met01_[ism-1] );
+    EBMUtilsClient::resetHisto( met02_[ism-1] );
+    EBMUtilsClient::resetHisto( met03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -984,9 +859,9 @@ void EBPedestalClient::analyze(void){
         mean01 = mean02 = mean03 = -1.;
         rms01  = rms02  = rms03  = -1.;
 
-        if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
-        if ( g02_[ism-1] ) g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
-        if ( g03_[ism-1] ) g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 2. );
+        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
+        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 2. );
 
         bool update_channel = false;
 
@@ -1026,30 +901,30 @@ void EBPedestalClient::analyze(void){
             val = 0.;
           if ( rms01 > RMSThreshold_[0] )
             val = 0.;
-          if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
 
-          if ( p01_[ism-1] ) p01_[ism-1]->Fill(mean01);
-          if ( r01_[ism-1] ) r01_[ism-1]->Fill(rms01);
+          if ( mep01_[ism-1] ) mep01_[ism-1]->Fill( mean01 );
+          if ( mer01_[ism-1] ) mer01_[ism-1]->Fill( rms01 );
 
           val = 1.;
           if ( abs(mean02 - expectedMean_[1]) > discrepancyMean_[1] )
             val = 0.;
           if ( rms02 > RMSThreshold_[1] )
             val = 0.;
-          if ( g02_[ism-1] ) g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val );
 
-          if ( p02_[ism-1] ) p02_[ism-1]->Fill(mean02);
-          if ( r02_[ism-1] ) r02_[ism-1]->Fill(rms02);
+          if ( mep02_[ism-1] ) mep02_[ism-1]->Fill( mean02 );
+          if ( mer02_[ism-1] ) mer02_[ism-1]->Fill( rms02 );
 
           val = 1.;
           if ( abs(mean03 - expectedMean_[2]) > discrepancyMean_[2] )
             val = 0.;
           if ( rms03 > RMSThreshold_[2] )
             val = 0.;
-          if ( g03_[ism-1] ) g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
 
-          if ( p03_[ism-1] ) p03_[ism-1]->Fill(mean03);
-          if ( r03_[ism-1] ) r03_[ism-1]->Fill(rms03);
+          if ( mep03_[ism-1] ) mep03_[ism-1]->Fill( mean03 );
+          if ( mer03_[ism-1] ) mer03_[ism-1]->Fill( rms03 );
 
         }
 
@@ -1065,9 +940,9 @@ void EBPedestalClient::analyze(void){
         float z3val02;
         float z3val03;
 
-        if ( s01_[ism-1] ) s01_[ism-1]->SetBinContent(s01_[ism-1]->GetBin(ie, ip), -999.);
-        if ( s02_[ism-1] ) s02_[ism-1]->SetBinContent(s02_[ism-1]->GetBin(ie, ip), -999.);
-        if ( s03_[ism-1] ) s03_[ism-1]->SetBinContent(s03_[ism-1]->GetBin(ie, ip), -999.);
+        if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent( ie, ip, -999. );
+        if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent( ie, ip, -999. );
+        if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent( ie, ip, -999. );
 
         if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
 
@@ -1108,19 +983,19 @@ void EBPedestalClient::analyze(void){
           if ( x3val01 != 0 && y3val01 != 0 ) z3val01 = sqrt(abs(x3val01 - y3val01));
           if ( (x3val01 - y3val01) < 0 ) z3val01 = -z3val01;
 
-          if ( s01_[ism-1] ) s01_[ism-1]->SetBinContent(s01_[ism-1]->GetBin(ie, ip), z3val01);
+          if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent( ie, ip, z3val01 );
 
           z3val02 = -999.;
           if ( x3val02 != 0 && y3val02 != 0 ) z3val02 = sqrt(abs(x3val02 - y3val02));
           if ( (x3val02 - y3val02) < 0 ) z3val02 = -z3val02;
           
-          if ( s02_[ism-1] ) s02_[ism-1]->SetBinContent(s02_[ism-1]->GetBin(ie, ip), z3val02);
+          if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent( ie, ip, z3val02 );
 
           z3val03 = -999.;
           if ( x3val03 != 0 && y3val03 != 0 ) z3val03 = sqrt(abs(x3val03 - y3val03));
           if ( (x3val03 - y3val03) < 0 ) z3val03 = -z3val03;
           
-          if ( s03_[ism-1] ) s03_[ism-1]->SetBinContent(s03_[ism-1]->GetBin(ie, ip), z3val03);
+          if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent( ie, ip, z3val03 );
 
         }
 
@@ -1136,9 +1011,9 @@ void EBPedestalClient::analyze(void){
         float z5val02;
         float z5val03;
 
-        if ( t01_[ism-1] ) t01_[ism-1]->SetBinContent(t01_[ism-1]->GetBin(ie, ip), -999.);
-        if ( t02_[ism-1] ) t02_[ism-1]->SetBinContent(t02_[ism-1]->GetBin(ie, ip), -999.);
-        if ( t03_[ism-1] ) t03_[ism-1]->SetBinContent(t03_[ism-1]->GetBin(ie, ip), -999.);
+        if ( met01_[ism-1] ) met01_[ism-1]->setBinContent( ie, ip, -999. );
+        if ( met02_[ism-1] ) met02_[ism-1]->setBinContent( ie, ip, -999. );
+        if ( met03_[ism-1] ) met03_[ism-1]->setBinContent( ie, ip, -999. );
 
         if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
 
@@ -1179,19 +1054,19 @@ void EBPedestalClient::analyze(void){
           if ( x5val01 != 0 && y5val01 != 0 ) z5val01 = sqrt(abs(x5val01 - y5val01));
           if ( (x5val01 - y5val01) < 0 ) z5val01 = -z5val01;
 
-          if ( t01_[ism-1] ) t01_[ism-1]->SetBinContent(t01_[ism-1]->GetBin(ie, ip), z5val01);
+          if ( met01_[ism-1] ) met01_[ism-1]->setBinContent( ie, ip, z5val01 );
 
           z5val02 = -999.;
           if ( x5val02 != 0 && y5val02 != 0 ) z5val02 = sqrt(abs(x5val02 - y5val02));
           if ( (x5val02 - y5val02) < 0 ) z5val02 = -z5val02;
           
-          if ( t02_[ism-1] ) t02_[ism-1]->SetBinContent(t02_[ism-1]->GetBin(ie, ip), z5val02);
+          if ( met02_[ism-1] ) met02_[ism-1]->setBinContent( ie, ip, z5val02 );
 
           z5val03 = -999.;
           if ( x5val03 != 0 && y5val03 != 0 ) z5val03 = sqrt(abs(x5val03 - y5val03));
           if ( (x5val03 - y5val03) < 0 ) z5val03 = -z5val03;
           
-          if ( t03_[ism-1] ) t03_[ism-1]->SetBinContent(t03_[ism-1]->GetBin(ie, ip), z5val03);
+          if ( met03_[ism-1] ) met03_[ism-1]->setBinContent( ie, ip, z5val03 );
 
         }
 
@@ -1283,13 +1158,13 @@ void EBPedestalClient::htmlOutput(int run, const std::vector<int> & superModules
       obj2f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj2f = g01_[ism-1];
+          obj2f = EBMUtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
           break;
         case 2:
-          obj2f = g02_[ism-1];
+          obj2f = EBMUtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
           break;
         case 3:
-          obj2f = g03_[ism-1];
+          obj2f = EBMUtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
           break;
         default:
           break;
@@ -1330,13 +1205,13 @@ void EBPedestalClient::htmlOutput(int run, const std::vector<int> & superModules
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = p01_[ism-1];
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( mep01_[ism-1] );
           break;
         case 2:
-          obj1f = p02_[ism-1];
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( mep02_[ism-1] );
           break;
         case 3:
-          obj1f = p03_[ism-1];
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( mep03_[ism-1] );
           break;
         default:
             break;
@@ -1377,13 +1252,13 @@ void EBPedestalClient::htmlOutput(int run, const std::vector<int> & superModules
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = r01_[ism-1];
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( mer01_[ism-1] );
           break;
         case 2:
-          obj1f = r02_[ism-1];
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( mer02_[ism-1] );
           break;
         case 3:
-          obj1f = r03_[ism-1];
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( mer03_[ism-1] );
           break;
         default:
           break;
@@ -1423,13 +1298,13 @@ void EBPedestalClient::htmlOutput(int run, const std::vector<int> & superModules
       obj2f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj2f = s01_[ism-1];
+          obj2f = EBMUtilsClient::getHisto<TH2F*>( mes01_[ism-1] );
           break;
         case 2:
-          obj2f = s02_[ism-1];
+          obj2f = EBMUtilsClient::getHisto<TH2F*>( mes02_[ism-1] );
           break;
         case 3:
-          obj2f = s03_[ism-1];
+          obj2f = EBMUtilsClient::getHisto<TH2F*>( mes03_[ism-1] );
           break;
         default:
           break;
@@ -1470,13 +1345,13 @@ void EBPedestalClient::htmlOutput(int run, const std::vector<int> & superModules
       obj2f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj2f = t01_[ism-1];
+          obj2f = EBMUtilsClient::getHisto<TH2F*>( met01_[ism-1] );
           break;
         case 2:
-          obj2f = t02_[ism-1];
+          obj2f = EBMUtilsClient::getHisto<TH2F*>( met02_[ism-1] );
           break;
         case 3:
-          obj2f = t03_[ism-1];
+          obj2f = EBMUtilsClient::getHisto<TH2F*>( met03_[ism-1] );
           break;
         default:
           break;

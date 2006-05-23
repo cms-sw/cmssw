@@ -2,14 +2,15 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/05/03 09:04:36 $
- * $Revision: 1.87 $
+ * $Date: 2006/05/18 07:41:42 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
  */
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
 EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
@@ -38,8 +39,8 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterfac
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     // integrity summary histograms
-    g01_[ism-1] = 0;
-    g02_[ism-1] = 0;
+    meg01_[ism-1] = 0;
+    meg02_[ism-1] = 0;
 
   }
 
@@ -106,27 +107,30 @@ void EBIntegrityClient::setup(void) {
 
   Char_t histo[50];
 
+  mui_->setCurrentFolder( "EcalBarrel/EBIntegrityClient" );
+  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( g01_[ism-1] ) delete g01_[ism-1];
+    if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBIT data integrity quality SM%02d", ism);
-    g01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-    if ( g02_[ism-1] ) delete g02_[ism-1];
+    if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EBIT data integrity quality MEM SM%02d", ism);
-    g02_[ism-1] = new TH2F(histo, histo, 10, 0., 10., 5, 0.,5.);
+    meg02_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 5, 0.,5.);
 
   }
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    g01_[ism-1]->Reset();
-    g02_[ism-1]->Reset();
+    EBMUtilsClient::resetHisto( meg01_[ism-1] );
+    EBMUtilsClient::resetHisto( meg02_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+        meg01_[ism-1]->setBinContent( ie, ip, 2. );
 
       }
     }
@@ -135,7 +139,7 @@ void EBIntegrityClient::setup(void) {
     for ( int ie = 1; ie <= 10; ie++ ) {
       for ( int ip = 1; ip <= 5; ip++ ) {
 
-        g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
+        meg02_[ism-1]->setBinContent( ie, ip, 2. );
 
       }
     }
@@ -186,13 +190,16 @@ void EBIntegrityClient::cleanup(void) {
 
   }
 
+  mui_->setCurrentFolder( "EcalBarrel/EBIntegrityClient" );
+  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( g01_[ism-1] ) delete g01_[ism-1];
-    g01_[ism-1] = 0;
+    if ( meg01_[ism-1] ) bei->removeElement(meg01_[ism-1]->getName() );
+    meg01_[ism-1] = 0;
 
-    if ( g02_[ism-1] ) delete g02_[ism-1];
-    g02_[ism-1] = 0;
+    if ( meg02_[ism-1] ) bei->removeElement(meg02_[ism-1]->getName() );
+    meg02_[ism-1] = 0;
 
   }
 
@@ -737,7 +744,7 @@ void EBIntegrityClient::analyze(void){
   Char_t histo[150];
 
   MonitorElement* me;
-  MonitorElementT<TNamed>* ob;
+  //MonitorElementT<TNamed>* ob;
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/EBIT DCC size error");
@@ -749,19 +756,7 @@ void EBIntegrityClient::analyze(void){
     }
   }
   me = mui_->get(histo);
-  if ( me ) {
-    if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-    ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-    if ( ob ) {
-      if ( cloneME_ ) {
-        if ( h00_ ) delete h00_;
-        sprintf(histo, "ME EBIT DCC size error");
-        h00_ = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
-      } else {
-        h00_ = dynamic_cast<TH1F*> (ob->operator->());
-      }
-    }
-  }
+  h00_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h00_ );
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -775,19 +770,7 @@ void EBIntegrityClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h_[ism-1] ) delete h_[ism-1];
-          sprintf(histo, "ME EBMM occupancy SM%02d", ism);
-          h_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-        } else {
-          h_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
-        }
-      }
-    }
+    h_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EcalOccupancy/EBMM MEM occupancy SM%02d", ism);
@@ -799,19 +782,7 @@ void EBIntegrityClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( hmem_[ism-1] ) delete hmem_[ism-1];
-          sprintf(histo, "ME MEM EBMM occupancy SM%02d", ism);
-          hmem_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-        } else {
-          hmem_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
-        }
-      }
-    }
+    hmem_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/Gain/EBIT gain SM%02d", ism);
@@ -823,19 +794,7 @@ void EBIntegrityClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h01_[ism-1] ) delete h01_[ism-1];
-          sprintf(histo, "ME EBIT gain SM%02d", ism);
-          h01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-        } else {
-          h01_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
-        }
-      }
-    }
+    h01_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/ChId/EBIT ChId SM%02d", ism);
@@ -847,20 +806,8 @@ void EBIntegrityClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h02_[ism-1] ) delete h02_[ism-1];
-          sprintf(histo, "ME EBIT ChId SM%02d", ism);
-          h02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-        } else {
-          h02_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
-        }
-      }
-    }
-
+    h02_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
+ 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
     } else {
@@ -871,19 +818,7 @@ void EBIntegrityClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h03_[ism-1] ) delete h03_[ism-1];
-          sprintf(histo, "ME EBIT gain switch SM%02d", ism);
-          h03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-        } else {
-          h03_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
-        }
-      }
-    }
+    h03_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d", ism);
@@ -895,19 +830,7 @@ void EBIntegrityClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h04_[ism-1] ) delete h04_[ism-1];
-          sprintf(histo, "ME EBIT gain switch stay SM%02d", ism);
-          h04_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-        } else {
-          h04_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
-        }
-      }
-    }
+    h04_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h04_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTId/EBIT TTId SM%02d", ism);
@@ -919,19 +842,7 @@ void EBIntegrityClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h05_[ism-1] ) delete h05_[ism-1];
-          sprintf(histo, "ME EBIT TTId SM%02d", ism);
-          h05_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-        } else {
-          h05_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
-        }
-      }
-    }
+    h05_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h05_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d", ism);
@@ -943,19 +854,7 @@ void EBIntegrityClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h06_[ism-1] ) delete h06_[ism-1];
-          sprintf(histo, "ME EBIT TTBlockSize SM%02d", ism);
-          h06_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-        } else {
-          h06_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
-        }
-      }
-    }
+    h06_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h06_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemChId/EBIT MemChId SM%02d", ism);
@@ -967,19 +866,7 @@ void EBIntegrityClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h07_[ism-1] ) delete h07_[ism-1];
-          sprintf(histo, "ME EBIT MemChId SM%02d", ism);
-          h07_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-        } else {
-          h07_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
-        }
-      }
-    }
+    h07_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h07_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemGain/EBIT MemGain SM%02d", ism);
@@ -991,19 +878,7 @@ void EBIntegrityClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h08_[ism-1] ) delete h08_[ism-1];
-          sprintf(histo, "ME EBIT MemGain SM%02d", ism);
-          h08_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-        } else {
-          h08_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
-        }
-      }
-    }
+    h08_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h08_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemTTId/EBIT MemTTId SM%02d", ism);
@@ -1015,19 +890,7 @@ void EBIntegrityClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h09_[ism-1] ) delete h09_[ism-1];
-          sprintf(histo, "ME EBIT MemTTId SM%02d", ism);
-          h09_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-        } else {
-          h09_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
-        }
-      }
-    }
+    h09_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h09_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemSize/EBIT MemSize SM%02d", ism);
@@ -1039,25 +902,13 @@ void EBIntegrityClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h10_[ism-1] ) delete h10_[ism-1];
-          sprintf(histo, "ME MemSize SM%02d", ism);
-          h10_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-        } else {
-          h10_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
-        }
-      }
-    }
+    h10_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h10_[ism-1] );
 
     float num00;
 
     // integrity summary histograms
-    if ( g01_[ism-1] ) g01_[ism-1]->Reset();
-    if ( g02_[ism-1] ) g02_[ism-1]->Reset();
+    EBMUtilsClient::resetHisto( meg01_[ism-1] );
+    EBMUtilsClient::resetHisto( meg02_[ism-1] );
 
     num00 = 0.;
 
@@ -1076,7 +927,7 @@ void EBIntegrityClient::analyze(void){
 
         num01 = num02 = num03 = num04 = num05 = num06 = 0.;
 
-        if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 2. );
 
         bool update_channel1 = false;
         bool update_channel2 = false;
@@ -1145,7 +996,7 @@ void EBIntegrityClient::analyze(void){
           }
 
           // filling the summary for SM channels
-          if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
 
         }
 
@@ -1161,7 +1012,7 @@ void EBIntegrityClient::analyze(void){
         num07 = num08 = num09 = num10 = 0.;
 
         // initialize summary histo for mem
-        if ( g02_[ism-1] ) g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
+        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
 
         bool update_channel1 = false;
         bool update_channel2 = false;
@@ -1216,7 +1067,7 @@ void EBIntegrityClient::analyze(void){
           }
 
           // filling summary for mem channels
-          if ( g02_[ism-1] ) g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val );
 
         }
 
@@ -1361,7 +1212,7 @@ void EBIntegrityClient::htmlOutput(int run, const std::vector<int> & superModule
 
     imgNameQual = "";
 
-    obj2f = g01_[ism-1];
+    obj2f = EBMUtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
 
     if ( obj2f ) {
 
@@ -1491,7 +1342,7 @@ void EBIntegrityClient::htmlOutput(int run, const std::vector<int> & superModule
 
     imgNameQualMem = "";
 
-    obj2f = g02_[ism-1];
+    obj2f = EBMUtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
 
     if ( obj2f ) {
 

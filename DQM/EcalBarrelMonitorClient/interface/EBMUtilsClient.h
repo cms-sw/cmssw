@@ -1,43 +1,67 @@
-// $Id: EBMUtilsClient.h,v 1.7 2006/05/21 21:33:52 dellaric Exp $
+// $Id: EBMUtilsClient.h,v 1.8 2006/05/21 21:36:00 dellaric Exp $
 
 /*!
   \file EBMUtilsClient.h
   \brief Ecal Barrel Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.7 $
-  \date $Date: 2006/05/21 21:33:52 $
+  \version $Revision: 1.8 $
+  \date $Date: 2006/05/21 21:36:00 $
 */
 
 #ifndef EBMUtilsClient_H
 #define EBMUtilsClient_H
 
 #include <string>
-#include <iostream>
-#include <sstream>
-#include <iomanip>
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorElementT.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TROOT.h"
+
+/*! \class EBMUtilsClient
+    \brief Utilities for Ecal Barrel Monitor Client 
+ */
 
 class EBMUtilsClient {
 
  public:
 
-  //! getHisto
-  template<class T> static T* getHisto( const MonitorElement* me, bool clone = false, T* ret = 0 ) {
+  /*! \fn template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0 )
+      \brief Returns the histogram contained by the Monitor Element
+      \param me Monitor Element.
+      \param clone (boolean) if true clone the histogram. 
+      \param ret in case of clonation delete the histogram first.
+   */
+  template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0 ) {
     if( me ) {
+      std::string ofile = __FILE__;
+      if( ofile.rfind( "/" ) != ofile.size() ) ofile = ofile.substr( ofile.rfind( "/" )+1, ofile.size() );
+      if( ofile.find( "." ) != ofile.size() ) ofile = ofile.substr( ofile.find( "." )+1, ofile.size() );
+      LogDebug( ofile.c_str() ) << "Found '" << me->getName() <<"'"; 
       MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
       if( ob ) { 
         if( clone ) {
           if( ret ) delete ret;
           std::string s = "ME " + me->getName();
-          ret = dynamic_cast<T*>((ob->operator->())->Clone(s.c_str())); 
+          ret = dynamic_cast<T>((ob->operator->())->Clone(s.c_str())); 
         } else {
-          ret = dynamic_cast<T*>( ob->operator->()); 
+          ret = dynamic_cast<T>( ob->operator->()); 
         }
       }
     }
     return ret;
+  }
+
+  /*! \fn static void resetHisto( const MonitorElement* me ) {
+      \brief Reset the ROOT object contained by the monitoring element
+      \param me input Monitor Element
+   */
+  static void resetHisto( const MonitorElement* me ) {
+    if( me ) {
+      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
+      if( ob ) { 
+	ob->Reset();
+      }
+    }
   }
 
  protected:

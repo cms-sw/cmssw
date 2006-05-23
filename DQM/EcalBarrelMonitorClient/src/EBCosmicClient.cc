@@ -1,14 +1,15 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/04/28 10:48:50 $
- * $Revision: 1.45 $
+ * $Date: 2006/05/18 07:41:42 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
 */
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
 EBCosmicClient::EBCosmicClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
@@ -290,7 +291,7 @@ void EBCosmicClient::analyze(void){
   Char_t histo[150];
 
   MonitorElement* me;
-  MonitorElementT<TNamed>* ob;
+  //MonitorElementT<TNamed>* ob;
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -304,19 +305,7 @@ void EBCosmicClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h01_[ism-1] ) delete h01_[ism-1];
-          sprintf(histo, "ME EBCT energy sel SM%02d", ism);
-          h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          h01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
-    }
+    h01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
     if ( collateSources_ ) {
@@ -329,19 +318,7 @@ void EBCosmicClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h02_[ism-1] ) delete h02_[ism-1];
-          sprintf(histo, "ME EBCT energy cut SM%02d", ism);
-          h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-        } else {
-          h02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-      }
-    }
+    h02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
     if ( collateSources_ ) {
@@ -354,19 +331,7 @@ void EBCosmicClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h03_[ism-1] ) delete h03_[ism-1];
-          sprintf(histo, "ME EBCT energy spectrum SM%02d", ism);
-          h03_[ism-1] = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
-        } else {
-          h03_[ism-1] = dynamic_cast<TH1F*> (ob->operator->());
-        }
-      }
-    }
+    h03_[ism-1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
   }
