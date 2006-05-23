@@ -27,6 +27,9 @@
 #include "RecoEcal/EgammaClusterProducers/interface/HybridClusterProducer.h"
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
+#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+
 
 
 HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
@@ -42,7 +45,14 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
   superclusterCollection_ = ps.getParameter<std::string>("superclusterCollection");
   hitproducer_ = ps.getParameter<std::string>("ecalhitproducer");
   hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
-  produces< reco::ClusterShapeCollection>("HybridClusterShapes");
+  clustershape_logweighted = ps.getParameter<bool>("coretools_logweight");
+  clustershape_x0 = ps.getParameter<double>("coretools_x0");
+  clustershape_t0 = ps.getParameter<double>("coretools_t0");
+  clustershape_w0 = ps.getParameter<double>("coretools_w0");
+  clustershapecollection_ = ps.getParameter<std::string>("clustershapecollection");
+
+
+  produces< reco::ClusterShapeCollection>(clustershapecollection_);
   produces< reco::BasicClusterCollection >(basicclusterCollection_);
   produces< reco::SuperClusterCollection >(superclusterCollection_);
   nEvt_ = 0;
@@ -78,23 +88,27 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   // get the barrel geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<IdealGeometryRecord>().get(geoHandle);
-
+  CaloGeometry geometry = *geoHandle;
+  const CaloSubdetectorGeometry *geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  //Setup for core tools objects.
+  
+  std::map<std::string,double> providedParameters;  
+  //Sould be created with vars found in parameterset,
+  //if they are not found do not put anything in the map for it.  
+  //parameter names are case sensitive
+  providedParameters.insert(std::make_pair("LogWeighted",clustershape_logweighted));
+  providedParameters.insert(std::make_pair("X0",clustershape_x0));
+  providedParameters.insert(std::make_pair("T0",clustershape_t0));
+  providedParameters.insert(std::make_pair("W0",clustershape_w0));
+  PositionCalc::Initialize(providedParameters, &CorrMap, hitcollection_, &(*geometry_p));
+  ClusterShapeAlgo::Initialize(&CorrMap, hitcollection_);
+  //Done with setup
+  
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;
   hybrid_p->makeClusters(CorrMap, geoHandle, basicClusters);
   std::cout << "Finished clustering - BasicClusterCollection returned to producer..." << std::endl;
 
-
-   std::map<std::string,double> providedParameters;  
-      //Sould be created with vars found in parameterset,
-      //if they are not found do not put anything in the map for it.  
-      //parameter names are case sensitive
-
-  providedParameters.insert(std::make_pair("LogWeighted",true));
-  providedParameters.insert(std::make_pair("X0",1));
-  providedParameters.insert(std::make_pair("T0",2));
-  providedParameters.insert(std::make_pair("W0",3));
-  ClusterShapeAlgo::Initialize(providedParameters, &CorrMap);
   std::vector <reco::ClusterShape> ClusVec;
   for (int erg=0;erg<int(basicClusters.size());++erg){
     reco::ClusterShape TestShape = ClusterShapeAlgo::Calculate(basicClusters[erg]);
@@ -102,7 +116,14 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   }
   std::auto_ptr< reco::ClusterShapeCollection> clustersshapes_p(new reco::ClusterShapeCollection);
   clustersshapes_p->assign(ClusVec.begin(), ClusVec.end());
-  evt.put(clustersshapes_p, "HybridClusterShapes");
+  edm::OrphanHandle<reco::ClusterShapeCollection> clusHandle = evt.put(clustersshapes_p, 
+								       clustershapecollection_);
+
+  reco::ClusterShapeCollection clusColl= *clusHandle;
+  for (unsigned int i = 0; i < clusColl.size(); i++){
+    reco::ClusterShapeRef reffer(reco::ClusterShapeRef(clusHandle, i));
+    basicClusters[i].SetClusterShapeRef(reffer);
+  }
   // create an auto_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > basicclusters_p(new reco::BasicClusterCollection);
   basicclusters_p->assign(basicClusters.begin(), basicClusters.end());
