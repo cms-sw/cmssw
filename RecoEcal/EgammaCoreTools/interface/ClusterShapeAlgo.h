@@ -7,9 +7,10 @@
  *
  * \author Michael A. Balazs, UVa
  * 
- * \version $Id: ClusterShape.h,v 1.2 2006/05/15 12:00:00 mbalazs Exp $
- * \version $Id: ClusterShape.h,v 1.1 2006/05/11 12:00:00 mbalazs Exp $
- * \version $Id: ClusterShape.h,v 1.0 2006/05/05 12:00:00 mbalazs Exp $
+ * \version $Id: ClusterShape.h,v 1.3  2006/05/17 12:00:00 mbalazs Exp $
+ * \version $Id: ClusterShape.h,v 1.2  2006/05/15 12:00:00 mbalazs Exp $
+ * \version $Id: ClusterShape.h,v 1.1  2006/05/11 12:00:00 mbalazs Exp $
+ * \version $Id: ClusterShape.h,v 1.0  2006/05/05 12:00:00 mbalazs Exp $
  *
  */
 
@@ -20,13 +21,14 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 class ClusterShapeAlgo
 {
 
  public:
-  static void Initialize(std::map<std::string,double> providedParameters,
-			 std::map<EBDetId,EcalRecHit> *passedRecHitsMap);
+  static void Initialize(const std::map<EBDetId,EcalRecHit> *passedRecHitsMap,
+			 std::string passedCollectionType);
   static reco::ClusterShape Calculate(reco::BasicCluster passedCluster );
  
   // private:
@@ -34,31 +36,23 @@ class ClusterShapeAlgo
 
   void Calculate_TopEnergy(reco::BasicCluster passedCluster);
   void Calculate_2ndEnergy(reco::BasicCluster passedCluster);
-  void Create_Map(); // do i need to worry about barrel vs endcap here?
+  void Create_Map(); // Will need to add endcap and preshower code in here
   void Calculate_e2x2();
-  void Calculate_e3x2(); // does this do the hadoverecal (=ratio);
+  void Calculate_e3x2(); 
   void Calculate_e3x3();
   void Calculate_e5x5();
-  void Calculate_Weights();
-  void Calculate_eta25phi25();
-  void Calculate_Covariances();
-  void Calculate_hadOverEcal(); // is this needed? see above
+  void Calculate_Location(); //To Be Completed Pending Position Calc
+  void Calculate_Covariances(); //To Be Completed Pending Position Calc
+  
+  static std::string param_CollectionType_;
+  static const std::map<EBDetId,EcalRecHit> *storedRecHitsMap_;
 
-  static bool       param_LogWeighted_;
-  static Double32_t param_X0_;
-  static Double32_t param_T0_;
-  static Double32_t param_W0_;
-
-  static std::map<EBDetId,EcalRecHit> *storedRecHitsMap_;
-
-  std::pair<DetId, Double32_t> energyMap_[5][5]; // maybe only energy needed... see if realy needed for the eta25/phi25
-  Double32_t weightsMap_[5][5];
-  Double32_t weightsTotal_;
+  std::pair<EBDetId, Double32_t> energyMap_[5][5];
 
   Double32_t covEtaEta_, covEtaPhi_, covPhiPhi_;
   Double32_t eMax_, e2nd_, e2x2_, e3x2_, e3x3_, e5x5_;
-  Double32_t eta25_, phi25_; // this may be done in LogPositionCalc and can i get that data out?
-  Double32_t hadOverEcal_;
+  Double32_t e3x2Ratio_;
+  math::XYZPoint location_; 
   DetId eMaxId_, e2ndId_;
 
 };
