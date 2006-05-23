@@ -1,9 +1,9 @@
 #ifndef _InitMessage_h
 #define _InitMessage_h
 
-#include "MsgTools.h"
-#include "MsgHeader.h"
-#include "InitMessage.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
+#include "IOPool/Streamer/interface/MsgHeader.h"
+#include "IOPool/Streamer/interface/InitMessage.h"
 
 struct Version
 {

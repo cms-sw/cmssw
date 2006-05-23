@@ -1,7 +1,7 @@
 #ifndef _MsgHeader_h
 #define _MsgHeader_h
 
-#include "MsgTools.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
 // as it is in memory of file
 struct Header
 {

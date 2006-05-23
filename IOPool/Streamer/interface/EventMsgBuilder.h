@@ -1,9 +1,9 @@
 #ifndef _EventMsgBuilder_h
 #define _EventMsgBuilder_h
 
-#include "MsgTools.h"
-#include "MsgHeader.h"
-#include "EventMessage.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
+#include "IOPool/Streamer/interface/MsgHeader.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
 
 // ------------------ event message builder ----------------
 
