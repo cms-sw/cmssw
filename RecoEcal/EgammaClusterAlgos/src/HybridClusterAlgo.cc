@@ -3,7 +3,7 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
-#include "RecoEcal/EgammaCoreTools/interface/LogPositionCalc.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include <iostream>
 #include <map>
 #include <vector>
@@ -55,7 +55,7 @@ void HybridClusterAlgo::makeClusters(std::map<EBDetId, EcalRecHit> CorrMap, edm:
   //Now to do the work.
   std::cout << "About to call mainSearch...";
  
-  mainSearch(geometry);
+  mainSearch();
   std::cout << "done" << std::endl;
   std::map<int, reco::BasicClusterCollection>::iterator bic; 
   for (bic= _clustered.begin();bic!=_clustered.end();bic++){
@@ -111,7 +111,7 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(reco::BasicClu
   return SCcoll;
 }
 
-void HybridClusterAlgo::mainSearch(const CaloSubdetectorGeometry geometry)
+void HybridClusterAlgo::mainSearch(void)
 {
   std::cout << "HybridClusterAlgo Algorithm - looking for clusters" << std::endl;
   std::cout << "Found the following clusters:" << std::endl;
@@ -272,14 +272,16 @@ void HybridClusterAlgo::mainSearch(const CaloSubdetectorGeometry geometry)
     //Make the basic clusters:
     for (int i=0;i<int(PeakIndex.size());++i){
       //One cluster for each peak.
-      std::vector<reco::EcalRecHitData> recHits;
+      std::vector<EcalRecHit> recHits;
+      std::vector<DetId> dets;
       int nhits=0;
       for (int j=0;j<int(dominoEnergy.size());++j){	
 	if (OwnerShip[j] == i){
 	  std::vector <EcalRecHit> temp = dominoCells[j];
 	  for (int k=0;k<int(temp.size());++k){
-	    reco::EcalRecHitData data(temp[k].energy(),0,temp[k].id());
-	    recHits.push_back(data);
+//	    reco::EcalRecHitData data(temp[k].energy(),0,temp[k].id());
+            dets.push_back(temp[k].id());
+	    recHits.push_back(temp[k]);
 	    nhits++;
 	  }
 	}  
@@ -287,15 +289,15 @@ void HybridClusterAlgo::mainSearch(const CaloSubdetectorGeometry geometry)
       std::cout << "Adding a cluster with: " << nhits << std::endl;
       std::cout << "total E: " << LumpEnergy[i] << std::endl;
       //Get Calorimeter position
-      Point pos = LogPositionCalc::getECALposition(recHits, geometry);
+      Point pos = PositionCalc::Calculate_Location(dets);
       
       double totChi2=0;
       double totE=0;
       std::vector<DetId> usedHits;
       for (int blarg=0;blarg<int(recHits.size());++blarg){
-	totChi2 +=recHits[blarg].energy()*recHits[blarg].chi2();
+	totChi2 +=0;
 	totE+=recHits[blarg].energy();
-	usedHits.push_back(recHits[blarg].detId());
+	usedHits.push_back(recHits[blarg].id());
       }
       if (totE>0)
 	totChi2/=totE;
