@@ -3,12 +3,8 @@
 /**
  *   \class LayerCollector
  *   Class collecting all layers of the tracker.  
- *   It was ( ORCA630 era ) in TrackerReco/TkSeedGenerator/interface/LayerCollector.h
- *   and then declared obsolete. Resurrected and cleaned up here. Might go away
- *   if a clever solution is found.
- * 
- *    $Date: $
- *    $Revision: $
+ *    $Date: 2006/05/23 10:08:51 $
+ *    $Revision: 1.1 $
  *   
  *   
  */
