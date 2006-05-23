@@ -62,81 +62,81 @@ using std::binary_function;
 class L1GctJetFinder : public L1GctProcessor
 {
 public:
-    //Typedefs
-    typedef unsigned long int ULong;
-    typedef unsigned short int UShort;
+  //Typedefs
+  typedef unsigned long int ULong;
+  typedef unsigned short int UShort;
     
-    /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
-    L1GctJetFinder(int id);
-    ~L1GctJetFinder();
+  /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
+  L1GctJetFinder(int id);
+  ~L1GctJetFinder();
    
-    /// Overload << operator
-    friend std::ostream& operator << (std::ostream& os, const L1GctJetFinder& algo);
+  /// Overload << operator
+  friend std::ostream& operator << (std::ostream& os, const L1GctJetFinder& algo);
 
-    /// clear internal buffers
-    virtual void reset();
+  /// clear internal buffers
+  virtual void reset();
 
-    /// get input data from sources
-    virtual void fetchInput();
+  /// get input data from sources
+  virtual void fetchInput();
 
-    /// process the data, fill output buffers
-    virtual void process();
+  /// process the data, fill output buffers
+  virtual void process();
 
-    /// set an input Source Card pointer 
-    void setInputSourceCard(int i, L1GctSourceCard* sc);
+  /// set an input Source Card pointer 
+  void setInputSourceCard(int i, L1GctSourceCard* sc);
 
-    /// Set input data
-    void setInputRegion(int i, L1GctRegion region);
+  /// Set input data
+  void setInputRegion(int i, L1GctRegion region);
     
-    /// Return input data   
-    std::vector<L1GctRegion> getInputRegions() const { return m_inputRegions; }
+  /// Return input data   
+  std::vector<L1GctRegion> getInputRegions() const { return m_inputRegions; }
 
-    /// Return output data
-    std::vector<L1GctJetCand> getJets() const { return m_outputJets; }
-    L1GctScalarEtVal ht() const { return m_outputHt; }
+  /// Return output data
+  std::vector<L1GctJetCand> getJets() const { return m_outputJets; }
+  L1GctScalarEtVal ht() const { return m_outputHt; }
     
-    ///Max. number of jets that can be found per jet finder
-    static const int MAX_JETS_OUT = 6;  //max of 6 jets in a 2*11 search area
+  ///Max. number of jets that can be found per jet finder
+  static const int MAX_JETS_OUT = 6;  //max of 6 jets in a 2*11 search area
 
 private:
 
 	/// algo ID
 	int m_id;
 	
-    //Constants
-    static const int MAX_SOURCE_CARDS = 9;  //need data from 9 separate source cards to find jets in the 2*11 search region.
-    static const int MAX_REGIONS_IN = 48; // 2*11 search area, so 4*12=48 regions needed to run search.
-    static const int COL_OFFSET = MAX_REGIONS_IN/4;  ///< The index offset between columns
+  //Constants
+  static const int MAX_SOURCE_CARDS = 9;  //need data from 9 separate source cards to find jets in the 2*11 search region.
+  static const int MAX_REGIONS_IN = 48; // 2*11 search area, so 4*12=48 regions needed to run search.
+  static const int COL_OFFSET = MAX_REGIONS_IN/4;  ///< The index offset between columns
 
-    /// Store source card pointers
-    std::vector<L1GctSourceCard*> m_sourceCards;
+  /// Store source card pointers
+  std::vector<L1GctSourceCard*> m_sourceCards;
     
-    /// input data required for jet finding
-    std::vector<L1GctRegion> m_inputRegions;
+  /// input data required for jet finding
+  std::vector<L1GctRegion> m_inputRegions;
 
-    /// output jets
-    std::vector<L1GctJetCand> m_outputJets;
+  /// output jets
+  std::vector<L1GctJetCand> m_outputJets;
 
-    /// output Ht
-    L1GctScalarEtVal m_outputHt;
+  /// output Ht
+  L1GctScalarEtVal m_outputHt;
     
 
     
-    //PRIVATE METHODS
-    /// Returns true if region index is the centre of a jet. Set boundary = true if at edge of HCAL.
-    bool detectJet(const UShort centreIndex, const bool boundary = false) const;
+  //PRIVATE METHODS
+  /// Returns true if region index is the centre of a jet. Set boundary = true if at edge of HCAL.
+  bool detectJet(const UShort centreIndex, const bool boundary = false) const;
 
-    /// Returns energy sum (rank) of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of HCAL.
-    ULong calcJetRank(const UShort centreIndex, const bool boundary = false) const;
+  /// Returns energy sum (rank) of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of HCAL.
+  ULong calcJetRank(const UShort centreIndex, const bool boundary = false) const;
 
-    /// Returns combined tauVeto of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of Endcap.
-    bool calcJetTauVeto(const UShort centreIndex, const bool boundary = false) const;
+  /// Returns combined tauVeto of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of Endcap.
+  bool calcJetTauVeto(const UShort centreIndex, const bool boundary = false) const;
     
-    /// Converts a 10-bit energy to a 6-bit calibrated rank - rather arbitrarily at the mo.
-    ULong convertToRank(const ULong energy) const;
+  /// Converts a 10-bit energy to a 6-bit calibrated rank - rather arbitrarily at the mo.
+  ULong convertToRank(const ULong energy) const;
     
-    /// Calculates total calibrated energy in jets (Ht) sum
-    L1GctScalarEtVal calcHt() const;
+  /// Calculates total calibrated energy in jets (Ht) sum
+   L1GctScalarEtVal calcHt() const;
   
 };
 
