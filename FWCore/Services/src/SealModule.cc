@@ -3,8 +3,7 @@
 #include "FWCore/Services/src/SiteLocalConfigService.h"
 #include "FWCore/Services/src/Tracer.h"
 
-//PE#include "FWCore/Services/src/JobReportService.h"
-#include "FWCore/Services/interface/JobReport.h"
+#include "FWCore/Services/src/JobReportService.h"
 #include "FWCore/Services/src/Timing.h"
 #include "FWCore/Services/src/Memory.h"
 #include "FWCore/Services/src/Profiling.h"
@@ -13,8 +12,7 @@
 #include "FWCore/Services/src/EnableFloatingPointExceptions.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
-//PEusing edm::service::JobReportService;
-using edm::service::JobReport;
+using edm::service::JobReportService;
 using edm::service::Tracer;
 using edm::service::Timing;
 using edm::service::SimpleMemoryCheck;
@@ -37,9 +35,5 @@ DEFINE_ANOTHER_FWK_SERVICE_MAKER(EnableFloatingPointExceptions,edm::serviceregis
 DEFINE_ANOTHER_FWK_SERVICE_MAKER(LoadAllDictionaries,edm::serviceregistry::ParameterSetMaker<LoadAllDictionaries>)
 typedef edm::serviceregistry::AllArgsMaker<edm::RandomNumberGenerator,RandomNumberGeneratorService> RandomMaker;
 DEFINE_ANOTHER_FWK_SERVICE_MAKER(RandomNumberGeneratorService, RandomMaker)
-/*
 typedef edm::serviceregistry::AllArgsMaker<edm::JobReport,JobReportService> JobReportMaker;
 DEFINE_ANOTHER_FWK_SERVICE_MAKER(JobReportService, JobReportMaker)
-*/
-DEFINE_ANOTHER_FWK_SERVICE(JobReport)
-
