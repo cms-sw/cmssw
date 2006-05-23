@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: ValueMap.h,v 1.3 2006/05/23 09:58:38 llista Exp $
+ * $Id: ValueMap.h,v 1.4 2006/05/23 10:49:02 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -89,14 +89,14 @@ namespace edm {
       bool operator!=( const const_iterator& ci ) const { return i != ci.i; }
       KeyRef key() const { return KeyRef( keyRef_, i->first ); }
       const Val & val() const { return i->second; }
-      const KeyVal & operator *() const { return kv; }
-      const KeyVal * operator->() const { return & kv; } 
+      const KeyVal & operator *() const { setKV(); return kv; }
+      const KeyVal * operator->() const { setKV(); return & kv; } 
     private:
       KeyRefProd keyRef_;
       typename map_type::const_iterator i;
       mutable KeyVal kv;
       mutable bool changed;
-      void setKV() { if( changed ) { changed = false; kv = KeyVal( key(), val() ); }
+      void setKV() { if( changed ) { changed = false; kv = KeyVal( key(), val() ); } }
     };
     
     /// first iterator over the map (read only)
