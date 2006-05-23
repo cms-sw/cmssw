@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: ValueMap.h,v 1.2 2006/05/22 10:47:23 llista Exp $
+ * $Id: ValueMap.h,v 1.3 2006/05/23 09:58:38 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -71,18 +71,18 @@ namespace edm {
       typedef KeyVal * pointer;
       typedef KeyVal & reference;
       typedef typename map_type::const_iterator::iterator_category iterator_category;
-      const_iterator() { }
+      const_iterator() : changed( true ) { }
       const_iterator( const KeyRefProd & keyRef, 
 		      typename map_type::const_iterator mi ) : 
-	keyRef_( keyRef ),  i( mi ) { setKV(); }
+	keyRef_( keyRef ), i( mi ), changed( true ) { }
       const_iterator & operator=( const const_iterator & it ) { 
 	keyRef_ = it.keyRef_; 
-	i = it.i; setKV(); return *this; 
+	i = it.i; changed = true; return *this; 
       }
-      const_iterator& operator++() { ++i; setKV(); return *this; }
-      const_iterator operator++( int ) { const_iterator ci = *this; ++i; setKV(); return ci; }
-      const_iterator& operator--() { --i; setKV(); return *this; }
-      const_iterator operator--( int ) { const_iterator ci = *this; --i; setKV(); return ci; }
+      const_iterator& operator++() { ++i; changed = true; return *this; }
+      const_iterator operator++( int ) { const_iterator ci = *this; ++i; changed = true; return ci; }
+      const_iterator& operator--() { --i; changed = true; return *this; }
+      const_iterator operator--( int ) { const_iterator ci = *this; --i; changed = true; return ci; }
       bool operator==( const const_iterator& ci ) const { 
 	return keyRef_ == ci.keyRef_ && i == ci.i; 
       }
@@ -94,8 +94,9 @@ namespace edm {
     private:
       KeyRefProd keyRef_;
       typename map_type::const_iterator i;
-      KeyVal kv;
-      void setKV() { kv = KeyVal( key(), val() ); }
+      mutable KeyVal kv;
+      mutable bool changed;
+      void setKV() { if( changed ) { changed = false; kv = KeyVal( key(), val() ); }
     };
     
     /// first iterator over the map (read only)

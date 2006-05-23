@@ -118,18 +118,18 @@ namespace edm {
       typedef KeyVal * pointer;
       typedef KeyVal & reference;
       typedef typename map_type::const_iterator::iterator_category iterator_category;
-      const_iterator() { }
+      const_iterator() : changed( true ){ }
       const_iterator( const KeyRefProd & keyRef, const ValRefProd & valRef,
-		      typename map_type::const_iterator mi ) : 
-	keyRef_( keyRef ), valRef_( valRef ), i( mi ) { setKV(); }
+		      typename map_type::const_iterator mi ) :
+	keyRef_( keyRef ), valRef_( valRef ), i( mi ), changed( true ) { }
       const_iterator & operator=( const const_iterator & it ) { 
 	keyRef_ = it.keyRef_; valRef_ = it.valRef_;
-	i = it.i; setKV(); return *this; 
+	i = it.i; changed = true; return *this; 
       }
-      const_iterator& operator++() { ++i; setKV(); return *this; }
-      const_iterator operator++( int ) { const_iterator ci = *this; ++i; setKV(); return ci; }
-      const_iterator& operator--() { --i; setKV(); return *this; }
-      const_iterator operator--( int ) { const_iterator ci = *this; --i; setKV(); return ci; }
+      const_iterator& operator++() { ++i; changed = true; return *this; }
+      const_iterator operator++( int ) { const_iterator ci = *this; ++i; changed = true; return ci; }
+      const_iterator& operator--() { --i; changed = true; return *this; }
+      const_iterator operator--( int ) { const_iterator ci = *this; --i; changed = true; return ci; }
       bool operator==( const const_iterator& ci ) const { 
 	return keyRef_ == ci.keyRef_ && valRef_ == ci.valRef_ && i == ci.i; 
       }
@@ -138,14 +138,15 @@ namespace edm {
       typename Tag::val_type val() const {
 	return Tag::val( valRef_, i->second );
       }
-      const KeyVal & operator *() const { return kv; }
-      const KeyVal * operator->() const { return & kv; } 
+      const KeyVal & operator *() const { setKV(); return kv; }
+      const KeyVal * operator->() const { setKV(); return & kv; } 
     private:
       KeyRefProd keyRef_;
       ValRefProd valRef_;
       typename map_type::const_iterator i;
-      KeyVal kv;
-      void setKV() { kv = KeyVal( key(), val() ); }
+      mutable KeyVal kv;
+      mutable bool changed;
+      void setKV() const { if( changed ) { changed = false; kv = KeyVal( key(), val() ); } }
     };
 
     /// first iterator over the map (read only)
