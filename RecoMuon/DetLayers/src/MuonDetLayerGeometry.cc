@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/03 15:20:09 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/23 10:56:56 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -156,17 +156,17 @@ MuonDetLayerGeometry::allBackwardLayers() const {
     return allBackward;    
 }    
 
-DetLayer* MuonDetLayerGeometry::idToLayer(DetId detId){
+DetLayer* MuonDetLayerGeometry::idToLayer(DetId &detId){
   
   if(detId.subdetId() == MuonSubdetId::CSC){
     CSCDetId cscId( detId.rawId() );
     CSCDetId id(cscId.endcap(),cscId.station(),0,0,0);
-    return detLayersMap[ DetId(id.rawId()) ]; 
+    return detLayersMap[ DetId(id) ]; 
   }
   else if (detId.subdetId() == MuonSubdetId::DT){
     DTChamberId dtId( detId.rawId() );
     DTChamberId id(0,dtId.station(),0);
-    return detLayersMap[ DetId(id.rawId()) ]; 
+    return detLayersMap[ DetId(id) ]; 
   }
   else throw cms::Exception("InvalidSubdetId")<< detId.subdetId();
 }
