@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/05/20 15:33:35 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/22 22:04:50 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -40,7 +40,7 @@ HLTAnalCand::HLTAnalCand(const edm::ParameterSet& iConfig)
 HLTAnalCand::~HLTAnalCand()
 {
    // should use message logger instead of cout!
-   std::cout << "HLTAnalCand destroyed! " << std::endl;
+   std::cout << "HLTAnalCand destroyed: " << src_ << std::endl;
 }
 
 //
@@ -54,7 +54,7 @@ HLTAnalCand::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
    using namespace reco;
 
-   cout << "HLTAnalCand::filter start:" << endl;
+   cout << "HLTAnalCand::filter start: " << src_ << endl;
 
    // get hold of products from Event
 
@@ -74,5 +74,5 @@ HLTAnalCand::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                << particle.energy() << " " << candidate->energy() << " "  
                << typeid(*candidate).name() << std::endl;
    }
-   std::cout << "HLTAnalCand::filter stop: " << std::endl;
+   std::cout << "HLTAnalCand::filter stop: " << src_ << std::endl;
 }
