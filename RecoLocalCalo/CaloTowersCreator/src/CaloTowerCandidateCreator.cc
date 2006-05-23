@@ -1,7 +1,7 @@
 // makes CaloTowerCandidates from CaloTowers
 // original author: L.Lista INFN
 // modifyed by: F.Ratnikov UMd
-// $Id: CaloTowerCandidateCreator.cc,v 1.2 2006/04/28 17:02:44 fedor Exp $
+// $Id: CaloTowerCandidateCreator.cc,v 1.3 2006/05/23 01:14:10 fedor Exp $
 #include <cmath>
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -17,9 +17,8 @@ CaloTowerCandidateCreator::CaloTowerCandidateCreator( const ParameterSet & p )
   :
   mVerbose (p.getUntrackedParameter<int> ("verbose", 0)),
   mSource (p.getParameter<string> ("src")),
-  mEtThreshold (p.getParameter<double> ("et")),
-  mEThreshold (p.getParameter<double> ("e")),
-  mPtThreshold (p.getParameter<double> ("pt"))
+  mEtThreshold (p.getParameter<double> ("miniumEt")),
+  mEThreshold (p.getParameter<double> ("minimumE"))
 {
   produces<CandidateCollection>();
 }
@@ -40,7 +39,7 @@ void CaloTowerCandidateCreator::produce( Event& evt, const EventSetup& ) {
       std::cout << "CaloTowerCandidateCreator::produce-> " << idx << " tower et/eta/phi/e: " 
 		<< cal->et() << '/' << cal->eta() << '/' << cal->phi() << '/' << cal->energy() << " is...";
     }
-    if (cal->et() >= mEtThreshold && cal->energy() >= mEtThreshold && cal->et() >= mPtThreshold) {
+    if (cal->et() >= mEtThreshold && cal->energy() >= mEtThreshold ) {
       math::PtEtaPhiELorentzVector p( cal->et(), cal->eta(), cal->phi(), cal->energy() );
       RecoCaloTowerCandidate * c = 
 	new RecoCaloTowerCandidate( 0, Candidate::LorentzVector( p ) );

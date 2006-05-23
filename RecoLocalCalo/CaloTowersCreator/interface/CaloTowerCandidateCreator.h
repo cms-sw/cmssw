@@ -1,5 +1,6 @@
 #ifndef CaloTowersCreator_CaloTowerCandidateCreator_h
 #define CaloTowersCreator_CaloTowerCandidateCreator_h
+
 /** \class CaloTowerCandidateCreator
  *
  * Framework module that produces a collection
@@ -7,9 +8,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: CaloTowerCandidateCreator.h,v 1.1 2006/04/08 00:47:57 fedor Exp $
+ * $Id: CaloTowerCandidateCreator.h,v 1.2 2006/05/23 01:14:09 fedor Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -37,8 +38,6 @@ class CaloTowerCandidateCreator : public edm::EDProducer {
   double mEtThreshold;
   /// E threshold
   double mEThreshold;
-  /// pT threshold
-  double mPtThreshold;
 };
 
 #endif
