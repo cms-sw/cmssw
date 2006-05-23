@@ -1,12 +1,14 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/05/17 13:05:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/19 15:23:21 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+
 #include "FWCore/Framework/interface/Handle.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -37,6 +39,12 @@ MuonTrackFinder::~MuonTrackFinder(){
 void MuonTrackFinder::setES(const edm::EventSetup &eSetup){
   theTrajBuilder->setES(eSetup);
 }
+
+// percolate the event setup
+void MuonTrackFinder::setEvent(const edm::Event &event){
+  theTrajBuilder->setEvent(event);
+}
+
 
 // Reconstruct trajectories
 auto_ptr<reco::TrackCollection> MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds){

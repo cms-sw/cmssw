@@ -4,8 +4,8 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2006/05/17 13:05:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/19 15:23:21 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -40,6 +40,9 @@ class MuonTrackFinder{
 
   /// Percolate the Event Setup
   void setES(const edm::EventSetup&);
+
+  /// Percolate the Event Setup
+  void setEvent(const edm::Event&);
 
  private:
 
