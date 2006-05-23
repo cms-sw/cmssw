@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: CaloTowerCandidateCreator.h,v 1.2 2006/03/03 13:40:21 llista Exp $
+ * $Id: CaloTowerCandidateCreator.h,v 1.1 2006/04/08 00:47:57 fedor Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -29,8 +29,16 @@ class CaloTowerCandidateCreator : public edm::EDProducer {
  private:
   /// process one event
   void produce( edm::Event& e, const edm::EventSetup& );
+  /// verbosity
+  int mVerbose;
   /// label of source collection
-  std::string source;
+  std::string mSource;
+  /// ET threshold
+  double mEtThreshold;
+  /// E threshold
+  double mEThreshold;
+  /// pT threshold
+  double mPtThreshold;
 };
 
 #endif

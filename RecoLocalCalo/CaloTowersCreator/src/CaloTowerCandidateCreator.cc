@@ -1,7 +1,7 @@
 // makes CaloTowerCandidates from CaloTowers
 // original author: L.Lista INFN
 // modifyed by: F.Ratnikov UMd
-// $Id: CaloTowerCandidateCreator.cc,v 1.1 2006/04/08 00:47:58 fedor Exp $
+// $Id: CaloTowerCandidateCreator.cc,v 1.2 2006/04/28 17:02:44 fedor Exp $
 #include <cmath>
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -13,8 +13,14 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-CaloTowerCandidateCreator::CaloTowerCandidateCreator( const ParameterSet & p ) :
-  source( p.getParameter<string>( "src" ) ) {
+CaloTowerCandidateCreator::CaloTowerCandidateCreator( const ParameterSet & p ) 
+  :
+  mVerbose (p.getUntrackedParameter<int> ("verbose", 0)),
+  mSource (p.getParameter<string> ("src")),
+  mEtThreshold (p.getParameter<double> ("et")),
+  mEThreshold (p.getParameter<double> ("e")),
+  mPtThreshold (p.getParameter<double> ("pt"))
+{
   produces<CandidateCollection>();
 }
 
@@ -23,18 +29,31 @@ CaloTowerCandidateCreator::~CaloTowerCandidateCreator() {
 
 void CaloTowerCandidateCreator::produce( Event& evt, const EventSetup& ) {
   Handle<CaloTowerCollection> caloTowers;
-  evt.getByLabel( source, caloTowers );
+  evt.getByLabel( mSource, caloTowers );
   
   auto_ptr<CandidateCollection> cands( new CandidateCollection );
   cands->reserve( caloTowers->size() );
   unsigned idx = 0;
   for (; idx < caloTowers->size (); idx++) {
     const CaloTower* cal = &((*caloTowers) [idx]);
-    math::PtEtaPhiELorentzVector p( cal->et(), cal->eta(), cal->phi(), cal->energy() );
-    RecoCaloTowerCandidate * c = 
-      new RecoCaloTowerCandidate( 0, Candidate::LorentzVector( p ) );
-    c->setCaloTower (CaloTowerRef( caloTowers, idx) );
-    cands->push_back( c );
+    if (mVerbose >= 2) {
+      std::cout << "CaloTowerCandidateCreator::produce-> " << idx << " tower et/eta/phi/e: " 
+		<< cal->et() << '/' << cal->eta() << '/' << cal->phi() << '/' << cal->energy() << " is...";
+    }
+    if (cal->et() >= mEtThreshold && cal->energy() >= mEtThreshold && cal->et() >= mPtThreshold) {
+      math::PtEtaPhiELorentzVector p( cal->et(), cal->eta(), cal->phi(), cal->energy() );
+      RecoCaloTowerCandidate * c = 
+	new RecoCaloTowerCandidate( 0, Candidate::LorentzVector( p ) );
+      c->setCaloTower (CaloTowerRef( caloTowers, idx) );
+      cands->push_back( c );
+      if (mVerbose >= 2) std::cout << "accepted: pT/eta/phi:" << c->pt() << '/' << c->eta() <<  '/' << c->phi() <<std::endl;
+    }
+    else {
+      if (mVerbose >= 2) std::cout << "rejected" << std::endl;
+    }
+  }
+  if (mVerbose >= 1) {
+    std::cout << "CaloTowerCandidateCreator::produce-> " << cands->size () << " candidates created" << std::endl;
   }
   evt.put( cands );
 }
