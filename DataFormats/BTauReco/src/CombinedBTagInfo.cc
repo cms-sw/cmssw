@@ -177,6 +177,7 @@ void reco::CombinedBTagInfo::reset() {
   reco::CombinedBTagInfo::flushVertexData();
   reco::CombinedBTagInfo::secondaryVertices_.clear();
   reco::CombinedBTagInfo::tracksAboveCharm_.clear();
+  reco::CombinedBTagInfo::tracksAtSecondaryVertex_.clear();
   
   // reset variables
   reco::CombinedBTagInfo::vertexType_                       = reco::CombinedBTagInfo::NotDefined;

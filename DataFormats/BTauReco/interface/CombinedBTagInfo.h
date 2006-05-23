@@ -57,7 +57,7 @@ namespace reco {
      *  combined b-tagging discriminator
      */
     enum TaggingVariable{Category,
-			 JetMass,
+			 VertexMass,
 			 VertexMultiplicity,
 			 FlightDistance2DSignificance,
 			 ESVXOverE,
@@ -186,51 +186,58 @@ namespace reco {
     //
     // accessors
     //
-    double                    jetPt ()                            {return jetPt_;}
-    double                    jetEta()                            {return jetEta_;}
-    			
-    // edm::ref to primary vertex ?
-    reco::Vertex              primaryVertex()                     {return primaryVertex_;}
-    std::vector<reco::Vertex> secVertices()                       {return secondaryVertices_;}
-    std::vector<reco::Vertex>::const_iterator secVerticesBegin()  {return secondaryVertices_.begin();}
-    std::vector<reco::Vertex>::const_iterator secVerticesEnd()    {return secondaryVertices_.end();}
-    std::vector<TrackRef>     tracksAboveCharm()                  {return tracksAboveCharm_;}
-    
-    int                       nSecVertices()                      {return secondaryVertices_.size();}
-    VertexType                vertexType()                        {return vertexType_;}
-    double                    vertexMass()                        {return vertexMass_;}
-    int                       vertexMultiplicity()                {return vertexMultiplicity_;}
-    double                    eSVXOverE()                         {return eSVXOverE_;}
-	                          		                       
-    GlobalVector              pAll()                              {return pAll_;}
-    GlobalVector              pB()                                {return pB_;}
-    double                    pBLong()                            {return bPLong_;}
-    double                    pBPt()                              {return bPt_;}
-	                          		                       
-    double                    meanTrackRapidity()                 {return meanTrackY_;}
-    		             		                          
-    double                    angleGeomKinJet()                   {return angleGeomKinJet_;}
-    double                    angleGeomKinVertex()                {return angleGeomKinVertex_;}
+    double                                    jetPt ()                           {return jetPt_;}
+    double                                    jetEta()                           {return jetEta_;}
+    									         
+    // edm::ref to primary vertex ?					         
+    reco::Vertex                              primaryVertex()                    {return primaryVertex_;}
+    std::vector<reco::Vertex>                 secVertices()                      {return secondaryVertices_;}
+    std::vector<reco::Vertex>::const_iterator secVerticesBegin()                 {return secondaryVertices_.begin();}
+    std::vector<reco::Vertex>::const_iterator secVerticesEnd()                   {return secondaryVertices_.end();}
+  									         
+    std::vector<TrackRef>                     tracksAboveCharm()                 {return tracksAboveCharm_;}
+    std::vector<TrackRef>::const_iterator     tracksAboveCharmBegin()            {return tracksAboveCharm_.begin();}
+    std::vector<TrackRef>::const_iterator     tracksAboveCharmEnd()              {return tracksAboveCharm_.end();}
+									         
+    std::vector<TrackRef>                     tracksAtSecondaryVertex()          {return tracksAtSecondaryVertex_;}
+    std::vector<TrackRef>::const_iterator     tracksAtSecondaryVertexBegin()     {return tracksAtSecondaryVertex_.begin();}
+    std::vector<TrackRef>::const_iterator     tracksAtSecondaryVertexEnd()       {return tracksAtSecondaryVertex_.end();}
+    									         
+    int                                       nSecVertices()                     {return secondaryVertices_.size();}
+    VertexType                                vertexType()                       {return vertexType_;}
+    double                                    vertexMass()                       {return vertexMass_;}
+    int                                       vertexMultiplicity()               {return vertexMultiplicity_;}
+    double                                    eSVXOverE()                        {return eSVXOverE_;}
+	                                          		                      
+    GlobalVector                              pAll()                             {return pAll_;}
+    GlobalVector                              pB()                               {return pB_;}
+    double                                    pBLong()                           {return bPLong_;}
+    double                                    pBPt()                             {return bPt_;}
+	                                          		                      
+    double                                    meanTrackRapidity()                {return meanTrackY_;}
+    		                                	                         
+    double                                    angleGeomKinJet()                  {return angleGeomKinJet_;}
+    double                                    angleGeomKinVertex()               {return angleGeomKinVertex_;}
 
 
-    double flightDistance2DMin()                                  {return flightDistance2DMin_              ;}
-    double flightDistanceSignificance2DMin ()                     {return flightDistanceSignificance2DMin_  ;}
-    double flightDistance3DMin()                                  {return flightDistance3DMin_              ;}
-    double flightDistanceSignificance3DMin()                      {return flightDistanceSignificance3DMin_  ;}
-						                  
-    double flightDistance2DMax()                                  {return flightDistance2DMax_              ;}
-    double flightDistanceSignificance2DMax()                      {return flightDistanceSignificance2DMax_  ;}
-    double flightDistance3DMax ()                                 {return flightDistance3DMax_              ;}
-    double flightDistanceSignificance3DMax()                      {return flightDistanceSignificance3DMax_  ;}
-						                  
-    double flightDistance2DMean()                                 {return flightDistance2DMean_             ;}
-    double flightDistanceSignificance2DMean()                     {return flightDistanceSignificance2DMean_ ;}
-    double flightDistance3DMean()                                 {return flightDistance3DMean_             ;}
-    double flightDistanceSignificance3DMean ()                    {return flightDistanceSignificance3DMean_ ;}
+    double                                    flightDistance2DMin()              {return flightDistance2DMin_              ;}
+    double                                    flightDistanceSignificance2DMin () {return flightDistanceSignificance2DMin_  ;}
+    double                                    flightDistance3DMin()              {return flightDistance3DMin_              ;}
+    double                                    flightDistanceSignificance3DMin()  {return flightDistanceSignificance3DMin_  ;}
+	                                           				
+    double                                    flightDistance2DMax()              {return flightDistance2DMax_              ;}
+    double                                    flightDistanceSignificance2DMax()  {return flightDistanceSignificance2DMax_  ;}
+    double                                    flightDistance3DMax ()             {return flightDistance3DMax_              ;}
+    double                                    flightDistanceSignificance3DMax()  {return flightDistanceSignificance3DMax_  ;}
+	                                           				
+    double                                    flightDistance2DMean()             {return flightDistance2DMean_             ;}
+    double                                    flightDistanceSignificance2DMean() {return flightDistanceSignificance2DMean_ ;}
+    double                                    flightDistance3DMean()             {return flightDistance3DMean_             ;}
+    double                                    flightDistanceSignificance3DMean (){return flightDistanceSignificance3DMean_ ;}
 
     // possibly revisit this if calculation of lifetime-signed 2d IP
     // is avaialable via Track itself
-    double                    first2DSignedIPSigniAboveCut()      {return first2DSignedIPSigniAboveCut_;}
+    double                                    first2DSignedIPSigniAboveCut()     {return first2DSignedIPSigniAboveCut_;}
 				                             
     //
     // setters
@@ -241,6 +248,8 @@ namespace reco {
     // pass (ref to?) primary vertex		                
     void setPrimaryVertex(reco::Vertex pv)                      {primaryVertex_                   = pv;}
     void addSecondaryVertex(reco::Vertex sv)                    {secondaryVertices_.push_back(sv);}
+    void addTrackAtSecondaryVertex(TrackRef trackRef)           {tracksAtSecondaryVertex_.push_back(trackRef);}
+    
     void setVertexType( VertexType type)                        {vertexType_                      = type;}
     void setVertexMass( double mass)                            {vertexMass_                      = mass;}
     void setVertexMultiplicity(int mult)                        {vertexMultiplicity_              = mult;}
@@ -323,7 +332,13 @@ namespace reco {
      * "PseudoVertex" or "NoVertex"
      */
     VertexType  vertexType_;     
-				 
+				
+
+    /** 
+     * reference of all tracks at all secondary vertices
+     */
+    std::vector<TrackRef> tracksAtSecondaryVertex_;
+
     /**
      * Determine (lifetime-singed 2D) impact parameter of first track 
      * above given mass threshold (reco::CombinedBTagAlg::vertexCharmCut_)
