@@ -4,7 +4,7 @@
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
 #include "RecoTracker/TkDetLayers/interface/GlobalDetRodRangeZPhi.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
 #include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
@@ -109,9 +109,16 @@ PixelBarrelLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 					 const Propagator& prop,
 					 const MeasurementEstimator& est) const
 {
-  SubLayerCrossings crossings = computeCrossings( tsos, prop.propagationDirection());
-
   vector<DetGroup> closestResult;
+  SubLayerCrossings  crossings;
+  try{
+    crossings = computeCrossings( tsos, prop.propagationDirection());
+  }
+  catch(DetLayerException& err){
+    return closestResult;
+  }
+
+
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
   if (closestResult.empty()){
     vector<DetGroup> nextResult;
@@ -148,8 +155,8 @@ SubLayerCrossings PixelBarrelLayer::computeCrossings( const TrajectoryStateOnSur
   HelixBarrelCylinderCrossing innerCrossing( startPos, startDir, rho,
 					     propDir,*theInnerCylinder);
   if (!innerCrossing.hasSolution()) {
-    cout << "ERROR in PixelBarrelLayer: inner cylinder not crossed by track" << endl;
-    //throw DetLogicError("TkRodBarrelLayer: inner subRod not crossed by track");
+    //cout << "ERROR in PixelBarrelLayer: inner cylinder not crossed by track" << endl;
+    throw DetLayerException("TkRodBarrelLayer: inner subRod not crossed by track");
   }
 
   GlobalPoint gInnerPoint( innerCrossing.position());
@@ -160,7 +167,7 @@ SubLayerCrossings PixelBarrelLayer::computeCrossings( const TrajectoryStateOnSur
   HelixBarrelCylinderCrossing outerCrossing( startPos, startDir, rho,
 					     propDir,*theOuterCylinder);
   if (!outerCrossing.hasSolution()) {
-    throw Genexception("PixelBarrelLayer: inner subRod not crossed by track");
+    throw DetLayerException("PixelBarrelLayer: inner cylinder not crossed by track");
   }
 
   GlobalPoint gOuterPoint( outerCrossing.position());
