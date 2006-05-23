@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-28 09:50:38+0200
-# Revision: $Id: CreateCVSPackage.pl,v 1.3 2006/05/10 13:10:24 sashby Exp $ 
+# Revision: $Id: CreateCVSPackage.pl,v 1.4 2006/05/11 10:45:55 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -191,7 +191,7 @@ sub set_admins()
 	 $lastname = ucfirst(lc($lastname));
 	 # Store in the developers hash:
 	 $developers->{$package} ->{$loginid} = [ "$firstname $lastname", $email, 1 ];
-	 }  
+	 }
       }
    }
 
@@ -214,27 +214,17 @@ sub set_admins_from_file()
       # Read through the lists of developers to get full info:
       foreach my $loginid (@$developeridlist)
 	 {
-	 # Use phone command to get the full info for this person:
-	 chomp(my ($pbinfo)=`phone -loginid $loginid -FULL`);
-	 my ($ccid,$pbdata,$email) = split(";",$pbinfo);   
-	 my ($lastname,$firstname,@rest) = split(" ",$pbdata);
-	 $lastname = ucfirst(lc($lastname));
+	 $loginid =~ s/\s*//g;
 	 # Store in the developers hash:
-	 $developers->{$packagename}->{$loginid} = [ "$firstname $lastname", $email, 0 ];
+	 $developers->{$packagename}->{$loginid} = [ @{&getFullNameAndEmail($loginid)}, 0 ];
 	 }
       
       # Do the same for admins:
       foreach my $loginid (@$adminidlist)
 	 {
-	 # Use phone command to get the full info for this person:
-	 chomp(my ($pbinfo)=`phone -loginid $loginid -FULL`);
-	 my ($ccid,$pbdata,$email) = split(";",$pbinfo);
-	 # Easier to pattern match to get firstnames and lastname since
-	 # the user may have more than one first name:
-	 my ($lastname,$firstname) = ($pbdata =~ /^([A-Z\-]*)\s*(.*?)\s*?[0-9]* [0-9].*$/);
-	 $lastname = ucfirst(lc($lastname));
+	 $loginid =~ s/\s*//g;	        
 	 # Store in the developers hash:
-	 $developers->{$packagename}->{$loginid} = [ "$firstname $lastname", $email, 1 ];
+	 $developers->{$packagename}->{$loginid} = [ @{&getFullNameAndEmail($loginid)}, 1 ];
 	 }     
       }
    
@@ -242,16 +232,47 @@ sub set_admins_from_file()
    close(BATCH);
    }
 
+sub getFullNameAndEmail()
+   {
+   my ($loginid)=@_;
+
+   open(PHONE,"phone -loginid $loginid -FULL |");
+   chomp(my $info = (<PHONE>));
+   
+   my ($ccid,$pbdata,$email) = split(";",$info);
+   my $namestring;
+   my (@name_elements);
+   
+   # If there's a phone number, extract the name list from the string:
+   if (($namestring) = ($pbdata =~ /^(.*?)\s*?[0-9]* [0-9].*$/))
+      {
+      (@name_elements)=split(" ",$namestring);
+      }
+   else
+      {
+      # Otherwise, just use the full string returned from the phone command:
+      (@name_elements)=split(" ",$pbdata);
+      }
+   
+   my $firstname=pop(@name_elements);
+   my $lastname=join(" ",map { ucfirst(lc($_)) } splice(@name_elements, 0, $#name_elements+1));
+   close(PHONE);
+   return [ "$firstname $lastname", $email ];
+   }
+
 sub CreateNewLeaf()
    {
    my ($packagename)=@_;
+   my $sdir=cwd();
+   chdir $subsystemadmin;
    print "Going to create entry for new package \"$packagename\" with admin\n",if ($opts{VERBOSE});
    print "(admin) \"$principaladmin\" in subsystem \"$subsystem\".\n",if ($opts{VERBOSE});
-   open(NEWLEAF,"> $subsystemadmin/NewLeaf") || die basename($0).": Unable to open $subsystemadmin/Newleaf for writing: $!","\n";
+   open(NEWLEAF,"> NewLeaf") || die basename($0).": Unable to open Newleaf for writing (dir is $subsystemadmin): $!","\n";
    print NEWLEAF &generate_NewLeaf($packagename),"\n";
    close(NEWLEAF);
    # Now add it to the repository:
-   my $rv = system($cvs,"-Q","-d",$cvsroot,"add", "$subsystemadmin/NewLeaf");
+   my $rv = system($cvs,"-Q","-d",$cvsroot,"add", "NewLeaf");
+   chdir $sdir;
    # Check the status of the add and report:
    if ($rv != 0)
       {
