@@ -17,6 +17,8 @@ namespace edm {
       bool read_whole_file(std::string const& filename, std::string& output);
 
       void read_from_cin(std::string & output);
+
+      std::string withoutQuotes(const std::string& from);
    }
 }
 

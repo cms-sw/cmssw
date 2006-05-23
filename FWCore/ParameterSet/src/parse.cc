@@ -5,14 +5,15 @@
 #include <iostream>
 
 // the parse() method comes from the yacc file, not here
+using namespace std;
 
 namespace edm {
   namespace pset {
 
-    ParseResults fullParse(const std::string & input) 
+    ParseResults fullParse(const string & input) 
     {
       // preprocess, for things like 'include'
-      std::string preprocessedConfigString;
+      string preprocessedConfigString;
       ConfigurationPreprocessor preprocessor;
       preprocessor.process(input, preprocessedConfigString);
 
@@ -27,12 +28,12 @@ namespace edm {
     }
 
 
-    bool read_whole_file(std::string const& filename, std::string& output)
+    bool read_whole_file(string const& filename, string& output)
     {
-      std::ifstream input(filename.c_str());
+      ifstream input(filename.c_str());
       if (!input) return false;
-      std::string buffer;
-      while (std::getline(input, buffer))
+      string buffer;
+      while (getline(input, buffer))
         {
           // getline strips newlines; we have to put them back by hand.
           output += buffer;
@@ -42,16 +43,40 @@ namespace edm {
     }
 
 
-    void read_from_cin(std::string & output) 
+    void read_from_cin(string & output) 
     {
-      std::string line;
-      while (std::getline(std::cin, line))
+      string line;
+      while (getline(cin, line))
       {
         output += line;
         output += '\n';
       }
     }
 
+
+    string withoutQuotes(const string& from)
+    {
+      string result = from;
+      if(!result.empty())
+      {
+      // get rid of leading quotes
+        if(result[0] == '"' || result[0] == '\'')
+        {
+          result.erase(0,1);
+        }
+      }
+
+      if(!result.empty())
+      {
+       // and trailing quotes
+        int lastpos = result.size()-1;
+        if(result[lastpos] == '"' || result[lastpos] == '\'')
+        {
+          result.erase(lastpos, 1);
+        }
+      }
+     return result;
+    }
   }  // namespace pset
 } // namespace edm
 
