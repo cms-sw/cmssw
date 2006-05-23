@@ -1,5 +1,5 @@
-#ifndef L1GCTDIGI_H
-#define L1GCTDIGI_H
+#ifndef L1GCTDIGIS_H
+#define L1GCTDIGIS_H
 
 #include <boost/cstdint.hpp>
 #include <ostream>
@@ -38,8 +38,6 @@ private:
   uint16_t m_data;
 
 };
-
-std::ostream& operator<<(std::ostream& s, const L1GctCand& cand);
 
 class L1GctIsoEm : public L1GctCand {
 public:
@@ -80,6 +78,19 @@ public:
   L1GctTauJet(int rank, int phi, int eta);
   ~L1GctTauJet();
  };
+
+
+std::ostream& operator<<(std::ostream& s, const L1GctCand& cand);
+
+std::ostream& operator<<(std::ostream& s, const L1GctIsoEm& cand);
+
+std::ostream& operator<<(std::ostream& s, const L1GctNonIsoEm& cand);
+
+std::ostream& operator<<(std::ostream& s, const L1GctCenJet& cand);
+
+std::ostream& operator<<(std::ostream& s, const L1GctForJet& cand);
+
+std::ostream& operator<<(std::ostream& s, const L1GctTauJet& cand);
 
 
 
