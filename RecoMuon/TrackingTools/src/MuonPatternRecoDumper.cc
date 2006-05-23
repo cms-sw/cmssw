@@ -48,7 +48,7 @@ void MuonPatternRecoDumper::dumpFTS(FreeTrajectoryState& fts) const {
 }
 
 void MuonPatternRecoDumper::dumpTSOS(TrajectoryStateOnSurface& tsos) const{
-  dumpFTS(tsos.freeTrajectoryState());
+  dumpFTS(*tsos.freeTrajectoryState());
 }
 
 void MuonPatternRecoDumper::dumpLayer(const DetLayer* layer, std::string &where) const {
@@ -79,6 +79,6 @@ void MuonPatternRecoDumper::dumpFTS(FreeTrajectoryState& fts,std::string &where)
 }
 
 void MuonPatternRecoDumper::dumpTSOS(TrajectoryStateOnSurface& tsos,std::string &where) const{
-  dumpFTS(tsos.freeTrajectoryState(),where);
+  dumpFTS(*tsos.freeTrajectoryState(),where);
 }
 
