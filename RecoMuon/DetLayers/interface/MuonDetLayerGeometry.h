@@ -5,12 +5,14 @@
  *
  *  Provide access to the DetLayers of muon detectors.
  *
- *  $Date: 2006/05/02 10:23:54 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/03 15:19:56 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
+#include "DataFormats/DetId/interface/DetId.h"
 #include <vector>
+#include <map>
 
 class DetLayer;
 
@@ -67,14 +69,18 @@ class MuonDetLayerGeometry {
   const std::vector<DetLayer*> allForwardLayers() const;
 
   /// return all backward layers (CSC+RPC)
-  const std::vector<DetLayer*> allBackwardLayers() const;  
+  const std::vector<DetLayer*> allBackwardLayers() const;
+  
+  /// return the DetLayer which correspond to a certain DetId
+  DetLayer* idToLayer(DetId detId);
 
  private:
     
     void addCSCLayers(std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > csclayers);
     void addDTLayers(std::vector<DetLayer*> dtlayers);
     //void addRPCLayers(std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > csclayers);
-       
+    DetId makeDetLayerId(DetLayer* detLayer);
+
     std::vector<DetLayer*> cscLayers_fw;
     std::vector<DetLayer*> cscLayers_bk;
     std::vector<DetLayer*> cscLayers_all;
@@ -89,6 +95,8 @@ class MuonDetLayerGeometry {
     std::vector<DetLayer*> allEndcap;
     std::vector<DetLayer*> allBarrel;
     std::vector<DetLayer*> allDetLayers;
+    
+    std::map<DetId,DetLayer*> detLayersMap;
 };
 #endif
 

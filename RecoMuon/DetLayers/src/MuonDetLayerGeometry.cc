@@ -1,11 +1,16 @@
 /** \file
  *
- *  $Date: 2006/05/02 10:24:07 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/03 15:20:09 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
 #include <RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h>
+
+#include <FWCore/Utilities/interface/Exception.h>
+#include <TrackingTools/DetLayers/interface/DetLayer.h>
+#include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include <DataFormats/MuonDetId/interface/DTChamberId.h>
 
 using namespace std;
 
@@ -22,6 +27,8 @@ void MuonDetLayerGeometry::addCSCLayers(pair<vector<DetLayer*>, vector<DetLayer*
         allForward.push_back(*it);
         allEndcap.push_back(*it);
         allDetLayers.push_back(*it);
+
+	detLayersMap[ makeDetLayerId(*it) ] = *it;
     }
     
     for(it=csclayers.second.begin(); it!=csclayers.second.end(); it++) {
@@ -30,6 +37,8 @@ void MuonDetLayerGeometry::addCSCLayers(pair<vector<DetLayer*>, vector<DetLayer*
         allBackward.push_back(*it);
         allEndcap.push_back(*it);
         allDetLayers.push_back(*it);
+
+	detLayersMap[ makeDetLayerId(*it) ] = *it;
     }    
 }    
 
@@ -47,8 +56,23 @@ void MuonDetLayerGeometry::addDTLayers(vector<DetLayer*> dtlayers) {
         dtLayers.push_back(*it);
         allBarrel.push_back(*it);
         allDetLayers.push_back(*it);
+
+	detLayersMap[ makeDetLayerId(*it) ] = *it;
     }
 }    
+
+DetId MuonDetLayerGeometry::makeDetLayerId(DetLayer* detLayer){
+
+  if(detLayer->module() ==  csc){
+    CSCDetId id( detLayer->basicComponents().front()->geographicalId().rawId() ) ;
+    return CSCDetId(id.endcap(),id.station(),0,0,0);
+  }
+  else if(detLayer->module() == dt){
+    DTChamberId id( detLayer->basicComponents().front()->geographicalId().rawId() ) ;
+    return  DTChamberId(0,id.station(),0);
+  }
+  else throw cms::Exception("InvalidModuleIdentification"); // << detLayer->module();
+}
 
 
 const vector<DetLayer*>& 
@@ -131,3 +155,20 @@ const vector<DetLayer*>
 MuonDetLayerGeometry::allBackwardLayers() const {
     return allBackward;    
 }    
+
+DetLayer* MuonDetLayerGeometry::idToLayer(DetId detId){
+  
+  if(detId.subdetId() == MuonSubdetId::CSC){
+    CSCDetId cscId( detId.rawId() );
+    CSCDetId id(cscId.endcap(),cscId.station(),0,0,0);
+    return detLayersMap[ DetId(id.rawId()) ]; 
+  }
+  else if (detId.subdetId() == MuonSubdetId::DT){
+    DTChamberId dtId( detId.rawId() );
+    DTChamberId id(0,dtId.station(),0);
+    return detLayersMap[ DetId(id.rawId()) ]; 
+  }
+  else throw cms::Exception("InvalidSubdetId")<< detId.subdetId();
+}
+
+
