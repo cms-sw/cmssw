@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.3 2006/05/18 07:22:25 llista Exp $
+ * $Id: AssociationMap.h,v 1.4 2006/05/22 10:47:23 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -159,12 +159,14 @@ namespace edm {
       return const_iterator( keyRef_, valRef_, f );
     }
     /// return element with key i
-    KeyVal operator[]( size_type i ) const {
+    const KeyVal & operator[]( size_type i ) const {
       typename map_type::const_iterator f = map_.find( i );
       if ( f == map_.end() ) 
 	throw edm::Exception( edm::errors::InvalidReference )
 	  << "can't find reference in AssociationMap at position " << i;
-      const_iterator ci( keyRef_, valRef_, f );
+      /// WARNING: the following should be fixed!
+      static const_iterator ci;
+      ci = const_iterator( keyRef_, valRef_, f );
       return * ci;
     } 
 
@@ -186,6 +188,26 @@ namespace edm {
     /// index map
     map_type map_;
   };
+
+  namespace refhelper {
+    template<typename AM>
+    struct FindInAssociationMap : 
+      public std::binary_function< const AM&, typename AM::size_type, const typename AM::value_type *> {
+      typedef FindInAssociationMap<AM> self;
+      typename self::result_type operator()( typename self::first_argument_type iContainer,
+					     typename self::second_argument_type iIndex ) {
+	return & iContainer[ iIndex ];
+      }
+    };
+
+    template<typename CKey, typename CVal, 
+	     template<typename, typename> class TagT, 
+	     typename index>
+    struct FindTrait<AssociationMap<CKey, CVal, TagT, index>, 
+		     typename AssociationMap<CKey, CVal, TagT, index>::value_type> {
+      typedef FindInAssociationMap<AssociationMap<CKey, CVal, TagT, index> > value;
+    };
+  }
 
 }
 

@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: ValueMap.h,v 1.1 2006/05/18 07:22:25 llista Exp $
+ * $Id: ValueMap.h,v 1.2 2006/05/22 10:47:23 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -109,12 +109,13 @@ namespace edm {
       return const_iterator( keyRef_, f );
     }
     /// return element with key i
-    KeyVal operator[]( size_type i ) const {
+    const KeyVal & operator[]( size_type i ) const {
       typename map_type::const_iterator f = map_.find( i );
       if ( f == map_.end() ) 
 	throw edm::Exception( edm::errors::InvalidReference )
 	  << "can't find reference in ValueMap at position " << i;
-      const_iterator ci( keyRef_, f );
+      static const_iterator ci;
+      ci = const_iterator( keyRef_, f );
       return * ci;
     } 
 
@@ -130,6 +131,23 @@ namespace edm {
     map_type map_;
   };
 
+  namespace refhelper {
+    template<typename VM>
+    struct FindInValueMap : 
+      public std::binary_function< const VM&, typename VM::size_type, const typename VM::value_type *> {
+      typedef FindInValueMap<VM> self;
+      typename self::result_type operator()( typename self::first_argument_type iContainer,
+					     typename self::second_argument_type iIndex ) {
+	return & iContainer[ iIndex ];
+      }
+    };
+
+    template<typename CKey, typename Val, typename index>
+    struct FindTrait<ValueMap<CKey, Val, index>, 
+		     typename ValueMap<CKey, Val, index>::value_type> {
+      typedef FindInValueMap<ValueMap<CKey, Val, index> > value;
+    };
+  }
 }
 
 #endif
