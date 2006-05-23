@@ -49,7 +49,7 @@ edm::service::SiteLocalConfigService::SiteLocalConfigService (const edm::Paramet
     : m_connected (false)
 {
     std::string configURL = "/SITECONF/local/JobConfig/site-local-config.xml";
-    char * tmp = getenv ("CMS_PATH");
+    char * tmp = getenv ("XCMS_PATH");
     
     if (tmp)
 	configURL = tmp + configURL;
@@ -60,9 +60,12 @@ edm::service::SiteLocalConfigService::SiteLocalConfigService (const edm::Paramet
 const std::string
 edm::service::SiteLocalConfigService::dataCatalog (void) const
 {
-    if (! m_connected)
-	throw cms::Exception ("Incomplete configuration") 
-	    << "Valid site-local-config not found." ;
+    if (! m_connected) {
+	//throw cms::Exception ("Incomplete configuration") 
+	//    << "Valid site-local-config not found." ;
+        // Return PoolFileCatalog.xml for now
+        return "file:PoolFileCatalog.xml";
+    }
 
     return  m_dataCatalog;    
 }
