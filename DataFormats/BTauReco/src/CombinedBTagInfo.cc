@@ -21,39 +21,8 @@
 //------------------------------------------------------------------------------
 reco::CombinedBTagInfo::CombinedBTagInfo() {
 
-  // reset variables
-  reco::CombinedBTagInfo::vertexType_                       = reco::CombinedBTagInfo::NotDefined;
-						            
-  reco::CombinedBTagInfo::jetPt_                            = -999;
-  reco::CombinedBTagInfo::jetEta_                           = -999;
-  						            
-  reco::CombinedBTagInfo::bPLong_                           = -999;
-  reco::CombinedBTagInfo::bPt_                              = -999;
-  reco::CombinedBTagInfo::vertexMass_                       = -999;
-  reco::CombinedBTagInfo::vertexMultiplicity_               = -999;
-  reco::CombinedBTagInfo::eSVXOverE_                        = -999;
-  reco::CombinedBTagInfo::meanTrackY_                       = -999;
-  						            
-  reco::CombinedBTagInfo::angleGeomKinJet_                  = -999;
-  reco::CombinedBTagInfo::angleGeomKinVertex_               = -999;  
-
-  reco::CombinedBTagInfo::flightDistance2DMin_              = -999;
-  reco::CombinedBTagInfo::flightDistanceSignificance2DMin_  = -999;
-  reco::CombinedBTagInfo::flightDistance3DMin_              = -999;
-  reco::CombinedBTagInfo::flightDistanceSignificance3DMin_  = -999;
-
-  reco::CombinedBTagInfo::flightDistance2DMax_              = -999;
-  reco::CombinedBTagInfo::flightDistanceSignificance2DMax_  = -999;
-  reco::CombinedBTagInfo::flightDistance3DMax_              = -999;
-  reco::CombinedBTagInfo::flightDistanceSignificance3DMax_  = -999;
-
-  reco::CombinedBTagInfo::flightDistance2DMean_             = -999;
-  reco::CombinedBTagInfo::flightDistanceSignificance2DMean_ = -999;
-  reco::CombinedBTagInfo::flightDistance3DMean_             = -999;
-  reco::CombinedBTagInfo::flightDistanceSignificance3DMean_ = -999;
-
- 
-  // reset also maps?
+  // reset everything
+  reco::CombinedBTagInfo::reset();
 
 } // constructor
 
@@ -195,4 +164,58 @@ reco::CombinedBTagInfo::VertexData* reco::CombinedBTagInfo::getVertexData(std::v
   } //if iter != end
 
 } // VertexData* getVertexData
+// -------------------------------------------------------------------------------
+void reco::CombinedBTagInfo::reset() {
+
+  //
+  // reset all information
+  //
+  GlobalVector resetVector (-999.0,-999.0,-999.0);
+
+  // flush maps and vectors
+  reco::CombinedBTagInfo::flushTrackData();
+  reco::CombinedBTagInfo::flushVertexData();
+  reco::CombinedBTagInfo::secondaryVertices_.clear();
+  reco::CombinedBTagInfo::tracksAboveCharm_.clear();
+  
+  // reset variables
+  reco::CombinedBTagInfo::vertexType_                       = reco::CombinedBTagInfo::NotDefined;
+						            
+  reco::CombinedBTagInfo::jetPt_                            = -999;
+  reco::CombinedBTagInfo::jetEta_                           = -999;
+  				
+  reco::CombinedBTagInfo::pB_                               = resetVector;
+  reco::CombinedBTagInfo::pAll_                             = resetVector;   
+  reco::CombinedBTagInfo::bPLong_                           = -999;
+  reco::CombinedBTagInfo::bPt_                              = -999;
+  reco::CombinedBTagInfo::vertexMass_                       = -999;
+  reco::CombinedBTagInfo::vertexMultiplicity_               = -999;
+  reco::CombinedBTagInfo::eSVXOverE_                        = -999;
+  reco::CombinedBTagInfo::meanTrackY_                       = -999;
+  
+  reco::CombinedBTagInfo::energyBTracks_                    = -999;
+  reco::CombinedBTagInfo::energyAllTracks_                  = -999;
+  						            
+  reco::CombinedBTagInfo::angleGeomKinJet_                  = -999;
+  reco::CombinedBTagInfo::angleGeomKinVertex_               = -999;  
+
+  reco::CombinedBTagInfo::flightDistance2DMin_              = -999;
+  reco::CombinedBTagInfo::flightDistanceSignificance2DMin_  = -999;
+  reco::CombinedBTagInfo::flightDistance3DMin_              = -999;
+  reco::CombinedBTagInfo::flightDistanceSignificance3DMin_  = -999;
+
+  reco::CombinedBTagInfo::flightDistance2DMax_              = -999;
+  reco::CombinedBTagInfo::flightDistanceSignificance2DMax_  = -999;
+  reco::CombinedBTagInfo::flightDistance3DMax_              = -999;
+  reco::CombinedBTagInfo::flightDistanceSignificance3DMax_  = -999;
+
+  reco::CombinedBTagInfo::flightDistance2DMean_             = -999;
+  reco::CombinedBTagInfo::flightDistanceSignificance2DMean_ = -999;
+  reco::CombinedBTagInfo::flightDistance3DMean_             = -999;
+  reco::CombinedBTagInfo::flightDistanceSignificance3DMean_ = -999;
+
+  reco::CombinedBTagInfo::first2DSignedIPSigniAboveCut_     = -999;
+  
+} //reset
+
 // -------------------------------------------------------------------------------

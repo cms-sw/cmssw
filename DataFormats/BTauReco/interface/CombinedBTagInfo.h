@@ -179,6 +179,11 @@ namespace reco {
     virtual ~CombinedBTagInfo(); 
 
     //
+    // clear all information
+    //
+    void reset();
+
+    //
     // accessors
     //
     double                    jetPt ()                            {return jetPt_;}
