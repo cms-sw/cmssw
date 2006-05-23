@@ -54,3 +54,21 @@ L1GctJetCand L1GctJetCand::convertToGlobalJet(int jetFinderPhiIndex, int wheelId
     
     return outputJet;    
 }
+
+/// convert to central jet digi
+L1GctCenJet L1GctJetCand::makeCenJet() {
+  /// TODO : include check that this jet really *is* central ?
+  return L1GctCenJet(m_rank, m_eta, m_phi);
+}
+
+/// convert to forward jet digi
+L1GctForJet L1GctJetCand::makeForJet() {
+  /// TODO : include check that this jet really *is* forward ?
+  return L1GctForJet(m_rank, m_eta, m_phi);
+}
+
+/// convert to tau jet digi
+L1GctTauJet L1GctJetCand::makeTauJet() {
+  /// TODO : include check that this jet really *is* tau ?
+  return L1GctTauJet(m_rank, m_eta, m_phi);
+}

@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // GCT include files
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctProducer.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmulator.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
 // data format include files
@@ -21,7 +21,7 @@
 
 #include <memory>
 
-L1GctProducer::L1GctProducer(const edm::ParameterSet& ps) {
+L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) {
 
   // list of products
   produces<L1GctIsoEmCollection>();
@@ -38,12 +38,12 @@ L1GctProducer::L1GctProducer(const edm::ParameterSet& ps) {
 
 }
 
-L1GctProducer::~L1GctProducer() {
+L1GctEmulator::~L1GctEmulator() {
   delete m_gct;
 }
 
 
-void L1GctProducer::produce(edm::Event& e, const edm::EventSetup& c) {
+void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   // create the ED Products
   std::auto_ptr<L1GctIsoEmCollection> isoEmResult(new L1GctIsoEmCollection);
@@ -65,10 +65,11 @@ void L1GctProducer::produce(edm::Event& e, const edm::EventSetup& c) {
   // fill the ED Products with data
   for (int i=0; i<4; i++) {
 
-    isoEmResult->push_back(L1GctIsoEm(0x0, 0x0, 0x0));
-    isoEmResult->push_back(L1GctIsoEm(0x1, 0x2, 0x3));
-    isoEmResult->push_back(L1GctIsoEm(0x10, 0x10, 0x10));
-    isoEmResult->push_back(L1GctIsoEm(0xff, 0xff, 0xff));
+    isoEmResult->push_back(m_gct->getIsoElectrons()[i].makeIsoEm());
+    nonIsoEmResult->push_back(m_gct->getNonIsoElectrons()[i].makeNonIsoEm());
+    cenJetResult->push_back(m_gct->getCentralJets()[i].makeCenJet());
+    forJetResult->push_back(m_gct->getForwardJets()[i].makeForJet());
+    tauJetResult->push_back(m_gct->getTauJets()[i].makeTauJet());
 
   }
 

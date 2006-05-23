@@ -17,6 +17,9 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctTestAnalyzer.h"
 
+using std::cout;
+using std::endl;
+
 //
 // constructors and destructor
 //
@@ -49,12 +52,52 @@ L1GctTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    // get some GCT digis
 
    Handle<L1GctIsoEmCollection> isoEm;
-   L1GctIsoEmCollection::const_iterator e;
-   iEvent.getByType(isoEm);
+   Handle<L1GctNonIsoEmCollection> nonIsoEm;
+   Handle<L1GctCenJetCollection> cenJets;
+   Handle<L1GctForJetCollection> forJets;
+   Handle<L1GctTauJetCollection> tauJets;
 
-   for (e=isoEm->begin(); e!=isoEm->end(); e++) {
-     std::cout << e->rank() << std::endl;
+   L1GctIsoEmCollection::const_iterator ie;
+   L1GctNonIsoEmCollection::const_iterator ne;
+   L1GctCenJetCollection::const_iterator cj;
+   L1GctForJetCollection::const_iterator fj;
+   L1GctTauJetCollection::const_iterator tj;
+
+   iEvent.getByType(isoEm);
+   iEvent.getByType(nonIsoEm);
+   iEvent.getByType(cenJets);
+   iEvent.getByType(forJets);
+   iEvent.getByType(tauJets);
+
+   cout << "Isolated EM objects :" << endl;
+   for (ie=isoEm->begin(); ie!=isoEm->end(); ie++) {
+     cout << (*ie) << endl;
    } 
+   cout << endl;
+
+   cout << "Non-isolated EM objects :" << endl;
+   for (ne=nonIsoEm->begin(); ne!=nonIsoEm->end(); ne++) {
+     cout << (*ne) << endl;
+   } 
+   cout << endl;
+
+   cout << "Central jets :" << endl;
+   for (cj=cenJets->begin(); cj!=cenJets->end(); cj++) {
+     cout << (*cj) << endl;
+   } 
+   cout << endl;
+
+   cout << "Forward jets : " << endl;
+   for (fj=forJets->begin(); fj!=forJets->end(); fj++) {
+     cout << (*fj) << endl;
+   } 
+   cout << endl;
+
+   cout << "Tau jets :" << endl;
+   for (tj=tauJets->begin(); tj!=tauJets->end(); tj++) {
+     cout << (*tj) << endl;
+   } 
+   cout << endl;
 
 }
 

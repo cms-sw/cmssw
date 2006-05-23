@@ -5,6 +5,8 @@
 #include <functional>
 #include <ostream>
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
+
 /*
  * A GCT jet candidate
  * author: Jim Brooke
@@ -49,6 +51,16 @@ public:
     bool operator()(const L1GctJetCand& x, const L1GctJetCand& y) { return x.rank() > y.rank(); }
   };
   
+  /// produce a GCT digi central jet
+  L1GctCenJet makeCenJet();
+
+  /// produce a GCT digi forward jet
+  L1GctForJet makeForJet();
+
+  /// produce a GCT digi tau jet
+  L1GctTauJet makeTauJet();
+
+
   ///start of the HF if we are using local jetfinder co-ordinates (11*2 in eta*phi)
   static const int LOCAL_ETA_HF_START = 7;
   ///External access to the rank bitwidth

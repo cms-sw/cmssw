@@ -3,6 +3,8 @@
 
 #include <bitset>
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
+
 using std::bitset;
 
 /*! \file L1GctEmCand.h
@@ -23,46 +25,46 @@ public:
   L1GctEmCand(ULong data=0);
   L1GctEmCand(ULong rank, ULong eta, ULong phi);
   ~L1GctEmCand();
+	
+  /// set rank bits
+  void setRank(unsigned rank) { m_rank = rank; }
+  
+  /// set eta bits
+  void setEta(unsigned eta) { m_eta = eta; }
+  
+  /// set phi bits
+  void setPhi(unsigned phi) { m_phi = phi; }
+  
+  
+  /// get rank bits
+  inline unsigned rank() const { return m_rank & 0x3f; }
+  
+  /// get eta bits
+  inline unsigned eta() const { return m_eta & 0xf; }
+  
+  /// get phi bits
+  inline unsigned phi() const { return m_phi & 0x1f; }
+
+  /// convert to iso em digi
+  L1GctIsoEm makeIsoEm();
+
+  /// convert to non iso em digi
+  L1GctNonIsoEm makeNonIsoEm();
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctEmCand& cand);
-	
-  ///
-  /// set rank bits
-  void setRank(unsigned long rank) { myRank = rank; }
-  ///
-  /// set eta bits
-  void setEta(unsigned long eta) { myEta = eta; }
-  ///
-  /// set phi bits
-  void setPhi(unsigned long phi) { myPhi = phi; }
-  
-  ///
-  /// get rank bits
-  inline unsigned long rank() const { return myRank.to_ulong(); }
-  ///
-  /// get eta bits
-  inline unsigned long eta() const { return myEta.to_ulong(); }
-  ///
-  /// get phi bits
-  inline unsigned long phi() const { return myPhi.to_ulong(); }
-
-  ///
-  /// overloaded greater than operator for sorting
-  //  bool operator< (L1GctEmCand& c);
 
 private:
 
     static const int RANK_BITWIDTH = 6;
-    static const int ETA_BITWIDTH = 5;
+    static const int ETA_BITWIDTH = 4;
     static const int PHI_BITWIDTH = 5;
 
-    bitset<RANK_BITWIDTH> myRank;
-    bitset<ETA_BITWIDTH> myEta;
-    bitset<PHI_BITWIDTH> myPhi;
+    unsigned m_rank;
+    unsigned m_eta;
+    unsigned m_phi;
       
 };
 
-std::ostream& operator << (std::ostream& os, const L1GctEmCand& cand);
 
 #endif /*L1GCTEMCAND_H_*/
