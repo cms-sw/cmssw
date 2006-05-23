@@ -1,0 +1,13 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DQMServices/Core>
+
+<flags SEAL_PLUGIN_NAME="TrackerMonitorTrackMonitorTrackGlobal">
+<export>
+   <lib name=TrackerMonitorTrackMonitorTrackGlobal>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DQMServices/Core>
+</export>
