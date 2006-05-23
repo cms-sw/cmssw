@@ -8,9 +8,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "RecoEcal/EgammaClusterAlgos/interface/LogPositionCalc.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoEcal/EgammaCoreTools/interface/LogPositionCalc.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include <vector>
 #include <set>
 
@@ -60,10 +59,8 @@ class HybridClusterAlgo
   void makeClusters(std::map<EBDetId, EcalRecHit>, edm::ESHandle<CaloGeometry> , reco::BasicClusterCollection &basicClusters);
   reco::SuperClusterCollection makeSuperClusters(reco::BasicClusterRefVector);
 
-  void mainSearch( const CaloSubdetectorGeometry geometry);
+  void mainSearch();
   double makeDomino(EcalBarrelNavigator &navigator, std::vector <EcalRecHit> &cells);
-
-  friend Point getECALposition(std::vector<reco::EcalRecHitData> recHits,const CaloSubdetectorGeometry );//Position determination
 
 };
 
