@@ -34,6 +34,11 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PSimHitContainer>("TrackerHitsTOBHighTof");
     produces<edm::PSimHitContainer>("TrackerHitsTECLowTof");
     produces<edm::PSimHitContainer>("TrackerHitsTECHighTof");
+    
+    produces<edm::PSimHitContainer>("TotemHitsT1");
+    produces<edm::PSimHitContainer>("TotemHitsT2Gem");
+    produces<edm::PSimHitContainer>("TotemHitsRP");
+    
     produces<edm::PCaloHitContainer>("EcalHitsEB");
     produces<edm::PCaloHitContainer>("EcalHitsEE");
     produces<edm::PCaloHitContainer>("EcalHitsES");
@@ -46,6 +51,9 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PCaloHitContainer>("CastorFI");
     produces<edm::PCaloHitContainer>("CastorBU");
     produces<edm::PCaloHitContainer>("CastorTU");
+    
+    produces<edm::PCaloHitContainer>("ZDCHITS"); 
+    
     m_runManager = RunManager::init(p);
 
     //register any products 
@@ -123,8 +131,7 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
        std::cout << " SimG4Exception caght !" << std::endl ;
        std::cout << " " << simg4ex.what() << std::endl ;
        m_runManager->abortEvent() ;
-       //throw edm::Exception( edm::errors::EventCorruption ) ;
-       throw edm::Exception( edm::errors::ProductNotFound ) ;
+       throw edm::Exception( edm::errors::EventCorruption ) ;
     }
 }
  
