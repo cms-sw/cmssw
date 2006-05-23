@@ -45,34 +45,32 @@ L1GctEmulator::~L1GctEmulator() {
 
 void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
 
-  // create the ED Products
+  // reset the GCT internal buffers
+  m_gct->reset;
+
+  // process the event
+  m_gct->process();
+
+  // create the em and jet collections
   std::auto_ptr<L1GctIsoEmCollection> isoEmResult(new L1GctIsoEmCollection);
   std::auto_ptr<L1GctNonIsoEmCollection> nonIsoEmResult(new L1GctNonIsoEmCollection);
   std::auto_ptr<L1GctCenJetCollection> cenJetResult(new L1GctCenJetCollection);
   std::auto_ptr<L1GctForJetCollection> forJetResult(new L1GctForJetCollection);
   std::auto_ptr<L1GctTauJetCollection> tauJetResult(new L1GctTauJetCollection);
-  std::auto_ptr<L1GctEtTotal> etTotResult(new L1GctEtTotal);
-  std::auto_ptr<L1GctEtHad> etHadResult(new L1GctEtHad);
-  std::auto_ptr<L1GctEtMiss> etMissResult(new L1GctEtMiss);
 
-  // reset the GCT internal buffers
-  // m_gct->reset;
-
-
-  // process the event
-  //  m_gct->process()
-
-  // fill the ED Products with data
+  // fill the em and jet collections with digis
   for (int i=0; i<4; i++) {
-
     isoEmResult->push_back(m_gct->getIsoElectrons()[i].makeIsoEm());
     nonIsoEmResult->push_back(m_gct->getNonIsoElectrons()[i].makeNonIsoEm());
     cenJetResult->push_back(m_gct->getCentralJets()[i].makeCenJet());
     forJetResult->push_back(m_gct->getForwardJets()[i].makeForJet());
     tauJetResult->push_back(m_gct->getTauJets()[i].makeTauJet());
-
   }
 
+  // create the energy sum digis
+  std::auto_ptr<L1GctEtTotal> etTotResult(new L1GctEtTotal);
+  std::auto_ptr<L1GctEtHad> etHadResult(new L1GctEtHad);
+  std::auto_ptr<L1GctEtMiss> etMissResult(new L1GctEtMiss);
 
   // ... fill the collection ...
   e.put(isoEmResult);

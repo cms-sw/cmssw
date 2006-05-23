@@ -44,6 +44,44 @@ void L1GlobalCaloTrigger::openSourceCardFiles(std::string fileBase){
  }
 }
 
+void L1GlobalCaloTrigger::reset() {
+
+  // Source cards
+  for (int i=0; i<54; i++) {
+    theSourceCards[i]->reset();
+  }
+
+  // EM Leaf Card
+  for (int i=0; i<4; i++) {
+    theEmLeafCards[i]->reset();
+  }
+
+  // Jet Leaf cards
+  for (int i=0; i<6; i++) {
+    theJetLeafCards[i]->reset();
+  }
+
+  // Wheel Cards
+  for (int i=0; i<2; i++) {
+    theWheelJetFpgas[i]->reset();
+  }
+
+  for (int i=0; i<2; i++) {
+    theWheelEnergyFpgas[i]->reset();
+  }
+
+  // Electron Final Stage
+  theIsoEmFinalStage->reset();
+  theNonIsoEmFinalStage->reset();
+
+  // Jet Final Stage
+  theJetFinalStage->reset();
+
+  // Energy Final Stage
+  theEnergyFinalStage->reset();
+
+}
+
 void L1GlobalCaloTrigger::process() {
 		
   // Source cards
