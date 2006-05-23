@@ -32,6 +32,7 @@
 //
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "RecoJets/JetAlgorithms/interface/CMSMidpointAlgorithm.h"
 
 
@@ -43,9 +44,6 @@ using namespace reco;
 namespace {
   bool sameTower (const Candidate* c1, const Candidate* c2) {
     return c1 == c2;
-//     return (abs(c1->eta()-c2->eta())<.001) &&
-//       (abs(c1->phi()-c2->phi())<.001) &&
-//       (abs(c1->energy()-c2->energy())<.001);
   }
 
   // phidif calculates the difference between phi1 and phi2 taking into account the 2pi issue.
@@ -56,29 +54,6 @@ namespace {
     return fabs(dphi);
   }
 
-class ProtoJetPtGreater
-{
- public:
-  int operator()(const ProtoJet& pj1, const ProtoJet& pj2) const
-  {
-    return pj1.getLorentzVector().perp() > pj2.getLorentzVector().perp();
-  }
-  int operator()(const ProtoJet* pj1, const ProtoJet* pj2) const
-  {
-    if (!pj1) return false;
-    if (!pj2) return true;
-    return pj1->getLorentzVector().perp() > pj2->getLorentzVector().perp();
-  }
-};
-
-  class GreaterByET 
-  {
-  public:
-    bool operator()(const Candidate* a, 
-		    const Candidate * b) const {
-      return a->et() > b->et();
-    }
-  };
   
   std::vector<const Candidate*> towersWithinCone(const CMSMidpointAlgorithm::InputCollection& fInput, double coneEta, double conePhi, double coneRadius, double etThreshold){
     std::vector<const Candidate*> result;
@@ -87,13 +62,9 @@ class ProtoJetPtGreater
     for (;towerIter != towerIterEnd; ++towerIter) {
       const Candidate* caloTowerPointer = *towerIter;
       if(caloTowerPointer->et() > etThreshold){
-	double towerEta = caloTowerPointer->eta();
-	double towerPhi = caloTowerPointer->phi();
-	double deltaEta = towerEta - coneEta;
-	double deltaPhi = phidif(towerPhi, conePhi);
-	double deltaR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
-	if(deltaR < coneRadius){
-	  if(caloTowerPointer != 0) result.push_back(caloTowerPointer);
+	double dR = deltaR2 (coneEta, conePhi, caloTowerPointer->eta(), caloTowerPointer->phi());
+	if(dR < coneRadius){
+	  result.push_back(caloTowerPointer);
 	}
       }
     }
@@ -111,7 +82,8 @@ class ProtoJetPtGreater
 	result.push_back(caloTowerPointer);
       }
     }   
-    sort(result.begin(), result.end(), GreaterByET());
+    GreaterByEt <Candidate> compCandidate;
+    sort (result.begin(), result.end(), compCandidate);
     return result;
   }
   
@@ -127,6 +99,16 @@ void CMSMidpointAlgorithm::run(const InputCollection& fInput, OutputCollection* 
 {
   if (!fOutput) {
     std::cerr << "CMSMidpointAlgorithm::run-> ERROR: no output collection" << std::endl;
+  }
+  if(theDebugLevel>=1)cout << "[CMSMidpointAlgorithm] Num of input constituents = " << fInput.size() << endl;
+  if(theDebugLevel>=2) {
+    unsigned index = 0;
+    for (; index < fInput.size (); index++) {
+      cout << index << " consituent p/eta/phi: " 
+	   << fInput[index]->p() << '/'
+	   << fInput[index]->eta() << '/'
+	   << fInput[index]->phi() << std::endl;
+    }
   }
   // Find proto-jets from the seeds.
   InternalCollection protoJets;         // Initialize working container
@@ -208,12 +190,11 @@ void CMSMidpointAlgorithm::iterateCone(const InputCollection& fInput,
     } else{
       //Put seed cluster into trial cone 
       trialCone->putTowers(towersInSeedCluster);
-      HepLorentzVector endLorentzVector =  trialCone->getLorentzVector();
-      double endRapidity = endLorentzVector.rapidity();
-      double endPhi      = endLorentzVector.phi();
-      double endPt       =  endLorentzVector.perp();
-      double endE        = endLorentzVector.e();
-      if(theDebugLevel>=2)cout << ", y=" << endRapidity << ", phi=" << endPhi << ", PT=" << endPt << endl;
+      double endRapidity = trialCone->y();
+      double endPhi      = trialCone->phi();
+      double endPt       = trialCone->pt();
+      double endE        = trialCone->e();
+      if(theDebugLevel>=2)cout << ", y=" << endRapidity << ", phi=" << endPhi << ", PT=" << endPt << ", constituents=" << trialCone->getTowerList().size () << endl;
       if(nIterations <= theMaxIterations){
 	// Do we have a stable cone?
 	if(abs(endRapidity-startRapidity)<.001 && 
@@ -242,11 +223,9 @@ void CMSMidpointAlgorithm::iterateCone(const InputCollection& fInput,
   
   if(keepJet){  // Our trial cone is now stable
     bool identical = false;
-    HepLorentzVector trialConeVector =  trialCone->getLorentzVector();
     // Loop over proto-jets and check that our trial cone is a unique proto-jet
     for (unsigned icone = 0; icone < stableCones->size(); icone++) {
-      HepLorentzVector stableConeVector = (*stableCones) [icone]->getLorentzVector();
-      if(trialConeVector == stableConeVector) identical = true;  // This proto-jet is not unique.
+      if (trialCone->p4() == (*stableCones) [icone]->p4()) identical = true;  // This proto-jet is not unique.
     }
     if(!identical){
       stableCones->push_back(trialCone);  // Save the unique proto-jets
@@ -269,17 +248,9 @@ void CMSMidpointAlgorithm::findStableConesFromMidPoints(const InputCollection& f
   for(unsigned int nCluster1 = 1; nCluster1 < stableCones->size(); ++nCluster1){  // Loop over the protojets
     distanceOK[nCluster1 - 1].resize(nCluster1);               //Set inner vector size: monotonically increasing.
     const ProtoJet* cluster1 = (*stableCones)[nCluster1];
-    double cluster1Rapidity = cluster1->getLorentzVector().rapidity();  // Jet 1 y
-    double cluster1Phi      = cluster1->getLorentzVector().phi();       // Jet 1 phi
     for(unsigned int nCluster2 = 0; nCluster2 < nCluster1; ++nCluster2){         // Loop over the other proto-jets
       const ProtoJet* cluster2 = (*stableCones)[nCluster2];
-      double cluster2Rapidity = cluster2->getLorentzVector().rapidity(); // Jet 2 y
-      double cluster2Phi      = cluster2->getLorentzVector().phi();      // Jet 2 phi
-      double dRapidity = fabs(cluster1Rapidity - cluster2Rapidity);   
-      double dPhi      = fabs(cluster1Phi      - cluster2Phi);
-      if(dPhi > M_PI)
-        dPhi = 2*M_PI - dPhi;
-      double dR = sqrt(dRapidity*dRapidity + dPhi*dPhi);
+      double dR = sqrt(deltaR2 (cluster1->y(), cluster1->phi(), cluster2->y(), cluster2->phi()));
       distanceOK[nCluster1 - 1][nCluster2] = dR < 2*theConeRadius;
     }
   }
@@ -296,15 +267,16 @@ void CMSMidpointAlgorithm::findStableConesFromMidPoints(const InputCollection& f
   for(vector<vector<int> >::const_iterator iPair = pairs.begin(); iPair != pairs.end(); ++iPair) {
     const vector<int> & Pair = *iPair;
     // Calculate rapidity, phi and energy of MidPoint.
-    HepLorentzVector midPoint(0,0,0,0);
+    reco::Particle::LorentzVector midPoint (0,0,0,0);
     for(vector<int>::const_iterator iPairMember = Pair.begin(); iPairMember != Pair.end(); ++iPairMember) {
-      midPoint += (*stableCones)[*iPairMember]->getLorentzVector();
+      midPoint += (*stableCones)[*iPairMember]->p4();
     }
-    if(theDebugLevel>=2)cout << endl << "[CMSMidpointAlgorithm] midpoint " << iPair-pairs.begin() << ": y = " << midPoint.rapidity() << ", phi=" << midPoint.phi() <<
+    if(theDebugLevel>=2)cout << endl << "[CMSMidpointAlgorithm] midpoint " << iPair-pairs.begin() << ": y = " << midPoint.Rapidity() << ", phi=" << midPoint.Phi() <<
 			  ", size=" << Pair.size() << endl;
-    iterateCone(fInput, midPoint.rapidity(),midPoint.phi(),midPoint.e(),reduceConeSize,stableCones);
+    iterateCone(fInput, midPoint.Rapidity(),midPoint.Phi(),midPoint.e(),reduceConeSize,stableCones);
   }
-  sort(stableCones->begin(),stableCones->end(),ProtoJetPtGreater());
+  GreaterByPt<ProtoJet> compJets;
+  sort (stableCones->begin(), stableCones->end(), compJets);
 }
 
 // Add proto-jets to pairs from which we will find the midpoint
@@ -355,10 +327,10 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
     for(int i = 0; i < numProtojets ; ++i){
       const ProtoJet* icone = (*stableCones)[i];
       int numTowers = icone->getTowerList().size();
-      cout << endl << "[CMSMidpointAlgorithm] ProtoJet " << i << ": PT=" << (*stableCones)[i]->getLorentzVector().perp()
-	   << ", y="<< icone->getLorentzVector().rapidity()
-	   << ", phi="<< icone->getLorentzVector().phi()  
-	   << ", ntow="<< numTowers << endl;     
+      cout << endl << "[CMSMidpointAlgorithm] ProtoJet " << i << ": PT=" << (*stableCones)[i]->pt()
+	   << ", y="<< icone->y()
+	   << ", phi="<< icone->phi()  
+	   << ", ntow="<< numTowers << endl;
       vector<const Candidate*> protojetTowers = icone->getTowerList(); 
       for(int j = 0; j < numTowers; ++j){
 	cout << "[CMSMidpointAlgorithm] Tower " << j << ": ET=" << protojetTowers[j]->et() 
@@ -373,7 +345,8 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
   while(mergingNotFinished){
     
     // Sort the stable cones (highest pt first).
-    sort(stableCones->begin(),stableCones->end(),ProtoJetPtGreater());
+    GreaterByPt<ProtoJet> compJets;
+    sort(stableCones->begin(),stableCones->end(),compJets);
     // clean removed clusters
     stableCones->erase (find (stableCones->begin(), stableCones->end(), (ProtoJet*)0), stableCones->end()); 
     
@@ -448,7 +421,7 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	  coneNotModified = false;
 	  
 	  // Compare the overlap pt with the overlap fractcion threshold times the lower jet pt.
-	  if(overlap.getLorentzVector().perp() >= theOverlapThreshold*stableCone2->getLorentzVector().perp()){
+	  if(overlap.pt() >= theOverlapThreshold*stableCone2->pt()){
 	    
 	    // Merge the two cones.
 	    // Get a copy of the list of towers in higher Pt proto-jet 
@@ -473,20 +446,20 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	    }
 	    
 	    if(theDebugLevel>=2)cout << endl << "[CMSMidpointAlgorithm] Merging: 1st Proto-jet grows: "
-				  " y=" << stableCone1->getLorentzVector().rapidity() << 
-				  ", phi=" << stableCone1->getLorentzVector().phi() << 
+				  " y=" << stableCone1->y() << 
+				  ", phi=" << stableCone1->phi() << 
 				  " increases from " << stableCone1->getTowerList().size() << 
 				  " to "  << stableCone1Towers.size() << " towers." << endl;
 	    
 	    // Put the new expanded list of towers into the first proto-jet
 	    stableCone1->putTowers(stableCone1Towers);
 	    
-	    if(theDebugLevel>=2)cout << "[CMSMidpointAlgorithm] Merging: 1st protojet now at y=" << stableCone1->getLorentzVector().rapidity() <<
-				  ", phi=" << stableCone1->getLorentzVector().phi() << endl;
+	    if(theDebugLevel>=2)cout << "[CMSMidpointAlgorithm] Merging: 1st protojet now at y=" << stableCone1->y() <<
+				  ", phi=" << stableCone1->phi() << endl;
 	    
 	    if(theDebugLevel>=2)cout << "[CMSMidpointAlgorithm] Merging: 2nd Proto-jet removed:" 
-				  " y=" << stableCone2->getLorentzVector().rapidity() << 
-				  ", phi=" << stableCone2->getLorentzVector().phi() << endl;
+				  " y=" << stableCone2->y() << 
+				  ", phi=" << stableCone2->phi() << endl;
 	    
 	    // Remove the second proto-jet.
 	    delete *stableConeIter2;
@@ -504,22 +477,11 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	    for(vector<const Candidate*>::iterator towerIter = overlapTowers.begin();
 		towerIter != overlapTowers.end();
 		++towerIter){
-	      double towerRapidity = (*towerIter)->eta();
-	      double towerPhi      = (*towerIter)->phi();
-	      
-	      // Calculate distance from proto-jet 1.
-	      double dRapidity1 = fabs(towerRapidity - stableCone1->getLorentzVector().rapidity());
-	      double dPhi1      = fabs(towerPhi      - stableCone1->getLorentzVector().phi());
-	      if(dPhi1 > M_PI)
-		dPhi1 = 2*M_PI - dPhi1;
-	      double dRJet1 = sqrt(dRapidity1*dRapidity1 + dPhi1*dPhi1);
-	      
+	      double dRJet1 = deltaR ((*towerIter)->p4().Rapidity(), (*towerIter)->phi(), 
+				      stableCone1->y(), stableCone1->phi()); 
 	      // Calculate distance from proto-jet 2.
-	      double dRapidity2 = fabs(towerRapidity - stableCone2->getLorentzVector().rapidity());
-	      double dPhi2      = fabs(towerPhi      - stableCone2->getLorentzVector().phi());
-	      if(dPhi2 > M_PI)
-		dPhi2 = 2*M_PI - dPhi2;
-	      double dRJet2 = sqrt(dRapidity2*dRapidity2 + dPhi2*dPhi2);
+	      double dRJet2 = deltaR ((*towerIter)->p4().Rapidity(), (*towerIter)->phi(),
+				      stableCone2->y(), stableCone2->phi()); 
 	      
 	      if(dRJet1 < dRJet2){
 		// Tower is closer to proto-jet 1. To be removed from proto-jet 2.
@@ -552,14 +514,13 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	    }
 	    
 	    if(theDebugLevel>=2)cout << endl << "[CMSMidpointAlgorithm] Splitting: 1st Proto-jet  shrinks: y=" << 
-				  stableCone1->getLorentzVector().rapidity() << 
-				  ", phi=" << stableCone1->getLorentzVector().phi() << 
+				  stableCone1->y() << 
+				  ", phi=" << stableCone1->phi() << 
 				  " decreases from" << stableCone1->getTowerList().size() << 
 				  " to "  << towerList1.size() << " towers." << endl;
 	    
 	    //Put the new reduced list of towers into proto-jet 1.
 	    stableCone1->putTowers(towerList1); 
-	    
 	    // Remove towers from cone 2.
 	    vector<const Candidate*> towerList2 = stableCone2->getTowerList(); 
 	    
@@ -579,22 +540,21 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	    }
 	    
 	    if(theDebugLevel>=2)cout << "[CMSMidpointAlgorithm] Splitting: 2nd Proto-jet shrinks: y=" <<
-				  stableCone2->getLorentzVector().rapidity() << 
-				  ", phi=" << stableCone2->getLorentzVector().phi() << 
+				  stableCone2->y() << 
+				  ", phi=" << stableCone2->phi() << 
 				  " decreases from" << stableCone2->getTowerList().size() << 
 				  " to "  << towerList2.size() << " towers." << endl;
 	    
 	    //Put the new reduced list of towers into proto-jet 2.
 	    stableCone2->putTowers(towerList2); 
-	    
 	  }
 	}
 	else {
 	  if(theDebugLevel>=2)cout << endl << 
-				"[CMSMidpointAlgorithm] no overlap between 1st protojet at  y=" << stableCone1->getLorentzVector().rapidity() << 
-				", phi=" << stableCone1->getLorentzVector().phi() << 
-				" and 2nd protojet at  y=" << stableCone2->getLorentzVector().rapidity() << 
-				", phi=" << stableCone2->getLorentzVector().phi() <<endl;
+				"[CMSMidpointAlgorithm] no overlap between 1st protojet at  y=" << stableCone1->y() << 
+				", phi=" << stableCone1->phi() << 
+				" and 2nd protojet at  y=" << stableCone2->y() << 
+				", phi=" << stableCone2->phi() <<endl;
 	}
 	
 	++stableConeIter2;  //Increment iterator to the next highest Pt protojet
@@ -602,8 +562,8 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
       if(coneNotModified){
 	
 	if(theDebugLevel>=2)cout << 
-			      "[CMSMidpointAlgorithm] Saving: Proto-jet  at y=" << stableCone1->getLorentzVector().rapidity() << 
-			      ", phi=" << stableCone1->getLorentzVector().phi() <<  " has no overlap" << endl;
+			      "[CMSMidpointAlgorithm] Saving: Proto-jet  at y=" << stableCone1->y() << 
+			      ", phi=" << stableCone1->phi() <<  " has no overlap" << endl;
 	
 	// Cone 1 has no overlap with any of the other cones and can become a jet.
 	fFinalJets->push_back(*stableCone1);
@@ -613,5 +573,6 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
     }
   }
   
-  sort(fFinalJets->begin(),fFinalJets->end(),ProtoJetPtGreater());
+  GreaterByPt<ProtoJet> compJets;
+  sort(fFinalJets->begin(),fFinalJets->end(),compJets);
 }

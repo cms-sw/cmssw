@@ -9,14 +9,49 @@
 #include <algorithm>               // include STL algorithm implementations
 #include <numeric>		   // For the use of numeric
 
+namespace {
+  class ERecombination {
+    public: double weight (const reco::Candidate& c) {return c.energy();}
+  };
+  class EtRecombination {
+    public: double weight (const reco::Candidate& c) {return c.et();}
+  };
+  class PRecombination {
+    public: double weight (const reco::Candidate& c) {return c.p();}
+  };
+  class PtRecombination {
+    public: double weight (const reco::Candidate& c) {return c.pt();}
+  };
+
+  template <class T>
+   ProtoJet::LorentzVector calculateLorentzVectorRecombination(const ProtoJet::Candidates& fConstituents) {
+    T weightMaker;
+    ProtoJet::LorentzVector result (0,0,0,0);
+    double weights = 0;
+    for(ProtoJet::Candidates::const_iterator i = fConstituents.begin(); i !=  fConstituents.end(); ++i) {
+      const reco::Candidate* c = *i;
+      double weight = weightMaker.weight (*c);
+      result += c->p4() * weight;
+      weights += weight;
+    } //end of loop over the jet constituents
+    result = result / weights;
+    return result;
+  }
+
+}
+
 ProtoJet::ProtoJet(const Candidates& fConstituents) 
   : mConstituents (fConstituents)
 {
   calculateLorentzVector(); 
 }//end of constructor
 
+void ProtoJet::putTowers(const Candidates& towers) {
+  mConstituents = towers; 
+  calculateLorentzVector();
+}
 
-void ProtoJet::calculateLorentzVector() {
+void ProtoJet::calculateLorentzVectorERecombination() {
   mP4 = LorentzVector (0,0,0,0);
   for(Candidates::const_iterator i = mConstituents.begin(); i !=  mConstituents.end(); ++i) {
     const reco::Candidate* c = *i;
@@ -24,5 +59,8 @@ void ProtoJet::calculateLorentzVector() {
   } //end of loop over the jet constituents
 }
 
+void ProtoJet::calculateLorentzVectorEtRecombination() {
+  mP4 = calculateLorentzVectorRecombination <EtRecombination> (mConstituents);
+}
 
 

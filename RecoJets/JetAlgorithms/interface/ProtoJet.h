@@ -64,7 +64,7 @@ public:
   /** Returns the pseudorapidity of the jet*/
   double eta() const {return mP4.Eta();}
   /** Returns the rapidity of the jet*/
-  double y() const {return mP4.Rapidity();}
+  double y() const {return p() > 0 ? mP4.Rapidity() : 0;}
   /** Returns the number of constituents of the Jet*/
   int numberOfConstituents() const {return mConstituents.size();};
 
@@ -77,10 +77,12 @@ public:
   const Candidates& getTowerList() const {return mConstituents;} 
   
   /** Sets the list of towers in a protojet */
-  void putTowers(const Candidates& towers) {mConstituents = towers;}
+  void putTowers(const Candidates& towers);
 
   /** Make kinematics from constituents */
-  void calculateLorentzVector();
+  void calculateLorentzVector() {calculateLorentzVectorERecombination();}
+  void calculateLorentzVectorERecombination();
+  void calculateLorentzVectorEtRecombination();
   
   
 

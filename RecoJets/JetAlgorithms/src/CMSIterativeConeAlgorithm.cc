@@ -1,32 +1,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
 using namespace std;
 using namespace reco;
 
-// helping stuff
-namespace{
-
-  double deltaR2(double eta0, double phi0, double eta, double phi){
-    double dphi=phi-phi0;
-    if(dphi>M_PI) dphi-=2*M_PI;
-    else if(dphi<=-M_PI) dphi+=2*M_PI;
-    return dphi*dphi+(eta-eta0)*(eta-eta0);
-  };
-
-  class ProtoJetPtGreater{
-  public:
-    int operator()(const ProtoJet& pj1, const ProtoJet& pj2) const{
-      return pj1.getLorentzVector().perp() > pj2.getLorentzVector().perp();
-    }
-  };
-
-  class GreaterByET {
-  public:
-    bool operator()(const Candidate* a, const Candidate * b) const {
-      return a->et() > b->et();
-    }
-  };  
-}
 
 
 //  Run the algorithm
@@ -43,7 +20,8 @@ void CMSIterativeConeAlgorithm::run(const InputCollection& fInput, OutputCollect
       input.push_back(tower);
     }
   }   
-  input.sort(GreaterByET());
+  GreaterByEt <Candidate> compCandidate;
+  input.sort(compCandidate);
 
   //find jets
   while( !input.empty() && input.front()->et() > theSeedThreshold ) {
@@ -95,7 +73,7 @@ void CMSIterativeConeAlgorithm::run(const InputCollection& fInput, OutputCollect
     fOutput->push_back (ProtoJet (jetConstituents));
 
   } //loop over seeds ended
-
-  sort(fOutput->begin(),fOutput->end(),ProtoJetPtGreater());
+  GreaterByPt<ProtoJet> compJets;
+  sort (fOutput->begin (), fOutput->end (), compJets);
 }
    

@@ -4,7 +4,7 @@
 // Creation Date:  Apr. 22 2005 Initial version.
 // Revisions:  R. Harris, 19-Oct-2005, modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id: KtJetProducer.cc,v 1.12 2006/04/05 00:26:57 fedor Exp $
+// $Id: KtJetProducer.cc,v 1.13 2006/04/08 00:37:08 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -35,7 +35,7 @@ namespace cms
   // Constructor takes input parameters now: to be replaced with parameter set.
   KtJetProducer::KtJetProducer(const edm::ParameterSet& conf)
   : alg_(conf.getParameter<int>("ktAngle"),
-	 conf.getParameter<int>("ktRecom"),
+	 1, // use E-recombination
 	 conf.getParameter<double>("ktECut"),
 	 conf.getParameter<double>("ktRParam")),
     src_(conf.getParameter<string>( "src" )),
