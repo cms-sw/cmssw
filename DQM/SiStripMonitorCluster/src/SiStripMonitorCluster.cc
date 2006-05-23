@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.8 2006/05/12 10:52:46 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.9 2006/05/15 08:36:14 dkcira Exp $
 //
 //
 
@@ -58,9 +58,9 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
    bool show_mechanical_structure_view = conf_.getParameter<bool>("ShowMechanicalStructureView");
    bool show_readout_view = conf_.getParameter<bool>("ShowReadoutView");
    bool show_control_view = conf_.getParameter<bool>("ShowControlView");
-   LogInfo("SiStripTkDQM|ConfigParams")<<"show_mechanical_structure_view = "<<show_mechanical_structure_view;
-   LogInfo("SiStripTkDQM|ConfigParams")<<"show_readout_view = "<<show_readout_view;
-   LogInfo("SiStripTkDQM|ConfigParams")<<"show_control_view = "<<show_control_view;
+   LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"show_mechanical_structure_view = "<<show_mechanical_structure_view;
+   LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"show_readout_view = "<<show_readout_view;
+   LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"show_control_view = "<<show_control_view;
 
   if ( show_mechanical_structure_view ){
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
@@ -74,11 +74,21 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
 
     // use SiStripSubStructure for selecting certain regions
     SiStripSubStructure substructure;
-    vector<uint32_t> SelectedDetIds;
-    substructure.getTIBDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
+//    vector<uint32_t> SelectedDetIds;
+//    substructure.getTIBDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
 //    substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 2, 0);    // this adds rawDetIds to SelectedDetIds
 //    substructure.getTIDDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
 //    substructure.getTECDetectors(activeDets, SelectedDetIds, 1, 2, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
+      // for the mtcc you can get everything
+      // for the mtcc you can get everything
+     vector<uint32_t> SelectedDetIds = activeDets;
+     // remove any zero elements - there should be none, but just in case
+     for(std::vector<uint32_t>::iterator idets = SelectedDetIds.begin(); idets != SelectedDetIds.end(); idets++){
+       if(*idets == 0) SelectedDetIds.erase(idets);
+     }
+     for(std::vector<uint32_t>::iterator idets = SelectedDetIds.begin(); idets != SelectedDetIds.end(); idets++){
+       if(*idets == 0) SelectedDetIds.erase(idets);
+     }
 
     // use SistripHistoId for producing histogram id (and title)
     SiStripHistoId hidmanager;
@@ -86,7 +96,7 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
     SiStripFolderOrganizer folder_organizer;
 
     // loop over TOB detectors and book MEs
-    LogInfo("SiStripTkDQM")<<"nr. of SelectedDetIds:  "<<SelectedDetIds.size();
+    LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of SelectedDetIds:  "<<SelectedDetIds.size();
     for(vector<uint32_t>::const_iterator detid_iterator = SelectedDetIds.begin(); detid_iterator!=SelectedDetIds.end(); detid_iterator++){
       ModMEs local_modmes;
       string hid;
@@ -103,13 +113,13 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
       local_modmes.ClusterWidth = dbe_->book1D(hid, hid, 10,-0.5,10.5);
       //ClusterWidth
       hid = hidmanager.createHistoId("ClusterCharge","det",*detid_iterator);
-      local_modmes.ClusterCharge = dbe_->book1D(hid, hid, 31,-0.5,256.5);
+      local_modmes.ClusterCharge = dbe_->book1D(hid, hid, 31,-0.5,30.5);
       //ModuleLocalOccupancy
       hid = hidmanager.createHistoId("ModuleLocalOccupancy","det",*detid_iterator);
-      local_modmes.ModuleLocalOccupancy = dbe_->book1D(hid, hid, 20,0.,1.0);// occupancy goes from 0 to 1, probably not over some limit value (here 0.5)
+      local_modmes.ModuleLocalOccupancy = dbe_->book1D(hid, hid, 20,0.,0.1);// occupancy goes from 0 to 1, probably not over some limit value (here 0.1)
       //NrOfClusterizedStrips
       hid = hidmanager.createHistoId("NrOfClusterizedStrips","det",*detid_iterator);
-      local_modmes.NrOfClusterizedStrips = dbe_->book1D(hid, hid, 20,0.,768.);
+      local_modmes.NrOfClusterizedStrips = dbe_->book1D(hid, hid, 21,-0.,19.5);
       // append to ClusterMEs
       ClusterMEs.insert( std::make_pair(*detid_iterator, local_modmes));
     }
