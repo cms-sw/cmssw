@@ -145,7 +145,7 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 		if (	eventDataList->getLength () != 1)
 		{
 		    throw cms::Exception ("Parse error") 
-			<< "Malformed site-local-config.xml." ;
+			<< "Malformed site-local-config.xml. Cannot find event-data section." ;
 		}
 	    
 		DOMElement *eventData 
@@ -157,7 +157,7 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 		if (catalogs->getLength () != 1)
 		{
 		    throw cms::Exception ("Parse error") 
-			<< "Malformed site-local-config.xml." ;
+			<< "Malformed site-local-config.xml. Cannot find catalog in event-data section." ;
 		}
 		DOMElement * catalog 
 		    = static_cast <DOMElement *> (catalogs->item (0));
@@ -173,7 +173,7 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 		if (calibDataList->getLength () != 1)
 		{
 		    throw cms::Exception ("Parse error") 
-			<< "Malformed site-local-config.xml." ;
+			<< "Malformed site-local-config.xml. Cannot find calib-data section." ;
 		}
 	    
 		DOMElement *calibData 
@@ -184,7 +184,7 @@ edm::service::SiteLocalConfigService::parse (const std::string &url)
 		if (catalogs->getLength () != 1)
 		{
 		    throw cms::Exception ("Parse error") 
-			<< "Malformed site-local-config.xml." ;
+			<< "Malformed site-local-config.xml. Cannot find catalog in calib-data section." ;
 		}
 	    
 		DOMElement *catalog
