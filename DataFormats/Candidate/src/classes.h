@@ -16,7 +16,6 @@ namespace {
     reco::CandidateRefProd rp1;
 
     edm::RefToBase<reco::Candidate> * rb1;
-    std::vector<edm::RefToBase<reco::Candidate> * > vrb1;
-    edm::OwnVector<edm::RefToBase<reco::Candidate> > ovrb1;
+    std::vector<edm::RefToBase<reco::Candidate> > vrb1;
   }
 }
