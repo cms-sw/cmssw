@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.4 2006/04/13 13:21:16 rahatlou Exp $
+ * \version $Id: SuperCluster.h,v 1.5 2006/04/20 10:13:53 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -114,8 +114,8 @@ namespace reco {
     double covEtaPhi() const;
     /// covariance element in pseudorapidity
     double covPhiPhi() const;
-    /// ratio of energy deposits in Hcal over Ecal
-    double hadOverEcal() const;
+ /*    /// ratio of energy deposits in Hcal over Ecal */
+/*     double hadOverEcal() const; */
 
     /// reference to pi0 discriminator information
     //const ClusterPi0DiscriminatorRef & pi0Discriminator() const { return pi0Discriminator_; }
