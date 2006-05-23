@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/23 10:56:56 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/23 11:01:36 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -61,7 +61,7 @@ void MuonDetLayerGeometry::addDTLayers(vector<DetLayer*> dtlayers) {
     }
 }    
 
-DetId MuonDetLayerGeometry::makeDetLayerId(DetLayer* detLayer){
+DetId MuonDetLayerGeometry::makeDetLayerId(DetLayer* detLayer) const{
 
   if(detLayer->module() ==  csc){
     CSCDetId id( detLayer->basicComponents().front()->geographicalId().rawId() ) ;
@@ -156,19 +156,25 @@ MuonDetLayerGeometry::allBackwardLayers() const {
     return allBackward;    
 }    
 
-DetLayer* MuonDetLayerGeometry::idToLayer(DetId &detId){
+const DetLayer* MuonDetLayerGeometry::idToLayer(DetId &detId) const{
+
+  DetId id;
   
   if(detId.subdetId() == MuonSubdetId::CSC){
     CSCDetId cscId( detId.rawId() );
-    CSCDetId id(cscId.endcap(),cscId.station(),0,0,0);
-    return detLayersMap[ DetId(id) ]; 
+    id = CSCDetId(cscId.endcap(),cscId.station(),0,0,0);
   }
+  
   else if (detId.subdetId() == MuonSubdetId::DT){
     DTChamberId dtId( detId.rawId() );
-    DTChamberId id(0,dtId.station(),0);
-    return detLayersMap[ DetId(id) ]; 
+    id = DTChamberId(0,dtId.station(),0);
   }
+  
   else throw cms::Exception("InvalidSubdetId")<< detId.subdetId();
+
+  std::map<DetId,DetLayer*>::const_iterator layer = detLayersMap.find(id);
+  if (layer == detLayersMap.end()) return 0;
+  return layer->second; 
 }
 
 
