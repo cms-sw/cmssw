@@ -12,7 +12,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+//#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
 using namespace reco;
 
@@ -28,39 +28,17 @@ using namespace reco;
 // constructors and destructor
 //
 PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
-  : theConfig(conf)
+  : theAlgo(conf)
 {
   edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
     << "Initializing PV producer " << "\n";
 
   produces<VertexCollection>("PrimaryVertex");
-  
-  // initialization of vertex finder algorithm
-  // configurable parameters
-  float ptMin = theConfig.getParameter<double>("TrackPtMin");
-  theFinder.setPtCut(ptMin);
-  float minTrackCompatibilityToMainVertex 
-    = theConfig.getParameter<double>("MinTrackCompatibilityToMainVertex");
-  theFinder.setTrackCompatibilityCut(minTrackCompatibilityToMainVertex);
-  float minTrackCompatibilityToOtherVertex 
-    = theConfig.getParameter<double>("MinTrackCompatibilityToOtherVertex");
-  theFinder.setTrackCompatibilityToSV(minTrackCompatibilityToOtherVertex);
-  int maxNbVertices = theConfig.getParameter<int>("MaxNbVertices");
-  theFinder.setMaxNbOfVertices(maxNbVertices);
-
-  // FIXME introduce track selection (pt + i.p. cuts), track clustering 
-  // and vertex selection (beam compatibility check)
 
 }
 
 
-PrimaryVertexProducer::~PrimaryVertexProducer()
-{
- 
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
+PrimaryVertexProducer::~PrimaryVertexProducer() {}
 
 //
 // member functions
@@ -101,7 +79,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     
     // here call vertex reconstruction
 
-    vector<TransientVertex> t_vts = theFinder.vertices(t_tks);
+    vector<TransientVertex> t_vts = theAlgo.vertices(t_tks);
     for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
 	 iv != t_vts.end(); iv++) {
       Vertex v(Vertex::Point((*iv).position()), 
