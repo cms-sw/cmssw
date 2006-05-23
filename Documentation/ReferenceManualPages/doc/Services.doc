@@ -6,7 +6,12 @@ Links below point to the documentation of individual packages.
 
 - <b>Framework for the field access</b><br>
  - \ref MagneticField             "Magnetic Field"
- - \ref Geometry             "Geometry"
+- <b>Geometry</b><br>
+ - \ref Geometry_Surface "Surface"</i><br>
+ - \ref Geometry_Vector "Vector"</i><br>
+ - \ref Geometry_CMSCommonData "CMSCommonData"<br>
+ - \ref Geometry_CommonDetUnit "CommonDetUnit"<br>
+ - \ref Geometry_CommonTopologies "CommonTopologies"<br>
 
 
 \section contact Contact persons
