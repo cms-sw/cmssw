@@ -7,13 +7,14 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: BasicCluster.h,v 1.5 2006/05/02 15:31:46 futyand Exp $
+ * \version $Id: BasicCluster.h,v 1.6 2006/05/10 12:45:59 tsirig Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/EcalCluster.h"
+#include "DataFormats/EgammaReco/interface/ClusterShape.h"
 
 namespace reco {
   
@@ -57,7 +58,7 @@ namespace reco {
 
     virtual std::vector<DetId> getHitsByDetId() const { return usedHits_; }
 
-
+    void SetClusterShapeRef(ClusterShapeRef ref){ clusref=ref;}
     /// cluster centriod position
     //const Point & position() const { return position_; }
     /// cluster energy
@@ -90,7 +91,8 @@ namespace reco {
 
     /// 0 in case of island algorithm, 1 in case of hybrid
     AlgoId algoId_;
-
+    //Associated clustershape information;
+    ClusterShapeRef clusref;
     /// ECAL RecHit information
     //std::vector<EcalRecHitData> recHits_;
 
