@@ -3,6 +3,7 @@
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/DetLayers>
 <use name=DataFormats/DetId>
+<use name=TrackingTools/KalmanUpdators>
 
 <use name=CLHEP>
 
@@ -15,5 +16,6 @@
 <use name=FWCore/ParameterSet>
 <use name=TrackingTools/DetLayers>
 <use name=DataFormats/DetId>
+<use name=TrackingTools/KalmanUpdators>
 
 </export>
