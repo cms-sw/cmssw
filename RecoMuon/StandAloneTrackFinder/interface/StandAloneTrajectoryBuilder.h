@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/05/18 08:37:34 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/19 15:24:35 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -19,6 +19,7 @@ class StandAloneMuonSmoother;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 
 namespace edm {class ParameterSet;}
 
@@ -43,8 +44,10 @@ public:
 
   // Pass the Event Setup to the algo at each event
   virtual void setES(const edm::EventSetup& setup);
-
-
+  
+  /// Pass the Event to the algo at each event
+  virtual void setEvent(const edm::Event& event);
+  
  protected:
   
  private:
@@ -57,5 +60,6 @@ public:
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;
+  edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
 };
 #endif

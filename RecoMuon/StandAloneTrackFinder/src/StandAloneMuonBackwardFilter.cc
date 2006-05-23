@@ -1,8 +1,8 @@
 /** \class StandAloneMuonBackwardFilter
  *  The outward-inward fitter (starts from StandAloneMuonRefitter outermost state).
  *
- *  $Date: 2006/05/18 09:53:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/19 15:24:36 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -18,3 +18,4 @@ StandAloneMuonBackwardFilter::StandAloneMuonBackwardFilter(const ParameterSet& p
 }
 
 void StandAloneMuonBackwardFilter::setES(const EventSetup& setup){}
+void StandAloneMuonBackwardFilter::setEvent(const Event& event){}

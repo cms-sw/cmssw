@@ -1,8 +1,8 @@
 /** \class StandAloneMuonSmoother
  *  The outward-inward fitter (starts from StandAloneMuonBackwardFilter innermost state).
  *
- *  $Date: 2006/05/18 09:53:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/19 15:24:36 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -16,3 +16,4 @@ using namespace edm;
 StandAloneMuonSmoother::StandAloneMuonSmoother(const ParameterSet& par){}
 
 void StandAloneMuonSmoother::setES(const EventSetup& setup){}
+void StandAloneMuonSmoother::setEvent(const Event& event){}

@@ -6,8 +6,8 @@
  *   starting from internal seeds (muon track segments).
  *
  *
- *   $Date: 2006/05/17 13:05:13 $
- *   $Revision: 1.2 $
+ *   $Date: 2006/05/19 15:23:20 $
+ *   $Revision: 1.3 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -47,7 +47,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet){
   theTrackFinder = new MuonTrackFinder(new GlobalMuonTrajectoryBuilder(GLB_pSet));
 
   produces<reco::TrackCollection>();
-
+  produces<reco::MuonCollection>();
 }
   
 /// destructor
@@ -66,11 +66,18 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup){
   // Percolate the event setup
   theTrackFinder->setES(eventSetup);
   
-  // Reconstruct 
-  std::auto_ptr<reco::TrackCollection> recMuons
+  // Percolate the event setup
+  theTrackFinder->setEvent(event);
+
+  // Reconstruct the tracks in the tracker+muon system
+  std::auto_ptr<reco::TrackCollection> recTracks;
     = theTrackFinder->reconstruct(seeds);
+
+  // Create a Muon Collection which holds the above infos plus the STA one
   
-  // Load the RecMuon Container in the Event
+  
+  // Load the RecMuon and the Tracks Containers in the Event
+  event.put(recTracks);
   event.put(recMuons);
 }
 

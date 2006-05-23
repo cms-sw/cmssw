@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/05/17 13:05:14 $
- *   $Revision: 1.2 $
+ *   $Date: 2006/05/19 15:23:20 $
+ *   $Revision: 1.3 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -62,11 +62,15 @@ L2MuonProducer::~L2MuonProducer(){
 void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
   
   // Take the seeds container
+  // FIXME: Change in the L1 container!
   Handle<TrajectorySeedCollection> seeds; 
   event.getByLabel(theSeedCollectionLabel,seeds);
 
   // Percolate the event setup
   theTrackFinder->setES(eventSetup);
+
+  // Percolate the event
+  theTrackFinder->setEvent(event);
   
   // Reconstruct 
   std::auto_ptr<reco::TrackCollection> recMuons

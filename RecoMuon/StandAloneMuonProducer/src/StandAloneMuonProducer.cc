@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/05/18 08:37:33 $
- *   $Revision: 1.4 $
+ *   $Date: 2006/05/19 15:23:20 $
+ *   $Revision: 1.5 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -65,6 +65,9 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
 
   // Percolate the event setup
   theTrackFinder->setES(eventSetup);
+
+  // Percolate the event setup
+  theTrackFinder->setEvent(event);
 
   // Reconstruct 
   std::auto_ptr<reco::TrackCollection> recMuons
