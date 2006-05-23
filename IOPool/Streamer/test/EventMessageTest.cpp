@@ -1,3 +1,32 @@
+/****
+   This code basically performs following steps
+
+   // make a buffer area to "serial" the information
+   vector<unsigned char> buf(1024);
+
+   // write the header in to the buffer during construction
+   InitMsgBuilder init_build(&buf[0],buf.size(), ... all the data for the header);
+   // write the registry directly after the header
+   unsigned int bytes_written = serialize_registry_here(registry_thing, init_build.dataAddress());
+   init_build.setDescLength(bytes_written);
+     // write an event header into the buffer during construction
+   EventMsgBuilder evt_build(&buf[0],buf.size(), ... all the header data);
+   // write the event data after the header
+   unsigned int bytes_written = serial_event_here(event,evt_build.eventData());
+   evt_build.setEventLength(bytes_written);
+
+   // look at the init message
+   InitMsgView init_view(&buf[0],buf.size());
+   // use member function to pull out the data
+
+   // look at the event message
+   EventMsgView evt_view(&buf[0],buf.size());
+   // use member functions to pull out the data
+
+*****/
+
+
+
 #include <iostream>
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
