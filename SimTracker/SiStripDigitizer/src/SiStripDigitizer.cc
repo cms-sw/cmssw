@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.14 2006/03/23 09:42:55 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.19 2006/05/16 09:26:43 fambrogl Exp $
 //
 //
 
@@ -21,8 +21,11 @@
 // system include files
 #include <memory>
 
-
 #include "SimTracker/SiStripDigitizer/interface/SiStripDigitizer.h"
+
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -32,10 +35,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLinkCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
@@ -64,9 +63,8 @@ namespace cms
     //   stripDigitizer_(conf) ,
     conf_(conf)
   {
-
-    produces<StripDigiCollection>();
-    produces<StripDigiSimLinkCollection>();
+    produces<edm::DetSetVector<SiStripDigi> >();
+    produces<edm::DetSetVector<StripDigiSimLink> >();
   }
 
   // Virtual destructor needed.
@@ -104,10 +102,6 @@ namespace cms
     theStripHits.insert(theStripHits.end(), TECHitsLowTof->begin(), TECHitsLowTof->end()); 
     theStripHits.insert(theStripHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
 
-    // Step B: create empty output collection
-    std::auto_ptr<StripDigiCollection> output(new StripDigiCollection);
-    std::auto_ptr<StripDigiSimLinkCollection> outputlink(new StripDigiSimLinkCollection);
-
     //Loop on PSimHit
     SimHitMap.clear();
     
@@ -124,44 +118,49 @@ namespace cms
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
 
   
-    // Step C: LOOP on StripGeomDetUnit //
+    // Step B: LOOP on StripGeomDetUnit //
     
     theAlgoMap.clear();
+    theDigiVector.reserve(10000);
+    theDigiVector.clear();
+
+    theDigiLinkVector.reserve(10000);
+    theDigiLinkVector.clear();
+
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
       
       GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
       
       StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
       if (sgd != 0){
-	
-	collector.clear();
-	linkcollector.clear();
+
+	edm::DetSet<SiStripDigi> collector((*iu)->geographicalId().rawId());
+	edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
 	
 	if(theAlgoMap.find(&(sgd->type())) == theAlgoMap.end()) {
 	  theAlgoMap[&(sgd->type())] = boost::shared_ptr<SiStripDigitizerAlgorithm>(new SiStripDigitizerAlgorithm(conf_, sgd));
 	}
 	
-	collector= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield);
+	collector.data= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield);
 	
-	if (collector.size()>0){
-	  StripDigiCollection::Range outputRange;
+	if (collector.data.size()>0){
 	  
-	  outputRange.first = collector.begin();
-	  outputRange.second = collector.end();
-	  output->put(outputRange,(*iu)->geographicalId().rawId());
+	  theDigiVector.push_back(collector);
 	  
+	  //digisimlink
 	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
-	    StripDigiSimLinkCollection::Range outputlinkRange;
-	    linkcollector= ((theAlgoMap.find(&(sgd->type())))->second)->make_link();
-	    outputlinkRange.first = linkcollector.begin();	  
-	    outputlinkRange.second = linkcollector.end();
-	    outputlink->put(outputlinkRange,(*iu)->geographicalId().rawId());
+	    linkcollector.data = ((theAlgoMap.find(&(sgd->type())))->second)->make_link();
+	    if (linkcollector.data.size()>0)   theDigiLinkVector.push_back(linkcollector);
 	  }
-	}	
-	
+	}
       }
-      
     }
+    
+    // Step C: create empty output collection
+    std::auto_ptr<edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(theDigiVector) );
+    std::auto_ptr<edm::DetSetVector<StripDigiSimLink> > outputlink(new edm::DetSetVector<StripDigiSimLink>(theDigiLinkVector) );
+
+    
     
     // Step D: write output to file
     iEvent.put(output);
