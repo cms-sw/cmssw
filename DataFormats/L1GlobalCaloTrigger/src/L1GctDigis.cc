@@ -63,24 +63,30 @@ L1GctTauJet::~L1GctTauJet() { }
 
 ostream& operator<<(ostream& s, const L1GctCand& cand) {
   s << "rank=" << cand.rank() << ", eta=" << cand.eta() << ", phi=" << cand.phi();
+  return s;
 }
 
 ostream& operator<<(ostream& s, const L1GctIsoEm& cand) {
   s << "rank=" << cand.rank() << ", eta=" << cand.eta() << ", phi=" << cand.phi();
+  return s;
 }
 
 ostream& operator<<(ostream& s, const L1GctNonIsoEm& cand) {
   s << "rank=" << cand.rank() << ", eta=" << cand.eta() << ", phi=" << cand.phi();
+  return s;
 }
 
 ostream& operator<<(ostream& s, const L1GctCenJet& cand) {
   s << "rank=" << cand.rank() << ", eta=" << cand.eta() << ", phi=" << cand.phi();
+  return s;
 }
 
 ostream& operator<<(ostream& s, const L1GctForJet& cand) {
   s << "rank=" << cand.rank() << ", eta=" << cand.eta() << ", phi=" << cand.phi();
+  return s;
 }
 
 ostream& operator<<(ostream& s, const L1GctTauJet& cand) {
   s << "rank=" << cand.rank() << ", eta=" << cand.eta() << ", phi=" << cand.phi();
+  return s;
 }
