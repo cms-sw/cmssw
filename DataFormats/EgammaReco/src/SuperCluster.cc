@@ -1,4 +1,4 @@
-// $Id: SuperCluster.cc,v 1.3 2006/04/13 13:21:16 rahatlou Exp $
+// $Id: SuperCluster.cc,v 1.4 2006/04/24 13:42:39 llista Exp $
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/ClusterPi0Discriminator.h"
@@ -55,9 +55,9 @@ double SuperCluster::covPhiPhi() const{
   return shape_->covPhiPhi();
 }
 
-double SuperCluster::hadOverEcal() const{
-  return shape_->hadOverEcal();
-}
+// double SuperCluster::hadOverEcal() const{
+//   return shape_->hadOverEcal();
+// }
 
 /**
 double SuperCluster::disc1() const { 
