@@ -549,8 +549,7 @@ namespace edm {
     makeParameterSets(config, params_, pServiceSets);
     adjustForDefaultService(*(pServiceSets.get()), "MessageLogger");
     adjustForService(*(pServiceSets.get()), "LoadAllDictionaries");
-    //PEadjustForService(*(pServiceSets.get()), "JobReportService");
-    adjustForService(*(pServiceSets.get()), "JobReport");
+    adjustForService(*(pServiceSets.get()), "JobReportService");
     adjustForService(*(pServiceSets.get()), "SiteLocalConfigService");
 
 
