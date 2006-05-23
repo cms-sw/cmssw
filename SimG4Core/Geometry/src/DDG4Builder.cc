@@ -23,6 +23,8 @@
 
 #include <sstream>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using std::vector;
 using std::string;
 
@@ -201,7 +203,8 @@ int DDG4Builder::getInt(const string & s, const DDLogicalPart & part)
       vector<double> temp = val.doubles();
       if (temp.size() != 1)
       {
-	 std::cout << " ERROR: I need only 1 " << s << std::endl;
+	 // std::cout << " ERROR: I need only 1 " << s << std::endl;
+	 edm::LogError("DDG4Builder") << " ERROR: I need only 1 " << s ;
 	 abort();
       }      
       return int(temp[0]);
@@ -225,7 +228,8 @@ double DDG4Builder::getDouble(const string & s, const DDLogicalPart & part)
       vector<string> temp = val.strings();
       if (temp.size() != 1)
       {
-	 std::cout << " ERROR: I need only 1 " << s << std::endl;
+	 // std::cout << " ERROR: I need only 1 " << s << std::endl;
+	 edm::LogError("DDG4Builder") << " ERROR: I need only 1 " << s ;
 	 abort();
       }
       double v;

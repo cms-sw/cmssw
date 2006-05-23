@@ -3,6 +3,8 @@
 
 #include "G4LogicalVolume.hh"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using std::string;
 using std::vector;
 using std::cout;
@@ -14,7 +16,7 @@ DDG4SensitiveConverter::~DDG4SensitiveConverter() {}
 
 void DDG4SensitiveConverter::upDate(const DDG4DispContainer & ddg4s) 
 {
-  std::cout<<" IN DDG4SensitiveConverter::upDate"<<std::endl;
+  edm::LogInfo("DDG4SensitiveConverter") <<"DDG4SensitiveConverter::upDate() starts" ;
 
     for (int i=0; i<ddg4s.size(); i++)
     {
@@ -27,8 +29,8 @@ void DDG4SensitiveConverter::upDate(const DDG4DispContainer & ddg4s)
 	string fff        = result->GetName();
 	if (sClassName != "NotFound") 
 	{
-	    cout << " DDG4SensitiveConverter:: Sensitive " << fff
-		 << " Class Name " << sClassName << " ROU Name " << sROUName << endl;
+	    edm::LogInfo("DDG4SensitiveConverter") << " Sensitive " << fff
+	    << " Class Name " << sClassName << " ROU Name " << sROUName ;	    
 	    fff = result->GetName();
 	    SensitiveDetectorCatalog::instance()->insert(sClassName,sROUName,fff);
 	}
@@ -52,7 +54,8 @@ string DDG4SensitiveConverter::getString(const string & s, const DDLogicalPart *
 	temp = val.strings(); 
 	if (temp.size() != 1) 
 	{
-	    cout << " ERROR: I need 1 " << s << " tags" << endl;
+	    // cout << " ERROR: I need 1 " << s << " tags" << endl;
+	    edm::LogError("ReadOutName") << " ERROR: I need 1 " << s << " tags" ;
 	    abort();
 	}
 	return temp[0]; 
