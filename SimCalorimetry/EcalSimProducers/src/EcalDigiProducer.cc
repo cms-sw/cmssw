@@ -11,38 +11,39 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
 
   // initialize the default valuer for hardcoded parameters and the EB/EE shape
 
-  double simHitToPhotoelectronsBarrel = params.getUntrackedParameter<double>("simHitToPhotoelectronsBarrel", 2250.);
-  double simHitToPhotoelectronsEndcap = params.getUntrackedParameter<double>("simHitToPhotoelectronsEndcap", 1800.);
-  double photoelectronsToAnalogBarrel = params.getUntrackedParameter<double>("photoelectronsToAnalogBarrel", 1./2250.);
-  double photoelectronsToAnalogEndcap = params.getUntrackedParameter<double>("photoelectronsToAnalogEndcap", 1./1800.);
-  double samplingFactor = params.getUntrackedParameter<double>("samplingFactor", 1.);
-  double timePhase = params.getUntrackedParameter<double>("timePhase", 47.6683);
-  int readoutFrameSize = params.getUntrackedParameter<int>("readoutFrameSize", 10);
-  int binOfMaximum = params.getUntrackedParameter<int>("binOfMaximum", 5);
-  bool doPhotostatistics = params.getUntrackedParameter<bool>("doPhotostatistics", true);
+  double simHitToPhotoelectronsBarrel = params.getParameter<double>("simHitToPhotoelectronsBarrel");
+  double simHitToPhotoelectronsEndcap = params.getParameter<double>("simHitToPhotoelectronsEndcap");
+  double photoelectronsToAnalogBarrel = params.getParameter<double>("photoelectronsToAnalogBarrel");
+  double photoelectronsToAnalogEndcap = params.getParameter<double>("photoelectronsToAnalogEndcap");
+  double samplingFactor = params.getParameter<double>("samplingFactor");
+  double timePhase = params.getParameter<double>("timePhase");
+  int readoutFrameSize = params.getParameter<int>("readoutFrameSize");
+  int binOfMaximum = params.getParameter<int>("binOfMaximum");
+  bool doPhotostatistics = params.getParameter<bool>("doPhotostatistics");
+  bool syncPhase = params.getParameter<bool>("syncPhase");
   theParameterMap = new EcalSimParameterMap(simHitToPhotoelectronsBarrel, simHitToPhotoelectronsEndcap, 
                                             photoelectronsToAnalogBarrel, photoelectronsToAnalogEndcap, 
                                             samplingFactor, timePhase, readoutFrameSize, binOfMaximum,
-                                            doPhotostatistics);
+                                            doPhotostatistics, syncPhase);
   theEcalShape = new EcalShape(timePhase);
 
-  int ESGain = params.getUntrackedParameter<int>("ESGain", 1);
+  int ESGain = params.getParameter<int>("ESGain");
   theESShape = new ESShape(ESGain);
 
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
   theESResponse = new CaloHitResponse(theParameterMap, theESShape);
   
-  bool addNoise = params.getUntrackedParameter<bool>("doNoise" , true); 
+  bool addNoise = params.getParameter<bool>("doNoise"); 
   theCoder = new EcalCoder(addNoise);
-  bool applyConstantTerm = params.getUntrackedParameter<bool>("applyConstantTerm", true);
-  double rmsConstantTerm = params.getUntrackedParameter<double> ("ConstantTerm", 0.003);
+  bool applyConstantTerm = params.getParameter<bool>("applyConstantTerm");
+  double rmsConstantTerm = params.getParameter<double> ("ConstantTerm");
   theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder, applyConstantTerm, rmsConstantTerm);
 
-  bool addESNoise = params.getUntrackedParameter<bool>("doESNoise" , true);
-  double ESNoiseSigma = params.getUntrackedParameter<double> ("ESNoiseSigma", 3.);
-  int ESBaseline = params.getUntrackedParameter<int>("ESBaseline", 1000);
-  double ESMIPADC = params.getUntrackedParameter<double>("ESMIPADC", 9.);
-  double ESMIPkeV = params.getUntrackedParameter<double>("ESMIPkeV", 78.47);
+  bool addESNoise = params.getParameter<bool>("doESNoise");
+  double ESNoiseSigma = params.getParameter<double> ("ESNoiseSigma");
+  int ESBaseline = params.getParameter<int>("ESBaseline");
+  double ESMIPADC = params.getParameter<double>("ESMIPADC");
+  double ESMIPkeV = params.getParameter<double>("ESMIPkeV");
   theESElectronicsSim = new ESElectronicsSim(addESNoise, ESNoiseSigma, ESGain, ESBaseline, ESMIPADC, ESMIPkeV);
 
   theBarrelDigitizer = new EBDigitizer(theEcalResponse, theElectronicsSim, addNoise);
@@ -165,12 +166,46 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
 
 
 
+
 void  EcalDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup) 
 {
 
-  // Fake pedestals for initial tests
+  // Pedestals from event setup
 
-  setupFakePedestals();
+  edm::ESHandle<EcalPedestals> dbPed;
+  eventSetup.get<EcalPedestalsRcd>().get( dbPed );
+  const EcalPedestals* thePedestals=dbPed.product();
+  
+  theCoder->setPedestals( thePedestals );
+
+  // ADC -> GeV Scale
+  edm::ESHandle<EcalADCToGeVConstant> pAgc;
+  eventSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
+  const EcalADCToGeVConstant* agc = pAgc.product();
+  
+  // Gain Ratios
+  edm::ESHandle<EcalGainRatios> pRatio;
+  eventSetup.get<EcalGainRatiosRcd>().get(pRatio);
+  const EcalGainRatios* gr = pRatio.product();
+
+  theCoder->setGainRatios( gr );
+
+  EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
+
+  double theGains[theCoder->NGAINS];
+  theGains[0] = 1.;
+  theGains[1] = defaultRatios->gain6Over1() ;
+  theGains[2] = theGains[1]*(defaultRatios->gain12Over6()) ;
+
+  LogDebug("SetupInfo") << " Gains: " << "\n" << " g0 = " << theGains[0] << "\n" << " g1 = " << theGains[1] << "\n" << " g2 = " << theGains[2];
+
+  delete defaultRatios;
+
+  const double EBscale = (agc->getEBValue())*theGains[2]*(theCoder->MAXADC);
+  LogDebug("SetupInfo") << " GeV/ADC = " << agc->getEBValue() << "\n" << " saturation for EB = " << EBscale;
+  const double EEscale = (agc->getEEValue())*theGains[2]*(theCoder->MAXADC);
+  LogDebug("SetupInfo") << " GeV/ADC = " << agc->getEEValue() << "\n" << " saturation for EE = " << EEscale;
+  theCoder->setFullScaleEnergy( EBscale , EEscale );
 
 }
 
@@ -213,30 +248,4 @@ void EcalDigiProducer::updateGeometry() {
   theESDigitizer->setDetIds(theESDets);
 }
 
-
-void EcalDigiProducer::setupFakePedestals() 
-{
-  thePedestals.m_pedestals.clear();
-  // make pedestals for each of these
-  EcalPedestals::Item item;
-  item.mean_x1 = 201.0;
-  item.rms_x1 = 0.62;
-  item.mean_x6 = 199.4;
-  item.rms_x6 = 0.9;
-  item.mean_x12 = 198.8;
-  item.rms_x12 = 1.10;
-
-  // make one vector of all det ids
-  vector<DetId> detIds(theBarrelDets.begin(), theBarrelDets.end());
-  detIds.insert(detIds.end(), theEndcapDets.begin(), theEndcapDets.end());
-
-  // make a pedestal entry for each one 
-  for(std::vector<DetId>::const_iterator detItr = detIds.begin();
-       detItr != detIds.end(); ++detItr)
-  {
-    thePedestals.m_pedestals[detItr->rawId()] = item;
-  }
-
-  theCoder->setPedestals(&thePedestals);
-}
 

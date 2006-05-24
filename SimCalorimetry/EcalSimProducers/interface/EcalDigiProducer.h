@@ -29,6 +29,7 @@ using namespace std;
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Provenance.h"
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloDigiCollectionSorter.h"
 
@@ -78,8 +79,6 @@ private:
   std::vector<DetId> theBarrelDets;
   std::vector<DetId> theEndcapDets;
   std::vector<DetId> theESDets;
-  EcalPedestals thePedestals;
-  void setupFakePedestals();
 
 };
 
