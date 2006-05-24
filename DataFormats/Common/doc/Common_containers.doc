@@ -24,14 +24,22 @@ Commonly used persistent containers.
   <tt>unsigned short</tt> for collections with less than 65535 objects
   or <tt>unsigned char</tt> for collections with less than 255 objects.<br><br>
   The attribute <tt>transientMap_</tt> has to be declared transient in the
-  Reflex dictionary; other used persistent types have to be declared in the Reflex dictionary,
-  depending case by case:
+  Reflex dictionary; also, the method <tt>numberOfAssociations</tt> should be
+  omitted from the dictionary for one-to-one and one-to-value cases. Other used persistent 
+  types have to be declared in the Reflex dictionary, depending case by case:
 \htmlonly
 <pre>
 &lt;lcgdict&gt;
+&lt;selection&gt;
   &lt;class name="edm::AssociationMap&lt; ... &gt;" &gt;
     &lt;field name="transientMap_" transient="true" /&gt;
   &lt;/class &gt;
+&lt;/selection&gt;
+&lt;exclusion&gt;
+    &lt;class name="edm::AssociationMap&lt; ... &gt;" &gt;
+    &lt;method name="numberOfAssociations" /&gt;
+  &lt;/class &gt;
+&lt;/exclusion&gt;
 &lt;/lcgdict&gt;
 </pre>
 \endhtmlonly

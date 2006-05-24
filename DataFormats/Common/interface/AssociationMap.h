@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.8 2006/05/24 13:37:59 llista Exp $
+ * $Id: AssociationMap.h,v 1.10 2006/05/24 15:31:34 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -234,6 +234,14 @@ namespace edm {
     const value_type & operator[]( const key_type & k ) const {
       helpers::checkRef( ref_.key, k );
       return operator[]( k.index() );
+    }
+    /// number of associations to a key
+    /// only compiles for one-to-many associations
+    size_type numberOfAssociations( const key_type & k ) const {
+      if ( ref_.key.id() != k.id() ) return 0;
+      typename map_type::const_iterator f = map_.find( k.index() );
+      if ( f == map_.end() ) return 0;
+      return f->second.size();
     }
     /// find helper
     struct Find :
