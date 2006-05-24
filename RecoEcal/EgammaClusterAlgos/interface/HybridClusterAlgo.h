@@ -13,6 +13,7 @@
 #include <vector>
 #include <set>
 
+//Less than operator for sorting EcalRecHits according to energy.
 struct less_mag : public std::binary_function<EcalRecHit, EcalRecHit, bool> {
   bool operator()(EcalRecHit x, EcalRecHit y) { return x.energy() > y.energy() ; }
 };
@@ -20,29 +21,45 @@ struct less_mag : public std::binary_function<EcalRecHit, EcalRecHit, bool> {
 class HybridClusterAlgo
 {
  private:
+  //Quick typedef for position calculation.
   typedef math::XYZPoint Point;
+
+  //Thresholds for seeds.
   double eb_st, ec_st;
+
+  //Number of steps in phi that the Hybrid algorithm will take
+  //when clustering.  Remember, uses phi_steps in positive direction
+  //and then phi_steps in negative direction.
   int phi_steps;
-  double Ethres, Ewing;
+
+  //Threshold for basic cluster.
+  double Ethres;
+
+  //Threshold for adding the additional two 'wing' cells to domino. 
+  double Ewing;
+
+  //Threshold for becoming a sub-peak in the supercluster.
   double Eseed;
-  // Map of DetId, bool is if Det has been 
-  // used already.
+
+  //Map of EBDetId, RecHit relationship.  EcalRecHit knows what DetId it is,
+  //but DetId doesn't  know what EcalRecHit it is. 
   std::map<EBDetId, EcalRecHit>  rechits_m;
+
+  //Set of DetIds that have already been used.
   std::set<EBDetId> useddetids;
+
   // The vector of seeds:
   std::vector<EcalRecHit> seeds;
+
+  //Map of basicclusters and what supercluster they will belong to.
   std::map<int, std::vector<reco::BasicCluster> > _clustered;
  public:
   
+  //The default constructor
   HybridClusterAlgo(){}
   
-  //eb_st --> ECAL barrel seed threshold
-  //ec_st --> ECAL endcap seed threshold
-  //phi_steps-->  How many domino steps to go in phi (each direction)
-  //Ethres--> domino energy threshold
-  //Ewing -->  Threshold to add additional cells to domino
-  //Eseed -->  Threshold to be a peak among dominos
 
+  //The real constructor
   HybridClusterAlgo(double eb_str, 
 		    double ec_str, 
 		    int step, 
@@ -54,12 +71,16 @@ class HybridClusterAlgo
     
   }
   
-  //  void makeClusters(EcalRecHitCollection & rechits, const CaloSubdetectorGeometry & geometry, reco::BasicClusterCollection &basicClusters);
-  //  void makeClusters(EcalRecHitCollection & rechits, edm::ESHandle<CaloGeometry> , reco::BasicClusterCollection &basicClusters);
+  //Hand over the map, the geometry, and I'll hand you back clusters.
   void makeClusters(std::map<EBDetId, EcalRecHit>, edm::ESHandle<CaloGeometry> , reco::BasicClusterCollection &basicClusters);
+
+  //Make superclusters from the references to the BasicClusters in the event.
   reco::SuperClusterCollection makeSuperClusters(reco::BasicClusterRefVector);
 
+  //The routine doing the real work.
   void mainSearch();
+  
+  //Make dominos for the hybrid method.
   double makeDomino(EcalBarrelNavigator &navigator, std::vector <EcalRecHit> &cells);
 
 };
