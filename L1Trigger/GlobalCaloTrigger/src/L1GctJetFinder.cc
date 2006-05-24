@@ -8,6 +8,7 @@ using namespace std;
 L1GctJetFinder::L1GctJetFinder(int id):
   m_id(id),
   m_sourceCards(MAX_SOURCE_CARDS),
+  m_jetEtCalLut(0),
   m_inputRegions(MAX_REGIONS_IN),
   m_outputJets(MAX_JETS_OUT)
 {
@@ -196,7 +197,7 @@ void L1GctJetFinder::process()
       {
         assert(jetNum < MAX_JETS_OUT);
                 
-        m_outputJets[jetNum].setRank(calcJetRank(centreIndex, hfBoundary));
+        m_outputJets[jetNum].setRank(m_jetEtCalLut->convertToSixBitRank(static_cast<uint16_t>(calcJetEnergy(centreIndex, hfBoundary)), (row-1)));
         m_outputJets[jetNum].setEta(row-1);
         m_outputJets[jetNum].setPhi(column-1);
         if(row < COL_OFFSET-4)  //if we are not in the HF, perform tauVeto analysis
@@ -286,8 +287,8 @@ bool L1GctJetFinder::detectJet(const UShort centreIndex, const bool boundary) co
   return false;           
 }
 
-// returns the energy sum (rank) of the nine regions centred (physically) about centreIndex
-ULong L1GctJetFinder::calcJetRank(const UShort centreIndex, const bool boundary) const
+// returns the energy sum of the nine regions centred (physically) about centreIndex
+ULong L1GctJetFinder::calcJetEnergy(const UShort centreIndex, const bool boundary) const
 {
   ULong energy = 0;
     
@@ -308,7 +309,7 @@ ULong L1GctJetFinder::calcJetRank(const UShort centreIndex, const bool boundary)
                 m_inputRegions[ centreIndex  + (column*COL_OFFSET)].getEt();
     }
   }
-  return convertToRank(energy);                                      
+  return energy;                                   
 }
 
 // returns the combined tauveto of the nine regions centred (physically) about centreIndex. Set boundary = true if at edge of Endcap.
@@ -334,19 +335,6 @@ bool L1GctJetFinder::calcJetTauVeto(const UShort centreIndex, const bool boundar
     }
   }
   return partial[0] || partial[1] || partial[2];
-}
-
-// Converts a jet energy into a calibrated rank. Somehow.
-// Somewhat arbitrary at present...it currently converts 10 bits
-// into 6 by dividing the energy int by 16 (no rounding up).
-ULong L1GctJetFinder::convertToRank(const ULong energy) const
-{
-  if(energy < 1024)
-  {
-    return energy/16;
-  }
-    
-  return 63;
 }
 
 // Calculates total calibrated energy in jets (Ht) sum

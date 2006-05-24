@@ -6,7 +6,9 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
+#include <boost/cstdint.hpp> //for uint16_t
 #include <vector>
 
 /*! \class L1GctJetFinder
@@ -82,6 +84,9 @@ public:
 
   /// set an input Source Card pointer 
   void setInputSourceCard(int i, L1GctSourceCard* sc);
+  
+  /// set the jet Et calibration Lut pointer
+  void setJetEtCalibrationLut(L1GctJetEtCalibrationLut* jetEtCalLut) { m_jetEtCalLut = jetEtCalLut; }
 
   /// Set input data
   void setInputRegion(int i, L1GctRegion region);
@@ -108,6 +113,9 @@ private:
 
   /// Store source card pointers
   std::vector<L1GctSourceCard*> m_sourceCards;
+  
+  /// Jet Et Converstion LUT pointer
+  L1GctJetEtCalibrationLut* m_jetEtCalLut;
     
   /// input data required for jet finding
   std::vector<L1GctRegion> m_inputRegions;
@@ -124,14 +132,11 @@ private:
   /// Returns true if region index is the centre of a jet. Set boundary = true if at edge of HCAL.
   bool detectJet(const UShort centreIndex, const bool boundary = false) const;
 
-  /// Returns energy sum (rank) of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of HCAL.
-  ULong calcJetRank(const UShort centreIndex, const bool boundary = false) const;
+  /// Returns energy sum of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of HCAL.
+  ULong calcJetEnergy(const UShort centreIndex, const bool boundary = false) const;
 
   /// Returns combined tauVeto of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of Endcap.
   bool calcJetTauVeto(const UShort centreIndex, const bool boundary = false) const;
-    
-  /// Converts a 10-bit energy to a 6-bit calibrated rank - rather arbitrarily at the mo.
-  ULong convertToRank(const ULong energy) const;
     
   /// Calculates total calibrated energy in jets (Ht) sum
    L1GctScalarEtVal calcHt() const;
