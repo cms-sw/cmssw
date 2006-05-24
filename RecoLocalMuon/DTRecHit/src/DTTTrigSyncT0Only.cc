@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/15 12:44:52 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/22 10:57:03 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -70,7 +70,7 @@ double DTTTrigSyncT0Only::offset(const DTLayer* layer,
 	 << endl;
   }
   //The global offset is the sum of various contributions
-  return t0 + wirePropCorr - tofCorr;
+  return tTrig + wirePropCorr - tofCorr;
 }
 
 
