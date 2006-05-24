@@ -79,9 +79,11 @@ namespace reco {
       double   rapidity;
       double   eta;
       double   d0;           // 2D impact parameter as given by track
+      double   d0Error;
       double   jetDistance;
       int      nHitsTotal;
       int      nHitsPixel;
+      bool     firstHitPixel; // true if a valid hit is found in the first pixel barrel layer
       double   chi2;
       double   ip2D;          // lifetime-siged 2D impact parameter
       double   ip2DError;
@@ -106,8 +108,10 @@ namespace reco {
 	rapidity         = -999;
 	eta              = -999;
 	d0               = -999;
+	d0Error          = -999;
 	nHitsTotal       = -999; 
 	nHitsPixel       = -999;
+	firstHitPixel    = false;
 	chi2             = -999;
 	ip2D             = -999;
 	ip2DError        = -999;
