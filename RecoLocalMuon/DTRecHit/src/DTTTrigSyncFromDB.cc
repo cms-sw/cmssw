@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/17 14:26:40 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/22 10:57:03 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -34,6 +34,8 @@ DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config){
   theVPropWire = config.getParameter<double>("vPropWire");
   // Switch on/off the TOF correction for particles from IP
   doTOFCorrection = config.getParameter<bool>("doTOFCorrection");
+  // Switch on/off the correction for the signal propagation along the wire
+  doWirePropCorrection = config.getParameter<bool>("doWirePropCorrection");
 }
 
 
@@ -96,9 +98,13 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
   // from the center of the wire to the frontend. Here we just have to correct for
   // the distance of the hit from the wire center.
   // NOTE: the FE is always at y<0
-  float wireCoord = layer->toLocal(globPos).y();
-  wirePropCorr = wireCoord/theVPropWire;
-  // FIXME: What if hits used for the time box are not distributed uniformly along the wire?
+  wirePropCorr = 0;
+  if(doWirePropCorrection) {
+    float wireCoord = layer->toLocal(globPos).y();
+    wirePropCorr = wireCoord/theVPropWire;
+    // FIXME: What if hits used for the time box are not distributed uniformly along the wire?
+  }
+
 
 
   // Compute TOF correction:

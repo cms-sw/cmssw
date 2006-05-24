@@ -14,7 +14,8 @@
  *     - ttrig from the fit of time boxrising edge (taken from DB, it is assumed to be in ns)
  *       (At the moment a single value is read for ttrig offset 
  *       but this may change in the future)
- *     - signal propagation along: it is assumed the ttrig accounts on average for
+ *     - signal propagation along the wire (can be switched off):
+ *       it is assumed the ttrig accounts on average for
  *       correction from the center of the wire to the frontend.
  *       Here we just have to correct for the distance of the hit from the wire center.
  *     - TOF correction (can be switched off for cosmics):
@@ -24,8 +25,8 @@
  *       NOTE: particles are assumed as coming from the IP.
  *
  *
- *  $Date: 2006/03/23 15:31:11 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/22 10:57:03 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -80,7 +81,8 @@ public:
   double kFactor;
   // Switch on/off the TOF correction for particles from IP
   bool doTOFCorrection;
-
+  // Switch on/off the correction for the signal propagation along the wire
+  bool doWirePropCorrection;
 };
 #endif
 
