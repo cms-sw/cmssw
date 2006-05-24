@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/04/07 08:29:32 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/05/17 14:26:40 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -101,9 +101,12 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
   if (driftTime < minTime || driftTime > maxTime) {
     if (debug) cout << "[DTLinearDriftAlgo]*** Drift time out of window for in-time hits "
 			      << driftTime << endl;
-    // Hits are interpreted as coming from out-of-time pile-up and recHit
-    // is ignored.
-    return false;
+
+    if(step == 1) { //FIXME: protection against failure at 2nd and 3rd steps, must be checked!!!
+      // Hits are interpreted as coming from out-of-time pile-up and recHit
+      // is ignored.
+      return false;
+    }
   }
 
   // Small negative times interpreted as hits close to the wire.

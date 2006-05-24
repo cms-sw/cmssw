@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/17 13:47:17 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/17 14:26:40 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -137,9 +137,12 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
     if (debug)
       cout << "*** Drift time out of window for in-time hits "
 	   << driftTime << endl;
-    // Hits are interpreted as coming from out-of-time pile-up and recHit
-    // is ignored.
-    return false;
+
+    if(step == 1) { //FIXME: protection against failure at 2nd and 3rd steps, must be checked!!!
+      // Hits are interpreted as coming from out-of-time pile-up and recHit
+      // is ignored.
+      return false;
+    }
   }
   
   // Small negative times interpreted as hits close to the wire.
