@@ -9,6 +9,7 @@ namespace {
     CaloJetCollection o1;
     CaloJetRef r1;
     CaloJetRefs rr1;
+    edm::RefVector<std::vector<CaloJet> > rr11;
     CaloJetsRef rrr1;
     edm::Wrapper<CaloJetCollection> w1;
     GenJetCollection o2;
