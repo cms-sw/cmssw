@@ -35,6 +35,7 @@ TkPixelMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
       result.push_back( TrajectoryMeasurement( stateOnThisDet, *ihit, 
 					       diffEst.second));
     }
+    else delete *ihit; // we own allHits and have to delete the ones we don't return
   }
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
