@@ -6,6 +6,7 @@
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <algorithm>
 
 using namespace reco;
@@ -31,6 +32,11 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
 {
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "Initializing PV producer algorithm" << "\n";
+  float testMaxDistanceToBeam = conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("MaxDistanceToBeam");
+  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
+    << "PVSelParameters::MaxDistanceToBeam = " 
+    << conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("MaxDistanceToBeam") << endl;
+  if (testMaxDistanceToBeam < 0.0199) throw cms::Exception("PrimaryVertexProducerAlgorithm: could not be configured properly");
 
   // initialization of vertex finder algorithm
   // theFinder should not perform any track selection
