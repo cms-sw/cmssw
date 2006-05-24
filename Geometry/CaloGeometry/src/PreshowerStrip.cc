@@ -20,12 +20,12 @@ PreshowerStrip::PreshowerStrip(double dx, double dy, double dz)
   corners.resize(8);
   
   corners[0] = GlobalPoint(-dx , -dy , -dz); // (-,-,-)
-  corners[1] = GlobalPoint(-dx , -dy , -dz); // (-,+,-)
+  corners[1] = GlobalPoint(-dx ,  dy , -dz); // (-,+,-)
   corners[2] = GlobalPoint( dx ,  dy , -dz); // (+,+,-)
   corners[3] = GlobalPoint( dx , -dy , -dz); // (+,-,-)
                            
   corners[4] = GlobalPoint(-dx , -dy , dz);  // (-,-,+)
-  corners[5] = GlobalPoint(-dx , -dy , dz);  // (-,+,+)
+  corners[5] = GlobalPoint(-dx ,  dy , dz);  // (-,+,+)
   corners[6] = GlobalPoint( dx ,  dy , dz);  // (+,+,+)
   corners[7] = GlobalPoint( dx , -dy , dz);  // (+,-,+)
 
