@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.37 2006/05/03 23:38:19 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.38 2006/05/08 20:15:24 chrjones Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -134,13 +134,11 @@ private:
   void
   EventPrincipal::addToProcessHistory(string const& processName) {
     ProcessNameList& ph = aux_.process_history_;
-#if 0
     if (find(ph.begin(), ph.end(), processName) != ph.end()) {
       throw edm::Exception(errors::Configuration, "Duplicate Process")
         << "The process name " << processName << " was previously used on these events.\n"
         << "Please modify the configuration file to use a distinct process name.";
     }
-#endif
     ph.push_back(processName);
   }
 
