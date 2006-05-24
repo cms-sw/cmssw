@@ -6,29 +6,24 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: ValueMap.h,v 1.4 2006/05/23 10:49:02 llista Exp $
+ * $Id: ValueMap.h,v 1.5 2006/05/23 11:01:07 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/KeyVal.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <map>
 #include <vector>
 
 namespace edm {
 
-  template<typename K, typename V>
-  struct KeyVal {
-    KeyVal() { }
-    KeyVal( const K & k, const V & v ) : key( k ), val( v ) { }
-    K key;
-    V val;
-  };
-
   template<typename CKey, typename Val, 
 	   typename index = unsigned long>
   struct ValueMap {
+    /// self type
+    typedef ValueMap<CKey, Val, index> self;
     /// reference to "key" collection
     typedef edm::RefProd<CKey> KeyRefProd;
     /// reference to an object in "key" collection
@@ -41,6 +36,8 @@ namespace edm {
     typedef KeyVal<edm::Ref<CKey>, Val> KeyVal;
     /// value type
     typedef KeyVal value_type;
+    /// transient map type
+    typedef typename std::map<index, value_type> transient_map_type;
 
     /// default constructor
     ValueMap() { }
@@ -71,53 +68,50 @@ namespace edm {
       typedef KeyVal * pointer;
       typedef KeyVal & reference;
       typedef typename map_type::const_iterator::iterator_category iterator_category;
-      const_iterator() : changed( true ) { }
-      const_iterator( const KeyRefProd & keyRef, 
+      const_iterator() { }
+      const_iterator( const self * map, 
 		      typename map_type::const_iterator mi ) : 
-	keyRef_( keyRef ), i( mi ), changed( true ) { }
+	map_( map ), i( mi ) { }
       const_iterator & operator=( const const_iterator & it ) { 
-	keyRef_ = it.keyRef_; 
-	i = it.i; changed = true; return *this; 
+	map_ = it.map_; i = it.i;  return *this; 
       }
-      const_iterator& operator++() { ++i; changed = true; return *this; }
-      const_iterator operator++( int ) { const_iterator ci = *this; ++i; changed = true; return ci; }
-      const_iterator& operator--() { --i; changed = true; return *this; }
-      const_iterator operator--( int ) { const_iterator ci = *this; --i; changed = true; return ci; }
-      bool operator==( const const_iterator& ci ) const { 
-	return keyRef_ == ci.keyRef_ && i == ci.i; 
-      }
+      const_iterator& operator++() { ++i; return *this; }
+      const_iterator operator++( int ) { const_iterator ci = *this; ++i; return ci; }
+      const_iterator& operator--() { --i; return *this; }
+      const_iterator operator--( int ) { const_iterator ci = *this; --i; return ci; }
+      bool operator==( const const_iterator& ci ) const { return i == ci.i; }
       bool operator!=( const const_iterator& ci ) const { return i != ci.i; }
-      KeyRef key() const { return KeyRef( keyRef_, i->first ); }
-      const Val & val() const { return i->second; }
-      const KeyVal & operator *() const { setKV(); return kv; }
-      const KeyVal * operator->() const { setKV(); return & kv; } 
+      const KeyVal & operator *() const { return (*map_)[ i->first ]; }
+      const KeyVal * operator->() const { return & operator *(); } 
     private:
-      KeyRefProd keyRef_;
+      const self * map_;
       typename map_type::const_iterator i;
-      mutable KeyVal kv;
-      mutable bool changed;
-      void setKV() { if( changed ) { changed = false; kv = KeyVal( key(), val() ); } }
     };
     
     /// first iterator over the map (read only)
-    const_iterator begin() const { return const_iterator( keyRef_, map_.begin() );  }
+    const_iterator begin() const { return const_iterator( this, map_.begin() );  }
     /// last iterator over the map (read only)
-    const_iterator end() const { return const_iterator( keyRef_, map_.end() );  }
+    const_iterator end() const { return const_iterator( this, map_.end() );  }
     /// find an entry in the map
     const_iterator find( const KeyRef & k ) const {
       checkKey( k );
       typename map_type::const_iterator f = map_.find( k.index() );
-      return const_iterator( keyRef_, f );
+      return const_iterator( this, f );
     }
     /// return element with key i
     const KeyVal & operator[]( size_type i ) const {
-      typename map_type::const_iterator f = map_.find( i );
-      if ( f == map_.end() ) 
-	throw edm::Exception( edm::errors::InvalidReference )
-	  << "can't find reference in ValueMap at position " << i;
-      static const_iterator ci;
-      ci = const_iterator( keyRef_, f );
-      return * ci;
+      typename transient_map_type::const_iterator tf = transientMap_.find( i );
+      if ( f == transientMap_.end() ) {
+	typename map_type::const_iterator f = map_.find( i );
+	if ( f == map_.end() ) 
+	  throw edm::Exception( edm::errors::InvalidReference )
+	    << "can't find reference in AssociationMap at position " << i;
+	std::pair<bool, typename transient_map_type::const_iterator> ins =
+	  transientMap_.insert( make_pair( i, KeyVal( KeyRef( keyRef_, i ), f->second ) ) );
+	return ins.second->second;
+      } else {
+	return tf->second; 
+      }
     } 
 
   private:
@@ -130,6 +124,8 @@ namespace edm {
     KeyRefProd keyRef_;
     /// index map
     map_type map_;
+    /// transient reference map
+    mutable transient_map_type transientMap_;
   };
 
   namespace refhelper {

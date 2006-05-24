@@ -18,7 +18,18 @@ Commonly used persistent containers.
   <tt>unsigned short</tt> for collections with less than 65535 objects.
   The template <tt>Tag</tt> should be either edm::OneToOne for
   one-to-one maps, or edm::OneToMany for one-to-many maps.
-
+<br><br>
+  The attribute <tt>transientMap_</tt> has to be declared transient in the
+  Reflex dictionary:
+\htmlonly
+<pre>
+&lt;lcgdict&gt;
+  &lt;class name="edm::AssociationMap&lt; ... &gt;" &gt;
+    &lt;field name="transientMap_" transient=true /&gt;
+  &lt;/class &gt;
+&lt;/lcgdict&gt;
+</pre>
+\endhtmlonly
 - edm::DetSet <b>&lt;T&gt;</b>:
 
 - edm::EDCollection <b>&lt;T&gt;</b>: Functionally equivalent to <tt>std::vector&lt;T&gt;</tt>. 
@@ -100,7 +111,17 @@ type <tt><b>Ext</b></tt>.
    Stored indices are of type 
   <tt>index</tt>, that is by default <tt>unsigned long</tt>, but could be
   <tt>unsigned short</tt> for collections with less than 65535 objects.
-
+<br><br>
+  The attribute <tt>transientMap_</tt> has to be declared transient in the
+  Reflex dictionary:
+\htmlonly
+<pre>
+&lt;lcgdict&gt;
+  &lt;class name="edm::AssociationMap&lt; ... &gt;" &gt;
+    &lt;field name="transientMap_" transient=true /&gt;
+  &lt;/class &gt;
+&lt;/lcgdict&gt;
+</pre>
 \subsection modules Modules
 None.
 

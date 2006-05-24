@@ -1,4 +1,4 @@
-// $Id: testValueMap.cc,v 1.3 2006/04/26 07:24:20 llista Exp $
+// $Id: testValueMap.cc,v 1.1 2006/05/18 07:22:25 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -35,6 +35,8 @@ void  testValueMap::dummy() {
   Assoc v;
   v.insert( edm::Ref<CKey>(), 3.1415 );
   Assoc::const_iterator b = v.begin(), e = v.end();
+  b++; e++;
   Assoc::const_iterator f = v.find( edm::Ref<CKey>() );
+  f++;
   edm::Ref<Assoc> r;
 }
