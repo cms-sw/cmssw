@@ -16,7 +16,7 @@ public:
   CaloSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog, 
                  double samplingFactor, double timePhase,
                  int readoutFrameSize, int binOfMaximum,
-                 bool doPhotostatistics, bool syncPhase)
+                 bool doPhotostatistics, bool syncPhase=true)
   : simHitToPhotoelectrons_(simHitToPhotoelectrons),
     photoelectronsToAnalog_(photoelectronsToAnalog),
     samplingFactor_(samplingFactor),
