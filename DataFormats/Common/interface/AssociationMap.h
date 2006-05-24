@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.10 2006/05/24 15:31:34 llista Exp $
+ * $Id: AssociationMap.h,v 1.11 2006/05/24 15:53:38 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -80,6 +80,8 @@ namespace edm {
     static val_type val( const ref_type & ref, index_type iv ) {
       return val_type( ref.val, iv );
     }
+    /// size of data_type
+    static typename map_type::size_type size( const index_type & v ) { return 1; }
   };
 
   template<typename CKey, typename CVal, typename index>
@@ -124,6 +126,8 @@ namespace edm {
 	v.push_back( edm::Ref<CVal>( ref.val, * idx ) );
       return v;
     }
+    /// size of data_type
+    static typename map_type::size_type size( const std::vector<index_type> & v ) { return v.size(); }
   };
 
   template<typename CKey, typename Val, typename index>
@@ -162,6 +166,8 @@ namespace edm {
     static val_type val( const ref_type & ref, const Val & v ) {
       return v;
     }
+    /// size of data_type
+    static typename map_type::size_type size( const index_type & ) { return 1; }
   };
 
   template<typename Tag>
@@ -236,12 +242,11 @@ namespace edm {
       return operator[]( k.index() );
     }
     /// number of associations to a key
-    /// only compiles for one-to-many associations
     size_type numberOfAssociations( const key_type & k ) const {
       if ( ref_.key.id() != k.id() ) return 0;
       typename map_type::const_iterator f = map_.find( k.index() );
       if ( f == map_.end() ) return 0;
-      return f->second.size();
+      return Tag::size( f->second );
     }
     /// find helper
     struct Find :
