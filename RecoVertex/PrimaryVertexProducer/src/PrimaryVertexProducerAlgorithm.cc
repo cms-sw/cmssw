@@ -22,47 +22,35 @@ using namespace reco;
 // constructors and destructor
 //
 PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::ParameterSet& conf)
-  //FIXME extract relevant parts of config for components
-  //  : theConfig(conf), theTrackFilter(conf), theTrackClusterizer(conf), 
-  : theConfig(conf), theTrackClusterizer(conf), 
+  // extract relevant parts of config for components
+  : theConfig(conf), 
+    theTrackFilter(conf.getParameter<edm::ParameterSet>("TkFilterParameters")), 
+    theTrackClusterizer(conf.getParameter<edm::ParameterSet>("TkClusParameters")), 
     theVertexSelector(VertexDistanceXY(), 
-		      conf.getParameter<double>("MaxDistanceToBeam"))
+		      conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("MaxDistanceToBeam"))
 {
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "Initializing PV producer algorithm" << "\n";
 
   // initialization of vertex finder algorithm
-
-  // track selection
-  edm::ParameterSet tkSelPars 
-    = conf.getParameter<ParameterSet>("TkSelParameters");
-  theTrackFilter = TrackFilterForPVFinding(tkSelPars);
-
-  // configurable parameters
-  // FIXME theFinder should not perform track selection
-  float ptMin = theConfig.getParameter<double>("TrackPtMin");
-  theFinder.setPtCut(ptMin);
+  // theFinder should not perform any track selection
+  // theTrackFilter does it
+  theFinder.setPtCut(0.);
   float minTrackCompatibilityToMainVertex 
-    = theConfig.getParameter<double>("MinTrackCompatibilityToMainVertex");
+    = conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<double>("MinTrackCompatibilityToMainVertex");
   theFinder.setTrackCompatibilityCut(minTrackCompatibilityToMainVertex);
   float minTrackCompatibilityToOtherVertex 
-    = theConfig.getParameter<double>("MinTrackCompatibilityToOtherVertex");
+    = conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<double>("MinTrackCompatibilityToOtherVertex");
   theFinder.setTrackCompatibilityToSV(minTrackCompatibilityToOtherVertex);
-  int maxNbVertices = theConfig.getParameter<int>("MaxNbVertices");
+  int maxNbVertices 
+    = conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<int>("MaxNbVertices");
   theFinder.setMaxNbOfVertices(maxNbVertices);
 
-  // FIXME introduce track selection (pt + i.p. cuts), track clustering 
-  // and vertex selection (beam compatibility check)
-
 }
 
 
-PrimaryVertexProducerAlgorithm::~PrimaryVertexProducerAlgorithm()
-{
- 
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
+PrimaryVertexProducerAlgorithm::~PrimaryVertexProducerAlgorithm() 
+{}
 
 
 //
