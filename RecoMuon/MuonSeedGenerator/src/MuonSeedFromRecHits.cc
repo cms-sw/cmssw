@@ -2,46 +2,40 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date:  $
- *  $Revision:  $
+ *  $Date: 2006/05/15 17:25:28 $
+ *  $Revision: 1.1 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
 
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+
 #include "Geometry/Surface/interface/BoundPlane.h"
-//was
-//#include "CommonDet/DetGeometry/interface/BoundPlane.h"
-
 #include "Geometry/Surface/interface/SimpleCylinderBounds.h"
-//was
-//#include "CommonDet/DetGeometry/interface/SimpleCylinderBounds.h"
-
 #include "Geometry/Surface/interface/BoundCylinder.h"
-//was
-//#include "CommonDet/DetGeometry/interface/BoundCylinder.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+
+
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "gsl/gsl_statistics.h"
-//was
-//#include "gsl/gsl_statistics.h"
-
-
-//>> what are now?
-// #include "CommonDet/BasicDet/interface/DetUnit.h"
-// #include "Utilities/Notification/interface/Verbose.h"
-// #include "CommonReco/GeaneInterface/interface/GeaneWrapper.h"
-// #include "CommonReco/Propagators/interface/BidirectionalPropagator.h"
-// #include "Muon/MUtilities/interface/MuonDebug.h"
-//<<
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 using namespace std;
 
 template <class T> T sqr(const T& t) {return t*t;}
 
-TrajectorySeed MuonSeedFromRecHits::seed() const {
+TrajectorySeed MuonSeedFromRecHits::seed(const edm::EventSetup& eSetup) const {
   double pt[8] = { 0.0, 0.0 ,0.0 ,0.0 ,0.0 ,0.0 ,0.0 ,0.0 };
   double spt[8] = { 1/0.048 , 1/0.075 , 1/0.226 , 1/0.132 , 1/0.106 , 1/0.175 , 1/0.125 , 1/0.185 }; 
 
@@ -70,18 +64,18 @@ TrajectorySeed MuonSeedFromRecHits::seed() const {
   
   if ( debug ) cout << " Seed Pt :" << ptmean << "+/-" << sptmean << endl;
 
-  return createSeed(ptmean, sptmean);
+  return createSeed(ptmean, sptmean,eSetup);
 }
 
-TransientTrackingRecHit* MuonSeedFromRecHits::best_cand() const {
+MuonTransientTrackingRecHit* MuonSeedFromRecHits::best_cand() const {
 
   int alt_npt = 0;
   int best_npt = 0;
   int cur_npt = 0;
-  TransientTrackingRecHit* best = 0;
-  TransientTrackingRecHit* alter=0;
+  MuonTransientTrackingRecHit* best = 0;
+  MuonTransientTrackingRecHit* alter=0;
 
-  for (vector<TransientTrackingRecHit*>::const_iterator iter=theRhits.begin();
+  for (RecHitIterator iter=theRhits.begin();
        iter!=theRhits.end(); iter++ ) {
 
     bool hasZed = ((*iter)->projectionMatrix()[1][1]==1);
@@ -127,8 +121,8 @@ TransientTrackingRecHit* MuonSeedFromRecHits::best_cand() const {
 
 void MuonSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
 
-  vector<TransientTrackingRecHit*>::const_iterator iter;
-  vector<TransientTrackingRecHit*>::const_iterator iter2;  // +v
+  RecHitIterator iter;
+  RecHitIterator iter2;  // +v
 
 //+vvp ! Try to search group of nearest segm-s:
 
@@ -228,7 +222,7 @@ void MuonSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
   float Msdeta = 100.;
   float eta0 = (*theRhits.begin())->globalPosition().eta();
 
-  for ( vector<TransientTrackingRecHit*>::const_iterator iter=theRhits.begin(); 
+  for ( RecHitIterator iter=theRhits.begin(); 
         iter!=theRhits.end(); iter++ ) {
 
     float eta1= (*iter)->globalPosition().eta(); 
@@ -236,7 +230,7 @@ void MuonSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
     int Nseg = 0;
     float sdeta = .0;
 
-    for ( vector<TransientTrackingRecHit*>::const_iterator iter2=theRhits.begin(); 
+    for ( RecHitIterator iter2=theRhits.begin(); 
           iter2!=theRhits.end(); iter2++ ) {
 
       if ( iter2 == iter )  continue;
@@ -260,7 +254,7 @@ void MuonSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
 
   int ch=0;
 
-  for ( vector<TransientTrackingRecHit*>::const_iterator iter=theRhits.begin(); 
+  for ( RecHitIterator iter=theRhits.begin(); 
         iter!=theRhits.end(); iter++ ) {
     //+vvp !:
     float eta1= (*iter)->globalPosition().eta(); 
@@ -268,7 +262,7 @@ void MuonSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
 
     float radius1= (*iter)->det()->position().perp(); 
 
-    for ( vector<TransientTrackingRecHit*>::const_iterator iter2=theRhits.begin(); 
+    for ( RecHitIterator iter2=theRhits.begin(); 
           iter2!=iter; iter2++ ) {
 
       //+vvp !:
@@ -462,14 +456,18 @@ void MuonSeedFromRecHits::computeBestPt(double* pt,
 }
 
 TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
-                                                      float sptmean) const {
+					       float sptmean,
+					       const edm::EventSetup& eSetup) const{
+  edm::ESHandle<MagneticField> field;
+  eSetup.get<IdealMagneticFieldRecord>().get(field);
+
   TrajectorySeed result;
   if ( fabs(ptmean) < 3. ) ptmean = 100. * ptmean/fabs(ptmean) ;
 
   AlgebraicVector t(4);
   AlgebraicSymMatrix mat(5,0) ;
 
-  TransientTrackingRecHit* last = best_cand();
+  MuonTransientTrackingRecHit* last = best_cand();
 
   // float p_x = last.localDirection().x();
   // float p_y = last.localDirection().y();
@@ -522,18 +520,35 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 
   // FIXME: put the direction
   // SteppingHelixPropagator prop(oppositeToMomentum);
-  SteppingHelixPropagator prop;
+  SteppingHelixPropagator prop(&*field,oppositeToMomentum);
 
-  TrajectoryStateOnSurface trj = prop.propagate( state, *cyl );
+  const TrajectoryStateOnSurface trj = prop.propagate( state, *cyl );
   if ( trj.isValid() ) {
     const FreeTrajectoryState e_state = *trj.freeTrajectoryState();
 
     if ( debug ) cout << " After extr.: pos. :" << e_state.position() 
 	   <<" eta "<<e_state.position().eta()<<" phi "<<e_state.position().phi()<< endl;
     
-    // FIXME
-    // TrajectorySeed theSeed(e_state, oppositeToMomentum);
-    TrajectorySeed theSeed;
+    // Transform it in a TrajectoryStateOnSurface
+    TrajectoryStateTransform tsTransform;
+    PTrajectoryStateOnDet *seedTSOS =
+      tsTransform.persistentState( trj ,last->geographicalId().rawId());
+
+    //<< FIXME would be:
+
+    // TrajectorySeed theSeed(e_state, rechitcontainer,oppositeToMomentum);
+    // But is:
+    edm::OwnVector<TrackingRecHit> container;
+  
+    // </ FIXME change as MuonTrans change
+    const TrackingRecHit *tr = dynamic_cast<const TrackingRecHit*>(last->hit());
+    TrackingRecHit *untr = const_cast<TrackingRecHit*>(tr); 
+    container.push_back(untr); 
+    // />
+
+    TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
+
+    //>> is it right??
 
     result = theSeed;
   } else {

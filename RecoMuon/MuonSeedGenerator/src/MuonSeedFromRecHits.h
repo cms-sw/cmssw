@@ -12,37 +12,35 @@
  *
  */
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-// was
-// #include "CommonDet/PatternPrimitives/interface/TrajectoryStateOnSurface.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 #include <vector>
 
-class TransientTrackingRecHit;
+class MuonTransientTrackingRecHit;
 
 class RecHit;
 class BoundPlane;
 
+namespace edm {class EventSetup;}
+
 class MuonSeedFromRecHits {
-  typedef std::vector<TransientTrackingRecHit*>       RecHitContainer;
-  typedef RecHitContainer::const_iterator   RecHitIterator;
+  typedef std::vector<MuonTransientTrackingRecHit*>  RecHitContainer;
+  typedef RecHitContainer::const_iterator            RecHitIterator;
 
   public:
   MuonSeedFromRecHits(){
     debug = true;
   }
 
-  void add(TransientTrackingRecHit* hit) { theRhits.push_back(hit); }
-  TrajectorySeed seed() const;
-  const TransientTrackingRecHit* firstRecHit() const { return theRhits.front(); }
+  void add(MuonTransientTrackingRecHit* hit) { theRhits.push_back(hit); }
+  TrajectorySeed seed(const edm::EventSetup& eSetup) const;
+  const MuonTransientTrackingRecHit* firstRecHit() const { return theRhits.front(); }
   unsigned int nrhit() const { return  theRhits.size(); }
 
   private:
-  TransientTrackingRecHit *best_cand() const;
+  MuonTransientTrackingRecHit *best_cand() const;
   // was
   // TrackingRecHit best_cand() const;
 
@@ -50,7 +48,7 @@ class MuonSeedFromRecHits {
   void computePtWithoutVtx(double* pt, double* spt) const;
   void computeBestPt(double* pt, double* spt, float& ptmean, float& sptmean) const;
 
-  TrajectorySeed createSeed(float ptmean, float sptmean) const;
+  TrajectorySeed createSeed(float ptmean, float sptmean,const edm::EventSetup& eSetup) const;
 
   private:
   RecHitContainer theRhits;

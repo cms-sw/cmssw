@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/05/16 09:33:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/18 08:37:32 $
+ *  $Revision: 1.3 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -14,9 +14,8 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedGenerator.h"
 
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFinder.h"
-//was
-//#include "Muon/MuonSeedGenerator/src/MuonSeedGeneratorByRecHits.h"
- 
+
+// Data Formats 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -26,34 +25,30 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+
 // Geometry
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-//was
-//#include "CommonDet/DetLayout/interface/DetLayer.h"
+
+#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 
 // maybe not necessary
 // #include "Geometry/Records/interface/MuonGeometryRecord.h"
 // #include "Geometry/DTGeometry/interface/DTGeometry.h"
 // #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-//
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Handle.h"
 
+// C++
 #include <vector>
-
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
-#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 
 using namespace std;
 
@@ -80,9 +75,9 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
   
   // divide the RecHits by DetLayer, in order to fill the
-  // RecHitContainer like it was in ORCA. (part between [1] and [/1])
+  // RecHitContainer like it was in ORCA
   
-  //>> Muon Geometry - DT, CSC and RPC 
+  // Muon Geometry - DT, CSC and RPC 
   edm::ESHandle<MuonDetLayerGeometry> muonLayers;
   eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
 
@@ -92,8 +87,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   // get the CSC layers
   vector<DetLayer*> cscForwardLayers = muonLayers->forwardCSCLayers();
   vector<DetLayer*> cscBackwardLayers = muonLayers->backwardCSCLayers();
-  //<<
-  
+    
   // Backward (z<0) EndCap disk
   const DetLayer* ME4Bwd = cscBackwardLayers[4];
   const DetLayer* ME3Bwd = cscBackwardLayers[3];
@@ -115,7 +109,6 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   const DetLayer* MB1DL = dtLayers[0];
   
   // instantiate the accessor
-  //  MuonDetLayerMeasurements muonMeasurements(eSetup);
   MuonDetLayerMeasurements muonMeasurements;
 
   // ------------        EndCap disk z<0 + barrel
@@ -240,7 +233,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
     complete(Theseed, list7, MB2);
     complete(Theseed, list8, MB1);
 
-    checkAndFill(Theseed);
+    checkAndFill(Theseed,eSetup);
   }
 
 
@@ -257,7 +250,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
       complete(Theseed, list7, MB2);
       complete(Theseed, list8, MB1);
 
-      checkAndFill(Theseed);
+      checkAndFill(Theseed,eSetup);
     }
   }
 
@@ -273,7 +266,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 	complete(Theseed, list7, MB2);
 	complete(Theseed, list8, MB1);
 	
-	checkAndFill(Theseed);
+	checkAndFill(Theseed,eSetup);
       }
     }
   }
@@ -288,7 +281,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 	complete(Theseed, list7, MB2);
 	complete(Theseed, list8, MB1);
 
-	checkAndFill(Theseed);
+	checkAndFill(Theseed,eSetup);
       }   
     }          
   } 
@@ -383,7 +376,6 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   }
 
 
-
   for ( iter=list1.begin(); iter!=list1.end(); iter++ ){
     if ( (*iter)->recHits().size() < 4 && list3.size() > 0 ) continue;// 3p.tr-seg.aren't so good for starting
     MuonSeedFinder Theseed;
@@ -396,7 +388,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
     complete(Theseed, list7, MB2);
     complete(Theseed, list8, MB1);
 
-    checkAndFill(Theseed);
+    checkAndFill(Theseed,eSetup);
     
   }
 
@@ -412,7 +404,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
       complete(Theseed, list7, MB2);
       complete(Theseed, list8, MB1);
 
-      checkAndFill(Theseed);
+      checkAndFill(Theseed,eSetup);
     } 
   }
 
@@ -428,7 +420,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 	complete(Theseed, list7, MB2);
 	complete(Theseed, list8, MB1);
 
-	checkAndFill(Theseed);
+	checkAndFill(Theseed,eSetup);
       }
     }
   }
@@ -443,7 +435,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 	complete(Theseed, list7, MB2);
 	complete(Theseed, list8, MB1);
 
-	checkAndFill(Theseed);
+	checkAndFill(Theseed,eSetup);
       }   
     }          
   } 
@@ -461,7 +453,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
       complete(Theseed, list7, MB2);
       complete(Theseed, list8, MB1);
 
-      checkAndFill(Theseed);
+      checkAndFill(Theseed,eSetup);
     }
   }
 
@@ -475,7 +467,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 	complete(Theseed, list8, MB1);
 	complete(Theseed, list9);
 
-	checkAndFill(Theseed);
+	checkAndFill(Theseed,eSetup);
       }
     }
   }
@@ -491,7 +483,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 	complete(Theseed, list6, MB3);
 	if (Theseed.nrhit()>1 || (Theseed.nrhit()==1 &&
 				  Theseed.firstRecHit()->dimension()==4) ) {
-	  checkAndFill(Theseed);
+	  checkAndFill(Theseed,eSetup);
 
 
 	}
@@ -510,7 +502,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 	complete(Theseed, list7, MB2);
 	if (Theseed.nrhit()>1 || (Theseed.nrhit()==1 &&
 				  Theseed.firstRecHit()->dimension()==4) ) {
-	  checkAndFill(Theseed);
+	  checkAndFill(Theseed,eSetup);
 	}
       }
     }
@@ -527,7 +519,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   //>> NEW
 
   // what is the id??
-  //  output->put(SLId, theSeeds.begin(),theSeeds.end());
+  //  output->put(chamberId, theSeeds.begin(),theSeeds.end());
   event.put(output);
   //<<
 }
@@ -540,7 +532,7 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 
   //+v get all rhits compatible with the seed on dEta/dPhi Glob.
 
-  TransientTrackingRecHit *first = seed.firstRecHit(); // first rechit of seed
+  MuonTransientTrackingRecHit *first = seed.firstRecHit(); // first rechit of seed
 
   GlobalPoint ptg2 = first->globalPosition(); // its global pos +v
 
@@ -561,9 +553,7 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 
       LocalPoint pt1 = first->det()->toLocal(ptg1); // local pos of rechit in seed's det
 
-      // FIXME!!! In CMSSW is missing!!!
-      // LocalVector dir1 = first->localDirection();
-      LocalVector dir1;
+      LocalVector dir1 = first->localDirection();
 
       LocalPoint pt2 = first->localPosition();
 
@@ -607,7 +597,7 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 
   // select the best rhit among the compatible ones (based on Dphi Glob & Dir)
 
-  TransientTrackingRecHit *best=0;
+  MuonTransientTrackingRecHit *best=0;
 
   float best_dphiG = M_PI;
   float best_dphiD = M_PI;
@@ -616,10 +606,8 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
       
     // select the best rhit among the compatible ones (based on Dphi Glob & Dir)
       
-    // FIXME!!! In CMSSW is missing!!!
-    // GlobalVector dir2 =  first->globalDirection();
-    GlobalVector dir2;
-
+    GlobalVector dir2 =  first->globalDirection();
+   
     GlobalPoint  pos2 =  first->globalPosition();  // +v
       
     for ( RecHitIterator iter=good_rhit.begin(); iter!=good_rhit.end(); iter++){
@@ -638,10 +626,8 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 
 	if (  dphi < best_dphiG*.67  && best_dphiG > .005 )  best_dphiD = M_PI;  // thresh. of strip order
 
-	// FIXME!!! In CMSSW is missing!!!
-	// GlobalVector dir1 = (*iter)->globalDirection();
-	GlobalVector dir1;
-
+	GlobalVector dir1 = (*iter)->globalDirection();
+	
 	float  dphidir = fabs ( dir1.phi()-dir2.phi() );
 
 	if (dphidir > M_PI) dphidir = 2.*M_PI - dphidir;
@@ -671,18 +657,14 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
     float best_dphi = M_PI;
 
     for ( RecHitIterator iter=good_rhit.begin(); iter!=good_rhit.end(); iter++){
-      // FIXME!!! In CMSSW is missing!!!
-      // GlobalVector dir1 = (*iter)->globalDirection();
-      GlobalVector dir1;
+      GlobalVector dir1 = (*iter)->globalDirection();
 
       //@@ Tim: Why do this again? 'first' hasn't changed, has it?
       //@@ I comment it out.
       //    RecHit first = seed.rhit();
-
-      // FIXME!!! In CMSSW is missing!!!
-      //GlobalVector dir2 = first->globalDirection();
-      GlobalVector dir2;
-
+      
+      GlobalVector dir2 = first->globalDirection();
+      
       float dphi = dir1.phi()-dir2.phi();
 
       if (dphi < 0.) dphi = -dphi;
@@ -707,10 +689,10 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 }  //   void complete.
 
 
-void MuonSeedGenerator::checkAndFill(MuonSeedFinder& Theseed){
+void MuonSeedGenerator::checkAndFill(MuonSeedFinder& Theseed, const edm::EventSetup& eSetup){
 
   if (Theseed.nrhit()>1 ) {
-    vector<TrajectorySeed> the_seeds =  Theseed.seeds();
+    vector<TrajectorySeed> the_seeds =  Theseed.seeds(eSetup);
     for (vector<TrajectorySeed>::const_iterator
 	   the_seed=the_seeds.begin(); the_seed!=the_seeds.end(); ++the_seed) {
       

@@ -2,37 +2,34 @@
 #define RecoMuon_MuonSeedGenerator_MuonSeedFinder_H
 
 /** \class MuonSeedFinder
- *  No description available.
+ *  
+ *  Uses SteppingHelixPropagator
  *
  *  \author A. Vitelli - INFN Torino
- *
  *  \author porting R. Bellan - INFN Torino
  *
- *  $Date: 2006/03/24 11:43:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/15 17:25:28 $
+ *  $Revision: 1.2 $
  *  
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-// was
-//#include "CommonDet/PatternPrimitives/interface/TrajectoryStateOnSurface.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-// was a vector of
-//#include "Muon/MuonSeedGenerator/interface/MuonTrajectorySeed.h"
-
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 #include <vector>
 
+namespace edm {class EventSetup;}
+
 class MuonSeedFinder {
 
-  //FIXME
 public:
   
-  typedef std::vector<TransientTrackingRecHit*>       RecHitContainer;
+  typedef std::vector<MuonTransientTrackingRecHit*>       RecHitContainer;
   typedef RecHitContainer::const_iterator   RecHitIterator;
 
 public:
@@ -44,15 +41,15 @@ public:
 
   // Operations
 
-  void add(TransientTrackingRecHit* hit) { theRhits.push_back(hit); }
+  void add(MuonTransientTrackingRecHit* hit) { theRhits.push_back(hit); }
   
-  std::vector<TrajectorySeed> seeds() const;
-  TransientTrackingRecHit *firstRecHit() const { return theRhits.front(); }
+  std::vector<TrajectorySeed> seeds(const edm::EventSetup& eSetup) const;
+  MuonTransientTrackingRecHit *firstRecHit() const { return theRhits.front(); }
   unsigned int nrhit() const { return  theRhits.size(); }
   
 private:
   //  TrackingRecHit best_cand(TrackingRecHit* rhit=0) const;
-  bool createEndcapSeed(TransientTrackingRecHit *me, std::vector<TrajectorySeed>& theSeeds) const;
+  bool createEndcapSeed(MuonTransientTrackingRecHit *me, std::vector<TrajectorySeed>& theSeeds) const;
   
   RecHitContainer theRhits;
  

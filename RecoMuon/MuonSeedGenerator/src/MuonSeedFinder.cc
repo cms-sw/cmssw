@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date:  $
- *  $Revision: $
+ *  $Date: 2006/05/15 17:25:28 $
+ *  $Revision: 1.1 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -18,7 +18,6 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 //was
 //#include "ClassReuse/GeomVector/interface/Pi.h"
@@ -43,6 +42,7 @@
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+
 //>> what are now?
 // #include "CommonDet/BasicDet/interface/Det.h"
 // #include "CommonDet/BasicDet/interface/DetUnit.h"
@@ -66,7 +66,7 @@ MuonSeedFinder::MuonSeedFinder(){
 }
 
 
-vector<TrajectorySeed> MuonSeedFinder::seeds() const {
+vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) const {
 
   //  MuonDumper debug;
   vector<TrajectorySeed> theSeeds;
@@ -76,7 +76,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds() const {
   RecHitIterator iter;
   int num_bar = 0;
   for ( iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
-    if ( (*iter)->detUnit()->type().isDT() ) {
+    if ( (*iter)->isDT() ) {
       barrel.add(*iter);
       num_bar++;
     }
@@ -85,7 +85,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds() const {
   if ( num_bar ) {
     if ( debug ) // 5
       cout << "MuSeedGenByRecHits: Barrel Seeds " << num_bar << endl;
-    theSeeds.push_back(barrel.seed());
+    theSeeds.push_back(barrel.seed(eSetup));
  
     //if ( debug ) //2
       // cout << theSeeds.back().startingState() << endl;
@@ -97,16 +97,16 @@ vector<TrajectorySeed> MuonSeedFinder::seeds() const {
   if ( debug ) cout << "Endcap Seed" << endl;
 
   //Search ME1  ...
-  TransientTrackingRecHit *me1=0, *meit=0;
+  MuonTransientTrackingRecHit *me1=0, *meit=0;
   float dPhiGloDir = .0;                            //  +v
   float bestdPhiGloDir = M_PI;                      //  +v
   int quality1 = 0, quality = 0;        //  +v  I= 5,6-p. / II= 4p.  / III= 3p.
-
-
+  
+  
   for ( iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
-    if ( !(*iter)->detUnit()->type().isCSC() ) continue;
+    if ( !(*iter)->isCSC() ) continue;
 
-// tmp compar. Glob-Dir for the same tr-segm:
+    // tmp compar. Glob-Dir for the same tr-segm:
 
     meit = *iter;
 
@@ -160,7 +160,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds() const {
 }
 
 bool 
-MuonSeedFinder::createEndcapSeed(TransientTrackingRecHit *me, vector<TrajectorySeed>& theSeeds) const {
+MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me, vector<TrajectorySeed>& theSeeds) const {
 
   bool result=false;
   //TODO: this is a mess!! I should use better the interface of
@@ -232,7 +232,6 @@ MuonSeedFinder::createEndcapSeed(TransientTrackingRecHit *me, vector<TrajectoryS
   ReferenceCountingPointer<BoundPlane> 
     surface(new BoundPlane(pos, rot, RectangularPlaneBounds(720.,720.,1.)));
 
-  // FIXME: RB,is ti right this c'tor?
   Propagator* propagator= new SteppingHelixPropagator();
 
   TrajectoryStateOnSurface trj =  propagator->propagate( state, *surface );
