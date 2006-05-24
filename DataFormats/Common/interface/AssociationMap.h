@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.6 2006/05/23 10:49:02 llista Exp $
+ * $Id: AssociationMap.h,v 1.8 2006/05/24 13:37:59 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -221,15 +221,40 @@ namespace edm {
     void insert( const insert_key_type & k, const insert_val_type & v ) {
       Tag::insert( ref_, map_, k, v );
     }
-
     /// first iterator over the map (read only)
     const_iterator begin() const { return const_iterator( this, map_.begin() );  }
     /// last iterator over the map (read only)
     const_iterator end() const { return const_iterator( this, map_.end() );  }
-    /// find an entry in the map
+    /// find element with specified reference key
     const_iterator find( const insert_key_type & k ) const {
+      if ( ref_.key.id() != k.id() ) return end();
+      return find( k.index() );
+    }
+    /// find element with specified reference key
+    const value_type & operator[]( const insert_key_type & k ) const {
       helpers::checkRef( ref_.key, k );
-      typename map_type::const_iterator f = map_.find( k.index() );
+      return operator[]( k.index() );
+    }
+    /// find helper
+    struct Find :
+      public std::binary_function<const self&, size_type, const value_type *> {
+      typedef Find self;
+      typename self::result_type operator()( typename self::first_argument_type c,
+					     typename self::second_argument_type i ) {
+	return & c[ i ];
+      }
+    };
+  private:
+    /// reference set
+    ref_type ref_;
+    /// index map
+    map_type map_;
+    /// transient reference map
+    mutable transient_map_type transientMap_;
+    /// find element with index i
+    const_iterator find( size_type i ) const {
+      typename map_type::const_iterator f = map_.find( i );
+      if ( f == map_.end() ) return end();
       return const_iterator( this, f );
     }
     /// return element with key i
@@ -247,31 +272,15 @@ namespace edm {
 	return tf->second; 
       }
     } 
-
-  private:
-    /// reference set
-    ref_type ref_;
-    /// index map
-    map_type map_;
-    /// transient reference map
-    mutable transient_map_type transientMap_;
+    friend struct const_iterator;
+    friend struct Find;
   };
-
+ 
   namespace refhelper {
-    template<typename AM>
-    struct FindUsingSquareBrackets : 
-      public std::binary_function< const AM&, typename AM::size_type, const typename AM::value_type *> {
-      typedef FindUsingSquareBrackets<AM> self;
-      typename self::result_type operator()( typename self::first_argument_type c,
-					     typename self::second_argument_type i ) {
-	return & c[ i ];
-      }
-    };
-
     template<typename Tag>
     struct FindTrait<AssociationMap<Tag>, 
 		     typename AssociationMap<Tag>::value_type> {
-      typedef FindUsingSquareBrackets<AssociationMap<Tag> > value;
+      typedef typename AssociationMap<Tag>::Find value;
     };
   }
 
