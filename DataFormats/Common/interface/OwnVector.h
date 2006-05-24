@@ -1,9 +1,10 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.4 2006/03/11 19:32:16 wmtan Exp $
+// $Id: OwnVector.h,v 1.5 2006/05/18 06:15:39 llista Exp $
 #include <vector>
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include <algorithm>
+#include <functional>
 
 namespace edm {
 
@@ -101,17 +102,30 @@ namespace edm {
       void push_back( T * );
       
       void clear();
-      template<typename S>
+      template<typename S> 
       void sort( S s );
       void sort();
       
     private:
       void destroy();
       void clone( const_iterator, const_iterator, iterator );
+      template<typename O>
+      struct Ordering {
+	Ordering( const O & c ) : comp( c ) { }
+	bool operator()( const T * t1, const T * t2 ) const {
+	  return comp( * t1, * t2 );
+	}
+      private:
+	O comp;
+      };
+      template<typename O>
+      static Ordering<O> ordering( const O & comp ) {
+	return Ordering<O>( comp );
+      }
       struct deleter {
 	void operator()( T & t ) { delete & t; }
       };
-      std::vector<T*> data_;
+      std::vector<T*> data_;      
     };
   
   template<typename T, typename P>
@@ -208,26 +222,14 @@ namespace edm {
     data_.clear();
   }
 
-  template<typename T, typename O>
-  struct OwnVectorOrdering {
-    OwnVectorOrdering( O c ) : comp( c ) { }
-    bool operator()( const T * t1, const T * t2 ) const {
-      return comp( * t1, * t2 );
-    }
-    private:
-    O comp;
-  };
-  
   template<typename T, typename P> template<typename S>
   void OwnVector<T, P>::sort( S comp ) {
-    std::sort( data_.begin(), data_.end(), 
-	       OwnVectorOrdering<value_type, S>( comp ) );
+    std::sort( data_.begin(), data_.end(), ordering( comp ) );
   }
 
   template<typename T, typename P>
   void OwnVector<T, P>::sort() {
-    std::sort( data_.begin(), data_.end(), 
-	       OwnVectorOrdering<value_type, std::less<value_type> >( std::less<value_type>() ) );
+    std::sort( data_.begin(), data_.end(), ordering( std::less<value_type>() ) );
   }
 
 }
