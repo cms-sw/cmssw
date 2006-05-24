@@ -17,7 +17,7 @@ L1GctRegion::L1GctRegion(int eta, int phi, ULong et, bool mip, bool quiet, bool 
 L1GctRegion::L1GctRegion(ULong rawData)
 {
 
-    myEt = rawData & 0x3f;  //will put the first 10 bits of rawData into the Et
+    myEt = rawData & 0x3ff;  //will put the first 10 bits of rawData into the Et
     
     rawData >>= ET_BITWIDTH;  //shift the remaining bits down to remove the 10 bits of Et
     
