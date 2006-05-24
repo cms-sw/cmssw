@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/10 12:20:40 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/04/13 17:14:29 $
+ *  $Revision: 1.16 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  */
 
@@ -71,7 +71,7 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 
   // Get the mapping from the setup
   ESHandle<DTReadOutMapping> mapping;
-  //context.get<DTReadOutMappingRcd>().get(mapping);
+  context.get<DTReadOutMappingRcd>().get(mapping);
   
   // Create the result i.e. the collection of MB Digis
   auto_ptr<DTDigiCollection> product(new DTDigiCollection);
