@@ -308,11 +308,7 @@ namespace edm {
 	main_input.template getParameter<std::string>("@module_type");
       // There is no module label for the unnamed input source, so 
       // just use "source".
-#if 0
       md.moduleLabel_ = "source";
-#else
-      md.moduleLabel_ = md.moduleName_;
-#endif
       md.processName_ = common.processName_; 
      // warning version and pass are hardcoded
       md.versionNumber_ = 1;
