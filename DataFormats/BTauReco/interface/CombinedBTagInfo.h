@@ -79,6 +79,7 @@ namespace reco {
       double   rapidity;
       double   eta;
       double   d0;           // 2D impact parameter as given by track
+      double   d0Sign;       // same, but lifetime signed
       double   d0Error;
       double   jetDistance;
       int      nHitsTotal;
@@ -108,6 +109,7 @@ namespace reco {
 	rapidity         = -999;
 	eta              = -999;
 	d0               = -999;
+	d0Sign           = -999;
 	d0Error          = -999;
 	nHitsTotal       = -999; 
 	nHitsPixel       = -999;
