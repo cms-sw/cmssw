@@ -3,6 +3,8 @@
 #include "G4Track.hh"
 #include "G4UnitsTable.hh"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using std::cout;
 using std::endl;
 
@@ -37,11 +39,17 @@ void SteppingAction::catchLowEnergyInVacuumHere(const G4Step * aStep)
             theTrack->GetTrackStatus() != fStopAndKill)
         {
             if (verbose>1)
-            cout << " OSCAR ACTION: LoopCatchSteppingAction:catchLowEnergyInVacuumHere: "
+	    edm::LogInfo("SimG4CoreApplication") 
+	         <<   " SteppingAction: LoopCatchSteppingAction:catchLowEnergyInVacuumHere: "
                  << " Track from " << theTrack->GetDefinition()->GetParticleName()
                  << " of kinetic energy " << theKenergy/MeV << " MeV "
                  << " killed in " << theTrack->GetVolume()->GetLogicalVolume()->GetName()
-                 << " of density " << density/(g/cm3) << " g/cm3" << endl;
+                 << " of density " << density/(g/cm3) << " g/cm3" ;
+//            cout << " OSCAR ACTION: LoopCatchSteppingAction:catchLowEnergyInVacuumHere: "
+//                 << " Track from " << theTrack->GetDefinition()->GetParticleName()
+//                 << " of kinetic energy " << theKenergy/MeV << " MeV "
+//                 << " killed in " << theTrack->GetVolume()->GetLogicalVolume()->GetName()
+//                 << " of density " << density/(g/cm3) << " g/cm3" << endl;
             theTrack->SetTrackStatus(fStopAndKill);
         }
     }
@@ -59,12 +67,19 @@ void SteppingAction::catchLowEnergyInVacuumNext(const G4Step * aStep)
             theTrack->GetTrackStatus() != fStopAndKill)
         {
             if (verbose>1)
-            cout << " OSCAR ACTION: LoopCatchSteppingAction::catchLowEnergyInVacuumNext: "
+	    edm::LogInfo("SimG4CoreApplication") 
+	         << " SteppingAction: LoopCatchSteppingAction::catchLowEnergyInVacuumNext: "
                  << " Track from " << theTrack->GetDefinition()->GetParticleName()
                  << " of kinetic energy " << theKenergy/MeV << " MeV "
                  << " stopped in " << theTrack->GetVolume()->GetLogicalVolume()->GetName()
                  << " before going into "<< theTrack->GetNextVolume()->GetLogicalVolume()->GetName()
-                 << " of density " << density/(g/cm3) << " g/cm3" << endl;
+                 << " of density " << density/(g/cm3) << " g/cm3" ;
+//            cout << " OSCAR ACTION: LoopCatchSteppingAction::catchLowEnergyInVacuumNext: "
+//                 << " Track from " << theTrack->GetDefinition()->GetParticleName()
+//                 << " of kinetic energy " << theKenergy/MeV << " MeV "
+//                 << " stopped in " << theTrack->GetVolume()->GetLogicalVolume()->GetName()
+//                 << " before going into "<< theTrack->GetNextVolume()->GetLogicalVolume()->GetName()
+//                 << " of density " << density/(g/cm3) << " g/cm3" << endl;
             theTrack->SetTrackStatus(fStopButAlive);
         }
     }
