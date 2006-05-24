@@ -10,23 +10,25 @@
 #include <set>
 
 // Return a vector of clusters from a collection of EcalRecHits:
-void HybridClusterAlgo::makeClusters(std::map<EBDetId, EcalRecHit> CorrMap, edm::ESHandle<CaloGeometry> geometry_h,  reco::BasicClusterCollection &basicClusters)
+void HybridClusterAlgo::makeClusters(std::map<EBDetId, EcalRecHit> CorrMap, 
+				     edm::ESHandle<CaloGeometry> geometry_h,  
+				     reco::BasicClusterCollection &basicClusters)
 {
-  //Clear the vectors:
-  //map that keeps track of used det hits
-  //  rechits_m.clear();
+  //Initialize my map.
   rechits_m = CorrMap;
-  //vector of seeds
+
+  //clear vector of seeds
   seeds.clear();
 
-  //map of supercluster/basiccluster association
+  //clear map of supercluster/basiccluster association
   _clustered.clear();
   
   std::cout << "Cleared vectors, starting clusterization..." << std::endl;
-  //  std::cout << "Number of RecHits in event = " << rechits.size() << std::endl;
+
+  //Get subdetector geometry.
   const CaloSubdetectorGeometry *geometry_p = (*geometry_h).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   CaloSubdetectorGeometry const geometry = *geometry_p;
-  //  EcalRecHitCollection::iterator it;
+
   std::map<EBDetId, EcalRecHit>::iterator it;
 
   for (it = CorrMap.begin(); it != CorrMap.end(); it++){
@@ -37,7 +39,7 @@ void HybridClusterAlgo::makeClusters(std::map<EBDetId, EcalRecHit> CorrMap, edm:
     GlobalPoint position = this_cell->getPosition();
    
     float ET = it->second.energy() * sin(position.theta());
-    // and high ET hits are also seeds:
+    //Must pass seed threshold.
     if (ET > eb_st){
       seeds.push_back(it->second);
       std::cout << "Seed ET: " << ET << std::endl;
@@ -54,9 +56,12 @@ void HybridClusterAlgo::makeClusters(std::map<EBDetId, EcalRecHit> CorrMap, edm:
 
   //Now to do the work.
   std::cout << "About to call mainSearch...";
- 
   mainSearch();
+
   std::cout << "done" << std::endl;
+  
+  //Hand the basicclusters back to the producer.  It has to 
+  //put them in the event.  Then we can make superclusters.
   std::map<int, reco::BasicClusterCollection>::iterator bic; 
   for (bic= _clustered.begin();bic!=_clustered.end();bic++){
     reco::BasicClusterCollection bl = bic->second;
@@ -71,45 +76,7 @@ void HybridClusterAlgo::makeClusters(std::map<EBDetId, EcalRecHit> CorrMap, edm:
   std::cout << "returning to producer. " << std::endl;
 }
 
-reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(reco::BasicClusterRefVector clustersCollection)
-{
-  //Here's what we'll return.
-  reco::SuperClusterCollection SCcoll;
 
-  //Here's our map iterator that gives us the appropriate association.
-  std::map<int, reco::BasicClusterCollection>::iterator mapit;
-  for (mapit = _clustered.begin();mapit!=_clustered.end();mapit++){
-    //    reco::SuperCluster thissc;
-    reco::BasicClusterRefVector thissc;
-    reco::BasicClusterRef seed;//This is not really a seed, but I need to tell SuperCluster something.
-                               //So I choose the highest energy basiccluster in the SuperCluster.
-    
-    std::vector <reco::BasicCluster> thiscoll = mapit->second; //This is the set of BasicClusters in this
-                                                               //SuperCluster
-    double ClusterE =0; //Sum of cluster energies for supercluster.
-
-    //Loop over this set of basic clusters, find their references, and add them to the
-    //supercluster.  This could be somehow more efficient.
-    for (int i=0;i<int(thiscoll.size());++i){
-      reco::BasicCluster thisclus = thiscoll[i]; //The Cluster in question.
-      for (int j=0;j<int(clustersCollection.size());++j){
-	//Find the appropriate cluster from the list of references
-	reco::BasicCluster cluster_p = *clustersCollection[j];
-	if (thisclus== cluster_p){ //Comparison based on energy right now.
-	  thissc.push_back(clustersCollection[j]);
-	  if (i==0) seed = clustersCollection[j];
-	  ClusterE += cluster_p.energy();
-	}
-      }//End loop over finding references.
-    }//End loop over clusters.
-    reco::SuperCluster suCl(ClusterE, (*seed).position(), seed, thissc);
-    SCcoll.push_back(suCl);
-    std::cout << "Super cluster sum: " << ClusterE << std::endl;
-    std::cout << "Made supercluster with energy E: " << suCl.energy() << std::endl;
-  }//end loop over map
-  sort(SCcoll.begin(), SCcoll.end());
-  return SCcoll;
-}
 
 void HybridClusterAlgo::mainSearch(void)
 {
@@ -119,14 +86,16 @@ void HybridClusterAlgo::mainSearch(void)
   // Loop over seeds:
   std::vector<EcalRecHit>::iterator it;
   int clustercounter=0;
+
   for (it = seeds.begin(); it != seeds.end(); it++){
     std::vector <reco::BasicCluster> thisseedClusters;
     EBDetId itID = it->id();
+
     // make sure the current seed has not been used/will not be used in the future:
     std::set<EBDetId>::iterator seed_in_rechits_it = useddetids.find(itID);
+
     if (seed_in_rechits_it != useddetids.end()) continue;
     //If this seed is already used, then don't use it again.
-    //    if (thisSeed.second) continue;
     
     // output some info on the hit:
     std::cout << "*****************************************************" << std::endl;
@@ -171,6 +140,7 @@ void HybridClusterAlgo::mainSearch(void)
       dominoEnergyPhiPlus.push_back(etemp);
       dominoCellsPhiPlus.push_back(dcells);
     }
+
     std::cout << "Got positive dominos" << std::endl;
     //return to initial position
     navigator.home();
@@ -191,6 +161,7 @@ void HybridClusterAlgo::mainSearch(void)
     }
     
     std::cout << "Got negative dominos: " << std::endl;
+
     //Assemble this information:
     for (int i=int(dominoEnergyPhiMinus.size())-1;i >= 0;--i){
       dominoEnergy.push_back(dominoEnergyPhiMinus[i]);
@@ -255,7 +226,7 @@ void HybridClusterAlgo::mainSearch(void)
 	  break;
 	}
       }
-      //loop over adjacent dominos at lower phi
+      //loop over adjacent dominos at lower phi.  Sum up energy of lumps.
       for (int j=idxPeak-1;j>=0;--j){
 	if (OwnerShip[j]==-1 && 
 	    dominoEnergy[j] > Ethres
@@ -269,6 +240,7 @@ void HybridClusterAlgo::mainSearch(void)
       }
       LumpEnergy.push_back(lump);
     }
+
     //Make the basic clusters:
     for (int i=0;i<int(PeakIndex.size());++i){
       //One cluster for each peak.
@@ -279,7 +251,6 @@ void HybridClusterAlgo::mainSearch(void)
 	if (OwnerShip[j] == i){
 	  std::vector <EcalRecHit> temp = dominoCells[j];
 	  for (int k=0;k<int(temp.size());++k){
-//	    reco::EcalRecHitData data(temp[k].energy(),0,temp[k].id());
             dets.push_back(temp[k].id());
 	    recHits.push_back(temp[k]);
 	    nhits++;
@@ -288,9 +259,10 @@ void HybridClusterAlgo::mainSearch(void)
       }
       std::cout << "Adding a cluster with: " << nhits << std::endl;
       std::cout << "total E: " << LumpEnergy[i] << std::endl;
+      std::cout << "total dets: " << dets.size() << std::endl;
       //Get Calorimeter position
       Point pos = PositionCalc::Calculate_Location(dets);
-      
+ 
       double totChi2=0;
       double totE=0;
       std::vector<DetId> usedHits;
@@ -302,15 +274,53 @@ void HybridClusterAlgo::mainSearch(void)
       if (totE>0)
 	totChi2/=totE;
       
-      //thisseedClusters.push_back(reco::BasicCluster(recHits,1,pos));
-      //std::cout << "Ready to insert cluster. " << std::endl;
       thisseedClusters.push_back(reco::BasicCluster(LumpEnergy[i],pos,totChi2,usedHits));
     }
-    // std::cout << "Making association between basiccluster and super cluster. " << std::endl;
+    //Make association so that superclusters can be made later.
     _clustered.insert(std::make_pair(clustercounter, thisseedClusters));    
     clustercounter++;
   }//Seed loop
-  //std::cout << "returning control." << std::endl;
+}
+
+reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(reco::BasicClusterRefVector clustersCollection)
+{
+  //Here's what we'll return.
+  reco::SuperClusterCollection SCcoll;
+
+  //Here's our map iterator that gives us the appropriate association.
+  std::map<int, reco::BasicClusterCollection>::iterator mapit;
+  for (mapit = _clustered.begin();mapit!=_clustered.end();mapit++){
+ 
+    reco::BasicClusterRefVector thissc;
+    reco::BasicClusterRef seed;//This is not really a seed, but I need to tell SuperCluster something.
+                               //So I choose the highest energy basiccluster in the SuperCluster.
+    
+    std::vector <reco::BasicCluster> thiscoll = mapit->second; //This is the set of BasicClusters in this
+                                                               //SuperCluster
+
+    double ClusterE =0; //Sum of cluster energies for supercluster.
+
+    //Loop over this set of basic clusters, find their references, and add them to the
+    //supercluster.  This could be somehow more efficient.
+    for (int i=0;i<int(thiscoll.size());++i){
+      reco::BasicCluster thisclus = thiscoll[i]; //The Cluster in question.
+      for (int j=0;j<int(clustersCollection.size());++j){
+	//Find the appropriate cluster from the list of references
+	reco::BasicCluster cluster_p = *clustersCollection[j];
+	if (thisclus== cluster_p){ //Comparison based on energy right now.
+	  thissc.push_back(clustersCollection[j]);
+	  if (i==0) seed = clustersCollection[j];
+	  ClusterE += cluster_p.energy();
+	}
+      }//End loop over finding references.
+    }//End loop over clusters.
+    reco::SuperCluster suCl(ClusterE, (*seed).position(), seed, thissc);
+    SCcoll.push_back(suCl);
+    std::cout << "Super cluster sum: " << ClusterE << std::endl;
+    std::cout << "Made supercluster with energy E: " << suCl.energy() << std::endl;
+  }//end loop over map
+  sort(SCcoll.begin(), SCcoll.end());
+  return SCcoll;
 }
 
 double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector <EcalRecHit> &cells)
