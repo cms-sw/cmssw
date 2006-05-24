@@ -210,8 +210,9 @@ CaloJet JetCalibratorJetParton::applyCorrection( const CaloJet& fJet)
   float mScale = 1000.;
    
   if( et > 0.001) mScale = etnew/et;
-  CommonJetData common (fJet.px()*mScale, fJet.py()*mScale, fJet.pz()*mScale,
-                        fJet.energy()*mScale, fJet.nConstituents());
+  Jet::LorentzVector common (fJet.px()*mScale, fJet.py()*mScale,
+                           fJet.pz()*mScale, fJet.energy()*mScale);
+
   CaloJet theJet (common, fJet.getSpecific (), fJet.getTowerIndices());
   cout<<" JetParton::The new jet is created "<<endl;
 

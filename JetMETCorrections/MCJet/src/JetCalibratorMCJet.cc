@@ -171,8 +171,9 @@ CaloJet JetCalibratorMCJet::applyCorrection( const CaloJet& fJet)
 	 cout<<" The new energy found "<<etnew<<" "<<et<<endl;
 
          float mScale = etnew/et;
-         CommonJetData common (fJet.px()*mScale, fJet.py()*mScale, fJet.pz()*mScale,
-                               fJet.energy()*mScale, fJet.nConstituents());
+         Jet::LorentzVector common (fJet.px()*mScale, fJet.py()*mScale,
+                           fJet.pz()*mScale, fJet.energy()*mScale);
+
          CaloJet theJet (common, fJet.getSpecific (), fJet.getTowerIndices());
 	 cout<<" The new jet is created "<<endl;
 	 		
