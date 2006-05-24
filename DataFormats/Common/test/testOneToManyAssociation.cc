@@ -1,4 +1,4 @@
-// $Id: testOneToManyAssociation.cc,v 1.3 2006/04/21 13:13:56 llista Exp $
+// $Id: testOneToManyAssociation.cc,v 1.4 2006/04/26 07:24:20 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -21,7 +21,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testOneToManyAssociation);
 void testOneToManyAssociation::checkAll() {
   typedef std::vector<int> CKey;
   typedef std::vector<double> CVal;
-  typedef edm::AssociationMap<CKey, CVal, edm::OneToMany, unsigned char> Assoc;
+  typedef edm::AssociationMap<edm::OneToMany<CKey, CVal, unsigned char> > Assoc;
   Assoc v;
   CPPUNIT_ASSERT( v.empty() );
   CPPUNIT_ASSERT( v.size() == 0 );
@@ -31,10 +31,12 @@ void testOneToManyAssociation::checkAll() {
 void testOneToManyAssociation::dummy() {
   typedef std::vector<int> CKey;
   typedef std::vector<double> CVal;
-  typedef edm::AssociationMap<CKey, CVal, edm::OneToMany, unsigned char> Assoc;
+  typedef edm::AssociationMap<edm::OneToMany<CKey, CVal, unsigned char> > Assoc;
   Assoc v;
   v.insert( edm::Ref<CKey>(), edm::Ref<CVal>() );
   Assoc::const_iterator b = v.begin(), e = v.end();
+  b++; e++;
   Assoc::const_iterator f = v.find( edm::Ref<CKey>() );
+  f++;
   edm::Ref<Assoc> r;
 }

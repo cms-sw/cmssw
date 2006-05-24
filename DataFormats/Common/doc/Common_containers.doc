@@ -11,25 +11,29 @@
 Commonly used persistent containers.
 
 \subsection interface Public interface
-- edm::AssociationMap <b>&lt;CKey, CVal, Tag, index &gt;</b>: one-to-many or one-to-one
-  association based on edm::Ref. Objects in a <tt>CKey</tt> collection 
-  are associated to one or many objects in a collection <tt>CVal</tt>. Stored indices are of type 
+- edm::AssociationMap <b>&lt;Tag&gt;</b>: one-to-many, one-to-one
+  or one-to-value association based on edm::Ref. Objects in a EDM collection 
+  are associated to one or many objects in another EDM collection or to
+  values of a specified type.<br><br>
+  The template <tt>Tag</tt> should be either edm::OneToOne <CKey, CVal, index> for
+  one-to-one maps, or edm::OneToMany <CKey, CVal, index> for one-to-many maps or
+  edm::OneToValue <CKey, Val, index> for associatin by value.<br><br>
+  Stored indices are of type 
   <tt>index</tt>, that is by default <tt>unsigned long</tt>, but could be
-  <tt>unsigned short</tt> for collections with less than 65535 objects.
-  The template <tt>Tag</tt> should be either edm::OneToOne for
-  one-to-one maps, or edm::OneToMany for one-to-many maps.
-<br><br>
+  <tt>unsigned short</tt> for collections with less than 65535 objects.<br><br>
   The attribute <tt>transientMap_</tt> has to be declared transient in the
-  Reflex dictionary:
+  Reflex dictionary; other used persistent types have to be declared in the Reflex dictionary,
+  depending case by case:
 \htmlonly
 <pre>
 &lt;lcgdict&gt;
   &lt;class name="edm::AssociationMap&lt; ... &gt;" &gt;
-    &lt;field name="transientMap_" transient=true /&gt;
+    &lt;field name="transientMap_" transient="true" /&gt;
   &lt;/class &gt;
 &lt;/lcgdict&gt;
 </pre>
 \endhtmlonly
+
 - edm::DetSet <b>&lt;T&gt;</b>:
 
 - edm::EDCollection <b>&lt;T&gt;</b>: Functionally equivalent to <tt>std::vector&lt;T&gt;</tt>. 
@@ -105,22 +109,6 @@ type <tt><b>Ext</b></tt>.
 
 - edm::SortedCollection <b>&lt;T, SORT&gt;</b>:
 
-- edm::ValueMap <b>&lt;CKey, Val, index &gt;</b>: one-to-one
-  association based on edm::Ref, of objects in a <tt>CKey</tt> collection 
-  to values of type <tt>Val</tt> stored by value in the associatin map. 
-   Stored indices are of type 
-  <tt>index</tt>, that is by default <tt>unsigned long</tt>, but could be
-  <tt>unsigned short</tt> for collections with less than 65535 objects.
-<br><br>
-  The attribute <tt>transientMap_</tt> has to be declared transient in the
-  Reflex dictionary:
-\htmlonly
-<pre>
-&lt;lcgdict&gt;
-  &lt;class name="edm::AssociationMap&lt; ... &gt;" &gt;
-    &lt;field name="transientMap_" transient=true /&gt;
-  &lt;/class &gt;
-&lt;/lcgdict&gt;
 </pre>
 \subsection modules Modules
 None.
