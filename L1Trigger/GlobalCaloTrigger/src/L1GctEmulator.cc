@@ -36,6 +36,9 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) {
   // instantiate the GCT
   m_gct = new L1GlobalCaloTrigger();
 
+  // for now, call the debug print output
+  m_gct->print();
+
 }
 
 L1GctEmulator::~L1GctEmulator() {
@@ -68,9 +71,9 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   }
 
   // create the energy sum digis
-  std::auto_ptr<L1GctEtTotal> etTotResult(new L1GctEtTotal);
-  std::auto_ptr<L1GctEtHad> etHadResult(new L1GctEtHad);
-  std::auto_ptr<L1GctEtMiss> etMissResult(new L1GctEtMiss);
+  std::auto_ptr<L1GctEtTotal> etTotResult(new L1GctEtTotal(m_gct->getEtSum(), false) );
+  std::auto_ptr<L1GctEtHad> etHadResult(new L1GctEtHad(m_gct->getEtHad(), false) );
+  std::auto_ptr<L1GctEtMiss> etMissResult(new L1GctEtMiss(m_gct->getEtMiss(), m_gct->getEtMissPhi(), false) );
 
   // ... fill the collection ...
   e.put(isoEmResult);
