@@ -144,9 +144,10 @@ double ECalSD::curve_LY(G4String& nameVolume, G4StepPoint* stepPoint) {
 					 stepPoint->GetTouchable());
   double crlength = crystalLength(nameVolume);
   double dapd = 0.5 * crlength - localPoint.z();
+  std::cout << " crystal length " << crlength << " dapd " << dapd << std::endl;
   if (dapd >= -0.1 || dapd <= crlength+0.1) {
     if (dapd <= 100.)
-      weight = 1.05 - dapd * 0.0005;
+      weight = 1.02 - dapd * 0.0002;
   } else {
     edm::LogWarning("EcalSim") << "ECalSD: light coll curve : wrong distance "
 			       << "to APD " << dapd << " crlength = " 
