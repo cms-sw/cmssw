@@ -23,7 +23,8 @@ using namespace reco;
 //
 PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::ParameterSet& conf)
   //FIXME extract relevant parts of config for components
-  : theConfig(conf), theTrackFilter(conf), theTrackClusterizer(conf), 
+  //  : theConfig(conf), theTrackFilter(conf), theTrackClusterizer(conf), 
+  : theConfig(conf), theTrackClusterizer(conf), 
     theVertexSelector(VertexDistanceXY(), 
 		      conf.getParameter<double>("MaxDistanceToBeam"))
 {
@@ -31,6 +32,12 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
     << "Initializing PV producer algorithm" << "\n";
 
   // initialization of vertex finder algorithm
+
+  // track selection
+  edm::ParameterSet tkSelPars 
+    = conf.getParameter<ParameterSet>("TkSelParameters");
+  theTrackFilter = TrackFilterForPVFinding(tkSelPars);
+
   // configurable parameters
   // FIXME theFinder should not perform track selection
   float ptMin = theConfig.getParameter<double>("TrackPtMin");
