@@ -14,6 +14,7 @@
 //Custom headers needed for this test
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 //Standard library headers
 #include <fstream>   //for file IO
@@ -81,6 +82,11 @@ int main(int argc, char **argv)
     try
     {
         L1GctJetFinder * myJetFinder = new L1GctJetFinder(9); //TEST OBJECT on heap;
+        
+        //create and setup our jet calibration lookup table
+        L1GctJetEtCalibrationLut myJetEtCalLut;
+        myJetFinder->setJetEtCalibrationLut(&myJetEtCalLut);
+        
         classTest(myJetFinder);
         delete myJetFinder;
     }
