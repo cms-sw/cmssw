@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/05/18 07:41:42 $
- * $Revision: 1.46 $
+ * $Date: 2006/05/23 09:06:50 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -110,7 +110,7 @@ void EBCosmicClient::cleanup(void) {
 
 }
 
-void EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
+void EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
 
   EcalLogicID ecid;
   MonOccupancyDat o;
@@ -121,76 +121,72 @@ void EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
   const float n_min_tot = 1000.;
   const float n_min_bin = 10.;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  float num01, num02;
+  float mean01, mean02;
+  float rms01, rms02;
 
-    float num01, num02;
-    float mean01, mean02;
-    float rms01, rms02;
+  for ( int ie = 1; ie <= 85; ie++ ) {
+    for ( int ip = 1; ip <= 20; ip++ ) {
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+      num01  = num02  = -1.;
+      mean01 = mean02 = -1.;
+      rms01  = rms02  = -1.;
 
-        num01  = num02  = -1.;
-        mean01 = mean02 = -1.;
-        rms01  = rms02  = -1.;
+      bool update_channel = false;
 
-        bool update_channel = false;
+      if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
+        num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
+        if ( num01 >= n_min_bin ) {
+          mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
+          rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
+          update_channel = true;
+        }
+      }
 
-        if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
-          if ( num01 >= n_min_bin ) {
-            mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-            rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
-          }
+      if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
+        num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ie, ip));
+        if ( num02 >= n_min_bin ) {
+          mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
+          rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
+          update_channel = true;
+        }
+      }
+
+      if ( update_channel ) {
+
+        if ( ie == 1 && ip == 1 ) {
+
+          cout << "Preparing dataset for SM=" << ism << endl;
+
+          cout << "Sel (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+          cout << "Cut (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+
         }
 
-        if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
-          num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ie, ip));
-          if ( num02 >= n_min_bin ) {
-            mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-            rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
+        o.setEventsOverHighThreshold(int(num01));
+        o.setEventsOverLowThreshold(int(num02));
+
+        o.setAvgEnergy(mean01);
+
+        int ic = (ip-1) + 20*(ie-1) + 1;
+
+        if ( econn ) {
+          try {
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            dataset[ecid] = o;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
           }
-        }
-
-        if ( update_channel ) {
-
-          if ( ie == 1 && ip == 1 ) {
-
-            cout << "Preparing dataset for SM=" << ism << endl;
-
-            cout << "Sel (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "Cut (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-
-          }
-
-          o.setEventsOverHighThreshold(int(num01));
-          o.setEventsOverLowThreshold(int(num02));
-
-          o.setAvgEnergy(mean01);
-
-          int ic = (ip-1) + 20*(ie-1) + 1;
-
-          if ( econn ) {
-            try {
-              ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
-              dataset[ecid] = o;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
-          }
-
         }
 
       }
+
     }
-
-    if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
-    if ( meh02_[ism-1] ) mui_->softReset(meh02_[ism-1]);
-    if ( meh03_[ism-1] ) mui_->softReset(meh03_[ism-1]);
-
   }
+
+  if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
+  if ( meh02_[ism-1] ) mui_->softReset(meh02_[ism-1]);
+  if ( meh03_[ism-1] ) mui_->softReset(meh03_[ism-1]);
 
   if ( econn ) {
     try {
@@ -338,7 +334,6 @@ void EBCosmicClient::analyze(void){
 
 }
 
-//void EBCosmicClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
 void EBCosmicClient::htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName){
 
   cout << "Preparing EBCosmicClient html output ..." << endl;
@@ -396,11 +391,9 @@ void EBCosmicClient::htmlOutput(int run, const std::vector<int> & superModules, 
 
   // Loop on barrel supermodules
 
-  //for ( int ism = 1 ; ism <= 36 ; ism++ ) {
-    //if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
   for( unsigned int i=0; i<superModules.size(); i ++ ) {
-    int ism = superModules[i];
 
+    int ism = superModules[i];
 
     // Monitoring elements plots
 

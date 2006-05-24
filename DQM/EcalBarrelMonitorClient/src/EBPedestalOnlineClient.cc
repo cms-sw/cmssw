@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/05/21 20:42:08 $
- * $Revision: 1.19 $
+ * $Date: 2006/05/23 09:06:50 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -168,7 +168,7 @@ void EBPedestalOnlineClient::cleanup(void) {
 
 }
 
-void EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
+void EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
 
   EcalLogicID ecid;
   MonPedestalsOnlineDat p;
@@ -179,67 +179,64 @@ void EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moni
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  float num03;
+  float mean03;
+  float rms03;
 
-    float num03;
-    float mean03;
-    float rms03;
+  for ( int ie = 1; ie <= 85; ie++ ) {
+    for ( int ip = 1; ip <= 20; ip++ ) {
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+      num03  = -1.;
+      mean03 = -1.;
+      rms03  = -1.;
 
-        num03  = -1.;
-        mean03 = -1.;
-        rms03  = -1.;
+      bool update_channel = false;
 
-        bool update_channel = false;
+      if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
+        num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
+        if ( num03 >= n_min_bin ) {
+          mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+          rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
+          update_channel = true;
+        }
+      }
 
-        if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
-          num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
-          if ( num03 >= n_min_bin ) {
-            mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-            rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
-          }
+      if ( update_channel ) {
+
+        if ( ie == 1 && ip == 1 ) {
+
+          cout << "Preparing dataset for SM=" << ism << endl;
+
+          cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+
         }
 
-        if ( update_channel ) {
+        p.setADCMeanG12(mean03);
+        p.setADCRMSG12(rms03);
 
-          if ( ie == 1 && ip == 1 ) {
+        if ( meg03_[ism-1]  && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+           p.setTaskStatus(true);
+        } else {
+           p.setTaskStatus(false);
+        }
 
-            cout << "Preparing dataset for SM=" << ism << endl;
+        int ic = (ip-1) + 20*(ie-1) + 1;
 
-            cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+        if ( econn ) {
+          try {
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            dataset[ecid] = p;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
           }
-
-          p.setADCMeanG12(mean03);
-          p.setADCRMSG12(rms03);
-
-          if ( meg03_[ism-1]  && meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-             p.setTaskStatus(true);
-          } else {
-             p.setTaskStatus(false);
-          }
-
-          int ic = (ip-1) + 20*(ie-1) + 1;
-
-          if ( econn ) {
-            try {
-              ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
-              dataset[ecid] = p;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
-          }
-
         }
 
       }
+
     }
-
-    EBMUtilsClient::resetHisto( meh03_[ism-1] );
-
   }
+
+  EBMUtilsClient::resetHisto( meh03_[ism-1] );
 
   if ( econn ) {
     try {
@@ -392,7 +389,6 @@ void EBPedestalOnlineClient::analyze(void){
 
 }
 
-//void EBPedestalOnlineClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
 void EBPedestalOnlineClient::htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName){
 
   cout << "Preparing EBPedestalOnlineClient html output ..." << endl;
@@ -450,9 +446,8 @@ void EBPedestalOnlineClient::htmlOutput(int run, const std::vector<int> & superM
 
   // Loop on barrel supermodules
 
-  //for ( int ism = 1 ; ism <= 36 ; ism++ ) {
-    //if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
   for( unsigned int i=0; i<superModules.size(); i ++ ) {
+
     int ism = superModules[i];
 
     // Quality plots

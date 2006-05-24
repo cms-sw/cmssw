@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2006/04/28 10:48:49 $
- * $Revision: 1.8 $
+ * $Date: 2006/05/18 07:41:42 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -84,7 +84,7 @@ void cleanup(void);
 void htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName);
 
 /// WriteDB
-void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov);
+void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism);
 
 private:
 

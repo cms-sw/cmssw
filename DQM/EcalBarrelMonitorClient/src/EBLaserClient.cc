@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/05/18 07:41:42 $
- * $Revision: 1.67 $
+ * $Date: 2006/05/23 09:06:50 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  *
 */
@@ -352,7 +352,7 @@ void EBLaserClient::cleanup(void) {
 
 }
 
-void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
+void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
 
   EcalLogicID ecid;
   MonLaserBlueDat apd_bl;
@@ -369,239 +369,235 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  float num01, num02, num03, num04, num05, num06, num07, num08;
+  float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
+  float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
 
-    float num01, num02, num03, num04, num05, num06, num07, num08;
-    float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
-    float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
+  for ( int ie = 1; ie <= 85; ie++ ) {
+    for ( int ip = 1; ip <= 20; ip++ ) {
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+      num01  = num02  = num03  = num04  = num05  = num06  = num07  = num08  = -1.;
+      mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
+      rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
 
-        num01  = num02  = num03  = num04  = num05  = num06  = num07  = num08  = -1.;
-        mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
-        rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
+      bool update_channel1 = false;
+      bool update_channel2 = false;
+      bool update_channel3 = false;
+      bool update_channel4 = false;
 
-        bool update_channel1 = false;
-        bool update_channel2 = false;
-        bool update_channel3 = false;
-        bool update_channel4 = false;
-
-        if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
-          if ( num01 >= n_min_bin ) {
-            mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-            rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
-            update_channel1 = true;
-          }
+      if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
+        num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
+        if ( num01 >= n_min_bin ) {
+          mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
+          rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
+          update_channel1 = true;
         }
+      }
 
-        if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
-          num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ie, ip));
-          if ( num02 >= n_min_bin ) {
-            mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-            rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
-            update_channel1 = true;
-          }
+      if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
+        num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ie, ip));
+        if ( num02 >= n_min_bin ) {
+          mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
+          rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
+          update_channel1 = true;
         }
+      }
 
-        if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
-          num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
-          if ( num03 >= n_min_bin ) {
-            mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-            rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
-            update_channel2 = true;
-          }
+      if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
+        num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
+        if ( num03 >= n_min_bin ) {
+          mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+          rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
+          update_channel2 = true;
         }
+      }
 
-        if ( h04_[ism-1] && h04_[ism-1]->GetEntries() >= n_min_tot ) {
-          num04 = h04_[ism-1]->GetBinEntries(h04_[ism-1]->GetBin(ie, ip));
-          if ( num04 >= n_min_bin ) {
-            mean04 = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
-            rms04  = h04_[ism-1]->GetBinError(h04_[ism-1]->GetBin(ie, ip));
-            update_channel2 = true;
-          }
+      if ( h04_[ism-1] && h04_[ism-1]->GetEntries() >= n_min_tot ) {
+        num04 = h04_[ism-1]->GetBinEntries(h04_[ism-1]->GetBin(ie, ip));
+        if ( num04 >= n_min_bin ) {
+          mean04 = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
+          rms04  = h04_[ism-1]->GetBinError(h04_[ism-1]->GetBin(ie, ip));
+          update_channel2 = true;
         }
+      }
 
-        if ( h05_[ism-1] && h05_[ism-1]->GetEntries() >= n_min_tot ) {
-          num05 = h05_[ism-1]->GetBinEntries(h05_[ism-1]->GetBin(ie, ip));
-          if ( num05 >= n_min_bin ) {
-            mean05 = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(ie, ip));
-            rms05  = h05_[ism-1]->GetBinError(h05_[ism-1]->GetBin(ie, ip));
-            update_channel3 = true;
-          }
+      if ( h05_[ism-1] && h05_[ism-1]->GetEntries() >= n_min_tot ) {
+        num05 = h05_[ism-1]->GetBinEntries(h05_[ism-1]->GetBin(ie, ip));
+        if ( num05 >= n_min_bin ) {
+          mean05 = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(ie, ip));
+          rms05  = h05_[ism-1]->GetBinError(h05_[ism-1]->GetBin(ie, ip));
+          update_channel3 = true;
         }
+      }
 
-        if ( h06_[ism-1] && h06_[ism-1]->GetEntries() >= n_min_tot ) {
-          num06 = h06_[ism-1]->GetBinEntries(h06_[ism-1]->GetBin(ie, ip));
-          if ( num06 >= n_min_bin ) {
-            mean06 = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(ie, ip));
-            rms06  = h06_[ism-1]->GetBinError(h06_[ism-1]->GetBin(ie, ip));
-            update_channel3 = true;
-          }
+      if ( h06_[ism-1] && h06_[ism-1]->GetEntries() >= n_min_tot ) {
+        num06 = h06_[ism-1]->GetBinEntries(h06_[ism-1]->GetBin(ie, ip));
+        if ( num06 >= n_min_bin ) {
+          mean06 = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(ie, ip));
+          rms06  = h06_[ism-1]->GetBinError(h06_[ism-1]->GetBin(ie, ip));
+          update_channel3 = true;
         }
+      }
 
-        if ( h07_[ism-1] && h07_[ism-1]->GetEntries() >= n_min_tot ) {
-          num07 = h07_[ism-1]->GetBinEntries(h07_[ism-1]->GetBin(ie, ip));
-          if ( num07 >= n_min_bin ) {
-            mean07 = h07_[ism-1]->GetBinContent(h07_[ism-1]->GetBin(ie, ip));
-            rms07  = h07_[ism-1]->GetBinError(h07_[ism-1]->GetBin(ie, ip));
-            update_channel4 = true;
-          }
+      if ( h07_[ism-1] && h07_[ism-1]->GetEntries() >= n_min_tot ) {
+        num07 = h07_[ism-1]->GetBinEntries(h07_[ism-1]->GetBin(ie, ip));
+        if ( num07 >= n_min_bin ) {
+          mean07 = h07_[ism-1]->GetBinContent(h07_[ism-1]->GetBin(ie, ip));
+          rms07  = h07_[ism-1]->GetBinError(h07_[ism-1]->GetBin(ie, ip));
+          update_channel4 = true;
         }
+      }
 
-        if ( h08_[ism-1] && h08_[ism-1]->GetEntries() >= n_min_tot ) {
-          num08 = h08_[ism-1]->GetBinEntries(h08_[ism-1]->GetBin(ie, ip));
-          if ( num08 >= n_min_bin ) {
-            mean08 = h08_[ism-1]->GetBinContent(h08_[ism-1]->GetBin(ie, ip));
-            rms08  = h08_[ism-1]->GetBinError(h08_[ism-1]->GetBin(ie, ip));
-            update_channel4 = true;
-          }
+      if ( h08_[ism-1] && h08_[ism-1]->GetEntries() >= n_min_tot ) {
+        num08 = h08_[ism-1]->GetBinEntries(h08_[ism-1]->GetBin(ie, ip));
+        if ( num08 >= n_min_bin ) {
+          mean08 = h08_[ism-1]->GetBinContent(h08_[ism-1]->GetBin(ie, ip));
+          rms08  = h08_[ism-1]->GetBinError(h08_[ism-1]->GetBin(ie, ip));
+          update_channel4 = true;
         }
+      }
 
-        if ( update_channel1 ) {
+      if ( update_channel1 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+        if ( ie == 1 && ip == 1 ) {
 
-            cout << "Preparing dataset for SM=" << ism << endl;
+          cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "L1 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-
-          }
-
-          apd_bl.setAPDMean(mean01);
-          apd_bl.setAPDRMS(rms01);
-
-          apd_bl.setAPDOverPNMean(mean02);
-          apd_bl.setAPDOverPNRMS(rms02);
-
-          if ( meg01_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-            apd_bl.setTaskStatus(true);
-          } else {
-            apd_bl.setTaskStatus(false);
-          }
-
-          int ic = (ip-1) + 20*(ie-1) + 1;
-
-          if ( econn ) {
-            try {
-              ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
-              dataset1_bl[ecid] = apd_bl;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
-          }
+          cout << "L1 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
 
         }
 
-        if ( update_channel2 ) {
+        apd_bl.setAPDMean(mean01);
+        apd_bl.setAPDRMS(rms01);
 
-          if ( ie == 1 && ip == 1 ) {
+        apd_bl.setAPDOverPNMean(mean02);
+        apd_bl.setAPDOverPNRMS(rms02);
 
-            cout << "Preparing dataset for SM=" << ism << endl;
-
-            cout << "L2 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
-
-          }
-
-          apd_ir.setAPDMean(mean03);
-          apd_ir.setAPDRMS(rms03);
-
-          apd_ir.setAPDOverPNMean(mean04);
-          apd_ir.setAPDOverPNRMS(rms04);
-
-          if ( meg02_[ism-1]->getBinContent( ie, ip) == 1. ) {
-            apd_ir.setTaskStatus(true);
-          } else {
-            apd_ir.setTaskStatus(false);
-          }
-
-          int ic = (ip-1) + 20*(ie-1) + 1;
-
-          if ( econn ) {
-            try {
-              ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
-              dataset1_ir[ecid] = apd_ir;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
-          }
-
+        if ( meg01_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+          apd_bl.setTaskStatus(true);
+        } else {
+          apd_bl.setTaskStatus(false);
         }
 
-        if ( update_channel3 ) {
+        int ic = (ip-1) + 20*(ie-1) + 1;
 
-          if ( ie == 1 && ip == 1 ) {
-
-            cout << "Preparing dataset for SM=" << ism << endl;
-
-            cout << "L3 (" << ie << "," << ip << ") " << num05 << " " << mean05 << " " << rms05 << endl;
-
+        if ( econn ) {
+          try {
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            dataset1_bl[ecid] = apd_bl;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
           }
-
-          apd_gr.setAPDMean(mean05);
-          apd_gr.setAPDRMS(rms05);
-
-          apd_gr.setAPDOverPNMean(mean06);
-          apd_gr.setAPDOverPNRMS(rms06);
-
-          if ( meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-            apd_gr.setTaskStatus(true);
-          } else {
-            apd_gr.setTaskStatus(false);
-          }
-
-          int ic = (ip-1) + 20*(ie-1) + 1;
-
-          if ( econn ) {
-            try {
-              ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
-              dataset1_gr[ecid] = apd_gr;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
-          }
-
-        }
-
-        if ( update_channel4 ) {
-
-          if ( ie == 1 && ip == 1 ) {
-
-            cout << "Preparing dataset for SM=" << ism << endl;
-
-            cout << "L4 (" << ie << "," << ip << ") " << num07 << " " << mean07 << " " << rms07 << endl;
-
-          }
-
-          apd_rd.setAPDMean(mean07);
-          apd_rd.setAPDRMS(rms07);
-
-          apd_rd.setAPDOverPNMean(mean08);
-          apd_rd.setAPDOverPNRMS(rms08);
-
-          if ( meg04_[ism-1]->getBinContent( ie, ip ) == 1. ) {
-            apd_rd.setTaskStatus(true);
-          } else {
-            apd_rd.setTaskStatus(false);
-          }
-
-          int ic = (ip-1) + 20*(ie-1) + 1;
-
-          if ( econn ) {
-            try {
-              ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
-              dataset1_rd[ecid] = apd_rd;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
-          }
-
         }
 
       }
-    }
 
+      if ( update_channel2 ) {
+
+        if ( ie == 1 && ip == 1 ) {
+
+          cout << "Preparing dataset for SM=" << ism << endl;
+
+          cout << "L2 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+
+        }
+
+        apd_ir.setAPDMean(mean03);
+        apd_ir.setAPDRMS(rms03);
+
+        apd_ir.setAPDOverPNMean(mean04);
+        apd_ir.setAPDOverPNRMS(rms04);
+
+        if ( meg02_[ism-1]->getBinContent( ie, ip) == 1. ) {
+          apd_ir.setTaskStatus(true);
+        } else {
+          apd_ir.setTaskStatus(false);
+        }
+
+        int ic = (ip-1) + 20*(ie-1) + 1;
+
+        if ( econn ) {
+          try {
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            dataset1_ir[ecid] = apd_ir;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
+          }
+        }
+
+      }
+
+      if ( update_channel3 ) {
+
+        if ( ie == 1 && ip == 1 ) {
+
+          cout << "Preparing dataset for SM=" << ism << endl;
+
+          cout << "L3 (" << ie << "," << ip << ") " << num05 << " " << mean05 << " " << rms05 << endl;
+
+        }
+
+        apd_gr.setAPDMean(mean05);
+        apd_gr.setAPDRMS(rms05);
+
+        apd_gr.setAPDOverPNMean(mean06);
+        apd_gr.setAPDOverPNRMS(rms06);
+
+        if ( meg03_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+          apd_gr.setTaskStatus(true);
+        } else {
+          apd_gr.setTaskStatus(false);
+        }
+
+        int ic = (ip-1) + 20*(ie-1) + 1;
+
+        if ( econn ) {
+          try {
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            dataset1_gr[ecid] = apd_gr;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
+          }
+        }
+
+      }
+
+      if ( update_channel4 ) {
+
+        if ( ie == 1 && ip == 1 ) {
+
+          cout << "Preparing dataset for SM=" << ism << endl;
+
+          cout << "L4 (" << ie << "," << ip << ") " << num07 << " " << mean07 << " " << rms07 << endl;
+
+        }
+
+        apd_rd.setAPDMean(mean07);
+        apd_rd.setAPDRMS(rms07);
+
+        apd_rd.setAPDOverPNMean(mean08);
+        apd_rd.setAPDOverPNRMS(rms08);
+
+        if ( meg04_[ism-1]->getBinContent( ie, ip ) == 1. ) {
+          apd_rd.setTaskStatus(true);
+        } else {
+          apd_rd.setTaskStatus(false);
+        }
+
+        int ic = (ip-1) + 20*(ie-1) + 1;
+
+        if ( econn ) {
+          try {
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            dataset1_rd[ecid] = apd_rd;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
+          }
+        }
+
+      }
+
+    }
   }
 
   if ( econn ) {
@@ -631,333 +627,329 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
   const float m_min_tot = 1000.;
   const float m_min_bin = 50.;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+//  float num01, num02, num03, num04, num05, num06, num07, num08;
+  float num09, num10, num11, num12, num13, num14, num15, num16;
+//  float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
+  float mean09, mean10, mean11, mean12, mean13, mean14, mean15, mean16;
+//  float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
+  float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
 
-    float num01, num02, num03, num04, num05, num06, num07, num08;
-    float num09, num10, num11, num12, num13, num14, num15, num16;
-    float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
-    float mean09, mean10, mean11, mean12, mean13, mean14, mean15, mean16;
-    float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
-    float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
+  for ( int i = 1; i <= 10; i++ ) {
 
-    for ( int i = 1; i <= 10; i++ ) {
+    num01  = num02  = num03  = num04  = num05  = num06  = num07  = num08  = -1.;
+    num09  = num10  = num11  = num12  = num13  = num14  = num15  = num16  = -1.;
+    mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
+    mean09 = mean10 = mean11 = mean12 = mean13 = mean14 = mean15 = mean16 = -1.;
+    rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
+    rms09  = rms10  = rms11  = rms12  = rms13  = rms14  = rms15  = rms16  = -1.;
 
-      num01  = num02  = num03  = num04  = num05  = num06  = num07  = num08  = -1.;
-      num09  = num10  = num11  = num12  = num13  = num14  = num15  = num16  = -1.;
-      mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
-      mean09 = mean10 = mean11 = mean12 = mean13 = mean14 = mean15 = mean16 = -1.;
-      rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
-      rms09  = rms10  = rms11  = rms12  = rms13  = rms14  = rms15  = rms16  = -1.;
+    bool update_channel1 = false;
+    bool update_channel2 = false;
+    bool update_channel3 = false;
+    bool update_channel4 = false;
+    bool update_channel5 = false;
+    bool update_channel6 = false;
+    bool update_channel7 = false;
+    bool update_channel8 = false;
 
-      bool update_channel1 = false;
-      bool update_channel2 = false;
-      bool update_channel3 = false;
-      bool update_channel4 = false;
-      bool update_channel5 = false;
-      bool update_channel6 = false;
-      bool update_channel7 = false;
-      bool update_channel8 = false;
-
-      if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= m_min_tot ) {
-        num01 = i01_[ism-1]->GetBinEntries(i01_[ism-1]->GetBin(1, i));
-        if ( num01 >= m_min_bin ) {
-          mean01 = i01_[ism-1]->GetBinContent(i01_[ism-1]->GetBin(1, i));
-          rms01  = i01_[ism-1]->GetBinError(i01_[ism-1]->GetBin(1, i));
-          update_channel1 = true;
-        }
+    if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= m_min_tot ) {
+      num01 = i01_[ism-1]->GetBinEntries(i01_[ism-1]->GetBin(1, i));
+      if ( num01 >= m_min_bin ) {
+        mean01 = i01_[ism-1]->GetBinContent(i01_[ism-1]->GetBin(1, i));
+        rms01  = i01_[ism-1]->GetBinError(i01_[ism-1]->GetBin(1, i));
+        update_channel1 = true;
       }
+    }
 
-      if ( i02_[ism-1] && i02_[ism-1]->GetEntries() >= m_min_tot ) {
-        num02 = i02_[ism-1]->GetBinEntries(i02_[ism-1]->GetBin(1, i));
-        if ( num02 >= m_min_bin ) {
-          mean02 = i02_[ism-1]->GetBinContent(i02_[ism-1]->GetBin(1, i));
-          rms02  = i02_[ism-1]->GetBinError(i02_[ism-1]->GetBin(1, i));
-          update_channel2 = true;
-        }
+    if ( i02_[ism-1] && i02_[ism-1]->GetEntries() >= m_min_tot ) {
+      num02 = i02_[ism-1]->GetBinEntries(i02_[ism-1]->GetBin(1, i));
+      if ( num02 >= m_min_bin ) {
+        mean02 = i02_[ism-1]->GetBinContent(i02_[ism-1]->GetBin(1, i));
+        rms02  = i02_[ism-1]->GetBinError(i02_[ism-1]->GetBin(1, i));
+        update_channel2 = true;
       }
+    }
 
-      if ( i03_[ism-1] && i03_[ism-1]->GetEntries() >= m_min_tot ) {
-        num03 = i03_[ism-1]->GetBinEntries(i03_[ism-1]->GetBin(i));
-        if ( num03 >= m_min_bin ) {
-          mean03 = i03_[ism-1]->GetBinContent(i03_[ism-1]->GetBin(1, i));
-          rms03  = i03_[ism-1]->GetBinError(i03_[ism-1]->GetBin(1, i));
-          update_channel3 = true;
-        }
+    if ( i03_[ism-1] && i03_[ism-1]->GetEntries() >= m_min_tot ) {
+      num03 = i03_[ism-1]->GetBinEntries(i03_[ism-1]->GetBin(i));
+      if ( num03 >= m_min_bin ) {
+        mean03 = i03_[ism-1]->GetBinContent(i03_[ism-1]->GetBin(1, i));
+        rms03  = i03_[ism-1]->GetBinError(i03_[ism-1]->GetBin(1, i));
+        update_channel3 = true;
       }
+    }
 
-      if ( i04_[ism-1] && i04_[ism-1]->GetEntries() >= m_min_tot ) {
-        num04 = i04_[ism-1]->GetBinEntries(i04_[ism-1]->GetBin(1, i));
-        if ( num04 >= m_min_bin ) {
-          mean04 = i04_[ism-1]->GetBinContent(i04_[ism-1]->GetBin(1, i));
-          rms04  = i04_[ism-1]->GetBinError(i04_[ism-1]->GetBin(1, i));
-          update_channel4 = true;
-        }
+    if ( i04_[ism-1] && i04_[ism-1]->GetEntries() >= m_min_tot ) {
+      num04 = i04_[ism-1]->GetBinEntries(i04_[ism-1]->GetBin(1, i));
+      if ( num04 >= m_min_bin ) {
+        mean04 = i04_[ism-1]->GetBinContent(i04_[ism-1]->GetBin(1, i));
+        rms04  = i04_[ism-1]->GetBinError(i04_[ism-1]->GetBin(1, i));
+        update_channel4 = true;
       }
+    }
 
-      if ( i05_[ism-1] && i05_[ism-1]->GetEntries() >= m_min_tot ) {
-        num05 = i05_[ism-1]->GetBinEntries(i05_[ism-1]->GetBin(1, i));
-        if ( num05 >= m_min_bin ) {
-          mean05 = i05_[ism-1]->GetBinContent(i05_[ism-1]->GetBin(1, i));
-          rms05  = i05_[ism-1]->GetBinError(i05_[ism-1]->GetBin(1, i));
-          update_channel5 = true;
-        }
+    if ( i05_[ism-1] && i05_[ism-1]->GetEntries() >= m_min_tot ) {
+      num05 = i05_[ism-1]->GetBinEntries(i05_[ism-1]->GetBin(1, i));
+      if ( num05 >= m_min_bin ) {
+        mean05 = i05_[ism-1]->GetBinContent(i05_[ism-1]->GetBin(1, i));
+        rms05  = i05_[ism-1]->GetBinError(i05_[ism-1]->GetBin(1, i));
+        update_channel5 = true;
       }
-      if ( i06_[ism-1] && i06_[ism-1]->GetEntries() >= m_min_tot ) {
-        num06 = i06_[ism-1]->GetBinEntries(i06_[ism-1]->GetBin(1, i));
-        if ( num06 >= m_min_bin ) {
-          mean06 = i06_[ism-1]->GetBinContent(i06_[ism-1]->GetBin(1, i));
-          rms06  = i06_[ism-1]->GetBinError(i06_[ism-1]->GetBin(1, i));
-          update_channel6 = true;
-        }
+    }
+    if ( i06_[ism-1] && i06_[ism-1]->GetEntries() >= m_min_tot ) {
+      num06 = i06_[ism-1]->GetBinEntries(i06_[ism-1]->GetBin(1, i));
+      if ( num06 >= m_min_bin ) {
+        mean06 = i06_[ism-1]->GetBinContent(i06_[ism-1]->GetBin(1, i));
+        rms06  = i06_[ism-1]->GetBinError(i06_[ism-1]->GetBin(1, i));
+        update_channel6 = true;
       }
+    }
 
-      if ( i07_[ism-1] && i07_[ism-1]->GetEntries() >= m_min_tot ) {
-        num07 = i07_[ism-1]->GetBinEntries(i07_[ism-1]->GetBin(1, i));
-        if ( num07 >= m_min_bin ) {
-          mean07 = i07_[ism-1]->GetBinContent(i07_[ism-1]->GetBin(1, i));
-          rms07  = i07_[ism-1]->GetBinError(i07_[ism-1]->GetBin(1, i));
-          update_channel7 = true;
-        }
+    if ( i07_[ism-1] && i07_[ism-1]->GetEntries() >= m_min_tot ) {
+      num07 = i07_[ism-1]->GetBinEntries(i07_[ism-1]->GetBin(1, i));
+      if ( num07 >= m_min_bin ) {
+        mean07 = i07_[ism-1]->GetBinContent(i07_[ism-1]->GetBin(1, i));
+        rms07  = i07_[ism-1]->GetBinError(i07_[ism-1]->GetBin(1, i));
+        update_channel7 = true;
       }
+    }
 
-      if ( i08_[ism-1] && i08_[ism-1]->GetEntries() >= m_min_tot ) {
-        num08 = i08_[ism-1]->GetBinEntries(i08_[ism-1]->GetBin(1, i));
-        if ( num08 >= m_min_bin ) {
-          mean08 = i08_[ism-1]->GetBinContent(i08_[ism-1]->GetBin(1, i));
-          rms08  = i08_[ism-1]->GetBinError(i08_[ism-1]->GetBin(1, i));
-          update_channel8 = true;
-        }
+    if ( i08_[ism-1] && i08_[ism-1]->GetEntries() >= m_min_tot ) {
+      num08 = i08_[ism-1]->GetBinEntries(i08_[ism-1]->GetBin(1, i));
+      if ( num08 >= m_min_bin ) {
+        mean08 = i08_[ism-1]->GetBinContent(i08_[ism-1]->GetBin(1, i));
+        rms08  = i08_[ism-1]->GetBinError(i08_[ism-1]->GetBin(1, i));
+        update_channel8 = true;
       }
+    }
 
-      if ( j01_[ism-1] && j01_[ism-1]->GetEntries() >= m_min_tot ) {
-        num09 = j01_[ism-1]->GetBinEntries(j01_[ism-1]->GetBin(1, i));
-        if ( num09 >= m_min_bin ) {
-          mean09 = j01_[ism-1]->GetBinContent(j01_[ism-1]->GetBin(1, i));
-          rms09  = j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(1, i));
-          update_channel1 = true;
-        }
+    if ( j01_[ism-1] && j01_[ism-1]->GetEntries() >= m_min_tot ) {
+      num09 = j01_[ism-1]->GetBinEntries(j01_[ism-1]->GetBin(1, i));
+      if ( num09 >= m_min_bin ) {
+        mean09 = j01_[ism-1]->GetBinContent(j01_[ism-1]->GetBin(1, i));
+        rms09  = j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(1, i));
+        update_channel1 = true;
       }
+    }
 
-      if ( j02_[ism-1] && j02_[ism-1]->GetEntries() >= m_min_tot ) {
-        num10 = j02_[ism-1]->GetBinEntries(j02_[ism-1]->GetBin(1, i));
-        if ( num10 >= m_min_bin ) {
-          mean10 = j02_[ism-1]->GetBinContent(j02_[ism-1]->GetBin(1, i));
-          rms10  = j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(1, i));
-          update_channel2 = true;
-        }
+    if ( j02_[ism-1] && j02_[ism-1]->GetEntries() >= m_min_tot ) {
+      num10 = j02_[ism-1]->GetBinEntries(j02_[ism-1]->GetBin(1, i));
+      if ( num10 >= m_min_bin ) {
+        mean10 = j02_[ism-1]->GetBinContent(j02_[ism-1]->GetBin(1, i));
+        rms10  = j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(1, i));
+        update_channel2 = true;
       }
+    }
 
-      if ( j03_[ism-1] && j03_[ism-1]->GetEntries() >= m_min_tot ) {
-        num11 = j03_[ism-1]->GetBinEntries(j03_[ism-1]->GetBin(i));
-        if ( num11 >= m_min_bin ) {
-          mean11 = j03_[ism-1]->GetBinContent(j03_[ism-1]->GetBin(1, i));
-          rms11  = j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(1, i));
-          update_channel3 = true;
-        }
+    if ( j03_[ism-1] && j03_[ism-1]->GetEntries() >= m_min_tot ) {
+      num11 = j03_[ism-1]->GetBinEntries(j03_[ism-1]->GetBin(i));
+      if ( num11 >= m_min_bin ) {
+        mean11 = j03_[ism-1]->GetBinContent(j03_[ism-1]->GetBin(1, i));
+        rms11  = j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(1, i));
+        update_channel3 = true;
       }
+    }
 
-      if ( j04_[ism-1] && j04_[ism-1]->GetEntries() >= m_min_tot ) {
-        num12 = j04_[ism-1]->GetBinEntries(j04_[ism-1]->GetBin(1, i));
-        if ( num12 >= m_min_bin ) {
-          mean12 = j04_[ism-1]->GetBinContent(j04_[ism-1]->GetBin(1, i));
-          rms12  = j04_[ism-1]->GetBinError(j04_[ism-1]->GetBin(1, i));
-          update_channel4 = true;
-        }
+    if ( j04_[ism-1] && j04_[ism-1]->GetEntries() >= m_min_tot ) {
+      num12 = j04_[ism-1]->GetBinEntries(j04_[ism-1]->GetBin(1, i));
+      if ( num12 >= m_min_bin ) {
+        mean12 = j04_[ism-1]->GetBinContent(j04_[ism-1]->GetBin(1, i));
+        rms12  = j04_[ism-1]->GetBinError(j04_[ism-1]->GetBin(1, i));
+        update_channel4 = true;
       }
+    }
 
-      if ( j05_[ism-1] && j05_[ism-1]->GetEntries() >= m_min_tot ) {
-        num13 = j05_[ism-1]->GetBinEntries(j05_[ism-1]->GetBin(1, i));
-        if ( num13 >= m_min_bin ) {
-          mean13 = j05_[ism-1]->GetBinContent(j05_[ism-1]->GetBin(1, i));
-          rms13  = j05_[ism-1]->GetBinError(j05_[ism-1]->GetBin(1, i));
-          update_channel5 = true;
-        }
+    if ( j05_[ism-1] && j05_[ism-1]->GetEntries() >= m_min_tot ) {
+      num13 = j05_[ism-1]->GetBinEntries(j05_[ism-1]->GetBin(1, i));
+      if ( num13 >= m_min_bin ) {
+        mean13 = j05_[ism-1]->GetBinContent(j05_[ism-1]->GetBin(1, i));
+        rms13  = j05_[ism-1]->GetBinError(j05_[ism-1]->GetBin(1, i));
+        update_channel5 = true;
       }
-      if ( j06_[ism-1] && j06_[ism-1]->GetEntries() >= m_min_tot ) {
-        num14 = j06_[ism-1]->GetBinEntries(j06_[ism-1]->GetBin(1, i));
-        if ( num14 >= m_min_bin ) {
-          mean14 = j06_[ism-1]->GetBinContent(j06_[ism-1]->GetBin(1, i));
-          rms14  = j06_[ism-1]->GetBinError(j06_[ism-1]->GetBin(1, i));
-          update_channel6 = true;
-        }
+    }
+    if ( j06_[ism-1] && j06_[ism-1]->GetEntries() >= m_min_tot ) {
+      num14 = j06_[ism-1]->GetBinEntries(j06_[ism-1]->GetBin(1, i));
+      if ( num14 >= m_min_bin ) {
+        mean14 = j06_[ism-1]->GetBinContent(j06_[ism-1]->GetBin(1, i));
+        rms14  = j06_[ism-1]->GetBinError(j06_[ism-1]->GetBin(1, i));
+        update_channel6 = true;
       }
+    }
 
-      if ( j07_[ism-1] && j07_[ism-1]->GetEntries() >= m_min_tot ) {
-        num15 = j07_[ism-1]->GetBinEntries(j07_[ism-1]->GetBin(1, i));
-        if ( num15 >= m_min_bin ) {
-          mean15 = j07_[ism-1]->GetBinContent(j07_[ism-1]->GetBin(1, i));
-          rms15  = j07_[ism-1]->GetBinError(j07_[ism-1]->GetBin(1, i));
-          update_channel7 = true;
-        }
+    if ( j07_[ism-1] && j07_[ism-1]->GetEntries() >= m_min_tot ) {
+      num15 = j07_[ism-1]->GetBinEntries(j07_[ism-1]->GetBin(1, i));
+      if ( num15 >= m_min_bin ) {
+        mean15 = j07_[ism-1]->GetBinContent(j07_[ism-1]->GetBin(1, i));
+        rms15  = j07_[ism-1]->GetBinError(j07_[ism-1]->GetBin(1, i));
+        update_channel7 = true;
       }
+    }
 
-      if ( j08_[ism-1] && j08_[ism-1]->GetEntries() >= m_min_tot ) {
-        num16 = j08_[ism-1]->GetBinEntries(j08_[ism-1]->GetBin(1, i));
-        if ( num16 >= m_min_bin ) {
-          mean16 = j08_[ism-1]->GetBinContent(j08_[ism-1]->GetBin(1, i));
-          rms16  = j08_[ism-1]->GetBinError(j08_[ism-1]->GetBin(1, i));
-          update_channel8 = true;
-        }
+    if ( j08_[ism-1] && j08_[ism-1]->GetEntries() >= m_min_tot ) {
+      num16 = j08_[ism-1]->GetBinEntries(j08_[ism-1]->GetBin(1, i));
+      if ( num16 >= m_min_bin ) {
+        mean16 = j08_[ism-1]->GetBinContent(j08_[ism-1]->GetBin(1, i));
+        rms16  = j08_[ism-1]->GetBinError(j08_[ism-1]->GetBin(1, i));
+        update_channel8 = true;
       }
+    }
 
-      if ( update_channel1 ) {
+    if ( update_channel1 ) {
 
-        if ( i == 1 ) {
+      if ( i == 1 ) {
 
-          cout << "Preparing dataset for SM=" << ism << endl;
+        cout << "Preparing dataset for SM=" << ism << endl;
 
-          cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-          cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
-
-        }
-
-        pn_bl.setADCMeanG1(mean01);
-        pn_bl.setADCRMSG1(rms01);
-
-        pn_bl.setPedMeanG1(mean05);
-        pn_bl.setPedRMSG1(rms05);
-
-        pn_bl.setADCMeanG16(mean09);
-        pn_bl.setADCRMSG16(rms09);
-
-        pn_bl.setPedMeanG16(mean13);
-        pn_bl.setPedRMSG16(rms13);
-
-        if ( mean01 > 200. && mean05 > 200. && mean09 > 200. && mean13 > 200. ) {
-          pn_bl.setTaskStatus(true);
-        } else {
-          pn_bl.setTaskStatus(false);
-        }
-
-        if ( econn ) {
-          try {
-            ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
-            dataset2_bl[ecid] = pn_bl;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
-        }
+        cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
+        cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
 
       }
 
-      if ( update_channel2 ) {
+      pn_bl.setADCMeanG1(mean01);
+      pn_bl.setADCRMSG1(rms01);
 
-        if ( i == 1 ) {
+      pn_bl.setPedMeanG1(mean05);
+      pn_bl.setPedRMSG1(rms05);
 
-          cout << "Preparing dataset for SM=" << ism << endl;
+      pn_bl.setADCMeanG16(mean09);
+      pn_bl.setADCRMSG16(rms09);
 
-          cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
-          cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
+      pn_bl.setPedMeanG16(mean13);
+      pn_bl.setPedRMSG16(rms13);
 
+      if ( mean01 > 200. && mean05 > 200. && mean09 > 200. && mean13 > 200. ) {
+        pn_bl.setTaskStatus(true);
+      } else {
+        pn_bl.setTaskStatus(false);
+      }
+
+      if ( econn ) {
+        try {
+          ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
+          dataset2_bl[ecid] = pn_bl;
+        } catch (runtime_error &e) {
+          cerr << e.what() << endl;
         }
+      }
 
-        pn_ir.setADCMeanG1(mean02);
-        pn_ir.setADCRMSG1(rms02);
+    }
 
-        pn_ir.setPedMeanG1(mean06);
-        pn_ir.setPedRMSG1(rms06);
+    if ( update_channel2 ) {
 
-        pn_ir.setADCMeanG16(mean10);
-        pn_ir.setADCRMSG16(rms10);
+      if ( i == 1 ) {
 
-        pn_ir.setPedMeanG16(mean14);
-        pn_ir.setPedRMSG16(rms14);
+        cout << "Preparing dataset for SM=" << ism << endl;
 
-        if ( mean02 > 200. && mean06 > 200. && mean10 > 200. && mean14 > 200. ) {
-          pn_ir.setTaskStatus(true);
-        } else {
-          pn_ir.setTaskStatus(false);
-        }
-
-        if ( econn ) {
-          try {
-            ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
-            dataset2_ir[ecid] = pn_ir;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
-        }
+        cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
+        cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
 
       }
 
-      if ( update_channel3 ) {
+      pn_ir.setADCMeanG1(mean02);
+      pn_ir.setADCRMSG1(rms02);
 
-        if ( i == 1 ) {
+      pn_ir.setPedMeanG1(mean06);
+      pn_ir.setPedRMSG1(rms06);
 
-          cout << "Preparing dataset for SM=" << ism << endl;
+      pn_ir.setADCMeanG16(mean10);
+      pn_ir.setADCRMSG16(rms10);
 
-          cout << "PNs (" << i << ") L3 G01 " << num03  << " " << mean03 << " " << rms03  << endl;
-          cout << "PNs (" << i << ") L3 G16 " << num11  << " " << mean11 << " " << rms11  << endl;
+      pn_ir.setPedMeanG16(mean14);
+      pn_ir.setPedRMSG16(rms14);
 
+      if ( mean02 > 200. && mean06 > 200. && mean10 > 200. && mean14 > 200. ) {
+        pn_ir.setTaskStatus(true);
+      } else {
+        pn_ir.setTaskStatus(false);
+      }
+
+      if ( econn ) {
+        try {
+          ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
+          dataset2_ir[ecid] = pn_ir;
+        } catch (runtime_error &e) {
+          cerr << e.what() << endl;
         }
+      }
 
-        pn_gr.setADCMeanG1(mean03);
-        pn_gr.setADCRMSG1(rms03);
+    }
 
-        pn_gr.setPedMeanG1(mean07);
-        pn_gr.setPedRMSG1(rms07);
+    if ( update_channel3 ) {
 
-        pn_gr.setADCMeanG16(mean11);
-        pn_gr.setADCRMSG16(rms11);
+      if ( i == 1 ) {
 
-        pn_gr.setPedMeanG16(mean15);
-        pn_gr.setPedRMSG16(rms15);
+        cout << "Preparing dataset for SM=" << ism << endl;
 
-        if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
-          pn_gr.setTaskStatus(true);
-        } else {
-          pn_gr.setTaskStatus(false);
-        }
-
-        if ( econn ) {
-          try {
-            ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
-            dataset2_gr[ecid] = pn_gr;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
-        }
+        cout << "PNs (" << i << ") L3 G01 " << num03  << " " << mean03 << " " << rms03  << endl;
+        cout << "PNs (" << i << ") L3 G16 " << num11  << " " << mean11 << " " << rms11  << endl;
 
       }
 
-      if ( update_channel4 ) {
+      pn_gr.setADCMeanG1(mean03);
+      pn_gr.setADCRMSG1(rms03);
 
-        if ( i == 1 ) {
+      pn_gr.setPedMeanG1(mean07);
+      pn_gr.setPedRMSG1(rms07);
 
-          cout << "Preparing dataset for SM=" << ism << endl;
+      pn_gr.setADCMeanG16(mean11);
+      pn_gr.setADCRMSG16(rms11);
 
-          cout << "PNs (" << i << ") L4 G01 " << num04  << " " << mean04 << " " << rms04  << endl;
-          cout << "PNs (" << i << ") L4 G16 " << num12  << " " << mean12 << " " << rms12  << endl;
+      pn_gr.setPedMeanG16(mean15);
+      pn_gr.setPedRMSG16(rms15);
 
+      if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
+        pn_gr.setTaskStatus(true);
+      } else {
+        pn_gr.setTaskStatus(false);
+      }
+
+      if ( econn ) {
+        try {
+          ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
+          dataset2_gr[ecid] = pn_gr;
+        } catch (runtime_error &e) {
+          cerr << e.what() << endl;
         }
+      }
 
-        pn_rd.setADCMeanG1(mean04);
-        pn_rd.setADCRMSG1(rms04);
+    }
 
-        pn_rd.setPedMeanG1(mean08);
-        pn_rd.setPedRMSG1(mean08);
+    if ( update_channel4 ) {
 
-        pn_rd.setADCMeanG16(mean12);
-        pn_rd.setADCRMSG16(rms12);
+      if ( i == 1 ) {
 
-        pn_rd.setPedMeanG16(mean16);
-        pn_rd.setPedRMSG16(rms16);
+        cout << "Preparing dataset for SM=" << ism << endl;
 
-        if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
-          pn_rd.setTaskStatus(true);
-        } else {
-          pn_rd.setTaskStatus(false);
+        cout << "PNs (" << i << ") L4 G01 " << num04  << " " << mean04 << " " << rms04  << endl;
+        cout << "PNs (" << i << ") L4 G16 " << num12  << " " << mean12 << " " << rms12  << endl;
+
+      }
+
+      pn_rd.setADCMeanG1(mean04);
+      pn_rd.setADCRMSG1(rms04);
+
+      pn_rd.setPedMeanG1(mean08);
+      pn_rd.setPedRMSG1(mean08);
+
+      pn_rd.setADCMeanG16(mean12);
+      pn_rd.setADCRMSG16(rms12);
+
+      pn_rd.setPedMeanG16(mean16);
+      pn_rd.setPedRMSG16(rms16);
+
+      if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
+        pn_rd.setTaskStatus(true);
+      } else {
+        pn_rd.setTaskStatus(false);
+      }
+
+      if ( econn ) {
+        try {
+          ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
+          dataset2_rd[ecid] = pn_rd;
+        } catch (runtime_error &e) {
+          cerr << e.what() << endl;
         }
-
-        if ( econn ) {
-          try {
-            ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
-            dataset2_rd[ecid] = pn_rd;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
-        }
-
       }
 
     }
@@ -1936,7 +1928,6 @@ void EBLaserClient::analyze(void){
 
 }
 
-//void EBLaserClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
 void EBLaserClient::htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName){
 
   cout << "Preparing EBLaserClient html output ..." << endl;
@@ -1997,9 +1988,8 @@ void EBLaserClient::htmlOutput(int run, const std::vector<int> & superModules, s
 
   // Loop on barrel supermodules
 
-  //for ( int ism = 1 ; ism <= 36 ; ism++ ) {
-    //if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
   for( unsigned int i=0; i<superModules.size(); i ++ ) {
+
     int ism = superModules[i];
 
     // Loop on wavelength

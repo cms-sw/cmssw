@@ -1,14 +1,15 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/21 17:24:17 $
- * $Revision: 1.123 $
+ * $Date: 2006/05/21 18:38:39 $
+ * $Revision: 1.124 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
 */
 
 #include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
 EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
@@ -718,94 +719,100 @@ void EcalBarrelMonitorClient::writeDb(void) {
   int taskl = 0x0;
   int tasko = 0x0;
 
-  if ( integrity_client_ ) {
-    if ( end_run_ || ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) ) {
-      taskl |= 0x1;
-      integrity_client_->writeDb(econn, &moniov_);
-      tasko |= 0x0;
+  for( unsigned int i=0; i<superModules_.size(); i ++ ) {
+
+    int ism = superModules_[i];
+
+    if ( integrity_client_ ) {
+      if ( end_run_ || ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) ) {
+        taskl |= 0x1;
+        integrity_client_->writeDb(econn, &moniov_, ism);
+        tasko |= 0x0;
+      }
     }
-  }
 
-  if ( cosmic_client_ ) {
-    if ( end_run_ || runtype_ == "COSMIC" ) {
-      taskl |= 0x1 << 1;
-      cosmic_client_->writeDb(econn, &moniov_);
-      tasko |= 0x0 << 1;
+    if ( cosmic_client_ ) {
+      if ( end_run_ || runtype_ == "COSMIC" ) {
+        taskl |= 0x1 << 1;
+        cosmic_client_->writeDb(econn, &moniov_, ism);
+        tasko |= 0x0 << 1;
+      }
     }
-  }
-  if ( laser_client_ ) {
-    if ( end_run_ && ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) ) {
-      taskl |= 0x1 << 2;
-      laser_client_->writeDb(econn, &moniov_);
-      tasko |= 0x0 << 2;
+    if ( laser_client_ ) {
+      if ( end_run_ && ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) ) {
+        taskl |= 0x1 << 2;
+        laser_client_->writeDb(econn, &moniov_, ism);
+        tasko |= 0x0 << 2;
+      }
     }
-  }
-  if ( pedestal_client_ ) {
-    if ( end_run_ && runtype_ == "PEDESTAL" ) {
-      taskl |= 0x1 << 3;
-      pedestal_client_->writeDb(econn, &moniov_);
-      tasko |= 0x0 << 3;
+    if ( pedestal_client_ ) {
+      if ( end_run_ && runtype_ == "PEDESTAL" ) {
+        taskl |= 0x1 << 3;
+        pedestal_client_->writeDb(econn, &moniov_, ism);
+        tasko |= 0x0 << 3;
+      }
     }
-  }
-  if ( pedestalonline_client_ ) {
-    if ( end_run_ || ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) ) {
-      taskl |= 0x1 << 4;
-      pedestalonline_client_->writeDb(econn, &moniov_);
-      tasko |= 0x0 << 4;
+    if ( pedestalonline_client_ ) {
+      if ( end_run_ || ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) ) {
+        taskl |= 0x1 << 4;
+        pedestalonline_client_->writeDb(econn, &moniov_, ism);
+        tasko |= 0x0 << 4;
+      }
     }
-  }
-  if ( testpulse_client_ ) {
-    if ( end_run_ && runtype_ == "TEST_PULSE" ) {
-      taskl |= 0x1 << 5;
-      testpulse_client_->writeDb(econn, &moniov_);
-      tasko |= 0x0 << 5;
+    if ( testpulse_client_ ) {
+      if ( end_run_ && runtype_ == "TEST_PULSE" ) {
+        taskl |= 0x1 << 5;
+        testpulse_client_->writeDb(econn, &moniov_, ism);
+        tasko |= 0x0 << 5;
+      }
     }
-  }
-  if ( beam_client_ ) {
-    if ( end_run_ || runtype_ == "BEAMH4" ) {
-      taskl |= 0x1 << 6;
-      beam_client_->writeDb(econn, &moniov_);
-      tasko |= 0x0 << 6;
+    if ( beam_client_ ) {
+      if ( end_run_ || runtype_ == "BEAMH4" ) {
+        taskl |= 0x1 << 6;
+        beam_client_->writeDb(econn, &moniov_, ism);
+        tasko |= 0x0 << 6;
+      }
     }
-  }
 
-  EcalLogicID ecid;
-  MonRunDat md;
-  map<EcalLogicID, MonRunDat> dataset;
+    EcalLogicID ecid;
+    MonRunDat md;
+    map<EcalLogicID, MonRunDat> dataset;
 
-  MonRunOutcomeDef monRunOutcomeDef;
+    MonRunOutcomeDef monRunOutcomeDef;
 
-  monRunOutcomeDef.setShortDesc("success");
+    monRunOutcomeDef.setShortDesc("success");
 
-  float nevt = -1.;
+    float nevt = -1.;
 
-  if ( h_ ) nevt = h_->GetEntries();
+    if ( h_ ) nevt = h_->GetEntries();
 
-  md.setNumEvents(int(nevt));
-  md.setMonRunOutcomeDef(monRunOutcomeDef);
-  md.setRootfileName(outputFile_);
-  md.setTaskList(taskl);
-  md.setTaskOutcome(tasko);
+    md.setNumEvents(int(nevt));
+    md.setMonRunOutcomeDef(monRunOutcomeDef);
+    md.setRootfileName(outputFile_);
+    md.setTaskList(taskl);
+    md.setTaskOutcome(tasko);
 
-  cout << "Creating MonRunDatObjects for the database ..." << endl;
+    cout << "Creating MonRunDatObjects for the database ..." << endl;
 
-  if ( econn ) {
-    try {
-      ecid = econn->getEcalLogicID("ECAL");
-      dataset[ecid] = md;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+    if ( econn ) {
+      try {
+        ecid = econn->getEcalLogicID("ECAL");
+        dataset[ecid] = md;
+      } catch (runtime_error &e) {
+        cerr << e.what() << endl;
+      }
     }
-  }
 
-  if ( econn ) {
-    try {
-      cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&dataset, &moniov_);
-      cout << "done." << endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+    if ( econn ) {
+      try {
+        cout << "Inserting dataset ... " << flush;
+        econn->insertDataSet(&dataset, &moniov_);
+        cout << "done." << endl;
+      } catch (runtime_error &e) {
+        cerr << e.what() << endl;
+      }
     }
+
   }
 
   if ( econn ) {
@@ -1022,19 +1029,7 @@ void EcalBarrelMonitorClient::analyze(void){
       }
     }
     me = mui_->get(histo);
-    if ( me ) {
-      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) {
-        if ( cloneME_ ) {
-          if ( h_ ) delete h_;
-          sprintf(histo, "ME EVTTYPE");
-          h_ = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
-        } else {
-          h_ = dynamic_cast<TH1F*> (ob->operator->());
-        }
-      }
-    }
+    h_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
     if ( enableMonitorDaemon_ ) {
       sprintf(histo, "Collector/FU0/EcalBarrel/RUNTYPE");

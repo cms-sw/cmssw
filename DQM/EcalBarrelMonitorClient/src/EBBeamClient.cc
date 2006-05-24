@@ -1,8 +1,8 @@
 /*
  * \file EBBeamClient.cc
  *
- * $Date: 2006/04/28 10:48:50 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/18 07:41:42 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -77,7 +77,7 @@ void EBBeamClient::cleanup(void) {
 
 }
 
-void EBBeamClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
+void EBBeamClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov, int ism) {
 
   EcalLogicID ecid;
   MonOccupancyDat o;
@@ -141,7 +141,6 @@ void EBBeamClient::analyze(void){
 
 }
 
-//void EBBeamClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
 void EBBeamClient::htmlOutput(int run, const std::vector<int> & superModules, string htmlDir, string htmlName){
 
   cout << "Preparing EBBeamClient html output ..." << endl;
