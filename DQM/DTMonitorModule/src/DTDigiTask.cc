@@ -1,11 +1,11 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/02/22 14:10:33 $
- * $Revision: 1.4 $
+ * $Date: 2006/04/10 12:30:44 $
+ * $Revision: 1.5 $
  * \author M. Zanetti - INFN Padova
  *
-*/
+ */
 
 #include <DQM/DTMonitorModule/interface/DTDigiTask.h>
 
@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <string>
 #include <sstream>
+#include <math.h>
 
 using namespace edm;
 using namespace std;
@@ -88,7 +89,8 @@ void DTDigiTask::beginJob(const edm::EventSetup& context){
   // t0s 
   if (parameters.getParameter<bool>("performPerWireT0Calibration")) 
     context.get<DTT0Rcd>().get(t0Map);
- 
+
+
 }
 
 
@@ -128,19 +130,12 @@ void DTDigiTask::bookHistos(const DTLayerId& dtLayer, string folder, string hist
 					       dtLayer.superlayer(),
 					       dtLayer.layer()))->specificTopology().channels();
 
-  if ( parameters.getUntrackedParameter<bool>("readDB", false) ) {
-    if ( ! tTrigMap->slTtrig( dtLayer.wheel(),
-			      dtLayer.station(),
-			      dtLayer.sector(),
-			      dtLayer.superlayer(), tTrig)) 
-      tTrig = parameters.getParameter<int>("defaultTtrig");
-  }
+  if ( parameters.getUntrackedParameter<bool>("readDB", false) ) 
+    tTrigMap->slTtrig( dtLayer.superlayerId(), tTrig, tTrigRMS); 
   else tTrig = parameters.getParameter<int>("defaultTtrig");
-
-  tMax = parameters.getParameter<int>("defaultTmax");
-
   
-
+  tMax = parameters.getParameter<int>("defaultTmax");
+  
   if ( folder == "Occupancies/Noise" ||
        folder == "Occupancies/Signal" ||
        folder == "Occupancies/AfterPulse" ) {
@@ -152,16 +147,29 @@ void DTDigiTask::bookHistos(const DTLayerId& dtLayer, string folder, string hist
       dbe->book1D(histoName,histoName,nWires,0,nWires);
   
   }
+
   if ( folder == "TimeBoxes") {
-    (digiHistos[histoTag])[int(DTLayerId(dtLayer.wheel(),
-					 dtLayer.station(),
-					 dtLayer.sector(),
-					 dtLayer.superlayer(),
-					 dtLayer.layer()).rawId())] = 
-      dbe->book1D(histoName,histoName, 
-		  2*tMax/parameters.getUntrackedParameter<int>("timeBoxGranularity",1), tTrig-tMax, tTrig+2*tMax);
+    if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
+      (digiHistos[histoTag])[int(DTLayerId(dtLayer.wheel(),
+					   dtLayer.station(),
+					   dtLayer.sector(),
+					   dtLayer.superlayer(),
+					   dtLayer.layer()).rawId())] = 
+	dbe->book1D(histoName,histoName, 2000, 0, 10000);
+      
+    }    
+    else {
+      (digiHistos[histoTag])[int(DTLayerId(dtLayer.wheel(),
+					   dtLayer.station(),
+					   dtLayer.sector(),
+					   dtLayer.superlayer(),
+					   dtLayer.layer()).rawId())] = 
+	dbe->book1D(histoName,histoName, 
+		    2*tMax/parameters.getUntrackedParameter<int>("timeBoxGranularity",1), tTrig-tMax, tTrig+2*tMax);
+    }
   }
-  if ( folder == "CathodPhotoPeaks") {
+
+  if ( folder == "CathodPhotoPeaks" && !parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
     (digiHistos[histoTag])[int(DTLayerId(dtLayer.wheel(),
 					 dtLayer.station(),
 					 dtLayer.sector(),
@@ -193,109 +201,133 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       // for clearness..
       int index = ((*dtLayerId_It).first).rawId();
 
-      if ( parameters.getUntrackedParameter<bool>("readDB", false) ) {
-	if ( ! tTrigMap->slTtrig( ((*dtLayerId_It).first).wheel(),
-				  ((*dtLayerId_It).first).station(),
-				  ((*dtLayerId_It).first).sector(),
-				  ((*dtLayerId_It).first).superlayer(), tTrig)) 
-	  tTrig = parameters.getParameter<int>("defaultTtrig");
-      }
+      if ( parameters.getUntrackedParameter<bool>("readDB", false) ) 
+	tTrigMap->slTtrig( ((*dtLayerId_It).first).superlayerId(), tTrig, tTrigRMS); 
       else tTrig = parameters.getParameter<int>("defaultTtrig");
+      
+      int inTimeHitsLowerBound = int(round(tTrig)) - parameters.getParameter<int>("inTimeHitsLowerBound");
+      int inTimeHitsUpperBound = int(round(tTrig)) + tMax + parameters.getParameter<int>("inTimeHitsUpperBound");
 
-      int inTimeHitsLowerBound = tTrig - parameters.getParameter<int>("inTimeHitsLowerBound");
-      int inTimeHitsUpperBound = tTrig + tMax + parameters.getParameter<int>("inTimeHitsUpperBound");
-
-      int t0 = 0; float t0RMS = 0;
+      float t0; float t0RMS;
       int tdcTime = (*digiIt).countsTDC();
-      if (parameters.getParameter<bool>("performPerWireT0Calibration"))
-	if ( ! t0Map->cellT0(((*dtLayerId_It).first).wheel(),
-			     ((*dtLayerId_It).first).station(),
-			     ((*dtLayerId_It).first).sector(),
-			     ((*dtLayerId_It).first).superlayer(),
-			     ((*dtLayerId_It).first).layer(),
-			     (*digiIt).wire(), t0, t0RMS) )
-	   tdcTime += t0;
 
-      // Noise: Before tTrig
-      if (tdcTime < inTimeHitsLowerBound ) {
-	
-	if (digiHistos[string("OccupancyNoise")].find(index) != 
-	    digiHistos[string("OccupancyNoise")].end()) {
-	  (digiHistos.find(string("OccupancyNoise"))->second).find(index)->second->Fill((*digiIt).wire());
+      if (parameters.getParameter<bool>("performPerWireT0Calibration")) {
+	const DTWireId dtWireId(((*dtLayerId_It).first), (*digiIt).wire());
+	t0Map->cellT0(dtWireId, t0, t0RMS) ;
+	tdcTime += int(round(t0));
+      }
+
+
+      /* * * * * * * * * * * * * * */
+      /* S T A R T   F I L L I N G */
+      /* * * * * * * * * * * * * * */
+      
+      // only for pre-Calibration jobs 
+      if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
+	// Occupancies
+	if (digiHistos[string("OccupancyInTimeHits")].find(index) != 
+	    digiHistos[string("OccupancyInTimeHits")].end()) {
+	  (digiHistos.find(string("OccupancyInTimeHits"))->second).find(index)->second->Fill((*digiIt).wire());
 	} else {
-	  bookHistos((*dtLayerId_It).first, string("Occupancies/Noise"), string("OccupancyNoise")); 
-	  (digiHistos.find(string("OccupancyNoise"))->second).find(index)->second->Fill((*digiIt).wire());
+	  bookHistos( (*dtLayerId_It).first, string("Occupancies/Signal"), string("OccupancyInTimeHits") );
+	  (digiHistos.find(string("OccupancyInTimeHits"))->second).find(index)->second->Fill((*digiIt).wire());
+	}
+	
+	// TimeBoxes
+	if (digiHistos[string("TimeBoxInTimeHits")].find(index) != 
+	    digiHistos[string("TimeBoxInTimeHits")].end()) {
+	  (digiHistos.find(string("TimeBoxInTimeHits"))->second).find(index)->second->Fill(tdcTime);
+	} else {
+	  bookHistos( (*dtLayerId_It).first, string("TimeBoxes"), string("TimeBoxInTimeHits") );
+	  (digiHistos.find(string("TimeBoxInTimeHits"))->second).find(index)->second->Fill(tdcTime);
 	}
       }
+
+      // after-Calibration jobs 
+      else {
+
+	// Noise: Before tTrig
+	if (tdcTime < inTimeHitsLowerBound ) {
+	
+	  if (digiHistos[string("OccupancyNoise")].find(index) != 
+	      digiHistos[string("OccupancyNoise")].end()) {
+	    (digiHistos.find(string("OccupancyNoise"))->second).find(index)->second->Fill((*digiIt).wire());
+	  } else {
+	    bookHistos((*dtLayerId_It).first, string("Occupancies/Noise"), string("OccupancyNoise")); 
+	    (digiHistos.find(string("OccupancyNoise"))->second).find(index)->second->Fill((*digiIt).wire());
+	  }
+	}
       
-      // time > tTrig
-      else if (tdcTime > inTimeHitsLowerBound ) { 
+	// time > tTrig
+	else if (tdcTime > inTimeHitsLowerBound ) { 
 	
-	// Physical hits: into the time window	
-	if ( tdcTime < inTimeHitsUpperBound) {
+	  // Physical hits: into the time window	
+	  if ( tdcTime < inTimeHitsUpperBound) {
 	  
-	  // Occupancies
-	  if (digiHistos[string("OccupancyInTimeHits")].find(index) != 
-	      digiHistos[string("OccupancyInTimeHits")].end()) {
-	    (digiHistos.find(string("OccupancyInTimeHits"))->second).find(index)->second->Fill((*digiIt).wire());
-	  } else {
-	    bookHistos( (*dtLayerId_It).first, string("Occupancies/Signal"), string("OccupancyInTimeHits") );
-	    (digiHistos.find(string("OccupancyInTimeHits"))->second).find(index)->second->Fill((*digiIt).wire());
+	    // Occupancies
+	    if (digiHistos[string("OccupancyInTimeHits")].find(index) != 
+		digiHistos[string("OccupancyInTimeHits")].end()) {
+	      (digiHistos.find(string("OccupancyInTimeHits"))->second).find(index)->second->Fill((*digiIt).wire());
+	    } else {
+	      bookHistos( (*dtLayerId_It).first, string("Occupancies/Signal"), string("OccupancyInTimeHits") );
+	      (digiHistos.find(string("OccupancyInTimeHits"))->second).find(index)->second->Fill((*digiIt).wire());
+	    }
+	  
+	    // TimeBoxes
+	    if (digiHistos[string("TimeBoxInTimeHits")].find(index) != 
+		digiHistos[string("TimeBoxInTimeHits")].end()) {
+	      (digiHistos.find(string("TimeBoxInTimeHits"))->second).find(index)->second->Fill(tdcTime);
+	    } else {
+	      bookHistos( (*dtLayerId_It).first, string("TimeBoxes"), string("TimeBoxInTimeHits") );
+	      (digiHistos.find(string("TimeBoxInTimeHits"))->second).find(index)->second->Fill(tdcTime);
+	    }
+	  
+	  
+	    // After pulses from a physical hit
+	    if ( (*digiIt).number() > 0 ) {
+	      if (digiHistos[string("OccupancyAfterPulseHits")].find(index) != 
+		  digiHistos[string("OccupancyAfterPulseHits")].end()) {
+		(digiHistos.find(string("OccupancyAfterPulseHits"))->second).find(index)->second->Fill((*digiIt).wire());
+	      } else {
+		bookHistos( (*dtLayerId_It).first, string("Occupancies/AfterPulse"), string("OccupancyAfterPulseHits") );
+		(digiHistos.find(string("OccupancyAfterPulseHits"))->second).find(index)->second->Fill((*digiIt).wire());
+	      }
+	    }
+	  
 	  }
-	  
-	  // TimeBoxes
-	  if (digiHistos[string("TimeBoxInTimeHits")].find(index) != 
-	      digiHistos[string("TimeBoxInTimeHits")].end()) {
-	    (digiHistos.find(string("TimeBoxInTimeHits"))->second).find(index)->second->Fill(tdcTime);
-	  } else {
-	    bookHistos( (*dtLayerId_It).first, string("TimeBoxes"), string("TimeBoxInTimeHits") );
-	    (digiHistos.find(string("TimeBoxInTimeHits"))->second).find(index)->second->Fill(tdcTime);
-	  }
-	  
-	  
-  	  // After pulses from a physical hit
- 	  if ( (*digiIt).number() > 0 ) {
+	
+	  // After pulses: after the time window
+	  if ( tdcTime > inTimeHitsUpperBound ) {
 	    if (digiHistos[string("OccupancyAfterPulseHits")].find(index) != 
- 		digiHistos[string("OccupancyAfterPulseHits")].end()) {
- 	      (digiHistos.find(string("OccupancyAfterPulseHits"))->second).find(index)->second->Fill((*digiIt).wire());
- 	    } else {
- 	      bookHistos( (*dtLayerId_It).first, string("Occupancies/AfterPulse"), string("OccupancyAfterPulseHits") );
- 	      (digiHistos.find(string("OccupancyAfterPulseHits"))->second).find(index)->second->Fill((*digiIt).wire());
- 	    }
- 	  }
-	  
- 	}
+		digiHistos[string("OccupancyAfterPulseHits")].end()) {
+	      (digiHistos.find(string("OccupancyAfterPulseHits"))->second).find(index)->second->Fill((*digiIt).wire());
+	    } else {
+	      bookHistos( (*dtLayerId_It).first, string("Occupancies/AfterPulse"), string("OccupancyAfterPulseHits") );
+	      (digiHistos.find(string("OccupancyAfterPulseHits"))->second).find(index)->second->Fill((*digiIt).wire());
+	    }
+	  }
 	
- 	// After pulses: after the time window
- 	if ( tdcTime > inTimeHitsUpperBound ) {
- 	  if (digiHistos[string("OccupancyAfterPulseHits")].find(index) != 
- 	      digiHistos[string("OccupancyAfterPulseHits")].end()) {
- 	    (digiHistos.find(string("OccupancyAfterPulseHits"))->second).find(index)->second->Fill((*digiIt).wire());
- 	  } else {
- 	    bookHistos( (*dtLayerId_It).first, string("Occupancies/AfterPulse"), string("OccupancyAfterPulseHits") );
- 	    (digiHistos.find(string("OccupancyAfterPulseHits"))->second).find(index)->second->Fill((*digiIt).wire());
- 	  }
- 	}
-	
+	}
+
+	// 2nd - 1st
+	if ( (*digiIt).number() == 1 ) {
+	 
+	  DTDigiCollection::const_iterator firstDigiIt = digiIt;
+	  firstDigiIt--;
+
+	  if (digiHistos[string("CathodPhotoPeak")].find(index) != 
+	      digiHistos[string("CathodPhotoPeak")].end()) {
+	    (digiHistos.find(string("CathodPhotoPeak"))->second).find(index)->second->Fill((*digiIt).countsTDC()-
+											   (*firstDigiIt).countsTDC());
+	  } else {
+	    bookHistos( (*dtLayerId_It).first, string("CathodPhotoPeaks"), string("CathodPhotoPeak") );
+	    (digiHistos.find(string("CathodPhotoPeak"))->second).find(index)->second->Fill((*digiIt).countsTDC()-
+											   (*firstDigiIt).countsTDC());
+	  }
+	}
+       
       }
 
-       // 2nd - 1st
-       if ( (*digiIt).number() == 1 ) {
-	 
-	 DTDigiCollection::const_iterator firstDigiIt = digiIt;
-	 firstDigiIt--;
-
-	 if (digiHistos[string("CathodPhotoPeak")].find(index) != 
-	     digiHistos[string("CathodPhotoPeak")].end()) {
-	   (digiHistos.find(string("CathodPhotoPeak"))->second).find(index)->second->Fill((*digiIt).countsTDC()-
-											  (*firstDigiIt).countsTDC());
-	 } else {
-	   bookHistos( (*dtLayerId_It).first, string("CathodPhotoPeaks"), string("CathodPhotoPeak") );
-	   (digiHistos.find(string("CathodPhotoPeak"))->second).find(index)->second->Fill((*digiIt).countsTDC()-
-											  (*firstDigiIt).countsTDC());
-	 }
-       }
-       
     }
   }
   

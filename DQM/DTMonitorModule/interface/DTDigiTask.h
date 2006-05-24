@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2006/02/15 19:00:04 $
- * $Revision: 1.2 $
+ * $Date: 2006/02/21 19:04:13 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -33,6 +33,7 @@ class DTGeometry;
 class DTLayerId;
 class DTTtrig;
 class DTT0;
+
 
 using namespace edm;
 using namespace cms;
@@ -69,7 +70,8 @@ private:
   int tMax;
 
   /// tTrig from the DB
-  int tTrig;
+  float tTrig;
+  float tTrigRMS;
 
   DaqMonitorBEInterface* dbe;
 
@@ -79,6 +81,7 @@ private:
 
   edm::ESHandle<DTTtrig> tTrigMap;
   edm::ESHandle<DTT0> t0Map;
+
 
   string outputFile;
   ofstream logFile;

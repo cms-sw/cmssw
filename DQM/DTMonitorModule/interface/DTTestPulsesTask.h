@@ -4,8 +4,8 @@
 /*
  * \file DTTestPulsesTask.h
  *
- * $Date: 2006/02/15 08:24:55 $
- * $Revision: 1.1 $
+ * $Date: 2006/02/15 19:00:59 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -32,7 +32,7 @@
 
 class DTGeometry;
 class DTLayerId;
-class DTTtrig;
+class DTRangeT0;
 
 using namespace cms;
 using namespace std;
@@ -64,23 +64,21 @@ private:
   
   int nevents;
 
-  // TestPules tTrig from the DB
-  int tTrig_TP;
-  
   DaqMonitorBEInterface* dbe;
 
   edm::ParameterSet parameters;
 
   edm::ESHandle<DTGeometry> muonGeom;
 
-  edm::ESHandle<DTTtrig> tTrig_TPMap;
+  edm::ESHandle<DTRangeT0> t0RangeMap;
 
   string outputFile;
 
   pair <int, int> t0sPeakRange;
   
   // My monitor elements
-  map<int, MonitorElement*> testPulsesHistos;
+  map<int, MonitorElement*> testPulsesProfiles;
+  map<int, MonitorElement*> testPulsesOccupancies;
   map<int, MonitorElement*> testPulsesTimeBoxes;
 
   
