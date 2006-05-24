@@ -49,14 +49,14 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
     //
     //run the algorithm  
     //
-    edm::LogInfo("TrackProducer") << "run the algorithm" << "\n";
+    LogDebug("TrackProducer") << "run the algorithm" << "\n";
     theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
 			     theFitter.product(), thePropagator.product(), algoResults);
-  } catch (cms::Exception &e){}
+  } catch (cms::Exception &e){ edm::LogInfo("TrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
   //
   //put everything in th event
   putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, algoResults);
-  edm::LogInfo("TrackProducer") << "end" << "\n";
+  LogDebug("TrackProducer") << "end" << "\n";
 }
 
 

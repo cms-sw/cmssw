@@ -29,23 +29,23 @@ void TrackProducerBase::getFromES(const edm::EventSetup& setup,
   //
   //get geometry
   //
-  edm::LogInfo("TrackProducer") << "get geometry" << "\n";
+  LogDebug("TrackProducer") << "get geometry" << "\n";
   setup.get<TrackerDigiGeometryRecord>().get(theG);
   //
   //get magnetic field
   //
-  edm::LogInfo("TrackProducer") << "get magnetic field" << "\n";
+  LogDebug("TrackProducer") << "get magnetic field" << "\n";
   setup.get<IdealMagneticFieldRecord>().get(theMF);  
   //
   // get the fitter from the ES
   //
-  edm::LogInfo("TrackProducer") << "get the fitter from the ES" << "\n";
+  LogDebug("TrackProducer") << "get the fitter from the ES" << "\n";
   std::string fitterName = conf_.getParameter<std::string>("Fitter");   
   setup.get<TrackingComponentsRecord>().get(fitterName,theFitter);
   //
   // get also the propagator
   //
-  edm::LogInfo("TrackProducer") << "get also the propagator" << "\n";
+  LogDebug("TrackProducer") << "get also the propagator" << "\n";
   std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
   setup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
 }
@@ -55,7 +55,7 @@ void TrackProducerBase::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCandida
   //
   //get the TrackCandidateCollection from the event
   //
-  edm::LogInfo("TrackProducer") << 
+  LogDebug("TrackProducer") << 
     "get the TrackCandidateCollection from the event, source is " << src_<<"\n";
   theEvent.getByLabel(src_,theTCCollection );
 }
@@ -65,7 +65,7 @@ void TrackProducerBase::getFromEvt(edm::Event& theEvent,edm::Handle<reco::TrackC
   //
   //get the TrackCollection from the event
   //
-  edm::LogInfo("TrackProducer") << 
+  LogDebug("TrackProducer") << 
     "get the TrackCollection from the event, source is " << src_<<"\n";
   theEvent.getByLabel(src_,theTCollection );
 }
@@ -79,7 +79,7 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
   //
   //first loop: create the full collection of TrackingRecHit
   //
-  edm::LogInfo("TrackProducer") << 
+  LogDebug("TrackProducer") << 
     "first loop: create the full collection of TrackingRecHit" << "\n";
   for(AlgoProductCollection::iterator i=algoResults.begin();
       i!=algoResults.end();i++){
@@ -94,7 +94,7 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
     
   }
   //put the collection of TrackingRecHit in the event
-  edm::LogInfo("TrackProducer") << 
+  LogDebug("TrackProducer") << 
     "put the collection of TrackingRecHit in the event" << "\n";
   
   edm::OrphanHandle <TrackingRecHitCollection> ohRH = theEvent.put( outputRHColl );
@@ -102,7 +102,7 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
   //
   //second loop: create the collection of TrackExtra
   //
-  edm::LogInfo("TrackProducer") << 
+  LogDebug("TrackProducer") << 
     "second loop: create the collection of TrackExtra" << "\n";
   int cc = 0;	
   for(AlgoProductCollection::iterator i=algoResults.begin();
@@ -141,7 +141,7 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
     outputTEColl->push_back(*theTrackExtra);
   }
   //put the collection of TrackExtra in the event
-  edm::LogInfo("TrackProducer") << 
+  LogDebug("TrackProducer") << 
     "put the collection of TrackExtra in the event" << "\n";
   edm::OrphanHandle<reco::TrackExtraCollection> ohTE = theEvent.put(outputTEColl);
   
@@ -149,7 +149,7 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
   //
   //third loop: create the collection of Tracks
   //
-  edm::LogInfo("RecoTracker/TrackProducer") << 
+  LogDebug("RecoTracker/TrackProducer") << 
     "third loop: create the collection of Tracks" << "\n";
   cc = 0;
   for(AlgoProductCollection::iterator i=algoResults.begin();
@@ -169,7 +169,7 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
     cc++;
   }
   //put the TrackCollection in the event
-  edm::LogInfo("TrackProducer") << 
+  LogDebug("TrackProducer") << 
     "put the TrackCollection in the event" << "\n";
   theEvent.put(outputTColl);
 }
