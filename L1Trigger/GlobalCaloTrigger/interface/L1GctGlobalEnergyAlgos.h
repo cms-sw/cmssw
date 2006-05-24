@@ -8,7 +8,6 @@
 
 class L1GctWheelEnergyFpga;
 class L1GctWheelJetFpga;
-class L1GctJetFinalStage;
 
 /*
  * Emulates the GCT global energy algorithms
@@ -41,7 +40,6 @@ public:
 	void setMinusWheelEnergyFpga(L1GctWheelEnergyFpga* fpga);
 	void setPlusWheelJetFpga (L1GctWheelJetFpga* fpga);
 	void setMinusWheelJetFpga(L1GctWheelJetFpga* fpga);
-	void setJetFinalStage(L1GctJetFinalStage* fpga);
 	///	
 	/// set input data per wheel
 	void setInputWheelEx(unsigned wheel, int energy, bool overflow);
@@ -49,34 +47,27 @@ public:
 	void setInputWheelEt(unsigned wheel, unsigned energy, bool overflow);
 	void setInputWheelHt(unsigned wheel, unsigned energy, bool overflow);
 
-        // An extra contribution to Ht from jets at
-        // the boundary between wheels
-        void setInputBoundaryHt(unsigned energy, bool overflow);
-
         // also jet counts
         void setInputWheelJc(unsigned wheel, unsigned jcnum, unsigned count);
-        void setInputBoundaryJc(unsigned jcnum, unsigned count);
 
 	// return input data
-        inline L1GctEtComponent inputExValPlusWheel() const { return m_exValPlusWheel; }
-        inline L1GctEtComponent inputEyValPlusWheel() const { return m_eyValPlusWheel; }
-        inline L1GctEtComponent inputExVlMinusWheel() const { return m_exVlMinusWheel; }
-        inline L1GctEtComponent inputEyVlMinusWheel() const { return m_eyVlMinusWheel; }
-	inline L1GctScalarEtVal inputEtValPlusWheel() const { return m_etValPlusWheel; }
-	inline L1GctScalarEtVal inputHtValPlusWheel() const { return m_htValPlusWheel; }
-	inline L1GctScalarEtVal inputEtVlMinusWheel() const { return m_etVlMinusWheel; }
-	inline L1GctScalarEtVal inputHtVlMinusWheel() const { return m_htVlMinusWheel; }
-	inline L1GctScalarEtVal inputHtBoundaryJets() const { return m_htBoundaryJets; }
-        inline L1GctJcWheelType inputJcValPlusWheel(unsigned jcnum) {return m_jcValPlusWheel[jcnum]; }
-        inline L1GctJcWheelType inputJcVlMinusWheel(unsigned jcnum) {return m_jcVlMinusWheel[jcnum]; }
-        inline L1GctJcBoundType inputJcBoundaryJets(unsigned jcnum) {return m_jcBoundaryJets[jcnum]; }
+        inline L1GctEtComponent getInputExValPlusWheel() const { return m_exValPlusWheel; }
+        inline L1GctEtComponent getInputEyValPlusWheel() const { return m_eyValPlusWheel; }
+        inline L1GctEtComponent getInputExVlMinusWheel() const { return m_exVlMinusWheel; }
+        inline L1GctEtComponent getInputEyVlMinusWheel() const { return m_eyVlMinusWheel; }
+	inline L1GctScalarEtVal getInputEtValPlusWheel() const { return m_etValPlusWheel; }
+	inline L1GctScalarEtVal getInputHtValPlusWheel() const { return m_htValPlusWheel; }
+	inline L1GctScalarEtVal getInputEtVlMinusWheel() const { return m_etVlMinusWheel; }
+	inline L1GctScalarEtVal getInputHtVlMinusWheel() const { return m_htVlMinusWheel; }
+        inline L1GctJcWheelType getInputJcValPlusWheel(unsigned jcnum) {return m_jcValPlusWheel[jcnum]; }
+        inline L1GctJcWheelType getInputJcVlMinusWheel(unsigned jcnum) {return m_jcVlMinusWheel[jcnum]; }
 
 	// return output data
-	inline L1GctScalarEtVal etMiss()    { return m_outputEtMiss; }
-	inline L1GctEtAngleBin  etMissPhi() { return m_outputEtMissPhi; }
-	inline L1GctScalarEtVal etSum()     { return m_outputEtSum; }
-	inline L1GctScalarEtVal etHad()     { return m_outputEtHad; }
-	inline L1GctJcFinalType jetCount(unsigned jcnum) { return m_outputJetCounts[jcnum]; }
+	inline L1GctScalarEtVal getEtMiss()    { return m_outputEtMiss; }
+	inline L1GctEtAngleBin  getEtMissPhi() { return m_outputEtMissPhi; }
+	inline L1GctScalarEtVal getEtSum()     { return m_outputEtSum; }
+	inline L1GctScalarEtVal getEtHad()     { return m_outputEtHad; }
+	inline L1GctJcFinalType getJetCount(unsigned jcnum) { return m_outputJetCounts[jcnum]; }
 	
 private:
 	
@@ -85,7 +76,6 @@ private:
 	L1GctWheelEnergyFpga* m_minusWheelFpga;
 	L1GctWheelJetFpga* m_plusWheelJetFpga;
 	L1GctWheelJetFpga* m_minusWheelJetFpga;
-	L1GctJetFinalStage* m_jetFinalStage;
 
 	// input data
 	L1GctEtComponent m_exValPlusWheel;
@@ -96,11 +86,9 @@ private:
 	L1GctEtComponent m_eyVlMinusWheel;
 	L1GctScalarEtVal m_etVlMinusWheel;
 	L1GctScalarEtVal m_htVlMinusWheel;
-        L1GctScalarEtVal m_htBoundaryJets;
 
         std::vector<L1GctJcWheelType> m_jcValPlusWheel;
         std::vector<L1GctJcWheelType> m_jcVlMinusWheel;
-        std::vector<L1GctJcBoundType> m_jcBoundaryJets;
 
 	// output data
 	L1GctScalarEtVal m_outputEtMiss;

@@ -52,9 +52,6 @@ public:
   JetVector getCentralJets() const { return m_centralJets; }
   JetVector getForwardJets() const { return m_forwardJets; }
   JetVector getTauJets() const { return m_tauJets; }
-
-  inline L1GctScalarEtVal outputHt() const { return m_outputHt; }
-  inline L1GctJcBoundType outputJc(unsigned jcnum) const { return m_outputJc[jcnum]; }
 private:
 
   /// Max number of wheel FPGA pointers
@@ -77,10 +74,6 @@ private:
   JetVector m_forwardJets;
   JetVector m_tauJets;
 
-  // data sent to GlobalEnergyAlgos
-  L1GctScalarEtVal m_outputHt;
-  std::vector<L1GctJcBoundType> m_outputJc;
-  
   //PRIVATE MEMBER FUNCTIONS
   ///Enters jets into the specified storageVector, according to which wheel card we are taking them from.
   void storeJets(JetVector& storageVector, JetVector jets, unsigned short iWheel);

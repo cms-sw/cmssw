@@ -46,14 +46,14 @@ public:
   std::vector<L1GctJetCand> getOutputJetsC() const { return m_jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
     
   /// get the Ex output
-  L1GctEtComponent outputEx() const { return m_exSum; }
+  L1GctEtComponent getOutputEx() const { return m_exSum; }
    
   /// get the Ey output
-  L1GctEtComponent outputEy() const { return m_eySum; }
+  L1GctEtComponent getOutputEy() const { return m_eySum; }
     
   /// get the Et output
-  L1GctScalarEtVal outputEt() const { return m_etSum; }
-  L1GctScalarEtVal outputHt() const { return m_htSum; }
+  L1GctScalarEtVal getOutputEt() const { return m_etSum; }
+  L1GctScalarEtVal getOutputHt() const { return m_htSum; }
    
   static const int MAX_JET_FINDERS = 3;
 

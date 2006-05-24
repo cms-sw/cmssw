@@ -9,8 +9,7 @@ L1GctJetFinalStage::L1GctJetFinalStage():
   m_inputTauJets(MAX_JETS_IN),
   m_centralJets(MAX_JETS_OUT),
   m_forwardJets(MAX_JETS_OUT),
-  m_tauJets(MAX_JETS_OUT),
-  m_outputJc(12)
+  m_tauJets(MAX_JETS_OUT)
 {
 }
 
@@ -39,12 +38,6 @@ std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga)
   for(unsigned i=0; i < fpga.m_inputTauJets.size(); i++)
     {
       os << fpga.m_inputTauJets[i];
-    } 
-  os << "Output Ht " << fpga.m_outputHt << std::endl;
-  os << "Output Jet count " << std::endl;
-  for(unsigned i=0; i < fpga.m_outputJc.size(); i++)
-    {
-      os << fpga.m_outputJc[i];
     } 
   os << "No. of output central Jets " << fpga.m_centralJets.size() << std::endl;
   for(unsigned i=0; i < fpga.m_centralJets.size(); i++)
@@ -80,11 +73,6 @@ void L1GctJetFinalStage::reset()
   m_centralJets.resize(MAX_JETS_OUT);
   m_forwardJets.resize(MAX_JETS_OUT);
   m_tauJets.resize(MAX_JETS_OUT);
-  //
-  m_outputHt.reset();
-  for (int i=0; i<12; ++i) {
-    m_outputJc[i].reset();
-  }
 }
 
 void L1GctJetFinalStage::fetchInput()

@@ -464,7 +464,6 @@ typedef L1GctUnsignedInt<12>    L1GctScalarEtVal;
 typedef L1GctUnsignedInt<7>     L1GctEtAngleBin;
 typedef L1GctJetCount<5>        L1GctJcFinalType;
 typedef L1GctJetCount<3>        L1GctJcWheelType;
-typedef L1GctJetCount<3>        L1GctJcBoundType;
 
 
 template <int nBits>

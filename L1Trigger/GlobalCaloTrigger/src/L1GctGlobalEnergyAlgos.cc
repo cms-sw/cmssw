@@ -2,12 +2,10 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
 
 L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() :
   m_jcValPlusWheel(12),
   m_jcVlMinusWheel(12),
-  m_jcBoundaryJets(12),
   m_outputJetCounts(12)
 {
 }
@@ -43,11 +41,9 @@ void L1GctGlobalEnergyAlgos::reset()
   m_etVlMinusWheel.reset();
   m_htValPlusWheel.reset();
   m_htVlMinusWheel.reset();
-  m_htBoundaryJets.reset();
   for (int i=0; i<12; i++) {
     m_jcValPlusWheel[i].reset();
     m_jcVlMinusWheel[i].reset();
-    m_jcBoundaryJets[i].reset();
   }
   //
   m_outputEtMiss.reset();
@@ -61,22 +57,20 @@ void L1GctGlobalEnergyAlgos::reset()
 
 void L1GctGlobalEnergyAlgos::fetchInput() {
   // input from WheelEnergyFpgas
-  m_exValPlusWheel = m_plusWheelFpga->outputEx();
-  m_eyValPlusWheel = m_plusWheelFpga->outputEy();
-  m_etValPlusWheel = m_plusWheelFpga->outputEt();
-  m_htValPlusWheel = m_plusWheelJetFpga->outputHt();
+  m_exValPlusWheel = m_plusWheelFpga->getOutputEx();
+  m_eyValPlusWheel = m_plusWheelFpga->getOutputEy();
+  m_etValPlusWheel = m_plusWheelFpga->getOutputEt();
+  m_htValPlusWheel = m_plusWheelJetFpga->getOutputHt();
   
-  m_exVlMinusWheel = m_minusWheelFpga->outputEx();
-  m_eyVlMinusWheel = m_minusWheelFpga->outputEy();
-  m_etVlMinusWheel = m_minusWheelFpga->outputEt();
-  m_htVlMinusWheel = m_minusWheelJetFpga->outputHt();
+  m_exVlMinusWheel = m_minusWheelFpga->getOutputEx();
+  m_eyVlMinusWheel = m_minusWheelFpga->getOutputEy();
+  m_etVlMinusWheel = m_minusWheelFpga->getOutputEt();
+  m_htVlMinusWheel = m_minusWheelJetFpga->getOutputHt();
 
-  m_htBoundaryJets = m_jetFinalStage->outputHt();
   //
   for (unsigned i=0; i<12; i++) {
-    m_jcValPlusWheel[i] = m_plusWheelJetFpga->outputJc(i);
-    m_jcVlMinusWheel[i] = m_minusWheelJetFpga->outputJc(i);
-    m_jcBoundaryJets[i] = m_jetFinalStage->outputJc(i);
+    m_jcValPlusWheel[i] = m_plusWheelJetFpga->getOutputJc(i);
+    m_jcVlMinusWheel[i] = m_minusWheelJetFpga->getOutputJc(i);
   }
 }
 
@@ -102,7 +96,7 @@ void L1GctGlobalEnergyAlgos::process()
   //-----------------------------------------------------------------------------
   // Form the Et and Ht sums
   m_outputEtSum = m_etValPlusWheel + m_etVlMinusWheel;
-  m_outputEtHad = m_htValPlusWheel + m_htVlMinusWheel + m_htBoundaryJets;
+  m_outputEtHad = m_htValPlusWheel + m_htVlMinusWheel;
 
   //
   //-----------------------------------------------------------------------------
@@ -110,8 +104,7 @@ void L1GctGlobalEnergyAlgos::process()
   for (int i=0; i<12; i++) {
     m_outputJetCounts[i] =
       L1GctJcFinalType(m_jcValPlusWheel[i]) +
-      L1GctJcFinalType(m_jcVlMinusWheel[i]) +
-      L1GctJcFinalType(m_jcBoundaryJets[i]);
+      L1GctJcFinalType(m_jcVlMinusWheel[i]);
   }
 }
 
@@ -136,11 +129,6 @@ void L1GctGlobalEnergyAlgos::setPlusWheelJetFpga (L1GctWheelJetFpga* fpga)
 void L1GctGlobalEnergyAlgos::setMinusWheelJetFpga(L1GctWheelJetFpga* fpga)
 {
   m_minusWheelJetFpga = fpga;
-}
-
-void L1GctGlobalEnergyAlgos::setJetFinalStage(L1GctJetFinalStage* jfs)
-{
-    m_jetFinalStage = jfs;
 }
 
 //----------------------------------------------------------------------------------------------
@@ -201,17 +189,6 @@ void L1GctGlobalEnergyAlgos::setInputWheelHt(unsigned wheel, unsigned energy, bo
 
 
 //----------------------------------------------------------------------------------------------
-// An extra contribution to Ht from jets at
-// the boundary between wheels
-//
-void L1GctGlobalEnergyAlgos::setInputBoundaryHt(unsigned energy, bool overflow)
-{
-  m_htBoundaryJets.setValue(energy);
-  m_htBoundaryJets.setOverFlow(overflow);
-}
-
-
-//----------------------------------------------------------------------------------------------
 // Set the jet count input values
 //
 void L1GctGlobalEnergyAlgos::setInputWheelJc(unsigned wheel, unsigned jcnum, unsigned count)
@@ -224,16 +201,6 @@ void L1GctGlobalEnergyAlgos::setInputWheelJc(unsigned wheel, unsigned jcnum, uns
 
 }
 
-
-//----------------------------------------------------------------------------------------------
-// Extra contributions to jet counts from jets at
-// the boundary between wheels
-//
-void L1GctGlobalEnergyAlgos::setInputBoundaryJc(unsigned jcnum, unsigned count)
-{
-  m_jcBoundaryJets[jcnum].setValue(count);
-
-}
 
 //----------------------------------------------------------------------------------------------
 //

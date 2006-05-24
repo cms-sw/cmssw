@@ -122,7 +122,7 @@ void L1GctWheelJetFpga::fetchInput()
     storeJets(m_inputLeafCards[iLeaf]->getOutputJetsC(), iLeaf, 2*MAX_JETS_IN);
         
     // Deal with the Ht inputs
-    m_inputHt[iLeaf] = m_inputLeafCards[iLeaf]->outputHt();
+    m_inputHt[iLeaf] = m_inputLeafCards[iLeaf]->getOutputHt();
   }
 }
 

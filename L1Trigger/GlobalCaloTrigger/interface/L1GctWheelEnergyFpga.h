@@ -34,14 +34,14 @@ public:
 	void setInputEnergy(int i, int ex, int ey, unsigned et);
 	///	
 	/// get input data
-	inline L1GctEtComponent inputEx(unsigned leafnum) const { return m_inputEx[leafnum]; }
-	inline L1GctEtComponent inputEy(unsigned leafnum) const { return m_inputEy[leafnum]; }
-	inline L1GctScalarEtVal inputEt(unsigned leafnum) const { return m_inputEt[leafnum]; }
+	inline L1GctEtComponent getInputEx(unsigned leafnum) const { return m_inputEx[leafnum]; }
+	inline L1GctEtComponent getInputEy(unsigned leafnum) const { return m_inputEy[leafnum]; }
+	inline L1GctScalarEtVal getInputEt(unsigned leafnum) const { return m_inputEt[leafnum]; }
 	///
 	/// get output data
-	inline L1GctEtComponent outputEx() const { return m_outputEx; }
-	inline L1GctEtComponent outputEy() const { return m_outputEy; }
-	inline L1GctScalarEtVal outputEt() const { return m_outputEt; }
+	inline L1GctEtComponent getOutputEx() const { return m_outputEx; }
+	inline L1GctEtComponent getOutputEy() const { return m_outputEy; }
+	inline L1GctScalarEtVal getOutputEt() const { return m_outputEt; }
 
 private:
 

@@ -47,8 +47,8 @@ public:
   JetVector getTauJets() const { return m_tauJets; }
     
   /// get the output Ht and jet counts
-  L1GctScalarEtVal outputHt() const { return m_outputHt; }
-  L1GctJcWheelType outputJc(unsigned jcnum) const { return m_outputJc[jcnum]; }
+  L1GctScalarEtVal getOutputHt() const { return m_outputHt; }
+  L1GctJcWheelType getOutputJc(unsigned jcnum) const { return m_outputJc[jcnum]; }
 
   /// Max number of jets of each type (central, foward, tau) we output.
   static const int MAX_JETS_OUT = 4;

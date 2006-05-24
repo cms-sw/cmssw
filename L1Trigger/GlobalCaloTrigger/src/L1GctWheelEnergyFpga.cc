@@ -60,9 +60,9 @@ void L1GctWheelEnergyFpga::fetchInput()
 {
   // Fetch the output values from each of our input leaf cards.
   for (int i=0; i<3; i++) {
-    m_inputEx[i] = m_inputLeafCards[i]->outputEx();
-    m_inputEy[i] = m_inputLeafCards[i]->outputEy();
-    m_inputEt[i] = m_inputLeafCards[i]->outputEt();
+    m_inputEx[i] = m_inputLeafCards[i]->getOutputEx();
+    m_inputEy[i] = m_inputLeafCards[i]->getOutputEy();
+    m_inputEt[i] = m_inputLeafCards[i]->getOutputEt();
   }
 }
 
