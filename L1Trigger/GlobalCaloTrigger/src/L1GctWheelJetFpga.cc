@@ -2,6 +2,8 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+using std::ostream;
+using std::endl;
 using std::vector;
 
 L1GctWheelJetFpga::L1GctWheelJetFpga(int id):
@@ -25,11 +27,12 @@ L1GctWheelJetFpga::~L1GctWheelJetFpga()
 
 std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga)
 {
-  os << "Algo ID " << fpga.m_id << std::endl;
+  os << "=== Wheel Jet FPGA ===" << endl;
+  os << "ID = " << fpga.m_id << std::endl;
   os << "No. of Input Leaf Cards " << fpga.m_inputLeafCards.size() << std::endl;
   for(unsigned i=0; i < fpga.m_inputLeafCards.size(); i++)
     {
-      os << (*fpga.m_inputLeafCards[i]);
+      os << "InputLeafCard* " << i << " = " << *fpga.m_inputLeafCards[i];
     } 
   os << "No. of Input Jets " << fpga.m_inputJets.size() << std::endl;
   for(unsigned i=0; i < fpga.m_inputJets.size(); i++)

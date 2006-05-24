@@ -2,6 +2,9 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+using std::ostream;
+using std::endl;
+
 L1GctJetFinalStage::L1GctJetFinalStage():
   m_wheelFpgas(MAX_WHEEL_FPGAS),
   m_inputCentralJets(MAX_JETS_IN),
@@ -19,10 +22,11 @@ L1GctJetFinalStage::~L1GctJetFinalStage()
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga)
 {
+  os << "=== Jet Final Stage ===" << endl;
   os << "No. of Wheel Jet FPGAs " << fpga.m_wheelFpgas.size() << std::endl;
   for(unsigned i=0; i < fpga.m_wheelFpgas.size(); i++)
     {
-      os << (*fpga.m_wheelFpgas[i]);
+      os << *fpga.m_wheelFpgas[i];
     } 
   os << "No. of input central Jets " << fpga.m_inputCentralJets.size() << std::endl;
   for(unsigned i=0; i < fpga.m_inputCentralJets.size(); i++)

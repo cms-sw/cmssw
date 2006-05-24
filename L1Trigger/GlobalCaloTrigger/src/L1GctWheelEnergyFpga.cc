@@ -2,6 +2,9 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
+using std::ostream;
+using std::endl;
+
 L1GctWheelEnergyFpga::L1GctWheelEnergyFpga(int id) :
 	m_id(id),
         m_inputLeafCards(3),
@@ -15,32 +18,33 @@ L1GctWheelEnergyFpga::~L1GctWheelEnergyFpga()
 {
 }
 
-std::ostream& operator << (std::ostream& os, const L1GctWheelEnergyFpga& fpga)
+ostream& operator << (ostream& os, const L1GctWheelEnergyFpga& fpga)
 {
-  os << "Algo ID " << fpga.m_id << std::endl;
-  os << "No. of Input Leaf Cards " << fpga.m_inputLeafCards.size() << std::endl;
+  os << "=== Wheel Energy FPGA ===" << endl;
+  os << "ID : " << fpga.m_id << endl;
+  os << "No. of Input Leaf Cards " << fpga.m_inputLeafCards.size() << endl;
   for(unsigned i=0; i < fpga.m_inputLeafCards.size(); i++)
     {
-      os << (*fpga.m_inputLeafCards[i]);
+      os << "LeafCard* " << i << " = " << *fpga.m_inputLeafCards[i];
     } 
-  os << "Input Ex " << std::endl;
+  os << "Input Ex " << endl;
   for(unsigned i=0; i < fpga.m_inputEx.size(); i++)
     {
       os << fpga.m_inputEx[i];
     } 
-  os << "Input Ey " << std::endl;
+  os << "Input Ey " << endl;
   for(unsigned i=0; i < fpga.m_inputEy.size(); i++)
     {
       os << fpga.m_inputEy[i];
     } 
-  os << "Input Et " << std::endl;
+  os << "Input Et " << endl;
   for(unsigned i=0; i < fpga.m_inputEt.size(); i++)
     {
       os << fpga.m_inputEt[i];
     } 
-  os << "Output Ex " << fpga.m_outputEx << std::endl;
-  os << "Output Ey " << fpga.m_outputEy << std::endl;
-  os << "Output Et " << fpga.m_outputEt << std::endl;
+  os << "Output Ex " << fpga.m_outputEx << endl;
+  os << "Output Ey " << fpga.m_outputEy << endl;
+  os << "Output Et " << fpga.m_outputEt << endl;
   return os;
 }
 

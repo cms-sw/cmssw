@@ -11,6 +11,12 @@
 
 #include <sstream>
 
+using std::cout;
+using std::string;
+using std::stringstream;
+using std::endl;
+using std::vector;
+
 // constructor
 L1GlobalCaloTrigger::L1GlobalCaloTrigger() :
   theSourceCards(54),
@@ -30,14 +36,14 @@ L1GlobalCaloTrigger::~L1GlobalCaloTrigger()
   theSourceCards.clear();
 }
 
-void L1GlobalCaloTrigger::openSourceCardFiles(std::string fileBase){
+void L1GlobalCaloTrigger::openSourceCardFiles(string fileBase){
  //Loop running over the 18 RCT-crate files, allocating 3 sourcecards per file
  for(int i = 0;i < 18; i++){
-   std::string fileNo;
-   std::stringstream ss;
+   string fileNo;
+   stringstream ss;
    ss << i;
    ss >> fileNo;
-   std::string fileName = fileBase+fileNo;
+   string fileName = fileBase+fileNo;
    theSourceCards[3*i]->openInputFile(fileName);
    theSourceCards[3*i+1]->openInputFile(fileName);
    theSourceCards[3*i+2]->openInputFile(fileName);
@@ -132,84 +138,106 @@ void L1GlobalCaloTrigger::process() {
 
 void L1GlobalCaloTrigger::print() {
 
-	std::cout << "===Global Calo Trigger===" << std::endl;
-	std::cout << std::endl;
-	std::cout << "N Source Cards " << theSourceCards.size() << std::endl;
-	std::cout << "N Jet Leaf Cards " << theJetLeafCards.size() << std::endl;
-	std::cout << "N Wheel Jet Fpgas " << theWheelJetFpgas.size() << std::endl;
-	std::cout << "N Wheel Energy Fpgas " << theWheelEnergyFpgas.size() << std::endl;
-	std::cout << "N Em Leaf Cards" << theEmLeafCards.size() << std::endl;
-	std::cout << std::endl;
-	std::cout << "===Source Cards===" << std::endl;
-	std::cout << std::endl;
+	cout << "=== Global Calo Trigger ===" << endl;
+	cout << "=== START DEBUG OUTPUT  ===" << endl;
+
+	cout << endl;
+	cout << "N Source Cards " << theSourceCards.size() << endl;
+	cout << "N Jet Leaf Cards " << theJetLeafCards.size() << endl;
+	cout << "N Wheel Jet Fpgas " << theWheelJetFpgas.size() << endl;
+	cout << "N Wheel Energy Fpgas " << theWheelEnergyFpgas.size() << endl;
+	cout << "N Em Leaf Cards" << theEmLeafCards.size() << endl;
+	cout << endl;
+
 	for (unsigned i=0; i<theSourceCards.size(); i++) {
-          std::cout << "Index=" << i <<std::endl;
-          std::cout << (*theSourceCards[i]); 
+          cout << "Source Card : " << i <<endl;
+          cout << (*theSourceCards[i]); 
 	}
-	std::cout << std::endl;
-	std::cout << "===Jet Leaf Cards===" << std::endl;
-	std::cout << std::endl;
+	cout << endl;
+
 	for (unsigned i=0; i<theJetLeafCards.size(); i++) {
-	  std::cout << "Index=" << i << std::endl;
-          std::cout << (*theJetLeafCards[i]);
+	  cout << "Jet Leaf : " << i << endl;
+          cout << (*theJetLeafCards[i]);
 	}
-	std::cout << std::endl;
-	std::cout << "===Wheel Jet FPGAs===" << std::endl;
-	std::cout << std::endl;
+	cout << endl;
+
  	for (unsigned i=0; i<theWheelJetFpgas.size(); i++) {
-          std::cout << "Index=" << i << std::endl; 
-          std::cout << (*theWheelJetFpgas[i]);
+          cout << "Wheel Jet FPGA : " << i << endl; 
+          cout << (*theWheelJetFpgas[i]);
  	}
-	std::cout << std::endl;
-	std::cout << "===Wheel Energy FPGAs===" << std::endl;
-	std::cout << std::endl;
+	cout << endl;
+
  	for (unsigned i=0; i<theWheelEnergyFpgas.size(); i++) {
- 		std::cout << (*theWheelEnergyFpgas[i]);
+          cout << "Wheel Energy FPGA : " << i << endl; 
+	  cout << (*theWheelEnergyFpgas[i]);
  	}
-	std::cout << std::endl;
-	std::cout << "===Jet Final Stage===" << std::endl;
-	std::cout << std::endl;
- 	std::cout << (*theJetFinalStage);
-	std::cout << std::endl;
-	std::cout << "===Energy Final Stage===" << std::endl;
-	std::cout << std::endl;
- 	std::cout << (*theEnergyFinalStage);
-	std::cout << std::endl;
-	std::cout << "===Isolated Elec Final Stage===" << std::endl;
-	std::cout << std::endl;
- 	std::cout << (*theIsoEmFinalStage);
-	std::cout << std::endl;
-	std::cout << "===Non-isolated Elec Final Stage===" << std::endl;
-	std::cout << std::endl;
-	std::cout << (*theNonIsoEmFinalStage);
-	std::cout << "===Global Calo Trigger===" << std::endl;
+	cout << endl;
+
+ 	cout << (*theJetFinalStage);
+	cout << endl;
+
+ 	cout << (*theEnergyFinalStage);
+	cout << endl;
+
+	for (unsigned i=0; i<theEmLeafCards.size(); i++) {
+	  cout << "EM Leaf : " << i << endl;
+          cout << (*theEmLeafCards[i]);
+	}
+	cout << endl;
+
+ 	cout << (*theIsoEmFinalStage);
+	cout << endl;
+
+	cout << (*theNonIsoEmFinalStage);
+
+	cout << "=== Global Calo Trigger ===" << endl;
+	cout << "===  END DEBUG OUTPUT   ===" << endl;
  
 }
 
 // isolated EM outputs
-std::vector<L1GctEmCand> L1GlobalCaloTrigger::getIsoElectrons() { 
+vector<L1GctEmCand> L1GlobalCaloTrigger::getIsoElectrons() { 
   return theIsoEmFinalStage->OutputCands();
 }	
 
 // non isolated EM outputs
-std::vector<L1GctEmCand> L1GlobalCaloTrigger::getNonIsoElectrons() {
+vector<L1GctEmCand> L1GlobalCaloTrigger::getNonIsoElectrons() {
 return theNonIsoEmFinalStage->OutputCands(); 
 }
 
 // central jet outputs to GT
-std::vector<L1GctJetCand> L1GlobalCaloTrigger::getCentralJets() {
+vector<L1GctJetCand> L1GlobalCaloTrigger::getCentralJets() {
  return theJetFinalStage->getCentralJets();
 }
 
 // forward jet outputs to GT
-std::vector<L1GctJetCand> L1GlobalCaloTrigger::getForwardJets() { 
+vector<L1GctJetCand> L1GlobalCaloTrigger::getForwardJets() { 
   return theJetFinalStage->getForwardJets(); 
 }
 
 // tau jet outputs to GT
-std::vector<L1GctJetCand> L1GlobalCaloTrigger::getTauJets() { 
+vector<L1GctJetCand> L1GlobalCaloTrigger::getTauJets() { 
   return theJetFinalStage->getTauJets(); 
 }
+
+// total Et output
+unsigned L1GlobalCaloTrigger::getEtSum() {
+  return 0; //theEnergyFinalStage->getEtSum();
+}
+
+unsigned L1GlobalCaloTrigger::getEtHad() {
+  return 0; //theEnergyFinalStage->getEtHad();
+}
+
+unsigned L1GlobalCaloTrigger::getEtMiss() {
+  return 0; //theEnergyFinalStage->getEtMiss();
+}
+
+unsigned L1GlobalCaloTrigger::getEtMissPhi() {
+  return 0; //theEnergyFinalStage->etMissPhi();
+}
+
+
 
 
 

@@ -3,6 +3,11 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 
+using std::ostream;
+using std::endl;
+using std::vector;
+using std::max;
+
 L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() :
   m_jcValPlusWheel(12),
   m_jcVlMinusWheel(12),
@@ -14,14 +19,14 @@ L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos()
 {
 }
 
-std::ostream& operator << (std::ostream& os, const L1GctGlobalEnergyAlgos& fpga)
+ostream& operator << (ostream& os, const L1GctGlobalEnergyAlgos& fpga)
 {
-
-  os << "Output Emiss " << fpga.m_outputEtMiss << std::endl;
-  os << "Output Emiss Phi " << fpga.m_outputEtMissPhi << std::endl;
-  os << "Output EtSum " << fpga.m_outputEtSum << std::endl;
-  os << "Output EtHad " << fpga.m_outputEtHad << std::endl;
-  os << "Output Jet counts " << std::endl;
+  os << "=== Global Energy Algos ===" << endl;
+  os << "Output Etmiss " << fpga.m_outputEtMiss << endl;
+  os << "Output Etmiss Phi " << fpga.m_outputEtMissPhi << endl;
+  os << "Output EtSum " << fpga.m_outputEtSum << endl;
+  os << "Output EtHad " << fpga.m_outputEtHad << endl;
+  os << "Output Jet counts " << endl;
   for(unsigned i=0; i < fpga.m_outputJetCounts.size(); i++)
     {
       os << fpga.m_outputJetCounts[i];
@@ -235,7 +240,7 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (L1GctEtComponent ex, L1GctEtCompon
   const unsigned corrFact[11] = {24, 39, 51, 60, 69, 77, 83, 89, 95, 101, 106};
   const unsigned corrDphi[11] = { 0,  1,  2,  2,  3,  3,  3,  3,  4,   4,   4};
 
-  std::vector<bool> s(3);
+  vector<bool> s(3);
   unsigned Mx, My, Mw;
 
   unsigned Dx, Dy;
@@ -259,7 +264,7 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (L1GctEtComponent ex, L1GctEtCompon
     if (s[i]) { b=1-b;} phibin = 2*phibin + b;
   }
 
-  eneCoarse = std::max(std::max(Mx, My), Mw);
+  eneCoarse = max(max(Mx, My), Mw);
   phiCoarse = phibin*9;
 
   // For the fine calculation we multiply both input components
