@@ -5,6 +5,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 #include <vector>
 
@@ -36,6 +37,9 @@ public:
 
   /// add a Source Card
   void setInputSourceCard(int i, L1GctSourceCard* card);
+  
+  /// Set up the Jet Et Calibration Lut for use in the jet finders
+  void setJetEtCalibrationLut(L1GctJetEtCalibrationLut* jetEtCalLut);
 
   /// get the input data
   std::vector<L1GctRegion> getInputRegions() const;

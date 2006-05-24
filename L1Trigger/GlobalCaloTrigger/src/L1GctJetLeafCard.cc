@@ -140,3 +140,9 @@ void L1GctJetLeafCard::setInputSourceCard(int i, L1GctSourceCard* sc)
   }
 }
 
+void L1GctJetLeafCard::setJetEtCalibrationLut(L1GctJetEtCalibrationLut* jetEtCalLut)
+{
+  m_jetFinderA->setJetEtCalibrationLut(jetEtCalLut);
+  m_jetFinderB->setJetEtCalibrationLut(jetEtCalLut);
+  m_jetFinderC->setJetEtCalibrationLut(jetEtCalLut);
+}
