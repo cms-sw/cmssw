@@ -1,6 +1,6 @@
 #ifndef TrackReco_Error_h
 #define TrackReco_Error_h
-// $Id: Error.h,v 1.5 2006/05/08 08:58:45 llista Exp $
+// $Id: Error.h,v 1.6 2006/05/22 12:55:47 llista Exp $
 //
 // very simple persistent error matrix with minumal functionalities
 //
@@ -13,7 +13,7 @@ namespace math {
   template< typename D, unsigned int N >
   struct ErrorMatrix {
     enum { dimension = N, size = N * ( N + 1 ) / 2 };
-    enum { kRows = N, kCols = N };
+    enum { kRows = N, kCols = N, kSize = size };
     typedef unsigned int index;
     ErrorMatrix() { }
     ErrorMatrix( const ErrorMatrix<D, N> & o ) {
