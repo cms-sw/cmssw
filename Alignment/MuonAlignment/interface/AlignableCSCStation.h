@@ -14,6 +14,7 @@
 #include <vector>
 
 class GeomDet;
+class AlignableCSCChamber;
 
 /// Concrete class for muon CSC Station alignable.
 ///

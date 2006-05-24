@@ -22,7 +22,6 @@
 #include "Alignment/MuonAlignment/interface/AlignableCSCEndcap.h"
 
 
-
 //--------------------------------------------------------------------------------------------------
 AlignableMuon::AlignableMuon( const edm::Event& iEvent, const edm::EventSetup& iSetup  )
 {

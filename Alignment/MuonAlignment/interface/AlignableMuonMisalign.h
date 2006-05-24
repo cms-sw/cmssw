@@ -1,14 +1,14 @@
-#ifndef Alignment_TrackerAlignment_AlignableTrackerModifier_H
-#define Alignment_TrackerAlignment_AlignableTrackerModifier_H
+#ifndef Alignment_MuonAlignment_AlignableMuonMisalign_H
+#define Alignment_MuonAlignment_AlignableMuonMisalign_H
 
 #include <iostream>
 #include <vector>
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
-/// AlignableTrackerModifier is a helper class to modify the Alignables
+/// AlignableMuonMisalign is a helper class to modify the Alignables
 
-class AlignableTrackerModifier 
+class AlignableMuonMisalign 
 {
 
 public:
@@ -17,10 +17,10 @@ public:
   typedef TkRotation<float>     RotationType;
 
   /// Constructor
-  AlignableTrackerModifier();
+  AlignableMuonMisalign();
 
   /// Destructor
-  ~AlignableTrackerModifier();
+  ~AlignableMuonMisalign();
   
   /// Random gaussian move in global space of a collection of Alignables
   void randomMove( std::vector<Alignable*> comp, 
@@ -76,7 +76,7 @@ public:
 };
 
 
-#endif //AlignableTrackerModifier_H
+#endif //AlignableMuonMisalign_H
 
 
 

@@ -7,25 +7,25 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTrackerModifier.h"
+#include "Alignment/MuonAlignment/interface/AlignableMuonMisalign.h"
 
 
 //__________________________________________________________________________________________________
-AlignableTrackerModifier::AlignableTrackerModifier()
+AlignableMuonMisalign::AlignableMuonMisalign()
 {
 
   edm::LogInfo("BeginModify") 
-	<< " ========> Instantiating a modified tracker   <==========" << std::endl;
+	<< " ========> Instantiating a modified muon   <==========" << std::endl;
   
 }
 
 
 //__________________________________________________________________________________________________
-AlignableTrackerModifier::~AlignableTrackerModifier()
+AlignableMuonMisalign::~AlignableMuonMisalign()
 {
 
   edm::LogInfo("EndModify")
-	<< " ========> Finishing the tracker components modification <========" << std::endl;
+	<< " ========> Finishing the muon components modification <========" << std::endl;
   
 }
 
@@ -33,11 +33,9 @@ AlignableTrackerModifier::~AlignableTrackerModifier()
 //__________________________________________________________________________________________________
 /// Random gaussian move. If setSeed is true, the seed is taken from the last argument.
 /// Otherwise, a seed is generated from the RandomNumberGenerator service.
-void AlignableTrackerModifier::randomMove(
-										  std::vector<Alignable*> comp, 
-										  float sigmaX, float sigmaY,float sigmaZ, 
-										  bool setSeed, long seed
-										  )
+void AlignableMuonMisalign::randomMove( std::vector<Alignable*> comp, 
+					float sigmaX, float sigmaY,float sigmaZ, 
+					bool setSeed, long seed )
 {
 
   edm::LogInfo("PrintArgs") << "move  randomly  with sigma " 
@@ -70,11 +68,9 @@ void AlignableTrackerModifier::randomMove(
 //__________________________________________________________________________________________________
 /// Random flat move. If setSeed is true, the seed is taken from the last argument.
 /// Otherwise, a seed is generated from the RandomNumberGenerator service.
-void AlignableTrackerModifier::randomFlatMove(
-											  std::vector<Alignable*> comp, 
-											  float sigmaX, float sigmaY, float sigmaZ,
-											  bool setSeed, long seed 
-											  )
+void AlignableMuonMisalign::randomFlatMove( std::vector<Alignable*> comp, 
+					    float sigmaX, float sigmaY, float sigmaZ,
+					    bool setSeed, long seed )
 {
 
   edm::LogInfo("PrintArgs") << "move  randomly  with sigma " 
@@ -112,10 +108,9 @@ void AlignableTrackerModifier::randomFlatMove(
 /// the GeomDets on them will be moved "locally".
 /// If setSeed is true, the seed is taken from the last argument.
 /// Otherwise, a seed is generated from the RandomNumberGenerator service.
-void AlignableTrackerModifier::randomMoveComponentsLocal( std::vector<Alignable*> comp,
-														  float sigmaX, float sigmaY,float sigmaZ, 
-														  bool setSeed, long seed
-														  )
+void AlignableMuonMisalign::randomMoveComponentsLocal( std::vector<Alignable*> comp,
+						       float sigmaX, float sigmaY,float sigmaZ, 
+						       bool setSeed, long seed )
 {
 
   edm::LogInfo("PrintArgs") << "move  randomly  local within the composite structure with sigma " 
@@ -153,11 +148,9 @@ void AlignableTrackerModifier::randomMoveComponentsLocal( std::vector<Alignable*
 //__________________________________________________________________________________________________
 /// Random gaussian rotation. If setSeed is true, the seed is taken from the last argument.
 /// Otherwise, a seed is generated from the RandomNumberGenerator service.
-void AlignableTrackerModifier::randomRotate( 
-											std::vector<Alignable*> comp, 
-											float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ, 
-											bool setSeed, long seed
-											)
+void AlignableMuonMisalign::randomRotate( std::vector<Alignable*> comp, 
+					  float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ, 
+					  bool setSeed, long seed )
 {
   edm::LogInfo("PrintArgs") << "rotate  randomly  about GLOBAL x,y,z axis with sigmaPhi " 
 							<< sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ 
@@ -190,11 +183,9 @@ void AlignableTrackerModifier::randomRotate(
 /// First it is rotated around local_x, then the new local_y and then the new local_z.
 /// If setSeed is true, the seed is taken from the last argument.
 /// Otherwise, a seed is generated from the RandomNumberGenerator service.
-void AlignableTrackerModifier::randomRotateLocal(
-												 std::vector<Alignable*> comp, 
-												 float sigmaPhiX, float sigmaPhiY,float sigmaPhiZ, 
-												 bool setSeed, long seed
-												 )
+void AlignableMuonMisalign::randomRotateLocal( std::vector<Alignable*> comp, 
+					       float sigmaPhiX, float sigmaPhiY,float sigmaPhiZ, 
+					       bool setSeed, long seed )
 {
 
   edm::LogInfo("PrintArgs") << "rotate  randomly  around LOCAL x,y,z axis with sigmaPhi " 
@@ -228,11 +219,9 @@ void AlignableTrackerModifier::randomRotateLocal(
 /// First it is rotated around local_x, then the new local_y and then the new local_z.
 /// If setSeed is true, the seed is taken from the last argument.
 /// Otherwise, a seed is generated from the RandomNumberGenerator service.
-void AlignableTrackerModifier::randomFlatRotateLocal(
-													 std::vector<Alignable*> comp, 
-													 float sigmaPhiX, float sigmaPhiY,float sigmaPhiZ, 
-													 bool setSeed, long seed 
-													 )
+void AlignableMuonMisalign::randomFlatRotateLocal( std::vector<Alignable*> comp, 
+						   float sigmaPhiX, float sigmaPhiY,float sigmaPhiZ, 
+						   bool setSeed, long seed )
 {
 
   edm::LogInfo("PrintArgs") << "Rotate  randomly  around LOCAL x,y,z axis with sigmaPhi " 
@@ -270,10 +259,10 @@ void AlignableTrackerModifier::randomFlatRotateLocal(
 /// the GeomDets on them will be moved "locally".
 /// If setSeed is true, the seed is taken from the last argument.
 /// Otherwise, a seed is generated from the RandomNumberGenerator service.
-void AlignableTrackerModifier::randomRotateComponentsLocal(std::vector<Alignable*> comp,
-														   float sigmaPhiX, float sigmaPhiY,
-														   float sigmaPhiZ,
-														   bool setSeed, long seed )
+void AlignableMuonMisalign::randomRotateComponentsLocal( std::vector<Alignable*> comp,
+							 float sigmaPhiX, float sigmaPhiY,
+							 float sigmaPhiZ,
+							 bool setSeed, long seed )
 {
 
   edm::LogInfo("PrintArgs") << "Rotate  randomly  local within the composite structure "
@@ -316,8 +305,8 @@ void AlignableTrackerModifier::randomRotateComponentsLocal(std::vector<Alignable
 
 
 //__________________________________________________________________________________________________
-void AlignableTrackerModifier::addAlignmentPositionError( std::vector<Alignable*> comp, 
-														  float dx, float dy, float dz )
+void AlignableMuonMisalign::addAlignmentPositionError( std::vector<Alignable*> comp, 
+						       float dx, float dy, float dz )
 {
 
   edm::LogInfo("PrintArgs") << "Adding an AlignmentPositionError of size " 
@@ -332,8 +321,8 @@ void AlignableTrackerModifier::addAlignmentPositionError( std::vector<Alignable*
 
 
 //__________________________________________________________________________________________________
-void AlignableTrackerModifier::addAlignmentPositionErrorLocal( std::vector<Alignable*> comp, 
-															   float dx, float dy, float dz )
+void AlignableMuonMisalign::addAlignmentPositionErrorLocal( std::vector<Alignable*> comp, 
+							    float dx, float dy, float dz )
 {
 
   // Transform the given dx,dy,dz (interpreted as local coordinates within
@@ -357,8 +346,8 @@ void AlignableTrackerModifier::addAlignmentPositionErrorLocal( std::vector<Align
 
 
 //__________________________________________________________________________________________________
-void AlignableTrackerModifier::addAlignmentPositionErrorFromRotation( std::vector<Alignable*> comp, 
-																	  RotationType& rotation )
+void AlignableMuonMisalign::addAlignmentPositionErrorFromRotation( std::vector<Alignable*> comp, 
+								   RotationType& rotation )
 { 
 
   edm::LogInfo("PrintArgs") << " adding an AlignmentPositionError from Rotation" << std::endl 
@@ -371,8 +360,8 @@ void AlignableTrackerModifier::addAlignmentPositionErrorFromRotation( std::vecto
 
 
 //__________________________________________________________________________________________________
-void AlignableTrackerModifier::addAlignmentPositionErrorFromLocalRotation( std::vector<Alignable*> comp, 
-																		   RotationType& rotation )
+void AlignableMuonMisalign::addAlignmentPositionErrorFromLocalRotation( std::vector<Alignable*> comp, 
+								        RotationType& rotation )
 { 
   
   edm::LogInfo("PrintArgs") << " adding an AlignmentPositionError from Local Rotation" << std::endl 
