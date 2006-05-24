@@ -17,6 +17,7 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 
@@ -71,9 +72,9 @@ void TrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       ndof = ndof - 5;
 
       //build Track
-      edm::LogInfo("TrackProducer") << "going to buildTrack"<< "\n";
+      LogDebug("TrackProducer") << "going to buildTrack"<< "\n";
       bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, seed, ndof);
-      edm::LogInfo("TrackProducer") << "buildTrack result: " << ok << "\n";
+      LogDebug("TrackProducer") << "buildTrack result: " << ok << "\n";
       if(ok) cont++;
     }
   edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
@@ -119,9 +120,14 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
       
       ndof = ndof - 5;
 
+      //SORT RECHITS ALONGMOMENTUM
+      hits.sort(TrackingRecHitLessFromGlobalPosition(theG,alongMomentum));
+
       reco::TransientTrack theTT(*theT);
 
       TrajectoryStateOnSurface theTSOS=theTT.impactPointState();
+      theTSOS.rescaleError(100);
+
       const TrajectorySeed * seed = new TrajectorySeed();//empty seed: not needed
       //buildTrack
       bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, *seed, ndof);
@@ -147,7 +153,7 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
   trajVec = theFitter->fit(seed, hits, theTSOS);
   
-  edm::LogInfo("TrackProducer") <<" FITTER FOUND "<< trajVec.size() << " TRAJECTORIES" <<"\n";
+  LogDebug("TrackProducer") <<" FITTER FOUND "<< trajVec.size() << " TRAJECTORIES" <<"\n";
   
   TrajectoryStateOnSurface innertsos;
   
@@ -189,7 +195,7 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
 			       param,
 			       covar);
 
-    edm::LogInfo("TrackProducer") <<"track done\n";
+    LogDebug("TrackProducer") <<"track done\n";
 
     //     //compute parameters needed to build a Track from a Trajectory    
     //     int charge = tsos.charge();
@@ -218,9 +224,9 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
     // 			       mom,
     // 			       cov);
     AlgoProduct aProduct(theTraj,theTrack);
-    edm::LogInfo("TrackProducer") <<"track done1\n";
+    LogDebug("TrackProducer") <<"track done1\n";
     algoResults.push_back(aProduct);
-    edm::LogInfo("TrackProducer") <<"track done2\n";
+    LogDebug("TrackProducer") <<"track done2\n";
     
     return true;
   } 
