@@ -8,11 +8,13 @@
 //
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "IOPool/Streamer/interface/Messages.h"
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+
+#include "IOPool/Streamer/interface/InitMessage.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "TBuffer.h"
 #include "TClass.h"
@@ -40,7 +42,7 @@ namespace edm
     JobHeaderDecoder();
     ~JobHeaderDecoder();
 
-    std::auto_ptr<SendJobHeader> decodeJobHeader(const InitMsg& msg);
+    std::auto_ptr<SendJobHeader> decodeJobHeader(const InitMsgView& msg);
 
   private:
     TClass* desc_;
@@ -53,11 +55,11 @@ namespace edm
     EventDecoder();
     ~EventDecoder();
 
-    std::auto_ptr<EventPrincipal> decodeEvent(const EventMsg&, 
+    std::auto_ptr<EventPrincipal> decodeEvent(const EventMsgView&, 
 					      const ProductRegistry&);
 
   private:
-    //std::auto_ptr<SendEvent> decodeMsg(const EventMsg& msg);
+    //std::auto_ptr<SendEvent> decodeMsg(const EventMsgView& msg);
 
     TClass* desc_;
     TBuffer buf_;
@@ -71,7 +73,7 @@ namespace edm
   {
   public:
     explicit JobHeaderInserter(EventBuffer& b):buf_(&b) { }
-    void insert(const InitMsg& msg)
+    void insert(const InitMsgView& msg)
     {
       std::auto_ptr<SendJobHeader> p = decoder_.decodeJobHeader(msg);
       EventBuffer::ProducerBuffer b(*buf_);
@@ -104,13 +106,13 @@ namespace edm
   {
   public:
     explicit EventInserter(EventBuffer& b):buf_(&b) { }
-    void insert(const EventMsg& msg,const ProductRegistry& prods)
+    void insert(const EventMsgView& msg,const ProductRegistry& prods)
     {
       std::auto_ptr<EventPrincipal> p = decoder_.decodeEvent(msg,prods);
 	  send(p);
     }
 
-	std::auto_ptr<EventPrincipal> decode(const EventMsg& msg,
+	std::auto_ptr<EventPrincipal> decode(const EventMsgView& msg,
 	                                     const ProductRegistry& prods)
 	{
       return decoder_.decodeEvent(msg,prods);
