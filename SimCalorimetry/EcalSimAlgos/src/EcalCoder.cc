@@ -4,6 +4,7 @@
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include <iostream>
 
@@ -13,28 +14,26 @@ EcalCoder::EcalCoder(bool addNoise)
    addNoise_(addNoise)
 
 {
-  theGains[0] = 1.;
-  theGains[1] = 6.;
-  theGains[2] = 12.;
-  // 0.2% gain variation
-  theGainErrors[0] = 0.;
-  theGainErrors[1] = 0.;
-  theGainErrors[2] = 0.;
-  //PG to be replaced with a DB call FIXME    
-  m_maxEneEB = 1719.9 ; //PG assuming 35 MeV/ADC
-// m_maxEneEB = 1818.18 ; //PG assuming 37 MeV/ADC
-  m_maxEneEE = 2948.4 ; //PG assuming 60 MeV/ADC
-}
+
+  // 4095(MAXADC)*12(gain 2)*0.035(GeVtoADC)
+  
+  m_maxEneEB = 1719.9 ; 
+  
+  // 4095(MAXADC)*12(gain 2)*0.060(GeVtoADC)
+  
+  m_maxEneEE = 2948.4 ; 
+  
+}  
 
 
 double EcalCoder::fullScaleEnergy(const DetId & detId) const 
 {
- //PG Emax = x MeV/ADC * 4095 ADC * 12(gain) / 1000 MeV/GeV
- //PG (see http://cmsdoc.cern.ch/swdev/lxr/CMSSW/source/CMSSW/src/DataFormats/EcalDetId/interface/EcalSubdetector.h?v=0.4.0)
-  if (detId.subdetId() == EcalBarrel) //PG for the Barrel
-  return m_maxEneEB ;
-  else //PG for the Endcap
-  return m_maxEneEE ;
+
+  if (detId.subdetId() == EcalBarrel) 
+    return m_maxEneEB ;
+  else 
+    return m_maxEneEE ;
+  
 }
 
 
@@ -96,10 +95,7 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
     // fill in the pedestal and width
     findPedestal(detId, igain, pedestals[igain], widths[igain]);
     // set nominal value first
-    gains[igain] = theGains[igain];
-    //if(addNoise_) {
-    //  gains[igain] *= RandGauss::shoot(1., theGainErrors[igain]);
-    //}
+    findGains(detId, gains);
     LSB[igain]= Emax/(MAXADC*gains[igain]);
     threeSigmaADCNoise[igain] = widths[igain]/LSB[igain] * 3.;
   }
@@ -157,14 +153,15 @@ double EcalCoder::decode(const EcalMGPASample & sample, const DetId & id) const
   double Emax = fullScaleEnergy(id); 
   int gainNumber  = sample.gainId();
   assert( gainNumber >=0 && gainNumber <=2);
-  double LSB = Emax/(MAXADC*theGains[gainNumber]) ;
+  double gains[NGAINS];
+  findGains(id, gains);
+  double LSB = Emax/(MAXADC*gains[gainNumber]) ;
   double pedestal = 0.;
   double width = 0.;
   findPedestal(id, gainNumber, pedestal, width);
   // we shift by LSB/2 to be centered
   return LSB * (sample.adc() + 0.5 - pedestal) ;
 }
-
 
 void EcalCoder::findPedestal(const DetId & detId, int gainId, 
                              double & ped, double & width) const
@@ -173,10 +170,11 @@ void EcalCoder::findPedestal(const DetId & detId, int gainId,
     = thePedestals->m_pedestals.find(detId.rawId());
   // should I care if it doesn't get found?
   if(mapItr == thePedestals->m_pedestals.end()) {
-    std::cerr << "Could not find pedestal for " << detId.rawId() << " among the " << thePedestals->m_pedestals.size() << std::endl;
+    edm::LogError("SetupInfo") << "Could not find pedestal for " << detId.rawId() << " among the " << thePedestals->m_pedestals.size();
   } else {
     EcalPedestals::Item item = mapItr->second;
-    switch(gainId) {
+
+      switch(gainId) {
     case 0:
       ped = item.mean_x1;
       width = item.rms_x1;
@@ -190,8 +188,24 @@ void EcalCoder::findPedestal(const DetId & detId, int gainId,
       width = item.rms_x12;
       break;
     default:
-      std::cerr << "Bad Pedestal " << gainId << std::endl;
+      edm::LogError("SetupInfo") << "Bad Pedestal " << gainId;
       break;
     }
+    //LogDebug("SetupInfo") << "Pedestals for " << detId.rawId() << " gain range " << gainId << " : \n" << "Mean = " << ped << " rms = " << width;
+  }
+}
+
+void EcalCoder::findGains(const DetId & detId, double Gains[]) const
+{
+  EcalGainRatios::EcalGainRatioMap::const_iterator grit=theGainRatios->getMap().find(detId.rawId());
+  EcalMGPAGainRatio mgpa;
+  if( grit!=theGainRatios->getMap().end() ){
+    mgpa = grit->second;
+    Gains[0] = 1.;
+    Gains[1] = mgpa.gain6Over1() ;
+    Gains[2] = Gains[1]*(mgpa.gain12Over6()) ;
+    //LogDebug("SetupInfo") << "Gains for " << detId.rawId() << "\n" << " 0 = " << Gains[0] << "\n" << " 1 = " << Gains[1] << "\n" << " 2 = " << Gains[2];
+  } else {
+    edm::LogError("SetupInfo") << "Could not find gain ratios for " << detId.rawId() << " among the " << theGainRatios->getMap().size();
   }
 }

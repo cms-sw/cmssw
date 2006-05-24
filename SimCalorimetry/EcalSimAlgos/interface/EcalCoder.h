@@ -10,6 +10,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+ 
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+
 
 class EcalMGPASample;
 class EcalPedestals;
@@ -42,6 +45,11 @@ class EcalCoder
   /// can be fetched every event from the EventSetup
   void setPedestals(const EcalPedestals * pedestals) {thePedestals = pedestals;}
 
+  void setGainRatios(const EcalGainRatios * gainRatios) {theGainRatios = gainRatios; }
+
+  void setFullScaleEnergy(const double EBscale , const double EEscale) {m_maxEneEB = EBscale; m_maxEneEE = EEscale; }
+
+ 
   /// from EBDataFrame to CaloSamples
   virtual void digitalToAnalog(const EBDataFrame& df, CaloSamples& lf) const;
   /// from EEDataFrame to CaloSamples
@@ -70,13 +78,15 @@ class EcalCoder
   /// look for the right pedestal according to the electronics gain
   void findPedestal(const DetId & detId, int gainId, 
                     double & pedestal, double & width) const;
-  
+
+  double theGains[NGAINS];
+   
+  void findGains(const DetId & detId, double theGains[] ) const;
+   
   /// the pedestals
   const EcalPedestals * thePedestals;
   /// the electronics gains
-  double theGains[NGAINS];
-  /// the electronics gains errors
-  double theGainErrors[NGAINS];
+  const EcalGainRatios * theGainRatios;
   /// max attainable energy in the ecal barrel
   double m_maxEneEB ;
   /// max attainable energy in the ecal endcap
