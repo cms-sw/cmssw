@@ -61,12 +61,6 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer) {
           int HalfStrip = 4*chamberDistrip + bit2*2 + bit3;
           int output = 4 + bit2*2 + bit3;
 
-	  //for every distrip there are two strips
-	  int strip1 = distrip*2;
-	  int strip2 = distrip*2+1;
-          //we are recording the same comparator output for both of those strips
-	  //if this is not right - let me know A.T.
-
 	  /*
 	   * Handles distrip logic; comparator output is for pairs of strips: 
 	   * hit  bin  dec 
@@ -79,19 +73,19 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer) {
 
 
 	  if (debug)
-	    edm::LogInfo ("CSCCLCTData") << "fillComparatorOutputs: layer = " 
-					 << layer << " timebin = " << tbin
-					 << " cfeb = " << cfeb << " distrip = " << chamberDistrip
-					 << "  Strips = " << strip1 <<", " << strip2 
-					 << " HalfStrip = " << HalfStrip 
-					 << " Output " << output;
-	  
-          result.push_back(
-			   CSCComparatorDigi(16*cfeb+strip1, output, tbin)
-			   );
+	    edm::LogInfo ("CSCCLCTData") 
+	      << "fillComparatorOutputs: layer = " 
+	      << layer << " timebin = " << tbin
+	      << " cfeb = " << cfeb << " distrip = " << chamberDistrip
+	      << " HalfStrip = " << HalfStrip 
+	      << " Output " << output;
+
+	  ///what is actually stored in comparator digis are 0/1 for left/right halfstrip for each strip
+
 	  result.push_back(
-			   CSCComparatorDigi(16*cfeb+strip2, output, tbin)
+			   CSCComparatorDigi(16*cfeb+1+distrip*2+((output&2)>>1), output&1, tbin)
 			   );
+
           tbin += 2;
 
         }

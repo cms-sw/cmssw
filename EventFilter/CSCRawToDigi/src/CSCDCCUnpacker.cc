@@ -168,31 +168,92 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    continue;
 	  }
 	  for (unsigned int iCSC=0; iCSC<cscData.size(); ++iCSC) { //loop over CSCs
+	   
+	    ///first process chamber-wide digis such as LCT
+	    
+	    int endcap = 1;
+	    int station = 1;
+	    int tmb = 1;
+	    int vmecrate = cscData[iCSC].dmbHeader().crateID();
+	    int dmb = cscData[iCSC].dmbHeader().dmbID();
+	    int ilayer = 0; /// zeroth layer indicates whole chamber          
 
-	    //this loop stores strip and wire digis:
+	    if (debug)
+	      edm::LogInfo ("CSCDCCUnpacker") << "crate = " << vmecrate << "; dmb = " << dmb;
+
+	    /// this is some default value of CSCDetID 
+	    CSCDetId layer(1, //endcap      
+                           1, //station 
+                           1, //ring    
+                           1, //chamber 
+			   1); //layer       
+		
+	    if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
+	      layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,ilayer );
+	    } else {
+	      edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
+	      edm::LogError ("CSCDCCUnpacker") << " using fake CSCDetId!!!! ";
+	    }
+	    
+	    
+	    /// fill alct product  
+	    int nalct = cscData[iCSC].dmbHeader().nalct();
+	    if (nalct) {
+	      if (cscData[iCSC].alctHeader().check()) {
+		std::vector <CSCALCTDigi> alctDigis =
+		  cscData[iCSC].alctHeader().ALCTDigis();
+		for (unsigned int i=0; i<alctDigis.size() ; i++) {
+		  alctProduct->insertDigi(layer, alctDigis[i]);
+		}
+	      }
+	    }
+
+	      
+	    int nclct = cscData[iCSC].dmbHeader().nclct();
+	    if (nclct) {
+	      /// fill clct product         
+	      if (cscData[iCSC].tmbHeader().check()) {
+		std::vector <CSCCLCTDigi> clctDigis =
+		  cscData[iCSC].tmbHeader().CLCTDigis();
+		for (unsigned int i=0; i<clctDigis.size() ; i++) {
+		  clctProduct->insertDigi(layer, clctDigis[i]);
+		}
+	      }
+
+	      /// fill rpc product                                                                                                   
+	      if (cscData[iCSC].tmbData().checkSize()) {
+		if (cscData[iCSC].tmbData().hasRPC()) {
+		  std::vector <CSCRPCDigi> rpcDigis =
+		    cscData[iCSC].tmbData().rpcData().digis();
+		  for (unsigned int i=0; i<rpcDigis.size() ; i++) {
+		    rpcProduct->insertDigi(layer, rpcDigis[i]);
+		  }
+		}
+	      } else edm::LogError("CSCDCCUnpacker") <<" TMBData check size failed!";
+
+
+	      /// fill correlatedlct product           
+	      if (cscData[iCSC].tmbHeader().check()) {
+		std::vector <CSCCorrelatedLCTDigi> correlatedlctDigis =
+		  cscData[iCSC].tmbHeader().CorrelatedLCTDigis();
+		for (unsigned int i=0; i<correlatedlctDigis.size() ; i++) {
+		  corrlctProduct->insertDigi(layer, correlatedlctDigis[i]);
+		}
+	      }
+      
+	    }	
+
+
+
+	    //this loop stores strip and wire and comparator digis:
 	    for (int ilayer = 1; ilayer <= 6; ilayer++) { 
-	      int endcap = 1;
-	      int station = 1;
-	      int tmb = 1;
-	      int vmecrate = cscData[iCSC].dmbHeader().crateID(); 
-	      int dmb = cscData[iCSC].dmbHeader().dmbID();
-
-	      if (debug) 
-		edm::LogInfo ("CSCDCCUnpacker") << "crate = " << vmecrate << "; dmb = " << dmb;
- 
-	      CSCDetId layer(1, //endcap
-			     1, //station
-			     1, //ring
-			     1, //chamber
-			     ilayer); //layer
  
 	      if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
 		layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,ilayer );
-	      }else {
+	      } else {
 		edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
 		edm::LogError ("CSCDCCUnpacker") << " using fake CSCDetId!!!! ";
 	      }
-
 
 	    
 	      std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
@@ -217,62 +278,9 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		}
 	      }
 
-	      if (ilayer ==3) {
-		
-		/// fill alct product
-		int nalct = cscData[iCSC].dmbHeader().nalct();
-		if (nalct) {
-		  if (cscData[iCSC].alctHeader().check()) {
-		    std::vector <CSCALCTDigi> alctDigis =
-		      cscData[iCSC].alctHeader().ALCTDigis();
-		    for (unsigned int i=0; i<alctDigis.size() ; i++) {
-		      alctProduct->insertDigi(layer, alctDigis[i]);
-		    }
-		  }
-		}
-
-
-		int nclct = cscData[iCSC].dmbHeader().nclct();
-		if (nclct) {
-		  /// fill clct product
-		  if (cscData[iCSC].tmbHeader().check()) {
-		    std::vector <CSCCLCTDigi> clctDigis =
-		      cscData[iCSC].tmbHeader().CLCTDigis();
-		    for (unsigned int i=0; i<clctDigis.size() ; i++) {
-		      clctProduct->insertDigi(layer, clctDigis[i]);
-		    }
-		  }
-	      
-		  /// fill rpc product
-		  if (cscData[iCSC].tmbData().checkSize()) {
-		    if (cscData[iCSC].tmbData().hasRPC()) {
-		      std::vector <CSCRPCDigi> rpcDigis =
-			cscData[iCSC].tmbData().rpcData().digis();
-		      for (unsigned int i=0; i<rpcDigis.size() ; i++) {
-			rpcProduct->insertDigi(layer, rpcDigis[i]);
-		      }
-		    }
-		  } else edm::LogError("CSCDCCUnpacker") <<" TMBData check size failed!";
-	     
-		
-		  /// fill correlatedlct product
-		  if (cscData[iCSC].tmbHeader().check()) {
-		    std::vector <CSCCorrelatedLCTDigi> correlatedlctDigis =
-		      cscData[iCSC].tmbHeader().CorrelatedLCTDigis();
-		    for (unsigned int i=0; i<correlatedlctDigis.size() ; i++) {
-		      corrlctProduct->insertDigi(layer, correlatedlctDigis[i]);
-		    }
-		  }
-
-		
-		}
-
-	      }
-	    
-
-	    }
-	  }
-	} 
+	    }//end of loop over layers
+	  }//end of loop over chambers
+	}//endof loop over DDUs 
       }//end of good event
       else {
 	edm::LogError("CSCDCCUnpacker") <<" Examiner deemed the event bad!"; 
