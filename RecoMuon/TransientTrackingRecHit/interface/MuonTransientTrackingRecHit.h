@@ -66,6 +66,15 @@ public:
 
   virtual int degreesOfFreedom() const {return trackingRecHit_->degreesOfFreedom();}
 
+  /// assert if this rec hit is a DT rec hit 
+  bool isDT() const;
+
+  /// assert if this rec hit is a CSC rec hit 
+  bool isCSC() const;
+
+  //   /// assert if this rec hit is a RPC rec hit
+  //   bool isRPC() const;
+    
 private:
   const RecSegment * trackingRecHit_;  
    
