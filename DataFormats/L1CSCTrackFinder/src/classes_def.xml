@@ -1,0 +1,12 @@
+<lcgdict>
+   <class name="csc::L1Track">
+     <field name="scale" transient="true"/>
+   </class>
+   <class name="csc::L1TrackId"/>
+
+   <class name="std::vector<csc::L1Track>"/>
+   <class name="std::vector<csc::L1TrackId>"/>
+
+   <class name="edm::Wrapper<std::vector<csc::L1Track> >"
+            id="8CF9BE35-251F-30F9-62CA-A42659AECDC7"/>
+</lcgdict>
