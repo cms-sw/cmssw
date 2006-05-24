@@ -51,20 +51,20 @@ namespace edm {
     typedef edm::Ref<CVal> val_type;
   public:
     /// insert key type
-    typedef edm::Ref<CKey> insert_key_type;
+    typedef edm::Ref<CKey> key_type;
     /// insert val type
-    typedef edm::Ref<CVal> insert_val_type;
+    typedef edm::Ref<CVal> data_type;
     /// index type
     typedef index index_type;
     /// map type
     typedef std::map<index_type, index_type> map_type;
     /// value type
-    typedef helpers::KeyVal<insert_key_type, val_type> value_type;
+    typedef helpers::KeyVal<key_type, val_type> value_type;
     /// reference set type
     typedef helpers::KeyVal<KeyRefProd, ValRefProd> ref_type;
     /// insert in the map
     static void insert(  ref_type & ref, map_type & m, 
-			const insert_key_type & k, const insert_val_type & v ) {
+			const key_type & k, const data_type & v ) {
      if ( k.isNull() || v.isNull() )
 	throw edm::Exception( edm::errors::InvalidReference )
 	  << "can't insert null references in AssociationMap";
@@ -92,20 +92,20 @@ namespace edm {
     typedef edm::RefVector<CVal> val_type;
   public:
     /// insert key type
-    typedef edm::Ref<CKey> insert_key_type;
+    typedef edm::Ref<CKey> key_type;
     /// insert val type
-    typedef edm::Ref<CVal> insert_val_type;
+    typedef edm::Ref<CVal> data_type;
     /// index type
     typedef index index_type;
     /// map type    
     typedef std::map<index_type, std::vector<index_type> > map_type;
     /// value type
-    typedef helpers::KeyVal<insert_key_type, val_type> value_type;
+    typedef helpers::KeyVal<key_type, val_type> value_type;
     /// reference set type
     typedef helpers::KeyVal<KeyRefProd, ValRefProd> ref_type;
     /// insert in the map
     static void insert( ref_type & ref, map_type & m, 
-			const insert_key_type & k, const insert_val_type & v ) {
+			const key_type & k, const data_type & v ) {
      if ( k.isNull() || v.isNull() )
 	throw edm::Exception( edm::errors::InvalidReference )
 	  << "can't insert null references in AssociationMap";
@@ -134,20 +134,20 @@ namespace edm {
     typedef Val val_type;
   public:
     /// insert key type
-    typedef edm::Ref<CKey> insert_key_type;
+    typedef edm::Ref<CKey> key_type;
     /// insert val type
-    typedef Val insert_val_type;
+    typedef Val data_type;
     /// index type
     typedef index index_type;
     /// map type    
     typedef std::map<index_type, Val> map_type;
     /// value type
-    typedef helpers::KeyVal<insert_key_type, val_type> value_type;
+    typedef helpers::KeyVal<key_type, val_type> value_type;
     /// reference set type
     typedef helpers::Key<KeyRefProd> ref_type;
     /// insert in the map
     static void insert( ref_type & ref, map_type & m, 
-			const insert_key_type & k, const insert_val_type & v ) {
+			const key_type & k, const data_type & v ) {
      if ( k.isNull() )
 	throw edm::Exception( edm::errors::InvalidReference )
 	  << "can't insert null references in AssociationMap";
@@ -171,9 +171,9 @@ namespace edm {
     /// index type
     typedef typename Tag::index_type index_type;
     /// insert key type
-    typedef typename Tag::insert_key_type insert_key_type;
+    typedef typename Tag::key_type key_type;
     /// insert val type
-    typedef typename Tag::insert_val_type insert_val_type;
+    typedef typename Tag::data_type data_type;
     /// reference set type
     typedef typename Tag::ref_type ref_type;
     /// map type
@@ -218,7 +218,7 @@ namespace edm {
     /// return true if empty
     bool empty() const { return map_.empty(); }
     /// insert an association
-    void insert( const insert_key_type & k, const insert_val_type & v ) {
+    void insert( const key_type & k, const data_type & v ) {
       Tag::insert( ref_, map_, k, v );
     }
     /// first iterator over the map (read only)
@@ -226,12 +226,12 @@ namespace edm {
     /// last iterator over the map (read only)
     const_iterator end() const { return const_iterator( this, map_.end() );  }
     /// find element with specified reference key
-    const_iterator find( const insert_key_type & k ) const {
+    const_iterator find( const key_type & k ) const {
       if ( ref_.key.id() != k.id() ) return end();
       return find( k.index() );
     }
     /// find element with specified reference key
-    const value_type & operator[]( const insert_key_type & k ) const {
+    const value_type & operator[]( const key_type & k ) const {
       helpers::checkRef( ref_.key, k );
       return operator[]( k.index() );
     }
