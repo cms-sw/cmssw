@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.6 2006/01/11 17:07:52 fedor Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.7 2006/02/22 19:51:39 fedor Exp $
 //
 //
 
@@ -168,10 +168,6 @@ std::auto_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths (const
 std::auto_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {
   std::cout << "HcalHardcodeCalibrations::produceQIEData-> ..." << std::endl;
   std::auto_ptr<HcalQIEData> result (new HcalQIEData ());
-  HcalQIEShape shape = HcalDbHardcode::makeQIEShape ();
-  float shapes [32];
-  for (unsigned i = 0; i < 32; i++) shapes [i] = shape.lowEdge (i);
-  result->setShape (shapes);
   std::vector <HcalDetId> cells = allCells ();
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalQIECoder coder = HcalDbHardcode::makeQIECoder (*cell);
