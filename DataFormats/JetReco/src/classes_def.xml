@@ -1,14 +1,19 @@
 <lcgdict>
   <class name="Jet"/>
-  <class name="CommonJetData"/>
   <class name="std::vector<CaloTowerDetId>"/>
   <class name="std::vector<int>"/>
   <class name="CaloJet"/>
   <class name="CaloJet::Specific"/>
   <class name="std::vector<CaloJet>"/>
+  <class name="edm::Ref<std::vector<CaloJet> >"/>
+  <class name="edm::RefVector<std::vector<CaloJet> >"/>
+  <class name="edm::RefProd<std::vector<CaloJet> >"/>
   <class name="edm::Wrapper<std::vector<CaloJet> >" id="C75D7A9B-86BD-F88A-7423-802D1A8E813D"/>
   <class name="GenJet"/>
   <class name="GenJet::Specific"/>
   <class name="std::vector<GenJet>"/>
+  <class name="edm::Ref<std::vector<GenJet> >"/>
+  <class name="edm::RefVector<std::vector<GenJet> >"/>
+  <class name="edm::RefProd<std::vector<GenJet> >"/>
   <class name="edm::Wrapper<std::vector<GenJet> >" id="5855A9D0-83C3-F21D-1B1B-10D92739DAC6"/>
 </lcgdict>

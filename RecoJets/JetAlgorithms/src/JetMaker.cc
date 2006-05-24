@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.7 2006/04/27 18:44:03 fedor Exp $
+/// $Id: JetMaker.cc,v 1.8 2006/05/03 22:21:39 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -181,13 +181,10 @@ CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet) const {
       cerr << "CaloJetMaker::makeCaloJet-> Constituent candidate is not compatible with CaloTowerCandidate type" << std::endl;
     }
   }
-
-  CommonJetData common (fProtojet.px(), fProtojet.py(), fProtojet.pz(), 
-			fProtojet.e(), fProtojet.numberOfConstituents());
   CaloJet::Specific specific;
   makeSpecific (*towerCollection, towerIds, &specific);
 
-  return CaloJet (common, specific, towerIds);
+  return CaloJet (fProtojet.p4(), specific, towerIds);
 }
 
 bool JetMaker::convertableToGenJet (const ProtoJet& fProtojet) const {
@@ -220,12 +217,9 @@ GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {
       std::cerr << "JetMaker::makeGenJet-> Constituent candidate is not compatible with HepMCCandidate type" << std::endl;
     }
   }
-
-  CommonJetData common (fProtojet.px(), fProtojet.py(), fProtojet.pz(), 
-			fProtojet.e(), fProtojet.numberOfConstituents());
   GenJet::Specific specific;
   makeSpecific (mcParticles, &specific);
 
-  return GenJet (common, specific, barcodes);
+  return GenJet (fProtojet.p4(), specific, barcodes);
 }
 

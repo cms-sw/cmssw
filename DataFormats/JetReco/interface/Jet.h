@@ -11,46 +11,57 @@
  * \author Fernando Varela Rodriguez, Boston University
  *
  * \version   1st Version April 22, 2005.
- *
+ * \version   2nd Version May 23, 2006 by F.R.
+ * $Id$
  ************************************************************/
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/Vector3D.h"
 
 class Jet {
 public:
   /// Lorentz vector
   typedef math::XYZTLorentzVector LorentzVector;
-  /// spatial vector
-  typedef math::XYZVector Vector;
+
+  Jet () : mNumberOfConstituents (0) {}
+  Jet (const LorentzVector& fP4, int fNumberOfConstituents = 0) 
+    : mP4 (fP4),  mNumberOfConstituents (fNumberOfConstituents) {}
+  virtual ~Jet () {}
 
   /// four-momentum Lorentz vector
-  virtual LorentzVector p4() const = 0;
-  /// spatial momentum vector
-  virtual Vector momentum() const = 0;
+  const LorentzVector& p4() const {return mP4;}
   /** Returns the jet momentum component along the x axis */
-  virtual double px() const = 0;
+  double px() const {return p4().Px();}
   /** Returns the jet momentum component along the y axis */
-  virtual double py() const = 0;
+  double py() const {return p4().Py();}
   /** Returns the jet momentum component along the z axis */
-  virtual double pz() const = 0;
+  double pz() const {return p4().Pz();}
   /** Returns the total energy of the jet*/
-  virtual double energy () const = 0;
+  double energy () const {return p4().E();}
 
   /** Standard quantities derived from the Jet Lorentz vector
   /\return the modulus of the momentum of the jet */
-  virtual double p() const = 0;
+  double p() const {return p4().P();}
   /** Returns the transverse momentum of the jet*/
-  virtual double pt() const = 0;
+  double pt() const {return p4().Pt();}
   /** Returns the transverse energy of the jet*/
-  virtual double et() const = 0;
+  double et() const {return p4().Et();}
   /** Returns the jet mass of the jet*/
-  virtual double mass() const = 0;
+  double mass() const {return p4().M();}
   /** Returns the azimuthal angle of the jet, Phi*/
-  virtual double phi() const = 0;
+  double phi() const {return p4().Phi();}
   /** Returns the pseudorapidity of the jet*/
-  virtual double eta() const = 0;
+  double eta() const {return p4().Eta();}
+  /** Returns the rapidity of the jet*/
+  double y() const {return p4().Rapidity();}
   /** Returns the number of constituents of the jet*/
-  virtual int nConstituents() const = 0;
+  virtual int nConstituents() const {return mNumberOfConstituents;}
+ protected:
+  void setNConstituents (int fNConstituents) {mNumberOfConstituents = fNConstituents;}
+  void setP4 (const LorentzVector& fP4) {mP4 = fP4;}
+ private:
+  /** 4-momentum of the jet*/
+  LorentzVector mP4;
+  /** Number of constituents of the Jet*/
+  int mNumberOfConstituents;
 };
 
 #endif
