@@ -81,7 +81,6 @@
  <class name="edm::BranchEntryDescription"/>
  <class name="edm::BranchDescription">
    <field name="branchName_" transient="true"/>
-   <field name="productPtr_" transient="true"/>
  </class>
  <class name="edm::HLTPathStatus"/>
  <class name="edm::Wrapper<edm::HLTPathStatus>"/>
