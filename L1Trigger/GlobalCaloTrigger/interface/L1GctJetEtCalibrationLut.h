@@ -15,6 +15,8 @@ public:
   /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0 to eta=5 */
   uint16_t convertToSixBitRank(uint16_t jetEnergy, uint16_t eta) const;
 
+  /// Converts a 10-bit jet energy to a 10-bit rank.
+  /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0 to eta=5 */
   uint16_t convertToTenBitRank(uint16_t jetEnergy, uint16_t eta) const;
   
 private:
@@ -22,7 +24,7 @@ private:
   static const int JET_ENERGY_BITWIDTH = 10;  //must be 6 or more
   
   
-  float m_quadraticCoeff;
+//  float m_quadraticCoeff;
 //  float m_linearCoeff;
 //  float m_constant;
   
