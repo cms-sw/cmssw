@@ -5,6 +5,7 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 
+
 #include <algorithm>
 #include <iterator>
 
@@ -44,6 +45,8 @@ namespace edmtestp
 
   std::auto_ptr<edm::EventPrincipal> EventStreamFileReader::read()
   {
+     
+    cout<<"ANZAR: EventStreamFileReader::read()"<<endl;
     return reader_.read(productRegistry());
   }
 
