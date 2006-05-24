@@ -1,0 +1,5 @@
+<use name=boost>
+<export>
+  <use name=boost>
+  <lib name=CondToolsUtilities>
+</export>
