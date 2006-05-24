@@ -16,14 +16,15 @@ public:
   CaloSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog, 
                  double samplingFactor, double timePhase,
                  int readoutFrameSize, int binOfMaximum,
-                 bool doPhotostatistics)
+                 bool doPhotostatistics, bool syncPhase)
   : simHitToPhotoelectrons_(simHitToPhotoelectrons),
     photoelectronsToAnalog_(photoelectronsToAnalog),
     samplingFactor_(samplingFactor),
     timePhase_(timePhase),
     readoutFrameSize_(readoutFrameSize),
     binOfMaximum_(binOfMaximum),
-    doPhotostatistics_(doPhotostatistics)
+    doPhotostatistics_(doPhotostatistics),
+    syncPhase_(syncPhase)
   {
   }
 
@@ -58,6 +59,9 @@ public:
   /// whether or not to apply Poisson statistics to photoelectrons
   bool doPhotostatistics() const {return doPhotostatistics_;}
 
+  /// choice of the ADC time alignment (synchronous for LHC, asynchronous for test beams)
+  bool syncPhase() const {return syncPhase_; }
+
 
 private:
   double simHitToPhotoelectrons_;
@@ -67,6 +71,7 @@ private:
   int readoutFrameSize_;
   int binOfMaximum_;
   bool doPhotostatistics_;
+  bool syncPhase_;
 
 };
 

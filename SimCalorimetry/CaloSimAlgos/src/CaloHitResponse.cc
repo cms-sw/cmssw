@@ -10,6 +10,7 @@ using namespace std;
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "CLHEP/Random/RandPoisson.h"
+#include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include<iostream>
 
@@ -78,9 +79,18 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
 
   double jitter = hit.time() - timeOfFlight(detId);
 
+  // phase shift
+  // 1 for synchronous LHC run
+  // random number between 0 and 1 for asynchronous test beam mode
+
+  double phaseShift = 1.;
+  if ( !parameters.syncPhase() ) {
+    phaseShift = RandFlat::shoot();
+  }
+
   // assume bins count from zero, go for center of bin
   const double tzero = parameters.timePhase() -jitter -
-     BUNCHSPACE*(parameters.binOfMaximum()-1);
+     BUNCHSPACE*((double)parameters.binOfMaximum()-phaseShift);
   double binTime = tzero;
 
   CaloSamples result(makeBlankSignal(detId));
