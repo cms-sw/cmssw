@@ -12,11 +12,11 @@
 EcalSimParameterMap::EcalSimParameterMap() :
   theBarrelParameters(2250., 1./2250., 
                    1., 47.6683, 
-                   10, 5, true),
+                   10, 5, true, true),
   theEndcapParameters( 1800., 1./1800., 
                    1., 47.6683, 
-        	       10, 5, true),
-  theESParameters(1., 1., 1., 20., 3, 2, false)
+        	       10, 5, true, true),
+  theESParameters(1., 1., 1., 20., 3, 2, false, true)
 {}
 
 EcalSimParameterMap::EcalSimParameterMap(double simHitToPhotoelectronsBarrel, 
@@ -25,21 +25,21 @@ EcalSimParameterMap::EcalSimParameterMap(double simHitToPhotoelectronsBarrel,
                                          double photoelectronsToAnalogEndcap, 
                                          double samplingFactor, double timePhase,
                                          int readoutFrameSize, int binOfMaximum,
-                                         bool doPhotostatistics) : 
+                                         bool doPhotostatistics, bool syncPhase) : 
   theBarrelParameters(simHitToPhotoelectronsBarrel, photoelectronsToAnalogBarrel,
                       samplingFactor, timePhase, 
-                      readoutFrameSize, binOfMaximum, doPhotostatistics),
+                      readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
   theEndcapParameters(simHitToPhotoelectronsEndcap, photoelectronsToAnalogEndcap, 
                       samplingFactor, timePhase, 
-                      readoutFrameSize, binOfMaximum, doPhotostatistics),
-  theESParameters(1., 1., 1., 20., 3, 2, false)
+                      readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
+  theESParameters(1., 1., 1., 20., 3, 2, false, true)
 {}
 
   /*
   CaloSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog, 
                  double samplingFactor, double timePhase,
                  int readoutFrameSize, int binOfMaximum,
-                 bool doPhotostatistics)
+                 bool doPhotostatistics, bool syncPhase)
   */
   
 const CaloSimParameters & EcalSimParameterMap::simParameters(const DetId & detId) const 

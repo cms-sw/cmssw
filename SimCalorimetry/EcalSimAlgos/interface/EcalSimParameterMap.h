@@ -20,7 +20,7 @@ public:
                       double photoelectronsToAnalogEndcap, 
                       double samplingFactor, double timePhase,
                       int readoutFrameSize, int binOfMaximum,
-                      bool doPhotostatistics);
+                      bool doPhotostatistics, bool syncPhase);
   /// dtor
   virtual ~EcalSimParameterMap() {}
 
