@@ -27,6 +27,14 @@ public:
 
   virtual float compatibility (const VertexState &, const VertexState &) const;
 
+  /**
+   * The signed distance is computed using a vector
+   * from the primary to the secondary vertex and
+   * a given reference vector.
+   * The sign is determined by the scalar product of the x,y component of
+   * the vector connecting the vertices and the reference vector:
+   * if the scalar product is greater than zero, the sign is +1, else -1
+   */
   virtual Measurement1D signedDistance(const reco::Vertex &primVtx , 
 				 const reco::Vertex &secVtx,
 				 const GlobalVector & momentum) const;
