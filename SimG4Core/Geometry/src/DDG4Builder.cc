@@ -204,7 +204,7 @@ int DDG4Builder::getInt(const string & s, const DDLogicalPart & part)
       if (temp.size() != 1)
       {
 	 // std::cout << " ERROR: I need only 1 " << s << std::endl;
-	 edm::LogError("DDG4Builder") << " ERROR: I need only 1 " << s ;
+	 edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << s ;
 	 abort();
       }      
       return int(temp[0]);
@@ -229,7 +229,7 @@ double DDG4Builder::getDouble(const string & s, const DDLogicalPart & part)
       if (temp.size() != 1)
       {
 	 // std::cout << " ERROR: I need only 1 " << s << std::endl;
-	 edm::LogError("DDG4Builder") << " ERROR: I need only 1 " << s ;
+	 edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << s ;
 	 abort();
       }
       double v;

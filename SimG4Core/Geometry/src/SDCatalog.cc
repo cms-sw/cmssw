@@ -1,5 +1,7 @@
 #include "SimG4Core/Geometry/interface/SDCatalog.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //#define DEBUG
 
 #include <iostream>
@@ -10,11 +12,14 @@ void SDCatalog::insert(string& cN, string& rN, string& lvN)
 {
     theClassNameMap[cN].push_back(rN);
     theROUNameMap[rN].push_back(lvN);
-#ifdef DEBUG
-    cout <<" I have inserted ("<<cN<<","<<rN<<","<<lvN<<")"<<endl;
-    cout <<" I have "<<readoutNames().size()<<" ROUs "<<readoutNames().front()<<endl;
-    cout <<" I have "<<classNames().size()<<" classes "<<classNames().front()<<endl;
-#endif
+//#ifdef DEBUG
+    //cout <<" I have inserted ("<<cN<<","<<rN<<","<<lvN<<")"<<endl;
+    //cout <<" I have "<<readoutNames().size()<<" ROUs "<<readoutNames().front()<<endl;
+    //cout <<" I have "<<classNames().size()<<" classes "<<classNames().front()<<endl;
+    LogDebug("SimG4CoreGeometry") << " I have inserted ("<<cN<<","<<rN<<","<<lvN<<")" ;
+    LogDebug("SimG4CoreGeometry") << " I have "<<readoutNames().size()<<" ROUs "<<readoutNames().front() ;
+    LogDebug("SimG4CoreGeometry") << " I have "<<classNames().size()<<" classes "<<classNames().front() ;
+//#endif
 }
 
 vector<string> SDCatalog::readoutNames()

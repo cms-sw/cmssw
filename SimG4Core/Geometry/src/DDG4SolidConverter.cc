@@ -7,6 +7,8 @@ using namespace std;
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 const vector<double> * DDG4SolidConverter::par_ = 0; 
 
 DDG4SolidConverter::DDG4SolidConverter()
