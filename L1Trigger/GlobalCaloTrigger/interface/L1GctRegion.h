@@ -11,56 +11,49 @@
  * 
  */
 
-typedef unsigned long int ULong;
-
 class L1GctRegion
 {
 public:
-	L1GctRegion(ULong data=0);
-	L1GctRegion(int eta, int phi, ULong et, bool mip, bool quiet, bool tauVeto, bool overFlow);
-	~L1GctRegion();
+  L1GctRegion(unsigned long data=0);
+  L1GctRegion(int eta, int phi, unsigned long et, bool mip, bool quiet, bool tauVeto, bool overFlow);
+  ~L1GctRegion();
 
-    	friend std::ostream& operator << (std::ostream& os, const L1GctRegion& reg);
+  friend std::ostream& operator << (std::ostream& os, const L1GctRegion& reg);
 
-    // Getters
-    int eta() const { return m_eta; }   ///< Get the eta number (0-21?) of the region
-    int phi() const { return m_phi; }   ///< Get the phi number (0-17) of the region
-    ULong getEt() const { return myEt.to_ulong(); }
-    bool getMip() const { return myMip; }
-    bool getQuiet() const { return myQuiet; }
-    bool getTauVeto() const { return myTauVeto; }
-    bool getOverFlow() const { return myOverFlow; }
-    
-    // Setters
-    void setEta(int eta) { m_eta = eta; }
-    void setPhi(int phi) { m_phi = phi; }
-    void setEt(ULong et) { /*assert(et < (1 << ET_BITWIDTH));*/ myEt = et; } 
-    void setMip(bool mip) { myMip = mip; }
-    void setQuiet(bool quiet) { myQuiet = quiet; }
-    void setTauVeto(bool tauVeto) { myTauVeto = tauVeto; }
-    void setOverFlow(bool overFlow) { myOverFlow = overFlow; }
+  // Getters
+  int eta() const { return m_eta; }   ///< Get the eta number (0-21?) of the region
+  int phi() const { return m_phi; }   ///< Get the phi number (0-17) of the region
+  unsigned long getEt() const { return m_et.to_ulong(); }
+  bool getMip() const { return m_mip; }
+  bool getQuiet() const { return m_quiet; }
+  bool getTauVeto() const { return m_tauVeto; }
+  bool getOverFlow() const { return m_overFlow; }
 
-    //  ostream& operator << (ostream& os, const L1GctRegion& s);
-    
+  // Setters
+  void setEta(int eta) { m_eta = eta; }
+  void setPhi(int phi) { m_phi = phi; }
+  void setEt(unsigned long et) { /*assert(et < (1 << ET_BITWIDTH));*/ m_et = et; } 
+  void setMip(bool mip) { m_mip = mip; }
+  void setQuiet(bool quiet) { m_quiet = quiet; }
+  void setTauVeto(bool tauVeto) { m_tauVeto = tauVeto; }
+  void setOverFlow(bool overFlow) { m_overFlow = overFlow; }
 
-		
+
 private:
 
-    static const int ET_BITWIDTH = 10;
+  static const int ET_BITWIDTH = 10;
 
-    /// global eta position number of the region (0-21)
-	int m_eta;
-	/// global phi position number of the region (0-17)
-    int m_phi;
+  /// global eta position number of the region (0-21)
+  int m_eta;
+  /// global phi position number of the region (0-17)
+  int m_phi;
 
-	std::bitset<ET_BITWIDTH> myEt;
-	bool myMip;
-	bool myQuiet;
-    bool myTauVeto;
-    bool myOverFlow;
-	
-	
-	
+  std::bitset<ET_BITWIDTH> m_et;
+  bool m_mip;
+  bool m_quiet;
+  bool m_tauVeto;
+  bool m_overFlow;
+
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctRegion& reg);
