@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>
 #include "TTree.h"
 #include "TFile.h"
 #include "TDirectory.h"
@@ -31,13 +32,21 @@ public:
   virtual void endJob();
 private:
   edm::ParameterSet conf_; 
+  // How noisy should I be
+  int verbose_;
   // Tree of simple vars for testing resolution eff etc
   TTree *t_;
   TFile *f_;
   int ntrk_;
+  static const int maxtrk_=1000;
+  double pt_[maxtrk_];
+  double z0_[maxtrk_];
+  double errz0_[maxtrk_];
+  double tanl_[maxtrk_];
   int nvtx_;
-  double vz_[10];
-  double vzwt_[10];
+  static const int maxvtx_=15;
+  double vz_[maxvtx_];
+  double vzwt_[maxvtx_];
 };
 
 PixelVertexTest::PixelVertexTest(const edm::ParameterSet& conf)
@@ -54,14 +63,22 @@ PixelVertexTest::~PixelVertexTest()
 }
 
 void PixelVertexTest::beginJob(const edm::EventSetup& es) {
+  // How noisy?
+  verbose_ = conf_.getUntrackedParameter<unsigned int>("Verbosity",0);
+
   // Make my little tree
   std::string file = conf_.getUntrackedParameter<std::string>("OutputTree","mytree.root");
   const char* cwd= gDirectory->GetPath();
   f_ = new TFile(file.c_str(),"RECREATE");
   t_ = new TTree("t","Pixel Vertex Testing");
-  t_->Branch("vtx",&nvtx_,"nvtx/I");
-  t_->Branch("vz",&vz_,"vz[nvtx]/D");
-  t_->Branch("vzwt",&vzwt_,"vzwt[nvtx]/D");
+  t_->Branch("nvtx",&nvtx_,"nvtx/I");
+  t_->Branch("vz",vz_,"vz[nvtx]/D");
+  t_->Branch("vzwt",vzwt_,"vzwt[nvtx]/D");
+  t_->Branch("ntrk",&ntrk_,"ntrk/I");
+  t_->Branch("pt",pt_,"pt[ntrk]/D");
+  t_->Branch("z0",z0_,"z0[ntrk]/D");
+  t_->Branch("errz0",errz0_,"errz0[ntrk]/D");
+  t_->Branch("tanl",tanl_,"tanl[ntrk]/D");
   gDirectory->cd(cwd);
 }
 
@@ -77,24 +94,39 @@ void PixelVertexTest::analyze(
   std::vector< reco::TrackRef >trks;
 
   std::cout << *(trackCollection.provenance()) << std::endl;
-  cout << "Reconstructed "<< tracks.size() << " tracks" << std::endl;
+  if (verbose_ > 0) cout << "Reconstructed "<< tracks.size() << " tracks" << std::endl;
+  ntrk_=0;
   for (unsigned int i=0; i<tracks.size(); i++) {
-    cout << "\tmomentum: " << tracks[i].momentum()
-         << "\tPT: " << tracks[i].pt()<< endl;
-    cout << "\tvertex: " << tracks[i].vertex()
-         << "\timpact parameter: " << tracks[i].d0()<< endl;
-    cout << "\tcharge: " << tracks[i].charge()<< endl;
+    if (verbose_ > 0) {
+      cout << "\tmomentum: " << tracks[i].momentum()
+	   << "\tPT: " << tracks[i].pt()<< endl;
+      cout << "\tvertex: " << tracks[i].vertex()
+	   << "\tZ0: " << tracks[i].dz() << " +- " << tracks[i].covariance().dzError() << endl;
+      cout << "\tcharge: " << tracks[i].charge()<< endl;
+    }
     trks.push_back( reco::TrackRef(trackCollection, i) );
-  cout <<"------------------------------------------------"<<endl;
+    // Fill ntuple vars
+    if (ntrk_ < maxtrk_) {
+      pt_[ntrk_] = tracks[i].pt();
+      z0_[ntrk_] = tracks[i].dz();
+      //      errz0_[ntrk_] = std::sqrt( tracks[i].covariance(3,3) );
+      errz0_[ntrk_] = tracks[i].covariance().dzError();
+      tanl_[ntrk_] = tracks[i].tanDip();
+      ntrk_++;
+    }
+    if (verbose_ > 0) cout <<"------------------------------------------------"<<endl;
   }
   PVPositionBuilder pos;  
-  nvtx_ = 1;
-  vz_[0] = pos.average(trks).value();
-  vzwt_[0] = pos.wtAverage(trks).value();
+  nvtx_ = 0;
+  vz_[nvtx_] = pos.average(trks).value();
+  vzwt_[nvtx_] = pos.wtAverage(trks).value();
+  nvtx_++;
+  if (verbose_ > 0) {
+    std::cout << "The average z-position of these tracks is " << vz_[0] << std::endl;
+    std::cout << "The weighted average z-position of these tracks is " << vzwt_[0] << std::endl;
+  }
+  // Finally, fill the tree with the above values
   t_->Fill();
-  std::cout << "The average z-position of these tracks is " << vz_ << std::endl;
-  std::cout << "The weighted average z-position of these tracks is " << vzwt_ << std::endl;
-  
 }
 
 void PixelVertexTest::endJob() {
