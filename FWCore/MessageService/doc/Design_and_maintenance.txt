@@ -207,6 +207,114 @@ true.  Also, in the ctor for MessageLogger (in MessageLogger.cc) if
 debugModules is empty, we change debugEnabled MessageDrop's debugEnabled
 to false.
 
+------------------------
+Configuring Destinations
+------------------------
+
+The configure_dest() member of MessageLoggerScribe is invoked (when the
+CONFIGURE opcode is received) for each destination.  In the end, each
+destination has its own tables of what to do about each category and severity,
+but we get various overall defaults fromm the .cfg file as well.  The limit
+instructions at the MessageLogger level takes on 4 forms -- in order of 
+priority of application, these are:
+ 1 - A limit for a specific category.
+ 2 - A limit for a severity, to be used for messages who have no established
+     limit for their specific categries.
+ 3 - A default limit, to be used for messages not falling under (1) or (2).
+ 4 - If no information is available at all, then there is no limit and all
+     messages of that type will be reported.
+
+Thresholds are simpler, having just an overall default and possible destination
+specific thresholds.  A threshold says "if a message is below this severity
+level, don't even bother considering reporting it."  Overall thresholds could
+in principle even be used at the client level to obviate message preparation
+in cases where nobody will be reporting the message.  We will not discuss 
+establishing thresholds any further in theis section; it is straightforward
+in comparison to establishing limits.
+
+The setup for limits (and intervals and timespans) is influenced by the
+following .cfg information (all of which is optional; for brevity I omit
+the ubiquitous untracked directives):
+
+ a) A MessageService-level PSet named "default" containing:
+   a1) An overall default limit  -- int32 limit = 5
+   a2) One or more severity-level limits -- PSet INFO   { int32 limit = 10 }
+   a3) Limits for specific catecories    -- PSet fwkJob { int32 limit = 0  }
+ b) Items inside the PSet specific to that destination:
+   b1) A PSet named default, containint an overall default limit  -- 
+   	PSet mydest { PSet default { int32 limit = 8 } }
+   b2) One or more severity-level limits -- PSet INFO   { int32 limit = 10 }
+   b3) Limits for specific categories    -- PSet fwkJob { int32 limit = 0  }
+
+The algorithm needed to establish the priorities (see Establishment and 
+Checking of Limits below) would then be:
+
+A - If (a) is present, then from that default_pset, extract a default_limit,
+    with the default if limit does not appear being NO_VALUE_SET.  (If (a) is 
+    absent, then the empty_PSet will be used as default_pset, and default_limit
+    will inevitably be NO_VALUE_SET.)
+    
+B - If (b1) is present, then from that dest_default_pset, extract a value
+    dest_default_limit, with the default for that being default_limit.
+
+    At this point, if a value has been set, we can issue 
+		dest_ctrl.setLimit("*", dest_default_limit )
+
+Now we walk through the list of known categories:
+
+C - If (a3) is present, then from that default_category_pset, extract
+    a category_default_limit.  If either the PSet (a3) is not present, 
+    or (a3) is present but does not contain limit (it might contain only
+    interval, for example), then this will be NO_VALUE_SET.
+
+D - If (b3) is present, then from that category_pset, extract a limit, 
+    using as the default value the category_default_limit.  If the value 
+    remains NO_VALUE_SET, then replace it with default_limit (which may
+    itself be NO_VALUE_SET, in which case there really was no appllicable
+    limit specified - situation [4] above). 
+    
+    Note that it does not work to simply rely on category_pset, which
+    if (b3) is absent would have defaulted to the default_category_pset,
+    because of the following scenario:  
+    	PSet MessageService {
+	  PSet default {
+	    PSet category1 { int32 limit = 50 }
+	  }
+	  PSet mydest {
+	    PSet default { int32 interval = 10 }
+	    PSet category1 { int32 interval = 20 }
+	  }
+	}
+    The intent would be to have a limit of 50 on category1; the naive use of
+    default PSets would have this category assigned no limit.
+
+    And it does not work to just from that category_pset, extract a limit, 
+    using as the default value the category_default_limit.   The case that
+    exposes the flaw is if there is an overall default limit, and in this
+    destination, an interval (but not a limit) is esablished for this specific
+    category.  Here, in response to the verall default limit, a 
+		dest_ctrl.setLimit("*", dest_default_limit ) 
+    will have been issued, using the correct limit.  But sice the specific
+    category is on the list of known categories in the ErrorLogger (due to
+    the interval being set), th elookup will not get to the "*" limit.  
+    Thus we must explicitly work with the overall default limit.
+
+E - Unless the limt thus extracted is NO_VALUE_SET, we issue
+		dest_ctrl.setLimit(category, limit )
+
+And finally we walk though all the severities:
+
+F - If (a2) is present for that severity level, extract default_sev_pset,
+    with the default being NO_VALUE_SET.
+    
+G - If (b2) is present, then from that sev_pset (or from default_sev_pset
+    if (b2) is absent, or from empty_PSet if neither is present; the code
+    is simple for that), extract limit, with default of NO_VALUE_SET.
+    
+    At this point, if a value has been set, we can issue 
+		dest_ctrl.setLimit(severity, limit )  
+
+
 ----------
 purge_mode
 ----------
@@ -257,7 +365,7 @@ In order of precedence, the rules are:
    for this category is taken to be that default value. 
    
 3) If for a particular destination the severity of the message has had 
-   a specific (interval) set, then that limit (interval) is used.  Note 
+   a specific limit (interval) set, then that limit (interval) is used.  Note 
    that for categories explicitly mentioned in the default, this case
    is not applied, since case (2) would take precedence.
 
@@ -278,6 +386,19 @@ In order of precedence, the rules are:
    and an inteval that causes no skipping.  Internally, a value of -1 indicates
    an infinte limit, and also can indicate an interval that was never given 
    a value.  
+
+One tricky point in setting up these rules:  It is easily possible for a
+category Pset to appear inside a destination Pset, and for that category 
+Pset to have an interval entry but not a limit entry (or vice-versa).  In
+that case, with regards to limit, the behavior should be as if that category
+did not appear in this destination.  One trap to avoid would be to do
+  int limit = getAparameter<int>(&category_pset,"limit", dest_default_limit);
+Althouth this seems the obvious thing to do, if limit is not present in the
+category PSet in this destination, it will violate priority (2) above, by
+choosing the default limit established for the destination over the specific
+limit for that category established overall.  See above, in "Configuring
+Destinations, for the work needed in MessageLoggerScribe to decide how to
+establish these limits.
 
 The logic implementing these rules appears in ELmap.h and .cc (in the 
 MessageLogger module) and ELlimitTable.h and .cc (in MessageService).

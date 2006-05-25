@@ -17,7 +17,8 @@
 #include "FWCore/MessageLogger/interface/ELmap.h"
 
 // Possible traces
-// #define ELcountTRACE
+//#include <iostream>
+//#define ELcountTRACE
 // #define ELmapDumpTRACE
 
 
@@ -47,7 +48,7 @@ CountAndLimit::CountAndLimit( int lim, int ts, int ivl )
 , limit     ( lim )
 , timespan  ( ts  )
 , interval  ( ivl )
-, skipped   ( 0 )
+, skipped   ( ivl-1 )  // So that the FIRST of the prescaled messages emerges
 { }
 
 
@@ -56,11 +57,11 @@ bool  CountAndLimit::add()  {
   time_t  now = time(0);
 
 #ifdef ELcountTRACE
-  std::cout << "&&&--- CountAndLimit::add \n";
-  std::cout << "&&&    Time now  is " << now << "\n";
-  std::cout << "&&&    Last time is " << lastTime << "\n";
-  std::cout << "&&&    timespan  is " << timespan << "\n";
-  std::cout << "&&&    difftime  is " << difftime( now, lastTime ) << "\n"
+  std::cerr << "&&&--- CountAndLimit::add \n";
+  std::cerr << "&&&    Time now  is " << now << "\n";
+  std::cerr << "&&&    Last time is " << lastTime << "\n";
+  std::cerr << "&&&    timespan  is " << timespan << "\n";
+  std::cerr << "&&&    difftime  is " << difftime( now, lastTime ) << "\n"
                                 << std::flush;
 #endif
 
@@ -83,8 +84,8 @@ bool  CountAndLimit::add()  {
   ++skipped;  
 
 #ifdef ELcountTRACE
-  std::cout << "&&&       n is " << n << "-- limit is    " << limit    << "\n";
-  std::cout << "&&& skipped is " << skipped 
+  std::cerr << "&&&       n is " << n << "-- limit is    " << limit    << "\n";
+  std::cerr << "&&& skipped is " << skipped 
   	                              << "-- interval is " << interval << "\n";
 #endif
   

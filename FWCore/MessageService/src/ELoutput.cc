@@ -307,9 +307,9 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   // See if this message is to be acted upon, and add it to limits table
   // if it was not already present:
   //
-  if ( msg.xid().severity < threshold  )  return false;
+  if ( xid.severity < threshold        )  return false;
   if ( thisShouldBeIgnored(xid.module) )  return false;
-  if ( ! limits.add( msg.xid() )       )  return false;
+  if ( ! limits.add( xid )             )  return false;
 
   #ifdef ELoutputTRACE_LOG
     std::cerr << "    =:=:=: Limits table work done \n";

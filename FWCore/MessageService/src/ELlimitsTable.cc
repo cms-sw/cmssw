@@ -17,8 +17,8 @@
 
 #include "FWCore/MessageService/interface/ELlimitsTable.h"
 
-#include <iostream>
-using std::cerr;
+//#include <iostream>
+//using std::cerr;
 
 // Posible traces
 // #define ELlimitsTableCONSTRUCTOR_TRACE
@@ -48,6 +48,7 @@ ELlimitsTable::ELlimitsTable()
 
   for ( int k = 0;  k < ELseverityLevel::nLevels;  ++k )  {
     severityLimits[k]    = -1;                // JvR 99-06-10
+    severityIntervals[k]    = -1;             
     severityTimespans[k] = -1;
   }
 
@@ -80,24 +81,30 @@ bool ELlimitsTable::add( const ELextendedID & xid )  {
 
   if ( c == counts.end() )  {  // no such entry yet
 
-#ifdef ELlimitsTableATRACE
+    #ifdef ELlimitsTableATRACE
     cerr << "&&&    no such entry yet in counts \n";
-#endif
+    #endif
     int lim;
+    int ivl;
     int ts;
     ELmap_limits::iterator l = limits.find( xid.id );
 
     if ( l != limits.end() )  { // use limits previously established for this id
       lim = (*l).second.limit;
+      ivl = (*l).second.interval;
       ts  = (*l).second.timespan;
       if ( lim < 0 )  {                                    // jvr 6/17/99
         lim = severityLimits[xid.severity.getLevel()];
         if ( lim < 0 )  {
           lim = wildcardLimit;
         }
-        limits[xid.id] = LimitAndTimespan( lim, ts );
       }
-
+      if ( ivl < 0 )  {                                    
+        ivl = severityIntervals[xid.severity.getLevel()];
+        if ( ivl < 0 )  {
+          ivl = wildcardLimit;
+        }
+      }
       if ( ts < 0 )  {
         ts = severityTimespans[xid.severity.getLevel()];
         if (ts < 0 )  {
@@ -105,40 +112,50 @@ bool ELlimitsTable::add( const ELextendedID & xid )  {
         }
         limits[xid.id] = LimitAndTimespan( lim, ts );
       }
-#ifdef ELlimitsTableATRACE
+      #ifdef ELlimitsTableATRACE
       cerr << "&&&    Entry found in limits: limit = " << lim
+           << " interval = " << ivl
            << " timespan = " << ts << '\n';
-#endif
-    } else  {   // establish and use limits new to this id
-      lim = severityLimits[xid.severity.getLevel()];
-#ifdef ELlimitsTableATRACE
-      cerr << "&&&    Limit taken from severityLimits: " << lim << '\n';
-#endif
+      #endif
+      limits[xid.id] = LimitAndTimespan( lim, ts, ivl );
+   } else  {   // establish and use limits new to this id
+      lim = severityLimits   [xid.severity.getLevel()];
+      ivl = severityIntervals[xid.severity.getLevel()];
+      ts  = severityTimespans[xid.severity.getLevel()];
+      #ifdef ELlimitsTableATRACE
+      cerr << "&&&    Limit taken from severityLimits: " << lim << '\n'
+           << "&&&    Interval taken from severityLimits: " << ivl << '\n';
+      #endif
       if ( lim < 0 )  {
         lim = wildcardLimit;
-#ifdef ELlimitsTableATRACE
+        #ifdef ELlimitsTableATRACE
         cerr << "&&&    Limit reset to wildcard limit: " << lim << '\n';
-#endif
+        #endif
       }
-      ts = severityTimespans[xid.severity.getLevel()];
-#ifdef ELlimitsTableATRACE
+      if ( ivl < 0 )  {
+        ivl = wildcardInterval;
+        #ifdef ELlimitsTableATRACE
+        cerr << "&&&    Interval reset to wildcard interval: " << ivl << '\n';
+        #endif
+      }
+      #ifdef ELlimitsTableATRACE
       cerr << "&&&    Timespan taken from severityTimespans: " << ts << '\n';
-#endif
+      #endif
       if ( ts < 0 )  {
         ts = wildcardTimespan;
-#ifdef ELlimitsTableATRACE
+        #ifdef ELlimitsTableATRACE
         cerr << "&&&    timespan reset to wildcard timespan: " << ts << '\n';
-#endif
+        #endif
       }
 
       // save, if possible, id's future limits:
       if ( tableLimit < 0  || static_cast<int>(limits.size()) < tableLimit )
-        limits[xid.id] = LimitAndTimespan( lim, ts );
+        limits[xid.id] = LimitAndTimespan( lim, ts, ivl );
     }
 
     // save, if possible, this xid's initial entry:
     if ( tableLimit < 0  || static_cast<int>(counts.size()) < tableLimit )
-      counts[xid] = CountAndLimit( lim, ts );
+      counts[xid] = CountAndLimit( lim, ts, ivl );
     c = counts.find( xid );
   }
 
@@ -171,6 +188,7 @@ void ELlimitsTable::wipe()  {
   wildcardTimespan = -1;
   for ( int lev = 0;  lev < ELseverityLevel::nLevels;  ++lev )  {
     severityLimits   [lev] = -1;
+    severityIntervals[lev] = -1;
     severityTimespans[lev] = -1;
   }
 

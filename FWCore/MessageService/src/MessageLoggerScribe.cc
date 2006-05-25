@@ -40,6 +40,14 @@
 //	example, establishing a limit for all a specific category for
 //	every destination. 
 //
+//   6 - 5/18/06 mf  - in configure_dest()
+//	Implement establishing intervals between reactin to message of
+//	some type.
+//
+//   7 - 5/24/06 mf  - in configure_dest()
+//	Corrected algorithm for estabolishing limits and intervals, avoiding
+//      interference between setting the one and getting thedefault for the 
+//      other.
 // ----------------------------------------------------------------------
 
 
@@ -402,8 +410,9 @@ void
 
   // Defaults:						// change log 3a
   const std::string COMMON_DEFAULT_THRESHOLD = "INFO";
-  const         int COMMON_DEFAULT_LIMIT = NO_VALUE_SET; 
-  const         int COMMON_DEFAULT_IMESPAN = NO_VALUE_SET; 
+  const         int COMMON_DEFAULT_LIMIT     = NO_VALUE_SET; 
+  const         int COMMON_DEFAULT_INTERVAL  = NO_VALUE_SET; // change log 6
+  const         int COMMON_DEFAULT_TIMESPAN  = NO_VALUE_SET; 
 
   char *  severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
   vString const  severities(severity_array+0, severity_array+4);
@@ -429,24 +438,30 @@ void
      = getAparameter<String>(job_pset_p,"threshold", COMMON_DEFAULT_THRESHOLD);
      						// change log 3a
 
-  // grab default limit/timespan common to all destinations/categories:
+  // grab default limit/interval/timespan common to all destinations/categories:
   PSet  default_pset
      = getAparameter<PSet>(job_pset_p,"default", empty_PSet);
   int  default_limit
     = getAparameter<int>(&default_pset,"limit", COMMON_DEFAULT_LIMIT);
+  int  default_interval
+    = getAparameter<int>(&default_pset,"interval", COMMON_DEFAULT_INTERVAL);
+    						// change log 6
   int  default_timespan
-    = getAparameter<int>(&default_pset,"timespan", COMMON_DEFAULT_IMESPAN);
+    = getAparameter<int>(&default_pset,"timespan", COMMON_DEFAULT_TIMESPAN);
 						// change log 2a
     						// change log 3a
 					
   // grab all of this destination's parameters:
   PSet  dest_pset = getAparameter<PSet>(job_pset_p,filename,empty_PSet);
 
-  // grab this destination's default limit/timespan:
+  // grab this destination's default limit/interval/timespan:
   PSet  dest_default_pset
      = getAparameter<PSet>(&dest_pset,"default", empty_PSet);
   int  dest_default_limit
     = getAparameter<int>(&dest_default_pset,"limit", default_limit);
+  int  dest_default_interval
+    = getAparameter<int>(&dest_default_pset,"interval", default_interval);
+    						// change log 6
   int  dest_default_timespan
     = getAparameter<int>(&dest_default_pset,"timespan", default_timespan);
     						// change log 1a
@@ -454,6 +469,9 @@ void
     if ( dest_default_limit < 0 ) dest_default_limit = 2000000000;
     dest_ctrl.setLimit("*", dest_default_limit );
   } 						// change log 1b, 2a, 2b
+  if ( dest_default_interval != NO_VALUE_SET ) {  // change log 6
+    dest_ctrl.setInterval("*", dest_default_interval );
+  } 						
   if ( dest_default_timespan != NO_VALUE_SET ) {
     if ( dest_default_timespan < 0 ) dest_default_timespan = 2000000000;
     dest_ctrl.setTimespan("*", dest_default_timespan );
@@ -465,7 +483,7 @@ void
   ELseverityLevel  threshold_sev(dest_threshold);
   dest_ctrl.setThreshold(threshold_sev);
 
-  // establish this destination's limit/timespan for each of the categories:
+  // establish this destination's limit/interval/timespan for each category:
   for( vString::const_iterator id_it = categories.begin()
      ; id_it != categories.end()
      ; ++id_it
@@ -476,14 +494,32 @@ void
        = getAparameter<PSet>(&default_pset,msgID, empty_PSet);	// change log 5
     PSet  category_pset
        = getAparameter<PSet>(&dest_pset,msgID, default_category_pset);
+    int  category_default_limit 
+       = getAparameter<int>(&default_category_pset,"limit",NO_VALUE_SET);
     int  limit
-      = getAparameter<int>(&category_pset,"limit", dest_default_limit);
+      = getAparameter<int>(&category_pset,"limit", category_default_limit);
+    if (limit == NO_VALUE_SET) limit = dest_default_limit;
+       								// change log 7 
+    int  category_default_interval 
+       = getAparameter<int>(&default_category_pset,"interval",NO_VALUE_SET);
+    int  interval
+      = getAparameter<int>(&category_pset,"interval",category_default_interval);
+    if (interval == NO_VALUE_SET) interval = dest_default_interval;
+      						// change log 6  and then 7
+    int  category_default_timespan 
+       = getAparameter<int>(&default_category_pset,"timespan",NO_VALUE_SET);
     int  timespan
-      = getAparameter<int>(&category_pset,"timespan", dest_default_timespan);
+      = getAparameter<int>(&category_pset,"timespan",category_default_timespan);
+    if (timespan == NO_VALUE_SET) timespan = dest_default_timespan;
+       								// change log 7 
+      
     if( limit     != NO_VALUE_SET )  {
       if ( limit < 0 ) limit = 2000000000;  
-      dest_ctrl.setLimit(msgID, limit   );
+      dest_ctrl.setLimit(msgID, limit);
     }  						// change log 2a, 2b
+    if( interval  != NO_VALUE_SET )  {
+      dest_ctrl.setInterval(msgID, interval);
+    }  						// change log 6
     if( timespan  != NO_VALUE_SET )  {
       if ( timespan < 0 ) timespan = 2000000000;  
       dest_ctrl.setTimespan(msgID, timespan);
@@ -505,10 +541,13 @@ void
     	= getAparameter<PSet>(&dest_pset,sevID, default_sev_pset);
 						// change log 5
     int  limit     = getAparameter<int>(&sev_pset,"limit",    NO_VALUE_SET);
-    int  timespan  = getAparameter<int>(&sev_pset,"timespan", NO_VALUE_SET);
     if( limit    != NO_VALUE_SET )  dest_ctrl.setLimit(severity, limit   );
+    int  timespan  = getAparameter<int>(&sev_pset,"timespan", NO_VALUE_SET);
     if( timespan != NO_VALUE_SET )  dest_ctrl.setLimit(severity, timespan);
 						// change log 2
+    int  interval  = getAparameter<int>(&sev_pset,"interval", NO_VALUE_SET);
+    if( limit    != NO_VALUE_SET )  dest_ctrl.setInterval(severity, interval   );
+    						// change log 6
   }  // for
 
   // establish this destination's linebreak policy:
