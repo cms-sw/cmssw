@@ -10,7 +10,6 @@
 
   <class name="reco::HLTParticle" />
   <class name="std::vector<reco::HLTParticle>" />
-  <class pattern="edm::RefToBaseImpl<*>" />
 
   <class name="reco::HLTFilterObjectBase" />
   <class name="reco::HLTFilterObject" />

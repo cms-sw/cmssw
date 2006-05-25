@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/05/20 15:33:35 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/22 22:04:50 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -76,7 +76,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(srcelec_,electrons);
    iEvent.getByLabel(srcmuon_,muons    );
 
-   auto_ptr<edm::RefToBase<Candidate> > ref;
+   edm::RefToBase<Candidate> ref;
 
    // create filter object
    auto_ptr<reco::HLTFilterObjectWithRefs> filterproduct (new reco::HLTFilterObjectWithRefs);
@@ -91,7 +91,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (iphot=aphot; (iphot!=ophot)&&(!bphot); iphot++) {
      if (iphot->pt() >= pt_phot_) {
        bphot=true;
-       ref=edm::makeRefToBase<Candidate>(reco::PhotonCandidateRef(photons,distance(aphot,iphot)));
+       ref=edm::RefToBase<Candidate>(reco::PhotonCandidateRef(photons,distance(aphot,iphot)));
        filterproduct->putParticle(ref);
        // at this point ref has released and is no longer valid!
      }
@@ -105,7 +105,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (ielec=aelec; (ielec!=oelec)&&(!belec); ielec++) {
      if (ielec->pt() >= pt_elec_) {
        belec=true;
-       ref=edm::makeRefToBase<Candidate>(reco::ElectronCandidateRef(electrons,distance(aelec,ielec)));
+       ref=edm::RefToBase<Candidate>(reco::ElectronCandidateRef(electrons,distance(aelec,ielec)));
        filterproduct->putParticle(ref);
        // at this point ref has released and is no longer valid!
      }
@@ -120,7 +120,7 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (imuon=amuon; (imuon!=omuon)&&(!bmuon); imuon++) {
      if (imuon->pt() >= pt_muon_) {
        bmuon=true;
-       ref=edm::makeRefToBase<Candidate>(reco::MuonRef(muons,distance(amuon,imuon)));
+       ref=edm::RefToBase<Candidate>(reco::MuonRef(muons,distance(amuon,imuon)));
        filterproduct->putParticle(ref);
        // at this point ref has released and is no longer valid!
      }
