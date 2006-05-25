@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.8 2006/02/03 21:21:00 paterno Exp $
+// $Id: Entry.cc,v 1.9 2006/03/10 22:36:59 paterno Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -10,7 +10,7 @@
 // ----------------------------------------------------------------------
 
 #include "FWCore/ParameterSet/interface/Entry.h"
-
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/types.h"
 
@@ -20,6 +20,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <ostream>
 
 
 namespace edm {
@@ -614,5 +615,68 @@ namespace edm {
     if(!decode(val, rep)) throwEntryError("vector<ParameterSet>", rep);
     return val;
   }
+
+
+  std::ostream&
+  operator<< (std::ostream& os, const Entry & entry)
+  {
+    os << sTypeTranslations.table_[entry.typeCode()] << " " 
+       << (entry.isTracked() ? "tracked " : "untracked "); 
+
+    // now handle the difficult cases
+    switch(entry.typeCode())
+    {
+      case 'P': // ParameterSet
+      {
+        os << entry.getPSet();
+        break;
+      }
+      case 'p': // vector<ParameterSet>
+      {
+          // Make sure we get the representation of each contained
+          // ParameterSet including *only* tracked parameters
+         std::vector<ParameterSet> whole = entry.getVPSet();
+         std::vector<ParameterSet>::const_iterator i = whole.begin();
+         std::vector<ParameterSet>::const_iterator e = whole.end();
+         for ( ; i != e; ++i )
+         {
+           os << *i << std::endl;
+         }
+         break;
+      } 
+      case 'S':
+      {
+        os << " = " << entry.getString() << std::endl;
+        break;
+      }
+      case 's':
+      {
+        os << " = ";
+        std::vector<std::string> strings = entry.getVString();
+        std::copy(strings.begin(), strings.end(),
+                  std::ostream_iterator<std::string>(os, " "));
+        break;
+      }
+      case 'I':
+      {
+        os << " = " << entry.getInt32() << std::endl;
+        break;
+      }
+      case 'U':
+      {
+        os << " = " << entry.getUInt32() << std::endl;
+        break;
+      }
+
+      default:
+      {
+        os << entry.rep;
+        break;
+      }
+    }
+
+    return os;
+  }
+
 
 }

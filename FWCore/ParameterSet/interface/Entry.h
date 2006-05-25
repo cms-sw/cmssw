@@ -2,7 +2,7 @@
 #define ParameterSet_Entry_h
 
 // ----------------------------------------------------------------------
-// $Id: Entry.h,v 1.8 2006/02/03 21:20:34 paterno Exp $
+// $Id: Entry.h,v 1.9 2006/03/10 22:36:59 paterno Exp $
 //
 // interface to edm::Entry and related types
 //
@@ -17,9 +17,11 @@
 #include <stdexcept>
 #include <vector>
 #include <map>
+#include <iosfwd>
 
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+//@@ not needed, but there might be trouble if we take it out
+#include "FWCore/Utilities/interface/EDMException.h"
 
 // ----------------------------------------------------------------------
 // contents
@@ -99,6 +101,8 @@ namespace edm {
     bool isTracked() const { return tracked == '+'; }
 
     char typeCode() const { return type; }
+
+    friend std::ostream& operator<<(std::ostream& ost, const Entry & entry);
   private:
     std::string  rep;
     char         type;
@@ -110,6 +114,7 @@ namespace edm {
     // decode
     bool fromString(std::string::const_iterator b, std::string::const_iterator e);
   };  // Entry
+
 
   // It is not clear whether operator== should use toString() or
   // toStringOfTracked(). It only makes a differences for Entries that

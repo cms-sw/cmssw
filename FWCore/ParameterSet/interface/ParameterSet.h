@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.21 2006/03/08 22:14:52 wmtan Exp $
+// $Id: ParameterSet.h,v 1.22 2006/04/27 19:56:02 wmtan Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -21,6 +21,7 @@
 #include <map>
 #include <stdexcept>
 #include <vector>
+#include <iosfwd>
 
 
 // ----------------------------------------------------------------------
@@ -123,6 +124,8 @@ namespace edm {
     // 'trackiness' is false, w return untracked parameters.
     size_t getParameterSetVectorNames(std::vector<std::string>& output,
 				      bool trackiness) const;
+
+    friend std::ostream & operator<<(std::ostream & os, const ParameterSet & pset);
 
 private:
     typedef std::map<std::string, Entry> table;

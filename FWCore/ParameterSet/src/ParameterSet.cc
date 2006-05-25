@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.24 2006/03/10 22:36:59 paterno Exp $
+// $Id: ParameterSet.cc,v 1.25 2006/04/27 19:56:03 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -324,6 +324,22 @@ namespace edm {
 
   }
 
+
+  std::ostream & operator<<(std::ostream & os, const ParameterSet & pset)
+  {
+    ParameterSet::table::const_iterator i(pset.tbl_.begin()), e(pset.tbl_.end());
+    os << "{" << std::endl;
+    for( ; i != e; ++i) 
+    {
+      // indent a bit
+      os << "  " << i->first << ": " << i->second << std::endl;
+    }
+    os << "}" << std::endl;
+    return os;
+  }
+
+  
+    
   namespace pset
   {
     void explode(edm::ParameterSet const& top,
