@@ -44,7 +44,6 @@ namespace edm {
     auto_ptr<InputSource> wm;
     try {
       wm = auto_ptr<InputSource>(this->create(modtype,conf,desc));
-      wm->registerProducts();
     } catch( cms::Exception& iException) {
       edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating source ");
       toThrow<<modtype<<"\n";
@@ -52,15 +51,16 @@ namespace edm {
       throw toThrow;
     }
     
-    if(wm.get()==0)
-      {
+    if(wm.get()==0) {
 	throw edm::Exception(errors::Configuration,"NoSourceModule")
 	  << "InputSource Factory:\n"
 	  << "Cannot find source type from ParameterSet: "
 	  << modtype << "\n"
 	  << "Perhaps your source type is misspelled or is not a SEAL Plugin?\n"
 	  << "Try running SealPluginDump to obtain a list of available Plugins.";
-      }
+    }
+
+    wm->registerProducts();
 
     FDEBUG(1) << "InputSourceFactory: created input source "
 	      << modtype
