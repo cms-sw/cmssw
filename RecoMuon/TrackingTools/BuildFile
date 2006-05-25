@@ -4,6 +4,7 @@
 <use name=TrackingTools/DetLayers>
 <use name=DataFormats/DetId>
 <use name=TrackingTools/KalmanUpdators>
+<use name=Utilities/Timing>
 
 <use name=CLHEP>
 
@@ -17,5 +18,6 @@
 <use name=TrackingTools/DetLayers>
 <use name=DataFormats/DetId>
 <use name=TrackingTools/KalmanUpdators>
+<use name=Utilities/Timing>
 
 </export>
