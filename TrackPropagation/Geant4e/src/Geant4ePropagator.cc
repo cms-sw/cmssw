@@ -1,6 +1,7 @@
 //Geant4e
 #include "TrackPropagation/Geant4e/interface/Geant4ePropagator.h"
 #include "TrackPropagation/Geant4e/interface/ConvertFromToCLHEP.h"
+#include "TrackPropagation/Geant4e/interface/Geant4eSteppingAction.h"
 
 //CMSSW
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -17,82 +18,31 @@
 #include "G4eTargetCylindricalSurface.hh"
 
 
+/** Constructor. 
+ */
 Geant4ePropagator::Geant4ePropagator(PropagationDirection dir, 
 				     const MagneticField* field,
 				     const char* particleName):
   Propagator(dir),
   theField(field),
   theParticleName(particleName),
-  theG4eManager(G4eManager::GetG4eManager()) {}
+  theG4eManager(G4eManager::GetG4eManager()),
+  theSteppingAction(new Geant4eSteppingAction) {
 
+  theG4eManager->SetUserAction(theSteppingAction);
+}
 
-
+//
+////////////////////////////////////////////////////////////////////////////
+//
 
 /** Propagate from a free state (e.g. position and momentum in 
- *  in global cartesian coordinates) to a surface.
+ *  in global cartesian coordinates) to a plane.
  */
-
-/** Only use the generic method if the surface type (plane or cylinder)
- *  is not known at the calling point.
- */
-
-// TrajectoryStateOnSurface 
-// Geant4ePropagator::propagate(const FreeTrajectoryState&, 
-// 			     const Surface&) const {
-// }
 
 TrajectoryStateOnSurface 
 Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart, 
 			      const Plane& pDest) const {
-  return propagateWithPath(ftsStart, pDest).first; 
-}
-
-
-TrajectoryStateOnSurface 
-Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart, 
-			      const Cylinder& cDest) const {
-  return propagateWithPath(ftsStart, cDest).first;
-}
-
-
-/** The following three methods are equivalent to the corresponding
- *  methods above,
- *  but if the starting state is a TrajectoryStateOnSurface, it's better 
- *  to use it as such rather than use just the FreeTrajectoryState
- *  part. It may help some concrete propagators.
- */
-
-/** Only use the generic method if the surface type (plane or cylinder)
- *  is not known at the calling point.
- */
-// TrajectoryStateOnSurface 
-// Geant4ePropagator::propagate (const TrajectoryStateOnSurface&, const Surface&) const {
-// }
-
-// TrajectoryStateOnSurface 
-// Geant4ePropagator::propagate (const TrajectoryStateOnSurface&, const Plane&) const {
-// }
-
-// TrajectoryStateOnSurface 
-// Geant4ePropagator::propagate (const TrajectoryStateOnSurface&, const Cylinder&) const {
-// }
-
-/** The methods propagateWithPath() are identical to the corresponding
- *  methods propagate() in what concerns the resulting 
- *  TrajectoryStateOnSurface, but they provide in addition the
- *  exact path length along the trajectory.
- */
-
-/** Only use the generic method if the surface type (plane or cylinder)
- *  is not known at the calling point.
- */
-// std::pair< TrajectoryStateOnSurface, double> 
-// Geant4ePropagator::propagateWithPath (const FreeTrajectoryState&, const Surface&) const {
-// }
-
-std::pair< TrajectoryStateOnSurface, double> 
-Geant4ePropagator::propagateWithPath (const FreeTrajectoryState& ftsStart, 
-				      const Plane& pDest) const {
 
   //Get origin point and direction of the destination plane
   GlobalPoint posPlane = pDest.toGlobal(LocalPoint(0,0,0));
@@ -164,20 +114,17 @@ Geant4ePropagator::propagateWithPath (const FreeTrajectoryState& ftsStart,
   ////////////////////////////////////////////////////////////////////////
   LogDebug("Geant4e") << "SurfaceSide is always atCenterOfSurface after propagation";
   SurfaceSide side = atCenterOfSurface;
-  TrajectoryStateOnSurface tsosDest(tParsDest, curvError, pDest, side);
 
-
-  //Finally build the pair<...> that needs to be returned
-  ////////////////////////////////////////////////////////////////////////
-  // WARNING: Don't know how to get the exact path length along the trajectory.
-  //////////////////////////////////////////////////////////////////////// 
-  edm::LogWarning("Geant4e") << "Length along the trajectory set to 0! Needs to be fixed";
-  return TsosPP(tsosDest, 0);
+  return TrajectoryStateOnSurface(tParsDest, curvError, pDest, side);
 }
 
-std::pair< TrajectoryStateOnSurface, double> 
-Geant4ePropagator::propagateWithPath (const FreeTrajectoryState& ftsStart,
-				      const Cylinder& cDest) const {
+
+/** Propagate from a free state (e.g. position and momentum in 
+ *  in global cartesian coordinates) to a cylinder.
+ */
+TrajectoryStateOnSurface 
+Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart, 
+			      const Cylinder& cDest) const {
   //Get Cylinder parameters
   // - Radius
   G4float radCyl = cDest.radius();
@@ -252,34 +199,38 @@ Geant4ePropagator::propagateWithPath (const FreeTrajectoryState& ftsStart,
   ////////////////////////////////////////////////////////////////////////
   SurfaceSide side = atCenterOfSurface;
 
-  TrajectoryStateOnSurface tsosDest(tParsDest, curvError, cDest, side);
-
-
-  //Finally build the pair<...> that needs to be returned
-  ////////////////////////////////////////////////////////////////////////
-  // WARNING: Don't know how to get the exact path length along the trajectory.
-  //////////////////////////////////////////////////////////////////////// 
-  return TsosPP(tsosDest, 0);
+  return TrajectoryStateOnSurface(tParsDest, curvError, cDest, side);
 }
 
-/** The following three methods are equivalent to the corresponding
- *  methods above,
- *  but if the starting state is a TrajectoryStateOnSurface, it's better 
- *  to use it as such rather than use just the FreeTrajectoryState
- *  part. It may help some concrete propagators.
+//
+////////////////////////////////////////////////////////////////////////////
+//
+
+/** The methods propagateWithPath() are identical to the corresponding
+ *  methods propagate() in what concerns the resulting 
+ *  TrajectoryStateOnSurface, but they provide in addition the
+ *  exact path length along the trajectory.
  */
 
-/** Only use the generic method if the surface type (plane or cylinder)
- *  is not known at the calling point.
- */
-// std::pair< TrajectoryStateOnSurface, double> 
-// Geant4ePropagator::propagateWithPath (const TrajectoryStateOnSurface&, const Surface&) const {
-// }
+std::pair< TrajectoryStateOnSurface, double> 
+Geant4ePropagator::propagateWithPath (const FreeTrajectoryState& ftsStart, 
+				      const Plane& pDest) const {
 
-// std::pair< TrajectoryStateOnSurface, double> 
-// Geant4ePropagator::propagateWithPath (const TrajectoryStateOnSurface&, const Plane&) const {
-// }
+  theSteppingAction->reset();
 
-// std::pair< TrajectoryStateOnSurface, double> 
-// Geant4ePropagator::propagateWithPath (const TrajectoryStateOnSurface&, const Cylinder&) const {
-// }
+  //Finally build the pair<...> that needs to be returned where the second
+  //parameter is the exact path length. Currently calculated with a stepping
+  //action that adds up the length of every step
+  return TsosPP(propagate(ftsStart,pDest), theSteppingAction->trackLength());
+}
+
+std::pair< TrajectoryStateOnSurface, double> 
+Geant4ePropagator::propagateWithPath (const FreeTrajectoryState& ftsStart,
+				      const Cylinder& cDest) const {
+  theSteppingAction->reset();
+
+  //Finally build the pair<...> that needs to be returned where the second
+  //parameter is the exact path length. Currently calculated with a stepping
+  //action that adds up the length of every step
+  return TsosPP(propagate(ftsStart,cDest), theSteppingAction->trackLength());
+}

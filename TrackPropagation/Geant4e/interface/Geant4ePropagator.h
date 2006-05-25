@@ -8,6 +8,7 @@
 //Geant4e includes
 #include "G4eManager.hh"
 
+class Geant4eSteppingAction;
 
 
 /** Propagator based on the Geant4e package. Uses the Propagator class
@@ -109,11 +110,21 @@ class Geant4ePropagator: public Propagator {
 
  protected:
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPP;
+
+
+  //Magnetic field
   const MagneticField* theField;
 
-  std::string theParticleName;
+  //Name of the particle whose properties will be used in the propagation
+  std::string theParticleName; 
 
+  //The Geant4e manager. Does the real propagation
   G4eManager* theG4eManager;
+
+  //A G4 stepping action to find out the track length
+  Geant4eSteppingAction* theSteppingAction;
+  
+
 };
 
 
