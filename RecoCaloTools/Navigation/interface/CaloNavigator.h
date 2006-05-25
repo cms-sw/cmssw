@@ -106,7 +106,26 @@ class CaloNavigator {
 	currentPoint_=T(0);
       return currentPoint_;
     } ;
-  
+
+  /// Free movement of arbitray steps
+  virtual T offsetBy(int deltaX, int deltaY) const
+    {
+      for(int x=0; x < fabs(deltaX) && currentPoint_ != T(0); x++)
+	{
+	  if(deltaX > 0) east();
+	  else           west();
+	}
+
+      for(int y=0; y < fabs(deltaY) && currentPoint_ != T(0); y++)
+	{
+	  if(deltaY > 0) north();
+	  else           south();
+	}
+
+      return currentPoint_;
+
+    }
+
  protected:
   
   const CaloSubdetectorTopology* myTopology_;
