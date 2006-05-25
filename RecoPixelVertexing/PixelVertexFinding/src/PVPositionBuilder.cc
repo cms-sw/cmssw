@@ -25,7 +25,9 @@ Measurement1D PVPositionBuilder::wtAverage(const std::vector< reco::TrackRef > &
   double sumDown = 0;
   double err = 0;
   for (unsigned int i=0; i<trks.size(); i++) {
-    double err2 = trks[i]->covariance(3,3); // error on Z at IP (I hope)
+    //    double err2 = trks[i]->covariance(3,3); // error on Z at IP (I hope)
+    double err2 = trks[i]->covariance().dzError(); // well is it?
+    err2 *= err2;
     if (err2 != 0){
       sumUp += trks[i]->dz() * 1/err2; // error-weighted average of Z at IP
       sumDown += 1/err2;
