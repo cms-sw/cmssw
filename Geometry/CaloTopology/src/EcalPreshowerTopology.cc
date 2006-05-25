@@ -6,7 +6,6 @@
 ESDetId EcalPreshowerTopology::incrementIy(const ESDetId& id) const {
   try 
     {
-      std::cout << "  inside incrementIy(): " << id.six() <<" "<< id.siy() <<" "<< id.strip() << std::endl;
       if (!(*theGeom_).getSubdetectorGeometry(DetId::Ecal,EcalPreshower)->present(id))
 	{
 	  return ESDetId(0);
@@ -85,7 +84,6 @@ ESDetId EcalPreshowerTopology::decrementIy(const ESDetId& id) const {
 ESDetId EcalPreshowerTopology::incrementIx(const ESDetId& id) const {
   try 
     {
-     std::cout << "  inside incrementIy(): " << id.six() <<" "<< id.siy() <<" "<< id.strip() << std::endl;
       if (!(*theGeom_).getSubdetectorGeometry(DetId::Ecal,EcalPreshower)->present(id))
 	{
 	  return ESDetId(0);
