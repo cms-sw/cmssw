@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/05/19 18:13:41 $
- * $Revision: 1.93 $
+ * $Date: 2006/05/21 14:09:12 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -172,7 +172,7 @@ void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
-  if ( enableMonitorDaemon_ ) sleep(5);
+  if ( enableSleep_ ) sleep(5);
 
 }
 
