@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.2 2006/03/10 18:31:12 rahatlou Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.3 2006/05/13 06:40:01 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -138,7 +138,7 @@ EcalTrivialConditionRetriever::produceEcalPedestals( const EcalPedestalsRcd& ) {
   item.mean_x6  = pedMeanX6_;
   item.rms_x6   = pedRMSX6_;
   item.mean_x12 = pedMeanX12_;
-  item.rms_x12  = pedRMSX1_;
+  item.rms_x12  = pedRMSX12_;
   
   for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
     if(iEta==0) continue;
