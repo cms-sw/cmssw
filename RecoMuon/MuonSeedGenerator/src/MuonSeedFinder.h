@@ -8,8 +8,8 @@
  *  \author A. Vitelli - INFN Torino
  *  \author porting R. Bellan - INFN Torino
  *
- *  $Date: 2006/05/15 17:25:28 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/24 17:14:38 $
+ *  $Revision: 1.3 $
  *  
  */
 
@@ -49,7 +49,9 @@ public:
   
 private:
   //  TrackingRecHit best_cand(TrackingRecHit* rhit=0) const;
-  bool createEndcapSeed(MuonTransientTrackingRecHit *me, std::vector<TrajectorySeed>& theSeeds) const;
+  bool createEndcapSeed(MuonTransientTrackingRecHit *me, 
+			std::vector<TrajectorySeed>& theSeeds,
+			const edm::EventSetup& eSetup) const;
   
   RecHitContainer theRhits;
  

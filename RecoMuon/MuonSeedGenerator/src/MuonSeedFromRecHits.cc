@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/05/15 17:25:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/24 17:14:38 $
+ *  $Revision: 1.2 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -173,10 +173,8 @@ void MuonSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
     if( stat==1 ) {
       GlobalPoint pos = (*iter)->globalPosition();
 
-      // FIXME!
-      // GlobalVector dir = (*iter)->globalDirection();
-      GlobalVector dir;
-
+      GlobalVector dir = (*iter)->globalDirection();
+      
       float dphi = -pos.phi()+dir.phi();
       if(dphi>M_PI) dphi=2*M_PI-dphi;
       pt[0]=1.0-1.46/dphi; 
@@ -193,10 +191,8 @@ void MuonSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
     if( stat==2 ) {
       GlobalPoint pos = (*iter)->globalPosition();
 
-      // FIXME!
-      // GlobalVector dir = (*iter).globalDirection();
-      GlobalVector dir;
-
+      GlobalVector dir = (*iter)->globalDirection();
+      
       float dphi = -pos.phi()+dir.phi();
       if(dphi>M_PI) dphi=2*M_PI-dphi;
       pt[1]=1.0-0.9598/dphi;
@@ -290,14 +286,10 @@ void MuonSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
       }
       unsigned int st = stat1*10+stat2;
 
-      // FIXME
-      // LocalVector dir1 = (*iter)->localDirection();
-      LocalVector dir1;
-
-      // FIXME
-      // LocalVector dir2 = (*iter).det().toLocal((*iter2).globalDirection());
-      LocalVector dir2;
- 
+      LocalVector dir1 = (*iter)->localDirection();
+      
+      LocalVector dir2 = (*iter)->det()->toLocal((*iter2)->globalDirection());
+       
       float phi1 = (dir1.z()/dir1.x());     
       float phi2 = (dir2.z()/dir2.x());
       float dphi = fabs((phi1 - phi2)/(1+phi1*phi2)) ; 
@@ -490,22 +482,19 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   int charge=(int)(ptmean/fabs(ptmean));
   LocalTrajectoryParameters param(segPos,segDirFromPos, charge);
 
-  // RB: FIXME!!
-//   mat[1][1] = last->monoHit().parametersError()[1][1];
-//   mat[3][3] = last->monoHit().parametersError()[0][0];
-//   mat[1][3] = last->monoHit().parametersError()[1][0];
-//   mat[2][2] = last->stereoHit().parametersError()[1][1];
-//   mat[4][4] = last->stereoHit().parametersError()[0][0];
-//   mat[2][4] = last->stereoHit().parametersError()[1][0];
-
+  mat[1][1] = last->parametersError()[1][1];
+  mat[3][3] = last->parametersError()[0][0];
+  mat[1][3] = last->parametersError()[1][0];
+  mat[2][2] = last->parametersError()[1][1];
+  mat[4][4] = last->parametersError()[0][0];
+  mat[2][4] = last->parametersError()[1][0];
+  
   float p_err = sqr(sptmean/(ptmean*ptmean));
   mat[0][0]= p_err;
 
   LocalTrajectoryError error(mat);
   
-  // FIXME
-  //  TrajectoryStateOnSurface tsos(param, error, last->det()->surface());
-  TrajectoryStateOnSurface tsos;
+  TrajectoryStateOnSurface tsos(param, error, last->det()->surface(),&*field);
 
   const FreeTrajectoryState state = *(tsos.freeState());
 
@@ -518,8 +507,6 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   ReferenceCountingPointer<BoundCylinder> cyl=
     new BoundCylinder( pos, rot, SimpleCylinderBounds( 399., 401., -1200., 1200.));
 
-  // FIXME: put the direction
-  // SteppingHelixPropagator prop(oppositeToMomentum);
   SteppingHelixPropagator prop(&*field,oppositeToMomentum);
 
   const TrajectoryStateOnSurface trj = prop.propagate( state, *cyl );
@@ -540,14 +527,13 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
     // But is:
     edm::OwnVector<TrackingRecHit> container;
   
-    // </ FIXME change as MuonTrans change
+    // </ FIXME change as MuonTransient change
     const TrackingRecHit *tr = dynamic_cast<const TrackingRecHit*>(last->hit());
     TrackingRecHit *untr = const_cast<TrackingRecHit*>(tr); 
     container.push_back(untr); 
     // />
 
     TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
-
     //>> is it right??
 
     result = theSeed;

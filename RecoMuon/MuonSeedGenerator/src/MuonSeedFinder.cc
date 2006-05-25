@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/15 17:25:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/24 17:14:38 $
+ *  $Revision: 1.2 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -10,50 +10,27 @@
 
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFinder.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/Vector/interface/Pi.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Vector/interface/CoordinateSets.h"
+#include "Geometry/Surface/interface/BoundPlane.h"
+#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-//was
-//#include "ClassReuse/GeomVector/interface/Pi.h"
-
-#include "Geometry/Vector/interface/CoordinateSets.h"
-//was
-//#include "ClassReuse/GeomVector/interface/CoordinateSets.h"
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 
 #include "TrackingTools/DetLayers/interface/Enumerators.h"
-//was
-//#include "CommonDet/BasicDet/interface/Enumerators.h"
-
-#include "Geometry/Surface/interface/BoundPlane.h"
-//was
-//#include "CommonDet/DetGeometry/interface/BoundPlane.h"
-
-#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
-// was
-//#include "CommonDet/DetGeometry/interface/RectangularPlaneBounds.h"
-
-// Persistent version of a TrajectoryStateOnSurface
-#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
-//>> what are now?
-// #include "CommonDet/BasicDet/interface/Det.h"
-// #include "CommonDet/BasicDet/interface/DetUnit.h"
-// #include "CommonDet/BasicDet/interface/DetType.h"
-
-// #include "CommonReco/Propagators/interface/BidirectionalPropagator.h"
-// #include "CommonReco/GeaneInterface/interface/GeaneWrapper.h"
-
-// #include "Muon/MUtilities/interface/MuonDebug.h"
-// #include "Muon/MUtilities/interface/MuonDumper.h"
-//<<
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <iomanip>
 
@@ -152,7 +129,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
 
   if ( me1->isValid() ) {
 
-    good = createEndcapSeed(me1, theSeeds); 
+    good = createEndcapSeed(me1, theSeeds,eSetup); 
   
   }
 
@@ -160,8 +137,13 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
 }
 
 bool 
-MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me, vector<TrajectorySeed>& theSeeds) const {
+MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me, 
+				 vector<TrajectorySeed>& theSeeds,
+				 const edm::EventSetup& eSetup) const {
 
+  edm::ESHandle<MagneticField> field;
+  eSetup.get<IdealMagneticFieldRecord>().get(field);
+  
   bool result=false;
   //TODO: this is a mess!! I should use better the interface of
   //MuEndSegment (which must be improved!!!) 29-Mar-2001 SL
@@ -172,6 +154,8 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me, vector<Traject
   mat[2][2] = (300./700.)*(300./700.)/12.;
   mat[3][3] = 1.*1.;
   mat[4][4] = 6.*6.;
+
+  // FIXME
 
  // We want pT but it's not in RecHit interface, so we've put it in weight()
   float momentum = me->weight();
@@ -205,16 +189,14 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me, vector<Traject
   int charge=(int)(momentum/fabs(momentum));
   LocalTrajectoryParameters param(segPos,segDirFromPos, charge);
 
-  // FIXME!!! The last two args are incorrect!
-  MagneticField *magF=0;
-  TrajectoryStateOnSurface tsos(param, error, me->det()->surface(), magF,me->weight() );
+  // FIXME!!! The last two arg is incorrect!
+  TrajectoryStateOnSurface tsos(param, error, me->det()->surface(), &*field,me->weight() );
   //
 
   const FreeTrajectoryState state = *(tsos.freeState());
 
-  //  MuonDumper debug;
-  // 4
-  //  if ( debug )  debug.dumpFTS(state);
+  MuonPatternRecoDumper debugDumper;
+  if ( debug ) debugDumper.dumpFTS(state);
 
   float z=0;
   /// magic number: eta=1.479 correspond to upper corner of ME1/1
@@ -232,22 +214,38 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me, vector<Traject
   ReferenceCountingPointer<BoundPlane> 
     surface(new BoundPlane(pos, rot, RectangularPlaneBounds(720.,720.,1.)));
 
-  Propagator* propagator= new SteppingHelixPropagator();
-
+  // FIXME
+  Propagator* propagator= new SteppingHelixPropagator(&*field,oppositeToMomentum);
+  
   TrajectoryStateOnSurface trj =  propagator->propagate( state, *surface );
   if ( trj.isValid() ) {
     const FreeTrajectoryState e_state = *trj.freeTrajectoryState();
 
-    // FIXME
-    //    TrajectorySeed seed(e_state, edm::OwnVector<TrackingRecHit>() ,oppositeToMomentum);
-    TrajectorySeed seed;
+    // Transform it in a TrajectoryStateOnSurface
+    TrajectoryStateTransform tsTransform;
+    PTrajectoryStateOnDet *seedTSOS =
+      tsTransform.persistentState( trj ,me->geographicalId().rawId());
+    
+    //<< FIXME would be:
+    
+    // TrajectorySeed theSeed(e_state, rechitcontainer,oppositeToMomentum);
+    // But is:
+    edm::OwnVector<TrackingRecHit> container;
+  
+    // </ FIXME change as MuonTransient change
+    const TrackingRecHit *tr = dynamic_cast<const TrackingRecHit*>(me->hit());
+    TrackingRecHit *untr = const_cast<TrackingRecHit*>(tr); 
+    container.push_back(untr); 
+    // />
+
+    TrajectorySeed seed(*seedTSOS,container,oppositeToMomentum);
+    //>> is it right??
 
     theSeeds.push_back(seed);
-
-    //4
+    
     if ( debug ) {
      cout<<"  Propag.oppositeToMomentum "<<endl;
-     //    debug.dumpFTS(theSeeds.back().freeTrajectoryState());
+     debugDumper.dumpTSOS(trj);
      cout << "=== Successfull propagation" << endl;  // +v
     }
     result=true;
