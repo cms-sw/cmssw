@@ -1,0 +1,44 @@
+************************************************************************
+* File: Compilation_Instructions.txt
+* Author: I. Gonzalez Caballero
+************************************************************************
+
+This is a provisional file with the instructions on how to build the
+TrackPropagation/Geant4e package. Special actions are needed due to
+the fact that Geant4e is still not included in Geant4. For this reason
+the geant4 version compiled in
+
+/afs/cern.ch/cms/geant4rep/geant4_releases/geant4.7.1
+
+should be used. The following steps must be taken:
+
+1) Setup the CMSSW project
+
+2) Checkout TrackPropagation/Geant4e and SimG4Core/Packaging
+
+3) Setup the tool geant4e with scramv1:
+
+[#] scramv1 setup -i geant4
+...
+
+when requested for the value of GEANT4_BASE, set it to:
+
+     /afs/cern.ch/cms/geant4rep/geant4_releases/geant4.7.1/slc3_ia32_gcc323
+
+when requested for the value of GEANT4_SHARE_LIB, set it to:
+
+     /afs/cern.ch/cms/geant4rep/geant4_releases/geant4.7.1/share
+
+4) Edit the file $CMSSW_BASE/.SCRAM/slc3_ia32_gcc323/ToolCache.db and
+   add the G4error library to the list of Geant4 libraries, just after
+   G4xrays. This has to be modified in a couple of places.
+
+5) Edit $CMSSW_BASE/src/SimG4Core/Packaging/g4magic and replace
+
+   G4SHARE=`scramv1 tool tag geant4 GEANT4_SHARE_BASE`
+
+   with
+
+   G4SHARE=/afs/cern.ch/cms/geant4rep/geant4_releases/geant4.7.1/share
+
+6) Now you can build TrackPropagation/Geant4e!
