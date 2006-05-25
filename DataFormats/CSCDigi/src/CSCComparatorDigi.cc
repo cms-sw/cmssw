@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2006/01/08 19:15:43 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/04/06 11:18:37 $
+ *  $Revision: 1.5 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -64,7 +64,8 @@ void CSCComparatorDigi::setComparator(int icomparator) {
 void
 CSCComparatorDigi::print() const {
   cout << "CSC Comparator strip: " << getStrip() 
-       << " Comparator: " << getComparator() << endl;
+       << " Comparator: " << getComparator() 
+       << " Time Bin: "<< getTimeBin() << endl;
 }
 
 
