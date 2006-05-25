@@ -32,7 +32,7 @@ EcalSimParameterMap::EcalSimParameterMap(double simHitToPhotoelectronsBarrel,
   theEndcapParameters(simHitToPhotoelectronsEndcap, photoelectronsToAnalogEndcap, 
                       samplingFactor, timePhase, 
                       readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
-  theESParameters(1., 1., 1., 20., 3, 2, false, true)
+  theESParameters(1., 1., 1., 20., 3, 2, false, syncPhase)
 {}
 
   /*
