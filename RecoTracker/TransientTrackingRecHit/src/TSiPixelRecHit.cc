@@ -14,10 +14,14 @@ TSiPixelRecHit::TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
 
 TSiPixelRecHit* TSiPixelRecHit::clone (const TrajectoryStateOnSurface& ts) const
 {
-  const SiPixelCluster& clust = *specificHit()->cluster();  
-  PixelClusterParameterEstimator::LocalValues lv = 
-    theCPE->localParameters( clust, *detUnit(), ts.localParameters());
-  return new TSiPixelRecHit( lv.first, lv.second, det(), clust, theCPE);
+  if (theCPE == 0){
+    return new TSiPixelRecHit( det(), theHitData, 0);
+  }else{
+    const SiPixelCluster& clust = *specificHit()->cluster();  
+    PixelClusterParameterEstimator::LocalValues lv = 
+      theCPE->localParameters( clust, *detUnit(), ts.localParameters());
+    return new TSiPixelRecHit( lv.first, lv.second, det(), clust, theCPE);
+  }
 }
 
 const GeomDetUnit* TSiPixelRecHit::detUnit() const

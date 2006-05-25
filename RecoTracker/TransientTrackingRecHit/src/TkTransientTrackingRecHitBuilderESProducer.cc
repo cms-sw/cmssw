@@ -30,10 +30,33 @@ TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord 
 //     _propagator = 0;
 //   }
 
-  edm::ESHandle<TrackingGeometry> pDD;
+  std::string sname = pset_.getParameter<std::string>("StripCPE");
+  std::string pname = pset_.getParameter<std::string>("PixelCPE");
+  
+  edm::ESHandle<StripClusterParameterEstimator> se; 
+  edm::ESHandle<PixelClusterParameterEstimator> pe; 
+  const StripClusterParameterEstimator * sp ;
+  const PixelClusterParameterEstimator * pp ;
+  
+  if (sname == "Fake") {
+    sp = 0;
+  }else{
+    iRecord.getRecord<TrackerCPERecord>().get( sname, se );     
+    sp = se.product();
+  }
+  
+  if (pname == "Fake") {
+    pe = 0;
+  }else{
+    iRecord.getRecord<TrackerCPERecord>().get( pname, pe );     
+    pp = pe.product();
+  }
+  
+
+  edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );     
   
-  _builder  = boost::shared_ptr<TransientTrackingRecHitBuilder>(new TkTransientTrackingRecHitBuilder(pDD.product()));
+  _builder  = boost::shared_ptr<TransientTrackingRecHitBuilder>(new TkTransientTrackingRecHitBuilder(pDD.product(), pp, sp));
   return _builder;
 }
 
