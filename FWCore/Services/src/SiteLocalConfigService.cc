@@ -49,7 +49,7 @@ edm::service::SiteLocalConfigService::SiteLocalConfigService (const edm::Paramet
     : m_connected (false)
 {
     std::string configURL = "/SITECONF/local/JobConfig/site-local-config.xml";
-    char * tmp = getenv ("XCMS_PATH");
+    char * tmp = getenv ("CMS_PATH");
     
     if (tmp)
 	configURL = tmp + configURL;
