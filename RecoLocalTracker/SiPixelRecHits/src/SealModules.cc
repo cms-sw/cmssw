@@ -23,7 +23,6 @@
 
 //--- Now use the Framework macros to set it all up:
 //
-EVENTSETUP_DATA_REG(PixelClusterParameterEstimator);
 EVENTSETUP_RECORD_REG(TrackerCPERecord);
 using cms::SiPixelRecHitConverter;
 DEFINE_SEAL_MODULE();

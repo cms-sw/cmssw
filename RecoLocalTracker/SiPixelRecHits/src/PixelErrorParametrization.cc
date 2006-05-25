@@ -199,7 +199,7 @@ float PixelErrorParametrization::error_XF(int sizex, float alpha, float beta)
 #ifdef DEBUG 
   cout << "size index = " << i_size << endl;
   cout << "no beta index " << endl;
-  cout << " betaprime = " << beta_prime << endl;
+  cout << " alphaprime = " << alpha_prime << endl;
 #endif
   return linParametrize(barrelPart, i_size, i_beta, alpha_prime);
 }

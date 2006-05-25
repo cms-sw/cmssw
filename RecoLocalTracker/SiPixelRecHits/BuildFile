@@ -1,6 +1,7 @@
 <flags SEAL_PLUGIN_NAME="RecoLocalTrackerSiPixelRecHits">
 <use name=FWCore/Framework>
 <use name=DataFormats/Common>
+<use name=RecoLocalTracker/ClusterParameterEstimator>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/SiPixelCluster>
 <use name=DataFormats/SiPixelDetId>
@@ -22,6 +23,7 @@
 <export>
 <lib name=RecoLocalTrackerSiPixelRecHits>
 <use name=FWCore/Framework>
+<use name=RecoLocalTracker/ClusterParameterEstimator>
 <use name=DataFormats/Common>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/SiPixelCluster>

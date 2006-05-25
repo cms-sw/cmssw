@@ -13,7 +13,6 @@
 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverter.h"
 
-EVENTSETUP_DATA_REG(StripClusterParameterEstimator);
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(StripCPEESProducer)
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(StripCPEfromTrackAngleESProducer)

@@ -12,11 +12,13 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Records>
 <use name=RecoLocalTracker/Records>
+<use name=RecoLocalTracker/ClusterParameterEstimator>
 <use name=MagneticField/VolumeBasedEngine>
 <use name=MagneticField/GeomBuilder>
 <export>
 <lib name=RecoLocalTrackerSiStripRecHitConverter>
 <use name=DataFormats/Common>
+<use name=RecoLocalTracker/ClusterParameterEstimator>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackerRecHit2D>
