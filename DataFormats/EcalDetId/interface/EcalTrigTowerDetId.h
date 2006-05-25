@@ -10,9 +10,9 @@
 
 /** \class EcalTrigTowerDetId
     
-   Cell id for an Calo Trigger tower
+   DetId for an Ecal Trigger tower
 
-   $Id: EcalTrigTowerDetId.h,v 1.4 2005/12/19 14:44:56 rahatlou Exp $
+   $Id: EcalTrigTowerDetId.h,v 1.5 2005/12/19 17:50:41 rahatlou Exp $
 */
 
 
@@ -38,51 +38,54 @@ class EcalTrigTowerDetId : public DetId {
   /// get the subDetector associated to the Trigger Tower
   EcalSubdetector subDet() const { return (id_&0x4000) ? EcalBarrel:EcalEndcap; }
 
-  /// get the absolute value of the tower ieta (Barrel case)
-  int ietaAbs() const throw(std::runtime_error)
-    { 
-      if ( subDet() == EcalBarrel)
-	return (id_>>7)&0x7f; 
-      else
-	throw(std::runtime_error("EcalTrigTowerDetId: ietaAbs not applicable for this subDetector."));
-    }  
+  /// get the absolute value of the tower ieta 
+  int ietaAbs() const 
+   { 
+     /*       if ( subDet() == EcalBarrel) */
+     return (id_>>7)&0x7f; 
+     /*       else */
+     /* 	throw(std::runtime_error("EcalTrigTowerDetId: ietaAbs not applicable for this subDetector.")); */
+   }  
 
-  /// get the tower ieta (Barrel case)
-  int ieta() const throw(std::runtime_error)
+  /// get the tower ieta 
+  int ieta() const 
     { 
-      if ( subDet() == EcalBarrel)
-	return zside()*ietaAbs(); 
-      else
-	throw(std::runtime_error("EcalTrigTowerDetId: ieta not applicable for this subDetector."));
+      /*       if ( subDet() == EcalBarrel) */
+      return zside()*ietaAbs(); 
+      /*       else */
+      /* 	throw(std::runtime_error("EcalTrigTowerDetId: ieta not applicable for this subDetector.")); */
     } 
-
-  /// get the tower iphi (Barrel case)
-  int iphi() const throw(std::runtime_error) 
+  
+  /// get the tower iphi 
+  int iphi() const 
     { 
-      if ( subDet() == EcalBarrel)
-	return id_&0x7F; 
-      else
-	throw(std::runtime_error("EcalTrigTowerDetId: iphi not applicable for this subDetector."));
+      /*       if ( subDet() == EcalBarrel) */
+      return id_&0x7F; 
+      /*       else */
+      /* 	throw(std::runtime_error("EcalTrigTowerDetId: iphi not applicable for this subDetector.")); */
       
     } 
 
-  /// get the tower ix (Endcap case)
-  int ix() const 
-    { 
-      if ( subDet() == EcalEndcap)
-	return (id_>>7)&0x7f; 
-      else
-	throw(std::runtime_error("EcalTrigTowerDetId: ix not applicable for this subDetector."));
-    } 
+  int iquadrant() const throw(std::runtime_error);
+
+
+/*   /// get the tower ix (Endcap case) */
+/*   int ix() const  */
+/*     {  */
+/*       if ( subDet() == EcalEndcap) */
+/* 	return (id_>>7)&0x7f;  */
+/*       else */
+/* 	throw(std::runtime_error("EcalTrigTowerDetId: ix not applicable for this subDetector.")); */
+/*     }  */
   
-  /// get the tower iy (Endcap case)
-  int iy() const throw(std::runtime_error)
-    { 
-      if ( subDet() == EcalEndcap)
-	return id_&0x7F; 
-      else
-	throw(std::runtime_error("EcalTrigTowerDetId: ix not applicable for this subDetector."));
-    } 
+/*   /// get the tower iy (Endcap case) */
+/*   int iy() const throw(std::runtime_error) */
+/*     {  */
+/*       if ( subDet() == EcalEndcap) */
+/* 	return id_&0x7F;  */
+/*       else */
+/* 	throw(std::runtime_error("EcalTrigTowerDetId: ix not applicable for this subDetector.")); */
+/*     }  */
   
 
   /// get a compact index for arrays [TODO: NEEDS WORK]
@@ -99,8 +102,11 @@ class EcalTrigTowerDetId : public DetId {
   static const int MAX_I = 127;
   static const int MAX_J = 127;
 
-  static const int kTowersInPhi = 4; // per SM (in the Barrel)
-  static const int kTowersPerSM = 68; // per SM (in the Barrel)
+  static const int kEBTowersInPhi = 4; // per SM (in the Barrel)
+  static const int kEBTowersPerSM = 68; // per SM (in the Barrel)
+  static const int kEBTowersInEta = 17; // per SM (in the Barrel)
+  static const int kEETowersInEta = 11; // Endcap
+  static const int kEETowersInPhiPerQuadrant = 18; // per Quadrant (in the Endcap)
 
   // function modes for (int, int) constructor
   static const int SUBDETIJMODE = 0;

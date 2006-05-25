@@ -55,7 +55,7 @@ int EcalTrigTowerDetId::iDCC() const throw(std::runtime_error)
 {
   if ( subDet() == EcalBarrel )
     {
-      int id = ( iphi() - 1 ) / kTowersInPhi + 1;
+      int id = ( iphi() - 1 ) / kEBTowersInPhi + 1;
       if ( zside() < 0 ) id += 18;
       return id;
     }
@@ -70,24 +70,34 @@ int EcalTrigTowerDetId::iTT() const throw(std::runtime_error)
       int ie = ietaAbs() -1;
       int ip;
       if (zside() < 0) {
-	ip = (( iphi() -1 ) % kTowersInPhi ) + 1;
+	ip = (( iphi() -1 ) % kEBTowersInPhi ) + 1;
       } else {
-	ip = kTowersInPhi - ((iphi() -1 ) % kTowersInPhi );
+	ip = kEBTowersInPhi - ((iphi() -1 ) % kEBTowersInPhi );
       }
       
-      return (ie * kTowersInPhi) + ip;
+      return (ie * kEBTowersInPhi) + ip;
     }
   else
     throw(std::runtime_error("EcalTriggerTowerDetId: iTT not yet implemented"));
 }
 
+int EcalTrigTowerDetId::iquadrant() const throw(std::runtime_error)
+{
+  if ( subDet() == EcalEndcap )
+    return int((iphi()-1)/kEETowersInPhiPerQuadrant)+1;
+  else
+    throw(std::runtime_error("EcalTriggerTowerDetId: iquadrant not applicable"));
+}  
+
 int EcalTrigTowerDetId::hashedIndex() const 
 {
-  return (iDCC()-1) * kTowersPerSM + iTT() - 1;
+  return (iDCC()-1) * kEBTowersPerSM + iTT() - 1;
 }
 
 
 std::ostream& operator<<(std::ostream& s,const EcalTrigTowerDetId& id) {
-  return s << "(EcalTrigTower " << id.ieta() << ',' << id.iphi() << ')';
+  return s << "(EcalTT subDet " << ((id.subDet()==EcalBarrel)?("Barrel"):("Endcap")) 
+	   <<  " iz " << ((id.zside()>0)?("+ "):("- ")) << " ieta " 
+	   << id.ietaAbs() << " iphi " << id.iphi() << ')';
 }
 
