@@ -15,7 +15,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id$
+// $Id: MonitorTrackGlobal.h,v 1.1 2006/05/23 17:48:56 goitom Exp $
 //
 //
 
@@ -49,13 +49,13 @@ class MonitorTrackGlobal : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
-  edm::ParameterSet conf_;
 
   std::map<uint32_t, MonitorElement *> detModules;
 
 //  unsigned int minTracks_;
 
   DaqMonitorBEInterface * dbe;
+  edm::ParameterSet conf_;
 
   MonitorElement * trackSize;
 

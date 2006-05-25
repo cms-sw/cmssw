@@ -13,34 +13,38 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id$
+// $Id: MonitorTrackGlobal.cc,v 1.1 2006/05/23 17:48:57 goitom Exp $
 //
 //
 
-#include "DQM/TrackerMonitorTrack/interface/MonitorTrackGlobal.h"
+#include <string>
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DQM/TrackerMonitorTrack/interface/MonitorTrackGlobal.h"
 
 MonitorTrackGlobal::MonitorTrackGlobal(const edm::ParameterSet& iConfig)
 {
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  conf_ = iConfig;
 }
 
 
 MonitorTrackGlobal::~MonitorTrackGlobal()
 {
-  delete d0VsTheta;
-  delete d0VsPhi;
-  delete d0VsEta;
-  delete z0VsTheta;
-  delete z0VsPhi;
-  delete z0VsEta;
-  delete chiSqrdVsTheta;
-  delete chiSqrdVsPhi;
-  delete chiSqrdVsEta;
+//  delete d0VsTheta;
+//  delete d0VsPhi;
+//  delete d0VsEta;
+//  delete z0VsTheta;
+//  delete z0VsPhi;
+//  delete z0VsEta;
+//  delete chiSqrdVsTheta;
+//  delete chiSqrdVsPhi;
+//  delete chiSqrdVsEta;
 }
 
 
@@ -116,7 +120,11 @@ void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup)
 void MonitorTrackGlobal::endJob(void)
 {
   dbe->showDirStructure();
-  dbe->save("test.root");
+  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
+  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
+  if(outputMEsInRootFile){
+    dbe->save(outputFileName);
+  }
 }
 
 //define this as a plug-in
