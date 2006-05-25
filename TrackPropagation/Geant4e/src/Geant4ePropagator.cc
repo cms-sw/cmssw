@@ -20,9 +20,9 @@
 
 /** Constructor. 
  */
-Geant4ePropagator::Geant4ePropagator(PropagationDirection dir, 
-				     const MagneticField* field,
-				     const char* particleName):
+Geant4ePropagator::Geant4ePropagator(const MagneticField* field,
+				     const char* particleName,
+				     PropagationDirection dir):
   Propagator(dir),
   theField(field),
   theParticleName(particleName),
@@ -30,6 +30,12 @@ Geant4ePropagator::Geant4ePropagator(PropagationDirection dir,
   theSteppingAction(new Geant4eSteppingAction) {
 
   theG4eManager->SetUserAction(theSteppingAction);
+}
+
+/** Destructor. 
+ */
+Geant4ePropagator::~Geant4ePropagator() {
+  delete theSteppingAction;
 }
 
 //

@@ -20,13 +20,15 @@ class Geant4ePropagator: public Propagator {
 
  public:
   /** Constructor. Takes as arguments:
+   *  * The magnetic field
+   *  * The particle name whose properties will be used in the propagation. Without the charge, i.e. "mu", "pi", ...
    *  * The propagation direction. It may be: alongMomentum, oppositeToMomentum
-   *  * The particle name whose properties will be used in the propagation without the charge.
    */
-  Geant4ePropagator(PropagationDirection dir = alongMomentum, 
-		    const MagneticField* field = 0,
-		    const char* particleName = "mu");
-  virtual ~Geant4ePropagator() {}
+  Geant4ePropagator(const MagneticField* field = 0,
+		    const char* particleName = "mu",
+		    PropagationDirection dir = alongMomentum);
+
+  virtual ~Geant4ePropagator();
 
 
   /** Propagate from a free state (e.g. position and momentum in 
