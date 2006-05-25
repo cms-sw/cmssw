@@ -11,7 +11,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.4 2006/02/05 12:34:03 meridian Exp $
+ *  $Id: EEDetId.h,v 1.5 2006/05/15 12:49:40 meridian Exp $
  */
 
 
@@ -41,6 +41,8 @@ class EEDetId : public DetId {
   int isc() const;
   /// get crystal number inside SuperCrystal
   int ic() const;
+  /// get the quadrant of the DetId
+  int iquadrant() const ;
   /// get a compact index for arrays
   int hashedIndex() const;
 

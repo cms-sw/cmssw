@@ -174,6 +174,22 @@ int EEDetId::iy(int iSC, int iCrys) const
   return iyCrys;
 }
 
+int EEDetId::iquadrant() const {
+  if (ix()>50)
+    {
+      if(iy()>50)
+	return 1;
+      else
+	return 4;
+    }
+  else
+    {
+      if(iy()>50)
+	return 2;
+      else
+	return 3;
+    }
+}  
 
 int EEDetId::isc() const {
   throw(std::runtime_error("EEDetId: Method not yet implemented"));
