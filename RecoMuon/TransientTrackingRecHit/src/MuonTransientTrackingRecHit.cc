@@ -3,9 +3,21 @@
 #include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
-const GeomDetUnit * MuonTransientTrackingRecHit::detUnit() const
+
+LocalVector MuonTransientTrackingRecHit::localDirection() const
 {
-  return dynamic_cast<const GeomDetUnit*>(det());
+  if(dynamic_cast<const RecSegment*>(hit()))
+     return dynamic_cast<const RecSegment*>(hit())->localDirection(); 
+  else return LocalVector(0.,0.,0.);
+
+}
+
+LocalError MuonTransientTrackingRecHit::localDirectionError() const
+{
+  if(dynamic_cast<const RecSegment*>(hit()))
+     return dynamic_cast<const RecSegment*>(hit())->localDirectionError();
+  else return LocalError(0.,0.,0.);
+
 }
 
 GlobalVector MuonTransientTrackingRecHit::globalDirection() const
@@ -16,6 +28,20 @@ GlobalVector MuonTransientTrackingRecHit::globalDirection() const
 GlobalError MuonTransientTrackingRecHit::globalDirectionError() const
 {
   return ErrorFrameTransformer().transform( localDirectionError(), (det()->surface()));
+}
+
+double MuonTransientTrackingRecHit::chi2() const 
+{
+  if(dynamic_cast<const RecSegment*>(hit()))
+    return dynamic_cast<const RecSegment*>(hit())->chi2();
+  else return 0.;
+}
+
+int MuonTransientTrackingRecHit::degreesOfFreedom() const 
+{
+  if(dynamic_cast<const RecSegment*>(hit()))
+    return dynamic_cast<const RecSegment*>(hit())->degreesOfFreedom();
+  else return 0;
 }
 
 bool MuonTransientTrackingRecHit::isDT() const{
