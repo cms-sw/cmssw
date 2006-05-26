@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 
 CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) : conf_(conf) { 
   //minimum number of hits per tracks
@@ -299,47 +299,37 @@ CosmicTrajectoryBuilder::qualityFilter(Trajectory traj){
 }
 
 std::pair<Trajectory, reco::Track>  CosmicTrajectoryBuilder::makeTrack(const Trajectory &traj){
-  //MP must be checked
+ 
   TSOS innertsos = traj.lastMeasurement().updatedState();
   TSOS Fitsos = traj.firstMeasurement().updatedState();
 
-  int charge = innertsos.charge();
+ 
   //MP
   int ndof =traj.foundHits()-5;
   if (ndof<0) ndof=0;
 
+  TSCPBuilderNoMaterial tscpBuilder;
+  TrajectoryStateClosestToPoint tscp;
+  if (seed_plus)
+    tscp= tscpBuilder(*(innertsos.freeState()),
+		      innertsos.globalPosition());
+  else 
+     tscp= tscpBuilder(*(Fitsos.freeState()),
+		       Fitsos.globalPosition());   
+  reco::perigee::Parameters param = tscp.perigeeParameters();
  
-  GlobalPoint v(0.,0.,0.);
-  GlobalVector p;
-  //The momentum is always the one corresponding to the
-  //upper hit
-  if (seed_plus) p=innertsos.globalParameters().momentum();
-  else p= Fitsos.globalParameters().momentum();
+  reco::perigee::Covariance covar = tscp.perigeeError();
 
-  const CartesianTrajectoryError& cte = innertsos.cartesianError();
-  AlgebraicSymMatrix m = cte.matrix();
-  math::Error<6>::type cov;
-  for( int i = 0; i < 6; ++i )
-    for( int j = 0; j <= i; ++j )
-      cov( i, j ) = m.fast( i + 1 , j + 1 );
-  math::XYZVector mom( p.x(), p.y(), p.z() );
-  math::XYZPoint  vtx( v.x(), v.y(), v.z() );   
+ 
+  reco::Track theTrack(traj.chiSquared(),
+		       int(ndof),
+		       traj.foundHits(),
+		       0,
+		       traj.lostHits(),
+		       param,
+		       covar);
   
-  LogDebug("CosmicTrackFinder") << " RESULT Momentum "<< p;
- 
- 
-
-  reco::Track theTrack (traj.chiSquared(), 
-			int(ndof),//FIXME fix weight() in TrackingRecHit 
-			traj.foundHits(),//FIXME to be fixed in Trajectory.h
-			0, //FIXME no corresponding method in trajectory.h
-			traj.lostHits(),//FIXME to be fixed in Trajectory.h
-			charge, 
-			vtx,
-			mom,
-			cov);
-
   AlgoProduct aProduct(traj,theTrack);
   return aProduct;
-  //  return theTrack; 
+ 
 }
