@@ -1,7 +1,7 @@
 // makes CaloTowerCandidates from CaloTowers
 // original author: L.Lista INFN
 // modifyed by: F.Ratnikov UMd
-// $Id: CaloTowerCandidateCreator.cc,v 1.3 2006/05/23 01:14:10 fedor Exp $
+// $Id: CaloTowerCandidateCreator.cc,v 1.4 2006/05/23 19:56:30 mansj Exp $
 #include <cmath>
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -17,7 +17,7 @@ CaloTowerCandidateCreator::CaloTowerCandidateCreator( const ParameterSet & p )
   :
   mVerbose (p.getUntrackedParameter<int> ("verbose", 0)),
   mSource (p.getParameter<string> ("src")),
-  mEtThreshold (p.getParameter<double> ("miniumEt")),
+  mEtThreshold (p.getParameter<double> ("minimumEt")),
   mEThreshold (p.getParameter<double> ("minimumE"))
 {
   produces<CandidateCollection>();
