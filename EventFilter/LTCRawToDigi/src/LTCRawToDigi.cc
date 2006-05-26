@@ -13,7 +13,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  Tue May  9 07:47:59 CDT 2006
-// $Id$
+// $Id: LTCRawToDigi.cc,v 1.1 2006/05/26 11:01:12 wittich Exp $
 //
 //
 
@@ -98,7 +98,7 @@ LTCRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<LTCDigiCollection> pOut(new LTCDigiCollection());
 
   // Loop over all possible FED's with the appropriate FED ID
-  for ( id = LTCFedIDLo; id <= LTCFedIDHi; ++id ) {
+  for ( int id = LTCFedIDLo; id <= LTCFedIDHi; ++id ) {
     /// Take a reference to this FED's data
     const FEDRawData & fedData = rawdata->FEDData(id);
     unsigned short int length =  fedData.size();

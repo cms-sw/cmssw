@@ -1,0 +1,14 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/LTCDigi>
+<use name=DataFormats/FEDRawData>
+<use name=boost>
+<flags SEAL_PLUGIN_NAME="EventFilterLTCRawToDigi">
+<export>
+   <use name=DataFormats/LTCDigi>
+   <use name=DataFormats/FEDRawData>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=boost>
+</export>
