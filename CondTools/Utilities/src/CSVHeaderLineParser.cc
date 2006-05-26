@@ -5,6 +5,8 @@
 using namespace boost::spirit;
 
 bool CSVHeaderLineParser::parse( const std::string& inputLine){
+  if(inputLine.empty()) return true;
+  m_result.clear();
   boost::spirit::rule<> list_parser;
   list_parser=list_p((*print_p)[push_back_a(m_result)],',');
   parse_info<> result=boost::spirit::parse(inputLine.c_str(),list_parser);

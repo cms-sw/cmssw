@@ -22,6 +22,8 @@ struct generic_actor{
 };
 
 bool CSVDataLineParser::parse( const std::string& inputLine){
+  if(inputLine.empty()) return true;
+  m_result.clear();
   boost::spirit::rule<> item_parser, list_parser,strparser,numparser;
   strparser=confix_p('\"',*c_escape_ch_p, '\"')[generic_actor(m_result)];
   numparser=(strict_real_p)[generic_actor(m_result)] | int_p[generic_actor(m_result)];

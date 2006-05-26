@@ -11,6 +11,7 @@ class CSVFieldMap{
   void push_back(const std::string& fieldName, const std::string& fieldType);
   std::string fieldName( int idx ) const;
   const std::type_info& fieldType( int idx ) const;
+  std::string fieldTypeName( int idx ) const;
   int size() const;
  private:
   std::vector< std::pair<std::string, std::string > > m_fieldMap;

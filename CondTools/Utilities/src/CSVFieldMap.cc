@@ -24,6 +24,9 @@ const std::type_info& CSVFieldMap::fieldType( int idx ) const{
   }
   throw cond::Exception(std::string("unrecognised CSV type: ")+m_fieldMap[idx].second);
 }
+std::string CSVFieldMap::fieldTypeName( int idx ) const{
+  return m_fieldMap[idx].second;
+}
 int CSVFieldMap::size() const{
   return m_fieldMap.size();
 }
