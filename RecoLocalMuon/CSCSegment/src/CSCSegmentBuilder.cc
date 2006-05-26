@@ -1,8 +1,8 @@
 
 /** \file CSCSegmentBuilder.cc
  *
- * $Date: 2006/05/17 14:38:44 $
- * $Revision: 1.7 $
+ * $Date: 2006/05/26 15:53:35 $
+ * $Revision: 1.8 $
  * \author M. Sani
  *
  *
@@ -85,7 +85,10 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCo
         
         CSCRangeMapAccessor acc;
         CSCRecHit2DCollection::range range = recHits->get(acc.cscChamber(*chIt));
-        
+
+        for(CSCRecHit2DCollection::const_iterator rechit = range.first; rechit != range.second; rechit++)
+            cscRecHits.push_back(*rechit);
+
         LogDebug("CSC") << "found " << cscRecHits.size() << " rechit in this chamber.";
             
         // given the chamber select the right algo...
@@ -95,10 +98,6 @@ void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCo
         LogDebug("CSC") << "Total number of segments found: " << segv.size() <<std::endl;
 		
         oc.put((*chIt), segv.begin(), segv.end());
-        
-        //CSCSegmentCollection::const_iterator segmIt;
-        //for(segmIt = rhv.begin(); segmIt != rhv.end(); segmIt++)
-        //   oc.push_back(*segmIt);    
     }
 }
 
