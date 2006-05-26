@@ -85,6 +85,19 @@ void fillDefaults (HcalPedestals*& fPedestals) {
   fPedestals->sort ();
 }
 
+void fillDefaults (HcalPedestalWidths*& fPedestals) {
+  if (!fPedestals) {
+    fPedestals = new HcalPedestalWidths;
+    fPedestals->sort ();
+  }
+  std::vector<HcalDetId> cells = undefinedCells (*fPedestals);
+  for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalPedestalWidth item = HcalDbHardcode::makePedestalWidth (*cell);
+    fPedestals->setWidth (item);
+  }
+  fPedestals->sort ();
+}
+
 void fillDefaults (HcalGains*& fGains) {
   if (!fGains) {
     fGains = new HcalGains;
@@ -93,6 +106,19 @@ void fillDefaults (HcalGains*& fGains) {
   std::vector<HcalDetId> cells = undefinedCells (*fGains);
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalGain item = HcalDbHardcode::makeGain (*cell, true); // smear
+    fGains->addValue (*cell, item.getValues ());
+  }
+  fGains->sort ();
+}
+
+void fillDefaults (HcalGainWidths*& fGains) {
+  if (!fGains) {
+    fGains = new HcalGainWidths;
+    fGains->sort ();
+  }
+  std::vector<HcalDetId> cells = undefinedCells (*fGains);
+  for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalGainWidth item = HcalDbHardcode::makeGainWidth (*cell);
     fGains->addValue (*cell, item.getValues ());
   }
   fGains->sort ();
@@ -153,7 +179,7 @@ void printHelp (const Args& args) {
   std::cout << "Use:" << std::endl;
   sprintf (buffer, " %s <what> <options> <parameters>\n", args.command ().c_str());
   std::cout << buffer;
-  std::cout << "  where <what> is: \n    pedestals\n    gains\n    emap\n    qie\n    calibqie" << std::endl;
+  std::cout << "  where <what> is: \n    pedestals\n    gains\n    pwidths\n    gwidths\n    emap\n    qie\n    calibqie" << std::endl;
   args.printOptionsHelp ();
 }
 
@@ -333,6 +359,14 @@ int main (int argn, char* argv []) {
   }
   else if (what == "gains") {
     HcalGains* object = 0;
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
+  }
+  else if (what == "pwidths") {
+    HcalPedestalWidths* object = 0;
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
+  }
+  else if (what == "gwidths") {
+    HcalGainWidths* object = 0;
     copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
   }
   else if (what == "emap") {

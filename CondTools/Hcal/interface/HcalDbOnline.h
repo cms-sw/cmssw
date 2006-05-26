@@ -38,6 +38,8 @@ class HcalDbOnline {
 
   bool getObject (HcalPedestals* fObject, const std::string& fTag);
   bool getObject (HcalGains* fObject, const std::string& fTag);
+  bool getObject (HcalPedestalWidths* fObject, const std::string& fTag) {return false;}
+  bool getObject (HcalGainWidths* fObject, const std::string& fTag) {return false;}
   bool getObject (HcalElectronicsMap* fObject, const std::string& fTag);
   bool getObject (HcalQIEData* fObject, const std::string& fTag);
   bool getObject (HcalCalibrationQIEData* fObject, const std::string& fTag);

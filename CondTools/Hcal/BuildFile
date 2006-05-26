@@ -1,6 +1,5 @@
 <use name=boost>
 <use name=oracle>
-<lib name=occi>
 <use name=FWCore/Framework>
 <use name=DataFormats/HcalDetId>
 <use name=CondFormats/HcalObjects>
@@ -11,7 +10,6 @@
   <lib name=CondToolsHcal>
   <use name=boost>
   <use name=oracle>
-  <lib name=occi>
   <use name=FWCore/Framework>
   <use name=Foundation/PluginManager>
   <use name=DataFormats/HcalDetId>
