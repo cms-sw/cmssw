@@ -46,6 +46,8 @@ namespace cms
     typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
     typedef simhit_map::iterator simhit_map_iterator;
     simhit_map SimHitMap;
+    std::vector<edm::DetSet<PixelDigi> > theDigiVector;
+    std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
     //   std::vector<PixelDigiSimLink> linkcollector;
   };
 }

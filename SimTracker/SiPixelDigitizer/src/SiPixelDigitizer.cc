@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.16 2006/03/22 10:31:45 pioppi Exp $
+// $Id: SiPixelDigitizer.cc,v 1.17 2006/05/04 16:31:45 pioppi Exp $
 //
 //
 
@@ -115,10 +115,7 @@ namespace cms
     thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsHighTof->begin(), PixelBarrelHitsHighTof->end());
     thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsLowTof->begin(), PixelEndcapHitsLowTof->end()); 
     thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsHighTof->begin(), PixelEndcapHitsHighTof->end());
-    // Step B: create empty output collection
  
-    std::auto_ptr<edm::DetSetVector<PixelDigi> > output(new edm::DetSetVector<PixelDigi> );
-    std::auto_ptr<edm::DetSetVector<PixelDigiSimLink> > outputlink(new edm::DetSetVector<PixelDigiSimLink> );
  
 
     edm::ESHandle<TrackerGeometry> pDD;
@@ -140,7 +137,7 @@ namespace cms
       }
     }
 
-    // Step C: LOOP on PixelGeomDetUnit //
+    // Step B: LOOP on PixelGeomDetUnit //
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
       DetId idet=DetId((*iu)->geographicalId().rawId());
        unsigned int isub=idet.subdetId();
@@ -164,18 +161,24 @@ namespace cms
  			     dynamic_cast<PixelGeomDetUnit*>((*iu)),
  			     bfield);
 	if (collector.data.size()>0){
-	  output->insert(collector);
+	  theDigiVector.push_back(collector);
 
 	  //digisimlink
 	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
 	    linkcollector.data=_pixeldigialgo.make_link();
-	    if (linkcollector.data.size()>0) outputlink->insert(linkcollector);
+	    if (linkcollector.data.size()>0) theDigiLinkVector.push_back(linkcollector);
        	  }
 	
 	}
       }
 
     }
+    // Step C: create collection with the cache vector of DetSet
+ 
+    std::auto_ptr<edm::DetSetVector<PixelDigi> > 
+      output(new edm::DetSetVector<PixelDigi>(theDigiVector) );
+    std::auto_ptr<edm::DetSetVector<PixelDigiSimLink> > 
+      outputlink(new edm::DetSetVector<PixelDigiSimLink>(theDigiLinkVector) );
 
     // Step D: write output to file 
     iEvent.put(output);
