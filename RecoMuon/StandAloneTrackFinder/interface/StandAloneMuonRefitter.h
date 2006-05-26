@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/05/22 12:11:22 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/23 17:47:23 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -18,6 +18,8 @@
 
 class Propagator;
 class DetLayer;
+class MuonBestMeasurementFinder;
+class MuonTrajectoryUpdator;
 
 namespace edm {class ParameterSet; class EventSetup; class Event;}
 
@@ -95,6 +97,12 @@ private:
 
   /// access at the bestMeasurementFinder
   MuonBestMeasurementFinder *bestMeasurementFinder() const {return theBestMeasurementFinder;}
+
+  /// the muon updator (it doesn't inhert from an updator, but it has one!)
+  MuonTrajectoryUpdator *theMuonUpdator;
+
+  /// access at the muon updator
+  MuonTrajectoryUpdator *updator() const {return theMuonUpdator;}
 
   // The max allowed chi2 to accept a rechit in the fit
   double theMaxChi2;
