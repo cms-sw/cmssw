@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.19 2006/04/06 23:44:43 wmtan Exp $
+$Id: PoolSource.h,v 1.20 2006/04/13 22:24:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -24,17 +24,17 @@ $Id: PoolSource.h,v 1.19 2006/04/06 23:44:43 wmtan Exp $
 namespace edm {
 
   class RootFile;
-  class PoolRASource : public VectorInputSource {
+  class PoolSource : public VectorInputSource {
   public:
-    explicit PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc);
-    virtual ~PoolRASource();
+    explicit PoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
+    virtual ~PoolSource();
 
   private:
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     typedef std::map<std::string, RootFileSharedPtr> RootFileMap;
     typedef input::EntryNumber EntryNumber;
-    PoolRASource(PoolRASource const&); // disable copy construction
-    PoolRASource & operator=(PoolRASource const&); // disable assignment
+    PoolSource(PoolSource const&); // disable copy construction
+    PoolSource & operator=(PoolSource const&); // disable assignment
     virtual std::auto_ptr<EventPrincipal> read();
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& id);
     virtual void skip(int offset);
@@ -48,6 +48,7 @@ namespace edm {
     RootFileSharedPtr rootFile_;
     RootFileMap rootFiles_;
     bool mainInput_;
-  }; // class PoolRASource
+  }; // class PoolSource
+  typedef PoolSource PoolRASource;
 }
 #endif

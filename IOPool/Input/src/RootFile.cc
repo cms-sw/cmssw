@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.11 2006/04/18 23:41:31 wmtan Exp $
+$Id: RootFile.cc,v 1.12 2006/05/02 02:48:50 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -77,7 +77,7 @@ namespace edm {
       branchNames.push_back(prod.branchName_);
     }
     // Report file opened.
-    std::string moduleName = "PoolRASource";
+    std::string moduleName = "PoolSource";
     std::string logicalFileName = "";
     Service<JobReport> reportSvc;
     reportToken_ = reportSvc->inputFileOpened(fileName,

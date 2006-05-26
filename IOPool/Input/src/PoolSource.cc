@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.27 2006/04/13 22:24:24 wmtan Exp $
+$Id: PoolSource.cc,v 1.28 2006/04/18 23:41:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -14,7 +14,7 @@ $Id: PoolSource.cc,v 1.27 2006/04/13 22:24:24 wmtan Exp $
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 namespace edm {
-  PoolRASource::PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc) :
+  PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
     fileIter_(fileNames().begin()),
     rootFile_(),
@@ -28,7 +28,7 @@ namespace edm {
     }
   }
 
-  void PoolRASource::init(std::string const& file) {
+  void PoolSource::init(std::string const& file) {
 
     // For the moment, we keep all old files open.
     // FIX: We will need to limit the number of open files.
@@ -47,7 +47,7 @@ namespace edm {
     }
   }
 
-  void PoolRASource::updateProductRegistry() const {
+  void PoolSource::updateProductRegistry() const {
     if (rootFile_->productRegistry().nextID() > productRegistry().nextID()) {
       productRegistry().setNextID(rootFile_->productRegistry().nextID());
     }
@@ -58,7 +58,7 @@ namespace edm {
     }
   }
 
-  bool PoolRASource::next() {
+  bool PoolSource::next() {
     if(rootFile_->next()) return true;
     ++fileIter_;
     if(fileIter_ == fileNames().end()) {
@@ -82,7 +82,7 @@ namespace edm {
     return next();
   }
 
-  bool PoolRASource::previous() {
+  bool PoolSource::previous() {
     if(rootFile_->previous()) return true;
     if(fileIter_ == fileNames().begin()) {
       if (mainInput_) {
@@ -107,7 +107,7 @@ namespace edm {
     return previous();
   }
 
-  PoolRASource::~PoolRASource() {
+  PoolSource::~PoolSource() {
   }
 
   // read() is responsible for creating, and setting up, the
@@ -124,7 +124,7 @@ namespace edm {
   //  when it is asked to do so.
   //
   std::auto_ptr<EventPrincipal>
-  PoolRASource::read() {
+  PoolSource::read() {
     if (!next()) {
       if (!mainInput_) {
 	repeat();
@@ -135,7 +135,7 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  PoolRASource::readIt(EventID const& id) {
+  PoolSource::readIt(EventID const& id) {
     RootFile::EntryNumber entry = rootFile_->getEntryNumber(id);
     if (entry >= 0) {
       rootFile_->setEntryNumber(entry - 1);
@@ -149,7 +149,7 @@ namespace edm {
   // The current entry number is the last one read, not the next one read.
   // The current entry number may be -1, if none have been read yet.
   void
-  PoolRASource::skip(int offset) {
+  PoolSource::skip(int offset) {
     EntryNumber newEntry = rootFile_->entryNumber() + offset;
     if (newEntry >= rootFile_->entries()) {
 
@@ -189,7 +189,7 @@ namespace edm {
   }
 
   void
-  PoolRASource::readMany_(int number, EventPrincipalVector& result) {
+  PoolSource::readMany_(int number, EventPrincipalVector& result) {
     for (int i = 0; i < number; ++i) {
       std::auto_ptr<EventPrincipal> ev = read();
       if (ev.get() == 0) {

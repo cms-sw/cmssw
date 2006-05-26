@@ -31,7 +31,7 @@ cat > ${LOCAL_TMP_DIR}/PoolInputTest.cfg << !
 process TESTRECO = {
 	path p = {Analysis}
 	module Analysis = OtherThingAnalyzer {untracked int32 debugLevel = 1}
-	source = PoolRASource {
+	source = PoolSource {
 		untracked vstring fileNames = {
 			'file:${LOCAL_TMP_DIR}/PoolInputTest.root',
 			'PoolTest.root',
