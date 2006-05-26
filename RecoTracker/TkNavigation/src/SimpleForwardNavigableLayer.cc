@@ -4,6 +4,7 @@
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "Geometry/Surface/interface/BoundDisk.h"
 #include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
 SimpleForwardNavigableLayer::
 SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
@@ -12,6 +13,7 @@ SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
 			     const MagneticField* field,
 			     float epsilon) :
   SimpleNavigableLayer(field,epsilon),
+  areAllReachableLayersSet(false),
   theDetLayer(detLayer), 
   theOuterBarrelLayers(outerBL),
   theInnerBarrelLayers(0),
@@ -32,6 +34,72 @@ SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
   sort(theOuterLayers.begin(), theOuterLayers.end(), TkLayerLess());
 
 }
+
+SimpleForwardNavigableLayer::
+SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
+			     const BDLC& outerBL, 
+                             const BDLC& allOuterBL,
+                             const BDLC& innerBL,
+                             const BDLC& allInnerBL,
+			     const FDLC& outerFL, 
+                             const FDLC& allOuterFL,
+                             const FDLC& innerFL,
+                             const FDLC& allInnerFL,
+			     const MagneticField* field,
+			     float epsilon) :
+  SimpleNavigableLayer(field,epsilon),
+  areAllReachableLayersSet(true),
+  theDetLayer(detLayer), 
+  theOuterBarrelLayers(outerBL),
+  theAllOuterBarrelLayers(allOuterBL),
+  theInnerBarrelLayers(innerBL),
+  theAllInnerBarrelLayers(allInnerBL),
+  theOuterForwardLayers(outerFL),
+  theAllOuterForwardLayers(allOuterFL),
+  theInnerForwardLayers(innerFL),
+  theAllInnerForwardLayers(allInnerFL),
+  theOuterLayers(0), 
+  theInnerLayers(0),
+  theAllOuterLayers(0),
+  theAllInnerLayers(0)
+{
+  
+  // put barrel and forward layers together
+  theOuterLayers.reserve(outerBL.size() + outerFL.size());
+  for ( ConstBDLI bl = outerBL.begin(); bl != outerBL.end(); bl++ ) 
+    theOuterLayers.push_back(*bl);
+  for ( ConstFDLI fl = outerFL.begin(); fl != outerFL.end(); fl++ ) 
+    theOuterLayers.push_back(*fl);
+
+  theAllOuterLayers.reserve(allOuterBL.size() + allOuterFL.size());
+  for ( ConstBDLI bl = allOuterBL.begin(); bl != allOuterBL.end(); bl++ )
+    theAllOuterLayers.push_back(*bl);
+  for ( ConstFDLI fl = allOuterFL.begin(); fl != allOuterFL.end(); fl++ )
+    theAllOuterLayers.push_back(*fl);
+
+  theInnerLayers.reserve(innerBL.size() + innerFL.size());
+  for ( ConstBDLI bl = innerBL.begin(); bl != innerBL.end(); bl++ )
+    theInnerLayers.push_back(*bl);
+  for ( ConstFDLI fl = innerFL.begin(); fl != innerFL.end(); fl++ )
+    theInnerLayers.push_back(*fl);
+
+  theAllInnerLayers.reserve(allInnerBL.size() + allInnerFL.size());
+  for ( ConstBDLI bl = allInnerBL.begin(); bl != allInnerBL.end(); bl++ )
+    theAllInnerLayers.push_back(*bl);
+  for ( ConstFDLI fl = allInnerFL.begin(); fl != allInnerFL.end(); fl++ )
+    theAllInnerLayers.push_back(*fl);
+
+
+  // sort the outer layers 
+  sort(theOuterLayers.begin(), theOuterLayers.end(), TkLayerLess());
+  sort(theInnerLayers.begin(), theInnerLayers.end(),TkLayerLess(oppositeToMomentum));
+
+  sort(theAllOuterLayers.begin(), theAllOuterLayers.end(), TkLayerLess());
+  sort(theAllInnerLayers.begin(), theAllInnerLayers.end(),TkLayerLess(oppositeToMomentum));
+
+}
+
+
 
 vector<const DetLayer*> 
 SimpleForwardNavigableLayer::nextLayers( PropagationDirection dir) const
@@ -77,23 +145,48 @@ SimpleForwardNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   return result;
 }
 
-#include "Utilities/General/interface/CMSexception.h"
- 
+
 vector<const DetLayer*> 
-SimpleForwardNavigableLayer::compatibleLayers( PropagationDirection timeDirection) const
+SimpleForwardNavigableLayer::compatibleLayers( PropagationDirection dir) const
 {
-  cout << "ERROR: SimpleForwardNavigableLayer::compatibleLayers() method is not implemented"
-       << endl;
-  throw(Genexception("ERROR: SimpleForwardNavigableLayer::compatibleLayers() method is not implemented") );
+  if( !areAllReachableLayersSet ){
+    cout << "ERROR: compatibleLayers() method used without all reachableLayers are set" << endl;
+    throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
+  }
+
+  vector<const DetLayer*> result;
+
+  if ( dir == alongMomentum ) {
+    return theAllOuterLayers;
+  }
+  else {
+    return theAllInnerLayers;
+  }
+  return result;
+
 }
 
 vector<const DetLayer*> 
 SimpleForwardNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts, 
-					       PropagationDirection timeDirection) const
+					       PropagationDirection dir) const
 {
-  cout << "ERROR: SimpleForwardNavigableLayer::compatibleLayers() method is not implemented"
-       << endl;
-  throw(Genexception("ERROR: SimpleForwardNavigableLayer::compatibleLayers() method is not implemented") );
+  if( !areAllReachableLayersSet ){
+    cout << "ERROR: compatibleLayers() method used without all reachableLayers are set" << endl;
+    throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
+  }
+
+  vector<const DetLayer*> result;
+  FreeTrajectoryState ftsWithoutErrors = (fts.hasError()) ?
+    FreeTrajectoryState(fts.parameters()) : fts;
+
+  if ( dir == alongMomentum ) {
+    wellInside(ftsWithoutErrors, dir, theAllOuterLayers, result);
+  }
+  else { // oppositeToMomentum
+    wellInside(ftsWithoutErrors, dir, theAllInnerLayers, result);
+  }
+
+  return result;
 }
 
 
