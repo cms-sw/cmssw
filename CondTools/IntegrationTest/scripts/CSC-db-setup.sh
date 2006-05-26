@@ -1,5 +1,4 @@
-source ${OBJECT_SETUP_DIR}/general-db-setup.sh
-
+source ${O2O_SETUP_DIR}/general-db-setup.sh
 SUBDETECTOR_OFFLINE_USER=CMS_COND_CSC # uppercase for connect string
 SUBDETECTOR_OFFLINE_PASSWORD=__CHANGE_ME__
 SUBDETECTOR_ONLINE_USER=CMS_CSC
