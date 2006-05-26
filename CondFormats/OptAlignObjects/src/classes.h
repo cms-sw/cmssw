@@ -1,13 +1,11 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignments.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
 
-//#include "CondFormats/OptAlignObjects/interface/MBAFork.h"
 #include "CondFormats/OptAlignObjects/interface/MBAChBenchCalPlate.h"
 #include "CondFormats/OptAlignObjects/interface/MBAChBenchSurveyPlate.h"
 
-//#include "CondFormats/OptAlignObjects/interface/XXXXMeasurements.h"
-//#include "CondFormats/OptAlignObjects/interface/XXXXMeasurementInfo.h"
 #include "CondFormats/OptAlignObjects/interface/CSCZSensors.h"
+#include "CondFormats/OptAlignObjects/interface/CSCRSensors.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
@@ -16,12 +14,11 @@
 
 template std::vector<OpticalAlignInfo>::iterator;
 
-//template std::vector<MBAForkData>::iterator;
 template std::vector<MBAChBenchCalPlateData>::iterator;
 template std::vector<MBAChBenchSurveyPlateData>::iterator;
 
-//template std::vector<XXXXMeasurementInfo>::iterator;
 template std::vector<CSCZSensorData>::iterator;
+template std::vector<CSCRSensorData>::iterator;
 
 template std::vector<OpticalAlignParam>::iterator;
 template std::vector< int >::iterator;
@@ -30,6 +27,6 @@ template std::vector< int >::const_iterator;
 namespace {
   namespace {
     edm::Wrapper<OpticalAlignments> tw;
-    //    edm::Wrapper<XXXXMeasurements> tw2;
   }
 }
+

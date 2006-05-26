@@ -3,31 +3,26 @@
  <class name="OpticalAlignInfo"/>
  <class name="OpticalAlignParam"/>
 
-
- <!-- class name="MBAForkData"/-->
  <class name="MBAChBenchCalPlateData"/>
  <class name="MBAChBenchSurveyPlateData"/>
-
- <!--class name="XXXXMeasurements"/-->
- <!--class name="XXXXMeasurementInfo"/-->
 
  <class name="CSCZSensors"/>
  <class name="CSCZSensorData"/>
  <class name="std::vector<CSCZSensorData>"/>
 
+ <class name="CSCRSensors"/>
+ <class name="CSCRSensorData"/>
+ <class name="std::vector<CSCRSensorData>"/>
+
  <class name="std::vector<OpticalAlignInfo>"/>
- <!--class name="std::vector<XXXXMeasurementInfo>"/-->
  <class name="std::vector<OpticalAlignParam>"/>
 
- <!--class name="std::vector<MBAForkData>"/-->
  <class name="std::vector<MBAChBenchCalPlateData>"/>
  <class name="std::vector<MBAChBenchSurveyPlateData>"/>
 
- <!--class name="MBAFork"/-->
  <class name="MBAChBenchCalPlate"/>
  <class name="MBAChBenchSurveyPlate"/>
  <class name="edm::Wrapper<OpticalAlignments>"/>
- <!--class name="edm::Wrapper<XXXXMeasurements>"/-->
 
  <class pattern="*iterator*"/>
  <class pattern="*vector*"/>
