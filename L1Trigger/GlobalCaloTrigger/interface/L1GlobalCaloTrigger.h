@@ -26,6 +26,7 @@ class L1GctWheelEnergyFpga;
 class L1GctJetFinalStage;
 class L1GctGlobalEnergyAlgos;
 class L1GctElectronFinalSort;
+class L1GctJetEtCalibrationLut;
 
 
 class L1GlobalCaloTrigger {
@@ -93,11 +94,8 @@ public:
   
  private:
   
-  /// instantiate the hardware & algo objects
+  /// instantiate the hardware & algo objects and wire up the system
   void build();
-  
-  /// wire up the hardware obejcts
-  void setup();
   
  private:
   
@@ -125,6 +123,9 @@ public:
   /// electron final stage sorters
   L1GctElectronFinalSort* theIsoEmFinalStage;
   L1GctElectronFinalSort* theNonIsoEmFinalStage;
+
+  /// Jet Et calibraion LUT
+  L1GctJetEtCalibrationLut* theJetEtCalibrationLut;
   
 };
 
