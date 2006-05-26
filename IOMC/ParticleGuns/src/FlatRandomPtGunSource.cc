@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/03/24 00:09:45 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/04/07 04:04:20 $
+ *  $Revision: 1.7 $
  *  \author Julia Yarba
  */
 
@@ -26,10 +26,12 @@ FlatRandomPtGunSource::FlatRandomPtGunSource(const ParameterSet& pset,
 {
 
 
-  ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
+   ParameterSet defpset ;
+   ParameterSet pgun_params = 
+      pset.getUntrackedParameter<ParameterSet>("PGunParameters",defpset) ;
   
-  fMinPt = pgun_params.getParameter<double>("MinPt");
-  fMaxPt = pgun_params.getParameter<double>("MaxPt");
+   fMinPt = pgun_params.getUntrackedParameter<double>("MinPt",0.99);
+   fMaxPt = pgun_params.getUntrackedParameter<double>("MaxPt",1.01);
   
   produces<HepMCProduct>();
 

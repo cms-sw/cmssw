@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/03/24 00:09:45 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/04/07 04:04:20 $
+ *  $Revision: 1.11 $
  *  \author Julia Yarba
  */
 
@@ -25,19 +25,27 @@ using namespace CLHEP;
 
 BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
                                       const InputSourceDescription& desc ) : 
-  GeneratedInputSource (pset, desc),
-  fEvt(0),
-  fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
+   GeneratedInputSource (pset, desc),
+   fEvt(0),
+   fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
 
-  ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
+   ParameterSet defpset ;
+   //ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
+   ParameterSet pgun_params = 
+      pset.getUntrackedParameter<ParameterSet>("PGunParameters", defpset ) ;
   
-  fPartIDs    = pgun_params.getParameter< vector<int> >("PartID");
-  
-  fMinEta     = pgun_params.getParameter<double>("MinEta");
-  fMaxEta     = pgun_params.getParameter<double>("MaxEta");
-  fMinPhi     = pgun_params.getParameter<double>("MinPhi");
-  fMaxPhi     = pgun_params.getParameter<double>("MaxPhi");
+   // although there's the method ParameterSet::empty(),  
+   // it looks like it's NOT even necessary to check if it is,
+   // before trying to extract parameters - if it is empty,
+   // the default values seem to be taken
+   vector<int> defids ;
+   defids.push_back(13) ;
+   fPartIDs    = pgun_params.getUntrackedParameter< vector<int> >("PartID",defids);  
+   fMinEta     = pgun_params.getUntrackedParameter<double>("MinEta",-5.5);
+   fMaxEta     = pgun_params.getUntrackedParameter<double>("MaxEta",5.5);
+   fMinPhi     = pgun_params.getUntrackedParameter<double>("MinPhi",-3.14159265358979323846);
+   fMaxPhi     = pgun_params.getUntrackedParameter<double>("MaxPhi", 3.14159265358979323846);
 
   //
   //fPDGTablePath = "/afs/cern.ch/sw/lcg/external/clhep/1.9.2.1/slc3_ia32_gcc323/data/HepPDT/" ;

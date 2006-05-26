@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/03/24 00:09:45 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/04/07 04:04:20 $
+ *  $Revision: 1.7 $
  *  \author Julia Yarba
  */
 
@@ -21,11 +21,25 @@ FlatRandomEGunSource::FlatRandomEGunSource(const ParameterSet& pset,
    BaseFlatGunSource(pset, desc)
 {
 
-
-  ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
+   ParameterSet defpset ;
+   // ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
+   ParameterSet pgun_params = 
+      pset.getUntrackedParameter<ParameterSet>("PGunParameters",defpset) ;
   
-  fMinE = pgun_params.getParameter<double>("MinE");
-  fMaxE = pgun_params.getParameter<double>("MaxE");
+   // doesn't seem necessary to check if pset is empty - if this
+   // is the case, default values will be taken for params
+   fMinE = pgun_params.getUntrackedParameter<double>("MinE",0.99);
+   fMaxE = pgun_params.getUntrackedParameter<double>("MaxE",1.01);
+
+   cout << "NParts = " << fPartIDs.size() << endl ;
+   for ( int i=0; i<fPartIDs.size(); i++ )
+   {
+      cout << fPartIDs[i] << endl ;
+   }
+   cout << " MinEta, MaxEta = " << fMinEta << " " << fMaxEta << endl ;
+   cout << " MinPhi, MaxPhi = " << fMinPhi << " " << fMaxPhi << endl ;
+   cout << " MinE, MaxE = " << fMinE << " " << fMaxE << endl ;
+  
   
   produces<HepMCProduct>();
 
