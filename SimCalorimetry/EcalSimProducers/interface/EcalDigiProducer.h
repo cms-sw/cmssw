@@ -33,6 +33,8 @@ using namespace std;
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloDigiCollectionSorter.h"
 
+#include "CLHEP/Random/RandFlat.h"
+
 class EcalDigiProducer : public edm::EDProducer
 {
 public:
@@ -54,6 +56,8 @@ private:
   void updateGeometry();
 
   void checkCalibrations(const edm::EventSetup & eventSetup);
+
+  void setPhaseShift(const DetId & detId);
 
   /** Reconstruction algorithm*/
   typedef CaloTDigitizer<EBDigitizerTraits> EBDigitizer;
@@ -79,6 +83,9 @@ private:
   std::vector<DetId> theBarrelDets;
   std::vector<DetId> theEndcapDets;
   std::vector<DetId> theESDets;
+
+  bool doPhaseShift;
+  double thisPhaseShift;
 
 };
 
