@@ -1,9 +1,10 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/05/22 12:11:22 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/23 17:48:02 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino
+ *  \author S. Lacaprara - INFN Legnaro
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,6 +25,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
 
 #include <vector>
 
@@ -41,19 +43,30 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par){
 
   // The propagator: it propagates a state
   thePropagator = new SteppingHelixPropagator();
+  // FIXME!!it Must be:
+  // thePropagator = new SteppingHelixPropagator(magField,propoDir);
+  // the propagation direction must be set via parameter set
 
   // The estimator: makes the decision wheter a measure is good or not for the fit
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2,theNSigma);
 
   // FIXME: Do I want different propagator and estimator??
   // The best measurement finder: search for the best measurement among the TMs available
-  theBestMeasurementFinder = new MuonBestMeasurementFinder(thePropagator,theEstimator);
+  theBestMeasurementFinder = new MuonBestMeasurementFinder(thePropagator);
+
+  // the muon updator (it doesn't inhert from an updator, but it has one!)
+  // the updator is suitable both for FW and BW filtering. The difference between the two fitter are two:
+  // the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
+  // parameter set, and the propagation direction which is embeded in the propagator.
+  ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
+  theMuonUpdator = new MuonTrajectoryUpdator(thePropagator,muonUpdatorPSet);
 }
 
 StandAloneMuonRefitter::~StandAloneMuonRefitter(){
   delete thePropagator;
   delete theEstimator;
   delete theBestMeasurementFinder;
+  delete theMuonUpdator;
 }
 
 
@@ -132,6 +145,52 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
     
     TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL);
     
+    // RB: Different ways can be choosen if no bestMeasurement is available:
+    // 1- check on lastTSOS-initialTSOS eta difference
+    // 2- check on lastTSOS-lastButOneUpdatedTSOS eta difference
+    // After this choice:
+    // A- extract the measurements compatible with the initialTSOS (seed)
+    // B- extract the measurements compatible with the lastButOneUpdatedTSOS
+    // In ORCA the choice was 1A. Here I will try 1B and if it fail I'll try 1A
+    // another possibility could be 2B and then 1A.
+
+    
+    // if no measurement found and the current TSOS has an eta very different
+    // wrt the initial one (i.e. seed), then try to find the measurements
+    // according to the lastButOne FTS. (1B)
+    if( !bestMeasurement && 
+	fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - 
+	     initialTSOS.freeTrajectoryState()->momentum().eta())>0.1 ) {
+
+      LogDebug(metname) << "No measurement and big eta variation wrt seed" << endl
+			<< "trying with lastButOneUpdatedTSOS";
+      measL = theMeasurementExtractor.measurements(*layer,
+						   lastButOneUpdatedTSOS, 
+						   propagator(), 
+						   estimator(),
+						   *theCachedEvent);  
+      bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL);
+    }
+    
+    //if no measurement found and the current FTS has an eta very different
+    //wrt the initial one (i.e. seed), then try to find the measurements
+    //according to the initial FTS. (1A)
+    if( !bestMeasurement && 
+	fabs(lastTSOS.freeTrajectoryState()->momentum().eta() - 
+	     initialTSOS.freeTrajectoryState()->momentum().eta())>0.1 ) {
+      
+      LogDebug(metname) << "No measurement and big eta variation wrt seed" << endl
+			<< "tryng with seed TSOS";
+      measL = theMeasurementExtractor.measurements(*layer,
+						   initialTSOS, 
+						   propagator(), 
+						   estimator(),
+						   *theCachedEvent);  
+      bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL);
+    }
+    
+    
+ 
   }
 }
 
