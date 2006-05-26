@@ -67,7 +67,9 @@ public:
   typedef unsigned short int UShort;
     
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
-  L1GctJetFinder(int id);
+  L1GctJetFinder(int id, std::vector<L1GctSourceCard*> sourceCards,
+                 L1GctJetEtCalibrationLut* jetEtCalLut);
+                 
   ~L1GctJetFinder();
    
   /// Overload << operator
@@ -82,12 +84,6 @@ public:
   /// process the data, fill output buffers
   virtual void process();
 
-  /// set an input Source Card pointer 
-  void setInputSourceCard(int i, L1GctSourceCard* sc);
-  
-  /// set the jet Et calibration Lut pointer
-  void setJetEtCalibrationLut(L1GctJetEtCalibrationLut* jetEtCalLut) { m_jetEtCalLut = jetEtCalLut; }
-
   /// Set input data
   void setInputRegion(int i, L1GctRegion region);
     
@@ -98,8 +94,8 @@ public:
   std::vector<L1GctJetCand> getJets() const { return m_outputJets; }
   L1GctScalarEtVal ht() const { return m_outputHt; }
     
-  ///Max. number of jets that can be found per jet finder
-  static const int MAX_JETS_OUT = 6;  //max of 6 jets in a 2*11 search area
+  static const int MAX_JETS_OUT = 6;  ///< Max of 6 jets found per jetfinder in a 2*11 search area
+  static const unsigned int MAX_SOURCE_CARDS = 9; ///< Need data from 9 separate source cards to find jets in the 2*11 search region.
 
 private:
 
@@ -107,7 +103,6 @@ private:
 	int m_id;
 	
   //Constants
-  static const int MAX_SOURCE_CARDS = 9;  //need data from 9 separate source cards to find jets in the 2*11 search region.
   static const int MAX_REGIONS_IN = 48; // 2*11 search area, so 4*12=48 regions needed to run search.
   static const int COL_OFFSET = MAX_REGIONS_IN/4;  ///< The index offset between columns
 

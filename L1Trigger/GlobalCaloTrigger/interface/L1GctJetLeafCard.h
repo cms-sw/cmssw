@@ -20,7 +20,9 @@
 class L1GctJetLeafCard : L1GctProcessor
 {
 public:
-  L1GctJetLeafCard(int id, int iphi);
+  L1GctJetLeafCard(int id, int iphi, std::vector<L1GctSourceCard*> sourceCards,
+                   L1GctJetEtCalibrationLut* jetEtCalLut);
+                   
   ~L1GctJetLeafCard();
 
   /// Overload << operator
@@ -34,12 +36,6 @@ public:
  
   /// process the data and set outputs
   virtual void process();
-
-  /// add a Source Card
-  void setInputSourceCard(int i, L1GctSourceCard* card);
-  
-  /// Set up the Jet Et Calibration Lut for use in the jet finders
-  void setJetEtCalibrationLut(L1GctJetEtCalibrationLut* jetEtCalLut);
 
   /// get the input data
   std::vector<L1GctRegion> getInputRegions() const;
@@ -60,10 +56,9 @@ public:
   L1GctScalarEtVal getOutputHt() const { return m_htSum; }
    
   static const int MAX_JET_FINDERS = 3;
+  static const unsigned int MAX_SOURCE_CARDS = 15;
 
 private:
-
-  static const int MAX_SOURCE_CARDS = 15;
 
   // Leaf card ID
   int m_id;

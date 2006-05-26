@@ -18,7 +18,7 @@
 class L1GctJetFinalStage : public L1GctProcessor
 {
 public:
-	L1GctJetFinalStage();
+	L1GctJetFinalStage(std::vector<L1GctWheelJetFpga*> m_wheelFpgas);
 	~L1GctJetFinalStage();
 
   typedef std::vector<L1GctJetCand> JetVector;
@@ -40,9 +40,6 @@ public:
   void setInputForwardJet(int i, L1GctJetCand jet);
   void setInputTauJet(int i, L1GctJetCand jet); 
 
-  /// set the wheel jet fpga pointers
-  void setInputWheelJetFpga(int i, L1GctWheelJetFpga* wjf);
-
   // return input data
   JetVector getInputCentralJets() const { return m_inputCentralJets; }
   JetVector getInputForwardJets() const { return m_inputForwardJets; }
@@ -55,7 +52,7 @@ public:
 private:
 
   /// Max number of wheel FPGA pointers
-  static const int MAX_WHEEL_FPGAS = 2;
+  static const unsigned int MAX_WHEEL_FPGAS = 2;
   /// Max number of jets of each type coming in
   static const int MAX_JETS_IN = MAX_WHEEL_FPGAS*L1GctWheelJetFpga::MAX_JETS_OUT;
   /// Max number of jets of each type going out

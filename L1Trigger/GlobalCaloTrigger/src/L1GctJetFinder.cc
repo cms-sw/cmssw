@@ -5,14 +5,46 @@
 #include <iostream>
 using namespace std;
 
-L1GctJetFinder::L1GctJetFinder(int id):
+L1GctJetFinder::L1GctJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
+                               L1GctJetEtCalibrationLut* jetEtCalLut):
   m_id(id),
-  m_sourceCards(MAX_SOURCE_CARDS),
-  m_jetEtCalLut(0),
+  m_sourceCards(sourceCards),
+  m_jetEtCalLut(jetEtCalLut),
   m_inputRegions(MAX_REGIONS_IN),
   m_outputJets(MAX_JETS_OUT)
 {
-  assert(m_id >=0 && m_id < 18);
+  //Check jetfinder setup
+  if(m_id < 0 || m_id > 17)
+  {
+    throw cms::Exception("L1GctSetupError")
+    << "L1GctJetFinder::L1GctJetFinder() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
+    << "ID number should be between the range of 0 to 17\n";
+  } 
+  
+  if(m_sourceCards.size() != MAX_SOURCE_CARDS)
+  {
+    throw cms::Exception("L1GctSetupError")
+    << "L1GctJetFinder::L1GctJetFinder() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
+    << "This class needs " << MAX_SOURCE_CARDS << " source card pointers, yet only " << m_sourceCards.size()
+    << " source card pointers are present.\n";
+  }
+  
+  for(unsigned int i = 0; i < m_sourceCards.size(); ++i)
+  {
+    if(m_sourceCards[i] == 0)
+    {
+      throw cms::Exception("L1GctSetupError")
+      << "L1GctJetFinder::L1GctJetFinder() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
+      << "Source card pointer " << i << " has not been set!\n";
+    }
+  }
+  
+  if(m_jetEtCalLut == 0)
+  {
+    throw cms::Exception("L1GctSetupError")
+    << "L1GctJetFinder::L1GctJetFinder() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
+    << "The jet Et calibration LUT pointer has not been set!\n";  
+  }
 }
 
 L1GctJetFinder::~L1GctJetFinder()
@@ -58,20 +90,8 @@ void L1GctJetFinder::fetchInput()
 {
   vector<L1GctRegion> tempRegions;  //for temp local copy of region data
     
-  //Debug check the pointers are set!
-  assert(m_sourceCards[0] != 0);
-  assert(m_sourceCards[1] != 0);
-  assert(m_sourceCards[2] != 0);
-  assert(m_sourceCards[3] != 0);
-  assert(m_sourceCards[4] != 0);
-  assert(m_sourceCards[5] != 0);
-  assert(m_sourceCards[6] != 0);
-  assert(m_sourceCards[7] != 0);
-  assert(m_sourceCards[8] != 0);
-  assert(m_sourceCards[9] != 0);
-    
   tempRegions = m_sourceCards[0]->getRegions();
-  assert(tempRegions.size() == 10);  //further pointer setup checks...
+  assert(tempRegions.size() == 10);  //Pointer setup check...
   m_inputRegions[13] = tempRegions[0];
   m_inputRegions[14] = tempRegions[1];
   m_inputRegions[15] = tempRegions[2];
@@ -145,19 +165,7 @@ void L1GctJetFinder::fetchInput()
   m_inputRegions[46] = tempRegions[6];
   m_inputRegions[47] = tempRegions[7];
 }
-void L1GctJetFinder::setInputSourceCard(int i, L1GctSourceCard* sc)
-{
-  if(i >= 0 && i < MAX_SOURCE_CARDS)
-  {
-    m_sourceCards[i] = sc;
-  }
-  else
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetFinder::setInputSourceCard() : Source Card " << i << " is outside input range of 0 to "
-    << (MAX_SOURCE_CARDS-1) << "\n";
-  }
-}
+
 
 void L1GctJetFinder::setInputRegion(int i, L1GctRegion region)
 {
@@ -168,8 +176,8 @@ void L1GctJetFinder::setInputRegion(int i, L1GctRegion region)
   else
   {
     throw cms::Exception("L1GctInputError")
-    << "L1GctJetFinder::setInputRegion() : Region " << i << " is outside input range of 0 to "
-    << (MAX_REGIONS_IN-1) << "\n";
+    << "L1GctJetFinder::setInputRegion() : In Jet Finder ID " << m_id << ", inputted region " 
+    << i << " is outside input index range of 0 to " << (MAX_REGIONS_IN-1) << "\n";
   }
 }
 

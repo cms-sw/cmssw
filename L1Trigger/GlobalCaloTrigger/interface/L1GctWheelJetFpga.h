@@ -11,7 +11,7 @@
 class L1GctWheelJetFpga : public L1GctProcessor
 {
 public:
-  L1GctWheelJetFpga(int id);
+  L1GctWheelJetFpga(int id, std::vector<L1GctJetLeafCard*> inputLeafCards);
   ~L1GctWheelJetFpga();
 
   typedef std::vector<L1GctJetCand> JetVector;
@@ -27,9 +27,6 @@ public:
 
   /// process the data, fill output buffers
   virtual void process();
-
-  /// set input sources
-  void setInputLeafCard(int i, L1GctJetLeafCard* card);
 
   /// set input data      
   void setInputJet(int i, L1GctJetCand jet); 
@@ -52,10 +49,11 @@ public:
 
   /// Max number of jets of each type (central, foward, tau) we output.
   static const int MAX_JETS_OUT = 4;
+  /// Max number of leaf card pointers
+  static const unsigned int MAX_LEAF_CARDS = 3;
    
 private:
-  /// Max number of leaf card pointers
-  static const int MAX_LEAF_CARDS = 3;
+
   /// Maximum number of jets we can have as input
   static const int MAX_JETS_IN = MAX_LEAF_CARDS * L1GctJetLeafCard::MAX_JET_FINDERS * L1GctJetFinder::MAX_JETS_OUT;
     

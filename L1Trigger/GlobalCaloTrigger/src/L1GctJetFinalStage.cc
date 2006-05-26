@@ -5,8 +5,8 @@
 using std::ostream;
 using std::endl;
 
-L1GctJetFinalStage::L1GctJetFinalStage():
-  m_wheelFpgas(MAX_WHEEL_FPGAS),
+L1GctJetFinalStage::L1GctJetFinalStage(std::vector<L1GctWheelJetFpga*> wheelFpgas):
+  m_wheelFpgas(wheelFpgas),
   m_inputCentralJets(MAX_JETS_IN),
   m_inputForwardJets(MAX_JETS_IN),
   m_inputTauJets(MAX_JETS_IN),
@@ -14,6 +14,23 @@ L1GctJetFinalStage::L1GctJetFinalStage():
   m_forwardJets(MAX_JETS_OUT),
   m_tauJets(MAX_JETS_OUT)
 {
+  if(m_wheelFpgas.size() != MAX_WHEEL_FPGAS)
+  {
+    throw cms::Exception("L1GctSetupError")
+    << "L1GctJetFinalStage::L1GctJetFinalStage() : Jet Final Stage instance has been incorrectly constructed!\n"
+    << "This class needs " << MAX_WHEEL_FPGAS << " wheel jet FPGA pointers, yet only " << m_wheelFpgas.size()
+    << " wheel jet FPGA pointers are present.\n";
+  }
+  
+  for(unsigned int i=0; i < MAX_WHEEL_FPGAS; ++i)
+  {
+    if(m_wheelFpgas[i] == 0)
+    {
+      throw cms::Exception("L1GctSetupError")
+      << "L1GctJetFinalStage::L1GctJetFinalStage() : Jet Final Stage instance has been incorrectly constructed!\n"
+      << "Wheel jet FPGA pointer " << i << " has not been set!\n";
+    }
+  }  
 }
 
 L1GctJetFinalStage::~L1GctJetFinalStage()
@@ -102,20 +119,6 @@ void L1GctJetFinalStage::process()
     m_forwardJets[iJet] = m_inputForwardJets[iJet];
     m_tauJets[iJet] = m_inputTauJets[iJet];
   }  
-}
-
-void L1GctJetFinalStage::setInputWheelJetFpga(int i, L1GctWheelJetFpga* wjf)
-{
-  if(i >= 0 && i < MAX_WHEEL_FPGAS)
-  {
-    m_wheelFpgas[i] = wjf;
-  }
-  else
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "In L1GctJetFinalStage::setInputWheelJetFpga() : Wheel Jet FPGA " << i
-    << " is outside input range of 0 to " << (MAX_WHEEL_FPGAS-1) << "\n";
-  }
 }
 
 void L1GctJetFinalStage::setInputCentralJet(int i, L1GctJetCand jet)
