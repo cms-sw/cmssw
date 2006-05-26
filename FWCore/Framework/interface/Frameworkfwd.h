@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.21 2006/04/06 23:26:28 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.22 2006/04/28 17:01:17 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -47,6 +47,11 @@ namespace edm {
   class Selector;
   class TypeID;
   class VectorInputSource;
+
+  struct EventSummary;
+  struct PathSummary;
+  struct TriggerReport;
+
 
   template <typename T> class Handle;
   namespace pset {

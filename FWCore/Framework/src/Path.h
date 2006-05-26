@@ -5,7 +5,7 @@
 
   Author: Jim Kowalkowski 28-01-06
 
-  $Id: Path.h,v 1.5 2006/04/19 19:48:48 chrjones Exp $
+  $Id: Path.h,v 1.6 2006/04/19 20:13:01 wmtan Exp $
 
   An object of this type represents one path in a job configuration.
   It holds the assigned bit position and the list of workers that are
@@ -42,6 +42,7 @@ namespace edm
     typedef edm::hlt::HLTState State;
 
     typedef std::vector<WorkerInPath> Workers;
+    typedef Workers::size_type        size_type;
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef boost::shared_ptr<ActivityRegistry> ActivityRegistryPtr;
 
@@ -72,12 +73,12 @@ namespace edm
     int abortWorker() const { return abortWorker_; }
     State state() const { return state_; }
 
-    unsigned int size() const { return workers_.size(); }
-    int timesVisited(const unsigned int i) const { return workers_.at(i).timesVisited(); }
-    int timesPassed (const unsigned int i) const { return workers_.at(i).timesPassed() ; }
-    int timesFailed (const unsigned int i) const { return workers_.at(i).timesFailed() ; }
-    int timesExcept (const unsigned int i) const { return workers_.at(i).timesExcept() ; }
-    Worker const * getWorker(const unsigned int i) const { return workers_.at(i).getWorker(); }
+    size_type size() const { return workers_.size(); }
+    int timesVisited(size_type i) const { return workers_.at(i).timesVisited(); }
+    int timesPassed (size_type i) const { return workers_.at(i).timesPassed() ; }
+    int timesFailed (size_type i) const { return workers_.at(i).timesFailed() ; }
+    int timesExcept (size_type i) const { return workers_.at(i).timesExcept() ; }
+    Worker const * getWorker(size_type i) const { return workers_.at(i).getWorker(); }
 
   private:
     RunStopwatch::StopwatchPointer stopwatch_;

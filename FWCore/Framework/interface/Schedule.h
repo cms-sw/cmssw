@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.10 2006/04/28 17:01:17 paterno Exp $
+  $Id: Schedule.h,v 1.11 2006/05/02 15:50:51 paterno Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -168,6 +168,13 @@ namespace edm
       return total_passed_;
     }
 
+    /// Return the number of events that have not passed any trigger.
+    /// (N.B. totalEventsFailed() + totalEventsPassed() == totalEvents()
+    int totalEventsFailed() const
+    {
+      return totalEvents() - totalEventsPassed();
+    }
+
     /// Turn end_paths "off" if "active" is false;
     /// turn end_paths "on" if "active" is true.
     void enableEndPaths(bool active);
@@ -175,6 +182,11 @@ namespace edm
     /// Return true if end_paths are active, and false if they are
     /// inactive.
     bool endPathsEnabled() const;
+
+    /// Return the trigger report information on paths,
+    /// modules-in-path, modules-in-endpath, and modules.
+    void getTriggerReport(TriggerReport& rep) const;      
+
 
 
   private:

@@ -1,7 +1,7 @@
-
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Framework/src/ProducerWorker.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
@@ -20,9 +20,6 @@
 #include "FWCore/Framework/src/FilterWorker.h"
 
 #include "boost/shared_ptr.hpp"
-#include "boost/lambda/lambda.hpp"
-#include "boost/lambda/algorithm.hpp"
-#include "boost/bind.hpp"
 
 #include <string>
 #include <memory>
@@ -37,6 +34,32 @@ namespace edm
 {
   namespace
   {
+    // Function template to transform each element in the input range to
+    // a value placed into the output range. The supplied function
+    // should take a const_reference to the 'input', and write to a
+    // reference to the 'output'.
+    template <class InputIterator, class ForwardIterator, class Func>
+    void
+    transform_into(InputIterator begin, InputIterator end,
+		   ForwardIterator out, Func func)
+    {
+      for ( ; begin != end; ++begin, ++out ) func(*begin, *out);
+    }
+    
+    // Function template that takes a sequence 'from', a sequence
+    // 'to', and a callable object 'func'. It and applies
+    // transform_into to fill the 'to' sequence with the values
+    // calcuated by the callable object, taking care to fill the
+    // outupt only if all calls succeed.
+    template <class FROM, class TO, class FUNC>
+    void
+    fill_summary(FROM const& from, TO& to, FUNC func)
+    {
+      TO temp(from.size());
+      transform_into(from.begin(), from.end(), temp.begin(), func);
+      to.swap(temp);
+    }
+
     // -----------------------------
 
     // Here we make the trigger results inserter directly.  This should
@@ -105,7 +128,7 @@ namespace edm
     virtual bool tryToFillImpl(const Provenance& prov,
 			       EventPrincipal& event,
 			       const EventSetup& eventSetup) {
-      std::map<std::string, Worker*>::const_iterator itFound =
+      map<string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(prov.product.module.moduleLabel_);
       if(itFound != labelToWorkers_.end()) {
 	itFound->second->doWork(event,eventSetup);
@@ -113,7 +136,7 @@ namespace edm
       }
       return false;
     }
-    std::map<std::string, Worker*> labelToWorkers_;
+    map<string, Worker*> labelToWorkers_;
   };
 
   // -----------------------------
@@ -201,29 +224,29 @@ namespace edm
     handleWronglyPlacedModules();
 
     //See if all modules were used
-    std::set<std::string> usedWorkerLabels;
+    set<string> usedWorkerLabels;
     for(AllWorkers::iterator itWorker=all_workers_.begin();
         itWorker != all_workers_.end();
         ++itWorker) {
 	usedWorkerLabels.insert((*itWorker)->description().moduleLabel_);
     }
-    std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string> >("@all_modules"));
-    std::set<std::string> modulesInConfigSet(modulesInConfig.begin(),modulesInConfig.end());
-    std::vector<std::string> unusedLabels;
-    std::set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
+    vector<string> modulesInConfig(proc_pset.getParameter<vector<string> >("@all_modules"));
+    set<string> modulesInConfigSet(modulesInConfig.begin(),modulesInConfig.end());
+    vector<string> unusedLabels;
+    set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
                         usedWorkerLabels.begin(),usedWorkerLabels.end(),
-                        std::back_inserter(unusedLabels));
+                        back_inserter(unusedLabels));
     //does the configuration say we should allow on demand?
     bool allowUnscheduled = opts.getUntrackedParameter<bool>("allowUnscheduled", false);
-    std::set<std::string> unscheduledLabels;
+    set<string> unscheduledLabels;
     if(!unusedLabels.empty()) {
 	//Need to
 	// 1) create worker
 	// 2) if they are ProducerWorkers, add them to our list
 	// 3) hand list to our delayed reader
-	std::vector<std::string>  shouldBeUsedLabels;
+	vector<string>  shouldBeUsedLabels;
 	
-	for(std::vector<std::string>::iterator itLabel = unusedLabels.begin();
+	for(vector<string>::iterator itLabel = unusedLabels.begin();
             itLabel != unusedLabels.end();
             ++itLabel) {
           if (allowUnscheduled) {
@@ -249,9 +272,9 @@ namespace edm
 	  }
 	}
 	if(!shouldBeUsedLabels.empty()) {
-	    std::ostringstream unusedStream;
+	    ostringstream unusedStream;
 	    unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
-	    for(std::vector<std::string>::iterator itLabel = shouldBeUsedLabels.begin()+1;
+	    for(vector<string>::iterator itLabel = shouldBeUsedLabels.begin()+1;
 		itLabel != shouldBeUsedLabels.end();
 		++itLabel) {
 	      unusedStream <<",'" << *itLabel<<"'";
@@ -270,7 +293,7 @@ namespace edm
         ++itProdInfo)
       {
 	if(unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.module.moduleLabel_)) {
-          std::auto_ptr<Provenance> prov(new Provenance(itProdInfo->second));
+          auto_ptr<Provenance> prov(new Provenance(itProdInfo->second));
           boost::shared_ptr<Group> theGroup(new Group(prov));
           demandGroups_.push_back(theGroup);
 	}
@@ -294,7 +317,7 @@ namespace edm
   }
 
 
-  void Schedule::fillWorkers(const std::string& name, PathWorkers& out)
+  void Schedule::fillWorkers(const string& name, PathWorkers& out)
   {
     vstring modnames = pset_.getParameter<vstring>(name);
     vstring::iterator it(modnames.begin()),ie(modnames.end());
@@ -310,9 +333,9 @@ namespace edm
       try {
         modpset= pset_.getParameter<ParameterSet>(realname);
       } catch( cms::Exception& ) {
-        std::string pathType("endpath");
-        if(std::find( end_path_name_list_.begin(),end_path_name_list_.end(), name) == end_path_name_list_.end()) {
-          pathType = std::string("path");
+        string pathType("endpath");
+        if(find( end_path_name_list_.begin(),end_path_name_list_.end(), name) == end_path_name_list_.end()) {
+          pathType = string("path");
         }
         throw edm::Exception(edm::errors::Configuration)<<"The unknown module label \""<<realname<<"\" appears in "<<pathType<<" \""<<name
         <<"\"\n please check spelling or remove that label from the path.";
@@ -402,11 +425,11 @@ namespace edm
     // NOTE: who owns the productdescrption?  Just copied by value
     unscheduled_->setEventSetup(es);
     ep.setUnscheduledHandler(unscheduled_);
-    for(std::vector<boost::shared_ptr<Group> >::iterator itGroup = demandGroups_.begin();
+    for(vector<boost::shared_ptr<Group> >::iterator itGroup = demandGroups_.begin();
         itGroup != demandGroups_.end();
         ++itGroup) {
-      std::auto_ptr<Provenance> prov(new Provenance((*itGroup)->productDescription()));
-      std::auto_ptr<Group> theGroup(new Group(prov));
+      auto_ptr<Provenance> prov(new Provenance((*itGroup)->productDescription()));
+      auto_ptr<Group> theGroup(new Group(prov));
       ep.addGroup(theGroup);
     }
     try {
@@ -474,56 +497,52 @@ namespace edm
 
   }
 
-  using namespace boost::lambda;
-
   void Schedule::endJob()
   {
     bool failure = false;
-    cms::Exception exception("endJob");
+    cms::Exception accumulated("endJob");
     AllWorkers::iterator ai(all_workers_.begin()),ae(all_workers_.end());
     for(;ai!=ae;++ai) {
       try {
 	(*ai)->endJob();
       }
       catch (seal::Error& e) {
-        exception << "seal::Exception caught in Schedule::endJob\n"
+        accumulated << "seal::Exception caught in Schedule::endJob\n"
 		  << e.explainSelf();
         failure = true;
       }
       catch (cms::Exception& e) {
-        exception << "cms::Exception caught in Schedule::endJob\n"
+        accumulated << "cms::Exception caught in Schedule::endJob\n"
 		  << e.explainSelf();
         failure = true;
       }
-      catch (std::exception& e) {
-        exception << "Standard library exception caught in Schedule::endJob\n"
+      catch (exception& e) {
+        accumulated << "Standard library exception caught in Schedule::endJob\n"
 		  << e.what();
         failure = true;
       }
       catch (...) {
-        exception << "Unknown exception caught in Schedule::endJob\n";
+        accumulated << "Unknown exception caught in Schedule::endJob\n";
         failure = true;
       }
     }
     if (failure) {
-      throw exception;
+      throw accumulated;
     }
 
-    //for_each(all_workers_.begin(),all_workers_.end(),
-    //		    boost::bind(&Worker::endJob,_1));
 
     if(wantSummary_ == false) return;
 
-    TrigPaths::iterator pi,pe;
+    TrigPaths::const_iterator pi,pe;
 
     // The trigger report (pass/fail etc.):
 
     cout << endl;
     cout << "TrigReport " << "---------- Event  Summary ------------\n";
     cout << "TrigReport"
-	 << " Events total = " << total_events_
-	 << " passed = " << total_passed_
-	 << " failed = " << (total_events_ - total_passed_)
+	 << " Events total = " << totalEvents()
+	 << " passed = " << totalEventsPassed()
+	 << " failed = " << (totalEventsFailed())
 	 << "\n";
 
     cout << endl;
@@ -648,8 +667,8 @@ namespace edm
     cout << setprecision(6) << fixed << endl;
     cout << "TimeReport " << "---------- Event  Summary ---[sec]----\n";
     cout << "TimeReport"
-	 << " CPU/event = " << timeCpuReal().first/max(1,total_events_)
-	 << " Real/event = " << timeCpuReal().second/max(1,total_events_)
+	 << " CPU/event = " << timeCpuReal().first/max(1,totalEvents())
+	 << " Real/event = " << timeCpuReal().second/max(1,totalEvents())
 	 << "\n";
 
     cout << endl;
@@ -748,8 +767,6 @@ namespace edm
     AllWorkers::iterator i(all_workers_.begin()),e(all_workers_.end());
     for(;i!=e;++i) { (*i)->beginJob(es); }
 
-    //for_each(all_workers_.begin(),all_workers_.end(),
-    //		    boost::bind(&Worker::beginJob,_1,es));
   }
 
 
@@ -781,12 +798,77 @@ namespace edm
     return endpathsAreActive_;
   }
 
+  void
+  fillModuleInPathSummary(Path const& path, 
+			  ModuleInPathSummary& sum)
+  {
+  }
+
+
+  void
+  fillModuleInPathSummary(Path const& path, 
+			  size_t which, 
+			  ModuleInPathSummary& sum)
+  {
+	sum.timesVisited = path.timesVisited(which);
+	sum.timesPassed  = path.timesPassed(which);
+	sum.timesFailed  = path.timesFailed(which);
+	sum.timesExcept  = path.timesExcept(which);
+	sum.moduleLabel  = 
+	  path.getWorker(which)->description().moduleLabel_;
+  }
+
+  void 
+  fillPathSummary(Path const& path, PathSummary& sum)
+  {
+    sum.name        = path.name();
+    sum.bitPosition = path.bitPosition();
+    sum.timesRun    = path.timesRun();
+    sum.timesPassed = path.timesPassed();
+    sum.timesFailed = path.timesFailed();
+    sum.timesExcept = path.timesExcept();
+
+    Path::size_type sz = path.size();
+    vector<ModuleInPathSummary> temp(sz);
+    for (size_t i = 0; i != sz; ++i)
+      {
+	fillModuleInPathSummary(path, i, temp[i]);
+      }
+    sum.moduleInPathSummaries.swap(temp);
+  }
+
+  void 
+  fillWorkerSummaryAux(Worker const& w, WorkerSummary& sum)
+  {
+    sum.timesVisited = w.timesVisited();
+    sum.timesRun     = w.timesRun();
+    sum.timesPassed  = w.timesPassed();
+    sum.timesFailed  = w.timesFailed();
+    sum.timesExcept  = w.timesExcept();
+    sum.moduleLabel  = w.description().moduleLabel_;
+  }
+
+  void
+  fillWorkerSummary(Worker const* pw, WorkerSummary& sum)
+  {
+    fillWorkerSummaryAux(*pw, sum);
+  }
+  
+  void
+  Schedule::getTriggerReport(TriggerReport& rep) const
+  {
+    rep.eventSummary.totalEvents = totalEvents();
+    rep.eventSummary.totalEventsPassed = totalEventsPassed();
+    rep.eventSummary.totalEventsFailed = totalEventsFailed();
+
+    fill_summary(trig_paths_,  rep.trigPathSummaries, &fillPathSummary);
+    fill_summary(end_paths_,   rep.endPathSummaries,  &fillPathSummary);
+    fill_summary(all_workers_, rep.workerSummaries,   &fillWorkerSummary);
+  }
+
   void Schedule::resetWorkers()
   {
     AllWorkers::iterator i(all_workers_.begin()),e(all_workers_.end());
     for(;i!=e;++i) { (*i)->reset(); }
-
-    //for_each(all_workers_.begin(),all_workers_.end(),
-    //		    boost::bind(&Worker::reset,_1));
   }
 }

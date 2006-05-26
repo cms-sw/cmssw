@@ -852,6 +852,12 @@ namespace edm {
     return schedule_->totalEventsPassed();
   }
 
+  int
+  EventProcessor::totalEventsFailed() const
+  {
+    return schedule_->totalEventsFailed();
+  }
+
   void 
   EventProcessor::enableEndPaths(bool active)
   {
@@ -862,6 +868,12 @@ namespace edm {
   EventProcessor::endPathsEnabled() const
   {
     return schedule_->endPathsEnabled();
+  }
+  
+  void
+  EventProcessor::getTriggerReport(TriggerReport& rep) const
+  {
+    schedule_->getTriggerReport(rep);
   }
 
   const char* EventProcessor::currentStateName() const
