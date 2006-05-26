@@ -1,5 +1,5 @@
 <export>
- <lib name=SimG4ValidationEcal>
+ <lib name=ValidationEcalHits>
  <use name=DataFormats/Common>
  <use name=root>
  <use name=geant4>
