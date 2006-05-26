@@ -86,7 +86,7 @@ void EBBeamCaloTask::setup(void){
     meBBCaloMaxEneCry_ = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     
     sprintf(histo, "EBBCT table is moving");
-    TableMoving_ = dbe->book1D(histo,histo,2,0.,1.);
+    TableMoving_ = dbe->book1D(histo,histo,2,0.,1.1);
     //table is moving-> bin 1, table is not moving-> bin 2
    
   }
@@ -140,13 +140,13 @@ try{
   if ( ! init_ ) this->setup();
     
   int cry_in_beam = 0; 
-  cry_in_beam = 100;//just for test, to be filled with info from the event
+  cry_in_beam = 704;//just for test, to be filled with info from the event
   
   bool reset_histos = false;
   bool tb_moving = false;//just for test, to be filled with info from the event
+  if(ievt_ > 500){tb_moving=true; }
 
-
- if(tb_moving){
+  if(tb_moving){
     TableMoving_->Fill(0);
     if( PreviousTableStatus_ == 0){reset_histos=true;}
     PreviousTableStatus_=1;
@@ -158,7 +158,8 @@ try{
   }
 
   if(reset_histos){
-    LogDebug("EBBeamCaloTask") << "event " << ievt_ << " resetting histos!! ";
+        LogDebug("EBBeamCaloTask") << "event " << ievt_ << " resetting histos!! ";
+    //cout << "event " << ievt_ << " resetting histos!! ";
     //here the follwowing histos should be reset
     //meBBCaloPulseProf_[cryInArray_];
     //meBBCaloPulseProfG12_[cryInArray_];
@@ -189,7 +190,8 @@ try{
 
   float xie = eta_c + 0.5;
   float xip = phi_c + 0.5;
-  meBBCaloMaxEneCry_->Fill(xie,xip);
+  meBBCaloCryOnBeam_->Fill(xie,xip);
+
   Handle<EBDigiCollection> digis;
   //e.getByLabel("ecalEBunpacker", digis);
   e.getByLabel(digiProducer_, digis);
@@ -206,9 +208,10 @@ try{
     for(int dp=-3; dp<4; dp++){
       int cry_num = (phi_c+dp) + 20*(eta_c+de) +1;
       int u = de -7*dp + 24;// FIX ME to be check via a cout
-      //std::cout<<"de, dp, cry, u"<<de <<" "<<	dp<<" "<<cry_num <<" "<< u<<std::endl;
-      //if(u<0 || u > 48) {std::cout<<"ERROR de, dp, cry, u"<<de <<" "<<	dp<<" "<<cry_num <<" "<< u<<std::endl;}
+      //std::cout<<"de, dp, cry, u: "<<de <<" "<<	dp<<" "<<cry_num <<" "<< u;// <<std::endl;
+      if(u<0 || u > 48) {std::cout<<"ERROR de, dp, cry, u"<<de <<" "<<	dp<<" "<<cry_num <<" "<< u<<std::endl;}
       if(cry_num<1 || cry_num> 1701){cry_to_beRead[u]=-1;}
+      //std::cout<<"  to be read: "<<cry_to_beRead[u]<<endl;
     }
   }
   
@@ -218,7 +221,8 @@ try{
     EBDetId id = dataframe.id();
 
     int ism = id.ism();
-    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
+    // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
+    //if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
 
     int ic = id.ic();
     int ie = (ic-1)/20;
@@ -226,17 +230,30 @@ try{
 
     int deta_c= ie - eta_c;
     int dphi_c= ip - phi_c;
-    meBBCaloCryRead_->Fill(deta_c, dphi_c);    
-    int i_in_array = deta_c -3*dphi_c + 4;
+    meBBCaloCryRead_->Fill(deta_c, dphi_c);
+    
+    if(abs(deta_c) >3 || abs(deta_c) >3){continue;}
     int i_toBeRead = deta_c -7*dphi_c + 24;
     if( i_toBeRead > -1 &&  i_toBeRead <49){ cry_to_beRead[i_toBeRead]++;}
 
-    LogDebug("EBBeamCaloTask") << " det id = " << id;
-    LogDebug("EBBeamCaloTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-    LogDebug("EBBeamCaloTask") << " deta, dphi, i_in_array, i_toBeRead " << deta_c  << " " <<  dphi_c << " " <<i_in_array<<" "<<i_toBeRead;
+    if(abs(deta_c) >1 || abs(deta_c) >1){continue;}
+    int i_in_array = deta_c -3*dphi_c + 4;
+    
+
+    //LogDebug("EBBeamCaloTask") << " det id = " << id;
+    //LogDebug("EBBeamCaloTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+    //LogDebug("EBBeamCaloTask") << " deta, dphi, i_in_array, i_toBeRead " << deta_c  << " " <<  dphi_c << " " <<i_in_array<<" "<<i_toBeRead;
+
+    //cout << " det id = " << id<<endl;
+    //cout << " sm, eta, phi " << ism << " " << ie << " " << ip<<endl;
+    //cout << " deta, dphi, i_in_array, i_toBeRead " << deta_c  << " " <<  dphi_c << " " <<i_in_array<<" "<<i_toBeRead<<endl;
 
     if( i_in_array < 0 || i_in_array > 8 ){continue;}
 
+    //cout << " det id = " << id<<endl;
+    //cout << " sm, eta, phi " << ism << " " << ie << " " << ip<<endl;
+    //cout << " deta, dphi, i_in_array, i_toBeRead " << deta_c  << " " <<  dphi_c << " " <<i_in_array<<" "<<i_toBeRead<<endl;
+    //cout<<"##########################################################"<<endl;
     for (int i = 0; i < 10; i++) {
       EcalMGPASample sample = dataframe.sample(i);
       int adc = sample.adc();
@@ -277,7 +294,8 @@ try{
     EcalUncalibratedRecHit hit = (*hitItr);
     EBDetId id = hit.id();
     int ism = id.ism();
-    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
+    // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
+    //    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
 
     int ic = id.ic();
     int ie = (ic-1)/20;
@@ -286,16 +304,21 @@ try{
     int deta_c= ie - eta_c;
     int dphi_c= ip - phi_c;
 
+    
     int i_in_array = deta_c -3*dphi_c + 4;
-
     LogDebug("EBBeamCaloTask") << " rechits det id = " << id;
     LogDebug("EBBeamCaloTask") << " rechits sm, eta, phi " << ism << " " << ie << " " << ip;
     LogDebug("EBBeamCaloTask") << " rechits deta, dphi, i_in_array" << deta_c  << " " <<  dphi_c << " " <<i_in_array;
+  
+    if(abs(deta_c) >1 || abs(deta_c) >1){continue;}
+   
 
     if( i_in_array < 0 || i_in_array > 8 ){continue;}
     float R_ene = hit.amplitude();
-    LogDebug("EBBeamCaloTask") <<"In the array, cry: "<<ic<<" rec ene: "<<R_ene;
-    
+    //LogDebug("EBBeamCaloTask") <<"In the array, cry: "<<ic<<" rec ene: "<<R_ene;
+    //cout <<"In the array, cry: "<<ic<<" rec ene: "<<R_ene<<endl;
+    //cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<endl;
+
     meBBCaloEne_[i_in_array]->Fill(R_ene);
     ene3x3 += R_ene;
 
