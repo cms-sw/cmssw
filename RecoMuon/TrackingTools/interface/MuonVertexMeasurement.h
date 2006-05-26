@@ -1,6 +1,17 @@
 #ifndef TrackingTools_MuonVertexMeasurement_H
 #define TrackingTools_MuonVertexMeasurement_H
 
+/**  \class MuonVertexMeasurement
+  * 
+  *   Class to store results of vertex extrapolation
+  *
+  *
+  *   $Date:  $
+  *   $Revision:  $
+  *
+  *   \author  N. Neumeister            Purdue University
+  */
+
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
