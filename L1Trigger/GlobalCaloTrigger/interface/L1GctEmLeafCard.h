@@ -17,40 +17,45 @@
 ///
 
 class L1GctEmLeafCard : L1GctProcessor {
-public:
+ public:
+  static const unsigned N_SRC_PER_EM_LEAF = 9;
+
+ public:
+  /// construct with ID and vector of pointers to Source Cards
+  L1GctEmLeafCard(int id, std::vector<L1GctSourceCard*> srcCards);
+
+  /// destruct
+  ~L1GctEmLeafCard();
+  
+  /// clear buffers
+  virtual void reset();
+  
+  /// fetch input data
+  virtual void fetchInput();
+  
+  /// process the event
+  virtual void process();	
+  
+  /// get the output candidates
+  std::vector<L1GctEmCand> getOutputIsoEmCands(int fpga);
+  
+  /// get the output candidates
+  std::vector<L1GctEmCand> getOutputNonIsoEmCands(int fpga);
+
+  /// print
   friend std::ostream& operator<<(std::ostream& s,const L1GctEmLeafCard& card);
-	L1GctEmLeafCard(int id);
-	~L1GctEmLeafCard();
-	///
-	/// clear buffers
-	virtual void reset();
-	///
-	/// fetch input data
-	virtual void fetchInput();
-	///
-	/// process the event
-	virtual void process();	
-	///
-	/// add a source card as input
-	void setInputSourceCard(int i, L1GctSourceCard* sc);
-	///
-	/// get the output candidates
-	std::vector<L1GctEmCand> getOutputIsoEmCands(int fpga);
-	///
-	/// get the output candidates
-	std::vector<L1GctEmCand> getOutputNonIsoEmCands(int fpga);
 
 private:
-	///
-	/// card ID
-	int m_id;
-	///
-	/// processing - 0,1 are iso sorters, 2,3 are non-iso
-	std::vector<L1GctElectronSorter*> m_sorters;
-	///
-	/// pointers to data source
-	std::vector<L1GctSourceCard*> m_sourceCards;
-      
+  
+  /// card ID
+  int m_id;
+  
+  /// processing - 0,1 are iso sorters, 2,3 are non-iso
+  std::vector<L1GctElectronSorter*> m_sorters;
+  
+  /// pointers to data source
+  std::vector<L1GctSourceCard*> m_sourceCards;
+  
 };
 
 std::ostream& operator<<(std::ostream& s,const L1GctEmLeafCard& card);
