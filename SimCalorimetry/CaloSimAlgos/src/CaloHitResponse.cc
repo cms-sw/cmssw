@@ -23,7 +23,8 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theHitFilter(0),
   theGeometry(0),
   theMinBunch(-10), 
-  theMaxBunch(10)
+  theMaxBunch(10),
+  thePhaseShift_(1.)
 {
 }
 
@@ -35,6 +36,7 @@ void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
 
 
 void CaloHitResponse::run(MixCollection<PCaloHit> & hits) {
+
   for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr)
   {
@@ -79,18 +81,9 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
 
   double jitter = hit.time() - timeOfFlight(detId);
 
-  // phase shift
-  // 1 for synchronous LHC run
-  // random number between 0 and 1 for asynchronous test beam mode
-
-  double phaseShift = 1.;
-  if ( !parameters.syncPhase() ) {
-    phaseShift = RandFlat::shoot();
-  }
-
   // assume bins count from zero, go for center of bin
   const double tzero = parameters.timePhase() -jitter -
-     BUNCHSPACE*((double)parameters.binOfMaximum()-phaseShift);
+     BUNCHSPACE*((double)parameters.binOfMaximum()-thePhaseShift_);
   double binTime = tzero;
 
   CaloSamples result(makeBlankSignal(detId));

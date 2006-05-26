@@ -82,6 +82,9 @@ public:
   /// returns 0 if no geometry has been set
   double timeOfFlight(const DetId & detId) const;
 
+  /// setting the phase shift for asynchronous trigger (e.g. test beams)
+  void setPhaseShift(const double & thePhaseShift) { thePhaseShift_ = thePhaseShift; }
+
 protected:
 
   AnalogSignalMap theAnalogSignalMap;
@@ -95,6 +98,8 @@ protected:
 
   int theMinBunch;
   int theMaxBunch;
+
+  double thePhaseShift_;
 
 };
 
