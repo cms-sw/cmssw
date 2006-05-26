@@ -36,7 +36,7 @@ namespace edmtestp
     // jbk - the next line should not be needed
     edm::declareStreamers(descs);
     edm::buildClassCache(descs);
-    loadExtraClasses();
+    edm::loadExtraClasses();
   }
 
   EventStreamFileReader::~EventStreamFileReader()
@@ -45,8 +45,6 @@ namespace edmtestp
 
   std::auto_ptr<edm::EventPrincipal> EventStreamFileReader::read()
   {
-     
-    cout<<"ANZAR: EventStreamFileReader::read()"<<endl;
     return reader_.read(productRegistry());
   }
 

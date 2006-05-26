@@ -188,7 +188,7 @@ namespace edm
   EventDecoder::decodeEvent(const EventMsgView& msg, const ProductRegistry& pr)
   {
   
-   cout << "Entering EventDecoder::decodeEvent"<<endl; 
+   /*cout << "Entering EventDecoder::decodeEvent"<<endl; 
 
    cout << "Decide event: "
               << msg.event() << " "
@@ -199,7 +199,7 @@ namespace edm
               << msg.eventLength() << " "
               << msg.eventData()
               << endl;
- 
+   */
 
     FDEBUG(5) << "Decide event: "
 	      << msg.event() << " "
@@ -215,14 +215,14 @@ namespace edm
     // what needs to be done to actually make it go. (JBK)
     //buf_.SetBuffer((char*)msg.data(),msg.getDataSize(),kFALSE);
 
-    cout<< "Just b4 TBuffer"<<endl;
+    //cout<< "Just b4 TBuffer"<<endl;
     TBuffer xbuf(TBuffer::kRead, msg.eventLength(),(char*) msg.eventData(),kFALSE);
-    cout<< "Just after TBuffer"<<endl;
+    //cout<< "Just after TBuffer"<<endl;
 
     RootDebug tracer(10,10);
-    cout<< "Just b4 ReadObjectAny"<<endl;
+    //cout<< "Just b4 ReadObjectAny"<<endl;
     auto_ptr<SendEvent> sd((SendEvent*)xbuf.ReadObjectAny(desc_));
-    cout<< "After TBuffer ReadObjectAny"<<endl;
+    //cout<< "After TBuffer ReadObjectAny"<<endl;
 
     if(sd.get()==0)
       {
@@ -231,7 +231,7 @@ namespace edm
       }
 
     FDEBUG(5) << "Got event: " << sd->id_ << " " << sd->prods_.size() << endl;
-    cout << "Got event: " << sd->id_ << " " << sd->prods_.size() << endl;
+    //cout << "Got event: " << sd->id_ << " " << sd->prods_.size() << endl;
 
     auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
 						   sd->time_,
@@ -284,7 +284,7 @@ namespace edm
 
 
     FDEBUG(10) << "Size = " << ep->numEDProducts() << endl;
-    cout << "Size = " << ep->numEDProducts() << endl;
+    //cout << "Size = " << ep->numEDProducts() << endl;
 
     return ep;
   }
@@ -340,9 +340,9 @@ namespace edm
 
   std::auto_ptr<EventPrincipal> EventReader::read(const ProductRegistry& prods)
   {
-    cout << "EventReader::read"  << endl;
+    //cout << "EventReader::read"  << endl;
     int len = readMessage(b_);
-    cout << "readMessage done len=" << len << " " << (void*)len << endl;
+    //cout << "readMessage done len=" << len << " " << (void*)len << endl;
     if(len==0)
 	return std::auto_ptr<edm::EventPrincipal>();
 

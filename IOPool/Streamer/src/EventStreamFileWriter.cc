@@ -133,7 +133,7 @@ EventStreamFileWriter::EventStreamFileWriter(ParameterSet const& ps):
      
   {
     FDEBUG(6) << "StreamOutput constructor" << endl;
-    loadExtraClasses();
+    edm::loadExtraClasses();
     tc_ = getTClass(typeid(SendEvent));
   }
 
@@ -161,12 +161,10 @@ void EventStreamFileWriter::stop()
 
 
 std::vector<std::string> EventStreamFileWriter::getTriggerNames() {
-  //cout<<"\n\nANZAR Trying to get allTriggerNames"<<endl;
   edm::Service<edm::service::TriggerNamesService> tns;
   std::vector<std::string> allTriggerNames = tns->getTrigPaths();
-  for (unsigned int i=0; i!=allTriggerNames.size() ;++i) 
-        cout<<"TriggerName: "<<allTriggerNames.at(i);
-  //cout<<"\nDone ANZAR Trying to get allTriggerNames"<<endl;
+  //for (unsigned int i=0; i!=allTriggerNames.size() ;++i) 
+        //cout<<"TriggerName: "<<allTriggerNames.at(i);
   return allTriggerNames;
   }
 
@@ -198,7 +196,7 @@ void EventStreamFileWriter::serializeRegistry(Selections const& prods)
     uint32 run = 1;
     char psetid[] = "1234567890123456";
     Version v(2,(const uint8*)psetid);
-    char release_tag[] = "CMSSW_ANZAR";
+    char release_tag[] = "CMSSW_DUMMY";
     Strings hlt_names = getTriggerNames();    
     Strings l1_names;
    
@@ -210,6 +208,8 @@ void EventStreamFileWriter::serializeRegistry(Selections const& prods)
 
     TBuffer rootbuf(TBuffer::kWrite,(int)prod_reg_buf_.size(),
                                     init_message.dataAddress(),kFALSE);
+
+    //cout<<"\nInitMsgBuilder is being used here"<<endl;
 
     RootDebug tracer(10,10);
 
@@ -325,6 +325,8 @@ void EventStreamFileWriter::serialize(EventPrincipal const& e)
                           l1bits, hltbits, hltsize);
     msg.setReserved(reserved);  
 
+    //cout<<"\nEventMsgBuilder is being used here"<<endl;
+
     TBuffer rootbuf(TBuffer::kWrite,b.size(),msg.eventAddr(),kFALSE);
 
     //EventMsg msg(b.buffer(),b.size(),e.id().event(),e.id().run(),1,1);
@@ -363,8 +365,7 @@ void EventStreamFileWriter::serialize(EventPrincipal const& e)
       }
      
     msg.setEventLength(rootbuf.Length());
-    //cout<<"This may not be correct"<<endl;
-    b.commit(b.size());
+    b.commit(msg.size());
 
     //msg.setDataSize(rootbuf.Length());
     //b.commit(msg.msgSize());
@@ -379,6 +380,7 @@ void EventStreamFileWriter::bufferReady()
     int sz = cb.size();
     worker_->ost_->write((const char*)(&sz),sizeof(int));
     worker_->ost_->write((const char*)cb.buffer(),sz);
+    //cout<<"Size of Buffer Just written: "<<sz<<endl;
 
   }
 
