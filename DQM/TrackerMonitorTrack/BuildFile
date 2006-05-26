@@ -2,6 +2,9 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/Core>
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
+<use name=CalibTracker/SiStripConnectivity>
 <flags SEAL_PLUGIN_NAME="DQMTrackerMonitorTrack">
 <export>
    <lib name=DQMTrackerMonitorTrack>
@@ -9,4 +12,7 @@
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DQMServices/Core>
+   <use name=CalibFormats/SiStripObjects>
+   <use name=CalibTracker/Records>
+   <use name=CalibTracker/SiStripConnectivity>
 </export>
