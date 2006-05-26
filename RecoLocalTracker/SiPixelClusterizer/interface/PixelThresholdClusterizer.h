@@ -63,11 +63,11 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   PixelThresholdClusterizer(edm::ParameterSet const& conf);
   ~PixelThresholdClusterizer();
 
-  // new interface
-   std::vector<SiPixelCluster> 
-    clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,
-		       const PixelGeomDetUnit * pixDet,
-		       const std::vector<short>& badChannels);
+  // Full I/O in DetSet
+  void clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,	
+				  const PixelGeomDetUnit * pixDet,
+				  const std::vector<short>& badChannels,
+				  edm::DetSet<SiPixelCluster>& output) ;
   
  private:
 

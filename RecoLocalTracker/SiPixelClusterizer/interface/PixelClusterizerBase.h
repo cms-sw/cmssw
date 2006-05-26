@@ -18,12 +18,12 @@ public:
   // Virtual destructor, this is a base class.
   virtual ~PixelClusterizerBase() {}
 
-  // New interface with DetSetVector data container
+  // Build clusters in a DetUnit. Both digi and cluster stored in a DetSet
 
-  virtual std::vector<SiPixelCluster>  
-    clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,	
-		       const PixelGeomDetUnit * pixDet,
-		       const std::vector<short>& badChannels) = 0;
+  virtual void clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,	
+				  const PixelGeomDetUnit * pixDet,
+				  const std::vector<short>& badChannels,
+				  edm::DetSet<SiPixelCluster>& output) = 0;
 
   // TO DO: the way we pass bad channels is most likely have to change later.
 

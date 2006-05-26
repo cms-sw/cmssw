@@ -8,22 +8,21 @@
 //!
 //! SiPixelClusterProducer is an EDProducer subclass (i.e., a module)
 //! which orchestrates clustering of PixelDigis to SiPixelClusters.
-//! Consequently, the input is PixelDigiCollection and the output is
-//! SiPixelClusterCollection.
+//! Consequently, the input is edm::DetSetVector<PixelDigi> and the output is
+//! edm::DetSetVector<SiPixelCluster>.
 //!
 //! SiPixelClusterProducer invokes one of descendents from PixelClusterizerBase,
 //! e.g. PixelThresholdClusterizer (which is the only available option 
-//! right now).  SiPixelClusterProducer loads the PixelDigiCollection,
+//! right now).  SiPixelClusterProducer loads the PixelDigis,
 //! and then iterates over DetIds, invoking PixelClusterizer's clusterizeDetUnit
-//! to perform the clustering.  clusterizeDetUnit() returns a vector of
-//! SiPixelClusters, which are then simply appended to the output collection.
+//! to perform the clustering.  clusterizeDetUnit() returns a DetSetVector of
+//! SiPixelClusters, which are then recorded in the event.
 //!
 //! The calibrations are not loaded at the moment (v1), although that is
 //! being planned for the near future.
 //!
-//! \author porting from ORCA by Petar Maksimovic (JHU), 
-//! \author DetSetVector implementation by Vincenzo Chiochia (Uni Zurich)
-//!        
+//! \author porting from ORCA by Petar Maksimovic (JHU). 
+//!         DetSetVector implementation by Vincenzo Chiochia (Uni Zurich)        
 //!
 //! \version v1, Oct 26, 2005  
 //!
@@ -71,9 +70,9 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
     //--- Execute the algorithm(s).
-    void run(const edm::DetSetVector<PixelDigi> &input,
-	     SiPixelClusterCollection &output,
-	     edm::ESHandle<TrackerGeometry> & geom);
+    void run(const edm::DetSetVector<PixelDigi> & input,
+	     edm::DetSetVector<SiPixelCluster>  & output,
+	     edm::ESHandle<TrackerGeometry>     & geom);
 
   private:
     edm::ParameterSet conf_;

@@ -49,7 +49,8 @@ namespace cms
     readyToCluster_(false)    // since we obviously aren't
   {
     //--- Declare to the EDM what kind of collections we will be making.
-    produces<SiPixelClusterCollection>();
+    produces<SiPixelClusterCollection>(); // <-- For backward compatibility
+    produces< edm::DetSetVector<SiPixelCluster> >();
 
     //--- Make the algorithm(s) according to what the user specified
     //--- in the ParameterSet.
@@ -81,14 +82,31 @@ namespace cms
 
     // Step B: create empty output collection
     std::auto_ptr<SiPixelClusterCollection> 
-      output(new SiPixelClusterCollection);
+      output_old(new SiPixelClusterCollection);
+
+    std::auto_ptr< edm::DetSetVector<SiPixelCluster> > 
+      output( new edm::DetSetVector<SiPixelCluster> );
 
     // Step C: Iterate over DetIds and invoke the strip clusterizer algorithm
     // on each DetUnit
     run(*input, *output, geom );
 
     // Step D: write output to file
-    e.put(output);
+    //         A SiPixelClusterCollection is written for backward compatibility
+    if( output->size() ) {
+      edm::DetSetVector<SiPixelCluster>::const_iterator iter=output->begin();
+      for ( ; iter != output->end(); iter++ ) {
+	std::vector<SiPixelCluster> collector;
+	edm::DetSet<SiPixelCluster>::const_iterator jter=iter->data.begin();
+	for ( ; jter != iter->data.end() ; jter++ )  collector.push_back( *jter );
+	SiPixelClusterCollection::Range inputRange;
+	inputRange.first  = collector.begin();
+	inputRange.second = collector.end();
+	output_old->put(inputRange,iter->id);
+      }
+    }
+    e.put( output_old );
+    e.put( output );
 
   }
 
@@ -118,7 +136,7 @@ namespace cms
   //!  Iterate over DetUnits, and invoke the PixelClusterizer on each.
   //---------------------------------------------------------------------------
   void SiPixelClusterProducer::run(const edm::DetSetVector<PixelDigi>& input, 
-				   SiPixelClusterCollection &output,
+				   edm::DetSetVector<SiPixelCluster> & output,
 				   edm::ESHandle<TrackerGeometry> & geom) {
     if ( ! readyToCluster_ ) {
       edm::LogError("SiPixelClusterProducer")
@@ -129,7 +147,7 @@ namespace cms
 
     int numberOfDetUnits = 0;
     int numberOfClusters = 0;
-
+ 
     // Iterate on detector units
     edm::DetSetVector<PixelDigi>::const_iterator DSViter = input.begin();
     for( ; DSViter != input.end(); DSViter++) {
@@ -138,7 +156,7 @@ namespace cms
 
       std::vector<short> badChannels; 
       DetId detIdObject(DSViter->id);
-      const uint32_t& detid = detIdObject.rawId();
+      
       // Comment: At the moment the clusterizer depends on geometry
       // to access information as the pixel topology (number of columns
       // and rows in a detector module). 
@@ -150,20 +168,19 @@ namespace cms
 	// Fatal error!  TO DO: throw an exception!
 	assert(0);
       }
-      std::vector<SiPixelCluster> clustersOnDetUnit = 
-	clusterizer_->clusterizeDetUnit(*DSViter, pixDet, badChannels);
-      
-      if(clustersOnDetUnit.size()>0) { //Do only for full dets  
-	SiPixelClusterCollection::Range inputRange;
-	inputRange.first = clustersOnDetUnit.begin();
-	inputRange.second = clustersOnDetUnit.end();
-	numberOfClusters += clustersOnDetUnit.size();
-	output.put(inputRange, detid);
-       }
+      // Produce clusters for this DetUnit and store them in 
+      // a DetSet
+      edm::DetSet<SiPixelCluster> spc(DSViter->id);
+      clusterizer_->clusterizeDetUnit(*DSViter, pixDet, badChannels, spc);
+      if( spc.data.size() > 0) {
+	output.insert( spc );
+	numberOfClusters += spc.data.size();
+      }
 
-    }    
+    } // end of DetUnit loop
+    
     LogDebug ("SiPixelClusterProducer") << " Executing " 
-	      << clusterMode_ << " resulted in " << numberOfClusters 
+	      << clusterMode_ << " resulted in " << numberOfClusters
 					    << " SiPixelClusters in " << numberOfDetUnits << " DetUnits."; 
   }
 
