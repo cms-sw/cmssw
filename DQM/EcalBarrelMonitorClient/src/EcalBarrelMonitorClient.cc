@@ -1,12 +1,36 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/21 18:38:39 $
- * $Revision: 1.124 $
+ * $Date: 2006/05/24 20:42:26 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
 */
+
+#include <memory>
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+
+#include "TStyle.h"
+#include "TGaxis.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "OnlineDB/EcalCondDB/interface/RunTag.h"
+#include "OnlineDB/EcalCondDB/interface/RunDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
+
 
 #include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>

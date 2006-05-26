@@ -4,54 +4,32 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/05/23 09:06:49 $
- * $Revision: 1.28 $
+ * $Date: 2006/05/24 20:42:25 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonLaserGreenDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonLaserIRedDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonLaserRedDat.h"
-
-#include "OnlineDB/EcalCondDB/interface/MonPNBlueDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonPNGreenDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonPNIRedDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonPNRedDat.h"
-
-#include "TROOT.h"
-#include "TStyle.h"
-
-#include <memory>
-#include <iostream>
-#include <fstream>
 #include <vector>
 #include <string>
+ 
+#include "TROOT.h"
+#include "TProfile2D.h"
+#include "TH1F.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 using namespace cms;
 using namespace edm;
 using namespace std;
 
-class EBLaserClient{
+class EBLaserClient : public EBClient {
 
 public:
 

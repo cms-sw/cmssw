@@ -1,11 +1,39 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/05/23 09:06:50 $
- * $Revision: 1.68 $
+ * $Date: 2006/05/24 20:42:25 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  *
 */
+
+#include <memory>
+#include <iostream>
+#include <fstream>
+
+#include "TStyle.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
+
+#include "OnlineDB/EcalCondDB/interface/RunTag.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+
+#include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonLaserGreenDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonLaserIRedDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonLaserRedDat.h"
+
+#include "OnlineDB/EcalCondDB/interface/MonPNBlueDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNGreenDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNIRedDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNRedDat.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>

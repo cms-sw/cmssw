@@ -1,12 +1,35 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/05/23 09:06:50 $
- * $Revision: 1.68 $
+ * $Date: 2006/05/24 20:42:26 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
 */
+
+#include <memory>
+#include <iostream>
+#include <fstream>
+
+#include "TStyle.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
+
+#include "OnlineDB/EcalCondDB/interface/RunTag.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+
+#include "OnlineDB/EcalCondDB/interface/MonTestPulseDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPulseShapeDat.h"
+ 
+#include "OnlineDB/EcalCondDB/interface/MonPNMGPADat.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>

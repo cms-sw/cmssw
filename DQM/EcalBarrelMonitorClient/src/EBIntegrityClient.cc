@@ -2,12 +2,35 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/05/23 09:06:50 $
- * $Revision: 1.89 $
+ * $Date: 2006/05/24 20:42:25 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
  */
+
+#include <memory>
+#include <iostream>
+#include <fstream>
+
+#include "TStyle.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
+
+#include "OnlineDB/EcalCondDB/interface/RunTag.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+
+#include "OnlineDB/EcalCondDB/interface/MonCrystalConsistencyDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTTConsistencyDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonMemChConsistencyDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonMemTTConsistencyDat.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>

@@ -4,57 +4,36 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/05/18 07:41:42 $
- * $Revision: 1.43 $
+ * $Date: 2006/05/21 17:24:16 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
 */
 
+#include <string>
+#include <vector>
+
+#include "TROOT.h"
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-
+#include <DQM/EcalBarrelMonitorClient/interface/EBClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBBeamClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
-
-#include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamClient.h>
-
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-
-#include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-
-#include "TROOT.h"
-#include "TGaxis.h"
-
-#include <memory>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <vector>
-#include <string>
 
 using namespace cms;
 using namespace std;
@@ -64,8 +43,8 @@ class EcalBarrelMonitorClient: public EDAnalyzer{
 public:
 
 /// Constructor
-EcalBarrelMonitorClient(const ParameterSet& ps);
-EcalBarrelMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui);
+EcalBarrelMonitorClient(const ParameterSet & ps);
+EcalBarrelMonitorClient(const ParameterSet & ps, MonitorUserInterface* mui);
 
 /// Destructor
 ~EcalBarrelMonitorClient();
@@ -76,15 +55,15 @@ void subscribeNew(void);
 void unsubscribe(void);
 
 // Initialize
-void initialize(const ParameterSet& ps);
+void initialize(const ParameterSet & ps);
 
 /// Analyze
 void analyze(void);
-void analyze(const Event& e, const EventSetup& c){ this->analyze(); }
+void analyze(const Event & e, const EventSetup & c){ this->analyze(); }
 
 /// BeginJob
 void beginJob(void);
-void beginJob(const EventSetup& c){ this->beginJob(); }
+void beginJob(const EventSetup & c){ this->beginJob(); }
 
 /// EndJob
 void endJob(void);
