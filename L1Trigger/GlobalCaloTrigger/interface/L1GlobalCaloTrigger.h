@@ -30,6 +30,13 @@ class L1GctElectronFinalSort;
 
 class L1GlobalCaloTrigger {
 public:
+  /// Define numbers of each card type
+  static const int N_SOURCE_CARDS = 54;
+  static const int N_JET_LEAF_CARDS = 6;
+  static const int N_EM_LEAF_CARDS = 2;
+  static const int N_WHEEL_JET_FPGAS = 2;
+  static const int N_WHEEL_ENERGY_FPGAS = 2;
+  
   /// construct the GCT
   L1GlobalCaloTrigger();
   ///
