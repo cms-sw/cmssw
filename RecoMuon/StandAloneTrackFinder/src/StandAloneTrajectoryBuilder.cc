@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/05/22 12:11:22 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/23 17:47:24 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -43,13 +43,16 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   theMaxEta = par.getParameter<double>("EtaMaxAllowed");
 
   // The inward-outward fitter (starts from seed state)
-  theRefitter = new StandAloneMuonRefitter(par);
+  ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
+  theRefitter = new StandAloneMuonRefitter(refitterPSet);
   
   // The outward-inward fitter (starts from theRefitter outermost state)
-  theBWFilter = new StandAloneMuonBackwardFilter(par);
+  ParameterSet bwFilterPSet = par.getParameter<ParameterSet>("BWFilterParameters");
+  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet);
 
   // The outward-inward fitter (starts from theBWFilter innermost state)
-  theSmoother = new StandAloneMuonSmoother(par);
+  ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
+  theSmoother = new StandAloneMuonSmoother(smootherPSet);
 } 
 
 void StandAloneMuonTrajectoryBuilder::setES(const EventSetup& setup){
