@@ -1,4 +1,5 @@
 <flags SEAL_PLUGIN_NAME="RecoPixelVertexingPixelVertexFinding">
+<use name=DataFormats/VertexReco>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=Foundation/PluginManager>
@@ -12,6 +13,7 @@
 
 <export>
  <lib name=RecoPixelVertexingPixelVertexFinding>
+ <use name=DataFormats/VertexReco>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
  <use name=Foundation/PluginManager>
