@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/04/28 15:21:52 $
- * $Revision: 1.13 $
+ * $Date: 2006/05/04 09:20:09 $
+ * $Revision: 1.14 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -314,7 +314,7 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
     // define impact angle needed by the step 2
     const float angle = atan(segDir.x()/-segDir.z());
     // define the local position (extr.) of the segment. Needed by the third step 
-    LocalPoint segPosAtLayer=segPos+segDir*segPos.z()/cos(segDir.theta());
+    LocalPoint segPosAtLayer=segPos+segDir*(-segPos.z())/cos(segDir.theta());
     
     DTRecHit1D newHit1D=(*hit);
 
