@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.7 2006/04/20 16:51:19 fedor Exp $
+// $Id: HcalDbHardcode.cc,v 1.8 2006/05/22 21:10:36 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -16,7 +16,12 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalDetId fId, bool fSmear) {
   HcalPedestalWidth width = makePedestalWidth (fId);
   float value0 = 0.75;
   float value [4] = {value0, value0, value0, value0};
-  if (fSmear) for (int i = 0; i < 4; i++) value [i] = RandGauss::shoot (value0, width.getWidth (i)); // ignore correlations 
+  if (fSmear) {
+    for (int i = 0; i < 4; i++) {
+      value [i] = RandGauss::shoot (value0, width.getWidth (i)); // ignore correlations 
+      while (value [i] <= 0) value [i] = RandGauss::shoot (value0, width.getWidth (i));
+    }
+  }
   HcalPedestal result (fId.rawId (), 
 		       value[0] / gain.getValue (0),
 		       value[1] / gain.getValue (1),

@@ -12,7 +12,7 @@
 /**
    \brief IO for XML instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbXml.h,v 1.5 2006/05/06 00:33:28 fedor Exp $
+   $Id: HcalDbXml.h,v 1.6 2006/05/22 21:10:35 fedor Exp $
    
 */
 namespace HcalDbXml {
@@ -23,11 +23,17 @@ namespace HcalDbXml {
 		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
 		   const HcalPedestals& fObject);
   bool dumpObject (std::ostream& fOutput, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
+		   const HcalPedestalWidths& fObject) {return false;}
+  bool dumpObject (std::ostream& fOutput, 
 		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
 		   const HcalGains& fObject, const HcalGainWidths& fError);
   bool dumpObject (std::ostream& fOutput, 
 		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
 		   const HcalGains& fObject);
+  bool dumpObject (std::ostream& fOutput, 
+		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
+		   const HcalGainWidths& fObject) {return false;}
   bool dumpObject (std::ostream& fOutput, 
 		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
 		   const HcalElectronicsMap& fObject) {return false;}
