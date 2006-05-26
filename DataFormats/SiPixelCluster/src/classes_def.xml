@@ -8,4 +8,11 @@
   <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
   <class name="SiPixelClusterCollection"/>
   <class name="edm::Wrapper<SiPixelClusterCollection>" id="134C2284-14F7-B4E6-330D-561B974FAE35"/>
+
+  <class name="edm::DetSet<SiPixelCluster>"/>
+  <class name="edm::DetSetVector<SiPixelCluster>"/>
+  <class name="std::vector<edm::DetSet<SiPixelCluster> >"/>
+  <class name="edm::Wrapper< edm::DetSet<SiPixelCluster> >"/>
+  <class name="edm::Wrapper< std::vector<edm::DetSet<SiPixelCluster> > >"/>
+  <class name="edm::Wrapper< edm::DetSetVector<SiPixelCluster> >"/>
 </lcgdict>
