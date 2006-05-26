@@ -15,7 +15,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.1 2006/04/06 07:19:55 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.2 2006/05/17 08:09:38 dkotlins Exp $
 //
 //
 // system include files
@@ -358,7 +358,7 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
        //int tof = di->time();    // tof always 0
 
        // channel index needed to look for the simlink to simtracks
-       int channel = PixelChannelIdentifier::pixelToChannel(row,col);
+       //int channel = PixelChannelIdentifier::pixelToChannel(row,col);
        //cout <<numberOfDigis<< " Col: " << col << " Row: " << row 
        //   << " ADC: " << adc <<" chanel = "<<channel<<endl;
 
