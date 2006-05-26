@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.cc,v 1.1 2006/05/23 17:48:57 goitom Exp $
+// $Id: MonitorTrackGlobal.cc,v 1.2 2006/05/25 18:22:04 dkcira Exp $
 //
 //
 
@@ -22,7 +22,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DQM/TrackerMonitorTrack/interface/MonitorTrackGlobal.h"
