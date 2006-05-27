@@ -22,5 +22,4 @@
  <use name=OnlineDB/EcalCondDB>
  <use name=DataFormats/EcalRawData>
  <use name=oracle>
- <lib name=nnz10>
 </export>
