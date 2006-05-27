@@ -23,5 +23,4 @@
  <use name=DataFormats/EcalRawData>
  <use name=oracle>
  <lib name=nnz10>
- <lib name=occi>
 </export>
