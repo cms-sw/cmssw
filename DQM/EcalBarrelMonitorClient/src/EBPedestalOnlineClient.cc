@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/05/24 20:42:26 $
- * $Revision: 1.21 $
+ * $Date: 2006/05/26 07:27:40 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -53,9 +53,9 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps, MonitorUs
 
   }
 
-   expectedMean_ = 200.0;
-   discrepancyMean_ = 20.0;
-   RMSThreshold_ = 2.0;
+  expectedMean_ = 200.0;
+  discrepancyMean_ = 20.0;
+  RMSThreshold_ = 2.0;
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
