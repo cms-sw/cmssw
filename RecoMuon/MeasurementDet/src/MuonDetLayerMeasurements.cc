@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/05/17 20:49:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/20 02:03:44 $
+ *  $Revision: 1.3 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -20,7 +20,10 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
 
 MuonDetLayerMeasurements::MuonDetLayerMeasurements() {
-
+  theDTRecHitLabel = "DTRecSegment4DProducer";
+  theCSCRecHitLabel = "CSCSegmentProducer";
+  theEventFlag = false;
+  
 }
 
 MuonDetLayerMeasurements::~MuonDetLayerMeasurements() {
@@ -34,7 +37,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
   Module mtype = layer->module();
   if (mtype == dt ) {
      edm::Handle<DTRecSegment4DCollection> dtRecHits;
-     iEvent.getByLabel("recseg4dbuilder", dtRecHits);  //FIXME
+     iEvent.getByLabel(theDTRecHitLabel, dtRecHits);  
 
      std::vector <const GeomDet*> gds = layer->basicComponents();
      for (std::vector<const GeomDet*>::const_iterator igd = gds.begin(); igd != gds.end(); igd++) {
@@ -47,13 +50,15 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
        }// for GeomDet
   }else if (mtype == csc ) {
      edm::Handle<CSCSegmentCollection> cscSegments;
-     iEvent.getByLabel("segmentbuilder", cscSegments); 
+     iEvent.getByLabel(theCSCRecHitLabel, cscSegments); 
 
      std::vector <const GeomDet*> gds = layer->basicComponents();
+
      for (std::vector<const GeomDet*>::const_iterator igd = gds.begin(); igd != gds.end(); igd++) {
                CSCDetId id((*igd)->geographicalId().rawId());
                CSCSegmentCollection::range  range = cscSegments->get(id);
-               for (CSCSegmentCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit){
+               for (CSCSegmentCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
+
                TransientTrackingRecHit* gttrh = new GenericTransientTrackingRecHit((*igd), (&(*rechit)));
                rhs.push_back(gttrh);
                 }//for CSCSegmentCollection
@@ -62,6 +67,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
 
   }else {
       //wrong type
+      edm::LogInfo("MuonDetLayerMeasurements")<<"The DetLayer is not a valid Muon DetLayer. ";
   }
   return rhs;
 }
@@ -101,3 +107,31 @@ MuonDetLayerMeasurements::fastMeasurements( const DetLayer* layer,
    return result;
 }
 
+///measurements method if already got the Event 
+MeasurementContainer
+MuonDetLayerMeasurements::measurements( const DetLayer* layer,
+              const TrajectoryStateOnSurface& startingState,
+              const Propagator& prop,
+              const MeasurementEstimator& est) const {
+  MeasurementContainer result;
+  if (theEventFlag) return measurements(layer, startingState, prop, est, *theEvent);
+  else return result;
+}
+
+///fastMeasurements method if already got the Event
+MeasurementContainer
+MuonDetLayerMeasurements::fastMeasurements( const DetLayer* layer,
+              const TrajectoryStateOnSurface& theStateOnDet,
+              const TrajectoryStateOnSurface& startingState,
+              const Propagator& prop,
+              const MeasurementEstimator& est) const {
+  MeasurementContainer result;
+  if (theEventFlag) return fastMeasurements(layer, theStateOnDet, startingState, prop, est, *theEvent); 
+  else return result;
+}
+
+///set event
+void MuonDetLayerMeasurements::setEvent(const edm::Event& event) {
+  theEvent = &event;
+  theEventFlag = true;
+}
