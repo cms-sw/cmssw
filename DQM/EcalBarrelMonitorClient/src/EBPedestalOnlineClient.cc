@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/05/26 07:27:40 $
- * $Revision: 1.22 $
+ * $Date: 2006/05/27 18:13:06 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -144,7 +144,7 @@ void EBPedestalOnlineClient::setup(void) {
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        meg03_[ism-1]->setBinContent(ie, ip, 2.);
+        meg03_[ism-1]->setBinContent( ie, ip, 2. );
 
       }
     }
@@ -373,7 +373,7 @@ void EBPedestalOnlineClient::analyze(void){
         mean03 = -1.;
         rms03  = -1.;
 
-        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 2.);
+        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 2. );
 
         bool update_channel = false;
 
