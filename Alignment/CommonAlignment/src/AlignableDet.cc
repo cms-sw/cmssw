@@ -71,8 +71,9 @@ AlignableDetUnit &AlignableDet::geomDetUnit(int i)
 void AlignableDet::setAlignmentPositionError(const AlignmentPositionError& ape)
 {
 
-  for (std::vector<AlignableDetUnit*>::iterator i=theDetUnits.begin(); 
-       i!=theDetUnits.end();i++)
+  for ( std::vector<AlignableDetUnit*>::iterator i=theDetUnits.begin(); 
+		i!=theDetUnits.end();i++ )
     (*i)->setAlignmentPositionError(ape);
 
 }
+
