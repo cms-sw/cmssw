@@ -4,20 +4,22 @@
 <use name=TrackingTools/DetLayers>
 <use name=DataFormats/DetId>
 <use name=TrackingTools/KalmanUpdators>
+<use name=TrackingTools/TransientTrackingRecHit>
 <use name=Utilities/Timing>
-
 <use name=CLHEP>
+<use name=Geometry/CommonDetUnit>
 
 <export>
    <lib name=RecoMuonTrackingTools>
 
-<use name=CLHEP>
-<use name=TrackingTools/PatternTools>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=TrackingTools/DetLayers>
-<use name=DataFormats/DetId>
-<use name=TrackingTools/KalmanUpdators>
-<use name=Utilities/Timing>
-
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+   <use name=TrackingTools/PatternTools>
+   <use name=TrackingTools/DetLayers>
+   <use name=DataFormats/DetId>
+   <use name=TrackingTools/KalmanUpdators>
+   <use name=TrackingTools/TransientTrackingRecHit>
+   <use name=Utilities/Timing>
+<use name=Geometry/CommonDetUnit>
+   <use name=CLHEP>
 </export>
