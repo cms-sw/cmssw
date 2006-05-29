@@ -1,10 +1,13 @@
 #ifndef Alignment_CommonAlignment_AlignableObjectId_h
 #define Alignment_CommonAlignment_AlignableObjectId_h
 
+#ifndef Alignment_CommonAlignment_AlignableObjectId_h
+#define Alignment_CommonAlignment_AlignableObjectId_h
+
 /// Type Identifier of Alignable objects (Det's, Rod's etc.).
 namespace AlignableObjectId 
 {
-  
+
   enum AlignableObjectIdType 
 	{ 
 	  invalid                    =  0,
@@ -12,25 +15,29 @@ namespace AlignableObjectId
 	  AlignableDet,
 	  AlignableRod,
 	  AlignableBarrelLayer,
-	  AlignableHalfBarrel,
+	  AlignableHalfBarrel,       // 5
 	  AlignablePetal,
 	  AlignableEndcapLayer,
 	  AlignableEndcap,
 	  AlignableTIDRing,
-	  AlignableTIDLayer,
+	  AlignableTIDLayer,         // 10
 	  AlignableTID,
 	  AlignablePixelHalfBarrelLayer,
 	  AlignablePixelHalfBarrel,
 	  AlignableTracker,
 	  
-	  MuonAlignBM                = 20,
-	  MuonAlignHalfBM,
-	  MuonAlignBMLayer,
-	  MuonAlignSec,
-	  MuonAlignEnd,
-	  MuonAlignEndmLayer,
-	  MuonAlignAba
-
+	  AlignableDTBarrel              = 20,
+	  AlignableDTWheel,
+	  AlignableDTStation,
+	  AlignableDTChamber,
+	  AlignableDTSuperLayer,
+	  AlignableDTLayer,          // 25
+	  AlignableCSCEndcap,
+	  AlignableCSCStation,
+	  AlignableCSCChamber,
+	  AlignableCSCLayer,
+	  AlignableMuon
+	  
 	};
 
 }
