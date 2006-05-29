@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cc,v 1.7 2006/03/14 15:52:55 meridian Exp $
+   \version $Id: testEcalDetId.cpp,v 1.1 2006/03/28 09:01:14 meridian Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cc,v 1.7 2006/03/14 15:52:55 meridian Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.1 2006/03/28 09:01:14 meridian Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -220,26 +220,22 @@ void testEcalDetId::testEcalTrigTowerDetId() {
 	catch ( std::runtime_error &e ) 
 	  { 
 	  }
-      }
-  for (int ix=EcalTrigTowerDetId::MIN_I;ix<=EcalTrigTowerDetId::MAX_I;ix++)
-    for (int iy=EcalTrigTowerDetId::MIN_I;iy<=EcalTrigTowerDetId::MAX_I;iy++)
-      {
 	try
 	  {
 	    //EcalTrigTowerDetId Zside 1 
 	    {
-	      EcalTrigTowerDetId aPositiveId(1,EcalEndcap,ix,iy);
-	      CPPUNIT_ASSERT(aPositiveId.ix()==ix);
+	      EcalTrigTowerDetId aPositiveId(1,EcalEndcap,ieta,iphi);
+	      CPPUNIT_ASSERT(aPositiveId.ieta()==ieta);
 	      CPPUNIT_ASSERT(aPositiveId.subDet()==EcalEndcap);
-	      CPPUNIT_ASSERT(aPositiveId.iy()==iy);
+	      CPPUNIT_ASSERT(aPositiveId.iphi()==iphi);
 	      CPPUNIT_ASSERT(aPositiveId.zside()==1);
 	    }
 	    //EcalTrigTowerDetId Zside -1 
 	    {
-	      EcalTrigTowerDetId aNegativeId(-1,EcalEndcap,ix,iy);
+	      EcalTrigTowerDetId aNegativeId(-1,EcalEndcap,ieta,iphi);
 	      CPPUNIT_ASSERT(aNegativeId.subDet()==EcalEndcap);
-	      CPPUNIT_ASSERT(aNegativeId.ix()==ix);
-	      CPPUNIT_ASSERT(aNegativeId.iy()==iy);
+	      CPPUNIT_ASSERT(aNegativeId.ieta()==-1*ieta);
+	      CPPUNIT_ASSERT(aNegativeId.iphi()==iphi);
 	      CPPUNIT_ASSERT(aNegativeId.zside()==-1);
 	    }
 	  }
