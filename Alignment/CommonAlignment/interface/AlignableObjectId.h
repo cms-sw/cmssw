@@ -1,9 +1,6 @@
 #ifndef Alignment_CommonAlignment_AlignableObjectId_h
 #define Alignment_CommonAlignment_AlignableObjectId_h
 
-#ifndef Alignment_CommonAlignment_AlignableObjectId_h
-#define Alignment_CommonAlignment_AlignableObjectId_h
-
 /// Type Identifier of Alignable objects (Det's, Rod's etc.).
 namespace AlignableObjectId 
 {
