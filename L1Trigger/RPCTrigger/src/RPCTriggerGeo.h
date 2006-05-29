@@ -1,0 +1,47 @@
+/** \class RPCTriggerGeo
+ *
+ * Description: Class describing RPC trigger geometry
+ *  
+ * Implementation:
+ *  aim: easly convert RPCdetId.firedStrip to loghit/logcone
+ * \author Tomasz Fruboes 
+ *
+ */
+
+
+#ifndef RPCTrigger_RPCTriggerGeo_h
+#define RPCTrigger_RPCTriggerGeo_h
+
+#include <FWCore/Framework/interface/ESHandle.h> // Handle to read geometry
+
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/Records/interface/MuonGeometryRecord.h>
+
+#include "L1Trigger/RPCTrigger/src/RPCDetInfo.h"
+#include "L1Trigger/RPCTrigger/src/RPCCurl.h"
+
+class RPCTriggerGeo {
+  public:
+    RPCTriggerGeo();
+    ~RPCTriggerGeo() {};
+    
+    void buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom);
+    bool isGeometryBuild();
+  
+
+
+  private:
+    bool isGeoBuild; 
+    int etaToTower(float eta);
+    void addDet(RPCRoll* roll);
+    void printCurlMapInfo();
+                              
+    //typedef std::map<uint32_t, RPCDetInfo> RPCDetInfoMap;
+    //RPCDetInfoMap rpcChambersMap; // Maps detID to RPCDetInfo
+
+    //typedef std::map<int, RPCCurl> RPCCurlMap;
+    typedef std::map<uint32_t, RPCCurl> RPCCurlMap;
+    RPCCurlMap mRPCCurlMap; 
+    
+};
+#endif
