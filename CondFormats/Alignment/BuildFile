@@ -1,9 +1,11 @@
 <flags GENREFLEX_ARGS="--">
 <use name=clhep>
+<use name=boost>
 <use name=FWCore/Framework>
 <use name=rootrflx>
 <export>
   <use name=clhep>
+  <use name=boost>
   <use name=FWCore/Framework>
   <use name=rootrflx>
   <lib name=CondFormatsAlignment>
