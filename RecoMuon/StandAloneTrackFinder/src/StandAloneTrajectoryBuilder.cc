@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/05/26 14:36:15 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/29 17:26:28 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -97,7 +97,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // obtain more than one trajectory. TODO: this feature is not yet implemented!
   TrajectoryContainer trajL;
   
-  Trajectory trajectory;
+  Trajectory trajectory(seed);
 
   // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
   PTrajectoryStateOnDet pTSOD = seed.startingState();
