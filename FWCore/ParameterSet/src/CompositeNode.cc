@@ -1,6 +1,7 @@
 #include "FWCore/ParameterSet/interface/CompositeNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/Visitor.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <ostream>
 #include <iterator>
 
@@ -126,6 +127,16 @@ namespace edm {
           (**nodeItr).resolveUsingNodes(blocks);
         }
       } // loop over subnodes
+    }
+
+
+    void CompositeNode::insertInto(ParameterSet & pset) const
+    {
+      NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+      for(;i!=e;++i)
+      {
+        (**i).insertInto(pset);
+      }
     }
 
   }
