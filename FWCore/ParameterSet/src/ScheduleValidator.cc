@@ -3,16 +3,17 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.8 2005/09/19 08:18:00 chrjones Exp $
+   \version $Id: ScheduleValidator.cc,v 1.9 2006/03/02 22:58:11 paterno Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.8 2005/09/19 08:18:00 chrjones Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.9 2006/03/02 22:58:11 paterno Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <sstream>
+#include <iterator>
 
 using namespace edm;
 using namespace edm::pset;
