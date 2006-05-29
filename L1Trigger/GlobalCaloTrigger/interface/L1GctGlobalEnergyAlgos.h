@@ -19,7 +19,10 @@ class L1GctWheelJetFpga;
 class L1GctGlobalEnergyAlgos : public L1GctProcessor
 {
 public:
-	L1GctGlobalEnergyAlgos();
+	L1GctGlobalEnergyAlgos(L1GctWheelEnergyFpga* plusWheelFpga,
+			       L1GctWheelEnergyFpga* minusWheelFpga,
+			       L1GctWheelJetFpga* plusWheelJetFpga,
+			       L1GctWheelJetFpga* minusWheelJetFpga);
 	~L1GctGlobalEnergyAlgos();
 	///
 
@@ -34,12 +37,6 @@ public:
 	///
 	/// process the data, fill output buffers
 	virtual void process();
-	///
-	/// assign data sources
-	void setPlusWheelEnergyFpga (L1GctWheelEnergyFpga* fpga);
-	void setMinusWheelEnergyFpga(L1GctWheelEnergyFpga* fpga);
-	void setPlusWheelJetFpga (L1GctWheelJetFpga* fpga);
-	void setMinusWheelJetFpga(L1GctWheelJetFpga* fpga);
 	///	
 	/// set input data per wheel
 	void setInputWheelEx(unsigned wheel, int energy, bool overflow);

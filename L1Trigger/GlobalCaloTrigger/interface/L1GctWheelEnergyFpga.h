@@ -11,7 +11,7 @@ class L1GctJetLeafCard;
 class L1GctWheelEnergyFpga : public L1GctProcessor
 {
 public:
-	L1GctWheelEnergyFpga(int id);
+	L1GctWheelEnergyFpga(int id, std::vector<L1GctJetLeafCard*> leafCards);
 	~L1GctWheelEnergyFpga();
 	///
 
@@ -26,9 +26,6 @@ public:
 	///
 	/// process the data, fill output buffers
 	virtual void process();
-	///
-	/// assign data sources
-	void setInputLeafCard (int i, L1GctJetLeafCard* leaf);
 	///
 	/// set input data
 	void setInputEnergy(int i, int ex, int ey, unsigned et);

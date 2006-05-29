@@ -3,16 +3,49 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 using std::ostream;
 using std::endl;
 using std::vector;
 using std::max;
 
-L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() :
+L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(L1GctWheelEnergyFpga* plusWheelFpga,
+					       L1GctWheelEnergyFpga* minusWheelFpga,
+					       L1GctWheelJetFpga* plusWheelJetFpga,
+					       L1GctWheelJetFpga* minusWheelJetFpga) :
+  m_plusWheelFpga(plusWheelFpga),
+  m_minusWheelFpga(minusWheelFpga),
+  m_plusWheelJetFpga(plusWheelJetFpga),
+  m_minusWheelJetFpga(minusWheelJetFpga),
   m_jcValPlusWheel(12),
   m_jcVlMinusWheel(12),
   m_outputJetCounts(12)
 {
+    if(m_plusWheelFpga == 0)
+    {
+      throw cms::Exception("L1GctSetupError")
+      << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
+      << "Plus Wheel Fpga pointer has not been set!\n";
+    }
+    if(m_minusWheelFpga == 0)
+    {
+      throw cms::Exception("L1GctSetupError")
+      << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
+      << "Minus Wheel Fpga pointer has not been set!\n";
+    }
+    if(m_plusWheelJetFpga == 0)
+    {
+      throw cms::Exception("L1GctSetupError")
+      << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
+      << "Plus Wheel Jet Fpga pointer has not been set!\n";
+    }
+    if(m_minusWheelJetFpga == 0)
+    {
+      throw cms::Exception("L1GctSetupError")
+      << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
+      << "Minus Wheel Jet Fpga pointer has not been set!\n";
+    }
 }
 
 L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos()
@@ -22,15 +55,31 @@ L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos()
 ostream& operator << (ostream& os, const L1GctGlobalEnergyAlgos& fpga)
 {
   os << "=== Global Energy Algos ===" << endl;
-  os << "Output Etmiss " << fpga.m_outputEtMiss << endl;
-  os << "Output Etmiss Phi " << fpga.m_outputEtMissPhi << endl;
-  os << "Output EtSum " << fpga.m_outputEtSum << endl;
-  os << "Output EtHad " << fpga.m_outputEtHad << endl;
+  os << "Inputs from Plus wheel:" << endl;
+  os << "  Ex " << fpga.m_exValPlusWheel << "  Ey " << fpga.m_eyValPlusWheel;
+  os << "  Et " << fpga.m_etValPlusWheel << "  Ht " << fpga.m_htValPlusWheel << endl; 
+  os << "Inputs from Minus wheel:" << endl;
+  os << "  Ex " << fpga.m_exVlMinusWheel << "  Ey " << fpga.m_eyVlMinusWheel;
+  os << "  Et " << fpga.m_etVlMinusWheel << "  Ht " << fpga.m_htVlMinusWheel << endl; 
+  os << "Input Jet counts " << endl;
+  for(unsigned i=0; i < fpga.m_jcValPlusWheel.size(); i++)
+    {
+      os << "  Plus wheel  " << i << ": " << fpga.m_jcValPlusWheel[i];
+      os << "  Minus wheel " << i << ": " << fpga.m_jcVlMinusWheel[i];
+    } 
+  os << endl;
+  // No endlines here since the overloaded << for
+  // the UnsignedInt data type includes it.
+  os << "Output Etmiss " << fpga.m_outputEtMiss;
+  os << "Output Etmiss Phi " << fpga.m_outputEtMissPhi;
+  os << "Output EtSum " << fpga.m_outputEtSum;
+  os << "Output EtHad " << fpga.m_outputEtHad;
   os << "Output Jet counts " << endl;
   for(unsigned i=0; i < fpga.m_outputJetCounts.size(); i++)
     {
-      os << fpga.m_outputJetCounts[i];
+      os << i << ": " << fpga.m_outputJetCounts[i];
     } 
+  os << endl;
 
   return os;
 }
@@ -111,29 +160,6 @@ void L1GctGlobalEnergyAlgos::process()
       L1GctJcFinalType(m_jcValPlusWheel[i]) +
       L1GctJcFinalType(m_jcVlMinusWheel[i]);
   }
-}
-
-//----------------------------------------------------------------------------------------------
-// set input data sources
-//
-void L1GctGlobalEnergyAlgos::setPlusWheelEnergyFpga (L1GctWheelEnergyFpga* fpga)
-{
-  m_plusWheelFpga = fpga;
-}
-
-void L1GctGlobalEnergyAlgos::setMinusWheelEnergyFpga(L1GctWheelEnergyFpga* fpga)
-{
-  m_minusWheelFpga = fpga;
-}
-
-void L1GctGlobalEnergyAlgos::setPlusWheelJetFpga (L1GctWheelJetFpga* fpga)
-{
-  m_plusWheelJetFpga = fpga;
-}
-
-void L1GctGlobalEnergyAlgos::setMinusWheelJetFpga(L1GctWheelJetFpga* fpga)
-{
-  m_minusWheelJetFpga = fpga;
 }
 
 //----------------------------------------------------------------------------------------------

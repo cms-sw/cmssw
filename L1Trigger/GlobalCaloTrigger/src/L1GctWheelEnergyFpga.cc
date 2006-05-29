@@ -2,16 +2,44 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
+using std::vector;
 using std::ostream;
 using std::endl;
 
-L1GctWheelEnergyFpga::L1GctWheelEnergyFpga(int id) :
+L1GctWheelEnergyFpga::L1GctWheelEnergyFpga(int id, vector<L1GctJetLeafCard*> leafCards) :
 	m_id(id),
-        m_inputLeafCards(3),
+        m_inputLeafCards(leafCards),
 	m_inputEx(3),
 	m_inputEy(3),
 	m_inputEt(3)
 {
+  //Check wheelEnergyFpga setup
+  if(m_id != 0 && m_id != 1)
+  {
+    throw cms::Exception("L1GctSetupError")
+    << "L1GctWheelEnergyFpga::L1GctWheelEnergyFpga() : Wheel Energy Fpga ID " << m_id << " has been incorrectly constructed!\n"
+    << "ID number should be 0 or 1.\n";
+  } 
+  
+  if(m_inputLeafCards.size() != 3)
+  {
+    throw cms::Exception("L1GctSetupError")
+    << "L1GctWheelEnergyFpga::L1GctWheelEnergyFpga() : Wheel Energy Fpga ID " << m_id << " has been incorrectly constructed!\n"
+    << "This class needs 3 leaf card pointers, yet only " << m_inputLeafCards.size()
+    << " leaf card pointers are present.\n";
+  }
+  
+  for(unsigned int i = 0; i < m_inputLeafCards.size(); ++i)
+  {
+    if(m_inputLeafCards[i] == 0)
+    {
+      throw cms::Exception("L1GctSetupError")
+      << "L1GctWheelEnergyFpga::L1GctWheelEnergyFpga() : Wheel Energy Fpga ID " << m_id << " has been incorrectly constructed!\n"
+      << "Input Leaf card pointer " << i << " has not been set!\n";
+    }
+  }
 }
 
 L1GctWheelEnergyFpga::~L1GctWheelEnergyFpga()
@@ -77,15 +105,6 @@ void L1GctWheelEnergyFpga::process()
   m_outputEy = m_inputEy[0] + m_inputEy[1] + m_inputEy[2];
   m_outputEt = m_inputEt[0] + m_inputEt[1] + m_inputEt[2];
 
-}
-
-///
-/// assign data sources
-void L1GctWheelEnergyFpga::setInputLeafCard (int i, L1GctJetLeafCard* leaf)
-{
-  if (i>=0 && i<3) {
-    m_inputLeafCards[i] = leaf;
-  }
 }
 
 
