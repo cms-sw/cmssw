@@ -1,0 +1,14 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=CalibCalorimetry/XMLReader>
+<use name=CondFormats/DataRecord>
+<flags SEAL_PLUGIN_NAME="CalibCalorimetryEcalMiscalibXMLReader">
+<export>
+   <lib name=CalibCalorimetryEcalMiscalibXMLReader>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=CalibCalorimetry/XMLReader>
+   <use name=CondFormats/DataRecord>
+</export>
