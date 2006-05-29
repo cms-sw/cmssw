@@ -5,6 +5,7 @@
  <use name=rootrflx>
  <use name=rootcintex>
  <use name=root>
+ <use name=DataFormats/Common>
 </export>
 <lib name=boost_regex-gcc-mt>
 <use name=boost>
@@ -12,3 +13,4 @@
 <use name=rootrflx>
 <use name=rootcintex>
 <use name=root>
+ <use name=DataFormats/Common>
