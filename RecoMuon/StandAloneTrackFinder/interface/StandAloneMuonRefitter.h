@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/05/26 14:35:12 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/05/29 17:26:15 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -20,6 +20,7 @@ class Propagator;
 class DetLayer;
 class MuonBestMeasurementFinder;
 class MuonTrajectoryUpdator;
+class Trajectory;
 
 namespace edm {class ParameterSet; class EventSetup; class Event;}
 
@@ -114,9 +115,6 @@ private:
   int dtChambers;
   int cscChambers;
   int rpcChambers;
-  
-  const edm::Event *theCachedEvent;
-
 };
 #endif
 

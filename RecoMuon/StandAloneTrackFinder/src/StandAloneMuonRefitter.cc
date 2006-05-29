@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/05/26 14:35:48 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/29 17:25:53 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -90,7 +90,7 @@ void StandAloneMuonRefitter::setES(const EventSetup& setup){
 }
 
 void StandAloneMuonRefitter::setEvent(const Event& event){
-  theCachedEvent = &event;
+  theMeasurementExtractor.setEvent(event);
 }
 
 void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const DetLayer* initialLayer, Trajectory &trajectory){
@@ -139,8 +139,7 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
       theMeasurementExtractor.measurements(*layer,
       					   lastTSOS, 
       					   propagator(), 
-					   estimator(),
-      					   *theCachedEvent);
+					   estimator());
     LogDebug(metname) << "Number of Trajectory Measurement:" << measL.size();
     
     TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL);
@@ -166,8 +165,7 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
       measL = theMeasurementExtractor.measurements(*layer,
 						   lastButOneUpdatedTSOS, 
 						   propagator(), 
-						   estimator(),
-						   *theCachedEvent);  
+						   estimator());
       bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL);
     }
     
@@ -183,14 +181,13 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
       measL = theMeasurementExtractor.measurements(*layer,
 						   initialTSOS, 
 						   propagator(), 
-						   estimator(),
-						   *theCachedEvent);  
+						   estimator());
       bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL);
     }
     
     // check if the there is a measurement
     if(bestMeasurement){
-      pair<bool,TrajectoryStateOnSurface> result updator()->update(bestMeasurement,trajectory);
+      pair<bool,TrajectoryStateOnSurface> result = updator()->update(bestMeasurement,trajectory);
       
       if(result.first) lastTSOS = result.second; 
     }
