@@ -31,7 +31,7 @@ namespace edm {
         // maybe we don't have to do anything
 //        if(!blocks_.empty() || !copyNodes_.empty() || !replaceNodes_.empty() || !renameNodes_.empty()) 
         if( !copyNodes_.empty() || !replaceNodes_.empty() 
-         || !renameNodes_.empty())
+         || !renameNodes_.empty() || !blocks_.empty() )
         {
           // pull out the operations on shared blocks, and do them.
           findBlockModifiers(copyNodes_, blockCopyNodes_);
