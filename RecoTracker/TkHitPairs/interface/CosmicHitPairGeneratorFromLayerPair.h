@@ -20,11 +20,13 @@ class LayerWithHits;
      GlobalPoint in2p=tracker->idToDet(h2.inner()->geographicalId())->surface().toGlobal(h2.inner()->localPosition());
      GlobalPoint ou1p=tracker->idToDet(h1.outer()->geographicalId())->surface().toGlobal(h1.outer()->localPosition());
      GlobalPoint ou2p=tracker->idToDet(h2.outer()->geographicalId())->surface().toGlobal(h2.outer()->localPosition());
-  
-     float dist1=100*abs(ou1p.z()-in1p.z())-abs(ou1p.y())-0.1*abs(in1p.y());
-     float dist2=100*abs(ou2p.z()-in2p.z())-abs(ou2p.y())-0.1*abs(in2p.y());
-     return dist1 < dist2;}
-
+     if (ou1p.y()*ou2p.y()<0) return ou1p.y()>ou2p.y();
+     else{
+       float dist1=100*abs(ou1p.z()-in1p.z())-abs(ou1p.y())-0.1*abs(in1p.y());
+       float dist2=100*abs(ou2p.z()-in2p.z())-abs(ou2p.y())-0.1*abs(in2p.y());
+       return dist1 < dist2;
+     }
+   }
  private:
    edm::ESHandle<TrackerGeometry> tracker;
  };

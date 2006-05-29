@@ -53,10 +53,7 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
     
       float inny=ih->r()*sin(ih->phi());
       float outy=oh->r()*sin(oh->phi());
-      //      float samey=inny*outy;
-      //      if( (differenza<30)&&((inny-outy)<30)&&(inny<0)) {
-      if( (abs(z_diff)<30)&&((inny-outy)<30) &&(inny>0)&& (outy>0)) {
-
+      if( (abs(z_diff)<30)&&((inny-outy)<30) &&(inny*outy>0)) {
 	allthepairs.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
       }
     }
