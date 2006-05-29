@@ -4,6 +4,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "Geometry/Vector/interface/Basic3DVector.h"
@@ -82,6 +83,11 @@ public:
   /// Return the associated GeomDet
   virtual GeomDet* geomDet() const { return theGeomDet; }
 
+  /// Recursive printout of alignable structure
+  virtual void dump() const;
+
+  /// Return alignment data
+  virtual Alignments* alignments() const;
 
 protected:
   void setSurface( const AlignableSurface& s) { theSurface = s; }

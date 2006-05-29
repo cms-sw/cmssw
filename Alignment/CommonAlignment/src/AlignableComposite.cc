@@ -23,6 +23,7 @@ void AlignableComposite::move( const GlobalVector& displacement )
 {
   
   // Move components and associated geomdet (if available)
+
   moveAlignableOnly( displacement );
 
   // Movement is done through the DetPositioner interface
@@ -249,3 +250,67 @@ void AlignableComposite::rotateAlignableOnly( const RotationType& rotation )
 
 }
 
+
+
+//__________________________________________________________________________________________________
+void AlignableComposite::dump( void ) const
+{
+
+  // A simple printout method. Could be specialized in the implementation classes.
+
+  std::vector<Alignable*> comp = this->components();
+
+  // Dump this
+  edm::LogInfo("AlignableDump") 
+	<< " Alignable of type " << this->alignableObjectId() 
+	<< " has " << comp.size() << " components" << std::endl
+	<< " position = " << this->globalPosition() << ", orientation:" << std::endl
+	<< this->globalRotation();
+
+  // Dump components
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+	(*i)->dump();
+
+}
+
+
+
+//__________________________________________________________________________________________________
+Alignments* AlignableComposite::alignments( void ) const
+{
+
+  // Recursively call alignments, until we get to an AlignableDet(Unit)
+  std::vector<Alignable*> comp = this->components();
+
+  Alignments* m_alignments = new Alignments();
+
+  // Add associated geomDet, if available (i.e. this is an AlignableDetUnit)
+  if ( this->geomDet() )
+	{
+	  Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
+
+	  HepRotation clhepRotation( Hep3Vector( this->globalRotation().xx(), globalRotation().xy(), globalRotation().xz() ),
+								 Hep3Vector( globalRotation().yx(), globalRotation().yy(), globalRotation().yz() ),
+								 Hep3Vector( globalRotation().zx(), globalRotation().zy(), globalRotation().zz() )
+								 );
+	  
+	  uint32_t detId = this->geomDet()->geographicalId().rawId();
+
+	  AlignTransform transform( clhepVector, clhepRotation, detId );
+	  
+	  m_alignments->m_align.push_back( transform );
+	}
+
+
+  // Add components recursively
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+	{
+	  Alignments* tmpAlignments = (*i)->alignments();
+	  std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
+				 std::back_inserter(m_alignments->m_align) );
+	}
+
+  
+  return m_alignments;
+
+}
