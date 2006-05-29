@@ -26,8 +26,8 @@ const bool AlignableTrackerModifier::isPropagated( const std::string parameterNa
 
 
 //__________________________________________________________________________________________________
-/// All known parameters and defaults are defined here!
-void AlignableTrackerModifier::modify( Alignable* alignable, const edm::ParameterSet& pSet )
+/// All known parameters and defaults are defined here! Returns true if modification actually applied.
+bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::ParameterSet& pSet )
 {
 
   // Initialize all known parameters (according to ORCA's MisalignmentScenario.cc)
@@ -46,6 +46,9 @@ void AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
   double dZ         = 0.;        // Z displacement [cm]
   double twist      = 0.;        // Twist angle [rad]
   double shear      = 0.;        // Shear angle [rad]
+
+  // Reset counter
+  m_modified = 0;
   
   // Retrieve parameters
   std::ostringstream error;
@@ -125,6 +128,8 @@ void AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
 														  scaleError*localX, scaleError*localY, 
 														  scaleError*localZ );
 	}
+
+  return ( m_modified > 0 );
   
 }
 
@@ -137,7 +142,7 @@ void AlignableTrackerModifier::randomMove( Alignable* alignable,
 										   float sigmaX, float sigmaY,float sigmaZ, long seed )
 {
 
-  edm::LogInfo("PrintArgs") << "move  randomly  with sigma " 
+  edm::LogInfo("PrintArgs") << "move randomly with sigma " 
 							<< sigmaX << " " << sigmaY << " " << sigmaZ 
 							<< std::endl;
   
@@ -156,7 +161,9 @@ void AlignableTrackerModifier::randomMove( Alignable* alignable,
 
   GlobalVector moveV( aGaussObjX.fire(), aGaussObjY.fire(),
 					  aGaussObjZ.fire() );
+
   alignable->move(moveV);
+  m_modified++;
 
 }
 
@@ -168,7 +175,7 @@ void AlignableTrackerModifier::randomFlatMove( Alignable* alignable,
 											   float sigmaX, float sigmaY, float sigmaZ, long seed )
 {
 
-  edm::LogInfo("PrintArgs") << "move  randomly  with sigma " 
+  edm::LogInfo("PrintArgs") << "flat move randomly with sigma " 
 							<< sigmaX << " " << sigmaY << " " << sigmaZ 
 							<< std::endl;
   
@@ -188,6 +195,7 @@ void AlignableTrackerModifier::randomFlatMove( Alignable* alignable,
   GlobalVector moveV( aFlatObjX.fire(), aFlatObjY.fire(),
 					  aFlatObjZ.fire() );
   alignable->move(moveV);
+  m_modified++;
 
 }
 
@@ -199,7 +207,7 @@ void AlignableTrackerModifier::randomRotate( Alignable* alignable,
 											 float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ, 
 											 long seed )
 {
-  edm::LogInfo("PrintArgs") << "rotate  randomly  about GLOBAL x,y,z axis with sigmaPhi " 
+  edm::LogInfo("PrintArgs") << "rotate randomly about GLOBAL x,y,z axis with sigmaPhi " 
 							<< sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ 
 							<< std::endl;
   
@@ -218,6 +226,7 @@ void AlignableTrackerModifier::randomRotate( Alignable* alignable,
   alignable->rotateAroundGlobalX(aGaussObjX.fire());
   alignable->rotateAroundGlobalY(aGaussObjY.fire());
   alignable->rotateAroundGlobalZ(aGaussObjZ.fire());
+  m_modified++;
 
 }
 
@@ -229,7 +238,7 @@ void AlignableTrackerModifier::randomFlatRotate( Alignable* alignable,
 												 float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ, 
 												 long seed )
 {
-  edm::LogInfo("PrintArgs") << "rotate  randomly  about GLOBAL x,y,z axis with sigmaPhi " 
+  edm::LogInfo("PrintArgs") << "flat rotate randomly about GLOBAL x,y,z axis with sigmaPhi " 
 							<< sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ 
 							<< std::endl;
   
@@ -248,6 +257,7 @@ void AlignableTrackerModifier::randomFlatRotate( Alignable* alignable,
   alignable->rotateAroundGlobalX(aFlatObjX.fire());
   alignable->rotateAroundGlobalY(aFlatObjY.fire());
   alignable->rotateAroundGlobalZ(aFlatObjZ.fire());
+  m_modified++;
 
 }
 
@@ -262,7 +272,7 @@ void AlignableTrackerModifier::randomRotateLocal( Alignable* alignable,
 												  long seed )
 {
 
-  edm::LogInfo("PrintArgs") << "rotate  randomly  around LOCAL x,y,z axis with sigmaPhi " 
+  edm::LogInfo("PrintArgs") << "rotate randomly around LOCAL x,y,z axis with sigmaPhi " 
 							<< sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ 
 							<< std::endl;
   
@@ -281,6 +291,7 @@ void AlignableTrackerModifier::randomRotateLocal( Alignable* alignable,
   alignable->rotateAroundLocalX(aGaussObjX.fire());
   alignable->rotateAroundLocalY(aGaussObjY.fire());
   alignable->rotateAroundLocalZ(aGaussObjZ.fire());
+  m_modified++;
 
 }
 
@@ -295,7 +306,7 @@ void AlignableTrackerModifier::randomFlatRotateLocal( Alignable* alignable,
 													  float sigmaPhiZ, long seed )
 {
 
-  edm::LogInfo("PrintArgs") << "rotate  randomly  around LOCAL x,y,z axis with sigmaPhi " 
+  edm::LogInfo("PrintArgs") << "flat rotate randomly around LOCAL x,y,z axis with sigmaPhi " 
 							<< sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ 
 							<< std::endl;
   
@@ -315,6 +326,7 @@ void AlignableTrackerModifier::randomFlatRotateLocal( Alignable* alignable,
   alignable->rotateAroundLocalX(aFlatObjX.fire());
   alignable->rotateAroundLocalY(aFlatObjY.fire());
   alignable->rotateAroundLocalZ(aFlatObjZ.fire());
+  m_modified++;
 
 }
 
@@ -371,7 +383,7 @@ void AlignableTrackerModifier::addAlignmentPositionErrorFromRotation( Alignable*
 																	  RotationType& rotation )
 { 
 
-  edm::LogInfo("PrintArgs") << " adding an AlignmentPositionError from Rotation" << std::endl 
+  edm::LogInfo("PrintArgs") << "Adding an AlignmentPositionError from Rotation" << std::endl 
 							<< rotation << std::endl;
 
   alignable->addAlignmentPositionErrorFromRotation( rotation );
@@ -384,7 +396,7 @@ void AlignableTrackerModifier::addAlignmentPositionErrorFromLocalRotation( Align
 																		   RotationType& rotation )
 { 
   
-  edm::LogInfo("PrintArgs") << " adding an AlignmentPositionError from Local Rotation" << std::endl 
+  edm::LogInfo("PrintArgs") << "Adding an AlignmentPositionError from Local Rotation" << std::endl 
 							<< rotation << std::endl;
   
   alignable->addAlignmentPositionErrorFromLocalRotation( rotation );

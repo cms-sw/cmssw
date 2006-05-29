@@ -28,7 +28,7 @@ public:
   ~AlignableTrackerModifier() {};
 
   /// Modify given set of alignables according to parameters
-  void modify( Alignable* alignable, const edm::ParameterSet& pSet );
+  bool modify( Alignable* alignable, const edm::ParameterSet& pSet );
 
   /// Check if given parameter should be propagated
   const bool isPropagated( const std::string parameterName ) const;
@@ -82,6 +82,10 @@ public:
   /// Add alignment position error resulting from rotation in local frame
   void addAlignmentPositionErrorFromLocalRotation( Alignable* alignable, 
 												   RotationType& rotation ); 
+
+private:
+
+  int m_modified; // Indicates if a modification was performed
 
 };
 

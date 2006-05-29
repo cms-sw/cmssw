@@ -112,7 +112,8 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 	  // Retrieve and apply parameters
 	  LogDebug("PrintParameters")  << indent << " parameters to apply:" << std::endl;
 	  this->printParameters_( localParameters, true );
-	  theTrackerModifier.modify( (*iter), localParameters );
+	  if ( theTrackerModifier.modify( (*iter), localParameters ) )
+		edm::LogInfo("PrintParameters") << indent << "Movements applied to " << name.str();
 
 	  // Apply movements to components
 	  std::vector<std::string> parameterSetNames;
