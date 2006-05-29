@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/24 20:42:26 $
- * $Revision: 1.125 $
+ * $Date: 2006/05/26 07:27:40 $
+ * $Revision: 1.126 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -12,6 +12,7 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <algorithm>
 
 #include "TStyle.h"
 #include "TGaxis.h"
@@ -61,14 +62,18 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   cout << " *** Ecal Barrel Generic Monitor Client ***" << endl;
   cout << endl;
 
-  integrity_client_      = 0;
+  // Set runTypes
+  runTypes_.resize( 13 ); for( unsigned int i=0; i<runTypes_.size(); ++i ) runTypes_[i] =  "UNKNOWN"; 
+  runTypes_[EcalDCCHeaderBlock::COSMIC]         = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::BEAMH4]         = "BEAMH4";
+  runTypes_[EcalDCCHeaderBlock::BEAMH2]         = "BEAMH2";
+  runTypes_[EcalDCCHeaderBlock::LASER_STD]      = "LASER";
+  runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] = "TEST_PULSE";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]   = "PEDESTAL";
+ 
 
-  cosmic_client_         = 0;
-  laser_client_          = 0;
-  pedestal_client_       = 0;
-  pedestalonline_client_ = 0;
-  testpulse_client_      = 0;
-  beam_client_           = 0;
+  clients_.clear();
+  clientNames_.clear();
 
   begin_run_ = false;
   end_run_   = false;
@@ -270,14 +275,48 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // clients' constructors
 
-  integrity_client_      = new EBIntegrityClient(ps, mui_);
+  clients_.reserve(7);
+  clientNames_.reserve(7);
+  clients_.push_back( new EBIntegrityClient(ps, mui_) );
+  clientNames_.push_back( "Integrity" );
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
-  cosmic_client_         = new EBCosmicClient(ps, mui_);
-  laser_client_          = new EBLaserClient(ps, mui_);
-  pedestal_client_       = new EBPedestalClient(ps, mui_);
-  pedestalonline_client_ = new EBPedestalOnlineClient(ps, mui_);
-  testpulse_client_      = new EBTestPulseClient(ps, mui_);
-  beam_client_           = new EBBeamClient(ps, mui_);
+  clients_.push_back( new EBCosmicClient(ps, mui_) );
+  clientNames_.push_back( "Cosmic" );
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+
+  clients_.push_back(  new EBLaserClient(ps, mui_) );
+  clientNames_.push_back( "Laser" );
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+
+  clients_.push_back(  new EBPedestalClient(ps, mui_) );
+  clientNames_.push_back( "Pedestal" );
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+
+  clients_.push_back(  new EBPedestalOnlineClient(ps, mui_) );
+  clientNames_.push_back( "PedestalOnLine" );
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+
+  clients_.push_back(  new EBTestPulseClient(ps, mui_) );
+  clientNames_.push_back( "TestPulse" );
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+
+  clients_.push_back(  new EBBeamClient(ps, mui_) );
+  clientNames_.push_back( "Beam" );
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
   cout << endl;
 
@@ -287,27 +326,8 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   cout << "Exit ..." << endl;
 
-  if ( integrity_client_ ) {
-    delete integrity_client_;
-  }
-
-  if ( cosmic_client_ ) {
-    delete cosmic_client_;
-  }
-  if ( laser_client_ ) {
-    delete laser_client_;
-  }
-  if ( pedestal_client_ ) {
-    delete pedestal_client_;
-  }
-  if ( pedestalonline_client_ ) {
-    delete pedestalonline_client_;
-  }
-  if ( testpulse_client_ ) {
-    delete testpulse_client_;
-  }
-  if ( beam_client_ ) {
-    delete beam_client_;
+  for( unsigned int i=0; i<clients_.size(); i++ ) {
+    delete clients_[i];
   }
 
   this->cleanup();
@@ -327,27 +347,8 @@ void EcalBarrelMonitorClient::beginJob(void){
 
   this->subscribe();
 
-  if ( integrity_client_ ) {
-    integrity_client_->beginJob();
-  }
-
-  if ( cosmic_client_ ) {
-    cosmic_client_->beginJob();
-  }
-  if ( laser_client_ ) {
-    laser_client_->beginJob();
-  }
-  if ( pedestal_client_ ) {
-    pedestal_client_->beginJob();
-  }
-  if ( pedestalonline_client_ ) {
-    pedestalonline_client_->beginJob();
-  }
-  if ( testpulse_client_ ) {
-    testpulse_client_->beginJob();
-  }
-  if ( beam_client_ ) {
-    beam_client_->beginJob();
+  for( unsigned int i=0; i<clients_.size(); i++ ) {
+    clients_[i]->beginJob();
   }
 
   // check first event
@@ -378,43 +379,11 @@ void EcalBarrelMonitorClient::beginRun(void){
 
   this->beginRunDb();
 
-  if ( integrity_client_ ) {
-    integrity_client_->cleanup();
-    integrity_client_->beginRun();
-  }
-
-  if ( cosmic_client_ ) {
-    cosmic_client_->cleanup();
-    if ( runtype_ == "COSMIC" ) {
-      cosmic_client_->beginRun();
-    }
-  }
-  if ( laser_client_ ) {
-    laser_client_->cleanup();
-    if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) {
-      laser_client_->beginRun();
-    }
-  }
-  if ( pedestal_client_ ) {
-    pedestal_client_->cleanup();
-    if ( runtype_ == "PEDESTAL" ) {
-      pedestal_client_->beginRun();
-    }
-  }
-  if ( pedestalonline_client_ ) {
-    pedestalonline_client_->cleanup();
-    pedestalonline_client_->beginRun();
-  }
-  if ( testpulse_client_ ) {
-    testpulse_client_->cleanup();
-    if ( runtype_ == "TEST_PULSE" ) {
-      testpulse_client_->beginRun();
-    }
-  }
-  if ( beam_client_ ) {
-    beam_client_->cleanup();
-    if ( runtype_ == "BEAMH4" || runtype_ == "BEAMH2" ) {
-      beam_client_->beginRun();
+  for( int i=0; i<int(clients_.size()); i++ ) {
+    clients_[i]->cleanup();
+    bool started; started = false;
+    for( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
+      if( runtype_ != "UNKNOWN" && runtype_ == runTypes_[ (*j).second ] && !started ) { started = true; clients_[i]->beginRun(); }
     }
   }
 
@@ -448,26 +417,8 @@ void EcalBarrelMonitorClient::endJob(void) {
 
   this->unsubscribe();
 
-  if ( integrity_client_ ) {
-    integrity_client_->endJob();
-  }
-  if ( cosmic_client_ ) {
-    cosmic_client_->endJob();
-  }
-  if ( laser_client_ ) {
-    laser_client_->endJob();
-  }
-  if ( pedestal_client_ ) {
-    pedestal_client_->endJob();
-  }
-  if ( pedestalonline_client_ ) {
-    pedestalonline_client_->endJob();
-  }
-  if ( testpulse_client_ ) {
-    testpulse_client_->endJob();
-  }
-  if ( beam_client_ ) {
-    beam_client_->endJob();
+  for( unsigned int i=0; i<clients_.size(); i++ ) {
+    clients_[i]->endJob();
   }
 
 }
@@ -490,36 +441,10 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   }
 
-  if ( integrity_client_ ) {
-    integrity_client_->endRun();
-  }
-
-  if ( cosmic_client_ ) {
-    if ( runtype_ == "COSMIC" ) {
-      cosmic_client_->endRun();
-    }
-  }
-  if ( laser_client_ ) {
-    if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) {
-      laser_client_->endRun();
-    }
-  }
-  if ( pedestal_client_ ) {
-    if ( runtype_ == "PEDESTAL" ) {
-      pedestal_client_->endRun();
-    }
-  }
-  if ( pedestalonline_client_ ) {
-    pedestalonline_client_->endRun();
-  }
-  if ( testpulse_client_ ) {
-    if ( runtype_ == "TEST_PULSE" ) {
-      testpulse_client_->endRun();
-    }
-  }
-  if ( beam_client_ ) {
-    if ( runtype_ == "BEAMH4" || runtype_ == "BEAMH2" ) {
-      beam_client_->endRun();
+  for( int i=0; i<int(clients_.size()); i++ ) {
+    bool ended; ended = false;
+    for( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
+      if( runtype_ != "UNKNOWN" && runtype_ == runTypes_[ (*j).second ] && !ended ) { ended = true; clients_[i]->endRun(); }
     }
   }
 
@@ -747,54 +672,15 @@ void EcalBarrelMonitorClient::writeDb(void) {
 
     int ism = superModules_[i];
 
-    if ( integrity_client_ ) {
-      if ( end_run_ || ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) ) {
-        taskl |= 0x1;
-        integrity_client_->writeDb(econn, &moniov_, ism);
-        tasko |= 0x0;
-      }
-    }
-
-    if ( cosmic_client_ ) {
-      if ( end_run_ || runtype_ == "COSMIC" ) {
-        taskl |= 0x1 << 1;
-        cosmic_client_->writeDb(econn, &moniov_, ism);
-        tasko |= 0x0 << 1;
-      }
-    }
-    if ( laser_client_ ) {
-      if ( end_run_ && ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) ) {
-        taskl |= 0x1 << 2;
-        laser_client_->writeDb(econn, &moniov_, ism);
-        tasko |= 0x0 << 2;
-      }
-    }
-    if ( pedestal_client_ ) {
-      if ( end_run_ && runtype_ == "PEDESTAL" ) {
-        taskl |= 0x1 << 3;
-        pedestal_client_->writeDb(econn, &moniov_, ism);
-        tasko |= 0x0 << 3;
-      }
-    }
-    if ( pedestalonline_client_ ) {
-      if ( end_run_ || ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) ) {
-        taskl |= 0x1 << 4;
-        pedestalonline_client_->writeDb(econn, &moniov_, ism);
-        tasko |= 0x0 << 4;
-      }
-    }
-    if ( testpulse_client_ ) {
-      if ( end_run_ && runtype_ == "TEST_PULSE" ) {
-        taskl |= 0x1 << 5;
-        testpulse_client_->writeDb(econn, &moniov_, ism);
-        tasko |= 0x0 << 5;
-      }
-    }
-    if ( beam_client_ ) {
-      if ( end_run_ || runtype_ == "BEAMH4" ) {
-        taskl |= 0x1 << 6;
-        beam_client_->writeDb(econn, &moniov_, ism);
-        tasko |= 0x0 << 6;
+    for( int j = 0; j<int(clients_.size()); ++j ) {
+      bool written; written = false;
+      for( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
+	if( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != "UNKNOWN" && runtype_ == runTypes_[ (*k).second ] && !written ) { 
+	  written = true; 
+	  taskl |= 0x1 << j;
+	  clients_[j]->writeDb(econn, &moniov_, ism);
+	  tasko |= 0x1 << j;
+	}
       }
     }
 
@@ -986,7 +872,10 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( verbose_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  if ( ! enableStateMachine_ ) mui_->doMonitoring();
+  if ( ! enableStateMachine_ ) {
+    mui_->doMonitoring();
+    mui_->runQTests();
+  }
 
   this->subscribeNew();
 
@@ -1064,12 +953,9 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( me ) {
       s = me->valueString();
       runtype_ = "UNKNOWN";
-      if ( atoi(s.substr(2,s.size()-2).c_str()) == EcalDCCHeaderBlock::COSMIC ) runtype_ = "COSMIC";
-      if ( atoi(s.substr(2,s.size()-2).c_str()) == EcalDCCHeaderBlock::LASER_STD ) runtype_ = "LASER";
-      if ( atoi(s.substr(2,s.size()-2).c_str()) == EcalDCCHeaderBlock::PEDESTAL_STD ) runtype_ = "PEDESTAL";
-      if ( atoi(s.substr(2,s.size()-2).c_str()) == EcalDCCHeaderBlock::TESTPULSE_MGPA ) runtype_ = "TEST_PULSE";
-      if ( atoi(s.substr(2,s.size()-2).c_str()) == EcalDCCHeaderBlock::BEAMH4 ) runtype_ = "BEAMH4";
-      if ( atoi(s.substr(2,s.size()-2).c_str()) == EcalDCCHeaderBlock::BEAMH2 ) runtype_ = "BEAMH2";
+      for( int i=0; i<int(runTypes_.size()); ++i ) {
+	if( atoi(s.substr(2,s.size()-2).c_str()) == i ) runtype_ = runTypes_[i];
+      }
     }
 
     if ( verbose_ ) cout << " updates = "  << updates << endl;
@@ -1084,55 +970,30 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( h_ ) {
       if ( h_->GetEntries() != 0 ) {
         cout << "  ( " << flush;
-        if ( h_->GetBinContent(EcalDCCHeaderBlock::COSMIC+1) != 0 ) cout << "cosmic " << flush;
-        if ( h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) != 0 ) cout << "laser " << flush;
-        if ( h_->GetBinContent(EcalDCCHeaderBlock::PEDESTAL_STD+1) != 0 ) cout << "pedestal " << flush;
-        if ( h_->GetBinContent(EcalDCCHeaderBlock::TESTPULSE_MGPA+1) != 0 ) cout << "testpulse " << flush;
-        if ( h_->GetBinContent(EcalDCCHeaderBlock::BEAMH4+1) != 0 ) cout << "beamH4 " << flush;
-        if ( h_->GetBinContent(EcalDCCHeaderBlock::BEAMH2+1) != 0 ) cout << "beamH2 " << flush;
-        cout << ")" << flush;
+	for( int i=0; i<int(runTypes_.size()); ++i ) {
+	  if( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(i+1) != 0 ) {
+	    string s = runTypes_[i];
+	    std::transform( s.begin(), s.end(), s.begin(), (int(*)(int))std::tolower );
+	    cout << s;
+	  }
+	}
+	cout << ")" << flush;
       }
     }
     cout << endl;
-
+    
     update = true;
-
+    
     last_update_ = updates;
-
+    
     last_jevt_ = jevt_;
 
   }
 
-  if ( integrity_client_ ) {
-    integrity_client_->subscribeNew();
-  }
-
-  if ( cosmic_client_ ) {
-    if ( runtype_ == "COSMIC" ) {
-      cosmic_client_->subscribeNew();
-    }
-  }
-  if ( laser_client_ ) {
-    if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) {
-      laser_client_->subscribeNew();
-    }
-  }
-  if ( pedestal_client_ ) {
-    if ( runtype_ == "PEDESTAL" ) {
-      pedestal_client_->subscribeNew();
-    }
-  }
-  if ( pedestalonline_client_ ) {
-    pedestalonline_client_->subscribeNew();
-  }
-  if ( testpulse_client_ ) {
-    if ( runtype_ == "TEST_PULSE" ) {
-      testpulse_client_->subscribeNew();
-    }
-  }
-  if ( beam_client_ ) {
-    if ( runtype_ == "BEAMH4" || runtype_ == "BEAMH2" ) {
-      beam_client_->subscribeNew();
+  for( int i=0; i<int(clients_.size()); i++ ) {
+    bool subscribed; subscribed = false;
+    for( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
+      if( runtype_ != "UNKNOWN" && runtype_ == runTypes_[ (*j).second ] && !subscribed ) { subscribed = true; clients_[i]->subscribeNew(); }
     }
   }
 
@@ -1145,9 +1006,9 @@ void EcalBarrelMonitorClient::analyze(void){
       forced_status_ = false;
 
     }
-
+    
   }
-
+  
   if ( status_ == "begin-of-run" || status_ == "running" || status_ == "end-of-run" ) {
 
     if ( begin_run_ && ! end_run_ ) {
@@ -1155,57 +1016,37 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( ( update && updates % 5 == 0 ) || status_ == "end-of-run" || forced_update_ ) {
 
         forced_update_ = false;
+	
+	for( int i=0; i<int(clients_.size()); i++ ) {
+	  bool analyzed; analyzed = false;
+	  for( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
+	    if( runtype_ != "UNKNOWN" && runtype_ == runTypes_[ (*j).second ] && !analyzed ) { analyzed = true; clients_[i]->analyze(); }
+	  }
+	}
 
-        if ( integrity_client_ ) {
-          integrity_client_->analyze();
-        }
+        // BEGIN: Quality Tests
 
-        if ( cosmic_client_ ) {
-          if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::COSMIC+1) != 0 ) {
-            if ( runtype_ == "COSMIC" ) {
-              cosmic_client_->analyze();
-            }
-          }
+        cout << endl;
+        switch ( mui_->getSystemStatus() ) {
+          case dqm::qstatus::ERROR:
+            cout << " Error(s)";
+            break;
+          case dqm::qstatus::WARNING:
+            cout << " Warning(s)";
+            break;
+          case dqm::qstatus::OTHER:
+            cout << " Some tests did not run;";
+            break;
+          default:
+            cout << " No problems";
         }
-        if ( laser_client_ ) {
-          if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) != 0 ) {
-            if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) {
-              laser_client_->analyze();
-            }
-          }
-        }
-        if ( pedestal_client_ ) {
-          if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::PEDESTAL_STD+1) != 0 ) {
-            if ( runtype_ == "PEDESTAL" ) {
-              pedestal_client_->analyze();
-            }
-          }
-        }
-        if ( pedestalonline_client_ ) {
-          pedestalonline_client_->analyze();
-        }
-        if ( testpulse_client_ ) {
-          if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::TESTPULSE_MGPA+1) != 0 ) {
-            if ( runtype_ == "TEST_PULSE" ) {
-              testpulse_client_->analyze();
-            }
-          }
-        }
-        if ( beam_client_ ) {
-          if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::BEAMH4+1) != 0 ) {
-            if ( runtype_ == "BEAMH4" ) {
-              beam_client_->analyze();
-            }
-          }
-          if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::BEAMH2+1) != 0 ) {
-            if ( runtype_ == "BEAMH2" ) {
-              beam_client_->analyze();
-            }
-          }
-        }
+        cout << " reported after running the quality tests" << endl;
+        cout << endl;
+
+        // END: Quality Tests
 
       }
-
+      
       if ( enableSubRun_ ) {
         time_t seconds = 15 * 60;
         if ( (current_time_ - last_time_) > seconds ) {
@@ -1214,45 +1055,45 @@ void EcalBarrelMonitorClient::analyze(void){
       }
 
     }
-
+    
   }
-
+  
   if ( status_ == "end-of-run" ) {
-
+    
     if ( begin_run_ && ! end_run_ ) {
 
       this->endRun();
-
+      
       forced_status_ = false;
-
+      
     }
-
+    
   }
 
   // BEGIN: run-time fixes for missing state trasitions
-
+  
   if ( status_ == "unknown" ) {
-
+    
     if ( update ) unknowns_++;
-
+    
     if ( unknowns_ >= 10 ) {
-
+      
       cout << endl;
       cout << "Too many 'unknown' states ..." << endl;
       cout << endl;
-
+      
       if ( ! enableStateMachine_ ) throw exception();
 
     }
-
+    
   }
-
+  
   if ( status_ == "running" ) {
-
+    
     if ( ! forced_status_ ) {
-
+      
       if ( run_ > 0 && evt_ > 0 && runtype_ != "UNKNOWN" ) {
-
+	
         if ( ! begin_run_ ) {
 
           cout << endl;
@@ -1286,7 +1127,7 @@ void EcalBarrelMonitorClient::analyze(void){
     }
 
   }
-
+  
   // END: run-time fixes for missing state trasitions
 
 }
@@ -1330,89 +1171,14 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   string htmlName;
 
-  // Integrity check
-
-  if ( integrity_client_ ) {
-    if ( h_ && h_->GetEntries() != 0 ) {
-      htmlName = "EBIntegrityClient.html";
-      integrity_client_->htmlOutput(run_, superModules_, htmlDir, htmlName);
-      htmlFile << "<li><a href=\"" << htmlName << "\">Data Integrity</a></li>" << endl;
-    }
-  }
-
-  // Cosmic check
-
-  if ( cosmic_client_ ) {
-    if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::COSMIC+1) != 0 ) {
-      if ( runtype_ == "COSMIC" ) {
-        htmlName = "EBCosmicClient.html";
-        cosmic_client_->htmlOutput(run_, superModules_, htmlDir, htmlName);
-        htmlFile << "<li><a href=\"" << htmlName << "\">Cosmic</a></li>" << endl;
-      }
-    }
-  }
-
-  // Laser check
-
-  if ( laser_client_ ) {
-    if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) != 0 ) {
-      if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) {
-        htmlName = "EBLaserClient.html";
-        laser_client_->htmlOutput(run_, superModules_, htmlDir, htmlName);
-        htmlFile << "<li><a href=\"" << htmlName << "\">Laser</a></li>" << endl;
-      }
-    }
-  }
-
-  // Pedestal check (normal)
-
-  if ( pedestal_client_ ) {
-    if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::PEDESTAL_STD+1) != 0 ) {
-      if ( runtype_ == "PEDESTAL" ) {
-        htmlName = "EBPedestalClient.html";
-        pedestal_client_->htmlOutput(run_, superModules_, htmlDir, htmlName);
-        htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal</a></li>" << endl;
-      }
-    }
-  }
-
-  // Pedestal check (pre-sample)
-
-  if ( pedestalonline_client_ ) {
-    if ( h_ && h_->GetEntries() != 0 ) {
-      htmlName = "EBPedestalOnlineClient.html";
-      pedestalonline_client_->htmlOutput(run_, superModules_, htmlDir, htmlName);
-      htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal Online</a></li>" << endl;
-    }
-  }
-
-  // Test pulse check
-
-  if ( testpulse_client_ ) {
-    if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::TESTPULSE_MGPA+1) != 0 ) {
-      if ( runtype_ == "TEST_PULSE" ) {
-        htmlName = "EBTestPulseClient.html";
-        testpulse_client_->htmlOutput(run_, superModules_, htmlDir, htmlName);
-        htmlFile << "<li><a href=\"" << htmlName << "\">Test pulse</a></li>" << endl;
-      }
-    }
-  }
-
-  // Beam check
-
-  if ( beam_client_ ) {
-    if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::BEAMH4+1) != 0 ) {
-      if ( runtype_ == "BEAMH4" ) {
-        htmlName = "EBBeamClient.html";
-        beam_client_->htmlOutput(run_, superModules_, htmlDir, htmlName);
-        htmlFile << "<li><a href=\"" << htmlName << "\">Beam</a></li>" << endl;
-      }
-    }
-    if ( h_ && h_->GetBinContent(EcalDCCHeaderBlock::BEAMH2+1) != 0 ) {
-      if ( runtype_ == "BEAMH2" ) {
-        htmlName = "EBBeamClient.html";
-        beam_client_->htmlOutput(run_, superModules_, htmlDir, htmlName);
-        htmlFile << "<li><a href=\"" << htmlName << "\">Beam</a></li>" << endl;
+  for( int j = 0; j<int(clients_.size()); ++j ) {
+    bool written; written = false;
+    for( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
+      if( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != "UNKNOWN" && runtype_ == runTypes_[ (*k).second ] && !written ) { 
+	written = true; 
+	htmlName = "EB" + clientNames_[j] + "Client.html";
+	clients_[j]->htmlOutput(run_, superModules_, htmlDir, htmlName);
+	htmlFile << "<li><a href=\"" << htmlName << "\">Data " << clientNames_[j] << "</a></li>" << endl;
       }
     }
   }
