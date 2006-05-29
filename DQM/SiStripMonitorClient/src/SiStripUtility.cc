@@ -1,32 +1,47 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
-
+//
 // Get a list of MEs in a folder
-int SiStripUtility::getMEList(string element, vector<string>& values) {
+//
+int SiStripUtility::getMEList(string name, vector<string>& values) {
   values.clear();
-  string prefix_str = element.substr(0,(element.find(":")));
+  string prefix_str = name.substr(0,(name.find(":")));
   prefix_str += "/"; 
-  string temp_str = element.substr(element.find(":")+1);
+  string temp_str = name.substr(name.find(":")+1);
   split(temp_str, values, ",");
   for (vector<string>::iterator it = values.begin();
        it != values.end(); it++) (*it).insert(0,prefix_str);
   return values.size();
 }
+//
+// Get a list of MEs in a folder and the path name
+//
+int SiStripUtility::getMEList(string name, string& dir_path, vector<string>& values) {
+  values.clear();
+  dir_path = name.substr(0,(name.find(":")));
+  dir_path += "/"; 
+  string temp_str = name.substr(name.find(":")+1);
+  split(temp_str, values, ",");
+  return values.size();
+}
+
 // Check if the requested ME exists in a folder
-bool SiStripUtility::getME(string element, string name, string& full_path) {
-  if (element.find(name) == std::string::npos) return false;
-  string prefix_str = element.substr(0,(element.find(":")));
+bool SiStripUtility::checkME(string name, string me_name, string& full_path) {
+  if (name.find(name) == std::string::npos) return false;
+  string prefix_str = name.substr(0,(name.find(":")));
   prefix_str += "/"; 
-  string temp_str = element.substr(element.find(":")+1);
+  string temp_str = name.substr(name.find(":")+1);
   vector<string> values;
   split(temp_str, values, ",");
   for (vector<string>::iterator it = values.begin();
        it != values.end(); it++) {
-    if ((*it).find(name) != std::string::npos) {
+    if ((*it).find(me_name) != std::string::npos) {
       full_path = prefix_str + (*it);
       return true;
     }
   }
+  return false;
 }
+int getMENameList(string name, string& dir_path, string& me_names);
 //
 // -- Split a given string into a number of strings using given
 //    delimiters and fill a vector with splitted strings

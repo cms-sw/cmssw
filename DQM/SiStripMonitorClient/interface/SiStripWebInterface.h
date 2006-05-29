@@ -7,7 +7,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 class SiStripActionExecutor;
-class SiStripQualityTester;
 
 class SiStripWebInterface : public WebInterface
 {
@@ -23,13 +22,12 @@ class SiStripWebInterface : public WebInterface
   void createTkMap(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
   void createSummary(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
   void saveToFile(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
-
+  void collateME(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
   int getUpdates();
+  void checkQTestResults();
 
  private:
 
-  // the SiStripQualityTester
-  SiStripQualityTester* theQualityTester;
   // the SiStripActionActionExecutor
   SiStripActionExecutor* theActionExecutor;
 

@@ -65,4 +65,5 @@ void SiStripClient::onUpdate() const
   // put here the code that needs to be executed on every update:
   std::vector<std::string> uplist;
   mui_->getUpdatedContents(uplist);
+  if (mui_->getNumUpdates()%25 == 0) webInterface_p->checkQTestResults();
 }

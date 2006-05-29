@@ -2,8 +2,8 @@
  *
  *  Implementation of SiStripQualityTester
  *
- *  $Date: 2006/05/15 20:09:47 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/05/21 19:42:07 $
+ *  $Revision: 1.8 $
  *  \author Suchandra Dutta
  */
 #include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
@@ -84,7 +84,6 @@ void SiStripQualityTester::attachTests(MonitorUserInterface * mui){
       for (SiStripQualityTester::MEAssotiateMapType::const_iterator ic = theMeAssociateMap.begin(); ic != theMeAssociateMap.end(); ic++) {
         string me_name = ic->first;
         if ((*im).find(me_name) != std::string::npos) {
-	  cout << " Test " << (*im) << endl;
 	  for (vector<string>::const_iterator iv = ic->second.begin();
 	       iv !=  ic->second.end(); iv++) {
 	    mui->useQTest((*im), (*iv));

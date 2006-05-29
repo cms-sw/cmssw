@@ -1,6 +1,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "DQM/SiStripMonitorClient/interface/TrackerMap.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripQualityTester.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -13,6 +14,8 @@
 SiStripActionExecutor::SiStripActionExecutor() {
   edm::LogInfo("SiStripActionExecutor") << 
     " Creating SiStripActionExecutor " << "\n" ;
+  configParser_ = new SiStripConfigParser();
+  configParser_->getDocument("sistrip_monitorelement_config.xml");
 }
 //
 // --  Destructor
@@ -24,9 +27,12 @@ SiStripActionExecutor::~SiStripActionExecutor() {
 //
 // -- Create Tracker Map
 //
-void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui,
-			std::vector<std::string> me_names) {
-  TrackerMap trackerMap("SiStrip Map");
+void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui) {
+  string tkmap_name;
+  vector<string> me_names;
+  if (!configParser_->getMENamesForTrackerMap(tkmap_name, me_names)) return;
+  cout << " # of MEs in Tk Map " << me_names.size() << endl;
+  TrackerMap trackerMap(tkmap_name);
   // Get the values for the Tracker Map
   mui->cd();
   SiStripActionExecutor::DetMapType valueMap;
@@ -40,7 +46,7 @@ void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui,
     int istat = 0;
     ostringstream comment;
     comment << "Mean Value(s) : ";
-    for (std::vector<std::pair <int,float> >::const_iterator iv = it->second.begin();
+    for (vector<pair <int,float> >::const_iterator iv = it->second.begin();
 	 iv != it->second.end();  iv++) {
       if (iv->first > istat ) istat = iv->first;
       comment <<   iv->second <<  " : " ;
@@ -70,116 +76,95 @@ void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui,
 // -- Browse through monitorable and get values need for TrackerMap
 //
 void SiStripActionExecutor::getValuesForTkMap(MonitorUserInterface* mui,
- std::vector<std::string> me_names, SiStripActionExecutor::DetMapType & values) {
-  std::string currDir = mui->pwd();
+ vector<string> me_names, SiStripActionExecutor::DetMapType & values) {
+  string currDir = mui->pwd();
   vector<string> contentVec;
   mui->getContents(contentVec);
+
   for (vector<string>::iterator it = contentVec.begin();
        it != contentVec.end(); it++) {
-    if ((*it).find("module_") == std::string::npos) continue;
+    if ((*it).find("module_") == string::npos) continue;
     vector<string> contents;
     int nval = SiStripUtility::getMEList((*it), contents);
     if (nval == 0) continue;
     // get module id
     int id = atoi(((*it).substr((*it).find("module_")+7)).c_str());
-    TCanvas canvas("display");
-    canvas.Clear();
-    if (me_names.size() == 2) canvas.Divide(1,2);
-    if (me_names.size() == 3) canvas.Divide(1,3);
-    if (me_names.size() == 4) canvas.Divide(2,2);
-    int idiv;
-    int status;
-    int icol;
-    string tag;
-
-    std::vector<std::pair <int, float> > vtemp;
-
+    vector<MonitorElement*> me_vec;
+    vector<pair <int, float> > vtemp;
+    
     //  browse through monitorable; check  if required MEs exist    
-    for (std::vector<std::string>::const_iterator ic = contents.begin();
+    for (vector<string>::const_iterator ic = contents.begin();
 	      ic != contents.end(); ic++) {
-      idiv = 0;
-      for (std::vector<std::string>::const_iterator im = me_names.begin();
+      for (vector<string>::const_iterator im = me_names.begin();
 	   im != me_names.end(); im++) {
-	idiv++;
-	if ((*ic).find((*im)) == std::string::npos) continue;
-
+	if ((*ic).find((*im)) == string::npos) continue;
 
         MonitorElement * me = mui->get((*ic));
-	if (me) {
-          // Mean Value
-	  float mean_val = me->getMean();
-          // Status after comparison to Referece 
-	  if (me->hasError()) {
-            status = dqm::qstatus::ERROR;
-            tag = "Error";
-            icol = 2;
-	  } else if (me->hasWarning()) {
-            status = dqm::qstatus::WARNING;
-            tag = "Warning";
-            icol = 5;
-	  } else  {
-            status = dqm::qstatus::STATUS_OK;
-            tag = "Ok";
-            icol = 3;
-          }
-          // Access the Root object and plot
-	  MonitorElementT<TNamed>* ob = 
-	    dynamic_cast<MonitorElementT<TNamed>*>(me);
-	  if (ob) {
-            canvas.cd(idiv);
-            TText tt;
-            tt.SetTextSize(0.20);
-            tt.SetTextColor(icol);
-	    ob->operator->()->Draw();
-            tt.DrawTextNDC(0.7, 0.5, tag.c_str());
-            canvas.Update();
-          }
-          vtemp.push_back(std::pair<int,float>(status, mean_val));
-        }
+        if (me) me_vec.push_back(me);
       }
     }
-    values.insert(pair<int,std::vector <std::pair <int,float> > >(id, vtemp));
-    ostringstream name_str;
-    name_str << id << ".jpg";
-    canvas.SaveAs(name_str.str().c_str());    
+    drawMEs(id, me_vec, vtemp);
+    values.insert(pair<int,vector <pair <int,float> > >(id, vtemp));
   }
+}
+// -- Browse through the Folder Structure
+//
+void SiStripActionExecutor::createSummary(MonitorUserInterface* mui) {
+  string structure_name;
+  vector<string> me_names;
+  if (!configParser_->getMENamesForSummary(structure_name, me_names)) return;
+  mui->cd();
+  fillSummary(mui, structure_name, me_names);
 }
 //
 // -- Browse through the Folder Structure
 //
 void SiStripActionExecutor::fillSummary(MonitorUserInterface* mui,
-                     std::string dir_name, std::string me_name) {
-  std::string currDir = mui->pwd();
-
-  if (currDir.find(dir_name) != std::string::npos)  {
-    std::string tag = "Summary" + me_name + "_in_" 
+                               string dir_name,vector<string>& me_names) {
+  string currDir = mui->pwd();
+  if (currDir.find(dir_name) != string::npos)  {
+    vector<MonitorElement*> sum_mes;
+    for (vector<string>::const_iterator iv = me_names.begin();
+	 iv != me_names.end(); iv++) {
+      std::string tag = "Summary_" + (*iv) + "_in_" 
                                 + currDir.substr(currDir.find(dir_name));
-    MonitorElement* sum_me = getSummaryME(mui, tag);
-    if (!sum_me) return;
-    std::vector<std::string> subdirs = mui->getSubdirs();
+      MonitorElement* temp = getSummaryME(mui, tag);
+      sum_mes.push_back(temp);
+    }
+    if (sum_mes.size() == 0) {
+      cout << " Summary MEs can not be created" << endl;
+      return;
+    }
+    vector<string> subdirs = mui->getSubdirs();
     int ndet = 0;
-    for (std::vector<std::string>::const_iterator it = subdirs.begin();
+    for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
-      if ( (*it).find("module_") == std::string::npos) continue;
+      if ( (*it).find("module_") == string::npos) continue;
       mui->cd(*it);
       ndet++;
-      std::vector<std::string> contents = mui->getMEs();    
-      for (std::vector<std::string>::const_iterator im = contents.begin();
-	 im != contents.end(); im++) {
-	if ((*im).find(me_name) == 0) {
-	  std::string fullpathname = mui->pwd() + "/" + (*im); 
-	  MonitorElement *  me = mui->get(fullpathname);
-	  if (me) sum_me->Fill(ndet*1.0, me->getMean());
+      vector<string> contents = mui->getMEs();    
+      for (vector<MonitorElement*>::const_iterator isum = sum_mes.begin();
+	   isum != sum_mes.end(); isum++) {
+	for (vector<string>::const_iterator im = contents.begin();
+	     im != contents.end(); im++) {
+          string sname = ((*isum)->getName());
+          string tname = sname.substr(8,(sname.find("_",8)-8));
+	  if (((*im)).find(tname) == 0) {
+	    string fullpathname = mui->pwd() + "/" + (*im); 
+	    MonitorElement *  me = mui->get(fullpathname);
+	    if (me) (*isum)->Fill(ndet*1.0, me->getMean());
+            break;
+          }
 	}
       }
       mui->goUp();
     }    
   } else {  
-    std::vector<std::string> subdirs = mui->getSubdirs();
-    for (std::vector<std::string>::const_iterator it = subdirs.begin();
+    vector<string> subdirs = mui->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
       mui->cd(*it);
-      fillSummary(mui, dir_name, me_name);
+      fillSummary(mui, dir_name, me_names);
       mui->goUp();
     }
   }
@@ -188,14 +173,14 @@ void SiStripActionExecutor::fillSummary(MonitorUserInterface* mui,
 // -- Get Summary ME
 //
 MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui,
-                                               std::string me_name) {
+                                               string me_name) {
   MonitorElement* me = 0;
   // If already booked
-  std::vector<std::string> contents = mui->getMEs();    
-  for (std::vector<std::string>::const_iterator it = contents.begin();
+  vector<string> contents = mui->getMEs();    
+  for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
     if ((*it).find(me_name) == 0) {
-      std::string fullpathname = mui->pwd() + "/" + (*it); 
+      string fullpathname = mui->pwd() + "/" + (*it); 
       me = mui->get(fullpathname);
       if (me) {
 	MonitorElementT<TNamed>* obh1 = 
@@ -212,8 +197,67 @@ MonitorElement* SiStripActionExecutor::getSummaryME(MonitorUserInterface* mui,
   me = bei->book1D(me_name.c_str(), me_name.c_str(),20,0.5,20.5);
   return me;
 }
-// Check Status of Quality Tests
-void SiStripActionExecutor::checkTestResults(MonitorUserInterface * mui) {
+//
+// -- Draw Monitor Elements
+//
+void SiStripActionExecutor::drawMEs(int idet, 
+  vector<MonitorElement*>& mon_elements, vector<pair <int, float> > & values) {
+  TCanvas canvas("display");
+  canvas.Clear();
+  if (mon_elements.size() == 2) canvas.Divide(1,2);
+  if (mon_elements.size() == 3) canvas.Divide(1,3);
+  if (mon_elements.size() == 4) canvas.Divide(2,2);
+  int status;
+  int icol;
+  string tag;
+  
+  for (unsigned int i = 0; i < mon_elements.size(); i++) {
+    // Mean Value
+    float mean_val = mon_elements[i]->getMean();
+    // Status after comparison to Referece 
+    if (mon_elements[i]->hasError()) {
+      status = dqm::qstatus::ERROR;
+      tag = "Error";
+      icol = 2;
+    } else if (mon_elements[i]->hasWarning()) {
+      status = dqm::qstatus::WARNING;
+      tag = "Warning";
+      icol = 5;
+    } else  {
+      status = dqm::qstatus::STATUS_OK;
+      tag = "Ok";
+      icol = 3;
+    }
+    // Access the Root object and plot
+    MonitorElementT<TNamed>* ob = 
+        dynamic_cast<MonitorElementT<TNamed>*>(mon_elements[i]);
+    if (ob) {
+      canvas.cd(i+1);
+      TText tt;
+      tt.SetTextSize(0.15);
+      tt.SetTextColor(icol);
+      ob->operator->()->Draw();
+      tt.DrawTextNDC(0.6, 0.5, tag.c_str());
+      canvas.Update();
+    }
+    values.push_back(pair<int,float>(status, mean_val));
+  }
+  ostringstream name_str;
+  name_str << idet << ".jpg";
+  canvas.SaveAs(name_str.str().c_str());    
+  
+}
+//
+// -- Setup Quality Tests 
+//
+void SiStripActionExecutor::setupQTests(MonitorUserInterface * mui) {
+  SiStripQualityTester qtester;
+  qtester.setupQTests(mui);
+}
+//
+// -- Check Status of Quality Tests
+//
+void SiStripActionExecutor::checkQTestResults(MonitorUserInterface * mui) {
   string currDir = mui->pwd();
   vector<string> contentVec;
   mui->getContents(contentVec);
@@ -222,7 +266,7 @@ void SiStripActionExecutor::checkTestResults(MonitorUserInterface * mui) {
     vector<string> contents;
     int nval = SiStripUtility::getMEList((*it), contents);
     if (nval == 0) continue;
-    for (std::vector<std::string>::const_iterator im = contents.begin();
+    for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
       MonitorElement * me = mui->get((*im));
       if (me) {
@@ -253,6 +297,32 @@ void SiStripActionExecutor::checkTestResults(MonitorUserInterface * mui) {
 		<< endl;
 	}
       }
+    }
+  }
+}
+//
+//
+//
+void SiStripActionExecutor::createCollation(MonitorUserInterface * mui){
+   string currDir = mui->pwd();
+   
+  vector<string> contentVec;
+  mui->getContents(contentVec);
+
+  for (vector<string>::iterator it = contentVec.begin();
+      it != contentVec.end(); it++) {
+    if ((*it).find("module_") == string::npos) continue;
+    string dir_path;
+    vector<string> contents;
+    int nval = SiStripUtility::getMEList((*it), dir_path, contents);
+    string coll_dir = "Collector/Collated/"
+             +dir_path.substr(dir_path.find("SiStrip"),dir_path.size());
+    cout << " Here " << coll_dir << " ==> " << endl;
+    for (vector<string>::iterator ic = contents.begin(); ic != contents.end(); ic++) {
+      CollateMonitorElement* sum=mui->collate1D((*ic),(*ic),coll_dir);
+      string me_path = dir_path + (*ic);
+      mui->add(sum, me_path);
+
     }
   }
 }

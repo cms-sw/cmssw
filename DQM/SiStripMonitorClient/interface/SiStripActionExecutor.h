@@ -3,27 +3,34 @@
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
 #include <map>
 #include <vector>
 #include <string>
 
+using namespace std;
 class SiStripActionExecutor {
 
  public:
-  typedef std::map<int,std::vector <std::pair <int,float> > > DetMapType;
+  typedef map<int,vector <pair <int,float> > > DetMapType;
 
   SiStripActionExecutor();
  ~SiStripActionExecutor();
 
- void createTkMap(MonitorUserInterface* mui, std::vector<std::string> me_names);
- void fillSummary(MonitorUserInterface* mui,std::string dir_name,std::string me_name);
+ void createTkMap(MonitorUserInterface* mui);
+ void createSummary(MonitorUserInterface* mui);
 
- void checkTestResults(MonitorUserInterface * mui);
-
+ void setupQTests(MonitorUserInterface * mui);
+ void checkQTestResults(MonitorUserInterface * mui);
+ void createCollation(MonitorUserInterface * mui);
 
  private:
-  MonitorElement* getSummaryME(MonitorUserInterface* mui, std::string me_name);
+  MonitorElement* getSummaryME(MonitorUserInterface* mui, string me_name);
   void getValuesForTkMap(MonitorUserInterface* mui,
-        std::vector<std::string> me_names, SiStripActionExecutor::DetMapType& values);
+        vector<string> me_names, SiStripActionExecutor::DetMapType& values);
+  void fillSummary(MonitorUserInterface* mui, string dir_name,vector<string>& me_names);
+  void drawMEs(int idet, vector<MonitorElement*>& mon_elements, vector<pair <int, float> > & values);
+
+  SiStripConfigParser* configParser_;
 };
 #endif
