@@ -15,18 +15,32 @@
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
-// ----------------------------------------------------------------------------
-TrackerAlignableId* TrackerAlignableId::instance() 
+
+//__________________________________________________________________________________________________
+TrackerAlignableId::TrackerAlignableId()
 {
 
-  static TrackerAlignableId* theInstance = 0; // Only executed once
-  if ( theInstance == 0 ) theInstance = new TrackerAlignableId();
-  return theInstance;
+  // Create map
+  theMap.clear();
+  theMap[ AlignableObjectId::AlignableDetUnit              ] = "DetUnit";
+  theMap[ AlignableObjectId::AlignableDet                  ] = "Det";
+  theMap[ AlignableObjectId::AlignableRod                  ] = "Rod";
+  theMap[ AlignableObjectId::AlignableBarrelLayer          ] = "BarrelLayer";
+  theMap[ AlignableObjectId::AlignableHalfBarrel           ] = "HalfBarrel";
+  theMap[ AlignableObjectId::AlignablePetal                ] = "Petal";
+  theMap[ AlignableObjectId::AlignableEndcapLayer          ] = "EndcapLayer";
+  theMap[ AlignableObjectId::AlignableEndcap               ] = "Endcap";
+  theMap[ AlignableObjectId::AlignableTIDRing              ] = "TIDRing";
+  theMap[ AlignableObjectId::AlignableTIDLayer             ] = "TIDLayer";
+  theMap[ AlignableObjectId::AlignableTID                  ] = "TID";
+  theMap[ AlignableObjectId::AlignablePixelHalfBarrelLayer ] = "PixelHalfBarrelLayer";
+  theMap[ AlignableObjectId::AlignablePixelHalfBarrel      ] = "PixelHalfBarrel";
+  theMap[ AlignableObjectId::AlignableTracker              ] = "Tracker";
 
 }
 
 
-// ----------------------------------------------------------------------------
+//__________________________________________________________________________________________________
 unsigned int TrackerAlignableId::alignableId( Alignable* alignable )
 {
 
@@ -36,7 +50,7 @@ unsigned int TrackerAlignableId::alignableId( Alignable* alignable )
 
 
 
-// ----------------------------------------------------------------------------
+//__________________________________________________________________________________________________
 // Get integer identifier corresponding to type of alignable
 int TrackerAlignableId::alignableTypeId( Alignable* alignable )
 {
@@ -51,44 +65,10 @@ int TrackerAlignableId::alignableTypeId( Alignable* alignable )
 }
 
 
-// ----------------------------------------------------------------------------
-// get integer identifier corresponding to 1st Det of alignable
-unsigned int TrackerAlignableId::firstDetId( Alignable* alignable )
-{
-
-  unsigned int geomDetId = 0;
-
-  if ( alignable ) 
-	{
-	  AlignableDet* alignableDet = firstDet( alignable );
-	  if ( alignableDet ) geomDetId = alignableDet->geomDet()->geographicalId().rawId();
-	}
-
-  return geomDetId;
-
-}
-
-
-// ----------------------------------------------------------------------------
-// recursively get first Alignable Det of an Alignable
-AlignableDet* TrackerAlignableId::firstDet( Alignable* alignable )
-{
-
-  // Check if this is already an AlignableDet
-  AlignableDet* alignableDet = dynamic_cast<AlignableDet*>( alignable );
-  if ( alignableDet ) return ( alignableDet );
-
-  // Otherwise, retrieve components
-  AlignableComposite* composite = dynamic_cast<AlignableComposite*>( alignable );
-  return  firstDet( composite->components().front() );
-
-}
 
 
 
-
-
-// ----------------------------------------------------------------------------
+//__________________________________________________________________________________________________
 // Returns alignable object id and layer number from an alignable
 std::pair<int,int> TrackerAlignableId::typeAndLayerFromAlignable(Alignable* alignable)
 {
@@ -106,7 +86,7 @@ std::pair<int,int> TrackerAlignableId::typeAndLayerFromAlignable(Alignable* alig
 }
 
 
-// ----------------------------------------------------------------------------
+//__________________________________________________________________________________________________
 // Returns alignable object id and layer (or wheel, or disk) number from a GeomDet
 std::pair<int,int> TrackerAlignableId::typeAndLayerFromGeomDet( const GeomDet& geomDet )
 {
@@ -153,4 +133,64 @@ std::pair<int,int> TrackerAlignableId::typeAndLayerFromGeomDet( const GeomDet& g
   return std::make_pair( subdetId, layerNumber );
 
 }
+
+
+//__________________________________________________________________________________________________
+// Return string name corresponding to alignable
+const std::string TrackerAlignableId::alignableTypeName( const Alignable* alignable ) const
+{
+
+  return alignableTypeIdToName( alignable->alignableObjectId() );
+
+}
+
+//__________________________________________________________________________________________________
+const std::string 
+TrackerAlignableId::alignableTypeIdToName( const int& id ) const
+{
+
+
+  MapEnumType::const_iterator iter = theMap.find( id );
+  if ( iter != theMap.end() ) return iter->second;
+  
+  edm::LogWarning("LogicError") << "Unknown alignableObjectId: " << id;
+
+  return "Unknown";
+
+}
+
+//__________________________________________________________________________________________________
+// recursively get first Alignable Det of an Alignable
+AlignableDet* TrackerAlignableId::firstDet( Alignable* alignable )
+{
+
+  // Check if this is already an AlignableDet
+  AlignableDet* alignableDet = dynamic_cast<AlignableDet*>( alignable );
+  if ( alignableDet ) return ( alignableDet );
+
+  // Otherwise, retrieve components
+  AlignableComposite* composite = dynamic_cast<AlignableComposite*>( alignable );
+  return  firstDet( composite->components().front() );
+
+}
+
+
+
+//__________________________________________________________________________________________________
+// get integer identifier corresponding to 1st Det of alignable
+unsigned int TrackerAlignableId::firstDetId( Alignable* alignable )
+{
+
+  unsigned int geomDetId = 0;
+
+  if ( alignable ) 
+	{
+	  AlignableDet* alignableDet = firstDet( alignable );
+	  if ( alignableDet ) geomDetId = alignableDet->geomDet()->geographicalId().rawId();
+	}
+
+  return geomDetId;
+
+}
+
 
