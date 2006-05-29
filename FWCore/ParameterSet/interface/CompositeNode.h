@@ -30,6 +30,8 @@ namespace edm {
       /// otherwise, pass the call to the child nodes
       virtual void resolveUsingNodes(const NodeMap & blocks);
 
+      /// inserts all subnodes
+      virtual void insertInto(ParameterSet & pset) const;
 
       NodePtrListPtr nodes_;
     };
