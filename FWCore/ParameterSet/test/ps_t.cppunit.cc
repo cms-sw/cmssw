@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.5 2006/03/02 16:21:02 paterno Exp $
+ * $Id: ps_t.cppunit.cc,v 1.6 2006/03/06 20:21:56 paterno Exp $
  */
 
 #include <algorithm>
@@ -10,6 +10,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 
 class testps: public CppUnit::TestFixture
