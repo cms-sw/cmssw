@@ -9,8 +9,6 @@
 using namespace edm;
 class TrackerHitAssociator;
 
-namespace cms
-{
   void myTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
   {
     //
@@ -95,7 +93,7 @@ namespace cms
     }
   }
   
-}
+
 
 
 

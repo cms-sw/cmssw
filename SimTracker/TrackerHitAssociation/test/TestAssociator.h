@@ -31,7 +31,6 @@
 //needed for the geometry:
 #include "DataFormats/DetId/interface/DetId.h"
 
-namespace cms {
 
 class TestAssociator : public edm::EDAnalyzer
 {
@@ -53,6 +52,6 @@ class TestAssociator : public edm::EDAnalyzer
 
 };
 
-}
+
 
 #endif

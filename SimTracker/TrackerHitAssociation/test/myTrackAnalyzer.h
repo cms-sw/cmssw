@@ -36,7 +36,6 @@
 #include <string>
 
 using namespace edm;
-namespace cms {
 
 class SiStripHitAssociator;
 
@@ -51,5 +50,5 @@ class myTrackAnalyzer : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
 
  };
-}
+
 #endif

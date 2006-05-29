@@ -39,41 +39,39 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
 
-namespace cms{
 
-   class TrackerHitAssociator {
+class TrackerHitAssociator {
+  
+ public:
+  
+  TrackerHitAssociator(const edm::Event& e);
+  virtual ~TrackerHitAssociator(){}
+  
+  std::vector<PSimHit> associateHit(const TrackingRecHit & thit);
+  
+  std::vector<unsigned int> associateSimpleRecHit(const SiStripRecHit2DLocalPos * simplerechit);
+  std::vector<unsigned int> associateMatchedRecHit(const SiStripRecHit2DMatchedLocalPos * matchedrechit);
+  std::vector<unsigned int> associatePixelRecHit(const SiPixelRecHit * pixelrechit);
+  
+  //will do next
+  //  vector<const SimHit*> associateMatchedRecHit( const RecHit&) const;
+  
+  std::vector<PSimHit> theStripHits;
+  typedef std::map<unsigned int, std::vector<PSimHit> > simhit_map;
+  typedef simhit_map::iterator simhit_map_iterator;
+  simhit_map SimHitMap;
+  std::vector<PSimHit> thePixelHits;
+  
+ private:
+  const edm::Event& myEvent_;
+  edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
+  edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
+  //vector with the trackIds
+  std::vector<unsigned int> simtrackid; 
+  
+  
+};  
 
-  public:
-     
-     TrackerHitAssociator(const edm::Event& e);
-     virtual ~TrackerHitAssociator(){}
-     
-     std::vector<PSimHit> associateHit(const TrackingRecHit & thit);
-
-     std::vector<unsigned int> associateSimpleRecHit(const SiStripRecHit2DLocalPos * simplerechit);
-     std::vector<unsigned int> associateMatchedRecHit(const SiStripRecHit2DMatchedLocalPos * matchedrechit);
-     std::vector<unsigned int> associatePixelRecHit(const SiPixelRecHit * pixelrechit);
-     
-     //will do next
-     //  vector<const SimHit*> associateMatchedRecHit( const RecHit&) const;
-     
-     std::vector<PSimHit> theStripHits;
-     typedef std::map<unsigned int, std::vector<PSimHit> > simhit_map;
-     typedef simhit_map::iterator simhit_map_iterator;
-     simhit_map SimHitMap;
-     std::vector<PSimHit> thePixelHits;
-
-  private:
-     const edm::Event& myEvent_;
-     edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
-     edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
-     //vector with the trackIds
-     std::vector<unsigned int> simtrackid; 
-     
- 
-  };  
-   
-}
 
 #endif
 

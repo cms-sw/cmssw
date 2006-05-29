@@ -61,8 +61,6 @@
 using namespace std;
 using namespace edm;
 
-namespace cms
-{
   void TestAssociator::analyze(const edm::Event& e, const edm::EventSetup& es) {
     
     using namespace edm;
@@ -150,4 +148,4 @@ TestAssociator::TestAssociator(edm::ParameterSet const& conf) : conf_(conf)
     cout << " Destructor " << endl;
   }
 
-}
+
