@@ -10,6 +10,8 @@
 
 #include <vector>
 
+typedef GeometricDet::ConstGeometricDetContainer _DetContainer;
+
 /// A Builder class for composite alignables
 ///
 /// The AlignableTrackerCompositeBuilder looks for the GeomDets
@@ -17,9 +19,6 @@
 /// and Alignable made of these GeomDets. If the given GeometricDets
 /// do not have associated GeomDets, this class will extract them
 /// from the sub-components.
-
-
-typedef GeometricDet::ConstGeometricDetContainer _DetContainer;
 
 template<class C>
 class AlignableTrackerCompositeBuilder
@@ -35,7 +34,7 @@ public:
 
   /// Build alignable object from list of GeomDets
   C* buildAlignable( _DetContainer Dets,
-					 edm::ESHandle<TrackerGeometry>& geomDetGeometry
+					 TrackerGeometry* geomDetGeometry
 					 ) const;
 
 private:
@@ -49,8 +48,8 @@ private:
 //--------------------------------------------------------------------------------------------------
 template<class C> 
 C* AlignableTrackerCompositeBuilder<C>::buildAlignable( _DetContainer Dets,
-												 edm::ESHandle<TrackerGeometry>& geomDetGeometry
-												 ) const
+														TrackerGeometry* geomDetGeometry
+														) const
 {
   
   std::vector<GeomDet*> geomDets;
@@ -61,7 +60,7 @@ C* AlignableTrackerCompositeBuilder<C>::buildAlignable( _DetContainer Dets,
 		iDet != m_Dets.end(); iDet++ )
 	{
 	  // Cast away const here
-	  GeomDet* geomDet = const_cast<GeomDet*>( geomDetGeometry->idToDet( (*iDet)->geographicalID() ));
+	  GeomDet* geomDet = const_cast<GeomDet*>( geomDetGeometry->idToDet((*iDet)->geographicalID()) );
 	  geomDets.push_back( geomDet );
 	}
   
