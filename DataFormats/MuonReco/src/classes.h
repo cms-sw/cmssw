@@ -11,6 +11,6 @@ namespace {
     edm::RefProd<std::vector<reco::Muon> > rp1;
     edm::RefVector<std::vector<reco::Muon> > rv1;
 
-    edm::RefToBaseImpl<reco::Candidate, reco::MuonRef> rb1;
+    edm::reftobase::Holder<reco::Candidate, reco::MuonRef> rb1;
   }
 }
