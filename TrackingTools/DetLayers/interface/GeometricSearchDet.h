@@ -35,12 +35,12 @@ class GeometricSearchDet {
   //virtual std::vector< const GeomDet*> basicComponents() const = 0;
 
   /// Returns direct components, if any
-  virtual vector<const GeometricSearchDet*> components() const = 0;
+  virtual const vector<const GeometricSearchDet*>& components() const = 0;
 
   /* Returns basic components. For the moment they are GeomDet, 
    * but they could become MeasurementDet
    */
-  virtual vector<const GeomDet*> basicComponents() const = 0;
+  virtual const vector<const GeomDet*>& basicComponents() const = 0;
 
 
   /** tests the geometrical compatibility of the Det with the predicted state.

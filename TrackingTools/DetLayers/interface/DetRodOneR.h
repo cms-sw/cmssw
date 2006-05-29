@@ -28,7 +28,8 @@ class DetRodOneR : public DetRod {
 
   virtual ~DetRodOneR();
 
-  virtual vector<const GeomDet*> basicComponents() const {return theDets;}
+  virtual const vector<const GeomDet*>& basicComponents() const {return theDets;}
+
 
 
 protected:
