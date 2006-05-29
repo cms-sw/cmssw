@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/26 07:27:40 $
- * $Revision: 1.126 $
+ * $Date: 2006/05/29 09:40:53 $
+ * $Revision: 1.128 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -583,8 +583,8 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   location_ = runiov_.getRunTag().getLocationDef().getLocation();
 
   std::string st = runiov_.getRunTag().getRunTypeDef().getRunType();
-  if( st == "UNKNOWN" ) runtype_ = -1;
-  else for( unsigned int i=0; i<runTypes_.size(); i++ ) if( st == runTypes_[i] ) runtype_ = i;  
+  if( st == "UNKNOWN" ) runtype_ = -1; 
+  else for( unsigned int i=0; i<runTypes_.size(); i++ ) if( st == runTypes_[i] ) runtype_ = i;
 
   cout << endl;
   cout << "=============RunIOV:" << endl;
@@ -916,7 +916,6 @@ void EcalBarrelMonitorClient::analyze(void){
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
-      run_ = -1;
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &run_);
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
@@ -929,7 +928,6 @@ void EcalBarrelMonitorClient::analyze(void){
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
-      evt_ = -1;
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &evt_);
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
@@ -954,10 +952,7 @@ void EcalBarrelMonitorClient::analyze(void){
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
-      runtype_ = -1;
-      for( int i=0; i<int(runTypes_.size()); ++i ) {
-	if( atoi(s.substr(2,s.size()-2).c_str()) == i ) runtype_ = i;
-      }
+      runtype_ = atoi(s.substr(2,s.size()-2).c_str());
     }
 
     if ( verbose_ ) cout << " updates = "  << updates << endl;
@@ -966,7 +961,7 @@ void EcalBarrelMonitorClient::analyze(void){
             " event = "    << evt_      <<
             " status = "   << status_   << endl;
 
-    cout << " runtype = "  << runTypes_[runtype_]  <<
+    cout << " runtype = "  << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) <<
             " location = " << location_ << flush;
 
     if ( h_ ) {
