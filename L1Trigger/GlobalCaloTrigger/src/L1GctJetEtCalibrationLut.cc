@@ -1,5 +1,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
+//DEFINE STATICS
+const int L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH = 10;
+
 L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut()
 {
 }

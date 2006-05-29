@@ -55,91 +55,91 @@ NOTE:  CMS IN 2004/009 specifies that cable four provides 8 Quiet bits for the H
 class L1GctSourceCard
 {
 public:
-    /// cardType1 reads cables 1&2, cardType2 reads cables 3&4, cardType3 reads cables 5&6
-    enum SourceCardType{cardType1 =1, cardType2, cardType3};
-    static const int MIP_BITWIDTH = 14;
-    static const int QUIET_BITWIDTH = 14;
-    typedef std::bitset<MIP_BITWIDTH> MipBits;
-    typedef std::bitset<QUIET_BITWIDTH> QuietBits;
+  /// cardType1 reads cables 1&2, cardType2 reads cables 3&4, cardType3 reads cables 5&6
+  enum SourceCardType{cardType1 =1, cardType2, cardType3};
+  static const int MIP_BITWIDTH = 14;
+  static const int QUIET_BITWIDTH = 14;
+  typedef std::bitset<MIP_BITWIDTH> MipBits;
+  typedef std::bitset<QUIET_BITWIDTH> QuietBits;
 
-    /// typeVal determines which pairs of cables to read, according to the SourceCardType enumeration
-    L1GctSourceCard(int id, SourceCardType typeVal);
-    ~L1GctSourceCard();
+  /// typeVal determines which pairs of cables to read, according to the SourceCardType enumeration
+  L1GctSourceCard(int id, SourceCardType typeVal);
+  ~L1GctSourceCard();
+
+  /// Overload << operator
+  friend std::ostream& operator << (std::ostream& os, const L1GctSourceCard& card);
+
+  /// Open input file
+  void openInputFile(std::string fileName);
+
+  /// Read next event and push data into the relevant buffers
+  void readBX();
+
+  /// return true if current event is valid (false if EOF reached!)
+  bool dataValid() const { return !m_fin.eof(); }
+
+  /// close input file
+  void closeInputFile() { m_fin.close(); }
+
+  /// clear the buffers
+  void reset();
   
-    /// Overload << operator
-    friend std::ostream& operator << (std::ostream& os, const L1GctSourceCard& card);
+  /// get the data from RCT/File/event/...
+  void fetchInput();
 
-    /// Open input file
-    void openInputFile(std::string fileName);
-  
-    /// Read next event and push data into the relevant buffers
-    void readBX();
+  /// process the event
+  void process();
 
-    /// return true if current event is valid (false if EOF reached!)
-    bool dataValid() const { return !m_fin.eof(); }
-
-    /// close input file
-    void closeInputFile() { m_fin.close(); }
-
-    /// clear the buffers
-    void reset();
-    
-    /// get the data from RCT/File/event/...
-    void fetchInput();
-
-    /// process the event
-    void process();
-  
-    //Methods to read the BX data out from the class
-    std::vector<L1GctEmCand> getIsoElectrons() const;
-    std::vector<L1GctEmCand> getNonIsoElectrons() const;
-    MipBits getMipBits() const;
-    QuietBits getQuietBits() const;
-    std::vector<L1GctRegion> getRegions() const;
-        
-    /// Returns the value of the current bunch crossing number
-    long int getBxNum() const { return m_currentBX; }
+  //Methods to read the BX data out from the class
+  std::vector<L1GctEmCand> getIsoElectrons() const;
+  std::vector<L1GctEmCand> getNonIsoElectrons() const;
+  MipBits getMipBits() const;
+  QuietBits getQuietBits() const;
+  std::vector<L1GctRegion> getRegions() const;
+      
+  /// Returns the value of the current bunch crossing number
+  long int getBxNum() const { return m_currentBX; }
 
 private:
 
-    //SYMBOLIC CONSTANTS
-    static const int NUM_ELEC = 4;
-    static const int NUM_REG_TYPE2 = 12;
-    static const int NUM_REG_TYPE3 = 10;
-    static const int DATA_OFFSET_TYPE3 = NUM_ELEC*2 + MIP_BITWIDTH + QUIET_BITWIDTH;
-    static const int DATA_OFFSET_TYPE2 = NUM_ELEC*2 + MIP_BITWIDTH + QUIET_BITWIDTH + NUM_REG_TYPE3;    
+  //DECLARE SYMBOLIC CONSTANTS
+  static const int NUM_ELEC = 4;
+  static const int NUM_REG_TYPE2 = 12; ///< No. regions type 2 card takes in
+  static const int NUM_REG_TYPE3 = 10; ///< No. regions type 3 card takes in
+  static const int DATA_OFFSET_TYPE3 = NUM_ELEC*2 + MIP_BITWIDTH + QUIET_BITWIDTH; ///< Data offset for file reading
+  static const int DATA_OFFSET_TYPE2 = NUM_ELEC*2 + MIP_BITWIDTH + QUIET_BITWIDTH + NUM_REG_TYPE3; ///< Data offset for file reading  
 
-    //PRIVATE MEMBER VARIABLES
-    ///
-    /// card ID
-    int m_id;
-    ///
-    /// SourceCard type
-    SourceCardType m_cardType;
+  //PRIVATE MEMBER VARIABLES
+  ///
+  /// card ID
+  int m_id;
+  ///
+  /// SourceCard type
+  SourceCardType m_cardType;
 
-    /// file handle
-    std::ifstream m_fin;
+  /// file handle
+  std::ifstream m_fin;
 
-    /// Stores the current bunch crossing number
-    long int m_currentBX;
+  /// Stores the current bunch crossing number
+  long int m_currentBX;
 
-    //Data buffers
-    std::vector<L1GctEmCand> m_isoElectrons;  
-    std::vector<L1GctEmCand> m_nonIsoElectrons;
-    MipBits m_mipBits;
-    QuietBits m_quietBits;
-    std::vector<L1GctRegion> m_regions;
-    
-    //PRIVATE MEMBER FUNCTIONS
-    ///Sets the appropriate sizes of vector depending on type of source card 
-    void setVectorSizes();
-    
-    void getCables1And2();  ///< Reads in data corresponding to RCT crate cables 1 & 2
-    void getCables3And4();  ///< Reads in data corresponding to RCT crate cables 3 & 4
-    void getCables5And6();  ///< Reads in data corresponding to RCT crate cables 5 & 6
+  //Data buffers
+  std::vector<L1GctEmCand> m_isoElectrons;  
+  std::vector<L1GctEmCand> m_nonIsoElectrons;
+  MipBits m_mipBits;
+  QuietBits m_quietBits;
+  std::vector<L1GctRegion> m_regions;
+  
+  //PRIVATE MEMBER FUNCTIONS
+  ///Sets the appropriate sizes of vector depending on type of source card 
+  void setVectorSizes();
+  
+  void getCables1And2();  ///< Reads in data corresponding to RCT crate cables 1 & 2
+  void getCables3And4();  ///< Reads in data corresponding to RCT crate cables 3 & 4
+  void getCables5And6();  ///< Reads in data corresponding to RCT crate cables 5 & 6
 
-    /// Reads the Bunch Crossing number from the file
-    void readBxNum();   
+  /// Reads the Bunch Crossing number from the file
+  void readBxNum();   
     
 };
 

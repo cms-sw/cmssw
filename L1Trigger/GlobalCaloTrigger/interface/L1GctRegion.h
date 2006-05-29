@@ -40,7 +40,7 @@ public:
 
 
 private:
-
+  //Declare statics
   static const int ET_BITWIDTH = 10;
 
   /// global eta position number of the region (0-21)

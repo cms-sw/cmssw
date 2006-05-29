@@ -2,6 +2,12 @@
 
 #include <assert.h>
 
+//DEFINE STATICS
+const int L1GctJetCand::LOCAL_ETA_HF_START = 7;
+const int L1GctJetCand::RANK_BITWIDTH = 6;  
+const int L1GctJetCand::ETA_BITWIDTH = 4;
+const int L1GctJetCand::PHI_BITWIDTH = 5;
+
 
 L1GctJetCand::L1GctJetCand(uint16_t rank, uint16_t eta, uint16_t phi, bool tauVeto) :
   m_rank(rank),

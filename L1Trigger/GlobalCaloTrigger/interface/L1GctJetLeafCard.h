@@ -20,6 +20,11 @@
 class L1GctJetLeafCard : L1GctProcessor
 {
 public:
+  //Statics
+  static const int MAX_JET_FINDERS;  ///< Number of jetfinders per jet leaf card
+  static const unsigned int MAX_SOURCE_CARDS;  ///< Number of source cards required to provide input per jet leaf card
+
+  //Construtors/destructor
   L1GctJetLeafCard(int id, int iphi, std::vector<L1GctSourceCard*> sourceCards,
                    L1GctJetEtCalibrationLut* jetEtCalLut);
                    
@@ -55,9 +60,6 @@ public:
   L1GctScalarEtVal getOutputEt() const { return m_etSum; }
   L1GctScalarEtVal getOutputHt() const { return m_htSum; }
    
-  static const int MAX_JET_FINDERS = 3;
-  static const unsigned int MAX_SOURCE_CARDS = 15;
-
 private:
 
   // Leaf card ID

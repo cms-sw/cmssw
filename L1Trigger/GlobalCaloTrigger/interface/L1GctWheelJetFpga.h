@@ -11,10 +11,11 @@
 class L1GctWheelJetFpga : public L1GctProcessor
 {
 public:
+  typedef std::vector<L1GctJetCand> JetVector;
+  static const int MAX_JETS_OUT;   ///< Max number of jets of each type we output.
+
   L1GctWheelJetFpga(int id, std::vector<L1GctJetLeafCard*> inputLeafCards);
   ~L1GctWheelJetFpga();
-
-  typedef std::vector<L1GctJetCand> JetVector;
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga);
@@ -47,19 +48,13 @@ public:
   L1GctScalarEtVal getOutputHt() const { return m_outputHt; }
   L1GctJcWheelType getOutputJc(unsigned jcnum) const { return m_outputJc[jcnum]; }
 
-  /// Max number of jets of each type (central, foward, tau) we output.
-  static const int MAX_JETS_OUT = 4;
-  /// Max number of leaf card pointers
-  static const unsigned int MAX_LEAF_CARDS = 3;
-   
 private:
 
-  /// Maximum number of jets we can have as input
-  static const int MAX_JETS_IN = MAX_LEAF_CARDS * L1GctJetLeafCard::MAX_JET_FINDERS * L1GctJetFinder::MAX_JETS_OUT;
-    
-  static const int MAX_RAW_CJETS = 36;  ///< Max. possible central jets to sort over
-  static const int MAX_RAW_FJETS = 18;  ///< Max. possible forward jets to sort over
-  static const int MAX_RAW_TJETS = 36;  ///< Max. possible tau jets to sort over
+  static const unsigned int MAX_LEAF_CARDS;  ///< Max number of leaf card pointers
+  static const int MAX_JETS_IN;    ///< Maximum number of jets we can have as input
+  static const int MAX_RAW_CJETS;  ///< Max. possible central jets to sort over
+  static const int MAX_RAW_FJETS;  ///< Max. possible forward jets to sort over
+  static const int MAX_RAW_TJETS;  ///< Max. possible tau jets to sort over
     
   /// algo ID
   int m_id;

@@ -5,6 +5,12 @@
 using std::ostream;
 using std::endl;
 
+//DEFINE STATICS
+const unsigned int L1GctJetFinalStage::MAX_WHEEL_FPGAS = 2;
+const int L1GctJetFinalStage::MAX_JETS_IN = L1GctJetFinalStage::MAX_WHEEL_FPGAS*L1GctWheelJetFpga::MAX_JETS_OUT;
+const int L1GctJetFinalStage::MAX_JETS_OUT = 4;
+
+
 L1GctJetFinalStage::L1GctJetFinalStage(std::vector<L1GctWheelJetFpga*> wheelFpgas):
   m_wheelFpgas(wheelFpgas),
   m_inputCentralJets(MAX_JETS_IN),

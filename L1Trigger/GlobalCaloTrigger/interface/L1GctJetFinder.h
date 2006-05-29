@@ -65,6 +65,10 @@ public:
   //Typedefs
   typedef unsigned long int ULong;
   typedef unsigned short int UShort;
+
+  //Statics
+  static const int MAX_JETS_OUT;  ///< Max of 6 jets found per jetfinder in a 2*11 search area
+  static const unsigned int MAX_SOURCE_CARDS; ///< Need data from 9 separate source cards to find jets in the 2*11 search region.
     
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
   L1GctJetFinder(int id, std::vector<L1GctSourceCard*> sourceCards,
@@ -93,19 +97,16 @@ public:
   /// Return output data
   std::vector<L1GctJetCand> getJets() const { return m_outputJets; }
   L1GctScalarEtVal ht() const { return m_outputHt; }
-    
-  static const int MAX_JETS_OUT = 6;  ///< Max of 6 jets found per jetfinder in a 2*11 search area
-  static const unsigned int MAX_SOURCE_CARDS = 9; ///< Need data from 9 separate source cards to find jets in the 2*11 search region.
 
 private:
+
+  //Statics
+  static const int MAX_REGIONS_IN; ///< 2*11 search area, so 4*12=48 regions needed to run search.
+  static const int COL_OFFSET;  ///< The index offset between columns
 
 	/// algo ID
 	int m_id;
 	
-  //Constants
-  static const int MAX_REGIONS_IN = 48; // 2*11 search area, so 4*12=48 regions needed to run search.
-  static const int COL_OFFSET = MAX_REGIONS_IN/4;  ///< The index offset between columns
-
   /// Store source card pointers
   std::vector<L1GctSourceCard*> m_sourceCards;
   

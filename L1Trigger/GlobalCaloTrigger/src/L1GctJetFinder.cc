@@ -5,6 +5,13 @@
 #include <iostream>
 using namespace std;
 
+//DEFINE STATICS
+const int L1GctJetFinder::MAX_JETS_OUT = 6;
+const unsigned int L1GctJetFinder::MAX_SOURCE_CARDS = 9;
+const int L1GctJetFinder::MAX_REGIONS_IN = 48;
+const int L1GctJetFinder::COL_OFFSET = L1GctJetFinder::MAX_REGIONS_IN/4;
+
+
 L1GctJetFinder::L1GctJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
                                L1GctJetEtCalibrationLut* jetEtCalLut):
   m_id(id),

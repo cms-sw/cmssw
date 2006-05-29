@@ -1,6 +1,11 @@
 //this must be changed when scramming is working
 #include"L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 
+//DEFINE STATICS
+const int L1GctEmCand::RANK_BITWIDTH = 6;
+const int L1GctEmCand::ETA_BITWIDTH = 4;
+const int L1GctEmCand::PHI_BITWIDTH = 5;
+
 L1GctEmCand::L1GctEmCand(ULong rank, ULong eta, ULong phi) : 
   m_rank(rank),
   m_eta(eta),

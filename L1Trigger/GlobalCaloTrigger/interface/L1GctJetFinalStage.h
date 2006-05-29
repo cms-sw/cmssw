@@ -51,12 +51,9 @@ public:
   JetVector getTauJets() const { return m_tauJets; }
 private:
 
-  /// Max number of wheel FPGA pointers
-  static const unsigned int MAX_WHEEL_FPGAS = 2;
-  /// Max number of jets of each type coming in
-  static const int MAX_JETS_IN = MAX_WHEEL_FPGAS*L1GctWheelJetFpga::MAX_JETS_OUT;
-  /// Max number of jets of each type going out
-  static const int MAX_JETS_OUT = 4;
+  static const unsigned int MAX_WHEEL_FPGAS; ///< Max number of wheel FPGA pointers
+  static const int MAX_JETS_IN;  ///< Max number of jets of each type coming in
+  static const int MAX_JETS_OUT; ///< Max number of jets of each type going out
   
   /// wheel jet FPGAs
   std::vector<L1GctWheelJetFpga*> m_wheelFpgas;

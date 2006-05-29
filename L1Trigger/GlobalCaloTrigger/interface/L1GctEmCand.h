@@ -56,9 +56,10 @@ public:
 
 private:
 
-    static const int RANK_BITWIDTH = 6;
-    static const int ETA_BITWIDTH = 4;
-    static const int PHI_BITWIDTH = 5;
+    //DECLARE STATICS
+    static const int RANK_BITWIDTH;
+    static const int ETA_BITWIDTH;
+    static const int PHI_BITWIDTH;
 
     unsigned m_rank;
     unsigned m_eta;

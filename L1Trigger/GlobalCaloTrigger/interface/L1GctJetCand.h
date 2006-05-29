@@ -18,7 +18,10 @@ class L1GctJetCand
 {
 
 public:
-
+  //Statics
+  static const int LOCAL_ETA_HF_START; ///< start of the HF in 'local' jetfinder co-ordinates (11*2 in eta*phi)
+  
+  //Constructors/destructors
   L1GctJetCand(uint16_t rank=0, uint16_t eta=0, uint16_t phi=0, bool tauVeto=true);
   ~L1GctJetCand();
   
@@ -60,16 +63,12 @@ public:
   /// produce a GCT digi tau jet
   L1GctTauJet makeTauJet();
 
-
-  ///start of the HF if we are using local jetfinder co-ordinates (11*2 in eta*phi)
-  static const int LOCAL_ETA_HF_START = 7;
-  ///External access to the rank bitwidth
-  static const int RANK_BITWIDTH = 6;
-  
  private:
-  
-  static const int ETA_BITWIDTH = 4;
-  static const int PHI_BITWIDTH = 5;
+
+  //Declare statics
+  static const int RANK_BITWIDTH;  
+  static const int ETA_BITWIDTH;
+  static const int PHI_BITWIDTH;
   
   uint16_t m_rank;
   uint16_t m_eta;

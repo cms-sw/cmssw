@@ -4,6 +4,14 @@
 
 using namespace std;
 
+//DEFINE STATICS
+const int L1GctWheelJetFpga::MAX_JETS_OUT = 4;
+const unsigned int L1GctWheelJetFpga::MAX_LEAF_CARDS = 3;
+const int L1GctWheelJetFpga::MAX_JETS_IN = L1GctWheelJetFpga::MAX_LEAF_CARDS * L1GctJetLeafCard::MAX_JET_FINDERS * L1GctJetFinder::MAX_JETS_OUT;
+const int L1GctWheelJetFpga::MAX_RAW_CJETS = 36;
+const int L1GctWheelJetFpga::MAX_RAW_FJETS = 18;
+const int L1GctWheelJetFpga::MAX_RAW_TJETS = 36;
+
 
 L1GctWheelJetFpga::L1GctWheelJetFpga(int id, vector<L1GctJetLeafCard*> inputLeafCards):
   m_id(id),

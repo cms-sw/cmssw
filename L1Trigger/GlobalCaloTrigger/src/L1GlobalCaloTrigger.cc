@@ -17,6 +17,13 @@ using std::stringstream;
 using std::endl;
 using std::vector;
 
+//DEFINE STATICS
+const int L1GlobalCaloTrigger::N_SOURCE_CARDS = 54;
+const int L1GlobalCaloTrigger::N_JET_LEAF_CARDS = 6;
+const int L1GlobalCaloTrigger::N_EM_LEAF_CARDS = 2;
+const int L1GlobalCaloTrigger::N_WHEEL_JET_FPGAS = 2;
+const int L1GlobalCaloTrigger::N_WHEEL_ENERGY_FPGAS = 2;
+
 // constructor
 L1GlobalCaloTrigger::L1GlobalCaloTrigger() :
   theSourceCards(N_SOURCE_CARDS),

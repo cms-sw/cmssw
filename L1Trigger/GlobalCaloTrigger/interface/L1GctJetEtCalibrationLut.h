@@ -21,7 +21,7 @@ public:
   
 private:
 
-  static const int JET_ENERGY_BITWIDTH = 10;  //must be 6 or more
+  static const int JET_ENERGY_BITWIDTH;  ///< Input bitwidth of jet energy; must be 10 or more
   
   
 //  float m_quadraticCoeff;

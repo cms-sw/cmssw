@@ -4,6 +4,10 @@
 
 using namespace std;
 
+//DEFINE STATICS
+const int L1GctJetLeafCard::MAX_JET_FINDERS = 3;  
+const unsigned int L1GctJetLeafCard::MAX_SOURCE_CARDS = 15;
+
 L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, vector<L1GctSourceCard*> sourceCards,
                                    L1GctJetEtCalibrationLut* jetEtCalLut):
   m_id(id),

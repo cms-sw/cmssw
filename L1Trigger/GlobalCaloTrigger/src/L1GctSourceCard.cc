@@ -6,7 +6,6 @@
 
 using namespace std;
 
-
 L1GctSourceCard::L1GctSourceCard(int id, SourceCardType typeVal):
   m_id(id),
   m_cardType(typeVal)
