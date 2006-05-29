@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.13 2006/04/26 22:26:56 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.1 2006/05/29 18:49:14 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.13 2006/04/26 22:26:56 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.1 2006/05/29 18:49:14 rpw Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessDesc.h>
@@ -118,7 +118,7 @@ namespace edm
       new ScheduleValidator(pathFragments_,*pset_); 
    
     validator_->validate();
-std::cout << *pset_ << std::endl; 
+//std::cout << *pset_ << std::endl; 
   }
 
 
