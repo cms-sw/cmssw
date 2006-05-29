@@ -38,8 +38,8 @@ namespace {
     edm::RefProd<reco::SiStripElectronCandidateCollection> rp5;
     edm::RefVector<reco::SiStripElectronCandidateCollection> rv5;
 
-    edm::RefToBaseImpl<reco::Candidate, reco::ElectronCandidateRef> rb1;
-    edm::RefToBaseImpl<reco::Candidate, reco::PhotonCandidateRef> rb2;
-    edm::RefToBaseImpl<reco::Candidate, reco::SiStripElectronCandidateRef> rb3;
+    edm::reftobase::Holder<reco::Candidate, reco::ElectronCandidateRef> rb1;
+    edm::reftobase::Holder<reco::Candidate, reco::PhotonCandidateRef> rb2;
+    edm::reftobase::Holder<reco::Candidate, reco::SiStripElectronCandidateRef> rb3;
   }
 }
