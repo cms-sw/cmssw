@@ -3,10 +3,15 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
-/// AlignableTrackerModifier is a helper class to modify the Alignables
+/// AlignableTrackerModifier is a helper class to modify the Alignables.
+///
+/// Configuration parameters are defined in this class.
 
 class AlignableTrackerModifier 
 {
@@ -17,60 +22,65 @@ public:
   typedef TkRotation<float>     RotationType;
 
   /// Constructor
-  AlignableTrackerModifier();
+  AlignableTrackerModifier() {};
 
   /// Destructor
-  ~AlignableTrackerModifier();
+  ~AlignableTrackerModifier() {};
+
+  /// Modify given set of alignables according to parameters
+  void modify( Alignable* alignable, const edm::ParameterSet& pSet );
+
+  /// Check if given parameter should be propagated
+  const bool isPropagated( const std::string parameterName ) const;
   
   /// Random gaussian move in global space of a collection of Alignables
-  void randomMove( std::vector<Alignable*> comp, 
+  void randomMove( Alignable* alignable, 
 				   float sigmaX, float sigmaY, float sigmaZ,
-				   bool setSeed, long seed );
-
+				   long seed );
+  
   /// Random flat move in global space of a collection of Alignables
-  void randomFlatMove( std::vector<Alignable*> comp, 
+  void randomFlatMove( Alignable* alignable, 
 					   float sigmaX, float sigmaY, float sigmaZ,
-					   bool setSeed, long seed );
-
-  /// Random gaussian movement of all components of a collection of Alignables in local frame
-  void randomMoveComponentsLocal( std::vector<Alignable*> comp, 
-								  float sigmaX, float sigmaY, float sigmaZ,
-								  bool setSeed, long seed );
-
+					   long seed );
+  
   /// Random gaussian rotation of a collection of Alignables
-  void randomRotate( std::vector<Alignable*> comp, 
+  void randomRotate( Alignable* alignable, 
 					 float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ,
-					 bool setSeed, long seed );
-
+					 long seed );
+  
   /// Random gaussian rotation of a collection of Alignables in local frame
-  void randomRotateLocal( std::vector<Alignable*> comp, 
+  void randomRotateLocal( Alignable* alignable, 
 						  float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ,
-						  bool setSeed, long seed );
-
+						  long seed );
+  
+  /// Random flat rotation of a collection of Alignables
+  void randomFlatRotate( Alignable* alignable, 
+						 float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ,
+						 long seed );
+  
   /// Random flat rotation of a collection of Alignables in local frame
-  void randomFlatRotateLocal( std::vector<Alignable*> comp, 
+  void randomFlatRotateLocal( Alignable* alignable, 
 							  float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ,
-							  bool setSeed, long seed );
-
-  /// Random gaussian rotation of all components of a collection of Alignables
-  void randomRotateComponentsLocal( std::vector<Alignable*> comp, 
-									float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ,
-									bool setSeed, long seed );
+							  long seed );
 
   /// Add the AlignmentPositionError (in global frame) to all elements of vector
-  void addAlignmentPositionError( std::vector<Alignable*> comp, 
+  void addAlignmentPositionError( Alignable* alignable, 
 								  float dx, float dy, float dz );
 
-  /// Add the AlignmentPositionError (in local frame) to all elements of vector
-  void addAlignmentPositionErrorLocal( std::vector<Alignable*> comp, 
-									   float dx, float dy, float dz );
-  
   /// Add alignment position error resulting from rotation in global frame
-  void addAlignmentPositionErrorFromRotation( std::vector<Alignable*> comp, 
+  void addAlignmentPositionErrorFromRotation( Alignable* alignable, 
+											  float phiX, float phiY, float phiZ ); 
+
+  /// Add alignment position error resulting from rotation in local frame
+  void addAlignmentPositionErrorFromLocalRotation( Alignable* alignable, 
+												   float phiX, float phiY, float phiZ ); 
+
+  /// Add alignment position error resulting from rotation in global frame
+  void addAlignmentPositionErrorFromRotation( Alignable* alignable, 
 											  RotationType& rotation ); 
 
   /// Add alignment position error resulting from rotation in local frame
-  void addAlignmentPositionErrorFromLocalRotation( std::vector<Alignable*> comp, 
+  void addAlignmentPositionErrorFromLocalRotation( Alignable* alignable, 
 												   RotationType& rotation ); 
 
 };
