@@ -18,7 +18,8 @@
 
 class L1GctEmLeafCard : L1GctProcessor {
  public:
-  static const unsigned N_SRC_PER_EM_LEAF = 9;
+  static const unsigned N_SOURCE_CARDS;
+  static const unsigned N_SORTERS;
 
  public:
   /// construct with ID and vector of pointers to Source Cards

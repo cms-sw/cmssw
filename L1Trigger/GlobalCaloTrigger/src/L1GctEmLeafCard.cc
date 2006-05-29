@@ -9,24 +9,31 @@ using std::vector;
 using std::ostream;
 using std::endl;
 
+const unsigned L1GctEmLeafCard::N_SOURCE_CARDS = 9;
+const unsigned L1GctEmLeafCard::N_SORTERS = 4;
+
 L1GctEmLeafCard::L1GctEmLeafCard(int id, vector<L1GctSourceCard*> srcCards) :
   m_id(id),
   m_sorters(4),
   m_sourceCards(srcCards)
 {
+
+  // sorters 0 and 1 are in FPGA 0
   m_sorters[0] = new L1GctElectronSorter(true);
-  m_sorters[1] = new L1GctElectronSorter(true);
-  m_sorters[2] = new L1GctElectronSorter(false);
+  m_sorters[1] = new L1GctElectronSorter(false);
+
+  // sorters 2 and 3 are in FPGA 1
+  m_sorters[2] = new L1GctElectronSorter(true);
   m_sorters[3] = new L1GctElectronSorter(false);
   
   // check for the right number of source cards
-  if (m_sourceCards.size()!=N_SRC_PER_EM_LEAF) {
+  if (m_sourceCards.size()!=N_SOURCE_CARDS) {
     throw cms::Exception("L1GctSetupError")
       << "L1GctEmLeafCard::L1GctEmLeafCard() : EM Leaf Card ID " << m_id << " has been incorrectly constructed!" << endl
-      << "Expected " << N_SRC_PER_EM_LEAF << " source card pointers, only received " << m_sourceCards.size() << endl;
+      << "Expected " << N_SOURCE_CARDS << " source card pointers, only received " << m_sourceCards.size() << endl;
   }
 
-  for (unsigned i=0; i<N_SRC_PER_EM_LEAF; i++) {
+  for (unsigned i=0; i<N_SOURCE_CARDS; i++) {
     if (m_sourceCards[i]==0) {
      throw cms::Exception("L1GctSetupError")
        << "L1GctEmLeafCard::L1GctEmLeafCard() : EM Leaf Card ID " << m_id << " has been incorrectly constructed!" << endl
@@ -48,33 +55,43 @@ L1GctEmLeafCard::~L1GctEmLeafCard()
 
 /// clear buffers
 void L1GctEmLeafCard::reset() {
-  for (unsigned i=0; i<m_sorters.size(); i++) {
+  for (unsigned i=0; i<N_SORTERS; i++) {
     m_sorters[i]->reset();
   }
 }
 
 /// fetch input data
 void L1GctEmLeafCard::fetchInput() {
-  for (unsigned i=0; i<m_sorters.size(); i++) {
+  for (unsigned i=0; i<N_SORTERS; i++) {
     m_sorters[i]->fetchInput();
   }
 }
 
 /// process the event
 void L1GctEmLeafCard::process() {
-  for (unsigned i=0; i<m_sorters.size(); i++) {
+  for (unsigned i=0; i<N_SORTERS; i++) {
     m_sorters[i]->process();
   }
 }
 
 /// get the output candidates
 vector<L1GctEmCand> L1GctEmLeafCard::getOutputIsoEmCands(int fpga) {
-   return m_sorters[fpga]->OutputCands();
+  if (fpga<2) {
+    return m_sorters[2*fpga]->OutputCands();
+  }
+  else {
+    return vector<L1GctEmCand>(0);
+  }
 }
 
 /// get the output candidates
 vector<L1GctEmCand> L1GctEmLeafCard::getOutputNonIsoEmCands(int fpga) {
-     return m_sorters[fpga+2]->OutputCands();
+  if (fpga<2) {
+    return m_sorters[2*fpga+1]->OutputCands();
+  }
+  else {
+    return vector<L1GctEmCand>(0);
+  }
 }
 
 ostream& operator<<(ostream& s, const L1GctEmLeafCard& card) {
