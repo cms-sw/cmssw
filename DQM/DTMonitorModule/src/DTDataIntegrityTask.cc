@@ -52,6 +52,7 @@ DTDataIntegrityTask::~DTDataIntegrityTask() {
  
   cout<<"[DTDataIntegrityTask]: Destructor. Analyzed "<< nevents <<" events"<<endl;
   sleep(10);
+  
   if ( outputFile.size() != 0 ) dbe->save(outputFile);
 
 }
@@ -71,6 +72,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   stringstream dduID_s; dduID_s << code.getDDU();
   stringstream rosID_s; rosID_s << code.getROS();
   stringstream robID_s; robID_s << code.getROB();
+
   string histoType;
   string histoName;
 
@@ -122,6 +124,11 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
     histoType = "TimeBox";
     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB" + robID_s.str()+"_TimeBox";
+
+    // used only if they have been set (controlled by the switch during fillin)
+    stringstream tdcID_s; tdcID_s << code.getTDC();
+    stringstream chID_s; chID_s << code.getChannel();
+
     int index;
     switch (parameters.getUntrackedParameter<int>("TBhistoGranularity",1)) {
     case 1: // ROB
@@ -129,9 +136,18 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
       break;
     case 2: // TDC
       index = code.getTDCID();
+      histoName = "FED" + dduID_s.str() 
+	+ "_ROS" + rosID_s.str() 
+	+ "_ROB" + robID_s.str()
+	+ "_TDC" + tdcID_s.str() + "_TimeBox";
       break;
     case 3: // Ch
       index = code.getChannelID();
+      histoName = "FED" + dduID_s.str() 
+	+ "_ROS" + rosID_s.str() 
+	+ "_ROB" + robID_s.str()
+	+ "_TDC" + tdcID_s.str() 
+	+ "_Channel" + chID_s.str() + "_TimeBox";
       break;
     default: // ROB
       index = code.getROBID();      
@@ -221,7 +237,6 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
        tdc_it != data.getTDCData().end(); tdc_it++) {
 
 
-    stringstream robID_s; robID_s << (*tdc_it).first;
     DTTDCMeasurementWord tdcDatum = (*tdc_it).second;
     int index;
     switch (parameters.getUntrackedParameter<int>("TBhistoGranularity",1)) {
@@ -230,10 +245,13 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       index = code.getROBID();
       break;
     case 2:
+      code.setROB((*tdc_it).first);
       code.setTDC(tdcDatum.tdcID());
       index = code.getTDCID();
       break;
     case 3:
+      code.setROB((*tdc_it).first);
+      code.setTDC(tdcDatum.tdcID());
       code.setChannel(tdcDatum.tdcChannel());
       index = code.getChannelID();
       break;
