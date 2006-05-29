@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/src/ConfigurationPreprocessor.h"
-#include "FWCore/ParameterSet/interface/ProcessPSetBuilder.h"
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 using boost::shared_ptr;
@@ -29,10 +29,10 @@ namespace edm
     string finalConfigDoc;
     edm::pset::ConfigurationPreprocessor preprocessor;
     preprocessor.process(configtext, finalConfigDoc);
-    edm::ProcessPSetBuilder builder(finalConfigDoc);
+    edm::ProcessDesc processDesc(finalConfigDoc);
 
-    main = builder.getProcessPSet();
-    serviceparams = builder.getServicesPSets();
+    main = processDesc.getProcessPSet();
+    serviceparams = processDesc.getServicesPSets();
 
     // Load every ParameterSet into the Registry
     pset::loadAllNestedParameterSets(*main);
