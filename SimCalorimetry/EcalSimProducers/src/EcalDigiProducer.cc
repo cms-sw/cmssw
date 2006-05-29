@@ -1,5 +1,18 @@
 
 #include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
+#include "DataFormats/Common/interface/EDProduct.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Handle.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/Provenance.h"
+#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloDigiCollectionSorter.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CLHEP/Random/RandFlat.h"
 
 EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params) 
 :  theGeometry(0)
@@ -115,9 +128,9 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   //      preshowerHits( new MixCollection<PCaloHit>(crossingFrame.product(), preshowerHitsName) ); 
   
   // Step B: Create empty output
-  auto_ptr<EBDigiCollection> barrelResult(new EBDigiCollection());
-  auto_ptr<EEDigiCollection> endcapResult(new EEDigiCollection());
-  auto_ptr<ESDigiCollection> preshowerResult(new ESDigiCollection());
+  std::auto_ptr<EBDigiCollection> barrelResult(new EBDigiCollection());
+  std::auto_ptr<EEDigiCollection> endcapResult(new EEDigiCollection());
+  std::auto_ptr<ESDigiCollection> preshowerResult(new ESDigiCollection());
 
   // run the algorithm
 

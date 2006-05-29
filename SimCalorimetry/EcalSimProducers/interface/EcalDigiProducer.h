@@ -1,13 +1,10 @@
 #ifndef ECALDDIGIPRODUCER_H
 #define ECALDDIGIPRODUCER_H
 
-using namespace std;
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
@@ -15,25 +12,11 @@ using namespace std;
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Provenance.h"
-#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
-
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloDigiCollectionSorter.h"
-
-#include "CLHEP/Random/RandFlat.h"
 
 class EcalDigiProducer : public edm::EDProducer
 {
