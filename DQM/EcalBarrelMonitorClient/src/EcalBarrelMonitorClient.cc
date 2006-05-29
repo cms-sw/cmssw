@@ -87,7 +87,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   status_  = "unknown";
   run_     = -1;
   evt_     = -1;
-  runtype_ = "UNKNOWN";
+  runtype_ = -1;
 
   subrun_  = -1;
 
@@ -383,10 +383,10 @@ void EcalBarrelMonitorClient::beginRun(void){
     clients_[i]->cleanup();
     bool started; started = false;
     for( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if( runtype_ != "UNKNOWN" && runtype_ == runTypes_[ (*j).second ] && !started ) { started = true; clients_[i]->beginRun(); }
+      if( runtype_ != -1 && runtype_ == (*j).second && !started ) { started = true; clients_[i]->beginRun(); }
     }
   }
-
+  
 }
 
 void EcalBarrelMonitorClient::endJob(void) {
@@ -444,16 +444,16 @@ void EcalBarrelMonitorClient::endRun(void) {
   for( int i=0; i<int(clients_.size()); i++ ) {
     bool ended; ended = false;
     for( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if( runtype_ != "UNKNOWN" && runtype_ == runTypes_[ (*j).second ] && !ended ) { ended = true; clients_[i]->endRun(); }
+      if( runtype_ != -1 && runtype_ == (*j).second && !ended ) { ended = true; clients_[i]->endRun(); }
     }
   }
-
+  
   this->cleanup();
 
   status_  = "unknown";
   run_     = -1;
   evt_     = -1;
-  runtype_ = "UNKNOWN";
+  runtype_ = -1;
 
   subrun_ = -1;
 
@@ -520,14 +520,14 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   RunTypeDef rundef;
 
-  rundef.setRunType(runtype_);
-
-  if ( runtype_ == "COSMIC" ) rundef.setConfigTag("COSMIC-STD");
-  if ( runtype_ == "LASER" ) rundef.setConfigTag("LASER-STD");
-  if ( runtype_ == "PEDESTAL" ) rundef.setConfigTag("PEDESTAL-STD");
-  if ( runtype_ == "TEST_PULSE" ) rundef.setConfigTag("TEST_PULSE-MGPA");
-  if ( runtype_ == "BEAMH4" ) rundef.setConfigTag("BEAM-STD");
-  if ( runtype_ == "BEAMH2" ) rundef.setConfigTag("BEAM-STD");
+  rundef.setRunType( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_]  );
+ 
+  if( runtype_ == EcalDCCHeaderBlock::COSMIC )         rundef.setConfigTag("COSMIC-STD");
+  if( runtype_ == EcalDCCHeaderBlock::BEAMH4 )         rundef.setConfigTag("BEAM-STD");
+  if( runtype_ == EcalDCCHeaderBlock::BEAMH2 )         rundef.setConfigTag("BEAM-STD");
+  if( runtype_ == EcalDCCHeaderBlock::LASER_STD )      rundef.setConfigTag("LASER-STD");
+  if( runtype_ == EcalDCCHeaderBlock::TESTPULSE_MGPA ) rundef.setConfigTag("TEST_PULSE-MGPA");
+  if( runtype_ == EcalDCCHeaderBlock::PEDESTAL_STD )   rundef.setConfigTag("PEDESTAL-STD");
 
   if ( location_ == "H4" ) rundef.setConfigVersion(1);
   if ( location_ == "867-1" ) rundef.setConfigVersion(2);
@@ -543,7 +543,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   runtag.setLocationDef(locdef);
   runtag.setRunTypeDef(rundef);
 
-  runtag.setGeneralTag(runtype_);
+  runtag.setGeneralTag(runTypes_[runtype_]);
 
   Tm startRun;
 
@@ -582,7 +582,9 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   location_ = runiov_.getRunTag().getLocationDef().getLocation();
 
-  runtype_ = runiov_.getRunTag().getRunTypeDef().getRunType();
+  std::string st = runiov_.getRunTag().getRunTypeDef().getRunType();
+  if( st == "UNKNOWN" ) runtype_ = -1;
+  else for( unsigned int i=0; i<runTypes_.size(); i++ ) if( st == runTypes_[i] ) runtype_ = i;  
 
   cout << endl;
   cout << "=============RunIOV:" << endl;
@@ -675,7 +677,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
     for( int j = 0; j<int(clients_.size()); ++j ) {
       bool written; written = false;
       for( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-	if( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != "UNKNOWN" && runtype_ == runTypes_[ (*k).second ] && !written ) { 
+	if( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) { 
 	  written = true; 
 	  taskl |= 0x1 << j;
 	  clients_[j]->writeDb(econn, &moniov_, ism);
@@ -952,9 +954,9 @@ void EcalBarrelMonitorClient::analyze(void){
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
-      runtype_ = "UNKNOWN";
+      runtype_ = -1;
       for( int i=0; i<int(runTypes_.size()); ++i ) {
-	if( atoi(s.substr(2,s.size()-2).c_str()) == i ) runtype_ = runTypes_[i];
+	if( atoi(s.substr(2,s.size()-2).c_str()) == i ) runtype_ = i;
       }
     }
 
@@ -964,7 +966,7 @@ void EcalBarrelMonitorClient::analyze(void){
             " event = "    << evt_      <<
             " status = "   << status_   << endl;
 
-    cout << " runtype = "  << runtype_  <<
+    cout << " runtype = "  << runTypes_[runtype_]  <<
             " location = " << location_ << flush;
 
     if ( h_ ) {
@@ -993,7 +995,7 @@ void EcalBarrelMonitorClient::analyze(void){
   for( int i=0; i<int(clients_.size()); i++ ) {
     bool subscribed; subscribed = false;
     for( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if( runtype_ != "UNKNOWN" && runtype_ == runTypes_[ (*j).second ] && !subscribed ) { subscribed = true; clients_[i]->subscribeNew(); }
+      if( runtype_ != -1 && runtype_ == (*j).second && !subscribed ) { subscribed = true; clients_[i]->subscribeNew(); }
     }
   }
 
@@ -1020,7 +1022,7 @@ void EcalBarrelMonitorClient::analyze(void){
 	for( int i=0; i<int(clients_.size()); i++ ) {
 	  bool analyzed; analyzed = false;
 	  for( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-	    if( runtype_ != "UNKNOWN" && runtype_ == runTypes_[ (*j).second ] && !analyzed ) { analyzed = true; clients_[i]->analyze(); }
+	    if( runtype_ != -1 && runtype_ == (*j).second && !analyzed ) { analyzed = true; clients_[i]->analyze(); }
 	  }
 	}
 
@@ -1050,7 +1052,9 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( enableSubRun_ ) {
         time_t seconds = 15 * 60;
         if ( (current_time_ - last_time_) > seconds ) {
-          if ( runtype_ == "COSMIC" || runtype_ == "BEAMH4" ) this->writeDb();
+	  if( runtype_ == EcalDCCHeaderBlock::COSMIC || 
+	      runtype_ == EcalDCCHeaderBlock::BEAMH2 || 
+	      runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
         }
       }
 
@@ -1092,7 +1096,7 @@ void EcalBarrelMonitorClient::analyze(void){
     
     if ( ! forced_status_ ) {
       
-      if ( run_ > 0 && evt_ > 0 && runtype_ != "UNKNOWN" ) {
+      if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
 	
         if ( ! begin_run_ ) {
 
@@ -1141,8 +1145,6 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   sprintf(tmp, "%09d", run_);
 
-  //int jsm = 0;
-
   string htmlDir = baseHtmlDir_ + "/" + tmp + "/";
 
   system(("/bin/mkdir -p " + htmlDir).c_str());
@@ -1164,7 +1166,7 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   htmlFile << "<h2>Executed tasks for run:&nbsp&nbsp&nbsp" << endl;
   htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << run_ <<"</span></h2> " << endl;
   htmlFile << "<h2>Run type:&nbsp&nbsp&nbsp" << endl;
-  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << runtype_ <<"</span></h2> " << endl;
+  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << runTypes_[runtype_] <<"</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
 
   htmlFile << "<ul>" << endl;
@@ -1174,7 +1176,7 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   for( int j = 0; j<int(clients_.size()); ++j ) {
     bool written; written = false;
     for( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-      if( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != "UNKNOWN" && runtype_ == runTypes_[ (*k).second ] && !written ) { 
+      if( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) { 
 	written = true; 
 	htmlName = "EB" + clientNames_[j] + "Client.html";
 	clients_[j]->htmlOutput(run_, superModules_, htmlDir, htmlName);

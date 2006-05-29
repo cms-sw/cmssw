@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/05/26 07:27:39 $
- * $Revision: 1.45 $
+ * $Date: 2006/05/29 07:44:14 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -132,7 +132,7 @@ private:
  bool enableStateMachine_;
  
  string location_;
- string runtype_;
+ int    runtype_;
  string status_;
  int run_;
  int evt_;
