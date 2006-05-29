@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/05/23 17:48:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/26 14:35:48 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -93,7 +93,7 @@ void StandAloneMuonRefitter::setEvent(const Event& event){
   theCachedEvent = &event;
 }
 
-void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const DetLayer* initialLayer){
+void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const DetLayer* initialLayer, Trajectory &trajectory){
   
   std::string metname = "StandAloneMuonRefitter::refit";
   bool timing = true;
@@ -110,13 +110,13 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
   //   FreeTrajectoryState lastFts;
   //   lastUpdatedFts = lastButOneUpdatedFts = lastFts = *(initialTSOS.freeTrajectoryState());
   
-  // this is the most outward TSOS updated with a recHit
+  // this is the most outward TSOS updated with a recHit onto a DetLayer
   TrajectoryStateOnSurface lastUpdatedTSOS;
-  // this is the last but one most outward TSOS updated with a recHit
+  // this is the last but one most outward TSOS updated with a recHit onto a DetLayer
   TrajectoryStateOnSurface lastButOneUpdatedTSOS;
-  // this is the most outward TSOS (updated or predicted)
+  // this is the most outward TSOS (updated or predicted) onto a DetLayer
   TrajectoryStateOnSurface lastTSOS;
-  
+
   lastUpdatedTSOS = lastButOneUpdatedTSOS = lastTSOS = initialTSOS;
   
   // FIXME: check the prop direction!
@@ -127,7 +127,7 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
   // FIXME: is it right?Or have I to invert the iterator/prop direction??
   vector<const DetLayer*>::const_iterator layer;
 
-  // FIXME: begin() in rbegin() and end() in rend()??
+  // FIXME: begin() in rbegin() and end() in rend()?? Use the same techique as in the updator
   for ( layer = nLayers.begin(); layer!= nLayers.end(); ++layer ) {
     
     //  const DetLayer* layer = *nextlayer;
@@ -154,7 +154,6 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
     // In ORCA the choice was 1A. Here I will try 1B and if it fail I'll try 1A
     // another possibility could be 2B and then 1A.
 
-    
     // if no measurement found and the current TSOS has an eta very different
     // wrt the initial one (i.e. seed), then try to find the measurements
     // according to the lastButOne FTS. (1B)
@@ -189,8 +188,16 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
       bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL);
     }
     
-    
- 
+    // check if the there is a measurement
+    if(bestMeasurement){
+      pair<bool,TrajectoryStateOnSurface> result updator()->update(bestMeasurement,trajectory);
+      
+      if(result.first) lastTSOS = result.second; 
+    }
+
+    lastButOneUpdatedTSOS = lastUpdatedTSOS;
+    lastUpdatedTSOS = lastTSOS;
+
   }
 }
 
