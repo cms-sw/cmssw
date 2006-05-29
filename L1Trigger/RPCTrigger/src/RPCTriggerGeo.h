@@ -26,22 +26,18 @@ class RPCTriggerGeo {
     ~RPCTriggerGeo() {};
     
     void buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom);
-    bool isGeometryBuild();
+    bool isGeometryBuilt();
   
 
 
   private:
-    bool isGeoBuild; 
-    int etaToTower(float eta);
     void addDet(RPCRoll* roll);
     void printCurlMapInfo();
+    int etaToTower(float eta);
                               
-    //typedef std::map<uint32_t, RPCDetInfo> RPCDetInfoMap;
-    //RPCDetInfoMap rpcChambersMap; // Maps detID to RPCDetInfo
-
-    //typedef std::map<int, RPCCurl> RPCCurlMap;
+    bool m_isGeometryBuilt; 
     typedef std::map<uint32_t, RPCCurl> RPCCurlMap;
-    RPCCurlMap mRPCCurlMap; 
+    RPCCurlMap m_RPCCurlMap; 
     
 };
 #endif

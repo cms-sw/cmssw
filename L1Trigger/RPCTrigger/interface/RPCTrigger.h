@@ -29,7 +29,7 @@ class RPCTrigger : public edm::EDProducer {
       // ----------member data ---------------------------
     
     
-    RPCTriggerGeo linksystem;
+    RPCTriggerGeo theLinksystem;
 };
 
 

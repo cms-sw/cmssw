@@ -26,7 +26,7 @@
 //
 //#############################################################################
 RPCTriggerGeo::RPCTriggerGeo(){ 
-  isGeoBuild=false;
+  m_isGeometryBuilt=false;
 }
 
 //#############################################################################
@@ -34,8 +34,8 @@ RPCTriggerGeo::RPCTriggerGeo(){
 // Checks, if we have build the geometry already
 //
 //#############################################################################
-bool RPCTriggerGeo::isGeometryBuild(){
-  return isGeoBuild;
+bool RPCTriggerGeo::isGeometryBuilt(){
+  return m_isGeometryBuilt;
 }
 
 //#############################################################################
@@ -48,7 +48,7 @@ bool RPCTriggerGeo::isGeometryBuild(){
 void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
  
   
-  std::cout << "Building RPC geometry" << std::endl;  // Check how to give
+  //std::cout << "Building RPC geometry" << std::endl;  // Check how to give
                                                       // output in a kosher way
   // Get some information for all RpcDetId`s; store it locally
   TrackingGeometry::DetContainer::const_iterator it;
@@ -63,14 +63,9 @@ void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
     
   } // RpcDet loop end
 
-  // Build RpcCurl's
 
-
-
-
-  isGeoBuild=true;
+  m_isGeometryBuilt=true;
   printCurlMapInfo();
-  
 }
 
 //#############################################################################
@@ -134,25 +129,19 @@ void RPCTriggerGeo::addDet(RPCRoll* roll){
   RPCDetInfo detInfo(detId.rawId(), detId.region(), detId.ring(), 
                      detId.station(),  detId.layer(), detId.roll() );
   
+  detInfo.setEtaMin( *(min_element(etas.begin(), etas.end())) );
+  detInfo.setEtaMax( *(max_element(etas.begin(), etas.end())) );
   
-  detInfo.mEtaMin = *( min_element(etas.begin(), etas.end()) );
-  detInfo.mEtaMax = *( max_element(etas.begin(), etas.end()) );
-  
-  
-  
-  
-  if( mRPCCurlMap.find(detInfo.getCurlId() ) != mRPCCurlMap.end() ){ // Curl allready in map
-     mRPCCurlMap[detInfo.getCurlId()].addDetId(detInfo);
+  if( m_RPCCurlMap.find(detInfo.getCurlId()) != m_RPCCurlMap.end() ){ // Curl allready in map
+     m_RPCCurlMap[detInfo.getCurlId()].addDetId(detInfo);
 
-  } else {  // new curl
+  } else {  // add a new curl
     
     RPCCurl newCurl;
     newCurl.addDetId(detInfo);
-    mRPCCurlMap[detInfo.getCurlId()]=newCurl;
+    m_RPCCurlMap[detInfo.getCurlId()]=newCurl;
 
   }
-
-
 
 }
 //#############################################################################
@@ -163,7 +152,7 @@ void RPCTriggerGeo::addDet(RPCRoll* roll){
 void RPCTriggerGeo::printCurlMapInfo(){ // XXX - Erase ME
   
   RPCCurlMap::const_iterator it;
-  for ( it=mRPCCurlMap.begin(); it != mRPCCurlMap.end(); it++){
+  for ( it=m_RPCCurlMap.begin(); it != m_RPCCurlMap.end(); it++){
     std::cout << "------------------------------"<< std::endl;
     std::cout << "CurlId " << (it->first) << " " << std::endl;
     (it->second).printContents();

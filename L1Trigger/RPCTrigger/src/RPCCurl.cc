@@ -25,10 +25,11 @@ bool RPCCurl::addDetId(RPCDetInfo detInfo){
 //
 //
 void RPCCurl::printContents() const{
+  /*
   std::cout << "CurlId" << "(imlement_me) "
             << " No. of RPCDetInfo's " << mRPCDetInfoMap.size()
             //<< " hwPlane " <<  (mRPCDetInfoMap.begin()->second()).
             << std::endl;
-
+  */
 }
 

@@ -1,6 +1,6 @@
 /** \class RPCCurl
  *
- * Description: Class describng 2PI "rings" constructed from RpcDetId's of the same eta (same purpose as L1RpcRoll in ORCA)
+ * Description: Class describng 2PI "rings" constructed from RpcDetId's of the same eta (same as L1RpcRoll in ORCA)
  *  
  * Implementation:
  *  
@@ -28,18 +28,14 @@ class RPCCurl {
     void printContents() const;
 
   private:
-    //double eta;
-    // Tower list
-    int mTowerMin;
-    int mTowerMax;
-    int mHardwarePlane;
-    int mRegion;
-    int mWheel;
-
-    int curlId; // Built from above four values
-
+    // Not filled by now
+    int m_TowerMin;
+    int m_TowerMax;
+    int m_HardwarePlane;
+    int m_Region;
+    int m_Wheel;
     
-    bool mIsReferencePlane;
+    bool m_IsReferencePlane;
     // void giveTowerMin(float eta);
     // void giveTowerMax(float eta);
 

@@ -17,40 +17,41 @@
 class RPCDetInfo{
 
   public:
-    int getCurlId();
-    RPCDetInfo(){ }; 
-    RPCDetInfo(uint32_t mDetId, int region, int ring, int station, int layer, int roll);
+    RPCDetInfo(){ }; // To be able to use map
+    RPCDetInfo(uint32_t detId, int region, int ring, int station, int layer, int roll);
+    
     uint32_t rawId();
-        
+    int getCurlId();
+    void setEtaMin(float);
+    void setEtaMax(float);
+    
   private:
     int etaToTower(float eta);
     int etaToSign(float eta);
     //int getHwPlane(int region, int station, int layer);
     int getHwPlane(); 
     
-    // Members
-  public:
-    float mEtaMin;  // etaMin and etaMax define to which tower(s) chamber 
-    float mEtaMax;  // contributes. Current implementation is bad
+  // Members
+  
     
   private:
-    static const float mTowerBounds[];
+    // TODO do not use array
+    static const float m_towerBounds[];
   
-    uint32_t mDetId;
-    int mRegion; // +-1 for endcaps, 0 for barrell
-    int mRing;   // wheel number for barrell, Ring number for endcap (RE*/1 - RE*/3 -> 1...3 )
-    int mStation;// muon station number (RB1...RB4 RE1...RE4) 
-    int mLayer;  // inner or outer layer
-    int mRoll;
     
-    int mHwPlane; // 1...6 for barell and 1...4 for endcaps
+    uint32_t m_detId;
+    int m_region; // +-1 for endcaps, 0 for barrell
+    int m_ring;   // wheel number for barrell, Ring number for endcap (RE*/1 - RE*/3 -> 1...3 )
+    int m_station;// muon station number (RB1...RB4 RE1...RE4) 
+    int m_layer;  // inner or outer layer
+    int m_roll;
+    
+    int m_hwPlane; // 1...6 for barell and 1...4 for endcaps
         
 
-    
-    
-    //int mRing;   // Wheel number in barell, disk number in endcap (=rpcdetid::ring())
-                   // Note: endcap numbering is non-intutive (123-----123)
-    //int mRegion; // +-1 for endcap, 0 for barell
+    float m_etaMin;  // etaMin and etaMax define to which tower(s) chamber 
+    float m_etaMax;  // contributes. Current implementation is bad
+        
 
     
 };

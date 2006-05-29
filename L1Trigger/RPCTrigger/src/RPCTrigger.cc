@@ -16,7 +16,7 @@
 // $Id$
 //
 //
-
+//TODO: give output in a kosher way
 
 // system include files
 #include <memory>
@@ -60,12 +60,12 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
    // Build the trigger linksystem geometry;
-  if (!linksystem.isGeometryBuild()){
+  if (!theLinksystem.isGeometryBuilt()){
     
     
     edm::ESHandle<RPCGeometry> rpcGeom;
     iSetup.get<MuonGeometryRecord>().get( rpcGeom );     
-    linksystem.buildGeometry(rpcGeom);
+    theLinksystem.buildGeometry(rpcGeom);
   
   
   } 
