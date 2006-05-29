@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.3 2006/02/01 14:43:52 wmtan Exp $
+// $Id: AutoLibraryLoader.cc,v 1.1 2006/05/17 16:43:44 wmtan Exp $
 //
 
 // system include files
@@ -18,6 +18,7 @@
 // user include files
 #include "FWCore/FWLite/src/AutoLibraryLoader.h"
 #include "FWCore/FWLite/src/stdNamespaceAdder.h"
+#include "FWCore/FWLite/src/BareRootProductGetter.h"
 
 #include "PluginManager/PluginManager.h"
 #include "PluginManager/ModuleCache.h"
@@ -94,6 +95,8 @@ AutoLibraryLoader::GetClass(const type_info& typeinfo, Bool_t load)
 void
 AutoLibraryLoader::enable()
 {
+   static BareRootProductGetter s_getter;
+   static edm::EDProductGetter::Operate s_op(&s_getter);
    static AutoLibraryLoader s_loader;
 }
 
