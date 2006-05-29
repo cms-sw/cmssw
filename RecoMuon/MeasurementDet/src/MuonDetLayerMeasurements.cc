@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/05/20 02:03:44 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/27 18:30:19 $
+ *  $Revision: 1.4 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -10,7 +10,7 @@
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
@@ -44,7 +44,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
                DTChamberId chamberId((*igd)->geographicalId().rawId());
                DTRecSegment4DCollection::range  range = dtRecHits->get(chamberId);
                for (DTRecSegment4DCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit){
-               TransientTrackingRecHit* gttrh = new GenericTransientTrackingRecHit((*igd), (&(*rechit)));
+               MuonTransientTrackingRecHit* gttrh = new MuonTransientTrackingRecHit((*igd), (&(*rechit)));
                rhs.push_back(gttrh);
                 }//for DTRecSegment4DCollection
        }// for GeomDet
@@ -59,7 +59,7 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
                CSCSegmentCollection::range  range = cscSegments->get(id);
                for (CSCSegmentCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
 
-               TransientTrackingRecHit* gttrh = new GenericTransientTrackingRecHit((*igd), (&(*rechit)));
+               MuonTransientTrackingRecHit* gttrh = new MuonTransientTrackingRecHit((*igd), (&(*rechit)));
                rhs.push_back(gttrh);
                 }//for CSCSegmentCollection
        }// for GeomDet

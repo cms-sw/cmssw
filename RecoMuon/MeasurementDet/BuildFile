@@ -2,11 +2,13 @@
  <lib name=RecoMuonMeasurementDet>
  <use name=TrackingTools/MeasurementDet>
  <use name=TrackingTools/TrajectoryState>
+ <use name=RecoMuon/TransientTrackingRecHit>
  <use name=Geometry/CommonDetUnit>
  <use name=DataFormats/MuonDetId>
 </export>
 
 <use name=TrackingTools/MeasurementDet>
 <use name=TrackingTools/TrajectoryState>
+<use name=RecoMuon/TransientTrackingRecHit>
 <use name=Geometry/CommonDetUnit>
 <use name=DataFormats/MuonDetId>

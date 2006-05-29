@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2006/05/12 18:45:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/27 18:30:26 $
+ *  $Revision: 1.2 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -20,9 +20,9 @@
 class DetLayer;
 class GeomDet;
 class TrajectoryMeasurement;
-class TransientTrackingRecHit;
+class MuonTransientTrackingRecHit;
 
-typedef std::vector<TransientTrackingRecHit*>       RecHitContainer;
+typedef std::vector<MuonTransientTrackingRecHit*>       RecHitContainer;
 typedef std::vector<TrajectoryMeasurement>          MeasurementContainer;
 typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
 
