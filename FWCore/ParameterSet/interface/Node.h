@@ -9,10 +9,16 @@
 #include "boost/shared_ptr.hpp"
 
 namespace edm {
+
+  class Entry;
+  class ParameterSet;
+  class ProcessDesc;
+
   namespace pset {
 
     struct Visitor;
     struct ReplaceNode;
+
     // Base type for all nodes.  All nodes have a type associated
     // with them - this is basically the keyword that caused the
     // generation of this node.  All nodes have a name - this is the
@@ -45,6 +51,16 @@ namespace edm {
       typedef std::map<std::string, Ptr> NodeMap;
       /// most subclasses won't do anything
       virtual void resolveUsingNodes(const NodeMap & blocks) {}
+
+      /// Nodes which can exist on the top level of the
+      /// parse tree should implement this
+      virtual void insertInto(ProcessDesc & procDesc) const;
+      /// Nodes which can be inserted into ParameterSets
+      /// which aren't top-level processes should overload this.
+      virtual void insertInto(edm::ParameterSet & pset) const;
+      /// makes a ParameterSet Entry for this Node
+      virtual edm::Entry makeEntry() const;
+
 
       std::string name;
       int         line;
