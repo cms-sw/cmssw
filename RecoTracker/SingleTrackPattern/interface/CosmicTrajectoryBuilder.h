@@ -35,7 +35,7 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
- class CompareHitY {
+class CompareHitY {
  public:
    CompareHitY(const TrackerGeometry& tracker):_tracker(tracker){}
    bool operator()( const TrackingRecHit *rh1,
@@ -122,7 +122,7 @@ class CosmicTrajectoryBuilder
  
 
    int theMinHits;
-   bool chi2cut;
+   double chi2cut;
    std::vector<Trajectory> trajFit;
    edm::OwnVector<TransientTrackingRecHit> hits;
    bool seed_plus;
