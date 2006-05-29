@@ -21,6 +21,16 @@ namespace edm {
       virtual void accept(Visitor& v) const;
       virtual void replaceWith(const ReplaceNode * replaceNode);
 
+      /// makes an entry for a ParametersSet object
+      virtual edm::Entry makeEntry() const;
+      /// insert into a higher parameterset
+      virtual void insertInto(edm::ParameterSet & pset) const;
+      /// Insert into the top level of the tree
+      virtual void insertInto(edm::ProcessDesc & procDesc) const;
+      /// creates a ProcessDesc and fills it.  Assumes this is
+      /// a node of type "process"
+      void fillProcess(edm::ProcessDesc & procDesc) const;
+
       std::string type_;
       bool tracked_;
     };
