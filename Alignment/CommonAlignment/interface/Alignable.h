@@ -7,6 +7,7 @@
 #include "Geometry/Vector/interface/LocalVector.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "Geometry/CommonDetUnit/interface/DetPositioner.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
 
 // Headers in the same package
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
@@ -39,7 +40,7 @@ public:
   /// Set the AlignmentParameters
   void setAlignmentParameters( AlignmentParameters* dap );
   /// Get the AlignmentParameters
-  AlignmentParameters* getAlignmentParameters() const;
+  AlignmentParameters* alignmentParameters() const;
 
   /// Return vector of all direct components
   virtual std::vector<Alignable*> components() const = 0;
@@ -126,6 +127,12 @@ public:
 
   /// Return the alignable type identifier
   virtual int alignableObjectId() const = 0;
+
+  /// Recursive printout of alignable information
+  virtual void dump() const = 0;
+
+  /// Return vector of alignment data
+  virtual Alignments* alignments() const = 0;
   
 protected:
 
@@ -148,10 +155,3 @@ private:
 
 
 #endif
-
-
-
-
-
-
-

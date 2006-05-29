@@ -6,8 +6,6 @@
 void Alignable::setAlignmentParameters( AlignmentParameters* dap )
 {
 
-  // Set the Alignment parameters
-
   delete theAlignmentParameters;
   theAlignmentParameters = dap;
 
@@ -15,10 +13,8 @@ void Alignable::setAlignmentParameters( AlignmentParameters* dap )
 
 
 //__________________________________________________________________________________________________
-AlignmentParameters* Alignable::getAlignmentParameters() const
+AlignmentParameters* Alignable::alignmentParameters() const
 {
-
-  // Get the Alignment parameters
 
   return theAlignmentParameters;
 
