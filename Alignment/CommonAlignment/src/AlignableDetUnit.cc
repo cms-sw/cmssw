@@ -1,7 +1,11 @@
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
+#include <boost/cstdint.hpp>
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignTransform.h"
 
 //__________________________________________________________________________________________________
 void AlignableDetUnit::move( const GlobalVector& displacement) 
@@ -167,3 +171,41 @@ void AlignableDetUnit::reactivateMisalignment ()
 
 }
 
+
+
+//__________________________________________________________________________________________________
+void AlignableDetUnit::dump() const
+{
+
+    edm::LogInfo("AlignableDump") 
+	<< " AlignableDetUnit has position = " << this->globalPosition() 
+	<< ", orientation:" << std::endl << this->globalRotation() << std::endl
+	<< " total displacement and rotation: " << theDisplacement << std::endl
+	<< theRotation;
+
+}
+
+//__________________________________________________________________________________________________
+Alignments* AlignableDetUnit::alignments() const
+{
+
+  Alignments* m_alignments = new Alignments();
+
+  // Transform into CLHEP objects
+  Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
+
+  HepRotation clhepRotation( Hep3Vector( this->globalRotation().xx(), globalRotation().xy(), globalRotation().xz() ),
+							 Hep3Vector( globalRotation().yx(), globalRotation().yy(), globalRotation().yz() ),
+							 Hep3Vector( globalRotation().zx(), globalRotation().zy(), globalRotation().zz() )
+							 );
+
+  uint32_t detId = this->geomDetUnit()->geographicalId().rawId();
+
+  AlignTransform transform( clhepVector, clhepRotation, detId );
+
+  
+  m_alignments->m_align.push_back( transform );
+
+  return m_alignments;
+
+}

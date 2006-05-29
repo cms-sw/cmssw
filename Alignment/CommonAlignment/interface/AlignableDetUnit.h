@@ -8,9 +8,9 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 /// A concrete class that allows to (mis)align a GeomDetUnit.
+///
 /// Typically all AlignableComposites have (directly or
 /// indirectly) this one as the ultimate component.
-//
 /// Allows for de-/reactivation of the misalignment.
 
 class AlignableDetUnit : public Alignable 
@@ -73,6 +73,12 @@ public:
 
   /// Return the alignable type identifier
   virtual int alignableObjectId () const { return AlignableObjectId::AlignableDetUnit; }
+
+  /// Printout information about GeomDet
+  virtual void dump() const;
+
+  /// Return vector of alignment data
+  virtual Alignments* alignments() const;
 
 private:
 
