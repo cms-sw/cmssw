@@ -81,7 +81,7 @@ void TrackerToMuonTest::propagateToMuon( const MagneticField* field) const
     TSOS muonStateP = prop.propagate( startingStateP, *muonPlane);
     //  cout << "Positive muonState ==== " << muonStateP.globalPosition() << endl;
     
-    cout << "Here is OK  --------------------------" << endl;
+    cout << "Here is OK --------------------------" << endl;
     TSOS muonStateM = prop.propagate( startingStateM, *muonPlane);
     //cout << "Negative muonState " << muonStateM << endl;
     cout << "And Here is OK  --------------------------" << endl;

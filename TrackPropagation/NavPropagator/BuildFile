@@ -1,11 +1,10 @@
-
 <use name=MagneticField/VolumeBasedEngine>
 <use name=TrackPropagation/NavGeometry>
 <use name=TrackPropagation/RungeKutta>
 
 <export>
- <lib name=TrackPropagationNavPropagator>
- <use name=MagneticField/VolumeBasedEngine>
- <use name=TrackPropagation/NavGeometry>
- <use name=TrackPropagation/RungeKutta>
+  <lib name=TrackPropagationNavPropagator>
+  <use name=MagneticField/VolumeBasedEngine>
+  <use name=TrackPropagation/NavGeometry>
+  <use name=TrackPropagation/RungeKutta>
 </export>
