@@ -1,46 +1,46 @@
 // Framework
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+
 
 // Geometry interface
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 // Tracker components
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerHalfBarrel.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
-#include "Alignment/TrackerAlignment/interface/AlignablePxHalfBarrel.h"
-#include "Alignment/TrackerAlignment/interface/AlignablePxHalfBarrelLayer.h"
+#include "Alignment/TrackerAlignment/interface/AlignablePixelHalfBarrel.h"
+#include "Alignment/TrackerAlignment/interface/AlignablePixelHalfBarrelLayer.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerEndcap.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTID.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerCompositeBuilder.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
-///
-/// Constructor of the full tracker geometry.
-/// This constructor is private, so that only one instance exists.
-/// Use AlignableTracker::instance() to access it.
-///
-AlignableTracker::AlignableTracker(const edm::EventSetup& iSetup )  
+
+//--------------------------------------------------------------------------------------------------
+AlignableTracker::AlignableTracker( const GeometricDet* geometricDet, 
+									TrackerGeometry* trackerGeometry )
 {
 
   // The XML geometry is accessed through the GeometricDet class.
   // Since this geometry does not contain exactly the same structures we
   // need in alignment, we implement the alignable hierarchy here.
+  //
 
   edm::LogInfo("AlignableTracker") << "Constructing alignable objects"; 
   
-  // Get an instances of local objects for navigation
-  iSetup.get<IdealGeometryRecord>().get( theGeometricTracker );
-  iSetup.get<TrackerDigiGeometryRecord>().get( theTrackingGeometry ); 
+  theTrackerGeometry = trackerGeometry;
 
+  // Check that we really have the full tracker
+  if ( geometricDet->type() != GeometricDet::Tracker )
+	throw cms::Exception("LogicError")
+	  << "Wrong type for argument 1 of AlignableTracker constructor"
+	  << std::endl << "Type is " << geometricDet->type() << ", should be "
+	  << GeometricDet::Tracker << " (geometric tracker)";
   
   // Get container of tracker components
-  _DetContainer m_components = theGeometricTracker->components();
+  _DetContainer m_components = geometricDet->components();
 
   // Loop over main components and call sub-builders
   for ( _DetContainer::iterator iDet = m_components.begin();
@@ -70,9 +70,7 @@ AlignableTracker::AlignableTracker(const edm::EventSetup& iSetup )
 }
 
 
-///
-/// Destructor (deletes structure).
-/// 
+//--------------------------------------------------------------------------------------------------
 AlignableTracker::~AlignableTracker() 
 {
 
@@ -83,10 +81,7 @@ AlignableTracker::~AlignableTracker()
 }
 
 
-///
-/// Routine to build the TOB from the corresponding GeometricDet.
-/// Implements all alignable parts of the TOB.
-///
+//--------------------------------------------------------------------------------------------------
 void AlignableTracker::buildTOB( const GeometricDet* navigator )
 {
 
@@ -110,7 +105,7 @@ void AlignableTracker::buildTOB( const GeometricDet* navigator )
 		iRod != m_geometricRods.end(); iRod++ )
 	{
 	  AlignableTrackerRod* tmpRod = builder.buildAlignable( (*iRod)->components(), 
-													 theTrackingGeometry );
+															theTrackerGeometry );
 	  
 	  // When Z changes sign, we start a new layer...
 	  if ( m_tmpRods.size() > 0 && tmpRod->globalPosition().z()*curZ<0 )
@@ -147,10 +142,7 @@ void AlignableTracker::buildTOB( const GeometricDet* navigator )
 }
 
 
-///
-/// Routine to build the TIB from the corresponding GeometricDet.
-/// Implements all alignable parts of the TIB.
-///
+//--------------------------------------------------------------------------------------------------
 void AlignableTracker::buildTIB( const GeometricDet* navigator )
 {
 
@@ -174,7 +166,7 @@ void AlignableTracker::buildTIB( const GeometricDet* navigator )
 		iRod != m_geometricRods.end(); iRod++ )
 	{
 	  AlignableTrackerRod* tmpRod = builder.buildAlignable( (*iRod)->components(), 
-												   theTrackingGeometry );
+															theTrackerGeometry );
 
 	  // When Z changes, we start a new layer...
 	  if ( m_tmpRods.size() > 0 && tmpRod->globalPosition().z()*curZ<0 )
@@ -210,10 +202,7 @@ void AlignableTracker::buildTIB( const GeometricDet* navigator )
 }
 
 
-///
-/// Routine to build the TID from the corresponding GeometricDet.
-/// Implements all alignable parts of the TID.
-///
+//--------------------------------------------------------------------------------------------------
 void AlignableTracker::buildTID( const GeometricDet* navigator )
 {
 
@@ -235,7 +224,7 @@ void AlignableTracker::buildTID( const GeometricDet* navigator )
 	{
 	  nRings++;
 	  AlignableTIDRing* tmpRing = builder.buildAlignable( (*iRing)->components(), 
-														  theTrackingGeometry );
+														  theTrackerGeometry );
 	  m_tmpRings.push_back( tmpRing );
 
 	  if ( nRings == 3 )
@@ -250,24 +239,20 @@ void AlignableTracker::buildTID( const GeometricDet* navigator )
 	}
 
 
-  // And now, finally create the TIDs
-  AlignableTID* forwardTID  = new AlignableTID( m_forwardLayers ); 
-  AlignableTID* backwardTID = new AlignableTID( m_backwardLayers );
+  // And now, finally create the TID (routine is called once for each endcap)
+  AlignableTID* m_TID;
+  if ( m_forwardLayers.size() ) m_TID = new AlignableTID( m_forwardLayers ); 
+  else m_TID = new AlignableTID( m_backwardLayers );
 
   // Store these products
-  theTIDs.push_back( forwardTID );
-  theTIDs.push_back( backwardTID );
-  theTrackerComponents.insert( theTrackerComponents.end(), 
-							   theTIDs.begin(), theTIDs.end() );
+  theTIDs.push_back( m_TID );
+  theTrackerComponents.push_back( m_TID );
 
 }
 
 
 
-///
-/// Routine to build the TEC from the corresponding GeometricDet.
-/// Implements all alignable parts of the TEC.
-///
+//--------------------------------------------------------------------------------------------------
 void AlignableTracker::buildTEC( const GeometricDet* navigator )
 {
 
@@ -297,7 +282,7 @@ void AlignableTracker::buildTEC( const GeometricDet* navigator )
 			iPetal != m_geometricPetals.end(); iPetal++ )
 		{
 		  AlignableTrackerPetal* tmpPetal = builder.buildAlignable( (*iPetal)->components(), 
-																	theTrackingGeometry );		  
+																	theTrackerGeometry );		  
 		  m_tmpPetals.push_back( tmpPetal );
 		  
 		}
@@ -320,10 +305,7 @@ void AlignableTracker::buildTEC( const GeometricDet* navigator )
 }
 
 
-///
-/// Routine to build the Tracker Pixel Barrel from the corresponding GeometricDet.
-/// Implements all alignable parts of the TPB.
-///
+//--------------------------------------------------------------------------------------------------
 void AlignableTracker::buildTPB( const GeometricDet* navigator )
 {
 
@@ -334,13 +316,13 @@ void AlignableTracker::buildTPB( const GeometricDet* navigator )
 
   LogDebug("AlignableTracker") << "Constructing TPB"; 
 
-  // First retrieve and build alignable rods (Px rods are ladders...)
+  // First retrieve and build alignable rods (Pixel rods are ladders...)
   _DetContainer m_geometricLayers = this->getAllComponents( navigator, GeometricDet::layer );
   AlignableTrackerCompositeBuilder<AlignableTrackerRod> builder;
 
   // Loop on geometric layers
-  std::vector<AlignablePxHalfBarrelLayer*> m_rightLayers;
-  std::vector<AlignablePxHalfBarrelLayer*> m_leftLayers;
+  std::vector<AlignablePixelHalfBarrelLayer*> m_rightLayers;
+  std::vector<AlignablePixelHalfBarrelLayer*> m_leftLayers;
 
   for ( _DetContainer::iterator iLayer = m_geometricLayers.begin(); 
 		iLayer != m_geometricLayers.end(); iLayer++ )
@@ -356,15 +338,15 @@ void AlignableTracker::buildTPB( const GeometricDet* navigator )
 		{
 		  
 		  AlignableTrackerRod* tmpRod = builder.buildAlignable( (*iRod)->components(), 
-														 theTrackingGeometry );		  
+																theTrackerGeometry );		  
 		  // Assign rod according to X
 		  if ( tmpRod->globalPosition().x() > 0 ) m_tmpPositiveRods.push_back( tmpRod );
 		  else m_tmpNegativeRods.push_back( tmpRod );
 		}
 
 	  // Now create layers and start with new geometric layer
-	  m_rightLayers.push_back( new AlignablePxHalfBarrelLayer( m_tmpPositiveRods ) );
-	  m_leftLayers.push_back( new AlignablePxHalfBarrelLayer( m_tmpNegativeRods ) );
+	  m_rightLayers.push_back( new AlignablePixelHalfBarrelLayer( m_tmpPositiveRods ) );
+	  m_leftLayers.push_back( new AlignablePixelHalfBarrelLayer( m_tmpNegativeRods ) );
 
 	  m_tmpPositiveRods.clear();
 	  m_tmpNegativeRods.clear();
@@ -372,8 +354,8 @@ void AlignableTracker::buildTPB( const GeometricDet* navigator )
 	}
   
   // And now, finally create the half barrels
-  AlignablePxHalfBarrel* rightHalf  = new AlignablePxHalfBarrel( m_rightLayers ); 
-  AlignablePxHalfBarrel* leftHalf = new AlignablePxHalfBarrel( m_leftLayers );
+  AlignablePixelHalfBarrel* rightHalf  = new AlignablePixelHalfBarrel( m_rightLayers ); 
+  AlignablePixelHalfBarrel* leftHalf = new AlignablePixelHalfBarrel( m_leftLayers );
 
   // Store these products
   thePixelHalfBarrels.push_back( rightHalf );
@@ -385,10 +367,7 @@ void AlignableTracker::buildTPB( const GeometricDet* navigator )
 }
 
 
-///
-/// Routine to build the Pixel Endcap from the corresponding GeometricDet.
-/// Implements all alignable parts of the TPE.
-///
+//--------------------------------------------------------------------------------------------------
 void AlignableTracker::buildTPE( const GeometricDet* navigator )
 {
 
@@ -416,7 +395,7 @@ void AlignableTracker::buildTPE( const GeometricDet* navigator )
 			iPanel != m_tmpPanels.end(); iPanel++ )
 		{
 		  AlignableTrackerPetal* tmpPetal = builder.buildAlignable( (*iPanel)->components(), 
-															 theTrackingGeometry );
+																	theTrackerGeometry );
 		  m_tmpPetals.push_back( tmpPetal );
 		}
 
@@ -441,21 +420,68 @@ void AlignableTracker::buildTPE( const GeometricDet* navigator )
 }
 
 
-///
-/// Routine to access the single AlignableTracker instance.
-/// Instantiates the tracker the first time it is called.
-///
-AlignableTracker* AlignableTracker::instance( const edm::EventSetup& iSetup ) 
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableTracker::outerHalfBarrels()
 {
 
-  static AlignableTracker* theInstance = 0; // Static: only executed once.
-
-  if (theInstance == 0) theInstance = new AlignableTracker( iSetup );
-  return theInstance;
+  std::vector<Alignable*> result;
+  copy( theOuterHalfBarrels.begin(), theOuterHalfBarrels.end(), back_inserter(result) );
+  return result;
 
 }
 
 
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableTracker::innerHalfBarrels()
+{
+
+  std::vector<Alignable*> result;
+  copy( theInnerHalfBarrels.begin(), theInnerHalfBarrels.end(), back_inserter(result) );
+  return result;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableTracker::pixelHalfBarrels()
+{
+
+  std::vector<Alignable*> result;
+  copy( thePixelHalfBarrels.begin(), thePixelHalfBarrels.end(), back_inserter(result) );
+  return result;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableTracker::endCaps()
+{
+
+  std::vector<Alignable*> result;
+  copy( theEndcaps.begin(), theEndcaps.end(), back_inserter(result) );
+  return result;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableTracker::pixelEndCaps()
+{
+
+  std::vector<Alignable*> result;
+  copy( thePixelEndcaps.begin(), thePixelEndcaps.end(), back_inserter(result) );
+  return result;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableTracker::TIDs()
+{
+
+  std::vector<Alignable*> result;
+  copy( theTIDs.begin(), theTIDs.end(), back_inserter(result) );
+  return result;
+
+}
+
+//--------------------------------------------------------------------------------------------------
 AlignableTrackerHalfBarrel  &AlignableTracker::outerHalfBarrel(unsigned int i)
 {
   
@@ -468,7 +494,8 @@ AlignableTrackerHalfBarrel  &AlignableTracker::outerHalfBarrel(unsigned int i)
 }
 
 
-AlignablePxHalfBarrel  &AlignableTracker::pixelHalfBarrel(unsigned int i)
+//--------------------------------------------------------------------------------------------------
+AlignablePixelHalfBarrel  &AlignableTracker::pixelHalfBarrel(unsigned int i)
 { 
   
   if (i >= thePixelHalfBarrels.size() )
@@ -479,6 +506,8 @@ AlignablePxHalfBarrel  &AlignableTracker::pixelHalfBarrel(unsigned int i)
 
 }
 
+
+//--------------------------------------------------------------------------------------------------
 AlignableTrackerHalfBarrel  &AlignableTracker::innerHalfBarrel(unsigned int i)
 {
 
@@ -491,6 +520,7 @@ AlignableTrackerHalfBarrel  &AlignableTracker::innerHalfBarrel(unsigned int i)
 }
 
 
+//--------------------------------------------------------------------------------------------------
 AlignableTID  &AlignableTracker::TID(unsigned int i)
 {
 
@@ -503,6 +533,7 @@ AlignableTID  &AlignableTracker::TID(unsigned int i)
 }
 
 
+//--------------------------------------------------------------------------------------------------
 AlignableTrackerEndcap  &AlignableTracker::endCap(unsigned int i)
 {
 
@@ -514,6 +545,8 @@ AlignableTrackerEndcap  &AlignableTracker::endCap(unsigned int i)
 
 }
 
+
+//--------------------------------------------------------------------------------------------------
 AlignableTracker::PositionType AlignableTracker::computePosition()
 {
   // for the time being we decided to start 
@@ -524,6 +557,7 @@ AlignableTracker::PositionType AlignableTracker::computePosition()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 AlignableTracker::RotationType AlignableTracker::computeOrientation()
 {
   // for the time being we decided to start
@@ -533,6 +567,8 @@ AlignableTracker::RotationType AlignableTracker::computeOrientation()
 
 }
 
+
+//--------------------------------------------------------------------------------------------------
 AlignableSurface AlignableTracker::computeSurface() 
 {
 
@@ -541,19 +577,21 @@ AlignableSurface AlignableTracker::computeSurface()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::barrelGeomDets()
 {
 
   std::vector<Alignable*> ib = innerBarrelGeomDets();
   std::vector<Alignable*> ob = outerBarrelGeomDets();
   std::vector<Alignable*> result( ib.size() + ob.size() );
-  merge(ib.begin(),ib.end(),ob.begin(),ob.end(),result.begin());
+  merge( ib.begin(), ib.end(), ob.begin(), ob.end(), result.begin() );
 
   return result;
 
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::outerBarrelGeomDets()
 {
 
@@ -569,6 +607,7 @@ std::vector<Alignable*> AlignableTracker::outerBarrelGeomDets()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::pixelHalfBarrelGeomDets()
 {  
 
@@ -584,6 +623,7 @@ std::vector<Alignable*> AlignableTracker::pixelHalfBarrelGeomDets()
 } 
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::innerBarrelGeomDets()
 {
 
@@ -599,6 +639,7 @@ std::vector<Alignable*> AlignableTracker::innerBarrelGeomDets()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::endcapGeomDets()
 {
 
@@ -614,6 +655,7 @@ std::vector<Alignable*> AlignableTracker::endcapGeomDets()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::TIDGeomDets()
 {
 
@@ -628,6 +670,7 @@ std::vector<Alignable*> AlignableTracker::TIDGeomDets()
 
 }
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::pixelEndcapGeomDets()
 {
 
@@ -644,6 +687,7 @@ std::vector<Alignable*> AlignableTracker::pixelEndcapGeomDets()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::barrelRods()
 {
 
@@ -657,6 +701,7 @@ std::vector<Alignable*> AlignableTracker::barrelRods()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::outerBarrelRods()
 {
 
@@ -671,6 +716,7 @@ std::vector<Alignable*> AlignableTracker::outerBarrelRods()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::innerBarrelRods()
 {
 
@@ -685,6 +731,7 @@ std::vector<Alignable*> AlignableTracker::innerBarrelRods()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::pixelHalfBarrelLadders()
 {  
 
@@ -699,6 +746,7 @@ std::vector<Alignable*> AlignableTracker::pixelHalfBarrelLadders()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::endcapPetals()
 {
   
@@ -713,6 +761,7 @@ std::vector<Alignable*> AlignableTracker::endcapPetals()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::TIDRings()
 {
 
@@ -727,6 +776,7 @@ std::vector<Alignable*> AlignableTracker::TIDRings()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::pixelEndcapPetals()
 {
 
@@ -741,7 +791,7 @@ std::vector<Alignable*> AlignableTracker::pixelEndcapPetals()
 }
 
 
-
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::barrelLayers()
 {
 
@@ -754,6 +804,7 @@ std::vector<Alignable*> AlignableTracker::barrelLayers()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::outerBarrelLayers()
 {
 
@@ -767,6 +818,7 @@ std::vector<Alignable*> AlignableTracker::outerBarrelLayers()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::pixelHalfBarrelLayers()
 {  
 
@@ -780,6 +832,7 @@ std::vector<Alignable*> AlignableTracker::pixelHalfBarrelLayers()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::innerBarrelLayers()
 {
 
@@ -793,6 +846,7 @@ std::vector<Alignable*> AlignableTracker::innerBarrelLayers()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::endcapLayers()
 {
 
@@ -806,6 +860,7 @@ std::vector<Alignable*> AlignableTracker::endcapLayers()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::TIDLayers()
 {
 
@@ -819,6 +874,7 @@ std::vector<Alignable*> AlignableTracker::TIDLayers()
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::pixelEndcapLayers()
 {
 
@@ -832,31 +888,31 @@ std::vector<Alignable*> AlignableTracker::pixelEndcapLayers()
 }
 
 
-
-void AlignableTracker::dump( void )
+//--------------------------------------------------------------------------------------------------
+void AlignableTracker::dump( void ) const
 {
 
   std::cout << "--------------" << std::endl 
 			<< " Tracker components" << std::endl
 			<< "--------------" << std::endl;
 
-  for ( std::vector<AlignableTrackerHalfBarrel*>::iterator iDet = theOuterHalfBarrels.begin();
+  for ( std::vector<AlignableTrackerHalfBarrel*>::const_iterator iDet = theOuterHalfBarrels.begin();
 		iDet != theOuterHalfBarrels.end(); iDet++ )
 	(*iDet)->dump();
-  for ( std::vector<AlignableTrackerHalfBarrel*>::iterator iDet = theInnerHalfBarrels.begin();
+  for ( std::vector<AlignableTrackerHalfBarrel*>::const_iterator iDet = theInnerHalfBarrels.begin();
 		iDet != theInnerHalfBarrels.end(); iDet++ )
 	(*iDet)->dump();
-  for ( std::vector<AlignablePxHalfBarrel*>::iterator iDet = thePixelHalfBarrels.begin();
+  for ( std::vector<AlignablePixelHalfBarrel*>::const_iterator iDet = thePixelHalfBarrels.begin();
 		iDet != thePixelHalfBarrels.end(); iDet++ )
 	(*iDet)->dump();
 
-  for ( std::vector<AlignableTrackerEndcap*>::iterator iDet = theEndcaps.begin();
+  for ( std::vector<AlignableTrackerEndcap*>::const_iterator iDet = theEndcaps.begin();
 		iDet != theEndcaps.end(); iDet++ )
 	(*iDet)->dump();
-  for ( std::vector<AlignableTrackerEndcap*>::iterator iDet = thePixelEndcaps.begin();
+  for ( std::vector<AlignableTrackerEndcap*>::const_iterator iDet = thePixelEndcaps.begin();
 		iDet != thePixelEndcaps.end(); iDet++ )
 	(*iDet)->dump();
-  for ( std::vector<AlignableTID*>::iterator iDet = theTIDs.begin();
+  for ( std::vector<AlignableTID*>::const_iterator iDet = theTIDs.begin();
 		iDet != theTIDs.end(); iDet++ )
 	(*iDet)->dump();
 
@@ -865,6 +921,7 @@ void AlignableTracker::dump( void )
 }
 
 
+//--------------------------------------------------------------------------------------------------
 std::vector<const GeometricDet*>
 AlignableTracker::getAllComponents( 
 								   const GeometricDet* Det,
