@@ -4,8 +4,8 @@
 
 /** \class Interprets the RPC record (16 bit) and fills the RPCDigiCollection
  *
- *  $Date: 2006/03/30 15:16:01 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/05/03 16:24:08 $
+ *  $Revision: 1.8 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -31,8 +31,8 @@ class RPCRecordFormatter{
 	   ///Unpack record type Start of BX Data and returns BXN
            int unpackBXRecord(const unsigned int* recordIndex); 
       
-          ///Unpack record type Channel Data (=> finds rmb and channel number)
-          void unpackChannelRecord(const unsigned int* recordIndex); 
+          ///Unpack record type TB Link Data (=> finds rmb and TB Link input number)
+          void unpackTbLinkInputRecord(const unsigned int* recordIndex); 
       
           ///Unpack record type Link Board Data struct with LB payload
           RPCLinkBoardData  unpackLBRecord(const unsigned int* recordIndex); 
@@ -46,7 +46,7 @@ class RPCRecordFormatter{
       private:    
     	 int currentBX;
     	 int currentRMB;
-    	 int currentChannel;
+    	 int currentTbLinkInputNumber;
 };
 
 #endif

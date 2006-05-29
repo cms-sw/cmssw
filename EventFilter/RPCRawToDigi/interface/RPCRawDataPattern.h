@@ -7,9 +7,9 @@ namespace rpcraw{
 		static const int BX_SHIFT = 0;
 	}
 	
-	namespace channel{
-		static const int CHANNEL_MASK  = 0X1F;
-		static const int CHANNEL_SHIFT =0;
+	namespace tb_link{
+		static const int TB_LINK_INPUT_NUMBER_MASK  = 0X1F;
+		static const int TB_LINK_INPUT_NUMBER_SHIFT =0;
 
 		static const int TB_RMB_MASK = 0X3F;
 		static const int TB_RMB_SHIFT =5;
@@ -34,8 +34,8 @@ namespace rpcraw{
 		static const int BITS_PER_PARTITION=8;
 	}
 	namespace error{
-		static const int CHANNEL_MASK  = 0X1F;
-		static const int CHANNEL_SHIFT =0;
+		static const int TB_LINK_MASK  = 0X1F;
+		static const int TB_LINK_SHIFT =0;
 
 		static const int TB_RMB_MASK = 0X3F;
 		static const int TB_RMB_SHIFT =5;

@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCFEDData
  *
- *  $Date: 2006/03/30 15:18:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/04 09:39:48 $
+ *  $Revision: 1.2 $
  *
  * \author Ilaria Segoni
  */
@@ -27,45 +27,45 @@ void RPCFEDData::addBXData(int bx){
 
 void RPCFEDData::addRMBData(int rmb,int chn, RPCLinkBoardData lbData){
 
- std::map<int, std::vector<RPCLinkBoardData > >channel_lb_map;
+ std::map<int, std::vector<RPCLinkBoardData > >tbLinkInputNumber_lb_map;
  std::vector<RPCLinkBoardData > data;
 
  if( rmbDataMap.find(rmb) != rmbDataMap.end() ){
-	channel_lb_map = rmbDataMap[rmb];
-	if(channel_lb_map.find(chn) != channel_lb_map.end()){
-		data=channel_lb_map[chn];
+	tbLinkInputNumber_lb_map = rmbDataMap[rmb];
+	if(tbLinkInputNumber_lb_map.find(chn) != tbLinkInputNumber_lb_map.end()){
+		data=tbLinkInputNumber_lb_map[chn];
 	}  
 	   
  }
 
  data.push_back( lbData );
- channel_lb_map[chn]=data;
- rmbDataMap[rmb]= channel_lb_map;
+ tbLinkInputNumber_lb_map[chn]=data;
+ rmbDataMap[rmb]= tbLinkInputNumber_lb_map;
 }   
       
 
 
 void RPCFEDData::addRMBDiscarded(int rmb, int chn){
-      std::vector<int> badChannels;
+      std::vector<int> badTbLinkInputNumbers;
       if(  RMBDiscarded.find(rmb)!= RMBDiscarded.end()){
-      		 badChannels= RMBDiscarded[rmb];
+      		 badTbLinkInputNumbers= RMBDiscarded[rmb];
       }else{
-		 RMBDiscarded[rmb]= badChannels;
+		 RMBDiscarded[rmb]= badTbLinkInputNumbers;
       }
      
-       badChannels.push_back( chn );
+       badTbLinkInputNumbers.push_back( chn );
 }  
 
   
 void RPCFEDData::addRMBCorrupted(int rmb, int chn){
-      std::vector<int> badChannels;
+      std::vector<int> badTbLinkInputNumbers;
       if(  RMBCorrupted.find(rmb)!= RMBCorrupted.end()){
-      		 badChannels= RMBCorrupted[rmb];
+      		 badTbLinkInputNumbers= RMBCorrupted[rmb];
       }else{
-		 RMBCorrupted[rmb]= badChannels;
+		 RMBCorrupted[rmb]= badTbLinkInputNumbers;
       }
      
-       badChannels.push_back( chn );
+       badTbLinkInputNumbers.push_back( chn );
 }   
 
 

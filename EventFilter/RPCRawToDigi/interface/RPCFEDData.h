@@ -8,8 +8,8 @@
  *  with the RPC RMB Data.
  *  
  *
- *  $Date: 2005/12/15 17:41:44 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/30 15:14:21 $
+ *  $Revision: 1.1 $
  * \author Ilaria Segoni - CERN
  */
 
@@ -38,9 +38,9 @@ public:
    void addBXData(int bx);  
    /// Insert RMB Data
    void addRMBData(int rmb, int chn, RPCLinkBoardData lbData);  
-   /// Insert RMBand Channel number from wich Data was discarded  
+   /// Insert RMBand TB Link  number from wich Data was discarded  
    void addRMBDiscarded(int rmb, int chn);  
-   /// Insert RMBand Channel number with corrupted data  
+   /// Insert RMBand TB Link  number with corrupted data  
    void addRMBCorrupted(int rmb, int chn);  
    /// update counter of DCC discarded events
    void addDCCDiscarded();  
@@ -53,11 +53,11 @@ public:
    std::vector<FEDTrailer>  fedTrailers() const;
    /// Get List of BX numbers
    std::vector<int> bxData() const;
-   /// Get Map between RMB and map bewteen Channel ID's and Link Board Payload.
+   /// Get Map between RMB and map bewteen TB Link ID's and Link Board Payload.
    std::map<int , std::map<int, std::vector<RPCLinkBoardData> > > rmbData() const;
-   /// Get RMB and Channel number from wich Data was discarded  
+   /// Get RMB and TB Link number from wich Data was discarded  
    std::map<int,std::vector<int> > dataRMBDiscarded() const;
-   /// Get RMB and Channel number with corrupted data 
+   /// Get RMB and TB Link number with corrupted data 
    std::map<int,std::vector<int> > dataRMBCorrupted() const;
    /// Get counter of DCC discarded events
    int dccDiscarded() const;

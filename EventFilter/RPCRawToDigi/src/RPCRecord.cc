@@ -2,8 +2,8 @@
  *
  *  Implementation of RPCRecord Class
  *
- *  $Date: 2005/12/15 17:49:32 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/03/30 15:17:40 $
+ *  $Revision: 1.7 $
  *  \author Ilaria Segoni
  */
 
@@ -26,8 +26,8 @@ if ( (int)((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) == controlWordFlag)
       
 	/// StartOfBXData
 	if ( (int)((*word_ >> BX_TYPE_SHIFT) & BX_TYPE_MASK) == BXFlag) wordType = StartOfBXData;
-	/// StartOfChannelData             
-	if ( (int)((*word_ >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == StartOfChannelDataFlag) wordType = StartOfChannelData;
+	/// StartOfTbLinkInputNumberData             
+	if ( (int)((*word_ >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == StartOfLBInputDataFlag) wordType =  StartOfTbLinkInputNumberData;
 	///  RMBDiscarded           
 	if ( (int) ((*word_ >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == RMBDiscardedDataFlag  ) wordType = RMBDiscarded;
 	///  RMBCorrupted           

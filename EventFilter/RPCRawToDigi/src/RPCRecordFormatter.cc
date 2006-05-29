@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/04/07 09:18:44 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/05/03 16:34:20 $
+ *  $Revision: 1.9 $
  *
  * \author Ilaria Segoni
  */
@@ -29,7 +29,7 @@
 
 //#define RPCRECORFORMATTER_DEBUG_
 
-RPCRecordFormatter::RPCRecordFormatter():currentBX(0),currentRMB(0),currentChannel(0){
+RPCRecordFormatter::RPCRecordFormatter():currentBX(0),currentRMB(0),currentTbLinkInputNumber(0){
 }
 
 RPCRecordFormatter::~RPCRecordFormatter(){
@@ -48,10 +48,10 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
         rawData.addBXData(currentBX);
    }	   
     
-    if(typeOfRecord==RPCRecord::StartOfChannelData) {
+    if(typeOfRecord==RPCRecord::StartOfTbLinkInputNumberData) {
     	currentRMB=0;
-	currentChannel=0;
-	this->unpackChannelRecord(recordIndexInt);
+	currentTbLinkInputNumber=0;
+	this->unpackTbLinkInputRecord(recordIndexInt);
     }
    
     /// Unpacking BITS With Hit (uniquely related to strips with hit)
@@ -59,11 +59,11 @@ void RPCRecordFormatter::recordUnpack(RPCRecord & theRecord,
 	RPCLinkBoardData lbData=this->unpackLBRecord(recordIndexInt);
 	int dccId=790;//fedNumber;
 	int tbId=currentRMB;
-	int lboxId=currentChannel/5;
-	int mbId=currentChannel%5;
+	int lboxId=currentTbLinkInputNumber/5;
+	int mbId=currentTbLinkInputNumber%5;
 	int lboardId=lbData.lbNumber();
 	
-	 rawData.addRMBData(currentRMB,currentChannel, lbData);  
+	 rawData.addRMBData(currentRMB,currentTbLinkInputNumber, lbData);  
 
 	std::vector<int> bits=lbData.bitsOn();
 	for(std::vector<int>::iterator pBit = bits.begin(); pBit !=
@@ -114,13 +114,13 @@ int RPCRecordFormatter::unpackBXRecord(const unsigned int* recordIndexInt) {
 } 
 
 
-void RPCRecordFormatter::unpackChannelRecord(const unsigned int* recordIndexInt) {
+void RPCRecordFormatter::unpackTbLinkInputRecord(const unsigned int* recordIndexInt) {
 
-    currentChannel= (*recordIndexInt>> rpcraw::channel::CHANNEL_SHIFT )& rpcraw::channel::CHANNEL_MASK;
-    currentRMB=(*recordIndexInt>> rpcraw::channel::TB_RMB_SHIFT)  & rpcraw::channel::TB_RMB_MASK;
+    currentTbLinkInputNumber= (*recordIndexInt>> rpcraw::tb_link::TB_LINK_INPUT_NUMBER_SHIFT )& rpcraw::tb_link::TB_LINK_INPUT_NUMBER_MASK;
+    currentRMB=(*recordIndexInt>> rpcraw::tb_link::TB_RMB_SHIFT)  & rpcraw::tb_link::TB_RMB_MASK;
 
     #ifdef RPCRECORFORMATTER_DEBUG_
-    edm::LogInfo ("RPCUnpacker")<<"Found start of Channel Data Record, Channel: "<<currentChannel<<
+    edm::LogInfo ("RPCUnpacker")<<"Found start of LB Link Data Record, tbLinkInputNumber: "<<currentTbLinkInputNumber<<
  	 " Readout Mother Board: "<<currentRMB;
     #endif
 } 
@@ -155,10 +155,10 @@ RPCLinkBoardData RPCRecordFormatter::unpackLBRecord(const unsigned int* recordIn
 
 
 void RPCRecordFormatter::unpackRMBCorruptedRecord(const unsigned int* recordIndexInt,enum RPCRecord::recordTypes type,RPCFEDData & rawData) {
-    int channel = (* recordIndexInt>> rpcraw::error::CHANNEL_SHIFT )& rpcraw::error::CHANNEL_MASK;
+    int tbLinkInputNumber = (* recordIndexInt>> rpcraw::error::TB_LINK_SHIFT )& rpcraw::error::TB_LINK_MASK;
     int tbRmb   = (* recordIndexInt>> rpcraw::error::TB_RMB_SHIFT)  & rpcraw::error::TB_RMB_MASK;
-    if(type==RPCRecord::RMBDiscarded) rawData.addRMBDiscarded(tbRmb, channel);
-    if(type==RPCRecord::RMBCorrupted) rawData.addRMBCorrupted(tbRmb, channel);  
+    if(type==RPCRecord::RMBDiscarded) rawData.addRMBDiscarded(tbRmb, tbLinkInputNumber);
+    if(type==RPCRecord::RMBCorrupted) rawData.addRMBCorrupted(tbRmb, tbLinkInputNumber);  
  }
 
 

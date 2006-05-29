@@ -6,7 +6,7 @@
  *  Class that finds out the type of RPC record,
  *  possible types are: 
  *      StartOfBXData,
- *    	StartOfChannelData,
+ *    	StartOfTbLinkInputNumberData,
  *   	LinkBoardData,
  *    	EmptyWord,
  *      RMBDiscarded,
@@ -14,8 +14,8 @@
  *	DCCDiscarded,
  *      UndefinedType.
  *
- *  $Date: 2005/12/15 17:47:10 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/03/30 14:40:30 $
+ *  $Revision: 1.6 $
  *  \author Ilaria Segoni
   */
 
@@ -24,7 +24,7 @@ class RPCRecord {
 public:
   enum recordTypes {
         StartOfBXData = 1, 
-    	StartOfChannelData = 2,
+    	StartOfTbLinkInputNumberData = 2,
     	LinkBoardData = 3,
     	EmptyWord     = 4,
         RMBDiscarded  = 5,
@@ -50,8 +50,8 @@ public:
    /// Buffer pointer getter 
   const unsigned int * buf(); 
   
-  /// Check that  StartOfBXData is followed by StartOfChannelData and that StartOfChannelData is followed
-  /// by LinkBoardData
+  /// Check that  StartOfBXData is followed by  StartOfTbLinkInputNumberData and that StartOfTbLinkInputNumberData
+  /// is followed by LinkBoardData
   bool check(); 
     
   /// Control bits definitions
@@ -59,7 +59,7 @@ public:
   static const int controlWordFlag = 3;
   
   static const int BXFlag                  = 1;
-  static const int StartOfChannelDataFlag  = 7;
+  static const int StartOfLBInputDataFlag  = 7;
   static const int EmptyOrDCCDiscardedFlag = 5;
   static const int RMBDiscardedDataFlag    = 6;
   static const int RMBCorruptedDataFlag    = 4;
