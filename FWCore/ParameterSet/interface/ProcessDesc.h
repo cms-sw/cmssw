@@ -50,7 +50,8 @@ namespace edm
     /// puts bookkeeping information into the ParameterSet
     void writeBookkeeping(const std::string & index);
 
-  private:
+  //TODO make this private
+  public:
 
     typedef std::vector<std::string> Strs;
     typedef std::map<std::string, edm::WrapperNodePtr > SeqMap;
