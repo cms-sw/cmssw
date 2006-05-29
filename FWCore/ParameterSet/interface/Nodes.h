@@ -12,13 +12,15 @@
   The name method needs to be stripped out.  They are not useful
 */
 
-#include <algorithm>
-#include <iterator>
-#include <sstream>
 #include "FWCore/ParameterSet/interface/Node.h"
 #include "FWCore/ParameterSet/interface/CompositeNode.h"
 #include "FWCore/ParameterSet/interface/PSetNode.h"
 #include "FWCore/ParameterSet/interface/ReplaceNode.h"
+#include "FWCore/ParameterSet/interface/EntryNode.h"
+#include "FWCore/ParameterSet/interface/VEntryNode.h"
+#include "FWCore/ParameterSet/interface/ModuleNode.h"
+#include "FWCore/ParameterSet/interface/WrapperNode.h"
+#include "FWCore/ParameterSet/interface/VPSetNode.h"
 
 namespace edm {
   namespace pset {
@@ -102,55 +104,6 @@ namespace edm {
       std::string value_;
     };
 
-    /*
-      -----------------------------------------
-      Entries hold: bool, int32, uint32, double, string, and using
-      This comment may be wrong. 'using' statements create UsingNodes,
-      according to the rules in pset_parse.y
-    */
-
-    struct EntryNode : public Node
-    {
-      EntryNode(const std::string& type, const std::string& name,
-		const std::string& values, bool tracked, int line=-1);
-      virtual Node * clone() const { return new EntryNode(*this);}
-      virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
-
-      virtual void accept(Visitor& v) const;
-      // keeps the orignal type and tracked-ness
-      virtual void replaceWith(const ReplaceNode *);
-
-      std::string type_;
-      std::string value_;
-      bool tracked_;
-    };
-
-    /*
-      -----------------------------------------
-      VEntries hold: vint32, vuint32, vdouble, vstring
-    */
-
-    struct VEntryNode : public Node
-    {
-      VEntryNode(const std::string& typ, const std::string& name,
-		 StringListPtr values,bool tracked, int line=-1);
-      /// deep copy
-      VEntryNode(const VEntryNode & n);
-      virtual Node * clone() const { return new VEntryNode(*this);}
-
-      virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
-
-      virtual void accept(Visitor& v) const;
-      // keeps the orignal type and tracked-ness
-      virtual void replaceWith(const ReplaceNode *);
-
-
-      std::string type_;
-      StringListPtr value_;
-      bool tracked_;
-    };
 
     /*
       -----------------------------------------
@@ -188,28 +141,6 @@ namespace edm {
 
     typedef boost::shared_ptr<ContentsNode> ContentsNodePtr;
 
-
-    /*
-      -----------------------------------------
-      VPSets hold: ParameterSet nodes or ParameterSet names/IDs stored in Entries
-    */
-
-    struct VPSetNode : public CompositeNode
-    {
-      VPSetNode(const std::string& typ, 
-		const std::string& name,
-		NodePtrListPtr value,
-		bool tracked,
-		int line=-1);
-      virtual Node * clone() const { return new VPSetNode(*this);}
-      virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
-
-      virtual void accept(Visitor& v) const;
-
-      std::string type_;
-      bool tracked_;
-    };
 
     /*
       -----------------------------------------
@@ -264,47 +195,6 @@ namespace edm {
       std::string type_;
     };
 
-    /*
-      -----------------------------------------
-      Wrappers hold: sequences, paths, endpaths
-      They hold another Node that actually contains the information.
-    */
-
-    struct WrapperNode : public Node
-    {
-      WrapperNode(const std::string& type, const std::string& name,
-		  NodePtr w, int line=-1);
-      virtual Node * clone() const { return new WrapperNode(*this);}
-
-      virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
-
-      virtual void accept(Visitor& v) const;
-
-      std::string type_;
-      NodePtr wrapped_;
-    };
-
-    /*
-      -----------------------------------------
-      Modules hold: source (named/unnamed), modules
-    */
-
-    struct ModuleNode : public CompositeNode
-    {
-      ModuleNode(const std::string& type, const std::string& instname,
-		 const std::string& classname,
-		 NodePtrListPtr nl,int line=-1);
-      virtual Node * clone() const { return new ModuleNode(*this);}
-      virtual std::string type() const;
-      virtual void print(std::ostream& ost) const;
-
-      virtual void accept(Visitor& v) const;
-      virtual void replaceWith(const ReplaceNode * replaceNode);
-
-      std::string type_;
-      std::string class_;
-    };
 
   }
 }
