@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/05/23 17:47:24 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/26 14:36:15 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -93,7 +93,11 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   bool timing = false;
   TimeMe time_STABuilder_tot(metname,timing);
 
+  // the trajectory container. In principle starting from one seed we can
+  // obtain more than one trajectory. TODO: this feature is not yet implemented!
   TrajectoryContainer trajL;
+  
+  Trajectory trajectory;
 
   // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
   PTrajectoryStateOnDet pTSOD = seed.startingState();
@@ -130,7 +134,8 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // refine the FTS given by the seed
   static const string t1 = "StandAloneMuonTrajectoryBuilder::refitter";
   TimeMe timer1(t1,timing);
-  refitter()->refit(seedTSOS,seedDetLayer);
+  // the trajectory is filled in the refitter::refit
+  refitter()->refit(seedTSOS,seedDetLayer,trajectory);
   
   int totalNofChamberUsed = refitter()->getTotalChamberUsed();
 
@@ -159,7 +164,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     
   
   // BackwardFiltering
-
+  // FIXME!!
   Trajectory theTraj(seed);
   //Trajectory theTraj(seed,oppositeToMomentum);
   

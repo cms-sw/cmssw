@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/05/23 17:47:23 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/26 14:35:12 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -34,7 +34,7 @@ public:
   // Operations
   
   /// Perform the inner-outward fitting
-  void refit(TrajectoryStateOnSurface& initialState, const DetLayer*);
+  void refit(TrajectoryStateOnSurface& initialState, const DetLayer*, Trajectory& trajectory);
 
   /// the last free trajectory state
   FreeTrajectoryState lastUpdatedFTS() const {return *theLastUpdatedTSOS.freeTrajectoryState();}
