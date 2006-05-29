@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.2 2006/04/10 15:51:41 stevew Exp $
+// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.3 2006/04/10 22:06:41 stevew Exp $
 //
 // Description:
 //	Class Implementation for |DcxTrackCandidatesToTracks|
@@ -109,7 +109,10 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &lis
 		      para[2] = -real_fit.Omega()/0.0120;
 		      para[3] = real_fit.Z0();
 		      para[4] = real_fit.Tanl();
-		      reco::Track::Parameters params(para);
+		      // OLI: 060529: changes in reco::Track (perigee parametrization, interface changes)
+		      // Attention: filles parameter's still wrong, have to wait for instructions from authors
+// 		      reco::Track::Parameters params(para);
+		      reco::Track::Parameters params(para,real_fit.Pt());
 		      double covpara[15];
 		      for ( unsigned int i = 0; i < 15; ++i ) {
 			covpara[i] = 0;
@@ -117,6 +120,7 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &lis
 		      reco::Track::Covariance cov(covpara);
 //		      output.push_back(reco::Track(real_fit.Prob(),int(real_fit.Prob()/real_fit.Rcs()),outlist.size(),0,listohits.size(),params,cov));
 		      output.push_back(reco::Track(real_fit.Chisq(),outlist.size()-5,listohits.size(),listohits.size()-outlist.size(),0,params,cov));
+
 //                      real_fit.print(); real_fit.FitPrint(make_a_hel);
 		      for (unsigned int n=0; n<outlist.size(); ++n){outlist[n]->SetUsedOnHel(ntrk);}
 		    }else{
