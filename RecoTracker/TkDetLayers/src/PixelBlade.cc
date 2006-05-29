@@ -47,9 +47,9 @@ PixelBlade::PixelBlade(vector<const GeomDet*>& frontDets,
 }
 
 
-vector<const GeometricSearchDet*> 
+const vector<const GeometricSearchDet*>& 
 PixelBlade::components() const{
-  return vector<const GeometricSearchDet*>();
+  throw DetLayerException("TOBRod doesn't have GeometricSearchDet components"); 
 }
 
 pair<bool, TrajectoryStateOnSurface>

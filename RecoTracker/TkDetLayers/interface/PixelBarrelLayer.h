@@ -25,9 +25,9 @@ class PixelBarrelLayer : public RodBarrelLayer{
   
   // GeometricSearchDet interface
   
-  virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
+  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
   
-  virtual vector<const GeometricSearchDet*> components() const;
+  virtual const vector<const GeometricSearchDet*>& components() const {return theComps;}
 
   virtual vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
@@ -67,7 +67,7 @@ class PixelBarrelLayer : public RodBarrelLayer{
   double calculatePhiWindow( double Xmax, const GeomDet& det,
 			     const TrajectoryStateOnSurface& state) const;
 
-  bool overlap( const GlobalPoint& gpos, const PixelRod& rod, float phiWin) const;
+  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float phiWin) const;
 
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
@@ -78,18 +78,17 @@ class PixelBarrelLayer : public RodBarrelLayer{
 			vector<DetGroup>& result,
 			bool checkClosest) const;
 
-  const vector<const PixelRod*>& subLayer( int ind) const {
-    return (ind==0 ? theInnerRods : theOuterRods);}
+  const vector<const GeometricSearchDet*>& subLayer( int ind) const {
+    return (ind==0 ? theInnerComps : theOuterComps);}
   
-  BoundCylinder* cylinder( const vector<const PixelRod*>& rods) const ;
+  BoundCylinder* cylinder( const vector<const GeometricSearchDet*>& rods) const ;
 
 
  private:
-  vector<const PixelRod*> theRods;
-  vector<const GeometricSearchDet*> theComponents;
+  vector<const GeometricSearchDet*> theComps;
+  vector<const GeometricSearchDet*> theInnerComps;
+  vector<const GeometricSearchDet*> theOuterComps;
   vector<const GeomDet*> theBasicComps;
-  vector<const PixelRod*> theInnerRods;
-  vector<const PixelRod*> theOuterRods;
 
   BinFinderType    theInnerBinFinder;
   BinFinderType    theOuterBinFinder;

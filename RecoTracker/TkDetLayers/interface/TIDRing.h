@@ -19,10 +19,10 @@ class TIDRing : public GeometricSearchDet{
   // GeometricSearchDet interface
   virtual const BoundSurface& surface() const {return *theDisk;}
   
-  virtual vector<const GeomDet*> basicComponents() const {return theDets;}
+  virtual const vector<const GeomDet*>& basicComponents() const {return theDets;}
   
-  virtual vector<const GeometricSearchDet*> components() const {
-    return vector<const GeometricSearchDet*>();}
+  virtual const vector<const GeometricSearchDet*>& components() const;
+
     
 
   virtual pair<bool, TrajectoryStateOnSurface>

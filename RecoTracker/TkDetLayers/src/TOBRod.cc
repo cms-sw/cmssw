@@ -73,10 +73,9 @@ TOBRod::~TOBRod(){
 } 
 
 
-vector<const GeometricSearchDet*> 
+const vector<const GeometricSearchDet*>& 
 TOBRod::components() const{
-  cout << "temporary dummy implementation of TOBRod::components()!!" << endl;
-  return vector<const GeometricSearchDet*>();
+  throw DetLayerException("TOBRod doesn't have GeometricSearchDet components");
 }
   
 pair<bool, TrajectoryStateOnSurface>

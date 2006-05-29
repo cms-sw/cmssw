@@ -1,5 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/PixelRod.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
+
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
@@ -28,10 +30,9 @@ PixelRod::~PixelRod(){
 
 } 
 
-vector<const GeometricSearchDet*> 
+const vector<const GeometricSearchDet*>& 
 PixelRod::components() const{
-  cout << "temporary dummy implementation of PixelRod::components()!!" << endl;
-  return vector<const GeometricSearchDet*>();
+  throw DetLayerException("PixelRod doesn't have GeometricSearchDet components");
 }
  
  

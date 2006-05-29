@@ -72,10 +72,9 @@ CompositeTECWedge::~CompositeTECWedge(){
 } 
 
 
-vector<const GeometricSearchDet*> 
+const vector<const GeometricSearchDet*>& 
 CompositeTECWedge::components() const{
-  cout << "temporary dummy implementation of CompositeTECWedge::components()!!" << endl;
-  return vector<const GeometricSearchDet*>();
+  throw DetLayerException("CompositeTECWedge doesn't have GeometricSearchDet components");
 }
 
   
@@ -325,7 +324,7 @@ CompositeTECWedge::findClosestDet( const GlobalPoint& startPos,int sectorId) con
   vector<const GeomDet*> myDets = sectorId==0 ? theFrontDets : theBackDets;
   
   int close = 0;
-  float closeDist = fabs( (theDets.front()->toLocal(startPos)).x());
+  float closeDist = fabs( (myDets.front()->toLocal(startPos)).x());
   for (unsigned int i = 0; i < myDets.size(); i++ ) {
     float dist = (myDets[i]->surface().toLocal(startPos)).x();
     if ( fabs(dist) < fabs(closeDist) ) {

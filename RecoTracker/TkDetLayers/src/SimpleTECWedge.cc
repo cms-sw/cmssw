@@ -1,5 +1,6 @@
 #include "RecoTracker/TkDetLayers/interface/SimpleTECWedge.h"
 #include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromDet.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
@@ -15,10 +16,9 @@ SimpleTECWedge::~SimpleTECWedge(){
 } 
 
 
-vector<const GeometricSearchDet*> 
+const vector<const GeometricSearchDet*>& 
 SimpleTECWedge::components() const{
-  cout << "temporary dummy implementation of SimpleTECWedge::components()!!" << endl;
-  return vector<const GeometricSearchDet*>();
+  throw DetLayerException("SimpleTECWedge doesn't have GeometricSearchDet components");
 }
 
   

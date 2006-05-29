@@ -14,29 +14,27 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 
 TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
 		   vector<const TIBRing*>& outerRings) : 
-  theInnerRings(innerRings.begin(),innerRings.end()), 
-  theOuterRings(outerRings.begin(),outerRings.end())
+  theInnerComps(innerRings.begin(),innerRings.end()), 
+  theOuterComps(outerRings.begin(),outerRings.end())
 {
-  theRings.assign(theInnerRings.begin(),theInnerRings.end());
-  theRings.insert(theRings.end(),theOuterRings.begin(),theOuterRings.end());
+  theComps.assign(theInnerComps.begin(),theInnerComps.end());
+  theComps.insert(theComps.end(),theOuterComps.begin(),theOuterComps.end());
   
-  sort(theRings.begin(),theRings.end(),DetLessZ());
-  sort(theInnerRings.begin(),theInnerRings.end(),DetLessZ());
-  sort(theOuterRings.begin(),theOuterRings.end(),DetLessZ());
-
-  for(vector<const TIBRing*>::const_iterator it=theRings.begin();it!=theRings.end();it++){
-    theComponents.push_back(*it);
-    vector<const GeomDet*> basicCompsVector = (**it).basicComponents();
-    for(vector<const GeomDet*>::const_iterator itBasic=basicCompsVector.begin();
-	itBasic!=basicCompsVector.end(); itBasic++){
-      theBasicComps.push_back( *itBasic );
-    }
+  sort(theComps.begin(),theComps.end(),DetLessZ());
+  sort(theInnerComps.begin(),theInnerComps.end(),DetLessZ());
+  sort(theOuterComps.begin(),theOuterComps.end(),DetLessZ());
+  
+  for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
+      it!=theComps.end();it++){  
+    theBasicComps.insert(theBasicComps.end(),	
+			 (**it).basicComponents().begin(),
+			 (**it).basicComponents().end());
   }
 
   // initialize the surface
-  theInnerCylinder = cylinder( theInnerRings);
-  theOuterCylinder = cylinder( theOuterRings);
-  setSurface( cylinder(theRings) );
+  theInnerCylinder = cylinder( theInnerComps);
+  theOuterCylinder = cylinder( theOuterComps);
+  setSurface( cylinder(theComps) );
 
   /*
   cout << "==== DEBUG TIBLayer =====" << endl; 
@@ -61,32 +59,22 @@ TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
 
 
   // initialise the bin finders
-  vector<const GeometricSearchDet*> tmpIn;
-  for (vector<const TIBRing*>::const_iterator i=theInnerRings.begin();
-       i != theInnerRings.end(); i++) tmpIn.push_back(*i);
-  theInnerBinFinder = GeneralBinFinderInZforGeometricSearchDet<float>(tmpIn.begin(), 
-								      tmpIn.end());
+  //  vector<const GeometricSearchDet*> tmpIn;
+  //for (vector<const TIBRing*>::const_iterator i=theInnerRings.begin();
+  //     i != theInnerRings.end(); i++) tmpIn.push_back(*i);
+  theInnerBinFinder = GeneralBinFinderInZforGeometricSearchDet<float>(theInnerComps.begin(), 
+								      theInnerComps.end());
  
-  vector<const GeometricSearchDet*> tmpOut;
-  for (vector<const TIBRing*>::const_iterator i=theOuterRings.begin();
-       i != theOuterRings.end(); i++) tmpOut.push_back(*i);
-  theOuterBinFinder = GeneralBinFinderInZforGeometricSearchDet<float>(tmpOut.begin(),
-								      tmpOut.end());
+  theOuterBinFinder = GeneralBinFinderInZforGeometricSearchDet<float>(theOuterComps.begin(),
+								      theOuterComps.end());
 }
 
 TIBLayer::~TIBLayer(){
-  vector<const TIBRing*>::const_iterator i;
-  for (i=theRings.begin(); i!=theRings.end(); i++) {
-    // cout << " Deleting rings " << i-theWedges.begin() << endl;
+  vector<const GeometricSearchDet*>::const_iterator i;
+  for (i=theComps.begin(); i!=theComps.end(); i++) {
     delete *i;
   }
 } 
-
-
-vector<const GeometricSearchDet*> 
-TIBLayer::components() const{
-  return theComponents;
-}
 
   
 vector<DetWithState> 
@@ -113,13 +101,20 @@ TIBLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
 
 
 BoundCylinder* 
-TIBLayer::cylinder( const vector<const TIBRing*>& rings)
+TIBLayer::cylinder( const vector<const GeometricSearchDet*>& rings)
 {
   float leftPos = rings.front()->surface().position().z();
   float rightPos = rings.back()->surface().position().z();
-  float r = rings.front()->specificSurface().radius();
-  const Bounds& leftBounds = rings.front()->specificSurface().bounds();
-  const Bounds& rightBounds = rings.back()->specificSurface().bounds();
+
+  const TIBRing* frontRing = dynamic_cast<const TIBRing*>(rings.front());
+  const TIBRing* backRing  = dynamic_cast<const TIBRing*>(rings.back());
+  float r = frontRing->specificSurface().radius(); 
+  const Bounds& leftBounds  = frontRing->specificSurface().bounds();
+  const Bounds& rightBounds = backRing->specificSurface().bounds();
+
+  //float r = rings.front()->specificSurface().radius();
+  //const Bounds& leftBounds = rings.front()->specificSurface().bounds();
+  //const Bounds& rightBounds = rings.back()->specificSurface().bounds();
 
   float thick = leftBounds.thickness() / 2;
   float zmin = leftPos  - leftBounds.length() / 2;
@@ -190,7 +185,7 @@ SubLayerCrossings TIBLayer::computeCrossings( const TrajectoryStateOnSurface& st
 
   GlobalPoint gInnerPoint( innerCrossing.position());
   int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.z());
-  const TIBRing* innerRing( theInnerRings[innerIndex]);
+  const GeometricSearchDet* innerRing( theInnerComps[innerIndex]);
   float innerDist = fabs( innerRing->surface().position().z() - gInnerPoint.z());
   SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
 
@@ -203,7 +198,7 @@ SubLayerCrossings TIBLayer::computeCrossings( const TrajectoryStateOnSurface& st
 
   GlobalPoint gOuterPoint( outerCrossing.position());
   int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.z());
-  const TIBRing* outerRing( theOuterRings[outerIndex]);
+  const GeometricSearchDet* outerRing( theOuterComps[outerIndex]);
   float outerDist = fabs( outerRing->surface().position().z() - gOuterPoint.z());
   SubLayerCrossing outerSLC( 1, outerIndex, gOuterPoint);
 
@@ -223,7 +218,7 @@ bool TIBLayer::addClosest( const TrajectoryStateOnSurface& tsos,
 {
 //   cout << "Entering TIBLayer::addClosest" << endl;
 
-  const vector<const TIBRing*>& sub( subLayer( crossing.subLayerIndex()));
+  const vector<const GeometricSearchDet*>& sub( subLayer( crossing.subLayerIndex()));
   const Det* det(sub[crossing.closestDetIndex()]);
   return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result);
 }
@@ -238,7 +233,7 @@ void TIBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 {
   GlobalPoint gCrossingPos = crossing.position();
 
-  const vector<const TIBRing*>& sLayer( subLayer( crossing.subLayerIndex()));
+  const vector<const GeometricSearchDet*>& sLayer( subLayer( crossing.subLayerIndex()));
  
   int closestIndex = crossing.closestDetIndex();
   int negStartIndex = closestIndex-1;
@@ -255,18 +250,20 @@ void TIBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
   CompatibleDetToGroupAdder adder;
   for (int idet=negStartIndex; idet >= 0; idet--) {
-    const TIBRing* neighborRing = sLayer[idet];
+    const GeometricSearchDet* neighborRing = sLayer[idet];
     if (!overlap( gCrossingPos, *neighborRing, window)) break;
     if (!adder.add( *neighborRing, tsos, prop, est, result)) break;
   }
   for (int idet=posStartIndex; idet < static_cast<int>(sLayer.size()); idet++) {
-    const TIBRing* neighborRing = sLayer[idet];
+    const GeometricSearchDet* neighborRing = sLayer[idet];
     if (!overlap( gCrossingPos, *neighborRing, window)) break;
     if (!adder.add( *neighborRing, tsos, prop, est, result)) break;
   }
 }
 
-bool TIBLayer::overlap( const GlobalPoint& crossPoint, const TIBRing& det, float window) const
+bool TIBLayer::overlap( const GlobalPoint& crossPoint,
+			const GeometricSearchDet& det, 
+			float window) const
 {
   float halfLength = det.surface().bounds().length()/2.;
 

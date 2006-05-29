@@ -3,6 +3,7 @@
 #include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
+#include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
@@ -63,6 +64,12 @@ TIDRing::TIDRing(vector<const GeomDet*>& innerDets,
 TIDRing::~TIDRing(){
 
 } 
+
+const vector<const GeometricSearchDet*>& 
+TIDRing::components() const 
+{
+  throw DetLayerException("TIDRing doesn't have GeometricSearchDet components");
+}
 
   
 pair<bool, TrajectoryStateOnSurface>

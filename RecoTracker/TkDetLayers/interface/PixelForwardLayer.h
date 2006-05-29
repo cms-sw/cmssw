@@ -18,9 +18,9 @@ class PixelForwardLayer : public ForwardDetLayer{
   
   // GeometricSearchDet interface
   
-  virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
+  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual vector<const GeometricSearchDet*> components() const {return theComps;}
+  virtual const vector<const GeometricSearchDet*>& components() const {return theComps;}
   
   virtual vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
@@ -42,7 +42,7 @@ class PixelForwardLayer : public ForwardDetLayer{
  private:  
   virtual BoundDisk* computeDisk(const vector<const PixelBlade*>& blades) const;    
   // methods for groupedCompatibleDets implementation
-  int computeHelicity(const PixelBlade* firstBlade,const PixelBlade* secondBlade) const;
+  int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const;
 
   struct SubTurbineCrossings {
     SubTurbineCrossings(){};
@@ -73,7 +73,6 @@ class PixelForwardLayer : public ForwardDetLayer{
   typedef PeriodicBinFinderInPhi<double>   BinFinderType;
   BinFinderType    theBinFinder;
 
-  vector<const PixelBlade*> theBlades;
   vector<const GeometricSearchDet*> theComps;
   vector<const GeomDet*> theBasicComps;
 };

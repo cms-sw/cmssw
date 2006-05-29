@@ -16,29 +16,26 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 
 PixelBarrelLayer::PixelBarrelLayer(vector<const PixelRod*>& innerRods,
 				   vector<const PixelRod*>& outerRods) : 
-  theInnerRods(innerRods.begin(),innerRods.end()), 
-  theOuterRods(outerRods.begin(),outerRods.end())
+  theInnerComps(innerRods.begin(),innerRods.end()), 
+  theOuterComps(outerRods.begin(),outerRods.end())
 {
-  theRods.assign(theInnerRods.begin(),theInnerRods.end());
-  theRods.insert(theRods.end(),theOuterRods.begin(),theOuterRods.end());
+  theComps.assign(theInnerComps.begin(),theInnerComps.end());
+  theComps.insert(theComps.end(),theOuterComps.begin(),theOuterComps.end());
 
-  for(vector<const PixelRod*>::const_iterator it=theRods.begin();it!=theRods.end();it++){
-    theComponents.push_back(*it);
-    vector<const GeomDet*> basicCompsVector = (**it).basicComponents();
-    for(vector<const GeomDet*>::const_iterator itBasic=basicCompsVector.begin();
-	itBasic!=basicCompsVector.end(); itBasic++){
-      theBasicComps.push_back( *itBasic );
-    }
+  for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
+      it!=theComps.end();it++){  
+    theBasicComps.insert(theBasicComps.end(),	
+			 (**it).basicComponents().begin(),
+			 (**it).basicComponents().end());
   }
 
+  theInnerCylinder = cylinder( theInnerComps);
+  theOuterCylinder = cylinder( theInnerComps);
 
-  theInnerCylinder = cylinder( theInnerRods);
-  theOuterCylinder = cylinder( theOuterRods);
-
-  theInnerBinFinder = BinFinderType(theInnerRods.front()->position().phi(),
-				    theInnerRods.size());
-  theOuterBinFinder = BinFinderType(theOuterRods.front()->position().phi(),
-				    theOuterRods.size());
+  theInnerBinFinder = BinFinderType(theInnerComps.front()->position().phi(),
+				    theInnerComps.size());
+  theOuterBinFinder = BinFinderType(theOuterComps.front()->position().phi(),
+				    theOuterComps.size());
 
   
   BarrelDetLayer::initialize();
@@ -68,18 +65,12 @@ PixelBarrelLayer::PixelBarrelLayer(vector<const PixelRod*>& innerRods,
 }
 
 PixelBarrelLayer::~PixelBarrelLayer(){
-  vector<const PixelRod*>::const_iterator i;
-  for (i=theRods.begin(); i!=theRods.end(); i++) {
+  vector<const GeometricSearchDet*>::const_iterator i;
+  for (i=theComps.begin(); i!=theComps.end(); i++) {
     delete *i;
   }
 } 
   
-
-vector<const GeometricSearchDet*> 
-PixelBarrelLayer::components() const{
-  return theComponents;
-}
-
 
 vector<DetWithState> 
 PixelBarrelLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
@@ -195,7 +186,7 @@ bool PixelBarrelLayer::addClosest( const TrajectoryStateOnSurface& tsos,
 				   const SubLayerCrossing& crossing,
 				   vector<DetGroup>& result) const
 {
-  const vector<const PixelRod*>& sub( subLayer( crossing.subLayerIndex()));
+  const vector<const GeometricSearchDet*>& sub( subLayer( crossing.subLayerIndex()));
   const GeometricSearchDet* det(sub[crossing.closestDetIndex()]);
   return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result);
 }
@@ -240,7 +231,7 @@ void PixelBarrelLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 {
   GlobalPoint gCrossingPos = crossing.position();
 
-  const vector<const PixelRod*>& sLayer( subLayer( crossing.subLayerIndex()));
+  const vector<const GeometricSearchDet*>& sLayer( subLayer( crossing.subLayerIndex()));
  
   int closestIndex = crossing.closestDetIndex();
   int negStartIndex = closestIndex-1;
@@ -260,20 +251,20 @@ void PixelBarrelLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   CompatibleDetToGroupAdder adder;
   int quarter = sLayer.size()/4;
   for (int idet=negStartIndex; idet >= negStartIndex - quarter; idet--) {
-    const PixelRod* neighborRod = sLayer[binFinder.binIndex(idet)];
+    const GeometricSearchDet* neighborRod = sLayer[binFinder.binIndex(idet)];
     if (!overlap( gCrossingPos, *neighborRod, window)) break;
     if (!adder.add( *neighborRod, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet < posStartIndex + quarter; idet++) {
-    const PixelRod* neighborRod = sLayer[binFinder.binIndex(idet)];
+    const GeometricSearchDet* neighborRod = sLayer[binFinder.binIndex(idet)];
     if (!overlap( gCrossingPos, *neighborRod, window)) break;
     if (!adder.add( *neighborRod, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }
 
-bool PixelBarrelLayer::overlap( const GlobalPoint& gpos, const PixelRod& rod, float phiWin) const
+bool PixelBarrelLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet, float phiWin) const
 {
   GlobalPoint crossPoint(gpos);
 
@@ -283,6 +274,7 @@ bool PixelBarrelLayer::overlap( const GlobalPoint& gpos, const PixelRod& rod, fl
   phiWin += phiOffset;
 
   // detector phi range
+  const PixelRod& rod = dynamic_cast<const PixelRod&>(gsdet);
   GlobalDetRodRangeZPhi rodRange( rod.specificSurface());
   pair<float,float> phiRange(crossPoint.phi()-phiWin, crossPoint.phi()+phiWin);
 
@@ -302,12 +294,11 @@ bool PixelBarrelLayer::overlap( const GlobalPoint& gpos, const PixelRod& rod, fl
 } 
 
 
-BoundCylinder* PixelBarrelLayer::cylinder( const vector<const PixelRod*>& rods) const 
+BoundCylinder* PixelBarrelLayer::cylinder( const vector<const GeometricSearchDet*>& rods) const 
 {
   vector<const GeomDet*> tmp;
-  for (vector<const PixelRod*>::const_iterator it=rods.begin(); it!=rods.end(); it++) {    
-    vector<const GeomDet*> tmp2 = (*it)->basicComponents();
-    tmp.insert(tmp.end(),tmp2.begin(),tmp2.end());
+  for (vector<const GeometricSearchDet*>::const_iterator it=rods.begin(); it!=rods.end(); it++) {    
+    tmp.insert(tmp.end(),(*it)->basicComponents().begin(),(*it)->basicComponents().end());
   }
   return CylinderBuilderFromDet()( tmp.begin(), tmp.end());
 }

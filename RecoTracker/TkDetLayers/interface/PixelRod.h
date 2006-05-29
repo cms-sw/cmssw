@@ -17,7 +17,7 @@ class PixelRod : public DetRodOneR{
   
   // GeometricSearchDet interface
 
-  virtual vector<const GeometricSearchDet*> components() const;
+  virtual const vector<const GeometricSearchDet*>& components() const;
   
   virtual pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 

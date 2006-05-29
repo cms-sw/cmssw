@@ -45,6 +45,11 @@ TIBRing::TIBRing(vector<const GeomDet*>& theGeomDets):
 }
 
 
+const vector<const GeometricSearchDet*>& 
+TIBRing::components() const 
+{
+  throw DetLayerException("TIBRing doesn't have GeometricSearchDet components");
+}
 
 void TIBRing::checkRadius(vector<const GeomDet*>::const_iterator first,
 			  vector<const GeomDet*>::const_iterator last)

@@ -18,25 +18,22 @@
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades):
-  theBlades(blades.begin(),blades.end())
+  theComps(blades.begin(),blades.end())
 {
-  for(vector<const PixelBlade*>::const_iterator it=theBlades.begin();
-      it!=theBlades.end();it++){
-    theComps.push_back(*it);
-    vector<const GeomDet*> basicCompsVector = (**it).basicComponents();
-    for(vector<const GeomDet*>::const_iterator itBasic=basicCompsVector.begin();
-	itBasic!=basicCompsVector.end(); itBasic++){
-      theBasicComps.push_back( *itBasic );
-    }
+  for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
+      it!=theComps.end();it++){  
+    theBasicComps.insert(theBasicComps.end(),	
+			 (**it).basicComponents().begin(),
+			 (**it).basicComponents().end());
   }
 
   //They should be already phi-ordered. TO BE CHECKED!!
   //sort( theBlades.begin(), theBlades.end(), PhiLess());
-  setSurface( computeDisk(theBlades) );
+  setSurface( computeDisk(blades) );
   
   //Is a "periodic" binFinderInPhi enough?. TO BE CHECKED!!
-  theBinFinder = BinFinderType( theBlades.front()->surface().position().phi(),
-				theBlades.size());
+  theBinFinder = BinFinderType( theComps.front()->surface().position().phi(),
+				theComps.size());
 
   /*--------- DEBUG INFO --------------
   cout << "DEBUG INFO for PixelForwardLayer" << endl;
@@ -63,8 +60,8 @@ PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades):
 }
 
 PixelForwardLayer::~PixelForwardLayer(){
-  vector<const PixelBlade*>::const_iterator i;
-  for (i=theBlades.begin(); i!=theBlades.end(); i++) {
+  vector<const GeometricSearchDet*>::const_iterator i;
+  for (i=theComps.begin(); i!=theComps.end(); i++) {
     delete *i;
   }
 } 
@@ -73,8 +70,8 @@ PixelForwardLayer::~PixelForwardLayer(){
 
 vector<DetWithState> 
 PixelForwardLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
-		      const Propagator& prop, 
-		      const MeasurementEstimator& est) const{
+				   const Propagator& prop, 
+				   const MeasurementEstimator& est) const{
 
   // standard implementation of compatibleDets() for class which have 
   // groupedCompatibleDets implemented.
@@ -111,12 +108,12 @@ PixelForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     return closestResult;
   }
   CompatibleDetToGroupAdder adder;
-  adder.add( *theBlades[theBinFinder.binIndex(crossings.closestIndex)], 
+  adder.add( *theComps[theBinFinder.binIndex(crossings.closestIndex)], 
 	     tsos, prop, est, closestResult);
 
   if(closestResult.empty()){
     vector<DetGroup> nextResult;
-    adder.add( *theBlades[theBinFinder.binIndex(crossings.nextIndex)], 
+    adder.add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
 	       tsos, prop, est, nextResult);
     return nextResult;
   }      
@@ -128,12 +125,12 @@ PixelForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   float detWidth = closestGel.det()->surface().bounds().width();
   if (crossings.nextDistance < detWidth + window) {
     vector<DetGroup> nextResult;
-    if (adder.add( *theBlades[theBinFinder.binIndex(crossings.nextIndex)], 
+    if (adder.add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
 		   tsos, prop, est, nextResult)) {
       int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
       DetGroupMerger merger;
-      int theHelicity = computeHelicity(theBlades[theBinFinder.binIndex(crossings.closestIndex)],
-					theBlades[theBinFinder.binIndex(crossings.nextIndex)] );
+      int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(crossings.closestIndex)],
+					theComps[theBinFinder.binIndex(crossings.nextIndex)] );
       result = merger.orderAndMergeTwoLevels( closestResult, nextResult, 
 					      theHelicity, crossingSide);
     }
@@ -166,31 +163,31 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int negStart = min( crossings.closestIndex, crossings.nextIndex) - 1;
   int posStart = max( crossings.closestIndex, crossings.nextIndex) + 1;
 
-  int quarter = theBlades.size()/4;
+  int quarter = theComps.size()/4;
   for (int idet=negStart; idet >= negStart - quarter+1; idet--) {
-    const GeometricSearchDet* neighbor = theBlades[theBinFinder.binIndex(idet)];
+    const GeometricSearchDet* neighbor = theComps[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
     vector<DetGroup> tmp;
     if (!adder.add( *neighbor, tsos, prop, est, tmp)) break;
-    int theHelicity = computeHelicity(theBlades[theBinFinder.binIndex(idet)],
-				      theBlades[theBinFinder.binIndex(idet+1)] );
+    int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(idet)],
+				      theComps[theBinFinder.binIndex(idet+1)] );
     result = merger.orderAndMergeTwoLevels( tmp, result, theHelicity, crossingSide);
   }
   for (int idet=posStart; idet < posStart + quarter-1; idet++) {
-    const GeometricSearchDet* neighbor = theBlades[theBinFinder.binIndex(idet)];
+    const GeometricSearchDet* neighbor = theComps[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
     vector<DetGroup> tmp;
     if (!adder.add( *neighbor, tsos, prop, est, tmp)) break;
-    int theHelicity = computeHelicity(theBlades[theBinFinder.binIndex(idet-1)],
-				      theBlades[theBinFinder.binIndex(idet)] );
+    int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(idet-1)],
+				      theComps[theBinFinder.binIndex(idet)] );
     result = merger.orderAndMergeTwoLevels( result, tmp, theHelicity, crossingSide);
   }
 }
 
 int 
-PixelForwardLayer::computeHelicity(const PixelBlade* firstBlade,const PixelBlade* secondBlade) const
+PixelForwardLayer::computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const
 {  
   if( fabs(firstBlade->position().z()) < fabs(secondBlade->position().z()) ) return 0;
   return 1;
@@ -221,7 +218,7 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
   int closestIndex = theBinFinder.binIndex(turbinePoint.phi());
 
   const BoundPlane& closestPlane( dynamic_cast<const BoundPlane&>( 
-    theBlades[closestIndex]->surface()));
+    theComps[closestIndex]->surface()));
 
 
   HelixArbitraryPlaneCrossing2Order theBladeCrossing(turbinePoint, turbineDir, rho);
@@ -236,7 +233,7 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
     closestIndex+1 : closestIndex-1;
 
   const BoundPlane& nextPlane( dynamic_cast<const BoundPlane&>( 
-    theBlades[ theBinFinder.binIndex(nextIndex)]->surface()));
+    theComps[ theBinFinder.binIndex(nextIndex)]->surface()));
 
   pair<bool,double> theNextBladePath    = theBladeCrossing.pathLength( nextPlane );
   LocalPoint nextPos = nextPlane.toLocal(GlobalPoint(theBladeCrossing.position(theNextBladePath.second)) );
@@ -298,7 +295,7 @@ PixelForwardLayer::computeDisk(const vector<const PixelBlade*>& blades) const
   cout << "creating SimpleDiskBounds with r range" << theRmin << " " 
        << theRmax << " and z range " << theZmin << " " << theZmax << endl;
 #endif
-
+  
   // By default the forward layers are positioned around the z axis of the
   // global frame, and the axes of their local frame coincide with 
   // those of the global grame (z along the disk axis)

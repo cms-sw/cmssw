@@ -20,9 +20,9 @@ class TECLayer : public ForwardDetLayer{
   
   // GeometricSearchDet interface
   
-  virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
+  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual vector<const GeometricSearchDet*> components() const;
+  virtual const vector<const GeometricSearchDet*>& components() const {return theComps;}
   
   virtual vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
@@ -72,21 +72,21 @@ class TECLayer : public ForwardDetLayer{
 			   const MeasurementEstimator& est) const;
   
 
-  bool overlap( const GlobalPoint& gpos, const TECPetal& petal, float window) const;
+  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& petal, float window) const;
 
-  const vector<const TECPetal*>& subLayer( int ind) const {
-    return (ind==0 ? theFrontPetals : theBackPetals);
+  const vector<const GeometricSearchDet*>& subLayer( int ind) const {
+    return (ind==0 ? theFrontComps : theBackComps);
   }
 
 
  protected:
-  virtual BoundDisk* computeDisk( vector<const TECPetal*>& petals) const;
+  virtual BoundDisk* computeDisk( vector<const GeometricSearchDet*>& petals) const;
 
-  vector<const TECPetal*> thePetals;
-  vector<const GeometricSearchDet*> theComponents;
+  vector<const GeometricSearchDet*> theComps;
+  vector<const GeometricSearchDet*> theFrontComps;
+  vector<const GeometricSearchDet*> theBackComps;
   vector<const GeomDet*> theBasicComps;
-  vector<const TECPetal*> theFrontPetals;
-  vector<const TECPetal*> theBackPetals;
+
 
   ReferenceCountingPointer<BoundDisk>  theFrontDisk;
   ReferenceCountingPointer<BoundDisk>  theBackDisk;

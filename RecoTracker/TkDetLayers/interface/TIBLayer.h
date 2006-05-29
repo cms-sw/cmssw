@@ -21,9 +21,9 @@ class TIBLayer : public BarrelDetLayer {
   
   // GeometricSearchDet interface
 
-  virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
+  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual vector<const GeometricSearchDet*> components() const;
+  virtual const vector<const GeometricSearchDet*>& components() const {return theComps;}
   
   virtual vector<GeometricSearchDet::DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& tsos,
@@ -65,19 +65,18 @@ class TIBLayer : public BarrelDetLayer {
 			   const TrajectoryStateOnSurface& tsos, 
 			   const MeasurementEstimator& est) const;
 
-  bool overlap( const GlobalPoint& gpos, const TIBRing& ring, float window) const;
+  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& ring, float window) const;
 
-  const vector<const TIBRing*>& subLayer( int ind) const {
-    return (ind==0 ? theInnerRings : theOuterRings);
+  const vector<const GeometricSearchDet*>& subLayer( int ind) const {
+    return (ind==0 ? theInnerComps : theOuterComps);
   }
 
 
  private:
-  vector<const TIBRing*> theRings;
-  vector<const GeometricSearchDet*> theComponents;
+  vector<const GeometricSearchDet*> theComps;
+  vector<const GeometricSearchDet*> theInnerComps;
+  vector<const GeometricSearchDet*> theOuterComps;
   vector<const GeomDet*> theBasicComps;
-  vector<const TIBRing*> theInnerRings;
-  vector<const TIBRing*> theOuterRings;
   
   ReferenceCountingPointer<BoundCylinder>  theInnerCylinder;
   ReferenceCountingPointer<BoundCylinder>  theOuterCylinder;
@@ -85,7 +84,7 @@ class TIBLayer : public BarrelDetLayer {
   GeneralBinFinderInZforGeometricSearchDet<float> theInnerBinFinder;
   GeneralBinFinderInZforGeometricSearchDet<float> theOuterBinFinder;
 
-  BoundCylinder* cylinder( const vector<const TIBRing*>& rings);
+  BoundCylinder* cylinder( const vector<const GeometricSearchDet*>& rings);
 
 
 };

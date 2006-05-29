@@ -17,30 +17,27 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 
 TOBLayer::TOBLayer(vector<const TOBRod*>& innerRods,
 		   vector<const TOBRod*>& outerRods) : 
-  theInnerRods(innerRods.begin(),innerRods.end()), 
-  theOuterRods(outerRods.begin(),outerRods.end())
+  theInnerComps(innerRods.begin(),innerRods.end()), 
+  theOuterComps(outerRods.begin(),outerRods.end())
 {
-  theRods.assign(theInnerRods.begin(),theInnerRods.end());
-  theRods.insert(theRods.end(),theOuterRods.begin(),theOuterRods.end());
-  
-  
-  for(vector<const TOBRod*>::const_iterator it=theRods.begin();it!=theRods.end();it++){
-    theComponents.push_back(*it);
-    vector<const GeomDet*> basicCompsVector = (**it).basicComponents();
-    for(vector<const GeomDet*>::const_iterator itBasic=basicCompsVector.begin();
-	itBasic!=basicCompsVector.end(); itBasic++){
-      theBasicComps.push_back( *itBasic );
-    }
+  theComps.assign(theInnerComps.begin(),theInnerComps.end());
+  theComps.insert(theComps.end(),theOuterComps.begin(),theOuterComps.end());
+    
+  for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
+      it!=theComps.end();it++){  
+    theBasicComps.insert(theBasicComps.end(),	
+			 (**it).basicComponents().begin(),
+			 (**it).basicComponents().end());
   }
-  
-  
-  theInnerCylinder = cylinder( theInnerRods);
-  theOuterCylinder = cylinder( theOuterRods);
 
-  theInnerBinFinder = BinFinderType(theInnerRods.front()->position().phi(),
-				    theInnerRods.size());
-  theOuterBinFinder = BinFinderType(theOuterRods.front()->position().phi(),
-				    theOuterRods.size());
+  
+  theInnerCylinder = cylinder( theInnerComps);
+  theOuterCylinder = cylinder( theOuterComps);
+
+  theInnerBinFinder = BinFinderType(theInnerComps.front()->position().phi(),
+				    theInnerComps.size());
+  theOuterBinFinder = BinFinderType(theOuterComps.front()->position().phi(),
+				    theOuterComps.size());
 
   
   BarrelDetLayer::initialize();
@@ -71,17 +68,12 @@ TOBLayer::TOBLayer(vector<const TOBRod*>& innerRods,
 
 
 TOBLayer::~TOBLayer(){
-  vector<const TOBRod*>::const_iterator i;
-  for (i=theRods.begin(); i!=theRods.end(); i++) {
+  vector<const GeometricSearchDet*>::const_iterator i;
+  for (i=theComps.begin(); i!=theComps.end(); i++) {
     delete *i;
   }
 } 
 
-
-vector<const GeometricSearchDet*> 
-TOBLayer::components() const{
-  return theComponents;
-}
 
   
 vector<DetWithState> 
@@ -201,7 +193,7 @@ bool TOBLayer::addClosest( const TrajectoryStateOnSurface& tsos,
 			   const SubLayerCrossing& crossing,
 			   vector<DetGroup>& result) const
 {
-  const vector<const TOBRod*>& sub( subLayer( crossing.subLayerIndex()));
+  const vector<const GeometricSearchDet*>& sub( subLayer( crossing.subLayerIndex()));
   const GeometricSearchDet* det(sub[crossing.closestDetIndex()]);
   return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result);
 }
@@ -246,7 +238,7 @@ void TOBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 {
   GlobalPoint gCrossingPos = crossing.position();
 
-  const vector<const TOBRod*>& sLayer( subLayer( crossing.subLayerIndex()));
+  const vector<const GeometricSearchDet*>& sLayer( subLayer( crossing.subLayerIndex()));
  
   int closestIndex = crossing.closestDetIndex();
   int negStartIndex = closestIndex-1;
@@ -266,20 +258,20 @@ void TOBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   CompatibleDetToGroupAdder adder;
   int quarter = sLayer.size()/4;
   for (int idet=negStartIndex; idet >= negStartIndex - quarter; idet--) {
-    const TOBRod* neighborRod = sLayer[binFinder.binIndex(idet)];
+    const GeometricSearchDet* neighborRod = sLayer[binFinder.binIndex(idet)];
     if (!overlap( gCrossingPos, *neighborRod, window)) break;
     if (!adder.add( *neighborRod, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet < posStartIndex + quarter; idet++) {
-    const TOBRod* neighborRod = sLayer[binFinder.binIndex(idet)];
+    const GeometricSearchDet* neighborRod = sLayer[binFinder.binIndex(idet)];
     if (!overlap( gCrossingPos, *neighborRod, window)) break;
     if (!adder.add( *neighborRod, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }
 
-bool TOBLayer::overlap( const GlobalPoint& gpos, const TOBRod& rod, float phiWin) const
+bool TOBLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet, float phiWin) const
 {
   GlobalPoint crossPoint(gpos);
 
@@ -289,7 +281,8 @@ bool TOBLayer::overlap( const GlobalPoint& gpos, const TOBRod& rod, float phiWin
   phiWin += phiOffset;
 
   // detector phi range
-  GlobalDetRodRangeZPhi rodRange( rod.specificSurface());
+  const TOBRod& theRod = dynamic_cast<const TOBRod&>(gsdet);
+  GlobalDetRodRangeZPhi rodRange( theRod.specificSurface());
   pair<float,float> phiRange(crossPoint.phi()-phiWin, crossPoint.phi()+phiWin);
 
   //   // debug
@@ -308,18 +301,11 @@ bool TOBLayer::overlap( const GlobalPoint& gpos, const TOBRod& rod, float phiWin
 } 
 
 
-BoundCylinder* TOBLayer::cylinder( const vector<const TOBRod*>& rods) const 
+BoundCylinder* TOBLayer::cylinder( const vector<const GeometricSearchDet*>& rods) const 
 {
   vector<const GeomDet*> tmp;
-  for (vector<const TOBRod*>::const_iterator it=rods.begin(); it!=rods.end(); it++) {    
-    vector<const GeomDet*> tmp2 = (*it)->basicComponents();
-    tmp.insert(tmp.end(),tmp2.begin(),tmp2.end());
+  for (vector<const GeometricSearchDet*>::const_iterator it=rods.begin(); it!=rods.end(); it++) {    
+    tmp.insert(tmp.end(),(*it)->basicComponents().begin(),(*it)->basicComponents().end());
   }
   return CylinderBuilderFromDet()( tmp.begin(), tmp.end());
 }
-
-
-
-
-
-

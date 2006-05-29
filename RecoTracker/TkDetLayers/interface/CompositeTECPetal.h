@@ -19,9 +19,9 @@ class CompositeTECPetal : public TECPetal{
   ~CompositeTECPetal();
   
   // GeometricSearchDet interface  
-  virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
+  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual vector<const GeometricSearchDet*> components() const;
+  virtual const vector<const GeometricSearchDet*>& components() const {return theComps;}
   
   virtual pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
@@ -53,7 +53,7 @@ class CompositeTECPetal : public TECPetal{
 			vector<DetGroup>& result,
 			bool checkClosest) const;
 
-  bool overlap( const GlobalPoint& gpos, const TECWedge& rod, float window) const;
+  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float window) const;
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
@@ -63,17 +63,16 @@ class CompositeTECPetal : public TECPetal{
   
   GlobalPoint findPosition(int index,int diskSectorIndex) const ;
 
-  const vector<const TECWedge*>& subLayer( int ind) const {
-    return (ind==0 ? theFrontWedges : theBackWedges);
+  const vector<const GeometricSearchDet*>& subLayer( int ind) const {
+    return (ind==0 ? theFrontComps : theBackComps);
   }
 
 
  private:
-  vector<const TECWedge*> theWedges;
-  vector<const GeometricSearchDet*> theComponents;
+  vector<const GeometricSearchDet*> theComps;
+  vector<const GeometricSearchDet*> theFrontComps;
+  vector<const GeometricSearchDet*> theBackComps;
   vector<const GeomDet*> theBasicComps;
-  vector<const TECWedge*> theFrontWedges;
-  vector<const TECWedge*> theBackWedges;
 
   ReferenceCountingPointer<BoundDiskSector> theFrontSector;
   ReferenceCountingPointer<BoundDiskSector> theBackSector;  

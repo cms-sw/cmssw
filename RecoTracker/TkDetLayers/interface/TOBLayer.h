@@ -22,9 +22,9 @@ class TOBLayer : public RodBarrelLayer{
   
   // GeometricSearchDet interface
   
-  virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
+  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual vector<const GeometricSearchDet*> components() const;
+  virtual const vector<const GeometricSearchDet*>& components() const {return theComps;}
 
   
   virtual vector<DetWithState> 
@@ -64,7 +64,7 @@ class TOBLayer : public RodBarrelLayer{
   double calculatePhiWindow( double Xmax, const GeomDet& det,
 			     const TrajectoryStateOnSurface& state) const;
 
-  bool overlap( const GlobalPoint& gpos, const TOBRod& rod, float phiWin) const;
+  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float phiWin) const;
 
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
@@ -75,18 +75,17 @@ class TOBLayer : public RodBarrelLayer{
 			vector<DetGroup>& result,
 			bool checkClosest) const;
 
-  const vector<const TOBRod*>& subLayer( int ind) const {
-    return (ind==0 ? theInnerRods : theOuterRods);}
+  const vector<const GeometricSearchDet*>& subLayer( int ind) const {
+    return (ind==0 ? theInnerComps : theOuterComps);}
   
-  BoundCylinder* cylinder( const vector<const TOBRod*>& rods) const ;
+  BoundCylinder* cylinder( const vector<const GeometricSearchDet*>& rods) const ;
 
 
  private:
-  vector<const TOBRod*> theRods;
-  vector<const GeometricSearchDet*> theComponents;
+  vector<const GeometricSearchDet*> theComps;
+  vector<const GeometricSearchDet*> theInnerComps;
+  vector<const GeometricSearchDet*> theOuterComps;
   vector<const GeomDet*> theBasicComps;
-  vector<const TOBRod*> theInnerRods;
-  vector<const TOBRod*> theOuterRods;
   
   BinFinderType    theInnerBinFinder;
   BinFinderType    theOuterBinFinder;

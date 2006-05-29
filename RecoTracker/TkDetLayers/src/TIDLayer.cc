@@ -25,21 +25,19 @@ public:
 
 
 TIDLayer::TIDLayer(vector<const TIDRing*>& rings):
-  theRings(rings.begin(),rings.end())
+  theComps(rings.begin(),rings.end())
 {
   //They should be already R-ordered. TO BE CHECKED!!
   //sort( theRings.begin(), theRings.end(), DetLessR());
-  setSurface( computeDisk( theRings ) );
+  setSurface( computeDisk( rings ) );
 
-  if ( theRings.size() != 3) throw DetLayerException("Number of rings in TID layer is not equal to 3 !!");
+  if ( theComps.size() != 3) throw DetLayerException("Number of rings in TID layer is not equal to 3 !!");
 
-  for(vector<const TIDRing*>::const_iterator it=theRings.begin();
-      it!=theRings.end();it++){
-    vector<const GeomDet*> basicCompsVector = (**it).basicComponents();
-    for(vector<const GeomDet*>::const_iterator itBasic=basicCompsVector.begin();
-	itBasic!=basicCompsVector.end(); itBasic++){
-      theBasicComps.push_back( *itBasic );
-    }
+  for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
+      it!=theComps.end();it++){  
+    theBasicComps.insert(theBasicComps.end(),	
+			 (**it).basicComponents().begin(),
+			 (**it).basicComponents().end());
   }
 
 }
@@ -75,8 +73,8 @@ TIDLayer::computeDisk( const vector<const TIDRing*>& rings) const
 
 
 TIDLayer::~TIDLayer(){
-  vector<const TIDRing*>::const_iterator i;
-  for (i=theRings.begin(); i!=theRings.end(); i++) {
+  vector<const GeometricSearchDet*>::const_iterator i;
+  for (i=theComps.begin(); i!=theComps.end(); i++) {
     delete *i;
   }
 
@@ -124,9 +122,9 @@ TIDLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
   vector<DetGroup> nextNextResult;
   vector<vector<DetGroup> > groupsAtRingLevel;
 
-  closestResult = theRings[ringIndices[0]]->groupedCompatibleDets( startingState, prop, est);		
+  closestResult = theComps[ringIndices[0]]->groupedCompatibleDets( startingState, prop, est);		
   if ( closestResult.empty() ){
-    nextResult = theRings[ringIndices[1]]->groupedCompatibleDets( startingState, prop, est); 
+    nextResult = theComps[ringIndices[1]]->groupedCompatibleDets( startingState, prop, est); 
     return nextResult;
   }
 
@@ -136,7 +134,7 @@ TIDLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
   float rWindow = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
   if(!overlapInR(closestGel.trajectoryState(),ringIndices[1],rWindow)) return closestResult;
 
-  nextResult = theRings[ringIndices[1]]->groupedCompatibleDets( startingState, prop, est);
+  nextResult = theComps[ringIndices[1]]->groupedCompatibleDets( startingState, prop, est);
   if(nextResult.empty()) return closestResult;
   groupsAtRingLevel.push_back(nextResult);
 
@@ -144,7 +142,7 @@ TIDLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
     //then merge 2 levels & return 
     return orderAndMergeLevels(closestGel.trajectoryState(),prop,groupsAtRingLevel,ringIndices);      
     
-  nextNextResult = theRings[ringIndices[2]]->groupedCompatibleDets( startingState, prop, est);   
+  nextNextResult = theComps[ringIndices[2]]->groupedCompatibleDets( startingState, prop, est);   
   if(nextNextResult.empty()) 
     // then merge 2 levels and return 
     return orderAndMergeLevels(closestGel.trajectoryState(),prop,groupsAtRingLevel,ringIndices);
@@ -176,7 +174,8 @@ TIDLayer::ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startin
   vector<GlobalVector>  ringXDirections;
 
   for (int i = 0; i < 3 ; i++ ) {
-    pair<bool,double> pathlen = myXing.pathLength( theRings[i]->specificSurface());
+    const TIDRing* theRing = dynamic_cast<const TIDRing*>(theComps[i]);
+    pair<bool,double> pathlen = myXing.pathLength( theRing->specificSurface());
     if ( pathlen.first ) { 
       ringCrossings.push_back( GlobalPoint( myXing.position(pathlen.second )));
       ringXDirections.push_back( GlobalVector( myXing.direction(pathlen.second )));
@@ -269,11 +268,15 @@ int
 TIDLayer::findClosest(const vector<GlobalPoint>& ringCrossing ) const
 {
   int theBin = 0;
-  float initialR = ( theRings.front()->specificSurface().innerRadius() +
-		     theRings.front()->specificSurface().outerRadius())/2.;
+  const TIDRing* theFrontRing = dynamic_cast<const TIDRing*>(theComps[0]);
+  //float initialR = ( theComps.front()->specificSurface().innerRadius() +
+  //	     theComps.front()->specificSurface().outerRadius())/2.;
+  float initialR = ( theFrontRing->specificSurface().innerRadius() +
+		     theFrontRing->specificSurface().outerRadius())/2.;
   float rDiff = fabs( ringCrossing.front().perp() - initialR);
   for (int i = 0; i < 3 ; i++){
-    float ringR = ( theRings[i]->specificSurface().innerRadius() + theRings[i]->specificSurface().outerRadius())/2.;
+    const TIDRing* theRing = dynamic_cast<const TIDRing*>(theComps[i]);
+    float ringR = ( theRing->specificSurface().innerRadius() + theRing->specificSurface().outerRadius())/2.;
     float testDiff = fabs( ringCrossing[i].perp() - ringR);
     if ( theBin<0 || testDiff<rDiff ) {
       rDiff = testDiff;
@@ -287,12 +290,14 @@ int
 TIDLayer::findNextIndex(const vector<GlobalPoint>& ringCrossing, int closest ) const
 {
   int theBin = 0;
-  float initialR = ( theRings.front()->specificSurface().innerRadius() +
-		     theRings.front()->specificSurface().outerRadius())/2.;	     
+ const TIDRing* theFrontRing = dynamic_cast<const TIDRing*>(theComps[0]);
+  float initialR = ( theFrontRing->specificSurface().innerRadius() +
+		     theFrontRing->specificSurface().outerRadius())/2.;	     
   float rDiff = fabs( ringCrossing.front().perp() - initialR);
   for (int i = 0; i < 3 ; i++){
     if ( i != closest) {
-      float ringR = ( theRings[i]->specificSurface().innerRadius() + theRings[i]->specificSurface().outerRadius())/2.;
+      const TIDRing* theRing = dynamic_cast<const TIDRing*>(theComps[i]);
+      float ringR = ( theRing->specificSurface().innerRadius() + theRing->specificSurface().outerRadius())/2.;
       float testDiff = fabs( ringCrossing[i].perp() - ringR);
       if ( theBin<0 || testDiff<rDiff ) {
 	rDiff = testDiff;
@@ -313,7 +318,8 @@ TIDLayer::overlapInR( const TrajectoryStateOnSurface& tsos, int index, double ym
   float thetamin = ( max(0.,tsRadius-ymax))/(fabs(tsos.globalPosition().z())+10.); // add 10 cm contingency 
   float thetamax = ( tsRadius + ymax)/(fabs(tsos.globalPosition().z())-10.);
 
-  const BoundDisk& ringDisk = theRings[index]->specificSurface();
+  const TIDRing* theRing = dynamic_cast<const TIDRing*>(theComps[index]);
+  const BoundDisk& ringDisk = theRing->specificSurface();
   float ringMinZ = fabs( ringDisk.position().z()) - ringDisk.bounds().thickness()/2.;
   float ringMaxZ = fabs( ringDisk.position().z()) + ringDisk.bounds().thickness()/2.; 
   float thetaRingMin =  ringDisk.innerRadius()/ ringMaxZ;
@@ -327,7 +333,3 @@ TIDLayer::overlapInR( const TrajectoryStateOnSurface& tsos, int index, double ym
 }
 
 
-vector<const GeometricSearchDet*> 
-TIDLayer::components() const {
-  return vector <const GeometricSearchDet*>(theRings.begin(),theRings.end());
-}
