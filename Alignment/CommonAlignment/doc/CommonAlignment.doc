@@ -39,7 +39,7 @@ Unknown
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-ORCA code ported and adapter to CMSSW and CMS coding rules.
+ORCA code ported and adapted to CMSSW. 
 Code is stable, no new feature is foreseen at present.
 
 <hr>
