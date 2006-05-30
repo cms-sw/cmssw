@@ -157,7 +157,7 @@ void L1GlobalCaloTrigger::print() {
   cout << endl;
 
   for (unsigned i=0; i<theSourceCards.size(); i++) {
-    cout << "Source Card : " << i <<endl;
+    cout << "Source Card : " << i << " at " << theSourceCards[i] << endl;
     cout << (*theSourceCards[i]); 
   }
   cout << endl;
