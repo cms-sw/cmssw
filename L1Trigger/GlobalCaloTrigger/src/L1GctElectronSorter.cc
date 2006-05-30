@@ -39,13 +39,18 @@ L1GctElectronSorter::L1GctElectronSorter(int nInputs, bool iso, std::vector<L1Gc
 	<<"L1GctElectronSorter::Constructor() : Pointer to Source Card #"<<i<<" is zero";
     }  
   }
-  
-
 }
+
+L1GctElectronSorter::L1GctElectronSorter(int nInputs, bool iso):
+  m_id(nInputs),
+  m_emCandType(iso),
+  m_theSCs(0),
+  m_inputCands(nInputs),
+  m_outputCands(4)
+{}  
 
 L1GctElectronSorter::~L1GctElectronSorter()
 {
-
 }
 
 // clear buffers

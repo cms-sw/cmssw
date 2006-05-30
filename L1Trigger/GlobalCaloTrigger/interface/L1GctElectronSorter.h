@@ -16,12 +16,13 @@ class L1GctSourceCard;
 class L1GctElectronSorter : public L1GctProcessor
 {
 public:
-  
-  ///
-  /// constructor; set type (isolated or non-isolated)
-   L1GctElectronSorter(int nInputs, bool iso,  std::vector<L1GctSourceCard*> sCards);
  
-  ~L1GctElectronSorter();
+  /// constructor; set type (isolated or non-isolated)
+  L1GctElectronSorter(int nInputs, bool iso,  std::vector<L1GctSourceCard*> sCards);
+  /// constructor for test purposes, takes no of inputs and type
+  L1GctElectronSorter(int nInputs, bool iso);
+  ///   
+ ~L1GctElectronSorter();
   ///
   /// clear internal buffers
   virtual void reset();
