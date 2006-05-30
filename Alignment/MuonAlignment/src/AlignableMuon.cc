@@ -23,7 +23,7 @@
 
 
 //--------------------------------------------------------------------------------------------------
-AlignableMuon::AlignableMuon( const edm::Event& iEvent, const edm::EventSetup& iSetup  )
+AlignableMuon::AlignableMuon( const edm::EventSetup& iSetup  )
 {
 
   // The XML geometry is accessed as in DTGeometry and CSC Geometry classes.

@@ -53,7 +53,7 @@ class AlignableMuon: public AlignableComposite
 public:
   
   /// Constructor from record (builds the full hierarchy)
-  AlignableMuon( const edm::Event& , const edm::EventSetup&  ); 
+  AlignableMuon( const edm::EventSetup&  ); 
 
   /// Destructor
   ~AlignableMuon();
