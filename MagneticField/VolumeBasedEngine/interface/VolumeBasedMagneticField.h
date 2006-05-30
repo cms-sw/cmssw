@@ -14,6 +14,10 @@ class VolumeBasedMagneticField : public MagneticField {
 			    std::vector<MagVolume6Faces*> theEVolumes);
   virtual ~VolumeBasedMagneticField() {;}
   GlobalVector inTesla ( const GlobalPoint& g) const;
+
+  const MagVolume * findVolume(const GlobalPoint & gp) const;
+
+
  private:
   MagGeometry* field;
 };

@@ -16,3 +16,8 @@ GlobalVector VolumeBasedMagneticField::inTesla ( const GlobalPoint& g) const {
   GlobalVector gv =  field->fieldInTesla(g);
   return gv;
 }
+
+const MagVolume * VolumeBasedMagneticField::findVolume(const GlobalPoint & gp) const
+{
+  return field->findVolume(gp);
+}
