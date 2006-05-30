@@ -3,7 +3,7 @@
 
 /*
  *
- * $Id:$
+ * $Id: EcalTBCrystalMap.h,v 1.1 2006/05/29 08:30:19 fabiocos Exp $
  *
  */
 
@@ -12,6 +12,7 @@
 #include <fstream>
 #include <string>
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 

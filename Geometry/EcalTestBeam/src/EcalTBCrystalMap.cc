@@ -6,8 +6,9 @@ EcalTBCrystalMap::EcalTBCrystalMap(std::string const & MapFileName) {
   std::ifstream * input= new std::ifstream(MapFileName.c_str(), std::ios::in);
   if(! (*input))
     {
-      edm::LogError("FileNotFound") << "Input file TB crystal map " << MapFileName << " not exisiting \n" << "Aborting ...";
-    }
+      throw cms::Exception("FileNotFound", "Ecal TB Crystal map file not found") 
+        <<  "\n" << MapFileName << " could not be opened.\n";
+   }
   if (input){
 
     int nCrysCount = 0;
