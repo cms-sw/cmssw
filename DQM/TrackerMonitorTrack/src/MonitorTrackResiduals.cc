@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.1 2006/05/26 14:22:28 goitom Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.2 2006/05/30 15:25:11 goitom Exp $
 //
 //
 
@@ -163,7 +163,6 @@ MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 #endif
 
 
-  std::cout << "\n\n\n\n\n\n Test !!!! \n\n\n\n\n" << std::endl;
    using namespace edm;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
@@ -176,7 +175,7 @@ MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 #endif
 
    Handle<TrackCandidateCollection> trackCandidateCollection;
-   iEvent.getByLabel("TrackCandidateProducer", trackCandidateCollection);
+   iEvent.getByLabel("RoadSearchTrackCandidates", trackCandidateCollection);
 
    ESHandle<TrackerGeometry> pDD;
    iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
@@ -217,37 +216,36 @@ MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   for (TrackCandidateCollection::const_iterator track = trackCandidateCollection->begin(); track!=trackCandidateCollection->end(); ++track)
     {
-      std::cout << "\n\n\n\n\n\n Test1 !!!! \n\n\n\n\n" << std::endl;
       TrackingRecHitCollection::const_iterator hit;
       for (hit=track->recHits().first; hit!= track->recHits().second; ++hit)
 	{
-	  std::cout << "\n\n\n\n\n\n This is a hit!!!!! \n\n\n\n\n" << std::endl;
 	  double hitPos = hit->localPosition().x();
 	  DetId detId = hit->geographicalId();
 	  //const GeomDetUnit *detUnit = pDD->idToDetUnit(detId);
 	  //const BoundPlane & localSurface = detUnit->surface();
 	  PTrajectoryStateOnDet state = track->trajectoryStateOnDet();
-	  LocalTrajectoryParameters& TSOS = state.parameters();
+	  LocalTrajectoryParameters TSOS = state.parameters();
 	  double TSOSPos = TSOS.position().x();
 
 	  double residual = TSOSPos - hitPos;
 
-	  unsigned long int detID = detId.rawId();
-	  if (detID>=(*TIBdetid_begin) || detID<=(*TIBdetid_end))
+	  uint32_t rawDetId = detId.rawId();
+          int CutRawDetId=(rawDetId)&0x1ffffff;
+	  if (rawDetId>=(*TIBdetid_begin) || rawDetId<=(*TIBdetid_end))
 	    {
-	      HitResidual["TIB"]->Fill(residual);
+	      HitResidual["TIB"]->Fill(CutRawDetId, residual, 1.);
 	    }
-	  if (detID>=(*TOBdetid_begin) || detID<=(*TOBdetid_end))
+	  if (rawDetId>=(*TOBdetid_begin) || rawDetId<=(*TOBdetid_end))
 	    {
-	      HitResidual["TOB"]->Fill(residual);
+	      HitResidual["TOB"]->Fill(CutRawDetId, residual, 1.);
 	    }
-	  if (detID>=(*TIDdetid_begin) || detID<=(*TIDdetid_end))
+	  if (rawDetId>=(*TIDdetid_begin) || rawDetId<=(*TIDdetid_end))
 	    {
-	      HitResidual["TID"]->Fill(residual);
+	      HitResidual["TID"]->Fill(CutRawDetId, residual, 1.);
 	    }
-	  if (detID>=(*TECdetid_begin) || detID<=(*TECdetid_end))
+	  if (rawDetId>=(*TECdetid_begin) || rawDetId<=(*TECdetid_end))
 	    {
-	      HitResidual["TEC"]->Fill(residual);
+	      HitResidual["TEC"]->Fill(CutRawDetId, residual, 1.);
 	    }
 	}
     }
