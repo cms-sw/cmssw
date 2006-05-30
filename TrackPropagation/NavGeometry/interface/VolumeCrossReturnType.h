@@ -13,7 +13,7 @@ class VolumeCrossReturnType  {
   typedef ConstReferenceCountingPointer<NavVolume> NavVolumePointer;
   typedef TrajectoryStateOnSurface TSOS;
 
-  VolumeCrossReturnType( const NavVolume* navvol, TSOS& state, double path) : 
+  VolumeCrossReturnType( const NavVolume* navvol, const TSOS& state, double path) : 
     theNavVolumeP(navvol) , bla(state) , thePathLength(path) { };
   
   // Default constructor needed in /usr/include/c++/3.2.3/bits/stl_map.h:225 --> to use VolumeCrossReturnType in sorted container
@@ -27,7 +27,7 @@ class VolumeCrossReturnType  {
   const NavVolume * volume() const {return theNavVolumeP ;} 
   
   /// Access to actual Bounds pointer
-  TSOS tsos() const {return bla ;}
+  const TSOS& tsos() const {return bla ;}
   
   /// Access to actual NavSurface pointer
   double path() const {return thePathLength;} 
