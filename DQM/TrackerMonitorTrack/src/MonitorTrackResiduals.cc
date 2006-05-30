@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id$
+// $Id: MonitorTrackResiduals.cc,v 1.1 2006/05/26 14:22:28 goitom Exp $
 //
 //
 
@@ -35,6 +35,13 @@
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
+
+#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 //
 // constants, enums and typedefs
@@ -154,6 +161,96 @@ MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get(pSetup);
 #endif
+
+
+  std::cout << "\n\n\n\n\n\n Test !!!! \n\n\n\n\n" << std::endl;
+   using namespace edm;
+#ifdef THIS_IS_AN_EVENT_EXAMPLE
+   Handle<ExampleData> pIn;
+   iEvent.getByLabel("example",pIn);
+#endif
+
+#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
+   ESHandle<SetupData> pSetup;
+   iSetup.get<SetupRecord>().get(pSetup);
+#endif
+
+   Handle<TrackCandidateCollection> trackCandidateCollection;
+   iEvent.getByLabel("TrackCandidateProducer", trackCandidateCollection);
+
+   ESHandle<TrackerGeometry> pDD;
+   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
+
+    edm::ESHandle<SiStripDetCabling> tkmechstruct;
+    iSetup.get<SiStripDetCablingRcd>().get(tkmechstruct);
+
+  // get list of active detectors from SiStripStructure - this will change and be taken from a SiStripDetControl constobject 
+
+    std::vector<uint32_t> activeDets;
+    activeDets.clear(); // just in case
+    tkmechstruct->addActiveDetectorsRawIds(activeDets);
+
+  // use SiStripSubStructure for selecting certain regions
+  SiStripSubStructure substructure;
+
+  std::vector<uint32_t> TIBDetIds;
+  std::vector<uint32_t> TOBDetIds;
+  std::vector<uint32_t> TIDDetIds;
+  std::vector<uint32_t> TECDetIds;
+
+  substructure.getTIBDetectors(activeDets, TIBDetIds); // this adds rawDetIds to SelectedDetIds
+  substructure.getTOBDetectors(activeDets, TOBDetIds);    // this adds rawDetIds to SelectedDetIds
+  substructure.getTIDDetectors(activeDets, TIDDetIds); // this adds rawDetIds to SelectedDetIds
+  substructure.getTECDetectors(activeDets, TECDetIds); // this adds rawDetIds to SelectedDetIds
+
+  
+  std::vector<uint32_t>::const_iterator TIBdetid_begin = TIBDetIds.begin();
+  std::vector<uint32_t>::const_iterator TIBdetid_end = TIBDetIds.end() -1;
+  std::vector<uint32_t>::const_iterator TOBdetid_begin = TOBDetIds.begin();
+  std::vector<uint32_t>::const_iterator TOBdetid_end = TOBDetIds.end() -1;
+  std::vector<uint32_t>::const_iterator TIDdetid_begin = TIDDetIds.begin();
+  std::vector<uint32_t>::const_iterator TIDdetid_end = TIDDetIds.end() -1;
+  std::vector<uint32_t>::const_iterator TECdetid_begin = TECDetIds.begin();
+  std::vector<uint32_t>::const_iterator TECdetid_end = TECDetIds.end() -1;
+
+
+
+  for (TrackCandidateCollection::const_iterator track = trackCandidateCollection->begin(); track!=trackCandidateCollection->end(); ++track)
+    {
+      std::cout << "\n\n\n\n\n\n Test1 !!!! \n\n\n\n\n" << std::endl;
+      TrackingRecHitCollection::const_iterator hit;
+      for (hit=track->recHits().first; hit!= track->recHits().second; ++hit)
+	{
+	  std::cout << "\n\n\n\n\n\n This is a hit!!!!! \n\n\n\n\n" << std::endl;
+	  double hitPos = hit->localPosition().x();
+	  DetId detId = hit->geographicalId();
+	  //const GeomDetUnit *detUnit = pDD->idToDetUnit(detId);
+	  //const BoundPlane & localSurface = detUnit->surface();
+	  PTrajectoryStateOnDet state = track->trajectoryStateOnDet();
+	  LocalTrajectoryParameters& TSOS = state.parameters();
+	  double TSOSPos = TSOS.position().x();
+
+	  double residual = TSOSPos - hitPos;
+
+	  unsigned long int detID = detId.rawId();
+	  if (detID>=(*TIBdetid_begin) || detID<=(*TIBdetid_end))
+	    {
+	      HitResidual["TIB"]->Fill(residual);
+	    }
+	  if (detID>=(*TOBdetid_begin) || detID<=(*TOBdetid_end))
+	    {
+	      HitResidual["TOB"]->Fill(residual);
+	    }
+	  if (detID>=(*TIDdetid_begin) || detID<=(*TIDdetid_end))
+	    {
+	      HitResidual["TID"]->Fill(residual);
+	    }
+	  if (detID>=(*TECdetid_begin) || detID<=(*TECdetid_end))
+	    {
+	      HitResidual["TEC"]->Fill(residual);
+	    }
+	}
+    }
 }
 
 //define this as a plug-in
