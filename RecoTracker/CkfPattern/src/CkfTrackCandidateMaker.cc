@@ -134,6 +134,13 @@ namespace cms{
 	//PTrajectoryStateOnDet state = *(it->seed().startingState().clone());
 	std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = 
 	  theInitialState->innerState( *it);
+      
+	// temporary protection againt invalid initial states
+	if (! initState.first.isValid() || initState.second == 0) {
+          //cout << "invalid innerState, will not make TrackCandidate" << endl;
+          continue;
+        }
+
 	PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first,
 										   initState.second->geographicalId().rawId());
 	//	FitTester fitTester(es);
