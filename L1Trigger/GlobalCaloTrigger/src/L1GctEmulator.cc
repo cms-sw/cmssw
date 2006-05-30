@@ -21,7 +21,12 @@
 
 #include <memory>
 
-L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) {
+L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
+  m_verbose(ps.getUntrackedParameter<bool>("verbose", false)),
+  m_jetEtLut_A( ps.getParameter<double>("jetEtLutA") ),
+  m_jetEtLut_B( ps.getParameter<double>("jetEtLutB") ),
+  m_jetEtLut_C( ps.getParameter<double>("jetEtLutC") )
+{
 
   // list of products
   produces<L1GctIsoEmCollection>();
@@ -35,6 +40,10 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) {
 
   // instantiate the GCT
   m_gct = new L1GlobalCaloTrigger();
+
+  // set parameters
+  // m_gct->setVerbose(m_verbose);
+  m_gct->getJetEtCalibLut();
 
   // for now, call the debug print output
   m_gct->print();
@@ -75,7 +84,7 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   std::auto_ptr<L1GctEtHad> etHadResult(new L1GctEtHad(m_gct->getEtHad(), false) );
   std::auto_ptr<L1GctEtMiss> etMissResult(new L1GctEtMiss(m_gct->getEtMiss(), m_gct->getEtMissPhi(), false) );
 
-  // ... fill the collection ...
+  // put the collections into the event
   e.put(isoEmResult);
   e.put(nonIsoEmResult);
   e.put(cenJetResult);

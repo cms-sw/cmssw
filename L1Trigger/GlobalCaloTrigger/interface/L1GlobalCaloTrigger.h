@@ -89,6 +89,9 @@ public:
   /// get the Jet Leaf cards
   std::vector<L1GctEmLeafCard*> getEmLeafCards() { return theEmLeafCards; }
   
+  /// get the Jet Et calibration LUT
+  L1GctJetEtCalibrationLut* getJetEtCalibLut() { return m_jetEtCalLut; }
+
   /// print setup info
   void print();
   

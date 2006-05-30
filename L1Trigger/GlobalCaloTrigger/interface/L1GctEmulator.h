@@ -11,7 +11,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 15:04:56 CEST 2006
-// $Id: L1GctEmulator.h,v 1.1 2006/05/18 16:52:34 jbrooke Exp $
+// $Id: L1GctEmulator.h,v 1.1 2006/05/23 13:24:55 jbrooke Exp $
 //
 //
 
@@ -32,7 +32,18 @@ class L1GctEmulator : public edm::EDProducer {
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
  private:
+
+  // pointer to the actual emulator
   L1GlobalCaloTrigger* m_gct;
+
+  // untracked parameters
+  bool m_verbose;
+
+  // tracked parameters
+  double m_jetEtLut_A;
+  double m_jetEtLut_B;
+  double m_jetEtLut_C;
+
 
 };
 
