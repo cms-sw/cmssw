@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/05/29 17:25:53 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/29 17:56:46 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -17,13 +17,14 @@
 
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-
+#include "TrackingTools/DetLayers/interface/Enumerators.h"
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
 
@@ -33,7 +34,19 @@ using namespace edm;
 using namespace std;
 
 StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par){
-
+  
+  // Propagation direction
+  string propagationName = par.getParameter<string>("PropagationDirection");
+  if (propagationName == "alongMomentum" ) thePropagationDirection = alongMomentum;
+  else if (propagationName == "oppositeToMomentum" ) thePropagationDirection = oppositeToMomentum;
+  else 
+    throw cms::Exception("StandAloneMuonRefitter constructor") 
+      <<"Wrong propagation direction chosen in StandAloneMuonRefitter::StandAloneMuonRefitter ParameterSet"
+      << endl
+      << "Possible choices are:"
+      << endl
+      << "PropagationDirection = alongMomentum or PropagationDirection = oppositeToMomentum";
+  
   // The max allowed chi2 to accept a rechit in the fit
   theMaxChi2 = par.getParameter<double>("MaxChi2");
 
@@ -44,7 +57,7 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par){
   // The propagator: it propagates a state
   thePropagator = new SteppingHelixPropagator();
   // FIXME!!it Must be:
-  // thePropagator = new SteppingHelixPropagator(magField,propoDir);
+  // thePropagator = new SteppingHelixPropagator(magField,thePropagationDirection);
   // the propagation direction must be set via parameter set
 
   // The estimator: makes the decision wheter a measure is good or not for the fit
@@ -93,6 +106,54 @@ void StandAloneMuonRefitter::setEvent(const Event& event){
   theMeasurementExtractor.setEvent(event);
 }
 
+void StandAloneMuonRefitter::incrementChamberCounters(const DetLayer *layer){
+
+  if(layer->module()==dt) dtChambers++; 
+  else if(layer->module()==csc) cscChambers++; 
+  else if(layer->module()==rpc) rpcChambers++; 
+  else 
+    LogError("StandAloneMuonRefitter::incrementChamberCounters")
+      << "Unrecognized module type ";
+  // FIXME:
+  //   << layer->module() << " " <<layer->Part() << endl;
+  
+  totalChambers++;
+}
+
+void 
+StandAloneMuonRefitter::vectorLimits(vector<const DetLayer*> &vect,
+				     vector<const DetLayer*>::const_iterator &vector_begin,
+				     vector<const DetLayer*>::const_iterator &vector_end) const{
+  
+  if( propagationDirection() == alongMomentum ){
+    vector_begin = vect.begin();
+    vector_end = vect.end();
+  }
+  else if( propagationDirection() == oppositeToMomentum ){
+    vector_begin = vect.end()-1;
+    vector_end = vect.begin()-1;
+  }
+  else{
+    LogError("StandAloneMuonRefitter::vectorLimits") <<"Wrong propagation direction!!";
+  }
+}
+
+void 
+StandAloneMuonRefitter::incrementIterator(vector<const DetLayer*>::const_iterator &iter) const{
+
+  if( propagationDirection() == alongMomentum )
+    ++iter;
+  
+  else if( propagationDirection() == oppositeToMomentum )
+    --iter;
+  
+  else{
+    LogError("MuonTrajectoryUpdator::incrementIterator") <<"Wrong propagation direction!!";
+  }
+}
+
+
+
 void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const DetLayer* initialLayer, Trajectory &trajectory){
   
   std::string metname = "StandAloneMuonRefitter::refit";
@@ -120,17 +181,20 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
   lastUpdatedTSOS = lastButOneUpdatedTSOS = lastTSOS = initialTSOS;
   
   // FIXME: check the prop direction!
-  vector<const DetLayer*> nLayers = initialLayer->compatibleLayers(*initialTSOS.freeTrajectoryState(),
-								   alongMomentum);  
-    
-  
-  // FIXME: is it right?Or have I to invert the iterator/prop direction??
-  vector<const DetLayer*>::const_iterator layer;
+  // it must be alongMomentum for the in-out refit
+  vector<const DetLayer*> detLayers = initialLayer->compatibleLayers(*initialTSOS.freeTrajectoryState(),
+								     propagationDirection());  
 
-  // FIXME: begin() in rbegin() and end() in rend()?? Use the same techique as in the updator
-  for ( layer = nLayers.begin(); layer!= nLayers.end(); ++layer ) {
+  vector<const DetLayer*>::const_iterator layer;
+  vector<const DetLayer*>::const_iterator detLayers_begin;
+  vector<const DetLayer*>::const_iterator detLayers_end;
+  
+  // Set the limits according to the propagation direction
+  vectorLimits(detLayers,detLayers_begin,detLayers_end);
+  
+  // increment/decrement the iterator according to the propagation direction 
+  for ( layer = detLayers_begin; layer!= detLayers_end; incrementIterator(layer) ) {
     
-    //  const DetLayer* layer = *nextlayer;
     debug.dumpLayer(*layer,metname);
     
     LogDebug(metname) << "search Trajectory Measurement from: " << lastTSOS.globalPosition();
@@ -189,12 +253,21 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
     if(bestMeasurement){
       pair<bool,TrajectoryStateOnSurface> result = updator()->update(bestMeasurement,trajectory);
       
-      if(result.first) lastTSOS = result.second; 
+      if(result.first){ 
+	lastTSOS = result.second;
+	incrementChamberCounters(*layer);
+	
+	lastButOneUpdatedTSOS = lastUpdatedTSOS;
+	lastUpdatedTSOS = lastTSOS;
+      }
     }
-
-    lastButOneUpdatedTSOS = lastUpdatedTSOS;
-    lastUpdatedTSOS = lastTSOS;
-
+    //SL in case no valid mesurement is found, still I want to use the predicted
+    //state for the following measurement serches. I take the first in the
+    //container. FIXME!!! I want to carefully check this!!!!!
+    else 
+      if (measL.size()>0) 
+        lastTSOS = measL.front().predictedState();
   }
 }
+
 

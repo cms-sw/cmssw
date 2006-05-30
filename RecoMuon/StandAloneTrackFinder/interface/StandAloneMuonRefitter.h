@@ -4,14 +4,15 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/05/29 17:26:15 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/05/29 17:56:45 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 // FIXME
 // change FreeTrajectoryState in TSOS
@@ -62,6 +63,8 @@ public:
   int getCSCChamberUsed() const {return cscChambers;}
   int getRPCChamberUsed() const {return rpcChambers;}
 
+  /// Return the propagation direction
+  PropagationDirection propagationDirection() const {return thePropagationDirection;}
 
 protected:
 
@@ -73,6 +76,16 @@ private:
   /// Set the last but one TSOS
   void setLastButOneUpdatedTSOS(TrajectoryStateOnSurface tsos) { theLastButOneUpdatedTSOS = tsos;}
   
+  /// Increment the DT,CSC,RPC counters
+  void incrementChamberCounters(const DetLayer *layer);
+
+  /// I have to use this method since I have to cope with two propagation direction
+  void vectorLimits(std::vector<const DetLayer*> &vect,
+		    std::vector<const DetLayer*>::const_iterator &vector_begin,
+		    std::vector<const DetLayer*>::const_iterator &vector_end) const;
+  /// I have to use this method since I have to cope with two propagation direction
+  void incrementIterator(std::vector<const DetLayer*>::const_iterator &iter) const;
+
   /// the trajectory state on the last available surface
   TrajectoryStateOnSurface theLastUpdatedTSOS;
   /// the trajectory state on the last but one available surface
@@ -110,6 +123,9 @@ private:
   // The errors of the trajectory state are multiplied by nSigma 
   // to define acceptance of BoundPlane and maximalLocalDisplacement
   double theNSigma;
+
+  // the propagation direction
+  PropagationDirection thePropagationDirection;
 
   int totalChambers;
   int dtChambers;
