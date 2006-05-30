@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/15 13:06:21 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/04/10 12:20:40 $
+ *  $Revision: 1.12 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -76,10 +76,8 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
 	// temporary for the mapping
 
-	// Commissioning
-	//dduID = 5;
-	// Sector Test
-	dduID = 730;
+	// Check the ddu ID in the mapping been used
+	dduID = pset.getUntrackedParameter<int>("dduID",730);
 
 	// Map the RO channel to the DetId and wire
 	DTWireId detId = mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel);

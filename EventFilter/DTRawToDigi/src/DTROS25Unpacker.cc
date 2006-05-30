@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/10 12:20:40 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/04/25 10:31:16 $
+ *  $Revision: 1.14 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -9,6 +9,7 @@
 
 #include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
 #include <EventFilter/DTRawToDigi/interface/DTControlData.h>
+#include <EventFilter/DTRawToDigi/interface/DTROChainCoding.h>
 
 #include <EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -52,6 +53,9 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 				       uint16_t rosList) {
 
 
+  /// FIXME! (temporary). The DDU number is set by hand
+  dduID = pset.getUntrackedParameter<int>("dduID",730);
+
   const int wordLength = 4;
   int numberOfWords = datasize / wordLength;
 
@@ -61,7 +65,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
   int wordCounter = 0;
   uint32_t word = index[wordCounter];
 
-
+  map<uint32_t,int> hitOrder;
 
 
   /******************************************************
@@ -120,7 +124,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	  int bunchID = robHeaderWord.bunchID(); // from the TDCs
           int robID = robHeaderWord.robID(); // to be mapped
 
-	  if (debug) cout<<"[DTROS25Unpacker] ROB: ID "<<eventID
+	  if (debug) cout<<"[DTROS25Unpacker] ROB: ID "<<robID
 			 <<" Event ID "<<eventID
 			 <<" BXID "<<bunchID<<endl;
 
@@ -155,13 +159,27 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 			     <<" Channel "<< tdcChannel
 			     <<" Time "<<tdcMeasurementWord.tdcTime()<<endl;
 
+	      DTROChainCoding channelIndex(dduID, rosID, robID, tdcID, tdcChannel);
+
+	      hitOrder[channelIndex.getCode()]++;
+
+
+	      if (debug) {
+		cout<<"[DTROS25Unpacker] ROAddress: DDU "<< dduID 
+		    <<", ROS "<< rosID
+		    <<", ROB "<< robID
+		    <<", TDC "<< tdcID
+		    <<", Channel "<< tdcChannel<<endl;
+	      }
+	    
               // Map the RO channel to the DetId and wire
-              // DTLayerId layer; int wire = 0;
-              // mapping->getId(dduID, rosID, robID, tdcID, tdcChannel, layer, wire);
-                  
-              // Produce the digi
-              // DTDigi digi( tdcMeasurementWord.tdcTime(), wire);
-              // product->insertDigi(layer,digi);
+ 	      DTWireId detId = mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel);
+ 	      if (debug) cout<<"[DTROS25Unpacker] "<<detId<<endl;
+ 	      int wire = detId.wire();
+
+	      // Produce the digi
+	      DTDigi digi( wire, tdcMeasurementWord.tdcTime(), hitOrder[channelIndex.getCode()]-1);
+              product->insertDigi(detId.layerId(),digi);
             }
                 
           } while ( DTROSWordType(word).type() != DTROSWordType::GroupTrailer );

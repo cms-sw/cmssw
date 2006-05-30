@@ -4,8 +4,8 @@
 /** \class DTROChainCoding
  *  A class for handling the DT Read-out chain.
  *
- *  $Date: 2006/03/24 16:14:07 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/04/13 17:13:22 $
+ *  $Revision: 1.1 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -16,6 +16,21 @@
 #include <boost/cstdint.hpp>
 
 using namespace std;
+
+
+/// FIXEME:
+/*
+  A major problem is the numbering of the
+  RO componenets: do they all start from 0?
+  I think yes but mapping and coding (THIS class)
+  must be arranged accordingly.
+
+  So far TDC channels and ID are bound to start from 0
+  whereas ROB, ROS and DDU are free to start from 0 
+  or from 1. This has to be coded into the map
+
+*/
+
 
 class DTROChainCoding {
 
@@ -52,11 +67,23 @@ public:
       tdc << TDC_SHIFT |
       channel << CHANNEL_SHIFT;
   }
-  inline void setDDU(const int & ID) { code = code | (ID << DDU_SHIFT); } 
-  inline void setROS(const int & ID) { code = code | (ID << ROS_SHIFT); } 
-  inline void setROB(const int & ID) { code = code | (ID << ROB_SHIFT); } 
-  inline void setTDC(const int & ID) { code = code | (ID << TDC_SHIFT); } 
-  inline void setChannel(const int & ID) { code = code | (ID << CHANNEL_SHIFT); } 
+
+  /// need to reset the bits before setting 
+  inline void setDDU(const int & ID) { 
+    code = ( code & (~(DDU_MASK << DDU_SHIFT)) ) | (ID << DDU_SHIFT);
+  } 
+  inline void setROS(const int & ID) { 
+    code = ( code & (~(ROS_MASK << ROS_SHIFT)) ) | (ID << ROS_SHIFT);
+  } 
+  inline void setROB(const int & ID) { 
+    code = ( code & (~(ROB_MASK << ROB_SHIFT)) ) | (ID << ROB_SHIFT);
+  } 
+  inline void setTDC(const int & ID) { 
+    code = ( code & (~(TDC_MASK << TDC_SHIFT)) ) | (ID << TDC_SHIFT);
+  } 
+  inline void setChannel(const int & ID) { 
+    code = ( code & (~(CHANNEL_MASK << CHANNEL_SHIFT)) ) | (ID << CHANNEL_SHIFT);
+  } 
   
   /// Getters ///////////////////////
   inline uint32_t getCode() const { return code; }
