@@ -49,7 +49,7 @@ L1GctEmulator::~L1GctEmulator() {
 void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   // reset the GCT internal buffers
-  m_gct->reset;
+  m_gct->reset();
 
   // process the event
   m_gct->process();
