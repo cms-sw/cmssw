@@ -139,6 +139,7 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
     
     //fill the TrackExtraCollection
     outputTEColl->push_back(*theTrackExtra);
+    delete theTrackExtra;
   }
   //put the collection of TrackExtra in the event
   LogDebug("TrackProducer") << 
@@ -167,10 +168,22 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
     outputTColl->push_back(*theTrack);
     
     cc++;
+    delete theTrack;
   }
   //put the TrackCollection in the event
   LogDebug("TrackProducer") << 
     "put the TrackCollection in the event" << "\n";
   theEvent.put(outputTColl);
+
+  for(AlgoProductCollection::iterator i=algoResults.begin();
+      i!=algoResults.end();i++){
+    Trajectory * theTraj = (*i).first;
+    Trajectory::DataContainer dc = theTraj->measurements();
+    for (Trajectory::DataContainer::iterator j=dc.begin(); j!=dc.end(); j++) {
+      delete j->recHit();
+    }
+    delete theTraj;
+  }  
+  
 }
 

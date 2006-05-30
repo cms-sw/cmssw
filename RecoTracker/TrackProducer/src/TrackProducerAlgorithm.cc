@@ -8,7 +8,6 @@
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-//#include "DataFormats/TrackReco/interface/HelixParameters.h"
 
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -125,8 +124,16 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 
       reco::TransientTrack theTT(*theT);
 
+      TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.begin()->det()->surface());
+
+      AlgebraicSymMatrix C(5,1);
+      // C *= 100.;
+
       TrajectoryStateOnSurface theTSOS=theTT.impactPointState();
       theTSOS.rescaleError(100);
+//       TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C),
+// 			 firstState.surface(),
+// 			 thePropagator->magneticField()); 
 
       const TrajectorySeed * seed = new TrajectorySeed();//empty seed: not needed
       //buildTrack
@@ -168,20 +175,9 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
     }
     
     
-    //extrapolate the innermost state to the point of closest approach to the beamline
-    //     tsos = tipe->extrapolate(*(innertsos.freeState()), 
-    // 			     GlobalPoint(0,0,0) );//FIXME Correct?
     TSCPBuilderNoMaterial tscpBuilder;
     TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
-						     GlobalPoint(0,0,0) );
-    
-//     //
-//     // TB: if the tsos is not valid, stop
-//     //
-//     if (tscp.isValid() == false) {
-//       edm::LogInfo("TrackProducer") <<" Could not extrapolate a track to (0,0,0) - skipping it.\n";
-// 	  return false;//	  continue;
-//     }
+						     GlobalPoint(0,0,0) );//FIXME Correct?
     
     reco::perigee::Parameters param = tscp.perigeeParameters();
  
@@ -197,32 +193,6 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
 
     LogDebug("TrackProducer") <<"track done\n";
 
-    //     //compute parameters needed to build a Track from a Trajectory    
-    //     int charge = tsos.charge();
-    //     const GlobalTrajectoryParameters& gp = tsos.globalParameters();
-    //     GlobalPoint v = gp.position();
-    //     GlobalVector p = gp.momentum();
-    //     const CartesianTrajectoryError& cte = tsos.cartesianError();
-    //     AlgebraicSymMatrix m = cte.matrix();
-    //     math::Error<6>::type cov;
-    //     for( int i = 0; i < 6; ++i )
-    //       for( int j = 0; j <= i; ++j )
-    // 	cov( i, j ) = m.fast( i + 1 , j + 1 );
-    //     math::XYZVector mom( p.x(), p.y(), p.z() );
-    //     math::XYZPoint  vtx( v.x(), v.y(), v.z() );   
-    //     edm::LogInfo("TrackProducer") << " RESULT Momentum "<< p<<"\n";
-    //     edm::LogInfo("TrackProducer") << " RESULT Vertex "<< v<<"\n";
-    
-    //     //build the Track(chiSquared, ndof, found, invalid, lost, q, vertex, momentum, covariance)
-    //     theTrack = new reco::Track(theTraj->chiSquared(), 
-    // 			       int(ndof),//FIXME fix weight() in TrackingRecHit 
-    // 			       theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
-    // 			       0, //FIXME no corresponding method in trajectory.h
-    // 			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
-    // 			       charge, 
-    // 			       vtx,
-    // 			       mom,
-    // 			       cov);
     AlgoProduct aProduct(theTraj,theTrack);
     LogDebug("TrackProducer") <<"track done1\n";
     algoResults.push_back(aProduct);
