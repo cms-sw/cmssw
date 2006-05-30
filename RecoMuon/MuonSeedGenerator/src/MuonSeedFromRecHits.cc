@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/05/24 17:14:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/25 12:29:16 $
+ *  $Revision: 1.3 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -526,12 +526,7 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
     // TrajectorySeed theSeed(e_state, rechitcontainer,oppositeToMomentum);
     // But is:
     edm::OwnVector<TrackingRecHit> container;
-  
-    // </ FIXME change as MuonTransient change
-    const TrackingRecHit *tr = dynamic_cast<const TrackingRecHit*>(last->hit());
-    TrackingRecHit *untr = const_cast<TrackingRecHit*>(tr); 
-    container.push_back(untr); 
-    // />
+    container.push_back(last->hit()->clone()); 
 
     TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
     //>> is it right??

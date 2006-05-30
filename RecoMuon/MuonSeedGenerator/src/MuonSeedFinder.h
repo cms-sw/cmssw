@@ -8,8 +8,8 @@
  *  \author A. Vitelli - INFN Torino
  *  \author porting R. Bellan - INFN Torino
  *
- *  $Date: 2006/05/24 17:14:38 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/25 12:29:16 $
+ *  $Revision: 1.4 $
  *  
  */
 
@@ -24,6 +24,7 @@
 #include <vector>
 
 namespace edm {class EventSetup;}
+class MagneticField;
 
 class MuonSeedFinder {
 
@@ -53,6 +54,8 @@ private:
 			std::vector<TrajectorySeed>& theSeeds,
 			const edm::EventSetup& eSetup) const;
   
+  float computePt(const MuonTransientTrackingRecHit *muon, const MagneticField *field) const;
+
   RecHitContainer theRhits;
  
   // put a parameterSet instead of

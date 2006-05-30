@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/24 17:14:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/25 12:29:16 $
+ *  $Revision: 1.3 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -155,10 +155,8 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me,
   mat[3][3] = 1.*1.;
   mat[4][4] = 6.*6.;
 
-  // FIXME
-
- // We want pT but it's not in RecHit interface, so we've put it in weight()
-  float momentum = me->weight();
+ // We want pT but it's not in RecHit interface, so we've put it within this class
+  float momentum = computePt(me,&*field);
 
   // set minimum momentum for endcap seed
   float magmom = fabs( momentum );
@@ -189,9 +187,7 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me,
   int charge=(int)(momentum/fabs(momentum));
   LocalTrajectoryParameters param(segPos,segDirFromPos, charge);
 
-  // FIXME!!! The last two arg is incorrect!
-  TrajectoryStateOnSurface tsos(param, error, me->det()->surface(), &*field,me->weight() );
-  //
+  TrajectoryStateOnSurface tsos(param, error, me->det()->surface(), &*field);
 
   const FreeTrajectoryState state = *(tsos.freeState());
 
@@ -231,12 +227,7 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me,
     // TrajectorySeed theSeed(e_state, rechitcontainer,oppositeToMomentum);
     // But is:
     edm::OwnVector<TrackingRecHit> container;
-  
-    // </ FIXME change as MuonTransient change
-    const TrackingRecHit *tr = dynamic_cast<const TrackingRecHit*>(me->hit());
-    TrackingRecHit *untr = const_cast<TrackingRecHit*>(tr); 
-    container.push_back(untr); 
-    // />
+    container.push_back(me->hit()->clone() ); 
 
     TrajectorySeed seed(*seedTSOS,container,oppositeToMomentum);
     //>> is it right??
@@ -256,4 +247,48 @@ MuonSeedFinder::createEndcapSeed(MuonTransientTrackingRecHit *me,
   }
   delete propagator;
   return result;
+}
+
+
+float MuonSeedFinder::computePt(const MuonTransientTrackingRecHit *muon, const MagneticField *field) const {
+// assume dZ = dPhi*R*C, here C = pZ/pT
+// =======================================================================
+// ptc: I suspect the following comment should really be
+// dZ/dPsi = 0.5*dz/dPhi
+// which I can derive if I assume the particle has travelled in a circle
+// projected onto the global xy plane, starting at the origin on the z-axis.
+// Here Psi is the angle traced out in the xy plane by the projection of the
+// helical path of the charged particle. The axis of the helix is assumed 
+// parallel to the main B field of the solenoid.
+// =======================================================================
+// dZ/dPhi = 0.5*dZ/dPsi, here phi = atan2(y,x), psi = rho*s
+
+// ptc: If the local direction is effectively (0,0,1) or (0,0,-1)
+// then it's ridiculous to follow this algorithm... just set some
+// arbitrary 'high' value and note the sign is undetermined
+
+//@@ DO SOMETHING SANE WITH THESE TRAP VALUES
+  static float small = 1.e-06;
+  static float big = 1.e+10;
+
+  LocalVector lod = muon->localDirection();
+  if ( fabs(lod.x())<small && fabs(lod.y())<small ) {
+    return big;
+  }
+
+  GlobalPoint gp = muon->globalPosition();
+  GlobalVector gv = muon->globalDirection();
+  float getx0 = gp.x();
+  float getay = gv.y()/gv.z();
+  float gety0 = gp.y();
+  float getax = gv.x()/gv.z();
+  float getz0 = gp.z();
+  
+  float dZdPhi = 0.5f*gp.perp2()/(getx0*getay - gety0*getax);
+  float dZdT = getz0/gp.perp();
+  float rho = dZdT/dZdPhi;
+  
+  // convert to pT (watch the sign !)
+  GlobalVector fld = field->inInverseGeV( gp );
+  return -fld.z()/rho;
 }
