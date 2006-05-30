@@ -17,14 +17,9 @@ L1GctEmLeafCard::L1GctEmLeafCard(int id, vector<L1GctSourceCard*> srcCards) :
   m_sorters(4),
   m_sourceCards(srcCards)
 {
-
-  // sorters 0 and 1 are in FPGA 0
-  m_sorters[0] = new L1GctElectronSorter(true);
-  m_sorters[1] = new L1GctElectronSorter(false);
-
-  // sorters 2 and 3 are in FPGA 1
-  m_sorters[2] = new L1GctElectronSorter(true);
-  m_sorters[3] = new L1GctElectronSorter(false);
+  vector<L1GctSourceCard*> firstHalf;
+  vector<L1GctSourceCard*> secondHalf;
+  
   
   // check for the right number of source cards
   if (m_sourceCards.size()!=N_SOURCE_CARDS) {
@@ -42,6 +37,21 @@ L1GctEmLeafCard::L1GctEmLeafCard(int id, vector<L1GctSourceCard*> srcCards) :
     }
   }
 
+  for(unsigned i=0;i!=m_sourceCards.size();i++){
+    if(i<4){
+      firstHalf.push_back(m_sourceCards[i]);
+    }else{
+      secondHalf.push_back(m_sourceCards[i]);
+    }
+  }
+
+  // sorters 0 and 1 are in FPGA 0
+  m_sorters[0] = new L1GctElectronSorter(4,true, firstHalf);
+  m_sorters[1] = new L1GctElectronSorter(4,false,firstHalf);
+  
+  // sorters 2 and 3 are in FPGA 1
+  m_sorters[2] = new L1GctElectronSorter(5,true, secondHalf);
+  m_sorters[3] = new L1GctElectronSorter(5,false,secondHalf);
 }
 
 L1GctEmLeafCard::~L1GctEmLeafCard() 
@@ -77,7 +87,7 @@ void L1GctEmLeafCard::process() {
 /// get the output candidates
 vector<L1GctEmCand> L1GctEmLeafCard::getOutputIsoEmCands(int fpga) {
   if (fpga<2) {
-    return m_sorters[2*fpga]->OutputCands();
+    return m_sorters[2*fpga]->getOutputCands();
   }
   else {
     return vector<L1GctEmCand>(0);
@@ -87,7 +97,7 @@ vector<L1GctEmCand> L1GctEmLeafCard::getOutputIsoEmCands(int fpga) {
 /// get the output candidates
 vector<L1GctEmCand> L1GctEmLeafCard::getOutputNonIsoEmCands(int fpga) {
   if (fpga<2) {
-    return m_sorters[2*fpga+1]->OutputCands();
+    return m_sorters[2*fpga+1]->getOutputCands();
   }
   else {
     return vector<L1GctEmCand>(0);
