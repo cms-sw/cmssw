@@ -39,7 +39,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   produces<L1GctEtMiss>();
 
   // instantiate the GCT
-  m_gct = new L1GlobalCaloTrigger();
+  m_gct = new L1GlobalCaloTrigger(true);
 
   // set parameters
   // m_gct->setVerbose(m_verbose);
