@@ -4,7 +4,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
-
 #include <typeinfo>
 #include <iostream>
 
@@ -57,19 +56,19 @@ namespace edm
   JobHeaderDecoder::~JobHeaderDecoder() { }
 
   std::auto_ptr<SendJobHeader>
-  JobHeaderDecoder::decodeJobHeader(const InitMsgView& msg)
+  JobHeaderDecoder::decodeJobHeader(const InitMsg& msg)
   {
     FDEBUG(6) << "StreamInput: decodeRegistry" << endl;
 
-    if(msg.code()!= 0 )  //Code for Init is 0
+    if(msg.getCode()!=MsgCode::INIT)
       throw cms::Exception("HeaderDecode","EventStreamerInput")
 	<< "received wrong message type: expected INIT, got "
-	<< msg.code() << "\n";
+	<< msg.getCode() << "\n";
 
     // This "SetBuffer" stuff does not appear to work or I don't understand
     // what needs to be done to actually make it go. (JBK)
     //buf_.SetBuffer((char*)msg.data(),msg.getDataSize(),kFALSE);
-    TBuffer xbuf(TBuffer::kRead,msg.descLength(),(char*)msg.descData(),kFALSE);
+    TBuffer xbuf(TBuffer::kRead,msg.getDataSize(),(char*)msg.data(),kFALSE);
     RootDebug tracer(10,10);
     auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc_));
 
@@ -185,44 +184,24 @@ namespace edm
   EventDecoder::~EventDecoder() { }
 
   std::auto_ptr<EventPrincipal>
-  EventDecoder::decodeEvent(const EventMsgView& msg, const ProductRegistry& pr)
+  EventDecoder::decodeEvent(const EventMsg& msg, const ProductRegistry& pr)
   {
-  
-   /*cout << "Entering EventDecoder::decodeEvent"<<endl; 
-
-   cout << "Decide event: "
-              << msg.event() << " "
-              << msg.run() << " "
-              //<< msg.getTotalSegs() << " "
-              //<< msg.getWhichSeg() << " "
-              << msg.size() << " "
-              << msg.eventLength() << " "
-              << msg.eventData()
-              << endl;
-   */
-
     FDEBUG(5) << "Decide event: "
-	      << msg.event() << " "
-	      << msg.run() << " "
-	      //<< msg.getTotalSegs() << " "
-	      //<< msg.getWhichSeg() << " "
-	      << msg.size() << " "
-	      << msg.eventLength() << " "
-	      << msg.eventData()
+	      << msg.getEventNumber() << " "
+	      << msg.getRunNumber() << " "
+	      << msg.getTotalSegs() << " "
+	      << msg.getWhichSeg() << " "
+	      << msg.msgSize() << " "
+	      << msg.getDataSize() << " "
+	      << msg.data()
 	      << endl;
 
     // This "SetBuffer" stuff does not appear to work or I don't understand
     // what needs to be done to actually make it go. (JBK)
     //buf_.SetBuffer((char*)msg.data(),msg.getDataSize(),kFALSE);
-
-    //cout<< "Just b4 TBuffer"<<endl;
-    TBuffer xbuf(TBuffer::kRead, msg.eventLength(),(char*) msg.eventData(),kFALSE);
-    //cout<< "Just after TBuffer"<<endl;
-
+    TBuffer xbuf(TBuffer::kRead,msg.getDataSize(),(char*)msg.data(),kFALSE);
     RootDebug tracer(10,10);
-    //cout<< "Just b4 ReadObjectAny"<<endl;
     auto_ptr<SendEvent> sd((SendEvent*)xbuf.ReadObjectAny(desc_));
-    //cout<< "After TBuffer ReadObjectAny"<<endl;
 
     if(sd.get()==0)
       {
@@ -231,7 +210,6 @@ namespace edm
       }
 
     FDEBUG(5) << "Got event: " << sd->id_ << " " << sd->prods_.size() << endl;
-    //cout << "Got event: " << sd->id_ << " " << sd->prods_.size() << endl;
 
     auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
 						   sd->time_,
@@ -282,9 +260,7 @@ namespace edm
 	spi->clear();
       }
 
-
     FDEBUG(10) << "Size = " << ep->numEDProducts() << endl;
-    //cout << "Size = " << ep->numEDProducts() << endl;
 
     return ep;
   }
@@ -304,8 +280,7 @@ namespace edm
 	<< "Could not read the registry information from the test\n"
 	<< "event stream file \n";
 
-    //edm::InitMsg msg(&regdata[0],len);
-    InitMsgView msg(&regdata[0],len);
+    edm::InitMsg msg(&regdata[0],len);
     std::auto_ptr<SendJobHeader> p = decoder.decodeJobHeader(msg);
     return p;
   }
@@ -340,23 +315,12 @@ namespace edm
 
   std::auto_ptr<EventPrincipal> EventReader::read(const ProductRegistry& prods)
   {
-    //cout << "EventReader::read"  << endl;
     int len = readMessage(b_);
     //cout << "readMessage done len=" << len << " " << (void*)len << endl;
     if(len==0)
 	return std::auto_ptr<edm::EventPrincipal>();
 
-    //edm::EventMsg msg(&b_[0],len);
-
-
-    //Dummy Values.    
-    std::vector<bool> l1bit(16);
-    uint8 hltbits[] = "4567";
-    const int hltsize = (sizeof(hltbits)-1)*4;
-
-    EventMsgView msg(&b_[0], len,
-                           hltsize,l1bit.size() ); 
-
+    edm::EventMsg msg(&b_[0],len);
     //cout << "turned into EventMsg" << endl;
     return decoder_.decodeEvent(msg,prods);
 
