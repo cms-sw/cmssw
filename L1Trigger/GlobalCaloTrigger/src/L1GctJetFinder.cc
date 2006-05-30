@@ -243,41 +243,41 @@ bool L1GctJetFinder::detectJet(const UShort centreIndex, const bool boundary) co
   if(!boundary)  //Not at boundary, so use 3*3 window of regions to determine if a jet
   {
     // Get the energy of the central region
-    ULong testEt = m_inputRegions[centreIndex].getEt();
+    ULong testEt = m_inputRegions[centreIndex].et();
         
     //Test if our region qualifies as a jet by comparing its energy with the energies of the
     //surrounding eight regions.  In the event of neighbouring regions with identical energy,
     //this will locate the jet in the lower-most (furthest away from eta=0), left-most (least phi) region.
-    if(testEt >  m_inputRegions[centreIndex-1-COL_OFFSET].getEt() &&
-       testEt >  m_inputRegions[centreIndex - COL_OFFSET].getEt() &&
-       testEt >  m_inputRegions[centreIndex+1-COL_OFFSET].getEt() &&
+    if(testEt >  m_inputRegions[centreIndex-1-COL_OFFSET].et() &&
+       testEt >  m_inputRegions[centreIndex - COL_OFFSET].et() &&
+       testEt >  m_inputRegions[centreIndex+1-COL_OFFSET].et() &&
            
-       testEt >= m_inputRegions[centreIndex - 1].getEt() &&
-       testEt >  m_inputRegions[centreIndex + 1].getEt() &&
+       testEt >= m_inputRegions[centreIndex - 1].et() &&
+       testEt >  m_inputRegions[centreIndex + 1].et() &&
            
-       testEt >= m_inputRegions[centreIndex-1+COL_OFFSET].getEt() &&
-       testEt >= m_inputRegions[centreIndex + COL_OFFSET].getEt() &&
-       testEt >= m_inputRegions[centreIndex+1+COL_OFFSET].getEt())
+       testEt >= m_inputRegions[centreIndex-1+COL_OFFSET].et() &&
+       testEt >= m_inputRegions[centreIndex + COL_OFFSET].et() &&
+       testEt >= m_inputRegions[centreIndex+1+COL_OFFSET].et())
     {
       return true;
     }
 //USE THIS BLOCK INSTEAD IF YOU WANT OVERFLOW BIT FUNCTIONALITY        
 /*    // Get the energy of the central region & OR the overflow bit to become the MSB
-    ULong testEt = (m_inputRegions[centreIndex].getEt() | (m_inputRegions[centreIndex].getOverFlow() << L1GctRegion::ET_BITWIDTH));
+    ULong testEt = (m_inputRegions[centreIndex].et() | (m_inputRegions[centreIndex].getOverFlow() << L1GctRegion::ET_BITWIDTH));
         
     //Test if our region qualifies as a jet by comparing its energy with the energies of the
     //surrounding eight regions.  In the event of neighbouring regions with identical energy,
     //this will locate the jet in the lower-most (furthest away from eta=0), left-most (least phi) region.
-    if(testEt >  (m_inputRegions[centreIndex-1-COL_OFFSET].getEt() | (m_inputRegions[centreIndex-1-COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
-       testEt >  (m_inputRegions[centreIndex - COL_OFFSET].getEt() | (m_inputRegions[centreIndex - COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
-       testEt >  (m_inputRegions[centreIndex+1-COL_OFFSET].getEt() | (m_inputRegions[centreIndex+1-COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+    if(testEt >  (m_inputRegions[centreIndex-1-COL_OFFSET].et() | (m_inputRegions[centreIndex-1-COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+       testEt >  (m_inputRegions[centreIndex - COL_OFFSET].et() | (m_inputRegions[centreIndex - COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+       testEt >  (m_inputRegions[centreIndex+1-COL_OFFSET].et() | (m_inputRegions[centreIndex+1-COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
            
-       testEt >= (m_inputRegions[centreIndex - 1].getEt() | (m_inputRegions[centreIndex - 1].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
-       testEt >  (m_inputRegions[centreIndex + 1].getEt() | (m_inputRegions[centreIndex + 1].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+       testEt >= (m_inputRegions[centreIndex - 1].et() | (m_inputRegions[centreIndex - 1].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+       testEt >  (m_inputRegions[centreIndex + 1].et() | (m_inputRegions[centreIndex + 1].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
            
-       testEt >= (m_inputRegions[centreIndex-1+COL_OFFSET].getEt() | (m_inputRegions[centreIndex-1+COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
-       testEt >= (m_inputRegions[centreIndex + COL_OFFSET].getEt() | (m_inputRegions[centreIndex + COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
-       testEt >= (m_inputRegions[centreIndex+1+COL_OFFSET].getEt() | (m_inputRegions[centreIndex+1+COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)))
+       testEt >= (m_inputRegions[centreIndex-1+COL_OFFSET].et() | (m_inputRegions[centreIndex-1+COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+       testEt >= (m_inputRegions[centreIndex + COL_OFFSET].et() | (m_inputRegions[centreIndex + COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)) &&
+       testEt >= (m_inputRegions[centreIndex+1+COL_OFFSET].et() | (m_inputRegions[centreIndex+1+COL_OFFSET].getOverFlow() << L1GctRegion::ET_BITWIDTH)))
     {
       return true;
     }
@@ -287,15 +287,15 @@ bool L1GctJetFinder::detectJet(const UShort centreIndex, const bool boundary) co
   {    
     // Get the energy of the central region
     // Don't need all the overflow bit adjustments as above, since we are in the HF here
-    ULong testEt = m_inputRegions[centreIndex].getEt();        
+    ULong testEt = m_inputRegions[centreIndex].et();        
         
-    if(testEt >  m_inputRegions[centreIndex-1-COL_OFFSET].getEt() &&
-       testEt >  m_inputRegions[centreIndex - COL_OFFSET].getEt() &&
+    if(testEt >  m_inputRegions[centreIndex-1-COL_OFFSET].et() &&
+       testEt >  m_inputRegions[centreIndex - COL_OFFSET].et() &&
        
-       testEt >= m_inputRegions[centreIndex - 1].getEt() &&
+       testEt >= m_inputRegions[centreIndex - 1].et() &&
            
-       testEt >= m_inputRegions[centreIndex-1+COL_OFFSET].getEt() &&
-       testEt >= m_inputRegions[centreIndex + COL_OFFSET].getEt())
+       testEt >= m_inputRegions[centreIndex-1+COL_OFFSET].et() &&
+       testEt >= m_inputRegions[centreIndex + COL_OFFSET].et())
     {
       return true;
     }
@@ -312,17 +312,17 @@ ULong L1GctJetFinder::calcJetEnergy(const UShort centreIndex, const bool boundar
   {
     for(int column = -1; column <= +1; ++column)
     {
-      energy += m_inputRegions[centreIndex-1 + (column*COL_OFFSET)].getEt() +
-                m_inputRegions[ centreIndex  + (column*COL_OFFSET)].getEt() +
-                m_inputRegions[centreIndex+1 + (column*COL_OFFSET)].getEt();
+      energy += m_inputRegions[centreIndex-1 + (column*COL_OFFSET)].et() +
+                m_inputRegions[ centreIndex  + (column*COL_OFFSET)].et() +
+                m_inputRegions[centreIndex+1 + (column*COL_OFFSET)].et();
     }
   }
   else
   {
     for(int column = -1; column <= +1; ++column)
     {
-      energy += m_inputRegions[centreIndex-1 + (column*COL_OFFSET)].getEt() +
-                m_inputRegions[ centreIndex  + (column*COL_OFFSET)].getEt();
+      energy += m_inputRegions[centreIndex-1 + (column*COL_OFFSET)].et() +
+                m_inputRegions[ centreIndex  + (column*COL_OFFSET)].et();
     }
   }
   return energy;                                   
@@ -337,17 +337,17 @@ bool L1GctJetFinder::calcJetTauVeto(const UShort centreIndex, const bool boundar
   {
     for(int column = -1; column <= +1; ++column)
     {
-      partial[column+1] = m_inputRegions[centreIndex-1 + (column*COL_OFFSET)].getTauVeto() ||
-                          m_inputRegions[ centreIndex  + (column*COL_OFFSET)].getTauVeto() ||
-                          m_inputRegions[centreIndex+1 + (column*COL_OFFSET)].getTauVeto();
+      partial[column+1] = m_inputRegions[centreIndex-1 + (column*COL_OFFSET)].tauVeto() ||
+                          m_inputRegions[ centreIndex  + (column*COL_OFFSET)].tauVeto() ||
+                          m_inputRegions[centreIndex+1 + (column*COL_OFFSET)].tauVeto();
     }
   }
   else
   {
     for(int column = -1; column <= +1; ++column)
     {
-      partial[column+1] = m_inputRegions[centreIndex-1 + (column*COL_OFFSET)].getTauVeto() ||
-                          m_inputRegions[ centreIndex  + (column*COL_OFFSET)].getTauVeto();
+      partial[column+1] = m_inputRegions[centreIndex-1 + (column*COL_OFFSET)].tauVeto() ||
+                          m_inputRegions[ centreIndex  + (column*COL_OFFSET)].tauVeto();
     }
   }
   return partial[0] || partial[1] || partial[2];

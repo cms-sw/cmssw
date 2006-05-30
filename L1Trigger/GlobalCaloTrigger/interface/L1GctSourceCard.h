@@ -54,13 +54,9 @@ NOTE:  CMS IN 2004/009 specifies that cable four provides 8 Quiet bits for the H
 
 class L1GctSourceCard
 {
-public:
+ public:
   /// cardType1 reads cables 1&2, cardType2 reads cables 3&4, cardType3 reads cables 5&6
   enum SourceCardType{cardType1 =1, cardType2, cardType3};
-  static const int MIP_BITWIDTH = 14;
-  static const int QUIET_BITWIDTH = 14;
-  typedef std::bitset<MIP_BITWIDTH> MipBits;
-  typedef std::bitset<QUIET_BITWIDTH> QuietBits;
 
   /// typeVal determines which pairs of cables to read, according to the SourceCardType enumeration
   L1GctSourceCard(int id, SourceCardType typeVal);
@@ -93,24 +89,40 @@ public:
   //Methods to read the BX data out from the class
   std::vector<L1GctEmCand> getIsoElectrons() const;
   std::vector<L1GctEmCand> getNonIsoElectrons() const;
-  MipBits getMipBits() const;
-  QuietBits getQuietBits() const;
+  unsigned getMipBits() const;
+  unsigned getQuietBits() const;
   std::vector<L1GctRegion> getRegions() const;
       
   /// Returns the value of the current bunch crossing number
   long int getBxNum() const { return m_currentBX; }
 
-private:
+ private:  // methods
 
-  //DECLARE SYMBOLIC CONSTANTS
+  ///Sets the appropriate sizes of vector depending on type of source card 
+  void setVectorSizes();
+  
+  void getCables1And2();  ///< Reads in data corresponding to RCT crate cables 1 & 2
+  void getCables3And4();  ///< Reads in data corresponding to RCT crate cables 3 & 4
+  void getCables5And6();  ///< Reads in data corresponding to RCT crate cables 5 & 6
+
+  /// Reads the Bunch Crossing number from the file
+  void readBxNum();  
+
+  L1GctRegion makeRegion(ULong rctFileData);
+  L1GctEmCand makeEmCand(ULong rctFileData);
+
+
+ private:  // members
+
   static const int NUM_ELEC = 4;
   static const int NUM_REG_TYPE2 = 12; ///< No. regions type 2 card takes in
   static const int NUM_REG_TYPE3 = 10; ///< No. regions type 3 card takes in
-  static const int DATA_OFFSET_TYPE3 = NUM_ELEC*2 + MIP_BITWIDTH + QUIET_BITWIDTH; ///< Data offset for file reading
-  static const int DATA_OFFSET_TYPE2 = NUM_ELEC*2 + MIP_BITWIDTH + QUIET_BITWIDTH + NUM_REG_TYPE3; ///< Data offset for file reading  
+  static const int N_MIP_BITS = 14;  // number of MIP bits in file format
+  static const int N_QUIET_BITS = 14;  // number of quiet bits in file format
+  static const int DATA_OFFSET_TYPE3 = NUM_ELEC*2 + N_MIP_BITS + N_QUIET_BITS; ///< Data offset for file reading
+  static const int DATA_OFFSET_TYPE2 = NUM_ELEC*2 + N_MIP_BITS + N_QUIET_BITS + NUM_REG_TYPE3; ///< Data offset for file reading  
 
-  //PRIVATE MEMBER VARIABLES
-  ///
+
   /// card ID
   int m_id;
   ///
@@ -126,20 +138,10 @@ private:
   //Data buffers
   std::vector<L1GctEmCand> m_isoElectrons;  
   std::vector<L1GctEmCand> m_nonIsoElectrons;
-  MipBits m_mipBits;
-  QuietBits m_quietBits;
+  unsigned m_mipBits;
+  unsigned m_quietBits;
   std::vector<L1GctRegion> m_regions;
   
-  //PRIVATE MEMBER FUNCTIONS
-  ///Sets the appropriate sizes of vector depending on type of source card 
-  void setVectorSizes();
-  
-  void getCables1And2();  ///< Reads in data corresponding to RCT crate cables 1 & 2
-  void getCables3And4();  ///< Reads in data corresponding to RCT crate cables 3 & 4
-  void getCables5And6();  ///< Reads in data corresponding to RCT crate cables 5 & 6
-
-  /// Reads the Bunch Crossing number from the file
-  void readBxNum();   
     
 };
 

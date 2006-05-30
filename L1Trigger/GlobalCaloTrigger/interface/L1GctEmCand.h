@@ -1,11 +1,7 @@
 #ifndef L1GCTEMCAND_H_
 #define L1GCTEMCAND_H_
 
-#include <bitset>
-
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
-
-using std::bitset;
 
 /*! \file L1GctEmCand.h
  * \Header file for the Gct electron 
@@ -17,13 +13,11 @@ using std::bitset;
  * \date: 15/03/2006
  */
 
-typedef unsigned long int ULong;
 
 class L1GctEmCand
 {
 public:
-  L1GctEmCand(ULong data=0);
-  L1GctEmCand(ULong rank, ULong eta, ULong phi);
+  L1GctEmCand(unsigned rank=0, unsigned eta=0, unsigned phi=0);
   ~L1GctEmCand();
 	
   /// set rank bits
@@ -37,13 +31,13 @@ public:
   
   
   /// get rank bits
-  inline unsigned rank() const { return m_rank & 0x3f; }
+  unsigned rank() const { return m_rank & 0x3f; }
   
   /// get eta bits
-  inline unsigned eta() const { return m_eta & 0xf; }
+  unsigned eta() const { return m_eta & 0xf; }
   
   /// get phi bits
-  inline unsigned phi() const { return m_phi & 0x1f; }
+  unsigned phi() const { return m_phi & 0x1f; }
 
   /// convert to iso em digi
   L1GctIsoEm makeIsoEm();

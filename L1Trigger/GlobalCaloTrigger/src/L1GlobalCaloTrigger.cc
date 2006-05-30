@@ -320,21 +320,21 @@ void L1GlobalCaloTrigger::build() {
     theEmLeafCards[i] = new L1GctEmLeafCard(i,emSourceCards);
   }
 
-//   // Wheel Fpgas
-//   vector<L1GctJetLeafCard*> wheelJetLeafCards(2);
-//   vector<L1GctJetLeafCard*> wheelEnergyLeafCards(2);
+   // Wheel Fpgas
+   vector<L1GctJetLeafCard*> wheelJetLeafCards(2);
+   vector<L1GctJetLeafCard*> wheelEnergyLeafCards(2);
 
-//   for (int i=0; i<2; i++) {
-//     for (int j=0; j<3; j++) {
-//       wheelJetLeafCards[j]=theJetLeafCards[i*2+j];
-//       wheelEnergyLeafCards[j]=theJetLeafCards[i*2+j];
-//     }
-//     theWheelJetFpgas[i] = new L1GctWheelJetFpga(i,wheelJetLeafCards);
-//     theWheelEnergyFpgas[i] = new L1GctWheelEnergyFpga(i,wheelEnergyLeafCards);
-//   }
+   for (int i=0; i<2; i++) {
+     for (int j=0; j<3; j++) {
+       wheelJetLeafCards[j]=theJetLeafCards[i*2+j];
+       wheelEnergyLeafCards[j]=theJetLeafCards[i*2+j];
+     }
+     theWheelJetFpgas[i] = new L1GctWheelJetFpga(i,wheelJetLeafCards);
+     //     theWheelEnergyFpgas[i] = new L1GctWheelEnergyFpga(i,wheelEnergyLeafCards);
+   }
   
-//   // Jet Final Stage  
-//   theJetFinalStage = new L1GctJetFinalStage(theWheelJetFpgas);
+   // Jet Final Stage  
+   theJetFinalStage = new L1GctJetFinalStage(theWheelJetFpgas);
 
 //   // Electron Final Sort
 //   theIsoEmFinalStage = new L1GctElectronFinalSort(true,theEmLeafCards);

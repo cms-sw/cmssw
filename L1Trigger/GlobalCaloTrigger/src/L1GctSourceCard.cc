@@ -1,5 +1,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
@@ -87,8 +90,8 @@ void L1GctSourceCard::reset()
     
   m_isoElectrons.clear();
   m_nonIsoElectrons.clear();
-  m_mipBits.reset();
-  m_quietBits.reset();
+  m_mipBits=0;
+  m_quietBits=0;
   m_regions.clear();
     
   setVectorSizes();
@@ -126,7 +129,7 @@ vector<L1GctEmCand> L1GctSourceCard::getNonIsoElectrons() const
   return m_nonIsoElectrons;
 }
 
-L1GctSourceCard::MipBits L1GctSourceCard::getMipBits() const
+unsigned L1GctSourceCard::getMipBits() const
 {
   if(m_cardType != cardType1)
   {
@@ -137,7 +140,7 @@ L1GctSourceCard::MipBits L1GctSourceCard::getMipBits() const
   return m_mipBits;
 }
 
-L1GctSourceCard::QuietBits L1GctSourceCard::getQuietBits() const
+unsigned L1GctSourceCard::getQuietBits() const
 {
   if(m_cardType != cardType1)
   {
@@ -210,15 +213,15 @@ void L1GctSourceCard::getCables1And2()
 
   bool bitBuffer;        
   //get the mip and quiet bits
-  for(i=0; i < MIP_BITWIDTH; ++i)
+  for(i=0; i < N_MIP_BITS; ++i)
   {
     m_fin >> bitBuffer;
-    m_mipBits[i] = bitBuffer;
+    m_mipBits &= (bitBuffer & 0x1);
   }
-  for(i=0; i < QUIET_BITWIDTH; ++i)
+  for(i=0; i < N_QUIET_BITS; ++i)
   {
     m_fin >> bitBuffer;
-    m_quietBits[i] = bitBuffer;
+    m_quietBits &= (bitBuffer & 0x1);
   }
     
   //Skip remaining data in the bx
@@ -252,7 +255,7 @@ void L1GctSourceCard::getCables3And4()
   for(i=0; i < 4; ++i)
   {
     m_fin >> uLongBuffer;
-    m_regions[i] = L1GctRegion(uLongBuffer);            
+    m_regions[i] = makeRegion(uLongBuffer);            
   }
 
   //get the 8 forward regions
@@ -287,7 +290,7 @@ void L1GctSourceCard::getCables5And6()
   for(i=0; i < NUM_REG_TYPE3; ++i)
   {
     m_fin >> uLongBuffer;
-    m_regions[i] = L1GctRegion(uLongBuffer);            
+    m_regions[i] = makeRegion(uLongBuffer);            
   }
     
   //Skip some more data
@@ -311,4 +314,27 @@ void L1GctSourceCard::readBxNum()
   m_fin >> m_currentBX; 
     
   return;
+}
+
+// make region from file data
+L1GctRegion L1GctSourceCard::makeRegion(ULong rctFileData) {
+  int et = rctFileData & 0x3ff;  //will put the first 10 bits of rawData into the Et
+
+  rctFileData >>= 10;  //shift the remaining bits down to remove the 10 bits of Et
+
+  bool overFlow = (  (rctFileData & 0x1)       != 0); //LSB is now overflow bit
+  bool tauVeto  = ( ((rctFileData & 0x2) >> 1) != 0); //2nd bit is tauveto
+
+  return L1GctRegion(0, 0, et, false, false, tauVeto, overFlow);
+
+}
+
+// make EM cand from file data
+L1GctEmCand L1GctSourceCard::makeEmCand(ULong rctFileData) {
+    unsigned rank = rctFileData & 0x3f;
+    rctFileData >>= 6;   //shift the remaining bits down, to remove the rank info         
+    int phi = rctFileData & 0x1;  //1 bit of Phi
+    int eta = (rctFileData & 0xE) >> 1;  //other 3 bits are eta
+
+    return L1GctEmCand(rank, eta, phi);
 }

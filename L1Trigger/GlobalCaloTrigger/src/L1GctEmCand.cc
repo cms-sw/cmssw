@@ -6,23 +6,13 @@ const int L1GctEmCand::RANK_BITWIDTH = 6;
 const int L1GctEmCand::ETA_BITWIDTH = 4;
 const int L1GctEmCand::PHI_BITWIDTH = 5;
 
-L1GctEmCand::L1GctEmCand(ULong rank, ULong eta, ULong phi) : 
-  m_rank(rank),
-  m_eta(eta),
-  m_phi(phi)
+
+L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi)
 {
-
+  m_rank = rank & 0x3f;
+  m_eta  = eta  & 0xf;
+  m_phi  = phi  & 0x1f;
 }
-
-L1GctEmCand::L1GctEmCand(ULong rawData) {
-    
-    m_rank = rawData & 0x3f;
-    rawData >>= RANK_BITWIDTH;   //shift the remaining bits down, to remove the rank info         
-    m_phi = rawData & 0x1;  //1 bit of Phi
-    m_eta = (rawData & 0xE) >> 1;  //other 3 bits are eta
-  
-}
-
 
 L1GctEmCand::~L1GctEmCand(){
 }

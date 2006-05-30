@@ -37,6 +37,9 @@ class L1GctEmLeafCard : L1GctProcessor {
   /// process the event
   virtual void process();	
   
+  /// get ID
+  int id() { return m_id; }
+
   /// get the output candidates
   std::vector<L1GctEmCand> getOutputIsoEmCands(int fpga);
   

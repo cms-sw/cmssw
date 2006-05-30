@@ -98,20 +98,17 @@ ostream& operator<<(ostream& s, const L1GctEmLeafCard& card) {
   s << "No of Source Cards " <<card.m_sourceCards.size() << endl;
   s << "No of Electron Sorters " << card.m_sorters.size() << endl;
   s << endl;
-  s << "Pointers in the Source Cards are: "<<endl;
+  s << "Pointers to L1GctSourceCard : "<<endl;
   for (unsigned i=0; i<card.m_sourceCards.size(); i++) {
-    if(i%6 == 0){
-      s << endl;
-    }
-    s << card.m_sourceCards[i]<<"  ";
+    s << i << " " << card.m_sourceCards[i] << endl; //" id : " << card.m_sourceCards[i]->id() << endl;
   }
   s << endl;
-  s <<"Pointers in the sorters vector are: " << endl;
+  s <<"Pointers to L1GctElectronSorter : " << endl;
   for (unsigned i=0; i<card.m_sorters.size(); i++) {
     s << card.m_sorters[i]<<"  ";
   }
   s << endl;
   s << "Other private members (objects and variables): "<<endl;
-  s << "Card (algorithm?) ID "<<card.m_id<<endl;
+  s << "Card ID "<<card.m_id<<endl;
   return s;
 }
