@@ -8,7 +8,7 @@
 //!
 //! SiPixelRecHitConverter is an EDProducer subclass (i.e., a module)
 //! which orchestrates the conversion of SiPixelClusters into SiPixelRecHits.
-//! Consequently, the input is SiPixelClusterCollection and the output is
+//! Consequently, the input is a edm::DetSetVector<SiPixelCluster> and the output is
 //! SiPixelRecHitCollection.
 //!
 //! SiPixelRecHitConverter invokes one of descendents from 
@@ -20,12 +20,13 @@
 //! may be rather involved).  A RecHit is made on the spot, and appended
 //! to the output collection.
 //!
-//! The calibrations (for the `fancy' CPE's) are not loaded at the moment, 
+//! The calibrations are not loaded at the moment, 
 //! although that is being planned for the near future.
 //!
-//! \author Petar Maksimovic (JHU)
+//! \author Porting from ORCA by Petar Maksimovic (JHU). Implementation of the
+//!         DetSetVector by V.Chiochia (Zurich University).
 //!
-//! \version v1, Feb 27, 2006  
+//! \version v2, May 30, 2006  
 //!
 //---------------------------------------------------------------------------
 
@@ -34,19 +35,17 @@
 
 //--- Geometry + DataFormats
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollectionfwd.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-
-//--- Framework paraphernalia:
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 
+//--- Framework
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class MagneticField;
@@ -74,8 +73,9 @@ namespace cms
     // Begin Job
     virtual void beginJob(const edm::EventSetup& c);
 
-    //--- Execute the algorithm(s).
-    void run(const SiPixelClusterCollection* input,
+    //--- Execute the position estimator algorithm(s).
+    //--- New interface with DetSetVector
+    void run(const edm::DetSetVector<SiPixelCluster>& input,
 	     SiPixelRecHitCollection & output,
 	     edm::ESHandle<TrackerGeometry> & geom);
 

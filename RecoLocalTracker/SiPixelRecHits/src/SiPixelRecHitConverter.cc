@@ -15,12 +15,9 @@
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-class GeometricDet;   // hack in 0.2.0pre5, OK for pre6 -- still needed?
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 // Data Formats
-#include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 // Framework
@@ -55,9 +52,6 @@ namespace cms
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelRecHitCollection>();
 
-    //--- Make the algorithm(s) according to what the user specified
-    //--- in the ParameterSet.
-    //setupCPE();
   }
 
 
@@ -79,35 +73,31 @@ namespace cms
   void SiPixelRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es)
   {
     // retrieve producer name of input SiPixelClusterCollection
-    std::string clusterCollLabel = conf_.getUntrackedParameter<std::string>("ClusterCollLabel","pixClust");
+    std::string clusterCollLabel = 
+      conf_.getUntrackedParameter<std::string>("ClusterCollLabel","pixClust");
 
     // Step A.1: get input data
-    edm::Handle<SiPixelClusterCollection> clusterColl;
-    e.getByLabel(clusterCollLabel, clusterColl);
+     edm::Handle< edm::DetSetVector<SiPixelCluster> > input;
+    e.getByLabel(clusterCollLabel, input);
 
     // Step A.2: get event setup
     edm::ESHandle<TrackerGeometry> geom;
     es.get<TrackerDigiGeometryRecord>().get( geom );
-
 
     // Step B: create empty output collection
     std::auto_ptr<SiPixelRecHitCollection> output(new SiPixelRecHitCollection);
 
     // Step C: Iterate over DetIds and invoke the strip CPE algorithm
     // on each DetUnit
-    run( clusterColl.product(), *output, geom );
+    run( *input, *output, geom );
 
     // Step D: write output to file
     e.put(output);
 
   }
 
-
-
   //---------------------------------------------------------------------------
   //!  Set up the specific algorithm we are going to use.  
-  //!  TO DO: in the future, we should allow for a different algorithm for 
-  //!  each detector subset (e.g. barrel vs forward, per layer, etc).
   //---------------------------------------------------------------------------
   void SiPixelRecHitConverter::setupCPE(const MagneticField* mag) 
   {
@@ -133,16 +123,14 @@ namespace cms
       ready_ = false;
     }
   }
-
-
   //---------------------------------------------------------------------------
   //!  Iterate over DetUnits, then over Clusters and invoke the CPE on each,
   //!  and make a RecHit to store the result.
+  //!  New interface reading DetSetVector by V.Chiochia (May 30th, 2006)
   //---------------------------------------------------------------------------
-  void SiPixelRecHitConverter::run(const SiPixelClusterCollection* input, 
+  void SiPixelRecHitConverter::run(const edm::DetSetVector<SiPixelCluster>& input, 
 				   SiPixelRecHitCollection &output,
-				   edm::ESHandle<TrackerGeometry> & geom)
-  {
+				   edm::ESHandle<TrackerGeometry> & geom) {
     if ( ! ready_ ) {
       edm::LogError("SiPixelRecHitConverter") << " at least one CPE is not ready -- can't run!";
       // TO DO: throw an exception here?  The user may want to know...
@@ -152,58 +140,21 @@ namespace cms
 
     int numberOfDetUnits = 0;
     int numberOfClusters = 0;
+    edm::DetSetVector<SiPixelCluster>::const_iterator DSViter=input.begin();
     
-    // get vector of detunit ids
-    const std::vector<unsigned int> detIDs = input->detIDs();
-    
-
-    //--- Loop over detunits.
-    std::vector<unsigned int>::const_iterator 
-      detunit_it  = detIDs.begin(),
-      detunit_end = detIDs.end();
-    for ( ; detunit_it != detunit_end; ++detunit_it ) {
-      //
-      unsigned int detid = *detunit_it;
-      ++numberOfDetUnits;
-      const SiPixelClusterCollection::Range clustRange = input->get(detid);
-      SiPixelClusterCollection::ContainerIterator 
-	   clustIt = clustRange.first;
-      SiPixelClusterCollection::ContainerIterator 
-	endClustIt = clustRange.second;
-
-      // TO DO: if we were to allow concurrent clusterizers, we would
-      // be picking one from the map and running it.
-
-      // geometry information for this DetUnit. TrackerGeom:DetContainer is
-      // a vector<GeomDetUnit*>.  We need to call 
-      //     const GeomDet&  TrackerGeom::idToDet(DetId) const;
-      // to get a GeomDet (a GeomDetUnit*) from a DetId.
-
-      // convert detid (unsigned int) to DetId
-      DetId detIdObject( detid );      
-
+    for ( ; DSViter != input.end() ; DSViter++) {
+      
+      numberOfDetUnits++;
+      unsigned int detid = DSViter->id;
+      DetId detIdObject( detid );  
       const GeomDetUnit * genericDet = geom->idToDetUnit( detIdObject );
-
       const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
-      assert(pixDet);   // ensures that geoUnit != 0 too
-      // &&& Need to throw an exception instead!
+      assert(pixDet); 
+      edm::OwnVector<SiPixelRecHit> recHitsOnDetUnit;
 
-      //--- Vector for temporary storage.  Need to do it this way
-      //--- since put() method will map the range to DetId.
-      //old SiPixelRecHitCollection::Container recHitsOnDetUnit;  
-       edm::OwnVector<SiPixelRecHit> recHitsOnDetUnit;  
-
-      // &&& We really should preallocate the size of this container since
-      // &&& we *know* how many PixelClusters there are on this det unit!
-
-       //
-       // Not needed anymore: setTheDet is called directly from localPosition
-       // and localError
-       //      
-       //if (dynamic_cast<CPEFromDetPosition*>(cpe_))
-       // (dynamic_cast<CPEFromDetPosition*>(cpe_))->setTheDet( *pixDet );  // &&& not in the base class,
-
-      for ( ; clustIt != endClustIt; ++clustIt ) {
+      edm::DetSet<SiPixelCluster>::const_iterator clustIt = DSViter->data.begin();
+      for ( ; clustIt != DSViter->data.end(); clustIt++) {
+	numberOfClusters++;
 	std::pair<LocalPoint,LocalError> lv = 
 	  cpe_->localParameters( *clustIt, *genericDet );
 	LocalPoint lp( lv.first );
@@ -211,24 +162,16 @@ namespace cms
 	
 	// Make a RecHit and add it to a temporary OwnVector.
 	recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
-      }
-
-      //--- At the end of this det unit, move all hits to the
-      //--- real PixelRecHitColl.
-      //old SiPixelRecHitCollection::Range inputRange;
-      //old inputRange.first = recHitsOnDetUnit.begin();
-      //old inputRange.second = recHitsOnDetUnit.end();
-      //old output.put(inputRange, detid);
+      } //  <-- End loop on Clusters
 
       if (recHitsOnDetUnit.size() > 0) {
 	output.put(detIdObject, 
 		   recHitsOnDetUnit.begin(), recHitsOnDetUnit.end());
 	LogDebug("SiPixelRecHitConverter") << " Found " 
-					   << recHitsOnDetUnit.size() << " RecHits on" << detid;	
+					   << recHitsOnDetUnit.size() << " RecHits on " << detid;	
       }
-      // numberOfRecHits += recHitsOnDetUnit.size();
-    }
-    // end of the loop over detunits
+            
+    } //    <-- End loop on DetUnits
     
     LogDebug ("SiPixelRecHitConverter") 
 	      << cpeName_ << " converted " << numberOfClusters 
@@ -236,8 +179,5 @@ namespace cms
 	   
   }
 
-
-  
-
-
+ 
 }  // end of namespace cms
