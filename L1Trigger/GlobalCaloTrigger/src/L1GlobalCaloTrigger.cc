@@ -8,6 +8,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 #include <sstream>
 
@@ -30,8 +31,7 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger() :
   theJetLeafCards(N_JET_LEAF_CARDS),
   theEmLeafCards(N_EM_LEAF_CARDS),
   theWheelJetFpgas(N_WHEEL_JET_FPGAS),
-  theWheelEnergyFpgas(N_WHEEL_ENERGY_FPGAS),
-  theJetEtCalibrationLut()
+  theWheelEnergyFpgas(N_WHEEL_ENERGY_FPGAS)
 {
   
   build();
@@ -253,6 +253,9 @@ unsigned L1GlobalCaloTrigger::getEtMissPhi() {
 // instantiate hardware/algorithms
 void L1GlobalCaloTrigger::build() {
 
+  // Jet Et LUT
+  m_jetEtCalLut = new L1GctJetEtCalibrationLut();
+
   // Source cards
   for (int i=0; i<18; i++) {
     theSourceCards[3*i]   = new L1GctSourceCard(3*i,   L1GctSourceCard::cardType1);
@@ -294,6 +297,9 @@ void L1GlobalCaloTrigger::build() {
 	i4 = i*3-7;
 	i5 = iup;
       }
+      jetSourceCards[3] = theSourceCards[ii*3+2];
+      jetSourceCards[4] = theSourceCards[ii*3+1];
+      jetSourceCards[5] = theSourceCards[ii*3+2];
       jetSourceCards[6] = theSourceCards[ii*3+1];
       jetSourceCards[7] = theSourceCards[ii*3+2];
       // Remaining connections for the TDR jetfinder only
@@ -307,7 +313,7 @@ void L1GlobalCaloTrigger::build() {
       //
       
     }
-    theJetLeafCards[i] = new L1GctJetLeafCard(i,i % 3,jetSourceCards, theJetEtCalibrationLut);
+    theJetLeafCards[i] = new L1GctJetLeafCard(i,i % 3,jetSourceCards, m_jetEtCalLut);
   }
 
   // EM leaf cards  
@@ -321,8 +327,8 @@ void L1GlobalCaloTrigger::build() {
   }
 
    // Wheel Fpgas
-   vector<L1GctJetLeafCard*> wheelJetLeafCards(2);
-   vector<L1GctJetLeafCard*> wheelEnergyLeafCards(2);
+   vector<L1GctJetLeafCard*> wheelJetLeafCards(3);
+   vector<L1GctJetLeafCard*> wheelEnergyLeafCards(3);
 
    for (int i=0; i<2; i++) {
      for (int j=0; j<3; j++) {
