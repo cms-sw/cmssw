@@ -16,6 +16,8 @@ void RPCClusterizer::doAction(RPCClusterContainer& initialclusters){
   RPCClusterContainer finalCluster;
   RPCCluster prev;
 
+  RPCDigiCollection RPCDigi = initialclusters->digi.strip();
+
   for(RPCClusterContainer::const_iterator i=initialclusters.begin();
       i != initialclusters.end(); i++){
     RPCCluster cl = *i;
