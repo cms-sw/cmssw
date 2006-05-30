@@ -24,7 +24,7 @@ reco::Track * PixelTrackBuilder::build(
       const std::vector<const TrackingRecHit* >& hits,
       const MagneticField * mf) const 
 {
-
+/*
   float sinTheta = 1/sqrt(1+sqr(cotTheta.value()));
   float cosTheta = cotTheta.value()*sinTheta;
   int tipSign = tip.value() > 0 ? 1 : -1;
@@ -99,6 +99,8 @@ reco::Track * PixelTrackBuilder::build(
                           vtx,
                           mom,
                           cov);
+*/
+  return 0;
 
 }
 
