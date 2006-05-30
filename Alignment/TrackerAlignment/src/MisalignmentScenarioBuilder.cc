@@ -73,12 +73,13 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 
 
 //__________________________________________________________________________________________________
+// Decode nested parameter sets: this is the tricky part... Recursively called on components
 void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSet, 
 													std::vector<Alignable*> alignables,
 													std::string levelName )
 {
 
-  indent += " "; // For indented output...
+  indent += " "; // For indented output!
 
   // Retrieve parameters for all components at this level
   std::ostringstream name;
@@ -100,6 +101,7 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 		iter != alignables.end(); ++iter )
 	{
 	  iComponent++;
+
 	  // Check for special parameters -> merge with global
 	  name.str("");
 	  name << levelName << iComponent;
@@ -121,17 +123,6 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 	  if ( (*iter)->size() > 0 && parameterSetNames.size() > 0 )
 		// Has components and remaining parameter sets
 		this->decodeMovements_( localParameters, (*iter)->components() );
-// 	  else if ( parameterSetNames.size() > 0 )
-// 		{
-// 		  // Has no components: remaining parameter sets are unkown!
-// 		  std::ostringstream error;
-// 		  error <<  "Unknown parameter set name(s): ";
-// 		  for ( std::vector<std::string>::iterator iName = parameterSetNames.begin();
-// 				iName != parameterSetNames.end(); iName++ )
-// 			error << " " << (*iName);
-// 		  error << std::endl;
-// 		  throw cms::Exception("BadConfig") << error.str();
-// 		}
 	}
 
   indent = indent.substr( 0, indent.length()-1 );
