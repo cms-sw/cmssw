@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.28 2006/04/18 23:41:31 wmtan Exp $
+$Id: PoolSource.cc,v 1.29 2006/05/26 21:04:03 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -12,6 +12,7 @@ $Id: PoolSource.cc,v 1.28 2006/04/18 23:41:31 wmtan Exp $
 #include "DataFormats/Common/interface/ProductID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace edm {
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
@@ -25,6 +26,31 @@ namespace edm {
     init(*fileIter_);
     if (mainInput_) {
       updateProductRegistry();
+    }
+    setInitialPosition(pset);
+  }
+
+  void PoolSource::setInitialPosition(ParameterSet const& pset) {
+    EventID firstEventID(pset.getUntrackedParameter<unsigned int>("firstRun", 0),
+		  pset.getUntrackedParameter<unsigned int>("firstEvent", 0));
+    if (firstEventID != EventID()) {
+      EventID id = EventID(pset.getUntrackedParameter<unsigned int>("firstRun", 1),
+		  pset.getUntrackedParameter<unsigned int>("firstEvent", 1));
+      RootFile::EntryNumber entry = rootFile_->getEntryNumber(id);
+      if (entry >= 0) {
+        rootFile_->setEntryNumber(entry - 1);
+      } else {
+        throw cms::Exception("MismatchedInput","PoolSource::PoolSource()")
+	  << "File " << *fileIter_ << "\n has no " << id << "\n";
+      }
+    }
+    int eventsToSkip = pset.getUntrackedParameter<unsigned int>("skipEvents", 0);
+    if (eventsToSkip > 0) {
+      if (firstEventID == EventID()) {
+        skip(eventsToSkip);
+      } else {
+        LogWarning("'skipEvents' ignored because\n'firstRun' or 'firstEvent' also specified");
+      }
     }
   }
 

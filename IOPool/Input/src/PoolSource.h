@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.20 2006/04/13 22:24:24 wmtan Exp $
+$Id: PoolSource.h,v 1.21 2006/05/26 21:04:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -41,6 +41,7 @@ namespace edm {
     virtual void readMany_(int number, EventPrincipalVector& result);
     void init(std::string const& file);
     void updateProductRegistry() const;
+    void setInitialPosition(ParameterSet const& pset);
     bool next();
     bool previous();
 
