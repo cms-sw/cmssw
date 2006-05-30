@@ -124,10 +124,10 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 
       reco::TransientTrack theTT(*theT);
 
-      TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.begin()->det()->surface());
-
-      AlgebraicSymMatrix C(5,1);
-      // C *= 100.;
+//       TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.begin()->det()->surface());
+      
+//       AlgebraicSymMatrix C(5,1);
+//       C *= 100.;
 
       TrajectoryStateOnSurface theTSOS=theTT.impactPointState();
       theTSOS.rescaleError(100);
