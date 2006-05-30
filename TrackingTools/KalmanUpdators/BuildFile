@@ -4,10 +4,12 @@
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/PatternTools>
+<use name=Geometry/CommonDetUnit>
 
 <export>
  <lib name=TrackingToolsKalmanUpdators>
  <use name=TrackingTools/PatternTools>
+<use name=Geometry/CommonDetUnit>                                               
  <use name=DataFormats/Math>
  <use name=TrackingTools/TransientTrackingRecHit>
  <use name=TrackingTools/TrajectoryState>
