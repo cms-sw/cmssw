@@ -26,7 +26,7 @@ using std::string;
 using std::cout;
 using std::endl;
 using std::ios;
-
+using std::vector;
 
 
 //Typedefs and other definitions
@@ -47,13 +47,13 @@ int main()
   EmCandVec outputs;
   bool checkIn = false;
   bool checkOut = false;
-  
 
-  L1GctElectronSorter* testSort = new L1GctElectronSorter(0, true);
+  //Constructor with 15 non iso electron candidates
+  L1GctElectronSorter* testSort = new L1GctElectronSorter(15,1);
   LoadFileData("dummyData.txt");
 
   for(unsigned int i=0;i<data.size();i++){
-    testSort->setInputEmCand(data[i]);
+    testSort->setInputEmCand(i,data[i]);
   }
 
   inputs = testSort->getInputCands();
@@ -134,8 +134,8 @@ void LoadFileData(const string &inputFile)
   unsigned long candidate;
   L1GctEmCand electron;
  
-  //Read in 20 electrons for now
-   for(int i=0;i<20;i++){     
+  //Read in 15 electrons for now
+   for(int i=0;i<15;i++){     
      file >>std::hex>>candidate;
      electron.setRank(candidate);
      file >>std::hex>>candidate;
