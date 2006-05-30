@@ -28,28 +28,34 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
     theTrackFilter(conf.getParameter<edm::ParameterSet>("TkFilterParameters")), 
     theTrackClusterizer(conf.getParameter<edm::ParameterSet>("TkClusParameters")), 
     theVertexSelector(VertexDistanceXY(), 
-		      conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("MaxDistanceToBeam"))
+		      conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("maxDistanceToBeam"))
 {
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "Initializing PV producer algorithm" << "\n";
-  float testMaxDistanceToBeam = conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("MaxDistanceToBeam");
+  float testMaxDistanceToBeam = conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("maxDistanceToBeam");
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
-    << "PVSelParameters::MaxDistanceToBeam = " 
-    << conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("MaxDistanceToBeam") << endl;
+    << "PVSelParameters::maxDistanceToBeam = " 
+    << conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("maxDistanceToBeam") << endl;
   if (testMaxDistanceToBeam < 0.0199) throw cms::Exception("PrimaryVertexProducerAlgorithm: could not be configured properly");
+
+  // FIXME move vertex chi2 cut in theVertexSelector
+  // theFinder should not perform the final vertex cleanup
+  float minVertexFitProb 
+    = conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("minVertexFitProb");
+  theFinder.setVertexFitProbabilityCut(minVertexFitProb);
 
   // initialization of vertex finder algorithm
   // theFinder should not perform any track selection
   // theTrackFilter does it
   theFinder.setPtCut(0.);
   float minTrackCompatibilityToMainVertex 
-    = conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<double>("MinTrackCompatibilityToMainVertex");
+    = conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<double>("minTrackCompatibilityToMainVertex");
   theFinder.setTrackCompatibilityCut(minTrackCompatibilityToMainVertex);
   float minTrackCompatibilityToOtherVertex 
-    = conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<double>("MinTrackCompatibilityToOtherVertex");
+    = conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<double>("minTrackCompatibilityToOtherVertex");
   theFinder.setTrackCompatibilityToSV(minTrackCompatibilityToOtherVertex);
   int maxNbVertices 
-    = conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<int>("MaxNbVertices");
+    = conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<int>("maxNbVertices");
   theFinder.setMaxNbOfVertices(maxNbVertices);
 
 }
