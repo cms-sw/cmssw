@@ -28,9 +28,8 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-//--- for SimHit 
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h" 
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h" 
+//--- for SimHit association
+ #include "SimDataFormats/TrackingHit/interface/PSimHit.h"  
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -70,7 +69,7 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   //Back-End Interface
   DaqMonitorBEInterface* dbe_;
   string outputFile_;
-  //SiStripRecHit2DLocalPos
+  //TIB
   MonitorElement* meNstpRphiTIB[4];
   MonitorElement* meAdcRphiTIB[4];
   MonitorElement* mePosxRphiTIB[4];
@@ -81,32 +80,71 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   MonitorElement* mePosxSasTIB[4];
   MonitorElement* meErrxSasTIB[4];
   MonitorElement* meResSasTIB[4];
-
-  //SiStripRecHit2DMatchedLocalPos
   MonitorElement* mePosxMatchedTIB[2];
   MonitorElement* mePosyMatchedTIB[2];
   MonitorElement* meErrxMatchedTIB[2];
   MonitorElement* meErryMatchedTIB[2];
   MonitorElement* meResxMatchedTIB[2];
   MonitorElement* meResyMatchedTIB[2];
+  //TOB
+  MonitorElement* meNstpRphiTOB[6];
+  MonitorElement* meAdcRphiTOB[6];
+  MonitorElement* mePosxRphiTOB[6];
+  MonitorElement* meErrxRphiTOB[6];
+  MonitorElement* meResRphiTOB[6];
+  MonitorElement* meNstpSasTOB[2];
+  MonitorElement* meAdcSasTOB[2];
+  MonitorElement* mePosxSasTOB[2];
+  MonitorElement* meErrxSasTOB[2];
+  MonitorElement* meResSasTOB[2];
+  MonitorElement* mePosxMatchedTOB[2];
+  MonitorElement* mePosyMatchedTOB[2];
+  MonitorElement* meErrxMatchedTOB[2];
+  MonitorElement* meErryMatchedTOB[2];
+  MonitorElement* meResxMatchedTOB[2];
+  MonitorElement* meResyMatchedTOB[2];
+  //TID
+  MonitorElement* meNstpRphiTID[3];
+  MonitorElement* meAdcRphiTID[3];
+  MonitorElement* mePosxRphiTID[3];
+  MonitorElement* meErrxRphiTID[3];
+  MonitorElement* meResRphiTID[3];
+  MonitorElement* meNstpSasTID[2];
+  MonitorElement* meAdcSasTID[2];
+  MonitorElement* mePosxSasTID[2];
+  MonitorElement* meErrxSasTID[2];
+  MonitorElement* meResSasTID[2];
+  MonitorElement* mePosxMatchedTID[2];
+  MonitorElement* mePosyMatchedTID[2];
+  MonitorElement* meErrxMatchedTID[2];
+  MonitorElement* meErryMatchedTID[2];
+  MonitorElement* meResxMatchedTID[2];
+  MonitorElement* meResyMatchedTID[2];
+  //TEC
+  MonitorElement* meNstpRphiTEC[7];
+  MonitorElement* meAdcRphiTEC[7];
+  MonitorElement* mePosxRphiTEC[7];
+  MonitorElement* meErrxRphiTEC[7];
+  MonitorElement* meResRphiTEC[7];
+  MonitorElement* meNstpSasTEC[5];
+  MonitorElement* meAdcSasTEC[5];
+  MonitorElement* mePosxSasTEC[5];
+  MonitorElement* meErrxSasTEC[5];
+  MonitorElement* meResSasTEC[5];
+  MonitorElement* mePosxMatchedTEC[5];
+  MonitorElement* mePosyMatchedTEC[5];
+  MonitorElement* meErrxMatchedTEC[5];
+  MonitorElement* meErryMatchedTEC[5];
+  MonitorElement* meResxMatchedTEC[5];
+  MonitorElement* meResyMatchedTEC[5];
 
   std::vector<PSimHit> matched;
   std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
 							const BoundPlane& plane);
   edm::ParameterSet conf_;
   const StripTopology* topol;
-  std::vector<PSimHit> theStripHits;
-  typedef std::map<unsigned int, std::vector<PSimHit> > simhit_map;
-  typedef simhit_map::iterator simhit_map_iterator;
-  simhit_map SimHitMap;
-
 
   static const int MAXHIT = 100;
-  float simhitx[MAXHIT];
-  float simhity[MAXHIT];
-  float simhitz[MAXHIT];
-  float simhitphi[MAXHIT];
-  float simhiteta[MAXHIT];
   float rechitrphix[MAXHIT];
   float rechitrphierrx[MAXHIT];
   float rechitrphiy[MAXHIT];
