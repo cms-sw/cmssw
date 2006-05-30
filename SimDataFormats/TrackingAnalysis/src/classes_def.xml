@@ -1,4 +1,7 @@
 <lcgdict>
+  <class name="TrackingVertex" />
+  <class name="std::vector<TrackingVertex>" />
+  <class name="edm::Wrapper<std::vector<TrackingVertex> >" />
   <class name="TrackingParticle" />
   <class name="std::vector<TrackingParticle>" />
   <class name="edm::Wrapper<std::vector<TrackingParticle> >" />
