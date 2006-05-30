@@ -203,6 +203,8 @@ sub set_admins_from_file()
    open(BATCH,"< $batchfile") || die basename($0).": Unable to open $batchfile, $!","\n";
    while (<BATCH>)
       {
+      # Get rid of spaces at the end of the line:
+      $_ =~ s/(.*?)\s*?/$1/g;
       # Format is <PACKAGE> admins:A,B,C,D developers:A,B,C,D
       ($packagename,$adminstring,$developerstring) = ($_ =~ /^(.*?)\s*?adm.*?:(.*?)\s*?devel.*?:(.*?)$/);
       $adminidlist=&proc_ilist($adminstring);
