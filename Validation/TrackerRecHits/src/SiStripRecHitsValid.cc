@@ -31,54 +31,184 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps):dbe_(0){
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "striprechitshisto.root");
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
-  
+  dbe_->showDirStructure();
+  dbe_->setCurrentFolder("TIB");
   //one histo per Layer rphi hits
   for(int i = 0 ;i<4 ; i++) {
     Char_t histo[200];
-    sprintf(histo,"Nstp_rphi_layer%tib",i+1);
+    sprintf(histo,"Nstp_rphi_layer%dtib",i+1);
     meNstpRphiTIB[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
-    sprintf(histo,"Adc_rphi_layer%tib",i+1);
+    sprintf(histo,"Adc_rphi_layer%dtib",i+1);
     meAdcRphiTIB[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
-    sprintf(histo,"Posx_rphi_layer%tib",i+1);
+    sprintf(histo,"Posx_rphi_layer%dtib",i+1);
     mePosxRphiTIB[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
-    sprintf(histo,"Errx_rphi_layer%tib",i+1);
-    meErrxRphiTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100, -6.0,+6.0);  
-    sprintf(histo,"Res_rphi_layer%tib",i+1);
-    meResRphiTIB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
+    sprintf(histo,"Errx_rphi_layer%dtib",i+1);
+    meErrxRphiTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.05);  
+    sprintf(histo,"Res_rphi_layer%dtib",i+1);
+    meResRphiTIB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
   }
 
   //one histo per Layer stereo and matched hits
   for(int i = 0 ;i<2 ; i++) {
-
     Char_t histo[200];
-    sprintf(histo,"Nstp_sas_layer%tib",i+1);
+    sprintf(histo,"Nstp_sas_layer%dtib",i+1);
     meNstpSasTIB[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
-    sprintf(histo,"Adc_sas_layer%tib",i+1);
+    sprintf(histo,"Adc_sas_layer%dtib",i+1);
     meAdcSasTIB[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
-    sprintf(histo,"Posx_sas_layer%tib",i+1);
+    sprintf(histo,"Posx_sas_layer%dtib",i+1);
     mePosxSasTIB[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
-    sprintf(histo,"Errx_sas_layer%tib",i+1);
-    meErrxSasTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100, -6.0,+6.0);  
-    sprintf(histo,"Res_sas_layer%tib",i+1);
-    meResSasTIB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.5,+0.5);  
+    sprintf(histo,"Errx_sas_layer%dtib",i+1);
+    meErrxSasTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.05);  
+    sprintf(histo,"Res_sas_layer%dtib",i+1);
+    meResSasTIB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
 
-    sprintf(histo,"Posx_matched_layer%tib",i+1);
+    sprintf(histo,"Posx_matched_layer%dtib",i+1);
     mePosxMatchedTIB[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0, +6.0);  
-    sprintf(histo,"Posy_matched_layer%tib",i+1);
+    sprintf(histo,"Posy_matched_layer%dtib",i+1);
     mePosyMatchedTIB[i] = dbe_->book1D(histo,"RecHit y coord.",100,-6.0, +6.0);  
-    sprintf(histo,"Errx_matched_layer%tib",i+1);
-    meErrxMatchedTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,-6.0, +6.0);  
-    sprintf(histo,"Erry_matched_layer%tib",i+1);
-    meErryMatchedTIB[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,-6.0, +6.0);  
-    sprintf(histo,"Resx_matched_layer%tib",i+1);
-    meResxMatchedTIB[i] = dbe_->book1D(histo,"RecHit Res(x) coord.",100,-6.0, +6.0);  
-    sprintf(histo,"Resy_matched_layer%tib",i+1);
-    meResyMatchedTIB[i] = dbe_->book1D(histo,"RecHit Res(y) coord.",100,-6.0, +6.0);  
+    sprintf(histo,"Errx_matched_layer%dtib",i+1);
+    meErrxMatchedTIB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.05);  
+    sprintf(histo,"Erry_matched_layer%dtib",i+1);
+    meErryMatchedTIB[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.05);  
+    sprintf(histo,"Resx_matched_layer%dtib",i+1);
+    meResxMatchedTIB[i] = dbe_->book1D(histo,"RecHit Res(x) coord.",100,-0.02, +0.02);  
+    sprintf(histo,"Resy_matched_layer%dtib",i+1);
+    meResyMatchedTIB[i] = dbe_->book1D(histo,"RecHit Res(y) coord.",100,-1., +1.);  
   }
 
-  
-  //etc add other histograms... 
-  
+  dbe_->setCurrentFolder("TOB");
+  //one histo per Layer rphi hits
+  for(int i = 0 ;i<6 ; i++) {
+    Char_t histo[200];
+    sprintf(histo,"Nstp_rphi_layer%dtob",i+1);
+    meNstpRphiTOB[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+    sprintf(histo,"Adc_rphi_layer%dtob",i+1);
+    meAdcRphiTOB[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
+    sprintf(histo,"Posx_rphi_layer%dtob",i+1);
+    mePosxRphiTOB[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
+    sprintf(histo,"Errx_rphi_layer%dtob",i+1);
+    meErrxRphiTOB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.05);  
+    sprintf(histo,"Res_rphi_layer%dtob",i+1);
+    meResRphiTOB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+  }
+
+  //one histo per Layer stereo and matched hits
+  for(int i = 0 ;i<2 ; i++) {
+    Char_t histo[200];
+    sprintf(histo,"Nstp_sas_layer%dtob",i+1);
+    meNstpSasTOB[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+    sprintf(histo,"Adc_sas_layer%dtob",i+1);
+    meAdcSasTOB[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
+    sprintf(histo,"Posx_sas_layer%dtob",i+1);
+    mePosxSasTOB[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
+    sprintf(histo,"Errx_sas_layer%dtob",i+1);
+    meErrxSasTOB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.05);  
+    sprintf(histo,"Res_sas_layer%dtob",i+1);
+    meResSasTOB[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+
+    sprintf(histo,"Posx_matched_layer%dtob",i+1);
+    mePosxMatchedTOB[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0, +6.0);  
+    sprintf(histo,"Posy_matched_layer%dtob",i+1);
+    mePosyMatchedTOB[i] = dbe_->book1D(histo,"RecHit y coord.",100,-6.0, +6.0);  
+    sprintf(histo,"Errx_matched_layer%dtob",i+1);
+    meErrxMatchedTOB[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.05);  
+    sprintf(histo,"Erry_matched_layer%dtob",i+1);
+    meErryMatchedTOB[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.05);  
+    sprintf(histo,"Resx_matched_layer%dtob",i+1);
+    meResxMatchedTOB[i] = dbe_->book1D(histo,"RecHit Res(x) coord.",100,-0.02, +0.02);  
+    sprintf(histo,"Resy_matched_layer%dtob",i+1);
+    meResyMatchedTOB[i] = dbe_->book1D(histo,"RecHit Res(y) coord.",100,-1., +1.);  
+  }
+
+  dbe_->setCurrentFolder("TID");
+  //one histo per Ring rphi hits: 3 rings, 6 disks, 2 inner rings are glued 
+  for(int i = 0 ;i<3 ; i++) {
+    Char_t histo[200];
+    sprintf(histo,"Nstp_rphi_layer%dtid",i+1);
+    meNstpRphiTID[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+    sprintf(histo,"Adc_rphi_layer%dtid",i+1);
+    meAdcRphiTID[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
+    sprintf(histo,"Posx_rphi_layer%dtid",i+1);
+    mePosxRphiTID[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
+    sprintf(histo,"Errx_rphi_layer%dtid",i+1);
+    meErrxRphiTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.05);  
+    sprintf(histo,"Res_rphi_layer%dtid",i+1);
+    meResRphiTID[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+  }
+
+  //one histo per Ring stereo and matched hits
+  for(int i = 0 ;i<2 ; i++) {
+    Char_t histo[200];
+    sprintf(histo,"Nstp_sas_layer%dtid",i+1);
+    meNstpSasTID[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+    sprintf(histo,"Adc_sas_layer%dtid",i+1);
+    meAdcSasTID[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
+    sprintf(histo,"Posx_sas_layer%dtid",i+1);
+    mePosxSasTID[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
+    sprintf(histo,"Errx_sas_layer%dtid",i+1);
+    meErrxSasTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.05);  
+    sprintf(histo,"Res_sas_layer%dtid",i+1);
+    meResSasTID[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+
+    sprintf(histo,"Posx_matched_layer%dtid",i+1);
+    mePosxMatchedTID[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0, +6.0);  
+    sprintf(histo,"Posy_matched_layer%dtid",i+1);
+    mePosyMatchedTID[i] = dbe_->book1D(histo,"RecHit y coord.",100,-6.0, +6.0);  
+    sprintf(histo,"Errx_matched_layer%dtid",i+1);
+    meErrxMatchedTID[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.05);  
+    sprintf(histo,"Erry_matched_layer%dtid",i+1);
+    meErryMatchedTID[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.05);  
+    sprintf(histo,"Resx_matched_layer%dtid",i+1);
+    meResxMatchedTID[i] = dbe_->book1D(histo,"RecHit Res(x) coord.",100,-0.02, +0.02);  
+    sprintf(histo,"Resy_matched_layer%dtid",i+1);
+    meResyMatchedTID[i] = dbe_->book1D(histo,"RecHit Res(y) coord.",100,-1., +1.);  
+  }
+
+  dbe_->setCurrentFolder("TEC");
+  //one histo per Ring rphi hits: 7 rings, 18 disks. Innermost 3 rings are same as TID above.  
+  for(int i = 0 ;i<7 ; i++) {
+    Char_t histo[200];
+    sprintf(histo,"Nstp_rphi_layer%dtec",i+1);
+    meNstpRphiTEC[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+    sprintf(histo,"Adc_rphi_layer%dtec",i+1);
+    meAdcRphiTEC[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
+    sprintf(histo,"Posx_rphi_layer%dtec",i+1);
+    mePosxRphiTEC[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
+    sprintf(histo,"Errx_rphi_layer%dtec",i+1);
+    meErrxRphiTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0,0.05);  
+    sprintf(histo,"Res_rphi_layer%dtec",i+1);
+    meResRphiTEC[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+  }
+
+  //one histo per Layer stereo and matched hits: rings 1,2,5 are double sided
+  for(int i = 0 ;i<5 ; i++) {
+    if(i == 0 || i == 1 || i == 4) {
+      Char_t histo[200];
+      sprintf(histo,"Nstp_sas_layer%dtec",i+1);
+      meNstpSasTEC[i] = dbe_->book1D(histo,"RecHit Cluster Size",20,0.5,20.5);  
+      sprintf(histo,"Adc_sas_layer%dtec",i+1);
+      meAdcSasTEC[i] = dbe_->book1D(histo,"RecHit Cluster Charge",100,0.,300.);  
+      sprintf(histo,"Posx_sas_layer%dtec",i+1);
+      mePosxSasTEC[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0,+6.0);  
+      sprintf(histo,"Errx_sas_layer%dtec",i+1);
+      meErrxSasTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0.,0.05);  
+      sprintf(histo,"Res_sas_layer%dtec",i+1);
+      meResSasTEC[i] = dbe_->book1D(histo,"RecHit Residual",100,-0.02,+0.02);  
+      
+      sprintf(histo,"Posx_matched_layer%dtec",i+1);
+      mePosxMatchedTEC[i] = dbe_->book1D(histo,"RecHit x coord.",100,-6.0, +6.0);  
+      sprintf(histo,"Posy_matched_layer%dtec",i+1);
+      mePosyMatchedTEC[i] = dbe_->book1D(histo,"RecHit y coord.",100,-6.0, +6.0);  
+      sprintf(histo,"Errx_matched_layer%dtec",i+1);
+      meErrxMatchedTEC[i] = dbe_->book1D(histo,"RecHit err(x) coord.",100,0., 0.05);  
+      sprintf(histo,"Erry_matched_layer%dtec",i+1);
+      meErryMatchedTEC[i] = dbe_->book1D(histo,"RecHit err(y) coord.",100,0., 0.05);  
+      sprintf(histo,"Resx_matched_layer%dtec",i+1);
+      meResxMatchedTEC[i] = dbe_->book1D(histo,"RecHit Res(x) coord.",100,-0.02, +0.02);  
+      sprintf(histo,"Resy_matched_layer%dtec",i+1);
+      meResyMatchedTEC[i] = dbe_->book1D(histo,"RecHit Res(y) coord.",100,-1., +1.);  
+    }
+  }
 }
 
 
@@ -98,6 +228,7 @@ void SiStripRecHitsValid::endJob() {
 void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
   LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();  
+  cout  << " Run = " << e.id().run() << " Event = " << e.id().event() << endl;  
   
   //--- get RecHits
   
@@ -112,46 +243,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   e.getByLabel(rechitProducer,"rphiRecHit", rechitsrphi);
   e.getByLabel(rechitProducer,"stereoRecHit", rechitsstereo);
   
-  //--- get SimHits
-  
-  // Step A: Get Inputs
-  theStripHits.clear();
-  edm::Handle<edm::PSimHitContainer> TIBHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TIBHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> TIDHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TIDHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> TOBHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TOBHitsHighTof;
-  edm::Handle<edm::PSimHitContainer> TECHitsLowTof;
-  edm::Handle<edm::PSimHitContainer> TECHitsHighTof;
-  
-  e.getByLabel("SimG4Object","TrackerHitsTIBLowTof", TIBHitsLowTof);
-  e.getByLabel("SimG4Object","TrackerHitsTIBHighTof", TIBHitsHighTof);
-  e.getByLabel("SimG4Object","TrackerHitsTIDLowTof", TIDHitsLowTof);
-  e.getByLabel("SimG4Object","TrackerHitsTIDHighTof", TIDHitsHighTof);
-  e.getByLabel("SimG4Object","TrackerHitsTOBLowTof", TOBHitsLowTof);
-  e.getByLabel("SimG4Object","TrackerHitsTOBHighTof", TOBHitsHighTof);
-  e.getByLabel("SimG4Object","TrackerHitsTECLowTof", TECHitsLowTof);
-  e.getByLabel("SimG4Object","TrackerHitsTECHighTof", TECHitsHighTof);
-  
-  theStripHits.insert(theStripHits.end(), TIBHitsLowTof->begin(), TIBHitsLowTof->end()); 
-  theStripHits.insert(theStripHits.end(), TIBHitsHighTof->begin(), TIBHitsHighTof->end());
-  theStripHits.insert(theStripHits.end(), TIDHitsLowTof->begin(), TIDHitsLowTof->end()); 
-  theStripHits.insert(theStripHits.end(), TIDHitsHighTof->begin(), TIDHitsHighTof->end());
-  theStripHits.insert(theStripHits.end(), TOBHitsLowTof->begin(), TOBHitsLowTof->end()); 
-  theStripHits.insert(theStripHits.end(), TOBHitsHighTof->begin(), TOBHitsHighTof->end());
-  theStripHits.insert(theStripHits.end(), TECHitsLowTof->begin(), TECHitsLowTof->end()); 
-  theStripHits.insert(theStripHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
-  
-  SimHitMap.clear();
-  for (std::vector<PSimHit>::iterator isim = theStripHits.begin();
-       isim != theStripHits.end(); ++isim){
-    SimHitMap[(*isim).detUnitId()].push_back((*isim));
-  }
-  
   int numrechitrphi   =0;
   int numrechitsas    =0;
-  int numsimhit       =0;
   int numrechitmatched=0;
   
   TrackerHitAssociator associate(e);
@@ -167,11 +260,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     
     // initialize here
     for(int i=0; i<MAXHIT; i++){
-      simhitx[i] =0.;
-      simhity[i] =0.;
-      simhitz[i] =0.;
-      simhitphi[i]=0;
-      simhiteta[i]=0;
       rechitrphix[i] =0;
       rechitrphierrx[i] =0;
       rechitrphiy[i] =0;
@@ -195,29 +283,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
       rechitmatchedresx[i]=0;
       rechitmatchedresy[i]=0;
       
-    }
-    
-    //---get simhit
-    numsimhit=0;
-    std::map<unsigned int, std::vector<PSimHit> >::const_iterator it = SimHitMap.find(myid);
-    vector<PSimHit> simHit; 
-    simHit.clear();
-    if (it!= SimHitMap.end()){
-      simHit = it->second;
-      vector<PSimHit>::const_iterator simHitIter = simHit.begin();
-      vector<PSimHit>::const_iterator simHitIterEnd = simHit.end();
-      numsimhit = simHit.size();
-      int i=0;
-      for (;simHitIter != simHitIterEnd; ++simHitIter) {
-	const PSimHit ihit = *simHitIter;
-	LocalPoint simhitpos = ihit.localPosition();
-	simhitx[i] = simhitpos.x();
-	simhity[i] = simhitpos.y();
-	simhitz[i] = simhitpos.z();
-	simhitphi[i] = simhitpos.phi();
-	simhiteta[i] = simhitpos.eta();
-	i++;
-      }
     }
     
     numrechitrphi =0;
@@ -315,7 +380,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	LocalPoint position=rechit.localPosition();
 	LocalError error=rechit.localPositionError();
 	
-	//	cout << "SiStripRecHitsValid ---> try association matched! " << endl;
 	matched.clear();
 	const SiStripRecHit2DLocalPos *mono = rechit.monoHit();
 	const SiStripRecHit2DLocalPos *st = rechit.stereoHit();
@@ -325,20 +389,20 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	rechitmatchedx[j] = position.x();
 	rechitmatchedy[j] = position.y();
 	rechitmatchedz[j] = position.z();
-	//rechitmatchedphi[j] = position.phi();
 	rechitmatchederrxx[j] = error.xx();
 	rechitmatchederrxy[j] = error.xy();
 	rechitmatchederryy[j] = error.yy();
+	//	cout << " errors = " << sqrt(error.xx()) << ", " << error.xy() << ", " << sqrt(error.yy()) <<  endl;
 	matched = associate.associateHit(*st);
 	if(!matched.empty()){
-	  cout << " detector = " << myid << " #match = " << matched.size() << endl;
-	  cout << " Matched x = " << position.x() << " y = "<< position.y() << " z = " << position.z() << endl;
-	  cout << " Mono    x = " << monopos.x() << " y = "<< monopos.y() << " z = " << monopos.z() << endl;
-	  cout << " Stereo  x = " << stpos.x() << " y = "<< stpos.y() << " z = " << stpos.z() << endl;
+// 	  cout << " detector = " << myid << " #match = " << matched.size() << endl;
+// 	  cout << " Matched x = " << position.x() << " y = "<< position.y() << " z = " << position.z() << endl;
+// 	  cout << " Mono    x = " << monopos.x() << " y = "<< monopos.y() << " z = " << monopos.z() << endl;
+// 	  cout << " Stereo  x = " << stpos.x() << " y = "<< stpos.y() << " z = " << stpos.z() << endl;
 	  
 	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-	    cout << " hit  ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition().x() 
-		 << " y = " <<  (*m).localPosition().y() << " z = " <<  (*m).localPosition().x() << endl;
+// 	    cout << " hit  ID = " << (*m).trackId() << " Simhit x = " << (*m).localPosition().x() 
+// 		 << " y = " <<  (*m).localPosition().y() << " z = " <<  (*m).localPosition().x() << endl;
 	  }
 	  //project simhit;
 	  const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
@@ -349,12 +413,12 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  rechitmatchedresx[j] = rechitmatchedx[j] - hitPair.first.x();
 	  rechitmatchedresy[j] = rechitmatchedy[j] - hitPair.first.y();
 	  
-	  cout << " res x = " << rechitmatchedresx[j] << " rec(x) = " <<  rechitmatchedx[j] 
-	    //		 << " sim(x) = " << matched[0].localPosition().x() << endl;
-	       << " sim(x) = " << hitPair.first.x() << endl;
-	  cout << " res y = " << rechitmatchedresy[j] << " rec(y) = " <<  rechitmatchedy[j] 
-	    //		 << " sim(x) = " << matched[0].localPosition().y() << endl;
-	       << " sim(y) = " <<  hitPair.first.y()<< endl;
+// 	  cout << " res x = " << rechitmatchedresx[j] << " rec(x) = " <<  rechitmatchedx[j] 
+// 	    //		 << " sim(x) = " << matched[0].localPosition().x() << endl;
+// 	       << " sim(x) = " << hitPair.first.x() << endl;
+// 	  cout << " res y = " << rechitmatchedresy[j] << " rec(y) = " <<  rechitmatchedy[j] 
+// 	    //		 << " sim(x) = " << matched[0].localPosition().y() << endl;
+// 	       << " sim(y) = " <<  hitPair.first.y()<< endl;
 	}
 	
 	j++;
@@ -362,53 +426,168 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     }
     
 
-    if(numrechitrphi>0 || numrechitsas>0 ){
-      cout << " N(simhit)= " << numsimhit << "  N(rphi) = " << numrechitrphi << "  N(sas) = " << numrechitsas 
-	   << " N(matched) = " << numrechitmatched << endl; 
-      // 	if(numrechitmatched>0){ 
-      // 	  std::cout << " det id= " << myid << " N(simhit) = " << numsimhit 
-      // 		    << " N(rechitrphi) = " << numrechitrphi << " N(rechitsas)= " << numrechitsas 
-      // 		    << " N(matched) = " << numrechitmatched << std::endl;      
-      // 	}
-      
+    if(numrechitrphi>0 || numrechitsas>0 || numrechitmatched){
       if (detid.subdetId() == int(StripSubdetector::TIB)){
 	TIBDetId tibid(myid);
 	int Tibnumrechitrphi    = numrechitrphi;
 	int Tibnumrechitsas     = numrechitsas;
 	int Tibnumrechitmatched = numrechitmatched;
-	int ilay = tibid.layer();
-	cout << " inside tib layer = " <<ilay << " stereo = " << tibid.stereo() << endl;
+
+	int ilay = tibid.layer() - 1; //for histogram filling
 	
 	if(tibid.stereo()==0){
 	  for(int k = 0; k<Tibnumrechitrphi; k++){
 	    meNstpRphiTIB[ilay]->Fill(clusizrphi[k]);
 	    meAdcRphiTIB[ilay]->Fill(cluchgrphi[k]);
 	    mePosxRphiTIB[ilay]->Fill(rechitrphix[k]);
-	    meErrxRphiTIB[ilay]->Fill(rechitrphierrx[k]);
+	    meErrxRphiTIB[ilay]->Fill(sqrt(rechitrphierrx[k]));
 	    meResRphiTIB[ilay]->Fill(rechitrphires[k]);
 	  }
 	} else  if(tibid.stereo()==1){
-	  for(int kk = 0; kk<Tibnumrechitsas; kk++)
+	  for(int kk = 0; kk < Tibnumrechitsas; kk++)	    
 	    {
 	      meNstpSasTIB[ilay]->Fill(clusizsas[kk]);
 	      meAdcSasTIB[ilay]->Fill(cluchgsas[kk]);
 	      mePosxSasTIB[ilay]->Fill(rechitsasx[kk]);
-	      meErrxSasTIB[ilay]->Fill(rechitsaserrx[kk]);
+	      meErrxSasTIB[ilay]->Fill(sqrt(rechitsaserrx[kk]));
 	      meResSasTIB[ilay]->Fill(rechitsasres[kk]);
 	    }	  
+	}
+	if(Tibnumrechitmatched>0){
 	  for(int kkk = 0; kkk<Tibnumrechitmatched; kkk++)
 	    {
 	      mePosxMatchedTIB[ilay]->Fill(rechitmatchedx[kkk]);
 	      mePosyMatchedTIB[ilay]->Fill(rechitmatchedy[kkk]);
-	      meErrxMatchedTIB[ilay]->Fill(rechitmatchederrxx[kkk]);
-	      meErryMatchedTIB[ilay]->Fill(rechitmatchederryy[kkk]);
+	      meErrxMatchedTIB[ilay]->Fill(sqrt(rechitmatchederrxx[kkk]));
+	      meErryMatchedTIB[ilay]->Fill(sqrt(rechitmatchederryy[kkk]));
 	      meResxMatchedTIB[ilay]->Fill(rechitmatchedresx[kkk]);
 	      meResyMatchedTIB[ilay]->Fill(rechitmatchedresy[kkk]);
 	    }	  
 	}
       }
+
+
+      if (detid.subdetId() == int(StripSubdetector::TOB)){
+	TOBDetId tobid(myid);
+	int Tobnumrechitrphi    = numrechitrphi;
+	int Tobnumrechitsas     = numrechitsas;
+	int Tobnumrechitmatched = numrechitmatched;
+
+	int ilay = tobid.layer() - 1; //for histogram filling
+	
+	if(tobid.stereo()==0){
+	  for(int k = 0; k<Tobnumrechitrphi; k++){
+	    meNstpRphiTOB[ilay]->Fill(clusizrphi[k]);
+	    meAdcRphiTOB[ilay]->Fill(cluchgrphi[k]);
+	    mePosxRphiTOB[ilay]->Fill(rechitrphix[k]);
+	    meErrxRphiTOB[ilay]->Fill(sqrt(rechitrphierrx[k]));
+	    meResRphiTOB[ilay]->Fill(rechitrphires[k]);
+	  }
+	} else  if(tobid.stereo()==1){
+	  for(int kk = 0; kk < Tobnumrechitsas; kk++)	    
+	    {
+	      meNstpSasTOB[ilay]->Fill(clusizsas[kk]);
+	      meAdcSasTOB[ilay]->Fill(cluchgsas[kk]);
+	      mePosxSasTOB[ilay]->Fill(rechitsasx[kk]);
+	      meErrxSasTOB[ilay]->Fill(sqrt(rechitsaserrx[kk]));
+	      meResSasTOB[ilay]->Fill(rechitsasres[kk]);
+	    }	  
+	}
+	if(Tobnumrechitmatched>0){
+	  for(int kkk = 0; kkk<Tobnumrechitmatched; kkk++)
+	    {
+	      mePosxMatchedTOB[ilay]->Fill(rechitmatchedx[kkk]);
+	      mePosyMatchedTOB[ilay]->Fill(rechitmatchedy[kkk]);
+	      meErrxMatchedTOB[ilay]->Fill(sqrt(rechitmatchederrxx[kkk]));
+	      meErryMatchedTOB[ilay]->Fill(sqrt(rechitmatchederryy[kkk]));
+	      meResxMatchedTOB[ilay]->Fill(rechitmatchedresx[kkk]);
+	      meResyMatchedTOB[ilay]->Fill(rechitmatchedresy[kkk]);
+	    }	  
+	}
+      }
+      if (detid.subdetId() == int(StripSubdetector::TID)){
+	TIDDetId tidid(myid);
+	int Tidnumrechitrphi    = numrechitrphi;
+	int Tidnumrechitsas     = numrechitsas;
+	int Tidnumrechitmatched = numrechitmatched;
+
+	int ilay = tidid.ring() - 1; //for histogram filling
+	
+	if(tidid.stereo()==0){
+	  for(int k = 0; k<Tidnumrechitrphi; k++){
+	    meNstpRphiTID[ilay]->Fill(clusizrphi[k]);
+	    meAdcRphiTID[ilay]->Fill(cluchgrphi[k]);
+	    mePosxRphiTID[ilay]->Fill(rechitrphix[k]);
+	    meErrxRphiTID[ilay]->Fill(sqrt(rechitrphierrx[k]));
+	    meResRphiTID[ilay]->Fill(rechitrphires[k]);
+	  }
+	} else  if(tidid.stereo()==1){
+	  for(int kk = 0; kk < Tidnumrechitsas; kk++)	    
+	    {
+	      meNstpSasTID[ilay]->Fill(clusizsas[kk]);
+	      meAdcSasTID[ilay]->Fill(cluchgsas[kk]);
+	      mePosxSasTID[ilay]->Fill(rechitsasx[kk]);
+	      meErrxSasTID[ilay]->Fill(sqrt(rechitsaserrx[kk]));
+	      meResSasTID[ilay]->Fill(rechitsasres[kk]);
+	    }	  
+	}
+	if(Tidnumrechitmatched>0){
+	  for(int kkk = 0; kkk<Tidnumrechitmatched; kkk++)
+	    {
+	      mePosxMatchedTID[ilay]->Fill(rechitmatchedx[kkk]);
+	      mePosyMatchedTID[ilay]->Fill(rechitmatchedy[kkk]);
+	      meErrxMatchedTID[ilay]->Fill(sqrt(rechitmatchederrxx[kkk]));
+	      meErryMatchedTID[ilay]->Fill(sqrt(rechitmatchederryy[kkk]));
+	      meResxMatchedTID[ilay]->Fill(rechitmatchedresx[kkk]);
+	      meResyMatchedTID[ilay]->Fill(rechitmatchedresy[kkk]);
+	    }	  
+	}
+      }
+      if (detid.subdetId() == int(StripSubdetector::TEC)){
+	TECDetId tecid(myid);
+	int Tecnumrechitrphi    = numrechitrphi;
+	int Tecnumrechitsas     = numrechitsas;
+	int Tecnumrechitmatched = numrechitmatched;
+
+	int ilay = tecid.ring() - 1; //for histogram filling
+	
+	if(tecid.stereo()==0){
+	  for(int k = 0; k<Tecnumrechitrphi; k++){
+	    meNstpRphiTEC[ilay]->Fill(clusizrphi[k]);
+	    meAdcRphiTEC[ilay]->Fill(cluchgrphi[k]);
+	    mePosxRphiTEC[ilay]->Fill(rechitrphix[k]);
+	    meErrxRphiTEC[ilay]->Fill(sqrt(rechitrphierrx[k]));
+	    meResRphiTEC[ilay]->Fill(rechitrphires[k]);
+	  }
+	} else  if(tecid.stereo()==1){
+	  for(int kk = 0; kk < Tecnumrechitsas; kk++)	    
+	    {
+	      meNstpSasTEC[ilay]->Fill(clusizsas[kk]);
+	      meAdcSasTEC[ilay]->Fill(cluchgsas[kk]);
+	      mePosxSasTEC[ilay]->Fill(rechitsasx[kk]);
+	      meErrxSasTEC[ilay]->Fill(sqrt(rechitsaserrx[kk]));
+	      meResSasTEC[ilay]->Fill(rechitsasres[kk]);
+	    }	  
+	}
+	if(Tecnumrechitmatched>0){
+	  for(int kkk = 0; kkk<Tecnumrechitmatched; kkk++)
+	    {
+	      mePosxMatchedTEC[ilay]->Fill(rechitmatchedx[kkk]);
+	      mePosyMatchedTEC[ilay]->Fill(rechitmatchedy[kkk]);
+	      meErrxMatchedTEC[ilay]->Fill(sqrt(rechitmatchederrxx[kkk]));
+	      meErryMatchedTEC[ilay]->Fill(sqrt(rechitmatchederryy[kkk]));
+	      meResxMatchedTEC[ilay]->Fill(rechitmatchedresx[kkk]);
+	      meResyMatchedTEC[ilay]->Fill(rechitmatchedresy[kkk]);
+	    }	  
+	}
+      }
+
+
+
+
     }
   }
+
 }
   
 //needed by to do the residual for matched hits
