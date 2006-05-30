@@ -3,7 +3,7 @@
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRawInfo.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRecInfo.h"
-#include "RecoTBCalo/EcalTBHodoscopeReconstructor/interface/EcalTBHodoscopeGeometry.h"
+#include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
 
 #include <vector>
 
