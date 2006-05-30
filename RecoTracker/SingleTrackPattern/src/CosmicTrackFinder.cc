@@ -117,12 +117,17 @@ namespace cms
 	  TSOS outertsos = theTraj.lastMeasurement().updatedState();
 	  TSOS Fitsos = theTraj.firstMeasurement().updatedState();
 
-	  GlobalPoint v(0.,0.,0.);
+	  GlobalPoint v;
 	  GlobalVector p;
 
-	  if (seedplus) p=outertsos.globalParameters().momentum();
-	  else p= Fitsos.globalParameters().momentum();
-
+	  if (seedplus){
+	    p=outertsos.globalMomentum();
+	    v=outertsos.globalPosition();
+	  }
+	  else{
+	    p=Fitsos.globalMomentum();
+	    v=Fitsos.globalPosition();
+	  }
 	  math::XYZVector outmom( p.x(), p.y(), p.z() );
 	  math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
 	  theTrackExtra = new reco::TrackExtra(outpos, outmom, true);

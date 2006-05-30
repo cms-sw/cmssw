@@ -34,7 +34,7 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
 
   //services
   es.get<IdealMagneticFieldRecord>().get(magfield);
-   es.get<TrackerDigiGeometryRecord>().get(tracker);
+  es.get<TrackerDigiGeometryRecord>().get(tracker);
 
  
 
@@ -196,7 +196,7 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &colls
 
     if (differenthit) { 
       float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
-      if (ych<ymin)
+      if ((seed_plus && (ych<ymin)) || (!(seed_plus) && (ych>ymin)))
 	allHits.push_back(&(*istrip));   
     } 
     else  seedHits.push_back(&(*istrip)); 
@@ -207,7 +207,6 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &colls
 
   LogDebug("CosmicTrackFinder")<<"SEED HITS"<<RHBuilder->build(seedHits.back())->globalPosition()
       <<" "<<RHBuilder->build(seedHits.front())->globalPosition();
-
   for(istrip=collstereo.begin();istrip!=collstereo.end();istrip++){
 
       allHits.push_back(&(*istrip));
@@ -247,10 +246,9 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
     LogDebug("CosmicTrackFinder")<<" HIT POSITION "<< gphit;
 
     TransientTrackingRecHit* tmphit=RHBuilder->build(Hits[icosmhit]);
-
     TSOS prSt= thePropagator->propagate(traj.lastMeasurement().updatedState(),
 					tracker->idToDet(Hits[icosmhit]->geographicalId())->surface());
-   
+    
     if (prSt.isValid()){
       LogDebug("CosmicTrackFinder") <<"STATE PROPAGATED AT DET "<<iraw<<prSt;
       TSOS UpdatedState= theUpdator->update( prSt, *tmphit);
@@ -259,7 +257,6 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
       if (UpdatedState.isValid()){
 	LogDebug("CosmicTrackFinder") <<"STATE UPDATED WITH HIT AT POSITION "<<gphit<<UpdatedState;
 	float contr= theEstimator->estimate(UpdatedState, *tmphit).second;
-
 	if (contr<chi2cut)
 	  {	 
 	    traj.push(TM(prSt,UpdatedState,RHBuilder->build(Hits[icosmhit])
@@ -269,8 +266,8 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 					  <<" traj Chi2= "<<traj.chiSquared();
 	     
 	  }
-      }edm::LogError("CosmicTrackFinder")<<" State can not be updated with hit at position "<<gphit;
-    }edm::LogError("CosmicTrackFinder")<<" State can not be propagated at det "<< iraw;
+      }else edm::LogError("CosmicTrackFinder")<<" State can not be updated with hit at position "<<gphit;
+    }else edm::LogError("CosmicTrackFinder")<<" State can not be propagated at det "<< iraw;
 
     
   }
@@ -300,7 +297,7 @@ CosmicTrajectoryBuilder::qualityFilter(Trajectory traj){
 
 std::pair<Trajectory, reco::Track>  CosmicTrajectoryBuilder::makeTrack(const Trajectory &traj){
  
-  TSOS innertsos = traj.lastMeasurement().updatedState();
+  TSOS outertsos = traj.lastMeasurement().updatedState();
   TSOS Fitsos = traj.firstMeasurement().updatedState();
 
  
@@ -311,8 +308,8 @@ std::pair<Trajectory, reco::Track>  CosmicTrajectoryBuilder::makeTrack(const Tra
   TSCPBuilderNoMaterial tscpBuilder;
   TrajectoryStateClosestToPoint tscp;
   if (seed_plus)
-    tscp= tscpBuilder(*(innertsos.freeState()),
-		      innertsos.globalPosition());
+    tscp= tscpBuilder(*(outertsos.freeState()),
+		      outertsos.globalPosition());
   else 
      tscp= tscpBuilder(*(Fitsos.freeState()),
 		       Fitsos.globalPosition());   
@@ -331,5 +328,4 @@ std::pair<Trajectory, reco::Track>  CosmicTrajectoryBuilder::makeTrack(const Tra
   
   AlgoProduct aProduct(traj,theTrack);
   return aProduct;
- 
 }
