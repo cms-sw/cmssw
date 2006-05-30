@@ -7,16 +7,7 @@
 <use name=DQMServices/Components>
 <use name=DQMServices/WebComponents>
 <use name=xdaq>
-<lib name=xgi>
-<lib name=xdata>
 <use name=xerces-c>
-<lib name=cgicc>
-<lib name=log4cplus>
-<lib name=xcept>
-<lib name=udpappender>
-<lib name=peer>
-<lib name=mimetic>
-<lib name=xmlappender>
 <export>
  <lib name=DQMServicesExamples>
  <use name=root>
