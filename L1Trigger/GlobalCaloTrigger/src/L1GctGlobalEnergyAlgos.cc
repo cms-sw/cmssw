@@ -12,10 +12,10 @@ using std::max;
 
 L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> wheelFpga,
 					       vector<L1GctWheelJetFpga*> wheelJetFpga) :
-  m_plusWheelFpga(wheelFpga[0]),
-  m_minusWheelFpga(wheelFpga[1]),
-  m_plusWheelJetFpga(wheelJetFpga[0]),
-  m_minusWheelJetFpga(wheelJetFpga[1]),
+  m_plusWheelFpga(wheelFpga[1]),
+  m_minusWheelFpga(wheelFpga[0]),
+  m_plusWheelJetFpga(wheelJetFpga[1]),
+  m_minusWheelJetFpga(wheelJetFpga[0]),
   m_jcValPlusWheel(12),
   m_jcVlMinusWheel(12),
   m_outputJetCounts(12)
