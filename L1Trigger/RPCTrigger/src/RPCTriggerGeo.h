@@ -1,16 +1,14 @@
+#ifndef RPCTrigger_RPCTriggerGeo_h
+#define RPCTrigger_RPCTriggerGeo_h
+
 /** \class RPCTriggerGeo
  *
- * Description: Class describing RPC trigger geometry
+ * \brief Class describing RPC trigger geometry
  *  
- * Implementation:
- *  aim: easly convert RPCdetId.firedStrip to loghit/logcone
+ * Aim: easly convert RPCdetId.firedStrip to loghit/logcone
  * \author Tomasz Fruboes 
  *
  */
-
-
-#ifndef RPCTrigger_RPCTriggerGeo_h
-#define RPCTrigger_RPCTriggerGeo_h
 
 #include <FWCore/Framework/interface/ESHandle.h> // Handle to read geometry
 
@@ -35,9 +33,9 @@ class RPCTriggerGeo {
     void printCurlMapInfo();
     int etaToTower(float eta);
                               
-    bool m_isGeometryBuilt; 
-    typedef std::map<uint32_t, RPCCurl> RPCCurlMap;
-    RPCCurlMap m_RPCCurlMap; 
+    bool m_isGeometryBuilt; ///< Determines if geometry is built allready
+    typedef std::map<uint32_t, RPCCurl> RPCCurlMap; 
+    RPCCurlMap m_RPCCurlMap; ///< Stores all curls
     
 };
 #endif

@@ -1,24 +1,11 @@
-// -*- C++ -*-
-//
-// Package:    RPCTrigger
-// Class:      RPCTrigger
-// 
-/**\class RPCTrigger RPCTrigger.cc L1Trigger/RPCTrigger/src/RPCTrigger.cc
+/** \file RPCTrigger.cc
+ *
+ *  $Date: 2006/05/29 12:00:00 $
+ *  $Revision: 1.1 $
+ *  \author Tomasz Fruboes
+ */
 
- Description: emulates rpc trigger
 
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Tomasz Frueboes
-//         Created:  Thu May 25 10:36:17 CEST 2006
-// $Id$
-//
-//
-//TODO: give output in a kosher way
-
-// system include files
 #include <memory>
 
 // user include files
@@ -59,28 +46,18 @@ void
 RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
-   // Build the trigger linksystem geometry;
+  // Build the trigger linksystem geometry;
   if (!theLinksystem.isGeometryBuilt()){
-    
-    
+
     edm::ESHandle<RPCGeometry> rpcGeom;
     iSetup.get<MuonGeometryRecord>().get( rpcGeom );     
     theLinksystem.buildGeometry(rpcGeom);
-  
-  
+
   } 
- 
-   
-   
+
    // Get RpcDigis, store them locally
    edm::Handle<RPCDigiCollection> rpcDigis;
    iEvent.getByType(rpcDigis);
-
-   
-
-   
-   
-   
 
 }
 

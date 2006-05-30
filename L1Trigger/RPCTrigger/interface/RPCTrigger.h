@@ -1,6 +1,15 @@
 #ifndef RPCTrigger_RPCTrigger_h
 #define RPCTrigger_RPCTrigger_h
 
+/** \class RPCTrigger
+ *  \brief Implements RPC trigger emulation
+ *
+ *  $Date: 2006/05/29 12:00:00 $
+ *  $Revision: 1.1 $
+ *  \author Tomasz Fruboes
+ *  \todo Give output in a kosher way
+ */
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -29,7 +38,7 @@ class RPCTrigger : public edm::EDProducer {
       // ----------member data ---------------------------
     
     
-    RPCTriggerGeo theLinksystem;
+    RPCTriggerGeo theLinksystem;  ///< Tells where to send no of fired strip.
 };
 
 
