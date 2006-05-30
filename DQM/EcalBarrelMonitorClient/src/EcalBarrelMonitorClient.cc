@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/05/29 09:40:53 $
- * $Revision: 1.128 $
+ * $Date: 2006/05/29 14:59:26 $
+ * $Revision: 1.129 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -874,10 +874,7 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( verbose_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  if ( ! enableStateMachine_ ) {
-    mui_->doMonitoring();
-    mui_->runQTests();
-  }
+  if ( ! enableStateMachine_ ) mui_->doMonitoring();
 
   this->subscribeNew();
 
@@ -1010,10 +1007,12 @@ void EcalBarrelMonitorClient::analyze(void){
 
     if ( begin_run_ && ! end_run_ ) {
 
-      if ( ( update && updates % 5 == 0 ) || status_ == "end-of-run" || forced_update_ ) {
+      if ( ( update && updates % 10 == 0 ) || status_ == "end-of-run" || forced_update_ ) {
 
         forced_update_ = false;
 	
+        if ( ! enableStateMachine_ ) mui_->runQTests();
+
 	for( int i=0; i<int(clients_.size()); i++ ) {
 	  bool analyzed; analyzed = false;
 	  for( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
