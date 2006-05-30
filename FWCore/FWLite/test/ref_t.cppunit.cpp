@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id$
+$Id: ref_t.cppunit.cpp,v 1.1 2006/05/29 12:52:09 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -17,6 +17,9 @@ $Id$
 #include "TChain.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
+#include "FWCore/Utilities/interface/TestHelper.h"
+
+static char* gArgV = 0;
 
 class testRefInROOT: public CppUnit::TestFixture
 {
@@ -34,8 +37,18 @@ class testRefInROOT: public CppUnit::TestFixture
 public:
   void setUp()
   {
+    if(!sWasRun_) {
       gSystem->Load("libFWCoreFWLite.so");
       AutoLibraryLoader::enable();
+      
+      char* argv[] = {"testFWCoreFWLite","/bin/bash","FWCore/FWLite/test","RefTest.sh"};
+      argv[0] = gArgV;
+      if(0!=ptomaine(sizeof(argv)/sizeof(const char*), argv) ) {
+        std::cerr <<"could not run script needed to make test files\n";
+        ::exit(-1);
+      }
+      sWasRun_ = true;
+    }
   }
   void tearDown(){}
   
@@ -45,7 +58,11 @@ public:
   //void testGoodChain();
   void failChainWithMissingFile();
   void failDidNotCallGetEntryForEvents();
+
+  static bool sWasRun_;
 };
+
+bool testRefInROOT::sWasRun_=false;
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testRefInROOT);
@@ -204,3 +221,56 @@ void testRefInROOT::failDidNotCallGetEntryForEvents()
 
   pOthers->product()->at(0).ref.get();
 }
+
+//Stolen from Utilities/Testing/interface/CppUnit_testdriver.icpp
+// need to refactor
+#include <cppunit/extensions/TestFactoryRegistry.h>
+#include <cppunit/CompilerOutputter.h>
+#include <cppunit/TestResult.h>
+#include <cppunit/TestResultCollector.h>
+#include <cppunit/TestRunner.h>
+#include <cppunit/TextTestProgressListener.h>
+#include <stdexcept>  
+
+int 
+main( int argc, char* argv[] )
+{
+  gArgV = argv[0];
+  std::string testPath = (argc > 1) ? std::string(argv[1]) : "";
+  
+  // Create the event manager and test controller
+  CppUnit::TestResult controller;
+  
+  // Add a listener that colllects test result
+  CppUnit::TestResultCollector result;
+  controller.addListener( &result );        
+  
+  // Add a listener that print dots as test run.
+  CppUnit::TextTestProgressListener progress;
+  controller.addListener( &progress );      
+  
+  // Add the top suite to the test runner
+  CppUnit::TestRunner runner;
+  runner.addTest( CppUnit::TestFactoryRegistry::getRegistry().makeTest() );   
+  try
+  {
+    std::cout << "Running "  <<  testPath;
+    runner.run( controller, testPath );
+    
+    std::cerr << std::endl;
+    
+    // Print test in a compiler compatible format.
+    CppUnit::CompilerOutputter outputter( &result, std::cerr );
+    outputter.write();                      
+  }
+  catch ( std::invalid_argument &e )  // Test path not resolved
+  {
+    std::cerr  <<  std::endl  
+    <<  "ERROR: "  <<  e.what()
+    << std::endl;
+    return 0;
+  }
+  
+  return result.wasSuccessful() ? 0 : 1;
+}
+
