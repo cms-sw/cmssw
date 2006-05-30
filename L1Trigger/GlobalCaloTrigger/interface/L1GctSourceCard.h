@@ -86,6 +86,23 @@ class L1GctSourceCard
   /// process the event
   void process();
 
+  // methods to set data in the card for use when pushing from RCT
+
+  /// set the Regions
+  void setRegions(std::vector<L1GctRegion> regions);
+
+  /// set the Iso Em candidates
+  void setIsoEm(std::vector<L1GctEmCand> isoEm);
+
+  /// set the Non Iso Em candidates
+  void setNonIsoEm(std::vector<L1GctEmCand> nonIsoEm);
+
+  /// set the Mip bits
+  void setMipBits(unsigned mip);
+
+  /// set the Quiet bits
+  void setQuietBits(unsigned quiet);
+
   //Methods to read the BX data out from the class
   std::vector<L1GctEmCand> getIsoElectrons() const;
   std::vector<L1GctEmCand> getNonIsoElectrons() const;
@@ -98,6 +115,7 @@ class L1GctSourceCard
 
  private:  // methods
 
+  //PRIVATE MEMBER FUNCTIONS
   ///Sets the appropriate sizes of vector depending on type of source card 
   void setVectorSizes();
   

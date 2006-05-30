@@ -60,59 +60,60 @@ L1GctWheelJetFpga::~L1GctWheelJetFpga()
 
 ostream& operator << (ostream& os, const L1GctWheelJetFpga& fpga)
 {
-  os << "=== Wheel Jet FPGA ===" << endl;
+  os << "===L1GctWheelJetFPGA===" << endl;
   os << "ID = " << fpga.m_id << endl;
-  os << "No. of Input Leaf Cards " << fpga.m_inputLeafCards.size() << endl;
+  os << "No of Input Leaf Cards " << fpga.m_inputLeafCards.size() << endl;
   for(unsigned i=0; i < fpga.m_inputLeafCards.size(); i++)
     {
-      os << "InputLeafCard* " << i << " = " << *fpga.m_inputLeafCards[i];
+      os << "InputLeafCard* " << i << " = " << fpga.m_inputLeafCards[i] << endl;
     } 
-  os << "No. of Input Jets " << fpga.m_inputJets.size() << endl;
-  for(unsigned i=0; i < fpga.m_inputJets.size(); i++)
-    {
-      os << fpga.m_inputJets[i];
-    } 
+//   os << "No. of Input Jets " << fpga.m_inputJets.size() << endl;
+//   for(unsigned i=0; i < fpga.m_inputJets.size(); i++)
+//     {
+//       os << fpga.m_inputJets[i];
+//     } 
   os << "Input Ht " << endl;
   for(unsigned i=0; i < fpga.m_inputHt.size(); i++)
     {
       os << (fpga.m_inputHt[i]);
     } 
-  os << "No. of raw central Jets " << fpga.m_rawCentralJets.size() << endl;
-  for(unsigned i=0; i < fpga.m_rawCentralJets.size(); i++)
-    {
-      os << fpga.m_rawCentralJets[i];
-    } 
-  os << "No. of raw forward Jets " << fpga.m_rawForwardJets.size() << endl;
-  for(unsigned i=0; i < fpga.m_rawForwardJets.size(); i++)
-    {
-      os << fpga.m_rawForwardJets[i];
-    } 
-  os << "No. of raw tau Jets " << fpga.m_rawTauJets.size() << endl;
-  for(unsigned i=0; i < fpga.m_rawTauJets.size(); i++)
-    {
-      os << fpga.m_rawTauJets[i];
-    } 
+//   os << "No. of raw central Jets " << fpga.m_rawCentralJets.size() << endl;
+//   for(unsigned i=0; i < fpga.m_rawCentralJets.size(); i++)
+//     {
+//       os << fpga.m_rawCentralJets[i];
+//     } 
+//   os << "No. of raw forward Jets " << fpga.m_rawForwardJets.size() << endl;
+//   for(unsigned i=0; i < fpga.m_rawForwardJets.size(); i++)
+//     {
+//       os << fpga.m_rawForwardJets[i];
+//     } 
+//   os << "No. of raw tau Jets " << fpga.m_rawTauJets.size() << endl;
+//   for(unsigned i=0; i < fpga.m_rawTauJets.size(); i++)
+//     {
+//       os << fpga.m_rawTauJets[i];
+//     } 
   os << "Output Ht " << fpga.m_outputHt << endl;
   os << "Output Jet count " << endl;
   for(unsigned i=0; i < fpga.m_outputJc.size(); i++)
     {
       os << fpga.m_outputJc[i];
     } 
-  os << "No. of output central Jets " << fpga.m_centralJets.size() << endl;
-  for(unsigned i=0; i < fpga.m_centralJets.size(); i++)
-    {
-      os << fpga.m_centralJets[i];
-    } 
-  os << "No. of output forward Jets " << fpga.m_forwardJets.size() << endl;
-  for(unsigned i=0; i < fpga.m_forwardJets.size(); i++)
-    {
-      os << fpga.m_forwardJets[i];
-    } 
-  os << "No. of output tau Jets " << fpga.m_tauJets.size() << endl;
-  for(unsigned i=0; i < fpga.m_tauJets.size(); i++)
-    {
-      os << fpga.m_tauJets[i];
-    } 
+//   os << "No. of output central Jets " << fpga.m_centralJets.size() << endl;
+//   for(unsigned i=0; i < fpga.m_centralJets.size(); i++)
+//     {
+//       os << fpga.m_centralJets[i];
+//     } 
+//   os << "No. of output forward Jets " << fpga.m_forwardJets.size() << endl;
+//   for(unsigned i=0; i < fpga.m_forwardJets.size(); i++)
+//     {
+//       os << fpga.m_forwardJets[i];
+//     } 
+//   os << "No. of output tau Jets " << fpga.m_tauJets.size() << endl;
+//   for(unsigned i=0; i < fpga.m_tauJets.size(); i++)
+//     {
+//       os << fpga.m_tauJets[i];
+//     } 
+  os << endl;
   return os;
 }	
 

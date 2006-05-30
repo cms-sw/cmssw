@@ -48,12 +48,12 @@ L1GctWheelEnergyFpga::~L1GctWheelEnergyFpga()
 
 ostream& operator << (ostream& os, const L1GctWheelEnergyFpga& fpga)
 {
-  os << "=== Wheel Energy FPGA ===" << endl;
+  os << "===L1GctWheelEnergyFPGA===" << endl;
   os << "ID : " << fpga.m_id << endl;
   os << "No. of Input Leaf Cards " << fpga.m_inputLeafCards.size() << endl;
   for(unsigned i=0; i < fpga.m_inputLeafCards.size(); i++)
     {
-      os << "LeafCard* " << i << " = " << *fpga.m_inputLeafCards[i];
+      os << "LeafCard* " << i << " = " << fpga.m_inputLeafCards[i] << endl;
     } 
   os << "Input Ex " << endl;
   for(unsigned i=0; i < fpga.m_inputEx.size(); i++)

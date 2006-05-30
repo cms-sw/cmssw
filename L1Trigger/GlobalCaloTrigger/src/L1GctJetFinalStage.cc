@@ -45,11 +45,11 @@ L1GctJetFinalStage::~L1GctJetFinalStage()
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga)
 {
-  os << "=== Jet Final Stage ===" << endl;
+  os << "===L1GctJetFinalStage===" << endl;
   os << "No. of Wheel Jet FPGAs " << fpga.m_wheelFpgas.size() << std::endl;
   for(unsigned i=0; i < fpga.m_wheelFpgas.size(); i++)
     {
-      os << *fpga.m_wheelFpgas[i];
+      os << "WheelJetFpga* " << i << " = " << fpga.m_wheelFpgas[i] << endl;
     } 
   os << "No. of input central Jets " << fpga.m_inputCentralJets.size() << std::endl;
   for(unsigned i=0; i < fpga.m_inputCentralJets.size(); i++)
@@ -81,6 +81,7 @@ std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga)
     {
       os << fpga.m_tauJets[i];
     } 
+  os << endl;
   return os;
 }
 

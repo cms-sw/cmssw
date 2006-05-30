@@ -105,20 +105,16 @@ vector<L1GctEmCand> L1GctEmLeafCard::getOutputNonIsoEmCands(int fpga) {
 }
 
 ostream& operator<<(ostream& s, const L1GctEmLeafCard& card) {
-  s << "No of Source Cards " <<card.m_sourceCards.size() << endl;
-  s << "No of Electron Sorters " << card.m_sorters.size() << endl;
-  s << endl;
-  s << "Pointers to L1GctSourceCard : "<<endl;
+  s << "===L1GctEmLeafCard===" << endl;
+  s << "ID = "<<card.m_id<<endl;
+  s << "No of Source Cards = " <<card.m_sourceCards.size() << endl;
   for (unsigned i=0; i<card.m_sourceCards.size(); i++) {
-    s << i << " " << card.m_sourceCards[i] << endl; //" id : " << card.m_sourceCards[i]->id() << endl;
+    s << "SourceCard* " << i << " = " << card.m_sourceCards[i] << endl;
   }
-  s << endl;
-  s <<"Pointers to L1GctElectronSorter : " << endl;
+  s << "No of Electron Sorters = " << card.m_sorters.size() << endl;
   for (unsigned i=0; i<card.m_sorters.size(); i++) {
-    s << card.m_sorters[i]<<"  ";
+    s << "ElectronSorter : " << i << endl << (*card.m_sorters[i]);
   }
   s << endl;
-  s << "Other private members (objects and variables): "<<endl;
-  s << "Card ID "<<card.m_id<<endl;
   return s;
 }

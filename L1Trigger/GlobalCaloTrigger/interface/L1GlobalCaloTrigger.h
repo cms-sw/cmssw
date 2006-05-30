@@ -3,6 +3,7 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 
 #include <vector>
 
@@ -39,7 +40,7 @@ public:
   static const int N_WHEEL_ENERGY_FPGAS;
   
   /// construct the GCT
-  L1GlobalCaloTrigger();
+  L1GlobalCaloTrigger(bool useFile=false);
   ///
   /// dismantle the GCT
   ~L1GlobalCaloTrigger();
@@ -69,17 +70,20 @@ public:
   std::vector<L1GctJetCand> getTauJets();
   
   /// Total Et output to GT
-  unsigned getEtSum();
+  L1GctScalarEtVal getEtSum();
   
   /// Total hadronic Et output to GT
-  unsigned getEtHad();
-  
+  L1GctScalarEtVal getEtHad();
+
   /// Etmiss output to GT
-  unsigned getEtMiss();
+  L1GctScalarEtVal getEtMiss();
   
   /// Etmiss phi output to GT
-  unsigned getEtMissPhi();
-  
+  L1GctEtAngleBin getEtMissPhi();
+
+  // Jet Count output to GT
+  L1GctJcFinalType getJetCount(unsigned jcnum);
+
   /// get the Source cards
   std::vector<L1GctSourceCard*> getSourceCards() { return theSourceCards; }
   
@@ -102,6 +106,9 @@ public:
   
  private:
   
+  /// where are we getting data from?
+  bool readFromFile;
+
   /// pointers to the Source Cards
   std::vector<L1GctSourceCard*> theSourceCards;
   

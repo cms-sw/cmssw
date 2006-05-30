@@ -87,23 +87,25 @@ L1GctJetLeafCard::~L1GctJetLeafCard()
   delete m_jetFinderC;
 }
 
-std::ostream& operator << (std::ostream& os, const L1GctJetLeafCard& card)
+std::ostream& operator << (std::ostream& s, const L1GctJetLeafCard& card)
 {
-  os << "JLC ID " << card.m_id << std::endl;
-  os << "JetFinder A " << (*card.m_jetFinderA) << std::endl;
-  os << "JetFinder B " << (*card.m_jetFinderB) << std::endl; 
-  os << "JetFinder C " << (*card.m_jetFinderC) << std::endl;
-  os << "Phi " << card.phiPosition << std::endl;;
-  os << "Ex " << card.m_exSum;
-  os << "Ey " << card.m_eySum;
-  os << "Et " << card.m_etSum;
-  os << "Ht " << card.m_htSum;
-  os << "No. of Source cards " << card.m_sourceCards.size() << std::endl;
-  for(unsigned i=0; i < card.m_sourceCards.size(); i++)
-    {
-      if (card.m_sourceCards[i]!=0) os << (*card.m_sourceCards[i]); // These can be NULL!
-    }
-  return os;
+  s << "===L1GctJetLeafCard===" << endl;
+  s << "ID = " << card.m_id << endl;
+  s << "i_phi = " << card.phiPosition << endl;;
+  s << "No of Source Cards = " << card.m_sourceCards.size() << endl;
+  for (unsigned i=0; i<card.m_sourceCards.size(); i++) {
+    s << "SourceCard* " << i << " = " << card.m_sourceCards[i]<< endl;
+  }
+  s << "Ex " << card.m_exSum << endl;
+  s << "Ey " << card.m_eySum << endl;
+  s << "Et " << card.m_etSum << endl;
+  s << "Ht " << card.m_htSum << endl;
+  s << "JetFinder A : " << endl << (*card.m_jetFinderA);
+  s << "JetFinder B : " << endl << (*card.m_jetFinderB); 
+  s << "JetFinder C : " << endl << (*card.m_jetFinderC);
+  s << endl;
+
+  return s;
 }
 
 void L1GctJetLeafCard::reset()

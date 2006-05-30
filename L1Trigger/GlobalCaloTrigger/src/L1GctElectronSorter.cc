@@ -95,28 +95,25 @@ void L1GctElectronSorter::setInputEmCand(int i, L1GctEmCand cand){
   m_inputCands[i] = cand;
 }
 
-std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& cand) {
-  s << "No of Source Cards " << cand.m_theSCs.size() << std::endl;
-  s << "No of Electron Input Candidates " << cand.m_inputCands.size()<< std::endl;
-  s << "No of Electron Output Candidates" << cand.m_outputCands.size()<< std::endl;
-  s << "Pointers in the Source Cards are: "<<std::endl;
-  for (unsigned i=0; i<cand.m_theSCs.size(); i++) {
-    s <<cand.m_theSCs[i]<<"  ";
+std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& ems) {
+  s << "===ElectronSorter===" << endl;
+  s << "ID = " << ems.m_id << endl;
+  s << "Card type = " << ems.m_emCandType << endl;
+  s << "No of Source Cards = " << ems.m_theSCs.size() << std::endl;
+  for (unsigned i=0; i<ems.m_theSCs.size(); i++) {
+    s << "SourceCard* " << i << " = " << ems.m_theSCs[i]<< endl;
   }
-  s << std::endl;
-  s <<"Pointers in the Input Candidates vector are: " << std::endl;
-  for (unsigned i=0; i<cand.m_inputCands.size(); i++) {
-    s << cand.m_inputCands[i]<<"  ";
-  }
-  s << std::endl;
-  s << "Pointers in the Output Candidates vector are: "<<std::endl;
-  for (unsigned i=0; i<cand.m_outputCands.size(); i++) {
-    s << cand.m_outputCands[i]<<"  ";
-  }
-  s << std::endl;
-  s << "Other private members (objects and variables): "<<std::endl;
-  s << "Type of electron card is "<<cand.m_emCandType<<std::endl;
-  s << "Algorithm ID "<<cand.m_id<<std::endl;
+  s << "No of Electron Input Candidates = " << ems.m_inputCands.size()<< std::endl;
+  s << "No of Electron Output Candidates = " << ems.m_outputCands.size()<< std::endl;
+  s << endl;
+//   for (unsigned i=0; i<ems.m_inputCands.size(); i++) {
+//     s << "InputCandidate " << i << " : " << cand.m_inputCands[i] << endl;
+//   }
+//   for (unsigned i=0; i<ems.m_outputCands.size(); i++) {
+//     s << "OutputCandidate " << i << " : " << cand.m_outputCands[i] << endl;
+//   }
+//   s << std::endl;
+
   return s;
 }
 

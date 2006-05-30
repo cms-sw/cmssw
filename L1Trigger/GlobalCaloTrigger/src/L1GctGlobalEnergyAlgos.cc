@@ -68,7 +68,11 @@ L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos()
 
 ostream& operator << (ostream& os, const L1GctGlobalEnergyAlgos& fpga)
 {
-  os << "=== Global Energy Algos ===" << endl;
+  os << "===L1GctGlobalEnergyAlgos===" << endl;
+  os << "WheelEnergyFpga* minus = " << fpga.m_minusWheelFpga << endl;
+  os << "WheelEnergyFpga* plus  = " << fpga.m_plusWheelFpga << endl;
+  os << "WheelJetFpga* minus = " << fpga.m_minusWheelJetFpga << endl;
+  os << "WheelJetFpga* plus  = " << fpga.m_plusWheelJetFpga << endl;
   os << "Inputs from Plus wheel:" << endl;
   os << "  Ex " << fpga.m_exValPlusWheel << "  Ey " << fpga.m_eyValPlusWheel;
   os << "  Et " << fpga.m_etValPlusWheel << "  Ht " << fpga.m_htValPlusWheel << endl; 

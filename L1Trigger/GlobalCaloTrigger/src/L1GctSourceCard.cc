@@ -101,10 +101,92 @@ void L1GctSourceCard::reset()
 
 void L1GctSourceCard::fetchInput() 
 {
+  this->readBX();
 }
 
-void L1GctSourceCard::process()
-{
+
+/// set the Regions
+void L1GctSourceCard::setRegions(vector<L1GctRegion> regions) {
+  if (m_cardType!=cardType2 || m_cardType!=cardType3) {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctSourceCard::setRegions() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
+      << "and only handles EM candidates" << endl;
+  }
+  else {
+    if (m_cardType==cardType2 && regions.size()==12) {
+    
+    }
+    else if (m_cardType==cardType3 && regions.size()==10) {
+
+    }
+    else {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctSourceCard::setRegions() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
+      << "Wrong number of regions. Tried to set " << regions.size() << " regions" << endl;
+    }
+  }
+}
+
+/// set the Iso Em candidates
+void L1GctSourceCard::setIsoEm(vector<L1GctEmCand> isoEm) {
+  if (m_cardType!=cardType1) {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctSourceCard::setIsoEm() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
+      << "and only handles regions" << endl;
+  }
+  else {
+    if (isoEm.size()==4) {
+      m_isoElectrons = isoEm;
+    }
+    else {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctSourceCard::setIsoEm() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
+      << "Wrong number of electrons. Tried to set " << isoEm.size() << " regions" << endl;
+    }
+  }
+}
+
+/// set the Non Iso Em candidates
+void L1GctSourceCard::setNonIsoEm(vector<L1GctEmCand> nonIsoEm) {
+  if (m_cardType!=cardType1) {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctSourceCard::setNonIsoEm() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
+      << "and only handles regions" << endl;
+  }
+  else {
+    if (nonIsoEm.size()==4) {
+      m_isoElectrons = nonIsoEm;
+    }
+    else {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctSourceCard::setNonIsoEm() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
+      << "Wrong number of electrons. Tried to set " << nonIsoEm.size() << " regions" << endl;
+    }
+  }
+}
+
+/// set the Mip bits
+void L1GctSourceCard::setMipBits(unsigned mip) {
+  if (m_cardType!=cardType1) {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctSourceCard::setMipBits() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
+      << "and only handles regions" << endl;    
+  }
+  else {
+    m_mipBits = mip & ((1<<N_MIP_BITS)-1);
+  }
+}
+
+/// set the Quiet bits
+void L1GctSourceCard::setQuietBits(unsigned quiet) {
+  if (m_cardType!=cardType1) {
+    throw cms::Exception("L1GctSetupError")
+      << "L1GctSourceCard::setQuietBits() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
+      << "and only handles regions" << endl;
+  }
+  else {
+    m_quietBits = quiet & ((1<<N_QUIET_BITS)-1);
+  }
 }
 
 vector<L1GctEmCand> L1GctSourceCard::getIsoElectrons() const

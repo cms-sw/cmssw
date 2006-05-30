@@ -472,7 +472,7 @@ std::ostream& operator<<(std::ostream& s, const L1GctTwosComplement<nBits>& data
 
   s << "L1GctTwosComplement raw : " << data.raw() << ", " << "value : " << data.value();
   if (data.overFlow()) { s << " Overflow set! "; }
-  s << std::endl;
+
   return s;
 
 }
@@ -482,7 +482,7 @@ std::ostream& operator<<(std::ostream& s, const L1GctUnsignedInt<nBits>& data) {
 
   s << "L1GctUnsignedInt value : " << data.value();
   if (data.overFlow()) { s << " Overflow set! "; }
-  s << std::endl;
+
   return s;
 
 }
@@ -492,7 +492,7 @@ std::ostream& operator<<(std::ostream& s, const L1GctJetCount<nBits>& data) {
 
   s << "L1GctJetCount value : " << data.value();
   if (data.overFlow()) { s << " Overflow set! "; }
-  s << std::endl;
+
   return s;
 
 }

@@ -26,7 +26,8 @@ const int L1GlobalCaloTrigger::N_WHEEL_JET_FPGAS = 2;
 const int L1GlobalCaloTrigger::N_WHEEL_ENERGY_FPGAS = 2;
 
 // constructor
-L1GlobalCaloTrigger::L1GlobalCaloTrigger() :
+L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile) :
+  readFromFile(useFile),
   theSourceCards(N_SOURCE_CARDS),
   theJetLeafCards(N_JET_LEAF_CARDS),
   theEmLeafCards(N_EM_LEAF_CARDS),
@@ -99,7 +100,9 @@ void L1GlobalCaloTrigger::process() {
 		
   // Source cards
   for (int i=0; i<54; i++) {
-    theSourceCards[i]->fetchInput();
+    if (readFromFile) {
+      theSourceCards[i]->readBX();
+    }
   }
 
   // EM Leaf Card
@@ -204,12 +207,12 @@ void L1GlobalCaloTrigger::print() {
 
 // isolated EM outputs
 vector<L1GctEmCand> L1GlobalCaloTrigger::getIsoElectrons() { 
-  return theIsoEmFinalStage->OutputCands();
+  return theIsoEmFinalStage->getOutputCands();
 }	
 
 // non isolated EM outputs
 vector<L1GctEmCand> L1GlobalCaloTrigger::getNonIsoElectrons() {
-  return theNonIsoEmFinalStage->OutputCands(); 
+  return theNonIsoEmFinalStage->getOutputCands(); 
 }
 
 // central jet outputs to GT
@@ -228,23 +231,25 @@ vector<L1GctJetCand> L1GlobalCaloTrigger::getTauJets() {
 }
 
 // total Et output
-unsigned L1GlobalCaloTrigger::getEtSum() {
-  return theEnergyFinalStage->getEtSum().value();
+L1GctScalarEtVal L1GlobalCaloTrigger::getEtSum() {
+  return theEnergyFinalStage->getEtSum();
 }
 
-unsigned L1GlobalCaloTrigger::getEtHad() {
-  return theEnergyFinalStage->getEtHad().value();
+L1GctScalarEtVal L1GlobalCaloTrigger::getEtHad() {
+  return theEnergyFinalStage->getEtHad();
 }
 
-unsigned L1GlobalCaloTrigger::getEtMiss() {
-  return theEnergyFinalStage->getEtMiss().value();
+L1GctScalarEtVal L1GlobalCaloTrigger::getEtMiss() {
+  return theEnergyFinalStage->getEtMiss();
 }
 
-unsigned L1GlobalCaloTrigger::getEtMissPhi() {
-  return theEnergyFinalStage->getEtMissPhi().value();
+L1GctEtAngleBin L1GlobalCaloTrigger::getEtMissPhi() {
+  return theEnergyFinalStage->getEtMissPhi();
 }
 
-
+L1GctJcFinalType L1GlobalCaloTrigger::getJetCount(unsigned jcnum) {
+  return theEnergyFinalStage->getJetCount(jcnum);
+}
 
 
 
