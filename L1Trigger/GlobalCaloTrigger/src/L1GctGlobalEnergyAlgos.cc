@@ -74,28 +74,26 @@ ostream& operator << (ostream& os, const L1GctGlobalEnergyAlgos& fpga)
   os << "WheelJetFpga* minus = " << fpga.m_minusWheelJetFpga << endl;
   os << "WheelJetFpga* plus  = " << fpga.m_plusWheelJetFpga << endl;
   os << "Inputs from Plus wheel:" << endl;
-  os << "  Ex " << fpga.m_exValPlusWheel << "  Ey " << fpga.m_eyValPlusWheel;
-  os << "  Et " << fpga.m_etValPlusWheel << "  Ht " << fpga.m_htValPlusWheel << endl; 
+  os << "  Ex " << fpga.m_exValPlusWheel << "\n  Ey " << fpga.m_eyValPlusWheel << endl;
+  os << "  Et " << fpga.m_etValPlusWheel << "\n  Ht " << fpga.m_htValPlusWheel << endl; 
   os << "Inputs from Minus wheel:" << endl;
-  os << "  Ex " << fpga.m_exVlMinusWheel << "  Ey " << fpga.m_eyVlMinusWheel;
-  os << "  Et " << fpga.m_etVlMinusWheel << "  Ht " << fpga.m_htVlMinusWheel << endl; 
+  os << "  Ex " << fpga.m_exVlMinusWheel << "\n  Ey " << fpga.m_eyVlMinusWheel << endl;
+  os << "  Et " << fpga.m_etVlMinusWheel << "\n  Ht " << fpga.m_htVlMinusWheel << endl; 
   os << "Input Jet counts " << endl;
   for(unsigned i=0; i < fpga.m_jcValPlusWheel.size(); i++)
     {
       os << "  Plus wheel  " << i << ": " << fpga.m_jcValPlusWheel[i];
-      os << "  Minus wheel " << i << ": " << fpga.m_jcVlMinusWheel[i];
+      os << "  Minus wheel " << i << ": " << fpga.m_jcVlMinusWheel[i] << endl;
     } 
   os << endl;
-  // No endlines here since the overloaded << for
-  // the UnsignedInt data type includes it.
-  os << "Output Etmiss " << fpga.m_outputEtMiss;
-  os << "Output Etmiss Phi " << fpga.m_outputEtMissPhi;
-  os << "Output EtSum " << fpga.m_outputEtSum;
-  os << "Output EtHad " << fpga.m_outputEtHad;
+  os << "Output Etmiss " << fpga.m_outputEtMiss << endl;
+  os << "Output Etmiss Phi " << fpga.m_outputEtMissPhi << endl;
+  os << "Output EtSum " << fpga.m_outputEtSum << endl;
+  os << "Output EtHad " << fpga.m_outputEtHad << endl;
   os << "Output Jet counts " << endl;
   for(unsigned i=0; i < fpga.m_outputJetCounts.size(); i++)
     {
-      os << i << ": " << fpga.m_outputJetCounts[i];
+      os << i << ": " << fpga.m_outputJetCounts[i] << endl;
     } 
   os << endl;
 
@@ -259,7 +257,7 @@ void L1GctGlobalEnergyAlgos::setInputWheelJc(unsigned wheel, unsigned jcnum, uns
 //
 //-----------------------------------------------------------------------------------
 L1GctGlobalEnergyAlgos::etmiss_vec
-L1GctGlobalEnergyAlgos::calculate_etmiss_vec (L1GctEtComponent ex, L1GctEtComponent ey)
+L1GctGlobalEnergyAlgos::calculate_etmiss_vec (const L1GctEtComponent ex, const L1GctEtComponent ey) const
 {
   //---------------------------------------------------------------------------------
   //

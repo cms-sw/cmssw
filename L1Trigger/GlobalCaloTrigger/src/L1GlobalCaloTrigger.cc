@@ -156,7 +156,7 @@ void L1GlobalCaloTrigger::print() {
   cout << "N Jet Leaf Cards " << theJetLeafCards.size() << endl;
   cout << "N Wheel Jet Fpgas " << theWheelJetFpgas.size() << endl;
   cout << "N Wheel Energy Fpgas " << theWheelEnergyFpgas.size() << endl;
-  cout << "N Em Leaf Cards" << theEmLeafCards.size() << endl;
+  cout << "N Em Leaf Cards " << theEmLeafCards.size() << endl;
   cout << endl;
 
   for (unsigned i=0; i<theSourceCards.size(); i++) {
@@ -195,10 +195,10 @@ void L1GlobalCaloTrigger::print() {
   }
   cout << endl;
 
-//   cout << (*theIsoEmFinalStage);
-//   cout << endl;
+  cout << (*theIsoEmFinalStage);
+  cout << endl;
 
-//   cout << (*theNonIsoEmFinalStage);
+  cout << (*theNonIsoEmFinalStage);
 
   cout << "=== Global Calo Trigger ===" << endl;
   cout << "===  END DEBUG OUTPUT   ===" << endl;

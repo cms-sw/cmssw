@@ -77,6 +77,8 @@ ostream& operator << (ostream& os, const L1GctJetFinder& algo)
 //     {
 //       os << algo.m_outputJets[i]; 
 //     }
+  os << "Output Et strip 0 " << algo.m_outputEtStrip0 << endl;
+  os << "Output Et strip 1 " << algo.m_outputEtStrip1 << endl;
   os << "Output Ht " << algo.m_outputHt << endl;
   os << endl;
 
@@ -232,6 +234,10 @@ void L1GctJetFinder::process()
   //presort the jets into decending order of energy
   sort(m_outputJets.begin(), m_outputJets.end(), L1GctJetCand::rankGreaterThan());
    
+  //calculate the raw Et strip sums
+  m_outputEtStrip0 = calcEtStrip(0);
+  m_outputEtStrip1 = calcEtStrip(1);
+
   //calculate the Ht
   m_outputHt = calcHt();
     
@@ -352,6 +358,24 @@ bool L1GctJetFinder::calcJetTauVeto(const UShort centreIndex, const bool boundar
     }
   }
   return partial[0] || partial[1] || partial[2];
+}
+
+// Calculates total (raw) energy in a phi strip
+L1GctScalarEtVal L1GctJetFinder::calcEtStrip(const UShort strip) const
+{
+  if (strip !=0 && strip != 1) {
+    throw cms::Exception("L1GctProcessingError")
+      << "L1GctJetFinder::calcEtStrip() has been called with strip number "
+      << strip << "; should be 0 or 1 \n";
+  } 
+  // Add the Et values from regions 13 to 23 for strip 0,
+  //     the Et values from regions 25 to 35 for strip 1.
+  unsigned et = 0;
+  for (UShort i=1; i < COL_OFFSET; ++i) {
+    et += m_inputRegions[(COL_OFFSET*(strip+1)+i)].et();
+  }
+  L1GctScalarEtVal temp(et);
+  return temp;
 }
 
 // Calculates total calibrated energy in jets (Ht) sum

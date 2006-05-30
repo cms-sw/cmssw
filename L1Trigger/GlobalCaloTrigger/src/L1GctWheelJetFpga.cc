@@ -75,7 +75,7 @@ ostream& operator << (ostream& os, const L1GctWheelJetFpga& fpga)
   os << "Input Ht " << endl;
   for(unsigned i=0; i < fpga.m_inputHt.size(); i++)
     {
-      os << (fpga.m_inputHt[i]);
+      os << (fpga.m_inputHt[i]) << endl;
     } 
 //   os << "No. of raw central Jets " << fpga.m_rawCentralJets.size() << endl;
 //   for(unsigned i=0; i < fpga.m_rawCentralJets.size(); i++)
@@ -96,7 +96,7 @@ ostream& operator << (ostream& os, const L1GctWheelJetFpga& fpga)
   os << "Output Jet count " << endl;
   for(unsigned i=0; i < fpga.m_outputJc.size(); i++)
     {
-      os << fpga.m_outputJc[i];
+      os << "Jet count " << i << ": " << fpga.m_outputJc[i] << endl;
     } 
 //   os << "No. of output central Jets " << fpga.m_centralJets.size() << endl;
 //   for(unsigned i=0; i < fpga.m_centralJets.size(); i++)

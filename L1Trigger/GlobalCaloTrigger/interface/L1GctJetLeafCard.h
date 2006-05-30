@@ -80,6 +80,15 @@ private:
   L1GctEtComponent m_eySum;
   L1GctScalarEtVal m_etSum;
   L1GctScalarEtVal m_htSum;
+
+  // PRIVATE MEMBER FUNCTIONS
+  // Given a strip Et sum, perform rotations by sine and cosine
+  // factors to find the corresponding Ex and Ey
+  L1GctEtComponent exComponent(const L1GctScalarEtVal etStrip, const unsigned jphi) const;
+  L1GctEtComponent eyComponent(const L1GctScalarEtVal etStrip, const unsigned jphi) const;
+  // Here is where the rotations are actually done
+  L1GctEtComponent rotateEtValue(const L1GctScalarEtVal etStrip, const unsigned fact) const;
+
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctJetLeafCard& card);

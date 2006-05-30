@@ -58,17 +58,17 @@ ostream& operator << (ostream& os, const L1GctWheelEnergyFpga& fpga)
   os << "Input Ex " << endl;
   for(unsigned i=0; i < fpga.m_inputEx.size(); i++)
     {
-      os << fpga.m_inputEx[i];
+      os << fpga.m_inputEx[i] << endl;
     } 
   os << "Input Ey " << endl;
   for(unsigned i=0; i < fpga.m_inputEy.size(); i++)
     {
-      os << fpga.m_inputEy[i];
+      os << fpga.m_inputEy[i] << endl;
     } 
   os << "Input Et " << endl;
   for(unsigned i=0; i < fpga.m_inputEt.size(); i++)
     {
-      os << fpga.m_inputEt[i];
+      os << fpga.m_inputEt[i] << endl;
     } 
   os << "Output Ex " << fpga.m_outputEx << endl;
   os << "Output Ey " << fpga.m_outputEy << endl;

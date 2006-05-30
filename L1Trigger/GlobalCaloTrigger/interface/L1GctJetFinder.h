@@ -96,7 +96,9 @@ public:
 
   /// Return output data
   std::vector<L1GctJetCand> getJets() const { return m_outputJets; }
-  L1GctScalarEtVal ht() const { return m_outputHt; }
+  L1GctScalarEtVal getEtStrip0() const { return m_outputEtStrip0; }
+  L1GctScalarEtVal getEtStrip1() const { return m_outputEtStrip1; }
+  L1GctScalarEtVal getHt() const { return m_outputHt; }
 
 private:
 
@@ -119,7 +121,9 @@ private:
   /// output jets
   std::vector<L1GctJetCand> m_outputJets;
 
-  /// output Ht
+  /// output Et strip sums and Ht
+  L1GctScalarEtVal m_outputEtStrip0;
+  L1GctScalarEtVal m_outputEtStrip1;
   L1GctScalarEtVal m_outputHt;
     
 
@@ -134,8 +138,11 @@ private:
   /// Returns combined tauVeto of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of Endcap.
   bool calcJetTauVeto(const UShort centreIndex, const bool boundary = false) const;
     
+  /// Caluclates total (raw) energy in a phi strip
+  L1GctScalarEtVal calcEtStrip(const UShort strip) const;
+
   /// Calculates total calibrated energy in jets (Ht) sum
-   L1GctScalarEtVal calcHt() const;
+  L1GctScalarEtVal calcHt() const;
   
 };
 

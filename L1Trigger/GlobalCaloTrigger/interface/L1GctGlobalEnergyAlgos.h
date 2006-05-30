@@ -98,7 +98,7 @@ private:
 	  L1GctScalarEtVal mag;
 	  L1GctEtAngleBin  phi;
 	};
-        etmiss_vec calculate_etmiss_vec (L1GctEtComponent ex, L1GctEtComponent ey) ;
+        etmiss_vec calculate_etmiss_vec (const L1GctEtComponent ex, const L1GctEtComponent ey) const ;
 	
 };
 
