@@ -19,7 +19,8 @@ public:
   
   ///
   /// constructor; set type (isolated or non-isolated)
-  L1GctElectronSorter(int id, bool iso=true);
+   L1GctElectronSorter(int nInputs, bool iso,  std::vector<L1GctSourceCard*> sCards);
+ 
   ~L1GctElectronSorter();
   ///
   /// clear internal buffers
@@ -31,17 +32,14 @@ public:
   /// process the data, fill output buffers
   virtual void process();
   ///
-  /// set an input Source Card pointer
-  void setInputSourceCard(unsigned i, L1GctSourceCard* sc);
-  ///
   /// set input candidate
-  void setInputEmCand(L1GctEmCand cand);
+  void setInputEmCand(int i, L1GctEmCand cand);
   ///	
   /// get input candidates
-  inline std::vector<L1GctEmCand> InputCands() { return m_inputCands; }
+  inline std::vector<L1GctEmCand> getInputCands() { return m_inputCands; }
   ///
   /// get output candidates
-  inline std::vector<L1GctEmCand> OutputCands() { return m_outputCands; }
+  inline std::vector<L1GctEmCand> getOutputCands() { return m_outputCands; }
   friend std::ostream& operator<<(std::ostream& s,const L1GctElectronSorter& card);  
 private:
 

@@ -12,18 +12,35 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
+#include "FWCore/Utilities/interface/Exception.h"  
 
 #include <iostream>
 
 using namespace std;
 
-L1GctElectronSorter::L1GctElectronSorter(int id, bool iso):
-  m_id(id),
+
+L1GctElectronSorter::L1GctElectronSorter(int nInputs, bool iso, std::vector<L1GctSourceCard*> sourceCards):
+  m_id(nInputs),
   m_emCandType(iso),
-  m_theSCs(5),
-  m_inputCands(0),
+  m_theSCs(nInputs),
+  m_inputCands(nInputs*4),
   m_outputCands(4)
 {
+  if(m_theSCs.size()!=sourceCards.size()){
+    throw cms::Exception("L1GctSetupError")
+      <<"L1GctElectronSorter::Constructor() : The number of Source Cards passed in the constructor doesn't correspond to the no of inputs given in the nInput variable";
+  }
+  
+  for(unsigned i=0;i!=sourceCards.size();i++){
+    if(sourceCards[i]!=0){
+      m_theSCs[i] = sourceCards[i];
+    }else{
+      throw cms::Exception("L1GctSetupError")
+	<<"L1GctElectronSorter::Constructor() : Pointer to Source Card #"<<i<<" is zero";
+    }  
+  }
+  
+
 }
 
 L1GctElectronSorter::~L1GctElectronSorter()
@@ -39,26 +56,15 @@ void L1GctElectronSorter::reset() {
 
 // get the input data
 void L1GctElectronSorter::fetchInput() {
-  ///REMEMBER TO REMOVE
-  cout<<"In electron sorter fetchInput method, SC's "<<m_theSCs.size()<<endl;
   // loop over Source Cards - using integers not the vector size because the vector might be the wrong size
   for (unsigned int i=0; i<m_theSCs.size(); i++) {
-    
     // loop over 4 candidates per Source Card
     for (unsigned int j=0; j<4; j++) {
-
       // get EM candidates, depending on type
       if (m_emCandType) {
-	cout <<"card type is "<<m_emCandType<<endl;
-	//	cout<<"values in the private source card vector
-	setInputEmCand(m_theSCs[i]->getIsoElectrons()[j]);
-	//	vector<L1GctEmCand> data = m_theSCs[i]->getIsoElectrons();
-	//for(unsigned m=0;m!=data.size();m++){
-	//  setInputEmCand(data[m]);
-	//}
-	}
-      else {
-	setInputEmCand(m_theSCs[i]->getNonIsoElectrons()[j]);
+	setInputEmCand((j+i*4),m_theSCs[i]->getIsoElectrons()[j]);
+      }else {
+	setInputEmCand((j+i*4),m_theSCs[i]->getNonIsoElectrons()[j]);
       }
     }
   }
@@ -80,14 +86,8 @@ void L1GctElectronSorter::process() {
     }
 }
 
-void L1GctElectronSorter::setInputSourceCard(unsigned int i, L1GctSourceCard* sc) {
-  if (i < m_theSCs.size()) {
-    m_theSCs[i]=sc;
-  }
-}
-
-void L1GctElectronSorter::setInputEmCand(L1GctEmCand cand){
-  m_inputCands.push_back(cand);
+void L1GctElectronSorter::setInputEmCand(int i, L1GctEmCand cand){
+  m_inputCands[i] = cand;
 }
 
 std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& cand) {

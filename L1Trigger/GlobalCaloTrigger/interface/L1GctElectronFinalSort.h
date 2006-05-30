@@ -3,6 +3,7 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 
 #include <vector>
 #include <functional>
@@ -17,7 +18,7 @@ class L1GctElectronFinalSort : public L1GctProcessor
 public:
        
 	
-         L1GctElectronFinalSort(bool iso);
+         L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* card1, L1GctEmLeafCard* card2);
 	~L1GctElectronFinalSort();
 	///
 	/// clear internal buffers
@@ -29,17 +30,14 @@ public:
 	/// process the data, fill output buffers
 	virtual void process();
 	///
-	/// set input sources
-	void setInputLeafCard(int i, L1GctEmLeafCard* card);
-	///
 	/// set input data
 	void setInputEmCand(int i, L1GctEmCand cand);
 	///
 	/// return input data
-	inline std::vector<L1GctEmCand> InputCands() { return m_inputCands; }
+	inline std::vector<L1GctEmCand> getInputCands() { return m_inputCands; }
 	///
 	/// return output data
-	inline std::vector<L1GctEmCand> OutputCands() { return m_outputCands; }
+	inline std::vector<L1GctEmCand> getOutputCands() { return m_outputCands; }
 	friend std::ostream& operator<<(std::ostream& s,const L1GctElectronFinalSort& cand); 
 
  private:
