@@ -12,8 +12,10 @@
  *         (positive if the beam is outside the circle)
  *   z_0 = z-coordinate of pca. to the beam line
  *
- * according to how described in the following document:
- * http://cmsdoc.cern.ch/cms/Physics/btau/management/activities/reconstruction/vertex/tutorial041112.d/node5.html#SECTION00053000000000000000
+ * according to how described in the following documents:
+ * A. Strandlie, W. Wittek, "Propagation of Covariance Matrices...", CMS Note 2006/001
+ *   P. Billoir, S. Qian, "Fast vertex fitting...", NIM A311 (1992) 139.
+ *   http://cmsdoc.cern.ch/cms/Physics/btau/management/activities/reconstruction/vertex/tutorial041112.d/node5.html#SECTION00053000000000000000
  * 
  * \author Thomas Speer,  Luca Lista
  *
