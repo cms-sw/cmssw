@@ -1,0 +1,23 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/Vertex>
+<use name=SimDataFormats/EcalTestBeam>
+<use name=TBDataFormats/EcalTBObjects>
+<use name=Geometry/EcalTestBeam>
+<use name=clhep>
+
+<flags SEAL_PLUGIN_NAME="SimG4CMSEcalTestBeam">
+<export>
+   <lib name=SimG4CMSEcalTestBeam>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=SimDataFormats/HepMCProduct>
+   <use name=SimDataFormats/Vertex>
+   <use name=SimDataFormats/EcalTestBeam>
+   <use name=TBDataFormats/EcalTBObjects>
+   <use name=Geometry/EcalTestBeam>
+   <use name=clhep>
+</export>
