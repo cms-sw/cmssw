@@ -291,7 +291,7 @@ void testEventsetup::sourceConflictTest()
    EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
    
 }
-#define TEST_EXCLUDE_DEF
+//#define TEST_EXCLUDE_DEF
 #include "FWCore/Framework/test/DummyEventSetupRecordRetriever.h"
 
 void testEventsetup::twoSourceTest()
