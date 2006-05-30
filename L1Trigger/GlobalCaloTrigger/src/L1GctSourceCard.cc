@@ -141,7 +141,7 @@ void L1GctSourceCard::setIsoEm(vector<L1GctEmCand> isoEm) {
     else {
     throw cms::Exception("L1GctSetupError")
       << "L1GctSourceCard::setIsoEm() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
-      << "Wrong number of electrons. Tried to set " << isoEm.size() << " regions" << endl;
+      << "Wrong number of electrons. Tried to set " << isoEm.size() << " electrons" << endl;
     }
   }
 }
@@ -160,7 +160,7 @@ void L1GctSourceCard::setNonIsoEm(vector<L1GctEmCand> nonIsoEm) {
     else {
     throw cms::Exception("L1GctSetupError")
       << "L1GctSourceCard::setNonIsoEm() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
-      << "Wrong number of electrons. Tried to set " << nonIsoEm.size() << " regions" << endl;
+      << "Wrong number of electrons. Tried to set " << nonIsoEm.size() << " electrons" << endl;
     }
   }
 }
@@ -390,6 +390,7 @@ void L1GctSourceCard::readBxNum()
     
   m_fin >> tempWord;
     
+  cout << tempWord << endl;
   assert(tempWord == "Crossing");
    
   dec(m_fin); //want decimal numbers.
