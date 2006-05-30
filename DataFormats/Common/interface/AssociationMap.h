@@ -6,7 +6,7 @@
  * 
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.11 2006/05/24 15:53:38 llista Exp $
+ * $Id: AssociationMap.h,v 1.12 2006/05/24 16:09:11 llista Exp $
  *
  */
 #include "DataFormats/Common/interface/RefProd.h"
@@ -178,7 +178,7 @@ namespace edm {
     typedef typename Tag::index_type index_type;
     /// insert key type
     typedef typename Tag::key_type key_type;
-    /// insert val type
+    /// insert data type
     typedef typename Tag::data_type data_type;
     /// reference set type
     typedef typename Tag::ref_type ref_type;
@@ -273,14 +273,15 @@ namespace edm {
     /// return element with key i
     const value_type & operator[]( size_type i ) const {
       typename transient_map_type::const_iterator tf = transientMap_.find( i );
-      if ( f == transientMap_.end() ) {
+      if ( tf == transientMap_.end() ) {
 	typename map_type::const_iterator f = map_.find( i );
 	if ( f == map_.end() ) 
 	  throw edm::Exception( edm::errors::InvalidReference )
 	    << "can't find reference in AssociationMap at position " << i;
-	std::pair<bool, typename transient_map_type::const_iterator> ins =
-	  transientMap_.insert( make_pair( i, value_type( KeyRef( ref_.key, i ), Tag::val( ref_, f->second ) ) ) );
-	return ins.second->second;
+	value_type v( key_type( ref_.key, i ), Tag::val( ref_, f->second ) );
+	std::pair<typename transient_map_type::const_iterator, bool> ins =
+	  transientMap_.insert( std::make_pair( i, v ) );
+	return ins.first->second;
       } else {
 	return tf->second; 
       }
