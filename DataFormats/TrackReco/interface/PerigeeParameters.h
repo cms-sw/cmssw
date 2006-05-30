@@ -15,7 +15,7 @@
  * according to how described in the following documents:
  * <a href="http://cms.cern.ch/iCMS/jsp/openfile.jsp?type=NOTE&year=2006&files=NOTE2006_001.pdf">A. Strandlie, W. Wittek, "Propagation of Covariance Matrices...", CMS Note 2006/001</a>
  * P. Billoir, S. Qian, "Fast vertex fitting...", NIM A311 (1992) 139.
- * <a href="http://cmsdoc.cern.ch/cms/Physics/btau/management/activities/reconstruction/vertex/tutorial041112.d/node5.html#SECTION00053000000000000000>Track parametrization in vertex fitting (Vertex reconstruction tutorial)</a>
+ * <a href="http://cmsdoc.cern.ch/cms/Physics/btau/management/activities/reconstruction/vertex/tutorial041112.d/node5.html#SECTION00053000000000000000">Track parametrization in vertex fitting (Vertex reconstruction tutorial)</a>
  * 
  * \author Thomas Speer,  Luca Lista
  *
