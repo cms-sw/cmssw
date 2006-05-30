@@ -11,13 +11,7 @@ This page lists all packages related to Reconstruction within the <a href=http:/
  - \ref DataFormats_TrackingRecHit "TrackingRecHit"<br>
 
 
-- <b>Geometry</b><br>
- - \ref Geometry_Surface "Surface"</i><br>
- - \ref Geometry_Vector "Vector"</i><br>
- - \ref Geometry_CMSCommonData "CMSCommonData"<br>
- - \ref Geometry_CommonDetUnit "CommonDetUnit"<br>
- - \ref Geometry_CommonTopologies "CommonTopologies"<br>
-
+- <b>\ref Geometry "Geometry"</b><br>
 
 
 <h3>Detector specific pages</h3>
