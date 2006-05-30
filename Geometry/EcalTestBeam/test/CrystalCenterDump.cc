@@ -17,6 +17,7 @@
 // system include files
 #include <memory>
 #include <cmath>
+#include <iomanip>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -125,10 +126,15 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
 
             Hep3Vector crysPos(crysX,crysY,crysZ);
             double crysEta = crysPos.eta();
+            double crysTheta = crysPos.theta();
             double crysPhi = crysPos.phi();
 
-            edm::LogInfo("CrysPos") << ebid.ic() << " x = " << crysX << " y = " << crysY << " z = " << crysZ << " \n " << " eta = " << crysEta << " phi = " << crysPhi;
-            f << ebid.ic() << " " << crysEta << " " << crysPhi << " " << std::endl;
+            edm::LogInfo("CrysPos") << ebid.ic() << " x = " << crysX << " y = " << crysY << " z = " << crysZ << " \n " 
+                                    << " eta = " << crysEta << " phi = " << crysPhi << " theta = " << crysTheta;
+            f << std::setw(4) << ebid.ic() << " " 
+              << std::setw(8) << std::setprecision(6) << crysEta << " " 
+              << std::setw(8) << std::setprecision(6) << crysPhi << " " 
+              << std::endl;
           }
         }
       }
