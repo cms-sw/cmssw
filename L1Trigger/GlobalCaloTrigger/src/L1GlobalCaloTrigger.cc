@@ -341,9 +341,9 @@ void L1GlobalCaloTrigger::build() {
    // Jet Final Stage  
    theJetFinalStage = new L1GctJetFinalStage(theWheelJetFpgas);
 
-//   // Electron Final Sort
-//   theIsoEmFinalStage = new L1GctElectronFinalSort(true,theEmLeafCards);
-//   theNonIsoEmFinalStage = new L1GctElectronFinalSort(false,theEmLeafCards);  
+  // Electron Final Sort
+   theIsoEmFinalStage = new L1GctElectronFinalSort(true,theEmLeafCards[0], theEmLeafCards[1]);
+   theNonIsoEmFinalStage = new L1GctElectronFinalSort(false,theEmLeafCards[0], theEmLeafCards[1]);  
 
   // Global Energy Algos
   theEnergyFinalStage = new L1GctGlobalEnergyAlgos(theWheelEnergyFpgas, theWheelJetFpgas);
