@@ -11,15 +11,40 @@
 
 
 //__________________________________________________________________________________________________
+void AlignableTrackerModifier::init_( void )
+{
+
+  // Initialize all known parameters (according to ORCA's MisalignmentScenario.cc)
+  distribution_ = "";   // Switch for distributions ("fixed","flat","gaussian")
+  random_       = true;      // Use random distributions
+  gaussian_     = true;      // Use gaussian distribution (otherwise flat)
+  seed_         = 0;         // Random generator seed (default: ask service)
+  setError_     = false;     // Apply alignment errors
+  scaleError_   = 1.;        // Scale to apply to alignment errors
+  phiX_         = 0.;        // Rotation angle around X [rad]
+  phiY_         = 0.;        // Rotation angle around Y [rad]
+  phiZ_         = 0.;        // Rotation angle around Z [rad]
+  localX_       = 0.;        // Local rotation angle around X [rad]
+  localY_       = 0.;        // Local rotation angle around Y [rad]
+  localZ_       = 0.;        // Local rotation angle around Z [rad]
+  dX_           = 0.;        // X displacement [cm]
+  dY_           = 0.;        // Y displacement [cm]
+  dZ_           = 0.;        // Z displacement [cm]
+  twist_        = 0.;        // Twist angle [rad]
+  shear_        = 0.;        // Shear angle [rad]
+
+}
+
+//__________________________________________________________________________________________________
 // Return true if given parameter name should be propagated down
 const bool AlignableTrackerModifier::isPropagated( const std::string parameterName ) const
 {
 
-  if ( parameterName == "gaussian"   || 
-	   parameterName == "seed"       ||
-	   parameterName == "setError"   ||
-	   parameterName == "scaleError"  ) return true;
-
+  if ( parameterName == "distribution" || 
+	   parameterName == "seed"         ||
+	   parameterName == "setError"     ||
+	   parameterName == "scaleError"   ) return true;
+  
   return false;
 
 }
@@ -30,22 +55,8 @@ const bool AlignableTrackerModifier::isPropagated( const std::string parameterNa
 bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::ParameterSet& pSet )
 {
 
-  // Initialize all known parameters (according to ORCA's MisalignmentScenario.cc)
-  bool   gaussian   = true;      // Use gaussian distribution (otherwise flat)
-  long   seed       = 0;         // Random generator seed (default: ask service)
-  bool   setError   = false;     // Apply alignment errors
-  double scaleError = 1.;        // Scale to apply to alignment errors
-  double phiX       = 0.;        // Rotation angle around X [rad]
-  double phiY       = 0.;        // Rotation angle around Y [rad]
-  double phiZ       = 0.;        // Rotation angle around Z [rad]
-  double localX     = 0.;        // Local rotation angle around X [rad]
-  double localY     = 0.;        // Local rotation angle around Y [rad]
-  double localZ     = 0.;        // Local rotation angle around Z [rad]
-  double dX         = 0.;        // X displacement [cm]
-  double dY         = 0.;        // Y displacement [cm]
-  double dZ         = 0.;        // Z displacement [cm]
-  double twist      = 0.;        // Twist angle [rad]
-  double shear      = 0.;        // Shear angle [rad]
+  // Initialize parameters
+  this->init_();
 
   // Reset counter
   m_modified = 0;
@@ -56,24 +67,24 @@ bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
   for ( std::vector<std::string>::iterator iParam = parameterNames.begin(); 
 		iParam != parameterNames.end(); iParam++ )
 	{
-	  if      ( (*iParam) == "gaussian" ) gaussian = pSet.getParameter<bool>( *iParam );
-	  else if ( (*iParam) == "setError" ) setError = pSet.getParameter<bool>( *iParam );
-	  else if ( (*iParam) == "scaleError" ) scaleError = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "phiX" )     phiX     = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "phiY" )     phiY     = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "phiZ" )     phiZ     = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "localX" )   localX   = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "localY" )   localY   = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "localZ" )   localZ   = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "dX" )       dX       = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "dY" )       dY       = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "dZ" )       dZ       = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "twist" )    twist    = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "shear" )    shear    = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "seed"  )    seed     = static_cast<long>(pSet.getParameter<int>( *iParam ));
+	  if  ( (*iParam) == "distribution" ) distribution_ = pSet.getParameter<std::string>( *iParam );
+	  else if ( (*iParam) == "setError" ) setError_ = pSet.getParameter<bool>( *iParam );
+	  else if ( (*iParam) == "scaleError" ) scaleError_ = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "phiX" )     phiX_     = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "phiY" )     phiY_     = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "phiZ" )     phiZ_     = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "localX" )   localX_   = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "localY" )   localY_   = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "localZ" )   localZ_   = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "dX" )       dX_       = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "dY" )       dY_       = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "dZ" )       dZ_       = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "twist" )    twist_    = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "shear" )    shear_    = pSet.getParameter<double>( *iParam );
+	  else if ( (*iParam) == "seed"  )    seed_     = static_cast<long>(pSet.getParameter<int>( *iParam ));
 	  else if ( pSet.retrieve( *iParam ).typeCode() != 'P' )
 		{ // Add unknown parameter to list
-		  if ( !error.str().length()) error << "Unknown parameter name(s): ";
+		  if ( !error.str().length() ) error << "Unknown parameter name(s): ";
 		  error << " " << *iParam;
 		}
 	}
@@ -82,51 +93,53 @@ bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
   if ( error.str().length() )
 	throw cms::Exception("BadConfig") << error.str();
 
+  // Decode distribution
+  this->setDistribution_( distribution_ );
+
   // Apply displacements
-  if ( fabs(dX) + fabs(dY) + fabs(dZ) > 0 )
-	if ( gaussian ) this->randomMove( alignable, dX, dY, dZ, seed );
-	else this->randomFlatMove( alignable, dX, dY, dZ, seed );
+  if ( fabs(dX_) + fabs(dY_) + fabs(dZ_) > 0 )
+	this->moveAlignable( alignable, random_, gaussian_, dX_, dY_, dZ_, seed_ );
 
   // Apply rotations
-  if ( fabs(phiX) + fabs(phiY) + fabs(phiZ) > 0 )
-	if ( gaussian ) this->randomRotate( alignable, phiX, phiY, phiZ, seed );
-	else this->randomFlatRotate( alignable, phiX, phiY, phiZ, seed );
+  if ( fabs(phiX_) + fabs(phiY_) + fabs(phiZ_) > 0 )
+	this->rotateAlignable( alignable, random_, gaussian_, phiX_, phiY_, phiZ_, seed_ );
 
   // Apply local rotations
-  if ( fabs(localX) + fabs(localY) + fabs(localZ) > 0 )
-	if ( gaussian ) this->randomRotateLocal( alignable, localX, localY, localZ, seed );
-	else this->randomFlatRotateLocal( alignable, localX, localY, localZ, seed );
+  if ( fabs(localX_) + fabs(localY_) + fabs(localZ_) > 0 )
+	if ( gaussian_ ) this->randomRotateLocal( alignable, localX_, localY_, localZ_, seed_ );
+	else this->randomFlatRotateLocal( alignable, localX_, localY_, localZ_, seed_ );
 
 
   // Apply twist
-  if ( fabs(twist) > 0 )
+  if ( fabs(twist_) > 0 )
 	edm::LogError("NotImplemented") << "Twist is not implemented yet";
 
   // Apply shear
-  if ( fabs(shear) > 0 )
+  if ( fabs(shear_) > 0 )
 	edm::LogError("NotImplemented") << "Shear is not implemented yet";
 
   // Apply error
-  if ( setError )
+  if ( setError_ )
 	{
 	  // Alignment Position Error for flat distribution: 1 sigma
-	  if ( !gaussian ) scaleError *= 0.68;
+	  if ( !gaussian_ ) scaleError_ *= 0.68;
 
 	  // Error on displacement
-	  if ( fabs(dX) + fabs(dY) + fabs(dZ) > 0 )
-		this->addAlignmentPositionError( alignable, scaleError*dX, scaleError*dY, scaleError*dZ );
+	  if ( fabs(dX_) + fabs(dY_) + fabs(dZ_) > 0 )
+		this->addAlignmentPositionError( alignable, 
+										 scaleError_*dX_, scaleError_*dY_, scaleError_*dZ_ );
 
 	  // Error on rotations
-	  if ( fabs(phiX) + fabs(phiY) + fabs(phiZ) > 0 )
+	  if ( fabs(phiX_) + fabs(phiY_) + fabs(phiZ_) > 0 )
 		this->addAlignmentPositionErrorFromRotation( alignable, 
-													 scaleError*phiX, scaleError*phiY, 
-													 scaleError*phiZ );
+													 scaleError_*phiX_, scaleError_*phiY_, 
+													 scaleError_*phiZ_ );
 
 	  // Error on local rotations
-	  if ( fabs(localX) + fabs(localY) + fabs(localZ) > 0 )
+	  if ( fabs(localX_) + fabs(localY_) + fabs(localZ_) > 0 )
 		this->addAlignmentPositionErrorFromLocalRotation( alignable, 
-														  scaleError*localX, scaleError*localY, 
-														  scaleError*localZ );
+														  scaleError_*localX_, scaleError_*localY_, 
+														  scaleError_*localZ_ );
 	}
 
   return ( m_modified > 0 );
@@ -134,132 +147,209 @@ bool AlignableTrackerModifier::modify( Alignable* alignable, const edm::Paramete
 }
 
 
-
 //__________________________________________________________________________________________________
-/// Random gaussian move. The random number seed is taken from 'seed' if larger than zero.
-/// Otherwise, a seed is generated from the RandomNumberGenerator service.
-void AlignableTrackerModifier::randomMove( Alignable* alignable, 
-										   float sigmaX, float sigmaY,float sigmaZ, long seed )
+void AlignableTrackerModifier::setDistribution_( std::string distr )
 {
 
-  edm::LogInfo("PrintArgs") << "move randomly with sigma " 
-							<< sigmaX << " " << sigmaY << " " << sigmaZ 
-							<< std::endl;
+  if ( distr == "fixed" ) random_ = false;
+  else if ( distr == "flat" ) 
+	{
+	  random_   = true;
+	  gaussian_ = false;
+	}
+  else if ( distr == "gaussian" )
+	{
+	  random_   = true;
+	  gaussian_ = true;
+	}
+
+}
+
+
+//__________________________________________________________________________________________________
+/// If 'random' is false, the given movements are strictly applied. Otherwise, a random
+/// number is generated according to a gaussian or a flat distribution depending on 'gaussian'.
+/// The random number seed is taken from 'seed' if larger than zero.
+/// Otherwise, a seed is generated from the RandomNumberGenerator service.
+void AlignableTrackerModifier::moveAlignable( Alignable* alignable, bool random, bool gaussian,
+											  float sigmaX, float sigmaY, float sigmaZ,
+											  long seed )
+{
+
   
-  DRand48Engine aDRand48Engine;
-  if ( seed > 0 ) 
-	aDRand48Engine.setSeed( seed, 0 );
-  else
+  std::ostringstream message;
+
+  // Get seed if not given
+  if ( seed == 0 && random )
 	{
 	  edm::Service<edm::RandomNumberGenerator> rng;
-	  aDRand48Engine.setSeed( rng->mySeed(), 0 );
+	  seed = rng->mySeed();
 	}
+  
+  // Get movement vector according to arguments
+  GlobalVector moveV( sigmaX, sigmaY, sigmaZ ); // Default: fixed
+  if ( random ) 
+	{
+	  message << "random ";
+	  if (gaussian)
+		{
+		  moveV = this->gaussianRandomVector_( sigmaX, sigmaY, sigmaZ, seed );
+		  message << "gaussian ";
+		}
+	  else 
+		{
+		  moveV = flatRandomVector_( sigmaX, sigmaY, sigmaZ, seed );
+		  message << "flat ";
+		}
+	}
+  
+  message << " move with sigma " << sigmaX << " " << sigmaY << " " << sigmaZ;
+
+  edm::LogInfo("PrintArgs") << message; // Arguments
+
+  edm::LogInfo("PrintMovement") << "applied displacement: " << moveV; // Actual movements
+  alignable->move(moveV);
+  m_modified++;
+
+
+}
+
+
+//__________________________________________________________________________________________________
+/// If 'random' is false, the given rotations are strictly applied. Otherwise, a random
+/// number is generated according to a gaussian or a flat distribution depending on 'gaussian'.
+/// The random number seed is taken from 'seed' if larger than zero.
+/// Otherwise, a seed is generated from the RandomNumberGenerator service.
+void AlignableTrackerModifier::rotateAlignable( Alignable* alignable, bool random, bool gaussian,
+												float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ,
+												long seed )
+{
+
+  
+  std::ostringstream message;
+
+  // Get seed if not given
+  if ( seed == 0 && random )
+	{
+	  edm::Service<edm::RandomNumberGenerator> rng;
+	  seed = rng->mySeed();
+	}
+  
+  // Get rotation vector according to arguments
+  GlobalVector rotV( sigmaPhiX, sigmaPhiY, sigmaPhiZ ); // Default: fixed
+  if ( random ) 
+	{
+	  message << "random ";
+	  if (gaussian)
+		{
+		  rotV = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ, seed );
+		  message << "gaussian ";
+		}
+	  else 
+		{
+		  rotV = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ, seed );
+		  message << "flat ";
+		}
+	}
+  
+  message << " global rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
+
+  edm::LogInfo("PrintArgs") << message; // Arguments
+
+  edm::LogInfo("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
+  alignable->rotateAroundGlobalX( rotV.x() );
+  alignable->rotateAroundGlobalY( rotV.y() );
+  alignable->rotateAroundGlobalZ( rotV.z() );
+  m_modified++;
+
+
+}
+
+//__________________________________________________________________________________________________
+/// If 'random' is false, the given rotations are strictly applied. Otherwise, a random
+/// number is generated according to a gaussian or a flat distribution depending on 'gaussian'.
+/// The random number seed is taken from 'seed' if larger than zero.
+/// Otherwise, a seed is generated from the RandomNumberGenerator service.
+void 
+AlignableTrackerModifier::rotateAlignableLocal( Alignable* alignable, bool random, bool gaussian,
+												float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ,
+												long seed )
+{
+
+  
+  std::ostringstream message;
+
+  // Get seed if not given
+  if ( seed == 0 && random )
+	{
+	  edm::Service<edm::RandomNumberGenerator> rng;
+	  seed = rng->mySeed();
+	}
+  
+  // Get rotation vector according to arguments
+  GlobalVector rotV( sigmaPhiX, sigmaPhiY, sigmaPhiZ ); // Default: fixed
+  if ( random ) 
+	{
+	  message << "random ";
+	  if (gaussian)
+		{
+		  rotV = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ, seed );
+		  message << "gaussian ";
+		}
+	  else 
+		{
+		  rotV = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ, seed );
+		  message << "flat ";
+		}
+	}
+  
+  message << " local rotation by angles " << sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
+
+  edm::LogInfo("PrintArgs") << message; // Arguments
+
+  edm::LogInfo("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
+  alignable->rotateAroundLocalX( rotV.x() );
+  alignable->rotateAroundLocalY( rotV.y() );
+  alignable->rotateAroundLocalZ( rotV.z() );
+  m_modified++;
+
+
+}
+
+
+//__________________________________________________________________________________________________
+const GlobalVector 
+AlignableTrackerModifier::gaussianRandomVector_( float sigmaX, float sigmaY,
+												 float sigmaZ, long seed ) const
+{
+
+  DRand48Engine aDRand48Engine(seed);
 
   RandGauss aGaussObjX( aDRand48Engine, 0., sigmaX );
   RandGauss aGaussObjY( aDRand48Engine, 0., sigmaY );
   RandGauss aGaussObjZ( aDRand48Engine, 0., sigmaZ );
 
-  GlobalVector moveV( aGaussObjX.fire(), aGaussObjY.fire(),
-					  aGaussObjZ.fire() );
-
-  alignable->move(moveV);
-  m_modified++;
+  return GlobalVector( aGaussObjX.fire(), aGaussObjY.fire(), aGaussObjZ.fire() );
 
 }
 
 
 //__________________________________________________________________________________________________
-/// Random flat move. The random number seed is taken from 'seed' if larger than zero.
-/// Otherwise, a seed is generated from the RandomNumberGenerator service.
-void AlignableTrackerModifier::randomFlatMove( Alignable* alignable, 
-											   float sigmaX, float sigmaY, float sigmaZ, long seed )
+const GlobalVector 
+AlignableTrackerModifier::flatRandomVector_( const float sigmaX, const float sigmaY, 
+											 const float sigmaZ, long seed ) const
 {
 
-  edm::LogInfo("PrintArgs") << "flat move randomly with sigma " 
-							<< sigmaX << " " << sigmaY << " " << sigmaZ 
-							<< std::endl;
-  
-  DRand48Engine aDRand48Engine;
-  if ( seed > 0 )
-	aDRand48Engine.setSeed(seed, 0);
-  else
-	{
-	  edm::Service<edm::RandomNumberGenerator> rng;
-	  aDRand48Engine.setSeed( rng->mySeed(), 0 );
-	}
-  
+  DRand48Engine aDRand48Engine(seed);
+
   RandFlat aFlatObjX( aDRand48Engine, sigmaX );
   RandFlat aFlatObjY( aDRand48Engine, sigmaY );
   RandFlat aFlatObjZ( aDRand48Engine, sigmaZ );
 
-  GlobalVector moveV( aFlatObjX.fire(), aFlatObjY.fire(),
-					  aFlatObjZ.fire() );
-  alignable->move(moveV);
-  m_modified++;
+  return GlobalVector( aFlatObjX.fire(), aFlatObjY.fire(), aFlatObjZ.fire() );
 
 }
 
-
-//__________________________________________________________________________________________________
-/// Random gaussian rotation. The random number seed is taken from 'seed' if larger than zero.
-/// Otherwise, a seed is generated from the RandomNumberGenerator service.
-void AlignableTrackerModifier::randomRotate( Alignable* alignable, 
-											 float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ, 
-											 long seed )
-{
-  edm::LogInfo("PrintArgs") << "rotate randomly about GLOBAL x,y,z axis with sigmaPhi " 
-							<< sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ 
-							<< std::endl;
-  
-  DRand48Engine aDRand48Engine;
-  if ( seed > 0 ) aDRand48Engine.setSeed(seed, 0);
-  else
-	{
-	  edm::Service<edm::RandomNumberGenerator> rng;
-	  aDRand48Engine.setSeed( rng->mySeed(), 0 );
-	}
-
-  RandGauss aGaussObjX( aDRand48Engine, 0., sigmaPhiX );
-  RandGauss aGaussObjY( aDRand48Engine, 0., sigmaPhiY );
-  RandGauss aGaussObjZ( aDRand48Engine, 0., sigmaPhiZ ); 
-  
-  alignable->rotateAroundGlobalX(aGaussObjX.fire());
-  alignable->rotateAroundGlobalY(aGaussObjY.fire());
-  alignable->rotateAroundGlobalZ(aGaussObjZ.fire());
-  m_modified++;
-
-}
-
-
-//__________________________________________________________________________________________________
-/// Random flat rotation. The random number seed is taken from 'seed' if larger than zero.
-/// Otherwise, a seed is generated from the RandomNumberGenerator service.
-void AlignableTrackerModifier::randomFlatRotate( Alignable* alignable, 
-												 float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ, 
-												 long seed )
-{
-  edm::LogInfo("PrintArgs") << "flat rotate randomly about GLOBAL x,y,z axis with sigmaPhi " 
-							<< sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ 
-							<< std::endl;
-  
-  DRand48Engine aDRand48Engine;
-  if ( seed > 0 ) aDRand48Engine.setSeed(seed, 0);
-  else
-	{
-	  edm::Service<edm::RandomNumberGenerator> rng;
-	  aDRand48Engine.setSeed( rng->mySeed(), 0 );
-	}
-
-  RandFlat aFlatObjX( aDRand48Engine, 0., sigmaPhiX );
-  RandFlat aFlatObjY( aDRand48Engine, 0., sigmaPhiY );
-  RandFlat aFlatObjZ( aDRand48Engine, 0., sigmaPhiZ ); 
-  
-  alignable->rotateAroundGlobalX(aFlatObjX.fire());
-  alignable->rotateAroundGlobalY(aFlatObjY.fire());
-  alignable->rotateAroundGlobalZ(aFlatObjZ.fire());
-  m_modified++;
-
-}
 
 
 //__________________________________________________________________________________________________
@@ -273,8 +363,7 @@ void AlignableTrackerModifier::randomRotateLocal( Alignable* alignable,
 {
 
   edm::LogInfo("PrintArgs") << "rotate randomly around LOCAL x,y,z axis with sigmaPhi " 
-							<< sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ 
-							<< std::endl;
+							<< sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
   
   DRand48Engine aDRand48Engine;
   if ( seed > 0 ) aDRand48Engine.setSeed(seed, 0);
@@ -288,9 +377,15 @@ void AlignableTrackerModifier::randomRotateLocal( Alignable* alignable,
   RandGauss aGaussObjY( aDRand48Engine, 0., sigmaPhiY );
   RandGauss aGaussObjZ( aDRand48Engine, 0., sigmaPhiZ );
 
-  alignable->rotateAroundLocalX(aGaussObjX.fire());
-  alignable->rotateAroundLocalY(aGaussObjY.fire());
-  alignable->rotateAroundLocalZ(aGaussObjZ.fire());
+  double phiX = aGaussObjX.fire();
+  double phiY = aGaussObjY.fire();
+  double phiZ = aGaussObjZ.fire();
+
+  edm::LogInfo("PrintMovement") << "applied angles: " << phiX << "," << phiY << "," << phiZ;
+
+  alignable->rotateAroundLocalX( phiX );
+  alignable->rotateAroundLocalY( phiY );
+  alignable->rotateAroundLocalZ( phiZ );
   m_modified++;
 
 }
@@ -307,8 +402,7 @@ void AlignableTrackerModifier::randomFlatRotateLocal( Alignable* alignable,
 {
 
   edm::LogInfo("PrintArgs") << "flat rotate randomly around LOCAL x,y,z axis with sigmaPhi " 
-							<< sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ 
-							<< std::endl;
+							<< sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
   
   DRand48Engine aDRand48Engine;
   if ( seed > 0 ) aDRand48Engine.setSeed(seed, 0);
@@ -323,9 +417,13 @@ void AlignableTrackerModifier::randomFlatRotateLocal( Alignable* alignable,
   RandFlat aFlatObjY( aDRand48Engine, sigmaPhiY );
   RandFlat aFlatObjZ( aDRand48Engine, sigmaPhiZ );
   
-  alignable->rotateAroundLocalX(aFlatObjX.fire());
-  alignable->rotateAroundLocalY(aFlatObjY.fire());
-  alignable->rotateAroundLocalZ(aFlatObjZ.fire());
+  double phiX = aFlatObjX.fire();
+  double phiY = aFlatObjY.fire();
+  double phiZ = aFlatObjZ.fire();
+
+  alignable->rotateAroundLocalX( phiX );
+  alignable->rotateAroundLocalY( phiY );
+  alignable->rotateAroundLocalZ( phiZ );
   m_modified++;
 
 }
@@ -337,7 +435,7 @@ void AlignableTrackerModifier::addAlignmentPositionError( Alignable* alignable,
 {
 
   edm::LogInfo("PrintArgs") << "Adding an AlignmentPositionError of size " 
-							<< dx << " "  << dy << " "  << dz << std::endl;
+							<< dx << " "  << dy << " "  << dz;
 
   AlignmentPositionError ape(dx,dy,dz);
   alignable->addAlignmentPositionError( ape );
@@ -384,7 +482,7 @@ void AlignableTrackerModifier::addAlignmentPositionErrorFromRotation( Alignable*
 { 
 
   edm::LogInfo("PrintArgs") << "Adding an AlignmentPositionError from Rotation" << std::endl 
-							<< rotation << std::endl;
+							<< rotation;
 
   alignable->addAlignmentPositionErrorFromRotation( rotation );
 
@@ -397,7 +495,7 @@ void AlignableTrackerModifier::addAlignmentPositionErrorFromLocalRotation( Align
 { 
   
   edm::LogInfo("PrintArgs") << "Adding an AlignmentPositionError from Local Rotation" << std::endl 
-							<< rotation << std::endl;
+							<< rotation;
   
   alignable->addAlignmentPositionErrorFromLocalRotation( rotation );
   
