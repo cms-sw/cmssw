@@ -125,7 +125,7 @@ public:
   L1GctElectronFinalSort* theNonIsoEmFinalStage;
 
   /// Jet Et calibraion LUT
-  L1GctJetEtCalibrationLut* theJetEtCalibrationLut;
+  L1GctJetEtCalibrationLut* m_jetEtCalLut;
   
 };
 
