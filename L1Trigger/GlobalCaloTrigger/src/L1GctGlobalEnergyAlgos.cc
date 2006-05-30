@@ -10,18 +10,32 @@ using std::endl;
 using std::vector;
 using std::max;
 
-L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(L1GctWheelEnergyFpga* plusWheelFpga,
-					       L1GctWheelEnergyFpga* minusWheelFpga,
-					       L1GctWheelJetFpga* plusWheelJetFpga,
-					       L1GctWheelJetFpga* minusWheelJetFpga) :
-  m_plusWheelFpga(plusWheelFpga),
-  m_minusWheelFpga(minusWheelFpga),
-  m_plusWheelJetFpga(plusWheelJetFpga),
-  m_minusWheelJetFpga(minusWheelJetFpga),
+L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> wheelFpga,
+					       vector<L1GctWheelJetFpga*> wheelJetFpga) :
+  m_plusWheelFpga(wheelFpga[0]),
+  m_minusWheelFpga(wheelFpga[1]),
+  m_plusWheelJetFpga(wheelJetFpga[0]),
+  m_minusWheelJetFpga(wheelJetFpga[1]),
   m_jcValPlusWheel(12),
   m_jcVlMinusWheel(12),
   m_outputJetCounts(12)
 {
+  if(wheelFpga.size() != 2)
+  {
+    throw cms::Exception("L1GctSetupError")
+    << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() : Global Energy Algos has been incorrectly constructed!\n"
+    << "This class needs two wheel card pointers. "
+    << "Number of wheel card pointers present is " << wheelFpga.size() << ".\n";
+  }
+  
+  if(wheelJetFpga.size() != 2)
+  {
+    throw cms::Exception("L1GctSetupError")
+    << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() : Global Energy Algos has been incorrectly constructed!\n"
+    << "This class needs two wheel jet fpga pointers. "
+    << "Number of wheel jet fpga pointers present is " << wheelJetFpga.size() << ".\n";
+  }
+  
     if(m_plusWheelFpga == 0)
     {
       throw cms::Exception("L1GctSetupError")

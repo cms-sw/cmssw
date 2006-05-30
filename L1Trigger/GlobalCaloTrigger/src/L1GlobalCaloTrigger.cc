@@ -192,10 +192,10 @@ void L1GlobalCaloTrigger::print() {
   }
   cout << endl;
 
-  cout << (*theIsoEmFinalStage);
-  cout << endl;
+//   cout << (*theIsoEmFinalStage);
+//   cout << endl;
 
-  cout << (*theNonIsoEmFinalStage);
+//   cout << (*theNonIsoEmFinalStage);
 
   cout << "=== Global Calo Trigger ===" << endl;
   cout << "===  END DEBUG OUTPUT   ===" << endl;
@@ -229,19 +229,19 @@ vector<L1GctJetCand> L1GlobalCaloTrigger::getTauJets() {
 
 // total Et output
 unsigned L1GlobalCaloTrigger::getEtSum() {
-  return 0; //theEnergyFinalStage->getEtSum();
+  return theEnergyFinalStage->getEtSum().value();
 }
 
 unsigned L1GlobalCaloTrigger::getEtHad() {
-  return 0; //theEnergyFinalStage->getEtHad();
+  return theEnergyFinalStage->getEtHad().value();
 }
 
 unsigned L1GlobalCaloTrigger::getEtMiss() {
-  return 0; //theEnergyFinalStage->getEtMiss();
+  return theEnergyFinalStage->getEtMiss().value();
 }
 
 unsigned L1GlobalCaloTrigger::getEtMissPhi() {
-  return 0; //theEnergyFinalStage->etMissPhi();
+  return theEnergyFinalStage->getEtMissPhi().value();
 }
 
 
@@ -270,10 +270,9 @@ void L1GlobalCaloTrigger::build() {
 
    // Jet Leaf cards
   for (int i=0; i<6; i++) {
-    for (int j=0; j<3; j++) {
-      for (int k=1; k<3; k++) {
-	jetSourceCards[j]=theSourceCards[(i*3+j)*3+k];
-      }
+    for (int j=0; j<6; j++) {
+      int k = 3*(j/2) + (j%2) + 1;
+      jetSourceCards[j]=theSourceCards[(i*9+k)];
       // Neighbour connections
       int iup = (i*3+3) % 9;
       int idn = (i*3+8) % 9;
@@ -336,7 +335,7 @@ void L1GlobalCaloTrigger::build() {
        wheelEnergyLeafCards[j]=theJetLeafCards[i*2+j];
      }
      theWheelJetFpgas[i] = new L1GctWheelJetFpga(i,wheelJetLeafCards);
-     //     theWheelEnergyFpgas[i] = new L1GctWheelEnergyFpga(i,wheelEnergyLeafCards);
+     theWheelEnergyFpgas[i] = new L1GctWheelEnergyFpga(i,wheelEnergyLeafCards);
    }
   
    // Jet Final Stage  
@@ -346,11 +345,7 @@ void L1GlobalCaloTrigger::build() {
 //   theIsoEmFinalStage = new L1GctElectronFinalSort(true,theEmLeafCards);
 //   theNonIsoEmFinalStage = new L1GctElectronFinalSort(false,theEmLeafCards);  
 
-//   // Global Energy Algos
-//   theEnergyFinalStage = new L1GctGlobalEnergyAlgos();
-//   theEnergyFinalStage->setMinusWheelEnergyFpga(theWheelEnergyFpgas[0]);
-//   theEnergyFinalStage->setPlusWheelEnergyFpga(theWheelEnergyFpgas[1]);
-//   theEnergyFinalStage->setMinusWheelJetFpga(theWheelJetFpgas[0]);
-//   theEnergyFinalStage->setPlusWheelJetFpga(theWheelJetFpgas[1]);
+  // Global Energy Algos
+  theEnergyFinalStage = new L1GctGlobalEnergyAlgos(theWheelEnergyFpgas, theWheelJetFpgas);
 
 }

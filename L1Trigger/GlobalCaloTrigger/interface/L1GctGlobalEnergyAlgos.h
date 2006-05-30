@@ -19,10 +19,8 @@ class L1GctWheelJetFpga;
 class L1GctGlobalEnergyAlgos : public L1GctProcessor
 {
 public:
-	L1GctGlobalEnergyAlgos(L1GctWheelEnergyFpga* plusWheelFpga,
-			       L1GctWheelEnergyFpga* minusWheelFpga,
-			       L1GctWheelJetFpga* plusWheelJetFpga,
-			       L1GctWheelJetFpga* minusWheelJetFpga);
+	L1GctGlobalEnergyAlgos(std::vector<L1GctWheelEnergyFpga*> WheelFpga,
+			       std::vector<L1GctWheelJetFpga*> WheelJetFpga);
 	~L1GctGlobalEnergyAlgos();
 	///
 
