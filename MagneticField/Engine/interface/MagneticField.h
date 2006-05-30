@@ -10,6 +10,8 @@ class MagneticField
   MagneticField() {;}
   virtual ~MagneticField() {;}
   virtual GlobalVector inTesla ( const GlobalPoint& ) const = 0;
+  virtual GlobalVector inInverseGeV( const GlobalPoint& glb) const
+    {return inTesla(glb)*2.99792458e-3;}
 };
 
 #endif
