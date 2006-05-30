@@ -1,0 +1,5 @@
+<lcgdict>  
+  <class pattern="edm::Wrapper<*>"/>
+  <class name="std::vector<TrackingVertex>" />
+  <class name="TrackingVertex" />
+</lcgdict>

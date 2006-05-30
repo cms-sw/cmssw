@@ -1,0 +1,29 @@
+<use name=DataFormats/Common>
+<use name=DataFormats/Math>
+<use name=Foundation/PluginManager>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/Track>
+<use name=SimDataFormats/TrackingAnalysis>
+<use name=SimDataFormats/Vertex>
+<use name=SimG4Core/Generators>
+<use name=clhep>
+
+<flags SEAL_PLUGIN_NAME="SimGeneralTrackingTruthProducer">
+<export>
+   <lib name=SimGeneralTrackingTruthProducer>
+   <use name=DataFormats/Common>
+   <use name=DataFormats/Math>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/Framework>
+   <use name=FWCore/MessageLogger>
+   <use name=FWCore/ParameterSet>
+   <use name=SimDataFormats/HepMCProduct>
+   <use name=SimDataFormats/Track>
+   <use name=SimDataFormats/TrackingAnalysis>
+   <use name=SimDataFormats/Vertex>
+   <use name=SimG4Core/Generators>
+   <use name=clhep>
+</export>
