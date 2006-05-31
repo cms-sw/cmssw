@@ -136,6 +136,7 @@ void AlignableTracker::buildTOB( const GeometricDet* navigator )
   // Store these products
   theOuterHalfBarrels.push_back( forwardHalf );
   theOuterHalfBarrels.push_back( backwardHalf );
+
   theTrackerComponents.insert( theTrackerComponents.end(), 
 							   theOuterHalfBarrels.begin(), theOuterHalfBarrels.end() );
 
@@ -196,6 +197,7 @@ void AlignableTracker::buildTIB( const GeometricDet* navigator )
   // Store these products
   theInnerHalfBarrels.push_back( forwardHalf );
   theInnerHalfBarrels.push_back( backwardHalf );
+
   theTrackerComponents.insert( theTrackerComponents.end(), 
 							   theInnerHalfBarrels.begin(), theInnerHalfBarrels.end() );
 
@@ -244,8 +246,10 @@ void AlignableTracker::buildTID( const GeometricDet* navigator )
   if ( m_forwardLayers.size() ) m_TID = new AlignableTID( m_forwardLayers ); 
   else m_TID = new AlignableTID( m_backwardLayers );
 
-  // Store these products
-  theTIDs.push_back( m_TID );
+  // Store these products (forward first)
+  if ( m_forwardLayers.size() ) theTIDs.insert( theTIDs.begin(), m_TID );
+  else theTIDs.push_back( m_TID );
+
   theTrackerComponents.push_back( m_TID );
 
 }
@@ -298,8 +302,10 @@ void AlignableTracker::buildTEC( const GeometricDet* navigator )
   if ( m_forwardLayers.size() ) m_Endcap = new AlignableTrackerEndcap( m_forwardLayers ); 
   else m_Endcap = new AlignableTrackerEndcap( m_backwardLayers );
 
-  // Store these products
-  theEndcaps.push_back( m_Endcap );
+  // Store these products (forward first)
+  if ( m_forwardLayers.size() ) theEndcaps.insert( theEndcaps.begin(), m_Endcap );
+  else theEndcaps.push_back( m_Endcap );
+
   theTrackerComponents.push_back( m_Endcap );
   
 }
@@ -360,6 +366,7 @@ void AlignableTracker::buildTPB( const GeometricDet* navigator )
   // Store these products
   thePixelHalfBarrels.push_back( rightHalf );
   thePixelHalfBarrels.push_back( leftHalf );
+
   theTrackerComponents.insert( theTrackerComponents.end(), 
 							   thePixelHalfBarrels.begin(), thePixelHalfBarrels.end() );
 
@@ -413,8 +420,10 @@ void AlignableTracker::buildTPE( const GeometricDet* navigator )
   if ( m_forwardLayers.size() ) m_Endcap = new AlignableTrackerEndcap( m_forwardLayers ); 
   else m_Endcap = new AlignableTrackerEndcap( m_backwardLayers );
 
-  // Store these products
-  thePixelEndcaps.push_back( m_Endcap );
+  // Store these products (forward first)
+  if ( m_forwardLayers.size() ) thePixelEndcaps.insert( thePixelEndcaps.begin(), m_Endcap );
+  else thePixelEndcaps.push_back( m_Endcap );
+
   theTrackerComponents.push_back( m_Endcap );
  
 }
