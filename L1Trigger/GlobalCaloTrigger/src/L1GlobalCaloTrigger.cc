@@ -336,8 +336,8 @@ void L1GlobalCaloTrigger::build() {
 
    for (int i=0; i<2; i++) {
      for (int j=0; j<3; j++) {
-       wheelJetLeafCards[j]=theJetLeafCards[i*2+j];
-       wheelEnergyLeafCards[j]=theJetLeafCards[i*2+j];
+       wheelJetLeafCards[j]=theJetLeafCards[i*3+j];
+       wheelEnergyLeafCards[j]=theJetLeafCards[i*3+j];
      }
      theWheelJetFpgas[i] = new L1GctWheelJetFpga(i,wheelJetLeafCards);
      theWheelEnergyFpgas[i] = new L1GctWheelEnergyFpga(i,wheelEnergyLeafCards);

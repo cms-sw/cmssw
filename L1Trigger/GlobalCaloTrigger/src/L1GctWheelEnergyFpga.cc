@@ -73,6 +73,7 @@ ostream& operator << (ostream& os, const L1GctWheelEnergyFpga& fpga)
   os << "Output Ex " << fpga.m_outputEx << endl;
   os << "Output Ey " << fpga.m_outputEy << endl;
   os << "Output Et " << fpga.m_outputEt << endl;
+  os << endl;
   return os;
 }
 
