@@ -256,7 +256,8 @@ void safeOpenInputFile(ifstream &fin, const string name)
   //Throw an exception if something is wrong
   if(!fin.good())
   {
-    throw std::runtime_error("Couldn't open the file " + name + " for reading!");
+    throw cms::Exception("FileReadError")
+    << "Couldn't open the file " << name << " for reading!\n";
   }
   return;
 }
@@ -270,7 +271,8 @@ void safeOpenOutputFile(ofstream &fout, const string name)
   //Throw an exception if something is wrong
   if(!fout.good())
   {
-    throw std::runtime_error("Couldn't open the file " + name + " for writing!");
+    throw cms::Exception("FileWriteError")
+    << "Couldn't open the file " << name << " for writing!\n";
   }
   return;
 }
@@ -297,7 +299,8 @@ L1GctRegion readSingleRegion(ifstream &fin)
     //check to see if the input stream is still ok first
     if(fin.eof() || fin.bad())
     {
-     throw std::runtime_error("Error reading region data from " + testDataFile + "!");
+      throw cms::Exception("FileReadError")
+      << "Error reading region data from " << testDataFile << "!\n";     
     }
     else
     {
@@ -340,7 +343,8 @@ L1GctJetCand readSingleJet(ifstream &fin)
     //check to see if the input stream is still ok first
     if(fin.eof() || fin.bad())
     {
-      throw std::runtime_error("Error reading jet data from " + testDataFile + "!");
+      throw cms::Exception("FileReadError")
+      << "Error reading jet data from " << testDataFile << "!\n";     
     }
     else
     {
