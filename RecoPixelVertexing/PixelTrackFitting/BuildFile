@@ -4,6 +4,7 @@
 <use name=Foundation/PluginManager>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
+<use name=TrackingTools/PatternTools>
 <use name=RecoPixelVertexing/PixelTriplets>
 
 <export>
@@ -14,4 +15,5 @@
  <use name=Geometry/Records>
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=RecoPixelVertexing/PixelTriplets>
+ <use name=TrackingTools/PatternTools>
 </export>
