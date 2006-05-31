@@ -43,8 +43,12 @@ L1GctElectronFinalSort::~L1GctElectronFinalSort(){
 }
 
 void L1GctElectronFinalSort::reset(){
-  m_inputCands.clear();
-  m_outputCands.clear();
+  for(unsigned i = 0;i!=m_inputCands.size();i++){    
+    m_inputCands[i] = 0;
+  }
+  for(unsigned i = 0;i!=m_outputCands.size();i++){  
+    m_outputCands[i] = 0;
+  }
 }
 
 void L1GctElectronFinalSort::fetchInput() {
@@ -89,27 +93,18 @@ void L1GctElectronFinalSort::setInputEmCand(int i, L1GctEmCand cand){
 }
 
 std::ostream& operator<<(std::ostream& s, const L1GctElectronFinalSort& cand) {
+  s << "===ElectronFinalSort===" << std::endl;
+  s << "Card type = " <<cand.m_emCandsType<<std::endl;
   s << "No of Electron Leaf Cards " << cand.m_theLeafCards.size() << std::endl;
-  s << "No of Electron Input Candidates " << cand.m_inputCands.size() << std::endl;
-  s << "No of Electron Output Candidates " << cand.m_outputCands.size() << std::endl;
   s << std::endl;
   s << "Pointers to the Electron Leaf cards are: "<<std::endl;
   for (unsigned i=0; i<cand.m_theLeafCards.size(); i++) {
     s << cand.m_theLeafCards[i]<<"  ";
   }
   s << std::endl;
-  s <<"The Input Candidates are: " << std::endl;
-  for (unsigned i=0; i<cand.m_inputCands.size(); i++) {
-    s << cand.m_inputCands[i]<<"  ";
-  }
-  s << std::endl;
-  s << "The Output Candidates are: "<<std::endl;
-  for (unsigned i=0; i<cand.m_outputCands.size(); i++) {
-    s << cand.m_outputCands[i]<<"  ";
-  }
-  s << std::endl;
-  s << "Other private members (objects and variables): "<<std::endl;
-  s << "Type of electron card is "<<cand.m_emCandsType<<std::endl;
+  s << "No of Electron Input Candidates " << cand.m_inputCands.size() << std::endl;
+  s << "No of Electron Output Candidates " << cand.m_outputCands.size() << std::endl;
+   
   return s;
 }
 

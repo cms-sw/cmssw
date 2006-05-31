@@ -55,8 +55,12 @@ L1GctElectronSorter::~L1GctElectronSorter()
 
 // clear buffers
 void L1GctElectronSorter::reset() {
-  m_inputCands.clear();
-  m_outputCands.clear();	
+  for(unsigned i = 0;i!=m_inputCands.size();i++){    
+    m_inputCands[i] = 0;
+  }
+  for(unsigned i = 0;i!=m_outputCands.size();i++){  
+    m_outputCands[i] = 0;
+  } 
 }
 
 // get the input data
@@ -106,14 +110,6 @@ std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& ems) {
   s << "No of Electron Input Candidates = " << ems.m_inputCands.size()<< std::endl;
   s << "No of Electron Output Candidates = " << ems.m_outputCands.size()<< std::endl;
   s << endl;
-//   for (unsigned i=0; i<ems.m_inputCands.size(); i++) {
-//     s << "InputCandidate " << i << " : " << cand.m_inputCands[i] << endl;
-//   }
-//   for (unsigned i=0; i<ems.m_outputCands.size(); i++) {
-//     s << "OutputCandidate " << i << " : " << cand.m_outputCands[i] << endl;
-//   }
-//   s << std::endl;
-
   return s;
 }
 
