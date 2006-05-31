@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 
+#include "CLHEP/Random/DRand48Engine.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -22,7 +24,7 @@ public:
   typedef TkRotation<float>     RotationType;
 
   /// Constructor
-  AlignableMuonModifier() {};
+  AlignableMuonModifier();
 
   /// Destructor
   ~AlignableMuonModifier() {};
@@ -35,29 +37,16 @@ public:
 
   /// Move alignable in global space according to parameters
   void moveAlignable( Alignable* alignable, bool random, bool gaussian,
-					  float sigmaX, float sigmaY, float sigmaZ,
-					  long seed );
+					  float sigmaX, float sigmaY, float sigmaZ );
 
   /// Rotate alignable in global space according to parameters
   void rotateAlignable( Alignable* alignable, bool random, bool gaussian,
-						float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ,
-						long seed );
+						float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ );
 
   /// Rotate alignable in local space according to parameters
   void rotateAlignableLocal( Alignable* alignable, bool random, bool gaussian,
-							 float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ,
-							 long seed );
+							 float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ );
   
-  /// Random gaussian rotation of an Alignable in local frame
-  void randomRotateLocal( Alignable* alignable, 
-						  float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ,
-						  long seed );
-  
-  /// Random flat rotation of an Alignable in local frame
-  void randomFlatRotateLocal( Alignable* alignable, 
-							  float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ,
-							  long seed );
-
   /// Add the AlignmentPositionError (in global frame) to Alignable
   void addAlignmentPositionError( Alignable* alignable, 
 								  float dx, float dy, float dz );
@@ -78,18 +67,25 @@ public:
   void addAlignmentPositionErrorFromLocalRotation( Alignable* alignable, 
 												   RotationType& rotation ); 
 
+  /// Decodes string and sets distribution accordingly ('fixed', 'flat' or 'gaussian').
+  void setDistribution( std::string distr );
+
+  /// Resets the generator seed according to the argument.
+  void setSeed( long seed );
+
 private:
+
+  /// Unique random number generator
+  DRand48Engine* theDRand48Engine;
 
   /// Initialisation of all parameters
   void init_(); 
-  /// Decodes string and sets distribution accordingly
-  void setDistribution_( std::string distr );
   /// Return a vector of random numbers (gaussian distribution)
   const GlobalVector gaussianRandomVector_( const float sigmaX, const float sigmaY, 
-											 const float sigmaZ, long seed ) const;
+											 const float sigmaZ ) const;
   /// Return a vector of random numbers (flat distribution)
   const GlobalVector flatRandomVector_( const float sigmaX, const float sigmaY, 
-										 const float sigmaZ, long seed ) const;
+										 const float sigmaZ ) const;
 
   int m_modified; // Indicates if a modification was performed
 

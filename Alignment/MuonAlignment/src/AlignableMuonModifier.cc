@@ -11,14 +11,19 @@
 
 
 //__________________________________________________________________________________________________
+AlignableMuonModifier::AlignableMuonModifier( void )
+{
+
+  theDRand48Engine = new DRand48Engine();
+
+}
+
+//__________________________________________________________________________________________________
 void AlignableMuonModifier::init_( void )
 {
 
   // Initialize all known parameters (according to ORCA's MisalignmentScenario.cc)
-  distribution_ = "";   // Switch for distributions ("fixed","flat","gaussian")
-  random_       = true;      // Use random distributions
-  gaussian_     = true;      // Use gaussian distribution (otherwise flat)
-  seed_         = 0;         // Random generator seed (default: ask service)
+  distribution_ = "";        // Switch for distributions ("fixed","flat","gaussian")
   setError_     = false;     // Apply alignment errors
   scaleError_   = 1.;        // Scale to apply to alignment errors
   phiX_         = 0.;        // Rotation angle around X [rad]
@@ -33,6 +38,10 @@ void AlignableMuonModifier::init_( void )
   twist_        = 0.;        // Twist angle [rad]
   shear_        = 0.;        // Shear angle [rad]
 
+  // These are set through 'distribution'
+  random_       = true;      // Use random distributions
+  gaussian_     = true;      // Use gaussian distribution (otherwise flat)
+
 }
 
 //__________________________________________________________________________________________________
@@ -41,7 +50,6 @@ const bool AlignableMuonModifier::isPropagated( const std::string parameterName 
 {
 
   if ( parameterName == "distribution" || 
-	   parameterName == "seed"         ||
 	   parameterName == "setError"     ||
 	   parameterName == "scaleError"   ) return true;
   
@@ -81,7 +89,6 @@ bool AlignableMuonModifier::modify( Alignable* alignable, const edm::ParameterSe
 	  else if ( (*iParam) == "dZ" )       dZ_       = pSet.getParameter<double>( *iParam );
 	  else if ( (*iParam) == "twist" )    twist_    = pSet.getParameter<double>( *iParam );
 	  else if ( (*iParam) == "shear" )    shear_    = pSet.getParameter<double>( *iParam );
-	  else if ( (*iParam) == "seed"  )    seed_     = static_cast<long>(pSet.getParameter<int>( *iParam ));
 	  else if ( pSet.retrieve( *iParam ).typeCode() != 'P' )
 		{ // Add unknown parameter to list
 		  if ( !error.str().length() ) error << "Unknown parameter name(s): ";
@@ -94,21 +101,19 @@ bool AlignableMuonModifier::modify( Alignable* alignable, const edm::ParameterSe
 	throw cms::Exception("BadConfig") << error.str();
 
   // Decode distribution
-  this->setDistribution_( distribution_ );
+  this->setDistribution( distribution_ );
 
   // Apply displacements
   if ( fabs(dX_) + fabs(dY_) + fabs(dZ_) > 0 )
-	this->moveAlignable( alignable, random_, gaussian_, dX_, dY_, dZ_, seed_ );
+	this->moveAlignable( alignable, random_, gaussian_, dX_, dY_, dZ_ );
 
   // Apply rotations
   if ( fabs(phiX_) + fabs(phiY_) + fabs(phiZ_) > 0 )
-	this->rotateAlignable( alignable, random_, gaussian_, phiX_, phiY_, phiZ_, seed_ );
+	this->rotateAlignable( alignable, random_, gaussian_, phiX_, phiY_, phiZ_ );
 
   // Apply local rotations
   if ( fabs(localX_) + fabs(localY_) + fabs(localZ_) > 0 )
-	if ( gaussian_ ) this->randomRotateLocal( alignable, localX_, localY_, localZ_, seed_ );
-	else this->randomFlatRotateLocal( alignable, localX_, localY_, localZ_, seed_ );
-
+	this->rotateAlignableLocal( alignable, random_, gaussian_, localX_, localY_, localZ_ );
 
   // Apply twist
   if ( fabs(twist_) > 0 )
@@ -148,7 +153,7 @@ bool AlignableMuonModifier::modify( Alignable* alignable, const edm::ParameterSe
 
 
 //__________________________________________________________________________________________________
-void AlignableMuonModifier::setDistribution_( std::string distr )
+void AlignableMuonModifier::setDistribution( std::string distr )
 {
 
   if ( distr == "fixed" ) random_ = false;
@@ -167,25 +172,35 @@ void AlignableMuonModifier::setDistribution_( std::string distr )
 
 
 //__________________________________________________________________________________________________
+/// If 'seed' is zero, asks  RandomNumberGenerator service.
+void AlignableMuonModifier::setSeed( const long seed )
+{
+
+  long m_seed;
+
+  if ( seed > 0 ) m_seed = seed;
+  else
+	{
+	  edm::Service<edm::RandomNumberGenerator> rng;
+	  m_seed = rng->mySeed();
+	}
+
+  edm::LogInfo("PrintArgs") << "Setting generator seed to " << m_seed;
+
+  theDRand48Engine->setSeed( m_seed );
+
+}
+
+//__________________________________________________________________________________________________
 /// If 'random' is false, the given movements are strictly applied. Otherwise, a random
 /// number is generated according to a gaussian or a flat distribution depending on 'gaussian'.
-/// The random number seed is taken from 'seed' if larger than zero.
-/// Otherwise, a seed is generated from the RandomNumberGenerator service.
 void AlignableMuonModifier::moveAlignable( Alignable* alignable, bool random, bool gaussian,
-											  float sigmaX, float sigmaY, float sigmaZ,
-											  long seed )
+											  float sigmaX, float sigmaY, float sigmaZ )
 {
 
   
   std::ostringstream message;
-
-  // Get seed if not given
-  if ( seed == 0 && random )
-	{
-	  edm::Service<edm::RandomNumberGenerator> rng;
-	  seed = rng->mySeed();
-	}
-  
+ 
   // Get movement vector according to arguments
   GlobalVector moveV( sigmaX, sigmaY, sigmaZ ); // Default: fixed
   if ( random ) 
@@ -193,12 +208,12 @@ void AlignableMuonModifier::moveAlignable( Alignable* alignable, bool random, bo
 	  message << "random ";
 	  if (gaussian)
 		{
-		  moveV = this->gaussianRandomVector_( sigmaX, sigmaY, sigmaZ, seed );
+		  moveV = this->gaussianRandomVector_( sigmaX, sigmaY, sigmaZ );
 		  message << "gaussian ";
 		}
 	  else 
 		{
-		  moveV = flatRandomVector_( sigmaX, sigmaY, sigmaZ, seed );
+		  moveV = flatRandomVector_( sigmaX, sigmaY, sigmaZ );
 		  message << "flat ";
 		}
 	}
@@ -218,23 +233,13 @@ void AlignableMuonModifier::moveAlignable( Alignable* alignable, bool random, bo
 //__________________________________________________________________________________________________
 /// If 'random' is false, the given rotations are strictly applied. Otherwise, a random
 /// number is generated according to a gaussian or a flat distribution depending on 'gaussian'.
-/// The random number seed is taken from 'seed' if larger than zero.
-/// Otherwise, a seed is generated from the RandomNumberGenerator service.
 void AlignableMuonModifier::rotateAlignable( Alignable* alignable, bool random, bool gaussian,
-												float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ,
-												long seed )
+												float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ )
 {
 
   
   std::ostringstream message;
 
-  // Get seed if not given
-  if ( seed == 0 && random )
-	{
-	  edm::Service<edm::RandomNumberGenerator> rng;
-	  seed = rng->mySeed();
-	}
-  
   // Get rotation vector according to arguments
   GlobalVector rotV( sigmaPhiX, sigmaPhiY, sigmaPhiZ ); // Default: fixed
   if ( random ) 
@@ -242,12 +247,12 @@ void AlignableMuonModifier::rotateAlignable( Alignable* alignable, bool random, 
 	  message << "random ";
 	  if (gaussian)
 		{
-		  rotV = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ, seed );
+		  rotV = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
 		  message << "gaussian ";
 		}
 	  else 
 		{
-		  rotV = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ, seed );
+		  rotV = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
 		  message << "flat ";
 		}
 	}
@@ -268,24 +273,14 @@ void AlignableMuonModifier::rotateAlignable( Alignable* alignable, bool random, 
 //__________________________________________________________________________________________________
 /// If 'random' is false, the given rotations are strictly applied. Otherwise, a random
 /// number is generated according to a gaussian or a flat distribution depending on 'gaussian'.
-/// The random number seed is taken from 'seed' if larger than zero.
-/// Otherwise, a seed is generated from the RandomNumberGenerator service.
 void 
 AlignableMuonModifier::rotateAlignableLocal( Alignable* alignable, bool random, bool gaussian,
-												float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ,
-												long seed )
+												float sigmaPhiX, float sigmaPhiY, float sigmaPhiZ )
 {
 
   
   std::ostringstream message;
 
-  // Get seed if not given
-  if ( seed == 0 && random )
-	{
-	  edm::Service<edm::RandomNumberGenerator> rng;
-	  seed = rng->mySeed();
-	}
-  
   // Get rotation vector according to arguments
   GlobalVector rotV( sigmaPhiX, sigmaPhiY, sigmaPhiZ ); // Default: fixed
   if ( random ) 
@@ -293,12 +288,12 @@ AlignableMuonModifier::rotateAlignableLocal( Alignable* alignable, bool random, 
 	  message << "random ";
 	  if (gaussian)
 		{
-		  rotV = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ, seed );
+		  rotV = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
 		  message << "gaussian ";
 		}
 	  else 
 		{
-		  rotV = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ, seed );
+		  rotV = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
 		  message << "flat ";
 		}
 	}
@@ -319,15 +314,13 @@ AlignableMuonModifier::rotateAlignableLocal( Alignable* alignable, bool random, 
 
 //__________________________________________________________________________________________________
 const GlobalVector 
-AlignableMuonModifier::gaussianRandomVector_( float sigmaX, float sigmaY,
-												 float sigmaZ, long seed ) const
+AlignableMuonModifier::gaussianRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const
 {
 
-  DRand48Engine aDRand48Engine(seed);
-
-  RandGauss aGaussObjX( aDRand48Engine, 0., sigmaX );
-  RandGauss aGaussObjY( aDRand48Engine, 0., sigmaY );
-  RandGauss aGaussObjZ( aDRand48Engine, 0., sigmaZ );
+  // Pass by reference, otherwise pointer is deleted!
+  RandGauss aGaussObjX( *theDRand48Engine, 0., sigmaX );
+  RandGauss aGaussObjY( *theDRand48Engine, 0., sigmaY );
+  RandGauss aGaussObjZ( *theDRand48Engine, 0., sigmaZ );
 
   return GlobalVector( aGaussObjX.fire(), aGaussObjY.fire(), aGaussObjZ.fire() );
 
@@ -337,96 +330,17 @@ AlignableMuonModifier::gaussianRandomVector_( float sigmaX, float sigmaY,
 //__________________________________________________________________________________________________
 const GlobalVector 
 AlignableMuonModifier::flatRandomVector_( const float sigmaX, const float sigmaY, 
-											 const float sigmaZ, long seed ) const
+											 const float sigmaZ ) const
 {
 
-  DRand48Engine aDRand48Engine(seed);
-
-  RandFlat aFlatObjX( aDRand48Engine, sigmaX );
-  RandFlat aFlatObjY( aDRand48Engine, sigmaY );
-  RandFlat aFlatObjZ( aDRand48Engine, sigmaZ );
+  RandFlat aFlatObjX( *theDRand48Engine, -sigmaX, sigmaX );
+  RandFlat aFlatObjY( *theDRand48Engine, -sigmaY, sigmaY );
+  RandFlat aFlatObjZ( *theDRand48Engine, -sigmaZ, sigmaZ );
 
   return GlobalVector( aFlatObjX.fire(), aFlatObjY.fire(), aFlatObjZ.fire() );
 
 }
 
-
-
-//__________________________________________________________________________________________________
-/// Here the rotation Axis is interpreted according to the local coordinate system of the Alignable.
-/// First it is rotated around local_x, then the new local_y and then the new local_z.
-/// The random number seed is taken from 'seed' if larger than zero.
-/// Otherwise, a seed is generated from the RandomNumberGenerator service.
-void AlignableMuonModifier::randomRotateLocal( Alignable* alignable, 
-												  float sigmaPhiX, float sigmaPhiY,float sigmaPhiZ, 
-												  long seed )
-{
-
-  edm::LogInfo("PrintArgs") << "rotate randomly around LOCAL x,y,z axis with sigmaPhi " 
-							<< sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
-  
-  DRand48Engine aDRand48Engine;
-  if ( seed > 0 ) aDRand48Engine.setSeed(seed, 0);
-  else
-	{
-	  edm::Service<edm::RandomNumberGenerator> rng;
-	  aDRand48Engine.setSeed( rng->mySeed(), 0 );
-	}
-
-  RandGauss aGaussObjX( aDRand48Engine, 0., sigmaPhiX );
-  RandGauss aGaussObjY( aDRand48Engine, 0., sigmaPhiY );
-  RandGauss aGaussObjZ( aDRand48Engine, 0., sigmaPhiZ );
-
-  double phiX = aGaussObjX.fire();
-  double phiY = aGaussObjY.fire();
-  double phiZ = aGaussObjZ.fire();
-
-  edm::LogInfo("PrintMovement") << "applied angles: " << phiX << "," << phiY << "," << phiZ;
-
-  alignable->rotateAroundLocalX( phiX );
-  alignable->rotateAroundLocalY( phiY );
-  alignable->rotateAroundLocalZ( phiZ );
-  m_modified++;
-
-}
-
-
-//__________________________________________________________________________________________________
-/// Here the rotation Axis is interpreted according to the local coordinate system of the Alignable.
-/// First it is rotated around local_x, then the new local_y and then the new local_z.
-/// The random number seed is taken from 'seed' if larger than zero.
-/// Otherwise, a seed is generated from the RandomNumberGenerator service.
-void AlignableMuonModifier::randomFlatRotateLocal( Alignable* alignable, 
-													  float sigmaPhiX, float sigmaPhiY, 
-													  float sigmaPhiZ, long seed )
-{
-
-  edm::LogInfo("PrintArgs") << "flat rotate randomly around LOCAL x,y,z axis with sigmaPhi " 
-							<< sigmaPhiX << " " << sigmaPhiY << " " << sigmaPhiZ;
-  
-  DRand48Engine aDRand48Engine;
-  if ( seed > 0 ) aDRand48Engine.setSeed(seed, 0);
-  else
-	{
-	  edm::Service<edm::RandomNumberGenerator> rng;
-	  aDRand48Engine.setSeed( rng->mySeed(), 0 );
-	}
-
-
-  RandFlat aFlatObjX( aDRand48Engine, sigmaPhiX );
-  RandFlat aFlatObjY( aDRand48Engine, sigmaPhiY );
-  RandFlat aFlatObjZ( aDRand48Engine, sigmaPhiZ );
-  
-  double phiX = aFlatObjX.fire();
-  double phiY = aFlatObjY.fire();
-  double phiZ = aFlatObjZ.fire();
-
-  alignable->rotateAroundLocalX( phiX );
-  alignable->rotateAroundLocalY( phiY );
-  alignable->rotateAroundLocalZ( phiZ );
-  m_modified++;
-
-}
 
 
 //__________________________________________________________________________________________________
