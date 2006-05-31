@@ -125,7 +125,7 @@ Bounds* NavVolume6Faces::computeBounds( int index,
       GlobalPoint corner( crossing.crossing( *plane, *crossed[i], *crossed[j]));
       corners.push_back(corner);
 
-#ifdef DEBUG
+#ifdef MDEBUG
       cout << "Crossing of planes is " << corner << endl;
       cout << "NormalVectors of the planes are " << plane->normalVector()
 	   << " " << crossed[i]->normalVector() << " " << crossed[j]->normalVector() << endl;
@@ -308,7 +308,7 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
 	std::pair<bool,StraightLinePlaneCrossing::PositionType> crossed = pc.position( plane);
 	if (crossed.first) {
 
-#ifdef DEBUG
+#ifdef MDEBUG
 	    cout << "Plane crossed at global point " << crossed.second
 		 << " local point " << plane.toLocal( Plane::GlobalPoint(crossed.second)) << endl;
 #endif

@@ -55,7 +55,6 @@ private:
   ExtendedDouble startPhiHelix;
 
   const MagneticField* theField;
-  GlobalVector inInverseGeV( const GlobalPoint& gp) const;
 };
 
 #endif

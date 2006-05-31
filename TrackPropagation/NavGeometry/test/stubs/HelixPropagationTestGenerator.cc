@@ -66,10 +66,10 @@ void HelixPropagationTestGenerator::generateStartValues () {
   // generate charge (+/-1) and (signed) curvature
   //
   theCharge = RandFlat::shoot(qMin,qMax)<0. ? -1 : 1;
-//    theCurvature = -inInverseGeV(currentPosition.toPoint()).z()*theCharge/currentDirection.perp();
-  theCurvature = -inInverseGeV(GlobalPoint(currentPosition.x(),
-							  currentPosition.y(),
-							  currentPosition.z())).z()*
+//    theCurvature = - theField->inInverseGeV(currentPosition.toPoint()).z()*theCharge/currentDirection.perp();
+  theCurvature = - theField->inInverseGeV(GlobalPoint(currentPosition.x(),
+						      currentPosition.y(),
+						      currentPosition.z())).z()*
     theCharge/currentDirection.perp();
   //
   // set start state
@@ -100,7 +100,7 @@ void HelixPropagationTestGenerator::setStart (const GlobalPoint& position,
   //
   // reset curvature
   //
-  theCurvature = -inInverseGeV(position).z()*
+  theCurvature = - theField->inInverseGeV(position).z()*
     theCharge/currentDirection.perp();
   //
   // set start state
@@ -169,9 +169,4 @@ HelixPropagationTestGenerator::bidirectionalStep (const ExtendedDouble stepSize)
   // return total path length
   //
   return sTotal;
-}
-
-GlobalVector HelixPropagationTestGenerator::inInverseGeV( const GlobalPoint& gp) const
-{
-  return theField->inTesla(gp) * 2.99792458e-3;
 }
