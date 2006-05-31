@@ -160,25 +160,25 @@ void L1GlobalCaloTrigger::print() {
   cout << endl;
 
   for (unsigned i=0; i<theSourceCards.size(); i++) {
-    cout << "Source Card : " << i << " at " << theSourceCards[i] << endl;
+    cout << "Source Card " << i << " : " << theSourceCards[i] << endl;
     //cout << (*theSourceCards[i]); 
   }
   cout << endl;
 
   for (unsigned i=0; i<theJetLeafCards.size(); i++) {
-    cout << "Jet Leaf : " << i << endl;
+    cout << "Jet Leaf Card " << i << " : " << theJetLeafCards[i] << endl;
     cout << (*theJetLeafCards[i]);
   }
   cout << endl;
 
   for (unsigned i=0; i<theWheelJetFpgas.size(); i++) {
-    cout << "Wheel Jet FPGA : " << i << endl; 
+    cout << "Wheel Jet FPGA " << i << " : " << theWheelJetFpgas[i] << endl; 
     cout << (*theWheelJetFpgas[i]);
   }
   cout << endl;
 
   for (unsigned i=0; i<theWheelEnergyFpgas.size(); i++) {
-    cout << "Wheel Energy FPGA : " << i << endl; 
+    cout << "Wheel Energy FPGA " << i <<" : " << theWheelEnergyFpgas[i] << endl; 
     cout << (*theWheelEnergyFpgas[i]);
   }
   cout << endl;
@@ -190,7 +190,7 @@ void L1GlobalCaloTrigger::print() {
   cout << endl;
 
   for (unsigned i=0; i<theEmLeafCards.size(); i++) {
-    cout << "EM Leaf : " << i << endl;
+    cout << "EM Leaf Card " << i << " : " << theEmLeafCards[i] << endl;
     cout << (*theEmLeafCards[i]);
   }
   cout << endl;
