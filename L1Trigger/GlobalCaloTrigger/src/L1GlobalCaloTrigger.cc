@@ -143,7 +143,7 @@ void L1GlobalCaloTrigger::process() {
   // Energy Final Stage
   theEnergyFinalStage->fetchInput();
   theEnergyFinalStage->process();
-	
+
 }
 
 void L1GlobalCaloTrigger::print() {

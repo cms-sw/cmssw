@@ -42,6 +42,14 @@ public:
   /// process the data and set outputs
   virtual void process();
 
+  /// get pointers to associated source cards
+  std::vector<L1GctSourceCard*> getSourceCards() const { return m_sourceCards; }
+
+  /// get pointers to associated jetfinders
+  L1GctJetFinder* getJetFinderA() const { return m_jetFinderA; }
+  L1GctJetFinder* getJetFinderB() const { return m_jetFinderB; }
+  L1GctJetFinder* getJetFinderC() const { return m_jetFinderC; }
+
   /// get the input data
   std::vector<L1GctRegion> getInputRegions() const;
     

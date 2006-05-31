@@ -77,22 +77,23 @@ void L1GctElectronSorter::fetchInput() {
       }
     }
   }
-
 }
 
 //Process sorts the electron candidates after rank and stores the highest four (in the outputCands vector)
 void L1GctElectronSorter::process() {
 
+
 //Make temporary copy of data
     std::vector<L1GctEmCand> data = m_inputCands;
-    
+
 //Then sort it
     sort(data.begin(),data.end(),rank_gt());
-  
+
 //Copy data to output buffer
     for(int i = 0; i<4; i++){
       m_outputCands[i] = data[i];
     }
+
 }
 
 void L1GctElectronSorter::setInputEmCand(int i, L1GctEmCand cand){

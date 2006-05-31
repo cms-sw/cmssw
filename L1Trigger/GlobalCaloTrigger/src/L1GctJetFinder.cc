@@ -65,6 +65,7 @@ ostream& operator << (ostream& os, const L1GctJetFinder& algo)
   os << "No of Source cards " << algo.m_sourceCards.size() << endl;
   for (unsigned i=0; i<algo.m_sourceCards.size(); i++) {
     os << "SourceCard* " << i << " = " << algo.m_sourceCards[i]<< endl;
+    os << "No of regions from this sourceCard " << algo.m_sourceCards[i]->getRegions().size() << endl;
   }
   os << "JetEtCalibrationLut* = " <<  algo.m_jetEtCalLut << endl;
   os << "No of input regions " << algo.m_inputRegions.size() << endl;

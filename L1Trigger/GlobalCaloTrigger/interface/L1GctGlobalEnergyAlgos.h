@@ -45,6 +45,12 @@ public:
         // also jet counts
         void setInputWheelJc(unsigned wheel, unsigned jcnum, unsigned count);
 
+	// provide access to input pointers
+	L1GctWheelEnergyFpga* getPlusWheelFpga() const { return m_plusWheelFpga; }
+	L1GctWheelEnergyFpga* getMinusWheelFpga() const { return m_minusWheelFpga; }
+	L1GctWheelJetFpga* getPlusWheelJetFpga() const { return m_plusWheelJetFpga; }
+	L1GctWheelJetFpga* getMinusWheelJetFpga() const { return m_minusWheelJetFpga; }
+
 	// return input data
         inline L1GctEtComponent getInputExValPlusWheel() const { return m_exValPlusWheel; }
         inline L1GctEtComponent getInputEyValPlusWheel() const { return m_eyValPlusWheel; }
@@ -54,15 +60,15 @@ public:
 	inline L1GctScalarEtVal getInputHtValPlusWheel() const { return m_htValPlusWheel; }
 	inline L1GctScalarEtVal getInputEtVlMinusWheel() const { return m_etVlMinusWheel; }
 	inline L1GctScalarEtVal getInputHtVlMinusWheel() const { return m_htVlMinusWheel; }
-        inline L1GctJcWheelType getInputJcValPlusWheel(unsigned jcnum) {return m_jcValPlusWheel[jcnum]; }
-        inline L1GctJcWheelType getInputJcVlMinusWheel(unsigned jcnum) {return m_jcVlMinusWheel[jcnum]; }
+        inline L1GctJcWheelType getInputJcValPlusWheel(unsigned jcnum) const {return m_jcValPlusWheel[jcnum]; }
+        inline L1GctJcWheelType getInputJcVlMinusWheel(unsigned jcnum) const {return m_jcVlMinusWheel[jcnum]; }
 
 	// return output data
-	inline L1GctScalarEtVal getEtMiss()    { return m_outputEtMiss; }
-	inline L1GctEtAngleBin  getEtMissPhi() { return m_outputEtMissPhi; }
-	inline L1GctScalarEtVal getEtSum()     { return m_outputEtSum; }
-	inline L1GctScalarEtVal getEtHad()     { return m_outputEtHad; }
-	inline L1GctJcFinalType getJetCount(unsigned jcnum) { return m_outputJetCounts[jcnum]; }
+	inline L1GctScalarEtVal getEtMiss()    const { return m_outputEtMiss; }
+	inline L1GctEtAngleBin  getEtMissPhi() const { return m_outputEtMissPhi; }
+	inline L1GctScalarEtVal getEtSum()     const { return m_outputEtSum; }
+	inline L1GctScalarEtVal getEtHad()     const { return m_outputEtHad; }
+	inline L1GctJcFinalType getJetCount(unsigned jcnum) const { return m_outputJetCounts[jcnum]; }
 	
 private:
 	
