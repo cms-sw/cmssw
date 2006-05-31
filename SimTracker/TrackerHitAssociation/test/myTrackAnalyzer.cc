@@ -39,7 +39,8 @@ class TrackerHitAssociator;
     //NEW
     std::vector<PSimHit> matched;
     TrackerHitAssociator associate(event);
-    
+    std::vector<unsigned int> SimTrackIds;
+
     const reco::TrackCollection tC = *(trackCollection.product());
     
     std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
@@ -53,46 +54,65 @@ class TrackerHitAssociator;
       std::cout << "\timpact parameter: " << track->d0()<< std::endl;
       std::cout << "\tcharge: " << track->charge()<< std::endl;
       std::cout << "\tnormalizedChi2: " << track->normalizedChi2()<< std::endl;
-      i++;
       cout<<"\tFrom EXTRA : "<<endl;
       cout<<"\t\touter PT "<< track->outerPt()<<endl;
       //
       // try and access Hits
       //
-      int count =0;
+      SimTrackIds.clear();
       cout <<"\t\tNumber of RecHits "<<track->recHitsSize()<<endl;
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
 	if ((*it)->isValid()){
 	  cout <<"\t\t\tRecHit on det "<<(*it)->geographicalId().rawId()<<endl;
 	  cout <<"\t\t\tRecHit in LP "<<(*it)->localPosition()<<endl;
 	  cout <<"\t\t\tRecHit in GP "<<theG->idToDet((*it)->geographicalId())->surface().toGlobal((*it)->localPosition()) <<endl;
-	  
-	  
 	  //try SimHit matching
-	  count++;
 	  matched.clear();	  
 	  matched = associate.associateHit((**it));
 	  if(!matched.empty()){
 	    cout << "\t\t\tmatched  " << matched.size() << endl;
-	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-	      cout << "\t\t\tSimhit  ID  " << (*m).trackId() 
-		   << "\t\t\tSimhit  LP  " << (*m).localPosition() 
-		   << "\t\t\tSimhit  GP  " << theG->idToDet((*it)->geographicalId())->surface().toGlobal((*m).localPosition()) << endl;   
-	      cout << "Track parameters " << theSimTracks[(*m).trackId()].momentum() << endl;
-	    }
-
+	    // 	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	    // 	      cout << "\t\t\tSimhit  ID  " << (*m).trackId() 
+	    // 		   << "\t\t\tSimhit  LP  " << (*m).localPosition() 
+	    // 		   << "\t\t\tSimhit  GP  " << theG->idToDet((*it)->geographicalId())->surface().toGlobal((*m).localPosition()) << endl;   
+	    // 	      	      cout << "Track parameters " << theSimTracks[(*m).trackId()].momentum() << endl;
+	    // 		      //do the majority of the simtrack here properly.  
+	    // 	    }
+	    //	    cout << "\t\t\tSimhit  ID  " << matched[0].trackId() << endl;
+	    // << "\t\t\tSimhit  LP  " << matched[0].localPosition() 
+	    //  << "\t\t\tSimhit  GP  " << theG->idToDet((*it)->geographicalId())->surface().toGlobal(matched[0].localPosition()) << endl;   
+	    //cout << "Track parameters " << theSimTracks[matched[0].trackId()].momentum() << endl;
 	    //now figure out which is the majority of the ids
-	    //myid[count] = matched[0].trackId();
+	    SimTrackIds.push_back(matched[0].trackId());
 	  }
-	//now get the track parameters
-	//simTk[myid]
 	}else{
 	  cout <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId()<<endl;
 	} 
       }
+
+      int nmax = 0;
+      int idmax = -1;
+      for(size_t j=0; j<SimTrackIds.size(); j++){
+	int n =0;
+	n = std::count(SimTrackIds.begin(), SimTrackIds.end(), SimTrackIds[j]);
+	//	cout << " Tracks # of rechits = " << track->recHitsSize() << " found match = " << SimTrackIds.size() << endl;
+	//cout << " rechit = " << i << " sim ID = " << SimTrackIds[i] << " Occurrence = " << n << endl; 
+	if(n>nmax){
+	  nmax = n;
+	  idmax = SimTrackIds[i];
+	}
+      }
+      float totsim = nmax;
+      float tothits = track->recHitsSize();//include pixel as well..
+      float fraction = totsim/tothits ;
+
+      cout << " Track id # " << i << "# of rechits = " << track->recHitsSize() << " matched simtrack id= " << idmax 
+	   << " fraction = " << fraction << endl;
+      cout << " sim track mom = " <<  theSimTracks[idmax].momentum() << endl;
+      i++;
+      
     }
   }
-  
 
 
 
