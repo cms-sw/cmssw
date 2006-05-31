@@ -1,4 +1,4 @@
-// $Id: ElectronCandidate.cc,v 1.2 2006/04/26 07:56:20 llista Exp $
+// $Id: ElectronCandidate.cc,v 1.4 2006/05/02 10:28:00 llista Exp $
 #include "DataFormats/EgammaCandidates/interface/ElectronCandidate.h"
 
 using namespace reco;
@@ -19,7 +19,7 @@ SuperClusterRef ElectronCandidate::superCluster() const {
 
 bool ElectronCandidate::overlap( const Candidate & c ) const {
   const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
-  return ( o != 0 && ! 
+  return ( o != 0 && 
 	   ( checkOverlap( track(), o->track() ) ||
 	     checkOverlap( superCluster(), o->superCluster() ) ) 
 	   );
