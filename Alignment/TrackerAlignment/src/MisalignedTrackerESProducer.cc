@@ -62,8 +62,8 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   AlignableTracker* theAlignableTracker = new AlignableTracker( &(*gD), &(*theTracker) );
 
   // Create misalignment scenario
-  MisalignmentScenarioBuilder scenarioBuilder( theParameterSet, theAlignableTracker );
-  scenarioBuilder.applyScenario();
+  MisalignmentScenarioBuilder scenarioBuilder( theAlignableTracker );
+  scenarioBuilder.applyScenario( theParameterSet );
 
   
   // Apply to geometry
