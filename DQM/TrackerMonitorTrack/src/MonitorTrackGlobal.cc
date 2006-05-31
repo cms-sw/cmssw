@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.cc,v 1.3 2006/05/26 10:12:49 dkcira Exp $
+// $Id: MonitorTrackGlobal.cc,v 1.4 2006/05/26 14:22:28 goitom Exp $
 //
 //
 
@@ -51,6 +51,33 @@ MonitorTrackGlobal::~MonitorTrackGlobal()
 // member functions
 //
 
+void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup)
+{
+  using namespace edm;
+
+  dbe->setCurrentFolder("SiStrip/Track Parameters");
+  trackSize = dbe->book1D("TkSize", "Tracks Per Event.", 100, 0, 100);
+  recHitSize = dbe->book1D("recHits", "RecHits Per Track.", 100, 0, 100);
+
+  dbe->setCurrentFolder("SiStrip/Track Parameters/MomentumParameters");
+
+  dbe->setCurrentFolder("SiStrip/Track Parameters/Impact Parameters/d0");
+  d0VsTheta = dbe->book2D("d0 vs. #theta", "Transverse Impact Parameter VS #theta.", 50, 0, 3.2, 50, 0, .2);
+  d0VsPhi = dbe->book2D("d0 vs. #phi", "Transverse Impact Parameter VS #phi.", 50, -4 , 4 , 50, 0, .2);
+  d0VsEta = dbe->book2D("d0 vs. #eta", "Transverse Impact Parameter VS #eta.", 50, -3 , 3 , 50, 0, .2);
+
+  dbe->setCurrentFolder("SiStrip/Track Parameters/Impact Parameters/z0");
+  z0VsTheta = dbe->book2D("z0 vs #theta", "Z Impact Parameter VS #theta.", 50, 0, 3.2, 50, -20, 20);
+  z0VsPhi = dbe->book2D("z0 vs #phi", "Z Impact Parameter VS #phi.", 50, -4, 4, 50, -20, 20);
+  z0VsEta = dbe->book2D("z0 vs #eta", "Z Impact Parameter VS #eta.", 50, -3, 3, 50, -20, 20);
+  
+  dbe->setCurrentFolder("SiStrip/Track Parameters/Trajectory Parameters");
+  chiSqrd = dbe->book1D("#chi^{2}", "#Chi^{2}", 50, 0, 100);
+  chiSqrdVsTheta = dbe->book2D("#chi^{2} vs #theta", "#chi^{2} vs #theta.", 50, 0, 3.2 , 50, 0, 20);
+  chiSqrdVsPhi = dbe->book2D("#chi^{2} vs #phi", "#chi^{2} vs #phi.", 50, -4 , 4 , 50, 0, 20);
+  chiSqrdVsEta = dbe->book2D("#chi^{2} vs #eta", "#chi^{2} vs #eta.", 50, -3 , 3, 50, 0, 20);
+}
+
 // ------------ method called to produce the data  ------------
 void
 MonitorTrackGlobal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -76,6 +103,8 @@ MonitorTrackGlobal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    {
      //LogInfo("Demo")<<"Track "<<(int)(track-trackCollection->begin())<<" Chisq: "<< track->normalizedChi2()<<" "<<track->recHitsSize()<<" hits";
 
+     recHitSize->Fill(track->recHitsSize());
+
      d0VsTheta->Fill(track->theta(), track->d0());
      d0VsPhi->Fill(track->phi(), track->d0());
      d0VsEta->Fill(track->eta(), track->d0());
@@ -84,36 +113,13 @@ MonitorTrackGlobal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      z0VsPhi->Fill(track->phi(), track->d0());
      z0VsEta->Fill(track->eta(), track->d0());
 
+     chiSqrd->Fill(track->normalizedChi2());
+
      chiSqrdVsTheta->Fill(track->theta(), track->normalizedChi2());
      chiSqrdVsPhi->Fill(track->phi(), track->normalizedChi2());
      chiSqrdVsEta->Fill(track->eta(), track->normalizedChi2());
 
    }
-}
-
-void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup)
-{
-  using namespace edm;
-
-  dbe->setCurrentFolder("SiStrip/Track Parameters");
-  trackSize = dbe->book1D("TkSize", "Track size.", 50, 0, 100);
-
-  dbe->setCurrentFolder("SiStrip/Track Parameters/MomentumParameters");
-
-  dbe->setCurrentFolder("SiStrip/Track Parameters/Impact Parameters/d0");
-  d0VsTheta = dbe->book2D("d0 vs. #theta", "Transverse Impact Parameter VS #theta.", 50, 0, 3.2, 50, 0, .2);
-  d0VsPhi = dbe->book2D("d0 vs. #phi", "Transverse Impact Parameter VS #phi.", 50, -4 , 4 , 50, 0, .2);
-  d0VsEta = dbe->book2D("d0 vs. #eta", "Transverse Impact Parameter VS #eta.", 50, -3 , 3 , 50, 0, .2);
-
-  dbe->setCurrentFolder("SiStrip/Track Parameters/Impact Parameters/z0");
-  z0VsTheta = dbe->book2D("z0 vs #theta", "Z Impact Parameter VS #theta.", 50, 0, 3.2, 50, -20, 20);
-  z0VsPhi = dbe->book2D("z0 vs #phi", "Z Impact Parameter VS #phi.", 50, -4, 4, 50, -20, 20);
-  z0VsEta = dbe->book2D("z0 vs #eta", "Z Impact Parameter VS #eta.", 50, -3, 3, 50, -20, 20);
-  
-  dbe->setCurrentFolder("SiStrip/Track Parameters/Trajectory Parameters");
-  chiSqrdVsTheta = dbe->book2D("#chi^{2} vs #theta", "#chi^{2} vs #theta.", 50, 0, 3.2 , 50, 0, 20);
-  chiSqrdVsPhi = dbe->book2D("#chi^{2} vs #phi", "#chi^{2} vs #phi.", 50, -4 , 4 , 50, 0, 20);
-  chiSqrdVsEta = dbe->book2D("#chi^{2} vs #eta", "#chi^{2} vs #eta.", 50, -3 , 3, 50, 0, 20);
 }
 
 void MonitorTrackGlobal::endJob(void)

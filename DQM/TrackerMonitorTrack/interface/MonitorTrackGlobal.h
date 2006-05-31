@@ -15,7 +15,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.h,v 1.1 2006/05/23 17:48:56 goitom Exp $
+// $Id: MonitorTrackGlobal.h,v 1.2 2006/05/25 18:22:03 dkcira Exp $
 //
 //
 
@@ -58,6 +58,7 @@ class MonitorTrackGlobal : public edm::EDAnalyzer {
   edm::ParameterSet conf_;
 
   MonitorElement * trackSize;
+  MonitorElement * recHitSize;
 
   MonitorElement * d0VsTheta;
   MonitorElement * d0VsPhi;
@@ -66,6 +67,7 @@ class MonitorTrackGlobal : public edm::EDAnalyzer {
   MonitorElement * z0VsPhi;
   MonitorElement * z0VsEta;
 
+  MonitorElement * chiSqrd;
   MonitorElement * chiSqrdVsTheta;
   MonitorElement * chiSqrdVsPhi;
   MonitorElement * chiSqrdVsEta;

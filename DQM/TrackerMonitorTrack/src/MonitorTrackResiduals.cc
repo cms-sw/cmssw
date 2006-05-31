@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.2 2006/05/30 15:25:11 goitom Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.3 2006/05/30 21:40:59 dkcira Exp $
 //
 //
 
@@ -105,7 +105,7 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
   int detBegin=(*detid_begin)&0x1ffffff;
   int detEnd=(*detid_end)&0x1ffffff;
 
-  HitResidual["TIB"] = dbe->book2D("TIBHitRes", "TIB Hit residuals",  TIBDetIds.size(), detBegin, detEnd, 50, 0, .2);
+  HitResidual["TIB"] = dbe->bookProfile("TIBHitRes", "TIB Hit residuals",  TIBDetIds.size(), detBegin, detEnd, 1, -4, 4);
 
   detid_begin = TOBDetIds.begin();
   detid_end = TOBDetIds.end()-1;
@@ -113,7 +113,7 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
   detBegin=(*detid_begin)&0x1ffffff;
   detEnd=(*detid_end)&0x1ffffff;
 
-  HitResidual["TOB"] = dbe->book2D("TOBHitRes", "TOB Hit residuals", TOBDetIds.size(), detBegin, detEnd, 50, 0, .2);
+  HitResidual["TOB"] = dbe->bookProfile("TOBHitRes", "TOB Hit residuals", TOBDetIds.size(), detBegin, detEnd, 1, -4, 4);
 
   detid_begin = TIDDetIds.begin();
   detid_end = TIDDetIds.end()-1;
@@ -121,7 +121,7 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
   detBegin=(*detid_begin)&0x1ffffff;
   detEnd=(*detid_end)&0x1ffffff;
 
-  HitResidual["TID"] = dbe->book2D("TIDHitRes", "TID Hit residuals", TIDDetIds.size(), detBegin, detEnd, 50, 0, .2);
+  HitResidual["TID"] = dbe->bookProfile("TIDHitRes", "TID Hit residuals", TIDDetIds.size(), detBegin, detEnd, 1, -4, 4);
 
   detid_begin = TECDetIds.begin();
   detid_end = TECDetIds.end()-1;
@@ -129,7 +129,7 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
   detBegin=(*detid_begin)&0x1ffffff;
   detEnd=(*detid_end)&0x1ffffff;
 
-  HitResidual["TEC"] = dbe->book2D("TECHitRes", "TEC Hit residuals", TECDetIds.size(), detBegin, detEnd, 50, 0, .2);
+  HitResidual["TEC"] = dbe->bookProfile("TECHitRes", "TEC Hit residuals", TECDetIds.size(), detBegin, detEnd, 1, -4, 4);
 
 }
 
@@ -233,19 +233,19 @@ MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           int CutRawDetId=(rawDetId)&0x1ffffff;
 	  if (rawDetId>=(*TIBdetid_begin) || rawDetId<=(*TIBdetid_end))
 	    {
-	      HitResidual["TIB"]->Fill(CutRawDetId, residual, 1.);
+	      HitResidual["TIB"]->Fill(CutRawDetId, residual);
 	    }
 	  if (rawDetId>=(*TOBdetid_begin) || rawDetId<=(*TOBdetid_end))
 	    {
-	      HitResidual["TOB"]->Fill(CutRawDetId, residual, 1.);
+	      HitResidual["TOB"]->Fill(CutRawDetId, residual);
 	    }
 	  if (rawDetId>=(*TIDdetid_begin) || rawDetId<=(*TIDdetid_end))
 	    {
-	      HitResidual["TID"]->Fill(CutRawDetId, residual, 1.);
+	      HitResidual["TID"]->Fill(CutRawDetId, residual);
 	    }
 	  if (rawDetId>=(*TECdetid_begin) || rawDetId<=(*TECdetid_end))
 	    {
-	      HitResidual["TEC"]->Fill(CutRawDetId, residual, 1.);
+	      HitResidual["TEC"]->Fill(CutRawDetId, residual);
 	    }
 	}
     }
