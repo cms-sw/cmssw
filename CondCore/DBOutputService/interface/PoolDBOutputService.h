@@ -59,11 +59,11 @@ namespace cond{
 	  std::map<unsigned long long, std::string>::iterator 
 	    lastIOVit=m_iov->iov.lower_bound(m_endOfTime);
 	  unsigned long long closeIOVval=lastIOVit->first;
-	  m_iov->iov.insert( std::make_pair(m_currentTime,lastIOVit->second) );
+	  m_iov->iov.insert( std::make_pair(tillTime,lastIOVit->second) );
 	  if( closeIOVval <= tillTime ){
 	    throw cond::Exception(std::string("PoolDBOutputService::newValidityForNewPayload cannot append beyond IOV boundary"));
 	  }else{
-	    m_iov->iov[tillTime]=payloadTok;
+	    m_iov->iov[m_endOfTime]=payloadTok;
 	  }
 	}else{
 	  m_iov->iov.insert(std::make_pair(tillTime,payloadTok));
