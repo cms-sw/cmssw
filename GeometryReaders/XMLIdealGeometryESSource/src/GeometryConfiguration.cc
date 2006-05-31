@@ -8,22 +8,35 @@
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageService/interface/MessageLogger.h"
 
 #include <string>
 #include <vector>
 
-GeometryConfiguration::GeometryConfiguration() : configHandler_ (){ }
+GeometryConfiguration::GeometryConfiguration( const edm::ParameterSet& pset ) : dummyLocation_("") { 
+  relFiles_ = pset.getParameter<std::vector<std::string> >("geomXMLFiles");
+  std::vector<std::string>::const_iterator rit = relFiles_.begin();
+  std::vector<std::string>::const_iterator ritEnd = relFiles_.end();
+  for ( ; rit != ritEnd; ++rit ) {
+    edm::FileInPath fp(*rit);
+    files_.push_back(fp.fullPath());
+    emptyStrings_.push_back("");
+  }
+}
 
 GeometryConfiguration::~GeometryConfiguration() { }
 
 /// Return the Schema Location.
 std::string GeometryConfiguration::getSchemaLocation() const {
-  return configHandler_.getSchemaLocation();
+  edm::LogError("GeometryConfiguration") << " This sub-class of DDLDocumentProvider does not USE XML parsing!!!" << std::endl;
+  return dummyLocation_;
 }
 
 /// Return a flag whether to do xml validation or not.
 bool GeometryConfiguration::doValidation() const {
-  return configHandler_.doValidation();
+  edm::LogWarning("GeometryConfiguration") << " the doValidation() method not valid for this DDLDocumentProvider" << std::endl;
+  return true;
 }
 
 /// Return a list of files as a vector of strings.
@@ -38,7 +51,9 @@ const std::vector < std::string >  & GeometryConfiguration::getFileList(void) co
 **/
 const std::vector < std::string >  & GeometryConfiguration::getURLList(void) const
 {
-  return urls_;
+  edm::LogWarning("GeometryConfiguration") << " the getURLList of this DDLDocumentProvider empty strings" << std::endl;
+  //  return relFiles_;
+  return emptyStrings_;
 }
 
 /// Print out the list of files.
@@ -50,32 +65,7 @@ void GeometryConfiguration::dumpFileList(void) const {
 }
 
 int GeometryConfiguration::readConfig( const std::string& fname ) {
-
-  DCOUT('X', "readConfig() about to read " + fname );
-  //get hold of the DDLParser
-  DDLParser * parser = DDLParser::instance();
-
-  //set the content handler for the xerces:sax2parser
-  parser->getXMLParser()->setContentHandler(&configHandler_);
-
-  //parse the configuration with the xerces:sax2parser
-  parser->getXMLParser()->parse(fname.c_str());
-
-  //the handler keeps record of all files it processed.
-  const std::vector<std::string>& vURLs = configHandler_.getURLs();
-  const std::vector<std::string>& vFiles = configHandler_.getFileNames();
-
-  //change the files to be full path names
-  //since we are bypassing the original intent, we need to provide a vector
-  //of empty strings for the urls to match the files.
-  size_t maxInd = vFiles.size();
-  size_t ind = 0;
-  for ( ; ind < maxInd ; ind++) {
-    edm::FileInPath fp(vURLs[ind] + "/" + vFiles[ind]);
-    files_.push_back(fp.fullPath());
-    urls_.push_back("");
-  }
-  std::cout << "======== Geometry Configuration read ==========" << std::endl;
+  edm::LogWarning("GeometryConfiguration") << " The readConfig of this DDLDocumentProvider is not valid!" << std::endl;
   return 0;
 }
 

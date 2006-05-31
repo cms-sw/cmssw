@@ -15,16 +15,29 @@
 XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p): rootNodeName_(p.getParameter<std::string>("rootNodeName"))
 {
     DDLParser * parser = DDLParser::instance();
-    GeometryConfiguration cf;
-    edm::FileInPath fp = p.getParameter<edm::FileInPath>("GeometryConfiguration");
-    DCOUT ('X', "FileInPath is looking for " + fp.fullPath());
-    int result1 = cf.readConfig(fp.fullPath());
-    if (result1 !=0) throw DDException("DDLConfiguration: readConfig failed !");
-    int result2 = parser->parse(cf);
-    if (result2 != 0) throw DDException("DDD-Parser: parsing failed!");
-    if(rootNodeName_ == "" || rootNodeName_ == "\""){
-       rootNodeName_ = DDRootDef::instance().root().ddname();
+    GeometryConfiguration cf(p);
+//     edm::FileInPath fp = p.getParameter<edm::FileInPath>("GeometryConfiguration");
+//     DCOUT ('X', "FileInPath is looking for " + fp.fullPath());
+//     int result1 = cf.readConfig(fp.fullPath());
+//     if (result1 !=0) throw DDException("DDLConfiguration: readConfig failed !");
+//    if(rootNodeName_ == "" || rootNodeName_ == "\""){
+//       rootNodeName_ = DDRootDef::instance().root().ddname();
+//    }
+    if ( rootNodeName_ == "" || rootNodeName_ == "\\" ) {
+      throw DDException ("XMLIdealGeometryESSource must have a root node name.");
     }
+
+    DDRootDef::instance().set(DDName(rootNodeName_));
+    //    std::cout << "SET ROOT NODE TO: " << rootNodeName_ << std::endl;
+
+    int result2 = parser->parse(cf);
+
+    if (result2 != 0) throw DDException("DDD-Parser: parsing failed!");
+
+    if ( !bool(DDLogicalPart( DDName(rootNodeName_) )) ) {
+      throw DDException ("XMLIdealGeometryESSource was given a non-existent node name for the root. " + rootNodeName_ );
+    }
+
     //use the label specified in the configuration file as the 
     // label client code must use to get the DDCompactView
     if(""==p.getParameter<std::string>("@module_label")){

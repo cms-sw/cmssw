@@ -2,7 +2,7 @@
 #define GeometryConfiguration_H
 
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
-#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class DDLParser;
 
@@ -11,11 +11,16 @@ class DDLParser;
 #include <memory>
 
 /**
+   May 23, 2006:  Michael Case:
+   This class provides the filenames to the DDLParser from the
+   parameter-set passed by XMLIdealGeometryESSource.  This removes 
+   the dependency on the Configuration Language of the DDD and moves
+   the list of XML files to the parameter-set for provenance.
  **/
 class GeometryConfiguration: public DDLDocumentProvider {
 
  public:
-  GeometryConfiguration();
+  GeometryConfiguration( const edm::ParameterSet & p );
 
   virtual ~GeometryConfiguration();
 
@@ -44,11 +49,10 @@ class GeometryConfiguration: public DDLDocumentProvider {
  protected:
 
  private:
-
-  DDLSAX2ConfigHandler configHandler_;
   std::vector< std::string > files_;
-  std::vector< std::string > urls_;
-
+  std::vector< std::string > relFiles_;
+  std::vector< std::string > emptyStrings_;
+  std::string dummyLocation_;
 };
 
 #endif
