@@ -1,0 +1,16 @@
+
+<export>
+ <lib name=MagneticFieldUniformEngine>
+ <use name=MagneticField/Engine>
+</export>
+
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=MagneticField/VolumeBasedEngine>
+<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
+<use name=FWCore/Services>
+<use name=FWCore/ParameterSet>
+
+<flags SEAL_PLUGIN_NAME="MagneticFieldUniformEngine">
+
