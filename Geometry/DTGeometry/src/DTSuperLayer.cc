@@ -1,7 +1,7 @@
 /** \file 
  *  
  *  $date   : 13/01/2006 11:46:51 CET $
- *  $Revision: 1.1 $
+ *  $Revision: 1.2 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -47,12 +47,10 @@ bool DTSuperLayer::operator==(const DTSuperLayer& sl) const {
 
 /// Return the layers in the SL
 std::vector< const GeomDet*> DTSuperLayer::components() const {
-  std::vector<const GeomDet*> result;
-  result.insert(result.end(), theLayers.begin(), theLayers.end());
-  return result;
+  return std::vector<const GeomDet*>(theLayers.begin(), theLayers.end());
 }
 
-std::vector< const DTLayer*> DTSuperLayer::layers() const {
+const std::vector< const DTLayer*>& DTSuperLayer::layers() const {
   return theLayers;
 }
 

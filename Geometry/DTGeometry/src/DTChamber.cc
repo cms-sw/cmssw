@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/22 11:06:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/29 19:05:23 $
+ *  $Revision: 1.2 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  */
 
@@ -44,14 +44,10 @@ void DTChamber::add(DTSuperLayer* sl) {
 }
 
 std::vector<const GeomDet*> DTChamber::components() const {
-  std::vector<const GeomDet*> result;
-  result.insert(result.end(), theSLs.begin(), theSLs.end());
-  // for (std::vector<const DTSuperLayer*>::iterator isl=theSLs.begin();
-  //      isl!=theSLs.end(); ++isl) result.push_back(*isl);
-  return result;
+  return  std::vector<const GeomDet*>(theSLs.begin(), theSLs.end());
 }
 
-std::vector<const DTSuperLayer*> DTChamber::superLayers() const {
+const std::vector<const DTSuperLayer*>& DTChamber::superLayers() const {
   return theSLs;
 }
 
