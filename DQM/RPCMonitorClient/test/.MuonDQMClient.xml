@@ -8,11 +8,19 @@
 </soap-env:Header>
 <soap-env:Body>
 <xdaq:Configure xmlns:xdaq="urn:xdaq-soap:3.0">
-<xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
+<xc:Partition 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" 
+  xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 	
     	<xc:Context url="http://.host:.portn">
 	    
-                <xc:Application class="MuonDQMClient" id="15" instance="0" network="local"></xc:Application>
+                <xc:Application class="MuonDQMClient" id="15" instance="0" network="local">                  
+		    <properties xmlns="urn:xdaq-application:MuonDQMClient" xsi:type="soapenc:Struct">
+                    <serverHost xsi:type="xsd:string">lxplus019.cern.ch</serverHost>
+                    <serverPort xsi:type="xsd:unsignedLong">9090</serverPort>
+                    </properties>
+		</xc:Application>
                 <xc:Module>.libpath</xc:Module>
 
         </xc:Context>
