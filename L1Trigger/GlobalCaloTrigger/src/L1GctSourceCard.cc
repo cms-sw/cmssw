@@ -9,6 +9,17 @@
 
 using namespace std;
 
+const int L1GctSourceCard::NUM_ELEC = 4;
+const int L1GctSourceCard::NUM_REG_TYPE2 = 12; 
+const int L1GctSourceCard::NUM_REG_TYPE3 = 10; 
+const int L1GctSourceCard::N_MIP_BITS = 14;  
+const int L1GctSourceCard::N_QUIET_BITS = 14; 
+const int L1GctSourceCard::DATA_OFFSET_TYPE3 = L1GctSourceCard::NUM_ELEC*2 + L1GctSourceCard::N_MIP_BITS
+                                             + L1GctSourceCard::N_QUIET_BITS;
+const int L1GctSourceCard::DATA_OFFSET_TYPE2 = L1GctSourceCard::NUM_ELEC*2 + L1GctSourceCard::N_MIP_BITS 
+                                             + L1GctSourceCard::N_QUIET_BITS + L1GctSourceCard::NUM_REG_TYPE3;
+
+
 L1GctSourceCard::L1GctSourceCard(int id, SourceCardType typeVal):
   m_id(id),
   m_cardType(typeVal)

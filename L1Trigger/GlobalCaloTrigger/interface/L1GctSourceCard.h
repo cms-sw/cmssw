@@ -132,13 +132,13 @@ class L1GctSourceCard
 
  private:  // members
 
-  static const int NUM_ELEC = 4;
-  static const int NUM_REG_TYPE2 = 10; ///< No. regions type 2 card takes in
-  static const int NUM_REG_TYPE3 = 12; ///< No. regions type 3 card takes in
-  static const int N_MIP_BITS = 14;  // number of MIP bits in file format
-  static const int N_QUIET_BITS = 14;  // number of quiet bits in file format
-  static const int DATA_OFFSET_TYPE3 = NUM_ELEC*2 + N_MIP_BITS + N_QUIET_BITS; ///< Data offset for file reading
-  static const int DATA_OFFSET_TYPE2 = NUM_ELEC*2 + N_MIP_BITS + N_QUIET_BITS + NUM_REG_TYPE3; ///< Data offset for file reading  
+  static const int NUM_ELEC;
+  static const int NUM_REG_TYPE2; ///< No. regions type 2 card takes in
+  static const int NUM_REG_TYPE3; ///< No. regions type 3 card takes in
+  static const int N_MIP_BITS;  // number of MIP bits in file format
+  static const int N_QUIET_BITS;  // number of quiet bits in file format
+  static const int DATA_OFFSET_TYPE3; ///< Data offset for file reading
+  static const int DATA_OFFSET_TYPE2; ///< Data offset for file reading  
 
 
   /// card ID
