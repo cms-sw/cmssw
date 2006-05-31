@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.9 2006/05/15 08:47:59 dkcira Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.10 2006/05/23 13:34:44 dkcira Exp $
 //
 //
 
@@ -53,9 +53,12 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
    bool show_mechanical_structure_view = conf_.getParameter<bool>("ShowMechanicalStructureView");
    bool show_readout_view = conf_.getParameter<bool>("ShowReadoutView");
    bool show_control_view = conf_.getParameter<bool>("ShowControlView");
-   LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"show_mechanical_structure_view = "<<show_mechanical_structure_view;
-   LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"show_readout_view = "<<show_readout_view;
-   LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"show_control_view = "<<show_control_view;
+   bool select_all_detectors = conf_.getParameter<bool>("SelectAllDetectors");
+   LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ShowMechanicalStructureView = "<<show_mechanical_structure_view;
+   LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ShowReadoutView = "<<show_readout_view;
+   LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ShowControlView = "<<show_control_view;
+   LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"SelectAllDetectors = "<<select_all_detectors;
+
 
   if ( show_mechanical_structure_view ){
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
@@ -67,22 +70,23 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
     activeDets.clear(); // just in case
     tkmechstruct->addActiveDetectorsRawIds(activeDets);
 
-    // use SiStripSubStructure for selecting certain regions
-    SiStripSubStructure substructure;
-//    vector<uint32_t> SelectedDetIds;
-//    substructure.getTIBDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
-//    substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 2, 0);    // this adds rawDetIds to SelectedDetIds
-//    substructure.getTIDDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
-//    substructure.getTECDetectors(activeDets, SelectedDetIds, 1, 2, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
-      // for the mtcc you can get everything
-     vector<uint32_t> SelectedDetIds = activeDets;
-//     std::vector<uint32_t>::iterator idets = activeDets.find(0);
-//     activeDets.erase(idets);
-     // remove any zero elements - there should be none, but just in case
+    vector<uint32_t> SelectedDetIds;
+    if(select_all_detectors){
+      // select all detectors if appropriate flag is set,  for example for the mtcc
+      SelectedDetIds = activeDets;
+    }else{
+      // use SiStripSubStructure for selecting certain regions
+      SiStripSubStructure substructure;
+      substructure.getTIBDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
+//      substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 2, 0);    // this adds rawDetIds to SelectedDetIds
+//      substructure.getTIDDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
+//      substructure.getTECDetectors(activeDets, SelectedDetIds, 1, 2, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
+    }
+
+     // remove any eventual zero elements - there should be none, but just in case
      for(std::vector<uint32_t>::iterator idets = SelectedDetIds.begin(); idets != SelectedDetIds.end(); idets++){
        if(*idets == 0) SelectedDetIds.erase(idets);
      }
-
 
      // use SistripHistoId for producing histogram id (and title)
      SiStripHistoId hidmanager;
@@ -106,10 +110,10 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
       hid = hidmanager.createHistoId("DigisPerDetector","det",*detid_iterator);
       local_modmes.DigisPerModule = dbe_->book1D(hid, hid, 21, -0.5, 20.5);
       // create ADCs per "hottest" strip
-      hid = hidmanager.createHistoId("ADCsHottest strip","det",*detid_iterator);
+      hid = hidmanager.createHistoId("ADCsHottestStrip","det",*detid_iterator);
       local_modmes.ADCsHottestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.);
       // create ADCs per "coolest" strip
-      hid = hidmanager.createHistoId("ADCsCoolest strip","det",*detid_iterator);
+      hid = hidmanager.createHistoId("ADCsCoolestStrip","det",*detid_iterator);
       local_modmes.ADCsCoolestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.);
       // append to DigiMEs
       DigiMEs.insert( std::make_pair(*detid_iterator, local_modmes));
