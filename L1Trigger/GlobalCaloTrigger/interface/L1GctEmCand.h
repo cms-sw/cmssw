@@ -20,6 +20,9 @@ public:
   L1GctEmCand(unsigned rank=0, unsigned eta=0, unsigned phi=0);
   ~L1GctEmCand();
 	
+  /// reset the contents
+  void reset();
+
   /// set rank bits
   void setRank(unsigned rank) { m_rank = rank; }
   
