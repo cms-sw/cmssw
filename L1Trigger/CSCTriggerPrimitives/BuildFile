@@ -1,0 +1,16 @@
+<flags SEAL_PLUGIN_NAME="L1TriggerCSCTriggerPrimitives">
+
+<export>
+ <lib name=L1TriggerCSCTriggerPrimitives>
+ <use name=L1Trigger/CSCCommonTrigger>
+// <use name=Geometry/Records>
+ <use name=DataFormats/CSCDigi>
+ <use name=DataFormats/MuonDetId>
+</export>
+
+<use name=L1Trigger/CSCCommonTrigger>
+<use name=Geometry/CSCGeometry>
+//<use name=Geometry/Records>
+<use name=DataFormats/CSCDigi>
+<use name=DataFormats/MuonDetId>
+<use name=boost>
