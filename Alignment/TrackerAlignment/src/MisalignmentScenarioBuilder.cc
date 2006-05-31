@@ -13,22 +13,18 @@
 
 
 //__________________________________________________________________________________________________
-MisalignmentScenarioBuilder::MisalignmentScenarioBuilder( const edm::ParameterSet& scenario,
-														  AlignableTracker* tracker ):
-  theTracker( tracker ),
-  theScenario( scenario )
+void MisalignmentScenarioBuilder::applyScenario( const edm::ParameterSet& scenario )
 {
 
-}
+  // Apply the scenario to all main components of tracker.
+  theScenario = scenario;
 
 
-
-
-//__________________________________________________________________________________________________
-void MisalignmentScenarioBuilder::applyScenario( void )
-{
-
-  // Apply the scenario defined in theScenario to all main components of tracker.
+  // Seed is set at top-level, and is mandatory
+  if ( this->hasParameter_( "seed", theScenario ) )
+	theTrackerModifier.setSeed( static_cast<long>(theScenario.getParameter<int>("seed")) );
+  else
+	throw cms::Exception("BadConfig") << "No generator seed defined!";  
   
   // TOB
   std::vector<Alignable*> outerBarrels = theTracker->outerHalfBarrels();
@@ -84,7 +80,7 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
   // Retrieve parameters for all components at this level
   std::ostringstream name;
   name << levelName << "s";
-  edm::ParameterSet globalParameters = this->getParameterSet_( pSet, name.str() );
+  edm::ParameterSet globalParameters = this->getParameterSet_( name.str(), pSet );
   if ( !globalParameters.empty() )
 	LogDebug("PrintParameters") << indent << " *** " << levelName << ": found "
 								<< globalParameters.getParameterNames().size() 
@@ -105,7 +101,7 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
 	  // Check for special parameters -> merge with global
 	  name.str("");
 	  name << levelName << iComponent;
-	  edm::ParameterSet localParameters = this->getParameterSet_( pSet, name.str() );
+	  edm::ParameterSet localParameters = this->getParameterSet_( name.str(), pSet );
 	  LogDebug("PrintParameters") << indent << " ** " << name.str() << ": found "
 								  << localParameters.getParameterNames().size() 
 								  << " local parameters"  << std::endl;
@@ -146,7 +142,7 @@ void MisalignmentScenarioBuilder::mergeParameters_( edm::ParameterSet& localSet,
 	  if ( globalSet.retrieve( *iter ).typeCode() == 'P' )
 		{
 		  // This is a parameter set: check it
-		  edm::ParameterSet subLocalSet = this->getParameterSet_( localSet, (*iter) );
+		  edm::ParameterSet subLocalSet = this->getParameterSet_( (*iter), localSet );
 		  if ( subLocalSet.empty() ) 
 			{
 			  // No local subset exists: just insert it
@@ -220,21 +216,31 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
 //__________________________________________________________________________________________________
 // Get parameter set corresponding to given name.
 // Return empty parameter set if does not exist.
-edm::ParameterSet MisalignmentScenarioBuilder::getParameterSet_( const edm::ParameterSet& pSet, 
-																 const std::string& name ) const
+edm::ParameterSet MisalignmentScenarioBuilder::getParameterSet_( const std::string& name,
+																 const edm::ParameterSet& pSet ) const
 {
 
   edm::ParameterSet result;
 
   // Get list of parameter set names and retrieve requested one
   std::vector<std::string> parameterSetNames;
-  if ( pSet.getParameterSetNames( parameterSetNames, true ) > 0 )
-	for ( std::vector<std::string>::iterator iter = parameterSetNames.begin();
-		  iter != parameterSetNames.end(); iter++ )
-	  if ( (*iter) == name )
-		result = pSet.getParameter<edm::ParameterSet>( name );
+  if ( this->hasParameter_( name, pSet ) )
+	result = pSet.getParameter<edm::ParameterSet>( name );
 
   return result;
+
+}
+
+
+
+//__________________________________________________________________________________________________
+bool MisalignmentScenarioBuilder::hasParameter_( const std::string& name,
+												 const edm::ParameterSet& pSet ) const
+{
+
+  // Get list of parameter set names and look for requested one
+  std::vector<std::string> names = pSet.getParameterNames();
+  return ( std::find( names.begin(), names.end(), name ) != names.end() );
 
 }
 

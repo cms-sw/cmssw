@@ -18,14 +18,13 @@ class MisalignmentScenarioBuilder
 public:
 
   /// Constructor
-  MisalignmentScenarioBuilder( const edm::ParameterSet& scenario,
-							   AlignableTracker* tracker );
+  MisalignmentScenarioBuilder( AlignableTracker* tracker ) : theTracker(tracker) {};
 
   /// Destructor
   ~MisalignmentScenarioBuilder() {};
 
-  /// Apply the scenario to the tracker
-  void applyScenario( void );
+  /// Apply misalignment scenario to the tracker
+  void applyScenario( const edm::ParameterSet& scenario );
 
 private: // Methods
 
@@ -47,7 +46,10 @@ private: // Methods
 							 edm::ParameterSet& subSet ) const;
 
   /// Get parameter set corresponding to given name (returns empty parameter set if does not exist)
-  edm::ParameterSet getParameterSet_( const edm::ParameterSet& pSet, const std::string& name ) const;
+  edm::ParameterSet getParameterSet_( const std::string& name, const edm::ParameterSet& pSet ) const;
+
+  /// Check if given parameter exists in parameter set
+  bool hasParameter_( const std::string& name, const edm::ParameterSet& pSet ) const;
 
   /// Print all parameters and values for given set
   void printParameters_( const edm::ParameterSet& pSet, const bool showPsets = false ) const;
