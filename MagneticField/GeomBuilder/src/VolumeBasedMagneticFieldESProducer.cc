@@ -1,5 +1,10 @@
-// user include files
-#include "MagneticField/GeomBuilder/interface/VolumeBasedMagneticFieldESProducer.h"
+/** \file
+ *
+ *  $Date: $
+ *  $Revision: $
+ */
+
+#include "MagneticField/GeomBuilder/src/VolumeBasedMagneticFieldESProducer.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"

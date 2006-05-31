@@ -6,25 +6,26 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2005/10/26 18:33:19 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/12/12 18:24:28 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 #include "Geometry/Surface/interface/ReferenceCounted.h" 
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
-#include "MagneticField/GeomBuilder/interface/VolumeBasedMagneticFieldESProducer.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include <string>
 #include <vector>
-#include <iostream>
 #include <map>
 
 class Surface;
 class MagBLayer;
 class MagESector;
 class MagVolume6Faces;
+namespace magneticfield {
+  class VolumeBasedMagneticFieldESProducer;
+}
 
 
 class MagGeoBuilderFromDDD  {

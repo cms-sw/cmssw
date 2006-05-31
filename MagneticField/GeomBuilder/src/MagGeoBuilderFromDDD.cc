@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/08 22:13:25 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/12/12 18:24:52 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -49,6 +49,7 @@
 #include <set>
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
+#include "MagneticField/GeomBuilder/src/VolumeBasedMagneticFieldESProducer.h"
 
 using namespace std;
 
