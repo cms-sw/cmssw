@@ -19,6 +19,9 @@ Engine for the volume-based magnetic field. For details, see CMS CR-2005/011.
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
+No class is directly exposed to the user: field engines are accessed via the MagneticField interface.
+
+The internal implementation is based on the following classes:
 
 - VolumeBasedMagneticField : the concrete MagneticField engine.
 - MagGeometry : the class handling the field volume geometry; normally not used directly by end users.
@@ -26,6 +29,9 @@ Engine for the volume-based magnetic field. For details, see CMS CR-2005/011.
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
+
+- VolumeBasedMagneticFieldESProducer.
+
 To use this engine you should include in the cfi:
 
 <pre>
