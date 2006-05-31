@@ -1,14 +1,22 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=CalibCalorimetry/XMLReader>
 <use name=CondFormats/DataRecord>
-<flags SEAL_PLUGIN_NAME="CalibCalorimetryEcalMiscalibXMLReader">
+<use name=DataFormats/EcalDetId>
+<use name=CondFormats/EcalObjects>
+<use name=CondFormats/HcalObjects>
+<use name=DataFormats/DetId>
+<Use name=xerces-c>
+<flags SEAL_PLUGIN_NAME="CalibCalorimetryCaloMiscalibTools">
 <export>
-   <lib name=CalibCalorimetryEcalMiscalibXMLReader>
+   <lib name=CalibCalorimetryCaloMiscalibTools>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
-   <use name=CalibCalorimetry/XMLReader>
-   <use name=CondFormats/DataRecord>
+<use name=CondFormats/DataRecord>
+<use name=DataFormats/EcalDetId>
+<use name=CondFormats/EcalObjects>
+<use name=CondFormats/HcalObjects>
+<use name=DataFormats/DetId>
+<Use name=xerces-c>
 </export>
