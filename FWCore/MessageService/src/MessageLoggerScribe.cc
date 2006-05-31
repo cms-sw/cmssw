@@ -41,13 +41,17 @@
 //	every destination. 
 //
 //   6 - 5/18/06 mf  - in configure_dest()
-//	Implement establishing intervals between reactin to message of
+//	Implement establishing intervals between reacting to message of
 //	some type.
 //
 //   7 - 5/24/06 mf  - in configure_dest()
 //	Corrected algorithm for estabolishing limits and intervals, avoiding
-//      interference between setting the one and getting thedefault for the 
+//      interference between setting the one and getting the default for the 
 //      other.
+//
+//   8 - 5/31/06 wmtan  - in configure_errorlog()
+//	The presence of the framework job report should not affect the output
+//      to the early destination (cerr).
 // ----------------------------------------------------------------------
 
 
@@ -308,8 +312,8 @@ void
      = getAparameter<vString>(job_pset_p, "fwkJobReports", empty_vString);
 
   // dial down the early destination if other dest's are supplied:
-  if( ! fwkJobReports.empty() )
-    early_dest.setThreshold(ELhighestSeverity);
+  // if( ! fwkJobReports.empty() ) // change log 8
+  //   early_dest.setThreshold(ELhighestSeverity);
 
   // establish each fwkJobReports destination:
   for( vString::const_iterator it = fwkJobReports.begin()
