@@ -22,8 +22,8 @@ using std::vector;
 const int L1GlobalCaloTrigger::N_SOURCE_CARDS = 54;
 const int L1GlobalCaloTrigger::N_JET_LEAF_CARDS = 6;
 const int L1GlobalCaloTrigger::N_EM_LEAF_CARDS = 2;
-const int L1GlobalCaloTrigger::N_WHEEL_JET_FPGAS = 2;
-const int L1GlobalCaloTrigger::N_WHEEL_ENERGY_FPGAS = 2;
+const int L1GlobalCaloTrigger::N_WHEEL_CARDS = 2;
+
 
 // constructor
 L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile) :
@@ -31,8 +31,8 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile) :
   theSourceCards(N_SOURCE_CARDS),
   theJetLeafCards(N_JET_LEAF_CARDS),
   theEmLeafCards(N_EM_LEAF_CARDS),
-  theWheelJetFpgas(N_WHEEL_JET_FPGAS),
-  theWheelEnergyFpgas(N_WHEEL_ENERGY_FPGAS)
+  theWheelJetFpgas(N_WHEEL_CARDS),
+  theWheelEnergyFpgas(N_WHEEL_CARDS)
 {
   
   build();
@@ -61,26 +61,26 @@ void L1GlobalCaloTrigger::openSourceCardFiles(string fileBase){
 void L1GlobalCaloTrigger::reset() {
 
   // Source cards
-  for (int i=0; i<54; i++) {
+  for (int i=0; i<N_SOURCE_CARDS; i++) {
     theSourceCards[i]->reset();
   }
 
   // EM Leaf Card
-  for (int i=0; i<4; i++) {
+  for (int i=0; i<N_EM_LEAF_CARDS; i++) {
     theEmLeafCards[i]->reset();
   }
 
   // Jet Leaf cards
-  for (int i=0; i<6; i++) {
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
     theJetLeafCards[i]->reset();
   }
 
   // Wheel Cards
-  for (int i=0; i<2; i++) {
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
     theWheelJetFpgas[i]->reset();
   }
 
-  for (int i=0; i<2; i++) {
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
     theWheelEnergyFpgas[i]->reset();
   }
 
@@ -99,31 +99,31 @@ void L1GlobalCaloTrigger::reset() {
 void L1GlobalCaloTrigger::process() {
 		
   // Source cards
-  for (int i=0; i<54; i++) {
+  for (int i=0; i<N_SOURCE_CARDS; i++) {
     if (readFromFile) {
       theSourceCards[i]->readBX();
     }
   }
 
   // EM Leaf Card
-  for (int i=0; i<4; i++) {
+  for (int i=0; i<N_EM_LEAF_CARDS; i++) {
     theEmLeafCards[i]->fetchInput();
     theEmLeafCards[i]->process();
   }
 
   // Jet Leaf cards
-  for (int i=0; i<6; i++) {
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
     theJetLeafCards[i]->fetchInput();
     theJetLeafCards[i]->process();
   }
 
   // Wheel Cards
-  for (int i=0; i<2; i++) {
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
     theWheelJetFpgas[i]->fetchInput();
     theWheelJetFpgas[i]->process();
   }
 
-  for (int i=0; i<2; i++) {
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
     theWheelEnergyFpgas[i]->fetchInput();
     theWheelEnergyFpgas[i]->process();
   }
@@ -262,7 +262,7 @@ void L1GlobalCaloTrigger::build() {
   m_jetEtCalLut = new L1GctJetEtCalibrationLut();
 
   // Source cards
-  for (int i=0; i<18; i++) {
+  for (int i=0; i<(N_SOURCE_CARDS/3); i++) {
     theSourceCards[3*i]   = new L1GctSourceCard(3*i,   L1GctSourceCard::cardType1);
     theSourceCards[3*i+1] = new L1GctSourceCard(3*i+1, L1GctSourceCard::cardType2);
     theSourceCards[3*i+2] = new L1GctSourceCard(3*i+2, L1GctSourceCard::cardType3);
@@ -274,7 +274,7 @@ void L1GlobalCaloTrigger::build() {
   vector<L1GctSourceCard*> jetSourceCards(15);
 
    // Jet Leaf cards
-  for (int i=0; i<6; i++) {
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
     for (int j=0; j<6; j++) {
       int k = 3*(j/2) + (j%2) + 1;
       jetSourceCards[j]=theSourceCards[(i*9+k)];
@@ -323,7 +323,7 @@ void L1GlobalCaloTrigger::build() {
   // EM leaf cards  
   vector<L1GctSourceCard*> emSourceCards(9);
 
-  for (int i=0; i<2; i++) {
+  for (int i=0; i<N_EM_LEAF_CARDS; i++) {
     for (int j=0; j<9; j++) {
       emSourceCards[j]=theSourceCards[(i*9+j)*3];
     }
@@ -334,7 +334,7 @@ void L1GlobalCaloTrigger::build() {
    vector<L1GctJetLeafCard*> wheelJetLeafCards(3);
    vector<L1GctJetLeafCard*> wheelEnergyLeafCards(3);
 
-   for (int i=0; i<2; i++) {
+   for (int i=0; i<N_WHEEL_CARDS; i++) {
      for (int j=0; j<3; j++) {
        wheelJetLeafCards[j]=theJetLeafCards[i*3+j];
        wheelEnergyLeafCards[j]=theJetLeafCards[i*3+j];
