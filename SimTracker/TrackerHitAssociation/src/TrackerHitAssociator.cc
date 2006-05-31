@@ -19,6 +19,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
   
   //vector with the matched SimHit
   std::vector<PSimHit> result; 
+  simtrackid.clear();
   
   //get the Detector type of the rechit
   DetId detid=  thit.geographicalId();
@@ -100,8 +101,8 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
 	StripDigiSimLink link = *linkiter;
 	if( link.channel() >= first  && link.channel() < last ){
 	  simtrackid.push_back(link.SimTrackId());
-	  cout << "Associator --> digi list first= " << first << " last = " << last << endl;
-	  cout << "Associator link--> channel= " << link.channel() << "  trackid = " << link.SimTrackId() << endl;
+	  //cout << "Associator --> digi list first= " << first << " last = " << last << endl;
+	  //cout << "Associator link--> channel= " << link.channel() << "  trackid = " << link.SimTrackId() << endl;
 	}
       }
     }
