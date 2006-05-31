@@ -9,7 +9,7 @@ L1GctRegion::L1GctRegion(int eta, int phi, unsigned et, bool mip, bool quiet, bo
   m_tauVeto(tauVeto),
   m_overFlow(overFlow)
 {
-  setEt(et);
+  setEta(eta);
   setPhi(phi);
   setEt(et);
 }
