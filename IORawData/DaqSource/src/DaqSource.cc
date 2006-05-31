@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2006/01/20 11:45:10 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/03/15 23:40:05 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -41,11 +41,16 @@ DaqSource::~DaqSource(){
   delete reader_;
 }
 
+#include <sys/time.h>
+
 std::auto_ptr<Event>
 DaqSource::readOneEvent() {
 
   EventID eventId;
-  Timestamp tstamp;
+  edm::TimeValue_t time = 0LL;
+  gettimeofday((timeval *)time,0);
+  
+  Timestamp tstamp(time);
 
   std::auto_ptr<FEDRawDataCollection> bare_product(new FEDRawDataCollection);
 
