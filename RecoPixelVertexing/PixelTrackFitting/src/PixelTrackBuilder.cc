@@ -60,9 +60,11 @@ reco::Track * PixelTrackBuilder::build(
   TrajectoryStateClosestToPoint tscp = 
       tscpBuilder(*(impactPointState.freeState()), GlobalPoint(0,0,0) );
 
+  int nhits = hits.size();
+
   return new reco::Track( chi2,         // chi2
                           2*nhits-5,  // dof
-                          nhits,      // foundHits
+                          nhits, // foundHits
                           0,
                           0,          //lost hits
                    tscp.perigeeParameters(),
