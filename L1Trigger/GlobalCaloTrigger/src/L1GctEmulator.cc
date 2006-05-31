@@ -43,7 +43,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
 
   // set parameters
   // m_gct->setVerbose(m_verbose);
-  m_gct->getJetEtCalibLut();
+  //  m_gct->getJetEtCalibLut();
 
   // for now, call the debug print output
   m_gct->print();

@@ -36,8 +36,7 @@ public:
   static const int N_SOURCE_CARDS;
   static const int N_JET_LEAF_CARDS;
   static const int N_EM_LEAF_CARDS;
-  static const int N_WHEEL_JET_FPGAS;
-  static const int N_WHEEL_ENERGY_FPGAS;
+  static const int N_WHEEL_CARDS;
   
   /// construct the GCT
   L1GlobalCaloTrigger(bool useFile=false);
@@ -48,7 +47,7 @@ public:
   /// load files into Source Cards
   void openSourceCardFiles(std::string fileBase);
   
-  /// reset internal buffers
+  /// Reset internal buffers
   void reset();
   
   /// process an event
@@ -93,6 +92,22 @@ public:
   /// get the Jet Leaf cards
   std::vector<L1GctEmLeafCard*> getEmLeafCards() { return theEmLeafCards; }
   
+  /// get the Wheel Jet FPGAs
+  std::vector<L1GctWheelJetFpga*> getWheelJetFpgas() { return theWheelJetFpgas; }
+  
+  /// get the Wheel Energy Fpgas
+  std::vector<L1GctWheelEnergyFpga*> getWheelEnergyFpgas() { return theWheelEnergyFpgas; }
+  
+  /// get the jet final stage
+  L1GctJetFinalStage* getJetFinalStage() { return theJetFinalStage; }
+  
+  /// get the energy final stage
+  L1GctGlobalEnergyAlgos* getEnergyFinalStage() { return theEnergyFinalStage; }
+  
+  /// get the electron final stage sorters
+  L1GctElectronFinalSort* getIsoEmFinalStage() { return theIsoEmFinalStage; }
+  L1GctElectronFinalSort* getNonIsoEmFinalStage() { return theNonIsoEmFinalStage; }
+
   /// get the Jet Et calibration LUT
   L1GctJetEtCalibrationLut* getJetEtCalibLut() { return m_jetEtCalLut; }
 
@@ -124,7 +139,7 @@ public:
   /// Wheel Card Energy Fpgas
   std::vector<L1GctWheelEnergyFpga*> theWheelEnergyFpgas;
   
-  /// central barrel jet find & final sort
+  /// jet final stage algo
   L1GctJetFinalStage* theJetFinalStage;			
   
   /// energy final stage algos
