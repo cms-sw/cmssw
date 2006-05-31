@@ -2,7 +2,7 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.3 2006/04/04 22:15:21 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.4 2006/04/13 22:24:07 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -39,13 +39,14 @@ namespace edm {
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& eventID);
     virtual std::auto_ptr<EventPrincipal> read();
     virtual void skip(int offset);
-    virtual void setRun(RunNumber_t r) {eventID_ = EventID(r, 0);} 
+    virtual void setRun(RunNumber_t r) {eventID_ = EventID(r, zerothEvent_);} 
     
     unsigned long numberEventsInRun_;
     TimeValue_t presentTime_;
     unsigned long timeBetweenEvents_;
 
     unsigned long numberEventsInThisRun_;
+    unsigned long const zerothEvent_;
     EventID eventID_;
   };
 }
