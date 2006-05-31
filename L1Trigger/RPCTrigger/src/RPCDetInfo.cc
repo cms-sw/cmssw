@@ -1,7 +1,7 @@
 /** \file RPCDetInfo.cc
  *
- *  $Date: 2006/05/29 12:00:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/30 18:48:40 $
+ *  $Revision: 1.3 $
  *  \author Tomasz Fruboes
  */
 
@@ -15,7 +15,7 @@
 /**
  *
  * \brief Construct from roll
- *
+ * 
 */
 ///////////////////////////////////////////////////////////////////////////////
 RPCDetInfo::RPCDetInfo(RPCRoll* roll){
@@ -28,8 +28,7 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
   m_station = detId.station();
   m_layer = detId.layer();
   m_roll = detId.roll();
-
-  m_hwPlane = getHwPlane();
+  setHwPlane();
 
   // Determine min and max \eta values
   
@@ -45,9 +44,9 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
 
   //*  // using y as nonzero doesnt help
 
-  std::vector<Local3DPoint> edges;
-  edges.push_back(Local3DPoint( 0., 0., stripLength/2.)); // Add (?) correction for
-  edges.push_back(Local3DPoint( 0., 0.,-stripLength/2.)); // nonzero chamber height
+  std::vector<LocalPoint> edges;
+  edges.push_back(LocalPoint(0., stripLength/2., 0.)); // Add (?) correction for
+  edges.push_back(LocalPoint(0.,-stripLength/2., 0.)); // nonzero chamber height
 
   std::vector<float> etas;
   for (unsigned int i=0; i < edges.size(); i++){
@@ -57,9 +56,15 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
 
   m_etaMin = *(min_element(etas.begin(), etas.end()));
   m_etaMax = *(max_element(etas.begin(), etas.end()));
+    
+  m_towerMin = etaToTower(m_etaMin);
+  m_towerMax = etaToTower(m_etaMax);
+  
+  m_phi = transformPhi( (float)(roll->toGlobal(LocalPoint(0., 0., 0.)).phi()) );
+      
+  makeStripPhiMap(roll);
 
 }
-
 ///////////////////////////////////////////////////////////////////////////////
 /**
  *
@@ -88,7 +93,6 @@ int RPCDetInfo::getCurlId(){
 
   return curlId;
 }
-
 ///////////////////////////////////////////////////////////////////////////////
 /**
  *
@@ -132,13 +136,13 @@ int RPCDetInfo::etaToTower(float eta){
 
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * \brief sets hardware plane number (mHwPlane)
+ * \brief Returns hardware plane number (mHwPlane)
  * \todo Check layer convention (which is inner/outer) will show up with number of curls beeing reference
  *      
  * \todo Clean this function
 */
 ///////////////////////////////////////////////////////////////////////////////
-int RPCDetInfo::getHwPlane()
+void RPCDetInfo::setHwPlane()
 {    
   int region = m_region;
   int station = m_station;
@@ -165,7 +169,7 @@ int RPCDetInfo::getHwPlane()
     hwPlane = 4;
   }
 
-  return hwPlane;
+  m_hwPlane = hwPlane;
   
 }
 
@@ -185,31 +189,79 @@ int RPCDetInfo::etaToSign(float eta){
 uint32_t RPCDetInfo::rawId(){
   return m_detId;
 }
-
+///////////////////////////////////////////////////////////////////////////////
+int RPCDetInfo::getMinTower(){ return m_towerMin; }///<Gives the lowest tower number
+int RPCDetInfo::getMaxTower(){ return m_towerMax; } ///<Gives the highest tower number
+float RPCDetInfo::getPhi(){ return m_phi; }///<Gets phi of this detid
+int RPCDetInfo::getRegion(){ return m_region; }///<Gets region
+int RPCDetInfo::getRing(){ return m_ring; }///<Gets ring
+int RPCDetInfo::getHwPlane(){ return m_hwPlane; }///<Gets hwplane
+int RPCDetInfo::getRoll(){ return m_roll; }///<Gets roll
 ///////////////////////////////////////////////////////////////////////////////
 /**
-*
-* \brief Sets m_etaMin
-* \todo check (?) if eta is ok.
-*
-*/
+ *
+ *  \brief Transforms phi
+ *
+ */
 ///////////////////////////////////////////////////////////////////////////////
-void RPCDetInfo::setEtaMin(float eta){
-  m_etaMin = eta;  
-}
+float RPCDetInfo::transformPhi(float phi){
 
-///////////////////////////////////////////////////////////////////////////////
+  float pi = 3.141592654;
+    
+  if (phi < 0)
+    return phi+2*pi;
+  else
+    return phi;
+  
+}///////////////////////////////////////////////////////////////////////////////
 /**
-*
-*  \brief   Sets m_etaMax
-*  \todo check (?) if eta is ok.
-*
-*/
+ *
+ *  \brief   Makes strip phi map
+ *
+ */
 ///////////////////////////////////////////////////////////////////////////////
-void RPCDetInfo::setEtaMax(float eta){
-  m_etaMax = eta;  
+void RPCDetInfo::makeStripPhiMap(RPCRoll* roll){
+
+  for (int i=0; i<roll->nstrips(); i++ ) {
+  
+    LocalPoint lStripCentre = roll->centreOfStrip(i);
+    //GlobalPoint gStripCentre = roll->surface().toGlobal(lStripCentre);
+    GlobalPoint gStripCentre = roll->toGlobal(lStripCentre);
+    float phi = transformPhi( gStripCentre.phi() );
+    
+    m_stripPhiMap[phi]=i;
+    
+  }
+  
 }
-
-
+///////////////////////////////////////////////////////////////////////////////
+//
+//
+///////////////////////////////////////////////////////////////////////////////
 const float RPCDetInfo::m_towerBounds[] = {0.07, 0.27, 0.44, 0.58, 0.72, 0.83, 0.93, 1.04, 1.14,
                             1.24, 1.36, 1.48, 1.61, 1.73, 1.85, 1.97, 2.10 };
+//#############################################################################
+/**
+*
+* \brief prints the contents of a RpcDetInfo. Commented out, as cout`s are forbidden
+*
+*/
+//#############################################################################
+void RPCDetInfo::printContents() {
+  
+  //*
+  std::cout<<"####"<<std::endl;
+  std::cout<< "DetId "<< rawId() << " Centre Phi " << getPhi() << std::endl;
+  std::cout<< " Tower min" << m_towerMin << " tower max " << m_towerMax << std::endl;
+  /*
+  RPCStripPhiMap::const_iterator it;
+  for (it = m_stripPhiMap.begin(); it != m_stripPhiMap.end(); it++){
+        
+    std::cout
+        << "Phi: " << it->first << " "
+        << "Strip: " << it->second << " "
+        << std::endl;
+    
+  }
+  //*/
+}

@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/05/29 12:00:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/30 18:48:40 $
+ *  $Revision: 1.3 $
  *  \author Tomasz Fruboes
  */
 
@@ -112,9 +112,9 @@ void RPCTriggerGeo::addDet(RPCRoll* roll){
 //#############################################################################
 void RPCTriggerGeo::printCurlMapInfo(){ // XXX - Erase ME
   
-  RPCCurlMap::const_iterator it;
+  RPCCurlMap::iterator it;
   for ( it=m_RPCCurlMap.begin(); it != m_RPCCurlMap.end(); it++){
-  /*
+  //*
     std::cout << "------------------------------"<< std::endl;
     std::cout << "CurlId " << (it->first) << " " << std::endl;
     (it->second).printContents();

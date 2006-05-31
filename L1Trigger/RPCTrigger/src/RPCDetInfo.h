@@ -29,16 +29,28 @@ class RPCDetInfo{
     RPCDetInfo(RPCRoll* roll);
 
     uint32_t rawId();
+    float getPhi();
     int getCurlId();
-    void setEtaMin(float);
-    void setEtaMax(float);
+    //void setEtaMin(float);
+    //void setEtaMax(float);
+    int getMinTower();
+    int getMaxTower();
+    int getRegion();
+    int getRing();
+    int getHwPlane(); 
+    int getRoll();
+
+    void printContents();
     
+    //int m_sector;    ///< Sector no
   private:
+    void setHwPlane(); 
     int etaToTower(float eta);
     int etaToSign(float eta);
     //int getHwPlane(int region, int station, int layer);
-    int getHwPlane(); 
-    
+    float transformPhi(float phi);
+    void makeStripPhiMap(RPCRoll* roll);
+
   // Members
   
     
@@ -53,7 +65,15 @@ class RPCDetInfo{
     int m_hwPlane; ///< 1...6 for barell and 1...4 for endcaps
     float m_etaMin;  ///< etaMin and etaMax define to which tower(s) chamber contributes
     float m_etaMax;  ///< etaMin and etaMax define to which tower(s) chamber contributes
+    float m_phi;    ///< Phi of center of this detId (different than globalPoint.phi() - [0...2PI[)
+        
+    int m_towerMin; ///< Lowest tower number to which chamber contributes
+    int m_towerMax; ///< Highest tower number to which chamber contributes
+    
     static const float m_towerBounds[]; ///< Defines tower bounds
+    
+    typedef std::map<float, int> RPCStripPhiMap;
+    RPCStripPhiMap m_stripPhiMap;
     
 };
 #endif

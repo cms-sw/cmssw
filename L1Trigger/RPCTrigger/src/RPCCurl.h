@@ -20,22 +20,30 @@ class RPCCurl {
     ~RPCCurl();
     bool isReferencePlane();
     bool addDetId(RPCDetInfo detInfo);
-    void printContents() const;
+    void printContents() ;
 
   private:
-    // Not filled by now
-    int m_TowerMin; ///< The lowest tower no. to which curl contributes
-    int m_TowerMax; ///< The highest tower no. to which curl contributes
-    int m_HardwarePlane; ///< Hardware plane no.
-    int m_Region; ///< Region no - 0 for barell +-1 for endcaps
-    int m_Wheel;  ///< Wheel number for barell, ring number for endcaps
+    int m_towerMin; ///< The lowest tower no. to which curl contributes
+    int m_towerMax; ///< The highest tower no. to which curl contributes
+    int m_hardwarePlane; ///< Hardware plane no.
+    int m_region; ///< Region no - 0 for barell +-1 for endcaps
+    int m_ring;  ///< Wheel number for barell, ring number for endcaps
+    int m_roll;  ///< roll no
     
-    bool m_IsReferencePlane;  ///< tells if detIds from this curl form a ference plane
+    
+    bool m_isDataFresh; ///< Defines if m_towerMin (Max) have real world contents
+    bool m_isReferencePlane;  ///< tells if detIds from this curl form a ference plane
     // void giveTowerMin(float eta);
     // void giveTowerMax(float eta);
-
+    
+    
     typedef std::map<uint32_t, RPCDetInfo> RPCDetInfoMap;
-    RPCDetInfoMap mRPCDetInfoMap; ///< Stores all DetId`s of a curl
+    RPCDetInfoMap m_RPCDetInfoMap; ///< Stores all DetId`s of a curl
+    
+    //typedef std::map<float, uint32_t> RPCDetInfoPhiMap;
+    typedef std::map<float, uint32_t> RPCDetInfoPhiMap;
+    RPCDetInfoPhiMap m_RPCDetPhiMap; ///< Stores DetId`s rawId in a phi order.
+    
     
 };
 #endif
