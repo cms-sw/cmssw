@@ -17,6 +17,12 @@ L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi)
 L1GctEmCand::~L1GctEmCand(){
 }
 	
+void L1GctEmCand::reset() {
+  m_rank = 0;
+  m_eta  = 0;
+  m_phi  = 0;
+}  
+
 std::ostream& operator << (std::ostream& os, const L1GctEmCand& cand)
 {
   os << "Rank " << cand.m_rank;
