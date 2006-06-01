@@ -8,7 +8,7 @@ class GenericTransientTrackingRecHitBuilder : public TransientTrackingRecHitBuil
 
  public:
   GenericTransientTrackingRecHitBuilder( const TrackingGeometry* trackingGeometry);
-  TransientTrackingRecHit * build (const TrackingRecHit * p) ;
+  TransientTrackingRecHit * build (const TrackingRecHit * p) const ;
  private:
   const TrackingGeometry* theTrackingGeometry;
 };

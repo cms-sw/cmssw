@@ -10,7 +10,7 @@
 GenericTransientTrackingRecHitBuilder::GenericTransientTrackingRecHitBuilder(  const TrackingGeometry* trackingGeometry):
   theTrackingGeometry(trackingGeometry){}
 
-TransientTrackingRecHit* GenericTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) {
+TransientTrackingRecHit* GenericTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const {
   if (dynamic_cast<const GenericTransientTrackingRecHit*>(p)) {
     return ( new GenericTransientTrackingRecHit(theTrackingGeometry->idToDet(p->geographicalId()), p ) ); 
   }else if (dynamic_cast<const InvalidTrackingRecHit*>(p)){

@@ -5,7 +5,7 @@
 
 class TransientTrackingRecHitBuilder {
  public:
-   virtual TransientTrackingRecHit * build ( const TrackingRecHit * p)  = 0 ;
+   virtual TransientTrackingRecHit * build ( const TrackingRecHit * p)  const = 0 ;
 };
 
 
