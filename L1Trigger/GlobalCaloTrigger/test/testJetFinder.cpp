@@ -100,7 +100,8 @@ int main(int argc, char **argv)
     for(vector<L1GctSourceCard*>::iterator it = srcCrds.begin(); it != srcCrds.end(); ++it)
     {
       delete *it;
-    } 
+    }
+    delete myJetEtCalLut; 
     delete myJetFinder;
   }
   catch (cms::Exception& e)
