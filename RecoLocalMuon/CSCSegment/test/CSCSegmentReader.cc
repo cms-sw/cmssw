@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2006/05/02 14:00:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/08 17:45:57 $
+ *  $Revision: 1.2 $
  *  \author M. Sani
  */
 
@@ -23,11 +23,14 @@ using namespace edm;
 // Constructor
 CSCSegmentReader::CSCSegmentReader(const ParameterSet& pset) {
 
+    simhit = 0;
+    near_segment=0;
     filename = pset.getUntrackedParameter<string>("RootFileName");	
     minRechitChamber = pset.getUntrackedParameter<int>("minRechitPerChamber");
     minRechitSegment = pset.getUntrackedParameter<int>("minRechitPerSegment");
-	//label2 = pset.getUntrackedParameter<string>("label2");
-    
+	maxPhi = pset.getUntrackedParameter<double>("maxPhiSeparation");
+    maxTheta = pset.getUntrackedParameter<double>("maxThetaSeparation");
+
     file = new TFile(filename.c_str(), "RECREATE");
     	
 	if(file->IsOpen()) 
@@ -40,13 +43,16 @@ CSCSegmentReader::CSCSegmentReader(const ParameterSet& pset) {
     hsegment = new TH1I("h4", "segments multiplicity", 20, 0, 20);   
     heta = new TH1F("h5", "eta sim muons", 50, -2.5, 2.5);  
     hpt = new TH1F("h6", "pT sim muons", 120, 0, 60);
+    hx = new TH1F("h9", "deltaX", 400, -100, +100);
+    hy = new TH1F("h10", "deltaY",400, -100, +100);
+    
     char a[3];
     for(int i=0; i<4; i++) {
 
         sprintf(a, "h7%d", i);
-        hphi[i] = new TH1F(a, "reso phi", 150, -0.03, 0.03);
+        hphi[i] = new TH1F(a, "reso phi", 150, -0.23, 0.23);
         sprintf(a, "h8%d", i);
-        htheta[i] = new TH1F(a, "reso theta", 150, -0.15, 0.15);
+        htheta[i] = new TH1F(a, "reso theta", 150, -0.45, 0.45);
     }    
 }
 
@@ -73,6 +79,9 @@ CSCSegmentReader::~CSCSegmentReader() {
     hsegment->Write();
     hpt->Write();
     heta->Write();
+    hx->Write();
+    hy->Write();
+
     for(int i=0; i<4; i++) {
         
         hphi[i]->Write();
@@ -94,61 +103,52 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
     }        
 
     std::vector<CSCDetId> cscChambers;
-    std::vector<CSCDetId>::const_iterator chIt;
     for(PSimHitContainer::const_iterator simIt = simHits->begin(); simIt != simHits->end(); simIt++) {
-    
-        if(abs((*simIt).particleType()) == 13) {
-            
-            bool insert = true;
-            CSCDetId id = (CSCDetId)(*simIt).detUnitId();
-           
-            for(chIt = cscChambers.begin(); chIt != cscChambers.end(); chIt++) {
-                
-                if ((id.endcap() == (*chIt).endcap()) &&
-                    (id.ring() == (*chIt).ring()) &&
-                    (id.station() == (*chIt).station()) &&
-                    (id.chamber() == (*chIt).chamber()))
-                    insert = false;
-            }
-            
-            if (insert)
-                cscChambers.push_back(id);        
-        }
-    }
         
-    CSCRangeMapAccessor acc;
-    std::vector<CSCSegment> temp;
+        CSCDetId simId = (CSCDetId)(*simIt).detUnitId();
+                 
+        double g6 = geom->chamber(simId)->layer(6)->surface().toGlobal(LocalPoint(0,0,0)).z();	
+        double g1 = geom->chamber(simId)->layer(1)->surface().toGlobal(LocalPoint(0,0,0)).z();	
+        
+        int firstLayer = 1;
+        if (fabs(g1) > fabs(g6))
+            firstLayer = 6;
 
-    for(chIt = cscChambers.begin(); chIt != cscChambers.end(); chIt++) {
+        const CSCChamber* chamber = geom->chamber(simId); 
+
+        int insert =0;
+        if (((*simIt).momentumAtEntry().perp() > 1.) && (simId.layer() == firstLayer)) {
         
-        const CSCChamber* chamber = geom->chamber(*chIt); 
-        CSCRecHit2DCollection::range range = recHits->get(acc.cscChamber(*chIt));
-        
-        if ((range.second - range.first) >= minRechitChamber) {
-        
-            chaMap[chamber->specs()->chamberTypeName()]++;
-            CSCSegmentCollection::const_iterator segIt;
-            
-            int pippo = 0;
-            for (segIt=cscSegments->begin(); segIt!=cscSegments->end(); ++segIt) {
+            CSCRangeMapAccessor acc;
+            CSCRecHit2DCollection::range range = recHits->get(acc.cscChamber(simId));
+
+            if ((range.second - range.first) >= minRechitChamber) {
                 
-                CSCDetId id = (*segIt).cscDetId();
-                if ((id.endcap() == (*chIt).endcap()) &&
-                    (id.ring() == (*chIt).ring()) &&
-                    (id.station() == (*chIt).station()) &&
-                    (id.chamber() == (*chIt).chamber())) {
-                    
-                    if ((*segIt).nRecHits() >= minRechitSegment) {
-                        pippo = 1;
-                        break;
-                        temp.push_back(*segIt);
-                    }
-                }   
+                chaMap[chamber->specs()->chamberTypeName()]++;
+                for (CSCSegmentCollection::const_iterator segIt=cscSegments->begin(); segIt!=cscSegments->end(); ++segIt) {
+
+                    CSCDetId id = (*segIt).cscDetId();
+                    if ((simId.endcap() == id.endcap()) &&
+                        (simId.ring() == id.ring()) &&
+                        (simId.station() == id.station()) &&
+                        (simId.chamber() == id.chamber())) {
+                        
+                        LocalVector segDir = (*segIt).localDirection();
+                        LocalVector simDir = (*simIt).momentumAtEntry().unit();
+                                
+                        double deltaTheta = fabs(segDir.theta() - simDir.theta());
+                        double deltaPhi = fabs(segDir.phi() - simDir.phi());
+
+                        if (((*segIt).nRecHits() >= minRechitSegment) && (deltaPhi < maxPhi) 
+                            && (deltaTheta < maxTheta))
+                                insert = 1;
+                    }    
+                }
+                
+                if (insert)
+                    segMap[chamber->specs()->chamberTypeName()]++;
             }   
-
-            if (pippo)
-                segMap[chamber->specs()->chamberTypeName()]++;
-        }        
+        }   
     }
 }
 
@@ -165,46 +165,93 @@ void CSCSegmentReader::simInfo(const edm::Handle<EmbdSimTrackContainer> simTrack
 void CSCSegmentReader::resolution(const Handle<PSimHitContainer> simHits, 
         const Handle<CSCSegmentCollection> cscSegments, const CSCGeometry* geom) {
 
-	double minPhi = 1000., minTheta = 1000.;
-    double resoPhi, resoTheta;
-
-    for(PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
-    
-        LocalVector lv = ith->momentumAtEntry();
-        CSCDetId cscDetId(ith->detUnitId());
-        const CSCLayer* layer = geom->layer(cscDetId);
-        GlobalVector simDir = layer->surface().toGlobal(lv);
+    for(CSCSegmentCollection::const_iterator its = cscSegments->begin(); its != cscSegments->end(); its++) {
         
-        for(CSCSegmentCollection::const_iterator its = cscSegments->begin(); its != cscSegments->end(); its++) {
-    
-            const CSCChamber* chamber = geom->chamber((*its).cscDetId());
-            GlobalVector segDir = chamber->surface().toGlobal((*its).localDirection());
-            
-            double deltaTheta = fabs(segDir.theta()-simDir.theta());
-            double deltaPhi = fabs(segDir.phi()-simDir.phi());
-            
-            if ((deltaPhi < minPhi) && (deltaTheta < minTheta)) {
-                
-                minPhi = deltaPhi;
-                minTheta = deltaTheta;
-                resoTheta = (segDir.theta()-simDir.theta());
-                resoPhi = (segDir.phi()-simDir.phi());
-            }
+        double segX, segY;
+        double sim1X = 100., sim1Y = 100.;
+        double sim2X, sim2Y;
+        double resoPhi = 1., resoTheta = 1.;
+        double minPhi = 1, minTheta = 1;
+        unsigned int simTrack = 0;
+        
+        const CSCChamber* chamber = 0;
+        const CSCChamber* ch = geom->chamber((*its).cscDetId());
+        
+        GlobalPoint gpn = ch->layer(6)->surface().toGlobal(LocalPoint(0,0,0)); 	 
+        GlobalPoint gpf = ch->layer(1)->surface().toGlobal(LocalPoint(0,0,0));
+        int firstLayer = 6;
+        int lastLayer = 1;
+        
+        if (fabs(gpn.z()) > fabs(gpf.z())) {
+            firstLayer = 1;
+            lastLayer = 6;
+        }
+        
+        for(PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+        
+            CSCDetId cscDetId((*ith).detUnitId());        
 
+            if ((cscDetId.layer() == firstLayer)) {
+                if (ch == geom->chamber(cscDetId)) {
+
+                    LocalVector segDir = (*its).localDirection();
+                    LocalVector simDir = (*ith).momentumAtEntry().unit();
+                    
+                    double deltaTheta = fabs(segDir.theta()-simDir.theta());
+                    double deltaPhi = fabs(segDir.phi()-simDir.phi());
+            
+                    if ((deltaPhi < minPhi) && (deltaTheta < minTheta)) {
+                
+                        minPhi = deltaPhi;
+                        minTheta = deltaTheta;
+                        resoTheta = (segDir.theta()-simDir.theta());
+                        resoPhi = (segDir.phi()-simDir.phi());
+                        chamber = ch;
+                        segX = (*its).localPosition().x();
+                        sim1X =(*ith).localPosition().x();
+                        sim1Y =(*ith).localPosition().y();
+                        segY = (*its).localPosition().y();
+                        simTrack = (*ith).trackId();
+                    }
+                }
+            }    
+         }
+         
+         for(PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+        
+            CSCDetId cscDetId((*ith).detUnitId());        
+            
+            if ((cscDetId.layer() == lastLayer) && (simTrack = (*ith).trackId())) {
+
+                sim2X =(*ith).localPosition().x();
+                sim2Y =(*ith).localPosition().y();
+             }
+        }   
+
+        if (chamber != 0 ) {
+    
             string s = chamber->specs()->chamberTypeName();
 
             int indice = 3;
-            if ((s == "ME1/a") || (s == "ME1/b"))        
-                indice = 0;
+            if (s == "ME1/b")        
+               indice = 0;
             if ((s == "ME1/2") || (s == "ME1/3"))        
-                indice = 1;
+               indice = 1;
             if ((s == "ME2/1") || (s == "ME3/1") || (s == "ME4/1"))        
                 indice = 2;
+        
+            if (s != "ME1/a") {
+                hphi[indice]->Fill(resoPhi);
+                htheta[indice]->Fill(resoTheta);   
+            }
                 
-            hphi[indice]->Fill(resoPhi);
-            htheta[indice]->Fill(resoTheta);
-        }
-    }       
+            if ((sim2Y < 100.) && (s == "ME1/a")) {
+                hx->Fill(segX - (sim1X+sim2X)/2.);
+                hy->Fill(segY - (sim1Y+sim2Y)/2.);
+            }    
+            
+        }      
+    }  
 }
 
 // The real analysis
@@ -221,10 +268,10 @@ void CSCSegmentReader::analyze(const Event& event, const EventSetup& eventSetup)
     event.getByLabel("SimG4Object","MuonCSCHits",simHits);    
     
     Handle<CSCRecHit2DCollection> recHits; 
-    event.getByLabel("rechitproducer", recHits);   
+    event.getByLabel("CSCRecHit2DProducer", recHits);   
     
     Handle<CSCSegmentCollection> cscSegments;
-    event.getByLabel("segmentproducer", cscSegments);
+    event.getByLabel("CSCSegmentProducer", cscSegments);
     
     simInfo(simTracks);
     resolution(simHits, cscSegments, geom);
