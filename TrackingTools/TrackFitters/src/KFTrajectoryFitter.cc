@@ -17,9 +17,9 @@ KFTrajectoryFitter::~KFTrajectoryFitter() {
 }
 
 
-vector<Trajectory> KFTrajectoryFitter::fit(const Trajectory& aTraj) const {
+std::vector<Trajectory> KFTrajectoryFitter::fit(const Trajectory& aTraj) const {
 
-  if(aTraj.empty()) return vector<Trajectory>();
+  if(aTraj.empty()) return std::vector<Trajectory>();
  
   TM firstTM = aTraj.firstMeasurement();
   TSOS firstTsos = TrajectoryStateWithArbitraryError()(firstTM.updatedState());
@@ -27,21 +27,21 @@ vector<Trajectory> KFTrajectoryFitter::fit(const Trajectory& aTraj) const {
   return fit(aTraj.seed(), aTraj.recHits(), firstTsos);
 }
 
-vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
+std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 					   const RecHitContainer& hits) const{
 
   throw cms::Exception("TrackingTools/TrackFitters", 
 		       "KFTrajectoryFitter::fit(TrajectorySeed, <TransientTrackingRecHit>) not implemented"); 
 
-  return vector<Trajectory>();
+  return std::vector<Trajectory>();
 }
 
-vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
+std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 					   const RecHitContainer& hits,
 					   const TSOS& firstPredTsos) const {
 
 
-  if(hits.empty()) return vector<Trajectory>();
+  if(hits.empty()) return std::vector<Trajectory>();
   LogDebug("TrackingTools/TrackFitters")
     <<" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
     <<" KFTrajectoryFitter::fit staring with "<<hits.size()<<" HITS \n"
@@ -55,7 +55,7 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
     edm::LogError("TrackingTools/TrackFitters") 
       << "KFTrajectoryFitter: predicted tsos of first measurement not valid!\n"
       << "predTsos" << predTsos << "\n";
-    return vector<Trajectory>();
+    return std::vector<Trajectory>();
   } 
   TSOS currTsos;
   if((&*(hits.begin()))->isValid()) {
@@ -146,7 +146,7 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       if((*ihit).isValid())
 	edm::LogError("TrackingTools/TrackFitters")
 	  << "next Surface: "<<(*ihit).det()->surface().position()<< "\n";
-      return vector<Trajectory>();
+      return std::vector<Trajectory>();
     }
     if((*ihit).isValid()) {
       //update
@@ -174,6 +174,6 @@ vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
   
   LogDebug("TrackingTools/TrackFitters") <<" Found 1 trajectory wit hits "<< myTraj.foundHits()<<"\n";
   
-  return vector<Trajectory>(1, myTraj);
+  return std::vector<Trajectory>(1, myTraj);
 }
 

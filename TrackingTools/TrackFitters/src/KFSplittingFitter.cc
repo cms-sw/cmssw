@@ -4,17 +4,16 @@
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 //#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 // #include "CommonDet/BasicDet/interface/InvalidRecHit.h"
 // #include "CommonDet/BasicDet/interface/Det.h"
 // #include "CommonDet/BasicDet/interface/DetUnit.h"
 // #include "CommonDet/DetLayout/interface/DetLayer.h"
 
-vector<Trajectory> KFSplittingFitter::fit(const Trajectory& aTraj) const {
-
+std::vector<Trajectory> KFSplittingFitter::fit(const Trajectory& aTraj) const {
+  
   typedef RecHitSplitter::RecHitContainer        RecHitContainer;
-
-  if(aTraj.empty()) return vector<Trajectory>();
+  
+  if(aTraj.empty()) return std::vector<Trajectory>();
   
   TM firstTM = aTraj.firstMeasurement();
   TSOS firstTsos = 
@@ -43,7 +42,7 @@ vector<Trajectory> KFSplittingFitter::fit(const Trajectory& aTraj) const {
   
 }
 
-vector<Trajectory> KFSplittingFitter::fit(const TrajectorySeed& aSeed,
+std::vector<Trajectory> KFSplittingFitter::fit(const TrajectorySeed& aSeed,
 					  const RecHitContainer& hits, 
 					  const TSOS& firstPredTsos) const {
 

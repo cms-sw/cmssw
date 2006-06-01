@@ -39,10 +39,10 @@ public:
 
   virtual ~KFTrajectoryFitter(); 
   
-  virtual vector<Trajectory> fit(const Trajectory& aTraj) const;
-  virtual vector<Trajectory> fit(const TrajectorySeed& aSeed,
+  virtual std::vector<Trajectory> fit(const Trajectory& aTraj) const;
+  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
 				 const RecHitContainer& hits) const;
-  virtual vector<Trajectory> fit(const TrajectorySeed& aSeed,
+  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
 				 const RecHitContainer& hits, 
 				 const TSOS& firstPredTsos) const;
 

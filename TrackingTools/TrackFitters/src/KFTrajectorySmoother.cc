@@ -13,14 +13,14 @@ KFTrajectorySmoother::~KFTrajectorySmoother() {
 
 }
 
-vector<Trajectory> 
+std::vector<Trajectory> 
 KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 
-  if(aTraj.empty()) return vector<Trajectory>();
+  if(aTraj.empty()) return std::vector<Trajectory>();
 
   Trajectory myTraj(aTraj.seed(), propagator()->propagationDirection());
 
-  vector<TM> avtm = aTraj.measurements();
+  std::vector<TM> avtm = aTraj.measurements();
 
   TSOS predTsos = avtm.back().forwardPredictedState();
   predTsos.rescaleError(theErrorRescaling);
@@ -28,7 +28,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   if(!predTsos.isValid()) {
     LogDebug("TrackingTools/TrackFitters") << 
       "KFTrajectorySmoother: predicted tsos of last measurement not valid!";
-    return vector<Trajectory>();
+    return std::vector<Trajectory>();
   }
   TSOS currTsos;
 
@@ -51,7 +51,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   
   TrajectoryStateCombiner combiner;
 
-  for(vector<TM>::reverse_iterator itm = avtm.rbegin() + 1; 
+  for(std::vector<TM>::reverse_iterator itm = avtm.rbegin() + 1; 
       itm != avtm.rend() - 1; itm++) {
 
     predTsos = propagator()->propagate(currTsos,
@@ -60,7 +60,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
     if(!predTsos.isValid()) {
       LogDebug("TrackingTools/TrackFitters") << 
 	"KFTrajectorySmoother: predicted tsos not valid!";
-      return vector<Trajectory>();
+      return std::vector<Trajectory>();
     }
 
     if((*itm).recHit()->isValid()) {
@@ -77,7 +77,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	  "pred Tsos pos: "<<predTsos.globalPosition()<< "\n" <<
 	  "pred Tsos mom: "<<predTsos.globalMomentum()<< "\n" <<
 	  "TrackingRecHit: "<<(*itm).recHit()->det()->surface().toGlobal((*itm).recHit()->localPosition())<< "\n" ;
-	return vector<Trajectory>();
+	return std::vector<Trajectory>();
       }
 
       TSOS smooTsos = combiner((*itm).updatedState(), predTsos);
@@ -85,7 +85,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       if(!smooTsos.isValid()) {
 	LogDebug("TrackingTools/TrackFitters") <<
 	  "KFTrajectorySmoother: smoothed tsos not valid!";
-	return vector<Trajectory>();
+	return std::vector<Trajectory>();
       }
       
       myTraj.push(TM((*itm).forwardPredictedState(),
@@ -103,7 +103,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       if(!combTsos.isValid()) {
 	LogDebug("TrackingTools/TrackFitters") << 
 	  "KFTrajectorySmoother: combined tsos not valid!";
-	return vector<Trajectory>();
+	return std::vector<Trajectory>();
       }
 
       myTraj.push(TM((*itm).forwardPredictedState(),
@@ -121,7 +121,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   if(!predTsos.isValid()) {
 	LogDebug("TrackingTools/TrackFitters") << 
 	  "KFTrajectorySmoother: predicted tsos not valid!";
-    return vector<Trajectory>();
+    return std::vector<Trajectory>();
   }
   
   if(avtm.front().recHit()->isValid()) {
@@ -141,6 +141,6 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 		   /*avtm.front().layer()*/));
   }
   
-  return vector<Trajectory>(1, myTraj); 
+  return std::vector<Trajectory>(1, myTraj); 
 
 }

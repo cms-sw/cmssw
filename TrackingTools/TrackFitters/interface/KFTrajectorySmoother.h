@@ -43,7 +43,7 @@ public:
 
   virtual ~KFTrajectorySmoother();
 
-  virtual vector<Trajectory> trajectories(const Trajectory& aTraj) const;
+  virtual std::vector<Trajectory> trajectories(const Trajectory& aTraj) const;
 
   const Propagator* propagator() const {return thePropagator;}
   const TrajectoryStateUpdator* updator() const {return theUpdator;}

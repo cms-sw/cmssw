@@ -22,11 +22,11 @@ public:
   
   virtual ~KFFittingSmoother();
   
-  virtual vector<Trajectory> fit(const Trajectory& t) const;
-  virtual vector<Trajectory> fit(const TrajectorySeed& aSeed,
+  virtual std::vector<Trajectory> fit(const Trajectory& t) const;
+  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
 				 const RecHitContainer& hits, 
 				 const TrajectoryStateOnSurface& firstPredTsos) const;
-  virtual vector<Trajectory> fit(const TrajectorySeed& aSeed,
+  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
 				 const RecHitContainer& hits) const;
 
   const TrajectoryFitter* fitter() const {return theFitter;}
@@ -41,7 +41,7 @@ private:
   const TrajectoryFitter* theFitter
 ;  const TrajectorySmoother* theSmoother;
 
-  vector<Trajectory> smoothingStep(vector<Trajectory>& fitted) const;
+  std::vector<Trajectory> smoothingStep(std::vector<Trajectory>& fitted) const;
   TrajectoryStateWithArbitraryError   tsosWithError;
   
 };

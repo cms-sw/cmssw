@@ -31,8 +31,8 @@ public:
     return new KFSplittingFitter(propagator(),updator(),estimator());
   }
   
-  virtual vector<Trajectory> fit(const Trajectory& aTraj) const;
-  virtual vector<Trajectory> fit(const TrajectorySeed& aSeed,
+  virtual std::vector<Trajectory> fit(const Trajectory& aTraj) const;
+  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
 				 const RecHitContainer& hits, 
 				 const TSOS& firstPredTsos) const;
 
