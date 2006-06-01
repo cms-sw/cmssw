@@ -14,7 +14,7 @@
 class L1Region
 {
 public:
-  L1Region(unsigned eta, unsigned phi, unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet);
+  L1Region(unsigned eta=0, unsigned phi=0, unsigned et=0, bool overFlow=false, bool tauVeto=false, bool mip=false, bool quiet=false);
   ~L1Region();
   
   // region position //
@@ -25,6 +25,8 @@ public:
   /// get phi index (0-17) of the region
   int phi() const { return m_phi; }
 
+  /// get RCT crate index (0-17)
+  int rctCrate() const { return m_rctCrate; }
 
   // region data //
 
@@ -52,6 +54,7 @@ private:
   // position indices
   unsigned m_eta;
   unsigned m_phi;
+  unsigned m_rctCrate;
 
   // region data : et, overflow, tau veto, mip and quiet bits
   uint16_t m_data;

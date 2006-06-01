@@ -12,12 +12,12 @@
  */
 
 
-class L1GctEtTotal {
+class L1EtTotal {
  public:
-  L1GctEtTotal();
-  L1GctEtTotal(uint16_t data);
-  L1GctEtTotal(unsigned et, bool oflow);
-  ~L1GctEtTotal();
+  L1EtTotal();
+  L1EtTotal(uint16_t data);
+  L1EtTotal(unsigned et, bool oflow);
+  ~L1EtTotal();
 
   ///
   /// get the data
@@ -29,18 +29,18 @@ class L1GctEtTotal {
   /// get the overflow
   bool overflow() const { return (m_data & 0x1000)!=0; }
 
- private:
+ Private:
 
   uint16_t m_data;
 
 };
 
-class L1GctEtHad {
+class L1EtHad {
  public:
-  L1GctEtHad();
-  L1GctEtHad(uint16_t data);
-  L1GctEtHad(unsigned et, bool oflow);
-  ~L1GctEtHad();
+  L1EtHad();
+  L1EtHad(uint16_t data);
+  L1EtHad(unsigned et, bool oflow);
+  ~L1EtHad();
 
   ///
   /// get the data
@@ -50,7 +50,7 @@ class L1GctEtHad {
   unsigned et() const { return m_data & 0xfff; }
   ///
   /// get the overflow
-  bool overflow() const { return (m_data & 0x1000)!=0; }
+  bool overFlow() const { return (m_data & 0x1000)!=0; }
 
  private:
 
@@ -58,12 +58,12 @@ class L1GctEtHad {
 
 };
 
-class L1GctEtMiss {
+class L1EtMiss {
  public:
-  L1GctEtMiss();
-  L1GctEtMiss(uint32_t data);
-  L1GctEtMiss(unsigned et, unsigned phi, bool oflow);
-  ~L1GctEtMiss();
+  L1EtMiss();
+  L1EtMiss(uint32_t data);
+  L1EtMiss(unsigned et, unsigned phi, bool oflow);
+  ~L1EtMiss();
 
   ///
   /// get the data
@@ -73,7 +73,7 @@ class L1GctEtMiss {
   unsigned et() const { return m_data & 0xfff; }
   ///
   /// get the overflow
-  bool overflow() const { return (m_data & 0x1000)!=0; }
+  bool overFlow() const { return (m_data & 0x1000)!=0; }
   ///
   /// get the Et
   unsigned phi() const { return (m_data>>13) & 0x7f; }
