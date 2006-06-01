@@ -6,8 +6,8 @@
  *  The parametrisation function in DTDriftTimeParametrization 
  *  from P.G.Abia, J.Puerta is used in all cases where it is applicable. 
  *
- *  $Date: 2006/02/07 19:12:38 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/03/17 13:33:01 $
+ *  $Revision: 1.6 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -102,5 +102,9 @@ class DTDigitizer : public edm::EDProducer {
 
   std::string syncName;
   DTDigiSyncBase *theSync;
+
+  // Ideal model. Used for debug
+  bool IdealModel;
+  float theConstVDrift;  
 };
 #endif

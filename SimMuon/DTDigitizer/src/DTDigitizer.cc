@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/17 13:33:01 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/03/20 22:56:43 $
+ *  $Revision: 1.17 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -94,6 +94,14 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   syncName = conf_.getParameter<string>("SyncName");
   theSync = DTDigiSyncFactory::get()->create(syncName,conf_.getParameter<ParameterSet>("pset"));
 
+  // Debug flag to switch to the Ideal model
+  // it uses a constant drift velocity and doesn't set any external delay
+  IdealModel = conf_.getParameter<bool>("IdealModel");
+
+  // Constant drift velocity needed by the above flag
+  if(IdealModel)
+    theConstVDrift = conf_.getParameter<double>("IdealModelConstantDriftVelocity"); // 55 um/ns
+  else theConstVDrift = 55.;
 }
 
 // Destructor
@@ -315,7 +323,9 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &
       x = xEntry - (entryP.z()*(xExit-xEntry))/(exitP.z()-entryP.z());
     }
  
-    driftTime = driftTimeFromParametrization(x, theta, By, Bz);
+    if(IdealModel) return pair<float,bool>(x/theConstVDrift,true);
+    else driftTime = driftTimeFromParametrization(x, theta, By, Bz);
+
   }
 
  
