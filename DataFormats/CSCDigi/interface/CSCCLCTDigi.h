@@ -1,45 +1,58 @@
-#ifndef CSCCLCTDigi_CSCCLCTDigi_h
-#define CSCCLCTDigi_CSCCLCTDigi_h
+#ifndef CSCDigi_CSCCLCTDigi_h
+#define CSCDigi_CSCCLCTDigi_h
 
 /**\class CSCCLCTDigi
  *
  * Digi for CLCT trigger primitives. 
  *
- * $Date: 2006/04/06 11:18:25 $
- * $Revision: 1.5 $
+ * $Date: 2006/05/16 15:22:57 $
+ * $Revision: 1.6 $
  *
  * \author N. Terentiev, CMU
  */
 
 #include <boost/cstdint.hpp>
 
-class CSCCLCTDigi{
+class CSCCLCTDigi {
 
-public:
+ public:
 
   /// Constructors
-  /// for consistency with DQM
-  CSCCLCTDigi (int valid, int quality, int patshape, int striptype,int bend,  int strip, int cfeb, int bx); 
-  CSCCLCTDigi (int valid, int quality, int patshape, int striptype, int bend,  int strip, int cfeb, int bx, int trknmb);  
+  CSCCLCTDigi(const int valid, const int quality, const int pattern,
+	      const int striptype, const int bend, const int strip,
+	      const int cfeb, const int bx, const int trknmb = 0);
   /// default
-  CSCCLCTDigi ();
+  CSCCLCTDigi();
 
-  /// return CLCT validity, 1 - valid ALCT
-  int getValid() const {return valid_ ;}
-  /// check CLCT validity (for consistency with ORCA)
+  /// clear this CLCT
+  void clear();
+
+  /// check CLCT validity (1 - valid CLCT)
   bool isValid()     const {return valid_ ;}
+
   /// return quality of a pattern
   int getQuality()   const {return quality_ ;}
+
   /// return pattern
-  int getPattern()   const {return patshape_ ;}
-  /// return striptype (obsolete, use getStripType() instead)
-  int getStriptype() const {return striptype_ ;}   
-  /// return striptype (compatible with ORCA)
+  int getPattern()   const {return pattern_ ;}
+
+  /// return striptype
   int getStripType() const {return striptype_ ;}
+
   /// return bend
   int getBend()      const {return bend_ ;}
-  /// return strip     
+
+  /// return strip
   int getStrip()     const {return strip_ ;}
+
+  /// return Key CFEB ID
+  int getCFEB()      const {return cfeb_ ;}
+
+  /// return BX
+  int getBX()        const {return bx_ ;}
+
+  /// return track number (1,2)
+  int getTrknmb()    const {return trknmb_ ;}
 
   /// Convert strip and CFEB to keyStrip. Each CFEB has up to 16 strips
   /// (32 halfstrips). There are 5 cfebs.  The "strip" variable is one
@@ -47,32 +60,39 @@ public:
   /// Distrip   = (cfeb*32 + strip)/4.
   /// Halfstrip = (cfeb*32 + strip).
   int getKeyStrip()  const {
-                int keyStrip = 0;
-                if (striptype_ == 1)
-                        keyStrip = cfeb_ * 32 + strip_;
-                else
-                        keyStrip = cfeb_ * 8  + strip_/4;
-                return keyStrip;
+    int keyStrip = 0;
+    if (striptype_ == 1)
+      keyStrip = cfeb_ * 32 + strip_;
+    else
+      keyStrip = cfeb_ * 8  + strip_/4;
+    return keyStrip;
   }
-  /// return Key CFEB ID (obsolete, use getCFEB()  instead)
-  int getCfeb()      const {return cfeb_ ;}
-  /// return Key CFEB ID (compatible with ORCA)
-  int getCFEB()      const {return cfeb_ ;} 
-  /// return BX (obsolete, use  getBX())
-  int getBx()        const {return bx_ ;}
-  /// return BX (compatible with ORCA)
-  int getBX()        const {return bx_ ;}
-  /// return track number (1,2)
-  int getTrknmb()    const {return trknmb_ ;}
 
-  /// Print content of digi
+  /// Set track number (1,2) after sorting CLCTs.
+  void setTrknmb(const uint16_t number) {trknmb_ = number;}
+
+  /// True if the left-hand side has a larger "quality".  Full definition
+  /// of "quality" depends on quality word itself, pattern type, and strip
+  /// number.
+  bool operator >  (const CSCCLCTDigi&) const;
+
+  /// True if the two LCTs have exactly the same members OR they
+  /// are high- and low-pT LCTs from the exact same location in the chamber.
+  bool operator == (const CSCCLCTDigi&) const;
+
+  /// False only when both LCTs have exactly the same members.
+  /** @@ Shouldn't be false only when the preceding one is true?
+      To be checked. */
+  bool operator != (const CSCCLCTDigi&) const;
+
+  /// Print content of digi.
   void print() const;
 
-private:
+ private:
   friend class testCSCDigis;
   uint16_t valid_      ;
   uint16_t quality_    ;
-  uint16_t patshape_   ;
+  uint16_t pattern_    ;
   uint16_t striptype_  ;
   uint16_t bend_       ;
   uint16_t strip_      ;
@@ -82,17 +102,16 @@ private:
 };
 
 #include<iostream>
-  /// needed by COBRA
 inline std::ostream & operator<<(std::ostream & o, const CSCCLCTDigi& digi) {
-  return o << " CSC CLCT isValid "      << digi.isValid()
-           << " CSC CLCT Quality "      << digi.getQuality()
-           << " CSC CLCT Pattern "      << digi.getPattern()
-           << " CSC CLCT StripType "    << digi.getStripType()
-           << " CSC CLCT Bend "         << digi.getBend()
-           << " CSC CLCT Strip "        << digi.getStrip()
-           << " CSC CLCT KeyStrip "     << digi.getKeyStrip()
-           << " CSC CLCT CFEB "         << digi.getCFEB()
-	   << " CSC CLCT BX "           << digi.getBX()
-           << " CSC CLCT track number " << digi.getTrknmb();
+  return o << "CSC CLCT #"    << digi.getTrknmb()
+	   << ": Valid = "    << digi.isValid()
+           << " Quality = "   << digi.getQuality()
+           << " Pattern = "   << digi.getPattern()
+           << " StripType = " << digi.getStripType()
+           << " Bend = "      << digi.getBend()
+           << " Strip = "     << digi.getStrip()
+           << " KeyStrip = "  << digi.getKeyStrip()
+           << " CFEB = "      << digi.getCFEB()
+	   << " BX = "        << digi.getBX();
 }
 #endif
