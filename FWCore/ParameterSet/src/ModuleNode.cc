@@ -115,7 +115,7 @@ namespace edm {
           string sublabel = (name == "nameless") ? "" : name;
           pset->insert(true, "@module_label", Entry(sublabel, true));
           pset->insert(true, "@module_type", Entry(class_,true));
-          label = class_+"@"+sublabel;
+          label = "esprefer_" + class_+"@"+sublabel;
           bookkeepingIndex = "@all_esprefers";
         }
 
