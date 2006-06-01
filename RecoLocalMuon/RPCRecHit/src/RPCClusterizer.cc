@@ -11,12 +11,24 @@ RPCClusterizer::~RPCClusterizer()
 {
 }
  
-void RPCClusterizer::doAction(RPCClusterContainer& initialclusters){
+RPCClusterContainer
+RPCClusterizer::doAction(const RPCDigiCollection::Range& digiRange){
+  RPCClusterContainer cls;
+  for (RPCDigiCollection::const_iterator digi = digiRange.first;
+       digi != digiRange.second;
+       digi++) {
+    RPCCluster cl(digi->strip(),digi->strip(),digi->bx());
+    cls.insert(cl);
+  }
+  this->doActualAction(cls);
+  return cls;
+}
+
+
+void RPCClusterizer::doActualAction(RPCClusterContainer& initialclusters){
   
   RPCClusterContainer finalCluster;
   RPCCluster prev;
-
-  RPCDigiCollection RPCDigi = initialclusters->digi.strip();
 
   for(RPCClusterContainer::const_iterator i=initialclusters.begin();
       i != initialclusters.end(); i++){
@@ -32,3 +44,4 @@ void RPCClusterizer::doAction(RPCClusterContainer& initialclusters){
   }
 } 
  
+

@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/04/12 10:22:00 $
+ *  $Date: 2006/04/18 16:28:31 $
  *  $Revision: 1.1 $
  *  \author M. Maggi -- INFN Bari
  */
@@ -32,18 +32,12 @@ edm::OwnVector<RPCRecHit> RPCRecHitBaseAlgo::reconstruct(const RPCRoll& roll,
 							 const RPCDigiCollection::Range& digiRange) {
   edm::OwnVector<RPCRecHit> result; 
 
-  // Loop over all digis in the given range and fill the clusterizer
-  // with digis that will represent the seed...
-  RPCClusterContainer cls;
-  for (RPCDigiCollection::const_iterator digi = digiRange.first;
-       digi != digiRange.second;
-       digi++) {
-    RPCCluster cl(digi->strip(),digi->strip(),digi->bx());
-    cls.insert(cl);
-  }
+
   RPCClusterizer clizer;
-  // This will eventually modify the RPCCLusterContainer content..
-  clizer.doAction(cls);
+  RPCClusterContainer cls = clizer.doAction(digiRange);
+
+
+
   for (RPCClusterContainer::const_iterator cl = cls.begin();
        cl != cls.end(); cl++){
     
