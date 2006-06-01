@@ -1,8 +1,8 @@
 /*
  * \file DTLocalRecoTask.cc
  * 
- * $Date: 2006/02/15 08:24:56 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/01 11:09:27 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -41,6 +41,8 @@ DTLocalRecoTask::DTLocalRecoTask(const ParameterSet& pset) : dbe(0),
 
   edm::Service<MonitorDaemon>().operator->(); 	 
 
+  theRootFileName = pset.getUntrackedParameter<string>("rootFileName", "DTLocalRecoTask.root");
+
   
   if (dbe)
     dbe->setCurrentFolder("DT/DTLocalRecoTask");
@@ -70,14 +72,14 @@ DTLocalRecoTask::~DTLocalRecoTask(){
 
 void DTLocalRecoTask::beginJob(const EventSetup& setup){
 
-
+  //dbe->
 
 
 }
 
 void DTLocalRecoTask::endJob(){
-
-
+  // Write the histos
+  dbe->save(theRootFileName);
 
 }
 

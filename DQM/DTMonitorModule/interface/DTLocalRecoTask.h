@@ -4,8 +4,8 @@
 /*
  * \file DTLocalRecoTask.h
  *
- * $Date: 2006/02/15 08:24:55 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/01 11:09:27 $
+ * $Revision: 1.2 $
  * \author M. Zanetti & G. Cerminara - INFN Padova & Torino
  *
 */
@@ -14,7 +14,7 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 
 
-
+#include <string>
 
 // #include <fstream>
 // #include <vector>
@@ -50,6 +50,7 @@ private:
   
   // Switch for verbosity
   bool debug;
+  std::string theRootFileName;
 
   // The BE interface
   DaqMonitorBEInterface* dbe;
