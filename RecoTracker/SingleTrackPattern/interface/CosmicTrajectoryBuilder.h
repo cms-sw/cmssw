@@ -26,7 +26,7 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
@@ -34,6 +34,8 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
 
  class CompareHitY {
  public:
@@ -115,7 +117,7 @@ class CosmicTrajectoryBuilder
    PropagatorWithMaterial  *thePropagatorOp;
    KFUpdator *theUpdator;
    Chi2MeasurementEstimator *theEstimator;
-   TkTransientTrackingRecHitBuilder *RHBuilder;
+   const TransientTrackingRecHitBuilder *RHBuilder;
    const KFTrajectorySmoother * theSmoother;
    const KFTrajectoryFitter * theFitter;
  
@@ -124,7 +126,7 @@ class CosmicTrajectoryBuilder
    int theMinHits;
    double chi2cut;
    std::vector<Trajectory> trajFit;
-   edm::OwnVector<TransientTrackingRecHit> hits;
+   edm::OwnVector<const TransientTrackingRecHit> hits;
    bool seed_plus;
 
 };

@@ -15,6 +15,7 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 
 CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) : conf_(conf) { 
   //minimum number of hits per tracks
@@ -47,7 +48,18 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
   
    theUpdator=       new KFUpdator();
    theEstimator=     new Chi2MeasurementEstimator(chi2cut);
-   RHBuilder=        new TkTransientTrackingRecHitBuilder(&(*tracker));
+
+
+   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+   std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
+   es.get<TrackingComponentsRecord>().get(builderName,theBuilder);
+   
+
+   RHBuilder=   theBuilder.product();
+
+
+
+
    theFitter=        new KFTrajectoryFitter(*thePropagator,
 					    *theUpdator,	
 					    *theEstimator) ;

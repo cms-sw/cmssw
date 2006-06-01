@@ -103,8 +103,8 @@ namespace cms
 	
 	  Trajectory  theTraj = (*ialgo).first;
 	  //RecHitCollection	
-	  const edm::OwnVector<TransientTrackingRecHit>& transHits = theTraj.recHits();
-	  for(edm::OwnVector<TransientTrackingRecHit>::const_iterator j=transHits.begin();
+	  const edm::OwnVector< const TransientTrackingRecHit>& transHits = theTraj.recHits();
+	  for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
 	      j!=transHits.end(); j++){
 	    outputRHColl->push_back( ( (j->hit() )->clone()) );
 	  }
@@ -126,7 +126,7 @@ namespace cms
 	  math::XYZVector outmom( p.x(), p.y(), p.z() );
 	  math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
 	  theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
-	  for(edm::OwnVector<TransientTrackingRecHit>::const_iterator j=transHits.begin();
+	  for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
 	      j!=transHits.end(); j++){
 	    theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
 	    cc++;
