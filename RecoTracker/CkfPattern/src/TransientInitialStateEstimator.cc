@@ -39,7 +39,7 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
   if (nhits < lastFitted+1) lastFitted = nhits-1;
 
   std::vector<TrajectoryMeasurement> measvec = traj.measurements();
-  edm::OwnVector<TransientTrackingRecHit> firstHits;
+  edm::OwnVector<const TransientTrackingRecHit> firstHits;
   for (int i=lastFitted; i >= 0; i--) {
     firstHits.push_back( measvec[i].recHit()->clone());
   }

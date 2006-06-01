@@ -27,6 +27,8 @@ class TrajectoryFilter;
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
+class TransientTrackingRecHitBuilder;
+
 
 class CkfTrajectoryBuilder {
 protected:
@@ -52,6 +54,8 @@ private:
   edm::ESHandle<Propagator>                   thePropagator;
   edm::ESHandle<Propagator>                   thePropagatorOpposite;
   edm::ESHandle<Chi2MeasurementEstimatorBase> theEstimator;
+
+  const TransientTrackingRecHitBuilder * TTRHbuilder;
 
   const MeasurementTracker*     theMeasurementTracker;
   const LayerMeasurements*      theLayerMeasurements;

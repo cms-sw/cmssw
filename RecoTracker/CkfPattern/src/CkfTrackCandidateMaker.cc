@@ -123,8 +123,8 @@ namespace cms{
 	   it != unsmoothedResult.end(); it++) {
 	
 	OwnVector<TrackingRecHit> recHits;
-	OwnVector<TransientTrackingRecHit> thits = it->recHits();
-	for (OwnVector<TransientTrackingRecHit>::const_iterator hitIt = thits.begin(); 
+	OwnVector<const TransientTrackingRecHit> thits = it->recHits();
+	for (OwnVector<const TransientTrackingRecHit>::const_iterator hitIt = thits.begin(); 
 	     hitIt != thits.end(); hitIt++) {
 	  recHits.push_back( hitIt->hit()->clone());
 	}

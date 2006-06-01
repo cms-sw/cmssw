@@ -15,6 +15,7 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 using namespace std;
 
@@ -39,6 +40,18 @@ CkfTrajectoryBuilder(const edm::ParameterSet& conf,
   es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",thePropagator);
   es.get<TrackingComponentsRecord>().get("PropagatorWithMaterialOpposite",thePropagatorOpposite);
   es.get<TrackingComponentsRecord>().get("Chi2",theEstimator);  
+
+  
+  //
+  // get the transient builder
+  //
+  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+  std::string builderName = conf.getParameter<std::string>("TTRHBuilder");   
+  es.get<TrackingComponentsRecord>().get(builderName,theBuilder);
+  
+  TTRHbuilder = theBuilder.product();
+  
+
 }
 
 CkfTrajectoryBuilder::~CkfTrajectoryBuilder()
@@ -150,13 +163,12 @@ std::vector<TrajectoryMeasurement>
 CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
 {
   std::vector<TrajectoryMeasurement> result;
-  TkTransientTrackingRecHitBuilder recHitBuilder( theMeasurementTracker->geomTracker());
   TrajectoryStateTransform tsTransform;
 
   TrajectorySeed::range hitRange = seed.recHits();
   for (TrajectorySeed::const_iterator ihit = hitRange.first; 
        ihit != hitRange.second; ihit++) {
-    TransientTrackingRecHit* recHit = recHitBuilder.build(&(*ihit));
+    TransientTrackingRecHit* recHit = TTRHbuilder->build(&(*ihit));
     const GeomDet* hitGeomDet = 
       theMeasurementTracker->geomTracker()->idToDet( ihit->geographicalId());
 
