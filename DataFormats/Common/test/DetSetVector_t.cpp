@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.5 2006/05/11 20:04:46 paterno Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.6 2006/05/18 19:02:06 paterno Exp $
  *  CMSSW
  *
  */
@@ -254,6 +254,32 @@ void refTest()
   RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(3),c[3].data.begin());
   assert(!(v1<*refDet)&&!(*refDet < v1));
 
+  try {
+    //bad detid
+    MyHandle<coll_type> pc2(&c);
+    RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(12),c[3].data.begin());
+    
+    assert("Failed to throw required exception" == 0);
+  }
+  catch (edm::Exception const& x) {
+    //std::cout <<x.what()<<std::endl;
+    // Test we have the right exception category
+    assert(x.categoryCode() == edm::errors::InvalidReference);
+  }
+
+  try {
+    //bad iterator
+    MyHandle<coll_type> pc2(&c);
+    RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(1),c[3].data.begin());
+    
+    assert("Failed to throw required exception" == 0);
+  }
+  catch (edm::Exception const& x) {
+    //std::cout <<x.what()<<std::endl;
+    // Test we have the right exception category
+    assert(x.categoryCode() == edm::errors::InvalidReference);
+  }
+  
 }
 
 void work() 
