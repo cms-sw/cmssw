@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.5 2006/05/18 19:02:05 paterno Exp $
+$Id: DetSetVector.h,v 1.6 2006/05/19 18:56:12 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -393,12 +393,15 @@ namespace edm {
     typedef typename HandleT::element_type Vec;
     typename Vec::value_type::collection_type::size_type index=0;
     typename Vec::const_iterator itFound = iHandle->find(iDetID);
-    /*for(typename Vec::const_iterator it = iHandle->begin();
-       it != itFound;
-       ++it) {
-       index += it->data.size();
-    }*/
+    if(itFound == iHandle->end()) {
+      throw edm::Exception(errors::InvalidReference) 
+      <<"an edm::Ref to an edm::DetSetVector was given a DetId, "<<iDetID<<", that is not in the DetSetVector";
+    }
     index += (itIter- itFound->data.begin());
+    if( index < 0 || index >= itFound->data.size() ) {
+      throw edm::Exception(errors::InvalidReference) 
+      <<"an edm::Ref to a edm::DetSetVector is being made with an interator that is not part of the edm::DetSet itself";
+    }
     return Ref<typename HandleT::element_type,
 	       typename HandleT::element_type::value_type::value_type>
 	      (iHandle,std::make_pair(iDetID,index));
