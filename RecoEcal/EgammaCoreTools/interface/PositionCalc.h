@@ -8,7 +8,7 @@
  *
  * \author Ted Kolberg, ND
  * 
- * \version $Id: PositionCalc.h,    v 2.1  2006/05/19 20:00:00 tkolberg Exp $
+ * \version $Id: PositionCalc.h,v 1.1 2006/05/23 16:50:47 askew Exp $
  *
  */
 
@@ -25,18 +25,18 @@ class PositionCalc
  public:
   // You must call Initialize before you can calculate positions or 
   // covariances.
-  
+
   static void Initialize(std::map<std::string,double> providedParameters,
                          const std::map<EBDetId,EcalRecHit> *passedRecHitsMap,
                          std::string passedCollectionType, 
                          const CaloSubdetectorGeometry *passedGeometry);  
-  
+
   // Calculate_Location calculates an arithmetically or logarithmically
   // weighted average position of a vector of DetIds, which should be
   // a subset of the map used to Initialize.
 
   static math::XYZPoint Calculate_Location(std::vector<DetId> passedDetIds);
-  
+
   // Calculate_Covariances calculates the variance in eta, variance in phi,
   // and covariance in eta and phi.  It must be given a vector of DetIds
   // which are a subset of the DetIds used to Initialize.
@@ -52,8 +52,8 @@ class PositionCalc
   static Double32_t  param_T0_;
   static Double32_t  param_W0_;
   static std::string param_CollectionType_;
-  static const std::map<EBDetId,EcalRecHit> *storedRecHitsMap_;
-  static const CaloSubdetectorGeometry *storedSubdetectorGeometry_;
+  static std::map<EBDetId,EcalRecHit> *storedRecHitsMap_;
+  static CaloSubdetectorGeometry *storedSubdetectorGeometry_;
 
 };
 
