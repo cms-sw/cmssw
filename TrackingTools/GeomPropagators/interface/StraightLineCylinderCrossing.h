@@ -20,15 +20,8 @@ public:
    */
   StraightLineCylinderCrossing (const LocalPoint& startingPos,
 				const LocalVector& startingDir,
-				const PropagationDirection propDir=alongMomentum);
-
-  /* Constructor in global frame
-   */
-/*
-  StraightLineCylinderCrossing (const GlobalPoint& startingPos,
-				const GlobalVector& startingDir,
-				const PropagationDirection propDir=alongMomentum);
-*/
+				const PropagationDirection propDir=alongMomentum,
+				double tolerance=0);
 
   /** Propagation status (true if valid) and (signed) path length 
    *  along the line from the starting point to the cylinder.
@@ -58,6 +51,7 @@ private:
   const PositionType   theX0;
   const DirectionType  theP0;
   const PropagationDirection thePropDir;
+  double theTolerance;
 };
 
 #endif

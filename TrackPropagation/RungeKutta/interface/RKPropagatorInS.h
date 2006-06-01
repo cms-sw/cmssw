@@ -20,8 +20,9 @@ public:
 
   // RKPropagatorInS( PropagationDirection dir = alongMomentum) : Propagator(dir), theVolume(0) {}
 
-  RKPropagatorInS( const MagVolume& vol, PropagationDirection dir = alongMomentum) : 
-    Propagator(dir), theVolume( &vol) {}
+  explicit RKPropagatorInS( const MagVolume& vol, PropagationDirection dir = alongMomentum,
+			    double tolerance = 1.e-5) : 
+    Propagator(dir), theVolume( &vol), theTolerance( tolerance) {}
 
   ~RKPropagatorInS() {}
 
@@ -56,6 +57,7 @@ private:
   typedef std::pair<TrajectoryStateOnSurface,double> TsosWP;
 
   const MagVolume* theVolume;
+  double           theTolerance;
 
   GlobalTrajectoryParameters gtpFromLocal( const Basic3DVector<double>& lpos,
 					   const Basic3DVector<double>& lmom,

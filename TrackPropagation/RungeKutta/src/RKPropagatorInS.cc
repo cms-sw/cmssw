@@ -51,7 +51,7 @@ RKPropagatorInS::propagateWithPath (const FreeTrajectoryState& ts, const Plane& 
   CartesianLorentzForce deriv(field, ts.charge());
 
   RKCartesianDistance dist;
-  double eps = 1.e-5;
+  double eps = theTolerance;
   Solver solver;
   double stot = 0;
   PropagationDirection currentDirection = propagationDirection();
@@ -133,7 +133,7 @@ RKPropagatorInS::propagateWithPath (const FreeTrajectoryState& ts, const Cylinde
     CartesianLorentzForce deriv(field, ts.charge());
 
     RKCartesianDistance dist;
-    double eps = 1.e-5;
+    double eps = theTolerance;
     Solver solver;
     double stot = 0;
     PropagationDirection currentDirection = propagationDirection();
@@ -142,7 +142,8 @@ RKPropagatorInS::propagateWithPath (const FreeTrajectoryState& ts, const Cylinde
     while (true) {
       CartesianStateAdaptor startState(start);
       StraightLineCylinderCrossing pathLength( LocalPoint(startState.position()), 
-					       LocalVector(startState.momentum()), currentDirection);
+					       LocalVector(startState.momentum()), 
+					       currentDirection, eps);
 
       std::pair<bool,double> path = pathLength.pathLength( cyl);
       if (!path.first) { 
