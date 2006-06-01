@@ -53,10 +53,11 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*cpv),&(*gD)) );
 
   // Dump BEFORE
-  for ( std::vector<GeomDet*>::const_iterator iGeomDet = theTracker->detsTOB().begin();
- 		iGeomDet != theTracker->detsTOB().end(); iGeomDet++ )
- 	std::cout << (*iGeomDet)->geographicalId().rawId()
- 			  << " " << (*iGeomDet)->position() << std::endl;
+  if ( theParameterSet.getUntrackedParameter<bool>("dumpBefore", false) )
+	for ( std::vector<GeomDet*>::const_iterator iGeomDet = theTracker->detsTOB().begin();
+		  iGeomDet != theTracker->detsTOB().end(); iGeomDet++ )
+	  std::cout << (*iGeomDet)->geographicalId().rawId()
+				<< " " << (*iGeomDet)->position() << std::endl;
 
   // Create the alignable hierarchy
   AlignableTracker* theAlignableTracker = new AlignableTracker( &(*gD), &(*theTracker) );
@@ -73,10 +74,11 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 
 
   // Dump AFTER
-  for ( std::vector<GeomDet*>::const_iterator iGeomDet = theTracker->detsTOB().begin();
- 		iGeomDet != theTracker->detsTOB().end(); iGeomDet++ )
- 	std::cout << (*iGeomDet)->geographicalId().rawId()
-			  << " " << (*iGeomDet)->position() << std::endl;
+  if ( theParameterSet.getUntrackedParameter<bool>("dumpAfter", false) )
+	for ( std::vector<GeomDet*>::const_iterator iGeomDet = theTracker->detsTOB().begin();
+		  iGeomDet != theTracker->detsTOB().end(); iGeomDet++ )
+	  std::cout << (*iGeomDet)->geographicalId().rawId()
+				<< " " << (*iGeomDet)->position() << std::endl;
 
   edm::LogInfo("MisalignedTracker") << "Producer done";
 
