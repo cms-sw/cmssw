@@ -44,8 +44,8 @@ namespace cms
     edm::Handle<TrajectorySeedCollection> seed;
     e.getByType(seed);
     //retrieve PixelRecHits
-    edm::Handle<SiPixelRecHitCollection> pixelHits;
-    e.getByType(pixelHits);
+    //    edm::Handle<SiPixelRecHitCollection> pixelHits;
+    //  e.getByType(pixelHits);
     //retrieve StripRecHits
     edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits;
     //    e.getByLabel("SiStripRecHits","matchedRecHit" ,matchedrecHits);
@@ -89,7 +89,7 @@ namespace cms
 				   *stereorecHits,
 				   *rphirecHits,
 				   *matchedrecHits,
-				   *pixelHits,
+				   //				   *pixelHits,
 				   es,
 				   e,
 				   algooutput);
@@ -117,17 +117,12 @@ namespace cms
 	  TSOS outertsos = theTraj.lastMeasurement().updatedState();
 	  TSOS Fitsos = theTraj.firstMeasurement().updatedState();
 
-	  GlobalPoint v;
+	  GlobalPoint v(0.,0.,0.);
 	  GlobalVector p;
 
-	  if (seedplus){
-	    p=outertsos.globalMomentum();
-	    v=outertsos.globalPosition();
-	  }
-	  else{
-	    p=Fitsos.globalMomentum();
-	    v=Fitsos.globalPosition();
-	  }
+	  if (seedplus) p=outertsos.globalParameters().momentum();
+	  else p= Fitsos.globalParameters().momentum();
+
 	  math::XYZVector outmom( p.x(), p.y(), p.z() );
 	  math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
 	  theTrackExtra = new reco::TrackExtra(outpos, outmom, true);

@@ -18,6 +18,7 @@
 
 CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) : conf_(conf) { 
   //minimum number of hits per tracks
+
   theMinHits=conf_.getParameter<int>("MinHits");
   //cut on chi2
   chi2cut=conf_.getParameter<double>("Chi2Cut");
@@ -34,32 +35,25 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
 
   //services
   es.get<IdealMagneticFieldRecord>().get(magfield);
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
+   es.get<TrackerDigiGeometryRecord>().get(tracker);
 
  
-
-  //trackingtools
-  if (seedplus) {
-    seed_plus=true;
-    thePropagator=         new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield) );
-    thePropagatorOp=    new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );}
-  else {
-    seed_plus=false;
-
-    thePropagator=         new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );
-    thePropagatorOp=    new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield) );
-  }
+ 
+   seed_plus=false;
+   
+   thePropagator=         new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );
+   thePropagatorOp=    new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield) );
+ 
   
-  theUpdator=       new KFUpdator();
-  theEstimator=     new Chi2MeasurementEstimator(chi2cut);
-  RHBuilder=        new TkTransientTrackingRecHitBuilder(&(*tracker));
+   theUpdator=       new KFUpdator();
+   theEstimator=     new Chi2MeasurementEstimator(chi2cut);
+   RHBuilder=        new TkTransientTrackingRecHitBuilder(&(*tracker));
+   theFitter=        new KFTrajectoryFitter(*thePropagator,
+					    *theUpdator,	
+					    *theEstimator) ;
 
-  theFitter=        new KFTrajectoryFitter(*thePropagator,
-					   *theUpdator,	
-					   *theEstimator) ;
 
-
-  theSmoother=      new KFTrajectorySmoother(*thePropagatorOp,
+    theSmoother=      new KFTrajectorySmoother(*thePropagatorOp,
 					       *theUpdator,	
 					       *theEstimator);
  
@@ -69,7 +63,7 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 				  const SiStripRecHit2DLocalPosCollection &collstereo,
 				  const SiStripRecHit2DLocalPosCollection &collrphi ,
 				  const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
-				  const SiPixelRecHitCollection &collpixel,
+				  //				  const SiPixelRecHitCollection &collpixel,
 				  const edm::EventSetup& es,
 				  edm::Event& e,
 				  vector<AlgoProduct> &algooutput)
@@ -79,17 +73,17 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
   trajFit.clear();
 
   //order all the hits
-  vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collpixel,collseed);
-  
+  //  vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collpixel,collseed);
+  vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collseed);  
   std::vector<Trajectory> trajSmooth;
   std::vector<Trajectory>::iterator trajIter;
   
-  
+ 
   TrajectorySeedCollection::const_iterator iseed;
   for(iseed=collseed.begin();iseed!=collseed.end();iseed++){
     Trajectory startingTraj = createStartingTrajectory(*iseed);
     AddHit(startingTraj,allHits);
-
+ 
     for (trajIter=trajFit.begin(); trajIter!=trajFit.end();trajIter++){
       trajSmooth=theSmoother->trajectories((*trajIter));
     }
@@ -154,7 +148,7 @@ vector<const TrackingRecHit*>
 CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &collstereo,
 				  const SiStripRecHit2DLocalPosCollection &collrphi ,
 				  const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
-				  const SiPixelRecHitCollection &collpixel,
+				  //				  const SiPixelRecHitCollection &collpixel,
 				  const TrajectorySeedCollection &collseed){
 
   //The Hits with global y more than the seed are discarded
@@ -162,30 +156,29 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &colls
   //At the end all the hits are sorted in y
   vector<const TrackingRecHit*> allHits;
   vector<const TrackingRecHit*> seedHits;
-  SiPixelRecHitCollection::const_iterator ipix;
-  for(ipix=collpixel.begin();ipix!=collpixel.end();ipix++){
-    allHits.push_back(&(*ipix));
-  }
+//   SiPixelRecHitCollection::const_iterator ipix;
+//   for(ipix=collpixel.begin();ipix!=collpixel.end();ipix++){
+//     allHits.push_back(&(*ipix));
+//   }
 
   SiStripRecHit2DLocalPosCollection::const_iterator istrip;
   TrajectorySeedCollection::const_iterator iseed;
   TrajectorySeedCollection::const_iterator seedbegin=collseed.begin();
   TrajectorySeed::range hRange= (*seedbegin).recHits();
   TrajectorySeed::const_iterator ihit;
-  float ymin=0.;
-  for (ihit = hRange.first; 
-       ihit != hRange.second; ihit++) {
-    ymin=RHBuilder->build(&(*ihit))->globalPosition().y();
-  }
+  float ymin=RHBuilder->build(&(*hRange.first))->globalPosition().y();
+  // for (ihit = hRange.first; 
+  //    ihit != hRange.second; ihit++) {
+  // ymin=RHBuilder->build(&(*ihit))->globalPosition().y();
+    // }
  
-  
+
   TrajectorySeedCollection::const_iterator seedend=collseed.end();
   for(istrip=collrphi.begin();istrip!=collrphi.end();istrip++){
     bool differenthit= true;
     for (iseed=seedbegin;iseed!=seedend;iseed++){
-      TrajectorySeed::range hitRange= (*iseed).recHits();
-      for (ihit = hitRange.first; 
-	   ihit != hitRange.second; ihit++) {
+      for (ihit = hRange.first; 
+	   ihit != hRange.second; ihit++) {
 	if((*ihit).geographicalId()==(*istrip).geographicalId()) {
 
 	  if(((*ihit).localPosition()-(*istrip).localPosition()).mag()<0.1)  differenthit=false;
@@ -196,33 +189,50 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &colls
 
     if (differenthit) { 
       float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
-      if ((seed_plus && (ych<ymin)) || (!(seed_plus) && (ych>ymin)))
-	allHits.push_back(&(*istrip));   
+      if (ych>ymin)
+	allHits.push_back(&(*istrip));
     } 
     else  seedHits.push_back(&(*istrip)); 
   }
 
-  hits.push_back((RHBuilder->build(seedHits.back()))); 
-  hits.push_back((RHBuilder->build(seedHits.front()))); 
+ 
 
-  LogDebug("CosmicTrackFinder")<<"SEED HITS"<<RHBuilder->build(seedHits.back())->globalPosition()
-      <<" "<<RHBuilder->build(seedHits.front())->globalPosition();
   for(istrip=collstereo.begin();istrip!=collstereo.end();istrip++){
-
+    float ych= RHBuilder->build(&(*istrip))->globalPosition().y(); 
+   if (ych>ymin)
       allHits.push_back(&(*istrip));
   }
-
+ 
   SiStripRecHit2DMatchedLocalPosCollection::const_iterator istripm;
   for(istripm=collmatched.begin();istripm!=collmatched.end();istripm++){
-    
-  }
+     bool differenthit= true;
+ 
+    for (ihit = hRange.first; 
+	 ihit != hRange.second; ihit++) {
+      if((*ihit).geographicalId()==(*istripm).geographicalId()) {
 
-  if (seed_plus){
-    stable_sort(allHits.begin(),allHits.end(),CompareHitY_plus(*tracker));
+	if(((*ihit).localPosition()-(*istripm).localPosition()).mag()<0.1)  differenthit=false;
+      }
+    }  
+ 
+    if (differenthit) { 
+      float ych= RHBuilder->build(&(*istripm))->globalPosition().y();
+      if (ych>ymin)
+	allHits.push_back(&(*istripm));
+    } 
+    else  seedHits.push_back(&(*istripm)); 
+
   }
-  else {
-    stable_sort(allHits.begin(),allHits.end(),CompareHitY(*tracker));
-  }
+ 
+
+  hits.push_back((RHBuilder->build(seedHits.back()))); 
+  hits.push_back((RHBuilder->build(seedHits.front()))); 
+ 
+  LogDebug("CosmicTrackFinder")<<"SEED HITS"<<RHBuilder->build(seedHits.back())->globalPosition()
+      <<" "<<RHBuilder->build(seedHits.front())->globalPosition();
+
+  stable_sort(allHits.begin(),allHits.end(),CompareHitY(*tracker));
+
   return allHits;
 };
 
@@ -244,19 +254,21 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
     GlobalPoint gphit=RHBuilder->build(Hits[icosmhit])->globalPosition();
     unsigned int iraw= Hits[icosmhit]->geographicalId().rawId();
     LogDebug("CosmicTrackFinder")<<" HIT POSITION "<< gphit;
-
     TransientTrackingRecHit* tmphit=RHBuilder->build(Hits[icosmhit]);
-    TSOS prSt= thePropagator->propagate(traj.lastMeasurement().updatedState(),
-					tracker->idToDet(Hits[icosmhit]->geographicalId())->surface());
-    
-    if (prSt.isValid()){
+
+     TSOS prSt= thePropagator->propagate(traj.lastMeasurement().updatedState(),
+ 					tracker->idToDet(Hits[icosmhit]->geographicalId())->surface());
+   
+     if (prSt.isValid()){
       LogDebug("CosmicTrackFinder") <<"STATE PROPAGATED AT DET "<<iraw<<prSt;
+
       TSOS UpdatedState= theUpdator->update( prSt, *tmphit);
       
-      
+ 
       if (UpdatedState.isValid()){
 	LogDebug("CosmicTrackFinder") <<"STATE UPDATED WITH HIT AT POSITION "<<gphit<<UpdatedState;
 	float contr= theEstimator->estimate(UpdatedState, *tmphit).second;
+
 	if (contr<chi2cut)
 	  {	 
 	    traj.push(TM(prSt,UpdatedState,RHBuilder->build(Hits[icosmhit])
@@ -267,7 +279,7 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 	     
 	  }
       }else edm::LogError("CosmicTrackFinder")<<" State can not be updated with hit at position "<<gphit;
-    }else edm::LogError("CosmicTrackFinder")<<" State can not be propagated at det "<< iraw;
+     }else edm::LogError("CosmicTrackFinder")<<" State can not be propagated at det "<< iraw;
 
     
   }
@@ -296,27 +308,22 @@ CosmicTrajectoryBuilder::qualityFilter(Trajectory traj){
 }
 
 std::pair<Trajectory, reco::Track>  CosmicTrajectoryBuilder::makeTrack(const Trajectory &traj){
- 
-  TSOS outertsos = traj.lastMeasurement().updatedState();
+  //MP must be checked
+
   TSOS Fitsos = traj.firstMeasurement().updatedState();
 
- 
-  //MP
+ //MP
   int ndof =traj.foundHits()-5;
   if (ndof<0) ndof=0;
 
   TSCPBuilderNoMaterial tscpBuilder;
   TrajectoryStateClosestToPoint tscp;
-  if (seed_plus)
-    tscp= tscpBuilder(*(outertsos.freeState()),
-		      outertsos.globalPosition());
-  else 
-     tscp= tscpBuilder(*(Fitsos.freeState()),
-		       Fitsos.globalPosition());   
+  tscp= tscpBuilder(*(Fitsos.freeState()),
+		    Fitsos.globalPosition());   
   reco::perigee::Parameters param = tscp.perigeeParameters();
- 
+  
   reco::perigee::Covariance covar = tscp.perigeeError();
-
+  
  
   reco::Track theTrack(traj.chiSquared(),
 		       int(ndof),
@@ -328,4 +335,5 @@ std::pair<Trajectory, reco::Track>  CosmicTrajectoryBuilder::makeTrack(const Tra
   
   AlgoProduct aProduct(traj,theTrack);
   return aProduct;
+  //  return theTrack; 
 }
