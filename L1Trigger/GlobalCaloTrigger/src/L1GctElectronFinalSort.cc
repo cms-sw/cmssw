@@ -96,7 +96,6 @@ std::ostream& operator<<(std::ostream& s, const L1GctElectronFinalSort& cand) {
   s << "===ElectronFinalSort===" << std::endl;
   s << "Card type = " <<cand.m_emCandsType<<std::endl;
   s << "No of Electron Leaf Cards " << cand.m_theLeafCards.size() << std::endl;
-  s << std::endl;
   s << "Pointers to the Electron Leaf cards are: "<<std::endl;
   for (unsigned i=0; i<cand.m_theLeafCards.size(); i++) {
     s << cand.m_theLeafCards[i]<<"  ";
