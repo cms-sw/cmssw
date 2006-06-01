@@ -14,6 +14,7 @@
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 //#include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
 #include "RecoTracker/TkDetLayers/interface/TOBLayer.h"
+#include "RecoTracker/TkDetLayers/interface/TIBLayer.h"
 class CosmicLayerPairs : public SeedLayerPairs{
 public:
   CosmicLayerPairs():SeedLayerPairs(){};
@@ -29,19 +30,17 @@ private:
 
   //definition of the map 
  
-  SiStripRecHit2DLocalPosCollection::range rphi_range1;
+  SiStripRecHit2DMatchedLocalPosCollection::range match_range1;
   SiStripRecHit2DLocalPosCollection::range rphi_range2;
-  SiStripRecHit2DLocalPosCollection::range rphi_range3;
 
   SiStripRecHit2DLocalPosCollection::range stereo_range1;
   SiStripRecHit2DLocalPosCollection::range stereo_range2;
-  SiStripRecHit2DLocalPosCollection::range stereo_range3;
 
   TrackerLayerIdAccessor acc;
   
   LayerWithHits *lh1;
   LayerWithHits *lh2;
-  LayerWithHits *lh3;
+
 
 
    vector<BarrelDetLayer*> bl;
@@ -51,6 +50,7 @@ private:
  
    void init(const SiStripRecHit2DLocalPosCollection &collstereo,
 	     const SiStripRecHit2DLocalPosCollection &collrphi,
+	     const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
 	     const edm::EventSetup& iSetup);
 
 };

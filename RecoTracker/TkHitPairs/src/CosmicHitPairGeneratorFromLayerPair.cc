@@ -30,11 +30,16 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
 
 
   const LayerHitMap & innerHitsMap = theLayerCache(theInnerLayer, region,iSetup);
-  if (innerHitsMap.empty()) return;
- 
-  const LayerHitMap & outerHitsMap = theLayerCache(theOuterLayer, region,iSetup);
-  if (outerHitsMap.empty()) return;
+  if (innerHitsMap.empty()) {
 
+    return;
+  }
+
+  const LayerHitMap & outerHitsMap = theLayerCache(theOuterLayer, region,iSetup);
+  if (outerHitsMap.empty()){
+
+   return;
+  }
 
   vector<OrderedHitPair> allthepairs;
   const TkHitPairsCachedHit * oh;
@@ -46,19 +51,19 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
   while ( (oh=outerHits.getHit()) ) {
     LayerHitMapLoop innerHits = innerHitsMap.loop();
     const TkHitPairsCachedHit * ih;
-
+  
     while ( (ih=innerHits.getHit()) ) {
-
-      float z_diff =ih->z()-oh->z();
-    
-      float inny=ih->r()*sin(ih->phi());
-      float outy=oh->r()*sin(oh->phi());
-      if( (abs(z_diff)<30)&&((inny-outy)<30) &&(inny*outy>0)) {
-	allthepairs.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
-      }
+ 
+     float differenza =ih->z()-oh->z();
+     float inny=ih->r()*sin(ih->phi());
+     float outy=oh->r()*sin(oh->phi());
+  
+     //    if( (differenza<30)&&((inny-outy)<30)&&(inny<0)) 
+     if( (differenza<30)&&((inny-outy)<30))
+    allthepairs.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
     }
-  }
 
+  }
   stable_sort(allthepairs.begin(),allthepairs.end(),CompareHitPairsY(iSetup));
   
   if (allthepairs.size()>0)   result.push_back(allthepairs[0]);  
