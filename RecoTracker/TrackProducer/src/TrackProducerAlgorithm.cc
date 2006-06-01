@@ -19,6 +19,7 @@
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "Utilities/General/interface/CMSexception.h"
 
 void TrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 					      const MagneticField * theMF,
@@ -45,6 +46,8 @@ void TrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
 								     &(theG->idToDet(*detId)->surface()), 
 								     theMF);
+
+      LogDebug("TrackProducer") << "Initial TSOS\n" << theTSOS << "\n";
       
       //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
       //meanwhile computes the number of degrees of freedom
@@ -92,56 +95,64 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
   int cont = 0;
   for (reco::TrackCollection::const_iterator i=theTCollection.begin(); i!=theTCollection.end();i++)
     {
-
-      const reco::Track * theT = &(*i);
-
-      //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
-      //meanwhile computes the number of degrees of freedom
-      edm::OwnVector<TransientTrackingRecHit> hits;
-      TransientTrackingRecHitBuilder * builder;
-  
-      //
-      // temporary!
-      //
-      builder = new TkTransientTrackingRecHitBuilder( theG);
-      
-      float ndof=0;
-      
-      for (trackingRecHit_iterator i=theT->recHitsBegin();
-	   i!=theT->recHitsEnd(); i++){
-	hits.push_back(builder->build(&**i ));
-	if ((*i)->isValid()){
-	  ndof = ndof + ((*i)->dimension())*((*i)->weight());
+      try{
+	const reco::Track * theT = &(*i);
+	
+	//convert the TrackingRecHit vector to a TransientTrackingRecHit vector
+	//meanwhile computes the number of degrees of freedom
+	edm::OwnVector<TransientTrackingRecHit> hits;
+	TransientTrackingRecHitBuilder * builder;
+	
+	//
+	// temporary!
+	//
+	builder = new TkTransientTrackingRecHitBuilder( theG);
+	
+	float ndof=0;
+	
+	for (trackingRecHit_iterator i=theT->recHitsBegin();
+	     i!=theT->recHitsEnd(); i++){
+	  // 	hits.push_back(builder->build(&**i ));
+	  if ((*i)->isValid()){
+	    hits.push_back(builder->build(&**i ));
+	    ndof = ndof + ((*i)->dimension())*((*i)->weight());
+	  }
 	}
+	
+	delete builder;
+	
+	ndof = ndof - 5;
+
+	//SORT RECHITS ALONGMOMENTUM
+	hits.sort(TrackingRecHitLessFromGlobalPosition(theG,alongMomentum));
+	
+	reco::TransientTrack theTT(*theT);
+	
+	//       TrajectoryStateOnSurface theTSOS=theTT.impactPointState();
+	//       theTSOS.rescaleError(100);
+	TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.begin()->det()->surface());
+	AlgebraicSymMatrix C(5,1);
+	C *= 100.;
+	TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C),
+					  firstState.surface(),
+					  thePropagator->magneticField()); 
+	
+	LogDebug("TrackProducer") << "Initial TSOS\n" << theTSOS << "\n";
+	
+	const TrajectorySeed * seed = new TrajectorySeed();//empty seed: not needed
+	//buildTrack
+	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, *seed, ndof);
+	if(ok) cont++;
+      }catch ( CMSexception & e){
+	edm::LogInfo("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
+      }catch ( std::exception & e){
+	edm::LogInfo("TrackProducer") << "Genexception2: " << e.what() <<"\n";      
+      }catch (...){
+	edm::LogInfo("TrackProducer") << "Genexception: \n";
       }
-      
-      delete builder;
-      
-      ndof = ndof - 5;
-
-      //SORT RECHITS ALONGMOMENTUM
-      hits.sort(TrackingRecHitLessFromGlobalPosition(theG,alongMomentum));
-
-      reco::TransientTrack theTT(*theT);
-
-//       TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.begin()->det()->surface());
-      
-//       AlgebraicSymMatrix C(5,1);
-//       C *= 100.;
-
-      TrajectoryStateOnSurface theTSOS=theTT.impactPointState();
-      theTSOS.rescaleError(100);
-//       TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C),
-// 			 firstState.surface(),
-// 			 thePropagator->magneticField()); 
-
-      const TrajectorySeed * seed = new TrajectorySeed();//empty seed: not needed
-      //buildTrack
-      bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, *seed, ndof);
-      if(ok) cont++;
     }
   edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
-
+  
 }
 
 bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
@@ -165,7 +176,7 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
   TrajectoryStateOnSurface innertsos;
   
   if (trajVec.size() != 0){
-    
+
     theTraj = new Trajectory( trajVec.front() );
     
     if (theTraj->direction() == alongMomentum) {
@@ -176,6 +187,7 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
     
     
     TSCPBuilderNoMaterial tscpBuilder;
+
     TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
 						     GlobalPoint(0,0,0) );//FIXME Correct?
     
