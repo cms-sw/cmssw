@@ -101,16 +101,14 @@ void L1GctElectronSorter::setInputEmCand(int i, L1GctEmCand cand){
 }
 
 std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& ems) {
-  s << "===ElectronSorter===" << endl;
-  s << "ID = " << ems.m_id << endl;
-  s << "Card type = " << ems.m_emCandType << endl;
+  //s << "===ElectronSorter===" << std::endl;
+  s << "Card type = " << ems.m_emCandType << std::endl;
   s << "No of Source Cards = " << ems.m_theSCs.size() << std::endl;
   for (unsigned i=0; i<ems.m_theSCs.size(); i++) {
-    s << "SourceCard* " << i << " = " << ems.m_theSCs[i]<< endl;
+    s << "SourceCard* " << i << " = " << ems.m_theSCs[i]<<std::endl;
   }
   s << "No of Electron Input Candidates = " << ems.m_inputCands.size()<< std::endl;
   s << "No of Electron Output Candidates = " << ems.m_outputCands.size()<< std::endl;
-  s << endl;
   return s;
 }
 

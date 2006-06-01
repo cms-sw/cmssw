@@ -105,7 +105,7 @@ vector<L1GctEmCand> L1GctEmLeafCard::getOutputNonIsoEmCands(int fpga) {
 }
 
 ostream& operator<<(ostream& s, const L1GctEmLeafCard& card) {
-  s << "===L1GctEmLeafCard===" << endl;
+  s << "===L1GctEmLeafCard===" <<endl;
   s << "ID = "<<card.m_id<<endl;
   s << "No of Source Cards = " <<card.m_sourceCards.size() << endl;
   for (unsigned i=0; i<card.m_sourceCards.size(); i++) {
@@ -113,7 +113,9 @@ ostream& operator<<(ostream& s, const L1GctEmLeafCard& card) {
   }
   s << "No of Electron Sorters = " << card.m_sorters.size() << endl;
   for (unsigned i=0; i<card.m_sorters.size(); i++) {
-    s << "ElectronSorter : " << i << endl << (*card.m_sorters[i]);
+    s << std::endl;
+    s << "===ElectronSorter===" << std::endl;
+    s << "ElectronSorter no: " << i << endl << (*card.m_sorters[i]);
   }
   s << endl;
   return s;
