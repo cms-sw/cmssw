@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/03 15:20:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/16 09:43:00 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -34,11 +34,12 @@ void MuDetRod::init() {
 MuDetRod::~MuDetRod(){}
 
 
-vector<const GeometricSearchDet*> 
+const vector<const GeometricSearchDet*>&
 MuDetRod::components() const {
   // FIXME dummy impl.
   cout << "temporary dummy implementation of MuDetRod::components()!!" << endl;
-  return vector<const GeometricSearchDet*>();
+  static vector<const GeometricSearchDet*> result;
+  return result;
 }
 
 

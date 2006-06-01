@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/16 09:43:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/22 08:29:39 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -26,6 +26,7 @@ using namespace std;
 MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
   //  RodBarrelLayer(rods), FIXME: should be removed?
   theRods(rods),
+  theComponents(theRods.begin(),theRods.end()),
   isOverlapping(false) 
 {
   // Cache chamber pointers (the basic components_)
@@ -101,7 +102,7 @@ Module MuRodBarrelLayer::module() const {
   return dt;
 }
 
-vector<const GeometricSearchDet*> 
+const vector<const GeometricSearchDet*>&
 MuRodBarrelLayer::components() const {
-  return vector <const GeometricSearchDet*>(theRods.begin(),theRods.end());
+  return theComponents;
 }

@@ -4,8 +4,8 @@
 /** \class MuRodBarrelLayer
  *  A cylinder composed of rods. Represents barrel muon DT/RPC stations.
  *
- *  $Date: 2006/04/25 17:03:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/16 09:43:00 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  *
  */
@@ -25,9 +25,9 @@ public:
 
   // GeometricSearchDet interface
 
-  virtual vector<const GeomDet*> basicComponents() const {return theBasicComps;}
+  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual vector<const GeometricSearchDet*> components() const;
+  virtual const vector<const GeometricSearchDet*>& components() const;
   
   virtual pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator& prop, 
@@ -60,6 +60,7 @@ public:
 
 private:
   vector<const DetRod*> theRods;
+  vector <const GeometricSearchDet*> theComponents; // duplication of the above
   vector<const GeomDet*> theBasicComps; // All chambers
   BaseBinFinder<double> * theBinFinder;
   bool isOverlapping;

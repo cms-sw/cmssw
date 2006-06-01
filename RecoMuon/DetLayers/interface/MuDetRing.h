@@ -5,8 +5,8 @@
  *  A ring of periodic, possibly overlapping vertical detectors.
  *  Designed for forward muon CSC/RPC chambers.
  *
- *  $Date: 2004/03/08 16:02:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/12 13:23:53 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -30,7 +30,7 @@ class MuDetRing : public ForwardDetRingOneZ {
 
   // GeometricSearchDet interface
 
-  virtual vector<const GeometricSearchDet*> components() const;
+  virtual const vector<const GeometricSearchDet*>& components() const;
 
   virtual pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator& prop, 

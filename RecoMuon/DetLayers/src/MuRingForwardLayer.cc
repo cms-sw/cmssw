@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/18 14:52:41 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/22 08:29:39 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -24,6 +24,7 @@
 
 MuRingForwardLayer::MuRingForwardLayer(vector<const ForwardDetRing*>& rings) :
   theRings(rings),
+  theComponents(theRings.begin(),theRings.end()),
   isOverlapping(false) 
 {
   // Cache chamber pointers (the basic components_)
@@ -93,8 +94,7 @@ Module MuRingForwardLayer::module() const {
   return csc;
 }
 
-vector<const GeometricSearchDet*> 
+const vector<const GeometricSearchDet*> &
 MuRingForwardLayer::components() const {
-  vector <const GeometricSearchDet*> result(theRings.begin(),theRings.end());
-  return result;
+  return theComponents;
 }
