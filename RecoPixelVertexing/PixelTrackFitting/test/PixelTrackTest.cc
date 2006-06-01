@@ -45,7 +45,8 @@ void PixelTrackTest::analyze(
   typedef reco::TrackCollection::const_iterator IT;
 
   edm::Handle<reco::TrackCollection> trackCollection;
-  ev.getByLabel("tracks",trackCollection);
+  ev.getByLabel("pxTracks",trackCollection);
+//  ev.getByType(trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
   cout << "Number of tracks: "<< tracks.size() << " tracks" << std::endl;
   for (IT it=tracks.begin(); it!=tracks.end(); it++) myprint(*it);
@@ -59,11 +60,11 @@ void PixelTrackTest::myprint(const reco::Track & track) const
     cout << "\tmomentum: " << track.momentum()
          << "\tPT: " << track.pt()<< endl;
     cout << "\tvertex: " << track.vertex()
-         << "\timpact parameter: " << track.d0()<< endl;
+         << "\t zip: " <<  track.dz()<<"+/-"<<track.dzError()
+         << "\t tip: " << track.d0()<<"+/-"<<track.d0Error()<< endl;
     cout << "\tcharge: " << track.charge()<< endl;
-//    cout <<"\t\tNumber of RecHits "<<track->recHitsSize()<<endl;
+//    cout <<"\t\tNumber of RecHits "<<track.recHitsSize()<<endl;
 //  cout <<"PRINT: " << print(*track) << endl;
-
 }
 
  

@@ -8,9 +8,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-// #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
@@ -57,7 +54,6 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 
   std::auto_ptr<reco::TrackCollection> result(new reco::TrackCollection);
   
-//  PixelTrackBuilderByFit builder;
   typedef OrderedHitTriplets::const_iterator IT;
   for (IT it = triplets.begin(); it != triplets.end(); it++) {
     std::vector<const TrackingRecHit *> hits;
@@ -70,6 +66,4 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   } 
   
   ev.put(result);
-  LogDebug("PixelTrackProducer, produce end");
 }
-//DEFINE_FWK_MODULE(PixelTrackProducer)

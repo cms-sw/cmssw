@@ -1,15 +1,15 @@
 #include "PixelTrackBuilder.h"
-//#include "DataFormats/TrackReco/interface/HelixParameters.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+
 #include "Geometry/Surface/interface/LocalError.h"
-//#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "Geometry/Surface/interface/BoundPlane.h"
+#include "Geometry/Vector/interface/GlobalPoint.h"
+
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "Geometry/Surface/interface/BoundPlane.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-//#include "TrackingTools/TrajectoryParametrization/interface/CartesianTrajectoryError.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 template <class T> T sqr( T t) {return t*t;}
@@ -25,6 +25,15 @@ reco::Track * PixelTrackBuilder::build(
       const std::vector<const TrackingRecHit* >& hits,
       const MagneticField * mf) const 
 {
+
+  LogDebug("PixelTrackBuilder::build")
+    <<" reconstructed TRIPLET kinematics: " 
+    <<" \t pt: " << pt.value() <<"+/-"<<pt.error()  
+    <<" \t phi: " << phi.value() <<"+/-"<<phi.error()
+    <<" \t tip: " << tip.value() <<"+/-"<<tip.error()
+    <<" \t zip: " << zip.value() <<"+/-"<<zip.error()
+    <<" \t charge: " << charge;
+
   float sinTheta = 1/sqrt(1+sqr(cotTheta.value()));
   float cosTheta = cotTheta.value()*sinTheta;
   int tipSign = tip.value() > 0 ? 1 : -1;
@@ -56,17 +65,18 @@ reco::Track * PixelTrackBuilder::build(
 
   TrajectoryStateOnSurface impactPointState( lpar , error, *impPointPlane, mf, 1.0);
 
-   TSCPBuilderNoMaterial tscpBuilder;
+  TSCPBuilderNoMaterial tscpBuilder;
   TrajectoryStateClosestToPoint tscp = 
       tscpBuilder(*(impactPointState.freeState()), GlobalPoint(0,0,0) );
 
   int nhits = hits.size();
-
-  return new reco::Track( chi2,         // chi2
+  reco::Track * track = new reco::Track( chi2,         // chi2
                           2*nhits-5,  // dof
                           nhits, // foundHits
                           0,
                           0,          //lost hits
                    tscp.perigeeParameters(),
                    tscp.perigeeError());
+
+  return track;
 }
