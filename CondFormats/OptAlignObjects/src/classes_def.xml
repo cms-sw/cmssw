@@ -24,6 +24,4 @@
  <class name="MBAChBenchSurveyPlate"/>
  <class name="edm::Wrapper<OpticalAlignments>"/>
 
- <class pattern="*iterator*"/>
- <class pattern="*vector*"/>
 </lcgdict>
