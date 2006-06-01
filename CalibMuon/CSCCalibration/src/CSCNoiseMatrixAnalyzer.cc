@@ -32,7 +32,7 @@
 #include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixAnalyzer.h"
 
 CSCNoiseMatrixAnalyzer::CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf) {
-  
+  debug = conf.getUntrackedParameter<bool>("debug",false);
   eventNumber=0,evt=0,NChambers=0,Nddu=0;
   strip=0,misMatch=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
@@ -59,7 +59,6 @@ CSCNoiseMatrixAnalyzer::CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf) {
     size[i]=0;
   }
 }
-
 
 void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   
@@ -90,7 +89,7 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
       
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
          
-      for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
+      for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) { 
 	
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();

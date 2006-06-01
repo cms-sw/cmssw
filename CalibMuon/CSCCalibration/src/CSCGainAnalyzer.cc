@@ -31,7 +31,7 @@
 #include "CalibMuon/CSCCalibration/interface/CSCGainAnalyzer.h"
 
 CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
-  
+  debug = conf.getUntrackedParameter<bool>("debug",false);
   eventNumber=0,evt=0,Nddu=0;
   strip=0,misMatch=0,NChambers=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
@@ -56,12 +56,6 @@ CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
     for (int i=0; i<CHAMBERS; i++){
       for (int j=0; j<LAYERS; j++){
 	for (int k=0; k<STRIPS; k++){
-	  arrayOfGain[iii][i][j][k]       = -999.0;
-	  arrayOfGainSquare[iii][i][j][k] = -999.0;
-	  arrayOfGain[iii][i][j][k]       = -999.0;
-	  arrayOfIntercept[iii][i][j][k]  = -999.0;
-	  arrayOfInterceptSquare[iii][i][j][k]=-999.0;
-	  arrayOfChi2[iii][i][j][k]       = -999.0;
 	  adcMax[iii][i][j][k]            = -999.0;
 	  adcMean_max[iii][i][j][k]       = -999.0;
 	}
@@ -78,23 +72,14 @@ CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
 
 void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   
-  // These declarations create handles to the types of records that you want
-  // to retrieve from event "e".
-  //
   edm::Handle<CSCStripDigiCollection> strips;
-  
-  // Pass the handle to the method "getByType", which is used to retrieve
-  // one and only one instance of the type in question out of event "e". If
-  // zero or more than one instance exists in the event an exception is thrown.
-  //
   e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
   
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByLabel("DaqSource" , rawdata);
   
   for (int id=FEDNumbering::getCSCFEDIds().first;
-       id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
-    
+       id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs    
     
     /// Take a reference to this FED's data
     const FEDRawData& fedData = rawdata->FEDData(id);

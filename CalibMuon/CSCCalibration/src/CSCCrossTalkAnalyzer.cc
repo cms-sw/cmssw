@@ -24,15 +24,17 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "CalibMuon/CSCCalibration/interface/CSCCrossTalkAnalyzer.h"
 
+//bool CSCCrossTalkAnalyzer::debug=false;
 
 CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
-  
+
+  debug = conf.getUntrackedParameter<bool>("debug",false);
   eventNumber=0,evt=0, Nddu=0;
   strip=0,misMatch=0,max1 =-9999999.,max2=-9999999.;
   i_chamber=0,i_layer=0,reportedChambers=0;
-  length=1;
+  length=1,myevt=0;
   aPeak=0.0,sumFive=0.0;
-  pedMean=0.0,time=0.0,NChambers=0;
+  pedMean=0.0,NChambers=0;
 
   for (int i=0;i<480;i++){
     new_xtalk_intercept_right[i] = -999.;
@@ -50,6 +52,20 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
     newSumFive[i]                = 0.0;
   }
   
+
+ //  for (int iii=0;iii<DDU;iii++){
+//     for (int i=0; i<CHAMBERS; i++){
+//       for (int j=0; j<LAYERS; j++){
+// 	for (int k=0; k<STRIPS; k++){
+  for (int l=0; l<TIMEBINS; l++){
+    myTime[l] = 0.0;
+    myADC[l]  = 0.0;
+    myTbin[l] = 0;
+  }
+  // 	}
+//       }
+//     }
+// }
 
   for (int i=0;i<CHAMBERS;i++){
     size[i]                      = 0;
@@ -72,12 +88,14 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
 	    arrayOfPeak[iii][i][j][k]      = 0.; 
 	    arrayOfPeakSquare[iii][i][j][k]= 0.;
 	    arraySumFive[iii][i][j][k]     = 0.;
+	    
 	  }
 	}
       }
     }
   }
-
+  
+  
   for (int iii=0;iii<DDU;iii++){
     for (int i=0; i<CHAMBERS; i++){
       for (int j=0; j<LAYERS; j++){
@@ -98,11 +116,13 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
 }
 
 void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
-  
+ 
   edm::Handle<CSCStripDigiCollection> strips;
   e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByLabel("DaqSource" , rawdata);
+  myevt=e.id().event();
+  //tid=e.id().time();
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
@@ -159,9 +179,14 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
                 if(iuse!=-99){
 		  
                   for(unsigned int k=0;k<adc.size();k++){
-		    
                     time = (50. * k)-((evt%20)* 6.25)+116.5;
-                    pedMean =(adc[0]+adc[1])/2;
+		    calib_evt.time[k]=time;
+		    calib_evt.adc[k]=adc[k];
+		    pedMean =(adc[0]+adc[1])/2;
+
+		    myTime[k]=time;
+		    myADC[k]=adc[k];
+		    myTbin[k]=k;
 
 		    aPeak = adc[3];
 		    if (max1 < aPeak) {
@@ -181,9 +206,10 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
                     if(iuse==strip-1)  theadccountsc[iDDU][chamber][layer-1][iuse][kk] = adc[k];
                     if(iuse==strip)    theadccountsr[iDDU][chamber][layer-1][iuse][kk] = adc[k];
                     if(iuse==strip-2)  theadccountsl[iDDU][chamber][layer-1][iuse][kk] = adc[k];
-		    
+		    //calibtree->Fill();
                   }//adc.size()
 		}//end iuse!=99
+	
 		arrayPed[iDDU][chamber][layer-1][strip-1] = pedMean1;	
 		arrayOfPed[iDDU][chamber][layer-1][strip-1] += pedMean1;
 		arrayOfPedSquare[iDDU][chamber][layer-1][strip-1] += pedMean1*pedMean1 ;
@@ -191,6 +217,7 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 		arrayOfPeak[iDDU][chamber][layer-1][strip-1] += max1-pedMean1;
 		arrayOfPeakSquare[iDDU][chamber][layer-1][strip-1] += (max1-pedMean1)*(max1-pedMean1);
 		arraySumFive[iDDU][chamber][layer-1][strip-1] = (max2-pedMean1)/(max1-pedMean1);
+		
 	      }//end loop over digis
             }//end cfeb.available loop
           }//end loop over layers

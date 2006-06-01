@@ -6,13 +6,18 @@
  */
 
 #include <iostream>
-#include "CalibMuon/CSCCalibration/interface/condbc.h"
+#include <time.h>
+#include <sys/stat.h>	
+#include <unistd.h>
+#include <fstream>
+
+#include "CalibMuon/CSCCalibration/interface/condbon.h"
 #include "CalibMuon/CSCCalibration/interface/cscmap.h"
 #include "CalibMuon/CSCCalibration/interface/CSCxTalk.h"
-#include "/afs/cern.ch/cms/external/lcg/external/root/5.08.00/slc3_ia32_gcc323/root/include/TFile.h"
-#include "/afs/cern.ch/cms/external/lcg/external/root/5.08.00/slc3_ia32_gcc323/root/include/TTree.h"
-#include "/afs/cern.ch/cms/external/lcg/external/root/5.08.00/slc3_ia32_gcc323/root/include/TH1F.h"
-#include "/afs/cern.ch/cms/external/lcg/external/root/5.08.00/slc3_ia32_gcc323/root/include/TH2F.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1F.h"
+#include "TH2F.h"
 
 class TCalibEvt {
   public:
@@ -32,33 +37,61 @@ class TCalibEvt {
   Float_t peakRMS;
   Float_t maxADC;
   Float_t sum;
-
+  Float_t time[8];
+  Float_t adc[8];
+  Int_t tbin[8];
+  Int_t event;
 };
-
 
 class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
  public:
   explicit CSCCrossTalkAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
-  
-#define CHAMBERS 9
+   
+#define CHAMBERS 18
 #define LAYERS 6
 #define STRIPS 80
 #define TIMEBINS 8
-#define DDU 2
+#define DDU 36
 #define TOTALSTRIPS 480
+#define TOTALEVENTS 320
 
   ~CSCCrossTalkAnalyzer(){
-
-    //for DB transfer
-    condbc *cdb = new condbc();
-    cscmap *map = new cscmap();
+    //get time of Run file for DB transfer
+    filein.open("../test/CSCxtalk.cfg");
+    filein.ignore(1000,'\n');
     
-   //root ntuple
+    while(filein != NULL){
+      lines++;
+      getline(filein,PSet);
+      
+      if (lines==3){
+	name=PSet;  
+      }
+    }
+    
+    string::size_type runNameStart = name.find("RunNum",0);
+    string::size_type runNameEnd   = name.find("bin",0);
+    int nameSize = runNameEnd+3-runNameStart;
+    std::string myname= name.substr(runNameStart,nameSize);
+    
+    struct tm* clock;			    
+    struct stat attrib;			    
+    stat(myname.c_str(), &attrib);          
+    clock = localtime(&(attrib.st_mtime));  
+    std::string myTime=asctime(clock);
+
+    //DB object and map
+    CSCobject *cn = new CSCobject();
+    CSCobject *cn1 = new CSCobject();
+    cscmap *map = new cscmap();
+    condbon *dbon = new condbon();
+
+    //root ntuple
    TCalibEvt calib_evt;
    TFile calibfile("ntuples/calibxtalk.root", "RECREATE");
    TTree calibtree("Calibration","Cross-talk");
-   calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F");
+   calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F:time[8]/F:adc[8]/F:tbin[8]/I:event/I");
    
     ////////////////////////////////////////////////////////////////////iuse==strip-1
     // Now that we have filled our array, extract convd and nconvd
@@ -70,7 +103,16 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
     float mean=0;
     
     for (int iii=0; iii<Nddu; iii++){
+      calib_evt.event=myevt;
       for (int i=0; i<NChambers; i++){
+
+	//get chamber ID from DB mapping        
+	int new_crateID = crateID[i];
+	int new_dmbID   = dmbID[i];
+	std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
+	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
+	std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+
 	meanPedestal = 0.0;
 	meanPeak     = 0.0;
 	meanPeakSquare=0.0;
@@ -137,6 +179,10 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	    mean = sum/size[i];
 	  }
 	  
+	  int layer_id=chamber_num+j+1;
+	  if(sector==-100)continue;
+	  cn->obj[layer_id].resize(size[i]);
+	  cn1->obj[layer_id].resize(size[i]);
 	  for (int k=0; k<size[i]; k++){
 	    // re-zero convd and nconvd 
 	    for (int m=0; m<3; m++){
@@ -257,7 +303,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	    calib_evt.maxADC   = newPeak[fff];
 	    calib_evt.sum      = newSumFive[fff];
 	    
-	    std::cout <<"Ch "<<i<<" L "<<j<<" S "<<fff<<"  ped "<<newPed[fff]<<" RMS "<<newRMS[fff]<<" maxADC "<<newPeak[fff]<<" maxRMS "<<newPeakRMS[fff]<<" Sum/peak "<<newSumFive[fff]<<" IntL "<<new_xtalk_intercept_left[fff]<<" SL "<<new_xtalk_slope_left[fff]<<" IntR "<<new_xtalk_intercept_right[fff]<<" SR "<<new_xtalk_slope_right[fff]<<" diff "<<newMeanPeakTime[fff]<<std::endl;
+	    std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<<" maxRMS "<<thePeakRMS<<" Sum/peak "<<theSumFive<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" diff "<<the_peakTime-mean<<std::endl;
 	    calib_evt.xtalk_slope_left     = xtalk_slope_left[iii][i][j][k];
 	    calib_evt.xtalk_slope_right    = xtalk_slope_right[iii][i][j][k];
 	    calib_evt.xtalk_int_left       = xtalk_intercept_left[iii][i][j][k];
@@ -269,68 +315,48 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 	    calib_evt.ddu                  = iii;
 	    calib_evt.layer                = j;
 	    calib_evt.strip                = k;
+	   
 
+	    /* for (int tbin=0;tbin<8;tbin++){ */
+/* 	      calib_evt.time[tbin] = myTime[tbin]; */
+/* 	      calib_evt.adc[tbin]  = myADC[tbin]; */
+/* 	      calib_evt.tbin[tbin] = myTbin[tbin]; */
+/*  	    } */
+	    
 	    calibtree.Fill();
+	    cn->obj[layer_id][k].resize(2);
+	    cn->obj[layer_id][k][0] = meanPedestal;
+	    cn->obj[layer_id][k][1] = theRMS;
+	    cn1->obj[layer_id][k].resize(6);
+	    cn1->obj[layer_id][k][0] = the_xtalk_right_b ;
+	    cn1->obj[layer_id][k][1] = the_xtalk_right_a ;
+	    cn1->obj[layer_id][k][2] = the_chi2_right;
+	    cn1->obj[layer_id][k][3] = the_xtalk_left_b ;
+	    cn1->obj[layer_id][k][4] = the_xtalk_left_a ;
+	    cn1->obj[layer_id][k][5] = the_chi2_left;
 
 	  }//loop over strips
 	}//loop over layers
-	
-	int new_crateID = crateID[i];
-	int new_dmbID   = dmbID[i];
-	std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
-	std::cout<<" Above data is for chamber:: "<< chamber_id<<" sector:  "<<sector<<std::endl;
-	
-	std::string test1 = "CSC_slice";
-	std::string test2 = "xtalk_slope_left";
-	std::string test3 = "xtalk_intercept_left";
-	std::string test4 = "xtalk_chi2_left";
-	std::string test5 = "xtalk_slope_right";
-	std::string test6 = "xtalk_intercept_right";
-	std::string test7 = "xtalk_chi2_right";
-	std::string test8 = "time_spread";
-	std::string test9 = "pedestal";
-	std::string test10= "ped_rms";
-	std::string test11= "peak_spread";
-	std::string test12= "pulse_shape";
-
-	std::string answer;
-	std::string bad_number = "nan";
-	
-	std::cout<<" DO you want to send constants to DB? "<<" Please answer y or n for EACH chamber present! "<<std::endl;
-	std::cin>>answer;
-	if(answer=="y"){
-	  if(new_xtalk_slope_left[fff] != new_xtalk_slope_left[fff]) {
-	    std::cout<<"this is my xtalk left "<< new_xtalk_slope_left[fff]<<std::endl;
-	  }
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test2,size[i]*6, new_xtalk_slope_left,      7, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test3,size[i]*6, new_xtalk_intercept_left,  7, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test4,size[i]*6, new_lchi2,                 7, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test5,size[i]*6, new_xtalk_slope_right,     7, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test6,size[i]*6, new_xtalk_intercept_right, 7, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test7,size[i]*6, new_rchi2,                 7, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test8,size[i]*6, newMeanPeakTime,           7, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test9,size[i]*6, newPed,                    7, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test10,size[i]*6, newRMS,                   7, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test11,size[i]*6, newPeakRMS,               7, &ret_code);
-	  cdb->cdb_write(test1,chamber_id,chamber_num,test12,size[i]*6, newSumFive,               7, &ret_code);
-	  
-	  std::cout<<" Data SENT to DB! "<<std::endl;
-	}else{
-	  std::cout<<" NO data was sent!!! "<<std::endl;
-	}
       }//chambers
     }//Nddu
-    calibfile.Write();
-    calibfile.Close();
+   
+    dbon->cdbon_last_run("pedestals",&run);
+    std::cout<<"Last pedestal run "<<run<<std::endl;
+    if(debug) dbon->cdbon_write(cn,"pedestals",run+1,myTime);
+    dbon->cdbon_last_run("crosstalk",&run);
+    std::cout<<"Last crosstalk run "<<run<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
+    if(debug) dbon->cdbon_write(cn1,"crosstalk",run+1,myTime);
+    calibfile.Write();    
+    calibfile.Close();  
   }
-
+  
  private:
-  int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu;
-  int i_chamber,i_layer,reportedChambers,chamber_num,sector, NChambers ;
+  int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt;
+  int i_chamber,i_layer,reportedChambers,chamber_num,sector,run,NChambers ;
   int dmbID[CHAMBERS],crateID[CHAMBERS],size[CHAMBERS];
   std::vector<int> adc;
   std::string chamber_id;
+  std::string tid;
   int thebins[DDU][CHAMBERS][LAYERS][STRIPS][TIMEBINS*20];
   int theadccountsc[DDU][CHAMBERS][LAYERS][STRIPS][TIMEBINS*20];
   int theadccountsl[DDU][CHAMBERS][LAYERS][STRIPS][TIMEBINS*20];
@@ -355,6 +381,9 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   float arrayOfPeak[DDU][CHAMBERS][LAYERS][STRIPS];
   float arrayOfPeakSquare[DDU][CHAMBERS][LAYERS][STRIPS];
   float arraySumFive[DDU][CHAMBERS][LAYERS][STRIPS];
+  float myTime[TIMEBINS];
+  float myADC[TIMEBINS];
+  int myTbin[TIMEBINS];
   float newPed[TOTALSTRIPS];
   float newRMS[TOTALSTRIPS];
   float newPeakRMS[TOTALSTRIPS];
@@ -368,5 +397,19 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   float new_lchi2[TOTALSTRIPS];
   float newPeakTime[TOTALSTRIPS];
   float newMeanPeakTime[TOTALSTRIPS];
+  int lines;
+  std::ifstream filein;
+  string PSet,name;
+  bool debug;
+
+  //root ntuple
+  TCalibEvt calib_evt;
+  TBranch *calibevt;
+  TTree *calibtree;
+  TFile *calibfile;
+
+  /* calibfile = new TFile("ntuples/calibxtalk.root", "RECREATE","Calibration Ntuple"); */
+/*   calibtree = new TTree("Calibration","Crosstalk"); */
+/*   calibevt = calibtree->Branch("EVENT", &calib_evt, ""xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F:time[8]/F:adc[8]/F:tbin[8]/I:event/I"); */
 };
 
