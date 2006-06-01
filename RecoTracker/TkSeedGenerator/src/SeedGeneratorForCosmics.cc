@@ -11,7 +11,6 @@
 void 
 SeedGeneratorForCosmics::init(const SiStripRecHit2DLocalPosCollection &collstereo,
 			      const SiStripRecHit2DLocalPosCollection &collrphi ,
-			      const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
 			      const edm::EventSetup& iSetup)
 {
 
@@ -30,7 +29,7 @@ SeedGeneratorForCosmics::init(const SiStripRecHit2DLocalPosCollection &collstere
   TTTRHBuilder = theBuilder.product();
 
  CosmicLayerPairs cosmiclayers;
- cosmiclayers.init(collstereo,collrphi,collmatched,iSetup);
+ cosmiclayers.init(collstereo,collrphi,iSetup);
  thePairGenerator=new CosmicHitPairGenerator(cosmiclayers,iSetup);
 
 }
@@ -75,8 +74,8 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
   
   
 
-    //    const TransientTrackingRecHit* outrhit=TTTRHBuilder->build(HitPairs[0].outer());
-    const TransientTrackingRecHit* intrhit =TTTRHBuilder->build(HitPairs[0].inner());
+    const TransientTrackingRecHit* outrhit=TTTRHBuilder->build(HitPairs[0].outer());
+    //const TransientTrackingRecHit* intrhit =TTTRHBuilder->build(HitPairs[0].inner());
 
     edm::OwnVector<TrackingRecHit> hits;
     hits.push_back(HitPairs[0].outer()->clone());
@@ -84,32 +83,66 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     
 
  
-    
-    //Definition of the local trajectory parameters of the seed for cosmics
-    GlobalTrajectoryParameters Gtp(outer,
-				   inner-outer,
-				   //				   10000,
-				   1, &(*magfield));
-    FreeTrajectoryState CosmicSeed(Gtp,
-				   CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
-    
- 
-    const TSOS innerState = 
-      thePropagatorOp->propagate(CosmicSeed,
-				 tracker->idToDet(HitPairs[0].outer()->geographicalId())->surface());
-
-    if (innerState.isValid()){
-      const TSOS innerUpdated= theUpdator->update( innerState,*intrhit);
-      if (innerUpdated.isValid()){
+    if(outer.y()>0){
+  
+      
+      GlobalTrajectoryParameters Gtp(outer,
+				     inner-outer,
+				     -1, &(*magfield));
+      
+      FreeTrajectoryState CosmicSeed(Gtp,
+				     CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
+      
+      
+      LogDebug("CosmicSeedFinder") << " FirstTSOS "<<CosmicSeed;
+      //First propagation
+      const TSOS outerState =
+	thePropagatorAl->propagate(CosmicSeed,
+				   tracker->idToDet(HitPairs[0].outer()->geographicalId())->surface());
+      if ( outerState.isValid()) {
+	LogDebug("CosmicSeedFinder") <<"outerState "<<outerState;
+	const TSOS outerUpdated= theUpdator->update( outerState,*outrhit);
+	if ( outerUpdated.isValid()) {
+	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	
-	
-	PTrajectoryStateOnDet *PTraj=  
-	  transformer.persistentState(innerUpdated, HitPairs[0].outer()->geographicalId().rawId());
-	
-	TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,oppositeToMomentum);
-	output.push_back(*trSeed);
-
-      }
+	  PTrajectoryStateOnDet *PTraj=  
+	    transformer.persistentState(outerUpdated, HitPairs[0].outer()->geographicalId().rawId());
+	  
+	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,alongMomentum);
+	  output.push_back(*trSeed);
+	  
+	}else      edm::LogError("CosmicSeedFinder") << " SeedForCosmics first update failed ";
+      }else      edm::LogError("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
+      
+      
     }
+    else{
+      GlobalTrajectoryParameters Gtp(outer,
+				     outer-inner,
+				     -1, &(*magfield));
+      FreeTrajectoryState CosmicSeed(Gtp,
+				     CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
+      LogDebug("CosmicSeedFinder") << " FirstTSOS "<<CosmicSeed;
+      //First propagation
+      const TSOS outerState =
+	thePropagatorAl->propagate(CosmicSeed,
+				   tracker->idToDet(HitPairs[0].outer()->geographicalId())->surface());
+      if ( outerState.isValid()) {
+
+	LogDebug("CosmicSeedFinder") <<"outerState "<<outerState;
+	const TSOS outerUpdated= theUpdator->update( outerState,*outrhit);
+	if ( outerUpdated.isValid()) {
+	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
+	  
+	  PTrajectoryStateOnDet *PTraj=  
+	    transformer.persistentState(outerUpdated, HitPairs[0].outer()->geographicalId().rawId());
+	  
+	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,alongMomentum);
+	  output.push_back(*trSeed);
+	
+	}else      edm::LogError("CosmicSeedFinder") << " SeedForCosmics first update failed ";
+      }else      edm::LogError("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
+    }
+
   }
 }
