@@ -32,15 +32,12 @@ public:
   virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
 
 private:
-  // some hits in each subdetector, just for testing purposes
-  void fillFakeHits();
 
   void checkGeometry(const edm::EventSetup & eventSetup);
+
   void updateGeometry();
 
   void checkCalibrations(const edm::EventSetup & eventSetup);
-
-  void setPhaseShift(const DetId & detId);
 
   /** Reconstruction algorithm*/
   typedef CaloTDigitizer<EBDigitizerTraits> EBDigitizer;
@@ -66,9 +63,6 @@ private:
   std::vector<DetId> theBarrelDets;
   std::vector<DetId> theEndcapDets;
   std::vector<DetId> theESDets;
-
-  bool doPhaseShift;
-  double thisPhaseShift;
 
 };
 

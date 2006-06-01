@@ -12,7 +12,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "CLHEP/Random/RandFlat.h"
 
 EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params) 
 :  theGeometry(0)
@@ -34,11 +33,6 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   int binOfMaximum = params.getParameter<int>("binOfMaximum");
   bool doPhotostatistics = params.getParameter<bool>("doPhotostatistics");
   bool syncPhase = params.getParameter<bool>("syncPhase");
-
-  // possible phase shift for asynchronous trigger (e.g. test-beam)
-
-  doPhaseShift = !syncPhase;
-  thisPhaseShift = 1.;
 
   theParameterMap = new EcalSimParameterMap(simHitToPhotoelectronsBarrel, simHitToPhotoelectronsEndcap, 
                                             photoelectronsToAnalogBarrel, photoelectronsToAnalogEndcap, 
@@ -80,6 +74,11 @@ EcalDigiProducer::~EcalDigiProducer()
   delete theEcalResponse;
   delete theESResponse;
   delete theCoder;
+  delete theElectronicsSim;
+  delete theESElectronicsSim;
+  delete theBarrelDigitizer;
+  delete theEndcapDigitizer;
+  delete theESDigitizer;
 }
 
 
@@ -136,14 +135,7 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
 
   CaloDigiCollectionSorter sorter(5);
 
-  if (doPhaseShift) thisPhaseShift = RandFlat::shoot();
-
   if ( isEB ) {
-
-    if (doPhaseShift) {
-      DetId detId(DetId::Ecal, 1);
-      setPhaseShift(detId);
-    }
 
     std::auto_ptr<MixCollection<PCaloHit> >  barrelHits( EBHits );
     theBarrelDigitizer->run(*barrelHits, *barrelResult);
@@ -159,11 +151,6 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
 
   if ( isEE ) {
 
-    if (doPhaseShift) {
-      DetId detId(DetId::Ecal, 2);
-      setPhaseShift(detId);
-    }
-
     std::auto_ptr<MixCollection<PCaloHit> >  endcapHits( EEHits );
     theEndcapDigitizer->run(*endcapHits, *endcapResult);
     edm::LogInfo("DigiInfo") << "EE Digis: " << endcapResult->size();
@@ -177,11 +164,6 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   }
 
   if ( isES ) {
-
-    if (doPhaseShift) {
-      DetId detId(DetId::Ecal, 3);
-      setPhaseShift(detId);
-    }
 
     std::auto_ptr<MixCollection<PCaloHit> >  preshowerHits( ESHits );
     theESDigitizer->run(*preshowerHits, *preshowerResult);
@@ -202,8 +184,6 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   event.put(preshowerResult);
 
 }
-
-
 
 
 void  EcalDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup) 
@@ -287,23 +267,3 @@ void EcalDigiProducer::updateGeometry() {
   theESDigitizer->setDetIds(theESDets);
 }
 
-
-void EcalDigiProducer::setPhaseShift(const DetId & detId) {
-  
-  const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
-  if ( !parameters.syncPhase() ) {
-
-    int myDet = detId.subdetId();
-
-    LogDebug("DigiInfo") << "Setting the phase shift " << thisPhaseShift << " for the subdetector " << myDet;
-
-    if ( myDet == 1 || myDet == 2 ) {
-      theEcalResponse->setPhaseShift(thisPhaseShift);
-    }
-    else if ( myDet == 3 ) {
-      theESResponse->setPhaseShift(thisPhaseShift);
-    }
-    
-  }
-  
-}
