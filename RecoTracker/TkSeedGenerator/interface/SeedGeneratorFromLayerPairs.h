@@ -18,17 +18,18 @@ class SeedGeneratorFromLayerPairs
 public:
 
   /// dummy constructor
-  SeedGeneratorFromLayerPairs()
-    : thePairGenerator(0), 
-		//		theRegionFactory(0), 
-		theRegion(0) { }
+  SeedGeneratorFromLayerPairs(const edm::ParameterSet& conf)
+    :     SeedGeneratorFromHitPairsConsecutiveHits(conf), 
+    thePairGenerator(0), 
+    theRegion(0)
+    { }
 
   /** Construct from layerPairs only. 
    *  In order to obtain seed one must call
    *  seeds(const TrackingRegion &region) rather than seeds()
    */
 	    //   SeedGeneratorFromLayerPairs( const SeedLayerPairs * layerPairs);
-    SeedGeneratorFromLayerPairs( SeedLayerPairs * layerPairs);
+    SeedGeneratorFromLayerPairs( SeedLayerPairs * layerPairs, const edm::ParameterSet& conf);
   /** Construct from a TrackingRegionFactory.
    *  The TrackingRegionFactory is expected to be valid throughout
    *  the lifetime of this object. If the factory

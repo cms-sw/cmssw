@@ -15,10 +15,10 @@ CombinatorialSeedGeneratorFromPixelLess::init(const SiStripRecHit2DMatchedLocalP
    initPairGenerator(&pixellesslayers,iSetup);
 }
 
-CombinatorialSeedGeneratorFromPixelLess::CombinatorialSeedGeneratorFromPixelLess(edm::ParameterSet const& conf): 
-  conf_(conf)
+CombinatorialSeedGeneratorFromPixelLess::CombinatorialSeedGeneratorFromPixelLess(edm::ParameterSet const& conf): SeedGeneratorFromLayerPairs(conf)
 {  
 
+  edm::ParameterSet conf_ = pSet();
   float ptmin=conf_.getParameter<double>("ptMin");
   float originradius=conf_.getParameter<double>("originRadius");
   float halflength=conf_.getParameter<double>("originHalfLength");

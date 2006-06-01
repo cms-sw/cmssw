@@ -9,15 +9,20 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
+#include "FWCore/Framework/interface/ESHandle.h"
+
 using namespace std;
 SeedFromConsecutiveHits::
 SeedFromConsecutiveHits( const TrackingRecHit* outerHit, 
 			 const TrackingRecHit* innerHit, 
 			 const GlobalPoint& vertexPos,
 			 const GlobalError& vertexErr,
-			 const edm::EventSetup& iSetup) 
+			 const edm::EventSetup& iSetup,
+			 const edm::ParameterSet& p
+			 ) :p_(p)
 {
-  construct( outerHit,  innerHit, vertexPos, vertexErr,iSetup);
+  construct( outerHit,  innerHit, vertexPos, vertexErr,iSetup,p_);
 }
 
 
@@ -26,7 +31,10 @@ construct( const TrackingRecHit* outerHit,
 	   const TrackingRecHit* innerHit, 
 	   const GlobalPoint& vertexPos,
 	   const GlobalError& vertexErr,
-	   const edm::EventSetup& iSetup) 
+	   const edm::EventSetup& iSetup,
+	   const edm::ParameterSet& p
+
+) 
 {
   typedef TrajectoryStateOnSurface     TSOS;
   typedef TrajectoryMeasurement        TM;
@@ -73,12 +81,24 @@ construct( const TrackingRecHit* outerHit,
 
 				    
 
+    //
+    // get from the eventsetup
+    //
 
+    
 
-    TkTransientTrackingRecHitBuilder TTTRHBuilder((tracker.product()));
-    intrhit=TTTRHBuilder.build(innerHit);
+    //    TkTransientTrackingRecHitBuilder TTTRHBuilder((tracker.product()));
 
     //   intrhit=TTRHBuilder.build(&(*tracker),innerHit->clone());
+
+  //
+  // get the transient builder
+  //
+    edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+    std::string builderName = p_.getParameter<std::string>("TTRHBuilder");   
+    iSetup.get<TrackingComponentsRecord>().get(builderName,theBuilder);
+
+    intrhit=theBuilder.product()->build(innerHit);
 
     const TSOS innerUpdated= theUpdator.update( innerState,*intrhit);			      
 
@@ -89,8 +109,7 @@ construct( const TrackingRecHit* outerHit,
     if ( !outerState.isValid()) 
      edm::LogError("Propagation") << " SeedFromConsecutiveHits first propagation failed ";
   
-    outrhit=TTTRHBuilder.build(outerHit);
-    //  outrhit=TTRHBuilder.build(&(*tracker),outerHit->clone());
+    outrhit=theBuilder.product()->build(outerHit);
 
     TSOS outerUpdated = theUpdator.update( outerState, *outrhit);
  

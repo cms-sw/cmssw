@@ -11,10 +11,10 @@ void CombinatorialSeedGeneratorFromPixel::init(const SiPixelRecHitCollection &co
   initPairGenerator(&pixellayers,iSetup);
 }
 
-CombinatorialSeedGeneratorFromPixel::CombinatorialSeedGeneratorFromPixel(edm::ParameterSet const& conf): 
-  conf_(conf)
+CombinatorialSeedGeneratorFromPixel::CombinatorialSeedGeneratorFromPixel(edm::ParameterSet const& conf): SeedGeneratorFromLayerPairs(conf)
 {  
 
+  edm::ParameterSet conf_ = pSet();
   float ptmin=conf_.getParameter<double>("ptMin");
   float originradius=conf_.getParameter<double>("originRadius");
   float halflength=conf_.getParameter<double>("originHalfLength");

@@ -16,6 +16,9 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 class DetLayer;
 class SeedFromConsecutiveHits{
  public:
@@ -31,7 +34,9 @@ class SeedFromConsecutiveHits{
 			   const TrackingRecHit* innerHit,
 			   const GlobalPoint& vertexPos,
 			   const GlobalError& vertexErr,
-			   const edm::EventSetup& iSetup);
+			   const edm::EventSetup& iSetup,
+			   const edm::ParameterSet& p
+			   );
 
   virtual  ~SeedFromConsecutiveHits(){};
 
@@ -51,6 +56,7 @@ class SeedFromConsecutiveHits{
   PTrajectoryStateOnDet trajectoryState(){return *PTraj;};
   TrajectorySeed *TrajSeed(){return new TrajectorySeed(trajectoryState(),hits(),direction());};
  private:
+  const edm::ParameterSet& p_;
   TrajectoryMeasurement theInnerMeas;
   TrajectoryMeasurement theOuterMeas;
 
@@ -58,7 +64,9 @@ class SeedFromConsecutiveHits{
 		  const TrackingRecHit* innerHit,
 		  const GlobalPoint& vertexPos,
 		  const GlobalError& vertexErr,
-		  const edm::EventSetup& iSetup);
+		  const edm::EventSetup& iSetup,
+		  const edm::ParameterSet& p
+		  );
 
   CurvilinearTrajectoryError initialError( const TrackingRecHit* outerHit,
 					   const TrackingRecHit* innerHit,

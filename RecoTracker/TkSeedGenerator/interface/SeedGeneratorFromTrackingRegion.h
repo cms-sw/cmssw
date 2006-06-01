@@ -5,6 +5,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 class TrackingRegion;
 
 /** Specializes the SeedGenerator interface for 
@@ -14,10 +15,9 @@ class TrackingRegion;
 class SeedGeneratorFromTrackingRegion {
 public:
 
-  SeedGeneratorFromTrackingRegion()  {};
-
-
- // from base class
+  SeedGeneratorFromTrackingRegion(const edm::ParameterSet& conf): conf_(conf)
+{}
+  // from base class
  //  virtual SeedContainer seeds() { 
 /*  virtual vector<TrajectorySeed> seeds(){ */
 /*    const TrackingRegion * region = trackingRegion(); */
@@ -39,6 +39,11 @@ public:
 			const edm::EventSetup& c,
 			const TrackingRegion& region){};
   virtual const TrackingRegion * trackingRegion() const { return 0; }
+
+  const edm::ParameterSet& pSet(){return conf_;}
+
+ private:
+  const edm::ParameterSet& conf_;
 
 };
 #endif

@@ -19,7 +19,7 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 class PixelSeedLayerPairs;
 
 class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
@@ -49,7 +49,7 @@ class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
   KFUpdator *theUpdator;
   PropagatorWithMaterial  *thePropagatorAl;
   PropagatorWithMaterial  *thePropagatorOp;
-  TkTransientTrackingRecHitBuilder *TTTRHBuilder;
+  const TransientTrackingRecHitBuilder *TTTRHBuilder;
 };
 #endif
 

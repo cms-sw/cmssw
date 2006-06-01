@@ -26,7 +26,7 @@ class CombinatorialSeedGeneratorFromPixelLess : public SeedGeneratorFromLayerPai
 	    const edm::EventSetup& c);
   void  run(TrajectorySeedCollection &,const edm::EventSetup& c);
  private:
-  edm::ParameterSet conf_;
+  //  edm::ParameterSet conf_;
   GlobalTrackingRegion region;
  
 };

@@ -17,9 +17,13 @@ public:
 
   using SeedGeneratorFromHitPairs::seeds;
 
+   SeedGeneratorFromHitPairsConsecutiveHits(const edm::ParameterSet& conf):  SeedGeneratorFromHitPairs(conf){}
+
+
+
   void  seeds(TrajectorySeedCollection &output,const edm::EventSetup& c,
 	      const SeedHitPairs & hitPairs, const TrackingRegion& region);
-
+  
 private:
   /// from base class
   virtual HitPairGenerator *  pairGenerator() const = 0;

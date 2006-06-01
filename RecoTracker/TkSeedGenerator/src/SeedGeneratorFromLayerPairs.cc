@@ -17,8 +17,8 @@ void SeedGeneratorFromLayerPairs::initPairGenerator(SeedLayerPairs * layerPairs,
 //SeedGeneratorFromLayerPairs::SeedGeneratorFromLayerPairs(
 //    const SeedLayerPairs * layerPairs)
 SeedGeneratorFromLayerPairs::SeedGeneratorFromLayerPairs(
-    SeedLayerPairs * layerPairs)
-  : 
+    SeedLayerPairs * layerPairs,  const edm::ParameterSet& conf)
+  :  SeedGeneratorFromHitPairsConsecutiveHits(conf),
   //theRegionFactory(0), 
 theRegion(0)
 { //initPairGenerator(layerPairs); 

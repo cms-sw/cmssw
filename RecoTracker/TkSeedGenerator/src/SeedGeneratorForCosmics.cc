@@ -7,6 +7,7 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 void 
 SeedGeneratorForCosmics::init(const SiStripRecHit2DLocalPosCollection &collstereo,
 			      const SiStripRecHit2DLocalPosCollection &collrphi ,
@@ -19,8 +20,14 @@ SeedGeneratorForCosmics::init(const SiStripRecHit2DLocalPosCollection &collstere
   thePropagatorAl=    new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield) );
   thePropagatorOp=    new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );
   theUpdator=       new KFUpdator();
-  TTTRHBuilder= new TkTransientTrackingRecHitBuilder((tracker.product()));
   
+  //
+  // get the transient builder
+  //
+  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+  std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
+  iSetup.get<TrackingComponentsRecord>().get(builderName,theBuilder);
+  TTTRHBuilder = theBuilder.product();
 
  CosmicLayerPairs cosmiclayers;
  cosmiclayers.init(collstereo,collrphi,collmatched,iSetup);
@@ -28,7 +35,7 @@ SeedGeneratorForCosmics::init(const SiStripRecHit2DLocalPosCollection &collstere
 
 }
 
-SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf): 
+SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf): SeedGeneratorFromTrackingRegion(conf),
   conf_(conf)
 {  
 
