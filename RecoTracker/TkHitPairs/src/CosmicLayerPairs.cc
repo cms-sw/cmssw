@@ -11,6 +11,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()() 
 {

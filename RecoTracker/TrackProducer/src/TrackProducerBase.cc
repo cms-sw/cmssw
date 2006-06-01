@@ -24,7 +24,8 @@ void TrackProducerBase::getFromES(const edm::EventSetup& setup,
 				  edm::ESHandle<TrackerGeometry>& theG,
 				  edm::ESHandle<MagneticField>& theMF,
 				  edm::ESHandle<TrajectoryFitter>& theFitter,
-				  edm::ESHandle<Propagator>& thePropagator)
+				  edm::ESHandle<Propagator>& thePropagator,
+				  edm::ESHandle<TransientTrackingRecHitBuilder>& theBuilder)
 {
   //
   //get geometry
@@ -48,6 +49,15 @@ void TrackProducerBase::getFromES(const edm::EventSetup& setup,
   LogDebug("TrackProducer") << "get also the propagator" << "\n";
   std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
   setup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
+  //
+  // get the builder
+  //
+  LogDebug("TrackProducer") << "get also the TransientTrackingRecHitBuilder" << "\n";
+  std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
+  setup.get<TrackingComponentsRecord>().get(builderName,theBuilder);
+
+  
+
 }
 
 void TrackProducerBase::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCandidateCollection>& theTCCollection)
@@ -86,8 +96,10 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
     Trajectory * theTraj = (*i).first;
     
     
-    const edm::OwnVector<TransientTrackingRecHit>& transHits = theTraj->recHits();
-    for(edm::OwnVector<TransientTrackingRecHit>::const_iterator j=transHits.begin();
+    
+    const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
+    //    const edm::OwnVector<const TransientTrackingRecHit>& transHits = theTraj->recHits();
+    for(TrajectoryFitter::RecHitContainer::const_iterator j=transHits.begin();
 	j!=transHits.end(); j++){
       outputRHColl->push_back( ( (j->hit() )->clone()) );
     }
@@ -130,8 +142,9 @@ void TrackProducerBase::putInEvt(edm::Event& theEvent,
     
     
     //fill the TrackExtra with TrackingRecHitRef	
-    const edm::OwnVector<TransientTrackingRecHit>& transHits = theTraj->recHits();
-    for(edm::OwnVector<TransientTrackingRecHit>::const_iterator j=transHits.begin();
+    const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
+    //    const edm::OwnVector<const TransientTrackingRecHit>& transHits = theTraj->recHits();
+    for(TrajectoryFitter::RecHitContainer::const_iterator j=transHits.begin();
 	j!=transHits.end(); j++){
       theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
       cc++;

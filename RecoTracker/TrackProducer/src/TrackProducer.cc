@@ -36,7 +36,8 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
   edm::ESHandle<Propagator> thePropagator;
-  getFromES(setup,theG,theMF,theFitter,thePropagator);
+  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+  getFromES(setup,theG,theMF,theFitter,thePropagator,theBuilder);
 
   //
   //declare and get TrackColection to be retrieved from the event
@@ -51,7 +52,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
     //
     LogDebug("TrackProducer") << "run the algorithm" << "\n";
     theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			     theFitter.product(), thePropagator.product(), algoResults);
+			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
   } catch (cms::Exception &e){ edm::LogInfo("TrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
   //
   //put everything in th event

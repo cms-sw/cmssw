@@ -26,6 +26,7 @@ void TrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 					      const TrackCandidateCollection& theTCCollection,
 					      const TrajectoryFitter * theFitter,
 					      const Propagator * thePropagator,
+					      const TransientTrackingRecHitBuilder* builder,
 					      AlgoProductCollection& algoResults)
 {
   edm::LogInfo("TrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
@@ -51,13 +52,7 @@ void TrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       
       //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
       //meanwhile computes the number of degrees of freedom
-      edm::OwnVector<TransientTrackingRecHit> hits;
-      TransientTrackingRecHitBuilder * builder;
-  
-      //
-      // temporary!
-      //
-      builder = new TkTransientTrackingRecHitBuilder( theG);
+      TransientTrackingRecHit::RecHitContainer hits;
       
       float ndof=0;
       
@@ -69,10 +64,9 @@ void TrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 	}
       }
       
-      delete builder;
       
       ndof = ndof - 5;
-
+      
       //build Track
       LogDebug("TrackProducer") << "going to buildTrack"<< "\n";
       bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, seed, ndof);
@@ -88,10 +82,11 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 					  const reco::TrackCollection& theTCollection,
 					  const TrajectoryFitter * theFitter,
 					  const Propagator * thePropagator,
+					  const TransientTrackingRecHitBuilder* builder,
 					  AlgoProductCollection& algoResults)
 {
   edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollection.size() << "\n";
-
+  
   int cont = 0;
   for (reco::TrackCollection::const_iterator i=theTCollection.begin(); i!=theTCollection.end();i++)
     {
@@ -100,13 +95,7 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	
 	//convert the TrackingRecHit vector to a TransientTrackingRecHit vector
 	//meanwhile computes the number of degrees of freedom
-	edm::OwnVector<TransientTrackingRecHit> hits;
-	TransientTrackingRecHitBuilder * builder;
-	
-	//
-	// temporary!
-	//
-	builder = new TkTransientTrackingRecHitBuilder( theG);
+	edm::OwnVector<const TransientTrackingRecHit> hits;
 	
 	float ndof=0;
 	
@@ -119,7 +108,6 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	  }
 	}
 	
-	delete builder;
 	
 	ndof = ndof - 5;
 
@@ -158,7 +146,7 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
 					 const Propagator * thePropagator,
 					 AlgoProductCollection& algoResults,
-					 edm::OwnVector<TransientTrackingRecHit>& hits,
+					 edm::OwnVector<const TransientTrackingRecHit>& hits,
 					 TrajectoryStateOnSurface& theTSOS,
 					 const TrajectorySeed& seed,
 					 float ndof)

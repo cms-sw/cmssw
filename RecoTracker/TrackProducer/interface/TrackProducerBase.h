@@ -37,7 +37,8 @@ public:
 			 edm::ESHandle<TrackerGeometry>& ,
 			 edm::ESHandle<MagneticField>& ,
 			 edm::ESHandle<TrajectoryFitter>& ,
-			 edm::ESHandle<Propagator>& );
+			 edm::ESHandle<Propagator>& ,
+			 edm::ESHandle<TransientTrackingRecHitBuilder>& );
 
   virtual void getFromEvt(edm::Event&, edm::Handle<TrackCandidateCollection>&);
   virtual void getFromEvt(edm::Event&, edm::Handle<reco::TrackCollection>&);

@@ -9,6 +9,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 class TkHitPairsCachedHit {
 public:
   TkHitPairsCachedHit(const TrackingRecHit * hit ,  const edm::EventSetup& iSetup) : theRecHit(hit) {

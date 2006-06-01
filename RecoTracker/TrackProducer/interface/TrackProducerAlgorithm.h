@@ -8,7 +8,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Thu Mar  9 17:29:31 CET 2006
-// $Id: TrackProducerAlgorithm.h,v 1.4 2006/03/24 10:35:33 magni Exp $
+// $Id: TrackProducerAlgorithm.h,v 1.5 2006/05/10 15:02:20 magni Exp $
 //
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,6 +23,7 @@ class Propagator;
 class Trajectory;
 class TransientTrackingRecHit;
 class TrajectoryStateOnSurface;
+class TransientTrackingRecHitBuilder;
 
 typedef std::pair<Trajectory*, reco::Track*> AlgoProduct; 
 typedef std::vector< AlgoProduct >  AlgoProductCollection;
@@ -42,6 +43,7 @@ class TrackProducerAlgorithm {
 			const TrackCandidateCollection&,
 			const TrajectoryFitter *,
 			const Propagator *,
+			const TransientTrackingRecHitBuilder*,
 			AlgoProductCollection &);
 
   void runWithTrack(const TrackingGeometry *, 
@@ -49,12 +51,13 @@ class TrackProducerAlgorithm {
 		    const reco::TrackCollection&,
 		    const TrajectoryFitter *,
 		    const Propagator *,
+		    const TransientTrackingRecHitBuilder*,
 		    AlgoProductCollection &);
 
   bool buildTrack(const TrajectoryFitter *,
 		  const Propagator *,
 		  AlgoProductCollection& ,
-		  edm::OwnVector<TransientTrackingRecHit>&,
+		  edm::OwnVector<const TransientTrackingRecHit>&,
 		  TrajectoryStateOnSurface& ,
 		  const TrajectorySeed&,
 		  float);
