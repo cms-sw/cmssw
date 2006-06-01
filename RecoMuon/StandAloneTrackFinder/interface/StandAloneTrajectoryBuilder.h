@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/05/19 15:24:35 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/23 17:47:23 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -39,7 +39,9 @@ public:
   TrajectoryContainer trajectories(const TrajectorySeed&);
 
   StandAloneMuonRefitter* refitter() const {return theRefitter;}
-  StandAloneMuonBackwardFilter* bwfilter() const {return theBWFilter;}
+  //FIXME
+  //  StandAloneMuonBackwardFilter* bwfilter() const {return theBWFilter;}
+  StandAloneMuonRefitter* bwfilter() const {return theBWFilter;}
   StandAloneMuonSmoother* smoother() const {return theSmoother;}
 
   // Pass the Event Setup to the algo at each event
@@ -53,7 +55,9 @@ public:
  private:
   
   StandAloneMuonRefitter* theRefitter;
-  StandAloneMuonBackwardFilter* theBWFilter;
+  StandAloneMuonRefitter* theBWFilter;
+  // FIXME
+  //  StandAloneMuonBackwardFilter* theBWFilter;
   StandAloneMuonSmoother* theSmoother;
 
   double theMaxEta;

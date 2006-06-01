@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/05/29 17:26:28 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/05/29 17:56:20 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -48,7 +48,9 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   
   // The outward-inward fitter (starts from theRefitter outermost state)
   ParameterSet bwFilterPSet = par.getParameter<ParameterSet>("BWFilterParameters");
-  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet);
+  //  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet); // FIXME
+  theBWFilter = new StandAloneMuonRefitter(bwFilterPSet);
+
 
   // The outward-inward fitter (starts from theBWFilter innermost state)
   ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
@@ -95,9 +97,9 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
   // the trajectory container. In principle starting from one seed we can
   // obtain more than one trajectory. TODO: this feature is not yet implemented!
-  TrajectoryContainer trajL;
+  TrajectoryContainer trajectoryContainer;
   
-  Trajectory trajectory(seed);
+  Trajectory trajectoryFW(seed);
 
   // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
   PTrajectoryStateOnDet pTSOD = seed.startingState();
@@ -125,7 +127,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     LogDebug(metname) << "Such an high eta is unphysical and may lead to infinite loop" << endl
 		      << "rejecting the Track." << endl
 		      << "############################################################" << endl;
-    return trajL;
+    return trajectoryContainer;
   }
 
   // reset the refitter
@@ -135,7 +137,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   static const string t1 = "StandAloneMuonTrajectoryBuilder::refitter";
   TimeMe timer1(t1,timing);
   // the trajectory is filled in the refitter::refit
-  refitter()->refit(seedTSOS,seedDetLayer,trajectory);
+  refitter()->refit(seedTSOS,seedDetLayer,trajectoryFW);
   
   int totalNofChamberUsed = refitter()->getTotalChamberUsed();
 
@@ -152,21 +154,65 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     LogDebug(metname) << "Such an high eta is unphysical and may lead to infinite loop" << endl
 		      << "rejecting the Track." << endl
 		      << "############################################################" << endl;
-    return trajL;
+    return trajectoryContainer;
   }
   
   LogDebug(metname) << "--- StandAloneMuonTrajectoryBuilder REFITTER OUTPUT " << endl ;
   debug.dumpTSOS(tsosAfterRefit,metname);
-  LogDebug(metname) << "No of DT/CSC/RPC chamber used: " 
+  LogDebug(metname) << "Number of DT/CSC/RPC chamber used: " 
 		    << refitter()->getDTChamberUsed()
 		    << refitter()->getCSCChamberUsed() 
 		    << refitter()->getRPCChamberUsed();
-    
   
+  // FIXME put the possible choices: (factory???)
+  // fw_low-granularity + bw_high-granularity
+  // fw_high-granularity + smoother
+  // fw_low-granularity + bw_high-granularity + smoother (not yet sure...)
+
   // BackwardFiltering
-  // FIXME!!
-  Trajectory theTraj(seed);
-  //Trajectory theTraj(seed,oppositeToMomentum);
+  Trajectory trajectoryBW(seed);
+
+  static const string t2 = "StandAloneMuonTrajectoryBuilder::backwardfiltering";
+  TimeMe timer2(t2,timing);
+
+  bwfilter()->refit(tsosAfterRefit,refitter()->lastDetLayer(),trajectoryBW);
+  // Get the last TSOS
+  TrajectoryStateOnSurface tsosAfterBWRefit = bwfilter()->lastUpdatedTSOS();
+
+  LogDebug(metname) << "--- StandAloneMuonTrajectoryBuilder BW FILTER OUTPUT " << endl ;
+  debug.dumpTSOS(tsosAfterBWRefit,metname);
+  LogDebug(metname) 
+    << "Number of RecHits: " << trajectoryBW.foundHits() << endl
+    << "Number of DT/CSC/RPC chamber used: " 
+    << bwfilter()->getDTChamberUsed()
+    << bwfilter()->getCSCChamberUsed() 
+    << bwfilter()->getRPCChamberUsed();
   
-  return trajL;
+  // The trajectory is good if there are at least 2 chamber used in total and at
+  // least 1 "tracking" (DT or CSC)
+  if (  bwfilter()->getTotalChamberUsed() >= 2 && 
+	(bwfilter()->getDTChamberUsed() + bwfilter()->getCSCChamberUsed()) >0 ){
+    LogDebug(metname)<< "TRAJECTORY SAVED" << endl;
+    trajectoryContainer.push_back(trajectoryBW);
+  }
+  //if the trajectory is not saved, but at least two chamber are used in the
+  //forward filtering, try to build a new trajectory starting from the old
+  //trajectory w/o the latest measurement and a looser chi2 cut
+  else if ( refitter()->getTotalChamberUsed() >= 2 ) {
+    LogDebug(metname)<< "Trajectory NOT saved. SecondAttempt." << endl
+		     << "FIRST MEASUREMENT KILLED" << endl; // FIXME: why???
+    // FIXME:
+    // a better choice could be: identify the poorest one, exclude it, redo
+    // the fw and bw filtering. Or maybe redo only the bw without the excluded
+    // measure. As first step I will port the ORCA algo, then I will move to the
+    // above pattern.
+
+    const string t2a="StandAloneMuonTrajectoryBuilder::backwardfilteringMuonTrackFinder:SecondAttempt";
+    TimeMe timer2a(t2a,timing);
+
+  }
+  
+  
+  // smoother()->trajectories(trajectoryBW);
+  return trajectoryContainer;
 }
