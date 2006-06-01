@@ -276,7 +276,14 @@ void L1GlobalCaloTrigger::build() {
    // Jet Leaf cards
   for (int i=0; i<N_JET_LEAF_CARDS; i++) {
     for (int j=0; j<6; j++) {
-      int k = 3*(j/2) + (j%2) + 1;
+      // Source card numbering:
+      // 3*i+1 cover the endcap and HF regions
+      // 3*i+2 cover the barrel regions
+      //
+      // In the Leaf card and JetFinder, the even-numbered
+      // inputs are the barrel regions and the odd-numbered
+      // regions the endcap and HF
+      int k = 3*(j/2) - (j%2) + 2;
       jetSourceCards[j]=theSourceCards[(i*9+k)];
       // Neighbour connections
       int iup = (i*3+3) % 9;
@@ -284,8 +291,8 @@ void L1GlobalCaloTrigger::build() {
       int ii, i0, i1, i2, i3, i4, i5;
       if (i<3) {
 	ii = iup;
-	// Remaining connections for the TDR jetfinder only
 	i0 = idn;
+	// Remaining connections are the ones across the eta-0 boundary
 	i1 = idn+9;
 	i2 = i*3+9;
 	i3 = i*3+10;
@@ -293,27 +300,27 @@ void L1GlobalCaloTrigger::build() {
 	i5 = iup+9;
       } else {
 	ii = iup+9;
-	// Remaining connections for the TDR jetfinder only
-	i0 = idn+9;
+	i0 = idn + 9;
+	// Remaining connections are the ones across the eta-0 boundary
 	i1 = idn;
 	i2 = i*3-9;
 	i3 = i*3-8;
 	i4 = i*3-7;
 	i5 = iup;
       }
-      jetSourceCards[3] = theSourceCards[ii*3+2];
-      jetSourceCards[4] = theSourceCards[ii*3+1];
-      jetSourceCards[5] = theSourceCards[ii*3+2];
-      jetSourceCards[6] = theSourceCards[ii*3+1];
-      jetSourceCards[7] = theSourceCards[ii*3+2];
-      // Remaining connections for the TDR jetfinder only
-      jetSourceCards[8] = theSourceCards[i0*3+1];
-      jetSourceCards[9] = theSourceCards[i0*3+2];
-      jetSourceCards[10]= theSourceCards[i1*3+1];
-      jetSourceCards[11]= theSourceCards[i2*3+1];
-      jetSourceCards[12]= theSourceCards[i3*3+1];
-      jetSourceCards[13]= theSourceCards[i4*3+1];
-      jetSourceCards[14]= theSourceCards[i5*3+1];
+      // Leaf card inputs 6-9 are the neighbours in phi,
+      // taking account of wraparound at phi=0
+      jetSourceCards[6] = theSourceCards[ii*3+2];
+      jetSourceCards[7] = theSourceCards[ii*3+1];
+      jetSourceCards[8] = theSourceCards[i0*3+2];
+      jetSourceCards[9] = theSourceCards[i0*3+1];
+      // The remaining connections are those for the eta-0
+      // regions from the other wheel and may change
+      jetSourceCards[10]= theSourceCards[i1*3+2];
+      jetSourceCards[11]= theSourceCards[i2*3+2];
+      jetSourceCards[12]= theSourceCards[i3*3+2];
+      jetSourceCards[13]= theSourceCards[i4*3+2];
+      jetSourceCards[14]= theSourceCards[i5*3+2];
       //
       
     }

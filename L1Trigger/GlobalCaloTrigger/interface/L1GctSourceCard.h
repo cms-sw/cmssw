@@ -140,7 +140,6 @@ class L1GctSourceCard
   static const int DATA_OFFSET_TYPE3; ///< Data offset for file reading
   static const int DATA_OFFSET_TYPE2; ///< Data offset for file reading  
 
-
   /// card ID
   int m_id;
   ///
