@@ -1,3 +1,7 @@
+//
+// $Id: $
+// Author: David Evans, Bristol
+//
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
 
 #include <iostream>
@@ -24,15 +28,12 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   // Insert the recHits into map	
   // (recHits needed as number of crystals in the seed cluster
   //  with energy above 2sigma noise required)
-  if (recHits_m->empty()) 
-  {	
     EcalRecHitCollection::const_iterator it;
     for (it = rhc.begin(); it != rhc.end(); it++)
     {
       std::pair<DetId, EcalRecHit> map_entry(it->id(), *it);
       recHits_m->insert(map_entry);
     }
-  }
 	
   // A little bit of trivial info to be sure all is well
   std::cout << "   EgammaSCEnergyCorrectionAlgo::applyCorrection" << std::endl;
@@ -91,6 +92,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   std::cout <<    "   **********" << std::endl;
      
   // Return the corrected cluster
+  recHits_m->clear();
   return corrCl;
   
 }
