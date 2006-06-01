@@ -122,23 +122,32 @@ namespace edm {
         ModuleNode * moduleNode = dynamic_cast<ModuleNode *>((*nodeItr).get());
         if(moduleNode != 0) 
         {
-          // unnamed modules are named after class
-          if(name == "nameless" || name == "" || name=="main_es_input") 
+          //@@TODO FIX HACK! unnamed es_prefers need to be unmodifiable for the
+          // time being, since they can have the same class as a different es_source
+          if(type == "es_prefer") 
           {
-            name = moduleNode->class_;
+            everythingElse_.push_back(*nodeItr);
           }
+          else
+          {
+            // unnamed modules are named after class
+            if(name == "nameless" || name == "" || name=="main_es_input") 
+            {
+              name = moduleNode->class_;
+            }
 
-          // double-check that no duplication
-          NodePtrMap::iterator moduleMapItr = modulesAndSources_.find(name);
-          if(moduleMapItr != modulesAndSources_.end()) {
-            //throw edm::Exception(errors::Configuration,"") 
-            // << "Duplicate definition of " << name << std::endl;
-            edm::LogWarning("ParseResultsTweaker") << "Duplicate definition of "
-            << name << ". Only last one will be kept.";
+            // double-check that no duplication
+            NodePtrMap::iterator moduleMapItr = modulesAndSources_.find(name);
+            if(moduleMapItr != modulesAndSources_.end()) {
+              //throw edm::Exception(errors::Configuration,"") 
+              // << "Duplicate definition of " << name << std::endl;
+              edm::LogWarning("ParseResultsTweaker") << "Duplicate definition of "
+              << name << ". Only last one will be kept.";
+            }
+            modulesAndSources_[name] = *nodeItr;
           }
-          modulesAndSources_[name] = *nodeItr;
-        }
-
+        } // moduleNode
+  
         else if(type == "block" || type == "PSet") {
           blocks_[name] = *nodeItr;
         }
