@@ -6,7 +6,6 @@
 
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
-<use name=MagneticField/VolumeBasedEngine>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=FWCore/Services>
