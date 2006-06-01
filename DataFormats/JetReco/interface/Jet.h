@@ -5,14 +5,15 @@
  *
  * \short Base class for all types of Jets
  *
- * Jet is an pure virtual interface class. Base class for all types of Jets.
+ * Jet describes properties common for all kinds of jets, 
+ * essentially kinematics. Base class for all types of Jets.
  * More to be added...
  *
- * \author Fernando Varela Rodriguez, Boston University
+ * \author Fedor Ratnikov, UMd
  *
- * \version   1st Version April 22, 2005.
- * \version   2nd Version May 23, 2006 by F.R.
- * $Id$
+ * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
+ * \version   May 23, 2006 by F.R.
+ * \version   $Id: Jet.h,v 1.4 2006/05/24 00:40:43 fedor Exp $
  ************************************************************/
 #include "DataFormats/Math/interface/LorentzVector.h"
 

@@ -6,18 +6,19 @@
  * \short Jets made from CaloTowers
  *
  * CaloJet represents Jets made from CaloTowers
- * More to be added...
+ * Provide energy contributions from different subdetectors
+ * in addition to generic Jet parameters
  *
- * \author Fernando Varela Rodriguez, Boston University
+ * \author Fedor Ratnikov, UMd
  *
- * \version   1st Version April 22, 2005.
+ * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * 
- * \version   2nd Version Oct 19, 2005, R. Harris, modified to work 
+ * \version   Oct 19, 2005, R. Harris, modified to work 
  *            with real CaloTowers. No energy fractions yet.
  *
- * \version   3rd Version May 3, 2006, F.Ratnikov, include all different
+ * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * $Id$
+ * \version   $Id: CaloJet.h,v 1.14 2006/05/24 00:40:43 fedor Exp $
  ************************************************************/
 
 

@@ -35,9 +35,10 @@ Event products of Reconstruction.
   <th>instance name</th>
   <th>branch alias</th>
   <th>description</th>
+  <th>contact</th>
 </tr>
 <tr class="colgroup">
-  <td class="colgroup" colspan=6>Track collections</td>
+  <td class="colgroup" colspan=7>Track collections</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::Track \htmlonly </rd>
@@ -46,6 +47,7 @@ Event products of Reconstruction.
   <td>&nbsp;</td>
   <td>tracks</td>
   <td class="description">Collection of reconstructed tracks</td>
+  <td>&nbsp;</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
@@ -54,6 +56,7 @@ Event products of Reconstruction.
   <td>&nbsp;</td>
   <td>trackExtras</td>
   <td class="description">Collection of extra information associated to reconstructed tracks</td>
+  <td>&nbsp;</td>
 </tr>
 <tr>
   <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
@@ -62,9 +65,10 @@ Event products of Reconstruction.
   <td>&nbsp;</td>
   <td>trackHits</td>
   <td class="description">Collection of RecHits used by reconstructed tracks</td>
+  <td>&nbsp;</td>
 </tr>
 <tr class="colgroup">
-  <td class="colgroup" colspan=6>Ecal cluster collections</td>
+  <td class="colgroup" colspan=7>Ecal cluster collections</td>
 <tr>
   <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
   <td> \endhtmlonly reco::BasicClusterCollection \htmlonly </td>
@@ -72,6 +76,7 @@ Event products of Reconstruction.
   <td>hybrid</td>
   <td>hybridClusters</td>
   <td class="description">Collection of basic clusters reconstructed with hybrid algorithm</td>
+  <td>&nbsp;</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
@@ -80,6 +85,7 @@ Event products of Reconstruction.
   <td>island</td>
   <td>islandClusters</td>
   <td class="description">Collection of basic clusters reconstructed with island algorithm</td>
+  <td>&nbsp;</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::SuperCluster \htmlonly </rd>
@@ -88,7 +94,97 @@ Event products of Reconstruction.
   <td>&nbsp;</td>
   <td>superClusters</td>
   <td class="description">Collection of super clusters</td>
+  <td>&nbsp;</td>
 </tr>
+<tr class="colgroup">
+  <td class="colgroup" colspan=7>CaloTower Candidates</td>
+<tr>
+  <td> \endhtmlonly reco::RecoCaloTowerCandidate \htmlonly </rd>
+  <td> \endhtmlonly reco::CandidateCollection \htmlonly </td>
+  <td>calotowercandidate</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td class="description">Candidates collection derived from CaloTowers</td>
+  <td> F.Ratnikov </td>
+</tr>
+<tr class="colgroup">
+  <td class="colgroup" colspan=7>CaloTowers based Jet collections</td>
+<tr>
+  <td> \endhtmlonly CaloJet \htmlonly </rd>
+  <td> \endhtmlonly CaloJetCollection \htmlonly </td>
+  <td>CaloJetMcone5</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td class="description">MidpointCone R=0.5 jets </td>
+  <td> F.Ratnikov </td>
+</tr>
+<tr>
+  <td> \endhtmlonly CaloJet \htmlonly </rd>
+  <td> \endhtmlonly CaloJetCollection \htmlonly </td>
+  <td>CaloJetMcone7</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td class="description">MidpointCone R=0.7 jets </td>
+  <td> F.Ratnikov </td>
+</tr>
+<tr>
+  <td> \endhtmlonly CaloJet \htmlonly </rd>
+  <td> \endhtmlonly CaloJetCollection \htmlonly </td>
+  <td>CaloJetKt</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td class="description">Kt jets </td>
+  <td> F.Ratnikov </td>
+</tr>
+<tr>
+  <td> \endhtmlonly CaloJet \htmlonly </rd>
+  <td> \endhtmlonly CaloJetCollection \htmlonly </td>
+  <td>CaloJetIcone5</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td class="description">IterativeCone R=0.5 jets </td>
+  <td> F.Ratnikov </td>
+</tr>
+<tr class="colgroup">
+  <td class="colgroup" colspan=7>HepMC particles based Jet collections</td>
+<tr>
+<tr>
+  <td> \endhtmlonly GenJet \htmlonly </rd>
+  <td> \endhtmlonly GenJetCollection \htmlonly </td>
+  <td>GenJetMcone5</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td class="description">MidpointCone R=0.5 jets </td>
+  <td> F.Ratnikov </td>
+</tr>
+<tr>
+  <td> \endhtmlonly GenJet \htmlonly </rd>
+  <td> \endhtmlonly GenJetCollection \htmlonly </td>
+  <td>GenJetMcone7</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td class="description">MidpointCone R=0.7 jets </td>
+  <td> F.Ratnikov </td>
+</tr>
+<tr>
+  <td> \endhtmlonly GenJet \htmlonly </rd>
+  <td> \endhtmlonly GenJetCollection \htmlonly </td>
+  <td>GenJetKt</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td class="description">Kt jets </td>
+  <td> F.Ratnikov </td>
+</tr>
+<tr>
+  <td> \endhtmlonly GenJet \htmlonly </rd>
+  <td> \endhtmlonly GenJetCollection \htmlonly </td>
+  <td>GenJetIcone5</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td class="description">IterativeCone R=0.5 jets </td>
+  <td> F.Ratnikov </td>
+</tr>
+
 </table>
 
 \endhtmlonly

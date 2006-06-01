@@ -5,10 +5,14 @@
  *
  * \short Jets made from MC generator particles
  *
+ * GenJet represents Jets made from MC candidates
+ * Provide energy contributions from different particle types
+ * in addition to generic Jet parameters
+ *
  * \author Fedor Ratnikov, UMd
  *
- * \version   1st Version March 31, 2006
- * $Id$
+ * \version   Original March 31, 2006 by F.R.
+ * \version   $Id: GenJet.h,v 1.4 2006/05/24 00:40:43 fedor Exp $
  ************************************************************/
 
 
@@ -49,7 +53,7 @@ public:
   double hadEnergy() const {return m_specific.m_HadEnergy;};
   /** Returns invisible energy*/
   double invisibleEnergy() const {return m_specific.m_InvisibleEnergy;};
-  /** Returns other energy (undecayed Sigmas etc.*/
+  /** Returns other energy (undecayed Sigmas etc.)*/
   double auxiliaryEnergy() const {return m_specific.m_AuxiliaryEnergy;};
 
   // block accessors
