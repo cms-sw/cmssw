@@ -10,7 +10,7 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 //------------------------------------------------------------------------------
 const float MultipleScatteringGeometry::beamPipeR =  2.94;
 const float MultipleScatteringGeometry::endflangesZ = 30;
