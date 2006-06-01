@@ -29,6 +29,7 @@ class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
   virtual ~SeedGeneratorForCosmics(){};
   void init(const SiStripRecHit2DLocalPosCollection &collstereo,
 	    const SiStripRecHit2DLocalPosCollection &collrphi,
+	    const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
 	    const edm::EventSetup& c);
 
 
