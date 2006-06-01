@@ -16,22 +16,22 @@ class SimpleTECWedge : public TECWedge{
   ~SimpleTECWedge();
   
   // GeometricSearchDet interface
-  virtual const vector<const GeomDet*>& basicComponents() const {return theDets;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
 
-  virtual const vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const;
   
-  virtual pair<bool, TrajectoryStateOnSurface>
+  virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
 
  private:
   const GeomDet* theDet;
-  vector<const GeomDet*> theDets;
+  std::vector<const GeomDet*> theDets;
 
 };
 

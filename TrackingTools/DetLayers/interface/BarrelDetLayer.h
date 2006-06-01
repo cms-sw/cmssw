@@ -32,7 +32,7 @@ class BarrelDetLayer : public DetLayer {
   // GeometricSearchDet interface
   virtual const BoundSurface&  surface() const { return *theCylinder;}
 
-  virtual pair<bool, TrajectoryStateOnSurface>
+  virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 

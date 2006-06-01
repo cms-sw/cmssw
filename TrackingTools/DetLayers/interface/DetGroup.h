@@ -6,13 +6,11 @@
 #include <vector>
 #include <utility>
 
-using namespace std;
 
 class DetGroupElement {
  public:
-  typedef pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
-  typedef GeomDet                                Det;
-
+  typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
+  typedef GeomDet                                            Det;
 
  
   DetGroupElement( const DetWithState& dws) :

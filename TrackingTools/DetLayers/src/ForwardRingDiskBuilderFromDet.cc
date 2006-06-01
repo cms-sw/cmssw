@@ -2,6 +2,7 @@
 #include "Geometry/Surface/interface/SimpleDiskBounds.h"
 #include "Geometry/Surface/interface/BoundingBox.h"
 
+using namespace std;
 
 // Warning, remember to assign this pointer to a ReferenceCountingPointer!
 BoundDisk* 

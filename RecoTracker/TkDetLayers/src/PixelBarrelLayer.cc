@@ -11,6 +11,7 @@
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 
+using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 

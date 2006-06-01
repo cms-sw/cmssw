@@ -13,6 +13,8 @@
 
 #include <utility>
 
+using namespace std;
+
 vector<const DetLayer*> 
 StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) const {
 

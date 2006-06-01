@@ -9,6 +9,8 @@
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "Geometry/Surface/interface/SimpleDiskBounds.h"
 
+using namespace std;
+
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,

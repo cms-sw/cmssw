@@ -3,6 +3,7 @@
 #include "Geometry/Surface/interface/BoundingBox.h"
 #include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
 
+using namespace std;
 
 BarrelDetLayer::~BarrelDetLayer() {}
 

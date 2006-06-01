@@ -10,8 +10,6 @@
 
 /** A concrete builder for TOBLayer 
  */
-using namespace edm;
-using namespace std;
 
 class TOBLayerBuilder {  
  public:

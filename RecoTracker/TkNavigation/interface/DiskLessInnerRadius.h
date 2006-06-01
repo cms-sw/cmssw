@@ -9,7 +9,7 @@
  */
 
 class DiskLessInnerRadius : 
-  public binary_function<const ForwardDetLayer*,const ForwardDetLayer*,bool>
+  public std::binary_function<const ForwardDetLayer*,const ForwardDetLayer*,bool>
 {
 public:
   bool operator()( const ForwardDetLayer* a, const ForwardDetLayer* b) {

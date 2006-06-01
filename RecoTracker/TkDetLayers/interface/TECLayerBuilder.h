@@ -10,8 +10,6 @@
 
 /** A concrete builder for TECLayer 
  */
-using namespace edm;
-using namespace std;
 
 class TECLayerBuilder {  
  public:

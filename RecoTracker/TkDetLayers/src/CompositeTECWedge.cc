@@ -13,6 +13,8 @@
 
 #include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
 
+using namespace std;
+
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 // --------- Temporary solution. DetSorting.h has to be used.

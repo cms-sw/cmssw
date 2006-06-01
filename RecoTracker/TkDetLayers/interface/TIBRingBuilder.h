@@ -10,13 +10,11 @@
 
 /** A concrete builder for TIBRing 
  */
-using namespace edm;
-using namespace std;
 
 class TIBRingBuilder {  
  public:
   TIBRingBuilder(){};
-  TIBRing* build(const vector<const GeometricDet*>& detsInRing,
+  TIBRing* build(const std::vector<const GeometricDet*>& detsInRing,
 		 const TrackerGeometry* theGeomDetGeometry);
 
   

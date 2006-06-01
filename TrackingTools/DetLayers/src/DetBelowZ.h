@@ -8,7 +8,7 @@
  */
 typedef GeometricSearchDet Det;
 
-class DetBelowZ : public unary_function< const Det*, bool> {
+class DetBelowZ : public std::unary_function< const Det*, bool> {
 public:
   DetBelowZ( double v) : val(v) {}
   bool operator()( const Det* a) const { return a->position().z() < val;}

@@ -8,7 +8,7 @@
 
 typedef GeometricSearchDet Det;
 
-class DetLessZ : public binary_function<const Det*, const Det*, bool> {
+class DetLessZ : public std::binary_function<const Det*, const Det*, bool> {
 public:
   bool operator()( const Det* a, const Det* b) const {
 

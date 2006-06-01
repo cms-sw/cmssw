@@ -2,6 +2,9 @@
 #include "RecoTracker/TkDetLayers/interface/TECWedgeBuilder.h"
 #include "RecoTracker/TkDetLayers/interface/CompositeTECPetal.h"
 
+using namespace edm;
+using namespace std;
+
 TECPetal* TECPetalBuilder::build(const GeometricDet* aTECPetal,
 				 const TrackerGeometry* theGeomDetGeometry)
 {

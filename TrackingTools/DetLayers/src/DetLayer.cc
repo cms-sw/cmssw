@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+using namespace std;
+
 DetLayer::~DetLayer() { delete theNavigableLayer;}
 
 

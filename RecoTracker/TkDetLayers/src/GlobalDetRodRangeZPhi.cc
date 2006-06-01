@@ -5,6 +5,8 @@
 
 #include <vector>
 
+using namespace std;
+
 GlobalDetRodRangeZPhi::GlobalDetRodRangeZPhi( const BoundPlane& plane) {
 
   float dx = plane.bounds().width()/2.;

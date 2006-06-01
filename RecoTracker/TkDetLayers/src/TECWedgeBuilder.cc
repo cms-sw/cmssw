@@ -2,6 +2,9 @@
 #include "RecoTracker/TkDetLayers/interface/CompositeTECWedge.h"
 #include "RecoTracker/TkDetLayers/interface/SimpleTECWedge.h"
 
+using namespace edm;
+using namespace std;
+
 TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge,
 				 const TrackerGeometry* theGeomDetGeometry)
 {

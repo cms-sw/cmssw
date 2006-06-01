@@ -1,5 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 
+using namespace std;
+
 vector<DetGroup> 
 DetGroupMerger::orderAndMergeTwoLevels( const vector<DetGroup>& one,  
 					const vector<DetGroup>& two,

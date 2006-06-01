@@ -6,6 +6,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 
+using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 

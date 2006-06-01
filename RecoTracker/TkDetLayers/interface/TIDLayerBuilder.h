@@ -10,14 +10,12 @@
 
 /** A concrete builder for TIDLayer 
  */
-using namespace edm;
-using namespace std;
 
 class TIDLayerBuilder {  
  public:
   TIDLayerBuilder(){};
   TIDLayer* build(const GeometricDet* aTIDLayer,
-	      const TrackerGeometry* theGeomDetGeometry);
+		  const TrackerGeometry* theGeomDetGeometry);
 
    
 };

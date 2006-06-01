@@ -13,6 +13,8 @@
 #include "TrackingTools/DetLayers/interface/ForwardRingDiskBuilderFromDet.h"
 #include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
 
+using namespace std;
+
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 TIDRing::TIDRing(vector<const GeomDet*>& innerDets,

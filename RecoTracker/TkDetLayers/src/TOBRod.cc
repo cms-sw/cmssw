@@ -10,6 +10,7 @@
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
 
+using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 

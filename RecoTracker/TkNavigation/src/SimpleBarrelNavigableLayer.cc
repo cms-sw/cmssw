@@ -12,6 +12,8 @@
 #include <map>
 #include <cmath>
 
+using namespace std;
+
 SimpleBarrelNavigableLayer::
 SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
 			    const BDLC& outerBLC, 

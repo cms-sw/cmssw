@@ -4,6 +4,8 @@
 #include "Geometry/Surface/interface/BoundingBox.h"
 #include <algorithm>
 
+using namespace std;
+
 BoundCylinder* 
 CylinderBuilderFromDet::operator()( vector<const Det*>::const_iterator first,
 				    vector<const Det*>::const_iterator last) const

@@ -12,23 +12,23 @@ class PixelRod : public DetRodOneR{
  public:
     typedef PeriodicBinFinderInZ<float>   BinFinderType;
 
-  PixelRod(vector<const GeomDet*>& theDets);
+  PixelRod(std::vector<const GeomDet*>& theDets);
   ~PixelRod();
   
   // GeometricSearchDet interface
 
-  virtual const vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const;
   
-  virtual pair<bool, TrajectoryStateOnSurface>
+  virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  virtual vector<DetWithState> 
+  virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const;
 
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;

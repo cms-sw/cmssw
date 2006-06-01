@@ -14,22 +14,22 @@
 
 class TECLayer : public ForwardDetLayer{
  public:
-  TECLayer(vector<const TECPetal*>& innerPetals,
-	   vector<const TECPetal*>& outerPetals);
+  TECLayer(std::vector<const TECPetal*>& innerPetals,
+	   std::vector<const TECPetal*>& outerPetals);
   ~TECLayer();
   
   // GeometricSearchDet interface
   
-  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual const vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
   
-  virtual vector<DetWithState> 
+  virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const;
 
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
@@ -56,14 +56,14 @@ class TECLayer : public ForwardDetLayer{
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const;
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			float window, 
-			vector<DetGroup>& result,
+			std::vector<DetGroup>& result,
 			bool checkClosest) const;
 
   
@@ -74,18 +74,18 @@ class TECLayer : public ForwardDetLayer{
 
   bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& petal, float window) const;
 
-  const vector<const GeometricSearchDet*>& subLayer( int ind) const {
+  const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
     return (ind==0 ? theFrontComps : theBackComps);
   }
 
 
  protected:
-  virtual BoundDisk* computeDisk( vector<const GeometricSearchDet*>& petals) const;
+  virtual BoundDisk* computeDisk( std::vector<const GeometricSearchDet*>& petals) const;
 
-  vector<const GeometricSearchDet*> theComps;
-  vector<const GeometricSearchDet*> theFrontComps;
-  vector<const GeometricSearchDet*> theBackComps;
-  vector<const GeomDet*> theBasicComps;
+  std::vector<const GeometricSearchDet*> theComps;
+  std::vector<const GeometricSearchDet*> theFrontComps;
+  std::vector<const GeometricSearchDet*> theBackComps;
+  std::vector<const GeomDet*> theBasicComps;
 
 
   ReferenceCountingPointer<BoundDisk>  theFrontDisk;

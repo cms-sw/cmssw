@@ -4,6 +4,8 @@
 
 #include <iomanip>
 
+using namespace std;
+
 BoundDiskSector* 
 BladeShapeBuilderFromDet::operator()( const vector<const GeomDet*>& dets) const
 {

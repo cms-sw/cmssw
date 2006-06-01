@@ -10,8 +10,6 @@
 
 /** A concrete builder for TOBRod 
  */
-using namespace edm;
-using namespace std;
 
 class TOBRodBuilder {  
  public:

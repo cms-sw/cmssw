@@ -10,8 +10,6 @@
 #include <vector>
 #include <iostream>
 
-using namespace std;
-
 /** As it's name indicates, it's a builder of a BoundDiskSector from a collection of
  *  Dets. The disk sector has the minimal size fully containing all Dets.
  */
@@ -21,17 +19,17 @@ public:
 
   /// Warning, remember to assign this pointer to a ReferenceCountingPointer!
   /// Should be changed to return a ReferenceCountingPointer<BoundDisk>
-  BoundDiskSector* operator()( const vector<const GeomDet*>& dets) const;
+  BoundDiskSector* operator()( const std::vector<const GeomDet*>& dets) const;
   
-  pair<DiskSectorBounds, GlobalVector>
-  computeBounds( const vector<const GeomDet*>& dets) const;
+  std::pair<DiskSectorBounds, GlobalVector>
+  computeBounds( const std::vector<const GeomDet*>& dets) const;
 
 private:
 
   Surface::RotationType
-  computeRotation( const vector<const GeomDet*>& dets, Surface::PositionType pos) const;
+  computeRotation( const std::vector<const GeomDet*>& dets, Surface::PositionType pos) const;
 
-  vector<GlobalPoint> 
+  std::vector<GlobalPoint> 
   computeTrapezoidalCorners( const GeomDet* detu) const;
 
 };

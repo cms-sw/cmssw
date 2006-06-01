@@ -9,8 +9,6 @@
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 #include <cmath>
 
-using namespace std;
-
 template <class T>
 class GeneralBinFinderInZforGeometricSearchDet : public BaseBinFinder<T> {
 public:
@@ -18,12 +16,12 @@ public:
   GeneralBinFinderInZforGeometricSearchDet() : theNbins(0), theZStep(0), theZOffset(0) {}
 
   GeneralBinFinderInZforGeometricSearchDet(
-	              vector<const GeometricSearchDet*>::const_iterator first,
-		      vector<const GeometricSearchDet*>::const_iterator last) :
+	              std::vector<const GeometricSearchDet*>::const_iterator first,
+		      std::vector<const GeometricSearchDet*>::const_iterator last) :
     theNbins( last-first)
   {
     theBins.reserve(theNbins);
-    for (vector<const GeometricSearchDet*>::const_iterator i=first; i<last-1; i++) {
+    for (std::vector<const GeometricSearchDet*>::const_iterator i=first; i<last-1; i++) {
       theBins.push_back((**i).position().z());
       theBorders.push_back(((**i).position().z() + 
 			    (**(i+1)).position().z()) / 2.);
@@ -83,7 +81,7 @@ private:
   int theNbins;
   T theZStep;
   T theZOffset;
-  vector<float> theBorders;
-  vector<T> theBins;
+  std::vector<float> theBorders;
+  std::vector<T> theBins;
 };
 #endif

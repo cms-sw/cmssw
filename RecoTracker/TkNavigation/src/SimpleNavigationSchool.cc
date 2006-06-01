@@ -19,6 +19,8 @@
 #include <map>
 #include <cmath>
 
+using namespace std;
+
 SimpleNavigationSchool::SimpleNavigationSchool(const GeometricSearchTracker* theInputTracker,
 					       const MagneticField* field) : 
   theBarrelLength(0),theField(field), theTracker(theInputTracker)

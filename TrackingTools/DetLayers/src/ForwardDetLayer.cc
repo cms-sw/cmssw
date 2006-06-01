@@ -4,6 +4,7 @@
 #include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
 #include "Geometry/Surface/interface/BoundingBox.h"
 
+using namespace std;
 
 ForwardDetLayer::ForwardDetLayer() : 
   theDisk(0), theInitialPosition(0),

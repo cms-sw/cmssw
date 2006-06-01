@@ -13,21 +13,21 @@
 
 class CompositeTECPetal : public TECPetal{
  public:
-  CompositeTECPetal(vector<const TECWedge*>& innerWedges,
-		    vector<const TECWedge*>& outerWedges);
+  CompositeTECPetal(std::vector<const TECWedge*>& innerWedges,
+		    std::vector<const TECWedge*>& outerWedges);
 
   ~CompositeTECPetal();
   
   // GeometricSearchDet interface  
-  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual const vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
   
-  virtual pair<bool, TrajectoryStateOnSurface>
+  virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
@@ -43,14 +43,14 @@ class CompositeTECPetal : public TECPetal{
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const;
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			float window, 
-			vector<DetGroup>& result,
+			std::vector<DetGroup>& result,
 			bool checkClosest) const;
 
   bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float window) const;
@@ -63,16 +63,16 @@ class CompositeTECPetal : public TECPetal{
   
   GlobalPoint findPosition(int index,int diskSectorIndex) const ;
 
-  const vector<const GeometricSearchDet*>& subLayer( int ind) const {
+  const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
     return (ind==0 ? theFrontComps : theBackComps);
   }
 
 
  private:
-  vector<const GeometricSearchDet*> theComps;
-  vector<const GeometricSearchDet*> theFrontComps;
-  vector<const GeometricSearchDet*> theBackComps;
-  vector<const GeomDet*> theBasicComps;
+  std::vector<const GeometricSearchDet*> theComps;
+  std::vector<const GeometricSearchDet*> theFrontComps;
+  std::vector<const GeometricSearchDet*> theBackComps;
+  std::vector<const GeomDet*> theBasicComps;
 
   ReferenceCountingPointer<BoundDiskSector> theFrontSector;
   ReferenceCountingPointer<BoundDiskSector> theBackSector;  

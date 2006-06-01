@@ -14,7 +14,7 @@ class ForwardDetRing : public GeometricSearchDet {
   virtual ~ForwardDetRing();
 
   
-  virtual vector<DetWithState> 
+  virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& tsos,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const;

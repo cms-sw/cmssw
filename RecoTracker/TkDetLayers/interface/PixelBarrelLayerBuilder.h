@@ -10,8 +10,6 @@
 
 /** A concrete builder for PixelBarrelLayer 
  */
-using namespace edm;
-using namespace std;
 
 class PixelBarrelLayerBuilder {  
  public:

@@ -12,57 +12,57 @@
 class GeometricSearchTracker {
  public:
 
-  GeometricSearchTracker(const vector<BarrelDetLayer*>& pxlBar,
-			 const vector<BarrelDetLayer*>& tib,
-			 const vector<BarrelDetLayer*>& tob,
-			 const vector<ForwardDetLayer*>& negPxlFwd,
-			 const vector<ForwardDetLayer*>& negTid,
-			 const vector<ForwardDetLayer*>& negTec,
-			 const vector<ForwardDetLayer*>& posPxlFwd,
-			 const vector<ForwardDetLayer*>& posTid,
-			 const vector<ForwardDetLayer*>& posTec);
+  GeometricSearchTracker(const std::vector<BarrelDetLayer*>& pxlBar,
+			 const std::vector<BarrelDetLayer*>& tib,
+			 const std::vector<BarrelDetLayer*>& tob,
+			 const std::vector<ForwardDetLayer*>& negPxlFwd,
+			 const std::vector<ForwardDetLayer*>& negTid,
+			 const std::vector<ForwardDetLayer*>& negTec,
+			 const std::vector<ForwardDetLayer*>& posPxlFwd,
+			 const std::vector<ForwardDetLayer*>& posTid,
+			 const std::vector<ForwardDetLayer*>& posTec);
   
   ~GeometricSearchTracker();
 
-  vector<DetLayer*>        allLayers()     const {return theAllLayers;}  
+  std::vector<DetLayer*>        allLayers()     const {return theAllLayers;}  
 
-  vector<BarrelDetLayer*>  barrelLayers()  const {return theBarrelLayers;}
+  std::vector<BarrelDetLayer*>  barrelLayers()  const {return theBarrelLayers;}
 
-  vector<ForwardDetLayer*> forwardLayers() const {return theForwardLayers;}
-  vector<ForwardDetLayer*> negForwardLayers() const {return theNegForwardLayers;}
-  vector<ForwardDetLayer*> posForwardLayers() const {return thePosForwardLayers;}
+  std::vector<ForwardDetLayer*> forwardLayers() const {return theForwardLayers;}
+  std::vector<ForwardDetLayer*> negForwardLayers() const {return theNegForwardLayers;}
+  std::vector<ForwardDetLayer*> posForwardLayers() const {return thePosForwardLayers;}
 
-  vector<BarrelDetLayer*>  pixelBarrelLayers() const {return thePixelBarrelLayers;}
-  vector<BarrelDetLayer*>  tibLayers() const {return theTibLayers;}
-  vector<BarrelDetLayer*>  tobLayers() const {return theTobLayers;}
+  std::vector<BarrelDetLayer*>  pixelBarrelLayers() const {return thePixelBarrelLayers;}
+  std::vector<BarrelDetLayer*>  tibLayers() const {return theTibLayers;}
+  std::vector<BarrelDetLayer*>  tobLayers() const {return theTobLayers;}
 
-  vector<ForwardDetLayer*>  negPixelForwardLayers() const {return theNegPixelForwardLayers;}
-  vector<ForwardDetLayer*>  negTidLayers() const {return theNegTidLayers;}
-  vector<ForwardDetLayer*>  negTecLayers() const {return theNegTecLayers;}
+  std::vector<ForwardDetLayer*>  negPixelForwardLayers() const {return theNegPixelForwardLayers;}
+  std::vector<ForwardDetLayer*>  negTidLayers() const {return theNegTidLayers;}
+  std::vector<ForwardDetLayer*>  negTecLayers() const {return theNegTecLayers;}
 
-  vector<ForwardDetLayer*>  posPixelForwardLayers() const {return thePosPixelForwardLayers;}
-  vector<ForwardDetLayer*>  posTidLayers() const {return thePosTidLayers;}
-  vector<ForwardDetLayer*>  posTecLayers() const {return thePosTecLayers;}
+  std::vector<ForwardDetLayer*>  posPixelForwardLayers() const {return thePosPixelForwardLayers;}
+  std::vector<ForwardDetLayer*>  posTidLayers() const {return thePosTidLayers;}
+  std::vector<ForwardDetLayer*>  posTecLayers() const {return thePosTecLayers;}
 
   const DetLayer*          detLayer( const DetId& id) const;
 
  private:
-  vector<DetLayer*>        theAllLayers;
-  vector<BarrelDetLayer*>  theBarrelLayers;
-  vector<ForwardDetLayer*> theForwardLayers;
-  vector<ForwardDetLayer*> theNegForwardLayers;
-  vector<ForwardDetLayer*> thePosForwardLayers;
+  std::vector<DetLayer*>        theAllLayers;
+  std::vector<BarrelDetLayer*>  theBarrelLayers;
+  std::vector<ForwardDetLayer*> theForwardLayers;
+  std::vector<ForwardDetLayer*> theNegForwardLayers;
+  std::vector<ForwardDetLayer*> thePosForwardLayers;
 
-  vector<BarrelDetLayer*>  thePixelBarrelLayers;
-  vector<BarrelDetLayer*>  theTibLayers;
-  vector<BarrelDetLayer*>  theTobLayers;
+  std::vector<BarrelDetLayer*>  thePixelBarrelLayers;
+  std::vector<BarrelDetLayer*>  theTibLayers;
+  std::vector<BarrelDetLayer*>  theTobLayers;
 
-  vector<ForwardDetLayer*> theNegPixelForwardLayers;
-  vector<ForwardDetLayer*> theNegTidLayers;
-  vector<ForwardDetLayer*> theNegTecLayers;
-  vector<ForwardDetLayer*> thePosPixelForwardLayers;
-  vector<ForwardDetLayer*> thePosTidLayers;
-  vector<ForwardDetLayer*> thePosTecLayers;
+  std::vector<ForwardDetLayer*> theNegPixelForwardLayers;
+  std::vector<ForwardDetLayer*> theNegTidLayers;
+  std::vector<ForwardDetLayer*> theNegTecLayers;
+  std::vector<ForwardDetLayer*> thePosPixelForwardLayers;
+  std::vector<ForwardDetLayer*> thePosTidLayers;
+  std::vector<ForwardDetLayer*> thePosTecLayers;
 };
 
 

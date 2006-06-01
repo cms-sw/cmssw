@@ -10,8 +10,6 @@
 
 /** A concrete builder for TECWedge 
  */
-using namespace edm;
-using namespace std;
 
 class TECWedgeBuilder {  
  public:

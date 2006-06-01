@@ -2,7 +2,7 @@
 #include "Geometry/Surface/interface/BoundCylinder.h"
 #include "Geometry/Surface/interface/BoundDisk.h"
 
-
+using namespace std;
 
 bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
 				       PropagationDirection dir,

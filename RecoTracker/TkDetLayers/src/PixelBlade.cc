@@ -9,6 +9,7 @@
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 
+using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 

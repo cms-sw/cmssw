@@ -15,25 +15,25 @@ public:
   ForwardDetRingOneZ(){};
 
   /// Construct from iterators on Det*.
-  ForwardDetRingOneZ( vector<const GeomDet*>::const_iterator first,
-		      vector<const GeomDet*>::const_iterator last);
+  ForwardDetRingOneZ( std::vector<const GeomDet*>::const_iterator first,
+		      std::vector<const GeomDet*>::const_iterator last);
 
-  // Construct from a vector of Det*.
-  ForwardDetRingOneZ( const vector<const GeomDet*>& dets);
+  // Construct from a std::vector of Det*.
+  ForwardDetRingOneZ( const std::vector<const GeomDet*>& dets);
 
   virtual ~ForwardDetRingOneZ();
   
-  virtual const vector<const GeomDet*>& basicComponents() const {return theDets;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
 
 protected:
 
-  bool add( int idet, vector<DetWithState>& result,
+  bool add( int idet, std::vector<DetWithState>& result,
 	    const TrajectoryStateOnSurface& tsos,
 	    const Propagator& prop,
  	    const MeasurementEstimator& est) const;
 
 private:
-  vector<const GeomDet*> theDets;
+  std::vector<const GeomDet*> theDets;
 
   void initialize();
 

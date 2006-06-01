@@ -10,8 +10,6 @@
 
 /** A concrete builder for PixelBlade 
  */
-using namespace edm;
-using namespace std;
 
 class PixelBladeBuilder {  
  public:

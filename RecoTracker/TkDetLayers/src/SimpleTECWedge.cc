@@ -2,6 +2,8 @@
 #include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
+using namespace std;
+
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 SimpleTECWedge::SimpleTECWedge(const GeomDet* theInputDet):

@@ -3,8 +3,6 @@
 
 #include <utility>
 
-using namespace std;
-
 class BoundPlane;
 
 /** Implementation class for PhiZMeasurementEstimator etc.
@@ -13,7 +11,7 @@ class BoundPlane;
 class GlobalDetRodRangeZPhi {
 public:
 
-  typedef pair<float,float> Range;
+  typedef std::pair<float,float> Range;
 
   GlobalDetRodRangeZPhi( const BoundPlane& RodPlane);
 

@@ -11,16 +11,14 @@
  *  Useful for defining a BarrelDetLayer from a group of DetUnits.
  */
 
-using namespace std;
-
 class CylinderBuilderFromDet {
 public:
   typedef GeomDet Det;
   typedef Surface::PositionType PositionType;
   typedef Surface::RotationType RotationType;
 
-  BoundCylinder* operator()( vector<const Det*>::const_iterator first,
-			     vector<const Det*>::const_iterator last) const;
+  BoundCylinder* operator()( std::vector<const Det*>::const_iterator first,
+			     std::vector<const Det*>::const_iterator last) const;
 };
 
 #endif

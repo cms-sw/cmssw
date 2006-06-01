@@ -8,8 +8,6 @@ class DetLayer;
 class BarrelDetLayer;
 class ForwardDetLayer;
 
-using namespace std;
-
 /** A symmetrisation algorithm for layer navigation.
  *  For every ForwardDetLayer returns a pointer to the symmetric one
  *  with respect to origin.
@@ -17,10 +15,10 @@ using namespace std;
 
 class SymmetricLayerFinder {
 
-  typedef vector<ForwardDetLayer*>                   FDLC;
-  typedef FDLC::iterator                             FDLI;
-  typedef FDLC::const_iterator                       ConstFDLI;
-  typedef pair< ForwardDetLayer*, ForwardDetLayer*>  PairType;
+  typedef std::vector<ForwardDetLayer*>                   FDLC;
+  typedef FDLC::iterator                                  FDLI;
+  typedef FDLC::const_iterator                            ConstFDLI;
+  typedef std::pair< ForwardDetLayer*, ForwardDetLayer*>  PairType;
 
 public:
 
@@ -35,8 +33,8 @@ public:
 private:
 
   //  typedef map< const ForwardDetLayer*, const ForwardDetLayer*, less<const ForwardDetLayer*> >
-  typedef map< const ForwardDetLayer*, ForwardDetLayer*, less<const ForwardDetLayer*> >
- ForwardMapType;
+  typedef std::map< const ForwardDetLayer*, ForwardDetLayer*, std::less<const ForwardDetLayer*> >
+    ForwardMapType;
 
   ForwardMapType theForwardMap;
 

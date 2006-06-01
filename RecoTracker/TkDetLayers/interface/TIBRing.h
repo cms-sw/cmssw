@@ -11,27 +11,27 @@
 
 class TIBRing : public GeometricSearchDet{
  public:
-  TIBRing(vector<const GeomDet*>& theGeomDets);
+  TIBRing(std::vector<const GeomDet*>& theGeomDets);
   ~TIBRing();
   
   // GeometricSearchDet interface
   virtual const BoundSurface& surface() const {return *theCylinder;}  
 
-  virtual const vector<const GeomDet*>& basicComponents() const {return theDets;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
   
-  virtual const vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const;
 
 
-  virtual pair<bool, TrajectoryStateOnSurface>
+  virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  virtual vector<DetWithState> 
+  virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const;
 
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
@@ -47,11 +47,11 @@ class TIBRing : public GeometricSearchDet{
  private:
   //general private methods
 
-  void checkPeriodicity(vector<const GeomDet*>::const_iterator first,
-			vector<const GeomDet*>::const_iterator last);
+  void checkPeriodicity(std::vector<const GeomDet*>::const_iterator first,
+			std::vector<const GeomDet*>::const_iterator last);
 
-  void checkRadius(vector<const GeomDet*>::const_iterator first,
-		   vector<const GeomDet*>::const_iterator last);
+  void checkRadius(std::vector<const GeomDet*>::const_iterator first,
+		   std::vector<const GeomDet*>::const_iterator last);
   
   void computeHelicity();
 
@@ -72,7 +72,7 @@ class TIBRing : public GeometricSearchDet{
 			const MeasurementEstimator& est,
 			const SubRingCrossings& crossings,
 			float window, 
-			vector<DetGroup>& result) const;
+			std::vector<DetGroup>& result) const;
 
   SubRingCrossings 
   computeCrossings( const TrajectoryStateOnSurface& startingState,
@@ -89,7 +89,7 @@ class TIBRing : public GeometricSearchDet{
   typedef PeriodicBinFinderInPhi<double>   BinFinderType;
   BinFinderType    theBinFinder;
 
-  vector<const GeomDet*> theDets;
+  std::vector<const GeomDet*> theDets;
   ReferenceCountingPointer<BoundCylinder>  theCylinder;
   int              theHelicity;    
 };

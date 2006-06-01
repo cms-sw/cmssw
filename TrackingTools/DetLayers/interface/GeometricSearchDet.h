@@ -12,12 +12,11 @@
 
 #include <vector>
 
-using namespace std;
 class MeasurementEstimator; 
 
 class GeometricSearchDet {
  public:
-  typedef pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
+  typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
   typedef BoundSurface::PositionType        PositionType;
   typedef BoundSurface::RotationType        RotationType;
   typedef TrajectoryStateOnSurface          TrajectoryState;
@@ -35,23 +34,23 @@ class GeometricSearchDet {
   //virtual std::vector< const GeomDet*> basicComponents() const = 0;
 
   /// Returns direct components, if any
-  virtual const vector<const GeometricSearchDet*>& components() const = 0;
+  virtual const std::vector<const GeometricSearchDet*>& components() const = 0;
 
   /* Returns basic components. For the moment they are GeomDet, 
    * but they could become MeasurementDet
    */
-  virtual const vector<const GeomDet*>& basicComponents() const = 0;
+  virtual const std::vector<const GeomDet*>& basicComponents() const = 0;
 
 
   /** tests the geometrical compatibility of the Det with the predicted state.
    *  The  FreeTrajectoryState argument is propagated to the Det surface using
    *  the Propagator argument. The resulting TrajectoryStateOnSurface is
    *  tested for compatibility with the surface bounds.
-   *  If compatible, a pair< true, propagatedState> is returned.
+   *  If compatible, a std::pair< true, propagatedState> is returned.
    *  If the propagation fails, or if the state is not compatible,
-   *  a pair< false, propagatedState> is returned.
+   *  a std::pair< false, propagatedState> is returned.
    */
-  virtual pair<bool, TrajectoryStateOnSurface>
+  virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const=0;
 
@@ -62,7 +61,7 @@ class GeometricSearchDet {
    *  The default implementation should be overridden in dets with
    *  specific surface types to avoid propagation to a generic Surface
    */
-  virtual vector<DetWithState> 
+  virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const=0;
@@ -86,7 +85,7 @@ class GeometricSearchDet {
    *  First signature: The first argument is a TrajectoryStateOnSurface, usually not 
    *  on the surface of this CompositeDet.
    */
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const = 0;

@@ -24,14 +24,14 @@ public:
 	    const TrajectoryStateOnSurface& tsos, 
 	    const Propagator& prop,
 	    const MeasurementEstimator& est,
-	    vector<DetGroup>& result) const;
+	    std::vector<DetGroup>& result) const;
   
 
   bool add( const GeomDet& det,
 	    const TrajectoryStateOnSurface& tsos, 
 	    const Propagator& prop,
 	    const MeasurementEstimator& est,
-	    vector<DetGroup>& result) const;
+	    std::vector<DetGroup>& result) const;
 
 };
 

@@ -3,6 +3,8 @@
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
 
+using namespace std;
+
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 PixelRod::PixelRod(vector<const GeomDet*>& theInputDets):

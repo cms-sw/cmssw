@@ -1,6 +1,9 @@
 #include "RecoTracker/TkDetLayers/interface/TIBLayerBuilder.h"
 #include "RecoTracker/TkDetLayers/interface/TIBRingBuilder.h"
 
+using namespace edm;
+using namespace std;
+
 TIBLayer* TIBLayerBuilder::build(const GeometricDet* aTIBLayer,
 				 const TrackerGeometry* theGeomDetGeometry)
 {

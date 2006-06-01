@@ -1,6 +1,8 @@
 #include "RecoTracker/TkNavigation/interface/LayerCollector.h"
 #include "RecoTracker/TkNavigation/interface/StartingLayerFinder.h" 
 
+using namespace std;
+
 vector<const DetLayer*> LayerCollector::allLayers(const FTS& aFts) const {
 
   std::cout << "  LayerCollector::allLayers " << std::endl;

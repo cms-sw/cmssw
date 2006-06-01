@@ -7,8 +7,6 @@
 class DetLayer;
 class FreeTrajectoryState;
 
-using namespace std;
-
 /** The navigation component of the DetLayer.
  *  If navigation is not setup the DetLayer has a zero pointer to
  *  a NavigableLayer; when navigation is setup each DetLayer is
@@ -22,17 +20,17 @@ public:
 
   virtual ~NavigableLayer() {}
 
-  virtual vector<const DetLayer*> 
+  virtual std::vector<const DetLayer*> 
   nextLayers( PropagationDirection timeDirection) const = 0;
 
-  virtual vector<const DetLayer*> 
+  virtual std::vector<const DetLayer*> 
   nextLayers( const FreeTrajectoryState& fts, 
 	      PropagationDirection timeDirection) const = 0;
 
-  virtual vector<const DetLayer*> 
+  virtual std::vector<const DetLayer*> 
   compatibleLayers( PropagationDirection timeDirection) const = 0;
 
-  virtual vector<const DetLayer*> 
+  virtual std::vector<const DetLayer*> 
   compatibleLayers( const FreeTrajectoryState& fts, 
 		    PropagationDirection timeDirection) const = 0;
 

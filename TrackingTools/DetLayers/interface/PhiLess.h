@@ -9,7 +9,7 @@
  *  phi1 to phi2 in the counterclockwise direction is smaller than pi.
  */
 
-class PhiLess : public binary_function< float, float, bool> {
+class PhiLess : public std::binary_function< float, float, bool> {
 public:
   bool operator()( float a, float b) const {
     const float pi = 3.141592653592;

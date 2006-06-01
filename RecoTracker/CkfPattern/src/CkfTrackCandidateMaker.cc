@@ -23,7 +23,7 @@
 //#include "RecoTracker/CkfPattern/interface/FitTester.h"
 
 using namespace edm;
-
+using namespace std;
 
 namespace cms{
   CkfTrackCandidateMaker::CkfTrackCandidateMaker(edm::ParameterSet const& conf) : 

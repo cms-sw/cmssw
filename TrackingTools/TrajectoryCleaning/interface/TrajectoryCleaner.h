@@ -10,7 +10,7 @@
 class TrajectoryCleaner {
 
  public:
-  typedef vector<Trajectory> 	TrajectoryContainer;
+  typedef std::vector<Trajectory> 	TrajectoryContainer;
   typedef TrajectoryContainer::iterator TrajectoryIterator;
 
   TrajectoryCleaner(){};

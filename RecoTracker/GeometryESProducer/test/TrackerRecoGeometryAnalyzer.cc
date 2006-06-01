@@ -15,6 +15,8 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
+using namespace std;
+
 //
 //
 // class decleration

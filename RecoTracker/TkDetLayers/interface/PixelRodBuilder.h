@@ -10,8 +10,6 @@
 
 /** A concrete builder for PixelRod 
  */
-using namespace edm;
-using namespace std;
 
 class PixelRodBuilder {  
  public:

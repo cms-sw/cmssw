@@ -1,6 +1,9 @@
 #include "RecoTracker/TkDetLayers/interface/PixelBarrelLayerBuilder.h"
 #include "RecoTracker/TkDetLayers/interface/PixelRodBuilder.h"
 
+using namespace std;
+using namespace edm;
+
 PixelBarrelLayer* PixelBarrelLayerBuilder::build(const GeometricDet* aPixelBarrelLayer,
 						 const TrackerGeometry* theGeomDetGeometry)
 {

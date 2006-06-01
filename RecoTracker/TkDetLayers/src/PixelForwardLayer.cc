@@ -14,6 +14,7 @@
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
 
+using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 

@@ -1,6 +1,9 @@
 #include "RecoTracker/TkDetLayers/interface/TECLayerBuilder.h"
 #include "RecoTracker/TkDetLayers/interface/TECPetalBuilder.h"
 
+using namespace edm;
+using namespace std;
+
 TECLayer* TECLayerBuilder::build(const GeometricDet* aTECLayer,
 				 const TrackerGeometry* theGeomDetGeometry)
 {

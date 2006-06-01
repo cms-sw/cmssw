@@ -4,6 +4,8 @@
 
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
+using namespace std;
+
 // Warning, remember to assign this pointer to a ReferenceCountingPointer!
 BoundDiskSector* 
 ForwardDiskSectorBuilderFromDet::operator()( const vector<const GeomDet*>& dets) const

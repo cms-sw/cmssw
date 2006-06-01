@@ -13,21 +13,21 @@
 
 class PixelForwardLayer : public ForwardDetLayer{
  public:
-  PixelForwardLayer(vector<const PixelBlade*>& blades);
+  PixelForwardLayer(std::vector<const PixelBlade*>& blades);
   ~PixelForwardLayer();
   
   // GeometricSearchDet interface
   
-  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual const vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
   
-  virtual vector<DetWithState> 
+  virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const;
 
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
@@ -40,7 +40,7 @@ class PixelForwardLayer : public ForwardDetLayer{
   
 
  private:  
-  virtual BoundDisk* computeDisk(const vector<const PixelBlade*>& blades) const;    
+  virtual BoundDisk* computeDisk(const std::vector<const PixelBlade*>& blades) const;    
   // methods for groupedCompatibleDets implementation
   int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const;
 
@@ -59,7 +59,7 @@ class PixelForwardLayer : public ForwardDetLayer{
 			const MeasurementEstimator& est,
 			const SubTurbineCrossings& crossings,
 			float window, 
-			vector<DetGroup>& result) const;
+			std::vector<DetGroup>& result) const;
   
   SubTurbineCrossings 
     computeCrossings( const TrajectoryStateOnSurface& startingState,
@@ -73,8 +73,8 @@ class PixelForwardLayer : public ForwardDetLayer{
   typedef PeriodicBinFinderInPhi<double>   BinFinderType;
   BinFinderType    theBinFinder;
 
-  vector<const GeometricSearchDet*> theComps;
-  vector<const GeomDet*> theBasicComps;
+  std::vector<const GeometricSearchDet*> theComps;
+  std::vector<const GeomDet*> theBasicComps;
 };
 
 

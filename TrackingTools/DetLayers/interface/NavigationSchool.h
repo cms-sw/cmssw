@@ -12,14 +12,13 @@ class NavigationSchool;
  *  The result is a container of NavigableLayers.
  */
 
-using namespace std;
 
 class NavigationSchool {
 public:
 
   virtual ~NavigationSchool() {}
 
-  typedef vector<NavigableLayer*>   StateType;
+  typedef std::vector<NavigableLayer*>   StateType;
 
   virtual StateType navigableLayers() const = 0;
 

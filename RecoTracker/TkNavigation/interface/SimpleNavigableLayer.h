@@ -18,9 +18,9 @@ class GtfPropagator;
 class SimpleNavigableLayer : public NavigableLayer {
 public:
 
-  typedef vector<const DetLayer*>              DLC;
-  typedef vector<BarrelDetLayer*>              BDLC;
-  typedef vector<ForwardDetLayer*>             FDLC;
+  typedef std::vector<const DetLayer*>              DLC;
+  typedef std::vector<BarrelDetLayer*>              BDLC;
+  typedef std::vector<ForwardDetLayer*>             FDLC;
 
   SimpleNavigableLayer( const MagneticField* field,float eps) :
     theEpsilon(eps),thePropagator(field) {}

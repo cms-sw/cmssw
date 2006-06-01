@@ -37,17 +37,17 @@ public:
 			      float epsilon);
   
   // NavigableLayer interface
-  virtual vector<const DetLayer*> 
+  virtual std::vector<const DetLayer*> 
   nextLayers( PropagationDirection timeDirection) const;
 
-  virtual vector<const DetLayer*> 
+  virtual std::vector<const DetLayer*> 
   nextLayers( const FreeTrajectoryState& fts, 
 	      PropagationDirection timeDirection) const;
 
-  virtual vector<const DetLayer*> 
+  virtual std::vector<const DetLayer*> 
   compatibleLayers( PropagationDirection timeDirection) const;
 
-  virtual vector<const DetLayer*> 
+  virtual std::vector<const DetLayer*> 
   compatibleLayers( const FreeTrajectoryState& fts, 
 		    PropagationDirection timeDirection) const;
 

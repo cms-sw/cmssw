@@ -10,14 +10,12 @@
 
 /** A concrete builder for TIDRing 
  */
-using namespace edm;
-using namespace std;
 
 class TIDRingBuilder {  
  public:
   TIDRingBuilder(){};
   TIDRing* build(const GeometricDet* aTIDRing,
-	      const TrackerGeometry* theGeomDetGeometry);
+		 const TrackerGeometry* theGeomDetGeometry);
 
   
 };

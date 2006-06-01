@@ -28,9 +28,9 @@ public:
 
 private:
 
-  typedef vector<const DetLayer*>              DLC;
-  typedef vector<BarrelDetLayer*>              BDLC;
-  typedef vector<ForwardDetLayer*>             FDLC;
+  typedef std::vector<const DetLayer*>              DLC;
+  typedef std::vector<BarrelDetLayer*>              BDLC;
+  typedef std::vector<ForwardDetLayer*>             FDLC;
   typedef DLC::iterator                        DLI;
   typedef BDLC::iterator                       BDLI;
   typedef FDLC::iterator                       FDLI;
@@ -43,8 +43,8 @@ private:
   FDLC theLeftLayers;
   float theBarrelLength;
 
-  typedef vector< SimpleBarrelNavigableLayer*>   BNLCType;
-  typedef vector< SimpleForwardNavigableLayer*>  FNLCType;
+  typedef std::vector< SimpleBarrelNavigableLayer*>   BNLCType;
+  typedef std::vector< SimpleForwardNavigableLayer*>  FNLCType;
   BNLCType  theBarrelNLC;
   FNLCType  theForwardNLC;
 
@@ -65,7 +65,7 @@ private:
   
   ConstFDLI outerRadiusIncrease( FDLI fl, const FDLC& group);
 
-  vector<FDLC> splitForwardLayers();
+  std::vector<FDLC> splitForwardLayers();
 
   float barrelLength();
 

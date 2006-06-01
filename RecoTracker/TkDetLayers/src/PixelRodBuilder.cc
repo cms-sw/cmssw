@@ -1,5 +1,9 @@
 #include "RecoTracker/TkDetLayers/interface/PixelRodBuilder.h"
 
+using namespace edm;
+using namespace std;
+
+
 PixelRod* PixelRodBuilder::build(const GeometricDet* aRod,
 				 const TrackerGeometry* theGeomDetGeometry)
 {

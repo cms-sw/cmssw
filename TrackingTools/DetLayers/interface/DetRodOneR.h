@@ -14,33 +14,33 @@ class MeasurementEstimator;
 class DetRodOneR : public DetRod {
  public: 
   typedef GeometricSearchDet Det;
-  typedef vector<GeometricSearchDet*> DetContainer;
+  typedef std::vector<GeometricSearchDet*> DetContainer;
 
   /// Dummy constructor
   DetRodOneR(){};
 
   /// Construct from iterators on GeomDet*
-  DetRodOneR( vector<const GeomDet*>::const_iterator first,
-	      vector<const GeomDet*>::const_iterator last);
+  DetRodOneR( std::vector<const GeomDet*>::const_iterator first,
+	      std::vector<const GeomDet*>::const_iterator last);
 
-  /// Construct from a vector of Det*
-  DetRodOneR( const vector<const GeomDet*>& dets);
+  /// Construct from a std::vector of Det*
+  DetRodOneR( const std::vector<const GeomDet*>& dets);
 
   virtual ~DetRodOneR();
 
-  virtual const vector<const GeomDet*>& basicComponents() const {return theDets;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
 
 
 
 protected:
   /// Query detector idet for compatible and add the output to result.
   
-  bool add( int idet, vector<DetWithState>& result,
+  bool add( int idet, std::vector<DetWithState>& result,
 	    const TrajectoryStateOnSurface& startingState,
 	    const Propagator& prop, 
 	    const MeasurementEstimator& est) const;
 
-  vector<const GeomDet*>     theDets;
+  std::vector<const GeomDet*>     theDets;
   
   void initialize();
 

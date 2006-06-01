@@ -16,11 +16,10 @@ class NavigationSchool;
  *  navigations in the same set of DetLayers.
  */
 
-using namespace std;
 class NavigationSetter {
 public:
 
-  typedef vector<NavigableLayer*>   StateType;
+  typedef std::vector<NavigableLayer*>   StateType;
 
   NavigationSetter( const NavigationSchool&);
 

@@ -16,16 +16,16 @@ class RodBarrelLayer : public BarrelDetLayer {
 
   RodBarrelLayer() {};
 
-//   RodBarrelLayer( vector<const GeomDet*>::const_iterator first,
-// 		     vector<const GeomDet*>::const_iterator last);
+//   RodBarrelLayer( std::vector<const GeomDet*>::const_iterator first,
+// 		     std::vector<const GeomDet*>::const_iterator last);
 
-//   RodBarrelLayer( const vector<const GeomDet*>& dets);
+//   RodBarrelLayer( const std::vector<const GeomDet*>& dets);
   
   virtual ~RodBarrelLayer();
 
   
   //--- GeometricSearchDet interface
-//   virtual vector<const GeometricSearchDet*> components() const {return theDets;}
+//   virtual std::vector<const GeometricSearchDet*> components() const {return theDets;}
   
   //--- Extension of the interface
 //   virtual GeomDet* operator()( double x, double phi) const = 0;
@@ -34,7 +34,7 @@ class RodBarrelLayer : public BarrelDetLayer {
 
   
  private:
-  //  vector<const GeomDet*> theDets;
+  //  std::vector<const GeomDet*> theDets;
 };
 
 #endif

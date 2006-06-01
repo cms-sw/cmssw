@@ -13,7 +13,7 @@
  *  is likely to be considered "better".
  */
 
-class TrajCandLess : public binary_function< const Trajectory&,
+class TrajCandLess : public std::binary_function< const Trajectory&,
 		     const Trajectory&, bool>
 {
 public:

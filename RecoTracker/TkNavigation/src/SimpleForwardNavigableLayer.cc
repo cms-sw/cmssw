@@ -6,6 +6,8 @@
 #include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
+using namespace std;
+
 SimpleForwardNavigableLayer::
 SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
 			     const BDLC& outerBL, 

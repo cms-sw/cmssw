@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <cmath>
 
+using namespace std;
+
 class ForwardLayerMirrorImage : 
   public unary_function< const ForwardDetLayer*, bool> {
 public:

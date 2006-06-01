@@ -1,6 +1,9 @@
 #include "RecoTracker/TkDetLayers/interface/TOBLayerBuilder.h"
 #include "RecoTracker/TkDetLayers/interface/TOBRodBuilder.h"
 
+using namespace edm;
+using namespace std;
+
 TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
 				 const TrackerGeometry* theGeomDetGeometry){
 

@@ -7,6 +7,9 @@
 #include "RecoTracker/TkDetLayers/interface/TIDLayerBuilder.h"
 #include "RecoTracker/TkDetLayers/interface/TECLayerBuilder.h"
 
+
+using namespace std;
+
 GeometricSearchTracker*
 GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 				     const TrackerGeometry* theGeomDetGeometry)

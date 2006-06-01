@@ -10,8 +10,6 @@
 
 /** A concrete builder for TECPetal 
  */
-using namespace edm;
-using namespace std;
 
 class TECPetalBuilder {  
  public:

@@ -46,23 +46,23 @@ class DetLayer : public GeometricSearchDet {
 
   /// Return the next (closest) layer(s) that can be reached in the specified
   /// PropagationDirection
-  virtual vector<const DetLayer*> 
+  virtual std::vector<const DetLayer*> 
   nextLayers( PropagationDirection timeDirection) const;
 
   /// Return the next (closest) layer(s) compatible with the specified
   /// FreeTrajectoryState and PropagationDirection
-  virtual vector<const DetLayer*> 
+  virtual std::vector<const DetLayer*> 
   nextLayers( const FreeTrajectoryState& fts, 
 	      PropagationDirection timeDirection) const;
 
   /// Return all layers that can be reached from this one along the
   /// specified PropagationDirection 
-  vector<const DetLayer*> 
+  std::vector<const DetLayer*> 
   compatibleLayers( PropagationDirection timeDirection ) const;
 
   /// Returns all layers compatible with the specified FreeTrajectoryState
   /// and PropagationDirection  
-  vector<const DetLayer*> 
+  std::vector<const DetLayer*> 
   compatibleLayers(const FreeTrajectoryState& fts, 
 		   PropagationDirection timeDirection) const;
 

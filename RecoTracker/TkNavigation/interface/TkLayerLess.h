@@ -13,7 +13,7 @@
  */
 
 class TkLayerLess 
-  : public binary_function< const DetLayer*,const DetLayer*,bool> {
+  : public std::binary_function< const DetLayer*,const DetLayer*,bool> {
 public:
 
   TkLayerLess( PropagationDirection dir = alongMomentum) :

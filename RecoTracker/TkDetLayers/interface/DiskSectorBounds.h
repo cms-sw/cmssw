@@ -8,15 +8,14 @@
 #include <algorithm>
 #include <cmath>
 
-using namespace std;
 
 class DiskSectorBounds : public Bounds {
 public:
   
    DiskSectorBounds( float rmin, float rmax, float zmin, float zmax, float phiExt) : 
      theRmin(rmin), theRmax(rmax), theZmin(zmin), theZmax(zmax), thePhiExt(phiExt) {
-     if ( theRmin > theRmax) swap( theRmin, theRmax);
-     if ( theZmin > theZmax) swap( theZmin, theZmax);
+     if ( theRmin > theRmax) std::swap( theRmin, theRmax);
+     if ( theZmin > theZmax) std::swap( theZmin, theZmax);
      theOffset = theRmin + (theRmax-theRmin)/2. ;
    }
    

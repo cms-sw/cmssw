@@ -1,5 +1,6 @@
 #include "RecoTracker/TkDetLayers/interface/DiskSectorBounds.h"
 
+using namespace std;
 
 bool DiskSectorBounds::inside( const Local3DPoint& p) const {
   

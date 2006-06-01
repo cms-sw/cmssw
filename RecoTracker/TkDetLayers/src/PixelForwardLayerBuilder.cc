@@ -1,6 +1,9 @@
 #include "RecoTracker/TkDetLayers/interface/PixelForwardLayerBuilder.h"
 #include "RecoTracker/TkDetLayers/interface/PixelBladeBuilder.h"
 
+using namespace edm;
+using namespace std;
+
 PixelForwardLayer* PixelForwardLayerBuilder::build(const GeometricDet* aPixelForwardLayer,
 						   const TrackerGeometry* theGeomDetGeometry){
   vector<const GeometricDet*>  theGeometricPanels = aPixelForwardLayer->components();

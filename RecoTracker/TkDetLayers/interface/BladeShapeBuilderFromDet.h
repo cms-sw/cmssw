@@ -10,23 +10,22 @@
 #include <vector>
 #include <iostream>
 
-using namespace std;
 
 /** The trapezoid has the minimal size fully containing all Dets.
  */
 
 class BladeShapeBuilderFromDet {
  public:
-  BoundDiskSector* operator()( const vector<const GeomDet*>& dets) const;
+  BoundDiskSector* operator()( const std::vector<const GeomDet*>& dets) const;
   
 
  private:
-  pair<DiskSectorBounds, GlobalVector>
-  computeBounds( const vector<const GeomDet*>& dets,
+  std::pair<DiskSectorBounds, GlobalVector>
+  computeBounds( const std::vector<const GeomDet*>& dets,
 		 const BoundPlane& plane) const;
 
   Surface::RotationType
-  computeRotation( const vector<const GeomDet*>& dets,
+  computeRotation( const std::vector<const GeomDet*>& dets,
 		   const Surface::PositionType& pos) const;
 
 };

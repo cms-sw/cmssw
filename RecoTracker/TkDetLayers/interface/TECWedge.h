@@ -14,7 +14,7 @@ class TECWedge : public GeometricSearchDet{
     // GeometricSearchDet interface
   virtual const BoundSurface& surface() const{return *theDiskSector;}
 
-  virtual vector<DetWithState> 
+  virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const;

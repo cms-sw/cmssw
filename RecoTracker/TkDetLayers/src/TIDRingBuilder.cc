@@ -1,5 +1,8 @@
 #include "RecoTracker/TkDetLayers/interface/TIDRingBuilder.h"
 
+using namespace edm;
+using namespace std;
+
 TIDRing* TIDRingBuilder::build(const GeometricDet* aTIDRing,
 			 const TrackerGeometry* theGeomDetGeometry)
 {

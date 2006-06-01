@@ -3,8 +3,8 @@
 /**
  *   \class LayerCollector
  *   Class collecting all layers of the tracker.  
- *    $Date: 2006/05/23 10:08:51 $
- *    $Revision: 1.1 $
+ *    $Date: 2006/05/23 10:11:01 $
+ *    $Revision: 1.2 $
  *   
  *   
  */
@@ -25,7 +25,7 @@ private:
 
   typedef FreeTrajectoryState FTS;
   typedef TrajectoryStateOnSurface TSOS;
-  typedef pair<float, float> Range;
+  typedef std::pair<float, float> Range;
 
 public:
 
@@ -40,9 +40,9 @@ public:
 
   ~LayerCollector() {}
 
-  vector<const DetLayer*> allLayers(const FTS& aFts) const;
-  vector<const BarrelDetLayer*> barrelLayers(const FTS& aFts) const;
-  vector<const ForwardDetLayer*> forwardLayers(const FTS& aFts) const;
+  std::vector<const DetLayer*> allLayers(const FTS& aFts) const;
+  std::vector<const BarrelDetLayer*> barrelLayers(const FTS& aFts) const;
+  std::vector<const ForwardDetLayer*> forwardLayers(const FTS& aFts) const;
 
   const Propagator* propagator() const {return thePropagator;}
   const StartingLayerFinder* finder() const {return theStartingLayerFinder;}

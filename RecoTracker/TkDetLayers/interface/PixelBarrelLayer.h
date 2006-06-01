@@ -18,23 +18,23 @@ class PixelBarrelLayer : public RodBarrelLayer{
   typedef PeriodicBinFinderInPhi<double>   BinFinderType;
 
 
-  PixelBarrelLayer(vector<const PixelRod*>& innerRods,
-		   vector<const PixelRod*>& outerRods);
+  PixelBarrelLayer(std::vector<const PixelRod*>& innerRods,
+		   std::vector<const PixelRod*>& outerRods);
   
   ~PixelBarrelLayer();
   
   // GeometricSearchDet interface
   
-  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
   
-  virtual const vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
 
-  virtual vector<DetWithState> 
+  virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const;
 
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
@@ -58,7 +58,7 @@ class PixelBarrelLayer : public RodBarrelLayer{
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const;
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
@@ -75,20 +75,20 @@ class PixelBarrelLayer : public RodBarrelLayer{
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			float window, 
-			vector<DetGroup>& result,
+			std::vector<DetGroup>& result,
 			bool checkClosest) const;
 
-  const vector<const GeometricSearchDet*>& subLayer( int ind) const {
+  const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
     return (ind==0 ? theInnerComps : theOuterComps);}
   
-  BoundCylinder* cylinder( const vector<const GeometricSearchDet*>& rods) const ;
+  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rods) const ;
 
 
  private:
-  vector<const GeometricSearchDet*> theComps;
-  vector<const GeometricSearchDet*> theInnerComps;
-  vector<const GeometricSearchDet*> theOuterComps;
-  vector<const GeomDet*> theBasicComps;
+  std::vector<const GeometricSearchDet*> theComps;
+  std::vector<const GeometricSearchDet*> theInnerComps;
+  std::vector<const GeometricSearchDet*> theOuterComps;
+  std::vector<const GeomDet*> theBasicComps;
 
   BinFinderType    theInnerBinFinder;
   BinFinderType    theOuterBinFinder;

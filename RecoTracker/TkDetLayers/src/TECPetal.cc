@@ -1,5 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/TECPetal.h"
 
+using namespace std;
+
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 

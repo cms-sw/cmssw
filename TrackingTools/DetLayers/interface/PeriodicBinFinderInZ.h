@@ -9,16 +9,14 @@
  *  The bins are computed from GeomDet positions.
  */
 
-using namespace std;
-
 template <class T>
 class PeriodicBinFinderInZ : public BaseBinFinder<T> {
 public:
 
   PeriodicBinFinderInZ() : theNbins(0), theZStep(0), theZOffset(0) {}
 
-  PeriodicBinFinderInZ(vector<const GeomDet*>::const_iterator first,
-		       vector<const GeomDet*>::const_iterator last) :
+  PeriodicBinFinderInZ(std::vector<const GeomDet*>::const_iterator first,
+		       std::vector<const GeomDet*>::const_iterator last) :
     theNbins( last-first) 
   {
     float zFirst = (**first).surface().position().z();

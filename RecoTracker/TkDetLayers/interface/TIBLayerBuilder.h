@@ -10,8 +10,6 @@
 
 /** A concrete builder for TIBLayer 
  */
-using namespace edm;
-using namespace std;
 
 class TIBLayerBuilder {  
  public:
@@ -19,9 +17,9 @@ class TIBLayerBuilder {
   TIBLayer* build(const GeometricDet* aTIBLayer,
 		  const TrackerGeometry* theGeomDetGeometry);
 
-  void constructRings(vector<const GeometricDet*>& theGeometricRods,
-		      vector<vector<const GeometricDet*> >& innerGeometricDetRings,
-		      vector<vector<const GeometricDet*> >& outerGeometricDetRings);
+  void constructRings(std::vector<const GeometricDet*>& theGeometricRods,
+		      std::vector<std::vector<const GeometricDet*> >& innerGeometricDetRings,
+		      std::vector<std::vector<const GeometricDet*> >& outerGeometricDetRings);
   
 };
 

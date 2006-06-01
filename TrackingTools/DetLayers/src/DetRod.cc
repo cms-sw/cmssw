@@ -1,5 +1,7 @@
 #include "TrackingTools/DetLayers/interface/DetRod.h"
 
+using namespace std;
+
 DetRod::~DetRod(){}
 
 vector<GeometricSearchDet::DetWithState> 

@@ -32,7 +32,7 @@ private:
 
   typedef FreeTrajectoryState FTS;
   typedef TrajectoryStateOnSurface TSOS;
-  typedef pair<float, float> Range;
+  typedef std::pair<float, float> Range;
 
 public: 
 
@@ -47,14 +47,14 @@ public:
 
   ~StartingLayerFinder() {}
 
-  vector<const DetLayer*> startingLayers(const FTS& aFts, float dr, float dz) const;
+  std::vector<const DetLayer*> startingLayers(const FTS& aFts, float dr, float dz) const;
   
 
-  vector<const DetLayer*> startingLayers(const TrajectorySeed& aSeed) const;
+  std::vector<const DetLayer*> startingLayers(const TrajectorySeed& aSeed) const;
 
   const BarrelDetLayer* firstPixelBarrelLayer() const;
-  const vector<ForwardDetLayer*> firstNegPixelFwdLayer() const;
-  const vector<ForwardDetLayer*> firstPosPixelFwdLayer() const;
+  const std::vector<ForwardDetLayer*> firstNegPixelFwdLayer() const;
+  const std::vector<ForwardDetLayer*> firstPosPixelFwdLayer() const;
 
   const Propagator* propagator() const {return thePropagator;}
 
@@ -66,8 +66,8 @@ private:
   const MeasurementTracker*     theMeasurementTracker;
   mutable bool thePixelLayersValid;
   mutable BarrelDetLayer* theFirstPixelBarrelLayer;
-  mutable vector<ForwardDetLayer*> theFirstNegPixelFwdLayer;
-  mutable vector<ForwardDetLayer*> theFirstPosPixelFwdLayer;
+  mutable std::vector<ForwardDetLayer*> theFirstNegPixelFwdLayer;
+  mutable std::vector<ForwardDetLayer*> theFirstPosPixelFwdLayer;
 
 
   void checkPixelLayers() const;

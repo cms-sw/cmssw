@@ -28,7 +28,7 @@ public:
   // GeometricSearchDet interface
   virtual const BoundSurface&  surface() const { return *theDisk;}
 
-  virtual pair<bool, TrajectoryStateOnSurface>
+  virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface&, const Propagator&, 
 	      const MeasurementEstimator&) const;
 

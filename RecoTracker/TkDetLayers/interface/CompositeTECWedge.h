@@ -12,21 +12,21 @@
 
 class CompositeTECWedge : public TECWedge{
  public:
-  CompositeTECWedge(vector<const GeomDet*>& innerDets,
-		    vector<const GeomDet*>& outerDets);
+  CompositeTECWedge(std::vector<const GeomDet*>& innerDets,
+		    std::vector<const GeomDet*>& outerDets);
 
   ~CompositeTECWedge();
   
   // GeometricSearchDet interface
-  virtual const vector<const GeomDet*>& basicComponents() const {return theDets;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
 
-  virtual const vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const;
   
-  virtual pair<bool, TrajectoryStateOnSurface>
+  virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
@@ -40,14 +40,14 @@ class CompositeTECWedge : public TECWedge{
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const;
   
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			float window, 
-			vector<DetGroup>& result,
+			std::vector<DetGroup>& result,
 			bool checkClosest) const;
 
   bool overlap( const GlobalPoint& gpos, const GeomDet& det, float window) const;
@@ -60,19 +60,19 @@ class CompositeTECWedge : public TECWedge{
 			    const TrajectoryStateOnSurface& ts, 
 			    const BoundPlane& plane) const;
 
-  pair<float, float> computeDetPhiRange( const BoundPlane& plane) const;
+  std::pair<float, float> computeDetPhiRange( const BoundPlane& plane) const;
 
   int findClosestDet( const GlobalPoint& startPos,int sectorId) const;
 
-  const vector<const GeomDet*>& subWedge( int ind) const {
+  const std::vector<const GeomDet*>& subWedge( int ind) const {
     return (ind==0 ? theFrontDets : theBackDets);
   }
 
 
  private:
-  vector<const GeomDet*> theFrontDets;
-  vector<const GeomDet*> theBackDets;
-  vector<const GeomDet*> theDets;
+  std::vector<const GeomDet*> theFrontDets;
+  std::vector<const GeomDet*> theBackDets;
+  std::vector<const GeomDet*> theDets;
   
   ReferenceCountingPointer<BoundDiskSector>  theFrontSector;
   ReferenceCountingPointer<BoundDiskSector>  theBackSector;

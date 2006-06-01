@@ -16,6 +16,7 @@
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
+using namespace std;
 
 CkfTrajectoryBuilder::
 CkfTrajectoryBuilder(const edm::ParameterSet& conf,

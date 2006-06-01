@@ -1,5 +1,8 @@
 #include "RecoTracker/TkDetLayers/interface/PixelBladeBuilder.h"
 #include "Geometry/Surface/interface/TkRotation.h"
+
+using namespace edm;
+using namespace std;
                                      
 PixelBlade* PixelBladeBuilder:: build(const GeometricDet* geometricDetFrontPanel,
 				      const GeometricDet* geometricDetBackPanel,

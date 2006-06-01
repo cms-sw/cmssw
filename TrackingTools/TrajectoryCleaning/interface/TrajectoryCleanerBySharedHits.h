@@ -17,7 +17,7 @@ class TrajectoryCleanerBySharedHits : public TrajectoryCleaner {
 
  public:
 
-  typedef vector<Trajectory> 	TrajectoryContainer;
+  typedef std::vector<Trajectory> 	TrajectoryContainer;
 
   TrajectoryCleanerBySharedHits(){};
   virtual ~TrajectoryCleanerBySharedHits(){};

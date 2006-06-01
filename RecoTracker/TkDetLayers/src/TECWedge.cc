@@ -1,5 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/TECWedge.h"
 
+using namespace std;
+
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 

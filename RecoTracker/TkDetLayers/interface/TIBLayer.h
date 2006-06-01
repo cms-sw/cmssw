@@ -14,23 +14,23 @@
 class TIBLayer : public BarrelDetLayer {
  public:
 
-  TIBLayer(vector<const TIBRing*>& innerRings,
-	   vector<const TIBRing*>& outerRings);
+  TIBLayer(std::vector<const TIBRing*>& innerRings,
+	   std::vector<const TIBRing*>& outerRings);
 
   ~TIBLayer();
   
   // GeometricSearchDet interface
 
-  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual const vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
   
-  virtual vector<GeometricSearchDet::DetWithState> 
+  virtual std::vector<GeometricSearchDet::DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& tsos,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const; 
 
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
@@ -51,14 +51,14 @@ class TIBLayer : public BarrelDetLayer {
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const;
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			float window, 
-			vector<DetGroup>& result,
+			std::vector<DetGroup>& result,
 			bool checkClosest) const;
 
   float computeWindowSize( const GeomDet* det, 
@@ -67,16 +67,16 @@ class TIBLayer : public BarrelDetLayer {
 
   bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& ring, float window) const;
 
-  const vector<const GeometricSearchDet*>& subLayer( int ind) const {
+  const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
     return (ind==0 ? theInnerComps : theOuterComps);
   }
 
 
  private:
-  vector<const GeometricSearchDet*> theComps;
-  vector<const GeometricSearchDet*> theInnerComps;
-  vector<const GeometricSearchDet*> theOuterComps;
-  vector<const GeomDet*> theBasicComps;
+  std::vector<const GeometricSearchDet*> theComps;
+  std::vector<const GeometricSearchDet*> theInnerComps;
+  std::vector<const GeometricSearchDet*> theOuterComps;
+  std::vector<const GeomDet*> theBasicComps;
   
   ReferenceCountingPointer<BoundCylinder>  theInnerCylinder;
   ReferenceCountingPointer<BoundCylinder>  theOuterCylinder;
@@ -84,7 +84,7 @@ class TIBLayer : public BarrelDetLayer {
   GeneralBinFinderInZforGeometricSearchDet<float> theInnerBinFinder;
   GeneralBinFinderInZforGeometricSearchDet<float> theOuterBinFinder;
 
-  BoundCylinder* cylinder( const vector<const GeometricSearchDet*>& rings);
+  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rings);
 
 
 };

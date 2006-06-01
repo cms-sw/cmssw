@@ -14,29 +14,29 @@
 class PixelBlade : public GeometricSearchDet{
  public:
 
-  PixelBlade(vector<const GeomDet*>& frontDets,
-	     vector<const GeomDet*>& backDets  );
+  PixelBlade(std::vector<const GeomDet*>& frontDets,
+	     std::vector<const GeomDet*>& backDets  );
 
   ~PixelBlade(){};
   
   // GeometricSearchDet interface
   virtual const BoundSurface& surface() const {return *theDiskSector;}
 
-  virtual const vector<const GeomDet*>& basicComponents() const {return theDets;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
 
-  virtual const vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const;
 
     
-  virtual pair<bool, TrajectoryStateOnSurface>
+  virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  virtual vector<DetWithState> 
+  virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const;
 
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
@@ -58,7 +58,7 @@ class PixelBlade : public GeometricSearchDet{
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const;
   
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
@@ -70,7 +70,7 @@ class PixelBlade : public GeometricSearchDet{
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			float window, 
-			vector<DetGroup>& result,
+			std::vector<DetGroup>& result,
 			bool checkClosest) const;
 
   bool overlap( const GlobalPoint& gpos, const GeomDet& det, float phiWin) const;
@@ -82,16 +82,16 @@ class PixelBlade : public GeometricSearchDet{
   
   GlobalPoint findPosition(int index,int diskSectorIndex) const ;
 
-  const vector<const GeomDet*>& subBlade( int ind) const {
+  const std::vector<const GeomDet*>& subBlade( int ind) const {
     return (ind==0 ? theFrontDets : theBackDets);
   }
 
 
 
  private:
-  vector<const GeomDet*> theDets;
-  vector<const GeomDet*> theFrontDets;
-  vector<const GeomDet*> theBackDets;
+  std::vector<const GeomDet*> theDets;
+  std::vector<const GeomDet*> theFrontDets;
+  std::vector<const GeomDet*> theBackDets;
   
   ReferenceCountingPointer<BoundDiskSector> theDiskSector;
   ReferenceCountingPointer<BoundDiskSector> theFrontDiskSector;

@@ -1,5 +1,6 @@
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
 
+using namespace std;
 
 pair<bool, TrajectoryStateOnSurface>  
 GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,

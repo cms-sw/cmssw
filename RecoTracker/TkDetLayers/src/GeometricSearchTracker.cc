@@ -1,5 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
+using namespace std;
+
 GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer*>& pxlBar,
 					       const vector<BarrelDetLayer*>& tib,
 					       const vector<BarrelDetLayer*>& tob,

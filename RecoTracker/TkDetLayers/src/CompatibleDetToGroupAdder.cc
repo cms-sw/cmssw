@@ -2,6 +2,7 @@
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 
 
+using namespace std;
 
 
 bool CompatibleDetToGroupAdder::add( const GeometricSearchDet& det,

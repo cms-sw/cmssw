@@ -1,6 +1,8 @@
 #include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromWedges.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 
+using namespace std;
+
 // Warning, remember to assign this pointer to a ReferenceCountingPointer!
 BoundDiskSector* 
 ForwardDiskSectorBuilderFromWedges::operator()( const vector<const TECWedge*>& wedges) const

@@ -10,6 +10,9 @@
 #include "Geometry/Surface/interface/SimpleCylinderBounds.h"
 #include "TrackingTools/DetLayers/src/DetLessZ.h"
 
+
+using namespace std;
+
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,

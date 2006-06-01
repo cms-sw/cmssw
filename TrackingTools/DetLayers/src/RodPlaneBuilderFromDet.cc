@@ -4,6 +4,7 @@
 #include "Geometry/Surface/interface/BoundingBox.h"
 #include <algorithm>
 
+using namespace std;
 
 // Warning, remember to assign this pointer to a ReferenceCountingPointer!
 BoundPlane* 

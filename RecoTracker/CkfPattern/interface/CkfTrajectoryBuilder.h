@@ -10,6 +10,7 @@ class TrajectorySeed;
 class TrajectoryStateOnSurface;
 class TrajectoryFilter;
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -26,7 +27,6 @@ class TrajectoryFilter;
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
-using namespace std;
 
 class CkfTrajectoryBuilder {
 protected:
