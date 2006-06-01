@@ -38,7 +38,7 @@ class Trajectory
 {
 public:
 
-  typedef vector<TrajectoryMeasurement>                   DataContainer;
+  typedef std::vector<TrajectoryMeasurement>                   DataContainer;
   typedef edm::OwnVector< const TransientTrackingRecHit>  RecHitContainer;
 
   /** Default constructor of an empty trajectory with undefined direction.

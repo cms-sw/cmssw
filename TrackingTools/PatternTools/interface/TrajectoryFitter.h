@@ -19,12 +19,12 @@ public:
 
   virtual ~TrajectoryFitter() {}
 
-  virtual vector<Trajectory> fit(const Trajectory&) const = 0;
-  virtual vector<Trajectory> fit(const TrajectorySeed&,
-				 const RecHitContainer&) const = 0;
-  virtual vector<Trajectory> fit(const TrajectorySeed&,
-				 const RecHitContainer&, 
-				 const TrajectoryStateOnSurface&) const = 0;
+  virtual std::vector<Trajectory> fit(const Trajectory&) const = 0;
+  virtual std::vector<Trajectory> fit(const TrajectorySeed&,
+				      const RecHitContainer&) const = 0;
+  virtual std::vector<Trajectory> fit(const TrajectorySeed&,
+				      const RecHitContainer&, 
+				      const TrajectoryStateOnSurface&) const = 0;
 
   virtual TrajectoryFitter* clone() const = 0;
 };
