@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/01 11:09:27 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -96,32 +96,35 @@ void DTSegmentAnalysis::bookHistos(DTChamberId chamberId) {
     "_W" + wheel.str() +
     "_St" + station.str() +
     "_Sec" + sector.str();
-    
+  
   theDbe->setCurrentFolder("DT/DTLocalRecoTask/Wheel" + wheel.str() +
 			   "/Station" + station.str() +
-			   "/Sector" + sector.str() + "/");
+			   "/Sector" + sector.str());
   // Create the monitor elements
-  histosPerCh[chamberId][0] = theDbe->book1D("hN4DSeg"+chamberHistoName,
-					     "# of 4D segments per event",
-					     100, 0, 100);
-  histosPerCh[chamberId][1] = theDbe->book1D("h4DSegmXInCham"+chamberHistoName,
-					     "4D Segment X position (cm) in Chamer RF",
-					     200, -200, 200);
-  histosPerCh[chamberId][2] = theDbe->book1D("h4DSegmYInCham"+chamberHistoName,
-					     "4D Segment Y position (cm) in Chamer RF",
-					     200, -200, 200);
-  histosPerCh[chamberId][3] = theDbe->book2D("h4DSegmXvsYInCham"+chamberHistoName,
-					     "4D Segment position (cm) in Chamer RF",
-					     200, -200, 200, 200, -200, 200);
-  histosPerCh[chamberId][4] = theDbe->book1D("h4DSegmPhiDirection"+chamberHistoName,
-					     "4D Segment Phi Direction (deg)",
-					     180, -180, 180);
-  histosPerCh[chamberId][5] = theDbe->book1D("h4DSegm ThetaDirection"+chamberHistoName,
-					     "4D Segment  Theta Direction (deg)",
-					     180, -180, 180);
-  histosPerCh[chamberId][6] = theDbe->book1D("h4DChi2"+chamberHistoName,
-					     "4D Segment reduced Chi2",
-					     30, 0, 30);
+  vector<MonitorElement *> histos;
+  // Note hte order matters
+  histos.push_back(theDbe->book1D("hN4DSeg"+chamberHistoName,
+				  "# of 4D segments per event",
+				  100, 0, 100));
+  histos.push_back(theDbe->book1D("h4DSegmXInCham"+chamberHistoName,
+				  "4D Segment X position (cm) in Chamer RF",
+				  200, -200, 200));
+  histos.push_back(theDbe->book1D("h4DSegmYInCham"+chamberHistoName,
+				  "4D Segment Y position (cm) in Chamer RF",
+				  200, -200, 200));
+  histos.push_back(theDbe->book2D("h4DSegmXvsYInCham"+chamberHistoName,
+				  "4D Segment position (cm) in Chamer RF",
+				  200, -200, 200, 200, -200, 200));
+  histos.push_back(theDbe->book1D("h4DSegmPhiDirection"+chamberHistoName,
+				  "4D Segment Phi Direction (deg)",
+				  180, -180, 180));
+  histos.push_back(theDbe->book1D("h4DSegm ThetaDirection"+chamberHistoName,
+				  "4D Segment  Theta Direction (deg)",
+				  180, -180, 180));
+  histos.push_back(theDbe->book1D("h4DChi2"+chamberHistoName,
+				  "4D Segment reduced Chi2",
+				  30, 0, 30));
+  histosPerCh[chamberId] = histos;
 }
 
 
@@ -147,13 +150,13 @@ void DTSegmentAnalysis::fillHistos(DTChamberId chamberId,
   if(histosPerCh.find(chamberId) == histosPerCh.end()) {
     bookHistos(chamberId);
   }
-                                
-  histosPerCh[chamberId][1]->Fill(posX);
-  histosPerCh[chamberId][2]->Fill(posY);
-  histosPerCh[chamberId][3]->Fill(posX, posY);
-  histosPerCh[chamberId][4]->Fill(phi);
-  histosPerCh[chamberId][5]->Fill(theta);
-  histosPerCh[chamberId][6]->Fill(chi2);
+  vector<MonitorElement *> histos =  histosPerCh[chamberId];                          
+  histos[1]->Fill(posX);
+  histos[2]->Fill(posY);
+  histos[3]->Fill(posX, posY);
+  histos[4]->Fill(phi);
+  histos[5]->Fill(theta);
+  histos[6]->Fill(chi2);
 }
 
 
