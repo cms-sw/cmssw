@@ -18,10 +18,11 @@
 class L1GctJetFinalStage : public L1GctProcessor
 {
 public:
+  typedef std::vector<L1GctJetCand> JetVector;
+  static const unsigned int MAX_WHEEL_FPGAS; ///< Max number of wheel FPGA pointers
+
 	L1GctJetFinalStage(std::vector<L1GctWheelJetFpga*> m_wheelFpgas);
 	~L1GctJetFinalStage();
-
-  typedef std::vector<L1GctJetCand> JetVector;
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga);
@@ -51,7 +52,6 @@ public:
   JetVector getTauJets() const { return m_tauJets; }
 private:
 
-  static const unsigned int MAX_WHEEL_FPGAS; ///< Max number of wheel FPGA pointers
   static const int MAX_JETS_IN;  ///< Max number of jets of each type coming in
   static const int MAX_JETS_OUT; ///< Max number of jets of each type going out
   

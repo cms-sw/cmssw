@@ -13,6 +13,7 @@ class L1GctWheelJetFpga : public L1GctProcessor
 public:
   typedef std::vector<L1GctJetCand> JetVector;
   static const int MAX_JETS_OUT;   ///< Max number of jets of each type we output.
+  static const unsigned int MAX_LEAF_CARDS;  ///< Max number of leaf card pointers
 
   L1GctWheelJetFpga(int id, std::vector<L1GctJetLeafCard*> inputLeafCards);
   ~L1GctWheelJetFpga();
@@ -50,7 +51,6 @@ public:
 
 private:
 
-  static const unsigned int MAX_LEAF_CARDS;  ///< Max number of leaf card pointers
   static const int MAX_JETS_IN;    ///< Maximum number of jets we can have as input
   static const int MAX_RAW_CJETS;  ///< Max. possible central jets to sort over
   static const int MAX_RAW_FJETS;  ///< Max. possible forward jets to sort over
