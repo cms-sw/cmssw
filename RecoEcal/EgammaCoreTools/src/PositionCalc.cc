@@ -8,8 +8,8 @@ Double32_t  PositionCalc::param_X0_;
 Double32_t  PositionCalc::param_T0_; 
 Double32_t  PositionCalc::param_W0_;
 std::string PositionCalc::param_CollectionType_ = ""; 
-const std::map<EBDetId,EcalRecHit> *PositionCalc::storedRecHitsMap_ = NULL;
-const CaloSubdetectorGeometry *PositionCalc::storedSubdetectorGeometry_ = NULL;
+std::map<EBDetId,EcalRecHit> *PositionCalc::storedRecHitsMap_ = NULL;
+CaloSubdetectorGeometry *PositionCalc::storedSubdetectorGeometry_ = NULL;
 
 void PositionCalc::Initialize(std::map<std::string,double> providedParameters, 
                                        const std::map<EBDetId,EcalRecHit> *passedRecHitsMap,
@@ -18,12 +18,12 @@ void PositionCalc::Initialize(std::map<std::string,double> providedParameters,
 {
   param_LogWeighted_ = providedParameters.find("LogWeighted")->second;
   param_X0_ = providedParameters.find("X0")->second;
-  param_T0_ =  providedParameters.find("T0")->second; 
-  param_W0_ =  providedParameters.find("W0")->second;
+  param_T0_ = providedParameters.find("T0")->second; 
+  param_W0_ = providedParameters.find("W0")->second;
 
-  storedRecHitsMap_ = passedRecHitsMap;
+  storedRecHitsMap_ = const_cast<std::map<EBDetId,EcalRecHit>*>(passedRecHitsMap);
   param_CollectionType_ = passedCollectionType;
-  storedSubdetectorGeometry_ = passedGeometry;
+  storedSubdetectorGeometry_ = const_cast<CaloSubdetectorGeometry*>(passedGeometry);
 }
 
 
@@ -74,7 +74,7 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
       
       // Find out what the physical location of the cell is
       
-      DetId id_ = (*i);
+      DetId id_ = (*j);
       const CaloCellGeometry *this_cell = storedSubdetectorGeometry_->getGeometry(id_);
       GlobalPoint posi = this_cell->getPosition();
       
@@ -155,15 +155,15 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
     const double pre_t_zero = 0.4;
     
     // Decide which t_zero to use from location
-    if (param_CollectionType_ == "Barrel") {
+    if (param_CollectionType_ == "EcalBarrel") {
       t_zero = bar_t_zero;
     }
 
-    if (param_CollectionType_ == "EndCap") {
+    if (param_CollectionType_ == "EcalEndcap") {
       t_zero = end_t_zero;
     }
 
-    if (param_CollectionType_ == "PreShower") {
+    if (param_CollectionType_ == "Presh") {
       t_zero = pre_t_zero;
     }
 
