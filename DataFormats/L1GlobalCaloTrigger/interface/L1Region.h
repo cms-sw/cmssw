@@ -14,7 +14,6 @@
 class L1Region
 {
 public:
-  L1Region();
   L1Region(unsigned eta=0, unsigned phi=0, unsigned et=0, bool overFlow=false, bool tauVeto=false, bool mip=false, bool quiet=false);
   ~L1Region();
   

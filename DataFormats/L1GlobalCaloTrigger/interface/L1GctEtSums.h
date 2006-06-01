@@ -29,7 +29,7 @@ class L1GctEtTotal {
   /// get the overflow
   bool overflow() const { return (m_data & 0x1000)!=0; }
 
- Private:
+ private:
 
   uint16_t m_data;
 

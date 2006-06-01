@@ -7,15 +7,6 @@
 using std::ostream;
 using std::endl;
 
-// default constructor
-L1Region::L1Region() :
-  m_eta(0),
-  m_phi(0),
-  m_rctCrate(0),
-  m_data(0)
-{
-}
-
 // constructor
 L1Region::L1Region(unsigned eta, unsigned phi, unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet) :
   m_eta(eta),
