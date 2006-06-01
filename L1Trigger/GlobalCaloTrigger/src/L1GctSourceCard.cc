@@ -22,7 +22,10 @@ const int L1GctSourceCard::DATA_OFFSET_TYPE2 = L1GctSourceCard::NUM_ELEC*2 + L1G
 
 L1GctSourceCard::L1GctSourceCard(int id, SourceCardType typeVal):
   m_id(id),
-  m_cardType(typeVal)
+  m_cardType(typeVal),
+  m_currentBX(0),
+  m_mipBits(0),
+  m_quietBits(0)
 {
     this->setVectorSizes();
 }
@@ -296,12 +299,12 @@ void L1GctSourceCard::getCables1And2()
   for(i=0; i < NUM_ELEC; ++i)
   {
     m_fin >> uLongBuffer;
-    m_isoElectrons[i] = L1GctEmCand(uLongBuffer);
+    m_isoElectrons[i] = makeEmCand(uLongBuffer);
   }
   for(i=0; i < NUM_ELEC; ++i)
   {
     m_fin >> uLongBuffer;
-    m_nonIsoElectrons[i] = L1GctEmCand(uLongBuffer);
+    m_nonIsoElectrons[i] = makeEmCand(uLongBuffer);
   }
 
   bool bitBuffer;        
@@ -309,12 +312,26 @@ void L1GctSourceCard::getCables1And2()
   for(i=0; i < N_MIP_BITS; ++i)
   {
     m_fin >> bitBuffer;
-    m_mipBits &= (bitBuffer & 0x1);
+    if(bitBuffer)
+    {
+      m_mipBits |= (1 << i);
+    }
+    else
+    {
+      m_mipBits &= ~(static_cast<unsigned>((1 << i)));
+    }
   }
   for(i=0; i < N_QUIET_BITS; ++i)
   {
     m_fin >> bitBuffer;
-    m_quietBits &= (bitBuffer & 0x1);
+    if(bitBuffer)
+    {
+      m_quietBits |= (1 << i);
+    }
+    else
+    {
+      m_quietBits &= ~(static_cast<unsigned>((1 << i)));
+    }
   }
     
   //Skip remaining data in the bx
@@ -400,8 +417,7 @@ void L1GctSourceCard::readBxNum()
   string tempWord;
     
   m_fin >> tempWord;
-    
-  cout << tempWord << endl;
+
   assert(tempWord == "Crossing");
    
   dec(m_fin); //want decimal numbers.

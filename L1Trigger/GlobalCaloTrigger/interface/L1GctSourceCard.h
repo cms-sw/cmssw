@@ -155,8 +155,8 @@ class L1GctSourceCard
   //Data buffers
   std::vector<L1GctEmCand> m_isoElectrons;  
   std::vector<L1GctEmCand> m_nonIsoElectrons;
-  unsigned m_mipBits;
-  unsigned m_quietBits;
+  unsigned m_mipBits;   //IMPORTANT - the static_casts in the getCables1And2 method should
+  unsigned m_quietBits; //match the types of m_mipBits and m_quietBits.
   std::vector<L1GctRegion> m_regions;
   
     
