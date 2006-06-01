@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2006/05/29 20:27:26 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/30 17:53:21 $
+ *  $Revision: 1.4 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -41,8 +41,8 @@ public:
    MeasurementContainer
    measurements( const DetLayer* layer,
                  const TrajectoryStateOnSurface& startingState,
-                 const Propagator* prop,
-                 const MeasurementEstimator* est,
+                 const Propagator& prop,
+                 const MeasurementEstimator& est,
                  const edm::Event& iEvent) const;
 
  /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
@@ -58,8 +58,8 @@ public:
    MeasurementContainer
    measurements( const DetLayer* layer,
                  const TrajectoryStateOnSurface& startingState,
-                 const Propagator* prop,
-                 const MeasurementEstimator* est) const;
+                 const Propagator& prop,
+                 const MeasurementEstimator& est) const;
 
  /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
    MeasurementContainer

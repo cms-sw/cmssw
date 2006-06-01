@@ -1,8 +1,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
- *  $Date: 2006/05/29 20:27:07 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/30 17:53:21 $
+ *  $Revision: 1.6 $
  *  \author C. Liu - Purdue University
  *
  */
@@ -75,15 +75,15 @@ RecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, const e
 MeasurementContainer
 MuonDetLayerMeasurements::measurements( const DetLayer* layer,
               const TrajectoryStateOnSurface& startingState,
-              const Propagator* prop,
-              const MeasurementEstimator* est,
+              const Propagator& prop,
+              const MeasurementEstimator& est,
               const edm::Event& iEvent) const {
    MeasurementContainer result;
-   std::vector<DetWithState> dss = layer->compatibleDets(startingState, *prop, *est);
+   std::vector<DetWithState> dss = layer->compatibleDets(startingState, prop, est);
    RecHitContainer rhs = recHits(layer, iEvent);
    for (std::vector<DetWithState>::const_iterator ids = dss.begin(); ids !=dss.end(); ids++){
      for (RecHitContainer::const_iterator irh = rhs.begin(); irh!=rhs.end(); irh++) {
-      if (est->estimate((*ids).second, (**irh)).first)
+      if (est.estimate((*ids).second, (**irh)).first)
       result.push_back(TrajectoryMeasurement((*ids).second,(*irh),0,layer));  
      }
    }
@@ -111,8 +111,8 @@ MuonDetLayerMeasurements::fastMeasurements( const DetLayer* layer,
 MeasurementContainer
 MuonDetLayerMeasurements::measurements( const DetLayer* layer,
               const TrajectoryStateOnSurface& startingState,
-              const Propagator* prop,
-              const MeasurementEstimator* est) const {
+              const Propagator& prop,
+              const MeasurementEstimator& est) const {
   MeasurementContainer result;
   if (theEventFlag) return measurements(layer, startingState, prop, est, *theEvent);
   else return result;
