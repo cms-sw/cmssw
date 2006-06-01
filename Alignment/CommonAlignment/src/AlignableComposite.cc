@@ -268,8 +268,9 @@ void AlignableComposite::dump( void ) const
 	<< this->globalRotation();
 
   // Dump components
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
-	(*i)->dump();
+  if ( comp.size() > 1 )
+	for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+	  (*i)->dump();
 
 }
 
