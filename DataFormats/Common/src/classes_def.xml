@@ -12,7 +12,11 @@
  <class name="edm::RefItem<unsigned int>">
    <field name="ptr_" transient="true"/>
  </class>
+ <class name="edm::RefItem<std::pair<unsigned int,unsigned int> >">
+   <field name="ptr_" transient="true"/>
+ </class>
  <class name="edm::RefBase<unsigned int>"/>
+ <class name="edm::RefBase<std::pair<unsigned int,unsigned int> >" />
  <class name="edm::RefVectorBase<unsigned int>"/>
  <class name="std::vector<edm::RefItem<unsigned int> >"/>
  <class name="std::basic_string<char>"/>

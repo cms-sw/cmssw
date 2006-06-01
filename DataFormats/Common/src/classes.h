@@ -64,8 +64,10 @@ namespace { namespace {
   edm::Wrapper<edm::HLTGlobalStatus> dummyx18;
   edm::Wrapper<edm::TriggerResults> dummyx19;
 
-  edm::RefItem<unsigned int> dummyRefItem;
-  edm::RefBase<std::vector<unsigned int>::size_type> dummRefBase;
+  edm::RefItem<unsigned int> dummyRefItem1;
+  edm::RefItem<std::pair<unsigned int, unsigned int> > dummyRefItem2;
+  edm::RefBase<std::vector<unsigned int>::size_type> dummRefBase1;
+  edm::RefBase<std::pair<unsigned int, unsigned int> > dummRefBase2;
   edm::RefVectorBase<std::vector<unsigned int>::size_type> dummyRefVectorBase;
 
 }}
