@@ -17,7 +17,7 @@ TkTransientTrackingRecHitBuilder::TkTransientTrackingRecHitBuilder( const Tracki
   pixelCPE(p),
   stripCPE(s) {}
   
-TransientTrackingRecHit* TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) {
+TransientTrackingRecHit* TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const {
 
   if ( const SiStripRecHit2DLocalPos* sh = dynamic_cast<const SiStripRecHit2DLocalPos*>(p)) { 
     return ( new TSiStripRecHit2DLocalPos(tGeometry_->idToDet(p->geographicalId()), sh, stripCPE ) ); 
