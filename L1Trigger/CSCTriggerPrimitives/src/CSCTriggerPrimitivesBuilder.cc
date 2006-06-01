@@ -6,7 +6,10 @@
 //                in each endcap muon CSC chamber from wire and comparator
 //                digis.
 //
-//   Author List: S. Valuev (May 2006)
+//   Author List: S. Valuev, UCLA.
+//
+//   $Date: 2005/05/31 18:52:28 $
+//   $Revision: 1.1 $
 //
 //   Modifications:
 //
@@ -48,12 +51,9 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   // Receives ParameterSet percolated down from EDProducer.
 
   // ORCA way of initializing boards.
-  int numsubs;
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
     for (int stat = min_station; stat <= max_station; stat++) {
-      // @@ twentyDegree is gone???
-      if (stat == 1) numsubs = max_subsector;
-      else           numsubs = 1;
+      int numsubs = ((stat == 1) ? max_subsector : 1);
       for (int sect = min_sector; sect <= max_sector; sect++) {
 	for (int subs = min_subsector; subs <= numsubs; subs++) {
 	  for (int cham = min_chamber; cham <= max_chamber; cham++) {
@@ -83,12 +83,9 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 // Destructor
 //------------
 CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder() {
-  int numsubs;
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
     for (int stat = min_station; stat <= max_station; stat++) {
-      // @@ twentyDegree is gone???
-      if (stat == 1) numsubs = max_subsector;
-      else           numsubs = 1;
+      int numsubs = ((stat == 1) ? max_subsector : 1);
       for (int sect = min_sector; sect <= max_sector; sect++) {
 	for (int subs = min_subsector; subs <= numsubs; subs++) {
 	  for (int cham = min_chamber; cham <= max_chamber; cham++) {
@@ -117,12 +114,9 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
   // CSC geometry.
   CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
 
-  int numsubs;
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
     for (int stat = min_station; stat <= max_station; stat++) {
-      // @@ twentyDegree is gone???
-      if (stat == 1) numsubs = max_subsector;
-      else           numsubs = 1;
+      int numsubs = ((stat == 1) ? max_subsector : 1);
       for (int sect = min_sector; sect <= max_sector; sect++) {
 	for (int subs = min_subsector; subs <= numsubs; subs++) {
 	  for (int cham = min_chamber; cham <= max_chamber; cham++) {
