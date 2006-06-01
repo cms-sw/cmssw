@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.22 2006/04/27 19:56:02 wmtan Exp $
+// $Id: ParameterSet.h,v 1.23 2006/05/25 21:01:11 rpw Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -115,7 +115,7 @@ namespace edm {
     // return tracked parameters; if 'trackiness' is false, w return
     // untracked parameters.
     size_t getParameterSetNames(std::vector<std::string>& output,
-				bool trackiness) const;
+				bool trackiness = true) const;
 
     // Return the names of all parameters of type
     // vector<ParameterSet>, pushing the names into the argument
@@ -123,7 +123,7 @@ namespace edm {
     // 'trackiness' is true, we return tracked parameters; if
     // 'trackiness' is false, w return untracked parameters.
     size_t getParameterSetVectorNames(std::vector<std::string>& output,
-				      bool trackiness) const;
+				      bool trackiness=true) const;
 
     friend std::ostream & operator<<(std::ostream & os, const ParameterSet & pset);
 
