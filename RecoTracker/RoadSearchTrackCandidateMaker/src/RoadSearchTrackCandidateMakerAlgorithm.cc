@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/05/16 15:12:54 $
-// $Revision: 1.6 $
+// $Author: gutsche $
+// $Date: 2006/05/19 15:34:35 $
+// $Revision: 1.7 $
 //
 
 #include <vector>
@@ -42,6 +42,8 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h" 
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
@@ -51,7 +53,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 //nclude "RecoTracker/CkfPattern/interface/CombinatorialTrajectoryBuilder.h"
 
@@ -72,6 +73,14 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 // trajectory for the final fit
 //
 
+  //
+  // get the transient builder
+  //
+  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+  std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
+  es.get<TrackingComponentsRecord>().get(builderName,theBuilder);
+  
+  
   edm::LogInfo("RoadSearch") << "Clean Clouds input size: " << input->size();
 
   for ( RoadSearchCloudCollection::const_iterator cloud = input->begin(); cloud != input->end(); ++cloud ) {
@@ -139,8 +148,6 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
     //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
     edm::OwnVector<TransientTrackingRecHit> transHits;
-    TransientTrackingRecHitBuilder * builder;
-    builder = new TkTransientTrackingRecHitBuilder((TrackingGeometry*)(&(*tracker)));
 
 
     //Loop over RecHits and propagate trajectory to each hit
@@ -153,7 +160,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     edm::LogInfo("RoadSearch") << "Loop over hits to check measurements...";
     for (edm::OwnVector<TrackingRecHit>::const_iterator rhit=recHits.begin(); rhit!=recHits.end(); rhit++){
 
-      TransientTrackingRecHit* ihit = builder->build(&(*rhit));
+      TransientTrackingRecHit* ihit = theBuilder.product()->build(&(*rhit));
 
       //PropagatorWithMaterial thePropagator;
       AnalyticalPropagator thePropagator(magField,anyDirection);
@@ -187,7 +194,6 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     }
     if (goodHits.size()>2) output.push_back(TrackCandidate(goodHits,seed,state));
 
-    delete builder;
   }
 
   edm::LogInfo("RoadSearch") << "Found " << output.size() << " track candidates.";
