@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/05/29 17:56:46 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/05/30 17:46:40 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -35,6 +35,8 @@ using namespace std;
 
 StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par){
   
+  // FIXME
+  // I am not yet sure if I want to pass it by paset or have it hard-coded...
   // Propagation direction
   string propagationName = par.getParameter<string>("PropagationDirection");
   if (propagationName == "alongMomentum" ) thePropagationDirection = alongMomentum;
@@ -88,8 +90,7 @@ void StandAloneMuonRefitter::reset(){
   
   theLastUpdatedTSOS =  theLastButOneUpdatedTSOS = TrajectoryStateOnSurface();
 
-  // FIXME
-  // theNavLayers = vector<const DetLayer*>() ;
+  theDetLayers.clear();
 }
 
 void StandAloneMuonRefitter::setES(const EventSetup& setup){
@@ -202,8 +203,8 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
     vector<TrajectoryMeasurement> measL = 
       theMeasurementExtractor.measurements(*layer,
       					   lastTSOS, 
-      					   propagator(), 
-					   estimator());
+      					   *propagator(), 
+					   *estimator());
     LogDebug(metname) << "Number of Trajectory Measurement:" << measL.size();
     
     TrajectoryMeasurement* bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL);
@@ -228,8 +229,8 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
 			<< "trying with lastButOneUpdatedTSOS";
       measL = theMeasurementExtractor.measurements(*layer,
 						   lastButOneUpdatedTSOS, 
-						   propagator(), 
-						   estimator());
+						   *propagator(), 
+						   *estimator());
       bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL);
     }
     
@@ -244,8 +245,8 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
 			<< "tryng with seed TSOS";
       measL = theMeasurementExtractor.measurements(*layer,
 						   initialTSOS, 
-						   propagator(), 
-						   estimator());
+						   *propagator(), 
+						   *estimator());
       bestMeasurement = bestMeasurementFinder()->findBestMeasurement(measL);
     }
     
@@ -256,6 +257,7 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
       if(result.first){ 
 	lastTSOS = result.second;
 	incrementChamberCounters(*layer);
+	theDetLayers.push_back(*layer);
 	
 	lastButOneUpdatedTSOS = lastUpdatedTSOS;
 	lastUpdatedTSOS = lastTSOS;
@@ -268,6 +270,8 @@ void StandAloneMuonRefitter::refit(TrajectoryStateOnSurface& initialTSOS,const D
       if (measL.size()>0) 
         lastTSOS = measL.front().predictedState();
   }
+  setLastUpdatedTSOS(lastUpdatedTSOS);
+  setLastButOneUpdatedTSOS(lastButOneUpdatedTSOS);
 }
 
 

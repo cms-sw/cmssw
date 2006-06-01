@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2006/05/29 17:56:45 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/05/30 17:46:09 $
+ *  $Revision: 1.10 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -13,9 +13,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-
-// FIXME
-// change FreeTrajectoryState in TSOS
 
 class Propagator;
 class DetLayer;
@@ -62,6 +59,12 @@ public:
   int getDTChamberUsed() const {return dtChambers;}
   int getCSCChamberUsed() const {return cscChambers;}
   int getRPCChamberUsed() const {return rpcChambers;}
+
+  /// return the layer used for the refit
+  std::vector<const DetLayer*> layers() const {return theDetLayers;}
+
+  /// return the last det layer
+  const DetLayer* lastDetLayer() const {return theDetLayers.back();}
 
   /// Return the propagation direction
   PropagationDirection propagationDirection() const {return thePropagationDirection;}
@@ -118,14 +121,17 @@ private:
   /// access at the muon updator
   MuonTrajectoryUpdator *updator() const {return theMuonUpdator;}
 
-  // The max allowed chi2 to accept a rechit in the fit
+  /// The max allowed chi2 to accept a rechit in the fit
   double theMaxChi2;
-  // The errors of the trajectory state are multiplied by nSigma 
-  // to define acceptance of BoundPlane and maximalLocalDisplacement
+  /// The errors of the trajectory state are multiplied by nSigma 
+  /// to define acceptance of BoundPlane and maximalLocalDisplacement
   double theNSigma;
 
-  // the propagation direction
+  /// the propagation direction
   PropagationDirection thePropagationDirection;
+
+  /// the det layer used in the reconstruction
+  std::vector<const DetLayer*> theDetLayers;
 
   int totalChambers;
   int dtChambers;
