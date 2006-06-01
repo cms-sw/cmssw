@@ -53,12 +53,14 @@ private:
 
 void TrackerToMuonTest::propagateToMuon( const MagneticField* field) const
 {
-  for (float phi = 0.; phi<3.15 ; phi+=0.1) {
+  for (float phi = 0.0; phi<3.1419 ; phi+=0.1) {
+
+    cout << "OK, now trying phi = " << phi << endl;
 
   PlaneBuilder pb;
 
-  GlobalVector startingMomentum(20*sin(phi),20*cos(phi),-2);
-  GlobalPoint startingPosition( 0,0,0);
+  GlobalVector startingMomentum(20*sin(phi),20*cos(phi),-20);
+  GlobalPoint startingPosition( 10.0,12.345,-10.0);
   Surface::RotationType rot = rotation( startingMomentum);
 
   PlaneBuilder::ReturnType trackerPlane = pb.plane( startingPosition, rot);
