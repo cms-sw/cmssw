@@ -9,14 +9,12 @@ int XSIZE = 300;
 int YSIZE = 300;
 
 EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor()
-  :  tower(extents[nEndcaps][XSIZE][YSIZE][2])
 {
   initTowerThresholds(2.5, 5.0, 2, 2);
   initCellThresholds(0.09, 0.45);
 }
 
 EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params) 
-  :  tower(extents[nEndcaps][XSIZE][YSIZE][2])
 {
   initTowerThresholds( params.getParameter<double>("srpLowTowerThreshold"), 
                params.getParameter<double>("srpHighTowerThreshold"),
@@ -27,43 +25,51 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
 }
 
 
+void EcalSelectiveReadoutSuppressor::setTriggerMap(const EcalTrigTowerConstituentsMap * map) 
+{
+  ecalSelectiveReadout->setTriggerMap(map);
+}
+
+
+void EcalSelectiveReadoutSuppressor::setGeometry(const CaloGeometry * caloGeometry) 
+{
+  ecalSelectiveReadout->setGeometry(caloGeometry);
+}
+
+
 void EcalSelectiveReadoutSuppressor::initTowerThresholds(double lowTowerThreshold, double highTowerThreshold,
                                                  int deltaEta, int deltaPhi) 
 {
   std::vector<double> srpThr(2);
   srpThr[0]= lowTowerThreshold;
   srpThr[1]= highTowerThreshold;
-  ecalSelectiveReadout = new EcalSelectiveReadout(srpThr,tower.data(),deltaEta,deltaPhi);
+  ecalSelectiveReadout = new EcalSelectiveReadout(srpThr,deltaEta,deltaPhi);
 }
 
 
 void EcalSelectiveReadoutSuppressor::initCellThresholds(double barrelLowInterest, double endcapLowInterest)
 { 
   float MINUS_INFINITY = -std::numeric_limits<float>::max();
-  zsThreshold[0][0] = barrelLowInterest;
-  zsThreshold[0][1] = MINUS_INFINITY;
-  zsThreshold[1][0] = endcapLowInterest;
-  zsThreshold[1][1] = MINUS_INFINITY;
+  zsThreshold[BARREL][0] = barrelLowInterest;
+  zsThreshold[BARREL][1] = MINUS_INFINITY;
+  zsThreshold[ENDCAP][0] = endcapLowInterest;
+  zsThreshold[ENDCAP][1] = MINUS_INFINITY;
   
-  zsThreshold[0][2]=MINUS_INFINITY;
-  zsThreshold[0][3]=MINUS_INFINITY;
-  zsThreshold[1][2]=MINUS_INFINITY;
-  zsThreshold[1][3]=MINUS_INFINITY;
+  zsThreshold[BARREL][2]=MINUS_INFINITY;
+  zsThreshold[BARREL][3]=MINUS_INFINITY;
+  zsThreshold[ENDCAP][2]=MINUS_INFINITY;
+  zsThreshold[ENDCAP][3]=MINUS_INFINITY;
 }
 
 
 double EcalSelectiveReadoutSuppressor::threshold(const EBDetId & detId) const {
-  int interestLevel = ecalSelectiveReadout->getBarrelCrystalInterest(
-    detId.ieta(), detId.iphi());
-
+  int interestLevel = ecalSelectiveReadout->getCrystalInterest(detId);
   return zsThreshold[0][interestLevel];
 }
 
 
 double EcalSelectiveReadoutSuppressor::threshold(const EEDetId & detId) const {
-  int interestLevel = ecalSelectiveReadout->getEndcapCrystalInterest(
-     detId.zside(), detId.ix(), detId.iy());
-
+  int interestLevel = ecalSelectiveReadout->getCrystalInterest(detId);
   return zsThreshold[1][interestLevel];
 }
 
@@ -86,42 +92,6 @@ double EcalSelectiveReadoutSuppressor::Et(const EcalTriggerPrimitiveDigi & trigP
   //TODO make this realistic!
   return trigPrim[5].compressedEt();
 }
-
-
-void EcalSelectiveReadoutSuppressor::setTriggerTowersMap(const CaloSubdetectorGeometry * endcapGeometry,
-                                                         const CaloSubdetectorGeometry * towerGeometry)
-//const EcalTriggerTowerMapping * mapping)
-{
- 
-  size_t towerSize = tower.shape()[0] * tower.shape()[1]
-                   * tower.shape()[2] * tower.shape()[3];
-
-  for(int* pTower = tower.data();
-      pTower < tower.data() + towerSize;
-      ++pTower)
-  {
-    *pTower = -1;
-  }
-
-  int nCrystal = 0;
-  //loops over all the ECAL crystals and sets the trigger tower map
-  std::vector<DetId> crystalIds = endcapGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
-  for(std::vector<DetId>::const_iterator crystalItr = crystalIds.begin();
-      crystalItr != crystalIds.end(); ++crystalItr)
-  {
-    ++nCrystal;
-    EEDetId crystalId(*crystalItr);
-    //looks for the trigger tower of this crystal
-    //TODO
-    EcalTrigTowerDetId towerId; // = theTowerMapping->towerId(crystalId);
-
-    tower_t::subarray<1>::type TT
-     = tower[crystalId.zside()][crystalId.ix()][crystalId.iy()]; 
-    	
-    TT[0] = towerId.ieta();
-    TT[1] = towerId.iphi();
-  }
-} 
 
 
 double Et(const EcalTriggerPrimitiveDigi & trigPrim) {
@@ -182,6 +152,7 @@ void EcalSelectiveReadoutSuppressor::setTriggerTowers(const EcalTrigPrimDigiColl
     for(size_t iEta = 0; iEta < nTriggerTowersInEta; ++iEta){
       for(size_t iPhi = 0; iPhi < nTriggerTowersInPhi; ++iPhi){
         triggerEt[iEta][iPhi] = 0.;
+        triggerEt[iEta][iPhi] = 0.;
       }
     }
 
@@ -190,11 +161,14 @@ void EcalSelectiveReadoutSuppressor::setTriggerTowers(const EcalTrigPrimDigiColl
         trigPrim != trigPrims.end(); ++trigPrim)
     {
       float et = Et(*trigPrim); //or etWithoutBXID() ???
-      unsigned int eta = trigPrim->id().ieta();
+       // we want the indexing to go from zero.
+      unsigned int eta = trigPrim->id().ieta() + nTriggerTowersInEta/2;
       unsigned int phi = trigPrim->id().iphi();
       assert(eta<nTriggerTowersInEta);
       assert(phi<nTriggerTowersInPhi);
 
+//TODO is this still true?
+/*
       if(eta>1 || eta < 54){//this detector eta-section part is divided in 72 phi bins
         triggerEt[eta][phi] = et;
       } else{//this detector eta-section is divided in only 36 phi bins
@@ -218,9 +192,11 @@ void EcalSelectiveReadoutSuppressor::setTriggerTowers(const EcalTrigPrimDigiColl
 	//divides the TT into 2 phi bins in order to match with 72 phi-bins SRP
 	//scheme or average the Et on the two pseudo TTs if the TT is already
 	//divided into two trigger primitives.
-	triggerEt[eta][phiEvenIndex] += et/2.;
-	triggerEt[eta][phiEvenIndex+1] += et/2.;
+	triggerEt[eta][phiEvenIndex][iz] += et/2.;
+	triggerEt[eta][phiEvenIndex+1][iz] += et/2.;
       }
+*/
+      triggerEt[eta][phi] += et;
       ++iTrigPrim;
     }
     //checks trigger primitive count:

@@ -4,7 +4,8 @@
 #include <vector>
 #include "boost/multi_array.hpp"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class EcalSelectiveReadout;
@@ -18,15 +19,13 @@ public:
   
   EcalSelectiveReadoutSuppressor();
   EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params);
-  //  bool accepts(const EBDataFrame& frame) const;
-  //bool accepts(const EEDataFrame& frame) const;
 
+  enum {BARREL, ENDCAP};
 
-  /** Help method to retrieve the trigger tower Et's from the trigger
-   * primitives. Values are put in the triggerEt array.
-   */
-  void setTriggerTowersMap(const CaloSubdetectorGeometry * endcapGeometry,
-                           const CaloSubdetectorGeometry * triggerGeometry);
+  /// the mapping of which cell goes with which trigger tower
+  void setTriggerMap(const EcalTrigTowerConstituentsMap * map);
+
+  void setGeometry(const CaloGeometry * caloGeometry);
   
   void run(const EcalTrigPrimDigiCollection & trigPrims,
            EBDigiCollection & barrelDigis,
@@ -49,10 +48,6 @@ public:
    */
   void initTowerThresholds(double lowThreshold, double highThreshold, int deltaEta, int deltaPhi);
   void initCellThresholds(double barrelLowInterest, double endcapLowInterest);
-
-  /** Sets endcap trigger tower map.
-   */
-  void setTriggerTowersMap();
 
 
   /// three methods I don't know how to implement
@@ -88,6 +83,8 @@ public:
   /** Help class to comput selective readout flags. 
    */
   EcalSelectiveReadout* ecalSelectiveReadout;
+
+  const EcalTrigTowerConstituentsMap * theTriggerMap;
   
   /** Switch for applying zero suppresion on channel Et instead of on channel
    * E. Default is false.
@@ -99,18 +96,6 @@ public:
   float triggerEt[nTriggerTowersInEta][nTriggerTowersInPhi];
 
 
-  /** Array type definition for the endcap crystal->TT map. TT stands for
-   * trigger tower.
-   * <P>First index: 0 for z<0 endcap, 1 for z>0 endcap<BR>
-   * 2nd, 3rd index: x- and y-indices of the crystal<BR>
-   * 4th index: 0 to get phi TT index, 1 to get eta TT index
-   */
-  typedef boost::multi_array<int,4> tower_t;
-  
-  /** crystal->TT map: see tower_t.
-   */
-  tower_t tower;
-  
   /** Zero suppresion threshold for the ECAL.
    * First index: 0 for barrel, 1 for endcap
    * 2nd index: channel interest (see EcalSelectiveReadout::towerInterest_t

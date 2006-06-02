@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id$
+ * $Id: EcalSelectiveReadout.h,v 1.2 2006/04/25 01:52:12 rpw Exp $
  */
 
 #ifndef ECALSELECTIVEREADOUT_H
@@ -8,6 +8,11 @@
 
 #include <vector>
 #include <iostream>
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 /** This class is used to run the selective readout processing on the
  * electromagnetic calorimeter. Normal user do not need to access directly this
@@ -36,11 +41,11 @@ public:
   //type definitions
   /** trigger tower classification ("SRP flags")
    */
-  typedef enum {unknown=-1,
-                lowInterest,
-                single,
-                neighbour,
-                center} towerInterest_t;
+  typedef enum {UNKNOWN=-1,
+                LOWINTEREST,
+                SINGLE,
+                NEIGHBOUR,
+                CENTER} towerInterest_t;
   
   //constants
 public:
@@ -88,12 +93,6 @@ public:
    */
   const static size_t nTriggerTowersInPhi = 72;
   
-private:
-  /** Name of the file containing endcap trigger tower definition, when
-   * read from a file.
-   */
-  const static std::string fileName;
-    
   //constructor(s) and destructor(s)
 public:
   /** Constructs a ecalselectivereadout.
@@ -107,28 +106,19 @@ public:
    */
   EcalSelectiveReadout(const std::vector<double>& thresholds,
                              int dEta = 1, int dPhi = 1);
-  
-  /** Constructs a ecalselectivereadout.
-   * Neighbours are taken in a trigger tower matrix of size
-   * 2(dEta+1))x2(dPhi+1) around a 'center' tower.
-   * @param thresholds thresholds for the trigger tower classification
-   * in 'low interest', 'single' or 'center. First element is the lower
-   * threshold, second element is the higher one.
-   * @param dEta neighborhood extend in number of trigger towers along eta
-   * @param dPhi neighborgooh extend in number if trigger towers along phi
-   * @param towerMap crystal indices->trigger tower map
-   */
-  EcalSelectiveReadout(const std::vector<double>& thresholds,
-                             const int* towerMap,
-                             int dEta = 1, int dPhi = 1);
 
   //method(s)
-public:
-  /** Dumps trigger tower map.
-   * @param out output stream to dump the tower map (default std::cout)
-   */
-  void dumpTriggerTowerMap(std::ostream& out=std::cout) const;
   
+  /// the mapping of which cell goes with which trigger tower
+  void setTriggerMap(const EcalTrigTowerConstituentsMap * map) {
+    theTriggerMap = map;
+  }
+
+
+  void setGeometry(const CaloGeometry * caloGeometry) {
+    theGeometry = caloGeometry;
+  }
+
   /** Selective readout algorithm type 0.
    *  The algorithm is the following:
    *  <OL>
@@ -165,83 +155,27 @@ public:
    * <LI> high interest: value 'center'
    * </UL>
    */  
-  std::vector<std::vector<towerInterest_t> >
-  classifyTriggerTowers(const float towerEt[nTriggerTowersInEta][nTriggerTowersInPhi]) const;
+  void
+  classifyTriggerTowers(const float towerEt[nTriggerTowersInEta][nTriggerTowersInPhi]);
 
-  towerInterest_t getEndcapCrystalInterest(size_t iEndcap,
-                                           size_t iX,
-                                           size_t iY) const{    
-    return endcapCrystalExists(iEndcap, iX, iY)?
-      supercrystalInterest[iEndcap][supercrystalX(iX)][supercrystalY(iY)]:
-      unknown;
-  }
   
-  
-  towerInterest_t getBarrelCrystalInterest(size_t iEta, size_t iPhi) const{
-    return towerInterest[barrelTowerEta(iEta)][barrelTowerPhi(iPhi)];
-  }
+  towerInterest_t getCrystalInterest(const EBDetId & ebDetId) const;
+
+  towerInterest_t getCrystalInterest(const EEDetId & eeDetId) const;
 
   /**Gets the SR flags of a trigger tower (TT).
    * @param iEta index of the TT along eta
    * @param iPhi index of the TT along phi
    */
-  towerInterest_t getTowerInterest(size_t iEta, size_t iPhi) const{
-    return towerInterest[iEta][iPhi];
-  }
-  
+  towerInterest_t getTowerInterest(const EcalTrigTowerDetId & towerId) const;
+
 private:
 
-  /** Help function to get eta index of the TT of a given crystal.
-   * @param iEta crystal 'natural' index
-   */
-  size_t barrelTowerEta(size_t iEta) const{
-    return  nEndcapTriggerTowersInEta + (iEta/5);
-  }
-
-  /** Help function to get eta index of the TT of a given crystal.
-   * @param iPhi crystal 'natural' index along phi
-   */
-  size_t barrelTowerPhi(size_t iPhi) const{
-    return iPhi/5;
-  }
-
-  /** Help function to get x index of the SC of a given endcap crystal.
-   * @param iX crystal 'natural' index along x axis starting at 0
-   */
-  size_t supercrystalX(size_t iX) const{
-    return  iX/5;
-  }
-
-  /** Help function to get eta index of the SC of a given crystal.
-   * @param iY crystal 'natural' index along y-axis starting at 0.
-   */
-  size_t supercrystalY(size_t iY) const{
-    return iY/5;
-  }
   
-  /** For an incomplete supercrystal check if it contains the crystal
-   * with a given index. Returns always true for a complete crystal. 
-   * @param iEncap 0 for z<0 endcap, 1 for z>1 endcap
-   * @param iX index of the crystal along x-axis starting at 0
-   * @param iY index of the crystal along y-axis starting at 0
-   */
-  bool endcapCrystalExists(size_t iEndcap, size_t iX, size_t iY) const{
-    //triggerTower array contains -1 for missing crystals and
-    //positive value for existing ones. Let's exploit this property:
-    return triggerTower[iEndcap][iX][iY][0] >= 0;
-  }
-  
-  /** Sets all supercystal interest flags to 'unknown'
+  /** Sets all supercrystal interest flags to 'unknown'
    */
   void resetSupercrystalInterest();
   
-  std::vector<size_t> towerOfCrystal(size_t iEndcap, size_t iX,
-                                     size_t iY) const;
-  
-  std::vector<std::vector<size_t> > crystalsOfTower(size_t iEta, size_t iPhi) const;
-  
-  void readEndcapTowerMap();
-
   /** Changes the value of a variable iff that has
    *  the effect to decrease the variable value
    *  var = min(var,val)
@@ -265,8 +199,10 @@ private:
   
   //attribute(s)
 private:
+
+  const EcalTrigTowerConstituentsMap * theTriggerMap;
+  const CaloGeometry * theGeometry;
   std::vector<double> threshold;
-  int triggerTower[nEndcaps][nEndcapXBins][nEndcapYBins][2];
   towerInterest_t towerInterest[nTriggerTowersInEta][nTriggerTowersInPhi];
   towerInterest_t supercrystalInterest[nEndcaps][nSupercrystalXBins][nSupercrystalYBins];
   int dEta;
