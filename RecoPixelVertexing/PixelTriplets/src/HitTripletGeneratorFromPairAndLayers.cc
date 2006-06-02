@@ -5,6 +5,7 @@
 #include "RecoTracker/TkHitPairs/interface/LayerHitMap.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 
 

@@ -1,4 +1,5 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/PixelLayerTriplets.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 vector<PixelLayerTriplets::LayerPairAndLayers> PixelLayerTriplets::layers()
 {
