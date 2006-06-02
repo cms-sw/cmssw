@@ -80,7 +80,10 @@ MonitorElement* meBBCaloMaxEneCry_;
 MonitorElement* TableMoving_;
 bool init_; 
 
-int PreviousTableStatus_;//0=stable, 1=moving
+int PreviousTableStatus_[2];
+//0=stable, 1=moving, 
+// PreviousTableStatus_[0]-> event=current -2
+// PreviousTableStatus_[1]-> event=current -1
 
 //int cryIn3x3_[cryInArray_];
 

@@ -1,6 +1,6 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBBeamCaloTask.h>
-
+#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
   LogDebug("EBBeamCaloTask") << " 1 construct  ";
   init_ = false;
@@ -37,8 +37,9 @@ void EBBeamCaloTask::setup(void){
   init_ = true;
 
   Char_t histo[20];
-  PreviousTableStatus_=0;//let's start with stable...
-    
+  PreviousTableStatus_[0]=0;//let's start with stable...
+  PreviousTableStatus_[1]=0;//let's start with stable...
+
   DaqMonitorBEInterface* dbe = 0;
 
   // get hold of back-end interface
@@ -144,36 +145,51 @@ try{
   
   bool reset_histos = false;
   bool tb_moving = false;//just for test, to be filled with info from the event
-  if(ievt_ > 500){tb_moving=true; }
+  bool skip_this_event = false;
+
+  //  if(ievt_ > 500){tb_moving=true; }
+  //if(ievt_ > 1000){tb_moving=false; cry_in_beam = 705;}
 
   if(tb_moving){
-    TableMoving_->Fill(0);
-    if( PreviousTableStatus_ == 0){reset_histos=true;}
-    PreviousTableStatus_=1;
+    TableMoving_->Fill(1);
+    if( PreviousTableStatus_[0] == 0 &&  PreviousTableStatus_[1] == 1){reset_histos=true;}
+    else if(PreviousTableStatus_[1] == 0) {skip_this_event=true;}
+    // just skip the first event when the table change status
+    PreviousTableStatus_[0]=PreviousTableStatus_[1];
+    PreviousTableStatus_[1]=1;
   }
   else {
-    TableMoving_->Fill(1);
-    if( PreviousTableStatus_ == 1){reset_histos=true;}
-    PreviousTableStatus_=0;
+    TableMoving_->Fill(0);
+    if( PreviousTableStatus_[0] == 1 &&  PreviousTableStatus_[1] == 0){reset_histos=true;}
+    else if(PreviousTableStatus_[1] == 1) {skip_this_event=true;}
+    PreviousTableStatus_[0]=PreviousTableStatus_[1];
+    PreviousTableStatus_[1]=0;
   }
-
+ 
+  ievt_++; 
+  if(skip_this_event){
+    LogInfo("EBBeamCaloTask") << "event " << ievt_ << " : skipping this event!! ";
+    //cout<< "event " << ievt_ << " : skipping this event!! "<<endl;
+    return;}
+ 
   if(reset_histos){
         LogDebug("EBBeamCaloTask") << "event " << ievt_ << " resetting histos!! ";
-    //cout << "event " << ievt_ << " resetting histos!! ";
+	//cout << "event " << ievt_ << " resetting histos!! ";
     //here the follwowing histos should be reset
-    //meBBCaloPulseProf_[cryInArray_];
-    //meBBCaloPulseProfG12_[cryInArray_];
-    //meBBCaloGains_[cryInArray_];
-    //meBBCaloEne_[cryInArray_];
-
-    // meBBCaloCryRead_;
+	for (int u=0;u<cryInArray_;u++){
+	  EBMUtilsClient::resetHisto( meBBCaloPulseProf_[u] );
+	  EBMUtilsClient::resetHisto( meBBCaloPulseProfG12_[u] );
+	   EBMUtilsClient::resetHisto( meBBCaloGains_[u] );
+	   EBMUtilsClient::resetHisto( meBBCaloEne_[u] );
+	}
+	 EBMUtilsClient::resetHisto( meBBCaloCryRead_ );
     // meBBCaloAllNeededCry_;
     // ?? boh meBBNumCaloCryRead_;
-   //meBBCaloE3x3_;
+      EBMUtilsClient::resetHisto( meBBCaloE3x3_ );
 
   }
 
-  ievt_++;
+ 
 
   int eta_c = ( cry_in_beam-1)/20 ;
   int phi_c = ( cry_in_beam-1)%20 ;
@@ -209,7 +225,7 @@ try{
       int cry_num = (phi_c+dp) + 20*(eta_c+de) +1;
       int u = de -7*dp + 24;// FIX ME to be check via a cout
       //std::cout<<"de, dp, cry, u: "<<de <<" "<<	dp<<" "<<cry_num <<" "<< u;// <<std::endl;
-      if(u<0 || u > 48) {std::cout<<"ERROR de, dp, cry, u"<<de <<" "<<	dp<<" "<<cry_num <<" "<< u<<std::endl;}
+      //if(u<0 || u > 48) {std::cout<<"ERROR de, dp, cry, u"<<de <<" "<<	dp<<" "<<cry_num <<" "<< u<<std::endl;}
       if(cry_num<1 || cry_num> 1701){cry_to_beRead[u]=-1;}
       //std::cout<<"  to be read: "<<cry_to_beRead[u]<<endl;
     }
