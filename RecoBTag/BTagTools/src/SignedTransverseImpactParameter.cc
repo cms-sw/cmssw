@@ -13,6 +13,8 @@
 #include "CLHEP/Matrix/Vector.h"
 #include <string>
 
+using namespace std;
+using namespace reco;
 
 pair<bool,Measurement1D> SignedTransverseImpactParameter::apply(const Track & aRecTrack,
  const GlobalVector & direction, const  Vertex & vertex)
@@ -58,12 +60,14 @@ pair<bool,Measurement1D> SignedTransverseImpactParameter::apply(const Track & aR
     deriv[3] =  0.;
     deriv[4] =  0.;
     deriv[5] =  0.;
-    
+    cout << TSOS.cartesianError().matrix() << endl;
+    cout << deriv << endl;   
     double E1 = (TSOS.cartesianError().matrix()).similarity(deriv);
     double E2 = RecoVertex::convertError(vertex.error()).matrix().similarity(deriv_v);
              // (aJet.vertex().positionError().matrix()).similarity(deriv_v);
-    theError = sqrt(E1+E2);
-  }//end if
+    theError = sqrt(E1);//TODO:no pV yet+E2);
+ cout << "the Error is " <<  theError << endl;
+ }//end if
   
   bool x = true;
   

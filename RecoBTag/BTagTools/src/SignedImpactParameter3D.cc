@@ -13,6 +13,9 @@
 #include "CLHEP/Matrix/Vector.h"
 #include <string>
 
+using namespace std;
+using namespace reco;
+
 pair<bool,Measurement1D> SignedImpactParameter3D::apply(const Track & aRecTrack, 
                  const GlobalVector & direction, const  Vertex & vertex)
  const {

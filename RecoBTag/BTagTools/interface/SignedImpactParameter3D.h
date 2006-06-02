@@ -10,8 +10,6 @@
   /** Threedimensional track impact parameter signed according to the jet 
    *  direction
    */
-using namespace std;
-using namespace reco;
 class SignedImpactParameter3D {
 
 public:
@@ -20,7 +18,7 @@ public:
 
   SignedImpactParameter3D(const MagneticField* field): m_field(field){};
 
-  pair<bool,Measurement1D> apply( const Track &, const GlobalVector & direction, const Vertex & vertex) const;
+  std::pair<bool,Measurement1D> apply( const reco::Track &, const GlobalVector & direction, const reco::Vertex & vertex) const;
 
   int id() const {return 2;}
 
@@ -29,13 +27,13 @@ public:
    first is the decay length
    second is the distance of the track from jet axis
   */
-  pair<double,Measurement1D> distanceWithJetAxis(const Track & aRecTrack, const GlobalVector & direction, const Vertex & vertex) const ;
+  std::pair<double,Measurement1D> distanceWithJetAxis(const reco::Track & aRecTrack, const GlobalVector & direction, const reco::Vertex & vertex) const ;
 
 private:
 
-  GlobalVector distance(const TrajectoryStateOnSurface &, const Vertex &, const GlobalVector &) const;
+  GlobalVector distance(const TrajectoryStateOnSurface &, const reco::Vertex &, const GlobalVector &) const;
 
-  TrajectoryStateOnSurface closestApproachToJet(const FreeTrajectoryState &, const Vertex &, const GlobalVector &) const;
+  TrajectoryStateOnSurface closestApproachToJet(const FreeTrajectoryState &, const reco::Vertex &, const GlobalVector &) const;
 
  const MagneticField* m_field;
 };

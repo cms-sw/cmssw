@@ -8,8 +8,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "Geometry/Vector/interface/GlobalVector.h"
 #include <utility>
-using namespace std;
-using namespace reco;
 
 
 /** Transverse track impact parameter signed according to the jet 
@@ -24,11 +22,10 @@ public:
 
   SignedTransverseImpactParameter(){};
 
-  pair<bool,Measurement1D> apply(const Track &, const GlobalVector & , const Vertex &) const;
+  std::pair<bool,Measurement1D> apply(const reco::Track &, const GlobalVector & , const reco::Vertex &) const;
 
-  pair<bool,Measurement1D> zImpactParameter ( const Track & , const GlobalVector & ,const Vertex & ) const ;
+  std::pair<bool,Measurement1D> zImpactParameter ( const reco::Track & , const GlobalVector & ,const reco::Vertex & ) const ;
   
-  int id() const {return 1;}
 
 };
 
