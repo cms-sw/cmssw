@@ -3,7 +3,7 @@
 
 /* \class TestAssociator
  *
- * \author Patrizia Azzi, INFN PD
+ * \author Patrizia Azzi (INFN PD), Vincenzo Chiochia (Uni Zuerich)
  *
  *
  ************************************************************/

@@ -78,7 +78,8 @@ using namespace edm;
     e.getByLabel(rechitProducer,"matchedRecHit", rechitsmatched);
     e.getByLabel(rechitProducer,"rphiRecHit", rechitsrphi);
     e.getByLabel(rechitProducer,"stereoRecHit", rechitsstereo);
-    e.getByType(pixelrechits);
+    e.getByLabel("pixRecHitConverter",pixelrechits);
+      //e.getByType(pixelrechits);
     
     //first instance tracking geometry
     edm::ESHandle<TrackerGeometry> pDD;
@@ -113,6 +114,13 @@ using namespace edm;
 	  }
 	  matched.clear();
 	  matched = associate.associateHit(*pixeliter);
+	  if(!matched.empty()){
+	    cout << " PIX detector =  " << myid << " PIX Rechit = " << pixeliter->localPosition() << endl; 
+		    cout << " PIX matched = " << matched.size() << endl;
+	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	      cout << " PIX hit  ID = " << (*m).trackId() << " PIX Simhit x = " << (*m).localPosition() << endl;
+	    }
+	  }  
 	}
 
 	// Do the strips

@@ -8,7 +8,7 @@
  *  The association works in both ways: from a SimHit to RecHits and
  *  from a RecHit to SimHits.
  *
- * \author Patrizia Azzi, INFN PD
+ * \author Patrizia Azzi (INFN PD), Vincenzo Chiochia (Uni Zuerich)
  *
  * \version   1st version April 2006  
  *

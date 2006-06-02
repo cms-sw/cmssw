@@ -6,6 +6,7 @@
 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 //--- for Geometry:
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -120,7 +121,6 @@ std::vector<unsigned int>  TrackerHitAssociator::associateMatchedRecHit(const Si
 
 std::vector<unsigned int>  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit)
 {
-  cout << " !---> associatePixelRecHit " << endl;
   //
   // Pixel associator: work in progress...
   //
@@ -129,8 +129,33 @@ std::vector<unsigned int>  TrackerHitAssociator::associatePixelRecHit(const SiPi
   edm::DetSetVector<PixelDigiSimLink>::const_iterator isearch = pixeldigisimlink->find(detID); 
   if(isearch != pixeldigisimlink->end()) {  //if it is not empty
     edm::DetSet<PixelDigiSimLink> link_detset = (*pixeldigisimlink)[detID];
-    const SiPixelCluster*  cluster = pixelrechit->cluster();
-    // ...to be completed... //
+    edm::Ref< edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& cluster = pixelrechit->cluster();
+    int minPixelRow = (*cluster).minPixelRow();
+    int maxPixelRow = (*cluster).maxPixelRow();
+    int minPixelCol = (*cluster).minPixelCol();
+    int maxPixelCol = (*cluster).maxPixelCol();    
+    //std::cout << "    Cluster minRow " << minPixelRow << " maxRow " << maxPixelRow << std::endl;
+    //std::cout << "    Cluster minCol " << minPixelCol << " maxCol " << maxPixelCol << std::endl;
+    edm::DetSet<PixelDigiSimLink>::const_iterator linkiter = link_detset.data.begin();
+    int dsl = 0;
+    unsigned int simtrackid_cache = 9999999;
+    for( ; linkiter != link_detset.data.end(); linkiter++) {
+      dsl++;
+      std::pair<int,int> pixel_coord = PixelDigi::channelToPixel(linkiter->channel());
+      //std::cout << "    " << dsl << ") Digi link: row " << pixel_coord.first << " col " << pixel_coord.second << std::endl;      
+      if(  pixel_coord.first  <= maxPixelRow && 
+	   pixel_coord.first  >= minPixelRow &&
+	   pixel_coord.second <= maxPixelCol &&
+	   pixel_coord.second >= minPixelCol ) {
+	//std::cout << "      !-> trackid   " << linkiter->SimTrackId() << endl;
+	//std::cout << "          fraction  " << linkiter->fraction()   << endl;
+	if(linkiter->SimTrackId() != simtrackid_cache) {  // Add each trackid only once
+	  simtrackid.push_back(linkiter->SimTrackId());
+	  //cout    << "          Adding TrackId " << linkiter->SimTrackId() << endl;
+	  simtrackid_cache = linkiter->SimTrackId();
+	}
+      } 
+    }
   }
   
   return simtrackid;
@@ -198,6 +223,11 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  : myEvent_(e)  
   thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsHighTof->begin(), PixelBarrelHitsHighTof->end());
   thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsLowTof->begin(), PixelEndcapHitsLowTof->end()); 
   thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsHighTof->begin(), PixelEndcapHitsHighTof->end());
+
+  for (std::vector<PSimHit>::iterator isim = thePixelHits.begin();
+       isim != thePixelHits.end(); ++isim){
+    SimHitMap[(*isim).detUnitId()].push_back((*isim));
+  }
   
 }
 
