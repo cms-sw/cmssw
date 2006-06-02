@@ -174,14 +174,14 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview)
       //RectangularPlaneBounds* 
       bounds = 
 	new RectangularPlaneBounds(width,length,thickness);
-      pars.push_back(dpar[0]);
-      pars.push_back(dpar[1]);
+      pars.push_back(width);
+      pars.push_back(length);
       pars.push_back(numbOfStrips.doubles()[0]); //h/2;
       rollspecs = new RPCRollSpecs(GeomDetType::RPCBarrel,name,pars);
 #ifdef LOCAL_DEBUG  
       std::cout <<"Barrel "<<name
-		<<" par "<<dpar[0]
-		<<" "<<dpar[1]<<" "<<dpar[2];
+		<<" par "<<width
+		<<" "<<length<<" "<<thickness;
 #endif
     }else{
       float be = dpar[4]/cm;
@@ -191,15 +191,15 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview)
       //  TrapezoidalPlaneBounds* 
       bounds = 
 	new TrapezoidalPlaneBounds(be,te,ap,ti);
-      pars.push_back(dpar[4]); //b/2;
-      pars.push_back(dpar[8]); //B/2;
-      pars.push_back(dpar[0]); //h/2;
+      pars.push_back(dpar[4]/cm); //b/2;
+      pars.push_back(dpar[8]/cm); //B/2;
+      pars.push_back(dpar[0]/cm); //h/2;
       pars.push_back(numbOfStrips.doubles()[0]); //h/2;
       
 #ifdef LOCAL_DEBUG  
       std::cout <<"Forward "<<name
-		<<" par "<<dpar[4]
-		<<" "<<dpar[8]<<" "<<dpar[3]<<" "
+		<<" par "<<dpar[4]/cm
+		<<" "<<dpar[8]/cm<<" "<<dpar[3]/cm<<" "
 		<<dpar[0];
 #endif      
 
