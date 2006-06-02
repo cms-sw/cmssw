@@ -10,6 +10,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "FWCore/Framework/interface/ESHandle.h"
 
 using namespace std;
@@ -19,10 +20,10 @@ SeedFromConsecutiveHits( const TrackingRecHit* outerHit,
 			 const GlobalPoint& vertexPos,
 			 const GlobalError& vertexErr,
 			 const edm::EventSetup& iSetup,
-			 const edm::ParameterSet& p
-			 ) :p_(p)
-{
-  construct( outerHit,  innerHit, vertexPos, vertexErr,iSetup,p_);
+			 const edm::ParameterSet& p){
+
+ 
+  construct( outerHit,  innerHit, vertexPos, vertexErr,iSetup,p);
 }
 
 
@@ -38,6 +39,8 @@ construct( const TrackingRecHit* outerHit,
 {
   typedef TrajectoryStateOnSurface     TSOS;
   typedef TrajectoryMeasurement        TM;
+
+
 
   // make a spiral
   //MP
@@ -95,8 +98,9 @@ construct( const TrackingRecHit* outerHit,
   // get the transient builder
   //
     edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-    std::string builderName = p_.getParameter<std::string>("TTRHBuilder");   
-    iSetup.get<TrackingComponentsRecord>().get(builderName,theBuilder);
+    std::string builderName = p.getParameter<std::string>("TTRHBuilder");  
+    iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
+
 
     intrhit=theBuilder.product()->build(innerHit);
 

@@ -56,7 +56,6 @@ class SeedFromConsecutiveHits{
   PTrajectoryStateOnDet trajectoryState(){return *PTraj;};
   TrajectorySeed *TrajSeed(){return new TrajectorySeed(trajectoryState(),hits(),direction());};
  private:
-  const edm::ParameterSet& p_;
   TrajectoryMeasurement theInnerMeas;
   TrajectoryMeasurement theOuterMeas;
 

@@ -17,6 +17,7 @@ public:
 
   SeedGeneratorFromTrackingRegion(const edm::ParameterSet& conf): conf_(conf)
 {}
+  virtual ~SeedGeneratorFromTrackingRegion(){}
   // from base class
  //  virtual SeedContainer seeds() { 
 /*  virtual vector<TrajectorySeed> seeds(){ */
@@ -43,7 +44,7 @@ public:
   const edm::ParameterSet& pSet(){return conf_;}
 
  private:
-  const edm::ParameterSet& conf_;
+  const edm::ParameterSet conf_;
 
 };
 #endif

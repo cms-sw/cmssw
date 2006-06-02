@@ -15,7 +15,6 @@ template <class T> T sqr( T t) {return t*t;}
 //   //  theTimer = initTiming("TkSeedGenerator seed construction",1);
 // }
 
-
 void
 SeedGeneratorFromHitPairsConsecutiveHits::seeds(TrajectorySeedCollection &output,
 						const edm::EventSetup& iSetup,
@@ -34,6 +33,8 @@ SeedGeneratorFromHitPairsConsecutiveHits::seeds(TrajectorySeedCollection &output
 
   for (ip = hitPairs.begin(); ip != hitPairs.end(); ip++) {
  
+
+
     SeedFromConsecutiveHits *seedfromhits=
       new SeedFromConsecutiveHits( ip->outer(), ip->inner(),
 				   region.origin(), vtxerr,iSetup,pSet());
