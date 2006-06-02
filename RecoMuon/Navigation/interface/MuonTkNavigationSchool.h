@@ -1,5 +1,21 @@
-#ifndef MUON_TK_NAVIGATION_SCHOOL_H
-#define MUON_TK_NAVIGATION_SCHOOL_H
+#ifndef Navigation_MuonTkNavigationSchool_H
+#define Navigation_MuonTkNavigationSchool_H
+
+/** \class MuonTkNavigationSchool
+ *
+ *  Navigation School for both Muon and Tk
+ *  different from the one in ORCA
+ *
+ *  $Date: $
+ *  $Revision: $
+ *
+ * \author : Chang Liu - Purdue University
+ * \author Stefano Lacaprara - INFN Padova 
+ *         Gilles De Lentdecker - IIHE Brussels 
+ *
+ *  
+ */
+
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -25,8 +41,8 @@ class MuonTkNavigationSchool : public NavigationSchool {
 
     /// Constructor
     MuonTkNavigationSchool(const MuonDetLayerGeometry*, const GeometricSearchTracker*, const MagneticField*);
-   /// Destructor
-   ~MuonTkNavigationSchool();
+    /// Destructor
+    ~MuonTkNavigationSchool();
     /// return a vector of NavigableLayer*, from base class
     virtual vector<NavigableLayer*> navigableLayers() const;
 
@@ -44,14 +60,12 @@ class MuonTkNavigationSchool : public NavigationSchool {
 
     float barrelLength();
 
-    void createInverseLinks() const;
-
     float calculateEta(float r, float z) const;
 
   private:
-  typedef vector<const DetLayer*>              DLC;
-  typedef vector<BarrelDetLayer*>              BDLC;
-  typedef vector<ForwardDetLayer*>             FDLC;
+    typedef vector<const DetLayer*>              DLC;
+    typedef vector<BarrelDetLayer*>              BDLC;
+    typedef vector<ForwardDetLayer*>             FDLC;
     typedef DLC::iterator                        DLI;
     typedef BDLC::iterator                       BDLI;
     typedef FDLC::iterator                       FDLI;
