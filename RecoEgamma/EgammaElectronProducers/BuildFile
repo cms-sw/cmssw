@@ -10,7 +10,7 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/EgammaCandidates>
-<use name=RecoEgamma/EgammaElectronAlgos>
+use name=RecoEgamma/EgammaElectronAlgos>
 <flags SEAL_PLUGIN_NAME="RecoEgammaEgammaElectronProducers">
 <export>
    <lib name=RecoEgammaEgammaElectronProducers>
