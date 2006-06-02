@@ -100,3 +100,50 @@ pair<vector<DetLayer*>, vector<DetLayer*> >
     pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(detlayers[0], detlayers[1]); 
     return res_pair;
 }
+
+
+vector<DetLayer*> 
+MuonRPCDetLayerGeometryBuilder::buildLayers(const RPCGeometry& geo) {
+        
+  vector<DetLayer*> detlayers;
+  vector<MuRodBarrelLayer*> result;
+  int region =0;
+            
+  for(int station = RPCDetId::minStationId; station <= RPCDetId::maxStationId; station++) {
+	for(int layer=RPCDetId::minLayerId; layer<= RPCDetId::maxLayerId;++layer){
+		
+		vector<const DetRod*> muDetRods;
+		for(int sector = RPCDetId::minSectorId; sector <= RPCDetId::maxSectorId; sector++) {
+		for(int subsector = RPCDetId::minSubSectorId; subsector <= RPCDetId::maxSubSectorId; subsector++) {
+
+			vector<const GeomDet*> geomDets;
+			for(int wheel = RPCDetId::minRingBarrelId; wheel <= RPCDetId::maxRingBarrelId; wheel++) {
+			for(int roll=RPCDetId::minRollId+1); roll <= RPCDetId::maxRollId-1; roll++){	  
+				const GeomDet* geomDet = geo.idToDet(RPCDetId(region,wheel,station,sector,layer,subsector,roll));
+				if (geomDet) {
+					geomDets.push_back(geomDet);
+					LogDebug("Muon|RPC|RecoMuonDetLayers") << "get RPC roll " <<  RPCDetId(region,wheel,station,sector,layer,subsector,roll)
+					 << " at R=" << geomDet->position().perp()
+					 << ", phi=" << geomDet->position().phi() ;
+				}
+			}
+			}
+                
+      			if (geomDets.size()!=0) {
+				muDetRods.push_back(new MuDetRod(geomDets));
+				LogDebug("Muon|RPC|RecoMuonDetLayers") << "  New MuDetRod with " << geomDets.size()
+ 				 << " chambers at R=" << muDetRods.back()->position().perp()
+				 << ", phi=" << muDetRods.back()->position().phi();
+      		 	}
+   		 }
+		 }
+	result.push_back(new MuRodBarrelLayer(muDetRods));  
+	LogDebug("Muon|RPC|RecoMuonDetLayers") << "    New MuRodBarrelLayer with " << muDetRods.size()
+	}				  << " rods, at R " << result.back()->specificSurface().radius();
+  }
+
+  for(vector<MuRodBarrelLayer*>::const_iterator it = result.begin(); it != result.end(); it++)
+    detlayers.push_back((DetLayer*)(*it));
+
+  return detlayers;
+}
