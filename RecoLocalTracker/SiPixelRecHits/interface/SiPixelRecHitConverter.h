@@ -79,6 +79,10 @@ namespace cms
 	     SiPixelRecHitCollection & output,
 	     edm::ESHandle<TrackerGeometry> & geom);
 
+    void run(edm::Handle<edm::DetSetVector<SiPixelCluster> >  inputhandle,
+	     SiPixelRecHitCollection & output,
+	     edm::ESHandle<TrackerGeometry> & geom);
+
   private:
     edm::ParameterSet conf_;
     // TO DO: maybe allow a map of pointers?

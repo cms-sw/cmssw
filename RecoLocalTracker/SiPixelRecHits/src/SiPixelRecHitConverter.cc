@@ -1,9 +1,10 @@
 /** SiPixelRecHitConverter.cc
- * -------------------------------------------- 
+ * ------------------------------------------------------
  * Description:  see SiPixelRecHitConverter.h
- * Author:  P. Maksimovic, JHU
- * History: Feb 27, 2006, initial version
- * -------------------------------------------- 
+ * Authors:  P. Maksimovic (JHU), V.Chiochia (Uni Zurich)
+ * History: Feb 27, 2006 -  initial version
+ *          May 30, 2006 -  edm::DetSetVector and edm::Ref
+ * ------------------------------------------------------
  */
 
 
@@ -19,6 +20,7 @@
 
 // Data Formats
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 // Framework
 #include "FWCore/Framework/interface/Handle.h"
@@ -89,7 +91,7 @@ namespace cms
 
     // Step C: Iterate over DetIds and invoke the strip CPE algorithm
     // on each DetUnit
-    run( *input, *output, geom );
+    run( input, *output, geom );
 
     // Step D: write output to file
     e.put(output);
@@ -128,7 +130,7 @@ namespace cms
   //!  and make a RecHit to store the result.
   //!  New interface reading DetSetVector by V.Chiochia (May 30th, 2006)
   //---------------------------------------------------------------------------
-  void SiPixelRecHitConverter::run(const edm::DetSetVector<SiPixelCluster>& input, 
+  void SiPixelRecHitConverter::run(edm::Handle<edm::DetSetVector<SiPixelCluster> >  inputhandle,
 				   SiPixelRecHitCollection &output,
 				   edm::ESHandle<TrackerGeometry> & geom) {
     if ( ! ready_ ) {
@@ -140,6 +142,9 @@ namespace cms
 
     int numberOfDetUnits = 0;
     int numberOfClusters = 0;
+
+    const edm::DetSetVector<SiPixelCluster>& input = *inputhandle;
+    
     edm::DetSetVector<SiPixelCluster>::const_iterator DSViter=input.begin();
     
     for ( ; DSViter != input.end() ; DSViter++) {
@@ -159,9 +164,14 @@ namespace cms
 	  cpe_->localParameters( *clustIt, *genericDet );
 	LocalPoint lp( lv.first );
 	LocalError le( lv.second );
-	
-	// Make a RecHit and add it to a temporary OwnVector.
-	recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
+
+	// Create a persistent edm::Ref to the cluster
+	edm::Ref< edm::DetSetVector<SiPixelCluster>, SiPixelCluster > cluster =
+	  edm::makeRefTo( inputhandle, detid, clustIt);
+
+	// Make a RecHit and add it to the temporary OwnVector.
+	//recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
+	recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, cluster) );
       } //  <-- End loop on Clusters
 
       if (recHitsOnDetUnit.size() > 0) {
