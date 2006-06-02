@@ -13,10 +13,22 @@ SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& i
   undetected_()
 {
   edm::LogInfo("FedCabling") << "[SiStripFedCabling::SiStripFedCabling] Constructing object...";
+  buildFedCabling( input );
+}
 
+// -----------------------------------------------------------------------------
+//
+SiStripFedCabling::~SiStripFedCabling() {
+  edm::LogInfo("FedCabling") << "[SiStripFedCabling::~SiStripFedCabling] Destructing object...";
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripFedCabling::buildFedCabling( const std::vector<FedChannelConnection>& input ) {
+  
   // Check input
   if ( input.empty() ) {
-    edm::LogError("FedCabling") << "[SiStripFedCabling::SiStripFedCabling] Input vector of zero size!"; 
+    edm::LogError("FedCabling") << "[SiStripFedCabling::buildFedCabling] Input vector of zero size!"; 
   }
   
   static const uint16_t MaxFedId = 1024;
@@ -35,10 +47,10 @@ SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& i
 
     // Check on FED ids and channels
     if ( fed_id >= MaxFedId ) {
-      edm::LogError("FedCabling") << "[SiStripFedCabling::SiStripFedCabling] Unexpected FED id! " << fed_id; 
+      edm::LogError("FedCabling") << "[SiStripFedCabling::buildFedCabling] Unexpected FED id! " << fed_id; 
     } 
     if ( fed_ch >= MaxFedCh ) {
-      edm::LogError("FedCabling") << "[SiStripFedCabling::SiStripFedCabling] Unexpected FED channel! " << fed_ch;
+      edm::LogError("FedCabling") << "[SiStripFedCabling::buildFedCabling] Unexpected FED channel! " << fed_ch;
     } 
     
     // Resize container to accommodate all FED channels
@@ -61,7 +73,7 @@ SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& i
     
   }
 
-  LogDebug("Cabling") << "[SiStripFedCabling::SiStripFedCabling] Printing FedChannelConnections: ";
+  LogDebug("Cabling") << "[SiStripFedCabling::buildFedCabling] Printing FedChannelConnections: ";
   std::vector<uint16_t>::const_iterator ifed;
   for ( ifed = (*this).feds().begin(); ifed != (*this).feds().end(); ifed++ ) {
     uint16_t connected = 0;
@@ -69,18 +81,12 @@ SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& i
     for ( ichan = connections(*ifed).begin(); ichan != connections(*ifed).end(); ichan++ ) { 
       if ( ichan->fedId() ) { ichan->print(); connected++; }
     }
-    edm::LogInfo("FedCabling") << "[SiStripFedCabling::SiStripFedCabling]"
+    edm::LogInfo("FedCabling") << "[SiStripFedCabling::buildFedCabling]"
 			       << " Found FED with id " << *ifed
 			       << " that has " << connected
 			       << " connected channels";
   }
   
-}
-
-// -----------------------------------------------------------------------------
-//
-SiStripFedCabling::~SiStripFedCabling() {
-  edm::LogInfo("FedCabling") << "[SiStripFedCabling::~SiStripFedCabling] Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
