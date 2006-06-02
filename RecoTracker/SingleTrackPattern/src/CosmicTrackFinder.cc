@@ -44,18 +44,14 @@ namespace cms
     edm::Handle<TrajectorySeedCollection> seed;
     e.getByType(seed);
     //retrieve PixelRecHits
-    //    edm::Handle<SiPixelRecHitCollection> pixelHits;
-    //  e.getByType(pixelHits);
+    edm::Handle<SiPixelRecHitCollection> pixelHits;
+    e.getByType(pixelHits);
     //retrieve StripRecHits
     edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits;
-    //    e.getByLabel("SiStripRecHits","matchedRecHit" ,matchedrecHits);
     e.getByLabel(hitProducer,"matchedRecHit" ,matchedrecHits);
-   edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
-    //    e.getByLabel("SiStripRecHits","rphiRecHit" ,rphirecHits);
-   e.getByLabel(hitProducer,"rphiRecHit" ,rphirecHits);
-
+    edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
+    e.getByLabel(hitProducer,"rphiRecHit" ,rphirecHits);
     edm::Handle<SiStripRecHit2DLocalPosCollection> stereorecHits;
-    //   e.getByLabel("SiStripRecHits","stereoRecHit" ,stereorecHits);
     e.getByLabel(hitProducer,"stereoRecHit" ,stereorecHits);
 
     // Step B: create empty output collection
@@ -89,7 +85,7 @@ namespace cms
 				   *stereorecHits,
 				   *rphirecHits,
 				   *matchedrecHits,
-				   //				   *pixelHits,
+				   *pixelHits,
 				   es,
 				   e,
 				   algooutput);
@@ -117,11 +113,16 @@ namespace cms
 	  TSOS outertsos = theTraj.lastMeasurement().updatedState();
 	  TSOS Fitsos = theTraj.firstMeasurement().updatedState();
 
-	  GlobalPoint v(0.,0.,0.);
+	  GlobalPoint v;
 	  GlobalVector p;
+	  if (seedplus){
+	    p=outertsos.globalMomentum();
+	    v=outertsos.globalPosition();
+	  }else{
+	    p=Fitsos.globalMomentum();
+	    v=Fitsos.globalPosition();
+	  }
 
-	  if (seedplus) p=outertsos.globalParameters().momentum();
-	  else p= Fitsos.globalParameters().momentum();
 
 	  math::XYZVector outmom( p.x(), p.y(), p.z() );
 	  math::XYZPoint  outpos( v.x(), v.y(), v.z() );   

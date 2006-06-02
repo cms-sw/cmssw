@@ -40,12 +40,16 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
 
  
  
-   seed_plus=false;
-   
-   thePropagator=         new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );
-   thePropagatorOp=    new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield) );
- 
-  
+   if (seedplus) { 	 
+     seed_plus=true; 	 
+     thePropagator=      new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield) ); 	 
+     thePropagatorOp=    new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );} 	 
+   else {
+     seed_plus=false;
+     thePropagator=      new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) ); 	
+     thePropagatorOp=    new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield) );
+   }
+
    theUpdator=       new KFUpdator();
    theEstimator=     new Chi2MeasurementEstimator(chi2cut);
 
@@ -75,7 +79,7 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 				  const SiStripRecHit2DLocalPosCollection &collstereo,
 				  const SiStripRecHit2DLocalPosCollection &collrphi ,
 				  const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
-				  //				  const SiPixelRecHitCollection &collpixel,
+				  const SiPixelRecHitCollection &collpixel,
 				  const edm::EventSetup& es,
 				  edm::Event& e,
 				  vector<AlgoProduct> &algooutput)
@@ -85,8 +89,8 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
   trajFit.clear();
 
   //order all the hits
-  //  vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collpixel,collseed);
-  vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collseed);  
+  vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collpixel,collseed);
+  //vector<const TrackingRecHit*> allHits= SortHits(collstereo,collrphi,collmatched,collseed);  
   std::vector<Trajectory> trajSmooth;
   std::vector<Trajectory>::iterator trajIter;
   
@@ -160,7 +164,7 @@ vector<const TrackingRecHit*>
 CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &collstereo,
 				  const SiStripRecHit2DLocalPosCollection &collrphi ,
 				  const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
-				  //				  const SiPixelRecHitCollection &collpixel,
+				  const SiPixelRecHitCollection &collpixel,
 				  const TrajectorySeedCollection &collseed){
 
   //The Hits with global y more than the seed are discarded
@@ -168,29 +172,30 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &colls
   //At the end all the hits are sorted in y
   vector<const TrackingRecHit*> allHits;
   vector<const TrackingRecHit*> seedHits;
-//   SiPixelRecHitCollection::const_iterator ipix;
-//   for(ipix=collpixel.begin();ipix!=collpixel.end();ipix++){
-//     allHits.push_back(&(*ipix));
-//   }
+  SiPixelRecHitCollection::const_iterator ipix;
+  for(ipix=collpixel.begin();ipix!=collpixel.end();ipix++){
+    allHits.push_back(&(*ipix));
+  }
 
   SiStripRecHit2DLocalPosCollection::const_iterator istrip;
   TrajectorySeedCollection::const_iterator iseed;
   TrajectorySeedCollection::const_iterator seedbegin=collseed.begin();
   TrajectorySeed::range hRange= (*seedbegin).recHits();
   TrajectorySeed::const_iterator ihit;
-  float ymin=RHBuilder->build(&(*hRange.first))->globalPosition().y();
-  // for (ihit = hRange.first; 
-  //    ihit != hRange.second; ihit++) {
-  // ymin=RHBuilder->build(&(*ihit))->globalPosition().y();
-    // }
+  float ymin=0.;
+  for (ihit = hRange.first; 
+       ihit != hRange.second; ihit++) {
+    ymin=RHBuilder->build(&(*ihit))->globalPosition().y();
+  }
  
 
   TrajectorySeedCollection::const_iterator seedend=collseed.end();
   for(istrip=collrphi.begin();istrip!=collrphi.end();istrip++){
     bool differenthit= true;
     for (iseed=seedbegin;iseed!=seedend;iseed++){
-      for (ihit = hRange.first; 
-	   ihit != hRange.second; ihit++) {
+      TrajectorySeed::range hitRange= (*iseed).recHits();
+      for (ihit = hitRange.first; 
+	   ihit != hitRange.second; ihit++) {
 	if((*ihit).geographicalId()==(*istrip).geographicalId()) {
 
 	  if(((*ihit).localPosition()-(*istrip).localPosition()).mag()<0.1)  differenthit=false;
@@ -201,50 +206,33 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DLocalPosCollection &colls
 
     if (differenthit) { 
       float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
-      if (ych>ymin)
-	allHits.push_back(&(*istrip));
+      if ((seed_plus && (ych<ymin)) || (!(seed_plus) && (ych>ymin)))
+	allHits.push_back(&(*istrip));   
     } 
     else  seedHits.push_back(&(*istrip)); 
   }
 
- 
-
-  for(istrip=collstereo.begin();istrip!=collstereo.end();istrip++){
-    float ych= RHBuilder->build(&(*istrip))->globalPosition().y(); 
-   if (ych>ymin)
-      allHits.push_back(&(*istrip));
-  }
- 
-  SiStripRecHit2DMatchedLocalPosCollection::const_iterator istripm;
-  for(istripm=collmatched.begin();istripm!=collmatched.end();istripm++){
-     bool differenthit= true;
- 
-    for (ihit = hRange.first; 
-	 ihit != hRange.second; ihit++) {
-      if((*ihit).geographicalId()==(*istripm).geographicalId()) {
-
-	if(((*ihit).localPosition()-(*istripm).localPosition()).mag()<0.1)  differenthit=false;
-      }
-    }  
- 
-    if (differenthit) { 
-      float ych= RHBuilder->build(&(*istripm))->globalPosition().y();
-      if (ych>ymin)
-	allHits.push_back(&(*istripm));
-    } 
-    else  seedHits.push_back(&(*istripm)); 
-
-  }
- 
-
   hits.push_back((RHBuilder->build(seedHits.back()))); 
   hits.push_back((RHBuilder->build(seedHits.front()))); 
- 
+
   LogDebug("CosmicTrackFinder")<<"SEED HITS"<<RHBuilder->build(seedHits.back())->globalPosition()
       <<" "<<RHBuilder->build(seedHits.front())->globalPosition();
+  for(istrip=collstereo.begin();istrip!=collstereo.end();istrip++){
 
-  stable_sort(allHits.begin(),allHits.end(),CompareHitY(*tracker));
+      allHits.push_back(&(*istrip));
+  }
 
+  SiStripRecHit2DMatchedLocalPosCollection::const_iterator istripm;
+  for(istripm=collmatched.begin();istripm!=collmatched.end();istripm++){
+    
+  }
+
+  if (seed_plus){
+    stable_sort(allHits.begin(),allHits.end(),CompareHitY_plus(*tracker));
+  }
+  else {
+    stable_sort(allHits.begin(),allHits.end(),CompareHitY(*tracker));
+  }
   return allHits;
 };
 
@@ -320,18 +308,24 @@ CosmicTrajectoryBuilder::qualityFilter(Trajectory traj){
 }
 
 std::pair<Trajectory, reco::Track>  CosmicTrajectoryBuilder::makeTrack(const Trajectory &traj){
-  //MP must be checked
-
+ 
+  TSOS outertsos = traj.lastMeasurement().updatedState();
   TSOS Fitsos = traj.firstMeasurement().updatedState();
 
- //MP
+ 
   int ndof =traj.foundHits()-5;
   if (ndof<0) ndof=0;
 
   TSCPBuilderNoMaterial tscpBuilder;
   TrajectoryStateClosestToPoint tscp;
-  tscp= tscpBuilder(*(Fitsos.freeState()),
-		    Fitsos.globalPosition());   
+
+  if (seed_plus) 	 
+    tscp= tscpBuilder(*(outertsos.freeState()), 	 
+		      outertsos.globalPosition());
+  else
+    tscp= tscpBuilder(*(Fitsos.freeState()),
+		      Fitsos.globalPosition());
+
   reco::perigee::Parameters param = tscp.perigeeParameters();
   
   reco::perigee::Covariance covar = tscp.perigeeError();
@@ -347,5 +341,5 @@ std::pair<Trajectory, reco::Track>  CosmicTrajectoryBuilder::makeTrack(const Tra
   
   AlgoProduct aProduct(traj,theTrack);
   return aProduct;
-  //  return theTrack; 
+
 }

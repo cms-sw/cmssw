@@ -79,7 +79,7 @@ class CosmicTrajectoryBuilder
 	     const SiStripRecHit2DLocalPosCollection &collstereo,
 	     const SiStripRecHit2DLocalPosCollection &collrphi ,
 	     const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
-	     //	     const SiPixelRecHitCollection &collpixel,
+	     const SiPixelRecHitCollection &collpixel,
 	     const edm::EventSetup& es,
 	     edm::Event& e,
 	     vector<AlgoProduct> &algooutput);
@@ -93,7 +93,7 @@ class CosmicTrajectoryBuilder
     vector<const TrackingRecHit*> SortHits(const SiStripRecHit2DLocalPosCollection &collstereo,
 					   const SiStripRecHit2DLocalPosCollection &collrphi ,
 					   const SiStripRecHit2DMatchedLocalPosCollection &collmatched,
-					   //		   const SiPixelRecHitCollection &collpixel,
+					   const SiPixelRecHitCollection &collpixel,
 					   const TrajectorySeedCollection &collseed);
 
     TSOS startingTSOS(const TrajectorySeed& seed)const;
