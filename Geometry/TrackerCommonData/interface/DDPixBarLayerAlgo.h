@@ -27,6 +27,7 @@ private:
   std::string              genMat;      //Name of general material
   int                      number;      //Number of ladders in phi
   double                   layerDz;     //Length of the layer
+  double                   sensorEdge;  //Distance from edge for a half sensor
   double                   coolDz;      //Length of the cooling piece
   double                   coolWidth;   //Width                       
   double                   coolSide;    //Side length

@@ -6,7 +6,6 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
@@ -20,8 +19,8 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDTECAxialCableAlgo::DDTECAxialCableAlgo() {
-  edm::LogInfo("TrackerGeom") << "DDTECAxialCableAlgo info: Creating an "
-			      << "instance";
+  edm::LogInfo("TECGeom") << "DDTECAxialCableAlgo info: Creating an "
+			  << "instance";
 }
 
 DDTECAxialCableAlgo::~DDTECAxialCableAlgo() {}
@@ -55,30 +54,28 @@ void DDTECAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
     }
   }  
 
-  LogDebug("TrackerGeom") << "DDTECAxialCableAlgo debug: Parameters for "
-			  << "creating " << startAngle.size() 
-			  << " axial cables and positioning " << n 
-			  << " copies in Service volume\n"
-			  << "                            zStart " << zStart 
-			  << " zEnd " << zEnd << " rMin " << rMin << " rMax "
-			  << rMax << " Cable width " << width/deg 
-			  << " thickness " << thickR << ", " << thickZ 
-			  << " dZ " << dZ << "\n"
-			  << "                            Range, Delta " 
-			  << rangeAngle/deg << ", " << delta/deg;
-  for (unsigned int i=0; i<startAngle.size(); i++)
-    LogDebug("TrackerGeom") << "                          Cable " << i 
-			    << " from Z " << zPos[i] << " startAngle " 
-			    << startAngle[i]/deg;
+  LogDebug("TECGeom") << "DDTECAxialCableAlgo debug: Parameters for creating " 
+		      << startAngle.size() << " axial cables and positioning "
+		      << n << " copies in Service volume\n"
+		      << "                            zStart " << zStart 
+		      << " zEnd " << zEnd << " rMin " << rMin << " rMax "
+		      << rMax << " Cable width " << width/deg << " thickness " 
+		      << thickR << ", " << thickZ << " dZ " << dZ << "\n"
+		      << "                            Range, Delta " 
+		      << rangeAngle/deg << ", " << delta/deg;
+  for (int i=0; i<(int)(startAngle.size()); i++)
+    LogDebug("TECGeom") << "                          Cable " << i 
+			<< " from Z " << zPos[i] << " startAngle " 
+			<< startAngle[i]/deg;
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   matName     = sArgs["Material"]; 
 
   DDName parentName = parent().name();
 
-  LogDebug("TrackerGeom") << "DDTECAxialCableAlgo debug: Parent " << parentName
-			  << "\tChild " << childName << " NameSpace " 
-			  << idNameSpace << "\tMaterial " << matName;
+  LogDebug("TECGeom") << "DDTECAxialCableAlgo debug: Parent " << parentName
+		      << "\tChild " << childName << " NameSpace " 
+		      << idNameSpace << "\tMaterial " << matName;
 }
 
 void DDTECAxialCableAlgo::execute() {
@@ -86,11 +83,11 @@ void DDTECAxialCableAlgo::execute() {
   DDName mother = parent().name();
   double theta  = 90.*deg;
 
-  for (unsigned int k=0; k<startAngle.size(); k++) {
+  for (int k=0; k<(int)(startAngle.size()); k++) {
 
     int i;
     double zv = zPos[k]-dZ-0.5*(zStart+zEnd);
-    vector<double> pconZ, pconRmin, pconRmax;
+    std::vector<double> pconZ, pconRmin, pconRmax;
     pconZ.push_back(zv);
     pconRmin.push_back(rMin);
     pconRmax.push_back(rMax);
@@ -117,20 +114,20 @@ void DDTECAxialCableAlgo::execute() {
     pconRmin.push_back(rMax-thickR);
     pconRmax.push_back(rMax);
 
-    string name = childName + dbl_to_string(k);
+    std::string name = childName + dbl_to_string(k);
     DDSolid solid = DDSolidFactory::polycone(DDName(name, idNameSpace),
 					     -0.5*width, width, pconZ, 
 					     pconRmin, pconRmax);
 
-    LogDebug("TrackerGeom") << "DDTECAxialCableAlgo test: " 
-			    << DDName(name, idNameSpace) <<" Polycone made of "
-			    << matName << " from " << -0.5*width/deg << " to "
-			    << 0.5*width/deg << " and with " << pconZ.size()
-			    << " sections ";
-    for (unsigned int ii = 0; ii <pconZ.size(); ii++) 
-      LogDebug("TrackerGeom") << "\t" << "\tZ[" << ii << "] = " << pconZ[ii] 
-			      << "\tRmin[" << ii << "] = "<< pconRmin[ii] 
-			      << "\tRmax[" << ii << "] = " << pconRmax[ii];
+    LogDebug("TECGeom") << "DDTECAxialCableAlgo test: " 
+			<< DDName(name, idNameSpace) <<" Polycone made of "
+			<< matName << " from " << -0.5*width/deg << " to "
+			<< 0.5*width/deg << " and with " << pconZ.size()
+			<< " sections ";
+    for (int ii = 0; ii <(int)(pconZ.size()); ii++) 
+      LogDebug("TECGeom") << "\t" << "\tZ[" << ii << "] = " << pconZ[ii] 
+			  << "\tRmin[" << ii << "] = "<< pconRmin[ii] 
+			  << "\tRmax[" << ii << "] = " << pconRmax[ii];
     DDName mat(DDSplit(matName).first, DDSplit(matName).second); 
     DDMaterial matter(mat);
     DDLogicalPart genlogic(DDName(name, idNameSpace), matter, solid);
@@ -143,13 +140,13 @@ void DDTECAxialCableAlgo::execute() {
 
       DDRotation rotation;
       if (phideg != 0) {
-	string rotstr = childName + dbl_to_string(phideg*10.);
+	std::string rotstr = childName + dbl_to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
-	  LogDebug("TrackerGeom") << "DDTECAxialCableAlgo test: Creating a new"
-				  << " rotation: " << rotstr << "\t90., " 
-				  << phix/deg << ", 90.," << phiy/deg 
-				  << ", 0, 0";
+	  LogDebug("TECGeom") << "DDTECAxialCableAlgo test: Creating a new"
+			      << " rotation: " << rotstr << "\t90., " 
+			      << phix/deg << ", 90.," << phiy/deg 
+			      << ", 0, 0";
 	  rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, 
 			   phiy, 0., 0.);
 	}
@@ -157,10 +154,10 @@ void DDTECAxialCableAlgo::execute() {
 	
       DDTranslation tran(0,0,0);
       DDpos (DDName(name, idNameSpace), mother, i+1, tran, rotation);
-      LogDebug("TrackerGeom") << "DDTECAxialCableAlgo test " 
-			      << DDName(name, idNameSpace) << " number " << i+1
-			      << " positioned in " << mother << " at " << tran
-			      << " with "  << rotation;
+      LogDebug("TECGeom") << "DDTECAxialCableAlgo test " 
+			  << DDName(name, idNameSpace) << " number " << i+1
+			  << " positioned in " << mother << " at " << tran
+			  << " with "  << rotation;
 
       phi  += delta;
     }

@@ -6,13 +6,9 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerPhiAlgo.h"
@@ -40,7 +36,7 @@ void DDTrackerPhiAlgo::initialize(const DDNumericArguments & nArgs,
   LogDebug("TrackerGeom") << "DDTrackerPhiAlgo debug: Parameters for position"
 			  << "ing:: " << " Radius " << radius << " Tilt " 
 			  << tilt/deg << " Copies " << phi.size() << " at";
-  for (unsigned int i=0; i<phi.size(); i++)
+  for (int i=0; i<(int)(phi.size()); i++)
     LogDebug("TrackerGeom") << "\t[" << i << "] phi = " << phi[i]/deg 
 			    << " z = " << zpos[i];
 
@@ -57,12 +53,12 @@ void DDTrackerPhiAlgo::execute() {
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
   double theta  = 90.*deg;
-  for (unsigned int i=0; i<phi.size(); i++) {
+  for (int i=0; i<(int)(phi.size()); i++) {
     double phix = phi[i] + tilt;
     double phiy = phix + 90.*deg;
     double phideg = phi[i]/deg;
 
-    string rotstr = DDSplit(childName).first + dbl_to_string(phideg);
+    std::string rotstr = DDSplit(childName).first + dbl_to_string(phideg);
     DDRotation rotation = DDRotation(DDName(rotstr, idNameSpace));
     if (!rotation) {
       LogDebug("TrackerGeom") << "DDTrackerPhiAlgo test: Creating a new "

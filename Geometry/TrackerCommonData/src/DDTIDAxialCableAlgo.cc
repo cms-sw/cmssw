@@ -6,7 +6,6 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
@@ -21,8 +20,8 @@ namespace std{} using namespace std;
 
 
 DDTIDAxialCableAlgo::DDTIDAxialCableAlgo() {
-  edm::LogInfo("TrackerGeom") << "DDTIDAxialCableAlgo info: Creating an "
-			      << "instance";
+  edm::LogInfo("TIDGeom") << "DDTIDAxialCableAlgo info: Creating an "
+			  << "instance";
 }
 
 DDTIDAxialCableAlgo::~DDTIDAxialCableAlgo() {}
@@ -44,24 +43,23 @@ void DDTIDAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
   zposWheel   = vArgs["ZPosWheel"];
   zposRing    = vArgs["ZPosRing"];
 
-  LogDebug("TrackerGeom") << "DDTIDAxialCableAlgo debug: Parameters for "
-			  << "creating " << (zposWheel.size()+2) << " axial "
-			  << "cables and positioning " << angles.size() 
-			  << " copies in Service volume\n"
-			  << "                            zBend " << zBend 
-			  << " zEnd " << zEnd << " rMin " << rMin << " rMax " 
-			  << rMax << " Cable width " << width/deg 
-			  << " thickness " << thick << " with Angles";
-  for (unsigned int i=0; i<angles.size(); i++)
-    LogDebug("TrackerGeom") << "\tangles[" << i << "] = " << angles[i]/deg;
-  LogDebug("TrackerGeom") << "                          Wheels " 
-			  << zposWheel.size() << " at Z";
-  for (unsigned int i=0; i<zposWheel.size(); i++)
-    LogDebug("TrackerGeom") << "\tzposWheel[" << i <<"] = " << zposWheel[i];
-  LogDebug("TrackerGeom") << "                          each with " 
-			  << zposRing.size() << " Rings at Z";
-  for (unsigned int i=0; i<zposRing.size(); i++)
-    LogDebug("TrackerGeom") << "\tzposRing[" << i <<"] = " << zposRing[i];
+  LogDebug("TIDGeom") << "DDTIDAxialCableAlgo debug: Parameters for creating "
+		      << (zposWheel.size()+2) << " axial cables and position"
+		      << "ing " << angles.size() << " copies in Service volume"
+		      << "\n                            zBend " << zBend 
+		      << " zEnd " << zEnd << " rMin " << rMin << " rMax " 
+		      << rMax << " Cable width " << width/deg << " thickness " 
+		      << thick << " with Angles";
+  for (int i=0; i<(int)(angles.size()); i++)
+    LogDebug("TIDGeom") << "\tangles[" << i << "] = " << angles[i]/deg;
+  LogDebug("TIDGeom") << "                          Wheels " 
+		      << zposWheel.size() << " at Z";
+  for (int i=0; i<(int)(zposWheel.size()); i++)
+    LogDebug("TIDGeom") << "\tzposWheel[" << i <<"] = " << zposWheel[i];
+  LogDebug("TIDGeom") << "                          each with " 
+		      << zposRing.size() << " Rings at Z";
+  for (int i=0; i<(int)(zposRing.size()); i++)
+    LogDebug("TIDGeom") << "\tzposRing[" << i <<"] = " << zposRing[i];
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
@@ -69,26 +67,26 @@ void DDTIDAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
   matOut      = sArgs["MaterialOut"]; 
 
   DDName parentName = parent().name();
-  LogDebug("TrackerGeom") << "DDTIDAxialCableAlgo debug: Parent " << parentName
-			  << "\tChild " << childName << " NameSpace " 
-			  << idNameSpace << "\tMaterial " << matIn << " and " 
-			  << matOut;
+  LogDebug("TIDGeom") << "DDTIDAxialCableAlgo debug: Parent " << parentName
+		      << "\tChild " << childName << " NameSpace " 
+		      << idNameSpace << "\tMaterial " << matIn << " and " 
+		      << matOut;
 }
 
 void DDTIDAxialCableAlgo::execute() {
 
   DDName mother = parent().name();
-  vector<DDName> logs;
+  std::vector<DDName> logs;
   double thk = thick/zposRing.size();
   double r   = rMin;
   double thktot = 0;
   double z;
 
   //Cables between the wheels
-  for (unsigned int k=0; k<zposWheel.size(); k++) {
+  for (int k=0; k<(int)(zposWheel.size()); k++) {
 
-    vector<double> pconZ, pconRmin, pconRmax;
-    for (unsigned int i=0; i<zposRing.size(); i++) {
+    std::vector<double> pconZ, pconRmin, pconRmax;
+    for (int i=0; i<(int)(zposRing.size()); i++) {
       thktot += thk;
       z       = zposWheel[k] + zposRing[i] - 0.5*thk;
       if (i != 0) {
@@ -109,26 +107,26 @@ void DDTIDAxialCableAlgo::execute() {
       pconRmin.push_back(r);
       pconRmax.push_back(rMax);
     }
-    if (k >= zposWheel.size()-1) z = zBend;
-    else                         z = zposWheel[k+1] + zposRing[0] - 0.5*thk;
+    if (k >= ((int)(zposWheel.size())-1)) z = zBend;
+    else z = zposWheel[k+1] + zposRing[0] - 0.5*thk;
     pconZ.push_back(z);
     pconRmin.push_back(r);
     pconRmax.push_back(rMax);
     
-    string name = childName + dbl_to_string(k);
+    std::string name = childName + dbl_to_string(k);
     DDSolid solid = DDSolidFactory::polycone(DDName(name, idNameSpace),
 					     -0.5*width, width, pconZ, 
 					     pconRmin, pconRmax);
 
-    LogDebug("TrackerGeom") << "DDTIDAxialCableAlgo test: " 
-			    << DDName(name,idNameSpace) << " Polycone made of "
-			    << matIn << " from " << -0.5*width/deg << " to " 
-			    << 0.5*width/deg << " and with " << pconZ.size()
-			    << " sections ";
-    for (unsigned int i = 0; i <pconZ.size(); i++) 
-      LogDebug("TrackerGeom") <<  "\t[" << i  << "]\tZ = " << pconZ[i] 
-			      << "\tRmin = "<< pconRmin[i] << "\tRmax = " 
-			      << pconRmax[i];
+    LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: " 
+			<< DDName(name,idNameSpace) << " Polycone made of "
+			<< matIn << " from " << -0.5*width/deg << " to " 
+			<< 0.5*width/deg << " and with " << pconZ.size()
+			<< " sections ";
+    for (int i = 0; i <(int)(pconZ.size()); i++) 
+      LogDebug("TIDGeom") <<  "\t[" << i  << "]\tZ = " << pconZ[i] 
+			  << "\tRmin = "<< pconRmin[i] << "\tRmax = " 
+			  << pconRmax[i];
 
     DDName mat(DDSplit(matIn).first, DDSplit(matIn).second); 
     DDMaterial matter(mat);
@@ -137,12 +135,12 @@ void DDTIDAxialCableAlgo::execute() {
   }
 
   //Cable in the vertical part
-  vector<double> pconZ, pconRmin, pconRmax;
+  std::vector<double> pconZ, pconRmin, pconRmax;
   r = thktot*rMax/rTop;
   z = zBend - thktot;
-  LogDebug("TrackerGeom") << "DDTIDAxialCableAlgo test: Thk " << thk 
-			  << " Total " << thktot << " rMax " << rMax 
-			  << " rTop " << rTop << " dR " << r << " z " << z;
+  LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: Thk " << thk 
+		      << " Total " << thktot << " rMax " << rMax 
+		      << " rTop " << rTop << " dR " << r << " z " << z;
   pconZ.push_back(z);
   pconRmin.push_back(rMax);
   pconRmax.push_back(rMax);
@@ -154,20 +152,20 @@ void DDTIDAxialCableAlgo::execute() {
   pconRmin.push_back(rMax);
   pconRmax.push_back(rTop);
 
-  string name = childName + dbl_to_string(zposWheel.size());
+  std::string name = childName + dbl_to_string(zposWheel.size());
   DDSolid solid = DDSolidFactory::polycone(DDName(name, idNameSpace),
 					   -0.5*width, width, pconZ, 
 					   pconRmin, pconRmax);
 
-  LogDebug("TrackerGeom") << "DDTIDAxialCableAlgo test: " 
-			  << DDName(name, idNameSpace) << " Polycone made of "
-			  << matIn << " from " << -0.5*width/deg << " to "
-			  << 0.5*width/deg << " and with "  << pconZ.size()
-			  << " sections ";
-  for (unsigned int i = 0; i <pconZ.size(); i++) 
-    LogDebug("TrackerGeom") << "\t[" << i << "]\tZ = " << pconZ[i] 
-			    << "\tRmin = "<< pconRmin[i] << "\tRmax = " 
-			    << pconRmax[i];
+  LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: " 
+		      << DDName(name, idNameSpace) << " Polycone made of "
+		      << matIn << " from " << -0.5*width/deg << " to "
+		      << 0.5*width/deg << " and with "  << pconZ.size()
+		      << " sections ";
+  for (int i = 0; i < (int)(pconZ.size()); i++) 
+    LogDebug("TIDGeom") << "\t[" << i << "]\tZ = " << pconZ[i] 
+			<< "\tRmin = "<< pconRmin[i] << "\tRmax = " 
+			<< pconRmax[i];
 
   DDName mat(DDSplit(matIn).first, DDSplit(matIn).second); 
   DDMaterial matter(mat);
@@ -179,11 +177,11 @@ void DDTIDAxialCableAlgo::execute() {
   r    = rTop-r;
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*(zEnd-zBend),
                                r, rTop, -0.5*width, width);
-  LogDebug("TrackerGeom") << "DDTIDAxialCableAlgo test: " 
-			  << DDName(name, idNameSpace) << " Tubs made of " 
-			  << matOut << " from " << -0.5*width/deg << " to " 
-			  << 0.5*width/deg << " with Rin " << r << " Rout " 
-			  << rTop << " ZHalf " << 0.5*(zEnd-zBend);
+  LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << matOut << " from " << -0.5*width/deg << " to " 
+		      << 0.5*width/deg << " with Rin " << r << " Rout " 
+		      << rTop << " ZHalf " << 0.5*(zEnd-zBend);
   mat    = DDName(DDSplit(matOut).first, DDSplit(matOut).second);
   matter = DDMaterial(mat);
   genlogic = DDLogicalPart(DDName(name, idNameSpace), matter, solid);
@@ -191,33 +189,34 @@ void DDTIDAxialCableAlgo::execute() {
 
   //Position the cables
   double theta = 90.*deg;
-  for (unsigned int i=0; i<angles.size(); i++) {
+  for (int i=0; i<(int)(angles.size()); i++) {
     double phix = angles[i];
     double phiy = phix + 90.*deg;
     double phideg = phix/deg;
 
     DDRotation rotation;
     if (phideg != 0) {
-      string rotstr = childName + dbl_to_string(phideg*10.);
+      std::string rotstr = childName + dbl_to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
-	LogDebug("TrackerGeom") << "DDTIDAxialCableAlgo test: Creating a new "
-				<< "rotation: " << rotstr << " " << theta/deg 
-				<< ", " << phix/deg << ", " << theta/deg 
-				<< ", " << phiy/deg << ", 0, 0";
+	LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test: Creating a new "
+			    << "rotation: " << rotstr << " " << theta/deg 
+			    << ", " << phix/deg << ", " << theta/deg 
+			    << ", " << phiy/deg << ", 0, 0";
 	rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, 
 			 phiy, 0., 0.);
       }
     }
     
-    for (unsigned int k=0; k<logs.size(); k++) {
+    for (int k=0; k<(int)(logs.size()); k++) {
       DDTranslation tran(0,0,0);
-      if (k == logs.size()-1) tran = DDTranslation(0,0,0.5*(zEnd+zBend));
+      if (k == ((int)(logs.size())-1))
+	tran = DDTranslation(0,0,0.5*(zEnd+zBend));
       DDpos (logs[k], mother, i+1, tran, rotation);
-      LogDebug("TrackerGeom") << "DDTIDAxialCableAlgo test " << logs[k] 
-			      << " number " << i+1 << " positioned in "
-			      << mother << " at " << tran << " with "
-			      << rotation;
+      LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test " << logs[k] 
+			  << " number " << i+1 << " positioned in "
+			  << mother << " at " << tran << " with "
+			  << rotation;
     }
   }
 }

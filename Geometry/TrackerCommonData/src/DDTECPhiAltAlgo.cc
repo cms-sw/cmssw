@@ -6,13 +6,9 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/interface/DDTECPhiAltAlgo.h"
@@ -21,7 +17,7 @@ namespace std{} using namespace std;
 
 
 DDTECPhiAltAlgo::DDTECPhiAltAlgo() {
-  edm::LogInfo("TrackerGeom") << "DDTECPhiAltAlgo info: Creating an instance";
+  edm::LogInfo("TECGeom") << "DDTECPhiAltAlgo info: Creating an instance";
 }
 
 DDTECPhiAltAlgo::~DDTECPhiAltAlgo() {}
@@ -41,20 +37,20 @@ void DDTECPhiAltAlgo::initialize(const DDNumericArguments & nArgs,
   startCopyNo= int (nArgs["StartCopyNo"]);
   incrCopyNo = int (nArgs["IncrCopyNo"]);
 
-  LogDebug("TrackerGeom") << "DDTECPhiAltAlgo debug: Parameters for "
-			  << "positioning--" << "\tStartAngle " 
-			  << startAngle/deg << "\tIncrAngle " << incrAngle/deg
-			  << "\tRadius " << radius << "\tZ in/out " << zIn 
-			  << ", " << zOut << "\tCopy Numbers " << number 
-			  << " Start/Increment " << startCopyNo << ", " 
-			  << incrCopyNo;
+  LogDebug("TECGeom") << "DDTECPhiAltAlgo debug: Parameters for "
+		      << "positioning--" << "\tStartAngle " 
+		      << startAngle/deg << "\tIncrAngle " << incrAngle/deg
+		      << "\tRadius " << radius << "\tZ in/out " << zIn 
+		      << ", " << zOut << "\tCopy Numbers " << number 
+		      << " Start/Increment " << startCopyNo << ", " 
+		      << incrCopyNo;
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
-  LogDebug("TrackerGeom") << "DDTECPhiAltAlgo debug: Parent " << parentName 
-			  << "\tChild " << childName << " NameSpace " 
-			  << idNameSpace;
+  LogDebug("TECGeom") << "DDTECPhiAltAlgo debug: Parent " << parentName 
+		      << "\tChild " << childName << " NameSpace " 
+		      << idNameSpace;
 }
 
 void DDTECPhiAltAlgo::execute() {
@@ -71,13 +67,13 @@ void DDTECPhiAltAlgo::execute() {
       double phideg = phiz/deg;
   
       DDRotation rotation;
-      string rotstr = DDSplit(childName).first + dbl_to_string(phideg*10.);
+      std::string rotstr = DDSplit(childName).first+dbl_to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
-	LogDebug("TrackerGeom") << "DDTECPhiAltAlgo test: Creating a new "
-				<< "rotation " << rotstr << "\t" << theta/deg
-				<< ", " << phix/deg << ", 0, 0, " << theta/deg
-				<< ", " << phiz/deg;
+	LogDebug("TECGeom") << "DDTECPhiAltAlgo test: Creating a new "
+			    << "rotation " << rotstr << "\t" << theta/deg
+			    << ", " << phix/deg << ", 0, 0, " << theta/deg
+			    << ", " << phiz/deg;
 	rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, 0., 0.,
 			 theta, phiz);
       }
@@ -90,9 +86,9 @@ void DDTECPhiAltAlgo::execute() {
       DDTranslation tran(xpos, ypos, zpos);
   
       DDpos (child, mother, copyNo, tran, rotation);
-      LogDebug("TrackerGeom") << "DDTECPhiAltAlgo test: " << child <<" number "
-			      << copyNo << " positioned in " << mother <<" at "
-			      << tran << " with " << rotation;
+      LogDebug("TECGeom") << "DDTECPhiAltAlgo test: " << child <<" number "
+			  << copyNo << " positioned in " << mother <<" at "
+			  << tran << " with " << rotation;
       copyNo += incrCopyNo;
     }
   }

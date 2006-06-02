@@ -6,12 +6,8 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerLinear.h"
@@ -58,10 +54,10 @@ void DDTrackerLinear::execute() {
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
   DDTranslation direction(sin(theta)*cos(phi),sin(theta)*sin(phi),cos(theta));
   DDTranslation base(centre[0],centre[1],centre[2]);
-  string rotstr = DDSplit(rotMat).first;
+  std::string rotstr = DDSplit(rotMat).first;
   DDRotation rot;
   if (rotstr != "NULL") {
-    string rotns  = DDSplit(rotMat).second;
+    std::string rotns  = DDSplit(rotMat).second;
     rot = DDRotation(DDName(rotstr, rotns));
   }
 

@@ -6,7 +6,6 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
@@ -21,7 +20,7 @@ namespace std{} using namespace std;
 
 
 DDPixBarLayerAlgo::DDPixBarLayerAlgo() {
-  edm::LogInfo("TrackerGeom") <<"DDPixBarLayerAlgo info: Creating an instance";
+  edm::LogInfo("PixelGeom") <<"DDPixBarLayerAlgo info: Creating an instance";
 }
 
 DDPixBarLayerAlgo::~DDPixBarLayerAlgo() {}
@@ -38,6 +37,7 @@ void DDPixBarLayerAlgo::initialize(const DDNumericArguments & nArgs,
   genMat    = sArgs["GeneralMaterial"];
   number    = int(nArgs["Ladders"]);
   layerDz   = nArgs["LayerDz"];
+  sensorEdge= nArgs["SensorEdge"];
   coolDz    = nArgs["CoolDz"];
   coolWidth = nArgs["CoolWidth"];
   coolSide  = nArgs["CoolSide"];
@@ -46,31 +46,31 @@ void DDPixBarLayerAlgo::initialize(const DDNumericArguments & nArgs,
   coolMat   = sArgs["CoolMaterial"];
   tubeMat   = sArgs["CoolTubeMaterial"];
 
-  LogDebug("TrackerGeom") << "DDPixBarLayerAlgo debug: Parent " << parentName 
-			  << " NameSpace " << idNameSpace << endl 
-			  << "\tLadders " << number << "\tGeneral Material " 
-			  << genMat << "\tLength " << layerDz 
-			  << "\tSpecification of Cooling Pieces:\n"
-			  << "\tLength " << coolDz << " Width " << coolWidth 
-			  << " Side " << coolSide << " Thickness of Shell " 
-			  << coolThick << " Radial distance " << coolDist 
-			  << " Materials " << coolMat << ", " << tubeMat;
+  LogDebug("PixelGeom") << "DDPixBarLayerAlgo debug: Parent " << parentName 
+			<< " NameSpace " << idNameSpace << "\n"
+			<< "\tLadders " << number << "\tGeneral Material " 
+			<< genMat << "\tLength " << layerDz << "\tSensorEdge "
+			<< sensorEdge << "\tSpecification of Cooling Pieces:\n"
+			<< "\tLength " << coolDz << " Width " << coolWidth 
+			<< " Side " << coolSide << " Thickness of Shell " 
+			<< coolThick << " Radial distance " << coolDist 
+			<< " Materials " << coolMat << ", " << tubeMat;
 
   ladder      = vsArgs["LadderName"];
   ladderWidth = vArgs["LadderWidth"];
   ladderThick = vArgs["LadderThick"];
   
-  LogDebug("TrackerGeom") << "DDPixBarLayerAlgo debug: Full Ladder " 
-			  << ladder[0] << " width/thickness " << ladderWidth[0]
-			  << ", " << ladderThick[0] << "\tHalf Ladder " 
-			  << ladder[1] << " width/thickness " << ladderWidth[1]
-			  << ", " << ladderThick[1];
+  LogDebug("PixelGeom") << "DDPixBarLayerAlgo debug: Full Ladder " 
+			<< ladder[0] << " width/thickness " << ladderWidth[0]
+			<< ", " << ladderThick[0] << "\tHalf Ladder " 
+			<< ladder[1] << " width/thickness " << ladderWidth[1]
+			<< ", " << ladderThick[1];
 }
 
 void DDPixBarLayerAlgo::execute() {
 
-  DDName mother = parent().name();
-  string idName = DDSplit(mother).first;
+  DDName      mother = parent().name();
+  std::string idName = DDSplit(mother).first;
 
   double dphi = twopi/number;
   double d2   = 0.5*coolWidth;
@@ -80,19 +80,19 @@ void DDPixBarLayerAlgo::execute() {
   double rmin = (coolDist-0.5*(d1+d2))*cos(0.5*dphi)-0.5*ladderThick[0];
   double rmax = (coolDist+0.5*(d1+d2))*cos(0.5*dphi)+0.5*ladderThick[0];
   double rmxh = rmax - 0.5*ladderThick[0] + ladderThick[1];
-  LogDebug("TrackerGeom") << "DDPixBarLayerAlgo test: Rmin/Rmax " << rmin 
-			  << ", " << rmax << " d1/d2 " << d1 << ", " << d2 
-			  << " x1/x2 " << x1 << ", " << x2;
+  LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Rmin/Rmax " << rmin 
+			<< ", " << rmax << " d1/d2 " << d1 << ", " << d2 
+			<< " x1/x2 " << x1 << ", " << x2;
 
   double rtmi = rmin + 0.5*ladderThick[0] - ladderThick[1];
   double rtmx = sqrt(rmxh*rmxh+ladderWidth[1]*ladderWidth[1]);
   DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace),0.5*layerDz,
                                        rtmi, rtmx, 0, twopi);
-  LogDebug("TrackerGeom") << "DDPixBarLayerAlgo test: " 
-			  << DDName(idName, idNameSpace) << " Tubs made of " 
-			  << genMat << " from 0 to " << twopi/deg 
-			  << " with Rin " << rtmi << " Rout " << rtmx 
-			  << " ZHalf " << 0.5*layerDz;
+  LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " 
+			<< DDName(idName, idNameSpace) << " Tubs made of " 
+			<< genMat << " from 0 to " << twopi/deg 
+			<< " with Rin " << rtmi << " Rout " << rtmx 
+			<< " ZHalf " << 0.5*layerDz;
   DDName matname(DDSplit(genMat).first, DDSplit(genMat).second);
   DDMaterial matter(matname);
   DDLogicalPart layer(solid.ddname(), matter, solid);
@@ -100,14 +100,14 @@ void DDPixBarLayerAlgo::execute() {
   double rr = 0.5*(rmax+rmin);
   double dr = 0.5*(rmax-rmin);
   double h1 = 0.5*coolSide*cos(0.5*dphi);
-  string name = idName + "CoolTube";
+  std::string name = idName + "CoolTube";
   solid = DDSolidFactory::trap(DDName(name,idNameSpace), 0.5*coolDz, 0, 0,
 			       h1, d2, d1, 0, h1, d2, d1, 0);
-  LogDebug("TrackerGeom") << "DDPixBarLayerAlgo test: " <<solid.name() 
-			  << " Trap made of " << tubeMat << " of dimensions " 
-			  << 0.5*coolDz << ", 0, 0, " << h1 << ", " << d2 
-			  << ", " << d1 << ", 0, " << h1 << ", " << d2 << ", " 
-			  << d1 << ", 0";
+  LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " <<solid.name() 
+			<< " Trap made of " << tubeMat << " of dimensions " 
+			<< 0.5*coolDz << ", 0, 0, " << h1 << ", " << d2 
+			<< ", " << d1 << ", 0, " << h1 << ", " << d2 << ", " 
+			<< d1 << ", 0";
   matter = DDMaterial(DDName(DDSplit(tubeMat).first, DDSplit(tubeMat).second));
   DDLogicalPart coolTube(solid.ddname(), matter, solid);
 
@@ -117,17 +117,17 @@ void DDPixBarLayerAlgo::execute() {
   d2  -= coolThick;
   solid = DDSolidFactory::trap(DDName(name,idNameSpace), 0.5*coolDz, 0, 0,
 			       h1, d2, d1, 0, h1, d2, d1, 0);
-  LogDebug("TrackerGeom") << "DDPixBarLayerAlgo test: " <<solid.name() 
-			  << " Trap made of " << coolMat << " of dimensions " 
-			  << 0.5*coolDz << ", 0, 0, " << h1 << ", " << d2
-			  << ", " << d1 << ", 0, " << h1 << ", " << d2 << ", " 
-			  << d1 << ", 0";
+  LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " <<solid.name() 
+			<< " Trap made of " << coolMat << " of dimensions " 
+			<< 0.5*coolDz << ", 0, 0, " << h1 << ", " << d2
+			<< ", " << d1 << ", 0, " << h1 << ", " << d2 << ", " 
+			<< d1 << ", 0";
   matter = DDMaterial(DDName(DDSplit(coolMat).first, DDSplit(coolMat).second));
   DDLogicalPart cool(solid.ddname(), matter, solid);
   DDpos (cool, coolTube, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
-  LogDebug("TrackerGeom") << "DDPixBarLayerAlgo test: " << cool.name() 
-			  << " number 1 positioned in " << coolTube.name() 
-			  << " at (0,0,0) with no rotation";
+  LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << cool.name() 
+			<< " number 1 positioned in " << coolTube.name() 
+			<< " at (0,0,0) with no rotation";
 
   DDName ladderFull(DDSplit(ladder[0]).first, DDSplit(ladder[0]).second);
   DDName ladderHalf(DDSplit(ladder[1]).first, DDSplit(ladder[1]).second);
@@ -137,41 +137,42 @@ void DDPixBarLayerAlgo::execute() {
   for (int i=0; i<number; i++) {
 	
     double phi = phi0 + i*dphi;
-    double phix, phiy, rrr;
-    string rots;
+    double phix, phiy, rrr, xx;
+    std::string rots;
     DDTranslation tran;
     DDRotation rot;
     if (i == 0 || i == nphi) {
       rrr  = rr + dr + 0.5*(ladderThick[1]-ladderThick[0]);
-      tran = DDTranslation(0.5*ladderWidth[1]*sin(phi), rrr*sin(phi), 0);
+      xx   = (0.5*ladderWidth[1] - sensorEdge) * sin(phi);
+      tran = DDTranslation(xx, rrr*sin(phi), 0);
       rots = idName + dbl_to_string(copy);
       phix = phi-90*deg;
       phiy = 90*deg+phix;
-      LogDebug("TrackerGeom") << "DDPixBarLayerAlgo test: Creating a new "
-			      << "rotation: " << rots << "\t90., " << phix/deg 
-			      << ", 90.," << phiy/deg << ", 0, 0";
+      LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
+			    << "rotation: " << rots << "\t90., " << phix/deg 
+			    << ", 90.," << phiy/deg << ", 0, 0";
       rot = DDrot(DDName(rots,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
       DDpos (ladderHalf, layer, copy, tran, rot);
-      LogDebug("TrackerGeom") << "DDPixBarLayerAlgo test: " << ladderHalf 
-			      << " number " << copy << " positioned in " 
-			      << layer.name() << " at " << tran << " with " 
-			      << rot;
+      LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << ladderHalf 
+			    << " number " << copy << " positioned in " 
+			    << layer.name() << " at " << tran << " with " 
+			    << rot;
       copy++;
       iup  = -1;
       rrr  = rr - dr - 0.5*(ladderThick[1]-ladderThick[0]);
-      tran = DDTranslation(-0.5*ladderWidth[1]*sin(phi), rrr*sin(phi), 0);
+      tran = DDTranslation(-xx, rrr*sin(phi), 0);
       rots = idName + dbl_to_string(copy);
       phix = phi+90*deg;
       phiy = 90*deg+phix;
-      LogDebug("TrackerGeom") << "DDPixBarLayerAlgo test: Creating a new "
-			      << "rotation: " << rots << "\t90., " << phix/deg 
-			      << ", 90.," << phiy/deg << ", 0, 0";
+      LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
+			    << "rotation: " << rots << "\t90., " << phix/deg 
+			    << ", 90.," << phiy/deg << ", 0, 0";
       rot = DDrot(DDName(rots,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
       DDpos (ladderHalf, layer, copy, tran, rot);
-      LogDebug("TrackerGeom") << "DDPixBarLayerAlgo test: " << ladderHalf 
-			      << " number " << copy << " positioned in " 
-			      << layer.name() << " at " << tran << " with " 
-			      << rot;
+      LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << ladderHalf 
+			    << " number " << copy << " positioned in " 
+			    << layer.name() << " at " << tran << " with " 
+			    << rot;
       copy++;
     } else {
       iup  =-iup;
@@ -181,15 +182,15 @@ void DDPixBarLayerAlgo::execute() {
       if (iup > 0) phix = phi-90*deg;
       else         phix = phi+90*deg;
       phiy = phix+90.*deg;
-      LogDebug("TrackerGeom") << "DDPixBarLayerAlgo test: Creating a new "
-			      << "rotation: " << rots << "\t90., " << phix/deg 
-			      << ", 90.," << phiy/deg << ", 0, 0";
+      LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
+			    << "rotation: " << rots << "\t90., " << phix/deg 
+			    << ", 90.," << phiy/deg << ", 0, 0";
       rot = DDrot(DDName(rots,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
       DDpos (ladderFull, layer, copy, tran, rot);
-      LogDebug("TrackerGeom") << "DDPixBarLayerAlgo test: " << ladderFull 
-			      << " number " << copy << " positioned in " 
-			      << layer.name() << " at " << tran << " with " 
-			      << rot;
+      LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << ladderFull 
+			    << " number " << copy << " positioned in " 
+			    << layer.name() << " at " << tran << " with " 
+			    << rot;
       copy++;
     }
     rrr  = coolDist*cos(0.5*dphi);
@@ -199,13 +200,13 @@ void DDPixBarLayerAlgo::execute() {
     phix = phi+0.5*dphi;
     if (iup > 0) phix += 180*deg;
     phiy = phix+90.*deg;
-    LogDebug("TrackerGeom") << "DDPixBarLayerAlgo test: Creating a new "
-			    << "rotation: " << rots << "\t90., " << phix/deg 
-			    << ", 90.," << phiy/deg << ", 0, 0";
+    LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
+			  << "rotation: " << rots << "\t90., " << phix/deg 
+			  << ", 90.," << phiy/deg << ", 0, 0";
     rot = DDrot(DDName(rots,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
     DDpos (coolTube, layer, i+1, tran, rot);
-    LogDebug("TrackerGeom") << "DDPixBarLayerAlgo test: " << coolTube.name() 
-			    << " number " << i+1 << " positioned in " 
-			    << layer.name() << " at " << tran << " with "<<rot;
+    LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << coolTube.name() 
+			  << " number " << i+1 << " positioned in " 
+			  << layer.name() << " at " << tran << " with "<< rot;
   }
 }

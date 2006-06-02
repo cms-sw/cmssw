@@ -6,12 +6,8 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerZPosAlgo.h"
@@ -44,7 +40,7 @@ void DDTrackerZPosAlgo::initialize(const DDNumericArguments & nArgs,
 			  << idNameSpace << "\tCopyNo (Start/Increment) " 
 			  << startCopyNo << ", " << incrCopyNo << "\tNumber " 
 			  << zvec.size();
-  for (unsigned int i = 0; i < zvec.size(); i++) {
+  for (int i = 0; i < (int)(zvec.size()); i++) {
     LogDebug("TrackerGeom") << "\t[" << i << "]\tZ = " << zvec[i] 
 			    << ", Rot.Matrix = " << rotMat[i];
   }
@@ -56,13 +52,13 @@ void DDTrackerZPosAlgo::execute() {
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
 
-  for (unsigned int i=0; i<zvec.size(); i++) {
+  for (int i=0; i<(int)(zvec.size()); i++) {
 	
     DDTranslation tran(0, 0, zvec[i]);
-    string rotstr = DDSplit(rotMat[i]).first;
+    std::string rotstr = DDSplit(rotMat[i]).first;
     DDRotation rot;
     if (rotstr != "NULL") {
-      string rotns  = DDSplit(rotMat[i]).second;
+      std::string rotns  = DDSplit(rotMat[i]).second;
       rot = DDRotation(DDName(rotstr, rotns));
     }
     DDpos (child, mother, copy, tran, rot);

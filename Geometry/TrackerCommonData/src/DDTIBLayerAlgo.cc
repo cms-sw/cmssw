@@ -6,7 +6,6 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
@@ -21,7 +20,7 @@ namespace std{} using namespace std;
 
 
 DDTIBLayerAlgo::DDTIBLayerAlgo(): ribW(0),ribPhi(0) {
-  edm::LogInfo("TrackerGeom") << "DDTIBLayerAlgo info: Creating an instance";
+  edm::LogInfo("TIBGeom") << "DDTIBLayerAlgo info: Creating an instance";
 }
 
 DDTIBLayerAlgo::~DDTIBLayerAlgo() {}
@@ -35,9 +34,9 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
   idNameSpace  = DDCurrentNamespace::ns();
   genMat       = sArgs["GeneralMaterial"];
   DDName parentName = parent().name(); 
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo debug: Parent " << parentName 
-			  << " NameSpace " << idNameSpace 
-			  << " General Material " << genMat;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: Parent " << parentName 
+		      << " NameSpace " << idNameSpace 
+		      << " General Material " << genMat;
 
   detectorTilt = nArgs["DetectorTilt"];
   layerL       = nArgs["LayerL"];
@@ -46,12 +45,12 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
   detectorT    = nArgs["DetectorThickness"];
   coolTubeW    = nArgs["CoolTubeWidth"];
   coolTubeT    = nArgs["CoolTubeThickness"];
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo debug: Tilt Angle " 
-			  << detectorTilt/deg << " Layer Length/tolerance " 
-			  << layerL << " " << detectorTol 
-			  << " Detector layer Width/Thick " << detectorW 
-			  << ", " << detectorT << " Cooling Tube/Cable layer "
-			  << "Width/Thick " << coolTubeW << ", " << coolTubeT;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: Tilt Angle " 
+		      << detectorTilt/deg << " Layer Length/tolerance " 
+		      << layerL << " " << detectorTol 
+		      << " Detector layer Width/Thick " << detectorW 
+		      << ", " << detectorT << " Cooling Tube/Cable layer "
+		      << "Width/Thick " << coolTubeW << ", " << coolTubeT;
 
   radiusLo     = nArgs["RadiusLo"];
   phioffLo     = nArgs["PhiOffsetLo"];
@@ -60,12 +59,12 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
   roffDetLo    = nArgs["ROffsetDetLo"];
   coolCableLo  = sArgs["StringCabLoName"];
   roffCableLo  = nArgs["ROffsetCabLo"];
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo debug: Lower layer Radius " 
-			  << radiusLo << " Phi offset " << phioffLo/deg 
-			  << " Number " << stringsLo << " String "
-			  << detectorLo << " at offset " << roffDetLo
-			  << " String " << coolCableLo << " at offset "
-			  << roffCableLo;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: Lower layer Radius " 
+		      << radiusLo << " Phi offset " << phioffLo/deg 
+		      << " Number " << stringsLo << " String "
+		      << detectorLo << " at offset " << roffDetLo
+		      << " String " << coolCableLo << " at offset "
+		      << roffCableLo;
 
   radiusUp     = nArgs["RadiusUp"];
   phioffUp     = nArgs["PhiOffsetUp"];
@@ -74,12 +73,12 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
   roffDetUp    = nArgs["ROffsetDetUp"];
   coolCableUp  = sArgs["StringCabUpName"];
   roffCableUp  = nArgs["ROffsetCabUp"];
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo debug: Upper layer Radius "
-			  << radiusUp << " Phi offset " << phioffUp/deg 
-			  << " Number " << stringsUp << " String "
-			  << detectorUp << " at offset " << roffDetUp 
-			  << " String " << coolCableUp << " at offset " 
-			  << roffCableUp;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: Upper layer Radius "
+		      << radiusUp << " Phi offset " << phioffUp/deg 
+		      << " Number " << stringsUp << " String "
+		      << detectorUp << " at offset " << roffDetUp 
+		      << " String " << coolCableUp << " at offset " 
+		      << roffCableUp;
 
   cylinderT    = nArgs["CylinderThickness"];
   cylinderMat  = sArgs["CylinderMaterial"];
@@ -89,15 +88,15 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
   ribMat       = sArgs["RibMaterial"];
   ribW         = vArgs["RibWidth"];
   ribPhi       = vArgs["RibPhi"];
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo debug: Cylinder Material/"
-			  << "thickness " << cylinderMat << " " << cylinderT 
-			  << " Support Wall Material/" << "Width/Thickness " 
-			  << supportMat << " " << supportW << " " 
-			  << supportT << " Rib Material " << ribMat << " at "
-			  << ribW.size() << " positions with width/phi";
-  for (unsigned int i = 0; i < ribW.size(); i++)
-    LogDebug("TrackerGeom") << "\tribW[" << i << "] = " <<  ribW[i] 
-			    << "\tribPhi[" << i << "] = " << ribPhi[i]/deg;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: Cylinder Material/"
+		      << "thickness " << cylinderMat << " " << cylinderT 
+		      << " Support Wall Material/" << "Width/Thickness " 
+		      << supportMat << " " << supportW << " " 
+		      << supportT << " Rib Material " << ribMat << " at "
+		      << ribW.size() << " positions with width/phi";
+  for (int i = 0; i < (int)(ribW.size()); i++)
+    LogDebug("TIBGeom") << "\tribW[" << i << "] = " <<  ribW[i] 
+			<< "\tribPhi[" << i << "] = " << ribPhi[i]/deg;
   
   dohmN               = int(nArgs["DOHMPhiNumber"]);
   dohmCarrierW        = nArgs["DOHMCarrierWidth"];
@@ -116,62 +115,63 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
   dohmList            = vArgs["DOHMList"];
   dohmRotPlus         = sArgs["DOHMRotstrPlus"];
   dohmRotMinus        = sArgs["DOHMRotstrMinus"];
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo debug: DOHM PRIMary " << dohmN
-			  << " Material " << dohmPrimMaterial << " Width "
-			  << dohmPrimW << " Length " << dohmPrimL 
-			  << " Thickness " << dohmPrimT << " at:";
-  for (unsigned int i=0; i<dohmList.size(); i++) {
-    if ((int)dohmList[i]>0) LogDebug("TrackerGeom") << "Position " << i+1;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: DOHM PRIMary " << dohmN
+		      << " Material " << dohmPrimMaterial << " Width "
+		      << dohmPrimW << " Length " << dohmPrimL 
+		      << " Thickness " << dohmPrimT << " at:";
+  for (int i=0; i<(int)(dohmList.size()); i++) {
+    if ((int)dohmList[i]>0) LogDebug("TIBGeom") << "Position " << i+1;
   }
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo debug: DOHM AUXiliary "
-			  << " Material " << dohmAuxMaterial << " Width "
-			  << dohmAuxW << " Length " << dohmAuxL 
-			  << " Thickness " << dohmAuxT << " at:";
-  for (unsigned int i=0; i<dohmList.size(); i++) {
-    if ((int)dohmList[i]==2) LogDebug("TrackerGeom") << "Position " << i+1;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: DOHM AUXiliary "
+		      << " Material " << dohmAuxMaterial << " Width "
+		      << dohmAuxW << " Length " << dohmAuxL 
+		      << " Thickness " << dohmAuxT << " at:";
+  for (int i=0; i<(int)(dohmList.size()); i++) {
+    if ((int)dohmList[i]==2) LogDebug("TIBGeom") << "Position " << i+1;
   }
-  LogDebug("TrackerGeom") << " in Carrier Width/Thickness/Radius " 
-			  << dohmCarrierW << " " << dohmCarrierT << " "
-			  << dohmCarrierR << " Carrier Material " 
-			  << dohmCarrierMaterial <<"\n"
-			  << " with cables and connectors Material "
-			  << dohmCableMaterial << "\n"
-			  << "DDTIBLayer debug: no DOHM at:";
-  for (unsigned int i=0; i<dohmList.size(); i++) {
-    if ((int)dohmList[i]==0) LogDebug("TrackerGeom") << "Position " << i+1;
+  LogDebug("TIBGeom") << " in Carrier Width/Thickness/Radius " 
+		      << dohmCarrierW << " " << dohmCarrierT << " "
+		      << dohmCarrierR << " Carrier Material " 
+		      << dohmCarrierMaterial <<"\n"
+		      << " with cables and connectors Material "
+		      << dohmCableMaterial << "\n"
+		      << "DDTIBLayer debug: no DOHM at:";
+  for (int i=0; i<(int)(dohmList.size()); i++) {
+    if ((int)dohmList[i]==0) LogDebug("TIBGeom") << "Position " << i+1;
   }
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo debug: DOHM placed in TIB+ with "
-			  << "rotation " << dohmRotPlus << " and in TIB- with"
-			  << " rotation " << dohmRotMinus;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: DOHM placed in TIB+ with "
+		      << "rotation " << dohmRotPlus << " and in TIB- with"
+		      << " rotation " << dohmRotMinus;
   
 }
 
 void DDTIBLayerAlgo::execute() {
 
-  LogDebug("TrackerGeom") << "==>> Constructing DDTIBLayerAlgo...";
+  LogDebug("TIBGeom") << "==>> Constructing DDTIBLayerAlgo...";
 
   //Parameters for the tilt of the layer
-  double rotsi  = abs(detectorTilt);
+  double rotsi  = detectorTilt;
+  if (rotsi < 0.) rotsi = -rotsi;
   double redgd1 = 0.5*(detectorW*sin(rotsi)+detectorT*cos(rotsi));
   double redgd2 = 0.5*(detectorW*cos(rotsi)-detectorT*sin(rotsi));
   double redgc1 = 0.5*(coolTubeW*sin(rotsi)+coolTubeT*cos(rotsi));
   double redgc2 = 0.5*(coolTubeW*cos(rotsi)-coolTubeT*sin(rotsi));
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test DeltaR (Detector Tilt) "
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test DeltaR (Detector Tilt) "
 			  << redgd1 << ", " << redgd2 <<" DeltaR (Cable+Cool) "
 			  << redgc1 << ", " << redgc2;
 
-  DDName parentName = parent().name(); 
-  string idName = DDSplit(parentName).first;
+  DDName  parentName = parent().name(); 
+  std::string idName = DDSplit(parentName).first;
   double rmin = radiusLo + roffDetLo - redgd1 - detectorTol;
   double rmax = sqrt((radiusUp+roffDetUp+redgd1)*(radiusUp+roffDetUp+redgd1)+
 		     redgd2*redgd2) + detectorTol;
   DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace), 0.5*layerL,
 				       rmin, rmax, 0, twopi);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: "  
-			  << DDName(idName,idNameSpace) << " Tubs made of " 
-			  << genMat << " from 0 to " << twopi/deg 
-			  << " with Rin " << rmin << " Rout " << rmax 
-			  << " ZHalf " << 0.5*layerL;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: "  
+		      << DDName(idName,idNameSpace) << " Tubs made of " 
+		      << genMat << " from 0 to " << twopi/deg 
+		      << " with Rin " << rmin << " Rout " << rmax 
+		      << " ZHalf " << 0.5*layerL;
   DDName matname(DDSplit(genMat).first, DDSplit(genMat).second);
   DDMaterial matter(matname);
   DDLogicalPart layer(solid.ddname(), matter, solid);
@@ -179,19 +179,19 @@ void DDTIBLayerAlgo::execute() {
   //Lower part first
   double rin  = rmin;
   double rout = 0.5*(radiusLo+radiusUp-cylinderT);
-  string name = idName + "Down";
+  std::string name = idName + "Down";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
 			       rin, rout, 0, twopi);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " 
-			  << DDName(name, idNameSpace) << " Tubs made of " 
-			  << genMat << " from 0 to " << twopi/deg 
-			  << " with Rin " << rin << " Rout " << rout 
-			  << " ZHalf " << 0.5*layerL;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << genMat << " from 0 to " << twopi/deg 
+		      << " with Rin " << rin << " Rout " << rout 
+		      << " ZHalf " << 0.5*layerL;
   DDLogicalPart layerIn(solid.ddname(), matter, solid);
   DDpos (layerIn, layer, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " << layerIn.name()
-			  << " number 1 positioned in " << layer.name()
-			  << " at (0,0,0) with no rotation";
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << layerIn.name()
+		      << " number 1 positioned in " << layer.name()
+		      << " at (0,0,0) with no rotation";
 
   double rposdet = radiusLo + roffDetLo;
   double rposcab = rposdet + roffCableLo;
@@ -206,28 +206,28 @@ void DDTIBLayerAlgo::execute() {
     if (phideg != 0) {
       double theta  = 90*deg;
       double phiy   = phix + 90.*deg;
-      string rotstr = idName + dbl_to_string(phideg*10.);
+      std::string rotstr = idName + dbl_to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
-        LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: Creating a new "
-				<< "rotation: "	<< rotstr << "\t90., " 
-				<< phix/deg << ", 90.,"	<< phiy/deg <<", 0, 0";
+        LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
+			    << "rotation: "	<< rotstr << "\t90., " 
+			    << phix/deg << ", 90.,"	<< phiy/deg <<", 0, 0";
         rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
                          0., 0.);
       }
     }
     DDTranslation trdet(rposdet*cos(phi), rposdet*sin(phi), 0);
     DDpos (detIn, layerIn, n+1, trdet, rotation);
-    LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << detIn.name() 
-			    << " number " << n+1 << " positioned in " 
-			    << layerIn.name() << " at " << trdet << " with "
-			    << rotation;
+    LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << detIn.name() 
+			<< " number " << n+1 << " positioned in " 
+			<< layerIn.name() << " at " << trdet << " with "
+			<< rotation;
     DDTranslation trcab(rposcab*cos(phi), rposcab*sin(phi), 0);
     DDpos (cabIn, layerIn, n+1, trcab, rotation);
-    LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << cabIn.name() 
-			    << " number " << n+1 << " positioned in " 
-			    << layerIn.name() << " at " << trcab << " with "
-			    << rotation;
+    LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << cabIn.name() 
+			<< " number " << n+1 << " positioned in " 
+			<< layerIn.name() << " at " << trcab << " with "
+			<< rotation;
   }
 
   //Now the upper part
@@ -236,16 +236,16 @@ void DDTIBLayerAlgo::execute() {
   name = idName + "Up";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
 			       rin, rout, 0, twopi);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " 
-			  << DDName(name, idNameSpace) << " Tubs made of " 
-			  << genMat << " from 0 to " << twopi/deg 
-			  << " with Rin " << rin << " Rout " << rout
-			  << " ZHalf " << 0.5*layerL;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << genMat << " from 0 to " << twopi/deg 
+		      << " with Rin " << rin << " Rout " << rout
+		      << " ZHalf " << 0.5*layerL;
   DDLogicalPart layerOut(solid.ddname(), matter, solid);
   DDpos (layerOut, layer, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " << layerOut.name() 
-			  << " number 1 positioned in " << layer.name() 
-			  << " at (0,0,0) with no rotation";
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << layerOut.name() 
+		      << " number 1 positioned in " << layer.name() 
+		      << " at (0,0,0) with no rotation";
 
   rposdet = radiusUp + roffDetUp;
   rposcab = rposdet + roffCableUp;
@@ -260,28 +260,28 @@ void DDTIBLayerAlgo::execute() {
     if (phideg != 0) {
       double theta  = 90*deg;
       double phiy   = phix + 90.*deg;
-      string rotstr = idName + dbl_to_string(phideg*10.);
+      std::string rotstr = idName + dbl_to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
-        LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: Creating a new "
-				<< "rotation: " << rotstr << "\t90., " 
-				<< phix/deg << ", 90.,"	<< phiy/deg <<", 0, 0";
+        LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
+			    << "rotation: " << rotstr << "\t90., " 
+			    << phix/deg << ", 90.,"	<< phiy/deg <<", 0, 0";
         rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
                          0., 0.);
       }
     }
     DDTranslation trdet(rposdet*cos(phi), rposdet*sin(phi), 0);
     DDpos (detOut, layerOut, n+1, trdet, rotation);
-    LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << detOut.name() 
-			    << " number " << n+1 << " positioned in " 
-			    << layerOut.name() << " at " << trdet << " with "
-			    << rotation;
+    LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << detOut.name() 
+			<< " number " << n+1 << " positioned in " 
+			<< layerOut.name() << " at " << trdet << " with "
+			<< rotation;
     DDTranslation trcab(rposcab*cos(phi), rposcab*sin(phi), 0);
     DDpos (cabOut, layerOut, n+1, trcab, rotation);
-    LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << cabOut.name() 
-			    << " number " << n+1 << " positioned in " 
-			    << layerOut.name() << " at " << trcab << " with "
-			    << rotation;
+    LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << cabOut.name() 
+			<< " number " << n+1 << " positioned in " 
+			<< layerOut.name() << " at " << trcab << " with "
+			<< rotation;
   }
 
   //Finally the inner cylinder, support wall and ribs
@@ -290,61 +290,61 @@ void DDTIBLayerAlgo::execute() {
   name = idName + "Cylinder";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
 			       rin, rout, 0, twopi);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " 
-			  << DDName(name, idNameSpace) << " Tubs made of " 
-			  << cylinderMat << " from 0 to " << twopi/deg 
-			  << " with Rin " << rin << " Rout " << rout 
-			  << " ZHalf " << 0.5*layerL;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << cylinderMat << " from 0 to " << twopi/deg 
+		      << " with Rin " << rin << " Rout " << rout 
+		      << " ZHalf " << 0.5*layerL;
   matname = DDName(DDSplit(cylinderMat).first, DDSplit(cylinderMat).second);
   DDMaterial matcyl(matname);
   DDLogicalPart cylinder(solid.ddname(), matcyl, solid);
   DDpos (cylinder, layer, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " << cylinder.name() 
-			  << " number 1 positioned in " << layer.name()
-			  << " at (0,0,0) with no rotation";
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << cylinder.name() 
+		      << " number 1 positioned in " << layer.name()
+		      << " at (0,0,0) with no rotation";
   rin  += supportT;
   rout -= supportT;
   name  = idName + "CylinderIn";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
 			       rin, rout, 0, twopi);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: "
-			  << DDName(name, idNameSpace) << " Tubs made of "
-			  << genMat << " from 0 to " << twopi/deg 
-			  << " with Rin " << rin << " Rout " << rout 
-			  << " ZHalf " << 0.5*layerL;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: "
+		      << DDName(name, idNameSpace) << " Tubs made of "
+		      << genMat << " from 0 to " << twopi/deg 
+		      << " with Rin " << rin << " Rout " << rout 
+		      << " ZHalf " << 0.5*layerL;
   DDLogicalPart cylinderIn(solid.ddname(), matter, solid);
   DDpos (cylinderIn, cylinder, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " << cylinderIn.name() 
-			  << " number 1 positioned in " << cylinder.name() 
-			  << " at (0,0,0) with no rotation";
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << cylinderIn.name() 
+		      << " number 1 positioned in " << cylinder.name() 
+		      << " at (0,0,0) with no rotation";
   name  = idName + "CylinderInSup";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*supportW,
 			       rin, rout, 0, twopi);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " 
-			  << DDName(name, idNameSpace) << " Tubs made of " 
-			  << genMat << " from 0 to " << twopi/deg 
-			  << " with Rin " << rin << " Rout " << rout 
-			  << " ZHalf " << 0.5*supportW;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << genMat << " from 0 to " << twopi/deg 
+		      << " with Rin " << rin << " Rout " << rout 
+		      << " ZHalf " << 0.5*supportW;
   matname = DDName(DDSplit(supportMat).first, DDSplit(supportMat).second);
   DDMaterial matsup(matname);
   DDLogicalPart cylinderSup(solid.ddname(), matsup, solid);
   DDpos (cylinderSup, cylinderIn, 1, DDTranslation(0., 0., 0.), DDRotation());
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " << cylinderSup.name()
-			  << " number 1 positioned in " << cylinderIn.name()
-			  << " at (0,0,0) with no rotation";
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " << cylinderSup.name()
+		      << " number 1 positioned in " << cylinderIn.name()
+		      << " at (0,0,0) with no rotation";
   matname = DDName(DDSplit(ribMat).first, DDSplit(ribMat).second);
   DDMaterial matrib(matname);
-  for (unsigned int i = 0; i < ribW.size(); i++) {
+  for (int i = 0; i < (int)(ribW.size()); i++) {
     name = idName + "Rib" + dbl_to_string(i);
     double width = 2.*ribW[i]/(rin+rout);
     double dz    = 0.25*(layerL - supportW);
     solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, rout, 
 				 -0.5*width, width);
-    LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " 
-			    << DDName(name, idNameSpace) << " Tubs made of " 
-			    << ribMat << " from " << -0.5*width/deg << " to "
-			    << 0.5*width/deg << " with Rin " << rin << " Rout "
-			    << rout << " ZHalf "  << dz;
+    LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+			<< DDName(name, idNameSpace) << " Tubs made of " 
+			<< ribMat << " from " << -0.5*width/deg << " to "
+			<< 0.5*width/deg << " with Rin " << rin << " Rout "
+			<< rout << " ZHalf "  << dz;
     DDLogicalPart cylinderRib(solid.ddname(), matrib, solid);
     double phix   = ribPhi[i];
     double phideg = phix/deg;
@@ -352,28 +352,28 @@ void DDTIBLayerAlgo::execute() {
     if (phideg != 0) {
       double theta  = 90*deg;
       double phiy   = phix + 90.*deg;
-      string rotstr = idName + dbl_to_string(phideg*10.);
+      std::string rotstr = idName + dbl_to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
-        LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: Creating a new "
-				<< "rotation: "	<< rotstr << "\t90., " 
-				<< phix/deg << ", 90.," << phiy/deg <<", 0, 0";
+        LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
+			    << "rotation: "	<< rotstr << "\t90., " 
+			    << phix/deg << ", 90.," << phiy/deg <<", 0, 0";
         rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
                          0., 0.);
       }
     }
     DDTranslation tran(0, 0, -0.25*(layerL+supportW));
     DDpos (cylinderRib, cylinderIn, 1, tran, rotation);
-    LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << cylinderRib.name()
-			    << " number 1" << " positioned in " 
-			    << cylinderIn.name() << " at " << tran << " with " 
-			    << rotation;
+    LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << cylinderRib.name()
+			<< " number 1" << " positioned in " 
+			<< cylinderIn.name() << " at " << tran << " with " 
+			<< rotation;
     tran = DDTranslation(0, 0, 0.25*(layerL+supportW));
     DDpos (cylinderRib, cylinderIn, 2, tran, rotation);
-    LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << cylinderRib.name()
-			    << " number 2" << " positioned in "
-			    << cylinderIn.name() << " at " << tran << " with "
-			    << rotation;
+    LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << cylinderRib.name()
+			<< " number 2" << " positioned in "
+			<< cylinderIn.name() << " at " << tran << " with "
+			<< rotation;
   }
 
   // DOHM + carrier (portadohm)
@@ -389,16 +389,16 @@ void DDTIBLayerAlgo::execute() {
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz_dohm, 
 			       rin_lo, rout_lo, 
 			       -0.5*dphi_dohm, dphi_dohm);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " 
-			  << DDName(name, idNameSpace) << " Tubs made of "
-			  << dohmCarrierMaterial << " from "
-			  << -0.5*(dphi_dohm)/deg << " to " 
-			  << -0.5*(dphi_dohm)/deg+dphi_dohm/deg << " with Rin "
-			  << rin_lo << " Rout " << rout_lo << " ZHalf "  
-			  << dz_dohm;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of "
+		      << dohmCarrierMaterial << " from "
+		      << -0.5*(dphi_dohm)/deg << " to " 
+		      << -0.5*(dphi_dohm)/deg+dphi_dohm/deg << " with Rin "
+		      << rin_lo << " Rout " << rout_lo << " ZHalf "  
+		      << dz_dohm;
   // create different name objects for only PRIMary DOHMs and PRIMary+AUXiliary DOHM Carriers
-  string name_lo_r = name + "_PRIM_AUX" + "_lo" + "_r";
-  string name_lo_l = name + "_PRIM_AUX" + "_lo" + "_l";
+  std::string name_lo_r = name + "_PRIM_AUX" + "_lo" + "_r";
+  std::string name_lo_l = name + "_PRIM_AUX" + "_lo" + "_l";
   DDLogicalPart dohmCarrierPrimAux_lo_r(name_lo_r,
 					DDMaterial(dohmCarrierMaterial),solid);
   DDLogicalPart dohmCarrierPrimAux_lo_l(name_lo_l,
@@ -416,16 +416,16 @@ void DDTIBLayerAlgo::execute() {
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz_dohm, 
 			       rin_up, rout_up, 
 			       -0.5*dphi_dohm, dphi_dohm);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " 
-			  << DDName(name, idNameSpace) << " Tubs made of "
-			  << dohmCarrierMaterial << " from " 
-			  << -0.5*(dphi_dohm)/deg << " to " 
-			  << -0.5*(dphi_dohm)/deg+dphi_dohm/deg 
-			  << " with Rin " << rin_up << " Rout " << rout_up
-			  << " ZHalf "  << dz_dohm;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of "
+		      << dohmCarrierMaterial << " from " 
+		      << -0.5*(dphi_dohm)/deg << " to " 
+		      << -0.5*(dphi_dohm)/deg+dphi_dohm/deg 
+		      << " with Rin " << rin_up << " Rout " << rout_up
+		      << " ZHalf "  << dz_dohm;
   // create different name objects for only PRIMary DOHMs and PRIMary+AUXiliary DOHM Carriers
-  string name_up_r = name + "_PRIM_AUX" + "_up" + "_r";
-  string name_up_l = name + "_PRIM_AUX" + "_up" + "_l";
+  std::string name_up_r = name + "_PRIM_AUX" + "_up" + "_r";
+  std::string name_up_l = name + "_PRIM_AUX" + "_up" + "_l";
   DDLogicalPart dohmCarrierPrimAux_up_r(name_up_r,
 					DDMaterial(dohmCarrierMaterial),solid);
   DDLogicalPart dohmCarrierPrimAux_up_l(name_up_l, 
@@ -437,7 +437,7 @@ void DDTIBLayerAlgo::execute() {
   DDLogicalPart dohmCarrierPrim_up_l(name_up_l,
 				     DDMaterial(dohmCarrierMaterial), solid);
   //
-  for (unsigned int i = 0; i < (unsigned int)dohmN; i++) {
+  for (int i = 0; i < dohmN; i++) {
     DDLogicalPart dohmCarrier_lo_r;
     DDLogicalPart dohmCarrier_lo_l;
     DDLogicalPart dohmCarrier_up_r;
@@ -478,13 +478,13 @@ void DDTIBLayerAlgo::execute() {
       if (phideg != 0) {
 	double theta  = 90*deg;
 	double phiy   = phix + 90.*deg;
-	string rotstr = idName + dbl_to_string(phideg*10.);
+	std::string rotstr = idName + dbl_to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
-	  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: Creating a new "
-				  << "rotation: " << rotstr << "\t90., " 
-				  << phix/deg << ", 90.," << phiy/deg 
-				  << ", 0, 0";
+	  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
+			      << "rotation: " << rotstr << "\t90., " 
+			      << phix/deg << ", 90.," << phiy/deg 
+			      << ", 0, 0";
 	  rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, 
 			   phiy, 0., 0.);
 	}
@@ -492,30 +492,30 @@ void DDTIBLayerAlgo::execute() {
       // TIB+ DOHM Carrier - lower
       DDTranslation tran(0, 0, 0.5*layerL-dz_dohm);
       DDpos (dohmCarrier_lo_r, parent(), i+1, tran, rotation );
-      LogDebug("TrackerGeom") << "DDTIBLayerAlgo test "
-			      << dohmCarrier_lo_r.name() << " z+ number " <<i+1
-			      << " positioned in " << parent().name() << " at "
-			      << tran << " with " << rotation;
+      LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
+			  << dohmCarrier_lo_r.name() << " z+ number " <<i+1
+			  << " positioned in " << parent().name() << " at "
+			  << tran << " with " << rotation;
       // TIB+ DOHM Carrier - upper
-      DDpos (dohmCarrier_up_r, parent(), i+1+(unsigned int)dohmN, tran,
+      DDpos (dohmCarrier_up_r, parent(), i+1+dohmN, tran,
 	     rotation );
-      LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " 
-			      << dohmCarrier_up_r.name() << " z+ number " <<i+1
-			      << " positioned in " << parent().name() << " at "
-			      << tran << " with " << rotation;
+      LogDebug("TIBGeom") << "DDTIBLayerAlgo test " 
+			  << dohmCarrier_up_r.name() << " z+ number " <<i+1
+			  << " positioned in " << parent().name() << " at "
+			  << tran << " with " << rotation;
       // TIB- DOHM Carrier - lower
       tran = DDTranslation(0, 0, -0.5*layerL+dz_dohm);
       DDpos (dohmCarrier_lo_l, parent(), i+1, tran, rotation);
-      LogDebug("TrackerGeom") << "DDTIBLayerAlgo test "
-			      << dohmCarrier_lo_l.name() << " z- number " <<i+1
-			      << " positioned in " << parent().name() << " at "
-			      << tran << " with " << rotation;
+      LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
+			  << dohmCarrier_lo_l.name() << " z- number " <<i+1
+			  << " positioned in " << parent().name() << " at "
+			  << tran << " with " << rotation;
       // TIB- DOHM Carrier - upper
       DDpos (dohmCarrier_up_l, parent(), i+1, tran, rotation);
-      LogDebug("TrackerGeom") << "DDTIBLayerAlgo test "
-			      << dohmCarrier_up_l.name() << " z- number " <<i+1
-			      << " positioned in " << parent().name() << " at "
-			      << tran << " with " << rotation;
+      LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
+			  << dohmCarrier_up_l.name() << " z- number " <<i+1
+			  << " positioned in " << parent().name() << " at "
+			  << tran << " with " << rotation;
     }
     
     //    } // phi range
@@ -528,10 +528,10 @@ void DDTIBLayerAlgo::execute() {
   name = idName + "DOHM_PRIM";
   solid = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
   DDLogicalPart dohmPrim(solid.ddname(), DDMaterial(dohmPrimMaterial), solid);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " 
-			  << DDName(name, idNameSpace)  << " Box made of " 
-			  << dohmPrimMaterial << " of dimensions " << dx 
-			  << ", " <<dy << ", " <<dz;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace)  << " Box made of " 
+		      << dohmPrimMaterial << " of dimensions " << dx 
+		      << ", " <<dy << ", " <<dz;
   name = idName + "DOHM_PRIM_Cable";
   double dx_cable = 0.25*dohmPrimT;
   double dy_cable = 0.40*dohmPrimW;
@@ -540,13 +540,13 @@ void DDTIBLayerAlgo::execute() {
 			      dz_cable);
   DDLogicalPart dohmCablePrim(solid.ddname(), DDMaterial(dohmCableMaterial), 
 			      solid);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: "
-			  << DDName(name, idNameSpace) << " Box made of " 
-			  << dohmCableMaterial << " of dimensions " << dx_cable
-			  << ", " << dy_cable << ", " << dz_cable;
-  
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: "
+		      << DDName(name, idNameSpace) << " Box made of " 
+		      << dohmCableMaterial << " of dimensions " << dx_cable
+		      << ", " << dy_cable << ", " << dz_cable;
+
   DDRotation rotation_r, rotation_l;
-  string rotstr = DDSplit(dohmRotPlus).first;
+  std::string rotstr = DDSplit(dohmRotPlus).first;
   if (rotstr != "NULL")
     rotation_r = DDRotation(DDName(rotstr, DDSplit(dohmRotPlus).second));
   rotstr = DDSplit(dohmRotMinus).first;
@@ -556,41 +556,41 @@ void DDTIBLayerAlgo::execute() {
   // TIB+ DOHM
   DDTranslation tran(rout_dohm+0.5*dohmPrimT, 0. , 0.);
   DDpos (dohmPrim, dohmCarrierPrim_lo_r, 1, tran, rotation_r);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmPrim.name()
-			  << " z+ number " << 1	<< " positioned in " 
-			  << dohmCarrierPrim_lo_r.name() << " at " << tran
-			  << " with " << rotation_r;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmPrim.name()
+		      << " z+ number " << 1	<< " positioned in " 
+		      << dohmCarrierPrim_lo_r.name() << " at " << tran
+		      << " with " << rotation_r;
   tran = DDTranslation(rout_dohm+dx_cable, 0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 1, tran, rotation_r);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-			  << " copy number 1 positioned in " 
-			  << dohmCarrierPrim_lo_r.name() << " at " << tran 
-			  << " with " << rotation_r;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
+		      << " copy number 1 positioned in " 
+		      << dohmCarrierPrim_lo_r.name() << " at " << tran 
+		      << " with " << rotation_r;
   tran = DDTranslation(rout_dohm+dx_cable, -0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 2, tran, rotation_r);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-			  << " copy number 2 positioned in " 
-			  << dohmCarrierPrim_lo_r.name() << " at " << tran 
-			  << " with " << rotation_r;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
+		      << " copy number 2 positioned in " 
+		      << dohmCarrierPrim_lo_r.name() << " at " << tran 
+		      << " with " << rotation_r;
   // TIB- DOHM
   tran = DDTranslation(rout_dohm+0.5*dohmPrimT, 0. , 0.);
   DDpos (dohmPrim, dohmCarrierPrim_lo_l, 1, tran, rotation_l);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmPrim.name() 
-			  << " z+ number 1 positioned in " 
-			  << dohmCarrierPrim_lo_l.name() << " at " << tran 
-			  << " with " << rotation_l;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmPrim.name() 
+		      << " z+ number 1 positioned in " 
+		      << dohmCarrierPrim_lo_l.name() << " at " << tran 
+		      << " with " << rotation_l;
   tran = DDTranslation(rout_dohm+dx_cable, 0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrim_lo_l, 1, tran, rotation_l);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-			  << " copy number 1 positioned in " 
-			  << dohmCarrierPrim_lo_l.name() << " at " << tran 
-			  << " with " << rotation_l;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
+		      << " copy number 1 positioned in " 
+		      << dohmCarrierPrim_lo_l.name() << " at " << tran 
+		      << " with " << rotation_l;
   tran = DDTranslation(rout_dohm+dx_cable, -0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrim_lo_l, 2, tran, rotation_l);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-			  << " copy number 2 positioned in " 
-			  << dohmCarrierPrim_lo_l.name() << " at " << tran
-			  << " with " << rotation_l;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
+		      << " copy number 2 positioned in " 
+		      << dohmCarrierPrim_lo_l.name() << " at " << tran
+		      << " with " << rotation_l;
   
   // DOHM PRIMary + AUXiliary
   dx = 0.5*dohmPrimT;
@@ -598,10 +598,10 @@ void DDTIBLayerAlgo::execute() {
   dz = 0.5*dohmPrimL;
   name = idName + "DOHM_PRIM";
   solid = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " 
-			  << DDName(name, idNameSpace) << " Box made of " 
-			  << dohmPrimMaterial << " of dimensions " << dx 
-			  << ", " << dy << ", " << dz;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Box made of " 
+		      << dohmPrimMaterial << " of dimensions " << dx 
+		      << ", " << dy << ", " << dz;
   dohmPrim = DDLogicalPart(solid.ddname(), DDMaterial(dohmPrimMaterial),solid);
   name = idName + "DOHM_PRIM_Cable";
   dx_cable = 0.25*dohmPrimT;
@@ -611,90 +611,90 @@ void DDTIBLayerAlgo::execute() {
 			      dz_cable);
   dohmCablePrim = DDLogicalPart(solid.ddname(), DDMaterial(dohmCableMaterial),
 				solid);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " 
-			  << DDName(name, idNameSpace) << " Box made of "
-			  << dohmCableMaterial << " of dimensions " << dx_cable
-			  << ", " << dy_cable << ", " << dz_cable;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Box made of "
+		      << dohmCableMaterial << " of dimensions " << dx_cable
+		      << ", " << dy_cable << ", " << dz_cable;
   dx = 0.5*dohmAuxT;
   dy = 0.5*dohmAuxW;
   dz = 0.5*dohmAuxL;
   name = idName + "DOHM_AUX";
   solid = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
   DDLogicalPart dohmAux(solid.ddname(), DDMaterial(dohmAuxMaterial), solid);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " 
-			  << DDName(name, idNameSpace) << " Box made of "
-			  << dohmAuxMaterial << " of dimensions " << dx << ", "
-			  << dy << ", " << dz;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Box made of "
+		      << dohmAuxMaterial << " of dimensions " << dx << ", "
+		      << dy << ", " << dz;
   name = idName + "DOHM_AUX_Cable";
   solid = DDSolidFactory::box(DDName(name, idNameSpace), dx_cable, dy_cable,
 			      dz_cable);
   DDLogicalPart dohmCableAux(solid.ddname(), DDMaterial(dohmCableMaterial),
 			     solid);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test: " 
-			  << DDName(name, idNameSpace) << " Box made of " 
-			  << dohmCableMaterial << " of dimensions " << dx_cable
-			  << ", " << dy_cable << ", " << dz_cable;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: " 
+		      << DDName(name, idNameSpace) << " Box made of " 
+		      << dohmCableMaterial << " of dimensions " << dx_cable
+		      << ", " << dy_cable << ", " << dz_cable;
   // TIB+ DOHM
   tran = DDTranslation(rout_dohm+0.5*dohmPrimT, -0.75*dohmPrimW , 0.);
   DDpos (dohmPrim, dohmCarrierPrimAux_lo_r, 1, tran, rotation_r);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmAux.name() 
-			  << " z+ number 1 positioned in " 
-			  << dohmCarrierPrimAux_lo_r.name() << " at " << tran 
-			  << " with " << rotation_r;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmAux.name() 
+		      << " z+ number 1 positioned in " 
+		      << dohmCarrierPrimAux_lo_r.name() << " at " << tran 
+		      << " with " << rotation_r;
   tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrimW+0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 1, tran, rotation_r);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-			  << " copy number 1 positioned in " 
-			  << dohmCarrierPrimAux_lo_r.name() << " at " << tran 
-			  << " with " << rotation_r;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
+		      << " copy number 1 positioned in " 
+		      << dohmCarrierPrimAux_lo_r.name() << " at " << tran 
+		      << " with " << rotation_r;
   tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrimW-0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 2, tran, rotation_r);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-			  << " copy number 2 positioned in " 
-			  << dohmCarrierPrimAux_lo_r.name() << " at " << tran 
-			  << " with " << rotation_r;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
+		      << " copy number 2 positioned in " 
+		      << dohmCarrierPrimAux_lo_r.name() << " at " << tran 
+		      << " with " << rotation_r;
   tran = DDTranslation(rout_dohm+0.5*dohmAuxT, 0.75*dohmAuxW , 0.);
   DDpos (dohmAux, dohmCarrierPrimAux_lo_r, 1, tran, rotation_r);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmAux.name() 
-			  << " z+ number 1 positioned in " 
-			  << dohmCarrierPrimAux_lo_r.name()
-			  << " at " << tran << " with " << rotation_r;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmAux.name() 
+		      << " z+ number 1 positioned in " 
+		      << dohmCarrierPrimAux_lo_r.name()
+		      << " at " << tran << " with " << rotation_r;
   tran = DDTranslation(rout_dohm+dx_cable, 0.75*dohmAuxW+0.5*dohmPrimW , 0.);
   DDpos (dohmCableAux, dohmCarrierPrimAux_lo_r, 1, tran, rotation_r);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCableAux.name()
-			  << " copy number 1 positioned in " 
-			  << dohmCarrierPrimAux_lo_r.name() << " at " << tran
-			  << " with " << rotation_r;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCableAux.name()
+		      << " copy number 1 positioned in " 
+		      << dohmCarrierPrimAux_lo_r.name() << " at " << tran
+		      << " with " << rotation_r;
    // TIB- DOHM
   tran = DDTranslation(rout_dohm+0.5*dohmPrimT, 0.75*dohmPrimW , 0.);
   DDpos (dohmPrim, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmPrim.name() 
-			  << " z+ number 1 positioned in " 
-			  << dohmCarrierPrimAux_lo_l.name() << " at "<< tran
-			  << " with " << rotation_l;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmPrim.name() 
+		      << " z+ number 1 positioned in " 
+		      << dohmCarrierPrimAux_lo_l.name() << " at "<< tran
+		      << " with " << rotation_l;
   tran = DDTranslation(rout_dohm+dx_cable, 0.75*dohmPrimW+0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-			  << " copy number 1 positioned in " 
-			  << dohmCarrierPrimAux_lo_l.name() << " at " << tran 
-			  << " with " << rotation_l;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
+		      << " copy number 1 positioned in " 
+		      << dohmCarrierPrimAux_lo_l.name() << " at " << tran 
+		      << " with " << rotation_l;
   tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrim+0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_l, 2, tran, rotation_l);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
-			  << " copy number 2 positioned in " 
-			  << dohmCarrierPrimAux_lo_l.name() << " at " << tran 
-			  << " with " << rotation_l;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCablePrim.name()
+		      << " copy number 2 positioned in " 
+		      << dohmCarrierPrimAux_lo_l.name() << " at " << tran 
+		      << " with " << rotation_l;
   tran = DDTranslation(rout_dohm+0.5*dohmAuxT, -0.75*dohmAuxW , 0.);
   DDpos (dohmAux, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmAux.name() 
-			  << " z+ number " << 1	<< " positioned in "
-			  << dohmCarrierPrimAux_lo_l.name()
-			  << " at " << tran << " with " << rotation_l;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmAux.name() 
+		      << " z+ number " << 1	<< " positioned in "
+		      << dohmCarrierPrimAux_lo_l.name()
+		      << " at " << tran << " with " << rotation_l;
   tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmAuxW-0.5*dohmPrimW , 0.);
   DDpos (dohmCableAux, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l);
-  LogDebug("TrackerGeom") << "DDTIBLayerAlgo test " << dohmCableAux.name()
-			  << " copy number 1 positioned in " 
-			  << dohmCarrierPrimAux_lo_l.name() << " at " << tran
-			  << " with " << rotation_l;
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << dohmCableAux.name()
+		      << " copy number 1 positioned in " 
+		      << dohmCarrierPrimAux_lo_l.name() << " at " << tran
+		      << " with " << rotation_l;
   
 }

@@ -5,7 +5,7 @@
 
 == CMS Forward Pixels Geometry ==
 
- @version 3.01.01 May 08, 2006
+ @version 3.02.01 May 30, 2006
  @created Dmitry Onoprienko
 
 == ALGORITHM DESCRIPTION: ==
@@ -16,7 +16,7 @@
 == Parameters : ==
 
   "Endcap" - +1 if placing the child volume into +Z disk, -1 if placing into -Z disk.
-  "Child" - name of a child volume being places (shold be in the form "file:volume")
+  "Child" - name of a child volume being places (should be in the form "file:volume")
             In no child name is given, the algorithm simply calculates Nipple parameters.
   "ChildRotation" - rotation of the child volume with respect to the "blade frame". [OPTIONAL]
   "ChildTranslation" - vector defining translation of the child volume with respect to the 

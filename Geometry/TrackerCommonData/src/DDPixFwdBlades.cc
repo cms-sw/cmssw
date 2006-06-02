@@ -1,7 +1,7 @@
 /* 
 == CMS Forward Pixels Geometry ==
 
- @version 3.01.01 May 08, 2006
+ @version 3.02.01 May 30, 2006
  @created Dmitry Onoprienko
 
   Algorithm for placing one-per-blade components.
@@ -12,8 +12,7 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
@@ -196,7 +195,7 @@ void DDPixFwdBlades::execute() {
     // position the child :
 
     DDpos(child, mother, copy, translation, rotation);
-    //DCOUT('a', "DDPixFwdBlades: " << child << " Copy " << copy << " positioned in " << mother << " at " << translation << " with rotation " << rotation);
+    // LogDebug("PixelGeom") << "DDPixFwdBlades: " << child << " Copy " << copy << " positioned in " << mother << " at " << translation << " with rotation " << rotation;
   }
 
   // End of cycle over Phi positions
@@ -255,7 +254,7 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   Hep3Vector jkC = kC - jC;
   double* jkLength = new double(jkC.mag());
   DDConstant JK(DDName("JK", "pixfwdNipple"), jkLength);
-  DCOUT('w', "+++++++++++++++ DDPixFwdBlades: " << "JK Length " <<  *jkLength * mm);
+  LogDebug("PixelGeom") << "+++++++++++++++ DDPixFwdBlades: " << "JK Length " <<  *jkLength * mm;
   
   // Position of the center of a nipple in "cover" blade frame :
   
@@ -265,14 +264,14 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   	nippleTranslationY = nippleTranslation.y();
   	nippleTranslationZ = nippleTranslation.z();
   }
-  DCOUT('w', "Child translation : " << nippleTranslation);
+  LogDebug("PixelGeom") << "Child translation : " << nippleTranslation;
   
   // Rotations from nipple frame to "cover" blade frame and back :
   
   Hep3Vector vZ(0.,0.,1.);
   Hep3Vector axis = vZ.cross(jkC);
   double angleCover = vZ.angle(jkC);
-  DCOUT('w', " Angle to Cover: " << angleCover);
+  LogDebug("PixelGeom") << " Angle to Cover: " << angleCover;
   HepRotation* rpCN = new HepRotation(axis, angleCover);
   if (endcap > 0.) {
   	nippleRotationZPlus = rpCN;
@@ -289,7 +288,7 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   HepRotation* rpNB = new HepRotation( (*rpNC) * rCB );
   DDrot(DDName(rotNameNippleToBody, "pixfwdNipple"), rpNB);
   double angleBody = vZ.angle(*rpNB * vZ);
-  DCOUT('w', " Angle to body : " << angleBody);
+  LogDebug("PixelGeom") << " Angle to body : " << angleBody;
   
 }
 
