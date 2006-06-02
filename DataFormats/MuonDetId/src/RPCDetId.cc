@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.13 2006/03/30 21:25:48 mmaggi Exp $
+ * \version $Id: RPCDetId.cc,v 1.14 2006/04/27 16:57:22 mmaggi Exp $
  * \date 02 Aug 2005
  */
 
@@ -44,7 +44,7 @@ RPCDetId::buildfromTrIndex(int trIndex)
   }
   else if (eta_id >=9 ) {
     region = 1;
-    ring = eta_id -8;
+    ring = 12-eta_id;
   }
   else{
     region = 0;

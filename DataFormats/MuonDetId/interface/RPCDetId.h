@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2006/03/17 18:00:16 $
- *  \version $Id: RPCDetId.h,v 1.11 2006/03/17 18:00:16 namapane Exp $
- *  $Revision: 1.11 $
+ *  $Date: 2006/04/27 16:57:16 $
+ *  \version $Id: RPCDetId.h,v 1.12 2006/04/27 16:57:16 mmaggi Exp $
+ *  $Revision: 1.12 $
  *  \author Ilaria Segoni
  */
 
@@ -80,7 +80,15 @@ class RPCDetId :public DetId {
 
   /// Sector id
   int sector() const{
-    return int((id_>>SectorStartBit_) & SectorMask_) + minSectorId;
+    int sect=int((id_>>SectorStartBit_) & SectorMask_) + minSectorId;
+    
+    if (this->region()  !=0 ){
+      int subsect = int((id_>>SubSectorStartBit_) & SubSectorMask_) + minSubSectorId;
+      sect = 3*(sect-1) + subsect;
+      if (this->ring() == 1 && this->station()>1)
+	sect/=2;
+   }
+    return sect;
   }
 
   /// Layer id
@@ -91,7 +99,10 @@ class RPCDetId :public DetId {
 
   /// SubSector id
   int subsector() const{
-     return int((id_>>SubSectorStartBit_) & SubSectorMask_) + minSubSectorId;
+    int subsect = 1;
+    if (this->region()==0)
+      subsect = int((id_>>SubSectorStartBit_) & SubSectorMask_) + minSubSectorId;
+    return subsect;
   }
 
   /// Roll id
