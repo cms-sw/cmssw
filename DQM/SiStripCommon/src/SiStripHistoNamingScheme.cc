@@ -23,7 +23,8 @@ string SiStripHistoNamingScheme::controlPath( uint16_t fec_crate,
 					      uint16_t ccu_addr,
 					      uint16_t ccu_chan ) { 
   
-  stringstream folder;
+  stringstream folder; 
+  //folder.reserve(65536); //@@ possible to reserve space???
   folder << sistrip::root_ << sistrip::dir_ << sistrip::controlView_ << sistrip::dir_;
   if ( fec_crate != sistrip::all_ ) {
     folder << sistrip::fecCrate_ << fec_crate << sistrip::dir_;

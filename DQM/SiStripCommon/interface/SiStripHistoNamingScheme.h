@@ -68,6 +68,10 @@ class SiStripHistoNamingScheme {
 
   /** Contructs histogram name based on a general histogram name,
       histogram contents, a histogram key and a channel id. */
+  inline static string histoTitle( HistoTitle title );
+  
+  /** Contructs histogram name based on a general histogram name,
+      histogram contents, a histogram key and a channel id. */
   static string histoTitle( sistrip::Task        task,
 			    sistrip::Contents    contents   = sistrip::COMBINED, 
 			    sistrip::KeyType     key_type   = sistrip::NO_KEY, 
@@ -90,6 +94,12 @@ class SiStripHistoNamingScheme {
   static sistrip::Granularity granularity( string granularity );
 
 };
+
+// inline method
+string SiStripHistoNamingScheme::histoTitle( SiStripHistoNamingScheme::HistoTitle title ) {
+  return histoTitle( title.task_, title.contents_, title.keyType_, title.keyValue_, 
+		     title.granularity_, title.channel_, title.extraInfo_ );
+}
 
 #endif // DQM_SiStripCommon_SiStripHistoNamingScheme_H
 
