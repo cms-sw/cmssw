@@ -9,7 +9,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitFixedAlphaBetaAlgo.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
-#include "CondFormats/EcalObjects/interface/EcalWeight.h"
+
 
 // forward declaration
 class EcalFixedAlphaBetaFitUncalibRecHitProducer : public edm::EDProducer {
@@ -31,5 +31,14 @@ class EcalFixedAlphaBetaFitUncalibRecHitProducer : public edm::EDProducer {
 
    EcalUncalibRecHitFixedAlphaBetaAlgo<EBDataFrame> algoEB_;
    EcalUncalibRecHitFixedAlphaBetaAlgo<EEDataFrame> algoEE_;
+
+    double alpha_;
+    double beta_;
+    std::vector<std::vector<std::pair<double,double> > > alphaBetaValues_;//List of alpha and Beta values [SM#][CRY#](alpha, beta)
+    bool useAlphaBetaArray_;
+    std::string alphabetaFilename_;
+    
+    bool setAlphaBeta();//Sets the alphaBetaValues_ vectors by the values provided in alphabetaFilename_
+
 };
 #endif
