@@ -5,8 +5,8 @@
  *  A ring of periodic, possibly overlapping vertical detectors.
  *  Designed for forward muon CSC/RPC chambers.
  *
- *  $Date: 2006/04/12 13:23:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/01 16:47:05 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -19,29 +19,29 @@ class MuDetRing : public ForwardDetRingOneZ {
  public:
 
   /// Construct from iterators on GeomDet*
-  MuDetRing(vector<const GeomDet*>::const_iterator first,
-	    vector<const GeomDet*>::const_iterator last);
+  MuDetRing(std::vector<const GeomDet*>::const_iterator first,
+	    std::vector<const GeomDet*>::const_iterator last);
 
   /// Construct from a vector of GeomDet*
-  MuDetRing(const vector<const GeomDet*>& dets);
+  MuDetRing(const std::vector<const GeomDet*>& dets);
 
   virtual ~MuDetRing();
 
 
   // GeometricSearchDet interface
 
-  virtual const vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const;
 
   virtual pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator& prop, 
 	      const MeasurementEstimator& est) const;
 
-  virtual vector<DetWithState> 
+  virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const;
 
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;

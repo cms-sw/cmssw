@@ -4,8 +4,8 @@
 /** \class MuRingForwardLayer
  *  A plane composed of disks (MuRingForwardDisk). Represents forward muon CSC/RPC stations.
  *
- *  $Date: 2006/05/16 09:43:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/01 16:47:05 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  *
  */
@@ -21,27 +21,27 @@ class MuRingForwardLayer : public RingedForwardLayer {
 
  public:  
 
-  MuRingForwardLayer(vector<const ForwardDetRing*>& rings);
+  MuRingForwardLayer(std::vector<const ForwardDetRing*>& rings);
 
   virtual ~MuRingForwardLayer();
 
 
   // GeometricSearchDet interface
 
-  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
   
-  virtual const vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const;
 
   virtual pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator& prop, 
 	      const MeasurementEstimator& est) const;
 
-  virtual vector<DetWithState> 
+  virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const;
   
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
@@ -58,13 +58,13 @@ class MuRingForwardLayer : public RingedForwardLayer {
   // Extension of the interface
 
   /// Return the vector of rings.
-  virtual const vector<const ForwardDetRing*>& rings() const {return theRings;}
+  virtual const std::vector<const ForwardDetRing*>& rings() const {return theRings;}
 
 
  private:  
-  vector<const ForwardDetRing*> theRings;
-  vector <const GeometricSearchDet*> theComponents; // duplication of the above
-  vector<const GeomDet*> theBasicComps; // All chambers
+  std::vector<const ForwardDetRing*> theRings;
+  std::vector <const GeometricSearchDet*> theComponents; // duplication of the above
+  std::vector<const GeomDet*> theBasicComps; // All chambers
   BaseBinFinder<double> * theBinFinder;
   bool isOverlapping;
 

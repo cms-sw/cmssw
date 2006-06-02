@@ -3,21 +3,23 @@
 
 /** \class MuonCSCDetLayerGeometryBuilder
  *
- *  No description available.
+ *  Build the CSC DetLayers.
  *
- *  $Date: 2006/05/02 10:35:28 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/18 14:52:41 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
-#include <RecoMuon/DetLayers/interface/MuRingForwardLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <vector>
+
+class DetLayer;
+class MuRingForwardLayer;
 
 class MuonCSCDetLayerGeometryBuilder {
  public:
   /// Operations
-  static pair<vector<DetLayer*>, vector<DetLayer*> > buildLayers(const CSCGeometry& geo);
+  static std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > buildLayers(const CSCGeometry& geo);
  private:
   // Disable constructor - only static access is allowed.
   MuonCSCDetLayerGeometryBuilder(){}

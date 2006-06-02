@@ -1,5 +1,6 @@
 #include <RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.h>
 
+#include <RecoMuon/DetLayers/interface/MuRingForwardLayer.h>
 #include <RecoMuon/DetLayers/interface/MuDetRing.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>

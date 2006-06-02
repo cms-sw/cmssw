@@ -4,8 +4,8 @@
 /** \class MuRodBarrelLayer
  *  A cylinder composed of rods. Represents barrel muon DT/RPC stations.
  *
- *  $Date: 2006/05/16 09:43:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/01 16:47:05 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  *
  */
@@ -19,26 +19,26 @@ class GeomDet;
 class MuRodBarrelLayer : public RodBarrelLayer {
 public:
 
-  MuRodBarrelLayer(vector<const DetRod*>& rods);
+  MuRodBarrelLayer(std::vector<const DetRod*>& rods);
 
   virtual ~MuRodBarrelLayer();
 
   // GeometricSearchDet interface
 
-  virtual const vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual const vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const;
   
   virtual pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator& prop, 
 	      const MeasurementEstimator&) const;
 
-  virtual vector<DetWithState> 
+  virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const;
   
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
@@ -55,13 +55,13 @@ public:
   // Extension of the interface
 
   /// Return the vector of rods.
-  virtual const vector<const DetRod*>& rods() const {return theRods;}
+  virtual const std::vector<const DetRod*>& rods() const {return theRods;}
 
 
 private:
-  vector<const DetRod*> theRods;
-  vector <const GeometricSearchDet*> theComponents; // duplication of the above
-  vector<const GeomDet*> theBasicComps; // All chambers
+  std::vector<const DetRod*> theRods;
+  std::vector <const GeometricSearchDet*> theComponents; // duplication of the above
+  std::vector<const GeomDet*> theBasicComps; // All chambers
   BaseBinFinder<double> * theBinFinder;
   bool isOverlapping;
 };

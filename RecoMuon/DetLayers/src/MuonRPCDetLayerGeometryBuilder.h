@@ -1,32 +1,34 @@
 #ifndef MuonRPCDetLayerGeometryBuilder_h
 #define MuonRPCDetLayerGeometryBuilder_h
 
-/** \class MuonCSCDetLayerGeometryBuilder
+/** \class MuonRPCDetLayerGeometryBuilder
  *
- *  No description available.
+ *  Build the RPC DetLayers.
  *
- *  $Date: 2006/05/02 10:22:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/02 08:46:32 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
-#include <RecoMuon/DetLayers/interface/MuRingForwardLayer.h>
+class DetLayer;
+
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <vector>
 
 class MuonRPCDetLayerGeometryBuilder {
-    public:
-        /// Constructor
-        MuonRPCDetLayerGeometryBuilder();
+ public:
+  /// Constructor
+  MuonRPCDetLayerGeometryBuilder();
 
-        /// Destructor
-        virtual ~MuonRPCDetLayerGeometryBuilder();
+  /// Destructor
+  virtual ~MuonRPCDetLayerGeometryBuilder();
   
-        /// Operations
-        static pair<vector<DetLayer*>, vector<DetLayer*> > buildLayers(const RPCGeometry& geo);
+  /// Operations
+  static std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > buildEndcapLayers(const RPCGeometry& geo);
         
-	static vector<DetLayer*> buildLayers(const RPCGeometry& geo);
+  static std::vector<DetLayer*> buildBarrelLayers(const RPCGeometry& geo);
     
-    private:
+ private:
     
 };
 #endif

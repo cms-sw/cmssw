@@ -1,12 +1,17 @@
 #include <RecoMuon/DetLayers/src/MuonRPCDetLayerGeometryBuilder.h>
 
-#include <RecoMuon/DetLayers/interface/MuDetRing.h>
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <RecoMuon/DetLayers/interface/MuRingForwardLayer.h>
+#include <RecoMuon/DetLayers/interface/MuRodBarrelLayer.h>
+#include <RecoMuon/DetLayers/interface/MuDetRing.h>
+#include <RecoMuon/DetLayers/interface/MuDetRod.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <iostream>
+
+using namespace std;
 
 MuonRPCDetLayerGeometryBuilder::MuonRPCDetLayerGeometryBuilder() {
 }
@@ -14,9 +19,8 @@ MuonRPCDetLayerGeometryBuilder::MuonRPCDetLayerGeometryBuilder() {
 MuonRPCDetLayerGeometryBuilder::~MuonRPCDetLayerGeometryBuilder() {
 }
 
-//pair<vector<MuRingForwardLayer*>, vector<MuRingForwardLayer*> > 
 pair<vector<DetLayer*>, vector<DetLayer*> > 
-    MuonRPCDetLayerGeometryBuilder::buildLayers(const RPCGeometry& geo) {
+MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
         
   //    vector<MuRingForwardLayer*> result[2];
     vector<DetLayer*> detlayers[2];
@@ -103,7 +107,7 @@ pair<vector<DetLayer*>, vector<DetLayer*> >
 
 
 vector<DetLayer*> 
-MuonRPCDetLayerGeometryBuilder::buildLayers(const RPCGeometry& geo) {
+MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(const RPCGeometry& geo) {
         
   vector<DetLayer*> detlayers;
   vector<MuRodBarrelLayer*> result;
@@ -118,7 +122,7 @@ MuonRPCDetLayerGeometryBuilder::buildLayers(const RPCGeometry& geo) {
 
 			vector<const GeomDet*> geomDets;
 			for(int wheel = RPCDetId::minRingBarrelId; wheel <= RPCDetId::maxRingBarrelId; wheel++) {
-			for(int roll=RPCDetId::minRollId+1); roll <= RPCDetId::maxRollId; roll++){	  
+			for(int roll=RPCDetId::minRollId+1; roll <= RPCDetId::maxRollId; roll++){	  
 				const GeomDet* geomDet = geo.idToDet(RPCDetId(region,wheel,station,sector,layer,subsector,roll));
 				if (geomDet) {
 					geomDets.push_back(geomDet);
@@ -139,7 +143,8 @@ MuonRPCDetLayerGeometryBuilder::buildLayers(const RPCGeometry& geo) {
 		 }
 	result.push_back(new MuRodBarrelLayer(muDetRods));  
 	LogDebug("Muon|RPC|RecoMuonDetLayers") << "    New MuRodBarrelLayer with " << muDetRods.size()
-	}				  << " rods, at R " << result.back()->specificSurface().radius();
+					       << " rods, at R " << result.back()->specificSurface().radius();
+	}
   }
 
   for(vector<MuRodBarrelLayer*>::const_iterator it = result.begin(); it != result.end(); it++)

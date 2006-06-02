@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/16 09:43:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/01 16:47:05 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -11,6 +11,8 @@
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 
 #include <iostream>
+
+using namespace std;
 
 #define MDEBUG false //FIXME!
 

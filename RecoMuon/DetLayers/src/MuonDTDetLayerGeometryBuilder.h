@@ -1,17 +1,19 @@
 #ifndef MuonDTDetLayerGeometryBuilder_h
 #define MuonDTDetLayerGeometryBuilder_h
 
-/** \class MuonCSCDetLayerGeometryBuilder
+/** \class MuonDTDetLayerGeometryBuilder
  *
- *  No description available.
+ *  Build the DT DetLayers.
  *
- *  $Date: 2006/05/02 10:23:02 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/03 15:22:13 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
-#include <RecoMuon/DetLayers/interface/MuRodBarrelLayer.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
+#include <vector>
+
+class DetLayer;
 
 class MuonDTDetLayerGeometryBuilder {
     public:
@@ -22,7 +24,7 @@ class MuonDTDetLayerGeometryBuilder {
         virtual ~MuonDTDetLayerGeometryBuilder();
   
         /// Operations
-        static vector<DetLayer*> buildLayers(const DTGeometry& geo);
+        static std::vector<DetLayer*> buildLayers(const DTGeometry& geo);
     private:
     
 };

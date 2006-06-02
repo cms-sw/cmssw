@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/28 11:52:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/01 16:47:05 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -12,6 +12,8 @@
 
 #include <iostream>
 #include <vector>
+
+using namespace std;
 
 #define MDEBUG false //FIXME!
 

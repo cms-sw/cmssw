@@ -5,8 +5,8 @@
  *  A rod of aligned equal-sized non-overlapping detectors.  
  *  Designed for barrel muon DT/RPC chambers.
  *
- *  $Date: 2006/04/12 13:23:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/01 16:47:05 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  *
  */
@@ -20,11 +20,11 @@ class MuDetRod : public DetRodOneR {
  public:
 
   /// Construct from iterators on GeomDet*
-  MuDetRod(vector<const GeomDet*>::const_iterator first,
-	   vector<const GeomDet*>::const_iterator last);
+  MuDetRod(std::vector<const GeomDet*>::const_iterator first,
+	   std::vector<const GeomDet*>::const_iterator last);
 
-  /// Construct from a vector of GeomDet*
-  MuDetRod(const vector<const GeomDet*>& dets);
+  /// Construct from a std::vector of GeomDet*
+  MuDetRod(const std::vector<const GeomDet*>& dets);
 
   /// Destructor
   virtual ~MuDetRod();
@@ -32,18 +32,18 @@ class MuDetRod : public DetRodOneR {
 
   // GeometricSearchDet interface
 
-  virtual const vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const;
 
   virtual pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator& prop, 
 	      const MeasurementEstimator& est) const;
 
-  virtual vector<DetWithState> 
+  virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const;
 
-  virtual vector<DetGroup> 
+  virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;

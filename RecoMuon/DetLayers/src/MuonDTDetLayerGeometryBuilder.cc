@@ -1,8 +1,9 @@
 #include <RecoMuon/DetLayers/src/MuonDTDetLayerGeometryBuilder.h>
 
-#include <RecoMuon/DetLayers/interface/MuDetRod.h>
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <RecoMuon/DetLayers/interface/MuRodBarrelLayer.h>
+#include <RecoMuon/DetLayers/interface/MuDetRod.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
