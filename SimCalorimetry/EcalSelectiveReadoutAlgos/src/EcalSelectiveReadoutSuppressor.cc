@@ -133,36 +133,46 @@ double Et(const EcalTriggerPrimitiveDigi & trigPrim) {
 void EcalSelectiveReadoutSuppressor::run(
            const EcalTrigPrimDigiCollection & trigPrims,
            EBDigiCollection & barrelDigis,
-           EEDigiCollection & endcapDigis)
-{
+           EEDigiCollection & endcapDigis){
+  EBDigiCollection selectedBarrelDigis;
+  EEDigiCollection selectedEndcapDigis;
 
+  run(trigPrims, barrelDigis, endcapDigis,
+      selectedBarrelDigis, selectedEndcapDigis);
+  
+//replaces the input with the suppressed version
+  barrelDigis.swap(selectedBarrelDigis);
+  endcapDigis.swap(selectedEndcapDigis);  
+}
+
+
+void
+EcalSelectiveReadoutSuppressor::run(const EcalTrigPrimDigiCollection & trigPrims,
+				    const EBDigiCollection & barrelDigis,
+				    const EEDigiCollection & endcapDigis,
+				    EBDigiCollection & selectedBarrelDigis,
+				    EEDigiCollection & selectedEndcapDigis)
+{
   setTriggerTowers(trigPrims);
   ecalSelectiveReadout->runSelectiveReadout0(triggerEt);
 
-
   // do barrel first
-  EBDigiCollection newBarrelDigis;
   for(EBDigiCollection::const_iterator digiItr = barrelDigis.begin();
       digiItr != barrelDigis.end(); ++digiItr)
   {
     if( energy(*digiItr) >= threshold(digiItr->id()) ) {
-      newBarrelDigis.push_back(*digiItr);
+      selectedBarrelDigis.push_back(*digiItr);
     } 
   }
 
   // and endcaps
-  EEDigiCollection newEndcapDigis;
   for(EEDigiCollection::const_iterator digiItr = endcapDigis.begin();
       digiItr != endcapDigis.end(); ++digiItr)
   {
     if( energy(*digiItr) >= threshold(digiItr->id()) ) {
-      newEndcapDigis.push_back(*digiItr);
+      selectedEndcapDigis.push_back(*digiItr);
     }
   }
-
-  // and replace the input with the suppressed version
-  barrelDigis.swap(newBarrelDigis);
-  endcapDigis.swap(newEndcapDigis);
 }
 
 

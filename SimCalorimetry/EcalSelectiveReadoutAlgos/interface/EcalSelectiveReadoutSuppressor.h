@@ -14,10 +14,12 @@ class EcalSelectiveReadoutSuppressor
 {
 public:
   /// default parameters
+
+  
   EcalSelectiveReadoutSuppressor();
   EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params);
-  bool accepts(const EBDataFrame& frame) const;
-  bool accepts(const EEDataFrame& frame) const;
+  //  bool accepts(const EBDataFrame& frame) const;
+  //bool accepts(const EEDataFrame& frame) const;
 
 
   /** Help method to retrieve the trigger tower Et's from the trigger
@@ -29,6 +31,12 @@ public:
   void run(const EcalTrigPrimDigiCollection & trigPrims,
            EBDigiCollection & barrelDigis,
            EEDigiCollection & endcapDigis);
+
+  void run(const EcalTrigPrimDigiCollection & trigPrims,
+           const EBDigiCollection & barrelDigis,
+           const EEDigiCollection & endcapDigis,
+           EBDigiCollection & selectedBarrelDigis,
+           EEDigiCollection & selectedEndcapDigis);
  
  private:
   /// helpers for constructors
