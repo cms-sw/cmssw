@@ -76,7 +76,7 @@ private:
   typedef std::pair<TH1F*,std::pair<std::map<int, std::vector<double> >,std::vector<TH1F*> > > PEDBUNCH;
   TFile* m_file;
   void per2CapsHists(int flag, int id, const HcalDetId detid, const HcalQIESample& qie1, const HcalQIESample& qie2, std::map<HcalDetId, std::map<int,PEDBUNCH> > &toolT);
-  void GetPedConst(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT);
+  void GetPedConst(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, TH1F* PedMeans, TH1F* PedWidths);
   void Trendings(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, TH1F* Chi2, TH1F* CapidAverage, TH1F* CapidChi2);
   int PedValidtn(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT);
   std::string m_outputFileROOT;
