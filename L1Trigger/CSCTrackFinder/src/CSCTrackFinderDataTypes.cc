@@ -67,11 +67,9 @@ global_eta_data& global_eta_data::operator=(const unsigned short& us)
 
 pt_data& pt_data::operator=(const unsigned short& us)
 {
-  this->front_pt           = ((1<<5)-1)&us;
-  this->front_quality      = ((1<<2)-1)&(us>>5);
+  this->front_rank         = ((1<<7)-1)&us;
   this->charge_valid_front = ((1<<1)-1)&(us>>7);
-  this->rear_pt            = ((1<<5)-1)&(us>>8);
-  this->rear_quality       = ((1<<2)-1)&(us>>13);
+  this->rear_rank          = ((1<<7)-1)&(us>>8);
   this->charge_valid_rear  = ((1<<1)-1)&(us>>15);
   
   return *this;
@@ -101,7 +99,7 @@ unsigned short global_phi_data::toint() const
 unsigned short pt_data::toint() const
 {
   unsigned short us = 0;
-  us = front_pt | (front_quality << 5) | (charge_valid_front << 7) | (rear_pt << 8) | (rear_quality << 13) | (charge_valid_rear << 15);
+  us = front_rank | (charge_valid_front << 7) | (rear_rank << 8) | (charge_valid_rear << 15);
   return us;
 }
 

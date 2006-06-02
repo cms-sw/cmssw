@@ -121,11 +121,9 @@ typedef class global_eta_data
 typedef class pt_data
 {
  public:
-  unsigned short front_pt           : 5;
-  unsigned short front_quality      : 2;
+  unsigned short front_rank         : 7;
   unsigned short charge_valid_front : 1;
-  unsigned short rear_pt            : 5;
-  unsigned short rear_quality       : 2;
+  unsigned short rear_rank          : 7;
   unsigned short charge_valid_rear  : 1;
   
   pt_data() {};

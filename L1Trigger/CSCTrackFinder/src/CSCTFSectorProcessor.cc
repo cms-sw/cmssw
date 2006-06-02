@@ -117,14 +117,12 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<CSCTrackStub>& stubs)
       ptdat thePtData = ptLUT_->Pt(thePtAddress);
       if(thePtAddress.track_fr)
 	{
-	  titr->setPtPacked(thePtData.front_pt);
-	  titr->setQualityPacked(thePtData.front_quality);
+	  titr->setRank(thePtData.front_rank);
 	  titr->setChargeValidPacked(thePtData.charge_valid_front);
 	}
       else
 	{
-	  titr->setPtPacked(thePtData.rear_pt);
-	  titr->setQualityPacked(thePtData.rear_quality);
+	  titr->setRank(thePtData.rear_rank);
 	  titr->setChargeValidPacked(thePtData.charge_valid_rear);
 	}
     }

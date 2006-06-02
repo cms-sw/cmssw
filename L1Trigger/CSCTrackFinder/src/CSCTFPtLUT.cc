@@ -83,10 +83,12 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
   fr = address.track_fr;
   charge = address.delta_phi_sign;
   quality = trackQuality(eta, mode);
-  
+  unsigned front_pt, rear_pt;
+  unsigned front_quality, rear_quality;
+
   etaR = trigger_scale.getRegionalEtaScale(2)->getLowEdge(2*eta+1);
 
-  result.front_quality = result.rear_quality = quality;
+  front_quality = rear_quality = quality;
 
   //  kluge to use 2-stn track in overlap region
   //  see also where this routine is called, and encode LUTaddress, and assignPT
@@ -244,21 +246,23 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
       ptR_rear  = trigger_scale.getPtScale()->getLowEdge(0);
     };
 
-  result.front_pt = trigger_scale.getPtScale()->getPacked(ptR_front);
-  result.rear_pt  = trigger_scale.getPtScale()->getPacked(ptR_rear);
+  front_pt = trigger_scale.getPtScale()->getPacked(ptR_front);
+  rear_pt  = trigger_scale.getPtScale()->getPacked(ptR_rear);
 
   // kluge to set arbitrary Pt for some tracks with lousy resolution (and no param)
-  if ((result.front_pt==0 || result.front_pt==1) && (eta<3) && quality==1 && pt_method != 2) result.front_pt = 31;
-  if ((result.rear_pt==0  || result.rear_pt==1) && (eta<3) && quality==1 && pt_method != 2) result.rear_pt = 31;
+  if ((front_pt==0 || front_pt==1) && (eta<3) && quality==1 && pt_method != 2) front_pt = 31;
+  if ((rear_pt==0  || rear_pt==1) && (eta<3) && quality==1 && pt_method != 2) rear_pt = 31;
 
   if(pt_method != 2 && quality == 1)
     {
-      if (result.front_pt < 5) result.front_pt = 5;
-      if (result.rear_pt  < 5) result.rear_pt  = 5;
+      if (front_pt < 5) front_pt = 5;
+      if (rear_pt  < 5) rear_pt  = 5;
     }
     
-  result.charge_valid_front = ptMethods.chargeValid(result.front_pt, quality, eta, pt_method);
-  result.charge_valid_rear  = ptMethods.chargeValid(result.rear_pt, quality, eta, pt_method);  
+  result.front_rank = front_pt | front_quality << 5;
+  result.rear_rank  = rear_pt  | rear_quality << 5;
+  result.charge_valid_front = ptMethods.chargeValid(front_pt, quality, eta, pt_method);
+  result.charge_valid_rear  = ptMethods.chargeValid(rear_pt, quality, eta, pt_method);  
 
   return result;
 }
