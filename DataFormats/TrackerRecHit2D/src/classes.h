@@ -39,6 +39,14 @@ namespace {
       edm::OwnVector<SiPixelRecHit,
       edm::ClonePolicy<SiPixelRecHit> >, 
       edm::ClonePolicy<SiPixelRecHit> > >  siPixelRecHitCollectionWrapper;
+
+    edm::Ref<edm::DetSetVector<SiPixelCluster>, 
+      SiPixelCluster, 
+      edm::refhelper::FindForDetSetVector<SiPixelCluster> > siPixelClusterReference;
+
+    edm::RefBase<std::pair<unsigned int,unsigned int> > p1;
+    edm::RefItem<std::pair<unsigned int,unsigned int> > p2;
+
   }
 }
 

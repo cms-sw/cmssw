@@ -21,12 +21,12 @@
   <class name="std::map<DetId, std::pair<unsigned int, unsigned int> >"/>
 
 
-  <class name="SiPixelRecHit">
-    <field name="cluster_" transient="true"/>
-  </class>
+  <class name="SiPixelRecHit" />
+  <class name="SiPixelCluster" />
   <class name="std::vector<SiPixelRecHit*>"/>
   <class name="edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >"/>
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> >"/>
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> > >" />
+  <class name="edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster, edm::refhelper::FindForDetSetVector<SiPixelCluster> >" />
 
 </lcgdict>
