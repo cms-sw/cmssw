@@ -7,8 +7,6 @@
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizer.h"
 
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h" //@@ To assure backward compatibility
-
 namespace cms
 {
   SiStripClusterizer::SiStripClusterizer(edm::ParameterSet const& conf) : 
@@ -19,7 +17,6 @@ namespace cms
     edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizer::SiStripClusterizer] Constructing object...";
 
     produces< edm::DetSetVector<SiStripCluster> > ();
-    produces<SiStripClusterCollection>(); //@@ To assure backward compatibility
   }
 
   // Virtual destructor needed.
@@ -43,7 +40,6 @@ namespace cms
 
     // Step A: create empty output collection
     std::auto_ptr< edm::DetSetVector<SiStripCluster> > output(new edm::DetSetVector<SiStripCluster> );
-    std::auto_ptr<SiStripClusterCollection> output_old(new SiStripClusterCollection);//@@ To assure backward compatibility
 
     // Step B: Get ESObject 
     SiStripNoiseService_.setESObjects(es);
@@ -66,19 +62,6 @@ namespace cms
     // Step D: write output to file
     if ( output->size() )
       {
-	//@@ To assure backward compatibility
-	for (edm::DetSetVector<SiStripCluster>::const_iterator iter=output->begin();iter!=output->end();iter++)
-	  {
-	    std::vector<SiStripCluster> collector;
-	    for (edm::DetSet<SiStripCluster>::const_iterator jter=iter->data.begin();jter!=iter->data.end();jter++)
-	      collector.push_back(*jter);
-	    SiStripClusterCollection::Range inputRange;
-	    inputRange.first = collector.begin();
-	    inputRange.second = collector.end();
-	    output_old->put(inputRange,iter->id);
-	  }
-	e.put(output_old);
-	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	e.put(output);
       }
   }
