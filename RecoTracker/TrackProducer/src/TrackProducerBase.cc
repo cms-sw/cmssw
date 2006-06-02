@@ -10,6 +10,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
@@ -54,7 +55,7 @@ void TrackProducerBase::getFromES(const edm::EventSetup& setup,
   //
   LogDebug("TrackProducer") << "get also the TransientTrackingRecHitBuilder" << "\n";
   std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
-  setup.get<TrackingComponentsRecord>().get(builderName,theBuilder);
+  setup.get<TransientRecHitRecord>().get(builderName,theBuilder);
 
   
 
