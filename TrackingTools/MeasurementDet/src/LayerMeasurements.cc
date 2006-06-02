@@ -11,11 +11,11 @@ LayerMeasurements::measurements( const DetLayer& layer,
 				 const MeasurementEstimator& est) const
 {
   typedef DetLayer::DetWithState   DetWithState;
-  vector<DetWithState> compatDets = layer.compatibleDets( startingState, prop, est);
+  std::vector<DetWithState> compatDets = layer.compatibleDets( startingState, prop, est);
 
-  vector<TrajectoryMeasurement> result;
+  std::vector<TrajectoryMeasurement> result;
   if (compatDets.empty()) {
-    pair<bool, TrajectoryStateOnSurface> compat =
+    std::pair<bool, TrajectoryStateOnSurface> compat =
       layer.compatible( startingState, prop, est);
 
     if ( compat.first) {
@@ -27,9 +27,9 @@ LayerMeasurements::measurements( const DetLayer& layer,
   }
 
   GeometricSearchDetMeasurements gsdm( theDetSystem);
-  vector<TrajectoryMeasurement> tmpResult = gsdm.get( layer, compatDets, startingState, prop, est);
+  std::vector<TrajectoryMeasurement> tmpResult = gsdm.get( layer, compatDets, startingState, prop, est);
 
-  for(vector<TrajectoryMeasurement>::const_iterator tmpIt=tmpResult.begin();tmpIt!=tmpResult.end();tmpIt++){
+  for(std::vector<TrajectoryMeasurement>::const_iterator tmpIt=tmpResult.begin();tmpIt!=tmpResult.end();tmpIt++){
     result.push_back(  TrajectoryMeasurement(tmpIt->predictedState(),tmpIt->recHit(),tmpIt->estimate(),&layer)  );
   }
   
