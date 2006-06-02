@@ -1,5 +1,21 @@
 #include "RecoMuon/Navigation/interface/MuonTkNavigationSchool.h"
 
+/** \class MuonTkNavigationSchool
+ *
+ *  Navigation School for both Muon and Tk
+ *  different algo from the one in ORCA
+ *
+ *  $Date: $
+ *  $Revision: $
+ *
+ * \author : Chang Liu - Purdue University
+ * \author Stefano Lacaprara - INFN Padova
+ *         Gilles De Lentdecker - IIHE Brussels
+ *
+ *
+ */
+
+
 #include "RecoTracker/TkNavigation/interface/SimpleBarrelNavigableLayer.h"
 #include "RecoTracker/TkNavigation/interface/SimpleForwardNavigableLayer.h"
 #include "RecoTracker/TkNavigation/interface/DiskLessInnerRadius.h"
@@ -61,8 +77,6 @@ MuonTkNavigationSchool::MuonTkNavigationSchool(const MuonDetLayerGeometry * muon
   linkEndcapLayers(theForwardLayers,theMuonForwardNLC, theTkForwardNLC);
   linkEndcapLayers(theBackwardLayers,theMuonBackwardNLC, theTkBackwardNLC);
 
-  // establish the inwards links from Muon to Tracker
-//  createInverseLinks(); 
 }
 
 MuonTkNavigationSchool::~MuonTkNavigationSchool() {
@@ -155,7 +169,6 @@ for (MapBI bl  = theBarrelLayers.begin();
 
     MuonEtaRange range = (*bl).second;
 
-
     BoundCylinder* bc = dynamic_cast<BoundCylinder*>(const_cast<BoundSurface*>(&((*bl).first->surface())));
     float length = fabs(bc->bounds().length()/2.);
     // first add next barrel layer
@@ -221,88 +234,110 @@ for (MapBI bl  = theBarrelLayers.begin();
     MapBI minusOne(bl);
     MapB innerBarrel;
     MapB allInnerBarrel;
+    MapE allInnerBackward;
+    MapE innerBackward;
+    MapE allInnerForward;
+    MapE innerForward;
 
     if ( bl != theBarrelLayers.begin()) {
-    minusOne--;
-    innerBarrel.insert(*minusOne);
-    // add all inner barrel layers
-    for ( MapBI iMBI = minusOne; iMBI != theBarrelLayers.begin(); iMBI--){
-        allInnerBarrel.insert(*iMBI);
-      }
-    allInnerBarrel.insert(*theBarrelLayers.begin());
-    }
-    // then add all compatible backward layers with an eta criteria
-    MapE allInnerBackward;
-    for (MapEI el  = theBackwardLayers.end();
-               el != theBackwardLayers.begin(); el--) {
-      if (el == theBackwardLayers.end()) continue;  //C.L @@: no -/+ for map iterator
-      if ( (*el).second.isCompatible(range) ) {
-      BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
-        float z = bd->position().z();
-        if (fabs(z) > length) continue;
-        allInnerBackward.insert(*el);
-      }
-    }
-    //add the backward next layer with an eta criteria
-    MapE innerBackward;
-    for (MapEI el  = theBackwardLayers.end();
-               el != theBackwardLayers.begin(); el--) {
-      if (el == theBackwardLayers.end()) continue; 
-      if ( (*el).second.isCompatible(range) ) {
-      BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
-        float z = bd->position().z();
-        if (fabs(z) > length) continue;
-        innerBackward.insert(*el);
-        break;
-      }
-    }
+      minusOne--;
+      innerBarrel.insert(*minusOne);
+        // add all inner barrel layers
+      for ( MapBI iMBI = minusOne; iMBI != theBarrelLayers.begin(); iMBI--){
+          allInnerBarrel.insert(*iMBI);
+        }
+      allInnerBarrel.insert(*theBarrelLayers.begin());
 
-    MapEI el = theBackwardLayers.begin();
-    if (el->second.isCompatible(range)) {
-      BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
+      // then add all compatible backward layers with an eta criteria
+      for (MapEI el  = theBackwardLayers.end();
+                 el != theBackwardLayers.begin(); el--) {
+        if (el == theBackwardLayers.end()) continue;  //C.L @@: no -/+ for map iterator
+        if ( (*el).second.isCompatible(range) ) {
+          BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
+          float z = bd->position().z();
+          if (fabs(z) > length) continue;
+          allInnerBackward.insert(*el);
+        }
+      }
+      MapEI el = theBackwardLayers.begin();
+      if (el->second.isCompatible(range)) {
+        BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
         float z = bd->position().z();
         if (fabs(z) < length)  {
           allInnerBackward.insert(*el);
-          innerBackward.insert(*el);
         }
-    }
-
-    // then add all compatible forward layers with an eta criteria
-    MapE allInnerForward;
-    for (MapEI el  = theForwardLayers.end();
-               el != theForwardLayers.begin(); el--) {
-      if (el == theForwardLayers.end()) continue;  
-      if ( (*el).second.isCompatible(range) ) {
-      BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
-        float z = bd->position().z();
-        if (fabs(z) > length) continue;
-        allInnerForward.insert(*el);
       }
-    }
 
-    // then add forward next layer with an eta criteria
-    MapE innerForward;
-    for (MapEI el  = theForwardLayers.end();
-               el != theForwardLayers.begin(); el--) {
-      if (el == theForwardLayers.end()) continue; 
-      if ( (*el).second.isCompatible(range) ) {
-      BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
-        float z = bd->position().z();
-        if (fabs(z) > length) continue;
-        innerForward.insert(*el);
-        break;
-      }
-    }
-    el = theForwardLayers.begin();
-    if (el->second.isCompatible(range)) {
-      BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
-        float z = bd->position().z();
-        if (fabs(z) < length) {
+      // then add all compatible forward layers with an eta criteria
+      for (MapEI el  = theForwardLayers.end();
+                 el != theForwardLayers.begin(); el--) {
+        if (el == theForwardLayers.end()) continue;
+        if ( (*el).second.isCompatible(range) ) {
+          BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
+          float z = bd->position().z();
+          if (fabs(z) > length) continue;
           allInnerForward.insert(*el);
-          innerForward.insert(*el);
         }
-    }
+      }
 
+      el = theForwardLayers.begin();
+      if (el->second.isCompatible(range)) {
+        BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
+        float z = bd->position().z();
+        if (fabs(z) < length)  {
+          allInnerForward.insert(*el);
+        }
+      }
+
+      if ( !range.isInside((*minusOne).second) ){
+        MuonEtaRange backwardRange(range.min(), (*minusOne).second.min());
+        MuonEtaRange forwardRange((*minusOne).second.max(),range.max());
+
+        //add the backward next layer with an eta criteria
+        for (MapEI el  = theBackwardLayers.end();
+                   el != theBackwardLayers.begin(); el--) {
+          if (el == theBackwardLayers.end()) continue; 
+          if ( (*el).second.isCompatible(backwardRange) ) {
+            BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
+            float z = bd->position().z();
+            if (fabs(z) > length) continue;
+            innerBackward.insert(*el);
+            backwardRange = backwardRange.subtract((*el).second);
+          }
+        }
+
+        MapEI el = theBackwardLayers.begin();
+        if (el->second.isCompatible(backwardRange)) {
+          BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
+          float z = bd->position().z();
+          if (fabs(z) < length)  {
+            innerBackward.insert(*el);
+          }
+        }
+      
+        // then add forward next layer with an eta criteria
+        for (MapEI el  = theForwardLayers.end();
+                   el != theForwardLayers.begin(); el--) {
+          if (el == theForwardLayers.end()) continue; 
+          if ( (*el).second.isCompatible(forwardRange) ) {
+            BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
+            float z = bd->position().z();
+            if (fabs(z) > length) continue;
+            innerForward.insert(*el);
+            forwardRange = forwardRange.subtract((*el).second);
+
+          }
+        }
+        el = theForwardLayers.begin();
+        if (el->second.isCompatible(forwardRange)) {
+            BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&((*el).first->surface())));
+            float z = bd->position().z();
+            if (fabs(z) < length) {
+              innerForward.insert(*el);
+            }
+        }
+      }
+    }
 
     BarrelDetLayer* mbp = const_cast<BarrelDetLayer*>((*bl).first);
     if (mbp->module() == dt || mbp->module() == rpc)
@@ -365,13 +400,13 @@ for (MapBI bl  = theBarrelLayers.begin();
          ForwardDetLayer* ifdl = const_cast<ForwardDetLayer*>((*ie).first);
          innerForwardLayers.push_back(ifdl);
         }
-     for (MapEI ie = allOuterBackward.begin(); ie != allOuterBackward.end(); ie++) {
+     for (MapEI ie = allInnerBackward.begin(); ie != allInnerBackward.end(); ie++) {
          ForwardDetLayer* ifdl = const_cast<ForwardDetLayer*>((*ie).first);
-         allOuterBackwardLayers.push_back(ifdl);
+         allInnerBackwardLayers.push_back(ifdl);
         }
-     for (MapEI ie = allOuterForward.begin(); ie != allOuterForward.end(); ie++) {
+     for (MapEI ie = allInnerForward.begin(); ie != allInnerForward.end(); ie++) {
          ForwardDetLayer* ifdl = const_cast<ForwardDetLayer*>((*ie).first);
-         allOuterForwardLayers.push_back(ifdl);
+         allInnerForwardLayers.push_back(ifdl);
         }
 
 
@@ -397,17 +432,72 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
     // first add next endcap layer (if compatible)
     MapEI plusOne(el); 
     plusOne++;
+    MuonEtaRange tempR(range);
+    MuonEtaRange secondOR(range);
+    MapEI outerOne(plusOne);
+    bool outerDoubleCheck = false;
+    MapE outerELayers;
+    if ( plusOne != layers.end()) {
+        for ( MapEI l = plusOne; l != layers.end(); l++ ) {
+          if ( (*l).second.isCompatible(tempR)) {
+            outerELayers.insert(*l);
+            if ( tempR.isInside((*l).second) ) break;
+            if ((*l).second.isInside(tempR)) {
+                  //split into 2 pieces
+                  outerOne = l;
+                  outerOne++;
+                  if (tempR.max() > 0 ) {
+                    secondOR = MuonEtaRange(tempR.max(),(*l).second.max());
+                    tempR = MuonEtaRange((*l).second.min(),tempR.min());
+                  }else {
+                    tempR = MuonEtaRange(tempR.max(),(*l).second.max());
+                    secondOR = MuonEtaRange((*l).second.min(),tempR.min());
+                  }
+                  outerDoubleCheck = true;
+                  break;
+             }
+            tempR = tempR.subtract((*l).second);
+          } //if ( (*l).second.isCompatible(tempR))
+      }//for
+
+      if (outerDoubleCheck) {
+        for ( MapEI l = outerOne; l != layers.end(); l++ ) {
+          if ( (*l).second.isCompatible(tempR)) {
+            outerELayers.insert(*l);
+            if ( tempR.isInside((*l).second) ) break;
+            tempR = tempR.subtract((*l).second);
+          } //if ( (*l).second.isCompatible(tempR))
+        }//for
+
+        for ( MapEI l = outerOne; l != layers.end(); l++ ) {
+          if ( (*l).second.isCompatible(secondOR)) {
+            outerELayers.insert(*l);
+            if ( secondOR.isInside((*l).second) ) break;
+            secondOR = secondOR.subtract((*l).second);
+          } //if ( (*l).second.isCompatible(tempR))
+        }//for
+      }
+    }//if end
+
+    MapE allOuterELayers;
+    for (MapEI iMEI = plusOne; iMEI!=layers.end(); iMEI++){
+      if ((*iMEI).second.isCompatible(range)) allOuterELayers.insert(*iMEI);
+    }
+    // to avoid overlap
+    int i = 0;
+    bool hasOverlap = false; 
     MapB outerBLayers; 
     MapB allOuterBLayers;
-    MuonEtaRange tempR(range);
     for (MapBI iMBI = theBarrelLayers.begin(); iMBI!=theBarrelLayers.end(); iMBI++){
-      if ((*iMBI).second.isCompatible(range)) {
+      if ((*iMBI).second.isCompatible(tempR)) {
         BoundCylinder* bc = dynamic_cast<BoundCylinder*>(const_cast<BoundSurface*>(&((*iMBI).first->surface())));
         float length = fabs(bc->bounds().length()/2.);
         if (length > fabs(z)) {
+           if ( (i==0) && (tempR.isInside((*iMBI).second)) ) hasOverlap = true;
+           i++;
            outerBLayers.insert(*iMBI);
            if (tempR.isInside((*iMBI).second)) break;
-           tempR = (*iMBI).second.subtract(tempR);
+           tempR = tempR.subtract((*iMBI).second);
          }
        }
     }
@@ -419,71 +509,112 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
       if ((*iMBI).second.isCompatible(range)) allOuterBLayers.insert(*iMBI);
     }
 
-    MapE outerELayers;
-    if ( plusOne != layers.end() && (*plusOne).second.isCompatible(range) ) {
-        outerELayers.insert(*plusOne);
-      if ( !range.isInside((*plusOne).second) ) {
-        // then look if the next layer has a wider eta range, if so add it
-        MapEI tmpel(plusOne);
-        tmpel++;
-        MuonEtaRange max((*plusOne).second);
-        for ( MapEI l = tmpel; l != layers.end(); l++ ) {
-          MuonEtaRange next = (*l).second;
-          if ( next.isCompatible(max) && !range.isInside(next) &&
-               !next.isInside(max) && next.subtract(max).isInside(range) ) {
-            max = max.add(next);
-            outerELayers.insert(*l);
-          }
-        }
-      }
-    }
-
-    MapE allOuterELayers;
-    for (MapEI iMEI = plusOne; iMEI!=layers.end(); iMEI++){
-      if ((*iMEI).second.isCompatible(range)) allOuterELayers.insert(*iMEI);
-    }
 
     MapE innerELayers;
     MapE allInnerELayers;
-
+    MapB innerBLayers;
+    MapB allInnerBLayers;
+    MuonEtaRange itempR(range);
+    bool checkFurther = true;
+    bool doubleCheck = false;
+    MuonEtaRange secondR;
+    float outRadius = 0;
+    MapEI minusOne(el);
     if (el != layers.begin()) {
-      MapEI minusOne(el);
       minusOne--;
-      MuonEtaRange tempR(range);
+      BoundDisk* bd = dynamic_cast<BoundDisk*>(const_cast<BoundSurface*>(&(minusOne->first->surface())));
+      outRadius = bd->outerRadius();
+
+      MapEI innerOne;
       for (MapEI iMEI = minusOne; iMEI!=layers.begin(); iMEI--){
-        if ( (*iMEI).second.isCompatible(tempR) ) {
+        if ( (*iMEI).second.isCompatible(itempR) ) {
           innerELayers.insert(*iMEI);
-          if (tempR.isInside((*iMEI).second)) break;
-          tempR = (*iMEI).second.subtract(tempR);  
-        }
-      }
+
+          if (itempR.isInside((*iMEI).second)) { checkFurther = false; break; }
+          if ((*iMEI).second.isInside(itempR)) { 
+                  //split into 2 pieces
+                  doubleCheck = true; 
+                  innerOne = iMEI; 
+                  innerOne--; 
+                  if (itempR.max() > 0 ) {
+                    secondR = MuonEtaRange(itempR.max(),(*iMEI).second.max());
+                    itempR = MuonEtaRange((*iMEI).second.min(),itempR.min());
+                  }else {
+                    itempR = MuonEtaRange(itempR.max(),(*iMEI).second.max());
+                    secondR = MuonEtaRange((*iMEI).second.min(),itempR.min());
+                  }
+                  break; 
+            }
+          else itempR = itempR.subtract((*iMEI).second);  
+        }//if ( (*iMEI).second.isCompatible(itempR) ) 
+      }//for MapEI
+      if (doubleCheck ) {
+
+        for (MapEI iMEI = innerOne; iMEI!=layers.begin(); iMEI--){
+          if ( (*iMEI).second.isCompatible(itempR) ) {
+            innerELayers.insert(*iMEI);
+            if (itempR.isInside((*iMEI).second)) { checkFurther = false; break; }
+            else itempR = itempR.subtract((*iMEI).second);
+          }//if ( (*iMEI).second.isCompatible(itempR) )
+        }//for MapEI
+
+        for (MapEI iMEI = innerOne; iMEI!=layers.begin(); iMEI--){
+          if ( (*iMEI).second.isCompatible(secondR) ) {
+            innerELayers.insert(*iMEI);
+            if (secondR.isInside((*iMEI).second)) { checkFurther = false; break; }
+            else secondR = secondR.subtract((*iMEI).second);
+          }//if ( (*iMEI).second.isCompatible(itempR) )
+        }//for MapEI
+      }// if doubleCheck
+
+      if (checkFurther && (*layers.begin()).second.isCompatible(itempR)) {
+          innerELayers.insert(*layers.begin());
+          itempR = itempR.subtract((*layers.begin()).second);
+       }
+
       for (MapEI iMEI = minusOne; iMEI!=layers.begin(); iMEI--){
         if ((*iMEI).second.isCompatible(range)) allInnerELayers.insert(*iMEI);
       }
       if ((*layers.begin()).second.isCompatible(range)) allInnerELayers.insert(*layers.begin());
-    }
-    tempR = range;
+    } 
+    
 
-    MapB innerBLayers;
-    for (MapBI iMBI = theBarrelLayers.end(); iMBI!=theBarrelLayers.begin(); iMBI--){
-      if (iMBI == theBarrelLayers.end()) continue;
-      if ((*iMBI).second.isCompatible(range)) {
-        innerBLayers.insert(*iMBI);
-        if (tempR.isInside((*iMBI).second)) break;
-        tempR = (*iMBI).second.subtract(tempR);
+      for (MapBI iMBI = theBarrelLayers.end(); iMBI!=theBarrelLayers.begin(); iMBI--){
+        if (iMBI == theBarrelLayers.end()) continue;
+        BoundCylinder* bc = dynamic_cast<BoundCylinder*>(const_cast<BoundSurface*>(&((*iMBI).first->surface())));
+        float length = fabs(bc->bounds().length()/2.);
+        if (length > fabs(z)) continue;
+        if ((*iMBI).second.isCompatible(range)) allInnerBLayers.insert(*iMBI);
+      }
+      if ((*theBarrelLayers.begin()).second.isCompatible(range)) allInnerBLayers.insert(*theBarrelLayers.begin());
 
-       }
-    }
-
-    MapB allInnerBLayers;
+    int k = 0;
+    bool hasOverlap2 = false;
+    bool hasInsideE = false;
     for (MapBI iMBI = theBarrelLayers.end(); iMBI!=theBarrelLayers.begin(); iMBI--){
       if (iMBI == theBarrelLayers.end()) continue;
       BoundCylinder* bc = dynamic_cast<BoundCylinder*>(const_cast<BoundSurface*>(&((*iMBI).first->surface())));
       float length = fabs(bc->bounds().length()/2.);
       if (length > fabs(z)) continue;
-      if ((*iMBI).second.isCompatible(range)) allInnerBLayers.insert(*iMBI);
+      float radius = bc->radius();
+
+      bool compatible = false;
+      if (radius > outRadius) { 
+             compatible = (*iMBI).second.isCompatible(range);
+             if (compatible && outRadius > 40) hasInsideE = true;//CL: no general rule
+      }
+      else compatible = (*iMBI).second.isCompatible(itempR);
+      if (!checkFurther && (radius < outRadius)) break;
+      if (compatible) {
+        if ((k==0) && (itempR.isInside((*iMBI).second)) && (radius < outRadius)) hasOverlap2 = true;
+        if (radius < outRadius) k++;
+        innerBLayers.insert(*iMBI);
+        if (itempR.isInside((*iMBI).second) && (radius < outRadius)) break;
+        itempR = itempR.subtract((*iMBI).second);
+       }
     }
-    if ((*theBarrelLayers.begin()).second.isCompatible(range)) allInnerBLayers.insert(*theBarrelLayers.begin());
+      if (el == layers.begin() && (*theBarrelLayers.begin()).second.isCompatible(itempR)) innerBLayers.insert(*theBarrelLayers.begin());
+    
 
     ForwardDetLayer* mbp = const_cast<ForwardDetLayer*>((*el).first);
     if (mbp->module() == csc || mbp->module() == rpc)
@@ -500,11 +631,17 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
       BDLC allInnerBarrelLayers;
       FDLC allInnerForwardLayers;
 
+     unsigned int j = 0;
+     unsigned int l = 0;
+     unsigned int m = 0;
+
      for (MapBI ib = outerBLayers.begin(); ib != outerBLayers.end(); ib++) {
          BarrelDetLayer* ibdl = const_cast<BarrelDetLayer*>((*ib).first);
          outerBarrelLayers.push_back(ibdl);
         }
      for (MapEI ie = outerELayers.begin(); ie != outerELayers.end(); ie++) {
+         j++;
+         if ( hasOverlap && j==outerELayers.size() ) break; 
          ForwardDetLayer* ifdl = const_cast<ForwardDetLayer*>((*ie).first);
          outerForwardLayers.push_back(ifdl);
         }
@@ -519,10 +656,14 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
         }
 
      for (MapBI ib = innerBLayers.begin(); ib != innerBLayers.end(); ib++) {
+         l++;
+         if (hasOverlap2 && l==innerBLayers.size() ) continue;
          BarrelDetLayer* ibdl = const_cast<BarrelDetLayer*>((*ib).first);
          innerBarrelLayers.push_back(ibdl);
         }
      for (MapEI ie = innerELayers.begin(); ie != innerELayers.end(); ie++) {
+         m++;
+         if (hasInsideE && m==innerELayers.size()-2 ) continue;
          ForwardDetLayer* ifdl = const_cast<ForwardDetLayer*>((*ie).first);
          innerForwardLayers.push_back(ifdl);
         }
@@ -559,12 +700,6 @@ float MuonTkNavigationSchool::barrelLength() {
   return theBarrelLength;
 
 }
-
-
-void MuonTkNavigationSchool::createInverseLinks() const {
-
-}
-
 
 //
 // calculate pseudorapidity from r and z
