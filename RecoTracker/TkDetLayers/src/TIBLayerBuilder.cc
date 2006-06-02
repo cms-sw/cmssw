@@ -1,22 +1,20 @@
 #include "RecoTracker/TkDetLayers/interface/TIBLayerBuilder.h"
 #include "RecoTracker/TkDetLayers/interface/TIBRingBuilder.h"
 
-using namespace edm;
 using namespace std;
 
 TIBLayer* TIBLayerBuilder::build(const GeometricDet* aTIBLayer,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
+
   vector<const GeometricDet*> theGeometricRods = aTIBLayer->components();
   
   vector<vector<const GeometricDet*> > innerGeometricDetRings; 
   vector<vector<const GeometricDet*> > outerGeometricDetRings;
-
   for(int i=0;i<6;i++){
     innerGeometricDetRings.push_back(vector<const GeometricDet*>());
     outerGeometricDetRings.push_back(vector<const GeometricDet*>());
   }
-  
   constructRings(theGeometricRods,innerGeometricDetRings,outerGeometricDetRings);
 
   TIBRingBuilder myRingBuilder;
@@ -25,10 +23,13 @@ TIBLayer* TIBLayerBuilder::build(const GeometricDet* aTIBLayer,
   vector<const TIBRing*> outerRings;
 
   for(unsigned int i=0; i<innerGeometricDetRings.size(); i++){
-    innerRings.push_back(myRingBuilder.build(innerGeometricDetRings[i],theGeomDetGeometry));
+
+    if(innerGeometricDetRings[i].size()>0)    
+      innerRings.push_back(myRingBuilder.build(innerGeometricDetRings[i],theGeomDetGeometry));
+    if(outerGeometricDetRings[i].size()>0)    
     outerRings.push_back(myRingBuilder.build(outerGeometricDetRings[i],theGeomDetGeometry));
   }
-    
+
   return new TIBLayer(innerRings,outerRings);
 }
 

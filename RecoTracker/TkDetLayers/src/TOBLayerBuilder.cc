@@ -1,7 +1,6 @@
 #include "RecoTracker/TkDetLayers/interface/TOBLayerBuilder.h"
 #include "RecoTracker/TkDetLayers/interface/TOBRodBuilder.h"
 
-using namespace edm;
 using namespace std;
 
 TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
@@ -28,21 +27,44 @@ TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
 
 
   double meanR = (positiveZrods[0]->positionBounds().perp()+positiveZrods[1]->positionBounds().perp())/2;
-
   for(unsigned int index=0; index!=positiveZrods.size(); index++){
-    if( positiveZrods[index]->positionBounds().phi() != negativeZrods[index]->positionBounds().phi()){
-      cout << "ERROR:rods don't have the same phi. exit!" << endl;
-      break;      
+    if ((negativeZrods.size()>0)&&(positiveZrods.size()>0)){
+      if( positiveZrods[index]->positionBounds().phi() != negativeZrods[index]->positionBounds().phi()){
+	cout << "ERROR:rods don't have the same phi. exit!" << endl;
+	break;      
+      }
     }
-    
-    if(positiveZrods[index]->positionBounds().perp() < meanR)
-      theInnerRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
-						   positiveZrods[index],
-						   theGeomDetGeometry)    );       
-    if(positiveZrods[index]->positionBounds().perp() > meanR)
-      theOuterRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
-						   positiveZrods[index],
-						   theGeomDetGeometry)    );       
+
+    if(positiveZrods.size()>0){
+      if(negativeZrods.size()>0){
+	if(positiveZrods[index]->positionBounds().perp() < meanR)
+	  theInnerRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
+						       positiveZrods[index],
+						       theGeomDetGeometry)    );       
+	if(positiveZrods[index]->positionBounds().perp() > meanR)
+	  theOuterRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
+						       positiveZrods[index],
+						       theGeomDetGeometry)    );       
+      } else{
+	if(positiveZrods[index]->positionBounds().perp() < meanR)
+	  theInnerRods.push_back(myTOBRodBuilder.build(0,
+						       positiveZrods[index],
+						       theGeomDetGeometry)    );       
+	if(positiveZrods[index]->positionBounds().perp() > meanR)
+	  theOuterRods.push_back(myTOBRodBuilder.build(0,
+						       positiveZrods[index],
+						       theGeomDetGeometry)    );       
+      }
+    }else{
+   	if(positiveZrods[index]->positionBounds().perp() < meanR)
+	  theInnerRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
+						       0,
+						       theGeomDetGeometry)    );       
+	if(positiveZrods[index]->positionBounds().perp() > meanR)
+	  theOuterRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
+						       0,
+						       theGeomDetGeometry)    );
+    }   
   }
 
   
