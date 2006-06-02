@@ -1,3 +1,4 @@
+<use name=Geometry/CaloTopology>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
 <use name=CondFormats/EcalObjects>
@@ -6,6 +7,7 @@
 
 <export>
   <lib name=SimCalorimetryEcalSelectiveReadoutAlgos>
+  <use name=Geometry/CaloTopology>
   <use name=DataFormats/EcalDigi>
   <use name=DataFormats/EcalDetId>
   <use name=CondFormats/EcalObjects>

@@ -1,3 +1,4 @@
+<use name=SimCalorimetry/EcalSelectiveReadoutAlgos>
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
@@ -10,6 +11,7 @@
 <flags SEAL_PLUGIN_NAME="SimCalorimetryEcalSelectiveReadoutProducers">
 <export>
    <lib name=SimCalorimetryEcalSelectiveReadoutProducers>
+   <use name=SimCalorimetry/EcalSelectiveReadoutAlgos>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
