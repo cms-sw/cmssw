@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.5 2006/04/27 21:41:27 chrjones Exp $
+$Id: Ref.h,v 1.6 2006/05/26 20:31:32 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -81,14 +81,10 @@ $Id: Ref.h,v 1.5 2006/04/27 21:41:27 chrjones Exp $
     bool operator!() const;			// equivalent to !isNonnull()
 ----------------------------------------------------------------------*/ 
 
-#include <stdexcept>
-#include <iterator>
-#include <typeinfo>
 #include "boost/functional.hpp"
 #include "boost/call_traits.hpp"
 #include "boost/type_traits.hpp"
 
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/RefBase.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/ProductID.h"

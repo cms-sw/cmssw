@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.1 2005/12/15 23:06:29 wmtan Exp $
+$Id: RefProd.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -37,8 +37,6 @@ $Id: RefProd.h,v 1.1 2005/12/15 23:06:29 wmtan Exp $
     bool operator!() const;			// equivalent to !isNonnull()
 ----------------------------------------------------------------------*/ 
 
-#include <stdexcept>
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/ProductID.h"
 
