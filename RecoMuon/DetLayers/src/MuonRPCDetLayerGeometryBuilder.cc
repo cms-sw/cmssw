@@ -118,7 +118,7 @@ MuonRPCDetLayerGeometryBuilder::buildLayers(const RPCGeometry& geo) {
 
 			vector<const GeomDet*> geomDets;
 			for(int wheel = RPCDetId::minRingBarrelId; wheel <= RPCDetId::maxRingBarrelId; wheel++) {
-			for(int roll=RPCDetId::minRollId+1); roll <= RPCDetId::maxRollId-1; roll++){	  
+			for(int roll=RPCDetId::minRollId+1); roll <= RPCDetId::maxRollId; roll++){	  
 				const GeomDet* geomDet = geo.idToDet(RPCDetId(region,wheel,station,sector,layer,subsector,roll));
 				if (geomDet) {
 					geomDets.push_back(geomDet);
