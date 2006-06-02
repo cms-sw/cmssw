@@ -111,7 +111,12 @@ public:
     theRecHit(aRecHit),
     theEstimate(aEstimate), theLayer(layer) {}
 
-  ~TrajectoryMeasurement() {delete theRecHit;}
+  ~TrajectoryMeasurement() {
+    //
+    // NO! it crashes!!!
+    //
+    //    delete theRecHit;
+  }
 
   /** Access to forward predicted state (from fitter or builder).
    *  To be replaced by forwardPredictedState.
