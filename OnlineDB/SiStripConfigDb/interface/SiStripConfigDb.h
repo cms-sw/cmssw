@@ -1,138 +1,316 @@
+// Last commit: $Id$
+// Latest tag:  $Name$
+// Location:    $Source$
+
 #ifndef SiStripConfigDb_H
 #define SiStripConfigDb_H
 
-#define DATABASE //@@ <- this is needed if using database???
+#define DATABASE //@@ necessary?
 
-// database
 #include "DeviceFactory.h"
-#include "Fed9UDeviceFactoryLib.hh"
-#include "DbAccess.h"
-// connections
-#include "FedPmcXmlDescription.h"
-// fec
-#include "deviceDescription.h"
-#include "apvDescription.h"
-#include "muxDescription.h"
-#include "pllDescription.h"
-#include "dcuDescription.h"
-#include "laserdriverDescription.h"
-//#include "TkDcuInfo.h"
-//#include "TkDcuConversionFactors.h"
-#include "deviceType.h"
-#include "tscTypes.h"
-#include "keyType.h"
-#include "FecExceptionHandler.h"
-// fed
-#include "Fed9UUtils.hh"
-// boost
 #include "boost/cstdint.hpp"
-// std
 #include <vector>
 #include <string>
+
+class SiStripFedCabling;
+class SiStripFecCabling;
 
 /**	
    \class SiStripConfigDb
    \brief An interface class to the DeviceFactory
    \author R.Bainbridge
-   \version 0.1
-   \date 17/01/06
 */
 class SiStripConfigDb {
-
- public: // ----- PUBLIC INTERFACE -----
   
-  SiStripConfigDb( std::string user, 
-		   std::string passwd, 
-		   std::string path, 
-		   std::string partition = "" ); 
+ public:
+  
+  // -------------------- Constructors, destructors --------------------
+  
+  /** Constructor when using the configuration database, which takes
+      as arguments the database connection parameters. */
+  SiStripConfigDb( std::string db_user, 
+		   std::string db_passwd, 
+		   std::string db_path ); 
+
+  /** Constructor when using xml files, which takes as arguments the
+      paths to the various input (and output) xml files. */
+  SiStripConfigDb( std::string input_module_xml,
+		   std::string input_dcuinfo_xml,
+		   std::vector<std::string> input_fec_xmls,
+		   std::vector<std::string> input_fed_xmls,
+		   std::string output_module_xml = "/tmp/module.xml",
+		   std::string output_dcuinfo_xml = "/tmp/dcuinfo.xml",
+		   std::vector<std::string> output_fec_xmls = std::vector<std::string>(1,"/tmp/fec.xml"),
+		   std::vector<std::string> output_fed_xmls = std::vector<std::string>(1,"/tmp/fed.xml") );
+
+  /** Default destructor. */
   ~SiStripConfigDb();
   
-  // ----- TYPEDEFS AND STRUCTS -----
+  // -------------------- Typedefs and structs --------------------
 
-  struct DeviceAddress { 
-    int16_t fecCrate; 
-    int16_t fecSlot;
-    int16_t fecRing;
-    int16_t ccuAddr;
-    int16_t ccuChan;
-    int16_t i2cAddr;
+  /** */
+  typedef std::vector<deviceDescription*> DeviceDescriptions;
+  /** */
+  typedef std::vector<Fed9U::Fed9UDescription*> FedDescriptions;
+  /** */
+  typedef std::vector<FedChannelConnectionDescription*> FedConnections;
+  /** */
+  typedef Sgi::hash_map<unsigned long,TkDcuInfo*> DcuIdDetIdMap;
+  /** */
+  typedef std::vector<piaResetDescription*> PiaResetDescriptions;
+  /** */
+  typedef std::vector<TkDcuConversionFactors*> DcuConversions;
+  
+  /** Struct containing partition name and version. */
+  struct Partition { 
+    std::string name_;
+    uint32_t major_;
+    uint32_t minor_;
   };
+  
+  /** Struct that holds addresses that uniquely identify a hardware
+      component within the control system. */
+  struct DeviceAddress { 
+    uint16_t fecCrate_; 
+    uint16_t fecSlot_;
+    uint16_t fecRing_;
+    uint16_t ccuAddr_;
+    uint16_t ccuChan_;
+    uint16_t i2cAddr_;
+  };
+  
+  // ---------- Database connection, partitions and versions ----------
+  
+  /** */
+  inline DeviceFactory* const deviceFactory() const;
 
-  void fromXml( const bool& from_xml ) { fromXml_ = from_xml; }
-  void xmlFile( const std::string& xml_file ) { xmlFile_ = xml_file; }
-
-  // ----- DATABASE AND PARTITIONS -----
-
-  /** Returns pointer to DeviceFactory object. */
-  inline DeviceFactory* const deviceFactory() { return factory_; }
-
-  /** Returns partition name. */
-  std::string partitionName();
-  /** Returns major/minor versions for given partition name. */
-  pair<int16_t,int16_t> partitionVersion( std::string partition_name );
-  
-  // ----- FRONT-END <-> FED CONNECTIONS -----
-  
-  std::vector<FedChannelConnectionDescription*>& fedConnections( bool clear_cache = false );
-  
-  // ----- FRONT END DEVICES ----- 
-  
-  /** Returns HW addresses uniquely identifying a device. */
-  DeviceAddress hwAddresses( deviceDescription& description );
-  /** Returns all devices correponding to a given device type. */
-  void feDevices( enumDeviceType device_type, deviceVector& devices );
-  /** Returns APV descriptions. */
-  void apvDescriptions( std::vector<apvDescription*>& apv_descriptions );
-  /** Returns DCU descriptions. */
-  void dcuDescriptions( std::vector<dcuDescription*>& dcu_descriptions );
-  /** Returns laser driver (AOH) descriptions. */
-  void aohDescriptions( std::vector<laserdriverDescription*>& aoh_descriptions ) {;}
-  
-  // ----- FRONT END DRIVER -----
-  
-  /** Returns FED descriptions. */
-  void fedDescriptions( std::vector<Fed9U::Fed9UDescription*>& fed_descriptions );
-  /** Returns FED identifiers. */
-  void fedIds( std::vector<uint16_t>& fed_ids );
-  
-  // ----- DCUs ------
-
-/*   /\** *\/ */
-/*   void setDefaultDcuConversionFactors( const std::vector<TkDcuInfo*>&,  */
-/* 				       const std::string& partition_name ) throw (FecExceptionHandler); */
-
- private: // ----- PRIVATE METHODS -----
-  
+  /** Establishes connection to DeviceFactory API. */
   bool openDbConnection();
+
+  /** Closes connection to DeviceFactory API. */
   bool closeDbConnection();
-  void deviceSummary();
-  
- private: // ----- PRIVATE DATA MEMBERS -----
 
-  /** Private constructor. */
-  SiStripConfigDb() {;}
-
-  // ----- DATABASE-RELATED -----
+  /** Returns whether using database or xml files. */
+  inline const bool& usingDb() const;
   
+  /** Returns name and major/minor versions for current partition. */
+  inline const Partition& getPartitionNameAndVersion() const;
+
+  /** Sets partition name and version. */
+  inline void setPartitionNameAndVersion( const Partition& );
+
+  /** Sets partition name and version. */
+  inline void setPartitionNameAndVersion( const std::string& partition_name,
+					  const uint32_t& major_version,
+					  const uint32_t& minor_version );
+  
+  // -------------------- Front-end devices -------------------- 
+  
+  /** Fills local cache with device descriptions from DB/xml. */
+  const DeviceDescriptions& getDeviceDescriptions(); 
+  
+  /** Overwrites local cache of device descriptions. */
+  void setDeviceDescriptions( const DeviceDescriptions& ); 
+  
+  /** Uploads device descriptions to DB/xml. */
+  void uploadDeviceDescriptions( bool new_major_version = false ); 
+  
+  /** Creates "dummy" device descriptions based on FEC cabling. */
+  void createDeviceDescriptions( const SiStripFecCabling&,
+				 DeviceDescriptions& );
+  
+  /** Returns descriptions for a given device type (which can be one
+      of the following: APV25, APVMUX, DCU, LASERDRIVER, PLL ). */
+  const DeviceDescriptions& getDeviceDescriptions( const enumDeviceType& ); 
+  
+  /** Extracts unique hardware address of device from description. */
+  const DeviceAddress& deviceAddress( const deviceDescription& );
+  
+  // -------------------- Front-end driver --------------------
+
+  /** Fills local cache with FED descriptions from DB/xml. */
+  const FedDescriptions& getFedDescriptions();
+  
+  /** Overwrites local cache of FED descriptions. */
+  void setFedDescriptions( const FedDescriptions& );
+  
+  /** Uploads FED descriptions to DB/xml. */
+  void uploadFedDescriptions( bool new_major_version = false );
+  
+  /** Create "dummy" FED descriptions based on FED cabling. */
+  void createFedDescriptions( const SiStripFedCabling&,
+			      FedDescriptions& );
+  
+  /** Extracts FED ids from FED descriptions. */
+  const std::vector<uint16_t>& getFedIds();
+  
+  /** Enable/disable strip info within FED descriptions. */
+  inline void usingStrips( bool );
+  
+  // -------------------- Fed connections --------------------
+  
+  /** Fills local cache with connection descriptions from DB/xml. */
+  const FedConnections& getFedConnections();
+  
+  /** Overwrites local cache of FED-FEC connections. */
+  void setFedConnections( const FedConnections& );
+  
+  /** Uploads FED-FEC connections to DB/xml. */
+  void uploadFedConnections( bool new_major_version = false );
+  
+  /** Creates "dummy" FED connections based on FED cabling. */
+  void createFedConnections( const SiStripFedCabling&,
+			     FedConnections& );
+  
+  /** Identifies whether the cached device descriptions are used to
+      generate the FEC cabling (either because the FED connections are
+      not available in the DB/xml or the user has inhibited it). */
+  inline bool buildFecCablingFromFecDevices();
+  
+  /** Switch that determines whether the cached device descriptions
+      are used to generate the FEC cabling. */
+  inline void buildFecCablingFromFecDevices( const bool& );
+  
+  // -------------------- DCU info --------------------
+
+  /** Returns the DcuId-DetId map. If the local cache is empty, it
+      retrieves the DcuId-DetId map from the DB/xml file. */
+  const DcuIdDetIdMap& getDcuIdDetIdMap();
+  
+  /** Clears the local cache of DcuId-DetId map and sets it equal to
+      the map provided within the argument list. */
+  void setDcuIdDetIdMap( const DcuIdDetIdMap& ) {;}
+  
+  /** Uploads the contents of the local cache to DB/xml file. */
+  void uploadDcuIdDetIdMap();
+  
+  /** Clears the local cache. */
+  void clearDcuIdDetIdMap() {;}
+
+  // -------------------- DCU conversion factors --------------------
+  
+/*   void setDcuConversionFactors ( tkDcuInfoVector vDcuInfoPartition,  */
+/* 				 DeviceFactory &deviceFactory,  */
+/* 				 std::string partitionName ) throw (FecExceptionHandler); */
+  
+ private:
+
+  // -------------------- Misc private methods --------------------
+  
+  /** */
+  bool xmlFileIO();
+
+  /** Method for handling exceptions thrown by FEC software. */
+  void handleFecException( const std::string& method_name );
+
+  /** Method for handling exceptions thrown by FED software. */
+  void handleFedException( const std::string& method_name );
+
+  /** Method for handling exceptions thrown by Oracle. */
+  void handleSqlException( const std::string& method_name );
+
+  /** Checks whether file at "path" exists or not. */
+  bool checkFileExists( const std::string& path );
+
+  // ---------- Database connection, partitions and versions ----------
+
+  /** Pointer to the DeviceFactory API. */
   DeviceFactory* factory_; 
+
+  /** Configuration database connection parameter: "user name". */
   std::string user_;
+
+  /** Configuration database connection parameter: "password". */
   std::string passwd_;
+
+  /** Configuration database connection parameter: "path". */
   std::string path_;
-  bool fromXml_;
-  std::string xmlFile_;
 
-  // ----- PARTITIONS AND VERSIONING -----
+  /** Partition name and version. */
+  Partition partition_;
 
-  std::string partition_;
+  // -------------------- Xml file input/output --------------------
   
-  // ----- DEVICES AND DESCRIPTIONS -----
+  /** Switch to identify whether using configuration database or not
+      (if not, then the xml files are used). */
+  bool usingDb_;
 
-  deviceVector allDevices_;
-  deviceVector apvDevices_; //@@ needed?
-  deviceVector dcuDevices_; //@@ needed?
-  std::vector<FedChannelConnectionDescription*> fedConnections_;
+  /** Path to input "module.xml" file containing hardware connections. */
+  std::string inputModuleXml_;
+
+  /** Path to input "DcuInfo" xml file that contains DcuId-DetId map and
+      other parameters from static table. */
+  std::string inputDcuInfoXml_;
+
+  /** Paths to input FEC xml file(s) containing device information. */
+  std::vector<std::string> inputFecXml_;
+
+  /** Paths to input FED "description" xml file(s). */
+  std::vector<std::string> inputFedXml_;
+
+  /** Path to output "module.xml" file containing hardware connections. */
+  std::string outputModuleXml_;
+
+  /** Path to output "DcuInfo" xml file that contains DcuId-DetId map and
+      other parameters from static table. */
+  std::string outputDcuInfoXml_;
+
+  /** Paths to output FEC xml file(s) containing device information. */
+  std::vector<std::string> outputFecXml_;
+
+  /** Paths to output FED "description" xml file(s). */
+  std::vector<std::string> outputFedXml_;
+
+  // -------------------- Local cache --------------------
+
+  /** Vector of descriptions for all FEC devices (except DCU). */
+  DeviceDescriptions devices_;
+
+  /** Vector of descriptions for all DCU devices. */
+  DeviceDescriptions dcus_;
+
+  /** PIA reset descriptions are necessary when using xml files. */
+  std::vector<piaResetDescription*> piaResets_;
+
+  /** Fed9U descriptions. */
+  FedDescriptions feds_;
+
+  /** FED-FEC connection descriptions. */
+  FedConnections connections_;
+
+  /** TkDcuInfo objects, containing DcuId-DetId map. */
+  DcuIdDetIdMap dcuIdDetIdMap_;
+
+  // -------------------- Miscellaneous --------------------
+  
+  /** Switch to enable/disable transfer of strip information. */
+  bool usingStrips_;
+
+  /** */
+  bool useDeviceDescriptions_;
 
 };
+
+// -------------------- Inline methods --------------------
+
+DeviceFactory* const SiStripConfigDb::deviceFactory() const { return factory_; }
+
+const bool& SiStripConfigDb::usingDb() const { return usingDb_; }
+
+const SiStripConfigDb::Partition& SiStripConfigDb::getPartitionNameAndVersion() const { return partition_; }
+void SiStripConfigDb::setPartitionNameAndVersion( const SiStripConfigDb::Partition& partition ) { partition_ = partition; }
+void SiStripConfigDb::setPartitionNameAndVersion( const std::string& partition_name,
+						  const uint32_t& major_version,
+						  const uint32_t& minor_version ) { 
+  partition_.name_ = partition_name;
+  partition_.major_ = major_version;
+  partition_.minor_ = minor_version;
+}
+
+void SiStripConfigDb::usingStrips( bool using_strips ) { usingStrips_ = using_strips; }
+
+bool SiStripConfigDb::buildFecCablingFromFecDevices() { return (inputModuleXml_=="") || useDeviceDescriptions_; }
+void SiStripConfigDb::buildFecCablingFromFecDevices( const bool& use_devices ) { useDeviceDescriptions_ = use_devices; }
 
 #endif // SiStripConfigDb_H
 
