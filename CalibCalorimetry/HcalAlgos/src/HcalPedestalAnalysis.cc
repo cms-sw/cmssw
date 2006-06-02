@@ -8,7 +8,6 @@
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPedestalAnalysis.h"
-// F.R. #include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalAnalyzer.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 #include <TFile.h>
 
@@ -44,9 +43,6 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
   m_nevtsample = ps.getUntrackedParameter<int>("nevtsample",9999999);
   m_hiSaveflag = ps.getUntrackedParameter<int>("hiSaveflag",0);
   m_pedValflag = ps.getUntrackedParameter<int>("pedValflag",0);
-//  m_nevtsample = 9999999;
-//  m_hiSaveflag=1;
-//  m_pedValflag=0;
   m_startTS = ps.getUntrackedParameter<int>("firstTS", 0);
   if(m_startTS<0) m_startTS=0;
   m_endTS = ps.getUntrackedParameter<int>("lastTS", 9);
@@ -54,17 +50,17 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
 
   // histogram booking
   hbHists.ALLPEDS = new TH1F("HB/HE All Pedestals","HB/HE All Peds",10,0,9);
-  hbHists.PEDRMS= new TH1F("HB/HE All Pedestal RMS","HB/HE All Pedestal RMS",100,0,3);
+  hbHists.PEDRMS= new TH1F("HB/HE All Pedestal Widths","HB/HE All Pedestal RMS",100,0,3);
   hbHists.PEDMEAN= new TH1F("HB/HE All Pedestal Means","HB/HE All Pedestal Means",100,0,9);
   hbHists.CHI2= new TH1F("HB/HE Chi2/ndf for whole range Gauss fit","HB/HE Chi2/ndf Gauss",200,0.,50.);
 
   hoHists.ALLPEDS = new TH1F("HO All Pedestals","HO All Peds",10,0,9);
-  hoHists.PEDRMS= new TH1F("HO All Pedestal RMS","HO All Pedestal RMS",100,0,3);
+  hoHists.PEDRMS= new TH1F("HO All Pedestal Widths","HO All Pedestal RMS",100,0,3);
   hoHists.PEDMEAN= new TH1F("HO All Pedestal Means","HO All Pedestal Means",100,0,9);
   hoHists.CHI2= new TH1F("HO Chi2/ndf for whole range Gauss fit","HO Chi2/ndf Gauss",200,0.,50.);
 
   hfHists.ALLPEDS = new TH1F("HF All Pedestals","HF All Peds",10,0,9);
-  hfHists.PEDRMS= new TH1F("HF All Pedestal RMS","HF All Pedestal RMS",100,0,3);
+  hfHists.PEDRMS= new TH1F("HF All Pedestal Widths","HF All Pedestal RMS",100,0,3);
   hfHists.PEDMEAN= new TH1F("HF All Pedestal Means","HF All Pedestal Means",100,0,9);
   hfHists.CHI2= new TH1F("HF Chi2/ndf for whole range Gauss fit","HF Chi2/ndf Gauss",200,0.,50.);
 }
@@ -73,13 +69,13 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
 HcalPedestalAnalysis::~HcalPedestalAnalysis(){
   ///All done, clean up!!
   for(_meot=hbHists.PEDTRENDS.begin(); _meot!=hbHists.PEDTRENDS.end(); _meot++){
-    for(int i=0; i<4; i++) _meot->second[i].first->Delete();
+    for(int i=0; i<16; i++) _meot->second[i].first->Delete();
   }
   for(_meot=hoHists.PEDTRENDS.begin(); _meot!=hoHists.PEDTRENDS.end(); _meot++){
-    for(int i=0; i<4; i++) _meot->second[i].first->Delete();
+    for(int i=0; i<16; i++) _meot->second[i].first->Delete();
   }
   for(_meot=hfHists.PEDTRENDS.begin(); _meot!=hfHists.PEDTRENDS.end(); _meot++){
-    for(int i=0; i<4; i++) _meot->second[i].first->Delete();
+    for(int i=0; i<16; i++) _meot->second[i].first->Delete();
   }
   hbHists.ALLPEDS->Delete();
   hbHists.PEDRMS->Delete();
@@ -110,7 +106,7 @@ void HcalPedestalAnalysis::setup(const std::string& m_outputFileROOT) {
 }
 
 //-----------------------------------------------------------------------------
-void HcalPedestalAnalysis::GetPedConst(map<HcalDetId, map<int,PEDBUNCH> > &toolT){
+void HcalPedestalAnalysis::GetPedConst(map<HcalDetId, map<int,PEDBUNCH> > &toolT, TH1F* PedMeans, TH1F* PedWidths){
   double mean; double rms; double param2[4]; double param1[4]; double dsigma;
   double dparam2[4]; double dparam1[4]; double chi2; double sigma;
 
@@ -148,18 +144,20 @@ void HcalPedestalAnalysis::GetPedConst(map<HcalDetId, map<int,PEDBUNCH> > &toolT
       _meot->second[i].second.first[2].push_back(param2[i]);
       _meot->second[i].second.first[3].push_back(dparam2[i]);
       _meot->second[i].second.first[4].push_back(chi2);
+      PedMeans->Fill(param1[i]);
+      PedWidths->Fill(param2[i]);
     }
-// Michal's addition
+// Product histos for correlations
     for(int i=0; i<4; i++){
       _meot->second[i+4].first->GetXaxis()->SetTitle("Charge^2, fC^2");
       _meot->second[i+4].first->GetYaxis()->SetTitle("2-CapID samplings");
-//      if(m_hiSaveflag>0)_meot->second[i+4].first->Write();
+      if(m_hiSaveflag>10)_meot->second[i+4].first->Write();
       _meot->second[i+8].first->GetXaxis()->SetTitle("Charge^2, fC^2");
       _meot->second[i+8].first->GetYaxis()->SetTitle("2-CapID samplings");
-//      if(m_hiSaveflag>0)_meot->second[i+8].first->Write();
+      if(m_hiSaveflag>10)_meot->second[i+8].first->Write();
       _meot->second[i+12].first->GetXaxis()->SetTitle("Charge^2, fC^2");
       _meot->second[i+12].first->GetYaxis()->SetTitle("2-CapID samplings");
-//      if(m_hiSaveflag>0)_meot->second[i+12].first->Write();
+      if(m_hiSaveflag>10)_meot->second[i+12].first->Write();
 // here calculate the correlation coefficients between cap-ids
 // errors on coefficients are grossly approximative
       mean = _meot->second[i+4].first->GetMean();
@@ -184,8 +182,6 @@ void HcalPedestalAnalysis::GetPedConst(map<HcalDetId, map<int,PEDBUNCH> > &toolT
       stats = _meot->second[i+12].first->GetEntries();
       dsigma = param1[i]*dparam1[(i+3)%4]*param1[i]*dparam1[(i+3)%4]+param1[(i+3)%4]*dparam1[i]*param1[(i+3)%4]*dparam1[i];
       dsigma = 167./stats*sqrt(dsigma+rms/sqrt(stats)*rms/sqrt(stats));
-      _meot->second[i].second.first[9].push_back(sigma);
-      _meot->second[i].second.first[10].push_back(dsigma);
     }
   }
 }
@@ -195,15 +191,22 @@ void HcalPedestalAnalysis::SampleAnalysis(){
   // it is called every m_nevtsample events (a sample) and the end of run
   char PedSampleNum[20];
 
-  sprintf(PedSampleNum,"PedSample_%d",sample);
+// Compute pedestal constants for each HB/HE, HO, HF
+  sprintf(PedSampleNum,"HB_Sample%d",sample);
   m_file->cd();
   m_file->mkdir(PedSampleNum);
   m_file->cd(PedSampleNum);
-
-// Compute pedestal constants for each HB/HE, HO, HF
-  GetPedConst(hbHists.PEDTRENDS);
-  GetPedConst(hoHists.PEDTRENDS);
-  GetPedConst(hfHists.PEDTRENDS);
+  GetPedConst(hbHists.PEDTRENDS,hbHists.PEDMEAN,hbHists.PEDRMS);
+  sprintf(PedSampleNum,"HO_Sample%d",sample);
+  m_file->cd();
+  m_file->mkdir(PedSampleNum);
+  m_file->cd(PedSampleNum);
+  GetPedConst(hoHists.PEDTRENDS,hoHists.PEDMEAN,hoHists.PEDRMS);
+  sprintf(PedSampleNum,"HF_Sample%d",sample);
+  m_file->cd();
+  m_file->mkdir(PedSampleNum);
+  m_file->cd(PedSampleNum);
+  GetPedConst(hfHists.PEDTRENDS,hfHists.PEDMEAN,hfHists.PEDRMS);
 }
 
 //-----------------------------------------------------------------------------
@@ -274,7 +277,7 @@ TH1F* Chi2, TH1F* CapidAverage, TH1F* CapidChi2){
       }
       _meot->second[i].second.second[1]->GetXaxis()->SetTitle(name);
       _meot->second[i].second.second[1]->GetYaxis()->SetTitle("Pedestal width");      _meot->second[i].second.second[1]->Write();
-      // Correlation coeffs - put contents and errors (Michal)
+      // Correlation coeffs - put contents and errors
       j=0;
       for(sample_it=_meot->second[i].second.first[5].begin();
           sample_it!=_meot->second[i].second.first[5].end();sample_it++){
@@ -503,7 +506,7 @@ void HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
     Trendings(hfHists.PEDTRENDS,hfHists.CHI2,hfHists.CAPID_AVERAGE,hfHists.CAPID_CHI2);
   }
 
-//  Pedestal validation (Michal)
+//  Pedestal validation
 //  nominal values from DB
   // inputs...
   pedCan_nominal = fInputPedestals;
@@ -546,7 +549,8 @@ void HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
   hfHists.PEDMEAN->Write();
 
   // Write the histo file and close it
-  m_file->Write();
+// The following line was creating problems, so I've commented it out
+//  m_file->Write();
   m_file->Close();
   cout << "Hcal histograms written to " << m_outputFileROOT.c_str() << endl;
 }
@@ -572,7 +576,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
       m_coder = cond.getHcalCoder(digi.id());
       for(int k=0; k<(int)state.size();k++) state[k]=true;
 // here we loop over pairs of time slices, it is more convenient
-// in order to extract the correlation matrix (Michal)
+// in order to extract the correlation matrix
       for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
         for(int flag=0; flag<4; flag++){
           if(i+flag<digi.size() && i+flag<=m_endTS){
@@ -628,7 +632,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
 void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid, const HcalQIESample& qie1, const HcalQIESample& qie2, map<HcalDetId, map<int,PEDBUNCH> > &toolT) {
 
 // this function is due to be called for every time slice, it fills a histo
-// for the current cap and for the correlation with another cap (Michal)
+// for the current cap and for the correlation with another cap
 
   static const int bins=10;
   static const int bins2=100;
@@ -648,88 +652,54 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
   }  
 
   _meot = toolT.find(detid);
-  if (_meot!=toolT.end()){
-// if histos for these particular cap-ids already exist, just fill them
-    _mei = _meot->second;
-    if(flag==0){
-      if((evt-1)%m_nevtsample==0 && state[qie1.capid()]){
-        state[qie1.capid()]=false; 
-        _mei[qie1.capid()].first->Reset();
-        _mei[qie1.capid()+4].first->Reset();
-        _mei[qie1.capid()+8].first->Reset();
-        _mei[qie1.capid()+12].first->Reset();
-      }
-      if (qie1.adc()<bins){
-        _mei[qie1.capid()].first->AddBinContent(qie1.adc()+1,1);
-      }
-      else if(qie1.adc()>=bins){
-        _mei[qie1.capid()].first->AddBinContent(bins+1,1);
-      }
-    }
-// unfortunately need to redo adc->fC every time,
-// this is not very intelligent
-    if(flag>0){
-//      getLinearizedADC(*m_shape,m_coder,bins,qie1.capid(),lo,hi);
-      slope[qie1.capid()]=(hi-lo)/bins;
-      offset[qie1.capid()]=lo+0.5;
-      float charge1=qie1.adc()*slope[qie1.capid()]+offset[qie1.capid()];
-//      getLinearizedADC(*m_shape,m_coder,bins,qie2.capid(),lo2,hi2);
-      slope[qie2.capid()]=(hi2-lo2)/bins;
-      offset[qie2.capid()]=lo2+0.5;
-      float charge2=qie2.adc()*slope[qie2.capid()]+offset[qie2.capid()];
-      if (charge1*charge2<bins2){
-        _mei[qie1.capid()+4*flag].first->Fill(charge1*charge2);
-      }
-      else{
-        _mei[qie1.capid()+4*flag].first->Fill(bins2);
-      }
-    }
-  }
-  else{
+  if (_meot==toolT.end()){
 // if histos for these cap-ids do not exist, first create them
-// and then do all the same things - this is a bit silly as well
     map<int,PEDBUNCH> insert;
     for(int i=0; i<4; i++){
       char name[1024];
-      sprintf(name,"%s Pedestal Value, ieta=%d iphi=%d depth=%d CAPID=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);  
-//      getLinearizedADC(*m_shape,m_coder,bins,i,lo,hi);
-           // printf("Linearized: lo: %f, hi: %f\n",lo,hi);
+      sprintf(name,"%s Pedestal, eta=%d phi=%d depth=%d capID=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);  
       insert[i].first =  new TH1F(name,name,bins,lo,hi);
       slope[i]=(hi-lo)/bins;
       offset[i]=lo+0.5;
-      sprintf(name,"%s Product, ieta=%d iphi=%d depth=%d CAPIDs=%d*%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i,(i+1)%4);  
+      sprintf(name,"%s Product, eta=%d phi=%d depth=%d capIDs=%d*%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i,(i+1)%4);  
       insert[4+i].first = new TH1F(name,name,bins2,0.,100.);
-      sprintf(name,"%s Product, ieta=%d iphi=%d depth=%d CAPIDs=%d*%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i,(i+2)%4);  
+      sprintf(name,"%s Product, eta=%d phi=%d depth=%d capIDs=%d*%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i,(i+2)%4);  
       insert[8+i].first = new TH1F(name,name,bins2,0.,100.);
-      sprintf(name,"%s Product, ieta=%d iphi=%d depth=%d CAPIDs=%d*%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i,(i+3)%4);  
+      sprintf(name,"%s Product, eta=%d phi=%d depth=%d capIDs=%d*%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i,(i+3)%4);  
       insert[12+i].first = new TH1F(name,name,bins2,0.,100.);
     }
-    if(flag==0){
-      if((evt-1)%m_nevtsample==0 && state[qie1.capid()]){
-        state[qie1.capid()]=false; 
-        insert[qie1.capid()].first->Reset();
-        insert[qie1.capid()+4].first->Reset();
-        insert[qie1.capid()+8].first->Reset();
-        insert[qie1.capid()+12].first->Reset();
-      }
-      if (qie1.adc()<bins){
-        insert[qie1.capid()].first->AddBinContent(qie1.adc()+1,1);
-      }
-      else{
-        insert[qie1.capid()].first->AddBinContent(bins+1,1);
-      }
-    }
-    if(flag>0){
-      float charge1=qie1.adc()*slope[qie1.capid()]+offset[qie1.capid()];
-      float charge2=qie2.adc()*slope[qie2.capid()]+offset[qie2.capid()];
-      if (charge1*charge2<bins2){
-        insert[qie1.capid()+4*flag].first->Fill(charge1*charge2);
-      }
-      else{
-        insert[qie1.capid()+4*flag].first->Fill(bins2);
-      }
-    }
     toolT[detid] = insert;
+    _meot = toolT.find(detid);
+  }
+  _mei = _meot->second;
+  if(flag==0){
+    if((evt-1)%m_nevtsample==0 && state[qie1.capid()]){
+      state[qie1.capid()]=false; 
+      _mei[qie1.capid()].first->Reset();
+      _mei[qie1.capid()+4].first->Reset();
+      _mei[qie1.capid()+8].first->Reset();
+      _mei[qie1.capid()+12].first->Reset();
+    }
+    if (qie1.adc()<bins){
+      _mei[qie1.capid()].first->AddBinContent(qie1.adc()+1,1);
+    }
+    else if(qie1.adc()>=bins){
+      _mei[qie1.capid()].first->AddBinContent(bins+1,1);
+    }
+  }
+  if(flag>0){
+    slope[qie1.capid()]=(hi-lo)/bins;
+    offset[qie1.capid()]=lo+0.5;
+    float charge1=qie1.adc()*slope[qie1.capid()]+offset[qie1.capid()];
+    slope[qie2.capid()]=(hi2-lo2)/bins;
+    offset[qie2.capid()]=lo2+0.5;
+    float charge2=qie2.adc()*slope[qie2.capid()]+offset[qie2.capid()];
+    if (charge1*charge2<bins2){
+      _mei[qie1.capid()+4*flag].first->Fill(charge1*charge2);
+    }
+    else{
+      _mei[qie1.capid()+4*flag].first->Fill(bins2);
+    }
   }
 
   if(flag==0){
