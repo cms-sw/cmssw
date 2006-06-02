@@ -5,19 +5,14 @@
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.2 2006/02/13 19:14:22 wmtan Exp $
+$Id: RefVectorBase.h,v 1.3 2006/03/23 23:58:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/RefBase.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/RefItem.h"
 #include "DataFormats/Common/interface/ProductID.h"
-#include <algorithm>
-#include <cstddef>
 #include <vector>
-#include <sstream>
-#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
 
@@ -50,20 +45,7 @@ namespace edm {
     size_type size() const {return items_.size();}
 
     void pushBack(RefCore const& prod_, RefItem<T> const& item_) {
-      if (product_.id() == ProductID()) {
-        product_ = prod_; 
-      } else if (product_ == prod_) {
-	if (product_.productGetter() == 0 && prod_.productGetter() != 0) {
-          product_.setProductGetter(prod_.productGetter());
-        }
-	if (product_.productPtr() == 0 && prod_.productPtr() != 0) {
-          product_.setProductPtr(prod_.productPtr());
-        }
-      } else {
-        throw edm::Exception(errors::InvalidReference,"Inconsistency")
-	<< "RefVectorBase::push_back: Ref is inconsistent. "
-	<< "id = (" << prod_.id() << ") should be (" << product_.id() << ")";
-      }
+      checkProduct(prod_, product_);
       items_.push_back(item_);
     }
 
