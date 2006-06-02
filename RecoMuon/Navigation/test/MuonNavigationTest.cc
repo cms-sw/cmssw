@@ -1,4 +1,11 @@
 #include <memory>
+/** \file MuonNavigationTest
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author Chang Liu
+ */
+
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -12,11 +19,14 @@
 
 #include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
 #include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
+#include "RecoMuon/Navigation/interface/MuonTkNavigationSchool.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 class MuonNavigationTest : public edm::EDAnalyzer {
    public:
@@ -46,19 +56,38 @@ MuonNavigationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 {
    using namespace edm;
 
-   std::cout << "Print out DetLayers: " << std::endl;
+   //choose ONE and ONLY one to be true
+   bool testMuon = false;
+   bool testMuonTk = true;
    //
-   // get the GeometricSearchDet
+   // get Geometry
    //
    edm::ESHandle<MuonDetLayerGeometry> muon;
    iSetup.get<MuonRecoGeometryRecord>().get(muon);     
-   
-   const MuonDetLayerGeometry & mm(*muon);
-   
-   MuonNavigationSchool school(&mm);
-   NavigationSetter setter(school);
-   MuonNavigationPrinter* printer = new MuonNavigationPrinter(&mm);
-   delete printer;
+   const MuonDetLayerGeometry * mm(&(*muon));
+
+   if ( testMuon ) {
+      MuonNavigationSchool school(mm);
+      NavigationSetter setter(school);
+      MuonNavigationPrinter* printer = new MuonNavigationPrinter(mm);
+      delete printer;
+   }
+
+   if ( testMuonTk ) {
+     edm::ESHandle<GeometricSearchTracker> tracker;
+     iSetup.get<TrackerRecoGeometryRecord>().get(tracker);
+
+     edm::ESHandle<MagneticField> theMF;
+     iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+
+     const GeometricSearchTracker * tt(&(*tracker));
+     const MagneticField * field(&(*theMF));
+
+     MuonTkNavigationSchool school(mm,tt,field);
+     NavigationSetter setter(school);
+     MuonNavigationPrinter* printer = new MuonNavigationPrinter(mm, tt);
+     delete printer;
+  }
 }
 
 //define this as a plug-in
