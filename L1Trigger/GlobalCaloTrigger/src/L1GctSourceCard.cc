@@ -99,9 +99,6 @@ void L1GctSourceCard::readBX()
 
 void L1GctSourceCard::reset()
 {
-  m_fin.close();
-  m_fin.clear();
-    
   m_isoElectrons.clear();
   m_nonIsoElectrons.clear();
   m_mipBits=0;
