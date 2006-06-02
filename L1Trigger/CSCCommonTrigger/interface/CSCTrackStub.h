@@ -10,6 +10,8 @@
  * \remark Takes the place of both L1MuCSCCorrelatedLCT and L1MuCSCTrackStub
  *        
  */
+#ifndef CSCCommonTrigger_CSCTrackStub_h
+#define CSCCommonTrigger_CSCTrackStub_h
 
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTransientDataType.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
@@ -22,6 +24,10 @@ class CSCTrackStub : public CSCTransientDataType
   CSCTrackStub(const CSCCorrelatedLCTDigi&, const CSCDetId&);
   CSCTrackStub(const CSCCorrelatedLCTDigi&, const CSCDetId&, const unsigned& phi, const unsigned& eta);
   CSCTrackStub(const CSCTrackStub&);
+
+  /// get/set MPC link number (sorting order)
+  void setMPCLink(const unsigned& link) { link_ = link; }
+  unsigned getMPCLink() const { return link_; }
 
   /// set Eta and Phi from integer values.
   void setEtaPacked(const unsigned& eta_) {theEta_ = eta_;}
@@ -80,7 +86,9 @@ class CSCTrackStub : public CSCTransientDataType
   CSCDetId theDetId_;
   CSCCorrelatedLCTDigi theDigi_;
 
-  unsigned thePhi_, theEta_;
+  unsigned thePhi_, theEta_, link_;
 
   static double theEtaBinning, thePhiBinning;
 };
+
+#endif

@@ -4,6 +4,8 @@
  <lib name=L1TriggerCSCTrackFinder>
  <use name=L1Trigger/CSCCommonTrigger>
  <use name=DataFormats/CSCDigi>
+ <use name=DataFormats/L1CSCTrackFinder>
+ <use name=DataFormats/L1GlobalMuonTrigger>
  <use name=Geometry/Records>
  <use name=DataFormats/MuonDetId>
 </export>
@@ -13,4 +15,6 @@
 <use name=Geometry/Records>
 <use name=DataFormats/MuonDetId>
 <use name=DataFormats/CSCDigi>
+<use name=DataFormats/L1CSCTrackFinder>
+<use name=DataFormats/L1GlobalMuonTrigger>
 <use name=boost>
