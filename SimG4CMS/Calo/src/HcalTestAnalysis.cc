@@ -27,12 +27,6 @@
 #include <iostream>
 #include <iomanip>
 
-#define ddebug
-#define debugFill
-#define debugqie
-#define debugLayer
-#define debugStep
-
 HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet &p): 
   myqie(0), addTower(3), tuplesManager(0), tuples(0), numberingFromDDD(0), org(0) {
 

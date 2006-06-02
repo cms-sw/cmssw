@@ -12,8 +12,6 @@
 #include <iomanip>
 #include <cmath>
 
-#define debug
-
 HcalQie::HcalQie(edm::ParameterSet const & p) {
 
   //static SimpleConfigurable<double> p1(4.0,   "HcalQie:qToPE");
