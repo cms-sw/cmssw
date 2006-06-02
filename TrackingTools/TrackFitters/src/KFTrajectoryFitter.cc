@@ -152,9 +152,17 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       //update
       LogDebug("TrackingTools/TrackFitters") <<"THE HIT IS VALID: updating predTsos"<<"\n";
       TransientTrackingRecHit* preciseHit = hits.begin()->clone(predTsos);
-      currTsos = updator()->update(predTsos, *preciseHit);
-      myTraj.push(TM(predTsos, currTsos, preciseHit,
-		     estimator()->estimate(predTsos, *preciseHit).second));
+
+      if (preciseHit->isValid() == false){
+	LogDebug("TrackingTools/TrackFitters") <<"THE Precise HIT IS NOT VALID: using currTsos"<<"\n";
+	currTsos = predTsos;
+	myTraj.push(TM(predTsos, (*ihit).clone() ));
+      }else{
+	
+	currTsos = updator()->update(predTsos, *preciseHit);
+	myTraj.push(TM(predTsos, currTsos, preciseHit,
+		       estimator()->estimate(predTsos, *preciseHit).second));
+      }
     } else {
       LogDebug("TrackingTools/TrackFitters") <<"THE HIT IS NOT VALID: using currTsos"<<"\n";
       currTsos = predTsos;
