@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 15:43:14 EDT 2006
-// $Id$
+// $Id: SiStripElectronCandidate.h,v 1.1 2006/05/27 04:23:50 pivarski Exp $
 //
 
 // system include files
@@ -48,7 +48,7 @@ namespace reco {
 	 void setSuperCluster( const reco::SuperClusterRef & r ) { superCluster_ = r; }
 	 /// set refrence to Track component
 	 void setTrack( const reco::TrackRef & r ) { track_ = r; }
-	 
+
       private:
 	 /// check overlap with another candidate
 	 virtual bool overlap( const Candidate & ) const;

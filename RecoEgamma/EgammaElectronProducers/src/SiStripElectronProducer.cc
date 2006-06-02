@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:11:30 EDT 2006
-// $Id$
+// $Id: SiStripElectronProducer.cc,v 1.1 2006/05/27 04:29:42 pivarski Exp $
 //
 
 // system include files
@@ -24,11 +24,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 //
@@ -55,7 +53,13 @@ SiStripElectronProducer::SiStripElectronProducer(const edm::ParameterSet& iConfi
    superClusterProducer_ = iConfig.getParameter<std::string>("superClusterProducer");
    superClusterCollection_ = iConfig.getParameter<std::string>("superClusterCollection");
    
-   algo_p = new SiStripElectronAlgo();
+   algo_p = new SiStripElectronAlgo(4,      // maxHitsOnDetId
+				    0.2,    // wedgePhiWidth (rad)
+				    15.,    // originUncertainty (cm)
+				    0.010,  // deltaPhi for band (rad)
+				    8,      // numHitsMin
+				    10000   // numHitsMax
+      );
 }
 
 
@@ -97,79 +101,36 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
    edm::Handle<SiStripRecHit2DLocalPosCollection> rphiHitsHandle;
    iEvent.getByLabel(siHitProducer_, siRphiHitCollection_, rphiHitsHandle);
-   const SiStripRecHit2DLocalPosCollection* rphiHits = rphiHitsHandle.product();
-   const std::vector<DetId> rphiDetIds = rphiHits->ids();
 
    edm::Handle<SiStripRecHit2DLocalPosCollection> stereoHitsHandle;
    iEvent.getByLabel(siHitProducer_, siRphiHitCollection_, stereoHitsHandle);
-   const SiStripRecHit2DLocalPosCollection* stereoHits = stereoHitsHandle.product();
-   const std::vector<DetId> stereoDetIds = stereoHits->ids();
+
+   edm::ESHandle<MagneticField> magneticFieldHandle;
+   iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
 
    edm::Handle<reco::SuperClusterCollection> superClusterHandle;
    iEvent.getByLabel(superClusterProducer_, superClusterCollection_, superClusterHandle);
 
-   // Prepare an output electron collection
+   // Set up SiStripElectronAlgo for this event
+   algo_p->prepareEvent(trackerHandle.product(), rphiHitsHandle.product(), stereoHitsHandle.product(), magneticFieldHandle.product());
+
+   // Prepare an output electron collection to be filled
    std::auto_ptr<reco::SiStripElectronCandidateCollection> electronOut(new reco::SiStripElectronCandidateCollection);
 
    // Loop over clusters
-//    for (reco::SuperClusterCollection::const_iterator superClusterIter = superClusterHandle->begin();  superClusterIter != superClusterHandle->end();  ++superClusterIter) {
-//       double energy = superClusterIter->energy();
-//       double x = superClusterIter->position().x();
-//       double y = superClusterIter->position().y();
-//       double z = superClusterIter->position().z();
+   for (reco::SuperClusterCollection::const_iterator superClusterIter = superClusterHandle->begin();
+	superClusterIter != superClusterHandle->end();
+	++superClusterIter) {
 
-//       // Everything passes for now
-//       if (true  &&  energy*energy + x*x + y*y + z*z > -1.) {
-// 	 reco::ElectronCandidate electron(-1, LorentzVector(1, 2, 3, 4));
-// 	 electronOut->push_back(electron);
-//       }
-//    }
+      if (algo_p->bandHitCounting(*electronOut, *superClusterIter)) {
+	 std::cout << "SiStripElectronProducer: added an electron to the list." << std::endl;
+      }
+      else {
+	 std::cout << "SiStripElectronProducer: we did not add an electron to the list." << std::endl;
+      }
+   }
 
-//   std::cout << "PAYATTENTION " << label << "_barrelrphi.append(( \\" << std::endl;
-//   for (std::vector<DetId>::const_iterator id = rphiDetectorIds.begin();  id != rphiDetectorIds.end();  ++id) {
-//     SiStripRecHit2DLocalPosCollection::range detHits = rphiRecHits->get(*id);
-//     for (SiStripRecHit2DLocalPosCollection::const_iterator detHit = detHits.first;  detHit != detHits.second;  ++detHit) {
-//       GlobalPoint threePoint = tracker->idToDet(detHit->geographicalId())->surface().toGlobal(detHit->localPosition());
-//       if ((threePoint.perp2() < 55.*55.  &&  fabs(threePoint.z()) < 67.)  ||  (threePoint.perp2() >= 55.*55.  &&  fabs(threePoint.z()) < 115.)) {
-// 	std::cout << "PAYATTENTION   {'r':" << sqrt(threePoint.perp2()) << ", 'phi':" << threePoint.phi() << ", 'id':" << id->rawId() << "}, \\" << std::endl;
-//       } // end if barrel
-//     } // end loop over hits in a detector
-//   } // end loop over detectors that have been hit
-//   std::cout << "PAYATTENTION   ))" << std::endl;
-
-//   std::cout << "PAYATTENTION " << label << "_barrelstereo.append(( \\" << std::endl;
-//   for (std::vector<DetId>::const_iterator id = stereoDetectorIds.begin();  id != stereoDetectorIds.end();  ++id) {
-//     SiStripRecHit2DLocalPosCollection::range detHits = stereoRecHits->get(*id);
-//     for (SiStripRecHit2DLocalPosCollection::const_iterator detHit = detHits.first;  detHit != detHits.second;  ++detHit) {
-//       GlobalPoint threePoint = tracker->idToDet(detHit->geographicalId())->surface().toGlobal(detHit->localPosition());
-//       if ((threePoint.perp2() < 55.*55.  &&  fabs(threePoint.z()) < 67.)  ||  (threePoint.perp2() >= 55.*55.  &&  fabs(threePoint.z()) < 115.)) {
-// 	std::cout << "PAYATTENTION   {'r':" << sqrt(threePoint.perp2()) << ", 'phi':" << threePoint.phi() << ", 'z':" << threePoint.z() << ", 'id':" << id->rawId() << "}, \\" << std::endl;
-//       } // end if barrel
-//     } // end loop over hits in a detector
-//   } // end loop over detectors that have been hit
-//   std::cout << "PAYATTENTION   ))" << std::endl;
-
-//   std::cout << "PAYATTENTION " << label << "_endcap.append(( \\" << std::endl;
-//   for (std::vector<DetId>::const_iterator id = rphiDetectorIds.begin();  id != rphiDetectorIds.end();  ++id) {
-//     SiStripRecHit2DLocalPosCollection::range detHits = rphiRecHits->get(*id);
-//     for (SiStripRecHit2DLocalPosCollection::const_iterator detHit = detHits.first;  detHit != detHits.second;  ++detHit) {
-//       GlobalPoint threePoint = tracker->idToDet(detHit->geographicalId())->surface().toGlobal(detHit->localPosition());
-//       if ((threePoint.perp2() < 55.*55.  &&  67. < fabs(threePoint.z())  &&  fabs(threePoint.z()) < 115.)  ||  fabs(threePoint.z()) > 115.) {
-// 	std::cout << "PAYATTENTION   {'phi':" << threePoint.phi() << ", 'z':" << threePoint.z() << ", 'id':" << id->rawId() << "}, \\" << std::endl;
-//       } // end if barrel
-//     } // end loop over hits in a detector
-//   } // end loop over detectors that have been hit
-//   for (std::vector<DetId>::const_iterator id = stereoDetectorIds.begin();  id != stereoDetectorIds.end();  ++id) {
-//     SiStripRecHit2DLocalPosCollection::range detHits = stereoRecHits->get(*id);
-//     for (SiStripRecHit2DLocalPosCollection::const_iterator detHit = detHits.first;  detHit != detHits.second;  ++detHit) {
-//       GlobalPoint threePoint = tracker->idToDet(detHit->geographicalId())->surface().toGlobal(detHit->localPosition());
-//       if ((threePoint.perp2() < 55.*55.  &&  67. < fabs(threePoint.z())  &&  fabs(threePoint.z()) < 115.)  ||  fabs(threePoint.z()) > 115.) {
-// 	std::cout << "PAYATTENTION   {'phi':" << threePoint.phi() << ", 'z':" << threePoint.z() << ", 'id':" << id->rawId() << "}, \\" << std::endl;
-//       } // end if barrel
-//     } // end loop over hits in a detector
-//   } // end loop over detectors that have been hit
-//   std::cout << "PAYATTENTION   ))" << std::endl;
-
+   // Put the electron collection into the event
    iEvent.put(electronOut, "SiStripElectronCandidateCollection");
 }
 
