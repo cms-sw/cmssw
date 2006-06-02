@@ -4,8 +4,8 @@
 /** \class MuRodBarrelLayer
  *  A cylinder composed of rods. Represents barrel muon DT/RPC stations.
  *
- *  $Date: 2006/06/01 16:47:05 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/02 12:21:38 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  *
  */
@@ -29,7 +29,7 @@ public:
 
   virtual const std::vector<const GeometricSearchDet*>& components() const;
   
-  virtual pair<bool, TrajectoryStateOnSurface>
+  virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator& prop, 
 	      const MeasurementEstimator&) const;
 

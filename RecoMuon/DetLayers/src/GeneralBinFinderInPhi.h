@@ -4,8 +4,8 @@
 /** \class GeneralBinFinderInPhi
  * A phi bin finder for a non-periodic group of detectors.
  *
- *  $Date: 2004/10/20 09:56:52 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/05/16 10:39:03 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -47,7 +47,7 @@ public:
   /// Returns an index in the valid range for the bin that contains 
   /// AND is closest to phi
   virtual int binIndex( T phi) const {
-    static T epsilon = 10*numeric_limits<T>::epsilon();
+    static T epsilon = 10*std::numeric_limits<T>::epsilon();
     // Assume -pi, pi range in pi (which is the case for Geom::Phi
     for (int i = 0; i< theNbins; i++) {
       T cur = theBorders[i];

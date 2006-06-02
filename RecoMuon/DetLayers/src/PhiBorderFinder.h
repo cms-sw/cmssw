@@ -5,8 +5,8 @@
  *  Find the phi binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2005/06/02 08:31:45 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/16 10:39:03 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -64,7 +64,7 @@ public:
       if (phimin*phimax < 0. &&           //Handle pi border:
 	  phimax - phimin > Geom::pi()) { //Assume that the Det is on
                                           //the shortest side 
-	swap(phimin,phimax);
+	std::swap(phimin,phimax);
       }
       phiEdge.push_back(std::pair<double,double>(phimin,phimax));
       

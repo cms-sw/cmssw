@@ -5,8 +5,8 @@
  *  Find the R binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2005/05/19 10:43:01 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/05/16 10:39:03 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -168,7 +168,7 @@ private:
   std::vector<double> theRBins;
 
   inline int binIndex( int i) const {
-    return min( max( i, 0), theNbins-1);
+    return std::min( std::max( i, 0), theNbins-1);
   }
 };
 #endif
