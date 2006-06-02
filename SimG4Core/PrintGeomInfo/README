@@ -3,9 +3,22 @@ TO USE:
 in .cfg file:
  
           PSet UtilityActions =
-          {
-               string type = "SimG4Core/UtilityAction/PrintGeomInfoAction"
-               untracked int32 VerboseLevel = 0
-	       untracked string Name = "*"
-          }
+		VPSet Watchers = {
+ 		{	string type = "PrintGeomInfoAction"
+			untracked bool DumpSummary    = false
+			untracked bool DumpLVTree     = true
+			untracked bool DumpMaterial   = false
+			untracked bool DumpLVList     = false
+			untracked bool DumpLV         = true
+			untracked bool DumpSolid      = true
+			untracked bool DumpAttributes = false
+			untracked bool DumpPV         = true
+			untracked bool DumpRotation   = false
+			untracked bool DumpReplica    = false
+			untracked bool DumpTouch      = false
+			untracked bool DumpSense      = false
+			untracked string Name         = "*"
+			untracked vstring Names       = {"TrackerHitsTEC",
+							 "EcalHitsEB"}
+		}}
  
