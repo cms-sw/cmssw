@@ -1,0 +1,55 @@
+/**
+ * \author L. Gray
+ * \class CSCTFSectorProcessor.h
+ * 
+ * A class that represents a sector processor board.
+ */
+
+#ifndef CSCTrackFinder_CSCTFSectorProcessor_h
+#define CSCTrackFinder_CSCTFSectorProcessor_h
+
+#include <vector>
+#include <map>
+#include <string>
+#include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCTrackStub.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerContainer.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
+
+#include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h>
+#include <L1Trigger/CSCTrackFinder/interface/CSCTFSPCoreLogic.h>
+#include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
+
+class CSCTFSectorProcessor
+{
+ public:
+  CSCTFSectorProcessor(const unsigned& endcap, const unsigned& sector, const edm::ParameterSet&);
+  
+  ~CSCTFSectorProcessor();
+
+  bool run(const CSCTriggerContainer<CSCTrackStub>&);
+
+  CSCTriggerContainer<csc::L1Track> tracks() const { return l1_tracks; }
+
+ private:
+  // disallow copy and assignment
+  CSCTFSectorProcessor& operator=(const CSCTFSectorProcessor& rhs) { return *this; };
+  CSCTFSectorProcessor(const CSCTFSectorProcessor& par) {}
+
+  unsigned m_endcap, m_sector;
+  unsigned m_bxa_on, m_extend_length;
+  unsigned m_latency;
+
+  int m_minBX, m_maxBX;
+  unsigned m_etawin[6];
+  
+  CSCTriggerContainer<csc::L1Track> l1_tracks; // fully defined L1Tracks
+  
+  static const std::string FPGAs[5];
+
+  std::map<std::string, CSCSectorReceiverLUT*> srLUTs_; // indexed by FPGA
+  CSCTFSPCoreLogic* core_;
+  CSCTFPtLUT* ptLUT_;
+};
+
+#endif

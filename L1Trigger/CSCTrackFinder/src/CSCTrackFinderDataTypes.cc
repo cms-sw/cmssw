@@ -7,6 +7,7 @@ local_phi_address& local_phi_address::operator=(const unsigned& u)
   this->pattern_type = 1&(u>>11);
   this->quality = ((1<<4)-1)&(u>>12);
   this->lr = 1&(u>>16);
+  
   return *this;
 }
 
@@ -15,6 +16,7 @@ global_phi_address& global_phi_address::operator=(const unsigned& u)
   this->phi_local = ((1<<10)-1)&u;
   this->wire_group = ((1<<5)-1)&(u>>10);
   this->cscid = ((1<<4)-1)&(u>>15);
+  
   return *this;
 }
 
@@ -24,6 +26,19 @@ global_eta_address& global_eta_address::operator=(const unsigned& u)
   this->phi_local = ((1<<2)-1)&(u>>6);
   this->wire_group = ((1<<7)-1)&(u>>8);
   this->cscid = ((1<<4)-1)&(u>>15);
+ 
+  return *this;
+}
+
+pt_address& pt_address::operator=(const unsigned& u)
+{
+  this->delta_phi_12   = ((1<<8)-1)&u;
+  this->delta_phi_23   = ((1<<4)-1)&(u>>8);
+  this->track_eta      = ((1<<4)-1)&(u>>12);
+  this->track_mode     = ((1<<4)-1)&(u>>16);
+  this->delta_phi_sign = ((1<<1)-1)&(u>>20);
+  this->track_fr       = ((1<<1)-1)&(u>>21);
+  
   return *this;
 }
 
@@ -31,12 +46,14 @@ local_phi_data& local_phi_data::operator=(const unsigned short& us)
 {
   this->phi_local = ((1<<10)-1)&us;
   this->phi_bend_local = ((1<<6)-1)&(us>>10);
+  
   return *this;
 }
 
 global_phi_data& global_phi_data::operator=(const unsigned short& us)
 {   
   this->global_phi = ((1<<12)-1)&us;
+  
   return *this;
 }
 
@@ -44,6 +61,19 @@ global_eta_data& global_eta_data::operator=(const unsigned short& us)
 {    
   this->global_eta = ((1<<7)-1)&us;
   this->global_bend = ((1<<5)-1)&(us>>7);
+  
+  return *this;
+}
+
+pt_data& pt_data::operator=(const unsigned short& us)
+{
+  this->front_pt           = ((1<<5)-1)&us;
+  this->front_quality      = ((1<<2)-1)&(us>>5);
+  this->charge_valid_front = ((1<<1)-1)&(us>>7);
+  this->rear_pt            = ((1<<5)-1)&(us>>8);
+  this->rear_quality       = ((1<<2)-1)&(us>>13);
+  this->charge_valid_rear  = ((1<<1)-1)&(us>>15);
+  
   return *this;
 }
 
@@ -68,6 +98,13 @@ unsigned short global_phi_data::toint() const
   return us;
 }
 
+unsigned short pt_data::toint() const
+{
+  unsigned short us = 0;
+  us = front_pt | (front_quality << 5) | (charge_valid_front << 7) | (rear_pt << 8) | (rear_quality << 13) | (charge_valid_rear << 15);
+  return us;
+}
+
 unsigned local_phi_address::toint() const
 {
   unsigned u = 0;
@@ -87,4 +124,16 @@ unsigned global_phi_address::toint() const
   unsigned u = 0;
   u = phi_local | (wire_group << 10) | (cscid << 15);
   return u;
+}
+
+unsigned pt_address::toint() const
+{
+  unsigned u = 0;
+  u = delta_phi_12 | (delta_phi_23 << 8) | (track_eta << 12) | (track_mode << 16) | (delta_phi_sign << 20) | (track_fr << 21);
+  return u;
+}
+
+unsigned pt_address::delta_phi() const
+{
+  return ( delta_phi_12 | (delta_phi_23 << 8) );
 }

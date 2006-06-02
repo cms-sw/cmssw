@@ -54,6 +54,25 @@ typedef class global_eta_address
 
 } gbletaadd;
 
+typedef class pt_address
+{
+ public:
+  unsigned int delta_phi_12   : 8;
+  unsigned int delta_phi_23   : 4;
+  unsigned int track_eta      : 4;
+  unsigned int track_mode     : 4;
+  unsigned int delta_phi_sign : 1;
+  unsigned int track_fr       : 1;
+
+  pt_address() {};
+  pt_address(const unsigned& us) { this->operator=(us); }
+
+  pt_address& operator=(const unsigned&);
+  unsigned toint() const;
+  
+  unsigned delta_phi() const; // for 2 stn track
+} ptadd;
+
 /// Data Types                                                                                        
 typedef class local_phi_data
 {
@@ -62,7 +81,7 @@ typedef class local_phi_data
   unsigned short phi_bend_local : 6;
 
   local_phi_data() {};
-  explicit local_phi_data(const unsigned short& us) { this->operator=(us); }
+  local_phi_data(const unsigned short& us) { this->operator=(us); }
 
   local_phi_data& operator=(const unsigned short& us);
   unsigned short toint() const;
@@ -97,5 +116,24 @@ typedef class global_eta_data
   unsigned short toint() const;
 
 } gbletadat;
+
+
+typedef class pt_data
+{
+ public:
+  unsigned short front_pt           : 5;
+  unsigned short front_quality      : 2;
+  unsigned short charge_valid_front : 1;
+  unsigned short rear_pt            : 5;
+  unsigned short rear_quality       : 2;
+  unsigned short charge_valid_rear  : 1;
+  
+  pt_data() {};
+  pt_data(const unsigned short& us) { this->operator=(us); }
+
+  pt_data& operator=(const unsigned short&);
+  unsigned short toint() const;
+
+} ptdat;
 
 #endif
