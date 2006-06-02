@@ -30,5 +30,10 @@
   <class name="edm::Ref<std::vector<reco::ClusterPi0Discriminator>,reco::ClusterPi0Discriminator,edm::refhelper::FindUsingAdvance<std::vector<reco::ClusterPi0Discriminator>,reco::ClusterPi0Discriminator> >"/>
   <class name="edm::RefProd<std::vector<reco::ClusterPi0Discriminator> >"/>
   <class name="edm::RefVector<std::vector<reco::ClusterPi0Discriminator>,reco::ClusterPi0Discriminator,edm::refhelper::FindUsingAdvance<std::vector<reco::ClusterPi0Discriminator>,reco::ClusterPi0Discriminator> >"/>
+
+  <class name="reco::ElectronPixelSeed"/>
+  <class name="std::vector<reco::ElectronPixelSeed>"/>
+  <class name="edm::Wrapper<std::vector<reco::ElectronPixelSeed> >"/>
+
 </lcgdict>
 

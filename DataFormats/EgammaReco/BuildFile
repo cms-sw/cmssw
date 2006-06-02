@@ -3,10 +3,12 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/Math>
 <use name=DataFormats/Common>
+<use name=clhep>
 <export>
  <lib name=DataFormatsEgammaReco>
  <use name=DataFormats/EcalRecHit>
  <use name=DataFormats/DetId>
  <use name=DataFormats/Math>
  <use name=DataFormats/Common>
+ <use name=clhep>
 </export>

@@ -5,6 +5,7 @@
 #include "DataFormats/EgammaReco/interface/EcalCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/EgammaTrigger.h"
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 
 namespace { 
   namespace {
@@ -42,5 +43,9 @@ namespace {
     edm::Ref<reco::ClusterPi0DiscriminatorCollection> r6;
     edm::RefProd<reco::ClusterPi0DiscriminatorCollection> rp6;
     edm::RefVector<reco::ClusterPi0DiscriminatorCollection> rv6;
+
+    reco::ElectronPixelSeedCollection v111;
+    edm::Wrapper<reco::ElectronPixelSeedCollection> w111;
+
   }
 }
