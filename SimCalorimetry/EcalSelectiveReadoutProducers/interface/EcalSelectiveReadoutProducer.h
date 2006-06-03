@@ -2,25 +2,11 @@
 #define ECALZEROSUPPRESSIONPRODUCER_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+//#include "FWCore/Framework/interface/Event.h"
+//#include "FWCore/Framework/interface/Handle.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
+//#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Provenance.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
-#include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
- 
-
-#include "SimCalorimetry/EcalZeroSuppressionAlgos/interface/EcalZeroSuppressor.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloDigiCollectionSorter.h"
-
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadoutSuppressor.h"
 
 #include <memory>
@@ -57,10 +43,19 @@ private:
   const EcalTrigPrimDigiCollection*
   getTrigPrims(edm::Event& event);
   
+  /// call these once an event, to make sure everything
+  /// is up-to-date
+  void checkGeometry(const edm::EventSetup & eventSetup);
+  void checkTriggerMap(const edm::EventSetup & eventSetup);
+
 private:
   std::auto_ptr<EcalSelectiveReadoutSuppressor> suppressor_;
   std::string digiProducer_; // name of module/plugin/producer making digis
   std::string trigPrimProducer_; // name of module/plugin/producer making triggere primitives
+
+  // store the pointer, so we don't have to update it every event
+  const CaloGeometry * theGeometry;
+  const EcalTrigTowerConstituentsMap * theTriggerTowerMap;
 };
 
 #endif 
