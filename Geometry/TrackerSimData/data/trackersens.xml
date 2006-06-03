@@ -9,10 +9,8 @@
     <Parameter name="ReadOutName" value="TrackerHitsPixelBarrel" />
   </SpecPar>
   <SpecPar name="ROUHitsTrackerPixelEndcap">
-    <PartSelector path="//PixelForwardActive1x2Right" />
-    <PartSelector path="//PixelForwardActive1x2Left" />
-    <PartSelector path="//PixelForwardActive1x5Right" />
-    <PartSelector path="//PixelForwardActive1x5Left" />
+    <PartSelector path="//PixelForwardActive1x2" />
+    <PartSelector path="//PixelForwardActive1x5" />
     <PartSelector path="//PixelForwardActive2x3" />
     <PartSelector path="//PixelForwardActive2x4" />
     <PartSelector path="//PixelForwardActive2x5" />
