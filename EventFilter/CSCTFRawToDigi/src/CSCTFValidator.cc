@@ -118,13 +118,12 @@ void CSCTFValidator::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 				  if(j->getTrknmb() == aFB.frontDigiData(FPGA,MPClink).getTrknmb() &&
 				     j->isValid() == aFB.frontDigiData(FPGA,MPClink).isValid() &&
 				     j->getQuality() == aFB.frontDigiData(FPGA,MPClink).getQuality() &&
-				     j->getKwire() == aFB.frontDigiData(FPGA,MPClink).getKwire() &&
 				     j->getKeyWG() == aFB.frontDigiData(FPGA,MPClink).getKeyWG() &&
 				     j->getStrip() == aFB.frontDigiData(FPGA,MPClink).getStrip() &&
 				     j->getCLCTPattern() == aFB.frontDigiData(FPGA,MPClink).getCLCTPattern() &&
 				     j->getStripType() == aFB.frontDigiData(FPGA,MPClink).getStripType() &&
 				     j->getBend() == aFB.frontDigiData(FPGA,MPClink).getBend() &&
-				     j->getBx() == aFB.frontDigiData(FPGA,MPClink).getBx()) ++match;  
+				     j->getBX() == aFB.frontDigiData(FPGA,MPClink).getBX()) ++match;  
 				
 				
 				if(match < 1) 
