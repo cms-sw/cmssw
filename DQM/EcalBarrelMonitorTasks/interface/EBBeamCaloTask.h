@@ -1,6 +1,14 @@
 #ifndef EBBeamCaloTask_H
 #define EBBeamCaloTask_H
 
+/*
+ * \file EBBeamCaloTask.h
+ *
+ * $Date: 2006/05/19 13:26:48 $
+ * $Revision: 1.2 $
+ * \author A. Ghezzi
+ *
+*/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"

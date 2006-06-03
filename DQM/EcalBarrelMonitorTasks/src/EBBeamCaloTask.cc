@@ -1,18 +1,30 @@
+/*
+ * \file EBBeamCaloTask.cc
+ *
+ * $Date: 2006/05/22 16:37:44 $
+ * $Revision: 1.4 $
+ * \author A. Ghezzi
+ *
+*/
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBBeamCaloTask.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBMUtilsTasks.h>
+
 EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
+
   LogDebug("EBBeamCaloTask") << " 1 construct  ";
   init_ = false;
   //digiProducer_ = ps.getUntrackedParameter<string>("digiProducer", "ecalEBunpacker");
   digiProducer_ = ps.getParameter<string>("digiProducer");
   //DCCHeaderProducer_= ps.getUntrackedParameter<string>("dccHeaderProducer", "ecalEBunpacker");
+
   for (int i = 0; i < cryInArray_ ; i++) {
     meBBCaloPulseProf_[i]=0;
     meBBCaloPulseProfG12_[i]=0;
     meBBCaloGains_[i]=0;
     meBBCaloEne_[i]=0;
   }
+
   meBBCaloCryRead_ = 0;
   meBBNumCaloCryRead_ = 0;
   meBBCaloAllNeededCry_ = 0;
@@ -20,7 +32,9 @@ EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
   meBBCaloCryOnBeam_ = 0;
   meBBCaloMaxEneCry_ = 0;
   TableMoving_ = 0;
+
   LogDebug("EBBeamCaloTask") << " 2 construct  ";
+
 }
 
 EBBeamCaloTask::~EBBeamCaloTask(){
@@ -177,15 +191,15 @@ try{
 	//cout << "event " << ievt_ << " resetting histos!! ";
     //here the follwowing histos should be reset
 	for (int u=0;u<cryInArray_;u++){
-	  EBMUtilsClient::resetHisto( meBBCaloPulseProf_[u] );
-	  EBMUtilsClient::resetHisto( meBBCaloPulseProfG12_[u] );
-	   EBMUtilsClient::resetHisto( meBBCaloGains_[u] );
-	   EBMUtilsClient::resetHisto( meBBCaloEne_[u] );
+	  EBMUtilsTasks::resetHisto( meBBCaloPulseProf_[u] );
+	  EBMUtilsTasks::resetHisto( meBBCaloPulseProfG12_[u] );
+	   EBMUtilsTasks::resetHisto( meBBCaloGains_[u] );
+	   EBMUtilsTasks::resetHisto( meBBCaloEne_[u] );
 	}
-	 EBMUtilsClient::resetHisto( meBBCaloCryRead_ );
+	 EBMUtilsTasks::resetHisto( meBBCaloCryRead_ );
     // meBBCaloAllNeededCry_;
     // ?? boh meBBNumCaloCryRead_;
-      EBMUtilsClient::resetHisto( meBBCaloE3x3_ );
+      EBMUtilsTasks::resetHisto( meBBCaloE3x3_ );
 
   }
 
