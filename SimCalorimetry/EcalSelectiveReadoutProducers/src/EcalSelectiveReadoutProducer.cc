@@ -1,5 +1,8 @@
 #include "SimCalorimetry/EcalSelectiveReadoutProducers/interface/EcalSelectiveReadoutProducer.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include <memory>
 
 using namespace std;
@@ -30,6 +33,10 @@ EcalSelectiveReadoutProducer::~EcalSelectiveReadoutProducer()
 void
 EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) 
 {
+  // check that everything is up-to-date
+  checkGeometry(eventSetup);
+  checkTriggerMap(eventSetup);
+
   //gets the trigger primitives:
   const EcalTrigPrimDigiCollection* trigPrims = getTrigPrims(event);
 
@@ -78,3 +85,34 @@ EcalSelectiveReadoutProducer::getTrigPrims(edm::Event& event)
 }
 
   
+void EcalSelectiveReadoutProducer::checkGeometry(const edm::EventSetup & eventSetup)
+{
+  edm::ESHandle<CaloGeometry> hGeometry;
+  eventSetup.get<IdealGeometryRecord>().get(hGeometry);
+
+  const CaloGeometry * pGeometry = &*hGeometry;
+
+  // see if we need to update
+  if(pGeometry != theGeometry) {
+    theGeometry = pGeometry;
+    suppressor_->setGeometry(theGeometry);
+  }
+}
+
+
+void EcalSelectiveReadoutProducer::checkTriggerMap(const edm::EventSetup & eventSetup)
+{
+
+   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap;
+   eventSetup.get<IdealGeometryRecord>().get(eTTmap);
+
+   const EcalTrigTowerConstituentsMap * pMap = &*eTTmap;
+  
+  // see if we need to update
+  if(pMap!= theTriggerTowerMap) {
+    theTriggerTowerMap = pMap;
+    suppressor_->setTriggerMap(theTriggerTowerMap);
+  }
+}
+
+
