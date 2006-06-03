@@ -7,8 +7,8 @@
  *   Helper class for seed generation
  *
  *
- *   $Date:$
- *   $Revision:  $
+ *   $Date: 2006/05/26 00:22:24 $
+ *   $Revision: 1.1 $
  *
  *   \author  N. Neumeister          Purdue University
  */
@@ -56,7 +56,7 @@ class MuonSeedDetLayer {
     double z() const { return thePoint.z(); }
 
     /// sort
-    class HigherR : binary_function< const MuonSeedDetLayer, const MuonSeedDetLayer, bool>
+    class HigherR : std::binary_function< const MuonSeedDetLayer, const MuonSeedDetLayer, bool>
 {
       public :
         bool operator()( const MuonSeedDetLayer first, const MuonSeedDetLayer second ) const {
@@ -65,7 +65,7 @@ class MuonSeedDetLayer {
     };
 
     /// sort
-    class LowerR : binary_function< const MuonSeedDetLayer, const MuonSeedDetLayer, bool>
+    class LowerR : std::binary_function< const MuonSeedDetLayer, const MuonSeedDetLayer, bool>
 {
       public :
         bool operator()( const MuonSeedDetLayer first, const MuonSeedDetLayer second ) const {
@@ -79,8 +79,6 @@ class MuonSeedDetLayer {
     GlobalPoint              thePoint;  
     int                      theID;
     TrajectoryStateOnSurface theState;
-
 };
-
 #endif 
 
