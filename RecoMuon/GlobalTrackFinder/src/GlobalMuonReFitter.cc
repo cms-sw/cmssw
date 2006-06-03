@@ -6,8 +6,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: $
- *   $Revision: $
+ *   $Date: 2006/05/18 20:35:28 $
+ *   $Revision: 1.1 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   I. Belotelov             DUBNA
@@ -62,7 +62,7 @@ vector<Trajectory> GlobalMuonReFitter::trajectories(const Trajectory& t) const {
 
 
 vector<Trajectory> GlobalMuonReFitter::trajectories(const TrajectorySeed& seed,
-	                                      const edm::OwnVector<TransientTrackingRecHit>& hits, 
+	                                      const edm::OwnVector<const TransientTrackingRecHit>& hits, 
 	                                      const TrajectoryStateOnSurface& firstPredTsos) const  {
 
   if ( hits.empty() ) return vector<Trajectory>();
@@ -87,7 +87,7 @@ vector<Trajectory> GlobalMuonReFitter::fit(const Trajectory& t) const {
 
 
 vector<Trajectory> GlobalMuonReFitter::fit(const TrajectorySeed& seed,
-			             const edm::OwnVector<TransientTrackingRecHit>& hits, 
+			             const edm::OwnVector<const TransientTrackingRecHit>& hits, 
 				     const TSOS& firstPredTsos) const {
 
   if ( hits.empty() ) return vector<Trajectory>();
@@ -109,7 +109,7 @@ vector<Trajectory> GlobalMuonReFitter::fit(const TrajectorySeed& seed,
     myTraj.push(TM(predTsos, &(*hits.begin())));
   }
   
-  for ( edm::OwnVector<TransientTrackingRecHit>::const_iterator ihit = hits.begin() + 1; 
+  for ( edm::OwnVector<const TransientTrackingRecHit>::const_iterator ihit = hits.begin() + 1; 
         ihit != hits.end(); ++ihit ) {
 
     predTsos = thePropagator1->propagate(currTsos, (*ihit).det()->surface());
