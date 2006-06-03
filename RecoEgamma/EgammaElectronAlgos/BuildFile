@@ -2,12 +2,14 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=clhep>
+<use name=MagneticField/Engine>
 <use name=DataFormats/DetId>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/EgammaReco>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
+<use name=DataFormats/EgammaCandidates>
 <use name=RecoTracker/MeasurementDet>
 <use name=RecoTracker/TkSeedGenerator>
 <use name=RecoTracker/TkDetLayers>
