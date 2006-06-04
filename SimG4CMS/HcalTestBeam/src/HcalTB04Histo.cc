@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id$
+// $Id: HcalTB04Histo.cc,v 1.1 2006/05/18 14:10:35 sunanda Exp $
 //
  
 // system include files
@@ -66,6 +66,10 @@ HcalTB04Histo::~HcalTB04Histo() {
   if (dbe_) dbe_->save(fileName);
 }
  
+//
+// member functions
+//
+
 void HcalTB04Histo::fillPrimary(double energy, double eta, double phi) {
 
   LogDebug("HcalTBSim") << "HcalTB04Histo::fillPrimary: Energy " 

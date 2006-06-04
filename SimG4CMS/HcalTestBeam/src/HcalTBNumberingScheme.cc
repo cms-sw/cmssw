@@ -1,13 +1,28 @@
-///////////////////////////////////////////////////////////////////////////////
-// File: HcalTBNumberingScheme.cc
-// Description: Numbering scheme for test beam hadron calorimeter
-///////////////////////////////////////////////////////////////////////////////
+// -*- C++ -*-
+//
+// Package:     HcalTestBeam
+// Class  :     HcalTBNumberingScheme
+//
+// Implementation:
+//     Numbering scheme for test beam hadron calorimeter
+//
+// Original Author:
+//         Created:  Tue May 16 10:14:34 CEST 2006
+// $Id$
+//
+  
+// system include files
+#include <iostream>
+
+// user include files
 #include "SimG4CMS/HcalTestBeam/interface/HcalTBNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
+//
+// member functions
+//
 
 uint32_t HcalTBNumberingScheme::getUnitID(const uint32_t idHit,
 					  const int mode) {

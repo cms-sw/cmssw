@@ -1,7 +1,22 @@
-///////////////////////////////////////////////////////////////////////////////
-// File: HcalTB04Analysis.cc
-// Description: Main analysis class for Hcal Test Beam 2004 Analysis
-///////////////////////////////////////////////////////////////////////////////
+// -*- C++ -*-
+//
+// Package:     HcalTestBeam
+// Class  :     HcalTB04Analysis
+//
+// Implementation:
+//     Main analysis class for Hcal Test Beam 2004 Analysis
+//
+// Original Author:
+//         Created:  Tue May 16 10:14:34 CEST 2006
+// $Id$
+//
+  
+// system include files
+#include <cmath>
+#include <iostream>
+#include <iomanip>
+
+// user include files
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB04Analysis.h"
 
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
@@ -28,9 +43,10 @@
 #include "G4HCofThisEvent.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-#include <cmath>
-#include <iostream>
-#include <iomanip>
+
+//
+// constructors and destructor
+//
 
 HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet &p): myQie(0),
 								histo(0) {
@@ -44,11 +60,12 @@ HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet &p): myQie(0),
   scaleHB16      = m_Anal.getParameter<double>("ScaleHB16");
   scaleHO        = m_Anal.getParameter<double>("ScaleHO");
   scaleHE0       = m_Anal.getParameter<double>("ScaleHE0");
-  beamOffset     =-m_Anal.getParameter<double>("BeamPosition")*mm;
-  double fMinEta = m_Anal.getParameter<double>("MinEta");
-  double fMaxEta = m_Anal.getParameter<double>("MaxEta");
-  double fMinPhi = m_Anal.getParameter<double>("MinPhi");
-  double fMaxPhi = m_Anal.getParameter<double>("MaxPhi");
+  names          = m_Anal.getParameter<std::vector<std::string> >("Names");
+  beamOffset     =-m_Anal.getUntrackedParameter<double>("BeamPosition",0.0)*mm;
+  double fMinEta = m_Anal.getUntrackedParameter<double>("MinEta",-5.5);
+  double fMaxEta = m_Anal.getUntrackedParameter<double>("MaxEta",5.5);
+  double fMinPhi = m_Anal.getUntrackedParameter<double>("MinPhi",-3.14159265358979323846);
+  double fMaxPhi = m_Anal.getUntrackedParameter<double>("MaxPhi", 3.14159265358979323846);
   double beamEta = (fMaxEta+fMinEta)/2.;
   double beamPhi = (fMaxPhi+fMinPhi)/2.;
   double beamThet= 2*atan(exp(-beamEta));
@@ -56,7 +73,6 @@ HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet &p): myQie(0),
   iceta          = (int)(beamEta/0.087) + 1;
   icphi          = (int)(abs(beamPhi)/0.087) + 5;
   if (icphi > 72) icphi -= 73;
-  names          = m_Anal.getParameter<std::vector<std::string> >("Names");
 
   produces<PHcalTB04Info>();
 
@@ -96,13 +112,14 @@ HcalTB04Analysis::~HcalTB04Analysis() {
   }
 }
 
+//
+// member functions
+//
+
 void HcalTB04Analysis::produce(edm::Event& e, const edm::EventSetup&) {
 
-  std::cout << "Enter  HcalTB04Analysis::produce " << std::endl;
   std::auto_ptr<PHcalTB04Info> product(new PHcalTB04Info);
-  std::cout << "Create PHcalTB04Info " << std::endl;
   fillEvent(*product);
-  std::cout << "Return from fillEvent " << std::endl;
   e.put(product);
 }
 

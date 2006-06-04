@@ -1,12 +1,28 @@
-///////////////////////////////////////////////////////////////////////////////
-// File: HcalTB04XtalNumberingScheme.cc
-// Description: Numbering scheme for 2004 crystal calorimeter
-///////////////////////////////////////////////////////////////////////////////
+// -*- C++ -*-
+//
+// Package:     HcalTestBeam
+// Class  :     HcalTB04XtalNumberingScheme
+//
+// Implementation:
+//     Numbering scheme for crystal calorimeter in 2004 test beam
+//
+// Original Author:
+//         Created:  Tue 16 10:14:34 CEST 2006
+// $Id$
+//
+  
+// system include files
+  
+// user include files
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB04XtalNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
+
+//
+// constructors and destructor
+//
 
 HcalTB04XtalNumberingScheme::HcalTB04XtalNumberingScheme() : 
   EcalNumberingScheme() {
@@ -16,6 +32,10 @@ HcalTB04XtalNumberingScheme::HcalTB04XtalNumberingScheme() :
 HcalTB04XtalNumberingScheme::~HcalTB04XtalNumberingScheme() {
   edm::LogInfo("HcalTBSim") << "Deleting HcalTB04XtalNumberingScheme";
 }
+
+//
+// member functions
+//
 
 uint32_t HcalTB04XtalNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const {
 
