@@ -15,7 +15,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.h,v 1.2 2006/05/25 18:22:03 dkcira Exp $
+// $Id: MonitorTrackGlobal.h,v 1.3 2006/05/31 16:02:17 goitom Exp $
 //
 //
 
@@ -59,6 +59,19 @@ class MonitorTrackGlobal : public edm::EDAnalyzer {
 
   MonitorElement * trackSize;
   MonitorElement * recHitSize;
+
+  MonitorElement * trackPX;
+  MonitorElement * trackPY;
+  MonitorElement * trackPZ;
+  MonitorElement * trackPt;
+
+  MonitorElement * trackPhi;
+  MonitorElement * trackEta;
+  MonitorElement * trackTheta;
+
+  MonitorElement * trackVertexX;
+  MonitorElement * trackVertexY;
+  MonitorElement * trackVertexZ;
 
   MonitorElement * d0VsTheta;
   MonitorElement * d0VsPhi;

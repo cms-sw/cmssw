@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.3 2006/05/30 21:40:59 dkcira Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.4 2006/05/31 16:02:18 goitom Exp $
 //
 //
 
@@ -74,6 +74,7 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
   dbe->setCurrentFolder("SiStrip/Detectors");
 
   // take from eventSetup the SiStripStructure object - here will use SiStripDetControl later on
+
     edm::ESHandle<SiStripDetCabling> tkmechstruct;
     iSetup.get<SiStripDetCablingRcd>().get(tkmechstruct);
 
@@ -164,6 +165,7 @@ MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 
    using namespace edm;
+
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
    iEvent.getByLabel("example",pIn);
@@ -174,8 +176,11 @@ MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    iSetup.get<SetupRecord>().get(pSetup);
 #endif
 
+   std::string TrackCandidateProducer = conf_.getParameter<std::string>("TrackCandidateProducer");
+   std::string TrackCandidateLabel = conf_.getParameter<std::string>("TrackCandidateLabel");
+
    Handle<TrackCandidateCollection> trackCandidateCollection;
-   iEvent.getByLabel("RoadSearchTrackCandidates", trackCandidateCollection);
+   iEvent.getByLabel(TrackCandidateProducer, TrackCandidateLabel, trackCandidateCollection);
 
    ESHandle<TrackerGeometry> pDD;
    iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
