@@ -2,8 +2,8 @@
  *
  *  Navigable layer for Forward Muon
  *
- * $Date: 2006/04/24 18:58:22 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/24 20:00:12 $
+ * $Revision: 1.4 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -20,6 +20,8 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
+
+using namespace std;
 
 vector<const DetLayer*> 
 MuonForwardNavigableLayer::nextLayers(PropagationDirection dir) const {

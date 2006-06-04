@@ -4,8 +4,8 @@
  *  trackingRange defines an MuonEtaRange for an FTS, 
  *  which is used for searching compatible DetLayers.
  *
- * $Date:  $
- * $Revision: $
+ * $Date: 2006/04/24 20:00:31 $
+ * $Revision: 1.4 $
  *
  * \author : Chang Liu - Purdue University <Chang.Liu@cern.ch>
  * with contributions from: R. Bellan - INFN Torino
@@ -26,6 +26,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 /* C++ Headers */
 #include <algorithm>
+
+using namespace std;
 
 extern float calculateEta(float r, float z)  {
   if ( z > 0 ) return -log((tan(atan(r/z)/2.)));

@@ -2,8 +2,8 @@
  *
  *  Navigable layer for Barrel Muon 
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/04/24 19:59:52 $
+ *  $Revision: 1.4 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -27,10 +27,11 @@
 /* C++ Headers */
 #include <algorithm>
 
-vector<const DetLayer*> 
+using namespace std;
+std::vector<const DetLayer*> 
 MuonBarrelNavigableLayer::nextLayers(PropagationDirection dir) const {
 
-  vector<const DetLayer*> result;
+  std::vector<const DetLayer*> result;
 
   if ( dir == alongMomentum ) {
     pushResult(result, theOuterBarrelLayers);
@@ -50,11 +51,11 @@ MuonBarrelNavigableLayer::nextLayers(PropagationDirection dir) const {
 }
 
 
-vector<const DetLayer*> 
+std::vector<const DetLayer*> 
 MuonBarrelNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
                                      PropagationDirection dir) const {
 
-  vector<const DetLayer*> result;
+  std::vector<const DetLayer*> result;
 
   if ( dir == alongMomentum ) {
     pushResult(result, theOuterBarrelLayers, fts);
@@ -71,10 +72,10 @@ MuonBarrelNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
   return result;
 }
 
-vector<const DetLayer*>
+std::vector<const DetLayer*>
 MuonBarrelNavigableLayer::compatibleLayers(PropagationDirection dir) const {
 
-  vector<const DetLayer*> result;
+  std::vector<const DetLayer*> result;
 
   if ( dir == alongMomentum ) {
     pushResult(result, theAllOuterBarrelLayers);
@@ -92,10 +93,10 @@ MuonBarrelNavigableLayer::compatibleLayers(PropagationDirection dir) const {
   return result;
 }
 
-vector<const DetLayer*>
+std::vector<const DetLayer*>
 MuonBarrelNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
                                      PropagationDirection dir) const {
-  vector<const DetLayer*> result;
+  std::vector<const DetLayer*> result;
   if ( dir == alongMomentum ) {
     pushCompatibleResult(result, theAllOuterBarrelLayers, fts);
     pushCompatibleResult(result, theAllOuterBackwardLayers, fts);
@@ -113,28 +114,28 @@ MuonBarrelNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
 }
 
 
-void MuonBarrelNavigableLayer::pushResult(vector<const DetLayer*>& result,
+void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
                                           const MapB& map) const {
 
   for ( MapBI i = map.begin(); i != map.end(); i++ ) result.push_back((*i).first); 
 
 }
 
-void MuonBarrelNavigableLayer::pushResult(vector<const DetLayer*>& result,
+void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
                                           const MapE& map) const {
 
   for ( MapEI i = map.begin(); i != map.end(); i++ ) result.push_back((*i).first);  
 }
 
 
-void MuonBarrelNavigableLayer::pushResult(vector<const DetLayer*>& result,
+void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
                                           const MapB& map, 
                                           const FreeTrajectoryState& fts) const {
   for ( MapBI i = map.begin(); i != map.end(); i++ ) 
     if ((*i).second.isInside(fts.position().eta())) result.push_back((*i).first); 
 }
 
-void MuonBarrelNavigableLayer::pushResult(vector<const DetLayer*>& result,
+void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
                                           const MapE& map, 
                                           const FreeTrajectoryState& fts) const {
 
@@ -143,7 +144,7 @@ void MuonBarrelNavigableLayer::pushResult(vector<const DetLayer*>& result,
 
 }
 
-void MuonBarrelNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
+void MuonBarrelNavigableLayer::pushCompatibleResult(std::vector<const DetLayer*>& result,
                                           const MapB& map,
                                           const FreeTrajectoryState& fts) const {
   MuonEtaRange range= trackingRange(fts);
@@ -151,7 +152,7 @@ void MuonBarrelNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& res
     if ((*i).second.isCompatible(range)) result.push_back((*i).first);
 }
 
-void MuonBarrelNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
+void MuonBarrelNavigableLayer::pushCompatibleResult(std::vector<const DetLayer*>& result,
                                           const MapE& map,
                                           const FreeTrajectoryState& fts) const {
   MuonEtaRange range= trackingRange(fts);
