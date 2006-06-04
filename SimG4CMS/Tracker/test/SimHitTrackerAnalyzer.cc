@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: SimHitTrackerAnalyzer.cc,v 1.5 2006/03/21 13:32:52 fambrogl Exp $
+// $Id: SimHitTrackerAnalyzer.cc,v 1.6 2006/04/06 17:17:22 fambrogl Exp $
 //
 //
 
@@ -112,7 +112,7 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    std::vector<EmbdSimTrack> theSimTracks;
    std::vector<EmbdSimVertex> theSimVertexes;
 
-   Handle<HepMCProduct> MCEvt;
+   //   Handle<HepMCProduct> MCEvt;
    Handle<EmbdSimTrackContainer> SimTk;
    Handle<EmbdSimVertexContainer> SimVtx;
    Handle<PSimHitContainer> PixelBarrelHitsLowTof;
@@ -129,7 +129,7 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    Handle<PSimHitContainer> TECHitsHighTof;
 
 
-   iEvent.getByLabel(HepMCLabel, MCEvt);
+   //   iEvent.getByLabel(HepMCLabel, MCEvt);
    iEvent.getByLabel(SimTkLabel,SimTk);
    iEvent.getByLabel(SimVtxLabel,SimVtx);
    iEvent.getByLabel("SimG4Object","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);
@@ -162,14 +162,15 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    theTrackerHits.insert(theTrackerHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
 
 
-   HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(MCEvt->GetEvent()));
+   /*
+   Hepmc::GenEvent * myGenEvent = new  HepMC::GenEvent(*(MCEvt->GetEvent()));
    
    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
 	 p != myGenEvent->particles_end(); ++p ) {
      edm::LogInfo("TrackerSimInfoAnalyzer")<< "Particle type form MC = "<< abs((*p)->pdg_id()) ; 
      edm::LogInfo("TrackerSimInfoAnalyzer")<< "Particle momentum Pt form MC = "<< (*p)->momentum().perp() ;  
    }
-
+   */
 
    for (std::vector<EmbdSimTrack>::iterator isimtk = theSimTracks.begin();
 	isimtk != theSimTracks.end(); ++isimtk){
