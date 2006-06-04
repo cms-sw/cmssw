@@ -5,8 +5,8 @@
  *
  *  class to create a map of DetLayers
  *
- * $Date: $
- * $Revision: $
+ * $Date: 2006/04/24 18:58:29 $
+ * $Revision: 1.2 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -22,7 +22,7 @@
 #include <functional>
 
 /// Sort the list of layers in the barrel region
-class LayerBarrel_comp : binary_function<const BarrelDetLayer*, const BarrelDetLayer*, bool> {
+class LayerBarrel_comp : std::binary_function<const BarrelDetLayer*, const BarrelDetLayer*, bool> {
   public:
     bool operator()( const  BarrelDetLayer* l1, const  BarrelDetLayer* l2) const {
       if ( l1->specificSurface().radius() < l2->specificSurface().radius() ) return true;
@@ -32,7 +32,7 @@ class LayerBarrel_comp : binary_function<const BarrelDetLayer*, const BarrelDetL
 };
 
 /// Sort the list of layers in the forward regions
-class LayerEndcap_comp : binary_function<const ForwardDetLayer*, const ForwardDetLayer*, bool> {
+class LayerEndcap_comp : std::binary_function<const ForwardDetLayer*, const ForwardDetLayer*, bool> {
   public:
     bool operator()( const  ForwardDetLayer* l1, const  ForwardDetLayer* l2) const {
       if ( fabs(l1->surface().position().z()) < fabs(l2->surface().position().z()) ) return true;
@@ -40,8 +40,8 @@ class LayerEndcap_comp : binary_function<const ForwardDetLayer*, const ForwardDe
     }
 
 };
-typedef map<const BarrelDetLayer*, MuonEtaRange, LayerBarrel_comp> MapB;
-typedef map<const ForwardDetLayer*, MuonEtaRange, LayerEndcap_comp> MapE;
+typedef std::map<const BarrelDetLayer*, MuonEtaRange, LayerBarrel_comp> MapB;
+typedef std::map<const ForwardDetLayer*, MuonEtaRange, LayerEndcap_comp> MapE;
 typedef MapB::const_iterator MapBI;
 typedef MapE::const_iterator MapEI;
 

@@ -5,8 +5,8 @@
  *
  *  Navigable layer for Barrel Muon 
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/04/24 18:57:52 $
+ *  $Revision: 1.3 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -107,16 +107,16 @@ class MuonBarrelNavigableLayer : public MuonNavigableLayer {
       theAllOuterForwardLayers(allOuterForward) {}
 
     /// NavigableLayer interface
-    virtual vector<const DetLayer*> nextLayers(PropagationDirection dir) const;
+    virtual std::vector<const DetLayer*> nextLayers(PropagationDirection dir) const;
 
     /// NavigableLayer interface
-    virtual vector<const DetLayer*> nextLayers(const FreeTrajectoryState& fts, 
+    virtual std::vector<const DetLayer*> nextLayers(const FreeTrajectoryState& fts, 
                                                PropagationDirection dir) const;
 
-    virtual vector<const DetLayer*> compatibleLayers(PropagationDirection dir) const;
+    virtual std::vector<const DetLayer*> compatibleLayers(PropagationDirection dir) const;
 
     /// NavigableLayer interface
-    virtual vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
+    virtual std::vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
                                                PropagationDirection dir) const;
 
     /// return DetLayer
@@ -145,24 +145,24 @@ class MuonBarrelNavigableLayer : public MuonNavigableLayer {
 
   private:
 
-    void pushResult(vector<const DetLayer*>& result,
+    void pushResult(std::vector<const DetLayer*>& result,
                     const MapB& map) const;
 
-    void pushResult(vector<const DetLayer*>& result,
+    void pushResult(std::vector<const DetLayer*>& result,
                     const MapE& map) const;
 
-    void pushResult(vector<const DetLayer*>& result,
+    void pushResult(std::vector<const DetLayer*>& result,
                     const MapB& map, const
                     FreeTrajectoryState& fts) const;
 
-    void pushResult(vector<const DetLayer*>& result,
+    void pushResult(std::vector<const DetLayer*>& result,
                     const MapE& map, const
                     FreeTrajectoryState& fts) const;
-    void pushCompatibleResult(vector<const DetLayer*>& result,
+    void pushCompatibleResult(std::vector<const DetLayer*>& result,
                     const MapB& map, const
                     FreeTrajectoryState& fts) const;
 
-    void pushCompatibleResult(vector<const DetLayer*>& result,
+    void pushCompatibleResult(std::vector<const DetLayer*>& result,
                     const MapE& map, const
                     FreeTrajectoryState& fts) const;
 

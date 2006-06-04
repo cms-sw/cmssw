@@ -6,8 +6,8 @@
  *  Navigation School for both Muon and Tk
  *  different from the one in ORCA
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/02 02:19:24 $
+ *  $Revision: 1.2 $
  *
  * \author : Chang Liu - Purdue University
  * \author Stefano Lacaprara - INFN Padova 
@@ -44,7 +44,7 @@ class MuonTkNavigationSchool : public NavigationSchool {
     /// Destructor
     ~MuonTkNavigationSchool();
     /// return a vector of NavigableLayer*, from base class
-    virtual vector<NavigableLayer*> navigableLayers() const;
+    virtual std::vector<NavigableLayer*> navigableLayers() const;
 
   private:
 
@@ -63,9 +63,9 @@ class MuonTkNavigationSchool : public NavigationSchool {
     float calculateEta(float r, float z) const;
 
   private:
-    typedef vector<const DetLayer*>              DLC;
-    typedef vector<BarrelDetLayer*>              BDLC;
-    typedef vector<ForwardDetLayer*>             FDLC;
+    typedef std::vector<const DetLayer*>              DLC;
+    typedef std::vector<BarrelDetLayer*>              BDLC;
+    typedef std::vector<ForwardDetLayer*>             FDLC;
     typedef DLC::iterator                        DLI;
     typedef BDLC::iterator                       BDLI;
     typedef FDLC::iterator                       FDLI;
@@ -76,13 +76,13 @@ class MuonTkNavigationSchool : public NavigationSchool {
     MapE theForwardLayers;   // +z
     MapE theBackwardLayers;  // -z
 
-    vector<SimpleBarrelNavigableLayer*>  theTkBarrelNLC;
-    vector<SimpleForwardNavigableLayer*> theTkForwardNLC;
-    vector<SimpleForwardNavigableLayer*> theTkBackwardNLC;
+    std::vector<SimpleBarrelNavigableLayer*>  theTkBarrelNLC;
+    std::vector<SimpleForwardNavigableLayer*> theTkForwardNLC;
+    std::vector<SimpleForwardNavigableLayer*> theTkBackwardNLC;
 
-    vector<MuonBarrelNavigableLayer*> theMuonBarrelNLC;
-    vector<MuonForwardNavigableLayer*> theMuonForwardNLC;
-    vector<MuonForwardNavigableLayer*> theMuonBackwardNLC;
+    std::vector<MuonBarrelNavigableLayer*> theMuonBarrelNLC;
+    std::vector<MuonForwardNavigableLayer*> theMuonForwardNLC;
+    std::vector<MuonForwardNavigableLayer*> theMuonBackwardNLC;
 
     const MuonDetLayerGeometry* theMuonDetLayerGeometry;
     const GeometricSearchTracker* theGeometricSearchTracker;

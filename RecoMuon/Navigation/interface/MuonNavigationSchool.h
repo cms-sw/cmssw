@@ -8,8 +8,8 @@
  *  This class defines which DetLayers are reacheable from each Muon DetLayer
  *  (DT, CSC and RPC). The reacheableness is based on an eta range criteria.
  *
- * $Date: 2003/12/03 07:58:23 $
- * $Revision: 1.5 $
+ * $Date: 2006/04/24 18:58:55 $
+ * $Revision: 1.3 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -50,7 +50,7 @@ class MuonNavigationSchool : public NavigationSchool {
     /// link barrel layers
     void linkBarrelLayers();
     /// link endcap layers
-    void linkEndcapLayers(const MapE&,vector<MuonForwardNavigableLayer*>&);
+    void linkEndcapLayers(const MapE&,std::vector<MuonForwardNavigableLayer*>&);
     /// establish inward links
     void createInverseLinks() const;
     float calculateEta(const float&, const float& ) const;
@@ -61,9 +61,9 @@ class MuonNavigationSchool : public NavigationSchool {
     MapE theForwardLayers;   /// +z endcap
     MapE theBackwardLayers;  /// -z endcap 
 
-    vector<MuonBarrelNavigableLayer*> theBarrelNLC;
-    vector<MuonForwardNavigableLayer*> theForwardNLC;
-    vector<MuonForwardNavigableLayer*> theBackwardNLC;
+    std::vector<MuonBarrelNavigableLayer*> theBarrelNLC;
+    std::vector<MuonForwardNavigableLayer*> theForwardNLC;
+    std::vector<MuonForwardNavigableLayer*> theBackwardNLC;
 
     const MuonDetLayerGeometry * theMuonDetLayerGeometry; 
   
