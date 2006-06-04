@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.cc,v 1.2 2006/04/25 01:52:58 rpw Exp $
+ * $Id: EcalSelectiveReadout.cc,v 1.3 2006/06/02 22:13:11 rpw Exp $
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
@@ -26,7 +26,7 @@ EcalSelectiveReadout::EcalSelectiveReadout(const vector<double>& thr,
 }
 
 void EcalSelectiveReadout::resetSupercrystalInterest(){
-  //init superCrystalInterest (sets all elts to 'unknown'):
+  //init superCrystalInterest (sets all elts to 'UNKNOWN'):
   for(size_t iCap=0; iCap < nEndcaps; ++iCap){
     for(size_t iSCX = 0; iSCX < nSupercrystalXBins; ++iSCX){
       for(size_t iSCY = 0; iSCY < nSupercrystalYBins; ++iSCY){
@@ -151,5 +151,57 @@ EcalSelectiveReadout::classifyTriggerTowers(const float towerEt[nTriggerTowersIn
       }
     }
   }
+}
+
+
+void EcalSelectiveReadout::print(std::ostream & os) const
+{
+  //EE-
+  printEndcap(0, os);
+
+  //EB
+  printBarrel(os);
+
+  //EE+
+  printEndcap(1, os);
+}
+
+
+void EcalSelectiveReadout::printBarrel(std::ostream & os) const
+{
+  for(size_t iEta = nEndcapTriggerTowersInEta;
+      iEta < nEndcapTriggerTowersInEta
+        + nBarrelTriggerTowersInEta;
+      ++iEta){
+    for(size_t iPhi = 0; iPhi < nTriggerTowersInPhi; ++iPhi){
+      towerInterest_t srFlag
+        = towerInterest[iEta][iPhi];
+      os << srpFlagMarker[srFlag];
+    }
+    os << "\n"; //one phi per line
+  }
+}
+
+
+const char EcalSelectiveReadout::srpFlagMarker[] = {'.', 'S', 'N', 'C', ' '};
+
+void EcalSelectiveReadout::printEndcap(int endcap, std::ostream & os) const
+{
+    for(size_t iX=0; iX<nSupercrystalXBins; ++iX){
+    for(size_t iY=0; iY<nSupercrystalYBins; ++iY){
+      towerInterest_t srFlag
+        = supercrystalInterest[endcap][iX][iY];
+        os << (srFlag==UNKNOWN?
+                    ' ':srpFlagMarker[srFlag]);
+    }
+    os << "\n"; //one Y supercystal column per line
+  } //next supercrystal X-index
+}
+
+
+std::ostream & operator<<(std::ostream & os, const EcalSelectiveReadout & selectiveReadout)
+{
+  selectiveReadout.print(os);
+  return os;
 }
 

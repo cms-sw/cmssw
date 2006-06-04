@@ -1,13 +1,13 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.h,v 1.2 2006/04/25 01:52:12 rpw Exp $
+ * $Id: EcalSelectiveReadout.h,v 1.3 2006/06/02 22:13:16 rpw Exp $
  */
 
 #ifndef ECALSELECTIVEREADOUT_H
 #define ECALSELECTIVEREADOUT_H
 
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
@@ -169,6 +169,12 @@ public:
    */
   towerInterest_t getTowerInterest(const EcalTrigTowerDetId & towerId) const;
 
+  /// print out the map
+  void print(std::ostream & os) const;
+
+  void printBarrel(std::ostream & os) const;
+  void printEndcap(int endcap, std::ostream & s) const;
+
 private:
 
   
@@ -208,6 +214,11 @@ private:
   int dEta;
   int dPhi;
 
+  // for printout
+  const static char srpFlagMarker[];
 
 };
+
+std::ostream & operator<<(std::ostream & os, const EcalSelectiveReadout & selectiveReadout);
+
 #endif
