@@ -114,115 +114,77 @@
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk1Fw" eval="true">
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x5/PixelForwardSensor2x5/PixelForwardActive2x5" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x5/PixelForwardSensor2x5/PixelForwardActive2x5" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2Right/PixelForwardActive1x2Right" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Right/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Right/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5Left/PixelForwardActive1x5Left" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2Left/PixelForwardActive1x2Left" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Left/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Left/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5Right/PixelForwardActive1x5Right" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x5Up/PixelForwardSensor2x5/PixelForwardActive2x5" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x5Down/PixelForwardSensor2x5/PixelForwardActive2x5" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2/PixelForwardActive1x2" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Right/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Right/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5/PixelForwardActive1x5" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2/PixelForwardActive1x2" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Left/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Left/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[1]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5/PixelForwardActive1x5" />
       <Parameter name="TrackerRadLength" value="0.076" />
       <Parameter name="TrackerXi" value="1.70e-04" />
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk2Fw" eval="true">
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x5/PixelForwardSensor2x5/PixelForwardActive2x5" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x5/PixelForwardSensor2x5/PixelForwardActive2x5" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2Right/PixelForwardActive1x2Right" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Right/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Right/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5Left/PixelForwardActive1x5Left" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2Left/PixelForwardActive1x2Left" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5Right/PixelForwardActive1x5Right" />
-      <Parameter name="TrackerRadLength" value="0.071" />
-      <Parameter name="TrackerXi" value="1.70e-04" />
-    </SpecPar>
-
-    <SpecPar name="TrackerRecMaterialPixelEndcapDisk3Fw" eval="true">
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel3Right/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel3Right/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel3Right/PixelForwardPlaquette2x5/PixelForwardSensor2x5/PixelForwardActive2x5" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel3Left/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel3Left/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel3Left/PixelForwardPlaquette2x5/PixelForwardSensor2x5/PixelForwardActive2x5" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2Right/PixelForwardActive1x2Right" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel4Right/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel4Right/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5Left/PixelForwardActive1x5Left" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2Left/PixelForwardActive1x2Left" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel4Left/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel4Left/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[3]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5Right/PixelForwardActive1x5Right" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x5Up/PixelForwardSensor2x5/PixelForwardActive2x5" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x5Down/PixelForwardSensor2x5/PixelForwardActive2x5" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2/PixelForwardActive1x2" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Right/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Right/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5/PixelForwardActive1x5" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2/PixelForwardActive1x2" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5/PixelForwardActive1x5" />
       <Parameter name="TrackerRadLength" value="0.071" />
       <Parameter name="TrackerXi" value="1.70e-04" />
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk1Bw" eval="true">
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x5/PixelForwardSensor2x5/PixelForwardActive2x5" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x5/PixelForwardSensor2x5/PixelForwardActive2x5" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2Right/PixelForwardActive1x2Right" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Right/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Right/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5Left/PixelForwardActive1x5Left" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2Left/PixelForwardActive1x2Left" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Left/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Left/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5Right/PixelForwardActive1x5Right" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Right/PixelForwardPlaquette2x5Up/PixelForwardSensor2x5/PixelForwardActive2x5" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel3Left/PixelForwardPlaquette2x5Down/PixelForwardSensor2x5/PixelForwardActive2x5" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2/PixelForwardActive1x2" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Right/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Right/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5/PixelForwardActive1x5" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2/PixelForwardActive1x2" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Left/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Left/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[1]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5/PixelForwardActive1x5" />
       <Parameter name="TrackerRadLength" value="0.076" />
       <Parameter name="TrackerXi" value="1.70e-04" />
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk2Bw" eval="true">
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x5/PixelForwardSensor2x5/PixelForwardActive2x5" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x5/PixelForwardSensor2x5/PixelForwardActive2x5" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2Right/PixelForwardActive1x2Right" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Right/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Right/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5Left/PixelForwardActive1x5Left" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2Left/PixelForwardActive1x2Left" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5Right/PixelForwardActive1x5Right" />
-      <Parameter name="TrackerRadLength" value="0.071" />
-      <Parameter name="TrackerXi" value="1.70e-04" />
-    </SpecPar>
-
-    <SpecPar name="TrackerRecMaterialPixelEndcapDisk3Bw" eval="true">
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel3Right/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel3Right/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel3Right/PixelForwardPlaquette2x5/PixelForwardSensor2x5/PixelForwardActive2x5" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel3Left/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel3Left/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel3Left/PixelForwardPlaquette2x5/PixelForwardSensor2x5/PixelForwardActive2x5" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2Right/PixelForwardActive1x2Right" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel4Right/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel4Right/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5Left/PixelForwardActive1x5Left" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2Left/PixelForwardActive1x2Left" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel4Left/PixelForwardPlaquette2x3/PixelForwardSensor2x3/PixelForwardActive2x3" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel4Left/PixelForwardPlaquette2x4/PixelForwardSensor2x4/PixelForwardActive2x4" />
-      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[3]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5Right/PixelForwardActive1x5Right" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Right/PixelForwardPlaquette2x5Up/PixelForwardSensor2x5/PixelForwardActive2x5" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel3Left/PixelForwardPlaquette2x5Down/PixelForwardSensor2x5/PixelForwardActive2x5" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Right/PixelForwardPlaquette1x2Right/PixelForwardSensor1x2/PixelForwardActive1x2" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Right/PixelForwardPlaquette2x3Down/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Right/PixelForwardPlaquette2x4Down/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Right/PixelForwardPlaquette1x5Left/PixelForwardSensor1x5/PixelForwardActive1x5" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x2Left/PixelForwardSensor1x2/PixelForwardActive1x2" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4" />
+      <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5/PixelForwardActive1x5" />
       <Parameter name="TrackerRadLength" value="0.071" />
       <Parameter name="TrackerXi" value="1.70e-04" />
     </SpecPar>
