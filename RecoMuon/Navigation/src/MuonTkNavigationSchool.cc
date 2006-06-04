@@ -5,8 +5,8 @@
  *  Navigation School for both Muon and Tk
  *  different algo from the one in ORCA
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/06/02 20:40:25 $
+ *  $Revision: 1.4 $
  *
  * \author : Chang Liu - Purdue University
  * \author Stefano Lacaprara - INFN Padova
@@ -40,6 +40,7 @@
 #include <map>
 #include <cmath>
 
+using namespace std;
 
 typedef std::vector<DetLayer*> LayerContainer;
 /* Constructor */
@@ -450,8 +451,8 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
                     secondOR = MuonEtaRange(tempR.max(),(*l).second.max());
                     tempR = MuonEtaRange((*l).second.min(),tempR.min());
                   }else {
-                    tempR = MuonEtaRange(tempR.max(),(*l).second.max());
                     secondOR = MuonEtaRange((*l).second.min(),tempR.min());
+                    tempR = MuonEtaRange(tempR.max(),(*l).second.max());
                   }
                   outerDoubleCheck = true;
                   break;
