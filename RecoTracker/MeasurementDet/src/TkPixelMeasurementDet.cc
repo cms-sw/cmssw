@@ -52,20 +52,21 @@ TkPixelMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
 }
 
 TransientTrackingRecHit* 
-TkPixelMeasurementDet::buildRecHit( const SiPixelCluster& cluster,
-				    const LocalTrajectoryParameters& ltp) const
+TkPixelMeasurementDet::buildRecHit( const SiPixelClusterRef & cluster,
+				    const LocalTrajectoryParameters & ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  LocalValues lv = theCPE->localParameters( cluster, gdu, ltp);
+  LocalValues lv = theCPE->localParameters( * cluster, gdu, ltp );
   return new TSiPixelRecHit( lv.first, lv.second, &geomDet(), cluster, theCPE);
 }
 
 TkPixelMeasurementDet::RecHitContainer 
-TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
+TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
 {
   RecHitContainer result;
-  for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
-    result.push_back( buildRecHit( *ci, ts.localParameters()));
+  for ( const_iterator ci = detSet_->begin(); ci != detSet_->end(); ++ ci ) {
+    SiPixelClusterRef cluster = edm::makeRefTo( handle_, id_, ci ); 
+    result.push_back( buildRecHit( cluster, ts.localParameters() ) );
   }
   return result;
 }

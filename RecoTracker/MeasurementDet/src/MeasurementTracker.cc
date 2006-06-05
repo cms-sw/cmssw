@@ -1,28 +1,27 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+#include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
 #include "RecoTracker/MeasurementDet/interface/TkPixelMeasurementDet.h"
 #include "RecoTracker/MeasurementDet/interface/TkGluedMeasurementDet.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
-
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"  
+
 
 #include <iostream>
 #include <typeinfo>
@@ -185,12 +184,10 @@ void MeasurementTracker::addGluedDet( const GluedGeomDet* gd,
   theDetMap[gd->geographicalId()] = det;
 }
 
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-
 void MeasurementTracker::update( const edm::Event& event) const
 {
   typedef SiStripClusterCollection::Range    StripClusterRange;
-  typedef SiPixelClusterCollection::Range    PixelClusterRange;
+  typedef SiPixelClusterCollection::detset   PixelDetSet;
 
   // std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
   //std::string stripClusterProducer ("ClusterProducer"); // FIXME SiStripClusterizer
@@ -207,7 +204,7 @@ void MeasurementTracker::update( const edm::Event& event) const
     // foreach det get cluster range
     StripClusterRange range = clusterCollection->get( (**i).geomDet().geographicalId().rawId());
     // push cluster range in det
-    (**i).update( range);
+    (**i).update( range );
   }
   //cout << "--- end of loop over dets" << endl;
 
@@ -222,9 +219,10 @@ void MeasurementTracker::update( const edm::Event& event) const
   for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
        i!=thePixelDets.end(); i++) {
     // foreach det get cluster range
-    PixelClusterRange range = pixelCollection->get( (**i).geomDet().geographicalId().rawId());
+    unsigned int id = (**i).geomDet().geographicalId().rawId();
+    const PixelDetSet & detSet = (*pixelCollection)[ id ];
     // push cluster range in det
-    (**i).update( range);
+    (**i).update( detSet, pixelClusters, id );
   }
   //cout << "--- end of loop over dets" << endl;
 
