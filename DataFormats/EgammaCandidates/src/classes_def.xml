@@ -39,5 +39,6 @@
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::ElectronCandidate>,reco::ElectronCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronCandidate>,reco::ElectronCandidate> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::PhotonCandidate>,reco::PhotonCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PhotonCandidate>,reco::PhotonCandidate> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::SiStripElectronCandidate>,reco::SiStripElectronCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectronCandidate>,reco::SiStripElectronCandidate> > >" />
+  <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
 </lcgdict>
 
