@@ -2,7 +2,6 @@
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
 #include<limits>
 
-
 using namespace boost;
 //TODO
 int XSIZE = 300;
@@ -162,7 +161,13 @@ void EcalSelectiveReadoutSuppressor::setTriggerTowers(const EcalTrigPrimDigiColl
     {
       float et = Et(*trigPrim); //or etWithoutBXID() ???
        // we want the indexing to go from zero.
-      unsigned int eta = trigPrim->id().ieta() + nTriggerTowersInEta/2 - 1;
+      int eta0 =  trigPrim->id().ieta();
+      unsigned int eta;
+      if(eta0<0){ //z- half ECAL: transforming ranges -28;-1 => 0;27
+	eta = eta0 + nTriggerTowersInEta/2;
+      } else{ //z+ halfECAL: transforming ranges 1;28 => 28;55
+	eta = eta0 + nTriggerTowersInEta/2 - 1;
+      }
       unsigned int phi = trigPrim->id().iphi() - 1;
       assert(eta<nTriggerTowersInEta);
       assert(phi<nTriggerTowersInPhi);
