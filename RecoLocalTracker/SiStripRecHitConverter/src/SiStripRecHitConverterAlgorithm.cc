@@ -14,6 +14,7 @@
 //DataFormats
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 //Geometry
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -22,6 +23,7 @@
 
 //messagelogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using namespace std;
 
 SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
@@ -33,13 +35,13 @@ SiStripRecHitConverterAlgorithm::~SiStripRecHitConverterAlgorithm() {
     delete clustermatch_;
   }
 }
-void SiStripRecHitConverterAlgorithm::run(const edm::DetSetVector<SiStripCluster>& input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator)
+void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::DetSetVector<SiStripCluster> >  input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator)
 {
   run(input, outmatched,outrphi,outstereo,tracker,parameterestimator,LocalVector(0.,0.,0.));
 }
 
 
-void SiStripRecHitConverterAlgorithm::run(const edm::DetSetVector<SiStripCluster>& input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator,LocalVector trackdirection)
+void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::DetSetVector<SiStripCluster> >  inputhandle,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator,LocalVector trackdirection)
 {
   //  const MagneticField *b=&BField;
   //const TrackerGeometry *geom=&tracker;
@@ -50,6 +52,8 @@ void SiStripRecHitConverterAlgorithm::run(const edm::DetSetVector<SiStripCluster
   int nunmatch=0;
   // get vector of detunit ids
   //const std::vector<unsigned int> detIDs = input->detIDs();
+  const edm::DetSetVector<SiStripCluster>& input = *inputhandle;
+  //  edm::DetSetVector<SiStripCluster> input=(edm::DetSetVector<SiStripCluster>)*inputhandle;
   for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter=input.begin(); DSViter!=input.end();DSViter++ ) {//loop over detectors
     //    bool isstereo=0;
     unsigned int id = DSViter->id;
@@ -65,27 +69,23 @@ void SiStripRecHitConverterAlgorithm::run(const edm::DetSetVector<SiStripCluster
 	edm::DetSet<SiStripCluster>::const_iterator begin=DSViter->data.begin();
 	edm::DetSet<SiStripCluster>::const_iterator end  =DSViter->data.end();
 	
-	//const SiStripClusterCollection::Range clusterRange = input->get(id);
-	//SiStripClusterCollection::ContainerIterator clusterRangeIteratorBegin = clusterRange.first;
-	//SiStripClusterCollection::ContainerIterator clusterRangeIteratorEnd   = clusterRange.second;
-	//SiStripClusterCollection::ContainerIterator iter;
 	StripSubdetector specDetId=StripSubdetector(id);
 	for(edm::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter){
 	  StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*iter,*stripdet);
-	  std::vector<const SiStripCluster*> clusters;
-	  clusters.push_back(&(*iter));
+	  //	  edm::RefVector< edm::DetSetVector <SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clusters;
+	  edm::Ref< edm::DetSetVector <SiStripCluster>,SiStripCluster > const & cluster=edm::makeRefTo(inputhandle,id,iter);
+	  std::cout<<"cluster= "<<(*iter).barycenter()<<endl;
+	  std::cout<<"clusterref= "<<cluster->barycenter()<<endl;
+	  //clusters.push_back(cluster);
 	  if(!specDetId.stereo()){
-	    collectorrphi.push_back(new SiStripRecHit2DLocalPos(parameters.first, parameters.second,detId,clusters));
+	    collectorrphi.push_back(new SiStripRecHit2DLocalPos(parameters.first, parameters.second,detId,cluster));
 	    nmono++;
 	  }
 	  if(specDetId.stereo()){
-	    collectorstereo.push_back(new SiStripRecHit2DLocalPos(parameters.first, parameters.second,detId,clusters));
+	    collectorstereo.push_back(new SiStripRecHit2DLocalPos(parameters.first, parameters.second,detId,cluster));
 	    nstereo++;
 	  }
 	}
-	//      SiStripRecHit2DLocalPosCollection::range inputRangerphi(make_pair(collectorrphi.begin(),collectorrphi.end()));
-	//      SiStripRecHit2DLocalPosCollection::range inputRangestereo(make_pair(collectorstereo.begin(),collectorstereo.end()));
-	
 	if (collectorrphi.size() > 0) {
 	  outrphi.put(DetId(id),collectorrphi.begin(),collectorrphi.end());
 	}

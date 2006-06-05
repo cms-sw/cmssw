@@ -46,9 +46,15 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DLocalPosCollection* input)
 	  LocalError error=rechit.localPositionError();
 	  //GeomDet& det=rechit->det();
 	  //DetId id=rechit.geographicalId();
-	  std::vector<const SiStripCluster*> clust=rechit.cluster();
+	  const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=rechit.cluster();
 	  edm::LogInfo("ReadRecHit")<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<"\n"
 	  <<"local error: "<<error.xx()<<" "<<error.xy()<<" "<<error.yy();
+	  if (clust.isNonnull ()){
+	    edm::LogInfo("ReadRecHit")<<"barycenter= "<<clust->barycenter();
+	  }
+	  else{
+	    edm::LogError("ReadRecHit")<<"The cluster is empty!";
+	  }
 	  //	  std::cout<<"det id: "<<id.rawid<<std::endl;
       }
     }

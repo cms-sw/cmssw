@@ -62,7 +62,7 @@ namespace cms
     std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
 
     // Step A: Get Inputs 
-    edm::Handle<edm::DetSetVector<SiStripCluster>> clusters;
+    edm::Handle<edm::DetSetVector<SiStripCluster> > clusters;
     e.getByLabel(clusterProducer, clusters);
 
     // Step B: create empty output collection
@@ -71,7 +71,7 @@ namespace cms
     std::auto_ptr<SiStripRecHit2DLocalPosCollection> outputstereo(new SiStripRecHit2DLocalPosCollection);
 
     // Step C: Invoke the seed finding algorithm
-    recHitConverterAlgorithm_.run(*clusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe);
+    recHitConverterAlgorithm_.run(clusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe);
 
     // Step D: write output to file
     e.put(outputmatched,"matchedRecHit");
