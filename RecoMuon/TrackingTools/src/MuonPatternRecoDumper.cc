@@ -10,6 +10,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace std;
+
 // Constructor 
 MuonPatternRecoDumper::MuonPatternRecoDumper() {
 }

@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/05/26 14:37:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/29 17:22:59 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -32,6 +32,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 using namespace edm;
+using namespace std;;
 
 /// Constructor with Propagator and Parameter set
 MuonTrajectoryUpdator::MuonTrajectoryUpdator(Propagator *propagator,

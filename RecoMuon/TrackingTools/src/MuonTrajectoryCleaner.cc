@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date:  $
- *  $Revision: $
+ *  $Date: 2006/04/26 06:54:15 $
+ *  $Revision: 1.1 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -11,6 +11,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace std; 
 
 void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){ 
 
