@@ -3,6 +3,8 @@
 #include<limits>
 
 using namespace boost;
+using namespace std;
+
 //TODO
 int XSIZE = 300;
 int YSIZE = 300;
@@ -63,13 +65,13 @@ void EcalSelectiveReadoutSuppressor::initCellThresholds(double barrelLowInterest
 
 double EcalSelectiveReadoutSuppressor::threshold(const EBDetId & detId) const {
   int interestLevel = ecalSelectiveReadout->getCrystalInterest(detId);
-  return zsThreshold[0][interestLevel];
+  return interestLevel!=EcalSelectiveReadout::UNKNOWN?zsThreshold[0][interestLevel]:-numeric_limits<double>::max();
 }
 
 
 double EcalSelectiveReadoutSuppressor::threshold(const EEDetId & detId) const {
   int interestLevel = ecalSelectiveReadout->getCrystalInterest(detId);
-  return zsThreshold[1][interestLevel];
+  return interestLevel!=EcalSelectiveReadout::UNKNOWN?zsThreshold[1][interestLevel]:-numeric_limits<double>::max();
 }
 
 
