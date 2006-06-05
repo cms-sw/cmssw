@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace edm {
    namespace eventsetup {
@@ -266,6 +267,7 @@ EventSetupProvider::finishConfiguration()
    RecordToPreferred recordToPreferred = determinePreferred(preferredProviderInfo_.get(),providers_);
    //For each Provider, find all the Providers it depends on.  If a dependent Provider
    // can not be found pass in an empty list
+   //CHANGE: now allow for missing Providers
    Providers::iterator itEnd = providers_.end();
    for(Providers::iterator itProvider = providers_.begin();
         itProvider != itEnd;
@@ -280,6 +282,7 @@ EventSetupProvider::finishConfiguration()
       
       std::set<EventSetupRecordKey> records = itProvider->second->dependentRecords();
       if(records.size() != 0) {
+         std::string missingRecords;
          std::vector<boost::shared_ptr<EventSetupRecordProvider> > depProviders;
          depProviders.reserve(records.size());
          bool foundAllProviders = true;
@@ -289,13 +292,27 @@ EventSetupProvider::finishConfiguration()
             Providers::iterator itFound =providers_.find(*itRecord);
             if(itFound == providers_.end()) {
                foundAllProviders = false;
-               break;
+               if(missingRecords.size() == 0) {
+                 missingRecords = itRecord->name();
+               } else {
+                 missingRecords += ", ";
+                 missingRecords += itRecord->name();
+               }
+               //break;
+            } else {
+               depProviders.push_back(itFound->second);
             }
-            depProviders.push_back(itFound->second);
          }
+         
          if(!foundAllProviders) {
-            depProviders.clear();
+            edm::LogWarning("EventSetupDependency")<<"The EventSetup record "<<itProvider->second->key().name()
+            <<" depends on at least one Record \n ("<<missingRecords<<") which is not present in the job."
+           "\n This may lead to failures during event processing.";
+
+            //depProviders.clear();
+           //NOTE: should provide a warning
          }
+          
          itProvider->second->setDependentProviders(depProviders);
       }
    }
