@@ -72,8 +72,8 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   // fill the em and jet collections with digis
   for (int i=0; i<4; i++) {
-    isoEmResult->push_back(m_gct->getIsoElectrons()[i].makeIsoEm());
-    nonIsoEmResult->push_back(m_gct->getNonIsoElectrons()[i].makeNonIsoEm());
+    isoEmResult->push_back(m_gct->getIsoElectrons()[i]);
+    nonIsoEmResult->push_back(m_gct->getNonIsoElectrons()[i]);
     cenJetResult->push_back(m_gct->getCentralJets()[i].makeCenJet());
     forJetResult->push_back(m_gct->getForwardJets()[i].makeForJet());
     tauJetResult->push_back(m_gct->getTauJets()[i].makeTauJet());

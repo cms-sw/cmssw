@@ -1,7 +1,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -34,25 +34,26 @@ L1GctSourceCard::~L1GctSourceCard()
 {
 }
 
-std::ostream& operator << (std::ostream& os, const L1GctSourceCard& card)
+ostream& operator << (ostream& os, const L1GctSourceCard& card)
 {
-  os << "SC ID " << card.m_id;
+  os << "===L1GctSourceCard===" << endl;
+  os << "ID " << card.m_id;
   os << " Type " << card.m_cardType;
   os << " File handle " << card.m_fin;
-  os << " BX " << card.m_currentBX << std::endl;
-  os << "No. of IsoElec " << card.m_isoElectrons.size() << std::endl;
+  os << " BX " << card.m_currentBX << endl;
+  os << "No. of IsoElec " << card.m_isoElectrons.size() << endl;
   for(uint i=0; i < card.m_isoElectrons.size(); i++)
     {
       os << card.m_isoElectrons[i];
     } 
-  os << "No. of NonIsoElec " << card.m_nonIsoElectrons.size() << std::endl;
+  os << "No. of NonIsoElec " << card.m_nonIsoElectrons.size() << endl;
   for(uint i=0; i < card.m_nonIsoElectrons.size(); i++)
     {
       os << card.m_nonIsoElectrons[i];
     }
   os << "MIPS " << card.m_mipBits;
-  os << " QUIET " << card.m_quietBits << std::endl;
-  os << "No. of Regions " << card.m_regions.size() << std::endl;
+  os << " QUIET " << card.m_quietBits << endl;
+  os << "No. of Regions " << card.m_regions.size() << endl;
   for(uint i=0; i < card.m_regions.size(); i++)
     {
       os << card.m_regions[i];
@@ -296,12 +297,12 @@ void L1GctSourceCard::getCables1And2()
   for(i=0; i < NUM_ELEC; ++i)
   {
     m_fin >> uLongBuffer;
-    m_isoElectrons[i] = makeEmCand(uLongBuffer);
+    m_isoElectrons[i] = makeEmCand(uLongBuffer, true);
   }
   for(i=0; i < NUM_ELEC; ++i)
   {
     m_fin >> uLongBuffer;
-    m_nonIsoElectrons[i] = makeEmCand(uLongBuffer);
+    m_nonIsoElectrons[i] = makeEmCand(uLongBuffer, false);
   }
 
   bool bitBuffer;        
@@ -369,7 +370,7 @@ void L1GctSourceCard::getCables3And4()
   for(i=4; i < NUM_REG_TYPE2; ++i)
   {
     m_fin >> uLongBuffer;
-    m_regions[i].setEt(uLongBuffer);
+    m_regions[i] = makeRegion(uLongBuffer);
   }
 
   return;
@@ -437,11 +438,11 @@ L1GctRegion L1GctSourceCard::makeRegion(ULong rctFileData) {
 }
 
 // make EM cand from file data
-L1GctEmCand L1GctSourceCard::makeEmCand(ULong rctFileData) {
+L1GctEmCand L1GctSourceCard::makeEmCand(ULong rctFileData, bool iso) {
     unsigned rank = rctFileData & 0x3f;
     rctFileData >>= 6;   //shift the remaining bits down, to remove the rank info         
     int phi = rctFileData & 0x1;  //1 bit of Phi
     int eta = (rctFileData & 0xE) >> 1;  //other 3 bits are eta
 
-    return L1GctEmCand(rank, eta, phi);
+    return L1GctEmCand(rank, eta, phi, iso, m_id/3);
 }

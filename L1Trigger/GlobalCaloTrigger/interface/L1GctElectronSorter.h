@@ -1,7 +1,8 @@
 #ifndef L1GCTELECTRONSORTER_H_
 #define L1GCTELECTRONSORTER_H_
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 
 #include <vector>

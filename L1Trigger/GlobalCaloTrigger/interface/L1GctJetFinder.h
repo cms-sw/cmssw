@@ -1,8 +1,9 @@
 #ifndef L1GCTJETFINDER_H_
 #define L1GCTJETFINDER_H_
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"

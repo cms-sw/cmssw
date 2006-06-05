@@ -1,7 +1,8 @@
 #ifndef L1GLOBALCALOTRIGGER_H_
 #define L1GLOBALCALOTRIGGER_H_
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEtTypes.h"
 

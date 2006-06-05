@@ -1,8 +1,9 @@
 #ifndef L1GCTELECTRONLEAFCARD_H_
 #define L1GCTELECTRONLEAFCARD_H_
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
 #include <vector>

@@ -1,8 +1,9 @@
 #ifndef L1GCTSOURCECARD_H_
 #define L1GCTSOURCECARD_H_
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
+
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
 
 #include <vector>
 #include <bitset>
@@ -127,7 +128,7 @@ class L1GctSourceCard
   void readBxNum();  
 
   L1GctRegion makeRegion(ULong rctFileData);
-  L1GctEmCand makeEmCand(ULong rctFileData);
+  L1GctEmCand makeEmCand(ULong rctFileData, bool iso);
 
 
  private:  // members

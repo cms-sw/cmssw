@@ -10,8 +10,8 @@
  */
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
+
 #include "FWCore/Utilities/interface/Exception.h"  
 
 #include <iostream>
@@ -28,14 +28,14 @@ L1GctElectronSorter::L1GctElectronSorter(int nInputs, bool iso, std::vector<L1Gc
 {
   if(m_theSCs.size()!=sourceCards.size()){
     throw cms::Exception("L1GctSetupError")
-      <<"L1GctElectronSorter::Constructor() : The number of Source Cards passed in the constructor doesn't correspond to the no of inputs given in the nInput variable";
+      <<"L1GctElectronSorter::L1GctELectronSorter() : The number of Source Cards passed in the constructor doesn't correspond to the no of inputs given in the nInput variable";
   }
   for(unsigned i=0;i!=sourceCards.size();i++){
     if(sourceCards[i]!=0){
       m_theSCs[i] = sourceCards[i];
     }else{
       throw cms::Exception("L1GctSetupError")
-	<<"L1GctElectronSorter::Constructor() : Pointer to Source Card #"<<i<<" is zero";
+	<<"L1GctElectronSorter::L1GctElectronSorter() : Pointer to Source Card #"<<i<<" is zero";
     }  
   }
 }
@@ -100,8 +100,8 @@ void L1GctElectronSorter::setInputEmCand(int i, L1GctEmCand cand){
 }
 
 std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& ems) {
-  //s << "===ElectronSorter===" << std::endl;
-  s << "Card type = " << ems.m_emCandType << std::endl;
+  s << "===L1GctElectronSorter===" << std::endl;
+  s << "Algo type = " << ems.m_emCandType << std::endl;
   s << "No of Source Cards = " << ems.m_theSCs.size() << std::endl;
   for (unsigned i=0; i<ems.m_theSCs.size(); i++) {
     s << "SourceCard* " << i << " = " << ems.m_theSCs[i]<<std::endl;
