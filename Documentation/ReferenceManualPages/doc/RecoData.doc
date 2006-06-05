@@ -31,90 +31,72 @@ Event products of Reconstruction.
 <tr valign=top>
   <th>Object type</th>
   <th>Container type</th>
-  <th>module label</th>
-  <th>instance name</th>
-  <th>branch alias</th>
+  <th>module label <i>[ : instance name [ : branch alias  ] ]</i></th>
   <th>description</th>
   <th>contact</th>
 </tr>
 <tr class="colgroup">
-  <td class="colgroup" colspan=7>Track collections</td>
+  <td class="colgroup" colspan=5>Track collections</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::Track \htmlonly </rd>
   <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
   <td>trackp</td>
-  <td>&nbsp;</td>
-  <td>tracks</td>
-  <td class="description">Collection of reconstructed tracks</td>
+  <td class="description">Reconstructed tracks</td>
   <td>&nbsp;</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
   <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
   <td>trackp</td>
-  <td>&nbsp;</td>
-  <td>trackExtras</td>
-  <td class="description">Collection of extra information associated to reconstructed tracks</td>
+  <td class="description">Extra track info associated to reconstructed tracks</td>
   <td>&nbsp;</td>
 </tr>
 <tr>
   <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
   <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
   <td>trackp</td>
-  <td>&nbsp;</td>
-  <td>trackHits</td>
-  <td class="description">Collection of RecHits used by reconstructed tracks</td>
+  <td class="description">RecHits used by reconstructed tracks</td>
   <td>&nbsp;</td>
 </tr>
 <tr class="colgroup">
-  <td class="colgroup" colspan=7>Ecal cluster collections</td>
+  <td class="colgroup" colspan=5>Ecal cluster collections</td>
 <tr>
   <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
   <td> \endhtmlonly reco::BasicClusterCollection \htmlonly </td>
-  <td>basicClsters</td>
-  <td>hybrid</td>
-  <td>hybridClusters</td>
-  <td class="description">Collection of basic clusters reconstructed with hybrid algorithm</td>
+  <td>basicClsters<i>:hybrid</i></td>
+  <td class="description">Basic clusters reconstructed with hybrid algorithm</td>
   <td>&nbsp;</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::BasicCluster \htmlonly </rd>
   <td> \endhtmlonly reco::BasicClusterCollection \htmlonly </td>
-  <td>basicClusters</td>
-  <td>island</td>
-  <td>islandClusters</td>
-  <td class="description">Collection of basic clusters reconstructed with island algorithm</td>
+  <td>basicClusters<i>:island</i></td>
+  <td class="description">Basic clusters reconstructed with island algorithm</td>
   <td>&nbsp;</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::SuperCluster \htmlonly </rd>
   <td> \endhtmlonly reco::SuperClusterCollection \htmlonly </td>
   <td>superClusters
-  <td>&nbsp;</td>
-  <td>superClusters</td>
-  <td class="description">Collection of super clusters</td>
+  <td class="description">Super clusters</td>
   <td>&nbsp;</td>
 </tr>
 <tr class="colgroup">
-  <td class="colgroup" colspan=7>CaloTower Candidates</td>
+  <td class="colgroup" colspan=5>CaloTower Candidates</td>
 <tr>
   <td> \endhtmlonly reco::RecoCaloTowerCandidate \htmlonly </rd>
   <td> \endhtmlonly reco::CandidateCollection \htmlonly </td>
   <td>calotowercandidate</td>
-  <td>&nbsp;</td>
-  <td>&nbsp;</td>
   <td class="description">Candidates collection derived from CaloTowers</td>
   <td> F.Ratnikov </td>
 </tr>
 <tr class="colgroup">
-  <td class="colgroup" colspan=7>CaloTowers based Jet collections</td>
+  <td class="colgroup" colspan=5>Jet collections: CaloTowers based</td>
 <tr>
   <td> \endhtmlonly CaloJet \htmlonly </rd>
   <td> \endhtmlonly CaloJetCollection \htmlonly </td>
   <td>CaloJetMcone5</td>
-  <td>&nbsp;</td>
-  <td>&nbsp;</td>
   <td class="description">MidpointCone R=0.5 jets </td>
   <td> F.Ratnikov </td>
 </tr>
@@ -122,8 +104,6 @@ Event products of Reconstruction.
   <td> \endhtmlonly CaloJet \htmlonly </rd>
   <td> \endhtmlonly CaloJetCollection \htmlonly </td>
   <td>CaloJetMcone7</td>
-  <td>&nbsp;</td>
-  <td>&nbsp;</td>
   <td class="description">MidpointCone R=0.7 jets </td>
   <td> F.Ratnikov </td>
 </tr>
@@ -131,8 +111,6 @@ Event products of Reconstruction.
   <td> \endhtmlonly CaloJet \htmlonly </rd>
   <td> \endhtmlonly CaloJetCollection \htmlonly </td>
   <td>CaloJetKt</td>
-  <td>&nbsp;</td>
-  <td>&nbsp;</td>
   <td class="description">Kt jets </td>
   <td> F.Ratnikov </td>
 </tr>
@@ -140,20 +118,16 @@ Event products of Reconstruction.
   <td> \endhtmlonly CaloJet \htmlonly </rd>
   <td> \endhtmlonly CaloJetCollection \htmlonly </td>
   <td>CaloJetIcone5</td>
-  <td>&nbsp;</td>
-  <td>&nbsp;</td>
   <td class="description">IterativeCone R=0.5 jets </td>
   <td> F.Ratnikov </td>
 </tr>
 <tr class="colgroup">
-  <td class="colgroup" colspan=7>HepMC particles based Jet collections</td>
+  <td class="colgroup" colspan=5>Jet collections: HepMC particles based</td>
 <tr>
 <tr>
   <td> \endhtmlonly GenJet \htmlonly </rd>
   <td> \endhtmlonly GenJetCollection \htmlonly </td>
   <td>GenJetMcone5</td>
-  <td>&nbsp;</td>
-  <td>&nbsp;</td>
   <td class="description">MidpointCone R=0.5 jets </td>
   <td> F.Ratnikov </td>
 </tr>
@@ -161,8 +135,6 @@ Event products of Reconstruction.
   <td> \endhtmlonly GenJet \htmlonly </rd>
   <td> \endhtmlonly GenJetCollection \htmlonly </td>
   <td>GenJetMcone7</td>
-  <td>&nbsp;</td>
-  <td>&nbsp;</td>
   <td class="description">MidpointCone R=0.7 jets </td>
   <td> F.Ratnikov </td>
 </tr>
@@ -170,8 +142,6 @@ Event products of Reconstruction.
   <td> \endhtmlonly GenJet \htmlonly </rd>
   <td> \endhtmlonly GenJetCollection \htmlonly </td>
   <td>GenJetKt</td>
-  <td>&nbsp;</td>
-  <td>&nbsp;</td>
   <td class="description">Kt jets </td>
   <td> F.Ratnikov </td>
 </tr>
@@ -179,8 +149,6 @@ Event products of Reconstruction.
   <td> \endhtmlonly GenJet \htmlonly </rd>
   <td> \endhtmlonly GenJetCollection \htmlonly </td>
   <td>GenJetIcone5</td>
-  <td>&nbsp;</td>
-  <td>&nbsp;</td>
   <td class="description">IterativeCone R=0.5 jets </td>
   <td> F.Ratnikov </td>
 </tr>
