@@ -17,8 +17,8 @@ L1GctEmLeafCard::L1GctEmLeafCard(int id, vector<L1GctSourceCard*> srcCards) :
   m_sorters(4),
   m_sourceCards(srcCards)
 {
-  vector<L1GctSourceCard*> firstHalf;
-  vector<L1GctSourceCard*> secondHalf;
+  vector<L1GctSourceCard*> firstHalf(4);
+  vector<L1GctSourceCard*> secondHalf(5);
   
   
   // check for the right number of source cards
@@ -39,9 +39,9 @@ L1GctEmLeafCard::L1GctEmLeafCard(int id, vector<L1GctSourceCard*> srcCards) :
 
   for(unsigned i=0;i!=m_sourceCards.size();i++){
     if(i<4){
-      firstHalf.push_back(m_sourceCards[i]);
+      firstHalf[i] = m_sourceCards[i];
     }else{
-      secondHalf.push_back(m_sourceCards[i]);
+      secondHalf[i-4] = m_sourceCards[i];
     }
   }
 
@@ -53,6 +53,7 @@ L1GctEmLeafCard::L1GctEmLeafCard(int id, vector<L1GctSourceCard*> srcCards) :
   m_sorters[2] = new L1GctElectronSorter(5,true, secondHalf);
   m_sorters[3] = new L1GctElectronSorter(5,false,secondHalf);
 }
+
 
 L1GctEmLeafCard::~L1GctEmLeafCard() 
 {
