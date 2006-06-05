@@ -26,13 +26,13 @@ L1GctRegion::~L1GctRegion() { }
 
 
 // set mip bit
-L1GctRegion::setMip(bool mip) {
+void L1GctRegion::setMip(bool mip) {
   if (mip) { m_data |= 0x1000; }
   else { m_data &= 0xefff; }
 }
 
 // set quiet bit
-L1GctRegion::setQuiet(bool quiet) {
+void L1GctRegion::setQuiet(bool quiet) {
   if (quiet) { m_data |= 0x2000; }
   else { m_data &= 0xdfff; }
 }

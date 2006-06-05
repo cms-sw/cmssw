@@ -20,18 +20,19 @@ public:
   L1GctCand(int rank, int phi, int eta);
   ~L1GctCand();
 
-  ///
+  
   /// get the raw data
   uint16_t raw() const { return m_data; }
-  ///
+  
   /// get rank bits
   int rank() const { return m_data & 0x3f; }
-  ///
+  
   /// get phi bits
   int phi() const { return (m_data>>6) & 0x1f; }
-  ///
+  
   /// get eta bits
   int eta() const { return (m_data>>11) & 0xf; }
+
 
 private:
 
@@ -39,20 +40,24 @@ private:
 
 };
 
-class L1GctIsoEm : public L1GctCand {
+class L1GctEmCand : public L1GctCand {
 public:
-  L1GctIsoEm();
-  L1GctIsoEm(uint16_t data);
-  L1GctIsoEm(int rank, int phi, int eta);
-  ~L1GctIsoEm();
- };
+  L1GctEmCand();
+  L1GctEmCand(uint16_t data);
+  L1GctEmCand(int rank, int phi, int eta, bool iso, unsigned rctCrate);
+  ~L1GctEmCand();
+ 
+  /// which stream did this come from
+  bool isolated() const { return m_iso; }
 
-class L1GctNonIsoEm : public L1GctCand {
-public:
-  L1GctNonIsoEm();
-  L1GctNonIsoEm(uint16_t data);
-  L1GctNonIsoEm(int rank, int phi, int eta);
-  ~L1GctNonIsoEm();
+  /// which RCT crate did this came from
+  int rctCrate() const { return m_rctCrate; }
+
+ private:
+
+  bool m_iso;
+  unsigned m_rctCrate;
+
  };
 
 class L1GctCenJet : public L1GctCand {
@@ -82,9 +87,7 @@ public:
 
 std::ostream& operator<<(std::ostream& s, const L1GctCand& cand);
 
-std::ostream& operator<<(std::ostream& s, const L1GctIsoEm& cand);
-
-std::ostream& operator<<(std::ostream& s, const L1GctNonIsoEm& cand);
+std::ostream& operator<<(std::ostream& s, const L1GctEmCand& cand);
 
 std::ostream& operator<<(std::ostream& s, const L1GctCenJet& cand);
 

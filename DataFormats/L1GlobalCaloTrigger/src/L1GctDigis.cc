@@ -16,22 +16,17 @@ L1GctCand::L1GctCand(int rank, int phi, int eta) {
 L1GctCand::~L1GctCand() { } 
 
 
-L1GctIsoEm::L1GctIsoEm() { }
+L1GctEmCand::L1GctEmCand() { }
 
-L1GctIsoEm::L1GctIsoEm(uint16_t data) : L1GctCand(data) { }
+L1GctEmCand::L1GctEmCand(uint16_t data) : L1GctCand(data) { }
 
-L1GctIsoEm::L1GctIsoEm(int rank, int phi, int eta) : L1GctCand(rank, phi, eta) { }
+L1GctEmCand::L1GctEmCand(int rank, int phi, int eta, bool iso, unsigned rctCrate) : 
+  L1GctCand(rank, phi, eta),
+  m_iso(iso),
+  m_rctCrate(rctCrate) {
+ }
 
-L1GctIsoEm::~L1GctIsoEm() { } 
-
-
-L1GctNonIsoEm::L1GctNonIsoEm() { }
-
-L1GctNonIsoEm::L1GctNonIsoEm(uint16_t data) : L1GctCand(data) { }
-
-L1GctNonIsoEm::L1GctNonIsoEm(int rank, int phi, int eta) : L1GctCand(rank, phi, eta) { }
-
-L1GctNonIsoEm::~L1GctNonIsoEm() { } 
+L1GctEmCand::~L1GctEmCand() { } 
 
 
 L1GctCenJet::L1GctCenJet() { }
@@ -66,12 +61,7 @@ ostream& operator<<(ostream& s, const L1GctCand& cand) {
   return s;
 }
 
-ostream& operator<<(ostream& s, const L1GctIsoEm& cand) {
-  s << "rank=" << cand.rank() << ", eta=" << cand.eta() << ", phi=" << cand.phi();
-  return s;
-}
-
-ostream& operator<<(ostream& s, const L1GctNonIsoEm& cand) {
+ostream& operator<<(ostream& s, const L1GctEmCand& cand) {
   s << "rank=" << cand.rank() << ", eta=" << cand.eta() << ", phi=" << cand.phi();
   return s;
 }
