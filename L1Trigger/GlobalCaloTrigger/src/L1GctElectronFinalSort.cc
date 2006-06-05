@@ -20,7 +20,7 @@
 L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* card1,L1GctEmLeafCard* card2):
   m_emCandsType(iso),
   m_theLeafCards(2),
-  m_inputCands(8),
+  m_inputCands(16),
   m_outputCands(4)
 {
   if(card1!=0){
@@ -56,14 +56,14 @@ void L1GctElectronFinalSort::fetchInput() {
     for (int j=0; j<2; j++) { /// loop over FPGAs
       for (int k=0; k<4; k++) {  /// loop over candidates
 	if (m_emCandsType) {
-	  setInputEmCand((i*4)+(j*2)+k, m_theLeafCards[i]->getOutputIsoEmCands(j)[k]); 
+	  setInputEmCand((i*8)+(j*4)+k, m_theLeafCards[i]->getOutputIsoEmCands(j)[k]); 
 	}
 	else {
-	  setInputEmCand((i*4)+(j*2)+k, m_theLeafCards[i]->getOutputNonIsoEmCands(j)[k]);
+	  setInputEmCand((i*8)+(j*4)+k, m_theLeafCards[i]->getOutputNonIsoEmCands(j)[k]);
 	}
       }
-    }   
-  }  
+    }     
+  }
 }
 
 void L1GctElectronFinalSort::process(){
@@ -71,20 +71,18 @@ void L1GctElectronFinalSort::process(){
   for(unsigned i=0;i!=m_inputCands.size();i++){
     if(m_inputCands[i].rank()==0){
       throw cms::Exception("L1GctSetupError")
-	<<"L1GctElectronFinalSort::process() : No input candidate in vector at "<<i<<" ";
-    }else{
-   
-      //Make temporary copy of data
-      std::vector<L1GctEmCand> data = m_inputCands;
-      
-      //Then sort it
-      sort(data.begin(),data.end(),rank_gt());
-      
-      //Copy data to output buffer
-      for(int i = 0; i<4; i++){
-	m_outputCands[i] = data[i];
-      }
+      <<"L1GctElectronFinalSort::process() : No input candidate in vector at "<<i<<" ";
     }
+  }
+  //Make temporary copy of data
+  std::vector<L1GctEmCand> data = m_inputCands;
+ 
+  //Then sort it
+  sort(data.begin(),data.end(),rank_gt());
+  
+  //Copy data to output buffer
+  for(int i = 0; i<4; i++){
+    m_outputCands[i] = data[i];
   }
 }
 
