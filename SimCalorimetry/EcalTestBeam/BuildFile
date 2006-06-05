@@ -1,0 +1,21 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=SimCalorimetry/EcalSimAlgos>
+<use name=SimDataFormats/CrossingFrame>
+<use name=Geometry/CaloEventSetup>
+<use name=CondFormats/DataRecord>
+<use name=TBDataFormats/EcalTBObjects>
+
+<flags SEAL_PLUGIN_NAME="SimCalorimetryEcalTestBeam">
+<export>
+   <lib name=SimCalorimetryEcalSimProducers>
+   <use name=SimCalorimetry/EcalSimAlgos>
+   <use name=SimDataFormats/CrossingFrame>
+   <use name=Geometry/CaloEventSetup>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=CondFormats/DataRecord>
+   <use name=TBDataFormats/EcalTBObjects>
+</export>
