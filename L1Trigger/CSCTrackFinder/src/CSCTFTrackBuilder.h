@@ -4,12 +4,11 @@
 #include <vector>
 #include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-
-#include <L1Trigger/CSCTrackFinder/interface/CSCTFSectorProcessor.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+
+class CSCMuonPortCard;
+class CSCTFSectorProcessor;
 
 class CSCTFTrackBuilder
 {
@@ -25,7 +24,7 @@ class CSCTFTrackBuilder
   
  private:
 
-
+  CSCMuonPortCard* m_muonportcard;
   CSCTFSectorProcessor* my_SPs[nEndcaps][nSectors];
 };
 

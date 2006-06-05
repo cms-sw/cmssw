@@ -219,7 +219,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
   CSCChamber* thechamber = NULL;
   CSCLayer* thelayer = NULL;
   CSCLayerGeometry* layergeom = NULL;
-  unsigned cscid = address.cscid;
+  int cscid = address.cscid;
   unsigned wire_group = address.wire_group;
   unsigned local_phi = address.phi_local;
   const double sectorOffset = (CSCConstants::SECTOR1_CENT_RAD-CSCConstants::SECTOR_RAD/2.) + (_sector-1)*M_PI/3.;
@@ -232,7 +232,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
   int maxPhiL = 1<<CSCBitWidths::kLocalPhiDataBitWidth;
   const double binPhiL = static_cast<double>(maxPhiL)/(2.*CSCConstants::MAX_NUM_STRIPS);
 
-  if(static_cast<unsigned>(cscid) < CSCTriggerNumbering::minTriggerCscId() || static_cast<unsigned>(cscid) > CSCTriggerNumbering::maxTriggerCscId())
+  if(cscid < CSCTriggerNumbering::minTriggerCscId() || cscid > CSCTriggerNumbering::maxTriggerCscId())
     {
       LogDebug("CSCSectorReceiverLUT|getGlobalPhiValue") << " warning: cscId " << cscid
 							 << " is out of bounds (1-" << CSCTriggerNumbering::maxTriggerCscId();

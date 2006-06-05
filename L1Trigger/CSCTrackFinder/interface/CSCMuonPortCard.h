@@ -21,7 +21,7 @@
 class CSCMuonPortCard
 {
  public:
-  CSCMuonPortCard();
+  CSCMuonPortCard() {};
 
   typedef CSCTriggerContainer<CSCTrackStub> TrackStubList;
 
@@ -32,7 +32,7 @@ class CSCMuonPortCard
   //returns a vector of vectors of TrackStubs indexed by [sorting]
   std::vector<CSCTrackStub> sort(const unsigned& endcap, const unsigned& station, 
 				 const unsigned& sector, const unsigned& subsector, 
-				 const int& bx = 0);
+				 const int& bx);
 
   void clear() { _stubs.clear(); }
 

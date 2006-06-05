@@ -31,6 +31,9 @@ class CSCTFSectorProcessor
 
   CSCTriggerContainer<csc::L1Track> tracks() const { return l1_tracks; }
 
+  int minBX() const { return m_minBX; }
+  int maxBX() const { return m_maxBX; }
+
  private:
   // disallow copy and assignment
   CSCTFSectorProcessor& operator=(const CSCTFSectorProcessor& rhs) { return *this; };
