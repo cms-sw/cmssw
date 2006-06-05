@@ -23,6 +23,7 @@ sub new {
 		   'EE' => \&define_EE,
 		   'EB_crystal_number' => \&define_EB_crystal_number,
 		   'EB_elec_crystal_number' => \&define_EB_elec_crystal_number,
+		   'EB_fe_crystal_number' => \&define_EB_fe_crystal_number,
 		   'EB_crystal_index' => \&define_EB_crystal_index,
 		   'EB_trigger_tower' => \&define_EB_trigger_tower,
 		   'EB_supermodule' => \&define_EB_supermodule,
@@ -56,6 +57,8 @@ sub new {
 		   => \&define_EB_crystal_number_to_EB_LM_channel,
 		   'EB_crystal_number_to_EB_elec_crystal_number'
 		   => \&define_EB_crystal_number_to_EB_elec_crystal_number,
+		   'EB_crystal_number_to_EB_fe_crystal_number'
+		   => \&define_EB_crystal_number_to_EB_fe_crystal_number,
 		   'EB_elec_crystal_number_to_EB_crystal_number',
 		   => \&define_EB_elec_crystal_number_to_EB_crystal_number
 		  };
@@ -228,6 +231,29 @@ sub define_EB_elec_crystal_number {
       my $logic_id = sprintf "1013%02d%04d", $SM, $xtal;
       push @logic_ids, $logic_id;
       push @channel_ids, [ $SM, $xtal ];
+    }
+  }
+
+  return {name => $name, idnames => $idnames,
+	  description => $description,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids};
+}
+
+
+sub define_EB_fe_crystal_number {
+  my $name = "EB_fe_crystal_number";
+  my $idnames = ["SM", "TT", "channel"];
+  my $description = "ECAL Barrel crystals, front-end configuration numbering scheme";
+
+  my @logic_ids;
+  my @channel_ids;
+  foreach my $SM (0..36) {
+    foreach my $TT (1..68) {
+      foreach my $xtal (0..24) {
+	my $logic_id = sprintf "1014%02d%02d%02d", $SM, $TT, $xtal;
+	push @logic_ids, $logic_id;
+	push @channel_ids, [ $SM, $TT, $xtal ];
+      }
     }
   }
 
@@ -786,6 +812,49 @@ sub define_EB_crystal_number_to_EB_elec_crystal_number {
 	 };
 }
 
+
+
+sub define_EB_crystal_number_to_EB_fe_crystal_number {
+  my $fecn_def = define_EB_fe_crystal_number();
+  my $fecn_logic_ids = $fecn_def->{logic_ids};
+  my $fecn_channel_ids = $fecn_def->{channel_ids};
+  my $count = scalar @{$fecn_logic_ids};
+
+  my $name = "EB_crystal_number";
+  my $maps_to = "EB_fe_crystal_number";
+
+  my @logic_ids;
+  my @channel_ids;
+
+  foreach my $SM (0..36) {
+    foreach my $cn (1..1700) {
+      my ($tt, $fecn) = cn_to_fecn($cn);
+      
+      # get the logic_id for this fecn channel
+      my $fecn_id;
+      for my $i (0..$count-1) {
+	my @ids = @{$$fecn_channel_ids[$i]};
+	if ($ids[0] == $SM && $ids[1] == $tt && $ids[2] == $fecn) {
+	  $fecn_id = $$fecn_logic_ids[$i];
+	  last;
+	}
+      }
+      if (!defined $fecn_id) {
+	die "Cannot determine logic_id of crystal channel SM=$SM, fecn=$fecn\n";
+      }
+      
+      # set the mapping
+      push @logic_ids, $fecn_id;
+      push @channel_ids, [$SM, $cn];          
+    }
+  }
+  
+  return { 
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
 sub define_EB_elec_crystal_number_to_EB_crystal_number {
   my $cn_def = define_EB_crystal_number();
   my $cn_logic_ids = $cn_def->{logic_ids};
@@ -1088,6 +1157,62 @@ sub cn_to_ecn {
 #  $cn, $ecn, $tti, $ttj, $tt, $min_ecn, $min_ecn_col, $tt_xtal_col;
 
   return $ecn;
+}
+
+
+
+sub cn_to_fecn {
+  my $cn = shift;
+
+  # get the tt number
+  my $i = POSIX::floor(($cn-1)/20.0);
+  my $j = ($cn-1) - 20*$i;
+  
+  # calculate the tt channel indexes
+  my $ttj = POSIX::floor($j/5.0);
+  my $tti = POSIX::floor($i/5.0);
+      
+  # the trigger tower - 1
+  my $tt = $ttj + 4*$tti;
+     
+  # the minimum ecn for the trigger tower
+  my $min_ecn = $tt*25;
+  # the minimum ecn for first row in the tt column
+  my $min_ecn_col = $tti*100;
+  # the column within the trigger tower
+  my $tt_xtal_col = $i - 5*$tti;
+
+  # determine whether this is a bottom up or a top down tower
+  my $ecn;
+  if ($tt < 12 ||
+      $tt >= 20 && $tt < 28 ||
+      $tt >= 36 && $tt < 44 ||
+      $tt >= 52 && $tt < 60) {
+    # bottom up "S" pattern
+    if ($tt_xtal_col % 2 == 0) {
+      # even column
+      $ecn = $min_ecn + ((25 + 15*$tt_xtal_col) - ($cn - $min_ecn_col - 5*$ttj));
+    } else {
+      # odd column
+      $ecn = $min_ecn + ($cn - $min_ecn_col - (5*$ttj) - 6 - (($tt_xtal_col - 1) * 25));
+    }
+  } else {
+    # top down "S" pattern
+    if ($tt_xtal_col % 2 == 0) {
+      # even column
+      $ecn = $min_ecn + ($cn - $min_ecn_col - (5*$ttj) - (15*$tt_xtal_col) - 1);
+    } else {
+      # odd column
+      $ecn = $min_ecn + (30 + (($tt_xtal_col - 1) * 25) - ($cn - $min_ecn_col - (5*$ttj)));
+    }
+  }
+
+  my $fecn = $ecn - ($tt*25);
+
+# printf "cn_to_fecn %4d -> %4d ... tti %2d ttj %2d tt %2d min_ecn %4d min_ecn_col %4d tt_xtal_col %1d\n", 
+#   $cn, $fecn, $tti, $ttj, $tt, $min_ecn, $min_ecn_col, $tt_xtal_col;
+
+  return ($tt+1, $fecn);
 }
 
 1;
