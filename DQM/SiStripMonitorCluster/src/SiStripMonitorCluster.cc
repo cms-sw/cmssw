@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.11 2006/05/31 19:42:03 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.12 2006/06/04 13:48:50 dkcira Exp $
 //
 //
 
@@ -106,22 +106,22 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
       folder_organizer.setDetectorFolder(*detid_iterator); // pass the detid to this method
       //nr. of clusters per module
       hid = hidmanager.createHistoId("ClustersPerDetector","det",*detid_iterator);
-      local_modmes.NrClusters = dbe_->book1D(hid, hid, 31,-0.5,30.5);
+      local_modmes.NrClusters = dbe_->book1D(hid, hid, 5,-0.5,4.5);
       //ClusterPosition
       hid = hidmanager.createHistoId("ClusterPosition","det",*detid_iterator);
-      local_modmes.ClusterPosition = dbe_->book1D(hid, hid, 30,-0.5,128.5);
+      local_modmes.ClusterPosition = dbe_->book1D(hid, hid, 20,0.,900.);
       //ClusterWidth
       hid = hidmanager.createHistoId("ClusterWidth","det",*detid_iterator);
       local_modmes.ClusterWidth = dbe_->book1D(hid, hid, 10,-0.5,10.5);
       //ClusterWidth
       hid = hidmanager.createHistoId("ClusterCharge","det",*detid_iterator);
-      local_modmes.ClusterCharge = dbe_->book1D(hid, hid, 31,-0.5,30.5);
+      local_modmes.ClusterCharge = dbe_->book1D(hid, hid, 31,-0.5,100.5);
       //ModuleLocalOccupancy
       hid = hidmanager.createHistoId("ModuleLocalOccupancy","det",*detid_iterator);
-      local_modmes.ModuleLocalOccupancy = dbe_->book1D(hid, hid, 20,0.,0.1);// occupancy goes from 0 to 1, probably not over some limit value (here 0.1)
+      local_modmes.ModuleLocalOccupancy = dbe_->book1D(hid, hid, 20,-0.005,0.05);// occupancy goes from 0 to 1, probably not over some limit value (here 0.1)
       //NrOfClusterizedStrips
       hid = hidmanager.createHistoId("NrOfClusterizedStrips","det",*detid_iterator);
-      local_modmes.NrOfClusterizedStrips = dbe_->book1D(hid, hid, 21,-0.,19.5);
+      local_modmes.NrOfClusterizedStrips = dbe_->book1D(hid, hid, 20,-0.5,9.5);
       // append to ClusterMEs
       ClusterMEs.insert( std::make_pair(*detid_iterator, local_modmes));
     }
@@ -163,8 +163,8 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     edm::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
 
     if(local_modmes.NrClusters != NULL){ // nr. of clusters per module
-//      std::cout<<"detid="<<detid<<" cluster_detset.data.size()="<<cluster_detset.data.size()<<endl;
       (local_modmes.NrClusters)->Fill(static_cast<float>(cluster_detset.data.size()),1.);
+//      std::cout<<"detid="<<detid<<" cluster_detset.data.size()="<<cluster_detset.data.size()<<endl;
     }
     if(local_modmes.ClusterPosition != NULL){ // position of cluster
       for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
@@ -186,7 +186,9 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
         const std::vector<short>& ampls = clusterIter->amplitudes();
         short local_charge = 0;
+//        std::cout<<"testcharge1----- "<<detid<<" "<<ampls.size()<<std::endl;
         for(std::vector<short>::const_iterator iampls = ampls.begin(); iampls<ampls.end(); iampls++){
+//        std::cout<<"testcharge2      "<<*iampls<<std::endl;
           local_charge += *iampls;
         }
         (local_modmes.ClusterCharge)->Fill(static_cast<float>(local_charge),1.);
