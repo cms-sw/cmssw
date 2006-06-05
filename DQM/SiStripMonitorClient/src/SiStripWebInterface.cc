@@ -21,14 +21,15 @@ SiStripWebInterface::SiStripWebInterface(std::string theContextURL, std::string 
 
   Navigator * nav = new Navigator(getApplicationURL(), "50px", "50px");
   ContentViewer * cont = new ContentViewer(getApplicationURL(), "180px", "50px");
-  GifDisplay * dis = new GifDisplay(getApplicationURL(), "50px","370px", "270px", "570px", "MyGifDisplay"); 
+  GifDisplay * dis = new GifDisplay(getApplicationURL(), "25px","300px", "400px", "550px", "MyGifDisplay"); 
 
   Button * subcrBut = new Button(getApplicationURL(), "320px", "50px", "SubscribeAll", "Subscribe All");
-  Button * compBut = new Button(getApplicationURL(), "360px", "50px", "CompareWithRef", "Setup Quality Test");
-  Button * tkMapBut = new Button(getApplicationURL(), "400px", "50px", "CreateTrackerMap", "Create TrackerMap");
-  Button * sumBut = new Button(getApplicationURL(), "440px", "50px", "CreateSummary", "Create Summary");
-  Button * saveBut = new Button(getApplicationURL(), "480px", "50px", "SaveToFile", "Save To File");
-  Button * collBut = new Button(getApplicationURL(), "512px", "50px", "CollateME", "Collate ME");
+  Button * compBut = new Button(getApplicationURL(), "360px", "50px", "SetUpQTest", "Setup Quality Test");
+  Button * sumBut = new Button(getApplicationURL(), "400px", "50px", "CreateSummary", "Create Summary");
+  Button * collBut = new Button(getApplicationURL(), "440px", "50px", "CollateME", "Collate ME");
+  Button * tkMapBut1 = new Button(getApplicationURL(), "480px", "50px", "CreateTrackerMap1", "Create Persistant TrackerMap");
+  Button * tkMapBut2 = new Button(getApplicationURL(), "480px", "300px", "CreateTrackerMap2", "Create TempTrackerMap");
+  Button * saveBut = new Button(getApplicationURL(), "480px", "550px", "SaveToFile", "Save To File");
 
 
   page_p = new WebPage(getApplicationURL());
@@ -37,10 +38,11 @@ SiStripWebInterface::SiStripWebInterface(std::string theContextURL, std::string 
   page_p->add("gifDisplay", dis);
   page_p->add("Sbbutton", subcrBut);
   page_p->add("Cbutton", compBut);
-  page_p->add("Tbutton", tkMapBut);
   page_p->add("Smbutton", sumBut);
   page_p->add("SvButton", saveBut);
   page_p->add("ClButton", collBut);
+  page_p->add("Tbutton1", tkMapBut1);
+  page_p->add("Tbutton2", tkMapBut2);
 
   if (theActionExecutor == 0) theActionExecutor = new SiStripActionExecutor();
 }
@@ -67,10 +69,11 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
 
   if (requestID == "SubscribeAll") subscribeAll(in, out);
   if (requestID == "CompareWithRef") setupQTest(in, out);
-  if (requestID == "CreateTrackerMap") createTkMap(in, out);
   if (requestID == "CreateSummary") createSummary(in, out);
   if (requestID == "SaveToFile") saveToFile(in, out);
   if (requestID == "CollateME") collateME(in, out);
+  if (requestID == "CreateTrackerMap1") createTkMap(in, out, 1);
+  if (requestID == "CreateTrackerMap2") createTkMap(in, out, 2);
 }
 //
 // -- Subscribe All
@@ -93,7 +96,10 @@ void SiStripWebInterface::setupQTest(xgi::Input * in, xgi::Output *out) throw (x
 //
 // -- Create Tracker Map
 //
-void SiStripWebInterface::createTkMap(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception)
+//
+// -- Create Tracker Map
+//
+void SiStripWebInterface::createTkMap(xgi::Input * in, xgi::Output *out, int iflg) throw (xgi::exception::Exception)
 {
   std::cout << "A createTkMap request was received" << endl;
   int updates = getUpdates();
@@ -104,7 +110,19 @@ void SiStripWebInterface::createTkMap(xgi::Input * in, xgi::Output *out) throw (
     cout << " Not enough updates received !!" << endl;
     return;
   }
+  if (iflg == 1) {
+    system("rm -rf tkmap_files_old"); 
+    system("mv tkmap_files tkmap_files_old");
+    system("mkdir -p tkmap_files");    
+  } else if (iflg == 2) {
+    system("mkdir -p tkmap_files");
+    system("rm -rf tkmap_files/*.jpg; rm -rf tkmap_files/*.svg");    
+  }
+
   theActionExecutor->createTkMap((*mui_p));
+
+  system(" mv *.jpg tkmap_files/. ; mv *.svg tkmap_files/.");
+  
   return;
 }
 //

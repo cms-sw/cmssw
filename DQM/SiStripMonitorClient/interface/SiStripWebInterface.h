@@ -19,7 +19,7 @@ class SiStripWebInterface : public WebInterface
 
   void subscribeAll(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
   void setupQTest(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
-  void createTkMap(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
+  void createTkMap(xgi::Input * in, xgi::Output *out, int iflg) throw (xgi::exception::Exception);
   void createSummary(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
   void saveToFile(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
   void collateME(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception);
