@@ -28,7 +28,8 @@ namespace csc{
 
       virtual ~L1Track();
 
-      void setRank(const unsigned&);
+      unsigned rank() const;
+      void setRank(const unsigned& rank) { m_id.setRank(rank); }
       float ptValueMid() const;
       float etaValueLow() const;
       float phiValueMid() const;
@@ -39,13 +40,23 @@ namespace csc{
 
       void addTrackStub(const CSCDetId&, const CSCCorrelatedLCTDigi&);
       
-      float side() const { return m_id.side(); }
+      unsigned endcap() const { return m_id.side(); }
       unsigned sector() const { return m_sector; }
-      void setSector(const unsigned& sector) { m_sector = sector; }
+      unsigned station() const { return 0; }
+      // these next two are needed by the trigger container class
+      unsigned subsector() const { return 0; }
+      unsigned cscid() const { return 0; } 
 
+      int BX() const { return bx(); }
+
+      void setSector(const unsigned& sector) { m_sector = sector; }
+      
       static unsigned encodeRank(const unsigned& pt, const unsigned& quality);
       static void decodeRank(const unsigned& rank, unsigned& pt, unsigned& quality);
       static unsigned encodePt(const double& pt); 
+
+      unsigned ptLUTAddress() const { return m_ptAddress; }
+      void setPtLUTAddress(const unsigned& adr) { m_ptAddress = adr; }
 
       bool operator>(const csc::L1Track&) const;
       bool operator<(const csc::L1Track&) const;
@@ -63,9 +74,9 @@ namespace csc{
       std::string m_name;
       L1TrackId m_id;
       unsigned m_lphi;
-      unsigned m_rank;
       unsigned m_ptAddress;
       unsigned m_sector;
+      int m_bx;
       bool m_empty;
      };
 }

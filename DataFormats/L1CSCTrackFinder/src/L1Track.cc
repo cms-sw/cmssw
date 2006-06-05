@@ -23,7 +23,6 @@ namespace csc {
     m_sector = rhs.m_sector;
     m_empty = rhs.m_empty;
     m_lphi = rhs.m_lphi;
-    m_rank = rhs.m_rank;
     m_id = rhs.m_id;
     m_ptAddress = rhs.m_ptAddress;
   }
@@ -44,7 +43,6 @@ namespace csc {
 	this->setBx(rhs.bx());
 	this->setDataWord(rhs.getDataWord());
 	m_name    = rhs.m_name;
-	m_rank    = rhs.m_rank;
 	m_lphi    = rhs.m_lphi;
 	this->setType(rhs.type_idx());
 	this->setPhiPacked(rhs.phi_packed());
@@ -60,9 +58,9 @@ namespace csc {
     return *this;
   }
 
-  void L1Track::setRank(const unsigned& therank)
+  unsigned L1Track::rank() const
   {
-    m_id.setRank(((therank>=0 && therank < (1<<L1TrackId::kRankBitWidth) ) ? therank : 0));
+    return pt_packed() | quality_packed() << 5;
   }
 
   float L1Track::ptValueMid() const
@@ -133,27 +131,27 @@ namespace csc {
 
   bool L1Track::operator<(const csc::L1Track& rhs) const
   {
-    return (m_id.rank() < rhs.m_id.rank());
+    return (rank() < rhs.rank());
   }
 
   bool L1Track::operator>=(const csc::L1Track& rhs) const
   {
-    return (m_id.rank() >= rhs.m_id.rank());
+    return (rank() >= rhs.rank());
   }
 
   bool L1Track::operator<=(const csc::L1Track& rhs) const
   {
-    return (m_id.rank() <= rhs.m_id.rank());
+    return (rank() <= rhs.rank());
   }
 
   bool L1Track::operator==(const csc::L1Track& rhs) const
   {
-    return (m_id.rank() == rhs.m_id.rank());
+    return (rank() == rhs.rank());
   }
   
   bool L1Track::operator!=(const csc::L1Track& rhs) const
   {
-    return (m_id.rank() != rhs.m_id.rank());
+    return (rank() != rhs.rank());
   }  
 }
 
@@ -164,7 +162,7 @@ ostream& operator << (ostream& output, csc::L1Track& rhs) {
            << " Eta(int): " << " " << rhs.eta_packed()
            << " Quality: "  << " " << rhs.quality_packed()
            << " charge: "   << " " << rhs.chargeValue()
-           << " side: "   << " " << rhs.side()
+           << " side: "   << " " << rhs.endcap()
            << " bx: "       << " " << rhs.bx()
            << endl;
     output << "\t  Pt(float): "  << " " << rhs.ptValue()
@@ -178,7 +176,7 @@ ostream& operator << (ostream& output, csc::L1Track& rhs) {
            << " Eta(int): " << " " << rhs.eta_packed()
            << " Quality: "  << " " << "unassigned or zero"
            << " charge: "   << " " << rhs.chargeValue()
-           << " side: "   << " " << rhs.side()
+           << " side: "   << " " << rhs.endcap()
            << " bx: "       << " " << rhs.bx()
            << endl;
     output << "\t  Phi(float): " << " " << rhs.phiValueMid()
@@ -195,7 +193,7 @@ std::ostream& operator << (ostream& output,  const csc::L1Track& rhs) {
            << " Eta(int): " << " " << rhs.eta_packed()
            << " Quality: "  << " " << rhs.quality()
            << " charge: "   << " " << rhs.chargeValue()
-           << " side: "   << " " << rhs.side()
+           << " side: "   << " " << rhs.endcap()
            << " bx: "       << " " << rhs.bx()
            << endl;
     output << "\t  Pt(float): "  << " " << rhs.ptValue()
@@ -209,7 +207,7 @@ std::ostream& operator << (ostream& output,  const csc::L1Track& rhs) {
            << " Eta(int): " << " " << rhs.eta_packed()
            << " Quality: "  << " " << "unassigned or zero"
            << " charge: "   << " " << rhs.chargeValue()
-           << " side: "   << " " << rhs.side()
+           << " side: "   << " " << rhs.endcap()
            << " bx: "       << " " << rhs.bx()
            << endl;
     output << "\t  Phi(float): " << " " << rhs.phiValueMid()
