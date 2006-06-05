@@ -35,7 +35,7 @@ std::string GeometryConfiguration::getSchemaLocation() const {
 
 /// Return a flag whether to do xml validation or not.
 bool GeometryConfiguration::doValidation() const {
-  edm::LogWarning("GeometryConfiguration") << " the doValidation() method not valid for this DDLDocumentProvider" << std::endl;
+  LogDebug("GeometryConfiguration") << " the doValidation() method not valid for this DDLDocumentProvider" << std::endl;
   return true;
 }
 
