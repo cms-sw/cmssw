@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.cc,v 1.4 2006/06/04 22:02:30 rpw Exp $
+ * $Id: EcalSelectiveReadout.cc,v 1.5 2006/06/05 04:54:27 rpw Exp $
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
@@ -104,8 +104,8 @@ EcalSelectiveReadout::towerInterest_t
 EcalSelectiveReadout::getCrystalInterest(const EEDetId & eeDetId) const 
 {
   int iz = (eeDetId.zside() == 1) ? 1 : 0;
-  int superCrystalX = eeDetId.ix() / 5;
-  int superCrystalY = eeDetId.iy() / 5;
+  int superCrystalX = (eeDetId.ix()-1) / 5;
+  int superCrystalY = (eeDetId.iy()-1) / 5;
   return supercrystalInterest[iz][superCrystalX][superCrystalY];
 }
 
@@ -114,8 +114,9 @@ EcalSelectiveReadout::getCrystalInterest(const EEDetId & eeDetId) const
 EcalSelectiveReadout::towerInterest_t
 EcalSelectiveReadout::getTowerInterest(const EcalTrigTowerDetId & tower) const 
 {
-  // remember, array indeces start at zero
-  int iEta = tower.ieta() + nTriggerTowersInEta/2 - 1;
+  // remember, array indices start at zero
+  int iEta = tower.ieta()<0? tower.ieta() + nTriggerTowersInEta/2
+    : tower.ieta() + nTriggerTowersInEta/2 -1;
   int iPhi = tower.iphi() - 1;
   return towerInterest[iEta][iPhi];
 }
