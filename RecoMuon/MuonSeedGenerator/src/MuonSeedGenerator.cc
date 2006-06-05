@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/05/18 08:37:32 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/24 17:14:38 $
+ *  $Revision: 1.4 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -55,6 +55,8 @@ using namespace std;
 // Constructor
 MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset){
   produces<TrajectorySeedCollection>(); 
+
+  cout<<"MuonSeedGenerator constructor called"<<endl;
 
   // the name of the DT rec hits collection
   theDTRecSegmentLabel = pset.getParameter<string>("DTRecSegmentLabel");

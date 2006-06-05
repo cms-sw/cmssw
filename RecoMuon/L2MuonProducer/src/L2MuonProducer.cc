@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2006/05/19 15:23:20 $
- *   $Revision: 1.3 $
+ *   $Date: 2006/05/23 17:48:31 $
+ *   $Revision: 1.4 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -35,6 +35,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 using namespace edm;
+using namespace std;
 
 /// constructor with config
 L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){

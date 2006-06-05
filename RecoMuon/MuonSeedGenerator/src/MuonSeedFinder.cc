@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/25 12:29:16 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/30 13:50:23 $
+ *  $Revision: 1.4 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *
  */
@@ -33,6 +33,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include <iomanip>
+
+using namespace std;
 
 MuonSeedFinder::MuonSeedFinder(){
   

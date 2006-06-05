@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2006/05/29 17:56:20 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/06/01 15:43:07 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino
  *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -35,7 +35,8 @@
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 
 using namespace edm;
-  
+using namespace std;
+
 StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const ParameterSet& par){
 
   // The max allowed eta (physical limit). Since it is the same both for the three filter, 
