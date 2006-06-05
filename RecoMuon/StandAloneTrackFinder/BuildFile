@@ -6,9 +6,11 @@
 <use name=RecoMuon/DetLayers>
 <use name=TrackPropagation/SteppingHelixPropagator>
 <use name=TrackingTools/KalmanUpdators>
+<use name=TrackingTools/TransientTrackingRecHit>
 
 <export>
    <lib name=RecoMuonStandAloneTrackFinder>
+
    <use name=RecoMuon/TrackingTools>
    <use name=RecoMuon/DetLayers>
    <use name=FWCore/Framework>
@@ -17,4 +19,5 @@
    <use name=RecoMuon/MeasurementDet>
    <use name=TrackPropagation/SteppingHelixPropagator>
    <use name=TrackingTools/KalmanUpdators>
+
 </export>
