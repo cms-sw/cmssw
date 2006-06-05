@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/14 16:08:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/13 12:17:37 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -115,58 +115,48 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
 
   hDebugFile->cd();
   TString hLName = TString(hTBox->GetName())+"L";
-//   TH1F *hLTB = new TH1F(hLName.Data(), "Logic Time Box", nBins, xMin, xMax);
   TH1F hLTB(hLName.Data(), "Logic Time Box", nBins, xMin, xMax);
   // Loop over all time box bins and discriminate them accordigly to the threshold
   for(int i = 1; i <= nBins; i++) {
     if(hTBox->GetBinContent(i) > threshold)
       hLTB.SetBinContent(i, 1);
   }
-
-  // Differentiate the discrimanted time box
-  TString hLDName = hLName+"D";
-//   TH1F *hLTB_D = new TH1F(hLDName.Data(), "Logic Time Box Derivative", nBins, xMin, xMax);
-  TH1F hLTB_D(hLDName.Data(), "Logic Time Box Derivative", nBins, xMin, xMax);
-  for(int j = 1; j <= nBins;j++) {
-    int diff = (int)hLTB.GetBinContent(j+1)-(int)hLTB.GetBinContent(j);
-    hLTB_D.SetBinContent(j, diff);
-  }
   hLTB.Write();
-  hLTB_D.Write();
-
-
-  vector<int> risingEdgeBins;
-  vector<int> fallingEdgeBins;
-
-  // Look for rising and falling edges;
-  for(int j = 1; j <= nBins;j++) {
-    int binCont = (int)hLTB_D.GetBinContent(j);
-    if(binCont == 1)
-      risingEdgeBins.push_back(j);
-    else if(binCont == -1)
-      fallingEdgeBins.push_back(j);
-  }
-
-  // Find a falling edge and a rising edge at the right distance
-  double rising = 0;
-  double falling = 0;
-  double deltaWidth = 999999;
   
-  for(vector<int>::const_iterator rEdge =  risingEdgeBins.begin();
-      rEdge != risingEdgeBins.end(); rEdge++) {
-    for(vector<int>::const_iterator fEdge =  fallingEdgeBins.begin();
-	fEdge != fallingEdgeBins.end(); fEdge++) {
-      if((*fEdge) > (*rEdge)) {
-	if(fabs(((*fEdge)-(*rEdge))*binValue-tBoxWidth) < deltaWidth) {
-	  rising = xMin+(*rEdge)*binValue;
-	  falling = xMin+(*fEdge)*binValue;
-	  deltaWidth = fabs(((*fEdge)-(*rEdge))*binValue-tBoxWidth);
-	}
-      }
+  // Look for the time box in the "logic histo" and save beginning and lenght of each plateau
+  vector< pair<int, int> > startAndLenght;
+
+  int start = -1;
+  int lenght = -1;
+  for(int j = 1; j < nBins;j++) {
+    int diff = (int)hLTB.GetBinContent(j+1)-(int)hLTB.GetBinContent(j);
+    if(diff == 1) { // This is a rising edge
+      start = j;
+      lenght = 1;
+    } else if(diff == -1) { // This is a falling edge
+      startAndLenght.push_back(make_pair(start, lenght));
+      start = -1;
+      lenght = -1;
+    } else if(diff == 0 && (int)hLTB.GetBinContent(j) == 1) { // This is a bin within the plateau
+      lenght ++;
     }
   }
 
-  mean = rising;
+  // Look for the plateau of the right lenght
+  int delta = 999999;
+  int beginning = -1;
+  int tbWidth = -1;
+  for(vector< pair<int, int> >::const_iterator stAndL = startAndLenght.begin();
+      stAndL != startAndLenght.end();
+      stAndL++) {
+    if(abs((*stAndL).second - tBoxWidth) < delta) {
+      delta = abs((*stAndL).second - tBoxWidth);
+      beginning = (*stAndL).first;
+      tbWidth = (*stAndL).second;
+    }
+  }
+
+  mean = xMin + beginning*binValue;
   sigma = 10; //FIXME: estimate it!
 
   tBoxMax = hTBox->GetMaximum();
@@ -176,9 +166,8 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
   xFitMax = mean+5.*sigma;
 
   if(theVerbosityLevel >= 1) {
-    cout << "      Time Box Rising edge: " << rising << endl;
-    cout << "      Time Box Falling edge: " <<  falling << endl;
-    cout << "      Time Box Width: " << (falling-rising) << endl;
+    cout << "      Time Box Rising edge: " << mean << endl;
+    cout << "      Time Box Width: " << tbWidth*binValue << endl;
     cout << "    = Seeds and range for fit:" << endl;
     cout << "       Seed mean = " << mean << endl;
     cout << "       Seed sigma = " << sigma << endl;
