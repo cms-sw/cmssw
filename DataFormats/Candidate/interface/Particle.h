@@ -7,69 +7,25 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.2 2006/03/08 12:26:37 llista Exp $
+ * \version $Id: Particle.h,v 1.3 2006/05/02 16:13:33 llista Exp $
  *
  */
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Candidate/interface/ParticleBaseWithCharge.h"
 #include "DataFormats/Math/interface/Point3D.h"
  
 namespace reco {
 
-  class Particle {
+  class Particle : public ParticleBaseWithCharge {
   public:
-    /// Lorentz vector
-    typedef math::XYZTLorentzVector LorentzVector;
-    /// spatial vector
-    typedef math::XYZVector Vector;
     /// point in the space
     typedef math::XYZPoint Point;
-    /// electric charge type
-    typedef char Charge;
     /// default constructor
     Particle() { }
     /// constructor from values
     Particle( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
-      p4_( p4 ), vtx_( vtx ), q_( q ) { }
+      ParticleBaseWithCharge( q, p4 ), vtx_( vtx ) { }
     /// destructor
     virtual ~Particle() { }
-    /// electric charge
-    int charge() const { return q_; }
-    /// four-momentum Lorentz vector
-    const LorentzVector & p4() const { return p4_; }
-    /// spatial momentum vector
-    Vector momentum() const { return p4_.Vect(); }
-    /// boost vector to boost a Lorentz vector 
-    /// to the particle center of mass system
-    Vector boostToCM() const { return p4_.BoostToCM(); }
-    /// magnitude of momentum vector
-    double p() const { return p4_.P(); }
-    /// energy
-    double energy() const { return p4_.E(); }  
-    /// transverse energy
-    double et() const { return p4_.Et(); }  
-    /// mass
-    double mass() const { return p4_.M(); }
-    /// mass squared
-    double massSqr() const { return p4_.M2(); }
-    /// transverse mass
-    double mt() const { return p4_.Mt(); }
-    /// transverse mass squared
-    double mtSqr() const { return p4_.Mt2(); }
-    /// x coordinate of momentum vector
-    double px() const { return p4_.Px(); }
-    /// y coordinate of momentum vector
-    double py() const { return p4_.Py(); }
-    /// z coordinate of momentum vector
-    double pz() const { return p4_.Pz(); }
-    /// transverse momentum
-    double pt() const { return p4_.Pt(); }
-    /// momentum azimuthal angle
-    double phi() const { return p4_.Phi(); }
-    /// momentum polar angle
-    double theta() const { return p4_.Theta(); }
-    /// momentum pseudorapidity
-    double eta() const { return p4_.Eta(); }
     /// vertex position
     const Point & vertex() const { return vtx_; }
     /// x coordinate of vertex position
@@ -79,12 +35,8 @@ namespace reco {
     /// z coordinate of vertex position
     double z() const { return vtx_.Z(); }
   protected:
-    /// four-momentum Lorentz vector
-    LorentzVector p4_;
     /// vertex position
     Point vtx_;
-    /// electric charge
-    Charge q_;    
   };
 
 }
