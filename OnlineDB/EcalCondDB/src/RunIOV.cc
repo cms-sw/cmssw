@@ -269,201 +269,38 @@ void RunIOV::setByRun(RunTag* tag, run_t run)
 
 
 
+void RunIOV::setByRun(std::string location, run_t run) 
+  throw(std::runtime_error)
+{
+  this->checkConnection();
+   
+  DateHandler dh(m_env, m_conn);
 
-// void RunIOV::fetchEarliest(RunIOV* fillIOV, RunTag* tag) const
-//   throw(runtime_error)
-// {
-//   string sql = "SELECT run_num, run_start, run_end FROM run_iov "
-//     "WHERE run_num = (SELECT min(run_num) FROM run_iov WHERE tag_id = :tag_id)";
-//   try {
-//     Statement* stmt = this->prepareFetch(sql, tag);
+   try {
+     Statement* stmt = m_conn->createStatement();
 
-//     ResultSet* rset = stmt->executeQuery();
-  
-//     if (rset->next()) {
-//       this->fill(fillIOV, rset);
-//     } else {
-//       fillIOV = NULL;
-//     }
-//     m_conn->terminateStatement(stmt);
-//   } catch (SQLException &e) {
-//     throw(runtime_error("RunIOV::fetchEarliest():  "+e.getMessage()));
-//   }
-// }
+     stmt->setSQL("SELECT iov_id FROM run_iov riov "
+		  "JOIN run_tag rtag ON riov.tag_id = rtag.tag_id "
+		  "JOIN location_def loc ON rtag.location_id = loc.def_id "
+		  "WHERE loc.location = :1 AND riov.run_num = :2");
+     stmt->setString(1, location);
+     stmt->setInt(2, run);
+     
+     ResultSet* rset = stmt->executeQuery();
+     if (rset->next()) {
+       int id = rset->getInt(1);
+       this->setByID(id);
+     } else {
+       throw(runtime_error("RunIOV::setByRun(loc, run):  Given run is not in the database"));
+     }
+     
+     // Check for uniqueness of run
+     if (rset->next()) {
+       throw(runtime_error("RunIOV::setByRun(loc, run):  Run is nonunique for given location."));
+     }
 
-
-
-// void RunIOV::fetchLatest(RunIOV* fillIOV, RunTag* tag) const
-//   throw(runtime_error)
-// {
-//   string sql = "SELECT run_num, run_start, run_end FROM run_iov "
-//     "WHERE run_num = (SELECT max(run_num) FROM run_iov WHERE tag_id = :tag_id)";
-//   try {
-//     Statement* stmt = this->prepareFetch(sql, tag);
-//     ResultSet* rset = stmt->executeQuery();
-    
-//     if (rset->next()) {
-//       this->fill(fillIOV, rset);
-//     } else {
-//       fillIOV = NULL;
-//     }
-//     m_conn->terminateStatement(stmt);  
-//   } catch (SQLException &e) {
-//     throw(runtime_error("RunIOV::fetchLatest():  "+e.getMessage()));
-//   }
-// }
-
-
-
-// void RunIOV::fetchAt(RunIOV* fillIOV, const Tm eventTm, RunTag* tag) const
-//   throw(std::runtime_error)
-// {
-//   string sql = "SELECT run_num, run_start, run_end FROM run_iov "
-//     "WHERE tag_id = :tag_id AND run_start <= :t AND run_end > :t";
-//   try {
-//     Statement* stmt = this->prepareFetch(sql, tag);
-  
-//     DateHandler dh(m_env, m_conn);
-
-//     stmt->setDate(2, dh.tmToDate(eventTm) );
-//     stmt->setDate(3, dh.tmToDate(eventTm) );
-
-//     ResultSet* rset = stmt->executeQuery();
-
-//     if (rset->next()) {
-//       this->fill(fillIOV, rset);
-//     } else {
-//       fillIOV = NULL;
-//     }
-//     m_conn->terminateStatement(stmt);
-//   } catch (SQLException &e) {
-//     throw(runtime_error("RunIOV::fetchAt():  "+e.getMessage()));
-//   }
-// }
-
-
-
-// void RunIOV::fetchWithin(vector<RunIOV>* fillVec, const Tm beginTm, const Tm endTm, RunTag* tag) const
-//   throw(std::runtime_error)
-// {
-//   string sql = "SELECT run_num, run_start, run_end FROM run_iov "
-//     "WHERE tag_id = :tag_id AND run_start >= :t1 AND run_start <= :t2";
-//   try {
-//     Statement* stmt = this->prepareFetch(sql, tag);
-  
-//     DateHandler dh(m_env, m_conn);
-
-//     Date beginDate = dh.tmToDate(beginTm);
-//     Date endDate = dh.tmToDate(endTm);
-
-//     stmt->setDate(2, beginDate );
-//     stmt->setDate(3, endDate );
-
-//     ResultSet* rset = stmt->executeQuery();
-
-//     while (rset->next()) {
-//       RunIOV runiov;
-//       this->fill(&runiov, rset);
-//       fillVec->push_back(runiov);
-//     }
-//     m_conn->terminateStatement(stmt);
-//   } catch (SQLException &e) {
-//     throw(runtime_error("RunIOV::fetchAt():  "+e.getMessage()));
-//   }
-// }
-
-
-
-// void RunIOV::fetchAt(RunIOV* fillIOV, const run_t run, RunTag* tag) const
-//   throw(std::runtime_error)
-// {
-//   string sql = "SELECT run_num, run_start, run_end FROM run_iov "
-//     "WHERE tag_id = :tag_id AND run_num = :run_num";
-//   try {
-//     Statement* stmt = this->prepareFetch(sql, tag);
-  
-//     stmt->setInt(2, run);
-
-//     ResultSet* rset = stmt->executeQuery();
-
-//     if (rset->next()) {
-//       this->fill(fillIOV, rset);
-//     } else {
-//       fillIOV = NULL;
-//     }
-//     m_conn->terminateStatement(stmt);
-//   } catch (SQLException &e) {
-//     throw(runtime_error("RunIOV::fetchAt():  "+e.getMessage()));
-//   }
-// }
-
-// void RunIOV::fetchWithin(vector<RunIOV>* fillVec, const run_t beginRun, const run_t endRun, RunTag* tag) const
-//   throw(std::runtime_error)
-// {
-//   string sql = "SELECT run_num, run_start, run_end FROM run_iov "
-//     "WHERE tag_id = :tag_id AND run_num >= :r1 AND run_num <= :r2";
-//   try {
-//     Statement* stmt = this->prepareFetch(sql, tag);
-
-//     stmt->setInt(2, beginRun);
-//     stmt->setInt(3, endRun);
-
-//     ResultSet* rset = stmt->executeQuery();
-    
-//     while (rset->next()) {
-//       RunIOV runiov;
-//       this->fill(&runiov, rset);
-//       fillVec->push_back(runiov);
-//     }
-//     m_conn->terminateStatement(stmt);
-//   } catch (SQLException &e) {
-//     throw(runtime_error("RunIOV::fetchAt():  "+e.getMessage()));
-//   }
-// }
-
-
-
-// Statement* RunIOV::prepareFetch(const string sql, RunTag* tag) const
-//   throw(runtime_error)
-// {
-//   this->checkConnection();
-
-//   tag->setConnection(m_env, m_conn);
-//   int tagID = tag->fetchID();
-//   if (!tagID) { 
-//     throw(runtime_error("RunIOV::prepareFetch():  Given tag does not exist in DB")); 
-//   }
-  
-//   Statement* stmt;
-
-//   try {
-//     stmt = m_conn->createStatement();
-//     stmt->setSQL(sql);
-//     stmt->setInt(1, tagID);
-//   }  catch (SQLException &e) {
-//     throw(runtime_error("RunIOV::prepareFetch():  "+e.getMessage()));
-//   }
-  
-//   return stmt;
-// }
-
-// void RunIOV::fill(RunIOV* iov, ResultSet* rset) const
-//   throw(runtime_error)
-// {
-//   DateHandler dh(m_env, m_conn);
-
-//   try {
-//     iov->setRunNumber( rset->getInt(1) );
-//     Date startDate = rset->getDate(2);
-//     Tm startTm = dh.dateToTm(startDate);
-
-//     iov->setRunStart( startTm );
-//     Date endDate = rset->getDate(3);
-//     Tm endTm = dh.dateToTm(endDate);
-
-//     iov->setRunEnd( endTm );
-//   } catch(SQLException &e) {
-//     throw(runtime_error("RunIOV::fill:  "+e.getMessage()));
-//   }
-  
-// }
+     m_conn->terminateStatement(stmt);
+   } catch (SQLException &e) {
+     throw(runtime_error("RunIOV::setByRun(loc, run):  "+e.getMessage()));
+   }
+}

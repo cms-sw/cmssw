@@ -41,6 +41,8 @@ class RunIOV : public IIOV {
   int writeDB() throw(std::runtime_error);
 
   void setByRun(RunTag* tag, run_t run) throw(std::runtime_error);
+  void setByRun(std::string location, run_t run) throw(std::runtime_error);
+
 /*   void fetchEarliest(RunIOV* fillIOV, RunTag* tag) const throw(std::runtime_error); */
 /*   void fetchLatest(RunIOV* fillIOV, RunTag* tag) const throw(std::runtime_error); */
 /*   oracle::occi::Statement* prepareFetch(const std::string sql, RunTag* tag) const throw(std::runtime_error); */

@@ -128,11 +128,21 @@ public:
     cout << "Done." << endl;
     printIOV(&runiov);
 
+//     // write another run with the same run number to generate exception later
+//     runtag.setGeneralTag("different");
+//     runiov.setRunTag(runtag);
+//     econn->insertRunIOV(&runiov);
+
+
     // fetch it back
-    cout << "Fetching run..." << flush;
+    cout << "Fetching run by tag just used..." << flush;
     RunIOV runiov_prime = econn->fetchRunIOV(&runtag, run);
     cout << "Done." << endl;
     printIOV(&runiov_prime);
+    cout << "Fetching run by location..." << flush;
+    RunIOV runiov_prime2 = econn->fetchRunIOV(runtag.getLocationDef().getLocation(), run);
+    cout << "Done." << endl;
+    printIOV(&runiov_prime2);    
 
     // Monitoring Tag and IOV
     MonRunIOV moniov = this->makeMonRunIOV(&runiov);

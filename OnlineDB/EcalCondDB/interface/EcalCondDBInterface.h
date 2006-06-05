@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.1 2006/03/01 23:39:50 egeland Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.2 2006/05/18 15:26:20 egeland Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -150,10 +150,21 @@ class EcalCondDBInterface : public EcalDBConnection {
 
 
   /**
-   *  Return a run IOV object
+   *  Return a run IOV object for a given tag
    */
   RunIOV fetchRunIOV(RunTag* tag, run_t run)
     throw(std::runtime_error);
+
+
+
+  /**
+   *  Return a run IOV object for a given location.
+   *  It is not guarunteed that a run is unique for a location only,
+   *  so an exception is thrown if more than one result exists.
+   */
+  RunIOV fetchRunIOV(std::string location, run_t run)
+    throw(std::runtime_error);
+
 
 
   /**
