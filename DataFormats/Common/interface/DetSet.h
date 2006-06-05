@@ -43,7 +43,7 @@ namespace edm {
     size_type size() const { return data.size(); }
     bool empty() const { return data.empty(); }
     reference operator[]( size_type i ) { return data[ i ]; }
-    const_reference operator[]( size_type ) const { return data[ i ]; }
+    const_reference operator[]( size_type i ) const { return data[ i ]; }
     void reserve( size_t s ) { data.reserve( s ); }
     void push_back( const T & t ) { data.push_back( t ); }
     void clear() { data.clear(); }
