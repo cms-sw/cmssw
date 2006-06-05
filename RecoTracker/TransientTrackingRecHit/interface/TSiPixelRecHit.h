@@ -16,10 +16,13 @@ public:
 		 const PixelClusterParameterEstimator* cpe) : 
     TransientTrackingRecHit(geom), theHitData(rh->clone()), theCPE(cpe) {}
 
+  typedef const edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster, edm::refhelper::FindForDetSetVector<SiPixelCluster> > clusterRef;
+
   /// Creates the TrackingRecHit internally, avoids redundent cloning
   TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
 		  const GeomDet* det, 
-		  const SiPixelCluster& cluster,
+		  //		  const SiPixelCluster& cluster,
+		  clusterRef cluster,
 		  const PixelClusterParameterEstimator* cpe);
 
   TSiPixelRecHit( const TSiPixelRecHit& other ) :
