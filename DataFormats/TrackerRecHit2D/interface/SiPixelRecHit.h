@@ -21,6 +21,8 @@
 class SiPixelRecHit : public  BaseSiTrackerRecHit2DLocalPos {
 public:
 
+  typedef edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster > ClusterRef;
+
   SiPixelRecHit(): BaseSiTrackerRecHit2DLocalPos (),cluster_() {}
 
   ~SiPixelRecHit() {}
