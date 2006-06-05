@@ -3,7 +3,7 @@ void SiPixelDigiCompare()
 
  gROOT ->Reset();
  char*  rfilename = "pixeldigihisto.root";
- char*  sfilename = "data/pixeldigihisto.root"; 
+ char*  sfilename = "../data/pixeldigihisto.root"; 
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename);
