@@ -14,6 +14,8 @@ public:
   MuonTransientTrackingRecHit( const MuonTransientTrackingRecHit & other ) :
     GenericTransientTrackingRecHit(other.det(), other.hit()) {
   }
+  
+  virtual ~MuonTransientTrackingRecHit(){}
 
   virtual LocalVector localDirection() const;
 
