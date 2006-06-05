@@ -187,7 +187,7 @@ void MeasurementTracker::addGluedDet( const GluedGeomDet* gd,
 void MeasurementTracker::update( const edm::Event& event) const
 {
   typedef SiStripClusterCollection::Range    StripClusterRange;
-  typedef SiPixelClusterCollection::detset   PixelDetSet;
+  typedef edm::DetSetVector<SiPixelCluster> ::detset   PixelDetSet;
 
   // std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
   //std::string stripClusterProducer ("ClusterProducer"); // FIXME SiStripClusterizer
@@ -211,9 +211,9 @@ void MeasurementTracker::update( const edm::Event& event) const
   // Pixel Clusters
   std::string pixelClusterProducer ("pixClust"); 
 
-  edm::Handle<SiPixelClusterCollection> pixelClusters;
+  edm::Handle<edm::DetSetVector<SiPixelCluster>> pixelClusters;
   event.getByLabel(pixelClusterProducer, pixelClusters);
-  const SiPixelClusterCollection * pixelCollection = pixelClusters.product();
+  const  edm::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
   //cout << "--- siPixelClusterColl got " << endl;
 
   for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();

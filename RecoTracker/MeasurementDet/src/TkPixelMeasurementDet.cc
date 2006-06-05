@@ -64,7 +64,7 @@ TkPixelMeasurementDet::RecHitContainer
 TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
 {
   RecHitContainer result;
-  for ( const_iterator ci = detSet_->begin(); ci != detSet_->end(); ++ ci ) {
+  for ( const_iterator ci = detSet_->data.begin(); ci != detSet_->data.end(); ++ ci ) {
     SiPixelClusterRef cluster = edm::makeRefTo( handle_, id_, ci ); 
     result.push_back( buildRecHit( cluster, ts.localParameters() ) );
   }

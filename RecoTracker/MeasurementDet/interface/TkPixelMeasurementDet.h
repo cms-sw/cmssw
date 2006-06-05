@@ -3,9 +3,11 @@
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelClusterFwd.h"
+//#include "DataFormats/SiPixelCluster/interface/SiPixelClusterFwd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 class TransientTrackingRecHit;
 class LocalTrajectoryParameters;
@@ -13,7 +15,10 @@ class LocalTrajectoryParameters;
 class TkPixelMeasurementDet : public MeasurementDet {
 public:
 
-  typedef SiPixelClusterCollection::detset detset;
+  typedef edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster, 
+    edm::refhelper::FindForDetSetVector<SiPixelCluster> > SiPixelClusterRef;
+  
+  typedef edm::DetSetVector<SiPixelCluster>::detset detset;
   typedef detset::const_iterator const_iterator;
   typedef PixelClusterParameterEstimator::LocalValues    LocalValues;
 
@@ -21,7 +26,7 @@ public:
 			 const PixelClusterParameterEstimator* cpe);
 
   void update( const detset & detSet, 
-	       const edm::Handle<SiPixelClusterCollection> h,
+	       const edm::Handle<edm::DetSetVector<SiPixelCluster> > h,
 	       unsigned int id ) { 
     detSet_ = & detSet; 
     handle_ = h;
@@ -48,7 +53,7 @@ private:
   const PixelGeomDetUnit*               thePixelGDU;
   const PixelClusterParameterEstimator* theCPE;
   const detset * detSet_;
-  edm::Handle<SiPixelClusterCollection> handle_;
+  edm::Handle<edm::DetSetVector<SiPixelCluster> > handle_;
   unsigned int id_;
 };
 
