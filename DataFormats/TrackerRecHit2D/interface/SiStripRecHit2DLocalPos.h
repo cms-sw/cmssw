@@ -3,24 +3,27 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 
 class SiStripRecHit2DLocalPos : public  BaseSiTrackerRecHit2DLocalPos{
 public:
 
-  SiStripRecHit2DLocalPos(): BaseSiTrackerRecHit2DLocalPos() {}
+  SiStripRecHit2DLocalPos(): BaseSiTrackerRecHit2DLocalPos(),cluster_() {}
 
   ~SiStripRecHit2DLocalPos() {}
 
   SiStripRecHit2DLocalPos( const LocalPoint&, const LocalError&,
 			 const DetId&, 
-			   const std::vector<const SiStripCluster*>& cluster);  
+			   edm::Ref< edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  > const&  cluster);  
 
   virtual SiStripRecHit2DLocalPos * clone() const {return new SiStripRecHit2DLocalPos( * this); }
 
-  const std::vector<const SiStripCluster*>& cluster() const { return cluster_;}
+  edm::Ref<edm::DetSetVector<SiStripCluster> ,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > const&  cluster()  const { return cluster_;}
   
 private:
-  std::vector<const SiStripCluster*>   cluster_;
+  //  std::vector<const SiStripCluster*>   cluster_;
+  edm::Ref<edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  >  const cluster_;
 
 };
 

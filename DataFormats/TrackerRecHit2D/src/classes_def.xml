@@ -4,7 +4,6 @@
   <class name="RecHit2DLocalPos"/>
   <class name="SiStripCluster"/>
   <class name="LocalError"/>
-  <class name="std::vector<const SiStripCluster*>"/>
   <class name="BaseSiTrackerRecHit2DLocalPos"/>
   <class name="SiStripRecHit2DLocalPos"/>
   <class name="std::pair<unsigned int,unsigned int>"/>
@@ -18,8 +17,9 @@
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >"/>
 
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> > >" />
-  <class name="std::map<DetId, std::pair<unsigned int, unsigned int> >"/>
+  <class name="edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> >" />
 
+  <class name="std::map<DetId, std::pair<unsigned int, unsigned int> >"/>
 
   <class name="SiPixelRecHit" />
   <class name="SiPixelCluster" />

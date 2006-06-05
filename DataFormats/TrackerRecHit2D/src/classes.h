@@ -44,6 +44,10 @@ namespace {
       SiPixelCluster, 
       edm::refhelper::FindForDetSetVector<SiPixelCluster> > siPixelClusterReference;
 
+    edm::Ref<edm::DetSetVector<SiStripCluster>, 
+      SiStripCluster, 
+      edm::refhelper::FindForDetSetVector<SiStripCluster> > siStripClusterReference;
+
     edm::RefBase<std::pair<unsigned int,unsigned int> > p1;
     edm::RefItem<std::pair<unsigned int,unsigned int> > p2;
 
