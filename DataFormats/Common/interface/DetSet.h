@@ -8,7 +8,7 @@ associated with a common DetId with a DetId instance, holding the
 common DetId value. The collected objects may or may not contain their
 own copy of the common DetId.
 
-$Id: DetSet.h,v 1.1 2006/01/27 21:20:04 paterno Exp $
+$Id: DetSet.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,8 +16,6 @@ $Id: DetSet.h,v 1.1 2006/01/27 21:20:04 paterno Exp $
 #include <vector>
 
 namespace edm {
-
-  
   typedef uint32_t det_id_type;
 
   template <class T>
@@ -26,12 +24,31 @@ namespace edm {
     typedef std::vector<T>                           collection_type;
     // We don't just use T as value-type, in case we switch to a
     // fancier underlying container.
-    typedef typename collection_type::value_type     value_type;
-    typedef typename collection_type::iterator       iterator;
-    typedef typename collection_type::const_iterator const_iterator;
+    typedef typename collection_type::value_type      value_type;
+    typedef typename collection_type::reference       reference;
+    typedef typename collection_type::const_reference const_reference;
+    typedef typename collection_type::iterator        iterator;
+    typedef typename collection_type::const_iterator  const_iterator;
+    typedef typename collection_type::size_type       size_type;
 
+    /// default constructor
     DetSet() : id(0), data() { }
+    /// constructor by detector identifier
     explicit DetSet(det_id_type i) : id(i), data() { }
+
+    iterator begin() { return data.begin(); }
+    iterator end() { return data.end(); }
+    const_iterator begin() const { return data.begin(); }
+    const_iterator end() const { return data.end(); }
+    size_type size() const { return data.size(); }
+    bool empty() const { return data.empty(); }
+    reference operator[]( size_type i ) { return data[ i ]; }
+    const_reference operator[]( size_type ) const { return data[ i ]; }
+    void reserve( size_t s ) { data.reserve( s ); }
+    void push_back( const T & t ) { data.push_back( t ); }
+    void clear() { data.clear(); }
+
+    det_id_type detId() const { return id; }
 
     det_id_type      id;
     collection_type  data;
@@ -46,25 +63,22 @@ namespace edm {
   template <class T>
   inline
   bool
-  operator< (DetSet<T> const& x, DetSet<T> const& y)
-  {
-    return x.id < y.id;
+  operator< ( DetSet<T> const& x, DetSet<T> const& y ) {
+    return x.detId() < y.detId();
   }
 
   template <class T>
   inline
   bool
-  operator< (DetSet<T> const& x, det_id_type y)
-  {
-    return x.id < y;
+  operator< ( DetSet<T> const& x, det_id_type y ) {
+    return x.detId() < y;
   }
 
   template <class T>
   inline
   bool
-  operator< (det_id_type x, DetSet<T> const& y)
-  {
-    return x < y.id;
+  operator< ( det_id_type x, DetSet<T> const& y ) {
+    return x < y.detId();
   }
 
 } // namespace edm;
