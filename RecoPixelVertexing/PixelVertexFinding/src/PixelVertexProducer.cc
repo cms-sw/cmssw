@@ -8,12 +8,13 @@
 #include <string>
 
 PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf) 
-  : conf_(conf), dvf_(0), ptMin_(1.0)
+  : conf_(conf), verbose_(0), dvf_(0), ptMin_(1.0)
 {
   // Register my product
   produces<reco::VertexCollection>("pixel");
 
   // Setup shop
+  verbose_           = conf.getParameter<int>("Verbosity"); // 0 silent, 1 chatty, 2 loud
   std::string finder = conf.getParameter<std::string>("Finder"); // DivisiveVertexFinder
   bool useError      = conf.getParameter<bool>("UseError"); // true
   bool wtAverage     = conf.getParameter<bool>("WtAverage"); // true
@@ -24,7 +25,7 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
   ptMin_ = conf_.getParameter<double>("PtMin"); // 1.0 GeV
 
   if (finder == "DivisiveVertexFinder") {
-    edm::LogInfo("PixelVertexProducer") << ": Using the DivisiveVertexFinder\n";
+    if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Using the DivisiveVertexFinder\n";
     dvf_ = new DivisiveVertexFinder(zOffset, ntrkMin, useError, zSeparation, wtAverage);
   }
   else { // Finder not supported, or you made a mistake in your request
@@ -44,22 +45,22 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   std::string trackCollName = conf_.getParameter<std::string>("TrackCollection");
   e.getByLabel(trackCollName,trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
-  edm::LogInfo("PixelVertexProducer") << ": Found " << tracks.size() << " tracks in TrackCollection called " << trackCollName << "\n";
+  if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Found " << tracks.size() << " tracks in TrackCollection called " << trackCollName << "\n";
   
 
   // Second, make a collection of pointers to the tracks we want for the vertex finder
-  std::vector< reco::TrackRef > trks;
+  reco::TrackRefVector trks;
   for (unsigned int i=0; i<tracks.size(); i++) {
     if (tracks[i].pt() > ptMin_)     
       trks.push_back( reco::TrackRef(trackCollection, i) );
   }
-  edm::LogInfo("PixelVertexProducer") << ": Selected " << trks.size() << " of these tracks for vertexing\n";
+  if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Selected " << trks.size() << " of these tracks for vertexing\n";
 
   // Third, ship these tracks off to be vertexed
   std::auto_ptr<reco::VertexCollection> vertexes(new reco::VertexCollection);
   bool ok = dvf_->findVertexes(trks,       // input
 			       *vertexes); // output
-  edm::LogInfo("PixelVertexProducer") << ": Found " << vertexes->size() << " vertexes\n";
+  if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Found " << vertexes->size() << " vertexes\n";
 
   // Finally, put them in the event if things look OK
   if (ok) e.put(vertexes,"pixel");

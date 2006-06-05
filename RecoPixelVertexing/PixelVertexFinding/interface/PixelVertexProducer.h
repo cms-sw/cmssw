@@ -20,7 +20,7 @@
 //
 // Original Author:  Aaron Dominguez (UNL)
 //         Created:  Thu May 25 10:17:32 CDT 2006
-// $Id$
+// $Id: PixelVertexProducer.h,v 1.1 2006/05/26 02:29:26 aarond Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -40,6 +40,8 @@ class PixelVertexProducer : public edm::EDProducer {
  private:
   // ----------member data ---------------------------
   edm::ParameterSet conf_;
+  // Turn on debug printing if verbose_ > 0
+  int verbose_;
   DivisiveVertexFinder *dvf_;
   // Tracking cuts before sending tracks to vertex algo
   double ptMin_;

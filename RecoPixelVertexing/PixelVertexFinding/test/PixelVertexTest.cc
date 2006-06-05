@@ -105,7 +105,7 @@ void PixelVertexTest::analyze(
   ev.getByLabel(trackCollName,trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
 
-  std::vector< reco::TrackRef >trks;
+  reco::TrackRefVector trks;
 
   if (verbose_ > 0) {
     std::cout << *(trackCollection.provenance()) << std::endl;

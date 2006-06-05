@@ -19,7 +19,7 @@
  average of the tracks. Weighted means weighted with the error
  of the data point.
 
- $Date: 2006/05/23 14:10:00 $
+ $Date: 2006/05/26 02:29:26 $
  $Revision: 1.1 $
  \author Aaron Dominguez (UNL)
 */
@@ -36,11 +36,15 @@ class DivisiveVertexFinder {
   ~DivisiveVertexFinder();
   
   /// Run the divisive algorithm and return a vector of vertexes for the input track collection
-  bool findVertexes(const std::vector< reco::TrackRef > &trks, // input
-		    reco::VertexCollection &vertexes);         // output
+  bool findVertexes(const reco::TrackRefVector &trks,  // input
+		    reco::VertexCollection &vertexes); // output
  private:
+  /// Cuts on vertex formation and other options
   double zOffset_, zSeparation_;
   int ntrkMin_;
   bool useError_, wtAverage_;
+
+  /// Pointers to tracks available for vertexing
+    
 };
 #endif

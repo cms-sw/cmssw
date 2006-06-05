@@ -12,8 +12,8 @@ DivisiveVertexFinder::DivisiveVertexFinder(double zOffset, int ntrkMin,
 
 DivisiveVertexFinder::~DivisiveVertexFinder(){}
 
-bool DivisiveVertexFinder::findVertexes(const std::vector< reco::TrackRef > &trks, // input
-					reco::VertexCollection &vertexes){         // output
+bool DivisiveVertexFinder::findVertexes(const reco::TrackRefVector &trks,  // input
+					reco::VertexCollection &vertexes){ // output
   PVPositionBuilder pos;
   Measurement1D vz;
   if (wtAverage_) {

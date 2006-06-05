@@ -4,7 +4,7 @@
 /// Constructor does nothing since this class has no data
 PVPositionBuilder::PVPositionBuilder() {}
 
-Measurement1D PVPositionBuilder::average(const std::vector< reco::TrackRef > & trks) const {
+Measurement1D PVPositionBuilder::average(const reco::TrackRefVector &trks) const {
   // Cut and paste (more or less) from same class in ORCA framework
   double ntracks = double(trks.size());
   if (ntracks==0) return Measurement1D ( 0. , 0. );
@@ -18,7 +18,7 @@ Measurement1D PVPositionBuilder::average(const std::vector< reco::TrackRef > & t
 
 }
 
-Measurement1D PVPositionBuilder::wtAverage(const std::vector< reco::TrackRef > & trks) const {
+Measurement1D PVPositionBuilder::wtAverage(const reco::TrackRefVector &trks) const {
   double ntracks = double(trks.size());
   if (ntracks==0) return Measurement1D ( 0.0 , 0.0 );
   double sumUp = 0;

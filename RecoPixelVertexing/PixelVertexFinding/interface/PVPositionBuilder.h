@@ -7,8 +7,8 @@
  * class is used by the pixel vertexing to make a PVCluster and is
  * used by other PVCluster-related classes
  *
- *  $Date: 2006/05/08 10:47:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/22 11:46:55 $
+ *  $Revision: 1.2 $
  *  \author Aaron Dominguez (UNL)
  */
 #include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
@@ -22,9 +22,9 @@ class PVPositionBuilder {
   PVPositionBuilder();
    
   /// Calculate unweighted average of Z of tracks from const collection of track pointers
-    Measurement1D average(const std::vector< reco::TrackRef > & trks) const;
+  Measurement1D average(const reco::TrackRefVector& trks) const;
 
   /// Calculate Error-Weighted average of Z of tracks from const collection of track pointers
-      Measurement1D wtAverage(const std::vector< reco::TrackRef > & trks) const;
+  Measurement1D wtAverage(const reco::TrackRefVector& trks) const;
 };
 #endif
