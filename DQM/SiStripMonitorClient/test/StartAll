@@ -1,0 +1,12 @@
+#!/bin/sh
+eval `scramv1 runtime -sh`
+xterm -T "DQM Collector" -sb -sl 100   -e DQMCollector &
+export PRODUCER_PATH=${CMSSW_BASE}/src/DQM/SiStripMonitorCluster/test
+cd  ${PRODUCER_PATH}
+xterm -T "DQM Producer(Source)"  -sb -sl 30000 -e cmsRun DQM_digicluster.cfg &
+export CONSUMER_PATH=${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test
+cd ${CONSUMER_PATH}
+setup.sh
+startMonitorClient 
+
+
