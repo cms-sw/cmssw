@@ -583,6 +583,9 @@ namespace edm {
     common_ = CommonParams(proc_name,
 			   getVersion(), // this is not written for real yet
 			   0); // Where does it come from?
+
+    esp_ = makeEventSetupProvider(*params_);
+    fillEventSetupProvider(*esp_, *params_, common_);
      
     input_= makeInput(*params_, common_, preg_,*actReg_);
     schedule_ = std::auto_ptr<Schedule>
@@ -593,8 +596,6 @@ namespace edm {
 		    act_table_,
 		    actReg_));
 
-    esp_ = makeEventSetupProvider(*params_);
-    fillEventSetupProvider(*esp_, *params_, common_);
     //   initialize(iToken,iLegacy);
     FDEBUG(2) << params_->toString() << std::endl;
     connectSigs(this);
