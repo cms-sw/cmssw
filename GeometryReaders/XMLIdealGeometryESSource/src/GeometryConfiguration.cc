@@ -51,7 +51,7 @@ const std::vector < std::string >  & GeometryConfiguration::getFileList(void) co
 **/
 const std::vector < std::string >  & GeometryConfiguration::getURLList(void) const
 {
-  edm::LogWarning("GeometryConfiguration") << " the getURLList of this DDLDocumentProvider empty strings" << std::endl;
+  LogDebug("GeometryConfiguration") << " the getURLList of this DDLDocumentProvider empty strings" << std::endl;
   //  return relFiles_;
   return emptyStrings_;
 }
