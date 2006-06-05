@@ -6,8 +6,8 @@
  *   starting from internal seeds (muon track segments).
  *
  *
- *   $Date: 2006/05/19 15:23:20 $
- *   $Revision: 1.3 $
+ *   $Date: 2006/05/23 17:48:31 $
+ *   $Revision: 1.4 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -24,7 +24,7 @@
 // TrackFinder and Specific GLB Trajectory Builder
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
-#include "RecoMuon/GlobalTrackFinder/interface/GlobalTrajectoryBuilder.h"
+#include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrajectoryBuilder.h"
 
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -33,6 +33,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 using namespace edm;
+using namespace std;
 
 /// constructor with config
 GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet){
