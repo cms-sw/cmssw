@@ -11,7 +11,9 @@
 #include "boost/mpl/vector.hpp"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "FWCore/Framework/test/DummyRecord.h"
+#include "FWCore/Framework/test/Dummy2Record.h"
 #include "FWCore/Framework/test/DepRecord.h"
+#include "FWCore/Framework/test/DepOn2Record.h"
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
 #include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
@@ -33,6 +35,7 @@ CPPUNIT_TEST(dependentFinder1Test);
 CPPUNIT_TEST(dependentFinder2Test);
 CPPUNIT_TEST(dependentSetproviderTest);
 CPPUNIT_TEST_EXCEPTION(getTest,edm::eventsetup::NoRecordException<DepRecord>);
+CPPUNIT_TEST(oneOfTwoRecordTest);
 
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -45,6 +48,7 @@ public:
   void dependentFinder2Test();
   void dependentSetproviderTest();
   void getTest();
+  void oneOfTwoRecordTest();
 
 }; //Cppunit class declaration over
 
@@ -82,6 +86,23 @@ protected:
    }
    
 };
+
+
+class DepOn2RecordProxyProvider : public edm::eventsetup::DataProxyProvider {
+public:
+  DepOn2RecordProxyProvider() {
+    usingRecord<DepOn2Record>();
+  }
+  void newInterval(const edm::eventsetup::EventSetupRecordKey& /*iRecordType*/,
+  const edm::ValidityInterval& /*iInterval*/) {
+    //do nothing
+  }
+protected:
+void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies& /*iHolder*/) {
+}
+
+};
+
 
 using namespace edm::eventsetup;
 void testdependentrecord::dependentConstructorTest()
@@ -205,5 +226,28 @@ void testdependentrecord::getTest()
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(4)));
       eventSetup.get<DepRecord>();
    }
+   
 }
 
+void testdependentrecord::oneOfTwoRecordTest()
+{
+  edm::eventsetup::EventSetupProvider provider;
+  boost::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider());
+  provider.add(dummyProv);
+  
+  boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
+  dummyFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1)), 
+                                                 edm::IOVSyncValue(edm::EventID(3))));
+  provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+  
+  boost::shared_ptr<edm::eventsetup::DataProxyProvider> depProv(new DepOn2RecordProxyProvider());
+  provider.add(depProv);
+  {
+    const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1)));
+    const DepOn2Record& depRecord = eventSetup.get<DepOn2Record>();
+    
+    depRecord.getRecord<DummyRecord>();
+    CPPUNIT_ASSERT_THROW(depRecord.getRecord<Dummy2Record>(),edm::eventsetup::NoRecordException<Dummy2Record>);
+  }
+  
+}
