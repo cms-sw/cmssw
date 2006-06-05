@@ -4,6 +4,7 @@ using namespace std; // necessary!
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
 //#include "Calorimetry/EcalEndcap/interface/EcalEndcapBase.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <iostream>
 
 namespace tpg {
@@ -11,7 +12,9 @@ namespace tpg {
   EcalFenixLinearizer::EcalFenixLinearizer(EcalBarrelTopology *top): ebTopol_(top)
 {
     //UB FIXME : should come from a database!!!
-    FILE * fin=fopen("../data/FenixStripPedMult.txt","r");
+    //FILE * fin=fopen("../data/FenixStripPedMult.txt","r");
+    edm::FileInPath fileInPath("SimCalorimetry/EcalTrigPrimProducers/data/FenixStripPedMult.txt");
+    FILE * fin=fopen(fileInPath.fullPath().c_str(), "r");
     //    if (!fin) throw an exception
     unsigned int tow, str, strXtal, gain, ped, bid1, bid2;
     for(int i=0; i<75; i++)
