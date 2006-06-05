@@ -1,6 +1,6 @@
 // File: ReadPixelRecHit.cc
 // Description:  see ReadPixelRecHit.h
-// Author:  O. Gutsche
+// Author:  J.Sheav (JHU)
 // Creation Date:  OGU Aug. 1 2005 Initial version.
 //
 //--------------------------------------------
@@ -37,10 +37,12 @@ void ReadPixelRecHit::analyze(const edm::Event& e, const edm::EventSetup& es)
   std::string rechitProducer = conf_.getParameter<std::string>("RecHitProducer");
   
   // Step A: Get Inputs 
-  edm::Handle<SiPixelRecHitCollection> coll;
-  e.getByType(coll);
-  
-  std::cout <<" FOUND "<<(coll.product())->size()<<" Pixel Hits"<<std::endl;
+  std::string recHitCollLabel = conf_.getUntrackedParameter<std::string>("RecHitCollLabel","pixRecHitConverter");
+  edm::Handle<SiPixelRecHitCollection> recHitColl;
+
+  e.getByLabel(recHitCollLabel, recHitColl);
+ 
+  std::cout <<" FOUND "<<(recHitColl.product())->size()<<" Pixel Hits"<<std::endl;
   
   
 }
