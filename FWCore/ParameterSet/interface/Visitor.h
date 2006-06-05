@@ -10,6 +10,7 @@ namespace edm {
     struct VEntryNode;
     struct PSetRefNode;
     struct ContentsNode;
+    class  IncludeNode;
     struct PSetNode;
     struct VPSetNode;
     struct ModuleNode;
@@ -35,6 +36,7 @@ namespace edm {
       virtual void visitPSet(const PSetNode&);
       virtual void visitVPSet(const VPSetNode&);
       virtual void visitModule(const ModuleNode&);
+      virtual void visitInclude(const IncludeNode &);
       virtual void visitWrapper(const WrapperNode&);
       virtual void visitOperator(const OperatorNode&); //may not be needed
       virtual void visitOperand(const OperandNode&); //may not be needed
