@@ -162,8 +162,8 @@ void EcalSelectiveReadoutSuppressor::setTriggerTowers(const EcalTrigPrimDigiColl
     {
       float et = Et(*trigPrim); //or etWithoutBXID() ???
        // we want the indexing to go from zero.
-      unsigned int eta = trigPrim->id().ieta() + nTriggerTowersInEta/2;
-      unsigned int phi = trigPrim->id().iphi();
+      unsigned int eta = trigPrim->id().ieta() + nTriggerTowersInEta/2 - 1;
+      unsigned int phi = trigPrim->id().iphi() - 1;
       assert(eta<nTriggerTowersInEta);
       assert(phi<nTriggerTowersInPhi);
 

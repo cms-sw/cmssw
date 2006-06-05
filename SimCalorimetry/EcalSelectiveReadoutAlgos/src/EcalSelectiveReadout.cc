@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.cc,v 1.3 2006/06/02 22:13:11 rpw Exp $
+ * $Id: EcalSelectiveReadout.cc,v 1.4 2006/06/04 22:02:30 rpw Exp $
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
@@ -115,8 +115,8 @@ EcalSelectiveReadout::towerInterest_t
 EcalSelectiveReadout::getTowerInterest(const EcalTrigTowerDetId & tower) const 
 {
   // remember, array indeces start at zero
-  int iEta = tower.ieta() + nTriggerTowersInEta/2;
-  int iPhi = tower.iphi();
+  int iEta = tower.ieta() + nTriggerTowersInEta/2 - 1;
+  int iPhi = tower.iphi() - 1;
   return towerInterest[iEta][iPhi];
 }
 
