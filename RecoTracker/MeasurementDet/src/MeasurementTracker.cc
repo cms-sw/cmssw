@@ -186,15 +186,15 @@ void MeasurementTracker::addGluedDet( const GluedGeomDet* gd,
 
 void MeasurementTracker::update( const edm::Event& event) const
 {
-  typedef SiStripClusterCollection::Range    StripClusterRange;
+  typedef edm::DetSetVector<SiStripCluster> ::detset    StripDetSet;
   typedef edm::DetSetVector<SiPixelCluster> ::detset   PixelDetSet;
 
   // std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
   //std::string stripClusterProducer ("ClusterProducer"); // FIXME SiStripClusterizer
   std::string stripClusterProducer ("ThreeThresholdClusterizer");
-  edm::Handle<SiStripClusterCollection> clusterHandle;
+  edm::Handle<edm::DetSetVector<SiStripCluster>> clusterHandle;
   event.getByLabel(stripClusterProducer, clusterHandle);
-  const SiStripClusterCollection* clusterCollection = clusterHandle.product();
+  const edm::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();
 
   //cout << "--- siStripClusterColl got " << endl;
 
@@ -202,9 +202,16 @@ void MeasurementTracker::update( const edm::Event& event) const
   for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
        i!=theStripDets.end(); i++) {
     // foreach det get cluster range
-    StripClusterRange range = clusterCollection->get( (**i).geomDet().geographicalId().rawId());
+    //    StripClusterRange range = clusterCollection->get( (**i).geomDet().geographicalId().rawId());
+
+
+    unsigned int id = (**i).geomDet().geographicalId().rawId();
+    const StripDetSet & detSet = (*clusterCollection)[ id ];
+    (**i).update( detSet, clusterHandle, id );
+
+
     // push cluster range in det
-    (**i).update( range );
+    //    (**i).update( range );
   }
   //cout << "--- end of loop over dets" << endl;
 

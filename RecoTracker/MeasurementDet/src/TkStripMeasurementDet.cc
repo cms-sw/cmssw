@@ -29,22 +29,25 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 { 
   std::vector<TrajectoryMeasurement> result;
 
-  if (theClusterRange.first == theClusterRange.second) { // empty
+  //  if (theClusterRange.first == theClusterRange.second) { // empty
+  if (detSet_->size()  == 0){
     result.push_back( TrajectoryMeasurement( stateOnThisDet, new InvalidTransientRecHit(&geomDet()), 0.F));
     return result;
   }
-
+  
   float utraj = 
     theStripGDU->specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
+  
+  const_iterator rightCluster = 
+    find_if( detSet_->begin(), detSet_->end(), StripClusterAboveU( utraj));
 
-  ClusterIterator rightCluster = 
-    find_if( theClusterRange.first, theClusterRange.second, StripClusterAboveU( utraj));
-
-  if ( rightCluster != theClusterRange.first) {
+  if ( rightCluster != detSet_->end()) {
     // there are hits on the left of the utraj
-    ClusterIterator leftCluster = rightCluster;
-    while ( --leftCluster >= theClusterRange.first) {
-      TransientTrackingRecHit* recHit = buildRecHit( *leftCluster, 
+    const_iterator leftCluster = rightCluster;
+    while ( --leftCluster >=  detSet_->begin()) {
+      //      TransientTrackingRecHit* recHit = buildRecHit( *leftCluster, 
+      SiStripClusterRef clusterref = edm::makeRefTo( handle_, leftCluster->geographicalId(), leftCluster ); 
+      TransientTrackingRecHit* recHit = buildRecHit(clusterref, 
 						     stateOnThisDet.localParameters());
       std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
       if ( diffEst.first ) {
@@ -54,9 +57,10 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       else break; // exit loop on first incompatible hit
     }
   }
-
-  for ( ; rightCluster != theClusterRange.second; rightCluster++) {
-    TransientTrackingRecHit* recHit = buildRecHit( *rightCluster, 
+  
+  for ( ; rightCluster != detSet_->end(); rightCluster++) {
+    SiStripClusterRef clusterref = edm::makeRefTo( handle_, rightCluster->geographicalId(), rightCluster ); 
+    TransientTrackingRecHit* recHit = buildRecHit( clusterref, 
 						   stateOnThisDet.localParameters());
     std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
     if ( diffEst.first) {
@@ -65,7 +69,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     }
     else break; // exit loop on first incompatible hit
   }
-
+  
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
@@ -81,13 +85,12 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 }
 
 TransientTrackingRecHit* 
-TkStripMeasurementDet::buildRecHit( const SiStripCluster& cluster,
+TkStripMeasurementDet::buildRecHit( const SiStripClusterRef& cluster,
 				    const LocalTrajectoryParameters& ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  LocalValues lv = theCPE->localParameters( cluster, gdu, ltp);
-  std::vector<const SiStripCluster*> clustvec(1, &cluster);
-  return new TSiStripRecHit2DLocalPos( lv.first, lv.second, &geomDet(), clustvec, theCPE);
+  LocalValues lv = theCPE->localParameters( *cluster, gdu, ltp);
+  return new TSiStripRecHit2DLocalPos( lv.first, lv.second, &geomDet(), cluster, theCPE);
 
 //   return new TSiStripRecHit2DLocalPos( &geomDet(), 
 // 				       new SiStripRecHit2DLocalPos( lv.first, lv.second,
@@ -100,8 +103,10 @@ TkStripMeasurementDet::RecHitContainer
 TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 {
   RecHitContainer result;
-  for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
-    result.push_back( buildRecHit( *ci, ts.localParameters()));
+  for ( const_iterator ci = detSet_->data.begin(); ci != detSet_->data.end(); ++ ci ) {
+    // for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
+    SiStripClusterRef  cluster = edm::makeRefTo( handle_, id_, ci ); 
+    result.push_back( buildRecHit( cluster, ts.localParameters()));
   }
   return result;
 }

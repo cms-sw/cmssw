@@ -7,7 +7,7 @@
 TSiStripRecHit2DLocalPos::
 TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,
 			  const GeomDet* det, 
-			  const std::vector<const SiStripCluster*>& clust,
+			  const edm::Ref< edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  >  clust,
 			  const StripClusterParameterEstimator* cpe) :
   TransientTrackingRecHit(det), theCPE(cpe)
 {
@@ -17,10 +17,10 @@ TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,
 TSiStripRecHit2DLocalPos* 
 TSiStripRecHit2DLocalPos::clone (const TrajectoryStateOnSurface& ts) const
 {
-  if (!specificHit()->cluster().empty() && theCPE != 0) {
+  if (theCPE != 0) {
 
     /// FIXME: this only uses the first cluster and ignores the others
-    const SiStripCluster& clust = *specificHit()->cluster().front();  
+    const SiStripCluster& clust = *specificHit()->cluster();  
     StripClusterParameterEstimator::LocalValues lv = 
       theCPE->localParameters( clust, *detUnit(), ts.localParameters());
     return new TSiStripRecHit2DLocalPos( lv.first, lv.second, det(), 

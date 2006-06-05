@@ -16,7 +16,7 @@ public:
   /// Creates the TrackingRecHit internally, avoids redundent cloning
   TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,
 			    const GeomDet* det,
-			    const std::vector<const SiStripCluster*>& clust,
+			    const edm::Ref< edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  >  clust,
 			    const StripClusterParameterEstimator* cpe);
 
   TSiStripRecHit2DLocalPos( const TSiStripRecHit2DLocalPos& other ) :
