@@ -1,7 +1,7 @@
 /*
  * \file FakeTBHodoscopeRawInfoProducer.cc
  *
- * $Id:$
+ * $Id: FakeTBHodoscopeRawInfoProducer.cc,v 1.1 2006/05/31 09:31:58 fabiocos Exp $
  *
  */
 
@@ -62,6 +62,8 @@ FakeTBHodoscopeRawInfoProducer::~FakeTBHodoscopeRawInfoProducer() {
     product->setPlane((unsigned int)iPlane, planeHit);
     
   }
+
+  LogDebug("EcalTBHodo") << (*product);
   
   event.put(product);
   
