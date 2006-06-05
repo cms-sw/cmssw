@@ -30,7 +30,6 @@ L1GctElectronSorter::L1GctElectronSorter(int nInputs, bool iso, std::vector<L1Gc
     throw cms::Exception("L1GctSetupError")
       <<"L1GctElectronSorter::Constructor() : The number of Source Cards passed in the constructor doesn't correspond to the no of inputs given in the nInput variable";
   }
-  
   for(unsigned i=0;i!=sourceCards.size();i++){
     if(sourceCards[i]!=0){
       m_theSCs[i] = sourceCards[i];
