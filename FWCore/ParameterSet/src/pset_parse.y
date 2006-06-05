@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.23 2006/05/22 21:33:18 rpw Exp $
+ * $Id: pset_parse.y,v 1.24 2006/06/05 22:18:24 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -141,6 +141,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token RENAME_tok
 %token COPY_tok
 %token INCLUDE_tok
+%token PRODUCTTAG_tok
 %token MODULE_tok
 %token SERVICE_tok
 %token ES_MODULE_tok
@@ -669,7 +670,7 @@ procnode:        allpset
                    IncludeNode * wn(new IncludeNode("include", name, lines));
                    $<_Node>$ = wn;
                  }
-             
+               | 
                  MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: MODULE");
