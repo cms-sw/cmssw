@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.10 2006/05/02 09:48:46 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.11 2006/05/02 10:19:01 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -14,6 +14,11 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+
+/// temporary, to be moved to JetReco
+typedef std::vector<CaloJet> CaloJetCollection;
+typedef edm::Ref<CaloJetCollection> CaloJetRef;
 
 namespace reco {
 
@@ -38,6 +43,8 @@ namespace reco {
     virtual reco::SuperClusterRef superCluster() const;
     /// reference to a CaloTower
     virtual CaloTowerRef caloTower() const;
+    /// reference to a CaloJet
+    virtual CaloJetRef caloJet() const;
 
   protected:
     /// check if two components overlap
@@ -67,6 +74,8 @@ namespace reco {
   GET_CANDIDATE_COMPONENT( RecoCandidate, SuperClusterRef, DefaultComponentTag, superCluster );
   /// get default CaloTower component
   GET_CANDIDATE_COMPONENT( RecoCandidate, CaloTowerRef, DefaultComponentTag, caloTower );
+  /// get default CaloJet component
+  GET_CANDIDATE_COMPONENT( RecoCandidate, CaloJetRef, DefaultComponentTag, caloJet );
   
 }
 

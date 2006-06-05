@@ -2,6 +2,7 @@
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/CaloTowers>
+<use name=DataFormats/JetReco>
 <use name=DataFormats/Candidate>
 <export>
  <lib name=DataFormatsRecoCandidate>
@@ -9,5 +10,6 @@
  <use name=DataFormats/VertexReco>
  <use name=DataFormats/TrackReco>
  <use name=DataFormats/CaloTowers>
+ <use name=DataFormats/JetReco>
  <use name=DataFormats/Candidate>
 </export>

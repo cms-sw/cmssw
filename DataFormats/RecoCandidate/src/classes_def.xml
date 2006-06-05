@@ -2,5 +2,6 @@
   <class name="reco::RecoCandidate" />
   <class name="reco::RecoChargedCandidate" />
   <class name="reco::RecoCaloTowerCandidate"/> 
+  <class name="reco::RecoCaloJetCandidate" />
 </lcgdict>
  
