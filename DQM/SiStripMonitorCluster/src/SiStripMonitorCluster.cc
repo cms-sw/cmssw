@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.12 2006/06/04 13:48:50 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.13 2006/06/05 12:50:32 dkcira Exp $
 //
 //
 
@@ -112,7 +112,7 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
       local_modmes.ClusterPosition = dbe_->book1D(hid, hid, 20,0.,900.);
       //ClusterWidth
       hid = hidmanager.createHistoId("ClusterWidth","det",*detid_iterator);
-      local_modmes.ClusterWidth = dbe_->book1D(hid, hid, 10,-0.5,10.5);
+      local_modmes.ClusterWidth = dbe_->book1D(hid, hid, 11,-0.5,10.5);
       //ClusterWidth
       hid = hidmanager.createHistoId("ClusterCharge","det",*detid_iterator);
       local_modmes.ClusterCharge = dbe_->book1D(hid, hid, 31,-0.5,100.5);
@@ -121,7 +121,7 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
       local_modmes.ModuleLocalOccupancy = dbe_->book1D(hid, hid, 20,-0.005,0.05);// occupancy goes from 0 to 1, probably not over some limit value (here 0.1)
       //NrOfClusterizedStrips
       hid = hidmanager.createHistoId("NrOfClusterizedStrips","det",*detid_iterator);
-      local_modmes.NrOfClusterizedStrips = dbe_->book1D(hid, hid, 20,-0.5,9.5);
+      local_modmes.NrOfClusterizedStrips = dbe_->book1D(hid, hid, 10,-0.5,9.5);
       // append to ClusterMEs
       ClusterMEs.insert( std::make_pair(*detid_iterator, local_modmes));
     }
