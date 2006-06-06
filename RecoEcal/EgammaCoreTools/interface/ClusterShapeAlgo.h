@@ -7,10 +7,7 @@
  *
  * \author Michael A. Balazs, UVa
  * 
- * \version $Id: ClusterShapeAlgo.h,v 1.3 2006/05/23 16:50:01 askew Exp $
- * \version $Id: ClusterShapeAlgo.h,v 1.3 2006/05/23 16:50:01 askew Exp $
- * \version $Id: ClusterShapeAlgo.h,v 1.3 2006/05/23 16:50:01 askew Exp $
- * \version $Id: ClusterShapeAlgo.h,v 1.3 2006/05/23 16:50:01 askew Exp $
+ * \version $Id: ClusterShapeAlgo.h,v 1.4 2006/06/06 16:59:40 tkolberg Exp $
  *
  */
 
