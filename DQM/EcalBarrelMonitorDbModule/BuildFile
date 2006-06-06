@@ -1,6 +1,5 @@
 <flags SEAL_PLUGIN_NAME="DQMEcalBarrelMonitorDbModule">
 <use name=FWCore/Framework>
-<use name=FWCore/MessageLogger>
 <use name=DQMServices/CoreROOT>
 <use name=CORALRelationalAccess>
 <use name=boost>
@@ -10,7 +9,6 @@
 <export>
  <lib name=DQMEcalBarrelMonitorDbModule>
  <use name=FWCore/Framework>
- <use name=FWCore/MessageLogger>
  <use name=DQMServices/CoreROOT>
  <use name=CORALRelationalAccess>
  <use name=boost>

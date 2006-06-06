@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.h
  *
- * $Date: 2006/06/06 09:27:07 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/06 14:51:19 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -27,7 +27,10 @@
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
 #include "SealKernel/Exception.h"
+#include "SealKernel/MessageStream.h"
+
 #include "PluginManager/PluginManager.h"
+
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 #include "RelationalAccess/ISessionProxy.h"
@@ -38,6 +41,8 @@
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ICursor.h"
+
+#include "CoralBase/Exception.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
@@ -85,11 +90,6 @@ int icycle_;
 bool enableMonitorDaemon_;
 
 DaqMonitorBEInterface* dbe;
-
-string dbName_;
-string dbHostName_;
-string dbUserName_;
-string dbPassword_;
 
 string htmlDir_;
 

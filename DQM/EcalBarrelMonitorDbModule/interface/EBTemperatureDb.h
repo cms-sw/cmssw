@@ -4,8 +4,8 @@
 /*
  * \file EBTemperatureDb.h
  *
- * $Date: 2006/06/06 09:27:07 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/06 14:51:19 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -21,6 +21,8 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
@@ -52,6 +54,7 @@ using namespace coral;
 #include <vector>
 
 using namespace cms;
+using namespace edm;
 using namespace std;
 
 //class EBTemperatureDb: public edm::EDAnalyzer{

@@ -1,40 +1,30 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  * 
- * $Date: 2006/06/06 09:27:08 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/06 14:51:19 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorDbModule/interface/EcalBarrelMonitorDbModule.h>
 
-EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps){
-
-  dbName_ = ps.getUntrackedParameter<string>("dbName", "");
-  dbHostName_ = ps.getUntrackedParameter<string>("dbHostName", "");
-  dbUserName_ = ps.getUntrackedParameter<string>("dbUserName", "");
-  dbPassword_ = ps.getUntrackedParameter<string>("dbPassword", "");
-
-  cout << " DB output will come from"
-       << " dbName = " << dbName_
-       << " dbHostName = " << dbHostName_
-       << " dbUserName = " << dbUserName_ << endl;
+EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const ParameterSet& ps){
 
   dbe = 0;
 
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = Service<DaqMonitorBEInterface>().operator->();
 
   // MonitorDaemon switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 
   if ( enableMonitorDaemon_ ) {
-    LogInfo("EcalBarrelMonitor") << " enableMonitorDaemon switch is ON";
+    cout << " enableMonitorDaemon switch is ON" << endl;
     Service<MonitorDaemon> daemon;
     daemon.operator->();
   } else {
-    LogInfo("EcalBarrelMonitor") << " enableMonitorDaemon switch is OFF";
+    cout << " enableMonitorDaemon switch is OFF" << endl;
   }
   
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -56,10 +46,6 @@ EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps
 
   if ( dbe ) dbe->showDirStructure();
 
-  // this should give enough time to all the MEs to reach the Collector,
-  // and then hopefully the clients
-//  sleep(10);
-
 }
 
 EcalBarrelMonitorDbModule::~EcalBarrelMonitorDbModule(){
@@ -68,7 +54,7 @@ EcalBarrelMonitorDbModule::~EcalBarrelMonitorDbModule(){
 
 }
 
-void EcalBarrelMonitorDbModule::beginJob(const edm::EventSetup& c){
+void EcalBarrelMonitorDbModule::beginJob(const EventSetup& c){
 
   icycle_ = 0;
 
@@ -84,20 +70,31 @@ void EcalBarrelMonitorDbModule::endJob(void) {
 
 }
 
-void EcalBarrelMonitorDbModule::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EcalBarrelMonitorDbModule::analyze(const Event& e, const EventSetup& c){
 
   icycle_++;
-//  if ( icycle_ % 10 == 0 )
-    cout << "EcalBarrelMonitorDbModule: icycle = " << icycle_ << endl;
+
+  cout << "EcalBarrelMonitorDbModule: icycle = " << icycle_ << endl;
 
   // Creates the sessions
   ISessionProxy* readProxy = 0;
 
   try {
-    Context* context = new Context;
+    seal::Handle<Context> context = new Context;
     PluginManager* pm = PluginManager::get();
     pm->initialise ();
-    seal::Handle<ComponentLoader> loader = new ComponentLoader(context);
+    seal::Handle<ComponentLoader> loader = new ComponentLoader(context.get());
+
+    loader->load("SEAL/Services/MessageService");
+
+    vector<seal::Handle<IMessageService> > v_msgSvc;
+    context->query(v_msgSvc);
+    if ( ! v_msgSvc.empty() ) {
+      seal::Handle<IMessageService>& msgSvc = v_msgSvc.front();
+      msgSvc->setOutputLevel(Msg::Error);
+//      msgSvc->setOutputLevel(Msg::Debug);
+    }
+
     loader->load("CORAL/Services/ConnectionService");
 
     IHandle<IConnectionService> connectionService = context->query<IConnectionService>("CORAL/Services/ConnectionService");
@@ -110,8 +107,8 @@ void EcalBarrelMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
 
     if ( tempDb_ ) tempDb_->analyze(e, c, dbe, readProxy);
 
-  } catch (seal::Exception& se) {
-    cerr << "Seal Exception : " << se.what() << endl;
+  } catch (coral::Exception& se) {
+    cerr << "CORAL Exception : " << se.what() << endl;
   } catch (std::exception& e) {
     cerr << "Standard C++ exception : " << e.what() << endl;
   } catch (...) {

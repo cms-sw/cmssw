@@ -1,15 +1,15 @@
 /*
  * \file EBTemperatureDb.cc
  * 
- * $Date: 2006/06/06 09:27:08 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/06 14:51:19 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorDbModule/interface/EBTemperatureDb.h>
 
-EBTemperatureDb::EBTemperatureDb(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+EBTemperatureDb::EBTemperatureDb(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBTemperatureDb");
@@ -24,7 +24,7 @@ EBTemperatureDb::~EBTemperatureDb(){
 
 }
 
-void EBTemperatureDb::beginJob(const edm::EventSetup& c){
+void EBTemperatureDb::beginJob(const EventSetup& c){
 
   ievt_ = 0;
     
@@ -36,63 +36,69 @@ void EBTemperatureDb::endJob(){
 
 }
 
-void EBTemperatureDb::analyze(const edm::Event& e, const edm::EventSetup& c, DaqMonitorBEInterface* dbe, ISessionProxy* isp){
+void EBTemperatureDb::analyze(const Event& e, const EventSetup& c, DaqMonitorBEInterface* dbe, ISessionProxy* session){
 
   ievt_++;
 
 //  char* temp_sql = "select CHANNELVIEW.ID1, CHANNELVIEW.ID2, cast(MON_TR_CAPS_DAT.CAPS_TEMP as number) from CHANNELVIEW, MON_TR_CAPS_DAT where MON_TR_CAPS_DAT.IOV_ID = (SELECT MAX(IOV_ID) from MON_TR_CAPS_DAT) and CHANNELVIEW.LOGIC_ID=MON_TR_CAPS_DAT.LOGIC_ID order by ID1, ID2";
 
-  if ( isp )  {
+  if ( session )  {
 
     // Query stuff
-    isp->transaction().start();
+    session->transaction().start(true);
 
-    ITable& table = isp->nominalSchema().tableHandle("MON_TR_CAPS_DAT");
+    ISchema& schema = session->nominalSchema();
 
-    IQuery* query = table.newQuery();
+    IQuery* query = schema.newQuery();
 
-    query->addToOutputList("CHANNELVIEW.ID1");
-    query->addToOutputList("CHANNELVIEW.ID2");
+    query->addToOutputList("CHANNELVIEW.ID1", "X");
+    query->addToOutputList("CHANNELVIEW.ID2", "Y");
+    query->addToOutputList("cast(MON_TR_CAPS_DAT.CAPS_TEMP as number)", "Z");
+
+    query->addToTableList("CHANNELVIEW");
+    query->addToTableList("MON_TR_CAPS_DAT");
 
     AttributeList bindVariableList;
-    bindVariableList.extend ("idvalue", typeid (int));
-    bindVariableList["idvalue"].data<int>() = 1;
 
-    query->setCondition ("ID == :idvalue", bindVariableList);
+    query->setCondition("MON_TR_CAPS_DAT.IOV_ID = (SELECT max(IOV_ID) from MON_TR_CAPS_DAT) and CHANNELVIEW.LOGIC_ID = MON_TR_CAPS_DAT.LOGIC_ID", bindVariableList);
+
+    query->addToOrderList("ID1");
+    query->addToOrderList("ID2");
 
     ICursor& cursor = query->execute();
 
-    while (cursor.next()) {
+    // pause the shipping of monitoring elements
+    if ( dbe ) dbe->lock();
+
+    int j = 0;
+
+    while ( cursor.next() && j < 170 ) {
 
       const AttributeList& row = cursor.currentRow();
 
-      cerr << "Name:" << row["Name"].data <string>() << endl;
+//      cout << row["X"].data<int>() << " "
+//           << row["Y"].data<int>() << " "
+//           << row["Z"].data<float>() << " " << endl;
+
+      int chan = row["Y"].data<int>();
+      float temp = row["Z"].data<float>();
+
+      meTemp_->Fill(((chan-1)/10), ((chan-1)%10), temp);
+
+//      cout << chan << " " << ((chan-1)/10)
+//                   << " " << ((chan-1)%10)
+//                   << " " << temp << endl;
+
+      j++;
 
     }
 
+    // resume the shipping of monitoring elements
+    if ( dbe ) dbe->unlock();
+
     delete query;
 
-    isp->transaction().commit();
-
-//    float temp = 0;
-//    int chan = 0;
-//    int j = 0;
-
-    // pause the shipping of monitoring elements
-//    if ( dbe ) dbe->lock();
-
-//    do {
-
-//      meTemp_->Fill(((chan-1)/10), ((chan-1)%10), temp);
-
-//      cout << chan << " " << ((chan-1)/10) << " " << ((chan-1)%10) << " " << temp << endl;
-
-//      j++;
-
-//    } while ( j < 170 );
-
-    // resume the shipping of monitoring elements
-//    if ( dbe ) dbe->unlock();
+    session->transaction().commit();
 
   }
 
