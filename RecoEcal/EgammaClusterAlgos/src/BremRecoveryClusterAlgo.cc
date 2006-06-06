@@ -2,8 +2,6 @@
 
 reco::SuperClusterCollection BremRecoveryClusterAlgo::makeSuperClusters(reco::BasicClusterRefVector & clustersCollection)
 {
-  std::cout << "makeSuperClusters got a reco::BasicClusterRefVector of " << clustersCollection.size() << " elements!" << std::endl;
-
   const float etaBorder = 1.479;
 
   superclusters_v.clear();
@@ -43,8 +41,6 @@ reco::SuperClusterCollection BremRecoveryClusterAlgo::makeSuperClusters(reco::Ba
   // make the superclusters from the Hybrid clusters
   makeHybridSuperClusters(hybridClusters_v);
  
-  std::cout << "Finished superclustering" << std::endl;
-
   return superclusters_v;
 }
 

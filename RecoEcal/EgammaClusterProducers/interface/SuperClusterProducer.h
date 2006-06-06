@@ -10,6 +10,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+
+#include "RecoEcal/EgammaClusterAlgos/interface/BremRecoveryClusterAlgo.h"
 
 //
 
@@ -30,8 +33,36 @@ class SuperClusterProducer : public edm::EDProducer
       int nMaxPrintout_; // max # of printouts
       int nEvt_;         // internal counter of events
  
-      std::string superclusterCollection_;
+      std::string endcapClusterCollection_;
+      std::string barrelClusterCollection_;
 
+      std::string endcapClusterProducer_;
+      std::string barrelClusterProducer_;
+
+      std::string endcapSuperclusterCollection_;
+      std::string barrelSuperclusterCollection_;
+
+      float barrelEtaSearchRoad_;
+      float barrelPhiSearchRoad_;
+      float endcapEtaSearchRoad_; 
+      float endcapPhiSearchRoad_;
+      float seedEnergyThreshold_;
+
+      BremRecoveryClusterAlgo * bremAlgo_p;
+
+      double totalE;
+      int noSuperClusters;
+
+      reco::BasicClusterRefVector *
+	getClusterRefVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_);
+  
+      void produceSuperclustersForECALPart(edm::Event& evt, 
+					   std::string clusterProducer, 
+					   std::string clusterCollection,
+					   std::string superclusterColection);
+
+      void outputValidationInfo(reco::SuperClusterCollection &superclusterCollection);
+    
       bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
 };
 

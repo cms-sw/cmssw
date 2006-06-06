@@ -2,6 +2,7 @@
 #define RecoEcal_EgammaClusterProducers_IslandClusterProducer_h_
 
 #include <memory>
+#include <time.h>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -10,8 +11,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/IslandClusterAlgo.h"
 
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 //
 
@@ -32,13 +35,45 @@ class IslandClusterProducer : public edm::EDProducer
       int nMaxPrintout_; // max # of printouts
       int nEvt_;         // internal counter of events
  
-      std::string clusterCollection_;
-      std::string hitProducer_;
-      std::string hitCollection_;
+      std::string barrelHitProducer_;
+      std::string endcapHitProducer_;
+      std::string barrelHitCollection_;
+      std::string endcapHitCollection_;
+
+      std::string barrelClusterCollection_;
+      std::string endcapClusterCollection_;
+
+      // Position correction parameters
+      std::string clustershapecollection_;
+      bool clustershape_logweighted;
+      float clustershape_x0;
+      float clustershape_t0;
+      float clustershape_w0;
 
       IslandClusterAlgo * island_p;
 
       bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
+
+      const EcalRecHitCollection * getCollection(edm::Event& evt, 
+						 std::string hitProducer_,
+						 std::string hitCollection_);
+
+      void makeRecHitsMap(std::map<DetId, EcalRecHit> &rechits_m, const EcalRecHitCollection *hitCollection);
+
+      void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
+			      std::string hitProducer,
+			      std::string hitCollection,
+			      std::string clusterCollection, 
+			      EcalPart ecalPart);
+
+      /*
+      void clusterizeECALPart(const EcalRecHitCollection * hitCollection_p, 
+			      const CaloSubdetectorGeometry *geometry_p,
+			      CaloSubdetectorTopology *topology_p,
+			      edm::Event &evt, EcalPart ecalPart);
+      */
+
+      void outputValidationInfo(reco::BasicClusterRefVector &clusterRefVector);
 };
 
 
