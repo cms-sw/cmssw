@@ -1,6 +1,6 @@
 {
 cout << "Loading FWLite..." << endl;    // load CMSSW libraries
-gSystem->Load("libPhysicsToolsFWLite");
+gSystem->Load("libFWCoreFWLite");
 AutoLibraryLoader::enable();
 
 cout << "Setting Style to Plain..." << endl;
