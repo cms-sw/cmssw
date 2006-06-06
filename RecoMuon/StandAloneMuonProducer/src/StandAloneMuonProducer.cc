@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/05/19 15:23:20 $
- *   $Revision: 1.5 $
+ *   $Date: 2006/05/23 17:48:32 $
+ *   $Revision: 1.6 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -32,8 +32,10 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include <string>
 
 using namespace edm;
+using namespace std;
 
 /// constructor with config
 StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet){
