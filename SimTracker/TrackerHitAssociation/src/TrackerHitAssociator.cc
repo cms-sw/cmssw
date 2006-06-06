@@ -91,11 +91,12 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
     edm::DetSet<StripDigiSimLink> link_detset = (*stripdigisimlink)[detID];
     //cout << "Associator ---> get digilink! in Detid n = " << link_detset.data.size() << endl;
     
-    const std::vector<const SiStripCluster*> clust=simplerechit->cluster();
+    //const std::vector<const SiStripCluster*> clust=simplerechit->cluster();
+    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=simplerechit->cluster();
     //cout << "Associator ---> get cluster info " << endl;
-    for(vector<const SiStripCluster*>::const_iterator ic = clust.begin(); ic!=clust.end(); ic++) {
-      unsigned int clusiz = (*ic)->amplitudes().size();
-      unsigned int first  = (*ic)->firstStrip();     
+    //for(vector<const SiStripCluster*>::const_iterator ic = clust.begin(); ic!=clust.end(); ic++) {
+      unsigned int clusiz = clust->amplitudes().size();
+      unsigned int first  = clust->firstStrip();     
       unsigned int last   = first + clusiz;
       // cout << "Associator ---> clus size = " << clusiz << " first = " << first << " last = " << last << endl;
       for(edm::DetSet<StripDigiSimLink>::const_iterator linkiter = link_detset.data.begin(); linkiter != link_detset.data.end(); linkiter++){
@@ -106,7 +107,7 @@ std::vector<unsigned int>  TrackerHitAssociator::associateSimpleRecHit(const SiS
 	  //cout << "Associator link--> channel= " << link.channel() << "  trackid = " << link.SimTrackId() << endl;
 	}
       }
-    }
+      //}
   }
   
   return simtrackid;
