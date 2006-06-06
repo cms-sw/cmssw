@@ -79,7 +79,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   //Make map:
   EcalRecHitCollection::iterator it;
-  std::map<EBDetId, EcalRecHit> CorrMap;
+  std::map<DetId, EcalRecHit> CorrMap;
   for (it = hit_collection.begin(); it != hit_collection.end(); it++){
     //Make the map of DetID, EcalRecHit pairs
     CorrMap.insert(std::make_pair(it->id(), *it));    
