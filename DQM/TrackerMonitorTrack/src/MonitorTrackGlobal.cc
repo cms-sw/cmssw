@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.cc,v 1.5 2006/05/31 16:02:18 goitom Exp $
+// $Id: MonitorTrackGlobal.cc,v 1.6 2006/06/04 17:52:23 goitom Exp $
 //
 //
 
@@ -56,8 +56,8 @@ void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup)
   using namespace edm;
 
   dbe->setCurrentFolder("Tracker/Track Parameters");
-  trackSize = dbe->book1D("Tracks Per Event", "Tracks Per Event.", 6, -1, 5);
-  recHitSize = dbe->book1D("Mean RecHits Per Track", "Mean RecHits Per Track.", 15, -1, 35);
+  trackSize = dbe->book1D("Tracks Per Event", "Tracks Per Event.", 6, -0.5, 5.5);
+  recHitSize = dbe->book1D("Mean RecHits Per Track", "Mean RecHits Per Track.", 12, -0.5, 11.5);
   chiSqrd = dbe->book1D("#chi^{2}", "#Chi^{2}", 50, 0, 100);
 
   //dbe->setCurrentFolder("Tracker/Track Parameters");
@@ -67,7 +67,7 @@ void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup)
   trackPZ = dbe->book1D("Track Z coordinate of momentum", "Track Z coordinate of momentum.", 20, 1000, 1000);
 
   //dbe->setCurrentFolder("Tracker/Track Parameters");
-  trackPhi = dbe->book1D("Track Phi", "Track Phi.", 20, -4, 4);
+  trackPhi = dbe->book1D("Track Phi", "Track Phi.", 20, 0, 6.3);
   trackEta = dbe->book1D("Track Eta", "Track Eta.", 20, -4, 4);
   trackTheta = dbe->book1D("Track Theta", "Track Theta.", 20, -0.5, 4);
 
@@ -82,12 +82,12 @@ void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup)
       z0VsTheta = dbe->book2D("Z Coordinate Of Point Of Closest Approach VS #theta", "Z Coordinate Of Point Of Closest Approach VS #theta.", 50, 0, 3.2, 50, -20, 20);
       z0VsPhi = dbe->book2D("Z Coordinate Of Point Of Closest Approach VS #phi", "Z Coordinate Of Point Of Closest Approach VS #phi.", 50, -4, 4, 50, -20, 20);
       z0VsEta = dbe->book2D("Z Coordinate Of Point Of Closest Approach VS #eta", "Z Coordinate Of Point Of Closest Approach VS #eta.", 50, -3, 3, 50, -20, 20);
-  
-      //dbe->setCurrentFolder("Tracker/Track Parameters");
-      chiSqrdVsTheta = dbe->book2D("#chi^{2} vs #theta", "#chi^{2} vs #theta.", 50, 0, 3.2 , 50, 0, 20);
-      chiSqrdVsPhi = dbe->book2D("#chi^{2} vs #phi", "#chi^{2} vs #phi.", 50, -4 , 4 , 50, 0, 20);
-      chiSqrdVsEta = dbe->book2D("#chi^{2} vs #eta", "#chi^{2} vs #eta.", 50, -3 , 3, 50, 0, 20);
     }
+  
+    //dbe->setCurrentFolder("Tracker/Track Parameters");
+    chiSqrdVsTheta = dbe->book2D("chi2_over_ndf vs #theta", "chi2_over_ndf vs #theta.", 50, 0, 3.2 , 50, 0, 20);
+    chiSqrdVsPhi   = dbe->book2D("chi2_over_ndf vs #phi"  , "chi2_over_ndf vs #phi.", 50, -4 , 4 , 50, 0, 20);
+    chiSqrdVsEta   = dbe->book2D("chi2_over_ndf vs #eta"  , "chi2_over_ndf vs #eta.", 50, -3 , 3, 50, 0, 20);
 
   //dbe->setCurrentFolder("Tracker/Track Parameters");
   trackVertexX = dbe->book1D("X Coordinate of Track vertex", "X Coordinate of Track vertex.", 20, -20, 20);
