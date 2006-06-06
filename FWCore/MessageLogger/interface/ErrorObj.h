@@ -18,6 +18,7 @@
 // 5/7/01  mf   operator<< (const char[]) to avoid many instantiations of
 //              the template one for each length of potential error message
 // 6/5/01  mf   Made set() and clear() public.  Added setReactedTo.
+// 6/6/06  mf   verbatim.
 //
 // ----------------------------------------------------------------------
 
@@ -52,7 +53,9 @@ class ErrorObj  {
 public:
   // --- birth/death:
   //
-  ErrorObj( const ELseverityLevel & sev, const ELstring & id );
+  ErrorObj( const ELseverityLevel & sev, 
+  	    const ELstring & id, 
+	    bool verbatim = false );
   ErrorObj( const ErrorObj & orig );  // Same serial number and everything!
   virtual ~ErrorObj();
 
@@ -66,6 +69,7 @@ public:
   bool                   reactedTo() const;
   ELstring               fullText() const;
   ELstring               context() const;
+  bool                   is_verbatim() const;
 
   // mutators:
   //
@@ -110,7 +114,8 @@ private:
   ELstring       myContext;
   std::ostringstream myOs; 
   std::string    emptyString;
-  
+  bool		 verbatim;
+    
 };  // ErrorObj
 
 

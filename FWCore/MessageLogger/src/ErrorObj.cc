@@ -27,6 +27,7 @@
 //			If a category name exceeds that, then the 
 //			limit not taking effect bug will occur again... 
 //
+// 6/6/06  mf		verbatim
 //
 // ErrorObj( const ELseverityLevel & sev, const ELstring & id )
 // ~ErrorObj()
@@ -78,7 +79,9 @@ const unsigned int  maxIDlength( 200 );		// changed 4/28/06 from 20
 // Birth/death:
 // ----------------------------------------------------------------------
 
-ErrorObj::ErrorObj( const ELseverityLevel & sev, const ELstring & id )  {
+ErrorObj::ErrorObj( const ELseverityLevel & sev, 
+		    const ELstring & id,
+		    bool verbat )  : verbatim(verbat) {
 
   #ifdef ErrorObjCONSTRUCTOR_TRACE
     std::cerr << "Constructor for ErrorObj\n";
@@ -99,6 +102,7 @@ ErrorObj::ErrorObj( const ErrorObj & orig )  :
         , myReactedTo     ( orig.myReactedTo )
  	, myOs            ( )
 	, emptyString     ( )
+	, verbatim	  ( orig.verbatim )
 {
 
   #ifdef ErrorObjCONSTRUCTOR_TRACE
@@ -127,7 +131,7 @@ const ELstring &      ErrorObj::idOverflow() const  { return myIdOverflow; }
 time_t                ErrorObj::timestamp()  const  { return myTimestamp; }
 const ELlist_string & ErrorObj::items()      const  { return myItems; }
 bool                  ErrorObj::reactedTo()  const  { return myReactedTo; }
-
+bool                  ErrorObj::is_verbatim()const  { return verbatim; }
 
 ELstring ErrorObj::context() const {
   return myContext;
@@ -257,7 +261,13 @@ ErrorObj::opltlt ( const char s[] ) {
   myOs.str(emptyString); 
   myOs << s;
 #ifdef OLD_STYLE_AUTOMATIC_SPACES
-  if ( ! myOs.str().empty() ) emit( myOs.str() + ' ' );
+  if ( ! myOs.str().empty() ) {
+    if ( !verbatim ) {
+      emit( myOs.str() + ' ' );
+    } else {
+       emit( myOs.str() );
+    }
+  }
 #else
   if ( ! myOs.str().empty() ) emit( myOs.str() );
 #endif
