@@ -1,5 +1,6 @@
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
 #include "EventFilter/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace evf;
 using namespace std;
@@ -24,7 +25,11 @@ ParameterSetRetriever::ParameterSetRetriever(string &in)
       XCEPT_RAISE(evf::Exception,"db access for ParameterSet not yet implemented");
     } 
   else
-    pset = in;
+    {
+      edm::LogWarning("psetRetriever") << "Using direct config from XML"
+				       << endl;
+      pset = in;
+    }
 }
 
 string ParameterSetRetriever::getAsString()const {return pset;}
