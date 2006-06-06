@@ -1,7 +1,7 @@
 /*
  * \file EcalLocalReco.cc
  *
- * $Id: $
+ * $Id: EcalLocalRecoTask.cc,v 1.1 2006/04/07 12:38:49 meridian Exp $
  *
 */
 
@@ -206,15 +206,15 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
       edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the Ecal pedestals" << std::endl;
     }
 
-  edm::ESHandle<EcalADCToGeVConstant> pAgc;
-  try 
-    {
-      c.get<EcalADCToGeVConstantRcd>().get(pAgc);
-    }
-  catch ( std::exception& ex ) 
-    {
-      edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the Ecal ADCToGeV Constant" << std::endl;
-    } 
+//   edm::ESHandle<EcalADCToGeVConstant> pAgc;
+//   try 
+//     {
+//       c.get<EcalADCToGeVConstantRcd>().get(pAgc);
+//     }
+//   catch ( std::exception& ex ) 
+//     {
+//       edm::LogError("EcalLocalRecoTaskError") << "Error! can't get the Ecal ADCToGeV Constant" << std::endl;
+//     } 
 
 
   const std::string barrelHitsName ("EcalHitsEB") ;
