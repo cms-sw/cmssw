@@ -6,6 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <memory>
 #include <string>
+#include <cmath>
 
 PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf) 
   : conf_(conf), verbose_(0), dvf_(0), ptMin_(1.0)
@@ -26,7 +27,7 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
 
   if (finder == "DivisiveVertexFinder") {
     if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Using the DivisiveVertexFinder\n";
-    dvf_ = new DivisiveVertexFinder(zOffset, ntrkMin, useError, zSeparation, wtAverage);
+    dvf_ = new DivisiveVertexFinder(zOffset, ntrkMin, useError, zSeparation, wtAverage, verbose_);
   }
   else { // Finder not supported, or you made a mistake in your request
     // throw an exception once I figure out how CMSSW does this
@@ -58,9 +59,24 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // Third, ship these tracks off to be vertexed
   std::auto_ptr<reco::VertexCollection> vertexes(new reco::VertexCollection);
-  bool ok = dvf_->findVertexes(trks,       // input
-			       *vertexes); // output
-  if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Found " << vertexes->size() << " vertexes\n";
+  bool ok;
+  if (conf_.getParameter<bool>("Method2")) {
+    ok = dvf_->findVertexesAlt(trks,       // input
+			     *vertexes); // output
+    if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << "Method2 returned status of " << ok;
+  }
+  else {
+    ok = dvf_->findVertexes(trks,       // input
+			    *vertexes); // output
+    if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << "Method1 returned status of " << ok;
+  }
+
+  if (verbose_ > 0) {
+    edm::LogInfo("PixelVertexProducer") << ": Found " << vertexes->size() << " vertexes\n";
+    for (unsigned int i=0; i<vertexes->size(); ++i) {
+      edm::LogInfo("PixelVertexProducer") << "Vertex number " << i << " has " << (*vertexes)[i].tracksSize() << " tracks with a position of " << (*vertexes)[i].z() << " +- " << std::sqrt( (*vertexes)[i].error(2,2) );
+    }
+  }
 
   // Finally, put them in the event if things look OK
   if (ok) e.put(vertexes,"pixel");

@@ -15,6 +15,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PVPositionBuilder.h"
+#include "RecoPixelVertexing/PixelVertexFinding/interface/PVClusterComparer.h"
 
 #include <iostream>
 #include <vector>
@@ -55,6 +56,7 @@ private:
   double vz2_[maxvtx_];
   double errvz2_[maxvtx_];
   int ntrk2_[maxvtx_];
+  double sumpt2_[maxvtx_];
 };
 
 PixelVertexTest::PixelVertexTest(const edm::ParameterSet& conf)
@@ -85,9 +87,10 @@ void PixelVertexTest::beginJob(const edm::EventSetup& es) {
   t_->Branch("vzwt",vzwt_,"vzwt[nvtx]/D");
   t_->Branch("errvzwt",errvzwt_,"errvzwt[nvtx]/D");
   t_->Branch("nvtx2",&nvtx2_,"nvtx2/I");
-  t_->Branch("vz2",vz2_,"vz2[nvtx]/D");
-  t_->Branch("errvz2",errvz2_,"errvz2[nvtx]/D");
-  t_->Branch("ntrk2",ntrk2_,"ntrk2[nvtx]/I");
+  t_->Branch("vz2",vz2_,"vz2[nvtx2]/D");
+  t_->Branch("errvz2",errvz2_,"errvz2[nvtx2]/D");
+  t_->Branch("ntrk2",ntrk2_,"ntrk2[nvtx2]/I");
+  t_->Branch("sumpt2",sumpt2_,"sumpt2[nvtx2]/D");
   t_->Branch("ntrk",&ntrk_,"ntrk/I");
   t_->Branch("pt",pt_,"pt[ntrk]/D");
   t_->Branch("z0",z0_,"z0[ntrk]/D");
@@ -153,10 +156,12 @@ void PixelVertexTest::analyze(
     cout << "Reconstructed "<< vertexes.size() << " vertexes" << std::endl;
   }
   nvtx2_ = vertexes.size();
-  for (unsigned int i=0; i<nvtx2_; i++) {
+  PVClusterComparer vcompare;
+  for (unsigned int i=0; i<nvtx2_ && i<maxvtx_; i++) {
     vz2_[i] = vertexes[i].z();
     errvz2_[i] = std::sqrt(vertexes[i].error()(2,2));
     ntrk2_[i] = vertexes[i].tracksSize();
+    sumpt2_[i] = vcompare.pTSquaredSum(vertexes[i]);
   }
 
 

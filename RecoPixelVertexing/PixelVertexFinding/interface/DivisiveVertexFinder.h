@@ -19,8 +19,8 @@
  average of the tracks. Weighted means weighted with the error
  of the data point.
 
- $Date: 2006/05/26 02:29:26 $
- $Revision: 1.1 $
+ $Date: 2006/06/05 23:23:34 $
+ $Revision: 1.2 $
  \author Aaron Dominguez (UNL)
 */
 #include <vector>
@@ -28,23 +28,30 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "CommonTools/Clustering1D/interface/DivisiveClusterizer1D.h"
 
 class DivisiveVertexFinder {
  public:
   DivisiveVertexFinder(double zOffset=5.0, int ntrkMin=5, bool useError=true, 
-		       double zSeparation=0.05, bool wtAverage=true);
+		       double zSeparation=0.05, bool wtAverage=true, int verbosity=0);
   ~DivisiveVertexFinder();
   
   /// Run the divisive algorithm and return a vector of vertexes for the input track collection
   bool findVertexes(const reco::TrackRefVector &trks,  // input
 		    reco::VertexCollection &vertexes); // output
+  bool findVertexesAlt(const reco::TrackRefVector &trks,  // input
+		       reco::VertexCollection &vertexes); // output
  private:
   /// Cuts on vertex formation and other options
   double zOffset_, zSeparation_;
   int ntrkMin_;
   bool useError_, wtAverage_;
 
-  /// Pointers to tracks available for vertexing
+  /// We use Wolfgang's templated class that implements the actual divisive method
+  DivisiveClusterizer1D< reco::Track > divmeth_;
+
+  // How loud should I be?
+  int verbose_;
     
 };
 #endif

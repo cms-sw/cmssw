@@ -12,7 +12,7 @@ Measurement1D PVPositionBuilder::average(const reco::TrackRefVector &trks) const
   double err = 0;
   for (unsigned int i=0; i<trks.size(); i++) {
     sumZIP += trks[i]->dz(); // Z at IP
-    err += std::sqrt( trks[i]->covariance(3,3) ); // error on Z at IP (I hope)
+    err += trks[i]->covariance().dzError(); // error on Z at IP (I hope)
   }  
   return Measurement1D ( sumZIP/ntracks, err/ntracks/std::sqrt(ntracks) );
 
