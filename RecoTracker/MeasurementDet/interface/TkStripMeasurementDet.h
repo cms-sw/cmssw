@@ -35,8 +35,9 @@ public:
     detSet_ = & detSet; 
     handle_ = h;
     id_ = id;
+    empty = false;
   }
-  
+  void setEmpty(){empty = true;}
 
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const;
 
@@ -58,6 +59,7 @@ private:
   const detset * detSet_;
   edm::Handle<edm::DetSetVector<SiStripCluster> > handle_;
   unsigned int id_;
+  bool empty;
 
 };
 

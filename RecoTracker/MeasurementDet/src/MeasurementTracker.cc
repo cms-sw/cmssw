@@ -204,12 +204,15 @@ void MeasurementTracker::update( const edm::Event& event) const
     // foreach det get cluster range
     //    StripClusterRange range = clusterCollection->get( (**i).geomDet().geographicalId().rawId());
 
-
     unsigned int id = (**i).geomDet().geographicalId().rawId();
-    const StripDetSet & detSet = (*clusterCollection)[ id ];
-    (**i).update( detSet, clusterHandle, id );
-
-
+    edm::DetSetVector<SiStripCluster>::const_iterator it = clusterCollection->find( id );
+    if ( it != clusterCollection->end() ){
+      const StripDetSet & detSet = (*clusterCollection)[ id ];
+      (**i).update( detSet, clusterHandle, id );
+      
+    }else{
+      (**i).setEmpty();
+    }
     // push cluster range in det
     //    (**i).update( range );
   }
@@ -225,11 +228,19 @@ void MeasurementTracker::update( const edm::Event& event) const
 
   for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
        i!=thePixelDets.end(); i++) {
-    // foreach det get cluster range
+
     unsigned int id = (**i).geomDet().geographicalId().rawId();
-    const PixelDetSet & detSet = (*pixelCollection)[ id ];
-    // push cluster range in det
-    (**i).update( detSet, pixelClusters, id );
+    edm::DetSetVector<SiPixelCluster>::const_iterator it = pixelCollection->find( id );
+    if ( it != pixelCollection->end() ){
+      
+      
+      // foreach det get cluster range
+      const PixelDetSet & detSet = (*pixelCollection)[ id ];
+      // push cluster range in det
+      (**i).update( detSet, pixelClusters, id );
+    }else{
+       (**i).setEmpty();
+    }
   }
   //cout << "--- end of loop over dets" << endl;
 

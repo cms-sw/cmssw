@@ -31,7 +31,9 @@ public:
     detSet_ = & detSet; 
     handle_ = h;
     id_ = id;
+    empty = false;
   }
+  void setEmpty(){empty = true;}
 
   virtual ~TkPixelMeasurementDet() { }
 
@@ -55,6 +57,7 @@ private:
   const detset * detSet_;
   edm::Handle<edm::DetSetVector<SiPixelCluster> > handle_;
   unsigned int id_;
+  bool empty;
 };
 
 #endif

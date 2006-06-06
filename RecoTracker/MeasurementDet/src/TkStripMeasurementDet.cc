@@ -12,7 +12,8 @@
 TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet,
 					      const StripClusterParameterEstimator* cpe) : 
     MeasurementDet (gdet),
-    theCPE(cpe)
+    theCPE(cpe),
+    empty(true)
   {
     theStripGDU = dynamic_cast<const StripGeomDetUnit*>(gdet);
     if (theStripGDU == 0) {
@@ -28,6 +29,8 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 		  const MeasurementEstimator& est) const
 { 
   std::vector<TrajectoryMeasurement> result;
+
+  if (empty == true ) return result;
 
   //  if (theClusterRange.first == theClusterRange.second) { // empty
   if (detSet_->size()  == 0){
@@ -103,6 +106,7 @@ TkStripMeasurementDet::RecHitContainer
 TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 {
   RecHitContainer result;
+  if (empty == true) return result;
   for ( const_iterator ci = detSet_->data.begin(); ci != detSet_->data.end(); ++ ci ) {
     // for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
     SiStripClusterRef  cluster = edm::makeRefTo( handle_, id_, ci ); 
