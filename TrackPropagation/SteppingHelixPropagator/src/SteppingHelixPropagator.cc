@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2006/04/25 19:27:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/03 06:48:55 $
+ *  $Revision: 1.3 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.2 2006/04/25 19:27:46 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.3 2006/05/03 06:48:55 slava77 Exp $
 //
 //
 
@@ -163,15 +163,15 @@ void SteppingHelixPropagator::getFState(SteppingHelixPropagator::Vector& p3,
   r3 = r3_[cInd];
   //update Emat only if it's valid
   if (covLoc_[cInd].num_row() >=5){
-    if (applyRadX0Correction_ && covLoc_[cInd].num_row()==6 && fabs(radPath_[cInd]) > 1){
-      double radX0Corr = 1.0 + 0.036*log(fabs(radPath_[cInd]));
-      for (int i = 1; i<= 6; i++){//it is for the cartesian cov
-	for (int j = i; j<= 6; j++){//it is for the cartesian cov
-	  if (i != 1 && i != 4) covLoc_[cInd](i,j)*= radX0Corr;
-	  if (j != 1 && j != 4) covLoc_[cInd](i,j)*= radX0Corr;
-	}
-      }
-    }
+//     if (applyRadX0Correction_ && covLoc_[cInd].num_row()==6 && fabs(radPath_[cInd]) > 1){
+//       double radX0Corr = 1.0 + 0.036*log(fabs(radPath_[cInd]));
+//       for (int i = 1; i<= 6; i++){//it is for the cartesian cov
+// 	for (int j = i; j<= 6; j++){//it is for the cartesian cov
+// 	  if (i != 1 && i != 4) covLoc_[cInd](i,j)*= radX0Corr;
+// 	  if (j != 1 && j != 4) covLoc_[cInd](i,j)*= radX0Corr;
+// 	}
+//       }
+//     }
     Vector xRep(1., 0., 0.);
     Vector yRep(0., 1., 0.);
     Vector zRep(0., 0., 1.);
@@ -385,6 +385,9 @@ void SteppingHelixPropagator::loadState(int ind,
   r3_[cInd] = r3;
   dir_[cInd] = dir == alongMomentum ? 1.: -1.;
 
+  path_[cInd] = 0; // this could've held the initial path
+  radPath_[cInd] = 0;
+
   GlobalVector bf = field_->inTesla(GlobalPoint(r3.x(), r3.y(), r3.z()));
   
   bf_[cInd].set(bf.x(), bf.y(), bf.z());
@@ -565,6 +568,17 @@ bool SteppingHelixPropagator::makeAtomStep(int iIn, double dS,
   double dEdx = getDeDx(iIn, dEdXPrime, radX0);
   double theta02 = 14.e-3/p0*sqrt(fabs(dS)/radX0); // .. drop log term (this is non-additive)
   theta02 *=theta02;
+  if (applyRadX0Correction_){
+    // this provides the integrand for theta^2
+    // if summed up along the path, should result in 
+    // theta_total^2 = Int_0^x0{ f(x)dX} = (13.6/p0)^2*x0*(1+0.036*ln(x0+1))
+    // x0+1 above is to make the result infrared safe.
+    double x0 = fabs(radPath_[cInd]);
+    double dX0 = fabs(dS)/radX0;
+    double alphaX0 = 13.6e-3/p0; alphaX0 *= alphaX0;
+    double betaX0 = 0.036;
+    theta02 = dX0*alphaX0*(1+betaX0*log(x0+1))*(1 + betaX0*log(x0+1) + 2.*betaX0*x0/(x0+1) );
+  }
 
   Vector tmpR3;
   
@@ -632,8 +646,9 @@ bool SteppingHelixPropagator::makeAtomStep(int iIn, double dS,
     covLoc_[cInd](2,5) += theta02*dS*p0/2.;
     covLoc_[cInd](3,6) += theta02*dS*p0/2.;
 
-    covLoc_[cInd](4,4) += dP*dP*1.6/dS; 
-    //another guess .. makes sense for 1 cm steps 2./dS == 2 [cm] / dS [cm]
+    covLoc_[cInd](4,4) += dP*dP*1.6/dS*(1.0 + p0*1e-3); 
+    //another guess .. makes sense for 1 cm steps 2./dS == 2 [cm] / dS [cm] at low pt
+    //double it by 1TeV
     //not gaussian anyways
     // derived from the fact that sigma_p/eLoss ~ 0.08 after ~ 200 steps
 
@@ -672,10 +687,11 @@ double SteppingHelixPropagator::getDeDx(int iIn, double& dEdXPrime, double& radX
   double lZ = fabs(r3_[cInd].z());
 
   //assume "Iron" .. seems to be quite the same for brass/iron/PbW04
-  //will do proper Bethe-Bloch later
+  //good for Fe within 3% for 0.2 GeV to 10PeV
   double p0 = p3_[cInd].mag();
 
-  double dEdX_mat = -(11.4 + 0.93*fabs(log(p0*2.7)))*1e-3; 
+  //0.065 (PDG) --> 0.044 to better match with MPV
+  double dEdX_mat = -(11.4 + 0.96*fabs(log(p0*2.8)) + 0.033*p0*(1.0 - pow(p0, -0.33)) )*1e-3; 
   //in GeV/cm .. 0.8 to get closer to the median or MPV
   double dEdX_HCal = 0.95*dEdX_mat; //extracted from sim
   double dEdX_ECal = 0.45*dEdX_mat;
