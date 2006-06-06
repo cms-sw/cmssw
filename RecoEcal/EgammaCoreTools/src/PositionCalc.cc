@@ -1,5 +1,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 
 
 //Set Default Values 
@@ -35,166 +36,128 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds)
 
   if(storedRecHitsMap_ == NULL || param_CollectionType_ == "" || storedSubdetectorGeometry_ == NULL)
     throw(std::runtime_error("\n\nPositionCalc::Calculate_Location called uninitialized or wrong initialization.\n\n"));
-   
- 
-  // Calculates position of cluster using the algorithm presented in
-  // Awes et al., NIM A311, p130-138.  See also CMS Note 2001/034 p11
-  
-  // Specify constants for log calculation
-  double w_min = 0.;
 
-  // Specify constants for radius correction
 
-  // Initialize position variables
-  double clusterPhi=0;
-  double clusterEta=0;
-  double eTot=0;
-  double wRadius=0;
-  double wSinPhi=0;
-  double wCosPhi=0;
-  double wTheta=0;
-  double weightSum = 0;
-  
-  // Sum cluster energy for weighting
+  // Figure out what the central crystal is and also calculate the 
+  // total energy
+
+  double eTot = 0;
+
+  DetId maxId_ = (*(passedDetIds.begin()));
+  double eMax = ((storedRecHitsMap_->find(maxId_))->second).energy();
+
+  DetId id_;
+  double e_i = 0;
 
   std::vector<DetId>::iterator i;
-  for (i = passedDetIds.begin(); i != passedDetIds.end(); i++) {
-    DetId id_ = (*i);
-    eTot += ((storedRecHitsMap_->find(id_))->second).energy();
-  }
-  
-  // Calculate positions
-  
-  if(eTot>0.){
-
-    // Main loop through given DetIds
-
-    std::vector<DetId>::iterator j;
-    for (j = passedDetIds.begin(); j != passedDetIds.end(); j++){
-      
-      // Find out what the physical location of the cell is
-      
-      DetId id_ = (*j);
-      const CaloCellGeometry *this_cell = storedSubdetectorGeometry_->getGeometry(id_);
-      GlobalPoint posi = this_cell->getPosition();
-      
-      // Get energy of the single hit
-      
-      double e_j = ((storedRecHitsMap_->find(id_))->second).energy();
-      double weight = 0;
-
-      if (e_j > 0.) {
-	
-	// Put position of cell in spherical coordinates
-	
-	double r=sqrt(posi.x()*posi.x()+posi.y()*posi.y()+posi.z()*posi.z());
-	double pphi =posi.phi();
-	double ttheta =posi.theta();
-	
-	// Do the log weighting
-	
-	if (param_LogWeighted_) {
-	  weight = std::max(w_min, param_W0_ + log(e_j/eTot));
-	}
-
-	// Or the arithmetic weighting
-	
-	else {
-	  weight = e_j/eTot;
-	}
-
-	// Increment the coordinates 
-	
-	wRadius+=weight*r;
-	wSinPhi+=weight*sin(pphi);
-	wCosPhi+=weight*cos(pphi);
-	wTheta+=weight*ttheta;
-	weightSum += weight;
-      }
+  for (i = passedDetIds.begin(); i !=  passedDetIds.end(); i++) {
+    id_ = (*i);
+    e_i = ((storedRecHitsMap_->find(id_))->second).energy();
+    if (e_i > eMax) {
+      eMax = e_i;
+      maxId_ = id_;
     }
     
-    // Divide everything by the sum of the weights to calculate a position
-    
-    if (weightSum > 0) {
-      wRadius /= weightSum;
-      wSinPhi /= weightSum;
-      wCosPhi /= weightSum;
-      wTheta /= weightSum;
-    }
-    
-    
-    // Solving 2*PI problem and stay most linear
-    
-    if(wCosPhi>=M_SQRT1_2)
-      {
-        if(wSinPhi>0)
-          clusterPhi=asin(wSinPhi);
-        else
-          clusterPhi=2*M_PI+asin(wSinPhi);
-      }
-    else if(wCosPhi<-M_SQRT1_2)
-      clusterPhi=M_PI-asin(wSinPhi);
-    else if(wSinPhi>0)
-      clusterPhi=acos(wCosPhi);
-    else
-      clusterPhi=2*M_PI-acos(wCosPhi);
-
-    // Calculate eta
-    
-    clusterEta = -log(tan(wTheta*0.5));
-    
-
-    // Set passed value of T0
-
-    double t_zero = param_T0_;
-    
-    
-    // t_zero values for various scenarios
-    const double bar_t_zero = 5.7;
-    const double end_t_zero = 4.0;
-    const double pre_t_zero = 0.4;
-    
-    // Decide which t_zero to use from location
-    if (param_CollectionType_ == "EcalBarrel") {
-      t_zero = bar_t_zero;
-    }
-
-    if (param_CollectionType_ == "EcalEndcap") {
-      t_zero = end_t_zero;
-    }
-
-    if (param_CollectionType_ == "Presh") {
-      t_zero = pre_t_zero;
-    }
-
-    
-
-    
-    
-    // Correct the radius for shower depth
-    // See CMS Note 2001/034 p10
-    
-    wRadius += param_X0_ * (t_zero + log(eTot));
-    
-    // Display positions for debugging
-
-    std::cout << "Log weighted position:" << std::endl;
-    std::cout << "Cluster eta, phi = " << clusterEta << ", " << clusterPhi << std::endl;
-    
-    // Calculate (x, y, z) and return it
-
-    double xpos = wRadius * cos(clusterPhi) * sin(wTheta);
-    double ypos = wRadius * sin(clusterPhi) * sin(wTheta);
-    double zpos = wRadius * cos(wTheta);
-    return math::XYZPoint(xpos, ypos, zpos);
+    eTot += e_i;
   }
 
-  // If there was no energy in the cluster, return (0, 0, 0).
-  // Give a warning to the user that this is so.
+  // T-zero values for various scenarios
+  const double bar_t_zero = 5.7;
+  const double end_t_zero = 4.0;
+  const double pre_t_zero = 0.4;
 
-  std::cout << "\nPositionCalc::Calculate_Position:  no energy in supplied cells.\n";
+  if (param_CollectionType_ == "EcalBarrel") {
+    param_T0_ = bar_t_zero;
+  }
 
-  return math::XYZPoint(0., 0., 0.);
+  if (param_CollectionType_ == "EcalEndcap") {
+    param_T0_ = end_t_zero;
+  }
+
+  if (param_CollectionType_ == "Presh") {
+    param_T0_ = pre_t_zero;
+  }
+
+
+  
+  // Calculate shower depth
+  float depth = param_X0_ * (param_T0_ + log(eTot));
+
+  // Get position of center cell from shower depth
+  const CaloCellGeometry* center_cell = 
+    storedSubdetectorGeometry_->getGeometry(maxId_);
+  GlobalPoint center_pos = 
+    (dynamic_cast<const TruncatedPyramid*>(center_cell))->getPosition(depth);
+  
+
+  // Loop over hits and get weights
+  double weight = 0;
+  double total_weight = 0;
+
+  double center_phi = center_pos.phi();
+  double center_theta = center_pos.theta();
+
+  double delta_theta = 0;
+  double delta_phi = 0;
+
+  double dphi = 0;
+
+  std::vector<DetId>::iterator j;
+  for (j = passedDetIds.begin(); j != passedDetIds.end(); j++) {
+    id_ = (*j);
+    double e_j = ((storedRecHitsMap_->find(id_))->second).energy();
+
+    if (param_LogWeighted_) {
+      weight = max(0., param_W0_ + log(e_j/eTot));
+    } else {
+      weight = e_j/eTot;
+    }
+    
+    total_weight += weight;
+  
+    const CaloCellGeometry* jth_cell = 
+      storedSubdetectorGeometry_->getGeometry(id_);
+    GlobalPoint jth_pos = 
+      dynamic_cast<const TruncatedPyramid*>(jth_cell)->getPosition(depth);
+
+    delta_theta += weight * (jth_pos.theta() - center_theta);
+    dphi = (jth_pos.phi() - center_phi);
+
+    // Check the 2*pi problem for delta_phi
+    if (dphi > M_PI)
+      dphi -= 2.*M_PI;
+    if (dphi < -M_PI)
+      dphi += 2.*M_PI;
+
+    delta_phi += dphi*weight;    
+  }
+
+  delta_theta /= total_weight;
+  delta_phi /= total_weight;
+  
+  double cluster_theta = center_theta + delta_theta;
+  double cluster_phi = center_phi + delta_phi;
+
+  // Check the 2*pi problem for cluster_phi
+  if (cluster_phi > M_PI)
+    cluster_phi -= 2.*M_PI;
+  if (cluster_phi < -M_PI)
+    cluster_phi += 2.*M_PI;
+
+  double cluster_eta = -log(tan(cluster_theta*0.5));
+
+  std::cout << "Cluster eta = " << cluster_eta << std::endl;
+  std::cout << "Cluster phi = " << cluster_phi << std::endl;
+
+  double radius = sqrt(center_pos.x()*center_pos.x()
+		       + center_pos.y()*center_pos.y()
+		       + center_pos.z()*center_pos.z());
+
+  double xpos = radius*cos(cluster_phi)*sin(cluster_theta);
+  double ypos = radius*sin(cluster_phi)*sin(cluster_theta);
+  double zpos = radius*cos(cluster_theta);
+
+  return math::XYZPoint(xpos, ypos, zpos);
   
 }
 
