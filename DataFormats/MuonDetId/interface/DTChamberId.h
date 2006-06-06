@@ -4,8 +4,8 @@
 /** \class DTChamberId
  *  DetUnit identifier for DT chambers
  *
- *  $Date: 2006/04/12 17:52:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/19 13:28:04 $
+ *  $Revision: 1.5 $
  *  \author Stefano ARGIRO & G. Cerminara
  */
 
@@ -63,18 +63,18 @@ public:
 
 
 
-  /// lowest wheel number
-  static const int minWheelId=              -2;
-  /// highest wheel number
-  static const int maxWheelId=               2;
   /// lowest station id
   static const int minStationId=    1;
   /// highest station id
   static const int maxStationId=    4;
-  /// lowest sector id
-  static const int minSectorId=     1;
-  /// highest sector id
+  /// lowest sector id. 0 indicates all sectors (a station) 
+  static const int minSectorId=     0;
+  /// highest sector id.
   static const int maxSectorId=    14;
+  /// lowest wheel number
+  static const int minWheelId=     -2;
+  /// highest wheel number
+  static const int maxWheelId=      2;
   /// loweset super layer id. 0 indicates a full chamber
   static const int minSuperLayerId= 0;
   /// highest superlayer id
@@ -84,7 +84,7 @@ public:
   /// highest layer id
   static const int maxLayerId=      4;
   /// lowest wire id (numbering starts from 1 or 2). 0 indicates a full layer
-  static const int minWireId=      0;
+  static const int minWireId=       0;
   /// highest wire id (chambers have 48 to 96 wires)
   static const int maxWireId=      97;
  
