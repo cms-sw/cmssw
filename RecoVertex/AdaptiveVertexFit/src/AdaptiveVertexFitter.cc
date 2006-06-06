@@ -1,10 +1,10 @@
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
-#include "RecoVertex/VertexTools/interface/ChiSquareForWeightComputation.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 #include "RecoVertex/VertexTools/interface/AnnealingSchedule.h"
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
+#include "RecoVertex/AdaptiveVertexFit/interface/KalmanChiSquare.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 #include <algorithm>
@@ -22,10 +22,13 @@ namespace {
 AdaptiveVertexFitter::AdaptiveVertexFitter(
       const AnnealingSchedule & ann,
       const LinearizationPointFinder & linP,
-      const VertexUpdator & updator, const VertexSmoother & smoother ) :
+      const VertexUpdator & updator,
+      const VertexTrackCompatibilityEstimator & crit,
+      const VertexSmoother & smoother ) :
     theNr(0),
     theLinP(linP.clone()), theUpdator( updator.clone()),
-    theSmoother ( smoother.clone() ), theAssProbComputer( ann.clone() )
+    theSmoother ( smoother.clone() ), theAssProbComputer( ann.clone() ),
+    theComp ( crit.clone() )
 {
   readParameters();
 }
@@ -42,7 +45,8 @@ AdaptiveVertexFitter::AdaptiveVertexFitter
     theNr ( o.theNr ),
     theLinP ( o.theLinP->clone() ), theUpdator ( o.theUpdator->clone() ),
     theSmoother ( o.theSmoother->clone() ),
-    theAssProbComputer ( o.theAssProbComputer->clone() )
+    theAssProbComputer ( o.theAssProbComputer->clone() ),
+    theComp ( o.theComp->clone() )
 {}
 
 AdaptiveVertexFitter::~AdaptiveVertexFitter()
@@ -51,13 +55,14 @@ AdaptiveVertexFitter::~AdaptiveVertexFitter()
   delete theUpdator;
   delete theSmoother;
   delete theAssProbComputer;
+  delete theComp;
 }
 
 void AdaptiveVertexFitter::readParameters()
 {
   theMaxShift = 0.0001;
   theMaxLPShift = 0.1;
-  theMaxStep = 100;
+  theMaxStep = 30;
   theWeightThreshold=.001;
 }
 
@@ -189,7 +194,7 @@ AdaptiveVertexFitter::linearizeTracks(const vector<reco::TransientTrack> & track
   AlgebraicSymMatrix we(3,0);
   GlobalError nullError( we );
   VertexState initialSeed (linP, nullError);
-  return reWeightTracks(lTracks, initialSeed);
+  return weightTracks(lTracks, initialSeed);
 }
 
 /**
@@ -200,8 +205,9 @@ AdaptiveVertexFitter::linearizeTracks(const vector<reco::TransientTrack> & track
 vector<RefCountedVertexTrack>
 AdaptiveVertexFitter::reLinearizeTracks(
                                 const vector<RefCountedVertexTrack> & tracks,
-                                const VertexState & seed) const
+                                const CachingVertex & vertex ) const
 {
+  VertexState seed = vertex.vertexState();
   GlobalPoint linP = seed.position();
   vector<RefCountedLinearizedTrackState> lTracks;
   for(vector<RefCountedVertexTrack>::const_iterator i = tracks.begin();
@@ -222,7 +228,7 @@ AdaptiveVertexFitter::reLinearizeTracks(
       lTracks.push_back ( (**i).linearizedTrack() );
     };
   };
-  return reWeightTracks(lTracks, seed);
+  return reWeightTracks(lTracks, vertex );
 }
 
 AdaptiveVertexFitter * AdaptiveVertexFitter::clone() const
@@ -230,15 +236,12 @@ AdaptiveVertexFitter * AdaptiveVertexFitter::clone() const
   return new AdaptiveVertexFitter( * this );
 }
 
-/*
- * Construct new a container of VertexTrack with new weights
- * accounting for vertex error, from an existing set of LinearizedTracks.
- */
 vector<RefCountedVertexTrack>
 AdaptiveVertexFitter::reWeightTracks(
                     const vector<RefCountedLinearizedTrackState> & lTracks,
-                    const VertexState & seed) const
+                    const CachingVertex & vertex ) const
 {
+  VertexState seed = vertex.vertexState();
   theNr++;
   if (debug() & 4) cout << "Reweighting tracks... " << endl;
   GlobalPoint pos = seed.position();
@@ -248,7 +251,46 @@ AdaptiveVertexFitter::reWeightTracks(
   for(vector<RefCountedLinearizedTrackState>::const_iterator i
         = lTracks.begin(); i != lTracks.end(); i++)
   {
-    double chi2 = ChiSquareForWeightComputation().estimate ( pos, *i );
+    double chi2 = theComp->estimate ( vertex, *i );
+    double weight = theAssProbComputer->weight(chi2);
+
+    if ( weight > 1.0 )
+    {
+      cout << "[AdaptiveVertexFitter] Warning: weight " << weight << " > 1.0!"
+           << endl;
+      weight=1.0;
+    };
+
+    if ( weight < 0.0 )
+    {
+      cout << "[AdaptiveVertexFitter] Warning: weight " << weight << " < 0.0!"
+           << endl;
+      weight=0.0;
+    };
+
+    RefCountedVertexTrack vTrData
+       = vTrackFactory.vertexTrack(*i, seed, theAssProbComputer->weight(chi2));
+    finalTracks.push_back(vTrData);
+  }
+  return finalTracks;
+}
+
+vector<RefCountedVertexTrack>
+AdaptiveVertexFitter::weightTracks(
+                    const vector<RefCountedLinearizedTrackState> & lTracks,
+                    const VertexState & seed ) const
+{
+  theNr++;
+  if (debug() & 4) cout << "Reweighting tracks... " << endl;
+  GlobalPoint pos = seed.position();
+
+  vector<RefCountedVertexTrack> finalTracks;
+  VertexTrackFactory vTrackFactory;
+  KalmanChiSquare computer;
+  for(vector<RefCountedLinearizedTrackState>::const_iterator i
+        = lTracks.begin(); i != lTracks.end(); i++)
+  {
+    double chi2 = computer.estimate ( pos, *i );
     double weight = theAssProbComputer->weight(chi2);
 
     if ( weight > 1.0 )
@@ -280,7 +322,7 @@ AdaptiveVertexFitter::reWeightTracks(
 vector<RefCountedVertexTrack>
 AdaptiveVertexFitter::reWeightTracks(
                             const vector<RefCountedVertexTrack> & tracks,
-                            const VertexState & seed) const
+                            const CachingVertex & seed) const
 {
   vector<RefCountedLinearizedTrackState> lTracks;
   for(vector<RefCountedVertexTrack>::const_iterator i = tracks.begin();
@@ -340,12 +382,12 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
       // relinearize and reweight.
       // (reLinearizeTracks also reweights tracks)
       globalVTracks = reLinearizeTracks( globalVTracks,
-                             returnVertex.vertexState() );
+                             returnVertex );
       lpStep++;
     } else if (step) {
       // reweight, if it is not the first step
       globalVTracks = reWeightTracks( globalVTracks,
-                                      returnVertex.vertexState() );
+                                      returnVertex );
     }
     // update sequentially the vertex estimate
     for(vector<RefCountedVertexTrack>::const_iterator i
