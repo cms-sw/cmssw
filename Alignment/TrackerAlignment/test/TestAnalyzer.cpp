@@ -13,6 +13,10 @@
 
 
 // system include files
+#include <string>
+#include <TTree.h>
+#include <TFile.h>
+#include <TRotMatrix.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -47,15 +51,45 @@ public:
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 private:
   // ----------member data ---------------------------
+  TTree* theTree;
+  TFile* theFile;
+  float x,y,z,phi,theta,length,thick,width;
+  TRotMatrix* rot;
+
 };
 
 //
 // constructors and destructor
 //
-TestAnalyzer::TestAnalyzer( const edm::ParameterSet& iConfig ) { }
+TestAnalyzer::TestAnalyzer( const edm::ParameterSet& iConfig ) 
+{ 
+
+  // Open root file and define tree
+  std::string fileName = iConfig.getUntrackedParameter<std::string>("fileName","test.root");
+  theFile = new TFile( fileName.c_str(), "RECREATE" );
+  theTree = new TTree( "theTree", "Detector units positions" );
+  
+  theTree->Branch("x",      &x,      "x/F"      );
+  theTree->Branch("y",      &y,      "y/F"      );
+  theTree->Branch("z",      &z,      "z/F"      );
+  theTree->Branch("phi",    &phi,    "phi/F"    );
+  theTree->Branch("theta",  &theta,  "theta/F"  );
+  theTree->Branch("length", &length, "length/F" );
+  theTree->Branch("width",  &width,  "width/F"  );
+  theTree->Branch("thick",  &thick,  "thick/F"  );
+  rot = 0;
+  theTree->Branch("rot",    "TRotMatrix", &rot  );
+
+}
 
 
-TestAnalyzer::~TestAnalyzer(){ }
+TestAnalyzer::~TestAnalyzer()
+{ 
+  
+  theTree->Write();
+  theFile->Close();
+  
+}
 
 
 void
@@ -71,8 +105,35 @@ TestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   edm::ESHandle<TrackerGeometry> trackerGeometry;
   iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
 
-  // Do nothing. Retrieving it calls the ESProducer we want to test
-  
+  // Now loop on detector units, and store position and orientation
+  for ( std::vector<GeomDet*>::const_iterator iGeomDet = trackerGeometry->detsTOB().begin();
+		iGeomDet != trackerGeometry->detsTOB().end(); iGeomDet++ )
+	{
+	  x      = (*iGeomDet)->position().x();
+	  y      = (*iGeomDet)->position().y();
+	  z      = (*iGeomDet)->position().z();
+	  phi    = (*iGeomDet)->surface().normalVector().phi();
+	  theta  = (*iGeomDet)->surface().normalVector().theta();
+	  length = (*iGeomDet)->surface().bounds().length();
+	  width  = (*iGeomDet)->surface().bounds().width();
+	  thick  = (*iGeomDet)->surface().bounds().thickness();
+
+	  double matrix[9] = { 
+		(*iGeomDet)->rotation().xx(),
+		(*iGeomDet)->rotation().xy(),
+		(*iGeomDet)->rotation().xz(),
+		(*iGeomDet)->rotation().yx(),
+		(*iGeomDet)->rotation().yy(),
+		(*iGeomDet)->rotation().yz(),
+		(*iGeomDet)->rotation().zx(),
+		(*iGeomDet)->rotation().zy(),
+		(*iGeomDet)->rotation().zz()
+	  };
+	  rot = new TRotMatrix( "rot", "rot", matrix );
+
+	  theTree->Fill();
+
+	}
   
   edm::LogInfo("TrackerAlignment") << "Done!";
 
