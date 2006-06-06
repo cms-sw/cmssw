@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.3 2006/05/13 06:40:01 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.4 2006/05/25 00:48:48 rahatlou Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -41,13 +41,13 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   vampl.push_back( -0.333 );
   vampl.push_back( -0.333 );
   vampl.push_back( -0.333 );
-  vampl.push_back(  0.025 );
-  vampl.push_back(  0.147 );
-  vampl.push_back(  0.221 );
-  vampl.push_back(  0.216 );
-  vampl.push_back(  0.176 );
-  vampl.push_back(  0.127 );
-  vampl.push_back(  0.088 );
+  vampl.push_back(  0. );
+  vampl.push_back(  1. );
+  vampl.push_back(  0. );
+  vampl.push_back(  0. );
+  vampl.push_back(  0. );
+  vampl.push_back(  0. );
+  vampl.push_back(  0. );
   std::vector<double> amplwgtv = ps.getUntrackedParameter< std::vector<double> >("amplWeights", vampl);
   assert(amplwgtv.size() == 10);
   for(std::vector<double>::const_iterator it = amplwgtv.begin(); it != amplwgtv.end(); ++it) {
@@ -77,13 +77,13 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   vjitt.push_back( 0.000 );
   vjitt.push_back( 0.000 );
   vjitt.push_back( 0.000 );
-  vjitt.push_back( 0.800 );
-  vjitt.push_back( 0.800 );
-  vjitt.push_back( 0.800 );
-  vjitt.push_back( 0.200 );
-  vjitt.push_back( 0.300 );
-  vjitt.push_back( 0.300 );
-  vjitt.push_back( 0.300 );
+  vjitt.push_back( 0.000 );
+  vjitt.push_back( 1.000 );
+  vjitt.push_back( 0.000 );
+  vjitt.push_back( 0.000 );
+  vjitt.push_back( 0.000 );
+  vjitt.push_back( 0.000 );
+  vjitt.push_back( 0.000 );
   std::vector<double> jittwgtv = ps.getUntrackedParameter< std::vector<double> >("jittWeights", vjitt);
   assert(jittwgtv.size() == 10);
   for(std::vector<double>::const_iterator it = jittwgtv.begin(); it != jittwgtv.end(); ++it) {
