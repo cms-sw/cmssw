@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.h,v 1.5 2005/09/01 23:30:49 wmtan Exp $
+// $Id: types.h,v 1.6 2005/11/01 22:31:51 paterno Exp $
 //
 // declaration of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -71,6 +71,10 @@ namespace edm
   // FileInPath
   bool  decode(edm::FileInPath &, std::string const&);
   bool  encode(std::string &, edm::FileInPath const&);
+
+  // ProductTag
+  bool  decode(edm::ProductTag&, std::string const&);
+  bool  encode(std::string &, edm::ProductTag const&);
 
 
   // ParameterSet

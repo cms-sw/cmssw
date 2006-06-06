@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.2 2005/06/23 19:57:23 wmtan Exp $
+// $Id: types.cc,v 1.3 2005/11/01 22:31:51 paterno Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -487,6 +487,29 @@ bool
   to = ost.str();
   return true;
 }
+
+
+// ----------------------------------------------------------------------
+// ProductTag
+// ----------------------------------------------------------------------
+
+bool
+  edm::decode(ProductTag& to, std::string const& from)
+{
+  to.decode(from);
+  return true;
+}  // decode to ProductTag
+
+
+
+bool
+  edm::encode(std::string& to, const ProductTag& from)
+{
+  to = from.encode();
+  return true;
+}
+
+
 
 // ----------------------------------------------------------------------
 

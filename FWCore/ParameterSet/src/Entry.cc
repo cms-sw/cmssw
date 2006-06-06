@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.9 2006/03/10 22:36:59 paterno Exp $
+// $Id: Entry.cc,v 1.10 2006/05/25 21:01:27 rpw Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -97,6 +97,7 @@ namespace edm {
       table_['P'] = "PSet";
       table_['T'] = "path";
       table_['F'] = "FileInPath";
+      table_['t'] = "ProductTag";
       
       for(CodeMap::const_iterator itCode = table_.begin();
            itCode != table_.end();
@@ -164,6 +165,11 @@ namespace edm {
       case 'F':  {  // FileInPath
 	edm::FileInPath val;
         if(!decode(val, rep)) throwEntryError("FileInPath", rep);
+        break;
+      }
+      case 't':  {  // ProductTag
+        edm::ProductTag val;
+        if(!decode(val, rep)) throwEntryError("ProductTag", rep);
         break;
       }
       case 'D':  {  // Double
@@ -299,6 +305,17 @@ namespace edm {
     validate();
   }
 							      
+
+// ----------------------------------------------------------------------
+// ProductTag
+
+  Entry::Entry(edm::ProductTag const& val, bool is_tracked) :
+    rep(), type('t'), tracked(is_tracked ? '+' : '-')
+  {
+    if (!encode(rep, val)) throwEncodeError(val, "ProductTag");
+    validate();
+  }
+
 
 // ----------------------------------------------------------------------
 // ParameterSet
@@ -591,6 +608,19 @@ namespace edm {
     if(!decode(val, rep)) throwEntryError("FileInPath", rep);
     return val;
   }
+
+// ----------------------------------------------------------------------
+// ProductTag
+
+  edm::ProductTag
+  Entry::getProductTag() const
+  {
+    if(type != 't') throwValueError("ProductTag");
+    edm::ProductTag val;
+    if(!decode(val, rep)) throwEntryError("ProductTag", rep);
+    return val;
+  }
+
 
 // ----------------------------------------------------------------------
 // ParameterSet

@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.23 2006/05/25 21:01:11 rpw Exp $
+// $Id: ParameterSet.h,v 1.24 2006/06/01 03:34:43 rpw Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -264,6 +264,17 @@ private:
     return retrieve(name).getFileInPath();
   }
   
+  // ----------------------------------------------------------------------
+  // ProductTag
+
+  template <>
+  inline
+  edm::ProductTag
+  ParameterSet::getParameter<edm::ProductTag>(std::string const& name) const {
+    return retrieve(name).getProductTag();
+  }
+
+
   // ----------------------------------------------------------------------
   // PSet, vPSet
   

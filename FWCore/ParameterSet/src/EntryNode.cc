@@ -62,6 +62,12 @@ namespace edm {
          edm::FileInPath fip(withoutQuotes(value_));
          return Entry(fip, !tracked_);
        }
+     else if (type()=="ProductTag")
+       {
+         edm::ProductTag tag;
+         tag.decode(value_);
+         return Entry(tag, !tracked_);
+       }
      else if(type()=="double")
        {
          double d = strtod(value_.c_str(),0);

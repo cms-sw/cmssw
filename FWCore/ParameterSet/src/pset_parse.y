@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.24 2006/06/05 22:18:24 rpw Exp $
+ * $Id: pset_parse.y,v 1.25 2006/06/05 22:26:19 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -244,6 +244,16 @@ node:            untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                    string name(toString($<str>3));
                    string value(toString($<str>5));
                    EntryNode* en(new EntryNode("FileInPath",name,value,tr,lines));
+                   $<_Node>$ = en;
+                 }
+               |
+                 untracked PRODUCTTAG_tok LETTERSTART_tok EQUAL_tok any
+                 {
+                   DBPRINT("node: PRODUCTTAG");
+                   bool tr = $<_bool>1;
+                   string name(toString($<str>3));
+                   string value(toString($<str>5));
+                   EntryNode* en(new EntryNode("ProductTag",name,value,tr,lines));
                    $<_Node>$ = en;
                  }
                |

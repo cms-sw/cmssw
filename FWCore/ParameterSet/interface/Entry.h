@@ -2,7 +2,7 @@
 #define ParameterSet_Entry_h
 
 // ----------------------------------------------------------------------
-// $Id: Entry.h,v 1.9 2006/03/10 22:36:59 paterno Exp $
+// $Id: Entry.h,v 1.10 2006/05/25 21:01:19 rpw Exp $
 //
 // interface to edm::Entry and related types
 //
@@ -20,6 +20,7 @@
 #include <iosfwd>
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ProductTag.h"
 //@@ not needed, but there might be trouble if we take it out
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -79,6 +80,10 @@ namespace edm {
     Entry(edm::FileInPath const& val, bool is_tracked);
     edm::FileInPath getFileInPath() const;
   
+    // ProductTag
+    Entry(edm::ProductTag const & tag, bool is_tracked);
+    edm::ProductTag getProductTag() const;
+
     // ParameterSet
     Entry(ParameterSet const& val, bool is_tracked);
     ParameterSet getPSet() const;

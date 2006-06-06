@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.15 2006/05/03 16:33:46 paterno Exp $
+ * $Id: pset_lex.l,v 1.16 2006/06/05 22:18:47 rpw Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -44,7 +44,7 @@
 
 %}
 
-letterstart	[a-zA-Z]+[a-zA-Z0-9\-_\.]*
+letterstart	[a-zA-Z]+[a-zA-Z0-9\-_\.:]*
 bangstart	\![a-zA-Z]+[a-zA-Z0-9\-_\.]*
 alphanumeric	[^\'\"\{\}\(\)\&=\n\t\r ,;:`]+
 comment	        #.*[\n]?
@@ -82,6 +82,7 @@ comment2        "//".*[\n]?
 "rename"        { return RENAME_tok; }
 "copy"          { return COPY_tok; }
 "include"       { return INCLUDE_tok; }
+"ProductTag"    { return PRODUCTTAG_tok; }
 "module"        { return MODULE_tok; }
 "service"       { return SERVICE_tok; }
 "es_module"     { return ES_MODULE_tok; }
