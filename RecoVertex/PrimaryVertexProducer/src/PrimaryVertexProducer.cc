@@ -70,6 +70,9 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     reco::TrackCollection tks = *(trackCollection.product());
     
     // interface RECO tracks to vertex reconstruction
+    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+      << "Found: " << tks.size() << " reconstructed tracks" << "\n";
+    cout << "got " << tks.size() << " tracks " << endl;
     vector<TransientTrack> t_tks;
     for (reco::TrackCollection::const_iterator it = tks.begin();
 	 it != tks.end(); it++) {
