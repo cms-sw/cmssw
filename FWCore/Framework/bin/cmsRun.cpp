@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.16 2006/04/06 23:08:32 wmtan Exp $
+$Id: cmsRun.cpp,v 1.17 2006/04/25 23:25:00 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -24,7 +24,9 @@ $Id: cmsRun.cpp,v 1.16 2006/04/06 23:08:32 wmtan Exp $
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/PresenceFactory.h"
-
+#include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 static const char* const kParameterSetOpt = "parameter-set";
 static const char* const kParameterSetCommandOpt = "parameter-set,p";
 static const char* const kHelpOpt = "help";
@@ -76,6 +78,16 @@ int main(int argc, char* argv[])
     return 1;
   }
 
+
+  //
+  // Make JobReport Service up front
+  // 
+  std::string jobReportFile = "FrameworkJobReport.xml";
+  std::auto_ptr<edm::JobReport> jobRep( new edm::JobReport() );  
+  edm::ServiceToken jobReportToken = 
+           edm::ServiceRegistry::createContaining(jobRep);
+  
+
   std::string descString(argv[0]);
   descString += " [options] [--";
   descString += kParameterSetOpt;
@@ -96,7 +108,7 @@ int main(int argc, char* argv[])
     notify(vm);
   } catch(const error& iException) {
     edm::LogError("FwkJob") << "Exception from command line processing: " << iException.what();
-    return 1;
+    return 7000;
   }
     
   if(vm.count(kHelpOpt)) {
@@ -105,20 +117,30 @@ int main(int argc, char* argv[])
   }
   
   if(!vm.count(kParameterSetOpt)) {
-    edm::LogError("FwkJob") << "No configuration file given \n"
-			      <<" please do '"
-			      << argv[0]
-			      <<  " --"
-			      << kHelpOpt
-			      << "'.";
-    return 1;
+    std::string shortDesc("ConfigFileNotFound");
+    std::ostringstream longDesc;
+    longDesc << "No configuration file given \n"
+	     <<" please do '"
+	     << argv[0]
+	     <<  " --"
+	     << kHelpOpt
+	     << "'.";
+    int exitCode = 7001;
+    jobRep->reportError(shortDesc, longDesc.str(), exitCode);
+    std::cout << longDesc.str() <<std::endl;
+    return exitCode;
   }
 
   std::ifstream configFile(vm[kParameterSetOpt].as<std::string>().c_str());
   if(!configFile) {
-    edm::LogError("FwkJob") << "Unable to open configuration file "
-			      << vm[kParameterSetOpt].as<std::string>();
-    return 1;
+    std::string shortDesc("ConfigFileReadError");
+    std::ostringstream longDesc;
+    longDesc << "Unable to open configuration file "
+	     << vm[kParameterSetOpt].as<std::string>();
+    int exitCode = 7002;
+    jobRep->reportError(shortDesc, longDesc.str(), exitCode);
+    std::cout << longDesc.str() <<std::endl;
+    return exitCode;
   }
 
 
@@ -136,7 +158,7 @@ int main(int argc, char* argv[])
   EventProcessorWithSentry proc;
   int rc = -1; // we should never return this value!
   try {
-      std::auto_ptr<edm::EventProcessor> procP(new edm::EventProcessor(configstring));
+      std::auto_ptr<edm::EventProcessor> procP(new edm::EventProcessor(configstring, jobReportToken, edm::serviceregistry::kTokenOverrides));
       EventProcessorWithSentry procTmp(procP);
       proc = procTmp;
       proc->beginJob();
@@ -147,35 +169,48 @@ int main(int argc, char* argv[])
       rc = 0;
   }
   catch (seal::Error& e) {
-      edm::LogError("FwkJob") << "seal::Exception caught in " 
-				<< kProgramName
-				<< "\n"
-				<< e.explainSelf();
-      rc = 1;
-      // TODO: Put 'job failure' report to JobSummary here
+    std::string shortDesc("SEALException");
+    std::ostringstream longDesc;
+    longDesc << "seal::Exception caught in " 
+	     << kProgramName
+	     << "\n"
+	     << e.explainSelf();
+    rc = 8000;
+    jobRep->reportError(shortDesc, longDesc.str(), rc);
+    std::cout << longDesc.str() <<std::endl;
   }
   catch (cms::Exception& e) {
-      edm::LogError("FwkJob") << "cms::Exception caught in " 
-				<< kProgramName
-				<< "\n"
-				<< e.explainSelf();
-      rc = 1;
-      // TODO: Put 'job failure' report to JobSummary here
+     std::string shortDesc("CMSException");
+     std::ostringstream longDesc;
+     longDesc << "cms::Exception caught in " 
+	      << kProgramName
+	      << "\n"
+	      << e.explainSelf();
+     rc = 8001;
+     jobRep->reportError(shortDesc, longDesc.str(), rc);
+     std::cout << longDesc.str() <<std::endl;      
   }
   catch (std::exception& e) {
-      edm::LogError("FwkJob") << "Standard library exception caught in " 
-				<< kProgramName
-				<< "\n"
-				<< e.what();
-      rc = 1;
-      // TODO: Put 'job failure' report to JobSummary here
+      std::string shortDesc("StdLibException");
+      std::ostringstream longDesc;
+      longDesc << "Standard library exception caught in " 
+	       << kProgramName
+	       << "\n"
+	       << e.what();
+      rc = 8002;
+      jobRep->reportError(shortDesc, longDesc.str(), rc);
+      std::cout << longDesc.str() <<std::endl;
+         
   }
   catch (...) {
-      edm::LogError("FwkJob") << "Unknown exception caught in "
-				<< kProgramName
-				<< "\n";
-      rc = 2;
-      // TODO: Put 'job failure' report to JobSummary here
+      std::string shortDesc("UnknownException");
+      std::ostringstream longDesc;
+      longDesc << "Unknown exception caught in "
+	       << kProgramName
+	       << "\n";
+      rc = 8003;
+      jobRep->reportError(shortDesc, longDesc.str(), rc);
+      std::cout << longDesc.str() <<std::endl;
   }
   
   return rc;
