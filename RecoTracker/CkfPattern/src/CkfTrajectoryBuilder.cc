@@ -15,6 +15,7 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 using namespace std;
@@ -47,7 +48,7 @@ CkfTrajectoryBuilder(const edm::ParameterSet& conf,
   //
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   std::string builderName = conf.getParameter<std::string>("TTRHBuilder");   
-  es.get<TrackingComponentsRecord>().get(builderName,theBuilder);
+  es.get<TransientRecHitRecord>().get(builderName,theBuilder);
   
   TTRHbuilder = theBuilder.product();
   
