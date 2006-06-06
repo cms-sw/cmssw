@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.6 2006/04/18 23:41:31 wmtan Exp $
+$Id: RootFile.h,v 1.7 2006/05/03 18:28:26 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -33,6 +33,8 @@ namespace edm {
     BranchMap const& branches() const {return branches_;}
     explicit RootFile(std::string const& fileName, std::string const& catalogName);
     ~RootFile();
+    void open();
+    void close();
     bool next() {return ++entryNumber_ < entries_;} 
     bool previous() {return --entryNumber_ >= 0;} 
     std::auto_ptr<EventPrincipal> read(ProductRegistry const& pReg);
@@ -51,6 +53,8 @@ namespace edm {
     RootFile(RootFile const&); // disable copy construction
     RootFile & operator=(RootFile const&); // disable assignment
     std::string const file_;
+    std::string const catalog_;
+    std::vector<std::string> branchNames_;
     JobReport::Token reportToken_;
     EventID eventID_;
     EntryNumber entryNumber_;

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.13 2006/05/26 21:04:03 wmtan Exp $
+$Id: RootFile.cc,v 1.14 2006/06/06 01:21:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -25,6 +25,8 @@ namespace edm {
 //---------------------------------------------------------------------
   RootFile::RootFile(std::string const& fileName, std::string const& catalogName) :
     file_(fileName),
+    catalog_(catalogName),
+    branchNames_(),
     reportToken_(0),
     eventID_(),
     entryNumber_(-1),
@@ -36,11 +38,7 @@ namespace edm {
     provBranch_(0),
     filePtr_(0) {
 
-    filePtr_ = TFile::Open(file_.c_str());
-    if (filePtr_ == 0) {
-      throw cms::Exception("FileNotFound","RootFile::RootFile()")
-        << "File " << file_ << " was not found.\n";
-    }
+    open();
 
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     assert(metaDataTree != 0);
@@ -62,7 +60,6 @@ namespace edm {
     std::string const wrapperEnd1(">");
     std::string const wrapperEnd2(" >");
 
-    std::vector<std::string> branchNames;
     ProductRegistry::ProductList const& prodList = productRegistry().productList();
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
         it != prodList.end(); ++it) {
@@ -74,29 +71,39 @@ namespace edm {
       std::string const className = wrapperBegin + name + wrapperEnd;
       branches_.insert(std::make_pair(it->first, std::make_pair(className, branch)));
       productMap_.insert(std::make_pair(it->second.productID_, it->second));
-      branchNames.push_back(prod.branchName_);
+      branchNames_.push_back(prod.branchName_);
+    }
+  }
+
+  RootFile::~RootFile() {
+  }
+
+  void
+  RootFile::open() {
+    std::string const label = "source";
+    filePtr_ = TFile::Open(file_.c_str());
+    if (filePtr_ == 0) {
+      throw cms::Exception("FileNotFound","RootFile::RootFile()")
+        << "File " << file_ << " was not found.\n";
     }
     // Report file opened.
     std::string moduleName = "PoolSource";
     std::string logicalFileName = "";
     Service<JobReport> reportSvc;
-    reportToken_ = reportSvc->inputFileOpened(fileName,
+    reportToken_ = reportSvc->inputFileOpened(file_,
                logicalFileName,
-               catalogName,
+               catalog_,
                moduleName,
-               moduleName,
-               branchNames); 
-
+               label,
+               branchNames_); 
   }
 
-  RootFile::~RootFile() {
-    try {
-       filePtr_->Close();
-       Service<JobReport> reportSvc;
-       reportSvc->inputFileClosed(reportToken_);
-    }
-    catch(...) {
-    }
+  void
+  RootFile::close() {
+    filePtr_->Close();
+    Service<JobReport> reportSvc;
+    reportSvc->inputFileClosed(reportToken_);
+    filePtr_ = 0;
   }
 
   void

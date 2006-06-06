@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.21 2006/05/26 21:04:03 wmtan Exp $
+$Id: PoolSource.h,v 1.22 2006/05/30 20:07:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -29,9 +29,11 @@ namespace edm {
     explicit PoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~PoolSource();
 
+    /// Called by framework at end of job
+    virtual void endJob();
+
   private:
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
-    typedef std::map<std::string, RootFileSharedPtr> RootFileMap;
     typedef input::EntryNumber EntryNumber;
     PoolSource(PoolSource const&); // disable copy construction
     PoolSource & operator=(PoolSource const&); // disable assignment
@@ -47,7 +49,6 @@ namespace edm {
 
     std::vector<std::string>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
-    RootFileMap rootFiles_;
     bool mainInput_;
   }; // class PoolSource
   typedef PoolSource PoolRASource;

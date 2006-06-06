@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.29 2006/05/26 21:04:03 wmtan Exp $
+$Id: PoolSource.cc,v 1.30 2006/05/30 20:07:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -19,7 +19,6 @@ namespace edm {
     VectorInputSource(pset, desc),
     fileIter_(fileNames().begin()),
     rootFile_(),
-    rootFiles_(),
     mainInput_(pset.getParameter<std::string>("@module_label") == std::string("@main_input"))
   {
     ClassFiller();
@@ -28,6 +27,11 @@ namespace edm {
       updateProductRegistry();
     }
     setInitialPosition(pset);
+  }
+
+  void
+  PoolSource::endJob() {
+    rootFile_->close();
   }
 
   void PoolSource::setInitialPosition(ParameterSet const& pset) {
@@ -56,20 +60,9 @@ namespace edm {
 
   void PoolSource::init(std::string const& file) {
 
-    // For the moment, we keep all old files open.
-    // FIX: We will need to limit the number of open files.
-    // rootFiles[file]_.reset();
-
-    RootFileMap::const_iterator it = rootFiles_.find(file);
-    if (it == rootFiles_.end()) {
-      rootFile_ = RootFileSharedPtr(new RootFile(file, catalog().url()));
-      rootFiles_.insert(std::make_pair(file, rootFile_));
-      if (mainInput_) {
-        rootFile_->fillParameterSetRegistry(*pset::Registry::instance());
-      }
-    } else {
-      rootFile_ = it->second;
-      rootFile_->setEntryNumber(-1);
+    rootFile_ = RootFileSharedPtr(new RootFile(file, catalog().url()));
+    if (mainInput_) {
+      rootFile_->fillParameterSetRegistry(*pset::Registry::instance());
     }
   }
 
@@ -98,6 +91,8 @@ namespace edm {
     // save the product registry from the current file, temporarily
     boost::shared_ptr<ProductRegistry const> pReg(rootFile_->productRegistrySharedPtr());
 
+    rootFile_->close();
+
     init(*fileIter_);
 
     // make sure the new product registry is identical to the old one
@@ -121,6 +116,8 @@ namespace edm {
 
     // save the product registry from the current file, temporarily
     boost::shared_ptr<ProductRegistry const> pReg(rootFile_->productRegistrySharedPtr());
+
+    rootFile_->close();
 
     init(*fileIter_);
 
