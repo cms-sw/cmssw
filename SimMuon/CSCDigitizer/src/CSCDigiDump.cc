@@ -10,7 +10,10 @@ using std::cout;
 using std::string;
 
 CSCDigiDump::CSCDigiDump(edm::ParameterSet const& conf) {
-  label_ = conf.getParameter<string>("label");
+  wireDigiTag_       = conf.getParameter<edm::ProductTag>("wireDigiTag");
+  stripDigiTag_      = conf.getParameter<edm::ProductTag>("stripDigiTag");
+  comparatorDigiTag_ = conf.getParameter<edm::ProductTag>("comparatorDigiTag");
+
 }
 
 
@@ -21,7 +24,7 @@ void CSCDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
 
   try {
-    e.getByLabel(label_, "MuonCSCWireDigi", wires);
+    e.getByLabel(wireDigiTag_, wires);
       for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
         std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
         std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
@@ -31,12 +34,12 @@ void CSCDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
       }
 
   } catch (...) {
-    edm::LogError("CSCDigiDump") << "Cannot get wires by label " << label_;
+    edm::LogError("CSCDigiDump") << "Cannot get wires by label " << wireDigiTag_.encode();
   }
 
 
   try {
-    e.getByLabel(label_, "MuonCSCStripDigi", strips);
+    e.getByLabel(stripDigiTag_, strips);
 
       for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
         std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
@@ -47,12 +50,12 @@ void CSCDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
       }
 
   } catch (...) {
-     edm::LogError("CSCDigiDump") << "Cannot get strips by label " << label_;
+     edm::LogError("CSCDigiDump") << "Cannot get strips by label " << stripDigiTag_.encode();
   }
 
 
   try {
-    e.getByLabel(label_, "MuonCSCComparatorDigi", comparators);
+    e.getByLabel(comparatorDigiTag_, comparators);
 
       for (CSCComparatorDigiCollection::DigiRangeIterator j=comparators->begin(); 
            j!=comparators->end(); j++) 
@@ -65,7 +68,7 @@ void CSCDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
       }
 
   } catch (...) {
-    edm::LogError("CSCDigiDump") << "Cannot get comparators  by label " << label_;
+    edm::LogError("CSCDigiDump") << "Cannot get comparators  by label " << comparatorDigiTag_.encode();
   }
 
 }
