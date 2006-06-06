@@ -1,6 +1,7 @@
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/src/ConfigurationPreprocessor.h"
 #include "FWCore/ParameterSet/src/ParseResultsTweaker.h"
+#include <boost/tokenizer.hpp>
 #include <fstream>
 #include <iostream>
 
@@ -77,6 +78,23 @@ namespace edm {
       }
      return result;
     }
+
+
+    std::vector<std::string> 
+    tokenize(const std::string & input, const std::string &separator) 
+    {
+      typedef boost::char_separator<char>   separator_t;
+      typedef boost::tokenizer<separator_t> tokenizer_t;
+
+      std::vector<string> result;
+      separator_t  sep(separator.c_str(), "", boost::keep_empty_tokens); // separator for elements in path
+      tokenizer_t  tokens(input, sep);
+      std::copy(tokens.begin(),
+                tokens.end(),
+                std::back_inserter<vector<string> >(result));
+      return result;
+    }
+
   }  // namespace pset
 } // namespace edm
 

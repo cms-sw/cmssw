@@ -19,6 +19,9 @@ namespace edm {
       void read_from_cin(std::string & output);
 
       std::string withoutQuotes(const std::string& from);
+
+      /// breaks the input string into tokens, delimited by the separator
+      std::vector<std::string> tokenize(const std::string & input, const std::string & separator);
    }
 }
 
