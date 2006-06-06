@@ -1,7 +1,7 @@
 /** \file RPCTriggerGeo.cc
  *
- *  $Date: 2006/05/30 18:48:40 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/31 16:52:58 $
+ *  $Revision: 1.4 $
  *  \author Tomasz Fruboes
  */
 
@@ -56,12 +56,8 @@ bool RPCTriggerGeo::isGeometryBuilt(){
 //#############################################################################
 void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
  
-  
-  //std::cout << "Building RPC geometry" << std::endl;  // Check how to give
-                                                      // output in a kosher way
   // Get some information for all RpcDetId`s; store it locally
-  TrackingGeometry::DetContainer::const_iterator it;
-  for(it = rpcGeom->dets().begin();
+  for(TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin();
       it != rpcGeom->dets().end();
       it++)
   {
@@ -71,8 +67,69 @@ void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
     addDet(roll);
     
   } // RpcDet loop end
-
-
+  
+  // Separete reference curls from others, should be done in one step
+  for(RPCCurlMap::iterator it = m_RPCCurlMap.begin();
+      it!=m_RPCCurlMap.end();
+      it++)
+  {
+    if ( (it->second).isRefPlane() ){
+      m_refRPCCurlMap[it->first]=it->second;
+    }
+    else  
+      m_otherRPCCurlMap[it->first]=it->second;
+  }
+  
+  // Make links
+  /*
+  // Pseudo-code for all the action
+  for ( RPCCurlMap::iterator itRefCurl=m_refRPCCurlMap.begin(); 
+        itRefCurl != m_refRPCCurlMap.end();
+        itRefCurl++)//loop over reference curls
+  {
+    for(;;) //within the refCurl loop over refGlobalStrips
+    {
+      
+        links.push(RefDetId.raw,stripNo,RPCConnection)// RPCConnection should contain tower no, plane no and PAC_no (1...144)
+        currentPac = 
+        
+        for(;;)// Loop over otherCurls
+        {
+          if( otherCurl contributes to this ref curl){
+            for(;;) // loop over otherGlobalStrips
+            {
+              if (otherGlobalStrip contributes to currentPac)
+              {
+                
+                  links.push(otherGlobalStrip,stripNo,RPCConnection)
+                
+              }
+            }//otherGlobalStrip
+        } //otherCurls loop end
+      } // refGlopbalStrips loop end
+  } // ref Curl's loop end
+  //*/
+  
+  //loop over reference curls
+  for ( RPCCurlMap::iterator itRefCurl=m_refRPCCurlMap.begin(); 
+        itRefCurl != m_refRPCCurlMap.end();
+        itRefCurl++)
+  {
+    
+    //loop over other curls
+    for ( RPCCurlMap::iterator itOtherCurl=m_otherRPCCurlMap.begin(); 
+          itOtherCurl != m_otherRPCCurlMap.end();
+          itOtherCurl++)
+    {
+      (itRefCurl->second).makeConnections(&(itOtherCurl->second));
+    
+    } //otherCurl loop end
+    
+  } // refCurl's loop end
+  
+  
+  
+  
   m_isGeometryBuilt=true;
   printCurlMapInfo();
 }
@@ -81,7 +138,7 @@ void RPCTriggerGeo::buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom){
 /**
  *
  * \brief Adds detID to the collection
- * \bug Method used to calculate minTower and maxTower is broken
+ * \todo Change method to calculate minTower and maxTower (use predefined table)
  *
 */
 //#############################################################################
@@ -112,15 +169,20 @@ void RPCTriggerGeo::addDet(RPCRoll* roll){
 //#############################################################################
 void RPCTriggerGeo::printCurlMapInfo(){ // XXX - Erase ME
   
-  RPCCurlMap::iterator it;
-  for ( it=m_RPCCurlMap.begin(); it != m_RPCCurlMap.end(); it++){
-  //*
+  
+  for ( RPCCurlMap::iterator it=m_refRPCCurlMap.begin(); it != m_refRPCCurlMap.end(); it++){
     std::cout << "------------------------------"<< std::endl;
     std::cout << "CurlId " << (it->first) << " " << std::endl;
     (it->second).printContents();
-                 //printContents
-  //*/
   }
+  for ( RPCCurlMap::iterator it=m_otherRPCCurlMap.begin(); it != m_otherRPCCurlMap.end(); it++){
+    std::cout << "------------------------------"<< std::endl;
+    std::cout << "CurlId " << (it->first) << " " << std::endl;
+    (it->second).printContents();
+  }
+  
+  std::cout<< "No of refs: " << m_refRPCCurlMap.size() << std::endl;
+  std::cout<< "No of others: " << m_otherRPCCurlMap.size() << std::endl;
 
 
 }

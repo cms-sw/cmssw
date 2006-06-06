@@ -8,7 +8,6 @@
  *  
  * \author Tomasz Fruboes
  * \todo Check if defualt constructor must be somewhow special to be used with map
- * \todo Store phi info of all strips
  *
  */
 
@@ -25,11 +24,16 @@
 class RPCDetInfo{
 
   public:
+    typedef std::map<int, float> RPCStripPhiMap;
+    
+    
+    
     RPCDetInfo(){ }; // To be able to use map
     RPCDetInfo(RPCRoll* roll);
 
     uint32_t rawId();
     float getPhi();
+    float getEtaCentre();
     int getCurlId();
     //void setEtaMin(float);
     //void setEtaMax(float);
@@ -39,18 +43,22 @@ class RPCDetInfo{
     int getRing();
     int getHwPlane(); 
     int getRoll();
+    int getGlobRollNo();
 
+    RPCStripPhiMap getRPCStripPhiMap();
+    //int giveNextStripInPhi(int);
+    //int givePrevStripInPhi(int);
+    int giveStripOfPhi(float);
+        
     void printContents();
-    
-    //int m_sector;    ///< Sector no
+    int etaToTower(float eta);
+
   private:
     void setHwPlane(); 
-    int etaToTower(float eta);
     int etaToSign(float eta);
     //int getHwPlane(int region, int station, int layer);
     float transformPhi(float phi);
     void makeStripPhiMap(RPCRoll* roll);
-
   // Members
   
     
@@ -65,14 +73,14 @@ class RPCDetInfo{
     int m_hwPlane; ///< 1...6 for barell and 1...4 for endcaps
     float m_etaMin;  ///< etaMin and etaMax define to which tower(s) chamber contributes
     float m_etaMax;  ///< etaMin and etaMax define to which tower(s) chamber contributes
+    float m_etaCentre; ///< eta of centre of this detId
     float m_phi;    ///< Phi of center of this detId (different than globalPoint.phi() - [0...2PI[)
         
     int m_towerMin; ///< Lowest tower number to which chamber contributes
     int m_towerMax; ///< Highest tower number to which chamber contributes
     
     static const float m_towerBounds[]; ///< Defines tower bounds
-    
-    typedef std::map<float, int> RPCStripPhiMap;
+       
     RPCStripPhiMap m_stripPhiMap;
     
 };

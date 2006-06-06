@@ -1,7 +1,7 @@
 /** \file RPCDetInfo.cc
  *
- *  $Date: 2006/05/30 18:48:40 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/05/31 16:52:58 $
+ *  $Revision: 1.4 $
  *  \author Tomasz Fruboes
  */
 
@@ -15,7 +15,8 @@
 /**
  *
  * \brief Construct from roll
- * 
+ * \todo To determine m_towerMin and m_towerMax we should use predefined table. 
+ *        Solution with minEta and maxEta is evil :)
 */
 ///////////////////////////////////////////////////////////////////////////////
 RPCDetInfo::RPCDetInfo(RPCRoll* roll){
@@ -31,18 +32,14 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
   setHwPlane();
 
   // Determine min and max \eta values
-  
   const StripTopology* topology = dynamic_cast<const StripTopology*>
                                   (&(roll->topology()));
   
   float stripLength = topology->localStripLength(LocalPoint( 0., 0., 0. ));    
-
+  
   // The list of chamber local positions used to find etaMin and etaMax
   // of a chamber. You can add as many points as desire, but make sure
   // the point lays _inside_ the chamber.
-  // Method doesn't work currently :(
-
-  //*  // using y as nonzero doesnt help
 
   std::vector<LocalPoint> edges;
   edges.push_back(LocalPoint(0., stripLength/2., 0.)); // Add (?) correction for
@@ -56,7 +53,8 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
 
   m_etaMin = *(min_element(etas.begin(), etas.end()));
   m_etaMax = *(max_element(etas.begin(), etas.end()));
-    
+  m_etaCentre =   roll->toGlobal(LocalPoint( 0., 0., 0. )).eta();
+  
   m_towerMin = etaToTower(m_etaMin);
   m_towerMax = etaToTower(m_etaMax);
   
@@ -79,19 +77,68 @@ RPCDetInfo::RPCDetInfo(RPCRoll* roll){
 int RPCDetInfo::getCurlId(){
 
   /*
-  std::cout
-      << mHwPlane << " " << mRegion+2 << " "
-      << mRing+2 << " " << mRoll << std::endl;
-  */
-
   // Constants are added to have positive numbers      
   int curlId = 1000*(m_region+2) +  // barell is now 2, endcaps are 1 and 3
                 100*(m_ring+2) +    // barell may have negative wheel no !                
                  10*(m_hwPlane) +     //1...6
                   1*(m_roll);
-                   
-
+  */
+  int gr = getGlobRollNo();
+  
+  int curlId = 1000*(m_hwPlane) +     //1...6
+                100*(etaToSign(gr) ) + //
+                  1*( std::abs(getGlobRollNo()) );     //-17...17
+                  
+  
   return curlId;
+  
+}
+//#############################################################################
+/**
+ *
+ * \brief Calculates globall iroll no
+ * \note The ring numbering is nontrivial for endcaps
+ */
+//#############################################################################
+int RPCDetInfo::getGlobRollNo(){
+
+  
+  int globRoll=20;
+    
+  if (m_region==0){ //barell
+    
+    int hr = 0;
+  
+    switch (m_roll) {
+      case 1:
+        hr=1;
+        break;
+      case 2:
+        hr=0;
+        break;
+      case 3:
+        hr=-1;
+        break;
+    }
+    
+    
+    if (m_ring > 0)
+      globRoll = m_ring*3-hr;
+    else
+      globRoll = m_ring*3+hr;
+  }
+  else if (m_region==-1){ //-endcap
+    globRoll=-13+(m_ring-1)*3-m_roll;
+  
+  }else if (m_region==1){ //+endcap
+    globRoll= 4+m_ring*3+m_roll;
+    
+  }
+      
+  if (globRoll==20)
+    std::cout << "Trouble. " << std::endl;
+    
+  return globRoll;
 }
 ///////////////////////////////////////////////////////////////////////////////
 /**
@@ -107,25 +154,11 @@ int RPCDetInfo::etaToTower(float eta){
   int sign = etaToSign(eta);
   eta = std::fabs(eta);
 
-  /*
-  if ( eta  > 2.15 ) {  // the number is arbitrary but close to real world limit (2.1),
-                        // tests consistency of data
-    RPCDetId tmpDetId(m_detId);
-    std::cout << "Trouble with detId " << m_detId
-              << " eta=" << eta
-              << " region= " << tmpDetId.m_region()
-              << std::endl;
-  }
-  */
-  
   int tower = 0;
   // The highest tower no is 16
   while ( (eta > m_towerBounds[tower]) && (tower!=16) ){
     tower++;
   }
-
-
-  //std::cout << "eta " << eta << " tower " << tower << std::endl;
 
   if (sign == 0)
     return -tower;
@@ -133,13 +166,13 @@ int RPCDetInfo::etaToTower(float eta){
     return tower;
 
 }
-
 ///////////////////////////////////////////////////////////////////////////////
 /**
  * \brief Returns hardware plane number (mHwPlane)
- * \todo Check layer convention (which is inner/outer) will show up with number of curls beeing reference
+ * 
  *      
  * \todo Clean this function
+ * \note Layer convention seems to be ok.
 */
 ///////////////////////////////////////////////////////////////////////////////
 void RPCDetInfo::setHwPlane()
@@ -154,25 +187,24 @@ void RPCDetInfo::setHwPlane()
   }
   // Now comes the barell
   else if ( station > 2 ){
-    hwPlane = station+2;
+    hwPlane = station;
   } 
   else if ( station == 1 && layer == 1) {
     hwPlane = 1;
   }
   else if ( station == 1 && layer == 2) {
-    hwPlane = 2;
+    hwPlane = 5;
   }
   else if ( station == 2 && layer == 1) {
-    hwPlane = 3;
+    hwPlane = 2;
   }
   else if ( station == 2 && layer == 2) {
-    hwPlane = 4;
+    hwPlane = 6;
   }
 
   m_hwPlane = hwPlane;
   
 }
-
 ///////////////////////////////////////////////////////////////////////////////
 /**
 *
@@ -193,10 +225,12 @@ uint32_t RPCDetInfo::rawId(){
 int RPCDetInfo::getMinTower(){ return m_towerMin; }///<Gives the lowest tower number
 int RPCDetInfo::getMaxTower(){ return m_towerMax; } ///<Gives the highest tower number
 float RPCDetInfo::getPhi(){ return m_phi; }///<Gets phi of this detid
+float RPCDetInfo::getEtaCentre(){ return m_etaCentre;}
 int RPCDetInfo::getRegion(){ return m_region; }///<Gets region
 int RPCDetInfo::getRing(){ return m_ring; }///<Gets ring
 int RPCDetInfo::getHwPlane(){ return m_hwPlane; }///<Gets hwplane
 int RPCDetInfo::getRoll(){ return m_roll; }///<Gets roll
+RPCDetInfo::RPCStripPhiMap RPCDetInfo::getRPCStripPhiMap(){ return m_stripPhiMap;}///<Gets stripMap
 ///////////////////////////////////////////////////////////////////////////////
 /**
  *
@@ -206,6 +240,7 @@ int RPCDetInfo::getRoll(){ return m_roll; }///<Gets roll
 ///////////////////////////////////////////////////////////////////////////////
 float RPCDetInfo::transformPhi(float phi){
 
+ 
   float pi = 3.141592654;
     
   if (phi < 0)
@@ -213,23 +248,24 @@ float RPCDetInfo::transformPhi(float phi){
   else
     return phi;
   
-}///////////////////////////////////////////////////////////////////////////////
+}
+///////////////////////////////////////////////////////////////////////////////
 /**
  *
  *  \brief   Makes strip phi map
+ *  \todo Strip numbering convention may change in future. Check it.
  *
  */
 ///////////////////////////////////////////////////////////////////////////////
 void RPCDetInfo::makeStripPhiMap(RPCRoll* roll){
 
-  for (int i=0; i<roll->nstrips(); i++ ) {
+  for (int i=1; i<=roll->nstrips(); i++ ) {
   
     LocalPoint lStripCentre = roll->centreOfStrip(i);
-    //GlobalPoint gStripCentre = roll->surface().toGlobal(lStripCentre);
     GlobalPoint gStripCentre = roll->toGlobal(lStripCentre);
     float phi = transformPhi( gStripCentre.phi() );
     
-    m_stripPhiMap[phi]=i;
+    m_stripPhiMap[i]=phi;
     
   }
   
@@ -253,13 +289,14 @@ void RPCDetInfo::printContents() {
   std::cout<<"####"<<std::endl;
   std::cout<< "DetId "<< rawId() << " Centre Phi " << getPhi() << std::endl;
   std::cout<< " Tower min" << m_towerMin << " tower max " << m_towerMax << std::endl;
+    
   /*
   RPCStripPhiMap::const_iterator it;
   for (it = m_stripPhiMap.begin(); it != m_stripPhiMap.end(); it++){
         
     std::cout
-        << "Phi: " << it->first << " "
-        << "Strip: " << it->second << " "
+        << "Strip: " << it->first << " "
+        << "Phi: " << it->second << " "
         << std::endl;
     
   }

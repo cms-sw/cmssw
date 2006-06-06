@@ -34,8 +34,11 @@ class RPCTriggerGeo {
     int etaToTower(float eta);
                               
     bool m_isGeometryBuilt; ///< Determines if geometry is built allready
-    typedef std::map<uint32_t, RPCCurl> RPCCurlMap; 
+    typedef std::map<uint32_t, RPCCurl> RPCCurlMap;
+    // Probably the curls should be local 
     RPCCurlMap m_RPCCurlMap; ///< Stores all curls
+    RPCCurlMap m_refRPCCurlMap; ///< Stores refernce curls
+    RPCCurlMap m_otherRPCCurlMap; ///< Stores other curls
     
 };
 #endif

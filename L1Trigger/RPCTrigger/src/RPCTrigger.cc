@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/05/29 12:00:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/30 18:48:40 $
+ *  $Revision: 1.3 $
  *  \author Tomasz Fruboes
  */
 
@@ -34,6 +34,11 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
    // The data formats are not ready yet (V 2006), so we `produce` a fake data
    // to be able to run
   produces<int>("FakeTemp");
+  
+  
+  
+  //
+  
 
 }
 
@@ -55,9 +60,11 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   } 
 
-   // Get RpcDigis, store them locally
-   edm::Handle<RPCDigiCollection> rpcDigis;
-   iEvent.getByType(rpcDigis);
+  // Get RpcDigi`s
+  edm::Handle<RPCDigiCollection> rpcDigis;
+  iEvent.getByType(rpcDigis);
+   
+  // Build cones from digis
 
 }
 
