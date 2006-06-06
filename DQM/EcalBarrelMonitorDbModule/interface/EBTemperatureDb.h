@@ -4,8 +4,8 @@
 /*
  * \file EBTemperatureDb.h
  *
- * $Date: 2005/11/24 09:47:00 $
- * $Revision: 1.19 $
+ * $Date: 2006/06/06 09:27:07 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -86,8 +86,6 @@ private:
 int ievt_;
 
 MonitorElement* meTemp_;
-
-ofstream logFile_;
 
 };
 

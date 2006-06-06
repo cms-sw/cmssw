@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  * 
- * $Date: 2005/12/05 07:38:20 $
- * $Revision: 1.59 $
+ * $Date: 2006/06/06 09:27:08 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -10,8 +10,6 @@
 #include <DQM/EcalBarrelMonitorDbModule/interface/EcalBarrelMonitorDbModule.h>
 
 EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps){
-
-//  logFile_.open("EcalBarrelMonitorDbModule.log");
 
   dbName_ = ps.getUntrackedParameter<string>("dbName", "");
   dbHostName_ = ps.getUntrackedParameter<string>("dbHostName", "");
@@ -27,11 +25,18 @@ EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps
 
   // get hold of back-end interface
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-  
-  //We put this here for the moment since there is no better place 
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
 
+  // MonitorDaemon switch
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  if ( enableMonitorDaemon_ ) {
+    LogInfo("EcalBarrelMonitor") << " enableMonitorDaemon switch is ON";
+    Service<MonitorDaemon> daemon;
+    daemon.operator->();
+  } else {
+    LogInfo("EcalBarrelMonitor") << " enableMonitorDaemon switch is OFF";
+  }
+  
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "Ecal Barrel Db Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
@@ -61,8 +66,6 @@ EcalBarrelMonitorDbModule::~EcalBarrelMonitorDbModule(){
 
   if ( tempDb_ ) delete tempDb_;
 
-//  logFile_.close();
-
 }
 
 void EcalBarrelMonitorDbModule::beginJob(const edm::EventSetup& c){
@@ -87,8 +90,6 @@ void EcalBarrelMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
 //  if ( icycle_ % 10 == 0 )
     cout << "EcalBarrelMonitorDbModule: icycle = " << icycle_ << endl;
 
-//  db = TSQLServer::Connect(("oracle://" + dbHostName_ + ":1521/" + dbName_).c_str(), dbUserName_.c_str(), dbPassword_.c_str());
-
   // Creates the sessions
   ISessionProxy* readProxy = 0;
 
@@ -96,7 +97,7 @@ void EcalBarrelMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
     Context* context = new Context;
     PluginManager* pm = PluginManager::get();
     pm->initialise ();
-    Handle<ComponentLoader> loader = new ComponentLoader(context);
+    seal::Handle<ComponentLoader> loader = new ComponentLoader(context);
     loader->load("CORAL/Services/ConnectionService");
 
     IHandle<IConnectionService> connectionService = context->query<IConnectionService>("CORAL/Services/ConnectionService");

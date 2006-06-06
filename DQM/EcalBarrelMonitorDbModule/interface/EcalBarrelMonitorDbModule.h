@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.h
  *
- * $Date: 2005/11/24 09:47:00 $
- * $Revision: 1.19 $
+ * $Date: 2006/06/06 09:27:07 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -21,6 +21,8 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
@@ -52,6 +54,7 @@ using namespace coral;
 #include <string>
 
 using namespace cms;
+using namespace edm;
 using namespace std;
 
 class EcalBarrelMonitorDbModule: public edm::EDAnalyzer{
@@ -79,6 +82,8 @@ private:
 
 int icycle_;
 
+bool enableMonitorDaemon_;
+
 DaqMonitorBEInterface* dbe;
 
 string dbName_;
@@ -91,8 +96,6 @@ string htmlDir_;
 EBTemperatureDb* tempDb_;
 
 string outputFile_;
-
-ofstream logFile_;
 
 };
 
