@@ -31,9 +31,9 @@ Event products of Reconstruction.
 <tr valign=top>
   <th>Object type</th>
   <th>Container type</th>
-  <th>module<i>[:instance[:alias ]]</i></th>
-  <th>description</th>
-  <th>contact</th>
+  <th>module<i>[:instance[:alias]]</i></th>
+  <th>Description</th>
+  <th>Contact</th>
 </tr>
 <tr class="colgroup">
   <td class="colgroup" colspan=5>Track collections</td>
