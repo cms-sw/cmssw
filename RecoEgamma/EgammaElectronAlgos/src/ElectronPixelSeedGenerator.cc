@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
+// $Id: ElectronPixelSeedGenerator.cc,v 1.1 2006/06/02 16:21:02 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -41,53 +41,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(float iephimin1,	
-						 float iephimax1,	
-						 float ipphimin1,	
-						 float ipphimax1,	
-						 float iphimin2,
-						 float iphimax2,
-						 float izmin1,	
-						 float izmax1, 
-						 float izmin2, 
-						 float izmax2 
-						 ) :
-  ephimin1(iephimin1),
-  ephimax1(iephimax1), 	
-  pphimin1(ipphimin1), 	
-  pphimax1(ipphimax1),
-  phimin2(iphimin2),
-  phimax2(iphimax2),
-  zmin1(izmin1),
-  zmax1(izmax1), 	  
-  zmin2(izmin2),
-  zmax2(izmax2),
-  theMode_(unknown),
-  theMeasurementTracker(0)
+ElectronPixelSeedGenerator::ElectronPixelSeedGenerator():  theMode_(unknown), theMeasurementTracker(0)
 {
-  
-  //phi limits: 1st search
-  //  SimpleConfigurable<float> ephimin_conf(-0.03,conf_name+":ePhiMin1"); 
-  //  SimpleConfigurable<float> ephimax_conf(0.02,conf_name+":ePhiMax1"); 
-  //  SimpleConfigurable<float> pphimin_conf(-0.02,conf_name+":pPhiMin1"); 
-  //  SimpleConfigurable<float> pphimax_conf(0.03,conf_name+":pPhiMax1"); 
-
-  //            2nd search
-  //  SimpleConfigurable<float> phimin2_conf(-0.001,conf_name+":PhiMin2"); 
-  //  SimpleConfigurable<float> phimax2_conf(0.001,conf_name+":PhiMax2"); 
-
-  // z limits:
-  //  SimpleConfigurable<float> zmin1_conf(-15.0,conf_name+":ZMin1"); 
-  //  SimpleConfigurable<float> zmax1_conf(15.0,conf_name+":ZMax1"); 
-
-  //SimpleConfigurable<float> zmin2_conf(-0.05,conf_name+":ZMin2"); 
-  //  SimpleConfigurable<float> zmax2_conf(0.05,conf_name+":ZMax2"); 
-  //UB FIXME
-  //  pixrecHits_=new edm::OwnVector<SiPixelRecHit>;
-  //  pixrecHits_=new std::vector<SiPixelRecHit>;
-
 }
 
 ElectronPixelSeedGenerator::~ElectronPixelSeedGenerator() {
@@ -123,6 +81,18 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm
 
   myMatchEle->setES(&(*theMagField),theMeasurementTracker);
   myMatchPos->setES(&(*theMagField),theMeasurementTracker);
+ 
+ // gets configurable parameters
+  ephimin1 = conf.getParameter<double>("ePhiMin1");
+  ephimax1 = conf.getParameter<double>("ePhiMax1");
+  pphimin1 = conf.getParameter<double>("pPhiMin1");
+  pphimax1 = conf.getParameter<double>("pPhiMax1");
+  pphimin2 = conf.getParameter<double>("pPhiMin2");
+  pphimax2 = conf.getParameter<double>("pPhiMax2");
+  zmin1 = conf.getParameter<double>("ZMin1");
+  zmax1 = conf.getParameter<double>("ZMax1");
+  zmin2 = conf.getParameter<double>("ZMin2");
+  zmax2 = conf.getParameter<double>("ZMax2");
 }
 
 void  ElectronPixelSeedGenerator::run(const edm::Event& e, ElectronPixelSeedCollection & out){
@@ -157,8 +127,8 @@ void ElectronPixelSeedGenerator::setup(bool off)
       // Instantiate the pixel hit matchers
        //      cout << "ElectronPixelSeedGenerator, phi limits: " << ephimin1 << ", " << ephimax1 << ", "
        //	   << pphimin1 << ", " << pphimax1 << endl;
-      myMatchEle = new PixelHitMatcher( ephimin1, ephimax1, phimin2, phimax2, zmin1, zmax1, zmin2, zmax2);
-      myMatchPos = new PixelHitMatcher( pphimin1, pphimax1, phimin2, phimax2, zmin1, zmax1, zmin2, zmax2);
+      myMatchEle = new PixelHitMatcher( ephimin1, ephimax1, pphimin2, pphimax2, zmin1, zmax1, zmin2, zmax2);
+      myMatchPos = new PixelHitMatcher( pphimin1, pphimax1, pphimin2, pphimax2, zmin1, zmax1, zmin2, zmax2);
            if(off) theMode_=offline; else theMode_ = HLT;
         }
 }

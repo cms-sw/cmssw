@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
+// $Id: ElectronPixelSeedProducer.cc,v 1.1 2006/06/02 15:32:45 uberthon Exp $
 //
 //
 
@@ -38,24 +38,12 @@ using namespace reco;
  
 ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iConfig) : conf_(iConfig)
 {
-   //register your products
+  //register your products
+  produces<ElectronPixelSeedCollection>();
 
-   produces<ElectronPixelSeedCollection>();
-
-   //FIXME: add configuration
-//     matcher = new EPHLTMatchSeedGenerator(parameter<double>("ePhiMin1"),
-// 					  parameter<double>("ePhiMax1"),
-// 					  parameter<double>("pPhiMin1"),
-// 					  parameter<double>("pPhiMax1"),
-// 					  parameter<double>("PhiMin2"),
-// 					  parameter<double>("PhiMax2"),
-// 					  parameter<double>("ZMin1"),
-// 					  parameter<double>("ZMax1"),
-// 					  parameter<double>("ZMin2"),
-// 					  parameter<double>("ZMax2"));
-     matcher_ = new ElectronPixelSeedGenerator();
-					      
-     matcher_->setup(true); //always set to offline in our case!
+  //create top algorithm and initialize
+  matcher_ = new ElectronPixelSeedGenerator();
+  matcher_->setup(true); //always set to offline in our case!
 }
 
 

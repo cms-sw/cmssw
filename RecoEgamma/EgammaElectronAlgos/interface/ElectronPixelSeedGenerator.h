@@ -42,18 +42,7 @@ public:
   typedef edm::OwnVector<TrackingRecHit> recHitContainer;
   enum mode{HLT, offline, unknown};  //to be used later
 
-  ElectronPixelSeedGenerator(
-                          float iephimin1=-0.03,	
-			  float iephimax1= 0.02,	
-			  float ipphimin1=-0.02,	
-			  float ipphimax1= 0.03,	
-			  float iphimin2= -0.001,
-			  float iphimax2=  0.001,
-			  float izmin1 =  -15.0,	
-			  float izmax1 =   15.0, 
-			  float izmin2 =  -0.05, 
-			  float izmax2 =   0.05 
-			  );
+  ElectronPixelSeedGenerator();
 
   ~ElectronPixelSeedGenerator();
 
@@ -70,7 +59,7 @@ public:
   float ephimax1;
   float pphimin1;
   float pphimax1;
-  float phimin2, phimax2;
+  float pphimin2, pphimax2;
   float zmin1, zmax1, zmin2, zmax2;
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;
