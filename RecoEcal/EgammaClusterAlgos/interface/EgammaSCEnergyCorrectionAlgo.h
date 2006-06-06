@@ -6,7 +6,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
+#include <map>
 #include <string>
 
 class EgammaSCEnergyCorrectionAlgo
