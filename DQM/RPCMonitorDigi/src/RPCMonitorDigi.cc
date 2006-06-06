@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorDigi class
  *
- *  $Date: 2006/03/09 10:16:15 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/20 14:43:01 $
+ *  $Revision: 1.2 $
  *
  * \author Ilaria Segoni
  */
@@ -31,6 +31,10 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
 
   nameInLog = pset.getUntrackedParameter<std::string>("moduleLogName", "RPC_DQM");
 
+  saveRootFile  = pset.getUntrackedParameter<bool>("DQMSaveRootFileDigi", false); 
+  saveRootFileEventsInterval  = pset.getUntrackedParameter<int>("EventsIntervalForRootFileDigi", 10000); 
+  RootFileName  = pset.getUntrackedParameter<std::string>("RootFileNameDigi", "RPCMonitorModuleDigi.root"); 
+  
   /// get hold of back-end interface
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   
@@ -130,7 +134,9 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 
 
 
-  if(counter % 1000 == 0)   dbe->save("RPCDQMDigiPlots.root");
+  if((!(counter%saveRootFileEventsInterval))&&(saveRootFile) ) {
+    dbe->save(RootFileName);
+  }
   //dbe->showDirStructure();
 
  

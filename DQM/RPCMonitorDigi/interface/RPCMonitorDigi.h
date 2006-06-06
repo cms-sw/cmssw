@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2006/02/02 16:05:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/09 10:15:39 $
+ *  $Revision: 1.1 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -50,6 +50,9 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
         std::map<uint32_t, std::map<std::string, MonitorElement*> >  meCollection;
 	
 	std::string nameInLog;
+	bool saveRootFile;
+	int  saveRootFileEventsInterval;
+	std::string RootFileName;
 };
 
 #endif
