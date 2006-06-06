@@ -2,8 +2,8 @@
  *
  * Digi for CLCT trigger primitives.
  *
- * $Date: 2006/04/06 11:18:37 $
- * $Revision: 1.5 $
+ * $Date: 2006/06/01 07:51:29 $
+ * $Revision: 1.6 $
  *
  * \author N. Terentiev, CMU
  */
@@ -66,7 +66,7 @@ bool CSCCLCTDigi::operator > (const CSCCLCTDigi& rhs) const {
   int stripType     = getStripType();
   int rhsStripType  = rhs.getStripType();
 
-#ifdef L1CSC_STANDALONE
+#ifdef TB
   // Test beams' implementation.
   if (stripType == rhsStripType) { // both di-strip or half-strip
     if      (quality >  rhsQuality) {returnValue = true;}

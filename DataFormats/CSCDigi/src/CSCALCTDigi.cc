@@ -2,8 +2,8 @@
  *
  * Digi for ALCT trigger primitives.
  *
- * $Date: 2006/04/06 11:18:37 $
- * $Revision: 1.6 $
+ * $Date: 2006/06/01 07:51:29 $
+ * $Revision: 1.7 $
  *
  * \author N. Terentiev, CMU
  */
@@ -51,7 +51,7 @@ bool CSCALCTDigi::operator > (const CSCALCTDigi& rhs) const {
   // IMPROVE: in ORCA, we used 3-bit patternHits (quality plus the promotion
   // bit as the MSB) instead of 2-bit quality; needs to be checked.
   bool returnValue = false;
-#ifdef L1CSC_STANDALONE
+#ifdef TB
   // Firmware "feature" in 2003 and 2004 test beam data.
   if (getBX()  < rhs.getBX()) {returnValue = true;}
   if (getBX() != rhs.getBX()) {return returnValue;}
