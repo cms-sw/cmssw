@@ -9,11 +9,11 @@ Double32_t  PositionCalc::param_X0_;
 Double32_t  PositionCalc::param_T0_; 
 Double32_t  PositionCalc::param_W0_;
 std::string PositionCalc::param_CollectionType_ = ""; 
-std::map<EBDetId,EcalRecHit> *PositionCalc::storedRecHitsMap_ = NULL;
+std::map<DetId,EcalRecHit> *PositionCalc::storedRecHitsMap_ = NULL;
 CaloSubdetectorGeometry *PositionCalc::storedSubdetectorGeometry_ = NULL;
 
 void PositionCalc::Initialize(std::map<std::string,double> providedParameters, 
-                                       const std::map<EBDetId,EcalRecHit> *passedRecHitsMap,
+                                       const std::map<DetId,EcalRecHit> *passedRecHitsMap,
                                        std::string passedCollectionType,
                                        const CaloSubdetectorGeometry *passedGeometry) 
 {
@@ -22,7 +22,7 @@ void PositionCalc::Initialize(std::map<std::string,double> providedParameters,
   param_T0_ = providedParameters.find("T0")->second; 
   param_W0_ = providedParameters.find("W0")->second;
 
-  storedRecHitsMap_ = const_cast<std::map<EBDetId,EcalRecHit>*>(passedRecHitsMap);
+  storedRecHitsMap_ = const_cast<std::map<DetId,EcalRecHit>*>(passedRecHitsMap);
   param_CollectionType_ = passedCollectionType;
   storedSubdetectorGeometry_ = const_cast<CaloSubdetectorGeometry*>(passedGeometry);
 }

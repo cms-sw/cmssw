@@ -8,7 +8,7 @@
  *
  * \author Ted Kolberg, ND
  * 
- * \version $Id: PositionCalc.h,v 1.1 2006/05/23 16:50:47 askew Exp $
+ * \version $Id: PositionCalc.h,v 1.2 2006/06/01 11:29:20 rahatlou Exp $
  *
  */
 
@@ -27,7 +27,7 @@ class PositionCalc
   // covariances.
 
   static void Initialize(std::map<std::string,double> providedParameters,
-                         const std::map<EBDetId,EcalRecHit> *passedRecHitsMap,
+                         const std::map<DetId,EcalRecHit> *passedRecHitsMap,
                          std::string passedCollectionType, 
                          const CaloSubdetectorGeometry *passedGeometry);  
 
@@ -52,7 +52,7 @@ class PositionCalc
   static Double32_t  param_T0_;
   static Double32_t  param_W0_;
   static std::string param_CollectionType_;
-  static std::map<EBDetId,EcalRecHit> *storedRecHitsMap_;
+  static std::map<DetId,EcalRecHit> *storedRecHitsMap_;
   static CaloSubdetectorGeometry *storedSubdetectorGeometry_;
 
 };

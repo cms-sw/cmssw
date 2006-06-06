@@ -7,10 +7,10 @@
  *
  * \author Michael A. Balazs, UVa
  * 
- * \version $Id: ClusterShape.h,v 1.3  2006/05/17 12:00:00 mbalazs Exp $
- * \version $Id: ClusterShape.h,v 1.2  2006/05/15 12:00:00 mbalazs Exp $
- * \version $Id: ClusterShape.h,v 1.1  2006/05/11 12:00:00 mbalazs Exp $
- * \version $Id: ClusterShape.h,v 1.0  2006/05/05 12:00:00 mbalazs Exp $
+ * \version $Id: ClusterShapeAlgo.h,v 1.3 2006/05/23 16:50:01 askew Exp $
+ * \version $Id: ClusterShapeAlgo.h,v 1.3 2006/05/23 16:50:01 askew Exp $
+ * \version $Id: ClusterShapeAlgo.h,v 1.3 2006/05/23 16:50:01 askew Exp $
+ * \version $Id: ClusterShapeAlgo.h,v 1.3 2006/05/23 16:50:01 askew Exp $
  *
  */
 
@@ -27,7 +27,7 @@ class ClusterShapeAlgo
 {
 
  public:
-  static void Initialize(const std::map<EBDetId,EcalRecHit> *passedRecHitsMap,
+  static void Initialize(const std::map<DetId,EcalRecHit> *passedRecHitsMap,
 			 std::string passedCollectionType);
   static reco::ClusterShape Calculate(reco::BasicCluster passedCluster );
  
@@ -45,9 +45,9 @@ class ClusterShapeAlgo
   void Calculate_Covariances(); //To Be Completed Pending Position Calc
   
   static std::string param_CollectionType_;
-  static const std::map<EBDetId,EcalRecHit> *storedRecHitsMap_;
+  static const std::map<DetId,EcalRecHit> *storedRecHitsMap_;
 
-  std::pair<EBDetId, Double32_t> energyMap_[5][5];
+  std::pair<DetId, Double32_t> energyMap_[5][5];
 
   Double32_t covEtaEta_, covEtaPhi_, covPhiPhi_;
   Double32_t eMax_, e2nd_, e2x2_, e3x2_, e3x3_, e5x5_;

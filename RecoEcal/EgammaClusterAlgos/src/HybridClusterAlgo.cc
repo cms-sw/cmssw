@@ -10,7 +10,7 @@
 #include <set>
 
 // Return a vector of clusters from a collection of EcalRecHits:
-void HybridClusterAlgo::makeClusters(std::map<EBDetId, EcalRecHit> CorrMap, 
+void HybridClusterAlgo::makeClusters(std::map<DetId, EcalRecHit> CorrMap, 
 				     edm::ESHandle<CaloGeometry> geometry_h,  
 				     reco::BasicClusterCollection &basicClusters)
 {
@@ -29,7 +29,7 @@ void HybridClusterAlgo::makeClusters(std::map<EBDetId, EcalRecHit> CorrMap,
   const CaloSubdetectorGeometry *geometry_p = (*geometry_h).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   CaloSubdetectorGeometry const geometry = *geometry_p;
 
-  std::map<EBDetId, EcalRecHit>::iterator it;
+  std::map<DetId, EcalRecHit>::iterator it;
 
   for (it = CorrMap.begin(); it != CorrMap.end(); it++){
     
@@ -89,10 +89,10 @@ void HybridClusterAlgo::mainSearch(void)
 
   for (it = seeds.begin(); it != seeds.end(); it++){
     std::vector <reco::BasicCluster> thisseedClusters;
-    EBDetId itID = it->id();
+    DetId itID = it->id();
 
     // make sure the current seed has not been used/will not be used in the future:
-    std::set<EBDetId>::iterator seed_in_rechits_it = useddetids.find(itID);
+    std::set<DetId>::iterator seed_in_rechits_it = useddetids.find(itID);
 
     if (seed_in_rechits_it != useddetids.end()) continue;
     //If this seed is already used, then don't use it again.
@@ -128,7 +128,7 @@ void HybridClusterAlgo::mainSearch(void)
     //Positive phi steps.
     for (int i=0;i<phi_steps;++i){
       //remember, this always increments the current position of the navigator.
-      EBDetId centerD = navigator.north();
+      DetId centerD = navigator.north();
 
       EcalBarrelNavigator dominoNav(centerD, topo);
       
@@ -148,7 +148,7 @@ void HybridClusterAlgo::mainSearch(void)
     //Negative phi steps.
     for (int i=0;i<phi_steps;++i){
       //remember, this always decrements the current position of the navigator.
-      EBDetId centerD = navigator.south();
+      DetId centerD = navigator.south();
       EcalBarrelNavigator dominoNav(centerD, topo);
       
       //Go get the new domino.
@@ -334,8 +334,8 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
   double Etot = 0;
 
   //Ready?  Get the starting cell.
-  EBDetId center = navigator.pos();
-  std::map<EBDetId, EcalRecHit>::iterator center_it = rechits_m.find(center);
+  DetId center = navigator.pos();
+  std::map<DetId, EcalRecHit>::iterator center_it = rechits_m.find(center);
   
   if (center_it==rechits_m.end()) return 0; //Didn't find that ID.
   EcalRecHit SeedHit = center_it->second;
@@ -347,8 +347,8 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
   useddetids.insert(center);
 
   //One step upwards in Ieta:
-  EBDetId ieta1 = navigator.west();
-  std::map<EBDetId, EcalRecHit >::iterator eta1_it = rechits_m.find(ieta1);
+  DetId ieta1 = navigator.west();
+  std::map<DetId, EcalRecHit >::iterator eta1_it = rechits_m.find(ieta1);
   if (eta1_it !=rechits_m.end()){
     EcalRecHit UpEta = eta1_it->second;
     if (useddetids.find(ieta1) == useddetids.end()){
@@ -363,8 +363,8 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
   navigator.home();
 
   //One step downwards in Ieta:
-  EBDetId ieta2 = navigator.east();
-  std::map<EBDetId, EcalRecHit >::iterator eta2_it = rechits_m.find(ieta2);
+  DetId ieta2 = navigator.east();
+  std::map<DetId, EcalRecHit >::iterator eta2_it = rechits_m.find(ieta2);
   if (eta2_it !=rechits_m.end()){
     EcalRecHit DownEta = eta2_it->second;
     if (useddetids.find(ieta2)==useddetids.end()){
@@ -382,8 +382,8 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
   //Add the extra 'wing' cells.  Remember, we haven't sent the navigator home,
   //we're still on the DownEta cell.
   if (eta2_it !=rechits_m.end()){
-    EBDetId ieta3 = navigator.east(); //Take another step downward.
-    std::map<EBDetId, EcalRecHit >::iterator eta3_it = rechits_m.find(ieta3);
+    DetId ieta3 = navigator.east(); //Take another step downward.
+    std::map<DetId, EcalRecHit >::iterator eta3_it = rechits_m.find(ieta3);
     if (eta3_it != rechits_m.end()){
       EcalRecHit DownEta2 = eta3_it->second;
       if (useddetids.find(ieta3)==useddetids.end()){
@@ -400,8 +400,8 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
   //Recall, eta1_it is the position incremented one time.
   if (eta1_it !=rechits_m.end()){
     navigator.west(); //Now you're on eta1_it
-    EBDetId ieta4 = navigator.west(); //Take another step upward.
-    std::map<EBDetId, EcalRecHit>::iterator eta4_it = rechits_m.find(ieta4);
+    DetId ieta4 = navigator.west(); //Take another step upward.
+    std::map<DetId, EcalRecHit>::iterator eta4_it = rechits_m.find(ieta4);
     if (eta4_it != rechits_m.end()){
       EcalRecHit UpEta2 = eta4_it->second;
       if (useddetids.find(ieta4) == useddetids.end()){

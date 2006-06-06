@@ -11,9 +11,9 @@ void offsetBy(int deltaX, int deltaY, EcalBarrelNavigator &posCurrent);
 
 
 std::string ClusterShapeAlgo::param_CollectionType_ = "";
-const std::map<EBDetId,EcalRecHit> *ClusterShapeAlgo::storedRecHitsMap_ = NULL;
+const std::map<DetId,EcalRecHit> *ClusterShapeAlgo::storedRecHitsMap_ = NULL;
 
-void ClusterShapeAlgo::Initialize(const std::map<EBDetId,EcalRecHit> *passedRecHitsMap,
+void ClusterShapeAlgo::Initialize(const std::map<DetId,EcalRecHit> *passedRecHitsMap,
 				  std::string passedCollectionType)
 {
   storedRecHitsMap_ = passedRecHitsMap;

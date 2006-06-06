@@ -41,12 +41,12 @@ class HybridClusterAlgo
   //Threshold for becoming a sub-peak in the supercluster.
   double Eseed;
 
-  //Map of EBDetId, RecHit relationship.  EcalRecHit knows what DetId it is,
+  //Map of DetId, RecHit relationship.  EcalRecHit knows what DetId it is,
   //but DetId doesn't  know what EcalRecHit it is. 
-  std::map<EBDetId, EcalRecHit>  rechits_m;
+  std::map<DetId, EcalRecHit>  rechits_m;
 
   //Set of DetIds that have already been used.
-  std::set<EBDetId> useddetids;
+  std::set<DetId> useddetids;
 
   // The vector of seeds:
   std::vector<EcalRecHit> seeds;
@@ -72,7 +72,7 @@ class HybridClusterAlgo
   }
   
   //Hand over the map, the geometry, and I'll hand you back clusters.
-  void makeClusters(std::map<EBDetId, EcalRecHit>, edm::ESHandle<CaloGeometry> , reco::BasicClusterCollection &basicClusters);
+  void makeClusters(std::map<DetId, EcalRecHit>, edm::ESHandle<CaloGeometry> , reco::BasicClusterCollection &basicClusters);
 
   //Make superclusters from the references to the BasicClusters in the event.
   reco::SuperClusterCollection makeSuperClusters(reco::BasicClusterRefVector);
