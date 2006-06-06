@@ -1,7 +1,6 @@
 #include "FWCore/ParameterSet/src/ParseResultsTweaker.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "boost/tokenizer.hpp"
 
 using std::string;
 using std::vector;
@@ -230,16 +229,7 @@ namespace edm {
 
     std::vector<std::string> ParseResultsTweaker::parsePath(const std::string & path)
     {
-      typedef boost::char_separator<char>   separator_t;
-      typedef boost::tokenizer<separator_t> tokenizer_t;
-
-      vector<string> pathElements;
-      separator_t  sep("."); // separator for elements in path
-      tokenizer_t  tokens(path, sep);
-      std::copy(tokens.begin(),
-                tokens.end(),
-                std::back_inserter<vector<string> >(pathElements));
-      return pathElements;
+      return tokenize(path, ".");
     }
 
 
