@@ -33,7 +33,12 @@ CaloTowerDetId CaloTowerConstituentsMap::towerOf(const DetId& id) const {
       EcalSubdetector esd=(EcalSubdetector)id.subdetId();
       if (esd==EcalBarrel && standardEB_) {
 	EBDetId ebid(id);
-	tid=CaloTowerDetId(ebid.tower_ieta(),ebid.tower_iphi());
+	//For the moment making trigTowerDetId consistent here
+	// TODO Change soon elsewhere
+	int tower_iphi=(ebid.tower_iphi()-2);
+	if (tower_iphi < 1)
+	  tower_iphi+=72;
+	tid=CaloTowerDetId(ebid.tower_ieta(),tower_iphi);
       }
     }
   }
