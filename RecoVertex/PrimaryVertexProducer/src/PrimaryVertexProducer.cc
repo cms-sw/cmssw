@@ -12,7 +12,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
-//#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
 using namespace reco;
 
@@ -82,7 +82,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
     
     // here call vertex reconstruction
-
+    /*
     vector<TransientVertex> t_vts = theAlgo.vertices(t_tks);
     for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
 	 iv != t_vts.end(); iv++) {
@@ -93,8 +93,8 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       (*iv).originalTracks().size());
       vColl.push_back(v);
     }
+    */
     
-    /*
     // test with vertex fitter
     if (t_tks.size() > 1) {
       KalmanVertexFitter kvf;
@@ -106,7 +106,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	       (tv).originalTracks().size());
       vColl.push_back(v);
     }
-    */
+    
   }
 
   catch (std::exception & err) {
