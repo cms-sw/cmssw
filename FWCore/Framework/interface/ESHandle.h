@@ -16,12 +16,14 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 14:47:35 EST 2005
-// $Id: ESHandle.h,v 1.5 2005/09/01 23:30:48 wmtan Exp $
+// $Id: ESHandle.h,v 1.6 2005/09/28 23:40:39 wmtan Exp $
 //
 
 // system include files
 
 // user include files
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 
 // forward declarations
 namespace edm {
@@ -33,20 +35,31 @@ class ESHandle
       typedef T value_type;
    
       ESHandle() : data_(0) {}
-      ESHandle(const T* iData) : data_(iData) {}
+      ESHandle(const T* iData) : data_(iData), description_(0) {}
+//      { std::cout<<"Call ESHanlde(data) ctor"<<std::endl; }
+      ESHandle(const T* iData, const edm::eventsetup::ComponentDescription* description) 
+           : data_(iData), description_(description) {}
+//      { std::cout<<"Call ESHanlde(data,description) ctor"<<std::endl; }
       //virtual ~ESHandle();
 
       // ---------- const member functions ---------------------
       const T* product() const { return data_; }
       const T* operator->() const { return product(); }
       const T& operator*() const { return *product(); }
+      const edm::eventsetup::ComponentDescription* description() const { 
+         if(!description_) {
+            throw edm::Exception(edm::errors::InvalidReference,"NullPointer");
+         }
+         return description_; 
+      }
       
-      bool isValid() const { return 0 != data_; }
+      bool isValid() const { return 0 != data_ && 0 != description_; }
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       void swap(ESHandle<T>& iOther) {
          std::swap(data_, iOther.data_);
+         std::swap(description_, iOther.description_);
       }
       
    private:
@@ -55,7 +68,8 @@ class ESHandle
       //const ESHandle& operator=(const ESHandle&); // stop default
 
       // ---------- member data --------------------------------
-         const T* data_; 
+      const T* data_; 
+      const edm::eventsetup::ComponentDescription* description_;
 };
 
 }
