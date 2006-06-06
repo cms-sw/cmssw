@@ -433,7 +433,7 @@ L1GctRegion L1GctSourceCard::makeRegion(ULong rctFileData) {
   bool overFlow = (  (rctFileData & 0x1)       != 0); //LSB is now overflow bit
   bool tauVeto  = ( ((rctFileData & 0x2) >> 1) != 0); //2nd bit is tauveto
 
-  return L1GctRegion(0, 0, et, false, false, tauVeto, overFlow);
+  return L1GctRegion(0, 0, et, overFlow, tauVeto, false, false);
 
 }
 
@@ -444,5 +444,5 @@ L1GctEmCand L1GctSourceCard::makeEmCand(ULong rctFileData, bool iso) {
     int phi = rctFileData & 0x1;  //1 bit of Phi
     int eta = (rctFileData & 0xE) >> 1;  //other 3 bits are eta
 
-    return L1GctEmCand(rank, eta, phi, iso, m_id/3);
+    return L1GctEmCand(rank, phi, eta, iso, m_id/3);
 }
