@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/23 15:38:26 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/05/17 14:26:40 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -48,10 +48,10 @@ double DTTTrigSyncTOFCorr::offset(const DTLayer* layer,
   tTrig = theTTrig - f2i_convCorr;
 
   //Compute the time spent in signal propagation along wire.
-  // NOTE: the FE is always at y<0
+  // NOTE: the FE is always at y>0
   float halfL     = layer->specificTopology().cellLenght()/2;
   float wireCoord = layer->toLocal(globPos).y();
-  float propgL    = halfL + wireCoord;
+  float propgL    = halfL - wireCoord;
   wirePropCorr = propgL/theVPropWire;
 
 

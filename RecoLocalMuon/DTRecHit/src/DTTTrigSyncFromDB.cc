@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/22 10:57:03 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/24 13:44:36 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -97,11 +97,11 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
   // The ttrig computed from the timebox accounts on average for the signal propagation time
   // from the center of the wire to the frontend. Here we just have to correct for
   // the distance of the hit from the wire center.
-  // NOTE: the FE is always at y<0
+  // NOTE: the FE is always at y>0
   wirePropCorr = 0;
   if(doWirePropCorrection) {
     float wireCoord = layer->toLocal(globPos).y();
-    wirePropCorr = wireCoord/theVPropWire;
+    wirePropCorr = -wireCoord/theVPropWire;
     // FIXME: What if hits used for the time box are not distributed uniformly along the wire?
   }
 
