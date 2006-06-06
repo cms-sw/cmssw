@@ -19,7 +19,7 @@ ForwardDiskSectorBuilderFromDet::operator()( const vector<const GeomDet*>& dets)
       std::cout << " ForwardDiskSectorBuilderFromDet: Trying to build Petal Wedge from " 
 		<< "Dets at different radii !! Delta_r = " << rdiff << endl;
     float zdiff = zcheck - (**i).surface().position().z();
-    if ( fabs(zdiff) > 0.5) 
+    if ( fabs(zdiff) > 0.8) 
       std::cout << " ForwardDiskSectorBuilderFromDet: Trying to build Petal Wedge from " 
 		<< "Dets at different z positions !! Delta_z = " << zdiff << endl;
   }
