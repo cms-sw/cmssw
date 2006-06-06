@@ -29,7 +29,7 @@ class EcalTriggerPrimitiveDigi {
   void setSize(int size);
   void setSample(int i, const EcalTriggerPrimitiveSample& sam) { data_[i]=sam; }
     
-  static const int MAXSAMPLES = 8;
+  static const int MAXSAMPLES = 20;
  private:
   EcalTrigTowerDetId id_;
   int size_;
