@@ -98,12 +98,15 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // test with vertex fitter
     if (t_tks.size() > 1) {
       KalmanVertexFitter kvf;
-      TransientVertex tv = kvf.vertex(t_tks);
+      //      TransientVertex tv = kvf.vertex(t_tks);
+      CachingVertex tv = kvf.vertex(t_tks);
       Vertex v(Vertex::Point(tv.position()), 
-	       RecoVertex::convertError(tv.positionError()), 
+	       //	       RecoVertex::convertError(tv.positionError()), 
+	       RecoVertex::convertError(tv.error()), 
 	       (tv).totalChiSquared(), 
 	       (tv).degreesOfFreedom() , 
-	       (tv).originalTracks().size());
+	       (tv).tracks().size());
+      //	       (tv).originalTracks().size());
       vColl.push_back(v);
     }
     
