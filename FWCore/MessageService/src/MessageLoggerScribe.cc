@@ -52,6 +52,14 @@
 //   8 - 5/31/06 wmtan  - in configure_errorlog()
 //	The presence of the framework job report should not affect the output
 //      to the early destination (cerr).
+//
+//   9 - 6/6/06 mf  - in configure__dest()
+//	Support for placeholder PSet without actually creating the destination.
+//	Useful in a .cfi file, in conjunction with potential replace commands.
+//
+//  10 - 6/6/06 mf  - in configure__dest()
+//	Changed cfg keyward interval to reportEvery
+//
 // ----------------------------------------------------------------------
 
 
@@ -421,6 +429,7 @@ void
   char *  severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
   vString const  severities(severity_array+0, severity_array+4);
 
+
   // grab list of categories
   vString  categories
      = getAparameter<vString>(job_pset_p,"categories", empty_vString);
@@ -448,8 +457,8 @@ void
   int  default_limit
     = getAparameter<int>(&default_pset,"limit", COMMON_DEFAULT_LIMIT);
   int  default_interval
-    = getAparameter<int>(&default_pset,"interval", COMMON_DEFAULT_INTERVAL);
-    						// change log 6
+    = getAparameter<int>(&default_pset,"reportEvery", COMMON_DEFAULT_INTERVAL);
+    						// change log 6, 10
   int  default_timespan
     = getAparameter<int>(&default_pset,"timespan", COMMON_DEFAULT_TIMESPAN);
 						// change log 2a
@@ -458,13 +467,18 @@ void
   // grab all of this destination's parameters:
   PSet  dest_pset = getAparameter<PSet>(job_pset_p,filename,empty_PSet);
 
+  // See if this is just a placeholder			// change log 9
+  bool is_placeholder 
+      = getAparameter<bool>(&dest_pset,"placeholder", false);
+  if (is_placeholder) return;
+  
   // grab this destination's default limit/interval/timespan:
   PSet  dest_default_pset
      = getAparameter<PSet>(&dest_pset,"default", empty_PSet);
   int  dest_default_limit
     = getAparameter<int>(&dest_default_pset,"limit", default_limit);
   int  dest_default_interval
-    = getAparameter<int>(&dest_default_pset,"interval", default_interval);
+    = getAparameter<int>(&dest_default_pset,"reportEvery", default_interval);
     						// change log 6
   int  dest_default_timespan
     = getAparameter<int>(&dest_default_pset,"timespan", default_timespan);
@@ -505,9 +519,9 @@ void
     if (limit == NO_VALUE_SET) limit = dest_default_limit;
        								// change log 7 
     int  category_default_interval 
-       = getAparameter<int>(&default_category_pset,"interval",NO_VALUE_SET);
+       = getAparameter<int>(&default_category_pset,"reportEvery",NO_VALUE_SET);
     int  interval
-      = getAparameter<int>(&category_pset,"interval",category_default_interval);
+      = getAparameter<int>(&category_pset,"reportEvery",category_default_interval);
     if (interval == NO_VALUE_SET) interval = dest_default_interval;
       						// change log 6  and then 7
     int  category_default_timespan 
@@ -549,7 +563,7 @@ void
     int  timespan  = getAparameter<int>(&sev_pset,"timespan", NO_VALUE_SET);
     if( timespan != NO_VALUE_SET )  dest_ctrl.setLimit(severity, timespan);
 						// change log 2
-    int  interval  = getAparameter<int>(&sev_pset,"interval", NO_VALUE_SET);
+    int  interval  = getAparameter<int>(&sev_pset,"reportEvery", NO_VALUE_SET);
     if( limit    != NO_VALUE_SET )  dest_ctrl.setInterval(severity, interval   );
     						// change log 6
   }  // for
