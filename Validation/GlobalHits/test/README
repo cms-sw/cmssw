@@ -5,7 +5,7 @@ to CMSSW). It inserts into the event a PGlobalSimHit object as defined in
 SimDataFormats/GlobalValidation.
 
 This package is run from the Validation/GlobalHits/test directory. To execute 
-type cmsRun -p *.cfg with one of the following three .cfg files:
+type cmsRun -p *.cfg with one of the following four .cfg files:
 
 EvtGen+DetSim+Global.cfg runs the full chain of event generation, detector
 	simulation and global translation making use of local .cfi files
@@ -14,6 +14,9 @@ EvtGen+DetSim+Global.cfg runs the full chain of event generation, detector
 	between different generators by uncommenting the one you want and
 	commenting all others. Right now EGun and Pythia have .cfi files.
 	Output appears in GlobalValProducer.root
+
+DetSim+Global.cfg is as above, but uses the reference MC as input rather
+	than regenerating it.
 
 EvtGen+DetSim.cfg runs the event generation and detector simulation
 	using the same .cfi files as above. The ouput goes to 
@@ -39,4 +42,5 @@ MakeValidation.C is a macro that processes GlobalValProducer.root using
 	the superimposed plots (solid blue for reference, dashed red for new)
 	and the returned value of the Chi2Test.
 
-Future revisions will include scripts to automate the process with OVAL.
+valid_global.csh is a script to run all of the necesary packages in order to
+	perform a validation of a new release
