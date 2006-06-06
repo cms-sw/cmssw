@@ -12,7 +12,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinder.h"  //The class to be tested
 
 //Custom headers needed for this test
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctRegion.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
@@ -379,10 +379,11 @@ bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const
         if(vector1[i].eta() != vector2[i].eta()) { testPass = false; break; }
         if(vector1[i].phi() != vector2[i].phi()) { testPass = false; break; }
         if(vector1[i].et() != vector2[i].et()) { testPass = false; break; }
+        if(vector1[i].overFlow() != vector2[i].overFlow()) {testPass = false; break; }
+        if(vector1[i].tauVeto() != vector2[i].tauVeto()) {testPass = false; break; }
         if(vector1[i].mip() != vector2[i].mip()) { testPass = false; break; }
         if(vector1[i].quiet() != vector2[i].quiet()) {testPass = false; break; }
-        if(vector1[i].tauVeto() != vector2[i].tauVeto()) {testPass = false; break; }
-        if(vector1[i].overFlow() != vector2[i].overFlow()) {testPass = false; break; }
+
       }
     }
   }
@@ -449,10 +450,10 @@ void outputRegionsVector(ofstream &fout, RegionsVector &regions, string descript
       fout << regions[i].eta() << "\t"
            << regions[i].phi() << "\t"
            << regions[i].et() << "\t"
-           << regions[i].mip() << "\t"
-           << regions[i].quiet() << "\t"
+           << regions[i].overFlow() << "\t"
            << regions[i].tauVeto() << "\t"
-           << regions[i].overFlow() << endl;
+           << regions[i].mip() << "\t"
+           << regions[i].quiet() << endl;
     }
   }
   fout << endl;  //write a blank line to separate data
