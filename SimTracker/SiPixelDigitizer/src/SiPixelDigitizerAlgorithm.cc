@@ -4,10 +4,11 @@
 // Ported in CMSSW by  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
 // Add tof, change AddNoise to tracked. 4/06
+// Change drift direction. 6/06 d.k.
 
 #include <vector>
 #include <iostream>
-#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
+//#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimTracker/SiPixelDigitizer/interface/SiPixelDigitizerAlgorithm.h"
@@ -20,6 +21,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
 using namespace edm;
+
 SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf):conf_(conf){
   // Common pixel parameters
   // This are parameters which are not likely to be changed
@@ -72,8 +74,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   theOffsetSmearing=conf_.getParameter<double>("OffsetSmearing"); //sigma of the offset smearing
 
 
-
-
   //pixel inefficiency
   
   if (thePixelLuminosity==0) {
@@ -100,30 +100,24 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
       thePixelChipEfficiency[i] = 1.-0.0025; // chips = 99.75%
     }
     
-    
-    
     // Special cases 
-
-    //   unsigned int Subid=DetId(detID).subdetId();
-   
-    if(thePixelLuminosity==10) { // For high luminosity
+    if(thePixelLuminosity==10) { // For high luminosity, bar layer 1
       thePixelColEfficiency[0] = 1.-0.034; // 3.4% for r=4 only
       thePixelEfficiency[0]    = 1.-0.015; // 1.5% for r=4
     }
 
   }
 
-
-
   
   LogInfo ("PixelDigitizer ") <<"SiPixelDigitizerAlgorithm constructed"
 			       <<"Configuration parameters:" 
 			       << "Threshold/Gain = "  
-			       << thePixelThreshold << " " <<  theElectronPerADC 
+			       << thePixelThreshold <<" "<<  theElectronPerADC 
 			       << " " << theAdcFullScale 
 			       << " The delta cut-off is set to " << tMax;
-  if(doMissCalibrate) LogDebug ("PixelDigitizer ") << " miss-calibrate the pixel amplitude " 
-						   << theGainSmearing << " " << theOffsetSmearing ;
+  if(doMissCalibrate) LogDebug ("PixelDigitizer ") 
+    << " miss-calibrate the pixel amplitude " 
+    << theGainSmearing << " " << theOffsetSmearing ;
 
   //MP DA RISOLVERE
   //   particleTable =  &HepPDT::theTable();
@@ -140,24 +134,15 @@ edm::DetSet<PixelDigi>::collection_type SiPixelDigitizerAlgorithm::run(const std
 								       GlobalVector bfield)
 {
 
-
   _detp = pixdet; //cache the PixGeomDetUnit
   _PixelHits=input; //cache the SimHit
   _bfield=bfield; //cache the drift direction
-
 
   // Pixel Efficiency moved from the constructor to the method run because
   // the information of the det are nota available in the constructor
   // Effciency parameters. 0 - no inefficiency, 1-low lumi, 10-high lumi
 
-
-
   detID= _detp->geographicalId().rawId();
-
-
-
-
-
 
   _signal.clear();
 
@@ -175,7 +160,6 @@ edm::DetSet<PixelDigi>::collection_type SiPixelDigitizerAlgorithm::run(const std
 
 vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
   
-
 
   if( _PixelHits.size() > 0 || addNoisyPixels) {
  
@@ -270,8 +254,8 @@ void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
 
   if( fluctuateCharge ) {
     //MP DA RIMUOVERE ASSOLUTAMENTE
-    //    int pid = hit.particleType();
-    int pid=13;
+    int pid = hit.particleType();
+    //int pid=211;  // assume it is a pion
   
     float momentum = hit.pabs();
     // Generate fluctuated charge points
@@ -307,7 +291,9 @@ void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
   delete[] elossVector;
 
 }
-// 
+//****************************************************************************** 
+// Fluctuate the charge comming from a small (10um) track segment.
+// Use the G4 routine. For mip pions for the moment.  
 void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum, 
 				      float eloss, float length, 
 				      int NumberOfSegs,float elossVector[]) {
@@ -317,22 +303,17 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
   if( length > 0.) dedx = eloss/length;
   else dedx = eloss;
 
-
-  // This is a big! apporximation. Needs to be improved.
-  //const float zMaterial = 14.; // Fix to Silicon
-  //particleMomentum = 2.; // Assume 2Gev/c
-
   double particleMass = 139.57; // Mass in MeV, Assume pion
   //MP DA RIMUOVERE
   //   if( particleTable->getParticleData(pid) ) {  // Get mass from the PDTable
   //     particleMass = 1000. * particleTable->getParticleData(pid)->mass(); //Conv. GeV to MeV
   //   }
   
-  //  pid = abs(pid);
-  //if(pid==11) particleMass = 0.511;         // Mass in MeV
-  //else if(pid==13) particleMass = 105.658;
-  //else if(pid==211) particleMass = 139.570;
-  //else if(pid==2212) particleMass = 938.271;
+  pid = abs(pid);
+  if(pid==11) particleMass = 0.511;         // Mass in MeV
+  else if(pid==13) particleMass = 105.658;
+  else if(pid==211) particleMass = 139.570;
+  else if(pid==2212) particleMass = 938.271;
 
   // What is the track segment length.
   float segmentLength = length/NumberOfSegs;
@@ -368,14 +349,16 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
   }
   return;
 }
-//////////////////////////////////////////////////////////////////////////
+//*******************************************************************************
+// Drift the charge segments to the sensor surface (collection plane)
+// INlcude the effect of E-field and B-field 
 void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
 
   LogDebug ("Pixel Digitizer") << " enter drift " ;
 
   _collection_points.resize( _ionization_points.size()); // set size
   
-  LocalVector driftDir=DriftDirection();
+  LocalVector driftDir=DriftDirection();  // get the charge drift direction
 
   if(driftDir.z() ==0.) {
     LogWarning("Magnetic field") << " pxlx: drift in z is zero ";
@@ -388,7 +371,6 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
   float CosLorenzAngleX = 1./sqrt(1.+TanLorenzAngleX*TanLorenzAngleX); //cosine
   float CosLorenzAngleY = 1.;
  
-
   LogDebug ("Pixel Digitizer") 
     << " Lorentz Tan " << TanLorenzAngleX << " " << TanLorenzAngleY <<" "
     << CosLorenzAngleX << " " << CosLorenzAngleY << " "
@@ -410,8 +392,7 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
     SegZ = _ionization_points[i].z();
 
     // Distance from the collection plane
-    //DriftDistance = (moduleThickness/2. - SegZ); // Drift to +z 
-    DriftDistance = (moduleThickness/2. + SegZ); // Drift to -z 
+     DriftDistance = (moduleThickness/2. + SegZ); // Drift to -z 
     
     if( DriftDistance < 0.)
       DriftDistance = 0.;
@@ -447,7 +428,7 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
   } // loop over ionization points, i.
  
 } // end drift
-//
+//*************************************************************************
 // Induce the signal on the collection plane of the active sensor area.
 void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 
@@ -669,7 +650,7 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 
 } // end induce_signal
 /***********************************************************************/
-//
+// Build pixels, check threshold, add misscalibration, ... 
 void SiPixelDigitizerAlgorithm::make_digis() {
   internal_coll.reserve(50); internal_coll.clear();
 
@@ -684,7 +665,6 @@ void SiPixelDigitizerAlgorithm::make_digis() {
     // Do the miss calibration for calibration studies only.
     if(doMissCalibrate) signalInElectrons = missCalibrate(signalInElectrons);
 
-
     // Do only for pixels above threshold
     if ( signalInElectrons >= thePixelThresholdInE) {  
  
@@ -694,21 +674,14 @@ void SiPixelDigitizerAlgorithm::make_digis() {
      int chan =  (*i).first;  // channel number
       pair<int,int> ip = PixelDigi::channelToPixel(chan);
 
-      LogDebug ("Pixel Digitizer") << (*i).first << " " << (*i).second << " " << signalInElectrons 
-				   << " " << adc << ip.first << " " << ip.second ;
-     
-      
+      LogDebug ("Pixel Digitizer") 
+	<< (*i).first << " " << (*i).second << " " << signalInElectrons 
+	<< " " << adc << ip.first << " " << ip.second ;
+           
       // Load digis
       internal_coll.push_back( PixelDigi( ip.first, ip.second, adc));
   
-
-
-
-
-
       //digilink     
-     
-
       if((*i).second.hits().size()>0){
 	simi.clear();
 	unsigned int il=0;
@@ -737,12 +710,9 @@ void SiPixelDigitizerAlgorithm::make_digis() {
    
   }
 }
-
 /***********************************************************************/
-//
+//  Add electronic noise to pixel charge
 void SiPixelDigitizerAlgorithm::add_noise() {
-
-
 
   LogDebug ("Pixel Digitizer") << " enter add_noise " << theNoiseInElectrons;
  
@@ -769,9 +739,9 @@ void SiPixelDigitizerAlgorithm::add_noise() {
                       otherPixels );
   
 
-  LogDebug ("Pixel Digitizer") <<  " Add noisy pixels " << numRows << " " << numColumns << " "
-			       << theNoiseInElectrons << " " 
-			       << thePixelThreshold << " " << numberOfPixels << " " 
+  LogDebug ("Pixel Digitizer") <<  " Add noisy pixels " << numRows << " " 
+			       << numColumns << " " << theNoiseInElectrons << " " 
+			       << thePixelThreshold <<" "<< numberOfPixels<<" " 
 			       << otherPixels.size() ;
  
 
@@ -863,9 +833,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     int dColInChip = indexConverter.DColumn(colROC); // get ROC dcol from ROC col 
     //dcol in mod
     int dColInDet = indexConverter.DColumnInModule(dColInChip,chipIndex); 
-  
-
-    
+      
     chips[chipIndex]++;
     columns[dColInDet]++;
   }
@@ -875,23 +843,17 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
   for ( iter = chips.begin(); iter != chips.end() ; iter++ ) {
     float rand  = RandFlat::shoot();
     if( rand > chipEfficiency ) chips[iter->first]=0;
-
   }
 
   // Delete some Dcol hits.
-
   for ( iter = columns.begin(); iter != columns.end() ; iter++ ) {
-
     float rand  = RandFlat::shoot();
     if( rand > columnEfficiency ) columns[iter->first]=0;
-
   }
   
-
   // Now loop again over pixels to kill some of them.
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
   for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
-
 
     //    int chan = i->first;
     pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
@@ -902,7 +864,6 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     int dColInChip = indexConverter.DColumn(colROC); //get ROC dcol from ROC col 
     //dcol in mod
     int dColInDet = indexConverter.DColumnInModule(dColInChip,chipIndex); 
-
 
 
     float rand  = RandFlat::shoot();
@@ -925,20 +886,21 @@ float SiPixelDigitizerAlgorithm::missCalibrate(const float amp) const {
   float newAmp = amp * gain + offset;
   return newAmp;
 }  
+//******************************************************************************
+// Set the drift direction accoring to the Bfield in local det-unit frame
+// Works for both barrel and forward pixels.
 LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
-  //good Drift direction estimation only for pixel barrel
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
   //  if    (DetId(detID).subdetId()==  PixelSubdetector::PixelBarrel){
     float dir_x = tanLorentzAnglePerTesla * Bfield.y();
     float dir_y = -tanLorentzAnglePerTesla * Bfield.x();
-    float dir_z = 1.; // E field always in z direction
+    float dir_z = -1.; // E field always in z direction, so electrons go to -z
     LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
   
     LogDebug ("Pixel Digitizer") << " The drift direction in local coordinate is "   
 				 << theDriftDirection ;
    
     return theDriftDirection;
- 
 }
 
