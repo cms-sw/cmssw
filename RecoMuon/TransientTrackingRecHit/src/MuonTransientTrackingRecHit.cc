@@ -51,3 +51,7 @@ bool MuonTransientTrackingRecHit::isDT() const{
 bool MuonTransientTrackingRecHit::isCSC() const{
   return  (geographicalId().subdetId() == MuonSubdetId::CSC);
 }
+
+bool MuonTransientTrackingRecHit::isRPC() const{
+  return  (geographicalId().subdetId() == MuonSubdetId::RPC);
+}

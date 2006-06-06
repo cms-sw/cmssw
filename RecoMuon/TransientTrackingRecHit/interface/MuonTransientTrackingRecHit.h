@@ -38,7 +38,7 @@ public:
   bool isCSC() const;
 
   //   /// assert if this rec hit is a RPC rec hit
-  //   bool isRPC() const;
+  bool isRPC() const;
     
 private:
    
