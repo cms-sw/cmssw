@@ -14,10 +14,8 @@ with components from Reco data format objects.
 \subsection interface Public interface
 - reco::RecoCandidate: base class for all Reco candidate types.
 - reco::RecoChargedCandidate: reco::RecoCandidate subclass containing a reference to a reco::Track
-- reco::RecoMuonCandidate: reco::RecoCandidate subclass containing a reference to a reco::Muon
-- reco::RecoElectronCandidate: reco::RecoCandidate subclass containing a reference to a reco::Electron
-- reco::RecoPhotonCandidate: reco::RecoCandidate subclass containing a reference to a reco::Photon
 - reco::RecoCaloTowerCandidate: reco::RecoCandidate subclass containing a reference to a CaloTower
+- reco::RecoCaloJetCandidate: reco::RecoCandidate subclass containing a reference to a CaloJet
 
 \subsection modules Modules
 None.
