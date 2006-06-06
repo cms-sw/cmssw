@@ -23,6 +23,9 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
+ * $Date: 2005/05/31 18:52:28 $
+ * $Revision: 1.1 $
+ *
  */
 
 #include <vector>
@@ -35,47 +38,35 @@ class CSCCathodeLCTProcessor
 {
  public:
   /** Normal constructor. */
-#ifndef L1CSC_STANDALONE
   CSCCathodeLCTProcessor(unsigned endcap, unsigned station, unsigned sector,
 			 unsigned subsector, unsigned chamber,
 			 const edm::ParameterSet& conf);
-#endif
 
   /** Default constructor. Used for testing. */
   CSCCathodeLCTProcessor();
+
+  /** Clears the LCT containers. */
+  void clear();
 
   /** Runs the LCT processor code. Called in normal running -- gets info from
       a collection of comparator digis. */
   std::vector<CSCCLCTDigi> run(const CSCComparatorDigiCollection* compdc);
 
-  /** Called in test mode and by the run() function; does the actual LCT
+  /** Called in test mode and by the run(compdc) function; does the actual LCT
       finding. */
   void run(int triad[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS],
 	   int time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS],
 	   int digiNum[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS]);
-
-  /** Clears the LCT containers. */
-  void clear();
-
-  /** Turns on the debug flag for this class. */
-  static void setDebug() {debug = true;}
-
-  /** Turns off the debug flag for this class (default). */
-  static void setNoDebug() {debug = false;}
+ 
+  /** Access routines to comparator digis. */
+  void getDigis(const CSCComparatorDigiCollection* compdc);
+  void getDigis(const std::vector<std::vector<CSCComparatorDigi> > digis);
 
   /** Best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi bestCLCT;
 
   /** Second best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi secondCLCT;
-
-#ifndef L1CSC_STANDALONE
-  /** Access routine to comparator digis. */
-  void getDigis(const CSCComparatorDigiCollection* compdc);
-#endif
-
-  /** This version used for L1CSC_STANDALONE mode. */
-  void getDigis(const std::vector<std::vector<CSCComparatorDigi> > digis);
 
   /** Returns vector of found CLCTs, if any. */
   std::vector<CSCCLCTDigi> getCLCTs();
@@ -92,10 +83,10 @@ class CSCCathodeLCTProcessor
   /** Access to time on single distrip on any layer. */
   int diStripHit(const int layer, const int strip) const;
 
-  static void distripStagger(int stag_triad[CSCConstants::MAX_NUM_STRIPS],
-			     int stag_time[CSCConstants::MAX_NUM_STRIPS],
-			     int stag_digi[CSCConstants::MAX_NUM_STRIPS],
-			     int i_distrip);
+  void distripStagger(int stag_triad[CSCConstants::MAX_NUM_STRIPS],
+		      int stag_time[CSCConstants::MAX_NUM_STRIPS],
+		      int stag_digi[CSCConstants::MAX_NUM_STRIPS],
+		      int i_distrip);
 
   /** Pre-defined patterns. */
   enum {NUM_PATTERN_STRIPS = 36};
@@ -111,6 +102,13 @@ class CSCCathodeLCTProcessor
 		     CLCT_STRIP_TYPE, CLCT_QUALITY};
 
  private:
+  /** Verbosity level: 0: no print (default).
+   *                   1: print only CLCTs found.
+   *                   2: info at every step of the algorithm.
+   *                   3: add special-purpose prints. */
+  int infoV;
+
+  /** Chamber id (trigger-type labels). */
   const unsigned theEndcap;
   const unsigned theStation;
   const unsigned theSector;
@@ -126,26 +124,8 @@ class CSCCathodeLCTProcessor
   std::vector<int> theDiStripHits[CSCConstants::NUM_LAYERS];
 
   static int test_iteration;
-  static bool debug;
-
-  /** Set times on all layers for distrips and halfstrips. */
-  void saveAllHits(const int distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], 
-		   const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
-
-  /** Set times on halfstrips on any layer. */
-  void setHalfStripHits(const int layer, const std::vector<int>& hStripHits);
-
-  /** Set time on single halfstrip on any layer. */
-  void setHalfStripHit(const int layer, const int strip, const int hit);
-
-  /** Set times on distrips on any layer. */
-  void setDiStripHits(const int layer, const std::vector<int>& dStripHits);
-
-  /** Set time on single distrip on any layer. */
-  void setDiStripHit(const int layer, const int strip, const int hit);
 
   //----------------------- Default ORCA Fcns ---------------------------------
-  bool hitIsGood(int hitTime, int BX);
   std::vector<CSCCLCTDigi> findLCTs(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 				    int width, int numStrips);
   bool preTrigger(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
@@ -156,6 +136,7 @@ class CSCCathodeLCTProcessor
 		       int stripType);
   void getPattern(int pattern_num, int strip_value[NUM_PATTERN_STRIPS],
 		  int bx_time, int &quality, int &bend);
+  bool hitIsGood(int hitTime, int BX);
 
   //----------------------- Test Beam Fcns below ----------------------------
   std::vector<CSCCLCTDigi> findLCTs(const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
@@ -179,6 +160,22 @@ class CSCCathodeLCTProcessor
   void getPattern(int pattern_num, const int strip_value[NUM_PATTERN_STRIPS],
 		  int& quality, int& bend);
   //-------------------------------------------------------------------------
+
+  /** Set times on all layers for distrips and halfstrips. */
+  void saveAllHits(const int distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], 
+		   const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
+
+  /** Set times on halfstrips on any layer. */
+  void setHalfStripHits(const int layer, const std::vector<int>& hStripHits);
+
+  /** Set time on single halfstrip on any layer. */
+  void setHalfStripHit(const int layer, const int strip, const int hit);
+
+  /** Set times on distrips on any layer. */
+  void setDiStripHits(const int layer, const std::vector<int>& dStripHits);
+
+  /** Set time on single distrip on any layer. */
+  void setDiStripHit(const int layer, const int strip, const int hit);
 
   void testDistripStagger();
   void testLCTs();

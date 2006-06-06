@@ -13,6 +13,9 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
+ * $Date: 2005/05/31 18:52:28 $
+ * $Revision: 1.1 $
+ *
  */
 
 #include <vector>
@@ -21,20 +24,19 @@
 #include <DataFormats/CSCDigi/interface/CSCALCTDigi.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
-class CSCLayer;
-
 class CSCAnodeLCTProcessor
 {
  public:
   /** Normal constructor. */
-#ifndef L1CSC_STANDALONE
   CSCAnodeLCTProcessor(unsigned endcap, unsigned station, unsigned sector,
 		       unsigned subsector, unsigned chamber,
 		       const edm::ParameterSet& conf);
-#endif
 
   /** Default constructor. Used for testing. */
   CSCAnodeLCTProcessor();
+
+  /** Clears the LCT containers. */
+  void clear();
 
   /** Runs the LCT processor code. Called in normal running -- gets info from
       a collection of wire digis. */
@@ -44,24 +46,15 @@ class CSCAnodeLCTProcessor
       mode. */
   void run(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
 
-  /** Clears the LCT containers. */
-  void clear();
-
-  /** Turns on the debug flag for this class. */
-  static void setDebug() {debug = true;}
-
-  /** Turns off the debug flag for this class (default). */
-  static void setNoDebug() {debug = false;}
+  /** Access routines to wire digis. */
+  void getDigis(const CSCWireDigiCollection* wiredc);
+  void getDigis(const std::vector<std::vector<CSCWireDigi> > digis);
 
   /** Best LCT in this chamber, as found by the processor. */
   CSCALCTDigi bestALCT;
 
   /** Second best LCT in this chamber, as found by the processor. */
   CSCALCTDigi secondALCT;
-
-  /** Access routines to wire digis.*/
-  void getDigis(const CSCWireDigiCollection* wiredc);
-  void getDigis(const std::vector<std::vector<CSCWireDigi> > digis);
 
   /** Returns vector of found ALCTs, if any. */
   std::vector<CSCALCTDigi> getALCTs();
@@ -78,6 +71,13 @@ class CSCAnodeLCTProcessor
   static const int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
 
  private:
+  /** Verbosity level: 0: no print (default).
+   *                   1: print only ALCTs found.
+   *                   2: info at every step of the algorithm.
+   *                   3: add special-purpose prints. */
+  int infoV;
+
+  /** Chamber id (trigger-type labels). */
   const unsigned theEndcap;
   const unsigned theStation;
   const unsigned theSector;
@@ -94,14 +94,26 @@ class CSCAnodeLCTProcessor
 
   std::vector<int> theWireHits[CSCConstants::NUM_LAYERS];
 
-  static bool debug;
   static const int bx_min;
   static const int bx_max;
 
   /** Configuration parameters. */
   int nph_thresh, nph_pattern, drift_delay, fifo_pretrig;
   int trig_mode, alct_amode, bx_width;
-  int fifo_tbins, l1a_window; // only for SA mode.
+  int fifo_tbins, l1a_window; // only for test beam mode.
+
+  /** Clears the quality for a given wire and pattern if it is a ghost. */
+  void clear(const int wire, const int pattern);
+
+  /** ALCT algorithm methods. */
+  void readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
+  bool pulseExtension(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
+  bool preTrigger(const int key_wire);
+  void patternDetection(const int key_wire);
+  void ghostCancellationLogic();
+  void lctSearch();
+  void trigMode(const int key_wire);
+  void alctAmode(const int key_wire);
 
   /** Set times on all layers for all wires. */
   void saveAllHits(const int wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
@@ -112,22 +124,7 @@ class CSCAnodeLCTProcessor
   /** Set time on single wire on any layer. */
   void setWireHit(const int layer, const int wire, const int hit);
 
-  /** Clears the quality for a given wire and pattern if it is a ghost. */
-  void clear(const int wire, const int pattern);
-
-  void readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
-  bool pulseExtension(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
-  bool preTrigger(const int key_wire);
-  void patternDetection(const int key_wire);
-  void ghostCancellationLogic();
-  void lctSearch();
-  void trigMode(const int key_wire);
-  void alctAmode(const int key_wire);
   void showPatterns(const int key_wire);
-
-#ifndef L1CSC_STANDALONE
-  void findHitStrip(CSCLayer* pLayer, int wire, float eta);
-#endif
 };
 
 #endif

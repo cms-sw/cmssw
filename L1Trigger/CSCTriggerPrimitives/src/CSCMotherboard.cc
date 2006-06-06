@@ -27,6 +27,9 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
+//   $Date: 2005/05/31 18:52:28 $
+//   $Revision: 1.1 $
+//
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
 //   Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
@@ -36,17 +39,15 @@
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-bool CSCMotherboard::debug = true;
-
 CSCMotherboard::CSCMotherboard() :
                    theEndcap(1), theStation(1), theSector(1),
                    theSubsector(1), theTrigChamber(1) {
   // Constructor used only for testing.  -JM
   alct = new CSCAnodeLCTProcessor();
   clct = new CSCCathodeLCTProcessor();
+  infoV = 2;
 }
 
-#ifndef L1CSC_STANDALONE
 CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
 			       unsigned sector, unsigned subsector,
 			       unsigned chamber,
@@ -54,15 +55,25 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
                    theEndcap(endcap), theStation(station), theSector(sector),
                    theSubsector(subsector), theTrigChamber(chamber) {
   // Normal constructor.  -JM
-  alct =
-    new CSCAnodeLCTProcessor(endcap,station,sector,subsector,chamber,conf);
-  clct =
-    new CSCCathodeLCTProcessor(endcap,station,sector,subsector,chamber,conf);
+  // Pass ALCT and CLCT parameters on to their processors.
+  edm::ParameterSet alctParams =
+    conf.getParameter<edm::ParameterSet>("alctParam");
+  edm::ParameterSet clctParams =
+    conf.getParameter<edm::ParameterSet>("clctParam");
+  alct = new CSCAnodeLCTProcessor(endcap, station, sector, subsector,
+				  chamber, alctParams);
+  clct = new CSCCathodeLCTProcessor(endcap, station, sector, subsector,
+				    chamber, clctParams);
+
+  // Motherboard parameters
+  edm::ParameterSet tmbParams  =
+    conf.getParameter<edm::ParameterSet>("tmbParam");
+  infoV = tmbParams.getUntrackedParameter<int>("verbosity", 0);
+
   // test to make sure that what goes into a correlated LCT is also what
   // comes back out.
   // testLCT();
 }
-#endif
 
 CSCMotherboard::~CSCMotherboard() {
   if (alct) delete alct;
@@ -103,7 +114,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
     if (alct->bestALCT.isValid() || clct->bestCLCT.isValid())
       correlateLCTs(alct->bestALCT, alct->secondALCT,
 		    clct->bestCLCT, clct->secondCLCT);
-    if (debug) {
+    if (infoV > 0) {
       if (firstLCT.isValid()) {
 	LogDebug("CSCMotherboard") << firstLCT;
       }
@@ -149,7 +160,7 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
   if (!cathodeBestValid && cathodeSecondValid) bestCLCT   = secondCLCT;
 
   // TB only, or always????
-#ifdef L1CSC_STANDALONE
+#ifdef TB
   if (bestCLCT.isValid() == false && secondCLCT.isValid() == false) continue;
 #endif
   firstLCT = constructLCTs(bestALCT, bestCLCT);
@@ -247,7 +258,7 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
 	else if (sumQual == 5) {quality = 14;}
 	else if (sumQual == 6) {quality = 15;}
       }
-#ifdef L1CSC_STANDALONE
+#ifdef TB
       // Firmware bug.
       if (isDistrip && (aLCT.getQuality() == 0 || cLCT.getQuality() == 0))
 	quality = 0;

@@ -31,6 +31,9 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
+ * $Date: 2005/05/31 18:52:28 $
+ * $Revision: 1.1 $
+ *
  */
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h>
@@ -41,11 +44,9 @@ class CSCMotherboard
 {
  public:
   /** Normal constructor. */
-#ifndef L1CSC_STANDALONE
   CSCMotherboard(unsigned endcap, unsigned station, unsigned sector, 
 		 unsigned subsector, unsigned chamber,
 		 const edm::ParameterSet& conf);
-#endif
 
   /** Constructor for use during testing. */
   CSCMotherboard();
@@ -70,12 +71,6 @@ class CSCMotherboard
       LCT processors. */
   void clear();
 
-  /** Turns on the debug flag for this class. */
-  static void setDebug() {debug = true;}
-
-  /** Turns off the debug flag for this class (default). */
-  static void setNoDebug() {debug = false;}
-
   /** Anode LCT processor. */
   CSCAnodeLCTProcessor* alct;
 
@@ -83,7 +78,11 @@ class CSCMotherboard
   CSCCathodeLCTProcessor* clct;
 
  private:
-  static bool debug;
+  /** Verbosity level: 0: no print (default).
+   *                   1: print LCTs found. */
+  int infoV;
+
+  /** Chamber id (trigger-type labels). */
   const unsigned theEndcap;
   const unsigned theStation;
   const unsigned theSector;
