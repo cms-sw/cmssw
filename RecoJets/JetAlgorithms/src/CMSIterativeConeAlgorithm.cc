@@ -1,3 +1,8 @@
+// Original author: A. Ulyanov
+// $Id$
+
+#include <list>
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
