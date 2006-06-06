@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/20 22:56:43 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/06/01 09:08:32 $
+ *  $Revision: 1.18 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -440,7 +440,7 @@ float DTDigitizer::externalDelays(const DTLayer* layer,
   
   float wireCoord = hit->localPosition().y();
   float halfL     = (layer->specificTopology().cellLenght())/2.;
-  float propgL = halfL + wireCoord; // the FE is always located at the neg coord.
+  float propgL = halfL - wireCoord; // the FE is always located at the pos coord.
 
   float propDelay = propgL/vPropWire;
 
