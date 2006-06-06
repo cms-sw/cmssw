@@ -11,7 +11,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 15:29:14 EST 2005
-// $Id: recordGetImplementation.icc,v 1.6 2005/09/01 04:47:49 wmtan Exp $
+// $Id: recordGetImplementation.icc,v 1.7 2005/09/01 23:30:49 wmtan Exp $
 //
 
 // system include files
@@ -28,7 +28,8 @@ template <typename T>
 template < typename DataT > 
 void 
 EventSetupRecordImplementation<T>::getImplementation(DataT const *& iData ,
-                                                     const char* iName) const 
+                                                     const char* iName,
+                                                     const ComponentDescription*& iDesc) const 
 {
    DataKey key(DataKey::makeTypeTag<DataT>(),
                iName,
@@ -43,6 +44,7 @@ EventSetupRecordImplementation<T>::getImplementation(DataT const *& iData ,
       //DAExceptionStackEntry stackEntry(d_key);
       
       hold = proxy->get(static_cast<const T&>(*this), key);
+      iDesc = proxy->providerDescription();
    } else {
       // add durable data key to the stack in order to catch it
       //DAExceptionStackEntry stackEntry(d_key,DAExceptionStackEntry::kUseDurable)
