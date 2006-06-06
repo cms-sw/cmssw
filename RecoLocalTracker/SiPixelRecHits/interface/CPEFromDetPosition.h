@@ -79,7 +79,7 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
 					const GeomDetUnit & det) const ;
   MeasurementError measurementError   ( const SiPixelCluster&, 
 					const GeomDetUnit & det) const ;
-  float chaWidth2X(const float&) const;
+  //float chaWidth2X(const float&) const;
 
   //methods
   float err2X(bool&, int&) const;
@@ -88,7 +88,9 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
   // parameters for the position assignment
   float chargeWidthX()const;
   float chargeWidthY()const;
-  float geomCorrection()const;
+  float geomCorrectionX(float xpos)const;
+  float geomCorrectionY(float ypos)const;
+  //float geomCorrection()const;
   float estimatedAlphaForBarrel(const float&) const;
   
   // Determine the Lorentz shift correction

@@ -28,7 +28,6 @@ using namespace std;
 const float PI = 3.141593;
 const float degsPerRad = 57.29578;
 
-
 //-----------------------------------------------------------------------------
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
@@ -47,13 +46,10 @@ CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf, const Mag
   magfield_ = mag;
 }
 
-
 //-----------------------------------------------------------------------------
 //  One function to cache the variables common for one DetUnit.
 //-----------------------------------------------------------------------------
-void
-CPEFromDetPosition::setTheDet( const GeomDetUnit & det )const 
-{
+void CPEFromDetPosition::setTheDet( const GeomDetUnit & det )const {
   if ( theDet == &det )
     return;       // we have already seen this det unit
 
@@ -128,7 +124,9 @@ CPEFromDetPosition::setTheDet( const GeomDetUnit & det )const
     << " theLShift  = " << theLShift;
   }
 }
-
+//----------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------
 MeasurementError  
 CPEFromDetPosition::measurementError( const SiPixelCluster& cluster, const GeomDetUnit & det) const 
 {
@@ -136,7 +134,9 @@ CPEFromDetPosition::measurementError( const SiPixelCluster& cluster, const GeomD
   LocalError le( localError(   cluster, det) );
   return theTopol->measurementError( lp, le );
 }
-
+//-------------------------------------------------------------------------
+//
+//-------------------------------------------------------------------------
 LocalError  
 CPEFromDetPosition::localError( const SiPixelCluster& cluster, const GeomDetUnit & det)const 
 {
@@ -157,7 +157,9 @@ CPEFromDetPosition::localError( const SiPixelCluster& cluster, const GeomDetUnit
 
   return LocalError( err2X(edgex, sizex), 0, err2Y(edgey, sizey) );
 }
-
+//---------------------------------------------------------------------------
+//
+//--------------------------------------------------------------------------
 MeasurementPoint 
 CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster, const GeomDetUnit & det) const 
 {
@@ -170,7 +172,9 @@ CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster, const Ge
   return MeasurementPoint( xpos(cluster)-theLShift, 
   			   ypos(cluster));
 }
-
+//----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 LocalPoint
 CPEFromDetPosition::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) const
 {
@@ -183,9 +187,8 @@ CPEFromDetPosition::localPosition(const SiPixelCluster& cluster, const GeomDetUn
   return cdfsfs;
 }
 
-
 //-----------------------------------------------------------------------------
-//
+// Position error estimate in X (square returned).
 //-----------------------------------------------------------------------------
 float 
 CPEFromDetPosition::err2X(bool& edgex, int& sizex) const
@@ -234,7 +237,7 @@ CPEFromDetPosition::err2X(bool& edgex, int& sizex) const
 
 
 //-----------------------------------------------------------------------------
-//
+// Position error estimate in Y (square returned).
 //-----------------------------------------------------------------------------
 float 
 CPEFromDetPosition::err2Y(bool& edgey, int& sizey) const
@@ -274,13 +277,10 @@ CPEFromDetPosition::err2Y(bool& edgey, int& sizey) const
   return yerr*yerr;
 }
 
-
 //-----------------------------------------------------------------------------
-//
+// Position estimate in X-direction
 //-----------------------------------------------------------------------------
-float 
-CPEFromDetPosition::xpos(const SiPixelCluster& cluster) const
-{
+float CPEFromDetPosition::xpos(const SiPixelCluster& cluster) const {
   float xcluster = 0;
   int size = cluster.sizeX();
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
@@ -291,6 +291,7 @@ CPEFromDetPosition::xpos(const SiPixelCluster& cluster) const
   if (size == 1) {
     // the middle of only one pixel is equivalent to the baryc.
     xcluster = baryc;
+
   } else {
 
     //calculate center
@@ -301,34 +302,36 @@ CPEFromDetPosition::xpos(const SiPixelCluster& cluster) const
     vector<float> xChargeVec = xCharge(pixelsVec, xmin, xmax); 
     float q1 = xChargeVec[0];
     float q2 = xChargeVec[1];
-    float chargeWX = chargeWidthX() + theSign * geomCorrection() * xcenter;
+    // Estimate the charge width. main contribution + 2nd order geom corr.
+    float chargeWX = chargeWidthX() + geomCorrectionX(xcenter);
+
+    // Check the valid chargewidth
     float effchargeWX = fabs(chargeWX) - (float(size)-2);
-
     // truncated charge width only if it greather than the cluster size
-    if ( fabs(effchargeWX) > 2 ) effchargeWX = 1;
+    if ( (effchargeWX< 0.) || (effchargeWX>2.) ) effchargeWX = 1.;
 
-    xcluster = xcenter + (q2-q1) * effchargeWX / (q1+q2) / 2.;
+    xcluster = xcenter + (q2-q1) * effchargeWX / (q1+q2) / 2.; // position
+
+    // Parametrized Eta-correction. 
+    // Skip it, it does not bring anything and makes forward hits worse. d.k. 6/06 
+//     float alpha = estimatedAlphaForBarrel(xcenter);
+//     if (alpha < 1.53) {
+//       float etashift=0;
+//       float charatio = q1/(q1+q2);
+//       etashift = theEtaFunc.xEtaShift(size, thePitchX, 
+// 				      charatio, alpha);
+//       xcluster = xcluster - etashift;
+//     }
 
 
-    float alpha = estimatedAlphaForBarrel(xcenter);
-    if (alpha < 1.53) {
-      float etashift=0;
-      float charatio = q1/(q1+q2);
-      etashift = theEtaFunc.xEtaShift(size, thePitchX, 
-				      charatio, alpha);
-      xcluster = xcluster - etashift;
-    }
   }    
   return xcluster;
 }
 
-
 //-----------------------------------------------------------------------------
-//
+// Position estimate in the local y-direction
 //-----------------------------------------------------------------------------
-float 
-CPEFromDetPosition::ypos(const SiPixelCluster& cluster) const
-{
+float CPEFromDetPosition::ypos(const SiPixelCluster& cluster) const {
   float ycluster = 0;
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
   int size = cluster.sizeY();
@@ -338,6 +341,7 @@ CPEFromDetPosition::ypos(const SiPixelCluster& cluster) const
 
   if (size == 1) {
     ycluster = baryc;
+
   } else if (size < 4) {
 
     // Calculate center
@@ -345,12 +349,14 @@ CPEFromDetPosition::ypos(const SiPixelCluster& cluster) const
     float ymax = float(cluster.maxPixelCol()) + 0.5;
     float ycenter = ( ymin + ymax ) / 2;
 
-    //calculate charge width
-    float chargeWY = chargeWidthY() + geomCorrection() * ycenter;
+    //calculate charge width with/without the 2nd order geom-correction
+    //float chargeWY = chargeWidthY() + geomCorrectionY(ycenter);//+correction 
+    float chargeWY = chargeWidthY();  // no 2nd order correction
+
     float effchargeWY = fabs(chargeWY) - (float(size)-2);
 
-    // truncate charge width when it is > 2
-    if ( (effchargeWY < 0) || (effchargeWY > 1.) ) effchargeWY = 1;
+    // truncate charge width 
+    if ( (effchargeWY < 0.) || (effchargeWY > 1.) ) effchargeWY = 1.;
 
     //calculate charge of first, last and inner pixels of cluster
     vector<float> yChargeVec = yCharge(pixelsVec, ymin, ymax);
@@ -380,7 +386,6 @@ CPEFromDetPosition::ypos(const SiPixelCluster& cluster) const
   return ycluster;
 }
 
-
 //-----------------------------------------------------------------------------
 // The isFlipped() is a silly way to determine which detectors are inverted.
 // In the barrel for every 2nd ladder the E field direction is in the
@@ -393,16 +398,9 @@ CPEFromDetPosition::ypos(const SiPixelCluster& cluster) const
 // in the E direction) to global coordinates. There is probably a much 
 // better way.
 //
-// Plan: ignore it for the moment
 //-----------------------------------------------------------------------------
-bool 
-CPEFromDetPosition::isFlipped() const
-{
-// &&& Not sure what the need is -- ask Danek.
-  //  float tmp1 = theDet->toGlobal( Local3DPoint(0.,0.,0.) ).perp();
-  //   float tmp2 = theDet->toGlobal( Local3DPoint(0.,0.,1.) ).perp();
-  //   if ( tmp2<tmp1 ) return true;
-  // else return false;
+bool CPEFromDetPosition::isFlipped() const {
+  // Check the relative position of the local +/- z in global coordinates. 
   float tmp1 = theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
   float tmp2 = theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
   //cout << " 1: " << tmp1 << " 2: " << tmp2 << endl;
@@ -410,74 +408,77 @@ CPEFromDetPosition::isFlipped() const
   else return false;    
 }
 
-
 //-----------------------------------------------------------------------------
-//
+// This is the main copntribution to the charge width in the X direction
+// Lorentz shift for the barrel and lorentz+geometry for the forward.
 //-----------------------------------------------------------------------------
-float 
-CPEFromDetPosition::chargeWidthX() const
-{ 
+float CPEFromDetPosition::chargeWidthX() const { 
   float chargeW = 0;
   float lorentzWidth = 2 * theLShift;
-  if (thePart == GeomDetType::PixelBarrel) {
-    // Redefine the charge width to include the offset
-    chargeW = lorentzWidth - theSign * geomCorrection() * theOffsetX;
+  if (thePart == GeomDetType::PixelBarrel) {  // barrel
+    chargeW = lorentzWidth; // width from Lorentz shift
   } else { // forward
-    chargeW = fabs(lorentzWidth) + 
-      theThickness * fabs(theDetR/theDetZ) / thePitchX;
+    chargeW = fabs(lorentzWidth) +                      // Lorentz shift 
+      theThickness * fabs(theDetR/theDetZ) / thePitchX; // + geometry
   }
   return chargeW;
 }
 
-
 //-----------------------------------------------------------------------------
-//
+// This is the main contribution to the charge width in the Y direction
 //-----------------------------------------------------------------------------
 float 
 CPEFromDetPosition::chargeWidthY() const
 {
   float chargeW = 0;  
-  if (thePart == GeomDetType::PixelBarrel) {
+  if (thePart == GeomDetType::PixelBarrel) {  // barrel
+    // Charge width comes from the geometry (inclined angles)
     chargeW = theThickness * fabs(theDetZ/theDetR) / thePitchY;
-    chargeW -= (geomCorrection() * theOffsetY);
   } else { //forward
-    // Width comes from geometry only, fixed by the tilt angle
+    // Width comes from geometry only, given by the tilt angle
    chargeW = theThickness * tan(20./degsPerRad) / thePitchY; 
   }
   return chargeW;
 }
 
-
 //-----------------------------------------------------------------------------
-// From Danek: "geomCorrection() is sort of second order effect, ignore it for 
-// the moment. I have to to derive it again and understand better what it means."
+// This takes into account that the charge width is not the same across a 
+// single detector module (sort of a 2nd order effect).
+// It makes more sense for the barrel since the barrel module are larger
+// and they are placed closer top the IP.
 //-----------------------------------------------------------------------------
-float 
-CPEFromDetPosition::geomCorrection() const
-{ 
-  //@@ the geometrical correction are calculated only
-  //@@ for the barrel part (am I right?)  &&& ??????????????????
+// Correction for the X-direction
+// This is better defined as the IP is well localized in the x-y plane.
+float CPEFromDetPosition::geomCorrectionX(float xcenter) const { 
   if (thePart == GeomDetType::PixelEndcap) return 0;
-  else return theThickness / theDetR;
+  else {
+    float tmp = theSign * (theThickness / theDetR) * (xcenter-theOffsetX);
+    return tmp;
+  }
+}
+// Correction for the Y-direction
+// This is poorly defined becouse the IP is very smeared along the z direction.
+float CPEFromDetPosition::geomCorrectionY(float ycenter) const { 
+  if (thePart == GeomDetType::PixelEndcap) return 0;
+  else { 
+    float tmp = (ycenter - theOffsetY) * theThickness / theDetR;
+    if(theDetZ>0.) tmp = -tmp; // it is the opposite for Z>0 and Z<0
+    return tmp;
+  }
 }
 
+//-----------------------------------------------------------------------------
+// Lorentz shift. For the moment only in X direction (barrel & endcaps)
+// For the forward the y componenet might have to be added.
+//-----------------------------------------------------------------------------
+float CPEFromDetPosition::lorentzShift() const {
 
-//-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
-float 
-CPEFromDetPosition::lorentzShift() const
-{
-  // Implement only the x direction shift for now (OK for barrel)
-  // &&& TEMPORARY 
-  //LocalVector dir = theDet->driftDirection( LocalPoint(0,0));
-  //LocalVector dir(0,0,1);  // &&& TEMPORARY HACK
   LocalVector dir = driftDirection(magfield_->inTesla(theDet->surface().position()) );
 
   // max shift in cm 
   float xdrift = dir.x()/dir.z() * theThickness;  
   // express the shift in units of pitch, 
-  // divide by 2 to get the average correction
+  // divide by 2 to get the hit correction
   float lshift = xdrift / thePitchX / 2.; 
 
   //cout << "Lorentz Drift = " << lshift << endl;
@@ -487,19 +488,16 @@ CPEFromDetPosition::lorentzShift() const
   return lshift;  
 }
 
-
 //-----------------------------------------------------------------------------
-//
+// unused
 //-----------------------------------------------------------------------------
-float 
-CPEFromDetPosition::chaWidth2X(const float& centerx) const
-{
-  float chargeWX = chargeWidthX() + theSign * geomCorrection() * centerx;
-  if ( chargeWX > 1. || chargeWX <= 0. ) chargeWX=1.;
-  return chargeWX;
-}
-
-
+// float 
+// CPEFromDetPosition::chaWidth2X(const float& centerx) const
+// {
+//   float chargeWX = chargeWidthX() + theSign * geomCorrection() * centerx;
+//   if ( chargeWX > 1. || chargeWX <= 0. ) chargeWX=1.;
+//   return chargeWX;
+// }
 
 //-----------------------------------------------------------------------------
 //
@@ -510,7 +508,6 @@ CPEFromDetPosition::estimatedAlphaForBarrel(const float& centerx) const
   float tanalpha = theSign*(centerx-theOffsetX)/theDetR*thePitchX;
   return PI/2-atan(tanalpha);
 }
-
 
 //-----------------------------------------------------------------------------
 //
@@ -536,7 +533,6 @@ CPEFromDetPosition::xCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
   charge.push_back(qm);
   return charge;
 } 
-
 
 //-----------------------------------------------------------------------------
 //
@@ -565,34 +561,30 @@ CPEFromDetPosition::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
   return charge;
 } 
 
-
-
-
 //-----------------------------------------------------------------------------
 //  Drift direction.
-//  NB: it's correct only for the barrel!  &&& Need to fix it for the forward.
+//  Works OK for barrel and forward.
+//  The formulas used for dir_x,y,z have to be exactly the same as the ones 
+//  used in the digitizer (SiPixelDigitizerAlgorithm.cc).
 //  Assumption: setTheDet() has been called already.
 //-----------------------------------------------------------------------------
 LocalVector 
-CPEFromDetPosition::driftDirection( GlobalVector bfield )const 
-{
+CPEFromDetPosition::driftDirection( GlobalVector bfield ) const {
   Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
   LocalVector Bfield = detFrame.toLocal(bfield);
 
-
-  //  if    (DetId(detID).subdetId()==  PixelSubdetector::PixelBarrel){
   float dir_x =  theTanLorentzAnglePerTesla * Bfield.y();
   float dir_y = -theTanLorentzAnglePerTesla * Bfield.x();
-  float dir_z = 1.; // E field always in z direction
+  float dir_z = -1.; // E field always in z direction, so electrons go to -z.
   LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
 
-  if (theVerboseLevel > 0) {
-    LogDebug("CPEFromDetPosition") << " The drift direction in local coordinate is " 
-  	 << theDriftDirection    ;
+  if (theVerboseLevel > 0) { 
+    LogDebug("CPEFromDetPosition") 
+      << " The drift direction in local coordinate is " 
+      << theDriftDirection    ;
   }
 
   return theDriftDirection;
-  //  }
 }
 
 
