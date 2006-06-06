@@ -13,6 +13,7 @@
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <IORawData/CSCTFCommissioning/src/FileReaderSP.h>
+#include <IORawData/CSCTFCommissioning/src/FileReaderSPNewFormat.h>
 
 #include <string>
 #include <iosfwd>
@@ -22,13 +23,30 @@
 using namespace std;
 using namespace edm;
 
-FileReaderSP ___ddu;
+//FileReaderSP ___ddu;
 
-CSCTFFileReader::CSCTFFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
-	// Following code is stolen from IORawData/DTCommissioning
-	const std::string & filename = pset.getParameter<std::string>("fileName");
-	std::cout << "Opening File: " << filename << std::endl;
-	___ddu.openFile(filename.c_str());
+CSCTFFileReader::CSCTFFileReader(const edm::ParameterSet& pset):DaqBaseReader()
+{
+  // Following code is stolen from IORawData/DTCommissioning
+  const std::string dataformat = pset.getUntrackedParameter<std::string>("dataFormat","TestBeam");
+
+  if(dataformat == "TestBeam")
+    {
+      ___ddu = new FileReaderSP();
+    }
+  if(dataformat == "Final")
+    {
+      ___ddu = new FileReaderSPNewFormat();
+    }
+
+  const std::string & filename = pset.getParameter<std::string>("fileName");
+  std::cout << "Opening File: " << filename << std::endl;
+  ___ddu->openFile(filename.c_str());
+}
+
+CSCTFFileReader::~CSCTFFileReader()
+{
+  delete ___ddu;
 }
 
 bool CSCTFFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection& data){
@@ -37,9 +55,9 @@ bool CSCTFFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FED
   size_t length=0;
 	
   // Read DDU record
-  ___ddu.readNextEvent();
-  const unsigned short* dduBuf = reinterpret_cast<unsigned short*>(___ddu.data());
-  length = ___ddu.dataLength();
+  ___ddu->readNextEvent();
+  const unsigned short* dduBuf = reinterpret_cast<unsigned short*>(___ddu->data());
+  length = ___ddu->dataLength();
   
   if(!length) return false;
   
@@ -66,3 +84,4 @@ bool CSCTFFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FED
 
     return true;
 }
+
