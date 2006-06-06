@@ -28,7 +28,7 @@ using namespace reco;
 // constructors and destructor
 //
 PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
-  : theAlgo(conf)
+  : theAlgo(conf), theConfig(conf)
 {
   edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
     << "Initializing PV producer " << "\n";
@@ -60,8 +60,9 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // get RECO tracks from the event
     edm::Handle<reco::TrackCollection> trackCollection;
     //    iEvent.getByLabel("recoTracks", trackCollection);
-    iEvent.getByType(trackCollection);
-    //    iEvent.getByLabel("Tracks", "recoTracks", trackCollection);
+    //    iEvent.getByType(trackCollection);
+
+    iEvent.getByLabel(trackLabel(), trackCollection);
     //    std::vector< edm::Handle<reco::TrackCollection> > trackCollections;
     //    iEvent.getManyByType(trackCollections);
     //    trackCollection = trackCollections[1];
@@ -115,6 +116,13 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.put(result, "PrimaryVertex");
   
 }
+
+
+std::string PrimaryVertexProducer::trackLabel() const
+{
+  return config().getParameter<std::string>("TrackLabel");
+}
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PrimaryVertexProducer)

@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducer.h,v 1.3 2006/05/22 12:32:08 vanlaer Exp $
+// $Id: PrimaryVertexProducer.h,v 1.4 2006/05/23 10:30:39 vanlaer Exp $
 //
 //
 
@@ -42,10 +42,16 @@ public:
   ~PrimaryVertexProducer();
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
+
+  // access to config
+  edm::ParameterSet config() const { return theConfig; }
+  std::string trackLabel() const;
   
 private:
   // ----------member data ---------------------------
   // vtx finding algorithm
   PrimaryVertexProducerAlgorithm theAlgo;
 
+  edm::ParameterSet theConfig;
+  
 };
