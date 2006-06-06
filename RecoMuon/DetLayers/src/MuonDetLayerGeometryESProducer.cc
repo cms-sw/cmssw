@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/03 15:23:17 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/02 12:21:39 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -21,6 +21,7 @@
 #include <FWCore/Framework/interface/ModuleFactory.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include <FWCore/Framework/interface/NoProxyException.h>
 
 #include <memory>
 
@@ -46,11 +47,10 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     if (dt.isValid()) {
         muonDetLayerGeometry->addDTLayers(MuonDTDetLayerGeometryBuilder::buildLayers(*dt));
     }
-  
-  } catch (...) {
-    // No DT geo available
-    LogInfo("RecoMuonDetLayers") << "No DT geometry is available.";
-  }  
+  } catch (edm::eventsetup::NoProxyException<DTGeometry>& e) {
+    // No DT geo available: trap the exception.
+    LogInfo("RecoMuonDetLayers") << "No DT geometry is available." << e.what();
+  }
 
   // Build CSC layers
   try {
@@ -59,8 +59,8 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     if (csc.isValid()) {
         muonDetLayerGeometry->addCSCLayers(MuonCSCDetLayerGeometryBuilder::buildLayers(*csc));
     }
-  } catch(...) {
-    // No CSC geo available
+  } catch (edm::eventsetup::NoProxyException<CSCGeometry>& e) {
+    // No CSC geo available: trap the exception.
     LogInfo("RecoMuonDetLayers") << "No CSC geometry is available.";
   }
   
@@ -73,8 +73,8 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
         //muonDetLayerGeometry->addRPCLayers(MuonRPCDetLayerGeometryBuilder::buildEndcaplLayers(*rpc));
     }
   
-  } catch (...) {
-    // No RPC geo available
+  } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
+    // No RPC geo available: trap the exception.
     LogInfo("RecoMuonDetLayers") << "No RPC geometry is available.";
   }  
 
