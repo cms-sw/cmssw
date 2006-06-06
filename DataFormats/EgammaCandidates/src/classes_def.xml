@@ -16,7 +16,6 @@
 
   <class name="reco::PhotonCandidate"/>
   <class name="reco::ElectronCandidate"/>
-  <class name="reco::SiStripElectronCandidate"/>
 
   <class name="std::vector<reco::PhotonCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::PhotonCandidate> >"/>
@@ -30,15 +29,9 @@
   <class name="edm::RefProd<std::vector<reco::ElectronCandidate> >"/>
   <class name="edm::RefVector<std::vector<reco::ElectronCandidate>,reco::ElectronCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronCandidate>,reco::ElectronCandidate> >"/>
 
-  <class name="std::vector<reco::SiStripElectronCandidate>"/>
-  <class name="edm::Wrapper<std::vector<reco::SiStripElectronCandidate> >"/>
-  <class name="edm::Ref<std::vector<reco::SiStripElectronCandidate>,reco::SiStripElectronCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectronCandidate>,reco::SiStripElectronCandidate> >"/>
-  <class name="edm::RefProd<std::vector<reco::SiStripElectronCandidate> >"/>
-  <class name="edm::RefVector<std::vector<reco::SiStripElectronCandidate>,reco::SiStripElectronCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectronCandidate>,reco::SiStripElectronCandidate> >"/>
 
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::ElectronCandidate>,reco::ElectronCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronCandidate>,reco::ElectronCandidate> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::PhotonCandidate>,reco::PhotonCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PhotonCandidate>,reco::PhotonCandidate> > >" />
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::SiStripElectronCandidate>,reco::SiStripElectronCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectronCandidate>,reco::SiStripElectronCandidate> > >" />
   <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
 </lcgdict>
 
