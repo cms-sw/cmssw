@@ -16,23 +16,23 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 16:50:49 EST 2005
-// $Id: EventSetupRecordImplementation.h,v 1.7 2005/09/01 23:30:48 wmtan Exp $
+// $Id: EventSetupRecordImplementation.h,v 1.8 2005/09/30 20:39:01 chrjones Exp $
 //
 
 // system include files
 #include <string>
+#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-//#include "FWCore/Framework/interface/DataKey.h"
-//#include "FWCore/Framework/interface/DataProxyTemplate.h"
-//#include "FWCore/Framework/interface/NoProxyException.h"
+#include "FWCore/Framework/interface/DataKey.h"
 
 // forward declarations
 namespace edm {
    namespace eventsetup {
-
+     class ComponentDescription;
+     
 template<class T>
 class EventSetupRecordImplementation : public EventSetupRecord
 {
@@ -44,39 +44,43 @@ class EventSetupRecordImplementation : public EventSetupRecord
       template< typename HolderT>
          void get(HolderT& iHolder) const {
             const typename HolderT::value_type* value;
-            this->getImplementation(value, "");
-            iHolder = HolderT(value);
+            const ComponentDescription* desc;
+            this->getImplementation(value, "",desc);
+                                                      
+            iHolder = HolderT(value,desc);
          }
 
-   template< typename HolderT>
-   void get(const char* iName, HolderT& iHolder) const {
-      const typename HolderT::value_type* value;
-      this->getImplementation(value, iName);
-      iHolder = HolderT(value);
-   }
-   template< typename HolderT>
-   void get(const std::string& iName, HolderT& iHolder) const {
-      const typename HolderT::value_type* value;
-      this->getImplementation(value, iName.c_str());
-      iHolder = HolderT(value);
-   }
-   
-   virtual EventSetupRecordKey key() const {
-      return EventSetupRecordKey::makeKey<T>();
-   }
-
-   virtual bool doGet(const DataKey& aKey) const {
-      const DataProxy* proxy = find(aKey);
-      if(0 != proxy) {
-         proxy->doGet(*this, aKey);
+      template< typename HolderT>
+      void get(const char* iName, HolderT& iHolder) const {
+         const typename HolderT::value_type* value;
+         const ComponentDescription* desc;
+         this->getImplementation(value, iName,desc);
+         iHolder = HolderT(value,desc);
       }
-      return 0 != proxy;
-   }
-   
-   // ---------- static member functions --------------------
-   static EventSetupRecordKey keyForClass()  {
-      return EventSetupRecordKey::makeKey<T>();
-   }
+      template< typename HolderT>
+      void get(const std::string& iName, HolderT& iHolder) const {
+         const typename HolderT::value_type* value;
+         const ComponentDescription* desc;
+         this->getImplementation(value, iName.c_str(),desc);
+         iHolder = HolderT(value,desc);
+      }
+      
+      virtual EventSetupRecordKey key() const {
+         return EventSetupRecordKey::makeKey<T>();
+      }
+
+      virtual bool doGet(const DataKey& aKey) const {
+         const DataProxy* proxy = find(aKey);
+         if(0 != proxy) {
+            proxy->doGet(*this, aKey);
+         }
+         return 0 != proxy;
+      }
+      
+      // ---------- static member functions --------------------
+      static EventSetupRecordKey keyForClass()  {
+         return EventSetupRecordKey::makeKey<T>();
+      }
    
       // ---------- member functions ---------------------------
  
@@ -87,66 +91,13 @@ class EventSetupRecordImplementation : public EventSetupRecord
       EventSetupRecordImplementation(const EventSetupRecordImplementation&); // stop default
 
       const EventSetupRecordImplementation& operator=(const EventSetupRecordImplementation&); // stop default
-
+      
       template < typename DataT > 
          void getImplementation(DataT const *& iData ,
-                                const char* iName) const; /* {
-            DataKey key(DataKey::makeTypeTag<DataT>(),
-                        iName,
-                        DataKey::kDoNotCopyMemory);
-            
-            const DataProxyTemplate<T, DataT>* proxy = 
-               static_cast<const DataProxyTemplate<T, DataT>* >(this->find(key));
-            
-            const DataT* hold = 0;
-            if(0 != proxy) {
-               // add data key to the stack
-               //DAExceptionStackEntry stackEntry(d_key);
-               
-               hold = proxy->get(static_cast<const T&>(*this), key);
-            } else {
-               // add durable data key to the stack in order to catch it
-               //DAExceptionStackEntry stackEntry(d_key,DAExceptionStackEntry::kUseDurable)
-               ;
-               
-               throw NoProxyException<DataT>(*this, key);
-            }
-            iData = hold;
-         }
-      */
-      // ---------- member data --------------------------------
+                                const char* iName,
+                                const ComponentDescription*& iDesc) const;       // ---------- member data --------------------------------
 
 };
-/*
-template <typename T>
-template < typename DataT > 
-void 
-EventSetupRecordImplementation<T>::getImplementation(DataT const *& iData ,
-                                                     const char* iName) const 
-{
-   DataKey key(DataKey::makeTypeTag<DataT>(),
-               iName,
-               DataKey::kDoNotCopyMemory);
-   
-   const DataProxyTemplate<T, DataT>* proxy = 
-      static_cast<const DataProxyTemplate<T, DataT>* >(this->find(key));
-   
-   const DataT* hold = 0;
-   if(0 != proxy) {
-      // add data key to the stack
-      //DAExceptionStackEntry stackEntry(d_key);
-      
-      hold = proxy->get(static_cast<const T&>(*this), key);
-   } else {
-      // add durable data key to the stack in order to catch it
-      //DAExceptionStackEntry stackEntry(d_key,DAExceptionStackEntry::kUseDurable)
-      ;
-      
-      throw NoProxyException<DataT>(*this, key);
-   }
-   iData = hold;
-}
-*/
    }
 }
 #include "FWCore/Framework/interface/recordGetImplementation.icc"
