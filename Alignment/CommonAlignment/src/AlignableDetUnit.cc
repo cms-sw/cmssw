@@ -4,8 +4,8 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
+//#include "CondFormats/Alignment/interface/AlignTransform.h"
+//#include "CondFormats/Alignment/interface/AlignTransformError.h"
 
 //__________________________________________________________________________________________________
 void AlignableDetUnit::move( const GlobalVector& displacement) 
@@ -186,49 +186,49 @@ void AlignableDetUnit::dump() const
 }
 
 //__________________________________________________________________________________________________
-Alignments* AlignableDetUnit::alignments() const
-{
-
-  Alignments* m_alignments = new Alignments();
-
-  // Transform into CLHEP objects
-  Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
-
-  HepRotation clhepRotation( Hep3Vector( this->globalRotation().xx(), globalRotation().xy(), globalRotation().xz() ),
-							 Hep3Vector( globalRotation().yx(), globalRotation().yy(), globalRotation().yz() ),
-							 Hep3Vector( globalRotation().zx(), globalRotation().zy(), globalRotation().zz() )
-							 );
-
-  uint32_t detId = this->geomDetUnit()->geographicalId().rawId();
-
-  AlignTransform transform( clhepVector, clhepRotation, detId );
-
-  
-  m_alignments->m_align.push_back( transform );
-
-  return m_alignments;
-
-}
-
-
+//Alignments* AlignableDetUnit::alignments() const
+//{
+//
+//  Alignments* m_alignments = new Alignments();
+//
+//  // Transform into CLHEP objects
+//  Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
+//
+//  HepRotation clhepRotation( Hep3Vector( this->globalRotation().xx(), globalRotation().xy(), globalRotation().xz() ),
+//							 Hep3Vector( globalRotation().yx(), globalRotation().yy(), globalRotation().yz() ),
+//							 Hep3Vector( globalRotation().zx(), globalRotation().zy(), globalRotation().zz() )
+//							 );
+//
+//  uint32_t detId = this->geomDetUnit()->geographicalId().rawId();
+//
+//  AlignTransform transform( clhepVector, clhepRotation, detId );
+//
+//  
+//  m_alignments->m_align.push_back( transform );
+//
+//  return m_alignments;
+//
+//}
+//
+//
 //__________________________________________________________________________________________________
-AlignmentErrors* AlignableDetUnit::alignmentErrors() const
-{
-
-  AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
-
-  uint32_t detId = this->geomDetUnit()->geographicalId().rawId();
-
-  HepSymMatrix clhepSymMatrix;
-  if ( this->geomDetUnit()->alignmentPositionError() ) // Might not be set
-	clhepSymMatrix = 
-	  this->geomDetUnit()->alignmentPositionError()->globalError().matrix();
-
-  AlignTransformError transformError( clhepSymMatrix, detId );
-
-  m_alignmentErrors->m_alignError.push_back( transformError );
-  
-  return m_alignmentErrors;
-  
-
-}
+//AlignmentErrors* AlignableDetUnit::alignmentErrors() const
+//{
+//
+//  AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
+//
+// uint32_t detId = this->geomDetUnit()->geographicalId().rawId();
+//
+//  HepSymMatrix clhepSymMatrix;
+//  if ( this->geomDetUnit()->alignmentPositionError() ) // Might not be set
+//	clhepSymMatrix = 
+//	  this->geomDetUnit()->alignmentPositionError()->globalError().matrix();
+//
+//  AlignTransformError transformError( clhepSymMatrix, detId );
+//
+//  m_alignmentErrors->m_alignError.push_back( transformError );
+//  
+//  return m_alignmentErrors;
+//  
+//
+//}
