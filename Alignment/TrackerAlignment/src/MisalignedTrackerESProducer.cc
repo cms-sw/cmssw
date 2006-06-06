@@ -18,7 +18,6 @@
 /// 
 /// This should replace the standard TrackerDigiGeometryESModule when producing
 /// Misalignment scenarios.
-/// FIXME: configuration file, output POOL-ORA object?
 
 #include <memory>
 
@@ -52,33 +51,31 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
   theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*cpv),&(*gD)) );
 
-  // Dump BEFORE
-  if ( theParameterSet.getUntrackedParameter<bool>("dumpBefore", false) )
-	for ( std::vector<GeomDet*>::const_iterator iGeomDet = theTracker->detsTOB().begin();
-		  iGeomDet != theTracker->detsTOB().end(); iGeomDet++ )
-	  std::cout << (*iGeomDet)->geographicalId().rawId()
-				<< " " << (*iGeomDet)->position() << std::endl;
-
   // Create the alignable hierarchy
   AlignableTracker* theAlignableTracker = new AlignableTracker( &(*gD), &(*theTracker) );
+  
+  // Dump alignments BEFORE
+  if ( theParameterSet.getUntrackedParameter<bool>("dumpBefore", false) )
+	{
+	  Alignments* alignments = theAlignableTracker->alignments();
+	  for ( std::vector<AlignTransform>::iterator it = alignments->m_align.begin();
+			it != alignments->m_align.end(); it++ )
+		std::cout << (*it).rawId() << " " << (*it).translation() << std::endl;
+	}
 
   // Create misalignment scenario
   MisalignmentScenarioBuilder scenarioBuilder( theAlignableTracker );
   scenarioBuilder.applyScenario( theParameterSet );
 
-  
-  // Apply to geometry
-  // 
-  // theTracker->applyAlignments( theAlignableTracker->alignments() );
-  //
 
-
-  // Dump AFTER
+  // Dump alignments AFTER
   if ( theParameterSet.getUntrackedParameter<bool>("dumpAfter", false) )
-	for ( std::vector<GeomDet*>::const_iterator iGeomDet = theTracker->detsTOB().begin();
-		  iGeomDet != theTracker->detsTOB().end(); iGeomDet++ )
-	  std::cout << (*iGeomDet)->geographicalId().rawId()
-				<< " " << (*iGeomDet)->position() << std::endl;
+	{
+	  Alignments* alignments = theAlignableTracker->alignments();
+	  for ( std::vector<AlignTransform>::iterator it = alignments->m_align.begin();
+			it != alignments->m_align.end(); it++ )
+		std::cout << (*it).rawId() << " " << (*it).translation() << std::endl;
+	}
 
   edm::LogInfo("MisalignedTracker") << "Producer done";
 
