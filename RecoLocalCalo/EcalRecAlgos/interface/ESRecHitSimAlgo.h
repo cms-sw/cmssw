@@ -10,6 +10,7 @@ class ESRecHitSimAlgo {
 
   ESRecHitSimAlgo(int gain, int pedestal, double MIPADC, double MIPkeV);
   ~ESRecHitSimAlgo(){}
+  double EvalAmplitude(const ESDataFrame& digi) const;
   EcalRecHit reconstruct(const ESDataFrame& digi) const;
 
  private:

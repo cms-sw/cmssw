@@ -28,11 +28,10 @@ ESRecHitSimAlgo::ESRecHitSimAlgo(int gain, int pedestal, double MIPADC, double M
   LogDebug("ESRecHitSimAlgo") << "ESRecHitSimAlgo : Gain "<<gain_<<" Weights : "<<pw[0]<<" "<<pw[1]<<" "<<pw[2];
 }
 
-EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
-
+double ESRecHitSimAlgo::EvalAmplitude(const ESDataFrame& digi) const {
+  
   float energy = 0;
-  float time = 0;
-
+  
   for (int i=0; i<digi.size(); i++) {
     energy += pw[i]*(digi.sample(i).adc()-ped_);
     LogDebug("ESRecHitSimAlgo") << "ESRecHitSimAlgo : Digi "<<i<<" ADC counts "<<digi.sample(i).adc()<<" Ped "<<ped_;
@@ -41,6 +40,16 @@ EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
 
   // convert to GeV
   energy /= 1000000.;
+
+  return energy;
+}
+
+EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
+
+  float energy = 0;
+  float time = 0;
+
+  energy = EvalAmplitude(digi);
 
   LogDebug("ESRecHitSimAlgo") << "ESRecHitSimAlgo : reconstructed energy "<<energy;
 
