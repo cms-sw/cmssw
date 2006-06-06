@@ -28,8 +28,6 @@ TkPixelMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
 {
   std::vector<TrajectoryMeasurement> result;
 
-  if (empty == true ) return result;
-
   MeasurementDet::RecHitContainer allHits = recHits( stateOnThisDet);
   for (RecHitContainer::const_iterator ihit=allHits.begin();
        ihit != allHits.end(); ihit++) {

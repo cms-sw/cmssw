@@ -30,10 +30,8 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 { 
   std::vector<TrajectoryMeasurement> result;
 
-  if (empty == true ) return result;
-
   //  if (theClusterRange.first == theClusterRange.second) { // empty
-  if (detSet_->size()  == 0){
+  if (empty  == true){
     result.push_back( TrajectoryMeasurement( stateOnThisDet, new InvalidTransientRecHit(&geomDet()), 0.F));
     return result;
   }
