@@ -21,8 +21,16 @@
   <class pattern="edm::RefProd<edm::AssociationMap<*>" />
   <class pattern="edm::RefVector<edm::AssociationMap<*>" />
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<CaloJet> > , edm::RefProd<std::vector<reco::Track> > >"/> 
+
+<class name="reco::IsolatedTauTagInfo" />
+  <class name="std::vector<reco::IsolatedTauTagInfo>" />
+  <class name="edm::Wrapper<std::vector<reco::IsolatedTauTagInfo> >" />
+  <class name="edm::Ref<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo> > " />
+  <class name="edm::RefProd<std::vector<reco::IsolatedTauTagInfo> > " />
+  <class name="edm::RefVector<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo> >" />
  
-  <class name="reco::CombinedBTagInfo" />
+ 
+  <Class name="reco::CombinedBTagInfo" />
   <class name="std::vector<reco::CombinedBTagInfo>" />
   <class name="edm::Wrapper<std::vector<reco::CombinedBTagInfo> >" />
   <class name="edm::Ref<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::CombinedBTagInfo>, reco::CombinedBTagInfo> > " />

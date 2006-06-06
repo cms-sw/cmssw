@@ -1,6 +1,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/CombinedBTagInfo.h"
 
@@ -30,6 +31,12 @@ namespace {
     edm::Ref<reco::CombinedBTagInfoCollection> r4;
     edm::RefProd<reco::CombinedBTagInfoCollection> rp4;
     edm::RefVector<reco::CombinedBTagInfoCollection> rv4;
+
+    reco::IsolatedTauTagInfoCollection v5;
+    edm::Wrapper<reco::IsolatedTauTagInfoCollection> w5;
+    edm::Ref<reco::IsolatedTauTagInfoCollection> r5;
+    edm::RefProd<reco::IsolatedTauTagInfoCollection> rp5;
+    edm::RefVector<reco::IsolatedTauTagInfoCollection> rv5;
 
     std::pair<unsigned int, unsigned int> pp1;
     std::map<unsigned long, std::vector<unsigned long> > m1;
