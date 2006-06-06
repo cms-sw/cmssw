@@ -10,7 +10,7 @@
  *  Simple container for rawHits 
  *
  *
- *  $Id: EcalTBHodoscopePlaneRawHits.h,v 1.1 2006/03/28 13:51:43 meridian Exp $
+ *  $Id: EcalTBHodoscopePlaneRawHits.h,v 1.2 2006/04/21 09:31:23 meridian Exp $
  */
 
 class EcalTBHodoscopePlaneRawHits {
@@ -48,15 +48,15 @@ class EcalTBHodoscopePlaneRawHits {
   
   void addHit(unsigned int i) 
     {
-      if (rawChannelHits_.size() < i )
-	rawChannelHits_.resize(i);
+      if (rawChannelHits_.size() < i+1 )
+	rawChannelHits_.resize(i+1);
       rawChannelHits_[i]=true; 
     };
 
   void setHit(unsigned int i,bool status) 
     {
-      if (rawChannelHits_.size() < i )
-	rawChannelHits_.resize(i);
+      if (rawChannelHits_.size() < i+1 )
+	rawChannelHits_.resize(i+1);
       rawChannelHits_[i]=status; 
     };
 

@@ -7,7 +7,7 @@
 
 /** \class EcalTBTDCRawInfo
       
-$Id: EcalTBTDCRawInfo.h,v 1.1 2006/03/28 13:52:06 meridian Exp $
+$Id: EcalTBTDCRawInfo.h,v 1.2 2006/04/21 09:30:56 meridian Exp $
 */
 
 class EcalTBTDCRawInfo {
@@ -34,9 +34,9 @@ class EcalTBTDCRawInfo {
   
   void setSample(unsigned int i, const EcalTBTDCSample& sam) 
     {
-      if (data_.size() < i )
-	// data_.reserve(i);
-	data_.resize(i);
+      if (data_.size() < i+1 )
+        // data_.reserve(i);
+        data_.resize(i+1);
       data_[i]=sam; 
     };
   

@@ -9,7 +9,7 @@
  *  Simple container for plane RawHits 
  *
  *
- *  $Id: $
+ *  $Id: EcalTBHodoscopeRawInfo.h,v 1.1 2006/03/28 13:51:36 meridian Exp $
  */
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopePlaneRawHits.h"
 
@@ -39,8 +39,8 @@ class EcalTBHodoscopeRawInfo {
   
   void setPlane(unsigned int i, const EcalTBHodoscopePlaneRawHits& planeHit) 
     {
-      if (planeHits_.size() < i )
-	planeHits_.resize(i);
+      if (planeHits_.size() < i+1 )
+        planeHits_.resize(i+1);
       planeHits_[i]=planeHit; 
     };
 
