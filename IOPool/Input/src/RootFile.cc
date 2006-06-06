@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.12 2006/05/02 02:48:50 wmtan Exp $
+$Id: RootFile.cc,v 1.13 2006/05/26 21:04:03 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -90,10 +90,13 @@ namespace edm {
   }
 
   RootFile::~RootFile() {
-    filePtr_->Close();
-    // report file being closed
-    Service<JobReport> reportSvc;
-    reportSvc->inputFileClosed(reportToken_);
+    try {
+       filePtr_->Close();
+       Service<JobReport> reportSvc;
+       reportSvc->inputFileClosed(reportToken_);
+    }
+    catch(...) {
+    }
   }
 
   void
