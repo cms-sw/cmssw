@@ -65,8 +65,10 @@ namespace csc{
       bool operator==(const csc::L1Track&) const;
       bool operator!=(const csc::L1Track&) const;
 
-      friend std::ostream& operator<<(std::ostream&, const csc::L1Track&);
-      friend std::ostream& operator<<(std::ostream&, csc::L1Track&);
+      //friend std::ostream& operator<<(std::ostream&, const csc::L1Track&);
+      //friend std::ostream& operator<<(std::ostream&, csc::L1Track&);
+
+      void Print() const;
 
     private:
       L1MuTriggerScales* scale;
@@ -81,4 +83,66 @@ namespace csc{
      };
 }
 
+/*
+ostream& operator << (ostream& output, csc::L1Track& rhs) {
+  if (!rhs.empty()) {
+    output << "\t  Pt(int): "  << " " << rhs.pt_packed()
+           << " Phi(int): " << " " << rhs.phi_packed()
+           << " Eta(int): " << " " << rhs.eta_packed()
+           << " Quality: "  << " " << rhs.quality_packed()
+           << " charge: "   << " " << rhs.chargeValue()
+           << " side: "   << " " << rhs.endcap()
+           << " bx: "       << " " << rhs.bx()
+           << endl;
+    output << "\t  Pt(float): "  << " " << rhs.ptValue()
+           << " Phi(float): " << " " << rhs.phiValueMid()
+           << " Eta(float): " << " " << rhs.etaValueLow();
+  }
+  else {
+    output<<"\t  Empty track!\n";
+    output << "\t  Pt(int): "  << " " << "unassigned or zero"
+           << " Phi(int): " << " " << rhs.phi_packed()
+           << " Eta(int): " << " " << rhs.eta_packed()
+           << " Quality: "  << " " << "unassigned or zero"
+           << " charge: "   << " " << rhs.chargeValue()
+           << " side: "   << " " << rhs.endcap()
+           << " bx: "       << " " << rhs.bx()
+           << endl;
+    output << "\t  Phi(float): " << " " << rhs.phiValueMid()
+           << " Eta(float): " << " " << rhs.etaValueLow();
+    
+  }
+  return output;
+}
+
+std::ostream& operator << (ostream& output,  const csc::L1Track& rhs) {
+  if (!rhs.empty()) {
+    output << "\t  Pt(int): "  << " " << rhs.pt_packed()
+           << " Phi(int): " << " " << rhs.phi_packed()
+           << " Eta(int): " << " " << rhs.eta_packed()
+           << " Quality: "  << " " << rhs.quality()
+           << " charge: "   << " " << rhs.chargeValue()
+           << " side: "   << " " << rhs.endcap()
+           << " bx: "       << " " << rhs.bx()
+           << endl;
+    output << "\t  Pt(float): "  << " " << rhs.ptValue()
+           << " Phi(float): " << " " << rhs.phiValueMid()
+           << " Eta(float): " << " " << rhs.etaValueLow();
+  }
+  else {
+    output<<"\t  Empty track!\n";
+    output << "\t  Pt(int): "  << " " << "unassigned or zero"
+           << " Phi(int): " << " " << rhs.phi_packed()
+           << " Eta(int): " << " " << rhs.eta_packed()
+           << " Quality: "  << " " << "unassigned or zero"
+           << " charge: "   << " " << rhs.chargeValue()
+           << " side: "   << " " << rhs.endcap()
+           << " bx: "       << " " << rhs.bx()
+           << endl;
+    output << "\t  Phi(float): " << " " << rhs.phiValueMid()
+           << " Eta(float): " << " " << rhs.etaValueLow();
+  }
+  return output;
+}
+*/
 #endif

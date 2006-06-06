@@ -153,65 +153,37 @@ namespace csc {
   {
     return (rank() != rhs.rank());
   }  
-}
 
-ostream& operator << (ostream& output, csc::L1Track& rhs) {
-  if (!rhs.empty()) {
-    output << "\t  Pt(int): "  << " " << rhs.pt_packed()
-           << " Phi(int): " << " " << rhs.phi_packed()
-           << " Eta(int): " << " " << rhs.eta_packed()
-           << " Quality: "  << " " << rhs.quality_packed()
-           << " charge: "   << " " << rhs.chargeValue()
-           << " side: "   << " " << rhs.endcap()
-           << " bx: "       << " " << rhs.bx()
-           << endl;
-    output << "\t  Pt(float): "  << " " << rhs.ptValue()
-           << " Phi(float): " << " " << rhs.phiValueMid()
-           << " Eta(float): " << " " << rhs.etaValueLow();
+  void L1Track::Print() const
+  {
+    if (!empty()) 
+      {
+	std::cout << "\t  Pt(int): "  << " " << pt_packed()
+		  << " Phi(int): " << " " << phi_packed()
+		  << " Eta(int): " << " " << eta_packed()
+		  << " Quality: "  << " " << quality_packed()
+		  << " charge: "   << " " << chargeValue()
+		  << " side: "   << " " << endcap()
+		  << " bx: "       << " " << bx()
+		  << endl;
+	std::cout << "\t  Pt(float): "  << " " << ptValue()
+		  << " Phi(float): " << " " << phiValueMid()
+		  << " Eta(float): " << " " << etaValueLow();
+      }
+    else 
+      {
+	std::cout <<"\t  Empty track!\n";
+	std::cout << "\t  Pt(int): "  << " " << "unassigned or zero"
+		  << " Phi(int): " << " " << phi_packed()
+		  << " Eta(int): " << " " << eta_packed()
+		  << " Quality: "  << " " << "unassigned or zero"
+		  << " charge: "   << " " << chargeValue()
+		  << " side: "   << " " << endcap()
+		  << " bx: "       << " " << bx()
+		  << endl;
+	std::cout << "\t  Phi(float): " << " " << phiValueMid()
+		  << " Eta(float): " << " " << etaValueLow();
+	
+      }
   }
-  else {
-    output<<"\t  Empty track!\n";
-    output << "\t  Pt(int): "  << " " << "unassigned or zero"
-           << " Phi(int): " << " " << rhs.phi_packed()
-           << " Eta(int): " << " " << rhs.eta_packed()
-           << " Quality: "  << " " << "unassigned or zero"
-           << " charge: "   << " " << rhs.chargeValue()
-           << " side: "   << " " << rhs.endcap()
-           << " bx: "       << " " << rhs.bx()
-           << endl;
-    output << "\t  Phi(float): " << " " << rhs.phiValueMid()
-           << " Eta(float): " << " " << rhs.etaValueLow();
-    
-  }
-  return output;
-}
-
-std::ostream& operator << (ostream& output,  const csc::L1Track& rhs) {
-  if (!rhs.empty()) {
-    output << "\t  Pt(int): "  << " " << rhs.pt_packed()
-           << " Phi(int): " << " " << rhs.phi_packed()
-           << " Eta(int): " << " " << rhs.eta_packed()
-           << " Quality: "  << " " << rhs.quality()
-           << " charge: "   << " " << rhs.chargeValue()
-           << " side: "   << " " << rhs.endcap()
-           << " bx: "       << " " << rhs.bx()
-           << endl;
-    output << "\t  Pt(float): "  << " " << rhs.ptValue()
-           << " Phi(float): " << " " << rhs.phiValueMid()
-           << " Eta(float): " << " " << rhs.etaValueLow();
-  }
-  else {
-    output<<"\t  Empty track!\n";
-    output << "\t  Pt(int): "  << " " << "unassigned or zero"
-           << " Phi(int): " << " " << rhs.phi_packed()
-           << " Eta(int): " << " " << rhs.eta_packed()
-           << " Quality: "  << " " << "unassigned or zero"
-           << " charge: "   << " " << rhs.chargeValue()
-           << " side: "   << " " << rhs.endcap()
-           << " bx: "       << " " << rhs.bx()
-           << endl;
-    output << "\t  Phi(float): " << " " << rhs.phiValueMid()
-           << " Eta(float): " << " " << rhs.etaValueLow();
-  }
-  return output;
 }
