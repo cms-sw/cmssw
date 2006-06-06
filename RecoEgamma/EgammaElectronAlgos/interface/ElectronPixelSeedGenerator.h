@@ -23,6 +23,7 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
@@ -53,7 +54,7 @@ public:
  private:
 
   void seedsFromThisCluster(edm::Ref<SuperClusterCollection> seedCluster, ElectronPixelSeedCollection & out);
-  void prepareElTrackSeed(const TSiPixelRecHit outerhit,const TSiPixelRecHit innerhit, const GlobalPoint vertexPos);
+  void prepareElTrackSeed(const TSiPixelRecHit& outerhit,const TSiPixelRecHit& innerhit, const GlobalPoint& vertexPos);
 
   float ephimin1;
   float ephimax1;

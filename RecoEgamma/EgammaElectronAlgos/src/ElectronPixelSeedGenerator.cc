@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.1 2006/06/02 16:21:02 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.2 2006/06/06 17:17:56 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -208,16 +208,16 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<SuperClusterColl
 
  return ;
 }
-void ElectronPixelSeedGenerator::prepareElTrackSeed(const TSiPixelRecHit outerhit,const TSiPixelRecHit innerhit, const GlobalPoint vertexPos) {
+void ElectronPixelSeedGenerator::prepareElTrackSeed(const TSiPixelRecHit& outerhit,const TSiPixelRecHit& innerhit, const GlobalPoint& vertexPos) {
 
   // debug prints
   std::cout <<" outer PixelHit   x,y,z "<<outerhit.globalPosition()<<std::endl;
   std::cout <<" inner PixelHit   x,y,z "<<innerhit.globalPosition()<<std::endl;
 
   SiPixelRecHit *hit;
-  hit=new SiPixelRecHit(*(dynamic_cast <SiPixelRecHit *> (outerhit.hit())));
+  hit=new SiPixelRecHit(*(dynamic_cast <const SiPixelRecHit *> (outerhit.hit())));
   recHits_.push_back(hit);
-  hit=new SiPixelRecHit(*(dynamic_cast <SiPixelRecHit *> (innerhit.hit())));
+  hit=new SiPixelRecHit(*(dynamic_cast <const SiPixelRecHit *> (innerhit.hit())));
   recHits_.push_back(hit);
 
   typedef TrajectoryStateOnSurface     TSOS;
