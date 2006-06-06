@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2006/04/27 16:57:16 $
- *  \version $Id: RPCDetId.h,v 1.12 2006/04/27 16:57:16 mmaggi Exp $
- *  $Revision: 1.12 $
+ *  $Date: 2006/06/02 20:41:50 $
+ *  \version $Id: RPCDetId.h,v 1.13 2006/06/02 20:41:50 mmaggi Exp $
+ *  $Revision: 1.13 $
  *  \author Ilaria Segoni
  */
 
@@ -80,15 +80,7 @@ class RPCDetId :public DetId {
 
   /// Sector id
   int sector() const{
-    int sect=int((id_>>SectorStartBit_) & SectorMask_) + minSectorId;
-    
-    if (this->region()  !=0 ){
-      int subsect = int((id_>>SubSectorStartBit_) & SubSectorMask_) + minSubSectorId;
-      sect = 3*(sect-1) + subsect;
-      if (this->ring() == 1 && this->station()>1)
-	sect/=2;
-   }
-    return sect;
+    return int((id_>>SectorStartBit_) & SectorMask_) + minSectorId;
   }
 
   /// Layer id
@@ -99,10 +91,7 @@ class RPCDetId :public DetId {
 
   /// SubSector id
   int subsector() const{
-    int subsect = 1;
-    if (this->region()==0)
-      subsect = int((id_>>SubSectorStartBit_) & SubSectorMask_) + minSubSectorId;
-    return subsect;
+    return int((id_>>SubSectorStartBit_) & SubSectorMask_) + minSubSectorId;
   }
 
   /// Roll id
@@ -129,12 +118,20 @@ class RPCDetId :public DetId {
 
   static const int minSectorId=     1;
   static const int maxSectorId=     12;
+  static const int minSectorBarrelId=     1;
+  static const int maxSectorBarrelId=     12;
+  static const int minSectorForwardId=     1;
+  static const int maxSectorForwardId=     6;
 
   static const int minLayerId=     1;
   static const int maxLayerId=     2;
 
   static const int minSubSectorId=	 1;
-  static const int maxSubSectorId=	 4;
+  static const int maxSubSectorId=	 6;
+  static const int minSubSectorBarrelId=	 1;
+  static const int maxSubSectorBarrelId=	 4;
+  static const int minSubSectorForwardId=	 1;
+  static const int maxSubSectorForwardId=	 6;
 
   static const int minRollId=	  0;
   static const int maxRollId=	  4;
@@ -162,9 +159,9 @@ class RPCDetId :public DetId {
   static const int LayerStartBit_ =  SectorStartBit_+SectorNumBits_;  
   static const unsigned int LayerMask_     =  0X1;
 
-  static const int SubSectorNumBits_  =  2;
+  static const int SubSectorNumBits_  =  3;
   static const int SubSectorStartBit_ =  LayerStartBit_+LayerNumBits_;  
-  static const unsigned int SubSectorMask_     =  0X3;
+  static const unsigned int SubSectorMask_     =  0X7;
   
   static const int RollNumBits_  =  3;
   static const int RollStartBit_ =  SubSectorStartBit_+SubSectorNumBits_;  
