@@ -154,7 +154,7 @@ Event products of Reconstruction.
 <tr>
   <td> \endhtmlonly reco::RecoCaloTowerCandidate \htmlonly </rd>
   <td> \endhtmlonly reco::CandidateCollection \htmlonly </td>
-  <td>calotowercandidate</td>
+  <td> \endhtmlonly\ref RecoLocalCalo_CaloTowersCreator "calotowercandidate" \htmlonly </td>
   <td class="description">Candidates collection derived from CaloTowers</td>
   <td> F.Ratnikov </td>
 </tr>
