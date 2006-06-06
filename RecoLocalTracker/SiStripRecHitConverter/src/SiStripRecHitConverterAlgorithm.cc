@@ -74,8 +74,8 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::DetSetVector<SiStripC
 	  StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*iter,*stripdet);
 	  //	  edm::RefVector< edm::DetSetVector <SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clusters;
 	  edm::Ref< edm::DetSetVector <SiStripCluster>,SiStripCluster > const & cluster=edm::makeRefTo(inputhandle,id,iter);
-	  std::cout<<"cluster= "<<(*iter).barycenter()<<endl;
-	  std::cout<<"clusterref= "<<cluster->barycenter()<<endl;
+	  // std::cout<<"cluster= "<<(*iter).barycenter()<<endl;
+	  //std::cout<<"clusterref= "<<cluster->barycenter()<<endl;
 	  //clusters.push_back(cluster);
 	  if(!specDetId.stereo()){
 	    collectorrphi.push_back(new SiStripRecHit2DLocalPos(parameters.first, parameters.second,detId,cluster));
