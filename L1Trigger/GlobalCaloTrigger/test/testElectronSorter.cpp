@@ -12,8 +12,8 @@
 
 //To be sorted out!
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h" 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
-
+//#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmCand.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctDigis.h"
 //Standard library headers
 #include <fstream>   //for file IO
 #include <string>
@@ -50,7 +50,8 @@ int main()
 
   //Constructor with 15 non iso electron candidates
   L1GctElectronSorter* testSort = new L1GctElectronSorter(15,1);
-  LoadFileData("dummyData.txt");
+  LoadFileData("testElectronsRct_0");
+  //dummyData.txt");
 
   for(unsigned int i=0;i<data.size();i++){
     testSort->setInputEmCand(i,data[i]);
@@ -131,20 +132,18 @@ void LoadFileData(const string &inputFile)
     exit(1);
   }
 
-  unsigned long candidate;
-  L1GctEmCand electron;
- 
+  //unsigned long candRank, candEta, candPhi;
+  //changed to int to fit with definition in L1GctDigis.h
+  int candRank, candEta, candPhi;
   //Read in 15 electrons for now
-   for(int i=0;i<15;i++){     
-     file >>std::hex>>candidate;
-     electron.setRank(candidate);
-     file >>std::hex>>candidate;
-     electron.setEta(candidate);
-     file >>std::hex>>candidate;
-     electron.setPhi(candidate);
-     data.push_back(electron);
-    }
-   
+  for(int i=0;i<15;i++){     
+    file >>std::hex>>candRank;
+    file >>std::hex>>candEta;
+    file >>std::hex>>candPhi;
+    L1GctEmCand electron(candRank,candEta,candPhi,0,0);
+    data.push_back(electron);
+  }
+  
   return;
 }
 
