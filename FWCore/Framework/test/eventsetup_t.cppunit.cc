@@ -8,6 +8,8 @@
  *
  */
 
+#include <iostream>
+
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -33,7 +35,11 @@ edm::eventsetup::heterocontainer::HCTypeTagTemplate<DummyRecord, edm::eventsetup
    return "DummyRecord";
 }
 */
+
+#include "DataFormats/Common/interface/Provenance.h"
+
 using namespace edm;
+using namespace std;
 
 class testEventsetup: public CppUnit::TestFixture
 {
@@ -43,6 +49,7 @@ CPPUNIT_TEST(constructTest);
 CPPUNIT_TEST(getTest);
 CPPUNIT_TEST_EXCEPTION(getExcTest,edm::eventsetup::NoRecordException<DummyRecord>);
 CPPUNIT_TEST(recordProviderTest);
+CPPUNIT_TEST(provenanceTest);
 CPPUNIT_TEST_EXCEPTION(recordValidityTest,edm::eventsetup::NoRecordException<DummyRecord>); 
 CPPUNIT_TEST_EXCEPTION(recordValidityExcTest,edm::eventsetup::NoRecordException<DummyRecord>);
 CPPUNIT_TEST(proxyProviderTest);
@@ -65,6 +72,7 @@ public:
   void recordValidityTest();
   void recordValidityExcTest();
   void proxyProviderTest();
+  void provenanceTest();
   
   void producerConflictTest();
   void sourceConflictTest();
@@ -316,6 +324,44 @@ void testEventsetup::twoSourceTest()
   //checking for conflicts is now delayed until first time EventSetup is requested
   EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
   
+}
+void testEventsetup::provenanceTest()
+{
+   using edm::eventsetup::test::DummyProxyProvider;
+   using edm::eventsetup::test::DummyData;
+   DummyData kGood; kGood.value_ = 1;
+   DummyData kBad; kBad.value_=0;
+
+   eventsetup::EventSetupProvider provider;
+   try {
+      {
+         edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
+         description.pid_ = ParameterSetID("test11");
+         description.versionNumber_ = 11;
+         boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
+         dummyProv->setDescription(description);
+         provider.add(dummyProv);
+      }
+      {
+         edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
+         description.pid_ = ParameterSetID("test22");
+         description.versionNumber_ = 22;
+         description.processName_ = "UnitTest";
+         description.pass_ = 22;
+         boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
+         dummyProv->setDescription(description);
+         provider.add(dummyProv);
+      }
+      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+      edm::ESHandle<DummyData> data;
+      eventSetup.getData(data);
+      CPPUNIT_ASSERT(kGood.value_==data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      CPPUNIT_ASSERT( desc->processName_ == "UnitTest");
+   } catch (const cms::Exception& iException) {
+       std::cout <<"caught "<<iException.explainSelf()<<std::endl;
+      throw;
+   }
 }
 
 void testEventsetup::sourceProducerResolutionTest()
