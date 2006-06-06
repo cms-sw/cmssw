@@ -789,6 +789,7 @@ namespace edm {
     // to be called.
     EventSetup const& es =
       esp_->eventSetupForInstance(IOVSyncValue::beginOfTime());
+    input_->beginJob(es);
     schedule_->beginJob(es);
     actReg_->postBeginJobSignal_();
     // toerror.succeeded(); // should we add this?
@@ -805,6 +806,20 @@ namespace edm {
 
     try {
 	schedule_->endJob();
+    }
+    catch(...) {
+      try {
+	input_->endJob();
+      }
+      catch (...) {
+	// If schedule_->endJob() and input_->endJob() both throw, we will
+	// lose the exception information from input_->endJob().  So what!
+      }
+      actReg_->postEndJobSignal_();
+      throw;
+    }
+    try {
+	input_->endJob();
     }
     catch(...) {
       actReg_->postEndJobSignal_();

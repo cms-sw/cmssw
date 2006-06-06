@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.10 2006/04/24 22:34:25 wmtan Exp $
+$Id: InputSource.cc,v 1.11 2006/05/02 02:15:08 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -25,6 +25,12 @@ namespace edm {
   }
 
   InputSource::~InputSource() {}
+
+  void
+  InputSource::beginJob(EventSetup const&) { }
+
+  void
+  InputSource::endJob() { }
 
   void
   InputSource::registerProducts() {
