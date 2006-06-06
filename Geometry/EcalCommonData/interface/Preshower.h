@@ -9,6 +9,7 @@
 class Preshower : public DDAlgorithm
 {
  public:
+    std::string getMaterial(unsigned int i)   const {return materials_[i];}
     Preshower();
     void initialize(const DDNumericArguments & nArgs,
                     const DDVectorArguments & vArgs,
@@ -18,15 +19,18 @@ class Preshower : public DDAlgorithm
     void execute();
  private:
     void doLayers();
-    void doWedges();
+    void doWedges();    
+    void doSens();
 
     std::vector<double> quadMin_, quadMax_; 
     int nmat_; // number of preshower layers
     double thickness_; // overall thickness of the preshower envelope
     double zlead1_, zlead2_, zfoam1_, zfoam2_;
-    std::vector<DD::Material> materials_; // materials of the presh-layers
-    std::vector<double> thickLayers_;
-
+    std::vector<std::string> materials_; // materials of the presh-layers
+    std::vector<double> thickLayers_; 
+    std::vector<double> rminVec; 
+    std::vector<double> rmaxVec;
+    double waf_intra_col_sep, waf_inter_col_sep, waf_active, wedge_length, wedge_offset, zwedge_ceramic_diff, ywedge_ceramic_diff; 
 };
 
 
