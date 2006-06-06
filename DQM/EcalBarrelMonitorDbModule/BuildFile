@@ -1,0 +1,17 @@
+<flags SEAL_PLUGIN_NAME="DQMEcalBarrelMonitorDbModule">
+<use name=FWCore/Framework>
+<use name=DQMServices/CoreROOT>
+<use name=CORALRelationalAccess>
+<use name=boost>
+<use name=root>
+<use name=coral>
+
+<export>
+ <lib name=DQMEcalBarrelMonitorDbModule>
+ <use name=FWCore/Framework>
+ <use name=DQMServices/CoreROOT>
+ <use name=CORALRelationalAccess>
+ <use name=boost>
+ <use name=root>
+ <use name=coral>
+</export>
