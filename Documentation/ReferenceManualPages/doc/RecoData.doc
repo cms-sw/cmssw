@@ -41,24 +41,91 @@ Event products of Reconstruction.
 <tr>
   <td> \endhtmlonly reco::Track \htmlonly </rd>
   <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
-  <td>trackp</td>
+  <td>CTFAnalytical</td>
   <td class="description">Reconstructed tracks</td>
   <td>&nbsp;</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
   <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
-  <td>trackp</td>
+  <td>CTFAnalytical</td>
   <td class="description">Extra track info associated to reconstructed tracks</td>
   <td>&nbsp;</td>
 </tr>
 <tr>
   <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
   <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
-  <td>trackp</td>
+  <td>CTFAnalytical</td>
   <td class="description">RecHits used by reconstructed tracks</td>
   <td>&nbsp;</td>
 </tr>
+
+<tr>
+  <td> \endhtmlonly reco::Track \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
+  <td>CTFWMaterial</td>
+  <td class="description">Reconstructed tracks</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
+  <td>CTFWMaterial</td>
+  <td class="description">Extra track info associated to reconstructed tracks</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
+  <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
+  <td>CTFWMaterial</td>
+  <td class="description">RecHits used by reconstructed tracks</td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr>
+  <td> \endhtmlonly reco::Track \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
+  <td>RSAnalytical</td>
+  <td class="description">Reconstructed tracks</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
+  <td>RSAnalytical</td>
+  <td class="description">Extra track info associated to reconstructed tracks</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
+  <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
+  <td>RSAnalytical</td>
+  <td class="description">RecHits used by reconstructed tracks</td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr>
+  <td> \endhtmlonly reco::Track \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
+  <td>RSWMaterial</td>
+  <td class="description">Reconstructed tracks</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
+  <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
+  <td>RSWMaterial</td>
+  <td class="description">Extra track info associated to reconstructed tracks</td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
+  <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
+  <td>RSWMaterial</td>
+  <td class="description">RecHits used by reconstructed tracks</td>
+  <td>&nbsp;</td>
+</tr>
+
 <tr class="colgroup">
   <td class="colgroup" colspan=5>Ecal cluster collections</td>
 <tr>
