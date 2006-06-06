@@ -31,7 +31,7 @@ Event products of Reconstruction.
 <tr valign=top>
   <th>Object type</th>
   <th>Container type</th>
-  <th>module label <i>[ : instance name [ : branch alias  ] ]</i></th>
+  <th>module<i>[:instance[:alias ]]</i></th>
   <th>description</th>
   <th>contact</th>
 </tr>
@@ -42,88 +42,88 @@ Event products of Reconstruction.
   <td> \endhtmlonly reco::Track \htmlonly </rd>
   <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
   <td>CTFAnalytical</td>
-  <td class="description">Reconstructed tracks</td>
-  <td>&nbsp;</td>
+  <td class="description">Combinatorial finder with analytical propagator</td>
+  <td>O.Gutsche</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
   <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
   <td>CTFAnalytical</td>
-  <td class="description">Extra track info associated to reconstructed tracks</td>
-  <td>&nbsp;</td>
+  <td class="description">Combinatorial finder with analytical propagator</td>
+  <td>O.Gutsche</td>
 </tr>
 <tr>
   <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
   <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
   <td>CTFAnalytical</td>
-  <td class="description">RecHits used by reconstructed tracks</td>
-  <td>&nbsp;</td>
+  <td class="description">Combinatorial finder with analytical propagator</td>
+  <td>O.Gutsche</td>
 </tr>
 
 <tr>
   <td> \endhtmlonly reco::Track \htmlonly </rd>
   <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
   <td>CTFWMaterial</td>
-  <td class="description">Reconstructed tracks</td>
-  <td>&nbsp;</td>
+  <td class="description">Combinatorial finder with propagation in the material</td>
+  <td>O.Gutsche</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
   <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
   <td>CTFWMaterial</td>
-  <td class="description">Extra track info associated to reconstructed tracks</td>
-  <td>&nbsp;</td>
+  <td class="description">Combinatorial finder with propagation in the material</td>
+  <td>O.Gutsche</td>
 </tr>
 <tr>
   <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
   <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
   <td>CTFWMaterial</td>
-  <td class="description">RecHits used by reconstructed tracks</td>
-  <td>&nbsp;</td>
+  <td class="description">Combinatorial finder with propagation in the material</td>
+  <td>O.Gutsche</td>
 </tr>
 
 <tr>
   <td> \endhtmlonly reco::Track \htmlonly </rd>
   <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
   <td>RSAnalytical</td>
-  <td class="description">Reconstructed tracks</td>
-  <td>&nbsp;</td>
+  <td class="description">Road search with analytical propagator</td>
+  <td>O.Gutsche</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
   <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
   <td>RSAnalytical</td>
-  <td class="description">Extra track info associated to reconstructed tracks</td>
-  <td>&nbsp;</td>
+  <td class="description">Road search with analytical propagator</td>
+  <td>O.Gutsche</td>
 </tr>
 <tr>
   <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
   <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
   <td>RSAnalytical</td>
-  <td class="description">RecHits used by reconstructed tracks</td>
-  <td>&nbsp;</td>
+  <td class="description">Road search with analytical propagator</td>
+  <td>O.Gutsche</td>
 </tr>
 
 <tr>
   <td> \endhtmlonly reco::Track \htmlonly </rd>
   <td> \endhtmlonly reco::TrackCollection \htmlonly </td>
   <td>RSWMaterial</td>
-  <td class="description">Reconstructed tracks</td>
-  <td>&nbsp;</td>
+  <td class="description">Road search with propagation in the material</td>
+  <td>O.Gutsche</td>
 </tr>
 <tr>
   <td> \endhtmlonly reco::TrackExtra \htmlonly </rd>
   <td> \endhtmlonly reco::TrackExtraCollection \htmlonly </td>
   <td>RSWMaterial</td>
-  <td class="description">Extra track info associated to reconstructed tracks</td>
-  <td>&nbsp;</td>
+  <td class="description">Road search with propagation in the material</td>
+  <td>O.Gutsche</td>
 </tr>
 <tr>
   <td> \endhtmlonly TrackingRecHit \htmlonly </rd>
   <td> \endhtmlonly TrackingRecHitCollection \htmlonly </td>
   <td>RSWMaterial</td>
-  <td class="description">RecHits used by reconstructed tracks</td>
-  <td>&nbsp;</td>
+  <td class="description">Road search with propagation in the material</td>
+  <td>O.Gutsche</td>
 </tr>
 
 <tr class="colgroup">
