@@ -1,0 +1,16 @@
+<use name=FWCore/Framework>
+<use name=DataFormats/DTRecHit>
+<use name=Geometry/Records>
+<use name=Geometry/DTGeometry>
+<use name=root>
+
+<flags SEAL_PLUGIN_NAME="ValidationDTRecHits">
+
+<export>
+ <lib name=ValidationDTRecHits>
+ <use name=FWCore/Framework>
+ <use name=DataFormats/DTRecHit>
+ <use name=Geometry/Records>
+ <use name=Geometry/DTGeometry>
+ <use name=root>
+</export>
