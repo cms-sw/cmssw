@@ -4,8 +4,8 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
+#include "CondFormats/Alignment/interface/AlignTransformError.h"
 
 //__________________________________________________________________________________________________
 void AlignableDetUnit::move( const GlobalVector& displacement) 
@@ -207,5 +207,28 @@ Alignments* AlignableDetUnit::alignments() const
   m_alignments->m_align.push_back( transform );
 
   return m_alignments;
+
+}
+
+
+//__________________________________________________________________________________________________
+AlignmentErrors* AlignableDetUnit::alignmentErrors() const
+{
+
+  AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
+
+  uint32_t detId = this->geomDetUnit()->geographicalId().rawId();
+
+  HepSymMatrix clhepSymMatrix;
+  if ( this->geomDetUnit()->alignmentPositionError() ) // Might not be set
+	clhepSymMatrix = 
+	  this->geomDetUnit()->alignmentPositionError()->globalError().matrix();
+
+  AlignTransformError transformError( clhepSymMatrix, detId );
+
+  m_alignmentErrors->m_alignError.push_back( transformError );
+  
+  return m_alignmentErrors;
+  
 
 }

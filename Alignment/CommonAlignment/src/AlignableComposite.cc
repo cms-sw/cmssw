@@ -279,12 +279,12 @@ void AlignableComposite::dump( void ) const
 Alignments* AlignableComposite::alignments( void ) const
 {
 
-  // Recursively call alignments, until we get to an AlignableDet(Unit)
+  // Recursively call alignments, until we get to an AlignableDetUnit
   std::vector<Alignable*> comp = this->components();
 
   Alignments* m_alignments = new Alignments();
 
-  // Add associated geomDet, if available (i.e. this is an AlignableDetUnit)
+  // Add associated geomDet, if available (i.e. this is an AlignableDet)
   if ( this->geomDet() )
 	{
 	  Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
@@ -293,11 +293,11 @@ Alignments* AlignableComposite::alignments( void ) const
 								 Hep3Vector( globalRotation().yx(), globalRotation().yy(), globalRotation().yz() ),
 								 Hep3Vector( globalRotation().zx(), globalRotation().zy(), globalRotation().zz() )
 								 );
-	  
+
 	  uint32_t detId = this->geomDet()->geographicalId().rawId();
 
 	  AlignTransform transform( clhepVector, clhepRotation, detId );
-	  
+
 	  m_alignments->m_align.push_back( transform );
 	}
 
@@ -312,5 +312,40 @@ Alignments* AlignableComposite::alignments( void ) const
 
   
   return m_alignments;
+
+}
+
+
+//__________________________________________________________________________________________________
+AlignmentErrors* AlignableComposite::alignmentErrors( void ) const
+{
+
+  // Recursively call alignmentsErrors, until we get to an AlignableDetUnit
+  std::vector<Alignable*> comp = this->components();
+
+  AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
+
+  // Add associated geomDet, if available (i.e. this is an AlignableDetUnit)
+  if ( this->geomDet() )
+	{
+	  uint32_t detId = this->geomDet()->geographicalId().rawId();
+	  HepSymMatrix clhepSymMatrix;
+	  if ( this->geomDet()->alignmentPositionError() ) // Might not be set
+		clhepSymMatrix= 
+		  this->geomDet()->alignmentPositionError()->globalError().matrix();
+	  AlignTransformError transformError( clhepSymMatrix, detId );
+	  m_alignmentErrors->m_alignError.push_back( transformError );
+	}
+
+  // Add components recursively
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+	{
+	  AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
+	  std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 
+				 std::back_inserter(m_alignmentErrors->m_alignError) );
+	}
+
+  
+  return m_alignmentErrors;
 
 }

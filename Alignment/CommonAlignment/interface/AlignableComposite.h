@@ -5,6 +5,7 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "Geometry/Vector/interface/Basic3DVector.h"
@@ -88,6 +89,9 @@ public:
 
   /// Return alignment data
   virtual Alignments* alignments() const;
+
+  /// Return vector of alignment errors
+  virtual AlignmentErrors* alignmentErrors() const;
 
 protected:
   void setSurface( const AlignableSurface& s) { theSurface = s; }

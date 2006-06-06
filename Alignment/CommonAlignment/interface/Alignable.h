@@ -8,6 +8,7 @@
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "Geometry/CommonDetUnit/interface/DetPositioner.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
 
 // Headers in the same package
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
@@ -134,6 +135,9 @@ public:
   /// Return vector of alignment data
   virtual Alignments* alignments() const = 0;
   
+  /// Return vector of alignment errors
+  virtual AlignmentErrors* alignmentErrors() const = 0;
+
 protected:
 
   virtual void addDisplacement( const GlobalVector& displacement );

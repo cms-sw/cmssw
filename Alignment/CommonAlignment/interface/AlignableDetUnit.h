@@ -2,6 +2,8 @@
 #define Alignment_CommonAlignment_AlignableDetUnit_H
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
 
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CommonDetAlgo/interface/DeepCopyPointer.h"
@@ -79,6 +81,9 @@ public:
 
   /// Return vector of alignment data
   virtual Alignments* alignments() const;
+
+  /// Return vector of alignment errors
+  virtual AlignmentErrors* alignmentErrors() const;
 
 private:
 
