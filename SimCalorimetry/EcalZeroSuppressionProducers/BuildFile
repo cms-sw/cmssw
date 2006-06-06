@@ -6,6 +6,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/EcalObjects>
+<use name=RecoLocalCalo/EcalRecAlgos>
 
 <flags SEAL_PLUGIN_NAME="SimCalorimetryEcalZeroSuppressionProducers">
 <export>
@@ -18,4 +19,5 @@
    <use name=DataFormats/EcalDetId>
    <use name=CondFormats/DataRecord>
    <use name=CondFormats/EcalObjects>
+   <use name=RecoLocalCalo/EcalRecAlgos>
 </export>
