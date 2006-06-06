@@ -59,8 +59,8 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     
     // get RECO tracks from the event
     edm::Handle<reco::TrackCollection> trackCollection;
-    iEvent.getByLabel("Tracks", trackCollection);
-    //    iEvent.getByType(trackCollection);
+    //    iEvent.getByLabel("recoTracks", trackCollection);
+    iEvent.getByType(trackCollection);
     //    iEvent.getByLabel("Tracks", "recoTracks", trackCollection);
     //    std::vector< edm::Handle<reco::TrackCollection> > trackCollections;
     //    iEvent.getManyByType(trackCollections);
