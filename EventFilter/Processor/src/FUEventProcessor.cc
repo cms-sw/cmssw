@@ -75,7 +75,8 @@ FUEventProcessor::~FUEventProcessor()
 
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
-
+#include "EventFilter/Message2log4cplus/interface/MLlog4cplus.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -143,11 +144,10 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
       proc_->enableEndPaths(outPut_);
     
     outprev_=outPut_;
-    
-    proc_->setRunNumber(runNumber_.value_);
-    edm::ServiceToken tok =  
-      edm::ServiceRegistry::instance().presentToken();
+    edm::ServiceRegistry::Operate operate(proc_->getToken());
     edm::Service<MonitorDaemon>()->rmt(add_, port_, del_, nam_);
+    edm::Service<ML::MLlog4cplus>()->setAppl(this);
+    proc_->setRunNumber(runNumber_.value_);
   }
   catch(seal::Error& e)
     {
@@ -431,7 +431,7 @@ void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
 #include "extern/cgicc/linuxx86/include/cgicc/Cgicc.h"
 #include "extern/cgicc/linuxx86/include/cgicc/FormEntry.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
 
