@@ -26,6 +26,7 @@ class TRawLaserPulse;
 class TRawPattern;
 class TRawAdc2249;
 class TRawScaler;
+class TRawTpgChannel;
 
 class Ecal2004TBSource : public edm::ExternalInputSource {
 public:
@@ -71,6 +72,7 @@ private:
   TRawHeader* m_eventHeader;
   TRawTdcInfo* m_tdcInfo;
   TRawHodo* m_hodo;
+  TRawTpgChannel* m_tpg;
 
   int m_burstNum;
   int m_xtalInBeam;

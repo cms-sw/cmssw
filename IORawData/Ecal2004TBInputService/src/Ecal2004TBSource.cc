@@ -11,6 +11,7 @@
 #include "IORawData/Ecal2004TBInputService/interface/TRawScaler.h"
 #include "IORawData/Ecal2004TBInputService/interface/TRawTdcTriggers.h"
 #include "IORawData/Ecal2004TBInputService/interface/TRawTdcInfo.h"
+#include "IORawData/Ecal2004TBInputService/interface/TRawTpgChannel.h"
 #include "IORawData/Ecal2004TBInputService/interface/TRawLaserPulse.h"
 #include "IORawData/Ecal2004TBInputService/interface/TRawPattern.h"
 #include "IORawData/Ecal2004TBInputService/interface/TRunInfo.h"
@@ -18,6 +19,8 @@
 
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
+#include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
+#include <DataFormats/EcalDetId/interface/EcalSubdetector.h>
 #include <TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h>
 
 #include "PluginManager/PluginCapabilities.h"
@@ -101,6 +104,7 @@ Ecal2004TBSource::Ecal2004TBSource(const edm::ParameterSet & pset, edm::InputSou
   produces<EcalTBHodoscopeRawInfo>();
   produces<EcalTBTDCRawInfo>();
   produces<EcalTBEventHeader>();
+  produces<EcalTrigPrimDigiCollection>();
 }
 
 
@@ -155,19 +159,21 @@ void Ecal2004TBSource::openFile(const std::string& filename) {
   n_towers=0;
   n_pns=0;
   n_pnIEs=0;
-
+  
   m_eventHeader=0;
   m_towers[n_towers]=0;
   m_pns[n_pns]=0;       
   m_pnIEs[n_pnIEs]=0;       
   m_hodo=0;
   m_tdcInfo=0;
+  m_tpg=0;
   
   for (int i=0; i<lb->GetSize(); i++) 
     {
       TBranch* b=(TBranch*)lb->At(i);
       if (b==0) continue;
       string branchName(b->GetName());
+
       if (!strcmp(b->GetClassName(),"TRawHeader")) 
 	{
 	  if ( b->GetEntries() ) 
@@ -244,6 +250,13 @@ void Ecal2004TBSource::openFile(const std::string& filename) {
 	      b->SetAddress(&m_tdcInfo);
 	    } 
 	}
+      else if (!strcmp(b->GetClassName(),"TRawTpgChannel")) 
+	{
+	  if ( b->GetEntries() ) 
+	    {
+	      b->SetAddress(&m_tpg);
+	    } 
+	}
     }
   edm::LogInfo("Ecal2004TBSourceInfo") << "---------------- Branches charged -----------------" ;
 }
@@ -289,6 +302,7 @@ bool Ecal2004TBSource::produce(edm::Event& e) {
   auto_ptr<EcalTBHodoscopeRawInfo> productHodo(new EcalTBHodoscopeRawInfo());         
   auto_ptr<EcalTBTDCRawInfo> productTdc(new EcalTBTDCRawInfo());                      
   auto_ptr<EcalTBEventHeader> productHeader(new EcalTBEventHeader());                      
+  auto_ptr<EcalTrigPrimDigiCollection> productTpg(new EcalTrigPrimDigiCollection());
 
   // supermodule geometry
   H4Geom geom;
@@ -315,7 +329,7 @@ bool Ecal2004TBSource::produce(edm::Event& e) {
 		  theFrame.setSample(sample, EcalMGPASample(adcValue,gain));		 
 		}
 	      
-	      productEb->push_back(theFrame);                                                                
+	      productEb->push_back(theFrame);
 	    }
 	} // loop over crystals in tower
     } // loop over towers
@@ -411,6 +425,47 @@ bool Ecal2004TBSource::produce(edm::Event& e) {
 	}
    } // tdc ok
 
+
+  
+  // tpg information
+  if ( m_tpg ) 
+    {   
+      int nTpgSamples = m_tpg->GetLen(); //20 clock samples per Tower +  2 headers 
+      int nTowers = (nTpgSamples-2)/20; //Only 10 TT read in 2004 Data
+      for (int itt=0;itt<nTowers;itt++) 
+	{
+	  //	  LogDebug("Ecal2004TBSourceDebug") << "+++++++++++++++++++++++++" ; 
+	  int startingIndex = ( (int)floor((double)itt/10.) + 1)*2 +
+	    itt*20;
+	  int ieta=itt/H4Geom::kTowersInPhi+1;
+	  int iphi=4-(itt%4); //Reverse phi direction w.r.t SM numbering 
+	  //	  LogDebug("Ecal2004TBSourceDebug") << "Tower " << ieta << " " << iphi ;
+
+ 	  EcalTrigTowerDetId ttId(1,EcalBarrel,ieta,iphi,EcalTrigTowerDetId::SUBDETIJMODE);
+ 	  EcalTriggerPrimitiveDigi theTpgDigi(ttId);
+	  theTpgDigi.setSize(20);
+	  for (int iS = 0; iS < 20; iS++)
+	    {
+	      int sample = m_tpg->GetValue(startingIndex + iS);
+	      //	      LogDebug("Ecal2004TBSourceDebug") << "Value " << iS << " " << (int)((double)(((unsigned int)sample & (unsigned int)0x3FF))/(double)(0x3FF)*0xFF)
+	      //			<< " FGVB " << ( (sample & 0x400) >> 10 )
+	      //			<< " GFB " <<  ( sample & 0x800 ) 
+	      //			<< std ::endl;
+	      //In 2004 et was encoded using 10 bit. Here we saturate above 0xFF 
+	      //	      int et=(int)((double)(((unsigned int)sample & (unsigned int)0x3FF))/(double)(0x3FF)*0xFF);
+	      int et = (int) ((unsigned int)sample & (unsigned int)0x3FF);
+	      if (et > 0xFF)
+		et=0xFF;
+	      EcalTriggerPrimitiveSample theTpgSample(et,(sample & 0x400) >> 10,0); 
+ 	      theTpgDigi.setSample(iS, theTpgSample);
+	    }
+	  //	  LogDebug("Ecal2004TBSourceDebug") << theTpgDigi ;
+	  productTpg->push_back(theTpgDigi);
+	  //	  LogDebug("Ecal2004TBSourceDebug") << "+++++++++++++++++++++++++" ; 
+	}
+    }
+
+  
   // Event Header
   //   if ( m_eventHeader )
   //     {
@@ -430,6 +485,7 @@ bool Ecal2004TBSource::produce(edm::Event& e) {
   e.put(productEPn);
   e.put(productHodo);
   e.put(productTdc);
+  e.put(productTpg);
   e.put(productHeader);
 
   return true;
