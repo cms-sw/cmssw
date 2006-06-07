@@ -18,23 +18,25 @@
 class L1GctRegion
 {
 public:
-  L1GctRegion(unsigned eta=0, unsigned phi=0, unsigned et=0, bool overFlow=false, bool tauVeto=false, bool mip=false, bool quiet=false);
-  L1GctRegion(unsigned id, unsigned et, bool overFlow=false, bool tauVeto=false, bool mip=false, bool quiet=false);
+  L1GctRegion(unsigned id=0, unsigned et=0, bool overFlow=false, bool tauVeto=false, bool mip=false, bool quiet=false);
   ~L1GctRegion();
   
   // region position //
 
   /// get Region unique ID
-  int id() const { return m_id; }
+  unsigned id() const { return m_id; }
   
   /// get eta index (0-21) of the region
-  int eta() const { return m_eta; }
+  unsigned eta() const;
 
   /// get phi index (0-17) of the region
-  int phi() const { return m_phi; }
+  unsigned phi() const;
 
   /// get RCT crate index (0-17)
   unsigned rctCrate() const;
+
+  /// get Source Card index (0-17)
+  unsigned sourceCard() const;
 
   // get region data //
 
@@ -72,10 +74,6 @@ private:
   // region ID
   unsigned m_id;
   
-  // position indices
-  unsigned m_eta;
-  unsigned m_phi;
-
   // region data : et, overflow, tau veto, mip and quiet bits
   uint16_t m_data;
 

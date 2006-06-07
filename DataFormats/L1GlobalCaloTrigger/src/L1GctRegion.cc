@@ -20,28 +20,28 @@ L1GctRegion::L1GctRegion(unsigned id, unsigned et, bool overFlow, bool tauVeto, 
     ((quiet)    ? 0x2000 : 0x0);
 }
 
-// constructor by eta, phi index
-L1GctRegion::L1GctRegion(unsigned eta, unsigned phi, unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet) :
-  m_eta(eta),
-  m_phi(phi)
-{
-  m_data = 
-    (et & 0x3ff) | 
-    ((overFlow) ? 0x400  : 0x0) |
-    ((tauVeto)  ? 0x800  : 0x0) |
-    ((mip)      ? 0x1000 : 0x0) |
-    ((quiet)    ? 0x2000 : 0x0);
-}
-
-
 // destructor
 L1GctRegion::~L1GctRegion() { }
 
-// get RCT crate
+// get eta index
+unsigned L1GctRegion::eta() const { 
+  return L1GctMap::getMap()->eta(*this); 
+}
+
+// get phi index
+unsigned L1GctRegion::phi() const { 
+  return L1GctMap::getMap()->phi(*this); 
+}
+
+// get RCT crate ID
 unsigned L1GctRegion::rctCrate() const { 
   return L1GctMap::getMap()->rctCrate(*this); 
 }
 
+// get source card ID
+unsigned L1GctRegion::sourceCard() const { 
+  return L1GctMap::getMap()->sourceCard(*this); 
+}
 
 // set mip bit
 void L1GctRegion::setMip(bool mip) {

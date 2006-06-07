@@ -15,6 +15,7 @@ class L1GctMap {
     return m_instance;
   }
   
+ 
   /// get the RCT crate number
   unsigned rctCrate(L1GctRegion r);
 
@@ -38,6 +39,9 @@ class L1GctMap {
 
   /// get physical eta 
   //  double phi(L1GctRegion r);
+
+  /// get ID from eta, phi indices
+  unsigned id(unsigned ieta, unsigned iphi);
 
 
  private:        // methods
