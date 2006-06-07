@@ -1,8 +1,8 @@
 /*
  * \file EBTemperatureDb.cc
  * 
- * $Date: 2006/06/06 14:51:19 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/06 18:10:58 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -58,9 +58,7 @@ void EBTemperatureDb::analyze(const Event& e, const EventSetup& c, DaqMonitorBEI
     query->addToTableList("CHANNELVIEW");
     query->addToTableList("MON_TR_CAPS_DAT");
 
-    AttributeList bindVariableList;
-
-    query->setCondition("MON_TR_CAPS_DAT.IOV_ID = (SELECT max(IOV_ID) from MON_TR_CAPS_DAT) and CHANNELVIEW.LOGIC_ID = MON_TR_CAPS_DAT.LOGIC_ID", bindVariableList);
+    query->setCondition("MON_TR_CAPS_DAT.IOV_ID = (SELECT max(IOV_ID) from MON_TR_CAPS_DAT) and CHANNELVIEW.LOGIC_ID = MON_TR_CAPS_DAT.LOGIC_ID", AttributeList());
 
     query->addToOrderList("ID1");
     query->addToOrderList("ID2");
