@@ -119,7 +119,7 @@ void L1GctSourceCard::fetchInput()
 
 /// set the Regions
 void L1GctSourceCard::setRegions(vector<L1GctRegion> regions) {
-  if (m_cardType!=cardType2 || m_cardType!=cardType3) {
+  if (m_cardType!=cardType2 && m_cardType!=cardType3) {
     throw cms::Exception("L1GctSetupError")
       << "L1GctSourceCard::setRegions() : Source Card ID: " << m_id << " is of cardType " << m_cardType << endl
       << "and only handles EM candidates" << endl;
