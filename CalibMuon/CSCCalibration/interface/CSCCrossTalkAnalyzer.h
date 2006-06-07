@@ -19,7 +19,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-class TCalibEvt {
+class TCalibCrossTalkEvt {
   public:
   Float_t xtalk_slope_left;
   Float_t xtalk_slope_right;
@@ -57,6 +57,8 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 #define TOTALEVENTS 320
 
   ~CSCCrossTalkAnalyzer(){
+
+   Conv binsConv;
     //get time of Run file for DB transfer
     filein.open("../test/CSCxtalk.cfg");
     filein.ignore(1000,'\n');
@@ -88,7 +90,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
     condbon *dbon = new condbon();
 
     //root ntuple
-   TCalibEvt calib_evt;
+   TCalibCrossTalkEvt calib_evt;
    TFile calibfile("ntuples/calibxtalk.root", "RECREATE");
    TTree calibtree("Calibration","Cross-talk");
    calibtree.Branch("EVENT", &calib_evt, "xtalk_slope_left/F:xtalk_slope_right/F:xtalk_int_left/F:xtalk_int_right/F:xtalk_chi2_left/F:xtalk_chi2_right/F:peakTime/F:strip/I:layer/I:cham/I:ddu/I:pedMean/F:pedRMS/F:peakRMS/F:maxADC/F:sum/F:time[8]/F:adc[8]/F:tbin[8]/I:event/I");
@@ -403,7 +405,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   bool debug;
 
   //root ntuple
-  TCalibEvt calib_evt;
+  TCalibCrossTalkEvt calib_evt;
   TBranch *calibevt;
   TTree *calibtree;
   TFile *calibfile;

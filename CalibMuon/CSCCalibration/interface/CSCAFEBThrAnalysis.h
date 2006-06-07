@@ -13,8 +13,8 @@
 
 /** \class CSCAFEBThrAnalysis
   *  
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/06/02 08:45:25 $
+  * $Revision: 1.1 $
   * \author 
   */
 class CSCAFEBThrAnalysis {
@@ -26,7 +26,10 @@ public:
 
 private:
   void bookForId(int flag, const int& idint,const std::string& ids);
-
+  void hf1ForId(std::map<int, TH1*>& mp, int flag, const int& id, 
+                                         float& x, float w);
+  void hf2ForId(std::map<int, TH2*>& mp, int flag, const int& id,
+                                         float& x, float& y, float w);
   /// Statistics
   int nmbev;
   int nmbev_no_wire;
@@ -35,9 +38,11 @@ private:
   int npulses; 
   int unsigned indDac;
   int BegDac;
+  int EndDac;
   int EvDac;
   int StepDac;
   std::vector<float> vecDac;
+  std::vector<int> vecDacOccup;
   
   /// Maps - per event, threshold curve, fit results
   std::map<int, std::vector<int> >                 m_wire_ev;

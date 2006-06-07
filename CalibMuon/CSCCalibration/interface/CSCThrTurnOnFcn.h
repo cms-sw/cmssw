@@ -40,7 +40,7 @@ public:
  };
 
   /// Set the norm (if needed)
-   void setNorm(const float & n) {norm=n;};
+   void setNorm(float n) {norm=n;};
  
   /// Provide the chi-squared function for the given data
   virtual double operator() (const std::vector<double>&) const;

@@ -25,6 +25,7 @@ public:
   virtual bool ThresholdNoise(const std::vector<float> & inputx, 
                               const std::vector<float> & inputy, 
                               const int                & npulses,
+                              std::vector<int>         & dacoccup,
                               std::vector<float>       & mypar,
                               std::vector<float>       & ermypar,
                               float                    & ercorr,

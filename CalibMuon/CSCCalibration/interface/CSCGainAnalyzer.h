@@ -14,7 +14,7 @@
 #include "TFile.h"
 #include "TTree.h"
 
-class TCalibEvt {
+class TCalibGainEvt {
   public:
   Float_t slope;
   Float_t intercept;
@@ -67,7 +67,7 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
     condbon *dbon = new condbon();
     
     //root ntuple information
-    TCalibEvt calib_evt;
+    TCalibGainEvt calib_evt;
     TFile calibfile("ntuples/calibgain.root", "RECREATE");
     TTree calibtree("Calibration","Gains");
     calibtree.Branch("EVENT", &calib_evt, "slope/F:intercept/F:chi2/F:strip/I:layer/I:cham/I");

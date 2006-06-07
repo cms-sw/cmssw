@@ -12,6 +12,7 @@
 
 #include "CalibMuon/CSCCalibration/interface/condbon.h"
 #include "CalibMuon/CSCCalibration/interface/cscmap.h"
+#include "CalibMuon/CSCCalibration/interface/AutoCorrMat.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1F.h"
@@ -19,7 +20,7 @@
 #include "TDirectory.h"
 #include "TCanvas.h"
 
-class TCalibEvt {
+class TCalibNoiseMatrixEvt {
   public:
   Float_t elem[12];
   Int_t strip;
@@ -28,6 +29,7 @@ class TCalibEvt {
 };
 
 class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
+
  public:
   explicit CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
@@ -68,11 +70,11 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
     condbon *dbon = new condbon();
     
     //root ntuple
-    TCalibEvt calib_evt;
+    TCalibNoiseMatrixEvt calib_evt;
     TFile calibfile("ntuples/calibmatrix.root", "RECREATE");
     TTree calibtree("Calibration","NoiseMatrix");
     calibtree.Branch("EVENT", &calib_evt, "elem[12]/F:strip/I:layer/I:cham/I");
-    
+   
    //for (int myDDU; myDDU<Nddu; myDDU++){
      for (int i=0; i<NChambers; i++){
      
@@ -143,7 +145,7 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
 
  private:
  // variables persistent across events should be declared here.
- std::vector<int> adc; 
+ std::vector<int> adc;
  std::string chamber_id;
  int eventNumber,evt,strip,misMatch,NChambers,Nddu;
  int i_chamber,i_layer,reportedChambers,fff,ret_code,length,chamber_num,sector,run;
@@ -165,6 +167,6 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
  float newMatrix10[480];
  float newMatrix11[480];
  float newMatrix12[480];
- 
+
  Chamber_AutoCorrMat cam[CHAMBERS];
 };

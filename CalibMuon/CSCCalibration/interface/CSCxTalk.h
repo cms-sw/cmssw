@@ -158,5 +158,5 @@ private:
   
   
 
-} binsConv;
+} ;
 
