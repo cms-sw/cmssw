@@ -42,32 +42,31 @@ reco::CombinedBTagInfo::~CombinedBTagInfo() {
 // map related
 //
 
-bool reco::CombinedBTagInfo::existTrackData(TrackRef trackRef) {
+bool reco::CombinedBTagInfo::existTrackData(reco::TrackRef trackRef) {
 
   bool returnValue = false;
 
-  std::map <TrackRef, reco::CombinedBTagInfo::TrackData>::const_iterator iter;
-
-  // try to find element
+  reco::CombinedBTagInfo::TrackDataAssociation::const_iterator iter;
   iter = reco::CombinedBTagInfo::trackDataMap_.find(trackRef);
-  if (iter != reco::CombinedBTagInfo::trackDataMap_.end())
+  if (iter != reco::CombinedBTagInfo::trackDataMap_.end()) {
     returnValue = true;
-
+  }
+  
   return returnValue;
 
 } // bool exitTrackData
 // -------------------------------------------------------------------------------
 
 void reco::CombinedBTagInfo::flushTrackData() {
-  reco::CombinedBTagInfo::trackDataMap_.clear();
+  // reco::CombinedBTagInfo::trackDataMap_.clear();
   
 } // void flushTrackData
 // -------------------------------------------------------------------------------
 
-void reco::CombinedBTagInfo::storeTrackData(TrackRef trackRef,
+void reco::CombinedBTagInfo::storeTrackData(reco::TrackRef trackRef,
 					    const reco::CombinedBTagInfo::TrackData& trackData) {
   
-  reco::CombinedBTagInfo::trackDataMap_[trackRef] = trackData;
+  reco::CombinedBTagInfo::trackDataMap_.insert(trackRef, trackData);
 
 } //void storeTrackData
 // -------------------------------------------------------------------------------
@@ -81,29 +80,40 @@ int reco::CombinedBTagInfo::sizeTrackData() {
 } // int sizeTrackData
 // -------------------------------------------------------------------------------
 
-reco::CombinedBTagInfo::TrackData* reco::CombinedBTagInfo::getTrackData(TrackRef trackRef) {
+const reco::CombinedBTagInfo::TrackData* reco::CombinedBTagInfo::getTrackData(reco::TrackRef trackRef) {
 
-  std::map <TrackRef, reco::CombinedBTagInfo::TrackData>::const_iterator iter;
+ reco::CombinedBTagInfo::TrackDataAssociation::const_iterator iter;
 
-  // try to find element
-  iter = reco::CombinedBTagInfo::trackDataMap_.find(trackRef);
+ iter = reco::CombinedBTagInfo::trackDataMap_.find(trackRef);
 
-  if (iter != reco::CombinedBTagInfo::trackDataMap_.end()) {
+ if (iter != reco::CombinedBTagInfo::trackDataMap_.end()) {
 
-    // found element
-    return &reco::CombinedBTagInfo::trackDataMap_[trackRef];
+   return &(iter->val);
 
-  } else {
-    
-    // element not found
-    return 0;
+ } else {
 
-  } //if iter != end
+   return 0;
+
+ } //if iter != end
 
 } // TrackData* getTrackData
 // -------------------------------------------------------------------------------
+void reco::CombinedBTagInfo::printTrackData() {
+
+  reco::CombinedBTagInfo::TrackDataAssociation::const_iterator mapIter;
+  reco::CombinedBTagInfo::TrackDataAssociation::const_iterator mapBegin = reco::CombinedBTagInfo::trackDataMap_.begin();
+  reco::CombinedBTagInfo::TrackDataAssociation::const_iterator mapEnd   = reco::CombinedBTagInfo::trackDataMap_.end();
+
+  for (mapIter = mapBegin; mapIter != mapEnd; mapIter++) {
+
+    const reco::CombinedBTagInfo::TrackData& trackData = mapIter->val;
+    trackData.print();
 
 
+  } // for mapIter
+  
+} // void printTrackData
+// -------------------------------------------------------------------------------
 
 bool reco::CombinedBTagInfo::existVertexData(std::vector<reco::Vertex>::const_iterator vertexRef) {
 
