@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalDb.cc
  * 
- * $Date: 2006/06/07 10:42:06 $
- * $Revision: 1.5 $
+ * $Date: 2006/06/07 10:59:26 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -75,7 +75,7 @@ void EBPedestalDb::analyze(const Event& e, const EventSetup& c, DaqMonitorBEInte
 
       mePed01_->Fill(xmean01);
 
-      cout << xmean01 << endl;
+//      cout << xmean01 << endl;
 
     }
 
