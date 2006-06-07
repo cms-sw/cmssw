@@ -419,7 +419,7 @@ namespace edm
     ++total_events_;
     RunStopwatch stopwatch(stopwatch_);
     this->resetAll();
-    CurrentProcessingContext moduleContext;
+    //CurrentProcessingContext moduleContext;
     state_ = Running;
     this->setupOnDemandSystem(ep, es);
     try 
@@ -429,14 +429,17 @@ namespace edm
 	// go through normal paths and check only trigger paths for accept
 	bool result = false;
 	int which_one = 0;
-	TrigPaths::iterator ti(trig_paths_.begin()),te(trig_paths_.end());
-	for(;ti!=te;++ti) {
-	  ti->runOneEvent(ep,es);
-	  if (trig_name_set_.find(ti->name())!=trig_name_set_.end()) {
-	    result = result || ((*results_)[which_one]).accept();
-	    ++which_one;
+	for (TrigPaths::iterator ti = trig_paths_.begin(), te = trig_paths_.end();
+	     ti != te;
+	     ++ti)
+	  {
+	    ti->runOneEvent(ep,es);
+	    if (trig_name_set_.find(ti->name()) != trig_name_set_.end()) 
+	      {
+		result = result || ((*results_)[which_one]).accept();
+		++which_one;
+	      }
 	  }
-	}
 	
 	if(result) ++total_passed_;
 	state_ = Latched;
@@ -445,10 +448,8 @@ namespace edm
 	
 	// go through end paths next.  Note there is no state-checking
 	// safety controlling the activation/deactivation of endpaths.
-	if (endpathsAreActive_) {
-	  TrigPaths::iterator ei(end_paths_.begin()),ee(end_paths_.end());
-	  for( ; ei != ee; ++ei) { ei->runOneEvent(ep,es); }
-	}
+
+	if (endpathsAreActive_) runEndPaths(ep,es);
       }
     catch(cms::Exception& e) {
       actions::ActionCodes code = act_table_->find(e.rootCause());
@@ -883,5 +884,14 @@ namespace edm
 	auto_ptr<Group> theGroup(new Group(prov));
 	ep.addGroup(theGroup);
       }
+  }
+
+  void
+  Schedule::runEndPaths(EventPrincipal& ep, EventSetup const& es)
+  {
+    typedef TrigPaths::iterator iter;
+
+    for (iter i = end_paths_.begin(), e = end_paths_.end(); i != e; ++i) 
+      i->runOneEvent(ep,es);
   }
 }

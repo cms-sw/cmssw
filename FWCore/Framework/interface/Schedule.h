@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.12 2006/05/26 15:58:12 paterno Exp $
+  $Id: Schedule.h,v 1.13 2006/06/07 19:20:57 paterno Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -203,6 +203,7 @@ namespace edm
     { return all_workers_.end(); }
 
     void resetAll();
+    void runEndPaths(EventPrincipal&, EventSetup const&);
 
     void setupOnDemandSystem(EventPrincipal& ep, EventSetup const& es);
 
