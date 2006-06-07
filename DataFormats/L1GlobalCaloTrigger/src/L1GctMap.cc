@@ -31,12 +31,22 @@ unsigned rctPhi(L1GctRegion r) {
 
 }
 
+/// get global eta index
+unsigned eta(L1GctRegion r) {
+
+}
+
+/// get global phi index 
+unsigned phi(L1GctRegion r) {
+
+}
+
 /// get physical eta 
 double eta(L1GctRegion r) {
 
 }
 
-/// get physical eta 
+/// get physical phi
 double phi(L1GctRegion r) {
 
 }

@@ -27,6 +27,12 @@ class L1GctMap {
   /// get the phi index within an RCT crate
   unsigned rctPhi(L1GctRegion r);
 
+  /// get the global eta index
+  unsigned eta(L1GctRegion r);
+
+  /// get the global phi index
+  unsigned phi(L1GctRegion r);
+
   /// get physical eta 
   double eta(L1GctRegion r);
 

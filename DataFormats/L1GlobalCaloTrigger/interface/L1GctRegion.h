@@ -18,6 +18,9 @@ public:
   ~L1GctRegion();
   
   // region position //
+
+  /// get Region unique ID
+  int id() const { return m_id; }
   
   /// get eta index (0-21) of the region
   int eta() const { return m_eta; }
@@ -26,7 +29,7 @@ public:
   int phi() const { return m_phi; }
 
   /// get RCT crate index (0-17)
-  int rctCrate() const { return m_rctCrate; }
+  int rctCrate() const { return L1GctMap::getMap()->rctCrate(*this); }
 
   // get region data //
 
@@ -61,10 +64,12 @@ public:
 
 private:
 
+  // region ID
+  unsigned m_id;
+  
   // position indices
   unsigned m_eta;
   unsigned m_phi;
-  unsigned m_rctCrate;
 
   // region data : et, overflow, tau veto, mip and quiet bits
   uint16_t m_data;
